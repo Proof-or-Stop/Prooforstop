@@ -1,0 +1,14 @@
+{
+  "cases": [
+    {
+      "name": "generates NAV.md and returns content",
+      "input": {},
+      "expect": { "pattern": "导航" }
+    },
+    {
+      "name": "output contains links to requirement files",
+      "input": {},
+      "expect": { "pattern": ".md" }
+    }
+  ]
+}

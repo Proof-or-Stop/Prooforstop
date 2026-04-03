@@ -1,0 +1,40 @@
+{
+  "cases": [
+    {
+      "name": "prereq: create story",
+      "fn": "story_create",
+      "input": {
+        "name": "t",
+        "title": "T",
+        "description": "t",
+        "type": "feature",
+        "priority": "high"
+      },
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "advance IDEA to PLAN with checklist",
+      "input": {
+        "storyId": "$prev.storyId",
+        "phase": "PLAN",
+        "checklist": [
+          { "id": "CHK-001", "title": "First item" },
+          { "id": "CHK-002", "title": "Second item" }
+        ]
+      },
+      "expect": {
+        "pattern": "advanced to PLAN"
+      }
+    },
+    {
+      "name": "advance to invalid phase throws",
+      "input": {
+        "storyId": "$prev.storyId",
+        "phase": "NONEXISTENT"
+      },
+      "throws": "Invalid target phase"
+    }
+  ]
+}

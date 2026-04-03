@@ -1,0 +1,14 @@
+{
+  "cases": [
+    {
+      "name": "throws when compiled file does not exist",
+      "input": [
+        "/nonexistent/root",
+        "src/tasks/nonexistent.ts",
+        "someFunc",
+        {}
+      ],
+      "throws": "Compiled file not found"
+    }
+  ]
+}

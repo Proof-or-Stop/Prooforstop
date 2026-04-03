@@ -1,0 +1,50 @@
+{
+  "cases": [
+    {
+      "name": "prereq: create story",
+      "fn": "story_create",
+      "input": {
+        "name": "t",
+        "title": "Bug Report Test",
+        "description": "t",
+        "type": "feature",
+        "priority": "high"
+      },
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "report a new bug without checklistId",
+      "input": {
+        "storyId": "$prev.storyId",
+        "id": "BUG-001",
+        "title": "Login button does not respond on mobile"
+      },
+      "expect": {
+        "pattern": "Bug BUG-001 reported"
+      }
+    },
+    {
+      "name": "report a new bug with checklistId",
+      "input": {
+        "storyId": "$prev.storyId",
+        "id": "BUG-002",
+        "title": "Form validation skipped on submit",
+        "checklistId": "CHK-003"
+      },
+      "expect": {
+        "pattern": "Bug BUG-002 reported"
+      }
+    },
+    {
+      "name": "report duplicate bug id throws error",
+      "input": {
+        "storyId": "$prev.storyId",
+        "id": "BUG-001",
+        "title": "Duplicate bug"
+      },
+      "throws": "BUG-001 already exists"
+    }
+  ]
+}

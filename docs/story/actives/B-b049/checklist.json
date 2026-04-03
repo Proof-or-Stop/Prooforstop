@@ -1,0 +1,75 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "TestCase 类型新增 setup 可选字段",
+      "context": "根因：fixture case 无法声明需要的前置状态，只能靠 wrapper 硬编码 ensureStory。setup 字段让 case 声明式指定需要预创建的 story/bug/checklist 等",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-02T03:27:20.084Z"
+    },
+    {
+      "id": "CHK-002",
+      "title": "executeTestCases 识别 setup 字段，执行前自动预设状态",
+      "context": "根因：状态预设逻辑应在 test executor 层统一处理，不是 wrapper 的职责。executor 读 setup 后调用 store API 创建数据",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-02T03:27:20.617Z"
+    },
+    {
+      "id": "CHK-003",
+      "title": "wrapper _setup.js 去掉 ensureStory/ensureBug/ensureTestEvidence",
+      "context": "根因：wrapper 应只做桥接（class 方法 → 独立函数），不管状态。去掉后 wrapper 变成纯函数转发",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-02T03:27:21.016Z"
+    },
+    {
+      "id": "CHK-004",
+      "title": "所有 handler wrapper 移除 ensureStory 调用，改为纯桥接",
+      "context": "根因：story.js/bug.js/checklist.js 等 wrapper 都在函数体内调用 ensureStory，导致每次调用都预创建数据，throws case 永远不触发",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-02T03:27:21.908Z"
+    },
+    {
+      "id": "CHK-005",
+      "title": "修复 koala 自身 fixture：throws case 用不存在的 ID，正常 case 用 setup 预设",
+      "context": "根因：12 个 FAIL 里 4 个是 throws 不触发（数据被预创建），3 个是状态冲突（模块级 store 状态泄漏）",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-02T03:27:22.252Z"
+    },
+    {
+      "id": "CHK-006",
+      "title": "test-fixture-spec.md 补充 setup 字段说明",
+      "context": "根因：文档缺失 setup 用法，Claude 不知道怎么用",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-02T03:27:23.397Z"
+    },
+    {
+      "id": "CHK-007",
+      "title": "抽取 validateFixtureCase() 共用校验函数，fixture_update 写入时调用拒绝不合格 case",
+      "context": "根因：校验逻辑应共用一套。validateFixtureCase 检查 pattern 正则合法性、throws 类型、setup 格式、非标准字段。fixture_update 调用它写入时拦截，test_auto 调用它执行前预扫",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-02T03:27:23.793Z"
+    },
+    {
+      "id": "CHK-008",
+      "title": "test_auto 执行前用 validateFixtureCase() 预扫所有 fixture，格式问题报 warning 不执行",
+      "context": "根因：复用 CHK-007 的共用校验函数。test_auto 加载 fixture 后先跑一遍 validateFixtureCase，不合格的 case 报 warning 跳过，不混在业务失败里",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-02T03:27:24.230Z"
+    },
+    {
+      "id": "CHK-009",
+      "title": "验收：test_auto(full=true) FAIL 降到 0（test_auto SKIP 和 checkDrift 预存 bug 除外）",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-02T03:27:24.563Z"
+    }
+  ]
+}

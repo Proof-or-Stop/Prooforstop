@@ -1,0 +1,51 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "新增 task_annotate MCP 工具：按 sourceFile + functionName 定位，写入 @task 注释块",
+      "context": "定位策略：用现有 parseFunctionAfterBlock 正则匹配。多匹配时返回候选列表（附行号+上下文），0 匹配报错。工具负责格式、缩进、字段完整性",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-02T03:37:22.095Z"
+    },
+    {
+      "id": "CHK-002",
+      "title": "task_annotate 写入后自动调用 task_validate 校验：注释块和紧跟函数是否匹配",
+      "context": "根因：正则定位 99% 准确但不完美。写入后立即校验，不匹配就报错回退，让 Claude 手动修正。避免静默写入错误位置",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-02T03:37:22.429Z"
+    },
+    {
+      "id": "CHK-003",
+      "title": "task_annotate 支持 update 模式：更新已有 @task 块的字段（如追加 @changes、更新 @test）",
+      "context": "根因：开发过程中经常需要给已有注释追加 @changes 行或加 @test。目前手动编辑容易破坏格式",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-02T03:37:23.324Z"
+    },
+    {
+      "id": "CHK-004",
+      "title": "同名函数冲突处理：多匹配时返回候选列表，不自动选择",
+      "context": "根因：同文件内 class A.process 和 class B.process 两个同名方法，正则无法区分。返回行号+上下文让 Claude 指定 lineHint 参数",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-02T03:37:24.301Z"
+    },
+    {
+      "id": "CHK-005",
+      "title": "CLAUDE.md 规则：@task 注释通过 task_annotate 工具管理，禁止手写注释块",
+      "context": "根因：与 fixture/story 同等约束。工具保证格式正确，手写容易出错且不经校验",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-02T03:37:24.312Z"
+    },
+    {
+      "id": "CHK-006",
+      "title": "编译验证 + 在 koala 项目上实测 task_annotate 写入和更新",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-02T03:37:24.722Z"
+    }
+  ]
+}

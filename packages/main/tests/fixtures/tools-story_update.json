@@ -1,0 +1,39 @@
+{
+  "cases": [
+    {
+      "name": "prereq: create story",
+      "fn": "story_create",
+      "input": {
+        "name": "t",
+        "title": "Update Test",
+        "description": "t",
+        "type": "feature",
+        "priority": "high"
+      },
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "update story title",
+      "input": {
+        "storyId": "$prev.storyId",
+        "title": "Updated Title"
+      },
+      "expect": {
+        "pattern": "updated"
+      }
+    },
+    {
+      "name": "update story description and priority",
+      "input": {
+        "storyId": "$prev.storyId",
+        "description": "New description text",
+        "priority": "high"
+      },
+      "expect": {
+        "pattern": "updated"
+      }
+    }
+  ]
+}

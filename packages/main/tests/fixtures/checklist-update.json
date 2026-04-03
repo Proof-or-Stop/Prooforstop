@@ -1,0 +1,75 @@
+{
+  "cases": [
+    {
+      "name": "prereq: create story",
+      "fn": "story_create",
+      "input": {
+        "name": "t",
+        "title": "Checklist Update Test",
+        "description": "t",
+        "type": "feature",
+        "priority": "high"
+      },
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "prereq: advance to PLAN with checklist",
+      "fn": "story_advance",
+      "input": {
+        "storyId": "$prev.storyId",
+        "phase": "PLAN",
+        "checklist": [
+          { "id": "CHK-001", "title": "First item" },
+          { "id": "CHK-002", "title": "Second item" }
+        ]
+      },
+      "expect": {
+        "pattern": "advanced to PLAN"
+      }
+    },
+    {
+      "name": "prereq: advance to DEV",
+      "fn": "story_advance",
+      "input": {
+        "storyId": "$prev.storyId",
+        "phase": "DEV"
+      },
+      "expect": {
+        "pattern": "advanced to DEV"
+      }
+    },
+    {
+      "name": "update checklist item to in_progress",
+      "input": {
+        "storyId": "$prev.storyId",
+        "itemId": "CHK-001",
+        "status": "in_progress"
+      },
+      "expect": {
+        "pattern": "CHK-001 updated to in_progress"
+      }
+    },
+    {
+      "name": "update checklist item to done",
+      "input": {
+        "storyId": "$prev.storyId",
+        "itemId": "CHK-001",
+        "status": "done"
+      },
+      "expect": {
+        "pattern": "CHK-001 updated to done"
+      }
+    },
+    {
+      "name": "update nonexistent item throws",
+      "input": {
+        "storyId": "$prev.storyId",
+        "itemId": "CHK-999",
+        "status": "done"
+      },
+      "throws": "CHK-999 not found"
+    }
+  ]
+}

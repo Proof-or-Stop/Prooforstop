@@ -1,0 +1,135 @@
+{
+  "cases": [
+    {
+      "name": "valid complete flow passes",
+      "input": [
+        [
+          {
+            "name": "valid-flow",
+            "steps": [
+              { "flow": "valid-flow", "step": 1, "next": "step2", "functionName": "step1", "sourceFile": "t.ts", "sourceLine": 1 },
+              { "flow": "valid-flow", "step": 2, "functionName": "step2", "sourceFile": "t.ts", "sourceLine": 10 }
+            ],
+            "complete": true
+          }
+        ],
+        [
+          { "task": "T-1", "functionName": "step1", "sourceFile": "t.ts", "sourceLine": 1, "test": "dummy" },
+          { "task": "T-1", "functionName": "step2", "sourceFile": "t.ts", "sourceLine": 10, "test": "dummy" }
+        ]
+      ],
+      "expect": { "passed": true }
+    },
+    {
+      "name": "missing @next target reports error",
+      "input": [
+        [
+          {
+            "name": "broken-flow",
+            "steps": [
+              { "flow": "broken-flow", "step": 1, "next": "nonExistent", "functionName": "step1", "sourceFile": "t.ts", "sourceLine": 1 },
+              { "flow": "broken-flow", "step": 2, "functionName": "step2", "sourceFile": "t.ts", "sourceLine": 10 }
+            ],
+            "complete": true
+          }
+        ],
+        [
+          { "task": "T-1", "functionName": "step1", "sourceFile": "t.ts", "sourceLine": 1, "test": "dummy" },
+          { "task": "T-1", "functionName": "step2", "sourceFile": "t.ts", "sourceLine": 10, "test": "dummy" }
+        ]
+      ],
+      "expect": { "passed": false }
+    },
+    {
+      "name": "non-continuous steps reports error",
+      "input": [
+        [
+          {
+            "name": "gap-flow",
+            "steps": [
+              { "flow": "gap-flow", "step": 1, "next": "step3", "functionName": "step1", "sourceFile": "t.ts", "sourceLine": 1 },
+              { "flow": "gap-flow", "step": 3, "functionName": "step3", "sourceFile": "t.ts", "sourceLine": 10 }
+            ],
+            "complete": true
+          }
+        ],
+        [
+          { "task": "T-1", "functionName": "step1", "sourceFile": "t.ts", "sourceLine": 1, "test": "dummy" },
+          { "task": "T-1", "functionName": "step3", "sourceFile": "t.ts", "sourceLine": 10, "test": "dummy" }
+        ]
+      ],
+      "expect": { "passed": false }
+    },
+    {
+      "name": "empty chains array passes",
+      "input": [[], []],
+      "expect": { "passed": true }
+    },
+    {
+      "name": "chain with zero steps is skipped",
+      "input": [
+        [{ "name": "empty-chain", "steps": [], "complete": false }],
+        []
+      ],
+      "expect": { "passed": true }
+    },
+    {
+      "name": "last step with @next reports warn only (still passes)",
+      "input": [
+        [
+          {
+            "name": "trail-next",
+            "steps": [
+              { "flow": "trail-next", "step": 1, "next": "step2", "functionName": "step1", "sourceFile": "t.ts", "sourceLine": 1 },
+              { "flow": "trail-next", "step": 2, "next": "step3", "functionName": "step2", "sourceFile": "t.ts", "sourceLine": 10 }
+            ],
+            "complete": true
+          }
+        ],
+        [
+          { "task": "T-1", "functionName": "step1", "sourceFile": "t.ts", "sourceLine": 1, "test": "d" },
+          { "task": "T-1", "functionName": "step2", "sourceFile": "t.ts", "sourceLine": 10, "test": "d" }
+        ]
+      ],
+      "expect": { "passed": true }
+    },
+    {
+      "name": "duplicate step numbers reports error",
+      "input": [
+        [
+          {
+            "name": "dup-flow",
+            "steps": [
+              { "flow": "dup-flow", "step": 1, "next": "step2", "functionName": "step1", "sourceFile": "t.ts", "sourceLine": 1 },
+              { "flow": "dup-flow", "step": 1, "functionName": "step2", "sourceFile": "t.ts", "sourceLine": 10 }
+            ],
+            "complete": false
+          }
+        ],
+        [
+          { "task": "T-1", "functionName": "step1", "sourceFile": "t.ts", "sourceLine": 1, "test": "d" },
+          { "task": "T-1", "functionName": "step2", "sourceFile": "t.ts", "sourceLine": 10, "test": "d" }
+        ]
+      ],
+      "expect": { "passed": false }
+    },
+    {
+      "name": "step not starting at 1 reports error",
+      "input": [
+        [
+          {
+            "name": "no-start",
+            "steps": [
+              { "flow": "no-start", "step": 2, "functionName": "step2", "sourceFile": "t.ts", "sourceLine": 1 }
+            ],
+            "complete": false
+          }
+        ],
+        [
+          { "task": "T-1", "functionName": "step2", "sourceFile": "t.ts", "sourceLine": 1, "test": "d" }
+        ]
+      ],
+      "expect": { "passed": false }
+    }
+  ]
+}

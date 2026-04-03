@@ -1,0 +1,115 @@
+{
+  "cases": [
+    {
+      "name": "初始状态显示黑棋落子",
+      "browser": true,
+      "steps": [
+        { "action": "assert", "selector": "#status", "contains": "黑棋" },
+        { "action": "screenshot", "saveTo": "initial-state.png" }
+      ]
+    },
+    {
+      "name": "点击棋盘中心落子后切换到白棋",
+      "browser": true,
+      "steps": [
+        { "action": "eval", "code": "document.getElementById('restart').click()" },
+        { "action": "eval", "code": "(() => { const c = document.getElementById('board'); const r = c.getBoundingClientRect(); const click = (row,col) => c.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: r.left+30+col*40, clientY: r.top+30+row*40 })); click(7,7); return 'clicked 7,7'; })()" },
+        { "action": "assert", "selector": "#status", "contains": "白棋" },
+        { "action": "screenshot", "saveTo": "after-first-move.png" }
+      ]
+    },
+    {
+      "name": "连续落子5颗后胜利",
+      "browser": true,
+      "steps": [
+        { "action": "eval", "code": "document.getElementById('restart').click()" },
+        { "action": "eval", "code": "(() => { const c = document.getElementById('board'); const r = c.getBoundingClientRect(); const click = (row,col) => c.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: r.left+30+col*40, clientY: r.top+30+row*40 })); click(7,7); click(8,7); click(7,8); click(8,8); click(7,9); click(8,9); click(7,10); click(8,10); click(7,11); return 'placed 9 pieces'; })()" },
+        { "action": "assert", "selector": "#status", "contains": "获胜" },
+        { "action": "screenshot", "saveTo": "win-state.png" }
+      ]
+    },
+    {
+      "name": "悔棋后回到上一步状态",
+      "browser": true,
+      "steps": [
+        { "action": "eval", "code": "document.getElementById('restart').click()" },
+        { "action": "assert", "selector": "#status", "contains": "黑棋" },
+        { "action": "eval", "code": "(() => { const c = document.getElementById('board'); const r = c.getBoundingClientRect(); const click = (row,col) => c.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: r.left+30+col*40, clientY: r.top+30+row*40 })); click(7,7); return 'placed black at 7,7'; })()" },
+        { "action": "assert", "selector": "#status", "contains": "白棋" },
+        { "action": "eval", "code": "document.getElementById('undo').click()" },
+        { "action": "assert", "selector": "#status", "contains": "黑棋" },
+        { "action": "screenshot", "saveTo": "undo-single-move.png" }
+      ]
+    },
+    {
+      "name": "连续悔棋两步",
+      "browser": true,
+      "steps": [
+        { "action": "eval", "code": "document.getElementById('restart').click()" },
+        { "action": "eval", "code": "(() => { const c = document.getElementById('board'); const r = c.getBoundingClientRect(); const click = (row,col) => c.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: r.left+30+col*40, clientY: r.top+30+row*40 })); click(7,7); click(8,8); click(9,9); return 'placed 3 pieces'; })()" },
+        { "action": "assert", "selector": "#status", "contains": "白棋" },
+        { "action": "eval", "code": "document.getElementById('undo').click()" },
+        { "action": "assert", "selector": "#status", "contains": "黑棋" },
+        { "action": "eval", "code": "document.getElementById('undo').click()" },
+        { "action": "assert", "selector": "#status", "contains": "白棋" },
+        { "action": "screenshot", "saveTo": "undo-two-moves.png" }
+      ]
+    },
+    {
+      "name": "悔棋在空棋盘无效果",
+      "browser": true,
+      "steps": [
+        { "action": "eval", "code": "document.getElementById('restart').click()" },
+        { "action": "assert", "selector": "#status", "contains": "黑棋" },
+        { "action": "eval", "code": "document.getElementById('undo').click()" },
+        { "action": "assert", "selector": "#status", "contains": "黑棋" },
+        { "action": "screenshot", "saveTo": "undo-on-empty.png" }
+      ]
+    },
+    {
+      "name": "胜利后悔棋无效（gameOver 锁定）",
+      "browser": true,
+      "steps": [
+        { "action": "eval", "code": "document.getElementById('restart').click()" },
+        { "action": "eval", "code": "(() => { const c = document.getElementById('board'); const r = c.getBoundingClientRect(); const click = (row,col) => c.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: r.left+30+col*40, clientY: r.top+30+row*40 })); click(7,7); click(8,7); click(7,8); click(8,8); click(7,9); click(8,9); click(7,10); click(8,10); click(7,11); return 'black wins'; })()" },
+        { "action": "assert", "selector": "#status", "contains": "获胜" },
+        { "action": "eval", "code": "document.getElementById('undo').click()" },
+        { "action": "assert", "selector": "#status", "contains": "获胜" },
+        { "action": "screenshot", "saveTo": "undo-after-win.png" }
+      ]
+    },
+    {
+      "name": "悔棋按钮初始状态禁用",
+      "browser": true,
+      "steps": [
+        { "action": "eval", "code": "document.getElementById('restart').click()" },
+        { "action": "eval", "code": "document.getElementById('undo').disabled" },
+        { "action": "assert", "selector": "#undo", "attribute": "disabled", "exists": true },
+        { "action": "screenshot", "saveTo": "undo-btn-disabled-init.png" }
+      ]
+    },
+    {
+      "name": "落子后悔棋按钮启用",
+      "browser": true,
+      "steps": [
+        { "action": "eval", "code": "document.getElementById('restart').click()" },
+        { "action": "eval", "code": "(() => { const c = document.getElementById('board'); const r = c.getBoundingClientRect(); const click = (row,col) => c.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: r.left+30+col*40, clientY: r.top+30+row*40 })); click(7,7); return 'placed'; })()" },
+        { "action": "eval", "code": "document.getElementById('undo').disabled === false ? 'enabled' : 'disabled'" },
+        { "action": "assert", "selector": "#undo", "attribute": "disabled", "exists": false },
+        { "action": "screenshot", "saveTo": "undo-btn-enabled.png" }
+      ]
+    },
+    {
+      "name": "悔完所有棋后按钮再次禁用",
+      "browser": true,
+      "steps": [
+        { "action": "eval", "code": "document.getElementById('restart').click()" },
+        { "action": "eval", "code": "(() => { const c = document.getElementById('board'); const r = c.getBoundingClientRect(); const click = (row,col) => c.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: r.left+30+col*40, clientY: r.top+30+row*40 })); click(7,7); return 'placed'; })()" },
+        { "action": "eval", "code": "document.getElementById('undo').click()" },
+        { "action": "eval", "code": "document.getElementById('undo').disabled" },
+        { "action": "assert", "selector": "#undo", "attribute": "disabled", "exists": true },
+        { "action": "screenshot", "saveTo": "undo-btn-disabled-after-undo-all.png" }
+      ]
+    }
+  ]
+}

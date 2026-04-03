@@ -1,0 +1,51 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "test_auto 检测 language=python 时用 executePythonTestCases 替代 executeCases",
+      "context": "根因：现在 test_auto 只走 JS handlers + importAndExecute。需要读 config.language，python 时用 python-executor",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "test_auto 检测 cli case 时调用 executeCliCases",
+      "context": "根因：fixture 里 cli:true 的 case 现在被跳过。需要和 browser case 一样，扫描 fixture 中的 cli case 调用 executeCliCases",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "cli-executor 对 Python 命令自动加 PYTHONUNBUFFERED=1",
+      "context": "根因：Python 的 input() 在 pipe 模式下缓冲 stdout，导致 expect 超时。检测 command 含 python 时自动注入 env",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "python-rps 项目验收：test_auto 跑白盒 + CLI 真机",
+      "context": "通过 MCP test_auto({projectRoot}) 一个命令跑完 Python 白盒 fixture + CLI 交互测试",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "cli-guess-number 项目验收：test_auto 跑 JS 白盒 + CLI 真机",
+      "context": "确保 JS 项目不受影响，CLI case 也能被 test_auto 自动执行",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "skill.md 更新：说明 test_auto 支持 Python + CLI 真机",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

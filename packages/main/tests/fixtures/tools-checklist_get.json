@@ -1,0 +1,49 @@
+{
+  "cases": [
+    {
+      "name": "prereq: create story",
+      "fn": "story_create",
+      "input": {
+        "name": "t",
+        "title": "Checklist Test",
+        "description": "t",
+        "type": "feature",
+        "priority": "high"
+      },
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "prereq: advance to PLAN with checklist",
+      "fn": "story_advance",
+      "input": {
+        "storyId": "$prev.storyId",
+        "phase": "PLAN",
+        "checklist": [
+          { "id": "CHK-001", "title": "First item" },
+          { "id": "CHK-002", "title": "Second item" }
+        ]
+      },
+      "expect": {
+        "pattern": "advanced to PLAN"
+      }
+    },
+    {
+      "name": "get checklist for existing story returns items array",
+      "input": {
+        "storyId": "$prev.storyId"
+      },
+      "expect": {
+        "pattern": "items"
+      }
+    },
+    {
+      "name": "get checklist for nonexistent story throws error",
+      "input": {
+        "storyId": "NONEXIST-999"
+      },
+      "throws": "not found"
+    }
+  ]
+}

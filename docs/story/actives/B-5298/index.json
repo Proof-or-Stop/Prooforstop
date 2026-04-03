@@ -1,0 +1,35 @@
+{
+  "storyId": "B-5298",
+  "name": "test-runtime",
+  "title": "统一 test-runtime 方案：取消 wrapper/importAndExecute，通过项目初始化好的 handlers 对象直接调用",
+  "description": "当前 test_auto 通过 importAndExecute 冷启动 import 源码函数，class 方法找不到就 fallback 到 wrapper。wrapper 引入了 temp store 不共享、状态不延续等问题。根本原因：在没有启动项目的情况下试图调用需要初始化环境的函数。统一方案：所有项目提供一个 testRuntime 入口（导出 createTestHandlers），test_auto 加载后直接调用。koala 自身的 testRuntime 就是已有的 createToolHandlers。外部项目写一个 test-runtime.js 集中管理初始化。废弃 wrapper 目录和 importAndExecute 的 wrapper fallback。",
+  "type": "refactor",
+  "phase": "DEV",
+  "priority": "high",
+  "createdAt": "2026-04-02T07:19:39.325Z",
+  "startedAt": "2026-04-02T07:19:39.325Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "PLAN",
+      "action": "create",
+      "timestamp": "2026-04-02T07:19:39.325Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-02T07:20:23.491Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": "c:\\work\\koala\\.worktrees\\B-5298",
+    "branch": "story/B-5298",
+    "createdAt": "2026-04-02T07:20:23.753Z"
+  }
+}

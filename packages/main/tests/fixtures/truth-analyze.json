@@ -1,0 +1,14 @@
+{
+  "cases": [
+    {
+      "name": "analyze returns issues list",
+      "input": "$PROJECT_ROOT",
+      "expect": { "pattern": "healthy" }
+    },
+    {
+      "name": "healthy project has no critical issues",
+      "input": "$PROJECT_ROOT",
+      "expect": { "pattern": "healthy" }
+    }
+  ]
+}

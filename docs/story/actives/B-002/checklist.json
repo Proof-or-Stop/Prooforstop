@@ -1,0 +1,39 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "安装 xstate 依赖",
+      "status": "done",
+      "startTime": "2026-04-01T11:00:00.000Z",
+      "endTime": "2026-04-01T11:02:00.000Z"
+    },
+    {
+      "id": "CHK-002",
+      "title": "定义 Story 状态机（states + events + guards）",
+      "status": "done",
+      "startTime": "2026-04-01T11:02:00.000Z",
+      "endTime": "2026-04-01T11:15:00.000Z"
+    },
+    {
+      "id": "CHK-003",
+      "title": "实现 guards：checklistAllDone / hasTestEvidence / allBugsFixed",
+      "status": "done",
+      "startTime": "2026-04-01T11:02:00.000Z",
+      "endTime": "2026-04-01T11:15:00.000Z"
+    },
+    {
+      "id": "CHK-004",
+      "title": "替换 tools.ts 中的手动 if 判断，改用状态机驱动",
+      "status": "done",
+      "startTime": "2026-04-01T11:15:00.000Z",
+      "endTime": "2026-04-01T11:25:00.000Z"
+    },
+    {
+      "id": "CHK-005",
+      "title": "状态机持久化：从 index.json 恢复状态 + 跳转后写回",
+      "status": "done",
+      "startTime": "2026-04-01T11:15:00.000Z",
+      "endTime": "2026-04-01T11:25:00.000Z"
+    }
+  ]
+}

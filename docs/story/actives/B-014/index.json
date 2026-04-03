@@ -1,0 +1,46 @@
+{
+  "storyId": "B-014",
+  "name": "test-coverage",
+  "title": "补全测试覆盖：核心函数 @test 注释 + fixture + test_auto 全量验证",
+  "description": "37 个函数缺少 @test 注释，大部分 Story 缺少 test_auto 真机测试记录。按模块分批补充：1) 核心逻辑函数（machine/store/extract/gap-analyze）优先；2) MCP 工具函数（tools.ts）；3) 测试基础设施自身（test-executor/test-flow-e2e/test-fixture-gen）；4) 真相源模块（truth/truth-analyze）。每批添加 @test 注释、创建 fixture、运行 test_auto 验证。",
+  "type": "chore",
+  "phase": "DONE",
+  "priority": "高",
+  "createdAt": "2026-04-01T05:25:57.454Z",
+  "startedAt": "2026-04-01T05:25:57.454Z",
+  "endedAt": "2026-04-01T07:47:19.438Z",
+  "events": [
+    {
+      "phase": "PLAN",
+      "action": "create",
+      "timestamp": "2026-04-01T05:25:57.455Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-01T05:26:38.969Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-01T07:32:37.082Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-01T07:47:19.438Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    }
+  ]
+}

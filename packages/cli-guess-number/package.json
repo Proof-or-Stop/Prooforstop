@@ -1,0 +1,20 @@
+{
+  "name": "@koala-agent/cli-guess-number",
+  "version": "0.1.0",
+  "description": "CLI 猜数字游戏",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "guess-number": "dist/main.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/main.js"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.7.0"
+  }
+}

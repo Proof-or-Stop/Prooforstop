@@ -1,0 +1,42 @@
+{
+  "storyId": "B-012",
+  "title": "测试完整性：flow 端到端验证 + task_scan 健康检查 + gap 分层",
+  "description": "基于 decisions/testing-completeness.md 的四条决策，补齐测试体系盲区：1) task_scan 增加 @test 缺失检查，flow 函数无测试报 error；2) validateFlows 增加测试覆盖检查；3) gap_analyze 区分 flow/普通函数，severity 分层；4) test_auto 增加 flow 端到端回归测试（临时 sandbox 跑全链路）。",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "高",
+  "source": "用户需求 + decisions/testing-completeness.md",
+  "depends": [
+    "B-008",
+    "B-009"
+  ],
+  "createdAt": "2026-04-01T03:25:08.427Z",
+  "startedAt": "2026-04-01T03:25:08.427Z",
+  "endedAt": "2026-04-01T04:28:12.347Z",
+  "events": [
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-01T03:35:45.698Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-01T03:39:20.616Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-01T04:28:12.347Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    }
+  ]
+}

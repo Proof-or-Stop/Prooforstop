@@ -1,0 +1,35 @@
+{
+  "storyId": "B-0072",
+  "name": "python-support",
+  "title": "koala 支持 Python 项目：函数检测 + 白盒测试 + koala init 适配",
+  "description": "当前 koala 只支持 JS/TS 项目。Python 项目的 CLI 真机和浏览器真机测试已经通用（spawn 不限语言），但函数检测（task_annotate 用 TS AST）和白盒测试（importAndExecute 用 Node dynamic import）不支持 Python。需要新增 Python 函数检测（调用 python ast 模块或用正则）、Python 白盒测试执行（subprocess 跑 Python 脚本）、koala init 识别 Python 项目。",
+  "type": "feature",
+  "phase": "DEV",
+  "priority": "medium",
+  "createdAt": "2026-04-02T16:04:05.206Z",
+  "startedAt": "2026-04-02T16:04:05.206Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "PLAN",
+      "action": "create",
+      "timestamp": "2026-04-02T16:04:05.206Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-02T16:04:48.322Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": "c:\\work\\koala\\.worktrees\\B-0072",
+    "branch": "story/B-0072",
+    "createdAt": "2026-04-02T16:04:50.115Z"
+  }
+}

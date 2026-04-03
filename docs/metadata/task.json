@@ -1,0 +1,2337 @@
+{
+  "version": 1,
+  "updatedAt": "2026-04-02T10:36:35.640Z",
+  "tasks": [
+    {
+      "key": "src\\cli-init.ts",
+      "task": "ADHOC-002",
+      "checklist": [
+        "ADHOC-002"
+      ],
+      "title": "koala init 初始化命令",
+      "type": "feature",
+      "priority": "medium",
+      "description": "在目标项目中初始化 koala 开发框架：\n创建目录、生成 koala.config.json、复制 skill、生成 CLAUDE.md 和 .mcp.json。",
+      "changes": [
+        "- [ADHOC-002] 新增 cli-init.ts",
+        "/"
+      ],
+      "sourceFile": "src\\cli-init.ts",
+      "sourceLine": 2
+    },
+    {
+      "key": "src\\cli-init.ts:write",
+      "task": "B-1c75",
+      "checklist": [
+        "CHK-010"
+      ],
+      "title": "write 辅助函数",
+      "type": "chore",
+      "priority": "low",
+      "description": "写入文件到目标目录，已存在则跳过。",
+      "changes": [
+        "- [CHK-010] 补充缺失的 @task 注释",
+        "/"
+      ],
+      "sourceFile": "src\\cli-init.ts",
+      "sourceLine": 54,
+      "functionName": "write",
+      "functionSignature": "function write(relPath: string, content: string)"
+    },
+    {
+      "key": "src\\cli-init.ts",
+      "task": "S-001",
+      "checklist": [
+        "CHK-001（对应 checklist 项 ID，必填）"
+      ],
+      "title": "任务标题（一句话概括）",
+      "type": "feature|bugfix|refactor|chore",
+      "priority": "critical|high|medium|low",
+      "version": "版本/里程碑（可选）",
+      "scope": "file|module|function|block（可选）",
+      "depends": [
+        "S-000",
+        "S-002（可选，逗号分隔）"
+      ],
+      "author": "claude（可选）",
+      "date": "YYYY-MM-DD（可选）",
+      "description": "多行描述。",
+      "changes": [
+        "- [CHK-001] 具体变更项"
+      ],
+      "affected": [
+        "（可选）",
+        "- 影响的文件路径",
+        "/"
+      ],
+      "sourceFile": "src\\cli-init.ts",
+      "sourceLine": 152
+    },
+    {
+      "key": "src\\cli.ts",
+      "task": "ADHOC-003",
+      "checklist": [
+        "ADHOC-003"
+      ],
+      "title": "koala CLI 统一入口",
+      "type": "feature",
+      "priority": "high",
+      "description": "统一 CLI 入口：koala init / koala test / koala lint / koala serve",
+      "changes": [
+        "- [ADHOC-003] 新增 cli.ts",
+        "/"
+      ],
+      "sourceFile": "src\\cli.ts",
+      "sourceLine": 2
+    },
+    {
+      "key": "src\\config.ts",
+      "task": "B-018",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "koala.config.json 配置加载",
+      "type": "feature",
+      "priority": "high",
+      "description": "从项目根目录读取 koala.config.json，合并默认值。\n所有路径配置统一从此模块获取。",
+      "changes": [
+        "- [CHK-001] 新增 loadConfig / KoalaConfig 类型",
+        "/"
+      ],
+      "sourceFile": "src\\config.ts",
+      "sourceLine": 1
+    },
+    {
+      "key": "src\\index.ts",
+      "task": "B-001",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "项目入口文件",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "packages/main 入口，导出 LLM Provider 和 Story 工作流模块。",
+      "changes": [
+        "- [CHK-001] 新增 packages/main/src/index.ts",
+        "/"
+      ],
+      "sourceFile": "src\\index.ts",
+      "sourceLine": 1
+    },
+    {
+      "key": "src\\mcp\\handlers\\bug.ts",
+      "task": "B-007",
+      "checklist": [
+        "CHK-004"
+      ],
+      "title": "bug handlers 拆分",
+      "type": "refactor",
+      "priority": "low",
+      "description": "从 tools.ts 提取 bug_report / bug_update / bug_list handlers。",
+      "changes": [
+        "- [CHK-004] 提取到独立文件，无逻辑变更",
+        "/"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\bug.ts",
+      "sourceLine": 1
+    },
+    {
+      "key": "src\\mcp\\handlers\\bug.ts:bug_report",
+      "task": "B-007",
+      "checklist": [
+        "CHK-004"
+      ],
+      "title": "bug_report handler",
+      "type": "refactor",
+      "priority": "low",
+      "description": "报告 bug，可选关联 checklistId。",
+      "changes": [
+        "- [CHK-004] 重命名 bug_add → bug_report"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\bug.ts",
+      "sourceLine": 20,
+      "functionName": "bug_report",
+      "functionSignature": "bug_report(...)",
+      "test": "tools-bug_report"
+    },
+    {
+      "key": "src\\mcp\\handlers\\bug.ts:bug_update",
+      "task": "B-007",
+      "checklist": [
+        "CHK-004"
+      ],
+      "title": "bug_update handler",
+      "type": "refactor",
+      "priority": "low",
+      "description": "更新 bug 状态。",
+      "changes": [
+        "- [CHK-004] 无逻辑变更"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\bug.ts",
+      "sourceLine": 55,
+      "functionName": "bug_update",
+      "functionSignature": "bug_update(...)",
+      "test": "tools-bug_update"
+    },
+    {
+      "key": "src\\mcp\\handlers\\bug.ts:bug_list",
+      "task": "B-007",
+      "checklist": [
+        "CHK-004"
+      ],
+      "title": "bug_list handler",
+      "type": "refactor",
+      "priority": "low",
+      "description": "查看 bug 列表。",
+      "changes": [
+        "- [CHK-004] 无逻辑变更"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\bug.ts",
+      "sourceLine": 83,
+      "functionName": "bug_list",
+      "functionSignature": "bug_list(...)",
+      "test": "tools-bug_list"
+    },
+    {
+      "key": "src\\mcp\\handlers\\bug.ts:bug_analyze",
+      "task": "ADHOC-001",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "bug_analyze handler",
+      "type": "feature",
+      "priority": "high",
+      "description": "多源提取所有 bug，生成质量报告（bug 率、来源分布、严重性、Story 矩阵）。\n数据源：story type=bug、bug.json、test-evidence FAIL、checklist 修复项、git fix commit。",
+      "changes": [
+        "- [CHK-001] 新增 bug_analyze 工具",
+        "/"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\bug.ts",
+      "sourceLine": 99,
+      "functionName": "bug_analyze",
+      "functionSignature": "bug_analyze(...)"
+    },
+    {
+      "key": "src\\mcp\\handlers\\checklist.ts",
+      "task": "B-007",
+      "checklist": [
+        "CHK-004"
+      ],
+      "title": "checklist handlers 拆分",
+      "type": "refactor",
+      "priority": "low",
+      "description": "从 tools.ts 提取 checklist_get / checklist_update handlers。",
+      "changes": [
+        "- [CHK-004] 提取到独立文件，无逻辑变更",
+        "/"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\checklist.ts",
+      "sourceLine": 1
+    },
+    {
+      "key": "src\\mcp\\handlers\\checklist.ts:checklist_get",
+      "task": "B-007",
+      "checklist": [
+        "CHK-004"
+      ],
+      "title": "checklist_get handler",
+      "type": "refactor",
+      "priority": "low",
+      "description": "读取 Story 的 checklist。",
+      "changes": [
+        "- [CHK-004] 无逻辑变更"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\checklist.ts",
+      "sourceLine": 18,
+      "functionName": "checklist_get",
+      "functionSignature": "checklist_get(...)",
+      "test": "tools-checklist_get"
+    },
+    {
+      "key": "src\\mcp\\handlers\\checklist.ts",
+      "task": "B-007",
+      "checklist": [
+        "CHK-004"
+      ],
+      "title": "checklist_update handler",
+      "type": "refactor",
+      "priority": "low",
+      "description": "更新 checklist 项状态，自动记录时间戳。",
+      "changes": [
+        "- [CHK-004] 无逻辑变更"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\checklist.ts",
+      "sourceLine": 34,
+      "test": "checklist-update",
+      "flow": {
+        "name": "story-lifecycle",
+        "step": 3,
+        "input": "{ storyId, itemId, status }",
+        "output": "Checklist {itemId} updated",
+        "next": "task_coverage"
+      }
+    },
+    {
+      "key": "src\\mcp\\handlers\\checklist.ts:checklist_update",
+      "task": "B-755e",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "checklist_update handler — 修改时写审计日志",
+      "type": "feature",
+      "priority": "medium",
+      "description": "更新 checklist 项状态，修改操作写入 auditLog（reason 必填，agent 可选）。",
+      "changes": [
+        "- [CHK-001] 修改操作写入 auditLog"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\checklist.ts",
+      "sourceLine": 51,
+      "functionName": "checklist_update",
+      "functionSignature": "checklist_update(...)",
+      "test": "checklist-update",
+      "flow": {
+        "name": "story-lifecycle",
+        "step": 3,
+        "input": "{ storyId, itemId, status }",
+        "output": "Checklist {itemId} updated",
+        "next": "task_coverage"
+      }
+    },
+    {
+      "key": "src\\mcp\\handlers\\context.ts",
+      "task": "B-016",
+      "checklist": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "title": "Handler 公共上下文和工具函数 + 随机 Story ID 生成",
+      "type": "feature",
+      "priority": "high",
+      "description": "Handler 拆分后的公共依赖：HandlerContext 类型、collectContext、nextStoryId。\nnextStoryId 改为随机 4 位 hex 短 ID（如 B-a3f7），避免多分支并发冲突。\n前缀可配置（默认 B）。",
+      "changes": [
+        "- [CHK-001] nextStoryId 改为随机短 ID，保证不与已有重复",
+        "- [CHK-002] 支持 prefix 参数，默认 B",
+        "/"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\context.ts",
+      "sourceLine": 1
+    },
+    {
+      "key": "src\\mcp\\handlers\\fixture.ts",
+      "task": "B-99cb",
+      "checklist": [
+        "CHK-012",
+        "CHK-013",
+        "CHK-014"
+      ],
+      "title": "Fixture MCP 工具：fixture_get / fixture_update / fixture_gen",
+      "type": "feature",
+      "priority": "high",
+      "description": "fixture 文件的 CRUD 通过 MCP 工具管理，禁止手写 JSON。",
+      "changes": [
+        "- [CHK-012] fixture_get 读取 cases",
+        "- [CHK-013] fixture_update 增删改 case",
+        "- [CHK-014] fixture_gen 自动生成基础 cases",
+        "/"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\fixture.ts",
+      "sourceLine": 1
+    },
+    {
+      "key": "src\\mcp\\handlers\\fixture.ts",
+      "task": "B-b049",
+      "checklist": [
+        "CHK-007"
+      ],
+      "title": "共用 fixture case 校验函数",
+      "type": "feature",
+      "priority": "high",
+      "description": "校验 fixture case 格式，fixture_update 写入时拦截，test_auto 执行前预扫。",
+      "changes": [
+        "- [CHK-007] 新增 validateFixtureCase",
+        "/"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\fixture.ts",
+      "sourceLine": 22
+    },
+    {
+      "key": "src\\mcp\\handlers\\fixture.ts:fixture_get",
+      "task": "B-99cb",
+      "checklist": [
+        "CHK-012"
+      ],
+      "title": "fixture_get：读取 fixture cases",
+      "type": "feature",
+      "priority": "high",
+      "description": "读取指定 fixture 的 cases 列表。",
+      "changes": [
+        "- [CHK-012] 新增 fixture_get",
+        "/"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\fixture.ts",
+      "sourceLine": 93,
+      "functionName": "fixture_get",
+      "functionSignature": "fixture_get(...)"
+    },
+    {
+      "key": "src\\mcp\\handlers\\fixture.ts:fixture_update",
+      "task": "B-99cb",
+      "checklist": [
+        "CHK-013"
+      ],
+      "title": "fixture_update：增删改 case",
+      "type": "feature",
+      "priority": "high",
+      "description": "按 name 定位 case，支持 add/update/delete 操作。",
+      "changes": [
+        "- [CHK-013] 新增 fixture_update",
+        "/"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\fixture.ts",
+      "sourceLine": 114,
+      "functionName": "fixture_update",
+      "functionSignature": "fixture_update(...)"
+    },
+    {
+      "key": "src\\mcp\\handlers\\fixture.ts:fixture_gen",
+      "task": "B-99cb",
+      "checklist": [
+        "CHK-014"
+      ],
+      "title": "fixture_gen：根据函数签名自动生成基础 cases",
+      "type": "feature",
+      "priority": "high",
+      "description": "扫描函数签名，自动生成正常调用 + 缺参 + 边界值的 case 模板。",
+      "changes": [
+        "- [CHK-014] 新增 fixture_gen",
+        "/"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\fixture.ts",
+      "sourceLine": 172,
+      "functionName": "fixture_gen",
+      "functionSignature": "fixture_gen(...)"
+    },
+    {
+      "key": "src\\mcp\\handlers\\flow.ts:flow_trace",
+      "task": "B-008",
+      "checklist": [
+        "CHK-004"
+      ],
+      "title": "flow_trace handler",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "按 flow name 输出完整业务流转链路，包含每一步的函数、输入输出、源码位置。\n同时运行 @flow 校验，附带问题列表。",
+      "changes": [
+        "- [CHK-004] 新增 flow_trace handler"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\flow.ts",
+      "sourceLine": 10,
+      "functionName": "flow_trace",
+      "functionSignature": "flow_trace(...)",
+      "test": "tools-flow_trace"
+    },
+    {
+      "key": "src\\mcp\\handlers\\flow.ts:flow_list",
+      "task": "B-008",
+      "checklist": [
+        "CHK-004"
+      ],
+      "title": "flow_list handler",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "列出所有 @flow 链路概要：名称、步骤数、是否完整、校验状态。",
+      "changes": [
+        "- [CHK-004] 新增 flow_list handler"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\flow.ts",
+      "sourceLine": 36,
+      "functionName": "flow_list",
+      "functionSignature": "flow_list(...)",
+      "test": "tools-flow_list"
+    },
+    {
+      "key": "src\\mcp\\handlers\\gap.ts:gap_analyze",
+      "task": "B-009",
+      "checklist": [
+        "CHK-008"
+      ],
+      "title": "gap_analyze handler",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "对比真相源 vs 代码现实，输出差距报告。",
+      "changes": [
+        "- [CHK-008] 新增 gap_analyze handler"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\gap.ts",
+      "sourceLine": 7,
+      "functionName": "gap_analyze",
+      "functionSignature": "gap_analyze(...)",
+      "test": "gap-analyze",
+      "flow": {
+        "name": "gap-convergence",
+        "step": 3,
+        "input": "(none)",
+        "output": "GapResult { truthEntries, gaps, coveragePercent, healthy }",
+        "next": "convergence_check"
+      }
+    },
+    {
+      "key": "src\\mcp\\handlers\\gap.ts:convergence_check",
+      "task": "B-009",
+      "checklist": [
+        "CHK-009"
+      ],
+      "title": "convergence_check handler",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "判断项目是否收敛。",
+      "changes": [
+        "- [CHK-009] 新增 convergence_check handler"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\gap.ts",
+      "sourceLine": 29,
+      "functionName": "convergence_check",
+      "functionSignature": "convergence_check(...)",
+      "test": "convergence-check",
+      "flow": {
+        "name": "gap-convergence",
+        "step": 4,
+        "input": "(none)",
+        "output": "ConvergenceResult { converged, reasons }"
+      }
+    },
+    {
+      "key": "src\\mcp\\handlers\\story.ts",
+      "task": "B-017",
+      "checklist": [
+        "CHK-004"
+      ],
+      "title": "Story handler 拆分",
+      "type": "refactor",
+      "priority": "high",
+      "description": "从 tools.ts 提取 5 个 Story handler 到独立文件。",
+      "changes": [
+        "- [CHK-004] 提取 story_create/advance/update/get/list 到 handlers/story.ts"
+      ],
+      "affected": [
+        "- packages/main/src/mcp/tools.ts",
+        "/"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\story.ts",
+      "sourceLine": 1
+    },
+    {
+      "key": "src\\mcp\\handlers\\story.ts:story_create",
+      "task": "B-007",
+      "checklist": [
+        "CHK-004"
+      ],
+      "title": "story_create handler",
+      "type": "refactor",
+      "priority": "high",
+      "description": "创建 Story 条目。checklist 可选：有=PLAN，无=IDEA。",
+      "changes": [
+        "- [CHK-004] 替代原 story_init，支持 IDEA/PLAN 双模式"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\story.ts",
+      "sourceLine": 26,
+      "functionName": "story_create",
+      "functionSignature": "story_create(...)",
+      "test": "story-create",
+      "flow": {
+        "name": "story-lifecycle",
+        "step": 1,
+        "input": "{ name, title, description, type, priority, checklist? }",
+        "output": "storyId (IDEA or PLAN)",
+        "next": "story_advance"
+      }
+    },
+    {
+      "key": "src\\mcp\\handlers\\story.ts:story_advance",
+      "task": "B-007",
+      "checklist": [
+        "CHK-004"
+      ],
+      "title": "story_advance handler",
+      "type": "refactor",
+      "priority": "high",
+      "description": "推进 Story 生命周期到目标阶段，通过 xstate 状态机校验门禁。\nIDEA→PLAN 时需要提供 checklist。",
+      "changes": [
+        "- [CHK-004] 替代原 story_update（phase 推进），适配新事件名"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\story.ts",
+      "sourceLine": 133,
+      "functionName": "story_advance",
+      "functionSignature": "story_advance(...)",
+      "test": "story-advance",
+      "flow": {
+        "name": "story-lifecycle",
+        "step": 2,
+        "input": "{ storyId, phase, checklist? }",
+        "output": "Story advanced to {phase}",
+        "next": "checklist_update"
+      }
+    },
+    {
+      "key": "src\\mcp\\handlers\\story.ts",
+      "task": "B-010",
+      "checklist": [
+        "CHK-006"
+      ],
+      "title": "TEST→DONE 测试证据门禁",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "在 story_advance 进入 DONE 阶段前，检查测试证据：\n1. 必须有至少一条测试记录\n2. 所有测试必须 PASS",
+      "changes": [
+        "- [CHK-006] 新增 DONE 门禁：要求测试证据且全部通过",
+        "/"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\story.ts",
+      "sourceLine": 233
+    },
+    {
+      "key": "src\\mcp\\handlers\\story.ts:story_update",
+      "task": "B-007",
+      "checklist": [
+        "CHK-004"
+      ],
+      "title": "story_update handler",
+      "type": "feature",
+      "priority": "medium",
+      "description": "编辑 Story 基本信息（title/description/priority/source/depends）。",
+      "changes": [
+        "- [CHK-004] 新增 story_update handler"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\story.ts",
+      "sourceLine": 307,
+      "functionName": "story_update",
+      "functionSignature": "story_update(...)",
+      "test": "tools-story_update"
+    },
+    {
+      "key": "src\\mcp\\handlers\\story.ts:story_get",
+      "task": "B-007",
+      "checklist": [
+        "CHK-004"
+      ],
+      "title": "story_get handler",
+      "type": "refactor",
+      "priority": "low",
+      "description": "读取 Story 详情。",
+      "changes": [
+        "- [CHK-004] 无逻辑变更"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\story.ts",
+      "sourceLine": 337,
+      "functionName": "story_get",
+      "functionSignature": "story_get(...)",
+      "test": "tools-story_get"
+    },
+    {
+      "key": "src\\mcp\\handlers\\story.ts:story_list",
+      "task": "B-007",
+      "checklist": [
+        "CHK-004"
+      ],
+      "title": "story_list handler",
+      "type": "refactor",
+      "priority": "medium",
+      "description": "返回所有 Story 的状态摘要，支持按 phase 过滤。",
+      "changes": [
+        "- [CHK-004] 新增 phase 过滤参数"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\story.ts",
+      "sourceLine": 353,
+      "functionName": "story_list",
+      "functionSignature": "story_list(...)",
+      "test": "tools-story_list"
+    },
+    {
+      "key": "src\\mcp\\handlers\\task-annotate.ts",
+      "task": "B-11cf",
+      "checklist": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003",
+        "CHK-004"
+      ],
+      "title": "task_annotate MCP 工具：TypeScript AST 定位 + 注释写入/更新",
+      "type": "feature",
+      "priority": "medium",
+      "description": "通过 TypeScript AST 精确定位函数/方法，写入或更新 @task 注释块。\n写入后自动校验注释块和紧跟函数是否匹配。\n同名函数多匹配时返回候选列表，不自动选择。",
+      "changes": [
+        "- [CHK-001] 新增 task_annotate 工具（AST 定位 + 写入）",
+        "- [CHK-002] 写入后 validate 校验",
+        "- [CHK-003] 支持 update 模式（追加 @changes、更新 @test）",
+        "- [CHK-004] 同名函数冲突处理",
+        "/"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\task-annotate.ts",
+      "sourceLine": 1
+    },
+    {
+      "key": "src\\mcp\\handlers\\task.ts:task_scan",
+      "task": "B-007",
+      "checklist": [
+        "CHK-004"
+      ],
+      "title": "task_scan handler",
+      "type": "refactor",
+      "priority": "high",
+      "description": "合并 task_extract + task_validate：扫描 @task 注释并附带校验结果。",
+      "changes": [
+        "- [CHK-004] 合并 extract + validate 为 task_scan"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\task.ts",
+      "sourceLine": 13,
+      "functionName": "task_scan",
+      "functionSignature": "task_scan(...)",
+      "test": "tools-task_scan"
+    },
+    {
+      "key": "src\\mcp\\handlers\\task.ts:task_coverage",
+      "task": "B-c1e4",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "task_coverage handler — 支持批量 storyId",
+      "type": "feature",
+      "priority": "medium",
+      "description": "检查 @checklist 注释与 checklist.json 的覆盖率。\n支持单个 storyId 或数组，批量时返回 Record<storyId, CoverageResult>。",
+      "changes": [
+        "- [CHK-001] storyId 支持 string | string[]，批量返回 Record"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\task.ts",
+      "sourceLine": 74,
+      "functionName": "task_coverage",
+      "functionSignature": "task_coverage(...)",
+      "test": "task-coverage",
+      "flow": {
+        "name": "story-lifecycle",
+        "step": 4,
+        "input": "{ storyId }",
+        "output": "CoverageResult",
+        "next": "test_auto"
+      }
+    },
+    {
+      "key": "src\\mcp\\handlers\\task.ts:task_locate",
+      "task": "B-007",
+      "checklist": [
+        "CHK-004"
+      ],
+      "title": "task_locate handler",
+      "type": "refactor",
+      "priority": "low",
+      "description": "按 ID 或关键词定位代码位置。",
+      "changes": [
+        "- [CHK-004] 无逻辑变更"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\task.ts",
+      "sourceLine": 103,
+      "functionName": "task_locate",
+      "functionSignature": "task_locate(...)",
+      "test": "tools-task_locate"
+    },
+    {
+      "key": "src\\mcp\\handlers\\test-auto.ts:test_auto",
+      "task": "B-010",
+      "checklist": [
+        "CHK-005"
+      ],
+      "title": "test_auto handler 升级为实际执行",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "升级 test_auto 从发现匹配改为实际执行测试。\n先生成缺失 fixture，然后动态 import 函数执行 cases，\n结果自动写入 test_add。",
+      "changes": [
+        "- [CHK-005] test_auto 实际执行函数测试",
+        "- [CHK-007] 测试结果自动写入 test_add",
+        "- [B-831c/CHK-003] 集成 drift check，git diff vs @task 注释漂移检测"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\test-auto.ts",
+      "sourceLine": 18,
+      "functionName": "test_auto",
+      "functionSignature": "test_auto(...)",
+      "test": "test-auto",
+      "flow": {
+        "name": "story-lifecycle",
+        "step": 5,
+        "input": "{ storyId, base? }",
+        "output": "{ fixtureTests, flowE2E, allPassed }"
+      }
+    },
+    {
+      "key": "src\\mcp\\handlers\\test.ts",
+      "task": "B-007",
+      "checklist": [
+        "CHK-004"
+      ],
+      "title": "test handlers 拆分",
+      "type": "refactor",
+      "priority": "low",
+      "description": "从 tools.ts 提取 test_add / test_list handlers。",
+      "changes": [
+        "- [CHK-004] 提取到独立文件，无逻辑变更",
+        "/"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\test.ts",
+      "sourceLine": 1
+    },
+    {
+      "key": "src\\mcp\\handlers\\test.ts:test_add",
+      "task": "B-007",
+      "checklist": [
+        "CHK-004"
+      ],
+      "title": "test_add handler",
+      "type": "refactor",
+      "priority": "low",
+      "description": "记录测试证据。",
+      "changes": [
+        "- [CHK-004] 重命名 test_evidence_add → test_add"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\test.ts",
+      "sourceLine": 19,
+      "functionName": "test_add",
+      "functionSignature": "test_add(...)",
+      "test": "tools-test_add"
+    },
+    {
+      "key": "src\\mcp\\handlers\\test.ts:test_list",
+      "task": "B-007",
+      "checklist": [
+        "CHK-004"
+      ],
+      "title": "test_list handler",
+      "type": "refactor",
+      "priority": "low",
+      "description": "查看测试证据。",
+      "changes": [
+        "- [CHK-004] 重命名 test_evidence_get → test_list"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\test.ts",
+      "sourceLine": 65,
+      "functionName": "test_list",
+      "functionSignature": "test_list(...)",
+      "test": "tools-test_list"
+    },
+    {
+      "key": "src\\mcp\\handlers\\truth.ts:truth_scan",
+      "task": "B-009",
+      "checklist": [
+        "CHK-004"
+      ],
+      "title": "truth_scan handler",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "扫描 docs/requirements/ 提取需求点/决策/约束/问题。",
+      "changes": [
+        "- [CHK-004] 新增 truth_scan handler"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\truth.ts",
+      "sourceLine": 10,
+      "functionName": "truth_scan",
+      "functionSignature": "truth_scan(...)",
+      "test": "truth-scan",
+      "flow": {
+        "name": "gap-convergence",
+        "step": 1,
+        "input": "(none)",
+        "output": "TruthScanResult { filesScanned, entries, topics }",
+        "next": "truth_analyze"
+      }
+    },
+    {
+      "key": "src\\mcp\\handlers\\truth.ts:truth_nav",
+      "task": "B-009",
+      "checklist": [
+        "CHK-005"
+      ],
+      "title": "truth_nav handler",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "生成/更新 docs/requirements/NAV.md 导航索引。",
+      "changes": [
+        "- [CHK-005] 新增 truth_nav handler"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\truth.ts",
+      "sourceLine": 32,
+      "functionName": "truth_nav",
+      "functionSignature": "truth_nav(...)",
+      "test": "tools-truth_nav"
+    },
+    {
+      "key": "src\\mcp\\handlers\\truth.ts:truth_analyze",
+      "task": "B-009",
+      "checklist": [
+        "CHK-006"
+      ],
+      "title": "truth_analyze handler",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "分析真相源中的矛盾/模糊/缺失，输出问题清单。",
+      "changes": [
+        "- [CHK-006] 新增 truth_analyze handler"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\truth.ts",
+      "sourceLine": 49,
+      "functionName": "truth_analyze",
+      "functionSignature": "truth_analyze(...)",
+      "test": "truth-analyze",
+      "flow": {
+        "name": "gap-convergence",
+        "step": 2,
+        "input": "(none)",
+        "output": "AnalysisResult { issues, healthy }",
+        "next": "gap_analyze"
+      }
+    },
+    {
+      "key": "src\\mcp\\handlers\\truth.ts:truth_to_story",
+      "task": "B-009",
+      "checklist": [
+        "CHK-007"
+      ],
+      "title": "truth_to_story handler",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "从收敛的需求自动拆解成 Story 建议。",
+      "changes": [
+        "- [CHK-007] 新增 truth_to_story handler"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\truth.ts",
+      "sourceLine": 71,
+      "functionName": "truth_to_story",
+      "functionSignature": "truth_to_story(...)",
+      "test": "tools-truth_to_story"
+    },
+    {
+      "key": "src\\mcp\\handlers\\worktree.ts",
+      "task": "B-e43a",
+      "checklist": [
+        "CHK-002",
+        "CHK-003"
+      ],
+      "title": "worktree 流程重构：测试完成后再合并",
+      "type": "bugfix",
+      "priority": "high",
+      "description": "dev_start: 为 Story 创建 git worktree + 分支，记录到 story。\ndev_finish: 标记开发完成，推进到 TEST，worktree 保留供测试使用。\ndev_merge: 测试全部通过后合并回主分支，清理 worktree，推进到 DONE。",
+      "changes": [
+        "- [CHK-002] dev_finish 移除自动合并，改为仅推进到 TEST",
+        "- [CHK-003] 新增 dev_merge，测试通过后才合并+清理"
+      ],
+      "affected": [
+        "- packages/main/src/mcp/server.ts",
+        "/"
+      ],
+      "sourceFile": "src\\mcp\\handlers\\worktree.ts",
+      "sourceLine": 1
+    },
+    {
+      "key": "src\\mcp\\server.ts",
+      "task": "B-007",
+      "checklist": [
+        "CHK-005"
+      ],
+      "title": "MCP Server 工具注册重构",
+      "type": "refactor",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "重写 MCP Server，注册 17 个重构后的工具。删除 feature_* 工具和 backlog 相关参数。",
+      "changes": [
+        "- [CHK-005] 删除旧的 18 个工具注册",
+        "- [CHK-005] 注册 15 个重构后的工具",
+        "/"
+      ],
+      "sourceFile": "src\\mcp\\server.ts",
+      "sourceLine": 1
+    },
+    {
+      "key": "src\\mcp\\tools.ts",
+      "task": "B-017",
+      "checklist": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "title": "MCP 工具 handlers 汇总入口",
+      "type": "refactor",
+      "priority": "high",
+      "description": "拆分后的 tools.ts 只做汇总，handler 逻辑在 handlers/ 目录下。",
+      "changes": [
+        "- [CHK-001] handler 拆分到 handlers/ 独立文件",
+        "- [CHK-002] tools.ts 只保留汇总和公共逻辑",
+        "/"
+      ],
+      "sourceFile": "src\\mcp\\tools.ts",
+      "sourceLine": 1
+    },
+    {
+      "key": "src\\providers\\claude-cli.ts",
+      "task": "B-001",
+      "checklist": [
+        "CHK-003"
+      ],
+      "title": "ClaudeCliProvider 实现",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "基于 Claude CLI 的 LLM Provider 实现，参考 claude-session.mjs。\n支持单次调用、带重试、流式输出、心跳检测、超时控制。",
+      "changes": [
+        "- [CHK-003] 新增 ClaudeCliProvider 类",
+        "- [CHK-003] 实现 call / callWithRetry 方法",
+        "/"
+      ],
+      "sourceFile": "src\\providers\\claude-cli.ts",
+      "sourceLine": 1
+    },
+    {
+      "key": "src\\providers\\types.ts",
+      "task": "B-001",
+      "checklist": [
+        "CHK-002"
+      ],
+      "title": "LLM Provider 接口定义",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "定义统一的 LLM Provider 接口，所有 Provider 实现此接口。\n支持单次调用、带重试调用、流式回调。",
+      "changes": [
+        "- [CHK-002] 新增 ILLMProvider 接口",
+        "- [CHK-002] 新增 LLMCallOptions / LLMResponse 类型",
+        "/"
+      ],
+      "sourceFile": "src\\providers\\types.ts",
+      "sourceLine": 1
+    },
+    {
+      "key": "src\\story\\machine.ts",
+      "task": "B-007",
+      "checklist": [
+        "CHK-002"
+      ],
+      "title": "Story 生命周期状态机重构",
+      "type": "refactor",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "重构 xstate 状态机，生命周期改为 IDEA→PLAN→DEV→TEST→DONE，\n事件改为 PLAN/START/REVIEW/FINISH，保留门禁和 TEST→DEV 回退。",
+      "changes": [
+        "- [CHK-002] 状态改为 IDEA/PLAN/DEV/TEST/DONE",
+        "- [CHK-002] 事件改为 PLAN/START/REVIEW/FINISH",
+        "- [CHK-002] getGuardFailureReason 适配新 phase 名",
+        "/"
+      ],
+      "sourceFile": "src\\story\\machine.ts",
+      "sourceLine": 1
+    },
+    {
+      "key": "src\\story\\machine.ts",
+      "task": "B-007",
+      "checklist": [
+        "CHK-002"
+      ],
+      "title": "storyMachine 状态机定义",
+      "type": "refactor",
+      "priority": "high",
+      "description": "IDEA→PLAN→DEV→TEST→DONE 五阶段状态机。\nDEV→TEST 需 checklist 全 done，TEST→DONE 需测试通过+bug 全 fixed。\nTEST→DEV 可回退。",
+      "changes": [
+        "- [CHK-002] 重构状态机为五阶段",
+        "/"
+      ],
+      "sourceFile": "src\\story\\machine.ts",
+      "sourceLine": 25
+    },
+    {
+      "key": "src\\story\\machine.ts:createStoryActor",
+      "task": "B-007",
+      "checklist": [
+        "CHK-002"
+      ],
+      "title": "createStoryActor 工厂函数",
+      "type": "refactor",
+      "priority": "high",
+      "description": "从持久化状态恢复或创建新的 Story Actor。",
+      "changes": [
+        "- [CHK-002] 保持原有逻辑，适配新状态机"
+      ],
+      "sourceFile": "src\\story\\machine.ts",
+      "sourceLine": 111,
+      "functionName": "createStoryActor",
+      "functionSignature": "export function createStoryActor(\r\n  storyId: string,\r\n  store: StoryStore,\r\n  restoredState?: string,\r\n)",
+      "test": "machine-createStoryActor"
+    },
+    {
+      "key": "src\\story\\machine.ts:getStateName",
+      "task": "B-007",
+      "checklist": [
+        "CHK-002"
+      ],
+      "title": "getStateName 状态名称提取",
+      "type": "refactor",
+      "priority": "low",
+      "description": "获取当前状态名称字符串。",
+      "changes": [
+        "- [CHK-002] 无逻辑变更"
+      ],
+      "sourceFile": "src\\story\\machine.ts",
+      "sourceLine": 141,
+      "functionName": "getStateName",
+      "functionSignature": "export function getStateName(actor: ReturnType<typeof createActor<typeof storyMachine>>)",
+      "test": "machine-getStateName"
+    },
+    {
+      "key": "src\\story\\machine.ts:getGuardFailureReason",
+      "task": "B-007",
+      "checklist": [
+        "CHK-002"
+      ],
+      "title": "getGuardFailureReason 门禁失败原因",
+      "type": "refactor",
+      "priority": "high",
+      "description": "返回 guard 失败的详细原因，用于 story_advance 报错。\n适配新 phase 名：DEV→TEST 检查 checklist，TEST→DONE 检查测试+bug。",
+      "changes": [
+        "- [CHK-002] phase 名从 DEVELOP/TEST 改为 DEV/TEST/DONE"
+      ],
+      "sourceFile": "src\\story\\machine.ts",
+      "sourceLine": 158,
+      "functionName": "getGuardFailureReason",
+      "functionSignature": "export function getGuardFailureReason(\r\n  storyId: string,\r\n  store: StoryStore,\r\n  targetPhase: string,\r\n)",
+      "test": "machine-getGuardFailureReason"
+    },
+    {
+      "key": "src\\story\\store.ts:StoryStore",
+      "task": "B-007",
+      "checklist": [
+        "CHK-003"
+      ],
+      "title": "StoryStore 文件操作层",
+      "type": "refactor",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "封装 Story 相关 JSON 文件的读写操作。\n所有路径基于 docs/story/actives/{storyId}/ 目录。\n适配新 StoryInfo 类型（无 backlogId/status）。",
+      "changes": [
+        "- [CHK-003] 适配新 StoryInfo 类型"
+      ],
+      "sourceFile": "src\\story\\store.ts",
+      "sourceLine": 7,
+      "functionName": "StoryStore",
+      "functionSignature": "class StoryStore",
+      "test": "store-StoryStore"
+    },
+    {
+      "key": "src\\story\\store.ts:listStoryIds",
+      "task": "B-007",
+      "checklist": [
+        "CHK-003"
+      ],
+      "title": "扫描所有 Story ID",
+      "type": "refactor",
+      "priority": "medium",
+      "date": "2026-04-01",
+      "description": "扫描 docs/story/actives/ 目录，返回所有 Story ID 列表。",
+      "changes": [
+        "- [CHK-003] 保持原有逻辑"
+      ],
+      "sourceFile": "src\\story\\store.ts",
+      "sourceLine": 66,
+      "functionName": "listStoryIds",
+      "functionSignature": "listStoryIds(...)",
+      "test": "store-listStoryIds"
+    },
+    {
+      "key": "src\\story\\types.ts",
+      "task": "B-007",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "Story 数据模型重构：生命周期 IDEA→PLAN→DEV→TEST→DONE",
+      "type": "refactor",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "重构 Story 数据模型，合并 Backlog 概念。Story 即 Backlog 条目，\n生命周期从 INIT/DEVELOP/TEST/DONE 改为 IDEA/PLAN/DEV/TEST/DONE，\nStoryInfo 扩展 description/type/priority 等字段，删除 backlogId/status。",
+      "changes": [
+        "- [CHK-001] StoryPhase 改为 IDEA|PLAN|DEV|TEST|DONE",
+        "- [CHK-001] 新增 StoryType 类型",
+        "- [CHK-001] StoryInfo 扩展字段，删除 backlogId/status",
+        "/"
+      ],
+      "sourceFile": "src\\story\\types.ts",
+      "sourceLine": 1
+    },
+    {
+      "key": "src\\tasks\\bug-report.ts",
+      "task": "ADHOC-001",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "Bug 提取与质量报告生成",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "自动从多数据源提取 bug，生成 bug 率与质量报告。\n数据源：story index.json (type=bug)、bug.json、test-evidence (FAIL)、\nchecklist (修复类关键词)、git log (fix/bug commit)。",
+      "changes": [
+        "- [CHK-001] 新增 BugSource / BugEntry / BugReport 类型",
+        "- [CHK-001] 新增 extractBugs / generateReport 函数",
+        "/"
+      ],
+      "sourceFile": "src\\tasks\\bug-report.ts",
+      "sourceLine": 1
+    },
+    {
+      "key": "src\\tasks\\cli-e2e.ts",
+      "task": "ADHOC-001",
+      "checklist": [
+        "ADHOC-001"
+      ],
+      "title": "flow e2e CLI 入口",
+      "type": "feature",
+      "priority": "medium",
+      "description": "独立 CLI 入口，供 npm run test:e2e 调用。\n无参数跑所有 flow，有参数跑指定 flow。",
+      "changes": [
+        "- [ADHOC-001] 新增 cli-e2e.ts",
+        "/"
+      ],
+      "sourceFile": "src\\tasks\\cli-e2e.ts",
+      "sourceLine": 2
+    },
+    {
+      "key": "src\\tasks\\cli-validate.ts",
+      "task": "B-003",
+      "checklist": [
+        "CHK-010"
+      ],
+      "title": "lint:tasks CLI 入口",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "独立 CLI 入口，替代原 scripts/validate-tasks.js。\n供 npm run lint:tasks 调用，输出校验报告并以 exit code 标识结果。",
+      "changes": [
+        "- [CHK-010] 新增 packages/main/src/tasks/cli-validate.ts",
+        "- [CHK-010] root package.json lint:tasks 指向此文件的编译产物",
+        "/"
+      ],
+      "sourceFile": "src\\tasks\\cli-validate.ts",
+      "sourceLine": 2
+    },
+    {
+      "key": "src\\tasks\\coverage.ts",
+      "task": "B-003",
+      "checklist": [
+        "CHK-005"
+      ],
+      "title": "Checklist 覆盖率分析模块",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "比对代码中的 @checklist 注释与 checklist.json 中的项，\n返回覆盖率报告。用于 DEVELOP→TEST 门禁检查。",
+      "changes": [
+        "- [CHK-005] 新增 packages/main/src/tasks/coverage.ts",
+        "- [CHK-005] 实现 checkCoverage 函数",
+        "/"
+      ],
+      "sourceFile": "src\\tasks\\coverage.ts",
+      "sourceLine": 1
+    },
+    {
+      "key": "src\\tasks\\drift-check.ts",
+      "task": "B-831c",
+      "checklist": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "title": "注释漂移检测：git diff vs @task 注释对比",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "解析 git diff 提取改动的函数列表，与 task_scan 的注释结果对比，\n输出「代码改了但没有 @task 注释覆盖」的漂移列表。",
+      "changes": [
+        "- [CHK-001] parseDiffFunctions: 从 git diff 输出提取改动文件+函数名",
+        "- [CHK-002] checkDrift: 对比 diff 函数 vs task_scan 注释，输出缺失列表",
+        "/"
+      ],
+      "sourceFile": "src\\tasks\\drift-check.ts",
+      "sourceLine": 1
+    },
+    {
+      "key": "src\\tasks\\drift-check.ts:parseDiffFunctions",
+      "task": "B-831c",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "从 git diff 提取改动的函数名列表",
+      "type": "feature",
+      "priority": "high",
+      "description": "用 git diff --unified=0 解析每个 hunk 的行号范围，\n再用 git diff 的 function context（@@...@@ 后的函数名）提取改动函数。\n同时回退扫描改动行附近的函数声明作为补充。",
+      "changes": [
+        "- [CHK-001] parseDiffFunctions 实现"
+      ],
+      "sourceFile": "src\\tasks\\drift-check.ts",
+      "sourceLine": 40,
+      "functionName": "parseDiffFunctions",
+      "functionSignature": "export function parseDiffFunctions(root: string, scanRoot: string, base = 'HEAD')",
+      "test": "drift-check-parseDiffFunctions"
+    },
+    {
+      "key": "src\\tasks\\drift-check.ts:checkDrift",
+      "task": "B-831c",
+      "checklist": [
+        "CHK-002"
+      ],
+      "title": "drift check: git diff 函数 vs task_scan 注释对比",
+      "type": "feature",
+      "priority": "high",
+      "description": "拿 parseDiffFunctions 的结果与 task_scan 注释列表对比，\n找出改动了但没有 @task 注释覆盖的函数。",
+      "changes": [
+        "- [CHK-002] checkDrift 实现"
+      ],
+      "sourceFile": "src\\tasks\\drift-check.ts",
+      "sourceLine": 134,
+      "functionName": "checkDrift",
+      "functionSignature": "export function checkDrift(\n  diffFunctions: DiffFunction[],\n  annotations: TaskAnnotation[],\n)",
+      "test": "drift-check-checkDrift"
+    },
+    {
+      "key": "src\\tasks\\extract.ts",
+      "task": "B-003",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "@task 结构化注释提取模块（TypeScript 重写）",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "从 scripts/extract-tasks.js 迁移并用 TypeScript 重写。\n扫描 packages/main 目录中所有 TS/TSX 文件，提取 @task 注释块，\n解析为结构化数据。支持同一文件多个注释块、筛选、Markdown 输出。",
+      "changes": [
+        "- [CHK-001] 新增 packages/main/src/tasks/extract.ts",
+        "- [CHK-001] TypeScript 强类型化",
+        "- [CHK-001] 支持同一文件多个 @task 注释块（函数级别精确定位）",
+        "/"
+      ],
+      "sourceFile": "src\\tasks\\extract.ts",
+      "sourceLine": 1
+    },
+    {
+      "key": "src\\tasks\\extract.ts:parseFunctionAfterBlock",
+      "task": "B-005",
+      "checklist": [
+        "B005-CHK-002"
+      ],
+      "title": "解析 @task 注释紧邻的函数/类/方法声明",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "从 @task 注释块结束位置向后扫描，匹配紧邻的 TypeScript\n函数声明、箭头函数、类声明或方法声明，提取函数名和签名。",
+      "changes": [
+        "- [B005-CHK-002] 新增 parseFunctionAfterBlock 函数",
+        "- [B005-CHK-002] 支持 function/async function/export function 声明",
+        "- [B005-CHK-002] 支持 const/let/var 箭头函数和函数表达式",
+        "- [B005-CHK-002] 支持 class 声明",
+        "- [B005-CHK-002] 支持类方法声明（含 async/static/public/private/protected 修饰符）"
+      ],
+      "sourceFile": "src\\tasks\\extract.ts",
+      "sourceLine": 62,
+      "functionName": "parseFunctionAfterBlock",
+      "functionSignature": "export function parseFunctionAfterBlock(\r\n  content: string,\r\n  endIndex: number,\r\n)",
+      "test": "extract-parseFunctionAfterBlock"
+    },
+    {
+      "key": "src\\tasks\\extract.ts:extractFlows",
+      "task": "B-008",
+      "checklist": [
+        "CHK-002"
+      ],
+      "title": "从 TaskAnnotation 中提取 @flow 链路",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "扫描所有 TaskAnnotation，按 @flow 名称分组，按 @step 排序，\n组装为完整的 FlowChain 数据结构。",
+      "changes": [
+        "- [CHK-002] 新增 extractFlows 函数"
+      ],
+      "sourceFile": "src\\tasks\\extract.ts",
+      "sourceLine": 257,
+      "functionName": "extractFlows",
+      "functionSignature": "export function extractFlows(tasks: TaskAnnotation[])",
+      "test": "extract-flows"
+    },
+    {
+      "key": "src\\tasks\\gap-analyze.ts",
+      "task": "B-009",
+      "checklist": [
+        "CHK-008"
+      ],
+      "title": "差距分析与收敛判断",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "对比真相源（docs/requirements/）与代码现实（@task/@flow/@test），\n输出差距报告。判断项目是否收敛。",
+      "changes": [
+        "- [CHK-008] 新增 GapItem/GapResult 类型",
+        "- [CHK-008] 新增 analyzeGap 函数",
+        "- [CHK-009] 新增 checkConvergence 函数",
+        "/"
+      ],
+      "sourceFile": "src\\tasks\\gap-analyze.ts",
+      "sourceLine": 1
+    },
+    {
+      "key": "src\\tasks\\gap-analyze.ts:analyzeGap",
+      "task": "B-009",
+      "checklist": [
+        "CHK-008"
+      ],
+      "title": "差距分析",
+      "type": "feature",
+      "priority": "high",
+      "description": "对比真相源 vs 代码现实，找出差距。",
+      "changes": [
+        "- [CHK-008] 新增 analyzeGap 函数"
+      ],
+      "sourceFile": "src\\tasks\\gap-analyze.ts",
+      "sourceLine": 56,
+      "functionName": "analyzeGap",
+      "functionSignature": "export function analyzeGap(projectRoot: string, store?: StoryStore)",
+      "test": "gap-analyze"
+    },
+    {
+      "key": "src\\tasks\\gap-analyze.ts",
+      "task": "B-012",
+      "checklist": [
+        "CHK-004"
+      ],
+      "title": "no_test gap 按 flow 区分 severity",
+      "type": "feature",
+      "priority": "medium",
+      "description": "扫描缺少 @test 的函数时，如果该 task 有 @flow 字段（关键路径），\nseverity 提升为 high；否则保持 medium。",
+      "changes": [
+        "- [CHK-004] no_test gap severity 根据 flow 字段区分 high/medium",
+        "/"
+      ],
+      "sourceFile": "src\\tasks\\gap-analyze.ts",
+      "sourceLine": 102
+    },
+    {
+      "key": "src\\tasks\\gap-analyze.ts:checkConvergence",
+      "task": "B-009",
+      "checklist": [
+        "CHK-009"
+      ],
+      "title": "收敛判断",
+      "type": "feature",
+      "priority": "high",
+      "description": "检查项目是否达到收敛状态：所有需求覆盖、测试通过、无新 gap。",
+      "changes": [
+        "- [CHK-009] 新增 checkConvergence 函数"
+      ],
+      "sourceFile": "src\\tasks\\gap-analyze.ts",
+      "sourceLine": 173,
+      "functionName": "checkConvergence",
+      "functionSignature": "export function checkConvergence(projectRoot: string, store: StoryStore)",
+      "test": "convergence-check"
+    },
+    {
+      "key": "src\\tasks\\locate.ts",
+      "task": "B-003",
+      "checklist": [
+        "CHK-006"
+      ],
+      "title": "Task 定位模块",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "输入 checklist ID 或关键词，在 @task 注释中搜索，\n返回匹配的文件+行号列表，用于 bug 快速定位。",
+      "changes": [
+        "- [CHK-006] 新增 packages/main/src/tasks/locate.ts",
+        "- [CHK-006] 实现 locateTasks 函数",
+        "/"
+      ],
+      "sourceFile": "src\\tasks\\locate.ts",
+      "sourceLine": 1
+    },
+    {
+      "key": "src\\tasks\\test-executor.ts",
+      "task": "B-010",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "运行时测试执行器",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "动态 import 编译后的 JS 模块，按 fixture cases 调用函数并对比结果。\n支持异步函数、超时处理、依赖注入/mock。",
+      "changes": [
+        "- [CHK-001] 新增 executeFunction 函数（动态 import + 调用）",
+        "- [CHK-001] 新增 compareResult 函数（深度对比）",
+        "- [CHK-002] 新增异步支持和超时处理",
+        "- [CHK-003] 新增 createMockDependencies 函数",
+        "/"
+      ],
+      "sourceFile": "src\\tasks\\test-executor.ts",
+      "sourceLine": 1
+    },
+    {
+      "key": "src\\tasks\\test-executor.ts",
+      "task": "B-014",
+      "checklist": [
+        "CHK-011"
+      ],
+      "title": "全量 test_auto 验证通过",
+      "type": "chore",
+      "priority": "high",
+      "description": "通过 test_auto(full=true) 全量运行白盒 fixture + flow e2e，\n验证所有新增 @test 注释和 fixture 的正确性。",
+      "changes": [
+        "- [CHK-011] 全量 test_auto 验证",
+        "/"
+      ],
+      "sourceFile": "src\\tasks\\test-executor.ts",
+      "sourceLine": 18
+    },
+    {
+      "key": "src\\tasks\\test-executor.ts:resolvePlaceholders",
+      "task": "B-015",
+      "checklist": [
+        "CHK-003",
+        "CHK-004",
+        "CHK-005"
+      ],
+      "title": "fixture 路径占位符替换",
+      "type": "feature",
+      "priority": "high",
+      "description": "fixture 中的路径使用占位符（$PROJECT_ROOT、$SCAN_ROOT），运行时动态替换为实际路径。\n确保 fixture 跨平台、跨目录可移植。",
+      "changes": [
+        "- [CHK-003] 新增 resolvePlaceholders，替换 $PROJECT_ROOT 和 $SCAN_ROOT",
+        "- [CHK-004] executeTestCases 调用 resolvePlaceholders 处理 input",
+        "- [CHK-005] 支持嵌套对象和数组中的占位符",
+        "/"
+      ],
+      "sourceFile": "src\\tasks\\test-executor.ts",
+      "sourceLine": 59,
+      "functionName": "resolvePlaceholders",
+      "functionSignature": "function resolvePlaceholders(value: unknown, projectRoot: string)"
+    },
+    {
+      "key": "src\\tasks\\test-executor.ts:compareResult",
+      "task": "B-010",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "深度对比两个值",
+      "type": "feature",
+      "priority": "high",
+      "description": "递归对比 expected 和 actual。支持部分匹配：\nexpected 中的每个字段都必须在 actual 中存在且相等，\n但 actual 可以有额外字段。",
+      "changes": [
+        "- [CHK-001] 新增 compareResult 函数"
+      ],
+      "sourceFile": "src\\tasks\\test-executor.ts",
+      "sourceLine": 92,
+      "functionName": "compareResult",
+      "functionSignature": "export function compareResult(actual: unknown, expected: unknown)",
+      "test": "test-executor-compareResult"
+    },
+    {
+      "key": "src\\tasks\\test-executor.ts",
+      "task": "B-010",
+      "checklist": [
+        "CHK-002"
+      ],
+      "title": "带超时的 Promise 执行",
+      "type": "feature",
+      "priority": "high",
+      "description": "包装函数调用为 Promise，支持超时终止。",
+      "changes": [
+        "- [CHK-002] 新增 withTimeout 函数",
+        "/"
+      ],
+      "sourceFile": "src\\tasks\\test-executor.ts",
+      "sourceLine": 157
+    },
+    {
+      "key": "src\\tasks\\test-executor.ts:createMockStore",
+      "task": "B-010",
+      "checklist": [
+        "CHK-003"
+      ],
+      "title": "Mock 依赖构造器",
+      "type": "feature",
+      "priority": "high",
+      "description": "为需要依赖注入的函数构造 mock 对象。\n目前支持 StoryStore 的基本 mock。",
+      "changes": [
+        "- [CHK-003] 新增 createMockStore 函数",
+        "- [CHK-003] 新增 createMockDependencies 函数"
+      ],
+      "sourceFile": "src\\tasks\\test-executor.ts",
+      "sourceLine": 180,
+      "functionName": "createMockStore",
+      "functionSignature": "export function createMockStore()",
+      "test": "test-executor-createMockStore"
+    },
+    {
+      "key": "src\\tasks\\test-executor.ts:importAndExecute",
+      "task": "B-010",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "动态 import 并执行函数",
+      "type": "feature",
+      "priority": "high",
+      "description": "从编译后的 dist/ 目录动态 import 模块，查找目标函数并执行。",
+      "changes": [
+        "- [CHK-001] 新增 importAndExecute 函数"
+      ],
+      "sourceFile": "src\\tasks\\test-executor.ts",
+      "sourceLine": 217,
+      "functionName": "importAndExecute",
+      "functionSignature": "export async function importAndExecute(\r\n  projectRoot: string,\r\n  sourceFile: string,\r\n  functionName: string,\r\n  input",
+      "test": "test-executor-importAndExecute"
+    },
+    {
+      "key": "src\\tasks\\test-executor.ts",
+      "task": "B-402a",
+      "checklist": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "title": "修复 wrapper fallback：兼容 .js + basename 回退",
+      "type": "bugfix",
+      "priority": "high",
+      "description": "1) 正则从 /\\.tsx?$/ 改为 /\\.(js|tsx?)$/ 兼容 .js 源文件\n2) 先查嵌套路径，找不到再用 basename 查扁平结构",
+      "changes": [
+        "- [CHK-001] 正则兼容 .js",
+        "- [CHK-002] basename fallback",
+        "/"
+      ],
+      "sourceFile": "src\\tasks\\test-executor.ts",
+      "sourceLine": 252
+    },
+    {
+      "key": "src\\tasks\\test-executor.ts",
+      "task": "B-010",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "执行单个函数的所有 test cases",
+      "type": "feature",
+      "priority": "high",
+      "description": "加载 fixture，逐个 case 调用函数，对比 expect 或验证 throws。",
+      "changes": [
+        "- [CHK-001] 新增 executeTestCases 函数"
+      ],
+      "sourceFile": "src\\tasks\\test-executor.ts",
+      "sourceLine": 312,
+      "test": "test-executor-executeTestCases"
+    },
+    {
+      "key": "src\\tasks\\test-executor.ts:applySetup",
+      "task": "B-b049",
+      "checklist": [
+        "CHK-002"
+      ],
+      "title": "executeTestCases 处理 setup 声明式状态预设",
+      "type": "refactor",
+      "priority": "high",
+      "description": "在执行 case 前读取 setup 字段，通过 store API 预创建数据。",
+      "changes": [
+        "- [CHK-002] 新增 applySetup 函数 + 在 case 循环中调用",
+        "/"
+      ],
+      "sourceFile": "src\\tasks\\test-executor.ts",
+      "sourceLine": 324,
+      "functionName": "applySetup",
+      "functionSignature": "function applySetup(store: StoryStore, setup: TestCaseSetup)"
+    },
+    {
+      "key": "src\\tasks\\test-executor.ts",
+      "task": "B-f844",
+      "checklist": [
+        "CHK-002"
+      ],
+      "title": "executeTestCases 支持 case.fn 路由",
+      "type": "feature",
+      "priority": "high",
+      "description": "检测 case.fn 字段，用它替代默认 functionName 调用 importAndExecute。",
+      "changes": [
+        "- [CHK-002] 用 tc.fn || functionName 路由到正确的 wrapper 函数",
+        "/"
+      ],
+      "sourceFile": "src\\tasks\\test-executor.ts",
+      "sourceLine": 387
+    },
+    {
+      "key": "src\\tasks\\test-executor.ts",
+      "task": "B-e360",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "fixture expect 支持 pattern 正则匹配",
+      "type": "feature",
+      "priority": "high",
+      "description": "当 expect 含 pattern 字段时，用正则匹配 actual（string 或 JSON.stringify）。\n支持 handler 返回 string 或 JSON string 的场景。",
+      "changes": [
+        "- [CHK-001] 新增 pattern 正则匹配逻辑",
+        "/"
+      ],
+      "sourceFile": "src\\tasks\\test-executor.ts",
+      "sourceLine": 444
+    },
+    {
+      "key": "src\\tasks\\test-fixture-gen.ts",
+      "task": "B-010",
+      "checklist": [
+        "CHK-004"
+      ],
+      "title": "fixture 自动生成器",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "分析函数签名，为缺失 fixture 的 @test 函数自动生成模板。\n解析函数参数类型，生成合理的默认输入值。",
+      "changes": [
+        "- [CHK-004] 新增 generateFixtureTemplate 函数",
+        "- [CHK-004] 新增 generateMissingFixtures 函数",
+        "- [CHK-004] 新增 inferDefaultValue 函数",
+        "/"
+      ],
+      "sourceFile": "src\\tasks\\test-fixture-gen.ts",
+      "sourceLine": 1
+    },
+    {
+      "key": "src\\tasks\\test-fixture-gen.ts:inferDefaultValue",
+      "task": "B-010",
+      "checklist": [
+        "CHK-004"
+      ],
+      "title": "从函数签名推断默认输入值",
+      "type": "feature",
+      "priority": "high",
+      "description": "解析 TypeScript 函数签名中的参数类型，生成合理的默认值。",
+      "changes": [
+        "- [CHK-004] 新增 inferDefaultValue 函数"
+      ],
+      "sourceFile": "src\\tasks\\test-fixture-gen.ts",
+      "sourceLine": 29,
+      "functionName": "inferDefaultValue",
+      "functionSignature": "export function inferDefaultValue(signature: string)",
+      "test": "test-fixture-gen-inferDefaultValue"
+    },
+    {
+      "key": "src\\tasks\\test-fixture-gen.ts:generateFixtureTemplate",
+      "task": "B-010",
+      "checklist": [
+        "CHK-004"
+      ],
+      "title": "为单个函数生成 fixture 模板",
+      "type": "feature",
+      "priority": "high",
+      "description": "根据函数的 @test 路径和签名，生成包含示例 case 的 fixture JSON。",
+      "changes": [
+        "- [CHK-004] 新增 generateFixtureTemplate 函数"
+      ],
+      "sourceFile": "src\\tasks\\test-fixture-gen.ts",
+      "sourceLine": 71,
+      "functionName": "generateFixtureTemplate",
+      "functionSignature": "export function generateFixtureTemplate(\r\n  task: TaskAnnotation,\r\n)",
+      "test": "test-fixture-gen-generateFixtureTemplate"
+    },
+    {
+      "key": "src\\tasks\\test-fixture-gen.ts:generateMissingFixtures",
+      "task": "B-010",
+      "checklist": [
+        "CHK-004"
+      ],
+      "title": "批量生成缺失的 fixture 文件",
+      "type": "feature",
+      "priority": "high",
+      "description": "扫描所有有 @test 注释的函数，如果 fixture 文件不存在则自动生成。",
+      "changes": [
+        "- [CHK-004] 新增 generateMissingFixtures 函数"
+      ],
+      "sourceFile": "src\\tasks\\test-fixture-gen.ts",
+      "sourceLine": 113,
+      "functionName": "generateMissingFixtures",
+      "functionSignature": "export function generateMissingFixtures(\r\n  projectRoot: string,\r\n  scanRoot: string,\r\n)",
+      "test": "test-fixture-gen-generateMissingFixtures"
+    },
+    {
+      "key": "src\\tasks\\test-flow-e2e.ts",
+      "task": "B-013",
+      "checklist": [
+        "CHK-005",
+        "CHK-006"
+      ],
+      "title": "Flow 端到端测试：@input/@output 自动管道",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "从 @flow 注释自动提取链路，上一步的实际输出自动注入下一步的输入。\n不硬编码任何函数名——通过 @input/@output 字段名匹配实现通用管道。",
+      "changes": [
+        "- [CHK-005] createSandbox 创建临时 StoryStore 环境",
+        "- [CHK-006] runFlowE2E 通用管道：output → context → input",
+        "/"
+      ],
+      "sourceFile": "src\\tasks\\test-flow-e2e.ts",
+      "sourceLine": 1
+    },
+    {
+      "key": "src\\tasks\\test-flow-e2e.ts",
+      "task": "B-013",
+      "checklist": [
+        "CHK-005"
+      ],
+      "title": "创建 E2E 测试 sandbox",
+      "type": "feature",
+      "priority": "high",
+      "description": "用 mkdtempSync 创建临时目录，初始化 Story 目录结构。",
+      "changes": [
+        "- [CHK-005] 新增 createSandbox 函数"
+      ],
+      "sourceFile": "src\\tasks\\test-flow-e2e.ts",
+      "sourceLine": 128,
+      "test": "test-flow-e2e-createSandbox"
+    },
+    {
+      "key": "src\\tasks\\test-flow-e2e.ts:createSandbox",
+      "task": "B-8c78",
+      "checklist": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "title": "createSandbox 改 async + 动态 import 加载 ESM wrappers",
+      "type": "bugfix",
+      "priority": "high",
+      "description": "1) createRequire 无法加载 ESM 格式的 wrappers，改用动态 import()\n2) createSandbox 改为 async 以支持动态 import",
+      "changes": [
+        "- [CHK-001] 改用 pathToFileURL + dynamic import 加载 wrappersDir/index.js",
+        "- [CHK-002] createSandbox 改为 async",
+        "/"
+      ],
+      "sourceFile": "src\\tasks\\test-flow-e2e.ts",
+      "sourceLine": 140,
+      "functionName": "createSandbox",
+      "functionSignature": "export async function createSandbox(realProjectRoot?: string)"
+    },
+    {
+      "key": "src\\tasks\\test-flow-e2e.ts",
+      "task": "B-013",
+      "checklist": [
+        "CHK-006"
+      ],
+      "title": "通用 flow e2e：@output 管道到 @input",
+      "type": "feature",
+      "priority": "high",
+      "description": "从 @flow 注释提取链路，逐步执行。\n每步的实际输出按 @output 字段名提取到 context，\n下一步的输入按 @input 字段名从 context 构建。",
+      "changes": [
+        "- [CHK-006] 通用管道，不硬编码函数名"
+      ],
+      "sourceFile": "src\\tasks\\test-flow-e2e.ts",
+      "sourceLine": 411,
+      "test": "test-flow-e2e-runFlowE2E"
+    },
+    {
+      "key": "src\\tasks\\test-flow-e2e.ts:runFlowE2E",
+      "task": "B-8c78",
+      "checklist": [
+        "CHK-002",
+        "CHK-003"
+      ],
+      "title": "runFlowE2E 改 async + projectRoot 修正",
+      "type": "bugfix",
+      "priority": "high",
+      "description": "1) runFlowE2E 改为 async 配合 createSandbox\n2) projectRoot 从 scanRoot 反推改为用 process.cwd()（MCP server 的 cwd 就是项目根）",
+      "changes": [
+        "- [CHK-002] runFlowE2E 改 async",
+        "- [CHK-003] projectRoot 不再从 scanRoot 反推",
+        "/"
+      ],
+      "sourceFile": "src\\tasks\\test-flow-e2e.ts",
+      "sourceLine": 425,
+      "functionName": "runFlowE2E",
+      "functionSignature": "export async function runFlowE2E(flowName: string, scanRoot: string)"
+    },
+    {
+      "key": "src\\tasks\\test-runner.ts",
+      "task": "B-008",
+      "checklist": [
+        "CHK-008"
+      ],
+      "title": "白盒测试引擎",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "白盒测试引擎：通过 git diff 找到改动函数，匹配 @test fixture，\n自动执行单函数测试。同时通过 @flow 找到受影响的链路，跑链路回归测试。",
+      "changes": [
+        "- [CHK-008] 新增 getChangedFunctions 函数（git diff 解析）",
+        "- [CHK-008] 新增 findAffectedFlows 函数（@flow 链路回归）",
+        "- [CHK-008] 新增 runWhiteBoxTests 函数（主入口）",
+        "- [CHK-008] 新增 TestCase/TestResult 类型",
+        "/"
+      ],
+      "sourceFile": "src\\tasks\\test-runner.ts",
+      "sourceLine": 1
+    },
+    {
+      "key": "src\\tasks\\test-runner.ts",
+      "task": "B-f844",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "TestCase 新增 fn 字段",
+      "type": "feature",
+      "priority": "high",
+      "description": "fixture case 可指定 fn 字段路由到不同的 wrapper 函数。",
+      "changes": [
+        "- [CHK-001] TestCase 新增可选 fn 字段",
+        "/"
+      ],
+      "sourceFile": "src\\tasks\\test-runner.ts",
+      "sourceLine": 25
+    },
+    {
+      "key": "src\\tasks\\test-runner.ts",
+      "task": "B-b049",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "TestCase 新增 setup 声明式状态预设",
+      "type": "refactor",
+      "priority": "high",
+      "description": "fixture case 可通过 setup 字段声明前置状态，由 executor 统一处理。\nwrapper 不再负责状态预设，回归纯桥接。",
+      "changes": [
+        "- [CHK-001] TestCase 新增 setup 可选字段",
+        "/"
+      ],
+      "sourceFile": "src\\tasks\\test-runner.ts",
+      "sourceLine": 36
+    },
+    {
+      "key": "src\\tasks\\truth-analyze.ts",
+      "task": "B-009",
+      "checklist": [
+        "CHK-006"
+      ],
+      "title": "真相源分析与 Story 自动拆解",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "分析真相源中的矛盾、模糊、缺失，输出问题清单。\n从收敛的需求自动拆解成 Story + checklist。",
+      "changes": [
+        "- [CHK-006] 新增 AnalysisIssue/AnalysisResult 类型",
+        "- [CHK-006] 新增 analyzeTruth 函数",
+        "- [CHK-007] 新增 truthToStory 函数",
+        "/"
+      ],
+      "sourceFile": "src\\tasks\\truth-analyze.ts",
+      "sourceLine": 1
+    },
+    {
+      "key": "src\\tasks\\truth-analyze.ts:analyzeTruth",
+      "task": "B-009",
+      "checklist": [
+        "CHK-006"
+      ],
+      "title": "分析真相源",
+      "type": "feature",
+      "priority": "high",
+      "description": "分析真相源中的问题：未解决的问题、潜在矛盾、模糊需求。",
+      "changes": [
+        "- [CHK-006] 新增 analyzeTruth 函数"
+      ],
+      "sourceFile": "src\\tasks\\truth-analyze.ts",
+      "sourceLine": 49,
+      "functionName": "analyzeTruth",
+      "functionSignature": "export function analyzeTruth(projectRoot: string)",
+      "test": "truth-analyze"
+    },
+    {
+      "key": "src\\tasks\\truth-analyze.ts:truthToStory",
+      "task": "B-009",
+      "checklist": [
+        "CHK-007"
+      ],
+      "title": "需求自动拆解为 Story",
+      "type": "feature",
+      "priority": "high",
+      "description": "从扫描结果中按主题分组需求，每组生成一个 Story 建议。",
+      "changes": [
+        "- [CHK-007] 新增 truthToStory 函数"
+      ],
+      "sourceFile": "src\\tasks\\truth-analyze.ts",
+      "sourceLine": 136,
+      "functionName": "truthToStory",
+      "functionSignature": "export function truthToStory(projectRoot: string)",
+      "test": "truth-truthToStory"
+    },
+    {
+      "key": "src\\tasks\\truth.ts",
+      "task": "B-009",
+      "checklist": [
+        "CHK-004"
+      ],
+      "title": "真相源扫描与导航",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "扫描 docs/requirements/ 目录下的 md 文件，提取需求点、决策、约束。\n自动生成/更新 NAV.md 导航索引。",
+      "changes": [
+        "- [CHK-004] 新增 TruthEntry/TruthScanResult 类型",
+        "- [CHK-004] 新增 scanTruth 函数",
+        "- [CHK-005] 新增 generateNav 函数",
+        "/"
+      ],
+      "sourceFile": "src\\tasks\\truth.ts",
+      "sourceLine": 1
+    },
+    {
+      "key": "src\\tasks\\truth.ts:scanTruth",
+      "task": "B-009",
+      "checklist": [
+        "CHK-004"
+      ],
+      "title": "扫描真相源目录",
+      "type": "feature",
+      "priority": "high",
+      "description": "扫描 docs/requirements/ 下所有 md 文件，提取需求点/决策/约束/问题。",
+      "changes": [
+        "- [CHK-004] 新增 scanTruth 函数"
+      ],
+      "sourceFile": "src\\tasks\\truth.ts",
+      "sourceLine": 104,
+      "functionName": "scanTruth",
+      "functionSignature": "export function scanTruth(projectRoot: string, options?: { summary?: boolean })",
+      "test": "truth-scan"
+    },
+    {
+      "key": "src\\tasks\\truth.ts:generateNav",
+      "task": "B-009",
+      "checklist": [
+        "CHK-005"
+      ],
+      "title": "生成/更新 NAV.md 导航索引",
+      "type": "feature",
+      "priority": "high",
+      "description": "扫描 docs/requirements/ 目录，按主题分类生成 NAV.md 导航文件。",
+      "changes": [
+        "- [CHK-005] 新增 generateNav 函数"
+      ],
+      "sourceFile": "src\\tasks\\truth.ts",
+      "sourceLine": 171,
+      "functionName": "generateNav",
+      "functionSignature": "export function generateNav(projectRoot: string)",
+      "test": "truth-generateNav"
+    },
+    {
+      "key": "src\\tasks\\types.ts",
+      "task": "B-005",
+      "checklist": [
+        "B005-CHK-001"
+      ],
+      "title": "TaskAnnotation 类型增加 functionName / functionSignature 字段",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "定义 @task 结构化注释提取、校验、覆盖率分析所需的所有类型。\nB-005 增加函数级追踪字段，支持精确到函数的代码追踪。",
+      "changes": [
+        "- [CHK-001] 新增 TaskAnnotation 类型",
+        "- [CHK-002] 新增 ValidationIssue / ValidationResult 类型",
+        "- [CHK-005] 新增 CoverageResult 类型",
+        "- [CHK-006] 新增 LocateResult 类型",
+        "- [B005-CHK-001] TaskAnnotation 增加 functionName / functionSignature 可选字段",
+        "- [B005-CHK-001] CoverageItem.locations 增加 functionName 可选字段",
+        "- [B005-CHK-001] LocateResult.matches 增加 functionName / functionSignature 可选字段",
+        "/"
+      ],
+      "sourceFile": "src\\tasks\\types.ts",
+      "sourceLine": 1
+    },
+    {
+      "key": "src\\tasks\\types.ts",
+      "task": "B-008",
+      "checklist": [
+        "CHK-002"
+      ],
+      "title": "@flow/@test 类型定义",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "为 @flow 业务流转注释和 @test 自动化测试注释增加类型定义。\n包括 FlowStep、FlowChain、FlowValidationIssue、FlowValidationResult。",
+      "changes": [
+        "- [CHK-002] TaskAnnotation 增加 flow/step/input/output/next/test 字段",
+        "- [CHK-002] 新增 FlowStep/FlowChain 类型",
+        "- [CHK-002] 新增 FlowValidationIssue/FlowValidationResult 类型",
+        "/"
+      ],
+      "sourceFile": "src\\tasks\\types.ts",
+      "sourceLine": 116
+    },
+    {
+      "key": "src\\tasks\\validate.ts",
+      "task": "B-003",
+      "checklist": [
+        "CHK-002"
+      ],
+      "title": "@task 结构化注释校验模块（TypeScript 重写）",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "从 scripts/validate-tasks.js 迁移并用 TypeScript 重写。\n校验 packages/main 下所有 TS/TSX 文件的 @task 注释块是否符合规范，\n检查必填字段缺失、字段值非法等问题。",
+      "changes": [
+        "- [CHK-002] 新增 packages/main/src/tasks/validate.ts",
+        "- [CHK-002] TypeScript 强类型化",
+        "- [CHK-002] 返回结构化 ValidationResult",
+        "/"
+      ],
+      "sourceFile": "src\\tasks\\validate.ts",
+      "sourceLine": 1
+    },
+    {
+      "key": "src\\tasks\\validate.ts",
+      "task": "B-012",
+      "checklist": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "title": "函数级 @test 注释缺失校验",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "在 validate 循环中解析注释块紧邻的函数名，检查函数级注释\n是否有 @test 字段。普通函数缺失报 warning，@flow 函数缺失报 error。",
+      "changes": [
+        "- [CHK-001] 函数级注释缺少 @test 时报 warning",
+        "- [CHK-002] @flow 函数缺少 @test 时报 error（含 flow 名称）",
+        "/"
+      ],
+      "sourceFile": "src\\tasks\\validate.ts",
+      "sourceLine": 110
+    },
+    {
+      "key": "src\\tasks\\validate.ts:validateFlows",
+      "task": "B-008",
+      "checklist": [
+        "CHK-003"
+      ],
+      "title": "@flow 链路完整性校验",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "校验 @flow 注释的完整性：@next 存在性、step 连续性、\n名称一致性、末端检查。",
+      "changes": [
+        "- [CHK-003] 新增 validateFlows 函数",
+        "- [CHK-003] 校验 @next 指向的函数是否存在",
+        "- [CHK-003] 校验 step 编号连续性",
+        "- [CHK-003] 校验最后一步无 @next、中间步有 @next"
+      ],
+      "sourceFile": "src\\tasks\\validate.ts",
+      "sourceLine": 182,
+      "functionName": "validateFlows",
+      "functionSignature": "export function validateFlows(chains: FlowChain[], allTasks: TaskAnnotation[])",
+      "test": "validate-flows"
+    },
+    {
+      "key": "src\\tasks\\validate.ts",
+      "task": "B-012",
+      "checklist": [
+        "CHK-003"
+      ],
+      "title": "@flow 步骤 @test 覆盖检查",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "遍历 flow chain 的每个 step，检查对应 TaskAnnotation 是否有 @test 注释。\n缺少 @test 的步骤会生成 error 级别的 FlowValidationIssue。",
+      "changes": [
+        "- [CHK-003] 在 validateFlows 中增加 @test 覆盖检查",
+        "/"
+      ],
+      "sourceFile": "src\\tasks\\validate.ts",
+      "sourceLine": 255
+    },
+    {
+      "key": "src\\tasks\\validate.ts:validateTestAnnotations",
+      "task": "B-008",
+      "checklist": [
+        "CHK-007"
+      ],
+      "title": "@test 注释校验",
+      "type": "feature",
+      "priority": "high",
+      "date": "2026-04-01",
+      "description": "校验 @test 注释指向的 fixture 文件是否存在。",
+      "changes": [
+        "- [CHK-007] 新增 validateTestAnnotations 函数",
+        "- [CHK-007] 检查 @test fixture 文件存在性"
+      ],
+      "sourceFile": "src\\tasks\\validate.ts",
+      "sourceLine": 357,
+      "functionName": "validateTestAnnotations",
+      "functionSignature": "export function validateTestAnnotations(\r\n  tasks: TaskAnnotation[],\r\n  projectRoot: string,\r\n)",
+      "test": "validate-validateTestAnnotations"
+    },
+    {
+      "key": "tests\\wrappers\\index.js",
+      "task": "B-1c75",
+      "checklist": [
+        "CHK-002"
+      ],
+      "title": "Wrapper index：汇总导出所有 handler wrappers（供 flow e2e 使用）",
+      "type": "chore",
+      "priority": "high",
+      "description": "汇总导出所有 handler wrapper 函数，供 test-flow-e2e 的 createSandbox 合并使用。",
+      "changes": [
+        "- [CHK-002] 新增 index.js",
+        "/"
+      ],
+      "sourceFile": "tests\\wrappers\\index.js",
+      "sourceLine": 1
+    },
+    {
+      "key": "tests\\wrappers\\_setup.js",
+      "task": "B-b049",
+      "checklist": [
+        "CHK-003"
+      ],
+      "title": "Wrapper setup：纯桥接，不做状态预设",
+      "type": "refactor",
+      "priority": "high",
+      "description": "setup 只负责创建 handler context（store + scanRoot），\n不预创建任何数据。状态预设由 fixture 的 setup 字段驱动。",
+      "changes": [
+        "- [CHK-003] 去掉 ensureStory/ensureBug/ensureTestEvidence",
+        "/"
+      ],
+      "sourceFile": "tests\\wrappers\\_setup.js",
+      "sourceLine": 1
+    },
+    {
+      "key": "src/mcp/handlers/test-auto.ts:executeCases",
+      "task": "B-098c",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "test_auto handler 级 fixture 执行",
+      "type": "feature",
+      "priority": "high",
+      "description": "在 test_auto 中执行 handler 级 fixture case，支持 $prev context 引用",
+      "changes": [
+        "[CHK-001] 新增 executeCases 用于 handler 级 fixture 执行"
+      ],
+      "sourceFile": "src/mcp/handlers/test-auto.ts",
+      "sourceLine": 67,
+      "functionName": "executeCases",
+      "functionSignature": "async function executeCases(\r\n  handlers: Record<string, Function>,\r\n  projectRoot: string,\r\n  sourceFile: string,\r\n  fu"
+    },
+    {
+      "key": "src/tasks/browser-executor.ts:startDevServer",
+      "task": "B-4ab8",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "启动 dev server",
+      "type": "feature",
+      "priority": "high",
+      "description": "启动浏览器测试用的 dev server 进程",
+      "changes": [
+        "[CHK-001] 新增 startDevServer"
+      ],
+      "sourceFile": "src/tasks/browser-executor.ts",
+      "sourceLine": 118,
+      "functionName": "startDevServer",
+      "functionSignature": "function startDevServer(command: string, cwd: string): ChildProcess"
+    },
+    {
+      "key": "src/tasks/browser-executor.ts:waitForServerReady",
+      "task": "B-4ab8",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "等待 dev server 就绪",
+      "type": "feature",
+      "priority": "high",
+      "description": "轮询检测 dev server 是否启动完成",
+      "changes": [
+        "[CHK-001] 新增 waitForServerReady"
+      ],
+      "sourceFile": "src/tasks/browser-executor.ts",
+      "sourceLine": 133,
+      "functionName": "waitForServerReady",
+      "functionSignature": "function waitForServerReady(child: ChildProcess, timeoutMs = 20000): Promise<string>"
+    },
+    {
+      "key": "src/tasks/browser-executor.ts:executeBrowserCases",
+      "task": "B-4ab8",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "浏览器真机测试执行",
+      "type": "feature",
+      "priority": "high",
+      "description": "通过 WebSocket 桥接在真实浏览器中执行 fixture test case",
+      "changes": [
+        "[CHK-001] 新增 executeBrowserCases"
+      ],
+      "sourceFile": "src/tasks/browser-executor.ts",
+      "sourceLine": 222,
+      "functionName": "executeBrowserCases",
+      "functionSignature": "export async function executeBrowserCases(\r\n  config: BrowserTestConfig,\r\n  cases: Array<"
+    },
+    {
+      "key": "src/tasks/cli-executor.ts:executeCliCases",
+      "task": "B-cf81",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "CLI 交互式真机测试执行",
+      "type": "feature",
+      "priority": "high",
+      "description": "spawn CLI 进程，通过 stdin/stdout 驱动多轮交互测试",
+      "changes": [
+        "[CHK-001] 新增 executeCliCases"
+      ],
+      "sourceFile": "src/tasks/cli-executor.ts",
+      "sourceLine": 127,
+      "functionName": "executeCliCases",
+      "functionSignature": "export async function executeCliCases(\n  config: CliTestConfig,\n  cases: Array<"
+    },
+    {
+      "key": "src/mcp/handlers/test-auto.ts:createTestAutoHandlers",
+      "task": "B-cf81",
+      "checklist": [
+        "CHK-003"
+      ],
+      "title": "test_auto handler 工厂函数",
+      "type": "feature",
+      "priority": "high",
+      "description": "创建 test_auto MCP handler，整合 fixture/flow/browser/cli/drift 测试",
+      "changes": [
+        "[CHK-003] 集成 CLI 测试到 test_auto"
+      ],
+      "sourceFile": "src/mcp/handlers/test-auto.ts",
+      "sourceLine": 171,
+      "functionName": "createTestAutoHandlers",
+      "functionSignature": "export function createTestAutoHandlers(ctx: HandlerContext)"
+    },
+    {
+      "key": "src/tasks/browser-executor.ts:startBridge",
+      "task": "B-4ab8",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "启动 WebSocket bridge server",
+      "type": "feature",
+      "priority": "high",
+      "description": "创建 WS server 等待浏览器连接，转发测试命令",
+      "changes": [
+        "[CHK-001] 新增 startBridge"
+      ],
+      "sourceFile": "src/tasks/browser-executor.ts",
+      "sourceLine": 56,
+      "functionName": "startBridge",
+      "functionSignature": "function startBridge(wsPort: number): Promise<BridgeServer>"
+    }
+  ]
+}

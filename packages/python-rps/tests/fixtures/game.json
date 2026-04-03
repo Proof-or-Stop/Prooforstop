@@ -1,0 +1,13 @@
+{
+  "cases": [
+    { "name": "parse_move 石头", "fn": "parse_move", "input": ["1"], "expect": "rock" },
+    { "name": "parse_move 剪刀中文", "fn": "parse_move", "input": ["剪刀"], "expect": "scissors" },
+    { "name": "parse_move 无效", "fn": "parse_move", "input": ["abc"], "expect": null },
+    { "name": "judge 石头赢剪刀", "fn": "judge", "input": ["rock", "scissors"], "expect": "win" },
+    { "name": "judge 剪刀输石头", "fn": "judge", "input": ["scissors", "rock"], "expect": "lose" },
+    { "name": "judge 平局", "fn": "judge", "input": ["rock", "rock"], "expect": "draw" },
+    { "name": "play_round 石头赢剪刀", "fn": "play_round", "input": ["1", "scissors"], "expect": { "result": "win", "player": "石头", "computer": "剪刀" } },
+    { "name": "play_round 无效输入", "fn": "play_round", "input": ["xyz"], "expect": { "pattern": "无效输入" } },
+    { "name": "play_round 布赢石头", "fn": "play_round", "input": ["布", "rock"], "expect": { "result": "win" } }
+  ]
+}

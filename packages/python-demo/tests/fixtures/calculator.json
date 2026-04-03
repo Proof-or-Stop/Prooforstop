@@ -1,0 +1,13 @@
+{
+  "cases": [
+    { "name": "add 1+2=3", "fn": "add", "input": [1, 2], "expect": 3 },
+    { "name": "add negative", "fn": "add", "input": [-1, -2], "expect": -3 },
+    { "name": "subtract 5-3=2", "fn": "subtract", "input": [5, 3], "expect": 2 },
+    { "name": "multiply 4*3=12", "fn": "multiply", "input": [4, 3], "expect": 12 },
+    { "name": "divide 10/2=5", "fn": "divide", "input": [10, 2], "expect": 5.0 },
+    { "name": "divide by zero throws", "fn": "divide", "input": [1, 0], "throws": "Cannot divide by zero" },
+    { "name": "factorial 5=120", "fn": "factorial", "input": [5], "expect": 120 },
+    { "name": "factorial 0=1", "fn": "factorial", "input": [0], "expect": 1 },
+    { "name": "factorial negative throws", "fn": "factorial", "input": [-1], "throws": "Negative numbers not allowed" }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "cases": [
+    {
+      "name": "prereq: create story",
+      "fn": "story_create",
+      "input": {
+        "name": "t",
+        "title": "Bug Update Test",
+        "description": "t",
+        "type": "feature",
+        "priority": "high"
+      },
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "prereq: report bug",
+      "fn": "bug_report",
+      "input": {
+        "storyId": "$prev.storyId",
+        "id": "BUG-001",
+        "title": "Test bug for update"
+      },
+      "expect": {
+        "pattern": "Bug BUG-001 reported"
+      }
+    },
+    {
+      "name": "update bug status to fixed",
+      "input": {
+        "storyId": "$prev.storyId",
+        "id": "BUG-001",
+        "status": "fixed"
+      },
+      "expect": {
+        "pattern": "BUG-001 updated to fixed"
+      }
+    },
+    {
+      "name": "update bug status back to open",
+      "input": {
+        "storyId": "$prev.storyId",
+        "id": "BUG-001",
+        "status": "open"
+      },
+      "expect": {
+        "pattern": "BUG-001 updated to open"
+      }
+    },
+    {
+      "name": "update non-existent bug throws error",
+      "input": {
+        "storyId": "$prev.storyId",
+        "id": "BUG-999",
+        "status": "fixed"
+      },
+      "throws": "BUG-999 not found"
+    }
+  ]
+}

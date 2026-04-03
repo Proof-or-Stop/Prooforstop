@@ -1,0 +1,47 @@
+{
+  "storyId": "B-016",
+  "name": "random-story-id",
+  "title": "Story ID 改为随机生成，支持多分支/多人并行开发",
+  "description": "当前 story_create 用顺序递增 ID（B-001, B-002, ...），多分支同时创建会冲突。改为随机短 ID（如 B-a3f7），避免并发冲突。",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "高",
+  "source": "用户需求",
+  "createdAt": "2026-04-01T07:34:16.589Z",
+  "startedAt": "2026-04-01T07:34:16.589Z",
+  "endedAt": "2026-04-01T08:03:58.777Z",
+  "events": [
+    {
+      "phase": "PLAN",
+      "action": "create",
+      "timestamp": "2026-04-01T07:34:16.589Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-01T08:00:15.657Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-01T08:03:42.930Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-01T08:03:58.777Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    }
+  ]
+}

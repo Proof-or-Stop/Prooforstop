@@ -1,0 +1,29 @@
+node_modules
+dist
+
+# koala worktree + 日志
+.claude/worktrees/
+**/activity.jsonl
+$PROJECT_ROOT/
+browser-test.log
+koala-debug.log
+.koala-tmp-*
+*.bak
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

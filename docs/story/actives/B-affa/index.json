@@ -1,0 +1,35 @@
+{
+  "storyId": "B-affa",
+  "name": "strict-gate",
+  "title": "DEV→TEST 严格门禁：所有元数据完整性检查不过不放行",
+  "description": "当前 DEV→TEST 只检查 checklist 覆盖率，导致 Claude 可以不写 test、不更新注释就推到 TEST。需要把所有已有的检测能力串进门禁，全部 pass 才放行。无论改动是否属于当前 story，只要项目存在问题就不放行。",
+  "type": "feature",
+  "phase": "DEV",
+  "priority": "critical",
+  "createdAt": "2026-04-03T01:32:24.673Z",
+  "startedAt": "2026-04-03T01:32:24.673Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "PLAN",
+      "action": "create",
+      "timestamp": "2026-04-03T01:32:24.673Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-03T01:42:27.470Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": "c:\\work\\koala\\.worktrees\\B-affa",
+    "branch": "story/B-affa",
+    "createdAt": "2026-04-03T01:42:28.903Z"
+  }
+}

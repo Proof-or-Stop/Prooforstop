@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "updatedAt": "2026-04-03T00:00:00.000Z",
+  "tasks": [
+    {
+      "key": "src/game.py:parse_move",
+      "task": "R-001",
+      "title": "解析用户输入",
+      "type": "feature",
+      "priority": "high",
+      "description": "支持数字/中文/英文输入",
+      "sourceFile": "src/game.py",
+      "sourceLine": 11,
+      "functionName": "parse_move",
+      "test": "game"
+    },
+    {
+      "key": "src/game.py:judge",
+      "task": "R-001",
+      "title": "判定胜负",
+      "type": "feature",
+      "priority": "high",
+      "description": "win/lose/draw",
+      "sourceFile": "src/game.py",
+      "sourceLine": 19,
+      "functionName": "judge",
+      "test": "game"
+    },
+    {
+      "key": "src/game.py:random_move",
+      "task": "R-001",
+      "title": "电脑随机出招",
+      "type": "feature",
+      "priority": "medium",
+      "description": "从石头剪刀布随机选一个",
+      "sourceFile": "src/game.py",
+      "sourceLine": 27,
+      "functionName": "random_move",
+      "test": "game"
+    },
+    {
+      "key": "src/game.py:play_round",
+      "task": "R-001",
+      "title": "一轮游戏",
+      "type": "feature",
+      "priority": "high",
+      "description": "解析输入+判定+返回结果",
+      "sourceFile": "src/game.py",
+      "sourceLine": 32,
+      "functionName": "play_round",
+      "test": "game"
+    }
+  ]
+}

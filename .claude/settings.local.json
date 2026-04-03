@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git reset:*)",
+      "Bash(git stash:*)",
+      "Bash(git checkout:*)",
+      "Bash(ls:*)",
+      "Bash(npm install:*)",
+      "mcp__koala-mcp__*",
+      "Bash(npx tsc:*)",
+      "Bash(node dist/server.js)",
+      "Bash(npx vite:*)",
+      "Bash(start:*)",
+      "Bash(curl -s http://localhost:9877/status)",
+      "Bash(curl -s http://localhost:5173/)",
+      "Bash(taskkill //f //im node.exe)"
+    ]
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "cases": [
+    {
+      "name": "returns FunctionExecutionResult with allPassed false when file not found",
+      "input": [
+        "/nonexistent/root",
+        "src/tasks/nonexistent.ts",
+        "someFunc",
+        [{ "name": "case-1", "input": {}, "expect": {} }]
+      ],
+      "expect": {
+        "functionName": "someFunc",
+        "sourceFile": "src/tasks/nonexistent.ts",
+        "allPassed": false
+      }
+    },
+    {
+      "name": "returns empty cases array when no test cases provided",
+      "input": [
+        "/nonexistent/root",
+        "src/tasks/nonexistent.ts",
+        "someFunc",
+        []
+      ],
+      "expect": {
+        "functionName": "someFunc",
+        "sourceFile": "src/tasks/nonexistent.ts",
+        "cases": [],
+        "allPassed": true
+      }
+    }
+  ]
+}

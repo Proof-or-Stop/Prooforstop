@@ -1,0 +1,33 @@
+{
+  "storyId": "B-f844",
+  "name": "fixture-fn-routing",
+  "title": "fixture case 支持 fn 字段路由到指定 wrapper 函数",
+  "description": "当前 executeTestCases 用 @test 注释指向的 fixture 文件测试对应函数。但有些场景下一个 fixture 文件的 cases 需要路由到不同的 wrapper 函数（如 agent-service-facade.json 的 dispatch 风格 cases 实际应调用 sendRoomMessage/replyRoomMessage 等）。新增 fixture case 级 fn 字段，executeTestCases 检测到 fn 字段时用该函数名替代默认函数名调用 wrapper。",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "high",
+  "depends": [
+    "B-402a"
+  ],
+  "createdAt": "2026-04-01T17:28:54.691Z",
+  "startedAt": "2026-04-01T17:28:54.691Z",
+  "endedAt": "2026-04-01T17:41:05.066Z",
+  "events": [
+    {
+      "phase": "PLAN",
+      "action": "create",
+      "timestamp": "2026-04-01T17:28:54.691Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-01T17:39:38.841Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    }
+  ]
+}

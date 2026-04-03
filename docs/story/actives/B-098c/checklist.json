@@ -1,0 +1,51 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "game 项目初始化 koala 配置（koala.config.json、目录结构）",
+      "context": "game 是前端项目（canvas 五子棋），scanRoot 指向 src，需要适配浏览器环境的函数导出方式",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "分析 game 源码，提取函数职责到 task.json",
+      "context": "main.ts 里有 init/render/checkWin/place 等函数，用 task_sync(extract) 或 task_annotate 记录元数据",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "编写 tests/test-runtime.js：导出可测试的纯逻辑函数",
+      "context": "game 函数依赖 canvas/DOM，test-runtime 需要 mock 或只导出纯逻辑函数（如 checkWin/place），跳过渲染函数",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "编写 fixture 测试 case（checkWin 边界、place 合法性等）",
+      "context": "用 fixture_update 工具创建 case，不手写 JSON。测试纯逻辑不测渲染",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "koala.config.json 配置 testRuntime 指向 test-runtime.js",
+      "context": "test_auto 通过 testRuntime 加载 game 的 handlers，直接调用函数测试",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "验收：test_auto 能跑 game 项目的 fixture 测试",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

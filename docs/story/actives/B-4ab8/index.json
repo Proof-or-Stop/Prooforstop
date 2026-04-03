@@ -1,0 +1,35 @@
+{
+  "storyId": "B-4ab8",
+  "name": "browser-test-auto",
+  "title": "test_auto 接入浏览器真机测试：web-debug 桥接 + fixture browser case",
+  "description": "当前 test_auto 只能测纯函数和 MCP handler，不能测浏览器渲染。前端项目（如 game）的渲染函数（drawBoard/updateStatus）和用户交互无法覆盖。通过 web-debug skill 的 WebSocket 桥接能力，在 test_auto 中新增浏览器测试路径：fixture case 标记 browser:true，test_auto 连接已启动的浏览器，模拟点击/输入，读取 DOM 断言，截图验证。不改源码，通过 dispatchEvent 模拟用户操作。",
+  "type": "feature",
+  "phase": "DEV",
+  "priority": "high",
+  "createdAt": "2026-04-02T08:47:16.526Z",
+  "startedAt": "2026-04-02T08:47:16.526Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "PLAN",
+      "action": "create",
+      "timestamp": "2026-04-02T08:47:16.526Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-02T08:54:06.798Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": "c:\\work\\koala\\.worktrees\\B-4ab8",
+    "branch": "story/B-4ab8",
+    "createdAt": "2026-04-02T08:54:09.030Z"
+  }
+}

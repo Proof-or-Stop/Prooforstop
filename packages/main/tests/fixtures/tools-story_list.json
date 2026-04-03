@@ -1,0 +1,34 @@
+{
+  "cases": [
+    {
+      "name": "prereq: create story",
+      "fn": "story_create",
+      "input": {
+        "name": "t",
+        "title": "List Test",
+        "description": "t",
+        "type": "feature",
+        "priority": "high"
+      },
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "list all stories returns dashboard and stories array",
+      "input": {},
+      "expect": {
+        "pattern": "_dashboard"
+      }
+    },
+    {
+      "name": "list stories filtered by phase IDEA",
+      "input": {
+        "phase": "IDEA"
+      },
+      "expect": {
+        "pattern": "IDEA"
+      }
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "storyId": "B-1c75",
+  "name": "self-wrappers",
+  "title": "为 koala 自身 MCP handlers 添加 wrappers，消除 63 个 SKIP 测试",
+  "description": "为 koala MCP handlers 添加 wrappers，SKIP 从 63 降到 2（仅 test_auto 自身因递归不可测）。剩余 61 个失败是 fixture expect 格式不匹配（handler 返回 string，fixture 期望 object），需单独修复。",
+  "type": "chore",
+  "phase": "DONE",
+  "priority": "high",
+  "depends": [
+    "B-8253"
+  ],
+  "createdAt": "2026-04-01T16:33:00.839Z",
+  "startedAt": "2026-04-01T16:33:00.839Z",
+  "endedAt": "2026-04-01T16:53:59.848Z",
+  "events": [
+    {
+      "phase": "PLAN",
+      "action": "create",
+      "timestamp": "2026-04-01T16:33:00.839Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-01T16:33:37.945Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-01T16:43:39.974Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "迁移 server.ts → packages/main/src/tasks/browser-server.ts",
+      "context": "WS(:9876) + HTTP(:9877) bridge，150 行。browser-executor spawn 它作为子进程",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "迁移 client.ts → packages/main/src/tasks/browser-client.ts",
+      "context": "浏览器端 WS client，160 行。编译后由 vite plugin 注入到 HTML",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "迁移 vite-plugin.ts → packages/main/src/tasks/browser-vite-plugin.ts",
+      "context": "vite dev 模式注入 client.js 到 head-prepend，45 行",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "browser-executor findWsServer 改为直接引用迁移后的 browser-server",
+      "context": "不再搜索 packages/web-test，直接 join(__dirname, 'browser-server.js')",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "更新 game 项目 vite.config.ts 引用路径",
+      "context": "从 @koala/web-test 改为 @koala-agent/core 或相对路径",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "删除 packages/web-test 目录",
+      "context": "所有代码已迁入 packages/main，独立包不再需要",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "验收：game browser test 3/3 PASS",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

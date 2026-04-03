@@ -1,0 +1,36 @@
+{
+  "tests": [
+    {
+      "id": "TE-001",
+      "scenario": "gap_analyze severity 分层：flow 函数 high，普通函数 medium",
+      "command": "gap_analyze()",
+      "output": "flow 函数已有 @test 不再出现，剩余 37 个 gap 全是 medium severity",
+      "expected": "flow 函数缺测试报 high，普通函数报 medium",
+      "result": "PASS",
+      "timestamp": "2026-04-01T04:28:05.472Z"
+    },
+    {
+      "id": "TE-002",
+      "scenario": "fixture 路径正确解析，无 not found 错误",
+      "command": "gap_analyze()",
+      "output": "0 个 fixture not found 错误（修复前有 11 个）",
+      "expected": "所有 @test 指向的 fixture 文件能被找到",
+      "result": "PASS",
+      "timestamp": "2026-04-01T04:28:07.945Z"
+    },
+    {
+      "id": "TE-003",
+      "scenario": "编译通过",
+      "command": "npm run build",
+      "output": "tsc 编译成功，无错误",
+      "expected": "编译通过",
+      "result": "PASS",
+      "timestamp": "2026-04-01T04:28:09.017Z"
+    }
+  ],
+  "environment": {
+    "node": "v22.13.0",
+    "os": "win32 x64",
+    "timestamp": "2026-04-01T04:28:05.472Z"
+  }
+}

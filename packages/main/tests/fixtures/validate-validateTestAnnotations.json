@@ -1,0 +1,25 @@
+{
+  "cases": [
+    {
+      "name": "returns no issues when all fixture files exist",
+      "input": [
+        [{ "test": "truth-scan", "sourceFile": "truth.ts", "sourceLine": 113 }],
+        "$PROJECT_ROOT"
+      ]
+    },
+    {
+      "name": "returns warn issue when fixture file is missing",
+      "input": [
+        [{ "test": "non-existent-fixture", "sourceFile": "truth.ts", "sourceLine": 113 }],
+        "$PROJECT_ROOT"
+      ]
+    },
+    {
+      "name": "skips tasks without @test annotation",
+      "input": [
+        [{ "sourceFile": "truth.ts", "sourceLine": 50 }],
+        "$PROJECT_ROOT"
+      ]
+    }
+  ]
+}

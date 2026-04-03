@@ -1,0 +1,25 @@
+{
+  "cases": [
+    {
+      "name": "run test_auto on story with fixtures",
+      "input": {
+        "storyId": "B-001"
+      },
+      "expect": {
+        "hasField": "allPassed",
+        "hasField2": "totalCases",
+        "isJson": true
+      }
+    },
+    {
+      "name": "run test_auto on story with no test annotations",
+      "input": {
+        "storyId": "B-999"
+      },
+      "expect": {
+        "totalCases": 0,
+        "allPassed": true
+      }
+    }
+  ]
+}

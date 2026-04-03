@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>五子棋</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #f0d9b5;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    #app {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    #status {
+      font-size: 20px;
+      font-weight: 600;
+      color: #333;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    #status .dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid #666;
+    }
+    #status .dot.black { background: #111; }
+    #status .dot.white { background: #fff; }
+    canvas {
+      cursor: pointer;
+      border-radius: 4px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    #controls {
+      display: flex;
+      gap: 12px;
+    }
+    button {
+      padding: 8px 24px;
+      font-size: 15px;
+      border: none;
+      border-radius: 6px;
+      background: #8b6914;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover { background: #6b4f0e; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div id="status"></div>
+    <canvas id="board"></canvas>
+    <div id="controls">
+      <button id="restart">重新开始</button>
+      <button id="undo">悔棋</button>
+    </div>
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

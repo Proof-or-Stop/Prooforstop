@@ -1,0 +1,19 @@
+{
+  "cases": [
+    {
+      "name": "list all flows returns summary array",
+      "input": {},
+      "expect": { "pattern": "name" }
+    },
+    {
+      "name": "output includes steps count for each flow",
+      "input": {},
+      "expect": { "pattern": "steps" }
+    },
+    {
+      "name": "output includes complete and issues fields",
+      "input": {},
+      "expect": { "pattern": "complete" }
+    }
+  ]
+}

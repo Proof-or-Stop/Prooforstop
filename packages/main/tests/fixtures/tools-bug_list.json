@@ -1,0 +1,22 @@
+{
+  "cases": [
+    {
+      "name": "list bugs for a story with existing bugs",
+      "input": {
+        "storyId": "S-001"
+      },
+      "expect": {
+        "pattern": "bugs"
+      }
+    },
+    {
+      "name": "list bugs for a story with no bugs returns empty list",
+      "input": {
+        "storyId": "S-EMPTY"
+      },
+      "expect": {
+        "pattern": "bugs"
+      }
+    }
+  ]
+}

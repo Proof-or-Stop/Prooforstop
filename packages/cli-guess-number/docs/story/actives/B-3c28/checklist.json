@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "实现核心判定逻辑函数（输入双方出拳，返回胜负结果）",
+      "context": "纯函数，方便测试：接收 player 和 computer 的选择，返回 win/lose/draw",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-02T16:01:05.955Z"
+    },
+    {
+      "id": "CHK-002",
+      "title": "实现电脑随机出拳函数",
+      "context": "从石头/剪刀/布中随机选一个",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-02T16:01:06.415Z"
+    },
+    {
+      "id": "CHK-003",
+      "title": "实现 CLI 交互主循环（readline 读取输入、显示结果、支持退出）",
+      "context": "用 Node.js readline 模块，循环读取玩家输入，调用判定逻辑，输出结果，输入 quit/exit 退出",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-02T16:01:07.361Z"
+    },
+    {
+      "id": "CHK-004",
+      "title": "编译验证 npm run build 通过",
+      "context": "确保 TypeScript 编译无错误",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-02T16:01:08.090Z"
+    }
+  ]
+}

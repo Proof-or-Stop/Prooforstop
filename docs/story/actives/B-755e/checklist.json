@@ -1,0 +1,53 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "checklist.ts handler 接收 reason + agent 参数，修改/删除时写入 audit log",
+      "status": "done",
+      "startTime": "2026-04-01T13:05:53.131Z",
+      "endTime": "2026-04-01T13:13:47.796Z"
+    },
+    {
+      "id": "CHK-002",
+      "title": "server.ts schema 更新：checklist_update 增加 reason/agent 可选参数",
+      "status": "done",
+      "startTime": "2026-04-01T13:05:53.228Z",
+      "endTime": "2026-04-01T13:07:17.852Z"
+    },
+    {
+      "id": "CHK-003",
+      "title": "store 层支持 audit log 读写（checklist.json 内嵌 auditLog 数组）",
+      "status": "done",
+      "startTime": "2026-04-01T13:05:53.616Z",
+      "endTime": "2026-04-01T13:07:18.597Z"
+    },
+    {
+      "id": "CHK-004",
+      "title": "npm run build 编译通过",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-01T13:07:18.865Z"
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-04-01T13:13:31.616Z",
+      "phase": "DONE",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "真机测试审计日志功能",
+      "agent": "test-agent"
+    },
+    {
+      "timestamp": "2026-04-01T13:13:47.796Z",
+      "phase": "DONE",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "恢复真机测试前状态"
+    }
+  ]
+}

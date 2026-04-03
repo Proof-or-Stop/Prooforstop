@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "updatedAt": "2026-04-02T16:01:31.951Z",
+  "tasks": [
+    {
+      "key": "rps-logic.ts:judge",
+      "task": "B-3c28",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "石头剪刀布核心判定逻辑",
+      "type": "feature",
+      "priority": "high",
+      "description": "接收双方出拳，返回 win/lose/draw 结果",
+      "changes": [
+        "纯函数判定石头剪刀布胜负"
+      ],
+      "sourceFile": "rps-logic.ts",
+      "sourceLine": 48,
+      "functionName": "judge",
+      "functionSignature": "export function judge(player: Move, computer: Move): RpsOutcome",
+      "test": "rps-logic"
+    },
+    {
+      "key": "rps-logic.ts:randomMove",
+      "task": "B-3c28",
+      "checklist": [
+        "CHK-002"
+      ],
+      "title": "电脑随机出拳",
+      "type": "feature",
+      "priority": "medium",
+      "description": "从石头/剪刀/布中随机选一个",
+      "changes": [
+        "随机返回 rock/scissors/paper"
+      ],
+      "sourceFile": "rps-logic.ts",
+      "sourceLine": 43,
+      "functionName": "randomMove",
+      "functionSignature": "export function randomMove(): Move"
+    },
+    {
+      "key": "rps-logic.ts:play",
+      "task": "B-3c28",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "石头剪刀布一局游戏",
+      "type": "feature",
+      "priority": "high",
+      "description": "执行一局游戏：调用 judge 判定，更新战绩状态",
+      "changes": [
+        "组合 randomMove + judge，更新 RpsState 统计"
+      ],
+      "sourceFile": "rps-logic.ts",
+      "sourceLine": 60,
+      "functionName": "play",
+      "functionSignature": "export function play(state: RpsState, playerMove: Move, computerMove?: Move): RpsResult",
+      "test": "rps-logic"
+    },
+    {
+      "key": "rps-logic.ts:parseMove",
+      "task": "B-3c28",
+      "checklist": [
+        "CHK-003"
+      ],
+      "title": "解析玩家输入为 Move",
+      "type": "feature",
+      "priority": "medium",
+      "description": "支持数字、英文、中文输入，解析为 Move 类型",
+      "changes": [
+        "支持 1/2/3、rock/scissors/paper、石头/剪刀/布 输入"
+      ],
+      "sourceFile": "rps-logic.ts",
+      "sourceLine": 39,
+      "functionName": "parseMove",
+      "functionSignature": "export function parseMove(input: string): Move | null",
+      "test": "rps-logic"
+    },
+    {
+      "key": "rps-logic.ts:moveName",
+      "task": "B-3c28",
+      "checklist": [
+        "CHK-003"
+      ],
+      "title": "Move 转中文名称",
+      "type": "feature",
+      "priority": "low",
+      "description": "将 Move 枚举值转为中文显示名",
+      "changes": [
+        "rock→石头, scissors→剪刀, paper→布"
+      ],
+      "sourceFile": "rps-logic.ts",
+      "sourceLine": 70,
+      "functionName": "moveName",
+      "functionSignature": "export function moveName(move: Move): string"
+    },
+    {
+      "key": "rps-logic.ts:createRpsState",
+      "task": "B-3c28",
+      "checklist": [
+        "CHK-003"
+      ],
+      "title": "创建 RPS 游戏状态",
+      "type": "feature",
+      "priority": "medium",
+      "description": "初始化石头剪刀布游戏战绩状态",
+      "changes": [
+        "初始化 wins/losses/draws/rounds 为 0"
+      ],
+      "sourceFile": "rps-logic.ts",
+      "sourceLine": 35,
+      "functionName": "createRpsState",
+      "functionSignature": "export function createRpsState(): RpsState"
+    }
+  ]
+}

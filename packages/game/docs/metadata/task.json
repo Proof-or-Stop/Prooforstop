@@ -1,0 +1,126 @@
+{
+  "version": 1,
+  "updatedAt": "2026-04-03T12:00:00.000Z",
+  "tasks": [
+    {
+      "key": "src/game-logic.ts:Game",
+      "task": "G-001",
+      "title": "Game 类（五子棋核心）",
+      "type": "feature",
+      "priority": "high",
+      "description": "OOP 封装：棋盘状态、落子、胜负检测、悔棋",
+      "sourceFile": "game-logic.ts",
+      "sourceLine": 12,
+      "functionName": "Game",
+      "test": "game-logic"
+    },
+    {
+      "key": "src/game-logic.ts:Game.constructor",
+      "task": "G-001",
+      "title": "初始化游戏状态",
+      "type": "feature",
+      "priority": "high",
+      "description": "构造空棋盘、黑棋先手",
+      "sourceFile": "game-logic.ts",
+      "sourceLine": 18,
+      "functionName": "constructor",
+      "test": "game-logic"
+    },
+    {
+      "key": "src/game-logic.ts:Game.checkWin",
+      "task": "G-001",
+      "title": "胜负检测",
+      "type": "feature",
+      "priority": "high",
+      "description": "检查四个方向是否有五连珠",
+      "sourceFile": "game-logic.ts",
+      "sourceLine": 37,
+      "functionName": "checkWin",
+      "test": "game-logic"
+    },
+    {
+      "key": "src/game-logic.ts:Game.place",
+      "task": "G-001",
+      "title": "落子",
+      "type": "feature",
+      "priority": "high",
+      "description": "在指定位置落子，检查胜负和平局",
+      "sourceFile": "game-logic.ts",
+      "sourceLine": 60,
+      "functionName": "place",
+      "test": "game-logic"
+    },
+    {
+      "key": "src/game-logic.ts:Game.undo",
+      "task": "G-001",
+      "title": "悔棋",
+      "type": "feature",
+      "priority": "medium",
+      "description": "撤销最后一步，gameOver 时不允许",
+      "sourceFile": "game-logic.ts",
+      "sourceLine": 86,
+      "functionName": "undo",
+      "test": "game-logic"
+    },
+    {
+      "key": "src/game-logic.ts:Game.reset",
+      "task": "G-001",
+      "title": "重置游戏",
+      "type": "feature",
+      "priority": "medium",
+      "description": "重置棋盘到初始状态",
+      "sourceFile": "game-logic.ts",
+      "sourceLine": 28,
+      "functionName": "reset",
+      "test": "game-logic"
+    },
+    {
+      "key": "src/game-logic.ts:Game.getState",
+      "task": "G-001",
+      "title": "获取状态摘要",
+      "type": "feature",
+      "priority": "low",
+      "description": "返回当前玩家、步数、胜负状态",
+      "sourceFile": "game-logic.ts",
+      "sourceLine": 97,
+      "functionName": "getState",
+      "test": "game-logic"
+    },
+    {
+      "key": "src/main.ts:doPlace",
+      "task": "G-001",
+      "title": "UI 落子",
+      "type": "feature",
+      "priority": "high",
+      "description": "在棋盘上落子并触发渲染",
+      "sourceFile": "main.ts",
+      "sourceLine": 138,
+      "functionName": "doPlace",
+      "test": "skip"
+    },
+    {
+      "key": "src/main.ts:doUndo",
+      "task": "G-001",
+      "title": "UI 悔棋",
+      "type": "feature",
+      "priority": "medium",
+      "description": "悔棋并触发渲染",
+      "sourceFile": "main.ts",
+      "sourceLine": 143,
+      "functionName": "doUndo",
+      "test": "skip"
+    },
+    {
+      "key": "src/main.ts:init",
+      "task": "G-001",
+      "title": "初始化游戏",
+      "type": "feature",
+      "priority": "high",
+      "description": "重置棋盘并渲染",
+      "sourceFile": "main.ts",
+      "sourceLine": 18,
+      "functionName": "init",
+      "test": "skip"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "初始化 packages/cli-guess-number TS 项目（package.json, tsconfig.json）",
+      "context": "参考 packages/main 的项目结构，使用 TypeScript 编译",
+      "status": "done",
+      "startTime": "2026-04-02T08:53:42.706Z",
+      "endTime": "2026-04-02T08:54:06.996Z"
+    },
+    {
+      "id": "CHK-002",
+      "title": "实现核心游戏逻辑（生成随机数、比较判断）",
+      "context": "纯函数，方便单元测试；范围默认 1-100",
+      "status": "done",
+      "startTime": "2026-04-02T08:54:07.622Z",
+      "endTime": "2026-04-02T08:54:21.124Z"
+    },
+    {
+      "id": "CHK-003",
+      "title": "实现 CLI 交互入口（readline 读取用户输入、循环猜测）",
+      "context": "使用 Node.js readline 模块，支持退出和重玩",
+      "status": "done",
+      "startTime": "2026-04-02T08:54:21.255Z",
+      "endTime": "2026-04-02T08:54:56.300Z"
+    },
+    {
+      "id": "CHK-004",
+      "title": "添加 fixture 和测试覆盖",
+      "context": "对核心逻辑函数编写 fixture 测试",
+      "status": "done",
+      "startTime": "2026-04-02T08:54:56.545Z",
+      "endTime": "2026-04-02T08:56:24.963Z"
+    }
+  ]
+}

@@ -1,0 +1,357 @@
+{
+  "cases": [
+    {
+      "name": "createGame returns empty board",
+      "fn": "Game",
+      "input": {},
+      "expect": {
+        "current": 1,
+        "gameOver": false
+      }
+    },
+    {
+      "name": "place first piece at center",
+      "fn": "place",
+      "input": {
+        "r": 7,
+        "c": 7
+      },
+      "expect": {
+        "success": true,
+        "win": false,
+        "draw": false
+      }
+    },
+    {
+      "name": "place on occupied cell fails",
+      "fn": "place",
+      "input": {
+        "r": 7,
+        "c": 7
+      },
+      "expect": {
+        "success": false
+      }
+    },
+    {
+      "name": "place second piece",
+      "fn": "place",
+      "input": {
+        "r": 7,
+        "c": 8
+      },
+      "expect": {
+        "success": true,
+        "win": false
+      }
+    },
+    {
+      "name": "undo removes last piece",
+      "fn": "undo",
+      "input": {},
+      "expect": true
+    },
+    {
+      "name": "checkWin no win on empty-ish board",
+      "fn": "checkWin",
+      "input": {
+        "r": 7,
+        "c": 7,
+        "player": 1
+      },
+      "expect": null
+    },
+    {
+      "name": "place out of bounds fails",
+      "fn": "place",
+      "input": {
+        "r": -1,
+        "c": 0
+      },
+      "expect": {
+        "success": false
+      }
+    },
+    {
+      "name": "place out of bounds high fails",
+      "fn": "place",
+      "input": {
+        "r": 15,
+        "c": 15
+      },
+      "expect": {
+        "success": false
+      }
+    },
+    {
+      "name": "undo-test: reset game",
+      "fn": "Game",
+      "input": {},
+      "expect": {
+        "current": 1,
+        "gameOver": false
+      }
+    },
+    {
+      "name": "undo-test: undo on empty game returns false",
+      "fn": "undo",
+      "input": {},
+      "expect": false
+    },
+    {
+      "name": "undo-test: state unchanged after failed undo",
+      "fn": "getState",
+      "input": {},
+      "expect": {
+        "current": 1,
+        "moves": 0,
+        "gameOver": false,
+        "winLine": []
+      }
+    },
+    {
+      "name": "undo-test: place one piece for undo",
+      "fn": "place",
+      "input": {
+        "r": 3,
+        "c": 3
+      },
+      "expect": {
+        "success": true,
+        "win": false,
+        "draw": false
+      }
+    },
+    {
+      "name": "undo-test: undo single move returns true",
+      "fn": "undo",
+      "input": {},
+      "expect": true
+    },
+    {
+      "name": "undo-test: player restored to black after undo",
+      "fn": "getState",
+      "input": {},
+      "expect": {
+        "current": 1,
+        "moves": 0,
+        "gameOver": false,
+        "winLine": []
+      }
+    },
+    {
+      "name": "undo-test: place piece 1 (black 4,4)",
+      "fn": "place",
+      "input": {
+        "r": 4,
+        "c": 4
+      },
+      "expect": {
+        "success": true
+      }
+    },
+    {
+      "name": "undo-test: place piece 2 (white 5,5)",
+      "fn": "place",
+      "input": {
+        "r": 5,
+        "c": 5
+      },
+      "expect": {
+        "success": true
+      }
+    },
+    {
+      "name": "undo-test: place piece 3 (black 6,6)",
+      "fn": "place",
+      "input": {
+        "r": 6,
+        "c": 6
+      },
+      "expect": {
+        "success": true
+      }
+    },
+    {
+      "name": "undo-test: undo piece 3, back to black turn",
+      "fn": "undo",
+      "input": {},
+      "expect": true
+    },
+    {
+      "name": "undo-test: verify 2 moves, current=black",
+      "fn": "getState",
+      "input": {},
+      "expect": {
+        "current": 1,
+        "moves": 2,
+        "gameOver": false,
+        "winLine": []
+      }
+    },
+    {
+      "name": "undo-test: undo piece 2, back to white turn",
+      "fn": "undo",
+      "input": {},
+      "expect": true
+    },
+    {
+      "name": "undo-test: verify 1 move, current=white",
+      "fn": "getState",
+      "input": {},
+      "expect": {
+        "current": 2,
+        "moves": 1,
+        "gameOver": false,
+        "winLine": []
+      }
+    },
+    {
+      "name": "undo-test: undo piece 1, board empty",
+      "fn": "undo",
+      "input": {},
+      "expect": true
+    },
+    {
+      "name": "undo-test: verify 0 moves, back to start",
+      "fn": "getState",
+      "input": {},
+      "expect": {
+        "current": 1,
+        "moves": 0,
+        "gameOver": false,
+        "winLine": []
+      }
+    },
+    {
+      "name": "undo-test: undo on already-empty returns false",
+      "fn": "undo",
+      "input": {},
+      "expect": false
+    },
+    {
+      "name": "undo-test: setup win - black row 0 cols 0-4",
+      "fn": "Game",
+      "input": {},
+      "expect": {
+        "current": 1,
+        "gameOver": false
+      }
+    },
+    {
+      "name": "undo-test: win-setup black(0,0)",
+      "fn": "place",
+      "input": {
+        "r": 0,
+        "c": 0
+      },
+      "expect": {
+        "success": true,
+        "win": false
+      }
+    },
+    {
+      "name": "undo-test: win-setup white(1,0)",
+      "fn": "place",
+      "input": {
+        "r": 1,
+        "c": 0
+      },
+      "expect": {
+        "success": true,
+        "win": false
+      }
+    },
+    {
+      "name": "undo-test: win-setup black(0,1)",
+      "fn": "place",
+      "input": {
+        "r": 0,
+        "c": 1
+      },
+      "expect": {
+        "success": true,
+        "win": false
+      }
+    },
+    {
+      "name": "undo-test: win-setup white(1,1)",
+      "fn": "place",
+      "input": {
+        "r": 1,
+        "c": 1
+      },
+      "expect": {
+        "success": true,
+        "win": false
+      }
+    },
+    {
+      "name": "undo-test: win-setup black(0,2)",
+      "fn": "place",
+      "input": {
+        "r": 0,
+        "c": 2
+      },
+      "expect": {
+        "success": true,
+        "win": false
+      }
+    },
+    {
+      "name": "undo-test: win-setup white(1,2)",
+      "fn": "place",
+      "input": {
+        "r": 1,
+        "c": 2
+      },
+      "expect": {
+        "success": true,
+        "win": false
+      }
+    },
+    {
+      "name": "undo-test: win-setup black(0,3)",
+      "fn": "place",
+      "input": {
+        "r": 0,
+        "c": 3
+      },
+      "expect": {
+        "success": true,
+        "win": false
+      }
+    },
+    {
+      "name": "undo-test: win-setup white(1,3)",
+      "fn": "place",
+      "input": {
+        "r": 1,
+        "c": 3
+      },
+      "expect": {
+        "success": true,
+        "win": false
+      }
+    },
+    {
+      "name": "undo-test: black wins at (0,4)",
+      "fn": "place",
+      "input": {
+        "r": 0,
+        "c": 4
+      },
+      "expect": {
+        "success": true,
+        "win": true,
+        "draw": false
+      }
+    },
+    {
+      "name": "undo-test: undo blocked after game over",
+      "fn": "undo",
+      "input": {},
+      "expect": false
+    }
+  ]
+}

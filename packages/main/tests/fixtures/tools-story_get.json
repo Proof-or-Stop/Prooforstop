@@ -1,0 +1,34 @@
+{
+  "cases": [
+    {
+      "name": "prereq: create story",
+      "fn": "story_create",
+      "input": {
+        "name": "t",
+        "title": "Get Test",
+        "description": "t",
+        "type": "feature",
+        "priority": "high"
+      },
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "get existing story returns full story info",
+      "input": {
+        "storyId": "$prev.storyId"
+      },
+      "expect": {
+        "pattern": "storyId"
+      }
+    },
+    {
+      "name": "get nonexistent story throws error",
+      "input": {
+        "storyId": "NONEXIST-999"
+      },
+      "throws": "not found"
+    }
+  ]
+}

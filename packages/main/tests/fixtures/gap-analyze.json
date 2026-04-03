@@ -1,0 +1,14 @@
+{
+  "cases": [
+    {
+      "name": "gap analyze returns coverage info",
+      "input": ["$PROJECT_ROOT"],
+      "expect": { "pattern": "coveragePercent" }
+    },
+    {
+      "name": "gap analyze includes healthy flag",
+      "input": ["$PROJECT_ROOT"],
+      "expect": { "pattern": "coveragePercent" }
+    }
+  ]
+}

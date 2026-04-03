@@ -1,0 +1,42 @@
+{
+  "cases": [
+    {
+      "name": "prereq: create story with checklist",
+      "fn": "story_create",
+      "input": {
+        "name": "t",
+        "title": "Coverage Test",
+        "description": "t",
+        "type": "feature",
+        "priority": "high"
+      },
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "prereq: advance to PLAN with checklist",
+      "fn": "story_advance",
+      "input": {
+        "storyId": "$prev.storyId",
+        "phase": "PLAN",
+        "checklist": [
+          { "id": "CHK-001", "title": "First item" },
+          { "id": "CHK-002", "title": "Second item" }
+        ]
+      },
+      "expect": {
+        "pattern": "advanced to PLAN"
+      }
+    },
+    {
+      "name": "coverage check on story with checklist",
+      "input": {
+        "storyId": "$prev.storyId"
+      },
+      "expect": {
+        "pattern": "coverage"
+      }
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "实现 cli-executor 核心：spawn 进程 + stdin/stdout pipe 交互",
+      "context": "参考 browser-executor 架构，用 child_process.spawn 启动目标 CLI，通过 stdin.write 发送输入，监听 stdout 匹配期望输出",
+      "status": "done",
+      "startTime": "2026-04-02T10:20:13.221Z",
+      "endTime": "2026-04-02T10:21:14.182Z"
+    },
+    {
+      "id": "CHK-002",
+      "title": "定义 CLI fixture 格式：steps 数组描述多轮交互",
+      "context": "每个 step 包含 input（发送到 stdin 的文本）和 expect（stdout 中应出现的文本/pattern），支持顺序执行",
+      "status": "done",
+      "startTime": "2026-04-02T10:21:15.087Z",
+      "endTime": "2026-04-02T10:21:20.499Z"
+    },
+    {
+      "id": "CHK-003",
+      "title": "集成到 test_auto：识别 CLI 类型 fixture 自动走 cli-executor",
+      "context": "fixture 中加 runtime: cli 标识，test_auto 分发时走 cli-executor 而非 importAndExecute",
+      "status": "done",
+      "startTime": "2026-04-02T10:21:20.858Z",
+      "endTime": "2026-04-02T10:24:40.480Z"
+    },
+    {
+      "id": "CHK-004",
+      "title": "用猜数字游戏验证 cli-executor 端到端可用",
+      "context": "为 cli-guess-number 编写 CLI fixture，启动游戏进程，模拟玩家猜测流程，验证完整交互",
+      "status": "done",
+      "startTime": "2026-04-02T10:24:40.897Z",
+      "endTime": "2026-04-02T10:32:25.039Z"
+    }
+  ]
+}

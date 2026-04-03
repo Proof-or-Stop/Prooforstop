@@ -1,0 +1,22 @@
+{
+  "cases": [
+    {
+      "name": "list test evidence for a story with existing entries",
+      "input": {
+        "storyId": "S-001"
+      },
+      "expect": {
+        "pattern": "tests"
+      }
+    },
+    {
+      "name": "list test evidence for a story with no entries returns empty list",
+      "input": {
+        "storyId": "S-EMPTY"
+      },
+      "expect": {
+        "pattern": "tests"
+      }
+    }
+  ]
+}

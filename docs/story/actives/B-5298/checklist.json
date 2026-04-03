@@ -1,0 +1,76 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "koala.config.json 新增 testRuntime 配置项",
+      "context": "koala 自身不需要配置（fallback createToolHandlers），外部项目配 tests/test-runtime.js",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-02T06:00:00.000Z"
+    },
+    {
+      "id": "CHK-002",
+      "title": "test_auto 执行流程：testRuntime → handlers 直接调用 + importAndExecute 纯函数 fallback",
+      "context": "handler 通过 ctx 共享 store 直接调用。纯函数不在 handlers 里，fallback 到 importAndExecute",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-02T06:00:00.000Z"
+    },
+    {
+      "id": "CHK-003",
+      "title": "临时 store 隔离测试数据：createToolHandlers(testStore, root)",
+      "context": "store 是临时的（隔离），scanRoot 用真实的",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-02T06:00:00.000Z"
+    },
+    {
+      "id": "CHK-004",
+      "title": "删除 tests/wrappers/ 目录、applySetup、wrapper fallback、TestCaseSetup",
+      "context": "wrapper 被 test-runtime 替代。applySetup/setup 字段不再需要",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-02T06:00:00.000Z"
+    },
+    {
+      "id": "CHK-005",
+      "title": "executeCases 支持 case 间 context 传递：$prev.field 引用前一个 case 的输出",
+      "context": "根因：story_create 返回随机 ID，后续 case 需要引用。executor 维护共享 context，每个 case 输出自动提取字段写入 context，后续 case 用 $prev.xxx 引用。复用 flow e2e 的 extractOutputToContext 逻辑",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "fixture 改造：需要前置数据的 fixture 加前置 case（fn 路由 + $prev 引用）",
+      "context": "根因：临时 store 是空的。story-advance.json 前面加 story_create case，后续 case 用 $prev.storyId 引用创建的 ID",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "新增 MCP 工具 runtime_gen：扫描 task.json 自动生成 test-runtime.js 骨架",
+      "context": "外部项目需要写 test-runtime.js，工具自动生成 import + export 骨架",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-008",
+      "title": "文档更新：skill.md + test-fixture-spec.md + CLAUDE.md",
+      "context": "最后更新。skill.md 测试模式改为 test-runtime 方案，test-fixture-spec.md 补充 context 传递和 fn 路由说明",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-009",
+      "title": "验收：test_auto(full=true) koala 自身 0 FAIL（checkDrift 预存 bug 除外）",
+      "context": "handler 直接调用 + 临时 store 隔离 + fixture 有前置 case + context 传递",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

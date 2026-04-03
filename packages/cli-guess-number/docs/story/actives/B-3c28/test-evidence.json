@@ -1,0 +1,297 @@
+{
+  "tests": [
+    {
+      "id": "TE-AUTO-001",
+      "scenario": "judge:judge - 石头胜剪刀",
+      "command": "test_auto(judge)",
+      "output": "OK",
+      "expected": "\"win\"",
+      "result": "PASS",
+      "timestamp": "2026-04-02T16:17:00.741Z"
+    },
+    {
+      "id": "TE-AUTO-002",
+      "scenario": "judge:judge - 剪刀负石头",
+      "command": "test_auto(judge)",
+      "output": "OK",
+      "expected": "\"lose\"",
+      "result": "PASS",
+      "timestamp": "2026-04-02T16:17:00.742Z"
+    },
+    {
+      "id": "TE-AUTO-003",
+      "scenario": "judge:judge - 平局",
+      "command": "test_auto(judge)",
+      "output": "OK",
+      "expected": "\"draw\"",
+      "result": "PASS",
+      "timestamp": "2026-04-02T16:17:00.742Z"
+    },
+    {
+      "id": "TE-AUTO-004",
+      "scenario": "judge:judge - 布胜石头",
+      "command": "test_auto(judge)",
+      "output": "OK",
+      "expected": "\"win\"",
+      "result": "PASS",
+      "timestamp": "2026-04-02T16:17:00.742Z"
+    },
+    {
+      "id": "TE-AUTO-005",
+      "scenario": "judge:judge - 剪刀胜布",
+      "command": "test_auto(judge)",
+      "output": "OK",
+      "expected": "\"win\"",
+      "result": "PASS",
+      "timestamp": "2026-04-02T16:17:00.742Z"
+    },
+    {
+      "id": "TE-AUTO-006",
+      "scenario": "judge:parseMove - 数字输入",
+      "command": "test_auto(judge)",
+      "output": "OK",
+      "expected": "\"rock\"",
+      "result": "PASS",
+      "timestamp": "2026-04-02T16:17:00.742Z"
+    },
+    {
+      "id": "TE-AUTO-007",
+      "scenario": "judge:parseMove - 中文输入",
+      "command": "test_auto(judge)",
+      "output": "OK",
+      "expected": "\"scissors\"",
+      "result": "PASS",
+      "timestamp": "2026-04-02T16:17:00.742Z"
+    },
+    {
+      "id": "TE-AUTO-008",
+      "scenario": "judge:parseMove - 无效输入",
+      "command": "test_auto(judge)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-02T16:17:00.742Z"
+    },
+    {
+      "id": "TE-AUTO-009",
+      "scenario": "judge:play - 指定电脑出拳胜利",
+      "command": "test_auto(judge)",
+      "output": "OK",
+      "expected": "{\"playerMove\":\"rock\",\"computerMove\":\"scissors\",\"outcome\":\"win\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T16:17:00.742Z"
+    },
+    {
+      "id": "TE-AUTO-010",
+      "scenario": "judge:play - 指定电脑出拳失败",
+      "command": "test_auto(judge)",
+      "output": "OK",
+      "expected": "{\"playerMove\":\"rock\",\"computerMove\":\"paper\",\"outcome\":\"lose\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T16:17:00.742Z"
+    },
+    {
+      "id": "TE-AUTO-011",
+      "scenario": "play:judge - 石头胜剪刀",
+      "command": "test_auto(play)",
+      "output": "OK",
+      "expected": "\"win\"",
+      "result": "PASS",
+      "timestamp": "2026-04-02T16:17:00.742Z"
+    },
+    {
+      "id": "TE-AUTO-012",
+      "scenario": "play:judge - 剪刀负石头",
+      "command": "test_auto(play)",
+      "output": "OK",
+      "expected": "\"lose\"",
+      "result": "PASS",
+      "timestamp": "2026-04-02T16:17:00.742Z"
+    },
+    {
+      "id": "TE-AUTO-013",
+      "scenario": "play:judge - 平局",
+      "command": "test_auto(play)",
+      "output": "OK",
+      "expected": "\"draw\"",
+      "result": "PASS",
+      "timestamp": "2026-04-02T16:17:00.742Z"
+    },
+    {
+      "id": "TE-AUTO-014",
+      "scenario": "play:judge - 布胜石头",
+      "command": "test_auto(play)",
+      "output": "OK",
+      "expected": "\"win\"",
+      "result": "PASS",
+      "timestamp": "2026-04-02T16:17:00.742Z"
+    },
+    {
+      "id": "TE-AUTO-015",
+      "scenario": "play:judge - 剪刀胜布",
+      "command": "test_auto(play)",
+      "output": "OK",
+      "expected": "\"win\"",
+      "result": "PASS",
+      "timestamp": "2026-04-02T16:17:00.742Z"
+    },
+    {
+      "id": "TE-AUTO-016",
+      "scenario": "play:parseMove - 数字输入",
+      "command": "test_auto(play)",
+      "output": "OK",
+      "expected": "\"rock\"",
+      "result": "PASS",
+      "timestamp": "2026-04-02T16:17:00.742Z"
+    },
+    {
+      "id": "TE-AUTO-017",
+      "scenario": "play:parseMove - 中文输入",
+      "command": "test_auto(play)",
+      "output": "OK",
+      "expected": "\"scissors\"",
+      "result": "PASS",
+      "timestamp": "2026-04-02T16:17:00.742Z"
+    },
+    {
+      "id": "TE-AUTO-018",
+      "scenario": "play:parseMove - 无效输入",
+      "command": "test_auto(play)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-02T16:17:00.742Z"
+    },
+    {
+      "id": "TE-AUTO-019",
+      "scenario": "play:play - 指定电脑出拳胜利",
+      "command": "test_auto(play)",
+      "output": "OK",
+      "expected": "{\"playerMove\":\"rock\",\"computerMove\":\"scissors\",\"outcome\":\"win\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T16:17:00.742Z"
+    },
+    {
+      "id": "TE-AUTO-020",
+      "scenario": "play:play - 指定电脑出拳失败",
+      "command": "test_auto(play)",
+      "output": "OK",
+      "expected": "{\"playerMove\":\"rock\",\"computerMove\":\"paper\",\"outcome\":\"lose\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T16:17:00.742Z"
+    },
+    {
+      "id": "TE-AUTO-021",
+      "scenario": "parseMove:judge - 石头胜剪刀",
+      "command": "test_auto(parseMove)",
+      "output": "OK",
+      "expected": "\"win\"",
+      "result": "PASS",
+      "timestamp": "2026-04-02T16:17:00.742Z"
+    },
+    {
+      "id": "TE-AUTO-022",
+      "scenario": "parseMove:judge - 剪刀负石头",
+      "command": "test_auto(parseMove)",
+      "output": "OK",
+      "expected": "\"lose\"",
+      "result": "PASS",
+      "timestamp": "2026-04-02T16:17:00.742Z"
+    },
+    {
+      "id": "TE-AUTO-023",
+      "scenario": "parseMove:judge - 平局",
+      "command": "test_auto(parseMove)",
+      "output": "OK",
+      "expected": "\"draw\"",
+      "result": "PASS",
+      "timestamp": "2026-04-02T16:17:00.742Z"
+    },
+    {
+      "id": "TE-AUTO-024",
+      "scenario": "parseMove:judge - 布胜石头",
+      "command": "test_auto(parseMove)",
+      "output": "OK",
+      "expected": "\"win\"",
+      "result": "PASS",
+      "timestamp": "2026-04-02T16:17:00.742Z"
+    },
+    {
+      "id": "TE-AUTO-025",
+      "scenario": "parseMove:judge - 剪刀胜布",
+      "command": "test_auto(parseMove)",
+      "output": "OK",
+      "expected": "\"win\"",
+      "result": "PASS",
+      "timestamp": "2026-04-02T16:17:00.742Z"
+    },
+    {
+      "id": "TE-AUTO-026",
+      "scenario": "parseMove:parseMove - 数字输入",
+      "command": "test_auto(parseMove)",
+      "output": "OK",
+      "expected": "\"rock\"",
+      "result": "PASS",
+      "timestamp": "2026-04-02T16:17:00.742Z"
+    },
+    {
+      "id": "TE-AUTO-027",
+      "scenario": "parseMove:parseMove - 中文输入",
+      "command": "test_auto(parseMove)",
+      "output": "OK",
+      "expected": "\"scissors\"",
+      "result": "PASS",
+      "timestamp": "2026-04-02T16:17:00.742Z"
+    },
+    {
+      "id": "TE-AUTO-028",
+      "scenario": "parseMove:parseMove - 无效输入",
+      "command": "test_auto(parseMove)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-02T16:17:00.742Z"
+    },
+    {
+      "id": "TE-AUTO-029",
+      "scenario": "parseMove:play - 指定电脑出拳胜利",
+      "command": "test_auto(parseMove)",
+      "output": "OK",
+      "expected": "{\"playerMove\":\"rock\",\"computerMove\":\"scissors\",\"outcome\":\"win\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T16:17:00.742Z"
+    },
+    {
+      "id": "TE-AUTO-030",
+      "scenario": "parseMove:play - 指定电脑出拳失败",
+      "command": "test_auto(parseMove)",
+      "output": "OK",
+      "expected": "{\"playerMove\":\"rock\",\"computerMove\":\"paper\",\"outcome\":\"lose\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T16:17:00.742Z"
+    },
+    {
+      "id": "TE-CLI-031",
+      "scenario": "cli:石头剪刀布 CLI 测试",
+      "command": "executeCliCases",
+      "output": "ALL PASS",
+      "expected": "all steps pass",
+      "result": "PASS",
+      "timestamp": "2026-04-02T16:17:00.742Z"
+    },
+    {
+      "id": "TE-CLI-032",
+      "scenario": "cli:猜数字游戏 CLI 测试",
+      "command": "executeCliCases",
+      "output": "ALL PASS",
+      "expected": "all steps pass",
+      "result": "PASS",
+      "timestamp": "2026-04-02T16:17:00.742Z"
+    }
+  ],
+  "environment": {
+    "node": "v22.13.0",
+    "os": "win32 x64",
+    "timestamp": "2026-04-02T16:01:47.517Z"
+  }
+}

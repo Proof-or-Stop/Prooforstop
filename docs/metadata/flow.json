@@ -1,0 +1,135 @@
+{
+  "version": 1,
+  "updatedAt": "2026-04-02T05:20:45.398Z",
+  "flows": [
+    {
+      "name": "story-lifecycle",
+      "steps": [
+        {
+          "flow": "story-lifecycle",
+          "step": 1,
+          "functionName": "story_create",
+          "functionSignature": "story_create(...)",
+          "sourceFile": "src\\mcp\\handlers\\story.ts",
+          "sourceLine": 26,
+          "task": "B-007",
+          "input": "{ name, title, description, type, priority, checklist? }",
+          "output": "storyId (IDEA or PLAN)",
+          "next": "story_advance"
+        },
+        {
+          "flow": "story-lifecycle",
+          "step": 2,
+          "functionName": "story_advance",
+          "functionSignature": "story_advance(...)",
+          "sourceFile": "src\\mcp\\handlers\\story.ts",
+          "sourceLine": 133,
+          "task": "B-007",
+          "input": "{ storyId, phase, checklist? }",
+          "output": "Story advanced to {phase}",
+          "next": "checklist_update"
+        },
+        {
+          "flow": "story-lifecycle",
+          "step": 3,
+          "functionName": "unknown",
+          "sourceFile": "src\\mcp\\handlers\\checklist.ts",
+          "sourceLine": 34,
+          "task": "B-007",
+          "input": "{ storyId, itemId, status }",
+          "output": "Checklist {itemId} updated",
+          "next": "task_coverage"
+        },
+        {
+          "flow": "story-lifecycle",
+          "step": 3,
+          "functionName": "checklist_update",
+          "functionSignature": "checklist_update(...)",
+          "sourceFile": "src\\mcp\\handlers\\checklist.ts",
+          "sourceLine": 51,
+          "task": "B-755e",
+          "input": "{ storyId, itemId, status }",
+          "output": "Checklist {itemId} updated",
+          "next": "task_coverage"
+        },
+        {
+          "flow": "story-lifecycle",
+          "step": 4,
+          "functionName": "task_coverage",
+          "functionSignature": "task_coverage(...)",
+          "sourceFile": "src\\mcp\\handlers\\task.ts",
+          "sourceLine": 74,
+          "task": "B-c1e4",
+          "input": "{ storyId }",
+          "output": "CoverageResult",
+          "next": "test_auto"
+        },
+        {
+          "flow": "story-lifecycle",
+          "step": 5,
+          "functionName": "test_auto",
+          "functionSignature": "test_auto(...)",
+          "sourceFile": "src\\mcp\\handlers\\test-auto.ts",
+          "sourceLine": 18,
+          "task": "B-010",
+          "input": "{ storyId, base? }",
+          "output": "{ fixtureTests, flowE2E, allPassed }"
+        }
+      ],
+      "complete": true
+    },
+    {
+      "name": "gap-convergence",
+      "steps": [
+        {
+          "flow": "gap-convergence",
+          "step": 1,
+          "functionName": "truth_scan",
+          "functionSignature": "truth_scan(...)",
+          "sourceFile": "src\\mcp\\handlers\\truth.ts",
+          "sourceLine": 10,
+          "task": "B-009",
+          "input": "(none)",
+          "output": "TruthScanResult { filesScanned, entries, topics }",
+          "next": "truth_analyze"
+        },
+        {
+          "flow": "gap-convergence",
+          "step": 2,
+          "functionName": "truth_analyze",
+          "functionSignature": "truth_analyze(...)",
+          "sourceFile": "src\\mcp\\handlers\\truth.ts",
+          "sourceLine": 49,
+          "task": "B-009",
+          "input": "(none)",
+          "output": "AnalysisResult { issues, healthy }",
+          "next": "gap_analyze"
+        },
+        {
+          "flow": "gap-convergence",
+          "step": 3,
+          "functionName": "gap_analyze",
+          "functionSignature": "gap_analyze(...)",
+          "sourceFile": "src\\mcp\\handlers\\gap.ts",
+          "sourceLine": 7,
+          "task": "B-009",
+          "input": "(none)",
+          "output": "GapResult { truthEntries, gaps, coveragePercent, healthy }",
+          "next": "convergence_check"
+        },
+        {
+          "flow": "gap-convergence",
+          "step": 4,
+          "functionName": "convergence_check",
+          "functionSignature": "convergence_check(...)",
+          "sourceFile": "src\\mcp\\handlers\\gap.ts",
+          "sourceLine": 29,
+          "task": "B-009",
+          "input": "(none)",
+          "output": "ConvergenceResult { converged, reasons }"
+        }
+      ],
+      "complete": true
+    }
+  ]
+}

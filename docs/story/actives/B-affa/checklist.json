@@ -1,0 +1,107 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "DEV→TEST 门禁：每个函数必须有 test 字段指向 fixture",
+      "context": "根因：testgame1 有 24 个函数 0 个有 test 字段，门禁没拦。用 task.json 检查，无 test 的函数列出来报错",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "DEV→TEST 门禁：改了函数必须同步更新 task.json 元数据，否则不放行",
+      "context": "根因：Claude 改了函数但不更新 task.json 的 description/changes/test 等字段。drift check 对比 git diff 改动的函数列表 vs task.json 的 updatedAt 时间戳或签名，有漂移就拦住并提示用 task_annotate 更新",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "DEV→TEST 门禁：孤儿元数据检测（task.json 里有但源码函数已删）",
+      "context": "根因：重构删了函数但 task.json 还引用它。调用 validateMetadata 的 orphanRecords 检查",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "DEV→TEST 门禁：过时 fixture 检测（fixture 指向的函数不存在）",
+      "context": "根因：函数改名或删除后 fixture 还在。新增检查：扫描 fixture 里的 fn 字段是否在 task.json 里有对应函数",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "DEV→TEST 门禁：过时 checklist 检测（checklist 引用的 task 不存在）",
+      "context": "根因：task.json 里的 task ID 和 story checklist 不一致。检查 checklist 里引用的 ID 在 task.json 里都能找到",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "所有门禁不限当前 story 范围——项目级检查，有问题就不放行",
+      "context": "根因：即使改动不在当前 story，如果项目有孤儿元数据或缺 test 的函数也应该拦住，强制修复",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "门禁失败时输出可操作的修复建议",
+      "context": "根因：只报错不告诉怎么修，Claude 不知道下一步。每个门禁失败要给出具体建议如「用 task_annotate 补 test 字段」",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-008",
+      "title": "TEST→DONE 门禁：所有 fixture 100% PASS（白盒 + 真机 + CLI），有 FAIL 就不放行",
+      "context": "根因：现在只检查 test evidence 记录存在且 PASS，但如果 test_auto 没跑某些 case 就没有记录。应该在门禁时重跑 test_auto(full=true)，任何 FAIL 不放行",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-009",
+      "title": "TEST→DONE 门禁：browser_test 如果项目有 browser 配置也必须 PASS",
+      "context": "根因：现在 browser test 不纳入 DONE 门禁。配了 browser.devCommand 的项目必须跑 browser_test 且全 PASS",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-010",
+      "title": "TEST→DONE 门禁：真机 trace 覆盖率检查——task.json 所有函数都必须在 trace 里出现",
+      "context": "根因：真机测试跑了但可能只覆盖了部分函数。trace 记录了被调用的函数列表，和 task.json 对比算覆盖率。不可单测的函数可标 test:skip 但真机 trace 必须覆盖",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-011",
+      "title": "task.json 支持 test: 'skip' 标记不可单测的函数，但 trace 覆盖仍然要求",
+      "context": "根因：纯渲染函数如 drawBoard 无法写 fixture 单测，允许标 skip 跳过白盒。但真机测试的 trace 必须覆盖到它，否则说明功能没被测到",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-012",
+      "title": "CLAUDE.md 更新：不可单测函数标 test:skip，尽量拆出可测逻辑",
+      "context": "根因：告诉 Claude 哪些函数可以 skip，但要尽量把纯逻辑从渲染函数中拆出来单独测",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-013",
+      "title": "验收：testgame1 DEV→TEST 被拦住修复后通过；TEST→DONE 全量测试 + trace 覆盖率 100% 才放行",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

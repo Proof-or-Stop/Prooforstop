@@ -1,0 +1,1224 @@
+{
+  "tests": [
+    {
+      "id": "TE-AUTO-001",
+      "scenario": "bug_report:report a new bug without checklistId",
+      "command": "test_auto(bug_report)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"Bug BUG-001 reported\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-002",
+      "scenario": "bug_report:report a new bug with checklistId",
+      "command": "test_auto(bug_report)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"Bug BUG-002 reported \\\\(linked to CHK-003\\\\)\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-003",
+      "scenario": "bug_report:report duplicate bug id throws error",
+      "command": "test_auto(bug_report)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-004",
+      "scenario": "bug_update:update bug status to fixed",
+      "command": "test_auto(bug_update)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"Bug BUG-001 updated to fixed\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-005",
+      "scenario": "bug_update:update bug status back to open",
+      "command": "test_auto(bug_update)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"Bug BUG-001 updated to open\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-006",
+      "scenario": "bug_update:update non-existent bug throws error",
+      "command": "test_auto(bug_update)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-007",
+      "scenario": "bug_list:list bugs for a story with existing bugs",
+      "command": "test_auto(bug_list)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"bugs\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-008",
+      "scenario": "bug_list:list bugs for a story with no bugs returns empty list",
+      "command": "test_auto(bug_list)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"bugs\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-009",
+      "scenario": "checklist_get:get checklist for existing story returns items array",
+      "command": "test_auto(checklist_get)",
+      "output": "File not found: C:\\Users\\mengj\\AppData\\Local\\Temp\\koala-wrap-194ZKm\\docs\\story\\actives\\S-001\\checklist.json",
+      "expected": "no error",
+      "result": "FAIL",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-010",
+      "scenario": "checklist_get:get checklist for story with no checklist throws error",
+      "command": "test_auto(checklist_get)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-011",
+      "scenario": "checklist_update:update checklist item to in_progress",
+      "command": "test_auto(checklist_update)",
+      "output": "File not found: C:\\Users\\mengj\\AppData\\Local\\Temp\\koala-wrap-194ZKm\\docs\\story\\actives\\B-001\\checklist.json",
+      "expected": "no error",
+      "result": "FAIL",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-012",
+      "scenario": "checklist_update:update checklist item to done",
+      "command": "test_auto(checklist_update)",
+      "output": "File not found: C:\\Users\\mengj\\AppData\\Local\\Temp\\koala-wrap-194ZKm\\docs\\story\\actives\\B-001\\checklist.json",
+      "expected": "no error",
+      "result": "FAIL",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-013",
+      "scenario": "checklist_update:update nonexistent item throws",
+      "command": "test_auto(checklist_update)",
+      "output": "Expected error containing \"Checklist item CHK-999 not found\", got: \"File not found: C:\\Users\\mengj\\AppData\\Local\\Temp\\koala-wrap-194ZKm\\docs\\story\\actives\\B-001\\checklist.json\"",
+      "expected": "no error",
+      "result": "FAIL",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-014",
+      "scenario": "flow_trace:trace existing flow returns chain and validation",
+      "command": "test_auto(flow_trace)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"story-lifecycle\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-015",
+      "scenario": "flow_trace:trace gap-convergence flow",
+      "command": "test_auto(flow_trace)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"gap-convergence\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-016",
+      "scenario": "flow_trace:trace nonexistent flow throws error",
+      "command": "test_auto(flow_trace)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-017",
+      "scenario": "flow_list:list all flows returns summary array",
+      "command": "test_auto(flow_list)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"name\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-018",
+      "scenario": "flow_list:output includes steps count for each flow",
+      "command": "test_auto(flow_list)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"steps\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-019",
+      "scenario": "flow_list:output includes complete and issues fields",
+      "command": "test_auto(flow_list)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"complete\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-020",
+      "scenario": "gap_analyze:gap analyze returns coverage info",
+      "command": "test_auto(gap_analyze)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"coveragePercent\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-021",
+      "scenario": "gap_analyze:gap analyze includes healthy flag",
+      "command": "test_auto(gap_analyze)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"coveragePercent\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-022",
+      "scenario": "story_create:create story with checklist (PLAN mode)",
+      "command": "test_auto(story_create)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"Story B-[a-f0-9]+ created \\\\(PLAN\\\\) with 2 checklist items\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-023",
+      "scenario": "story_create:create story without checklist (IDEA mode)",
+      "command": "test_auto(story_create)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"Story B-[a-f0-9]+ created \\\\(IDEA\\\\)\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-024",
+      "scenario": "story_create:create story with empty checklist stays IDEA",
+      "command": "test_auto(story_create)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"Story B-[a-f0-9]+ created \\\\(IDEA\\\\)\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-025",
+      "scenario": "story_create:create story with custom prefix",
+      "command": "test_auto(story_create)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"Story X-[a-f0-9]+ created \\\\(IDEA\\\\)\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-026",
+      "scenario": "story_advance:advance IDEA to PLAN with checklist",
+      "command": "test_auto(story_advance)",
+      "output": "File not found: C:\\Users\\mengj\\AppData\\Local\\Temp\\koala-wrap-194ZKm\\docs\\story\\actives\\B-001\\index.json",
+      "expected": "no error",
+      "result": "FAIL",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-027",
+      "scenario": "story_advance:advance IDEA to PLAN without checklist throws",
+      "command": "test_auto(story_advance)",
+      "output": "Expected error containing \"Cannot advance to PLAN: checklist is required\", got: \"File not found: C:\\Users\\mengj\\AppData\\Local\\Temp\\koala-wrap-194ZKm\\docs\\story\\actives\\B-001\\index.json\"",
+      "expected": "no error",
+      "result": "FAIL",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-028",
+      "scenario": "story_advance:advance to invalid phase throws",
+      "command": "test_auto(story_advance)",
+      "output": "Expected error containing \"Invalid target phase: NONEXISTENT\", got: \"File not found: C:\\Users\\mengj\\AppData\\Local\\Temp\\koala-wrap-194ZKm\\docs\\story\\actives\\B-001\\index.json\"",
+      "expected": "no error",
+      "result": "FAIL",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-029",
+      "scenario": "story_update:update story title",
+      "command": "test_auto(story_update)",
+      "output": "File not found: C:\\Users\\mengj\\AppData\\Local\\Temp\\koala-wrap-194ZKm\\docs\\story\\actives\\B-001\\index.json",
+      "expected": "no error",
+      "result": "FAIL",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-030",
+      "scenario": "story_update:update story description and priority",
+      "command": "test_auto(story_update)",
+      "output": "File not found: C:\\Users\\mengj\\AppData\\Local\\Temp\\koala-wrap-194ZKm\\docs\\story\\actives\\B-001\\index.json",
+      "expected": "no error",
+      "result": "FAIL",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-031",
+      "scenario": "story_update:update story depends array",
+      "command": "test_auto(story_update)",
+      "output": "File not found: C:\\Users\\mengj\\AppData\\Local\\Temp\\koala-wrap-194ZKm\\docs\\story\\actives\\B-002\\index.json",
+      "expected": "no error",
+      "result": "FAIL",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-032",
+      "scenario": "story_get:get existing story returns full story info",
+      "command": "test_auto(story_get)",
+      "output": "File not found: C:\\Users\\mengj\\AppData\\Local\\Temp\\koala-wrap-194ZKm\\docs\\story\\actives\\B-001\\index.json",
+      "expected": "no error",
+      "result": "FAIL",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-033",
+      "scenario": "story_get:get nonexistent story throws error",
+      "command": "test_auto(story_get)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-034",
+      "scenario": "story_list:list all stories returns dashboard and stories array",
+      "command": "test_auto(story_list)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"_dashboard\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-035",
+      "scenario": "story_list:list stories filtered by phase PLAN",
+      "command": "test_auto(story_list)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"PLAN\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-036",
+      "scenario": "story_list:list stories filtered by phase DONE",
+      "command": "test_auto(story_list)",
+      "output": "Pattern /DONE/ did not match",
+      "expected": "{\"pattern\":\"DONE\"}",
+      "result": "FAIL",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-037",
+      "scenario": "task_scan:default JSON output contains tasks and validation",
+      "command": "test_auto(task_scan)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"tasks\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-038",
+      "scenario": "task_scan:filter by type returns only matching tasks",
+      "command": "test_auto(task_scan)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"tasks\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-039",
+      "scenario": "task_scan:filter by priority returns only matching tasks",
+      "command": "test_auto(task_scan)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"tasks\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-040",
+      "scenario": "task_scan:markdown format returns markdown text",
+      "command": "test_auto(task_scan)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"##\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-041",
+      "scenario": "task_scan:filter by id returns specific task",
+      "command": "test_auto(task_scan)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"B-001\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-042",
+      "scenario": "task_coverage:full coverage - all checklist items annotated",
+      "command": "test_auto(task_coverage)",
+      "output": "File not found: C:\\Users\\mengj\\AppData\\Local\\Temp\\koala-wrap-194ZKm\\docs\\story\\actives\\B-001\\checklist.json",
+      "expected": "no error",
+      "result": "FAIL",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-043",
+      "scenario": "task_coverage:partial coverage - some items missing annotation",
+      "command": "test_auto(task_coverage)",
+      "output": "File not found: C:\\Users\\mengj\\AppData\\Local\\Temp\\koala-wrap-194ZKm\\docs\\story\\actives\\B-002\\checklist.json",
+      "expected": "no error",
+      "result": "FAIL",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-044",
+      "scenario": "task_locate:locate by task ID returns matching entries",
+      "command": "test_auto(task_locate)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"B-007\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-045",
+      "scenario": "task_locate:locate by keyword returns matching entries",
+      "command": "test_auto(task_locate)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"task_scan\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-046",
+      "scenario": "task_locate:locate with no match returns empty results",
+      "command": "test_auto(task_locate)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"matches\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-047",
+      "scenario": "test_auto:run test_auto on story with fixtures",
+      "command": "test_auto(test_auto)",
+      "output": "SKIP: Function \"test_auto\" is not a direct export in dist/mcp/handlers/test-auto.js (available: createTestAutoHandlers). Use flow e2e for object method testing.",
+      "expected": "no error",
+      "result": "FAIL",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-048",
+      "scenario": "test_auto:run test_auto on story with no test annotations",
+      "command": "test_auto(test_auto)",
+      "output": "SKIP: Function \"test_auto\" is not a direct export in dist/mcp/handlers/test-auto.js (available: createTestAutoHandlers). Use flow e2e for object method testing.",
+      "expected": "no error",
+      "result": "FAIL",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-049",
+      "scenario": "test_add:add a passing test evidence entry",
+      "command": "test_auto(test_add)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"Test evidence TE-001 added \\\\(PASS\\\\)\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-050",
+      "scenario": "test_add:add a failing test evidence entry",
+      "command": "test_auto(test_add)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"Test evidence TE-002 added \\\\(FAIL\\\\)\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-051",
+      "scenario": "test_add:add duplicate test evidence id throws error",
+      "command": "test_auto(test_add)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-052",
+      "scenario": "test_list:list test evidence for a story with existing entries",
+      "command": "test_auto(test_list)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"tests\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-053",
+      "scenario": "test_list:list test evidence for a story with no entries returns empty list",
+      "command": "test_auto(test_list)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"tests\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-054",
+      "scenario": "truth_scan:scan existing requirements directory",
+      "command": "test_auto(truth_scan)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-055",
+      "scenario": "truth_scan:scan returns topics array",
+      "command": "test_auto(truth_scan)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-056",
+      "scenario": "truth_nav:generates NAV.md and returns content",
+      "command": "test_auto(truth_nav)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"导航\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-057",
+      "scenario": "truth_nav:output contains links to requirement files",
+      "command": "test_auto(truth_nav)",
+      "output": "OK",
+      "expected": "{\"pattern\":\".md\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-058",
+      "scenario": "truth_analyze:analyze returns issues list",
+      "command": "test_auto(truth_analyze)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"healthy\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-059",
+      "scenario": "truth_analyze:healthy project has no critical issues",
+      "command": "test_auto(truth_analyze)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"healthy\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-060",
+      "scenario": "truth_to_story:returns story suggestions from truth source",
+      "command": "test_auto(truth_to_story)",
+      "output": "Pattern /stories/ did not match",
+      "expected": "{\"pattern\":\"stories\"}",
+      "result": "FAIL",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-061",
+      "scenario": "truth_to_story:output is valid JSON string",
+      "command": "test_auto(truth_to_story)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"\\\\[\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-062",
+      "scenario": "createStoryActor:requires real StoryStore instance — covered by flow e2e",
+      "command": "test_auto(createStoryActor)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-063",
+      "scenario": "getStateName:requires xstate actor object — covered by flow e2e",
+      "command": "test_auto(getStateName)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-064",
+      "scenario": "getGuardFailureReason:requires real StoryStore instance — covered by flow e2e",
+      "command": "test_auto(getGuardFailureReason)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-065",
+      "scenario": "StoryStore:StoryStore is a class constructor — covered by flow e2e",
+      "command": "test_auto(StoryStore)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-066",
+      "scenario": "listStoryIds:listStoryIds is a StoryStore method — covered by flow e2e",
+      "command": "test_auto(listStoryIds)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-067",
+      "scenario": "parseDiffFunctions:parseDiffFunctions - 正常调用",
+      "command": "test_auto(parseDiffFunctions)",
+      "output": "OK",
+      "expected": "{}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-068",
+      "scenario": "parseDiffFunctions:parseDiffFunctions - 边界情况",
+      "command": "test_auto(parseDiffFunctions)",
+      "output": "OK",
+      "expected": "{}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-069",
+      "scenario": "checkDrift:checkDrift - 正常调用",
+      "command": "test_auto(checkDrift)",
+      "output": "annotations is not iterable",
+      "expected": "no error",
+      "result": "FAIL",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-070",
+      "scenario": "checkDrift:checkDrift - 边界情况",
+      "command": "test_auto(checkDrift)",
+      "output": "annotations is not iterable",
+      "expected": "no error",
+      "result": "FAIL",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-071",
+      "scenario": "parseFunctionAfterBlock:matches export function declaration",
+      "command": "test_auto(parseFunctionAfterBlock)",
+      "output": "OK",
+      "expected": "{\"functionName\":\"doSomething\",\"functionSignature\":\"export function doSomething(a: string, b: number)\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.086Z"
+    },
+    {
+      "id": "TE-AUTO-072",
+      "scenario": "parseFunctionAfterBlock:matches async function declaration",
+      "command": "test_auto(parseFunctionAfterBlock)",
+      "output": "OK",
+      "expected": "{\"functionName\":\"fetchData\",\"functionSignature\":\"export async function fetchData(url: string)\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-073",
+      "scenario": "parseFunctionAfterBlock:matches const arrow function",
+      "command": "test_auto(parseFunctionAfterBlock)",
+      "output": "OK",
+      "expected": "{\"functionName\":\"handler\",\"functionSignature\":\"export const handler = (req: Request) =>\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-074",
+      "scenario": "parseFunctionAfterBlock:matches class declaration",
+      "command": "test_auto(parseFunctionAfterBlock)",
+      "output": "OK",
+      "expected": "{\"functionName\":\"MyService\",\"functionSignature\":\"export class MyService\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-075",
+      "scenario": "parseFunctionAfterBlock:matches class method",
+      "command": "test_auto(parseFunctionAfterBlock)",
+      "output": "OK",
+      "expected": "{\"functionName\":\"processItem\",\"functionSignature\":\"async processItem(item: Item)\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-076",
+      "scenario": "parseFunctionAfterBlock:returns null for keyword",
+      "command": "test_auto(parseFunctionAfterBlock)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-077",
+      "scenario": "extractFlows:extract single complete flow",
+      "command": "test_auto(extractFlows)",
+      "output": "OK",
+      "expected": "{\"length\":1}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-078",
+      "scenario": "extractFlows:extract multiple flows",
+      "command": "test_auto(extractFlows)",
+      "output": "OK",
+      "expected": "{\"length\":2}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-079",
+      "scenario": "extractFlows:no flow annotations returns empty",
+      "command": "test_auto(extractFlows)",
+      "output": "OK",
+      "expected": "{\"length\":0}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-080",
+      "scenario": "extractFlows:empty array returns empty",
+      "command": "test_auto(extractFlows)",
+      "output": "OK",
+      "expected": "{\"length\":0}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-081",
+      "scenario": "extractFlows:tasks with missing flow field are skipped",
+      "command": "test_auto(extractFlows)",
+      "output": "OK",
+      "expected": "{\"length\":0}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-082",
+      "scenario": "extractFlows:tasks with missing step are skipped",
+      "command": "test_auto(extractFlows)",
+      "output": "OK",
+      "expected": "{\"length\":0}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-083",
+      "scenario": "extractFlows:tasks with missing functionName are skipped",
+      "command": "test_auto(extractFlows)",
+      "output": "OK",
+      "expected": "{\"length\":0}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-084",
+      "scenario": "extractFlows:duplicate step numbers produce incomplete flow",
+      "command": "test_auto(extractFlows)",
+      "output": "OK",
+      "expected": "{\"length\":1}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-085",
+      "scenario": "extractFlows:non-continuous steps produce incomplete flow",
+      "command": "test_auto(extractFlows)",
+      "output": "OK",
+      "expected": "{\"length\":1}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-086",
+      "scenario": "extractFlows:last step with @next produces incomplete flow",
+      "command": "test_auto(extractFlows)",
+      "output": "OK",
+      "expected": "{\"length\":1}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-087",
+      "scenario": "analyzeGap:gap analyze returns coverage info",
+      "command": "test_auto(analyzeGap)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"coveragePercent\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-088",
+      "scenario": "analyzeGap:gap analyze includes healthy flag",
+      "command": "test_auto(analyzeGap)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"coveragePercent\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-089",
+      "scenario": "compareResult:exact primitive match",
+      "command": "test_auto(compareResult)",
+      "output": "OK",
+      "expected": "{\"match\":true}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-090",
+      "scenario": "compareResult:primitive mismatch",
+      "command": "test_auto(compareResult)",
+      "output": "OK",
+      "expected": "{\"match\":false}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-091",
+      "scenario": "compareResult:exact string match",
+      "command": "test_auto(compareResult)",
+      "output": "OK",
+      "expected": "{\"match\":true}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-092",
+      "scenario": "compareResult:nested object partial match",
+      "command": "test_auto(compareResult)",
+      "output": "OK",
+      "expected": "{\"match\":true}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-093",
+      "scenario": "compareResult:nested object key mismatch",
+      "command": "test_auto(compareResult)",
+      "output": "OK",
+      "expected": "{\"match\":false}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-094",
+      "scenario": "compareResult:missing key in actual",
+      "command": "test_auto(compareResult)",
+      "output": "OK",
+      "expected": "{\"match\":false}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-095",
+      "scenario": "compareResult:array exact match",
+      "command": "test_auto(compareResult)",
+      "output": "OK",
+      "expected": "{\"match\":true}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-096",
+      "scenario": "compareResult:array length mismatch",
+      "command": "test_auto(compareResult)",
+      "output": "OK",
+      "expected": "{\"match\":false}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-097",
+      "scenario": "compareResult:null expected null actual",
+      "command": "test_auto(compareResult)",
+      "output": "OK",
+      "expected": "{\"match\":true}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-098",
+      "scenario": "compareResult:null expected non-null actual",
+      "command": "test_auto(compareResult)",
+      "output": "OK",
+      "expected": "{\"match\":false}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-099",
+      "scenario": "createMockStore:readStory returns default mock for unknown id",
+      "command": "test_auto(createMockStore)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-100",
+      "scenario": "createMockStore:store returns object with all required methods",
+      "command": "test_auto(createMockStore)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-101",
+      "scenario": "importAndExecute:throws when compiled file does not exist",
+      "command": "test_auto(importAndExecute)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-102",
+      "scenario": "importAndExecute:throws SKIP when function is not a direct export",
+      "command": "test_auto(importAndExecute)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-103",
+      "scenario": "inferDefaultValue:inferDefaultValue - 基础类型参数",
+      "command": "test_auto(inferDefaultValue)",
+      "output": "OK",
+      "expected": "{\"name\":\"test-name\",\"count\":1,\"enabled\":true}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-104",
+      "scenario": "inferDefaultValue:inferDefaultValue - 数组类型参数",
+      "command": "test_auto(inferDefaultValue)",
+      "output": "OK",
+      "expected": "{\"items\":[]}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-105",
+      "scenario": "inferDefaultValue:inferDefaultValue - 无参数函数",
+      "command": "test_auto(inferDefaultValue)",
+      "output": "OK",
+      "expected": "{}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-106",
+      "scenario": "inferDefaultValue:inferDefaultValue - 复杂对象类型参数",
+      "command": "test_auto(inferDefaultValue)",
+      "output": "OK",
+      "expected": "{\"config\":\"test-config\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-107",
+      "scenario": "inferDefaultValue:inferDefaultValue - 空字符串输入",
+      "command": "test_auto(inferDefaultValue)",
+      "output": "OK",
+      "expected": "{}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-108",
+      "scenario": "inferDefaultValue:inferDefaultValue - 可选参数带问号",
+      "command": "test_auto(inferDefaultValue)",
+      "output": "OK",
+      "expected": "{\"name\":\"test-name\",\"count\":1}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-109",
+      "scenario": "inferDefaultValue:inferDefaultValue - 未知类型参数回退为空对象",
+      "command": "test_auto(inferDefaultValue)",
+      "output": "OK",
+      "expected": "{\"xyz\":{}}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-110",
+      "scenario": "generateFixtureTemplate:generateFixtureTemplate - task 无 @test 注释时返回 null",
+      "command": "test_auto(generateFixtureTemplate)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-111",
+      "scenario": "generateFixtureTemplate:generateFixtureTemplate - 有 @test 和签名时生成模板",
+      "command": "test_auto(generateFixtureTemplate)",
+      "output": "OK",
+      "expected": "{\"path\":\"test-fixture-gen-inferDefaultValue\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-112",
+      "scenario": "generateFixtureTemplate:generateFixtureTemplate - 无函数名时返回 null",
+      "command": "test_auto(generateFixtureTemplate)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-113",
+      "scenario": "generateMissingFixtures:generateMissingFixtures - 所有 fixture 已存在时无生成",
+      "command": "test_auto(generateMissingFixtures)",
+      "output": "OK",
+      "expected": "{\"generated\":[]}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-114",
+      "scenario": "analyzeTruth:analyze returns issues list",
+      "command": "test_auto(analyzeTruth)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"healthy\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-115",
+      "scenario": "analyzeTruth:healthy project has no critical issues",
+      "command": "test_auto(analyzeTruth)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"healthy\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-116",
+      "scenario": "truthToStory:returns story suggestions from requirements",
+      "command": "test_auto(truthToStory)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-117",
+      "scenario": "truthToStory:returns empty array when no requirements found",
+      "command": "test_auto(truthToStory)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-118",
+      "scenario": "scanTruth:scan existing requirements directory",
+      "command": "test_auto(scanTruth)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-119",
+      "scenario": "scanTruth:scan returns topics array",
+      "command": "test_auto(scanTruth)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-120",
+      "scenario": "generateNav:generate nav returns markdown string",
+      "command": "test_auto(generateNav)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-121",
+      "scenario": "generateNav:generate nav on empty directory returns fallback message",
+      "command": "test_auto(generateNav)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-122",
+      "scenario": "validateFlows:valid complete flow passes",
+      "command": "test_auto(validateFlows)",
+      "output": "OK",
+      "expected": "{\"passed\":true}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-123",
+      "scenario": "validateFlows:missing @next target reports error",
+      "command": "test_auto(validateFlows)",
+      "output": "OK",
+      "expected": "{\"passed\":false}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-124",
+      "scenario": "validateFlows:non-continuous steps reports error",
+      "command": "test_auto(validateFlows)",
+      "output": "OK",
+      "expected": "{\"passed\":false}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-125",
+      "scenario": "validateFlows:empty chains array passes",
+      "command": "test_auto(validateFlows)",
+      "output": "OK",
+      "expected": "{\"passed\":true}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-126",
+      "scenario": "validateFlows:chain with zero steps is skipped",
+      "command": "test_auto(validateFlows)",
+      "output": "OK",
+      "expected": "{\"passed\":true}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-127",
+      "scenario": "validateFlows:last step with @next reports warn only (still passes)",
+      "command": "test_auto(validateFlows)",
+      "output": "OK",
+      "expected": "{\"passed\":true}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-128",
+      "scenario": "validateFlows:duplicate step numbers reports error",
+      "command": "test_auto(validateFlows)",
+      "output": "OK",
+      "expected": "{\"passed\":false}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-129",
+      "scenario": "validateFlows:step not starting at 1 reports error",
+      "command": "test_auto(validateFlows)",
+      "output": "OK",
+      "expected": "{\"passed\":false}",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-130",
+      "scenario": "validateTestAnnotations:returns no issues when all fixture files exist",
+      "command": "test_auto(validateTestAnnotations)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-131",
+      "scenario": "validateTestAnnotations:returns warn issue when fixture file is missing",
+      "command": "test_auto(validateTestAnnotations)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-AUTO-132",
+      "scenario": "validateTestAnnotations:skips tasks without @test annotation",
+      "command": "test_auto(validateTestAnnotations)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-E2E-133",
+      "scenario": "flow-e2e:story-lifecycle",
+      "command": "runFlowE2E(story-lifecycle)",
+      "output": "ALL PASS",
+      "expected": "all steps pass",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-E2E-134",
+      "scenario": "flow-e2e:gap-convergence",
+      "command": "runFlowE2E(gap-convergence)",
+      "output": "ALL PASS",
+      "expected": "all steps pass",
+      "result": "PASS",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    },
+    {
+      "id": "TE-DRIFT-135",
+      "scenario": "drift-check(base=HEAD~1)",
+      "command": "parseDiffFunctions + checkDrift",
+      "output": "src\\tasks\\metadata-validate.ts:findAllFunctions",
+      "expected": "no drift",
+      "result": "FAIL",
+      "timestamp": "2026-04-02T07:00:41.087Z"
+    }
+  ],
+  "environment": {
+    "node": "v22.13.0",
+    "os": "win32 x64",
+    "timestamp": "2026-04-02T07:00:41.086Z"
+  }
+}

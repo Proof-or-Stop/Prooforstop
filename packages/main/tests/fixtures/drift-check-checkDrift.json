@@ -1,0 +1,33 @@
+{
+  "cases": [
+    {
+      "name": "checkDrift - 正常调用",
+      "input": [
+        [],
+        []
+      ],
+      "expect": []
+    },
+    {
+      "name": "checkDrift - 边界情况",
+      "input": [
+        [
+          {
+            "file": "foo.ts",
+            "functionName": "bar",
+            "line": 10
+          }
+        ],
+        []
+      ],
+      "expect": [
+        {
+          "file": "foo.ts",
+          "functionName": "bar",
+          "line": 10,
+          "reason": "no-annotation"
+        }
+      ]
+    }
+  ]
+}

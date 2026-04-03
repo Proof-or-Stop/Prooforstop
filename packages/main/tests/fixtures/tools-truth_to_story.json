@@ -1,0 +1,18 @@
+{
+  "cases": [
+    {
+      "name": "returns story suggestions from truth source",
+      "input": {},
+      "expect": {
+        "pattern": "title"
+      }
+    },
+    {
+      "name": "output is valid JSON string",
+      "input": {},
+      "expect": {
+        "pattern": "\\["
+      }
+    }
+  ]
+}

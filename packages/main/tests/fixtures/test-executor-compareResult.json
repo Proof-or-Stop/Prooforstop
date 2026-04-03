@@ -1,0 +1,54 @@
+{
+  "cases": [
+    {
+      "name": "exact primitive match",
+      "input": [42, 42],
+      "expect": { "match": true }
+    },
+    {
+      "name": "primitive mismatch",
+      "input": [42, 99],
+      "expect": { "match": false }
+    },
+    {
+      "name": "exact string match",
+      "input": ["hello", "hello"],
+      "expect": { "match": true }
+    },
+    {
+      "name": "nested object partial match",
+      "input": [{ "a": 1, "b": 2, "c": 3 }, { "a": 1, "b": 2 }],
+      "expect": { "match": true }
+    },
+    {
+      "name": "nested object key mismatch",
+      "input": [{ "a": 1 }, { "a": 2 }],
+      "expect": { "match": false }
+    },
+    {
+      "name": "missing key in actual",
+      "input": [{ "a": 1 }, { "a": 1, "b": 2 }],
+      "expect": { "match": false }
+    },
+    {
+      "name": "array exact match",
+      "input": [[1, 2, 3], [1, 2, 3]],
+      "expect": { "match": true }
+    },
+    {
+      "name": "array length mismatch",
+      "input": [[1, 2], [1, 2, 3]],
+      "expect": { "match": false }
+    },
+    {
+      "name": "null expected null actual",
+      "input": [null, null],
+      "expect": { "match": true }
+    },
+    {
+      "name": "null expected non-null actual",
+      "input": [0, null],
+      "expect": { "match": false }
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "name": "koala",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "build": "cd packages/main && npm run build",
+    "test": "npm run test:e2e",
+    "test:e2e": "node packages/main/dist/tasks/cli-e2e.js",
+    "lint:tasks": "node packages/main/dist/tasks/cli-validate.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jay2079037995/koala.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/jay2079037995/koala/issues"
+  },
+  "homepage": "https://github.com/jay2079037995/koala#readme",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0"
+  }
+}

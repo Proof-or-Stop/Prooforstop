@@ -1,0 +1,141 @@
+{
+  "cases": [
+    {
+      "name": "guess correct — returns correct hint",
+      "input": [
+        {
+          "target": 50,
+          "min": 1,
+          "max": 100,
+          "attempts": 0,
+          "finished": false
+        },
+        50
+      ],
+      "fn": "guess",
+      "expect": {
+        "correct": true,
+        "hint": "correct",
+        "attempts": 1
+      }
+    },
+    {
+      "name": "guess too high — returns too-high hint",
+      "input": [
+        {
+          "target": 50,
+          "min": 1,
+          "max": 100,
+          "attempts": 0,
+          "finished": false
+        },
+        75
+      ],
+      "fn": "guess",
+      "expect": {
+        "correct": false,
+        "hint": "too-high",
+        "attempts": 1
+      }
+    },
+    {
+      "name": "guess too low — returns too-low hint",
+      "input": [
+        {
+          "target": 50,
+          "min": 1,
+          "max": 100,
+          "attempts": 0,
+          "finished": false
+        },
+        25
+      ],
+      "fn": "guess",
+      "expect": {
+        "correct": false,
+        "hint": "too-low",
+        "attempts": 1
+      }
+    },
+    {
+      "name": "guess on finished game — throws",
+      "input": [
+        {
+          "target": 50,
+          "min": 1,
+          "max": 100,
+          "attempts": 3,
+          "finished": true
+        },
+        50
+      ],
+      "fn": "guess",
+      "throws": "Game is already finished"
+    },
+    {
+      "name": "isValidGuess — valid input returns null",
+      "input": [
+        {
+          "target": 50,
+          "min": 1,
+          "max": 100,
+          "attempts": 0,
+          "finished": false
+        },
+        50
+      ],
+      "fn": "isValidGuess",
+      "expect": null
+    },
+    {
+      "name": "isValidGuess — out of range",
+      "input": [
+        {
+          "target": 50,
+          "min": 1,
+          "max": 100,
+          "attempts": 0,
+          "finished": false
+        },
+        200
+      ],
+      "fn": "isValidGuess",
+      "expect": {
+        "pattern": "1-100"
+      }
+    },
+    {
+      "name": "isValidGuess — non-integer",
+      "input": [
+        {
+          "target": 50,
+          "min": 1,
+          "max": 100,
+          "attempts": 0,
+          "finished": false
+        },
+        3.14
+      ],
+      "fn": "isValidGuess",
+      "expect": {
+        "pattern": "整数"
+      }
+    },
+    {
+      "name": "createGameWithTarget — returns correct state",
+      "input": [
+        42,
+        1,
+        100
+      ],
+      "fn": "createGameWithTarget",
+      "expect": {
+        "target": 42,
+        "min": 1,
+        "max": 100,
+        "attempts": 0,
+        "finished": false
+      }
+    }
+  ]
+}

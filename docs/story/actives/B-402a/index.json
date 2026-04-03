@@ -1,0 +1,33 @@
+{
+  "storyId": "B-402a",
+  "name": "wrapper-fallback-fix",
+  "title": "修复 wrappersDir fallback：兼容 .js 源文件 + basename 回退",
+  "description": "importAndExecute 的 wrapper fallback 有两个 bug：1) 正则 /\\.tsx?$/ 不匹配 .js 文件，导致扩展名未剥离变成 .js.js；2) 只查嵌套路径（如 wrappers/runtime/context/foo.js），不支持扁平结构（如 wrappers/foo.js）。修复：正则改 /\\.(js|tsx?)$/，查找顺序先嵌套再 basename。",
+  "type": "bug",
+  "phase": "DONE",
+  "priority": "high",
+  "depends": [
+    "B-8253"
+  ],
+  "createdAt": "2026-04-01T16:55:10.226Z",
+  "startedAt": "2026-04-01T16:55:10.226Z",
+  "endedAt": "2026-04-01T16:58:30.254Z",
+  "events": [
+    {
+      "phase": "PLAN",
+      "action": "create",
+      "timestamp": "2026-04-01T16:55:10.226Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-01T16:56:59.255Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    }
+  ]
+}

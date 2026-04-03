@@ -1,0 +1,37 @@
+{
+  "cases": [
+    {
+      "name": "石头剪刀布 CLI 测试",
+      "cli": true,
+      "command": "node dist/main.js",
+      "steps": [
+        { "expect": "请选择游戏" },
+        { "input": "2" },
+        { "expect": "石头剪刀布" },
+        { "input": "1" },
+        { "expect": "vs" },
+        { "input": "q" },
+        { "expect": "战绩" },
+        { "expect": "请选择游戏" },
+        { "input": "q" }
+      ]
+    },
+    {
+      "name": "猜数字游戏 CLI 测试",
+      "cli": true,
+      "command": "node dist/main.js",
+      "env": { "GUESS_TARGET": "50" },
+      "steps": [
+        { "expect": "请选择游戏" },
+        { "input": "1" },
+        { "expect": "猜猜看" },
+        { "input": "50" },
+        { "expect": "恭喜" },
+        { "expect": "再来一局" },
+        { "input": "n" },
+        { "expect": "请选择游戏" },
+        { "input": "q" }
+      ]
+    }
+  ]
+}
