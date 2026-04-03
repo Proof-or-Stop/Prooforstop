@@ -245,6 +245,9 @@ function printHelp() {
    10. koala story_advance '{"storyId":"B-xxx","phase":"DONE"}'
    11. koala truth_extract                                    # 从代码+Story 反向提取真相源
 
+  初始化新项目:
+    koala init                          # 在当前目录初始化 koala（生成 config/CLAUDE.md/hooks 等）
+
   出错? 用 koala <command> --help 查看完整参数说明
 `);
 }
@@ -277,6 +280,13 @@ async function main() {
   const arg = argv[1];
 
   if (!cmd || cmd === 'help' || cmd === '--help') { printHelp(); return; }
+
+  // init 走独立脚本
+  if (cmd === 'init') {
+    const initPath = new URL('./cli-init.js', import.meta.url).pathname.replace(/^\/([A-Z]:)/, '$1');
+    await import(`file://${initPath}`);
+    return;
+  }
 
   const tool = TOOLS.find(t => t.name === cmd);
   if (!tool) {
