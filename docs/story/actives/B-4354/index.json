@@ -1,19 +1,43 @@
 {
   "storyId": "B-4354",
-  "name": "test-story",
-  "title": "Test Story",
-  "description": "A test story for validation",
+  "name": "testintent-struct",
+  "title": "testIntent 结构变更：字符串→{desc,type}+results 数组",
+  "description": "testIntent 每条从纯字符串改为 {desc,type} 对象，新增 results 数组追加审核记录。CLI 负责写入/读取 results，不允许手动修改。这是后续阶段拆分和 subagent 体系的基础。\n\n## 待补充 CHK-005（CLI 暂不支持追加 checklist item）\ntitle: checklist item 新增 fixture 关联字段\ncontext: 新增字段直接关联黑盒测试的 fixture 文件路径，写黑盒测试时 CLI 自动填入。不再只依赖 fixture case 侧的 intentRef 反向扫描聚合。白盒走 task.json 的 test 字段，黑盒走 checklist item 的新字段。",
   "type": "feature",
-  "phase": "PLAN",
+  "phase": "DONE",
   "priority": "high",
-  "createdAt": "2026-04-02T07:32:36.148Z",
-  "startedAt": "2026-04-02T07:32:36.148Z",
-  "endedAt": null,
+  "createdAt": "2026-04-04T02:22:33.387Z",
+  "startedAt": "2026-04-04T02:22:33.387Z",
+  "endedAt": "2026-04-04T06:35:20.936Z",
   "events": [
     {
       "phase": "PLAN",
       "action": "create",
-      "timestamp": "2026-04-02T07:32:36.148Z",
+      "timestamp": "2026-04-04T02:22:33.387Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-04T02:27:16.334Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-04T06:06:37.607Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-04T06:35:20.936Z",
       "branch": "main",
       "user": "jay2079037995",
       "agent": "main"

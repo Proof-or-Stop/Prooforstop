@@ -1,0 +1,86 @@
+{
+  "cases": [
+    {
+      "name": "diagnose existing case no git diff",
+      "run_type": "cli",
+      "fn": "diagnose",
+      "file": "mcp/handlers/diagnose",
+      "execute": "const r = await $handlers.diagnose({caseName:\"diagnose timeout case\",fixturePath:\"diagnose\"}); const d = JSON.parse(r); return d.lastPassCommit === null && (d.traceSummary.includes(\"无历史\") || d.rootCause.some(c => c.includes(\"环境\") || c.includes(\"无代码\")))",
+      "expect": true,
+      "intentRef": "CHK-005:edge:2"
+    },
+    {
+      "name": "diagnose timeout case",
+      "run_type": "cli",
+      "fn": "diagnose",
+      "file": "mcp/handlers/diagnose",
+      "execute": "const r = await $handlers.diagnose({caseName:\"nonexistent-timeout\"}); return JSON.parse(r).error !== undefined",
+      "expect": true,
+      "intentRef": "CHK-005:adversarial:1"
+    },
+    {
+      "name": "diagnose concurrent safe",
+      "run_type": "cli",
+      "fn": "diagnose",
+      "file": "mcp/handlers/diagnose",
+      "execute": "const [r1,r2] = await Promise.all([$handlers.diagnose({caseName:\"no1\"}),$handlers.diagnose({caseName:\"no2\"})]); return r1 !== undefined && r2 !== undefined",
+      "expect": true,
+      "intentRef": "CHK-005:adversarial:2"
+    },
+    {
+      "name": "setup: create trace fixture",
+      "run_type": "cli",
+      "fn": "diagnose",
+      "file": "mcp/handlers/diagnose",
+      "execute": "const ts = await import(\"file:///\"+$root.split(\"\\\\\").join(\"/\")+\"/packages/main/dist/tasks/trace-store.js\"); const fs = await import(\"fs\"); const dir = $root+\"/packages/main/tests/fixtures\"; ts.saveTraceSnapshot(dir,\"diagnose\",\"diagnose existing case no git diff\",[{fn:\"testFn\",file:\"test.ts\",line:1,children:[]}],$root); return true",
+      "expect": true,
+      "sandbox": false
+    },
+    {
+      "name": "diagnose full pipeline",
+      "run_type": "cli",
+      "fn": "diagnose",
+      "file": "mcp/handlers/diagnose",
+      "execute": "const r = await $handlers.diagnose({caseName:\"diagnose existing case no git diff\",fixturePath:\"diagnose\"}); const d = JSON.parse(r); return d.caseName===\"diagnose existing case no git diff\" && d.lastPassCommit && Array.isArray(d.rootCause) && typeof d.suggestion===\"string\"",
+      "expect": true,
+      "intentRef": "CHK-005:happy:0"
+    },
+    {
+      "name": "diagnose rootCause cross ref",
+      "run_type": "cli",
+      "fn": "diagnose",
+      "file": "mcp/handlers/diagnose",
+      "execute": "const r = await $handlers.diagnose({caseName:\"diagnose existing case no git diff\",fixturePath:\"diagnose\"}); const d = JSON.parse(r); return d.traceSummary !== undefined && d.suggestion !== undefined",
+      "expect": true,
+      "intentRef": "CHK-005:happy:1"
+    },
+    {
+      "name": "diagnose no lastPass snapshot",
+      "run_type": "cli",
+      "fn": "diagnose",
+      "file": "mcp/handlers/diagnose",
+      "execute": "const r = await $handlers.diagnose({caseName:\"setup: create test story\",fixturePath:\"checklist-add\"}); const d = JSON.parse(r); return d.lastPassCommit === null && d.traceSummary.includes(\"无历史\")",
+      "expect": true,
+      "intentRef": "CHK-005:edge:0"
+    },
+    {
+      "name": "diagnose case pass no action",
+      "run_type": "cli",
+      "fn": "diagnose",
+      "file": "mcp/handlers/diagnose",
+      "execute": "const r = await $handlers.diagnose({caseName:\"diagnose existing case no git diff\",fixturePath:\"diagnose\"}); const d = JSON.parse(r); return typeof d.suggestion === \"string\" && d.suggestion.length > 0 && d.rootCause.length >= 0 && d.caseName === \"diagnose existing case no git diff\"",
+      "expect": true,
+      "intentRef": "CHK-005:edge:1"
+    },
+    {
+      "name": "diagnose corrupt lastPass",
+      "run_type": "cli",
+      "fn": "diagnose",
+      "file": "mcp/handlers/diagnose",
+      "execute": "const fs = await import(\"fs\"); const dir = $root+\"/packages/main/tests/fixtures\"; fs.writeFileSync(dir+\"/diagnose.trace.json\",\"corrupt\"); const r = await $handlers.diagnose({caseName:\"diagnose existing case no git diff\",fixturePath:\"diagnose\"}); const d = JSON.parse(r); return d.lastPassCommit === null; ",
+      "expect": true,
+      "intentRef": "CHK-005:adversarial:0",
+      "sandbox": false
+    }
+  ]
+}

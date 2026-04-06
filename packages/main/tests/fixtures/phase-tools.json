@@ -1,0 +1,294 @@
+{
+  "cases": [
+    {
+      "name": "setup: import config module into ctx",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const CFG = \"file:///\" + $root.split(\"\\\\\").join(\"/\") + \"/packages/main/dist/config.js\"; const m = await import(CFG); $ctx.CFG = CFG; $ctx.f = m.isCommandAllowed; $ctx.ap = m.getAllowedPatterns; $ctx.lc = m.loadConfig; $ctx.rc = m.resetConfigCache; return typeof m.isCommandAllowed === \"function\"",
+      "expect": true
+    },
+    {
+      "name": "CHK-001 happy:0 — 各阶段命令正确分配",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const f=$ctx.f; return f(\"story_review\",\"PLAN\") && !f(\"story_review\",\"DEV\") && f(\"fixture_batch_add\",\"DEV\") && !f(\"fixture_batch_add\",\"PLAN\") && f(\"bug_report\",\"TEST\") && !f(\"bug_report\",\"DEV\") && f(\"testintent_check\",\"TEST_CASE_REVIEW\") && !f(\"testintent_check\",\"DEV\")",
+      "expect": true,
+      "intentRef": "CHK-001:happy:0"
+    },
+    {
+      "name": "CHK-001 happy:1 — 通配符 * 全部放行",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const f=$ctx.f; return f(\"x\",\"A\",{\"A\":[\"*\"]}) && f(\"story_get\",\"A\",{\"A\":[\"*\"]}) && f(\"zzz\",\"A\",{\"A\":[\"*\"]})",
+      "expect": true,
+      "intentRef": "CHK-001:happy:1"
+    },
+    {
+      "name": "CHK-001 happy:2 — 删除 phaseTools 字段后 loadConfig 回退默认值",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const fs=await import(\"fs\");const path=await import(\"path\");const cp=path.join($root,\"koala.config.json\");const orig=fs.readFileSync(cp,\"utf-8\");const o=JSON.parse(orig);delete o.phaseTools;fs.writeFileSync(cp,JSON.stringify(o));$ctx.rc();const c=$ctx.lc($root);fs.writeFileSync(cp,orig);$ctx.rc();return c.phaseTools!==undefined&&typeof c.phaseTools===\"object\"&&Object.keys(c.phaseTools).length>0",
+      "expect": true,
+      "intentRef": "CHK-001:happy:2",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-001 edge:0 — 空数组阶段仅全局可用",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const f=$ctx.f;const pt={\"*\":[\"story_get\"],\"E\":[]};return !f(\"fixture_get\",\"E\",pt)&&!f(\"test_auto\",\"E\",pt)&&f(\"story_get\",\"E\",pt)",
+      "expect": true,
+      "intentRef": "CHK-001:edge:0"
+    },
+    {
+      "name": "CHK-001 edge:1 — 大小写不匹配被拒",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const f=$ctx.f;const pt={\"*\":[\"story_get\"],\"P\":[]};return !f(\"Story_Get\",\"P\",pt)&&!f(\"STORY_GET\",\"P\",pt)&&f(\"story_get\",\"P\",pt)",
+      "expect": true,
+      "intentRef": "CHK-001:edge:1"
+    },
+    {
+      "name": "CHK-001 edge:2 — 未知阶段 key 不影响已知阶段",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const f=$ctx.f;const pt={\"*\":[\"story_get\"],\"STAGING\":[\"foo\"],\"DEV\":[\"test_auto\"]};return f(\"test_auto\",\"DEV\",pt)&&!f(\"foo\",\"DEV\",pt)&&f(\"foo\",\"STAGING\",pt)",
+      "expect": true,
+      "intentRef": "CHK-001:edge:2"
+    },
+    {
+      "name": "CHK-001 edge:3 — 混合精确名与通配符",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const f=$ctx.f;const pt={\"*\":[],\"M\":[\"story_get\",\"*\"]};return f(\"anything\",\"M\",pt)&&f(\"story_get\",\"M\",pt)&&f(\"zzz\",\"M\",pt)",
+      "expect": true,
+      "intentRef": "CHK-001:edge:3"
+    },
+    {
+      "name": "CHK-001 adv:0 — phaseTools 为字符串/数组/null → 降级全量放行",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const f=$ctx.f;return f(\"x\",\"D\",\"str\")&&f(\"x\",\"D\",null)&&f(\"x\",\"D\",[\"a\"])&&f(\"x\",\"D\",42)",
+      "expect": true,
+      "intentRef": "CHK-001:adversarial:0"
+    },
+    {
+      "name": "CHK-001 adv:1 — value 含 null/数字 → 非字符串被跳过，story_get 仍匹配",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const f=$ctx.f;const pt={\"*\":[],\"B\":[\"story_get\",null,42,\"truth_*\"]};return f(\"story_get\",\"B\",pt)&&f(\"truth_scan\",\"B\",pt)&&!f(\"bug_report\",\"B\",pt)",
+      "expect": true,
+      "intentRef": "CHK-001:adversarial:1"
+    },
+    {
+      "name": "CHK-001 adv:2 — JSON 损坏 → 回退默认 phaseTools 仍有约束",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const fs=await import(\"fs\");const path=await import(\"path\");const cp=path.join($root,\"koala.config.json\");const orig=fs.readFileSync(cp,\"utf-8\");fs.writeFileSync(cp,\"{bad\");$ctx.rc();let r=false;try{const c=$ctx.lc($root);r=c.phaseTools!==undefined&&!$ctx.f(\"bug_report\",\"PLAN\",c.phaseTools)}catch{}fs.writeFileSync(cp,orig);$ctx.rc();return r",
+      "expect": true,
+      "intentRef": "CHK-001:adversarial:2",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-002 happy:0 — DEV 白名单命令全部通过过滤",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const {execSync}=await import(\"child_process\");const fs=await import(\"fs\");const path=await import(\"path\");const br=execSync(\"git rev-parse --abbrev-ref HEAD\",{cwd:$root,encoding:\"utf-8\",stdio:[\"pipe\",\"pipe\",\"pipe\"]}).trim();if(br!==\"main\")return \"skip\";const idx=path.join($root,\"docs/story/actives/B-44a6/index.json\");const orig=fs.readFileSync(idx,\"utf-8\");const j=JSON.parse(orig);const oldPhase=j.phase;j.phase=\"DEV\";fs.writeFileSync(idx,JSON.stringify(j,null,2));try{execSync(\"git checkout -b story/B-44a6\",{cwd:$root,stdio:[\"pipe\",\"pipe\",\"pipe\"]});const out=execSync(\"koala fixture_get --fixturePath=phase-tools\",{cwd:$root,encoding:\"utf-8\",timeout:30000});return out.includes(\"fixture_get done\")}finally{j.phase=oldPhase;fs.writeFileSync(idx,JSON.stringify(j,null,2));execSync(\"git checkout main\",{cwd:$root,stdio:[\"pipe\",\"pipe\",\"pipe\"]});try{execSync(\"git branch -D story/B-44a6\",{cwd:$root,stdio:[\"pipe\",\"pipe\",\"pipe\"]})}catch{}}",
+      "expect": true,
+      "intentRef": "CHK-002:happy:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-002 happy:1 — main 分支 koala story_list 全量放行",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const {execSync}=await import(\"child_process\");const br=execSync(\"git rev-parse --abbrev-ref HEAD\",{cwd:$root,encoding:\"utf-8\",stdio:[\"pipe\",\"pipe\",\"pipe\"]}).trim();if(br!==\"main\")return \"skip\";const out=execSync(\"koala story_list\",{cwd:$root,encoding:\"utf-8\",timeout:30000});return out.includes(\"story_list done\")",
+      "expect": true,
+      "intentRef": "CHK-002:happy:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-002 happy:2 — PLAN 阶段允许 review 拒绝 test_auto/fixture",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const {execSync}=await import(\"child_process\");const br=execSync(\"git rev-parse --abbrev-ref HEAD\",{cwd:$root,encoding:\"utf-8\",stdio:[\"pipe\",\"pipe\",\"pipe\"]}).trim();if(br!==\"main\")return \"skip\";try{execSync(\"git checkout -b story/B-0743\",{cwd:$root,stdio:[\"pipe\",\"pipe\",\"pipe\"]});let blocked=false;try{execSync(\"koala test_auto\",{cwd:$root,encoding:\"utf-8\",timeout:10000,stdio:[\"pipe\",\"pipe\",\"pipe\"]})}catch(e){blocked=e.stderr&&e.stderr.includes(\"不可用\")}const ok=execSync(\"koala story_review --storyId=B-0743\",{cwd:$root,encoding:\"utf-8\",timeout:30000});return blocked&&ok.includes(\"story_review done\")}finally{execSync(\"git checkout main\",{cwd:$root,stdio:[\"pipe\",\"pipe\",\"pipe\"]});try{execSync(\"git branch -D story/B-0743\",{cwd:$root,stdio:[\"pipe\",\"pipe\",\"pipe\"]})}catch{}}",
+      "expect": true,
+      "intentRef": "CHK-002:happy:2",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-002 edge:0 — readStory 不存在的 storyId 抛错",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const {StoryStore}=await import(\"file:///\"+$root.split(\"\\\\\").join(\"/\")+\"/packages/main/dist/story/store.js\");const s=new StoryStore($root);let threw=false;try{s.readStory(\"B-00000\")}catch{threw=true}return threw",
+      "expect": true,
+      "intentRef": "CHK-002:edge:0"
+    },
+    {
+      "name": "CHK-002 edge:1 — 非 git 目录 git rev-parse 失败",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const {execSync}=await import(\"child_process\");const os=await import(\"os\");let threw=false;try{execSync(\"git rev-parse --abbrev-ref HEAD\",{cwd:os.tmpdir(),encoding:\"utf-8\",stdio:[\"pipe\",\"pipe\",\"pipe\"]})}catch{threw=true}return threw",
+      "expect": true,
+      "intentRef": "CHK-002:edge:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-002 edge:2 — story- 前缀不被识别",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "return !\"story-B-44a6\".startsWith(\"story/\")",
+      "expect": true,
+      "intentRef": "CHK-002:edge:2"
+    },
+    {
+      "name": "CHK-002 edge:3 — phase [*] 通配符全部放行",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const f=$ctx.f;const pt={\"*\":[],\"W\":[\"*\"]};return f(\"any\",\"W\",pt)&&f(\"fixture_get\",\"W\",pt)&&f(\"zzz\",\"W\",pt)",
+      "expect": true,
+      "intentRef": "CHK-002:edge:3"
+    },
+    {
+      "name": "CHK-002 adv:0 — 50 次重试每次都被拒",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const f=$ctx.f;const pt={\"*\":[\"story_get\"],\"PLAN\":[\"story_review\"]};let ok=true;for(let i=0;i<50;i++){if(f(\"test_auto\",\"PLAN\",pt)){ok=false;break}}return ok",
+      "expect": true,
+      "intentRef": "CHK-002:adversarial:0"
+    },
+    {
+      "name": "CHK-002 adv:1 — 伪造 storyId readStory 抛错不静默放行",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const {StoryStore}=await import(\"file:///\"+$root.split(\"\\\\\").join(\"/\")+\"/packages/main/dist/story/store.js\");const s=new StoryStore($root);let err=null;try{s.readStory(\"B-00000\")}catch(e){err=e}return err!==null&&err.message.includes(\"B-00000\")",
+      "expect": true,
+      "intentRef": "CHK-002:adversarial:1"
+    },
+    {
+      "name": "CHK-002 adv:2 — worktree 隔离：不同 phase 下同一命令结果不同",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const f=$ctx.f;const pt=$ctx.lc($root).phaseTools;return f(\"bug_report\",\"TEST\",pt)&&!f(\"bug_report\",\"PLAN\",pt)&&!f(\"bug_report\",\"DEV\",pt)",
+      "expect": true,
+      "intentRef": "CHK-002:adversarial:2"
+    },
+    {
+      "name": "CHK-002 adv:3 — phase 为空字符串 → 仅全局可用不崩溃",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const f=$ctx.f;return f(\"story_get\",\"\")&&!f(\"bug_report\",\"\")",
+      "expect": true,
+      "intentRef": "CHK-002:adversarial:3"
+    },
+    {
+      "name": "CHK-003 happy:0 — DEV 阶段过滤：只含 DEV 命令",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const {execSync}=await import(\"child_process\");const fs=await import(\"fs\");const path=await import(\"path\");const br=execSync(\"git rev-parse --abbrev-ref HEAD\",{cwd:$root,encoding:\"utf-8\",stdio:[\"pipe\",\"pipe\",\"pipe\"]}).trim();if(br!==\"main\")return \"skip\";const idx=path.join($root,\"docs/story/actives/B-44a6/index.json\");const orig=fs.readFileSync(idx,\"utf-8\");const j=JSON.parse(orig);const oldPhase=j.phase;j.phase=\"DEV\";fs.writeFileSync(idx,JSON.stringify(j,null,2));try{execSync(\"git checkout -b story/B-44a6\",{cwd:$root,stdio:[\"pipe\",\"pipe\",\"pipe\"]});const out=execSync(\"koala help\",{cwd:$root,encoding:\"utf-8\",timeout:30000});const hasDev=out.includes(\"fixture_batch_add\")&&out.includes(\"test_auto\");const hasPhase=out.includes(\"阶段: DEV\");const noBugGroup=!out.includes(\"Bug:\");const noReviewGroup=!out.includes(\"Review:\");return hasDev&&hasPhase&&noBugGroup&&noReviewGroup}finally{j.phase=oldPhase;fs.writeFileSync(idx,JSON.stringify(j,null,2));execSync(\"git checkout main\",{cwd:$root,stdio:[\"pipe\",\"pipe\",\"pipe\"]});try{execSync(\"git branch -D story/B-44a6\",{cwd:$root,stdio:[\"pipe\",\"pipe\",\"pipe\"]})}catch{}}",
+      "expect": true,
+      "intentRef": "CHK-003:happy:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-003 happy:1 — main 分支 koala help 列出全部命令",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const {execSync}=await import(\"child_process\");const br=execSync(\"git rev-parse --abbrev-ref HEAD\",{cwd:$root,encoding:\"utf-8\",stdio:[\"pipe\",\"pipe\",\"pipe\"]}).trim();if(br!==\"main\")return \"skip\";const out=execSync(\"koala help\",{cwd:$root,encoding:\"utf-8\",timeout:30000});return out.includes(\"story_create\")&&out.includes(\"bug_report\")&&out.includes(\"fixture_batch_add\")&&out.includes(\"story_review\")",
+      "expect": true,
+      "intentRef": "CHK-003:happy:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-003 happy:2 — PLAN 阶段 getAllowedPatterns 含 review/advance",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const pt=$ctx.lc($root).phaseTools;const p=$ctx.ap(\"PLAN\",pt);const hasReview=p.includes(\"story_review\");const hasAdvance=p.includes(\"story_advance\");const {execSync}=await import(\"child_process\");const br=execSync(\"git rev-parse --abbrev-ref HEAD\",{cwd:$root,encoding:\"utf-8\",stdio:[\"pipe\",\"pipe\",\"pipe\"]}).trim();let headerCheck=true;if(br===\"main\"){const out=execSync(\"koala help\",{cwd:$root,encoding:\"utf-8\",timeout:30000});headerCheck=!out.includes(\"当前 Story\")}return hasReview&&hasAdvance&&headerCheck",
+      "expect": true,
+      "intentRef": "CHK-003:happy:2",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-003 edge:0 — phaseTools[phase]=[*] → getAllowedPatterns 含通配符",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const f=$ctx.f;const pt={\"*\":[],\"A\":[\"*\"]};return f(\"story_create\",\"A\",pt)&&f(\"bug_report\",\"A\",pt)&&f(\"any\",\"A\",pt)",
+      "expect": true,
+      "intentRef": "CHK-003:edge:0"
+    },
+    {
+      "name": "CHK-003 edge:1 — phaseTools[phase]=[] → 仅全局命令",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const pt={\"*\":[\"story_get\"],\"E\":[]};const p=$ctx.ap(\"E\",pt);return p.length===1&&p[0]===\"story_get\"&&!$ctx.f(\"bug_report\",\"E\",pt)",
+      "expect": true,
+      "intentRef": "CHK-003:edge:1"
+    },
+    {
+      "name": "CHK-003 edge:2 — 未知阶段名 → getAllowedPatterns 只返回全局",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const pt=$ctx.lc($root).phaseTools;const p=$ctx.ap(\"STAGING\",pt);const g=pt[\"*\"]||[];return p.length===g.length&&g.every(x=>p.includes(x))",
+      "expect": true,
+      "intentRef": "CHK-003:edge:2"
+    },
+    {
+      "name": "CHK-003 edge:3 — help 在 CLI 中位于 phase gate 之前，不被过滤",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const {execSync}=await import(\"child_process\");const br=execSync(\"git rev-parse --abbrev-ref HEAD\",{cwd:$root,encoding:\"utf-8\",stdio:[\"pipe\",\"pipe\",\"pipe\"]}).trim();if(br!==\"main\")return \"skip\";const out=execSync(\"koala help\",{cwd:$root,encoding:\"utf-8\",timeout:30000});return out.includes(\"koala — AI-driven\")",
+      "expect": true,
+      "intentRef": "CHK-003:edge:3",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-003 adv:1 — phaseTools 删除后 loadConfig 回退默认不崩溃",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const fs=await import(\"fs\");const path=await import(\"path\");const cp=path.join($root,\"koala.config.json\");const orig=fs.readFileSync(cp,\"utf-8\");const o=JSON.parse(orig);delete o.phaseTools;fs.writeFileSync(cp,JSON.stringify(o));$ctx.rc();let r=false;try{const c=$ctx.lc($root);r=c.phaseTools!==undefined&&Object.keys(c.phaseTools).length>0}catch{}fs.writeFileSync(cp,orig);$ctx.rc();return r",
+      "expect": true,
+      "intentRef": "CHK-003:adversarial:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-003 adv:2 — git 分支检测不依赖环境变量",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const {execSync}=await import(\"child_process\");const br=execSync(\"git rev-parse --abbrev-ref HEAD\",{cwd:$root,encoding:\"utf-8\",stdio:[\"pipe\",\"pipe\",\"pipe\"]}).trim();if(br!==\"main\")return \"skip\";const env=Object.assign({},process.env,{KOALA_PHASE:\"TEST\"});const out=execSync(\"koala help\",{cwd:$root,encoding:\"utf-8\",timeout:30000,env:env});return out.includes(\"story_create\")&&out.includes(\"bug_report\")&&!out.includes(\"当前 Story\")",
+      "expect": true,
+      "intentRef": "CHK-003:adversarial:2",
+      "sandbox": false
+    }
+  ]
+}

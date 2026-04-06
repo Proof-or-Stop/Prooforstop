@@ -78,7 +78,8 @@ replyRoomMessage(conversationKey, targetEventId, content) { ... }
 | `fn` | 否 | string | 指定调用哪个函数（多函数共享 fixture 时必填） |
 | `expect` | 否 | any | 期望返回值（部分匹配） |
 | `throws` | 否 | string | 期望抛出的错误消息片段（与 expect 互斥） |
-| `setup` | 否 | object | 声明式状态预设，executor 执行前自动创建数据 |
+| `construct` | 否 | array | 类构造函数参数（仅 fn 为 ClassName.methodName 时有效） |
+| `intentRef` | 否 | string | 关联 testIntent（如 CHK-001:happy:0） |
 
 ### expect 匹配规则
 
@@ -120,25 +121,34 @@ replyRoomMessage(conversationKey, targetEventId, content) { ... }
 }
 ```
 
-#### 4. 声明式状态预设（setup）
+#### 4. 前置 case + $prev 引用（取代旧 setup 字段）
 
-需要前置数据的 case 用 `setup` 字段声明，executor 自动创建：
+需要前置数据的 fixture 通过前置 case 创建数据，后续 case 用 `$prev.xxx` 引用前一个 case 的输出：
 
 ```json
 {
-  "name": "report duplicate bug throws",
-  "setup": { "story": "S-001", "bug": { "storyId": "S-001", "id": "BUG-001" } },
-  "input": { "storyId": "S-001", "id": "BUG-001", "title": "dup" },
-  "throws": "already exists"
+  "cases": [
+    {
+      "name": "prereq: create story",
+      "fn": "story_create",
+      "input": { "name": "t", "title": "T", "description": "t", "type": "feature", "priority": "high" },
+      "expect": { "pattern": "created" }
+    },
+    {
+      "name": "advance to PLAN",
+      "fn": "story_advance",
+      "input": { "storyId": "$prev.storyId", "phase": "PLAN" },
+      "expect": { "pattern": "advanced to PLAN" }
+    }
+  ]
 }
 ```
 
-setup 支持的字段：
-- `story`: `string`（story ID，默认 IDEA）或 `{ id, phase? }`
-- `bug`: `{ storyId, id }`
-- `testEvidence`: `{ storyId, id }`
-
-**不需要前置数据的 case 不加 setup**（如 throws "not found" 直接用不存在的 ID）。
+context 传递机制：
+- executor 维护共享 `context` 对象，每个 case 执行后自动提取返回值字段
+- 字符串返回值：自动匹配 `Story B-xxxx`→`storyId`、`Bug BUG-xxx`→`bugId` 等模式
+- 对象返回值：直接 `Object.assign` 到 context
+- 后续 case 的 input 中 `$prev.xxx` 被替换为 context 中对应字段
 
 #### 5. 多函数共享一个 fixture 文件
 
@@ -230,17 +240,26 @@ node /path/to/koala/scripts/convert-fixtures.cjs tests/fixtures/application/agen
 
 ## fn 字段的路由机制
 
-`executeTestCases` 的处理逻辑：
+`executeCases`（test-auto.ts）的处理逻辑：
 
 ```
 对 fixture 的每个 case:
-  if case.fn 存在 且 case.fn ≠ 当前函数名:
-    → 跳过（这个 case 不属于当前函数）
-  else:
-    → 用 case.fn 或默认函数名调用 importAndExecute
+  targetFn = case.fn || 默认函数名
+  1. 解析 input 中的 $prev.xxx 引用 + 路径占位符
+  2. 在 handlers 中查找 targetFn:
+     → 找到: 直接调用 handler（共享 store/ctx）
+     → 未找到: fallback 到 importAndExecute（纯函数）
+  3. 执行结果写入共享 context（供后续 case 的 $prev 引用）
 ```
 
-这样多个函数指向同一个 fixture 时，每个函数只跑标了自己名字的 case，不会产生笛卡尔积。
+handler 优先：test-runtime 提供的 handler 函数直接调用，共享临时 store 和 ctx。纯函数（不在 handlers 中）fallback 到 importAndExecute 冷启动 import。
+
+## test-runtime 机制
+
+`test_auto` 执行时创建临时 store 隔离测试数据，加载 handlers：
+
+1. **koala 自身**：直接使用 `createToolHandlers(testStore, root)`
+2. **外部项目**：通过 `koala.config.json` 的 `testRuntime` 配置指向 `tests/test-runtime.js`，该文件 export `createTestHandlers(store, projectRoot)` 返回 handler 映射
 
 ## 浏览器真机测试（browser case）
 

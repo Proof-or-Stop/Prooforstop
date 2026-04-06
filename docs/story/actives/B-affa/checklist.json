@@ -4,104 +4,676 @@
       "id": "CHK-001",
       "title": "DEV→TEST 门禁：每个函数必须有 test 字段指向 fixture",
       "context": "根因：testgame1 有 24 个函数 0 个有 test 字段，门禁没拦。用 task.json 检查，无 test 的函数列出来报错",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-04T07:03:27.584Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "所有函数都有 test 字段时 DEV→TEST 门禁通过",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:14.032Z",
+                "pass": true,
+                "note": "packages/main/src/tasks/drift-check.ts:门禁检查 test 字段存在 WHY:test_auto 全量通过验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "test:skip 的函数也视为有 test 字段，门禁不报错",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:14.631Z",
+                "pass": true,
+                "note": "packages/main/src/tasks/drift-check.ts:test:skip 白名单逻辑 WHY:已在 drift-check 中实现 skip 豁免 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "存在无 test 字段的函数时门禁拦住并列出函数名",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:15.231Z",
+                "pass": true,
+                "note": "packages/main/src/tasks/drift-check.ts:无 test 字段拦截逻辑 WHY:门禁拦截并列出缺失函数已验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
       "title": "DEV→TEST 门禁：改了函数必须同步更新 task.json 元数据，否则不放行",
       "context": "根因：Claude 改了函数但不更新 task.json 的 description/changes/test 等字段。drift check 对比 git diff 改动的函数列表 vs task.json 的 updatedAt 时间戳或签名，有漂移就拦住并提示用 task_annotate 更新",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-04T07:03:32.351Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "函数元数据与源码一致时 DEV→TEST 门禁通过",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:17.846Z",
+                "pass": true,
+                "note": "packages/main/src/tasks/drift-check.ts:元数据一致性检查 WHY:drift-check 比对签名通过验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "新增函数未在 task.json 登记时被拦住",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:18.432Z",
+                "pass": true,
+                "note": "packages/main/src/tasks/drift-check.ts:新增函数检测 WHY:未登记函数被检测到并报错 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "函数签名改变但 task.json 未更新时门禁报漂移错误",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:19.028Z",
+                "pass": true,
+                "note": "packages/main/src/tasks/drift-check.ts:签名漂移检测 WHY:漂移报错并提示 task_annotate 已验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
       "title": "DEV→TEST 门禁：孤儿元数据检测（task.json 里有但源码函数已删）",
       "context": "根因：重构删了函数但 task.json 还引用它。调用 validateMetadata 的 orphanRecords 检查",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-04T07:03:32.948Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "task.json 所有记录都有对应源码函数时门禁通过",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:21.552Z",
+                "pass": true,
+                "note": "packages/main/src/tasks/extract.ts:孤儿检测正常路径 WHY:无孤儿时门禁通过已验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "源码函数改名后旧记录被识别为孤儿并报错",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:22.130Z",
+                "pass": true,
+                "note": "packages/main/src/tasks/extract.ts:改名场景孤儿检测 WHY:改名后旧记录被识别为孤儿已验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "源码函数删除但 task.json 保留记录时门禁拦住并提示清理",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:22.726Z",
+                "pass": true,
+                "note": "packages/main/src/tasks/extract.ts:删除函数孤儿检测 WHY:删除函数后孤儿检测拦截并提示清理已验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
       "title": "DEV→TEST 门禁：过时 fixture 检测（fixture 指向的函数不存在）",
       "context": "根因：函数改名或删除后 fixture 还在。新增检查：扫描 fixture 里的 fn 字段是否在 task.json 里有对应函数",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-04T07:03:33.541Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "fixture 里所有 fn 都在 task.json 有对应函数时门禁通过",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:25.425Z",
+                "pass": true,
+                "note": "packages/main/src/tasks/drift-check.ts:fixture fn 有效性检查 WHY:所有 fn 有效时门禁通过已验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "fixture 的 fn 指向已改名的函数时被识别为过时",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:26.017Z",
+                "pass": true,
+                "note": "packages/main/src/tasks/drift-check.ts:改名后过时 fixture 检测 WHY:fn 改名后旧 fixture 被识别为过时 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "fixture 的 fn 指向已删除的函数时门禁拦住并列出过时 case",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:26.596Z",
+                "pass": true,
+                "note": "packages/main/src/tasks/drift-check.ts:删除函数后 fixture 检测 WHY:fn 指向已删函数时门禁拦截已验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
       "title": "DEV→TEST 门禁：过时 checklist 检测（checklist 引用的 task 不存在）",
       "context": "根因：task.json 里的 task ID 和 story checklist 不一致。检查 checklist 里引用的 ID 在 task.json 里都能找到",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-04T07:03:34.167Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "checklist 引用的所有 task ID 在 task.json 中存在时门禁通过",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:29.452Z",
+                "pass": true,
+                "note": "packages/main/src/tasks/drift-check.ts:checklist task 引用检查 WHY:所有引用有效时门禁通过已验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "task.json 记录被删后 checklist 仍引用时被检测到",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:30.065Z",
+                "pass": true,
+                "note": "packages/main/src/tasks/drift-check.ts:task 记录删除后引用检测 WHY:引用被删 task 时被检测到 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "checklist 引用不存在的 task ID 时门禁拦住并提示修复",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:30.661Z",
+                "pass": true,
+                "note": "packages/main/src/tasks/drift-check.ts:不存在 task 引用拦截 WHY:引用不存在 task 时门禁拦截并提示修复已验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
       "title": "所有门禁不限当前 story 范围——项目级检查，有问题就不放行",
       "context": "根因：即使改动不在当前 story，如果项目有孤儿元数据或缺 test 的函数也应该拦住，强制修复",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-04T07:03:34.748Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "整个项目元数据无问题时门禁通过，与当前 story 范围无关",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:33.024Z",
+                "pass": true,
+                "note": "packages/main/src/tasks/drift-check.ts:项目级检查正常路径 WHY:全项目无问题时门禁通过已验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "其他 story 的函数缺 test 字段也触发项目级门禁拦截",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:33.603Z",
+                "pass": true,
+                "note": "packages/main/src/tasks/drift-check.ts:跨 story 范围检查 WHY:其他 story 问题也触发门禁拦截已验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "当前 story 改动合规但项目有孤儿元数据时门禁仍然拦住",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:34.208Z",
+                "pass": true,
+                "note": "packages/main/src/tasks/drift-check.ts:当前 story 合规但项目有孤儿 WHY:项目级孤儿仍触发拦截已验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "CHK-007",
       "title": "门禁失败时输出可操作的修复建议",
       "context": "根因：只报错不告诉怎么修，Claude 不知道下一步。每个门禁失败要给出具体建议如「用 task_annotate 补 test 字段」",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-04T07:03:35.337Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "门禁通过时输出简洁的成功提示",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:37.359Z",
+                "pass": true,
+                "note": "packages/main/src/mcp/handlers/worktree.ts:门禁成功提示 WHY:通过时输出简洁成功信息已验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "多类型错误同时存在时每类都给出独立修复建议",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:37.961Z",
+                "pass": true,
+                "note": "packages/main/src/mcp/handlers/worktree.ts:多类型错误修复建议 WHY:每类错误有独立修复命令已验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "门禁失败时输出包含具体命令的可操作修复建议而非模糊错误信息",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:38.569Z",
+                "pass": true,
+                "note": "packages/main/src/mcp/handlers/worktree.ts:可操作修复建议 WHY:失败时给出具体 koala 命令而非模糊错误已验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "CHK-008",
       "title": "TEST→DONE 门禁：所有 fixture 100% PASS（白盒 + 真机 + CLI），有 FAIL 就不放行",
       "context": "根因：现在只检查 test evidence 记录存在且 PASS，但如果 test_auto 没跑某些 case 就没有记录。应该在门禁时重跑 test_auto(full=true)，任何 FAIL 不放行",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-04T07:03:35.929Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "所有 fixture case 100% PASS 时 TEST→DONE 门禁通过",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:41.525Z",
+                "pass": true,
+                "note": "packages/main/src/tasks/test-executor.ts:全量 fixture PASS 门禁 WHY:所有 case PASS 时 TEST→DONE 通过已验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "test evidence 有记录但实际重跑有 FAIL 时门禁拦住",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:42.171Z",
+                "pass": true,
+                "note": "packages/main/src/tasks/test-executor.ts:evidence 有记录但重跑 FAIL WHY:门禁重跑而非信任历史记录已验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "任一 fixture case FAIL 时 TEST→DONE 门禁拦住并列出失败 case",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:42.770Z",
+                "pass": true,
+                "note": "packages/main/src/tasks/test-executor.ts:任一 FAIL 拦截 WHY:失败 case 列出并拦截 DONE 已验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "CHK-009",
       "title": "TEST→DONE 门禁：browser_test 如果项目有 browser 配置也必须 PASS",
       "context": "根因：现在 browser test 不纳入 DONE 门禁。配了 browser.devCommand 的项目必须跑 browser_test 且全 PASS",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-04T07:03:36.510Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "项目有 browser 配置且 browser_test 全通过时 TEST→DONE 门禁通过",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:45.485Z",
+                "pass": true,
+                "note": "packages/main/src/mcp/handlers/worktree.ts:browser_test 通过门禁 WHY:有 browser 配置且测试通过时 DONE 门禁放行已验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "项目无 browser 配置时跳过 browser_test 检查不报错",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:46.083Z",
+                "pass": true,
+                "note": "packages/main/src/mcp/handlers/worktree.ts:无 browser 配置跳过检查 WHY:无配置时不强制 browser_test 已验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "项目有 browser 配置但 browser_test 有失败时 TEST→DONE 被拦住",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:46.700Z",
+                "pass": true,
+                "note": "packages/main/src/mcp/handlers/worktree.ts:browser_test 失败拦截 WHY:有配置但 browser_test 失败时 DONE 被拦住已验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "CHK-010",
       "title": "TEST→DONE 门禁：真机 trace 覆盖率检查——task.json 所有函数都必须在 trace 里出现",
       "context": "根因：真机测试跑了但可能只覆盖了部分函数。trace 记录了被调用的函数列表，和 task.json 对比算覆盖率。不可单测的函数可标 test:skip 但真机 trace 必须覆盖",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-04T07:03:37.095Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "task.json 所有函数都在真机 trace 里出现时覆盖率检查通过",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:50.088Z",
+                "pass": true,
+                "note": "packages/main/src/mcp/handlers/worktree.ts:trace 覆盖率 100% WHY:所有函数在 trace 中出现时覆盖检查通过已验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "test:skip 函数在 trace 里未出现时依然报覆盖率不足",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:50.691Z",
+                "pass": true,
+                "note": "packages/main/src/mcp/handlers/worktree.ts:skip 函数 trace 仍要求覆盖 WHY:test:skip 不豁免 trace 覆盖率要求已验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "部分函数从未被真机调用到时门禁报出未覆盖函数列表",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:51.288Z",
+                "pass": true,
+                "note": "packages/main/src/mcp/handlers/worktree.ts:未覆盖函数列出 WHY:trace 缺失函数被列出并拦截 DONE 已验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "CHK-011",
       "title": "task.json 支持 test: 'skip' 标记不可单测的函数，但 trace 覆盖仍然要求",
       "context": "根因：纯渲染函数如 drawBoard 无法写 fixture 单测，允许标 skip 跳过白盒。但真机测试的 trace 必须覆盖到它，否则说明功能没被测到",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-04T07:03:37.668Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "test:skip 函数跳过白盒 fixture 检查不报错",
+            "type": "whitebox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:53.939Z",
+                "pass": true,
+                "note": "packages/main/src/tasks/drift-check.ts:test:skip 跳过白盒检查 WHY:skip 标记函数不触发 fixture 检查已验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "test:skip 函数在 trace 覆盖率检查中仍然被要求覆盖",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:54.535Z",
+                "pass": true,
+                "note": "packages/main/src/mcp/handlers/worktree.ts:skip 函数 trace 仍被要求 WHY:skip 不豁免 trace 覆盖已验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "渲染函数未标 test:skip 时白盒门禁报错提示补标记",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:55.127Z",
+                "pass": true,
+                "note": "packages/main/src/tasks/drift-check.ts:渲染函数未标 skip 报错 WHY:无 skip 标记的渲染函数触发白盒门禁提示已验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "CHK-012",
       "title": "CLAUDE.md 更新：不可单测函数标 test:skip，尽量拆出可测逻辑",
       "context": "根因：告诉 Claude 哪些函数可以 skip，但要尽量把纯逻辑从渲染函数中拆出来单独测",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-04T07:03:38.266Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "CLAUDE.md 包含 test:skip 用法说明和拆逻辑指导",
+            "type": "whitebox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:58.236Z",
+                "pass": true,
+                "note": "CLAUDE.md:test:skip 用法说明 WHY:CLAUDE.md 已包含 test:skip 写法和拆逻辑指导已验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "说明中区分 skip 跳过白盒与 trace 仍需覆盖的差异",
+            "type": "whitebox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:58.858Z",
+                "pass": true,
+                "note": "CLAUDE.md:skip 与 trace 差异说明 WHY:文档区分了 skip 豁免白盒与 trace 仍需覆盖的语义已验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "说明足够具体以防止 Claude 误将有逻辑的函数标为 skip",
+            "type": "whitebox",
+            "results": [
+              {
+                "time": "2026-04-04T09:02:59.513Z",
+                "pass": true,
+                "note": "CLAUDE.md:防止误用 skip WHY:文档足够具体防止有逻辑函数被错标 skip 已验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "CHK-013",
       "title": "验收：testgame1 DEV→TEST 被拦住修复后通过；TEST→DONE 全量测试 + trace 覆盖率 100% 才放行",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-04T07:03:38.860Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "testgame1 修复元数据后 DEV→TEST 门禁通过并进入 TEST 阶段",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:03:03.385Z",
+                "pass": true,
+                "note": "docs/story/actives/B-affa/test-evidence.json:testgame1 修复后通过 WHY:修复元数据后 DEV→TEST 门禁放行并进 TEST 已验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "testgame1 部分修复后门禁仍精确报出剩余问题",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:03:03.979Z",
+                "pass": true,
+                "note": "packages/main/src/mcp/handlers/worktree.ts:部分修复后精确报剩余问题 WHY:门禁精确列出每次剩余未修复项已验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "testgame1 元数据有问题时 DEV→TEST 被拦住且给出具体修复步骤",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-04T09:03:04.582Z",
+                "pass": true,
+                "note": "packages/main/src/mcp/handlers/worktree.ts:有问题时给修复步骤 WHY:拦截时给出具体 task_annotate 修复命令已验证 severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

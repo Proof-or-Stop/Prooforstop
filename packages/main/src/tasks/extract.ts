@@ -166,12 +166,15 @@ export function parseBlock(raw: string): Record<string, string | string[]> {
 
 export function scan(scanRoot: string): TaskAnnotation[] {
   // 优先从 metadata store（task.json）读取，不再扫描源码
-  // 从 scanRoot 向上查找 docs/metadata/task.json（支持任意层级）
+  // 从 scanRoot 向上查找 koala.config.json 确定项目根，再定位 docs/metadata/task.json
   let metadataPath = '';
   let searchDir = scanRoot;
-  for (let i = 0; i < 5; i++) {
-    const candidate = join(searchDir, 'docs', 'metadata', 'task.json');
-    if (existsSync(candidate)) { metadataPath = candidate; break; }
+  for (let i = 0; i < 10; i++) {
+    if (existsSync(join(searchDir, 'koala.config.json'))) {
+      const candidate = join(searchDir, 'docs', 'metadata', 'task.json');
+      if (existsSync(candidate)) metadataPath = candidate;
+      break;
+    }
     const parent = join(searchDir, '..');
     if (parent === searchDir) break;
     searchDir = parent;

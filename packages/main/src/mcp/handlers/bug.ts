@@ -11,6 +11,7 @@ export function createBugHandlers(ctx: HandlerContext) {
       id: string;
       title: string;
       checklistId?: string;
+      fixtureId?: string;
     }): string {
       const data = store.readBugs(args.storyId);
       if (data.bugs.find(b => b.id === args.id)) {
@@ -23,24 +24,48 @@ export function createBugHandlers(ctx: HandlerContext) {
         foundAt: new Date().toISOString(),
         fixedAt: null,
         ...(args.checklistId ? { checklistId: args.checklistId } : {}),
+        ...(args.fixtureId ? { fixtureId: args.fixtureId } : {}),
       };
       data.bugs.push(bug);
       store.writeBugs(args.storyId, data);
-      return `Bug ${args.id} reported` + (args.checklistId ? ` (linked to ${args.checklistId})` : '');
+      return `Bug ${args.id} reported` + (args.fixtureId ? ` (fixtureId: ${args.fixtureId})` : '');
     },
 
-    bug_update(args: {
+    async bug_update(args: {
       storyId: string;
       id: string;
       status: 'open' | 'fixed';
-    }): string {
+    }): Promise<string> {
       const data = store.readBugs(args.storyId);
       const bug = data.bugs.find(b => b.id === args.id);
       if (!bug) throw new Error(`Bug ${args.id} not found`);
-      bug.status = args.status;
+
+      // CHK-008: bug_update fixed 时通过 fixtureId 重跑 case 验证
       if (args.status === 'fixed') {
+        if (!bug.fixtureId) {
+          throw new Error(`Bug ${args.id} 缺少 fixtureId，无法验证。请先运行 fixture_migrate 补全旧 bug 的 fixtureId`);
+        }
+        const { createTestAutoHandlers } = await import('./test-auto.js');
+        const testHandlers = createTestAutoHandlers(ctx);
+        try {
+          const result = JSON.parse(await testHandlers.test_fixture({ fixtureId: bug.fixtureId }));
+          if (!result.allPassed) {
+            const failedNames = result.details.filter((d: any) => !d.passed).map((d: any) => d.name).join(', ');
+            throw new Error(`bug_update fixed 被拒绝: case 仍然失败 — ${failedNames}`);
+          }
+        } catch (e: any) {
+          if (e.message.includes('bug_update fixed 被拒绝')) throw e;
+          if (e.message.includes('缺少 fixtureId')) throw e;
+          throw new Error(`bug_update fixed 验证失败: ${e.message}`);
+        }
+        bug.status = 'fixed';
         bug.fixedAt = new Date().toISOString();
+        store.writeBugs(args.storyId, data);
+        return `Bug ${args.id} updated to fixed (✓ fixtureId=${bug.fixtureId} 验证通过)`;
       }
+
+      // open 状态直接更新
+      bug.status = args.status;
       store.writeBugs(args.storyId, data);
       return `Bug ${args.id} updated to ${args.status}`;
     },

@@ -1,0 +1,34 @@
+{
+  "bugs": [
+    {
+      "id": "BUG-diagnose-json-diagnose-no-lastPass-snapshot",
+      "title": "[auto] diagnose.json:diagnose no lastPass snapshot — Expected true, got false",
+      "status": "fixed",
+      "foundAt": "2026-04-05T03:11:37.300Z",
+      "fixedAt": "2026-04-05T03:49:40.928Z",
+      "diagnose": {
+        "rootCause": [
+          "Expected true, got false"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      },
+      "fixtureId": "6eca8898-988f-42ab-bcd5-f2941abaf7dd"
+    },
+    {
+      "id": "BUG-phase-tools-json-CHK-001-adv:0-—-phaseTools-为字符串/数组/null-→-降级全量放行",
+      "title": "[auto] phase-tools.json:CHK-001 adv:0 — phaseTools 为字符串/数组/null → 降级全量放行 — Expected true, got false",
+      "status": "fixed",
+      "foundAt": "2026-04-05T03:45:54.067Z",
+      "fixedAt": "2026-04-05T03:48:42.620Z",
+      "diagnose": {
+        "rootCause": [
+          "Expected true, got false"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      },
+      "fixtureId": "510bcacf-afef-4f5e-994f-c52fa7a9af01"
+    }
+  ]
+}

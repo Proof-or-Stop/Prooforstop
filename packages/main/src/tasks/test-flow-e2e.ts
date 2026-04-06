@@ -77,7 +77,7 @@ function autoDefaults(
     auto.phase = 'DEV';
   } else if (inputFields.includes('phase')) {
     const currentPhase = context.phase as string;
-    const phaseOrder = ['IDEA', 'PLAN', 'DEV', 'TEST', 'DONE'];
+    const phaseOrder = ['IDEA', 'PLAN', 'DEV', 'TEST_CASE', 'TEST_CASE_REVIEW', 'TEST', 'DONE'];
     const nextIdx = phaseOrder.indexOf(currentPhase) + 1;
     auto.phase = phaseOrder[Math.min(nextIdx, phaseOrder.length - 1)];
   }
@@ -275,6 +275,30 @@ function ensureSandboxReady(
       ].join('\n'),
       'utf-8',
     );
+  }
+
+  // 确保 checklist item 有完整 testIntent（PLAN→DEV 门禁要求）
+  try {
+    const cl = handlers.checklist_get({ storyId });
+    const defaultIntent = {
+      happy: [{ desc: 'E2E happy path', type: 'cli_blackbox' }],
+      edge: [{ desc: 'E2E edge case', type: 'cli_blackbox' }],
+      adversarial: [{ desc: 'E2E adversarial case', type: 'cli_blackbox' }],
+    };
+    for (const item of cl.items) {
+      if (!item.testIntent) {
+        handlers.checklist_update({ storyId, itemId: item.id, testIntent: defaultIntent });
+      }
+    }
+  } catch {
+    // ignore
+  }
+
+  // 确保 story_review 通过（PLAN→DEV 门禁要求 blockerCount=0）
+  try {
+    handlers.story_review({ storyId });
+  } catch {
+    // ignore — review 可能已通过或 story 不在 PLAN 阶段
   }
 
   // 确保 checklist 全 done

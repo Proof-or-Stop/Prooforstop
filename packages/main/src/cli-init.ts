@@ -8,7 +8,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const packageRoot = join(__dirname, '..'); // @koala/main 的根目录
 
-const arg = process.argv[2];
+// 通过 koala init 调用时 argv[2]='init'，跳过；直接 npx koala-init 时 argv[2] 是目标目录
+const rawArg = process.argv[2];
+const arg = (rawArg === 'init') ? process.argv[3] : rawArg;
 
 if (arg === '--help' || arg === '-h' || arg === 'help') {
   console.log(`
@@ -19,8 +21,7 @@ koala-init — 初始化 koala 开发框架
   npx koala-init --help         显示帮助
 
 初始化内容:
-  koala.config.json             项目配置（扫描路径、Story 前缀、flow 测试数据）
-  .mcp.json                     MCP 服务配置（合并到已有配置，不覆盖）
+  koala.config.json             项目配置（扫描路径、Story 前缀）
   CLAUDE.md                     Claude Code 指引（注释规范、/koala 入口）
   .claude/skills/koala/       /koala skill 文件
   docs/story/actives/           Story 数据目录
@@ -30,7 +31,7 @@ koala-init — 初始化 koala 开发框架
 初始化后:
   1. 编辑 koala.config.json 调整 scanRoot 等路径
   2. 打开 Claude Code，执行 /koala 开始工作
-  3. 可选: koala test 跑 flow 端到端测试
+  3. 可选: koala test_auto 跑自动化测试
 `);
   process.exit(0);
 }
@@ -77,7 +78,7 @@ if (!existsSync(giPath)) {
     cpSync(giSrc, giPath);
     console.log('  ✓ .gitignore (copied from koala)');
   } else {
-    writeFileSync(giPath, 'node_modules\ndist\n__pycache__/\n*.pyc\n.claude/worktrees/\n');
+    writeFileSync(giPath, 'node_modules\ndist\n__pycache__/\n*.pyc\n.claude/worktrees/\n.worktrees/\n');
     console.log('  ✓ .gitignore (created minimal)');
   }
 } else {
@@ -93,10 +94,6 @@ const koalaConfig: Record<string, unknown> = {
   storyDir: 'docs/story/actives',
   requirementsDir: 'docs/requirements',
   storyPrefix: 'S',
-  flows: {
-    defaults: {},
-    patterns: [],
-  },
 };
 // 自动检测项目类型
 const isPython = existsSync(join(targetDir, 'requirements.txt'))
@@ -125,64 +122,48 @@ if (existsSync(pkgPath)) {
 }
 write('koala.config.json', JSON.stringify(koalaConfig, null, 2) + '\n');
 
-// 3. .mcp.json（合并，不覆盖）
-console.log('\n[3/5] 配置 .mcp.json...');
-const mcpPath = join(targetDir, '.mcp.json');
-
-// 检测 koala core 的 server.js 路径（monorepo 子项目用相对路径）
-let koalaMcp: Record<string, unknown>;
-const serverCandidates = [
-  join(targetDir, 'node_modules', '@koala-agent', 'core', 'dist', 'mcp', 'server.js'),
-  join(targetDir, '..', 'main', 'dist', 'mcp', 'server.js'),
-  join(targetDir, '..', '..', 'packages', 'main', 'dist', 'mcp', 'server.js'),
-];
-const foundServer = serverCandidates.find(p => existsSync(p));
-if (foundServer) {
-  // 用相对路径指向 koala core server
-  const { relative: relPath } = require('path');
-  const rel = relPath(targetDir, foundServer).replace(/\\/g, '/');
-  koalaMcp = { command: 'node', args: [rel], cwd: '.' };
-  console.log(`  ✓ 检测到 koala core: ${rel}`);
-} else {
-  koalaMcp = { command: 'koala', args: ['serve'] };
-}
-if (existsSync(mcpPath)) {
-  try {
-    const existing = JSON.parse(readFileSync(mcpPath, 'utf-8'));
-    if (existing.mcpServers?.['koala-mcp']) {
-      console.log('  - .mcp.json koala-mcp (exists, skip)');
-    } else {
-      existing.mcpServers = existing.mcpServers || {};
-      existing.mcpServers['koala-mcp'] = koalaMcp;
-      writeFileSync(mcpPath, JSON.stringify(existing, null, 2) + '\n');
-      console.log('  ✓ .mcp.json (merged koala into existing)');
-    }
-  } catch {
-    console.log('  ⚠ .mcp.json exists but cannot parse, skip');
-  }
-} else {
-  writeFileSync(mcpPath, JSON.stringify({ mcpServers: { 'koala-mcp': koalaMcp } }, null, 2) + '\n');
-  console.log('  ✓ .mcp.json (created)');
-}
-
-// 4. CLAUDE.md（从 koala 项目复制）
-console.log('\n[4/5] 配置 CLAUDE.md...');
+// 3. CLAUDE.md（从 koala 项目复制 / 同步 koala:start~koala:end 区间）
+console.log('\n[3/5] 配置 CLAUDE.md...');
 const claudeMdPath = join(targetDir, 'CLAUDE.md');
 const claudeMdSrc = join(packageRoot, '..', '..', 'CLAUDE.md');
+
+function extractKoalaSection(content: string): string {
+  // 提取 koala:start ~ koala:end 区间，剥离 koala:internal
+  const m = content.match(/<!--\s*koala:start\s*-->[\s\S]*?<!--\s*koala:end\s*-->/);
+  if (!m) return content;
+  return m[0].replace(/<!--\s*koala:internal:start\s*-->[\s\S]*?<!--\s*koala:internal:end\s*-->\n?/g, '');
+}
+
 if (!existsSync(claudeMdPath)) {
   if (existsSync(claudeMdSrc)) {
-    cpSync(claudeMdSrc, claudeMdPath);
-    console.log('  ✓ CLAUDE.md (copied from koala)');
+    const content = extractKoalaSection(readFileSync(claudeMdSrc, 'utf-8'));
+    writeFileSync(claudeMdPath, content + '\n');
+    console.log('  ✓ CLAUDE.md (copied from koala, internal rules stripped)');
   } else {
     writeFileSync(claudeMdPath, '# CLAUDE.md\n\n执行 `/koala` 即可了解项目全貌并开始工作。\n');
     console.log('  ✓ CLAUDE.md (created minimal)');
+  }
+} else if (existsSync(claudeMdSrc)) {
+  // 已存在：同步 koala:start~koala:end 区间，保留区间外的项目内容
+  const existing = readFileSync(claudeMdPath, 'utf-8');
+  const newSection = extractKoalaSection(readFileSync(claudeMdSrc, 'utf-8'));
+  if (existing.match(/<!--\s*koala:start\s*-->[\s\S]*?<!--\s*koala:end\s*-->/)) {
+    const updated = existing.replace(/<!--\s*koala:start\s*-->[\s\S]*?<!--\s*koala:end\s*-->/, newSection);
+    if (updated !== existing) {
+      writeFileSync(claudeMdPath, updated);
+      console.log('  ✓ CLAUDE.md (koala section synced)');
+    } else {
+      console.log('  - CLAUDE.md (koala section up to date)');
+    }
+  } else {
+    console.log('  - CLAUDE.md (exists, no koala markers, skip)');
   }
 } else {
   console.log('  - CLAUDE.md (exists, skip)');
 }
 
-// 5. 复制 skill
-console.log('\n[5/5] 复制 /koala skill...');
+// 4. 复制 skill
+console.log('\n[4/5] 复制 /koala skill...');
 const skillSrc = join(packageRoot, '..', '..', '.claude', 'skills', 'koala');
 const skillDst = join(targetDir, '.claude', 'skills', 'koala');
 if (existsSync(skillSrc)) {
@@ -205,8 +186,8 @@ if (existsSync(skillSrc)) {
 `);
 }
 
-// 6. hooks + settings.json
-console.log('\n[6/6] 配置 hooks...');
+// 5. hooks + settings.json
+console.log('\n[5/5] 配置 hooks...');
 const hooksDir = join(targetDir, '.claude', 'hooks');
 const hookSrc = join(packageRoot, '..', '..', '.claude', 'hooks', 'log-tools.cjs');
 const hookDst = join(hooksDir, 'log-tools.cjs');

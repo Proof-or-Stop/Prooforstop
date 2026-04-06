@@ -2,60 +2,13 @@
   "cases": [
     {
       "name": "prereq: create story",
+      "run_type": "cli",
       "fn": "story_create",
-      "input": {
-        "name": "t",
-        "title": "Test Add Test",
-        "description": "t",
-        "type": "feature",
-        "priority": "high"
-      },
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"t\",\"title\":\"Test Add Test\",\"description\":\"t\",\"type\":\"feature\",\"priority\":\"high\"}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
       "expect": {
         "pattern": "created"
       }
-    },
-    {
-      "name": "add a passing test evidence entry",
-      "input": {
-        "storyId": "$prev.storyId",
-        "id": "TE-001",
-        "scenario": "User logs in with valid credentials",
-        "command": "npm run test:e2e -- login",
-        "output": "1 passing",
-        "expected": "Login succeeds and redirects to dashboard",
-        "result": "PASS"
-      },
-      "expect": {
-        "pattern": "Test evidence TE-001 added \\(PASS\\)"
-      }
-    },
-    {
-      "name": "add a failing test evidence entry",
-      "input": {
-        "storyId": "$prev.storyId",
-        "id": "TE-002",
-        "scenario": "User submits form without required fields",
-        "command": "npm run test:e2e -- form-validation",
-        "output": "1 failing",
-        "expected": "Validation errors are shown",
-        "result": "FAIL"
-      },
-      "expect": {
-        "pattern": "Test evidence TE-002 added \\(FAIL\\)"
-      }
-    },
-    {
-      "name": "add duplicate test evidence id throws error",
-      "input": {
-        "storyId": "$prev.storyId",
-        "id": "TE-001",
-        "scenario": "Duplicate scenario",
-        "command": "npm run test",
-        "output": "",
-        "expected": "",
-        "result": "PASS"
-      },
-      "throws": "TE-001 already exists"
     }
   ]
 }

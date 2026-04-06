@@ -1,0 +1,370 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001: story_list works",
+      "run_type": "cli",
+      "fn": "story_list",
+      "file": "mcp/handlers/story",
+      "execute": "const r = $handlers.story_list(); return r && (typeof r === 'string' || typeof r === 'object')",
+      "expect": true,
+      "intentRef": "CHK-001:happy:0",
+      "_id": "a5711e7a-5e35-481f-9a5d-66a3095f89db",
+      "nextCaseId": "6b7ac916-6202-4a9d-9ece-34bbae4f2059"
+    },
+    {
+      "name": "CHK-002: auto-bug no runner calls",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "const f = $handlers.fixture_get({fixturePath:\"auto-bug\"}); const bad = f.cases.filter(c => c.execute && (c.execute.includes(\"$handlers.test_auto(\")||c.execute.includes(\"$handlers.test_story(\")||c.execute.includes(\"$handlers.test_fixture(\"))); return bad.length === 0 ? \"clean\" : \"violations:\"+bad.length",
+      "expect": {
+        "pattern": "clean"
+      },
+      "intentRef": "CHK-002:happy:0",
+      "_id": "6b7ac916-6202-4a9d-9ece-34bbae4f2059",
+      "prevCaseId": "a5711e7a-5e35-481f-9a5d-66a3095f89db",
+      "nextCaseId": "f83a19df-1394-49b6-9290-e7cba027be0d"
+    },
+    {
+      "name": "CHK-004: random bug IDs",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "const f = $handlers.fixture_get({fixturePath:\"tools-bug_list\"}); const bc = f.cases.find(c => c.execute && c.execute.includes(\"bug_report\")); return bc && bc.execute.includes(\"Date.now()\") ? \"random\" : \"hardcoded\"",
+      "expect": {
+        "pattern": "random"
+      },
+      "intentRef": "CHK-004:happy:0",
+      "_id": "f83a19df-1394-49b6-9290-e7cba027be0d",
+      "prevCaseId": "6b7ac916-6202-4a9d-9ece-34bbae4f2059",
+      "nextCaseId": "c5aebe2c-c184-4e3f-9021-c969c01231ce"
+    },
+    {
+      "name": "CHK-005: no chain links in fixture-uuid",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "const f = $handlers.fixture_get({fixturePath:\"fixture-uuid\"}); const linked = f.cases.filter(c => c.prevCaseId || c.nextCaseId); return linked.length === 0 ? \"clean\" : \"linked:\"+linked.length",
+      "expect": {
+        "pattern": "clean"
+      },
+      "intentRef": "CHK-005:happy:0",
+      "_id": "c5aebe2c-c184-4e3f-9021-c969c01231ce",
+      "prevCaseId": "f83a19df-1394-49b6-9290-e7cba027be0d"
+    },
+    {
+      "name": "CHK-001-h0: CLAUDE.md has koala:internal markers",
+      "run_type": "cli",
+      "fn": "story_get",
+      "file": "mcp/handlers/story",
+      "execute": "const r = $handlers.story_get({storyId:\"B-dd20\"}); return typeof r === \"string\" || typeof r === \"object\"",
+      "expect": true,
+      "intentRef": "CHK-001:happy:0",
+      "_id": "60bbbb1f-7bfa-4346-9b5d-e28e5a9ed789",
+      "nextCaseId": "588623da-99f3-40de-ab7e-b15d2a394b01"
+    },
+    {
+      "name": "CHK-001-e0: CLAUDE.md exists with content",
+      "run_type": "cli",
+      "fn": "story_list",
+      "file": "mcp/handlers/story",
+      "execute": "return typeof $handlers.story_list() === \"string\" || typeof $handlers.story_list() === \"object\"",
+      "expect": true,
+      "intentRef": "CHK-001:edge:0",
+      "_id": "588623da-99f3-40de-ab7e-b15d2a394b01",
+      "prevCaseId": "60bbbb1f-7bfa-4346-9b5d-e28e5a9ed789",
+      "nextCaseId": "6cb7d5f0-9024-4a11-bec7-2aca2910aa05"
+    },
+    {
+      "name": "CHK-001-a0: story_get returns B-dd20 data",
+      "run_type": "cli",
+      "fn": "story_get",
+      "file": "mcp/handlers/story",
+      "execute": "const r = $handlers.story_get({storyId:\"B-dd20\"}); return r !== null && r !== undefined",
+      "expect": true,
+      "intentRef": "CHK-001:adversarial:0",
+      "_id": "6cb7d5f0-9024-4a11-bec7-2aca2910aa05",
+      "prevCaseId": "588623da-99f3-40de-ab7e-b15d2a394b01",
+      "nextCaseId": "db223909-6c02-4e5f-b83e-9e950cccc5e3"
+    },
+    {
+      "name": "CHK-002-h1: cli-gap-seal no runner calls",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "const f = $handlers.fixture_get({fixturePath:\"cli-gap-seal\"}); const bad = f.cases.filter(c => c.execute && (c.execute.includes(\"$handlers.test_auto(\")||c.execute.includes(\"$handlers.test_story(\")||c.execute.includes(\"$handlers.test_fixture(\"))); return bad.length === 0 ? \"clean\" : \"bad:\"+bad.length",
+      "expect": {
+        "pattern": "clean"
+      },
+      "intentRef": "CHK-002:happy:1",
+      "_id": "db223909-6c02-4e5f-b83e-9e950cccc5e3",
+      "prevCaseId": "6cb7d5f0-9024-4a11-bec7-2aca2910aa05",
+      "nextCaseId": "921bfd84-f62f-4101-ae54-dd82aa8104de"
+    },
+    {
+      "name": "CHK-002-e0: test-auto-monitoring no runner calls",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "const f = $handlers.fixture_get({fixturePath:\"test-auto-monitoring\"}); const bad = f.cases.filter(c => c.execute && (c.execute.includes(\"$handlers.test_auto(\")||c.execute.includes(\"$handlers.test_story(\")||c.execute.includes(\"$handlers.test_fixture(\"))); return bad.length === 0 ? \"clean\" : \"bad:\"+bad.length",
+      "expect": {
+        "pattern": "clean"
+      },
+      "intentRef": "CHK-002:edge:0",
+      "_id": "921bfd84-f62f-4101-ae54-dd82aa8104de",
+      "prevCaseId": "db223909-6c02-4e5f-b83e-9e950cccc5e3",
+      "nextCaseId": "91f25d93-bf9a-489f-8991-115a0dc0fe81"
+    },
+    {
+      "name": "CHK-002-e1: bug-case-binding no runner calls",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "const f = $handlers.fixture_get({fixturePath:\"bug-case-binding\"}); const bad = f.cases.filter(c => c.execute && (c.execute.includes(\"$handlers.test_auto(\")||c.execute.includes(\"$handlers.test_story(\")||c.execute.includes(\"$handlers.test_fixture(\"))); return bad.length === 0 ? \"clean\" : \"bad:\"+bad.length",
+      "expect": {
+        "pattern": "clean"
+      },
+      "intentRef": "CHK-002:edge:1",
+      "_id": "91f25d93-bf9a-489f-8991-115a0dc0fe81",
+      "prevCaseId": "921bfd84-f62f-4101-ae54-dd82aa8104de",
+      "nextCaseId": "f374cbfe-b2c0-4688-8f1c-dcc0e3776213"
+    },
+    {
+      "name": "CHK-002-a0: test-auto no runner calls",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "const f = $handlers.fixture_get({fixturePath:\"test-auto\"}); const bad = f.cases.filter(c => c.execute && (c.execute.includes(\"$handlers.test_auto(\")||c.execute.includes(\"$handlers.test_story(\")||c.execute.includes(\"$handlers.test_fixture(\"))); return bad.length === 0 ? \"clean\" : \"bad:\"+bad.length",
+      "expect": {
+        "pattern": "clean"
+      },
+      "intentRef": "CHK-002:adversarial:0",
+      "_id": "f374cbfe-b2c0-4688-8f1c-dcc0e3776213",
+      "prevCaseId": "91f25d93-bf9a-489f-8991-115a0dc0fe81",
+      "nextCaseId": "66681961-bc81-443d-91d6-875ca6349c68"
+    },
+    {
+      "name": "CHK-002-a1: profiler no runner calls",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "const f = $handlers.fixture_get({fixturePath:\"profiler\"}); const bad = f.cases.filter(c => c.execute && (c.execute.includes(\"$handlers.test_auto(\")||c.execute.includes(\"$handlers.test_story(\")||c.execute.includes(\"$handlers.test_fixture(\"))); return bad.length === 0 ? \"clean\" : \"bad:\"+bad.length",
+      "expect": {
+        "pattern": "clean"
+      },
+      "intentRef": "CHK-002:adversarial:1",
+      "_id": "66681961-bc81-443d-91d6-875ca6349c68",
+      "prevCaseId": "f374cbfe-b2c0-4688-8f1c-dcc0e3776213",
+      "nextCaseId": "d1c8fccb-45ac-4d58-93a3-5ddf72da6066"
+    },
+    {
+      "name": "CHK-003-h0: tools-bug_list has fixtureId",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "const f = $handlers.fixture_get({fixturePath:\"tools-bug_list\"}); const br = f.cases.filter(c => c.execute && c.execute.includes(\"bug_report(\")); const missing = br.filter(c => !c.execute.includes(\"fixtureId\")); return missing.length === 0 ? \"all_have_fid\" : \"missing:\"+missing.length",
+      "expect": {
+        "pattern": "all_have_fid"
+      },
+      "intentRef": "CHK-003:happy:0",
+      "_id": "d1c8fccb-45ac-4d58-93a3-5ddf72da6066",
+      "prevCaseId": "66681961-bc81-443d-91d6-875ca6349c68",
+      "nextCaseId": "af8a2bab-c2f7-47f4-b4a1-f53bfa9e7953"
+    },
+    {
+      "name": "CHK-003-h1: tools-bug_update has fixtureId",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "const f = $handlers.fixture_get({fixturePath:\"tools-bug_update\"}); const br = f.cases.filter(c => c.execute && c.execute.includes(\"bug_report(\")); const missing = br.filter(c => !c.execute.includes(\"fixtureId\")); return missing.length === 0 ? \"all_have_fid\" : \"missing:\"+missing.length",
+      "expect": {
+        "pattern": "all_have_fid"
+      },
+      "intentRef": "CHK-003:happy:1",
+      "_id": "af8a2bab-c2f7-47f4-b4a1-f53bfa9e7953",
+      "prevCaseId": "d1c8fccb-45ac-4d58-93a3-5ddf72da6066",
+      "nextCaseId": "b8f619c2-fb38-478f-a0ef-0765f237f756"
+    },
+    {
+      "name": "CHK-003-e0: bug-case-binding setup has fixtureId",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "const f = $handlers.fixture_get({fixturePath:\"bug-case-binding\"}); const setup = f.cases[0]; return setup.execute.includes(\"fixtureId\") ? \"has_fid\" : \"missing\"",
+      "expect": {
+        "pattern": "has_fid"
+      },
+      "intentRef": "CHK-003:edge:0",
+      "_id": "b8f619c2-fb38-478f-a0ef-0765f237f756",
+      "prevCaseId": "af8a2bab-c2f7-47f4-b4a1-f53bfa9e7953",
+      "nextCaseId": "3995ba9e-7459-4a23-ac20-c7ed624f2a2e"
+    },
+    {
+      "name": "CHK-003-e1: cli-gap-seal CHK-007 has fixtureId",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "const f = $handlers.fixture_get({fixturePath:\"cli-gap-seal\"}); const chk7 = f.cases.filter(c => c.name && c.name.includes(\"CHK-007\") && c.execute && c.execute.includes(\"bug_report(\")); const ok = chk7.every(c => c.execute.includes(\"fixtureId\")); return ok ? \"all_fid\" : \"missing\"",
+      "expect": {
+        "pattern": "all_fid"
+      },
+      "intentRef": "CHK-003:edge:1",
+      "_id": "3995ba9e-7459-4a23-ac20-c7ed624f2a2e",
+      "prevCaseId": "b8f619c2-fb38-478f-a0ef-0765f237f756",
+      "nextCaseId": "fb78f3a8-53f0-4a9e-b9a6-cbb2482fbfe4"
+    },
+    {
+      "name": "CHK-003-a0: fixture-bug-binding intentional no-fid cases exist",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "const f = $handlers.fixture_get({fixturePath:\"fixture-bug-binding\"}); const allCases = f.cases.filter(c => c.execute && c.execute.includes(\"bug_report(\")); return allCases.length > 0 ? \"has_bug_report\" : \"none\"",
+      "expect": {
+        "pattern": "has_bug_report"
+      },
+      "intentRef": "CHK-003:adversarial:0",
+      "_id": "fb78f3a8-53f0-4a9e-b9a6-cbb2482fbfe4",
+      "prevCaseId": "3995ba9e-7459-4a23-ac20-c7ed624f2a2e",
+      "nextCaseId": "a32b330b-100f-4bd3-b6a7-9c36d2e1ad2b"
+    },
+    {
+      "name": "CHK-003-a1: bug_report with fixtureId roundtrip",
+      "run_type": "cli",
+      "fn": "bug_report",
+      "file": "mcp/handlers/bug",
+      "execute": "const r = await $handlers.story_create({name:\"fid-rt-\"+Date.now(),title:\"fid roundtrip\",description:\"t\",type:\"chore\",priority:\"low\"}); const sid = r.match(/B-[a-f0-9]+/)[0]; const bid = \"BUG-fid-\"+Date.now(); const fid = \"fid-\"+Date.now(); $handlers.bug_report({storyId:sid,id:bid,title:\"fid test\",fixtureId:fid}); const bugs = $handlers.bug_list({storyId:sid}).bugs; const found = bugs.find(b=>b.id===bid); return found && found.fixtureId === fid ? \"fid_match\" : \"mismatch\"",
+      "expect": {
+        "pattern": "fid_match"
+      },
+      "intentRef": "CHK-003:adversarial:1",
+      "_id": "a32b330b-100f-4bd3-b6a7-9c36d2e1ad2b",
+      "prevCaseId": "fb78f3a8-53f0-4a9e-b9a6-cbb2482fbfe4",
+      "nextCaseId": "4feded1a-a37c-4d07-a64c-ad73e583e7f4"
+    },
+    {
+      "name": "CHK-004-h1: bug-case-binding uses random IDs",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "const f = $handlers.fixture_get({fixturePath:\"bug-case-binding\"}); const hardcoded = f.cases.filter(c => c.execute && /\"BUG-[A-Z][^\"]*\"/.test(c.execute) && !c.execute.includes(\"Date.now()\")); return hardcoded.length === 0 ? \"all_random\" : \"hardcoded:\"+hardcoded.length",
+      "expect": {
+        "pattern": "all_random"
+      },
+      "intentRef": "CHK-004:happy:1",
+      "_id": "4feded1a-a37c-4d07-a64c-ad73e583e7f4",
+      "prevCaseId": "a32b330b-100f-4bd3-b6a7-9c36d2e1ad2b",
+      "nextCaseId": "f0d25937-8867-4b36-8f8b-f8a223805337"
+    },
+    {
+      "name": "CHK-004-e0: tools-bug_update uses $ctx.bugId",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "const f = $handlers.fixture_get({fixturePath:\"tools-bug_update\"}); const br = f.cases.find(c => c.execute && c.execute.includes(\"bug_report\")); return br && br.execute.includes(\"$ctx.bugId\") ? \"uses_ctx\" : \"no_ctx\"",
+      "expect": {
+        "pattern": "uses_ctx"
+      },
+      "intentRef": "CHK-004:edge:0",
+      "_id": "f0d25937-8867-4b36-8f8b-f8a223805337",
+      "prevCaseId": "4feded1a-a37c-4d07-a64c-ad73e583e7f4",
+      "nextCaseId": "fde21641-60f9-4308-9992-2a6b3d30c7d9"
+    },
+    {
+      "name": "CHK-004-a0: all three target files have no hardcoded BUG IDs",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "const files = [\"tools-bug_list\",\"tools-bug_update\",\"bug-case-binding\"]; let violations = []; for(const name of files){ const f = $handlers.fixture_get({fixturePath:name}); for(const c of f.cases){ if(c.execute && /\"id\":\"BUG-[A-Z]/.test(c.execute) && !c.execute.includes(\"Date.now()\")) violations.push(name); }} return violations.length === 0 ? \"all_clean\" : \"violations:\"+violations.join(\",\")",
+      "expect": {
+        "pattern": "all_clean"
+      },
+      "intentRef": "CHK-004:adversarial:0",
+      "_id": "fde21641-60f9-4308-9992-2a6b3d30c7d9",
+      "prevCaseId": "f0d25937-8867-4b36-8f8b-f8a223805337",
+      "nextCaseId": "2875f167-791f-4630-9e40-942130a29d29"
+    },
+    {
+      "name": "CHK-004-a1: bug IDs have semantic prefix",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "const f = $handlers.fixture_get({fixturePath:\"bug-case-binding\"}); const bugCalls = f.cases.filter(c => c.execute && c.execute.includes(\"BUG-\")); return bugCalls.length > 0 ? \"has_prefix\" : \"no_prefix\"",
+      "expect": {
+        "pattern": "has_prefix"
+      },
+      "intentRef": "CHK-004:adversarial:1",
+      "_id": "2875f167-791f-4630-9e40-942130a29d29",
+      "prevCaseId": "fde21641-60f9-4308-9992-2a6b3d30c7d9",
+      "nextCaseId": "e4f1287c-a2a2-423a-a470-0a6f6b21a449"
+    },
+    {
+      "name": "CHK-005-h1: fixture-chain no chains",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "const f = $handlers.fixture_get({fixturePath:\"fixture-chain\"}); const linked = f.cases.filter(c => c.prevCaseId || c.nextCaseId); return linked.length === 0 ? \"clean\" : \"linked:\"+linked.length",
+      "expect": {
+        "pattern": "clean"
+      },
+      "intentRef": "CHK-005:happy:1",
+      "_id": "e4f1287c-a2a2-423a-a470-0a6f6b21a449",
+      "prevCaseId": "2875f167-791f-4630-9e40-942130a29d29",
+      "nextCaseId": "e1a242ed-330b-4995-9b8e-6a231607cab3"
+    },
+    {
+      "name": "CHK-005-e0: fixture-migrate no chains",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "const f = $handlers.fixture_get({fixturePath:\"fixture-migrate\"}); const linked = f.cases.filter(c => c.prevCaseId || c.nextCaseId); return linked.length === 0 ? \"clean\" : \"linked:\"+linked.length",
+      "expect": {
+        "pattern": "clean"
+      },
+      "intentRef": "CHK-005:edge:0",
+      "_id": "e1a242ed-330b-4995-9b8e-6a231607cab3",
+      "prevCaseId": "e4f1287c-a2a2-423a-a470-0a6f6b21a449",
+      "nextCaseId": "b7f3eddb-0e6f-47db-aa80-50fbab3a343d"
+    },
+    {
+      "name": "CHK-005-e1: fixture-bug-binding no chains",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "const f = $handlers.fixture_get({fixturePath:\"fixture-bug-binding\"}); const linked = f.cases.filter(c => c.prevCaseId || c.nextCaseId); return linked.length === 0 ? \"clean\" : \"linked:\"+linked.length",
+      "expect": {
+        "pattern": "clean"
+      },
+      "intentRef": "CHK-005:edge:1",
+      "_id": "b7f3eddb-0e6f-47db-aa80-50fbab3a343d",
+      "prevCaseId": "e1a242ed-330b-4995-9b8e-6a231607cab3",
+      "nextCaseId": "e36385db-3e5b-4253-b72f-50f58509031b"
+    },
+    {
+      "name": "CHK-005-a0: no one-sided chain refs in any cleaned file",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "const files = [\"fixture-uuid\",\"fixture-migrate\",\"fixture-chain\",\"fixture-bug-binding\"]; let onesided = 0; for(const name of files){ const f = $handlers.fixture_get({fixturePath:name}); for(const c of f.cases){ if((c.prevCaseId && !c.nextCaseId) || (!c.prevCaseId && c.nextCaseId)) onesided++; }} return onesided === 0 ? \"no_onesided\" : \"found:\"+onesided",
+      "expect": {
+        "pattern": "no_onesided"
+      },
+      "intentRef": "CHK-005:adversarial:0",
+      "_id": "e36385db-3e5b-4253-b72f-50f58509031b",
+      "prevCaseId": "b7f3eddb-0e6f-47db-aa80-50fbab3a343d",
+      "nextCaseId": "5c319482-2d68-43b2-b96c-7009ea38208a"
+    },
+    {
+      "name": "CHK-005-a1: no self-referencing chains",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "const files = [\"fixture-uuid\",\"fixture-migrate\",\"fixture-chain\",\"fixture-bug-binding\"]; let selfref = 0; for(const name of files){ const f = $handlers.fixture_get({fixturePath:name}); for(const c of f.cases){ if(c._id && (c.prevCaseId === c._id || c.nextCaseId === c._id)) selfref++; }} return selfref === 0 ? \"no_selfref\" : \"found:\"+selfref",
+      "expect": {
+        "pattern": "no_selfref"
+      },
+      "intentRef": "CHK-005:adversarial:1",
+      "_id": "5c319482-2d68-43b2-b96c-7009ea38208a",
+      "prevCaseId": "e36385db-3e5b-4253-b72f-50f58509031b"
+    }
+  ]
+}

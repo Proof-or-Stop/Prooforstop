@@ -1,0 +1,51 @@
+{
+  "storyId": "B-b8d9",
+  "name": "review-log",
+  "title": "story_review 审查结果自动写入 review.json",
+  "description": "story_review 执行后将检测到的 issues 自动写入 docs/story/actives/{storyId}/review.json，脚本维护不依赖 agent 自己总结",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "high",
+  "createdAt": "2026-04-03T15:59:11.740Z",
+  "startedAt": "2026-04-03T15:59:11.740Z",
+  "endedAt": "2026-04-04T06:36:12.373Z",
+  "events": [
+    {
+      "phase": "PLAN",
+      "action": "create",
+      "timestamp": "2026-04-03T15:59:11.740Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-03T15:59:11.794Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-04T06:06:52.661Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-04T06:36:12.373Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": "C:\\work\\koala\\.claude\\worktrees\\B-b8d9",
+    "branch": "story/B-b8d9",
+    "createdAt": "2026-04-03T15:59:13.322Z"
+  }
+}

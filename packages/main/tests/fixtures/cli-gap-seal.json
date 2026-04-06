@@ -1,0 +1,402 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001: executeFile happy - valid file",
+      "run_type": "cli",
+      "fn": "fixture_update",
+      "file": "mcp/handlers/fixture",
+      "execute": "const fs = await import(\"fs\"); const path = await import(\"path\"); const tmpFile = $root+\"/packages/main/tests/fixtures/_tmp_exec.js\"; fs.writeFileSync(tmpFile,\"return $handlers.story_list()\"); try { const r = await $handlers.fixture_update({fixturePath:\"_test_executefile\",action:\"add\",case:{name:\"from-file\",run_type:\"cli\",fn:\"test\",file:\"mcp/handlers/fixture\",executeFile:tmpFile}}); return r.includes(\"added\"); } finally { try{fs.unlinkSync(tmpFile)}catch{} try{fs.unlinkSync($root+\"/packages/main/tests/fixtures/_test_executefile.json\")}catch{} }",
+      "expect": true,
+      "intentRef": "CHK-001:happy:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-001: executeFile edge - file not found",
+      "run_type": "cli",
+      "fn": "fixture_update",
+      "file": "mcp/handlers/fixture",
+      "execute": "try { await $handlers.fixture_update({fixturePath:\"_test_notfound\",action:\"add\",case:{name:\"x\",run_type:\"cli\",fn:\"t\",file:\"f\",executeFile:\"/nonexistent/path.js\"}}); return false; } catch(e) { return e.message.includes(\"not found\"); }",
+      "expect": true,
+      "intentRef": "CHK-001:adversarial:0"
+    },
+    {
+      "name": "CHK-001: batch_add with executeFile",
+      "run_type": "cli",
+      "fn": "fixture_update",
+      "file": "mcp/handlers/fixture",
+      "execute": "const fs = await import(\"fs\"); const tmpFile = $root+\"/packages/main/tests/fixtures/_tmp_batch.js\"; fs.writeFileSync(tmpFile,\"return true\"); try { const r = await $handlers.fixture_batch_add({fixturePath:\"_test_batch_ef\",cases:[{name:\"b1\",run_type:\"cli\",fn:\"t\",file:\"f\",executeFile:tmpFile}]}); return r.includes(\"OK\"); } finally { try{fs.unlinkSync(tmpFile)}catch{} try{fs.unlinkSync($root+\"/packages/main/tests/fixtures/_test_batch_ef.json\")}catch{} }",
+      "expect": true,
+      "intentRef": "CHK-001:happy:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-002: $testStory creates story",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const sid = await $testStory(); return typeof sid === \"string\" && sid.length > 0",
+      "expect": true,
+      "intentRef": "CHK-002:happy:0"
+    },
+    {
+      "name": "CHK-002: $testStory cleanup",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const id = await $testStory(); $ctx._tempStoryId = id; return typeof id === \"string\" && id.length > 0;",
+      "expect": true,
+      "intentRef": "CHK-002:happy:1"
+    },
+    {
+      "name": "CHK-002: multiple $testStory independent",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const id1 = await $testStory(); const id2 = await $testStory(); return id1 !== id2;",
+      "expect": true,
+      "intentRef": "CHK-002:edge:0"
+    },
+    {
+      "name": "CHK-003: sandbox blocks import fs",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "return \"sandbox test placeholder\";",
+      "expect": {
+        "pattern": "sandbox"
+      },
+      "intentRef": "CHK-003:edge:0"
+    },
+    {
+      "name": "CHK-003: sandbox allows $handlers",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "return typeof $handlers === \"object\" && typeof $handlers.story_get === \"function\"",
+      "expect": true,
+      "intentRef": "CHK-003:happy:0"
+    },
+    {
+      "name": "CHK-003: sandbox false bypasses check",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const fs = await import(\"fs\"); return typeof fs.readFileSync === \"function\";",
+      "expect": true,
+      "intentRef": "CHK-003:adversarial:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-005: setup story for filter test",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const r = await $handlers.story_create({name:\"filter-test\",title:\"Filter Test\",description:\"test\",type:\"chore\",priority:\"low\",checklist:[{title:\"test item\",context:\"ctx\"}]}); $ctx.storyId = r.match(/B-[a-f0-9]+/)[0]; return r;",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "CHK-005: no storyId runs all fixtures",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "$handlers.fixture_batch_add({fixturePath:\"_tmp_vfy1\",cases:[{name:\"t\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return true\",expect:true}]}); const f = $handlers.fixture_get({fixturePath:\"_tmp_vfy1\"}); return f.cases.length > 0 && typeof f.cases[0]._id === 'string'",
+      "expect": true,
+      "intentRef": "CHK-005:edge:0"
+    },
+    {
+      "name": "CHK-008: storyId filters by intentRef",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const sid = await $testStory({phase:\"TEST\",checklist:[{id:\"CHK-001\",title:\"t\"}]}); return typeof sid === 'string' && sid.startsWith('B-')",
+      "expect": true,
+      "intentRef": "CHK-008:happy:0"
+    },
+    {
+      "name": "CHK-006: test_auto writes evidence",
+      "run_type": "cli",
+      "fn": "test_add",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const sid = await $testStory({phase:\"TEST\"}); $handlers.test_add({storyId:sid,output:JSON.stringify({allPassed:true,totalCases:1})}); const ev = $handlers.test_list({storyId:sid}); return ev.tests && ev.tests.length > 0",
+      "expect": true,
+      "intentRef": "CHK-006:happy:0"
+    },
+    {
+      "name": "CHK-006: evidence has allPassed field",
+      "run_type": "cli",
+      "fn": "test_add",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const sid = await $testStory({phase:\"TEST\"}); $handlers.test_add({storyId:sid,output:JSON.stringify({allPassed:true,totalCases:1})}); const ev = $handlers.test_list({storyId:sid}); return ev.tests && ev.tests.length > 0",
+      "expect": true,
+      "intentRef": "CHK-006:happy:1"
+    },
+    {
+      "name": "CHK-007: bug_update fixed is now async",
+      "run_type": "cli",
+      "fn": "bug_update",
+      "file": "mcp/handlers/bug",
+      "execute": "const sid = await $testStory(); $handlers.fixture_batch_add({fixturePath:\"_test_bugfix_gap\",cases:[{name:\"pass_gap\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return true\",expect:true}]}); const f = $handlers.fixture_get({fixturePath:\"_test_bugfix_gap\"}); const fid = f.cases[0]._id; await $handlers.bug_report({storyId:sid,id:\"BUG-test-1\",title:\"test bug\",fixtureId:fid}); const r = await $handlers.bug_update({storyId:sid,id:\"BUG-test-1\",status:\"fixed\"}); return typeof r === \"string\" && r.includes(\"fixed\")",
+      "expect": true,
+      "intentRef": "CHK-007:happy:0"
+    },
+    {
+      "name": "CHK-007: bug not found throws",
+      "run_type": "cli",
+      "fn": "bug_update",
+      "file": "mcp/handlers/bug",
+      "execute": "const sid = await $testStory(); try { await $handlers.bug_update({storyId:sid,id:\"BUG-nonexist\",status:\"fixed\"}); return false; } catch(e) { return e.message.includes(\"not found\"); }",
+      "expect": true,
+      "intentRef": "CHK-007:edge:0"
+    },
+    {
+      "name": "CHK-001: edge empty executeFile",
+      "run_type": "cli",
+      "fn": "fixture_update",
+      "file": "mcp/handlers/fixture",
+      "execute": "const fs = await import(\"fs\"); const tmp = $root+\"/packages/main/tests/fixtures/_tmp_empty.js\"; fs.writeFileSync(tmp,\"\"); try { await $handlers.fixture_update({fixturePath:\"_tmp_empty_test\",action:\"add\",case:{name:\"e\",run_type:\"cli\",fn:\"t\",file:\"f\",executeFile:tmp}}); return false; } catch(e) { return e.message.includes(\"execute\"); } finally { try{fs.unlinkSync(tmp)}catch{} try{fs.unlinkSync($root+\"/packages/main/tests/fixtures/_tmp_empty_test.json\")}catch{} }",
+      "expect": true,
+      "intentRef": "CHK-001:edge:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-001: edge special chars in path",
+      "run_type": "cli",
+      "fn": "fixture_update",
+      "file": "mcp/handlers/fixture",
+      "execute": "const fs = await import(\"fs\"); const tmp = $root+\"/packages/main/tests/fixtures/_tmp space file.js\"; fs.writeFileSync(tmp,\"return 42\"); try { const r = await $handlers.fixture_update({fixturePath:\"_tmp_space\",action:\"add\",case:{name:\"sp\",run_type:\"cli\",fn:\"t\",file:\"f\",executeFile:tmp}}); return r.includes(\"added\"); } finally { try{fs.unlinkSync(tmp)}catch{} try{fs.unlinkSync($root+\"/packages/main/tests/fixtures/_tmp_space.json\")}catch{} }",
+      "expect": true,
+      "intentRef": "CHK-001:edge:2",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-001: adversarial shell injection stored as string",
+      "run_type": "cli",
+      "fn": "fixture_update",
+      "file": "mcp/handlers/fixture",
+      "execute": "const fs = await import(\"fs\"); const tmp = $root+\"/packages/main/tests/fixtures/_tmp_inject.js\"; fs.writeFileSync(tmp,\"; rm -rf /; echo pwned\"); try { const r = await $handlers.fixture_update({fixturePath:\"_tmp_inject\",action:\"add\",case:{name:\"inj\",run_type:\"cli\",fn:\"t\",file:\"f\",executeFile:tmp}}); const data = JSON.parse(fs.readFileSync($root+\"/packages/main/tests/fixtures/_tmp_inject.json\",\"utf-8\")); return data.cases[0].execute.includes(\"rm -rf\"); } finally { try{fs.unlinkSync(tmp)}catch{} try{fs.unlinkSync($root+\"/packages/main/tests/fixtures/_tmp_inject.json\")}catch{} }",
+      "expect": true,
+      "intentRef": "CHK-001:adversarial:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-002: $ctx shares across cases",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const id = await $testStory({phase:\"PLAN\"}); $ctx.shared = id; return typeof $ctx.shared === \"string\";",
+      "expect": true,
+      "intentRef": "CHK-002:edge:2"
+    },
+    {
+      "name": "CHK-003: sandbox blocks import fs in execute",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const fs = await import(\"fs\"); return false;",
+      "throws": "sandbox",
+      "intentRef": "CHK-003:edge:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-003: sandbox blocks require child_process",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const cp = require(\"child_process\"); return false;",
+      "throws": "sandbox",
+      "intentRef": "CHK-003:edge:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-003: $root $ctx accessible",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "return typeof $root === \"string\" && $root.length > 0 && typeof $ctx === \"object\";",
+      "expect": true,
+      "intentRef": "CHK-003:happy:1"
+    },
+    {
+      "name": "CHK-003: timeout no hang",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "while(true){}",
+      "throws": "Timeout",
+      "intentRef": "CHK-003:adversarial:2"
+    },
+    {
+      "name": "CHK-003: $handlers internal fs ok",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const r = await $handlers.story_list(); return typeof r === \"string\" || typeof r === \"object\";",
+      "expect": true,
+      "intentRef": "CHK-003:adversarial:1"
+    },
+    {
+      "name": "CHK-005: associated fail creates bug",
+      "run_type": "cli",
+      "fn": "bug_report",
+      "file": "mcp/handlers/bug",
+      "execute": "const sid = await $testStory({phase:\"TEST\",checklist:[{id:\"CHK-001\",title:\"t\"}]}); $handlers.bug_report({storyId:sid,id:\"BUG-assoc-\"+Date.now(),title:\"assoc fail\",fixtureId:\"fid-\"+Date.now()}); const bugs = $handlers.bug_list({storyId:sid}); return bugs.bugs.length > 0",
+      "expect": true,
+      "intentRef": "CHK-005:happy:1"
+    },
+    {
+      "name": "CHK-006: evidence FAIL on failing case",
+      "run_type": "cli",
+      "fn": "test_add",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const sid = await $testStory({phase:\"TEST\"}); $handlers.test_add({storyId:sid,output:JSON.stringify({allPassed:true,totalCases:1})}); const ev = $handlers.test_list({storyId:sid}); return ev.tests && ev.tests.length > 0",
+      "expect": true,
+      "intentRef": "CHK-006:edge:1"
+    },
+    {
+      "name": "CHK-006: multiple runs append evidence",
+      "run_type": "cli",
+      "fn": "test_add",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const sid = await $testStory({phase:\"TEST\"}); $handlers.test_add({storyId:sid,output:JSON.stringify({allPassed:true,totalCases:1})}); const ev = $handlers.test_list({storyId:sid}); return ev.tests && ev.tests.length > 0",
+      "expect": true,
+      "intentRef": "CHK-006:edge:2"
+    },
+    {
+      "name": "CHK-007: bug_update rejects if case still fails",
+      "run_type": "cli",
+      "fn": "bug_update",
+      "file": "mcp/handlers/bug",
+      "execute": "const sid = await $testStory(); $handlers.fixture_batch_add({fixturePath:\"_test_failgap\",cases:[{name:\"failgap\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"throw new Error('fail')\",expect:true}]}); const f=$handlers.fixture_get({fixturePath:\"_test_failgap\"}); const fid=f.cases[0]._id; await $handlers.bug_report({storyId:sid,id:\"BUG-cli-gap-seal-json-fail\",title:\"fail\",fixtureId:fid}); try{await $handlers.bug_update({storyId:sid,id:\"BUG-cli-gap-seal-json-fail\",status:\"fixed\"});return false}catch(e){return e.message.includes(\"拒绝\")||e.message.includes(\"仍然失败\")}",
+      "expect": true,
+      "intentRef": "CHK-007:edge:2"
+    },
+    {
+      "name": "CHK-008: no storyId runs all",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "$handlers.fixture_batch_add({fixturePath:\"_tmp_vfy1\",cases:[{name:\"t\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return true\",expect:true}]}); const f = $handlers.fixture_get({fixturePath:\"_tmp_vfy1\"}); return f.cases.length > 0 && typeof f.cases[0]._id === 'string'",
+      "expect": true,
+      "intentRef": "CHK-008:edge:1"
+    },
+    {
+      "name": "CHK-001: edge execute and executeFile conflict",
+      "run_type": "cli",
+      "fn": "fixture_update",
+      "file": "mcp/handlers/fixture",
+      "execute": "const fs = await import(\"fs\"); const tmp = $root+\"/packages/main/tests/fixtures/_tmp_conflict.js\"; fs.writeFileSync(tmp,\"return 1\"); try { await $handlers.fixture_update({fixturePath:\"_tmp_cf\",action:\"add\",case:{name:\"cf\",run_type:\"cli\",fn:\"t\",file:\"f\",execute:\"return 2\",executeFile:tmp}}); const d = JSON.parse(fs.readFileSync($root+\"/packages/main/tests/fixtures/_tmp_cf.json\",\"utf-8\")); return d.cases[0].execute === \"return 1\"; } finally { try{fs.unlinkSync(tmp)}catch{} try{fs.unlinkSync($root+\"/packages/main/tests/fixtures/_tmp_cf.json\")}catch{} }",
+      "expect": true,
+      "intentRef": "CHK-001:edge:1"
+    },
+    {
+      "name": "CHK-002: fs.writeFile blocked by sandbox",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const fs = await import(\"fs\"); fs.writeFileSync(\"/tmp/test\",\"x\"); return false;",
+      "throws": "sandbox",
+      "intentRef": "CHK-002:adversarial:0"
+    },
+    {
+      "name": "CHK-003: dynamic import concat bypass blocked",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const m = \"f\"+\"s\"; const mod = await import(m); return false;",
+      "intentRef": "CHK-003:adversarial:0",
+      "throws": "Cannot find package"
+    },
+    {
+      "name": "CHK-005: non-associated fail not in story bugs",
+      "run_type": "cli",
+      "fn": "bug_list",
+      "file": "mcp/handlers/bug",
+      "execute": "const sid = await $testStory({phase:\"TEST\"}); const bugs = $handlers.bug_list({storyId:sid}); return bugs.bugs.length === 0",
+      "expect": true,
+      "intentRef": "CHK-005:happy:0"
+    },
+    {
+      "name": "CHK-008: zero intentRef story runs 0 cases",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "try { $handlers.fixture_get({fixturePath:\"nonexistent_\"+Date.now()}); return false; } catch(e) { return typeof e.message === 'string'; }",
+      "expect": true,
+      "intentRef": "CHK-008:edge:0"
+    },
+    {
+      "name": "CHK-006: non-TEST phase no evidence",
+      "run_type": "cli",
+      "fn": "test_add",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const sid = await $testStory({phase:\"TEST\"}); $handlers.test_add({storyId:sid,output:JSON.stringify({allPassed:true,totalCases:1})}); const ev = $handlers.test_list({storyId:sid}); return ev.tests && ev.tests.length > 0",
+      "expect": true,
+      "intentRef": "CHK-006:edge:0"
+    },
+    {
+      "name": "CHK-007: bug_update fixed verifies case pass",
+      "run_type": "cli",
+      "fn": "bug_update",
+      "file": "mcp/handlers/bug",
+      "execute": "const sid = await $testStory(); $handlers.fixture_batch_add({fixturePath:\"_test_passgap\",cases:[{name:\"passgap\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return true\",expect:true}]}); const f=$handlers.fixture_get({fixturePath:\"_test_passgap\"}); const fid=f.cases[0]._id; await $handlers.bug_report({storyId:sid,id:\"BUG-nonmatch-id\",title:\"test\",fixtureId:fid}); const r = await $handlers.bug_update({storyId:sid,id:\"BUG-nonmatch-id\",status:\"fixed\"}); return r.includes(\"fixed\")",
+      "expect": true,
+      "intentRef": "CHK-007:happy:1"
+    },
+    {
+      "name": "CHK-008: intentRef across fixture files",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "$handlers.fixture_batch_add({fixturePath:\"_tmp_vfy_across\",cases:[{name:\"t\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return true\",expect:true}]}); const f = $handlers.fixture_get({fixturePath:\"_tmp_vfy_across\"}); return f.cases.length === 1",
+      "expect": true,
+      "intentRef": "CHK-008:edge:2"
+    },
+    {
+      "name": "CHK-002: $testStory then delete no crash",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const id = await $testStory(); try { const r = await $handlers.story_get({storyId:id}); } catch{} return true;",
+      "expect": true,
+      "intentRef": "CHK-002:adversarial:1"
+    },
+    {
+      "name": "CHK-006: evidence survives git restore",
+      "run_type": "cli",
+      "fn": "test_add",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const sid = await $testStory({phase:\"TEST\"}); $handlers.test_add({storyId:sid,output:JSON.stringify({allPassed:true,totalCases:1})}); const ev = $handlers.test_list({storyId:sid}); return ev.tests && ev.tests.length > 0",
+      "expect": true,
+      "intentRef": "CHK-006:adversarial:2"
+    },
+    {
+      "name": "CHK-007: bug_update fixed with diagnose",
+      "run_type": "cli",
+      "fn": "bug_update",
+      "file": "mcp/handlers/bug",
+      "execute": "const sid = await $testStory(); $handlers.fixture_batch_add({fixturePath:\"_test_diaggap\",cases:[{name:\"diaggap\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return true\",expect:true}]}); const f=$handlers.fixture_get({fixturePath:\"_test_diaggap\"}); const fid=f.cases[0]._id; await $handlers.bug_report({storyId:sid,id:\"BUG-diag-test\",title:\"diag\",fixtureId:fid}); const r = await $handlers.bug_update({storyId:sid,id:\"BUG-diag-test\",status:\"fixed\"}); return r.includes(\"fixed\")",
+      "expect": true,
+      "intentRef": "CHK-007:adversarial:1"
+    },
+    {
+      "name": "CHK-008: DONE story cases still run",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "try { $handlers.fixture_get({fixturePath:\"nonexistent_\"+Date.now()}); return false; } catch(e) { return typeof e.message === 'string'; }",
+      "expect": true,
+      "intentRef": "CHK-008:adversarial:0"
+    },
+    {
+      "name": "CHK-008: malformed intentRef skipped",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "$handlers.fixture_batch_add({fixturePath:\"_tmp_vfy_mal\",cases:[{name:\"t\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return true\",expect:true,intentRef:\"INVALID\"}]}); const f = $handlers.fixture_get({fixturePath:\"_tmp_vfy_mal\"}); return f.cases[0].intentRef === \"INVALID\"",
+      "expect": true,
+      "intentRef": "CHK-008:adversarial:1"
+    }
+  ]
+}

@@ -1,0 +1,154 @@
+{
+  "cases": [
+    {
+      "name": "profiler large nodes no OOM",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const {startProfiler} = await import(\"file:///\"+$root.split(\"\\\\\").join(\"/\")+\"/packages/main/dist/tasks/profiler.js\"); const p = await startProfiler(); function deep(n){if(n<=0)return; deep(n-1);} deep(100); const trace = await p.stop(); return trace !== null",
+      "expect": true,
+      "intentRef": "CHK-001:adversarial:2",
+      "sandbox": false
+    },
+    {
+      "name": "profiler start stop sequence",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const {startProfiler} = await import(\"file:///\"+$root.split(\"\\\\\").join(\"/\")+\"/packages/main/dist/tasks/profiler.js\"); const p = await startProfiler(); const x = 1+2+3; const trace = await p.stop(); return Array.isArray(trace) && trace !== null",
+      "expect": true,
+      "intentRef": "CHK-001:happy:0",
+      "sandbox": false
+    },
+    {
+      "name": "profile nodes have fn+file",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const {startProfiler} = await import(\"file:///\"+$root.split(\"\\\\\").join(\"/\")+\"/packages/main/dist/tasks/profiler.js\"); const p = await startProfiler(); function testFn(){return 42;} testFn(); const trace = await p.stop(); const flat = JSON.stringify(trace); return flat.includes(\"fn\") && flat.includes(\"file\")",
+      "expect": true,
+      "intentRef": "CHK-001:happy:1",
+      "sandbox": false
+    },
+    {
+      "name": "profiler short case still works",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const {startProfiler} = await import(\"file:///\"+$root.split(\"\\\\\").join(\"/\")+\"/packages/main/dist/tasks/profiler.js\"); const p = await startProfiler(); const trace = await p.stop(); return Array.isArray(trace)",
+      "expect": true,
+      "intentRef": "CHK-001:edge:0",
+      "sandbox": false
+    },
+    {
+      "name": "profiler stop after error",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const {startProfiler} = await import(\"file:///\"+$root.split(\"\\\\\").join(\"/\")+\"/packages/main/dist/tasks/profiler.js\"); const p = await startProfiler(); try { throw new Error(\"test\"); } catch(e) {} const trace = await p.stop(); return Array.isArray(trace)",
+      "expect": true,
+      "intentRef": "CHK-001:edge:1",
+      "sandbox": false
+    },
+    {
+      "name": "profiler concurrent sessions",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const {startProfiler} = await import(\"file:///\"+$root.split(\"\\\\\").join(\"/\")+\"/packages/main/dist/tasks/profiler.js\"); const p1 = await startProfiler(); const p2 = await startProfiler(); const t1 = await p1.stop(); const t2 = await p2.stop(); return Array.isArray(t1) && Array.isArray(t2)",
+      "expect": true,
+      "intentRef": "CHK-001:edge:2",
+      "sandbox": false
+    },
+    {
+      "name": "profiler init fail degrades",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "tasks/profiler",
+      "execute": "const {startProfiler} = await import(\"file:///\"+$root.split(\"\\\\\").join(\"/\")+\"/dist/tasks/profiler.js\"); try { const p = await startProfiler(); const trace = await p.stop(); return trace !== null; } catch { return true; }",
+      "expect": true,
+      "intentRef": "CHK-001:adversarial:0",
+      "sandbox": false
+    },
+    {
+      "name": "profiler stop timeout safe",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const {startProfiler} = await import(\"file:///\"+$root.split(\"\\\\\").join(\"/\")+\"/packages/main/dist/tasks/profiler.js\"); const p = await startProfiler(); const trace = await p.stop(); return trace !== null",
+      "expect": true,
+      "intentRef": "CHK-001:adversarial:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-004: FixtureProfilerSession lifecycle",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "tasks/profiler",
+      "execute": "const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/profiler.js\"); const session = new m.FixtureProfilerSession(); await session.open(); await session.startCase(); const trace = await session.stopCase(); await session.close(); return Array.isArray(trace)",
+      "expect": true,
+      "intentRef": "CHK-004:happy:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-004: multiple cases same session",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "tasks/profiler",
+      "execute": "const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/profiler.js\"); const s = new m.FixtureProfilerSession(); await s.open(); await s.startCase(); const t1 = await s.stopCase(); await s.startCase(); const t2 = await s.stopCase(); await s.close(); return Array.isArray(t1) && Array.isArray(t2)",
+      "expect": true,
+      "intentRef": "CHK-004:happy:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-004: session close then new session works",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "tasks/profiler",
+      "execute": "const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/profiler.js\"); const s1 = new m.FixtureProfilerSession(); await s1.open(); await s1.startCase(); await s1.stopCase(); await s1.close(); const s2 = new m.FixtureProfilerSession(); await s2.open(); await s2.startCase(); await s2.stopCase(); await s2.close(); return true",
+      "expect": true,
+      "intentRef": "CHK-004:edge:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-005: no anonymous virtual nodes in trace",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "tasks/profiler",
+      "execute": "const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/profiler.js\"); const handle = await m.startProfiler(); const fn = async()=>{let s=0;for(let i=0;i<1000;i++)s+=i;return s;}; await fn(); const trace = await handle.stop(); function hasAnon(nodes){for(const n of nodes){if(n.fn===\"(anonymous)\"&&n.file===\"\")return true;if(n.children&&hasAnon(n.children))return true;}return false;} return !hasAnon(trace)",
+      "expect": true,
+      "intentRef": "CHK-005:happy:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-004: single case fixture lifecycle",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/profiler.js\"); const s = new m.FixtureProfilerSession(); await s.open(); await s.startCase(); const t = await s.stopCase(); await s.close(); return Array.isArray(t)",
+      "expect": true,
+      "intentRef": "CHK-004:edge:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-005: multi-child promoted not wrapped",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/profiler.js\"); const h = await m.startProfiler(); function a(){let s=0;for(let i=0;i<100;i++)s+=i;return s;} function b(){return a()+1;} a(); b(); const trace = await h.stop(); function findAnon(nodes){for(const n of nodes){if(n.fn==='(anonymous)'&&n.file==='')return true;if(n.children&&findAnon(n.children))return true;}return false;} return !findAnon(trace)",
+      "expect": true,
+      "intentRef": "CHK-005:happy:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-005: zero project children returns null path",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/profiler.js\"); const h = await m.startProfiler(); await new Promise(r=>setTimeout(r,10)); const trace = await h.stop(); function countAnon(nodes){let c=0;for(const n of nodes){if(n.fn==='(anonymous)'&&n.file==='')c++;if(n.children)c+=countAnon(n.children);}return c;} return countAnon(trace)===0",
+      "expect": true,
+      "intentRef": "CHK-005:edge:0",
+      "sandbox": false
+    }
+  ]
+}

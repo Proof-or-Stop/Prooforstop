@@ -2,16 +2,16 @@
   "storyId": "B-6b7e",
   "name": "test-auto-python-cli",
   "title": "test_auto 集成 Python 白盒 + CLI 真机测试，一个命令跑全部",
-  "description": "当前 test_auto 只对 JS/TS 项目跑白盒测试和 browser 测试。Python 白盒（executePythonTestCases）和 CLI 真机（executeCliCases）已实现但没集成到 test_auto。需要：1) test_auto 检测 language=python 时用 Python executor；2) test_auto 检测 cli.command 时跑 CLI fixture case；3) Python CLI 命令自动加 PYTHONUNBUFFERED=1；4) 通过 MCP test_auto 一个命令跑全部。",
+  "description": "已合并到 B-0072",
   "type": "feature",
-  "phase": "PLAN",
+  "phase": "DISCARDED",
   "priority": "high",
   "depends": [
     "B-0072"
   ],
   "createdAt": "2026-04-02T16:36:18.083Z",
   "startedAt": "2026-04-02T16:36:18.083Z",
-  "endedAt": null,
+  "endedAt": "2026-04-05T04:03:28.980Z",
   "events": [
     {
       "phase": "PLAN",
@@ -20,6 +20,15 @@
       "branch": "main",
       "user": "jay2079037995",
       "agent": "main"
+    },
+    {
+      "phase": "DISCARDED",
+      "action": "discard",
+      "timestamp": "2026-04-05T04:03:28.981Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main",
+      "note": "merged into B-0072"
     }
   ]
 }

@@ -8,7 +8,6 @@ import { createChecklistHandlers } from './handlers/checklist.js';
 import { createBugHandlers } from './handlers/bug.js';
 import { createTestHandlers } from './handlers/test.js';
 import { createTaskHandlers } from './handlers/task.js';
-import { createFlowHandlers } from './handlers/flow.js';
 import { createTestAutoHandlers } from './handlers/test-auto.js';
 import { createTruthHandlers } from './handlers/truth.js';
 import { createGapHandlers } from './handlers/gap.js';
@@ -16,6 +15,10 @@ import { createWorktreeHandlers } from './handlers/worktree.js';
 import { createFixtureHandlers } from './handlers/fixture.js';
 import { createTaskAnnotateHandlers } from './handlers/task-annotate.js';
 import { createTaskSyncHandlers } from './handlers/task-sync.js';
+import { createRuntimeGenHandlers } from './handlers/runtime-gen.js';
+import { createDiagnoseHandlers } from './handlers/diagnose.js';
+import { createArchTraceHandlers } from './handlers/arch-trace.js';
+import { createDocHandlers } from './handlers/doc.js';
 import { nextStoryId } from './handlers/context.js';
 
 export function createToolHandlers(store: StoryStore, projectRoot?: string, log?: (msg: string) => void) {
@@ -24,13 +27,12 @@ export function createToolHandlers(store: StoryStore, projectRoot?: string, log?
   const scanRoot = join(root, config.scanRoot);
   const ctx: HandlerContext = { store, root, scanRoot, log };
 
-  return {
+  const allHandlers = {
     ...createStoryHandlers(ctx),
     ...createChecklistHandlers(ctx),
     ...createBugHandlers(ctx),
     ...createTestHandlers(ctx),
     ...createTaskHandlers(ctx),
-    ...createFlowHandlers(ctx),
     ...createTestAutoHandlers(ctx),
     ...createTruthHandlers(ctx),
     ...createGapHandlers(ctx),
@@ -38,8 +40,17 @@ export function createToolHandlers(store: StoryStore, projectRoot?: string, log?
     ...createFixtureHandlers(ctx),
     ...createTaskAnnotateHandlers(ctx),
     ...createTaskSyncHandlers(ctx),
+    ...createRuntimeGenHandlers(ctx),
+    ...createDiagnoseHandlers(ctx),
+    ...createArchTraceHandlers(ctx),
+    ...createDocHandlers(ctx),
     _nextStoryId(prefix?: string): string {
       return nextStoryId(store, prefix);
     },
   };
+
+  // 注入延迟获取器，让 story gate 能拿到完整工具名（避免循环依赖）
+  ctx.getAllToolNames = () => new Set(Object.keys(allHandlers));
+
+  return allHandlers;
 }

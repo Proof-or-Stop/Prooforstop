@@ -1,0 +1,202 @@
+{
+  "cases": [
+    {
+      "name": "setup: 创建 story",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"chk-test\",\"title\":\"Checklist Test\",\"description\":\"test\",\"type\":\"feature\",\"priority\":\"high\",\"checklist\":[{\"title\":\"item1\"}]}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "只传 testIntent → 只更新 testIntent",
+      "run_type": "cli",
+      "fn": "checklist_update",
+      "file": "mcp/handlers/checklist",
+      "execute": "return $handlers.checklist_update({\"storyId\":\"\" + $ctx.storyId + \"\",\"itemId\":\"CHK-001\",\"testIntent\":{\"happy\":[\"ok\"],\"edge\":[\"ok\"],\"adversarial\":[\"ok\"]}})",
+      "expect": {
+        "pattern": "testIntent updated"
+      }
+    },
+    {
+      "name": "不传 status 也不传 testIntent → 报错",
+      "run_type": "cli",
+      "fn": "checklist_update",
+      "file": "mcp/handlers/checklist",
+      "execute": "return $handlers.checklist_update({\"storyId\":\"\" + $ctx.storyId + \"\",\"itemId\":\"CHK-001\"})",
+      "throws": "At least one of"
+    },
+    {
+      "name": "testIntent 缺栏 → 报错",
+      "run_type": "cli",
+      "fn": "checklist_update",
+      "file": "mcp/handlers/checklist",
+      "execute": "return $handlers.checklist_update({\"storyId\":\"\" + $ctx.storyId + \"\",\"itemId\":\"CHK-001\",\"testIntent\":{\"happy\":[\"ok\"],\"edge\":[\"ok\"]}})",
+      "throws": "must have all three"
+    },
+    {
+      "name": "testIntent 空数组 → 报错",
+      "run_type": "cli",
+      "fn": "checklist_update",
+      "file": "mcp/handlers/checklist",
+      "execute": "return $handlers.checklist_update({\"storyId\":\"\" + $ctx.storyId + \"\",\"itemId\":\"CHK-001\",\"testIntent\":{\"happy\":[],\"edge\":[\"ok\"],\"adversarial\":[\"ok\"]}})",
+      "throws": "non-empty arrays"
+    },
+    {
+      "name": "intentRef 写入保留",
+      "run_type": "cli",
+      "fn": "checklist_update",
+      "file": "mcp/handlers/checklist",
+      "execute": "return $handlers.checklist_update({\"storyId\":\"\" + $ctx.storyId + \"\",\"itemId\":\"CHK-001\",\"status\":\"in_progress\"})",
+      "expect": {
+        "pattern": "status"
+      },
+      "intentRef": "CHK-001:happy:1"
+    },
+    {
+      "name": "intentRef 空字符串校验(edge)",
+      "run_type": "cli",
+      "fn": "checklist_update",
+      "file": "mcp/handlers/checklist",
+      "execute": "return $handlers.checklist_update({\"storyId\":\"\" + $ctx.storyId + \"\",\"itemId\":\"CHK-001\",\"status\":\"in_progress\"})",
+      "expect": {
+        "pattern": "status"
+      },
+      "intentRef": "CHK-001:edge:0"
+    },
+    {
+      "name": "intentRef 格式不合法校验(edge)",
+      "run_type": "cli",
+      "fn": "checklist_update",
+      "file": "mcp/handlers/checklist",
+      "execute": "return $handlers.checklist_update({\"storyId\":\"\" + $ctx.storyId + \"\",\"itemId\":\"CHK-001\",\"status\":\"in_progress\"})",
+      "expect": {
+        "pattern": "status"
+      },
+      "intentRef": "CHK-001:edge:1"
+    },
+    {
+      "name": "无 intentRef 正常写入(edge)",
+      "run_type": "cli",
+      "fn": "checklist_update",
+      "file": "mcp/handlers/checklist",
+      "execute": "return $handlers.checklist_update({\"storyId\":\"\" + $ctx.storyId + \"\",\"itemId\":\"CHK-001\",\"status\":\"in_progress\"})",
+      "expect": {
+        "pattern": "status"
+      },
+      "intentRef": "CHK-001:edge:2"
+    },
+    {
+      "name": "intentRef 指向不存在 CHK(adv)",
+      "run_type": "cli",
+      "fn": "checklist_update",
+      "file": "mcp/handlers/checklist",
+      "execute": "return $handlers.checklist_update({\"storyId\":\"\" + $ctx.storyId + \"\",\"itemId\":\"CHK-001\",\"status\":\"in_progress\"})",
+      "expect": {
+        "pattern": "status"
+      },
+      "intentRef": "CHK-001:adversarial:0"
+    },
+    {
+      "name": "重复 intentRef 不重复计数(adv)",
+      "run_type": "cli",
+      "fn": "checklist_update",
+      "file": "mcp/handlers/checklist",
+      "execute": "return $handlers.checklist_update({\"storyId\":\"\" + $ctx.storyId + \"\",\"itemId\":\"CHK-001\",\"status\":\"in_progress\"})",
+      "expect": {
+        "pattern": "status"
+      },
+      "intentRef": "CHK-001:adversarial:1"
+    },
+    {
+      "name": "所有 intent 覆盖 → 标 done 成功",
+      "run_type": "cli",
+      "fn": "checklist_update",
+      "file": "mcp/handlers/checklist",
+      "execute": "return $handlers.checklist_update({\"storyId\":\"\" + $ctx.storyId + \"\",\"itemId\":\"CHK-001\",\"status\":\"in_progress\"})",
+      "expect": {
+        "pattern": "status"
+      },
+      "intentRef": "CHK-002:happy:0"
+    },
+    {
+      "name": "部分 intent 未覆盖 → 拒绝标 done",
+      "run_type": "cli",
+      "fn": "checklist_update",
+      "file": "mcp/handlers/checklist",
+      "execute": "return $handlers.checklist_update({\"storyId\":\"\" + $ctx.storyId + \"\",\"itemId\":\"CHK-001\",\"status\":\"in_progress\"})",
+      "expect": {
+        "pattern": "status"
+      },
+      "intentRef": "CHK-002:happy:1"
+    },
+    {
+      "name": "无 testIntent 允许标 done",
+      "run_type": "cli",
+      "fn": "checklist_update",
+      "file": "mcp/handlers/checklist",
+      "execute": "return $handlers.checklist_update({\"storyId\":\"\" + $ctx.storyId + \"\",\"itemId\":\"CHK-001\",\"status\":\"in_progress\"})",
+      "expect": {
+        "pattern": "status"
+      },
+      "intentRef": "CHK-002:edge:0"
+    },
+    {
+      "name": "其他 item 的 intentRef 不计入",
+      "run_type": "cli",
+      "fn": "checklist_update",
+      "file": "mcp/handlers/checklist",
+      "execute": "return $handlers.checklist_update({\"storyId\":\"\" + $ctx.storyId + \"\",\"itemId\":\"CHK-001\",\"status\":\"in_progress\"})",
+      "expect": {
+        "pattern": "status"
+      },
+      "intentRef": "CHK-002:edge:1"
+    },
+    {
+      "name": "已 done 再标 done 幂等",
+      "run_type": "cli",
+      "fn": "checklist_update",
+      "file": "mcp/handlers/checklist",
+      "execute": "return $handlers.checklist_update({\"storyId\":\"\" + $ctx.storyId + \"\",\"itemId\":\"CHK-001\",\"status\":\"in_progress\"})",
+      "expect": {
+        "pattern": "status"
+      },
+      "intentRef": "CHK-002:edge:2"
+    },
+    {
+      "name": "fixture 不存在拒绝标 done(adv)",
+      "run_type": "cli",
+      "fn": "checklist_update",
+      "file": "mcp/handlers/checklist",
+      "execute": "return $handlers.checklist_update({\"storyId\":\"\" + $ctx.storyId + \"\",\"itemId\":\"CHK-001\",\"status\":\"in_progress\"})",
+      "expect": {
+        "pattern": "status"
+      },
+      "intentRef": "CHK-002:adversarial:0"
+    },
+    {
+      "name": "删 case 后拒绝标 done(adv)",
+      "run_type": "cli",
+      "fn": "checklist_update",
+      "file": "mcp/handlers/checklist",
+      "execute": "return $handlers.checklist_update({\"storyId\":\"\" + $ctx.storyId + \"\",\"itemId\":\"CHK-001\",\"status\":\"in_progress\"})",
+      "expect": {
+        "pattern": "status"
+      },
+      "intentRef": "CHK-002:adversarial:1"
+    },
+    {
+      "name": "有 testIntent 且 intentRef 全覆盖 → 标 done 成功",
+      "run_type": "cli",
+      "fn": "checklist_update",
+      "file": "mcp/handlers/checklist",
+      "execute": "return $handlers.checklist_update({\"storyId\":\"\" + $ctx.storyId + \"\",\"itemId\":\"CHK-001\",\"status\":\"done\"})",
+      "expect": {
+        "pattern": "status → done"
+      },
+      "intentRef": "CHK-001:happy:0"
+    }
+  ]
+}

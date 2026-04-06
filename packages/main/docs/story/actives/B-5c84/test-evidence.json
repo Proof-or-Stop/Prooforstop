@@ -1,0 +1,558 @@
+{
+  "tests": [
+    {
+      "id": "TE-AUTO-001",
+      "scenario": "getGuardFailureReason:setup: 创建带 testIntent 的 story",
+      "command": "test_auto(getGuardFailureReason)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"created\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-002",
+      "scenario": "getGuardFailureReason:PLAN→DEV 无 review → 拒绝",
+      "command": "test_auto(getGuardFailureReason)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-003",
+      "scenario": "getGuardFailureReason:setup: story_review 通过",
+      "command": "test_auto(getGuardFailureReason)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"审查\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-004",
+      "scenario": "getGuardFailureReason:PLAN→DEV 有 review 通过 → 成功",
+      "command": "test_auto(getGuardFailureReason)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"advanced to DEV\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-005",
+      "scenario": "getGuardFailureReason:DEV→PLAN 回退成功",
+      "command": "test_auto(getGuardFailureReason)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"advanced to PLAN\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-006",
+      "scenario": "getGuardFailureReason:setup: 回退后 review",
+      "command": "test_auto(getGuardFailureReason)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"审查\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-007",
+      "scenario": "getGuardFailureReason:回退后再进 DEV → 成功",
+      "command": "test_auto(getGuardFailureReason)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"advanced to DEV\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-008",
+      "scenario": "getGuardFailureReason:setup: 创建无 testIntent 的 story",
+      "command": "test_auto(getGuardFailureReason)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"created\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-009",
+      "scenario": "getGuardFailureReason:缺 testIntent → PLAN→DEV 拒绝",
+      "command": "test_auto(getGuardFailureReason)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-010",
+      "scenario": "checklist_update:setup: 创建 story",
+      "command": "test_auto(checklist_update)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"created\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-011",
+      "scenario": "checklist_update:只传 testIntent → 只更新 testIntent",
+      "command": "test_auto(checklist_update)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"testIntent updated\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-012",
+      "scenario": "checklist_update:不传 status 也不传 testIntent → 报错",
+      "command": "test_auto(checklist_update)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-013",
+      "scenario": "checklist_update:testIntent 缺栏 → 报错",
+      "command": "test_auto(checklist_update)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-014",
+      "scenario": "checklist_update:testIntent 空数组 → 报错",
+      "command": "test_auto(checklist_update)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-015",
+      "scenario": "checklist_update:intentRef 写入保留",
+      "command": "test_auto(checklist_update)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"status\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-016",
+      "scenario": "checklist_update:intentRef 空字符串校验(edge)",
+      "command": "test_auto(checklist_update)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"status\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-017",
+      "scenario": "checklist_update:intentRef 格式不合法校验(edge)",
+      "command": "test_auto(checklist_update)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"status\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-018",
+      "scenario": "checklist_update:无 intentRef 正常写入(edge)",
+      "command": "test_auto(checklist_update)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"status\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-019",
+      "scenario": "checklist_update:intentRef 指向不存在 CHK(adv)",
+      "command": "test_auto(checklist_update)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"status\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-020",
+      "scenario": "checklist_update:重复 intentRef 不重复计数(adv)",
+      "command": "test_auto(checklist_update)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"status\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-021",
+      "scenario": "checklist_update:所有 intent 覆盖 → 标 done 成功",
+      "command": "test_auto(checklist_update)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"status\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-022",
+      "scenario": "checklist_update:部分 intent 未覆盖 → 拒绝标 done",
+      "command": "test_auto(checklist_update)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"status\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-023",
+      "scenario": "checklist_update:无 testIntent 允许标 done",
+      "command": "test_auto(checklist_update)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"status\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-024",
+      "scenario": "checklist_update:其他 item 的 intentRef 不计入",
+      "command": "test_auto(checklist_update)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"status\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-025",
+      "scenario": "checklist_update:已 done 再标 done 幂等",
+      "command": "test_auto(checklist_update)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"status\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-026",
+      "scenario": "checklist_update:fixture 不存在拒绝标 done(adv)",
+      "command": "test_auto(checklist_update)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"status\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-027",
+      "scenario": "checklist_update:删 case 后拒绝标 done(adv)",
+      "command": "test_auto(checklist_update)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"status\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-028",
+      "scenario": "checklist_update:有 testIntent 且 intentRef 全覆盖 → 标 done 成功",
+      "command": "test_auto(checklist_update)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"status → done\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-029",
+      "scenario": "story_create:create story with checklist (PLAN mode)",
+      "command": "test_auto(story_create)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"Story B-[a-f0-9]+ created \\\\(PLAN\\\\) with 2 checklist items\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-030",
+      "scenario": "story_create:create story without checklist (IDEA mode)",
+      "command": "test_auto(story_create)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"Story B-[a-f0-9]+ created \\\\(IDEA\\\\)\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-031",
+      "scenario": "story_create:create story with empty checklist stays IDEA",
+      "command": "test_auto(story_create)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"Story B-[a-f0-9]+ created \\\\(IDEA\\\\)\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-032",
+      "scenario": "story_create:create story with custom prefix",
+      "command": "test_auto(story_create)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"Story X-[a-f0-9]+ created \\\\(IDEA\\\\)\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-033",
+      "scenario": "story_review:setup: 创建带 testIntent 的 story",
+      "command": "test_auto(story_review)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"created\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-034",
+      "scenario": "story_review:PLAN→DEV 无 review → 拒绝",
+      "command": "test_auto(story_review)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-035",
+      "scenario": "story_review:setup: story_review 通过",
+      "command": "test_auto(story_review)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"审查\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-036",
+      "scenario": "story_review:PLAN→DEV 有 review 通过 → 成功",
+      "command": "test_auto(story_review)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"advanced to DEV\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-037",
+      "scenario": "story_review:DEV→PLAN 回退成功",
+      "command": "test_auto(story_review)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"advanced to PLAN\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-038",
+      "scenario": "story_review:setup: 回退后 review",
+      "command": "test_auto(story_review)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"审查\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-039",
+      "scenario": "story_review:回退后再进 DEV → 成功",
+      "command": "test_auto(story_review)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"advanced to DEV\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-040",
+      "scenario": "story_review:setup: 创建无 testIntent 的 story",
+      "command": "test_auto(story_review)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"created\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-041",
+      "scenario": "story_review:缺 testIntent → PLAN→DEV 拒绝",
+      "command": "test_auto(story_review)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-042",
+      "scenario": "bug_report:prereq: create story",
+      "command": "test_auto(bug_report)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"created\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-043",
+      "scenario": "bug_report:report a new bug without checklistId",
+      "command": "test_auto(bug_report)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"Bug BUG-001 reported\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-044",
+      "scenario": "bug_report:report a new bug with checklistId",
+      "command": "test_auto(bug_report)",
+      "output": "OK",
+      "expected": "{\"pattern\":\"Bug BUG-002 reported\"}",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-045",
+      "scenario": "bug_report:report duplicate bug id throws error",
+      "command": "test_auto(bug_report)",
+      "output": "OK",
+      "expected": "no error",
+      "result": "PASS",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-046",
+      "scenario": "parseFlagsTest:--key=value 格式解析",
+      "command": "test_auto(parseFlagsTest)",
+      "output": "Compiled file not found: C:\\work\\koala\\packages\\main\\src\\cli.js. Run npm run build first.",
+      "expected": "no error",
+      "result": "FAIL",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-047",
+      "scenario": "parseFlagsTest:--key value 空格分隔",
+      "command": "test_auto(parseFlagsTest)",
+      "output": "Compiled file not found: C:\\work\\koala\\packages\\main\\src\\cli.js. Run npm run build first.",
+      "expected": "no error",
+      "result": "FAIL",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-048",
+      "scenario": "parseFlagsTest:--flag 布尔标记",
+      "command": "test_auto(parseFlagsTest)",
+      "output": "Compiled file not found: C:\\work\\koala\\packages\\main\\src\\cli.js. Run npm run build first.",
+      "expected": "no error",
+      "result": "FAIL",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-049",
+      "scenario": "parseFlagsTest:无参数返回空对象",
+      "command": "test_auto(parseFlagsTest)",
+      "output": "Compiled file not found: C:\\work\\koala\\packages\\main\\src\\cli.js. Run npm run build first.",
+      "expected": "no error",
+      "result": "FAIL",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-050",
+      "scenario": "parseFlagsTest:混合格式 --storyId=B-xxx --full",
+      "command": "test_auto(parseFlagsTest)",
+      "output": "Compiled file not found: C:\\work\\koala\\packages\\main\\src\\cli.js. Run npm run build first.",
+      "expected": "no error",
+      "result": "FAIL",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-051",
+      "scenario": "parseFlagsTest:旧 JSON 格式兼容 (coerce boolean)",
+      "command": "test_auto(parseFlagsTest)",
+      "output": "Compiled file not found: C:\\work\\koala\\packages\\main\\src\\cli.js. Run npm run build first.",
+      "expected": "no error",
+      "result": "FAIL",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-052",
+      "scenario": "parseFlagsTest:未知 flag 被收集",
+      "command": "test_auto(parseFlagsTest)",
+      "output": "Compiled file not found: C:\\work\\koala\\packages\\main\\src\\cli.js. Run npm run build first.",
+      "expected": "no error",
+      "result": "FAIL",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-053",
+      "scenario": "parseFlagsTest:--flag 无值当布尔 true",
+      "command": "test_auto(parseFlagsTest)",
+      "output": "Compiled file not found: C:\\work\\koala\\packages\\main\\src\\cli.js. Run npm run build first.",
+      "expected": "no error",
+      "result": "FAIL",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-054",
+      "scenario": "parseFlagsTest:重复 flag 后者覆盖",
+      "command": "test_auto(parseFlagsTest)",
+      "output": "Compiled file not found: C:\\work\\koala\\packages\\main\\src\\cli.js. Run npm run build first.",
+      "expected": "no error",
+      "result": "FAIL",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-055",
+      "scenario": "parseFlagsTest:JSON 字符串值解析为数组",
+      "command": "test_auto(parseFlagsTest)",
+      "output": "Compiled file not found: C:\\work\\koala\\packages\\main\\src\\cli.js. Run npm run build first.",
+      "expected": "no error",
+      "result": "FAIL",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-056",
+      "scenario": "parseFlagsTest:重复 flag 累积为数组",
+      "command": "test_auto(parseFlagsTest)",
+      "output": "Compiled file not found: C:\\work\\koala\\packages\\main\\src\\cli.js. Run npm run build first.",
+      "expected": "no error",
+      "result": "FAIL",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-057",
+      "scenario": "parseFlagsTest:单元素 array flag",
+      "command": "test_auto(parseFlagsTest)",
+      "output": "Compiled file not found: C:\\work\\koala\\packages\\main\\src\\cli.js. Run npm run build first.",
+      "expected": "no error",
+      "result": "FAIL",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-058",
+      "scenario": "parseFlagsTest:JSON 含空格需引号",
+      "command": "test_auto(parseFlagsTest)",
+      "output": "Compiled file not found: C:\\work\\koala\\packages\\main\\src\\cli.js. Run npm run build first.",
+      "expected": "no error",
+      "result": "FAIL",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-059",
+      "scenario": "parseFlagsTest:无效 JSON 当字符串",
+      "command": "test_auto(parseFlagsTest)",
+      "output": "Compiled file not found: C:\\work\\koala\\packages\\main\\src\\cli.js. Run npm run build first.",
+      "expected": "no error",
+      "result": "FAIL",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-AUTO-060",
+      "scenario": "parseFlagsTest:JSON body 优先于 flag（coerce object）",
+      "command": "test_auto(parseFlagsTest)",
+      "output": "Compiled file not found: C:\\work\\koala\\packages\\main\\src\\cli.js. Run npm run build first.",
+      "expected": "no error",
+      "result": "FAIL",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    },
+    {
+      "id": "TE-DRIFT-061",
+      "scenario": "drift-check(base=HEAD~1)",
+      "command": "parseDiffFunctions + checkDrift",
+      "output": "..\\packages\\main\\src\\cli.ts:printToolHelp, ..\\packages\\main\\src\\cli.ts:printHelp, ..\\packages\\main\\src\\cli.ts:main, ..\\packages\\main\\src\\mcp\\handlers\\checklist.ts:createChecklistHandlers, ..\\packages\\main\\src\\mcp\\handlers\\fixture.ts:createFixtureHandlers, ..\\packages\\main\\src\\mcp\\handlers\\test-auto.ts:createTestAutoHandlers, ..\\packages\\main\\src\\mcp\\server.ts:tool, ..\\packages\\main\\src\\tasks\\drift-check.ts:parseDiffFunctions, ..\\packages\\main\\src\\tasks\\drift-check.ts:checkDrift, ..\\packages\\main\\src\\tasks\\extract.ts:scan, ..\\packages\\main\\src\\tasks\\test-executor.ts:importAndExecute",
+      "expected": "no drift",
+      "result": "FAIL",
+      "timestamp": "2026-04-04T01:26:02.316Z"
+    }
+  ],
+  "environment": {
+    "node": "v22.13.0",
+    "os": "win32 x64",
+    "timestamp": "2026-04-04T01:14:24.577Z"
+  }
+}

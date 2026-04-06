@@ -1,0 +1,145 @@
+{
+  "cases": [
+    {
+      "name": "setup: create test story",
+      "run_type": "cli",
+      "fn": "story_quick",
+      "file": "src/mcp/handlers/story",
+      "execute": "const r = await $handlers.story_quick({name:'cl-add-test',title:'checklist_add test story',description:'test',type:'feature',priority:'low',checklist:[{title:'placeholder',context:'ctx'}]}); $ctx.storyId = r.match(/B-[a-f0-9]+/)[0]; return r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "happy:0 — add item with title+context, ID = CHK-002",
+      "run_type": "cli",
+      "fn": "checklist_add",
+      "file": "src/mcp/handlers/checklist",
+      "execute": "return await $handlers.checklist_add({storyId:$ctx.storyId,title:'新功能',context:'上下文说明'})",
+      "expect": {
+        "pattern": "CHK-002 added"
+      },
+      "intentRef": "CHK-001:happy:0"
+    },
+    {
+      "name": "happy:0 — verify item persisted in checklist",
+      "run_type": "cli",
+      "fn": "checklist_get",
+      "file": "src/mcp/handlers/checklist",
+      "execute": "const cl = await $handlers.checklist_get({storyId:$ctx.storyId}); const item = cl.items.find(i=>i.id==='CHK-002'); return item ? item.id+'|'+item.title+'|'+item.context+'|'+item.status : 'NOT_FOUND'",
+      "expect": {
+        "pattern": "CHK-002"
+      }
+    },
+    {
+      "name": "happy:1 — add third item, auto-assign CHK-003, original items unchanged",
+      "run_type": "cli",
+      "fn": "checklist_add",
+      "file": "src/mcp/handlers/checklist",
+      "execute": "await $handlers.checklist_add({storyId:$ctx.storyId,title:'第三项',context:'ctx3'}); const cl = await $handlers.checklist_get({storyId:$ctx.storyId}); const ids = cl.items.map(i=>i.id).join(','); return 'ids='+ids",
+      "expect": {
+        "pattern": "CHK-001,CHK-002,CHK-003"
+      },
+      "intentRef": "CHK-001:happy:1"
+    },
+    {
+      "name": "setup: create empty-checklist story",
+      "run_type": "cli",
+      "fn": "story_quick",
+      "file": "src/mcp/handlers/story",
+      "execute": "const r = await $handlers.story_quick({name:'cl-add-empty',title:'empty checklist test',description:'test',type:'feature',priority:'low',checklist:[{title:'temp',context:'x'}]}); $ctx.emptyStoryId = r.match(/B-[a-f0-9]+/)[0]; return r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "edge:0 — empty checklist assigns CHK-001",
+      "run_type": "cli",
+      "fn": "checklist_add",
+      "file": "src/mcp/handlers/checklist",
+      "execute": "const {writeFileSync} = await import('fs'); const {join} = await import('path'); const p = join($root,'docs/story/actives',String($ctx.emptyStoryId),'checklist.json'); writeFileSync(p,JSON.stringify({items:[]})); return await $handlers.checklist_add({storyId:$ctx.emptyStoryId,title:'first item'})",
+      "expect": {
+        "pattern": "CHK-001 added"
+      },
+      "intentRef": "CHK-001:edge:0",
+      "sandbox": false
+    },
+    {
+      "name": "edge:1 — add item in DEV phase succeeds",
+      "run_type": "cli",
+      "fn": "checklist_add",
+      "file": "src/mcp/handlers/checklist",
+      "execute": "const fs = await import('fs'); const {join} = await import('path'); const idxPath = join($root,'docs/story/actives',String($ctx.storyId),'index.json'); const idx = JSON.parse(fs.readFileSync(idxPath,'utf-8')); idx.phase = 'DEV'; fs.writeFileSync(idxPath, JSON.stringify(idx, null, 2)); return await $handlers.checklist_add({storyId:$ctx.storyId,title:'DEV phase item',context:'added during dev'})",
+      "expect": {
+        "pattern": "added"
+      },
+      "intentRef": "CHK-001:edge:1",
+      "sandbox": false
+    },
+    {
+      "name": "edge:2 — long title (500 chars) preserved",
+      "run_type": "cli",
+      "fn": "checklist_add",
+      "file": "src/mcp/handlers/checklist",
+      "execute": "const longTitle = 'A'.repeat(500); await $handlers.checklist_add({storyId:$ctx.storyId,title:longTitle,context:'long'}); const cl = await $handlers.checklist_get({storyId:$ctx.storyId}); const last = cl.items[cl.items.length-1]; return 'len='+last.title.length+' match='+(last.title === longTitle)",
+      "expect": {
+        "pattern": "len=500 match=true"
+      },
+      "intentRef": "CHK-001:edge:2"
+    },
+    {
+      "name": "edge:3 — context omitted, item created successfully",
+      "run_type": "cli",
+      "fn": "checklist_add",
+      "file": "src/mcp/handlers/checklist",
+      "execute": "await $handlers.checklist_add({storyId:$ctx.storyId,title:'no context item'}); const cl = await $handlers.checklist_get({storyId:$ctx.storyId}); const last = cl.items[cl.items.length-1]; return 'title='+last.title+' context='+String(last.context)",
+      "expect": {
+        "pattern": "title=no context item context=undefined"
+      },
+      "intentRef": "CHK-001:edge:3"
+    },
+    {
+      "name": "adversarial:0 — nonexistent storyId throws error",
+      "run_type": "cli",
+      "fn": "checklist_add",
+      "file": "src/mcp/handlers/checklist",
+      "execute": "return await $handlers.checklist_add({storyId:'B-nonexistent',title:'should fail'})",
+      "throws": "not found",
+      "intentRef": "CHK-001:adversarial:0"
+    },
+    {
+      "name": "adversarial:3 — JSON special chars in title/context preserved",
+      "run_type": "cli",
+      "fn": "checklist_add",
+      "file": "src/mcp/handlers/checklist",
+      "execute": "const special = 'quotes\"here\\\\back'; await $handlers.checklist_add({storyId:$ctx.storyId,title:special,context:special}); const cl = await $handlers.checklist_get({storyId:$ctx.storyId}); const last = cl.items[cl.items.length-1]; return 'match='+(last.title === special && last.context === special)",
+      "expect": {
+        "pattern": "match=true"
+      },
+      "intentRef": "CHK-001:adversarial:3"
+    },
+    {
+      "name": "adversarial:1 — concurrent adds get different IDs",
+      "run_type": "cli",
+      "fn": "checklist_add",
+      "file": "src/mcp/handlers/checklist",
+      "execute": "const [r1,r2] = await Promise.all([$handlers.checklist_add({storyId:$ctx.storyId,title:'concurrent-A'}),$handlers.checklist_add({storyId:$ctx.storyId,title:'concurrent-B'})]); const cl = await $handlers.checklist_get({storyId:$ctx.storyId}); const ids = cl.items.map(i=>i.id); const uniqueIds = new Set(ids); return 'allUnique='+(ids.length === uniqueIds.size)+' count='+ids.length",
+      "expect": {
+        "pattern": "allUnique=true"
+      },
+      "intentRef": "CHK-001:adversarial:1"
+    },
+    {
+      "name": "adversarial:2 — deleted checklist file mid-execution throws error",
+      "run_type": "cli",
+      "fn": "checklist_add",
+      "file": "src/mcp/handlers/checklist",
+      "execute": "const fs = await import('fs'); const {join} = await import('path'); const dir = join($root,'docs/story/actives',String($ctx.emptyStoryId)); const p = join(dir,'checklist.json'); try { fs.unlinkSync(p); } catch {}; let err = ''; try { await $handlers.checklist_add({storyId:$ctx.emptyStoryId,title:'after delete'}); } catch(e) { err = e.message || String(e); } const fileExists = fs.existsSync(p); const dirFiles = fs.readdirSync(dir); const hasCorrupt = dirFiles.some(f => f.includes('checklist') && f !== 'checklist.json'); return 'threw='+(err.length>0)+' fileExists='+fileExists+' noCorrupt='+(!hasCorrupt)",
+      "expect": {
+        "pattern": "threw=true.*noCorrupt=true"
+      },
+      "intentRef": "CHK-001:adversarial:2",
+      "sandbox": false
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from 'fs';
 import { join } from 'path';
 import type {
-  StoryInfo, ChecklistData, BugData, TestEvidenceData,
+  StoryInfo, ChecklistData, BugData, TestEvidenceData, ReviewData,
 } from './types.js';
 
 export class StoryStore {
@@ -81,15 +81,29 @@ export class StoryStore {
 
   // ── Test Evidence ──
 
-  readTestEvidence(storyId: string): TestEvidenceData {
+  readTestEvidence(storyId: string): TestEvidenceData | null {
     try {
       return this.readJson<TestEvidenceData>(storyId, 'test-evidence.json');
     } catch {
-      return { tests: [] };
+      return null;
     }
   }
 
   writeTestEvidence(storyId: string, data: TestEvidenceData): void {
     this.writeJson(storyId, 'test-evidence.json', data);
+  }
+
+  // ── Review ──
+
+  readReview(storyId: string): ReviewData {
+    try {
+      return this.readJson<ReviewData>(storyId, 'review.json');
+    } catch {
+      return { reviews: [] };
+    }
+  }
+
+  writeReview(storyId: string, data: ReviewData): void {
+    this.writeJson(storyId, 'review.json', data);
   }
 }

@@ -1,19 +1,41 @@
 {
   "cases": [
     {
-      "name": "list test evidence for a story with existing entries",
-      "input": {
-        "storyId": "S-001"
-      },
+      "name": "prereq: create story",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"test-list-test\",\"title\":\"Test List Test\",\"description\":\"test\",\"type\":\"feature\",\"priority\":\"high\"}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "list test evidence for a story with no entries returns empty list",
+      "run_type": "cli",
+      "fn": "test_list",
+      "file": "mcp/handlers/test",
+      "execute": "return $handlers.test_list({\"storyId\":\"\" + $ctx.storyId + \"\"})",
       "expect": {
         "pattern": "tests"
       }
     },
     {
-      "name": "list test evidence for a story with no entries returns empty list",
-      "input": {
-        "storyId": "S-EMPTY"
-      },
+      "name": "prereq: add test evidence",
+      "run_type": "cli",
+      "fn": "test_add",
+      "file": "mcp/handlers/test",
+      "execute": "return $handlers.test_add({\"storyId\":\"\" + $ctx.storyId + \"\",\"id\":\"TE-001\",\"scenario\":\"test scenario\",\"command\":\"test command\",\"output\":\"test output\",\"expected\":\"test output\",\"result\":\"PASS\"})",
+      "expect": {
+        "pattern": "TE-001"
+      }
+    },
+    {
+      "name": "list test evidence for a story with existing entries",
+      "run_type": "cli",
+      "fn": "test_list",
+      "file": "mcp/handlers/test",
+      "execute": "return $handlers.test_list({\"storyId\":\"\" + $ctx.storyId + \"\"})",
       "expect": {
         "pattern": "tests"
       }

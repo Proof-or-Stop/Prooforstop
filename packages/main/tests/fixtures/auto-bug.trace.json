@@ -1,0 +1,77 @@
+{
+  "snapshots": {
+    "setup: create story": {
+      "commit": "a58c9ec42c788e6c87107702be717648f823a22e",
+      "timestamp": "2026-04-04T18:15:43.326Z",
+      "caseName": "setup: create story",
+      "fixturePath": "auto-bug.json",
+      "trace": [
+        {
+          "fn": "startProfiler",
+          "file": "/work/koala/packages/main/dist/tasks/profiler.js",
+          "line": 6,
+          "children": []
+        },
+        {
+          "fn": "runCase",
+          "file": "/work/koala/packages/main/dist/mcp/handlers/test-auto.js",
+          "line": 42,
+          "children": [
+            {
+              "fn": "story_create",
+              "file": "/work/koala/packages/main/dist/mcp/handlers/story.js",
+              "line": 9,
+              "children": [
+                {
+                  "fn": "nextStoryId",
+                  "file": "/work/koala/packages/main/dist/mcp/handlers/context.js",
+                  "line": 31,
+                  "children": [
+                    {
+                      "fn": "listStoryIds",
+                      "file": "/work/koala/packages/main/dist/story/store.js",
+                      "line": 37,
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "fn": "collectContext",
+                  "file": "/work/koala/packages/main/dist/mcp/handlers/context.js",
+                  "line": 11,
+                  "children": []
+                },
+                {
+                  "fn": "writeStory",
+                  "file": "/work/koala/packages/main/dist/story/store.js",
+                  "line": 31,
+                  "children": [
+                    {
+                      "fn": "writeJson",
+                      "file": "/work/koala/packages/main/dist/story/store.js",
+                      "line": 22,
+                      "children": [
+                        {
+                          "fn": "ensureDir",
+                          "file": "/work/koala/packages/main/dist/story/store.js",
+                          "line": 10,
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "fn": "stop",
+              "file": "/work/koala/packages/main/dist/tasks/profiler.js",
+              "line": 12,
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

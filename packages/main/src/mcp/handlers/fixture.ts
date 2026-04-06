@@ -1,80 +1,75 @@
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
-import { join, dirname } from 'path';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'fs';
+import { join, dirname, isAbsolute } from 'path';
+import { randomUUID } from 'crypto';
 import type { HandlerContext } from './context.js';
 import { loadConfig } from '../../config.js';
-import { scan } from '../../tasks/extract.js';
-import { parseFunctionAfterBlock } from '../../tasks/extract.js';
 
-const KNOWN_CASE_FIELDS = new Set(['name', 'input', 'expect', 'throws', 'fn', 'construct', 'setup']);
-const CLI_CASE_FIELDS = new Set(['cli', 'command', 'steps', 'env', 'cwd', 'timeoutMs']);
-const BROWSER_CASE_FIELDS = new Set(['browser', 'steps']);
-const ALL_KNOWN_FIELDS = new Set([...KNOWN_CASE_FIELDS, ...CLI_CASE_FIELDS, ...BROWSER_CASE_FIELDS]);
+const NEW_FORMAT_FIELDS = new Set(['name', 'run_type', 'file', 'execute', 'expect', 'throws', 'intentRef', 'sandbox', '_id', 'prevCaseId', 'nextCaseId']);
+const DEPRECATED_FIELDS = new Set(['input', 'steps', 'browser', 'construct', 'setup', 'cli', 'command', 'env', 'cwd', 'timeoutMs']);
 
 export function validateFixtureCase(c: Record<string, unknown>): string[] {
   const errors: string[] = [];
-  const isCli = !!c.cli;
-  const isBrowser = !!c.browser;
 
   if (!c.name || typeof c.name !== 'string') {
     errors.push('缺少 name 字段');
   }
 
-  if (isCli || isBrowser) {
-    // CLI/browser case: require steps
-    if (!c.steps || !Array.isArray(c.steps)) {
-      errors.push('CLI/browser case 必须有 steps 数组');
-    }
-  } else {
-    // White-box case: require input + expect/throws
-    if (c.input === undefined) {
-      errors.push('缺少 input 字段');
-    }
-    if (c.throws === undefined && c.expect === undefined) {
-      errors.push('throws 和 expect 必须有一个');
-    }
-    if (c.throws !== undefined && typeof c.throws !== 'string') {
-      errors.push(`throws 必须是 string，当前是 ${typeof c.throws}`);
-    }
-    if (c.throws !== undefined && c.expect !== undefined) {
-      errors.push('throws 和 expect 不能同时存在');
-    }
-    // pattern 正则合法性
-    if (c.expect && typeof c.expect === 'object' && (c.expect as any).pattern) {
-      try {
-        new RegExp((c.expect as any).pattern);
-      } catch {
-        errors.push(`pattern 正则语法错误: ${(c.expect as any).pattern}`);
-      }
+  // 拒绝旧格式字段
+  const deprecated = Object.keys(c).filter(k => DEPRECATED_FIELDS.has(k));
+  if (deprecated.length > 0) {
+    errors.push(`旧格式字段不允许: ${deprecated.join(', ')}，请使用新格式（run_type/file/execute）`);
+    return errors; // 旧格式不继续校验
+  }
+
+  // run_type 必填
+  if (!c.run_type || !['cli', 'browser'].includes(c.run_type as string)) {
+    errors.push('run_type 必须是 "cli" 或 "browser"');
+  }
+
+  // file 必填（源文件路径）
+  if (!c.file || typeof c.file !== 'string' || (c.file as string).trim() === '') {
+    errors.push('file 必须是非空字符串（源文件路径）');
+  }
+
+  // execute 必填
+  if (!c.execute || typeof c.execute !== 'string' || (c.execute as string).trim() === '') {
+    errors.push('execute 必须是非空字符串（函数体）');
+  }
+
+  // expect 和 throws 互斥
+  if (c.throws !== undefined && c.expect !== undefined) {
+    errors.push('throws 和 expect 不能同时存在');
+  }
+  if (c.throws !== undefined && typeof c.throws !== 'string') {
+    errors.push(`throws 必须是 string，当前是 ${typeof c.throws}`);
+  }
+
+  // pattern 正则合法性
+  if (c.expect && typeof c.expect === 'object' && (c.expect as any).pattern) {
+    try { new RegExp((c.expect as any).pattern); } catch {
+      errors.push(`pattern 正则语法错误: ${(c.expect as any).pattern}`);
     }
   }
 
-  // fn 格式校验
-  if (c.fn !== undefined) {
-    if (typeof c.fn !== 'string' || c.fn.trim() === '') {
-      errors.push('fn 必须是非空字符串');
-    } else if (c.fn.includes('.')) {
-      const parts = c.fn.split('.');
-      if (parts.length !== 2 || !parts[0] || !parts[1]) {
-        errors.push(`fn 格式错误: "${c.fn}"，ClassName.methodName 只支持一层点号`);
-      }
+  // intentRef 格式校验
+  if (c.intentRef !== undefined) {
+    if (typeof c.intentRef !== 'string' || !/^CHK-\d+:(happy|edge|adversarial):\d+$/.test(c.intentRef as string)) {
+      errors.push(`intentRef 格式错误: "${c.intentRef}"，应为 CHK-001:happy:0`);
     }
   }
 
-  // construct 格式校验
-  if (c.construct !== undefined) {
-    if (!Array.isArray(c.construct)) {
-      errors.push('construct 必须是数组（构造函数参数）');
-    }
-    if (!c.fn || !(c.fn as string).includes('.')) {
-      errors.push('construct 仅在 fn 为 "ClassName.methodName" 格式时有效');
+  // _id / prevCaseId / nextCaseId 类型校验（可选字段）
+  for (const f of ['_id', 'prevCaseId', 'nextCaseId'] as const) {
+    if (c[f] !== undefined && typeof c[f] !== 'string') {
+      errors.push(`${f} 必须是 string`);
     }
   }
 
   // 非标准字段
-  const unknown = Object.keys(c).filter(k => !ALL_KNOWN_FIELDS.has(k));
+  const unknown = Object.keys(c).filter(k => !NEW_FORMAT_FIELDS.has(k));
   if (unknown.length > 0) {
-    errors.push(`非标准字段: ${unknown.join(', ')}（参考 test-fixture-spec.md）`);
+    errors.push(`非标准字段: ${unknown.join(', ')}`);
   }
 
   return errors;
@@ -102,21 +97,6 @@ export function createFixtureHandlers(ctx: HandlerContext) {
     writeFileSync(p, JSON.stringify(data, null, 2) + '\n');
   }
 
-  /** 校验 fn 是否指向真实函数（支持 ClassName.methodName） */
-  function validateFnExists(fn: string | undefined): string | null {
-    if (!fn) return null;
-    const allTasks = scan(scanRoot);
-    const fnNames = new Set(allTasks.map(t => t.functionName).filter(Boolean));
-    // 直接匹配
-    if (fnNames.has(fn)) return null;
-    // ClassName.methodName：检查 ClassName 或 methodName 是否存在
-    if (fn.includes('.')) {
-      const [className, methodName] = fn.split('.');
-      if (fnNames.has(className) || fnNames.has(methodName)) return null;
-      return `fn="${fn}" 未匹配到任何函数（task.json 中无 "${className}" 也无 "${methodName}"）`;
-    }
-    return `fn="${fn}" 不在 task.json 的函数列表中`;
-  }
 
   return {
     fixture_get(args: { fixturePath: string }) {
@@ -132,56 +112,40 @@ export function createFixtureHandlers(ctx: HandlerContext) {
     fixture_update(args: {
       fixturePath: string;
       action: 'add' | 'update' | 'delete';
-      case: { name: string; input?: unknown; expect?: unknown; throws?: string; fn?: string };
+      case: { name: string; input?: unknown; expect?: unknown; throws?: string; fn?: string; executeFile?: string };
     }) {
       const data = readFixture(args.fixturePath);
-      const c = args.case;
+      const c = { ...args.case };
+
+      // CHK-001: executeFile → 从文件读取 execute 内容
+      if (c.executeFile) {
+        const filePath = isAbsolute(c.executeFile) ? c.executeFile : join(root, c.executeFile);
+        if (!existsSync(filePath)) {
+          throw new Error(`executeFile not found: ${filePath}`);
+        }
+        (c as any).execute = readFileSync(filePath, 'utf-8');
+        delete c.executeFile;
+      }
 
       if (args.action === 'add') {
         const validationErrors = validateFixtureCase(c as Record<string, unknown>);
-        const fnError = validateFnExists(c.fn);
-        if (fnError) validationErrors.push(fnError);
         if (validationErrors.length > 0) {
           throw new Error(`case 格式错误: ${validationErrors.join('; ')}`);
         }
         if (data.cases.find((x: any) => x.name === c.name)) {
           throw new Error(`case "${c.name}" already exists`);
         }
-        const cAny = c as any;
-        const newCase: any = { name: c.name };
-        if (cAny.cli) {
-          // CLI case
-          newCase.cli = true;
-          if (cAny.command) newCase.command = cAny.command;
-          if (cAny.env) newCase.env = cAny.env;
-          if (cAny.steps) newCase.steps = cAny.steps;
-        } else if (cAny.browser) {
-          // Browser case
-          newCase.browser = true;
-          if (cAny.steps) newCase.steps = cAny.steps;
-        } else {
-          // White-box case
-          newCase.input = c.input;
-          if (c.fn) newCase.fn = c.fn;
-          if (c.throws !== undefined) newCase.throws = c.throws;
-          if (c.expect !== undefined) newCase.expect = c.expect;
-        }
-        data.cases.push(newCase);
+        // CHK-001: 强制生成 _id（忽略外部传入）
+        (c as any)._id = randomUUID();
+        data.cases.push(c);
         writeFixture(args.fixturePath, data);
-        return `Case "${c.name}" added (total: ${data.cases.length})`;
+        return `Case "${c.name}" added (_id: ${(c as any)._id}, total: ${data.cases.length})`;
       }
 
       if (args.action === 'update') {
         const idx = data.cases.findIndex((x: any) => x.name === c.name);
         if (idx === -1) throw new Error(`case "${c.name}" not found`);
-        if (c.fn !== undefined) {
-          const fnError = validateFnExists(c.fn);
-          if (fnError) throw new Error(fnError);
-        }
-        if (c.input !== undefined) data.cases[idx].input = c.input;
-        if (c.fn !== undefined) data.cases[idx].fn = c.fn;
-        if (c.throws !== undefined) { data.cases[idx].throws = c.throws; delete data.cases[idx].expect; }
-        if (c.expect !== undefined) { data.cases[idx].expect = c.expect; delete data.cases[idx].throws; }
+        Object.assign(data.cases[idx], c);
         writeFixture(args.fixturePath, data);
         return `Case "${c.name}" updated`;
       }
@@ -201,54 +165,153 @@ export function createFixtureHandlers(ctx: HandlerContext) {
     fixture_batch_add(args: { fixturePath: string; cases: Array<Record<string, unknown>> }) {
       const data = readFixture(args.fixturePath);
       const added: string[] = [];
-      for (const c of args.cases) {
+      // CHK-001+002: 先为所有 case 生成 _id，再建立链关系
+      const batchCases: Array<Record<string, unknown>> = [];
+      for (let c of args.cases) {
+        // executeFile → 从文件读取 execute 内容
+        if (c.executeFile) {
+          c = { ...c };
+          const filePath = isAbsolute(c.executeFile as string) ? c.executeFile as string : join(root, c.executeFile as string);
+          if (!existsSync(filePath)) { added.push(`${c.name}: ERROR executeFile not found: ${filePath}`); continue; }
+          c.execute = readFileSync(filePath, 'utf-8');
+          delete c.executeFile;
+        }
         const errs = validateFixtureCase(c);
         if (errs.length) { added.push(`${c.name}: ERROR ${errs.join('; ')}`); continue; }
         if (data.cases.find((x: any) => x.name === c.name)) { added.push(`${c.name}: SKIP (exists)`); continue; }
-        data.cases.push(c);
+        // CHK-001: 强制生成 _id（忽略外部传入）
+        c._id = randomUUID();
+        batchCases.push(c);
         added.push(`${c.name}: OK`);
       }
+      // CHK-002: 批量添加时按顺序建立链关系（仅同批 case 之间）
+      if (batchCases.length > 1) {
+        for (let i = 0; i < batchCases.length; i++) {
+          if (i > 0 && !batchCases[i].prevCaseId) {
+            batchCases[i].prevCaseId = batchCases[i - 1]._id as string;
+          }
+          if (i < batchCases.length - 1 && !batchCases[i].nextCaseId) {
+            batchCases[i].nextCaseId = batchCases[i + 1]._id as string;
+          }
+        }
+      }
+      data.cases.push(...batchCases);
       writeFixture(args.fixturePath, data);
-      return `Added ${added.filter(a => a.endsWith('OK')).length}/${args.cases.length} cases (total: ${data.cases.length})\n${added.join('\n')}`;
+      return `Added ${batchCases.length}/${args.cases.length} cases (total: ${data.cases.length})\n${added.join('\n')}`;
     },
 
-    fixture_gen(args: { fixturePath: string; functionName?: string }) {
-      const allTasks = scan(scanRoot);
-      const target = args.functionName
-        ? allTasks.find(t => t.functionName === args.functionName && t.test)
-        : allTasks.find(t => t.test === args.fixturePath);
+    /** CHK-010+011: 迁移旧 fixture — 补写 _id 和 prevCaseId/nextCaseId */
+    fixture_migrate(args?: { dryRun?: boolean }) {
+      const dryRun = args?.dryRun ?? false;
+      const report: string[] = [];
+      let totalMigrated = 0;
+      let totalChained = 0;
 
-      if (!target) {
-        throw new Error(`找不到函数 ${args.functionName || args.fixturePath}，确认已有 @test 注释`);
+      const scanDir = (dir: string): string[] => {
+        const files: string[] = [];
+        if (!existsSync(dir)) return files;
+        for (const entry of readdirSync(dir, { withFileTypes: true })) {
+          if (entry.isDirectory()) files.push(...scanDir(join(dir, entry.name)));
+          else if (entry.name.endsWith('.json') && !entry.name.endsWith('.trace.json')) files.push(join(dir, entry.name));
+        }
+        return files;
+      };
+
+      const fixtureFiles = scanDir(fixturesDir);
+
+      for (const fp of fixtureFiles) {
+        let content: any;
+        try { content = JSON.parse(readFileSync(fp, 'utf-8')); } catch { continue; }
+        const cases = content.cases;
+        if (!Array.isArray(cases) || cases.length === 0) continue;
+
+        const relPath = fp.replace(fixturesDir + '/', '').replace(fixturesDir + '\\', '');
+        let changed = false;
+
+        // CHK-010: 补写 _id
+        for (const c of cases) {
+          if (!c._id) {
+            c._id = randomUUID();
+            totalMigrated++;
+            changed = true;
+          }
+        }
+
+        // CHK-011: 补写 prevCaseId/nextCaseId（按数组顺序推断链关系）
+        // 先检查所有 case 是否都有 _id
+        const allHaveId = cases.every((c: any) => c._id);
+        if (!allHaveId) {
+          report.push(`${relPath}: ERROR 存在无 _id 的 case，请先补写 _id`);
+          continue;
+        }
+
+        if (cases.length > 1) {
+          for (let i = 0; i < cases.length; i++) {
+            if (i > 0 && !cases[i].prevCaseId) {
+              cases[i].prevCaseId = cases[i - 1]._id;
+              totalChained++;
+              changed = true;
+            }
+            if (i < cases.length - 1 && !cases[i].nextCaseId) {
+              cases[i].nextCaseId = cases[i + 1]._id;
+              totalChained++;
+              changed = true;
+            }
+          }
+        }
+
+        if (changed) {
+          if (!dryRun) writeFixture(relPath.replace(/\.json$/, ''), content);
+          report.push(`${relPath}: migrated`);
+        }
       }
 
-      const data = readFixture(args.fixturePath);
-      const generated: string[] = [];
+      // 旧 bug 回填 fixtureId：扫描所有 story 的 bug，按 BUG-{file}-{caseName} 反查 case._id
+      let totalBugsMigrated = 0;
+      if (!dryRun) {
+        const storyDir = join(root, config.storyDir);
+        if (existsSync(storyDir)) {
+          // 构建 caseName → _id 索引（从所有 fixture 文件）
+          const nameToId = new Map<string, { fileName: string; id: string }>();
+          for (const fp of fixtureFiles) {
+            try {
+              const content = JSON.parse(readFileSync(fp, 'utf-8'));
+              const fileName = fp.replace(fixturesDir + '/', '').replace(fixturesDir + '\\', '');
+              for (const c of (content.cases || [])) {
+                if (c._id && c.name) {
+                  const oldBugId = `BUG-${fileName.replace(/[\\/.]/g, '-')}-${(c.name as string).replace(/\s+/g, '-')}`.slice(0, 80);
+                  nameToId.set(oldBugId, { fileName, id: c._id });
+                }
+              }
+            } catch {}
+          }
 
-      // 基础 case：正常调用
-      if (!data.cases.find((c: any) => c.name.includes('正常调用') || c.name.includes('basic'))) {
-        data.cases.push({
-          name: `${target.functionName} — 正常调用`,
-          ...(args.functionName ? { fn: args.functionName } : {}),
-          input: {},
-          expect: { pattern: '.' },
-        });
-        generated.push('正常调用');
+          for (const entry of readdirSync(storyDir, { withFileTypes: true })) {
+            if (!entry.isDirectory()) continue;
+            const bugPath = join(storyDir, entry.name, 'bug.json');
+            if (!existsSync(bugPath)) continue;
+            try {
+              const bugData = JSON.parse(readFileSync(bugPath, 'utf-8'));
+              let bugChanged = false;
+              for (const bug of (bugData.bugs || [])) {
+                if (bug.fixtureId) continue; // 已有 fixtureId
+                const match = nameToId.get(bug.id);
+                if (match) {
+                  bug.fixtureId = match.id;
+                  totalBugsMigrated++;
+                  bugChanged = true;
+                }
+              }
+              if (bugChanged) {
+                writeFileSync(bugPath, JSON.stringify(bugData, null, 2) + '\n');
+              }
+            } catch {}
+          }
+        }
       }
 
-      // 缺参 case
-      if (!data.cases.find((c: any) => c.name.includes('缺参') || c.name.includes('missing'))) {
-        data.cases.push({
-          name: `${target.functionName} — 缺参`,
-          ...(args.functionName ? { fn: args.functionName } : {}),
-          input: {},
-          throws: 'required',
-        });
-        generated.push('缺参');
-      }
-
-      writeFixture(args.fixturePath, data);
-      return `Generated ${generated.length} cases for ${target.functionName}: ${generated.join(', ')} (total: ${data.cases.length})`;
+      return `fixture_migrate ${dryRun ? '(dry-run)' : 'done'}: ${totalMigrated} _id added, ${totalChained} chain links added, ${totalBugsMigrated} bugs migrated\n${report.join('\n')}`;
     },
+
   };
 }

@@ -2,7 +2,7 @@
 import { StoryStore } from '../story/store.js';
 import { loadConfig } from '../config.js';
 import { execSync } from 'child_process';
-import type { StoryInfo, BugRecord, TestEvidenceEntry } from '../story/types.js';
+import type { StoryInfo, BugRecord } from '../story/types.js';
 
 // ── Types ──
 
@@ -130,20 +130,18 @@ function extractFromTestEvidence(store: StoryStore, storyIds: string[]): BugEntr
   const bugs: BugEntry[] = [];
   for (const sid of storyIds) {
     const evidence = store.readTestEvidence(sid);
-    for (const t of evidence.tests) {
-      if (t.result === 'FAIL') {
-        bugs.push({
-          id: `${sid}-${t.id}`,
-          source: 'test_fail',
-          storyId: sid,
-          title: `测试失败: ${t.scenario}`,
-          severity: 'medium',
-          status: 'open',
-          foundAt: t.timestamp,
-          fixedAt: null,
-          details: `expected: ${t.expected}, got: ${t.output}`,
-        });
-      }
+    if (evidence && evidence.result === 'FAIL') {
+      bugs.push({
+        id: `${sid}-test-fail`,
+        source: 'test_fail',
+        storyId: sid,
+        title: `测试失败: ${evidence.command}`,
+        severity: 'medium',
+        status: 'open',
+        foundAt: evidence.timestamp,
+        fixedAt: null,
+        details: evidence.output,
+      });
     }
   }
   return bugs;
@@ -237,7 +235,6 @@ function buildStoryMetrics(store: StoryStore, storyIds: string[], bugs: BugEntry
     const story = store.readStory(sid);
     const evidence = store.readTestEvidence(sid);
     const storyBugs = bugs.filter(b => b.storyId === sid);
-    const failTests = evidence.tests.filter(t => t.result === 'FAIL');
 
     let devHours: number | null = null;
     if (story.startedAt && story.endedAt) {
@@ -252,8 +249,8 @@ function buildStoryMetrics(store: StoryStore, storyIds: string[], bugs: BugEntry
       type: story.type,
       phase: story.phase,
       bugCount: storyBugs.length,
-      testTotal: evidence.tests.length,
-      testFail: failTests.length,
+      testTotal: evidence ? 1 : 0,
+      testFail: evidence && evidence.result === 'FAIL' ? 1 : 0,
       devDurationHours: devHours,
     };
   });
@@ -370,8 +367,10 @@ export function extractBugs(projectRoot: string): BugReport {
   let totalFails = 0;
   for (const sid of storyIds) {
     const ev = store.readTestEvidence(sid);
-    totalTests += ev.tests.length;
-    totalFails += ev.tests.filter(t => t.result === 'FAIL').length;
+    if (ev) {
+      totalTests += 1;
+      if (ev.result === 'FAIL') totalFails += 1;
+    }
   }
 
   // Avg fix time

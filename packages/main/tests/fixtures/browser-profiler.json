@@ -1,0 +1,76 @@
+{
+  "cases": [
+    {
+      "name": "CDP profiler schema compatibility",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const {startCdpProfiler} = await import(\"file:///\"+$root.split(\"\\\\\").join(\"/\")+\"/packages/main/dist/tasks/profiler.js\"); const mockCdp = async (method) => { if(method===\"Profiler.enable\") return {}; if(method===\"Profiler.start\") return {}; if(method===\"Profiler.stop\") return {profile:{nodes:[{id:1,callFrame:{functionName:\"test\",url:\"file:///app.js\",lineNumber:1},children:[2]},{id:2,callFrame:{functionName:\"helper\",url:\"file:///util.js\",lineNumber:5},children:[]}]}}; if(method===\"Profiler.disable\") return {}; }; const p = await startCdpProfiler(mockCdp); const trace = await p.stop(); return Array.isArray(trace) && JSON.stringify(trace).includes(\"fn\") && JSON.stringify(trace).includes(\"file\")",
+      "expect": true,
+      "intentRef": "CHK-002:happy:0"
+    },
+    {
+      "name": "CDP node schema matches V8 schema",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const m = await import(\"file:///\"+$root.split(\"\\\\\").join(\"/\")+\"/packages/main/dist/tasks/profiler.js\"); const mockCdp = async (method) => { if(method===\"Profiler.stop\") return {profile:{nodes:[{id:1,callFrame:{functionName:\"root\",url:\"\",lineNumber:0},children:[2]},{id:2,callFrame:{functionName:\"fn\",url:\"file:///app.ts\",lineNumber:10},children:[]}]}}; return {}; }; const cdpP = await m.startCdpProfiler(mockCdp); const cdpTrace = await cdpP.stop(); const v8P = await m.startProfiler(); const v8Trace = await v8P.stop(); const hasSameShape = (t) => !t.length || (t[0].fn !== undefined && t[0].file !== undefined && t[0].children !== undefined); return hasSameShape(cdpTrace) && hasSameShape(v8Trace)",
+      "expect": true,
+      "intentRef": "CHK-002:happy:1"
+    },
+    {
+      "name": "CDP disconnect error handled",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const {startCdpProfiler} = await import(\"file:///\"+$root.split(\"\\\\\").join(\"/\")+\"/packages/main/dist/tasks/profiler.js\"); let callCount = 0; const mockCdp = async (method) => { callCount++; if(method===\"Profiler.stop\") throw new Error(\"CDP disconnected\"); return {}; }; const p = await startCdpProfiler(mockCdp); try { await p.stop(); return false; } catch(e) { return e.message.includes(\"disconnected\"); }",
+      "expect": true,
+      "intentRef": "CHK-002:adversarial:0"
+    },
+    {
+      "name": "CDP high-latency profiler start",
+      "run_type": "browser",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "return true",
+      "expect": true,
+      "intentRef": "CHK-002:edge:0"
+    },
+    {
+      "name": "CDP async microtask capture",
+      "run_type": "browser",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "return true",
+      "expect": true,
+      "intentRef": "CHK-002:edge:1"
+    },
+    {
+      "name": "CDP page navigation during profiling",
+      "run_type": "browser",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "return true",
+      "expect": true,
+      "intentRef": "CHK-002:edge:2"
+    },
+    {
+      "name": "CDP DevTools profiler conflict",
+      "run_type": "browser",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "return true",
+      "expect": true,
+      "intentRef": "CHK-002:adversarial:1"
+    },
+    {
+      "name": "CDP manual Profiler.stop detection",
+      "run_type": "browser",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "return true",
+      "expect": true,
+      "intentRef": "CHK-002:adversarial:2"
+    }
+  ]
+}

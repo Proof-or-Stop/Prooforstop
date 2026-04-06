@@ -1,11 +1,12 @@
 
 import { execSync } from 'child_process';
 import { existsSync } from 'fs';
-import { join } from 'path';
+import { join, relative, isAbsolute } from 'path';
 import type { HandlerContext } from './context.js';
 import { collectContext, PHASE_TO_EVENT } from './context.js';
 import { createStoryActor, getStateName, getGuardFailureReason } from '../../story/machine.js';
 import type { StoryPhase } from '../../story/types.js';
+import { loadConfig } from '../../config.js';
 
 export function createWorktreeHandlers(ctx: HandlerContext) {
   const { store, root } = ctx;
@@ -18,14 +19,29 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     }).trim();
   }
 
+  function getRepoRoot(): string {
+    try {
+      return execSync('git rev-parse --show-toplevel', { cwd: root, encoding: 'utf-8' }).trim();
+    } catch {
+      return root;
+    }
+  }
+
+  /** 将 story 里存的 worktree.path（可能是相对或绝对）解析为绝对路径 */
+  function resolveWorktreePath(storedPath: string): string {
+    if (isAbsolute(storedPath)) return storedPath;
+    return join(getRepoRoot(), storedPath);
+  }
+
   return {
     dev_start(args: { storyId: string }): string {
       const story = store.readStory(args.storyId);
 
       // 已有 worktree 则直接返回路径
       if (story.worktree) {
-        if (existsSync(story.worktree.path)) {
-          return `Story ${args.storyId} worktree 已存在\n路径: ${story.worktree.path}\n分支: ${story.worktree.branch}`;
+        const absPath = resolveWorktreePath(story.worktree.path);
+        if (existsSync(absPath)) {
+          return `Story ${args.storyId} worktree 已存在\n路径: ${absPath}\n分支: ${story.worktree.branch}`;
         }
         // worktree 目录不存在了，清理记录
         story.worktree = undefined;
@@ -41,31 +57,18 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         if (e.message?.includes('已在 worktree')) throw e;
       }
 
-      // 必须在 PLAN 或 DEV 阶段
-      if (story.phase !== 'PLAN' && story.phase !== 'DEV') {
-        throw new Error(`Story ${args.storyId} 当前阶段 ${story.phase}，需要 PLAN 或 DEV 才能启动开发`);
-      }
-
-      // 如果在 PLAN，先 advance 到 DEV
-      if (story.phase === 'PLAN') {
-        const actor = createStoryActor(args.storyId, store, story.phase);
-        actor.start();
-        actor.send({ type: 'START' });
-        const newState = getStateName(actor);
-        actor.stop();
-
-        story.phase = newState as StoryPhase;
-        if (!story.events) story.events = [];
-        story.events.push(collectContext('DEV', 'advance'));
+      // INIT_CHECK 是创建 worktree 的标准入口；PLAN/DEV 也允许（向后兼容/手动恢复）
+      const allowedPhases: StoryPhase[] = ['INIT_CHECK', 'PLAN', 'DEV'];
+      if (!allowedPhases.includes(story.phase)) {
+        throw new Error(`Story ${args.storyId} 当前阶段 ${story.phase}，需要 INIT_CHECK / PLAN / DEV 才能创建 worktree`);
       }
 
       const branch = `story/${args.storyId}`;
       // 用 git repo root 创建 worktree（不用 project root，避免在子项目下嵌套）
-      let repoRoot = root;
-      try {
-        repoRoot = execSync('git rev-parse --show-toplevel', { cwd: root, encoding: 'utf-8' }).trim();
-      } catch {}
-      const worktreePath = join(repoRoot, '.claude', 'worktrees', args.storyId);
+      const repoRoot = getRepoRoot();
+      const worktreeDir = loadConfig(root).worktreeDir || '.worktrees';
+      const worktreePath = join(repoRoot, worktreeDir, args.storyId);
+      const relWorktreePath = relative(repoRoot, worktreePath).replace(/\\/g, '/');
 
       // 先 commit story/metadata 文件，确保 worktree 能看到
       try {
@@ -85,7 +88,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
 
       // 记录到 story
       const now = new Date().toISOString();
-      story.worktree = { path: worktreePath, branch, createdAt: now };
+      story.worktree = { path: relWorktreePath, branch, createdAt: now };
       if (!story.startedAt) story.startedAt = now;
       store.writeStory(args.storyId, story);
 
@@ -110,7 +113,8 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         `Story ${args.storyId} 开发环境已就绪`,
         `分支: ${branch}`,
         `路径: ${worktreePath}`,
-        `→ 使用 Agent(isolation: "worktree") 无需额外操作，直接在上述路径开发`,
+        `→ cd ${worktreePath} 进入 worktree 开发，所有 koala 命令在此目录执行`,
+        `→ sub agent 不要使用 isolation:"worktree"，直接在主 agent 的 worktree 中跑`,
         `→ checklist_get(${args.storyId}) 查看待开发项`,
         `→ 开发完成后调用 dev_finish(${args.storyId}) 合并回主分支`,
         depsWarning,
@@ -124,7 +128,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         throw new Error(`Story ${args.storyId} 没有活跃的 worktree`);
       }
 
-      const { path: wtPath } = story.worktree;
+      const wtPath = resolveWorktreePath(story.worktree.path);
 
       // 检查 worktree 是否存在
       if (!existsSync(wtPath)) {
@@ -132,6 +136,16 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         store.writeStory(args.storyId, story);
         throw new Error(`Worktree 目录 ${wtPath} 不存在，已清理记录`);
       }
+
+      // 自动提交 story 目录下的运行时产生的文件（review.json 等）
+      const storyDir = join('docs', 'story', 'actives', args.storyId);
+      try {
+        git(`add ${storyDir}`, wtPath);
+        const staged = git('diff --cached --name-only', wtPath);
+        if (staged) {
+          git(`commit -m "koala: auto-add story files for ${args.storyId}"`, wtPath);
+        }
+      } catch { /* 没有新文件也没关系 */ }
 
       // 检查 worktree 是否有未提交的改动
       const wtStatus = git('status --porcelain', wtPath);
@@ -178,7 +192,8 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         throw new Error(`Story ${args.storyId} 没有活跃的 worktree`);
       }
 
-      const { path: wtPath, branch } = story.worktree;
+      const wtPath = resolveWorktreePath(story.worktree.path);
+      const { branch } = story.worktree;
 
       // 检查 worktree 是否存在
       if (!existsSync(wtPath)) {
@@ -186,6 +201,16 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         store.writeStory(args.storyId, story);
         throw new Error(`Worktree 目录 ${wtPath} 不存在，已清理记录`);
       }
+
+      // 自动提交 story 目录下的运行时产生的文件（review.json 等）
+      const storyDir = join('docs', 'story', 'actives', args.storyId);
+      try {
+        git(`add ${storyDir}`, wtPath);
+        const staged = git('diff --cached --name-only', wtPath);
+        if (staged) {
+          git(`commit -m "koala: auto-add story files for ${args.storyId}"`, wtPath);
+        }
+      } catch { /* 没有新文件也没关系 */ }
 
       // 检查 worktree 是否有未提交的改动
       const wtStatus = git('status --porcelain', wtPath);

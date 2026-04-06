@@ -4,7 +4,7 @@
   "title": "浏览器运行时 tracing：代理自动注入函数追踪，flow 真机验证",
   "description": "browser-executor 的代理已经拦截所有 HTTP 响应。扩展它：对 JS 文件响应，读 task.json 知道哪些函数需要追踪，在 JS 末尾追加 tracing 注册代码（window.__koala_modules），通过 Proxy 包装实现函数调用记录。test_auto 可以：1) 执行用户操作后对比实际调用链 vs flow.json；2) fixture 用 call action 直接调用已注册函数；3) 发现未定义的调用路径。零侵入业务代码和构建配置。",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "DISCARDED",
   "priority": "high",
   "depends": [
     "B-a55c"

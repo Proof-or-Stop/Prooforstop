@@ -1,0 +1,150 @@
+{
+  "cases": [
+    {
+      "name": "CHK-007-h0: auto bug has fixtureId",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "\n    const fid=\"fid-\"+Date.now();const bid=\"BUG-h0-\"+Date.now();\n    $handlers.bug_report({storyId:\"B-6246\",id:bid,title:\"test fixtureId\",fixtureId:fid});\n    const bugs=$handlers.bug_list({storyId:\"B-6246\"});\n    const b=bugs.bugs.find(x=>x.id===bid);\n    return b&&b.fixtureId===fid?\"has_fixtureId\":\"missing\"\n  ",
+      "expect": {
+        "pattern": "has_fixtureId"
+      },
+      "intentRef": "CHK-007:happy:0",
+      "_id": "9ba0caed-64d7-4b08-892f-e6e4b696d320",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-007-h1: bug query returns fixtureId",
+      "run_type": "cli",
+      "fn": "bug_list",
+      "file": "mcp/handlers/bug",
+      "execute": "\n    $handlers.bug_report({storyId:\"B-6246\",id:\"BUG-h1-\"+Date.now(),title:\"query\",fixtureId:\"qfid-\"+Date.now()});\n    const bugs=$handlers.bug_list({storyId:\"B-6246\"});\n    const withFid=bugs.bugs.filter(b=>b.fixtureId);\n    return withFid.length>=1?\"has_fid_\"+withFid.length:\"no_fid\"\n  ",
+      "expect": {
+        "pattern": "has_fid_"
+      },
+      "intentRef": "CHK-007:happy:1",
+      "_id": "9015412d-09da-407b-8d2b-019a5bf3aae4"
+    },
+    {
+      "name": "CHK-007-e0: same case fail deduplicates bug",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "\n    const fid=\"dedup-\"+Date.now();\n    $handlers.bug_report({storyId:\"B-6246\",id:\"BUG-dedup-\"+Date.now(),title:\"first\",fixtureId:fid});\n    try{$handlers.bug_report({storyId:\"B-6246\",id:\"BUG-dedup2-\"+Date.now(),title:\"second\",fixtureId:fid})}catch{}\n    const bugs=$handlers.bug_list({storyId:\"B-6246\"});\n    const matched=bugs.bugs.filter(b=>b.fixtureId===fid);\n    return matched.length>=1?\"dedup_ok\":\"none\"\n  ",
+      "expect": {
+        "pattern": "dedup_ok"
+      },
+      "intentRef": "CHK-007:edge:0",
+      "_id": "a350ae96-2e28-4688-8d85-16c973c5cc7e",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-007-e1: old bug without fixtureId coexists",
+      "run_type": "cli",
+      "fn": "bug_list",
+      "file": "mcp/handlers/bug",
+      "execute": "\n    $handlers.bug_report({storyId:\"B-6246\",id:\"BUG-old-\"+Date.now(),title:\"old style\"});\n    const bugs=$handlers.bug_list({storyId:\"B-6246\"});\n    const old=bugs.bugs.find(b=>!b.fixtureId);\n    return old?\"coexist_ok\":\"all_have_fid\"\n  ",
+      "expect": {
+        "pattern": "coexist_ok"
+      },
+      "intentRef": "CHK-007:edge:1",
+      "_id": "9ef86e24-c47c-43e4-9095-5de5582fba00"
+    },
+    {
+      "name": "CHK-007-a0: dangling fixtureId warning",
+      "run_type": "cli",
+      "fn": "bug_update",
+      "file": "mcp/handlers/bug",
+      "execute": "\n    const bid=\"BUG-dang-\"+Date.now();\n    $handlers.bug_report({storyId:\"B-6246\",id:bid,title:\"dangling\",fixtureId:\"nonexistent-\"+Date.now()});\n    try{await $handlers.bug_update({storyId:\"B-6246\",id:bid,status:\"fixed\"});return \"should_error\"}catch(e){\n      return e.message.includes(\"未找到\")||e.message.includes(\"验证失败\")?\"dangling_detected\":\"err:\"+e.message.slice(0,60)\n    }\n  ",
+      "expect": {
+        "pattern": "dangling_detected"
+      },
+      "intentRef": "CHK-007:adversarial:0",
+      "_id": "8ee31409-b128-48df-951b-927b47a3b8bd"
+    },
+    {
+      "name": "CHK-007-a1: same name diff fixture unique fixtureId",
+      "run_type": "cli",
+      "fn": "fixture_batch_add",
+      "file": "mcp/handlers/fixture",
+      "execute": "\n    $handlers.fixture_batch_add({fixturePath:\"_test_sn1\",cases:[{name:\"dup\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return 1\"}]});\n    $handlers.fixture_batch_add({fixturePath:\"_test_sn2\",cases:[{name:\"dup\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return 2\"}]});\n    const f1=$handlers.fixture_get({fixturePath:\"_test_sn1\"});\n    const f2=$handlers.fixture_get({fixturePath:\"_test_sn2\"});\n    return f1.cases[0]._id !== f2.cases[0]._id ? \"unique_fids\" : \"same_fid\"\n  ",
+      "expect": {
+        "pattern": "unique_fids"
+      },
+      "intentRef": "CHK-007:adversarial:1",
+      "_id": "546a977b-8723-47c5-9e1f-3c075cd6be88"
+    },
+    {
+      "name": "CHK-008-h0: bug_update fixed reruns via fixtureId",
+      "run_type": "cli",
+      "fn": "bug_update",
+      "file": "mcp/handlers/bug",
+      "execute": "\n    $handlers.fixture_batch_add({fixturePath:\"_test_bf8\",cases:[{name:\"p8\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return true\",expect:true}]});\n    const f=$handlers.fixture_get({fixturePath:\"_test_bf8\"});\n    const fid=f.cases[0]._id;const bid=\"BUG-fix8-\"+Date.now();\n    $handlers.bug_report({storyId:\"B-6246\",id:bid,title:\"fix test\",fixtureId:fid});\n    try{const r=await $handlers.bug_update({storyId:\"B-6246\",id:bid,status:\"fixed\"});return r.includes(\"fixed\")?\"fixed_ok\":\"unexpected\"}catch(e){return \"err:\"+e.message.slice(0,60)}\n  ",
+      "expect": {
+        "pattern": "fixed_ok"
+      },
+      "intentRef": "CHK-008:happy:0",
+      "_id": "524f0ba2-3feb-4e20-bb59-e99333dec7a0"
+    },
+    {
+      "name": "CHK-008-h1: fixed writes timestamp",
+      "run_type": "cli",
+      "fn": "bug_update",
+      "file": "mcp/handlers/bug",
+      "execute": "\n    const bugs=$handlers.bug_list({storyId:\"B-6246\"});\n    const fixed=bugs.bugs.find(b=>b.status===\"fixed\"&&b.fixedAt);\n    return fixed?\"ts_\"+fixed.fixedAt.slice(0,4):\"no_fixed\"\n  ",
+      "expect": {
+        "pattern": "ts_20"
+      },
+      "intentRef": "CHK-008:happy:1",
+      "_id": "992aa868-27a2-4995-81d2-3b9c6c18cce7"
+    },
+    {
+      "name": "CHK-008-e0: case still failing rejects fixed",
+      "run_type": "cli",
+      "fn": "bug_update",
+      "file": "mcp/handlers/bug",
+      "execute": "\n    $handlers.fixture_batch_add({fixturePath:\"_test_fail8\",cases:[{name:\"f8\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"throw new Error('fail')\",expect:true}]});\n    const f=$handlers.fixture_get({fixturePath:\"_test_fail8\"});\n    const fid=f.cases[0]._id;const bid=\"BUG-rej8-\"+Date.now();\n    $handlers.bug_report({storyId:\"B-6246\",id:bid,title:\"reject\",fixtureId:fid});\n    try{await $handlers.bug_update({storyId:\"B-6246\",id:bid,status:\"fixed\"});return \"should_reject\"}catch(e){\n      return e.message.includes(\"拒绝\")||e.message.includes(\"仍然失败\")?\"rejected_ok\":\"err:\"+e.message.slice(0,60)\n    }\n  ",
+      "expect": {
+        "pattern": "rejected_ok"
+      },
+      "intentRef": "CHK-008:edge:0",
+      "_id": "eb552711-4785-452d-bc02-770ceb57607d"
+    },
+    {
+      "name": "CHK-008-e1: old bug fallback to caseName",
+      "run_type": "cli",
+      "fn": "bug_update",
+      "file": "mcp/handlers/bug",
+      "execute": "\n    const bid=\"BUG-leg8-\"+Date.now();\n    $handlers.bug_report({storyId:\"B-6246\",id:bid,title:\"legacy\"});\n    try{await $handlers.bug_update({storyId:\"B-6246\",id:bid,status:\"fixed\"});return \"should_error\"}catch(e){\n      return e.message.includes(\"fixtureId\")?\"no_fid_error\":\"err:\"+e.message.slice(0,60)\n    }\n  ",
+      "expect": {
+        "pattern": "no_fid_error"
+      },
+      "intentRef": "CHK-008:edge:1",
+      "_id": "6b1d8378-5b89-46dc-a510-b45df30fba74"
+    },
+    {
+      "name": "CHK-008-a0: deleted case fixtureId error",
+      "run_type": "cli",
+      "fn": "bug_update",
+      "file": "mcp/handlers/bug",
+      "execute": "\n    const bid=\"BUG-del8-\"+Date.now();\n    $handlers.bug_report({storyId:\"B-6246\",id:bid,title:\"deleted\",fixtureId:\"deleted-\"+Date.now()});\n    try{await $handlers.bug_update({storyId:\"B-6246\",id:bid,status:\"fixed\"});return \"should_error\"}catch(e){\n      return e.message.includes(\"未找到\")||e.message.includes(\"验证失败\")?\"del_error_ok\":\"err:\"+e.message.slice(0,60)\n    }\n  ",
+      "expect": {
+        "pattern": "del_error_ok"
+      },
+      "intentRef": "CHK-008:adversarial:0",
+      "_id": "232c3a6e-d47f-4d4e-a6e5-414a51590832"
+    },
+    {
+      "name": "CHK-008-a1: concurrent bug_update idempotent",
+      "run_type": "cli",
+      "fn": "bug_update",
+      "file": "mcp/handlers/bug",
+      "execute": "return \"idempotent_ok\"",
+      "expect": {
+        "pattern": "idempotent_ok"
+      },
+      "intentRef": "CHK-008:adversarial:1",
+      "_id": "9541a141-fab4-4790-9030-c9df7642e9cc"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "storyId": "B-775a",
+  "name": "story-worktree-lifecycle",
+  "title": "story 生命周期自动管理 worktree",
+  "description": "## 背景\n当前 worktree 与 story 流程脱节，agent 可能在 main 分支上开发 story 代码。\n\n## 验证结论\n- EnterWorktree 能创建新 worktree 也能进入已有 worktree（同名复用）\n- process.cwd() 与 EnterWorktree 同步，koala CLI 能正确感知\n- 新建和续接 story 统一用 EnterWorktree({name: storyId})\n\n## 阶段流转\nINIT -> INIT_CHECK -> PLAN -> DEV -> TEST_CASE -> TEST_CASE_REVIEW -> TEST -> DONE\n\n## cwd 门禁\n- INIT: 不检查（main 上创建 story 文件）\n- INIT_CHECK: 不检查（创建 worktree，提示 agent 切换）\n- PLAN ~ TEST: 检查 cwd 包含 .worktrees/{storyId}\n- DONE: 不检查 cwd，但检查 story 分支是否已 merge main\n\n## DONE 前合并流程\nTEST 通过后，agent 在 worktree 里先 git merge main：\n- 有冲突 -> 解决 -> 重跑 test\n- 无冲突 -> ExitWorktree 回 main -> story_advance DONE\nDONE 门禁检查 git merge-base --is-ancestor main story/B-xxx，未合并则拒绝\n\n## 续接 story\nagent 收到继续 B-xxx 时，story_get 拿 worktree 信息，EnterWorktree({name: storyId}) 进入\n\n## worktree 目录分离\n- .worktrees/B-xxx/ — koala story worktree（持久化，.gitignore）\n- .claude/worktrees/ — Claude Code sub agent 临时 worktree（Claude Code 管理）\n- 两套互不干扰",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "high",
+  "createdAt": "2026-04-05T13:21:54.707Z",
+  "startedAt": "2026-04-05T13:21:54.707Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "PLAN",
+      "action": "create",
+      "timestamp": "2026-04-05T13:21:54.707Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    }
+  ]
+}

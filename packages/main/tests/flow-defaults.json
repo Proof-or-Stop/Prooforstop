@@ -8,9 +8,9 @@
     "type": "feature",
     "priority": "high",
     "checklist": [
-      { "title": "验证 story_create 正确创建" },
-      { "title": "验证 story_advance 状态转换" },
-      { "title": "验证 checklist_update 状态记录" }
+      { "title": "验证 story_create 正确创建", "testIntent": { "happy": [{"desc":"创建成功","type":"whitebox"}], "edge": [{"desc":"无checklist","type":"whitebox"}], "adversarial": [{"desc":"重复创建","type":"whitebox"}] } },
+      { "title": "验证 story_advance 状态转换", "testIntent": { "happy": [{"desc":"正常推进","type":"whitebox"}], "edge": [{"desc":"回退","type":"whitebox"}], "adversarial": [{"desc":"跳阶段","type":"whitebox"}] } },
+      { "title": "验证 checklist_update 状态记录", "testIntent": { "happy": [{"desc":"更新状态","type":"whitebox"}], "edge": [{"desc":"不存在的item","type":"whitebox"}], "adversarial": [{"desc":"重复更新","type":"whitebox"}] } }
     ]
   },
 

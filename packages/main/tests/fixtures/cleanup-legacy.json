@@ -1,0 +1,244 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001:happy:0 CLI story_get works after MCP deletion",
+      "run_type": "cli",
+      "fn": "story_get",
+      "file": "mcp/handlers/story",
+      "execute": "return await $handlers.story_get({storyId:'B-f3b0'})",
+      "expect": {
+        "pattern": "checklist"
+      },
+      "intentRef": "CHK-001:happy:0"
+    },
+    {
+      "name": "CHK-001:happy:1 handlers still callable via CLI",
+      "run_type": "cli",
+      "fn": "checklist_get",
+      "file": "mcp/handlers/checklist",
+      "execute": "return await $handlers.checklist_get({storyId:'B-f3b0'})",
+      "expect": {
+        "pattern": "items"
+      },
+      "intentRef": "CHK-001:happy:1"
+    },
+    {
+      "name": "CHK-001:edge:0 tsc compiles without server.ts",
+      "run_type": "cli",
+      "fn": "story_get",
+      "file": "mcp/handlers/story",
+      "execute": "const {execSync}=await import('child_process');execSync('npx tsc --noEmit',{cwd:$root+'/packages/main',encoding:'utf-8'});return 'compile ok'",
+      "expect": "compile ok",
+      "intentRef": "CHK-001:edge:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-001:edge:1 no orphan handler modules in mcp/handlers",
+      "run_type": "cli",
+      "fn": "story_get",
+      "file": "mcp/handlers/story",
+      "execute": "const {readFileSync}=await import('fs');const toolsSrc=readFileSync($root+'/packages/main/src/mcp/tools.ts','utf-8');const {readdirSync}=await import('fs');const handlers=readdirSync($root+'/packages/main/src/mcp/handlers').filter(f=>f.endsWith('.ts'));const orphans=[];for(const f of handlers){const mod='./handlers/'+f.replace('.ts','.js');if(!toolsSrc.includes(mod.replace('.js','')))orphans.push(f)}return orphans.length?'orphans: '+orphans.join(','):'no orphan handlers'",
+      "expect": "no orphan handlers",
+      "intentRef": "CHK-001:edge:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-001:adversarial:0 no TS2307 for server.ts import",
+      "run_type": "cli",
+      "fn": "story_get",
+      "file": "mcp/handlers/story",
+      "execute": "const {existsSync}=await import('fs');const {execSync}=await import('child_process');const deleted=!existsSync($root+'/packages/main/src/mcp/server.ts');const tscOk=(()=>{try{execSync('npx tsc --noEmit',{cwd:$root+'/packages/main',encoding:'utf-8'});return true}catch{return false}})();return deleted&&tscOk?'deleted and no TS2307':'problem: deleted='+deleted+' tscOk='+tscOk",
+      "expect": "deleted and no TS2307",
+      "intentRef": "CHK-001:adversarial:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-001:adversarial:1 tools.ts has no McpServer import",
+      "run_type": "cli",
+      "fn": "story_get",
+      "file": "mcp/handlers/story",
+      "execute": "const {readFileSync}=await import('fs');const c=readFileSync($root+'/packages/main/src/mcp/tools.ts','utf-8');return c.includes('McpServer')||c.includes('StdioServerTransport')?'MCP still referenced':'clean'",
+      "expect": "clean",
+      "intentRef": "CHK-001:adversarial:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-002:happy:0 CLI starts without .mcp.json",
+      "run_type": "cli",
+      "fn": "story_list",
+      "file": "mcp/handlers/story",
+      "execute": "const r=await $handlers.story_list();return typeof r==='object'?'ok':'fail'",
+      "expect": "ok",
+      "intentRef": "CHK-002:happy:0"
+    },
+    {
+      "name": "CHK-002:happy:1 no @modelcontextprotocol in package.json",
+      "run_type": "cli",
+      "fn": "story_get",
+      "file": "mcp/handlers/story",
+      "execute": "const {readFileSync}=await import('fs');const pkg=readFileSync($root+'/packages/main/package.json','utf-8');return pkg.includes('@modelcontextprotocol')?'still in deps':'removed'",
+      "expect": "removed",
+      "intentRef": "CHK-002:happy:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-002:edge:0 koala init no longer creates .mcp.json",
+      "run_type": "cli",
+      "fn": "story_get",
+      "file": "mcp/handlers/story",
+      "execute": "const {readFileSync}=await import('fs');const c=readFileSync($root+'/packages/main/src/cli-init.ts','utf-8');return c.includes('.mcp.json')?'still generates':'removed'",
+      "expect": "removed",
+      "intentRef": "CHK-002:edge:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-002:edge:1 koala init does not generate .mcp.json",
+      "run_type": "cli",
+      "fn": "story_get",
+      "file": "mcp/handlers/story",
+      "execute": "const {readFileSync}=await import('fs');const src=readFileSync($root+'/packages/main/src/cli-init.ts','utf-8');const hasMcpGen=src.includes('mcpServers')||src.includes('koala-mcp')||src.includes('mcp.json');return hasMcpGen?'still has mcp init logic':'clean'",
+      "expect": "clean",
+      "intentRef": "CHK-002:edge:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-002:adversarial:0 no MCP SDK import in src",
+      "run_type": "cli",
+      "fn": "story_get",
+      "file": "mcp/handlers/story",
+      "execute": "const {readFileSync}=await import('fs');const {readdirSync}=await import('fs');function walk(d){let r=[];try{for(const e of readdirSync(d,{withFileTypes:true})){if(e.isDirectory())r=r.concat(walk(d+'/'+e.name));else if(e.name.endsWith('.ts'))r.push(d+'/'+e.name)}}catch{}return r}const files=walk($root+'/packages/main/src');for(const f of files){if(readFileSync(f,'utf-8').includes('@modelcontextprotocol'))return 'found in '+f}return 'no MCP import'",
+      "expect": "no MCP import",
+      "intentRef": "CHK-002:adversarial:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-002:adversarial:1 no MCP export + no serve script + no SDK import in any src",
+      "run_type": "cli",
+      "fn": "story_get",
+      "file": "mcp/handlers/story",
+      "execute": "const {readFileSync,readdirSync}=await import('fs');const pkg=JSON.parse(readFileSync($root+'/packages/main/package.json','utf-8'));const issues=[];if(pkg.exports?.['./mcp'])issues.push('mcp export');if(pkg.scripts?.serve)issues.push('serve script');function walk(d){let r=[];try{for(const e of readdirSync(d,{withFileTypes:true})){if(e.isDirectory())r=r.concat(walk(d+'/'+e.name));else if(e.name.endsWith('.ts'))r.push(d+'/'+e.name)}}catch{}return r}for(const f of walk($root+'/packages/main/src')){if(readFileSync(f,'utf-8').includes('@modelcontextprotocol'))issues.push('import in '+f.split('/').pop())}return issues.length?'issues: '+issues.join(', '):'fully removed'",
+      "expect": "fully removed",
+      "intentRef": "CHK-002:adversarial:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-003:happy:0 flow_trace returns unknown command",
+      "run_type": "cli",
+      "fn": "story_get",
+      "file": "mcp/handlers/story",
+      "execute": "const {execSync}=await import('child_process');try{execSync('node '+$root.split('\\\\').join('/')+'/packages/main/dist/cli.js flow_trace --name=test',{encoding:'utf-8'});return 'should have failed'}catch(e){return e.stderr&&e.stderr.includes('未知命令')?'unknown command error':'other error'}",
+      "expect": "unknown command error",
+      "intentRef": "CHK-003:happy:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-003:happy:1 help has no flow entries",
+      "run_type": "cli",
+      "fn": "story_get",
+      "file": "mcp/handlers/story",
+      "execute": "const {execSync}=await import('child_process');const r=execSync('node '+$root.split('\\\\').join('/')+'/packages/main/dist/cli.js help',{encoding:'utf-8'});return r.includes('flow_trace')||r.includes('flow_list')?'still in help':'clean'",
+      "expect": "clean",
+      "intentRef": "CHK-003:happy:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-003:edge:0 flow handler deleted and cli.ts registration cleaned",
+      "run_type": "cli",
+      "fn": "story_get",
+      "file": "mcp/handlers/story",
+      "execute": "const {existsSync,readFileSync}=await import('fs');const fileGone=!existsSync($root+'/packages/main/src/mcp/handlers/flow.ts');const cliSrc=readFileSync($root+'/packages/main/src/cli.ts','utf-8');const regClean=!cliSrc.includes('flow_trace')&&!cliSrc.includes('flow_list');return fileGone&&regClean?'handler deleted and registration cleaned':'problem: fileGone='+fileGone+' regClean='+regClean",
+      "expect": "handler deleted and registration cleaned",
+      "intentRef": "CHK-003:edge:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-003:edge:1 arch_trace still works",
+      "run_type": "cli",
+      "fn": "arch_trace",
+      "file": "mcp/handlers/arch-trace",
+      "execute": "try{const r=await $handlers.arch_trace({format:'json'});return typeof r==='string'?'ok':'unexpected'}catch(e){return 'error: '+e.message}",
+      "expect": "ok",
+      "intentRef": "CHK-003:edge:1"
+    },
+    {
+      "name": "CHK-003:adversarial:0 no import of flow.ts in codebase",
+      "run_type": "cli",
+      "fn": "story_get",
+      "file": "mcp/handlers/story",
+      "execute": "const {readFileSync,readdirSync}=await import('fs');function walk(d){let r=[];try{for(const e of readdirSync(d,{withFileTypes:true})){if(e.isDirectory())r=r.concat(walk(d+'/'+e.name));else if(e.name.endsWith('.ts'))r.push(d+'/'+e.name)}}catch{}return r}const files=walk($root+'/packages/main/src');for(const f of files){if(readFileSync(f,'utf-8').includes('handlers/flow'))return 'found in '+f}return 'no flow import'",
+      "expect": "no flow import",
+      "intentRef": "CHK-003:adversarial:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-003:adversarial:1 flow.ts deleted and no orphan imports",
+      "run_type": "cli",
+      "fn": "story_get",
+      "file": "mcp/handlers/story",
+      "execute": "const {existsSync,readFileSync,readdirSync}=await import('fs');const fileGone=!existsSync($root+'/packages/main/src/mcp/handlers/flow.ts');function walk(d){let r=[];try{for(const e of readdirSync(d,{withFileTypes:true})){if(e.isDirectory())r=r.concat(walk(d+'/'+e.name));else if(e.name.endsWith('.ts'))r.push(d+'/'+e.name)}}catch{}return r}let orphanImport=false;for(const f of walk($root+'/packages/main/src')){if(readFileSync(f,'utf-8').includes('handlers/flow')){orphanImport=true;break}}return fileGone&&!orphanImport?'deleted and no orphan imports':'problem: fileGone='+fileGone+' orphanImport='+orphanImport",
+      "expect": "deleted and no orphan imports",
+      "intentRef": "CHK-003:adversarial:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-004:happy:0 help output has no MCP/flow",
+      "run_type": "cli",
+      "fn": "story_get",
+      "file": "mcp/handlers/story",
+      "execute": "const {execSync}=await import('child_process');const r=execSync('node '+$root.split('\\\\').join('/')+'/packages/main/dist/cli.js help',{encoding:'utf-8'}).toLowerCase();return r.includes('mcp server')||r.includes('flow_trace')||r.includes('@flow')?'found residue':'clean'",
+      "expect": "clean",
+      "intentRef": "CHK-004:happy:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-004:happy:1 koala init help no MCP reference",
+      "run_type": "cli",
+      "fn": "story_get",
+      "file": "mcp/handlers/story",
+      "execute": "const {readFileSync}=await import('fs');const c=readFileSync($root+'/packages/main/src/cli-init.ts','utf-8');return c.includes('MCP')?'found MCP':'clean'",
+      "expect": "clean",
+      "intentRef": "CHK-004:happy:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-004:edge:0 CLAUDE.md CLI commands preserved",
+      "run_type": "cli",
+      "fn": "story_get",
+      "file": "mcp/handlers/story",
+      "execute": "const {readFileSync}=await import('fs');const c=readFileSync($root+'/CLAUDE.md','utf-8');return c.includes('koala story_quick')&&c.includes('koala test_auto')?'CLI docs intact':'missing CLI docs'",
+      "expect": "CLI docs intact",
+      "intentRef": "CHK-004:edge:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-004:edge:1 help output still lists story/test commands",
+      "run_type": "cli",
+      "fn": "story_get",
+      "file": "mcp/handlers/story",
+      "execute": "const {execSync}=await import('child_process');const r=execSync('node '+$root.split('\\\\').join('/')+'/packages/main/dist/cli.js help',{encoding:'utf-8'});return r.includes('story_create')&&r.includes('test_auto')?'commands present':'missing'",
+      "expect": "commands present",
+      "intentRef": "CHK-004:edge:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-004:adversarial:0 no MCP/flow residue in docs and agent prompts",
+      "run_type": "cli",
+      "fn": "story_get",
+      "file": "mcp/handlers/story",
+      "execute": "const {existsSync,readdirSync,readFileSync}=await import('fs');const keywords=['mcp server','flow_trace','@flow'];function checkFile(p){if(!existsSync(p))return null;const c=readFileSync(p,'utf-8').toLowerCase();for(const k of keywords){if(c.includes(k))return k+' in '+p.split('/').pop()}return null}const issues=[];const r1=checkFile($root+'/CLAUDE.md');if(r1)issues.push(r1);if(existsSync($root+'/README.md')){const r2=checkFile($root+'/README.md');if(r2)issues.push(r2)}const agentsDir=$root+'/.claude/agents';if(existsSync(agentsDir)){for(const f of readdirSync(agentsDir).filter(f=>f.endsWith('.md'))){const r=checkFile(agentsDir+'/'+f);if(r)issues.push(r)}}return issues.length?'found: '+issues.join(', '):'clean'",
+      "expect": "clean",
+      "intentRef": "CHK-004:adversarial:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-004:adversarial:1 no @flow/flow_trace/MCP server in CLAUDE.md",
+      "run_type": "cli",
+      "fn": "story_get",
+      "file": "mcp/handlers/story",
+      "execute": "const {readFileSync}=await import('fs');const c=readFileSync($root+'/CLAUDE.md','utf-8');const issues=[];if(c.includes('@flow'))issues.push('@flow');if(c.includes('flow_trace'))issues.push('flow_trace');if(c.toLowerCase().includes('mcp server'))issues.push('MCP server');return issues.length?'found: '+issues.join(', '):'clean'",
+      "expect": "clean",
+      "intentRef": "CHK-004:adversarial:1",
+      "sandbox": false
+    }
+  ]
+}

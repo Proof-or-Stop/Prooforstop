@@ -1,25 +1,14 @@
 {
   "scanRoot": "packages/main",
+  "rootDir": "src",
+  "outDir": "packages/main/dist",
   "testsDir": "packages/main/tests",
   "fixturesDir": "packages/main/tests/fixtures",
   "storyDir": "docs/story/actives",
   "requirementsDir": "docs/requirements",
   "storyPrefix": "B",
   "flows": {
-    "defaults": {
-      "story-lifecycle": {
-        "name": "e2e-story-test",
-        "title": "Story 生命周期端到端测试",
-        "description": "验证 Story 从创建到测试的完整流程",
-        "type": "feature",
-        "priority": "high",
-        "checklist": [
-          { "title": "验证 story_create 正确创建" },
-          { "title": "验证 story_advance 状态转换" },
-          { "title": "验证 checklist_update 状态记录" }
-        ]
-      }
-    },
+    "defaults": {},
     "patterns": []
   }
 }

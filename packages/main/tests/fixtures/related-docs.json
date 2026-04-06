@@ -1,0 +1,132 @@
+{
+  "cases": [
+    {
+      "name": "CHK-002:happy:0 - DEV advance hint contains docs",
+      "run_type": "cli",
+      "file": "mcp/handlers/story",
+      "execute": "const r = await $handlers.story_create({name:\"rd-c2h0\",title:\"t\",description:\"t\",type:\"feature\",priority:\"high\",phase:\"DEV\",checklist:[{title:\"a\",relatedDocs:[\"docs/foo.md\"]},{title:\"b\",relatedDocs:[\"docs/bar.md\"]}]}); const id = r.match(/B-[a-f0-9]+/)[0]; const out = await $handlers.story_advance({storyId:id,phase:\"DEV\"}); if (!out.includes(\"docs/foo.md\") || !out.includes(\"docs/bar.md\") || !out.includes(\"\\u5173\\u8054\\u6587\\u6863\")) throw new Error(\"missing docs in hint: \"+out); return \"ok\"",
+      "expect": "ok",
+      "intentRef": "CHK-002:happy:0",
+      "_id": "84c75e95-b172-41a6-89bd-9d10e33ad9e3",
+      "nextCaseId": "1c1856d9-e502-482c-9830-19c45d0e4ca6"
+    },
+    {
+      "name": "CHK-002:edge:0 - dedupe across items",
+      "run_type": "cli",
+      "file": "mcp/handlers/story",
+      "execute": "const r = await $handlers.story_create({name:\"rd-c2e0\",title:\"t\",description:\"t\",type:\"feature\",priority:\"high\",phase:\"DEV\",checklist:[{title:\"a\",relatedDocs:[\"docs/shared.md\"]},{title:\"b\",relatedDocs:[\"docs/shared.md\"]}]}); const id = r.match(/B-[a-f0-9]+/)[0]; const out = await $handlers.story_advance({storyId:id,phase:\"DEV\"}); const matches = out.match(/docs\\/shared\\.md/g); if (!matches || matches.length !== 1) throw new Error(\"not deduped: \"+(matches?matches.length:0)); if (!out.includes(\"CHK-001\") || !out.includes(\"CHK-002\")) throw new Error(\"missing item refs\"); return \"ok\"",
+      "expect": "ok",
+      "intentRef": "CHK-002:edge:0",
+      "_id": "1c1856d9-e502-482c-9830-19c45d0e4ca6",
+      "prevCaseId": "84c75e95-b172-41a6-89bd-9d10e33ad9e3",
+      "nextCaseId": "26630918-c95c-49c3-b298-ddaeac8b0519"
+    },
+    {
+      "name": "CHK-002:edge:1 - no relatedDocs no doc section",
+      "run_type": "cli",
+      "file": "mcp/handlers/story",
+      "execute": "const r = await $handlers.story_create({name:\"rd-c2e1\",title:\"t\",description:\"t\",type:\"feature\",priority:\"high\",phase:\"DEV\",checklist:[{title:\"a\"},{title:\"b\"}]}); const id = r.match(/B-[a-f0-9]+/)[0]; const out = await $handlers.story_advance({storyId:id,phase:\"DEV\"}); if (out.includes(\"\\u5173\\u8054\\u6587\\u6863\")) throw new Error(\"unexpected doc section: \"+out); return \"ok\"",
+      "expect": "ok",
+      "intentRef": "CHK-002:edge:1",
+      "_id": "26630918-c95c-49c3-b298-ddaeac8b0519",
+      "prevCaseId": "1c1856d9-e502-482c-9830-19c45d0e4ca6",
+      "nextCaseId": "30c5ac61-0b50-4a30-912e-b944211a789d"
+    },
+    {
+      "name": "CHK-002:edge:2 - partial coverage",
+      "run_type": "cli",
+      "file": "mcp/handlers/story",
+      "execute": "const r = await $handlers.story_create({name:\"rd-c2e2\",title:\"t\",description:\"t\",type:\"feature\",priority:\"high\",phase:\"DEV\",checklist:[{title:\"a\",relatedDocs:[\"only.md\"]},{title:\"b\"}]}); const id = r.match(/B-[a-f0-9]+/)[0]; const out = await $handlers.story_advance({storyId:id,phase:\"DEV\"}); if (!out.includes(\"only.md\") || !out.includes(\"CHK-001\")) throw new Error(\"missing\"); if (out.includes(\"(CHK-002)\")) throw new Error(\"unexpected CHK-002 in doc list\"); return \"ok\"",
+      "expect": "ok",
+      "intentRef": "CHK-002:edge:2",
+      "_id": "30c5ac61-0b50-4a30-912e-b944211a789d",
+      "prevCaseId": "26630918-c95c-49c3-b298-ddaeac8b0519"
+    },
+    {
+      "name": "CHK-001:happy:0 - story_create with relatedDocs",
+      "run_type": "cli",
+      "file": "mcp/handlers/story",
+      "execute": "const r = await $handlers.story_create({name:\"rd-h0\",title:\"t\",description:\"t\",type:\"feature\",priority:\"high\",phase:\"DEV\",checklist:[{title:\"a\",relatedDocs:[\"docs/foo.md\",\"docs/bar.md\"]}]}); const id = r.match(/B-[a-f0-9]+/)[0]; const cl = $handlers.checklist_get({storyId:id}); const docs = cl.items[0].relatedDocs; if (!docs || docs.length !== 2 || docs[0] !== \"docs/foo.md\") throw new Error(\"wrong: \"+JSON.stringify(docs)); return \"ok\"",
+      "expect": "ok",
+      "intentRef": "CHK-001:happy:0",
+      "_id": "3c6ce3f9-f6a8-4365-b7a4-ededff80d78c",
+      "nextCaseId": "d58c5b65-28a4-4cf1-a02e-b0e524893d5c"
+    },
+    {
+      "name": "CHK-001:happy:1 - checklist_update relatedDocs",
+      "run_type": "cli",
+      "file": "mcp/handlers/checklist",
+      "execute": "const r = await $handlers.story_create({name:\"rd-h1\",title:\"t\",description:\"t\",type:\"feature\",priority:\"high\",phase:\"DEV\",checklist:[{title:\"a\"}]}); const id = r.match(/B-[a-f0-9]+/)[0]; await $handlers.checklist_update({storyId:id,itemId:\"CHK-001\",relatedDocs:[\"updated.md\"]}); const cl = $handlers.checklist_get({storyId:id}); if (cl.items[0].relatedDocs[0] !== \"updated.md\") throw new Error(\"wrong\"); return \"ok\"",
+      "expect": "ok",
+      "intentRef": "CHK-001:happy:1",
+      "_id": "d58c5b65-28a4-4cf1-a02e-b0e524893d5c",
+      "prevCaseId": "3c6ce3f9-f6a8-4365-b7a4-ededff80d78c",
+      "nextCaseId": "0046cc24-dd30-4947-990c-82a953fc94ac"
+    },
+    {
+      "name": "CHK-001:edge:0 - empty array",
+      "run_type": "cli",
+      "file": "mcp/handlers/story",
+      "execute": "const r = await $handlers.story_create({name:\"rd-e0\",title:\"t\",description:\"t\",type:\"feature\",priority:\"high\",phase:\"DEV\",checklist:[{title:\"a\",relatedDocs:[]}]}); const id = r.match(/B-[a-f0-9]+/)[0]; const cl = $handlers.checklist_get({storyId:id}); if (!Array.isArray(cl.items[0].relatedDocs) || cl.items[0].relatedDocs.length !== 0) throw new Error(\"wrong\"); return \"ok\"",
+      "expect": "ok",
+      "intentRef": "CHK-001:edge:0",
+      "_id": "0046cc24-dd30-4947-990c-82a953fc94ac",
+      "prevCaseId": "d58c5b65-28a4-4cf1-a02e-b0e524893d5c",
+      "nextCaseId": "a6f302e8-450e-4030-9fcf-cf46241e339b"
+    },
+    {
+      "name": "CHK-001:edge:1 - with anchor",
+      "run_type": "cli",
+      "file": "mcp/handlers/story",
+      "execute": "const r = await $handlers.story_create({name:\"rd-e1\",title:\"t\",description:\"t\",type:\"feature\",priority:\"high\",phase:\"DEV\",checklist:[{title:\"a\",relatedDocs:[\"docs/adr.md#section-2\"]}]}); const id = r.match(/B-[a-f0-9]+/)[0]; const cl = $handlers.checklist_get({storyId:id}); if (cl.items[0].relatedDocs[0] !== \"docs/adr.md#section-2\") throw new Error(\"wrong\"); return \"ok\"",
+      "expect": "ok",
+      "intentRef": "CHK-001:edge:1",
+      "_id": "a6f302e8-450e-4030-9fcf-cf46241e339b",
+      "prevCaseId": "0046cc24-dd30-4947-990c-82a953fc94ac",
+      "nextCaseId": "568e8f22-0bba-4a9c-9b48-87148dbd064f"
+    },
+    {
+      "name": "CHK-001:edge:2 - undefined when omitted",
+      "run_type": "cli",
+      "file": "mcp/handlers/story",
+      "execute": "const r = await $handlers.story_create({name:\"rd-e2\",title:\"t\",description:\"t\",type:\"feature\",priority:\"high\",phase:\"DEV\",checklist:[{title:\"a\"}]}); const id = r.match(/B-[a-f0-9]+/)[0]; const cl = $handlers.checklist_get({storyId:id}); if (cl.items[0].relatedDocs !== undefined) throw new Error(\"should be undefined\"); return \"ok\"",
+      "expect": "ok",
+      "intentRef": "CHK-001:edge:2",
+      "_id": "568e8f22-0bba-4a9c-9b48-87148dbd064f",
+      "prevCaseId": "a6f302e8-450e-4030-9fcf-cf46241e339b",
+      "nextCaseId": "3614a25b-1bfa-4e50-9554-9021798383d3"
+    },
+    {
+      "name": "CHK-001:adversarial:0 - non-array rejected",
+      "run_type": "cli",
+      "file": "cli",
+      "execute": "await $handlers.story_create({name:\"rd-a0\",title:\"t\",description:\"t\",type:\"feature\",priority:\"high\",phase:\"DEV\",checklist:[{title:\"a\",relatedDocs:\"docs/a.md\"}]})",
+      "throws": "Expected array",
+      "intentRef": "CHK-001:adversarial:0",
+      "_id": "3614a25b-1bfa-4e50-9554-9021798383d3",
+      "prevCaseId": "568e8f22-0bba-4a9c-9b48-87148dbd064f",
+      "nextCaseId": "25d6927f-a249-40e7-975c-421ac75a6761"
+    },
+    {
+      "name": "CHK-001:adversarial:1 - non-string elements rejected",
+      "run_type": "cli",
+      "file": "cli",
+      "execute": "await $handlers.story_create({name:\"rd-a1\",title:\"t\",description:\"t\",type:\"feature\",priority:\"high\",phase:\"DEV\",checklist:[{title:\"a\",relatedDocs:[123,null]}]})",
+      "throws": "Expected string",
+      "intentRef": "CHK-001:adversarial:1",
+      "_id": "25d6927f-a249-40e7-975c-421ac75a6761",
+      "prevCaseId": "3614a25b-1bfa-4e50-9554-9021798383d3",
+      "nextCaseId": "578fc52c-4c15-4456-8185-32cd2b8f4ecd"
+    },
+    {
+      "name": "CHK-001:adversarial:2 - 100 docs preserved",
+      "run_type": "cli",
+      "file": "mcp/handlers/story",
+      "execute": "const docs = Array.from({length:100},(_,i)=>`docs/f${i}.md`); const r = await $handlers.story_create({name:\"rd-a2\",title:\"t\",description:\"t\",type:\"feature\",priority:\"high\",phase:\"DEV\",checklist:[{title:\"a\",relatedDocs:docs}]}); const id = r.match(/B-[a-f0-9]+/)[0]; const cl = $handlers.checklist_get({storyId:id}); if (cl.items[0].relatedDocs.length !== 100 || cl.items[0].relatedDocs[99] !== \"docs/f99.md\") throw new Error(\"truncated\"); return \"ok\"",
+      "expect": "ok",
+      "intentRef": "CHK-001:adversarial:2",
+      "_id": "578fc52c-4c15-4456-8185-32cd2b8f4ecd",
+      "prevCaseId": "25d6927f-a249-40e7-975c-421ac75a6761"
+    }
+  ]
+}

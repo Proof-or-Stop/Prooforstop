@@ -1,0 +1,86 @@
+{
+  "cases": [
+    {
+      "name": "setup: create story + seed bug",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const r = await $handlers.story_create({name:\"binding-test\",title:\"Binding\",description:\"test\",type:\"feature\",priority:\"high\"}); $ctx.sid = r.match(/B-[a-f0-9]+/)[0]; $ctx.bugSeedId=\"BUG-SEED-\"+Date.now(); $handlers.bug_report({storyId:$ctx.sid,id:$ctx.bugSeedId,title:\"seeded bug\",fixtureId:\"fid-\"+Date.now()}); return r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "bug_list returns bugs with valid status",
+      "run_type": "cli",
+      "fn": "bug_list",
+      "file": "mcp/handlers/bug",
+      "execute": "const bugs = $handlers.bug_list({storyId:$ctx.sid}).bugs; return bugs.every(b => b.status === 'open' || b.status === 'fixed')",
+      "expect": true,
+      "intentRef": "CHK-009:happy:0"
+    },
+    {
+      "name": "all bugs have valid status after test_auto",
+      "run_type": "cli",
+      "fn": "bug_list",
+      "file": "mcp/handlers/bug",
+      "execute": "const s = await $handlers.story_create({name:\"done-ok\",title:\"Done OK\",description:\"t\",type:\"feature\",priority:\"high\",phase:\"TEST\"}); const sid = s.match(/B-[a-f0-9]+/)[0]; try { $handlers.story_advance({storyId:sid,phase:\"DONE\"}); return true; } catch(e) { return !e.message.includes(\"bug 未修复\"); }",
+      "expect": true,
+      "intentRef": "CHK-009:happy:1"
+    },
+    {
+      "name": "bug_report rejects duplicate ID on same story",
+      "run_type": "cli",
+      "fn": "bug_report",
+      "file": "mcp/handlers/bug",
+      "execute": "const bid = \"BUG-stable-\"+Date.now(); $handlers.bug_report({storyId:$ctx.sid,id:bid,title:\"first\",fixtureId:\"fid-\"+Date.now()}); const c1 = $handlers.bug_list({storyId:$ctx.sid}).bugs.length; try { $handlers.bug_report({storyId:$ctx.sid,id:bid,title:\"dup\",fixtureId:\"fid2-\"+Date.now()}); } catch {} const c2 = $handlers.bug_list({storyId:$ctx.sid}).bugs.length; return c1 === c2",
+      "expect": true,
+      "intentRef": "CHK-009:edge:0"
+    },
+    {
+      "name": "open bugs have null fixedAt",
+      "run_type": "cli",
+      "fn": "bug_list",
+      "file": "mcp/handlers/bug",
+      "execute": "const r = $handlers.bug_list({storyId:$ctx.sid}); const open = r.bugs.filter(b => b.status === 'open'); const fixed = r.bugs.filter(b => b.status === 'fixed'); return open.every(b => b.fixedAt === null) && fixed.every(b => typeof b.fixedAt === 'string')",
+      "expect": true,
+      "intentRef": "CHK-009:edge:1"
+    },
+    {
+      "name": "bugs are retrievable by storyId",
+      "run_type": "cli",
+      "fn": "bug_list",
+      "file": "mcp/handlers/bug",
+      "execute": "const s = await $handlers.story_create({name:\"done-fail\",title:\"Done Fail\",description:\"t\",type:\"feature\",priority:\"high\",phase:\"TEST\"}); const sid = s.match(/B-[a-f0-9]+/)[0]; $handlers.bug_report({storyId:sid,id:\"BUG-BLOCK-\"+Date.now(),title:\"blocking bug\",fixtureId:\"fid-\"+Date.now()}); try { $handlers.story_advance({storyId:sid,phase:\"DONE\"}); return false; } catch(e) { return e.message.includes(\"Cannot enter DONE\"); }",
+      "expect": true,
+      "intentRef": "CHK-009:edge:2"
+    },
+    {
+      "name": "bug_list on new story returns empty",
+      "run_type": "cli",
+      "fn": "bug_list",
+      "file": "mcp/handlers/bug",
+      "execute": "const sid = await $testStory(); const r = $handlers.bug_list({storyId:sid}); return r.bugs.length === 0",
+      "expect": true,
+      "intentRef": "CHK-009:adversarial:0"
+    },
+    {
+      "name": "bug_report and bug_list complete roundtrip",
+      "run_type": "cli",
+      "fn": "bug_list",
+      "file": "mcp/handlers/bug",
+      "execute": "const bid = \"BUG-rt-\"+Date.now(); $handlers.bug_report({storyId:$ctx.sid,id:bid,title:\"roundtrip\",fixtureId:\"fid-\"+Date.now()}); const r = $handlers.bug_list({storyId:$ctx.sid}); const found = r.bugs.find(b => b.id === bid); return found && found.title === \"roundtrip\" && found.status === \"open\"",
+      "expect": true,
+      "intentRef": "CHK-009:adversarial:1"
+    },
+    {
+      "name": "bug_update with nonexistent bug ID throws",
+      "run_type": "cli",
+      "fn": "bug_update",
+      "file": "mcp/handlers/bug",
+      "execute": "try { await $handlers.bug_update({storyId:$ctx.sid,id:\"BUG-ghost-\"+Date.now(),status:\"fixed\"}); return false; } catch(e) { return e.message.includes(\"not found\") || e.message.includes(\"Bug\"); }",
+      "expect": true,
+      "intentRef": "CHK-009:adversarial:2"
+    }
+  ]
+}

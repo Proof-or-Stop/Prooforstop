@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "index.json 新增 keywords 字段 + story_quick 创建时查重",
+      "context": "keywords 分三类：命令名/模块名/概念。story_quick 创建时 agent 提炼关键词存入 keywords，并和已有非 DONE/DISCARDED story 的 keywords 匹配，有重叠时输出：story ID+title+description+phase+重叠关键词，checklist 每个 item 只列 title+status",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "story_advance → PLAN 门禁 + checklist 变更提示",
+      "context": "story_advance 进 PLAN 时 keywords 为空则拦住。checklist_add/checklist_update 时返回提示：当前 keywords 列表 + story title+description + checklist 每个 item 的 title+status，让 agent 判断 keywords 是否需要更新",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "task_scan 增加 story 卫生摘要",
+      "context": "task_scan 输出末尾追加 storyHealth：停滞(>7天)、关键词重叠的 story 对、无 checklist、垃圾数据(title过短)",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "checklist_update 支持修改 title 和 context",
+      "context": "当前只接受 status/testIntent，增加 title/context 可选参数",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 
 import { setup, createActor, type SnapshotFrom } from 'xstate';
 import type { StoryStore } from './store.js';
+import { createHash } from 'crypto';
 
 export interface StoryMachineContext {
   storyId: string;
@@ -12,9 +13,16 @@ export const storyMachine = setup({
     context: {} as StoryMachineContext,
     input: {} as StoryMachineContext,
     events: {} as
+      | { type: 'INIT' }
+      | { type: 'INIT_CHECK' }
       | { type: 'PLAN' }
       | { type: 'START' }
+      | { type: 'REPLAN' }
+      | { type: 'WRITE_CASES' }
+      | { type: 'REQUEST_REVIEW' }
       | { type: 'REVIEW' }
+      | { type: 'ROLLBACK_DEV' }
+      | { type: 'ROLLBACK_TEST_CASE' }
       | { type: 'FINISH' },
   },
   guards: {
@@ -22,17 +30,57 @@ export const storyMachine = setup({
       const cl = context.store.readChecklist(context.storyId);
       return cl.items.every(item => item.status === 'done');
     },
+    canStartDev: ({ context }) => {
+      // happy 必填；edge/adversarial 选填（B-569d）
+      const cl = context.store.readChecklist(context.storyId);
+      const allHaveIntent = cl.items.every((item: any) => {
+        const ti = item.testIntent;
+        if (ti === null) return true; // 显式标记不可测试，跳过
+        return ti && Array.isArray(ti.happy) && ti.happy.length > 0;
+      });
+      if (!allHaveIntent) return false;
+      try {
+        const review = context.store.readReview(context.storyId);
+        if (!review || !review.reviews || review.reviews.length === 0) return false;
+        const lastRound = review.reviews[review.reviews.length - 1];
+        // 验证签名
+        const REVIEW_SALT = 'koala-review-integrity-v1';
+        const hashInput = `${context.storyId}:${lastRound.timestamp}:${lastRound.issueCount}:${lastRound.blockerCount ?? lastRound.issueCount}:${REVIEW_SALT}`;
+        const expectedHash = createHash('sha256').update(hashInput).digest('hex');
+        if (!lastRound._hash || lastRound._hash !== expectedHash) return false;
+        // blockerCount=0 即可放行（advisory 不阻塞）
+        return (lastRound.blockerCount ?? lastRound.issueCount) === 0;
+      } catch {
+        return false;
+      }
+    },
     hasTestEvidence: ({ context }) => {
       const evidence = context.store.readTestEvidence(context.storyId);
-      return evidence.tests.length > 0 && evidence.tests.every(t => t.result === 'PASS');
+      return evidence !== null && evidence.result === 'PASS';
     },
     allBugsFixed: ({ context }) => {
       const bugs = context.store.readBugs(context.storyId);
       return bugs.bugs.every(b => b.status === 'fixed');
     },
+    allTestIntentsPass: ({ context }) => {
+      const cl = context.store.readChecklist(context.storyId);
+      for (const item of cl.items) {
+        if (!item.testIntent) return false;
+        for (const category of ['happy', 'edge', 'adversarial'] as const) {
+          const entries = (item.testIntent as any)[category] || [];
+          for (const entry of entries) {
+            if (typeof entry === 'string') return false;
+            if (!entry.results || entry.results.length === 0) return false;
+            const last = entry.results[entry.results.length - 1];
+            if (last.pass !== true) return false;
+          }
+        }
+      }
+      return true;
+    },
     canFinish: ({ context }) => {
       const evidence = context.store.readTestEvidence(context.storyId);
-      const hasEvidence = evidence.tests.length > 0 && evidence.tests.every(t => t.result === 'PASS');
+      const hasEvidence = evidence !== null && evidence.result === 'PASS';
       const bugs = context.store.readBugs(context.storyId);
       const bugsOk = bugs.bugs.every(b => b.status === 'fixed');
       return hasEvidence && bugsOk;
@@ -45,19 +93,56 @@ export const storyMachine = setup({
   states: {
     IDEA: {
       on: {
+        INIT: { target: 'INIT' },
+        PLAN: { target: 'PLAN' }, // legacy direct path
+      },
+    },
+    INIT: {
+      on: {
+        INIT_CHECK: { target: 'INIT_CHECK' },
+      },
+    },
+    INIT_CHECK: {
+      on: {
         PLAN: { target: 'PLAN' },
       },
     },
     PLAN: {
       on: {
-        START: { target: 'DEV' },
+        START: { target: 'DEV', guard: 'canStartDev' },
       },
     },
     DEV: {
       on: {
+        WRITE_CASES: {
+          target: 'TEST_CASE',
+          guard: 'checklistAllDone',
+        },
+        REPLAN: {
+          target: 'PLAN',
+        },
+      },
+    },
+    TEST_CASE: {
+      on: {
+        REQUEST_REVIEW: {
+          target: 'TEST_CASE_REVIEW',
+        },
+        START: {
+          target: 'DEV',
+        },
+      },
+    },
+    TEST_CASE_REVIEW: {
+      on: {
         REVIEW: {
           target: 'TEST',
-          guard: 'checklistAllDone',
+        },
+        ROLLBACK_DEV: {
+          target: 'DEV',
+        },
+        ROLLBACK_TEST_CASE: {
+          target: 'TEST_CASE',
         },
       },
     },
@@ -69,6 +154,9 @@ export const storyMachine = setup({
         },
         START: {
           target: 'DEV',
+        },
+        ROLLBACK_TEST_CASE: {
+          target: 'TEST_CASE',
         },
       },
     },
@@ -108,22 +196,89 @@ export function getGuardFailureReason(
   store: StoryStore,
   targetPhase: string,
 ): string | null {
-  if (targetPhase === 'TEST') {
+  if (targetPhase === 'DEV') {
+    const reasons: string[] = [];
+    const cl = store.readChecklist(storyId);
+    // happy 必填；edge/adversarial 选填（B-569d）
+    const missingIntent = cl.items.filter((item: any) => {
+      const ti = item.testIntent;
+      if (ti === null) return false; // 显式标记不可测试，跳过
+      return !ti || !Array.isArray(ti.happy) || ti.happy.length === 0;
+    });
+    if (missingIntent.length > 0) {
+      reasons.push(`${missingIntent.length} checklist item(s) 缺少 testIntent.happy: ${missingIntent.map((i: any) => i.id).join(', ')}`);
+    }
+    try {
+      const review = store.readReview(storyId);
+      if (!review || !review.reviews || review.reviews.length === 0) {
+        reasons.push('未通过 story_review 审查（无审查记录）');
+      } else {
+        const lastRound = review.reviews[review.reviews.length - 1];
+        // 验证签名：防止主 agent 伪造 review.json
+        const REVIEW_SALT = 'koala-review-integrity-v1';
+        const hashInput = `${storyId}:${lastRound.timestamp}:${lastRound.issueCount}:${lastRound.blockerCount ?? lastRound.issueCount}:${REVIEW_SALT}`;
+        const expectedHash = createHash('sha256').update(hashInput).digest('hex');
+        if (!lastRound._hash || lastRound._hash !== expectedHash) {
+          reasons.push('review.json 签名校验失败，审查报告必须由 story_review CLI 生成');
+        } else if ((lastRound.blockerCount ?? lastRound.issueCount) > 0) {
+          reasons.push(`最近一轮 story_review 有 ${lastRound.blockerCount ?? lastRound.issueCount} 个 blocker 未修复`);
+        }
+      }
+    } catch {
+      reasons.push('未通过 story_review 审查（无审查记录）');
+    }
+    if (reasons.length > 0) {
+      return `Cannot enter DEV:\n${reasons.map(r => `  - ${r}`).join('\n')}`;
+    }
+  }
+
+  if (targetPhase === 'TEST_CASE') {
     const cl = store.readChecklist(storyId);
     const pending = cl.items.filter(i => i.status !== 'done');
     if (pending.length > 0) {
-      return `Cannot enter TEST: ${pending.length} checklist item(s) not done: ${pending.map(i => i.id).join(', ')}`;
+      return `Cannot enter TEST_CASE: ${pending.length} checklist item(s) not done: ${pending.map(i => i.id).join(', ')}`;
+    }
+  }
+
+  if (targetPhase === 'TEST') {
+    const cl = store.readChecklist(storyId);
+    const failures: Array<{ itemId: string; category: string; desc: string; type: string }> = [];
+    for (const item of cl.items) {
+      if (!item.testIntent) {
+        failures.push({ itemId: item.id, category: '*', desc: 'missing testIntent', type: 'cli_blackbox' });
+        continue;
+      }
+      for (const category of ['happy', 'edge', 'adversarial'] as const) {
+        const entries = (item.testIntent as any)[category] || [];
+        for (const entry of entries) {
+          if (typeof entry === 'string') {
+            failures.push({ itemId: item.id, category, desc: entry, type: 'cli_blackbox' });
+            continue;
+          }
+          if (!entry.results || entry.results.length === 0) {
+            failures.push({ itemId: item.id, category, desc: entry.desc, type: entry.type || 'cli_blackbox' });
+            continue;
+          }
+          const last = entry.results[entry.results.length - 1];
+          if (last.pass !== true) {
+            failures.push({ itemId: item.id, category, desc: entry.desc, type: entry.type || 'cli_blackbox' });
+          }
+        }
+      }
+    }
+    if (failures.length > 0) {
+      const detail = failures.map(f => `  - ${f.itemId}:${f.category} [${f.type}] ${f.desc}`).join('\n');
+      return `Cannot enter TEST: ${failures.length} testIntent(s) not passed:\n${detail}`;
     }
   }
 
   if (targetPhase === 'DONE') {
     const evidence = store.readTestEvidence(storyId);
-    if (evidence.tests.length === 0) {
+    if (!evidence) {
       return 'Cannot enter DONE: no test evidence found';
     }
-    const failedTests = evidence.tests.filter(t => t.result !== 'PASS');
-    if (failedTests.length > 0) {
-      return `Cannot enter DONE: ${failedTests.length} test(s) not PASS: ${failedTests.map(t => t.id).join(', ')}`;
+    if (evidence.result !== 'PASS') {
+      return `Cannot enter DONE: test ${evidence.result}: ${evidence.output}`;
     }
     const bugs = store.readBugs(storyId);
     const openBugs = bugs.bugs.filter(b => b.status !== 'fixed');

@@ -9,7 +9,7 @@
     "directory": "packages/main"
   },
   "version": "0.2.0",
-  "description": "通用项目开发框架 — LLM Provider + Story 工作流 MCP",
+  "description": "通用项目开发框架 — AI-driven Story 工作流 CLI",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -17,18 +17,15 @@
   },
   "exports": {
     ".": "./dist/index.js",
-    "./mcp": "./dist/mcp/server.js",
     "./test": "./dist/tasks/test-flow-e2e.js"
   },
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
     "start": "node dist/index.js",
-    "serve": "node dist/mcp/server.js",
     "test:e2e": "node dist/tasks/cli-e2e.js"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.29.0",
     "xstate": "^5.30.0"
   },
   "devDependencies": {

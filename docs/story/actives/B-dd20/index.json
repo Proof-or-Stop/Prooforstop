@@ -1,0 +1,110 @@
+{
+  "storyId": "B-dd20",
+  "name": "fixture-self-test-reform",
+  "title": "fixture 自测改造：旧 case 适配新 API + 内部测试规则",
+  "description": "B-6246 暴露了 koala 自身 fixture 测试的根本问题：自己测自己导致副作用污染。需要全面改造旧 fixture case 适配新 API（bug fixtureId、test_story 必填 storyId、case 内禁调 test runner），并写入内部测试规则到 CLAUDE.md。",
+  "type": "chore",
+  "phase": "DONE",
+  "priority": "high",
+  "createdAt": "2026-04-06T00:29:27.471Z",
+  "startedAt": "2026-04-06T00:29:27.471Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "PLAN",
+      "action": "create",
+      "timestamp": "2026-04-06T00:29:27.471Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-06T00:47:31.842Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-06T01:43:27.094Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-06T01:43:45.129Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-06T01:48:25.043Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-06T01:51:13.726Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-06T02:12:30.943Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "gate-rollback"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-06T02:12:41.677Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-06T02:13:30.469Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-06T02:13:36.469Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-06T02:13:43.376Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-06T02:16:45.192Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "gate-auto"
+    }
+  ]
+}

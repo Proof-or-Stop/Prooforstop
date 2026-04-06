@@ -1,0 +1,174 @@
+{
+  "storyId": "B-44a6",
+  "name": "phase-tools",
+  "title": "Phase-Aware Tool Filtering — 按 worktree 分支自动过滤 CLI 命令",
+  "description": "通过 git 分支名（story/B-xxx）自动识别当前 active story 及其 phase，在 CLI 层按阶段过滤可用命令并调整命令行为。无 active story（主分支）时全量可用，在 worktree 中时只暴露该 phase 白名单内的命令。多并发 session 各在自己的 worktree 中互不干扰。\n\n## 阶段精简\n原流程：PLAN → DEV → TEST_CASE → TEST_CASE_REVIEW → TEST → DONE\n新流程：PLAN → DEV（写代码 + 写 fixture）→ TEST_CASE_REVIEW → TEST → DONE\n砍掉 TEST_CASE 阶段，DEV 阶段同时写代码和 fixture，reviewer 审核兜底质量。\n\n## 自动回退\n- TEST fail：bug_report 自动回退 DEV + 标关联 item in_progress + 往 testIntent results 追加 pass=false\n- TEST_CASE_REVIEW fail：testintent_record 写入 pass=false 时自动回退 DEV\n- 回退后主 agent 可先查看反馈再决定怎么修，不强制立即行动\n\n## 新增命令\n- checklist_add：向已有 story 追加 checklist item（自动分配 CHK-ID）。PLAN 阶段由 test-intent agent 填 testIntent，DEV 阶段由主 agent 自填。\n- story_discard：废弃 story，跳过所有门禁直接标记为 DISCARDED。\n\n## 砍掉的命令\n- dev_start → 合并到 story_advance → DEV，自动创建 worktree + 切分支\n- dev_finish → 合并到 story_advance\n- dev_merge → 合并到 story_advance → DONE，自动 merge + 清理 worktree + 删分支。失败返回错误提示由 agent 处理\n\n## 各阶段可用工具 & 行为差异\n\n### 全阶段可用\n- story_get / story_list：只读查看\n- story_discard：任何阶段可废弃\n- task_scan / task_detail：了解项目（只读）\n- checklist_get：只读查看\n- truth_* / gap_* / arch_trace：分析参考（只读）\n\n### PLAN（需求分析）\n- story_update：编辑 story\n- story_review：对抗审查\n- story_advance → DEV：自动创建 worktree + 切分支\n- checklist_add：追加 item（testIntent 由 test-intent agent 填写）\n- checklist_update：只能改 testIntent，不能改 status\n- testintent_*：写和审核 testIntent\n\n### DEV（开发 + 写测试）\n- checklist_add：追加 item（主 agent 自填 testIntent，不回退 PLAN）\n- checklist_update：可改 status（done/in_progress）+ 可改 testIntent\n- task_annotate_batch / task_sync：标注和同步元数据\n- test_auto：不还原代码 + 提示「注意：可能修改实际文件」\n- diagnose：只输出根因建议，不关联 bug\n- fixture_batch_add：批量添加 case\n- fixture_get / fixture_update：可读可写\n- story_advance → TEST_CASE_REVIEW：推进\n\n### TEST_CASE_REVIEW（审核）\n- testintent_check：检查审核状态\n- testintent_record：记录审核结果（pass=false 时自动回退 DEV）\n- fixture_get：只读\n- story_advance → TEST：审核全部通过后主 agent 推进\n\n### TEST（测试）\n- test_auto：正常还原（标准测试流程）\n- browser_test：浏览器测试\n- diagnose：根因 + 自动关联 bug_report\n- bug_report / bug_update / bug_list：bug_report 自动标关联 item 为 in_progress + 写 testIntent results + 回退 DEV\n- fixture_get：只读\n- story_advance → DONE：自动 merge + 清理 worktree + 删分支。失败返回错误提示\n\n## 关键行为差异\n- test_auto：DEV 不还原+警告 → TEST 正常还原\n- diagnose：DEV 纯建议 → TEST 自动挂 bug_report\n- fixture_*：DEV 可读可写 → TEST_CASE_REVIEW/TEST 只读\n- checklist_update：PLAN 只改 testIntent → DEV 可改 status+testIntent → 其余禁用\n- checklist_add：PLAN（test-intent agent 填）→ DEV（主 agent 自填）→ 其余禁用\n- 自动回退：TEST bug_report → DEV / TEST_CASE_REVIEW pass=false → DEV",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "medium",
+  "createdAt": "2026-04-05T00:45:15.602Z",
+  "startedAt": "2026-04-05T00:45:15.602Z",
+  "endedAt": "2026-04-05T03:49:49.655Z",
+  "events": [
+    {
+      "phase": "PLAN",
+      "action": "create",
+      "timestamp": "2026-04-05T00:45:15.602Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-05T02:55:25.408Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-05T03:02:25.631Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-05T03:02:37.197Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-05T03:16:33.907Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-05T03:16:34.735Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-05T03:23:18.475Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-05T03:24:38.472Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-05T03:24:39.288Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-05T03:28:47.108Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-05T03:30:11.464Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-05T03:30:12.282Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-05T03:34:16.270Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-05T03:37:05.716Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-05T03:37:06.511Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-05T03:40:39.809Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-05T03:42:29.962Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-05T03:42:30.804Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-05T03:44:36.253Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-05T03:49:49.655Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    }
+  ]
+}

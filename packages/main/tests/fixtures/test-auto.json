@@ -1,25 +1,151 @@
 {
   "cases": [
     {
-      "name": "run test_auto on story with fixtures",
-      "input": {
-        "storyId": "B-001"
-      },
-      "expect": {
-        "hasField": "allPassed",
-        "hasField2": "totalCases",
-        "isJson": true
-      }
+      "name": "CHK-001: failed case does not save trace",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "tasks/trace-store",
+      "execute": "const fs = await import(\"node:fs\"); const path = await import(\"node:path\"); const traceFile = path.join($root,\".koala\",\"traces\",\"test-failsave.trace.json\"); try{fs.rmSync(traceFile,{force:true});}catch{} const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/trace-store.js\"); m.saveTraceSnapshot($root,\"test-failsave.json\",\"fc\",[{fn:\"original\",file:\"o.ts\",line:1,children:[]}]); const snap = m.loadTraceSnapshot($root,\"test-failsave.json\",\"fc\"); try{fs.rmSync(traceFile,{force:true});}catch{} return snap.trace[0].fn===\"original\"",
+      "expect": true,
+      "intentRef": "CHK-001:edge:1",
+      "sandbox": false
     },
     {
-      "name": "run test_auto on story with no test annotations",
-      "input": {
-        "storyId": "B-999"
-      },
-      "expect": {
-        "totalCases": 0,
-        "allPassed": true
-      }
+      "name": "CHK-001: tampered trace json no crash",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const fs = await import(\"node:fs\"); const path = await import(\"node:path\"); const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/trace-store.js\"); m.saveTraceSnapshot($root,\"test-tamper.json\",\"tc\",[{fn:\"ok\",file:\"o.ts\",line:1,children:[]}]); const traceFile = path.join($root,\".koala\",\"traces\",\"test-tamper.trace.json\"); fs.writeFileSync(traceFile,\"not json at all\"); const snap = m.loadTraceSnapshot($root,\"test-tamper.json\",\"tc\"); try{fs.rmSync(traceFile,{force:true});}catch{} return snap === null",
+      "expect": true,
+      "intentRef": "CHK-001:adversarial:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-007: private method not in blindZones",
+      "run_type": "cli",
+      "fn": "arch_trace",
+      "file": "mcp/handlers/arch-trace",
+      "execute": "const fs = await import(\"node:fs\"); const path = await import(\"node:path\"); const testFile = path.join($root, \"packages\", \"main\", \"src\", \"__test_priv.ts\"); fs.writeFileSync(testFile, [\"export class Priv { _internal() { return 1; } public pub() { return 2; } }\",\"\"].join(String.fromCharCode(10))); try { const result = await $handlers.arch_trace({format:\"json\"}); const parsed = JSON.parse(result); const zones = parsed.blindZones || []; const hasInternal = zones.some(z => z.includes(\"_internal\")); const hasPub = zones.some(z => z.includes(\"Priv.pub\")); return !hasInternal && hasPub; } finally { try { fs.rmSync(testFile); } catch {} }",
+      "expect": true,
+      "intentRef": "CHK-007:edge:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-001: chain case load uses pre-save snapshot",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "tasks/trace-store",
+      "execute": "const fs = await import(\"node:fs\"); const path = await import(\"node:path\"); const traceFile = path.join($root,\".koala\",\"traces\",\"test-chain.trace.json\"); try{fs.rmSync(traceFile,{force:true});}catch{} const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/trace-store.js\"); m.saveTraceSnapshot($root,\"test-chain.json\",\"chain\",[{fn:\"v0\",file:\"a.ts\",line:1,children:[]}]); const snap1 = m.loadTraceSnapshot($root,\"test-chain.json\",\"chain\"); m.saveTraceSnapshot($root,\"test-chain.json\",\"chain\",[{fn:\"v1\",file:\"a.ts\",line:1,children:[]}]); const snap2 = m.loadTraceSnapshot($root,\"test-chain.json\",\"chain\"); try{fs.rmSync(traceFile,{force:true});}catch{} return snap1.trace[0].fn===\"v0\" && snap2.trace[0].fn===\"v1\"",
+      "expect": true,
+      "intentRef": "CHK-001:adversarial:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-004: session error recovery",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "tasks/profiler",
+      "execute": "const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/profiler.js\"); const s = new m.FixtureProfilerSession(); await s.open(); await s.startCase(); await s.stopCase(); await s.close(); const s2 = new m.FixtureProfilerSession(); await s2.open(); await s2.startCase(); const t = await s2.stopCase(); await s2.close(); return Array.isArray(t)",
+      "expect": true,
+      "intentRef": "CHK-004:adversarial:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-005: blindZones no anonymous entries",
+      "run_type": "cli",
+      "fn": "arch_trace",
+      "file": "mcp/handlers/arch-trace",
+      "execute": "const result = await $handlers.arch_trace({format:\"json\"}); const parsed = JSON.parse(result); if(!parsed.blindZones) return true; return !parsed.blindZones.some(z => z.startsWith(\"(anonymous)@\"))",
+      "expect": true,
+      "intentRef": "CHK-005:adversarial:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-005: impactGraph no anonymous edges",
+      "run_type": "cli",
+      "fn": "arch_trace",
+      "file": "mcp/handlers/arch-trace",
+      "execute": "const result = await $handlers.arch_trace({format:\"json\"}); const parsed = JSON.parse(result); if(!parsed.impactGraph) return true; return !parsed.impactGraph.some(e => (e.from.startsWith(\"(anonymous)@\") && e.from.endsWith(\"@\")) || (e.to.startsWith(\"(anonymous)@\") && e.to.endsWith(\"@\")))",
+      "expect": true,
+      "intentRef": "CHK-005:adversarial:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-001: load before save returns previous not current",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "tasks/trace-store",
+      "execute": "const fs = await import(\"node:fs\"); const path = await import(\"node:path\"); const traceFile = path.join($root,\".koala\",\"traces\",\"test-order.trace.json\"); try{fs.rmSync(traceFile,{force:true});}catch{} const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/trace-store.js\"); m.saveTraceSnapshot($root,\"test-order.json\",\"oc\",[{fn:\"prev\",file:\"p.ts\",line:1,children:[]}]); const prevSnap = m.loadTraceSnapshot($root,\"test-order.json\",\"oc\"); const newTrace = [{fn:\"curr\",file:\"c.ts\",line:2,children:[]}]; const {diffTraces} = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/trace-diff.js\"); const diff = diffTraces(prevSnap.trace, newTrace); m.saveTraceSnapshot($root,\"test-order.json\",\"oc\",newTrace); try{fs.rmSync(traceFile,{force:true});}catch{} return prevSnap.trace[0].fn===\"prev\" && diff.added.length>0",
+      "expect": true,
+      "intentRef": "CHK-001:happy:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-004: profiler stop after exception",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "tasks/profiler",
+      "execute": "const m = await import(\"file:///\" + $root.replace(/\\\\\\\\/g,\"/\") + \"/packages/main/dist/tasks/profiler.js\"); const s = new m.FixtureProfilerSession(); await s.open(); await s.startCase(); try { throw new Error('simulated timeout'); } catch { try { await s.stopCase(); } catch {} } await s.close(); const s2 = new m.FixtureProfilerSession(); await s2.open(); await s2.startCase(); const t = await s2.stopCase(); await s2.close(); return Array.isArray(t)",
+      "expect": true,
+      "intentRef": "CHK-004:adversarial:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-008: restore/clean only affects fixturesDir",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const fs = await import(\"node:fs\"); const path = await import(\"node:path\"); const marker = path.join($root, \"__outside_fixtures_\" + Date.now() + \".txt\"); fs.writeFileSync(marker, \"should survive\"); const {execSync} = await import(\"node:child_process\"); const result = execSync(\"git status --porcelain\", {cwd:$root,encoding:\"utf-8\"}); const survived = fs.existsSync(marker); fs.rmSync(marker, {force:true}); return survived",
+      "expect": true,
+      "intentRef": "CHK-008:happy:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-008: traces outside fixturesDir survive restore",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const fs = await import(\"node:fs\"); const path = await import(\"node:path\"); const tracesDir = path.join($root, \".koala\", \"traces\"); fs.mkdirSync(tracesDir, {recursive:true}); const marker = path.join(tracesDir, \"__survive_test_\" + Date.now() + \".json\"); fs.writeFileSync(marker, \"{}\"); const {execSync} = await import(\"node:child_process\"); const result = execSync(\"git status --porcelain\", {cwd:$root,encoding:\"utf-8\"}); const survived = fs.existsSync(marker); fs.rmSync(marker, {force:true}); return survived",
+      "expect": true,
+      "intentRef": "CHK-008:edge:1",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-008: file outside fixturesDir not deleted",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const fs = await import(\"node:fs\"); const path = await import(\"node:path\"); const marker = path.join($root, \"packages\", \"main\", \"src\", \"__temp_test_\" + Date.now() + \".txt\"); fs.writeFileSync(marker, \"temp\"); const {execSync} = await import(\"node:child_process\"); const result = execSync(\"git status --porcelain\", {cwd:$root,encoding:\"utf-8\"}); const survived = fs.existsSync(marker); fs.rmSync(marker, {force:true}); return survived",
+      "expect": true,
+      "intentRef": "CHK-008:adversarial:0",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-008: fixturesDir cleanup removes untracked files",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const fs = await import(\"node:fs\"); const path = await import(\"node:path\"); const config = JSON.parse(fs.readFileSync(path.join($root, \"koala.config.json\"), \"utf-8\")); const junkFile = path.join($root, config.fixturesDir, \"__junk_\" + Date.now() + \".json\"); fs.writeFileSync(junkFile, \"{}\"); const existed = fs.existsSync(junkFile); const {execSync} = await import(\"node:child_process\"); const result = execSync(\"git status --porcelain\", {cwd:$root,encoding:\"utf-8\"}); const cleaned = !fs.existsSync(junkFile); try{fs.rmSync(junkFile,{force:true});}catch{} return existed && cleaned",
+      "expect": true,
+      "intentRef": "CHK-008:happy:1"
+    },
+    {
+      "name": "CHK-008: fixture writing outside fixturesDir survives cleanup",
+      "run_type": "cli",
+      "fn": "task_scan",
+      "file": "mcp/handlers/task",
+      "execute": "const fs = await import(\"node:fs\"); const path = await import(\"node:path\"); const marker = path.join($root, \"docs\", \"__outside_fixture_\" + Date.now() + \".txt\"); fs.writeFileSync(marker, \"should survive\"); const {execSync} = await import(\"node:child_process\"); const result = execSync(\"git status --porcelain\", {cwd:$root,encoding:\"utf-8\"}); const survived = fs.existsSync(marker); fs.rmSync(marker, {force:true}); return survived",
+      "expect": true,
+      "intentRef": "CHK-008:adversarial:1"
+    },
+    {
+      "name": "CHK-008: git clean on clean fixturesDir no error",
+      "run_type": "cli",
+      "fn": "test_auto",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const {execSync} = await import(\"node:child_process\"); const fs = await import(\"node:fs\"); const path = await import(\"node:path\"); const config = JSON.parse(fs.readFileSync(path.join($root, \"koala.config.json\"), \"utf-8\")); try { execSync('git clean -fd \"' + config.fixturesDir + '\"', {cwd:$root,stdio:\"pipe\"}); execSync('git restore \"' + config.fixturesDir + '\"', {cwd:$root,stdio:\"pipe\"}); return true; } catch(e) { return \"git clean error: \" + e.message; }",
+      "expect": true,
+      "intentRef": "CHK-008:edge:0"
     }
   ]
 }

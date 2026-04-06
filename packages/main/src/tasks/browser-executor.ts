@@ -55,6 +55,8 @@ export interface BrowserCaseResult {
   steps: Array<{ action: string; passed: boolean; error?: string; result?: unknown }>;
   screenshotPaths: string[];
   durationMs: number;
+  /** Per-case trace data from browser profiling (CHK-002) */
+  trace?: Array<{ fn: string; file: string }>;
 }
 
 export interface BrowserTestResult {
@@ -608,13 +610,18 @@ export async function executeBrowserCases(
     await waitForBrowser(env.httpPort);
     log('browser connected');
 
-    // 6. Execute cases
+    // 6. Execute cases with browser-side profiling (CHK-002)
     for (const c of cases) {
       log(`case: "${c.name}" (${c.steps.length} steps)`);
       const startCase = Date.now();
       const stepResults: BrowserCaseResult['steps'] = [];
       const screenshotPaths: string[] = [];
       let allPassed = true;
+
+      // CHK-002: Reset trace and mark profiler start before each case
+      try {
+        await api(env.httpPort, '/eval', { code: `window.__trace = []; window.__profileStart = performance.now(); void 0` });
+      } catch { /* non-fatal */ }
 
       for (let i = 0; i < c.steps.length; i++) {
         const step = c.steps[i];
@@ -625,9 +632,18 @@ export async function executeBrowserCases(
         if (!r.passed) { allPassed = false; break; }
       }
 
+      // CHK-002: Collect per-case trace snapshot from browser
+      let caseTrace: Array<{ fn: string; file: string }> = [];
+      try {
+        const traceSnap = await api(env.httpPort, '/eval', { code: `JSON.stringify((window.__trace || []).map(t => ({ fn: t.fn, file: t.file || '' })))` });
+        if (traceSnap.ok && traceSnap.result) {
+          caseTrace = JSON.parse(traceSnap.result);
+        }
+      } catch { /* non-fatal */ }
+
       const caseMs = Date.now() - startCase;
-      log(`case "${c.name}": ${allPassed ? 'PASS' : 'FAIL'} (${caseMs}ms)`);
-      results.push({ name: c.name, passed: allPassed, steps: stepResults, screenshotPaths, durationMs: caseMs });
+      log(`case "${c.name}": ${allPassed ? 'PASS' : 'FAIL'} (${caseMs}ms, ${caseTrace.length} trace calls)`);
+      results.push({ name: c.name, passed: allPassed, steps: stepResults, screenshotPaths, durationMs: caseMs, trace: caseTrace });
     }
 
     // 7. 收集 trace（浏览器端 JSON → gzip → base64，Node 端解压）

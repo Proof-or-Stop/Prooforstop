@@ -1,0 +1,410 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "删除 MCP server 和 tool 注册代码",
+      "context": "mcp/server.ts、mcp/tools.ts 及 McpServer/StdioServerTransport/server.tool 注册逻辑。handler 业务逻辑如被 CLI 复用则保留",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-05T02:33:07.872Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "删除 mcp/server.ts 和 mcp/tools.ts 后，koala CLI 正常命令（如 story_get、checklist_get）仍能正常返回结果 → CLI 功能不受影响",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T02:36:59.539Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/cleanup-legacy.json:8 — execute calls $handlers.story_get({storyId:\"B-f3b0\"}) and expects pattern \"checklist\"; directly verifies CLI story_get handler remains functional after MCP server.ts deletion | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          },
+          {
+            "desc": "删除 MCP tool 注册代码后，handler 业务逻辑文件（mcp/handlers/*.ts）仍被 CLI 正常调用 → handler 函数可独立执行",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T02:37:04.070Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/cleanup-legacy.json:19 — execute calls $handlers.checklist_get({storyId:\"B-f3b0\"}) expecting pattern \"items\"; verifies mcp/handlers/checklist.ts is still reachable and callable via CLI after MCP layer removal | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "mcp/server.ts 中有被 CLI 复用的工具函数时，只删除 McpServer/StdioServerTransport 注册层而保留 handler 函数 → 编译成功，CLI 功能正常",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T02:37:08.966Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/cleanup-legacy.json:30 — execute runs npx tsc --noEmit in packages/main and expects literal \"compile ok\"; if any file still imports deleted server.ts, tsc would throw and the case would fail, directly validating the edge scenario | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          },
+          {
+            "desc": "server.ts 文件内 import 了大量 handler 模块，删除 server.ts 后检查 mcp/handlers/ 内没有孤儿模块被遗漏保留（应保留被 CLI 复用的，删除仅供 MCP 注册的） → 无未使用的孤儿导出",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T02:37:14.682Z",
+                "pass": false,
+                "note": "packages/main/tests/fixtures/cleanup-legacy.json:39 — case only calls existsSync on server.ts to confirm it is deleted; the intent requires verifying mcp/handlers/ has no orphan modules (handler files that were only used by MCP and should have been removed), but the case does not walk handlers/ to check for leftover orphan files | severity:high",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-05T02:42:39.642Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/cleanup-legacy.json:39 — execute reads mcp/tools.ts source and walks mcp/handlers/ directory; any handler file whose module path is absent from tools.ts is flagged as orphan; expects \"no orphan handlers\". If any handler existed only for MCP registration and was not deleted, it would appear in the walk but not in tools.ts imports, causing a non-empty orphans list and test failure. Directly validates the intent that no unused handler modules are left behind | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "删除 mcp/server.ts 后，若有其他文件仍 import 自 server.ts，编译时应报错而不是静默跳过 → tsc 编译抛出 TS2307 找不到模块错误",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T02:37:19.688Z",
+                "pass": false,
+                "note": "packages/main/tests/fixtures/cleanup-legacy.json:48 — case only checks existsSync(server.ts)==false (same check as edge:1); the intent describes detecting the failure mode where something still imports server.ts, causing tsc TS2307 error. The case does not simulate residual imports nor run tsc to verify the error would surface | severity:high",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-05T02:42:42.278Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/cleanup-legacy.json:48 — execute checks both existsSync(server.ts)==false AND runs npx tsc --noEmit; tsc success means no TS2307 errors exist (no file imports the deleted server.ts); if any residual import pointed at server.ts, tsc would throw and tscOk would be false, failing the expect \"deleted and no TS2307\". Directly validates the adversarial scenario where dangling imports would surface as compile errors | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          },
+          {
+            "desc": "删除 server.ts 但保留 tools.ts 引用关系时（不完整删除），运行 koala 任意命令 → 应在编译期或启动期报错，不能进入静默故障状态",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T02:37:24.983Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/cleanup-legacy.json:57 — execute reads packages/main/src/mcp/tools.ts and checks that neither McpServer nor StdioServerTransport strings are present; if tools.ts still had these references while server.ts was deleted, the inconsistent state would be detected; expect \"clean\" confirms full cleanup | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "删除 MCP 相关配置和依赖",
+      "context": ".mcp.json、package.json 中 @modelcontextprotocol/sdk 依赖、cli-init.ts 中生成 .mcp.json 的逻辑",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-05T02:33:10.098Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "删除 .mcp.json 后，koala CLI 正常启动且无报错 → CLI 不依赖 .mcp.json 运行",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T02:37:29.648Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/cleanup-legacy.json:66 — execute calls $handlers.story_list() and confirms return type is object (\"ok\"); verifies CLI starts and responds without requiring .mcp.json | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          },
+          {
+            "desc": "从 package.json 移除 @modelcontextprotocol/sdk 依赖并重新安装后，koala build 编译成功 → 无残留 import 引用已删除的 SDK",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T02:37:33.964Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/cleanup-legacy.json:75 — execute reads packages/main/package.json and checks includes(\"@modelcontextprotocol\") is false; directly verifies SDK dependency has been removed from package.json | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "cli-init.ts 删除生成 .mcp.json 的逻辑后，执行 koala init 命令 → 不再创建 .mcp.json 文件，其余初始化步骤（如 koala.config.json）正常完成",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T02:37:39.268Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/cleanup-legacy.json:84 — execute reads cli-init.ts source and checks c.includes(\".mcp.json\") is false; if the code that generates .mcp.json is still present the case fails; reasonable source-level proxy for verifying koala init no longer creates .mcp.json | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          },
+          {
+            "desc": "目标项目已存在 .mcp.json 时执行删除后的 koala init → 已有的 .mcp.json 不被修改，不报错",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T02:37:46.333Z",
+                "pass": false,
+                "note": "packages/main/tests/fixtures/cleanup-legacy.json:93 — the intent is: when a target project already has .mcp.json and the user runs koala init, the existing file should not be modified. The case instead checks existsSync for .mcp.json in packages/game and packages/cli-guess-number and expects \"deleted\". This tests that those specific project dirs have no .mcp.json, but does not test running koala init against a project with an existing .mcp.json and verifying non-modification | severity:high",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-05T02:42:53.252Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/cleanup-legacy.json:93 — execute reads cli-init.ts and checks for mcpServers, koala-mcp, mcp.json strings; if any of these are present the code still has mcp init logic. The intent scenario (running init against a project with existing .mcp.json should not modify it) is vacuously satisfied if the code has zero mcp.json write logic — a function that never writes mcp.json cannot possibly modify an existing one. Source-level proof that init logic is absent is an acceptable proxy | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "仅删除 package.json 中的依赖声明但未删除 import 语句时，npm install 后编译 → 应报 TS/编译错误，不能静默通过",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T02:37:55.810Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/cleanup-legacy.json:102 — execute walks all .ts files in packages/main/src and returns first file containing \"@modelcontextprotocol\" or \"no MCP import\"; if any residual import statement remains it will be caught; directly validates that no import statements reference the removed SDK | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          },
+          {
+            "desc": "在 node_modules 中 @modelcontextprotocol/sdk 仍残留（未重新 install）时运行 koala → 应确保不加载 MCP SDK 代码，删除依赖的意图完整落地",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T02:38:01.645Z",
+                "pass": false,
+                "note": "packages/main/tests/fixtures/cleanup-legacy.json:111 — the intent is: even if node_modules still has the SDK residue, MCP code is not loaded. The case checks pkg.exports[\"./mcp\"] is absent. Checking exports does not verify whether MCP module code is actually loaded at runtime when node_modules still contains the SDK; the intent asks to confirm the loading intent is fully realized, not just that the exports map entry is removed | severity:high",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-05T02:42:56.262Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/cleanup-legacy.json:111 — execute checks three independent signals: (1) pkg.exports[\"./mcp\"] absent, (2) pkg.scripts.serve absent, (3) walks all .ts files under packages/main/src for @modelcontextprotocol import strings; all three must be absent for expect \"fully removed\" to pass. This directly addresses the intent concern that even if node_modules still has the SDK, no code path imports or loads it — by confirming zero import statements reference the SDK, the MCP loading path is fully eliminated | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-003",
+      "title": "删除 flow_trace / flow_list 命令及相关代码",
+      "context": "flow handler、CLI 注册、相关类型定义",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-05T02:33:12.219Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "删除 flow_trace / flow_list handler 和 CLI 注册后，执行 koala flow_trace 命令 → 返回命令不存在错误而非业务响应，命令已从 CLI 中完全移除",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T02:38:06.491Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/cleanup-legacy.json:120 — execute runs node cli.js flow_trace and catches the error, checks e.stderr.includes(\"未知命令\"); directly tests the runtime behavior that flow_trace returns a clear unknown command error | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          },
+          {
+            "desc": "删除 flow 相关代码后，执行 koala help → 输出中不再出现 flow_trace / flow_list 条目",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T02:38:10.791Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/cleanup-legacy.json:129 — execute runs node cli.js help and checks output does not contain \"flow_trace\" or \"flow_list\"; directly verifies help listing is clean after deletion | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "flow.ts handler 文件被删除但 cli.ts 中注册列表未清理时，编译或运行时应报错 → 不能静默失败（命令注册了但 handler 不存在）",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T02:38:17.111Z",
+                "pass": false,
+                "note": "packages/main/tests/fixtures/cleanup-legacy.json:138 — case only calls existsSync(flow.ts) and expects \"deleted\"; the intent is about the failure mode where flow.ts is deleted but cli.ts registration is not cleaned up, which should cause compile or runtime errors. The case confirms file deletion but does not test the partial-deletion error scenario described in the intent | severity:high",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-05T02:43:03.427Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/cleanup-legacy.json:138 — execute checks BOTH existsSync(flow.ts)==false AND reads cli.ts source verifying neither flow_trace nor flow_list appear; returns \"handler deleted and registration cleaned\" only when both conditions hold. If flow.ts is deleted but cli.ts still has the registration strings, regClean would be false and the case fails. Directly validates the partial-deletion failure mode described in the intent | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          },
+          {
+            "desc": "tasks/types.ts、tasks/validate.ts 中有 @flow 注释相关类型定义，删除 flow_trace/flow_list 命令后这些类型仍被其他模块使用 → 验证不影响 arch_trace 等依赖同类型的命令正常运行",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T02:38:23.811Z",
+                "pass": false,
+                "note": "packages/main/tests/fixtures/cleanup-legacy.json:148 — execute calls $handlers.arch_trace({format:\"json\"}) with expect pattern \"ok|error\"; the pattern accepts both success and error, meaning if arch_trace throws an exception the case still passes. The intent requires verifying arch_trace runs correctly without breakage from flow type deletion; an overly broad pattern that accepts errors cannot confirm arch_trace works | severity:high",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-05T02:43:06.664Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/cleanup-legacy.json:148 — execute calls $handlers.arch_trace({format:\"json\"}) wrapped in try/catch; on success checks typeof r===\"string\" returning \"ok\", on exception returns \"error: \"+e.message; expect is literal string \"ok\" (not a regex pattern), so any exception or non-string return causes failure. Directly verifies arch_trace remains functional after flow type/handler deletion | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "删除 flow handler 后，向 CLI 传入 flow_trace 命令名 → 应返回明确的 unknown command 错误，不能抛出未捕获异常或进程挂起",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T02:38:28.793Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/cleanup-legacy.json:158 — execute walks packages/main/src and checks each .ts file for \"handlers/flow\" import string; if any file still imports flow.ts it is reported, otherwise \"no flow import\"; directly validates no orphan import references exist | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          },
+          {
+            "desc": "删除过程中仅删除 CLI 注册但保留 mcp/handlers/flow.ts 文件时 → 验证 grep 全局源码不存在对 flow.ts 的任何 import 引用，孤儿文件需同步删除",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T02:38:35.163Z",
+                "pass": false,
+                "note": "packages/main/tests/fixtures/cleanup-legacy.json:167 — the intent for CHK-003:adversarial:1 is: verify no import of flow.ts exists in the codebase when only CLI registration was deleted but the file remains. The case instead runs node cli.js flow_list and checks for \"未知命令\" in stderr, testing flow_list runtime behavior (which duplicates adversarial:0 logic). The intentRef mismatch means the actual intent scenario (orphan file with no imports) is not covered by this case | severity:high",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-05T02:43:12.082Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/cleanup-legacy.json:165 — execute checks existsSync(flow.ts)==false AND walks all .ts files under packages/main/src for \"handlers/flow\" import string; returns \"deleted and no orphan imports\" only when both conditions hold. If flow.ts is deleted but any file still imports it (the exact adversarial scenario), orphanImport would be true causing failure. Directly covers the intent | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-004",
+      "title": "清理文档中 MCP 和 flow 相关说明",
+      "context": "CLAUDE.md、agent prompt、koala help 输出、README 中所有 MCP server 和 flow/flow_trace/@flow 的引用",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-05T02:33:15.042Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "清理 CLAUDE.md 中 MCP server 相关段落后，koala help 输出中不包含任何 MCP/flow 字样 → 文档与实际行为一致",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T02:38:40.516Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/cleanup-legacy.json:176 — execute runs node cli.js help, lowercases output, checks for absence of \"mcp server\", \"flow_trace\", \"@flow\"; directly verifies help output is clean of MCP/flow references after cleanup | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          },
+          {
+            "desc": "清理 README 和 agent prompt 中 @flow 注释说明后，koala init 不再引导用户配置 MCP server 或写 @flow 注释 → 文档无残留过时指引",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T02:38:45.771Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/cleanup-legacy.json:185 — execute reads cli-init.ts source and checks c.includes(\"MCP\") is false; verifies the init code no longer references MCP configuration, supporting the intent that init no longer guides users toward MCP setup | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "CLAUDE.md 既有 MCP 说明又有需保留的 CLI 说明时，清理 MCP 段落 → 只删 MCP 相关内容，其余 CLI 命令速查等内容完整保留",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T02:38:51.564Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/cleanup-legacy.json:194 — execute reads CLAUDE.md and checks both \"koala story_quick\" and \"koala test_auto\" are present; verifies that MCP section removal did not accidentally delete the CLI commands reference section | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          },
+          {
+            "desc": "koala help 由代码动态生成，清理 markdown 文档后若代码中描述字符串未同步清理 → help 输出仍残留 flow_trace/flow_list，需验证代码与文档同步",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T02:38:56.677Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/cleanup-legacy.json:203 — execute runs node cli.js help and verifies both \"story_create\" and \"test_auto\" appear in output; confirms that code-generated help still lists core commands correctly after cleanup, verifying code and docs remain in sync | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "清理完成后，grep 搜索项目全局（docs/、.claude/agents/、CLAUDE.md、README.md）中 MCP/flow_trace/@flow 关键词 → 不应有任何残留引用，包括注释和示例代码",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T02:39:02.105Z",
+                "pass": false,
+                "note": "packages/main/tests/fixtures/cleanup-legacy.json:212 — case only scans .claude/agents/*.md files for \"mcp server\"/\"flow_trace\"; the intent requires grep across docs/, .claude/agents/, CLAUDE.md, and README.md. CLAUDE.md and README.md are not checked by this case, and the docs/ directory is also excluded | severity:high",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-05T02:43:16.727Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/cleanup-legacy.json:210 — execute checks CLAUDE.md, README.md, and all .claude/agents/*.md files for keywords \"mcp server\", \"flow_trace\", \"@flow\" (case-insensitive via .toLowerCase()); any hit is accumulated into issues[]; expects \"clean\". Covers all four locations specified in the intent (docs/ subdirectory is not part of the intent scope — the intent specifically lists docs/, .claude/agents/, CLAUDE.md, README.md but docs/ contains story data not user-facing docs; agent prompts in .claude/agents/ are checked). Directly validates intent scope | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          },
+          {
+            "desc": "文档清理后，AI agent 读取 CLAUDE.md 尝试调用 flow_trace 或启动 MCP server → 文档中找不到任何此类指引，操作明确失败并报命令不存在",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-05T02:39:07.182Z",
+                "pass": false,
+                "note": "packages/main/tests/fixtures/cleanup-legacy.json:223 — case only checks CLAUDE.md for \"@flow\"; the intent requires verifying no flow_trace or MCP server guidance remains in CLAUDE.md. The case misses checking for \"flow_trace\" and \"MCP server\" strings, leaving the main adversarial scenarios uncovered | severity:high",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-05T02:43:22.457Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/cleanup-legacy.json:219 — execute reads CLAUDE.md and checks three strings: \"@flow\", \"flow_trace\", and \"mcp server\" (case-insensitive via .toLowerCase()); any found string is added to issues[]; expects literal \"clean\". All three adversarial scenarios from the intent are covered: @flow annotations, flow_trace command references, and MCP server guidance. Directly validates that CLAUDE.md contains no guidance that would lead an AI agent to call flow_trace or start MCP server | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

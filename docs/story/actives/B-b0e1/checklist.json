@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "状态机新增 DEV→PLAN 回退转换",
+      "context": "machine.ts 加 REPLAN 事件，DEV 可回到 PLAN",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "story_advance(DEV) 门禁：所有 item 必须有 testIntent",
+      "context": "检查 checklist 每项的 testIntent.happy/edge/adversarial 都非空",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "story_advance(DEV) 门禁：review.json 必须有 issueCount=0 的记录",
+      "context": "读 store.readReview，检查 reviews 数组中存在 issueCount===0 的条目",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "story_advance CLI 支持回退到 PLAN",
+      "context": "cli.ts schema 的 phase 枚举已包含 PLAN，但 PHASE_TO_EVENT 需要加 PLAN→REPLAN 映射",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

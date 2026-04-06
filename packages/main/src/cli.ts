@@ -10,11 +10,12 @@
  */
 
 import { z, ZodType, ZodOptional, ZodEnum, ZodArray, ZodUnion, ZodString, ZodBoolean, ZodNumber, ZodObject } from 'zod';
-import { appendFileSync, mkdirSync } from 'fs';
+import { appendFileSync, mkdirSync, existsSync } from 'fs';
 import { join } from 'path';
 import { StoryStore } from './story/store.js';
 import { createToolHandlers } from './mcp/tools.js';
 import { execSync } from 'child_process';
+import { loadConfig, isCommandAllowed, getAllowedPatterns } from './config.js';
 
 // ── Tool Registry ──
 
@@ -31,12 +32,13 @@ const TOOLS: ToolDef[] = [
     description: z.string().describe('描述'), type: z.enum(['feature','bug','refactor','chore']).describe('类型'),
     priority: z.string().describe('优先级'), source: z.string().optional().describe('来源'),
     depends: z.array(z.string()).optional().describe('依赖 Story ID'),
-    checklist: z.array(z.object({ title: z.string(), context: z.string().optional() })).optional().describe('开发清单'),
+    keywords: z.array(z.string()).optional().describe('关键词（领域/模块/概念，用于查重）'),
+    checklist: z.array(z.object({ title: z.string(), context: z.string().optional(), relatedDocs: z.array(z.string()).optional().describe('关联文档路径（用于三次提醒）'), testIntent: z.object({ happy: z.array(z.union([z.string(), z.object({ desc: z.string(), type: z.enum(['cli_blackbox','browser_blackbox']) })])), edge: z.array(z.union([z.string(), z.object({ desc: z.string(), type: z.enum(['cli_blackbox','browser_blackbox']) })])).optional(), adversarial: z.array(z.union([z.string(), z.object({ desc: z.string(), type: z.enum(['cli_blackbox','browser_blackbox']) })])).optional() }).optional() })).optional().describe('开发清单'),
     prefix: z.string().optional().describe('ID 前缀(默认 B)'),
-    phase: z.enum(['IDEA','PLAN','DEV','TEST','DONE']).optional().describe('直接指定阶段'),
+    phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','TEST_CASE','TEST_CASE_REVIEW','TEST','DONE']).optional().describe('直接指定阶段'),
   }},
   { name: 'story_advance', description: '推进 Story 到下一阶段', schema: {
-    storyId: z.string().describe('Story ID'), phase: z.enum(['IDEA','PLAN','DEV','TEST','DONE']).describe('目标阶段'),
+    storyId: z.string().describe('Story ID'), phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','TEST_CASE','TEST_CASE_REVIEW','TEST','DONE']).describe('目标阶段'),
     checklist: z.array(z.object({ id: z.string(), title: z.string() })).optional().describe('开发清单'),
   }},
   { name: 'story_update', description: '编辑 Story 信息', schema: {
@@ -44,28 +46,56 @@ const TOOLS: ToolDef[] = [
     description: z.string().optional().describe('新描述'), priority: z.string().optional().describe('新优先级'),
   }},
   { name: 'story_get', description: '读取 Story 详情', schema: { storyId: z.string().describe('Story ID') }},
-  { name: 'story_list', description: '列出全部 Story', schema: { phase: z.enum(['IDEA','PLAN','DEV','TEST','DONE']).optional().describe('按阶段过滤') }},
-  { name: 'story_quick', description: '一键创建+DEV+worktree', schema: {
-    name: z.string().describe('短名称'), title: z.string().describe('标题'),
-    description: z.string().describe('描述'), type: z.enum(['feature','bug','refactor','chore']).describe('类型'),
-    priority: z.string().describe('优先级'),
-    checklist: z.array(z.object({ title: z.string(), context: z.string().optional() })).describe('开发清单'),
-    prefix: z.string().optional().describe('ID 前缀'),
-    noWorktree: z.boolean().optional().describe('跳过 worktree（默认开）'),
+  { name: 'story_list', description: '列出全部 Story', schema: { phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','TEST_CASE','TEST_CASE_REVIEW','TEST','DONE']).optional().describe('按阶段过滤') }},
+
+  // Review
+  { name: 'story_review', description: '对抗审查 testIntent 完整性', schema: {
+    storyId: z.string().describe('Story ID'),
+  }},
+
+  { name: 'doc_list', description: '列出项目文档（PLAN 阶段挑选 relatedDocs 用）', schema: {
+    format: z.enum(['text','json']).optional().describe('输出格式（默认 text）'),
   }},
 
   // Checklist
   { name: 'checklist_get', description: '读取 checklist', schema: { storyId: z.string().describe('Story ID') }},
-  { name: 'checklist_update', description: '更新 checklist 项状态', schema: {
+  { name: 'checklist_add', description: '向已有 story 追加 checklist item', schema: {
+    storyId: z.string().describe('Story ID'), title: z.string().describe('做什么（一句话）'),
+    context: z.string().optional().describe('根因/参考方案'),
+    relatedDocs: z.array(z.string()).optional().describe('关联文档路径（用于三次提醒）'),
+  }},
+  { name: 'checklist_update', description: '更新 checklist 项 (status/title/context/testIntent/relatedDocs)', schema: {
     storyId: z.string().describe('Story ID'), itemId: z.string().describe('项 ID'),
-    status: z.enum(['pending','in_progress','done']).describe('新状态'),
+    status: z.enum(['pending','in_progress','done']).optional().describe('新状态'),
+    title: z.string().optional().describe('新标题'),
+    context: z.string().optional().describe('新 context'),
+    relatedDocs: z.array(z.string()).optional().describe('关联文档路径（用于三次提醒）'),
+    testIntent: z.union([z.object({ happy: z.array(z.union([z.string(), z.object({ desc: z.string(), type: z.enum(['cli_blackbox','browser_blackbox']) })])).optional(), edge: z.array(z.union([z.string(), z.object({ desc: z.string(), type: z.enum(['cli_blackbox','browser_blackbox']) })])).optional(), adversarial: z.array(z.union([z.string(), z.object({ desc: z.string(), type: z.enum(['cli_blackbox','browser_blackbox']) })])).optional() }), z.null()]).optional().describe('测试意图三栏（happy 必填，edge/adversarial 选填；null=不可自动化测试）'),
     reason: z.string().optional().describe('变更原因'), agent: z.string().optional().describe('操作者'),
+  }},
+
+  // TestIntent Results
+  { name: 'testintent_record', description: '追加 testIntent 审核结果', schema: {
+    storyId: z.string().describe('Story ID'), itemId: z.string().describe('Checklist 项 ID'),
+    lane: z.enum(['happy','edge','adversarial']).describe('栏位'),
+    index: z.number().describe('条目索引（从 0 开始）'),
+    pass: z.boolean().optional().describe('是否通过（不传=纯回复）'),
+    note: z.string().describe('说明（格式：file:line + WHY + severity）'),
+    agent: z.string().optional().describe('调用者标识（自动推断 role）'),
+  }},
+
+  { name: 'testintent_check', description: '检查 testIntent 审核通过状态', schema: {
+    storyId: z.string().describe('Story ID'),
+  }},
+  { name: 'testintent_migrate', description: '批量迁移存量 testIntent 从字符串到 {desc,type}', schema: {
+    dryRun: z.boolean().optional().describe('预览模式，不实际修改'),
   }},
 
   // Bug
   { name: 'bug_report', description: '报告 bug', schema: {
     storyId: z.string().describe('Story ID'), id: z.string().describe('Bug ID'),
     title: z.string().describe('描述'), checklistId: z.string().optional().describe('关联 checklist ID'),
+    fixtureId: z.string().optional().describe('关联 fixture case uuid'),
   }},
   { name: 'bug_update', description: '更新 bug 状态', schema: {
     storyId: z.string().describe('Story ID'), id: z.string().describe('Bug ID'),
@@ -81,10 +111,22 @@ const TOOLS: ToolDef[] = [
     result: z.enum(['PASS','FAIL']).describe('结果'),
   }},
   { name: 'test_list', description: '查看测试证据', schema: { storyId: z.string().describe('Story ID') }},
-  { name: 'test_auto', description: '自动执行 fixture + e2e 测试', schema: {
-    storyId: z.string().optional().describe('Story ID(可选)'),
-    base: z.string().optional().describe('git diff 基准'),
-    full: z.boolean().optional().describe('全量模式'),
+  { name: 'test_auto', description: '全量回归：执行所有 fixture case（CLI + Browser，含 V8 profiler）', schema: {
+    storyId: z.string().optional().describe('已废弃，请用 test_story'),
+    enableProfiler: z.boolean().optional().describe('启用 V8 profiler（默认 true）'),
+  }},
+  { name: 'test_story', description: 'story 级测试：只跑关联 case，写 bug/evidence', schema: {
+    storyId: z.string().describe('Story ID'),
+  }},
+  { name: 'test_fixture', description: '单 case/单链测试：按 fixtureId(uuid) 定位', schema: {
+    fixtureId: z.string().describe('case 的 _id (uuid)'),
+  }},
+  { name: 'diagnose', description: '自动诊断 case 失败根因（trace diff + git diff）', schema: {
+    caseName: z.string().describe('case 名'),
+    fixturePath: z.string().optional().describe('fixture 路径（可选）'),
+  }},
+  { name: 'arch_trace', description: '基于 trace 数据提取架构（逻辑线 + 影响图 + 盲区）', schema: {
+    format: z.enum(['json', 'mermaid']).optional().describe('输出格式（默认 json）'),
   }},
 
   // Task
@@ -92,20 +134,6 @@ const TOOLS: ToolDef[] = [
     format: z.enum(['json','markdown']).optional().describe('输出格式'),
     type: z.string().optional().describe('按类型筛选'), priority: z.string().optional().describe('按优先级筛选'),
     id: z.string().optional().describe('按 task ID 筛选'),
-  }},
-  { name: 'task_coverage', description: 'checklist 覆盖率检查', schema: {
-    storyId: z.union([z.string(), z.array(z.string())]).describe('Story ID(单个或数组)'),
-  }},
-  { name: 'task_locate', description: '按 ID/关键词定位代码', schema: { query: z.string().describe('关键词') }},
-  { name: 'task_annotate', description: '给函数添加/更新元数据', schema: {
-    sourceFile: z.string().describe('源文件路径(相对 scanRoot)'), functionName: z.string().describe('函数名'),
-    projectRoot: z.string().optional().describe('项目根目录'),
-    lineHint: z.number().optional().describe('行号(消歧用)'),
-    action: z.enum(['add','update']).optional().describe('操作类型'),
-    task: z.string().describe('Story ID'), checklist: z.string().describe('Checklist ID'),
-    title: z.string().describe('标题'), type: z.string().describe('类型'), priority: z.string().describe('优先级'),
-    description: z.string().describe('描述'), changes: z.array(z.string()).describe('变更列表'),
-    test: z.string().optional().describe('fixture 路径'), flow: z.string().optional().describe('flow 名称'),
   }},
   { name: 'task_detail', description: '按文件查详情（签名、属性、import）', schema: {
     files: z.array(z.string()).describe('文件名数组（相对 scanRoot）'),
@@ -123,29 +151,33 @@ const TOOLS: ToolDef[] = [
     direction: z.enum(['extract','clean','generate','validate','status']).describe('操作方向'),
   }},
 
-  // Flow
-  { name: 'flow_trace', description: '查看业务流转链路', schema: { name: z.string().describe('Flow 名称') }},
-  { name: 'flow_list', description: '列出所有流转链路', schema: {}},
-
   // Fixture
   { name: 'fixture_get', description: '读取 fixture cases', schema: { fixturePath: z.string().describe('路径(不含.json)') }},
   { name: 'fixture_update', description: '增删改 fixture case', schema: {
     fixturePath: z.string().describe('路径'), action: z.enum(['add','update','delete']).describe('操作'),
     case: z.object({
-      name: z.string().describe('case 名'), input: z.any().optional().describe('输入'),
+      name: z.string().describe('case 名'),
+      run_type: z.enum(['cli', 'browser']).optional().describe('运行类型'),
+      file: z.string().optional().describe('源文件路径'),
+      execute: z.string().optional().describe('函数体'),
       expect: z.any().optional().describe('期望'), throws: z.string().optional().describe('期望错误'),
-      fn: z.string().optional().describe('目标函数'),
+      intentRef: z.string().optional().describe('关联 testIntent（如 CHK-001:happy:0）'),
+      sandbox: z.boolean().optional().describe('沙箱模式（false=允许 fs 访问）'),
     }).describe('case 数据'),
   }},
   { name: 'fixture_batch_add', description: '批量添加多个 case（1次替代N次）', schema: {
     fixturePath: z.string().describe('路径(不含.json)'),
     cases: z.array(z.object({
-      name: z.string(), fn: z.string().optional(), input: z.any().optional(),
+      name: z.string(), run_type: z.enum(['cli', 'browser']).optional(),
+      file: z.string().optional(), execute: z.string().optional(),
       expect: z.any().optional(), throws: z.string().optional(),
+      intentRef: z.string().optional().describe('关联 testIntent（如 CHK-001:happy:0）'),
+      sandbox: z.boolean().optional(),
     })).describe('case 数组'),
   }},
-  { name: 'fixture_gen', description: '自动生成基础 fixture', schema: {
-    fixturePath: z.string().describe('路径'), functionName: z.string().optional().describe('函数名'),
+
+  { name: 'fixture_migrate', description: '迁移旧 fixture：补写 _id 和 prevCaseId/nextCaseId', schema: {
+    dryRun: z.boolean().optional().describe('仅预览不写入（默认 false）'),
   }},
 
   // Browser
@@ -164,11 +196,43 @@ const TOOLS: ToolDef[] = [
   { name: 'gap_analyze', description: '真相源 vs 代码差距报告', schema: {}},
   { name: 'convergence_check', description: '项目收敛检查', schema: {}},
 
+  // Runtime
+  { name: 'runtime_gen', description: '扫描 task.json 自动生成 test-runtime.js 骨架', schema: {}},
+
   // Worktree
   { name: 'dev_start', description: '创建 worktree 开发环境', schema: { storyId: z.string().describe('Story ID') }},
   { name: 'dev_finish', description: '开发完成，推进到 TEST', schema: { storyId: z.string().describe('Story ID') }},
   { name: 'dev_merge', description: '合并回主分支，推进到 DONE', schema: { storyId: z.string().describe('Story ID') }},
 ];
+
+// ── Phase detection ──
+
+interface ActiveStory { storyId: string; phase: string; }
+
+/**
+ * 从 git 分支名检测 active story。
+ * 分支格式: story/B-xxxx → storyId = B-xxxx
+ * 返回 null 表示非 story 分支（全量可用）。
+ */
+function detectActiveStory(root: string): ActiveStory | null {
+  try {
+    const branch = execSync('git rev-parse --abbrev-ref HEAD', { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+    if (!branch.startsWith('story/')) return null;
+    const storyId = branch.slice('story/'.length);
+    if (!storyId) return null;
+    const store = new StoryStore(root);
+    try {
+      const story = store.readStory(storyId);
+      return { storyId, phase: story.phase };
+    } catch {
+      // story 文件不存在，不过滤
+      return null;
+    }
+  } catch {
+    // 非 git 目录或其他错误，不过滤
+    return null;
+  }
+}
 
 // ── Help ──
 
@@ -201,55 +265,161 @@ function printToolHelp(tool: ToolDef) {
   for (const [name, type] of entries) {
     const opt = type instanceof ZodOptional;
     const req = opt ? '' : ' *';
-    console.log(`    ${name.padEnd(maxN + 2)} ${describeType(type).padEnd(16)} ${getDesc(type)}${req}`);
+    const inner = type instanceof ZodOptional ? (type as any)._def.innerType : type;
+    const isComplex = inner instanceof ZodArray || inner instanceof ZodObject;
+    const flagHint = isComplex ? '(JSON)' : '';
+    console.log(`    --${name.padEnd(maxN + 2)} ${describeType(type).padEnd(16)} ${getDesc(type)}${req} ${flagHint}`);
   }
   const required = entries.filter(([, t]) => !(t instanceof ZodOptional));
-  const example = Object.fromEntries(required.map(([k]) => [k, '...']));
-  console.log(`\n  用法: koala ${tool.name} '${JSON.stringify(example)}'`);
+  const optional = entries.filter(([, t]) => t instanceof ZodOptional);
+  const reqParts = required.map(([k]) => `--${k}=值`);
+  const optParts = optional.map(([k]) => {
+    const inner = (entries.find(([n]) => n === k)?.[1] as any);
+    const base = inner instanceof ZodOptional ? (inner as any)._def.innerType : inner;
+    return base instanceof ZodBoolean ? `[--${k}]` : `[--${k}=值]`;
+  });
+  console.log(`\n  用法: koala ${tool.name} ${[...reqParts, ...optParts].join(' ')}`);
   console.log('  (* = 必填)\n');
 }
 
-function printHelp() {
+function printHelp(activeStory?: ActiveStory | null) {
   console.log('\n  koala — AI-driven project management CLI\n');
-  console.log('  用法: koala <command> \'{"key":"value"}\'   执行命令');
+  console.log('  用法: koala <command> --key=value         执行命令');
   console.log('        koala <command> --help              查看参数');
   console.log('        koala help                          显示此帮助');
   console.log('        koala --root <path> ...             指定项目根目录\n');
 
+  if (activeStory) {
+    console.log(`  当前 Story: ${activeStory.storyId}  阶段: ${activeStory.phase}\n`);
+  }
+
+  const config = loadConfig();
+  const phaseTools = config.phaseTools;
+
   const groups: Record<string, ToolDef[]> = {};
   for (const t of TOOLS) {
+    // 有 active story 时只列出当前阶段可用命令
+    if (activeStory && !isCommandAllowed(t.name, activeStory.phase, phaseTools)) continue;
     const p = t.name.split('_')[0];
-    const g = p === 'story' ? 'Story' : p === 'checklist' ? 'Checklist' : p === 'bug' ? 'Bug'
-      : p === 'test' ? 'Test' : p === 'task' ? 'Task' : p === 'flow' ? 'Flow'
-      : p === 'fixture' ? 'Fixture' : p === 'browser' ? 'Browser' : p === 'truth' ? 'Truth'
+    const g = p === 'story' ? (t.name === 'story_review' ? 'Review' : 'Story') : p === 'checklist' ? 'Checklist' : p === 'bug' ? 'Bug'
+      : p === 'test' ? 'Test' : p === 'task' ? 'Task'
+      : p === 'testintent' ? 'Checklist' : p === 'fixture' ? 'Fixture' : p === 'browser' ? 'Browser' : p === 'truth' ? 'Truth'
       : p === 'gap' || p === 'convergence' ? 'Gap' : p === 'dev' ? 'Worktree' : 'Other';
     (groups[g] = groups[g] || []).push(t);
   }
-  const maxN = Math.max(...TOOLS.map(t => t.name.length));
-  for (const g of ['Story','Checklist','Bug','Test','Task','Flow','Fixture','Browser','Truth','Gap','Worktree']) {
+  const filteredTools = activeStory ? TOOLS.filter(t => isCommandAllowed(t.name, activeStory.phase, phaseTools)) : TOOLS;
+  const maxN = Math.max(...filteredTools.map(t => t.name.length), 0);
+  for (const g of ['Story','Review','Checklist','Bug','Test','Task','Fixture','Browser','Truth','Gap','Worktree']) {
     if (!groups[g]) continue;
     console.log(`  ${g}:`);
     for (const t of groups[g]) console.log(`    ${t.name.padEnd(maxN + 2)} ${t.description}`);
   }
   console.log(`
   开发流程:
-    1. koala story_quick '{"name":"x","title":"..","description":"..","type":"feature","priority":"high","checklist":[{"title":"做什么"}]}'
-    2. koala task_scan          # 先了解项目（函数、文件、描述）
-    3. koala task_detail '{"files":["要改的文件.ts"]}'   # 查签名、属性、import
+    ── PLAN 阶段（需求分析）──
+    1. koala story_create '{"name":"x","title":"..","description":"..","type":"feature","priority":"high","checklist":[{"title":"做什么","context":"根因/参考方案"}]}'
+    2. koala story_review --storyId=B-xxx                     # 对抗审查 testIntent
+    3. koala dev_start '{"storyId":"B-xxx"}'                  # 进 DEV 并创建独立 worktree
+
+    ── DEV 阶段（开发）──
     4. 写代码
-    5. koala task_annotate_batch '{"items":[...]}'       # 批量注解元数据
-    6. koala fixture_batch_add '{"fixturePath":"x","cases":[...]}'  # 批量添加测试
-    7. koala checklist_update '{"storyId":"B-xxx","itemId":"CHK-001","status":"done"}'
-    8. koala story_advance '{"storyId":"B-xxx","phase":"TEST"}'
-    9. koala test_auto '{"storyId":"B-xxx"}'
-   10. koala story_advance '{"storyId":"B-xxx","phase":"DONE"}'
-   11. koala truth_extract                                    # 从代码+Story 反向提取真相源
+    5. koala fixture_batch_add '{"fixturePath":"x","cases":[...]}' # 按 testIntent 写测试
+    6. koala checklist_update --storyId=B-xxx --itemId=CHK-001 --status=done
+
+    ── TEST 阶段（测试）──
+   10. koala story_advance --storyId=B-xxx --phase=TEST
+   11. koala test_auto --storyId=B-xxx
+   12. koala story_advance --storyId=B-xxx --phase=DONE
+   13. koala truth_extract                                    # 从代码+Story 反向提取真相源
 
   初始化新项目:
-    koala init                          # 在当前目录初始化 koala（生成 config/CLAUDE.md/hooks 等）
+    koala init                          # 在当前目录初始化 koala
 
+  提示: 简单参数用 --key=value，复杂参数(array/object)用 JSON 格式
   出错? 用 koala <command> --help 查看完整参数说明
 `);
+}
+
+// ── Flag parser ──
+
+/** 测试入口：接受 JSON 描述的 schema（"string"|"number"|"boolean"|"array"|"object"），内部转 Zod */
+export function parseFlagsTest(rawArgs: string[], schemaDesc: Record<string, string>): Record<string, unknown> {
+  const schema: Record<string, ZodType> = {};
+  for (const [k, v] of Object.entries(schemaDesc)) {
+    if (v === 'number') schema[k] = z.number();
+    else if (v === 'boolean') schema[k] = z.boolean().optional();
+    else if (v === 'array') schema[k] = z.array(z.string());
+    else if (v === 'object') schema[k] = z.object({}).passthrough();
+    else schema[k] = z.string();
+  }
+  return parseFlags(rawArgs, schema);
+}
+
+export function parseFlags(rawArgs: string[], schema: Record<string, ZodType>): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+  const arrayKeys = new Set(
+    Object.entries(schema).filter(([, t]) => {
+      const inner = t instanceof ZodOptional ? (t as any)._def.innerType : t;
+      return inner instanceof ZodArray;
+    }).map(([k]) => k),
+  );
+
+  let i = 0;
+  while (i < rawArgs.length) {
+    const arg = rawArgs[i];
+
+    if (arg.startsWith('--')) {
+      // --key=value or --key value or --flag (boolean)
+      const eqIdx = arg.indexOf('=');
+      if (eqIdx > 0) {
+        const key = arg.slice(2, eqIdx);
+        const val = arg.slice(eqIdx + 1);
+        addValue(result, key, coerce(val, schema[key]), arrayKeys.has(key));
+      } else {
+        const key = arg.slice(2);
+        // 下一个参数不是 flag → 当作 value
+        if (i + 1 < rawArgs.length && !rawArgs[i + 1].startsWith('--')) {
+          addValue(result, key, coerce(rawArgs[i + 1], schema[key]), arrayKeys.has(key));
+          i++;
+        } else {
+          // bare --flag → true
+          result[key] = true;
+        }
+      }
+    } else if (arg.includes('=') && !arg.startsWith('{')) {
+      // key=value (无 -- 前缀，兼容旧格式)
+      const eqIdx = arg.indexOf('=');
+      const key = arg.slice(0, eqIdx);
+      const val = arg.slice(eqIdx + 1);
+      addValue(result, key, coerce(val, schema[key]), arrayKeys.has(key));
+    }
+    // 忽略无法识别的 positional 参数
+    i++;
+  }
+  return result;
+}
+
+export function coerce(val: string, schemaDef?: ZodType): unknown {
+  // JSON object/array
+  if ((val.startsWith('{') || val.startsWith('[')) && val.length > 1) {
+    try { return JSON.parse(val); } catch { /* fall through */ }
+  }
+  // boolean
+  if (val === 'true') return true;
+  if (val === 'false') return false;
+  // number (only if schema expects it)
+  const inner = schemaDef instanceof ZodOptional ? (schemaDef as any)._def.innerType : schemaDef;
+  if (inner instanceof ZodNumber && /^-?\d+(\.\d+)?$/.test(val)) return Number(val);
+  return val;
+}
+
+export function addValue(obj: Record<string, unknown>, key: string, val: unknown, isArray: boolean) {
+  if (isArray) {
+    if (!Array.isArray(obj[key])) obj[key] = obj[key] !== undefined ? [obj[key]] : [];
+    (obj[key] as unknown[]).push(val);
+  } else {
+    obj[key] = val;
+  }
 }
 
 // ── Resolve root ──
@@ -257,6 +427,15 @@ function printHelp() {
 function resolveRoot(explicit?: string): string {
   if (explicit) return explicit;
   if (process.env.KOALA_PROJECT_ROOT) return process.env.KOALA_PROJECT_ROOT;
+  // 向上查找 koala.config.json 确定项目根
+  let dir = process.cwd();
+  for (let i = 0; i < 10; i++) {
+    if (existsSync(join(dir, 'koala.config.json'))) return dir;
+    const parent = join(dir, '..');
+    if (parent === dir) break;
+    dir = parent;
+  }
+  // fallback: git worktree root
   try {
     const cd = execSync('git rev-parse --git-common-dir', { encoding: 'utf-8' }).trim();
     if (cd !== '.git' && !cd.endsWith('/.git') && !cd.endsWith('\\.git')) {
@@ -279,7 +458,11 @@ async function main() {
   const cmd = argv[0];
   const arg = argv[1];
 
-  if (!cmd || cmd === 'help' || cmd === '--help') { printHelp(); return; }
+  // Detect active story from git branch
+  const root0 = resolveRoot(rootOverride);
+  const activeStory = detectActiveStory(root0);
+
+  if (!cmd || cmd === 'help' || cmd === '--help') { printHelp(activeStory); return; }
 
   // init 走独立脚本
   if (cmd === 'init') {
@@ -299,14 +482,38 @@ async function main() {
 
   if (arg === '--help' || arg === '-h') { printToolHelp(tool); return; }
 
-  // Parse JSON
-  let parsed: Record<string, unknown> = {};
-  if (arg) {
-    try { parsed = JSON.parse(arg); }
-    catch (e) {
-      console.error(`JSON 解析失败: ${(e as Error).message}\n输入: ${arg}`);
-      printToolHelp(tool);
+  // Phase gate: 有 active story 时，拒绝不在白名单中的命令
+  if (activeStory) {
+    const config = loadConfig(root0);
+    if (!isCommandAllowed(cmd, activeStory.phase, config.phaseTools)) {
+      const allowed = getAllowedPatterns(activeStory.phase, config.phaseTools);
+      console.error(`❌ 命令 "${cmd}" 在 ${activeStory.phase} 阶段不可用`);
+      console.error(`   Story: ${activeStory.storyId}  Phase: ${activeStory.phase}`);
+      console.error(`   当前阶段可用命令: ${allowed.join(', ')}`);
       process.exit(1);
+    }
+  }
+
+  // Parse arguments — 支持三种格式：
+  //   1. --key=value --flag (标准 flag)
+  //   2. key=value          (简写 flag)
+  //   3. '{"key":"value"}'  (JSON body, 兼容旧用法)
+  let parsed: Record<string, unknown> = {};
+  {
+    const rawArgs = argv.slice(1);
+    if (rawArgs.length === 0) {
+      // 无参数，空对象
+    } else if (rawArgs.length === 1 && rawArgs[0].startsWith('{')) {
+      // JSON body 格式（兼容旧用法）
+      try { parsed = JSON.parse(rawArgs[0]); }
+      catch (e) {
+        console.error(`JSON 解析失败: ${(e as Error).message}\n输入: ${rawArgs[0]}`);
+        printToolHelp(tool);
+        process.exit(1);
+      }
+    } else {
+      // flag 格式解析
+      parsed = parseFlags(rawArgs, tool.schema);
     }
   }
 
@@ -419,40 +626,29 @@ async function main() {
     return;
   }
 
-  // story_quick: create + advance DEV + dev_start（默认开 worktree）
-  if (cmd === 'story_quick') {
+  // story_create: 停在 INIT 时追加下一步提示
+  if (cmd === 'story_create') {
     await run(() => {
-      const result = handlers.story_quick(v.data);
-      const storyIdMatch = result.match(/__storyId__=([\w-]+)/);
-      if (!storyIdMatch) return result;
-      const storyId = storyIdMatch[1];
-      const noWorktree = (v.data as any).noWorktree;
+      const result = handlers.story_create(v.data);
+      if (!result.includes('(INIT)')) return result;
+      const storyId = result.match(/Story\s+([\w-]+)/)?.[1];
+      if (!storyId) return result;
+      return `${result}\n→ Story 停在 INIT 阶段。下一步:\n  1. story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' 创建 worktree\n  2. cd 到提示的 worktree 路径\n  3. story_advance '{"storyId":"${storyId}","phase":"PLAN"}' 进入 PLAN（cwd 必须是 worktree）`;
+    });
+    return;
+  }
 
-      // advance to DEV
-      let advResult: string;
-      try { advResult = handlers.story_advance({ storyId, phase: 'DEV' }); }
-      catch (e: any) { return `${result}\n推进 DEV 失败: ${e.message}`; }
-
-      // dev_start（开 worktree）——已在 worktree 里时跳过，防止嵌套
-      let alreadyInWorktree = false;
+  // story_advance phase=INIT_CHECK：成功后自动调 dev_start 创建 worktree
+  if (cmd === 'story_advance' && (v.data as any)?.phase === 'INIT_CHECK') {
+    await run(() => {
+      const advanceResult = handlers.story_advance(v.data);
+      const storyId = (v.data as any).storyId;
       try {
-        const branch = execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf-8' }).trim();
-        alreadyInWorktree = branch.startsWith('story/') || branch.startsWith('worktree-');
-      } catch {}
-
-      if (alreadyInWorktree) {
-        return `${result.replace(/__storyId__=.*/, '')}\n${advResult}\n→ 已在 worktree 中，跳过 dev_start（直接在当前目录开发）`;
+        const wtResult = handlers.dev_start({ storyId });
+        return `${advanceResult}\n\n${wtResult}\n\n→ 现在请 cd 到上述 worktree 路径，然后调 story_advance phase=PLAN 进入 PLAN`;
+      } catch (e: any) {
+        return `${advanceResult}\n⚠ worktree 创建失败: ${e.message}\n→ 可手动 dev_start '{"storyId":"${storyId}"}' 重试`;
       }
-
-      if (!noWorktree) {
-        try {
-          const wtResult = handlers.dev_start({ storyId });
-          return `${result.replace(/__storyId__=.*/, '')}\n${advResult}\n${wtResult}`;
-        } catch (e: any) {
-          return `${result.replace(/__storyId__=.*/, '')}\n${advResult}\nworktree 创建失败: ${e.message}（可用 noWorktree:true 跳过）`;
-        }
-      }
-      return `${result.replace(/__storyId__=.*/, '')}\n${advResult}\n→ 已进入 DEV（无 worktree）`;
     });
     return;
   }
@@ -463,4 +659,9 @@ async function main() {
   await run(() => Object.keys(tool.schema).length === 0 ? handler() : handler(v.data));
 }
 
-main().catch(e => { console.error(e); process.exit(1); });
+// 仅在直接执行时运行（被 import 时跳过）
+// test_auto 的 importAndExecute 带 ?t= cache buster，import.meta.url 含查询参数 → 非直接执行
+const _isDirectRun = !import.meta.url.includes('?');
+if (_isDirectRun) {
+  main().catch(e => { console.error(e); process.exit(1); });
+}

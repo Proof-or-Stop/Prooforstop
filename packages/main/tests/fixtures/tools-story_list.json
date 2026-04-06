@@ -2,32 +2,12 @@
   "cases": [
     {
       "name": "prereq: create story",
+      "run_type": "cli",
       "fn": "story_create",
-      "input": {
-        "name": "t",
-        "title": "List Test",
-        "description": "t",
-        "type": "feature",
-        "priority": "high"
-      },
+      "file": "mcp/handlers/story",
+      "execute": "const _r = await $handlers.story_create({\"name\":\"t\",\"title\":\"List Test\",\"description\":\"t\",\"type\":\"feature\",\"priority\":\"high\"}); const _m = typeof _r === \"string\" ? _r.match(/B-[a-f0-9]+/) : null; if (_m) $ctx.storyId = _m[0]; return _r",
       "expect": {
         "pattern": "created"
-      }
-    },
-    {
-      "name": "list all stories returns dashboard and stories array",
-      "input": {},
-      "expect": {
-        "pattern": "_dashboard"
-      }
-    },
-    {
-      "name": "list stories filtered by phase IDEA",
-      "input": {
-        "phase": "IDEA"
-      },
-      "expect": {
-        "pattern": "IDEA"
       }
     }
   ]

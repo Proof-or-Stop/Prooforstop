@@ -1,0 +1,22 @@
+{
+  "storyId": "B-9599",
+  "name": "agent-decision-track",
+  "title": "agent 决策追踪：记录采纳来源 + 离散置信度",
+  "description": "多 agent 协作时，记录主 agent 最终采纳了哪个 agent 的意见，用于长期统计和 prompt 优化。\n\n## 决策记录结构\n{ time, from: reverse|forward|both|neither, note: 原因 }\n- reverse：采纳反向 agent（从 testIntent/fixture 定位）\n- forward：采纳正向 agent（从现象读代码定位）\n- both：两者指向同一位置，合并采纳\n- neither：两个 agent 都没定位准，主 agent 自己找到的\n\n## 适用场景\n- L2 bug 定位：正向/反向 agent 返回结果后必须记录\n- TEST_CASE_REVIEW：reviewer agent 反馈后主 agent 的处理方式\n- testIntent 编写：test-intent agent 写的内容主 agent 有无修改\n\n## 门控\nL2 bug item 标 done 时必须有决策记录，无记录拒绝标 done（B-2caf 依赖此功能）\n\n## 长期统计价值\n- 各 agent 采纳率：reverse 采纳率高说明 fixture 覆盖质量好\n- neither 比例高说明两个 agent prompt 都需要优化\n- 按 story/阶段/时间段聚合分析趋势",
+  "type": "feature",
+  "phase": "DISCARDED",
+  "priority": "medium",
+  "createdAt": "2026-04-04T03:03:39.591Z",
+  "startedAt": "2026-04-04T03:03:39.591Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "PLAN",
+      "action": "create",
+      "timestamp": "2026-04-04T03:03:39.591Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    }
+  ]
+}

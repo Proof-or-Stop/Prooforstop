@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-04-02T10:36:35.640Z",
+  "updatedAt": "2026-04-04T11:15:32.824Z",
   "tasks": [
     {
       "key": "src\\cli-init.ts",
@@ -36,36 +36,8 @@
       "sourceFile": "src\\cli-init.ts",
       "sourceLine": 54,
       "functionName": "write",
-      "functionSignature": "function write(relPath: string, content: string)"
-    },
-    {
-      "key": "src\\cli-init.ts",
-      "task": "S-001",
-      "checklist": [
-        "CHK-001（对应 checklist 项 ID，必填）"
-      ],
-      "title": "任务标题（一句话概括）",
-      "type": "feature|bugfix|refactor|chore",
-      "priority": "critical|high|medium|low",
-      "version": "版本/里程碑（可选）",
-      "scope": "file|module|function|block（可选）",
-      "depends": [
-        "S-000",
-        "S-002（可选，逗号分隔）"
-      ],
-      "author": "claude（可选）",
-      "date": "YYYY-MM-DD（可选）",
-      "description": "多行描述。",
-      "changes": [
-        "- [CHK-001] 具体变更项"
-      ],
-      "affected": [
-        "（可选）",
-        "- 影响的文件路径",
-        "/"
-      ],
-      "sourceFile": "src\\cli-init.ts",
-      "sourceLine": 152
+      "functionSignature": "function write(relPath: string, content: string)",
+      "test": "skip"
     },
     {
       "key": "src\\cli.ts",
@@ -210,7 +182,8 @@
       "sourceFile": "src\\mcp\\handlers\\bug.ts",
       "sourceLine": 99,
       "functionName": "bug_analyze",
-      "functionSignature": "bug_analyze(...)"
+      "functionSignature": "bug_analyze(...)",
+      "test": "skip"
     },
     {
       "key": "src\\mcp\\handlers\\checklist.ts",
@@ -247,30 +220,6 @@
       "functionName": "checklist_get",
       "functionSignature": "checklist_get(...)",
       "test": "tools-checklist_get"
-    },
-    {
-      "key": "src\\mcp\\handlers\\checklist.ts",
-      "task": "B-007",
-      "checklist": [
-        "CHK-004"
-      ],
-      "title": "checklist_update handler",
-      "type": "refactor",
-      "priority": "low",
-      "description": "更新 checklist 项状态，自动记录时间戳。",
-      "changes": [
-        "- [CHK-004] 无逻辑变更"
-      ],
-      "sourceFile": "src\\mcp\\handlers\\checklist.ts",
-      "sourceLine": 34,
-      "test": "checklist-update",
-      "flow": {
-        "name": "story-lifecycle",
-        "step": 3,
-        "input": "{ storyId, itemId, status }",
-        "output": "Checklist {itemId} updated",
-        "next": "task_coverage"
-      }
     },
     {
       "key": "src\\mcp\\handlers\\checklist.ts:checklist_update",
@@ -339,23 +288,6 @@
       "sourceLine": 1
     },
     {
-      "key": "src\\mcp\\handlers\\fixture.ts",
-      "task": "B-b049",
-      "checklist": [
-        "CHK-007"
-      ],
-      "title": "共用 fixture case 校验函数",
-      "type": "feature",
-      "priority": "high",
-      "description": "校验 fixture case 格式，fixture_update 写入时拦截，test_auto 执行前预扫。",
-      "changes": [
-        "- [CHK-007] 新增 validateFixtureCase",
-        "/"
-      ],
-      "sourceFile": "src\\mcp\\handlers\\fixture.ts",
-      "sourceLine": 22
-    },
-    {
       "key": "src\\mcp\\handlers\\fixture.ts:fixture_get",
       "task": "B-99cb",
       "checklist": [
@@ -372,7 +304,8 @@
       "sourceFile": "src\\mcp\\handlers\\fixture.ts",
       "sourceLine": 93,
       "functionName": "fixture_get",
-      "functionSignature": "fixture_get(...)"
+      "functionSignature": "fixture_get(...)",
+      "test": "skip"
     },
     {
       "key": "src\\mcp\\handlers\\fixture.ts:fixture_update",
@@ -391,7 +324,8 @@
       "sourceFile": "src\\mcp\\handlers\\fixture.ts",
       "sourceLine": 114,
       "functionName": "fixture_update",
-      "functionSignature": "fixture_update(...)"
+      "functionSignature": "fixture_update(...)",
+      "test": "skip"
     },
     {
       "key": "src\\mcp\\handlers\\fixture.ts:fixture_gen",
@@ -410,7 +344,8 @@
       "sourceFile": "src\\mcp\\handlers\\fixture.ts",
       "sourceLine": 172,
       "functionName": "fixture_gen",
-      "functionSignature": "fixture_gen(...)"
+      "functionSignature": "fixture_gen(...)",
+      "test": "skip"
     },
     {
       "key": "src\\mcp\\handlers\\flow.ts:flow_trace",
@@ -576,24 +511,6 @@
         "output": "Story advanced to {phase}",
         "next": "checklist_update"
       }
-    },
-    {
-      "key": "src\\mcp\\handlers\\story.ts",
-      "task": "B-010",
-      "checklist": [
-        "CHK-006"
-      ],
-      "title": "TEST→DONE 测试证据门禁",
-      "type": "feature",
-      "priority": "high",
-      "date": "2026-04-01",
-      "description": "在 story_advance 进入 DONE 阶段前，检查测试证据：\n1. 必须有至少一条测试记录\n2. 所有测试必须 PASS",
-      "changes": [
-        "- [CHK-006] 新增 DONE 门禁：要求测试证据且全部通过",
-        "/"
-      ],
-      "sourceFile": "src\\mcp\\handlers\\story.ts",
-      "sourceLine": 233
     },
     {
       "key": "src\\mcp\\handlers\\story.ts:story_update",
@@ -1035,23 +952,6 @@
       "sourceLine": 1
     },
     {
-      "key": "src\\story\\machine.ts",
-      "task": "B-007",
-      "checklist": [
-        "CHK-002"
-      ],
-      "title": "storyMachine 状态机定义",
-      "type": "refactor",
-      "priority": "high",
-      "description": "IDEA→PLAN→DEV→TEST→DONE 五阶段状态机。\nDEV→TEST 需 checklist 全 done，TEST→DONE 需测试通过+bug 全 fixed。\nTEST→DEV 可回退。",
-      "changes": [
-        "- [CHK-002] 重构状态机为五阶段",
-        "/"
-      ],
-      "sourceFile": "src\\story\\machine.ts",
-      "sourceLine": 25
-    },
-    {
       "key": "src\\story\\machine.ts:createStoryActor",
       "task": "B-007",
       "checklist": [
@@ -1404,23 +1304,6 @@
       "test": "gap-analyze"
     },
     {
-      "key": "src\\tasks\\gap-analyze.ts",
-      "task": "B-012",
-      "checklist": [
-        "CHK-004"
-      ],
-      "title": "no_test gap 按 flow 区分 severity",
-      "type": "feature",
-      "priority": "medium",
-      "description": "扫描缺少 @test 的函数时，如果该 task 有 @flow 字段（关键路径），\nseverity 提升为 high；否则保持 medium。",
-      "changes": [
-        "- [CHK-004] no_test gap severity 根据 flow 字段区分 high/medium",
-        "/"
-      ],
-      "sourceFile": "src\\tasks\\gap-analyze.ts",
-      "sourceLine": 102
-    },
-    {
       "key": "src\\tasks\\gap-analyze.ts:checkConvergence",
       "task": "B-009",
       "checklist": [
@@ -1480,23 +1363,6 @@
       "sourceLine": 1
     },
     {
-      "key": "src\\tasks\\test-executor.ts",
-      "task": "B-014",
-      "checklist": [
-        "CHK-011"
-      ],
-      "title": "全量 test_auto 验证通过",
-      "type": "chore",
-      "priority": "high",
-      "description": "通过 test_auto(full=true) 全量运行白盒 fixture + flow e2e，\n验证所有新增 @test 注释和 fixture 的正确性。",
-      "changes": [
-        "- [CHK-011] 全量 test_auto 验证",
-        "/"
-      ],
-      "sourceFile": "src\\tasks\\test-executor.ts",
-      "sourceLine": 18
-    },
-    {
       "key": "src\\tasks\\test-executor.ts:resolvePlaceholders",
       "task": "B-015",
       "checklist": [
@@ -1517,7 +1383,8 @@
       "sourceFile": "src\\tasks\\test-executor.ts",
       "sourceLine": 59,
       "functionName": "resolvePlaceholders",
-      "functionSignature": "function resolvePlaceholders(value: unknown, projectRoot: string)"
+      "functionSignature": "function resolvePlaceholders(value: unknown, projectRoot: string)",
+      "test": "skip"
     },
     {
       "key": "src\\tasks\\test-executor.ts:compareResult",
@@ -1537,23 +1404,6 @@
       "functionName": "compareResult",
       "functionSignature": "export function compareResult(actual: unknown, expected: unknown)",
       "test": "test-executor-compareResult"
-    },
-    {
-      "key": "src\\tasks\\test-executor.ts",
-      "task": "B-010",
-      "checklist": [
-        "CHK-002"
-      ],
-      "title": "带超时的 Promise 执行",
-      "type": "feature",
-      "priority": "high",
-      "description": "包装函数调用为 Promise，支持超时终止。",
-      "changes": [
-        "- [CHK-002] 新增 withTimeout 函数",
-        "/"
-      ],
-      "sourceFile": "src\\tasks\\test-executor.ts",
-      "sourceLine": 157
     },
     {
       "key": "src\\tasks\\test-executor.ts:createMockStore",
@@ -1593,95 +1443,6 @@
       "functionName": "importAndExecute",
       "functionSignature": "export async function importAndExecute(\r\n  projectRoot: string,\r\n  sourceFile: string,\r\n  functionName: string,\r\n  input",
       "test": "test-executor-importAndExecute"
-    },
-    {
-      "key": "src\\tasks\\test-executor.ts",
-      "task": "B-402a",
-      "checklist": [
-        "CHK-001",
-        "CHK-002"
-      ],
-      "title": "修复 wrapper fallback：兼容 .js + basename 回退",
-      "type": "bugfix",
-      "priority": "high",
-      "description": "1) 正则从 /\\.tsx?$/ 改为 /\\.(js|tsx?)$/ 兼容 .js 源文件\n2) 先查嵌套路径，找不到再用 basename 查扁平结构",
-      "changes": [
-        "- [CHK-001] 正则兼容 .js",
-        "- [CHK-002] basename fallback",
-        "/"
-      ],
-      "sourceFile": "src\\tasks\\test-executor.ts",
-      "sourceLine": 252
-    },
-    {
-      "key": "src\\tasks\\test-executor.ts",
-      "task": "B-010",
-      "checklist": [
-        "CHK-001"
-      ],
-      "title": "执行单个函数的所有 test cases",
-      "type": "feature",
-      "priority": "high",
-      "description": "加载 fixture，逐个 case 调用函数，对比 expect 或验证 throws。",
-      "changes": [
-        "- [CHK-001] 新增 executeTestCases 函数"
-      ],
-      "sourceFile": "src\\tasks\\test-executor.ts",
-      "sourceLine": 312,
-      "test": "test-executor-executeTestCases"
-    },
-    {
-      "key": "src\\tasks\\test-executor.ts:applySetup",
-      "task": "B-b049",
-      "checklist": [
-        "CHK-002"
-      ],
-      "title": "executeTestCases 处理 setup 声明式状态预设",
-      "type": "refactor",
-      "priority": "high",
-      "description": "在执行 case 前读取 setup 字段，通过 store API 预创建数据。",
-      "changes": [
-        "- [CHK-002] 新增 applySetup 函数 + 在 case 循环中调用",
-        "/"
-      ],
-      "sourceFile": "src\\tasks\\test-executor.ts",
-      "sourceLine": 324,
-      "functionName": "applySetup",
-      "functionSignature": "function applySetup(store: StoryStore, setup: TestCaseSetup)"
-    },
-    {
-      "key": "src\\tasks\\test-executor.ts",
-      "task": "B-f844",
-      "checklist": [
-        "CHK-002"
-      ],
-      "title": "executeTestCases 支持 case.fn 路由",
-      "type": "feature",
-      "priority": "high",
-      "description": "检测 case.fn 字段，用它替代默认 functionName 调用 importAndExecute。",
-      "changes": [
-        "- [CHK-002] 用 tc.fn || functionName 路由到正确的 wrapper 函数",
-        "/"
-      ],
-      "sourceFile": "src\\tasks\\test-executor.ts",
-      "sourceLine": 387
-    },
-    {
-      "key": "src\\tasks\\test-executor.ts",
-      "task": "B-e360",
-      "checklist": [
-        "CHK-001"
-      ],
-      "title": "fixture expect 支持 pattern 正则匹配",
-      "type": "feature",
-      "priority": "high",
-      "description": "当 expect 含 pattern 字段时，用正则匹配 actual（string 或 JSON.stringify）。\n支持 handler 返回 string 或 JSON string 的场景。",
-      "changes": [
-        "- [CHK-001] 新增 pattern 正则匹配逻辑",
-        "/"
-      ],
-      "sourceFile": "src\\tasks\\test-executor.ts",
-      "sourceLine": 444
     },
     {
       "key": "src\\tasks\\test-fixture-gen.ts",
@@ -1781,23 +1542,6 @@
       "sourceLine": 1
     },
     {
-      "key": "src\\tasks\\test-flow-e2e.ts",
-      "task": "B-013",
-      "checklist": [
-        "CHK-005"
-      ],
-      "title": "创建 E2E 测试 sandbox",
-      "type": "feature",
-      "priority": "high",
-      "description": "用 mkdtempSync 创建临时目录，初始化 Story 目录结构。",
-      "changes": [
-        "- [CHK-005] 新增 createSandbox 函数"
-      ],
-      "sourceFile": "src\\tasks\\test-flow-e2e.ts",
-      "sourceLine": 128,
-      "test": "test-flow-e2e-createSandbox"
-    },
-    {
       "key": "src\\tasks\\test-flow-e2e.ts:createSandbox",
       "task": "B-8c78",
       "checklist": [
@@ -1816,24 +1560,8 @@
       "sourceFile": "src\\tasks\\test-flow-e2e.ts",
       "sourceLine": 140,
       "functionName": "createSandbox",
-      "functionSignature": "export async function createSandbox(realProjectRoot?: string)"
-    },
-    {
-      "key": "src\\tasks\\test-flow-e2e.ts",
-      "task": "B-013",
-      "checklist": [
-        "CHK-006"
-      ],
-      "title": "通用 flow e2e：@output 管道到 @input",
-      "type": "feature",
-      "priority": "high",
-      "description": "从 @flow 注释提取链路，逐步执行。\n每步的实际输出按 @output 字段名提取到 context，\n下一步的输入按 @input 字段名从 context 构建。",
-      "changes": [
-        "- [CHK-006] 通用管道，不硬编码函数名"
-      ],
-      "sourceFile": "src\\tasks\\test-flow-e2e.ts",
-      "sourceLine": 411,
-      "test": "test-flow-e2e-runFlowE2E"
+      "functionSignature": "export async function createSandbox(realProjectRoot?: string)",
+      "test": "skip"
     },
     {
       "key": "src\\tasks\\test-flow-e2e.ts:runFlowE2E",
@@ -1854,7 +1582,8 @@
       "sourceFile": "src\\tasks\\test-flow-e2e.ts",
       "sourceLine": 425,
       "functionName": "runFlowE2E",
-      "functionSignature": "export async function runFlowE2E(flowName: string, scanRoot: string)"
+      "functionSignature": "export async function runFlowE2E(flowName: string, scanRoot: string)",
+      "test": "skip"
     },
     {
       "key": "src\\tasks\\test-runner.ts",
@@ -1876,40 +1605,6 @@
       ],
       "sourceFile": "src\\tasks\\test-runner.ts",
       "sourceLine": 1
-    },
-    {
-      "key": "src\\tasks\\test-runner.ts",
-      "task": "B-f844",
-      "checklist": [
-        "CHK-001"
-      ],
-      "title": "TestCase 新增 fn 字段",
-      "type": "feature",
-      "priority": "high",
-      "description": "fixture case 可指定 fn 字段路由到不同的 wrapper 函数。",
-      "changes": [
-        "- [CHK-001] TestCase 新增可选 fn 字段",
-        "/"
-      ],
-      "sourceFile": "src\\tasks\\test-runner.ts",
-      "sourceLine": 25
-    },
-    {
-      "key": "src\\tasks\\test-runner.ts",
-      "task": "B-b049",
-      "checklist": [
-        "CHK-001"
-      ],
-      "title": "TestCase 新增 setup 声明式状态预设",
-      "type": "refactor",
-      "priority": "high",
-      "description": "fixture case 可通过 setup 字段声明前置状态，由 executor 统一处理。\nwrapper 不再负责状态预设，回归纯桥接。",
-      "changes": [
-        "- [CHK-001] TestCase 新增 setup 可选字段",
-        "/"
-      ],
-      "sourceFile": "src\\tasks\\test-runner.ts",
-      "sourceLine": 36
     },
     {
       "key": "src\\tasks\\truth-analyze.ts",
@@ -2052,26 +1747,6 @@
       "sourceLine": 1
     },
     {
-      "key": "src\\tasks\\types.ts",
-      "task": "B-008",
-      "checklist": [
-        "CHK-002"
-      ],
-      "title": "@flow/@test 类型定义",
-      "type": "feature",
-      "priority": "high",
-      "date": "2026-04-01",
-      "description": "为 @flow 业务流转注释和 @test 自动化测试注释增加类型定义。\n包括 FlowStep、FlowChain、FlowValidationIssue、FlowValidationResult。",
-      "changes": [
-        "- [CHK-002] TaskAnnotation 增加 flow/step/input/output/next/test 字段",
-        "- [CHK-002] 新增 FlowStep/FlowChain 类型",
-        "- [CHK-002] 新增 FlowValidationIssue/FlowValidationResult 类型",
-        "/"
-      ],
-      "sourceFile": "src\\tasks\\types.ts",
-      "sourceLine": 116
-    },
-    {
       "key": "src\\tasks\\validate.ts",
       "task": "B-003",
       "checklist": [
@@ -2090,26 +1765,6 @@
       ],
       "sourceFile": "src\\tasks\\validate.ts",
       "sourceLine": 1
-    },
-    {
-      "key": "src\\tasks\\validate.ts",
-      "task": "B-012",
-      "checklist": [
-        "CHK-001",
-        "CHK-002"
-      ],
-      "title": "函数级 @test 注释缺失校验",
-      "type": "feature",
-      "priority": "high",
-      "date": "2026-04-01",
-      "description": "在 validate 循环中解析注释块紧邻的函数名，检查函数级注释\n是否有 @test 字段。普通函数缺失报 warning，@flow 函数缺失报 error。",
-      "changes": [
-        "- [CHK-001] 函数级注释缺少 @test 时报 warning",
-        "- [CHK-002] @flow 函数缺少 @test 时报 error（含 flow 名称）",
-        "/"
-      ],
-      "sourceFile": "src\\tasks\\validate.ts",
-      "sourceLine": 110
     },
     {
       "key": "src\\tasks\\validate.ts:validateFlows",
@@ -2135,24 +1790,6 @@
       "test": "validate-flows"
     },
     {
-      "key": "src\\tasks\\validate.ts",
-      "task": "B-012",
-      "checklist": [
-        "CHK-003"
-      ],
-      "title": "@flow 步骤 @test 覆盖检查",
-      "type": "feature",
-      "priority": "high",
-      "date": "2026-04-01",
-      "description": "遍历 flow chain 的每个 step，检查对应 TaskAnnotation 是否有 @test 注释。\n缺少 @test 的步骤会生成 error 级别的 FlowValidationIssue。",
-      "changes": [
-        "- [CHK-003] 在 validateFlows 中增加 @test 覆盖检查",
-        "/"
-      ],
-      "sourceFile": "src\\tasks\\validate.ts",
-      "sourceLine": 255
-    },
-    {
       "key": "src\\tasks\\validate.ts:validateTestAnnotations",
       "task": "B-008",
       "checklist": [
@@ -2174,74 +1811,23 @@
       "test": "validate-validateTestAnnotations"
     },
     {
-      "key": "tests\\wrappers\\index.js",
-      "task": "B-1c75",
-      "checklist": [
-        "CHK-002"
-      ],
-      "title": "Wrapper index：汇总导出所有 handler wrappers（供 flow e2e 使用）",
-      "type": "chore",
-      "priority": "high",
-      "description": "汇总导出所有 handler wrapper 函数，供 test-flow-e2e 的 createSandbox 合并使用。",
-      "changes": [
-        "- [CHK-002] 新增 index.js",
-        "/"
-      ],
-      "sourceFile": "tests\\wrappers\\index.js",
-      "sourceLine": 1
-    },
-    {
-      "key": "tests\\wrappers\\_setup.js",
-      "task": "B-b049",
-      "checklist": [
-        "CHK-003"
-      ],
-      "title": "Wrapper setup：纯桥接，不做状态预设",
-      "type": "refactor",
-      "priority": "high",
-      "description": "setup 只负责创建 handler context（store + scanRoot），\n不预创建任何数据。状态预设由 fixture 的 setup 字段驱动。",
-      "changes": [
-        "- [CHK-003] 去掉 ensureStory/ensureBug/ensureTestEvidence",
-        "/"
-      ],
-      "sourceFile": "tests\\wrappers\\_setup.js",
-      "sourceLine": 1
-    },
-    {
       "key": "src/mcp/handlers/test-auto.ts:executeCases",
       "task": "B-098c",
       "checklist": [
         "CHK-001"
       ],
-      "title": "test_auto handler 级 fixture 执行",
+      "title": "执行 fixture cases",
       "type": "feature",
       "priority": "high",
-      "description": "在 test_auto 中执行 handler 级 fixture case，支持 $prev context 引用",
+      "description": "handler + importAndExecute 双路执行",
       "changes": [
-        "[CHK-001] 新增 executeCases 用于 handler 级 fixture 执行"
+        "既有"
       ],
       "sourceFile": "src/mcp/handlers/test-auto.ts",
-      "sourceLine": 67,
+      "sourceLine": 70,
       "functionName": "executeCases",
-      "functionSignature": "async function executeCases(\r\n  handlers: Record<string, Function>,\r\n  projectRoot: string,\r\n  sourceFile: string,\r\n  fu"
-    },
-    {
-      "key": "src/tasks/browser-executor.ts:startDevServer",
-      "task": "B-4ab8",
-      "checklist": [
-        "CHK-001"
-      ],
-      "title": "启动 dev server",
-      "type": "feature",
-      "priority": "high",
-      "description": "启动浏览器测试用的 dev server 进程",
-      "changes": [
-        "[CHK-001] 新增 startDevServer"
-      ],
-      "sourceFile": "src/tasks/browser-executor.ts",
-      "sourceLine": 118,
-      "functionName": "startDevServer",
-      "functionSignature": "function startDevServer(command: string, cwd: string): ChildProcess"
+      "functionSignature": "async function executeCases(\r\n  handlers: Record<string, Function>,\r\n  projectRoot: string,\r\n  sourceFile: string,\r\n  fu",
+      "test": "skip"
     },
     {
       "key": "src/tasks/browser-executor.ts:waitForServerReady",
@@ -2259,7 +1845,8 @@
       "sourceFile": "src/tasks/browser-executor.ts",
       "sourceLine": 133,
       "functionName": "waitForServerReady",
-      "functionSignature": "function waitForServerReady(child: ChildProcess, timeoutMs = 20000): Promise<string>"
+      "functionSignature": "function waitForServerReady(child: ChildProcess, timeoutMs = 20000): Promise<string>",
+      "test": "skip"
     },
     {
       "key": "src/tasks/browser-executor.ts:executeBrowserCases",
@@ -2277,7 +1864,8 @@
       "sourceFile": "src/tasks/browser-executor.ts",
       "sourceLine": 222,
       "functionName": "executeBrowserCases",
-      "functionSignature": "export async function executeBrowserCases(\r\n  config: BrowserTestConfig,\r\n  cases: Array<"
+      "functionSignature": "export async function executeBrowserCases(\r\n  config: BrowserTestConfig,\r\n  cases: Array<",
+      "test": "skip"
     },
     {
       "key": "src/tasks/cli-executor.ts:executeCliCases",
@@ -2295,43 +1883,756 @@
       "sourceFile": "src/tasks/cli-executor.ts",
       "sourceLine": 127,
       "functionName": "executeCliCases",
-      "functionSignature": "export async function executeCliCases(\n  config: CliTestConfig,\n  cases: Array<"
+      "functionSignature": "export async function executeCliCases(\n  config: CliTestConfig,\n  cases: Array<",
+      "test": "skip"
     },
     {
       "key": "src/mcp/handlers/test-auto.ts:createTestAutoHandlers",
-      "task": "B-cf81",
+      "task": "B-affa",
       "checklist": [
-        "CHK-003"
+        "CHK-007"
       ],
-      "title": "test_auto handler 工厂函数",
+      "title": "自动测试处理器",
       "type": "feature",
       "priority": "high",
-      "description": "创建 test_auto MCP handler，整合 fixture/flow/browser/cli/drift 测试",
+      "description": "测试自动执行 handler，门禁失败时输出可操作的修复建议",
       "changes": [
-        "[CHK-003] 集成 CLI 测试到 test_auto"
+        "[CHK-007] 可操作修复建议输出",
+        "[CHK-009] browser_test 门禁"
       ],
       "sourceFile": "src/mcp/handlers/test-auto.ts",
-      "sourceLine": 171,
+      "sourceLine": 173,
       "functionName": "createTestAutoHandlers",
-      "functionSignature": "export function createTestAutoHandlers(ctx: HandlerContext)"
+      "functionSignature": "export function createTestAutoHandlers(ctx: HandlerContext)",
+      "test": "tools-test_list"
     },
     {
-      "key": "src/tasks/browser-executor.ts:startBridge",
-      "task": "B-4ab8",
+      "key": "src/cli.ts:parseFlags",
+      "task": "B-5c84",
       "checklist": [
         "CHK-001"
       ],
-      "title": "启动 WebSocket bridge server",
+      "title": "flag 参数解析器",
+      "type": "refactor",
+      "priority": "high",
+      "description": "解析 --key=value、--key value、--flag 三种格式，兼容旧 key=value",
+      "changes": [
+        "新增 parseFlags 函数支持标准 flag 格式",
+        "arrayKeys 自动识别 schema 中的数组类型"
+      ],
+      "sourceFile": "src/cli.ts",
+      "sourceLine": 282,
+      "functionName": "parseFlags",
+      "functionSignature": "function parseFlags(rawArgs: string[], schema: Record<string, ZodType>): Record<string, unknown>",
+      "test": "cli-flags"
+    },
+    {
+      "key": "src/cli.ts:coerce",
+      "task": "B-5c84",
+      "checklist": [
+        "CHK-002"
+      ],
+      "title": "flag 值类型强转",
+      "type": "refactor",
+      "priority": "high",
+      "description": "将字符串值按 schema 类型转为 JSON/boolean/number",
+      "changes": [
+        "新增 coerce 函数处理 JSON/boolean/number 强转"
+      ],
+      "sourceFile": "src/cli.ts",
+      "sourceLine": 326,
+      "functionName": "coerce",
+      "functionSignature": "function coerce(val: string, schemaDef?: ZodType): unknown",
+      "test": "cli-flags"
+    },
+    {
+      "key": "src/cli.ts:addValue",
+      "task": "B-5c84",
+      "checklist": [
+        "CHK-002"
+      ],
+      "title": "重复 flag 累积为数组",
+      "type": "refactor",
+      "priority": "high",
+      "description": "处理重复 flag 累积为数组的逻辑",
+      "changes": [
+        "新增 addValue 函数支持重复 flag 合并"
+      ],
+      "sourceFile": "src/cli.ts",
+      "sourceLine": 340,
+      "functionName": "addValue",
+      "functionSignature": "function addValue(obj: Record<string, unknown>, key: string, val: unknown, isArray: boolean)",
+      "test": "cli-flags"
+    },
+    {
+      "key": "src/cli.ts:printToolHelp",
+      "task": "B-5c84",
+      "checklist": [
+        "CHK-003"
+      ],
+      "title": "工具帮助输出 flag 风格",
+      "type": "refactor",
+      "priority": "high",
+      "description": "帮助输出改为 --key=value 风格",
+      "changes": [
+        "参数名加 -- 前缀",
+        "复杂类型标注 (JSON)",
+        "用法示例改为 flag 格式"
+      ],
+      "sourceFile": "src/cli.ts",
+      "sourceLine": 199,
+      "functionName": "printToolHelp",
+      "functionSignature": "function printToolHelp(tool: ToolDef)",
+      "test": "skip"
+    },
+    {
+      "key": "src/cli.ts:printHelp",
+      "task": "B-5c84",
+      "checklist": [
+        "CHK-003"
+      ],
+      "title": "全局帮助 flag 风格",
+      "type": "refactor",
+      "priority": "high",
+      "description": "开发流程示例改为 flag 格式",
+      "changes": [
+        "用法行改为 --key=value",
+        "开发流程示例改为 flag"
+      ],
+      "sourceFile": "src/cli.ts",
+      "sourceLine": 229,
+      "functionName": "printHelp",
+      "functionSignature": "function printHelp()",
+      "test": "skip"
+    },
+    {
+      "key": "src/cli.ts:parseFlagsTest",
+      "task": "B-5c84",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "flag 解析测试入口",
+      "type": "refactor",
+      "priority": "high",
+      "description": "接受 JSON schema 描述调用 parseFlags",
+      "changes": [
+        "新增测试入口函数"
+      ],
+      "sourceFile": "src/cli.ts",
+      "sourceLine": 283,
+      "functionName": "parseFlagsTest",
+      "functionSignature": "export function parseFlagsTest(rawArgs: string[], schemaDesc: Record<string, string>): Record<string, unknown>",
+      "test": "cli-flags"
+    },
+    {
+      "key": "src/cli.ts:main",
+      "task": "B-5c84",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "CLI 入口支持 flag 解析",
+      "type": "refactor",
+      "priority": "high",
+      "description": "支持 flag/JSON/key=value 三种格式",
+      "changes": [
+        "新增 flag 格式解析分支",
+        "保留 JSON 兼容"
+      ],
+      "sourceFile": "src/cli.ts",
+      "sourceLine": 378,
+      "functionName": "main",
+      "functionSignature": "async function main()",
+      "test": "skip"
+    },
+    {
+      "key": "src/tasks/test-executor.ts:importAndExecute",
+      "task": "B-affa",
+      "checklist": [
+        "CHK-012"
+      ],
+      "title": "导入并执行 - test:skip 文档",
+      "type": "feature",
+      "priority": "medium",
+      "description": "test:skip 标记渲染函数跳过白盒测试，CLAUDE.md 中有对应说明",
+      "changes": [
+        "[CHK-012] CLAUDE.md 更新 test:skip 用法"
+      ],
+      "sourceFile": "src/tasks/test-executor.ts",
+      "sourceLine": 135,
+      "functionName": "importAndExecute",
+      "functionSignature": "export async function importAndExecute(\r\n  projectRoot: string,\r\n  sourceFile: string,\r\n  functionName: string,\r\n  input",
+      "test": "tools-test_list"
+    },
+    {
+      "key": "src/mcp/handlers/checklist.ts:createChecklistHandlers",
+      "task": "B-5c84",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "checklist handler 工厂",
+      "type": "refactor",
+      "priority": "high",
+      "description": "创建 checklist 相关 handler",
+      "changes": [
+        "intentRef 覆盖率门禁调整"
+      ],
+      "sourceFile": "src/mcp/handlers/checklist.ts",
+      "sourceLine": 32,
+      "functionName": "createChecklistHandlers",
+      "functionSignature": "export function createChecklistHandlers(ctx: HandlerContext)",
+      "test": "skip"
+    },
+    {
+      "key": "src/mcp/handlers/fixture.ts:validateFixtureCase",
+      "task": "B-5c84",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "fixture case 校验",
+      "type": "refactor",
+      "priority": "high",
+      "description": "校验 fixture case 格式",
+      "changes": [
+        "既有"
+      ],
+      "sourceFile": "src/mcp/handlers/fixture.ts",
+      "sourceLine": 14,
+      "functionName": "validateFixtureCase",
+      "functionSignature": "export function validateFixtureCase(c: Record<string, unknown>): string[]",
+      "test": "skip"
+    },
+    {
+      "key": "src/mcp/handlers/fixture.ts:createFixtureHandlers",
+      "task": "B-5c84",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "fixture handler 工厂",
+      "type": "refactor",
+      "priority": "high",
+      "description": "创建 fixture 相关 handler",
+      "changes": [
+        "既有"
+      ],
+      "sourceFile": "src/mcp/handlers/fixture.ts",
+      "sourceLine": 92,
+      "functionName": "createFixtureHandlers",
+      "functionSignature": "export function createFixtureHandlers(ctx: HandlerContext)",
+      "test": "skip"
+    },
+    {
+      "key": "src/cli.ts:resolveRoot",
+      "task": "B-5c84",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "resolveRoot 向上查找 koala.config.json",
+      "type": "refactor",
+      "priority": "high",
+      "description": "从 cwd 向上查找 koala.config.json 确定项目根",
+      "changes": [
+        "向上查找 koala.config.json 替代 cwd"
+      ],
+      "sourceFile": "src/cli.ts",
+      "sourceLine": 364,
+      "functionName": "resolveRoot",
+      "functionSignature": "function resolveRoot(explicit?: string): string",
+      "test": "skip"
+    },
+    {
+      "key": "src/tasks/drift-check.ts:extractFunctionName",
+      "task": "B-5c84",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "从 diff hunk 提取函数名",
+      "type": "refactor",
+      "priority": "high",
+      "description": "既有函数，drift-check 重写时保留",
+      "changes": [
+        "既有"
+      ],
+      "sourceFile": "src/tasks/drift-check.ts",
+      "sourceLine": 78,
+      "functionName": "extractFunctionName",
+      "functionSignature": "function extractFunctionName(context: string): string | null",
+      "test": "skip"
+    },
+    {
+      "key": "src/tasks/extract.ts:scan",
+      "task": "B-affa",
+      "checklist": [
+        "CHK-004"
+      ],
+      "title": "扫描源码函数列表",
+      "type": "feature",
+      "priority": "medium",
+      "description": "扫描源码所有函数，用于过时 fixture/checklist 检测和孤儿元数据检查",
+      "changes": [
+        "[CHK-004] 过时 fixture 检测",
+        "[CHK-005] 过时 checklist 检测"
+      ],
+      "sourceFile": "src/tasks/extract.ts",
+      "sourceLine": 167,
+      "functionName": "scan",
+      "functionSignature": "export function scan(scanRoot: string): TaskAnnotation[]",
+      "test": "tools-test_list"
+    },
+    {
+      "key": "src/mcp/handlers/story.ts:createStoryHandlers",
+      "task": "B-61da",
+      "checklist": [
+        "CHK-005"
+      ],
+      "title": "Story handler 容器函数",
       "type": "feature",
       "priority": "high",
-      "description": "创建 WS server 等待浏览器连接，转发测试命令",
+      "description": "��建所有 story 相关 handler",
       "changes": [
-        "[CHK-001] 新增 startBridge"
+        "门禁 matchesFn 加工具名白名单"
       ],
-      "sourceFile": "src/tasks/browser-executor.ts",
-      "sourceLine": 56,
-      "functionName": "startBridge",
-      "functionSignature": "function startBridge(wsPort: number): Promise<BridgeServer>"
+      "sourceFile": "src/mcp/handlers/story.ts",
+      "sourceLine": 14,
+      "functionName": "createStoryHandlers",
+      "functionSignature": "export function createStoryHandlers(ctx: HandlerContext)",
+      "test": "skip"
+    },
+    {
+      "key": "src/tasks/test-flow-e2e.ts:ensureSandboxReady",
+      "task": "B-61da",
+      "checklist": [
+        "CHK-006"
+      ],
+      "title": "E2E sandbox 环境准备",
+      "type": "feature",
+      "priority": "high",
+      "description": "确保 sandbox 满足门禁条件",
+      "changes": [
+        "加 testIntent 补全和 story_review"
+      ],
+      "sourceFile": "src/tasks/test-flow-e2e.ts",
+      "sourceLine": 248,
+      "functionName": "ensureSandboxReady",
+      "functionSignature": "function ensureSandboxReady(\r\n  sandboxDir: string,\r\n  handlers: any,\r\n  context: Record<string, unknown>,\r\n): void",
+      "test": "skip"
+    },
+    {
+      "key": "src/mcp/handlers/story.ts:story_review",
+      "task": "B-ec91",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "review 防伪签名",
+      "type": "feature",
+      "priority": "critical",
+      "description": "story_review 写入 _hash 签名，story_advance 校验",
+      "changes": [
+        "新增 _hash 签名字段",
+        "advance 门禁校验签名"
+      ],
+      "sourceFile": "src/mcp/handlers/story.ts",
+      "sourceLine": 494,
+      "functionName": "story_review",
+      "functionSignature": "story_review(args:",
+      "test": "review-integrity"
+    },
+    {
+      "key": "src/tasks/metadata-cross-check.ts:validateMetadataCrossCheck",
+      "task": "B-fc8c",
+      "checklist": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003"
+      ],
+      "title": "dev_finish 双向校验：task.json ↔ checklist.json",
+      "type": "feature",
+      "priority": "critical",
+      "description": "纯函数：校验 task.json 条目与 checklist.json 的双向一致性",
+      "changes": [
+        "新增 validateMetadataCrossCheck 纯函数",
+        "从 worktree.ts dev_finish 提取"
+      ],
+      "sourceFile": "src/tasks/metadata-cross-check.ts",
+      "sourceLine": 15,
+      "functionName": "validateMetadataCrossCheck",
+      "functionSignature": "export function validateMetadataCrossCheck(\n  storyId: string,\n  storyTasks: TaskRecord[],\n  checklistItems: ChecklistIt",
+      "test": "metadata-cross-check"
+    },
+    {
+      "key": "src/mcp/handlers/story.ts:story_advance",
+      "task": "B-a6bc",
+      "checklist": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003"
+      ],
+      "title": "阶段拆分 + 门禁 + 回退",
+      "type": "feature",
+      "priority": "high",
+      "description": "story_advance 支持 TEST_CASE/TEST_CASE_REVIEW 阶段，门禁检查 testIntent results，失败按 type 自动回退",
+      "changes": [
+        "新增 TEST_CASE_REVIEW→TEST 门禁检查",
+        "新增按 type 自动回退 DEV/TEST_CASE",
+        "DEV→TEST_CASE 门禁增加漂移检测和交叉检查"
+      ],
+      "sourceFile": "src/mcp/handlers/story.ts",
+      "sourceLine": 133,
+      "functionName": "story_advance",
+      "functionSignature": "story_advance(args:",
+      "test": "story-machine"
+    },
+    {
+      "key": "src/mcp/handlers/worktree.ts:createWorktreeHandlers",
+      "task": "B-affa",
+      "checklist": [
+        "CHK-010"
+      ],
+      "title": "Worktree 门禁 - trace 覆盖率",
+      "type": "feature",
+      "priority": "high",
+      "description": "TEST→DONE 门禁：task.json 所有函数都必须在真机 trace 里出现",
+      "changes": [
+        "[CHK-010] trace 覆盖率检查"
+      ],
+      "sourceFile": "src/mcp/handlers/worktree.ts",
+      "sourceLine": 12,
+      "functionName": "createWorktreeHandlers",
+      "functionSignature": "export function createWorktreeHandlers(ctx: HandlerContext)",
+      "test": "tools-test_list"
+    },
+    {
+      "key": "src/mcp/tools.ts:createToolHandlers",
+      "task": "B-affa",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "工具处理器注册入口",
+      "type": "chore",
+      "priority": "medium",
+      "description": "注册所有 koala MCP 工具 handler，含 worktree 门禁相关 handler",
+      "changes": [
+        "[CHK-001] 集成 createWorktreeHandlers 包含门禁逻辑"
+      ],
+      "sourceFile": "src/mcp/tools.ts",
+      "sourceLine": 22,
+      "functionName": "createToolHandlers",
+      "functionSignature": "export function createToolHandlers(store: StoryStore, projectRoot?: string, log?: (msg: string) => void)",
+      "test": "skip"
+    },
+    {
+      "key": "src/tasks/drift-check.ts:checkDrift",
+      "task": "B-affa",
+      "checklist": [
+        "CHK-013"
+      ],
+      "title": "元数据漂移检查 - 验收",
+      "type": "feature",
+      "priority": "high",
+      "description": "验收：testgame1 DEV→TEST 被拦住修复后通过，TEST→DONE 全量测试通过",
+      "changes": [
+        "[CHK-013] 验收测试通过"
+      ],
+      "sourceFile": "src/tasks/drift-check.ts",
+      "sourceLine": 99,
+      "functionName": "checkDrift",
+      "functionSignature": "export function checkDrift(\n  diffFunctions: DiffFunction[],\n  annotations: TaskAnnotation[],\n): DriftItem[]",
+      "test": "tools-test_list"
+    },
+    {
+      "key": "src/tasks/drift-check.ts:parseDiffFunctions",
+      "task": "B-affa",
+      "checklist": [
+        "CHK-005"
+      ],
+      "title": "解析 diff 函数 - 过时检测",
+      "type": "feature",
+      "priority": "medium",
+      "description": "过时 checklist 检测：checklist 引用的 task 不存在时报错",
+      "changes": [
+        "[CHK-005] 过时 checklist 检测"
+      ],
+      "sourceFile": "src/tasks/drift-check.ts",
+      "sourceLine": 26,
+      "functionName": "parseDiffFunctions",
+      "functionSignature": "export function parseDiffFunctions(root: string, scanRoot: string, base = 'HEAD'): DiffFunction[]",
+      "test": "tools-test_list"
+    },
+    {
+      "key": "src/tasks/test-executor.ts:executeTestCases",
+      "task": "B-affa",
+      "checklist": [
+        "CHK-008"
+      ],
+      "title": "执行 fixture 测试 case",
+      "type": "feature",
+      "priority": "high",
+      "description": "执行全量 fixture case（白盒+CLI黑盒），支持 test:skip 跳过，TEST→DONE 门禁依赖此函数",
+      "changes": [
+        "[CHK-008] 全量 fixture PASS 门禁",
+        "[CHK-011] test:skip 标记支持"
+      ],
+      "sourceFile": "src/tasks/test-executor.ts",
+      "sourceLine": 218,
+      "functionName": "executeTestCases",
+      "functionSignature": "export async function executeTestCases(\r\n  projectRoot: string,\r\n  sourceFile: string,\r\n  functionName: string,\r\n  cases",
+      "test": "tools-test_list"
+    },
+    {
+      "key": "src/tasks/metadata-validate.ts:validateMetadata",
+      "task": "B-affa",
+      "checklist": [
+        "CHK-002"
+      ],
+      "title": "元数据完整性校验 - drift 检测",
+      "type": "feature",
+      "priority": "high",
+      "description": "校验 task.json 元数据完整性：改了函数必须同步更新、孤儿检测、过时 fixture 检测",
+      "changes": [
+        "[CHK-002] 改了函数必须同步更新 task.json",
+        "[CHK-003] 孤儿元数据检测"
+      ],
+      "sourceFile": "src/tasks/metadata-validate.ts",
+      "sourceLine": 63,
+      "functionName": "validateMetadata",
+      "functionSignature": "export function validateMetadata(tasks: TaskRecord[], scanRoot: string): ValidationResult",
+      "test": "tools-test_list"
+    },
+    {
+      "key": "src/tasks/coverage.ts:checkCoverage",
+      "task": "B-affa",
+      "checklist": [
+        "CHK-003"
+      ],
+      "title": "覆盖率检查",
+      "type": "feature",
+      "priority": "high",
+      "description": "检查项目整体覆盖率，不限当前 story 范围",
+      "changes": [
+        "[CHK-003] 孤儿元数据检测",
+        "[CHK-006] 项目级检查"
+      ],
+      "sourceFile": "src/tasks/coverage.ts",
+      "sourceLine": 7,
+      "functionName": "checkCoverage",
+      "functionSignature": "export function checkCoverage(\r\n  storyId: string,\r\n  store: StoryStore,\r\n  scanRoot: string,\r\n): CoverageResult",
+      "test": "tools-test_list"
+    },
+    {
+      "key": "src/tasks/test-executor.ts:resolvePlaceholders",
+      "task": "B-affa",
+      "checklist": [
+        "CHK-006"
+      ],
+      "title": "解析占位符 - 项目级检查辅助",
+      "type": "feature",
+      "priority": "medium",
+      "description": "项目级检查时解析路径占位符，支持跨 story 全项目扫描",
+      "changes": [
+        "[CHK-006] 项目级检查辅助"
+      ],
+      "sourceFile": "src/tasks/test-executor.ts",
+      "sourceLine": 30,
+      "functionName": "resolvePlaceholders",
+      "functionSignature": "export function resolvePlaceholders(value: unknown, projectRoot: string): unknown",
+      "test": "tools-test_list"
+    },
+    {
+      "key": "src/tasks/test-executor.ts:compareResult",
+      "task": "B-affa",
+      "checklist": [
+        "CHK-009"
+      ],
+      "title": "比较测试结果",
+      "type": "feature",
+      "priority": "medium",
+      "description": "比较 fixture 期望值与实际值，用于 browser_test PASS 判断",
+      "changes": [
+        "[CHK-009] browser_test PASS 判断"
+      ],
+      "sourceFile": "src/tasks/test-executor.ts",
+      "sourceLine": 49,
+      "functionName": "compareResult",
+      "functionSignature": "export function compareResult(actual: unknown, expected: unknown):",
+      "test": "tools-test_list"
+    },
+    {
+      "key": "src/tasks/test-executor.ts:withTimeout",
+      "task": "B-affa",
+      "checklist": [
+        "CHK-011"
+      ],
+      "title": "超时控制",
+      "type": "feature",
+      "priority": "medium",
+      "description": "test:skip 函数跳过后的超时控制，防止无限等待",
+      "changes": [
+        "[CHK-011] test:skip 标记不可单测函数"
+      ],
+      "sourceFile": "src/tasks/test-executor.ts",
+      "sourceLine": 100,
+      "functionName": "withTimeout",
+      "functionSignature": "export function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T>",
+      "test": "tools-test_list"
+    },
+    {
+      "key": "src/tasks/test-flow-e2e.ts:autoDefaults",
+      "task": "B-a6bc",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "E2E sandbox 默认值适配新阶段",
+      "type": "feature",
+      "priority": "high",
+      "description": "autoDefaults 适配新的阶段流转",
+      "changes": [
+        "适配 TEST_CASE/TEST_CASE_REVIEW 阶段"
+      ],
+      "sourceFile": "src/tasks/test-flow-e2e.ts",
+      "sourceLine": 43,
+      "functionName": "autoDefaults",
+      "functionSignature": "function autoDefaults(\r\n  inputFields: string[],\r\n  context: Record<string, unknown>,\r\n  flowName?: string,\r\n): Record<s",
+      "test": "skip"
+    },
+    {
+      "key": "src/mcp/handlers/cli-test.ts:createCliTestHandlers",
+      "task": "B-7845",
+      "checklist": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003",
+        "CHK-004",
+        "CHK-005"
+      ],
+      "title": "cli_test 独立命令",
+      "type": "feature",
+      "priority": "high",
+      "description": "与 browser_test 对称的 CLI 黑盒测试入口",
+      "changes": [
+        "新增 cli_test 命令入口",
+        "git clean 检查",
+        "worktree 隔离执行",
+        "$prev/$context 占位符",
+        "统一输出格式"
+      ],
+      "sourceFile": "src/mcp/handlers/cli-test.ts",
+      "sourceLine": 91,
+      "functionName": "createCliTestHandlers",
+      "functionSignature": "export function createCliTestHandlers(ctx: HandlerContext)",
+      "test": "cli-test"
+    },
+    {
+      "key": "src/mcp/handlers/cli-test.ts:resolveContextRefs",
+      "task": "B-7845",
+      "checklist": [
+        "CHK-004"
+      ],
+      "title": "$prev 占位符解析",
+      "type": "feature",
+      "priority": "high",
+      "description": "解析 input 中的 $prev.xxx 引用",
+      "changes": [
+        "新增 $prev 解析函数"
+      ],
+      "sourceFile": "src/mcp/handlers/cli-test.ts",
+      "sourceLine": 39,
+      "functionName": "resolveContextRefs",
+      "functionSignature": "function resolveContextRefs(value: unknown, context: Record<string, unknown>): unknown",
+      "test": "cli-test"
+    },
+    {
+      "key": "src/mcp/handlers/cli-test.ts:extractToContext",
+      "task": "B-7845",
+      "checklist": [
+        "CHK-004"
+      ],
+      "title": "提取上下文到 context",
+      "type": "feature",
+      "priority": "high",
+      "description": "从 handler 返回值提取字段到 context",
+      "changes": [
+        "新增 context 提取"
+      ],
+      "sourceFile": "src/mcp/handlers/cli-test.ts",
+      "sourceLine": 60,
+      "functionName": "extractToContext",
+      "functionSignature": "function extractToContext(result: unknown, context: Record<string, unknown>): void",
+      "test": "cli-test"
+    },
+    {
+      "key": "src/mcp/handlers/cli-test.ts:isCliToolCase",
+      "task": "B-7845",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "判断是否为 CLI 工具 case",
+      "type": "feature",
+      "priority": "high",
+      "description": "判断 fn 是否为已注册的 CLI 工具名",
+      "changes": [
+        "新增判断函数"
+      ],
+      "sourceFile": "src/mcp/handlers/cli-test.ts",
+      "sourceLine": 78,
+      "functionName": "isCliToolCase",
+      "functionSignature": "function isCliToolCase(\n  fn: string | undefined,\n  toolNames: Set<string>,\n  isBrowser: boolean,\n): boolean",
+      "test": "cli-test"
+    },
+    {
+      "key": "src/mcp/handlers/cli-test.ts:git",
+      "task": "B-7845",
+      "checklist": [
+        "CHK-003"
+      ],
+      "title": "git 命令执行",
+      "type": "feature",
+      "priority": "high",
+      "description": "在指定 cwd 执行 git 命令",
+      "changes": [
+        "新增 git helper"
+      ],
+      "sourceFile": "src/mcp/handlers/cli-test.ts",
+      "sourceLine": 87,
+      "functionName": "git",
+      "functionSignature": "function git(cmd: string, cwd: string): string",
+      "test": "skip"
+    },
+    {
+      "key": "src/mcp/handlers/cli-test.ts:withTimeout",
+      "task": "B-7845",
+      "checklist": [
+        "CHK-005"
+      ],
+      "title": "Promise 超时包装",
+      "type": "feature",
+      "priority": "high",
+      "description": "为 Promise 添加超时机制",
+      "changes": [
+        "新增超时包装"
+      ],
+      "sourceFile": "src/mcp/handlers/cli-test.ts",
+      "sourceLine": 287,
+      "functionName": "withTimeout",
+      "functionSignature": "function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T>",
+      "test": "cli-test"
+    },
+    {
+      "key": "src/mcp/handlers/cli-test.ts:matchExpect",
+      "task": "B-7845",
+      "checklist": [
+        "CHK-005"
+      ],
+      "title": "匹配 expect 结果",
+      "type": "feature",
+      "priority": "high",
+      "description": "匹配 actual 与 expect，支持 pattern 和 deep equal",
+      "changes": [
+        "新增匹配函数"
+      ],
+      "sourceFile": "src/mcp/handlers/cli-test.ts",
+      "sourceLine": 295,
+      "functionName": "matchExpect",
+      "functionSignature": "function matchExpect(actual: unknown, expect: unknown):",
+      "test": "cli-test"
     }
   ]
 }

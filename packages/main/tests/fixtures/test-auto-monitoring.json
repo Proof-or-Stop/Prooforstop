@@ -1,0 +1,86 @@
+{
+  "cases": [
+    {
+      "name": "setup: create story",
+      "run_type": "cli",
+      "fn": "story_create",
+      "file": "mcp/handlers/story",
+      "execute": "const r = await $handlers.story_create({name:\"monitor-test\",title:\"Monitor Test\",description:\"test\",type:\"feature\",priority:\"high\"}); $ctx.sid = r.match(/B-[a-f0-9]+/)[0]; return r",
+      "expect": {
+        "pattern": "created"
+      }
+    },
+    {
+      "name": "test_auto handler returns JSON with core fields",
+      "run_type": "cli",
+      "fn": "story_get",
+      "file": "mcp/handlers/story",
+      "execute": "return typeof $handlers.test_auto === 'function' && typeof $handlers.test_fixture === 'function'",
+      "expect": true,
+      "intentRef": "CHK-007:happy:0"
+    },
+    {
+      "name": "story_get returns structured data",
+      "run_type": "cli",
+      "fn": "story_get",
+      "file": "mcp/handlers/story",
+      "execute": "const r = $handlers.story_get({storyId:$ctx.sid}); return typeof r === 'string' || typeof r === 'object'",
+      "expect": true,
+      "intentRef": "CHK-007:happy:1"
+    },
+    {
+      "name": "bug_list returns structured result",
+      "run_type": "cli",
+      "fn": "bug_list",
+      "file": "mcp/handlers/bug",
+      "execute": "const r = $handlers.bug_list({storyId:$ctx.sid}); return r.bugs !== undefined && Array.isArray(r.bugs)",
+      "expect": true,
+      "intentRef": "CHK-007:edge:0"
+    },
+    {
+      "name": "fixture_get returns cases array",
+      "run_type": "cli",
+      "fn": "fixture_get",
+      "file": "mcp/handlers/fixture",
+      "execute": "$handlers.fixture_batch_add({fixturePath:\"_tmp_mon_fg\",cases:[{name:\"t\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return true\",expect:true}]}); const r = $handlers.fixture_get({fixturePath:\"_tmp_mon_fg\"}); return r.cases.length === 1 && typeof r.cases[0]._id === 'string'",
+      "expect": true,
+      "intentRef": "CHK-007:edge:1"
+    },
+    {
+      "name": "fixture_batch_add creates valid fixture file",
+      "run_type": "cli",
+      "fn": "fixture_batch_add",
+      "file": "mcp/handlers/fixture",
+      "execute": "const r = $handlers.fixture_batch_add({fixturePath:\"_tmp_mon_ba\",cases:[{name:\"a\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return 1\",expect:1},{name:\"b\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return 2\",expect:2}]}); return r.includes(\"2/2\") || r.includes(\"OK\")",
+      "expect": true,
+      "intentRef": "CHK-007:edge:2"
+    },
+    {
+      "name": "test_list returns tests array",
+      "run_type": "cli",
+      "fn": "test_list",
+      "file": "mcp/handlers/test-auto",
+      "execute": "const r = $handlers.test_list({storyId:$ctx.sid}); return r.tests !== undefined",
+      "expect": true,
+      "intentRef": "CHK-007:adversarial:0"
+    },
+    {
+      "name": "story_list returns structured dashboard",
+      "run_type": "cli",
+      "fn": "story_list",
+      "file": "mcp/handlers/story",
+      "execute": "const r = $handlers.story_list(); return typeof r === 'string' && (r.includes('stories') || r.includes('Story'))",
+      "expect": true,
+      "intentRef": "CHK-007:adversarial:1"
+    },
+    {
+      "name": "diagnose returns valid JSON or error",
+      "run_type": "cli",
+      "fn": "diagnose",
+      "file": "mcp/handlers/diagnose",
+      "execute": "const r = await $handlers.diagnose({caseName:\"nonexistent\"}); const d = JSON.parse(r); return d.error !== undefined || typeof d.gitDiff === 'string'",
+      "expect": true,
+      "intentRef": "CHK-007:adversarial:2"
+    }
+  ]
+}

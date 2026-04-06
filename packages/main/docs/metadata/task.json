@@ -1,0 +1,202 @@
+{
+  "version": 1,
+  "updatedAt": "2026-04-04T01:00:09.349Z",
+  "tasks": [
+    {
+      "key": "story/machine.ts:getGuardFailureReason",
+      "task": "B-61da",
+      "checklist": [
+        "CHK-002",
+        "CHK-003",
+        "CHK-005"
+      ],
+      "title": "PLAN→DEV 门禁检查 + 失败原因",
+      "type": "feature",
+      "priority": "high",
+      "description": "canStartDev guard 检查 testIntent 和 review，getGuardFailureReason 返回具体原因",
+      "changes": [
+        "[CHK-002] canStartDev 检查 testIntent 三栏非空",
+        "[CHK-003] canStartDev 检查 review issueCount=0",
+        "[CHK-005] getGuardFailureReason 覆盖 DEV 阶段"
+      ],
+      "sourceFile": "story/machine.ts",
+      "sourceLine": 128,
+      "functionName": "getGuardFailureReason",
+      "functionSignature": "export function getGuardFailureReason(\r\n  storyId: string,\r\n  store: StoryStore,\r\n  targetPhase: string,\r\n): string | nu",
+      "test": "story-machine"
+    },
+    {
+      "key": "mcp/handlers/checklist.ts:checklist_update",
+      "task": "B-61da",
+      "checklist": [
+        "CHK-007"
+      ],
+      "title": "checklist_update 支持 testIntent",
+      "type": "feature",
+      "priority": "high",
+      "description": "扩展 checklist_update 支持 testIntent 参数",
+      "changes": [
+        "[CHK-007] status 改为可选，新增 testIntent 参数，校验三栏非空"
+      ],
+      "sourceFile": "mcp/handlers/checklist.ts",
+      "sourceLine": 11,
+      "functionName": "checklist_update",
+      "functionSignature": "checklist_update(args:",
+      "test": "story-checklist"
+    },
+    {
+      "key": "mcp/handlers/story.ts:story_advance",
+      "task": "B-61da",
+      "checklist": [
+        "CHK-001",
+        "CHK-004"
+      ],
+      "title": "DEV→PLAN 回退 + REPLAN 事件映射",
+      "type": "feature",
+      "priority": "high",
+      "description": "story_advance 支持 DEV→PLAN 回退，动态映射 REPLAN 事件",
+      "changes": [
+        "[CHK-001] DEV 状态下 REPLAN→PLAN 转换",
+        "[CHK-004] 根据当前状态选择 PLAN/REPLAN 事件"
+      ],
+      "sourceFile": "mcp/handlers/story.ts",
+      "sourceLine": 130,
+      "functionName": "story_advance",
+      "functionSignature": "story_advance(args:",
+      "test": "skip"
+    },
+    {
+      "key": "mcp/handlers/story.ts:story_quick",
+      "task": "B-61da",
+      "checklist": [
+        "CHK-006"
+      ],
+      "title": "story_quick 停在 PLAN",
+      "type": "feature",
+      "priority": "high",
+      "description": "story_quick 不再自动 advance DEV",
+      "changes": [
+        "[CHK-006] 移除自动 advance DEV 逻辑"
+      ],
+      "sourceFile": "mcp/handlers/story.ts",
+      "sourceLine": 115,
+      "functionName": "story_quick",
+      "functionSignature": "story_quick(args:",
+      "test": "skip"
+    },
+    {
+      "key": "mcp/handlers/fixture.ts:validateFixtureCase",
+      "task": "B-1ae5",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "fixture case intentRef 校验",
+      "type": "feature",
+      "priority": "high",
+      "description": "validateFixtureCase 新增 intentRef 格式校验",
+      "changes": [
+        "[CHK-001] intentRef 加入 KNOWN_CASE_FIELDS，格式校验 CHK-xxx:lane:index"
+      ],
+      "sourceFile": "mcp/handlers/fixture.ts",
+      "sourceLine": 14,
+      "functionName": "validateFixtureCase",
+      "functionSignature": "export function validateFixtureCase(c: Record<string, unknown>): string[]",
+      "test": "skip"
+    },
+    {
+      "key": "mcp/handlers/checklist.ts:collectIntentRefs",
+      "task": "B-1ae5",
+      "checklist": [
+        "CHK-002"
+      ],
+      "title": "扫描 fixture 中所有 intentRef",
+      "type": "feature",
+      "priority": "high",
+      "description": "遍历 fixturesDir 收集所有 case 的 intentRef",
+      "changes": [
+        "[CHK-002] 新增 collectIntentRefs 辅助函数"
+      ],
+      "sourceFile": "mcp/handlers/checklist.ts",
+      "sourceLine": 11,
+      "functionName": "collectIntentRefs",
+      "functionSignature": "function collectIntentRefs(fixturesDir: string): Set<string>",
+      "test": "skip"
+    },
+    {
+      "key": "mcp/handlers/story.ts:story_create",
+      "task": "B-e5f1",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "创建 story",
+      "type": "feature",
+      "priority": "high",
+      "description": "MCP handler: 创建新 story",
+      "changes": [
+        "既有函数补注解"
+      ],
+      "sourceFile": "mcp/handlers/story.ts",
+      "sourceLine": 18,
+      "functionName": "story_create",
+      "functionSignature": "story_create(args:",
+      "test": "story-create"
+    },
+    {
+      "key": "mcp/handlers/story.ts:story_review",
+      "task": "B-e5f1",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "story 对抗审查",
+      "type": "feature",
+      "priority": "high",
+      "description": "MCP handler: story testIntent 审查",
+      "changes": [
+        "既有函数补注解"
+      ],
+      "sourceFile": "mcp/handlers/story.ts",
+      "sourceLine": 490,
+      "functionName": "story_review",
+      "functionSignature": "story_review(args:",
+      "test": "story-machine"
+    },
+    {
+      "key": "mcp/handlers/bug.ts:bug_report",
+      "task": "B-e5f1",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "bug 上报",
+      "type": "feature",
+      "priority": "high",
+      "description": "MCP handler: 上报 bug",
+      "changes": [
+        "既有函数补注解"
+      ],
+      "sourceFile": "mcp/handlers/bug.ts",
+      "sourceLine": 9,
+      "functionName": "bug_report",
+      "functionSignature": "bug_report(args:",
+      "test": "tools-bug_report"
+    },
+    {
+      "key": "cli.ts:parseFlagsTest",
+      "task": "B-5c84",
+      "checklist": [
+        "CHK-001"
+      ],
+      "title": "flag 解析测试入口",
+      "type": "refactor",
+      "priority": "high",
+      "description": "接受 JSON schema 描述，内部��� Zod 调用 parseFlags",
+      "changes": [
+        "新增测试入口函数"
+      ],
+      "sourceFile": "cli.ts",
+      "sourceLine": 283,
+      "functionName": "parseFlagsTest",
+      "functionSignature": "export function parseFlagsTest(rawArgs: string[], schemaDesc: Record<string, string>): Record<string, unknown>",
+      "test": "cli-flags"
+    }
+  ]
+}
