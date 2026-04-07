@@ -79,7 +79,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
 
       const result: Record<string, unknown> = { checklist: cl, review };
       if (args.detail) {
-        result.index = store.readStory(args.storyId);
+        try { result.index = store.readStory(args.storyId); } catch { result.index = null; }
       }
       return result;
     },

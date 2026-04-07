@@ -70,6 +70,14 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       const worktreePath = join(repoRoot, worktreeDir, args.storyId);
       const relWorktreePath = relative(repoRoot, worktreePath).replace(/\\/g, '/');
 
+      // B-7eed: 先把 story.worktree 字段写进 story index.json，再 git add/commit，
+      // 避免 commit 后 writeStory 留下主仓库 working tree 脏（会导致后续 DONE
+      // 阶段 `git merge story/B-xxx` 报 "local changes would be overwritten"）。
+      const now = new Date().toISOString();
+      story.worktree = { path: relWorktreePath, branch, createdAt: now };
+      if (!story.startedAt) story.startedAt = now;
+      store.writeStory(args.storyId, story);
+
       // 先 commit story/metadata 文件，确保 worktree 能看到
       // B-5246: fresh `git init` 仓库还没有任何 commit；`git branch story/B-xxx`
       // 在没有 HEAD 的情况下会 `fatal: not a valid object name: 'main'`。
@@ -105,12 +113,6 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
 
       // 创建 worktree
       git(`worktree add "${worktreePath}" ${branch}`);
-
-      // 记录到 story
-      const now = new Date().toISOString();
-      story.worktree = { path: relWorktreePath, branch, createdAt: now };
-      if (!story.startedAt) story.startedAt = now;
-      store.writeStory(args.storyId, story);
 
       // 依赖检查
       let depsWarning = '';

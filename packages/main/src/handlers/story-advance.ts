@@ -8,6 +8,8 @@ import { loadConfig } from '../core/config.js';
 import { runHooks, buildHookEnv } from '../core/hooks.js';
 import { renderSummaryForHint } from './summary.js';
 import { execSync } from 'child_process';
+import { dirname } from 'path';
+import { existsSync } from 'fs';
 
 /**
  * DONE Final Checklist：把 DONE 阶段所有验证项收成一份显式清单。
@@ -488,8 +490,8 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
       }
 
       const nextSteps: Record<string, string> = {
-        PLAN: `→ 建议立即切到 Claude Code plan 模式（shift-tab 两次到 plan mode）——PLAN 阶段只拆 checklist / 写 understanding_set / decision_set，不应改代码。Edit/Write 被 plan mode 禁掉能防误触。\n→ 下一步: checklist_get(${args.storyId}) 查看待开发项，然后 story_advance(${args.storyId}, DEV) 开始开发`,
-        DEV: `→ 如果之前在 plan 模式，现在 shift-tab 退出 plan 模式（DEV 需要 Edit/Write 权限）。\n→ 下一步: 写代码实现（此阶段可改代码，不写测试）。完成后 story_advance(${args.storyId}, TEST_CASE)`,
+        PLAN: `→ 下一步: checklist_get(${args.storyId}) 查看待开发项，然后 story_advance(${args.storyId}, DEV) 开始开发`,
+        DEV: `→ 下一步: 写代码实现（此阶段可改代码，不写测试）。完成后 story_advance(${args.storyId}, TEST_CASE)`,
         TEST_CASE: `→ 下一步: 根据 testIntent 编写 fixture case（只改 fixture，不改代码）。完成后 story_advance(${args.storyId}, TEST_CASE_REVIEW)。如需改代码请先 story_advance(${args.storyId}, DEV) 回退`,
         TEST_CASE_REVIEW: `→ 下一步: 启动 test-case-reviewer agent 审核（不改代码也不改 case）。未通过时主 agent 调 story_advance(${args.storyId}, DEV) 回退改代码，或 story_advance(${args.storyId}, TEST_CASE) 回退改 case`,
         TEST: `→ 必须立即执行: test_story('${args.storyId}') 跑当前 story 关联 case，写 bug/evidence。fail 自动 aux_diagnose + bug_report，pass 自动标 bug fixed。需要刷新架构 trace 时再 test_auto({trace:true})`,
@@ -497,6 +499,7 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
       };
       let doneChecklistPrefix = '';
       let doneSummarySuffix = '';
+      let doneMergeReport = '';
       if (args.phase === 'DONE') {
         const rendered = (globalThis as any).__koalaDoneChecklistRendered;
         if (rendered) {
@@ -510,9 +513,120 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
             doneSummarySuffix = `\n\n${renderSummaryForHint(summary)}`;
           }
         } catch { /* ignore */ }
+
+        // B-7eed: DONE 成功后自动 git merge 回 main + 清 worktree + 删 branch。
+        // CLAUDE.md 承诺"内部自动合并"但旧代码没实现，每次 DONE 都要手动 cleanup。
+        // 复用 dev_merge 的逻辑（worktree.ts:208）但从 story-advance 触发。
+        //
+        // 关键的执行顺序（不能乱）：
+        //   1. 清 story.worktree 字段 + writeStory（在 worktree fs 内）
+        //   2. git add + git commit 把这一步以及之前的 phase=DONE 改动都落到 story 分支
+        //   3. cd 到主仓库根目录，git merge story 分支（worktree 内不能 merge 自己）
+        //   4. worktree remove
+        //   5. branch -d
+        // 注意：不能依赖 story.worktree 字段——INIT_CHECK 把这个字段写到了 main
+        // 仓库的 index.json，但 worktree 内 checkout 的版本是 INIT_CHECK 之前的，
+        // 没有这个字段。所以 readStory(from worktree) 永远拿到 worktree=undefined。
+        // 改为从 git 实际状态推断：cwd（worktree 路径）+ 当前分支 + git common dir。
+        const cwdInWorktree = process.cwd();
+        let detectedBranch = '';
+        let mainRepoRoot = '';
+        let wtPathAbs = '';
+        try {
+          detectedBranch = execSync('git rev-parse --abbrev-ref HEAD', {
+            cwd: cwdInWorktree, encoding: 'utf-8',
+          }).trim();
+          const commonDirRaw = execSync('git rev-parse --path-format=absolute --git-common-dir', {
+            cwd: cwdInWorktree, encoding: 'utf-8',
+          }).trim();
+          mainRepoRoot = dirname(commonDirRaw);
+          // 只有 cwd 真的是 worktree 而非 main 时才走自动合并
+          if (cwdInWorktree !== mainRepoRoot && detectedBranch.startsWith('story/')) {
+            wtPathAbs = cwdInWorktree;
+          }
+        } catch {
+          // PROBE: 不在 git 仓库或 git 命令失败 → 跳过自动合并
+        }
+
+        if (detectedBranch && wtPathAbs && mainRepoRoot && detectedBranch.startsWith('story/')) {
+          const mergeLines: string[] = [];
+          const branch = detectedBranch;
+          {
+            const runGit = (cmd: string, cwd: string): string =>
+              execSync(`git ${cmd}`, { cwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).toString().trim();
+
+            // Step 1: 清 story.worktree 字段 + endedAt + writeStory，让 metadata 落盘
+            story.worktree = undefined;
+            story.endedAt = story.endedAt || new Date().toISOString();
+            store.writeStory(args.storyId, story);
+
+            // Step 2: commit 所有 story metadata（phase=DONE + worktree=undefined +
+            // endedAt + reviewer/test 产物）。dev_merge:228 用的是同一招。
+            try {
+              runGit('add docs/story', cwdInWorktree);
+              const staged = runGit('diff --cached --name-only', cwdInWorktree);
+              if (staged) {
+                runGit(
+                  `-c commit.gpgsign=false commit -m "koala: mark ${args.storyId} DONE + clear worktree"`,
+                  cwdInWorktree,
+                );
+              }
+            } catch { /* PROBE: 没东西 commit 也无所谓 */ }
+
+            // Step 3: 从主仓库根目录 merge story 分支。merge 冲突直接 throw 给上层
+            // 让 agent 看到详细的手动 cleanup 步骤——phase 已经是 DONE，不回滚，但
+            // 必须让 user 知道还有手动收尾要做。
+            const mainBranch = runGit('rev-parse --abbrev-ref HEAD', mainRepoRoot);
+            try {
+              runGit(
+                `-c commit.gpgsign=false merge ${branch} --no-ff -m "merge: ${args.storyId} ${story.title}"`,
+                mainRepoRoot,
+              );
+              mergeLines.push(`✓ 分支 ${branch} 已合并到 ${mainBranch}`);
+            } catch (e: any) {
+              throw new Error(
+                `Story ${args.storyId} 已标记为 DONE 但自动合并失败:\n` +
+                `${e.stderr?.toString() || e.message}\n\n` +
+                `请手动完成:\n` +
+                `  cd "${mainRepoRoot}"\n` +
+                `  git merge ${branch}\n` +
+                `  git worktree remove --force "${wtPathAbs}"\n` +
+                `  git branch -d ${branch}`,
+              );
+            }
+
+            // Step 4: 清理 worktree
+            if (existsSync(wtPathAbs)) {
+              try {
+                runGit(`worktree remove "${wtPathAbs}"`, mainRepoRoot);
+                mergeLines.push(`✓ Worktree ${wtPathAbs} 已清理`);
+              } catch {
+                // worktree 内有 tmp/ llmlog 等运行时产物时 remove 会拒绝，用 --force
+                try {
+                  runGit(`worktree remove --force "${wtPathAbs}"`, mainRepoRoot);
+                  mergeLines.push(`✓ Worktree ${wtPathAbs} 已强制清理`);
+                } catch (e: any) {
+                  mergeLines.push(`⚠ Worktree 未清理: ${e.message}`);
+                }
+              }
+            }
+
+            // Step 5: 删除分支
+            try {
+              runGit(`branch -d ${branch}`, mainRepoRoot);
+              mergeLines.push(`✓ 分支 ${branch} 已删除`);
+            } catch {
+              mergeLines.push(`⚠ 分支 ${branch} 未删除（可能有未合并的提交）`);
+            }
+          }
+
+          if (mergeLines.length > 0) {
+            doneMergeReport = `\n\n${mergeLines.join('\n')}`;
+          }
+        }
       }
 
-      return `${doneChecklistPrefix}Story ${args.storyId} advanced to ${newState}\n${nextSteps[newState] || ''}${docsHint}${depsWarning}${sessionWarning}${doneSummarySuffix}`;
+      return `${doneChecklistPrefix}Story ${args.storyId} advanced to ${newState}${doneMergeReport}\n${nextSteps[newState] || ''}${docsHint}${depsWarning}${sessionWarning}${doneSummarySuffix}`;
     },
   };
 }

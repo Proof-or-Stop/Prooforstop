@@ -57,7 +57,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     storyId: z.string().describe('Story ID'), title: z.string().optional().describe('新标题'),
     description: z.string().optional().describe('新描述'), priority: z.string().optional().describe('新优先级'),
   }},
-  { name: 'story_get', description: '读取 Story 详情', schema: { storyId: z.string().describe('Story ID') }},
+  { name: 'story_get', description: '读取 Story 详情', schema: { storyId: z.string().describe('Story ID'), detail: z.boolean().optional().describe('附带 index.json 全字段（phase/priority/name/description/...）到 result.index') }},
   { name: 'story_list', description: '列出全部 Story', schema: {
     phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','TEST_CASE','TEST_CASE_REVIEW','TEST','DONE','DISCARDED']).optional().describe('按阶段过滤（与 active 互斥）'),
     active: z.boolean().optional().describe('仅列出非终态 story（排除 DONE/DISCARDED/IDEA）。B-89c7 CHK-016 新增'),
