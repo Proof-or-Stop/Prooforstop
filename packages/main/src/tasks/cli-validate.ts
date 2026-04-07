@@ -2,7 +2,7 @@
 
 import { join } from 'path';
 import { validate } from './validate.js';
-import { loadConfig } from '../config.js';
+import { loadConfig } from '../core/config.js';
 
 const rootDir = process.env.KOALA_PROJECT_ROOT || process.cwd();
 const scanRoot = join(rootDir, loadConfig(rootDir).scanRoot);

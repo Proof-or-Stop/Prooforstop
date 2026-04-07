@@ -2,7 +2,7 @@
 import { readFileSync, statSync } from 'fs';
 import { join, relative } from 'path';
 import { walkDir, extractBlocks, parseBlock, parseFunctionAfterBlock } from './extract.js';
-import { loadConfig } from '../config.js';
+import { loadConfig } from '../core/config.js';
 import type { FlowChain, FlowValidationIssue, FlowValidationResult, TaskAnnotation, ValidationIssue, ValidationResult } from './types.js';
 
 const REQUIRED_FIELDS = ['task', 'checklist', 'title', 'type', 'priority', 'description', 'changes'];

@@ -1,7 +1,7 @@
 
 import { readFileSync, readdirSync, statSync, writeFileSync, existsSync } from 'fs';
 import { join, relative, basename } from 'path';
-import { loadConfig } from '../config.js';
+import { loadConfig } from '../core/config.js';
 
 /** 从 md 文件中提取的条目 */
 export interface TruthEntry {

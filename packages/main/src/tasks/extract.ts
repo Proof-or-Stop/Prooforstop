@@ -2,7 +2,7 @@
 import { readFileSync, readdirSync, statSync, existsSync } from 'fs';
 import { join, relative, extname, dirname } from 'path';
 import type { TaskAnnotation, ExtractFilters, FlowStep, FlowChain } from './types.js';
-import { loadConfig } from '../config.js';
+import { loadConfig } from '../core/config.js';
 
 const EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx']);
 const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', 'build', 'coverage']);

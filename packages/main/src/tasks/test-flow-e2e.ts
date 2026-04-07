@@ -3,10 +3,10 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync, existsSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { pathToFileURL } from 'url';
-import { StoryStore } from '../story/store.js';
-import { createToolHandlers } from '../mcp/tools.js';
+import { StoryStore } from '../core/store.js';
+import { createToolHandlers } from '../registry.js';
 import { scan, extractFlows } from './extract.js';
-import { loadConfig } from '../config.js';
+import { loadConfig } from '../core/config.js';
 
 // ── 配置加载 ──
 

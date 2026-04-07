@@ -3,7 +3,7 @@ import { execSync } from 'child_process';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import { scan, extractFlows } from './extract.js';
-import { loadConfig } from '../config.js';
+import { loadConfig } from '../core/config.js';
 import type { TaskAnnotation, FlowChain } from './types.js';
 
 export interface TestCase {

@@ -1,8 +1,8 @@
 
-import { StoryStore } from '../story/store.js';
-import { loadConfig } from '../config.js';
+import { StoryStore } from '../core/store.js';
+import { loadConfig } from '../core/config.js';
 import { execSync } from 'child_process';
-import type { StoryInfo, BugRecord } from '../story/types.js';
+import type { StoryInfo, BugRecord } from '../core/types.js';
 
 // ── Types ──
 

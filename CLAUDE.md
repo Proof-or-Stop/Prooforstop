@@ -3,8 +3,9 @@
 
 ## 行为准则
 
+0. **每次新 session 或恢复中断工作时，第一个命令必须是 `koala session_brief`**。它会输出 active story / phase / checklist / bug / 最近 activity / 推断的下一步，避免凭记忆瞎猜
 1. 任何需求先走完整 Story 流程，除非用户明确说"立刻改"或"快速修改"
-2. 行动前先 `koala task_scan` 了解项目，不要直接 Read 文件或用 Explore
+2. 行动前先 `koala session_brief`（项目状态）+ `koala aux_doc_list`（相关文档），再酌情 Read 关键文件。注意：全局安装的 `@koala-agent/core` CLI **只有核心命令**（story / checklist / fixture / test / session_brief / summary / doctor），`aux_*` 系列（scan/detail/sync/trace/diagnose/doc_list/coverage/locate）在 `@koala-agent/utils` 里，需要 bootstrap 脚本才会加载——日常全局 `koala` 命令下 `aux_scan` 会报"未知命令"。用 `aux_doc_list` 是已 bootstrap 的 koala 开发环境下的路径
 3. 输出要简洁，但推理要彻底
 4. 优先编辑而不是重写整个文件
 5. 不要重复阅读已经读过的文件
@@ -60,7 +61,7 @@ INIT → INIT_CHECK → PLAN → DEV → TEST_CASE → TEST_CASE_REVIEW → TEST
 | **TEST_CASE** | 主 agent | 根据 testIntent 编写 fixture case。**只改 fixture，不改代码** |
 | **TEST_CASE_REVIEW** | **test-case-reviewer agent** | 逐条审核 testIntent 是否有对应测试，调 CLI 记录结果。**不改代码也不改 case** |
 | **TEST** | CLI 自动 | `test_auto` 跑全部 fixture + e2e（含 V8 profiler trace） |
-| **DONE** | — | 完成（所有 bug 已 fixed），`dev_merge` 合并回 main 并清理 worktree |
+| **DONE** | — | 完成（所有 bug 已 fixed），`story_advance --phase=DONE` 内部合并回 main 并清理 worktree |
 
 ### Git Clean 门禁
 
@@ -80,8 +81,8 @@ INIT → INIT_CHECK → PLAN → DEV → TEST_CASE → TEST_CASE_REVIEW → TEST
 3. **`cd .worktrees/B-xxx`**（必须切，否则下一步会被 cwd 门禁拒绝）
 4. `story_advance PLAN` → cwd 门禁通过，正式进入开发流程
 5. PLAN/DEV/TEST_CASE/TEST_CASE_REVIEW/TEST 全部在 worktree 里完成
-6. `dev_finish` → 推进 TEST，跑测试
-7. `dev_merge` → 合并回 main，清理 worktree
+6. `story_advance --phase=TEST` → 推进 TEST，自动跑测试
+7. `story_advance --phase=DONE` → 内部自动合并回 main 并清理 worktree（dev_finish/dev_merge 是内部 handler，无独立 CLI 入口）
 
 **cwd 门禁**：PLAN 起所有 phase 的 `story_advance` 都会校验当前 cwd 是 story 的 worktree。不在 worktree 时报错并提示 cd。
 
@@ -96,7 +97,7 @@ INIT → INIT_CHECK → PLAN → DEV → TEST_CASE → TEST_CASE_REVIEW → TEST
 ```
 test_auto 执行
   ├─ case PASS → 保存 trace 快照 → 若有关联 bug 则自动标 fixed
-  ├─ case FAIL → 自动 diagnose（lastPass trace diff + git diff）→ 自动 bug_report
+  ├─ case FAIL → 自动 aux_diagnose（lastPass trace diff + git diff）→ 自动 bug_report
   └─ trace 变化 → 输出 warning（调用链分叉/新增/消失）
 → 全部 PASS + 所有 bug fixed → DONE
 → 有 FAIL → hint 回退 DEV → 修复 → 重跑 test_auto
@@ -154,31 +155,42 @@ koala story_advance '{"storyId":"B-xxx","phase":"DEV"}'
 # 批量添加 fixture case
 koala fixture_batch_add '{"fixturePath":"game-logic","cases":[{"name":"test1","run_type":"cli","file":"mcp/handlers/my","execute":"return $handlers.myTool({})","expect":true}]}'
 
+# PLAN 阶段产物：理解快照 + 结构化决策
+koala understanding_set '{"storyId":"B-xxx","task":"...","outcome":"...","facts":[...],"constraints":[...],"unknowns":[...],"touchpoints":[...]}'
+koala understanding_get '{"storyId":"B-xxx"}'
+koala decision_set '{"storyId":"B-xxx","principles":[...],"drivers":[...],"options":[{"name":"A","pros":[...],"cons":[...]},{"name":"B","pros":[...],"cons":[...]}],"chosen":"A","rationale":"...","preMortem":[{"scenario":"...","trigger":"...","consequence":"...","mitigation":"..."}]}'
+koala decision_get '{"storyId":"B-xxx"}'
+
+# 5 轮 cap 触发后的人类介入（必须 human:true）
+koala testintent_resume '{"storyId":"B-xxx","itemId":"CHK-001","lane":"happy","index":0,"reason":"...","human":true}'
+
 # checklist
 koala checklist_get '{"storyId":"B-xxx"}'
 koala checklist_update '{"storyId":"B-xxx","itemId":"CHK-001","status":"done"}'
 
 # 文档列表（PLAN 阶段挑 relatedDocs 用，扫 docs/ + requirements/ + 根目录的 CLAUDE/README/AGENTS）
-koala doc_list                          # text 格式，按目录分组 + H1 标题 + 修改时间
-koala doc_list '{"format":"json"}'      # json 格式
+koala aux_doc_list                          # text 格式，按目录分组 + H1 标题 + 修改时间
+koala aux_doc_list '{"format":"json"}'      # json 格式
 
 # 测试
 koala test_auto                       # 全量回归：跑所有 fixture 所有 case（CI/发版前用）
 koala test_story '{"storyId":"B-xxx"}'  # story 级测试：只跑关联 case，写 bug/evidence
 koala test_fixture '{"fixtureId":"uuid"}'  # 单 case/单链测试：按 _id 定位
-koala browser_test                    # 快捷方式：只跑 Browser 黑盒
-
-# 迁移
-koala fixture_migrate                 # 为旧 fixture case 补写 _id 和 prevCaseId/nextCaseId
-koala fixture_migrate '{"dryRun":true}'  # 仅预览不写入
 
 # 自动诊断（case fail 时定位根因）
-koala diagnose '{"caseName":"case名"}'  # lastPass trace diff + git diff → 根因 + 修复建议
+koala aux_diagnose '{"caseName":"case名"}'  # lastPass trace diff + git diff → 根因 + 修复建议
 
 # 架构提取（基于 trace 数据）
-koala arch_trace '{"format":"json"}'    # 输出业务逻辑线、函数影响图、覆盖盲区
-koala arch_trace '{"format":"mermaid"}' # 输出 mermaid 流程图
+koala aux_trace '{"format":"json"}'    # 输出业务逻辑线、函数影响图、覆盖盲区
+koala aux_trace '{"format":"mermaid"}' # 输出 mermaid 流程图
+
+# 元数据辅助（@koala-agent/utils，需 bootstrap 启用；非全局 koala 下不可用）
+koala aux_scan                        # 扫源码 @task 注释 + 校验
+koala aux_detail '{"files":["foo.ts"]}'  # 按文件查函数签名/属性/import
+koala aux_sync --direction=extract    # 从源码注释提取到 task.json
 ```
+
+> ⚠ **aux_\* 命令的可用性**：全局 `npm i -g @koala-agent/core` 安装的 `koala` CLI **只包含** main 包的核心命令。`aux_*` 在 `@koala-agent/utils` 里，需要通过 `packages/koala/bin/koala.js` bootstrap 脚本同时加载 utils 才可用。如果在 observer 仓库（koala-agent）里 `koala aux_scan` 报 "未知命令"，用 `koala aux_doc_list`（也属 utils 但可能已注入）或直接用 `Glob`/`Grep` 替代。
 
 ## Checklist 写法
 
@@ -204,6 +216,67 @@ koala arch_trace '{"format":"mermaid"}' # 输出 mermaid 流程图
 3. **DONE 推进时**：列出 `git diff main...HEAD` 中未出现的关联文档清单
 
 是否更新文档由 agent 自己判断，没有 ack 机制也没有门禁。
+
+### Pre-context Intake（understanding.json）
+
+PLAN 阶段开拆 checklist 之前，主 agent 应该先调 `understanding_set` 落一份理解快照：
+
+| 字段 | 含义 |
+|---|---|
+| `task` | 一句话描述要解决的问题（≥ 5 字符）|
+| `outcome` | 完成后能观察到什么变化（≥ 5 字符）|
+| `facts` | 已知事实（来自真相源、已有代码、上下文）|
+| `constraints` | 必须遵守的规则（性能/兼容性/规范）|
+| `unknowns` | 拆 checklist 时还没想清楚的问题 |
+| `touchpoints` | 可能受影响的代码文件列表 |
+
+**第一版软引入**：未填只 hint 提醒，不阻塞。但 `story_review` 会把"missing understanding / unresolved unknowns / empty touchpoints"作为 advisory 列出，reviewer 也能看到 prompt 里的完整 understanding。`unknowns` 非空时建议拆 checklist 前先调研。
+
+### 高风险关键词检测
+
+`story_create` 自动扫 description + checklist titles 命中以下分类时自动 elevate priority 到 high 并写 `riskSignals`：
+
+- 安全/凭证（auth/password/token/credential）
+- 数据迁移/破坏性（migration/destructive/drop table）
+- 状态机/门禁（machine.ts/state machine/guard/gate）
+- test runner 框架（fixture runner/test_auto/cleanupFixtureDir）
+- git 破坏性操作（git restore/reset/clean/push --force）
+- 生产环境/紧急（production/incident/hotfix/p0/p1）
+- 合规/隐私（PII/GDPR/compliance）
+- 破坏性 API 变更（public api/api break/breaking change）
+
+命中时 `story_review` 会强制要求 decision.json + ≥ 3 preMortem 场景（缺则 blocker）。
+
+### 结构化决策（decision.json）
+
+PLAN 阶段为非 trivial story 落 `decision_set`。schema：
+
+```json
+{
+  "principles": ["..", "..", ".."],
+  "drivers": ["..", "..", ".."],
+  "options": [
+    {"name": "A: ...", "pros": ["..."], "cons": ["..."]},
+    {"name": "B: ...", "pros": ["..."], "cons": ["..."]}
+  ],
+  "chosen": "A: ...",
+  "rationale": "选 A 因为 ...",
+  "preMortem": [
+    {"scenario": "..", "trigger": "..", "consequence": "..", "mitigation": ".."}
+  ]
+}
+```
+
+校验规则（hard）：
+- `principles`: 3-5 条
+- `drivers`: 1-5 条
+- `options`: ≥ 2 个；只有 1 个时 cons 必须写明"为什么其他备选被排除"
+- 每个 option 必须有 pros + cons（不能只列好处）
+- `chosen` 必须 ∈ options
+- `rationale` ≥ 10 字符
+- 高风险 story（priority=high/critical 或 riskSignals 非空）：`preMortem` 必须 ≥ 3 条，每条 4 个字段全填
+
+非高风险 story 的 decision 是可选的（`story_review` 只 advisory）。
 
 ### testIntent（由 test-intent agent 填写）
 
@@ -259,6 +332,27 @@ results 数组支持多方对话。典型流程：
 - 全部 `pass=true` → 允许 TEST_CASE_REVIEW → TEST
 - 有 `pass=false` → 回退 **DEV**（主 agent 根据 reviewer 反馈决定改代码还是改 case）
 - CLI 返回详细失败列表（哪些 case、note 内容），reviewer agent 原样转告主 agent
+
+### 5 轮 cap（segment-aware）
+
+`testintent_record` 对每条 testIntent 强制 5 轮 cap：当前段（不含被 `human-resume` 重置过的历史段）累计 reviewer/author 条数 ≥ 5 时拒绝再写。这是 hard gate，不是 soft 提醒。
+
+触发后正确反应：
+1. **优先反思**：5 轮还没达成共识说明 testIntent 描述本身有问题，或者 checklist item 拆错了。先改根，不要找绕路
+2. **让人裁决**：实在需要继续，让用户调 `koala testintent_resume` 显式开新段（必须带 `human:true` 和 ≥ 5 字符的 `reason`）
+
+```bash
+koala testintent_resume '{
+  "storyId":"B-xxx",
+  "itemId":"CHK-001",
+  "lane":"happy",
+  "index":0,
+  "reason":"用户裁决：xxx 原因，继续审",
+  "human":true
+}'
+```
+
+主 agent 不应该自己调 `testintent_resume`——CLI 会拒绝 `human:false`，且 prompt 里"如果你是主 agent 在跑——这正是 cap 在保护你"是显式提醒。
 
 ### checklist item 拆解标准
 
@@ -363,11 +457,26 @@ story_review 检查：缺失/弱 testIntent、item 间交叉场景遗漏、真�
 - 测试统一通过 `koala test_auto` 执行（CLI 黑盒 + Browser 黑盒）
 - 所有环境统一用 CLI
 
+## Fail-fast policy（silent catch 分类约定）
+
+修 koala 框架内部代码时，新增的 `try ... catch` 必须在四个分类里挑一个，**不允许裸 silent**：
+
+| 分类 | 何时使用 | 处理方式 |
+|---|---|---|
+| **DEBUG** | 日志 / 进度上报失败 | 保留 silent，可加 `// debug:` 注释 |
+| **PROBE** | 探测类（文件/分支/git config 不存在） | 保留 silent，返回 `null`/默认值 |
+| **PERSIST** | writeLog / persistPending / save 失败 | 调 `reportHealthIssue('persist:xxx', e, ctx)` |
+| **MUTATION** | git / fs.writeFileSync / spawn 失败 | `throw new Error(...)`，让上层感知 |
+
+`reportHealthIssue` 在 `core/health.ts`，往 `~/.koala/health.jsonl` append 一条记录，**自身永不抛错**。用户跑 `koala doctor` 可以看到所有 PERSIST 失败 + 按分类汇总。
+
+写 silent catch 时问自己一个问题：**如果这里失败了，10 分钟后用户会怎么发现？** 没答案就用 `reportHealthIssue` 留痕。
+
 <!-- koala:internal:start -->
 
 ## Observer 项目
 
-observer 是一个真实的 koala 项目，有自己的业务代码和 fixture。它正常使用 koala 框架本身就是在验证基础设施（test_auto、链式执行、fixture_migrate、bug fixtureId、git cleanup）。
+observer 是一个真实的 koala 项目，有自己的业务代码和 fixture。它正常使用 koala 框架本身就是在验证基础设施（test_auto、链式执行、bug fixtureId、git cleanup）。
 
 **两边各有各的 fixture**：
 - **koala** `packages/main/tests/fixtures/`：测 koala 的业务函数（story_create、checklist_update 等）
@@ -398,7 +507,6 @@ koala 自身项目**禁止** `test_auto` 全量回归。fixture case 会操作 s
 case 的 `execute` 中禁止调用：
 - `$handlers.test_auto()` — 会全量跑所有 fixture（递归爆炸）
 - `$handlers.test_story()` — 会跑当前 story 的 case（递归）
-- `$handlers.browser_test()`
 
 `$handlers.test_fixture()` **允许调用**，但禁止自引用（不能调当前 fixture 文件中的 case）。测试 test_fixture 时必须**临时创建 fixture**（`$handlers.fixture_batch_add`），不能用当前文件或别人的真实 fixture。
 
@@ -406,7 +514,7 @@ case 的 `execute` 中禁止调用：
 
 1. **bug id 用随机后缀**：`"BUG-xxx-"+Date.now()` 而非 `"BUG-xxx"`，防止重跑冲突（`Bug already exists`）
 2. **bug_report 必须传 fixtureId**：`$handlers.bug_report({storyId,id,title,fixtureId})`，不传会导致 `bug_update fixed` 报错
-3. **独立 case 不要有链关系**：`fixture_migrate` 会把同文件所有 case 按顺序链起来，但测试 case 通常是独立的。迁移后需手动清理 `prevCaseId`/`nextCaseId`
+3. **独立 case 不要有链关系**：`fixture_batch_add` 会把同批 case 按顺序链起来，但测试 case 通常是独立的。需要独立时拆成多次 batch_add 调用
 4. **_id 强制覆盖**：`fixture_batch_add`/`fixture_update add` 会忽略外部传入的 `_id`，始终用 `randomUUID()` 生成
 5. **sandbox: false 才能用 fs**：需要写文件的 case（模拟 corrupt JSON、空目录等）必须设置 `sandbox: false`
 6. **expect pattern 必须与 execute return 值匹配**：改了 execute 必须同步改 expect，否则 pattern 不匹配直接 FAIL

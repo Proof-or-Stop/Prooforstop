@@ -2,7 +2,7 @@
 
 import { scan, extractFlows } from './extract.js';
 import { runFlowE2E } from './test-flow-e2e.js';
-import { loadConfig } from '../config.js';
+import { loadConfig } from '../core/config.js';
 
 // scanRoot 从环境变量或 config 取，CLI 参数只接 flow 名称
 const config = loadConfig();

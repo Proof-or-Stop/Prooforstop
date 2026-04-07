@@ -1,7 +1,7 @@
 ---
 name: test-intent
 description: 对抗姿态审查 checklist 拆分质量并编写 testIntent
-model: sonnet
+model: claude-opus-4-6
 tools:
   - Read
   - Bash

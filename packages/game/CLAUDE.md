@@ -40,13 +40,13 @@ koala --root /path/to/project ...   # 指定项目根目录
 koala story_quick '{"name":"xxx","title":"...","description":"...","type":"feature","priority":"high","checklist":[{"title":"做什么"}]}'
 
 # 查文件详情（签名、属性、import）
-koala task_detail '{"files":["game-logic.ts","main.ts"]}'
+koala aux_detail '{"files":["game-logic.ts","main.ts"]}'
 
-# 批量注解（1 次替代 N 次 task_annotate）
-koala task_annotate_batch '{"items":[{"sourceFile":"src/x.ts","functionName":"foo","task":"B-xxx","checklist":"CHK-001","title":"...","type":"feature","priority":"high","description":"...","changes":["新增"],"test":"fixture-name"}]}'
+# 元数据写入：在源码注释里写 /** @task B-xxx ... */，然后跑 aux_sync extract 自动同步到 task.json
+koala aux_sync --direction=extract
 
 # 批量添加 fixture case
-koala fixture_batch_add '{"fixturePath":"game-logic","cases":[{"name":"test1","fn":"foo","input":{},"expect":true}]}'
+koala fixture_batch_add '{"fixturePath":"game-logic","cases":[{"name":"test1","run_type":"cli","file":"game-logic","execute":"return $handlers.foo({})","expect":true}]}'
 
 # checklist
 koala checklist_get '{"storyId":"B-xxx"}'
@@ -96,11 +96,13 @@ steps: `eval`、`click`、`type`、`assert`（自动轮询）、`screenshot`、`
 
 ## 元数据管理
 
-源码不含注释。元数据在 `docs/metadata/task.json`，通过 CLI 操作：
+元数据来自源码内联注释 `/** @task B-xxx ... */`，由 `aux_sync extract` 同步到 `docs/metadata/task.json`：
 
-- **优先用 batch**：`task_annotate_batch`（多个函数一次调用）、`fixture_batch_add`（多个 case 一次调用）
-- `task_scan` — 查询所有元数据
-- `task_sync(validate)` — 校验一致性
+- 在函数上方写 `/** @task ... */` 注释（task / checklist / title / type / priority / description / test / changes 等字段）
+- `koala aux_sync --direction=extract` — 扫描源码注释批量写入 task.json
+- `koala aux_scan` — 查询 task.json + 校验合规
+- `koala aux_sync --direction=validate` — 校验 task.json 与源码一致性
+- `koala aux_detail '{"files":["x.ts"]}'` — 按文件查函数签名/属性
 
 每个函数必须有 `test` 字段（fixture 路径或 `"skip"`）。
 
@@ -108,7 +110,7 @@ steps: `eval`、`click`、`type`、`assert`（自动轮询）、`screenshot`、`
 
 1. **sourceFile 不含 scanRoot 前缀**：`scanRoot` 是 `src` 时，填 `game-logic.ts` 不是 `src/game-logic.ts`
 2. **fn 填 test-runtime handler 名**：如 `Game`、`resign`，不是源码方法名
-3. **必须用 batch**：`task_annotate_batch` + `fixture_batch_add`，不要逐个调用
+3. **元数据写源码注释**：直接在函数上方写 `/** @task B-xxx ... */`，不要走 CLI 单条注解；fixture case 用 `fixture_batch_add` 批量提交
 4. **fixture 一次写对**：先想清楚所有 case 再 batch_add，不要加了再删重建
 5. **checklist 逐项完成**：做完一项标一项 done，不要一开始就全标 done
 6. **门禁失败时**：读错误信息里的 `→` 修复命令，直接执行，不要放弃重做
@@ -117,7 +119,7 @@ steps: `eval`、`click`、`type`、`assert`（自动轮询）、`screenshot`、`
 ## 规则
 
 - 所有 Story/fixture/元数据操作通过 `koala` CLI 完成，禁止直接读写 JSON
-- 浏览器项目通过 `koala browser_test` 测试
+- 浏览器项目通过 `koala test_auto` 跑 `run_type:browser` 的 case 测试
 - 所有环境统一用 CLI
 
 <!-- koala:end -->

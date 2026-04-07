@@ -9,36 +9,35 @@
 **任何需求都必须先执行 `/koala`**。不要直接写代码或写测试。`/koala` 会引导你走 Story 流程：创建 → 开发 → 测试 → 收尾。
 
 - 用户说"加个功能" → `/koala` → 创建 Story → 开发 → 测试
-- 用户说"测试一下" → `/koala` → 用 `test_auto` / `browser_test` 跑测试
+- 用户说"测试一下" → `/koala` → 用 `test_auto` 跑测试（含 cli + browser case）
 - 用户说"修个 bug" → `/koala` → 创建 Bug Story → 修复 → 测试
 
 **禁止**：直接写 `.test.ts` 文件、直接用 jest/vitest/mocha。所有测试通过 koala 的 fixture + MCP 工具完成。
 
 ## 元数据管理（强制）
 
-源码是纯业务代码，**不含 @task/@flow 注释**。所有元数据存储在 `docs/metadata/` 下：
+源码以**内联注释 `/** @task ... */` 写元数据**，由 `aux_sync extract` 同步到 `docs/metadata/task.json`：
 
 - `task.json` — 函数级元数据（task/checklist/description/changes/test 等）
 
-**元数据和函数是绑定的**。每次新增、修改、删除函数时，**必须同步更新 task.json**：
-- 新增函数 → `task_annotate` 添加元数据（包括 test 字段指向 fixture）
-- 修改函数 → `task_annotate(action=update)` 更新 description/changes
-- 删除函数 → 从 task.json 删除对应记录
+**元数据和函数是绑定的**。每次新增、修改、删除函数时，必须同步更新源码注释，再跑一次 `aux_sync --direction=extract`：
+- 新增函数 → 在函数上方写 `/** @task B-xxx ... */` 注释
+- 修改函数 → 更新注释里的 description/changes
+- 删除函数 → 删除注释，跑 `aux_sync extract` 重写 task.json
 - DEV→TEST 门禁会检查：改了函数没更新元数据 = 不放行
 
 <!-- flow.json 暂时屏蔽，后续启用 -->
 
 ### 操作方式
 
-通过 MCP 工具操作元数据，**禁止直接编辑 JSON 文件**：
-
 | 工具 | 用途 |
 |------|------|
-| `task_annotate` | 给函数添加/更新元数据（AST 验证函数存在性） |
-| `task_sync(validate)` | 校验元数据和源码是否一致 |
-| `task_sync(extract)` | 从源码注释提取到 JSON（迁移用） |
-| `task_scan` | 查询元数据（从 task.json 读取） |
-| `task_locate` | 按 ID/关键词定位代码 |
+| `aux_sync(extract)` | 扫源码 `@task` 注释批量写入 task.json |
+| `aux_sync(validate)` | 校验 task.json 与源码一致性 |
+| `aux_scan` | 查询 task.json + 校验 |
+| `aux_detail` | 按文件查函数签名/属性/import |
+| `aux_locate` | 按关键词定位 task |
+| `aux_coverage` | 检查 story 的 task 覆盖率 |
 
 ### 元数据字段
 
@@ -67,6 +66,6 @@
 ## 规则
 
 - 所有 Story 文件操作通过 `koala` MCP 工具完成，禁止直接读写 JSON 文件
-- 所有 fixture 文件操作通过 `fixture_get` / `fixture_update` / `fixture_gen` MCP 工具完成，禁止直接读写 JSON 文件
-- 所有元数据通过 `task_annotate` / `task_sync` MCP 工具管理，源码不含注释
-- 浏览器项目通过 `browser_test` MCP 工具测试，配置 `browser.devCommand` 即可，代理自动注入
+- 所有 fixture 文件操作通过 `fixture_get` / `fixture_update` / `fixture_batch_add` MCP 工具完成，禁止直接读写 JSON 文件
+- 所有元数据通过源码 `/** @task ... */` 注释 + `aux_sync extract` 同步，禁止 CLI 单条注解
+- 浏览器项目用 `koala test_auto` 跑 `run_type:browser` 的 fixture case 测试，配置 `browser.devCommand` 即可，代理自动注入

@@ -4,9 +4,9 @@ import type { TruthEntry } from './truth.js';
 import { scan, extractFlows } from './extract.js';
 import { validate, validateFlows, validateTestAnnotations } from './validate.js';
 import type { TaskAnnotation, FlowChain } from './types.js';
-import { StoryStore } from '../story/store.js';
+import { StoryStore } from '../core/store.js';
 import { join } from 'path';
-import { loadConfig } from '../config.js';
+import { loadConfig } from '../core/config.js';
 
 /** 差距项 */
 export interface GapItem {
@@ -109,11 +109,18 @@ export function analyzeGap(projectRoot: string, store?: StoryStore): GapResult {
 
   const highGaps = gaps.filter(g => g.severity === 'high').length;
   const mediumGaps = gaps.filter(g => g.severity === 'medium').length;
-  const testPct = tasks.length > 0
-    ? Math.round(tasks.filter(t => t.test).length / tasks.filter(t => t.functionName).length * 100) || 0
+  // 函数级测试覆盖率：分子分母都基于"有 functionName 的 task"，避免 file-level @task
+  // 让分子大于分母导致百分比 > 100（会让 ░.repeat(负数) 崩溃）
+  const fnTasks = tasks.filter(t => t.functionName);
+  const testPct = fnTasks.length > 0
+    ? Math.round(fnTasks.filter(t => t.test).length / fnTasks.length * 100)
     : 0;
-  const testBar = '█'.repeat(Math.round(testPct / 5)) + '░'.repeat(20 - Math.round(testPct / 5));
-  const covBar = '█'.repeat(Math.round(coveragePercent / 5)) + '░'.repeat(20 - Math.round(coveragePercent / 5));
+  const mkBar = (pct: number) => {
+    const filled = Math.max(0, Math.min(20, Math.round(pct / 5)));
+    return '█'.repeat(filled) + '░'.repeat(20 - filled);
+  };
+  const testBar = mkBar(testPct);
+  const covBar = mkBar(coveragePercent);
 
   return {
     _dashboard: [

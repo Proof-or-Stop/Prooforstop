@@ -1,6 +1,6 @@
 
 import { scan } from './extract.js';
-import type { StoryStore } from '../story/store.js';
+import type { StoryStore } from '../core/store.js';
 import type { CoverageResult } from './types.js';
 
 /** 检查指定 Story 的 checklist 覆盖率 */

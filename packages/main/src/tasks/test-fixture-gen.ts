@@ -2,7 +2,7 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { scan } from './extract.js';
-import { loadConfig } from '../config.js';
+import { loadConfig } from '../core/config.js';
 import type { TaskAnnotation } from './types.js';
 
 /** 生成结果 */
