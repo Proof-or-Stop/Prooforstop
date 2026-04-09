@@ -2,10 +2,31 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'fs';
 import { join, dirname, isAbsolute } from 'path';
 import { randomUUID } from 'crypto';
+import { execSync } from 'child_process';
 import type { HandlerContext } from './context.js';
 import { loadConfig } from '../core/config.js';
 
-const NEW_FORMAT_FIELDS = new Set(['name', 'run_type', 'file', 'execute', 'expect', 'throws', 'debug', 'intentRef', 'sandbox', '_id', 'prevCaseId', 'nextCaseId', 'timeoutMs']);
+/**
+ * B-c745: infer current story from git branch 'story/B-xxx' so
+ * fixture_batch_add can scope intentRefs by storyId automatically.
+ * Returns null if cwd is not inside a story worktree.
+ */
+function inferStoryIdFromGit(root: string): string | null {
+  try {
+    const branch = execSync('git rev-parse --abbrev-ref HEAD', {
+      cwd: root,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    if (!branch.startsWith('story/')) return null;
+    const id = branch.slice('story/'.length);
+    return id || null;
+  } catch {
+    return null;
+  }
+}
+
+const NEW_FORMAT_FIELDS = new Set(['name', 'run_type', 'file', 'execute', 'expect', 'throws', 'debug', 'intentRef', 'storyId', 'sandbox', '_id', 'prevCaseId', 'nextCaseId', 'timeoutMs']);
 const DEPRECATED_FIELDS = new Set(['input', 'steps', 'browser', 'construct', 'setup', 'cli', 'command', 'env', 'cwd']);
 
 export function validateFixtureCase(c: Record<string, unknown>): string[] {
@@ -53,9 +74,15 @@ export function validateFixtureCase(c: Record<string, unknown>): string[] {
   }
 
   // intentRef 格式校验
+  // B-c745: accept both legacy "CHK-001:happy:0" and story-scoped
+  // "B-xxxx:CHK-001:happy:0" forms. fixture_batch_add auto-prefixes
+  // the legacy form when a storyId can be inferred from the git branch.
   if (c.intentRef !== undefined) {
-    if (typeof c.intentRef !== 'string' || !/^CHK-\d+:(happy|edge|adversarial):\d+$/.test(c.intentRef as string)) {
-      errors.push(`intentRef 格式错误: "${c.intentRef}"，应为 CHK-001:happy:0`);
+    const isString = typeof c.intentRef === 'string';
+    const legacyOk = isString && /^CHK-\d+:(happy|edge|adversarial):\d+$/.test(c.intentRef as string);
+    const scopedOk = isString && /^B-[a-z0-9]+:CHK-\d+:(happy|edge|adversarial):\d+$/.test(c.intentRef as string);
+    if (!legacyOk && !scopedOk) {
+      errors.push(`intentRef 格式错误: "${c.intentRef}"，应为 CHK-001:happy:0 或 B-xxxx:CHK-001:happy:0`);
     }
   }
 
@@ -162,9 +189,13 @@ export function createFixtureHandlers(ctx: HandlerContext) {
     },
 
     /** 批量添加多个 case，1 次调用替代 N 次 fixture_update */
-    fixture_batch_add(args: { fixturePath: string; cases: Array<Record<string, unknown>> }) {
+    fixture_batch_add(args: { fixturePath: string; cases: Array<Record<string, unknown>>; storyId?: string }) {
       const data = readFixture(args.fixturePath);
       const added: string[] = [];
+      // B-c745: infer storyId (explicit arg > git branch). intentRefs get
+      // auto-prefixed to `<storyId>:CHK-xxx:lane:idx` so checklist_update
+      // only counts them as covering the *current* story.
+      const inferredStoryId = args.storyId || inferStoryIdFromGit(root);
       // CHK-001+002: 先为所有 case 生成 _id，再建立链关系
       const batchCases: Array<Record<string, unknown>> = [];
       for (let c of args.cases) {
@@ -175,6 +206,16 @@ export function createFixtureHandlers(ctx: HandlerContext) {
           if (!existsSync(filePath)) { added.push(`${c.name}: ERROR executeFile not found: ${filePath}`); continue; }
           c.execute = readFileSync(filePath, 'utf-8');
           delete c.executeFile;
+        }
+        // B-c745: auto-scope intentRef + tag case.storyId
+        if (inferredStoryId) {
+          if (!c.storyId) c.storyId = inferredStoryId;
+          if (typeof c.intentRef === 'string') {
+            const ref = c.intentRef as string;
+            if (/^CHK-\d+:(happy|edge|adversarial):\d+$/.test(ref) && !ref.startsWith(`${inferredStoryId}:`)) {
+              c.intentRef = `${inferredStoryId}:${ref}`;
+            }
+          }
         }
         const errs = validateFixtureCase(c);
         if (errs.length) { added.push(`${c.name}: ERROR ${errs.join('; ')}`); continue; }

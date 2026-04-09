@@ -214,6 +214,7 @@ export const MAIN_TOOLS: ToolDef[] = [
       debug: z.any().optional().describe('B-5010: 诊断字段，runner 不断言，仅在 fail 时附带打印'),
       intentRef: z.string().optional().describe('关联 testIntent（如 CHK-001:happy:0）'),
       sandbox: z.boolean().optional().describe('沙箱模式（false=允许 fs 访问）'),
+      timeoutMs: z.number().optional().describe('单 case 超时（ms），默认 runner 全局超时'),
     }).describe('case 数据'),
   }},
   // Session brief (跨 session 开场简报)
@@ -222,9 +223,10 @@ export const MAIN_TOOLS: ToolDef[] = [
   } },
 
   // Doctor (health issue 巡检)
-  { name: 'doctor', description: '查看 koala 自身的 health issue（被 silent catch 接住的 PERSIST 失败）', schema: {
+  { name: 'doctor', description: '查看 koala 自身的 health issue（被 silent catch 接住的 PERSIST 失败）+ 扫 .worktrees/ 孤儿目录', schema: {
     format: z.enum(['text', 'json']).optional().describe('输出格式（默认 text）'),
     limit: z.number().optional().describe('最多读取条数（默认 1000）'),
+    repair: z.boolean().optional().describe('rm -rf 清理 .worktrees/ 下不在 git worktree list 的孤儿目录（activity.jsonl 等 hook 残留场景）'),
   }},
 
   { name: 'fixture_batch_add', description: '批量添加多个 case（1次替代N次）', longHelp: FIXTURE_BATCH_ADD_LONG, schema: {
@@ -237,6 +239,7 @@ export const MAIN_TOOLS: ToolDef[] = [
       debug: z.any().optional().describe('B-5010: 诊断字段，fail 时附带打印'),
       intentRef: z.string().optional().describe('关联 testIntent（如 CHK-001:happy:0）'),
       sandbox: z.boolean().optional(),
+      timeoutMs: z.number().optional().describe('单 case 超时（ms）'),
     })).describe('case 数组'),
   }},
 
@@ -681,7 +684,25 @@ export async function runCli(opts?: {
     staleWarnings?: string[];
   }) {
     try {
-      const logDir = join(root, 'docs', 'story');
+      // B-9cd4 follow-up bug: story_advance --phase=DONE removes the current
+      // worktree mid-command. The `root` captured at command start still
+      // points at that worktree. If we mkdirSync on the now-ghost path, we
+      // re-create `<ghost>/docs/story/` and leave a dangling audit log that
+      // masquerades as an active worktree.
+      //
+      // Detect this by checking if `root` still has koala.config.json. If
+      // not (the worktree was removed), fall back to a fresh resolveRoot()
+      // which walks up past the ghost to the real main project. If that
+      // also lacks koala.config.json, skip logging entirely rather than
+      // pollute the filesystem.
+      let effectiveRoot = root;
+      if (!existsSync(join(effectiveRoot, 'koala.config.json'))) {
+        effectiveRoot = resolveRoot();
+        if (!existsSync(join(effectiveRoot, 'koala.config.json'))) {
+          return;
+        }
+      }
+      const logDir = join(effectiveRoot, 'docs', 'story');
       mkdirSync(logDir, { recursive: true });
       const record: Record<string, unknown> = {
         source: 'cli',
@@ -702,6 +723,8 @@ export async function runCli(opts?: {
     } catch (e: unknown) {
       reportHealthIssue('persist:writeLog', e as Error, {
         command: entry.command,
+        // Note: reports the original `root`, since effectiveRoot lives
+        // inside the try-block scope. Health log is diagnostic only.
         logDir: join(root, 'docs', 'story'),
       });
     }

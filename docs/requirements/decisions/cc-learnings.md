@@ -784,6 +784,54 @@ CC 的 TodoWrite 强大不是因为它的数据结构多复杂（其实极简）
 
 把这套"沟通三合一"搬到 koala，是从 CC 学的最有价值的事。其它机制（cache、deferred、autoCompact）都是 CC 在 LLM 上下文场景下的特化，对 CLI 工具不直接适用。
 
+## B-5ea4 复盘 (2026-04-08)：工程完成 ≠ 任务完成
+
+来自 koala-agent 项目 B-5ea4 (avatar-escalation-resume-loop) 的实战教训。这个 story 的工程完成度 9/9 但用户价值完成度 0/5，是 koala 流程**最严重的盲区**实例。
+
+### 工程视角看到的（全绿）
+- EscalationQueue 加 answered 事件 + answerPromise API → ✓
+- intercept 在 low-confidence + llm-failed 都走 wait-then-resume → ✓
+- spawn 第 2 个 claude 子进程 + 同 sessionId → ✓
+- canonical resume prompt 让第 2 个 claude 不被 CLAUDE.md 项目 context 绑架 → ✓
+- /code summary 输出 wall=/wait=/active= 三段时间 → ✓
+- 8 个 unit fixture 全 pass → ✓
+- reviewer 三方制衡过审 → ✓
+- 真机手测 2 次（3 问题 batch + 1+1 单问题）9/9 事件验证点全过 → ✓
+
+### 用户视角看到的（不及格）
+真机跑 `/code 必须调 AskUserQuestion 工具问我一个问题：1+1=？ 选项 2/3/4`，用户实际看到的最后段：
+
+```
+[claude] session ea3045f9 started   ← 第 2 个 claude
+问题已发出，等你选择。               ← claude 说的，看起来还在等
+[✓ claude-code ea3045f9 exit=0 3t $0.0711 wall=100.4s wait=9.8s active=90.6s]
+> 
+```
+
+用户读完会问："**它到底完成了没有？'问题已发出，等你选择' 是什么意思？我刚才已经选了啊**？" 没有一句人话告诉用户"答案已推送给 Claude Code，它已经基于你的答案完成任务"。
+
+### 4 个根因
+1. **PLAN 阶段没写 outcome transcript** —— understanding_set 的 outcome 字段当时只写了一句抽象的"escalation 事件链路打通"，没有写"用户敲完命令后会在终端依次看到 X/Y/Z 这些行"。
+2. **DEV 阶段真机测试时主 agent 用工程师视角读输出** —— 验证了 9 个事件点（session 数、stub 检测、event emit、event subscribe、queue answer、resume spawn、time accounting、cap），但**没有把自己当成用户从头读一遍最终输出**，问"这串文字读完用户会觉得任务完成了吗？"
+3. **三方制衡只兜工程，不兜产品** —— test-intent agent 写的 testIntent 全是工程行为；test-case-reviewer 审的是 testIntent 覆盖率；reviewer 没有"假装我是用户"这一步。9/9 工程指标全通过 reviewer 仍然 pass。
+4. **smoke fixture 文化是"证明事件流通了"** —— 强调"LLM 真的会按预期反应"和"工具调用真的发生了"，没强调"用户读这段输出感觉任务结束了吗"。
+
+### koala 框架因此做的修改
+
+1. **packages/koala/CLAUDE.md** 加新章节「用户价值验收（优先于技术链路验证）」，明确写"工程完成 ≠ 任务完成"、PLAN 阶段必须产出 user-facing transcript、真机测试必须切换视角、5 题 DONE 自检清单。完整 B-5ea4 复盘也写在那里。
+2. **story-advance.ts** 的 PLAN/DEV/TEST/DONE phase hint 都加了 "⚠ 用户价值验收" 提醒段，每次 phase 推进时主 agent 都会被重新提示一次"不要只盯事件日志"。
+3. **本 cc-learnings.md** 加这一段，作为 koala 框架的永久学习记录。
+
+### 还没做但应该做的
+
+- **product-reviewer agent**：和 test-case-reviewer 并列的第 4 类角色，专门审"用户视角下 outcome 是否达到"。当前 review 阶段只有工程视角的 reviewer，加这个才能完整三方制衡。属于未来 story。
+- **understanding_set 的 outcome 字段在 review 阶段做软质量检查**：如果 outcome 长度 < 100 或包含太多抽象词（"链路、事件、机制、闭环"等），reviewer prompt 加一条"质疑 outcome 是不是 user-facing transcript"。属于未来 story。
+- **DONE gate 强制要求 evidence/transcript-diff.md**：把 PLAN outcome 当 expected、真机 actual transcript 当 actual，diff 后的产物作为 DONE 必交物。属于未来 story（要小心：硬 gate 会惩罚那些不需要 user-facing transcript 的 story 比如纯重构 / koala 框架修复，可能需要 type-aware 豁免）。
+
+### 一句话总结
+
+**koala 之前的所有机制都是程序思维的延伸**（fixture、reviewer、phase gate、smoke）。B-5ea4 暴露的是 koala **没有产品思维的延伸**——一个能让主 agent 在每次推进时被强制问"用户视角你说完成了吗"的机制。本次修改加的是这个产品思维通道的最小可用版本：CLAUDE.md 写规则 + phase hint 重复提醒。下一次有人在 koala 流程下犯同样错误，至少在 PLAN/DEV/TEST/DONE 任何一次 advance 都会被提示一遍。
+
 ## 参考
 
 - `/Users/xiaoxx/Documents/GitHub/CC/src/tools/TodoWriteTool/prompt.ts` — PROMPT 风格参考

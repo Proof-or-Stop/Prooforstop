@@ -14,6 +14,7 @@
 8. 保持解决方案简单直接
 9. 用户指令始终覆盖此文件
 10. **禁止直接读写 `docs/story/` 和 `tests/fixtures/` 目录下的文件**。所有 story 操作走 `koala story_*`/`koala checklist_*`/`koala bug_*` 命令，所有 fixture 操作走 `koala fixture_*` 命令。直接 Read/Edit 这些 JSON 文件会绕过流程校验
+11. **工程完成 ≠ 任务完成**。一个 story 真正完成的标志是用户能从产品视角说"好了"，不是事件链路打通 / 测试通过 / 函数返回正确这些工程指标。详见底部「用户价值验收（优先于技术链路验证）」段。开发者必须既有程序思维又有产品思维，两边都完整才叫完成。
 
 ## 项目配置（koala.config.json）
 
@@ -528,6 +529,102 @@ fixture case 中 `$testStory()` 创建的临时 story 应在 test runner 结束�
 - `description: "Auto-created by $testStory factory"`
 
 定期用 `story_list` 检查并手动清理。
+
+## 用户价值验收（优先于技术链路验证）
+
+**写给主 agent 也写给 koala 框架本身**：本节是 koala 工作流哲学的一部分，下面所有 phase gate / smoke fixture / reviewer 检查都是**工程可验证性**的实现，但工程可验证性是**手段不是目的**。一个 story 真正完成的标志是**用户能从产品视角说"好了"**。
+
+### 核心命题：开发者必须既有程序思维又有产品思维
+
+| 思维 | 关注点 | koala 已有支持 |
+|---|---|---|
+| **程序思维** | 函数返回正确、事件链路通、文件落地、断言通过、覆盖率达标 | testIntent / fixture / test_auto / story_review / reviewer agent 三方制衡 |
+| **产品思维** | 用户在终端/UI 看到什么、用户会不会困惑、最后一句话能不能让用户说"完成" | **当前 koala 流程没有显式约束**，靠主 agent 自觉 |
+
+只有程序思维 → story 工程指标全绿但用户看完输出会问"然后呢"——这就是 koala-agent B-5ea4 的真实复盘（见底部 cc-learnings.md 的 B-5ea4 复盘段）。  
+只有产品思维 → 主 agent 凭感觉跑测试，没有可重现的回归网。  
+**两边都完整才叫真的完成**。
+
+### PLAN 阶段必须产出 outcome transcript
+
+`understanding_set` 的 `outcome` 字段（已有）从此**强制**写成一段**具体的 user-facing transcript**——用户跑完这个 story 后会在终端/UI 看到的精确文字。**不是抽象描述**。
+
+| 不好（被允许但不应该写的） | 好（强制要求的） |
+|---|---|
+| "用户能看到 escalation 被正确处理" | `>>> Claude Code 需要你定一下：1+1=？\n选项: 1) 2  2) 3  3) 4\n你选: 2\n✓ 已把答案 '2' 推送给 Claude Code，正在继续任务...\n[Claude Code 完成] 已在 src/foo.ts 加上 pino 日志` |
+| "工具调用链路通了" | `> /code 帮我查用户登录代码\n找到 3 处：\n  - src/auth/login.ts:45 函数 handleLogin\n  - src/middleware/auth.ts:12 中间件\n  - tests/auth.test.ts:78 测试用例` |
+| "事件 emit 了" | `[telegram bot] Claude Code 在 B-xxx 需要你定: (a) Postgres (b) MySQL\n[telegram bot] 收到回复 'a'，已转发，Claude Code 继续中` |
+
+PLAN 阶段写完 understanding 后主 agent 自检：**这段 outcome 读起来像不像一个用户能看到的、能让他说"哦完成了"的画面？**如果答案是"看不出什么时候算完成"，回去重写。
+
+### 真机测试时主 agent 必须切换视角
+
+DEV 完成、跑真机测试时，**绝对不能只盯事件日志**。盯事件是工程师视角，不是用户视角。
+
+正确做法：
+1. 把 PLAN 阶段写的 outcome 复制出来当作 expected transcript
+2. 真机跑一遍，把实际终端输出复制成 actual transcript
+3. **对着两段做 diff**（肉眼或工具）
+4. 不一致的每一行都要决策：修代码到匹配，还是更新 outcome（说明设计变了）
+5. 整个对比过程的产物（actual + 差异说明）保存到 `docs/story/actives/<id>/evidence/transcript-diff.md`
+
+判定标准：**用户看到 actual transcript 的最后一行之后会说"好了搞定"还是"然后呢"**？后者就是没完成，回 DEV 不管工程指标多绿。
+
+### 反面模式（B-5ea4 完整复盘）
+
+B-5ea4 工程上完美：
+
+| 工程验证点 | 状态 |
+|---|---|
+| EscalationQueue.answered 事件 emit | ✓ |
+| answerPromise resolve / reject / timeout | ✓ |
+| intercept 在 low-confidence + llm-failed 都走 wait-then-resume | ✓ |
+| spawn 第 2 个 claude 子进程 | ✓ |
+| 两个子进程共享同一 sessionId | ✓ |
+| canonical resume prompt 让第 2 个 claude 服从答案 | ✓ |
+| /code summary 输出 wall/wait/active 三段时间 | ✓ |
+| 8 个 unit fixture 全 pass | ✓ |
+| reviewer 三方制衡过 | ✓ |
+
+工程验证 9/9 通过。但用户实际看到的最后一段是：
+
+```
+[claude] session ea3045f9 started   ← 第 2 个 claude
+问题已发出，等你选择。               ← claude 自己说的
+[✓ claude-code ea3045f9 exit=0 3t $0.0711 wall=100.4s wait=9.8s active=90.6s]
+> 
+```
+
+用户读完会问：**"它到底完成了没有？'问题已发出，等你选择' 是什么意思？我刚才已经选了啊？"** 没有一句人话告诉他"答案已推送给 Claude Code，它已经基于你的答案完成任务"。
+
+工程结论：**通过**。  
+产品结论：**没完成**。  
+真实结论：B-5ea4 工程闭环但用户价值没闭环，需要新开 story（koala-agent 仓库的 B-0975）补用户价值层。
+
+教训：
+1. PLAN 阶段没写 outcome transcript（understanding_set 的 outcome 字段当时只写了一句抽象描述）
+2. DEV 阶段真机测试时只验证了 9 个事件点，没用用户视角读输出
+3. reviewer 和 test-intent agent 都只审"工程可验证性"，**没有"产品验收"视角** → 三方制衡兜不住产品完成度
+4. 主 agent 宣布通过时，工程指标 9/9，没意识到自己在用工程师视角而不是用户视角
+
+### koala 框架要做的事
+
+1. **本节作为 koala CLAUDE.md 的强制约束**（已落）
+2. **`story_advance` 进 PLAN/DEV/TEST 时的 hint 提醒主 agent**（已落 — 见 story-advance.ts）
+3. **understanding_set 的 outcome 字段在 schema 上没有强 type**（保持现状），但 review 阶段如果检测到 outcome 太短或太抽象，可以在 reviewer prompt 里加一条"质疑 outcome 是不是 user-facing transcript"。这个 prompt 改动属于未来 cc-learnings 的一条 follow-up
+4. **新建 reviewer agent role 'product-reviewer'**（未来 story）：和 test-case-reviewer 并列，专门审用户价值。当前的 test-case-reviewer 视角是工程的，加一个产品视角的 reviewer 才能完整三方制衡
+
+### 主 agent 检查清单
+
+宣布 story DONE 之前，主 agent 必须自答这 5 题（写在 summary.json 的 limitations 段或单独 evidence 文件）：
+
+1. **PLAN 阶段我写的 outcome 是抽象描述还是具体 transcript？** 如果是抽象，承认并补写
+2. **真机测试时我读的是事件日志还是用户视角的终端输出？** 如果只读了日志，承认
+3. **用户看到 actual transcript 的最后一行会说"完成"还是"然后呢"？** 如果是"然后呢"，没完成
+4. **有没有任何工程 log 在用户眼里是噪音或重复信息？** 如果有，承认
+5. **我有没有用一句人话告诉用户"任务结束了，结果是 X"？** 如果没有，补
+
+5 题任何一题答"我没做到"，就不能宣布 DONE。
 
 <!-- koala:internal:end -->
 <!-- koala:end -->

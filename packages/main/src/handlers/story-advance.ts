@@ -9,7 +9,7 @@ import { runHooks, buildHookEnv } from '../core/hooks.js';
 import { renderSummaryForHint } from './summary.js';
 import { execSync } from 'child_process';
 import { dirname } from 'path';
-import { existsSync } from 'fs';
+import { existsSync, rmSync } from 'fs';
 
 /**
  * DONE Final Checklist：把 DONE 阶段所有验证项收成一份显式清单。
@@ -490,12 +490,18 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
       }
 
       const nextSteps: Record<string, string> = {
-        PLAN: `→ 下一步: checklist_get(${args.storyId}) 查看待开发项，然后 story_advance(${args.storyId}, DEV) 开始开发`,
-        DEV: `→ 下一步: 写代码实现（此阶段可改代码，不写测试）。完成后 story_advance(${args.storyId}, TEST_CASE)`,
+        PLAN: `→ 建议立即切到 Claude Code plan 模式（shift-tab 两次到 plan mode）——PLAN 阶段只拆 checklist / 写 understanding_set / decision_set，不应改代码。Edit/Write 被 plan mode 禁掉能防误触。
+→ 下一步: checklist_get(${args.storyId}) 查看待开发项，然后 story_advance(${args.storyId}, DEV) 开始开发
+⚠ 用户价值验收（强制）: understanding_set 的 outcome 字段必须写成一段具体的 user-facing transcript ——用户跑完这个 story 后会在终端/UI 看到的精确文字，不是 "事件 X 通了" 这种抽象描述。判定方法: outcome 读起来必须能让人想象出"用户什么时候说'好了搞定'"的那一刻。详见 CLAUDE.md「用户价值验收」段。`,
+        DEV: `→ 如果之前在 plan 模式，现在 shift-tab 退出 plan 模式（DEV 需要 Edit/Write 权限）。
+→ 下一步: 写代码实现（此阶段可改代码，不写测试）。完成后 story_advance(${args.storyId}, TEST_CASE)
+⚠ 真机测试时（不管在 DEV 还是 TEST 阶段）切换视角: 不要只盯事件日志和 [✓ exit=0]——那是工程师视角。用 PLAN 阶段写的 outcome transcript 当 expected，把实际终端输出当 actual，**对着 diff**。最后一行让用户说"完成"还是"然后呢"决定 story 是否真的做完。`,
         TEST_CASE: `→ 下一步: 根据 testIntent 编写 fixture case（只改 fixture，不改代码）。完成后 story_advance(${args.storyId}, TEST_CASE_REVIEW)。如需改代码请先 story_advance(${args.storyId}, DEV) 回退`,
         TEST_CASE_REVIEW: `→ 下一步: 启动 test-case-reviewer agent 审核（不改代码也不改 case）。未通过时主 agent 调 story_advance(${args.storyId}, DEV) 回退改代码，或 story_advance(${args.storyId}, TEST_CASE) 回退改 case`,
-        TEST: `→ 必须立即执行: test_story('${args.storyId}') 跑当前 story 关联 case，写 bug/evidence。fail 自动 aux_diagnose + bug_report，pass 自动标 bug fixed。需要刷新架构 trace 时再 test_auto({trace:true})`,
-        DONE: `→ 必须立即执行: 把下面的 Story 总结段落用你自己的话告诉用户（改了什么/怎么用/真机覆盖/限制/踩坑），然后 convergence_check 检查项目收敛状态`,
+        TEST: `→ 必须立即执行: test_story('${args.storyId}') 跑当前 story 关联 case，写 bug/evidence。fail 自动 aux_diagnose + bug_report，pass 自动标 bug fixed。需要刷新架构 trace 时再 test_auto({trace:true})
+⚠ 工程验证 ≠ 用户验收: 即使 test_story 全 pass，也必须用用户视角真机跑一次（节奏: 把 PLAN outcome 当 expected → 跑 → 把实际输出当 actual → diff）。验证完把 actual transcript + 差异说明放到 docs/story/actives/${args.storyId}/evidence/transcript-diff.md。CLAUDE.md「用户价值验收」段有完整 5 题自检清单。`,
+        DONE: `→ 必须立即执行: 把下面的 Story 总结段落用你自己的话告诉用户（改了什么/怎么用/真机覆盖/限制/踩坑），然后 convergence_check 检查项目收敛状态
+⚠ DONE 自检 5 题（CLAUDE.md「用户价值验收」段）: (1) PLAN outcome 是具体 transcript 还是抽象? (2) 真机测试时读了用户视角输出还是只看事件日志? (3) 用户看到 actual transcript 最后一行会说"完成"还是"然后呢"? (4) 有没有工程 log 在用户眼里是噪音/重复? (5) 有没有一句人话总结任务结果? 任何一题答"没做到"就回 DEV，不要硬推 DONE。`,
       };
       let doneChecklistPrefix = '';
       let doneSummarySuffix = '';
@@ -596,6 +602,25 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
             }
 
             // Step 4: 清理 worktree
+            //
+            // Two-step cleanup: `git worktree remove` deregisters the worktree
+            // from git's internal list (so `git worktree list` no longer shows
+            // it), then we `rm -rf` the directory to catch leftover files
+            // that git didn't clean. Why the second step is needed:
+            //
+            // - activity.jsonl (Claude Code hook), tmp/llmlog.json and other
+            //   gitignored runtime files are invisible to `git status` so git
+            //   considers the worktree "dirty but all gitignored"
+            // - with --force, git removes the worktree entry but leaves the
+            //   directory (Windows + hook holding a file handle) or empty
+            //   skeleton dirs behind
+            // - result: `git worktree list` is clean but `.worktrees/B-xxx/`
+            //   still exists with stray files
+            //
+            // The rm -rf is safe here because DONE gate already checked that
+            // the working tree is clean AND the branch is merged into main —
+            // anything left in the worktree is either gitignored runtime
+            // state or genuine leakage we want to erase.
             if (existsSync(wtPathAbs)) {
               try {
                 runGit(`worktree remove "${wtPathAbs}"`, mainRepoRoot);
@@ -607,6 +632,18 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
                   mergeLines.push(`✓ Worktree ${wtPathAbs} 已强制清理`);
                 } catch (e: any) {
                   mergeLines.push(`⚠ Worktree 未清理: ${e.message}`);
+                }
+              }
+              // Second step: rm -rf the directory if git left it behind.
+              // This is the fix for "worktree folder still exists after
+              // DONE merge" caused by activity.jsonl-style gitignored
+              // leftovers from Claude Code hooks.
+              if (existsSync(wtPathAbs)) {
+                try {
+                  rmSync(wtPathAbs, { recursive: true, force: true });
+                  mergeLines.push(`✓ Worktree 目录残留已清空`);
+                } catch (e: any) {
+                  mergeLines.push(`⚠ Worktree 目录残留清理失败: ${e.message}`);
                 }
               }
             }

@@ -19,6 +19,36 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     }).trim();
   }
 
+  /**
+   * B-0975 fix: `git worktree remove --force` on Windows can transiently fail
+   * with "Permission denied" when another process (logger hook, llmlog writer,
+   * antivirus) still holds a handle to a file inside the worktree. The lock
+   * typically clears in <1s. Retry a few times with short backoffs before
+   * surfacing the failure to the user.
+   *
+   * Applies to both `worktree remove` and `worktree remove --force`. On
+   * non-Windows platforms the first attempt almost always succeeds, so the
+   * retry loop is effectively a no-op.
+   */
+  function worktreeRemoveWithRetry(wtPath: string, opts: { force?: boolean } = {}): void {
+    const flag = opts.force ? ' --force' : '';
+    const delays = [0, 300, 800, 1500];
+    let lastErr: unknown;
+    for (const delay of delays) {
+      if (delay > 0) {
+        const until = Date.now() + delay;
+        while (Date.now() < until) { /* busy-wait; execSync is already sync */ }
+      }
+      try {
+        git(`worktree remove${flag} "${wtPath}"`);
+        return;
+      } catch (e) {
+        lastErr = e;
+      }
+    }
+    throw lastErr;
+  }
+
   function getRepoRoot(): string {
     try {
       return execSync('git rev-parse --show-toplevel', { cwd: root, encoding: 'utf-8' }).trim();
@@ -278,8 +308,8 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         );
       }
 
-      // 清理 worktree
-      git(`worktree remove "${wtPath}"`);
+      // 清理 worktree（B-0975: Windows 上 Permission denied 瞬时锁重试）
+      worktreeRemoveWithRetry(wtPath);
       results.push(`✓ Worktree ${wtPath} 已清理`);
 
       // 删除分支
@@ -326,9 +356,9 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
             );
           }
 
-          // 强制移除 worktree
+          // 强制移除 worktree（B-0975: Windows Permission denied 瞬时锁重试）
           try {
-            git(`worktree remove --force "${wtPath}"`);
+            worktreeRemoveWithRetry(wtPath, { force: true });
             results.push(`✓ Worktree ${wtPath} 已清理`);
           } catch (e: any) {
             results.push(`⚠ worktree 移除失败: ${e.message}`);

@@ -56,6 +56,18 @@ export function createBugHandlers(ctx: HandlerContext) {
         } catch (e: any) {
           if (e.message.includes('bug_update fixed 被拒绝')) throw e;
           if (e.message.includes('缺少 fixtureId')) throw e;
+          // B-d4fb: stale fixtureId (fixture was deleted/regenerated during
+          // DEV iteration). The bug points to a case that no longer exists,
+          // so the bug as a record of THIS case can no longer fail. Treat as
+          // fixed (the new case set is what runs in test_story; if any are
+          // broken, fresh bugs will be reported).
+          if (/未找到 _id=/.test(e.message)) {
+            bug.status = 'fixed';
+            bug.fixedAt = new Date().toISOString();
+            (bug as any).staleFixtureCleanup = true;
+            store.writeBugs(args.storyId, data);
+            return `Bug ${args.id} marked fixed (stale fixtureId — original case removed during fixture regeneration)`;
+          }
           throw new Error(`bug_update fixed 验证失败: ${e.message}`);
         }
         bug.status = 'fixed';

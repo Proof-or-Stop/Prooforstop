@@ -7,12 +7,25 @@ import { readFileSync, existsSync, readdirSync } from 'fs';
 import { join } from 'path';
 
 /**
- * Collect all intentRef values from all fixture files under fixturesDir.
- * Returns a Set of intentRef strings (e.g. "CHK-001:happy:0").
+ * Collect intentRef values from fixture files under fixturesDir, scoped by storyId.
+ *
+ * B-c745: intentRef used to be a flat string like "CHK-001:happy:0" which
+ * collided across stories when the same CHK id appeared in different stories.
+ * The scoped format is "<storyId>:CHK-NNN:lane:idx" (e.g. "B-c745:CHK-001:happy:0").
+ *
+ * This function returns the set of *unscoped* refs that belong to `storyId`:
+ *   - "<storyId>:CHK-NNN:lane:idx" in fixtures → "CHK-NNN:lane:idx" in returned set
+ *   - Bare "CHK-NNN:lane:idx" (legacy, no story prefix) → treated as belonging
+ *     to whichever story owns the fixture file (detected via case.storyId), or
+ *     if case.storyId is absent, IGNORED (no cross-story leakage).
+ *
+ * This means legacy fixtures that predate storyId scoping CANNOT keep new
+ * stories passing by accident — they have to be explicitly re-tagged.
  */
-function collectIntentRefs(fixturesDir: string): Set<string> {
+function collectIntentRefs(fixturesDir: string, storyId: string): Set<string> {
   const refs = new Set<string>();
   if (!existsSync(fixturesDir)) return refs;
+  const scopedPrefix = `${storyId}:`;
   const scanDir = (dir: string) => {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
       if (entry.isDirectory()) { scanDir(join(dir, entry.name)); continue; }
@@ -20,9 +33,16 @@ function collectIntentRefs(fixturesDir: string): Set<string> {
       try {
         const content = JSON.parse(readFileSync(join(dir, entry.name), 'utf-8'));
         for (const c of content.cases || []) {
-          if (c.intentRef && typeof c.intentRef === 'string') {
-            refs.add(c.intentRef);
+          if (!c.intentRef || typeof c.intentRef !== 'string') continue;
+          const ref = c.intentRef as string;
+          if (ref.startsWith(scopedPrefix)) {
+            // Scoped form: "<storyId>:CHK-xxx:lane:idx" → store the CHK suffix.
+            refs.add(ref.slice(scopedPrefix.length));
+          } else if (c.storyId === storyId && /^CHK-\d+:(happy|edge|adversarial):\d+$/.test(ref)) {
+            // Legacy unscoped form on a case that explicitly claims storyId.
+            refs.add(ref);
           }
+          // Anything else (bare unscoped + no case.storyId) is dropped.
         }
       } catch { /* ignore */ }
     }
@@ -140,7 +160,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           const intent = (item as any).testIntent as { happy: Array<string | { desc: string }>; edge: Array<string | { desc: string }>; adversarial: Array<string | { desc: string }> };
           const config = loadConfig(ctx.root);
           const fixturesDir = join(ctx.root, config.fixturesDir);
-          const allRefs = collectIntentRefs(fixturesDir);
+          const allRefs = collectIntentRefs(fixturesDir, args.storyId);
 
           const uncovered: string[] = [];
           for (const lane of ['happy', 'edge', 'adversarial'] as const) {

@@ -79,7 +79,7 @@ if (!existsSync(giPath)) {
     console.log('  ✓ .gitignore (copied from koala)');
   } else {
     // B-5010 CHK-005: tmp/ 要整个 ignore，避免 agent 写一次性 helper 脚本被 git add 收进去
-    writeFileSync(giPath, 'node_modules\ndist\n__pycache__/\n*.pyc\n.claude/worktrees/\n.worktrees/\ntmp/*\n!tmp/.gitkeep\n');
+    writeFileSync(giPath, 'node_modules\ndist\n__pycache__/\n*.pyc\n.worktrees/\ntmp/*\n!tmp/.gitkeep\n');
     console.log('  ✓ .gitignore (created minimal)');
   }
 } else {

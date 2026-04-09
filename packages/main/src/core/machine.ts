@@ -27,8 +27,17 @@ export const storyMachine = setup({
   },
   guards: {
     checklistAllDone: ({ context }) => {
+      // B-2fd7 / B-5010 CHK-002: honor item.phase here for the DEV→TEST_CASE
+      // transition. Items whose phase==='TEST_CASE' are intentionally deferred
+      // (fixture writing, smoke cases, perf sanity) and should not block
+      // leaving DEV. This mirrors the phase-aware logic in
+      // getGuardFailureReason (machine.ts:269). Without this, the xstate
+      // guard runs first and fails before getGuardFailureReason is reached,
+      // and forcing DEV-completion on TEST_CASE items would make the agent
+      // mark them done before doing the work.
       const cl = context.store.readChecklist(context.storyId);
-      return cl.items.every(item => item.status === 'done');
+      const devPhaseItems = cl.items.filter((item: any) => (item.phase || 'DEV') !== 'TEST_CASE');
+      return devPhaseItems.every(item => item.status === 'done');
     },
     canStartDev: ({ context }) => {
       // B-0af4 CHK-002: trivial-story 绕过 testIntent 要求（和 story_review 保持一致）
