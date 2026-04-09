@@ -152,7 +152,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     usage: z.string().describe('怎么用（slash / tool / 调用示例，≥ 10 字符）'),
     limitations: z.string().describe('已知限制 / 设计偏离（没有就写 "none — fully covered"）'),
     pitfalls: z.string().describe('踩坑记录（卡在哪、绕了几次路、下个人应该知道什么，≥ 10 字符；禁止空话）'),
-    skipReasons: z.record(z.string()).optional().describe('{case name: reason} 对每条 sandbox:false 但没跑的 case 说明原因；未提供则 koala 报错列出缺失项'),
+    skipReasons: z.record(z.string(), z.string()).optional().describe('{case name: reason} 对每条 sandbox:false 但没跑的 case 说明原因；未提供则 koala 报错列出缺失项'),
   }},
   { name: 'summary_get', description: '读取 story summary', schema: {
     storyId: z.string().describe('Story ID'),
