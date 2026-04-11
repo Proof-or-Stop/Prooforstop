@@ -91,7 +91,7 @@ export const storyMachine = setup({
         for (const category of ['happy', 'edge', 'adversarial'] as const) {
           const entries = (item.testIntent as any)[category] || [];
           for (const entry of entries) {
-            if (typeof entry === 'string') return false;
+            if (typeof entry === 'string') continue;
             if (!entry.results || entry.results.length === 0) return false;
             const last = entry.results[entry.results.length - 1];
             if (last.pass !== true) return false;
