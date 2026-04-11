@@ -196,7 +196,10 @@ export async function runCase(
       };
     }
     const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
-    const fn = new AsyncFunction('$handlers', '$root', '$ctx', '$testStory', code);
+    // $q: shell-quote helper for paths with spaces; $rootQ: pre-quoted $root
+    const $q = (s: string) => `'${s.replace(/'/g, "'\\''")}'`;
+    const rootQ = $q(root);
+    const fn = new AsyncFunction('$handlers', '$root', '$ctx', '$testStory', '$q', '$rootQ', code);
     const $testStory = testStoryFactory || (() => { throw new Error('$testStory not available'); });
 
     let result: CaseResult;
@@ -205,7 +208,7 @@ export async function runCase(
       let threw = false;
       let thrownError = '';
       try {
-        await withTimeout(fn(safeHandlers, root, sharedCtx, $testStory), DEFAULT_TIMEOUT_MS);
+        await withTimeout(fn(safeHandlers, root, sharedCtx, $testStory, $q, rootQ), DEFAULT_TIMEOUT_MS);
       } catch (e: any) {
         threw = true;
         thrownError = e?.message || String(e);
@@ -219,7 +222,7 @@ export async function runCase(
         result = { name: c.name, passed: false, error: `Expected to throw "${c.throws}" but did not throw`, durationMs };
       }
     } else {
-      const actual = await withTimeout(fn(safeHandlers, root, sharedCtx, $testStory), DEFAULT_TIMEOUT_MS);
+      const actual = await withTimeout(fn(safeHandlers, root, sharedCtx, $testStory, $q, rootQ), DEFAULT_TIMEOUT_MS);
       const durationMs = Date.now() - start;
       if (c.expect !== undefined) {
         const r = matchExpect(actual, c.expect);

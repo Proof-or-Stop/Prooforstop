@@ -298,7 +298,9 @@ REQUIRED CASE FIELDS
   file      — source file (relative to scanRoot, no extension)
   execute   — function body. Has access to:
                 $handlers — registered tool functions ($handlers.story_create({...}))
-                $root     — project root path
+                $root     — project root path (raw string)
+                $rootQ    — shell-quoted $root (safe for paths with spaces)
+                $q(str)   — shell-quote any string: $q(path) → 'path with spaces'
                 $ctx      — shared object across chained cases
                 $file     — auto-substituted with compiled .js file URL
   expect    — expected return value, OR
@@ -310,6 +312,8 @@ REQUIRED CASE FIELDS
 execute() RULES
   - Compiled .js, NOT source .ts (use $file or import dist/ paths)
   - ESM environment: await import("fs"), not require("fs")
+  - Shell commands with paths: use $rootQ or $q($root), NOT bare $root
+    e.g. execSync(\`cd \${$rootQ} && git status\`)
   - Windows paths: $root.split("\\\\").join("/") (avoid regex JSON escape hell)
   - Don't call test_auto / test_story from inside execute (recursion)
 
