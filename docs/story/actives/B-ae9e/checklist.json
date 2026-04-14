@@ -11,19 +11,79 @@
         "happy": [
           {
             "desc": "完整入口构建后运行 koala.js/koala-codex.js → main+utils 都能加载且 aux_* 可用",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-14T13:43:09.633Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/entrypoints.json:4 — execute builds both packages, then runs bin/koala.js aux_doc_list and bin/koala-codex.js session_brief, so the full wrapper path loads main+utils and exposes both aux_* and Codex entrypoints | severity:info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T13:45:35.491Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/entrypoints.json:4 — execute rebuilds both packages and runs bin/koala.js aux_doc_list plus bin/koala-codex.js session_brief, so the full wrapper path proves main+utils load together and aux_* stays available | severity:info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T13:47:06.447Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/entrypoints.json:4 — execute rebuilds main+utils and runs bin/koala.js aux_doc_list plus bin/koala-codex.js session_brief, so the full wrapper path still proves main+utils load together and aux_* remains available | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "遇到跨包共享依赖或 dist 缺失风险时 → 入口层会通过稳定约束或清晰错误暴露问题",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-14T13:43:09.746Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/entrypoints.json:19 — execute removes packages/utils/dist and asserts Recovery, Missing build artifacts, and the exact utils build command, so dist-risk is surfaced with actionable guidance instead of silent failure | severity:info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T13:45:35.593Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/entrypoints.json:19 — execute removes packages/utils/dist and asserts Recovery, Missing build artifacts, and the exact utils rebuild command, so dist-loss is surfaced as an actionable bootstrap failure | severity:info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T13:47:06.557Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/entrypoints.json:19 — execute removes packages/utils/dist and asserts Recovery, Missing build artifacts, and the utils rebuild command, so dist loss is still surfaced as an actionable bootstrap failure | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "换一个没有偶然模块解析优势的环境时 → 完整入口不会再次因依赖实例分裂而静默失效",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-14T13:43:09.849Z",
+                "pass": false,
+                "note": "packages/main/tests/fixtures/entrypoints.json:36 — case only simulates missing packages/main/dist and raw-module-error suppression; it does not create an alternate resolution path or second dependency instance, so dependency-instance split risk remains untested | severity:high",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T13:45:35.695Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/entrypoints.json:36 — execute plants a root-level zod package that throws if imported, then still gets aux_doc_list successfully and asserts noRootZodCrash, so an alternate resolution path no longer causes silent dependency-instance split failure | severity:info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T13:47:06.681Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/entrypoints.json:36 — execute plants a root-level zod package that throws if imported, then still gets aux_doc_list successfully and asserts noRootZodCrash, so an alternate resolution path no longer causes silent dependency-instance split failure | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       },
@@ -40,19 +100,79 @@
         "happy": [
           {
             "desc": "执行针对 init、bootstrap、wrapper 的回归验证 → 能稳定覆盖本仓库入口和新项目初始化产物",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-14T13:43:09.950Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/entrypoints.json:53 — execute runs npm run test:entrypoints, and that regression script covers repo wrappers plus temp init output, so init/bootstrap/wrapper verification is automated rather than manual-only | severity:info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T13:45:35.796Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/entrypoints.json:53 — execute runs npm run test:entrypoints, so wrapper/init/bootstrap regression coverage is exercised automatically instead of relying on manual repo checks | severity:info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T13:47:06.787Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/entrypoints.json:53 — execute runs npm run test:entrypoints, so wrapper/init/bootstrap regression coverage is exercised automatically instead of relying on manual repo checks | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "init 产物与当前仓库入口存在差异时 → 回归验证仍能显式暴露不一致",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-14T13:43:10.052Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/entrypoints.json:69 — execute initializes a temp project and asserts generated .Codex artifacts plus fallback text, so drift between init output and expected Codex entrypoint guidance is surfaced by the fixture | severity:info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T13:45:35.906Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/entrypoints.json:69 — execute initializes a temp project and asserts generated .Codex artifacts plus fallback guidance, so drift between repo entrypoints and init output is exposed by automation | severity:info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T13:47:06.886Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/entrypoints.json:69 — execute initializes a temp project and asserts generated .Codex artifacts plus fallback guidance, so drift between repo entrypoints and init output is exposed by automation | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "后续有人只手工验证当前仓库时 → 自动回归仍能拦住 wrapper/init 场景的漏测",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-14T13:43:10.154Z",
+                "pass": false,
+                "note": "packages/main/tests/fixtures/entrypoints.json:86 — case only checks repeated init is idempotent; it does not verify that automated regression catches wrapper/init omissions when someone only hand-tests the current repo | severity:high",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T13:45:36.007Z",
+                "pass": false,
+                "note": "packages/main/tests/fixtures/entrypoints.json:86 — case only proves repeated init stays idempotent; it still does not assert that the automated regression suite would catch wrapper/init omissions when someone only hand-tests the current repo, so the adversarial anti-regression intent remains uncovered | severity:high",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T13:47:07.003Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/entrypoints.json:86 — execute temporarily removes bin/koala-codex.js and expects npm run test:entrypoints to fail while mentioning the missing wrapper, so the automated regression suite now catches wrapper/init omissions that hand-testing the current repo could miss | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       },
@@ -69,19 +189,79 @@
         "happy": [
           {
             "desc": "完整入口失败或降级到全局 koala 时 → 用户能得到明确恢复路径和正确命令提示",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-14T13:43:10.258Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/entrypoints.json:102 — execute forces bootstrap failure and asserts Recovery plus KOALA_ACTIVITY_SOURCE fallback guidance, so users get a concrete recovery path when the full entrypoint cannot start | severity:info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T13:45:36.108Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/entrypoints.json:102 — execute forces bootstrap failure and asserts both Recovery guidance and the KOALA_ACTIVITY_SOURCE fallback command, so users get a concrete recovery path on full-entrypoint failure | severity:info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T13:47:07.108Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/entrypoints.json:102 — execute forces bootstrap failure and asserts both Recovery guidance and the KOALA_ACTIVITY_SOURCE fallback command, so users get a concrete recovery path on full-entrypoint failure | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "没有本地 codex wrapper 的项目里 → README 与错误提示仍能指导用户走降级入口",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-14T13:43:10.379Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/entrypoints.json:118 — case reads .Codex/README.md and asserts both the global codex fallback command and wrapper-optional wording, so a no-local-wrapper usage path is documented | severity:info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T13:45:36.212Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/entrypoints.json:118 — case reads .Codex/README.md and asserts both the global codex fallback command and wrapper-optional wording, so a no-local-wrapper project still gets usable fallback instructions | severity:info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T13:47:07.215Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/entrypoints.json:118 — execute reads .Codex/README.md and asserts both the global codex fallback command and wrapper-optional wording, so a no-local-wrapper project still gets usable fallback instructions | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "发生模块加载或构建异常时 → 用户看到的不是模糊报错，而是可执行的恢复建议",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-14T13:43:10.487Z",
+                "pass": false,
+                "note": "packages/main/tests/fixtures/entrypoints.json:134 — case checks raw-module stack suppression and Original error, but it never asserts Recovery or fallback instructions, so it would miss a regression back to non-actionable bootstrap errors | severity:medium",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T13:45:36.313Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/entrypoints.json:134 — execute forces bootstrap failure and now asserts avoidsRawModuleError, Original error, Recovery, and KOALA_ACTIVITY_SOURCE fallback guidance, so module-load failures are surfaced as actionable recovery steps instead of opaque raw stacks | severity:info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T13:47:07.321Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/entrypoints.json:134 — execute forces bootstrap failure and asserts avoidsRawModuleError, Original error, Recovery, and KOALA_ACTIVITY_SOURCE fallback guidance, so module-load failures are surfaced as actionable recovery steps instead of opaque raw stacks | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       },
