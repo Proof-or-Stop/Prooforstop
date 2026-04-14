@@ -4,7 +4,7 @@
   "title": "稳态化 Koala 入口、构建与初始化链路",
   "description": "修复并加固 main/utils/bootstrap/wrapper/init 相关链路，确保完整 CLI 在本地和新项目初始化后都能稳定运行，并补充针对入口层的回归验证。",
   "type": "refactor",
-  "phase": "DEV",
+  "phase": "TEST_CASE",
   "priority": "high",
   "createdAt": "2026-04-14T12:40:30.940Z",
   "startedAt": "2026-04-14T12:40:30.940Z",
@@ -38,6 +38,14 @@
       "phase": "DEV",
       "action": "advance",
       "timestamp": "2026-04-14T13:06:08.598Z",
+      "branch": "story/B-ae9e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-14T13:36:08.489Z",
       "branch": "story/B-ae9e",
       "user": "Harmonygo",
       "agent": "main"
