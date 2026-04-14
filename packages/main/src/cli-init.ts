@@ -3,6 +3,7 @@
 import { mkdirSync, writeFileSync, readFileSync, existsSync, cpSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { CODEX_AGENT_FILES, CODEX_README_TEMPLATE, renderCodexAgentContent } from './init-assets.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -169,8 +170,7 @@ function copyAgentDefinitions(sourceDir: string, targetDir: string, label: strin
   }
   if (!existsSync(targetDir)) mkdirSync(targetDir, { recursive: true });
 
-  const entries = ['test-intent.md', 'test-case-reviewer.md'];
-  for (const file of entries) {
+  for (const file of CODEX_AGENT_FILES) {
     const src = join(sourceDir, file);
     const dst = join(targetDir, file);
     if (!existsSync(src)) continue;
@@ -220,27 +220,6 @@ const claudeAgentsSrc = join(packageRoot, '..', '..', '.claude', 'agents');
 const claudeAgentsDst = join(targetDir, '.claude', 'agents');
 const codexAgentsDst = join(targetDir, '.Codex', 'agents');
 const codexReadmeDst = join(targetDir, '.Codex', 'README.md');
-const CODEX_README_TEMPLATE = `# Codex + Koala
-
-通用做法：
-
-\`\`\`bash
-KOALA_ACTIVITY_SOURCE=codex koala session_brief
-\`\`\`
-
-原因：
-
-- \`KOALA_ACTIVITY_SOURCE=codex\` 会把本次调用写入 \`docs/story/activity.jsonl\`，并标记 \`source=codex\`
-- 如果当前项目只有全局 \`koala\`，这是最稳妥的 Codex 入口
-
-如果当前仓库后续增加了本地 wrapper（例如 \`node bin/koala-codex.js\`），再优先切换到本地 wrapper。
-
-建议：
-
-- 新 session 第一条命令跑 \`KOALA_ACTIVITY_SOURCE=codex koala session_brief\`
-- 日常所有 story/checklist/fixture/bug 操作尽量保持同一入口
-- 如果 \`aux_*\` 不可用，说明当前是 core-only koala：优先找本地 bootstrap 入口；没有的话，用 AGENTS.md 规定的 shell 搜索兜底
-`;
 if (existsSync(skillSrc)) {
   const skillFile = join(skillSrc, 'skill.md');
   const dstFile = join(skillDst, 'skill.md');
@@ -261,9 +240,7 @@ if (existsSync(skillSrc)) {
 `);
 }
 copyAgentDefinitions(claudeAgentsSrc, claudeAgentsDst, '.claude/agents');
-copyAgentDefinitions(claudeAgentsSrc, codexAgentsDst, '.Codex/agents', (content) =>
-  content.replace(/Claude Code/g, 'Codex').replace(/\.claude\/agents\//g, '.Codex/agents/'),
-);
+copyAgentDefinitions(claudeAgentsSrc, codexAgentsDst, '.Codex/agents', renderCodexAgentContent);
 if (!existsSync(codexReadmeDst)) {
   writeFileSync(codexReadmeDst, CODEX_README_TEMPLATE);
   console.log('  ✓ .Codex/README.md');

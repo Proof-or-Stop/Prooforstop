@@ -4,14 +4,14 @@
   "title": "将 Codex 升级为 Koala 的一等接入方式",
   "description": "把当前可用但半手工的 Codex 接入升级为产品化入口，包括初始化产物、使用说明、推荐命令路径和 agent 模板生成，让新项目在 Codex 中开箱即用。",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "depends": [
     "B-ae9e"
   ],
   "createdAt": "2026-04-14T12:40:43.903Z",
   "startedAt": "2026-04-14T12:40:43.903Z",
-  "endedAt": null,
+  "endedAt": "2026-04-14T15:30:57.339Z",
   "events": [
     {
       "phase": "INIT",
@@ -28,11 +28,102 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-14T14:17:01.347Z",
+      "branch": "story/B-f54b",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-14T14:18:06.016Z",
+      "branch": "story/B-f54b",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-14T15:26:17.491Z",
+      "branch": "story/B-f54b",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-14T15:27:40.518Z",
+      "branch": "story/B-f54b",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-14T15:28:39.674Z",
+      "branch": "story/B-f54b",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-14T15:29:06.728Z",
+      "branch": "story/B-f54b",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-14T15:29:56.671Z",
+      "branch": "story/B-f54b",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-14T15:29:57.014Z",
+      "branch": "story/B-f54b",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-14T15:30:12.358Z",
+      "branch": "story/B-f54b",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-14T15:30:32.468Z",
+      "branch": "story/B-f54b",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-14T15:30:32.809Z",
+      "branch": "story/B-f54b",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-14T15:30:57.339Z",
+      "branch": "story/B-f54b",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ],
-  "worktree": {
-    "path": ".worktrees/B-f54b",
-    "branch": "story/B-f54b",
-    "createdAt": "2026-04-14T14:16:54.540Z"
-  }
+  ]
 }
