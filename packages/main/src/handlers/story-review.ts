@@ -5,6 +5,16 @@ import { join } from 'path';
 import { existsSync, readFileSync, readdirSync } from 'fs';
 import { createHash } from 'crypto';
 
+function outcomeLooksAbstract(outcome: string): boolean {
+  const text = outcome.trim();
+  if (text.length < 100) return true;
+  const abstractTerms = ['链路', '事件', '机制', '闭环', '打通', '触发', '状态', '流程'];
+  const hits = abstractTerms.filter((term) => text.includes(term)).length;
+  const transcriptSignals = ['>', '>>>', '[', '✓', '选项', '你选', '完成', 'Resume:', 'Next step'];
+  const transcriptLike = transcriptSignals.some((sig) => text.includes(sig));
+  return hits >= 2 && !transcriptLike;
+}
+
 export function createStoryReviewHandlers(ctx: HandlerContext) {
   const { store } = ctx;
 
@@ -248,6 +258,13 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
             type: 'empty_touchpoints',
             severity: 'advisory',
             message: 'understanding.touchpoints 为空。补一下能让 reviewer 了解影响范围',
+          });
+        }
+        if (outcomeLooksAbstract(understanding.outcome || '')) {
+          issues.push({
+            type: 'weak_outcome_transcript',
+            severity: 'advisory',
+            message: 'understanding.outcome 看起来偏抽象，不像用户真正会看到的 transcript。建议改成具体终端/UI 文本，避免工程通过但用户仍然会问“然后呢？”',
           });
         }
       }

@@ -4,25 +4,214 @@
       "id": "CHK-001",
       "title": "定义 product-reviewer 的职责与输入输出",
       "context": "需要明确它和 test-case-reviewer 的边界，避免两个 reviewer 审同一件事。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-14T17:32:10.783Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "主 agent 能区分 product-reviewer 与 test-case-reviewer 的职责边界 → 一个审用户价值，一个审工程可验证性",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-14T17:34:26.561Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/product-reviewer.json:4 — case reads both agent prompts and asserts product-reviewer stays on 用户视角 while test-case-reviewer keeps testIntent/fixture engineering scope, so reviewer boundary is explicitly covered | severity:info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T17:36:56.866Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/product-reviewer.json:4 — case reads both reviewer prompts and asserts product-reviewer stays on 用户价值 while test-case-reviewer keeps fixture/testIntent engineering scope, so the reviewer boundary is explicit | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "遇到纯 refactor / infra story 时 → product-reviewer 第一版仍可 advisory，不会默认变成重门禁",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-14T17:34:26.713Z",
+                "pass": false,
+                "note": "packages/main/tests/fixtures/product-reviewer.json:20 — case only checks init assets include product-reviewer.md; it does not verify pure refactor/infra stories stay advisory rather than becoming a heavy gate, so the advisory-only edge intent is uncovered | severity:high",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T17:36:57.008Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/product-reviewer.json:20 — case creates a low-priority refactor story with an abstract outcome and asserts weak_outcome_transcript appears while blockerCount stays 0, so pure refactor/infra stories remain advisory instead of turning into a hard gate | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果两个 reviewer 审查范围重叠 → 流程与提示能暴露边界不清的问题，而不是让主 agent 自己猜",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-14T17:34:26.847Z",
+                "pass": false,
+                "note": "packages/main/tests/fixtures/product-reviewer.json:35 — case only asserts Codex/Claude product-reviewer assets are generated; it never checks that overlapping reviewer scopes are surfaced to the main agent, so boundary-confusion risk remains uncovered | severity:high",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T17:36:57.154Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/product-reviewer.json:36 — case checks both reviewer prompts plus AGENTS/docs and asserts product-reviewer excludes engineering review, test-case-reviewer keeps engineering scope, and product-reviewer is surfaced in main-agent-facing docs, so overlap boundaries are exposed rather than left implicit | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
     },
     {
       "id": "CHK-002",
       "title": "让 outcome transcript 成为可审查对象",
       "context": "当前 understanding.outcome 有要求但缺少系统化审查，容易退化成抽象描述。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-14T17:32:30.205Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "outcome transcript 会进入 product-reviewer 或等价检查流程 → 不再只是文档约定",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-14T17:34:26.977Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/product-reviewer.json:51 — case runs verify-product-reviewer and expects its success marker; the verifier checks weak_outcome_transcript advisory plus DONE reminder wiring, so outcome transcript has entered an executable review flow rather than staying as docs-only guidance | severity:info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T17:36:57.312Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/product-reviewer.json:53 — case runs the verifier script and expects its success marker, so outcome transcript handling is enforced by executable review tooling rather than docs-only guidance | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "outcome 太抽象或太短时 → 审查/总结流程会给出用户价值层的明确提醒",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-14T17:34:27.112Z",
+                "pass": false,
+                "note": "packages/main/tests/fixtures/product-reviewer.json:66 — case proves a transcript-like outcome avoids weak_outcome_transcript, but the edge intent asks for a clear reminder when outcome is too abstract or too short; that negative-path reminder is only exercised elsewhere, so this intentRef remains mismatched | severity:high",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T17:36:57.474Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/product-reviewer.json:68 — case creates a story whose outcome is too short (太短) and asserts weak_outcome_transcript is emitted, which directly covers the clear reminder path for overly abstract or short outcomes | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果输出最后一行仍然让用户想问‘然后呢’ → 产品验收层能暴露这个问题，而不是被工程全绿掩盖",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-14T17:34:27.274Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/product-reviewer.json:81 — case creates an abstract outcome and asserts story_review emits weak_outcome_transcript; because the advisory message is specifically about avoiding a user asking 然后呢, it covers the product-layer exposure of engineering-green-but-user-confusing output | severity:info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T17:36:57.619Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/product-reviewer.json:83 — case creates an abstract engineering-only outcome and asserts weak_outcome_transcript appears, so product-layer review still exposes a user-facing ‘然后呢’ style failure even when engineering signals look complete | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
     },
     {
       "id": "CHK-003",
       "title": "以 advisory 方式接入 DONE 前的用户价值验收",
       "context": "先软接入，避免一上来就把 transcript-diff 变成过重的硬门禁。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-14T17:32:57.045Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "DONE 前会出现 advisory 形式的用户价值验收提示 → 主 agent 明确知道还要确认 transcript / 用户视角输出",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-14T17:34:27.422Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/product-reviewer.json:96 — case checks DONE hint text includes product-reviewer advisory and explicit 用户价值 reminder, so the main agent is told to confirm transcript/user-facing output before finishing | severity:info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T17:36:57.759Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/product-reviewer.json:98 — case asserts the DONE hint text includes product-reviewer advisory wording plus a 用户价值 reminder, so the main agent is explicitly told to check transcript/output before finishing | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "对不适合强 transcript gate 的 story → 第一版仍保留软接入策略",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-14T17:34:27.559Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/product-reviewer.json:112 — case asserts the DONE guidance says 第一版 advisory and does not require product-reviewer must-pass wording, which covers the soft-gate edge strategy for stories that should not be hard blocked | severity:info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T17:36:57.892Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/product-reviewer.json:114 — case asserts DONE guidance remains 第一版 advisory and does not require a must-pass product-reviewer gate, covering the soft-landing strategy for stories unsuited to a hard transcript gate | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果主 agent 想只靠工程通过就结束 story → advisory 验收层会暴露这种捷径而不是静默放过",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-14T17:34:27.694Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/product-reviewer.json:128 — case requires story-advance guidance to warn against engineering-only completion and to mention the 然后呢 risk explicitly, so a shortcut that ignores user value would be surfaced rather than silently allowed | severity:info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T17:36:58.017Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/product-reviewer.json:130 — case requires the DONE guidance to warn against engineering-only completion and mention the ‘然后呢’ risk, so shortcutting user-value validation would be surfaced rather than silently allowed | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
     }
   ]
 }
