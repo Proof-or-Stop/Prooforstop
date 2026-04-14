@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "统一并稳固 bootstrap 与构建依赖关系",
+      "context": "入口层当前最容易因为 dist 缺失、跨包依赖或运行时模块实例不一致而失效。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "为 init、bootstrap、wrapper 添加可重复的回归验证",
+      "context": "把这类问题从人工发现改成自动暴露，尤其覆盖 koala.js、koala-codex.js 和 init 产物。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "明确完整入口与降级入口的文档和报错体验",
+      "context": "用户在 dist 缺失或 utils 不可用时，需要得到明确引导，而不是模糊失败。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

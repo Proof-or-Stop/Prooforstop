@@ -1,0 +1,35 @@
+{
+  "storyId": "B-ae9e",
+  "name": "entrypoint-hardening",
+  "title": "稳态化 Koala 入口、构建与初始化链路",
+  "description": "修复并加固 main/utils/bootstrap/wrapper/init 相关链路，确保完整 CLI 在本地和新项目初始化后都能稳定运行，并补充针对入口层的回归验证。",
+  "type": "refactor",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "createdAt": "2026-04-14T12:40:30.940Z",
+  "startedAt": "2026-04-14T12:40:30.940Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-14T12:40:30.940Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-14T12:51:01.763Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-ae9e",
+    "branch": "story/B-ae9e",
+    "createdAt": "2026-04-14T12:51:01.812Z"
+  }
+}
