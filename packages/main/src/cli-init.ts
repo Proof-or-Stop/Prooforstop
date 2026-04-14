@@ -219,8 +219,28 @@ const skillDst = join(targetDir, '.claude', 'skills', 'koala');
 const claudeAgentsSrc = join(packageRoot, '..', '..', '.claude', 'agents');
 const claudeAgentsDst = join(targetDir, '.claude', 'agents');
 const codexAgentsDst = join(targetDir, '.Codex', 'agents');
-const codexReadmeSrc = join(packageRoot, '..', '..', '.Codex', 'README.md');
 const codexReadmeDst = join(targetDir, '.Codex', 'README.md');
+const CODEX_README_TEMPLATE = `# Codex + Koala
+
+通用做法：
+
+\`\`\`bash
+KOALA_ACTIVITY_SOURCE=codex koala session_brief
+\`\`\`
+
+原因：
+
+- \`KOALA_ACTIVITY_SOURCE=codex\` 会把本次调用写入 \`docs/story/activity.jsonl\`，并标记 \`source=codex\`
+- 如果当前项目只有全局 \`koala\`，这是最稳妥的 Codex 入口
+
+如果当前仓库后续增加了本地 wrapper（例如 \`node bin/koala-codex.js\`），再优先切换到本地 wrapper。
+
+建议：
+
+- 新 session 第一条命令跑 \`KOALA_ACTIVITY_SOURCE=codex koala session_brief\`
+- 日常所有 story/checklist/fixture/bug 操作尽量保持同一入口
+- 如果 \`aux_*\` 不可用，说明当前是 core-only koala：优先找本地 bootstrap 入口；没有的话，用 AGENTS.md 规定的 shell 搜索兜底
+`;
 if (existsSync(skillSrc)) {
   const skillFile = join(skillSrc, 'skill.md');
   const dstFile = join(skillDst, 'skill.md');
@@ -245,13 +265,8 @@ copyAgentDefinitions(claudeAgentsSrc, codexAgentsDst, '.Codex/agents', (content)
   content.replace(/Claude Code/g, 'Codex').replace(/\.claude\/agents\//g, '.Codex/agents/'),
 );
 if (!existsSync(codexReadmeDst)) {
-  if (existsSync(codexReadmeSrc)) {
-    writeFileSync(codexReadmeDst, readFileSync(codexReadmeSrc, 'utf-8'));
-    console.log('  ✓ .Codex/README.md');
-  } else {
-    writeFileSync(codexReadmeDst, '# Codex + Koala\n\n新 session 第一条命令先跑 `koala session_brief`。\n');
-    console.log('  ✓ .Codex/README.md (created minimal)');
-  }
+  writeFileSync(codexReadmeDst, CODEX_README_TEMPLATE);
+  console.log('  ✓ .Codex/README.md');
 } else {
   console.log('  - .Codex/README.md (exists, skip)');
 }
@@ -302,7 +317,8 @@ console.log(`
 
 Next steps:
   1. Open Claude Code and run /koala, or open Codex and let it read AGENTS.md
-  2. First action in a new agent session should be: koala session_brief
-  3. Optional: edit koala.config.json to adjust scanRoot
-  4. Optional: koala test to run flow e2e tests
+  2. First action in a new agent session should be: KOALA_ACTIVITY_SOURCE=codex koala session_brief
+  3. If this repo has local wrappers, prefer node bin/koala-codex.js <command>
+  4. Optional: edit koala.config.json to adjust scanRoot
+  5. Optional: koala test to run flow e2e tests
 `);

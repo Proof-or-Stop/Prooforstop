@@ -30,6 +30,8 @@ node bin/koala-codex.js story_create '...'
 - 它会把 Koala 调用写入 `docs/story/activity.jsonl`
 - 写入记录会带 `source=codex`，可以和普通 CLI、Claude Code 区分
 
+如果本地 bootstrap 还没准备好，wrapper 会直接打印恢复步骤，而不是抛出模糊的模块加载错误。
+
 ### 3. 新 session 的第一步
 
 ```bash
@@ -44,6 +46,18 @@ node bin/koala-codex.js session_brief
 node bin/koala.js tool_status --source=codex --days=1 --limit=10
 ```
 
+### 5. 跑入口回归验证
+
+```bash
+npm run test:entrypoints
+```
+
+这会验证：
+
+- 当前仓库的 `bin/koala.js` / `bin/koala-codex.js`
+- `koala init` 生成的新项目产物
+- `.Codex/README.md` 是否包含正确的降级入口说明
+
 ## 没有本地 wrapper 时
 
 如果某个项目只有全局 `koala`，没有 `bin/koala-codex.js`，可以这样跑：
@@ -53,6 +67,13 @@ KOALA_ACTIVITY_SOURCE=codex koala session_brief
 ```
 
 这能保证 activity 里仍然按 `source=codex` 记账；但如果没有 bootstrap 入口，`aux_*` 命令可能不可用。
+
+如果完整入口提示缺少 `packages/main/dist/*` 或 `packages/utils/dist/*`，先执行：
+
+```bash
+npm --prefix packages/main run build
+npm --prefix packages/utils run build
+```
 
 ## Claude Code
 
