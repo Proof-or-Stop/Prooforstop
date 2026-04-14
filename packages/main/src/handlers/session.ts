@@ -25,6 +25,7 @@ import type { HandlerContext } from './context.js';
 import type { StoryInfo, ChecklistData, BugData } from '../core/types.js';
 import { detectZombieStories } from './story-query.js';
 import { formatRoleLabel } from '../core/activity-role.js';
+import { summarizeParallelPolicy, type ParallelPolicyView } from '../core/parallel-policy.js';
 
 interface ActiveStoryDetected {
   storyId: string;
@@ -371,6 +372,45 @@ function formatTimeAgo(iso: string): string {
   return `${Math.round(hr / 24)}d ago`;
 }
 
+interface ActiveStoryBrief {
+  storyId: string;
+  phase: string;
+  title: string;
+  bugsOpen: number;
+  story: StoryInfo;
+  policy: ParallelPolicyView;
+}
+
+function formatParallelBadge(policy: ParallelPolicyView): string {
+  return `${policy.lane}/${policy.safety}`;
+}
+
+function buildParallelBrief(activeStories: ActiveStoryBrief[]): {
+  primary: ActiveStoryBrief | null;
+  candidates: Array<{ story: ActiveStoryBrief; note: string }>;
+  conflicts: string[];
+} {
+  const primary = activeStories.find((story) => story.policy.lane === 'mainline') || activeStories[0] || null;
+  const conflicts = Array.from(new Set(
+    activeStories.flatMap((story) => story.policy.conflicts.map((message) => `${story.storyId}: ${message}`)),
+  ));
+  const candidates = activeStories
+    .filter((story) => !primary || story.storyId !== primary.storyId)
+    .filter((story) => story.policy.safety !== 'no')
+    .filter((story) => !story.policy.conflicts.some((message) => message.includes(`shares hotspots with ${primary?.storyId}`)))
+    .map((story) => {
+      const notes = [
+        ...story.policy.reasons,
+        ...(story.policy.safety === 'yes' ? ['ready for parallel DEV'] : ['keep this in PLAN only']),
+      ];
+      return {
+        story,
+        note: notes.join('; '),
+      };
+    });
+  return { primary, candidates, conflicts };
+}
+
 /** B-89c7 CHK-008: session_brief input schema.
  *  concise=true → output < ~4KB, only critical fields. Used by the
  *  Claude Code SessionStart hook where head-of-context pollution must
@@ -416,15 +456,17 @@ export function createSessionHandlers(ctx: HandlerContext) {
         // We call the same handler via ctx-level helpers so the exact
         // same numbers show up in brief and in `koala story_list`.
         let dashboardText: string | null = null;
-        let activeStories: Array<{ storyId: string; phase: string; title: string; bugsOpen: number }> = [];
+        let activeStories: ActiveStoryBrief[] = [];
         let totalBugsOpen = 0;
         let totalStories = allStoryIds.length;
         let doneStories = 0;
+        const storiesById = new Map<string, StoryInfo>();
         try {
           const phases: Record<string, number> = {};
           for (const id of allStoryIds) {
             try {
               const s = ctx.store.readStory(id);
+              storiesById.set(id, s);
               phases[s.phase] = (phases[s.phase] || 0) + 1;
               if (s.phase === 'DONE') doneStories++;
               // Non-terminal = active
@@ -443,6 +485,8 @@ export function createSessionHandlers(ctx: HandlerContext) {
                   phase: s.phase,
                   title: s.title || '',
                   bugsOpen,
+                  story: s,
+                  policy: summarizeParallelPolicy(s, storiesById),
                 });
               }
             } catch { /* skip unreadable */ }
@@ -467,7 +511,13 @@ export function createSessionHandlers(ctx: HandlerContext) {
         // Active stories + worktree paths.
         const worktrees = listActiveWorktrees(ctx.root);
         if (activeStories.length > 0) {
+          activeStories = activeStories.map((story) => ({
+            ...story,
+            policy: summarizeParallelPolicy(story.story, storiesById),
+          }));
           activeStories.sort((a, b) => {
+            const laneDelta = Number(b.policy.lane === 'mainline') - Number(a.policy.lane === 'mainline');
+            if (laneDelta !== 0) return laneDelta;
             const phaseDelta = rankPhase(b.phase) - rankPhase(a.phase);
             if (phaseDelta !== 0) return phaseDelta;
             const worktreeDelta = Number(Boolean(worktrees[b.storyId])) - Number(Boolean(worktrees[a.storyId]));
@@ -481,15 +531,37 @@ export function createSessionHandlers(ctx: HandlerContext) {
           for (const s of activeStories.slice(0, limit)) {
             const wt = worktrees[s.storyId];
             const bugStr = s.bugsOpen > 0 ? ` [${s.bugsOpen} bugs]` : '';
+            const policyStr = ` [${formatParallelBadge(s.policy)}]`;
             if (wt) {
-              lines.push(`  ${s.storyId} ${s.phase.padEnd(16)} ${s.title}${bugStr}`);
+              lines.push(`  ${s.storyId} ${s.phase.padEnd(16)} ${s.title}${bugStr}${policyStr}`);
               lines.push(`    → cd ${wt}`);
             } else {
-              lines.push(`  ${s.storyId} ${s.phase.padEnd(16)} ${s.title}${bugStr}`);
+              lines.push(`  ${s.storyId} ${s.phase.padEnd(16)} ${s.title}${bugStr}${policyStr}`);
             }
           }
           if (activeStories.length > limit) {
             lines.push(`  ... ${activeStories.length - limit} more`);
+          }
+        }
+
+        const parallelBrief = buildParallelBrief(activeStories);
+        if (parallelBrief.primary) {
+          lines.push('');
+          lines.push('## Primary lane');
+          lines.push(`  ${parallelBrief.primary.storyId} ${parallelBrief.primary.phase} ${parallelBrief.primary.title} [${formatParallelBadge(parallelBrief.primary.policy)}]`);
+        }
+        if (parallelBrief.candidates.length > 0) {
+          lines.push('');
+          lines.push(`## Parallel candidates (${parallelBrief.candidates.length})`);
+          for (const candidate of parallelBrief.candidates.slice(0, concise ? 2 : parallelBrief.candidates.length)) {
+            lines.push(`  ${candidate.story.storyId} ${candidate.story.phase} [${formatParallelBadge(candidate.story.policy)}] ${candidate.note}`);
+          }
+        }
+        if (!concise && parallelBrief.conflicts.length > 0) {
+          lines.push('');
+          lines.push(`## Conflict warnings (${parallelBrief.conflicts.length})`);
+          for (const warning of parallelBrief.conflicts.slice(0, 6)) {
+            lines.push(`  - ${warning}`);
           }
         }
 
@@ -551,8 +623,8 @@ export function createSessionHandlers(ctx: HandlerContext) {
         // Next step suggestion for main branch.
         lines.push('');
         lines.push('## → Next step');
-        if (activeStories.length > 0) {
-          const top = activeStories[0];
+        if (parallelBrief.primary) {
+          const top = parallelBrief.primary;
           const wt = worktrees[top.storyId];
           if (wt) {
             lines.push(`  Resume: cd ${wt} (story ${top.storyId} is in ${top.phase})`);

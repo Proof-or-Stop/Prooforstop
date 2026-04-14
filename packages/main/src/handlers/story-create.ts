@@ -1,7 +1,7 @@
 
 import type { HandlerContext } from './context.js';
 import { collectContext, nextStoryId } from './context.js';
-import type { StoryInfo, StoryPhase, StoryType } from '../core/types.js';
+import type { StoryInfo, StoryLane, StoryParallelSafety, StoryPhase, StoryType } from '../core/types.js';
 
 /**
  * 高风险关键词检测（OMX ralplan --deliberate 风格）。
@@ -44,6 +44,10 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       priority: string;
       source?: string;
       depends?: string[];
+      lane?: StoryLane;
+      parallelSafe?: StoryParallelSafety;
+      sharedHotspots?: string[];
+      blockingFor?: string[];
       keywords?: string[];
       checklist?: Array<{ title: string; context?: string; relatedDocs?: string[]; phase?: 'DEV' | 'TEST_CASE'; testIntent?: { happy: string[]; edge: string[]; adversarial: string[] } }>;
       prefix?: string;
@@ -141,6 +145,10 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
           priority: elevatedPriority,
           ...(args.source ? { source: args.source } : {}),
           ...(args.depends && args.depends.length > 0 ? { depends: args.depends } : {}),
+          ...(args.lane ? { lane: args.lane } : {}),
+          ...(args.parallelSafe ? { parallelSafe: args.parallelSafe } : {}),
+          ...(args.sharedHotspots && args.sharedHotspots.length > 0 ? { sharedHotspots: args.sharedHotspots } : {}),
+          ...(args.blockingFor && args.blockingFor.length > 0 ? { blockingFor: args.blockingFor } : {}),
           ...(args.keywords && args.keywords.length > 0 ? { keywords: args.keywords } : {}),
           ...(riskSignals.length > 0 ? { riskSignals } : {}),
           createdAt: now,
@@ -182,6 +190,10 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         priority: elevatedPriority,
         ...(args.source ? { source: args.source } : {}),
         ...(args.depends && args.depends.length > 0 ? { depends: args.depends } : {}),
+        ...(args.lane ? { lane: args.lane } : {}),
+        ...(args.parallelSafe ? { parallelSafe: args.parallelSafe } : {}),
+        ...(args.sharedHotspots && args.sharedHotspots.length > 0 ? { sharedHotspots: args.sharedHotspots } : {}),
+        ...(args.blockingFor && args.blockingFor.length > 0 ? { blockingFor: args.blockingFor } : {}),
         ...(args.keywords && args.keywords.length > 0 ? { keywords: args.keywords } : {}),
         ...(riskSignals.length > 0 ? { riskSignals } : {}),
         createdAt: now,

@@ -100,6 +100,10 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
       priority?: string;
       source?: string;
       depends?: string[];
+      lane?: 'mainline' | 'supporting' | 'exploratory';
+      parallelSafe?: 'yes' | 'no' | 'plan_only';
+      sharedHotspots?: string[];
+      blockingFor?: string[];
     }): string {
       const story = store.readStory(args.storyId);
       if (args.title !== undefined) story.title = args.title;
@@ -107,6 +111,10 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
       if (args.priority !== undefined) story.priority = args.priority;
       if (args.source !== undefined) story.source = args.source;
       if (args.depends !== undefined) story.depends = args.depends;
+      if (args.lane !== undefined) story.lane = args.lane;
+      if (args.parallelSafe !== undefined) story.parallelSafe = args.parallelSafe;
+      if (args.sharedHotspots !== undefined) story.sharedHotspots = args.sharedHotspots;
+      if (args.blockingFor !== undefined) story.blockingFor = args.blockingFor;
       store.writeStory(args.storyId, story);
       return `Story ${args.storyId} updated`;
     },

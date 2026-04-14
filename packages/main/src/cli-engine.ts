@@ -44,6 +44,10 @@ export const MAIN_TOOLS: ToolDef[] = [
     description: z.string().describe('描述'), type: z.enum(['feature','bug','refactor','chore']).describe('类型'),
     priority: z.string().describe('优先级'), source: z.string().optional().describe('来源'),
     depends: z.array(z.string()).optional().describe('依赖 Story ID'),
+    lane: z.enum(['mainline','supporting','exploratory']).optional().describe('并行调度角色：主线/支持线/探索线'),
+    parallelSafe: z.enum(['yes','no','plan_only']).optional().describe('并行安全级别：可并行/禁止并行/仅允许并行做 PLAN'),
+    sharedHotspots: z.array(z.string()).optional().describe('共享热点文件或模块（用于并行冲突提示）'),
+    blockingFor: z.array(z.string()).optional().describe('会阻塞的其他 Story ID（供 session_brief 显示等待关系）'),
     keywords: z.array(z.string()).optional().describe('关键词（领域/模块/概念，用于查重）'),
     checklist: z.array(z.object({ title: z.string(), context: z.string().optional(), relatedDocs: z.array(z.string()).optional().describe('关联文档路径（用于三次提醒）'), phase: z.enum(['DEV','TEST_CASE']).optional().describe('B-5010: item 所属阶段（默认 DEV）'), testIntent: z.object({ happy: z.array(z.union([z.string(), z.object({ desc: z.string(), type: z.enum(['cli_blackbox','browser_blackbox']) })])), edge: z.array(z.union([z.string(), z.object({ desc: z.string(), type: z.enum(['cli_blackbox','browser_blackbox']) })])).optional(), adversarial: z.array(z.union([z.string(), z.object({ desc: z.string(), type: z.enum(['cli_blackbox','browser_blackbox']) })])).optional() }).optional() })).optional().describe('开发清单'),
     prefix: z.string().optional().describe('ID 前缀(默认 B)'),
@@ -57,6 +61,12 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'story_update', description: '编辑 Story 信息', schema: {
     storyId: z.string().describe('Story ID'), title: z.string().optional().describe('新标题'),
     description: z.string().optional().describe('新描述'), priority: z.string().optional().describe('新优先级'),
+    source: z.string().optional().describe('新来源'),
+    depends: z.array(z.string()).optional().describe('依赖 Story ID'),
+    lane: z.enum(['mainline','supporting','exploratory']).optional().describe('并行调度角色'),
+    parallelSafe: z.enum(['yes','no','plan_only']).optional().describe('并行安全级别'),
+    sharedHotspots: z.array(z.string()).optional().describe('共享热点文件或模块'),
+    blockingFor: z.array(z.string()).optional().describe('会阻塞的其他 Story ID'),
   }},
   { name: 'story_get', description: '读取 Story 详情', schema: { storyId: z.string().describe('Story ID'), detail: z.boolean().optional().describe('附带 index.json 全字段（phase/priority/name/description/...）到 result.index') }},
   { name: 'story_list', description: '列出全部 Story', schema: {
