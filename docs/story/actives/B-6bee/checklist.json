@@ -24,6 +24,12 @@
                 "pass": true,
                 "note": "packages/main/tests/fixtures/session-brief-command-center.json:4 — case delegates to verify-session-brief-command-center.mjs, which seeds reviewer/intent activity and asserts recent activity includes [source/role/status] entries, so source+role display is covered end-to-end | severity:info",
                 "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T17:10:12.115Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/session-brief-command-center.json:4 — case delegates to verify-session-brief-command-center.mjs, which seeds role-aware activity and asserts recent activity includes [source/role/status], so source+role display is covered end-to-end | severity:info",
+                "role": "reviewer"
               }
             ]
           }
@@ -44,6 +50,12 @@
                 "pass": true,
                 "note": "packages/main/tests/fixtures/session-brief-command-center.json:18 — case runs session_brief directly and asserts slash-unknown-slash-ok appears, covering legacy activity rows without role by requiring a stable unknown fallback instead of omission or crash | severity:info",
                 "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T17:10:12.239Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/session-brief-command-center.json:18 — case runs session_brief directly and asserts /unknown/ok] appears, covering legacy activity rows without role by requiring a stable unknown fallback instead of omission or crash | severity:info",
+                "role": "reviewer"
               }
             ]
           }
@@ -61,6 +73,12 @@
               },
               {
                 "time": "2026-04-14T17:07:17.938Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/session-brief-command-center.json:33 — case asserts the rendered triad keeps distinct source/role slots and explicitly rejects [codex/codex/ok], so source is not misrendered as role when role data is noisy or absent | severity:info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T17:10:12.348Z",
                 "pass": true,
                 "note": "packages/main/tests/fixtures/session-brief-command-center.json:33 — case asserts the rendered triad keeps distinct source/role slots and explicitly rejects [codex/codex/ok], so source is not misrendered as role when role data is noisy or absent | severity:info",
                 "role": "reviewer"
@@ -95,6 +113,12 @@
                 "pass": true,
                 "note": "packages/main/tests/fixtures/session-brief-command-center.json:49 — case requires session_brief to mention reviewer/test-intent context and emit a concrete recovery command, so common role flows produce a role-aware next action instead of a generic hint | severity:info",
                 "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T17:10:12.484Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/session-brief-command-center.json:49 — case requires session_brief to mention reviewer/test-intent context and emit a concrete recovery command, so common role flows produce a role-aware next action instead of a generic hint | severity:info",
+                "role": "reviewer"
               }
             ]
           }
@@ -112,6 +136,12 @@
               },
               {
                 "time": "2026-04-14T17:07:17.941Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/session-brief-command-center.json:65 — case asserts either the unknown-role warning or the conservative checklist_get / testintent_check fallback, covering the edge path where only unknown or stale role history exists | severity:info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T17:10:12.651Z",
                 "pass": true,
                 "note": "packages/main/tests/fixtures/session-brief-command-center.json:65 — case asserts either the unknown-role warning or the conservative checklist_get / testintent_check fallback, covering the edge path where only unknown or stale role history exists | severity:info",
                 "role": "reviewer"
@@ -134,6 +164,12 @@
                 "time": "2026-04-14T17:07:17.921Z",
                 "pass": false,
                 "note": "packages/main/tests/fixtures/session-brief-command-center.json:80 — case now rejects the generic checklist fallback and requires a reviewer-oriented command, but it still accepts three different next-step commands instead of asserting which one should win under competing recent-role noise, so wrong-action selection remains only partially covered | severity:high",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T17:10:12.767Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/session-brief-command-center.json:80 — case now seeds reviewer and intent noise, then requires story_review while explicitly rejecting checklist_update and testintent_check, so it verifies which actionable command wins under competing recent-role activity instead of accepting any reviewer-ish fallback | severity:info",
                 "role": "reviewer"
               }
             ]
@@ -160,6 +196,12 @@
                 "pass": true,
                 "note": "packages/main/tests/fixtures/session-brief-command-center.json:96 — case runs main-branch session_brief and requires both a resume command and B-6bee targeting, covering recovery toward the deeper active worktree instead of arbitrary story order | severity:info",
                 "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T17:10:12.882Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/session-brief-command-center.json:96 — case runs main-branch session_brief and requires both a resume command and B-6bee targeting, covering recovery toward the deeper active worktree instead of arbitrary story order | severity:info",
+                "role": "reviewer"
               }
             ]
           }
@@ -180,6 +222,12 @@
                 "pass": true,
                 "note": "packages/main/tests/fixtures/session-brief-command-center.json:112 — case compares B-6bee and B-990d positions in main-branch output, covering stable ordering when multiple active stories coexist and recovery priority must prefer the deeper story | severity:info",
                 "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T17:10:12.989Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/session-brief-command-center.json:112 — case compares B-6bee and B-990d positions in main-branch output, covering stable ordering when multiple active stories coexist and recovery priority must prefer the deeper story | severity:info",
+                "role": "reviewer"
               }
             ]
           }
@@ -197,6 +245,12 @@
               },
               {
                 "time": "2026-04-14T17:07:17.926Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/session-brief-command-center.json:127 — case explicitly rejects INIT-story hints for B-990d/B-d307 and requires resume of the existing B-6bee worktree, covering the mixed-depth adversarial scenario | severity:info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-14T17:10:13.094Z",
                 "pass": true,
                 "note": "packages/main/tests/fixtures/session-brief-command-center.json:127 — case explicitly rejects INIT-story hints for B-990d/B-d307 and requires resume of the existing B-6bee worktree, covering the mixed-depth adversarial scenario | severity:info",
                 "role": "reviewer"
