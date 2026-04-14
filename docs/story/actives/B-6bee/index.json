@@ -4,7 +4,7 @@
   "title": "把 session_brief 升级为多角色指挥台",
   "description": "基于 role-aware telemetry 增强 session_brief，使其不只展示 phase 和活动尾部，还能指出当前阻塞点、责任角色、等待关系和最可能的下一步，提高跨 session 恢复与并行协作效率。",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "depends": [
     "B-6f6d"
@@ -20,6 +20,19 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-14T15:57:48.072Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-6bee",
+    "branch": "story/B-6bee",
+    "createdAt": "2026-04-14T15:57:48.171Z"
+  }
 }
