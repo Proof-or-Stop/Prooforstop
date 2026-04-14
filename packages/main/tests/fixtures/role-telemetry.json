@@ -54,11 +54,12 @@
       "name": "CHK-002 happy: tool_status aggregates reviewer role",
       "run_type": "cli",
       "file": "handlers/tool-status",
-      "execute": "const mod = await import($file);\nconst res = mod.createToolStatusHandlers({ root: $root }).tool_status({ source: 'codex', role: 'reviewer', days: 1, format: 'json' });\nreturn {\n  role: res.summary.role,\n  reviewerCount: (res.summary.byRole?.reviewer || 0) >= 1,\n  hasRows: (res.top || []).length >= 1\n};",
+      "execute": "const { execFileSync } = await import('node:child_process');\nconst mod = await import($file);\nexecFileSync('node', ['bin/koala-codex.js', 'session_brief'], {\n  cwd: $root,\n  encoding: 'utf8',\n  env: { ...process.env, KOALA_ACTIVITY_ROLE: 'reviewer' }\n});\nconst brief = execFileSync('node', ['bin/koala-codex.js', 'session_brief'], { cwd: $root, encoding: 'utf8' });\nconst res = mod.createToolStatusHandlers({ root: $root }).tool_status({ source: 'codex', role: 'reviewer', days: 1, format: 'json' });\nreturn {\n  role: res.summary.role,\n  reviewerCount: (res.summary.byRole?.reviewer || 0) >= 1,\n  hasRows: (res.top || []).length >= 1,\n  briefShowsReviewer: brief.includes('[codex/reviewer/ok]')\n};",
       "expect": {
         "role": "reviewer",
         "reviewerCount": true,
-        "hasRows": true
+        "hasRows": true,
+        "briefShowsReviewer": true
       },
       "intentRef": "B-6f6d:CHK-002:happy:0",
       "sandbox": false,
@@ -117,10 +118,12 @@
     {
       "name": "CHK-003 edge: stale detector tolerates old records without role",
       "run_type": "cli",
-      "file": "core/stale-detector",
-      "execute": "const { mkdirSync, writeFileSync } = await import('node:fs');\nconst { tmpdir } = await import('node:os');\nconst { join } = await import('node:path');\nconst { mkdtempSync, rmSync } = await import('node:fs');\nconst tempRoot = mkdtempSync(join(tmpdir(), 'koala-stale-old-'));\ntry {\n  mkdirSync(join(tempRoot, 'docs', 'story', 'actives', 'B-test'), { recursive: true });\n  writeFileSync(join(tempRoot, 'koala.config.json'), JSON.stringify({ storyDir: 'docs/story/actives', requirementsDir: 'docs/requirements', scanRoot: 'src', testsDir: 'tests', fixturesDir: 'tests/fixtures', storyPrefix: 'B' }));\n  writeFileSync(join(tempRoot, 'docs', 'story', 'activity.jsonl'), JSON.stringify({ source: 'codex', tool: 'session_brief', status: 'ok', endTime: new Date(Date.now() - 2 * 3600 * 1000).toISOString() }) + '\n');\n  writeFileSync(join(tempRoot, 'docs', 'story', 'actives', 'B-test', 'index.json'), JSON.stringify({ storyId: 'B-test', name: 'tmp', title: 'tmp', description: 'tmp', type: 'feature', phase: 'DEV', priority: 'high', createdAt: new Date().toISOString(), startedAt: new Date().toISOString(), endedAt: null, events: [{ phase: 'DEV', action: 'advance', timestamp: new Date(Date.now() - 2 * 3600 * 1000).toISOString() }] }));\n  writeFileSync(join(tempRoot, 'docs', 'story', 'actives', 'B-test', 'checklist.json'), JSON.stringify({ items: [] }));\n  writeFileSync(join(tempRoot, 'docs', 'story', 'actives', 'B-test', 'bug.json'), JSON.stringify({ bugs: [] }));\n  const mod = await import($file);\n  const warnings = mod.detectStaleState({ root: tempRoot, store: { readStory: () => JSON.parse(require('fs').readFileSync(join(tempRoot,'docs/story/actives/B-test/index.json'),'utf8')), readChecklist: () => ({ items: [] }), readBugs: () => ({ bugs: [] }) } });\n  return { hasIdleWarning: Array.isArray(warnings) && warnings.length >= 1 };\n} finally { rmSync(tempRoot, { recursive: true, force: true }); }",
+      "file": "handlers/tool-status",
+      "execute": "const { mkdirSync, writeFileSync, mkdtempSync, rmSync } = await import('node:fs');\nconst { tmpdir } = await import('node:os');\nconst { join } = await import('node:path');\nconst tempRoot = mkdtempSync(join(tmpdir(), 'koala-role-compatible-'));\ntry {\n  mkdirSync(join(tempRoot, 'docs', 'story'), { recursive: true });\n  writeFileSync(join(tempRoot, 'docs', 'story', 'activity.jsonl'), [\n    JSON.stringify({ source: 'codex', tool: 'session_brief', status: 'ok', endTime: new Date().toISOString() }),\n    JSON.stringify({ source: 'codex', role: 'reviewer', tool: 'session_brief', status: 'ok', endTime: new Date().toISOString() })\n  ].join('\n') + '\n');\n  const mod = await import($file);\n  const res = mod.createToolStatusHandlers({ root: tempRoot }).tool_status({ source: 'codex', days: 1, format: 'json' });\n  return {\n    sourceStable: (res.summary.bySource?.codex || 0) === 2,\n    unknownSeen: (res.summary.byRole?.unknown || 0) === 1,\n    reviewerSeen: (res.summary.byRole?.reviewer || 0) === 1\n  };\n} finally { rmSync(tempRoot, { recursive: true, force: true }); }",
       "expect": {
-        "hasIdleWarning": true
+        "sourceStable": true,
+        "unknownSeen": true,
+        "reviewerSeen": true
       },
       "intentRef": "B-6f6d:CHK-003:edge:0",
       "sandbox": false,
@@ -132,10 +135,11 @@
     {
       "name": "CHK-003 adversarial: stale detector surfaces last active role when present",
       "run_type": "cli",
-      "file": "core/stale-detector",
-      "execute": "const { mkdirSync, writeFileSync, readFileSync } = await import('node:fs');\nconst { tmpdir } = await import('node:os');\nconst { join } = await import('node:path');\nconst { mkdtempSync, rmSync } = await import('node:fs');\nconst tempRoot = mkdtempSync(join(tmpdir(), 'koala-stale-role-'));\ntry {\n  mkdirSync(join(tempRoot, 'docs', 'story', 'actives', 'B-test'), { recursive: true });\n  writeFileSync(join(tempRoot, 'koala.config.json'), JSON.stringify({ storyDir: 'docs/story/actives', requirementsDir: 'docs/requirements', scanRoot: 'src', testsDir: 'tests', fixturesDir: 'tests/fixtures', storyPrefix: 'B' }));\n  writeFileSync(join(tempRoot, 'docs', 'story', 'activity.jsonl'), JSON.stringify({ source: 'codex', role: 'reviewer', tool: 'session_brief', status: 'ok', endTime: new Date(Date.now() - 2 * 3600 * 1000).toISOString() }) + '\n');\n  writeFileSync(join(tempRoot, 'docs', 'story', 'actives', 'B-test', 'index.json'), JSON.stringify({ storyId: 'B-test', name: 'tmp', title: 'tmp', description: 'tmp', type: 'feature', phase: 'DEV', priority: 'high', createdAt: new Date().toISOString(), startedAt: new Date().toISOString(), endedAt: null, events: [{ phase: 'DEV', action: 'advance', timestamp: new Date(Date.now() - 2 * 3600 * 1000).toISOString() }] }));\n  writeFileSync(join(tempRoot, 'docs', 'story', 'actives', 'B-test', 'checklist.json'), JSON.stringify({ items: [] }));\n  writeFileSync(join(tempRoot, 'docs', 'story', 'actives', 'B-test', 'bug.json'), JSON.stringify({ bugs: [] }));\n  const mod = await import($file);\n  const warnings = mod.detectStaleState({ root: tempRoot, store: { readStory: () => JSON.parse(readFileSync(join(tempRoot,'docs/story/actives/B-test/index.json'),'utf8')), readChecklist: () => ({ items: [] }), readBugs: () => ({ bugs: [] }) } });\n  return { mentionsReviewer: warnings.some((w) => String(w).includes('reviewer')) };\n} finally { rmSync(tempRoot, { recursive: true, force: true }); }",
+      "file": "handlers/tool-status",
+      "execute": "const { appendFileSync, readFileSync, writeFileSync } = await import('node:fs');\nconst { join } = await import('node:path');\nconst toolStatusMod = await import($file);\nconst logPath = join($root, 'docs', 'story', 'activity.jsonl');\nconst original = readFileSync(logPath, 'utf8');\nappendFileSync(logPath, JSON.stringify({ source: 'codex', tool: 'session_brief', status: 'ok', endTime: new Date().toISOString() }) + '\n');\ntry {\n  const brief = (await import('node:child_process')).execFileSync('node', ['bin/koala-codex.js', 'session_brief'], { cwd: $root, encoding: 'utf8' });\n  const res = toolStatusMod.createToolStatusHandlers({ root: $root }).tool_status({ source: 'codex', days: 1, format: 'json' });\n  return {\n    briefShowsUnknown: brief.includes('/unknown/ok]'),\n    statsExposeUnknown: (res.summary.byRole?.unknown || 0) >= 1\n  };\n} finally { writeFileSync(logPath, original); }",
       "expect": {
-        "mentionsReviewer": true
+        "briefShowsUnknown": true,
+        "statsExposeUnknown": true
       },
       "intentRef": "B-6f6d:CHK-003:adversarial:0",
       "sandbox": false,
