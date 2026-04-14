@@ -6,7 +6,28 @@
       "context": "入口层当前最容易因为 dist 缺失、跨包依赖或运行时模块实例不一致而失效。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "完整入口构建后运行 koala.js/koala-codex.js → main+utils 都能加载且 aux_* 可用",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "遇到跨包共享依赖或 dist 缺失风险时 → 入口层会通过稳定约束或清晰错误暴露问题",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "换一个没有偶然模块解析优势的环境时 → 完整入口不会再次因依赖实例分裂而静默失效",
+            "type": "cli_blackbox"
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
     },
     {
       "id": "CHK-002",
@@ -14,7 +35,28 @@
       "context": "把这类问题从人工发现改成自动暴露，尤其覆盖 koala.js、koala-codex.js 和 init 产物。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "执行针对 init、bootstrap、wrapper 的回归验证 → 能稳定覆盖本仓库入口和新项目初始化产物",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "init 产物与当前仓库入口存在差异时 → 回归验证仍能显式暴露不一致",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "后续有人只手工验证当前仓库时 → 自动回归仍能拦住 wrapper/init 场景的漏测",
+            "type": "cli_blackbox"
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
     },
     {
       "id": "CHK-003",
@@ -22,7 +64,28 @@
       "context": "用户在 dist 缺失或 utils 不可用时，需要得到明确引导，而不是模糊失败。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "完整入口失败或降级到全局 koala 时 → 用户能得到明确恢复路径和正确命令提示",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "没有本地 codex wrapper 的项目里 → README 与错误提示仍能指导用户走降级入口",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "发生模块加载或构建异常时 → 用户看到的不是模糊报错，而是可执行的恢复建议",
+            "type": "cli_blackbox"
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
     }
   ]
 }

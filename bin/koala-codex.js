@@ -17,13 +17,6 @@ if (!process.env.KOALA_ACTIVITY_SESSION) {
     '';
 }
 
-import { runCli } from '../packages/main/dist/cli-engine.js';
-import { register, utilsToolDefs } from '../packages/utils/dist/index.js';
+import { runLocalBootstrap } from './bootstrap-runner.js';
 
-runCli({
-  extraTools: utilsToolDefs,
-  extraRegister: register,
-}).catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+runLocalBootstrap();
