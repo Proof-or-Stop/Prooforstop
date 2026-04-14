@@ -4,11 +4,11 @@
   "title": "编排 Koala 框架升级路线与验收口径",
   "description": "把 Codex 接入、入口稳态化、role-aware 遥测、session_brief 指挥台、product-reviewer 五条升级线整理为可执行 story 组，明确依赖顺序、阶段性用户价值和验收边界，避免后续实现阶段边做边改拆分。",
   "type": "chore",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "createdAt": "2026-04-14T12:39:14.270Z",
   "startedAt": "2026-04-14T12:39:14.270Z",
-  "endedAt": null,
+  "endedAt": "2026-04-14T18:49:11.694Z",
   "events": [
     {
       "phase": "INIT",
@@ -89,11 +89,14 @@
       "branch": "story/B-96e9",
       "user": "Harmonygo",
       "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-14T18:49:11.694Z",
+      "branch": "story/B-96e9",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ],
-  "worktree": {
-    "path": ".worktrees/B-96e9",
-    "branch": "story/B-96e9",
-    "createdAt": "2026-04-14T12:39:23.519Z"
-  }
+  ]
 }
