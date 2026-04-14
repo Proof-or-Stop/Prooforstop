@@ -38,6 +38,7 @@ export const DEFAULT_STALE_THRESHOLDS: StaleThresholds = {
 
 interface ActivityEntry {
   source?: string;
+  role?: string;
   endTime?: string;
   startTime?: string;
   tool?: string;
@@ -203,7 +204,8 @@ function checkIdleKoala(root: string, thresholds: StaleThresholds, now: number):
     if (!Number.isFinite(ts)) return null;
     const diff = now - ts;
     if (diff > thresholds.idleKoala * 60_000) {
-      return `距离上次 koala 命令已过 ${formatMinutes(diff)}，记得继续走流程`;
+      const actor = entry.role ? `（最近活跃角色: ${entry.role}）` : '';
+      return `距离上次 koala 命令已过 ${formatMinutes(diff)}${actor}，记得继续走流程`;
     }
   } catch { /* PROBE */ }
   return null;

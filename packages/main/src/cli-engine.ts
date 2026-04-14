@@ -19,6 +19,7 @@ import { decorateResult, type ActiveStoryInfo } from './handlers/hints.js';
 import { reportHealthIssue } from './core/health.js';
 import { detectStaleState } from './core/stale-detector.js';
 import { runHooks, truncateForEnv, buildHookEnv as buildSharedHookEnv, HOOK_TIMEOUT_MS } from './core/hooks.js';
+import { inferActivityRole } from './core/activity-role.js';
 import {
   STORY_CREATE_LONG, STORY_ADVANCE_LONG, CHECKLIST_UPDATE_LONG, FIXTURE_BATCH_ADD_LONG,
   SESSION_BRIEF_FOOTER,
@@ -709,7 +710,7 @@ export async function runCli(opts?: {
       mkdirSync(logDir, { recursive: true });
       const activitySource = (process.env.KOALA_ACTIVITY_SOURCE || 'cli').trim() || 'cli';
       const activitySession = process.env.KOALA_ACTIVITY_SESSION?.trim() || null;
-      const activityRole = process.env.KOALA_ACTIVITY_ROLE?.trim() || null;
+      const activityRole = inferActivityRole(entry.args, process.env.KOALA_ACTIVITY_ROLE?.trim() || null);
       const record: Record<string, unknown> = {
         source: activitySource,
         startTime: entry.startTime,

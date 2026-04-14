@@ -4,11 +4,11 @@
   "title": "为 activity 遥测补齐角色维度",
   "description": "在现有 source-aware activity 基础上增加 role 维度，区分 main、intent、reviewer、implementer 等角色，为 session_brief、watchdog、质量分析和后续多角色协作提供可靠数据底座。",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "createdAt": "2026-04-14T12:40:48.584Z",
   "startedAt": "2026-04-14T12:40:48.584Z",
-  "endedAt": null,
+  "endedAt": "2026-04-14T15:57:30.573Z",
   "events": [
     {
       "phase": "INIT",
@@ -25,11 +25,150 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-14T15:41:56.408Z",
+      "branch": "story/B-6f6d",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-14T15:42:57.522Z",
+      "branch": "story/B-6f6d",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-14T15:48:04.627Z",
+      "branch": "story/B-6f6d",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-14T15:49:26.512Z",
+      "branch": "story/B-6f6d",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-14T15:49:42.206Z",
+      "branch": "story/B-6f6d",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-14T15:49:52.088Z",
+      "branch": "story/B-6f6d",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-14T15:50:02.260Z",
+      "branch": "story/B-6f6d",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-14T15:50:11.829Z",
+      "branch": "story/B-6f6d",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-14T15:52:11.790Z",
+      "branch": "story/B-6f6d",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-14T15:52:58.901Z",
+      "branch": "story/B-6f6d",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-14T15:53:44.070Z",
+      "branch": "story/B-6f6d",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-14T15:55:39.255Z",
+      "branch": "story/B-6f6d",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-14T15:56:33.023Z",
+      "branch": "story/B-6f6d",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-14T15:56:33.615Z",
+      "branch": "story/B-6f6d",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-14T15:56:44.697Z",
+      "branch": "story/B-6f6d",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-14T15:57:07.376Z",
+      "branch": "story/B-6f6d",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-14T15:57:07.835Z",
+      "branch": "story/B-6f6d",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-14T15:57:30.573Z",
+      "branch": "story/B-6f6d",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ],
-  "worktree": {
-    "path": ".worktrees/B-6f6d",
-    "branch": "story/B-6f6d",
-    "createdAt": "2026-04-14T15:41:48.330Z"
-  }
+  ]
 }

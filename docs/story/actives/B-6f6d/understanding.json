@@ -1,0 +1,29 @@
+{
+  "task": "为 Koala 的 activity 遥测补齐 role 维度，让后续 session_brief、watchdog、统计分析能看出是谁在推进 story。",
+  "outcome": "> node bin/koala-codex.js session_brief\n# koala session brief\n...\n最近活动里不只有 [codex/ok]，还会带上 main / reviewer / intent 等角色语义。\n\n> node bin/koala.js tool_status --source=all --days=1\n总调用: ... (claude X, cli Y, codex Z)\n按 role 还能继续区分 main / reviewer / intent。\n\n> 打开 activity.jsonl\n每条记录除了 source，还能看到 role。",
+  "facts": [
+    "当前 activity.jsonl 已经支持 source 维度（cli / claude / codex），但 role 还没有系统化贯通。",
+    "cli-engine.ts 已经有 KOALA_ACTIVITY_ROLE 环境变量入口，但没有被正式建模进统计和 session 体验。",
+    "role-separation 文档已经把 activity role、watchdog 和 session_brief 的角色感知列成明确升级方向。",
+    "后续的 session_brief 指挥台和并行调度护栏都会直接依赖 role-aware telemetry。"
+  ],
+  "constraints": [
+    "必须兼容现有没有 role 字段的历史 activity 记录。",
+    "这条 story 先聚焦 telemetry 和消费侧，不把 product-reviewer 或并行护栏逻辑提前混进来。",
+    "role 维度既要能从 wrapper/env 注入，也要在统计和 brief 层被消费。",
+    "改造完成后，不能破坏现有 source=codex / source=cli / source=claude 的统计结果。"
+  ],
+  "unknowns": [
+    "role 应该先只接受环境变量注入，还是要在更高层增加标准化的角色入口。",
+    "session_brief 第一版是否只展示 role 标签，还是要立刻推导等待关系。"
+  ],
+  "touchpoints": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/core/stale-detector.ts",
+    "packages/utils/src/handlers/tool-status.ts",
+    "packages/utils/src/tool-defs.ts",
+    "docs/requirements/decisions/role-separation.md"
+  ],
+  "timestamp": "2026-04-14T15:42:22.888Z"
+}
