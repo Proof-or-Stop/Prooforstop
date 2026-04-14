@@ -55,6 +55,7 @@ function readActivityTail(root: string, lines: number): Array<{
   timestamp: string;
   tool: string;
   status: string;
+  source: string;
   storyId: string | null;
 }> {
   const activityPath = join(root, 'docs', 'story', 'activity.jsonl');
@@ -63,7 +64,7 @@ function readActivityTail(root: string, lines: number): Array<{
     const content = readFileSync(activityPath, 'utf-8');
     const allLines = content.split('\n').filter(l => l.trim().length > 0);
     const tail = allLines.slice(-lines);
-    const records: Array<{ timestamp: string; tool: string; status: string; storyId: string | null }> = [];
+    const records: Array<{ timestamp: string; tool: string; status: string; source: string; storyId: string | null }> = [];
     for (const line of tail) {
       try {
         const r = JSON.parse(line);
@@ -71,6 +72,7 @@ function readActivityTail(root: string, lines: number): Array<{
           timestamp: r.startTime || r.endTime || '',
           tool: r.tool || r.detail || '?',
           status: r.status || '?',
+          source: r.source || 'unknown',
           storyId: r.storyId || null,
         });
       } catch { /* skip malformed */ }
@@ -598,7 +600,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
           lines.push('');
           lines.push(`## Recent activity (last ${activity.length})`);
           for (const a of activity.slice().reverse()) {
-            lines.push(`  ${a.timestamp} ${a.tool} [${a.status}]`);
+            lines.push(`  ${a.timestamp} ${a.tool} [${a.source}/${a.status}]`);
           }
         }
       }

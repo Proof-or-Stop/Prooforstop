@@ -4,11 +4,11 @@
   "title": "fixture execute 中多行字符串支持：避免 JSON \n 转义地狱",
   "description": "## 问题\nfixture case 的 execute 字段在 JSON 中存储。如果 execute 代码中有 writeFileSync 写多行内容，\n 在 JSON parse/stringify 循环中变成真换行，导致 new AsyncFunction 解析失败（Invalid or unexpected token）。\n\n## 根因\nJSON 规范中 \n 就是换行符，无法区分\"代码中的换行\"和\"JS 字符串中的 \n 转义\"。\n\n## 当前 workaround\n用 String.fromCharCode(10) 或 [].join() 绕过。\n\n## 方案\n支持 execute 为数组（每行一个元素）自动 join，或提供 executeFile 字段指向外部 .js 文件。",
   "type": "feature",
-  "phase": "PLAN",
+  "phase": "DONE",
   "priority": "medium",
   "createdAt": "2026-04-05T10:41:29.182Z",
   "startedAt": "2026-04-05T10:41:29.182Z",
-  "endedAt": null,
+  "endedAt": "2026-04-14T00:31:23.995Z",
   "events": [
     {
       "phase": "PLAN",
@@ -17,6 +17,16 @@
       "branch": "main",
       "user": "jay2079037995",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-14T00:31:23.995Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main",
+      "reconciled": true,
+      "reason": "story_reconcile: 分支已删除"
     }
   ]
 }

@@ -23,14 +23,18 @@ koala-init — 初始化 koala 开发框架
 初始化内容:
   koala.config.json             项目配置（扫描路径、Story 前缀）
   CLAUDE.md                     Claude Code 指引（注释规范、/koala 入口）
+  AGENTS.md                     Codex 指引（session_brief / Story 流程 / Sub agent 约定）
   .claude/skills/koala/       /koala skill 文件
+  .claude/agents/             Claude Code sub-agent 定义
+  .Codex/agents/              Codex sub-agent 定义
+  .Codex/README.md            Codex 入口说明（使用 koala-codex wrapper）
   docs/story/actives/           Story 数据目录
   docs/requirements/            真相源目录
   tests/fixtures/               测试 fixture 目录
 
 初始化后:
   1. 编辑 koala.config.json 调整 scanRoot 等路径
-  2. 打开 Claude Code，执行 /koala 开始工作
+  2. 打开 Claude Code 执行 /koala，或打开 Codex 并让它先跑 koala session_brief
   3. 可选: koala test_auto 跑自动化测试
 `);
   process.exit(0);
@@ -60,6 +64,8 @@ const dirs = [
   'docs/requirements/decisions',
   'docs/requirements/extracted',
   '.claude/skills/koala',
+  '.claude/agents',
+  '.Codex/agents',
   'tests/fixtures',
 ];
 for (const d of dirs) {
@@ -123,10 +129,68 @@ if (existsSync(pkgPath)) {
 }
 write('koala.config.json', JSON.stringify(koalaConfig, null, 2) + '\n');
 
-// 3. CLAUDE.md（从 koala 项目复制 / 同步 koala:start~koala:end 区间）
-console.log('\n[3/5] 配置 CLAUDE.md...');
+function syncInstructionFile(targetPath: string, sourcePath: string, label: string, fallbackContent: string) {
+  if (!existsSync(targetPath)) {
+    if (existsSync(sourcePath)) {
+      const content = extractKoalaSection(readFileSync(sourcePath, 'utf-8'));
+      writeFileSync(targetPath, content + '\n');
+      console.log(`  ✓ ${label} (copied from koala, internal rules stripped)`);
+    } else {
+      writeFileSync(targetPath, fallbackContent);
+      console.log(`  ✓ ${label} (created minimal)`);
+    }
+    return;
+  }
+
+  if (!existsSync(sourcePath)) {
+    console.log(`  - ${label} (exists, skip)`);
+    return;
+  }
+
+  const existing = readFileSync(targetPath, 'utf-8');
+  const newSection = extractKoalaSection(readFileSync(sourcePath, 'utf-8'));
+  if (existing.match(/<!--\s*koala:start\s*-->[\s\S]*?<!--\s*koala:end\s*-->/)) {
+    const updated = existing.replace(/<!--\s*koala:start\s*-->[\s\S]*?<!--\s*koala:end\s*-->/, newSection);
+    if (updated !== existing) {
+      writeFileSync(targetPath, updated);
+      console.log(`  ✓ ${label} (koala section synced)`);
+    } else {
+      console.log(`  - ${label} (koala section up to date)`);
+    }
+  } else {
+    console.log(`  - ${label} (exists, no koala markers, skip)`);
+  }
+}
+
+function copyAgentDefinitions(sourceDir: string, targetDir: string, label: string, transform?: (content: string) => string) {
+  if (!existsSync(sourceDir)) {
+    console.log(`  - ${label} (source missing, skip)`);
+    return;
+  }
+  if (!existsSync(targetDir)) mkdirSync(targetDir, { recursive: true });
+
+  const entries = ['test-intent.md', 'test-case-reviewer.md'];
+  for (const file of entries) {
+    const src = join(sourceDir, file);
+    const dst = join(targetDir, file);
+    if (!existsSync(src)) continue;
+    if (existsSync(dst)) {
+      console.log(`  - ${label}/${file} (exists, skip)`);
+      continue;
+    }
+    const raw = readFileSync(src, 'utf-8');
+    const next = transform ? transform(raw) : raw;
+    writeFileSync(dst, next);
+    console.log(`  ✓ ${label}/${file}`);
+  }
+}
+
+// 3. 指引文件（从 koala 项目复制 / 同步 koala:start~koala:end 区间）
+console.log('\n[3/5] 配置指引文件...');
 const claudeMdPath = join(targetDir, 'CLAUDE.md');
 const claudeMdSrc = join(packageRoot, '..', '..', 'CLAUDE.md');
+const agentsMdPath = join(targetDir, 'AGENTS.md');
+const agentsMdSrc = join(packageRoot, '..', '..', 'AGENTS.md');
 
 function extractKoalaSection(content: string): string {
   // 提取 koala:start ~ koala:end 区间，剥离 koala:internal
@@ -135,38 +199,28 @@ function extractKoalaSection(content: string): string {
   return m[0].replace(/<!--\s*koala:internal:start\s*-->[\s\S]*?<!--\s*koala:internal:end\s*-->\n?/g, '');
 }
 
-if (!existsSync(claudeMdPath)) {
-  if (existsSync(claudeMdSrc)) {
-    const content = extractKoalaSection(readFileSync(claudeMdSrc, 'utf-8'));
-    writeFileSync(claudeMdPath, content + '\n');
-    console.log('  ✓ CLAUDE.md (copied from koala, internal rules stripped)');
-  } else {
-    writeFileSync(claudeMdPath, '# CLAUDE.md\n\n执行 `/koala` 即可了解项目全貌并开始工作。\n');
-    console.log('  ✓ CLAUDE.md (created minimal)');
-  }
-} else if (existsSync(claudeMdSrc)) {
-  // 已存在：同步 koala:start~koala:end 区间，保留区间外的项目内容
-  const existing = readFileSync(claudeMdPath, 'utf-8');
-  const newSection = extractKoalaSection(readFileSync(claudeMdSrc, 'utf-8'));
-  if (existing.match(/<!--\s*koala:start\s*-->[\s\S]*?<!--\s*koala:end\s*-->/)) {
-    const updated = existing.replace(/<!--\s*koala:start\s*-->[\s\S]*?<!--\s*koala:end\s*-->/, newSection);
-    if (updated !== existing) {
-      writeFileSync(claudeMdPath, updated);
-      console.log('  ✓ CLAUDE.md (koala section synced)');
-    } else {
-      console.log('  - CLAUDE.md (koala section up to date)');
-    }
-  } else {
-    console.log('  - CLAUDE.md (exists, no koala markers, skip)');
-  }
-} else {
-  console.log('  - CLAUDE.md (exists, skip)');
-}
+syncInstructionFile(
+  claudeMdPath,
+  claudeMdSrc,
+  'CLAUDE.md',
+  '# CLAUDE.md\n\n执行 `/koala` 即可了解项目全貌并开始工作。\n',
+);
+syncInstructionFile(
+  agentsMdPath,
+  agentsMdSrc,
+  'AGENTS.md',
+  '# AGENTS.md\n\n每次新 session 的第一条命令必须是 `koala session_brief`。\n',
+);
 
-// 4. 复制 skill
-console.log('\n[4/5] 复制 /koala skill...');
+// 4. 复制 skill + sub-agent 定义
+console.log('\n[4/5] 复制 skill / sub-agent 定义...');
 const skillSrc = join(packageRoot, '..', '..', '.claude', 'skills', 'koala');
 const skillDst = join(targetDir, '.claude', 'skills', 'koala');
+const claudeAgentsSrc = join(packageRoot, '..', '..', '.claude', 'agents');
+const claudeAgentsDst = join(targetDir, '.claude', 'agents');
+const codexAgentsDst = join(targetDir, '.Codex', 'agents');
+const codexReadmeSrc = join(packageRoot, '..', '..', '.Codex', 'README.md');
+const codexReadmeDst = join(targetDir, '.Codex', 'README.md');
 if (existsSync(skillSrc)) {
   const skillFile = join(skillSrc, 'skill.md');
   const dstFile = join(skillDst, 'skill.md');
@@ -185,6 +239,21 @@ if (existsSync(skillSrc)) {
 
 详细用法参考 @koala/main 文档。
 `);
+}
+copyAgentDefinitions(claudeAgentsSrc, claudeAgentsDst, '.claude/agents');
+copyAgentDefinitions(claudeAgentsSrc, codexAgentsDst, '.Codex/agents', (content) =>
+  content.replace(/Claude Code/g, 'Codex').replace(/\.claude\/agents\//g, '.Codex/agents/'),
+);
+if (!existsSync(codexReadmeDst)) {
+  if (existsSync(codexReadmeSrc)) {
+    writeFileSync(codexReadmeDst, readFileSync(codexReadmeSrc, 'utf-8'));
+    console.log('  ✓ .Codex/README.md');
+  } else {
+    writeFileSync(codexReadmeDst, '# Codex + Koala\n\n新 session 第一条命令先跑 `koala session_brief`。\n');
+    console.log('  ✓ .Codex/README.md (created minimal)');
+  }
+} else {
+  console.log('  - .Codex/README.md (exists, skip)');
 }
 
 // 5. hooks + settings.json
@@ -232,7 +301,8 @@ console.log(`
 ✓ 初始化完成
 
 Next steps:
-  1. Open Claude Code, run /koala onboard
-  2. Optional: edit koala.config.json to adjust scanRoot
-  3. Optional: koala test to run flow e2e tests
+  1. Open Claude Code and run /koala, or open Codex and let it read AGENTS.md
+  2. First action in a new agent session should be: koala session_brief
+  3. Optional: edit koala.config.json to adjust scanRoot
+  4. Optional: koala test to run flow e2e tests
 `);

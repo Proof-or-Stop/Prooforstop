@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "确认升级拆分与依赖顺序",
+      "context": "把 7 个优化方向收敛成 5 个执行 story，避免一个大 story 失控，也避免过度拆分导致流程负担。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "为每个执行 story 定义用户可感知结果",
+      "context": "每个 story 都要有清晰的 user-facing outcome，尤其是 Codex 接入、session_brief 和 product-reviewer。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "定义每个 story 的验收方式与回归边界",
+      "context": "明确哪些靠 build 验证，哪些靠 tool_status/activity.jsonl 验证，哪些靠 transcript 或 reviewer 验证。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

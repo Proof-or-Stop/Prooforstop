@@ -1,7 +1,7 @@
 /**
  * tool_status — 统计 koala 工具的实际使用情况
  *
- * 数据源是 docs/story/activity.jsonl（CLI 调用 + Claude hook 都会落盘到这里）。
+ * 数据源是 docs/story/activity.jsonl（CLI 调用 + Claude/Codex 接入都会落盘到这里）。
  * 不写任何状态，纯只读分析。
  */
 import type { HandlerContext } from '../../../main/dist/handlers/context.js';
@@ -9,7 +9,7 @@ import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
 interface LogEntry {
-  source?: 'cli' | 'claude';
+  source?: string;
   startTime?: string | null;
   endTime?: string | null;
   tool?: string;
@@ -23,8 +23,7 @@ interface ToolStat {
   total: number;
   ok: number;
   fail: number;
-  cli: number;
-  claude: number;
+  bySource: Record<string, number>;
   lastUsed: string | null;
 }
 
@@ -33,7 +32,7 @@ export function createToolStatusHandlers(ctx: HandlerContext) {
 
   return {
     tool_status(args?: {
-      source?: 'cli' | 'claude' | 'all';
+      source?: 'cli' | 'claude' | 'codex' | 'all';
       days?: number;
       limit?: number;
       format?: 'text' | 'json';
@@ -76,14 +75,14 @@ export function createToolStatusHandlers(ctx: HandlerContext) {
 
         let s = stats.get(entry.tool);
         if (!s) {
-          s = { tool: entry.tool, total: 0, ok: 0, fail: 0, cli: 0, claude: 0, lastUsed: null };
+          s = { tool: entry.tool, total: 0, ok: 0, fail: 0, bySource: {}, lastUsed: null };
           stats.set(entry.tool, s);
         }
         s.total++;
         if (entry.status === 'ok') s.ok++;
         else if (entry.status === 'fail') s.fail++;
-        if (entry.source === 'cli') s.cli++;
-        else if (entry.source === 'claude') s.claude++;
+        const sourceKey = entry.source || 'unknown';
+        s.bySource[sourceKey] = (s.bySource[sourceKey] || 0) + 1;
         if (ts && (!s.lastUsed || ts > s.lastUsed)) s.lastUsed = ts;
       }
 
@@ -93,8 +92,12 @@ export function createToolStatusHandlers(ctx: HandlerContext) {
       const grandTotal = sorted.reduce((sum, s) => sum + s.total, 0);
       const grandOk = sorted.reduce((sum, s) => sum + s.ok, 0);
       const grandFail = sorted.reduce((sum, s) => sum + s.fail, 0);
-      const grandCli = sorted.reduce((sum, s) => sum + s.cli, 0);
-      const grandClaude = sorted.reduce((sum, s) => sum + s.claude, 0);
+      const grandBySource = sorted.reduce<Record<string, number>>((acc, s) => {
+        for (const [key, count] of Object.entries(s.bySource)) {
+          acc[key] = (acc[key] || 0) + count;
+        }
+        return acc;
+      }, {});
       const successPct = grandTotal > 0 ? Math.round(grandOk / grandTotal * 100) : 0;
 
       const summary = {
@@ -109,7 +112,7 @@ export function createToolStatusHandlers(ctx: HandlerContext) {
         ok: grandOk,
         fail: grandFail,
         successRate: `${successPct}%`,
-        bySource: { cli: grandCli, claude: grandClaude },
+        bySource: grandBySource,
       };
 
       if (format === 'json') {
@@ -122,19 +125,27 @@ export function createToolStatusHandlers(ctx: HandlerContext) {
       lines.push(`日志文件: ${logPath}`);
       lines.push(`总记录: ${totalLines} (解析 ${parsedLines}, 过滤 ${filteredOut})`);
       lines.push(`工具数: ${sorted.length}`);
-      lines.push(`总调用: ${grandTotal} (cli ${grandCli}, claude ${grandClaude})`);
+      const sourceSummary = Object.entries(grandBySource)
+        .sort((a, b) => b[1] - a[1])
+        .map(([key, count]) => `${key} ${count}`)
+        .join(', ');
+      lines.push(`总调用: ${grandTotal}${sourceSummary ? ` (${sourceSummary})` : ''}`);
       lines.push(`成功率: ${grandOk}/${grandTotal} (${successPct}%) — fail ${grandFail}`);
       lines.push('');
       lines.push(`Top ${Math.min(limit, sorted.length)} 工具:`);
       const maxNameLen = Math.max(...top.map(s => s.tool.length), 4);
       for (const s of top) {
         const last = s.lastUsed ? s.lastUsed.slice(0, 16).replace('T', ' ') : '-';
+        const perSource = Object.entries(s.bySource)
+          .sort((a, b) => b[1] - a[1])
+          .map(([key, count]) => `${key} ${count}`)
+          .join(', ');
         lines.push(
           `  ${s.tool.padEnd(maxNameLen + 2)}` +
           `${String(s.total).padStart(5)}  ` +
           `ok=${String(s.ok).padStart(4)} ` +
           `fail=${String(s.fail).padStart(3)}  ` +
-          `[cli ${s.cli}, claude ${s.claude}]  ` +
+          `[${perSource || 'unknown 0'}]  ` +
           `last ${last}`
         );
       }

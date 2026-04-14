@@ -707,8 +707,11 @@ export async function runCli(opts?: {
       }
       const logDir = join(effectiveRoot, 'docs', 'story');
       mkdirSync(logDir, { recursive: true });
+      const activitySource = (process.env.KOALA_ACTIVITY_SOURCE || 'cli').trim() || 'cli';
+      const activitySession = process.env.KOALA_ACTIVITY_SESSION?.trim() || null;
+      const activityRole = process.env.KOALA_ACTIVITY_ROLE?.trim() || null;
       const record: Record<string, unknown> = {
-        source: 'cli',
+        source: activitySource,
         startTime: entry.startTime,
         endTime: entry.endTime,
         tool: entry.command,
@@ -719,6 +722,8 @@ export async function runCli(opts?: {
         error: entry.error || null,
         storyId: null,
       };
+      if (activitySession) record.session = activitySession;
+      if (activityRole) record.role = activityRole;
       if (entry.staleWarnings && entry.staleWarnings.length > 0) {
         record.staleWarnings = entry.staleWarnings;
       }
