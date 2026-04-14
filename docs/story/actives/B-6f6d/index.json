@@ -4,7 +4,7 @@
   "title": "为 activity 遥测补齐角色维度",
   "description": "在现有 source-aware activity 基础上增加 role 维度，区分 main、intent、reviewer、implementer 等角色，为 session_brief、watchdog、质量分析和后续多角色协作提供可靠数据底座。",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "TEST_CASE",
   "priority": "high",
   "createdAt": "2026-04-14T12:40:48.584Z",
   "startedAt": "2026-04-14T12:40:48.584Z",
@@ -38,6 +38,14 @@
       "phase": "DEV",
       "action": "advance",
       "timestamp": "2026-04-14T15:42:57.522Z",
+      "branch": "story/B-6f6d",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-14T15:48:04.627Z",
       "branch": "story/B-6f6d",
       "user": "Harmonygo",
       "agent": "main"
