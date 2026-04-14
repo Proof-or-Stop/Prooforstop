@@ -4,7 +4,7 @@
       "name": "CHK-001 happy: planning bundle points at one plan story plus five execution stories",
       "run_type": "cli",
       "file": "handlers/story-query",
-      "execute": "const root = \"/Users/jek/Documents/Work/Orchestrate\";\nconst cli = root + \"/packages/main/dist/cli.js\";\nconst { execFileSync } = await import(\"child_process\");\nconst run = (command, payload = {}) => execFileSync(\"node\", [cli, \"--root\", root, command, JSON.stringify(payload)], {\n  cwd: root,\n  encoding: \"utf8\",\n  stdio: [\"pipe\", \"pipe\", \"pipe\"],\n});\nconst parse = (text) => JSON.parse(text.slice(text.indexOf(\"{\")));\nconst ids = [\"B-96e9\",\"B-ae9e\",\"B-f54b\",\"B-6f6d\",\"B-6bee\",\"B-990d\",\"B-d307\"];\nconst found = ids.filter((storyId) => Boolean(parse(run(\"story_get\", { storyId, detail: true })).index?.storyId));\nreturn { foundAll: found.length === ids.length };",
+      "execute": "const root = \"/Users/jek/Documents/Work/Orchestrate\";\nconst { StoryStore } = await import(\"file:///Users/jek/Documents/Work/Orchestrate/packages/main/dist/core/store.js\");\nconst store = new StoryStore(root);\nconst ids = [\"B-96e9\",\"B-ae9e\",\"B-f54b\",\"B-6f6d\",\"B-6bee\",\"B-990d\",\"B-d307\"];\nreturn { foundAll: ids.every((storyId) => store.readStory(storyId).storyId === storyId) };",
       "expect": {
         "foundAll": true
       },
@@ -19,7 +19,7 @@
       "name": "CHK-001 edge: high-coupling work stayed grouped by dependency chain",
       "run_type": "cli",
       "file": "handlers/story-query",
-      "execute": "const root = \"/Users/jek/Documents/Work/Orchestrate\";\nconst cli = root + \"/packages/main/dist/cli.js\";\nconst { execFileSync } = await import(\"child_process\");\nconst run = (command, payload = {}) => execFileSync(\"node\", [cli, \"--root\", root, command, JSON.stringify(payload)], {\n  cwd: root,\n  encoding: \"utf8\",\n  stdio: [\"pipe\", \"pipe\", \"pipe\"],\n});\nconst parse = (text) => JSON.parse(text.slice(text.indexOf(\"{\")));\nconst codex = parse(run(\"story_get\", { storyId: \"B-f54b\", detail: true })).index;\nconst brief = parse(run(\"story_get\", { storyId: \"B-6bee\", detail: true })).index;\nreturn { codexDependsEntry: Array.isArray(codex.depends) && codex.depends.includes(\"B-ae9e\"), briefDependsTelemetry: Array.isArray(brief.depends) && brief.depends.includes(\"B-6f6d\") };",
+      "execute": "const root = \"/Users/jek/Documents/Work/Orchestrate\";\nconst { StoryStore } = await import(\"file:///Users/jek/Documents/Work/Orchestrate/packages/main/dist/core/store.js\");\nconst store = new StoryStore(root);\nconst codex = store.readStory(\"B-f54b\");\nconst brief = store.readStory(\"B-6bee\");\nreturn { codexDependsEntry: Array.isArray(codex.depends) && codex.depends.includes(\"B-ae9e\"), briefDependsTelemetry: Array.isArray(brief.depends) && brief.depends.includes(\"B-6f6d\") };",
       "expect": {
         "codexDependsEntry": true,
         "briefDependsTelemetry": true
@@ -36,7 +36,7 @@
       "name": "CHK-001 adversarial: plan did not collapse into one giant execution story or seven tiny shards",
       "run_type": "cli",
       "file": "handlers/story-query",
-      "execute": "const root = \"/Users/jek/Documents/Work/Orchestrate\";\nconst cli = root + \"/packages/main/dist/cli.js\";\nconst { execFileSync } = await import(\"child_process\");\nconst run = (command, payload = {}) => execFileSync(\"node\", [cli, \"--root\", root, command, JSON.stringify(payload)], {\n  cwd: root,\n  encoding: \"utf8\",\n  stdio: [\"pipe\", \"pipe\", \"pipe\"],\n});\nconst parse = (text) => JSON.parse(text.slice(text.indexOf(\"{\")));\nconst execIds = [\"B-ae9e\",\"B-f54b\",\"B-6f6d\",\"B-6bee\",\"B-990d\",\"B-d307\"];\nconst doneCount = execIds.filter((storyId) => parse(run(\"story_get\", { storyId, detail: true })).index?.phase === \"DONE\").length;\nreturn { sixExecutionStoriesClosed: doneCount === execIds.length };",
+      "execute": "const root = \"/Users/jek/Documents/Work/Orchestrate\";\nconst { StoryStore } = await import(\"file:///Users/jek/Documents/Work/Orchestrate/packages/main/dist/core/store.js\");\nconst store = new StoryStore(root);\nconst execIds = [\"B-ae9e\",\"B-f54b\",\"B-6f6d\",\"B-6bee\",\"B-990d\",\"B-d307\"];\nreturn { sixExecutionStoriesClosed: execIds.every((storyId) => store.readStory(storyId).phase === \"DONE\") };",
       "expect": {
         "sixExecutionStoriesClosed": true
       },
@@ -52,7 +52,7 @@
       "name": "CHK-002 happy: user-visible upgrade stories keep concrete operator-facing language",
       "run_type": "cli",
       "file": "handlers/story-query",
-      "execute": "const root = \"/Users/jek/Documents/Work/Orchestrate\";\nconst cli = root + \"/packages/main/dist/cli.js\";\nconst { execFileSync } = await import(\"child_process\");\nconst run = (command, payload = {}) => execFileSync(\"node\", [cli, \"--root\", root, command, JSON.stringify(payload)], {\n  cwd: root,\n  encoding: \"utf8\",\n  stdio: [\"pipe\", \"pipe\", \"pipe\"],\n});\nconst parse = (text) => JSON.parse(text.slice(text.indexOf(\"{\")));\nconst codex = parse(run(\"story_get\", { storyId: \"B-f54b\", detail: true })).index;\nconst brief = parse(run(\"story_get\", { storyId: \"B-6bee\", detail: true })).index;\nconst product = parse(run(\"story_get\", { storyId: \"B-990d\", detail: true })).index;\nreturn { codexMentionsCodex: codex.description.includes(\"Codex\"), briefMentionsSessionBrief: brief.description.includes(\"session_brief\"), productMentionsOutcome: product.description.includes(\"outcome\") || product.description.includes(\"用户\") || product.description.includes(\"用户价值\") };",
+      "execute": "const root = \"/Users/jek/Documents/Work/Orchestrate\";\nconst { StoryStore } = await import(\"file:///Users/jek/Documents/Work/Orchestrate/packages/main/dist/core/store.js\");\nconst store = new StoryStore(root);\nconst codex = store.readStory(\"B-f54b\");\nconst brief = store.readStory(\"B-6bee\");\nconst product = store.readStory(\"B-990d\");\nreturn { codexMentionsCodex: codex.description.includes(\"Codex\"), briefMentionsSessionBrief: brief.description.includes(\"session_brief\"), productMentionsOutcome: product.description.includes(\"outcome\") || product.description.includes(\"用户\") || product.description.includes(\"用户价值\") };",
       "expect": {
         "codexMentionsCodex": true,
         "briefMentionsSessionBrief": true,
@@ -70,7 +70,7 @@
       "name": "CHK-002 edge: outcome framing stayed tied to visible artifacts instead of pure mechanism terms",
       "run_type": "cli",
       "file": "handlers/story-query",
-      "execute": "const root = \"/Users/jek/Documents/Work/Orchestrate\";\nconst cli = root + \"/packages/main/dist/cli.js\";\nconst { execFileSync } = await import(\"child_process\");\nconst run = (command, payload = {}) => execFileSync(\"node\", [cli, \"--root\", root, command, JSON.stringify(payload)], {\n  cwd: root,\n  encoding: \"utf8\",\n  stdio: [\"pipe\", \"pipe\", \"pipe\"],\n});\nconst parse = (text) => JSON.parse(text.slice(text.indexOf(\"{\")));\nconst titles = [\"B-ae9e\",\"B-f54b\",\"B-6bee\",\"B-990d\",\"B-d307\"].map((storyId) => parse(run(\"story_get\", { storyId, detail: true })).index.title);\nreturn { allDistinct: new Set(titles).size === titles.length, noGenericMechanismTitle: titles.every((title) => !title.includes(\"机制\") && !title.includes(\"链路打通\")) };",
+      "execute": "const root = \"/Users/jek/Documents/Work/Orchestrate\";\nconst { StoryStore } = await import(\"file:///Users/jek/Documents/Work/Orchestrate/packages/main/dist/core/store.js\");\nconst store = new StoryStore(root);\nconst titles = [\"B-ae9e\",\"B-f54b\",\"B-6bee\",\"B-990d\",\"B-d307\"].map((storyId) => store.readStory(storyId).title);\nreturn { allDistinct: new Set(titles).size === titles.length, noGenericMechanismTitle: titles.every((title) => !title.includes(\"机制\") && !title.includes(\"链路打通\")) };",
       "expect": {
         "allDistinct": true,
         "noGenericMechanismTitle": true
@@ -87,7 +87,7 @@
       "name": "CHK-002 adversarial: planning output still names operator-facing surfaces under engineering pressure",
       "run_type": "cli",
       "file": "handlers/story-query",
-      "execute": "const root = \"/Users/jek/Documents/Work/Orchestrate\";\nconst cli = root + \"/packages/main/dist/cli.js\";\nconst { execFileSync } = await import(\"child_process\");\nconst run = (command, payload = {}) => execFileSync(\"node\", [cli, \"--root\", root, command, JSON.stringify(payload)], {\n  cwd: root,\n  encoding: \"utf8\",\n  stdio: [\"pipe\", \"pipe\", \"pipe\"],\n});\nconst parse = (text) => JSON.parse(text.slice(text.indexOf(\"{\")));\nconst telemetry = parse(run(\"story_get\", { storyId: \"B-6f6d\", detail: true })).index;\nconst parallel = parse(run(\"story_get\", { storyId: \"B-d307\", detail: true })).index;\nreturn { telemetryNamesActivity: telemetry.description.includes(\"activity\") || telemetry.description.includes(\"telemetry\"), parallelNamesSessionBrief: parallel.description.includes(\"session_brief\") || parallel.description.includes(\"主线\") };",
+      "execute": "const root = \"/Users/jek/Documents/Work/Orchestrate\";\nconst { StoryStore } = await import(\"file:///Users/jek/Documents/Work/Orchestrate/packages/main/dist/core/store.js\");\nconst store = new StoryStore(root);\nconst telemetry = store.readStory(\"B-6f6d\");\nconst parallel = store.readStory(\"B-d307\");\nreturn { telemetryNamesActivity: telemetry.description.includes(\"activity\") || telemetry.description.includes(\"telemetry\"), parallelNamesSessionBrief: parallel.description.includes(\"session_brief\") || parallel.description.includes(\"主线\") };",
       "expect": {
         "telemetryNamesActivity": true,
         "parallelNamesSessionBrief": true
