@@ -4,7 +4,7 @@
   "title": "将 Codex 升级为 Koala 的一等接入方式",
   "description": "把当前可用但半手工的 Codex 接入升级为产品化入口，包括初始化产物、使用说明、推荐命令路径和 agent 模板生成，让新项目在 Codex 中开箱即用。",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "depends": [
     "B-ae9e"
@@ -20,6 +20,19 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-14T14:16:54.491Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-f54b",
+    "branch": "story/B-f54b",
+    "createdAt": "2026-04-14T14:16:54.540Z"
+  }
 }

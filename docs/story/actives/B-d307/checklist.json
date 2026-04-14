@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "定义 story 的并行调度元数据模型",
+      "context": "明确 lane、parallelSafe、sharedHotspots、blockingFor 等字段放在哪一层，先支持人工声明，再考虑自动推断。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "让 session_brief 展示主线、并行候选和冲突提示",
+      "context": "session 恢复时应直接告诉操作者哪些 story 适合并行，哪些 story 因依赖或热点文件不应进入 DEV。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "在 story_review 中加入并行风险 advisory",
+      "context": "PLAN 阶段就软提醒依赖顺序、共享热点和 supporting/mainline 角色错配，先不做 hard gate。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "为并行策略补回归验证",
+      "context": "覆盖 depends、sharedHotspots、mainline/supporting lane、plan_only 等场景，确保并行提示稳定可回归。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
