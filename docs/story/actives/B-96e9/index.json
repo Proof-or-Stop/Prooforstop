@@ -4,7 +4,7 @@
   "title": "编排 Koala 框架升级路线与验收口径",
   "description": "把 Codex 接入、入口稳态化、role-aware 遥测、session_brief 指挥台、product-reviewer 五条升级线整理为可执行 story 组，明确依赖顺序、阶段性用户价值和验收边界，避免后续实现阶段边做边改拆分。",
   "type": "chore",
-  "phase": "DEV",
+  "phase": "TEST",
   "priority": "high",
   "createdAt": "2026-04-14T12:39:14.270Z",
   "startedAt": "2026-04-14T12:39:14.270Z",
@@ -41,6 +41,54 @@
       "branch": "story/B-96e9",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-14T18:46:52.664Z",
+      "branch": "story/B-96e9",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-14T18:46:53.008Z",
+      "branch": "story/B-96e9",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-14T18:47:08.310Z",
+      "branch": "story/B-96e9",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-14T18:48:00.957Z",
+      "branch": "story/B-96e9",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-14T18:48:52.886Z",
+      "branch": "story/B-96e9",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-14T18:48:53.119Z",
+      "branch": "story/B-96e9",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
     }
   ],
   "worktree": {
