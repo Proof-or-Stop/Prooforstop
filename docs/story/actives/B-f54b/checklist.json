@@ -6,7 +6,28 @@
       "context": "新项目应自动获得 AGENTS、Codex agent 定义和使用说明，而不是靠后补。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "koala init 生成的新项目 → 自动带有 AGENTS、.Codex/agents、.Codex/README 等 Codex 所需产物",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "已有部分 Codex 文件时再次 init → 缺失项会补齐，已存在项不会被无提示覆盖",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "只验证当前仓库、不验证 init 产物时 → 回归或 reviewer 能暴露“Codex 不是一等接入”的漏项",
+            "type": "cli_blackbox"
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
     },
     {
       "id": "CHK-002",
@@ -14,7 +35,28 @@
       "context": "避免 .claude 和 .Codex 两套模板长期漂移，后续新增 reviewer/implementer 时成本过高。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "Codex agent 定义由统一来源生成 → Claude 与 Codex 版本在结构上保持一致，只保留必要平台差异",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "新增或调整 agent 规则时 → transform 仍能正确反映平台差异而不产生明显漂移",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果只手工复制一份模板、忘记同步另一份 → 自动生成或回归检查会暴露模板漂移风险",
+            "type": "cli_blackbox"
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
     },
     {
       "id": "CHK-003",
@@ -22,7 +64,28 @@
       "context": "让使用者从 README/AGENTS/.Codex 三个入口都能快速找到正确命令。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "使用者从 README、AGENTS、.Codex 三个入口都能找到一致的 Codex 使用方式",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "没有本地 wrapper 的项目里 → 文案仍能指导用户走 KOALA_ACTIVITY_SOURCE=codex 的降级入口",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "某一层文档遗漏或口径不一致时 → 回归验证能拦住错误入口说明进入发布面",
+            "type": "cli_blackbox"
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
     }
   ]
 }

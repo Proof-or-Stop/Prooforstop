@@ -1,0 +1,29 @@
+{
+  "task": "把 Codex 的 Koala 接入从可用但半手工的状态升级成一等公民式产品入口。",
+  "outcome": "> koala init /tmp/demo\n✓ AGENTS.md\n✓ .Codex/agents/test-intent.md\n✓ .Codex/agents/test-case-reviewer.md\n✓ .Codex/README.md\n\n> 打开 Codex\n项目里直接看到 AGENTS.md 和 .Codex/README 的说明。\n新 session 第一条命令照说明跑：KOALA_ACTIVITY_SOURCE=codex koala session_brief\n如果仓库提供了 node bin/koala-codex.js，也能直接按本地 wrapper 入口工作。",
+  "facts": [
+    "B-ae9e 已经补齐了 bin/koala-codex.js、本地 bootstrap 诊断、README 和 .Codex/README。",
+    "cli-init.ts 目前已经会生成 AGENTS.md、.Codex/agents 和 .Codex/README。",
+    "当前 Codex 接入仍然主要依赖 README/AGENTS 约定和 repo 本地 wrapper，没有完全独立于仓库结构的统一模板体系。",
+    ".claude/agents 与 .Codex/agents 当前是复制/替换式生成，存在后续漂移风险。"
+  ],
+  "constraints": [
+    "这条 story 聚焦 Codex 接入产品化，不再重复做 B-ae9e 的入口稳定性。",
+    "要兼顾当前仓库体验和 koala init 生成的新项目体验。",
+    "Codex 入口说明必须在 README、AGENTS、.Codex 三层都清晰可见。",
+    "优先把模板和初始化产物收口，不引入与 role-aware telemetry 无关的底层改造。"
+  ],
+  "unknowns": [
+    "Codex agent 模板是否需要独立 source-of-truth，还是继续从 Claude 模板做 transform 就足够。",
+    "未来如果增加更多 Codex 专用 agent，当前 init 复制策略是否会变得太脆。"
+  ],
+  "touchpoints": [
+    "packages/main/src/cli-init.ts",
+    "README.md",
+    ".Codex/README.md",
+    ".Codex/agents/test-intent.md",
+    ".Codex/agents/test-case-reviewer.md",
+    "AGENTS.md"
+  ],
+  "timestamp": "2026-04-14T14:17:29.714Z"
+}

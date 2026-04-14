@@ -58,6 +58,18 @@ npm run test:entrypoints
 - `koala init` 生成的新项目产物
 - `.Codex/README.md` 是否包含正确的降级入口说明
 
+### 6. 验证 Codex 资产没有漂移
+
+```bash
+npm run test:codex-assets
+```
+
+这会检查：
+
+- `.Codex/agents/*.md` 是否仍然等于 `.claude/agents/*.md` 的受控 transform 结果
+- `.Codex/README.md` 是否保留正确的 Codex fallback 入口
+- `README.md` / `AGENTS.md` 是否仍然包含关键的 Codex 接入说明
+
 ## 没有本地 wrapper 时
 
 如果某个项目只有全局 `koala`，没有 `bin/koala-codex.js`，可以这样跑：
@@ -83,3 +95,5 @@ Claude Code 侧仍然使用 `.claude/` 下的配置和 hooks。Codex 侧的说�
 - [.Codex/README.md](/Users/jek/Documents/Work/Orchestrate/.Codex/README.md:1)
 - [.Codex/agents/test-intent.md](/Users/jek/Documents/Work/Orchestrate/.Codex/agents/test-intent.md:1)
 - [.Codex/agents/test-case-reviewer.md](/Users/jek/Documents/Work/Orchestrate/.Codex/agents/test-case-reviewer.md:1)
+
+当前仓库里 `.Codex/agents` 由 `.claude/agents` 经过受控 transform 生成，并通过 `npm run test:codex-assets` 防止后续漂移。

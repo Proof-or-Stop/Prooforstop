@@ -27,6 +27,14 @@ npm --prefix packages/main run build
 npm --prefix packages/utils run build
 ```
 
+如果你在维护当前仓库本身，而不是消费一个下游项目，还可以跑：
+
+```bash
+npm run test:codex-assets
+```
+
+它会验证 `.Codex/agents` 仍然和 `.claude/agents` 的受控 transform 保持一致，并检查 README / AGENTS / `.Codex/README` 三层入口说明没有漂移。
+
 建议：
 
 - 新 session 第一条命令跑 `KOALA_ACTIVITY_SOURCE=codex koala session_brief`
