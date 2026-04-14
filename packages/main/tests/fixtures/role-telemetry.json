@@ -4,7 +4,7 @@
       "name": "CHK-001 happy: codex command writes reviewer role",
       "run_type": "cli",
       "file": "cli-engine",
-      "execute": "const { execFileSync } = await import('node:child_process');\nconst { readFileSync } = await import('node:fs');\nconst { join } = await import('node:path');\nexecFileSync('node', ['bin/koala-codex.js', 'session_brief'], {\n  cwd: $root,\n  encoding: 'utf8',\n  env: { ...process.env, KOALA_ACTIVITY_ROLE: 'reviewer' }\n});\nconst lines = readFileSync(join($root, 'docs', 'story', 'activity.jsonl'), 'utf8').trim().split(/\n/);\nconst last = JSON.parse(lines[lines.length - 1]);\nreturn { source: last.source, role: last.role, tool: last.tool };",
+      "execute": "const { execFileSync } = await import('node:child_process');\nconst { readFileSync } = await import('node:fs');\nconst { join } = await import('node:path');\nconst NL = String.fromCharCode(10);\nexecFileSync('node', ['bin/koala-codex.js', 'session_brief'], {\n  cwd: $root,\n  encoding: 'utf8',\n  env: { ...process.env, KOALA_ACTIVITY_ROLE: 'reviewer' }\n});\nconst lines = readFileSync(join($root, 'docs', 'story', 'activity.jsonl'), 'utf8').trim().split(NL);\nconst last = JSON.parse(lines[lines.length - 1]);\nreturn { source: last.source, role: last.role, tool: last.tool };",
       "expect": {
         "source": "codex",
         "role": "reviewer",
@@ -37,7 +37,7 @@
       "name": "CHK-001 adversarial: source and role stay distinct",
       "run_type": "cli",
       "file": "cli-engine",
-      "execute": "const { execFileSync } = await import('node:child_process');\nconst { readFileSync } = await import('node:fs');\nconst { join } = await import('node:path');\nexecFileSync('node', ['bin/koala-codex.js', 'session_brief'], {\n  cwd: $root,\n  encoding: 'utf8',\n  env: { ...process.env, KOALA_ACTIVITY_SOURCE: 'codex', KOALA_ACTIVITY_ROLE: 'intent' }\n});\nconst lines = readFileSync(join($root, 'docs', 'story', 'activity.jsonl'), 'utf8').trim().split(/\n/);\nconst last = JSON.parse(lines[lines.length - 1]);\nreturn {\n  sourceIsCodex: last.source === 'codex',\n  roleIsIntent: last.role === 'intent',\n  sourceNotRole: last.source !== last.role\n};",
+      "execute": "const { execFileSync } = await import('node:child_process');\nconst { readFileSync } = await import('node:fs');\nconst { join } = await import('node:path');\nconst NL = String.fromCharCode(10);\nexecFileSync('node', ['bin/koala-codex.js', 'session_brief'], {\n  cwd: $root,\n  encoding: 'utf8',\n  env: { ...process.env, KOALA_ACTIVITY_SOURCE: 'codex', KOALA_ACTIVITY_ROLE: 'intent' }\n});\nconst lines = readFileSync(join($root, 'docs', 'story', 'activity.jsonl'), 'utf8').trim().split(NL);\nconst last = JSON.parse(lines[lines.length - 1]);\nreturn {\n  sourceIsCodex: last.source === 'codex',\n  roleIsIntent: last.role === 'intent',\n  sourceNotRole: last.source !== last.role\n};",
       "expect": {
         "sourceIsCodex": true,
         "roleIsIntent": true,
