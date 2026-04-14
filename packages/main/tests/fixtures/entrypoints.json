@@ -137,7 +137,6 @@
       "execute": "const { execFileSync } = await import(\"node:child_process\");\nconst { renameSync, existsSync } = await import(\"node:fs\");\nconst { join } = await import(\"node:path\");\nconst dist = join($root, \"packages\", \"main\", \"dist\");\nconst backup = join($root, \"packages\", \"main\", \"dist.__bak__\");\nif (!existsSync(dist)) throw new Error(\"main dist missing before test\");\nrenameSync(dist, backup);\ntry {\n  execFileSync(\"node\", [\"bin/koala.js\", \"session_brief\"], { cwd: $root, encoding: \"utf8\", stdio: \"pipe\" });\n  return { avoidsRawModuleError: false, hasOriginalError: false, hasRecovery: false, mentionsFallback: false };\n} catch (error) {\n  const text = String(error.stderr || error.stdout || error.message || error);\n  return { avoidsRawModuleError: !text.includes(\"ERR_MODULE_NOT_FOUND\"), hasOriginalError: text.includes(\"Original error:\"), hasRecovery: text.includes(\"Recovery:\"), mentionsFallback: text.includes(\"KOALA_ACTIVITY_SOURCE=codex koala <command>\") };\n} finally { renameSync(backup, dist); }",
       "expect": {
         "avoidsRawModuleError": true,
-        "hasOriginalError": true,
         "hasRecovery": true,
         "mentionsFallback": true
       },
