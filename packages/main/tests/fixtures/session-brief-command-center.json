@@ -65,7 +65,7 @@
       "name": "CHK-002 edge: unknown role still yields conservative next step",
       "run_type": "cli",
       "file": "handlers/session",
-      "execute": "const { appendFileSync, readFileSync, writeFileSync } = await import('node:fs');\nconst { join } = await import('node:path');\nconst logPath = join($root, 'docs', 'story', 'activity.jsonl');\nconst original = readFileSync(logPath, 'utf8');\nconst NL = String.fromCharCode(10);\nappendFileSync(logPath, JSON.stringify({ source: 'codex', tool: 'session_brief', status: 'ok', endTime: new Date().toISOString() }) + NL);\ntry {\n  const out = (await import('node:child_process')).execFileSync('node', ['packages/main/dist/cli.js', 'session_brief'], { cwd: $root, encoding: 'utf8' });\n  return { mentionsUnknownFallback: out.includes('缺少可识别的 role') || out.includes('checklist_get / testintent_check') };\n} finally { writeFileSync(logPath, original); }",
+      "execute": "const { readFileSync, writeFileSync } = await import(\"node:fs\");\nconst { join } = await import(\"node:path\");\nconst logPath = join($root, \"docs\", \"story\", \"activity.jsonl\");\nconst original = readFileSync(logPath, \"utf8\");\nconst NL = String.fromCharCode(10);\nwriteFileSync(logPath, JSON.stringify({ source: \"codex\", tool: \"session_brief\", status: \"ok\", endTime: new Date().toISOString() }) + NL);\ntry {\n  const out = (await import(\"node:child_process\")).execFileSync(\"node\", [\"packages/main/dist/cli.js\", \"session_brief\"], { cwd: $root, encoding: \"utf8\" });\n  return { mentionsUnknownFallback: out.includes(\"缺少可识别的 role\") || out.includes(\"checklist_get / testintent_check\") };\n} finally { writeFileSync(logPath, original); }",
       "expect": {
         "mentionsUnknownFallback": true
       },
