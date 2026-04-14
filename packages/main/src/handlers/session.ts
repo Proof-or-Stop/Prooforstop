@@ -117,12 +117,16 @@ function inferRoleAwareNextStep(
     return 'PLAN 阶段。test-intent agent 最近已更新内容；优先执行 story_review，确认 blocker 清零后进入 DEV。';
   }
 
+  if (phase === 'DEV' && latestKnown.role === 'intent' && latestKnown.status === 'ok') {
+    return 'DEV 阶段。最近由 test-intent agent 更新了验收内容；优先执行 story_review，确认新的验收要求已被当前实现覆盖。';
+  }
+
   if (latestKnown.role === 'reviewer' && latestKnown.status === 'ok') {
     return '最近由 reviewer 更新了状态。优先执行 testintent_check 或相关只读命令确认最终判定，再决定继续开发还是进入测试。';
   }
 
   if (latestKnown.role === 'intent' && latestKnown.status === 'ok') {
-    return '最近由 test-intent agent 更新了验收内容。优先执行 story_review 或 checklist_get，确认新的验收要求后再继续推进。';
+    return '最近由 test-intent agent 更新了验收内容。优先执行 story_review，确认新的验收要求后再继续推进。';
   }
 
   if (latestKnown.role === 'unknown') {

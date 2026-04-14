@@ -80,10 +80,11 @@
       "name": "CHK-002 adversarial: noisy recent activity does not erase actionable next step",
       "run_type": "cli",
       "file": "handlers/session",
-      "execute": "const { execFileSync } = await import(\"node:child_process\");\nexecFileSync(\"node\", [\"packages/main/dist/cli.js\", \"session_brief\"], { cwd: $root, encoding: \"utf8\", env: { ...process.env, KOALA_ACTIVITY_ROLE: \"reviewer\" } });\nexecFileSync(\"node\", [\"packages/main/dist/cli.js\", \"session_brief\"], { cwd: $root, encoding: \"utf8\", env: { ...process.env, KOALA_ACTIVITY_ROLE: \"intent\" } });\nconst out = execFileSync(\"node\", [\"packages/main/dist/cli.js\", \"session_brief\"], { cwd: $root, encoding: \"utf8\" });\nreturn { choosesRoleAwareAction: out.includes(\"story_review\") || out.includes(\"testintent_check\") || out.includes(\"checklist_get\"), avoidsGenericChecklistStep: !out.includes(\"checklist_update --storyId=B-6bee\") };",
+      "execute": "const { execFileSync } = await import(\"node:child_process\");\nexecFileSync(\"node\", [\"packages/main/dist/cli.js\", \"session_brief\"], { cwd: $root, encoding: \"utf8\", env: { ...process.env, KOALA_ACTIVITY_ROLE: \"reviewer\" } });\nexecFileSync(\"node\", [\"packages/main/dist/cli.js\", \"session_brief\"], { cwd: $root, encoding: \"utf8\", env: { ...process.env, KOALA_ACTIVITY_ROLE: \"intent\" } });\nconst out = execFileSync(\"node\", [\"packages/main/dist/cli.js\", \"session_brief\"], { cwd: $root, encoding: \"utf8\" });\nreturn { choosesStoryReview: out.includes(\"story_review\"), avoidsGenericChecklistStep: !out.includes(\"checklist_update --storyId=B-6bee\"), avoidsReviewerCheckPath: !out.includes(\"testintent_check\") };",
       "expect": {
-        "choosesRoleAwareAction": true,
-        "avoidsGenericChecklistStep": true
+        "choosesStoryReview": true,
+        "avoidsGenericChecklistStep": true,
+        "avoidsReviewerCheckPath": true
       },
       "intentRef": "B-6bee:CHK-002:adversarial:0",
       "sandbox": false,
