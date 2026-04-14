@@ -72,7 +72,7 @@ export class StoryStore {
   readBugs(storyId: string): BugData {
     try {
       return this.readJson<BugData>(storyId, 'bug.json');
-    } catch {
+    } catch { /* PROBE: missing bug.json means "no bugs yet" */
       return { bugs: [] };
     }
   }
@@ -86,7 +86,7 @@ export class StoryStore {
   readTestEvidence(storyId: string): TestEvidenceData | null {
     try {
       return this.readJson<TestEvidenceData>(storyId, 'test-evidence.json');
-    } catch {
+    } catch { /* PROBE: test-evidence.json is optional before the first test run */
       return null;
     }
   }
@@ -100,7 +100,7 @@ export class StoryStore {
   readReview(storyId: string): ReviewData {
     try {
       return this.readJson<ReviewData>(storyId, 'review.json');
-    } catch {
+    } catch { /* PROBE: review.json is absent until the first story_review */
       return { reviews: [] };
     }
   }
@@ -114,7 +114,7 @@ export class StoryStore {
   readUnderstanding(storyId: string): UnderstandingData | null {
     try {
       return this.readJson<UnderstandingData>(storyId, 'understanding.json');
-    } catch {
+    } catch { /* PROBE: understanding.json is optional before PLAN intake is recorded */
       return null;
     }
   }
@@ -128,7 +128,7 @@ export class StoryStore {
   readDecision(storyId: string): DecisionData | null {
     try {
       return this.readJson<DecisionData>(storyId, 'decision.json');
-    } catch {
+    } catch { /* PROBE: decision.json is optional for non-high-risk stories */
       return null;
     }
   }
@@ -142,7 +142,7 @@ export class StoryStore {
   readSummary(storyId: string): StorySummaryData | null {
     try {
       return this.readJson<StorySummaryData>(storyId, 'summary.json');
-    } catch {
+    } catch { /* PROBE: summary.json exists only near DONE */
       return null;
     }
   }
@@ -156,7 +156,7 @@ export class StoryStore {
   readTestRuns(storyId: string): StoryTestRunsData {
     try {
       return this.readJson<StoryTestRunsData>(storyId, 'test-runs.json');
-    } catch {
+    } catch { /* PROBE: append-only test history starts empty */
       return { runs: [] };
     }
   }

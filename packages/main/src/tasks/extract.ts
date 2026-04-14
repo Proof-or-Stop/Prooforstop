@@ -164,6 +164,50 @@ export function parseBlock(raw: string): Record<string, string | string[]> {
   return result;
 }
 
+export function scanSourceAnnotations(scanRoot: string): TaskAnnotation[] {
+  const files = walkDir(scanRoot);
+  const tasks: TaskAnnotation[] = [];
+
+  for (const filePath of files) {
+    const content = readFileSync(filePath, 'utf-8');
+    const blocks = extractBlocks(content);
+
+    for (const { raw, line, endIndex } of blocks) {
+      const parsed = parseBlock(raw);
+      if (!parsed.task) continue;
+      const fnInfo = parseFunctionAfterBlock(content, endIndex);
+      tasks.push({
+        ...parsed,
+        task: parsed.task as string,
+        checklist: parsed.checklist as string[] | undefined,
+        title: parsed.title as string | undefined,
+        type: parsed.type as string | undefined,
+        priority: parsed.priority as string | undefined,
+        version: parsed.version as string | undefined,
+        scope: parsed.scope as string | undefined,
+        depends: parsed.depends as string[] | undefined,
+        author: parsed.author as string | undefined,
+        date: parsed.date as string | undefined,
+        description: parsed.description as string | undefined,
+        changes: parsed.changes as string[] | undefined,
+        affected: parsed.affected as string[] | undefined,
+        sourceFile: relative(scanRoot, filePath),
+        sourceLine: line,
+        functionName: fnInfo?.functionName,
+        functionSignature: fnInfo?.functionSignature,
+        flow: parsed.flow as string | undefined,
+        step: parsed.step ? parseInt(parsed.step as string, 10) : undefined,
+        input: parsed.input as string | undefined,
+        output: parsed.output as string | undefined,
+        next: parsed.next as string | undefined,
+        test: parsed.test as string | undefined,
+      });
+    }
+  }
+
+  return tasks;
+}
+
 export function scan(scanRoot: string): TaskAnnotation[] {
   // 优先从 metadata store（task.json）读取，不再扫描源码
   // 从 scanRoot 向上查找 koala.config.json 确定项目根，再定位 docs/metadata/task.json
@@ -240,48 +284,7 @@ export function scan(scanRoot: string): TaskAnnotation[] {
     } catch { /* fallback to source scan */ }
   }
 
-  // Fallback: 扫描源码（兼容未迁移的项目）
-  const files = walkDir(scanRoot);
-  const tasks: TaskAnnotation[] = [];
-
-  for (const filePath of files) {
-    const content = readFileSync(filePath, 'utf-8');
-    const blocks = extractBlocks(content);
-
-    for (const { raw, line, endIndex } of blocks) {
-      const parsed = parseBlock(raw);
-      if (!parsed.task) continue;
-      const fnInfo = parseFunctionAfterBlock(content, endIndex);
-      tasks.push({
-        ...parsed,
-        task: parsed.task as string,
-        checklist: parsed.checklist as string[] | undefined,
-        title: parsed.title as string | undefined,
-        type: parsed.type as string | undefined,
-        priority: parsed.priority as string | undefined,
-        version: parsed.version as string | undefined,
-        scope: parsed.scope as string | undefined,
-        depends: parsed.depends as string[] | undefined,
-        author: parsed.author as string | undefined,
-        date: parsed.date as string | undefined,
-        description: parsed.description as string | undefined,
-        changes: parsed.changes as string[] | undefined,
-        affected: parsed.affected as string[] | undefined,
-        sourceFile: relative(scanRoot, filePath),
-        sourceLine: line,
-        functionName: fnInfo?.functionName,
-        functionSignature: fnInfo?.functionSignature,
-        flow: parsed.flow as string | undefined,
-        step: parsed.step ? parseInt(parsed.step as string, 10) : undefined,
-        input: parsed.input as string | undefined,
-        output: parsed.output as string | undefined,
-        next: parsed.next as string | undefined,
-        test: parsed.test as string | undefined,
-      });
-    }
-  }
-
-  return tasks;
+  return scanSourceAnnotations(scanRoot);
 }
 
 /** 按条件筛选 */

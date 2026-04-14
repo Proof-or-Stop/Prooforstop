@@ -11,7 +11,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "扫描结果能区分已有的 PROBE/DEBUG/PERSIST catch 和仍然未分类的高风险 silent catch，操作者能看到一个可执行的分类基线",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "像 session_brief、story_query、stale-detector 这类合理的 PROBE catch 不会被误判成必须 throw 的缺陷",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "若仍有 writeLog/save/git/fs.write 这类高风险 silent catch 没被分类，规划结果会把它暴露成待修缺口，而不是把现有 health/doctor 当成已经全覆盖",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -24,7 +44,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "补完代码注释、文档映射或结构化暴露后，gap/truth 分析能把 fail-fast 相关能力识别成已覆盖，而不是继续整块误报未实现",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "如果某部分能力本来就已实现（如 health.ts / doctor），这条 story 会优先补识别与映射，而不是重写一套重复机制",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果还有真正未分类的裸 silent catch，修复过程会把它们和“只是 gap 看不见”的情况区分开，不会靠文档掩盖真实风险",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -36,7 +76,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "回归验证能直接证明 reportHealthIssue/doctor/关键 fail-fast 分类仍可用，并展示收敛指标相较修改前的变化",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "当 health 留痕本身失败时，主命令不会被 health 模块拖死，但验证仍能观察到可解释的降级行为",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果代码、注释和 gap 识别三者再次脱节，新增的验证会及时失败，而不是让 convergence_check 继续长期漂红却没人知道原因",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }
