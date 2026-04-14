@@ -1,9 +1,93 @@
 
 import type { HandlerContext } from './context.js';
-import type { StoryPhase } from '../core/types.js';
+import type { StoryPhase, StoryInfo } from '../core/types.js';
+import { collectContext } from './context.js';
 import { loadConfig } from '../core/config.js';
 import { join } from 'path';
 import { existsSync, readFileSync, readdirSync } from 'fs';
+import { execSync } from 'child_process';
+
+// ─── 僵尸 story 检测：分支已合并到 main 但 phase 不是 DONE ─────────────────
+
+const NON_TERMINAL_PHASES = new Set<string>([
+  'INIT', 'INIT_CHECK', 'PLAN', 'DEV', 'TEST_CASE', 'TEST_CASE_REVIEW', 'TEST',
+]);
+
+interface ZombieInfo {
+  storyId: string;
+  phase: string;
+  branch: string;
+  branchExists: boolean;
+  branchMerged: boolean;
+  worktreeExists: boolean;
+  worktreePath?: string;
+}
+
+/**
+ * 检测"僵尸" story：phase 非终态但分支已合并到 main（或分支已删除）。
+ * 返回所有异常 story 列表。
+ */
+export function detectZombieStories(store: import('../core/store.js').StoryStore, root: string): ZombieInfo[] {
+  const zombies: ZombieInfo[] = [];
+  const ids = store.listStoryIds();
+
+  // 拿已合并到 main 的分支列表（一次 git 调用覆盖所有 story）
+  let mergedBranches: Set<string>;
+  try {
+    const raw = execSync('git branch --merged main', { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] });
+    mergedBranches = new Set(raw.split('\n').map(l => l.trim().replace(/^\* /, '')).filter(Boolean));
+  } catch {
+    return []; // git 不可用，跳过
+  }
+
+  // 拿所有本地分支名
+  let allBranches: Set<string>;
+  try {
+    const raw = execSync('git branch', { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] });
+    allBranches = new Set(raw.split('\n').map(l => l.trim().replace(/^\* /, '')).filter(Boolean));
+  } catch {
+    allBranches = new Set();
+  }
+
+  for (const id of ids) {
+    let story: StoryInfo;
+    try { story = store.readStory(id); } catch { continue; }
+    if (!NON_TERMINAL_PHASES.has(story.phase)) continue;
+
+    const branch = story.worktree?.branch || `story/${id}`;
+    const branchExists = allBranches.has(branch);
+    const branchMerged = mergedBranches.has(branch);
+
+    // 分支已合并到 main，或分支已删除（被人手动删了或 merge 后删了）
+    // 对于 INIT/INIT_CHECK，分支可能还没创建，不算僵尸
+    if (story.phase === 'INIT' || story.phase === 'INIT_CHECK') {
+      if (!branchExists) continue; // 分支还没创建，正常
+    }
+
+    const branchGone = !branchExists && (story.phase !== 'INIT' && story.phase !== 'INIT_CHECK');
+
+    if (!branchMerged && !branchGone) continue;
+
+    let worktreeExists = false;
+    let worktreePath: string | undefined;
+    if (story.worktree?.path) {
+      worktreePath = join(root, story.worktree.path);
+      worktreeExists = existsSync(worktreePath);
+    }
+
+    zombies.push({
+      storyId: id,
+      phase: story.phase,
+      branch,
+      branchExists,
+      branchMerged,
+      worktreeExists,
+      worktreePath,
+    });
+  }
+
+  return zombies;
+}
 
 export function createStoryQueryHandlers(ctx: HandlerContext) {
   const { store } = ctx;
@@ -186,6 +270,13 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
           bugSuggestions.push(`Bug/Story 比率: ${bugRate}，可运行 bug_analyze() 查看详细报告`);
         }
 
+        // 僵尸 story 检测
+        const zombies = detectZombieStories(store, ctx.root);
+        const zombieWarning = zombies.length > 0
+          ? `⚠ 僵尸 story (${zombies.length}): ${zombies.map(z => `${z.storyId}(${z.phase})`).join(', ')} — 分支已合并/删除但 phase 非终态，运行 story_reconcile 修复`
+          : null;
+        if (zombieWarning) bugSuggestions.push(zombieWarning);
+
         return {
           _dashboard: dashboard,
           _hint: '请将仪表盘展示在最前面',
@@ -198,6 +289,92 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
         };
       }
       return filtered;
+    },
+
+    /**
+     * story_reconcile — 检测并修复"僵尸" story
+     *
+     * 场景：分支已手动合并回 main 或被删除，但 story 状态文件仍停在非终态。
+     * dryRun=true（默认）只报告，不修改；dryRun=false 执行修复。
+     */
+    story_reconcile(args?: { dryRun?: boolean }): string {
+      const dryRun = args?.dryRun !== false; // 默认 dry run
+      const zombies = detectZombieStories(store, ctx.root);
+
+      if (zombies.length === 0) {
+        return 'story_reconcile: 未检测到僵尸 story，所有非终态 story 的分支状态正常。';
+      }
+
+      const lines: string[] = [];
+      lines.push(`检测到 ${zombies.length} 个僵尸 story（分支已合并/删除但 phase 非终态）：`);
+      lines.push('');
+
+      for (const z of zombies) {
+        const reason = z.branchMerged
+          ? `分支 ${z.branch} 已合并到 main`
+          : `分支 ${z.branch} 已不存在`;
+        lines.push(`  ${z.storyId}  phase=${z.phase}  ${reason}`);
+
+        if (z.worktreeExists) {
+          lines.push(`    worktree: ${z.worktreePath} (仍存在)`);
+        } else if (z.worktreePath) {
+          lines.push(`    worktree: ${z.worktreePath} (已不存在)`);
+        }
+
+        if (!dryRun) {
+          const story = store.readStory(z.storyId);
+          const actions: string[] = [];
+
+          // 清理 worktree 目录
+          if (z.worktreeExists && z.worktreePath) {
+            try {
+              execSync(`git worktree remove --force "${z.worktreePath}"`, {
+                cwd: ctx.root, stdio: 'pipe',
+              });
+              actions.push('worktree 已移除');
+            } catch {
+              // worktree remove 失败时尝试直接删目录
+              try {
+                const { rmSync } = require('fs');
+                rmSync(z.worktreePath, { recursive: true, force: true });
+                actions.push('worktree 目录已强制删除');
+              } catch { actions.push('worktree 清理失败'); }
+            }
+          }
+
+          // 删除已合并的分支
+          if (z.branchExists) {
+            try {
+              execSync(`git branch -d "${z.branch}"`, { cwd: ctx.root, stdio: 'pipe' });
+              actions.push(`分支 ${z.branch} 已删除`);
+            } catch {
+              actions.push(`分支 ${z.branch} 删除失败（可能有未合并提交）`);
+            }
+          }
+
+          // 更新 story 状态为 DONE
+          story.phase = 'DONE' as StoryPhase;
+          story.endedAt = new Date().toISOString();
+          story.worktree = undefined;
+          if (!story.events) story.events = [];
+          const event = collectContext('DONE' as StoryPhase, 'advance');
+          (event as any).reconciled = true;
+          (event as any).reason = `story_reconcile: ${z.branchMerged ? '分支已合并到 main' : '分支已删除'}`;
+          story.events.push(event);
+          store.writeStory(z.storyId, story);
+          actions.push('phase → DONE');
+
+          lines.push(`    → 已修复: ${actions.join(', ')}`);
+        }
+      }
+
+      if (dryRun) {
+        lines.push('');
+        lines.push('以上为 dry run 结果，未做任何修改。');
+        lines.push('执行修复: koala story_reconcile \'{"dryRun":false}\'');
+      }
+
+      return lines.join('\n');
     },
   };
 }

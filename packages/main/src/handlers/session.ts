@@ -23,6 +23,7 @@ import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import type { HandlerContext } from './context.js';
 import type { StoryInfo, ChecklistData, BugData } from '../core/types.js';
+import { detectZombieStories } from './story-query.js';
 
 interface ActiveStoryDetected {
   storyId: string;
@@ -425,6 +426,22 @@ export function createSessionHandlers(ctx: HandlerContext) {
             lines.push(`  ... ${activeStories.length - limit} more`);
           }
         }
+
+        // 僵尸 story 检测：分支已合并/删除但 phase 非终态
+        try {
+          const zombies = detectZombieStories(ctx.store, ctx.root);
+          if (zombies.length > 0) {
+            lines.push('');
+            lines.push(`## ⚠ 僵尸 story (${zombies.length})`);
+            for (const z of zombies) {
+              const reason = z.branchMerged
+                ? `分支已合并到 main`
+                : `分支已删除`;
+              lines.push(`  ${z.storyId} phase=${z.phase} — ${reason}`);
+            }
+            lines.push(`  → 运行 koala story_reconcile 查看详情，story_reconcile '{"dryRun":false}' 修复`);
+          }
+        } catch { /* probe: git 不可用时不影响 brief */ }
 
         // Cross-story open bugs sample (concise mode skips this).
         if (!concise && totalBugsOpen > 0) {

@@ -67,6 +67,9 @@ export const MAIN_TOOLS: ToolDef[] = [
     reason: z.string().optional().describe('废弃原因（写入事件记录）'),
     force: z.boolean().optional().describe('强制丢弃未提交改动'),
   }},
+  { name: 'story_reconcile', description: '检测并修复僵尸 story（分支已合并/删除但 phase 非终态）', schema: {
+    dryRun: z.boolean().optional().describe('默认 true 只报告不修改，false 执行修复'),
+  }},
 
   // Review
   { name: 'story_review', description: '对抗审查 testIntent 完整性', schema: {
