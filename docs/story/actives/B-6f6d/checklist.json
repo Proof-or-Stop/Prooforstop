@@ -6,7 +6,27 @@
       "context": "仅有 cli/claude/codex 还不够，无法回答是谁在推进 story。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "新的 activity 记录在保留 source 的同时写入 role 信息 → main/reviewer/intent 等角色可区分",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "旧日志缺少 role 字段时 → 写入和读取逻辑仍然兼容，不会把历史 activity 读坏",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果有人把 source 当 role 用 → 回归验证能暴露 source/role 语义混淆",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -14,7 +34,28 @@
       "context": "tool_status 和后续分析能力需要按 role 聚合，才能用于优化协作流程。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "tool_status 和 session_brief 能消费 role 维度 → 用户能看到按 role 分组或展示的 activity 信息",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "混合新旧 activity 记录时 → 统计结果仍稳定，并给缺 role 的旧记录合理默认值",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "当只有 source 没有 role 的历史记录存在时 → 消费侧不会误报为 telemetry 正常完整",
+            "type": "cli_blackbox"
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
     },
     {
       "id": "CHK-003",
@@ -22,7 +63,28 @@
       "context": "现有日志数据不能被破坏，新旧格式需要并存并可读。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "role-aware telemetry 的新增逻辑有明确回归验证 → 新字段不会靠手工 smoke 存活",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "写入 role 之后仍能兼容旧 activity 文件和现有 source 统计",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果 role 写入或消费一端缺失 → 测试能在 session_brief/tool_status 场景里及时暴露不一致",
+            "type": "cli_blackbox"
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
     }
   ]
 }

@@ -67,6 +67,7 @@ export const utilsToolDefs: RuntimeToolDef[] = [
   // Tool 使用统计
   { name: 'tool_status', description: '统计 docs/story/activity.jsonl 里的工具使用情况', schema: {
     source: z.enum(['cli','claude','codex','all']).optional().describe('数据源（默认 all）'),
+    role: z.string().optional().describe('按 role 过滤（如 main / reviewer / intent）'),
     days: z.number().optional().describe('时间窗口天数（默认 30）'),
     limit: z.number().optional().describe('Top N（默认 20）'),
     format: z.enum(['text','json']).optional().describe('输出格式（默认 text）'),
