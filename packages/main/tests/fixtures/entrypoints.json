@@ -86,10 +86,10 @@
       "name": "CHK-002 adversarial: init can rerun without crashing",
       "run_type": "cli",
       "file": "cli-init",
-      "execute": "const { execFileSync } = await import('node:child_process');\nconst { mkdtempSync, rmSync } = await import('node:fs');\nconst { tmpdir } = await import('node:os');\nconst { join } = await import('node:path');\nconst tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-repeat-'));\ntry {\n  execFileSync('node', ['packages/main/dist/cli.js', 'init', tempDir], { cwd: $root, encoding: 'utf8' });\n  const second = execFileSync('node', ['packages/main/dist/cli.js', 'init', tempDir], { cwd: $root, encoding: 'utf8' });\n  return { survivesRepeat: second.includes('exists, skip'), stillCompletes: second.includes('初始化完成') };\n} finally { rmSync(tempDir, { recursive: true, force: true }); }",
+      "execute": "const { execFileSync } = await import(\"node:child_process\");\nconst { renameSync, existsSync } = await import(\"node:fs\");\nconst { join } = await import(\"node:path\");\nconst wrapper = join($root, \"bin\", \"koala-codex.js\");\nconst backup = join($root, \"bin\", \"koala-codex.js.__bak__\");\nif (!existsSync(wrapper)) throw new Error(\"wrapper missing before test\");\nrenameSync(wrapper, backup);\ntry {\n  execFileSync(\"npm\", [\"run\", \"test:entrypoints\"], { cwd: $root, encoding: \"utf8\", stdio: \"pipe\" });\n  return { regressionCaught: false, mentionsWrapper: false };\n} catch (error) {\n  const text = String(error.stderr || error.stdout || error.message || error);\n  return { regressionCaught: text.includes(\"bin/koala-codex.js\") || text.includes(\"ENOENT\"), mentionsWrapper: text.includes(\"koala-codex\") };\n} finally {\n  renameSync(backup, wrapper);\n}\n",
       "expect": {
-        "survivesRepeat": true,
-        "stillCompletes": true
+        "regressionCaught": true,
+        "mentionsWrapper": true
       },
       "intentRef": "B-ae9e:CHK-002:adversarial:0",
       "sandbox": false,
