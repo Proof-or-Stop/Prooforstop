@@ -4,6 +4,18 @@ import { loadConfig } from '../core/config.js';
 import { join } from 'path';
 import { existsSync, readFileSync, readdirSync } from 'fs';
 import { createHash } from 'crypto';
+import type { StoryInfo } from '../core/types.js';
+import { summarizeParallelPolicy } from '../core/parallel-policy.js';
+
+function outcomeLooksAbstract(outcome: string): boolean {
+  const text = outcome.trim();
+  if (text.length < 100) return true;
+  const abstractTerms = ['链路', '事件', '机制', '闭环', '打通', '触发', '状态', '流程'];
+  const hits = abstractTerms.filter((term) => text.includes(term)).length;
+  const transcriptSignals = ['>', '>>>', '[', '✓', '选项', '你选', '完成', 'Resume:', 'Next step'];
+  const transcriptLike = transcriptSignals.some((sig) => text.includes(sig));
+  return hits >= 2 && !transcriptLike;
+}
 
 export function createStoryReviewHandlers(ctx: HandlerContext) {
   const { store } = ctx;
@@ -12,6 +24,13 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
     story_review(args: { storyId: string }): object {
       const story = store.readStory(args.storyId);
       const cl = store.readChecklist(args.storyId);
+      const storiesById = new Map<string, StoryInfo>();
+      for (const storyId of store.listStoryIds()) {
+        try {
+          storiesById.set(storyId, store.readStory(storyId));
+        } catch { /* skip unreadable */ }
+      }
+      const parallelPolicy = summarizeParallelPolicy(story, storiesById);
 
       // 读取真相源
       const config = loadConfig(ctx.root);
@@ -187,6 +206,43 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           message: `story 命中 ${activeRiskSignals.length} 个高风险信号: ${activeRiskSignals.map((r: any) => r.category).join(', ')}。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）`,
         });
       }
+
+      // 2.43. Multi-session parallel policy（B-d307）：并行调度元数据和热点冲突提示
+      if (!story.lane) {
+        issues.push({
+          type: 'parallel_policy_missing_lane',
+          severity: 'advisory',
+          message: `未声明 lane。当前默认会按 ${parallelPolicy.lane} 推断，但建议显式设置 mainline/supporting/exploratory，避免并行调度时主线判断漂移`,
+        });
+      }
+      if (!story.parallelSafe) {
+        issues.push({
+          type: 'parallel_policy_missing_safety',
+          severity: 'advisory',
+          message: `未声明 parallelSafe。当前默认会按 ${parallelPolicy.safety} 推断，建议显式设置 yes/no/plan_only，让 session_brief 能稳定给出并行建议`,
+        });
+      }
+      if ((story.phase === 'PLAN' || story.phase === 'DEV') && parallelPolicy.sharedHotspots.length === 0) {
+        issues.push({
+          type: 'parallel_policy_missing_hotspots',
+          severity: 'advisory',
+          message: 'sharedHotspots 为空。建议列出会争抢的核心文件或模块，便于 session_brief 提前提示冲突',
+        });
+      }
+      if ((story.depends?.length ?? 0) > 0 && parallelPolicy.safety === 'yes') {
+        issues.push({
+          type: 'parallel_policy_depends_conflict',
+          severity: 'advisory',
+          message: `story 有 depends=${story.depends!.join(', ')}，但 parallelSafe=yes。通常更适合先标成 plan_only，避免下游 story 抢跑 DEV`,
+        });
+      }
+      for (const conflict of parallelPolicy.conflicts) {
+        issues.push({
+          type: 'parallel_policy_conflict',
+          severity: 'advisory',
+          message: `并行风险：${conflict}`,
+        });
+      }
       if (dismissedCats.size > 0) {
         issues.push({
           type: 'risk_signals_dismissed',
@@ -248,6 +304,13 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
             type: 'empty_touchpoints',
             severity: 'advisory',
             message: 'understanding.touchpoints 为空。补一下能让 reviewer 了解影响范围',
+          });
+        }
+        if (outcomeLooksAbstract(understanding.outcome || '')) {
+          issues.push({
+            type: 'weak_outcome_transcript',
+            severity: 'advisory',
+            message: 'understanding.outcome 看起来偏抽象，不像用户真正会看到的 transcript。建议改成具体终端/UI 文本，避免工程通过但用户仍然会问“然后呢？”',
           });
         }
       }

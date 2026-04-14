@@ -1,0 +1,84 @@
+{
+  "storyId": "B-d307",
+  "name": "parallel-execution-policy",
+  "title": "为多 session 并行执行增加调度护栏",
+  "description": "为 Koala 增加面向多 session 并行执行的调度策略，在 PLAN 阶段识别并行兼容性，在 session_brief 中展示主线、候选并行 story 和热点冲突提示，避免并行开发伤到当前用户主任务。",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "状态机/门禁",
+      "matched": "gate"
+    }
+  ],
+  "createdAt": "2026-04-14T13:05:11.486Z",
+  "startedAt": "2026-04-14T13:05:11.486Z",
+  "endedAt": "2026-04-14T18:44:37.547Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-14T13:05:11.487Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-14T18:02:52.556Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-14T18:03:04.733Z",
+      "branch": "story/B-d307",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-14T18:06:30.113Z",
+      "branch": "story/B-d307",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-14T18:43:11.702Z",
+      "branch": "story/B-d307",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-14T18:43:20.030Z",
+      "branch": "story/B-d307",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-14T18:43:53.746Z",
+      "branch": "story/B-d307",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-14T18:44:37.547Z",
+      "branch": "story/B-d307",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}

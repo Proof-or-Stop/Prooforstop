@@ -20,6 +20,21 @@ node bin/koala-codex.js story_create '...'
 - `bin/koala-codex.js` 额外会加载 `main + utils`，所以 `aux_*` 命令也可用。
 - `tool_status --source=codex` 可以单独统计 Codex 侧的 Koala 使用情况。
 
+如果本地 wrapper 提示 bootstrap 未就绪，先在仓库根目录执行：
+
+```bash
+npm --prefix packages/main run build
+npm --prefix packages/utils run build
+```
+
+如果你在维护当前仓库本身，而不是消费一个下游项目，还可以跑：
+
+```bash
+npm run test:codex-assets
+```
+
+它会验证 `.Codex/agents` 仍然和 `.claude/agents` 的受控 transform 保持一致，并检查 README / AGENTS / `.Codex/README` 三层入口说明没有漂移。
+
 建议：
 
 - 新 session 第一条命令跑 `KOALA_ACTIVITY_SOURCE=codex koala session_brief`

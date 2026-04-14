@@ -1,0 +1,150 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: wrappers load full toolset",
+      "run_type": "cli",
+      "file": "cli-engine",
+      "execute": "const { execFileSync } = await import('node:child_process');\nexecFileSync('npm', ['--prefix', 'packages/main', 'run', 'build'], { cwd: $root, encoding: 'utf8' });\nexecFileSync('npm', ['--prefix', 'packages/utils', 'run', 'build'], { cwd: $root, encoding: 'utf8' });\nconst docs = execFileSync('node', ['bin/koala.js', 'aux_doc_list', '--format=json'], { cwd: $root, encoding: 'utf8' });\nconst brief = execFileSync('node', ['bin/koala-codex.js', 'session_brief'], { cwd: $root, encoding: 'utf8' });\nreturn { docsOk: docs.includes('\"docs\"'), briefOk: brief.includes('# koala session brief') };",
+      "expect": {
+        "docsOk": true,
+        "briefOk": true
+      },
+      "intentRef": "B-ae9e:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-ae9e",
+      "_id": "49c0a6b0-fd8b-4155-aa0a-6605f10fd130",
+      "nextCaseId": "c44c8127-a135-4b80-b919-b96d55dc2027"
+    },
+    {
+      "name": "CHK-001 edge: missing utils dist shows recovery",
+      "run_type": "cli",
+      "file": "cli-engine",
+      "execute": "const { execFileSync } = await import('node:child_process');\nconst { renameSync, existsSync } = await import('node:fs');\nconst { join } = await import('node:path');\nconst dist = join($root, 'packages', 'utils', 'dist');\nconst backup = join($root, 'packages', 'utils', 'dist.__bak__');\nif (!existsSync(dist)) throw new Error('utils dist missing before test');\nrenameSync(dist, backup);\ntry {\n  execFileSync('node', ['bin/koala.js', 'help'], { cwd: $root, encoding: 'utf8', stdio: 'pipe' });\n  return { recovered: false, hasMissing: false };\n} catch (error) {\n  const text = String(error.stderr || error.stdout || error.message || error);\n  return { recovered: text.includes('Recovery:'), hasMissing: text.includes('Missing build artifacts:'), mentionsUtilsBuild: text.includes('npm --prefix packages/utils run build') };\n} finally { renameSync(backup, dist); }",
+      "expect": {
+        "recovered": true,
+        "hasMissing": true,
+        "mentionsUtilsBuild": true
+      },
+      "intentRef": "B-ae9e:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-ae9e",
+      "_id": "c44c8127-a135-4b80-b919-b96d55dc2027",
+      "prevCaseId": "49c0a6b0-fd8b-4155-aa0a-6605f10fd130",
+      "nextCaseId": "e60f1fb7-edbd-46f2-b3dd-17f5e4d86bd0"
+    },
+    {
+      "name": "CHK-001 adversarial: missing main dist does not silently fail",
+      "run_type": "cli",
+      "file": "cli-engine",
+      "execute": "const { execFileSync } = await import(\"node:child_process\");\nconst { mkdirSync, writeFileSync, rmSync, existsSync } = await import(\"node:fs\");\nconst { join } = await import(\"node:path\");\nconst altZodDir = join($root, \"node_modules\", \"zod\");\nmkdirSync(altZodDir, { recursive: true });\nwriteFileSync(join(altZodDir, \"package.json\"), JSON.stringify({ name: \"zod\", version: \"0.0.0-test\", type: \"module\", exports: \"./index.js\" }));\nwriteFileSync(join(altZodDir, \"index.js\"), \"throw new Error(\\\"root zod should not be imported\\\");\\n\");\ntry {\n  const docs = execFileSync(\"node\", [\"bin/koala.js\", \"aux_doc_list\", \"--format=json\"], { cwd: $root, encoding: \"utf8\" });\n  return { secondInstancePresent: existsSync(join(altZodDir, \"index.js\")), docsOk: docs.includes(\"\\\"docs\\\"\"), noRootZodCrash: !docs.includes(\"root zod should not be imported\") };\n} finally {\n  rmSync(join($root, \"node_modules\"), { recursive: true, force: true });\n}",
+      "expect": {
+        "secondInstancePresent": true,
+        "docsOk": true,
+        "noRootZodCrash": true
+      },
+      "intentRef": "B-ae9e:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-ae9e",
+      "_id": "e60f1fb7-edbd-46f2-b3dd-17f5e4d86bd0",
+      "prevCaseId": "c44c8127-a135-4b80-b919-b96d55dc2027",
+      "nextCaseId": "fb1991a1-e9c4-4528-b79f-c2392ad594fc"
+    },
+    {
+      "name": "CHK-002 happy: test entrypoints script passes",
+      "run_type": "cli",
+      "file": "cli-init",
+      "execute": "const { execFileSync } = await import('node:child_process');\nconst out = execFileSync('npm', ['run', 'test:entrypoints'], { cwd: $root, encoding: 'utf8' });\nreturn { ok: out.includes('entrypoints verified') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-ae9e:CHK-002:happy:0",
+      "sandbox": false,
+      "timeoutMs": 300000,
+      "storyId": "B-ae9e",
+      "_id": "fb1991a1-e9c4-4528-b79f-c2392ad594fc",
+      "prevCaseId": "e60f1fb7-edbd-46f2-b3dd-17f5e4d86bd0",
+      "nextCaseId": "05a7914b-cf4d-4bff-8331-9a76a562d574"
+    },
+    {
+      "name": "CHK-002 edge: init output contains codex artifacts",
+      "run_type": "cli",
+      "file": "cli-init",
+      "execute": "const { execFileSync } = await import('node:child_process');\nconst { mkdtempSync, existsSync, rmSync, readFileSync } = await import('node:fs');\nconst { tmpdir } = await import('node:os');\nconst { join } = await import('node:path');\nconst tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-case-'));\ntry {\n  const out = execFileSync('node', ['packages/main/dist/cli.js', 'init', tempDir], { cwd: $root, encoding: 'utf8' });\n  const codexReadme = readFileSync(join(tempDir, '.Codex', 'README.md'), 'utf8');\n  return { outputMentionsCodexReadme: out.includes('.Codex/README.md'), hasAgents: existsSync(join(tempDir, '.Codex', 'agents', 'test-intent.md')), hasFallback: codexReadme.includes('KOALA_ACTIVITY_SOURCE=codex koala session_brief') };\n} finally { rmSync(tempDir, { recursive: true, force: true }); }",
+      "expect": {
+        "outputMentionsCodexReadme": true,
+        "hasAgents": true,
+        "hasFallback": true
+      },
+      "intentRef": "B-ae9e:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-ae9e",
+      "_id": "05a7914b-cf4d-4bff-8331-9a76a562d574",
+      "prevCaseId": "fb1991a1-e9c4-4528-b79f-c2392ad594fc",
+      "nextCaseId": "afba24d3-f7be-4b6b-a0cd-6fb61d0a8a0f"
+    },
+    {
+      "name": "CHK-002 adversarial: init can rerun without crashing",
+      "run_type": "cli",
+      "file": "cli-init",
+      "execute": "const { execFileSync } = await import(\"node:child_process\");\nconst { renameSync, existsSync } = await import(\"node:fs\");\nconst { join } = await import(\"node:path\");\nconst wrapper = join($root, \"bin\", \"koala-codex.js\");\nconst backup = join($root, \"bin\", \"koala-codex.js.__bak__\");\nif (!existsSync(wrapper)) throw new Error(\"wrapper missing before test\");\nrenameSync(wrapper, backup);\ntry {\n  execFileSync(\"npm\", [\"run\", \"test:entrypoints\"], { cwd: $root, encoding: \"utf8\", stdio: \"pipe\" });\n  return { regressionCaught: false, mentionsWrapper: false };\n} catch (error) {\n  const text = String(error.stderr || error.stdout || error.message || error);\n  return { regressionCaught: text.includes(\"bin/koala-codex.js\") || text.includes(\"ENOENT\"), mentionsWrapper: text.includes(\"koala-codex\") };\n} finally {\n  renameSync(backup, wrapper);\n}\n",
+      "expect": {
+        "regressionCaught": true,
+        "mentionsWrapper": true
+      },
+      "intentRef": "B-ae9e:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-ae9e",
+      "_id": "afba24d3-f7be-4b6b-a0cd-6fb61d0a8a0f",
+      "prevCaseId": "05a7914b-cf4d-4bff-8331-9a76a562d574",
+      "nextCaseId": "5ea6c5eb-5e77-46b7-a8e0-67c44512cb65"
+    },
+    {
+      "name": "CHK-003 happy: missing dist gives explicit recovery guidance",
+      "run_type": "cli",
+      "file": "cli-init",
+      "execute": "const { execFileSync } = await import('node:child_process');\nconst { renameSync, existsSync } = await import('node:fs');\nconst { join } = await import('node:path');\nconst dist = join($root, 'packages', 'utils', 'dist');\nconst backup = join($root, 'packages', 'utils', 'dist.__bak__');\nif (!existsSync(dist)) throw new Error('utils dist missing before test');\nrenameSync(dist, backup);\ntry {\n  execFileSync('node', ['bin/koala-codex.js', 'session_brief'], { cwd: $root, encoding: 'utf8', stdio: 'pipe' });\n  return { hasRecovery: false, mentionsFallback: false };\n} catch (error) {\n  const text = String(error.stderr || error.stdout || error.message || error);\n  return { hasRecovery: text.includes('Recovery:'), mentionsFallback: text.includes('KOALA_ACTIVITY_SOURCE=codex koala <command>') };\n} finally { renameSync(backup, dist); }",
+      "expect": {
+        "hasRecovery": true,
+        "mentionsFallback": true
+      },
+      "intentRef": "B-ae9e:CHK-003:happy:0",
+      "sandbox": false,
+      "storyId": "B-ae9e",
+      "_id": "5ea6c5eb-5e77-46b7-a8e0-67c44512cb65",
+      "prevCaseId": "afba24d3-f7be-4b6b-a0cd-6fb61d0a8a0f",
+      "nextCaseId": "a0fe43bd-af43-4393-a4c0-72b7232a2d9a"
+    },
+    {
+      "name": "CHK-003 edge: codex readme teaches fallback path",
+      "run_type": "cli",
+      "file": "cli-init",
+      "execute": "const { readFileSync } = await import('node:fs');\nconst { join } = await import('node:path');\nconst text = readFileSync(join($root, '.Codex', 'README.md'), 'utf8');\nreturn { hasFallback: text.includes('KOALA_ACTIVITY_SOURCE=codex koala session_brief'), mentionsWrapperOptional: text.includes('bin/koala-codex.js') };",
+      "expect": {
+        "hasFallback": true,
+        "mentionsWrapperOptional": true
+      },
+      "intentRef": "B-ae9e:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-ae9e",
+      "_id": "a0fe43bd-af43-4393-a4c0-72b7232a2d9a",
+      "prevCaseId": "5ea6c5eb-5e77-46b7-a8e0-67c44512cb65",
+      "nextCaseId": "19f004dd-8187-4703-bd08-88f08f388e15"
+    },
+    {
+      "name": "CHK-003 adversarial: wrapper hides raw module stack on bootstrap failure",
+      "run_type": "cli",
+      "file": "cli-engine",
+      "execute": "const { execFileSync } = await import(\"node:child_process\");\nconst { renameSync, existsSync } = await import(\"node:fs\");\nconst { join } = await import(\"node:path\");\nconst dist = join($root, \"packages\", \"main\", \"dist\");\nconst backup = join($root, \"packages\", \"main\", \"dist.__bak__\");\nif (!existsSync(dist)) throw new Error(\"main dist missing before test\");\nrenameSync(dist, backup);\ntry {\n  execFileSync(\"node\", [\"bin/koala.js\", \"session_brief\"], { cwd: $root, encoding: \"utf8\", stdio: \"pipe\" });\n  return { avoidsRawModuleError: false, hasOriginalError: false, hasRecovery: false, mentionsFallback: false };\n} catch (error) {\n  const text = String(error.stderr || error.stdout || error.message || error);\n  return { avoidsRawModuleError: !text.includes(\"ERR_MODULE_NOT_FOUND\"), hasOriginalError: text.includes(\"Original error:\"), hasRecovery: text.includes(\"Recovery:\"), mentionsFallback: text.includes(\"KOALA_ACTIVITY_SOURCE=codex koala <command>\") };\n} finally { renameSync(backup, dist); }",
+      "expect": {
+        "avoidsRawModuleError": true,
+        "hasRecovery": true,
+        "mentionsFallback": true
+      },
+      "intentRef": "B-ae9e:CHK-003:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-ae9e",
+      "_id": "19f004dd-8187-4703-bd08-88f08f388e15",
+      "prevCaseId": "a0fe43bd-af43-4393-a4c0-72b7232a2d9a"
+    }
+  ]
+}

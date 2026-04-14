@@ -1,0 +1,22 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-04-14T18:06:16.507Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 1 个高风险信号: 状态机/门禁。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 2 个未消化的 unknowns: 第一版是否只靠理解快照/启发式规则就够，还是要立刻把 lane/parallelSafe 写入持久化 story schema。; mainline/supporting/plan_only 这类字段是先放在 planning 层，还是立即写进 story index。"
+        }
+      ],
+      "_hash": "fd2d458bd9e094a846b514d90e983e973c5bbbb3abf5cf9dbc99d94a92b0755b"
+    }
+  ]
+}

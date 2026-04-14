@@ -1,0 +1,143 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: session_brief shows source and role",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { execFileSync } = await import('node:child_process');\nconst out = execFileSync('node', ['scripts/verify-session-brief-command-center.mjs'], { cwd: $root, encoding: 'utf8' });\nreturn { ok: out.includes('session brief command center verified') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-6bee:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-6bee",
+      "_id": "f0d1bda1-5a90-4399-9f5f-e517e37c12f1",
+      "nextCaseId": "d7dd1b3c-2892-4382-a90c-f836e161f1ff"
+    },
+    {
+      "name": "CHK-001 edge: session_brief prints unknown for old activity",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { appendFileSync, readFileSync, writeFileSync } = await import('node:fs');\nconst { join } = await import('node:path');\nconst logPath = join($root, 'docs', 'story', 'activity.jsonl');\nconst original = readFileSync(logPath, 'utf8');\nconst NL = String.fromCharCode(10);\nappendFileSync(logPath, JSON.stringify({ source: 'codex', tool: 'session_brief', status: 'ok', endTime: new Date().toISOString() }) + NL);\ntry {\n  const out = (await import('node:child_process')).execFileSync('node', ['packages/main/dist/cli.js', 'session_brief'], { cwd: $root, encoding: 'utf8' });\n  return { hasUnknown: out.includes('/unknown/ok]') };\n} finally { writeFileSync(logPath, original); }",
+      "expect": {
+        "hasUnknown": true
+      },
+      "intentRef": "B-6bee:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-6bee",
+      "_id": "d7dd1b3c-2892-4382-a90c-f836e161f1ff",
+      "prevCaseId": "f0d1bda1-5a90-4399-9f5f-e517e37c12f1",
+      "nextCaseId": "946b4e56-c22e-4b7c-905d-ca155b240f15"
+    },
+    {
+      "name": "CHK-001 adversarial: source and role are distinct in display",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { appendFileSync, readFileSync, writeFileSync } = await import('node:fs');\nconst { join } = await import('node:path');\nconst logPath = join($root, 'docs', 'story', 'activity.jsonl');\nconst original = readFileSync(logPath, 'utf8');\nconst NL = String.fromCharCode(10);\nappendFileSync(logPath, JSON.stringify({ source: 'codex', role: 'intent', tool: 'session_brief', status: 'ok', endTime: new Date().toISOString() }) + NL);\ntry {\n  const out = (await import('node:child_process')).execFileSync('node', ['packages/main/dist/cli.js', 'session_brief'], { cwd: $root, encoding: 'utf8' });\n  return {\n    hasDistinctDisplay: out.includes('[codex/intent/ok]'),\n    notCollapsed: !out.includes('[codex/codex/ok]')\n  };\n} finally { writeFileSync(logPath, original); }",
+      "expect": {
+        "hasDistinctDisplay": true,
+        "notCollapsed": true
+      },
+      "intentRef": "B-6bee:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-6bee",
+      "_id": "946b4e56-c22e-4b7c-905d-ca155b240f15",
+      "prevCaseId": "d7dd1b3c-2892-4382-a90c-f836e161f1ff",
+      "nextCaseId": "237b0d7e-a173-43b3-855a-618fb8a26d62"
+    },
+    {
+      "name": "CHK-002 happy: reviewer and intent activity influence next step",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { execFileSync } = await import('node:child_process');\nexecFileSync('node', ['packages/main/dist/cli.js', 'session_brief'], { cwd: $root, encoding: 'utf8', env: { ...process.env, KOALA_ACTIVITY_ROLE: 'reviewer' } });\nexecFileSync('node', ['packages/main/dist/cli.js', 'session_brief'], { cwd: $root, encoding: 'utf8', env: { ...process.env, KOALA_ACTIVITY_ROLE: 'intent' } });\nconst out = execFileSync('node', ['packages/main/dist/cli.js', 'session_brief'], { cwd: $root, encoding: 'utf8' });\nreturn {\n  mentionsRoleAware: out.includes('test-intent agent') || out.includes('reviewer'),\n  mentionsRecoveryCommand: out.includes('story_review')\n};",
+      "expect": {
+        "mentionsRoleAware": true,
+        "mentionsRecoveryCommand": true
+      },
+      "intentRef": "B-6bee:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-6bee",
+      "_id": "237b0d7e-a173-43b3-855a-618fb8a26d62",
+      "prevCaseId": "946b4e56-c22e-4b7c-905d-ca155b240f15",
+      "nextCaseId": "0d71dfe1-cdaa-47de-af7a-2c31016e758c"
+    },
+    {
+      "name": "CHK-002 edge: unknown role still yields conservative next step",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { readFileSync, writeFileSync } = await import(\"node:fs\");\nconst { join } = await import(\"node:path\");\nconst logPath = join($root, \"docs\", \"story\", \"activity.jsonl\");\nconst original = readFileSync(logPath, \"utf8\");\nconst NL = String.fromCharCode(10);\nwriteFileSync(logPath, JSON.stringify({ source: \"codex\", tool: \"session_brief\", status: \"ok\", endTime: new Date().toISOString() }) + NL);\ntry {\n  const out = (await import(\"node:child_process\")).execFileSync(\"node\", [\"packages/main/dist/cli.js\", \"session_brief\"], { cwd: $root, encoding: \"utf8\" });\n  return { mentionsUnknownFallback: out.includes(\"缺少可识别的 role\") || out.includes(\"checklist_get / testintent_check\") };\n} finally { writeFileSync(logPath, original); }",
+      "expect": {
+        "mentionsUnknownFallback": true
+      },
+      "intentRef": "B-6bee:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-6bee",
+      "_id": "0d71dfe1-cdaa-47de-af7a-2c31016e758c",
+      "prevCaseId": "237b0d7e-a173-43b3-855a-618fb8a26d62",
+      "nextCaseId": "b320c52e-fd26-4e8e-96f2-051da52871c5"
+    },
+    {
+      "name": "CHK-002 adversarial: noisy recent activity does not erase actionable next step",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { execFileSync } = await import(\"node:child_process\");\nexecFileSync(\"node\", [\"packages/main/dist/cli.js\", \"session_brief\"], { cwd: $root, encoding: \"utf8\", env: { ...process.env, KOALA_ACTIVITY_ROLE: \"reviewer\" } });\nexecFileSync(\"node\", [\"packages/main/dist/cli.js\", \"session_brief\"], { cwd: $root, encoding: \"utf8\", env: { ...process.env, KOALA_ACTIVITY_ROLE: \"intent\" } });\nconst out = execFileSync(\"node\", [\"packages/main/dist/cli.js\", \"session_brief\"], { cwd: $root, encoding: \"utf8\" });\nreturn { choosesStoryReview: out.includes(\"story_review\"), avoidsGenericChecklistStep: !out.includes(\"checklist_update --storyId=B-6bee\"), avoidsReviewerCheckPath: !out.includes(\"testintent_check\") };",
+      "expect": {
+        "choosesStoryReview": true,
+        "avoidsGenericChecklistStep": true,
+        "avoidsReviewerCheckPath": true
+      },
+      "intentRef": "B-6bee:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-6bee",
+      "_id": "b320c52e-fd26-4e8e-96f2-051da52871c5",
+      "prevCaseId": "0d71dfe1-cdaa-47de-af7a-2c31016e758c",
+      "nextCaseId": "7f260c96-30d1-4ba7-a6c7-058f47604cbc"
+    },
+    {
+      "name": "CHK-003 happy: main branch brief resumes deeper-phase story",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { execFileSync } = await import('node:child_process');\nconst out = execFileSync('node', ['/Users/jek/Documents/Work/Orchestrate/bin/koala-codex.js', 'session_brief'], { cwd: '/Users/jek/Documents/Work/Orchestrate', encoding: 'utf8' });\nreturn {\n  resumesWorktree: out.includes('Resume: cd'),\n  pointsAtB6bee: out.includes('B-6bee')\n};",
+      "expect": {
+        "resumesWorktree": true,
+        "pointsAtB6bee": true
+      },
+      "intentRef": "B-6bee:CHK-003:happy:0",
+      "sandbox": false,
+      "storyId": "B-6bee",
+      "_id": "7f260c96-30d1-4ba7-a6c7-058f47604cbc",
+      "prevCaseId": "b320c52e-fd26-4e8e-96f2-051da52871c5",
+      "nextCaseId": "da946122-cd5a-4c3c-96de-5f3714be6851"
+    },
+    {
+      "name": "CHK-003 edge: active stories section stays ordered by recovery priority",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { execFileSync } = await import('node:child_process');\nconst out = execFileSync('node', ['/Users/jek/Documents/Work/Orchestrate/bin/koala-codex.js', 'session_brief'], { cwd: '/Users/jek/Documents/Work/Orchestrate', encoding: 'utf8' });\nconst idxPlan = out.indexOf('B-6bee');\nconst idxInit = out.indexOf('B-990d');\nreturn { b6beeBeforeInit: idxPlan !== -1 && idxInit !== -1 && idxPlan < idxInit };",
+      "expect": {
+        "b6beeBeforeInit": true
+      },
+      "intentRef": "B-6bee:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-6bee",
+      "_id": "da946122-cd5a-4c3c-96de-5f3714be6851",
+      "prevCaseId": "7f260c96-30d1-4ba7-a6c7-058f47604cbc",
+      "nextCaseId": "b90bef8e-510a-4a59-abac-40f9c7d8be62"
+    },
+    {
+      "name": "CHK-003 adversarial: next step does not prioritize shallow INIT story over deeper active one",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { execFileSync } = await import('node:child_process');\nconst out = execFileSync('node', ['/Users/jek/Documents/Work/Orchestrate/bin/koala-codex.js', 'session_brief'], { cwd: '/Users/jek/Documents/Work/Orchestrate', encoding: 'utf8' });\nreturn {\n  avoidsInitHint: !out.includes('Story B-990d is in INIT') && !out.includes('Story B-d307 is in INIT'),\n  prefersExistingWorktree: out.includes('Resume: cd /Users/jek/Documents/Work/Orchestrate/.worktrees/B-6bee')\n};",
+      "expect": {
+        "avoidsInitHint": true,
+        "prefersExistingWorktree": true
+      },
+      "intentRef": "B-6bee:CHK-003:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-6bee",
+      "_id": "b90bef8e-510a-4a59-abac-40f9c7d8be62",
+      "prevCaseId": "da946122-cd5a-4c3c-96de-5f3714be6851"
+    }
+  ]
+}

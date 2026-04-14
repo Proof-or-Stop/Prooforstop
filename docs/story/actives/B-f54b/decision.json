@@ -1,0 +1,65 @@
+{
+  "principles": [
+    "让 Codex 用户从仓库首页到 init 产物都走同一套入口心智。",
+    "优先收敛模板来源和初始化产物，而不是继续靠手工补文档。",
+    "把已有能力产品化，而不是重复实现 B-ae9e 已经解决的入口稳定性。"
+  ],
+  "drivers": [
+    "降低 Codex 接入的上手成本。",
+    "避免 .claude / .Codex 模板长期漂移。",
+    "让新项目初始化后的 Codex 体验与当前仓库一致。"
+  ],
+  "options": [
+    {
+      "name": "A: 继续只靠 README 和 AGENTS 约定",
+      "pros": [
+        "实现最轻，几乎不动代码。"
+      ],
+      "cons": [
+        "新项目容易缺产物，模板也会继续分散演化，Codex 仍然不是一等接入。"
+      ]
+    },
+    {
+      "name": "B: 让 init 统一生成 Codex 产物，并继续从 Claude 模板做受控 transform",
+      "pros": [
+        "能快速把当前能力收成稳定初始化体验。",
+        "改动面集中在模板生成和说明层，适合当前阶段。"
+      ],
+      "cons": [
+        "Codex 模板仍不是完全独立 source-of-truth，后续角色增多时还需要继续演进。"
+      ]
+    },
+    {
+      "name": "C: 立即重构成完整的跨平台 agent 模板系统",
+      "pros": [
+        "理论上最干净，后续扩展性最好。"
+      ],
+      "cons": [
+        "范围会明显膨胀，容易把一等接入 story 变成模板架构重写。"
+      ]
+    }
+  ],
+  "chosen": "B: 让 init 统一生成 Codex 产物，并继续从 Claude 模板做受控 transform",
+  "rationale": "当前仓库已经有 Codex 能力的基础版本，最合理的下一步是把它稳定地体现在 init 产物和说明层，并减少模板漂移，而不是立刻做一套更重的模板架构。",
+  "preMortem": [
+    {
+      "scenario": "当前仓库可用，但新项目初始化后缺少关键 Codex 产物",
+      "trigger": "只改当前仓库文档，不验证 init 输出",
+      "consequence": "用户以为 Codex 已是一等接入，实际新项目仍需手工补文件",
+      "mitigation": "把 init 产物和当前仓库入口一并纳入验收。"
+    },
+    {
+      "scenario": "Codex 模板和 Claude 模板继续悄悄漂移",
+      "trigger": "每次新增 agent 时手工复制修改两份文件",
+      "consequence": "一个平台更新了规则，另一个平台继续用旧提示",
+      "mitigation": "至少在这一版把 transform 路径和输出约定固定下来。"
+    },
+    {
+      "scenario": "把 story 做成纯文档整理，用户感知不到升级",
+      "trigger": "只补 README，不触及 init 和模板生成",
+      "consequence": "当前仓库看起来更完整，但新项目和真实使用体验没有改善",
+      "mitigation": "把“当前仓库 + init 产物 + Codex agent 定义”作为三件套一起验收。"
+    }
+  ],
+  "timestamp": "2026-04-14T14:17:29.714Z"
+}

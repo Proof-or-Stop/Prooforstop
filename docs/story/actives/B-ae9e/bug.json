@@ -1,0 +1,19 @@
+{
+  "bugs": [
+    {
+      "id": "BUG-19f004dd",
+      "title": "[auto] entrypoints.json:CHK-003 adversarial: wrapper hides raw module stack on bootstrap failure — Expected {\"avoidsRawModuleError\":true,\"hasOriginalError\":true,\"hasRecovery\":true,\"mentionsFallback\":",
+      "status": "fixed",
+      "foundAt": "2026-04-14T13:47:32.526Z",
+      "fixedAt": "2026-04-14T13:48:08.501Z",
+      "fixtureId": "19f004dd-8187-4703-bd08-88f08f388e15",
+      "diagnose": {
+        "rootCause": [
+          "Expected {\"avoidsRawModuleError\":true,\"hasOriginalError\":true,\"hasRecovery\":true,\"mentionsFallback\":true}, got {\"avoidsRawModuleError\":true,\"hasOriginalError\":false,\"hasRecovery\":true,\"mentionsFallback\":true}"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    }
+  ]
+}

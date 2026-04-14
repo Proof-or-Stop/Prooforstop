@@ -3,6 +3,7 @@
 import { mkdirSync, writeFileSync, readFileSync, existsSync, cpSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { CODEX_AGENT_FILES, CODEX_README_TEMPLATE, renderCodexAgentContent } from './init-assets.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -169,8 +170,7 @@ function copyAgentDefinitions(sourceDir: string, targetDir: string, label: strin
   }
   if (!existsSync(targetDir)) mkdirSync(targetDir, { recursive: true });
 
-  const entries = ['test-intent.md', 'test-case-reviewer.md'];
-  for (const file of entries) {
+  for (const file of CODEX_AGENT_FILES) {
     const src = join(sourceDir, file);
     const dst = join(targetDir, file);
     if (!existsSync(src)) continue;
@@ -219,7 +219,6 @@ const skillDst = join(targetDir, '.claude', 'skills', 'koala');
 const claudeAgentsSrc = join(packageRoot, '..', '..', '.claude', 'agents');
 const claudeAgentsDst = join(targetDir, '.claude', 'agents');
 const codexAgentsDst = join(targetDir, '.Codex', 'agents');
-const codexReadmeSrc = join(packageRoot, '..', '..', '.Codex', 'README.md');
 const codexReadmeDst = join(targetDir, '.Codex', 'README.md');
 if (existsSync(skillSrc)) {
   const skillFile = join(skillSrc, 'skill.md');
@@ -241,17 +240,10 @@ if (existsSync(skillSrc)) {
 `);
 }
 copyAgentDefinitions(claudeAgentsSrc, claudeAgentsDst, '.claude/agents');
-copyAgentDefinitions(claudeAgentsSrc, codexAgentsDst, '.Codex/agents', (content) =>
-  content.replace(/Claude Code/g, 'Codex').replace(/\.claude\/agents\//g, '.Codex/agents/'),
-);
+copyAgentDefinitions(claudeAgentsSrc, codexAgentsDst, '.Codex/agents', renderCodexAgentContent);
 if (!existsSync(codexReadmeDst)) {
-  if (existsSync(codexReadmeSrc)) {
-    writeFileSync(codexReadmeDst, readFileSync(codexReadmeSrc, 'utf-8'));
-    console.log('  ✓ .Codex/README.md');
-  } else {
-    writeFileSync(codexReadmeDst, '# Codex + Koala\n\n新 session 第一条命令先跑 `koala session_brief`。\n');
-    console.log('  ✓ .Codex/README.md (created minimal)');
-  }
+  writeFileSync(codexReadmeDst, CODEX_README_TEMPLATE);
+  console.log('  ✓ .Codex/README.md');
 } else {
   console.log('  - .Codex/README.md (exists, skip)');
 }
@@ -302,7 +294,8 @@ console.log(`
 
 Next steps:
   1. Open Claude Code and run /koala, or open Codex and let it read AGENTS.md
-  2. First action in a new agent session should be: koala session_brief
-  3. Optional: edit koala.config.json to adjust scanRoot
-  4. Optional: koala test to run flow e2e tests
+  2. First action in a new agent session should be: KOALA_ACTIVITY_SOURCE=codex koala session_brief
+  3. If this repo has local wrappers, prefer node bin/koala-codex.js <command>
+  4. Optional: edit koala.config.json to adjust scanRoot
+  5. Optional: koala test to run flow e2e tests
 `);
