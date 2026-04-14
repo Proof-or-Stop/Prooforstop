@@ -86,6 +86,56 @@ function readActivityTail(root: string, lines: number): Array<{
   }
 }
 
+const PHASE_PRIORITY: Record<string, number> = {
+  TEST: 7,
+  TEST_CASE_REVIEW: 6,
+  TEST_CASE: 5,
+  DEV: 4,
+  PLAN: 3,
+  INIT_CHECK: 2,
+  INIT: 1,
+  IDEA: 0,
+};
+
+function rankPhase(phase: string): number {
+  return PHASE_PRIORITY[phase] ?? -1;
+}
+
+function inferRoleAwareNextStep(
+  phase: string,
+  activity: Array<{ role: string; tool: string; source: string; status: string }>,
+): string | null {
+  const latest = activity[activity.length - 1];
+  if (!latest) return null;
+  const latestKnown = [...activity].reverse().find((a) => a.role !== 'unknown') || latest;
+
+  if (phase === 'TEST_CASE_REVIEW' && latestKnown.role === 'reviewer' && latestKnown.status === 'ok') {
+    return 'TEST_CASE_REVIEW 阶段。reviewer 最近已完成审核；优先执行 testintent_check 查看最终判定，再按 hint 决定进入 TEST 或回退。';
+  }
+
+  if (phase === 'PLAN' && latestKnown.role === 'intent' && latestKnown.status === 'ok') {
+    return 'PLAN 阶段。test-intent agent 最近已更新内容；优先执行 story_review，确认 blocker 清零后进入 DEV。';
+  }
+
+  if (phase === 'DEV' && latestKnown.role === 'intent' && latestKnown.status === 'ok') {
+    return 'DEV 阶段。最近由 test-intent agent 更新了验收内容；优先执行 story_review，确认新的验收要求已被当前实现覆盖。';
+  }
+
+  if (latestKnown.role === 'reviewer' && latestKnown.status === 'ok') {
+    return '最近由 reviewer 更新了状态。优先执行 testintent_check 或相关只读命令确认最终判定，再决定继续开发还是进入测试。';
+  }
+
+  if (latestKnown.role === 'intent' && latestKnown.status === 'ok') {
+    return '最近由 test-intent agent 更新了验收内容。优先执行 story_review，确认新的验收要求后再继续推进。';
+  }
+
+  if (latestKnown.role === 'unknown') {
+    return '最近 activity 缺少可识别的 role。优先执行 checklist_get / testintent_check 等只读命令确认当前真实状态，再决定下一步。';
+  }
+
+  return null;
+}
+
 function readGitStatus(root: string): { porcelain: string[]; recentLog: string[] } {
   const porcelain: string[] = [];
   const recentLog: string[] = [];
@@ -250,11 +300,14 @@ interface NextStepCtx {
   bugs: BugData | null;
   hasTestEvidence: boolean;
   testPassedAt: string | null;
+  recentActivity: Array<{ role: string; tool: string; source: string; status: string }>;
 }
 
 function computeNextStep(c: NextStepCtx): string {
   const sid = c.storyId;
   const openBugs = c.bugs?.bugs.filter(b => b.status === 'open') ?? [];
+  const roleAwareHint = inferRoleAwareNextStep(c.phase, c.recentActivity);
+  if (roleAwareHint) return roleAwareHint;
 
   switch (c.phase) {
     case 'IDEA':
@@ -414,6 +467,14 @@ export function createSessionHandlers(ctx: HandlerContext) {
         // Active stories + worktree paths.
         const worktrees = listActiveWorktrees(ctx.root);
         if (activeStories.length > 0) {
+          activeStories.sort((a, b) => {
+            const phaseDelta = rankPhase(b.phase) - rankPhase(a.phase);
+            if (phaseDelta !== 0) return phaseDelta;
+            const worktreeDelta = Number(Boolean(worktrees[b.storyId])) - Number(Boolean(worktrees[a.storyId]));
+            if (worktreeDelta !== 0) return worktreeDelta;
+            if (a.bugsOpen !== b.bugsOpen) return b.bugsOpen - a.bugsOpen;
+            return a.storyId.localeCompare(b.storyId);
+          });
           lines.push('');
           lines.push(`## Active stories (${activeStories.length})`);
           const limit = concise ? 3 : activeStories.length;
@@ -597,8 +658,8 @@ export function createSessionHandlers(ctx: HandlerContext) {
 
       // Activity tail — CHK-017 shrunk from 8 to 3 in full mode; skipped
       // entirely in concise mode (git log covers most of what it shows).
+      const activity = readActivityTail(ctx.root, 3);
       if (!concise) {
-        const activity = readActivityTail(ctx.root, 3);
         if (activity.length > 0) {
           lines.push('');
           lines.push(`## Recent activity (last ${activity.length})`);
@@ -643,6 +704,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
         bugs,
         hasTestEvidence,
         testPassedAt,
+        recentActivity: activity,
       });
 
       lines.push('');
