@@ -4,33 +4,113 @@
       "id": "CHK-001",
       "title": "定义 story 的并行调度元数据模型",
       "context": "明确 lane、parallelSafe、sharedHotspots、blockingFor 等字段放在哪一层，先支持人工声明，再考虑自动推断。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-14T18:42:29.156Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "story 能声明 mainline/supporting/plan_only 等并行语义 → 后续消费侧能读取这些信号",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "没有显式并行字段的旧 story → 第一版仍能通过默认值或启发式保持可用",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果 story 同时声明冲突的并行属性 → 审查或提示层能暴露元数据不一致，而不是静默接受",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
       "title": "让 session_brief 展示主线、并行候选和冲突提示",
       "context": "session 恢复时应直接告诉操作者哪些 story 适合并行，哪些 story 因依赖或热点文件不应进入 DEV。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-14T18:42:29.584Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "session_brief 会展示主线 story、可并行候选和冲突提示 → 操作者能直接判断哪些 story 适合并行推进",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "多个 active story 并存但热点文件或依赖不同 → session_brief 仍能稳定给出并行建议",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "存在共享热点或依赖冲突时 → session_brief 不会把高风险 story 误推荐成并行主动作",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
       "title": "在 story_review 中加入并行风险 advisory",
       "context": "PLAN 阶段就软提醒依赖顺序、共享热点和 supporting/mainline 角色错配，先不做 hard gate。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-14T18:42:30.112Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "story_review 会对并行元数据缺失、冲突或顺序风险给出 advisory → PLAN 阶段就能看见并行隐患",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "没有并行元数据的普通 story → review 只做软提醒，不会直接变成 blocker",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果主 agent 试图同时深做共享热点 story → advisory 会明确暴露这一风险，而不是等到 merge 冲突才发现",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
       "title": "为并行策略补回归验证",
       "context": "覆盖 depends、sharedHotspots、mainline/supporting lane、plan_only 等场景，确保并行提示稳定可回归。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-14T18:42:30.590Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "并行策略的新增行为有可重复验证脚本/fixture → 不靠手工 smoke 保持存活",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "旧 story 和新 story 混合存在时 → 回归验证仍能兼容没有并行元数据的记录",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果 session_brief / review / 元数据三者有任一处脱节 → 测试能及时暴露不一致",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }

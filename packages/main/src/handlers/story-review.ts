@@ -4,6 +4,8 @@ import { loadConfig } from '../core/config.js';
 import { join } from 'path';
 import { existsSync, readFileSync, readdirSync } from 'fs';
 import { createHash } from 'crypto';
+import type { StoryInfo } from '../core/types.js';
+import { summarizeParallelPolicy } from '../core/parallel-policy.js';
 
 function outcomeLooksAbstract(outcome: string): boolean {
   const text = outcome.trim();
@@ -22,6 +24,13 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
     story_review(args: { storyId: string }): object {
       const story = store.readStory(args.storyId);
       const cl = store.readChecklist(args.storyId);
+      const storiesById = new Map<string, StoryInfo>();
+      for (const storyId of store.listStoryIds()) {
+        try {
+          storiesById.set(storyId, store.readStory(storyId));
+        } catch { /* skip unreadable */ }
+      }
+      const parallelPolicy = summarizeParallelPolicy(story, storiesById);
 
       // 读取真相源
       const config = loadConfig(ctx.root);
@@ -195,6 +204,43 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           type: 'risk_signals',
           severity: 'advisory',
           message: `story 命中 ${activeRiskSignals.length} 个高风险信号: ${activeRiskSignals.map((r: any) => r.category).join(', ')}。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）`,
+        });
+      }
+
+      // 2.43. Multi-session parallel policy（B-d307）：并行调度元数据和热点冲突提示
+      if (!story.lane) {
+        issues.push({
+          type: 'parallel_policy_missing_lane',
+          severity: 'advisory',
+          message: `未声明 lane。当前默认会按 ${parallelPolicy.lane} 推断，但建议显式设置 mainline/supporting/exploratory，避免并行调度时主线判断漂移`,
+        });
+      }
+      if (!story.parallelSafe) {
+        issues.push({
+          type: 'parallel_policy_missing_safety',
+          severity: 'advisory',
+          message: `未声明 parallelSafe。当前默认会按 ${parallelPolicy.safety} 推断，建议显式设置 yes/no/plan_only，让 session_brief 能稳定给出并行建议`,
+        });
+      }
+      if ((story.phase === 'PLAN' || story.phase === 'DEV') && parallelPolicy.sharedHotspots.length === 0) {
+        issues.push({
+          type: 'parallel_policy_missing_hotspots',
+          severity: 'advisory',
+          message: 'sharedHotspots 为空。建议列出会争抢的核心文件或模块，便于 session_brief 提前提示冲突',
+        });
+      }
+      if ((story.depends?.length ?? 0) > 0 && parallelPolicy.safety === 'yes') {
+        issues.push({
+          type: 'parallel_policy_depends_conflict',
+          severity: 'advisory',
+          message: `story 有 depends=${story.depends!.join(', ')}，但 parallelSafe=yes。通常更适合先标成 plan_only，避免下游 story 抢跑 DEV`,
+        });
+      }
+      for (const conflict of parallelPolicy.conflicts) {
+        issues.push({
+          type: 'parallel_policy_conflict',
+          severity: 'advisory',
+          message: `并行风险：${conflict}`,
         });
       }
       if (dismissedCats.size > 0) {

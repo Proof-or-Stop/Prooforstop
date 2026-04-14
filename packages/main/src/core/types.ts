@@ -2,6 +2,8 @@
 export type StoryPhase = 'IDEA' | 'INIT' | 'INIT_CHECK' | 'PLAN' | 'DEV' | 'TEST_CASE' | 'TEST_CASE_REVIEW' | 'TEST' | 'DONE' | 'DISCARDED';
 
 export type StoryType = 'feature' | 'bug' | 'refactor' | 'chore';
+export type StoryLane = 'mainline' | 'supporting' | 'exploratory';
+export type StoryParallelSafety = 'yes' | 'no' | 'plan_only';
 
 export interface StoryEvent {
   phase: StoryPhase;
@@ -24,6 +26,10 @@ export interface StoryInfo {
   priority: string;
   source?: string;
   depends?: string[];
+  lane?: StoryLane;
+  parallelSafe?: StoryParallelSafety;
+  sharedHotspots?: string[];
+  blockingFor?: string[];
   /** 关键词：领域/模块/概念，用于查重和盘点（不与 checklist item 挂钩） */
   keywords?: string[];
   createdAt: string;
