@@ -501,6 +501,7 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
         TEST: `→ 必须立即执行: test_story('${args.storyId}') 跑当前 story 关联 case，写 bug/evidence。fail 自动 aux_diagnose + bug_report，pass 自动标 bug fixed。需要刷新架构 trace 时再 test_auto({trace:true})
 ⚠ 工程验证 ≠ 用户验收: 即使 test_story 全 pass，也必须用用户视角真机跑一次（节奏: 把 PLAN outcome 当 expected → 跑 → 把实际输出当 actual → diff）。验证完把 actual transcript + 差异说明放到 docs/story/actives/${args.storyId}/evidence/transcript-diff.md。CLAUDE.md「用户价值验收」段有完整 5 题自检清单。`,
         DONE: `→ 必须立即执行: 把下面的 Story 总结段落用你自己的话告诉用户（改了什么/怎么用/真机覆盖/限制/踩坑），然后 convergence_check 检查项目收敛状态
+⚠ product-reviewer（第一版 advisory）: 在宣布“真的完成”前，至少做一次用户价值视角自检：outcome transcript 是否具体、最终输出最后一行会不会让用户想问“然后呢？”。如有需要，调用 product-reviewer agent 做独立复核。
 ⚠ DONE 自检 5 题（CLAUDE.md「用户价值验收」段）: (1) PLAN outcome 是具体 transcript 还是抽象? (2) 真机测试时读了用户视角输出还是只看事件日志? (3) 用户看到 actual transcript 最后一行会说"完成"还是"然后呢"? (4) 有没有工程 log 在用户眼里是噪音/重复? (5) 有没有一句人话总结任务结果? 任何一题答"没做到"就回 DEV，不要硬推 DONE。`,
       };
       let doneChecklistPrefix = '';

@@ -1,4 +1,4 @@
-export const CODEX_AGENT_FILES = ['test-intent.md', 'test-case-reviewer.md'] as const;
+export const CODEX_AGENT_FILES = ['test-intent.md', 'test-case-reviewer.md', 'product-reviewer.md'] as const;
 
 export const CODEX_README_TEMPLATE = `# Codex + Koala
 
