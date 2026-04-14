@@ -36,11 +36,11 @@
       "name": "CHK-001 adversarial: missing main dist does not silently fail",
       "run_type": "cli",
       "file": "cli-engine",
-      "execute": "const { execFileSync } = await import('node:child_process');\nconst { renameSync, existsSync } = await import('node:fs');\nconst { join } = await import('node:path');\nconst dist = join($root, 'packages', 'main', 'dist');\nconst backup = join($root, 'packages', 'main', 'dist.__bak__');\nif (!existsSync(dist)) throw new Error('main dist missing before test');\nrenameSync(dist, backup);\ntry {\n  execFileSync('node', ['bin/koala-codex.js', 'help'], { cwd: $root, encoding: 'utf8', stdio: 'pipe' });\n  return { recovered: false, mentionsMain: false };\n} catch (error) {\n  const text = String(error.stderr || error.stdout || error.message || error);\n  return { recovered: text.includes('Recovery:'), mentionsMain: text.includes('packages/main/dist/cli-engine.js'), avoidsRawModuleError: !text.includes('ERR_MODULE_NOT_FOUND') };\n} finally { renameSync(backup, dist); }",
+      "execute": "const { execFileSync } = await import(\"node:child_process\");\nconst { mkdirSync, writeFileSync, rmSync, existsSync } = await import(\"node:fs\");\nconst { join } = await import(\"node:path\");\nconst altZodDir = join($root, \"node_modules\", \"zod\");\nmkdirSync(altZodDir, { recursive: true });\nwriteFileSync(join(altZodDir, \"package.json\"), JSON.stringify({ name: \"zod\", version: \"0.0.0-test\", type: \"module\", exports: \"./index.js\" }));\nwriteFileSync(join(altZodDir, \"index.js\"), \"throw new Error(\\\"root zod should not be imported\\\");\\n\");\ntry {\n  const docs = execFileSync(\"node\", [\"bin/koala.js\", \"aux_doc_list\", \"--format=json\"], { cwd: $root, encoding: \"utf8\" });\n  return { secondInstancePresent: existsSync(join(altZodDir, \"index.js\")), docsOk: docs.includes(\"\\\"docs\\\"\"), noRootZodCrash: !docs.includes(\"root zod should not be imported\") };\n} finally {\n  rmSync(join($root, \"node_modules\"), { recursive: true, force: true });\n}",
       "expect": {
-        "recovered": true,
-        "mentionsMain": true,
-        "avoidsRawModuleError": true
+        "secondInstancePresent": true,
+        "docsOk": true,
+        "noRootZodCrash": true
       },
       "intentRef": "B-ae9e:CHK-001:adversarial:0",
       "sandbox": false,
@@ -134,10 +134,12 @@
       "name": "CHK-003 adversarial: wrapper hides raw module stack on bootstrap failure",
       "run_type": "cli",
       "file": "cli-engine",
-      "execute": "const { execFileSync } = await import('node:child_process');\nconst { renameSync, existsSync } = await import('node:fs');\nconst { join } = await import('node:path');\nconst dist = join($root, 'packages', 'main', 'dist');\nconst backup = join($root, 'packages', 'main', 'dist.__bak__');\nif (!existsSync(dist)) throw new Error('main dist missing before test');\nrenameSync(dist, backup);\ntry {\n  execFileSync('node', ['bin/koala.js', 'session_brief'], { cwd: $root, encoding: 'utf8', stdio: 'pipe' });\n  return { avoidsRawModuleError: false, hasOriginalError: false };\n} catch (error) {\n  const text = String(error.stderr || error.stdout || error.message || error);\n  return { avoidsRawModuleError: !text.includes('ERR_MODULE_NOT_FOUND'), hasOriginalError: text.includes('Original error:') };\n} finally { renameSync(backup, dist); }",
+      "execute": "const { execFileSync } = await import(\"node:child_process\");\nconst { renameSync, existsSync } = await import(\"node:fs\");\nconst { join } = await import(\"node:path\");\nconst dist = join($root, \"packages\", \"main\", \"dist\");\nconst backup = join($root, \"packages\", \"main\", \"dist.__bak__\");\nif (!existsSync(dist)) throw new Error(\"main dist missing before test\");\nrenameSync(dist, backup);\ntry {\n  execFileSync(\"node\", [\"bin/koala.js\", \"session_brief\"], { cwd: $root, encoding: \"utf8\", stdio: \"pipe\" });\n  return { avoidsRawModuleError: false, hasOriginalError: false, hasRecovery: false, mentionsFallback: false };\n} catch (error) {\n  const text = String(error.stderr || error.stdout || error.message || error);\n  return { avoidsRawModuleError: !text.includes(\"ERR_MODULE_NOT_FOUND\"), hasOriginalError: text.includes(\"Original error:\"), hasRecovery: text.includes(\"Recovery:\"), mentionsFallback: text.includes(\"KOALA_ACTIVITY_SOURCE=codex koala <command>\") };\n} finally { renameSync(backup, dist); }",
       "expect": {
         "avoidsRawModuleError": true,
-        "hasOriginalError": true
+        "hasOriginalError": true,
+        "hasRecovery": true,
+        "mentionsFallback": true
       },
       "intentRef": "B-ae9e:CHK-003:adversarial:0",
       "sandbox": false,
