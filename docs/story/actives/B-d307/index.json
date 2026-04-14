@@ -4,7 +4,7 @@
   "title": "为多 session 并行执行增加调度护栏",
   "description": "为 Koala 增加面向多 session 并行执行的调度策略，在 PLAN 阶段识别并行兼容性，在 session_brief 中展示主线、候选并行 story 和热点冲突提示，避免并行开发伤到当前用户主任务。",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "TEST",
   "priority": "high",
   "riskSignals": [
     {
@@ -47,6 +47,30 @@
       "branch": "story/B-d307",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-14T18:43:11.702Z",
+      "branch": "story/B-d307",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-14T18:43:20.030Z",
+      "branch": "story/B-d307",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-14T18:43:53.746Z",
+      "branch": "story/B-d307",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
     }
   ],
   "worktree": {
