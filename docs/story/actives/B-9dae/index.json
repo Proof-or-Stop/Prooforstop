@@ -1,0 +1,35 @@
+{
+  "storyId": "B-9dae",
+  "name": "fail-fast-gap-closure",
+  "title": "收敛 silent catch fail-fast 策略与真相源覆盖差距",
+  "description": "把 fail-fast / silent catch 分类处理这条高优先级差距真正收敛到代码、注释和回归验证上，避免 gap_analyze 继续把已经部分落地的 health/doctor 能力误报成未实现。",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "createdAt": "2026-04-14T18:53:03.102Z",
+  "startedAt": "2026-04-14T18:53:03.102Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-14T18:53:03.103Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-14T18:53:07.307Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-9dae",
+    "branch": "story/B-9dae",
+    "createdAt": "2026-04-14T18:53:07.346Z"
+  }
+}
