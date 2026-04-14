@@ -1,0 +1,65 @@
+{
+  "principles": [
+    "先把角色语义变成操作者能看懂的 next step，再考虑更复杂的编排。",
+    "主分支和 active story 两种视角都要有清晰的恢复路径。",
+    "尽量消费已有 telemetry，而不是引入新的状态存储。"
+  ],
+  "drivers": [
+    "减少跨 session 恢复成本。",
+    "让多角色协作状态对操作者可见。",
+    "为后续并行调度护栏提供更高层的用户面。"
+  ],
+  "options": [
+    {
+      "name": "A: 只在 recent activity 显示 role，不改 next step",
+      "pros": [
+        "实现最轻。"
+      ],
+      "cons": [
+        "用户仍然要自己猜下一步，指挥台价值不足。"
+      ]
+    },
+    {
+      "name": "B: 在 recent activity 加 role，并增强 next step 为启发式等待关系与主分支排序",
+      "pros": [
+        "能快速把 telemetry 变成实际操作价值。",
+        "范围仍然可控，不必提前实现完整 orchestrator。"
+      ],
+      "cons": [
+        "等待关系是启发式的，第一版可能覆盖不全。"
+      ]
+    },
+    {
+      "name": "C: 一次性做完整的多 story 调度系统",
+      "pros": [
+        "理论上最完整。"
+      ],
+      "cons": [
+        "会和并行调度护栏 story 重叠，范围明显膨胀。"
+      ]
+    }
+  ],
+  "chosen": "B: 在 recent activity 加 role，并增强 next step 为启发式等待关系与主分支排序",
+  "rationale": "session_brief 的目标是帮助操作者立刻知道“现在发生了什么、下一步该做什么”。只显示 role 而不升级 next step 不够有感知价值；直接做完整调度系统又会越界，所以第一版应该把 role + 启发式 next step 一起收口。",
+  "preMortem": [
+    {
+      "scenario": "recent activity 变详细了，但 next step 仍然模糊",
+      "trigger": "只把 role 拼进输出，不改变推断逻辑",
+      "consequence": "用户看到了更多信息，却还是不知道该执行哪个命令",
+      "mitigation": "把 reviewer/intention/test 这类高频等待关系直接写进 computeNextStep。"
+    },
+    {
+      "scenario": "主分支视角挑错 story，打断当前真正主线",
+      "trigger": "active stories 排序逻辑过于简单，只按列表顺序选第一个",
+      "consequence": "session_brief 推荐的恢复目标和实际优先级错位",
+      "mitigation": "第一版在主分支 next step 里优先考虑 phase 深度和已有 worktree。"
+    },
+    {
+      "scenario": "旧 activity 没 role 导致 session_brief 输出噪音或误判",
+      "trigger": "消费侧假设所有 recent activity 都带 role",
+      "consequence": "历史数据场景下输出看起来不稳定，用户失去信任",
+      "mitigation": "role 缺失统一显示 unknown，并避免在 unknown 上做过强推断。"
+    }
+  ],
+  "timestamp": "2026-04-14T16:13:55.105Z"
+}

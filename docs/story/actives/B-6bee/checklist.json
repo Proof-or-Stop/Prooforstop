@@ -6,7 +6,27 @@
       "context": "最近活动不能只有命令名，应该能看出是谁通过什么入口在推进。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "session_brief 的 recent activity 同时展示 source 与 role → 操作者能直接看出谁通过什么入口在推进",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "旧 activity 没有 role 字段时 → recent activity 仍稳定显示 unknown，而不是报错或漏行",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果 role 信息缺失或混乱 → session_brief 不会把 source 当 role 误展示",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -14,7 +34,27 @@
       "context": "要能区分 main 自己卡住、在等 reviewer、还是在等 implementer。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "在 reviewer / intent / main 等常见角色流转下 → next step 能指出当前在等谁或该执行哪个命令",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "只有 unknown 角色或历史记录时 → next step 仍给出保守但正确的恢复建议",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果日志里同时存在多个角色的最近活动 → next step 不会因为噪音记录选错明显的后续动作",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -22,7 +62,27 @@
       "context": "没有 active story 时，也应帮助操作者快速判断先切哪个 worktree、先处理哪个 story。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "在 main 分支运行 session_brief → 能优先推荐最该恢复的 story/worktree，而不是只按列表顺序挑一个 INIT story",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "多个 active story 并存时 → 主分支视角仍能稳定给出 worktree 恢复建议",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "存在更深 phase 的 story 和仅 INIT 的 story 混在一起时 → next step 不会错把浅层 story 选成首要恢复目标",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }
