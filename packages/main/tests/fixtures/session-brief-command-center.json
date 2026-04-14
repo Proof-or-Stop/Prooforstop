@@ -18,7 +18,7 @@
       "name": "CHK-001 edge: session_brief prints unknown for old activity",
       "run_type": "cli",
       "file": "handlers/session",
-      "execute": "const { execFileSync } = await import('node:child_process');\nconst out = execFileSync('node', ['packages/main/dist/cli.js', 'session_brief'], { cwd: $root, encoding: 'utf8' });\nreturn { hasUnknown: out.includes('/unknown/ok]') };",
+      "execute": "const { appendFileSync, readFileSync, writeFileSync } = await import('node:fs');\nconst { join } = await import('node:path');\nconst logPath = join($root, 'docs', 'story', 'activity.jsonl');\nconst original = readFileSync(logPath, 'utf8');\nconst NL = String.fromCharCode(10);\nappendFileSync(logPath, JSON.stringify({ source: 'codex', tool: 'session_brief', status: 'ok', endTime: new Date().toISOString() }) + NL);\ntry {\n  const out = (await import('node:child_process')).execFileSync('node', ['packages/main/dist/cli.js', 'session_brief'], { cwd: $root, encoding: 'utf8' });\n  return { hasUnknown: out.includes('/unknown/ok]') };\n} finally { writeFileSync(logPath, original); }",
       "expect": {
         "hasUnknown": true
       },
@@ -33,9 +33,9 @@
       "name": "CHK-001 adversarial: source and role are distinct in display",
       "run_type": "cli",
       "file": "handlers/session",
-      "execute": "const { execFileSync } = await import('node:child_process');\nconst out = execFileSync('node', ['packages/main/dist/cli.js', 'session_brief'], { cwd: $root, encoding: 'utf8' });\nreturn {\n  hasTriad: /[[^/]+/[^/]+/[^]]+]/.test(out),\n  notCollapsed: !out.includes('[codex/codex/ok]')\n};",
+      "execute": "const { appendFileSync, readFileSync, writeFileSync } = await import('node:fs');\nconst { join } = await import('node:path');\nconst logPath = join($root, 'docs', 'story', 'activity.jsonl');\nconst original = readFileSync(logPath, 'utf8');\nconst NL = String.fromCharCode(10);\nappendFileSync(logPath, JSON.stringify({ source: 'codex', role: 'intent', tool: 'session_brief', status: 'ok', endTime: new Date().toISOString() }) + NL);\ntry {\n  const out = (await import('node:child_process')).execFileSync('node', ['packages/main/dist/cli.js', 'session_brief'], { cwd: $root, encoding: 'utf8' });\n  return {\n    hasDistinctDisplay: out.includes('[codex/intent/ok]'),\n    notCollapsed: !out.includes('[codex/codex/ok]')\n  };\n} finally { writeFileSync(logPath, original); }",
       "expect": {
-        "hasTriad": true,
+        "hasDistinctDisplay": true,
         "notCollapsed": true
       },
       "intentRef": "B-6bee:CHK-001:adversarial:0",
@@ -49,7 +49,7 @@
       "name": "CHK-002 happy: reviewer and intent activity influence next step",
       "run_type": "cli",
       "file": "handlers/session",
-      "execute": "const { execFileSync } = await import('node:child_process');\nconst out = execFileSync('node', ['packages/main/dist/cli.js', 'session_brief'], { cwd: $root, encoding: 'utf8' });\nreturn {\n  mentionsRoleAware: out.includes('test-intent agent') || out.includes('reviewer'),\n  mentionsRecoveryCommand: out.includes('story_review') || out.includes('testintent_check') || out.includes('checklist_get')\n};",
+      "execute": "const { execFileSync } = await import('node:child_process');\nexecFileSync('node', ['packages/main/dist/cli.js', 'session_brief'], { cwd: $root, encoding: 'utf8', env: { ...process.env, KOALA_ACTIVITY_ROLE: 'reviewer' } });\nexecFileSync('node', ['packages/main/dist/cli.js', 'session_brief'], { cwd: $root, encoding: 'utf8', env: { ...process.env, KOALA_ACTIVITY_ROLE: 'intent' } });\nconst out = execFileSync('node', ['packages/main/dist/cli.js', 'session_brief'], { cwd: $root, encoding: 'utf8' });\nreturn {\n  mentionsRoleAware: out.includes('test-intent agent') || out.includes('reviewer'),\n  mentionsRecoveryCommand: out.includes('story_review')\n};",
       "expect": {
         "mentionsRoleAware": true,
         "mentionsRecoveryCommand": true
@@ -65,7 +65,7 @@
       "name": "CHK-002 edge: unknown role still yields conservative next step",
       "run_type": "cli",
       "file": "handlers/session",
-      "execute": "const { execFileSync } = await import('node:child_process');\nconst out = execFileSync('node', ['packages/main/dist/cli.js', 'session_brief'], { cwd: $root, encoding: 'utf8' });\nreturn {\n  mentionsUnknownFallback: out.includes('缺少可识别的 role') || out.includes('checklist_get / testintent_check')\n};",
+      "execute": "const { appendFileSync, readFileSync, writeFileSync } = await import('node:fs');\nconst { join } = await import('node:path');\nconst logPath = join($root, 'docs', 'story', 'activity.jsonl');\nconst original = readFileSync(logPath, 'utf8');\nconst NL = String.fromCharCode(10);\nappendFileSync(logPath, JSON.stringify({ source: 'codex', tool: 'session_brief', status: 'ok', endTime: new Date().toISOString() }) + NL);\ntry {\n  const out = (await import('node:child_process')).execFileSync('node', ['packages/main/dist/cli.js', 'session_brief'], { cwd: $root, encoding: 'utf8' });\n  return { mentionsUnknownFallback: out.includes('缺少可识别的 role') || out.includes('checklist_get / testintent_check') };\n} finally { writeFileSync(logPath, original); }",
       "expect": {
         "mentionsUnknownFallback": true
       },
