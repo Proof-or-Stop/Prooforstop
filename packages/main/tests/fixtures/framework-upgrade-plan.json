@@ -1,0 +1,153 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: planning bundle points at one plan story plus five execution stories",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const root = \"/Users/jek/Documents/Work/Orchestrate\";\nconst cli = root + \"/packages/main/dist/cli.js\";\nconst { execFileSync } = await import(\"child_process\");\nconst run = (command, payload = {}) => execFileSync(\"node\", [cli, \"--root\", root, command, JSON.stringify(payload)], {\n  cwd: root,\n  encoding: \"utf8\",\n  stdio: [\"pipe\", \"pipe\", \"pipe\"],\n});\nconst parse = (text) => JSON.parse(text.slice(text.indexOf(\"{\")));\nconst ids = [\"B-96e9\",\"B-ae9e\",\"B-f54b\",\"B-6f6d\",\"B-6bee\",\"B-990d\",\"B-d307\"];\nconst found = ids.filter((storyId) => Boolean(parse(run(\"story_get\", { storyId, detail: true })).index?.storyId));\nreturn { foundAll: found.length === ids.length };",
+      "expect": {
+        "foundAll": true
+      },
+      "intentRef": "B-96e9:CHK-001:happy:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-96e9",
+      "_id": "dd30da8c-71bc-44ed-9f56-bb3767ac9923",
+      "nextCaseId": "9b2e840c-554b-4682-88d4-715e3f411143"
+    },
+    {
+      "name": "CHK-001 edge: high-coupling work stayed grouped by dependency chain",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const root = \"/Users/jek/Documents/Work/Orchestrate\";\nconst cli = root + \"/packages/main/dist/cli.js\";\nconst { execFileSync } = await import(\"child_process\");\nconst run = (command, payload = {}) => execFileSync(\"node\", [cli, \"--root\", root, command, JSON.stringify(payload)], {\n  cwd: root,\n  encoding: \"utf8\",\n  stdio: [\"pipe\", \"pipe\", \"pipe\"],\n});\nconst parse = (text) => JSON.parse(text.slice(text.indexOf(\"{\")));\nconst codex = parse(run(\"story_get\", { storyId: \"B-f54b\", detail: true })).index;\nconst brief = parse(run(\"story_get\", { storyId: \"B-6bee\", detail: true })).index;\nreturn { codexDependsEntry: Array.isArray(codex.depends) && codex.depends.includes(\"B-ae9e\"), briefDependsTelemetry: Array.isArray(brief.depends) && brief.depends.includes(\"B-6f6d\") };",
+      "expect": {
+        "codexDependsEntry": true,
+        "briefDependsTelemetry": true
+      },
+      "intentRef": "B-96e9:CHK-001:edge:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-96e9",
+      "_id": "9b2e840c-554b-4682-88d4-715e3f411143",
+      "prevCaseId": "dd30da8c-71bc-44ed-9f56-bb3767ac9923",
+      "nextCaseId": "4855261c-6017-42fd-8d9f-38ab5e2d2531"
+    },
+    {
+      "name": "CHK-001 adversarial: plan did not collapse into one giant execution story or seven tiny shards",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const root = \"/Users/jek/Documents/Work/Orchestrate\";\nconst cli = root + \"/packages/main/dist/cli.js\";\nconst { execFileSync } = await import(\"child_process\");\nconst run = (command, payload = {}) => execFileSync(\"node\", [cli, \"--root\", root, command, JSON.stringify(payload)], {\n  cwd: root,\n  encoding: \"utf8\",\n  stdio: [\"pipe\", \"pipe\", \"pipe\"],\n});\nconst parse = (text) => JSON.parse(text.slice(text.indexOf(\"{\")));\nconst execIds = [\"B-ae9e\",\"B-f54b\",\"B-6f6d\",\"B-6bee\",\"B-990d\",\"B-d307\"];\nconst doneCount = execIds.filter((storyId) => parse(run(\"story_get\", { storyId, detail: true })).index?.phase === \"DONE\").length;\nreturn { sixExecutionStoriesClosed: doneCount === execIds.length };",
+      "expect": {
+        "sixExecutionStoriesClosed": true
+      },
+      "intentRef": "B-96e9:CHK-001:adversarial:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-96e9",
+      "_id": "4855261c-6017-42fd-8d9f-38ab5e2d2531",
+      "prevCaseId": "9b2e840c-554b-4682-88d4-715e3f411143",
+      "nextCaseId": "4eddf1ac-85ac-49a4-9038-7a5bd4f6f060"
+    },
+    {
+      "name": "CHK-002 happy: user-visible upgrade stories keep concrete operator-facing language",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const root = \"/Users/jek/Documents/Work/Orchestrate\";\nconst cli = root + \"/packages/main/dist/cli.js\";\nconst { execFileSync } = await import(\"child_process\");\nconst run = (command, payload = {}) => execFileSync(\"node\", [cli, \"--root\", root, command, JSON.stringify(payload)], {\n  cwd: root,\n  encoding: \"utf8\",\n  stdio: [\"pipe\", \"pipe\", \"pipe\"],\n});\nconst parse = (text) => JSON.parse(text.slice(text.indexOf(\"{\")));\nconst codex = parse(run(\"story_get\", { storyId: \"B-f54b\", detail: true })).index;\nconst brief = parse(run(\"story_get\", { storyId: \"B-6bee\", detail: true })).index;\nconst product = parse(run(\"story_get\", { storyId: \"B-990d\", detail: true })).index;\nreturn { codexMentionsCodex: codex.description.includes(\"Codex\"), briefMentionsSessionBrief: brief.description.includes(\"session_brief\"), productMentionsOutcome: product.description.includes(\"outcome\") || product.description.includes(\"用户\") || product.description.includes(\"用户价值\") };",
+      "expect": {
+        "codexMentionsCodex": true,
+        "briefMentionsSessionBrief": true,
+        "productMentionsOutcome": true
+      },
+      "intentRef": "B-96e9:CHK-002:happy:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-96e9",
+      "_id": "4eddf1ac-85ac-49a4-9038-7a5bd4f6f060",
+      "prevCaseId": "4855261c-6017-42fd-8d9f-38ab5e2d2531",
+      "nextCaseId": "77025698-a117-4221-9b84-9f805cb4005e"
+    },
+    {
+      "name": "CHK-002 edge: outcome framing stayed tied to visible artifacts instead of pure mechanism terms",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const root = \"/Users/jek/Documents/Work/Orchestrate\";\nconst cli = root + \"/packages/main/dist/cli.js\";\nconst { execFileSync } = await import(\"child_process\");\nconst run = (command, payload = {}) => execFileSync(\"node\", [cli, \"--root\", root, command, JSON.stringify(payload)], {\n  cwd: root,\n  encoding: \"utf8\",\n  stdio: [\"pipe\", \"pipe\", \"pipe\"],\n});\nconst parse = (text) => JSON.parse(text.slice(text.indexOf(\"{\")));\nconst titles = [\"B-ae9e\",\"B-f54b\",\"B-6bee\",\"B-990d\",\"B-d307\"].map((storyId) => parse(run(\"story_get\", { storyId, detail: true })).index.title);\nreturn { allDistinct: new Set(titles).size === titles.length, noGenericMechanismTitle: titles.every((title) => !title.includes(\"机制\") && !title.includes(\"链路打通\")) };",
+      "expect": {
+        "allDistinct": true,
+        "noGenericMechanismTitle": true
+      },
+      "intentRef": "B-96e9:CHK-002:edge:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-96e9",
+      "_id": "77025698-a117-4221-9b84-9f805cb4005e",
+      "prevCaseId": "4eddf1ac-85ac-49a4-9038-7a5bd4f6f060",
+      "nextCaseId": "1daefd0b-61e3-4d82-9203-62f3d135638d"
+    },
+    {
+      "name": "CHK-002 adversarial: planning output still names operator-facing surfaces under engineering pressure",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const root = \"/Users/jek/Documents/Work/Orchestrate\";\nconst cli = root + \"/packages/main/dist/cli.js\";\nconst { execFileSync } = await import(\"child_process\");\nconst run = (command, payload = {}) => execFileSync(\"node\", [cli, \"--root\", root, command, JSON.stringify(payload)], {\n  cwd: root,\n  encoding: \"utf8\",\n  stdio: [\"pipe\", \"pipe\", \"pipe\"],\n});\nconst parse = (text) => JSON.parse(text.slice(text.indexOf(\"{\")));\nconst telemetry = parse(run(\"story_get\", { storyId: \"B-6f6d\", detail: true })).index;\nconst parallel = parse(run(\"story_get\", { storyId: \"B-d307\", detail: true })).index;\nreturn { telemetryNamesActivity: telemetry.description.includes(\"activity\") || telemetry.description.includes(\"telemetry\"), parallelNamesSessionBrief: parallel.description.includes(\"session_brief\") || parallel.description.includes(\"主线\") };",
+      "expect": {
+        "telemetryNamesActivity": true,
+        "parallelNamesSessionBrief": true
+      },
+      "intentRef": "B-96e9:CHK-002:adversarial:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-96e9",
+      "_id": "1daefd0b-61e3-4d82-9203-62f3d135638d",
+      "prevCaseId": "77025698-a117-4221-9b84-9f805cb4005e",
+      "nextCaseId": "b45e10fb-3602-4ec1-b10e-7aa96b8cebd1"
+    },
+    {
+      "name": "CHK-003 happy: regression entrypoints exist for each executed upgrade lane",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const { readFileSync } = await import(\"fs\");\nconst text = readFileSync(\"/Users/jek/Documents/Work/Orchestrate/package.json\", \"utf8\");\nreturn { hasScripts: [\"test:entrypoints\",\"test:codex-assets\",\"test:role-telemetry\",\"test:session-brief\",\"test:product-reviewer\",\"test:parallel-policy\"].every((name) => text.includes('\"' + name + '\"')) };",
+      "expect": {
+        "hasScripts": true
+      },
+      "intentRef": "B-96e9:CHK-003:happy:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-96e9",
+      "_id": "b45e10fb-3602-4ec1-b10e-7aa96b8cebd1",
+      "prevCaseId": "1daefd0b-61e3-4d82-9203-62f3d135638d",
+      "nextCaseId": "52c25513-3a5f-4b07-9db1-880ba54b9fd3"
+    },
+    {
+      "name": "CHK-003 edge: gradual rollout kept advisory language where hard gate would be too heavy",
+      "run_type": "cli",
+      "file": "handlers/story-review",
+      "execute": "const { readFileSync } = await import(\"fs\");\nconst advance = readFileSync(\"/Users/jek/Documents/Work/Orchestrate/packages/main/src/handlers/story-advance.ts\", \"utf8\");\nconst review = readFileSync(\"/Users/jek/Documents/Work/Orchestrate/packages/main/src/handlers/story-review.ts\", \"utf8\");\nreturn { productReviewerAdvisory: advance.includes(\"product-reviewer（第一版 advisory）\"), parallelPolicyAdvisory: review.includes(\"parallel_policy_missing_lane\") && review.includes(\"severity: 'advisory'\") };",
+      "expect": {
+        "productReviewerAdvisory": true,
+        "parallelPolicyAdvisory": true
+      },
+      "intentRef": "B-96e9:CHK-003:edge:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-96e9",
+      "_id": "52c25513-3a5f-4b07-9db1-880ba54b9fd3",
+      "prevCaseId": "b45e10fb-3602-4ec1-b10e-7aa96b8cebd1",
+      "nextCaseId": "8d46a522-1f05-45ea-93ec-80fa5b200333"
+    },
+    {
+      "name": "CHK-003 adversarial: validation boundary stayed explicit across scripts and source",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const { existsSync, readFileSync } = await import(\"fs\");\nconst scripts = [\n  \"/Users/jek/Documents/Work/Orchestrate/scripts/verify-entrypoints.mjs\",\n  \"/Users/jek/Documents/Work/Orchestrate/scripts/verify-codex-assets.mjs\",\n  \"/Users/jek/Documents/Work/Orchestrate/scripts/verify-role-telemetry.mjs\",\n  \"/Users/jek/Documents/Work/Orchestrate/scripts/verify-session-brief-command-center.mjs\",\n  \"/Users/jek/Documents/Work/Orchestrate/scripts/verify-product-reviewer.mjs\",\n  \"/Users/jek/Documents/Work/Orchestrate/scripts/verify-parallel-execution-policy.mjs\"\n];\nconst parallelScript = readFileSync(scripts[scripts.length - 1], \"utf8\");\nreturn { scriptsPresent: scripts.every((path) => existsSync(path)), parallelChecksBothSurfaces: parallelScript.includes('## Primary lane') && parallelScript.includes('parallel_policy_conflict') };",
+      "expect": {
+        "scriptsPresent": true,
+        "parallelChecksBothSurfaces": true
+      },
+      "intentRef": "B-96e9:CHK-003:adversarial:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-96e9",
+      "_id": "8d46a522-1f05-45ea-93ec-80fa5b200333",
+      "prevCaseId": "52c25513-3a5f-4b07-9db1-880ba54b9fd3"
+    }
+  ]
+}

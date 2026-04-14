@@ -1,0 +1,36 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-04-14T12:50:31.873Z",
+      "issueCount": 2,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_intent",
+          "severity": "blocker",
+          "itemId": "CHK-001",
+          "message": "CHK-001「确认升级拆分与依赖顺序」缺少 testIntent"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 2 个未消化的 unknowns: product-reviewer 第一版应该 advisory 到什么程度，是否需要 DONE gate 豁免策略。; role 维度应该通过 env 约定、wrapper 注入，还是更正式的 agent 上下文机制进入日志。"
+        }
+      ],
+      "_hash": "3a07045cf7c881445dab82a0b4186bafec7de89cb460e240a25246dc528ee4dc"
+    },
+    {
+      "timestamp": "2026-04-14T12:50:53.902Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 2 个未消化的 unknowns: product-reviewer 第一版应该 advisory 到什么程度，是否需要 DONE gate 豁免策略。; role 维度应该通过 env 约定、wrapper 注入，还是更正式的 agent 上下文机制进入日志。"
+        }
+      ],
+      "_hash": "9744138e0de014b0083a79fb0dcb7b66a2258a7d9d3914a1825219943c1266eb"
+    }
+  ]
+}
