@@ -4,7 +4,7 @@
       "name": "CHK-001 happy: codex command writes reviewer role",
       "run_type": "cli",
       "file": "cli-engine",
-      "execute": "const { execFileSync } = await import('node:child_process');\nconst { readFileSync } = await import('node:fs');\nconst { join } = await import('node:path');\nexecFileSync('node', ['bin/koala-codex.js', 'session_brief'], {\n  cwd: $root,\n  encoding: 'utf8',\n  env: { ...process.env, KOALA_ACTIVITY_ROLE: 'reviewer' }\n});\nconst lines = readFileSync(join($root, 'docs', 'story', 'activity.jsonl'), 'utf8').trim().split('\n');\nconst last = JSON.parse(lines[lines.length - 1]);\nreturn { source: last.source, role: last.role, tool: last.tool };",
+      "execute": "const { execFileSync } = await import('node:child_process');\nconst { readFileSync } = await import('node:fs');\nconst { join } = await import('node:path');\nexecFileSync('node', ['bin/koala-codex.js', 'session_brief'], {\n  cwd: $root,\n  encoding: 'utf8',\n  env: { ...process.env, KOALA_ACTIVITY_ROLE: 'reviewer' }\n});\nconst lines = readFileSync(join($root, 'docs', 'story', 'activity.jsonl'), 'utf8').trim().split(/\n/);\nconst last = JSON.parse(lines[lines.length - 1]);\nreturn { source: last.source, role: last.role, tool: last.tool };",
       "expect": {
         "source": "codex",
         "role": "reviewer",
@@ -20,7 +20,7 @@
       "name": "CHK-001 edge: missing role normalizes to unknown label",
       "run_type": "cli",
       "file": "core/activity-role",
-      "execute": "const mod = await import($file);\nreturn {\n  empty: mod.formatRoleLabel(undefined),\n  blank: mod.formatRoleLabel(''),\n  junk: mod.formatRoleLabel('mystery-role')\n};",
+      "execute": "const mod = await import(\"$file\");\nreturn {\n  empty: mod.formatRoleLabel(undefined),\n  blank: mod.formatRoleLabel(''),\n  junk: mod.formatRoleLabel('mystery-role')\n};",
       "expect": {
         "empty": "unknown",
         "blank": "unknown",
@@ -37,7 +37,7 @@
       "name": "CHK-001 adversarial: source and role stay distinct",
       "run_type": "cli",
       "file": "cli-engine",
-      "execute": "const { execFileSync } = await import('node:child_process');\nconst { readFileSync } = await import('node:fs');\nconst { join } = await import('node:path');\nexecFileSync('node', ['bin/koala-codex.js', 'session_brief'], {\n  cwd: $root,\n  encoding: 'utf8',\n  env: { ...process.env, KOALA_ACTIVITY_SOURCE: 'codex', KOALA_ACTIVITY_ROLE: 'intent' }\n});\nconst lines = readFileSync(join($root, 'docs', 'story', 'activity.jsonl'), 'utf8').trim().split('\n');\nconst last = JSON.parse(lines[lines.length - 1]);\nreturn {\n  sourceIsCodex: last.source === 'codex',\n  roleIsIntent: last.role === 'intent',\n  sourceNotRole: last.source !== last.role\n};",
+      "execute": "const { execFileSync } = await import('node:child_process');\nconst { readFileSync } = await import('node:fs');\nconst { join } = await import('node:path');\nexecFileSync('node', ['bin/koala-codex.js', 'session_brief'], {\n  cwd: $root,\n  encoding: 'utf8',\n  env: { ...process.env, KOALA_ACTIVITY_SOURCE: 'codex', KOALA_ACTIVITY_ROLE: 'intent' }\n});\nconst lines = readFileSync(join($root, 'docs', 'story', 'activity.jsonl'), 'utf8').trim().split(/\n/);\nconst last = JSON.parse(lines[lines.length - 1]);\nreturn {\n  sourceIsCodex: last.source === 'codex',\n  roleIsIntent: last.role === 'intent',\n  sourceNotRole: last.source !== last.role\n};",
       "expect": {
         "sourceIsCodex": true,
         "roleIsIntent": true,
@@ -53,8 +53,8 @@
     {
       "name": "CHK-002 happy: tool_status aggregates reviewer role",
       "run_type": "cli",
-      "file": "handlers/tool-status",
-      "execute": "const { execFileSync } = await import('node:child_process');\nconst mod = await import($file);\nexecFileSync('node', ['bin/koala-codex.js', 'session_brief'], {\n  cwd: $root,\n  encoding: 'utf8',\n  env: { ...process.env, KOALA_ACTIVITY_ROLE: 'reviewer' }\n});\nconst brief = execFileSync('node', ['bin/koala-codex.js', 'session_brief'], { cwd: $root, encoding: 'utf8' });\nconst res = mod.createToolStatusHandlers({ root: $root }).tool_status({ source: 'codex', role: 'reviewer', days: 1, format: 'json' });\nreturn {\n  role: res.summary.role,\n  reviewerCount: (res.summary.byRole?.reviewer || 0) >= 1,\n  hasRows: (res.top || []).length >= 1,\n  briefShowsReviewer: brief.includes('[codex/reviewer/ok]')\n};",
+      "file": "handlers/session",
+      "execute": "const { execFileSync } = await import('node:child_process');\nconst mod = await import('file://' + $root + '/packages/utils/dist/handlers/tool-status.js');\nexecFileSync('node', ['bin/koala-codex.js', 'session_brief'], {\n  cwd: $root,\n  encoding: 'utf8',\n  env: { ...process.env, KOALA_ACTIVITY_ROLE: 'reviewer' }\n});\nconst brief = execFileSync('node', ['bin/koala-codex.js', 'session_brief'], { cwd: $root, encoding: 'utf8' });\nconst res = mod.createToolStatusHandlers({ root: $root }).tool_status({ source: 'codex', role: 'reviewer', days: 1, format: 'json' });\nreturn {\n  role: res.summary.role,\n  reviewerCount: (res.summary.byRole?.reviewer || 0) >= 1,\n  hasRows: (res.top || []).length >= 1,\n  briefShowsReviewer: brief.includes('[codex/reviewer/ok]')\n};",
       "expect": {
         "role": "reviewer",
         "reviewerCount": true,
@@ -71,8 +71,8 @@
     {
       "name": "CHK-002 edge: mixed old and new records keep unknown plus reviewer",
       "run_type": "cli",
-      "file": "handlers/tool-status",
-      "execute": "const { mkdirSync, writeFileSync } = await import('node:fs');\nconst { tmpdir } = await import('node:os');\nconst { join } = await import('node:path');\nconst { mkdtempSync, rmSync } = await import('node:fs');\nconst tempRoot = mkdtempSync(join(tmpdir(), 'koala-role-mixed-'));\ntry {\n  mkdirSync(join(tempRoot, 'docs', 'story'), { recursive: true });\n  writeFileSync(join(tempRoot, 'docs', 'story', 'activity.jsonl'), [\n    JSON.stringify({ source: 'codex', tool: 'session_brief', status: 'ok', endTime: new Date().toISOString() }),\n    JSON.stringify({ source: 'codex', role: 'reviewer', tool: 'session_brief', status: 'ok', endTime: new Date().toISOString() })\n  ].join('\n') + '\n');\n  const mod = await import($file);\n  const res = mod.createToolStatusHandlers({ root: tempRoot }).tool_status({ source: 'codex', days: 1, format: 'json' });\n  return {\n    unknownSeen: (res.summary.byRole?.unknown || 0) === 1,\n    reviewerSeen: (res.summary.byRole?.reviewer || 0) === 1\n  };\n} finally { rmSync(tempRoot, { recursive: true, force: true }); }",
+      "file": "handlers/session",
+      "execute": "const { mkdirSync, writeFileSync, mkdtempSync, rmSync } = await import('node:fs');\nconst { tmpdir } = await import('node:os');\nconst { join } = await import('node:path');\nconst tempRoot = mkdtempSync(join(tmpdir(), 'koala-role-mixed-'));\nconst NL = String.fromCharCode(10);\ntry {\n  mkdirSync(join(tempRoot, 'docs', 'story'), { recursive: true });\n  writeFileSync(join(tempRoot, 'docs', 'story', 'activity.jsonl'), [\n    JSON.stringify({ source: 'codex', tool: 'session_brief', status: 'ok', endTime: new Date().toISOString() }),\n    JSON.stringify({ source: 'codex', role: 'reviewer', tool: 'session_brief', status: 'ok', endTime: new Date().toISOString() })\n  ].join(NL) + NL);\n  const mod = await import('file://' + $root + '/packages/utils/dist/handlers/tool-status.js');\n  const res = mod.createToolStatusHandlers({ root: tempRoot }).tool_status({ source: 'codex', days: 1, format: 'json' });\n  return {\n    unknownSeen: (res.summary.byRole?.unknown || 0) === 1,\n    reviewerSeen: (res.summary.byRole?.reviewer || 0) === 1\n  };\n} finally { rmSync(tempRoot, { recursive: true, force: true }); }",
       "expect": {
         "unknownSeen": true,
         "reviewerSeen": true
@@ -87,8 +87,8 @@
     {
       "name": "CHK-002 adversarial: role filter does not misclassify source-only records",
       "run_type": "cli",
-      "file": "handlers/tool-status",
-      "execute": "const { mkdirSync, writeFileSync } = await import('node:fs');\nconst { tmpdir } = await import('node:os');\nconst { join } = await import('node:path');\nconst { mkdtempSync, rmSync } = await import('node:fs');\nconst tempRoot = mkdtempSync(join(tmpdir(), 'koala-role-filter-'));\ntry {\n  mkdirSync(join(tempRoot, 'docs', 'story'), { recursive: true });\n  writeFileSync(join(tempRoot, 'docs', 'story', 'activity.jsonl'), JSON.stringify({ source: 'codex', tool: 'session_brief', status: 'ok', endTime: new Date().toISOString() }) + '\n');\n  const mod = await import($file);\n  const res = mod.createToolStatusHandlers({ root: tempRoot }).tool_status({ source: 'codex', role: 'reviewer', days: 1, format: 'json' });\n  return { totalCalls: res.summary.totalCalls, distinctTools: res.summary.distinctTools };\n} finally { rmSync(tempRoot, { recursive: true, force: true }); }",
+      "file": "handlers/session",
+      "execute": "const { mkdirSync, writeFileSync, mkdtempSync, rmSync } = await import('node:fs');\nconst { tmpdir } = await import('node:os');\nconst { join } = await import('node:path');\nconst tempRoot = mkdtempSync(join(tmpdir(), 'koala-role-filter-'));\nconst NL = String.fromCharCode(10);\ntry {\n  mkdirSync(join(tempRoot, 'docs', 'story'), { recursive: true });\n  writeFileSync(join(tempRoot, 'docs', 'story', 'activity.jsonl'), JSON.stringify({ source: 'codex', tool: 'session_brief', status: 'ok', endTime: new Date().toISOString() }) + NL);\n  const mod = await import('file://' + $root + '/packages/utils/dist/handlers/tool-status.js');\n  const res = mod.createToolStatusHandlers({ root: tempRoot }).tool_status({ source: 'codex', role: 'reviewer', days: 1, format: 'json' });\n  return { totalCalls: res.summary.totalCalls, distinctTools: res.summary.distinctTools };\n} finally { rmSync(tempRoot, { recursive: true, force: true }); }",
       "expect": {
         "totalCalls": 0,
         "distinctTools": 0
@@ -118,8 +118,8 @@
     {
       "name": "CHK-003 edge: stale detector tolerates old records without role",
       "run_type": "cli",
-      "file": "handlers/tool-status",
-      "execute": "const { mkdirSync, writeFileSync, mkdtempSync, rmSync } = await import('node:fs');\nconst { tmpdir } = await import('node:os');\nconst { join } = await import('node:path');\nconst tempRoot = mkdtempSync(join(tmpdir(), 'koala-role-compatible-'));\ntry {\n  mkdirSync(join(tempRoot, 'docs', 'story'), { recursive: true });\n  writeFileSync(join(tempRoot, 'docs', 'story', 'activity.jsonl'), [\n    JSON.stringify({ source: 'codex', tool: 'session_brief', status: 'ok', endTime: new Date().toISOString() }),\n    JSON.stringify({ source: 'codex', role: 'reviewer', tool: 'session_brief', status: 'ok', endTime: new Date().toISOString() })\n  ].join('\n') + '\n');\n  const mod = await import($file);\n  const res = mod.createToolStatusHandlers({ root: tempRoot }).tool_status({ source: 'codex', days: 1, format: 'json' });\n  return {\n    sourceStable: (res.summary.bySource?.codex || 0) === 2,\n    unknownSeen: (res.summary.byRole?.unknown || 0) === 1,\n    reviewerSeen: (res.summary.byRole?.reviewer || 0) === 1\n  };\n} finally { rmSync(tempRoot, { recursive: true, force: true }); }",
+      "file": "handlers/session",
+      "execute": "const { mkdirSync, writeFileSync, mkdtempSync, rmSync } = await import('node:fs');\nconst { tmpdir } = await import('node:os');\nconst { join } = await import('node:path');\nconst tempRoot = mkdtempSync(join(tmpdir(), 'koala-role-compatible-'));\nconst NL = String.fromCharCode(10);\ntry {\n  mkdirSync(join(tempRoot, 'docs', 'story'), { recursive: true });\n  writeFileSync(join(tempRoot, 'docs', 'story', 'activity.jsonl'), [\n    JSON.stringify({ source: 'codex', tool: 'session_brief', status: 'ok', endTime: new Date().toISOString() }),\n    JSON.stringify({ source: 'codex', role: 'reviewer', tool: 'session_brief', status: 'ok', endTime: new Date().toISOString() })\n  ].join(NL) + NL);\n  const mod = await import('file://' + $root + '/packages/utils/dist/handlers/tool-status.js');\n  const res = mod.createToolStatusHandlers({ root: tempRoot }).tool_status({ source: 'codex', days: 1, format: 'json' });\n  return {\n    sourceStable: (res.summary.bySource?.codex || 0) === 2,\n    unknownSeen: (res.summary.byRole?.unknown || 0) === 1,\n    reviewerSeen: (res.summary.byRole?.reviewer || 0) === 1\n  };\n} finally { rmSync(tempRoot, { recursive: true, force: true }); }",
       "expect": {
         "sourceStable": true,
         "unknownSeen": true,
@@ -135,8 +135,8 @@
     {
       "name": "CHK-003 adversarial: stale detector surfaces last active role when present",
       "run_type": "cli",
-      "file": "handlers/tool-status",
-      "execute": "const { appendFileSync, readFileSync, writeFileSync } = await import('node:fs');\nconst { join } = await import('node:path');\nconst toolStatusMod = await import($file);\nconst logPath = join($root, 'docs', 'story', 'activity.jsonl');\nconst original = readFileSync(logPath, 'utf8');\nappendFileSync(logPath, JSON.stringify({ source: 'codex', tool: 'session_brief', status: 'ok', endTime: new Date().toISOString() }) + '\n');\ntry {\n  const brief = (await import('node:child_process')).execFileSync('node', ['bin/koala-codex.js', 'session_brief'], { cwd: $root, encoding: 'utf8' });\n  const res = toolStatusMod.createToolStatusHandlers({ root: $root }).tool_status({ source: 'codex', days: 1, format: 'json' });\n  return {\n    briefShowsUnknown: brief.includes('/unknown/ok]'),\n    statsExposeUnknown: (res.summary.byRole?.unknown || 0) >= 1\n  };\n} finally { writeFileSync(logPath, original); }",
+      "file": "handlers/session",
+      "execute": "const { appendFileSync, readFileSync, writeFileSync } = await import('node:fs');\nconst { join } = await import('node:path');\nconst toolStatusMod = await import('file://' + $root + '/packages/utils/dist/handlers/tool-status.js');\nconst logPath = join($root, 'docs', 'story', 'activity.jsonl');\nconst original = readFileSync(logPath, 'utf8');\nconst NL = String.fromCharCode(10);\nappendFileSync(logPath, JSON.stringify({ source: 'codex', tool: 'session_brief', status: 'ok', endTime: new Date().toISOString() }) + NL);\ntry {\n  const brief = (await import('node:child_process')).execFileSync('node', ['bin/koala-codex.js', 'session_brief'], { cwd: $root, encoding: 'utf8' });\n  const res = toolStatusMod.createToolStatusHandlers({ root: $root }).tool_status({ source: 'codex', days: 1, format: 'json' });\n  return {\n    briefShowsUnknown: brief.includes('/unknown/ok]'),\n    statsExposeUnknown: (res.summary.byRole?.unknown || 0) >= 1\n  };\n} finally { writeFileSync(logPath, original); }",
       "expect": {
         "briefShowsUnknown": true,
         "statsExposeUnknown": true
