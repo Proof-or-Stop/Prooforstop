@@ -8,9 +8,54 @@
         "AGENTS.md#Story 阶段流转",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "in_progress",
+      "startTime": "2026-04-15T12:48:27.736Z",
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "同一 session 正常 reviewer/check 流程下，system gate 仍能推进或提示到正确下一步。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T12:53:33.681Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/session-ownership-guard.json:1 WHY fixture covers same-session gate-auto flow plus cross-session takeover blocking for story_advance/testintent_check. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "当 story events 已有 owner session，但当前进程没有可识别 sessionId 时，系统降级为 warning 而不是误拦。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T12:53:33.764Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/session-ownership-guard.json:1 WHY fixture covers same-session gate-auto flow plus cross-session takeover blocking for story_advance/testintent_check. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "另一个 session 试图把已被占用的 story 推进到 TEST 或 DONE 时，会被明确阻止并提示 takeover。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T12:53:33.848Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/session-ownership-guard.json:1 WHY fixture covers same-session gate-auto flow plus cross-session takeover blocking for story_advance/testintent_check. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
     },
     {
       "id": "CHK-002",
@@ -22,7 +67,52 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "owner session 下运行 testintent_check 时，auto-advance 的提示会清楚说明是 gate-auto 推进到 TEST。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T12:53:33.933Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/session-ownership-guard.json:1 WHY fixture covers same-session gate-auto flow plus cross-session takeover blocking for story_advance/testintent_check. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "跨 session takeover 被 block 时，返回消息明确给出允许接管的环境变量或下一步命令。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T12:53:34.017Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/session-ownership-guard.json:1 WHY fixture covers same-session gate-auto flow plus cross-session takeover blocking for story_advance/testintent_check. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "即使别的 session 已经跑 reviewer 或 summary，未接管的当前 session 也不能静默把 story 推到 DONE。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T12:53:34.095Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/session-ownership-guard.json:1 WHY fixture covers same-session gate-auto flow plus cross-session takeover blocking for story_advance/testintent_check. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
     }
   ]
 }

@@ -1,0 +1,37 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-04-15T12:48:02.535Z",
+      "issueCount": 5,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 1 个高风险信号: 状态机/门禁。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）"
+        },
+        {
+          "type": "parallel_policy_missing_lane",
+          "severity": "advisory",
+          "message": "未声明 lane。当前默认会按 mainline 推断，但建议显式设置 mainline/supporting/exploratory，避免并行调度时主线判断漂移"
+        },
+        {
+          "type": "parallel_policy_missing_safety",
+          "severity": "advisory",
+          "message": "未声明 parallelSafe。当前默认会按 plan_only 推断，建议显式设置 yes/no/plan_only，让 session_brief 能稳定给出并行建议"
+        },
+        {
+          "type": "parallel_policy_missing_hotspots",
+          "severity": "advisory",
+          "message": "sharedHotspots 为空。建议列出会争抢的核心文件或模块，便于 session_brief 提前提示冲突"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 2 个未消化的 unknowns: 是否有现成字段可安全承载 owner session，还是只靠 events 逆推。; 跨 session block 应覆盖哪些 phase，是否只拦 TEST 和 DONE 还是 PLAN 之后全拦。"
+        }
+      ],
+      "_hash": "7da68eadff1311f7518c22f27cda580cb1ae07e42ca0bf4c453a1ba06f034c9f"
+    }
+  ]
+}

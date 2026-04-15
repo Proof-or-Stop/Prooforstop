@@ -28,6 +28,32 @@ const PHASE_TO_EVENT: Record<string, string> = {
 
 export { PHASE_TO_EVENT };
 
+const SYSTEM_STORY_AGENTS = new Set(['gate-auto', 'gate-rollback']);
+
+export function getCurrentSessionId(): string | undefined {
+  const raw = process.env.KOALA_SESSION_ID
+    || process.env.CLAUDE_SESSION_ID
+    || process.env.KOALA_ACTIVITY_SESSION
+    || process.env.CODEX_SESSION_ID
+    || process.env.OPENAI_SESSION_ID
+    || process.env.TERM_SESSION_ID
+    || '';
+  const trimmed = raw.trim();
+  return trimmed || undefined;
+}
+
+export function getStorySessionOwner(events?: StoryEvent[]): StoryEvent | null {
+  if (!events || events.length === 0) return null;
+  for (let i = events.length - 1; i >= 0; i--) {
+    const event = events[i];
+    if (event.action !== 'advance') continue;
+    if (!event.sessionId) continue;
+    if (event.agent && SYSTEM_STORY_AGENTS.has(event.agent)) continue;
+    return event;
+  }
+  return null;
+}
+
 export function collectContext(phase: StoryPhase, action: 'create' | 'advance' | 'discard'): StoryEvent {
   const event: StoryEvent = {
     phase,
@@ -36,9 +62,7 @@ export function collectContext(phase: StoryPhase, action: 'create' | 'advance' |
   };
   try { event.branch = execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf8' }).trim(); } catch { /* PROBE: branch is unavailable outside git repos */ }
   try { event.user = execSync('git config user.name', { encoding: 'utf8' }).trim(); } catch { /* PROBE: git user.name may be unset in CI/temp repos */ }
-  event.sessionId = process.env.KOALA_SESSION_ID
-    || process.env.CLAUDE_SESSION_ID
-    || undefined;
+  event.sessionId = getCurrentSessionId();
   event.agent = process.env.KOALA_AGENT || 'main';
   return event;
 }

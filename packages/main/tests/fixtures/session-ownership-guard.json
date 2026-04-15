@@ -1,0 +1,97 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: same session testintent_check still advances to TEST",
+      "run_type": "cli",
+      "file": "handlers/checklist",
+      "execute": "const { mkdtempSync, mkdirSync, rmSync } = await import('fs'); const { tmpdir } = await import('os'); const { join } = await import('path'); const { StoryStore } = await import($root + '/packages/main/dist/core/store.js'); const { createChecklistHandlers } = await import($root + '/packages/main/dist/handlers/checklist.js'); const root = mkdtempSync(join(tmpdir(), 'koala-owner-happy-')); try { mkdirSync(join(root, 'docs', 'story', 'actives'), { recursive: true }); const store = new StoryStore(root); const now = new Date().toISOString(); store.writeStory('B-test', { storyId: 'B-test', name: 'ownership', title: 'ownership', description: 'ownership', type: 'bug', phase: 'TEST_CASE_REVIEW', priority: 'high', createdAt: now, startedAt: now, endedAt: null, events: [{ phase: 'DEV', action: 'advance', timestamp: now, sessionId: 'sess-owner', agent: 'main', user: 'Owner' }] }); store.writeChecklist('B-test', { items: [{ id: 'CHK-001', title: 'x', status: 'done', startTime: now, endTime: now, testIntent: { happy: [{ desc: 'x', type: 'cli_blackbox', results: [{ time: now, role: 'reviewer', pass: true, note: 'ok' }] }], edge: [{ desc: 'x', type: 'cli_blackbox', results: [{ time: now, role: 'reviewer', pass: true, note: 'ok' }] }], adversarial: [{ desc: 'x', type: 'cli_blackbox', results: [{ time: now, role: 'reviewer', pass: true, note: 'ok' }] }] } }] }); process.env.KOALA_ACTIVITY_SESSION = 'sess-owner'; const handlers = createChecklistHandlers({ store, root, scanRoot: root }); const result = handlers.testintent_check({ storyId: 'B-test' }); const story = store.readStory('B-test'); return { advancedToTest: story.phase === 'TEST', allPass: result.allPass === true }; } finally { rmSync(root, { recursive: true, force: true }); delete process.env.KOALA_ACTIVITY_SESSION; }",
+      "expect": {
+        "advancedToTest": true,
+        "allPass": true
+      },
+      "intentRef": "B-e467:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-e467",
+      "_id": "d486b4ea-739f-4b76-a791-455690e7e8df",
+      "nextCaseId": "1df2416b-a3df-44ab-8bf0-e0f324dd0464"
+    },
+    {
+      "name": "CHK-001 edge: missing current session degrades instead of ownership block",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { mkdtempSync, mkdirSync, rmSync } = await import('fs'); const { tmpdir } = await import('os'); const { join } = await import('path'); const { StoryStore } = await import($root + '/packages/main/dist/core/store.js'); const { createStoryAdvanceHandlers } = await import($root + '/packages/main/dist/handlers/story-advance.js'); const root = mkdtempSync(join(tmpdir(), 'koala-owner-edge-')); try { mkdirSync(join(root, 'docs', 'story', 'actives'), { recursive: true }); const store = new StoryStore(root); const now = new Date().toISOString(); store.writeStory('B-test', { storyId: 'B-test', name: 'ownership', title: 'ownership', description: 'ownership', type: 'bug', phase: 'TEST', priority: 'high', createdAt: now, startedAt: now, endedAt: null, events: [{ phase: 'DEV', action: 'advance', timestamp: now, sessionId: 'sess-owner', agent: 'main', user: 'Owner' }] }); delete process.env.KOALA_ACTIVITY_SESSION; const handlers = createStoryAdvanceHandlers({ store, root, scanRoot: root }); try { const result = await handlers.story_advance({ storyId: 'B-test', phase: 'DONE' }); const text = String(result || ''); return { blockedByOwnership: false, failedForChecklist: text.includes('DONE Gate Checklist') || text.includes('Test evidence') || text.includes('Story summary') || text.includes('test_evidence_missing') }; } catch (error) { const text = String(error.message || error); return { blockedByOwnership: text.includes('不允许跨 session'), failedForChecklist: text.includes('DONE Gate Checklist') || text.includes('Test evidence') || text.includes('Story summary') || text.includes('test_evidence_missing') }; } } finally { rmSync(root, { recursive: true, force: true }); delete process.env.KOALA_ACTIVITY_SESSION; }",
+      "expect": {
+        "blockedByOwnership": false,
+        "failedForChecklist": true
+      },
+      "intentRef": "B-e467:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-e467",
+      "_id": "1df2416b-a3df-44ab-8bf0-e0f324dd0464",
+      "prevCaseId": "d486b4ea-739f-4b76-a791-455690e7e8df",
+      "nextCaseId": "14147dc2-49de-4053-a05c-063a6101ca90"
+    },
+    {
+      "name": "CHK-001 adversarial: cross-session DONE is blocked with takeover hint",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { mkdtempSync, mkdirSync, rmSync } = await import('fs'); const { tmpdir } = await import('os'); const { join } = await import('path'); const { StoryStore } = await import($root + '/packages/main/dist/core/store.js'); const { createStoryAdvanceHandlers } = await import($root + '/packages/main/dist/handlers/story-advance.js'); const root = mkdtempSync(join(tmpdir(), 'koala-owner-block-')); try { mkdirSync(join(root, 'docs', 'story', 'actives'), { recursive: true }); const store = new StoryStore(root); const now = new Date().toISOString(); store.writeStory('B-test', { storyId: 'B-test', name: 'ownership', title: 'ownership', description: 'ownership', type: 'bug', phase: 'TEST', priority: 'high', createdAt: now, startedAt: now, endedAt: null, events: [{ phase: 'DEV', action: 'advance', timestamp: now, sessionId: 'sess-owner', agent: 'main', user: 'Owner' }] }); process.env.KOALA_ACTIVITY_SESSION = 'sess-other'; const handlers = createStoryAdvanceHandlers({ store, root, scanRoot: root }); try { await handlers.story_advance({ storyId: 'B-test', phase: 'DONE' }); return { blocked: false, mentionsTakeover: false }; } catch (error) { const text = String(error.message || error); return { blocked: text.includes('不允许跨 session 直接推进到 DONE'), mentionsTakeover: text.includes('KOALA_ALLOW_SESSION_TAKEOVER=1') }; } } finally { rmSync(root, { recursive: true, force: true }); delete process.env.KOALA_ACTIVITY_SESSION; }",
+      "expect": {
+        "blocked": true,
+        "mentionsTakeover": true
+      },
+      "intentRef": "B-e467:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-e467",
+      "_id": "14147dc2-49de-4053-a05c-063a6101ca90",
+      "prevCaseId": "1df2416b-a3df-44ab-8bf0-e0f324dd0464",
+      "nextCaseId": "70faaa0a-8c78-4e0c-8525-410e10b1e97b"
+    },
+    {
+      "name": "CHK-002 happy: gate-auto hint is explicit in owner session",
+      "run_type": "cli",
+      "file": "handlers/checklist",
+      "execute": "const { mkdtempSync, mkdirSync, rmSync } = await import('fs'); const { tmpdir } = await import('os'); const { join } = await import('path'); const { StoryStore } = await import($root + '/packages/main/dist/core/store.js'); const { createChecklistHandlers } = await import($root + '/packages/main/dist/handlers/checklist.js'); const root = mkdtempSync(join(tmpdir(), 'koala-gate-hint-')); try { mkdirSync(join(root, 'docs', 'story', 'actives'), { recursive: true }); const store = new StoryStore(root); const now = new Date().toISOString(); store.writeStory('B-test', { storyId: 'B-test', name: 'ownership', title: 'ownership', description: 'ownership', type: 'bug', phase: 'TEST_CASE_REVIEW', priority: 'high', createdAt: now, startedAt: now, endedAt: null, events: [{ phase: 'DEV', action: 'advance', timestamp: now, sessionId: 'sess-owner', agent: 'main', user: 'Owner' }] }); store.writeChecklist('B-test', { items: [{ id: 'CHK-001', title: 'x', status: 'done', startTime: now, endTime: now, testIntent: { happy: [{ desc: 'x', type: 'cli_blackbox', results: [{ time: now, role: 'reviewer', pass: true, note: 'ok' }] }], edge: [{ desc: 'x', type: 'cli_blackbox', results: [{ time: now, role: 'reviewer', pass: true, note: 'ok' }] }], adversarial: [{ desc: 'x', type: 'cli_blackbox', results: [{ time: now, role: 'reviewer', pass: true, note: 'ok' }] }] } }] }); process.env.KOALA_ACTIVITY_SESSION = 'sess-owner'; const handlers = createChecklistHandlers({ store, root, scanRoot: root }); const result = handlers.testintent_check({ storyId: 'B-test' }); return { mentionsGateAuto: String(result.hint || '').includes('gate-auto'), mentionsTestStory: String(result.hint || '').includes(\"test_story('B-test')\") }; } finally { rmSync(root, { recursive: true, force: true }); delete process.env.KOALA_ACTIVITY_SESSION; }",
+      "expect": {
+        "mentionsGateAuto": true,
+        "mentionsTestStory": true
+      },
+      "intentRef": "B-e467:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-e467",
+      "_id": "70faaa0a-8c78-4e0c-8525-410e10b1e97b",
+      "prevCaseId": "14147dc2-49de-4053-a05c-063a6101ca90",
+      "nextCaseId": "c404b676-dce2-4707-bb23-1da2124ebc14"
+    },
+    {
+      "name": "CHK-002 edge: cross-session testintent_check requires explicit takeover",
+      "run_type": "cli",
+      "file": "handlers/checklist",
+      "execute": "const { mkdtempSync, mkdirSync, rmSync } = await import('fs'); const { tmpdir } = await import('os'); const { join } = await import('path'); const { StoryStore } = await import($root + '/packages/main/dist/core/store.js'); const { createChecklistHandlers } = await import($root + '/packages/main/dist/handlers/checklist.js'); const root = mkdtempSync(join(tmpdir(), 'koala-gate-edge-')); try { mkdirSync(join(root, 'docs', 'story', 'actives'), { recursive: true }); const store = new StoryStore(root); const now = new Date().toISOString(); store.writeStory('B-test', { storyId: 'B-test', name: 'ownership', title: 'ownership', description: 'ownership', type: 'bug', phase: 'TEST_CASE_REVIEW', priority: 'high', createdAt: now, startedAt: now, endedAt: null, events: [{ phase: 'DEV', action: 'advance', timestamp: now, sessionId: 'sess-owner', agent: 'main', user: 'Owner' }] }); store.writeChecklist('B-test', { items: [{ id: 'CHK-001', title: 'x', status: 'done', startTime: now, endTime: now, testIntent: { happy: [{ desc: 'x', type: 'cli_blackbox', results: [{ time: now, role: 'reviewer', pass: true, note: 'ok' }] }], edge: [{ desc: 'x', type: 'cli_blackbox', results: [{ time: now, role: 'reviewer', pass: true, note: 'ok' }] }], adversarial: [{ desc: 'x', type: 'cli_blackbox', results: [{ time: now, role: 'reviewer', pass: true, note: 'ok' }] }] } }] }); process.env.KOALA_ACTIVITY_SESSION = 'sess-other'; const handlers = createChecklistHandlers({ store, root, scanRoot: root }); const result = handlers.testintent_check({ storyId: 'B-test' }); return { stayedInReview: store.readStory('B-test').phase === 'TEST_CASE_REVIEW', mentionsTakeover: String(result.hint || '').includes('KOALA_ALLOW_SESSION_TAKEOVER=1') }; } finally { rmSync(root, { recursive: true, force: true }); delete process.env.KOALA_ACTIVITY_SESSION; }",
+      "expect": {
+        "stayedInReview": true,
+        "mentionsTakeover": true
+      },
+      "intentRef": "B-e467:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-e467",
+      "_id": "c404b676-dce2-4707-bb23-1da2124ebc14",
+      "prevCaseId": "70faaa0a-8c78-4e0c-8525-410e10b1e97b",
+      "nextCaseId": "4df11288-ada8-4416-bcf5-99f89567b0e9"
+    },
+    {
+      "name": "CHK-002 adversarial: blocked DONE leaves phase unchanged",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { mkdtempSync, mkdirSync, rmSync } = await import('fs'); const { tmpdir } = await import('os'); const { join } = await import('path'); const { StoryStore } = await import($root + '/packages/main/dist/core/store.js'); const { createStoryAdvanceHandlers } = await import($root + '/packages/main/dist/handlers/story-advance.js'); const root = mkdtempSync(join(tmpdir(), 'koala-owner-stay-')); try { mkdirSync(join(root, 'docs', 'story', 'actives'), { recursive: true }); const store = new StoryStore(root); const now = new Date().toISOString(); store.writeStory('B-test', { storyId: 'B-test', name: 'ownership', title: 'ownership', description: 'ownership', type: 'bug', phase: 'TEST', priority: 'high', createdAt: now, startedAt: now, endedAt: null, events: [{ phase: 'DEV', action: 'advance', timestamp: now, sessionId: 'sess-owner', agent: 'main', user: 'Owner' }] }); process.env.KOALA_ACTIVITY_SESSION = 'sess-other'; const handlers = createStoryAdvanceHandlers({ store, root, scanRoot: root }); try { await handlers.story_advance({ storyId: 'B-test', phase: 'DONE' }); } catch {} return { phaseStillTest: store.readStory('B-test').phase === 'TEST' }; } finally { rmSync(root, { recursive: true, force: true }); delete process.env.KOALA_ACTIVITY_SESSION; }",
+      "expect": {
+        "phaseStillTest": true
+      },
+      "intentRef": "B-e467:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-e467",
+      "_id": "4df11288-ada8-4416-bcf5-99f89567b0e9",
+      "prevCaseId": "c404b676-dce2-4707-bb23-1da2124ebc14"
+    }
+  ]
+}
