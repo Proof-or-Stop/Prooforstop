@@ -1,0 +1,38 @@
+{
+  "principles": [
+    "收敛检查应与 session/active story 口径一致。",
+    "只修复终态判定，不顺手改动其他 gap 逻辑。",
+    "用最小回归锁住 DISCARDED 与未完成统计的边界。"
+  ],
+  "drivers": [
+    "当前 convergence_check 报告了 16 条并不存在的未完成 story。",
+    "这会误导后续 backlog 优先级。",
+    "修复范围应该足够小，避免引入新的收敛统计偏差。"
+  ],
+  "options": [
+    {
+      "name": "A: 仅排除 DISCARDED",
+      "pros": [
+        "最小改动，直击当前误报。",
+        "和现有现象完全匹配。"
+      ],
+      "cons": [
+        "如果 IDEA 也不该算未完成，仍会留下边角不一致。"
+      ]
+    },
+    {
+      "name": "B: 统一复用 active story 口径",
+      "pros": [
+        "与 story_list/session_brief 更一致。",
+        "后续更不容易再次分叉。"
+      ],
+      "cons": [
+        "需要确认 convergence_check 是否也想排除 IDEA。",
+        "改动稍大于单点修补。"
+      ]
+    }
+  ],
+  "chosen": "B: 统一复用 active story 口径",
+  "rationale": "当前问题是不同命令对 active/unfinished 的定义不一致。直接对齐到 active story 口径更稳，也能顺手排除未来的 IDEA/终态分叉。",
+  "timestamp": "2026-04-15T15:43:10.859Z"
+}

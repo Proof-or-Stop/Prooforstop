@@ -1,0 +1,22 @@
+{
+  "task": "修复 convergence_check 把 DISCARDED story 误算成未完成的问题。",
+  "outcome": "$ node packages/main/dist/cli.js convergence_check\n{\n  \"checks\": [\n    { \"name\": \"所有 Story 完成\", \"passed\": true, \"detail\": \"全部 DONE\" },\n    ...\n  ]\n}\n\n即使历史上有一批 DISCARDED story，收敛报告也不再把它们列成未完成 backlog。",
+  "facts": [
+    "当前 convergence_check 的 activeStories 只排除了 DONE，没有排除 DISCARDED。",
+    "收敛报告里显示的 16 条未完成 story 实际全部都是 DISCARDED。",
+    "session_brief 已经没有 active story，因此 convergence_check 的故事未完成数与 session 总览矛盾。"
+  ],
+  "constraints": [
+    "不能影响真正非终态 story 的判断。",
+    "回归要覆盖包含 DISCARDED story 的最小场景。",
+    "优先局部修补，不扩散到 gap_analyze 其他统计口径。"
+  ],
+  "unknowns": [
+    "是否还有 IDEA 也应该从未完成统计里排除。"
+  ],
+  "touchpoints": [
+    "packages/main/src/tasks/gap-analyze.ts",
+    "packages/main/tests"
+  ],
+  "timestamp": "2026-04-15T15:43:10.859Z"
+}

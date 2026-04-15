@@ -4,7 +4,7 @@
   "title": "让 convergence_check 不再把 DISCARDED story 算成未完成",
   "description": "当前 convergence_check 的「所有 Story 完成」项会把已经 DISCARDED 的 story 也算进未完成列表，导致项目明明没有 active story，收敛报告仍显示 16 个 Story 未完成。这会误导 backlog 判断，也掩盖真正还没收敛的高优先级 gap。修复 active story 统计口径，使 DONE 和 DISCARDED 都视为终态。",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "TEST_CASE",
   "priority": "medium",
   "createdAt": "2026-04-15T15:42:36.060Z",
   "startedAt": "2026-04-15T15:42:36.060Z",
@@ -25,11 +25,42 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-15T15:42:49.929Z",
+      "branch": "story/B-4551",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-15T15:44:58.095Z",
+      "branch": "story/B-4551",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-15T15:45:04.695Z",
+      "branch": "story/B-4551",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-4551",
     "branch": "story/B-4551",
     "createdAt": "2026-04-15T15:42:42.459Z"
-  }
+  },
+  "lane": "mainline",
+  "parallelSafe": "no",
+  "sharedHotspots": [
+    "packages/main/src/tasks/gap-analyze.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/story-query.ts"
+  ]
 }

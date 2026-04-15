@@ -8,10 +8,30 @@
         "docs/requirements/decisions/framework.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-04-15T15:43:29.593Z",
-      "endTime": null,
-      "phase": "TEST_CASE"
+      "endTime": "2026-04-15T15:46:39.733Z",
+      "phase": "TEST_CASE",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "存在多个 DISCARDED story 但没有真正 active story 时，convergence_check 的『所有 Story 完成』项通过。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "DONE 与 DISCARDED 都视为终态，不会再出现在未完成列表。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "仍处于 INIT/PLAN/DEV/TEST 等非终态的 story 继续被正确计入未完成列表。",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -21,9 +41,9 @@
         "docs/requirements/decisions/test-fixture-spec.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-04-15T15:46:18.663Z",
       "testIntent": {
         "happy": [
           {
