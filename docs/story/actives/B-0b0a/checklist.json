@@ -8,9 +8,29 @@
         "AGENTS.md#Worktree 自动管理",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "in_progress",
+      "startTime": "2026-04-15T06:23:51.652Z",
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "linked worktree 分支存在且未合并到 main 时，僵尸检测不会把该 story 识别为 zombie。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "当前分支带 `* ` 前缀时，检测仍能正确识别本地 story 分支存在。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "git branch 输出同时混有 `+ ` 和 `* ` 前缀时，不会因为展示前缀把正常 story 误报为分支已删除。",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -22,7 +42,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "回归用例能稳定复现 linked worktree 分支存在但非 zombie 的场景，并验证 CLI 输出不再误报。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "只有普通本地分支、没有 linked worktree 前缀时，回归仍保持现有判定行为。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "测试如果只断言模糊文案、没有真正覆盖 `+ story/...` 输入，应被视为无效回归设计。",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }

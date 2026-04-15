@@ -30,12 +30,19 @@ interface ZombieInfo {
 export function detectZombieStories(store: import('../core/store.js').StoryStore, root: string): ZombieInfo[] {
   const zombies: ZombieInfo[] = [];
   const ids = store.listStoryIds();
+  const readLocalBranches = (args: string): Set<string> => {
+    const raw = execSync(`git for-each-ref --format='%(refname:short)' ${args} refs/heads`, {
+      cwd: root,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    return new Set(raw.split('\n').map(l => l.trim()).filter(Boolean));
+  };
 
   // 拿已合并到 main 的分支列表（一次 git 调用覆盖所有 story）
   let mergedBranches: Set<string>;
   try {
-    const raw = execSync('git branch --merged main', { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] });
-    mergedBranches = new Set(raw.split('\n').map(l => l.trim().replace(/^\* /, '')).filter(Boolean));
+    mergedBranches = readLocalBranches('--merged=main');
   } catch {
     return []; // git 不可用，跳过
   }
@@ -43,8 +50,7 @@ export function detectZombieStories(store: import('../core/store.js').StoryStore
   // 拿所有本地分支名
   let allBranches: Set<string>;
   try {
-    const raw = execSync('git branch', { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] });
-    allBranches = new Set(raw.split('\n').map(l => l.trim().replace(/^\* /, '')).filter(Boolean));
+    allBranches = readLocalBranches('');
   } catch {
     allBranches = new Set();
   }
