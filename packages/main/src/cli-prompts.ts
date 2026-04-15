@@ -1,4 +1,19 @@
 /**
+ * @task B-727f
+ * @checklist CHK-002
+ * @title prompt contract reinforces Agent A boundaries and checklist split standard
+ * @type feature
+ * @priority high
+ * @description
+ *   CLI prompt 层重复强调 Agent A 负责拆解需求与实现代码，但 testIntent 由
+ *   test-intent agent/Agent B 负责；同时把合格 checklist item 的标准写成
+ *   明确规则：有可观测结果、有输入触发、happy/edge/adversarial 三栏能填满。
+ *   这让需求完整性不靠单点判断，而是由 prompt、review、fixture gate 多层协同。
+ * @changes
+ *   - [CHK-002] 在 prompt 合同里固定主 agent 不写 testIntent、独立 reviewer 审 testIntent
+ *   - [CHK-002] 在 prompt 合同里固定 checklist item 的拆解标准和多层完整性防线
+ */
+/**
  * Long-form PROMPTs for koala 的 4 个高频核心命令
  *
  * 设计目的：
