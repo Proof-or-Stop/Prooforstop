@@ -4,7 +4,7 @@
   "title": "让 anti-stall 与 test-intent-review 高优先级需求被代码显式覆盖",
   "description": "当前 high gap 里至少有 4 条更像 coverage 断层而不是功能缺失：一条来自 cc-learnings 的 \"卡死不推进应该 retry / fix / discard 三选一\"，另外三条来自 test-intent-review 的角色分工、需求完整性多层防线、checklist item 拆解标准。这些能力在 anti-stall、checklist、story_review、prompt 约束里其实已经存在，但现有 @task 元数据没有把它们显式接上，gap_analyze 仍把它们判成 uncovered_requirement。需要把这组需求用结构化注释和最小回归脚本真正映射到代码上。",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "TEST",
   "priority": "high",
   "createdAt": "2026-04-15T12:09:12.123Z",
   "startedAt": "2026-04-15T12:09:12.123Z",
@@ -41,6 +41,30 @@
       "branch": "story/B-727f",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-15T12:14:22.158Z",
+      "branch": "story/B-727f",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-15T12:14:22.302Z",
+      "branch": "story/B-727f",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-15T12:14:36.126Z",
+      "branch": "story/B-727f",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
     }
   ],
   "worktree": {

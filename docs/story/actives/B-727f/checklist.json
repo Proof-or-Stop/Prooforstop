@@ -11,19 +11,43 @@
         "happy": [
           {
             "desc": "gap_analyze 不再把 cc-learnings 里 \"卡死不推进 = retry/fix/discard\" 判成 high uncovered_requirement。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T12:14:35.133Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/anti-stall-testintent-gap.json:1 WHY CHK-001 happy: anti-stall requirement no longer appears as high gap is covered by the anti-stall/test-intent regression fixture. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "anti-stall 核心实现仍保留 retry/fix/discard 三路提示，而不是只在注释里堆关键词。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T12:14:35.243Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/anti-stall-testintent-gap.json:1 WHY CHK-001 edge: anti-stall implementation still contains retry fix discard exits is covered by the anti-stall/test-intent regression fixture. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "如果有人删掉 anti-stall 真实实现只留下注释，回归会暴露实现痕迹缺失。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T12:14:35.362Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/anti-stall-testintent-gap.json:1 WHY CHK-001 adversarial: anti-stall coverage is not just comment-only text is covered by the anti-stall/test-intent regression fixture. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -39,19 +63,43 @@
         "happy": [
           {
             "desc": "gap_analyze 不再把 Agent A / 多层防线 / item 拆解标准 这 3 条 test-intent-review requirement 判成 high uncovered_requirement。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T12:14:35.476Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/anti-stall-testintent-gap.json:1 WHY CHK-002 happy: test-intent-review high gaps no longer appear is covered by the anti-stall/test-intent regression fixture. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "checklist/story-review/cli-prompts 里仍能看到主 agent 不写 testIntent、对抗审查、多层防线和拆解标准的实现痕迹。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T12:14:35.607Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/anti-stall-testintent-gap.json:1 WHY CHK-002 edge: checklist story-review and prompt contracts still expose Agent A and multi-layer defense semantics is covered by the anti-stall/test-intent regression fixture. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "如果只是往单个注释块里堆文案，其他关键文件没有对应语义，回归会暴露实现覆盖不足。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T12:14:35.711Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/anti-stall-testintent-gap.json:1 WHY CHK-002 adversarial: coverage spans multiple files not one stuffed annotation is covered by the anti-stall/test-intent regression fixture. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -67,19 +115,43 @@
         "happy": [
           {
             "desc": "回归脚本会明确断言这 4 条 high requirement 从 gap_analyze 结果里消失。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T12:14:35.813Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/anti-stall-testintent-gap.json:1 WHY CHK-003 happy: regression script locks the four high gaps away is covered by the anti-stall/test-intent regression fixture. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "同一脚本不会误伤其他 framework/role-separation 的真实 high gap。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T12:14:35.918Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/anti-stall-testintent-gap.json:1 WHY CHK-003 edge: regression does not erase remaining real framework and role-separation highs is covered by the anti-stall/test-intent regression fixture. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "如果以后这 4 条 requirement 重新出现在 high gap 里，回归会直接失败。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T12:14:36.020Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/anti-stall-testintent-gap.json:1 WHY CHK-003 adversarial: regression would fail if any of the four high lines returned is covered by the anti-stall/test-intent regression fixture. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
