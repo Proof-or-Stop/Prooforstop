@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from 
 import { join } from 'path';
 import type {
   StoryInfo, ChecklistData, BugData, TestEvidenceData, ReviewData,
-  UnderstandingData, DecisionData, StorySummaryData,
+  UnderstandingData, DecisionData, StorySummaryData, ImplementationReviewResultData,
   StoryTestRun, StoryTestRunsData,
 } from './types.js';
 
@@ -107,6 +107,20 @@ export class StoryStore {
 
   writeReview(storyId: string, data: ReviewData): void {
     this.writeJson(storyId, 'review.json', data);
+  }
+
+  // ── Implementation review results ──
+
+  readImplementationReview(storyId: string): ImplementationReviewResultData | null {
+    try {
+      return this.readJson<ImplementationReviewResultData>(storyId, 'implementation-review.json');
+    } catch {
+      return null;
+    }
+  }
+
+  writeImplementationReview(storyId: string, data: ImplementationReviewResultData): void {
+    this.writeJson(storyId, 'implementation-review.json', data);
   }
 
   // ── Understanding (Pre-context Intake snapshot, OMX 风格) ──

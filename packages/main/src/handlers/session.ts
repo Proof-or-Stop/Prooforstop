@@ -305,6 +305,8 @@ interface NextStepCtx {
   bugs: BugData | null;
   hasTestEvidence: boolean;
   testPassedAt: string | null;
+  implementationReviewVerdict: 'pass' | 'fail' | null;
+  implementationReviewFindings: number;
   recentActivity: Array<{ role: string; tool: string; source: string; status: string }>;
 }
 
@@ -348,6 +350,12 @@ function computeNextStep(c: NextStepCtx): string {
     case 'TEST_CASE':
       return `TEST_CASE 阶段。下一步：根据每条 testIntent 用 fixture_batch_add 写 case，每条都需要 intentRef。完成后 git commit + story_advance --phase=TEST_CASE_REVIEW`;
     case 'TEST_CASE_REVIEW':
+      if (c.implementationReviewVerdict === 'fail') {
+        return `TEST_CASE_REVIEW 阶段。implementation review 标记为 fail（${c.implementationReviewFindings} findings）。下一步：先回 DEV 修实现，再决定是否继续进入 TEST。\n${reviewAntiStall(sid)}`;
+      }
+      if (c.implementationReviewVerdict === null) {
+        return `TEST_CASE_REVIEW 阶段。下一步：启动 test-case-reviewer 审 fixture/testIntent，并建议同时用 implementation_review_result_set 记录 implementation-reviewer 的 advisory 结果。\n${reviewAntiStall(sid)}`;
+      }
       return `TEST_CASE_REVIEW 阶段。下一步：启动 test-case-reviewer agent 审核每条 testIntent。全部 reviewer pass 后 story_advance --phase=TEST。任意 fail 则回退 DEV 改代码\n${reviewAntiStall(sid)}`;
     case 'TEST':
       if (openBugs.length > 0) {
@@ -554,6 +562,16 @@ export function createSessionHandlers(ctx: HandlerContext) {
           lines.push('## Primary lane');
           lines.push(`  ${parallelBrief.primary.storyId} ${parallelBrief.primary.phase} ${parallelBrief.primary.title} [${formatParallelBadge(parallelBrief.primary.policy)}]`);
 
+          try {
+            const impl = ctx.store.readImplementationReview?.(parallelBrief.primary.storyId);
+            if (impl) {
+              lines.push('');
+              lines.push('## Implementation review');
+              lines.push(`  verdict: ${impl.verdict}`);
+              lines.push(`  findings: ${impl.findings.length}`);
+            }
+          } catch { /* probe */ }
+
           const primaryArtifacts = getArtifactContractStatus(
             parallelBrief.primary.storyId,
             ctx.store,
@@ -643,7 +661,18 @@ export function createSessionHandlers(ctx: HandlerContext) {
         if (parallelBrief.primary) {
           const top = parallelBrief.primary;
           const wt = worktrees[top.storyId];
-          if (wt) {
+          let implVerdict: 'pass' | 'fail' | null = null;
+          let implFindings = 0;
+          try {
+            const impl = ctx.store.readImplementationReview?.(top.storyId);
+            if (impl) {
+              implVerdict = impl.verdict;
+              implFindings = impl.findings.length;
+            }
+          } catch { /* probe */ }
+          if (implVerdict === 'fail') {
+            lines.push(`  Primary lane implementation review 标记为 fail（${implFindings} findings）。先回 DEV 修实现，再继续推进。`);
+          } else if (wt) {
             lines.push(`  Resume: cd ${wt} (story ${top.storyId} is in ${top.phase})`);
           } else {
             lines.push(`  Story ${top.storyId} is in ${top.phase} but has no worktree. Try \`koala story_advance --storyId=${top.storyId} --phase=INIT_CHECK\` to create one.`);
@@ -725,6 +754,8 @@ export function createSessionHandlers(ctx: HandlerContext) {
       // Test evidence (kept: timestamp + structured summary, not JSON dump).
       let hasTestEvidence = false;
       let testPassedAt: string | null = null;
+      let implementationReviewVerdict: 'pass' | 'fail' | null = null;
+      let implementationReviewFindings = 0;
       try {
         const ev = ctx.store.readTestEvidence(storyId);
         if (ev) {
@@ -744,6 +775,18 @@ export function createSessionHandlers(ctx: HandlerContext) {
           }
         }
       } catch { /* none */ }
+
+      try {
+        const impl = ctx.store.readImplementationReview?.(storyId);
+        if (impl) {
+          implementationReviewVerdict = impl.verdict;
+          implementationReviewFindings = impl.findings.length;
+          lines.push('');
+          lines.push('## Implementation review');
+          lines.push(`  verdict: ${impl.verdict}`);
+          lines.push(`  findings: ${impl.findings.length}`);
+        }
+      } catch { /* probe */ }
 
       // Activity tail — CHK-017 shrunk from 8 to 3 in full mode; skipped
       // entirely in concise mode (git log covers most of what it shows).
@@ -817,6 +860,8 @@ export function createSessionHandlers(ctx: HandlerContext) {
         bugs,
         hasTestEvidence,
         testPassedAt,
+        implementationReviewVerdict,
+        implementationReviewFindings,
         recentActivity: activity,
       });
 

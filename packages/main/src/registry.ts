@@ -41,6 +41,7 @@ import { createTruthHandlers } from './handlers/truth.js';
 import { createUnderstandingHandlers } from './handlers/understanding.js';
 import { createDecisionHandlers } from './handlers/decision.js';
 import { createSummaryHandlers } from './handlers/summary.js';
+import { createImplementationReviewHandlers } from './handlers/implementation-review.js';
 import { createDoctorHandlers } from './handlers/doctor.js';
 import { createSessionHandlers } from './handlers/session.js';
 import { nextStoryId } from './handlers/context.js';
@@ -100,6 +101,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createUnderstandingHandlers(ctx));
   registry.registerBatch(createDecisionHandlers(ctx));
   registry.registerBatch(createSummaryHandlers(ctx));
+  registry.registerBatch(createImplementationReviewHandlers(ctx));
   registry.registerBatch(createDoctorHandlers(ctx));
   registry.registerBatch(createSessionHandlers(ctx));
 

@@ -171,6 +171,20 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'summary_get', description: '读取 story summary', schema: {
     storyId: z.string().describe('Story ID'),
   }},
+  { name: 'implementation_review_result_set', description: '写入 implementation-reviewer 的结构化结果（第一版 advisory）', schema: {
+    storyId: z.string().describe('Story ID'),
+    verdict: z.enum(['pass','fail']).describe('实现 review 总结'),
+    findings: z.array(z.object({
+      file: z.string(),
+      line: z.number(),
+      why: z.string(),
+      severity: z.enum(['info','medium','high']),
+    })).describe('实现 review findings'),
+    summary: z.string().describe('一段简短总结'),
+  }},
+  { name: 'implementation_review_result_get', description: '读取 implementation review 结果', schema: {
+    storyId: z.string().describe('Story ID'),
+  }},
   { name: 'testintent_resume', description: '人类介入：重置某条 testIntent 的 5 轮 cap，开新段', schema: {
     storyId: z.string().describe('Story ID'),
     itemId: z.string().describe('Checklist 项 ID'),
