@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "补 flow_trace 的最小 fixture 覆盖",
+      "context": "至少验证 flow_trace 能返回结构化链路或合理空结果，而不是缺 fixture 漏检。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "补 flow_list 的最小 fixture 覆盖",
+      "context": "验证 flow_list 能列出当前可发现的 flow 概要，至少覆盖 happy/empty/invalid 三类路径。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "加一条收尾验证，锁住这两个 no_test 不再回归",
+      "context": "可以是脚本或 story 级 fixture，重点是让 gap_analyze 不再报告 tools-flow_trace/tools-flow_list 缺测试。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
