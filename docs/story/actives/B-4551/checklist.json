@@ -8,9 +8,10 @@
         "docs/requirements/decisions/framework.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "in_progress",
+      "startTime": "2026-04-15T15:43:29.593Z",
+      "endTime": null,
+      "phase": "TEST_CASE"
     },
     {
       "id": "CHK-002",
@@ -22,7 +23,28 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "最小临时仓库里只含 DONE/DISCARDED story 时，回归断言 convergence_check 通过。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "临时仓库里混入一个 DEV story 时，回归仍能看到未完成列表。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果以后把 DISCARDED 又算回 active story，回归会直接失败。",
+            "type": "cli_blackbox"
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
     }
   ]
 }
