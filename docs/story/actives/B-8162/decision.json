@@ -1,0 +1,59 @@
+{
+  "principles": [
+    "agent 间传递优先靠 artifact 而不是聊天复述。",
+    "artifact contract 先统一消费层，不强制重写现有文件。",
+    "phase-aware 缺口必须同时服务 human brief 和 machine gate。"
+  ],
+  "drivers": [
+    "减少多 session 状态漂移。",
+    "让 brief/review/gate 看到同一套物证缺口。",
+    "避免 artifact 规则继续散落在不同 handler 文案里。"
+  ],
+  "options": [
+    {
+      "name": "A: 继续在各 handler 内部单独判断 artifact 存在性",
+      "pros": [
+        "改动最小",
+        "短期实现快"
+      ],
+      "cons": [
+        "规则继续分散",
+        "多入口很难保持一致"
+      ]
+    },
+    {
+      "name": "B: 抽出统一的 phase-aware artifact contract，再让 session/review/gate 共同消费",
+      "pros": [
+        "状态语义统一",
+        "能直接减少多 session 猜测成本"
+      ],
+      "cons": [
+        "需要定义 contract schema 和 phase 映射",
+        "要补一批针对缺口显示的回归"
+      ]
+    }
+  ],
+  "chosen": "B: 抽出统一的 phase-aware artifact contract，再让 session/review/gate 共同消费",
+  "rationale": "B-8fb2 之前失败的根因不是没有 artifact，而是没有统一消费层。先把 contract 做成派生读取层，能在兼容旧文件的前提下提升状态一致性。",
+  "preMortem": [
+    {
+      "scenario": "contract 变成第二套影子真相源",
+      "trigger": "把 artifact 缺口手写进新文件而不是从现有 artifact 派生",
+      "consequence": "状态反而更乱",
+      "mitigation": "第一版只做派生 contract，不引入需要手填的新持久化文件"
+    },
+    {
+      "scenario": "把所有 artifact 都当成必需导致大量假 blocker",
+      "trigger": "phase-aware 规则没有区分 PLAN/DEV/TEST/DONE",
+      "consequence": "brief 和 gate 充满噪音",
+      "mitigation": "每个 phase 只暴露当前关键 artifact，非关键项降级 advisory"
+    },
+    {
+      "scenario": "session_brief 和 DONE gate 各自解释 contract，输出再度漂移",
+      "trigger": "没有共享 helper，只在各 handler 里复制判断逻辑",
+      "consequence": "用户看到的 next step 与门禁原因互相打架",
+      "mitigation": "抽共享 contract helper，由多个入口共同调用"
+    }
+  ],
+  "timestamp": "2026-04-15T11:32:30.230Z"
+}

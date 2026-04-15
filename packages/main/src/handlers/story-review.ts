@@ -6,6 +6,7 @@ import { existsSync, readFileSync, readdirSync } from 'fs';
 import { createHash } from 'crypto';
 import type { StoryInfo } from '../core/types.js';
 import { summarizeParallelPolicy } from '../core/parallel-policy.js';
+import { getArtifactContractStatus } from '../core/artifact-contract.js';
 
 function outcomeLooksAbstract(outcome: string): boolean {
   const text = outcome.trim();
@@ -252,15 +253,19 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
       }
 
       // 2.45. RALPLAN-DR decision.json 检查（OMX ralplan 风格）
+      const artifactContract = getArtifactContractStatus(args.storyId, store, story.phase);
       const decision = store.readDecision(args.storyId);
       if (!decision) {
-        issues.push({
-          type: 'missing_decision',
-          severity: isHighRisk ? 'blocker' : 'advisory',
-          message: isHighRisk
-            ? `高风险 story 必须填 decision.json (principles/drivers/options/chosen/≥3 preMortem)。调用: koala decision_set '{...}'`
-            : '未填 decision.json。非高风险 story 可选，但建议补上以便 reviewer 审设计思路。',
-        });
+        const contractDecision = artifactContract.entries.find((entry) => entry.key === 'decision');
+        if (contractDecision?.required || contractDecision?.present === false) {
+          issues.push({
+            type: 'missing_decision',
+            severity: isHighRisk ? 'blocker' : 'advisory',
+            message: isHighRisk
+              ? `高风险 story 必须填 decision.json (principles/drivers/options/chosen/≥3 preMortem)。调用: koala decision_set '{...}'`
+              : '未填 decision.json。非高风险 story 可选，但建议补上以便 reviewer 审设计思路。',
+          });
+        }
       } else {
         // decision 已存在，检查质量
         if (decision.options.length < 2) {
@@ -286,11 +291,14 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
       // 2.5. Pre-context Intake snapshot 检查（OMX 风格，软引入）
       const understanding = store.readUnderstanding(args.storyId);
       if (!understanding) {
-        issues.push({
-          type: 'missing_understanding',
-          severity: 'advisory',
-          message: '未填 understanding snapshot。建议在拆 checklist 前先调用 understanding_set 落 task/outcome/facts/constraints/unknowns/touchpoints 6 个字段，避免理解错误后期修复贵',
-        });
+        const contractUnderstanding = artifactContract.entries.find((entry) => entry.key === 'understanding');
+        if (contractUnderstanding?.required || contractUnderstanding?.present === false) {
+          issues.push({
+            type: 'missing_understanding',
+            severity: 'advisory',
+            message: '未填 understanding snapshot。建议在拆 checklist 前先调用 understanding_set 落 task/outcome/facts/constraints/unknowns/touchpoints 6 个字段，避免理解错误后期修复贵',
+          });
+        }
       } else {
         if (understanding.unknowns.length > 0) {
           issues.push({

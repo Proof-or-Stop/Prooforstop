@@ -28,6 +28,7 @@ import { formatRoleLabel } from '../core/activity-role.js';
 import { summarizeParallelPolicy, type ParallelPolicyView } from '../core/parallel-policy.js';
 import { renderAntiStall, reviewAntiStall, testAntiStall, waitingAntiStall } from '../core/anti-stall.js';
 import { getPhaseInvariantStatus } from '../core/machine.js';
+import { getArtifactContractStatus } from '../core/artifact-contract.js';
 
 interface ActiveStoryDetected {
   storyId: string;
@@ -676,8 +677,8 @@ export function createSessionHandlers(ctx: HandlerContext) {
       }
 
       // Understanding / Decision — probe only in PLAN phase (B-89c7 CHK-017
-      // lazy I/O). Elsewhere these fields are never rendered so the file
-      // read is wasted.
+      // lazy I/O). Elsewhere these fields are now summarized by artifact
+      // contract rendering below.
       let hasUnderstanding = false;
       let hasDecision = false;
       if (story.phase === 'PLAN') {
@@ -770,6 +771,15 @@ export function createSessionHandlers(ctx: HandlerContext) {
       for (const l of renderRouterLogTail(routerTail)) lines.push(l);
 
       // Next step (kept — most important field).
+      const artifactContract = getArtifactContractStatus(storyId, ctx.store, story.phase);
+      lines.push('');
+      lines.push('## Artifacts');
+      for (const entry of artifactContract.entries) {
+        const marker = entry.present ? '✓' : (entry.required ? '✗' : '!');
+        const requirement = entry.required ? 'required' : 'advisory';
+        lines.push(`  [${marker}] ${entry.label} (${requirement}) — ${entry.present ? 'present' : 'missing'}`);
+      }
+
       const phaseInvariantStatus = getPhaseInvariantStatus(storyId, ctx.store, story.phase);
       if (phaseInvariantStatus.issues.length > 0) {
         lines.push('');

@@ -10,7 +10,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "按 phase 能列出必备 artifact 清单 → session_brief 可直接显示缺口",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "某些 artifact 对当前 phase 非必需 → 系统不会错误标成缺失 blocker",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "把所有 artifact 都一律当成必需 → brief 产生大量噪音并误导操作者",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -22,7 +42,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "session_brief 能显示当前 phase 的关键 artifact 缺口 → 新 session 可直接知道缺什么",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "所有关键 artifact 都齐全 → brief 不再重复提示无关缺口",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "brief 只显示 phase 不显示 artifact 缺口 → 接手者仍需重复阅读多个文件",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -34,7 +74,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "review 与 DONE gate 优先读取 artifact 状态 → 相同 story 在不同 session 下得到一致判断",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "缺少某个非关键 artifact → review/gate 只给 advisory 不误拦主流程",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "仍依赖聊天上下文而忽略 artifact → 多 session 下判断不一致",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
@@ -46,7 +106,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "缺 artifact、齐全 artifact、phase-aware 可选 artifact 三类路径都有回归覆盖 → contract 不会退化成文案层",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "旧 story 缺少新增 contract 消费字段 → 系统仍能降级读取现有 artifact",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "只断言文案、不真正断言 artifact 缺口 → reviewer 应拒绝这种回归设计",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }

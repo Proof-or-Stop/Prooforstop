@@ -9,6 +9,7 @@ import { runHooks, buildHookEnv } from '../core/hooks.js';
 import { renderSummaryForHint } from './summary.js';
 import { reviewAntiStall, testAntiStall } from '../core/anti-stall.js';
 import { buildRollbackDecision, formatPhaseGateDecision } from '../core/phase-protocol.js';
+import { getArtifactContractStatus } from '../core/artifact-contract.js';
 import { execSync } from 'child_process';
 import { dirname } from 'path';
 import { existsSync, rmSync } from 'fs';
@@ -189,6 +190,32 @@ function buildDoneChecklist(storyId: string, store: StoryStore, root: string): D
         detail: `complete (${covNote})`,
       });
     }
+  }
+
+  // 7. artifact contract (B-8162: surface required vs advisory evidence)
+  const artifactContract = getArtifactContractStatus(storyId, store, store.readStory(storyId).phase);
+  const missingRequired = artifactContract.entries.filter((entry) => entry.required && !entry.present);
+  const missingAdvisory = artifactContract.entries.filter((entry) => !entry.required && !entry.present);
+  if (missingRequired.length > 0) {
+    rows.push({
+      status: 'fail',
+      label: 'Artifact contract',
+      detail: `${missingRequired.length} required artifact(s) missing`,
+      hint: missingRequired.map((entry) => `${entry.label}: ${entry.detail}`).join('\n'),
+    });
+  } else if (missingAdvisory.length > 0) {
+    rows.push({
+      status: 'warn',
+      label: 'Artifact contract',
+      detail: `${missingAdvisory.length} advisory artifact(s) missing`,
+      hint: missingAdvisory.map((entry) => `${entry.label}: ${entry.detail}`).join('\n'),
+    });
+  } else {
+    rows.push({
+      status: 'pass',
+      label: 'Artifact contract',
+      detail: 'all required artifacts present',
+    });
   }
 
   return rows;
