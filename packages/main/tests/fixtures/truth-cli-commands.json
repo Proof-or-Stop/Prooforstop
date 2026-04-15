@@ -1,0 +1,100 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: help and direct truth commands are visible",
+      "run_type": "cli",
+      "file": "src/handlers/truth",
+      "execute": "const { execFileSync } = await import('child_process'); const cli = $root + '/packages/main/dist/cli.js'; const help = execFileSync('node', [cli, 'help'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); const scan = execFileSync('node', [cli, 'truth_scan', JSON.stringify({ summary: true })], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); const extract = execFileSync('node', [cli, 'truth_extract'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { helpHasTruth: help.includes('Truth:') && help.includes('truth_extract'), scanRuns: scan.includes('filesScanned'), extractRuns: extract.includes('提取完成:') && !extract.includes('未知命令') };",
+      "expect": {
+        "helpHasTruth": true,
+        "scanRuns": true,
+        "extractRuns": true
+      },
+      "intentRef": "B-331a:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-331a",
+      "_id": "22db6045-2b2a-4450-a691-242753e443a7",
+      "nextCaseId": "f0c43cf8-190b-4b37-ac96-a0e224141a18"
+    },
+    {
+      "name": "CHK-001 edge: truth scan and analysis keep structured output",
+      "run_type": "cli",
+      "file": "src/handlers/truth",
+      "execute": "const { execFileSync } = await import('child_process'); const cli = $root + '/packages/main/dist/cli.js'; const scan = execFileSync('node', [cli, 'truth_scan', JSON.stringify({ summary: true })], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); const analyze = execFileSync('node', [cli, 'truth_analyze'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); const scanJson = JSON.parse(scan.slice(scan.indexOf('{'))); const analyzeJson = JSON.parse(analyze.slice(analyze.indexOf('{'))); return { hasFilesScanned: typeof scanJson.filesScanned === 'number', hasTopics: Array.isArray(scanJson.topics), hasIssues: Array.isArray(analyzeJson.issues), hasHealthy: typeof analyzeJson.healthy === 'boolean' };",
+      "expect": {
+        "hasFilesScanned": true,
+        "hasTopics": true,
+        "hasIssues": true,
+        "hasHealthy": true
+      },
+      "intentRef": "B-331a:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-331a",
+      "_id": "f0c43cf8-190b-4b37-ac96-a0e224141a18",
+      "prevCaseId": "22db6045-2b2a-4450-a691-242753e443a7",
+      "nextCaseId": "f5a55043-1cf8-4aad-bda5-2db9d0f59acc"
+    },
+    {
+      "name": "CHK-001 adversarial: truth commands are wired to real handlers",
+      "run_type": "cli",
+      "file": "src/handlers/truth",
+      "execute": "const { execFileSync } = await import('child_process'); const cli = $root + '/packages/main/dist/cli.js'; const toStory = execFileSync('node', [cli, 'truth_to_story'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); const nav = execFileSync('node', [cli, 'truth_nav'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { noUnknown: !toStory.includes('未知命令') && !toStory.includes('handler not found') && !nav.includes('未知命令') && !nav.includes('handler not found'), navLooksReal: nav.includes('# 真相源导航') || nav.includes('No requirement files found') };",
+      "expect": {
+        "noUnknown": true,
+        "navLooksReal": true
+      },
+      "intentRef": "B-331a:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-331a",
+      "_id": "f5a55043-1cf8-4aad-bda5-2db9d0f59acc",
+      "prevCaseId": "f0c43cf8-190b-4b37-ac96-a0e224141a18",
+      "nextCaseId": "f56b71de-9a16-4da4-b959-a52249159e2a"
+    },
+    {
+      "name": "CHK-002 happy: verifier script checks truth CLI end to end",
+      "run_type": "cli",
+      "file": "src/handlers/truth",
+      "execute": "const { execFileSync } = await import('child_process'); const out = execFileSync('node', [$root + '/scripts/verify-truth-cli-commands.mjs'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { verified: out.includes('truth CLI commands verified') };",
+      "expect": {
+        "verified": true
+      },
+      "intentRef": "B-331a:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-331a",
+      "_id": "f56b71de-9a16-4da4-b959-a52249159e2a",
+      "prevCaseId": "f5a55043-1cf8-4aad-bda5-2db9d0f59acc",
+      "nextCaseId": "ef6270dc-b7fe-4a2e-9f34-a432d08ee3d3"
+    },
+    {
+      "name": "CHK-002 edge: truth_extract writes extracted docs and hint",
+      "run_type": "cli",
+      "file": "src/handlers/truth",
+      "execute": "const { execFileSync } = await import('child_process'); const { existsSync } = await import('fs'); const cli = $root + '/packages/main/dist/cli.js'; const out = execFileSync('node', [cli, 'truth_extract'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { hasHint: out.includes('truth_nav'), hasArchitecture: existsSync($root + '/docs/requirements/extracted/architecture.md'), hasFeatures: existsSync($root + '/docs/requirements/extracted/features.md') };",
+      "expect": {
+        "hasHint": true,
+        "hasArchitecture": true,
+        "hasFeatures": true
+      },
+      "intentRef": "B-331a:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-331a",
+      "_id": "ef6270dc-b7fe-4a2e-9f34-a432d08ee3d3",
+      "prevCaseId": "f56b71de-9a16-4da4-b959-a52249159e2a",
+      "nextCaseId": "be16093c-d419-4b08-b353-87c9c00621f4"
+    },
+    {
+      "name": "CHK-002 adversarial: npm-level regression script catches future CLI drift",
+      "run_type": "cli",
+      "file": "src/handlers/truth",
+      "execute": "const { execFileSync } = await import('child_process'); const out = execFileSync('npm', ['run', 'test:truth-cli'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { scriptPassed: out.includes('truth CLI commands verified') };",
+      "expect": {
+        "scriptPassed": true
+      },
+      "intentRef": "B-331a:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-331a",
+      "_id": "be16093c-d419-4b08-b353-87c9c00621f4",
+      "prevCaseId": "ef6270dc-b7fe-4a2e-9f34-a432d08ee3d3"
+    }
+  ]
+}
