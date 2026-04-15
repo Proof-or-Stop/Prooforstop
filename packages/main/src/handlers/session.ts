@@ -553,6 +553,19 @@ export function createSessionHandlers(ctx: HandlerContext) {
           lines.push('');
           lines.push('## Primary lane');
           lines.push(`  ${parallelBrief.primary.storyId} ${parallelBrief.primary.phase} ${parallelBrief.primary.title} [${formatParallelBadge(parallelBrief.primary.policy)}]`);
+
+          const primaryArtifacts = getArtifactContractStatus(
+            parallelBrief.primary.storyId,
+            ctx.store,
+            parallelBrief.primary.phase as any,
+          );
+          lines.push('');
+          lines.push('## Artifacts');
+          for (const entry of primaryArtifacts.entries) {
+            const marker = entry.present ? '✓' : (entry.required ? '✗' : '!');
+            const requirement = entry.required ? 'required' : 'advisory';
+            lines.push(`  [${marker}] ${entry.label} (${requirement}) — ${entry.present ? 'present' : 'missing'}`);
+          }
         }
         if (parallelBrief.candidates.length > 0) {
           lines.push('');
