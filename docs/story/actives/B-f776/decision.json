@@ -1,0 +1,66 @@
+{
+  "principles": [
+    "先对齐注释期待的 fixture 入口，再考虑更大的测试重构",
+    "优先复用已有收敛断言，避免维护两套完全不同的测试语义",
+    "让 validateTestAnnotations、gap_analyze 和 story 级回归三者指向同一批真实测试资产"
+  ],
+  "drivers": [
+    "消掉两条明确的 no_test backlog",
+    "让 @test 注释指向的文件真实存在",
+    "减少 story 级 fixture 与函数级 fixture 脱节"
+  ],
+  "options": [
+    {
+      "name": "A: 直接把 metadata 里的 @test 名改成 gap-convergence",
+      "pros": [
+        "最少新增文件"
+      ],
+      "cons": [
+        "会改历史注释约定，风险更大",
+        "不利于一眼看出各命令对应 fixture 入口"
+      ]
+    },
+    {
+      "name": "B: 新建 gap-analyze.json 和 convergence-check.json，并复用 B-f7b4 的核心断言",
+      "pros": [
+        "最贴合现有 @test 期待",
+        "能直接消掉 validate/gap 的 no_test 报警"
+      ],
+      "cons": [
+        "会引入一定重复，需要控制断言粒度"
+      ]
+    },
+    {
+      "name": "C: 让 validateTestAnnotations 支持一个 fixture 文件映射多个 @test 名",
+      "pros": [
+        "从框架层更灵活"
+      ],
+      "cons": [
+        "为了两条具体 backlog 去改验证规则，成本过高"
+      ]
+    }
+  ],
+  "chosen": "B: 新建 gap-analyze.json 和 convergence-check.json，并复用 B-f7b4 的核心断言",
+  "rationale": "当前问题不是测试逻辑不存在，而是历史 @test 注释期待的文件入口没落地。直接补齐这两个 fixture 文件最稳，既能消掉 no_test backlog，又不需要再改注释模型或验证规则。",
+  "preMortem": [
+    {
+      "scenario": "为了消掉 no_test 只写空壳 fixture",
+      "trigger": "只满足文件存在，不真正断言关键输出",
+      "consequence": "backlog 看起来下降，但回归价值几乎为零",
+      "mitigation": "至少保留 dashboard/checks/coverage 这类核心断言，确保文件不是摆设"
+    },
+    {
+      "scenario": "新文件和 gap-convergence.json 长期漂移",
+      "trigger": "复制粘贴后各自独立演化",
+      "consequence": "未来收敛逻辑改动时需要到处同步",
+      "mitigation": "新文件只保留最小关键断言，并尽量复用同一套 helper/脚本思想"
+    },
+    {
+      "scenario": "修完这两条后又暴露更多旧 @test 命名错位",
+      "trigger": "仓库还有更多历史 metadata 与 fixture 脱节",
+      "consequence": "以为 story 完成但 backlog 并未明显下降",
+      "mitigation": "在 story 结尾重新跑 gap_analyze，确认真实变化，并把新暴露的项明确列为后续 backlog"
+    }
+  ],
+  "timestamp": "2026-04-15T05:55:56.707Z"
+}
