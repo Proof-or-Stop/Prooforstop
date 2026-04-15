@@ -1,0 +1,52 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "定义 implementation reviewer 的职责边界",
+      "context": "明确它只审实现风险，不越权改代码、改 fixture 或推进 phase，避免和现有 reviewer 体系职责重叠。",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-separation.md",
+        "AGENTS.md#三方制衡"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "定义 review 输出协议与严重级别",
+      "context": "输出需要可执行，至少包含 file、位置、why、severity，避免退化成泛泛建议或纯主观评论。",
+      "relatedDocs": [
+        "AGENTS.md#主 agent 行为准则",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "在 DEV 结束后接入实现 review 通道",
+      "context": "选择一个噪音最小的接入点，让主 agent 在 TEST_CASE 前后收到实现风险反馈，再评估是否值得升级为门禁。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/role-separation.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "为 advisory 通过与失败路径补 fixture",
+      "context": "验证 reviewer 输出能被主 agent 消费和回退处理，同时评估信噪比，避免新增一条只会制造争论的 review 线。",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-fixture-spec.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

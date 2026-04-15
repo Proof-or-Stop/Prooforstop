@@ -1,0 +1,42 @@
+{
+  "storyId": "B-7832",
+  "name": "implementation-review-lane-v2",
+  "title": "补一条实现代码的独立 review 通道（补实现）",
+  "description": "延续 B-e98c 的目标，但上次只走到了 story_reconcile 自动收尾，没有真正实现。现在要增加专门看实现代码本身的 review 通道：它关注行为回归、边界条件、实现风险和可维护性，不改代码、不写 fixture、不推进 phase，先以 advisory 形式验证信噪比。",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "medium",
+  "lane": "supporting",
+  "parallelSafe": "plan_only",
+  "sharedHotspots": [
+    "packages/main/src/handlers/story-review.ts",
+    ".Codex/agents",
+    "docs/requirements/decisions/role-separation.md"
+  ],
+  "createdAt": "2026-04-15T12:09:52.839Z",
+  "startedAt": "2026-04-15T12:09:52.839Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-15T12:09:52.839Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-15T12:10:17.448Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-7832",
+    "branch": "story/B-7832",
+    "createdAt": "2026-04-15T12:10:17.549Z"
+  }
+}
