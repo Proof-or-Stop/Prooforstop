@@ -1,0 +1,35 @@
+{
+  "storyId": "B-4551",
+  "name": "fix-convergence-discarded-count",
+  "title": "让 convergence_check 不再把 DISCARDED story 算成未完成",
+  "description": "当前 convergence_check 的「所有 Story 完成」项会把已经 DISCARDED 的 story 也算进未完成列表，导致项目明明没有 active story，收敛报告仍显示 16 个 Story 未完成。这会误导 backlog 判断，也掩盖真正还没收敛的高优先级 gap。修复 active story 统计口径，使 DONE 和 DISCARDED 都视为终态。",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "medium",
+  "createdAt": "2026-04-15T15:42:36.060Z",
+  "startedAt": "2026-04-15T15:42:36.060Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-15T15:42:36.060Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-15T15:42:42.375Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-4551",
+    "branch": "story/B-4551",
+    "createdAt": "2026-04-15T15:42:42.459Z"
+  }
+}

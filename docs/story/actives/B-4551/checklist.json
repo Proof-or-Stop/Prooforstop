@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "修正 convergence_check 的 active story 统计口径",
+      "context": "只把真正非终态 story 算进未完成列表，至少排除 DONE、DISCARDED，避免把历史废弃方案算成 backlog。",
+      "relatedDocs": [
+        "docs/requirements/decisions/framework.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "补一条回归锁住 DISCARDED 不再影响收敛检查",
+      "context": "至少覆盖一个包含 DISCARDED story 的临时仓库或最小场景，证明 convergence_check 的 story 完成项不再误报。",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-fixture-spec.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
