@@ -4,7 +4,7 @@
   "title": "统一 story artifact 协议并减少聊天态知识（补实现）",
   "description": "延续 B-8fb2 的目标，但上次只走到了 story_reconcile 自动收尾，没有真正实现。现在要把 understanding、decision、review judgment、test evidence、summary、transcript artifact 收成一套 phase-aware artifact contract，让 session_brief、story_review 与 DONE gate 优先读物证状态而不是猜测。",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "lane": "supporting",
   "parallelSafe": "plan_only",
@@ -21,7 +21,7 @@
   ],
   "createdAt": "2026-04-15T06:51:37.107Z",
   "startedAt": "2026-04-15T06:51:37.107Z",
-  "endedAt": null,
+  "endedAt": "2026-04-15T11:46:32.378Z",
   "events": [
     {
       "phase": "INIT",
@@ -110,11 +110,14 @@
       "branch": "story/B-8162",
       "user": "Harmonygo",
       "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-15T11:46:32.378Z",
+      "branch": "story/B-8162",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ],
-  "worktree": {
-    "path": ".worktrees/B-8162",
-    "branch": "story/B-8162",
-    "createdAt": "2026-04-15T11:31:31.216Z"
-  }
+  ]
 }
