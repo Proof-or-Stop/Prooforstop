@@ -8,9 +8,29 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/annotation-system.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-15T01:42:36.462Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "重复 metadata 记录存在时，story-lifecycle 的 step 2 不会再被低信息记录覆盖，flow 校验能看到连续的 1→2→3→4→5",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "同一个 key 下如果只有部分字段重复，merge 逻辑会保留更完整的 flow/test/signature 信息，而不是粗暴只取最后一条",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "历史 metadata 中既有反斜杠路径又有正斜杠路径时，merge 仍不会把带 flow 的 story_advance 记录丢掉",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -20,9 +40,29 @@
         "docs/requirements/decisions/annotation-system.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-15T01:42:36.587Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "summary.ts 顶部 @task 注释补齐后，validate 不再报缺 @checklist/@type/@priority/@changes",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "补字段时仍保持 file-level @task 的合法格式，不会额外引入新的注释校验错误",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果未来再次出现类似缺字段注释，验证会明确指出是注释合规问题，而不是被别的警告淹没",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -32,9 +72,29 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/annotation-system.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-15T01:42:36.696Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "修完后 convergence_check 中的 Flow 链路完整和代码注释合规会同步改善，而不是只局部看起来变绿",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "定向回归能同时覆盖 flow gap 修复和 summary 注释修复，不需要靠手工 diff metadata 才知道结果",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果 merge 逻辑、注释修复和 convergence 输出三者有任一处脱节，新增验证会及时失败而不是再次把根因藏在 backlog 里",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }
