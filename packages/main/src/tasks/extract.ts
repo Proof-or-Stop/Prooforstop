@@ -15,6 +15,57 @@ const SINGLE_FIELDS = new Set([
 ]);
 const MULTI_FIELDS = new Set(['description', 'changes', 'affected']);
 
+function mergeStringArray(
+  base?: string[],
+  incoming?: string[],
+): string[] | undefined {
+  if (!base && !incoming) return undefined;
+  return Array.from(new Set([...(base || []), ...(incoming || [])]));
+}
+
+function pickPreferredString(
+  base?: string,
+  incoming?: string,
+  preferIncoming = false,
+): string | undefined {
+  if (!base) return incoming;
+  if (!incoming) return base;
+  if (preferIncoming) return incoming.length >= base.length ? incoming : base;
+  return base.length >= incoming.length ? base : incoming;
+}
+
+function mergeTaskAnnotations(
+  base: TaskAnnotation,
+  incoming: TaskAnnotation,
+  preferIncoming = false,
+): TaskAnnotation {
+  return {
+    task: preferIncoming ? incoming.task : base.task,
+    checklist: mergeStringArray(base.checklist, incoming.checklist),
+    title: pickPreferredString(base.title, incoming.title, preferIncoming),
+    type: preferIncoming ? (incoming.type || base.type) : (base.type || incoming.type),
+    priority: preferIncoming ? (incoming.priority || base.priority) : (base.priority || incoming.priority),
+    version: preferIncoming ? (incoming.version || base.version) : (base.version || incoming.version),
+    scope: preferIncoming ? (incoming.scope || base.scope) : (base.scope || incoming.scope),
+    depends: mergeStringArray(base.depends, incoming.depends),
+    author: preferIncoming ? (incoming.author || base.author) : (base.author || incoming.author),
+    date: preferIncoming ? (incoming.date || base.date) : (base.date || incoming.date),
+    description: pickPreferredString(base.description, incoming.description, preferIncoming),
+    changes: mergeStringArray(base.changes, incoming.changes),
+    affected: mergeStringArray(base.affected, incoming.affected),
+    sourceFile: preferIncoming ? incoming.sourceFile : base.sourceFile,
+    sourceLine: preferIncoming ? incoming.sourceLine || base.sourceLine : base.sourceLine || incoming.sourceLine,
+    functionName: preferIncoming ? (incoming.functionName || base.functionName) : (base.functionName || incoming.functionName),
+    functionSignature: pickPreferredString(base.functionSignature, incoming.functionSignature, preferIncoming),
+    flow: preferIncoming ? (incoming.flow || base.flow) : (base.flow || incoming.flow),
+    step: preferIncoming ? (incoming.step ?? base.step) : (base.step ?? incoming.step),
+    input: pickPreferredString(base.input, incoming.input, preferIncoming),
+    output: pickPreferredString(base.output, incoming.output, preferIncoming),
+    next: pickPreferredString(base.next, incoming.next, preferIncoming),
+    test: pickPreferredString(base.test, incoming.test, preferIncoming),
+  };
+}
+
 /** 递归遍历目录，收集 TS/TSX 文件 */
 export function walkDir(dir: string): string[] {
   const results: string[] = [];
@@ -284,11 +335,15 @@ export function scan(scanRoot: string): TaskAnnotation[] {
             next: t.flow?.next,
             test: t.test,
           } as TaskAnnotation;
-          merged.set(keyForAnnotation(annotation), annotation);
+          const key = keyForAnnotation(annotation);
+          const existing = merged.get(key);
+          merged.set(key, existing ? mergeTaskAnnotations(existing, annotation) : annotation);
         }
 
         for (const annotation of liveAnnotations) {
-          merged.set(keyForAnnotation(annotation), annotation);
+          const key = keyForAnnotation(annotation);
+          const existing = merged.get(key);
+          merged.set(key, existing ? mergeTaskAnnotations(existing, annotation, true) : annotation);
         }
 
         return Array.from(merged.values());

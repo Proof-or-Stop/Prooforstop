@@ -4,11 +4,11 @@
   "title": "修复 story-lifecycle flow 断档与 summary 注释错误",
   "description": "收敛当前 convergence_check 里最具体的两个阻塞：story-lifecycle flow 的步骤断档，以及 summary.ts 顶部 @task 注释缺字段导致的 4 个注释错误。修完后让 flow 校验和注释校验都回到可验证状态。",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "createdAt": "2026-04-15T01:37:19.133Z",
   "startedAt": "2026-04-15T01:37:19.133Z",
-  "endedAt": null,
+  "endedAt": "2026-04-15T01:43:13.844Z",
   "events": [
     {
       "phase": "INIT",
@@ -25,11 +25,54 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-15T01:37:41.590Z",
+      "branch": "story/B-a04f",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-15T01:41:10.093Z",
+      "branch": "story/B-a04f",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-15T01:42:51.058Z",
+      "branch": "story/B-a04f",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-15T01:42:51.243Z",
+      "branch": "story/B-a04f",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-15T01:43:01.468Z",
+      "branch": "story/B-a04f",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-15T01:43:13.844Z",
+      "branch": "story/B-a04f",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ],
-  "worktree": {
-    "path": ".worktrees/B-a04f",
-    "branch": "story/B-a04f",
-    "createdAt": "2026-04-15T01:37:29.356Z"
-  }
+  ]
 }
