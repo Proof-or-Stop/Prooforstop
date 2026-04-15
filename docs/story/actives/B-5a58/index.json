@@ -4,11 +4,11 @@
   "title": "把 convergence_check 和 gap_analyze 补回当前 CLI 入口",
   "description": "当前 koala CLI 的 help 和实际命令表里都没有 convergence_check / gap_analyze，但底层实现与 MCP 暴露仍然存在，DONE hint 和真相源文档却还在提示用户直接运行 convergence_check，造成接口分裂。需要把 convergence_check 与 gap_analyze 正式补回当前 CLI 注册表，并补最小回归验证，确保 help、命令派发与实现重新对齐。",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "createdAt": "2026-04-15T06:31:47.250Z",
   "startedAt": "2026-04-15T06:31:47.250Z",
-  "endedAt": null,
+  "endedAt": "2026-04-15T06:37:24.091Z",
   "events": [
     {
       "phase": "INIT",
@@ -25,11 +25,54 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:32:01.719Z",
+      "branch": "story/B-5a58",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:35:03.710Z",
+      "branch": "story/B-5a58",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:36:10.354Z",
+      "branch": "story/B-5a58",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:36:22.781Z",
+      "branch": "story/B-5a58",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:36:58.404Z",
+      "branch": "story/B-5a58",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:37:24.091Z",
+      "branch": "story/B-5a58",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ],
-  "worktree": {
-    "path": ".worktrees/B-5a58",
-    "branch": "story/B-5a58",
-    "createdAt": "2026-04-15T06:31:52.306Z"
-  }
+  ]
 }

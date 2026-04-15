@@ -195,6 +195,10 @@ export const MAIN_TOOLS: ToolDef[] = [
     format: z.enum(['json','markdown']).optional().describe('输出格式（默认 json）'),
   }},
 
+  // Gap / Convergence
+  { name: 'gap_analyze', description: '对比真相源 vs 代码现实，输出差距报告', schema: {}},
+  { name: 'convergence_check', description: '判断项目是否收敛（需求覆盖、测试通过、无差距）', schema: {}},
+
   // Test
   { name: 'test_add', description: '记录测试证据', schema: {
     storyId: z.string().describe('Story ID'), id: z.string().describe('TE ID'),
