@@ -32,9 +32,9 @@
       "id": "CHK-002",
       "title": "让 scan() 跳过已删除源码的 stale flow metadata 记录",
       "context": "不用恢复旧 flow_trace/flow_list CLI 命令，而是让 scan() 在合并 docs/metadata/task.json 时跳过源码已删除的残留记录，保证 no_test 只反映当前活代码。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-04-15T15:34:42.645Z",
       "testIntent": {
         "happy": [
           {
