@@ -185,14 +185,20 @@ async function runBrokenEnvProbe(jsonMode = false) {
   }
 }
 
-if (mode === 'smoke') {
-  await runSmoke(false);
-} else if (mode === 'smoke-json') {
-  await runSmoke(true);
-} else if (mode === 'broken-env') {
-  await runBrokenEnvProbe(false);
-} else if (mode === 'broken-env-json') {
-  await runBrokenEnvProbe(true);
-} else {
-  throw new Error(`unknown mode: ${mode}`);
+try {
+  if (mode === 'smoke') {
+    await runSmoke(false);
+  } else if (mode === 'smoke-json') {
+    await runSmoke(true);
+  } else if (mode === 'broken-env') {
+    await runBrokenEnvProbe(false);
+  } else if (mode === 'broken-env-json') {
+    await runBrokenEnvProbe(true);
+  } else {
+    throw new Error(`unknown mode: ${mode}`);
+  }
+  process.exit(0);
+} catch (error) {
+  console.error(error instanceof Error ? error.message : String(error));
+  process.exit(1);
 }
