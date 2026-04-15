@@ -11,19 +11,43 @@
         "happy": [
           {
             "desc": "browser screenshot smoke 脚本在当前环境里能通过 executeBrowserCases 生成有效 png，并输出 verified 结果。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T12:30:34.185Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/browser-screenshot-smoke.json:4 WHY test_story proved the smoke script can drive executeBrowserCases to generate a real PNG file in the current environment. severity=low",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "脚本会明确使用 canvas 页面做截图验证，避免把整页 html2canvas 能力误算进 smoke 范围。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T12:30:34.276Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/browser-screenshot-smoke.json:19 WHY test_story proved the smoke explicitly validates the canvas screenshot path, not an implicit html2canvas fallback. severity=low",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "如果浏览器环境不可用，脚本会给出清晰环境失败，而不是伪装成功。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T12:30:34.364Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/browser-screenshot-smoke.json:35 WHY test_story proved the broken-environment probe reports a browser-environment category instead of falsely claiming screenshot success. severity=medium",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -39,19 +63,43 @@
         "happy": [
           {
             "desc": "这条 smoke 会有仓库内可重复运行的入口，不再需要临时手写脚本重验。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T12:30:34.453Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/browser-screenshot-smoke.json:51 WHY the npm entry is repeatable and returns the expected verified marker, so the smoke is no longer one-off. severity=low",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "最小 fixture/验证闭环会直接调用正式脚本入口，而不是依赖当前对话里的临时上下文。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T12:30:34.564Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/browser-screenshot-smoke.json:66 WHY direct script invocation works outside fixture context, proving the smoke is a standalone repo entry. severity=low",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "如果未来 screenshot 链路断在 bridge、浏览器连接或 png 落盘，回归会失败并暴露出来。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T12:30:34.653Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/browser-screenshot-smoke.json:81 WHY the broken-env regression probe will fail loudly if screenshot chain or environment classification regresses in the future. severity=medium",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
