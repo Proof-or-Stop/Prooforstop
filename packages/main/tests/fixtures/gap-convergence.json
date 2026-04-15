@@ -19,7 +19,7 @@
       "name": "CHK-001 edge: gap output keeps key structural signals while numbers can move",
       "run_type": "cli",
       "file": "tasks/gap-analyze",
-      "execute": "const { execFileSync } = await import(\"child_process\");\nconst raw = execFileSync(\"node\", [\"/Users/jek/Documents/Work/Orchestrate/bin/koala-codex.js\", \"gap_analyze\", JSON.stringify({ format: \"markdown\" })], { cwd: \"/Users/jek/Documents/Work/Orchestrate\", encoding: \"utf8\", stdio: [\"pipe\", \"pipe\", \"pipe\"] });\nconst json = JSON.parse(raw.slice(raw.indexOf(\"{\")));\nreturn { dashboard: typeof json._dashboard === \"string\" && json._dashboard.includes(\"需求覆盖率\"), hasNoTest: json.gaps.some((gap) => gap.type === \"no_test\"), hasUncovered: json.gaps.some((gap) => gap.type === \"uncovered_requirement\") };",
+      "execute": "const { StoryStore } = await import(\"/Users/jek/Documents/Work/Orchestrate/packages/main/dist/core/store.js\");\nconst { analyzeGap } = await import(\"/Users/jek/Documents/Work/Orchestrate/packages/main/dist/tasks/gap-analyze.js\");\nconst store = new StoryStore(\"/Users/jek/Documents/Work/Orchestrate\");\nconst json = analyzeGap(\"/Users/jek/Documents/Work/Orchestrate\", store);\nreturn { dashboard: typeof json._dashboard === \"string\" && json._dashboard.includes(\"需求覆盖率\"), hasNoTest: json.gaps.some((gap) => gap.type === \"no_test\"), hasUncovered: json.gaps.some((gap) => gap.type === \"uncovered_requirement\") };",
       "expect": {
         "dashboard": true,
         "hasNoTest": true,
@@ -37,7 +37,7 @@
       "name": "CHK-001 adversarial: fail-fast requirement no longer regresses into uncovered gap",
       "run_type": "cli",
       "file": "tasks/gap-analyze",
-      "execute": "const { execFileSync } = await import(\"child_process\");\nconst raw = execFileSync(\"node\", [\"/Users/jek/Documents/Work/Orchestrate/bin/koala-codex.js\", \"gap_analyze\", JSON.stringify({ format: \"markdown\" })], { cwd: \"/Users/jek/Documents/Work/Orchestrate\", encoding: \"utf8\", stdio: [\"pipe\", \"pipe\", \"pipe\"] });\nconst json = JSON.parse(raw.slice(raw.indexOf(\"{\")));\nreturn { noFailFastRegression: !json.gaps.some((gap) => String(gap.description).includes(\"silent catch **不能全删**\")) };",
+      "execute": "const { StoryStore } = await import(\"/Users/jek/Documents/Work/Orchestrate/packages/main/dist/core/store.js\");\nconst { analyzeGap } = await import(\"/Users/jek/Documents/Work/Orchestrate/packages/main/dist/tasks/gap-analyze.js\");\nconst store = new StoryStore(\"/Users/jek/Documents/Work/Orchestrate\");\nconst json = analyzeGap(\"/Users/jek/Documents/Work/Orchestrate\", store);\nreturn { noFailFastRegression: !json.gaps.some((gap) => String(gap.description).includes(\"silent catch **不能全删**\")) };",
       "expect": {
         "noFailFastRegression": true
       },
@@ -105,7 +105,7 @@
       "name": "CHK-003 happy: fixture targets are sensitive to recent convergence work",
       "run_type": "cli",
       "file": "tasks/gap-analyze",
-      "execute": "const { execFileSync } = await import(\"child_process\");\nconst gapRaw = execFileSync(\"node\", [\"/Users/jek/Documents/Work/Orchestrate/bin/koala-codex.js\", \"gap_analyze\", JSON.stringify({ format: \"markdown\" })], { cwd: \"/Users/jek/Documents/Work/Orchestrate\", encoding: \"utf8\", stdio: [\"pipe\", \"pipe\", \"pipe\"] });\nconst convergenceRaw = execFileSync(\"node\", [\"/Users/jek/Documents/Work/Orchestrate/bin/koala-codex.js\", \"convergence_check\"], { cwd: \"/Users/jek/Documents/Work/Orchestrate\", encoding: \"utf8\", stdio: [\"pipe\", \"pipe\", \"pipe\"] });\nconst gap = JSON.parse(gapRaw.slice(gapRaw.indexOf(\"{\")));\nconst convergence = JSON.parse(convergenceRaw.slice(convergenceRaw.indexOf(\"{\")));\nreturn { coverageAt90: gap.coveragePercent === 90, flowGreen: convergence.checks.find((check) => check.name === \"Flow 链路完整\")?.passed === true };",
+      "execute": "const { StoryStore } = await import(\"/Users/jek/Documents/Work/Orchestrate/packages/main/dist/core/store.js\");\nconst { analyzeGap, checkConvergence } = await import(\"/Users/jek/Documents/Work/Orchestrate/packages/main/dist/tasks/gap-analyze.js\");\nconst store = new StoryStore(\"/Users/jek/Documents/Work/Orchestrate\");\nconst gap = analyzeGap(\"/Users/jek/Documents/Work/Orchestrate\", store);\nconst convergence = checkConvergence(\"/Users/jek/Documents/Work/Orchestrate\", store);\nreturn { coverageAt90: gap.coveragePercent === 90, flowGreen: convergence.checks.find((check) => check.name === \"Flow 链路完整\")?.passed === true };",
       "expect": {
         "coverageAt90": true,
         "flowGreen": true
@@ -122,7 +122,7 @@
       "name": "CHK-003 edge: fixture assertions tolerate unrelated backlog movement",
       "run_type": "cli",
       "file": "tasks/gap-analyze",
-      "execute": "const { execFileSync } = await import(\"child_process\");\nconst gapRaw = execFileSync(\"node\", [\"/Users/jek/Documents/Work/Orchestrate/bin/koala-codex.js\", \"gap_analyze\", JSON.stringify({ format: \"markdown\" })], { cwd: \"/Users/jek/Documents/Work/Orchestrate\", encoding: \"utf8\", stdio: [\"pipe\", \"pipe\", \"pipe\"] });\nconst gap = JSON.parse(gapRaw.slice(gapRaw.indexOf(\"{\")));\nconst high = gap.gaps.filter((item) => item.severity === \"high\").length;\nconst medium = gap.gaps.filter((item) => item.severity === \"medium\").length;\nreturn { highNonNegative: high >= 0, mediumNonNegative: medium >= 0, dashboardPresent: typeof gap._dashboard === \"string\" };",
+      "execute": "const { StoryStore } = await import(\"/Users/jek/Documents/Work/Orchestrate/packages/main/dist/core/store.js\");\nconst { analyzeGap } = await import(\"/Users/jek/Documents/Work/Orchestrate/packages/main/dist/tasks/gap-analyze.js\");\nconst store = new StoryStore(\"/Users/jek/Documents/Work/Orchestrate\");\nconst gap = analyzeGap(\"/Users/jek/Documents/Work/Orchestrate\", store);\nconst high = gap.gaps.filter((item) => item.severity === \"high\").length;\nconst medium = gap.gaps.filter((item) => item.severity === \"medium\").length;\nreturn { highNonNegative: high >= 0, mediumNonNegative: medium >= 0, dashboardPresent: typeof gap._dashboard === \"string\" };",
       "expect": {
         "highNonNegative": true,
         "mediumNonNegative": true,
