@@ -10,7 +10,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "koala help 会重新列出 gap_analyze 与 convergence_check，且在普通项目根直接执行命令时不再报未知命令。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "恢复后的命令会继续复用现有 analyzeGap/checkConvergence 逻辑，返回 checks/gaps 这类核心结构，而不是一个临时占位字符串。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果只补了 help 没补 handler 注册，黑盒验证会直接暴露 handler not found，而不是假装命令已恢复。",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -22,7 +42,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "新增的最小验证脚本会同时检查 koala help 可见性和 convergence_check 实际可执行性，避免接口再次分裂。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "help 文案与 phase tools 对齐后，用户在默认 CLI 环境里能看到正确的 Gap 分组命令，而不是只有文档提到。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果未来有人再次把 gap/convergence 从 MAIN_TOOLS 或 registry 漏掉，回归验证会失败而不是等用户在 DONE 阶段手工撞到。",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }
