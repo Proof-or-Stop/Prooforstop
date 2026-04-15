@@ -1,0 +1,24 @@
+{
+  "task": "补上 flow_trace 和 flow_list 相关缺失 fixture，弄清它们是当前仍应保留的能力，还是仅剩结构/实现层需要回归覆盖。",
+  "outcome": "执行 gap_analyze 后，不再出现 tools-flow_trace.json 和 tools-flow_list.json 这两条 no_test；相关 flow 发现/展示能力仍有可重复验证入口。",
+  "facts": [
+    "medium no_test backlog 里明确点名缺 tests/fixtures/tools-flow_trace.json 和 tests/fixtures/tools-flow_list.json。",
+    "仓库里已有 cleanup-legacy fixture 明确验证 flow_trace/flow_list 命令不存在，说明当前不该简单恢复旧 CLI 命令。",
+    "当前更可能要补的是对应实现层或辅助脚本的 fixture，而不是把已清理的旧命令重新加回来。"
+  ],
+  "constraints": [
+    "不能为了消灭 no_test 去恢复已废弃的 flow_trace/flow_list CLI 命令。",
+    "补的 fixture 必须对应当前仍被保留的实现，不做伪覆盖。",
+    "最终需要让 gap_analyze 不再报告这两条 missing fixture。"
+  ],
+  "unknowns": [
+    "这两条 @test 注释当前具体挂在哪个实现文件上，以及它们应映射到哪组现存能力。"
+  ],
+  "touchpoints": [
+    "packages/main/src/tasks/extract.ts",
+    "packages/main/src/tasks/validate.ts",
+    "packages/main/src/tasks/cli-e2e.ts",
+    "packages/main/tests/fixtures/cleanup-legacy.json"
+  ],
+  "timestamp": "2026-04-15T13:22:31.142Z"
+}
