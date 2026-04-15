@@ -4,7 +4,7 @@
   "title": "让 framework 愿景与 Wave 0 gate 高优先级需求被代码显式覆盖",
   "description": "当前只剩 3 条 high gap，且都更像覆盖断层而不是功能空缺：framework.md:5/8 说代码仓库应被自动化接口管理、人和 AI 都通过这个接口操作代码；role-separation.md:897 说 Wave 0 必须先做完，决策不明朗前不能同时开 Wave 1/2。前两条在 registry/config/CLI phase gate/工具入口等实现里其实已经有了，后一条在 parallel policy、depends/parallelSafe、INIT_CHECK/PLAN-only 节奏里也有部分机制，但 gap_analyze 还没认出来。需要用结构化注释和最小回归把这 3 条真正映射到代码上。",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "TEST",
   "priority": "high",
   "riskSignals": [
     {
@@ -47,6 +47,30 @@
       "branch": "story/B-6fda",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-15T12:32:17.297Z",
+      "branch": "story/B-6fda",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-15T12:32:17.433Z",
+      "branch": "story/B-6fda",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-15T12:32:31.365Z",
+      "branch": "story/B-6fda",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
     }
   ],
   "worktree": {

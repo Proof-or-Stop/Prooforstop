@@ -11,19 +11,43 @@
         "happy": [
           {
             "desc": "gap_analyze 不再把 framework.md:5/8 这两条框架接口愿景判成 high uncovered_requirement。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T12:32:30.576Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/framework-wave-gap.json:1 WHY CHK-001 happy: framework high gaps no longer appear is covered by the framework/wave high-gap regression fixture. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "registry/config/cli-engine 里仍能看到自动化接口管理与 phase 工具边界的实现痕迹，而不是只在注释里堆口号。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T12:32:30.662Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/framework-wave-gap.json:1 WHY CHK-001 edge: registry config and cli entry symbols still exist is covered by the framework/wave high-gap regression fixture. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "如果只是往单个注释块里塞 framework 关键词，回归会暴露关键入口文件缺少对应实现符号。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T12:32:30.746Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/framework-wave-gap.json:1 WHY CHK-001 adversarial: framework coverage spans more than one入口文件 is covered by the framework/wave high-gap regression fixture. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -39,19 +63,43 @@
         "happy": [
           {
             "desc": "gap_analyze 不再把 role-separation.md:897 的 Wave 0 gate requirement 判成 high uncovered_requirement。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T12:32:30.829Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/framework-wave-gap.json:1 WHY CHK-002 happy: Wave 0 gate high gap no longer appears is covered by the framework/wave high-gap regression fixture. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "parallel-policy 仍保留 depends/plan_only/sharedHotspots 等 gate 语义，不是只靠文案描述。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T12:32:30.920Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/framework-wave-gap.json:1 WHY CHK-002 edge: parallel policy still exposes depends plan_only and sharedHotspots is covered by the framework/wave high-gap regression fixture. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "如果有人移除 de-risking/不抢跑的并行限制实现，只留下注释，回归会暴露实现痕迹缺失。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T12:32:31.011Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/framework-wave-gap.json:1 WHY CHK-002 adversarial: Wave 0 coverage is tied to actual parallel gate code is covered by the framework/wave high-gap regression fixture. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -67,19 +115,43 @@
         "happy": [
           {
             "desc": "回归脚本会明确断言这 3 条 high requirement 从 gap_analyze 结果里消失。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T12:32:31.095Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/framework-wave-gap.json:1 WHY CHK-003 happy: regression script locks the last three high gaps away is covered by the framework/wave high-gap regression fixture. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "同一脚本不会误伤别的真实 gap 或把 medium/no_test 一起吞掉。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T12:32:31.181Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/framework-wave-gap.json:1 WHY CHK-003 edge: regression does not hide medium no_test backlog is covered by the framework/wave high-gap regression fixture. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "如果未来这 3 条 high requirement 又回来了，回归会直接失败。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T12:32:31.268Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/framework-wave-gap.json:1 WHY CHK-003 adversarial: regression would fail if any of the last three high lines returned is covered by the framework/wave high-gap regression fixture. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
