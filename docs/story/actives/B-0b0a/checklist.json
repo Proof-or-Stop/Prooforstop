@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "修正僵尸检测对 linked worktree 分支的存在性判断",
+      "context": "不要再依赖 `git branch` 的展示前缀解析；至少要正确处理 `+ `，更稳的是改成稳定格式的分支枚举命令，保证 session_brief/story_reconcile 对 worktree 分支判断一致。",
+      "relatedDocs": [
+        "AGENTS.md#Worktree 自动管理",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "补一条覆盖 linked worktree 分支输出的回归测试",
+      "context": "回归需要证明 `+ story/B-xxx` 这种输出不会再把非终态 story 识别成 zombie，避免以后再被 `git branch` 文本格式坑到。",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-fixture-spec.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

@@ -4,7 +4,7 @@
   "title": "把用户价值验收收紧为 transcript-diff gate",
   "description": "在 DONE 前增加一个显式的用户价值验收门。要求 story 产出 expected transcript、actual transcript、diff，避免工程指标全绿但用户仍然不知道任务是否真的完成。第一版先把 understanding.outcome 收紧为用户可见 transcript，并在 TEST/DONE 阶段提示或校验 transcript artifact。",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DEV",
   "priority": "high",
   "lane": "mainline",
   "parallelSafe": "no",
@@ -36,6 +36,22 @@
       "action": "advance",
       "timestamp": "2026-04-15T06:01:05.793Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:02:06.498Z",
+      "branch": "story/B-e452",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:13:57.415Z",
+      "branch": "story/B-e452",
       "user": "Harmonygo",
       "agent": "main"
     }
