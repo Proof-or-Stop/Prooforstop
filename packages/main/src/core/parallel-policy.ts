@@ -1,3 +1,17 @@
+/**
+ * @task B-6fda
+ * @checklist CHK-002
+ * @title parallel policy encodes Wave 0 de-risking before downstream waves
+ * @type feature
+ * @priority high
+ * @description
+ *   Wave 0 必须先做完、决策不明朗之前不要同时开 Wave 1/2，这个要求在实现层
+ *   由并行调度规则承载：depends、plan_only、sharedHotspots、mainline/supporting
+ *   和 conflict 推断一起把“先做 de-risking 主线、下游 wave 不抢跑”落成可计算的
+ *   gate 语义，而不是只停留在文档里。
+ * @changes
+ *   - [CHK-002] 用 parallel policy 的 depends/plan_only/conflict 规则覆盖 Wave 0 先完成再开后续 wave 的 gate 要求
+ */
 import type { StoryInfo, StoryLane, StoryParallelSafety } from './types.js';
 
 export interface ParallelPolicyView {

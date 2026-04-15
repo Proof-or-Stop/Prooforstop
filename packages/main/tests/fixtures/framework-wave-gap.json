@@ -1,0 +1,144 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: framework high gaps no longer appear",
+      "run_type": "cli",
+      "file": "registry",
+      "execute": "const { execFileSync } = await import('child_process'); return execFileSync('npm', ['run', 'test:framework-wave-gap'], { cwd: $root, encoding: 'utf8' }).trim();",
+      "expect": {
+        "pattern": "framework and wave gate high gaps verified"
+      },
+      "intentRef": "B-6fda:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-6fda",
+      "_id": "6ec8c6fa-73c3-443d-9603-5abb6f608f6e",
+      "nextCaseId": "9fa4528a-aed2-4858-b6da-c7939e1513aa"
+    },
+    {
+      "name": "CHK-001 edge: registry config and cli entry symbols still exist",
+      "run_type": "cli",
+      "file": "registry",
+      "execute": "const { readFileSync } = await import('fs'); const registry = readFileSync($root + '/packages/main/src/registry.ts', 'utf8'); const config = readFileSync($root + '/packages/main/src/core/config.ts', 'utf8'); return { hasRegistry: registry.includes('createMainRegistry') && registry.includes('createToolHandlers'), hasConfig: config.includes('phaseTools') && config.includes('isCommandAllowed') };",
+      "expect": {
+        "hasRegistry": true,
+        "hasConfig": true
+      },
+      "intentRef": "B-6fda:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-6fda",
+      "_id": "9fa4528a-aed2-4858-b6da-c7939e1513aa",
+      "prevCaseId": "6ec8c6fa-73c3-443d-9603-5abb6f608f6e",
+      "nextCaseId": "987632db-ba4b-4ed4-8fce-3471525dc30d"
+    },
+    {
+      "name": "CHK-001 adversarial: framework coverage spans more than one入口文件",
+      "run_type": "cli",
+      "file": "registry",
+      "execute": "const { readFileSync } = await import('fs'); const registry = readFileSync($root + '/packages/main/src/registry.ts', 'utf8'); const config = readFileSync($root + '/packages/main/src/core/config.ts', 'utf8'); return { registryTagged: registry.includes('@task B-6fda'), configTagged: config.includes('@task B-6fda') };",
+      "expect": {
+        "registryTagged": true,
+        "configTagged": true
+      },
+      "intentRef": "B-6fda:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-6fda",
+      "_id": "987632db-ba4b-4ed4-8fce-3471525dc30d",
+      "prevCaseId": "9fa4528a-aed2-4858-b6da-c7939e1513aa",
+      "nextCaseId": "afdfc9da-541c-426c-977e-3cb2b663772b"
+    },
+    {
+      "name": "CHK-002 happy: Wave 0 gate high gap no longer appears",
+      "run_type": "cli",
+      "file": "core/parallel-policy",
+      "execute": "const { execFileSync } = await import('child_process'); return execFileSync('npm', ['run', 'test:framework-wave-gap'], { cwd: $root, encoding: 'utf8' }).trim();",
+      "expect": {
+        "pattern": "framework and wave gate high gaps verified"
+      },
+      "intentRef": "B-6fda:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-6fda",
+      "_id": "afdfc9da-541c-426c-977e-3cb2b663772b",
+      "prevCaseId": "987632db-ba4b-4ed4-8fce-3471525dc30d",
+      "nextCaseId": "42328472-3eaa-49eb-96fd-8b370b95480c"
+    },
+    {
+      "name": "CHK-002 edge: parallel policy still exposes depends plan_only and sharedHotspots",
+      "run_type": "cli",
+      "file": "core/parallel-policy",
+      "execute": "const { readFileSync } = await import('fs'); const text = readFileSync($root + '/packages/main/src/core/parallel-policy.ts', 'utf8'); return { hasDepends: text.includes('depends'), hasPlanOnly: text.includes('plan_only'), hasHotspots: text.includes('sharedHotspots') };",
+      "expect": {
+        "hasDepends": true,
+        "hasPlanOnly": true,
+        "hasHotspots": true
+      },
+      "intentRef": "B-6fda:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-6fda",
+      "_id": "42328472-3eaa-49eb-96fd-8b370b95480c",
+      "prevCaseId": "afdfc9da-541c-426c-977e-3cb2b663772b",
+      "nextCaseId": "a61c3469-66ec-43ac-9eac-8fb459c63fe2"
+    },
+    {
+      "name": "CHK-002 adversarial: Wave 0 coverage is tied to actual parallel gate code",
+      "run_type": "cli",
+      "file": "core/parallel-policy",
+      "execute": "const { readFileSync } = await import('fs'); const text = readFileSync($root + '/packages/main/src/core/parallel-policy.ts', 'utf8'); return { hasSafetyFn: text.includes('resolveParallelSafety'), hasConflictFn: text.includes('summarizeParallelPolicy') };",
+      "expect": {
+        "hasSafetyFn": true,
+        "hasConflictFn": true
+      },
+      "intentRef": "B-6fda:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-6fda",
+      "_id": "a61c3469-66ec-43ac-9eac-8fb459c63fe2",
+      "prevCaseId": "42328472-3eaa-49eb-96fd-8b370b95480c",
+      "nextCaseId": "5d6cbec5-918a-4c09-97ec-0cb211f73a8b"
+    },
+    {
+      "name": "CHK-003 happy: regression script locks the last three high gaps away",
+      "run_type": "cli",
+      "file": "tasks/gap-analyze",
+      "execute": "const { execFileSync } = await import('child_process'); return execFileSync('npm', ['run', 'test:framework-wave-gap'], { cwd: $root, encoding: 'utf8' }).trim();",
+      "expect": {
+        "pattern": "framework and wave gate high gaps verified"
+      },
+      "intentRef": "B-6fda:CHK-003:happy:0",
+      "sandbox": false,
+      "storyId": "B-6fda",
+      "_id": "5d6cbec5-918a-4c09-97ec-0cb211f73a8b",
+      "prevCaseId": "a61c3469-66ec-43ac-9eac-8fb459c63fe2",
+      "nextCaseId": "f4c366c6-2a69-48fd-804c-60cf968f47ba"
+    },
+    {
+      "name": "CHK-003 edge: regression does not hide medium no_test backlog",
+      "run_type": "cli",
+      "file": "tasks/gap-analyze",
+      "execute": "const { execFileSync } = await import('child_process'); const raw = execFileSync('node', [$root + '/packages/main/dist/cli.js', 'gap_analyze'], { cwd: $root, encoding: 'utf8' }); const json = JSON.parse(raw.slice(raw.indexOf('{'))); return { stillHasNoTest: json.gaps.some((g) => g.type === 'no_test') };",
+      "expect": {
+        "stillHasNoTest": true
+      },
+      "intentRef": "B-6fda:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-6fda",
+      "_id": "f4c366c6-2a69-48fd-804c-60cf968f47ba",
+      "prevCaseId": "5d6cbec5-918a-4c09-97ec-0cb211f73a8b",
+      "nextCaseId": "8b03ae32-d89c-464a-9582-7758d930d519"
+    },
+    {
+      "name": "CHK-003 adversarial: regression would fail if any of the last three high lines returned",
+      "run_type": "cli",
+      "file": "tasks/gap-analyze",
+      "execute": "const { execFileSync } = await import('child_process'); const raw = execFileSync('node', [$root + '/packages/main/dist/cli.js', 'gap_analyze'], { cwd: $root, encoding: 'utf8' }); const json = JSON.parse(raw.slice(raw.indexOf('{'))); const highs = new Set(json.gaps.filter((g) => g.severity === 'high').map((g) => `${g.source?.file}:${g.source?.line}`)); return { noFramework5: !highs.has('decisions/framework.md:5'), noFramework8: !highs.has('decisions/framework.md:8'), noWave0: !highs.has('decisions/role-separation.md:897') };",
+      "expect": {
+        "noFramework5": true,
+        "noFramework8": true,
+        "noWave0": true
+      },
+      "intentRef": "B-6fda:CHK-003:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-6fda",
+      "_id": "8b03ae32-d89c-464a-9582-7758d930d519",
+      "prevCaseId": "f4c366c6-2a69-48fd-804c-60cf968f47ba"
+    }
+  ]
+}
