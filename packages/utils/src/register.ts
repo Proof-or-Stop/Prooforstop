@@ -9,8 +9,6 @@ import { createAuxSyncHandlers } from './handlers/aux-sync.js';
 import { createAuxTraceHandlers } from './handlers/aux-trace.js';
 import { createAuxDiagnoseHandlers } from './handlers/aux-diagnose.js';
 import { createAuxDocHandlers } from './handlers/aux-doc.js';
-import { createTruthHandlers } from './handlers/truth.js';
-import { createGapHandlers } from './handlers/gap.js';
 import { createToolStatusHandlers } from './handlers/tool-status.js';
 
 export function register(registry: Registry, ctx: HandlerContext): void {
@@ -19,7 +17,5 @@ export function register(registry: Registry, ctx: HandlerContext): void {
   registry.registerBatch(createAuxTraceHandlers(ctx));
   registry.registerBatch(createAuxDiagnoseHandlers(ctx));
   registry.registerBatch(createAuxDocHandlers(ctx));
-  registry.registerBatch(createTruthHandlers(ctx));
-  registry.registerBatch(createGapHandlers(ctx));
   registry.registerBatch(createToolStatusHandlers(ctx));
 }

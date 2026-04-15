@@ -6,7 +6,7 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 
 const root = process.cwd();
-const cli = join(root, 'packages/main/dist/cli.js');
+const cli = join(root, 'bin', 'koala-codex.js');
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);

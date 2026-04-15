@@ -53,17 +53,6 @@ export const utilsToolDefs: RuntimeToolDef[] = [
     query: z.string().describe('查询字符串'),
   }},
 
-  // Truth 真相源
-  { name: 'truth_scan', description: '扫描真相源', schema: { summary: z.boolean().optional().describe('摘要模式') }},
-  { name: 'truth_extract', description: '从代码+Story反向提取真相源文档', schema: {}},
-  { name: 'truth_nav', description: '生成导航索引', schema: {}},
-  { name: 'truth_analyze', description: '分析真相源矛盾/缺失', schema: {}},
-  { name: 'truth_to_story', description: '从需求拆解 Story 建议', schema: {}},
-
-  // Gap / 收敛
-  { name: 'gap_analyze', description: '真相源 vs 代码差距报告', schema: {}},
-  { name: 'convergence_check', description: '项目收敛检查', schema: {}},
-
   // Tool 使用统计
   { name: 'tool_status', description: '统计 docs/story/activity.jsonl 里的工具使用情况', schema: {
     source: z.enum(['cli','claude','codex','all']).optional().describe('数据源（默认 all）'),
