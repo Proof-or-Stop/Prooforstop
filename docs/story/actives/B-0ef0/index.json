@@ -1,0 +1,45 @@
+{
+  "storyId": "B-0ef0",
+  "name": "finish-dangerous-command-guardrails",
+  "title": "把危险命令护栏补到 destructive 执行路径",
+  "description": "B-9a99 已经给公开 CLI 命令接入了第一版 dry-run/confirm 护栏，但 gap_analyze 里的高优先级需求仍未消失，说明对 destructive 命令的覆盖还不完整。下一步优先补会真实改动 git/worktree/fixture 现场的执行路径，尤其是 test_auto 这类会 restore/clean 的命令，并把 requirement 文案与实现行为真正对齐。",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "数据迁移/破坏性",
+      "matched": "destructive"
+    },
+    {
+      "category": "test runner 框架",
+      "matched": "test_auto"
+    }
+  ],
+  "createdAt": "2026-04-15T23:26:21.739Z",
+  "startedAt": "2026-04-15T23:26:21.739Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-15T23:26:21.739Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-15T23:26:29.393Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-0ef0",
+    "branch": "story/B-0ef0",
+    "createdAt": "2026-04-15T23:26:29.574Z"
+  }
+}
