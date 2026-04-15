@@ -1,0 +1,48 @@
+{
+  "storyId": "B-8fb2",
+  "name": "artifact-contract-unification",
+  "title": "统一 story artifact 协议并减少聊天态知识",
+  "description": "把 understanding、decision、review judgment、test evidence、transcript diff 等物证统一成一套 artifact contract。目标是让角色间协作靠 artifact 传递，不靠聊天复述；让 session_brief、story_review 与 DONE gate 优先读物证而不是猜状态。",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "lane": "supporting",
+  "parallelSafe": "plan_only",
+  "sharedHotspots": [
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/story-review.ts",
+    "docs/requirements/decisions/story-lifecycle.md"
+  ],
+  "riskSignals": [
+    {
+      "category": "状态机/门禁",
+      "matched": "gate"
+    }
+  ],
+  "createdAt": "2026-04-15T06:00:57.000Z",
+  "startedAt": "2026-04-15T06:00:57.000Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-15T06:00:57.001Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:01:05.788Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-8fb2",
+    "branch": "story/B-8fb2",
+    "createdAt": "2026-04-15T06:01:05.867Z"
+  }
+}

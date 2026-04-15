@@ -1,0 +1,52 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "收紧 understanding.outcome 为用户可见 transcript",
+      "context": "不再接受抽象 outcome，要求写成用户最终会看到的终端或 UI 文本片段，为后续 diff 提供 expected transcript 真相源",
+      "relatedDocs": [
+        "AGENTS.md#用户价值验收（优先于技术链路验证）",
+        "docs/requirements/decisions/project-vision.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "定义 actual transcript 与 diff artifact 协议",
+      "context": "统一 expected transcript、actual transcript、diff 的最小字段和落点，避免主 agent 各写各的、后续 gate 无法稳定读取",
+      "relatedDocs": [
+        "AGENTS.md#用户价值验收（优先于技术链路验证）",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "在 TEST 到 DONE 之间接入 transcript artifact 检查",
+      "context": "第一版可先 advisory，缺 artifact 时输出明确 hint；后续再评估是否升级为 hard gate，核心目标是让系统承认工程通过不等于用户价值闭环",
+      "relatedDocs": [
+        "AGENTS.md#用户价值验收（优先于技术链路验证）",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "为 transcript 缺失与通过路径补 fixture 回归",
+      "context": "验证 expected/actual/diff 三件套存在时 gate 行为正确，缺失时能稳定给出结构化提示，避免再次退化成靠 agent 自述完成",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-fixture-spec.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

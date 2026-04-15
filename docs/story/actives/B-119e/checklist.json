@@ -1,0 +1,52 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "定义各 phase 的 invariant 协议",
+      "context": "为 PLAN、DEV、TEST_CASE、TEST_CASE_REVIEW、TEST、DONE 列出最小必备条件，让 phase 语义不再依赖主 agent 脑补",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/framework.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "定义 rollback reason code 体系",
+      "context": "把 review_failed、bug_open、missing_transcript、missing_test_intent 等失败原因结构化，避免只有自然语言报错而无法被 brief 和诊断复用",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "让 story_advance 与相关 gate 返回结构化 reason 加 human hint",
+      "context": "既保留对人友好的下一步提示，也给系统稳定字段，供 session_brief、reviewer 和后续自动化工具统一消费",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/cc-learnings.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "为典型推进失败与自动回退路径补 fixture",
+      "context": "验证 invariant 未满足时的拒绝、reason code 和 hint 输出都稳定，避免状态机约束只存在于实现脑内",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-fixture-spec.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

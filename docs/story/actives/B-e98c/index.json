@@ -1,0 +1,42 @@
+{
+  "storyId": "B-e98c",
+  "name": "implementation-review-lane",
+  "title": "补一条实现代码的独立 review 通道",
+  "description": "在 test-intent 与 test-case-reviewer 之外，增加专门看实现代码本身的 review 通道。它关注行为回归、边界条件、实现风险和可维护性，不改代码、不写 fixture、不推进 phase，先以 advisory 形式验证信噪比。",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "medium",
+  "lane": "supporting",
+  "parallelSafe": "plan_only",
+  "sharedHotspots": [
+    "packages/main/src/handlers/story-review.ts",
+    ".Codex/agents",
+    "docs/requirements/decisions/role-separation.md"
+  ],
+  "createdAt": "2026-04-15T06:00:57.000Z",
+  "startedAt": "2026-04-15T06:00:57.000Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-15T06:00:57.001Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:01:05.806Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-e98c",
+    "branch": "story/B-e98c",
+    "createdAt": "2026-04-15T06:01:05.884Z"
+  }
+}
