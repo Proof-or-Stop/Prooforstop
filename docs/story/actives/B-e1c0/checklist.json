@@ -10,7 +10,28 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "test_auto 在未带 --confirm 时会拒绝执行，并提示先用 --dry-run 或 --confirm。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "test_auto --dry-run 只预览 fixture 扫描和 git restore/clean 范围，不真实执行回归。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "即使有 fixture 和 cleanup 路径，dry-run 也不会改动现场状态。",
+            "type": "cli_blackbox"
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
     },
     {
       "id": "CHK-002",
@@ -22,7 +43,28 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "test_auto destructive guardrail 回归能证明默认拒绝、dry-run 不落盘、confirm 后才执行。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "真实执行前后输出与 dry-run 计划保持一致，避免预览和实际行为分叉。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果外部状态在 dry-run 与真实执行之间变化，真实执行仍会重新读取现场，而不是盲信旧计划。",
+            "type": "cli_blackbox"
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
     }
   ]
 }
