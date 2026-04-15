@@ -1,0 +1,30 @@
+{
+  "task": "把 review/test/gate 卡住时长期不推进的问题收敛成明确的 retry/fix/discard 护栏，让 Koala 在卡住场景里给出可执行下一步，而不是停留在模糊的 phase 提示上。",
+  "outcome": "> node bin/koala-codex.js session_brief\n## → Next step\nStory B-3302 卡在 TEST_CASE_REVIEW：\n  - retry: 重新运行 reviewer / testintent_check 确认是不是暂时状态\n  - fix: 回到 DEV 或 TEST_CASE 修正代码/fixture\n  - discard: 如果这条 story 已不值得继续，明确用 story_discard 收尾\n用户不再只看到“有失败项”或“记得继续走流程”，而是能立刻选下一步。",
+  "facts": [
+    "cc-learnings 把“卡死不推进”明确列为反模式，要求 retry / fix / discard 三选一",
+    "当前 computeNextStep/testintent_check/stale-detector 已经会给 hint，但多处仍停留在“继续审核”“回退改代码/改 case”这类弱提示",
+    "story_discard 已存在，story_advance 也支持多种回退路径，缺的是把这些出口更明确地编排成 anti-stall 决策面"
+  ],
+  "constraints": [
+    "优先复用 session_brief/testintent_check/stale-detector/story_advance 的现有用户面，不新增重型状态机",
+    "护栏的目标是减少停滞，不是增加更多 hard gate",
+    "需要兼容现有 Story 流程和 retry/fix/discard 的真实语义，不能只加文案不对齐行为"
+  ],
+  "unknowns": [
+    "最合适的主用户面应该放在 session_brief、testintent_check、stale warning 还是 story_advance fail hint，还是三者组合",
+    "哪些卡住场景适合提示 retry，哪些应该直接偏向 fix 或 discard",
+    "discard 提示是否需要额外保护，避免把暂时卡住的 story 过早引导到废弃"
+  ],
+  "touchpoints": [
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/core/stale-detector.ts",
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/handlers/worktree.ts",
+    "docs/requirements/decisions/cc-learnings.md",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "AGENTS.md"
+  ],
+  "timestamp": "2026-04-15T03:58:15.347Z"
+}

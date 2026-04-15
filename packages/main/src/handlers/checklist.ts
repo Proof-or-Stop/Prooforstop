@@ -5,6 +5,7 @@ import { createStoryActor } from '../core/machine.js';
 import { loadConfig } from '../core/config.js';
 import { readFileSync, existsSync, readdirSync } from 'fs';
 import { join } from 'path';
+import { renderAntiStall, reviewAntiStall, waitingAntiStall } from '../core/anti-stall.js';
 
 /**
  * Collect intentRef values from fixture files under fixturesDir, scoped by storyId.
@@ -410,7 +411,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           ? `→ 全部通过，已自动推进到 TEST。请立即执行: test_story('${args.storyId}')`
           : `→ 全部通过，可推进: story_advance('${args.storyId}', 'TEST')`;
       } else if (hasUnreviewed) {
-        hint = `→ 有 ${unreviewed} 条未审核，请继续审核后再检查`;
+        hint = `→ 有 ${unreviewed} 条未审核，请继续审核后再检查\n${waitingAntiStall(args.storyId)}`;
       } else {
         // 有 author 回复但 reviewer 还没最终判定的，提示 reviewer 再审
         const hasAuthorReply = results.some(r => {
@@ -424,9 +425,14 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           return last?.role === 'author';
         });
         if (hasAuthorReply) {
-          hint = `→ 有 author 回复待 reviewer 最终判定，请重新启动 reviewer 审核`;
+          hint = `→ 有 author 回复待 reviewer 最终判定，请重新启动 reviewer 审核\n${reviewAntiStall(args.storyId)}`;
         } else {
-          hint = `→ ${failed} 条未通过，主 agent 决定: story_advance('${args.storyId}', 'DEV') 回退改代码，或 story_advance('${args.storyId}', 'TEST_CASE') 回退改 case`;
+          hint = `→ ${failed} 条未通过。\n${renderAntiStall({
+            storyId: args.storyId,
+            title: '⚠ anti-stall: 当前不是“继续解释”的时机',
+            retry: `重新运行 reviewer / testintent_check '${args.storyId}'，先确认是不是旧状态或临时失败`,
+            fix: `story_advance '${args.storyId}' 到 DEV 回退改代码，或到 TEST_CASE 回退改 fixture`,
+          })}`;
         }
       }
 
