@@ -11,19 +11,43 @@
         "happy": [
           {
             "desc": "清理后，gap_analyze 不再报告 tools-flow_trace.json / tools-flow_list.json 这两条 no_test。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T15:35:24.508Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/flow-tool-metadata-cleanup.json:1 WHY fixture and script cover stale flow metadata removal, live metadata preservation, and cleanup-legacy regression guardrails. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "不会误删仍然有效的 flow 提取/校验相关元数据。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T15:35:24.596Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/flow-tool-metadata-cleanup.json:1 WHY fixture and script cover stale flow metadata removal, live metadata preservation, and cleanup-legacy regression guardrails. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "如果只改文案不清 metadata 源，gap_analyze 仍会继续报这两条 no_test。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T15:35:24.684Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/flow-tool-metadata-cleanup.json:1 WHY fixture and script cover stale flow metadata removal, live metadata preservation, and cleanup-legacy regression guardrails. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -39,19 +63,43 @@
         "happy": [
           {
             "desc": "scan()/gap_analyze 不再从 stale metadata 里带出 flow_trace/flow_list 两条 no_test。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T15:35:24.772Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/flow-tool-metadata-cleanup.json:1 WHY fixture and script cover stale flow metadata removal, live metadata preservation, and cleanup-legacy regression guardrails. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "仍然存在于源码里的 metadata 记录不会被误删，当前 flow 提取/校验能力继续可见。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T15:35:24.859Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/flow-tool-metadata-cleanup.json:1 WHY fixture and script cover stale flow metadata removal, live metadata preservation, and cleanup-legacy regression guardrails. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "如果 stale metadata 的 file 不存在却仍被保留，回归会继续看到这两条 no_test。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T15:35:24.945Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/flow-tool-metadata-cleanup.json:1 WHY fixture and script cover stale flow metadata removal, live metadata preservation, and cleanup-legacy regression guardrails. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -67,19 +115,43 @@
         "happy": [
           {
             "desc": "会有脚本或 story 级 fixture 证明 gap_analyze 不再报告 tools-flow_trace/tools-flow_list 这两条 no_test。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T15:35:25.032Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/flow-tool-metadata-cleanup.json:1 WHY fixture and script cover stale flow metadata removal, live metadata preservation, and cleanup-legacy regression guardrails. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "回归不会误伤 cleanup-legacy 已经确认的 flow 命令删除决策。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T15:35:25.118Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/flow-tool-metadata-cleanup.json:1 WHY fixture and script cover stale flow metadata removal, live metadata preservation, and cleanup-legacy regression guardrails. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "如果 stale metadata 重新出现，这条回归会直接失败。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T15:35:25.206Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/flow-tool-metadata-cleanup.json:1 WHY fixture and script cover stale flow metadata removal, live metadata preservation, and cleanup-legacy regression guardrails. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
