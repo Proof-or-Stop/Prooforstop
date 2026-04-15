@@ -1,0 +1,35 @@
+{
+  "storyId": "B-0fd4",
+  "name": "persist-browser-screenshot-smoke",
+  "title": "把 browser screenshot smoke 正式落成回归入口",
+  "description": "刚才已经用一次性临时脚本验证过 executeBrowserCases + browser-client/browser-server 的 screenshot 链路在当前环境里能跑通，但验证还没进主线。需要把这条 smoke 正式落成仓库脚本和回归入口，让之后能重复回答 screenshot 链路是否仍可用。",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "createdAt": "2026-04-15T12:16:48.152Z",
+  "startedAt": "2026-04-15T12:16:48.152Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-15T12:16:48.152Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-15T12:16:55.910Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-0fd4",
+    "branch": "story/B-0fd4",
+    "createdAt": "2026-04-15T12:16:55.994Z"
+  }
+}
