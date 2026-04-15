@@ -6,6 +6,9 @@ import { loadConfig } from '../core/config.js';
 import { join } from 'path';
 import { existsSync, readFileSync, readdirSync } from 'fs';
 import { execSync } from 'child_process';
+import { getArtifactContractStatus } from '../core/artifact-contract.js';
+import { getReviewerStatus } from '../core/reviewer-status.js';
+import { getStoryWorktreeRuntime } from '../core/worktree-runtime.js';
 
 // ─── 僵尸 story 检测：分支已合并到 main 但 phase 不是 DONE ─────────────────
 
@@ -30,39 +33,16 @@ interface ZombieInfo {
 export function detectZombieStories(store: import('../core/store.js').StoryStore, root: string): ZombieInfo[] {
   const zombies: ZombieInfo[] = [];
   const ids = store.listStoryIds();
-  const readLocalBranches = (args: string): Set<string> => {
-    const raw = execSync(`git for-each-ref --format='%(refname:short)' ${args} refs/heads`, {
-      cwd: root,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-    return new Set(raw.split('\n').map(l => l.trim()).filter(Boolean));
-  };
-
-  // 拿已合并到 main 的分支列表（一次 git 调用覆盖所有 story）
-  let mergedBranches: Set<string>;
-  try {
-    mergedBranches = readLocalBranches('--merged=main');
-  } catch {
-    return []; // git 不可用，跳过
-  }
-
-  // 拿所有本地分支名
-  let allBranches: Set<string>;
-  try {
-    allBranches = readLocalBranches('');
-  } catch {
-    allBranches = new Set();
-  }
 
   for (const id of ids) {
     let story: StoryInfo;
     try { story = store.readStory(id); } catch { continue; }
     if (!NON_TERMINAL_PHASES.has(story.phase)) continue;
 
-    const branch = story.worktree?.branch || `story/${id}`;
-    const branchExists = allBranches.has(branch);
-    const branchMerged = mergedBranches.has(branch);
+    const runtime = getStoryWorktreeRuntime(id, store, root);
+    const branch = runtime.branch;
+    const branchExists = runtime.branchExists;
+    const branchMerged = runtime.branchMerged;
 
     // 分支已合并到 main，或分支已删除（被人手动删了或 merge 后删了）
     // 对于 INIT/INIT_CHECK，分支可能还没创建，不算僵尸
@@ -70,16 +50,11 @@ export function detectZombieStories(store: import('../core/store.js').StoryStore
       if (!branchExists) continue; // 分支还没创建，正常
     }
 
+    if (runtime.linkedPath) continue;
+
     const branchGone = !branchExists && (story.phase !== 'INIT' && story.phase !== 'INIT_CHECK');
 
     if (!branchMerged && !branchGone) continue;
-
-    let worktreeExists = false;
-    let worktreePath: string | undefined;
-    if (story.worktree?.path) {
-      worktreePath = join(root, story.worktree.path);
-      worktreeExists = existsSync(worktreePath);
-    }
 
     zombies.push({
       storyId: id,
@@ -87,8 +62,8 @@ export function detectZombieStories(store: import('../core/store.js').StoryStore
       branch,
       branchExists,
       branchMerged,
-      worktreeExists,
-      worktreePath,
+      worktreeExists: runtime.recordedExists,
+      worktreePath: runtime.recordedAbsPath || undefined,
     });
   }
 
@@ -178,6 +153,16 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
       const result: Record<string, unknown> = { checklist: cl, review };
       if (args.detail) {
         try { result.index = store.readStory(args.storyId); } catch { result.index = null; }
+        try {
+          const story = store.readStory(args.storyId);
+          result.runtimeHealth = getStoryWorktreeRuntime(args.storyId, store, ctx.root);
+          result.reviewers = getReviewerStatus(args.storyId, store, story.phase);
+          result.artifactContract = getArtifactContractStatus(args.storyId, store, story.phase);
+        } catch {
+          result.runtimeHealth = null;
+          result.reviewers = null;
+          result.artifactContract = null;
+        }
       }
       return result;
     },

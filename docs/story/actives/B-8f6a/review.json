@@ -1,0 +1,60 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-04-15T15:46:09.707Z",
+      "issueCount": 4,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 1 个高风险信号: 状态机/门禁。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）"
+        },
+        {
+          "type": "parallel_policy_missing_safety",
+          "severity": "advisory",
+          "message": "未声明 parallelSafe。当前默认会按 plan_only 推断，建议显式设置 yes/no/plan_only，让 session_brief 能稳定给出并行建议"
+        },
+        {
+          "type": "parallel_policy_missing_hotspots",
+          "severity": "advisory",
+          "message": "sharedHotspots 为空。建议列出会争抢的核心文件或模块，便于 session_brief 提前提示冲突"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 3 个未消化的 unknowns: implementation review 在哪些 phase 需要从 advisory 升为 required 才最合适。; worktree drift 修正应该只做提示，还是应该自动回写 story.worktree/path。; reviewer 聚合是否需要进入 DONE gate，还是只作为 TEST_CASE_REVIEW/TEST 的 phase-aware 契约。"
+        }
+      ],
+      "_hash": "6724bc224bf1b3e5b52d44e61815cef01442631a69cf074e78236759107dfdda"
+    },
+    {
+      "timestamp": "2026-04-15T15:48:25.400Z",
+      "issueCount": 4,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 1 个高风险信号: 状态机/门禁。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）"
+        },
+        {
+          "type": "parallel_policy_conflict",
+          "severity": "advisory",
+          "message": "并行风险：blockingFor references unknown story runtime/workflow integration readiness"
+        },
+        {
+          "type": "parallel_policy_conflict",
+          "severity": "advisory",
+          "message": "并行风险：shares hotspots with B-e452: packages/main/src/handlers/session.ts, packages/main/src/handlers/story-advance.ts"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 3 个未消化的 unknowns: implementation review 在哪些 phase 需要从 advisory 升为 required 才最合适。; worktree drift 修正应该只做提示，还是应该自动回写 story.worktree/path。; reviewer 聚合是否需要进入 DONE gate，还是只作为 TEST_CASE_REVIEW/TEST 的 phase-aware 契约。"
+        }
+      ],
+      "_hash": "fde5d15d8c5b7eeec285bb9f4d05046ee7bf6a21ee472f1cef811d5b669a3136"
+    }
+  ]
+}

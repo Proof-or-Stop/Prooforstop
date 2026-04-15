@@ -1,0 +1,210 @@
+import { execSync } from 'child_process';
+import { existsSync, realpathSync } from 'fs';
+import { dirname, isAbsolute, join, relative } from 'path';
+import type { StoryStore } from './store.js';
+
+export interface GitWorktreeEntry {
+  path: string;
+  branch: string | null;
+  branchRef: string | null;
+}
+
+export interface StoryWorktreeRuntime {
+  storyId: string;
+  repoRoot: string;
+  branch: string;
+  hasWorktreeRecord: boolean;
+  recordedPath: string | null;
+  recordedAbsPath: string | null;
+  recordedExists: boolean;
+  linkedPath: string | null;
+  linkedRelPath: string | null;
+  linkedExists: boolean;
+  branchExists: boolean;
+  branchMerged: boolean;
+  drift: boolean;
+  canRepairPath: boolean;
+  status: 'ok' | 'drift' | 'missing' | 'orphaned';
+  summary: string;
+  warnings: string[];
+  recoveryHint: string | null;
+}
+
+function git(root: string, args: string[]): string {
+  const quoted = args.map((arg) => `"${arg.replace(/(["\\$`])/g, '\\$1')}"`);
+  return execSync('git ' + quoted.join(' '), {
+    cwd: root,
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+}
+
+function canonicalPath(path: string): string {
+  try {
+    return realpathSync(path);
+  } catch {
+    return path;
+  }
+}
+
+export function getRepoRoot(root: string): string {
+  try {
+    const topLevel = canonicalPath(git(root, ['rev-parse', '--show-toplevel']));
+    const commonDir = git(root, ['rev-parse', '--git-common-dir']);
+    const absCommonDir = canonicalPath(isAbsolute(commonDir) ? commonDir : join(topLevel, commonDir));
+    if (absCommonDir.endsWith('/.git') || absCommonDir.endsWith('\\.git')) {
+      return dirname(absCommonDir);
+    }
+    return topLevel;
+  } catch {
+    return canonicalPath(root);
+  }
+}
+
+export function resolveWorktreePath(repoRoot: string, storedPath: string | null | undefined): string | null {
+  if (!storedPath) return null;
+  if (isAbsolute(storedPath)) return storedPath;
+  return join(repoRoot, storedPath);
+}
+
+function toRepoRelative(repoRoot: string, absPath: string): string {
+  return relative(repoRoot, absPath).replace(/\\/g, '/');
+}
+
+function readBranches(root: string, args: string[]): Set<string> {
+  const raw = git(root, ['for-each-ref', '--format=%(refname:short)', ...args, 'refs/heads']);
+  return new Set(raw.split('\n').map((line) => line.trim()).filter(Boolean));
+}
+
+export function listGitWorktrees(root: string): GitWorktreeEntry[] {
+  const repoRoot = getRepoRoot(root);
+  let raw = '';
+  try {
+    raw = execSync('git worktree list --porcelain', {
+      cwd: repoRoot,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+  } catch {
+    return [];
+  }
+
+  const entries: GitWorktreeEntry[] = [];
+  let current: GitWorktreeEntry | null = null;
+  for (const line of raw.split('\n')) {
+    if (line.startsWith('worktree ')) {
+      if (current) entries.push(current);
+      current = {
+        path: canonicalPath(line.slice('worktree '.length).trim()),
+        branch: null,
+        branchRef: null,
+      };
+      continue;
+    }
+    if (!current) continue;
+    if (line.startsWith('branch ')) {
+      current.branchRef = line.slice('branch '.length).trim();
+      current.branch = current.branchRef.replace(/^refs\/heads\//, '');
+      continue;
+    }
+    if (line.trim().length === 0) {
+      entries.push(current);
+      current = null;
+    }
+  }
+  if (current) entries.push(current);
+  return entries;
+}
+
+export function getStoryWorktreeRuntime(
+  storyId: string,
+  store: StoryStore,
+  root: string,
+): StoryWorktreeRuntime {
+  const story = store.readStory(storyId);
+  const repoRoot = getRepoRoot(root);
+  const branch = story.worktree?.branch || `story/${storyId}`;
+  const recordedPath = story.worktree?.path ?? null;
+  const recordedAbsPath = resolveWorktreePath(repoRoot, recordedPath);
+  const recordedExists = recordedAbsPath ? existsSync(recordedAbsPath) : false;
+
+  const linkedEntry = listGitWorktrees(repoRoot).find((entry) => entry.branch === branch) || null;
+  const linkedPath = linkedEntry?.path ?? null;
+  const linkedRelPath = linkedPath ? toRepoRelative(repoRoot, linkedPath) : null;
+  const linkedExists = linkedPath ? existsSync(linkedPath) : false;
+
+  let branchExists = false;
+  let branchMerged = false;
+  try {
+    branchExists = readBranches(repoRoot, []).has(branch);
+  } catch { /* PROBE */ }
+  try {
+    branchMerged = readBranches(repoRoot, ['--merged=main']).has(branch);
+  } catch { /* PROBE */ }
+
+  const drift = Boolean(linkedPath && recordedAbsPath && canonicalPath(linkedPath) !== canonicalPath(recordedAbsPath));
+  const canRepairPath = Boolean(linkedPath && (!recordedAbsPath || drift));
+  const warnings: string[] = [];
+  let status: StoryWorktreeRuntime['status'] = 'ok';
+  let summary = 'worktree registered';
+  let recoveryHint: string | null = null;
+
+  if (linkedPath) {
+    if (drift || !recordedAbsPath) {
+      status = 'drift';
+      summary = 'git linked worktree exists but story record drifted';
+      warnings.push(`linked worktree: ${linkedPath}`);
+      if (recordedAbsPath) warnings.push(`recorded path: ${recordedAbsPath}`);
+      recoveryHint = canRepairPath
+        ? `可按 git worktree list 自动修正到 ${linkedPath}`
+        : '先确认当前活跃 linked worktree，再决定是否回写 story.worktree.path';
+    }
+  } else if (recordedExists) {
+    status = 'orphaned';
+    summary = 'recorded worktree directory exists but git registry has no matching linked worktree';
+    warnings.push(`recorded path: ${recordedAbsPath}`);
+    recoveryHint = '先检查 git worktree list / git worktree repair；若目录是残留，再清理并重建';
+  } else if (recordedPath || branchExists) {
+    status = 'missing';
+    summary = branchExists
+      ? 'story branch exists but no linked worktree is registered'
+      : 'story has no active linked worktree';
+    if (recordedAbsPath) warnings.push(`missing path: ${recordedAbsPath}`);
+    if (branchMerged) warnings.push(`branch ${branch} already merged into main`);
+    recoveryHint = branchExists
+      ? `运行 koala story_advance --storyId=${storyId} --phase=INIT_CHECK 重新建立 worktree`
+      : `分支 ${branch} 已不存在，先检查是否应 reconcile / discard / 重新 INIT_CHECK`;
+  }
+
+  return {
+    storyId,
+    repoRoot,
+    branch,
+    hasWorktreeRecord: Boolean(story.worktree),
+    recordedPath,
+    recordedAbsPath,
+    recordedExists,
+    linkedPath,
+    linkedRelPath,
+    linkedExists,
+    branchExists,
+    branchMerged,
+    drift,
+    canRepairPath,
+    status,
+    summary,
+    warnings,
+    recoveryHint,
+  };
+}
+
+export function resolveLinkedWorktreePath(runtime: StoryWorktreeRuntime): string | null {
+  return runtime.linkedPath || runtime.recordedAbsPath || null;
+}
+
+export function resolveLinkedWorktreeStoryPath(runtime: StoryWorktreeRuntime): string | null {
+  if (runtime.linkedPath) {
+    return runtime.linkedRelPath || toRepoRelative(runtime.repoRoot, runtime.linkedPath);
+  }
+  return runtime.recordedPath || null;
+}

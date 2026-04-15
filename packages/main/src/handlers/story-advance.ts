@@ -10,6 +10,7 @@ import { renderSummaryForHint } from './summary.js';
 import { reviewAntiStall, testAntiStall } from '../core/anti-stall.js';
 import { buildRollbackDecision, formatPhaseGateDecision } from '../core/phase-protocol.js';
 import { getArtifactContractStatus } from '../core/artifact-contract.js';
+import { getReviewerStatus } from '../core/reviewer-status.js';
 import { execSync } from 'child_process';
 import { dirname } from 'path';
 import { existsSync, rmSync } from 'fs';
@@ -201,8 +202,25 @@ function buildDoneChecklist(storyId: string, store: StoryStore, root: string): D
     }
   }
 
+  const reviewerStatus = getReviewerStatus(storyId, store, 'DONE');
+  const reviewerBlockers = reviewerStatus.entries.filter((entry) => entry.blocking && entry.verdict !== 'pass');
+  if (reviewerBlockers.length > 0) {
+    rows.push({
+      status: 'fail',
+      label: 'Reviewer contract',
+      detail: `${reviewerBlockers.length} blocking reviewer artifact(s) not ready`,
+      hint: reviewerBlockers.map((entry) => `${entry.label}: ${entry.summary}`).join('\n'),
+    });
+  } else {
+    rows.push({
+      status: 'pass',
+      label: 'Reviewer contract',
+      detail: 'all blocking reviewer artifacts are ready',
+    });
+  }
+
   // 7. artifact contract (B-8162: surface required vs advisory evidence)
-  const artifactContract = getArtifactContractStatus(storyId, store, store.readStory(storyId).phase);
+  const artifactContract = getArtifactContractStatus(storyId, store, 'DONE');
   const missingRequired = artifactContract.entries.filter((entry) => entry.required && !entry.present);
   const missingAdvisory = artifactContract.entries.filter((entry) => !entry.required && !entry.present);
   if (missingRequired.length > 0) {
@@ -256,7 +274,7 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
       phase: StoryPhase;
       checklist?: Array<{ id: string; title: string }>;
     }): Promise<string> {
-      const story = store.readStory(args.storyId);
+      let story = store.readStory(args.storyId);
       const oldPhase: string = story.phase as string;
 
       // CWD 门禁：PLAN/DEV/TEST_* 阶段必须在 worktree 里执行
@@ -264,6 +282,7 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
       const CWD_GATED: StoryPhase[] = ['PLAN', 'DEV', 'TEST_CASE', 'TEST_CASE_REVIEW', 'TEST'];
       if (CWD_GATED.includes(args.phase) && story.worktree) {
         assertCwdInWorktree(store, args.storyId);
+        story = store.readStory(args.storyId);
       }
 
       // 依赖完成度检查（soft warning，不阻塞）
@@ -360,36 +379,10 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
 
       // TEST_CASE_REVIEW→TEST 门禁：检查 testIntent results（兜底，防止手动跳过 reviewer）
       if (args.phase === 'TEST' && story.phase === 'TEST_CASE_REVIEW') {
-        const checklist = store.readChecklist(args.storyId);
-        const failures: Array<{ itemId: string; category: string; desc: string; type: string }> = [];
+        const reviewerStatus = getReviewerStatus(args.storyId, store, 'TEST');
+        const blockers = reviewerStatus.entries.filter((entry) => entry.blocking && entry.verdict !== 'pass');
 
-        for (const item of checklist.items) {
-          if (item.testIntent === null) continue; // 标记为不可自动化测试，跳过
-          if (!item.testIntent) {
-            failures.push({ itemId: item.id, category: '*', desc: 'missing testIntent', type: 'cli_blackbox' });
-            continue;
-          }
-          for (const category of ['happy', 'edge', 'adversarial'] as const) {
-            const entries = (item.testIntent as any)[category] || [];
-            for (const entry of entries) {
-              if (typeof entry === 'string') {
-                failures.push({ itemId: item.id, category, desc: entry, type: 'cli_blackbox' });
-                continue;
-              }
-              if (!entry.results || entry.results.length === 0) {
-                failures.push({ itemId: item.id, category, desc: entry.desc, type: entry.type || 'cli_blackbox' });
-                continue;
-              }
-              // 只看 role=reviewer 的最后一条判定记录
-              const lastJudgment = [...entry.results].reverse().find((r: any) => r.role === 'reviewer' && r.pass !== undefined);
-              if (!lastJudgment || !lastJudgment.pass) {
-                failures.push({ itemId: item.id, category, desc: entry.desc, type: entry.type || 'cli_blackbox' });
-              }
-            }
-          }
-        }
-
-        if (failures.length > 0) {
+        if (blockers.length > 0) {
           // 统一回退 DEV
           actor.send({ type: 'ROLLBACK_DEV' } as any);
           actor.stop();
@@ -400,10 +393,10 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
           if (!story.events) story.events = [];
           story.events.push(rollbackCtxEvent);
           store.writeStory(args.storyId, story);
-          const issues: PhaseInvariantIssue[] = [{
-            code: 'testintent_not_passed',
-            detail: `${failures.length} testIntent(s) not passed:\n${failures.map(f => `  - ${f.itemId}:${f.category} [${f.type}] ${f.desc}`).join('\n')}`,
-          }];
+          const issues: PhaseInvariantIssue[] = blockers.map((entry) => ({
+            code: entry.key,
+            detail: `${entry.label}: ${entry.detail}`,
+          }));
           const decision = buildRollbackDecision({
             storyId: args.storyId,
             targetPhase: 'TEST',
@@ -552,6 +545,7 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
 ⚠ 真机测试时（不管在 DEV 还是 TEST 阶段）切换视角: 不要只盯事件日志和 [✓ exit=0]——那是工程师视角。用 PLAN 阶段写的 outcome transcript 当 expected，把实际终端输出当 actual，**对着 diff**。最后一行让用户说"完成"还是"然后呢"决定 story 是否真的做完。`,
         TEST_CASE: `→ 下一步: 根据 testIntent 编写 fixture case（只改 fixture，不改代码）。完成后 story_advance(${args.storyId}, TEST_CASE_REVIEW)。如需改代码请先 story_advance(${args.storyId}, DEV) 回退`,
         TEST_CASE_REVIEW: `→ 下一步: 启动 test-case-reviewer agent 审核（不改代码也不改 case）。未通过时主 agent 调 story_advance(${args.storyId}, DEV) 回退改代码，或 story_advance(${args.storyId}, TEST_CASE) 回退改 case
+⚠ implementation-reviewer（phase-aware）: 在进入 TEST 前，至少做一次实现层自检。若已经有 implementation review 结果，以统一 reviewer status / artifact contract 为准决定是否仍有阻塞。
 ${reviewAntiStall(args.storyId)}`,
         TEST: `→ 必须立即执行: test_story('${args.storyId}') 跑当前 story 关联 case，写 bug/evidence。fail 自动 aux_diagnose + bug_report，pass 自动标 bug fixed。需要刷新架构 trace 时再 test_auto({trace:true})
 ${testAntiStall(args.storyId)}

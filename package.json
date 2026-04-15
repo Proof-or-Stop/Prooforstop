@@ -30,6 +30,7 @@
     "test:parallel-policy": "node scripts/verify-parallel-execution-policy.mjs",
     "test:product-reviewer": "node scripts/verify-product-reviewer.mjs",
     "test:role-telemetry": "node scripts/verify-role-telemetry.mjs",
+    "test:runtime-reviewer-contract": "node scripts/verify-runtime-reviewer-contract.mjs",
     "test:session-brief": "node scripts/verify-session-brief-command-center.mjs",
     "test:e2e": "node packages/main/dist/tasks/cli-e2e.js",
     "lint:tasks": "node packages/main/dist/tasks/cli-validate.js"
