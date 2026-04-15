@@ -67,7 +67,7 @@ function createTempProject(serverPort) {
   return dir;
 }
 
-async function runSmoke() {
+async function runSmoke(jsonMode = false) {
   const browserExecutor = await import(pathToFileURL(resolveBrowserExecutorModule()).href);
   const { executeBrowserCases, cleanupBrowserEnv } = browserExecutor;
   const port = 43117;
@@ -97,7 +97,14 @@ async function runSmoke() {
     const pngHeader = readFileSync(screenshotPath).subarray(0, 8).toString('hex');
     assert(pngHeader === '89504e470d0a1a0a', 'screenshot is not a PNG file');
 
-    console.log('browser screenshot smoke verified');
+    const payload = {
+      verified: true,
+      strategy: 'canvas',
+      screenshotCount: caseResult.screenshotPaths.length,
+      screenshotBytes: statSync(screenshotPath).size,
+    };
+    if (jsonMode) console.log(JSON.stringify(payload));
+    else console.log('browser screenshot smoke verified');
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     if (
@@ -114,7 +121,7 @@ async function runSmoke() {
   }
 }
 
-async function runBrokenEnvProbe() {
+async function runBrokenEnvProbe(jsonMode = false) {
   const browserExecutor = await import(pathToFileURL(resolveBrowserExecutorModule()).href);
   const { executeBrowserCases, cleanupBrowserEnv } = browserExecutor;
   const port = 43118;
@@ -144,7 +151,13 @@ async function runBrokenEnvProbe() {
       message.includes('Dev server did not start') || message.includes('Browser did not connect') || message.includes('No browser connected'),
       `broken environment emitted unclear error: ${message}`,
     );
-    console.log('browser screenshot broken-env verified');
+    const payload = {
+      verified: true,
+      category: 'browser-environment',
+      message,
+    };
+    if (jsonMode) console.log(JSON.stringify(payload));
+    else console.log('browser screenshot broken-env verified');
   } finally {
     cleanupBrowserEnv(projectRoot);
     rmSync(projectRoot, { recursive: true, force: true });
@@ -152,9 +165,13 @@ async function runBrokenEnvProbe() {
 }
 
 if (mode === 'smoke') {
-  await runSmoke();
+  await runSmoke(false);
+} else if (mode === 'smoke-json') {
+  await runSmoke(true);
 } else if (mode === 'broken-env') {
-  await runBrokenEnvProbe();
+  await runBrokenEnvProbe(false);
+} else if (mode === 'broken-env-json') {
+  await runBrokenEnvProbe(true);
 } else {
   throw new Error(`unknown mode: ${mode}`);
 }
