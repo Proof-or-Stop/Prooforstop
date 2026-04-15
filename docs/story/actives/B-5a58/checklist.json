@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "恢复 convergence_check 与 gap_analyze 的 CLI 注册和可见性",
+      "context": "当前终端里的 koala help 不列出 convergence_check / gap_analyze，但源码里 checkConvergence 仍在 tasks/gap-analyze.ts，MCP dist 也还暴露这两个工具。需要把这两个命令重新接回当前 cli-engine/registry 路径，让 CLI 层和底层实现重新对齐。",
+      "relatedDocs": [
+        "docs/requirements/decisions/truth-source.md",
+        "AGENTS.md#Story-阶段流转"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "补命令帮助与最小回归验证，防止再次出现接口分裂",
+      "context": "不仅要让命令能跑，还要保证 koala help / phase tools / 最小验证脚本都看得到它们，避免之后继续出现提示文案引用一个不存在的 CLI 命令。",
+      "relatedDocs": [
+        "docs/requirements/decisions/truth-source.md",
+        "AGENTS.md#用户价值验收（优先于技术链路验证）"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

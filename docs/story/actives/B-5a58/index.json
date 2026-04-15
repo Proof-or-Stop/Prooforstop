@@ -1,0 +1,35 @@
+{
+  "storyId": "B-5a58",
+  "name": "restore-convergence-check-cli",
+  "title": "把 convergence_check 和 gap_analyze 补回当前 CLI 入口",
+  "description": "当前 koala CLI 的 help 和实际命令表里都没有 convergence_check / gap_analyze，但底层实现与 MCP 暴露仍然存在，DONE hint 和真相源文档却还在提示用户直接运行 convergence_check，造成接口分裂。需要把 convergence_check 与 gap_analyze 正式补回当前 CLI 注册表，并补最小回归验证，确保 help、命令派发与实现重新对齐。",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "createdAt": "2026-04-15T06:31:47.250Z",
+  "startedAt": "2026-04-15T06:31:47.250Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-15T06:31:47.251Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:31:51.884Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-5a58",
+    "branch": "story/B-5a58",
+    "createdAt": "2026-04-15T06:31:52.306Z"
+  }
+}
