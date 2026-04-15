@@ -1,0 +1,35 @@
+{
+  "storyId": "B-331a",
+  "name": "restore-truth-cli-commands",
+  "title": "把 truth_* 命令补回当前默认 CLI 入口",
+  "description": "当前默认 koala CLI 已恢复 gap_analyze / convergence_check，但 truth_scan/truth_nav/truth_analyze/truth_to_story/truth_extract 仍然只在文档和底层实现层存在，help 不可见、默认入口也不可直接调用，继续保持接口分裂。需要把这批 truth_* 命令正式补回 main CLI，并补最小黑盒验证，确保 help、命令派发和仓库本地 wrapper 重新对齐。",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "createdAt": "2026-04-15T11:33:08.265Z",
+  "startedAt": "2026-04-15T11:33:08.265Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-15T11:33:08.265Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-15T11:33:20.016Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-331a",
+    "branch": "story/B-331a",
+    "createdAt": "2026-04-15T11:33:20.105Z"
+  }
+}

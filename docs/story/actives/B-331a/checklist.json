@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "恢复 truth_* 命令的 CLI 注册和可见性",
+      "context": "当前 help 里没有 Truth 分组命令，但 src/tasks/truth.ts 与相关分析逻辑仍然存在。需要确认 truth handler 现状，并把 truth_scan/truth_nav/truth_analyze/truth_to_story/truth_extract 接回默认 cli-engine/registry。",
+      "relatedDocs": [
+        "docs/requirements/decisions/truth-source.md",
+        "AGENTS.md#Story-阶段流转"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "补最小回归验证，防止 Truth 命令再次从默认 CLI 漏掉",
+      "context": "除了命令能跑，还要确保 koala help 能看到 Truth 分组，并且至少有一条脚本验证 truth_scan/truth_extract 等关键命令在默认 CLI 下可执行，避免继续依赖文档记忆或 wrapper 偶然行为。",
+      "relatedDocs": [
+        "docs/requirements/decisions/truth-source.md",
+        "AGENTS.md#用户价值验收（优先于技术链路验证）"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
