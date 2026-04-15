@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "让 anti-stall 路径显式覆盖 retry / fix / discard 反卡死要求",
       "context": "当前 core/anti-stall.ts 已实现 retry/fix/discard 提示，但没有足够明确的 @task 描述把这条 requirement 直接接上。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-04-15T12:14:11.672Z",
       "testIntent": {
         "happy": [
           {
@@ -60,9 +60,9 @@
       "id": "CHK-003",
       "title": "补最小回归验证，锁住这 4 条 high gap 不再误报",
       "context": "至少要有一条脚本或 fixture 验证 gap_analyze 不再报告这 4 条 requirement，同时 anti-stall/test-intent-review 的实现口径仍然存在。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-04-15T12:14:11.772Z",
       "testIntent": {
         "happy": [
           {
