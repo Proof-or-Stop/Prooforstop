@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "让 anti-stall 路径显式覆盖 retry / fix / discard 反卡死要求",
+      "context": "当前 core/anti-stall.ts 已实现 retry/fix/discard 提示，但没有足够明确的 @task 描述把这条 requirement 直接接上。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "让 checklist 与 story_review 元数据显式覆盖 Agent A/testIntent/多层防线/拆解标准",
+      "context": "checklist.ts、story-review.ts、cli-prompts.ts 已体现主 agent 不写 testIntent、对抗审查、多层防线和 item 拆解标准，但 gap_analyze 还没认出来。需要让结构化注释直接表达这几条需求。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "补最小回归验证，锁住这 4 条 high gap 不再误报",
+      "context": "至少要有一条脚本或 fixture 验证 gap_analyze 不再报告这 4 条 requirement，同时 anti-stall/test-intent-review 的实现口径仍然存在。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
