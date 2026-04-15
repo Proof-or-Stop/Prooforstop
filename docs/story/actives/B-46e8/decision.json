@@ -1,0 +1,56 @@
+{
+  "principles": [
+    "先用当前回归确认 open bug 是否仍真实存在",
+    "只修和这 5 个 open bug 直接相关的实现或 fixture",
+    "优先让 bug 状态与当前真实系统行为重新一致"
+  ],
+  "drivers": [
+    "清掉当前最明显的 open bug 负债",
+    "避免无谓重写 bug/fixture 体系",
+    "把历史记录和当前行为重新对齐"
+  ],
+  "options": [
+    {
+      "name": "A: 先直接重跑 B-6246 story 级回归，再按失败结果定点修",
+      "pros": [
+        "最快区分历史残留和真实问题",
+        "很多 open bug 可能自动转 fixed"
+      ],
+      "cons": [
+        "如果 fixture 本身漂了，第一次回归结果会比较吵"
+      ]
+    },
+    {
+      "name": "B: 先逐条人工读 bug 和 fixture，再决定是否重跑",
+      "pros": [
+        "更保守，先建立完整映射"
+      ],
+      "cons": [
+        "慢很多，而且很多判断最终还是要靠真实执行确认"
+      ]
+    }
+  ],
+  "chosen": "A: 先直接重跑 B-6246 story 级回归，再按失败结果定点修",
+  "rationale": "这批 open bug 大概率混着历史残留和真实问题。先重跑当前 fixture 是最快把两者分开的方式，也最符合‘让状态回到真实’这个目标。",
+  "preMortem": [
+    {
+      "scenario": "test_story B-6246 失败很多，噪音过大",
+      "trigger": "老 fixture 里还有大量脆弱 case",
+      "consequence": "排查成本上升",
+      "mitigation": "先聚焦这 5 个 open bug 对应的 case/bug id，必要时只跑单 fixtureId 或单 fixture 文件"
+    },
+    {
+      "scenario": "open bug 被 auto-fix 了但真实约束没覆盖",
+      "trigger": "fixture 断言太宽松",
+      "consequence": "bug 状态干净但行为不可信",
+      "mitigation": "若 auto-fix 后仍有疑点，补一条最小脚本验证这 5 个名字不再 open且关键路径仍覆盖"
+    },
+    {
+      "scenario": "为了清 open bug 去重写整个 bug 系统",
+      "trigger": "把历史包袱当成架构问题",
+      "consequence": "scope 爆炸",
+      "mitigation": "只改 fixture-bug-binding 或 bug handler 中与这 5 条直接相关的逻辑"
+    }
+  ],
+  "timestamp": "2026-04-15T13:04:49.488Z"
+}
