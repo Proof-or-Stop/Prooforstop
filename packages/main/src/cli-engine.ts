@@ -236,10 +236,12 @@ export const MAIN_TOOLS: ToolDef[] = [
     result: z.enum(['PASS','FAIL']).describe('结果'),
   }},
   { name: 'test_list', description: '查看测试证据', schema: { storyId: z.string().describe('Story ID') }},
-  { name: 'test_auto', description: '全量回归：执行所有 fixture case（CLI + Browser）。trace 默认关闭', schema: {
+  { name: 'test_auto', description: '全量回归：执行所有 fixture case（CLI + Browser）。trace 默认关闭', guardrails: { supportsDryRun: true, requiresConfirm: true }, schema: {
     storyId: z.string().optional().describe('已废弃，请用 test_story'),
     trace: z.boolean().optional().describe('启用 V8 profiler trace（默认关闭，仅刷新 aux_trace 数据时开）'),
     enableProfiler: z.boolean().optional().describe('（兼容别名）等同于 trace'),
+    dryRun: z.boolean().optional().describe('仅预览将扫描/清理/执行的范围，不真实执行全量回归'),
+    confirm: z.boolean().optional().describe('显式确认执行 destructive 的全量回归'),
   }},
   { name: 'test_story', description: 'story 级测试：只跑关联 case，写 bug/evidence', schema: {
     storyId: z.string().describe('Story ID'),
