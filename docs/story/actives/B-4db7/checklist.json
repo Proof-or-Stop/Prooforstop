@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "区分 primary truth docs 与 extracted reference docs",
       "context": "truth-source 决策文档已经定义 extracted 是反向提取的参考层，不该和 decisions/ 根 requirement 混成同等优先级的 uncovered_requirement 来源。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-04-15T11:51:36.397Z",
       "testIntent": {
         "happy": [
           {
@@ -60,9 +60,9 @@
       "id": "CHK-003",
       "title": "补回归验证，锁住 extracted 不再制造 high requirement 误报",
       "context": "至少覆盖 decisions/*.md 仍会产出 requirement gap，而 extracted/*.md 只保留参考/覆盖展示，不再直接生成 high uncovered_requirement。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-04-15T11:51:09.200Z",
       "testIntent": {
         "happy": [
           {
