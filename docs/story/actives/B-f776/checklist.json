@@ -1,0 +1,39 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "定位 gap_analyze 与 convergence_check 当前 @test 注释和 fixture 命名的真实错位",
+      "context": "先确认是函数注释写错了 fixture 名，还是 fixture 文件路径没按 validate 期望命名，不要重复写测试资产。",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-completeness.md",
+        "docs/requirements/decisions/annotation-system.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "补齐或对齐 gap-analyze.json / convergence-check.json 对应 fixture 入口",
+      "context": "目标是让 validateTestAnnotations 和 gap_analyze 真正看见这两个 fixture，不只是 story 级测试存在。必要时复用 B-f7b4 的断言逻辑，避免重复维护。",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-completeness.md",
+        "docs/requirements/decisions/truth-source.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "验证这两条 no_test backlog 已从 gap_analyze 中消失",
+      "context": "除了 story 级测试，还要重新跑 gap_analyze/convergence_check，确认 medium backlog 真实下降。",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
