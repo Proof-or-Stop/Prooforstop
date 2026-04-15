@@ -12,6 +12,7 @@ import { join } from 'path';
 import { execSync } from 'child_process';
 import type { HandlerContext } from './context.js';
 import { loadConfig } from '../core/config.js';
+import { reportHealthIssue } from '../core/health.js';
 import { loadTraceSnapshot } from '../tasks/trace-store.js';
 import { diffTraces } from '../tasks/trace-diff.js';
 import {
@@ -199,7 +200,14 @@ export function createTestStoryHandlers(ctx: HandlerContext) {
           timestamp: __runEndIso,
           environment: { node: process.version, os: `${process.platform} ${process.arch}` },
         });
-      } catch {}
+      } catch (e) {
+        reportHealthIssue('persist:testEvidence', e as Error, {
+          storyId,
+          command: 'test_story',
+          totalCases: totalCasesS,
+          passedCases: passedCasesS,
+        });
+      }
 
       // B-1522: append to test-runs.json (append-only history for cumulative stats)
       try {
@@ -212,7 +220,13 @@ export function createTestStoryHandlers(ctx: HandlerContext) {
           durationMs: Date.now() - __runStartMs,
           result: allPassedS ? 'PASS' : 'FAIL',
         });
-      } catch { /* PERSIST: best-effort, don't block test_story return */ }
+      } catch (e) {
+        reportHealthIssue('persist:testRuns', e as Error, {
+          storyId,
+          command: 'test_story',
+          result: allPassedS ? 'PASS' : 'FAIL',
+        });
+      }
 
       const hintS = allPassedS
         ? `→ story ${storyId} 全部通过，请 commit 后执行: story_advance('${storyId}', 'DONE')`

@@ -1,0 +1,42 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-04-14T23:37:48.994Z",
+      "issueCount": 3,
+      "blockerCount": 2,
+      "issues": [
+        {
+          "type": "missing_intent",
+          "severity": "blocker",
+          "itemId": "CHK-001",
+          "message": "CHK-001「梳理 silent catch 现状并按 DEBUG/PROBE/PERSIST/MUTATION 分类」缺少 testIntent"
+        },
+        {
+          "type": "missing_intent",
+          "severity": "blocker",
+          "itemId": "CHK-003",
+          "message": "CHK-003「为 fail-fast/doctor 能力补针对性回归并验证收敛变化」缺少 testIntent"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 3 个未消化的 unknowns: gap_analyze 当前是缺注释映射、缺测试映射，还是确实还有一批高风险裸 silent catch 未处理; 哪些 silent catch 属于合理的 PROBE/DEBUG，不应该为了收敛分数被误改成 throw; 需要补到什么粒度，才能让 truth/gap 分析稳定识别 fail-fast 策略已经落地"
+        }
+      ],
+      "_hash": "ef8afab0fce9db8f7f6253f09a95aee5fc8cb4e566faf51ecb9843ac8b3dd747"
+    },
+    {
+      "timestamp": "2026-04-14T23:38:06.073Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 3 个未消化的 unknowns: gap_analyze 当前是缺注释映射、缺测试映射，还是确实还有一批高风险裸 silent catch 未处理; 哪些 silent catch 属于合理的 PROBE/DEBUG，不应该为了收敛分数被误改成 throw; 需要补到什么粒度，才能让 truth/gap 分析稳定识别 fail-fast 策略已经落地"
+        }
+      ],
+      "_hash": "b5e5e68234fd717b41583fc46c71b349c589948d0ef93b565701a56b3a0596af"
+    }
+  ]
+}

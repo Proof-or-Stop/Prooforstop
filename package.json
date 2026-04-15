@@ -7,10 +7,12 @@
     "doc": "docs"
   },
   "scripts": {
+    "audit:silent-catches": "node scripts/audit-silent-catches.mjs",
     "build": "cd packages/main && npm run build",
     "test": "npm run test:e2e",
     "test:codex-assets": "node scripts/verify-codex-assets.mjs",
     "test:entrypoints": "node scripts/verify-entrypoints.mjs",
+    "test:fail-fast-health": "node scripts/verify-fail-fast-health.mjs",
     "test:parallel-policy": "node scripts/verify-parallel-execution-policy.mjs",
     "test:product-reviewer": "node scripts/verify-product-reviewer.mjs",
     "test:role-telemetry": "node scripts/verify-role-telemetry.mjs",

@@ -3,6 +3,7 @@ import { readFileSync, readdirSync, statSync, existsSync } from 'fs';
 import { join, relative, extname, dirname } from 'path';
 import type { TaskAnnotation, ExtractFilters, FlowStep, FlowChain } from './types.js';
 import { loadConfig } from '../core/config.js';
+import { MetadataStore } from './metadata-store.js';
 
 const EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx']);
 const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', 'build', 'coverage']);
@@ -164,83 +165,7 @@ export function parseBlock(raw: string): Record<string, string | string[]> {
   return result;
 }
 
-export function scan(scanRoot: string): TaskAnnotation[] {
-  // 优先从 metadata store（task.json）读取，不再扫描源码
-  // 从 scanRoot 向上查找 koala.config.json 确定项目根，再定位 docs/metadata/task.json
-  let metadataPath = '';
-  let searchDir = scanRoot;
-  for (let i = 0; i < 10; i++) {
-    if (existsSync(join(searchDir, 'koala.config.json'))) {
-      const candidate = join(searchDir, 'docs', 'metadata', 'task.json');
-      if (existsSync(candidate)) metadataPath = candidate;
-      break;
-    }
-    const parent = join(searchDir, '..');
-    if (parent === searchDir) break;
-    searchDir = parent;
-  }
-  if (metadataPath) {
-    try {
-      const store = JSON.parse(readFileSync(metadataPath, 'utf-8'));
-      if (store.tasks && store.tasks.length > 0) {
-        const projectRoot = dirname(dirname(dirname(metadataPath))); // docs/metadata/task.json → root
-        const config = loadConfig(projectRoot);
-        const sr = join(projectRoot, config.scanRoot);
-
-        return store.tasks.map((t: any) => {
-          // functionSignature 缺失时从源码正则提取
-          let sig = t.functionSignature || '';
-          if (!sig && t.sourceFile && t.functionName) {
-            try {
-              const filePath = join(sr, t.sourceFile);
-              if (existsSync(filePath)) {
-                const code = readFileSync(filePath, 'utf-8');
-                const name = t.functionName;
-                // 匹配: [export] [async] function name(...) / name(...) { / name = (...) =>
-                const patterns = [
-                  new RegExp(`((?:export\\s+)?(?:async\\s+)?function\\s+${name}\\s*\\([^)]*\\)[^{]*)\\{`),
-                  new RegExp(`((?:static\\s+)?(?:async\\s+)?${name}\\s*\\([^)]*\\)[^{]*)\\{`),
-                  new RegExp(`((?:export\\s+)?(?:const|let)\\s+${name}\\s*=\\s*(?:async\\s+)?\\([^)]*\\)[^=]*=>)`),
-                  new RegExp(`(export\\s+class\\s+${name}[^{]*)\\{`),
-                ];
-                for (const p of patterns) {
-                  const m = code.match(p);
-                  if (m) { sig = m[1].trim().slice(0, 120); break; }
-                }
-              }
-            } catch {}
-          }
-          return {
-            task: t.task,
-            checklist: t.checklist,
-            title: t.title,
-            type: t.type,
-            priority: t.priority,
-            version: t.version,
-            scope: t.scope,
-            depends: t.depends,
-            author: t.author,
-            date: t.date,
-            description: t.description,
-            changes: t.changes,
-            affected: t.affected,
-            sourceFile: t.sourceFile,
-            sourceLine: t.sourceLine,
-            functionName: t.functionName,
-            functionSignature: sig || undefined,
-            flow: t.flow?.name,
-            step: t.flow?.step,
-            input: t.flow?.input,
-            output: t.flow?.output,
-            next: t.flow?.next,
-            test: t.test,
-          } as TaskAnnotation;
-        });
-      }
-    } catch { /* fallback to source scan */ }
-  }
-
-  // Fallback: 扫描源码（兼容未迁移的项目）
+export function scanSourceAnnotations(scanRoot: string): TaskAnnotation[] {
   const files = walkDir(scanRoot);
   const tasks: TaskAnnotation[] = [];
 
@@ -282,6 +207,96 @@ export function scan(scanRoot: string): TaskAnnotation[] {
   }
 
   return tasks;
+}
+
+export function scan(scanRoot: string): TaskAnnotation[] {
+  // 优先从 metadata store（task.json）读取，不再扫描源码
+  // 从 scanRoot 向上查找 koala.config.json 确定项目根，再定位 docs/metadata/task.json
+  let metadataPath = '';
+  let searchDir = scanRoot;
+  for (let i = 0; i < 10; i++) {
+    if (existsSync(join(searchDir, 'koala.config.json'))) {
+      const candidate = join(searchDir, 'docs', 'metadata', 'task.json');
+      if (existsSync(candidate)) metadataPath = candidate;
+      break;
+    }
+    const parent = join(searchDir, '..');
+    if (parent === searchDir) break;
+    searchDir = parent;
+  }
+  if (metadataPath) {
+    try {
+      const store = JSON.parse(readFileSync(metadataPath, 'utf-8'));
+      if (store.tasks && store.tasks.length > 0) {
+        const liveAnnotations = scanSourceAnnotations(scanRoot);
+        const projectRoot = dirname(dirname(dirname(metadataPath))); // docs/metadata/task.json → root
+        const config = loadConfig(projectRoot);
+        const sr = join(projectRoot, config.scanRoot);
+        const keyForAnnotation = (annotation: TaskAnnotation) =>
+          `${annotation.sourceFile.replace(/\\/g, '/')}::${annotation.functionName || ''}`;
+        const merged = new Map<string, TaskAnnotation>();
+
+        for (const t of store.tasks as any[]) {
+          // functionSignature 缺失时从源码正则提取
+          let sig = t.functionSignature || '';
+          if (!sig && t.sourceFile && t.functionName) {
+            try {
+              const filePath = join(sr, t.sourceFile);
+              if (existsSync(filePath)) {
+                const code = readFileSync(filePath, 'utf-8');
+                const name = t.functionName;
+                // 匹配: [export] [async] function name(...) / name(...) { / name = (...) =>
+                const patterns = [
+                  new RegExp(`((?:export\\s+)?(?:async\\s+)?function\\s+${name}\\s*\\([^)]*\\)[^{]*)\\{`),
+                  new RegExp(`((?:static\\s+)?(?:async\\s+)?${name}\\s*\\([^)]*\\)[^{]*)\\{`),
+                  new RegExp(`((?:export\\s+)?(?:const|let)\\s+${name}\\s*=\\s*(?:async\\s+)?\\([^)]*\\)[^=]*=>)`),
+                  new RegExp(`(export\\s+class\\s+${name}[^{]*)\\{`),
+                ];
+                for (const p of patterns) {
+                  const m = code.match(p);
+                  if (m) { sig = m[1].trim().slice(0, 120); break; }
+                }
+              }
+            } catch {}
+          }
+          const annotation = {
+            task: t.task,
+            checklist: t.checklist,
+            title: t.title,
+            type: t.type,
+            priority: t.priority,
+            version: t.version,
+            scope: t.scope,
+            depends: t.depends,
+            author: t.author,
+            date: t.date,
+            description: t.description,
+            changes: t.changes,
+            affected: t.affected,
+            sourceFile: t.sourceFile,
+            sourceLine: t.sourceLine,
+            functionName: t.functionName,
+            functionSignature: sig || undefined,
+            flow: t.flow?.name,
+            step: t.flow?.step,
+            input: t.flow?.input,
+            output: t.flow?.output,
+            next: t.flow?.next,
+            test: t.test,
+          } as TaskAnnotation;
+          merged.set(keyForAnnotation(annotation), annotation);
+        }
+
+        for (const annotation of liveAnnotations) {
+          merged.set(keyForAnnotation(annotation), annotation);
+        }
+
+        return Array.from(merged.values());
+      }
+    } catch { /* fallback to source scan */ }
+  }
+
+  return scanSourceAnnotations(scanRoot);
 }
 
 /** 按条件筛选 */

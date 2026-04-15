@@ -34,8 +34,8 @@ export function collectContext(phase: StoryPhase, action: 'create' | 'advance' |
     action,
     timestamp: new Date().toISOString(),
   };
-  try { event.branch = execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf8' }).trim(); } catch {}
-  try { event.user = execSync('git config user.name', { encoding: 'utf8' }).trim(); } catch {}
+  try { event.branch = execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf8' }).trim(); } catch { /* PROBE: branch is unavailable outside git repos */ }
+  try { event.user = execSync('git config user.name', { encoding: 'utf8' }).trim(); } catch { /* PROBE: git user.name may be unset in CI/temp repos */ }
   event.sessionId = process.env.KOALA_SESSION_ID
     || process.env.CLAUDE_SESSION_ID
     || undefined;
@@ -55,7 +55,7 @@ export function assertCwdInWorktree(store: StoryStore, storyId: string): void {
   let story;
   try {
     story = store.readStory(storyId);
-  } catch {
+  } catch { /* PROBE: not all callers run inside a git worktree */
     return; // story 不存在，跳过
   }
   if (!story.worktree) return; // 没有 worktree，跳过（兼容旧 story）
@@ -76,7 +76,7 @@ export function assertCwdInWorktree(store: StoryStore, storyId: string): void {
     } else {
       repoRoot = execSync('git rev-parse --show-toplevel', { cwd, encoding: 'utf-8' }).trim();
     }
-  } catch { /* not git */ }
+  } catch { /* PROBE: cwd may not be inside a git repo */ }
 
   const expectedAbsPath = isAbsolute(story.worktree.path)
     ? story.worktree.path
