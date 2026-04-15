@@ -1,0 +1,64 @@
+{
+  "principles": [
+    "优先固化已经跑通的 smoke，而不是再扩大验证范围。",
+    "最小回归要能直接回答 screenshot 链路当前是不是活的。",
+    "明确区分 canvas screenshot 与通用页面截图能力。"
+  ],
+  "drivers": [
+    "把一次性手工验证变成可重复入口。",
+    "避免再次依赖临时 worktree 脚本才能回答功能是否可用。",
+    "控制范围，避免又演变成 browser framework 改造。"
+  ],
+  "options": [
+    {
+      "name": "A: 只口头记录这次手工验证结果",
+      "pros": [
+        "零代码改动。"
+      ],
+      "cons": [
+        "下次还得重新临时验证，无法回归。"
+      ]
+    },
+    {
+      "name": "B: 把现有 smoke 固化成脚本和最小 fixture 闭环",
+      "pros": [
+        "能最小成本地留下可重复证据。"
+      ],
+      "cons": [
+        "仍然只覆盖 canvas screenshot，不覆盖整页截图。"
+      ]
+    },
+    {
+      "name": "C: 直接扩成 browser fixture/schema 重构",
+      "pros": [
+        "长期形态更完整。"
+      ],
+      "cons": [
+        "范围过大，不适合当前只是补 smoke 的目标。"
+      ]
+    }
+  ],
+  "chosen": "B: 把现有 smoke 固化成脚本和最小 fixture 闭环",
+  "rationale": "这次最重要的是把已经成功跑过的 screenshot smoke 变成仓库里可重复执行的证据，先解决‘能不能回答功能还活着’这个问题。canvas 与整页截图的能力边界可以在总结里明确，而不是现在顺手扩修。",
+  "preMortem": [
+    {
+      "scenario": "脚本固化后再次被空分支自动 reconcile 掉",
+      "trigger": "进入 INIT_CHECK/PLAN 后长期不提交任何真实代码改动",
+      "consequence": "验证结果仍然停留在一次性手工层面",
+      "mitigation": "进 DEV 后尽快提交脚本和 npm 入口。"
+    },
+    {
+      "scenario": "回归只证明 canvas 截图，用户误以为整页截图也有保障",
+      "trigger": "总结里没有写清 screenshot 能力边界",
+      "consequence": "后续遇到普通 DOM 页面截图失败时会误判为回归",
+      "mitigation": "在 summary 和最终说明里明确当前 smoke 覆盖的是 canvas path。"
+    },
+    {
+      "scenario": "环境偶发打不开浏览器导致脚本脆弱",
+      "trigger": "桌面 open 失败或浏览器未及时连接",
+      "consequence": "回归噪音偏大",
+      "mitigation": "保留 broken-env 探针和清晰环境失败文案，帮助区分环境问题与逻辑问题。"
+    }
+  ],
+  "timestamp": "2026-04-15T12:18:01.317Z"
+}

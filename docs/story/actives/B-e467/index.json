@@ -1,0 +1,140 @@
+{
+  "storyId": "B-e467",
+  "name": "fix-auto-phase-advance-drift",
+  "title": "查清并收紧 story 被后台自动推进的状态漂移",
+  "description": "当前 story 会在主 agent 正在操作时被后台或并发流程自动推进 phase，例如 TEST_CASE_REVIEW/TEST/DONE 被 gate-auto 或其他流程写入，导致用户看到的 phase、evidence、worktree 生命周期发生非预期跳变。需要定位自动推进链路、区分预期自动 gate 与异常并发推进，并收紧协议或提示，避免让人感觉状态漂了。",
+  "type": "bug",
+  "phase": "DONE",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "状态机/门禁",
+      "matched": "gate"
+    }
+  ],
+  "createdAt": "2026-04-15T12:45:54.543Z",
+  "startedAt": "2026-04-15T12:45:54.543Z",
+  "endedAt": "2026-04-15T12:56:14.643Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-15T12:45:54.543Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-15T12:46:29.655Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-15T12:47:14.982Z",
+      "branch": "story/B-e467",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-15T12:48:05.964Z",
+      "branch": "story/B-e467",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-15T12:51:04.520Z",
+      "branch": "story/B-e467",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-15T12:53:19.564Z",
+      "branch": "story/B-e467",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-15T12:53:40.246Z",
+      "branch": "story/B-e467",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-15T12:54:04.819Z",
+      "branch": "story/B-e467",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-15T12:54:32.786Z",
+      "branch": "story/B-e467",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-15T12:54:39.259Z",
+      "branch": "story/B-e467",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-15T12:55:08.116Z",
+      "branch": "story/B-e467",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-15T12:55:33.216Z",
+      "branch": "story/B-e467",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-15T12:55:33.335Z",
+      "branch": "story/B-e467",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-15T12:56:14.643Z",
+      "branch": "story/B-e467",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "lane": "mainline",
+  "parallelSafe": "no",
+  "sharedHotspots": [
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/handlers/context.ts",
+    "bin/koala-codex.js"
+  ]
+}
