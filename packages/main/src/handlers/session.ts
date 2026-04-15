@@ -562,6 +562,16 @@ export function createSessionHandlers(ctx: HandlerContext) {
           lines.push('## Primary lane');
           lines.push(`  ${parallelBrief.primary.storyId} ${parallelBrief.primary.phase} ${parallelBrief.primary.title} [${formatParallelBadge(parallelBrief.primary.policy)}]`);
 
+          try {
+            const impl = ctx.store.readImplementationReview?.(parallelBrief.primary.storyId);
+            if (impl) {
+              lines.push('');
+              lines.push('## Implementation review');
+              lines.push(`  verdict: ${impl.verdict}`);
+              lines.push(`  findings: ${impl.findings.length}`);
+            }
+          } catch { /* probe */ }
+
           const primaryArtifacts = getArtifactContractStatus(
             parallelBrief.primary.storyId,
             ctx.store,
@@ -651,7 +661,18 @@ export function createSessionHandlers(ctx: HandlerContext) {
         if (parallelBrief.primary) {
           const top = parallelBrief.primary;
           const wt = worktrees[top.storyId];
-          if (wt) {
+          let implVerdict: 'pass' | 'fail' | null = null;
+          let implFindings = 0;
+          try {
+            const impl = ctx.store.readImplementationReview?.(top.storyId);
+            if (impl) {
+              implVerdict = impl.verdict;
+              implFindings = impl.findings.length;
+            }
+          } catch { /* probe */ }
+          if (implVerdict === 'fail') {
+            lines.push(`  Primary lane implementation review 标记为 fail（${implFindings} findings）。先回 DEV 修实现，再继续推进。`);
+          } else if (wt) {
             lines.push(`  Resume: cd ${wt} (story ${top.storyId} is in ${top.phase})`);
           } else {
             lines.push(`  Story ${top.storyId} is in ${top.phase} but has no worktree. Try \`koala story_advance --storyId=${top.storyId} --phase=INIT_CHECK\` to create one.`);
