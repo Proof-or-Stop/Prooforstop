@@ -1,0 +1,65 @@
+{
+  "principles": [
+    "把 INIT_CHECK 视为共享仓库 bootstrap 临界区，而不是普通可并发步骤。",
+    "真实 git 失败必须 fail-fast，不能被 \"没有改动也没关系\" 这种宽 catch 吞掉。",
+    "worktree 必须显式绑定到一个已校验的 commit，而不是隐式依赖瞬时 HEAD。"
+  ],
+  "drivers": [
+    "消除并发 INIT_CHECK 产生旧 HEAD worktree 的错误分支点。",
+    "把 bootstrap 对主仓库的影响缩到当前 story 所需的最小集合。",
+    "让失败模式可解释、可重试、可回归验证。"
+  ],
+  "options": [
+    {
+      "name": "A: 仅缩小 git add 范围并收紧 catch",
+      "pros": [
+        "改动小，兼容性风险低。"
+      ],
+      "cons": [
+        "仍然没有串行化共享仓库 bootstrap，branch/ref 竞争还在。"
+      ]
+    },
+    {
+      "name": "B: repo 级 bootstrap 锁 + 显式 commitSha + fail-fast 校验",
+      "pros": [
+        "直接把共享 index/HEAD/refs 的竞争收敛成串行临界区，能从根上修掉旧 HEAD worktree。",
+        "branch 和 worktree 都绑定到已知 commit，错误可诊断。"
+      ],
+      "cons": [
+        "INIT_CHECK 的吞吐会变成串行，极端并发下会有等待。"
+      ]
+    },
+    {
+      "name": "C: 保持并发，创建后自动在 worktree 里 merge/rebase main 自愈",
+      "pros": [
+        "表面上保留并发启动速度。"
+      ],
+      "cons": [
+        "先制造错误再修复，用户会先踩坑；自愈逻辑更复杂，还会污染故事分支历史。"
+      ]
+    }
+  ],
+  "chosen": "B: repo 级 bootstrap 锁 + 显式 commitSha + fail-fast 校验",
+  "rationale": "INIT_CHECK 的关键问题不是单个命令选型，而是共享主仓库 bootstrap 没被当成临界区管理。串行化这几步虽然牺牲一点启动并发，但能换来确定性；再配合 scoped stage 和 commitSha 绑定，可以把坏 worktree 从\"偶发隐错\"降成\"明确失败\"。",
+  "preMortem": [
+    {
+      "scenario": "锁实现不当导致死锁或遗留 stale lock",
+      "trigger": "进程在 bootstrap 中途异常退出",
+      "consequence": "后续 INIT_CHECK 全部卡住，用户只能手动清理。",
+      "mitigation": "使用带超时/陈旧判定的文件锁，并在报错里明确 lock 路径与清理方式。"
+    },
+    {
+      "scenario": "只串行化部分步骤，仍从错误的 HEAD 建分支",
+      "trigger": "commit 后到 branch/worktree add 之间仍允许其他流程改写 refs",
+      "consequence": "worktree 仍可能缺 story 文件，问题只是更难复现。",
+      "mitigation": "在同一临界区内拿到 commitSha，并用该 sha 显式创建 branch 与 worktree。"
+    },
+    {
+      "scenario": "缩小 stage 范围后遗漏 bootstrap 需要的文件",
+      "trigger": "只 add story 目录，某些初始化文件未进入 commit",
+      "consequence": "worktree 启动后缺少配置或元数据。",
+      "mitigation": "基于实际需要列出最小必需文件集合，并补回归测试覆盖 fresh story bootstrap。"
+    }
+  ],
+  "timestamp": "2026-04-15T06:12:35.776Z"
+}

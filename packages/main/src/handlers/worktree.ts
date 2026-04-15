@@ -1,7 +1,7 @@
 
 import { execSync } from 'child_process';
-import { existsSync } from 'fs';
-import { join, relative, isAbsolute } from 'path';
+import { closeSync, existsSync, mkdirSync, openSync, realpathSync, statSync, unlinkSync, writeFileSync } from 'fs';
+import { dirname, join, relative, isAbsolute } from 'path';
 import type { HandlerContext } from './context.js';
 import { collectContext, PHASE_TO_EVENT } from './context.js';
 import { createStoryActor, getStateName, getGuardFailureReason } from '../core/machine.js';
@@ -10,6 +10,8 @@ import { loadConfig } from '../core/config.js';
 
 export function createWorktreeHandlers(ctx: HandlerContext) {
   const { store, root } = ctx;
+  const BOOTSTRAP_LOCK_TIMEOUT_MS = 10_000;
+  const BOOTSTRAP_LOCK_STALE_MS = 30_000;
 
   function git(cmd: string, cwd?: string): string {
     return execSync(`git ${cmd}`, {
@@ -49,11 +51,42 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     throw lastErr;
   }
 
+  function shellQuote(value: string): string {
+    return `"${value.replace(/(["\\$`])/g, '\\$1')}"`;
+  }
+
+  function waitMs(ms: number): void {
+    const until = Date.now() + ms;
+    while (Date.now() < until) { /* busy-wait; execSync is already sync */ }
+  }
+
+  function canonicalPath(path: string): string {
+    try {
+      return realpathSync(path);
+    } catch {
+      return path;
+    }
+  }
+
+  function getGitCommonDir(): string {
+    try {
+      const topLevel = canonicalPath(execSync('git rev-parse --show-toplevel', { cwd: root, encoding: 'utf-8' }).trim());
+      const commonDir = execSync('git rev-parse --git-common-dir', { cwd: root, encoding: 'utf-8' }).trim();
+      return canonicalPath(isAbsolute(commonDir) ? commonDir : join(topLevel, commonDir));
+    } catch {
+      return canonicalPath(join(root, '.git'));
+    }
+  }
+
   function getRepoRoot(): string {
     try {
-      return execSync('git rev-parse --show-toplevel', { cwd: root, encoding: 'utf-8' }).trim();
+      const commonDir = getGitCommonDir();
+      if (commonDir.endsWith('/.git') || commonDir.endsWith('\\.git')) {
+        return dirname(commonDir);
+      }
+      return canonicalPath(execSync('git rev-parse --show-toplevel', { cwd: root, encoding: 'utf-8' }).trim());
     } catch {
-      return root;
+      return canonicalPath(root);
     }
   }
 
@@ -61,6 +94,74 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
   function resolveWorktreePath(storedPath: string): string {
     if (isAbsolute(storedPath)) return storedPath;
     return join(getRepoRoot(), storedPath);
+  }
+
+  function commitContainsPath(revision: string, targetPath: string): boolean {
+    try {
+      const output = git(`ls-tree -r --name-only ${revision} -- ${shellQuote(targetPath)}`);
+      return output.split('\n').some(line => line.trim() === targetPath);
+    } catch {
+      return false;
+    }
+  }
+
+  function getBootstrapStagePaths(storyId: string, repoRoot: string): string[] {
+    const config = loadConfig(root);
+    const storyDir = canonicalPath(join(root, config.storyDir, storyId));
+    const stagePaths = [relative(repoRoot, storyDir).replace(/\\/g, '/')];
+    const configPath = canonicalPath(join(root, 'koala.config.json'));
+    if (existsSync(configPath)) {
+      stagePaths.push(relative(repoRoot, configPath).replace(/\\/g, '/'));
+    }
+    return stagePaths;
+  }
+
+  function acquireBootstrapLock(storyId: string): () => void {
+    const lockPath = join(getGitCommonDir(), 'koala', 'init-check.bootstrap.lock');
+    mkdirSync(dirname(lockPath), { recursive: true });
+    const delays = [0, 100, 250, 500, 1000, 1500, 2500, 3500];
+
+    for (const delay of delays) {
+      if (delay > 0) waitMs(delay);
+      try {
+        const fd = openSync(lockPath, 'wx');
+        try {
+          writeFileSync(fd, JSON.stringify({
+            storyId,
+            pid: process.pid,
+            acquiredAt: new Date().toISOString(),
+          }) + '\n', 'utf-8');
+        } finally {
+          closeSync(fd);
+        }
+
+        return () => {
+          try {
+            unlinkSync(lockPath);
+          } catch (e: any) {
+            if (e?.code !== 'ENOENT') throw e;
+          }
+        };
+      } catch (e: any) {
+        if (e?.code !== 'EEXIST') {
+          throw new Error(`无法获取 INIT_CHECK bootstrap 锁 ${lockPath}: ${e.message || String(e)}`);
+        }
+        try {
+          const ageMs = Date.now() - statSync(lockPath).mtimeMs;
+          if (ageMs > BOOTSTRAP_LOCK_STALE_MS) {
+            try {
+              unlinkSync(lockPath);
+            } catch { /* PROBE: another process may have released or replaced the stale lock */ }
+          }
+        } catch { /* PROBE: lock file disappeared while checking staleness */ }
+      }
+    }
+
+    throw new Error(
+      `INIT_CHECK bootstrap 正在被其他 story 串行执行（>${BOOTSTRAP_LOCK_TIMEOUT_MS}ms）\n` +
+      `lock: ${lockPath}\n` +
+      `→ 稍后重试 story_advance --phase=INIT_CHECK。若确认持锁进程已退出，可删除该 lock 后重试`
+    );
   }
 
   return {
@@ -75,6 +176,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         }
         // worktree 目录不存在了，清理记录
         story.worktree = undefined;
+        store.writeStory(args.storyId, story);
       }
 
       // 已在 worktree 里时拒绝嵌套
@@ -99,50 +201,77 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       const worktreeDir = loadConfig(root).worktreeDir || '.worktrees';
       const worktreePath = join(repoRoot, worktreeDir, args.storyId);
       const relWorktreePath = relative(repoRoot, worktreePath).replace(/\\/g, '/');
+      const storyIndexPath = relative(
+        repoRoot,
+        canonicalPath(join(root, loadConfig(root).storyDir, args.storyId, 'index.json')),
+      ).replace(/\\/g, '/');
+      const stagePaths = getBootstrapStagePaths(args.storyId, repoRoot);
+      const releaseBootstrapLock = acquireBootstrapLock(args.storyId);
 
-      // B-7eed: 先把 story.worktree 字段写进 story index.json，再 git add/commit，
-      // 避免 commit 后 writeStory 留下主仓库 working tree 脏（会导致后续 DONE
-      // 阶段 `git merge story/B-xxx` 报 "local changes would be overwritten"）。
-      const now = new Date().toISOString();
-      story.worktree = { path: relWorktreePath, branch, createdAt: now };
-      if (!story.startedAt) story.startedAt = now;
-      store.writeStory(args.storyId, story);
-
-      // 先 commit story/metadata 文件，确保 worktree 能看到
-      // B-5246: fresh `git init` 仓库还没有任何 commit；`git branch story/B-xxx`
-      // 在没有 HEAD 的情况下会 `fatal: not a valid object name: 'main'`。
-      // 用 `git add -A` + `git commit --allow-empty` 在 worktree 之前确保至少有
-      // 一个 root commit 存在，这样 `git branch` 就能从当前 HEAD 创建。
       try {
-        // 用 -A 而不是只 add docs/story —— 新项目里 koala.config.json 等也需要进入 worktree
-        git(`add -A`);
-        git(`commit -m "koala: story ${args.storyId} init" --allow-empty`);
-      } catch { /* 没有改动也没关系 */ }
+        const now = new Date().toISOString();
+        const lockedStory = store.readStory(args.storyId);
+        lockedStory.worktree = { path: relWorktreePath, branch, createdAt: now };
+        if (!lockedStory.startedAt) lockedStory.startedAt = now;
+        store.writeStory(args.storyId, lockedStory);
 
-      // 创建分支（如果不存在）
-      // B-5246: 在 fresh 仓库上 `git branch <name>` 仍可能因为 HEAD 是 unborn 状态而失败。
-      // 改用 `git branch <name> HEAD` 显式指向 HEAD；如果 HEAD 还是 unborn 就先用 checkout
-      // 创建一个空的 root branch。
-      try {
-        git(`rev-parse --verify ${branch}`);
-      } catch {
+        git(`add -- ${stagePaths.map(shellQuote).join(' ')}`);
+        const staged = git(`diff --cached --name-only -- ${stagePaths.map(shellQuote).join(' ')}`);
+        if (!staged.split('\n').some(line => line.trim() === storyIndexPath)) {
+          throw new Error(
+            `bootstrap staged changes missing ${storyIndexPath}\n` +
+            `staged:\n${staged || '(none)'}`
+          );
+        }
+
         try {
-          git(`branch ${branch}`);
+          git(`commit -m ${shellQuote(`koala: story ${args.storyId} init`)}`);
+        } catch (e: any) {
+          throw new Error(`无法提交 ${args.storyId} 的 bootstrap metadata：${e.message || String(e)}`);
+        }
+
+        const commitSha = git('rev-parse HEAD');
+        if (!commitContainsPath(commitSha, storyIndexPath)) {
+          throw new Error(`bootstrap commit ${commitSha} 不包含 ${storyIndexPath}`);
+        }
+
+        let branchExists = true;
+        try {
+          git(`rev-parse --verify ${branch}`);
         } catch {
-          // Fallback: HEAD 还没有任何 commit。强制创建一个空的 root commit 再分支。
+          branchExists = false;
+        }
+
+        if (!branchExists) {
           try {
-            git(`commit --allow-empty -m "koala: bootstrap empty root for ${args.storyId}"`);
-            git(`branch ${branch}`);
+            git(`branch ${branch} ${commitSha}`);
           } catch (e: any) {
             throw new Error(
-              `无法在仓库根创建 worktree 分支 ${branch}：${e.message}。可能是仓库尚未 git init / 没有任何提交。先 git commit 一次再重试。`,
+              `无法在仓库根创建 worktree 分支 ${branch}：${e.message || String(e)}。` +
+              `可能是仓库尚未 git init / 没有任何提交。先 git commit 一次再重试。`
             );
           }
         }
-      }
 
-      // 创建 worktree
-      git(`worktree add "${worktreePath}" ${branch}`);
+        const branchSha = git(`rev-parse --verify ${branch}`);
+        if (!commitContainsPath(branchSha, storyIndexPath)) {
+          throw new Error(
+            `现有分支 ${branch} 指向的 commit ${branchSha} 不包含 ${storyIndexPath}\n` +
+            `→ 这通常说明之前并发 INIT_CHECK 曾从旧 HEAD 分叉。请清理该分支/坏 worktree 后重试`
+          );
+        }
+
+        git(`worktree add ${shellQuote(worktreePath)} ${branch}`);
+      } catch (e) {
+        if (!existsSync(worktreePath)) {
+          const freshStory = store.readStory(args.storyId);
+          freshStory.worktree = undefined;
+          store.writeStory(args.storyId, freshStory);
+        }
+        throw e;
+      } finally {
+        releaseBootstrapLock();
+      }
 
       // 依赖检查
       let depsWarning = '';
