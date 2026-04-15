@@ -4,7 +4,7 @@
   "title": "修正 linked worktree 分支被误判为已删除的僵尸检测",
   "description": "session_brief 和 story_reconcile 的僵尸检测通过解析 `git branch` 判断本地分支是否存在，但 linked worktree 分支在输出里带 `+ ` 前缀，当前实现只去掉 `* `，导致像 story/B-e452 这样的分支被误判为不存在，进而把正常 worktree/story 标成 zombie。修复分支枚举逻辑，并补回归覆盖 linked worktree 场景。",
   "type": "bug",
-  "phase": "TEST_CASE",
+  "phase": "TEST",
   "priority": "high",
   "createdAt": "2026-04-15T06:21:46.719Z",
   "startedAt": "2026-04-15T06:21:46.719Z",
@@ -49,6 +49,22 @@
       "branch": "story/B-0b0a",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:28:32.711Z",
+      "branch": "story/B-0b0a",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:29:07.113Z",
+      "branch": "story/B-0b0a",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
     }
   ],
   "worktree": {
