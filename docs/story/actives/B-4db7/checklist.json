@@ -6,15 +6,55 @@
       "context": "truth-source 决策文档已经定义 extracted 是反向提取的参考层，不该和 decisions/ 根 requirement 混成同等优先级的 uncovered_requirement 来源。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "truth_scan 会显式标出 decisions/*.md 是 primary，而 extracted/*.md 是 derived/reference，后续消费者能稳定区分两层来源。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "完整 truth_scan 仍保留 extracted 的条目与 summary 统计，不会因为区分层级而把参考层彻底扫掉。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果 source tier 语义仍然缺失，gap_analyze 只能继续靠路径硬编码或把 extracted 当 primary，测试应直接暴露这一点。",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
       "title": "让 gap_analyze 的 uncovered_requirement 只对 primary truth 生效",
       "context": "summary 可以继续统计 extracted，但 high gap 判断不能再把 derived docs 当成主真相源，否则会持续产生假高优先级 backlog。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-15T11:50:35.196Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "gap_analyze 输出的 uncovered_requirement/high gap 只来自 primary truth，source.file=extracted/*.md 的 derived requirement 不再计入 high。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "同一次分析里 decisions/*.md 的真实 requirement gap 仍然保留在 high 列表中，不会被 derived 过滤误伤。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果实现只是简单忽略所有 requirement 或把 derived 与 primary 一起降级，测试会看到真正的 decisions requirement 也消失。",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -22,7 +62,27 @@
       "context": "至少覆盖 decisions/*.md 仍会产出 requirement gap，而 extracted/*.md 只保留参考/覆盖展示，不再直接生成 high uncovered_requirement。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "回归脚本会同时断言 decisions requirement 仍计入 high uncovered_requirement，而 extracted requirement 只保留参考层，不再拉高 high gap。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "truth_scan summary 仍能看到 extracted topic/统计，说明参考层没有被误删。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果未来有人再次把 extracted 当 primary，回归会重新出现 source.file=extracted/*.md 的 high gap，而不是静默放过。",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }
