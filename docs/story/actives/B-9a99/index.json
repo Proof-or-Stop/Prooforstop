@@ -4,7 +4,7 @@
   "title": "给危险命令补 dry-run 与 confirm 护栏",
   "description": "当前高优先级 gap 指向两类缺失：1) 危险命令如 story_discard、fixture_batch_add 大批量操作等缺少 --dry-run 预览；2) irreversible 命令缺少显式确认开关。先把这些命令补成可预览、可确认的护栏，减少误操作和高成本回滚。",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "createdAt": "2026-04-15T18:33:30.552Z",
   "startedAt": "2026-04-15T18:33:30.552Z",
@@ -25,11 +25,26 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-15T18:34:26.615Z",
+      "branch": "story/B-9a99",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-9a99",
     "branch": "story/B-9a99",
     "createdAt": "2026-04-15T18:34:19.679Z"
-  }
+  },
+  "lane": "mainline",
+  "parallelSafe": "no",
+  "sharedHotspots": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/handlers/fixture.ts"
+  ]
 }

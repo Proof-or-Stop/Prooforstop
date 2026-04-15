@@ -157,6 +157,9 @@ const checklistAddHint: HintFn = (ctx) => {
 };
 
 const fixtureBatchAddHint: HintFn = (ctx) => {
+  if ((ctx.args as { dryRun?: boolean }).dryRun) {
+    return `→ 这是 dry-run 预览。确认计划无误后，去掉 --dry-run 再真实执行`;
+  }
   const storyId = getStoryId(ctx) ?? ctx.activeStory?.storyId;
   if (!storyId) return `→ Fixture cases 已添加。继续添加更多 case，或 story_advance phase=TEST_CASE_REVIEW 进入审核`;
   const story = getStory(ctx, storyId);
@@ -271,6 +274,9 @@ const devFinishHint: HintFn = (ctx) => {
 };
 
 const storyDiscardHint: HintFn = (ctx) => {
+  if ((ctx.args as { dryRun?: boolean }).dryRun) {
+    return `→ 这是 dry-run 预览。确认计划无误后，使用 --confirm 真实执行 discard`;
+  }
   return `→ Story 已废弃，worktree 和分支已清理。改动如果还想保留，请在被 discard 之前手动 cherry-pick 到其它分支`;
 };
 
