@@ -16,19 +16,43 @@
         "happy": [
           {
             "desc": "存在多个 DISCARDED story 但没有真正 active story 时，convergence_check 的『所有 Story 完成』项通过。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T15:46:53.834Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/convergence-discarded.json:1 WHY fixture covers discarded terminal-state filtering and confirms active phases still remain visible to convergence_check. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "DONE 与 DISCARDED 都视为终态，不会再出现在未完成列表。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T15:46:53.933Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/convergence-discarded.json:1 WHY fixture covers discarded terminal-state filtering and confirms active phases still remain visible to convergence_check. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "仍处于 INIT/PLAN/DEV/TEST 等非终态的 story 继续被正确计入未完成列表。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T15:46:54.029Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/convergence-discarded.json:1 WHY fixture covers discarded terminal-state filtering and confirms active phases still remain visible to convergence_check. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -48,19 +72,43 @@
         "happy": [
           {
             "desc": "最小临时仓库里只含 DONE/DISCARDED story 时，回归断言 convergence_check 通过。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T15:46:54.122Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/convergence-discarded.json:1 WHY fixture covers discarded terminal-state filtering and confirms active phases still remain visible to convergence_check. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "临时仓库里混入一个 DEV story 时，回归仍能看到未完成列表。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T15:46:54.217Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/convergence-discarded.json:1 WHY fixture covers discarded terminal-state filtering and confirms active phases still remain visible to convergence_check. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "如果以后把 DISCARDED 又算回 active story，回归会直接失败。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T15:46:54.313Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/convergence-discarded.json:1 WHY fixture covers discarded terminal-state filtering and confirms active phases still remain visible to convergence_check. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       },
