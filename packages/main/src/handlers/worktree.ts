@@ -493,7 +493,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     },
 
     /** 废弃 story：任意阶段均可调用，强制清理 worktree 和分支 */
-    story_discard(args: { storyId: string; reason?: string; force?: boolean }): string {
+    story_discard(args: { storyId: string; reason?: string; force?: boolean; dryRun?: boolean; confirm?: boolean }): string {
       const story = store.readStory(args.storyId);
 
       if (story.phase === 'DONE') {
@@ -501,6 +501,26 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       }
       if (story.phase === 'DISCARDED') {
         return `Story ${args.storyId} 已是 DISCARDED 状态，无需重复操作`;
+      }
+
+      if (args.dryRun) {
+        const plan: string[] = [`[DRY-RUN] story_discard ${args.storyId} would:`];
+        if (story.worktree) {
+          const wtPath = resolveWorktreePath(story.worktree.path);
+          const { branch } = story.worktree;
+          if (existsSync(wtPath)) {
+            plan.push(`- remove linked worktree: ${wtPath}`);
+          } else {
+            plan.push(`- worktree already missing: ${wtPath}`);
+          }
+          plan.push(`- delete branch if present: ${branch}`);
+        } else {
+          plan.push('- no active worktree recorded');
+        }
+        plan.push(`- mark story phase as DISCARDED${args.reason ? ` (reason: ${args.reason})` : ''}`);
+        plan.push('- append discard event to story history');
+        plan.push('→ 加 --confirm 真实执行');
+        return plan.join('\n');
       }
 
       const results: string[] = [];

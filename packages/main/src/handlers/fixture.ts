@@ -189,7 +189,7 @@ export function createFixtureHandlers(ctx: HandlerContext) {
     },
 
     /** 批量添加多个 case，1 次调用替代 N 次 fixture_update */
-    fixture_batch_add(args: { fixturePath: string; cases: Array<Record<string, unknown>>; storyId?: string }) {
+    fixture_batch_add(args: { fixturePath: string; cases: Array<Record<string, unknown>>; storyId?: string; dryRun?: boolean }) {
       const data = readFixture(args.fixturePath);
       const added: string[] = [];
       // B-c745: infer storyId (explicit arg > git branch). intentRefs get
@@ -224,6 +224,9 @@ export function createFixtureHandlers(ctx: HandlerContext) {
         c._id = randomUUID();
         batchCases.push(c);
         added.push(`${c.name}: OK`);
+      }
+      if (args.dryRun) {
+        return `[DRY-RUN] fixture_batch_add ${args.fixturePath} would add ${batchCases.length}/${args.cases.length} cases (current total: ${data.cases.length}, next total: ${data.cases.length + batchCases.length})\n${added.join('\n')}\n→ 去掉 --dryRun 真实执行`;
       }
       // CHK-002: 批量添加时按顺序建立链关系（仅同批 case 之间）
       if (batchCases.length > 1) {

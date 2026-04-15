@@ -33,6 +33,10 @@ export interface ToolDef {
   description: string;
   /** 完整 PROMPT（出现在 koala <cmd> --help 里）。可选；缺省时只显示 description */
   longHelp?: string;
+  guardrails?: {
+    supportsDryRun?: boolean;
+    requiresConfirm?: boolean;
+  };
   schema: Record<string, ZodType>;
 }
 
@@ -77,7 +81,9 @@ export const MAIN_TOOLS: ToolDef[] = [
     storyId: z.string().describe('Story ID'),
     reason: z.string().optional().describe('废弃原因（写入事件记录）'),
     force: z.boolean().optional().describe('强制丢弃未提交改动'),
-  }},
+    dryRun: z.boolean().optional().describe('仅预览将执行的操作，不实际修改 story/worktree/git'),
+    confirm: z.boolean().optional().describe('显式确认执行危险操作'),
+  }, guardrails: { supportsDryRun: true, requiresConfirm: true }},
   { name: 'story_reconcile', description: '检测并修复僵尸 story（分支已合并/删除但 phase 非终态）', schema: {
     dryRun: z.boolean().optional().describe('默认 true 只报告不修改，false 执行修复'),
   }},
@@ -282,7 +288,8 @@ export const MAIN_TOOLS: ToolDef[] = [
       sandbox: z.boolean().optional(),
       timeoutMs: z.number().optional().describe('单 case 超时（ms）'),
     })).describe('case 数组'),
-  }},
+    dryRun: z.boolean().optional().describe('仅预览新增/跳过/报错结果，不写入 fixture'),
+  }, guardrails: { supportsDryRun: true }},
 
 ];
 
@@ -475,6 +482,7 @@ export function parseFlagsTest(rawArgs: string[], schemaDesc: Record<string, str
 
 export function parseFlags(rawArgs: string[], schema: Record<string, ZodType>): Record<string, unknown> {
   const result: Record<string, unknown> = {};
+  const normalizeKey = (key: string) => key.replace(/-([a-z])/g, (_, ch: string) => ch.toUpperCase());
   const arrayKeys = new Set(
     Object.entries(schema).filter(([, t]) => {
       const inner = t instanceof ZodOptional ? (t as any)._def.innerType : t;
@@ -490,11 +498,11 @@ export function parseFlags(rawArgs: string[], schema: Record<string, ZodType>): 
       // --key=value or --key value or --flag (boolean)
       const eqIdx = arg.indexOf('=');
       if (eqIdx > 0) {
-        const key = arg.slice(2, eqIdx);
+        const key = normalizeKey(arg.slice(2, eqIdx));
         const val = arg.slice(eqIdx + 1);
         addValue(result, key, coerce(val, schema[key]), arrayKeys.has(key));
       } else {
-        const key = arg.slice(2);
+        const key = normalizeKey(arg.slice(2));
         // 下一个参数不是 flag → 当作 value
         if (i + 1 < rawArgs.length && !rawArgs[i + 1].startsWith('--')) {
           addValue(result, key, coerce(rawArgs[i + 1], schema[key]), arrayKeys.has(key));
@@ -507,7 +515,7 @@ export function parseFlags(rawArgs: string[], schema: Record<string, ZodType>): 
     } else if (arg.includes('=') && !arg.startsWith('{')) {
       // key=value (无 -- 前缀，兼容旧格式)
       const eqIdx = arg.indexOf('=');
-      const key = arg.slice(0, eqIdx);
+      const key = normalizeKey(arg.slice(0, eqIdx));
       const val = arg.slice(eqIdx + 1);
       addValue(result, key, coerce(val, schema[key]), arrayKeys.has(key));
     }
@@ -657,6 +665,15 @@ export async function runCli(opts?: {
     console.error('参数校验失败:');
     for (const i of v.error.issues) console.error(`  ${i.path.join('.')}: ${i.message}`);
     printToolHelp(tool);
+    process.exit(1);
+  }
+
+  const guardrails = tool.guardrails;
+  if (guardrails?.requiresConfirm && !(v.data as any).confirm && !(v.data as any).dryRun) {
+    console.error(
+      `错误: ${cmd} 是危险命令，默认不会直接执行。\n` +
+      `→ 先用 --dry-run 预览会发生什么，或加 --confirm 明确执行`
+    );
     process.exit(1);
   }
 
