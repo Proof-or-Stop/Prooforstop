@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "定位当前最容易出现“卡住但不推进”的 phase 与命令路径",
+      "context": "先从 story_advance/testintent_check/session_brief/stale-detector 这些已有机制里找出真实的卡点，而不是抽象谈流程。",
+      "relatedDocs": [
+        "docs/requirements/decisions/cc-learnings.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "把 retry/fix/discard 三分决策补进提示或门禁体验",
+      "context": "目标不是增加重门禁，而是让被卡住时的下一步更明确。优先考虑 hint/session_brief/testintent_check/stale warning 等已有用户面。",
+      "relatedDocs": [
+        "docs/requirements/decisions/cc-learnings.md",
+        "AGENTS.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "为 anti-stall 护栏补回归并验证 gap 是否下降",
+      "context": "至少要证明用户在卡住场景里不再只看到模糊失败，而能得到 retry/fix/discard 之一的明确下一步，并重新看 gap/convergence 变化。",
+      "relatedDocs": [
+        "docs/requirements/decisions/cc-learnings.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
