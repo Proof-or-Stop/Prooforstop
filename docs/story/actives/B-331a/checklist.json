@@ -10,7 +10,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "koala help 会重新出现 Truth 分组，且 truth_scan / truth_extract 在默认仓库根直接执行时不再报未知命令。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "恢复后的 truth_scan / truth_analyze / truth_to_story 会继续复用现有 truth tasks，返回 filesScanned、entries、issues、suggestions 等核心结构，而不是临时占位文案。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果只补了 help 没补 handler，黑盒验证会直接暴露 handler not found 或未知命令，而不是假装命令已恢复。",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -22,7 +42,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "最小验证脚本会同时检查 koala help 可见性与 truth_scan/truth_extract 的真实可执行性，防止 Truth 命令再次从默认 CLI 漏掉。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "恢复后默认 CLI 下执行 truth_extract 会稳定写出 docs/requirements/extracted 下的提取产物，并返回与历史一致的完成提示。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果未来有人再次把 Truth 命令从 MAIN_TOOLS 或 registry 漏掉，回归脚本会失败而不是等用户按文档手工撞到。",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }
