@@ -26,6 +26,7 @@ import type { StoryInfo, ChecklistData, BugData } from '../core/types.js';
 import { detectZombieStories } from './story-query.js';
 import { formatRoleLabel } from '../core/activity-role.js';
 import { summarizeParallelPolicy, type ParallelPolicyView } from '../core/parallel-policy.js';
+import { renderAntiStall, reviewAntiStall, testAntiStall, waitingAntiStall } from '../core/anti-stall.js';
 
 interface ActiveStoryDetected {
   storyId: string;
@@ -103,6 +104,7 @@ function rankPhase(phase: string): number {
 }
 
 function inferRoleAwareNextStep(
+  storyId: string,
   phase: string,
   activity: Array<{ role: string; tool: string; source: string; status: string }>,
 ): string | null {
@@ -111,7 +113,7 @@ function inferRoleAwareNextStep(
   const latestKnown = [...activity].reverse().find((a) => a.role !== 'unknown') || latest;
 
   if (phase === 'TEST_CASE_REVIEW' && latestKnown.role === 'reviewer' && latestKnown.status === 'ok') {
-    return 'TEST_CASE_REVIEW 阶段。reviewer 最近已完成审核；优先执行 testintent_check 查看最终判定，再按 hint 决定进入 TEST 或回退。';
+    return `TEST_CASE_REVIEW 阶段。reviewer 最近已完成审核；优先执行 testintent_check 查看最终判定，再按 hint 决定进入 TEST 或回退。\n${reviewAntiStall(storyId)}`;
   }
 
   if (phase === 'PLAN' && latestKnown.role === 'intent' && latestKnown.status === 'ok') {
@@ -123,7 +125,7 @@ function inferRoleAwareNextStep(
   }
 
   if (latestKnown.role === 'reviewer' && latestKnown.status === 'ok') {
-    return '最近由 reviewer 更新了状态。优先执行 testintent_check 或相关只读命令确认最终判定，再决定继续开发还是进入测试。';
+    return `最近由 reviewer 更新了状态。优先执行 testintent_check 或相关只读命令确认最终判定，再决定继续开发还是进入测试。\n${waitingAntiStall(storyId)}`;
   }
 
   if (latestKnown.role === 'intent' && latestKnown.status === 'ok') {
@@ -307,7 +309,7 @@ interface NextStepCtx {
 function computeNextStep(c: NextStepCtx): string {
   const sid = c.storyId;
   const openBugs = c.bugs?.bugs.filter(b => b.status === 'open') ?? [];
-  const roleAwareHint = inferRoleAwareNextStep(c.phase, c.recentActivity);
+  const roleAwareHint = inferRoleAwareNextStep(c.storyId, c.phase, c.recentActivity);
   if (roleAwareHint) return roleAwareHint;
 
   switch (c.phase) {
@@ -344,13 +346,13 @@ function computeNextStep(c: NextStepCtx): string {
     case 'TEST_CASE':
       return `TEST_CASE 阶段。下一步：根据每条 testIntent 用 fixture_batch_add 写 case，每条都需要 intentRef。完成后 git commit + story_advance --phase=TEST_CASE_REVIEW`;
     case 'TEST_CASE_REVIEW':
-      return `TEST_CASE_REVIEW 阶段。下一步：启动 test-case-reviewer agent 审核每条 testIntent。全部 reviewer pass 后 story_advance --phase=TEST。任意 fail 则回退 DEV 改代码`;
+      return `TEST_CASE_REVIEW 阶段。下一步：启动 test-case-reviewer agent 审核每条 testIntent。全部 reviewer pass 后 story_advance --phase=TEST。任意 fail 则回退 DEV 改代码\n${reviewAntiStall(sid)}`;
     case 'TEST':
       if (openBugs.length > 0) {
-        return `TEST 阶段，有 ${openBugs.length} 个 open bug：${openBugs.slice(0, 3).map(b => b.id).join(', ')}。修复后跑 test_fixture 验证，bug_update --status=fixed 自动确认`;
+        return `TEST 阶段，有 ${openBugs.length} 个 open bug：${openBugs.slice(0, 3).map(b => b.id).join(', ')}。修复后跑 test_fixture 验证，bug_update --status=fixed 自动确认\n${testAntiStall(sid, openBugs.map(b => b.id))}`;
       }
       if (!c.hasTestEvidence) {
-        return `TEST 阶段。下一步：test_story --storyId=${sid} 跑当前 story 关联 case，写 bug/evidence`;
+        return `TEST 阶段。下一步：test_story --storyId=${sid} 跑当前 story 关联 case，写 bug/evidence\n${testAntiStall(sid)}`;
       }
       return `TEST 阶段，所有 bug 已 fixed。下一步：story_advance --storyId=${sid} --phase=DONE 完成 story（会自动合并回 main）`;
     case 'DONE':

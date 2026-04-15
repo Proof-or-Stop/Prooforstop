@@ -17,6 +17,7 @@ import { execSync } from 'child_process';
 import type { HandlerContext } from '../handlers/context.js';
 import type { StoryInfo, ChecklistData, BugData } from './types.js';
 import { loadConfig } from './config.js';
+import { reviewAntiStall, testAntiStall, waitingAntiStall } from './anti-stall.js';
 
 export interface StaleThresholds {
   /** phase 没 advance 多久算卡死（分钟） */
@@ -119,7 +120,14 @@ function checkPhaseStale(story: StoryInfo, thresholds: StaleThresholds, now: num
     if (!Number.isFinite(lastTs)) return null;
     const diff = now - lastTs;
     if (diff > thresholds.phaseStale * 60_000) {
-      return `Story ${story.storyId} 已在 ${story.phase} 阶段 ${formatMinutes(diff)} 未 advance`;
+      const base = `Story ${story.storyId} 已在 ${story.phase} 阶段 ${formatMinutes(diff)} 未 advance`;
+      if (story.phase === 'TEST_CASE_REVIEW') {
+        return `${base}\n${reviewAntiStall(story.storyId)}`;
+      }
+      if (story.phase === 'TEST') {
+        return `${base}\n${testAntiStall(story.storyId)}`;
+      }
+      return `${base}\n${waitingAntiStall(story.storyId)}`;
     }
   } catch { /* PROBE */ }
   return null;

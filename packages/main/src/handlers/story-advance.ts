@@ -7,6 +7,7 @@ import type { StoryStore } from '../core/store.js';
 import { loadConfig } from '../core/config.js';
 import { runHooks, buildHookEnv } from '../core/hooks.js';
 import { renderSummaryForHint } from './summary.js';
+import { reviewAntiStall, testAntiStall } from '../core/anti-stall.js';
 import { execSync } from 'child_process';
 import { dirname } from 'path';
 import { existsSync, rmSync } from 'fs';
@@ -497,8 +498,10 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
 → 下一步: 写代码实现（此阶段可改代码，不写测试）。完成后 story_advance(${args.storyId}, TEST_CASE)
 ⚠ 真机测试时（不管在 DEV 还是 TEST 阶段）切换视角: 不要只盯事件日志和 [✓ exit=0]——那是工程师视角。用 PLAN 阶段写的 outcome transcript 当 expected，把实际终端输出当 actual，**对着 diff**。最后一行让用户说"完成"还是"然后呢"决定 story 是否真的做完。`,
         TEST_CASE: `→ 下一步: 根据 testIntent 编写 fixture case（只改 fixture，不改代码）。完成后 story_advance(${args.storyId}, TEST_CASE_REVIEW)。如需改代码请先 story_advance(${args.storyId}, DEV) 回退`,
-        TEST_CASE_REVIEW: `→ 下一步: 启动 test-case-reviewer agent 审核（不改代码也不改 case）。未通过时主 agent 调 story_advance(${args.storyId}, DEV) 回退改代码，或 story_advance(${args.storyId}, TEST_CASE) 回退改 case`,
+        TEST_CASE_REVIEW: `→ 下一步: 启动 test-case-reviewer agent 审核（不改代码也不改 case）。未通过时主 agent 调 story_advance(${args.storyId}, DEV) 回退改代码，或 story_advance(${args.storyId}, TEST_CASE) 回退改 case
+${reviewAntiStall(args.storyId)}`,
         TEST: `→ 必须立即执行: test_story('${args.storyId}') 跑当前 story 关联 case，写 bug/evidence。fail 自动 aux_diagnose + bug_report，pass 自动标 bug fixed。需要刷新架构 trace 时再 test_auto({trace:true})
+${testAntiStall(args.storyId)}
 ⚠ 工程验证 ≠ 用户验收: 即使 test_story 全 pass，也必须用用户视角真机跑一次（节奏: 把 PLAN outcome 当 expected → 跑 → 把实际输出当 actual → diff）。验证完把 actual transcript + 差异说明放到 docs/story/actives/${args.storyId}/evidence/transcript-diff.md。CLAUDE.md「用户价值验收」段有完整 5 题自检清单。`,
         DONE: `→ 必须立即执行: 把下面的 Story 总结段落用你自己的话告诉用户（改了什么/怎么用/真机覆盖/限制/踩坑），然后 convergence_check 检查项目收敛状态
 ⚠ product-reviewer（第一版 advisory）: 在宣布“真的完成”前，至少做一次用户价值视角自检：outcome transcript 是否具体、最终输出最后一行会不会让用户想问“然后呢？”。如有需要，调用 product-reviewer agent 做独立复核。

@@ -8,9 +8,29 @@
         "docs/requirements/decisions/cc-learnings.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-15T05:14:29.953Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "能定位出 review/test/gate 三类最常见卡点，并把它们映射到 retry/fix/discard 之一，而不是只留在抽象 phase 描述",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "正常等待 reviewer 或临时无 activity 的状态不会被误判成必须 discard 的卡死场景",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "当 story 真卡在 TEST_CASE_REVIEW 或 TEST 且用户不知所措时，系统不会只重复“继续流程”，而会给出明确出口",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -20,9 +40,29 @@
         "docs/requirements/decisions/cc-learnings.md",
         "AGENTS.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-15T05:14:30.255Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "session_brief、testintent_check 或 story_advance fail hint 至少有一个入口会明确展示 retry/fix/discard 三分决策，而不是模糊失败文案",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "不同入口里的 anti-stall 提示共享同一套决策逻辑，不会出现一个建议 retry 另一个建议 discard 的矛盾",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "在真正的 blocked 场景里，用户可以从提示中直接执行下一个命令，而不是被迫自己猜 phase 回退路径",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -32,9 +72,29 @@
         "docs/requirements/decisions/cc-learnings.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-15T05:14:30.552Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "回归验证能证明 anti-stall 提示真实落在 CLI 输出上，并且相关高优先级 requirement gap 有下降或不再误报",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "即使故事处于等待/空闲边界状态，验证也能区分“正常等待”与“需要 fix/discard”的差异，不把两者混成一种提示",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果 anti-stall 逻辑、实际 phase 路径和输出文案三者再次脱节，新增验证会及时失败而不是让 story 再次卡死在半完成状态",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }
