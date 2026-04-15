@@ -1,4 +1,18 @@
 
+/**
+ * @task B-6fda
+ * @checklist CHK-001
+ * @title phase tool policy makes the automation interface explicit
+ * @type feature
+ * @priority high
+ * @description
+ *   phaseTools / isCommandAllowed / getAllowedPatterns 把“谁可以在什么阶段通过
+ *   自动化接口操作代码和项目状态”变成了可计算规则。这个入口层不是文档建议，
+ *   而是真正限制人和 AI 通过统一接口访问 story、truth、gap、test 等能力的
+ *   自动化边界。
+ * @changes
+ *   - [CHK-001] 用 phase tool policy 显式约束自动化接口边界，支撑可解释、可追述的 AI-first 仓库入口
+ */
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 

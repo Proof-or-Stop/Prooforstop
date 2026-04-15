@@ -4,25 +4,85 @@
       "id": "CHK-001",
       "title": "让 registry/config/CLI 元数据显式覆盖“代码被自动化接口管理，人和AI都通过接口操作代码”",
       "context": "framework.md:5/8 更像框架入口层的 coverage 问题，最合适的落点是 registry、cli-engine、config phaseTools 这些自动化接口边界。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-15T12:32:10.893Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "gap_analyze 不再把 framework.md:5/8 这两条框架接口愿景判成 high uncovered_requirement。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "registry/config/cli-engine 里仍能看到自动化接口管理与 phase 工具边界的实现痕迹，而不是只在注释里堆口号。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果只是往单个注释块里塞 framework 关键词，回归会暴露关键入口文件缺少对应实现符号。",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
       "title": "让并行调度与 gate 元数据显式覆盖 Wave 0 先完成再开后续 wave 的要求",
       "context": "role-separation.md:897 的核心是 de-risking 先行和下游 wave 不抢跑。parallel-policy、depends、plan_only、sharedHotspots 已经承载了这层约束，需要让元数据显式接上。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-15T12:32:10.990Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "gap_analyze 不再把 role-separation.md:897 的 Wave 0 gate requirement 判成 high uncovered_requirement。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "parallel-policy 仍保留 depends/plan_only/sharedHotspots 等 gate 语义，不是只靠文案描述。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果有人移除 de-risking/不抢跑的并行限制实现，只留下注释，回归会暴露实现痕迹缺失。",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
       "title": "补最小回归验证，锁住这 3 条 high gap 不再误报",
       "context": "至少有一条脚本或 fixture 断言 framework.md:5/8 与 role-separation.md:897 不再出现在 high uncovered_requirement，同时相关实现符号仍存在。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-15T12:32:11.081Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "回归脚本会明确断言这 3 条 high requirement 从 gap_analyze 结果里消失。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "同一脚本不会误伤别的真实 gap 或把 medium/no_test 一起吞掉。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果未来这 3 条 high requirement 又回来了，回归会直接失败。",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }

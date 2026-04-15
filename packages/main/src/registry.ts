@@ -1,4 +1,18 @@
 /**
+ * @task B-6fda
+ * @checklist CHK-001
+ * @title registry exposes the automated interface for humans and AI
+ * @type feature
+ * @priority high
+ * @description
+ *   框架的核心不是让人或 AI 直接操作源码，而是通过统一的自动化接口管理代码：
+ *   createMainRegistry / createToolHandlers 把 story、checklist、fixture、truth、gap
+ *   等能力收敛成同一个 handler registry。代码仓库因此是原生高效适配 AI、可解释、
+ *   可追述的；人和 AI 都通过这层接口访问项目状态和业务逻辑。
+ * @changes
+ *   - [CHK-001] 用统一 registry 暴露自动化接口，覆盖“代码被自动化接口管理 / 人和 AI 通过接口操作代码”
+ */
+/**
  * Handler Registry — koala 的工具注册中心
  *
  * 设计目的：让 main 暴露一个清晰的注册接口，外部包（如 @koala-agent/utils）
