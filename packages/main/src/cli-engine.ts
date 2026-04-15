@@ -195,6 +195,15 @@ export const MAIN_TOOLS: ToolDef[] = [
     format: z.enum(['json','markdown']).optional().describe('输出格式（默认 json）'),
   }},
 
+  // Truth
+  { name: 'truth_scan', description: '扫描真相源目录，提取需求点/决策/约束/问题（summary=true 只返回统计）', schema: {
+    summary: z.boolean().optional().describe('仅返回统计摘要，不展开全部 entries'),
+  }},
+  { name: 'truth_nav', description: '生成/更新真相源 NAV.md 导航索引', schema: {}},
+  { name: 'truth_analyze', description: '分析真相源中的矛盾/模糊/缺失', schema: {}},
+  { name: 'truth_to_story', description: '从需求自动拆解成 Story 建议', schema: {}},
+  { name: 'truth_extract', description: '从代码+Story 反向提取真相源', schema: {}},
+
   // Gap / Convergence
   { name: 'gap_analyze', description: '对比真相源 vs 代码现实，输出差距报告', schema: {}},
   { name: 'convergence_check', description: '判断项目是否收敛（需求覆盖、测试通过、无差距）', schema: {}},
