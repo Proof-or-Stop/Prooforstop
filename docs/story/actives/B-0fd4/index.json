@@ -4,7 +4,7 @@
   "title": "把 browser screenshot smoke 正式落成回归入口",
   "description": "刚才已经用一次性临时脚本验证过 executeBrowserCases + browser-client/browser-server 的 screenshot 链路在当前环境里能跑通，但验证还没进主线。需要把这条 smoke 正式落成仓库脚本和回归入口，让之后能重复回答 screenshot 链路是否仍可用。",
   "type": "feature",
-  "phase": "TEST_CASE_REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "createdAt": "2026-04-15T12:16:48.152Z",
   "startedAt": "2026-04-15T12:16:48.152Z",
@@ -57,6 +57,14 @@
       "branch": "story/B-0fd4",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-15T12:30:40.889Z",
+      "branch": "story/B-0fd4",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
     }
   ],
   "worktree": {
