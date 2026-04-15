@@ -8,9 +8,53 @@
         "docs/requirements/decisions/testing-completeness.md",
         "docs/requirements/decisions/truth-source.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-15T05:43:56.802Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "gap_analyze fixture 会断言 dashboard、coveragePercent 和关键 gap 类型存在，确保 gap 分析结果变化有自动验证",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T05:44:41.415Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/gap-convergence.json:1 WHY each lane now has a CLI black-box assertion over gap_analyze/convergence_check structure or recent convergence-sensitive signals; severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "当 high/medium gap 数量随真实修复波动时，fixture 不会因为无关数字变化而过度脆弱，但会对关键 requirement gap 是否消失保持敏感",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T05:44:41.654Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/gap-convergence.json:1 WHY each lane now has a CLI black-box assertion over gap_analyze/convergence_check structure or recent convergence-sensitive signals; severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果 gap_analyze 再次把已修 requirement 误报成 uncovered，fixture 会明确失败，而不是继续靠人工看仪表盘才发现",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T05:44:42.011Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/gap-convergence.json:1 WHY each lane now has a CLI black-box assertion over gap_analyze/convergence_check structure or recent convergence-sensitive signals; severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -20,9 +64,53 @@
         "docs/requirements/decisions/testing-completeness.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-15T05:43:57.037Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "convergence_check fixture 会断言 converged/checks 结构以及 Flow 链路完整、代码注释合规、需求覆盖率这些关键检查项",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T05:44:42.380Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/gap-convergence.json:1 WHY each lane now has a CLI black-box assertion over gap_analyze/convergence_check structure or recent convergence-sensitive signals; severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "即使项目整体仍未 fully converged，fixture 也能精确看出是哪几个 check 仍然未通过，而不是只断言 false",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T05:44:42.704Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/gap-convergence.json:1 WHY each lane now has a CLI black-box assertion over gap_analyze/convergence_check structure or recent convergence-sensitive signals; severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果 flow 或 annotation 检查再次回归到 fail，fixture 会及时暴露，而不是等下次手工看 convergence_check 才发现",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T05:44:43.141Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/gap-convergence.json:1 WHY each lane now has a CLI black-box assertion over gap_analyze/convergence_check structure or recent convergence-sensitive signals; severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -32,9 +120,53 @@
         "docs/requirements/decisions/testing-completeness.md",
         "docs/requirements/decisions/truth-source.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-15T05:43:57.319Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "新加的 gap/convergence fixture 能对最近做过的收敛改动产生正向反馈，而不是一上来就全红或全绿",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T05:44:43.504Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/gap-convergence.json:1 WHY each lane now has a CLI black-box assertion over gap_analyze/convergence_check structure or recent convergence-sensitive signals; severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "fixture 断言粒度足够稳，在未来继续做其他收敛 story 时不需要因为无关波动频繁改测试",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T05:44:43.880Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/gap-convergence.json:1 WHY each lane now has a CLI black-box assertion over gap_analyze/convergence_check structure or recent convergence-sensitive signals; severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果 fixture、本体命令输出和真实收敛状态三者有任何脱节，story 级测试会及时失败而不是制造虚假的“已收敛”信心",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T05:44:44.296Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/gap-convergence.json:1 WHY each lane now has a CLI black-box assertion over gap_analyze/convergence_check structure or recent convergence-sensitive signals; severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
