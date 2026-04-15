@@ -8,9 +8,29 @@
         "docs/requirements/decisions/testing-completeness.md",
         "docs/requirements/decisions/annotation-system.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-15T05:57:53.420Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "新增 gap-analyze.json 后，validateTestAnnotations 和 gap_analyze 不再报缺 tests/fixtures/gap-analyze.json",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "gap-analyze.json 不只是空文件，而是会断言 dashboard、coveragePercent 或关键 gap 类型等核心输出",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果后续 gap_analyze 再回归到只靠 story 级 fixture 而函数级入口缺失，这条 story 的测试会明确失败",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -20,9 +40,29 @@
         "docs/requirements/decisions/testing-completeness.md",
         "docs/requirements/decisions/truth-source.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-15T05:57:54.121Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "新增 convergence-check.json 后，validateTestAnnotations 和 gap_analyze 不再报缺 tests/fixtures/convergence-check.json",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "convergence-check.json 会断言 checks 结构以及 Flow 链路完整、代码注释合规、需求覆盖率这些关键收敛信号",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果 convergence_check 的关键 check 再次回归，这个文件会直接把问题暴露出来，而不是只满足文件存在",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -31,9 +71,29 @@
       "relatedDocs": [
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-15T05:57:54.727Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "修完后重新跑 gap_analyze，可以看到这两条 no_test backlog 真正消失，而不是只在 story 内部看起来通过",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "如果修完这两条后又暴露出新的历史 @test 命名错位，验证结果会把新增问题留给后续 backlog，而不是误报“全部收敛”",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果 fixture 文件、本体命令输出和 validate/gap 结果三者再次脱节，story 级测试会及时失败而不是制造虚假的收敛感",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }

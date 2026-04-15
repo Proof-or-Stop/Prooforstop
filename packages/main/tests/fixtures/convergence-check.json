@@ -1,0 +1,88 @@
+{
+  "cases": [
+    {
+      "name": "CHK-002 happy: convergence-check fixture path now exists and exposes checks",
+      "run_type": "cli",
+      "file": "tasks/gap-analyze",
+      "execute": "const { StoryStore } = await import(\"/Users/jek/Documents/Work/Orchestrate/packages/main/dist/core/store.js\");\nconst { checkConvergence } = await import(\"/Users/jek/Documents/Work/Orchestrate/packages/main/dist/tasks/gap-analyze.js\");\nconst store = new StoryStore(\"/Users/jek/Documents/Work/Orchestrate\");\nconst json = checkConvergence(\"/Users/jek/Documents/Work/Orchestrate\", store);\nreturn { hasChecks: Array.isArray(json.checks), hasConverged: typeof json.converged === \"boolean\" };",
+      "expect": {
+        "hasChecks": true,
+        "hasConverged": true
+      },
+      "intentRef": "B-f776:CHK-002:happy:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-f776",
+      "_id": "8c62f386-c602-41bb-81f2-77be24a318d1",
+      "nextCaseId": "211b57f3-f8f4-4d58-8d4a-0281ac50019d"
+    },
+    {
+      "name": "CHK-002 edge: convergence-check fixture validates key checks",
+      "run_type": "cli",
+      "file": "tasks/gap-analyze",
+      "execute": "const { StoryStore } = await import(\"/Users/jek/Documents/Work/Orchestrate/packages/main/dist/core/store.js\");\nconst { checkConvergence } = await import(\"/Users/jek/Documents/Work/Orchestrate/packages/main/dist/tasks/gap-analyze.js\");\nconst store = new StoryStore(\"/Users/jek/Documents/Work/Orchestrate\");\nconst json = checkConvergence(\"/Users/jek/Documents/Work/Orchestrate\", store);\nconst names = json.checks.map((check) => check.name);\nreturn { hasFlow: names.includes(\"Flow 链路完整\"), hasAnnotations: names.includes(\"代码注释合规\"), hasCoverage: names.includes(\"需求覆盖率\") };",
+      "expect": {
+        "hasFlow": true,
+        "hasAnnotations": true,
+        "hasCoverage": true
+      },
+      "intentRef": "B-f776:CHK-002:edge:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-f776",
+      "_id": "211b57f3-f8f4-4d58-8d4a-0281ac50019d",
+      "prevCaseId": "8c62f386-c602-41bb-81f2-77be24a318d1",
+      "nextCaseId": "f40d7cf1-9d5c-4e7a-b548-05049633c714"
+    },
+    {
+      "name": "CHK-002 adversarial: convergence-check would catch flow or annotation regressions",
+      "run_type": "cli",
+      "file": "tasks/gap-analyze",
+      "execute": "const { StoryStore } = await import(\"/Users/jek/Documents/Work/Orchestrate/packages/main/dist/core/store.js\");\nconst { checkConvergence } = await import(\"/Users/jek/Documents/Work/Orchestrate/packages/main/dist/tasks/gap-analyze.js\");\nconst store = new StoryStore(\"/Users/jek/Documents/Work/Orchestrate\");\nconst json = checkConvergence(\"/Users/jek/Documents/Work/Orchestrate\", store);\nconst flow = json.checks.find((check) => check.name === \"Flow 链路完整\");\nconst annotations = json.checks.find((check) => check.name === \"代码注释合规\");\nreturn { flowPassed: flow?.passed === true, annotationPassed: annotations?.passed === true };",
+      "expect": {
+        "flowPassed": true,
+        "annotationPassed": true
+      },
+      "intentRef": "B-f776:CHK-002:adversarial:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-f776",
+      "_id": "f40d7cf1-9d5c-4e7a-b548-05049633c714",
+      "prevCaseId": "211b57f3-f8f4-4d58-8d4a-0281ac50019d",
+      "nextCaseId": "80f12a41-d861-409c-a7d8-2a1b4221dddb"
+    },
+    {
+      "name": "CHK-003 edge: convergence backlog detail still reflects reality",
+      "run_type": "cli",
+      "file": "tasks/gap-analyze",
+      "execute": "const { StoryStore } = await import(\"/Users/jek/Documents/Work/Orchestrate/packages/main/dist/core/store.js\");\nconst { checkConvergence } = await import(\"/Users/jek/Documents/Work/Orchestrate/packages/main/dist/tasks/gap-analyze.js\");\nconst store = new StoryStore(\"/Users/jek/Documents/Work/Orchestrate\");\nconst json = checkConvergence(\"/Users/jek/Documents/Work/Orchestrate\", store);\nconst coverage = json.checks.find((check) => check.name === \"需求覆盖率\");\nreturn { coverage90: coverage?.detail === \"90%\", stillNotConverged: json.converged === false };",
+      "expect": {
+        "coverage90": true,
+        "stillNotConverged": true
+      },
+      "intentRef": "B-f776:CHK-003:edge:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-f776",
+      "_id": "80f12a41-d861-409c-a7d8-2a1b4221dddb",
+      "prevCaseId": "f40d7cf1-9d5c-4e7a-b548-05049633c714",
+      "nextCaseId": "9ab27f97-e07d-457f-83f2-f73be8a8a9ed"
+    },
+    {
+      "name": "CHK-003 adversarial: gap and convergence file entries are now real fixture assets",
+      "run_type": "cli",
+      "file": "tasks/gap-analyze",
+      "execute": "const { readFileSync } = await import(\"fs\");\nconst gapFile = JSON.parse(readFileSync($root + \"/packages/main/tests/fixtures/gap-analyze.json\", \"utf8\"));\nconst convergenceFile = JSON.parse(readFileSync($root + \"/packages/main/tests/fixtures/convergence-check.json\", \"utf8\"));\nreturn { gapCases: (gapFile.cases || []).length >= 1, convergenceCases: (convergenceFile.cases || []).length >= 1 };",
+      "expect": {
+        "gapCases": true,
+        "convergenceCases": true
+      },
+      "intentRef": "B-f776:CHK-003:adversarial:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-f776",
+      "_id": "9ab27f97-e07d-457f-83f2-f73be8a8a9ed",
+      "prevCaseId": "80f12a41-d861-409c-a7d8-2a1b4221dddb"
+    }
+  ]
+}

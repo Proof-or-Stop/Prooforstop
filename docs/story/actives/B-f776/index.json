@@ -4,7 +4,7 @@
   "title": "对齐 gap_analyze / convergence_check 的 @test fixture 缺口",
   "description": "把 gap_analyze 与 convergence_check 仍然显示在 medium backlog 里的 @test fixture not found 真正收掉：补齐它们期望的 fixture 路径，或对齐函数注释与 fixture 命名，让 validateTestAnnotations 和 gap_analyze 不再继续报这两条 no_test。",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DEV",
   "priority": "medium",
   "createdAt": "2026-04-15T05:53:03.181Z",
   "startedAt": "2026-04-15T05:53:03.181Z",
@@ -23,6 +23,22 @@
       "action": "advance",
       "timestamp": "2026-04-15T05:54:32.021Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-15T05:54:58.214Z",
+      "branch": "story/B-f776",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-15T05:56:49.296Z",
+      "branch": "story/B-f776",
       "user": "Harmonygo",
       "agent": "main"
     }
