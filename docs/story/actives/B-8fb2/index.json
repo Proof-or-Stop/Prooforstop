@@ -4,7 +4,7 @@
   "title": "统一 story artifact 协议并减少聊天态知识",
   "description": "把 understanding、decision、review judgment、test evidence、transcript diff 等物证统一成一套 artifact contract。目标是让角色间协作靠 artifact 传递，不靠聊天复述；让 session_brief、story_review 与 DONE gate 优先读物证而不是猜状态。",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "lane": "supporting",
   "parallelSafe": "plan_only",
@@ -21,7 +21,7 @@
   ],
   "createdAt": "2026-04-15T06:00:57.000Z",
   "startedAt": "2026-04-15T06:00:57.000Z",
-  "endedAt": null,
+  "endedAt": "2026-04-15T06:50:51.297Z",
   "events": [
     {
       "phase": "INIT",
@@ -38,11 +38,16 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:50:51.297Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main",
+      "reconciled": true,
+      "reason": "story_reconcile: 分支已合并到 main"
     }
-  ],
-  "worktree": {
-    "path": ".worktrees/B-8fb2",
-    "branch": "story/B-8fb2",
-    "createdAt": "2026-04-15T06:01:05.867Z"
-  }
+  ]
 }

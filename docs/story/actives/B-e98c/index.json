@@ -4,7 +4,7 @@
   "title": "补一条实现代码的独立 review 通道",
   "description": "在 test-intent 与 test-case-reviewer 之外，增加专门看实现代码本身的 review 通道。它关注行为回归、边界条件、实现风险和可维护性，不改代码、不写 fixture、不推进 phase，先以 advisory 形式验证信噪比。",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "medium",
   "lane": "supporting",
   "parallelSafe": "plan_only",
@@ -15,7 +15,7 @@
   ],
   "createdAt": "2026-04-15T06:00:57.000Z",
   "startedAt": "2026-04-15T06:00:57.000Z",
-  "endedAt": null,
+  "endedAt": "2026-04-15T06:50:51.390Z",
   "events": [
     {
       "phase": "INIT",
@@ -32,11 +32,16 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:50:51.390Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main",
+      "reconciled": true,
+      "reason": "story_reconcile: 分支已合并到 main"
     }
-  ],
-  "worktree": {
-    "path": ".worktrees/B-e98c",
-    "branch": "story/B-e98c",
-    "createdAt": "2026-04-15T06:01:05.884Z"
-  }
+  ]
 }
