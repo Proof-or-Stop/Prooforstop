@@ -1,0 +1,35 @@
+{
+  "storyId": "B-9a99",
+  "name": "dangerous-command-guardrails",
+  "title": "给危险命令补 dry-run 与 confirm 护栏",
+  "description": "当前高优先级 gap 指向两类缺失：1) 危险命令如 story_discard、fixture_batch_add 大批量操作等缺少 --dry-run 预览；2) irreversible 命令缺少显式确认开关。先把这些命令补成可预览、可确认的护栏，减少误操作和高成本回滚。",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "createdAt": "2026-04-15T18:33:30.552Z",
+  "startedAt": "2026-04-15T18:33:30.552Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-15T18:33:30.553Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-15T18:34:19.596Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-9a99",
+    "branch": "story/B-9a99",
+    "createdAt": "2026-04-15T18:34:19.679Z"
+  }
+}
