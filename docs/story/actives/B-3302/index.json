@@ -4,7 +4,7 @@
   "title": "把卡死不推进反模式收敛成 retry/fix/discard 护栏",
   "description": "把真相源里“卡死不推进是反模式”这条高优先级要求落成可执行护栏：当 review/test/gate 卡住时，Koala 要更明确地把操作者推向 retry、fix 或 discard 其一，而不是长期停在半完成 phase。",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-04-15T01:43:29.945Z",
   "startedAt": "2026-04-15T01:43:29.945Z",
-  "endedAt": null,
+  "endedAt": "2026-04-15T05:15:34.465Z",
   "events": [
     {
       "phase": "INIT",
@@ -71,11 +71,14 @@
       "branch": "story/B-3302",
       "user": "Harmonygo",
       "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-15T05:15:34.465Z",
+      "branch": "story/B-3302",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ],
-  "worktree": {
-    "path": ".worktrees/B-3302",
-    "branch": "story/B-3302",
-    "createdAt": "2026-04-15T03:57:13.813Z"
-  }
+  ]
 }
