@@ -15,19 +15,43 @@
         "happy": [
           {
             "desc": "story_discard 等危险命令在未带 --confirm 时会拒绝执行并提示先用 --dry-run 或 --confirm。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T18:42:52.727Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/dangerous-command-guardrails.json:1 WHY discard guardrails require explicit confirm before execution. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "公开但非 irreversible 的批量写入命令先支持 dry-run 预览，不因为缺 confirm 一律被拦死。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T18:42:52.819Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/dangerous-command-guardrails.json:1 WHY fixture_batch_add dry-run previews without requiring confirm and does not write fixture files. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "dry-run 只输出计划，不会修改 story 状态、fixture 文件或 worktree/git 状态。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T18:42:52.907Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/dangerous-command-guardrails.json:1 WHY story_discard dry-run remains side-effect free. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       },
@@ -48,19 +72,43 @@
         "happy": [
           {
             "desc": "dangerous command 的 dry-run/confirm 回归能证明默认拒绝、dry-run 不落盘、confirm 后才执行。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T18:42:52.995Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/dangerous-command-guardrails.json:1 WHY confirm path executes discard only after explicit preview/confirmation. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "真实执行前后输出与 dry-run 计划保持一致，避免预览和实际行为分叉。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T18:42:53.084Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/dangerous-command-guardrails.json:1 WHY dry-run output and real batch-add execution stay aligned. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "如果外部状态在 dry-run 和真实执行之间变化，真实执行仍会重新读取现场，而不是盲信旧计划。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T18:42:53.173Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/dangerous-command-guardrails.json:1 WHY real execution rereads filesystem state after dry-run. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       },
