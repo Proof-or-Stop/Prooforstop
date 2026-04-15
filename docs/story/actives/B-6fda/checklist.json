@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "让 registry/config/CLI 元数据显式覆盖“代码被自动化接口管理，人和AI都通过接口操作代码”",
+      "context": "framework.md:5/8 更像框架入口层的 coverage 问题，最合适的落点是 registry、cli-engine、config phaseTools 这些自动化接口边界。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "让并行调度与 gate 元数据显式覆盖 Wave 0 先完成再开后续 wave 的要求",
+      "context": "role-separation.md:897 的核心是 de-risking 先行和下游 wave 不抢跑。parallel-policy、depends、plan_only、sharedHotspots 已经承载了这层约束，需要让元数据显式接上。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "补最小回归验证，锁住这 3 条 high gap 不再误报",
+      "context": "至少有一条脚本或 fixture 断言 framework.md:5/8 与 role-separation.md:897 不再出现在 high uncovered_requirement，同时相关实现符号仍存在。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
