@@ -18,6 +18,7 @@
     "test:browser-screenshot-smoke": "node scripts/verify-browser-screenshot-smoke.mjs",
     "test:b6246-bug-cleanup": "node scripts/reconcile-b6246-open-bugs.mjs",
     "test:derived-truth-gap": "node scripts/verify-derived-truth-gap.mjs",
+    "test:flow-tool-metadata": "node scripts/verify-flow-tool-metadata-cleanup.mjs",
     "test:framework-wave-gap": "node scripts/verify-framework-wave-gaps.mjs",
     "test:zombie-worktree": "node scripts/verify-linked-worktree-zombie.mjs",
     "test:truth-cli": "node scripts/verify-truth-cli-commands.mjs",

@@ -288,6 +288,16 @@ export function scan(scanRoot: string): TaskAnnotation[] {
         const merged = new Map<string, TaskAnnotation>();
 
         for (const t of store.tasks as any[]) {
+          if (t.sourceFile) {
+            try {
+              const candidateFile = join(sr, t.sourceFile);
+              if (!existsSync(candidateFile)) {
+                continue;
+              }
+            } catch {
+              continue;
+            }
+          }
           // functionSignature 缺失时从源码正则提取
           let sig = t.functionSignature || '';
           if (!sig && t.sourceFile && t.functionName) {
