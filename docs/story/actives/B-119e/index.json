@@ -4,7 +4,7 @@
   "title": "把 phase invariant 与 rollback reason 结构化",
   "description": "强化 story state machine，把各 phase 的必备条件和回退原因收紧成 machine-readable 协议，减少语义散落在提示词和自然语言里造成的歧义。让 story_advance、session_brief、review 和诊断都能消费同一套 invariant/reason 数据。",
   "type": "feature",
-  "phase": "TEST_CASE",
+  "phase": "TEST",
   "priority": "high",
   "lane": "supporting",
   "parallelSafe": "plan_only",
@@ -86,6 +86,22 @@
       "branch": "story/B-119e",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:46:57.447Z",
+      "branch": "story/B-119e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:47:15.630Z",
+      "branch": "story/B-119e",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
     }
   ],
   "worktree": {
