@@ -1,0 +1,45 @@
+{
+  "storyId": "B-e1c0",
+  "name": "finish-dangerous-command-guardrails-v2",
+  "title": "把 destructive 命令护栏补到 test_auto 路径",
+  "description": "B-0ef0 的 story metadata 已损坏，不再继续在那条 story 上推进。把已经完成的 test_auto destructive guardrail 实现迁到一条新的干净 story 上，继续完成 destructive 命令的 confirm/dry-run 覆盖和回归。",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "数据迁移/破坏性",
+      "matched": "destructive"
+    },
+    {
+      "category": "test runner 框架",
+      "matched": "test_auto"
+    }
+  ],
+  "createdAt": "2026-04-15T23:31:28.316Z",
+  "startedAt": "2026-04-15T23:31:28.316Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-15T23:31:28.317Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-15T23:31:35.387Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-e1c0",
+    "branch": "story/B-e1c0",
+    "createdAt": "2026-04-15T23:31:35.521Z"
+  }
+}

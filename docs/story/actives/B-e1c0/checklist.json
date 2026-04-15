@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "把 test_auto 纳入统一 dangerous command guardrails",
+      "context": "沿用现有 CLI guardrails 机制，让 test_auto 默认要求 --confirm，并支持 --dry-run 预览。",
+      "relatedDocs": [
+        "docs/requirements/decisions/cc-learnings.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "补回归证明 test_auto 的 destructive 护栏行为",
+      "context": "最少覆盖默认拒绝、dry-run 只预览、真实执行才会真的进入回归和 cleanup。",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-fixture-spec.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
