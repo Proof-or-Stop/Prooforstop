@@ -67,6 +67,20 @@ function createTempProject(serverPort) {
   return dir;
 }
 
+async function withTimeout(promise, timeoutMs, label) {
+  let timer;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error(`${label} timed out after ${timeoutMs}ms`)), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
 async function runSmoke(jsonMode = false) {
   const browserExecutor = await import(pathToFileURL(resolveBrowserExecutorModule()).href);
   const { executeBrowserCases, cleanupBrowserEnv } = browserExecutor;
@@ -129,26 +143,33 @@ async function runBrokenEnvProbe(jsonMode = false) {
   try {
     let err = null;
     try {
-      await executeBrowserCases({
-        devCommand: `node -e "console.log('http://localhost:${port}')"` ,
-        projectRoot,
-        screenshotDir: join(projectRoot, 'tests', 'screenshots'),
-      }, [
-        {
-          name: 'browser screenshot broken env',
-          steps: [
-            { action: 'wait', ms: 100 },
-            { action: 'screenshot', saveTo: 'broken.png' },
-          ],
-        },
-      ]);
+      await withTimeout(
+        executeBrowserCases({
+          devCommand: `node -e "console.log('http://localhost:${port}')"` ,
+          projectRoot,
+          screenshotDir: join(projectRoot, 'tests', 'screenshots'),
+        }, [
+          {
+            name: 'browser screenshot broken env',
+            steps: [
+              { action: 'wait', ms: 100 },
+              { action: 'screenshot', saveTo: 'broken.png' },
+            ],
+          },
+        ]),
+        35000,
+        'browser broken-env probe',
+      );
     } catch (error) {
       err = error;
     }
     assert(err, 'expected broken environment probe to fail');
     const message = err instanceof Error ? err.message : String(err);
     assert(
-      message.includes('Dev server did not start') || message.includes('Browser did not connect') || message.includes('No browser connected'),
+      message.includes('Dev server did not start') ||
+      message.includes('Browser did not connect') ||
+      message.includes('No browser connected') ||
+      message.includes('browser broken-env probe timed out'),
       `broken environment emitted unclear error: ${message}`,
     );
     const payload = {
