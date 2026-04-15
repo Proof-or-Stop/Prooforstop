@@ -1,6 +1,6 @@
 
 import type { HandlerContext } from './context.js';
-import { collectContext, PHASE_TO_EVENT, assertCwdInWorktree } from './context.js';
+import { collectContext, PHASE_TO_EVENT, assertCwdInWorktree, getCurrentSessionId, getStorySessionOwner } from './context.js';
 import { createStoryActor, getStateName, getGuardFailureReason, getPhaseInvariantStatus } from '../core/machine.js';
 import type { PhaseInvariantIssue, StoryPhase } from '../core/types.js';
 import type { StoryStore } from '../core/store.js';
@@ -13,6 +13,15 @@ import { getArtifactContractStatus } from '../core/artifact-contract.js';
 import { execSync } from 'child_process';
 import { dirname } from 'path';
 import { existsSync, rmSync } from 'fs';
+
+const SESSION_OWNERSHIP_GATED_PHASES = new Set<StoryPhase>(['TEST', 'DONE']);
+
+function formatSessionOwnerNotice(storyId: string, owner: { sessionId?: string; user?: string; agent?: string; timestamp: string }, currentSession?: string): string {
+  const who = owner.user || owner.agent || 'unknown';
+  const ownerSession = owner.sessionId || 'unknown';
+  const current = currentSession || 'unknown';
+  return `Story ${storyId} 当前由 ${who} 于 ${owner.timestamp} 持有（session: ${ownerSession}）。当前 session: ${current}`;
+}
 
 /**
  * DONE Final Checklist：把 DONE 阶段所有验证项收成一份显式清单。
@@ -278,18 +287,23 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
 
       // Session 占用检查
       let sessionWarning = '';
-      if (args.phase === 'DEV' && story.events) {
-        const devEvents = story.events.filter(e => e.phase === 'DEV' && e.action === 'advance');
-        if (devEvents.length > 0) {
-          const lastDev = devEvents[devEvents.length - 1];
-          const currentSession = process.env.KOALA_SESSION_ID || process.env.CLAUDE_SESSION_ID || '';
-          if (lastDev.sessionId && lastDev.sessionId !== currentSession) {
-            const who = lastDev.user || lastDev.agent || 'unknown';
-            const when = lastDev.timestamp;
-            sessionWarning = `\n⚠ Warning: Story ${args.storyId} 已被 ${who} 于 ${when} 领取开发（session: ${lastDev.sessionId}）`;
-            console.error(sessionWarning.trim());
-          }
+      const currentSession = getCurrentSessionId();
+      const ownerSession = getStorySessionOwner(story.events);
+      const takeoverAllowed = process.env.KOALA_ALLOW_SESSION_TAKEOVER === '1';
+      if (ownerSession && ownerSession.sessionId && currentSession && ownerSession.sessionId !== currentSession) {
+        const ownerNotice = formatSessionOwnerNotice(args.storyId, ownerSession, currentSession);
+        if (SESSION_OWNERSHIP_GATED_PHASES.has(args.phase) && !takeoverAllowed) {
+          throw new Error(
+            `${ownerNotice}\n` +
+            `→ 当前不允许跨 session 直接推进到 ${args.phase}，请先在拥有该 story 的 session 中继续，或显式接管后重试\n` +
+            `→ 接管命令: KOALA_ALLOW_SESSION_TAKEOVER=1 koala story_advance '{"storyId":"${args.storyId}","phase":"${args.phase}"}'`
+          );
         }
+        sessionWarning = `\n⚠ Warning: ${ownerNotice}`;
+        console.error(sessionWarning.trim());
+      } else if (ownerSession && ownerSession.sessionId && !currentSession && SESSION_OWNERSHIP_GATED_PHASES.has(args.phase)) {
+        sessionWarning = `\n⚠ Warning: ${formatSessionOwnerNotice(args.storyId, ownerSession)}；当前进程没有可识别 sessionId，因此仅提示、不阻塞`;
+        console.error(sessionWarning.trim());
       }
 
       // Git clean 门禁（窄化版）：进入 TEST_CASE / TEST_CASE_REVIEW / TEST 前

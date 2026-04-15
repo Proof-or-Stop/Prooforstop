@@ -4,7 +4,7 @@
   "title": "查清并收紧 story 被后台自动推进的状态漂移",
   "description": "当前 story 会在主 agent 正在操作时被后台或并发流程自动推进 phase，例如 TEST_CASE_REVIEW/TEST/DONE 被 gate-auto 或其他流程写入，导致用户看到的 phase、evidence、worktree 生命周期发生非预期跳变。需要定位自动推进链路、区分预期自动 gate 与异常并发推进，并收紧协议或提示，避免让人感觉状态漂了。",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DEV",
   "priority": "high",
   "riskSignals": [
     {
@@ -31,11 +31,35 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-15T12:47:14.982Z",
+      "branch": "story/B-e467",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-15T12:48:05.964Z",
+      "branch": "story/B-e467",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-e467",
     "branch": "story/B-e467",
     "createdAt": "2026-04-15T12:46:29.730Z"
-  }
+  },
+  "lane": "mainline",
+  "parallelSafe": "no",
+  "sharedHotspots": [
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/handlers/context.ts",
+    "bin/koala-codex.js"
+  ]
 }

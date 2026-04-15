@@ -15,7 +15,7 @@
  */
 
 import type { HandlerContext } from './context.js';
-import { collectContext } from './context.js';
+import { collectContext, getCurrentSessionId, getStorySessionOwner } from './context.js';
 import { createStoryActor } from '../core/machine.js';
 import { loadConfig } from '../core/config.js';
 import { readFileSync, existsSync, readdirSync } from 'fs';
@@ -402,29 +402,41 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       const unreviewed = results.filter(r => r.pass === null).length;
 
       const isAllPass = allPass && !hasUnreviewed;
-      let hint: string;
+      let hint = '';
       let autoAdvanced = false;
       if (isAllPass) {
         // 自动推进到 TEST
         try {
           const story = store.readStory(args.storyId);
           if (story.phase === 'TEST_CASE_REVIEW') {
-            const actor = createStoryActor(args.storyId, store, story.phase);
-            actor.start();
-            actor.send({ type: 'REVIEW' } as any);
-            actor.stop();
-            story.phase = 'TEST' as any;
-            const evt = collectContext('TEST' as any, 'advance');
-            evt.agent = 'gate-auto';
-            if (!story.events) story.events = [];
-            story.events.push(evt);
-            store.writeStory(args.storyId, story);
-            autoAdvanced = true;
+            const currentSession = getCurrentSessionId();
+            const ownerSession = getStorySessionOwner(story.events);
+            const hasConflict = ownerSession?.sessionId && currentSession && ownerSession.sessionId !== currentSession;
+            const takeoverAllowed = process.env.KOALA_ALLOW_SESSION_TAKEOVER === '1';
+            if (!hasConflict || takeoverAllowed) {
+              const actor = createStoryActor(args.storyId, store, story.phase);
+              actor.start();
+              actor.send({ type: 'REVIEW' } as any);
+              actor.stop();
+              story.phase = 'TEST' as any;
+              const evt = collectContext('TEST' as any, 'advance');
+              evt.agent = 'gate-auto';
+              if (!story.events) story.events = [];
+              story.events.push(evt);
+              store.writeStory(args.storyId, story);
+              autoAdvanced = true;
+            } else {
+              const who = ownerSession.user || ownerSession.agent || 'unknown';
+              hint = `→ 全部通过，但未自动推进到 TEST：Story ${args.storyId} 当前由 ${who} 于 ${ownerSession.timestamp} 持有（session: ${ownerSession.sessionId}）。\n` +
+                `→ 若确认接管，请执行: KOALA_ALLOW_SESSION_TAKEOVER=1 koala testintent_check '{"storyId":"${args.storyId}"}' 或 KOALA_ALLOW_SESSION_TAKEOVER=1 koala story_advance '{"storyId":"${args.storyId}","phase":"TEST"}'`;
+            }
           }
         } catch { /* 推进失败不阻塞返回 */ }
-        hint = autoAdvanced
-          ? `→ 全部通过，已自动推进到 TEST。请立即执行: test_story('${args.storyId}')`
-          : `→ 全部通过，可推进: story_advance('${args.storyId}', 'TEST')`;
+        if (!hint) {
+          hint = autoAdvanced
+            ? `→ 全部通过，已由 gate-auto 自动推进到 TEST。请立即执行: test_story('${args.storyId}')`
+            : `→ 全部通过，可推进: story_advance('${args.storyId}', 'TEST')`;
+        }
       } else if (hasUnreviewed) {
         hint = `→ 有 ${unreviewed} 条未审核，请继续审核后再检查\n${waitingAntiStall(args.storyId)}`;
       } else {
