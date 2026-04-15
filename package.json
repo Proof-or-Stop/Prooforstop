@@ -14,6 +14,7 @@
     "test:entrypoints": "node scripts/verify-entrypoints.mjs",
     "test:fail-fast-health": "node scripts/verify-fail-fast-health.mjs",
     "test:anti-stall": "node scripts/verify-anti-stall-guardrails.mjs",
+    "test:gap-convergence": "node scripts/verify-gap-convergence.mjs",
     "test:flow-annotations": "node scripts/verify-flow-annotation-repair.mjs",
     "test:parallel-policy": "node scripts/verify-parallel-execution-policy.mjs",
     "test:product-reviewer": "node scripts/verify-product-reviewer.mjs",
