@@ -4,11 +4,11 @@
   "title": "为 gap_analyze 与 convergence_check 补 fixture 回归",
   "description": "把当前 medium backlog 里最核心的两条 no_test 收掉：为 gap_analyze 和 convergence_check 补 fixture 回归，确保后续每次收敛逻辑调整都有确定性验证，而不是只靠手工看仪表盘。",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "medium",
   "createdAt": "2026-04-15T05:30:55.273Z",
   "startedAt": "2026-04-15T05:30:55.273Z",
-  "endedAt": null,
+  "endedAt": "2026-04-15T05:52:16.331Z",
   "events": [
     {
       "phase": "INIT",
@@ -121,11 +121,14 @@
       "branch": "story/B-f7b4",
       "user": "Harmonygo",
       "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-15T05:52:16.331Z",
+      "branch": "story/B-f7b4",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ],
-  "worktree": {
-    "path": ".worktrees/B-f7b4",
-    "branch": "story/B-f7b4",
-    "createdAt": "2026-04-15T05:31:04.316Z"
-  }
+  ]
 }
