@@ -123,6 +123,33 @@ export interface ReviewIssue {
   message: string;
 }
 
+export type StoryAdvanceReasonCode =
+  | 'missing_test_intent'
+  | 'story_review_missing'
+  | 'story_review_failed'
+  | 'review_signature_invalid'
+  | 'dev_checklist_incomplete'
+  | 'review_failed'
+  | 'test_evidence_missing'
+  | 'test_failed'
+  | 'bug_open'
+  | 'transition_blocked';
+
+export interface PhaseInvariantIssue {
+  code: string;
+  detail: string;
+}
+
+export interface PhaseGateDecision {
+  targetPhase: string;
+  ok: boolean;
+  outcome: 'allow' | 'block' | 'rollback';
+  reasonCode: StoryAdvanceReasonCode | null;
+  issues: PhaseInvariantIssue[];
+  humanHint: string | null;
+  rollbackPhase?: StoryPhase | null;
+}
+
 export interface ReviewEntry {
   timestamp: string;
   issueCount: number;

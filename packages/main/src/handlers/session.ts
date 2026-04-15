@@ -27,6 +27,7 @@ import { detectZombieStories } from './story-query.js';
 import { formatRoleLabel } from '../core/activity-role.js';
 import { summarizeParallelPolicy, type ParallelPolicyView } from '../core/parallel-policy.js';
 import { renderAntiStall, reviewAntiStall, testAntiStall, waitingAntiStall } from '../core/anti-stall.js';
+import { getPhaseInvariantStatus } from '../core/machine.js';
 
 interface ActiveStoryDetected {
   storyId: string;
@@ -769,6 +770,21 @@ export function createSessionHandlers(ctx: HandlerContext) {
       for (const l of renderRouterLogTail(routerTail)) lines.push(l);
 
       // Next step (kept — most important field).
+      const phaseInvariantStatus = getPhaseInvariantStatus(storyId, ctx.store, story.phase);
+      if (phaseInvariantStatus.issues.length > 0) {
+        lines.push('');
+        lines.push(`## Missing invariants (${phaseInvariantStatus.issues.length})`);
+        if (phaseInvariantStatus.reasonCode) {
+          lines.push(`  primary reason: ${phaseInvariantStatus.reasonCode}`);
+        }
+        for (const issue of phaseInvariantStatus.issues) {
+          lines.push(`  - [${issue.code}] ${issue.detail}`);
+        }
+        if (phaseInvariantStatus.humanHint) {
+          lines.push(`  hint: ${phaseInvariantStatus.humanHint}`);
+        }
+      }
+
       const nextStep = computeNextStep({
         storyId,
         phase: story.phase,

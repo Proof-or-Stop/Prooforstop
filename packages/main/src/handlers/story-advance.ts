@@ -1,13 +1,14 @@
 
 import type { HandlerContext } from './context.js';
 import { collectContext, PHASE_TO_EVENT, assertCwdInWorktree } from './context.js';
-import { createStoryActor, getStateName, getGuardFailureReason } from '../core/machine.js';
-import type { StoryPhase } from '../core/types.js';
+import { createStoryActor, getStateName, getGuardFailureReason, getPhaseInvariantStatus } from '../core/machine.js';
+import type { PhaseInvariantIssue, StoryPhase } from '../core/types.js';
 import type { StoryStore } from '../core/store.js';
 import { loadConfig } from '../core/config.js';
 import { runHooks, buildHookEnv } from '../core/hooks.js';
 import { renderSummaryForHint } from './summary.js';
 import { reviewAntiStall, testAntiStall } from '../core/anti-stall.js';
+import { buildRollbackDecision, formatPhaseGateDecision } from '../core/phase-protocol.js';
 import { execSync } from 'child_process';
 import { dirname } from 'path';
 import { existsSync, rmSync } from 'fs';
@@ -354,21 +355,32 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
           story.phase = 'DEV' as any;
           const rollbackCtxEvent = collectContext('DEV' as any, 'advance');
           rollbackCtxEvent.agent = 'gate-rollback';
+          rollbackCtxEvent.reason = 'review_failed';
           if (!story.events) story.events = [];
           story.events.push(rollbackCtxEvent);
           store.writeStory(args.storyId, story);
-          const detail = failures.map(f => `  - ${f.itemId}:${f.category} [${f.type}] ${f.desc}`).join('\n');
-          return `Gate failed: ${failures.length} testIntent(s) not passed → auto rollback to DEV\n\n${detail}\n\n→ Story ${args.storyId} rolled back to DEV`;
+          const issues: PhaseInvariantIssue[] = [{
+            code: 'testintent_not_passed',
+            detail: `${failures.length} testIntent(s) not passed:\n${failures.map(f => `  - ${f.itemId}:${f.category} [${f.type}] ${f.desc}`).join('\n')}`,
+          }];
+          const decision = buildRollbackDecision({
+            storyId: args.storyId,
+            targetPhase: 'TEST',
+            rollbackPhase: 'DEV',
+            reasonCode: 'review_failed',
+            issues,
+          });
+          return formatPhaseGateDecision(decision) + `\n\n→ Story ${args.storyId} rolled back to DEV`;
         }
       }
 
       const canSend = actor.getSnapshot().can({ type: eventType } as any);
       if (!canSend) {
-        const reason = getGuardFailureReason(args.storyId, store, args.phase);
+        const decision = getPhaseInvariantStatus(args.storyId, store, args.phase);
         const currentState = getStateName(actor);
         actor.stop();
         throw new Error(
-          reason || `Cannot transition from ${currentState} to ${args.phase}`
+          formatPhaseGateDecision(decision) || getGuardFailureReason(args.storyId, store, args.phase) || `Cannot transition from ${currentState} to ${args.phase}`
         );
       }
 
@@ -667,7 +679,9 @@ ${testAntiStall(args.storyId)}
         }
       }
 
-      return `${doneChecklistPrefix}Story ${args.storyId} advanced to ${newState}${doneMergeReport}\n${nextSteps[newState] || ''}${docsHint}${depsWarning}${sessionWarning}${doneSummarySuffix}`;
+      const humanHint = nextSteps[newState] || '';
+      const humanHintBlock = humanHint ? `\nHuman hint:\n${humanHint}` : '';
+      return `${doneChecklistPrefix}Story ${args.storyId} advanced to ${newState}${doneMergeReport}${humanHintBlock}${docsHint}${depsWarning}${sessionWarning}${doneSummarySuffix}`;
     },
   };
 }

@@ -8,9 +8,29 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/framework.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-15T06:42:28.246Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "每个 phase 都能列出结构化 invariant → brief/review 可稳定读取当前缺口",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "某个 phase 没有额外缺口 → invariant 输出为空但结构仍合法",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "phase 语义仍散落在自然语言里、没有统一 invariant → 消费方无法稳定解释状态",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -22,7 +42,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "典型推进失败会返回明确 rollback reason code → brief 和诊断能复用",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "同一 phase 有多个缺口 → 系统至少返回主 reason 并保留可扩展空间",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "只有自然语言报错没有 reason code → 自动化消费方不能可靠区分失败类型",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -32,9 +72,29 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/cc-learnings.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-15T06:42:28.252Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "story_advance 拒绝推进时同时返回 human hint 与结构化 reason",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "推进成功时 reason 为空但 hint 仍能指出下一步",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "human hint 和结构化 reason 指向不同结论 → 测试应暴露输出漂移",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
@@ -46,7 +106,28 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "典型 gate 拒绝与自动回退路径都有 fixture 覆盖 → 返回的 invariant/reason 稳定可断言",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "历史兼容路径触发失败 → fixture 仍能得到可解释的 reason code",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "只验证 happy path，不验证失败与回退 → reviewer 应认为覆盖不足",
+            "type": "cli_blackbox"
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
     }
   ]
 }
