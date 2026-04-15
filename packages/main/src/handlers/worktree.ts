@@ -4,9 +4,10 @@ import { closeSync, existsSync, mkdirSync, openSync, realpathSync, statSync, unl
 import { dirname, join, relative, isAbsolute } from 'path';
 import type { HandlerContext } from './context.js';
 import { collectContext, PHASE_TO_EVENT } from './context.js';
-import { createStoryActor, getStateName, getGuardFailureReason } from '../core/machine.js';
+import { createStoryActor, getStateName, getPhaseInvariantStatus } from '../core/machine.js';
 import type { StoryPhase } from '../core/types.js';
 import { loadConfig } from '../core/config.js';
+import { formatPhaseGateDecision } from '../core/phase-protocol.js';
 
 export function createWorktreeHandlers(ctx: HandlerContext) {
   const { store, root } = ctx;
@@ -346,7 +347,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
 
         if (newState === 'DEV') {
           // guard 失败，给出原因
-          const reason = getGuardFailureReason(args.storyId, store, 'TEST');
+          const reason = formatPhaseGateDecision(getPhaseInvariantStatus(args.storyId, store, 'TEST'));
           throw new Error(`无法推进到 TEST: ${reason || 'checklist 未全部完成'}`);
         }
 
@@ -415,7 +416,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         actor.stop();
 
         if (newState === 'TEST') {
-          const reason = getGuardFailureReason(args.storyId, store, 'DONE');
+          const reason = formatPhaseGateDecision(getPhaseInvariantStatus(args.storyId, store, 'DONE'));
           throw new Error(`无法合并: ${reason || '测试未全部通过或存在未修复 bug'}`);
         }
 

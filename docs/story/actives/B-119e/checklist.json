@@ -8,9 +8,71 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/framework.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-15T06:43:00.405Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "每个 phase 都能列出结构化 invariant → brief/review 可稳定读取当前缺口",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T06:44:29.420Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/phase-invariants.json:1 WHY fixture covers DEV invariant helper and asserts missing intent/review codes. severity=info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-15T06:47:08.200Z",
+                "pass": true,
+                "note": "phase-gate-protocol.json:0 WHY CHK-001 happy: every phase can expose a structured invariant status passed in story-level regression severity=low",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "某个 phase 没有额外缺口 → invariant 输出为空但结构仍合法",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T06:44:29.410Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/phase-invariants.json:1 WHY fixture covers satisfied DONE invariant and asserts empty issue list remains structurally valid. severity=info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-15T06:47:08.284Z",
+                "pass": true,
+                "note": "phase-gate-protocol.json:0 WHY CHK-001 edge: invariant structure stays legal when DEV has gaps passed in story-level regression severity=low",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "phase 语义仍散落在自然语言里、没有统一 invariant → 消费方无法稳定解释状态",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T06:44:29.463Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/phase-invariants.json:1 WHY fixture covers TEST invariant on missing reviewer results and proves protocol is not prose-only. severity=info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-15T06:47:08.369Z",
+                "pass": true,
+                "note": "phase-gate-protocol.json:0 WHY CHK-001 adversarial: consumers no longer depend on opaque prose parsing passed in story-level regression severity=low",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -20,9 +82,71 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-15T06:43:14.694Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "典型推进失败会返回明确 rollback reason code → brief 和诊断能复用",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T06:44:29.353Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/phase-invariants.json:1 WHY fixture asserts DONE invariant emits open_bugs code for downstream consumers. severity=info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-15T06:47:08.455Z",
+                "pass": true,
+                "note": "phase-gate-protocol.json:0 WHY CHK-002 happy: blocked DEV transition returns a stable reason code passed in story-level regression severity=low",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "同一 phase 有多个缺口 → 系统至少返回主 reason 并保留可扩展空间",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T06:44:39.983Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/phase-invariants.json:1 WHY fixture verifies rendered guard failure text keeps bracketed reason codes even when one phase has multiple gaps. severity=info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-15T06:47:08.538Z",
+                "pass": true,
+                "note": "phase-gate-protocol.json:0 WHY CHK-002 edge: multiple DEV gaps still converge on a primary reason passed in story-level regression severity=low",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "只有自然语言报错没有 reason code → 自动化消费方不能可靠区分失败类型",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T06:44:29.489Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/phase-invariants.json:1 WHY fixture drives story_advance failure path and confirms multiple codes survive human-facing output. severity=info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-15T06:47:08.622Z",
+                "pass": true,
+                "note": "phase-gate-protocol.json:0 WHY CHK-002 adversarial: auto rollback path still emits a reason code passed in story-level regression severity=low",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -32,9 +156,71 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/cc-learnings.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-15T06:43:00.410Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "story_advance 拒绝推进时同时返回 human hint 与结构化 reason",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T06:44:29.540Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/phase-invariants.json:1 WHY fixture shows session_brief exposes Missing invariants with machine-readable code context. severity=info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-15T06:47:08.705Z",
+                "pass": true,
+                "note": "phase-gate-protocol.json:0 WHY CHK-003 happy: blocked advance returns both reason code and human hint passed in story-level regression severity=low",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "推进成功时 reason 为空但 hint 仍能指出下一步",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T06:44:29.497Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/phase-invariants.json:1 WHY fixture also covers clean brief path where invariant section disappears when phase is satisfied. severity=info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-15T06:47:08.790Z",
+                "pass": true,
+                "note": "phase-gate-protocol.json:0 WHY CHK-003 edge: successful advance keeps human hint without inventing a reason passed in story-level regression severity=low",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "human hint 和结构化 reason 指向不同结论 → 测试应暴露输出漂移",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T06:44:29.556Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/phase-invariants.json:1 WHY fixture checks brief emits explicit codes rather than vague prose-only warnings. severity=info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-15T06:47:08.874Z",
+                "pass": true,
+                "note": "phase-gate-protocol.json:0 WHY CHK-003 adversarial: hint and reason stay aligned on blocked advance passed in story-level regression severity=low",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
@@ -44,9 +230,72 @@
         "docs/requirements/decisions/test-fixture-spec.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-15T06:43:00.425Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "典型 gate 拒绝与自动回退路径都有 fixture 覆盖 → 返回的 invariant/reason 稳定可断言",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T06:44:29.527Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/phase-invariants.json:1 WHY fixture file now covers both helper-level and session-level invariant consumers. severity=info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-15T06:47:08.961Z",
+                "pass": true,
+                "note": "phase-gate-protocol.json:0 WHY CHK-004 happy: rollback path is covered by a stable regression case passed in story-level regression severity=low",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "历史兼容路径触发失败 → fixture 仍能得到可解释的 reason code",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T06:44:29.573Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/phase-invariants.json:1 WHY fixture retains a clean-path regression so legacy no-error states stay explainable. severity=info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-15T06:47:09.049Z",
+                "pass": true,
+                "note": "phase-gate-protocol.json:0 WHY CHK-004 edge: legacy blocked transition still yields an explainable code passed in story-level regression severity=low",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "只验证 happy path，不验证失败与回退 → reviewer 应认为覆盖不足",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T06:44:29.584Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/phase-invariants.json:1 WHY fixture proves DONE invariant can surface multiple missing conditions in one structured result. severity=info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-15T06:47:09.133Z",
+                "pass": true,
+                "note": "phase-gate-protocol.json:0 WHY CHK-004 adversarial: successful and failed paths are both covered explicitly passed in story-level regression severity=low",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
     }
   ]
 }

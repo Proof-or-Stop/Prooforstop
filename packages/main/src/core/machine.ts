@@ -2,6 +2,8 @@
 import { setup, createActor, type SnapshotFrom } from 'xstate';
 import type { StoryStore } from './store.js';
 import { createHash } from 'crypto';
+import type { PhaseInvariantIssue, PhaseGateDecision } from './types.js';
+import { buildPhaseGateDecision, formatPhaseGateDecision } from './phase-protocol.js';
 
 export interface StoryMachineContext {
   storyId: string;
@@ -213,13 +215,14 @@ export function getStateName(actor: ReturnType<typeof createActor<typeof storyMa
   return typeof snapshot.value === 'string' ? snapshot.value : JSON.stringify(snapshot.value);
 }
 
-export function getGuardFailureReason(
+export function getPhaseInvariantStatus(
   storyId: string,
   store: StoryStore,
   targetPhase: string,
-): string | null {
+): PhaseGateDecision {
+  const issues: PhaseInvariantIssue[] = [];
+
   if (targetPhase === 'DEV') {
-    const reasons: string[] = [];
     const cl = store.readChecklist(storyId);
     // B-0af4 CHK-002: trivial-story 模式 — priority=low + checklist.length<=1
     // + type in [chore, refactor, docs] 的 story 跳过 testIntent.happy 要求。
@@ -243,13 +246,19 @@ export function getGuardFailureReason(
         return !ti || !Array.isArray(ti.happy) || ti.happy.length === 0;
       });
       if (missingIntent.length > 0) {
-        reasons.push(`${missingIntent.length} checklist item(s) 缺少 testIntent.happy: ${missingIntent.map((i: any) => i.id).join(', ')}`);
+        issues.push({
+          code: 'missing_test_intent_happy',
+          detail: `${missingIntent.length} checklist item(s) 缺少 testIntent.happy: ${missingIntent.map((i: any) => i.id).join(', ')}`,
+        });
       }
     }
     try {
       const review = store.readReview(storyId);
       if (!review || !review.reviews || review.reviews.length === 0) {
-        reasons.push('未通过 story_review 审查（无审查记录）');
+        issues.push({
+          code: 'missing_story_review',
+          detail: '未通过 story_review 审查（无审查记录）',
+        });
       } else {
         const lastRound = review.reviews[review.reviews.length - 1];
         // 验证签名：防止主 agent 伪造 review.json
@@ -257,16 +266,22 @@ export function getGuardFailureReason(
         const hashInput = `${storyId}:${lastRound.timestamp}:${lastRound.issueCount}:${lastRound.blockerCount ?? lastRound.issueCount}:${REVIEW_SALT}`;
         const expectedHash = createHash('sha256').update(hashInput).digest('hex');
         if (!lastRound._hash || lastRound._hash !== expectedHash) {
-          reasons.push('review.json 签名校验失败，审查报告必须由 story_review CLI 生成');
+          issues.push({
+            code: 'invalid_story_review_signature',
+            detail: 'review.json 签名校验失败，审查报告必须由 story_review CLI 生成',
+          });
         } else if ((lastRound.blockerCount ?? lastRound.issueCount) > 0) {
-          reasons.push(`最近一轮 story_review 有 ${lastRound.blockerCount ?? lastRound.issueCount} 个 blocker 未修复`);
+          issues.push({
+            code: 'story_review_blockers',
+            detail: `最近一轮 story_review 有 ${lastRound.blockerCount ?? lastRound.issueCount} 个 blocker 未修复`,
+          });
         }
       }
     } catch {
-      reasons.push('未通过 story_review 审查（无审查记录）');
-    }
-    if (reasons.length > 0) {
-      return `Cannot enter DEV:\n${reasons.map(r => `  - ${r}`).join('\n')}`;
+      issues.push({
+        code: 'missing_story_review',
+        detail: '未通过 story_review 审查（无审查记录）',
+      });
     }
   }
 
@@ -278,7 +293,10 @@ export function getGuardFailureReason(
     const devPhaseItems = cl.items.filter((i: any) => (i.phase || 'DEV') !== 'TEST_CASE');
     const pending = devPhaseItems.filter(i => i.status !== 'done');
     if (pending.length > 0) {
-      return `Cannot enter TEST_CASE: ${pending.length} DEV-phase checklist item(s) not done: ${pending.map(i => i.id).join(', ')}`;
+      issues.push({
+        code: 'pending_dev_checklist_items',
+        detail: `${pending.length} DEV-phase checklist item(s) not done: ${pending.map(i => i.id).join(', ')}`,
+      });
     }
   }
 
@@ -310,24 +328,48 @@ export function getGuardFailureReason(
     }
     if (failures.length > 0) {
       const detail = failures.map(f => `  - ${f.itemId}:${f.category} [${f.type}] ${f.desc}`).join('\n');
-      return `Cannot enter TEST: ${failures.length} testIntent(s) not passed:\n${detail}`;
+      issues.push({
+        code: 'testintent_not_passed',
+        detail: `${failures.length} testIntent(s) not passed:\n${detail}`,
+      });
     }
   }
 
   if (targetPhase === 'DONE') {
     const evidence = store.readTestEvidence(storyId);
     if (!evidence) {
-      return 'Cannot enter DONE: no test evidence found';
+      issues.push({
+        code: 'missing_test_evidence',
+        detail: 'no test evidence found',
+      });
     }
-    if (evidence.result !== 'PASS') {
-      return `Cannot enter DONE: test ${evidence.result}: ${evidence.output}`;
+    if (evidence && evidence.result !== 'PASS') {
+      issues.push({
+        code: 'test_not_passed',
+        detail: `test ${evidence.result}: ${evidence.output}`,
+      });
     }
     const bugs = store.readBugs(storyId);
     const openBugs = bugs.bugs.filter(b => b.status !== 'fixed');
     if (openBugs.length > 0) {
-      return `Cannot enter DONE: ${openBugs.length} unfixed bug(s): ${openBugs.map(b => b.id).join(', ')}`;
+      issues.push({
+        code: 'open_bugs',
+        detail: `${openBugs.length} unfixed bug(s): ${openBugs.map(b => b.id).join(', ')}`,
+      });
     }
   }
 
-  return null;
+  return buildPhaseGateDecision({
+    storyId,
+    targetPhase,
+    issues,
+  });
+}
+
+export function getGuardFailureReason(
+  storyId: string,
+  store: StoryStore,
+  targetPhase: string,
+): string | null {
+  return formatPhaseGateDecision(getPhaseInvariantStatus(storyId, store, targetPhase));
 }

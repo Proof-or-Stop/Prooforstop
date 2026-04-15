@@ -4,7 +4,7 @@
   "title": "把 phase invariant 与 rollback reason 结构化",
   "description": "强化 story state machine，把各 phase 的必备条件和回退原因收紧成 machine-readable 协议，减少语义散落在提示词和自然语言里造成的歧义。让 story_advance、session_brief、review 和诊断都能消费同一套 invariant/reason 数据。",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "lane": "supporting",
   "parallelSafe": "plan_only",
@@ -21,7 +21,7 @@
   ],
   "createdAt": "2026-04-15T06:00:57.000Z",
   "startedAt": "2026-04-15T06:00:57.000Z",
-  "endedAt": null,
+  "endedAt": "2026-04-15T06:50:34.243Z",
   "events": [
     {
       "phase": "INIT",
@@ -38,11 +38,126 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:02:06.498Z",
+      "branch": "story/B-119e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:32:19.307Z",
+      "branch": "story/B-119e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:43:18.370Z",
+      "branch": "story/B-119e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:43:49.263Z",
+      "branch": "story/B-119e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:44:47.352Z",
+      "branch": "story/B-119e",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:45:43.329Z",
+      "branch": "story/B-119e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:46:57.447Z",
+      "branch": "story/B-119e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:47:15.630Z",
+      "branch": "story/B-119e",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:47:42.426Z",
+      "branch": "story/B-119e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:48:07.925Z",
+      "branch": "story/B-119e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:48:12.398Z",
+      "branch": "story/B-119e",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:48:43.914Z",
+      "branch": "story/B-119e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:49:29.156Z",
+      "branch": "story/B-119e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:49:34.594Z",
+      "branch": "story/B-119e",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:50:34.243Z",
+      "branch": "story/B-119e",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ],
-  "worktree": {
-    "path": ".worktrees/B-119e",
-    "branch": "story/B-119e",
-    "createdAt": "2026-04-15T06:01:05.867Z"
-  }
+  ]
 }
