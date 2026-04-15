@@ -3,6 +3,7 @@ import { readFileSync, readdirSync, statSync, existsSync } from 'fs';
 import { join, relative, extname, dirname } from 'path';
 import type { TaskAnnotation, ExtractFilters, FlowStep, FlowChain } from './types.js';
 import { loadConfig } from '../core/config.js';
+import { MetadataStore } from './metadata-store.js';
 
 const EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx']);
 const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', 'build', 'coverage']);
@@ -227,11 +228,15 @@ export function scan(scanRoot: string): TaskAnnotation[] {
     try {
       const store = JSON.parse(readFileSync(metadataPath, 'utf-8'));
       if (store.tasks && store.tasks.length > 0) {
+        const liveAnnotations = scanSourceAnnotations(scanRoot);
         const projectRoot = dirname(dirname(dirname(metadataPath))); // docs/metadata/task.json → root
         const config = loadConfig(projectRoot);
         const sr = join(projectRoot, config.scanRoot);
+        const keyForAnnotation = (annotation: TaskAnnotation) =>
+          `${annotation.sourceFile.replace(/\\/g, '/')}::${annotation.functionName || ''}`;
+        const merged = new Map<string, TaskAnnotation>();
 
-        return store.tasks.map((t: any) => {
+        for (const t of store.tasks as any[]) {
           // functionSignature 缺失时从源码正则提取
           let sig = t.functionSignature || '';
           if (!sig && t.sourceFile && t.functionName) {
@@ -254,7 +259,7 @@ export function scan(scanRoot: string): TaskAnnotation[] {
               }
             } catch {}
           }
-          return {
+          const annotation = {
             task: t.task,
             checklist: t.checklist,
             title: t.title,
@@ -279,7 +284,14 @@ export function scan(scanRoot: string): TaskAnnotation[] {
             next: t.flow?.next,
             test: t.test,
           } as TaskAnnotation;
-        });
+          merged.set(keyForAnnotation(annotation), annotation);
+        }
+
+        for (const annotation of liveAnnotations) {
+          merged.set(keyForAnnotation(annotation), annotation);
+        }
+
+        return Array.from(merged.values());
       }
     } catch { /* fallback to source scan */ }
   }
