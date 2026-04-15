@@ -1,0 +1,35 @@
+{
+  "storyId": "B-4db7",
+  "name": "exclude-derived-truth-from-gap-highs",
+  "title": "让 gap_analyze 不再把 extracted 真相源当高优先级需求",
+  "description": "docs/requirements/decisions/truth-source.md 已把 docs/requirements/extracted/*.md 定义为反向提取的参考层，不是主真相源。但当前 truth_scan/gap_analyze 仍把 extracted 里的 requirement 句子当作 uncovered_requirement 的高优先级来源，导致 10 个 high 里至少有 3 个来自派生文档的误报。需要把主真相源与派生参考层区分开：summary/NAV 可以继续看 extracted，但 uncovered_requirement/high gap 只应基于 primary truth docs，并补最小回归验证，确保 extracted 只做参考不再拉高 high gap。",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "createdAt": "2026-04-15T11:47:14.236Z",
+  "startedAt": "2026-04-15T11:47:14.236Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-15T11:47:14.236Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-15T11:47:21.675Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-4db7",
+    "branch": "story/B-4db7",
+    "createdAt": "2026-04-15T11:47:21.761Z"
+  }
+}
