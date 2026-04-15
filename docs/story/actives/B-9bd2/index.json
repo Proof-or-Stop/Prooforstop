@@ -4,11 +4,11 @@
   "title": "补 flow 工具缺失的 fixture 回归",
   "description": "当前 medium no_test backlog 里，tools-flow_trace.json 和 tools-flow_list.json 是一组边界很清楚的缺失 fixture。它们直接对应 flow 工具发现/展示能力，适合先补成一条独立 story，作为清 medium backlog 的第一组。",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "medium",
   "createdAt": "2026-04-15T13:18:40.522Z",
   "startedAt": "2026-04-15T13:18:40.522Z",
-  "endedAt": null,
+  "endedAt": "2026-04-15T15:36:25.618Z",
   "events": [
     {
       "phase": "INIT",
@@ -65,11 +65,14 @@
       "branch": "story/B-9bd2",
       "user": "Harmonygo",
       "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-15T15:36:25.618Z",
+      "branch": "story/B-9bd2",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ],
-  "worktree": {
-    "path": ".worktrees/B-9bd2",
-    "branch": "story/B-9bd2",
-    "createdAt": "2026-04-15T13:19:06.364Z"
-  }
+  ]
 }
