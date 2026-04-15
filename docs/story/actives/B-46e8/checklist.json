@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "定位 5 个 B-6246 open bug 各自还缺什么验证或实现",
+      "context": "先分清哪些是测试本身太宽松、哪些是实现没覆盖、哪些只是历史遗留记录没有被再次验证。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "修正 fixtureId 绑定相关实现或 fixture，让 5 个 bug 都能被稳定验证并转 fixed",
+      "context": "优先最小改动：如果逻辑已对，就补对 fixture；如果逻辑真缺失，就修实现后再验证。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "补收尾验证，锁住 B-6246 不再长期保留 open bug 历史包袱",
+      "context": "至少有 story 级回归或脚本证明这 5 个 bug 不再 open，并且 fixtureId/旧格式/拒绝路径仍被覆盖。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
