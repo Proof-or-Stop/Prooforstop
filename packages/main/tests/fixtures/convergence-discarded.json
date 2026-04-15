@@ -73,6 +73,19 @@
       "storyId": "B-4551",
       "_id": "57bb5d52-b371-4473-8b9c-554dcb4f55c8",
       "prevCaseId": "3e1926a0-dfb0-4206-93e2-f59e0ff316d1"
+    },
+    {
+      "name": "CHK-001 adversarial: active phases still count as unfinished",
+      "run_type": "cli",
+      "file": "tasks/gap-analyze",
+      "execute": "const { mkdtempSync, mkdirSync, rmSync, writeFileSync } = await import('fs'); const { tmpdir } = await import('os'); const { join } = await import('path'); const { StoryStore } = await import($root + '/packages/main/dist/core/store.js'); const { checkConvergence } = await import($root + '/packages/main/dist/tasks/gap-analyze.js'); const root = mkdtempSync(join(tmpdir(), 'koala-conv-active-')); try { mkdirSync(join(root, 'packages', 'main', 'src'), { recursive: true }); mkdirSync(join(root, 'docs', 'requirements'), { recursive: true }); writeFileSync(join(root, 'koala.config.json'), JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', outDir: 'packages/main/dist', testsDir: 'packages/main/tests', fixturesDir: 'packages/main/tests/fixtures', storyDir: 'docs/story/actives', requirementsDir: 'docs/requirements', storyPrefix: 'B' }, null, 2)); const store = new StoryStore(root); const now = new Date().toISOString(); for (const phase of ['INIT','PLAN','DEV','TEST']) { store.writeStory('B-' + phase.toLowerCase(), { storyId: 'B-' + phase.toLowerCase(), name: phase.toLowerCase(), title: phase, description: phase, type: 'feature', phase, priority: 'medium', createdAt: now, startedAt: now, endedAt: null }); } const result = checkConvergence(root, store); const storyCheck = result.checks.find((c) => c.name === '所有 Story 完成'); const detail = storyCheck?.detail || ''; return { countsActivePhases: ['B-init','B-plan','B-dev','B-test'].every((id) => detail.includes(id)) }; } finally { rmSync(root, { recursive: true, force: true }); }",
+      "expect": {
+        "countsActivePhases": true
+      },
+      "intentRef": "B-4551:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-4551",
+      "_id": "32f8ba8f-3d3e-42f6-9bec-4f6bb8f9feaa"
     }
   ]
 }
