@@ -1,0 +1,118 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "修正 convergence_check 的 active story 统计口径",
+      "context": "只把真正非终态 story 算进未完成列表，至少排除 DONE、DISCARDED，避免把历史废弃方案算成 backlog。",
+      "relatedDocs": [
+        "docs/requirements/decisions/framework.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "done",
+      "startTime": "2026-04-15T15:43:29.593Z",
+      "endTime": "2026-04-15T15:46:39.733Z",
+      "phase": "TEST_CASE",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "存在多个 DISCARDED story 但没有真正 active story 时，convergence_check 的『所有 Story 完成』项通过。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T15:46:53.834Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/convergence-discarded.json:1 WHY fixture covers discarded terminal-state filtering and confirms active phases still remain visible to convergence_check. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "DONE 与 DISCARDED 都视为终态，不会再出现在未完成列表。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T15:46:53.933Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/convergence-discarded.json:1 WHY fixture covers discarded terminal-state filtering and confirms active phases still remain visible to convergence_check. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "仍处于 INIT/PLAN/DEV/TEST 等非终态的 story 继续被正确计入未完成列表。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T15:46:54.029Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/convergence-discarded.json:1 WHY fixture covers discarded terminal-state filtering and confirms active phases still remain visible to convergence_check. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "补一条回归锁住 DISCARDED 不再影响收敛检查",
+      "context": "至少覆盖一个包含 DISCARDED story 的临时仓库或最小场景，证明 convergence_check 的 story 完成项不再误报。",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-fixture-spec.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-15T15:46:18.663Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "最小临时仓库里只含 DONE/DISCARDED story 时，回归断言 convergence_check 通过。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T15:46:54.122Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/convergence-discarded.json:1 WHY fixture covers discarded terminal-state filtering and confirms active phases still remain visible to convergence_check. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "临时仓库里混入一个 DEV story 时，回归仍能看到未完成列表。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T15:46:54.217Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/convergence-discarded.json:1 WHY fixture covers discarded terminal-state filtering and confirms active phases still remain visible to convergence_check. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果以后把 DISCARDED 又算回 active story，回归会直接失败。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T15:46:54.313Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/convergence-discarded.json:1 WHY fixture covers discarded terminal-state filtering and confirms active phases still remain visible to convergence_check. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
+    }
+  ]
+}
