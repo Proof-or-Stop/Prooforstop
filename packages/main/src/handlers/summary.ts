@@ -1,6 +1,9 @@
 /**
  * @task B-093b
+ * @checklist CHK-001
  * @title Story summary (DONE-gate forced completion summary)
+ * @type feature
+ * @priority high
  * @description
  *   Before advancing to DONE, the agent must call `summary_set` with:
  *     - changes       — what changed, user-facing
@@ -16,6 +19,8 @@
  *
  *   This prevents the "agent writes 'smoke all passed' without actually
  *   running them" failure mode that B-e28c and B-2614 both hit.
+ * @changes
+ *   - [CHK-001] DONE 前强制生成 summary.json，固定 changes/usage/limitations/pitfalls 与真实真机覆盖骨架
  */
 
 import { readFileSync, existsSync, readdirSync, statSync } from 'fs';
