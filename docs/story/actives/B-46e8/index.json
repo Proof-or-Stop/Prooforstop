@@ -4,7 +4,7 @@
   "title": "收掉 B-6246 遗留的 fixtureId open bug",
   "description": "B-6246 虽然已经 DONE，但 bug.json 里还挂着 5 个 open bug，集中在 fixtureId 绑定、旧格式兼容、dangling fixtureId 和 reject 场景。当前盘子里这 5 个 open bug 比 medium no_test 更像真实缺口，而且都在同一条历史 story 里，适合单独开一个清理 story，把这些 open bug 真正收掉。",
   "type": "bug",
-  "phase": "DEV",
+  "phase": "TEST_CASE",
   "priority": "high",
   "createdAt": "2026-04-15T13:02:15.842Z",
   "startedAt": "2026-04-15T13:02:15.842Z",
@@ -38,6 +38,38 @@
       "phase": "DEV",
       "action": "advance",
       "timestamp": "2026-04-15T13:05:18.952Z",
+      "branch": "story/B-46e8",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-15T13:15:17.826Z",
+      "branch": "story/B-46e8",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-15T13:15:17.992Z",
+      "branch": "story/B-46e8",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-15T13:15:43.303Z",
+      "branch": "story/B-46e8",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-15T13:16:23.498Z",
       "branch": "story/B-46e8",
       "user": "Harmonygo",
       "agent": "main"

@@ -1,0 +1,49 @@
+{
+  "bugs": [
+    {
+      "id": "BUG-48697a3d",
+      "title": "[auto] b6246-bug-cleanup.json:CHK-001 edge: current B-6246 bug list no longer contains the old visible open bug ids — Expected {\"noH0\":true,\"noH1\":true,\"noOld\":true,\"noDang\":true,\"noReject\":true}, got {\"noH0\":false,\"no",
+      "status": "open",
+      "foundAt": "2026-04-15T13:15:44.574Z",
+      "fixedAt": null,
+      "fixtureId": "48697a3d-0145-4936-9382-a80f3a3e8463",
+      "diagnose": {
+        "rootCause": [
+          "Expected {\"noH0\":true,\"noH1\":true,\"noOld\":true,\"noDang\":true,\"noReject\":true}, got {\"noH0\":false,\"noH1\":false,\"noOld\":false,\"noDang\":false,\"noReject\":false}"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-fc21af6c",
+      "title": "[auto] b6246-bug-cleanup.json:CHK-001 adversarial: if cleanup stopped working the same five ids would reappear as open — Expected {\"catchesRegression\":true}, got {\"catchesRegression\":false}",
+      "status": "open",
+      "foundAt": "2026-04-15T13:15:44.574Z",
+      "fixedAt": null,
+      "fixtureId": "fc21af6c-bddf-46a5-bbb4-10a17f58f3d3",
+      "diagnose": {
+        "rootCause": [
+          "Expected {\"catchesRegression\":true}, got {\"catchesRegression\":false}"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-c7f68236",
+      "title": "[auto] b6246-bug-cleanup.json:CHK-003 adversarial: if open bug debt comes back the cleanup verification fails — Expected {\"noOpenBugs\":true}, got {\"noOpenBugs\":false}",
+      "status": "open",
+      "foundAt": "2026-04-15T13:15:44.574Z",
+      "fixedAt": null,
+      "fixtureId": "c7f68236-1666-42b4-8e4e-36d5972396a2",
+      "diagnose": {
+        "rootCause": [
+          "Expected {\"noOpenBugs\":true}, got {\"noOpenBugs\":false}"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    }
+  ]
+}

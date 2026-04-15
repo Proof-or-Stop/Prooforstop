@@ -18,7 +18,7 @@
       "name": "CHK-001 edge: current B-6246 bug list no longer contains the old visible open bug ids",
       "run_type": "cli",
       "file": "handlers/bug",
-      "execute": "const { execFileSync } = await import('child_process'); const raw = execFileSync('node', [$root + '/packages/main/dist/cli.js', '--root', $root, 'bug_list', JSON.stringify({ storyId: 'B-6246' })], { cwd: $root, encoding: 'utf8' }); const data = JSON.parse(raw.slice(raw.indexOf('{'))); const openIds = new Set(data.bugs.filter((b) => b.status === 'open').map((b) => b.id)); return { noH0: !openIds.has('BUG-fid-test-h0'), noH1: !openIds.has('BUG-fid-test-h1'), noOld: !openIds.has('BUG-old-format'), noDang: !openIds.has('BUG-dangling-v2'), noReject: !openIds.has('BUG-reject-v2') };",
+      "execute": "const { execFileSync } = await import('child_process'); const { dirname } = await import('path'); const commonDir = execFileSync('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'], { cwd: $root, encoding: 'utf8' }).trim(); const repoRoot = commonDir.endsWith('/.git') ? dirname(commonDir) : commonDir; const raw = execFileSync('node', [$root + '/packages/main/dist/cli.js', '--root', repoRoot, 'bug_list', JSON.stringify({ storyId: 'B-6246' })], { cwd: repoRoot, encoding: 'utf8' }); const data = JSON.parse(raw.slice(raw.indexOf('{'))); const openIds = new Set(data.bugs.filter((b) => b.status === 'open').map((b) => b.id)); return { noH0: !openIds.has('BUG-fid-test-h0'), noH1: !openIds.has('BUG-fid-test-h1'), noOld: !openIds.has('BUG-old-format'), noDang: !openIds.has('BUG-dangling-v2'), noReject: !openIds.has('BUG-reject-v2') };",
       "expect": {
         "noH0": true,
         "noH1": true,
@@ -37,7 +37,7 @@
       "name": "CHK-001 adversarial: if cleanup stopped working the same five ids would reappear as open",
       "run_type": "cli",
       "file": "handlers/bug",
-      "execute": "const { execFileSync } = await import('child_process'); const raw = execFileSync('node', [$root + '/packages/main/dist/cli.js', '--root', $root, 'bug_list', JSON.stringify({ storyId: 'B-6246' })], { cwd: $root, encoding: 'utf8' }); const data = JSON.parse(raw.slice(raw.indexOf('{'))); const openIds = new Set(data.bugs.filter((b) => b.status === 'open').map((b) => b.id)); return { catchesRegression: !openIds.has('BUG-fid-test-h0') && !openIds.has('BUG-old-format') };",
+      "execute": "const { execFileSync } = await import('child_process'); const { dirname } = await import('path'); const commonDir = execFileSync('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'], { cwd: $root, encoding: 'utf8' }).trim(); const repoRoot = commonDir.endsWith('/.git') ? dirname(commonDir) : commonDir; const raw = execFileSync('node', [$root + '/packages/main/dist/cli.js', '--root', repoRoot, 'bug_list', JSON.stringify({ storyId: 'B-6246' })], { cwd: repoRoot, encoding: 'utf8' }); const data = JSON.parse(raw.slice(raw.indexOf('{'))); const openIds = new Set(data.bugs.filter((b) => b.status === 'open').map((b) => b.id)); return { catchesRegression: !openIds.has('BUG-fid-test-h0') && !openIds.has('BUG-old-format') };",
       "expect": {
         "catchesRegression": true
       },
@@ -129,7 +129,7 @@
       "name": "CHK-003 adversarial: if open bug debt comes back the cleanup verification fails",
       "run_type": "cli",
       "file": "handlers/bug",
-      "execute": "const { execFileSync } = await import('child_process'); const raw = execFileSync('node', [$root + '/packages/main/dist/cli.js', '--root', $root, 'bug_list', JSON.stringify({ storyId: 'B-6246' })], { cwd: $root, encoding: 'utf8' }); const data = JSON.parse(raw.slice(raw.indexOf('{'))); return { noOpenBugs: data.bugs.every((b) => b.status === 'fixed') };",
+      "execute": "const { execFileSync } = await import('child_process'); const { dirname } = await import('path'); const commonDir = execFileSync('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'], { cwd: $root, encoding: 'utf8' }).trim(); const repoRoot = commonDir.endsWith('/.git') ? dirname(commonDir) : commonDir; const raw = execFileSync('node', [$root + '/packages/main/dist/cli.js', '--root', repoRoot, 'bug_list', JSON.stringify({ storyId: 'B-6246' })], { cwd: repoRoot, encoding: 'utf8' }); const data = JSON.parse(raw.slice(raw.indexOf('{'))); return { noOpenBugs: data.bugs.every((b) => b.status === 'fixed') };",
       "expect": {
         "noOpenBugs": true
       },

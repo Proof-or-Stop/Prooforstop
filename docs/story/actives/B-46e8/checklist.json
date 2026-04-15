@@ -11,19 +11,43 @@
         "happy": [
           {
             "desc": "先重跑 B-6246 的当前回归后，能明确看到这 5 个 open bug 里哪些已自动 fixed、哪些仍真实失败。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T13:15:42.484Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/b6246-bug-cleanup.json:1 WHY CHK-001 happy: reconcile script drains the historical B-6246 open bugs is covered by the B-6246 cleanup regression fixture. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "如果 bug 名和当前 case 名不完全对应，也能通过 fixtureId / bug_list 定位到真正残留的问题。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T13:15:42.572Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/b6246-bug-cleanup.json:1 WHY CHK-001 edge: current B-6246 bug list no longer contains the old visible open bug ids is covered by the B-6246 cleanup regression fixture. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "如果直接重跑只会制造更多噪音而无法定位，回归结果会暴露这一点，需要转单 case/单 fixture 定位。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T13:15:42.658Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/b6246-bug-cleanup.json:1 WHY CHK-001 adversarial: if cleanup stopped working the same five ids would reappear as open is covered by the B-6246 cleanup regression fixture. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -39,19 +63,43 @@
         "happy": [
           {
             "desc": "修正后，这 5 个 open bug 会被稳定验证并转 fixed，而不是继续留在 bug.json 里。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T13:15:42.752Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/b6246-bug-cleanup.json:1 WHY CHK-002 happy: fixture-bug-binding no longer hardcodes B-6246 for bug pollution cases is covered by the B-6246 cleanup regression fixture. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "旧格式 bug、dangling fixtureId 和 reject 路径仍然被覆盖，不会为了清 open bug 把异常路径测没了。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T13:15:42.844Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/b6246-bug-cleanup.json:1 WHY CHK-002 edge: legacy bugs without fixtureId can now be cleaned through bug_update is covered by the B-6246 cleanup regression fixture. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "如果某个 open bug 仍然真实存在，修复不会靠手改 bug.json 掩盖，而会通过回归证明。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T13:15:42.936Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/b6246-bug-cleanup.json:1 WHY CHK-002 adversarial: stale fixtureId cleanup still uses bug_update instead of hand-editing bug.json is covered by the B-6246 cleanup regression fixture. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -67,19 +115,43 @@
         "happy": [
           {
             "desc": "会有一条可重复验证入口证明 B-6246 不再挂着这 5 个 open bug。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T13:15:43.025Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/b6246-bug-cleanup.json:1 WHY CHK-003 happy: cleanup script is the repeatable entry for closing B-6246 bug debt is covered by the B-6246 cleanup regression fixture. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "收尾验证不会误伤 B-6246 里已经 fixed 的 bug 记录或别的历史 bug。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T13:15:43.113Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/b6246-bug-cleanup.json:1 WHY CHK-003 edge: cleanup verification does not touch already fixed B-6246 bug records is covered by the B-6246 cleanup regression fixture. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "如果以后这 5 个 bug 又重新回到 open，专项验证会直接失败。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T13:15:43.206Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/b6246-bug-cleanup.json:1 WHY CHK-003 adversarial: if open bug debt comes back the cleanup verification fails is covered by the B-6246 cleanup regression fixture. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
