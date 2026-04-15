@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "落地 browser screenshot smoke 脚本与 npm 入口",
       "context": "使用 executeBrowserCases 对最小临时 canvas 项目做黑盒验证，断言会生成有效 png，并把这条入口挂进 package.json。不要扩成整套 browser framework 重构。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-04-15T12:21:00.964Z",
       "testIntent": {
         "happy": [
           {
@@ -32,9 +32,9 @@
       "id": "CHK-002",
       "title": "补最小 fixture/验证闭环并留收尾总结",
       "context": "给这条 smoke 挂上 story 内可重复执行的验证闭环，确认它不是一次性手工探测。完成后在总结里明确：当前证明的是 canvas screenshot 路径，不是通用整页 html2canvas 能力。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-04-15T12:20:50.695Z",
       "testIntent": {
         "happy": [
           {
