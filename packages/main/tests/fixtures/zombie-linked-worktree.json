@@ -1,0 +1,101 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: linked worktree branch is not treated as zombie",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst out = execFileSync(\"npm\", [\"run\", \"test:zombie-worktree\"], { cwd: $root, encoding: \"utf8\", stdio: [\"pipe\", \"pipe\", \"pipe\"] });\nreturn { verified: out.includes(\"linked worktree zombie verified\") };",
+      "expect": {
+        "verified": true
+      },
+      "intentRef": "B-0b0a:CHK-001:happy:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-0b0a",
+      "_id": "f0e4026b-9cbe-4a94-9313-4d10b94282d3",
+      "nextCaseId": "c9f04420-1943-4a7d-89bf-7e8bac80822e"
+    },
+    {
+      "name": "CHK-001 edge: implementation no longer parses git branch prefixes",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const { readFileSync } = await import(\"fs\");\nconst text = readFileSync($root + \"/packages/main/src/handlers/story-query.ts\", \"utf8\");\nreturn { usesForEachRef: text.includes(\"git for-each-ref\"), noGitBranchParsing: !text.includes(\"git branch --merged main\") && !text.includes(\"replace(/^\\* /\") };",
+      "expect": {
+        "usesForEachRef": true,
+        "noGitBranchParsing": true
+      },
+      "intentRef": "B-0b0a:CHK-001:edge:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-0b0a",
+      "_id": "c9f04420-1943-4a7d-89bf-7e8bac80822e",
+      "prevCaseId": "f0e4026b-9cbe-4a94-9313-4d10b94282d3",
+      "nextCaseId": "dbbef769-ffcb-458c-ad93-195809d9d7c0"
+    },
+    {
+      "name": "CHK-001 adversarial: mixed + and * branch display no longer causes false zombie",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const { StoryStore } = await import($root + \"/packages/main/dist/core/store.js\");\nconst { detectZombieStories } = await import($root + \"/packages/main/dist/handlers/story-query.js\");\nconst { mkdtempSync, mkdirSync, rmSync, writeFileSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { execFileSync } = await import(\"child_process\");\nconst dir = mkdtempSync(join(tmpdir(), \"koala-zombie-mixed-\"));\nconst git = (cwd, args) => execFileSync(\"git\", args, { cwd, encoding: \"utf8\", stdio: [\"pipe\", \"pipe\", \"pipe\"] }).trim();\ntry {\n  mkdirSync(join(dir, \"docs\", \"story\", \"actives\"), { recursive: true });\n  writeFileSync(join(dir, \"koala.config.json\"), JSON.stringify({ scanRoot: \"packages/main\", rootDir: \"src\", outDir: \"packages/main/dist\", testsDir: \"packages/main/tests\", fixturesDir: \"packages/main/tests/fixtures\", storyDir: \"docs/story/actives\", requirementsDir: \"docs/requirements\", storyPrefix: \"B\" }, null, 2));\n  git(dir, [\"init\"]); git(dir, [\"config\", \"user.name\", \"Koala Test\"]); git(dir, [\"config\", \"user.email\", \"koala@example.com\"]);\n  writeFileSync(join(dir, \".gitignore\"), \"node_modules\\n\"); git(dir, [\"add\", \".\"]); git(dir, [\"commit\", \"-m\", \"init\"]);\n  const store = new StoryStore(dir);\n  store.writeStory(\"B-test\", { storyId: \"B-test\", name: \"x\", title: \"x\", description: \"x\", type: \"bug\", phase: \"DEV\", priority: \"high\", createdAt: new Date().toISOString(), startedAt: new Date().toISOString(), endedAt: null, worktree: { path: \".worktrees/B-test\", branch: \"story/B-test\", createdAt: new Date().toISOString() } });\n  git(dir, [\"add\", \"docs/story/actives\"]); git(dir, [\"commit\", \"-m\", \"story\"]);\n  const wt = join(dir, \".worktrees\", \"B-test\");\n  git(dir, [\"worktree\", \"add\", \"-b\", \"story/B-test\", wt]);\n  writeFileSync(join(wt, \"scratch.txt\"), \"change\\n\"); git(wt, [\"add\", \"scratch.txt\"]); git(wt, [\"commit\", \"-m\", \"change\"]);\n  return { noZombie: detectZombieStories(store, dir).length === 0 };\n} finally { rmSync(dir, { recursive: true, force: true }); }",
+      "expect": {
+        "noZombie": true
+      },
+      "intentRef": "B-0b0a:CHK-001:adversarial:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-0b0a",
+      "_id": "dbbef769-ffcb-458c-ad93-195809d9d7c0",
+      "prevCaseId": "c9f04420-1943-4a7d-89bf-7e8bac80822e",
+      "nextCaseId": "b70784dc-8a84-4309-84b5-9363761cd5fd"
+    },
+    {
+      "name": "CHK-002 happy: regression script covers linked worktree branch output",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const { readFileSync } = await import(\"fs\");\nconst text = readFileSync($root + \"/scripts/verify-linked-worktree-zombie.mjs\", \"utf8\");\nreturn { usesWorktreeAdd: text.includes(\"worktree\", \"add\") || text.includes(\"git( temp, ['worktree'\"), checksZombie: text.includes(\"detectZombieStories\") };",
+      "expect": {
+        "usesWorktreeAdd": true,
+        "checksZombie": true
+      },
+      "intentRef": "B-0b0a:CHK-002:happy:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-0b0a",
+      "_id": "b70784dc-8a84-4309-84b5-9363761cd5fd",
+      "prevCaseId": "dbbef769-ffcb-458c-ad93-195809d9d7c0",
+      "nextCaseId": "8a635d69-29bf-4cb2-95a9-986da20d196a"
+    },
+    {
+      "name": "CHK-002 edge: deleted branch still becomes zombie",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const { StoryStore } = await import($root + \"/packages/main/dist/core/store.js\");\nconst { detectZombieStories } = await import($root + \"/packages/main/dist/handlers/story-query.js\");\nconst { mkdtempSync, mkdirSync, rmSync, writeFileSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { execFileSync } = await import(\"child_process\");\nconst dir = mkdtempSync(join(tmpdir(), \"koala-zombie-deleted-\"));\nconst git = (cwd, args) => execFileSync(\"git\", args, { cwd, encoding: \"utf8\", stdio: [\"pipe\", \"pipe\", \"pipe\"] }).trim();\ntry {\n  mkdirSync(join(dir, \"docs\", \"story\", \"actives\"), { recursive: true });\n  writeFileSync(join(dir, \"koala.config.json\"), JSON.stringify({ scanRoot: \"packages/main\", rootDir: \"src\", outDir: \"packages/main/dist\", testsDir: \"packages/main/tests\", fixturesDir: \"packages/main/tests/fixtures\", storyDir: \"docs/story/actives\", requirementsDir: \"docs/requirements\", storyPrefix: \"B\" }, null, 2));\n  git(dir, [\"init\"]); git(dir, [\"config\", \"user.name\", \"Koala Test\"]); git(dir, [\"config\", \"user.email\", \"koala@example.com\"]);\n  writeFileSync(join(dir, \".gitignore\"), \"node_modules\\n\"); git(dir, [\"add\", \".\"]); git(dir, [\"commit\", \"-m\", \"init\"]);\n  const store = new StoryStore(dir);\n  store.writeStory(\"B-test\", { storyId: \"B-test\", name: \"x\", title: \"x\", description: \"x\", type: \"bug\", phase: \"DEV\", priority: \"high\", createdAt: new Date().toISOString(), startedAt: new Date().toISOString(), endedAt: null, worktree: { path: \".worktrees/B-test\", branch: \"story/B-test\", createdAt: new Date().toISOString() } });\n  git(dir, [\"add\", \"docs/story/actives\"]); git(dir, [\"commit\", \"-m\", \"story\"]);\n  const wt = join(dir, \".worktrees\", \"B-test\"); git(dir, [\"worktree\", \"add\", \"-b\", \"story/B-test\", wt]); git(dir, [\"worktree\", \"remove\", \"--force\", wt]); git(dir, [\"branch\", \"-D\", \"story/B-test\"]);\n  return { isZombie: detectZombieStories(store, dir).some((z) => z.storyId === \"B-test\") };\n} finally { rmSync(dir, { recursive: true, force: true }); }",
+      "expect": {
+        "isZombie": true
+      },
+      "intentRef": "B-0b0a:CHK-002:edge:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-0b0a",
+      "_id": "8a635d69-29bf-4cb2-95a9-986da20d196a",
+      "prevCaseId": "b70784dc-8a84-4309-84b5-9363761cd5fd",
+      "nextCaseId": "be1d9720-645d-42c6-ac82-1c74d6855f77"
+    },
+    {
+      "name": "CHK-002 adversarial: test is not just fuzzy wording smoke",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const { readFileSync } = await import(\"fs\");\nconst text = readFileSync($root + \"/scripts/verify-linked-worktree-zombie.mjs\", \"utf8\");\nreturn { checksNoZombie: text.includes(\"linked worktree branch should not be treated as zombie\"), checksDeletedBranch: text.includes(\"deleted branch should still be treated as zombie\") };",
+      "expect": {
+        "checksNoZombie": true,
+        "checksDeletedBranch": true
+      },
+      "intentRef": "B-0b0a:CHK-002:adversarial:0",
+      "sandbox": false,
+      "timeoutMs": 30000,
+      "storyId": "B-0b0a",
+      "_id": "be1d9720-645d-42c6-ac82-1c74d6855f77",
+      "prevCaseId": "8a635d69-29bf-4cb2-95a9-986da20d196a"
+    }
+  ]
+}
