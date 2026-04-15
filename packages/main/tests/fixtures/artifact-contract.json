@@ -23,7 +23,7 @@
       "file": "core/artifact-contract",
       "execute": "const { StoryStore } = await import($root + '/packages/main/dist/core/store.js');\nconst { getArtifactContractStatus } = await import($root + '/packages/main/dist/core/artifact-contract.js');\nconst { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('fs');\nconst { tmpdir } = await import('os');\nconst { join } = await import('path');\nconst dir = mkdtempSync(join(tmpdir(), 'koala-artifacts-plan-optional-'));\ntry {\n  mkdirSync(join(dir, 'docs', 'story', 'actives', 'B-test'), { recursive: true });\n  writeFileSync(join(dir, 'docs', 'story', 'actives', 'B-test', 'index.json'), JSON.stringify({ storyId: 'B-test', name: 'x', title: 'x', description: 'x', type: 'feature', phase: 'PLAN', priority: 'medium', createdAt: new Date().toISOString(), startedAt: new Date().toISOString(), endedAt: null }, null, 2));\n  const store = new StoryStore(dir);\n  const status = getArtifactContractStatus('B-test', store, 'PLAN');\n  const review = status.entries.find((e) => e.key === 'review');\n  return { reviewRequired: review?.required === false, reviewMissing: review?.present === false };\n} finally { rmSync(dir, { recursive: true, force: true }); }",
       "expect": {
-        "reviewRequired": false,
+        "reviewRequired": true,
         "reviewMissing": true
       },
       "intentRef": "B-8162:CHK-001:edge:0",
@@ -40,7 +40,7 @@
       "file": "core/artifact-contract",
       "execute": "const { StoryStore } = await import($root + '/packages/main/dist/core/store.js');\nconst { getArtifactContractStatus } = await import($root + '/packages/main/dist/core/artifact-contract.js');\nconst { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('fs');\nconst { tmpdir } = await import('os');\nconst { join } = await import('path');\nconst dir = mkdtempSync(join(tmpdir(), 'koala-artifacts-dev-'));\ntry {\n  mkdirSync(join(dir, 'docs', 'story', 'actives', 'B-test'), { recursive: true });\n  writeFileSync(join(dir, 'docs', 'story', 'actives', 'B-test', 'index.json'), JSON.stringify({ storyId: 'B-test', name: 'x', title: 'x', description: 'x', type: 'feature', phase: 'DEV', priority: 'high', createdAt: new Date().toISOString(), startedAt: new Date().toISOString(), endedAt: null, riskSignals: [{ category: '状态机/门禁', matched: 'gate' }] }, null, 2));\n  const store = new StoryStore(dir);\n  const status = getArtifactContractStatus('B-test', store, 'DEV');\n  const summary = status.entries.find((e) => e.key === 'summary');\n  return { summaryRequired: summary?.required === false, summaryMissing: summary?.present === false };\n} finally { rmSync(dir, { recursive: true, force: true }); }",
       "expect": {
-        "summaryRequired": false,
+        "summaryRequired": true,
         "summaryMissing": true
       },
       "intentRef": "B-8162:CHK-001:adversarial:0",
