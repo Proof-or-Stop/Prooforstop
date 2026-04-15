@@ -15,19 +15,43 @@
         "happy": [
           {
             "desc": "4 个 INIT_CHECK 并发触发时，bootstrap 会串行获得 repo 锁，后启动的 story 等待后也能从包含自身 metadata 的 commit 建出 worktree，而不是落到旧 HEAD。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T06:25:56.507Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/init-check-bootstrap.json:4 WHY test_story passed the 4-way concurrent INIT_CHECK probe and each worktree entered PLAN, matching serialized bootstrap intent. severity=low",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "仓库已有与当前 story 无关的未提交改动时，INIT_CHECK 只 stage/commit 当前 story 所需 metadata，不会把整仓脏状态一起卷进初始化提交。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T06:25:57.007Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/init-check-bootstrap.json:18 WHY test_story passed the scoped-stage probe and left unrelated README.md dirty, proving bootstrap no longer stages the whole repo. severity=low",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "如果 bootstrap 在拿锁或 git add/commit 时遇到 index.lock 等真实 git 错误，命令应直接报错并中止，不允许吞错后继续创建 branch/worktree。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T06:25:57.603Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/init-check-bootstrap.json:33 WHY test_story passed the index.lock probe and surfaced the git add failure as a warning instead of silently continuing. severity=medium",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -47,19 +71,43 @@
         "happy": [
           {
             "desc": "并发 INIT_CHECK 回归验证中，每个新建 worktree 都能读到 docs/story/actives/<storyId>/index.json，并顺利从 INIT_CHECK 进入 PLAN。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T06:25:57.967Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/init-check-bootstrap.json:49 WHY test_story passed the concurrent PLAN-entry probe, showing every generated worktree contains its own story index and is usable immediately. severity=low",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "即使目标 story branch 已存在或 INIT_CHECK 是重试路径，也会先校验 branch 指向的 commit 确实包含当前 story 文件，不满足时 fail-fast 而不是复用坏 worktree。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T06:25:58.398Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/init-check-bootstrap.json:64 WHY test_story passed the stale-branch retry probe and kept metadata clean when an old branch already existed. severity=medium",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "如果 branch/worktree 的目标 commit 不包含当前 story 的 index.json，INIT_CHECK 必须返回清晰错误，提示 bootstrap 失败和重试，而不是生成一个进入 PLAN 才爆炸的 worktree。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T06:25:58.726Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/init-check-bootstrap.json:79 WHY test_story passed the stale-branch rejection probe and confirmed no bad worktree is created before the clear warning is emitted. severity=medium",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
