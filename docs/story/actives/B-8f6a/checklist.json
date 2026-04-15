@@ -1,0 +1,52 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "稳固 worktree runtime 的状态对齐与漂移检测",
+      "context": "现有 detectZombieStories 和 dev_start 主要依赖 story 记录与 branch 是否存在，缺少对 git worktree list 真相的消费，导致 linked worktree zombie 误判、活跃 worktree 漂移后只能部分自愈。需要把 linked worktree 注册表、story 记录、磁盘路径三者对齐，并把修复提示前移到 session/story 入口。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/cc-learnings.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "统一 reviewer 结果的聚合呈现与优先级判断",
+      "context": "当前 session_brief 和 TEST_CASE_REVIEW 只对 implementation review 做了第一版 advisory，其他 reviewer 信息仍散落在 testintent_check、story_review 等入口。需要引入统一 reviewer status 聚合层，让不同 reviewer 在 session_brief、story_advance、story_get 等入口呈现一致，并明确 lane/priorities。",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-separation.md",
+        "docs/requirements/decisions/test-intent-review.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "把 artifact contract 扩到 reviewer artifacts 与 phase-aware 消费层",
+      "context": "artifact-contract.ts 目前只覆盖 understanding/decision/review/test evidence/summary，很多 handler 仍各自做隐式判断。需要把 implementation review 等 artifact 纳入 contract，并复用同一计算结果驱动 next step、DONE gate、story detail 等消费。",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-separation.md",
+        "docs/requirements/decisions/cc-learnings.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "补上面向真实项目集成的闭环输出",
+      "context": "Koala 作为上层 workflow 基础设施时，不只要 phase 正确，还要给出更稳定的运行时/集成状态提示。需要在 session/story 入口把 runtime health、worktree drift、review blocking、artifact readiness 汇成更自然的 user-facing 闭环。",
+      "relatedDocs": [
+        "docs/requirements/decisions/project-vision.md",
+        "docs/requirements/decisions/stack-layering.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

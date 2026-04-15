@@ -1,0 +1,42 @@
+{
+  "storyId": "B-8f6a",
+  "name": "runtime-review-artifact-hardening",
+  "title": "稳固 worktree runtime 并统一 reviewer/artifact 消费",
+  "description": "针对当前 Koala 的四类缺口做一轮基础设施硬化：1) 修复 worktree runtime 在 INIT_CHECK 并发、linked worktree zombie 误判、活跃 worktree 漂移/丢失时的状态对齐；2) 把 implementation-review 等 reviewer 结果纳入统一的 phase-aware 消费和多入口呈现；3) 扩展 artifact contract，减少分散在 handler 里的隐式判断；4) 补一层对真实项目/runtime/workflow 集成更友好的闭环提示与状态总结。",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "lane": "mainline",
+  "riskSignals": [
+    {
+      "category": "状态机/门禁",
+      "matched": "gate"
+    }
+  ],
+  "createdAt": "2026-04-15T15:42:23.465Z",
+  "startedAt": "2026-04-15T15:42:23.465Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-15T15:42:23.465Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-15T15:42:26.931Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-8f6a",
+    "branch": "story/B-8f6a",
+    "createdAt": "2026-04-15T15:42:27.030Z"
+  }
+}
