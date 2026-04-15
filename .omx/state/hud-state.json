@@ -1,6 +1,6 @@
 {
-  "last_turn_at": "2026-04-15T06:00:02.319Z",
-  "turn_count": 97,
-  "last_progress_at": "2026-04-15T06:00:02.319Z",
-  "last_agent_output": "下面这版就是“今天照着跑”的命令清单。默认你在仓库根目录 `/Users/jek/Documents/Work/Orchestrate`。\n\n**第一轮：先把 4 个 story 都建出来**\n\n按这"
+  "last_turn_at": "2026-04-15T06:10:19.841Z",
+  "turn_count": 104,
+  "last_progress_at": "2026-04-15T06:10:19.841Z",
+  "last_agent_output": "有，而且我会把它定性成一类明确的系统约束：\n\n`Koala 可以并行管理 story，但 INIT_CHECK 不应该并发执行；它本质上是共享主仓库的 bootstrap 临界区。`\n\n根因已经在实现"
 }

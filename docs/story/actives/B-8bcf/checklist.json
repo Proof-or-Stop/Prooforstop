@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "把 INIT_CHECK bootstrap 改成串行临界区并缩小 git 变更范围",
+      "context": "当前 dev_start 会在主仓库里写 story metadata，然后执行 git add -A / commit / branch / worktree add。并发 INIT_CHECK 时如果 git add/commit 撞到 index.lock，会被宽泛 catch 吞掉，随后从旧 HEAD 建 branch，导致 worktree 看不到刚创建的 story。需要把这段共享仓库 bootstrap 放进 repo 级锁里，只 stage 当前 story 目录，并把 commitSha 显式传给 branch/worktree add，避免隐式跟随瞬时 HEAD。",
+      "relatedDocs": [
+        "AGENTS.md#worktree-自动管理",
+        "AGENTS.md#git-clean-门禁"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "给 INIT_CHECK 增加 fail-fast 校验与并发回归验证",
+      "context": "除了串行化，还需要在创建 branch/worktree 前校验目标 commit 中确实包含当前 story 的 index.json，避免静默创建坏 worktree。再补一条并发 INIT_CHECK 回归验证，覆盖多个 story 同时启动时每个 worktree 都能看到自己的 story 文件。",
+      "relatedDocs": [
+        "AGENTS.md#story-阶段流转",
+        "AGENTS.md#用户价值验收（优先于技术链路验证）"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
