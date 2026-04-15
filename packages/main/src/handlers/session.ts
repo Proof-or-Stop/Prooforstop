@@ -29,6 +29,8 @@ import { summarizeParallelPolicy, type ParallelPolicyView } from '../core/parall
 import { renderAntiStall, reviewAntiStall, testAntiStall, waitingAntiStall } from '../core/anti-stall.js';
 import { getPhaseInvariantStatus } from '../core/machine.js';
 import { getArtifactContractStatus } from '../core/artifact-contract.js';
+import { getReviewerStatus, type ReviewerStatus } from '../core/reviewer-status.js';
+import { getStoryWorktreeRuntime } from '../core/worktree-runtime.js';
 
 interface ActiveStoryDetected {
   storyId: string;
@@ -278,6 +280,35 @@ function renderRouterLogTail(tail: RouterLogSummary[]): string[] {
   return lines;
 }
 
+function renderRuntimeHealthLines(runtime: ReturnType<typeof getStoryWorktreeRuntime>): string[] {
+  const lines: string[] = [];
+  lines.push('## Runtime health');
+  const marker = runtime.status === 'ok' ? '✓' : (runtime.status === 'drift' ? '!' : '✗');
+  const path = runtime.linkedPath || runtime.recordedAbsPath || '(none)';
+  lines.push(`  [${marker}] ${runtime.summary} — ${path}`);
+  for (const warning of runtime.warnings.slice(0, 3)) {
+    lines.push(`  - ${warning}`);
+  }
+  if (runtime.recoveryHint) {
+    lines.push(`  hint: ${runtime.recoveryHint}`);
+  }
+  return lines;
+}
+
+function renderReviewerStatusLines(status: ReviewerStatus): string[] {
+  const lines: string[] = [];
+  lines.push('## Reviewer status');
+  for (const entry of status.entries) {
+    const marker = entry.verdict === 'pass' ? '✓' : (entry.blocking ? '✗' : '!');
+    const requirement = entry.required ? 'required' : 'advisory';
+    lines.push(`  [${marker}] ${entry.label} (${requirement}) — ${entry.summary}`);
+  }
+  if (status.primary) {
+    lines.push(`  primary: ${status.primary.label} → ${status.primary.summary}`);
+  }
+  return lines;
+}
+
 interface ChecklistSummary {
   total: number;
   done: number;
@@ -305,8 +336,8 @@ interface NextStepCtx {
   bugs: BugData | null;
   hasTestEvidence: boolean;
   testPassedAt: string | null;
-  implementationReviewVerdict: 'pass' | 'fail' | null;
-  implementationReviewFindings: number;
+  reviewerStatus: ReviewerStatus;
+  runtimeStatus: ReturnType<typeof getStoryWorktreeRuntime>;
   recentActivity: Array<{ role: string; tool: string; source: string; status: string }>;
 }
 
@@ -315,6 +346,7 @@ function computeNextStep(c: NextStepCtx): string {
   const openBugs = c.bugs?.bugs.filter(b => b.status === 'open') ?? [];
   const roleAwareHint = inferRoleAwareNextStep(c.storyId, c.phase, c.recentActivity);
   if (roleAwareHint) return roleAwareHint;
+  const blockingReviewer = c.reviewerStatus.entries.find((entry) => entry.blocking && entry.verdict !== 'pass') || null;
 
   switch (c.phase) {
     case 'IDEA':
@@ -350,14 +382,20 @@ function computeNextStep(c: NextStepCtx): string {
     case 'TEST_CASE':
       return `TEST_CASE 阶段。下一步：根据每条 testIntent 用 fixture_batch_add 写 case，每条都需要 intentRef。完成后 git commit + story_advance --phase=TEST_CASE_REVIEW`;
     case 'TEST_CASE_REVIEW':
-      if (c.implementationReviewVerdict === 'fail') {
-        return `TEST_CASE_REVIEW 阶段。implementation review 标记为 fail（${c.implementationReviewFindings} findings）。下一步：先回 DEV 修实现，再决定是否继续进入 TEST。\n${reviewAntiStall(sid)}`;
+      if (c.reviewerStatus.entries.find((entry) => entry.key === 'implementation_review')?.verdict === 'fail') {
+        return `TEST_CASE_REVIEW 阶段。implementation review 已标记为 fail。下一步：先回 DEV 修实现，再继续 reviewer / TEST 推进。\n${reviewAntiStall(sid)}`;
       }
-      if (c.implementationReviewVerdict === null) {
-        return `TEST_CASE_REVIEW 阶段。下一步：启动 test-case-reviewer 审 fixture/testIntent，并建议同时用 implementation_review_result_set 记录 implementation-reviewer 的 advisory 结果。\n${reviewAntiStall(sid)}`;
+      if (blockingReviewer) {
+        return `TEST_CASE_REVIEW 阶段。${blockingReviewer.label} 当前为 ${blockingReviewer.summary}。下一步：先处理这条 reviewer 结论，再决定是否进入 TEST。\n${reviewAntiStall(sid)}`;
+      }
+      if (c.reviewerStatus.entries.find((entry) => entry.key === 'implementation_review')?.verdict === 'missing') {
+        return `TEST_CASE_REVIEW 阶段。下一步：启动 test-case-reviewer 审 fixture/testIntent，并建议同时用 implementation_review_result_set 记录 implementation-reviewer 的结果。\n${reviewAntiStall(sid)}`;
       }
       return `TEST_CASE_REVIEW 阶段。下一步：启动 test-case-reviewer agent 审核每条 testIntent。全部 reviewer pass 后 story_advance --phase=TEST。任意 fail 则回退 DEV 改代码\n${reviewAntiStall(sid)}`;
     case 'TEST':
+      if (blockingReviewer) {
+        return `TEST 阶段。${blockingReviewer.label} 当前为 ${blockingReviewer.summary}，先修 reviewer 阻塞项，再继续测试或收尾。\n${testAntiStall(sid)}`;
+      }
       if (openBugs.length > 0) {
         return `TEST 阶段，有 ${openBugs.length} 个 open bug：${openBugs.slice(0, 3).map(b => b.id).join(', ')}。修复后跑 test_fixture 验证，bug_update --status=fixed 自动确认\n${testAntiStall(sid, openBugs.map(b => b.id))}`;
       }
@@ -562,15 +600,16 @@ export function createSessionHandlers(ctx: HandlerContext) {
           lines.push('## Primary lane');
           lines.push(`  ${parallelBrief.primary.storyId} ${parallelBrief.primary.phase} ${parallelBrief.primary.title} [${formatParallelBadge(parallelBrief.primary.policy)}]`);
 
-          try {
-            const impl = ctx.store.readImplementationReview?.(parallelBrief.primary.storyId);
-            if (impl) {
-              lines.push('');
-              lines.push('## Implementation review');
-              lines.push(`  verdict: ${impl.verdict}`);
-              lines.push(`  findings: ${impl.findings.length}`);
-            }
-          } catch { /* probe */ }
+          const primaryRuntime = getStoryWorktreeRuntime(parallelBrief.primary.storyId, ctx.store, ctx.root);
+          const primaryReviewers = getReviewerStatus(
+            parallelBrief.primary.storyId,
+            ctx.store,
+            parallelBrief.primary.phase as any,
+          );
+          lines.push('');
+          for (const line of renderRuntimeHealthLines(primaryRuntime)) lines.push(line);
+          lines.push('');
+          for (const line of renderReviewerStatusLines(primaryReviewers)) lines.push(line);
 
           const primaryArtifacts = getArtifactContractStatus(
             parallelBrief.primary.storyId,
@@ -660,20 +699,20 @@ export function createSessionHandlers(ctx: HandlerContext) {
         lines.push('## → Next step');
         if (parallelBrief.primary) {
           const top = parallelBrief.primary;
-          const wt = worktrees[top.storyId];
-          let implVerdict: 'pass' | 'fail' | null = null;
-          let implFindings = 0;
-          try {
-            const impl = ctx.store.readImplementationReview?.(top.storyId);
-            if (impl) {
-              implVerdict = impl.verdict;
-              implFindings = impl.findings.length;
-            }
-          } catch { /* probe */ }
-          if (implVerdict === 'fail') {
-            lines.push(`  Primary lane implementation review 标记为 fail（${implFindings} findings）。先回 DEV 修实现，再继续推进。`);
+          const runtime = getStoryWorktreeRuntime(top.storyId, ctx.store, ctx.root);
+          const reviewerStatus = getReviewerStatus(top.storyId, ctx.store, top.phase as any);
+          const blocker = reviewerStatus.entries.find((entry) => entry.blocking && entry.verdict !== 'pass') || null;
+          const failingReviewer = reviewerStatus.entries.find((entry) => entry.verdict === 'fail') || null;
+          const wt = runtime.linkedPath || worktrees[top.storyId];
+          if (blocker) {
+            lines.push(`  Primary lane ${blocker.label} 当前为 ${blocker.summary}。先处理 reviewer 阻塞，再继续推进。`);
+          } else if (failingReviewer) {
+            lines.push(`  Primary lane ${failingReviewer.label} 当前为 ${failingReviewer.summary}。建议先修这条 reviewer 结论，再继续推进。`);
           } else if (wt) {
-            lines.push(`  Resume: cd ${wt} (story ${top.storyId} is in ${top.phase})`);
+            const driftNote = runtime.drift ? ' (git linked worktree 已恢复，story 记录待同步)' : '';
+            lines.push(`  Resume: cd ${wt} (story ${top.storyId} is in ${top.phase})${driftNote}`);
+          } else if (runtime.recoveryHint) {
+            lines.push(`  Story ${top.storyId} runtime is ${runtime.status}. ${runtime.recoveryHint}`);
           } else {
             lines.push(`  Story ${top.storyId} is in ${top.phase} but has no worktree. Try \`koala story_advance --storyId=${top.storyId} --phase=INIT_CHECK\` to create one.`);
           }
@@ -693,6 +732,8 @@ export function createSessionHandlers(ctx: HandlerContext) {
       const { storyId, story } = detected;
       lines.push(`**Story**: ${storyId} — ${story.title}`);
       lines.push(`**Phase**: ${story.phase}`);
+      const runtimeStatus = getStoryWorktreeRuntime(storyId, ctx.store, ctx.root);
+      const reviewerStatus = getReviewerStatus(storyId, ctx.store, story.phase);
 
       // Checklist (kept: done/total + in_progress list).
       let checklistSummary: ChecklistSummary | null = null;
@@ -717,6 +758,12 @@ export function createSessionHandlers(ctx: HandlerContext) {
           lines.push(`  next pending: ${next.id} ${next.title} (+${checklistSummary.pending.length - 1} more)`);
         }
       }
+
+      lines.push('');
+      for (const line of renderRuntimeHealthLines(runtimeStatus)) lines.push(line);
+
+      lines.push('');
+      for (const line of renderReviewerStatusLines(reviewerStatus)) lines.push(line);
 
       // Understanding / Decision — probe only in PLAN phase (B-89c7 CHK-017
       // lazy I/O). Elsewhere these fields are now summarized by artifact
@@ -754,8 +801,6 @@ export function createSessionHandlers(ctx: HandlerContext) {
       // Test evidence (kept: timestamp + structured summary, not JSON dump).
       let hasTestEvidence = false;
       let testPassedAt: string | null = null;
-      let implementationReviewVerdict: 'pass' | 'fail' | null = null;
-      let implementationReviewFindings = 0;
       try {
         const ev = ctx.store.readTestEvidence(storyId);
         if (ev) {
@@ -775,18 +820,6 @@ export function createSessionHandlers(ctx: HandlerContext) {
           }
         }
       } catch { /* none */ }
-
-      try {
-        const impl = ctx.store.readImplementationReview?.(storyId);
-        if (impl) {
-          implementationReviewVerdict = impl.verdict;
-          implementationReviewFindings = impl.findings.length;
-          lines.push('');
-          lines.push('## Implementation review');
-          lines.push(`  verdict: ${impl.verdict}`);
-          lines.push(`  findings: ${impl.findings.length}`);
-        }
-      } catch { /* probe */ }
 
       // Activity tail — CHK-017 shrunk from 8 to 3 in full mode; skipped
       // entirely in concise mode (git log covers most of what it shows).
@@ -860,8 +893,8 @@ export function createSessionHandlers(ctx: HandlerContext) {
         bugs,
         hasTestEvidence,
         testPassedAt,
-        implementationReviewVerdict,
-        implementationReviewFindings,
+        reviewerStatus,
+        runtimeStatus,
         recentActivity: activity,
       });
 

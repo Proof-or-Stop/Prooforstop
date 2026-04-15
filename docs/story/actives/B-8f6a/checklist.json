@@ -8,9 +8,30 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/cc-learnings.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "in_progress",
+      "startTime": "2026-04-15T15:46:24.572Z",
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "当 story 记录的 worktree.path 过期但同分支 linked worktree 仍存在时，session/story 入口应识别真实 worktree，并给出修正后的路径/状态，而不是把 active story 误报成 zombie 或无 worktree。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "当 branch 存在但 worktree 注册表与 story.path 不一致时，系统只在能唯一定位真实 linked worktree 时自动修正；否则输出 drift warning，不做盲写回。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "并发 INIT_CHECK 或手动删除目录后再次进入相关入口时，系统不能吞错或错误回收活跃 worktree，必须返回明确的 runtime health / recovery hint。",
+            "type": "cli_blackbox"
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
     },
     {
       "id": "CHK-002",
@@ -22,7 +43,28 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "在 TEST_CASE_REVIEW 或 session_brief 等入口，系统能用统一结构同时展示 test-intent reviewer 与 implementation reviewer 的最新结论，并给出一致的 primary reviewer / next step。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "当存在 blocking reviewer fail 与 advisory reviewer pass 混合结果时，输出必须明确哪一条真正阻塞 phase 推进，避免 lane 优先级歧义。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "当 reviewer 结果缺失、过期或不同入口读取顺序不同，系统也不能给出相互矛盾的结论；缺失应显式标记为 missing/advisory。",
+            "type": "cli_blackbox"
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
     },
     {
       "id": "CHK-003",
@@ -34,7 +76,28 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "artifact contract 能把 understanding、decision、story review、implementation review、test evidence 等 phase-aware readiness 统一算出，并被 session/story 入口直接复用。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "在不同 phase 下，同一个 artifact 需要正确区分 required 与 advisory，不再由各 handler 手写重复判断。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "当 artifact 缺失或 verdict=fail 时，DONE gate / next step / story detail 至少有一个统一来源给出明确阻塞原因，而不会一个入口放行另一个入口阻塞。",
+            "type": "cli_blackbox"
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
     },
     {
       "id": "CHK-004",
@@ -46,7 +109,28 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "当真实项目 story 存在 runtime drift、review block 或 artifact 缺口时，session_brief / story_get 能输出更自然的闭环状态，让操作者直接知道现在能否继续以及该先修什么。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "当系统总体可继续推进但存在 advisory 风险时，输出要把 warning 与 blocking 明确分层，既不误吓阻也不假装全绿。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "当 main 分支没有 active story、但历史 story 有 drift/zombie/runtime 问题时，主入口仍要给出稳定的 runtime 健康提示，而不是只显示模糊的 no active story。",
+            "type": "cli_blackbox"
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
     }
   ]
 }

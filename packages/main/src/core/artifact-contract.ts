@@ -1,8 +1,16 @@
 import type { StoryPhase, StoryInfo } from './types.js';
 import type { StoryStore } from './store.js';
+import { getReviewerStatus } from './reviewer-status.js';
 
 export interface ArtifactContractEntry {
-  key: 'understanding' | 'decision' | 'review' | 'test_evidence' | 'summary';
+  key:
+    | 'understanding'
+    | 'decision'
+    | 'story_review'
+    | 'test_intent_review'
+    | 'implementation_review'
+    | 'test_evidence'
+    | 'summary';
   label: string;
   required: boolean;
   present: boolean;
@@ -36,15 +44,6 @@ function hasDecision(store: StoryStore, storyId: string): boolean {
   }
 }
 
-function hasReview(store: StoryStore, storyId: string): boolean {
-  try {
-    const data = store.readReview(storyId);
-    return !!data && Array.isArray(data.reviews) && data.reviews.length > 0;
-  } catch {
-    return false;
-  }
-}
-
 function hasTestEvidence(store: StoryStore, storyId: string): boolean {
   try {
     return store.readTestEvidence(storyId) !== null;
@@ -68,6 +67,15 @@ export function getArtifactContractStatus(
 ): ArtifactContractStatus {
   const story = store.readStory(storyId);
   const highRisk = isHighRiskStory(story);
+  const reviewerStatus = getReviewerStatus(storyId, store, phase);
+
+  const reviewerEntries: ArtifactContractEntry[] = reviewerStatus.entries.map((reviewer) => ({
+    key: reviewer.key,
+    label: reviewer.label,
+    required: reviewer.required,
+    present: reviewer.present,
+    detail: reviewer.detail,
+  }));
 
   const entries: ArtifactContractEntry[] = [
     {
@@ -84,13 +92,7 @@ export function getArtifactContractStatus(
       present: hasDecision(store, storyId),
       detail: highRisk ? 'high-risk story requires principles / drivers / options / rationale / preMortem' : 'optional on non-high-risk stories',
     },
-    {
-      key: 'review',
-      label: 'review',
-      required: ['DEV', 'TEST_CASE', 'TEST_CASE_REVIEW', 'TEST', 'DONE'].includes(phase),
-      present: hasReview(store, storyId),
-      detail: 'latest story_review record with valid review round',
-    },
+    ...reviewerEntries,
     {
       key: 'test_evidence',
       label: 'test evidence',

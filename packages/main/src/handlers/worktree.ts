@@ -8,6 +8,7 @@ import { createStoryActor, getStateName, getPhaseInvariantStatus } from '../core
 import type { StoryPhase } from '../core/types.js';
 import { loadConfig } from '../core/config.js';
 import { formatPhaseGateDecision } from '../core/phase-protocol.js';
+import { getStoryWorktreeRuntime, getRepoRoot, resolveLinkedWorktreePath, resolveLinkedWorktreeStoryPath } from '../core/worktree-runtime.js';
 
 export function createWorktreeHandlers(ctx: HandlerContext) {
   const { store, root } = ctx;
@@ -79,22 +80,20 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     }
   }
 
-  function getRepoRoot(): string {
+  function repoRoot(): string {
     try {
       const commonDir = getGitCommonDir();
       if (commonDir.endsWith('/.git') || commonDir.endsWith('\\.git')) {
         return dirname(commonDir);
       }
-      return canonicalPath(execSync('git rev-parse --show-toplevel', { cwd: root, encoding: 'utf-8' }).trim());
-    } catch {
-      return canonicalPath(root);
-    }
+    } catch { /* PROBE */ }
+    return getRepoRoot(root);
   }
 
   /** 将 story 里存的 worktree.path（可能是相对或绝对）解析为绝对路径 */
   function resolveWorktreePath(storedPath: string): string {
     if (isAbsolute(storedPath)) return storedPath;
-    return join(getRepoRoot(), storedPath);
+    return join(repoRoot(), storedPath);
   }
 
   function commitContainsPath(revision: string, targetPath: string): boolean {
@@ -168,16 +167,50 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
   return {
     dev_start(args: { storyId: string }): string {
       const story = store.readStory(args.storyId);
+      const runtime = getStoryWorktreeRuntime(args.storyId, store, root);
 
       // 已有 worktree 则直接返回路径
       if (story.worktree) {
-        const absPath = resolveWorktreePath(story.worktree.path);
-        if (existsSync(absPath)) {
-          return `Story ${args.storyId} worktree 已存在\n路径: ${absPath}\n分支: ${story.worktree.branch}`;
+        const linkedPath = resolveLinkedWorktreePath(runtime);
+        if (runtime.linkedPath && runtime.canRepairPath) {
+          const repaired = store.readStory(args.storyId);
+          const existingWorktree = repaired.worktree;
+          if (!existingWorktree) {
+            throw new Error(`Story ${args.storyId} 缺少 worktree 记录，无法修正漂移`);
+          }
+          repaired.worktree = {
+            path: resolveLinkedWorktreeStoryPath(runtime) || existingWorktree.path,
+            branch: existingWorktree.branch,
+            createdAt: existingWorktree.createdAt,
+          };
+          store.writeStory(args.storyId, repaired);
+          return [
+            `Story ${args.storyId} worktree 已恢复`,
+            `路径: ${linkedPath}`,
+            `分支: ${repaired.worktree.branch}`,
+            '⚠ 检测到 story.worktree.path 漂移，已按 git worktree list 自动修正',
+          ].join('\n');
         }
-        // worktree 目录不存在了，清理记录
-        story.worktree = undefined;
-        store.writeStory(args.storyId, story);
+        if (linkedPath && existsSync(linkedPath)) {
+          return [
+            `Story ${args.storyId} worktree 已存在`,
+            `路径: ${linkedPath}`,
+            `分支: ${story.worktree.branch}`,
+            ...(runtime.drift ? ['⚠ story.worktree.path 与 git linked worktree 不一致，请同步修正'] : []),
+          ].join('\n');
+        }
+        if (runtime.status === 'orphaned') {
+          throw new Error(
+            `Story ${args.storyId} 记录的 worktree 目录仍存在，但 git registry 没有匹配项\n` +
+            `路径: ${runtime.recordedAbsPath}\n` +
+            `→ 先检查 git worktree list / git worktree repair；若目录是残留，再清理后重试`
+          );
+        }
+        // worktree 目录与 git registry 都不存在了，清理记录后重建
+        if (!runtime.linkedPath && !runtime.recordedExists) {
+          story.worktree = undefined;
+          store.writeStory(args.storyId, story);
+        }
       }
 
       // 已在 worktree 里时拒绝嵌套
@@ -198,15 +231,15 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
 
       const branch = `story/${args.storyId}`;
       // 用 git repo root 创建 worktree（不用 project root，避免在子项目下嵌套）
-      const repoRoot = getRepoRoot();
+      const repoRootPath = repoRoot();
       const worktreeDir = loadConfig(root).worktreeDir || '.worktrees';
-      const worktreePath = join(repoRoot, worktreeDir, args.storyId);
-      const relWorktreePath = relative(repoRoot, worktreePath).replace(/\\/g, '/');
+      const worktreePath = join(repoRootPath, worktreeDir, args.storyId);
+      const relWorktreePath = relative(repoRootPath, worktreePath).replace(/\\/g, '/');
       const storyIndexPath = relative(
-        repoRoot,
+        repoRootPath,
         canonicalPath(join(root, loadConfig(root).storyDir, args.storyId, 'index.json')),
       ).replace(/\\/g, '/');
-      const stagePaths = getBootstrapStagePaths(args.storyId, repoRoot);
+      const stagePaths = getBootstrapStagePaths(args.storyId, repoRootPath);
       const releaseBootstrapLock = acquireBootstrapLock(args.storyId);
 
       try {

@@ -4,6 +4,7 @@ import type { StoryPhase, StoryEvent } from '../core/types.js';
 import { execSync } from 'child_process';
 import { join, isAbsolute } from 'path';
 import { randomBytes } from 'crypto';
+import { getStoryWorktreeRuntime, resolveLinkedWorktreePath, resolveLinkedWorktreeStoryPath } from '../core/worktree-runtime.js';
 
 export interface HandlerContext {
   store: StoryStore;
@@ -83,6 +84,19 @@ export function assertCwdInWorktree(store: StoryStore, storyId: string): void {
     return; // story 不存在，跳过
   }
   if (!story.worktree) return; // 没有 worktree，跳过（兼容旧 story）
+  const runtime = getStoryWorktreeRuntime(storyId, store, process.cwd());
+  if (runtime.linkedPath && runtime.canRepairPath) {
+    const repaired = store.readStory(storyId);
+    if (repaired.worktree) {
+      repaired.worktree = {
+        path: resolveLinkedWorktreeStoryPath(runtime) || repaired.worktree.path,
+        branch: repaired.worktree.branch,
+        createdAt: repaired.worktree.createdAt,
+      };
+      store.writeStory(storyId, repaired);
+      story = repaired;
+    }
+  }
 
   const cwd = process.cwd();
   let repoRoot = cwd;
@@ -102,9 +116,11 @@ export function assertCwdInWorktree(store: StoryStore, storyId: string): void {
     }
   } catch { /* PROBE: cwd may not be inside a git repo */ }
 
-  const expectedAbsPath = isAbsolute(story.worktree.path)
-    ? story.worktree.path
-    : join(repoRoot, story.worktree.path);
+  const currentWorktree = story.worktree;
+  if (!currentWorktree) return;
+  const expectedAbsPath = resolveLinkedWorktreePath(runtime) || (isAbsolute(currentWorktree.path)
+    ? currentWorktree.path
+    : join(repoRoot, currentWorktree.path));
 
   if (cwd !== expectedAbsPath && !cwd.startsWith(expectedAbsPath + '/') && !cwd.startsWith(expectedAbsPath + '\\')) {
     throw new Error(

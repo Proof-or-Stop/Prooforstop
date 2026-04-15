@@ -1,0 +1,47 @@
+{
+  "cases": [
+    {
+      "name": "CHK-002 happy: unified reviewer status shows primary reviewer consistently",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { execFileSync } = await import(\"node:child_process\"); execFileSync(\"node\", [$root + \"/scripts/verify-runtime-reviewer-contract.mjs\"], { cwd: $root, encoding: \"utf8\", stdio: [\"pipe\", \"pipe\", \"pipe\"] }); return { ok: true };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-8f6a:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-8f6a",
+      "_id": "8c578338-9060-430e-9f15-0d8af28f76e5",
+      "nextCaseId": "eb8bd266-f483-4914-99e8-07b9b50f5406"
+    },
+    {
+      "name": "CHK-002 edge: blocking reviewer outranks advisory reviewer in next step",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { execFileSync } = await import(\"node:child_process\"); execFileSync(\"node\", [$root + \"/scripts/verify-runtime-reviewer-contract.mjs\"], { cwd: $root, encoding: \"utf8\", stdio: [\"pipe\", \"pipe\", \"pipe\"] }); return { ok: true };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-8f6a:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-8f6a",
+      "_id": "eb8bd266-f483-4914-99e8-07b9b50f5406",
+      "prevCaseId": "8c578338-9060-430e-9f15-0d8af28f76e5",
+      "nextCaseId": "bd036834-c268-458c-9881-d33468733083"
+    },
+    {
+      "name": "CHK-002 adversarial: missing or inconsistent reviewer state no longer diverges by entrypoint",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { execFileSync } = await import(\"node:child_process\"); execFileSync(\"node\", [$root + \"/scripts/verify-runtime-reviewer-contract.mjs\"], { cwd: $root, encoding: \"utf8\", stdio: [\"pipe\", \"pipe\", \"pipe\"] }); return { ok: true };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-8f6a:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-8f6a",
+      "_id": "bd036834-c268-458c-9881-d33468733083",
+      "prevCaseId": "eb8bd266-f483-4914-99e8-07b9b50f5406"
+    }
+  ]
+}

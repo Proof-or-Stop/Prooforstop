@@ -1,0 +1,32 @@
+{
+  "task": "稳固 worktree runtime，并把 reviewer/artifact/runtime health 统一成可消费的 phase-aware 状态输出。",
+  "outcome": "# koala session brief\n\n**Story**: B-8f6a — 稳固 worktree runtime 并统一 reviewer/artifact 消费\n**Phase**: TEST_CASE_REVIEW\n\n## Runtime health\n  [✓] worktree registered — /Users/jek/Documents/Work/Orchestrate/.worktrees/B-8f6a\n  [!] drift detected — story 记录路径已纠正到当前 linked worktree\n\n## Reviewer status\n  primary: implementation-review fail (2 findings)\n  secondary: test-intent reviewer pass\n  lane priority: fail blocks TEST, advisory pass only informs\n\n## Artifacts\n  [✓] understanding (required)\n  [✓] decision (required)\n  [✓] story review (required)\n  [✓] implementation review (required in TEST_CASE_REVIEW+)\n\n## → Next step\n  implementation review 阻塞进入 TEST。先回 DEV 修 2 个实现问题，再继续推进。",
+  "facts": [
+    "worktree 创建和回收主逻辑在 packages/main/src/handlers/worktree.ts。",
+    "session_brief 已经展示 implementation review 和 artifact contract，但 reviewer 结果仍是分散消费。",
+    "artifact contract 当前只覆盖 understanding/decision/review/test evidence/summary。",
+    "detectZombieStories 目前只看 branch 是否存在/merged，没有消费 git worktree list 真相。",
+    "story_advance 在 TEST_CASE_REVIEW→TEST 有 testIntent reviewer 门禁，但 implementation review 仍是 advisory。"
+  ],
+  "constraints": [
+    "不能直接读写 docs/story/ 和 tests/fixtures/ 下的文件，必须通过 koala CLI。",
+    "优先编辑现有文件，不重写整块架构。",
+    "要兼容当前用户工作区已有的 implementation-reviewer 相关未提交改动。",
+    "输出必须让用户从 session/story 入口直接理解阻塞点和下一步，而不只是内部状态正确。"
+  ],
+  "unknowns": [
+    "implementation review 在哪些 phase 需要从 advisory 升为 required 才最合适。",
+    "worktree drift 修正应该只做提示，还是应该自动回写 story.worktree/path。",
+    "reviewer 聚合是否需要进入 DONE gate，还是只作为 TEST_CASE_REVIEW/TEST 的 phase-aware 契约。"
+  ],
+  "touchpoints": [
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/handlers/story-query.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/core/artifact-contract.ts",
+    "packages/main/src/handlers/implementation-review.ts",
+    "packages/main/src/core/machine.ts"
+  ],
+  "timestamp": "2026-04-15T15:44:45.365Z"
+}

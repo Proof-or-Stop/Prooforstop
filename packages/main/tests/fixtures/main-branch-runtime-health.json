@@ -1,0 +1,47 @@
+{
+  "cases": [
+    {
+      "name": "CHK-004 happy: main-branch session_brief surfaces runtime health for primary lane",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { execFileSync } = await import(\"node:child_process\"); execFileSync(\"node\", [$root + \"/scripts/verify-main-branch-runtime-health.mjs\"], { cwd: $root, encoding: \"utf8\", stdio: [\"pipe\", \"pipe\", \"pipe\"] }); return { ok: true };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-8f6a:CHK-004:happy:0",
+      "sandbox": false,
+      "storyId": "B-8f6a",
+      "_id": "fe0b38c6-7d7f-432e-a66e-2f3bc1987c94",
+      "nextCaseId": "35c63fcc-d359-4c3b-93ed-d3e463ca6a28"
+    },
+    {
+      "name": "CHK-004 edge: main-branch briefing separates warnings from blockers",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { execFileSync } = await import(\"node:child_process\"); execFileSync(\"node\", [$root + \"/scripts/verify-main-branch-runtime-health.mjs\"], { cwd: $root, encoding: \"utf8\", stdio: [\"pipe\", \"pipe\", \"pipe\"] }); return { ok: true };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-8f6a:CHK-004:edge:0",
+      "sandbox": false,
+      "storyId": "B-8f6a",
+      "_id": "35c63fcc-d359-4c3b-93ed-d3e463ca6a28",
+      "prevCaseId": "fe0b38c6-7d7f-432e-a66e-2f3bc1987c94",
+      "nextCaseId": "87ea5230-d761-4a6d-8f70-0121528b86bf"
+    },
+    {
+      "name": "CHK-004 adversarial: no active branch still reports runtime issues via primary lane",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { execFileSync } = await import(\"node:child_process\"); execFileSync(\"node\", [$root + \"/scripts/verify-main-branch-runtime-health.mjs\"], { cwd: $root, encoding: \"utf8\", stdio: [\"pipe\", \"pipe\", \"pipe\"] }); return { ok: true };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-8f6a:CHK-004:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-8f6a",
+      "_id": "87ea5230-d761-4a6d-8f70-0121528b86bf",
+      "prevCaseId": "35c63fcc-d359-4c3b-93ed-d3e463ca6a28"
+    }
+  ]
+}
