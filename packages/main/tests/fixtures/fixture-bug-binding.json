@@ -5,7 +5,7 @@
       "run_type": "cli",
       "fn": "test_auto",
       "file": "mcp/handlers/test-auto",
-      "execute": "\n    const fid=\"fid-\"+Date.now();const bid=\"BUG-h0-\"+Date.now();\n    $handlers.bug_report({storyId:\"B-6246\",id:bid,title:\"test fixtureId\",fixtureId:fid});\n    const bugs=$handlers.bug_list({storyId:\"B-6246\"});\n    const b=bugs.bugs.find(x=>x.id===bid);\n    return b&&b.fixtureId===fid?\"has_fixtureId\":\"missing\"\n  ",
+      "execute": "\n    const sid = await $testStory();\n    const fid=\"fid-\"+Date.now();const bid=\"BUG-h0-\"+Date.now();\n    $handlers.bug_report({storyId:sid,id:bid,title:\"test fixtureId\",fixtureId:fid});\n    const bugs=$handlers.bug_list({storyId:sid});\n    const b=bugs.bugs.find(x=>x.id===bid);\n    return b&&b.fixtureId===fid?\"has_fixtureId\":\"missing\"\n  ",
       "expect": {
         "pattern": "has_fixtureId"
       },
@@ -18,7 +18,7 @@
       "run_type": "cli",
       "fn": "bug_list",
       "file": "mcp/handlers/bug",
-      "execute": "\n    $handlers.bug_report({storyId:\"B-6246\",id:\"BUG-h1-\"+Date.now(),title:\"query\",fixtureId:\"qfid-\"+Date.now()});\n    const bugs=$handlers.bug_list({storyId:\"B-6246\"});\n    const withFid=bugs.bugs.filter(b=>b.fixtureId);\n    return withFid.length>=1?\"has_fid_\"+withFid.length:\"no_fid\"\n  ",
+      "execute": "\n    const sid = await $testStory();\n    $handlers.bug_report({storyId:sid,id:\"BUG-h1-\"+Date.now(),title:\"query\",fixtureId:\"qfid-\"+Date.now()});\n    const bugs=$handlers.bug_list({storyId:sid});\n    const withFid=bugs.bugs.filter(b=>b.fixtureId);\n    return withFid.length>=1?\"has_fid_\"+withFid.length:\"no_fid\"\n  ",
       "expect": {
         "pattern": "has_fid_"
       },
@@ -30,7 +30,7 @@
       "run_type": "cli",
       "fn": "test_auto",
       "file": "mcp/handlers/test-auto",
-      "execute": "\n    const fid=\"dedup-\"+Date.now();\n    $handlers.bug_report({storyId:\"B-6246\",id:\"BUG-dedup-\"+Date.now(),title:\"first\",fixtureId:fid});\n    try{$handlers.bug_report({storyId:\"B-6246\",id:\"BUG-dedup2-\"+Date.now(),title:\"second\",fixtureId:fid})}catch{}\n    const bugs=$handlers.bug_list({storyId:\"B-6246\"});\n    const matched=bugs.bugs.filter(b=>b.fixtureId===fid);\n    return matched.length>=1?\"dedup_ok\":\"none\"\n  ",
+      "execute": "\n    const sid = await $testStory();\n    const fid=\"dedup-\"+Date.now();\n    $handlers.bug_report({storyId:sid,id:\"BUG-dedup-\"+Date.now(),title:\"first\",fixtureId:fid});\n    try{$handlers.bug_report({storyId:sid,id:\"BUG-dedup2-\"+Date.now(),title:\"second\",fixtureId:fid})}catch{}\n    const bugs=$handlers.bug_list({storyId:sid});\n    const matched=bugs.bugs.filter(b=>b.fixtureId===fid);\n    return matched.length>=1?\"dedup_ok\":\"none\"\n  ",
       "expect": {
         "pattern": "dedup_ok"
       },
@@ -43,7 +43,7 @@
       "run_type": "cli",
       "fn": "bug_list",
       "file": "mcp/handlers/bug",
-      "execute": "\n    $handlers.bug_report({storyId:\"B-6246\",id:\"BUG-old-\"+Date.now(),title:\"old style\"});\n    const bugs=$handlers.bug_list({storyId:\"B-6246\"});\n    const old=bugs.bugs.find(b=>!b.fixtureId);\n    return old?\"coexist_ok\":\"all_have_fid\"\n  ",
+      "execute": "\n    const sid = await $testStory();\n    $handlers.bug_report({storyId:sid,id:\"BUG-old-\"+Date.now(),title:\"old style\"});\n    const bugs=$handlers.bug_list({storyId:sid});\n    const old=bugs.bugs.find(b=>!b.fixtureId);\n    return old?\"coexist_ok\":\"all_have_fid\"\n  ",
       "expect": {
         "pattern": "coexist_ok"
       },
@@ -55,7 +55,7 @@
       "run_type": "cli",
       "fn": "bug_update",
       "file": "mcp/handlers/bug",
-      "execute": "\n    const bid=\"BUG-dang-\"+Date.now();\n    $handlers.bug_report({storyId:\"B-6246\",id:bid,title:\"dangling\",fixtureId:\"nonexistent-\"+Date.now()});\n    try{await $handlers.bug_update({storyId:\"B-6246\",id:bid,status:\"fixed\"});return \"should_error\"}catch(e){\n      return e.message.includes(\"未找到\")||e.message.includes(\"验证失败\")?\"dangling_detected\":\"err:\"+e.message.slice(0,60)\n    }\n  ",
+      "execute": "\n    const sid = await $testStory();\n    const bid=\"BUG-dang-\"+Date.now();\n    $handlers.bug_report({storyId:sid,id:bid,title:\"dangling\",fixtureId:\"nonexistent-\"+Date.now()});\n    try{await $handlers.bug_update({storyId:sid,id:bid,status:\"fixed\"});return \"should_error\"}catch(e){\n      return e.message.includes(\"未找到\")||e.message.includes(\"验证失败\")?\"dangling_detected\":\"err:\"+e.message.slice(0,60)\n    }\n  ",
       "expect": {
         "pattern": "dangling_detected"
       },
@@ -79,7 +79,7 @@
       "run_type": "cli",
       "fn": "bug_update",
       "file": "mcp/handlers/bug",
-      "execute": "\n    $handlers.fixture_batch_add({fixturePath:\"_test_bf8\",cases:[{name:\"p8\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return true\",expect:true}]});\n    const f=$handlers.fixture_get({fixturePath:\"_test_bf8\"});\n    const fid=f.cases[0]._id;const bid=\"BUG-fix8-\"+Date.now();\n    $handlers.bug_report({storyId:\"B-6246\",id:bid,title:\"fix test\",fixtureId:fid});\n    try{const r=await $handlers.bug_update({storyId:\"B-6246\",id:bid,status:\"fixed\"});return r.includes(\"fixed\")?\"fixed_ok\":\"unexpected\"}catch(e){return \"err:\"+e.message.slice(0,60)}\n  ",
+      "execute": "\n    const sid = await $testStory({phase:\"TEST\"});\n    $handlers.fixture_batch_add({fixturePath:\"_test_bf8\",cases:[{name:\"p8\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return true\",expect:true}]});\n    const f=$handlers.fixture_get({fixturePath:\"_test_bf8\"});\n    const fid=f.cases[0]._id;const bid=\"BUG-fix8-\"+Date.now();\n    $handlers.bug_report({storyId:sid,id:bid,title:\"fix test\",fixtureId:fid});\n    try{const r=await $handlers.bug_update({storyId:sid,id:bid,status:\"fixed\"});return r.includes(\"fixed\")?\"fixed_ok\":\"unexpected\"}catch(e){return \"err:\"+e.message.slice(0,60)}\n  ",
       "expect": {
         "pattern": "fixed_ok"
       },
@@ -91,7 +91,7 @@
       "run_type": "cli",
       "fn": "bug_update",
       "file": "mcp/handlers/bug",
-      "execute": "\n    const bugs=$handlers.bug_list({storyId:\"B-6246\"});\n    const fixed=bugs.bugs.find(b=>b.status===\"fixed\"&&b.fixedAt);\n    return fixed?\"ts_\"+fixed.fixedAt.slice(0,4):\"no_fixed\"\n  ",
+      "execute": "\n    const sid = await $testStory({phase:\"TEST\"});\n    $handlers.fixture_batch_add({fixturePath:\"_test_bf8_ts\",cases:[{name:\"p8ts\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"return true\",expect:true}]});\n    const f=$handlers.fixture_get({fixturePath:\"_test_bf8_ts\"});\n    const fid=f.cases[0]._id;const bid=\"BUG-fix8-\"+Date.now();\n    await $handlers.bug_report({storyId:sid,id:bid,title:\"fix test\",fixtureId:fid});\n    await $handlers.bug_update({storyId:sid,id:bid,status:\"fixed\"});\n    const bugs=$handlers.bug_list({storyId:sid});\n    const fixed=bugs.bugs.find(b=>b.id===bid && b.status===\"fixed\"&&b.fixedAt);\n    return fixed?\"ts_\"+fixed.fixedAt.slice(0,4):\"no_fixed\"\n  ",
       "expect": {
         "pattern": "ts_20"
       },
@@ -103,7 +103,7 @@
       "run_type": "cli",
       "fn": "bug_update",
       "file": "mcp/handlers/bug",
-      "execute": "\n    $handlers.fixture_batch_add({fixturePath:\"_test_fail8\",cases:[{name:\"f8\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"throw new Error('fail')\",expect:true}]});\n    const f=$handlers.fixture_get({fixturePath:\"_test_fail8\"});\n    const fid=f.cases[0]._id;const bid=\"BUG-rej8-\"+Date.now();\n    $handlers.bug_report({storyId:\"B-6246\",id:bid,title:\"reject\",fixtureId:fid});\n    try{await $handlers.bug_update({storyId:\"B-6246\",id:bid,status:\"fixed\"});return \"should_reject\"}catch(e){\n      return e.message.includes(\"拒绝\")||e.message.includes(\"仍然失败\")?\"rejected_ok\":\"err:\"+e.message.slice(0,60)\n    }\n  ",
+      "execute": "\n    const sid = await $testStory({phase:\"TEST\"});\n    $handlers.fixture_batch_add({fixturePath:\"_test_fail8\",cases:[{name:\"f8\",run_type:\"cli\",fn:\"story_get\",file:\"mcp/handlers/story\",execute:\"throw new Error('fail')\",expect:true}]});\n    const f=$handlers.fixture_get({fixturePath:\"_test_fail8\"});\n    const fid=f.cases[0]._id;const bid=\"BUG-rej8-\"+Date.now();\n    $handlers.bug_report({storyId:sid,id:bid,title:\"reject\",fixtureId:fid});\n    try{await $handlers.bug_update({storyId:sid,id:bid,status:\"fixed\"});return \"should_reject\"}catch(e){\n      return e.message.includes(\"拒绝\")||e.message.includes(\"仍然失败\")?\"rejected_ok\":\"err:\"+e.message.slice(0,60)\n    }\n  ",
       "expect": {
         "pattern": "rejected_ok"
       },
@@ -115,7 +115,7 @@
       "run_type": "cli",
       "fn": "bug_update",
       "file": "mcp/handlers/bug",
-      "execute": "\n    const bid=\"BUG-leg8-\"+Date.now();\n    $handlers.bug_report({storyId:\"B-6246\",id:bid,title:\"legacy\"});\n    try{await $handlers.bug_update({storyId:\"B-6246\",id:bid,status:\"fixed\"});return \"should_error\"}catch(e){\n      return e.message.includes(\"fixtureId\")?\"no_fid_error\":\"err:\"+e.message.slice(0,60)\n    }\n  ",
+      "execute": "\n    const sid = await $testStory({phase:\"TEST\"});\n    const bid=\"BUG-leg8-\"+Date.now();\n    $handlers.bug_report({storyId:sid,id:bid,title:\"legacy\"});\n    try{await $handlers.bug_update({storyId:sid,id:bid,status:\"fixed\"});return \"should_error\"}catch(e){\n      return e.message.includes(\"fixtureId\")?\"no_fid_error\":\"err:\"+e.message.slice(0,60)\n    }\n  ",
       "expect": {
         "pattern": "no_fid_error"
       },
@@ -127,7 +127,7 @@
       "run_type": "cli",
       "fn": "bug_update",
       "file": "mcp/handlers/bug",
-      "execute": "\n    const bid=\"BUG-del8-\"+Date.now();\n    $handlers.bug_report({storyId:\"B-6246\",id:bid,title:\"deleted\",fixtureId:\"deleted-\"+Date.now()});\n    try{await $handlers.bug_update({storyId:\"B-6246\",id:bid,status:\"fixed\"});return \"should_error\"}catch(e){\n      return e.message.includes(\"未找到\")||e.message.includes(\"验证失败\")?\"del_error_ok\":\"err:\"+e.message.slice(0,60)\n    }\n  ",
+      "execute": "\n    const sid = await $testStory({phase:\"TEST\"});\n    const bid=\"BUG-del8-\"+Date.now();\n    $handlers.bug_report({storyId:sid,id:bid,title:\"deleted\",fixtureId:\"deleted-\"+Date.now()});\n    try{await $handlers.bug_update({storyId:sid,id:bid,status:\"fixed\"});return \"should_error\"}catch(e){\n      return e.message.includes(\"未找到\")||e.message.includes(\"验证失败\")?\"del_error_ok\":\"err:\"+e.message.slice(0,60)\n    }\n  ",
       "expect": {
         "pattern": "del_error_ok"
       },

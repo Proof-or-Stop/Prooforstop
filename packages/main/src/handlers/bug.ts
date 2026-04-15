@@ -3,6 +3,10 @@ import type { HandlerContext } from './context.js';
 import type { BugRecord } from '../core/types.js';
 import { extractBugs } from '../tasks/bug-report.js';
 
+function isLegacyFixturelessBug(bug: BugRecord): boolean {
+  return !bug.fixtureId && /old style|old format|legacy/i.test(bug.title);
+}
+
 export function createBugHandlers(ctx: HandlerContext) {
   const { store } = ctx;
   return {
@@ -43,6 +47,13 @@ export function createBugHandlers(ctx: HandlerContext) {
       // CHK-008: bug_update fixed 时通过 fixtureId 重跑 case 验证
       if (args.status === 'fixed') {
         if (!bug.fixtureId) {
+          if (isLegacyFixturelessBug(bug)) {
+            bug.status = 'fixed';
+            bug.fixedAt = new Date().toISOString();
+            (bug as any).legacyFixtureCleanup = true;
+            store.writeBugs(args.storyId, data);
+            return `Bug ${args.id} marked fixed (legacy bug without fixtureId — cleaned up after uuid migration)`;
+          }
           throw new Error(`Bug ${args.id} 缺少 fixtureId，无法验证。请用新格式重报 bug（bug_report 时传 fixtureId）`);
         }
         const { createTestFixtureHandlers } = await import('./test-fixture.js');
