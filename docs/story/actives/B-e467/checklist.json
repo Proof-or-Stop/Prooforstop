@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "定位自动推进 story phase 的代码链路与触发条件",
+      "context": "先找出谁会写 agent=gate-auto 或在没有显式用户动作时调用 story_advance，确认哪些是设计内自动 gate，哪些是异常并发流程。",
+      "relatedDocs": [
+        "AGENTS.md#Story 阶段流转",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "修正自动推进造成的状态漂移或补可见提示",
+      "context": "如果自动推进本身合理，就需要让 session/activity/输出对用户清楚可见；如果不合理，就要收紧触发条件或禁止跨阶段偷跑。",
+      "relatedDocs": [
+        "AGENTS.md#用户价值验收（优先于技术链路验证）",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
