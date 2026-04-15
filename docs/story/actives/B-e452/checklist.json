@@ -10,7 +10,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "understanding.outcome 写成用户可见 transcript → 校验通过并可被后续流程当作 expected transcript 使用",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "outcome 仍是抽象机制描述 → review/gate 明确提示需要改成 transcript",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "主 agent 试图用很短的抽象句子冒充 transcript → 系统仍识别为无效 outcome",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -22,7 +42,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "story 同时存在 expected、actual、diff artifact → 读取方能稳定识别三件套",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "只缺其中一个 artifact → 系统能指出缺的是哪一个而不是笼统报错",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "artifact 文件存在但字段不完整 → 消费方拒绝当作有效 transcript 证据",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -34,7 +74,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "TEST 到 DONE 之间存在完整 transcript artifact → gate 明确放行或给出通过提示",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "第一版 advisory 模式下缺 transcript artifact → gate 不崩溃但给出明确下一步提示",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "工程检查全绿但 transcript artifact 缺失 → 系统不能只因为测试通过就宣称完成",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
@@ -46,7 +106,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "transcript 齐全与缺失两条 fixture 回归都能稳定复现对应 gate 行为",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "diff 为空或 expected=actual → fixture 仍能证明是有效通过场景",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "只断言模糊提示文案、不真正校验 artifact 状态 → reviewer 应拒绝该 fixture 设计",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }
