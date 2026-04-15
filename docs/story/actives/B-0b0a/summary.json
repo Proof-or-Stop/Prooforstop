@@ -1,7 +1,7 @@
 {
   "storyId": "B-0b0a",
-  "changes": "把僵尸检测的本地分支枚举从脆弱的 git branch 文本解析改成稳定的 git for-each-ref 结果，避免 linked worktree 分支因为 `+ ` / `* ` 展示前缀被误判为已删除；同时补上 linked worktree 和 deleted-branch 两条回归路径。",
-  "usage": "以后想验证这个问题，直接运行 npm run test:zombie-worktree，或者跑 koala test_story '{\"storyId\":\"B-0b0a\"}'。session_brief 和 story_reconcile 也会沿用这条修正后的分支检测逻辑。",
+  "changes": "把僵尸检测的本地分支枚举改成稳定的 git for-each-ref，不再解析带 `+ ` / `* ` 前缀的 git branch 文本，因此 linked worktree 分支不会再被误判为已删除 zombie；同时补了 linked worktree 与 deleted branch 两条真实回归路径。",
+  "usage": "以后可以直接运行 npm run test:zombie-worktree，或者跑 koala test_story '{\"storyId\":\"B-0b0a\"}' 验证 linked worktree 分支和 zombie 检测这条逻辑。session_brief / story_reconcile 也会沿用这套分支枚举。",
   "realMachineCoverage": {
     "ran": [
       {
@@ -183,12 +183,36 @@
       {
         "name": "CHK-002: Windows backslash path",
         "where": "packages/main/tests/fixtures/trace-store.json"
+      },
+      {
+        "name": "CHK-001 happy: linked worktree branch is not treated as zombie",
+        "where": "packages/main/tests/fixtures/zombie-linked-worktree.json"
+      },
+      {
+        "name": "CHK-001 edge: implementation no longer parses git branch prefixes",
+        "where": "packages/main/tests/fixtures/zombie-linked-worktree.json"
+      },
+      {
+        "name": "CHK-001 adversarial: mixed + and * branch display no longer causes false zombie",
+        "where": "packages/main/tests/fixtures/zombie-linked-worktree.json"
+      },
+      {
+        "name": "CHK-002 happy: regression script covers linked worktree branch output",
+        "where": "packages/main/tests/fixtures/zombie-linked-worktree.json"
+      },
+      {
+        "name": "CHK-002 edge: deleted branch still becomes zombie",
+        "where": "packages/main/tests/fixtures/zombie-linked-worktree.json"
+      },
+      {
+        "name": "CHK-002 adversarial: test is not just fuzzy wording smoke",
+        "where": "packages/main/tests/fixtures/zombie-linked-worktree.json"
       }
     ],
     "skipped": []
   },
-  "limitations": "这条 story只修复了 linked worktree 分支被误判为 zombie 的问题，不会自动收掉 INIT_CHECK 并发 bootstrap、artifact 协议等其它并行开发相关 backlog。",
-  "pitfalls": "根因不是 zombie 规则本身，而是拿 `git branch` 的展示文本当成稳定接口。带 worktree 的分支会有 `+ ` 前缀，只靠 replace `* ` 很容易漏判。回归里一定要真建 linked worktree，而不是只 mock 一段字符串。",
+  "limitations": "这条 story只修复了 linked worktree 分支被误判为 zombie 的问题，不会自动处理 INIT_CHECK 并发 bootstrap 或其它 artifact 协议问题。",
+  "pitfalls": "根因不是 zombie 判定规则本身，而是把 git branch 的展示文本当成稳定接口。带 worktree 的分支会出现 + 前缀，所以这种问题必须用真实 git worktree 回归来锁住，不能只 mock 字符串。",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -207,24 +231,24 @@
       "durationMs": 188053
     },
     "TEST_CASE": {
-      "count": 1,
-      "durationMs": 106702
+      "count": 2,
+      "durationMs": 149379
     },
     "TEST_CASE_REVIEW": {
-      "count": 1,
-      "durationMs": 34402
+      "count": 2,
+      "durationMs": 34568
     },
     "TEST": {
-      "count": 1,
-      "durationMs": 18414
+      "count": 2,
+      "durationMs": 42226
     }
   },
-  "totalDurationMs": 458808,
+  "totalDurationMs": 525463,
   "fixtureStats": {
-    "totalRuns": 2,
+    "totalRuns": 4,
     "totalCases": 6,
-    "cumulativeCasesRun": 12,
-    "cumulativePassedCases": 12
+    "cumulativeCasesRun": 24,
+    "cumulativePassedCases": 24
   },
   "bugStats": {
     "found": 0,
@@ -232,5 +256,5 @@
     "open": 0
   },
   "createdAt": "2026-04-15T06:29:25.529Z",
-  "updatedAt": "2026-04-15T06:29:25.529Z"
+  "updatedAt": "2026-04-15T06:30:32.182Z"
 }
