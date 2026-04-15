@@ -6,7 +6,27 @@
       "context": "使用 executeBrowserCases 对最小临时 canvas 项目做黑盒验证，断言会生成有效 png，并把这条入口挂进 package.json。不要扩成整套 browser framework 重构。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "browser screenshot smoke 脚本在当前环境里能通过 executeBrowserCases 生成有效 png，并输出 verified 结果。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "脚本会明确使用 canvas 页面做截图验证，避免把整页 html2canvas 能力误算进 smoke 范围。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果浏览器环境不可用，脚本会给出清晰环境失败，而不是伪装成功。",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -14,7 +34,27 @@
       "context": "给这条 smoke 挂上 story 内可重复执行的验证闭环，确认它不是一次性手工探测。完成后在总结里明确：当前证明的是 canvas screenshot 路径，不是通用整页 html2canvas 能力。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "这条 smoke 会有仓库内可重复运行的入口，不再需要临时手写脚本重验。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "最小 fixture/验证闭环会直接调用正式脚本入口，而不是依赖当前对话里的临时上下文。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果未来 screenshot 链路断在 bridge、浏览器连接或 png 落盘，回归会失败并暴露出来。",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }
