@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "清理 stale metadata 中废弃的 flow_trace/flow_list @test 引用",
       "context": "extract.scan 当前优先读 docs/metadata/task.json；需要去掉已被 cleanup-legacy 废弃的 flow_trace/flow_list 残留记录，避免 gap_analyze 持续报假 no_test。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-04-15T15:33:31.699Z",
       "testIntent": {
         "happy": [
           {
