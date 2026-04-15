@@ -14,6 +14,7 @@
     "test:entrypoints": "node scripts/verify-entrypoints.mjs",
     "test:fail-fast-health": "node scripts/verify-fail-fast-health.mjs",
     "test:anti-stall": "node scripts/verify-anti-stall-guardrails.mjs",
+    "test:derived-truth-gap": "node scripts/verify-derived-truth-gap.mjs",
     "test:zombie-worktree": "node scripts/verify-linked-worktree-zombie.mjs",
     "test:truth-cli": "node scripts/verify-truth-cli-commands.mjs",
     "test:gap-cli": "node scripts/verify-gap-cli-commands.mjs",

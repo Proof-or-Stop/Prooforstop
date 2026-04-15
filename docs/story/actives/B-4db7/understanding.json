@@ -1,0 +1,24 @@
+{
+  "task": "让 gap_analyze 在做 uncovered_requirement/high gap 判断时区分主真相源与反向提取参考层，避免 extracted/*.md 继续制造假高优先级 requirement gap。",
+  "outcome": "> node bin/koala-codex.js gap_analyze\n差距: 7 high / 35 medium\n...\n不再出现 source.file=\"extracted/stories.md\" 的 high uncovered_requirement，真正的 decisions/*.md requirement gap 仍然保留。",
+  "facts": [
+    "truth-source.md 已定义 docs/requirements/decisions/*.md 是真相源，docs/requirements/extracted/*.md 是反向提取参考层。",
+    "当前 scanTruth 会同时扫描 requirements 根目录、decisions 和 extracted，并统一产出 requirement entries。",
+    "gap_analyze 的 uncovered_requirement 直接基于 truth.entries[type=requirement] 判断，因此会把 extracted 里的派生句子提升成 high gap。"
+  ],
+  "constraints": [
+    "truth_scan summary/NAV 仍可保留 extracted 的统计与参考价值。",
+    "不能让 decisions/*.md 的真实 requirement coverage 判断退化。",
+    "需要有最小黑盒回归，证明 extracted requirement 不再直接制造 high uncovered_requirement。"
+  ],
+  "unknowns": [
+    "是让 scanTruth 给 entry 标 source tier，还是让 gap_analyze 自己按路径过滤。",
+    "derived entries 在完整 truth_scan 输出里是否仍保留 type=requirement，还是降级成另一类 metadata 更稳。"
+  ],
+  "touchpoints": [
+    "packages/main/src/tasks/truth.ts",
+    "packages/main/src/tasks/gap-analyze.ts",
+    "docs/requirements/decisions/truth-source.md"
+  ],
+  "timestamp": "2026-04-15T11:47:58.918Z"
+}

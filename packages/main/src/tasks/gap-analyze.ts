@@ -51,7 +51,7 @@ export function analyzeGap(projectRoot: string, store?: StoryStore): GapResult {
   const gaps: GapItem[] = [];
 
   // 1. Requirements without any @task code coverage
-  const requirements = truth.entries.filter(e => e.type === 'requirement');
+  const requirements = truth.entries.filter(e => e.type === 'requirement' && e.tier === 'primary');
   const taskIds = new Set(tasks.map(t => t.task));
 
   for (const req of requirements) {
