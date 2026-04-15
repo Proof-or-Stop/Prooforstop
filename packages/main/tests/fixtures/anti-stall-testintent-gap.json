@@ -1,0 +1,149 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: anti-stall requirement no longer appears as high gap",
+      "run_type": "cli",
+      "file": "core/anti-stall",
+      "execute": "const { execFileSync } = await import('child_process'); return execFileSync('node', [$root + '/scripts/verify-anti-stall-testintent-gap.mjs'], { cwd: $root, encoding: 'utf8' }).trim();",
+      "expect": {
+        "pattern": "anti-stall and test-intent high gap coverage verified"
+      },
+      "intentRef": "B-727f:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-727f",
+      "_id": "2f6683a1-0170-49a8-b0bf-7afee36f5d38",
+      "nextCaseId": "c3664d92-38ce-47fc-977f-04361a09e72e"
+    },
+    {
+      "name": "CHK-001 edge: anti-stall implementation still contains retry fix discard exits",
+      "run_type": "cli",
+      "file": "core/anti-stall",
+      "execute": "const { readFileSync } = await import('fs'); const text = readFileSync($root + '/packages/main/src/core/anti-stall.ts', 'utf8'); return { hasRetry: text.includes('retry'), hasFix: text.includes('fix'), hasDiscard: text.includes('discard') };",
+      "expect": {
+        "hasRetry": true,
+        "hasFix": true,
+        "hasDiscard": true
+      },
+      "intentRef": "B-727f:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-727f",
+      "_id": "c3664d92-38ce-47fc-977f-04361a09e72e",
+      "prevCaseId": "2f6683a1-0170-49a8-b0bf-7afee36f5d38",
+      "nextCaseId": "b8ca0de2-7916-4111-afa5-4366afc7b304"
+    },
+    {
+      "name": "CHK-001 adversarial: anti-stall coverage is not just comment-only text",
+      "run_type": "cli",
+      "file": "core/anti-stall",
+      "execute": "const { readFileSync } = await import('fs'); const text = readFileSync($root + '/packages/main/src/core/anti-stall.ts', 'utf8'); return { usesRender: text.includes('renderAntiStall('), usesReview: text.includes('reviewAntiStall('), usesTest: text.includes('testAntiStall(') };",
+      "expect": {
+        "usesRender": true,
+        "usesReview": true,
+        "usesTest": true
+      },
+      "intentRef": "B-727f:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-727f",
+      "_id": "b8ca0de2-7916-4111-afa5-4366afc7b304",
+      "prevCaseId": "c3664d92-38ce-47fc-977f-04361a09e72e",
+      "nextCaseId": "dd56f33a-1bc0-4ebf-ada6-9088496123af"
+    },
+    {
+      "name": "CHK-002 happy: test-intent-review high gaps no longer appear",
+      "run_type": "cli",
+      "file": "handlers/story-review",
+      "execute": "const { execFileSync } = await import('child_process'); return execFileSync('node', [$root + '/scripts/verify-anti-stall-testintent-gap.mjs'], { cwd: $root, encoding: 'utf8' }).trim();",
+      "expect": {
+        "pattern": "anti-stall and test-intent high gap coverage verified"
+      },
+      "intentRef": "B-727f:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-727f",
+      "_id": "dd56f33a-1bc0-4ebf-ada6-9088496123af",
+      "prevCaseId": "b8ca0de2-7916-4111-afa5-4366afc7b304",
+      "nextCaseId": "0604209a-1135-4b17-b0b7-1e9ece258f23"
+    },
+    {
+      "name": "CHK-002 edge: checklist story-review and prompt contracts still expose Agent A and multi-layer defense semantics",
+      "run_type": "cli",
+      "file": "handlers/story-review",
+      "execute": "const { readFileSync } = await import('fs'); const checklist = readFileSync($root + '/packages/main/src/handlers/checklist.ts', 'utf8'); const review = readFileSync($root + '/packages/main/src/handlers/story-review.ts', 'utf8'); const prompts = readFileSync($root + '/packages/main/src/cli-prompts.ts', 'utf8'); return { checklistHasIntentBoundary: checklist.includes('testIntent.happy is required'), reviewHasSplit: review.includes('split_quality') && review.includes('cross_scenario'), promptHasAgentBoundary: prompts.includes('Main agent does NOT write testIntent') };",
+      "expect": {
+        "checklistHasIntentBoundary": true,
+        "reviewHasSplit": true,
+        "promptHasAgentBoundary": true
+      },
+      "intentRef": "B-727f:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-727f",
+      "_id": "0604209a-1135-4b17-b0b7-1e9ece258f23",
+      "prevCaseId": "dd56f33a-1bc0-4ebf-ada6-9088496123af",
+      "nextCaseId": "08286929-1b12-4d83-a716-91fde3211eb7"
+    },
+    {
+      "name": "CHK-002 adversarial: coverage spans multiple files not one stuffed annotation",
+      "run_type": "cli",
+      "file": "handlers/story-review",
+      "execute": "const { readFileSync } = await import('fs'); const checklist = readFileSync($root + '/packages/main/src/handlers/checklist.ts', 'utf8'); const review = readFileSync($root + '/packages/main/src/handlers/story-review.ts', 'utf8'); const prompts = readFileSync($root + '/packages/main/src/cli-prompts.ts', 'utf8'); return { checklistTagged: checklist.includes('@task B-727f'), reviewTagged: review.includes('@task B-727f'), promptsTagged: prompts.includes('@task B-727f') };",
+      "expect": {
+        "checklistTagged": true,
+        "reviewTagged": true,
+        "promptsTagged": true
+      },
+      "intentRef": "B-727f:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-727f",
+      "_id": "08286929-1b12-4d83-a716-91fde3211eb7",
+      "prevCaseId": "0604209a-1135-4b17-b0b7-1e9ece258f23",
+      "nextCaseId": "c841fa5b-ff5e-4740-8b0b-2fecf322d589"
+    },
+    {
+      "name": "CHK-003 happy: regression script locks the four high gaps away",
+      "run_type": "cli",
+      "file": "tasks/gap-analyze",
+      "execute": "const { execFileSync } = await import('child_process'); return execFileSync('npm', ['run', 'test:anti-stall-gap'], { cwd: $root, encoding: 'utf8' }).trim();",
+      "expect": {
+        "pattern": "anti-stall and test-intent high gap coverage verified"
+      },
+      "intentRef": "B-727f:CHK-003:happy:0",
+      "sandbox": false,
+      "storyId": "B-727f",
+      "_id": "c841fa5b-ff5e-4740-8b0b-2fecf322d589",
+      "prevCaseId": "08286929-1b12-4d83-a716-91fde3211eb7",
+      "nextCaseId": "16467021-35e4-42d1-af84-f38402abf789"
+    },
+    {
+      "name": "CHK-003 edge: regression does not erase remaining real framework and role-separation highs",
+      "run_type": "cli",
+      "file": "tasks/gap-analyze",
+      "execute": "const { execFileSync } = await import('child_process'); const raw = execFileSync('node', [$root + '/packages/main/dist/cli.js', 'gap_analyze'], { cwd: $root, encoding: 'utf8' }); const json = JSON.parse(raw.slice(raw.indexOf('{'))); const highs = json.gaps.filter((g) => g.severity === 'high').map((g) => `${g.source?.file}:${g.source?.line}`); return { frameworkStillHigh: highs.includes('decisions/framework.md:5'), roleStillHigh: highs.includes('decisions/role-separation.md:897') };",
+      "expect": {
+        "frameworkStillHigh": true,
+        "roleStillHigh": true
+      },
+      "intentRef": "B-727f:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-727f",
+      "_id": "16467021-35e4-42d1-af84-f38402abf789",
+      "prevCaseId": "c841fa5b-ff5e-4740-8b0b-2fecf322d589",
+      "nextCaseId": "bcfa9053-58cc-41f1-90fe-858802f58ee2"
+    },
+    {
+      "name": "CHK-003 adversarial: regression would fail if any of the four high lines returned",
+      "run_type": "cli",
+      "file": "tasks/gap-analyze",
+      "execute": "const { execFileSync } = await import('child_process'); const raw = execFileSync('node', [$root + '/packages/main/dist/cli.js', 'gap_analyze'], { cwd: $root, encoding: 'utf8' }); const json = JSON.parse(raw.slice(raw.indexOf('{'))); const highs = new Set(json.gaps.filter((g) => g.severity === 'high').map((g) => `${g.source?.file}:${g.source?.line}`)); return { noCcLearn: !highs.has('decisions/cc-learnings.md:307'), noAgentA: !highs.has('decisions/test-intent-review.md:16'), noDefense: !highs.has('decisions/test-intent-review.md:39'), noSplit: !highs.has('decisions/test-intent-review.md:43') };",
+      "expect": {
+        "noCcLearn": true,
+        "noAgentA": true,
+        "noDefense": true,
+        "noSplit": true
+      },
+      "intentRef": "B-727f:CHK-003:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-727f",
+      "_id": "bcfa9053-58cc-41f1-90fe-858802f58ee2",
+      "prevCaseId": "16467021-35e4-42d1-af84-f38402abf789"
+    }
+  ]
+}

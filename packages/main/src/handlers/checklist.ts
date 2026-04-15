@@ -1,3 +1,18 @@
+/**
+ * @task B-727f
+ * @checklist CHK-002
+ * @title checklist enforces Agent A ownership and multi-layer completeness
+ * @type feature
+ * @priority high
+ * @description
+ *   Agent A 负责拆解需求和实现代码，但不负责给自己写 testIntent。checklist
+ *   的职责是逼出可观测结果、明确触发输入、以及 happy/edge/adversarial 三栏，
+ *   通过 testIntent 覆盖门禁和 reviewer 记录形成“需求完整性没有银弹，靠多层
+ *   防线降低遗漏概率”的实现层。
+ * @changes
+ *   - [CHK-002] 主 agent 不写 testIntent，happy 必填，done 前要求 testIntent 有对应 fixture 覆盖
+ *   - [CHK-002] 用 reviewer 记录、5 轮 cap 和 anti-stall 提示把需求完整性做成多层防线
+ */
 
 import type { HandlerContext } from './context.js';
 import { collectContext } from './context.js';

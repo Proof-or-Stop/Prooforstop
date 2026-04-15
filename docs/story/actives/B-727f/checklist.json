@@ -6,15 +6,55 @@
       "context": "当前 core/anti-stall.ts 已实现 retry/fix/discard 提示，但没有足够明确的 @task 描述把这条 requirement 直接接上。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "gap_analyze 不再把 cc-learnings 里 \"卡死不推进 = retry/fix/discard\" 判成 high uncovered_requirement。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "anti-stall 核心实现仍保留 retry/fix/discard 三路提示，而不是只在注释里堆关键词。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果有人删掉 anti-stall 真实实现只留下注释，回归会暴露实现痕迹缺失。",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
       "title": "让 checklist 与 story_review 元数据显式覆盖 Agent A/testIntent/多层防线/拆解标准",
       "context": "checklist.ts、story-review.ts、cli-prompts.ts 已体现主 agent 不写 testIntent、对抗审查、多层防线和 item 拆解标准，但 gap_analyze 还没认出来。需要让结构化注释直接表达这几条需求。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-15T12:13:31.183Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "gap_analyze 不再把 Agent A / 多层防线 / item 拆解标准 这 3 条 test-intent-review requirement 判成 high uncovered_requirement。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "checklist/story-review/cli-prompts 里仍能看到主 agent 不写 testIntent、对抗审查、多层防线和拆解标准的实现痕迹。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果只是往单个注释块里堆文案，其他关键文件没有对应语义，回归会暴露实现覆盖不足。",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -22,7 +62,27 @@
       "context": "至少要有一条脚本或 fixture 验证 gap_analyze 不再报告这 4 条 requirement，同时 anti-stall/test-intent-review 的实现口径仍然存在。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "回归脚本会明确断言这 4 条 high requirement 从 gap_analyze 结果里消失。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "同一脚本不会误伤其他 framework/role-separation 的真实 high gap。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果以后这 4 条 requirement 重新出现在 high gap 里，回归会直接失败。",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }

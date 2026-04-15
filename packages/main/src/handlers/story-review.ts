@@ -1,3 +1,18 @@
+/**
+ * @task B-727f
+ * @checklist CHK-002
+ * @title story_review encodes Agent B adversarial review and checklist split quality
+ * @type feature
+ * @priority high
+ * @description
+ *   Agent B 负责审查 testIntent 完整性，而不是让 Agent A 自己审自己。
+ *   story_review 在实现层承担这条职责：检查每个 checklist item 是否具备
+ *   happy/edge/adversarial 三栏、是否遗漏交叉场景，以及 checklist item 是否
+ *   同时满足“可观测结果 + 明确触发输入 + 三栏可填满”的拆解标准。
+ * @changes
+ *   - [CHK-002] 用独立 reviewer 检查 testIntent 完整性，覆盖 Agent A/B 分工
+ *   - [CHK-002] 用 split_quality / cross_scenario / weak_intent 规则实现需求完整性的多层防线与 item 拆解标准
+ */
 
 import type { HandlerContext } from './context.js';
 import { loadConfig } from '../core/config.js';

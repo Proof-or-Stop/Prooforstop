@@ -1,3 +1,16 @@
+/**
+ * @task B-727f
+ * @checklist CHK-001
+ * @title anti-stall retry/fix/discard guardrail
+ * @type feature
+ * @priority high
+ * @description
+ *   把“卡死不推进”显式变成 retry / fix / discard 三选一的反模式护栏。
+ *   当 story 卡在 TEST_CASE_REVIEW / TEST / waiting 状态时，系统必须给出
+ *   retry、fix、discard 三条出口，而不是让 main agent 无限重复同一个命令。
+ * @changes
+ *   - [CHK-001] anti-stall helper 统一输出 retry / fix / discard 三路提示，覆盖“卡死不推进是反模式”
+ */
 export interface AntiStallOptions {
   storyId: string;
   retry?: string;
