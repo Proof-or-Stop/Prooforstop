@@ -4,7 +4,7 @@
   "title": "把 INIT_CHECK 的 worktree bootstrap 做成串行临界区",
   "description": "INIT_CHECK 并发建多个 worktree 时，部分 worktree 会从旧 HEAD 分叉，进入 PLAN 后找不到新 story 文件。需要把 write story metadata、git add/commit、branch、worktree add 收敛成串行 bootstrap，避免共享仓库 ref/index 竞争；同时补 fail-fast 校验和回归测试。",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DEV",
   "priority": "high",
   "createdAt": "2026-04-15T06:11:46.040Z",
   "startedAt": "2026-04-15T06:11:46.040Z",
@@ -23,6 +23,22 @@
       "action": "advance",
       "timestamp": "2026-04-15T06:11:51.792Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:12:09.020Z",
+      "branch": "story/B-8bcf",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-15T06:21:04.894Z",
+      "branch": "story/B-8bcf",
       "user": "Harmonygo",
       "agent": "main"
     }
