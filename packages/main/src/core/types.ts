@@ -162,6 +162,22 @@ export interface ReviewData {
   reviews: ReviewEntry[];
 }
 
+export interface ImplementationReviewFinding {
+  file: string;
+  line: number;
+  why: string;
+  severity: 'info' | 'medium' | 'high';
+}
+
+export interface ImplementationReviewResultData {
+  storyId: string;
+  verdict: 'pass' | 'fail';
+  findings: ImplementationReviewFinding[];
+  summary: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export type BugStatus = 'open' | 'fixed';
 
 export interface BugDiagnose {

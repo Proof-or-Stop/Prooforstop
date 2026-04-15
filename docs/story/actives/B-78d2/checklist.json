@@ -10,7 +10,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "implementation review 结果协议能产出 file/line/why/severity/pass/fail → 主 agent 可直接消费",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "未发现实现风险时 → 结果仍然结构合法且不会误导主 agent",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "结果只有笼统建议没有定位和原因 → 协议或验证会判为低质量",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -22,7 +42,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "主 agent 能通过稳定入口看到 implementation review 结果并决定回 DEV 或继续",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "没有实现 review 结果时 → UI/hint 只提醒缺口，不误当通过",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "只靠聊天转述 implementation review → 不同 session 下消费结果会漂移",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -34,7 +74,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "implementation review lane 仍保持 advisory → 不会直接把 phase 门死锁住",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "有结果但 severity 较低时 → 主 agent 仍可继续推进但能看见风险",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "结果协议落地后被误接成 hard gate → 专项回归会暴露这个行为偏离",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
@@ -46,7 +106,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "结果协议、消费入口和专项验证都被 fixture 覆盖 → lane 不会再只停在提示词里",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Codex/Claude 两侧 reviewer 资产和结果消费保持一致 → 不会出现平台漂移",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果结果协议 drift 或消费入口失效，专项验证会直接失败",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }

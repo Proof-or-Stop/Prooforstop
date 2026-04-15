@@ -93,6 +93,8 @@ const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'doctor',        // 全局：health 巡检，任何阶段都可以查
     'summary_get',   // 全局：读取 summary，任何阶段都可以查
     'summary_set',   // 全局：DONE 前强制落总结，koala short-path story 也需要
+    'implementation_review_result_get',
+    'implementation_review_result_set',
   ],
   INIT: [
     'story_update', 'checklist_update',
