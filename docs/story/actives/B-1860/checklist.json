@@ -8,9 +8,30 @@
         "docs/requirements/decisions/framework.md",
         "docs/requirements/decisions/annotation-system.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "in_progress",
+      "startTime": "2026-04-16T20:11:44.512Z",
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "@flow 每个 step 都带说明字段时，extract/types 能稳定提取并保留该说明。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "旧 flow 若缺 step 说明，解析仍能完成，但后续校验会明确指出缺的是哪一步。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果有人只补 step/input/output/next，不补说明，flow 校验会把它视为结构错误而不是静默放过。",
+            "type": "cli_blackbox"
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
     },
     {
       "id": "CHK-002",
@@ -22,7 +43,28 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "validateFlows 能对缺说明的 step 给出明确错误，并在说明完整时通过。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "最后一步误填 next、step 不连续等旧规则仍继续生效，不会因为新增说明字段被掩盖。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果代码更新了 flow 结构但没同步更新 step 说明，校验会直接失败，防止 flow 注释与代码脱节。",
+            "type": "cli_blackbox"
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
     }
   ]
 }
