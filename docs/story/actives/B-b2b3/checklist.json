@@ -8,9 +8,30 @@
         "README.md",
         "AGENTS.md#Worktree 自动管理"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-04-16T21:27:27.268Z",
+      "endTime": "2026-04-16T21:27:47.072Z",
+      "testIntent": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-04-16T21:27:27.268Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "开始补充 README 与 AGENTS 的 worktree 资产说明"
+    },
+    {
+      "timestamp": "2026-04-16T21:27:47.072Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "README 与 AGENTS 已补充说明，文案已校对且 git diff --check 通过"
     }
   ]
 }

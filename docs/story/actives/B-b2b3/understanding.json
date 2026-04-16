@@ -1,0 +1,20 @@
+{
+  "task": "补充 story worktree 中 .Codex 与 .claude 资产的来源和缺失排查说明",
+  "outcome": "用户阅读 README 或 AGENTS 后，会直接看到类似说明：\n\"story worktree 会自动包含仓库里已被 git 跟踪的 .Codex / .claude / AGENTS.md / CLAUDE.md；不需要手工复制。若缺失，先检查这些文件是否已提交，或该 worktree 是否从尚未包含这些资产的旧分支创建。\"",
+  "facts": [
+    "当前仓库根目录已跟踪 .Codex、.claude、AGENTS.md、CLAUDE.md",
+    "现有 worktree /Users/jek/Documents/Work/Orchestrate/.worktrees/B-f8af 中已存在 .Codex 与 .claude",
+    "worktree bootstrap 代码只提交 story metadata 与 koala.config.json，不专门复制 .Codex/.claude"
+  ],
+  "constraints": [
+    "只补充文档说明，不改变 worktree 行为",
+    "保持说明与 README、AGENTS、.Codex/README 的现有入口一致",
+    "避免暗示需要手工同步目录，除非文件本身未被 git 跟踪"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "README.md",
+    "AGENTS.md"
+  ],
+  "timestamp": "2026-04-16T21:26:10.524Z"
+}
