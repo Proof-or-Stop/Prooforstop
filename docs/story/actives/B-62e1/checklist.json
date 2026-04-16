@@ -7,9 +7,28 @@
       "relatedDocs": [
         "AGENTS.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-04-16T22:28:29.080Z",
+      "endTime": "2026-04-16T22:28:35.288Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "默认路径下的 INIT_CHECK/dev_start 不会再自动创建 bootstrap commit，而是明确阻止并要求 dry-run/confirm。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T22:28:44.534Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/git-mutation-guard.json:4 WHY default entry path now asserts no-confirm bootstrap/done/dev_finish/dev_merge all block with explicit guard text. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [],
+        "adversarial": []
+      },
+      "phase": "TEST_CASE"
     },
     {
       "id": "CHK-002",
@@ -18,9 +37,28 @@
       "relatedDocs": [
         "AGENTS.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-04-16T22:28:29.174Z",
+      "endTime": "2026-04-16T22:28:35.391Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "story_advance --help 与 dry-run 预览都会清晰展示 preview-then-confirm 流程，不再暗示 INIT_CHECK 会直接本地提交。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T22:28:44.629Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/git-mutation-guard.json:19 WHY help and dry-run preview explicitly teach preview-then-confirm flow instead of implying automatic init commit. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [],
+        "adversarial": []
+      },
+      "phase": "TEST_CASE"
     },
     {
       "id": "CHK-003",
@@ -29,9 +67,84 @@
       "relatedDocs": [
         "AGENTS.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-04-16T22:28:29.266Z",
+      "endTime": "2026-04-16T22:28:35.486Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "confirm=true 时自动 git 收尾路径仍然可以成功执行，说明新护栏没有把正常流程用坏。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T22:28:44.719Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/git-mutation-guard.json:34 WHY confirm path still succeeds end-to-end, proving the new guard does not break the legitimate workflow. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [],
+        "adversarial": []
+      },
+      "phase": "TEST_CASE"
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-04-16T22:28:29.080Z",
+      "phase": "TEST_CASE",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "开始把现有 git-mutation-guard fixture 归属到 B-62e1"
+    },
+    {
+      "timestamp": "2026-04-16T22:28:29.174Z",
+      "phase": "TEST_CASE",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "开始把 help/dry-run 提示回归归属到 B-62e1"
+    },
+    {
+      "timestamp": "2026-04-16T22:28:29.266Z",
+      "phase": "TEST_CASE",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "开始把 confirm 放行回归归属到 B-62e1"
+    },
+    {
+      "timestamp": "2026-04-16T22:28:35.288Z",
+      "phase": "TEST_CASE",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "已把默认阻止回归归属到 B-62e1"
+    },
+    {
+      "timestamp": "2026-04-16T22:28:35.391Z",
+      "phase": "TEST_CASE",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "已把 help/dry-run 提示回归归属到 B-62e1"
+    },
+    {
+      "timestamp": "2026-04-16T22:28:35.486Z",
+      "phase": "TEST_CASE",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "已把 confirm 放行回归归属到 B-62e1"
     }
   ]
 }
