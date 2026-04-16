@@ -132,12 +132,12 @@ const checklistUpdateHint: HintFn = (ctx) => {
     if (summary.allDone) {
       const phase = story?.phase ?? '';
       if (phase === 'DEV') {
-        return `→ 所有 ${summary.total} 个 checklist item 已 done。下一步：git commit 当前改动，然后 story_advance --storyId=${storyId} --phase=TEST_CASE 进入测试编写`;
+        return `→ 所有 ${summary.total} 个 checklist item 已 done。下一步：如需本地 git commit，未经用户 confirm 不允许；确认后再提交当前改动，并 story_advance --storyId=${storyId} --phase=TEST_CASE 进入测试编写`;
       }
       if (phase === 'TEST_CASE') {
-        return `→ 所有 item 已 done。下一步：git commit fixture，然后 story_advance --storyId=${storyId} --phase=TEST_CASE_REVIEW 进入审核`;
+        return `→ 所有 item 已 done。下一步：如需本地 git commit fixture，未经用户 confirm 不允许；确认后再提交，并 story_advance --storyId=${storyId} --phase=TEST_CASE_REVIEW 进入审核`;
       }
-      return `→ 所有 ${summary.total} 个 item 已 done。下一步：git commit + story_advance 推进到下一阶段`;
+      return `→ 所有 ${summary.total} 个 item 已 done。下一步：如需本地 git commit，未经用户 confirm 不允许；确认后再提交并 story_advance 推进到下一阶段`;
     }
     if (summary.inProgress > 0) {
       return `→ 还有 ${summary.inProgress} 个 in_progress item（${summary.inProgressIds.slice(0, 3).join(', ')}），继续完成它们`;
@@ -165,16 +165,16 @@ const fixtureBatchAddHint: HintFn = (ctx) => {
   const story = getStory(ctx, storyId);
   const phase = story?.phase ?? '';
   if (phase === 'TEST_CASE') {
-    return `→ Fixture cases 已添加。建议 git commit 后跑 test_story --storyId=${storyId} 本地验证一遍，然后 story_advance --storyId=${storyId} --phase=TEST_CASE_REVIEW`;
+    return `→ Fixture cases 已添加。若要本地 git commit fixture，未经用户 confirm 不允许；确认后建议先提交，再跑 test_story --storyId=${storyId} 本地验证一遍，然后 story_advance --storyId=${storyId} --phase=TEST_CASE_REVIEW`;
   }
   if (phase === 'DEV') {
     return `→ Fixture cases 已添加。注意当前还在 DEV 阶段，应先 story_advance phase=TEST_CASE 后再写 fixture（已写的不会丢，但流程上反了）`;
   }
-  return `→ Fixture cases 已添加。下一步：test_story 验证 + git commit + story_advance 推进`;
+  return `→ Fixture cases 已添加。下一步：先 test_story 验证；如需本地 git commit，未经用户 confirm 不允许；确认后再提交并 story_advance 推进`;
 };
 
 const fixtureUpdateHint: HintFn = (ctx) => {
-  return `→ Fixture 已更新。下一步：test_fixture 跑一下确认改动正确，然后 git commit`;
+  return `→ Fixture 已更新。下一步：先用 test_fixture 确认改动正确；如需本地 git commit，未经用户 confirm 不允许`;
 };
 
 const storyCreateHint: HintFn = (ctx) => {
@@ -213,7 +213,7 @@ const bugUpdateHint: HintFn = (ctx) => {
   if (open.length === 0) {
     const story = getStory(ctx, storyId);
     if (story?.phase === 'TEST') {
-      return `→ 所有 bug 已 fixed。下一步：story_advance --storyId=${storyId} --phase=DONE 完成 story`;
+      return `→ 所有 bug 已 fixed。下一步：先 story_advance --storyId=${storyId} --phase=DONE --dryRun 预览；确认后再带 --confirm 完成 story`;
     }
     return `→ 所有 bug 已 fixed。继续推进 story 流程`;
   }
@@ -270,7 +270,9 @@ const devStartHint: HintFn = (ctx) => {
 };
 
 const devFinishHint: HintFn = (ctx) => {
-  return `→ Worktree 已合并回 main。改动已上 main 分支，可以开始下一个 story 或 git push`;
+  const storyId = getStoryId(ctx);
+  if (!storyId) return `→ Story 已进入 TEST。跑 test_story 验证；若后续要自动收尾，先 dry-run 再 confirm 调 dev_merge`;
+  return `→ Story 已进入 TEST。先跑 test_story --storyId=${storyId} 验证；若后续要自动收尾，先 dry-run 再 confirm 调 dev_merge(${storyId})`;
 };
 
 const storyDiscardHint: HintFn = (ctx) => {

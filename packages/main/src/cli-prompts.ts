@@ -124,7 +124,7 @@ STEP-BY-STEP WHEN UNSURE
   2. koala story_list — check for duplicates
   3. Discuss with user until requirements crystallize
   4. story_create with checklist
-  5. story_advance phase=INIT_CHECK to create worktree
+  5. story_advance phase=INIT_CHECK with dryRun first; only use confirm when the user has explicitly allowed the bootstrap git commit
 `.trim();
 
 export const STORY_ADVANCE_LONG = `
@@ -139,16 +139,18 @@ PHASE FLOW
 WHEN TO USE
   ✓ Current phase work is done AND gate conditions are met
   ✓ Need to roll back: TEST_CASE_REVIEW → DEV (reviewer fail), TEST → DEV (test fail)
-  ✓ INIT_CHECK after story_create with checklist (auto-creates worktree)
+  ✓ INIT_CHECK after story_create with checklist (bootstrap path may require dryRun / confirm before worktree creation)
 
 WHEN NOT TO USE
   ✗ Just finished one checklist item — finish all before advancing
   ✗ Tests failing — fix code, then advance
+  ✗ story_advance 到 DONE 时，如果当前路径会自动做 git commit/merge，却还没先 dry-run / confirm
   ✗ Stuck on a phase >2 retries — reflect, don't keep retrying mechanically
 
 PHASE GATES (what each transition checks)
   IDEA → INIT          : story has checklist
-  INIT → INIT_CHECK    : auto, creates .worktrees/B-xxx + branch story/B-xxx
+  INIT → INIT_CHECK    : transitions into bootstrap path; if creating the worktree
+                         would auto git commit, default blocks until you dry-run / confirm
   INIT_CHECK → PLAN    : cwd MUST be inside .worktrees/B-xxx (cd first!)
   PLAN → DEV           : story_review returns issueCount=0
                          (testIntent complete, no high-risk gaps)
@@ -159,6 +161,8 @@ PHASE GATES (what each transition checks)
                             (test-case-reviewer agent records via testintent_record)
   TEST → DONE          : test_auto/test_story all PASS + all bugs fixed
                          + DONE Final Checklist passes
+                         + if this DONE path would auto git commit/merge,
+                           default blocks until you dry-run / confirm
 
 ROLLBACK PATHS (acceptable, not failure)
   TEST_CASE_REVIEW → DEV    (reviewer fails → fix code or fix fixture)
@@ -181,18 +185,28 @@ EXAMPLES — DO
   koala story_advance '{"storyId":"B-a3f7","phase":"DEV"}'    # from TEST_CASE_REVIEW
 
   # Initial worktree creation
-  koala story_advance '{"storyId":"B-a3f7","phase":"INIT_CHECK"}'
+  koala story_advance '{"storyId":"B-a3f7","phase":"INIT_CHECK","dryRun":true}'
+  koala story_advance '{"storyId":"B-a3f7","phase":"INIT_CHECK","confirm":true}'
   cd .worktrees/B-a3f7
   koala story_advance '{"storyId":"B-a3f7","phase":"PLAN"}'
+
+  # Safe DONE preview then explicit confirm
+  koala story_advance '{"storyId":"B-a3f7","phase":"DONE","dryRun":true}'
+  koala story_advance '{"storyId":"B-a3f7","phase":"DONE","confirm":true}'
 
 EXAMPLES — DON'T
 
   ✗ Advance to TEST_CASE while git is dirty:
     test_auto runs git restore → uncommitted code lost
-    Fix: git add + git commit FIRST, then advance
+    Fix: 若要本地 git add + git commit，未经用户 confirm 不允许；确认后先提交，再 advance
 
   ✗ Advance to DONE while bugs are open:
     DONE gate rejects. Fix the bugs, retry test_story, then advance
+
+  ✗ Assume DONE will silently auto-merge for you:
+    Wrong: koala story_advance '{"storyId":"B-a3f7","phase":"DONE"}'
+    Right: koala story_advance '{"storyId":"B-a3f7","phase":"DONE","dryRun":true}'
+           then rerun with "confirm":true after checking the plan
 
   ✗ Skip PLAN review:
     Going PLAN → DEV without story_review fails the gate
@@ -216,18 +230,21 @@ export const CHECKLIST_UPDATE_LONG = `
 
 THE DISCIPLINE
   Mark in_progress BEFORE starting work on an item.
-  Mark done AFTER committing the code.
+  Mark done AFTER the code is actually finished; if a local git commit is needed,
+  get explicit user confirm first.
   Update ONE item per call, never batch multiple → done.
 
 WHEN TO USE
   ✓ Starting work on an item (status=in_progress)
-  ✓ Finished + committed an item (status=done)
+  ✓ Finished an item, and if needed got user confirm for the local git commit
+    before marking status=done
   ✓ test-intent agent updating testIntent for an item
   ✓ Editing title / context / relatedDocs after re-thinking
 
 WHEN NOT TO USE
   ✗ Marking 5 items done at once "to clean up" — that's lying about progress
-  ✗ Marking done before committing the code (test_auto will git restore!)
+  ✗ Marking done before work is actually complete; if you still need a local
+    git commit, user confirm comes first (test_auto may git restore!)
   ✗ Main agent writing testIntent (let test-intent agent do it)
   ✗ Status updates without doing the work (don't fake the audit trail)
 
@@ -247,7 +264,8 @@ EXAMPLES — DO
   # Start work on next pending item
   koala checklist_update '{"storyId":"B-a3f7","itemId":"CHK-002","status":"in_progress"}'
 
-  # Done after git commit
+  # Done after the work is complete; if you needed a local git commit, get
+  # explicit user confirm first
   koala checklist_update '{"storyId":"B-a3f7","itemId":"CHK-002","status":"done"}'
 
   # Re-open done item (after spotting a missed case)
@@ -266,7 +284,8 @@ EXAMPLES — DON'T
 
   ✗ Batch done before commit:
     Wrong: 5 separate checklist_update done calls in a row, then write code
-    Right: write one item's code → commit → mark done → next
+    Right: write one item's code → if needed get confirm for local commit →
+           mark done → next
 
   ✗ Main agent writing testIntent:
     Wrong: koala checklist_update --testIntent='{"happy":[...]}'
@@ -287,7 +306,7 @@ STEP-BY-STEP WHEN UNSURE
   1. koala checklist_get --storyId=B-xxx — see current state of all items
   2. Pick ONE pending item, mark in_progress
   3. Write the code for that item
-  4. git add + git commit
+  4. 若要本地 git add + git commit，先得到用户 confirm
   5. checklist_update --status=done
   6. Repeat
 `.trim();
@@ -408,7 +427,7 @@ STEP-BY-STEP WHEN UNSURE
   2. Plan all cases mentally (or in a scratch file) — get them right ONCE
   3. Write the JSON for fixture_batch_add with all cases
   4. Run koala test_fixture or koala test_story to verify they execute
-  5. git commit fixture file
+  5. 若要本地 git commit fixture file，先得到用户 confirm
   6. story_advance to TEST_CASE_REVIEW
 `.trim();
 
