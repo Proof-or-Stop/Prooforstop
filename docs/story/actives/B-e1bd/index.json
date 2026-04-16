@@ -4,7 +4,7 @@
   "title": "为 cli-flags 与 metadata-cross-check 补 fixture 回归",
   "description": "当前 gap_analyze 只剩 5 个 medium，全部属于已有 @test 注释缺少对应 fixture 文件。具体包括 cli-engine 里的 parseFlagsTest/parseFlags/coerce/addValue 这 4 个 cli-flags 入口，以及 validateMetadataCrossCheck 这 1 个 metadata-cross-check 入口。把这两组 fixture 补齐后，medium no_test backlog 应该归零。",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DEV",
   "priority": "medium",
   "lane": "supporting",
   "parallelSafe": "plan_only",
@@ -36,6 +36,38 @@
       "action": "advance",
       "timestamp": "2026-04-16T21:30:34.204Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-16T21:30:48.598Z",
+      "branch": "story/B-e1bd",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-16T21:31:31.064Z",
+      "branch": "story/B-e1bd",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-16T21:31:31.344Z",
+      "branch": "story/B-e1bd",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-16T21:32:34.169Z",
+      "branch": "story/B-e1bd",
       "user": "Harmonygo",
       "agent": "main"
     }

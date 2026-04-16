@@ -4,25 +4,117 @@
       "id": "CHK-001",
       "title": "为 cli flag 解析链补 fixture 覆盖",
       "context": "覆盖 parseFlagsTest/parseFlags/coerce/addValue 的标准 flag、兼容旧 key=value、重复 flag 累积与类型强转。",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "in_progress",
+      "startTime": "2026-04-16T21:31:47.870Z",
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "新增 cli-flags fixture 后，parseFlagsTest/parseFlags/coerce/addValue 的常见 flag 解析链可以通过同一个 black-box 回归跑通。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "fixture 能覆盖旧 key=value 兼容、--key value 与重复 flag 累积为数组的边界行为。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "当值看起来像 JSON、boolean 或 number 但 schema 不匹配时，coerce 不会误转成错误类型。",
+            "type": "cli_blackbox"
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
     },
     {
       "id": "CHK-002",
       "title": "为 metadata cross-check 纯函数补 fixture 覆盖",
       "context": "覆盖 task/checklist 双向校验的 happy、缺引用、done 但未被引用、空 task 列表等行为。",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "in_progress",
+      "startTime": "2026-04-16T21:31:47.976Z",
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "metadata-cross-check fixture 能证明合法 task/checklist 组合返回 passed=true 且 errors 为空。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "空 storyTasks 仍然返回 passed=true，不把 warning 场景误当错误。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "缺失 checklist 引用和 done 但未被引用的 item 都会被明确写进 errors。",
+            "type": "cli_blackbox"
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
     },
     {
       "id": "CHK-003",
       "title": "补回归验证 medium no_test backlog 归零",
       "context": "至少证明 gap_analyze 不再报 cli-flags.json 和 metadata-cross-check.json 缺失，同时不引入新的 no_test。",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "in_progress",
+      "startTime": "2026-04-16T21:31:48.076Z",
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "补齐两个 fixture 文件后，gap_analyze 不再出现 cli-flags.json 和 metadata-cross-check.json 缺失。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "回归允许其他故事或别的 fixture 缺口独立存在，不会把无关 no_test 也吞掉。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果未来删掉这两个 fixture 之一，gap 回归会重新看到对应 fixture not found。",
+            "type": "cli_blackbox"
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-04-16T21:31:47.870Z",
+      "phase": "TEST_CASE",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "开始补 cli-flags fixture 覆盖"
+    },
+    {
+      "timestamp": "2026-04-16T21:31:47.976Z",
+      "phase": "TEST_CASE",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "开始补 metadata-cross-check fixture 覆盖"
+    },
+    {
+      "timestamp": "2026-04-16T21:31:48.076Z",
+      "phase": "TEST_CASE",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "开始补 medium backlog 归零回归"
     }
   ]
 }

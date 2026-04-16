@@ -1,0 +1,96 @@
+{
+  "cases": [
+    {
+      "name": "CHK-002 happy: valid task and checklist mapping passes cross-check",
+      "run_type": "cli",
+      "file": "tasks/metadata-cross-check",
+      "execute": "const { execFileSync } = await import('child_process');\nconst { dirname } = await import('path');\nconst commonDir = execFileSync('git', ['rev-parse', '--git-common-dir'], { cwd: $root, encoding: 'utf8' }).trim();\nconst repoRoot = dirname(commonDir);\nconst { validateMetadataCrossCheck } = await import(repoRoot + '/packages/main/dist/tasks/metadata-cross-check.js');\nreturn validateMetadataCrossCheck('B-demo', [{ key: 'T-1', task: 'B-demo', checklist: ['CHK-001'] }], [{ id: 'CHK-001', title: 'ready', status: 'done' }]);",
+      "expect": {
+        "passed": true,
+        "errors": []
+      },
+      "intentRef": "B-e1bd:CHK-002:happy:0",
+      "storyId": "B-e1bd",
+      "_id": "187f4e33-4862-4947-8767-e8d0bbf993be",
+      "nextCaseId": "7b58beb3-edbe-4816-b7ce-ed23966dd5d4"
+    },
+    {
+      "name": "CHK-002 edge: empty task list stays advisory-only",
+      "run_type": "cli",
+      "file": "tasks/metadata-cross-check",
+      "execute": "const { execFileSync } = await import('child_process');\nconst { dirname } = await import('path');\nconst commonDir = execFileSync('git', ['rev-parse', '--git-common-dir'], { cwd: $root, encoding: 'utf8' }).trim();\nconst repoRoot = dirname(commonDir);\nconst { validateMetadataCrossCheck } = await import(repoRoot + '/packages/main/dist/tasks/metadata-cross-check.js');\nreturn validateMetadataCrossCheck('B-demo', [], [{ id: 'CHK-001', title: 'done item', status: 'done' }]);",
+      "expect": {
+        "passed": true,
+        "errors": []
+      },
+      "intentRef": "B-e1bd:CHK-002:edge:0",
+      "storyId": "B-e1bd",
+      "_id": "7b58beb3-edbe-4816-b7ce-ed23966dd5d4",
+      "prevCaseId": "187f4e33-4862-4947-8767-e8d0bbf993be",
+      "nextCaseId": "76b7aa48-b5b9-49d3-8c02-ccc543993203"
+    },
+    {
+      "name": "CHK-002 adversarial: broken references are surfaced explicitly",
+      "run_type": "cli",
+      "file": "tasks/metadata-cross-check",
+      "execute": "const { execFileSync } = await import('child_process');\nconst { dirname } = await import('path');\nconst commonDir = execFileSync('git', ['rev-parse', '--git-common-dir'], { cwd: $root, encoding: 'utf8' }).trim();\nconst repoRoot = dirname(commonDir);\nconst { validateMetadataCrossCheck } = await import(repoRoot + '/packages/main/dist/tasks/metadata-cross-check.js');\nconst result = validateMetadataCrossCheck('B-demo', [{ key: 'T-1', task: 'B-demo', checklist: ['CHK-999'] }], [{ id: 'CHK-001', title: 'done item', status: 'done' }]);\nreturn { passed: result.passed, errorCount: result.errors.length, missingChecklist: result.errors.some(e => e.includes('CHK-999')), unreferencedDone: result.errors.some(e => e.includes('已标 done')) };",
+      "expect": {
+        "passed": false,
+        "errorCount": 2,
+        "missingChecklist": true,
+        "unreferencedDone": true
+      },
+      "intentRef": "B-e1bd:CHK-002:adversarial:0",
+      "storyId": "B-e1bd",
+      "_id": "76b7aa48-b5b9-49d3-8c02-ccc543993203",
+      "prevCaseId": "7b58beb3-edbe-4816-b7ce-ed23966dd5d4",
+      "nextCaseId": "cc5c7ac7-55d3-4f75-a94a-d48a4f6e0c7b"
+    },
+    {
+      "name": "CHK-003 happy: gap report no longer references cli-flags or metadata-cross-check fixtures",
+      "run_type": "cli",
+      "file": "tasks/metadata-cross-check",
+      "execute": "const parseCliJson = (raw) => {\n  const start = raw.indexOf('{');\n  if (start === -1) throw new Error('JSON payload not found');\n  return JSON.parse(raw.slice(start));\n};\nconst { execFileSync } = await import('child_process');\nconst raw = execFileSync('koala', ['gap_analyze', '--format=json'], { cwd: $root, encoding: 'utf8' });\nconst data = parseCliJson(raw);\nconst targetGaps = data.gaps.filter(g => /cli-flags\\.json|metadata-cross-check\\.json/.test(String(g.description || ''))).length;\nreturn { targetGaps };",
+      "expect": {
+        "targetGaps": 0
+      },
+      "intentRef": "B-e1bd:CHK-003:happy:0",
+      "sandbox": false,
+      "storyId": "B-e1bd",
+      "_id": "cc5c7ac7-55d3-4f75-a94a-d48a4f6e0c7b",
+      "prevCaseId": "76b7aa48-b5b9-49d3-8c02-ccc543993203",
+      "nextCaseId": "b14d83a8-b0d1-4521-ad26-cf490bc22602"
+    },
+    {
+      "name": "CHK-003 edge: unrelated missing fixture still remains visible",
+      "run_type": "cli",
+      "file": "tasks/metadata-cross-check",
+      "execute": "const parseCliJson = (raw) => {\n  const start = raw.indexOf('{');\n  if (start === -1) throw new Error('JSON payload not found');\n  return JSON.parse(raw.slice(start));\n};\nconst { renameSync } = await import('fs');\nconst { join } = await import('path');\nconst { execFileSync } = await import('child_process');\nconst fixturePath = join($root, 'packages/main/tests/fixtures/store-state-entries.json');\nconst backupPath = fixturePath + '.bak';\nrenameSync(fixturePath, backupPath);\ntry {\n  const raw = execFileSync('koala', ['gap_analyze', '--format=json'], { cwd: $root, encoding: 'utf8' });\n  const data = parseCliJson(raw);\n  const unrelatedGaps = data.gaps.filter(g => String(g.description || '').includes('store-state-entries.json')).length;\n  const targetGaps = data.gaps.filter(g => /cli-flags\\.json|metadata-cross-check\\.json/.test(String(g.description || ''))).length;\n  return { unrelatedGaps, targetGaps };\n} finally {\n  renameSync(backupPath, fixturePath);\n}",
+      "expect": {
+        "unrelatedGaps": 6,
+        "targetGaps": 0
+      },
+      "intentRef": "B-e1bd:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-e1bd",
+      "_id": "b14d83a8-b0d1-4521-ad26-cf490bc22602",
+      "prevCaseId": "cc5c7ac7-55d3-4f75-a94a-d48a4f6e0c7b",
+      "nextCaseId": "5ee40177-c427-432e-a43c-37e2b6b2e9c8"
+    },
+    {
+      "name": "CHK-003 adversarial: removing cli-flags fixture makes the gap return",
+      "run_type": "cli",
+      "file": "tasks/metadata-cross-check",
+      "execute": "const parseCliJson = (raw) => {\n  const start = raw.indexOf('{');\n  if (start === -1) throw new Error('JSON payload not found');\n  return JSON.parse(raw.slice(start));\n};\nconst { renameSync } = await import('fs');\nconst { join } = await import('path');\nconst { execFileSync } = await import('child_process');\nconst fixturePath = join($root, 'packages/main/tests/fixtures/cli-flags.json');\nconst backupPath = fixturePath + '.bak';\nrenameSync(fixturePath, backupPath);\ntry {\n  const raw = execFileSync('koala', ['gap_analyze', '--format=json'], { cwd: $root, encoding: 'utf8' });\n  const data = parseCliJson(raw);\n  const cliGaps = data.gaps.filter(g => String(g.description || '').includes('cli-flags.json')).length;\n  const metadataGaps = data.gaps.filter(g => String(g.description || '').includes('metadata-cross-check.json')).length;\n  return { cliGaps, metadataGaps };\n} finally {\n  renameSync(backupPath, fixturePath);\n}",
+      "expect": {
+        "cliGaps": 4,
+        "metadataGaps": 0
+      },
+      "intentRef": "B-e1bd:CHK-003:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-e1bd",
+      "_id": "5ee40177-c427-432e-a43c-37e2b6b2e9c8",
+      "prevCaseId": "b14d83a8-b0d1-4521-ad26-cf490bc22602"
+    }
+  ]
+}

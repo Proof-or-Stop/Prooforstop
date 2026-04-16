@@ -1,0 +1,67 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: parseFlagsTest handles standard flags and typed values",
+      "run_type": "cli",
+      "file": "cli-engine",
+      "execute": "const { execFileSync } = await import('child_process');\nconst { dirname } = await import('path');\nconst commonDir = execFileSync('git', ['rev-parse', '--git-common-dir'], { cwd: $root, encoding: 'utf8' }).trim();\nconst repoRoot = dirname(commonDir);\nconst { parseFlagsTest } = await import(repoRoot + '/packages/main/dist/cli-engine.js');\nreturn parseFlagsTest(['--name=koala', '--count=3', '--dry-run', '--tags=alpha', '--tags=beta', '--payload={\"x\":1}'], { name: 'string', count: 'number', dryRun: 'boolean', tags: 'array', payload: 'object' });",
+      "expect": {
+        "name": "koala",
+        "count": 3,
+        "dryRun": true,
+        "tags": [
+          "alpha",
+          "beta"
+        ],
+        "payload": {
+          "x": 1
+        }
+      },
+      "intentRef": "B-e1bd:CHK-001:happy:0",
+      "storyId": "B-e1bd",
+      "_id": "9a401d24-831c-4a48-a2e9-87c0c33b6fa1",
+      "nextCaseId": "d447394b-55d4-476e-bc4d-6be8cfe59cee"
+    },
+    {
+      "name": "CHK-001 edge: parseFlags keeps legacy key=value and repeated flags compatible",
+      "run_type": "cli",
+      "file": "cli-engine",
+      "execute": "const { execFileSync } = await import('child_process');\nconst { dirname } = await import('path');\nconst commonDir = execFileSync('git', ['rev-parse', '--git-common-dir'], { cwd: $root, encoding: 'utf8' }).trim();\nconst repoRoot = dirname(commonDir);\nconst { parseFlags } = await import(repoRoot + '/packages/main/dist/cli-engine.js');\nconst { z } = await import('zod');\nreturn parseFlags(['mode=legacy', '--tags', 'a', '--tags=b', '--limit', '5', '--flag'], { mode: z.string(), tags: z.array(z.string()), limit: z.number(), flag: z.boolean().optional() });",
+      "expect": {
+        "mode": "legacy",
+        "tags": [
+          "a",
+          "b"
+        ],
+        "limit": 5,
+        "flag": true
+      },
+      "intentRef": "B-e1bd:CHK-001:edge:0",
+      "storyId": "B-e1bd",
+      "_id": "d447394b-55d4-476e-bc4d-6be8cfe59cee",
+      "prevCaseId": "9a401d24-831c-4a48-a2e9-87c0c33b6fa1",
+      "nextCaseId": "6a440c04-3677-4158-b674-c8f1c356c114"
+    },
+    {
+      "name": "CHK-001 adversarial: helper coercion and array accumulation stay stable",
+      "run_type": "cli",
+      "file": "cli-engine",
+      "execute": "const { execFileSync } = await import('child_process');\nconst { dirname } = await import('path');\nconst commonDir = execFileSync('git', ['rev-parse', '--git-common-dir'], { cwd: $root, encoding: 'utf8' }).trim();\nconst repoRoot = dirname(commonDir);\nconst { coerce, addValue } = await import(repoRoot + '/packages/main/dist/cli-engine.js');\nconst { z } = await import('zod');\nconst bag = {};\naddValue(bag, 'tags', 'alpha', true);\naddValue(bag, 'tags', 'beta', true);\naddValue(bag, 'mode', 'legacy', false);\naddValue(bag, 'mode', 'override', false);\nreturn { jsonValue: coerce('{\"x\":1}', z.string()), boolValue: coerce('true', z.string()), tags: bag.tags, mode: bag.mode };",
+      "expect": {
+        "jsonValue": {
+          "x": 1
+        },
+        "boolValue": true,
+        "tags": [
+          "alpha",
+          "beta"
+        ],
+        "mode": "override"
+      },
+      "intentRef": "B-e1bd:CHK-001:adversarial:0",
+      "storyId": "B-e1bd",
+      "_id": "6a440c04-3677-4158-b674-c8f1c356c114",
+      "prevCaseId": "d447394b-55d4-476e-bc4d-6be8cfe59cee"
+    }
+  ]
+}
