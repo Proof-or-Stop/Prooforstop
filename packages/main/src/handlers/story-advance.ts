@@ -545,7 +545,7 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
 ⚠ 真机测试时（不管在 DEV 还是 TEST 阶段）切换视角: 不要只盯事件日志和 [✓ exit=0]——那是工程师视角。用 PLAN 阶段写的 outcome transcript 当 expected，把实际终端输出当 actual，**对着 diff**。最后一行让用户说"完成"还是"然后呢"决定 story 是否真的做完。`,
         TEST_CASE: `→ 下一步: 根据 testIntent 编写 fixture case（只改 fixture，不改代码）。完成后 story_advance(${args.storyId}, TEST_CASE_REVIEW)。如需改代码请先 story_advance(${args.storyId}, DEV) 回退`,
         TEST_CASE_REVIEW: `→ 下一步: 启动 test-case-reviewer agent 审核（不改代码也不改 case）。未通过时主 agent 调 story_advance(${args.storyId}, DEV) 回退改代码，或 story_advance(${args.storyId}, TEST_CASE) 回退改 case
-⚠ implementation-reviewer（phase-aware）: 在进入 TEST 前，至少做一次实现层自检。若已经有 implementation review 结果，以统一 reviewer status / artifact contract 为准决定是否仍有阻塞。
+⚠ implementation-reviewer（phase-aware，第一版 advisory）: 在进入 TEST 前，至少做一次实现层自检：实现代码是否存在明显回归、边界条件遗漏、错误处理缺口或维护性风险。如有需要，调用 implementation-reviewer agent 做独立复核；若已经有 implementation review 结果，以统一 reviewer status / artifact contract 为准决定是否仍有阻塞。
 ${reviewAntiStall(args.storyId)}`,
         TEST: `→ 必须立即执行: test_story('${args.storyId}') 跑当前 story 关联 case，写 bug/evidence。fail 自动 aux_diagnose + bug_report，pass 自动标 bug fixed。需要刷新架构 trace 时再 test_auto({trace:true})
 ${testAntiStall(args.storyId)}
