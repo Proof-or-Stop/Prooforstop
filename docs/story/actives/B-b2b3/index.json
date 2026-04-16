@@ -4,7 +4,7 @@
   "title": "补充 story worktree 中 .Codex / .claude 资产说明",
   "description": "把 story worktree 是否需要包含 .Codex 目录的规则写进仓库文档，明确这些资产应由 git 跟踪并随 worktree 自然出现，而不是依赖手工复制。顺带说明如果从旧分支/旧提交创建 worktree，可能因为分支本身不含这些文件而缺失。",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "medium",
   "keywords": [
     "worktree",
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-04-16T21:25:48.613Z",
   "startedAt": "2026-04-16T21:25:48.613Z",
-  "endedAt": null,
+  "endedAt": "2026-04-16T22:22:28.273Z",
   "events": [
     {
       "phase": "INIT",
@@ -31,11 +31,86 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-16T21:25:59.839Z",
+      "branch": "story/B-b2b3",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-16T21:26:40.795Z",
+      "branch": "story/B-b2b3",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-16T21:31:22.535Z",
+      "branch": "story/B-b2b3",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-16T21:31:36.587Z",
+      "branch": "story/B-b2b3",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-16T21:31:42.447Z",
+      "branch": "story/B-b2b3",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-16T21:36:39.579Z",
+      "branch": "story/B-b2b3",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-16T21:40:16.219Z",
+      "branch": "story/B-b2b3",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-16T21:40:44.308Z",
+      "branch": "story/B-b2b3",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-16T21:40:47.953Z",
+      "branch": "story/B-b2b3",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-16T22:22:28.273Z",
+      "branch": "story/B-b2b3",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ],
-  "worktree": {
-    "path": ".worktrees/B-b2b3",
-    "branch": "story/B-b2b3",
-    "createdAt": "2026-04-16T21:25:54.189Z"
-  }
+  ]
 }

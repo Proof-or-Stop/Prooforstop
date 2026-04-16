@@ -36,6 +36,64 @@ type DoneCheckRow = {
   hint?: string;       // fail 时的修复建议；warn 时作为多行明细
 };
 
+type DoneAutoGitPlan = {
+  branch: string;
+  mainRepoRoot: string;
+  wtPathAbs: string;
+  commitMessage: string;
+  mergeMessage: string;
+};
+
+function detectDoneAutoGitPlan(storyId: string, storyTitle: string): DoneAutoGitPlan | null {
+  const cwdInWorktree = process.cwd();
+  let detectedBranch = '';
+  let mainRepoRoot = '';
+  let wtPathAbs = '';
+  try {
+    detectedBranch = execSync('git rev-parse --abbrev-ref HEAD', {
+      cwd: cwdInWorktree,
+      encoding: 'utf-8',
+    }).trim();
+    const commonDirRaw = execSync('git rev-parse --path-format=absolute --git-common-dir', {
+      cwd: cwdInWorktree,
+      encoding: 'utf-8',
+    }).trim();
+    mainRepoRoot = dirname(commonDirRaw);
+    if (cwdInWorktree !== mainRepoRoot && detectedBranch.startsWith('story/')) {
+      wtPathAbs = cwdInWorktree;
+    }
+  } catch {
+    return null;
+  }
+
+  if (!detectedBranch || !mainRepoRoot || !wtPathAbs || !detectedBranch.startsWith('story/')) {
+    return null;
+  }
+
+  return {
+    branch: detectedBranch,
+    mainRepoRoot,
+    wtPathAbs,
+    commitMessage: `koala: mark ${storyId} DONE + clear worktree`,
+    mergeMessage: `merge: ${storyId} ${storyTitle}`,
+  };
+}
+
+function renderDoneAutoGitPlan(plan: DoneAutoGitPlan, dryRun = false): string {
+  const prefix = dryRun ? '[DRY-RUN] ' : '';
+  return [
+    `${prefix}DONE auto-git plan:`,
+    `  - repo: ${plan.mainRepoRoot}`,
+    `  - worktree: ${plan.wtPathAbs}`,
+    `  - branch: ${plan.branch}`,
+    '  - git add docs/story',
+    `  - git commit -m "${plan.commitMessage}"`,
+    `  - git merge ${plan.branch} --no-ff -m "${plan.mergeMessage}"`,
+    `  - git worktree remove "${plan.wtPathAbs}" (dirty 时会 fallback --force)`,
+    `  - git branch -d ${plan.branch}`,
+  ].join('\n');
+}
+
 function buildDoneChecklist(storyId: string, store: StoryStore, root: string): DoneCheckRow[] {
   const rows: DoneCheckRow[] = [];
 
@@ -106,7 +164,7 @@ function buildDoneChecklist(storyId: string, store: StoryStore, root: string): D
       status: 'fail',
       label: 'git working tree',
       detail: '有未提交的改动',
-      hint: '先 git add + git commit 提交所有改动，再 advance DONE',
+      hint: '如需本地 git add + git commit，未经用户 confirm 不允许；确认后先提交所有改动，再 advance DONE',
     });
   }
 
@@ -123,7 +181,7 @@ function buildDoneChecklist(storyId: string, store: StoryStore, root: string): D
           status: 'fail',
           label: 'Branch synced with main',
           detail: `${branch} 未合并 main 的最新提交`,
-          hint: '在 worktree 里执行: git merge main',
+          hint: '如需在 worktree 里执行 git merge main，未经用户 confirm 不允许；确认后再合并',
         });
       }
     }
@@ -192,8 +250,14 @@ function buildDoneChecklist(storyId: string, store: StoryStore, root: string): D
         hint: `重新调 koala summary_set 补齐 ${missing.join(', ')}`,
       });
     } else {
-      const cov = summary.realMachineCoverage;
-      const covNote = `${cov.ran.length} ran / ${cov.skipped.length} skipped`;
+      const cov = summary.realMachineCoverage &&
+        Array.isArray(summary.realMachineCoverage.ran) &&
+        Array.isArray(summary.realMachineCoverage.skipped)
+        ? summary.realMachineCoverage
+        : { ran: [], skipped: [] };
+      const covNote = summary.realMachineCoverage
+        ? `${cov.ran.length} ran / ${cov.skipped.length} skipped`
+        : 'legacy summary / no realMachineCoverage';
       rows.push({
         status: 'pass',
         label: 'Story summary',
@@ -288,6 +352,8 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
       storyId: string;
       phase: StoryPhase;
       checklist?: Array<{ id: string; title: string }>;
+      dryRun?: boolean;
+      confirm?: boolean;
     }): Promise<string> {
       let story = store.readStory(args.storyId);
       const oldPhase: string = story.phase as string;
@@ -358,7 +424,7 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
             throw new Error(
               `Cannot enter ${args.phase}: ${fixturesRel} 有未提交的改动（${fileCount} 个文件）。` +
               `test runner 跑完会 git restore + git clean 这个目录，未 commit 的 fixture 改动会丢失。\n` +
-              `→ 请先 git add ${fixturesRel} + git commit，再推进阶段\n\n` +
+              `→ 如需本地 git add ${fixturesRel} + git commit，未经用户 confirm 不允许；确认后再推进阶段\n\n` +
               `git status:\n${gitStatus.split('\n').slice(0, 10).join('\n')}${fileCount > 10 ? '\n...' : ''}`
             );
           }
@@ -377,6 +443,7 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
 
       const actor = createStoryActor(args.storyId, store, story.phase);
       actor.start();
+      let doneAutoGitPlan: DoneAutoGitPlan | null = null;
 
       let eventType = PHASE_TO_EVENT[args.phase];
       if (!eventType) {
@@ -466,6 +533,33 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
             rendered + '\n\n' +
             `Cannot enter DONE: ${failed.length} 项检查未通过` +
             (hints.length > 0 ? '\n\n修复建议:\n' + hints.map(h => `→ ${h}`).join('\n') : '')
+          );
+        }
+
+        doneAutoGitPlan = detectDoneAutoGitPlan(args.storyId, story.title);
+        if (args.dryRun) {
+          actor.stop();
+          if (doneAutoGitPlan) {
+            return (
+              rendered + '\n\n' +
+              renderDoneAutoGitPlan(doneAutoGitPlan, true) + '\n' +
+              `→ 这是 dry-run 预览。确认无误后，执行: koala story_advance '{"storyId":"${args.storyId}","phase":"DONE","confirm":true}'`
+            );
+          }
+          return (
+            rendered + '\n\n' +
+            '[DRY-RUN] 当前 DONE 路径不会自动执行 git commit/merge。\n' +
+            '→ 门禁已通过；若确认要真实推进 DONE，去掉 --dryRun 后重新执行'
+          );
+        }
+        if (doneAutoGitPlan && !args.confirm) {
+          actor.stop();
+          throw new Error(
+            rendered + '\n\n' +
+            '该 DONE 路径会自动执行 git commit/merge，默认已阻止。\n' +
+            renderDoneAutoGitPlan(doneAutoGitPlan) + '\n' +
+            `→ 先执行: koala story_advance '{"storyId":"${args.storyId}","phase":"DONE","dryRun":true}'\n` +
+            `→ 确认后执行: koala story_advance '{"storyId":"${args.storyId}","phase":"DONE","confirm":true}'`
           );
         }
 
@@ -563,6 +657,7 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
 ⚠ implementation-reviewer（phase-aware，第一版 advisory）: 在进入 TEST 前，至少做一次实现层自检：实现代码是否存在明显回归、边界条件遗漏、错误处理缺口或维护性风险。如有需要，调用 implementation-reviewer agent 做独立复核；若已经有 implementation review 结果，以统一 reviewer status / artifact contract 为准决定是否仍有阻塞。
 ${reviewAntiStall(args.storyId)}`,
         TEST: `→ 必须立即执行: test_story('${args.storyId}') 跑当前 story 关联 case，写 bug/evidence。fail 自动 aux_diagnose + bug_report，pass 自动标 bug fixed。需要刷新架构 trace 时再 test_auto({trace:true})
+→ 如果准备推进 DONE，先执行 story_advance('${args.storyId}', 'DONE', dryRun=true) 预览；确认后再带 confirm=true 真实执行
 ${testAntiStall(args.storyId)}
 ⚠ 工程验证 ≠ 用户验收: 即使 test_story 全 pass，也必须用用户视角真机跑一次（节奏: 把 PLAN outcome 当 expected → 跑 → 把实际输出当 actual → diff）。验证完把 actual transcript + 差异说明放到 docs/story/actives/${args.storyId}/evidence/transcript-diff.md。CLAUDE.md「用户价值验收」段有完整 5 题自检清单。`,
         DONE: `→ 必须立即执行: 把下面的 Story 总结段落用你自己的话告诉用户（改了什么/怎么用/真机覆盖/限制/踩坑），然后 convergence_check 检查项目收敛状态
@@ -600,29 +695,9 @@ ${testAntiStall(args.storyId)}
         // 仓库的 index.json，但 worktree 内 checkout 的版本是 INIT_CHECK 之前的，
         // 没有这个字段。所以 readStory(from worktree) 永远拿到 worktree=undefined。
         // 改为从 git 实际状态推断：cwd（worktree 路径）+ 当前分支 + git common dir。
-        const cwdInWorktree = process.cwd();
-        let detectedBranch = '';
-        let mainRepoRoot = '';
-        let wtPathAbs = '';
-        try {
-          detectedBranch = execSync('git rev-parse --abbrev-ref HEAD', {
-            cwd: cwdInWorktree, encoding: 'utf-8',
-          }).trim();
-          const commonDirRaw = execSync('git rev-parse --path-format=absolute --git-common-dir', {
-            cwd: cwdInWorktree, encoding: 'utf-8',
-          }).trim();
-          mainRepoRoot = dirname(commonDirRaw);
-          // 只有 cwd 真的是 worktree 而非 main 时才走自动合并
-          if (cwdInWorktree !== mainRepoRoot && detectedBranch.startsWith('story/')) {
-            wtPathAbs = cwdInWorktree;
-          }
-        } catch {
-          // PROBE: 不在 git 仓库或 git 命令失败 → 跳过自动合并
-        }
-
-        if (detectedBranch && wtPathAbs && mainRepoRoot && detectedBranch.startsWith('story/')) {
+        if (doneAutoGitPlan) {
           const mergeLines: string[] = [];
-          const branch = detectedBranch;
+          const { branch, mainRepoRoot, wtPathAbs } = doneAutoGitPlan;
           {
             const runGit = (cmd: string, cwd: string): string =>
               execSync(`git ${cmd}`, { cwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).toString().trim();
@@ -635,12 +710,12 @@ ${testAntiStall(args.storyId)}
             // Step 2: commit 所有 story metadata（phase=DONE + worktree=undefined +
             // endedAt + reviewer/test 产物）。dev_merge:228 用的是同一招。
             try {
-              runGit('add docs/story', cwdInWorktree);
-              const staged = runGit('diff --cached --name-only', cwdInWorktree);
+              runGit('add docs/story', wtPathAbs);
+              const staged = runGit('diff --cached --name-only', wtPathAbs);
               if (staged) {
                 runGit(
-                  `-c commit.gpgsign=false commit -m "koala: mark ${args.storyId} DONE + clear worktree"`,
-                  cwdInWorktree,
+                  `-c commit.gpgsign=false commit -m ${JSON.stringify(doneAutoGitPlan.commitMessage)}`,
+                  wtPathAbs,
                 );
               }
             } catch { /* PROBE: 没东西 commit 也无所谓 */ }
@@ -651,7 +726,7 @@ ${testAntiStall(args.storyId)}
             const mainBranch = runGit('rev-parse --abbrev-ref HEAD', mainRepoRoot);
             try {
               runGit(
-                `-c commit.gpgsign=false merge ${branch} --no-ff -m "merge: ${args.storyId} ${story.title}"`,
+                `-c commit.gpgsign=false merge ${branch} --no-ff -m ${JSON.stringify(doneAutoGitPlan.mergeMessage)}`,
                 mainRepoRoot,
               );
               mergeLines.push(`✓ 分支 ${branch} 已合并到 ${mainBranch}`);

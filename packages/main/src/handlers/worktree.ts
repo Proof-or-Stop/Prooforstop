@@ -96,6 +96,36 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     return join(repoRoot(), storedPath);
   }
 
+  function hasPathChanges(cwd: string, targetPath: string): boolean {
+    try {
+      return git(`status --porcelain -- ${shellQuote(targetPath)}`, cwd).length > 0;
+    } catch {
+      return false;
+    }
+  }
+
+  function renderInitCheckBootstrapPlan(args: {
+    storyId: string;
+    repoRootPath: string;
+    worktreePath: string;
+    branch: string;
+    stagePaths: string[];
+    dryRun?: boolean;
+  }): string {
+    const prefix = args.dryRun ? '[DRY-RUN] ' : '';
+    return [
+      `${prefix}INIT_CHECK bootstrap plan:`,
+      `  - repo: ${args.repoRootPath}`,
+      `  - worktree: ${args.worktreePath}`,
+      `  - branch: ${args.branch}`,
+      '  - write story.worktree metadata',
+      `  - git add -- ${args.stagePaths.join(' ')}`,
+      `  - git commit -m "koala: story ${args.storyId} init"`,
+      `  - git branch ${args.branch} <bootstrap-commit>`,
+      `  - git worktree add "${args.worktreePath}" ${args.branch}`,
+    ].join('\n');
+  }
+
   function commitContainsPath(revision: string, targetPath: string): boolean {
     try {
       const output = git(`ls-tree -r --name-only ${revision} -- ${shellQuote(targetPath)}`);
@@ -165,7 +195,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
   }
 
   return {
-    dev_start(args: { storyId: string }): string {
+    dev_start(args: { storyId: string; dryRun?: boolean; confirm?: boolean }): string {
       const story = store.readStory(args.storyId);
       const runtime = getStoryWorktreeRuntime(args.storyId, store, root);
 
@@ -224,7 +254,10 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       }
 
       // INIT_CHECK 是创建 worktree 的标准入口；PLAN/DEV 也允许（向后兼容/手动恢复）
-      const allowedPhases: StoryPhase[] = ['INIT_CHECK', 'PLAN', 'DEV'];
+      // dryRun / 未 confirm 的预览场景允许从 INIT 看 bootstrap 计划，但不实际执行。
+      const allowedPhases: StoryPhase[] = (args.dryRun || !args.confirm)
+        ? ['INIT', 'INIT_CHECK', 'PLAN', 'DEV']
+        : ['INIT_CHECK', 'PLAN', 'DEV'];
       if (!allowedPhases.includes(story.phase)) {
         throw new Error(`Story ${args.storyId} 当前阶段 ${story.phase}，需要 INIT_CHECK / PLAN / DEV 才能创建 worktree`);
       }
@@ -240,6 +273,26 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         canonicalPath(join(root, loadConfig(root).storyDir, args.storyId, 'index.json')),
       ).replace(/\\/g, '/');
       const stagePaths = getBootstrapStagePaths(args.storyId, repoRootPath);
+
+      const bootstrapPlan = renderInitCheckBootstrapPlan({
+        storyId: args.storyId,
+        repoRootPath,
+        worktreePath,
+        branch,
+        stagePaths,
+        dryRun: args.dryRun,
+      });
+      if (args.dryRun) {
+        return bootstrapPlan + '\n→ 这是 dry-run 预览。确认无误后，再带 confirm:true 真实执行 INIT_CHECK bootstrap';
+      }
+      if (!args.confirm) {
+        throw new Error(
+          `dev_start(${args.storyId}) 会自动写 story.worktree metadata 并创建 bootstrap git commit，默认已阻止。\n` +
+          bootstrapPlan + '\n' +
+          '→ 先传 dryRun:true 预览，确认后再传 confirm:true 真实执行'
+        );
+      }
+
       const releaseBootstrapLock = acquireBootstrapLock(args.storyId);
 
       try {
@@ -282,7 +335,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
           } catch (e: any) {
             throw new Error(
               `无法在仓库根创建 worktree 分支 ${branch}：${e.message || String(e)}。` +
-              `可能是仓库尚未 git init / 没有任何提交。先 git commit 一次再重试。`
+              `可能是仓库尚未 git init / 没有任何提交。若要本地 git commit 初始化仓库，未经用户 confirm 不允许；确认后再重试。`
             );
           }
         }
@@ -331,12 +384,12 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         `→ cd ${worktreePath} 进入 worktree 开发，所有 koala 命令在此目录执行`,
         `→ sub agent 不要使用 isolation:"worktree"，直接在主 agent 的 worktree 中跑`,
         `→ checklist_get(${args.storyId}) 查看待开发项`,
-        `→ 开发完成后调用 dev_finish(${args.storyId}) 合并回主分支`,
+        `→ 开发完成后调用 dev_finish(${args.storyId})。若后续路径会自动触发本地 git commit / git merge，未经 confirm 不允许`,
         depsWarning,
       ].filter(Boolean).join('\n');
     },
 
-    dev_finish(args: { storyId: string }): string {
+    dev_finish(args: { storyId: string; dryRun?: boolean; confirm?: boolean }): string {
       const story = store.readStory(args.storyId);
 
       if (!story.worktree) {
@@ -352,8 +405,28 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         throw new Error(`Worktree 目录 ${wtPath} 不存在，已清理记录`);
       }
 
-      // 自动提交 story 目录下的运行时产生的文件（review.json 等）
       const storyDir = join('docs', 'story', 'actives', args.storyId);
+      const autoCommitStoryFiles = hasPathChanges(wtPath, storyDir);
+      const finishPlanLines = [
+        `${args.dryRun ? '[DRY-RUN] ' : ''}dev_finish(${args.storyId}) plan:`,
+        `  - worktree: ${wtPath}`,
+        ...(autoCommitStoryFiles
+          ? [`  - git add ${storyDir}`, `  - git commit -m "koala: auto-add story files for ${args.storyId}"`]
+          : ['  - no automatic git commit needed for story runtime files']),
+        '  - advance story phase to TEST',
+      ];
+      if (args.dryRun) {
+        return finishPlanLines.join('\n') + '\n→ 这是 dry-run 预览。若需要自动提交 story 运行时文件，再加 confirm:true 真实执行';
+      }
+      if (autoCommitStoryFiles && !args.confirm) {
+        throw new Error(
+          `dev_finish(${args.storyId}) 会自动 git add/git commit story 运行时文件，默认已阻止。\n` +
+          finishPlanLines.join('\n') + '\n' +
+          '→ 先传 dryRun:true 预览，确认后再传 confirm:true 真实执行'
+        );
+      }
+
+      // 自动提交 story 目录下的运行时产生的文件（review.json 等）
       try {
         git(`add ${storyDir}`, wtPath);
         const staged = git('diff --cached --name-only', wtPath);
@@ -394,13 +467,13 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         `✓ Story ${args.storyId} 开发完成，已进入 TEST`,
         `Worktree 保留供测试使用: ${wtPath}`,
         `→ 在 worktree 中运行测试`,
-        `→ 测试全部通过后调用 dev_merge(${args.storyId}) 合并回主分支`,
+        `→ 测试全部通过后如需自动收尾，先 dry-run 再 confirm 调用 dev_merge(${args.storyId})`,
       ];
 
       return results.join('\n');
     },
 
-    dev_merge(args: { storyId: string }): string {
+    dev_merge(args: { storyId: string; dryRun?: boolean; confirm?: boolean }): string {
       const story = store.readStory(args.storyId);
 
       if (!story.worktree) {
@@ -417,8 +490,34 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         throw new Error(`Worktree 目录 ${wtPath} 不存在，已清理记录`);
       }
 
-      // 自动提交 story 目录下的运行时产生的文件（review.json 等）
       const storyDir = join('docs', 'story', 'actives', args.storyId);
+      const autoCommitStoryFiles = hasPathChanges(wtPath, storyDir);
+      const currentMainBranch = git('rev-parse --abbrev-ref HEAD');
+      const mergePlanLines = [
+        `${args.dryRun ? '[DRY-RUN] ' : ''}dev_merge(${args.storyId}) plan:`,
+        `  - main branch: ${currentMainBranch}`,
+        `  - story branch: ${branch}`,
+        `  - worktree: ${wtPath}`,
+        ...(autoCommitStoryFiles
+          ? [`  - git add ${storyDir}`, `  - git commit -m "koala: auto-add story files for ${args.storyId}"`]
+          : ['  - no automatic git commit needed for story runtime files']),
+        `  - git merge ${branch} --no-ff -m "merge: ${args.storyId} ${story.title}"`,
+        `  - git worktree remove ${wtPath}`,
+        `  - git branch -d ${branch}`,
+        '  - persist story metadata as DONE and clear worktree record',
+      ];
+      if (args.dryRun) {
+        return mergePlanLines.join('\n') + '\n→ 这是 dry-run 预览。确认无误后再传 confirm:true 真实执行';
+      }
+      if (!args.confirm) {
+        throw new Error(
+          `dev_merge(${args.storyId}) 会自动执行 git merge/worktree 清理/branch 删除${autoCommitStoryFiles ? '，并可能先自动提交 story 运行时文件' : ''}，默认已阻止。\n` +
+          mergePlanLines.join('\n') + '\n' +
+          '→ 先传 dryRun:true 预览，确认后再传 confirm:true 真实执行'
+        );
+      }
+
+      // 自动提交 story 目录下的运行时产生的文件（review.json 等）
       try {
         git(`add ${storyDir}`, wtPath);
         const staged = git('diff --cached --name-only', wtPath);
@@ -458,7 +557,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         story.events.push(collectContext('DONE', 'advance'));
       }
 
-      const mainBranch = git('rev-parse --abbrev-ref HEAD');
+      const mainBranch = currentMainBranch;
       const results: string[] = [];
 
       // merge 到主分支
@@ -467,7 +566,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         results.push(`✓ 分支 ${branch} 已合并到 ${mainBranch}`);
       } catch (e: any) {
         throw new Error(
-          `合并冲突，请手动解决:\ngit merge ${branch}\n${e.stderr || e.message}`
+          `合并冲突。若要手动执行 git merge ${branch}，未经用户 confirm 不允许；确认后再解决:\n${e.stderr || e.message}`
         );
       }
 

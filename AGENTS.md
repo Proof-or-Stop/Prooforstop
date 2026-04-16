@@ -91,6 +91,8 @@ INIT → INIT_CHECK → PLAN → DEV → TEST_CASE → TEST_CASE_REVIEW → TEST
 
 **配置**：worktree 路径默认 `.worktrees`，可在 `koala.config.json` 的 `worktreeDir` 字段自定义。`.worktrees/` 自动加入 `.gitignore`。
 
+**Codex / Claude 入口资产**：story worktree 不需要额外手工复制 `.Codex` 或 `.claude`。`git worktree` 会把当前分支里**已被 git 跟踪**的仓库文件一起展开，所以只要根目录里的 `.Codex`、`.claude`、`AGENTS.md`、`CLAUDE.md` 已经提交，新建的 `.worktrees/B-xxx/` 就会自然包含它们。若 worktree 里缺少这些入口，先检查文件是否真的被 git 跟踪，或该 worktree 是否从尚未包含这些资产的旧分支/旧提交创建。
+
 **DONE 门禁**：进入 DONE 前要求 story 分支已包含 main 的所有提交（`git merge-base --is-ancestor main story/B-xxx`），避免遗漏 main 的更新。如有冲突，在 worktree 里 `git merge main` 解决。
 
 ### TEST 阶段详细流程

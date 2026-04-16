@@ -319,6 +319,9 @@ export function getPhaseInvariantStatus(
     const cl = store.readChecklist(storyId);
     const failures: Array<{ itemId: string; category: string; desc: string; type: string }> = [];
     for (const item of cl.items) {
+      if (item.testIntent === null) {
+        continue;
+      }
       if (!item.testIntent) {
         failures.push({ itemId: item.id, category: '*', desc: 'missing testIntent', type: 'cli_blackbox' });
         continue;

@@ -61,6 +61,8 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'story_advance', description: '推进 Story 到下一阶段', longHelp: STORY_ADVANCE_LONG, schema: {
     storyId: z.string().describe('Story ID'), phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','TEST_CASE','TEST_CASE_REVIEW','TEST','DONE']).describe('目标阶段'),
     checklist: z.array(z.object({ id: z.string(), title: z.string() })).optional().describe('开发清单'),
+    dryRun: z.boolean().optional().describe('仅预览 DONE 路径的自动 git 变更计划，不实际推进阶段'),
+    confirm: z.boolean().optional().describe('显式确认执行 DONE 路径里会自动触发的 git commit/merge 收尾'),
   }},
   { name: 'story_update', description: '编辑 Story 信息', schema: {
     storyId: z.string().describe('Story ID'), title: z.string().optional().describe('新标题'),
@@ -888,7 +890,7 @@ export async function runCli(opts?: {
       if (!result.includes('(INIT)')) return result;
       const storyId = result.match(/Story\s+([\w-]+)/)?.[1];
       if (!storyId) return result;
-      return `${result}\n→ Story 停在 INIT 阶段。下一步:\n  1. story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' 创建 worktree\n  2. cd 到提示的 worktree 路径\n  3. story_advance '{"storyId":"${storyId}","phase":"PLAN"}' 进入 PLAN（cwd 必须是 worktree）`;
+      return `${result}\n→ Story 停在 INIT 阶段。下一步:\n  1. 先 story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK","dryRun":true}' 预览 bootstrap git 变更\n  2. 若确认创建 worktree，执行 story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK","confirm":true}'\n  3. cd 到提示的 worktree 路径\n  4. story_advance '{"storyId":"${storyId}","phase":"PLAN"}' 进入 PLAN（cwd 必须是 worktree）`;
     });
     return;
   }
@@ -900,26 +902,46 @@ export async function runCli(opts?: {
   if (cmd === 'story_advance' && (v.data as any)?.phase === 'INIT_CHECK') {
     await run(async () => {
       const storyId = (v.data as any).storyId;
+      const initArgs = v.data as any;
       // 探测当前 phase；若已在 INIT_CHECK 就跳过 advance 直接 dev_start 重试
-      // story_get 默认返回 {checklist, review}；phase 需要 detail:true 才在 result.index.phase
       let advanceResult = '';
-      try {
-        const story: any = handlers.story_get({ storyId, detail: true });
-        const currentPhase = story?.index?.phase;
-        if (currentPhase === 'INIT_CHECK') {
-          advanceResult = `Story ${storyId} 已在 INIT_CHECK 阶段，重试 worktree 创建`;
-        } else {
-          advanceResult = await handlers.story_advance(v.data);
+      let currentPhase = '';
+      try { currentPhase = store.readStory(storyId).phase; } catch { /* fallback below */ }
+      if (currentPhase === 'INIT' && (initArgs.dryRun || !initArgs.confirm)) {
+        const preview = handlers.dev_start({
+          storyId,
+          dryRun: initArgs.dryRun,
+          confirm: initArgs.confirm,
+        });
+        if (initArgs.dryRun) {
+          return `Story ${storyId} 当前在 INIT。进入 INIT_CHECK 会触发 bootstrap git 变更，先预览如下：\n\n${preview}`;
         }
-      } catch {
-        // story_get 失败时退回原行为
+        if (!initArgs.confirm) {
+          throw new Error(
+            `Story ${storyId} 当前在 INIT。进入 INIT_CHECK 会触发 bootstrap git 变更，默认已阻止。\n\n${preview}`
+          );
+        }
+      }
+      if (currentPhase === 'INIT_CHECK') {
+        advanceResult = `Story ${storyId} 已在 INIT_CHECK 阶段，重试 worktree 创建`;
+      } else {
         advanceResult = await handlers.story_advance(v.data);
       }
       try {
-        const wtResult = handlers.dev_start({ storyId });
+        const wtResult = handlers.dev_start({
+          storyId,
+          dryRun: initArgs.dryRun,
+          confirm: initArgs.confirm,
+        });
+        if (initArgs.dryRun) {
+          return `${advanceResult}\n\n${wtResult}`;
+        }
         return `${advanceResult}\n\n${wtResult}\n\n→ 现在请 cd 到上述 worktree 路径，然后调 story_advance phase=PLAN 进入 PLAN`;
       } catch (e: any) {
-        return `${advanceResult}\n⚠ worktree 创建失败: ${e.message}\n→ 排查后再次执行 story_advance --phase=INIT_CHECK 自动重试，或手动 dev_start '{"storyId":"${storyId}"}'`;
+        if (e?.message?.includes('默认已阻止')) {
+          throw e;
+        }
+        return `${advanceResult}\n⚠ worktree 创建失败: ${e.message}\n→ 排查后再次执行 story_advance --phase=INIT_CHECK（需要 bootstrap git 变更时先 dryRun，再 confirm），或手动 dev_start '{"storyId":"${storyId}","dryRun":true}'`;
       }
     });
     return;

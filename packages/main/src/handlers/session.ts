@@ -352,7 +352,7 @@ function computeNextStep(c: NextStepCtx): string {
     case 'IDEA':
       return `Story 在 IDEA 阶段，没有 checklist。和用户讨论 checklist 后用 checklist_add 追加，或重新 story_create 时带上 checklist 字段`;
     case 'INIT':
-      return `Story 在 INIT 阶段。下一步：story_advance --storyId=${sid} --phase=INIT_CHECK 创建 worktree，然后 cd 进去`;
+      return `Story 在 INIT 阶段。下一步：先 story_advance --storyId=${sid} --phase=INIT_CHECK --dryRun 预览 bootstrap git 变更；确认后再带 --confirm 创建 worktree，然后 cd 进去`;
     case 'INIT_CHECK':
       return `Story 在 INIT_CHECK，worktree 已创建。下一步：cd 到 .worktrees/${sid}/ 然后 story_advance --phase=PLAN`;
     case 'PLAN': {
@@ -377,10 +377,10 @@ function computeNextStep(c: NextStepCtx): string {
         const next = c.checklist.pending[0];
         return `DEV 阶段。下一项：checklist_update --storyId=${sid} --itemId=${next.id} --status=in_progress（${next.title}）`;
       }
-      return `DEV 阶段，所有 checklist 已 done。下一步：git commit + story_advance --storyId=${sid} --phase=TEST_CASE 进入测试编写`;
+      return `DEV 阶段，所有 checklist 已 done。下一步：如需本地 git commit，未经用户 confirm 不允许；确认后再提交，并 story_advance --storyId=${sid} --phase=TEST_CASE 进入测试编写`;
     }
     case 'TEST_CASE':
-      return `TEST_CASE 阶段。下一步：根据每条 testIntent 用 fixture_batch_add 写 case，每条都需要 intentRef。完成后 git commit + story_advance --phase=TEST_CASE_REVIEW`;
+      return `TEST_CASE 阶段。下一步：根据每条 testIntent 用 fixture_batch_add 写 case，每条都需要 intentRef。若要本地 git commit fixture，未经用户 confirm 不允许；确认后再提交，并 story_advance --phase=TEST_CASE_REVIEW`;
     case 'TEST_CASE_REVIEW':
       if (c.reviewerStatus.entries.find((entry) => entry.key === 'implementation_review')?.verdict === 'fail') {
         return `TEST_CASE_REVIEW 阶段。implementation review 已标记为 fail。下一步：先回 DEV 修实现，再继续 reviewer / TEST 推进。\n${reviewAntiStall(sid)}`;
@@ -402,7 +402,7 @@ function computeNextStep(c: NextStepCtx): string {
       if (!c.hasTestEvidence) {
         return `TEST 阶段。下一步：test_story --storyId=${sid} 跑当前 story 关联 case，写 bug/evidence\n${testAntiStall(sid)}`;
       }
-      return `TEST 阶段，所有 bug 已 fixed。下一步：story_advance --storyId=${sid} --phase=DONE 完成 story（会自动合并回 main）`;
+      return `TEST 阶段，所有 bug 已 fixed。下一步：先 story_advance --storyId=${sid} --phase=DONE --dryRun 预览自动 git 收尾；确认后再带 --confirm 真实完成 story`;
     case 'DONE':
       return `Story 已 DONE。可以开始下一个 story`;
     default:

@@ -244,7 +244,7 @@ export function createTestStoryHandlers(ctx: HandlerContext) {
       }
 
       const hintS = allPassedS
-        ? `→ story ${storyId} 全部通过，请 commit 后执行: story_advance('${storyId}', 'DONE')`
+        ? `→ story ${storyId} 全部通过。若该 DONE 路径会自动 git 收尾，先执行 story_advance('${storyId}', 'DONE', dryRun=true) 预览，再带 confirm=true 真实执行`
         : `→ 有失败项，修复后重跑: test_story('${storyId}')`;
 
       return JSON.stringify({
