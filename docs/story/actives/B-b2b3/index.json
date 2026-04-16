@@ -1,0 +1,41 @@
+{
+  "storyId": "B-b2b3",
+  "name": "document-worktree-codex-assets",
+  "title": "补充 story worktree 中 .Codex / .claude 资产说明",
+  "description": "把 story worktree 是否需要包含 .Codex 目录的规则写进仓库文档，明确这些资产应由 git 跟踪并随 worktree 自然出现，而不是依赖手工复制。顺带说明如果从旧分支/旧提交创建 worktree，可能因为分支本身不含这些文件而缺失。",
+  "type": "chore",
+  "phase": "INIT_CHECK",
+  "priority": "medium",
+  "keywords": [
+    "worktree",
+    "codex",
+    "claude",
+    "docs"
+  ],
+  "createdAt": "2026-04-16T21:25:48.613Z",
+  "startedAt": "2026-04-16T21:25:48.613Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-16T21:25:48.617Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-16T21:25:53.995Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-b2b3",
+    "branch": "story/B-b2b3",
+    "createdAt": "2026-04-16T21:25:54.189Z"
+  }
+}
