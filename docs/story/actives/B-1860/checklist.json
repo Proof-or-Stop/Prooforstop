@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "为 @flow step 增加说明字段并接入提取/类型定义",
+      "context": "让每个 flow step 至少能表达这一跳在做什么，先把注释解析和 Task/Flow 数据结构补齐。",
+      "relatedDocs": [
+        "docs/requirements/decisions/framework.md",
+        "docs/requirements/decisions/annotation-system.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "在 flow 校验里强制 step 说明存在且随代码演进更新",
+      "context": "把 step 说明纳入 validateFlows 或相关校验，至少覆盖缺说明、断链、最后一步误填 next 等组合场景。",
+      "relatedDocs": [
+        "docs/requirements/decisions/framework.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
