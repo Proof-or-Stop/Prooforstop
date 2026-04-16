@@ -1,0 +1,92 @@
+{
+  "cases": [
+    {
+      "name": "CHK-002 happy: gap_analyze no longer marks stack-layering boundary as uncovered",
+      "run_type": "cli",
+      "file": "tasks/gap-analyze",
+      "execute": "const { execFileSync } = await import('child_process'); const cli = '/Users/jek/Documents/Work/Orchestrate/packages/main/dist/cli.js'; const raw = execFileSync('node', [cli, '--root', $root, 'gap_analyze'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); const json = JSON.parse(raw.slice(raw.indexOf('{'))); const descs = json.gaps.filter((g) => g.type === 'uncovered_requirement').map((g) => g.description); return { stackLayeringGapGone: !descs.some((d) => d.includes('Superpowers 可以触发 workflow')) };",
+      "expect": {
+        "stackLayeringGapGone": true
+      },
+      "intentRef": "B-1dc6:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-1dc6",
+      "_id": "be0a15f8-3764-43d2-98cf-e7dea5e5ffd3",
+      "nextCaseId": "26964928-181b-449f-8566-46be450e7384"
+    },
+    {
+      "name": "CHK-002 edge: unrelated capability high gap still remains visible",
+      "run_type": "cli",
+      "file": "tasks/gap-analyze",
+      "execute": "const { execFileSync } = await import('child_process'); const cli = '/Users/jek/Documents/Work/Orchestrate/packages/main/dist/cli.js'; const raw = execFileSync('node', [cli, '--root', $root, 'gap_analyze'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); const json = JSON.parse(raw.slice(raw.indexOf('{'))); const descs = json.gaps.filter((g) => g.type === 'uncovered_requirement').map((g) => g.description); return { keepsOtherGap: descs.some((d) => d.includes('AI 通过接口访问比原生还高效')) };",
+      "expect": {
+        "keepsOtherGap": true
+      },
+      "intentRef": "B-1dc6:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-1dc6",
+      "_id": "26964928-181b-449f-8566-46be450e7384",
+      "prevCaseId": "be0a15f8-3764-43d2-98cf-e7dea5e5ffd3",
+      "nextCaseId": "37a44fdd-fb1a-40b6-8d99-e0bb6bbc6569"
+    },
+    {
+      "name": "CHK-002 adversarial: state and evidence entrypoints remain annotated",
+      "run_type": "cli",
+      "file": "tasks/extract",
+      "execute": "const { readFileSync } = await import('fs'); const files = [$root + '/packages/main/src/core/store.ts', $root + '/packages/main/src/core/machine.ts', $root + '/packages/main/src/handlers/story-advance.ts', $root + '/packages/main/src/handlers/test-story.ts']; return { annotationsPresent: files.every((file) => { const text = readFileSync(file, 'utf8'); return text.includes('@task B-1dc6') && text.includes('@changes'); }) };",
+      "expect": {
+        "annotationsPresent": true
+      },
+      "intentRef": "B-1dc6:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-1dc6",
+      "_id": "37a44fdd-fb1a-40b6-8d99-e0bb6bbc6569",
+      "prevCaseId": "26964928-181b-449f-8566-46be450e7384",
+      "nextCaseId": "2d7a76ab-6ced-4904-a841-61408a281f07"
+    },
+    {
+      "name": "CHK-001 happy: state ownership entrypoints carry B-1dc6 metadata",
+      "run_type": "cli",
+      "file": "tasks/extract",
+      "execute": "const { readFileSync } = await import('fs'); const files = [$root + '/packages/main/src/core/store.ts', $root + '/packages/main/src/core/machine.ts']; return { allTagged: files.every((file) => { const text = readFileSync(file, 'utf8'); return text.includes('@task B-1dc6') && text.includes('story 生命周期真相源'); }) };",
+      "expect": {
+        "allTagged": true
+      },
+      "intentRef": "B-1dc6:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-1dc6",
+      "_id": "2d7a76ab-6ced-4904-a841-61408a281f07",
+      "prevCaseId": "37a44fdd-fb1a-40b6-8d99-e0bb6bbc6569",
+      "nextCaseId": "988b6046-c41a-44c1-9f30-24c904e3826d"
+    },
+    {
+      "name": "CHK-001 edge: gate and evidence handlers carry B-1dc6 metadata without @test misuse",
+      "run_type": "cli",
+      "file": "tasks/validate",
+      "execute": "const { readFileSync } = await import('fs'); const files = [$root + '/packages/main/src/handlers/story-advance.ts', $root + '/packages/main/src/handlers/test-story.ts']; return { handlersTagged: files.every((file) => { const text = readFileSync(file, 'utf8'); return text.includes('@task B-1dc6') && text.includes('@changes') && text.includes('@test high-gap-annotation-backfill'); }) };",
+      "expect": {
+        "handlersTagged": true
+      },
+      "intentRef": "B-1dc6:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-1dc6",
+      "_id": "988b6046-c41a-44c1-9f30-24c904e3826d",
+      "prevCaseId": "2d7a76ab-6ced-4904-a841-61408a281f07",
+      "nextCaseId": "cc35d97e-4259-46cf-8190-83784a368452"
+    },
+    {
+      "name": "CHK-001 adversarial: boundary gap would still appear without code annotations",
+      "run_type": "cli",
+      "file": "tasks/gap-analyze",
+      "execute": "const { execFileSync } = await import('child_process'); const cli = '/Users/jek/Documents/Work/Orchestrate/packages/main/dist/cli.js'; const raw = execFileSync('node', [cli, '--root', $root, 'gap_analyze'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); const json = JSON.parse(raw.slice(raw.indexOf('{'))); const descs = json.gaps.filter((g) => g.type === 'uncovered_requirement').map((g) => g.description); return { stackLayeringGapGone: !descs.some((d) => d.includes('Superpowers 可以触发 workflow')) };",
+      "expect": {
+        "stackLayeringGapGone": true
+      },
+      "intentRef": "B-1dc6:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-1dc6",
+      "_id": "cc35d97e-4259-46cf-8190-83784a368452",
+      "prevCaseId": "988b6046-c41a-44c1-9f30-24c904e3826d"
+    }
+  ]
+}
