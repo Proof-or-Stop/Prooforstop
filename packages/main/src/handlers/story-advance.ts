@@ -269,6 +269,21 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
   const { store } = ctx;
 
   return {
+    /**
+     * @task B-1dc6
+     * @checklist CHK-001
+     * @title story_advance owns gate final decisions and phase transitions
+     * @type feature
+     * @priority high
+     * @description
+     *   stack-layering 指出的 gate 最终判定记录就在这里落地：story_advance 统一读取
+     *   phase gate、reviewer contract、test evidence、bug 状态和 worktree/runtime，
+     *   决定一个 story 是否允许继续推进到下一个 phase。
+     * @changes
+     *   - [CHK-001] 把 gate 最终判定记录回链到 story_advance
+     *   - [CHK-001] 让长期 project state 的推进入口可被 gap coverage 正确识别
+     * @test high-gap-annotation-backfill
+     */
     async story_advance(args: {
       storyId: string;
       phase: StoryPhase;

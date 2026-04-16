@@ -1,0 +1,24 @@
+{
+  "task": "为 stack-layering 里『Superpowers 不负责长期 project state』这条边界原则补代码回链。",
+  "outcome": "$ node packages/main/dist/cli.js gap_analyze\n...\n高优先级差距里，不再把『Superpowers 可以触发 workflow，但不应该自己定义：story 生命周期真相源 / gate 最终判定记录 / bug-evidence 持久化协议』报成完全未覆盖。相应需求至少能追溯到 story state machine、story_advance gate、bug/test-evidence 持久化这些具体代码入口。",
+  "facts": [
+    "stack-layering 里这条边界原则点名的是 story 生命周期真相源、gate 的最终判定记录、bug/evidence 的持久化协议。",
+    "Koala 这些能力其实已经分别落在 core/machine.ts、handlers/story-advance.ts、core/store.ts、handlers/test-story.ts 等文件里。",
+    "gap_analyze 仍报高优先级未覆盖，说明这些实现缺少足够直接的 @task/@changes 回链。"
+  ],
+  "constraints": [
+    "优先回填最少量的函数级注释，不改动既有业务行为。",
+    "注释文案要尽量贴近需求原文里的关键词，帮助 gap_analyze 的摘要匹配命中。",
+    "至少补一条回归，证明这条边界原则不再被视为完全无代码承接。"
+  ],
+  "unknowns": [
+    "仅回填 state machine / gate / evidence store 的注释，是否已足够让关键词匹配命中这条边界原则。"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/handlers/test-story.ts"
+  ],
+  "timestamp": "2026-04-16T20:50:19.289Z"
+}

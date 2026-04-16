@@ -8,9 +8,54 @@
         "docs/requirements/decisions/stack-layering.md",
         "docs/requirements/decisions/project-vision.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-16T20:55:01.582Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "state machine / gate / evidence 持有点补上 @task/@changes 后，coverage 能把这条边界原则追溯到具体代码入口。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T20:55:47.999Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/stack-layering-backfill.json:1 WHY story lifecycle/gate/evidence entrypoints now reconnect this boundary principle to concrete code. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "回填注释不会破坏现有 state machine / gate / evidence 行为，也不会引入 file-level @test 误用。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T20:55:48.103Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/stack-layering-backfill.json:1 WHY metadata backfill keeps state machine and gate behavior intact. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果只改文档不补这些实现入口注释，gap_analyze 仍会继续把这条边界原则报成完全未覆盖。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T20:55:48.210Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/stack-layering-backfill.json:1 WHY the boundary gap would still appear without code annotations. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
     },
     {
       "id": "CHK-002",
@@ -20,9 +65,54 @@
         "docs/requirements/decisions/testing-completeness.md",
         "docs/requirements/decisions/stack-layering.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-04-16T20:52:27.654Z",
+      "endTime": "2026-04-16T20:55:22.080Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "回归能证明 stack-layering 这条边界原则不再被 gap_analyze 视为完全无代码承接。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T20:55:48.315Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/stack-layering-backfill.json:1 WHY gap_analyze no longer treats the stack-layering boundary as fully uncovered. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "回归允许项目仍有另一条真正未实现的高 gap，不会把整个高 gap 列表错误清空。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T20:55:48.420Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/stack-layering-backfill.json:1 WHY unrelated capability gaps remain visible, proving scoped coverage. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果以后移除了这些持有点上的注释元数据，回归会再次看到这条 uncovered_requirement。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T20:55:48.538Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/stack-layering-backfill.json:1 WHY removing state/evidence metadata would make the regression fail again. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
     }
   ]
 }

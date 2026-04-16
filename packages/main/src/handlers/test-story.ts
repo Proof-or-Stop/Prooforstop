@@ -26,6 +26,21 @@ export function createTestStoryHandlers(ctx: HandlerContext) {
   const progress = ctx.log || (() => {});
 
   return {
+    /**
+     * @task B-1dc6
+     * @checklist CHK-001
+     * @title story-level test evidence and bug linkage are persisted by Koala
+     * @type feature
+     * @priority high
+     * @description
+     *   stack-layering 明确要求 bug/evidence 的持久化协议由 Koala 自己定义。
+     *   test_story 在执行 story 级回归后负责把 test-evidence.json 写回 story，
+     *   并联动 bug.json 的自动创建 / fixed 更新，让 workflow 触发与 project state
+     *   持久化边界保持在 Koala 内部。
+     * @changes
+     *   - [CHK-001] 把 bug/evidence 持久化协议回链到 test_story
+     * @test high-gap-annotation-backfill
+     */
     async test_story(args: { storyId: string }): Promise<string> {
       // 递归防护
       if ((globalThis as any).__koalaTestRunning) {
