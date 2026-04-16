@@ -8,9 +8,29 @@
         "docs/requirements/decisions/cc-learnings.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "in_progress",
+      "startTime": "2026-04-16T20:36:21.630Z",
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "dangerous command guardrails 相关实现文件补上 @task/@changes 后，coverage 能把 dry-run/confirm 能力追溯到具体代码位置。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "回填注释不会破坏现有 CLI/handler 行为，也不会引入 file-level @test 误用。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果只改文档不补实现注释，gap_analyze 仍会继续把这类能力报成 uncovered_requirement。",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -22,7 +42,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "flow step description contract 的实现文件补上 @task/@changes 后，gap_analyze 不再把『每一步都应该有说明』视为完全无代码承接。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "回填后的注释仍符合 annotation-system 的函数级精度要求，不会引入新的 validate 错误。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果只补 types/extract/validate 其中一处注释，coverage 仍可能因为语义断裂而继续误报。",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -34,7 +74,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "回填 @task/@changes 后，gap_analyze 至少能减少对 dangerous guardrails 与 flow step 说明的完全未覆盖误报。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "回归允许项目仍有其他高 gap，但这两类已落地能力不再被当作完全无代码承接。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果以后移除了这些实现文件上的元数据，回归会再次看到 corresponding uncovered_requirement。",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }

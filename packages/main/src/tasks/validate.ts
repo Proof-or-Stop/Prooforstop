@@ -149,6 +149,21 @@ export function validate(scanRoot: string): ValidationResult {
   };
 }
 
+/**
+ * @task B-4b17
+ * @checklist CHK-002
+ * @title validate flow step descriptions alongside existing @next rules
+ * @type feature
+ * @priority high
+ * @description
+ *   Flow 的每一步都应该有说明，代码改了 flow 也需要强制更新。validateFlows 在
+ *   保留 step 连续、@next 存在与最后一步无 @next 等旧规则的同时，把缺少 @desc
+ *   视为结构性错误，防止 flow 只剩拓扑没有语义说明。
+ * @changes
+ *   - [CHK-002] validateFlows 对缺失 @desc 的 step 给出明确错误
+ *   - [CHK-002] 新规则与既有 @next / step continuity 校验并行生效
+ * @test flow-step-desc
+ */
 export function validateFlows(chains: FlowChain[], allTasks: TaskAnnotation[]): FlowValidationResult {
   const issues: FlowValidationIssue[] = [];
 

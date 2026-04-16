@@ -23,6 +23,22 @@ import {
   createIsolatedHandlers, createTempStoryFactory, cleanupTempStories, cleanupFixtureDir,
 } from './test-runner-core.js';
 
+/**
+ * @task B-4b17
+ * @checklist CHK-001
+ * @title test_auto destructive execution now requires confirm and supports dry-run
+ * @type feature
+ * @priority high
+ * @description
+ *   test_auto 会扫描全部 fixture，并在执行后对 fixture 目录做 git restore /
+ *   git clean，属于 destructive test runner 路径。这里补上 dry-run 计划输出，
+ *   让用户在 --confirm 前先看到扫描范围、cleanup 行为和 profiler/trace 影响。
+ * @changes
+ *   - [CHK-001] test_auto 新增 dryRun/confirm 参数并在最前面短路返回计划
+ *   - [CHK-001] dry-run 明确列出 fixture 扫描数量与 git restore + git clean 范围
+ *   - [CHK-001] 真实执行路径仍沿用原有 full regression 逻辑
+ * @test test-auto-guardrails
+ */
 export function createTestAutoHandlers(ctx: HandlerContext) {
   const { root } = ctx;
   const progress = ctx.log || (() => {});

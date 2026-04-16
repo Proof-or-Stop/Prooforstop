@@ -582,6 +582,23 @@ function resolveRoot(explicit?: string): string {
  * @param opts.extraRegister  第三方包的 register 函数，在 createMainRegistry 之后调用
  *                            （收到 Registry 实例后用 registry.registerBatch(...) 注入 handler）
  */
+/**
+ * @task B-4b17
+ * @checklist CHK-001
+ * @title CLI dangerous command guardrails for dry-run and confirm
+ * @type feature
+ * @priority high
+ * @description
+ *   为公开 CLI 命令提供统一的危险命令护栏：支持 dry-run 预览，并对
+ *   irreversible / destructive 命令默认要求 --confirm。当前覆盖
+ *   story_discard、fixture_batch_add、test_auto 等会删除 worktree、批量写文件
+ *   或触发 git restore / clean 的入口。
+ * @changes
+ *   - [CHK-001] ToolDef 增加 guardrails 元数据，标记 supportsDryRun / requiresConfirm
+ *   - [CHK-001] CLI dispatch 在命令真正执行前统一拦截未确认的危险命令
+ *   - [CHK-001] 兼容 --dry-run 到 dryRun 的 kebab-case 参数形式
+ * @test dangerous-command-guardrails
+ */
 export async function runCli(opts?: {
   extraTools?: ToolDef[];
   extraRegister?: (registry: Registry, ctx: HandlerContext) => void;

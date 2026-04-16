@@ -377,6 +377,21 @@ export function filterTasks(tasks: TaskAnnotation[], filters: ExtractFilters): T
   });
 }
 
+/**
+ * @task B-4b17
+ * @checklist CHK-002
+ * @title extract flow step descriptions into executable flow metadata
+ * @type feature
+ * @priority high
+ * @description
+ *   Flow 的每一步都应该有说明，因此 extractFlows 现在不仅提取 step/input/output/next，
+ *   还要把每一步的 @desc 说明保留到 FlowStep 中，让后续校验和执行链都能看到
+ *   “这一跳在做什么”。
+ * @changes
+ *   - [CHK-002] TaskAnnotation 新增 desc 字段并继续传递到 FlowStep
+ *   - [CHK-002] extractFlows 保留每一步的 @desc，避免说明在提取阶段丢失
+ * @test flow-step-desc
+ */
 export function extractFlows(tasks: TaskAnnotation[]): FlowChain[] {
   const flowMap = new Map<string, FlowStep[]>();
 
