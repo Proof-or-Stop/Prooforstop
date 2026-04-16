@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "为 story lifecycle / gate / evidence 持久化入口补 @task/@changes 注释",
+      "context": "至少覆盖 story state machine、story_advance gate、test evidence/bug store 等直接承载长期 project state 的实现入口，让需求文本能回链到具体代码。",
+      "relatedDocs": [
+        "docs/requirements/decisions/stack-layering.md",
+        "docs/requirements/decisions/project-vision.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "补一条回归，证明 stack-layering 边界不再被视为完全无代码承接",
+      "context": "重点锁住 gap_analyze 对这条边界原则的误报，不要求一次性解决另一条『AI 通过接口访问更高效』的能力型 high gap。",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-completeness.md",
+        "docs/requirements/decisions/stack-layering.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
