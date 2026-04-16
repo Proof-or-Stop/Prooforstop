@@ -4,7 +4,7 @@
   "title": "为已落地的高优先级能力补 @task 元数据回链",
   "description": "当前高优先级需求差距里有几条其实功能已经落地，但 packages/main/src 的相关实现文件没有对应的 @task/@changes 注释，导致 gap_analyze 无法把这些实现算进需求覆盖。先把最近已经完成的两类能力补回注释元数据：1) dangerous command guardrails（dry-run/confirm/test_auto）；2) flow step description contract。目标是让 gap_analyze 至少能识别这几条需求已有代码承接，而不是继续误报 uncovered_requirement。",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-04-16T20:19:40.862Z",
   "startedAt": "2026-04-16T20:19:40.862Z",
-  "endedAt": null,
+  "endedAt": "2026-04-16T20:43:24.460Z",
   "events": [
     {
       "phase": "INIT",
@@ -71,11 +71,14 @@
       "branch": "story/B-4b17",
       "user": "Harmonygo",
       "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-16T20:43:24.460Z",
+      "branch": "story/B-4b17",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ],
-  "worktree": {
-    "path": ".worktrees/B-4b17",
-    "branch": "story/B-4b17",
-    "createdAt": "2026-04-16T20:32:35.758Z"
-  }
+  ]
 }
