@@ -10,7 +10,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "state machine / gate / evidence 持有点补上 @task/@changes 后，coverage 能把这条边界原则追溯到具体代码入口。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "回填注释不会破坏现有 state machine / gate / evidence 行为，也不会引入 file-level @test 误用。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果只改文档不补这些实现入口注释，gap_analyze 仍会继续把这条边界原则报成完全未覆盖。",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -20,9 +40,29 @@
         "docs/requirements/decisions/testing-completeness.md",
         "docs/requirements/decisions/stack-layering.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "in_progress",
+      "startTime": "2026-04-16T20:52:27.654Z",
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "回归能证明 stack-layering 这条边界原则不再被 gap_analyze 视为完全无代码承接。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "回归允许项目仍有另一条真正未实现的高 gap，不会把整个高 gap 列表错误清空。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果以后移除了这些持有点上的注释元数据，回归会再次看到这条 uncovered_requirement。",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }

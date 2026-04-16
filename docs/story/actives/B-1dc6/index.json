@@ -4,7 +4,7 @@
   "title": "为 stack-layering 边界原则补代码回链",
   "description": "当前仅剩的高优先级差距之一是 stack-layering 里的边界原则：Superpowers 可以触发 workflow，但不应该自己定义 story 生命周期、gate 判定和 bug/evidence 持久化协议。Koala 这些能力其实已经在 story state machine、reviewer gate、test evidence/bug store 里落地，但缺少足够直接的 @task/@changes 回链。先补这条边界原则对应的实现注释与回归，让 gap_analyze 能识别它不是未实现。",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DEV",
   "priority": "high",
   "riskSignals": [
     {
@@ -31,11 +31,35 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-16T20:49:03.787Z",
+      "branch": "story/B-1dc6",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-16T20:50:29.103Z",
+      "branch": "story/B-1dc6",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-1dc6",
     "branch": "story/B-1dc6",
     "createdAt": "2026-04-16T20:48:50.490Z"
-  }
+  },
+  "lane": "mainline",
+  "parallelSafe": "no",
+  "sharedHotspots": [
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/handlers/test-story.ts"
+  ]
 }

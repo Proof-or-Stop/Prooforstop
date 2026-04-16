@@ -192,6 +192,21 @@ export const storyMachine = setup({
 
 export type StoryMachineSnapshot = SnapshotFrom<typeof storyMachine>;
 
+/**
+ * @task B-1dc6
+ * @checklist CHK-001
+ * @title Story lifecycle state machine remains the source of gate decisions
+ * @type feature
+ * @priority high
+ * @description
+ *   stack-layering 的边界原则要求 gate 的最终判定记录由 Koala 持有。
+ *   createStoryActor 是 story 生命周期状态机的统一入口，负责把 phase transition
+ *   与 guard 判定绑定到 Koala 自己的 machine/store，而不是交给外部 workflow
+ *   自行定义。
+ * @changes
+ *   - [CHK-001] 把 story lifecycle state machine 与 gate 判定入口回链到 createStoryActor
+ * @test high-gap-annotation-backfill
+ */
 export function createStoryActor(
   storyId: string,
   store: StoryStore,
