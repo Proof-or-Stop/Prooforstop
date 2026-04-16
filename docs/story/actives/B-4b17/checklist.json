@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "为 dangerous command guardrails 的实现文件补 @task/@changes 注释",
+      "context": "至少覆盖 cli-engine、worktree、fixture、test-auto 中与 dry-run/confirm 直接相关的入口，让需求文本能被 coverage 识别到。",
+      "relatedDocs": [
+        "docs/requirements/decisions/cc-learnings.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "为 flow step description contract 的实现文件补 @task/@changes 注释",
+      "context": "覆盖 types/extract/validate 中新增的 @desc 字段与校验逻辑，让『每一步都应该有说明』能在 gap_analyze 里找到落点。",
+      "relatedDocs": [
+        "docs/requirements/decisions/framework.md",
+        "docs/requirements/decisions/annotation-system.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "补一条回归，证明回填后 gap_analyze 至少不再把这些能力视为完全未覆盖",
+      "context": "可以是脚本或 story fixture，重点是锁住 coverage 回链，不让功能存在但元数据缺失的误报反复出现。",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-completeness.md",
+        "docs/requirements/decisions/cc-learnings.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
