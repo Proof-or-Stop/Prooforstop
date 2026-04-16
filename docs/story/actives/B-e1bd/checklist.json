@@ -11,19 +11,43 @@
         "happy": [
           {
             "desc": "新增 cli-flags fixture 后，parseFlagsTest/parseFlags/coerce/addValue 的常见 flag 解析链可以通过同一个 black-box 回归跑通。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T21:41:09.528Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/cli-flags.json:4 WHY happy case exercises parseFlagsTest end-to-end across standard --key=value, repeated array flags, and typed object/number coercion. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "fixture 能覆盖旧 key=value 兼容、--key value 与重复 flag 累积为数组的边界行为。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T21:41:09.636Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/cli-flags.json:21 WHY edge case locks legacy key=value compatibility, --key value parsing, repeated flag accumulation, and bare boolean flags. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "当值看起来像 JSON、boolean 或 number 但 schema 不匹配时，coerce 不会误转成错误类型。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T21:41:09.753Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/cli-flags.json:39 WHY adversarial case verifies current helper behavior of coerce/addValue directly, so helper drift is caught even without CLI dispatch. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       },
@@ -40,19 +64,43 @@
         "happy": [
           {
             "desc": "metadata-cross-check fixture 能证明合法 task/checklist 组合返回 passed=true 且 errors 为空。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T21:41:09.868Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/metadata-cross-check.json:4 WHY happy case proves validateMetadataCrossCheck returns passed=true with no errors for a valid task/checklist mapping. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "空 storyTasks 仍然返回 passed=true，不把 warning 场景误当错误。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T21:41:09.979Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/metadata-cross-check.json:19 WHY edge case locks the empty storyTasks advisory path so it stays pass=true rather than becoming a false blocker. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "缺失 checklist 引用和 done 但未被引用的 item 都会被明确写进 errors。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T21:41:10.128Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/metadata-cross-check.json:34 WHY adversarial case asserts both broken checklist references and done-but-unreferenced items surface in the error set. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       },
@@ -69,19 +117,43 @@
         "happy": [
           {
             "desc": "补齐两个 fixture 文件后，gap_analyze 不再出现 cli-flags.json 和 metadata-cross-check.json 缺失。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T21:41:10.462Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/metadata-cross-check.json:49 WHY happy regression checks gap_analyze no longer reports cli-flags.json or metadata-cross-check.json as missing fixtures. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "回归允许其他故事或别的 fixture 缺口独立存在，不会把无关 no_test 也吞掉。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T21:41:10.611Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/metadata-cross-check.json:62 WHY edge regression temporarily removes an unrelated fixture and proves only that unrelated no_test returns while target gaps stay cleared. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "如果未来删掉这两个 fixture 之一，gap 回归会重新看到对应 fixture not found。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T21:41:10.728Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/metadata-cross-check.json:82 WHY adversarial regression removes cli-flags.json and confirms exactly that gap returns, so future fixture deletion will be caught. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       },
