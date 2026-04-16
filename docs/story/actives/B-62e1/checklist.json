@@ -9,7 +9,18 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "默认路径下的 INIT_CHECK/dev_start 不会再自动创建 bootstrap commit，而是明确阻止并要求 dry-run/confirm。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [],
+        "adversarial": []
+      },
+      "phase": "TEST_CASE"
     },
     {
       "id": "CHK-002",
@@ -20,7 +31,18 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "story_advance --help 与 dry-run 预览都会清晰展示 preview-then-confirm 流程，不再暗示 INIT_CHECK 会直接本地提交。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [],
+        "adversarial": []
+      },
+      "phase": "TEST_CASE"
     },
     {
       "id": "CHK-003",
@@ -31,7 +53,18 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "confirm=true 时自动 git 收尾路径仍然可以成功执行，说明新护栏没有把正常流程用坏。",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [],
+        "adversarial": []
+      },
+      "phase": "TEST_CASE"
     }
   ]
 }

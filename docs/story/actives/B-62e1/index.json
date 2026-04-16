@@ -4,7 +4,7 @@
   "title": "禁止 INIT_CHECK 默认自动 bootstrap commit，改为显式确认",
   "description": "当前 Koala 在 story_advance INIT_CHECK / dev_start 创建 worktree 时，仍会自动 git add + git commit 产生 `koala: story B-xxx init`。用户要求这条路径也必须改成默认阻止、仅在显式确认时允许执行，并与 DONE/dev_finish/dev_merge 的 dry-run/confirm 语义保持一致。",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DEV",
   "priority": "high",
   "riskSignals": [
     {
@@ -29,6 +29,22 @@
       "action": "advance",
       "timestamp": "2026-04-16T22:24:01.229Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-16T22:24:15.191Z",
+      "branch": "story/B-62e1",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-16T22:25:44.645Z",
+      "branch": "story/B-62e1",
       "user": "Harmonygo",
       "agent": "main"
     }
