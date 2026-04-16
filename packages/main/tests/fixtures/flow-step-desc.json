@@ -1,0 +1,92 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: step descriptions are preserved in extracted flow steps",
+      "run_type": "cli",
+      "file": "tasks/extract",
+      "execute": "const { execFileSync } = await import('child_process'); const out = execFileSync('node', [$root + '/scripts/verify-flow-step-desc.mjs'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('flow step desc verified') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-1860:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-1860",
+      "_id": "e3c9692b-3472-4286-a4d0-2a9d6944239f",
+      "nextCaseId": "4a83ce4e-bb2c-4c54-8a16-1bb10f6ed405"
+    },
+    {
+      "name": "CHK-001 edge: missing step desc becomes a targeted validation error",
+      "run_type": "cli",
+      "file": "tasks/validate",
+      "execute": "const { execFileSync } = await import('child_process'); const out = execFileSync('node', [$root + '/scripts/verify-flow-step-desc.mjs'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('flow step desc verified') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-1860:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-1860",
+      "_id": "4a83ce4e-bb2c-4c54-8a16-1bb10f6ed405",
+      "prevCaseId": "e3c9692b-3472-4286-a4d0-2a9d6944239f",
+      "nextCaseId": "a4bf3a6a-c8b1-4b0f-94d0-2f9371055d3b"
+    },
+    {
+      "name": "CHK-001 adversarial: missing desc is treated as structural flow failure",
+      "run_type": "cli",
+      "file": "tasks/validate",
+      "execute": "const { execFileSync } = await import('child_process'); const out = execFileSync('node', [$root + '/scripts/verify-flow-step-desc.mjs'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('flow step desc verified') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-1860:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-1860",
+      "_id": "a4bf3a6a-c8b1-4b0f-94d0-2f9371055d3b",
+      "prevCaseId": "4a83ce4e-bb2c-4c54-8a16-1bb10f6ed405",
+      "nextCaseId": "68eb0dc0-f64d-4ffc-a4a9-fcf1de113c74"
+    },
+    {
+      "name": "CHK-002 happy: validateFlows passes once every step has @desc",
+      "run_type": "cli",
+      "file": "tasks/validate",
+      "execute": "const { execFileSync } = await import('child_process'); const out = execFileSync('node', [$root + '/scripts/verify-flow-step-desc.mjs'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('flow step desc verified') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-1860:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-1860",
+      "_id": "68eb0dc0-f64d-4ffc-a4a9-fcf1de113c74",
+      "prevCaseId": "a4bf3a6a-c8b1-4b0f-94d0-2f9371055d3b",
+      "nextCaseId": "037f197b-089f-469a-ae11-2d4a1bb74750"
+    },
+    {
+      "name": "CHK-002 edge: legacy @next rules still hold alongside @desc requirement",
+      "run_type": "cli",
+      "file": "tasks/validate",
+      "execute": "const { execFileSync } = await import('child_process'); const out = execFileSync('node', [$root + '/scripts/verify-flow-step-desc.mjs'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('flow step desc verified') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-1860:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-1860",
+      "_id": "037f197b-089f-469a-ae11-2d4a1bb74750",
+      "prevCaseId": "68eb0dc0-f64d-4ffc-a4a9-fcf1de113c74",
+      "nextCaseId": "bfbf16b2-48d8-43b9-8f04-aadb14c3796d"
+    },
+    {
+      "name": "CHK-002 adversarial: flow updates that skip desc fail validation immediately",
+      "run_type": "cli",
+      "file": "tasks/validate",
+      "execute": "const { execFileSync } = await import('child_process'); const out = execFileSync('node', [$root + '/scripts/verify-flow-step-desc.mjs'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('flow step desc verified') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-1860:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-1860",
+      "_id": "bfbf16b2-48d8-43b9-8f04-aadb14c3796d",
+      "prevCaseId": "037f197b-089f-469a-ae11-2d4a1bb74750"
+    }
+  ]
+}
