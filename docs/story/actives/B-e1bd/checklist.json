@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "为 cli flag 解析链补 fixture 覆盖",
+      "context": "覆盖 parseFlagsTest/parseFlags/coerce/addValue 的标准 flag、兼容旧 key=value、重复 flag 累积与类型强转。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "为 metadata cross-check 纯函数补 fixture 覆盖",
+      "context": "覆盖 task/checklist 双向校验的 happy、缺引用、done 但未被引用、空 task 列表等行为。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "补回归验证 medium no_test backlog 归零",
+      "context": "至少证明 gap_analyze 不再报 cli-flags.json 和 metadata-cross-check.json 缺失，同时不引入新的 no_test。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
