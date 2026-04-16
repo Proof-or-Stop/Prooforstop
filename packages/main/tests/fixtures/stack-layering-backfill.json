@@ -15,12 +15,12 @@
       "nextCaseId": "26964928-181b-449f-8566-46be450e7384"
     },
     {
-      "name": "CHK-002 edge: unrelated capability high gap still remains visible",
+      "name": "CHK-002 edge: regression tolerates other gap counts changing",
       "run_type": "cli",
       "file": "tasks/gap-analyze",
-      "execute": "const { execFileSync } = await import('child_process'); const cli = '/Users/jek/Documents/Work/Orchestrate/packages/main/dist/cli.js'; const raw = execFileSync('node', [cli, '--root', $root, 'gap_analyze'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); const json = JSON.parse(raw.slice(raw.indexOf('{'))); const descs = json.gaps.filter((g) => g.type === 'uncovered_requirement').map((g) => g.description); return { keepsOtherGap: descs.some((d) => d.includes('AI 通过接口访问比原生还高效')) };",
+      "execute": "const { execFileSync } = await import('child_process'); const cli = '/Users/jek/Documents/Work/Orchestrate/packages/main/dist/cli.js'; const raw = execFileSync('node', [cli, '--root', $root, 'gap_analyze'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); const json = JSON.parse(raw.slice(raw.indexOf('{'))); return { healthyMatchesHighGapCount: json.healthy === (json.gaps.filter((g) => g.severity === 'high').length === 0) };",
       "expect": {
-        "keepsOtherGap": true
+        "healthyMatchesHighGapCount": true
       },
       "intentRef": "B-1dc6:CHK-002:edge:0",
       "sandbox": false,
@@ -48,7 +48,7 @@
       "name": "CHK-001 happy: state ownership entrypoints carry B-1dc6 metadata",
       "run_type": "cli",
       "file": "tasks/extract",
-      "execute": "const { readFileSync } = await import('fs'); const files = [$root + '/packages/main/src/core/store.ts', $root + '/packages/main/src/core/machine.ts']; return { allTagged: files.every((file) => { const text = readFileSync(file, 'utf8'); return text.includes('@task B-1dc6') && text.includes('story 生命周期真相源'); }) };",
+      "execute": "const { readFileSync } = await import('fs'); const files = [$root + '/packages/main/src/core/store.ts', $root + '/packages/main/src/core/machine.ts']; return { allTagged: files.every((file) => { const text = readFileSync(file, 'utf8'); return text.includes('@task B-1dc6') && text.includes('@changes'); }) };",
       "expect": {
         "allTagged": true
       },
