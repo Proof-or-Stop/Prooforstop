@@ -51,6 +51,7 @@ export class StoryStore {
    * @changes
    *   - [CHK-001] 把 story 生命周期真相源回链到 StoryStore.readStory
    *   - [CHK-001] 让 gap_analyze 能把长期 project state 持有点追溯到具体代码入口
+   * @test store-state-entries
    */
   readStory(storyId: string): StoryInfo {
     return this.readJson<StoryInfo>(storyId, 'index.json');
@@ -68,6 +69,7 @@ export class StoryStore {
    *   自己持有或定义。
    * @changes
    *   - [CHK-001] 把 story 生命周期真相源的持久化协议回链到 StoryStore.writeStory
+   * @test store-state-entries
    */
   writeStory(storyId: string, data: StoryInfo): void {
     this.writeJson(storyId, 'index.json', data);
@@ -108,6 +110,7 @@ export class StoryStore {
    *   私有状态。
    * @changes
    *   - [CHK-001] 把 bug 持久化协议回链到 StoryStore.readBugs
+   * @test store-state-entries
    */
   readBugs(storyId: string): BugData {
     try {
@@ -128,6 +131,7 @@ export class StoryStore {
    *   状态由 Koala 的 store 协议统一维护。
    * @changes
    *   - [CHK-001] 把 bug.json 写入入口回链到 StoryStore.writeBugs
+   * @test store-state-entries
    */
   writeBugs(storyId: string, data: BugData): void {
     this.writeJson(storyId, 'bug.json', data);
@@ -146,6 +150,7 @@ export class StoryStore {
    *   和完成总结依赖的长期 project state，不应由外部 workflow 另行定义。
    * @changes
    *   - [CHK-001] 把 test evidence 持久化协议回链到 StoryStore.readTestEvidence
+   * @test store-state-entries
    */
   readTestEvidence(storyId: string): TestEvidenceData | null {
     try {
@@ -167,6 +172,7 @@ export class StoryStore {
    *   workflow 私有状态里。
    * @changes
    *   - [CHK-001] 把 test-evidence.json 写入入口回链到 StoryStore.writeTestEvidence
+   * @test store-state-entries
    */
   writeTestEvidence(storyId: string, data: TestEvidenceData): void {
     this.writeJson(storyId, 'test-evidence.json', data);
