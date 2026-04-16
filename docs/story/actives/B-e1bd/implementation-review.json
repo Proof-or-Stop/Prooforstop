@@ -1,0 +1,15 @@
+{
+  "storyId": "B-e1bd",
+  "verdict": "pass",
+  "findings": [
+    {
+      "file": "packages/main/tests/fixtures/cli-flags.json",
+      "line": 1,
+      "why": "本 story 只新增 fixture 与 story artifact，没有变更业务运行时代码；回归风险集中在断言质量，已由 reviewer 覆盖。",
+      "severity": "info"
+    }
+  ],
+  "summary": "本次变更仅补 cli-flags 与 metadata-cross-check 的 fixture 和 gap 回归，不涉及新的业务逻辑改写。",
+  "createdAt": "2026-04-16T21:41:10.847Z",
+  "updatedAt": "2026-04-16T21:41:10.847Z"
+}

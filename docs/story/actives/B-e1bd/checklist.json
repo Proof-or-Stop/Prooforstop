@@ -4,25 +4,216 @@
       "id": "CHK-001",
       "title": "为 cli flag 解析链补 fixture 覆盖",
       "context": "覆盖 parseFlagsTest/parseFlags/coerce/addValue 的标准 flag、兼容旧 key=value、重复 flag 累积与类型强转。",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-04-16T21:31:47.870Z",
+      "endTime": "2026-04-16T21:40:41.656Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "新增 cli-flags fixture 后，parseFlagsTest/parseFlags/coerce/addValue 的常见 flag 解析链可以通过同一个 black-box 回归跑通。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T21:41:09.528Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/cli-flags.json:4 WHY happy case exercises parseFlagsTest end-to-end across standard --key=value, repeated array flags, and typed object/number coercion. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "fixture 能覆盖旧 key=value 兼容、--key value 与重复 flag 累积为数组的边界行为。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T21:41:09.636Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/cli-flags.json:21 WHY edge case locks legacy key=value compatibility, --key value parsing, repeated flag accumulation, and bare boolean flags. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "当值看起来像 JSON、boolean 或 number 但 schema 不匹配时，coerce 不会误转成错误类型。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T21:41:09.753Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/cli-flags.json:39 WHY adversarial case verifies current helper behavior of coerce/addValue directly, so helper drift is caught even without CLI dispatch. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
     },
     {
       "id": "CHK-002",
       "title": "为 metadata cross-check 纯函数补 fixture 覆盖",
       "context": "覆盖 task/checklist 双向校验的 happy、缺引用、done 但未被引用、空 task 列表等行为。",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-04-16T21:31:47.976Z",
+      "endTime": "2026-04-16T21:40:41.799Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "metadata-cross-check fixture 能证明合法 task/checklist 组合返回 passed=true 且 errors 为空。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T21:41:09.868Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/metadata-cross-check.json:4 WHY happy case proves validateMetadataCrossCheck returns passed=true with no errors for a valid task/checklist mapping. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "空 storyTasks 仍然返回 passed=true，不把 warning 场景误当错误。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T21:41:09.979Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/metadata-cross-check.json:19 WHY edge case locks the empty storyTasks advisory path so it stays pass=true rather than becoming a false blocker. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "缺失 checklist 引用和 done 但未被引用的 item 都会被明确写进 errors。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T21:41:10.128Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/metadata-cross-check.json:34 WHY adversarial case asserts both broken checklist references and done-but-unreferenced items surface in the error set. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
     },
     {
       "id": "CHK-003",
       "title": "补回归验证 medium no_test backlog 归零",
       "context": "至少证明 gap_analyze 不再报 cli-flags.json 和 metadata-cross-check.json 缺失，同时不引入新的 no_test。",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-04-16T21:31:48.076Z",
+      "endTime": "2026-04-16T21:40:41.930Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "补齐两个 fixture 文件后，gap_analyze 不再出现 cli-flags.json 和 metadata-cross-check.json 缺失。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T21:41:10.462Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/metadata-cross-check.json:49 WHY happy regression checks gap_analyze no longer reports cli-flags.json or metadata-cross-check.json as missing fixtures. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "回归允许其他故事或别的 fixture 缺口独立存在，不会把无关 no_test 也吞掉。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T21:41:10.611Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/metadata-cross-check.json:62 WHY edge regression temporarily removes an unrelated fixture and proves only that unrelated no_test returns while target gaps stay cleared. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果未来删掉这两个 fixture 之一，gap 回归会重新看到对应 fixture not found。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T21:41:10.728Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/metadata-cross-check.json:82 WHY adversarial regression removes cli-flags.json and confirms exactly that gap returns, so future fixture deletion will be caught. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-04-16T21:31:47.870Z",
+      "phase": "TEST_CASE",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "开始补 cli-flags fixture 覆盖"
+    },
+    {
+      "timestamp": "2026-04-16T21:31:47.976Z",
+      "phase": "TEST_CASE",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "开始补 metadata-cross-check fixture 覆盖"
+    },
+    {
+      "timestamp": "2026-04-16T21:31:48.076Z",
+      "phase": "TEST_CASE",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "开始补 medium backlog 归零回归"
+    },
+    {
+      "timestamp": "2026-04-16T21:40:41.656Z",
+      "phase": "TEST_CASE",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "已补 cli-flags fixture 覆盖 parseFlagsTest/parseFlags/coerce/addValue"
+    },
+    {
+      "timestamp": "2026-04-16T21:40:41.799Z",
+      "phase": "TEST_CASE",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "已补 metadata-cross-check 纯函数 fixture 覆盖"
+    },
+    {
+      "timestamp": "2026-04-16T21:40:41.930Z",
+      "phase": "TEST_CASE",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "已补 gap_analyze 回归验证 medium no_test 归零"
     }
   ]
 }
