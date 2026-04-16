@@ -14,7 +14,15 @@
         "happy": [
           {
             "desc": "默认路径下的 INIT_CHECK/dev_start 不会再自动创建 bootstrap commit，而是明确阻止并要求 dry-run/confirm。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T22:28:44.534Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/git-mutation-guard.json:4 WHY default entry path now asserts no-confirm bootstrap/done/dev_finish/dev_merge all block with explicit guard text. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [],
@@ -36,7 +44,15 @@
         "happy": [
           {
             "desc": "story_advance --help 与 dry-run 预览都会清晰展示 preview-then-confirm 流程，不再暗示 INIT_CHECK 会直接本地提交。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T22:28:44.629Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/git-mutation-guard.json:19 WHY help and dry-run preview explicitly teach preview-then-confirm flow instead of implying automatic init commit. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [],
@@ -58,7 +74,15 @@
         "happy": [
           {
             "desc": "confirm=true 时自动 git 收尾路径仍然可以成功执行，说明新护栏没有把正常流程用坏。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T22:28:44.719Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/git-mutation-guard.json:34 WHY confirm path still succeeds end-to-end, proving the new guard does not break the legitimate workflow. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [],
