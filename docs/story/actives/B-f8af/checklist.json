@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "为 StoryStore 的 story/bug/evidence 读写入口补 fixture 覆盖",
+      "context": "至少覆盖 readStory/writeStory/readBugs/writeBugs/readTestEvidence/writeTestEvidence 这 6 个入口，证明读写协议和默认值行为都可回归。",
+      "relatedDocs": [
+        "docs/requirements/decisions/stack-layering.md",
+        "docs/requirements/decisions/test-fixture-spec.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "补一条回归，锁住这组入口不再出现在 no_test backlog",
+      "context": "重点是让 gap_analyze 不再列出这 6 个函数缺 @test 注释，同时不破坏现有 StoryStore 协议。",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-completeness.md",
+        "docs/requirements/decisions/stack-layering.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

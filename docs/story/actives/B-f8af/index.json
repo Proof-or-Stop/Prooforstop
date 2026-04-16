@@ -1,0 +1,35 @@
+{
+  "storyId": "B-f8af",
+  "name": "cover-store-state-entry-fixtures",
+  "title": "为 StoryStore 的 state 持有入口补 @test 覆盖",
+  "description": "当前 high gap 已清零，但 medium backlog 里有一组很集中的问题：StoryStore 上新回填的 state 持有入口（readStory/writeStory/readBugs/writeBugs/readTestEvidence/writeTestEvidence）都还缺 @test 覆盖。它们刚被用来承接 stack-layering 边界原则，如果不补 fixture，会长期挂在 no_test 列表里。先把这 6 个入口补成一条独立 story。",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "medium",
+  "createdAt": "2026-04-16T21:00:10.340Z",
+  "startedAt": "2026-04-16T21:00:10.340Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-16T21:00:10.340Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-16T21:04:10.430Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-f8af",
+    "branch": "story/B-f8af",
+    "createdAt": "2026-04-16T21:04:10.663Z"
+  }
+}
