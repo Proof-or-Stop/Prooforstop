@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "为 cli flag 解析链补 fixture 覆盖",
       "context": "覆盖 parseFlagsTest/parseFlags/coerce/addValue 的标准 flag、兼容旧 key=value、重复 flag 累积与类型强转。",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-04-16T21:31:47.870Z",
-      "endTime": null,
+      "endTime": "2026-04-16T21:40:41.656Z",
       "testIntent": {
         "happy": [
           {
@@ -33,9 +33,9 @@
       "id": "CHK-002",
       "title": "为 metadata cross-check 纯函数补 fixture 覆盖",
       "context": "覆盖 task/checklist 双向校验的 happy、缺引用、done 但未被引用、空 task 列表等行为。",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-04-16T21:31:47.976Z",
-      "endTime": null,
+      "endTime": "2026-04-16T21:40:41.799Z",
       "testIntent": {
         "happy": [
           {
@@ -62,9 +62,9 @@
       "id": "CHK-003",
       "title": "补回归验证 medium no_test backlog 归零",
       "context": "至少证明 gap_analyze 不再报 cli-flags.json 和 metadata-cross-check.json 缺失，同时不引入新的 no_test。",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-04-16T21:31:48.076Z",
-      "endTime": null,
+      "endTime": "2026-04-16T21:40:41.930Z",
       "testIntent": {
         "happy": [
           {
@@ -115,6 +115,33 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "开始补 medium backlog 归零回归"
+    },
+    {
+      "timestamp": "2026-04-16T21:40:41.656Z",
+      "phase": "TEST_CASE",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "已补 cli-flags fixture 覆盖 parseFlagsTest/parseFlags/coerce/addValue"
+    },
+    {
+      "timestamp": "2026-04-16T21:40:41.799Z",
+      "phase": "TEST_CASE",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "已补 metadata-cross-check 纯函数 fixture 覆盖"
+    },
+    {
+      "timestamp": "2026-04-16T21:40:41.930Z",
+      "phase": "TEST_CASE",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "已补 gap_analyze 回归验证 medium no_test 归零"
     }
   ]
 }
