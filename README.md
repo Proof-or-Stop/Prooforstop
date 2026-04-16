@@ -95,5 +95,6 @@ Claude Code 侧仍然使用 `.claude/` 下的配置和 hooks。Codex 侧的说�
 - [.Codex/README.md](/Users/jek/Documents/Work/Orchestrate/.Codex/README.md:1)
 - [.Codex/agents/test-intent.md](/Users/jek/Documents/Work/Orchestrate/.Codex/agents/test-intent.md:1)
 - [.Codex/agents/test-case-reviewer.md](/Users/jek/Documents/Work/Orchestrate/.Codex/agents/test-case-reviewer.md:1)
+- [.Codex/agents/implementation-reviewer.md](/Users/jek/Documents/Work/Orchestrate/.Codex/agents/implementation-reviewer.md:1)
 
 当前仓库里 `.Codex/agents` 由 `.claude/agents` 经过受控 transform 生成，并通过 `npm run test:codex-assets` 防止后续漂移。
