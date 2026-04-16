@@ -4,7 +4,7 @@
   "title": "为 stack-layering 边界原则补代码回链",
   "description": "当前仅剩的高优先级差距之一是 stack-layering 里的边界原则：Superpowers 可以触发 workflow，但不应该自己定义 story 生命周期、gate 判定和 bug/evidence 持久化协议。Koala 这些能力其实已经在 story state machine、reviewer gate、test evidence/bug store 里落地，但缺少足够直接的 @task/@changes 回链。先补这条边界原则对应的实现注释与回归，让 gap_analyze 能识别它不是未实现。",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "TEST",
   "priority": "high",
   "riskSignals": [
     {
@@ -47,6 +47,54 @@
       "branch": "story/B-1dc6",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-16T20:54:00.231Z",
+      "branch": "story/B-1dc6",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-16T20:55:32.711Z",
+      "branch": "story/B-1dc6",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-16T20:55:48.663Z",
+      "branch": "story/B-1dc6",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-16T20:56:10.638Z",
+      "branch": "story/B-1dc6",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-16T20:56:56.659Z",
+      "branch": "story/B-1dc6",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-16T20:56:56.855Z",
+      "branch": "story/B-1dc6",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
     }
   ],
   "worktree": {
