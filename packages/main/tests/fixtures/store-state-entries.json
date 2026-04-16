@@ -1,0 +1,97 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: StoryStore persists story bug and evidence state",
+      "run_type": "cli",
+      "file": "core/store",
+      "execute": "const { StoryStore } = await import($file);\nconst store = new StoryStore($root);\nconst storyId = 'TMP-store-state-happy';\nconst story = {\n  storyId,\n  name: 'tmp-store',\n  title: 'Store happy path',\n  description: 'tmp',\n  type: 'feature',\n  phase: 'DEV',\n  priority: 'medium',\n  createdAt: '2026-04-16T00:00:00.000Z',\n  startedAt: null,\n  endedAt: null,\n  events: [],\n};\nstore.writeStory(storyId, story);\nstore.writeBugs(storyId, {\n  bugs: [{\n    id: 'BUG-TMP-1',\n    title: 'tmp bug',\n    status: 'open',\n    foundAt: '2026-04-16T00:00:00.000Z',\n    fixedAt: null,\n  }],\n});\nstore.writeTestEvidence(storyId, {\n  command: 'koala test_story',\n  output: 'PASS',\n  result: 'PASS',\n  timestamp: '2026-04-16T00:00:00.000Z',\n});\nconst readStory = store.readStory(storyId);\nconst bugData = store.readBugs(storyId);\nconst evidence = store.readTestEvidence(storyId);\nreturn {\n  phase: readStory.phase,\n  title: readStory.title,\n  bugCount: bugData.bugs.length,\n  evidenceResult: evidence?.result,\n};",
+      "expect": {
+        "phase": "DEV",
+        "title": "Store happy path",
+        "bugCount": 1,
+        "evidenceResult": "PASS"
+      },
+      "intentRef": "B-f8af:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-f8af",
+      "_id": "b09cc620-b1d1-43c4-845b-5ff8bc4ce649",
+      "nextCaseId": "ede2ce44-d1be-4757-b421-94d554a1f796"
+    },
+    {
+      "name": "CHK-001 edge: missing bug and evidence files fall back safely",
+      "run_type": "cli",
+      "file": "core/store",
+      "execute": "const { StoryStore } = await import($file);\nconst store = new StoryStore($root);\nconst storyId = 'TMP-store-state-missing';\nreturn {\n  bugs: store.readBugs(storyId).bugs.length,\n  evidence: store.readTestEvidence(storyId),\n};",
+      "expect": {
+        "bugs": 0,
+        "evidence": null
+      },
+      "intentRef": "B-f8af:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-f8af",
+      "_id": "ede2ce44-d1be-4757-b421-94d554a1f796",
+      "prevCaseId": "b09cc620-b1d1-43c4-845b-5ff8bc4ce649",
+      "nextCaseId": "6b71a05d-17e0-45e6-a862-9ab18ccfbae0"
+    },
+    {
+      "name": "CHK-001 adversarial: missing fixture annotations still surface as gaps",
+      "run_type": "cli",
+      "file": "tasks/gap-analyze",
+      "execute": "const { readFileSync, writeFileSync } = await import('fs');\nconst { join } = await import('path');\nconst { execFileSync } = await import('child_process');\nconst filePath = join($root, 'packages/main/src/core/store.ts');\nconst original = readFileSync(filePath, 'utf8');\nconst mutated = original.replaceAll('@test store-state-entries', '@test store-state-entries-missing');\nif (mutated === original) throw new Error('store annotations not found');\nwriteFileSync(filePath, mutated, 'utf8');\ntry {\n  const data = JSON.parse(execFileSync('koala', ['gap_analyze', '--format=json'], { cwd: $root, encoding: 'utf8' }));\n  const missing = data.gaps.filter(g => String(g.description || '').includes('tests/fixtures/store-state-entries-missing.json')).length;\n  return { missing };\n} finally {\n  writeFileSync(filePath, original, 'utf8');\n}",
+      "expect": {
+        "missing": 6
+      },
+      "intentRef": "B-f8af:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-f8af",
+      "_id": "6b71a05d-17e0-45e6-a862-9ab18ccfbae0",
+      "prevCaseId": "ede2ce44-d1be-4757-b421-94d554a1f796",
+      "nextCaseId": "8c3e9477-0316-48a1-b722-4e873a3cc35d"
+    },
+    {
+      "name": "CHK-002 happy: current gap report no longer includes store-state entries",
+      "run_type": "cli",
+      "file": "tasks/gap-analyze",
+      "execute": "const { execFileSync } = await import('child_process');\nconst data = JSON.parse(execFileSync('koala', ['gap_analyze', '--format=json'], { cwd: $root, encoding: 'utf8' }));\nconst storeGapCount = data.gaps.filter(g => {\n  const d = String(g.description || '');\n  return d.includes('store-state-entries.json')\n    || d.includes('函数 readStory 缺少 @test 注释')\n    || d.includes('函数 writeStory 缺少 @test 注释')\n    || d.includes('函数 readBugs 缺少 @test 注释')\n    || d.includes('函数 writeBugs 缺少 @test 注释')\n    || d.includes('函数 readTestEvidence 缺少 @test 注释')\n    || d.includes('函数 writeTestEvidence 缺少 @test 注释');\n}).length;\nreturn { storeGapCount };",
+      "expect": {
+        "storeGapCount": 0
+      },
+      "intentRef": "B-f8af:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-f8af",
+      "_id": "8c3e9477-0316-48a1-b722-4e873a3cc35d",
+      "prevCaseId": "6b71a05d-17e0-45e6-a862-9ab18ccfbae0",
+      "nextCaseId": "18f07939-54d2-4740-8a91-4486367e3b6f"
+    },
+    {
+      "name": "CHK-002 edge: unrelated missing fixture still remains visible",
+      "run_type": "cli",
+      "file": "tasks/gap-analyze",
+      "execute": "const { readFileSync, writeFileSync } = await import('fs');\nconst { join } = await import('path');\nconst { execFileSync } = await import('child_process');\nconst filePath = join($root, 'packages/main/src/handlers/test-auto.ts');\nconst original = readFileSync(filePath, 'utf8');\nconst from = '@test test-auto-guardrails';\nconst to = '@test temporary-gap-edge';\nif (!original.includes(from)) throw new Error('base annotation not found');\nwriteFileSync(filePath, original.replace(from, to), 'utf8');\ntry {\n  const data = JSON.parse(execFileSync('koala', ['gap_analyze', '--format=json'], { cwd: $root, encoding: 'utf8' }));\n  const tempGapCount = data.gaps.filter(g => String(g.description || '').includes('tests/fixtures/temporary-gap-edge.json')).length;\n  const storeGapCount = data.gaps.filter(g => String(g.description || '').includes('store-state-entries.json')).length;\n  return { tempGapCount, storeGapCount };\n} finally {\n  writeFileSync(filePath, original, 'utf8');\n}",
+      "expect": {
+        "tempGapCount": 1,
+        "storeGapCount": 0
+      },
+      "intentRef": "B-f8af:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-f8af",
+      "_id": "18f07939-54d2-4740-8a91-4486367e3b6f",
+      "prevCaseId": "8c3e9477-0316-48a1-b722-4e873a3cc35d",
+      "nextCaseId": "9cd2b10f-97ad-4425-9e09-6af65b5ead52"
+    },
+    {
+      "name": "CHK-002 adversarial: removing store-state @test annotations makes no_test return",
+      "run_type": "cli",
+      "file": "tasks/gap-analyze",
+      "execute": "const { readFileSync, writeFileSync } = await import('fs');\nconst { join } = await import('path');\nconst { execFileSync } = await import('child_process');\nconst filePath = join($root, 'packages/main/src/core/store.ts');\nconst original = readFileSync(filePath, 'utf8');\nconst mutated = original.replaceAll('   * @test store-state-entries\n', '');\nif (mutated === original) throw new Error('store @test lines not found');\nwriteFileSync(filePath, mutated, 'utf8');\ntry {\n  const data = JSON.parse(execFileSync('koala', ['gap_analyze', '--format=json'], { cwd: $root, encoding: 'utf8' }));\n  const missing = data.gaps.filter(g => {\n    const d = String(g.description || '');\n    return d.includes('函数 readStory 缺少 @test 注释')\n      || d.includes('函数 writeStory 缺少 @test 注释')\n      || d.includes('函数 readBugs 缺少 @test 注释')\n      || d.includes('函数 writeBugs 缺少 @test 注释')\n      || d.includes('函数 readTestEvidence 缺少 @test 注释')\n      || d.includes('函数 writeTestEvidence 缺少 @test 注释');\n  }).length;\n  return { missing };\n} finally {\n  writeFileSync(filePath, original, 'utf8');\n}",
+      "expect": {
+        "missing": 6
+      },
+      "intentRef": "B-f8af:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-f8af",
+      "_id": "9cd2b10f-97ad-4425-9e09-6af65b5ead52",
+      "prevCaseId": "18f07939-54d2-4740-8a91-4486367e3b6f"
+    }
+  ]
+}
