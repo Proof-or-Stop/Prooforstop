@@ -7,9 +7,9 @@
       "relatedDocs": [
         "AGENTS.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
+      "status": "done",
+      "startTime": "2026-04-16T22:28:29.080Z",
+      "endTime": "2026-04-16T22:28:35.288Z",
       "testIntent": {
         "happy": [
           {
@@ -29,9 +29,9 @@
       "relatedDocs": [
         "AGENTS.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
+      "status": "done",
+      "startTime": "2026-04-16T22:28:29.174Z",
+      "endTime": "2026-04-16T22:28:35.391Z",
       "testIntent": {
         "happy": [
           {
@@ -51,9 +51,9 @@
       "relatedDocs": [
         "AGENTS.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
+      "status": "done",
+      "startTime": "2026-04-16T22:28:29.266Z",
+      "endTime": "2026-04-16T22:28:35.486Z",
       "testIntent": {
         "happy": [
           {
@@ -65,6 +65,62 @@
         "adversarial": []
       },
       "phase": "TEST_CASE"
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-04-16T22:28:29.080Z",
+      "phase": "TEST_CASE",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "开始把现有 git-mutation-guard fixture 归属到 B-62e1"
+    },
+    {
+      "timestamp": "2026-04-16T22:28:29.174Z",
+      "phase": "TEST_CASE",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "开始把 help/dry-run 提示回归归属到 B-62e1"
+    },
+    {
+      "timestamp": "2026-04-16T22:28:29.266Z",
+      "phase": "TEST_CASE",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "开始把 confirm 放行回归归属到 B-62e1"
+    },
+    {
+      "timestamp": "2026-04-16T22:28:35.288Z",
+      "phase": "TEST_CASE",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "已把默认阻止回归归属到 B-62e1"
+    },
+    {
+      "timestamp": "2026-04-16T22:28:35.391Z",
+      "phase": "TEST_CASE",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "已把 help/dry-run 提示回归归属到 B-62e1"
+    },
+    {
+      "timestamp": "2026-04-16T22:28:35.486Z",
+      "phase": "TEST_CASE",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "已把 confirm 放行回归归属到 B-62e1"
     }
   ]
 }
