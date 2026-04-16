@@ -492,7 +492,21 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       return results.join('\n');
     },
 
-    /** 废弃 story：任意阶段均可调用，强制清理 worktree 和分支 */
+    /**
+     * @task B-4b17
+     * @checklist CHK-001
+     * @title story_discard dry-run preview and explicit confirm path
+     * @type feature
+     * @priority high
+     * @description
+     *   story_discard 属于 destructive 命令：会删除 linked worktree、删除分支并把
+     *   story 标记为 DISCARDED。这里补上 dry-run 计划输出，让用户在 --confirm 前
+     *   能先看到会改什么，并把真实执行与预览拆开。
+     * @changes
+     *   - [CHK-001] 支持 story_discard --dry-run 只预览 remove worktree / delete branch / discard story
+     *   - [CHK-001] 真实执行路径保持在 confirm 之后，避免误触直接落盘
+     * @test dangerous-command-guardrails
+     */
     story_discard(args: { storyId: string; reason?: string; force?: boolean; dryRun?: boolean; confirm?: boolean }): string {
       const story = store.readStory(args.storyId);
 

@@ -188,7 +188,20 @@ export function createFixtureHandlers(ctx: HandlerContext) {
       throw new Error(`Unknown action: ${args.action}`);
     },
 
-    /** 批量添加多个 case，1 次调用替代 N 次 fixture_update */
+    /**
+     * @task B-4b17
+     * @checklist CHK-001
+     * @title fixture_batch_add dry-run preview for batch filesystem writes
+     * @type feature
+     * @priority high
+     * @description
+     *   fixture_batch_add 会批量写入 fixture 文件，属于高成本误操作面。这里让它
+     *   支持 dry-run 预览新增/跳过/报错结果，在真正写文件前先展示会发生什么。
+     * @changes
+     *   - [CHK-001] dry-run 只返回 would add / SKIP / ERROR 计划，不写 fixture 文件
+     *   - [CHK-001] 真实执行继续沿用 batchCases + 链关系落盘逻辑
+     * @test dangerous-command-guardrails
+     */
     fixture_batch_add(args: { fixturePath: string; cases: Array<Record<string, unknown>>; storyId?: string; dryRun?: boolean }) {
       const data = readFixture(args.fixturePath);
       const added: string[] = [];

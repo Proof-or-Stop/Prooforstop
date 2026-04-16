@@ -3,9 +3,11 @@
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 import ts from '../packages/main/node_modules/typescript/lib/typescript.js';
 
-const root = '/Users/jek/Documents/Work/Orchestrate/.worktrees/B-1860/packages/main';
+const scriptDir = dirname(fileURLToPath(import.meta.url));
+const root = join(scriptDir, '..', 'packages', 'main');
 const temp = mkdtempSync(join(tmpdir(), 'koala-flow-desc-'));
 
 function emit(relPath) {
