@@ -1,0 +1,184 @@
+{
+  "storyId": "B-b2b3",
+  "changes": "README 与 AGENTS 新增说明：story worktree 会自然包含已被 git 跟踪的 .Codex/.claude 等入口资产，不需要手工复制，并补充缺失时的排查方向。",
+  "usage": "后续创建 story worktree 时，直接进入 .worktrees/B-xxx 使用 Codex 或 Claude 即可；若缺少入口文件，先检查这些文件是否已提交，以及 worktree 是否来自旧分支或旧提交。",
+  "realMachineCoverage": {
+    "ran": [
+      {
+        "name": "edge:0 — empty checklist assigns CHK-001",
+        "where": "packages/main/tests/fixtures/checklist-add.json"
+      },
+      {
+        "name": "edge:1 — add item in DEV phase succeeds",
+        "where": "packages/main/tests/fixtures/checklist-add.json"
+      },
+      {
+        "name": "adversarial:2 — deleted checklist file mid-execution throws error",
+        "where": "packages/main/tests/fixtures/checklist-add.json"
+      },
+      {
+        "name": "CHK-001:edge:0 tsc compiles without server.ts",
+        "where": "packages/main/tests/fixtures/cleanup-legacy.json"
+      },
+      {
+        "name": "CHK-001:edge:1 no orphan handler modules in mcp/handlers",
+        "where": "packages/main/tests/fixtures/cleanup-legacy.json"
+      },
+      {
+        "name": "CHK-001:adversarial:0 no TS2307 for server.ts import",
+        "where": "packages/main/tests/fixtures/cleanup-legacy.json"
+      },
+      {
+        "name": "CHK-001:adversarial:1 tools.ts has no McpServer import",
+        "where": "packages/main/tests/fixtures/cleanup-legacy.json"
+      },
+      {
+        "name": "CHK-001: executeFile happy - valid file",
+        "where": "packages/main/tests/fixtures/cli-gap-seal.json"
+      },
+      {
+        "name": "CHK-001: batch_add with executeFile",
+        "where": "packages/main/tests/fixtures/cli-gap-seal.json"
+      },
+      {
+        "name": "CHK-001: edge empty executeFile",
+        "where": "packages/main/tests/fixtures/cli-gap-seal.json"
+      },
+      {
+        "name": "CHK-001: edge special chars in path",
+        "where": "packages/main/tests/fixtures/cli-gap-seal.json"
+      },
+      {
+        "name": "CHK-001: adversarial shell injection stored as string",
+        "where": "packages/main/tests/fixtures/cli-gap-seal.json"
+      },
+      {
+        "name": "CHK-001-e1: old case without _id runs fine",
+        "where": "packages/main/tests/fixtures/fixture-uuid.json"
+      },
+      {
+        "name": "CHK-001 happy:2 — 删除 phaseTools 字段后 loadConfig 回退默认值",
+        "where": "packages/main/tests/fixtures/phase-tools.json"
+      },
+      {
+        "name": "CHK-001 adv:2 — JSON 损坏 → 回退默认 phaseTools 仍有约束",
+        "where": "packages/main/tests/fixtures/phase-tools.json"
+      },
+      {
+        "name": "profiler large nodes no OOM",
+        "where": "packages/main/tests/fixtures/profiler.json"
+      },
+      {
+        "name": "profiler start stop sequence",
+        "where": "packages/main/tests/fixtures/profiler.json"
+      },
+      {
+        "name": "profile nodes have fn+file",
+        "where": "packages/main/tests/fixtures/profiler.json"
+      },
+      {
+        "name": "profiler short case still works",
+        "where": "packages/main/tests/fixtures/profiler.json"
+      },
+      {
+        "name": "profiler stop after error",
+        "where": "packages/main/tests/fixtures/profiler.json"
+      },
+      {
+        "name": "profiler concurrent sessions",
+        "where": "packages/main/tests/fixtures/profiler.json"
+      },
+      {
+        "name": "profiler init fail degrades",
+        "where": "packages/main/tests/fixtures/profiler.json"
+      },
+      {
+        "name": "profiler stop timeout safe",
+        "where": "packages/main/tests/fixtures/profiler.json"
+      },
+      {
+        "name": "CHK-001: failed case does not save trace",
+        "where": "packages/main/tests/fixtures/test-auto.json"
+      },
+      {
+        "name": "CHK-001: tampered trace json no crash",
+        "where": "packages/main/tests/fixtures/test-auto.json"
+      },
+      {
+        "name": "CHK-001: chain case load uses pre-save snapshot",
+        "where": "packages/main/tests/fixtures/test-auto.json"
+      },
+      {
+        "name": "CHK-001: load before save returns previous not current",
+        "where": "packages/main/tests/fixtures/test-auto.json"
+      },
+      {
+        "name": "CHK-001: diffTraces with identical traces returns empty",
+        "where": "packages/main/tests/fixtures/trace-diff.json"
+      },
+      {
+        "name": "CHK-001: first run no history no diff",
+        "where": "packages/main/tests/fixtures/trace-diff.json"
+      },
+      {
+        "name": "CHK-001 happy: linked worktree branch is not treated as zombie",
+        "where": "packages/main/tests/fixtures/zombie-linked-worktree.json"
+      },
+      {
+        "name": "CHK-001 edge: implementation no longer parses git branch prefixes",
+        "where": "packages/main/tests/fixtures/zombie-linked-worktree.json"
+      },
+      {
+        "name": "CHK-001 adversarial: mixed + and * branch display no longer causes false zombie",
+        "where": "packages/main/tests/fixtures/zombie-linked-worktree.json"
+      }
+    ],
+    "skipped": []
+  },
+  "limitations": "当前 koala DONE gate 仍把 test-intent review 视为必需，即使 checklist item 已显式标记为 testIntent:null 的文档类 story 也会被拦住。",
+  "pitfalls": "这个仓库里的构建型回归依赖本地可用的 dist 产物与依赖环境；在新 worktree 里直接跑 npm run test:codex-assets 可能因为缺少构建前置而失败，文档变更更适合先做 diff/check 级验证。",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 5378
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 5844
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 40956
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 281740
+    },
+    "TEST_CASE": {
+      "count": 1,
+      "durationMs": 14052
+    },
+    "TEST_CASE_REVIEW": {
+      "count": 1,
+      "durationMs": 5860
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 63883
+    }
+  },
+  "totalDurationMs": 417717,
+  "fixtureStats": {
+    "totalRuns": 1,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-04-16T21:32:46.330Z",
+  "updatedAt": "2026-04-16T21:32:46.330Z"
+}
