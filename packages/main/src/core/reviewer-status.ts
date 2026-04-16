@@ -83,8 +83,12 @@ function summarizeTestIntentReview(store: StoryStore, storyId: string, phase: St
   let passed = 0;
   let failed = 0;
   let missing = 0;
+  let exemptOnly = checklist.items.length > 0;
 
   for (const item of checklist.items) {
+    if (item.testIntent !== null) {
+      exemptOnly = false;
+    }
     if (!item.testIntent) continue;
     for (const lane of ['happy', 'edge', 'adversarial'] as const) {
       const entries = item.testIntent[lane] || [];
@@ -108,16 +112,21 @@ function summarizeTestIntentReview(store: StoryStore, storyId: string, phase: St
   let verdict: ReviewerVerdict = 'missing';
   if (failed > 0) verdict = 'fail';
   else if (present && missing === 0) verdict = 'pass';
+  else if (exemptOnly) verdict = 'pass';
 
   return {
     key: 'test_intent_review',
     label: 'test-intent review',
     required,
-    present,
+    present: present || exemptOnly,
     verdict,
     blocking: required && verdict !== 'pass',
-    summary: `${verdict} (${passed}/${total} pass, ${missing} missing, ${failed} fail)`,
-    detail: total === 0
+    summary: exemptOnly
+      ? 'pass (all checklist items marked not auto-testable)'
+      : `${verdict} (${passed}/${total} pass, ${missing} missing, ${failed} fail)`,
+    detail: exemptOnly
+      ? 'all checklist items explicitly marked testIntent:null'
+      : total === 0
       ? 'no testIntent entries'
       : `${passed}/${total} reviewer judgments passed`,
     findings: failed + missing,

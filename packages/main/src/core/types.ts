@@ -82,8 +82,8 @@ export interface ChecklistItem {
   title: string;
   /** 根因/参考方案，给执行 agent 提供上下文（可选） */
   context?: string;
-  /** 测试意图三栏：正常/边界/对抗（可选） */
-  testIntent?: TestIntent;
+  /** 测试意图三栏：正常/边界/对抗（可选）；null = 显式不可自动化测试 */
+  testIntent?: TestIntent | null;
   /** 关联文档路径，PLAN 阶段手动声明，三次提醒（DEV/done/DONE）使用 */
   relatedDocs?: string[];
   /**
