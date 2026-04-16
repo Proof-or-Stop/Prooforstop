@@ -15,19 +15,43 @@
         "happy": [
           {
             "desc": "@flow 每个 step 都带说明字段时，extract/types 能稳定提取并保留该说明。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T20:17:55.570Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/flow-step-desc.json:1 WHY extraction now preserves @desc on each flow step. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "旧 flow 若缺 step 说明，解析仍能完成，但后续校验会明确指出缺的是哪一步。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T20:17:55.689Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/flow-step-desc.json:1 WHY validation pinpoints the exact step missing @desc. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "如果有人只补 step/input/output/next，不补说明，flow 校验会把它视为结构错误而不是静默放过。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T20:17:55.812Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/flow-step-desc.json:1 WHY missing @desc is treated as a structural flow error. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       },
@@ -48,19 +72,43 @@
         "happy": [
           {
             "desc": "validateFlows 能对缺说明的 step 给出明确错误，并在说明完整时通过。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T20:17:55.934Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/flow-step-desc.json:1 WHY validateFlows passes when every step has @desc. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "最后一步误填 next、step 不连续等旧规则仍继续生效，不会因为新增说明字段被掩盖。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T20:17:56.052Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/flow-step-desc.json:1 WHY legacy @next rules still hold alongside the new desc requirement. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "如果代码更新了 flow 结构但没同步更新 step 说明，校验会直接失败，防止 flow 注释与代码脱节。",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-16T20:17:56.177Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/flow-step-desc.json:1 WHY flow updates that skip @desc fail validation immediately. severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       },

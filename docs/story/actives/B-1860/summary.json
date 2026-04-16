@@ -1,0 +1,260 @@
+{
+  "storyId": "B-1860",
+  "changes": "给 @flow step 增加了明确的 @desc 说明字段，并把它接到 Task/Flow 提取模型和 validateFlows 校验里；同时补了一组 flow-step-desc 回归，锁住缺说明时报错、说明完整时通过、旧 @next 规则仍生效。",
+  "usage": "以后写 @flow 注释时，每一步都要补 @desc；可以直接运行 node scripts/verify-flow-step-desc.mjs，或者跑 koala test_story storyId=B-1860 验证 flow step 说明契约是否还成立。",
+  "realMachineCoverage": {
+    "ran": [
+      {
+        "name": "edge:0 — empty checklist assigns CHK-001",
+        "where": "packages/main/tests/fixtures/checklist-add.json"
+      },
+      {
+        "name": "edge:1 — add item in DEV phase succeeds",
+        "where": "packages/main/tests/fixtures/checklist-add.json"
+      },
+      {
+        "name": "adversarial:2 — deleted checklist file mid-execution throws error",
+        "where": "packages/main/tests/fixtures/checklist-add.json"
+      },
+      {
+        "name": "CHK-001:edge:0 tsc compiles without server.ts",
+        "where": "packages/main/tests/fixtures/cleanup-legacy.json"
+      },
+      {
+        "name": "CHK-001:edge:1 no orphan handler modules in mcp/handlers",
+        "where": "packages/main/tests/fixtures/cleanup-legacy.json"
+      },
+      {
+        "name": "CHK-001:adversarial:0 no TS2307 for server.ts import",
+        "where": "packages/main/tests/fixtures/cleanup-legacy.json"
+      },
+      {
+        "name": "CHK-001:adversarial:1 tools.ts has no McpServer import",
+        "where": "packages/main/tests/fixtures/cleanup-legacy.json"
+      },
+      {
+        "name": "CHK-002:happy:1 no @modelcontextprotocol in package.json",
+        "where": "packages/main/tests/fixtures/cleanup-legacy.json"
+      },
+      {
+        "name": "CHK-002:edge:0 koala init no longer creates .mcp.json",
+        "where": "packages/main/tests/fixtures/cleanup-legacy.json"
+      },
+      {
+        "name": "CHK-002:edge:1 koala init does not generate .mcp.json",
+        "where": "packages/main/tests/fixtures/cleanup-legacy.json"
+      },
+      {
+        "name": "CHK-002:adversarial:0 no MCP SDK import in src",
+        "where": "packages/main/tests/fixtures/cleanup-legacy.json"
+      },
+      {
+        "name": "CHK-002:adversarial:1 no MCP export + no serve script + no SDK import in any src",
+        "where": "packages/main/tests/fixtures/cleanup-legacy.json"
+      },
+      {
+        "name": "CHK-001: executeFile happy - valid file",
+        "where": "packages/main/tests/fixtures/cli-gap-seal.json"
+      },
+      {
+        "name": "CHK-001: batch_add with executeFile",
+        "where": "packages/main/tests/fixtures/cli-gap-seal.json"
+      },
+      {
+        "name": "CHK-001: edge empty executeFile",
+        "where": "packages/main/tests/fixtures/cli-gap-seal.json"
+      },
+      {
+        "name": "CHK-001: edge special chars in path",
+        "where": "packages/main/tests/fixtures/cli-gap-seal.json"
+      },
+      {
+        "name": "CHK-001: adversarial shell injection stored as string",
+        "where": "packages/main/tests/fixtures/cli-gap-seal.json"
+      },
+      {
+        "name": "CHK-001-e1: old case without _id runs fine",
+        "where": "packages/main/tests/fixtures/fixture-uuid.json"
+      },
+      {
+        "name": "CHK-001 happy:2 — 删除 phaseTools 字段后 loadConfig 回退默认值",
+        "where": "packages/main/tests/fixtures/phase-tools.json"
+      },
+      {
+        "name": "CHK-001 adv:2 — JSON 损坏 → 回退默认 phaseTools 仍有约束",
+        "where": "packages/main/tests/fixtures/phase-tools.json"
+      },
+      {
+        "name": "CHK-002 happy:0 — DEV 白名单命令全部通过过滤",
+        "where": "packages/main/tests/fixtures/phase-tools.json"
+      },
+      {
+        "name": "CHK-002 happy:1 — main 分支 koala story_list 全量放行",
+        "where": "packages/main/tests/fixtures/phase-tools.json"
+      },
+      {
+        "name": "CHK-002 happy:2 — PLAN 阶段允许 review 拒绝 test_auto/fixture",
+        "where": "packages/main/tests/fixtures/phase-tools.json"
+      },
+      {
+        "name": "CHK-002 edge:1 — 非 git 目录 git rev-parse 失败",
+        "where": "packages/main/tests/fixtures/phase-tools.json"
+      },
+      {
+        "name": "profiler large nodes no OOM",
+        "where": "packages/main/tests/fixtures/profiler.json"
+      },
+      {
+        "name": "profiler start stop sequence",
+        "where": "packages/main/tests/fixtures/profiler.json"
+      },
+      {
+        "name": "profile nodes have fn+file",
+        "where": "packages/main/tests/fixtures/profiler.json"
+      },
+      {
+        "name": "profiler short case still works",
+        "where": "packages/main/tests/fixtures/profiler.json"
+      },
+      {
+        "name": "profiler stop after error",
+        "where": "packages/main/tests/fixtures/profiler.json"
+      },
+      {
+        "name": "profiler concurrent sessions",
+        "where": "packages/main/tests/fixtures/profiler.json"
+      },
+      {
+        "name": "profiler init fail degrades",
+        "where": "packages/main/tests/fixtures/profiler.json"
+      },
+      {
+        "name": "profiler stop timeout safe",
+        "where": "packages/main/tests/fixtures/profiler.json"
+      },
+      {
+        "name": "CHK-001: failed case does not save trace",
+        "where": "packages/main/tests/fixtures/test-auto.json"
+      },
+      {
+        "name": "CHK-001: tampered trace json no crash",
+        "where": "packages/main/tests/fixtures/test-auto.json"
+      },
+      {
+        "name": "CHK-001: chain case load uses pre-save snapshot",
+        "where": "packages/main/tests/fixtures/test-auto.json"
+      },
+      {
+        "name": "CHK-001: load before save returns previous not current",
+        "where": "packages/main/tests/fixtures/test-auto.json"
+      },
+      {
+        "name": "CHK-001: diffTraces with identical traces returns empty",
+        "where": "packages/main/tests/fixtures/trace-diff.json"
+      },
+      {
+        "name": "CHK-001: first run no history no diff",
+        "where": "packages/main/tests/fixtures/trace-diff.json"
+      },
+      {
+        "name": "CHK-002: saveTraceSnapshot writes to .koala/traces/",
+        "where": "packages/main/tests/fixtures/trace-store.json"
+      },
+      {
+        "name": "CHK-002: loadTraceSnapshot reads from .koala/traces/",
+        "where": "packages/main/tests/fixtures/trace-store.json"
+      },
+      {
+        "name": "CHK-002: trace survives git restore",
+        "where": "packages/main/tests/fixtures/trace-store.json"
+      },
+      {
+        "name": "CHK-002: mkdirSync auto-creates .koala/traces/",
+        "where": "packages/main/tests/fixtures/trace-store.json"
+      },
+      {
+        "name": "CHK-002: Windows backslash path handled",
+        "where": "packages/main/tests/fixtures/trace-store.json"
+      },
+      {
+        "name": "CHK-002: partial corrupt trace still loads",
+        "where": "packages/main/tests/fixtures/trace-store.json"
+      },
+      {
+        "name": "CHK-002: Windows backslash path",
+        "where": "packages/main/tests/fixtures/trace-store.json"
+      },
+      {
+        "name": "CHK-001 happy: linked worktree branch is not treated as zombie",
+        "where": "packages/main/tests/fixtures/zombie-linked-worktree.json"
+      },
+      {
+        "name": "CHK-001 edge: implementation no longer parses git branch prefixes",
+        "where": "packages/main/tests/fixtures/zombie-linked-worktree.json"
+      },
+      {
+        "name": "CHK-001 adversarial: mixed + and * branch display no longer causes false zombie",
+        "where": "packages/main/tests/fixtures/zombie-linked-worktree.json"
+      },
+      {
+        "name": "CHK-002 happy: regression script covers linked worktree branch output",
+        "where": "packages/main/tests/fixtures/zombie-linked-worktree.json"
+      },
+      {
+        "name": "CHK-002 edge: deleted branch still becomes zombie",
+        "where": "packages/main/tests/fixtures/zombie-linked-worktree.json"
+      },
+      {
+        "name": "CHK-002 adversarial: test is not just fuzzy wording smoke",
+        "where": "packages/main/tests/fixtures/zombie-linked-worktree.json"
+      }
+    ],
+    "skipped": []
+  },
+  "limitations": "这一轮只把 step 说明字段与校验落地到 flow 提取/校验链上，还没有把现有真实业务 flow 全量补齐到新字段，也还没扩展到更高阶的 DAG/职责摘要能力。",
+  "pitfalls": "最容易踩坑的是只在 TaskAnnotation 上加 desc，却忘了 extractFlows 要把它继续传到 FlowStep；另一个坑是只补新规则、不回归旧 @next 校验，结果很容易把原有 flow 约束一起弄松。",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 72467184
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 18955
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 376438
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 24070
+    },
+    "TEST_CASE": {
+      "count": 1,
+      "durationMs": 74628
+    },
+    "TEST_CASE_REVIEW": {
+      "count": 1,
+      "durationMs": 26295
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 17947
+    }
+  },
+  "totalDurationMs": 73005517,
+  "fixtureStats": {
+    "totalRuns": 1,
+    "totalCases": 6,
+    "cumulativeCasesRun": 6,
+    "cumulativePassedCases": 6
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-04-16T20:18:14.256Z",
+  "updatedAt": "2026-04-16T20:18:14.256Z"
+}
