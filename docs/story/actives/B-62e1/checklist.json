@@ -1,0 +1,37 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "梳理 INIT_CHECK/dev_start bootstrap commit 的自动 git 变更路径并补 confirm gate",
+      "context": "worktree.ts 的 dev_start 在写 story.worktree metadata 后会直接 git add + git commit，这正是最新 `koala: story B-f8af init` 的来源。需要把这条 bootstrap commit 改成默认阻止，先 dry-run，再 confirm。",
+      "relatedDocs": [
+        "AGENTS.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "统一相关 CLI/提示文案，避免继续暗示 INIT_CHECK 会直接本地提交",
+      "context": "不仅要改执行路径，还要把返回提示和帮助文字统一成“未经 confirm 不允许”，避免用户或 agent 误以为 init bootstrap 会直接落 commit。",
+      "relatedDocs": [
+        "AGENTS.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "补回归验证，确保 INIT_CHECK 默认不再自动提交，confirm 后仍能创建 worktree",
+      "context": "需要覆盖默认阻止、dry-run 预览、confirm 放行三条行为，避免只修一个 happy path。",
+      "relatedDocs": [
+        "AGENTS.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
