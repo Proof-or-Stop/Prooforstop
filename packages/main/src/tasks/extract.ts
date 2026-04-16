@@ -249,6 +249,7 @@ export function scanSourceAnnotations(scanRoot: string): TaskAnnotation[] {
         functionSignature: fnInfo?.functionSignature,
         flow: parsed.flow as string | undefined,
         step: parsed.step ? parseInt(parsed.step as string, 10) : undefined,
+        desc: parsed.desc as string | undefined,
         input: parsed.input as string | undefined,
         output: parsed.output as string | undefined,
         next: parsed.next as string | undefined,
@@ -340,6 +341,7 @@ export function scan(scanRoot: string): TaskAnnotation[] {
             functionSignature: sig || undefined,
             flow: t.flow?.name,
             step: t.flow?.step,
+            desc: t.flow?.desc,
             input: t.flow?.input,
             output: t.flow?.output,
             next: t.flow?.next,
@@ -383,6 +385,7 @@ export function extractFlows(tasks: TaskAnnotation[]): FlowChain[] {
     const step: FlowStep = {
       flow: t.flow,
       step: t.step,
+      desc: t.desc,
       input: t.input,
       output: t.output,
       next: t.next,

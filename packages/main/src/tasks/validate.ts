@@ -213,6 +213,15 @@ export function validateFlows(chains: FlowChain[], allTasks: TaskAnnotation[]): 
 
     // Check @test coverage for each step
     for (const step of steps) {
+      if (!step.desc || step.desc.trim().length === 0) {
+        issues.push({
+          flow: name,
+          step: step.step,
+          level: 'error',
+          msg: `flow "${name}" step ${step.step} missing @desc annotation`,
+          loc: `${step.sourceFile}:${step.sourceLine}`,
+        });
+      }
       const task = fnToTask.get(step.functionName);
       if (!task || !task.test) {
         issues.push({
