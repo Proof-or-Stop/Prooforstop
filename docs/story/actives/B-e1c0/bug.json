@@ -1,0 +1,49 @@
+{
+  "bugs": [
+    {
+      "id": "BUG-ed8a2bc5",
+      "title": "[auto] test-auto-guardrails.json:CHK-002 happy: confirm allows real test_auto execution — Bad control character in string literal in JSON at position 50 (line 1 column 51)",
+      "status": "fixed",
+      "foundAt": "2026-04-15T23:59:13.737Z",
+      "fixedAt": "2026-04-16T00:00:12.874Z",
+      "fixtureId": "ed8a2bc5-31f1-4628-9d5d-31db4052cf6d",
+      "diagnose": {
+        "rootCause": [
+          "Bad control character in string literal in JSON at position 50 (line 1 column 51)"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-6173f863",
+      "title": "[auto] test-auto-guardrails.json:CHK-002 edge: real execution matches dry-run file count — Bad control character in string literal in JSON at position 50 (line 1 column 51)",
+      "status": "fixed",
+      "foundAt": "2026-04-15T23:59:13.737Z",
+      "fixedAt": "2026-04-16T00:00:12.874Z",
+      "fixtureId": "6173f863-f21d-4f05-b17b-247c3ade1a3f",
+      "diagnose": {
+        "rootCause": [
+          "Bad control character in string literal in JSON at position 50 (line 1 column 51)"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-bb29fac6",
+      "title": "[auto] test-auto-guardrails.json:CHK-002 adversarial: real execute rereads fixture state after dry-run drift — Bad control character in string literal in JSON at position 50 (line 1 column 51)",
+      "status": "fixed",
+      "foundAt": "2026-04-15T23:59:13.737Z",
+      "fixedAt": "2026-04-16T00:00:12.874Z",
+      "fixtureId": "bb29fac6-e718-4775-8068-758d2f2dbee5",
+      "diagnose": {
+        "rootCause": [
+          "Bad control character in string literal in JSON at position 50 (line 1 column 51)"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    }
+  ]
+}

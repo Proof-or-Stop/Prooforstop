@@ -1,0 +1,37 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-04-15T23:32:31.293Z",
+      "issueCount": 5,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 2 个高风险信号: 数据迁移/破坏性, test runner 框架。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）"
+        },
+        {
+          "type": "parallel_policy_missing_lane",
+          "severity": "advisory",
+          "message": "未声明 lane。当前默认会按 mainline 推断，但建议显式设置 mainline/supporting/exploratory，避免并行调度时主线判断漂移"
+        },
+        {
+          "type": "parallel_policy_missing_safety",
+          "severity": "advisory",
+          "message": "未声明 parallelSafe。当前默认会按 plan_only 推断，建议显式设置 yes/no/plan_only，让 session_brief 能稳定给出并行建议"
+        },
+        {
+          "type": "parallel_policy_missing_hotspots",
+          "severity": "advisory",
+          "message": "sharedHotspots 为空。建议列出会争抢的核心文件或模块，便于 session_brief 提前提示冲突"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 1 个未消化的 unknowns: test_auto dry-run 是否还需要输出更细粒度的 fixture 数量统计。"
+        }
+      ],
+      "_hash": "d3ed9b2f34af4979f83cf7fc139b939d6092f97b5e293ae38abf63bef8e734da"
+    }
+  ]
+}

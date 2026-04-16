@@ -10,7 +10,70 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "test_auto 在未带 --confirm 时会拒绝执行，并提示先用 --dry-run 或 --confirm。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T23:59:11.608Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-auto-guardrails.json:1 WHY test_auto now requires explicit confirm before execution. severity=info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-16T00:00:11.543Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-auto-guardrails.json:1 WHY test_auto now requires explicit confirm before execution. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "test_auto --dry-run 只预览 fixture 扫描和 git restore/clean 范围，不真实执行回归。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T23:59:11.701Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-auto-guardrails.json:1 WHY test_auto dry-run previews scan and cleanup scope only. severity=info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-16T00:00:11.619Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-auto-guardrails.json:1 WHY test_auto dry-run previews scan and cleanup scope only. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "即使有 fixture 和 cleanup 路径，dry-run 也不会改动现场状态。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T23:59:11.800Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-auto-guardrails.json:1 WHY test_auto dry-run leaves fixture state untouched. severity=info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-16T00:00:11.695Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-auto-guardrails.json:1 WHY test_auto dry-run leaves fixture state untouched. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
     },
     {
       "id": "CHK-002",
@@ -20,9 +83,72 @@
         "docs/requirements/decisions/test-fixture-spec.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-15T23:58:52.668Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "test_auto destructive guardrail 回归能证明默认拒绝、dry-run 不落盘、confirm 后才执行。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T23:59:11.894Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-auto-guardrails.json:1 WHY confirm path allows real test_auto execution only after explicit opt-in. severity=info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-16T00:00:11.770Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-auto-guardrails.json:1 WHY confirm path allows real test_auto execution only after explicit opt-in. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "真实执行前后输出与 dry-run 计划保持一致，避免预览和实际行为分叉。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T23:59:11.988Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-auto-guardrails.json:1 WHY real execution matches dry-run file-count preview. severity=info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-16T00:00:11.846Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-auto-guardrails.json:1 WHY real execution matches dry-run file-count preview. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果外部状态在 dry-run 与真实执行之间变化，真实执行仍会重新读取现场，而不是盲信旧计划。",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-15T23:59:12.083Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-auto-guardrails.json:1 WHY real execution rereads fixture state after dry-run drift. severity=info",
+                "role": "reviewer"
+              },
+              {
+                "time": "2026-04-16T00:00:11.923Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-auto-guardrails.json:1 WHY real execution rereads fixture state after dry-run drift. severity=info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
     }
   ]
 }

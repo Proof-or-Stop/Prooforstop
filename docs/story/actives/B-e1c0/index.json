@@ -4,7 +4,7 @@
   "title": "把 destructive 命令护栏补到 test_auto 路径",
   "description": "B-0ef0 的 story metadata 已损坏，不再继续在那条 story 上推进。把已经完成的 test_auto destructive guardrail 实现迁到一条新的干净 story 上，继续完成 destructive 命令的 confirm/dry-run 覆盖和回归。",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -18,7 +18,7 @@
   ],
   "createdAt": "2026-04-15T23:31:28.316Z",
   "startedAt": "2026-04-15T23:31:28.316Z",
-  "endedAt": null,
+  "endedAt": "2026-04-16T00:00:34.431Z",
   "events": [
     {
       "phase": "INIT",
@@ -35,11 +35,78 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-15T23:32:04.118Z",
+      "branch": "story/B-e1c0",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-15T23:32:39.249Z",
+      "branch": "story/B-e1c0",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-15T23:58:52.811Z",
+      "branch": "story/B-e1c0",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-15T23:58:58.868Z",
+      "branch": "story/B-e1c0",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-15T23:59:12.188Z",
+      "branch": "story/B-e1c0",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-15T23:59:33.239Z",
+      "branch": "story/B-e1c0",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-16T00:00:11.345Z",
+      "branch": "story/B-e1c0",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-16T00:00:12.003Z",
+      "branch": "story/B-e1c0",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-16T00:00:34.431Z",
+      "branch": "story/B-e1c0",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ],
-  "worktree": {
-    "path": ".worktrees/B-e1c0",
-    "branch": "story/B-e1c0",
-    "createdAt": "2026-04-15T23:31:35.521Z"
-  }
+  ]
 }

@@ -28,7 +28,7 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
   const progress = ctx.log || (() => {});
 
   return {
-    async test_auto(args: { storyId?: string; trace?: boolean; enableProfiler?: boolean }): Promise<string> {
+    async test_auto(args: { storyId?: string; trace?: boolean; enableProfiler?: boolean; dryRun?: boolean; confirm?: boolean }): Promise<string> {
       // 递归防护：fixture case 里调 $handlers.test_auto() 时跳过，防止无限递归卡死
       if ((globalThis as any).__koalaTestAutoRunning) {
         return JSON.stringify({ hint: '→ test_auto 递归调用被跳过', allPassed: true, totalCases: 0, passedCases: 0, failedCases: 0, warnings: [], details: [] });
@@ -39,6 +39,25 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
       const warnings: string[] = [];
       const traceWarnings: string[] = [];
       const config = loadConfig(root);
+      const fixturesDir = join(root, config.fixturesDir);
+
+      if (args.dryRun) {
+        const fixtureFiles = existsSync(fixturesDir) ? scanFixtureFiles(fixturesDir) : [];
+        const planLines = [
+          '[DRY-RUN] test_auto would:',
+          `- scan fixtures under ${fixturesDir}`,
+          `- execute ${fixtureFiles.length} fixture file(s) worth of CLI/browser cases`,
+          `- cleanup fixture workspace via git restore + git clean on ${config.fixturesDir}`,
+          `- ${args.trace === true || args.enableProfiler === true ? 'refresh' : 'skip'} profiler/trace snapshots`,
+          '→ 加 --confirm 真实执行',
+        ];
+        return JSON.stringify({
+          dryRun: true,
+          command: 'test_auto',
+          fixtureFiles: fixtureFiles.length,
+          plan: planLines,
+        }, null, 2);
+      }
 
       // koala 自身项目禁止全量测试（自己测自己会副作用污染）
       try {
@@ -78,7 +97,6 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
       const testStoryFactory = createTempStoryFactory(handlers, testStore, tempStoryIds);
 
       // Step 1: 扫描所有 fixture 文件
-      const fixturesDir = join(root, config.fixturesDir);
       const fixtureResults: FixtureResult[] = [];
       const errors: string[] = [];
 

@@ -1,0 +1,97 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: test_auto requires explicit confirm before execution",
+      "run_type": "cli",
+      "file": "handlers/test-auto",
+      "execute": "const { mkdtempSync, mkdirSync, rmSync, writeFileSync } = await import('fs'); const { tmpdir } = await import('os'); const { join } = await import('path'); const { execFileSync } = await import('child_process'); const temp = mkdtempSync(join(tmpdir(), 'koala-testauto-confirm-')); try { mkdirSync(join(temp, 'packages', 'main', 'tests', 'fixtures'), { recursive: true }); mkdirSync(join(temp, 'docs', 'story', 'actives'), { recursive: true }); mkdirSync(join(temp, 'docs', 'requirements'), { recursive: true }); writeFileSync(join(temp, 'koala.config.json'), JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', outDir: 'packages/main/dist', testsDir: 'packages/main/tests', fixturesDir: 'packages/main/tests/fixtures', storyDir: 'docs/story/actives', requirementsDir: 'docs/requirements', storyPrefix: 'B' }, null, 2)); const cli = $root + '/packages/main/dist/cli.js'; try { execFileSync('node', [cli, '--root', temp, 'test_auto'], { cwd: temp, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { blocked: false }; } catch (error) { const text = String(error.stderr || error.stdout || error.message || error); return { blocked: text.includes('危险命令') && text.includes('--confirm') && text.includes('--dry-run') }; } } finally { rmSync(temp, { recursive: true, force: true }); }",
+      "expect": {
+        "blocked": true
+      },
+      "intentRef": "B-e1c0:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-e1c0",
+      "_id": "2b8670e7-a3e3-4be2-b068-26f8fc59a7cc",
+      "nextCaseId": "ffc6d58a-2de3-42ca-a8ff-0fba17d4b135"
+    },
+    {
+      "name": "CHK-001 edge: test_auto dry-run previews scan and cleanup scope only",
+      "run_type": "cli",
+      "file": "handlers/test-auto",
+      "execute": "const { mkdtempSync, mkdirSync, rmSync, writeFileSync } = await import('fs'); const { tmpdir } = await import('os'); const { join } = await import('path'); const { execFileSync } = await import('child_process'); const temp = mkdtempSync(join(tmpdir(), 'koala-testauto-dryrun-')); try { mkdirSync(join(temp, 'packages', 'main', 'tests', 'fixtures'), { recursive: true }); mkdirSync(join(temp, 'docs', 'story', 'actives'), { recursive: true }); mkdirSync(join(temp, 'docs', 'requirements'), { recursive: true }); writeFileSync(join(temp, 'koala.config.json'), JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', outDir: 'packages/main/dist', testsDir: 'packages/main/tests', fixturesDir: 'packages/main/tests/fixtures', storyDir: 'docs/story/actives', requirementsDir: 'docs/requirements', storyPrefix: 'B' }, null, 2)); const cli = $root + '/packages/main/dist/cli.js'; const out = execFileSync('node', [cli, '--root', temp, 'test_auto', '--dry-run'], { cwd: temp, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { mentionsDryRun: out.includes('[DRY-RUN]'), mentionsCleanup: out.includes('git restore + git clean'), mentionsConfirm: out.includes('加 --confirm 真实执行') }; } finally { rmSync(temp, { recursive: true, force: true }); }",
+      "expect": {
+        "mentionsDryRun": true,
+        "mentionsCleanup": true,
+        "mentionsConfirm": true
+      },
+      "intentRef": "B-e1c0:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-e1c0",
+      "_id": "ffc6d58a-2de3-42ca-a8ff-0fba17d4b135",
+      "prevCaseId": "2b8670e7-a3e3-4be2-b068-26f8fc59a7cc",
+      "nextCaseId": "79757387-8ed3-4f85-8d97-285851fa673b"
+    },
+    {
+      "name": "CHK-001 adversarial: test_auto dry-run leaves fixture state untouched",
+      "run_type": "cli",
+      "file": "handlers/test-auto",
+      "execute": "const { mkdtempSync, mkdirSync, existsSync, rmSync, writeFileSync } = await import('fs'); const { tmpdir } = await import('os'); const { join } = await import('path'); const { execFileSync } = await import('child_process'); const temp = mkdtempSync(join(tmpdir(), 'koala-testauto-untouched-')); try { const fixtureDir = join(temp, 'packages', 'main', 'tests', 'fixtures'); mkdirSync(fixtureDir, { recursive: true }); mkdirSync(join(temp, 'docs', 'story', 'actives'), { recursive: true }); mkdirSync(join(temp, 'docs', 'requirements'), { recursive: true }); writeFileSync(join(temp, 'koala.config.json'), JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', outDir: 'packages/main/dist', testsDir: 'packages/main/tests', fixturesDir: 'packages/main/tests/fixtures', storyDir: 'docs/story/actives', requirementsDir: 'docs/requirements', storyPrefix: 'B' }, null, 2)); writeFileSync(join(fixtureDir, 'scratch.tmp'), 'keep me'); const cli = $root + '/packages/main/dist/cli.js'; execFileSync('node', [cli, '--root', temp, 'test_auto', '--dry-run'], { cwd: temp, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { scratchStillExists: existsSync(join(fixtureDir, 'scratch.tmp')) }; } finally { rmSync(temp, { recursive: true, force: true }); }",
+      "expect": {
+        "scratchStillExists": true
+      },
+      "intentRef": "B-e1c0:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-e1c0",
+      "_id": "79757387-8ed3-4f85-8d97-285851fa673b",
+      "prevCaseId": "ffc6d58a-2de3-42ca-a8ff-0fba17d4b135",
+      "nextCaseId": "ed8a2bc5-31f1-4628-9d5d-31db4052cf6d"
+    },
+    {
+      "name": "CHK-002 happy: confirm allows real test_auto execution",
+      "run_type": "cli",
+      "file": "handlers/test-auto",
+      "execute": "const { mkdtempSync, mkdirSync, rmSync, writeFileSync } = await import('fs'); const { tmpdir } = await import('os'); const { join } = await import('path'); const { execFileSync } = await import('child_process'); const temp = mkdtempSync(join(tmpdir(), 'koala-testauto-run-')); try { const fixtureDir = join(temp, 'packages', 'main', 'tests', 'fixtures'); mkdirSync(fixtureDir, { recursive: true }); mkdirSync(join(temp, 'docs', 'story', 'actives'), { recursive: true }); mkdirSync(join(temp, 'docs', 'requirements'), { recursive: true }); writeFileSync(join(temp, 'koala.config.json'), JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', outDir: 'packages/main/dist', testsDir: 'packages/main/tests', fixturesDir: 'packages/main/tests/fixtures', storyDir: 'docs/story/actives', requirementsDir: 'docs/requirements', storyPrefix: 'B' }, null, 2)); writeFileSync(join(fixtureDir, 'noop.json'), JSON.stringify({ cases: [{ name: 'noop', run_type: 'cli', file: 'handlers/story', execute: 'return true', expect: true }] }, null, 2)); const cli = $root + '/packages/main/dist/cli.js'; const out = execFileSync('node', [cli, '--root', temp, 'test_auto', '--confirm'], { cwd: temp, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { allPassed: out.includes('\"allPassed\": true'), totalCases: out.includes('\"totalCases\": 1') }; } finally { rmSync(temp, { recursive: true, force: true }); }",
+      "expect": {
+        "allPassed": true,
+        "totalCases": true
+      },
+      "intentRef": "B-e1c0:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-e1c0",
+      "_id": "ed8a2bc5-31f1-4628-9d5d-31db4052cf6d",
+      "prevCaseId": "79757387-8ed3-4f85-8d97-285851fa673b",
+      "nextCaseId": "6173f863-f21d-4f05-b17b-247c3ade1a3f"
+    },
+    {
+      "name": "CHK-002 edge: real execution matches dry-run file count",
+      "run_type": "cli",
+      "file": "handlers/test-auto",
+      "execute": "const { mkdtempSync, mkdirSync, rmSync, writeFileSync } = await import('fs'); const { tmpdir } = await import('os'); const { join } = await import('path'); const { execFileSync } = await import('child_process'); const temp = mkdtempSync(join(tmpdir(), 'koala-testauto-align-')); try { const fixtureDir = join(temp, 'packages', 'main', 'tests', 'fixtures'); mkdirSync(fixtureDir, { recursive: true }); mkdirSync(join(temp, 'docs', 'story', 'actives'), { recursive: true }); mkdirSync(join(temp, 'docs', 'requirements'), { recursive: true }); writeFileSync(join(temp, 'koala.config.json'), JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', outDir: 'packages/main/dist', testsDir: 'packages/main/tests', fixturesDir: 'packages/main/tests/fixtures', storyDir: 'docs/story/actives', requirementsDir: 'docs/requirements', storyPrefix: 'B' }, null, 2)); writeFileSync(join(fixtureDir, 'a.json'), JSON.stringify({ cases: [{ name: 'a', run_type: 'cli', file: 'handlers/story', execute: 'return true', expect: true }] }, null, 2)); writeFileSync(join(fixtureDir, 'b.json'), JSON.stringify({ cases: [{ name: 'b', run_type: 'cli', file: 'handlers/story', execute: 'return true', expect: true }] }, null, 2)); const cli = $root + '/packages/main/dist/cli.js'; const preview = execFileSync('node', [cli, '--root', temp, 'test_auto', '--dry-run'], { cwd: temp, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); const real = execFileSync('node', [cli, '--root', temp, 'test_auto', '--confirm'], { cwd: temp, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { previewSawTwo: preview.includes('execute 2 fixture file(s)'), realSawTwo: real.includes('\"totalCases\": 2') }; } finally { rmSync(temp, { recursive: true, force: true }); }",
+      "expect": {
+        "previewSawTwo": true,
+        "realSawTwo": true
+      },
+      "intentRef": "B-e1c0:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-e1c0",
+      "_id": "6173f863-f21d-4f05-b17b-247c3ade1a3f",
+      "prevCaseId": "ed8a2bc5-31f1-4628-9d5d-31db4052cf6d",
+      "nextCaseId": "bb29fac6-e718-4775-8068-758d2f2dbee5"
+    },
+    {
+      "name": "CHK-002 adversarial: real execute rereads fixture state after dry-run drift",
+      "run_type": "cli",
+      "file": "handlers/test-auto",
+      "execute": "const { mkdtempSync, mkdirSync, rmSync, writeFileSync } = await import('fs'); const { tmpdir } = await import('os'); const { join } = await import('path'); const { execFileSync } = await import('child_process'); const temp = mkdtempSync(join(tmpdir(), 'koala-testauto-race-')); try { const fixtureDir = join(temp, 'packages', 'main', 'tests', 'fixtures'); mkdirSync(fixtureDir, { recursive: true }); mkdirSync(join(temp, 'docs', 'story', 'actives'), { recursive: true }); mkdirSync(join(temp, 'docs', 'requirements'), { recursive: true }); writeFileSync(join(temp, 'koala.config.json'), JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', outDir: 'packages/main/dist', testsDir: 'packages/main/tests', fixturesDir: 'packages/main/tests/fixtures', storyDir: 'docs/story/actives', requirementsDir: 'docs/requirements', storyPrefix: 'B' }, null, 2)); const cli = $root + '/packages/main/dist/cli.js'; const preview = execFileSync('node', [cli, '--root', temp, 'test_auto', '--dry-run'], { cwd: temp, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); writeFileSync(join(fixtureDir, 'late.json'), JSON.stringify({ cases: [{ name: 'late', run_type: 'cli', file: 'handlers/story', execute: 'return true', expect: true }] }, null, 2)); const real = execFileSync('node', [cli, '--root', temp, 'test_auto', '--confirm'], { cwd: temp, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { previewSawZero: preview.includes('execute 0 fixture file(s)'), realSawLateCase: real.includes('\"totalCases\": 1') && real.includes('\"passedCases\": 1') }; } finally { rmSync(temp, { recursive: true, force: true }); }",
+      "expect": {
+        "previewSawZero": true,
+        "realSawLateCase": true
+      },
+      "intentRef": "B-e1c0:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-e1c0",
+      "_id": "bb29fac6-e718-4775-8068-758d2f2dbee5",
+      "prevCaseId": "6173f863-f21d-4f05-b17b-247c3ade1a3f"
+    }
+  ]
+}
