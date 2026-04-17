@@ -1,0 +1,35 @@
+{
+  "storyId": "B-5b3e",
+  "name": "fix-init-check-bootstrap-branch-isolation",
+  "title": "INIT_CHECK bootstrap 只落 story 分支，不污染当前本地分支",
+  "description": "修复 Koala 在 INIT_CHECK/dev_start 阶段先把 story metadata 提交到当前本地分支（通常是 main）的问题。目标是 bootstrap metadata 只提交到 story 分支/worktree，避免本地 main 出现 koala: story B-xxxx init 这类自动提交；同时保留 dry-run/confirm 护栏，并补足针对 bootstrap 提交落点的回归。",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "createdAt": "2026-04-17T23:54:44.319Z",
+  "startedAt": "2026-04-17T23:54:44.319Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-17T23:54:44.319Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-17T23:54:57.862Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-5b3e",
+    "branch": "story/B-5b3e",
+    "createdAt": "2026-04-17T23:54:58.039Z"
+  }
+}
