@@ -4,7 +4,7 @@
   "title": "补一条实现代码的独立 review 通道（补实现）",
   "description": "延续 B-e98c 的目标，但上次只走到了 story_reconcile 自动收尾，没有真正实现。现在要增加专门看实现代码本身的 review 通道：它关注行为回归、边界条件、实现风险和可维护性，不改代码、不写 fixture、不推进 phase，先以 advisory 形式验证信噪比。",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "medium",
   "lane": "supporting",
   "parallelSafe": "plan_only",
@@ -15,7 +15,7 @@
   ],
   "createdAt": "2026-04-15T12:09:52.839Z",
   "startedAt": "2026-04-15T12:09:52.839Z",
-  "endedAt": null,
+  "endedAt": "2026-04-15T12:15:26.450Z",
   "events": [
     {
       "phase": "INIT",
@@ -32,11 +32,16 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-15T12:15:26.450Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main",
+      "reconciled": true,
+      "reason": "story_reconcile: 分支已合并到 main"
     }
-  ],
-  "worktree": {
-    "path": ".worktrees/B-7832",
-    "branch": "story/B-7832",
-    "createdAt": "2026-04-15T12:10:17.549Z"
-  }
+  ]
 }

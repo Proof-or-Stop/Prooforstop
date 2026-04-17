@@ -4,7 +4,7 @@
   "title": "补一条 browser screenshot smoke 验证",
   "description": "当前仓库里 browser-executor/browser-client/browser-server 仍保留 screenshot 路径，但现有 browser fixture 主要覆盖 profiler，没有一条直接证明 screenshot 在浏览器验证链路里仍然可用。需要补一条最小 browser screenshot 黑盒验证，确认通过 executeBrowserCases 或 test_auto 的 browser 路径仍能生成截图结果，并把这条能力纳入可重复回归。",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-04-15T12:10:32.317Z",
   "startedAt": "2026-04-15T12:10:32.317Z",
-  "endedAt": null,
+  "endedAt": "2026-04-15T12:15:26.602Z",
   "events": [
     {
       "phase": "INIT",
@@ -31,11 +31,16 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-15T12:15:26.602Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main",
+      "reconciled": true,
+      "reason": "story_reconcile: 分支已合并到 main"
     }
-  ],
-  "worktree": {
-    "path": ".worktrees/B-b796",
-    "branch": "story/B-b796",
-    "createdAt": "2026-04-15T12:10:44.314Z"
-  }
+  ]
 }
