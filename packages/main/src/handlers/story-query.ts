@@ -260,8 +260,11 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
         if (totalBugsOpen > 0) {
           bugSuggestions.push(`⚠ ${totalBugsOpen} 个 open bug 待修复，建议优先处理`);
         }
-        if (bugStories.filter(r => r.phase !== 'DONE').length > 0) {
-          const openBugStories = bugStories.filter(r => r.phase !== 'DONE');
+        const unresolvedBugStories = bugStories.filter(
+          r => r.phase !== 'DONE' && r.phase !== 'DISCARDED',
+        );
+        if (unresolvedBugStories.length > 0) {
+          const openBugStories = unresolvedBugStories;
           bugSuggestions.push(`⚠ Bug Story 未关闭: ${openBugStories.map(r => r.storyId).join(', ')}`);
         }
         if (totalBugs > 0 && total > 0) {

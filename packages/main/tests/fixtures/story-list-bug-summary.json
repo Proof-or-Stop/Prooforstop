@@ -1,0 +1,92 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: discarded bug story not shown as unresolved",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const { execFileSync } = await import(\"node:child_process\"); execFileSync(\"node\", [$root + \"/scripts/verify-story-list-bug-summary.mjs\"], { cwd: $root, encoding: \"utf8\", stdio: [\"pipe\", \"pipe\", \"pipe\"] }); return { ok: true };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-b568:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-b568",
+      "_id": "e44e4aae-c72d-415d-a292-005b73df3b66",
+      "nextCaseId": "23f7ade2-3f42-462c-976a-cf07750634fe"
+    },
+    {
+      "name": "CHK-001 edge: done and discarded bug stories stay silent",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const { execFileSync } = await import(\"node:child_process\"); execFileSync(\"node\", [$root + \"/scripts/verify-story-list-bug-summary.mjs\"], { cwd: $root, encoding: \"utf8\", stdio: [\"pipe\", \"pipe\", \"pipe\"] }); return { ok: true };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-b568:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-b568",
+      "_id": "23f7ade2-3f42-462c-976a-cf07750634fe",
+      "prevCaseId": "e44e4aae-c72d-415d-a292-005b73df3b66",
+      "nextCaseId": "bc37a37a-c723-42b9-a0ca-8448ea5761b1"
+    },
+    {
+      "name": "CHK-001 adversarial: live bug story still reported",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const { execFileSync } = await import(\"node:child_process\"); execFileSync(\"node\", [$root + \"/scripts/verify-story-list-bug-summary.mjs\"], { cwd: $root, encoding: \"utf8\", stdio: [\"pipe\", \"pipe\", \"pipe\"] }); return { ok: true };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-b568:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-b568",
+      "_id": "bc37a37a-c723-42b9-a0ca-8448ea5761b1",
+      "prevCaseId": "23f7ade2-3f42-462c-976a-cf07750634fe",
+      "nextCaseId": "a5a29078-0e2f-4587-a168-2f479dd1e356"
+    },
+    {
+      "name": "CHK-002 happy: regression locks discarded bug story silence",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const { execFileSync } = await import(\"node:child_process\"); execFileSync(\"node\", [$root + \"/scripts/verify-story-list-bug-summary.mjs\"], { cwd: $root, encoding: \"utf8\", stdio: [\"pipe\", \"pipe\", \"pipe\"] }); return { ok: true };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-b568:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-b568",
+      "_id": "a5a29078-0e2f-4587-a168-2f479dd1e356",
+      "prevCaseId": "bc37a37a-c723-42b9-a0ca-8448ea5761b1",
+      "nextCaseId": "9f844e0e-2a21-48b7-96bc-a25a63f30b40"
+    },
+    {
+      "name": "CHK-002 edge: regression still catches unresolved bug story",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const { execFileSync } = await import(\"node:child_process\"); execFileSync(\"node\", [$root + \"/scripts/verify-story-list-bug-summary.mjs\"], { cwd: $root, encoding: \"utf8\", stdio: [\"pipe\", \"pipe\", \"pipe\"] }); return { ok: true };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-b568:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-b568",
+      "_id": "9f844e0e-2a21-48b7-96bc-a25a63f30b40",
+      "prevCaseId": "a5a29078-0e2f-4587-a168-2f479dd1e356",
+      "nextCaseId": "3b8122db-105c-424c-9476-fc3a4abf9cd1"
+    },
+    {
+      "name": "CHK-002 adversarial: future regression reintroducing discarded bug story fails",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const { execFileSync } = await import(\"node:child_process\"); execFileSync(\"node\", [$root + \"/scripts/verify-story-list-bug-summary.mjs\"], { cwd: $root, encoding: \"utf8\", stdio: [\"pipe\", \"pipe\", \"pipe\"] }); return { ok: true };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-b568:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-b568",
+      "_id": "3b8122db-105c-424c-9476-fc3a4abf9cd1",
+      "prevCaseId": "9f844e0e-2a21-48b7-96bc-a25a63f30b40"
+    }
+  ]
+}
