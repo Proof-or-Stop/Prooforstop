@@ -1,0 +1,40 @@
+{
+  "storyId": "B-b568",
+  "name": "exclude-discarded-bug-story-from-summary",
+  "title": "让 story_list 不再把 DISCARDED bug story 算成未关闭",
+  "description": "当前 story_list/dashboard 的 bug summary 会把所有 type=bug 且 phase!=DONE 的 story 视为未关闭，导致像 B-7e1c 这种已经 DISCARDED 的 bug story 仍然被当成活跃遗留项提示。需要把 DISCARDED 视为 bug story 的终态，不再计入“Bug Story 未关闭”提示，同时补回归锁住这个口径。",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "medium",
+  "lane": "mainline",
+  "parallelSafe": "no",
+  "sharedHotspots": [
+    "packages/main/src/handlers/story-query.ts"
+  ],
+  "createdAt": "2026-04-17T23:19:09.943Z",
+  "startedAt": "2026-04-17T23:19:09.943Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-17T23:19:09.943Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-17T23:19:17.974Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-b568",
+    "branch": "story/B-b568",
+    "createdAt": "2026-04-17T23:19:18.135Z"
+  }
+}
