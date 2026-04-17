@@ -1,0 +1,41 @@
+{
+  "storyId": "B-5a36",
+  "name": "lab-foundation",
+  "title": "搭建 koala-lab 实验基础设施",
+  "description": "新增独立的 koala-lab 模块与 koala lab CLI 骨架，用于离线优化 Koala 自身的 prompt、gate 和输出策略。第一阶段只做实验配置 schema、运行结果 schema、隔离 worktree、实验目录落盘和 patch 白名单校验，确保后续优化逻辑始终运行在受控沙箱中，不污染正式 story/fixture 流程。",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "状态机/门禁",
+      "matched": "gate"
+    }
+  ],
+  "createdAt": "2026-04-17T23:43:46.509Z",
+  "startedAt": "2026-04-17T23:43:46.509Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-17T23:43:46.509Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-17T23:43:53.243Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-5a36",
+    "branch": "story/B-5a36",
+    "createdAt": "2026-04-17T23:43:53.410Z"
+  }
+}
