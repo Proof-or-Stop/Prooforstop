@@ -14,7 +14,7 @@
  */
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'fs';
 import { dirname, isAbsolute, join } from 'path';
-import type { LabExperimentConfig, LabRunMetrics, LabRunResult } from '../types.js';
+import type { LabBaselineRecord, LabExperimentConfig, LabRunMetrics, LabRunResult } from '../types.js';
 import { validateExperimentConfig } from './config.js';
 
 function ensureDir(path: string): void {
@@ -80,6 +80,19 @@ export function writeRunArtifacts(args: {
   writeJson(join(runDir, 'result.json'), args.result);
   writeFileSync(join(runDir, 'summary.md'), args.summary, 'utf8');
   return runDir;
+}
+
+export function writeBaselineRecord(root: string, config: LabExperimentConfig, record: LabBaselineRecord): string {
+  ensureExperimentDirs(root, config);
+  const path = join(root, config.outputs.baselineDir, `${config.id}.json`);
+  writeJson(path, record);
+  return path;
+}
+
+export function readBaselineRecord(root: string, config: LabExperimentConfig): LabBaselineRecord | null {
+  const path = join(root, config.outputs.baselineDir, `${config.id}.json`);
+  if (!existsSync(path)) return null;
+  return JSON.parse(readFileSync(path, 'utf8')) as LabBaselineRecord;
 }
 
 export function listRunResults(root: string, config: LabExperimentConfig): Array<{ runId: string; result: LabRunResult }> {

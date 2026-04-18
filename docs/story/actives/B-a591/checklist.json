@@ -10,7 +10,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "给定一组 quality/latency/complexity/stability 指标 → 统一评分器返回可复算的 total score",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "quality 很高但 complexity penalty 也很高 → total score 会被拉低，而不是盲目保留",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "输入包含 NaN/越界权重或缺失关键字段 → 评分器拒绝非法输入而不是产出误导分数",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -23,7 +43,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "给 reviewer-quality-v1 提供一组样本 metrics → profile 输出统一格式的 metric bundle 给 scoring core 消费",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "profile 输入缺少可选子指标时 → 仍然返回稳定的默认 metric 结构，不把 compare 跑崩",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "请求未知 profile 名称 → lab_run/lab_compare 明确报错并提示可用 profile，而不是静默退回 placeholder",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -35,7 +75,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "baseline 和 candidate 的 score 都生成后 → lab_compare 返回 best run、delta 和 kept/discard decision",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "candidate 分数只比 baseline 高很小且低于 minScoreGain → compare/promote 把它标成 discarded",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "没有任何有效 run 就调用 lab_promote → 明确失败并说明还缺少可晋升 run",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
@@ -47,7 +107,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "同一候选重复评估两次且结果稳定 → stability penalty 为 0 或极低，候选可正常参与 kept/discard 决策",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "重复评估结果有轻微波动但未超阈值 → 记录 stddev 但不错误惩罚为 rejected",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "重复评估中有 crash 或显著高方差 → stability penalty 增加并拉低 total score，防止偶然好结果被 promote",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }
