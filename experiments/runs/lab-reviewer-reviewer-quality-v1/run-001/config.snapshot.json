@@ -1,0 +1,65 @@
+{
+  "$schema": "koala-lab/experiment.v1",
+  "id": "lab-reviewer-reviewer-quality-v1",
+  "name": "Optimize test-case-reviewer",
+  "status": "draft",
+  "mode": "offline",
+  "target": {
+    "kind": "prompt",
+    "id": "test-case-reviewer",
+    "entryFile": ".Codex/agents/test-case-reviewer.md",
+    "editableFiles": [
+      ".Codex/agents/test-case-reviewer.md"
+    ]
+  },
+  "baseline": {
+    "source": "working-tree",
+    "ref": "HEAD"
+  },
+  "dataset": {
+    "profile": "reviewer-quality-v1",
+    "source": "lab-dataset",
+    "datasetId": "reviewer-quality-v1-sample-v1",
+    "trainSplit": 0.6,
+    "devSplit": 0.2,
+    "holdoutSplit": 0.2
+  },
+  "budget": {
+    "maxIterations": 8,
+    "maxWallClockMinutes": 75,
+    "perIterationTimeoutMinutes": 8,
+    "repeatsPerCandidate": 2
+  },
+  "candidatePolicy": {
+    "strategy": "rewrite_prompt",
+    "maxChangedFiles": 1,
+    "maxChangedLines": 35,
+    "allowDependencyChanges": false,
+    "allowStoryMutation": false,
+    "allowFixtureMutation": false,
+    "allowDocsStoryMutation": false,
+    "allowTestsFixturesMutation": false
+  },
+  "selectionPolicy": {
+    "minScoreGain": 0.03,
+    "requireNoRegression": true,
+    "requireHoldoutPass": true,
+    "tieBreak": "lower_complexity"
+  },
+  "scoring": {
+    "qualityWeight": 0.6,
+    "latencyWeight": 0.15,
+    "complexityWeight": 0.15,
+    "stabilityWeight": 0.1
+  },
+  "guards": {
+    "mustRunInIsolatedWorktree": true,
+    "forbidMainBranchWrite": true,
+    "forbidDestructiveGit": true
+  },
+  "outputs": {
+    "runDir": "experiments/runs/lab-reviewer-reviewer-quality-v1",
+    "baselineDir": "experiments/baselines",
+    "reportFormat": "md"
+  }
+}
