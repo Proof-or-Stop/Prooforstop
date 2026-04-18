@@ -4,7 +4,7 @@
   "title": "为 koala-lab 增加 normalizedScore 展示分",
   "description": "在不改变现有 score/kept/rejected 决策逻辑的前提下，为 koala-lab 增加更符合人类直觉的 normalizedScore。normalizedScore 用 quality 减 penalty 表示 0-1 的展示分，让 reviewer-quality-v1 的满质量 prompt 能显示 0.8+，同时保留原 score 作为内部加权决策分。",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "TEST",
   "priority": "high",
   "lane": "mainline",
   "parallelSafe": "no",
@@ -48,6 +48,30 @@
       "branch": "story/B-0fb7",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-18T23:42:08.630Z",
+      "branch": "story/B-0fb7",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-18T23:42:19.173Z",
+      "branch": "story/B-0fb7",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-18T23:42:35.189Z",
+      "branch": "story/B-0fb7",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
     }
   ],
   "worktree": {
