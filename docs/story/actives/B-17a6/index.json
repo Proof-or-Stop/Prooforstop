@@ -1,0 +1,41 @@
+{
+  "storyId": "B-17a6",
+  "name": "lab-reviewer-mvp",
+  "title": "打通 test-case-reviewer prompt 的 koala-lab MVP",
+  "description": "将 .Codex/agents/test-case-reviewer.md 作为 koala-lab 的首个真实优化目标，补上真实 candidate patch artifact、baseline/candidate compare 输出和 promote 结果，让 koala-lab 不只是会算分，还能给出可晋升的 reviewer prompt 变更产物。",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "lane": "mainline",
+  "parallelSafe": "no",
+  "sharedHotspots": [
+    "packages/lab",
+    ".Codex/agents/test-case-reviewer.md"
+  ],
+  "createdAt": "2026-04-18T01:11:44.475Z",
+  "startedAt": "2026-04-18T01:11:44.475Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-18T01:11:44.476Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-18T01:11:50.925Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-17a6",
+    "branch": "story/B-17a6",
+    "createdAt": "2026-04-18T01:11:51.131Z"
+  }
+}

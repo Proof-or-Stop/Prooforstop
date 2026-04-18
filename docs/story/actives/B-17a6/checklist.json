@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "让 lab_run 为 reviewer 目标产出真实 candidate patch artifact",
+      "context": "没有 patch artifact 的 promote 结果不够闭环。需要把 baseline ref 与当前 workspace 之间的真实 diff 落到 run 目录，供 compare/promote 复用。",
+      "relatedDocs": [
+        "README.md",
+        "docs/requirements/decisions/project-vision.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "补强 compare promote 输出，让 reviewer MVP 对 patch 与结果说真话",
+      "context": "compare/promote 不应只返回 run id 和 summary 路径，还要带上 patch 路径、baseline ref 和 kept 原因，才能支撑 reviewer MVP 的真实使用。",
+      "relatedDocs": [
+        "README.md",
+        "AGENTS.md#用户价值验收（优先于技术链路验证）"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "为 reviewer 目标补上端到端回归验证",
+      "context": "需要有针对真实 reviewer target 的 verify 脚本与 fixture，证明从修改 prompt、生成 patch、运行评分到 promote 输出是一条完整闭环。",
+      "relatedDocs": [
+        ".Codex/agents/test-case-reviewer.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
