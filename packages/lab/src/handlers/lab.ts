@@ -7,7 +7,7 @@ import { createCandidatePatch } from '../core/diff.js';
 import { resolveProfile } from '../core/profile.js';
 import { evaluatePatchPolicy, parsePatchTouchedPaths, readPatchFile } from '../core/patch-policy.js';
 import { createSandbox, planSandbox } from '../core/sandbox.js';
-import { computeStabilityPenalty, computeTotalScore, decideCandidate } from '../core/scoring.js';
+import { computeNormalizedScore, computeStabilityPenalty, computeTotalScore, decideCandidate } from '../core/scoring.js';
 import { ensureExperimentDirs, listRunResults, nextRunId, readBaselineRecord, readExperimentConfig, writeBaselineRecord, writeExperimentConfig, writeRunArtifacts } from '../core/storage.js';
 import type { LabBaselineRecord, LabExperimentConfig, LabRunMetrics, LabRunResult } from '../types.js';
 
@@ -26,6 +26,7 @@ function defaultMetrics(config: LabExperimentConfig): LabRunMetrics {
     latencyPenalty: 0,
     complexityPenalty: 0,
     stabilityPenalty: 0,
+    normalizedScore: 0,
     submetrics: {},
   };
 }
@@ -35,8 +36,11 @@ function defaultResult(runId: string): LabRunResult {
     runId,
     status: 'initialized',
     score: 0,
+    normalizedScore: 0,
     baselineScore: 0,
+    baselineNormalizedScore: 0,
     delta: 0,
+    normalizedDelta: 0,
     candidatePatch: null,
     changedFiles: 0,
     changedLines: 0,
@@ -128,10 +132,13 @@ function evaluateBaseline(args: {
     changedLines: 0,
   });
   const score = computeTotalScore(metrics, args.config.scoring);
+  const normalizedScore = computeNormalizedScore(metrics);
+  metrics.normalizedScore = normalizedScore;
   return {
     experimentId: args.config.id,
     ref: args.config.baseline.ref,
     score,
+    normalizedScore,
     metrics,
     evaluatedAt: new Date().toISOString(),
   };
@@ -141,7 +148,7 @@ function evaluateCandidate(args: {
   root: string;
   config: LabExperimentConfig;
   targetPath: string;
-}): { metrics: LabRunMetrics; score: number; changedFiles: number; changedLines: number; stddev: number; hadCrash: boolean } {
+}): { metrics: LabRunMetrics; score: number; normalizedScore: number; changedFiles: number; changedLines: number; stddev: number; hadCrash: boolean } {
   const profile = resolveProfile(args.config.dataset.profile);
   const content = readCandidateContent(args.root, args.targetPath);
   const diffStats = computeDiffStats(args.root, args.config.baseline.ref, args.config.target.editableFiles);
@@ -177,9 +184,12 @@ function evaluateCandidate(args: {
     stabilityStdDev: stability.stddev,
   };
 
+  const normalizedScore = computeNormalizedScore(chosenMetrics);
+  chosenMetrics.normalizedScore = normalizedScore;
   return {
     metrics: chosenMetrics,
     score: computeTotalScore(chosenMetrics, args.config.scoring),
+    normalizedScore,
     changedFiles: diffStats.changedFiles,
     changedLines: diffStats.changedLines,
     stddev: stability.stddev,
@@ -265,8 +275,11 @@ export function createLabHandlers(ctx: HandlerContext) {
           ...defaultResult(runId),
           status: decision.status,
           score: candidate.score,
+          normalizedScore: candidate.normalizedScore,
           baselineScore: baseline.score,
+          baselineNormalizedScore: baseline.normalizedScore,
           delta: decision.delta,
+          normalizedDelta: Number((candidate.normalizedScore - (baseline.normalizedScore ?? 0)).toFixed(4)),
           candidatePatch: patch.patchPath,
           changedFiles: patch.touchedPaths.length || candidate.changedFiles,
           changedLines: candidate.changedLines,
@@ -279,8 +292,11 @@ export function createLabHandlers(ctx: HandlerContext) {
           `Sandbox: ${sandbox.sandboxPath}`,
           `Branch: ${sandbox.branch}`,
           `Score: ${candidate.score}`,
+          `NormalizedScore: ${candidate.normalizedScore}`,
           `Baseline: ${baseline.score}`,
+          `BaselineNormalizedScore: ${baseline.normalizedScore}`,
           `Delta: ${decision.delta}`,
+          `NormalizedDelta: ${Number((candidate.normalizedScore - (baseline.normalizedScore ?? 0)).toFixed(4))}`,
           `Patch: ${patch.patchPath ?? '(none)'}`,
           '',
           `Why ${decision.status}:`,
@@ -294,6 +310,7 @@ export function createLabHandlers(ctx: HandlerContext) {
         `[lab] sandbox ready at ${sandbox.sandboxPath}`,
         `[lab] branch: ${sandbox.branch}`,
         `[lab] score: ${candidate.score} (baseline ${baseline.score}, delta ${decision.delta})`,
+        `[lab] normalizedScore: ${candidate.normalizedScore} (baseline ${baseline.normalizedScore}, delta ${Number((candidate.normalizedScore - (baseline.normalizedScore ?? 0)).toFixed(4))})`,
         `[lab] decision: ${decision.status}`,
         `[lab] patch: ${patch.patchPath ?? '(none)'}`,
         `✓ ${decision.reason}.`,
@@ -327,12 +344,14 @@ export function createLabHandlers(ctx: HandlerContext) {
       const best = pickBestRun(runs);
       return JSON.stringify({
         experimentId: config.id,
-        baseline: baseline ? { score: baseline.score, ref: baseline.ref } : null,
+        baseline: baseline ? { score: baseline.score, normalizedScore: baseline.normalizedScore ?? null, ref: baseline.ref } : null,
         best: {
           runId: best.runId,
           score: best.result.score,
+          normalizedScore: best.result.normalizedScore ?? null,
           status: best.result.status,
           delta: best.result.delta,
+          normalizedDelta: best.result.normalizedDelta ?? null,
           patch: best.result.candidatePatch,
           reason: best.result.reason,
         },
@@ -340,8 +359,10 @@ export function createLabHandlers(ctx: HandlerContext) {
         runs: runs.map((run) => ({
           runId: run.runId,
           score: run.result.score,
+          normalizedScore: run.result.normalizedScore ?? null,
           status: run.result.status,
           delta: run.result.delta,
+          normalizedDelta: run.result.normalizedDelta ?? null,
           patch: run.result.candidatePatch,
         })),
       }, null, 2);
@@ -364,6 +385,8 @@ export function createLabHandlers(ctx: HandlerContext) {
         bestRunId: best.runId,
         promotePatch: best.result.candidatePatch,
         baselineRef: config.baseline.ref,
+        score: best.result.score,
+        normalizedScore: best.result.normalizedScore ?? null,
         reason: best.result.reason,
         summaryPath: `${config.outputs.runDir}/${best.runId}/summary.md`,
       }, null, 2);

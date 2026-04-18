@@ -119,12 +119,15 @@ node bin/koala.js lab promote --config experiments/configs/lab-reviewer-reviewer
 
 对 reviewer 目标来说，`lab run --confirm` 现在还会把真实 `patch.diff` 写进 run 目录；`lab compare` / `lab promote` 会把对应的 patch 路径和 baseline ref 一起带出来，便于直接审阅。
 
+`score` 是 koala-lab 的内部加权决策分，会保留 `qualityWeight` 等权重语义；`normalizedScore` 是 0-1 的展示分，用于更直观地阅读 prompt 质量。`kept/rejected` 仍然只由 `score` 和 `minScoreGain` 决定。
+
 可用回归：
 
 ```bash
 npm run test:lab-foundation
 npm run test:lab-scoring-core
 npm run test:lab-reviewer-mvp
+npm run test:lab-normalized-score
 ```
 
 ## Claude Code

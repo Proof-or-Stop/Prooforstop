@@ -1,0 +1,23 @@
+{
+  "task": "为 koala-lab 增加 normalizedScore 展示分，解决现有 score 因 qualityWeight=0.6 导致满质量 prompt 看起来只有 0.56 的误解。",
+  "outcome": "$ koala lab compare --config experiments/configs/lab-reviewer-history-v1.json\n{\n  \"baseline\": { \"score\": 0.51, \"normalizedScore\": 0.72 },\n  \"best\": { \"score\": 0.5656, \"normalizedScore\": 0.9071, \"delta\": 0.0556, \"normalizedDelta\": 0.1871 }\n}\n用户看到 normalizedScore 后会明白：score 是内部加权决策分，normalizedScore 才是直观质量展示分。",
+  "facts": [
+    "当前 score 使用 qualityWeight=0.6，因此理论上接近满分也只有约 0.6。",
+    "reviewer-quality-v1 当前 quality 子指标已经满分，低分观感来自展示尺度。",
+    "V1 的 kept/rejected 已基于 score 跑通，不应因展示分改变决策逻辑。"
+  ],
+  "constraints": [
+    "不能改变现有 score、delta 和 kept/rejected 决策语义。",
+    "normalizedScore 必须 0-1 归一化且可复算。",
+    "compare/promote/result/metrics 都要能看到 normalizedScore，避免用户误解。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/lab/src/core/scoring.ts",
+    "packages/lab/src/types.ts",
+    "packages/lab/src/handlers/lab.ts",
+    "scripts/verify-lab-scoring-core.mjs",
+    "README.md"
+  ],
+  "timestamp": "2026-04-18T23:39:29.908Z"
+}
