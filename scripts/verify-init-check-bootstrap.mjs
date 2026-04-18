@@ -33,7 +33,7 @@ function runAllowWarning(projectRoot, command, payload, cwd = root) {
 
 function runConcurrentInitCheck(projectRoot, storyId) {
   return new Promise((resolve, reject) => {
-    const args = [cli, '--root', projectRoot, 'story_advance', JSON.stringify({ storyId, phase: 'INIT_CHECK' })];
+    const args = [cli, '--root', projectRoot, 'story_advance', JSON.stringify({ storyId, phase: 'INIT_CHECK', confirm: true })];
     const child = spawn('node', args, {
       cwd: root,
       stdio: ['ignore', 'pipe', 'pipe'],
@@ -90,6 +90,14 @@ function readStoryIndex(projectRoot, storyId) {
   return JSON.parse(readFileSync(join(projectRoot, 'docs', 'story', 'actives', storyId, 'index.json'), 'utf8'));
 }
 
+function git(projectRoot, args) {
+  return execFileSync('git', args, {
+    cwd: projectRoot,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+}
+
 async function verifyConcurrentInitCheck() {
   const temp = createTempProject();
   try {
@@ -131,7 +139,7 @@ function verifyScopedStage() {
     }));
 
     writeFileSync(join(temp, 'README.md'), '# temp project\n\nlocal dirty change\n');
-    run(temp, 'story_advance', { storyId, phase: 'INIT_CHECK' });
+    run(temp, 'story_advance', { storyId, phase: 'INIT_CHECK', confirm: true });
 
     const status = execFileSync('git', ['status', '--porcelain'], {
       cwd: temp,
@@ -140,12 +148,12 @@ function verifyScopedStage() {
     });
     assert(status.includes(' M README.md'), 'INIT_CHECK unexpectedly consumed unrelated dirty README.md');
 
-    const lastCommitFiles = execFileSync('git', ['show', '--name-only', '--format=', 'HEAD'], {
+    const lastCommitFiles = execFileSync('git', ['show', '--name-only', '--format=', `story/${storyId}`], {
       cwd: temp,
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });
-    assert(!lastCommitFiles.split('\n').includes('README.md'), 'bootstrap commit should not include unrelated README.md changes');
+    assert(!lastCommitFiles.split('\n').includes('README.md'), 'story bootstrap commit should not include unrelated README.md changes');
   } finally {
     rmSync(temp, { recursive: true, force: true });
   }
@@ -164,7 +172,7 @@ function verifyBadBranchFailsFast() {
     }));
 
     execFileSync('git', ['branch', `story/${storyId}`], { cwd: temp, stdio: ['pipe', 'pipe', 'pipe'] });
-    const output = runAllowWarning(temp, 'story_advance', { storyId, phase: 'INIT_CHECK' });
+    const output = runAllowWarning(temp, 'story_advance', { storyId, phase: 'INIT_CHECK', confirm: true });
     assert(output.includes('⚠ worktree 创建失败'), 'expected INIT_CHECK warning when stale branch is reused');
     assert(output.includes('不包含 docs/story/actives'), 'expected clear fail-fast message for stale branch commit');
 
@@ -175,9 +183,76 @@ function verifyBadBranchFailsFast() {
   }
 }
 
+function verifyMainBranchNotPolluted() {
+  const temp = createTempProject();
+  try {
+    const storyId = extractStoryId(run(temp, 'story_create', {
+      name: 'branch-isolation',
+      title: 'Branch isolation story',
+      description: 'Verify INIT_CHECK bootstrap commit only advances the story branch.',
+      type: 'feature',
+      priority: 'high',
+      checklist: [{ title: 'bootstrap worktree', context: 'branch isolation regression case' }],
+    }));
+
+    const mainHeadBefore = git(temp, ['rev-parse', 'HEAD']);
+    const output = run(temp, 'story_advance', { storyId, phase: 'INIT_CHECK', confirm: true });
+    const worktreePath = extractWorktreePath(output);
+    const mainHeadAfter = git(temp, ['rev-parse', 'HEAD']);
+    const storyBranchHead = git(temp, ['rev-parse', `story/${storyId}`]);
+    const mainLog = git(temp, ['log', '--oneline', '-n', '1']);
+    const branchLog = git(temp, ['log', '--oneline', '-n', '1', `story/${storyId}`]);
+
+    assert(mainHeadAfter === mainHeadBefore, 'INIT_CHECK should not advance the current main HEAD');
+    assert(storyBranchHead !== mainHeadBefore, 'story branch should receive a dedicated bootstrap commit');
+    assert(!mainLog.includes(`koala: story ${storyId} init`), 'main should not receive bootstrap init commit');
+    assert(branchLog.includes(`koala: story ${storyId} init`), 'story branch should keep the bootstrap init commit');
+    assert(existsSync(join(worktreePath, 'docs', 'story', 'actives', storyId, 'index.json')), 'story file should exist inside worktree');
+  } finally {
+    rmSync(temp, { recursive: true, force: true });
+  }
+}
+
+function verifyDryRunDoesNotMutate() {
+  const temp = createTempProject();
+  try {
+    const storyId = extractStoryId(run(temp, 'story_create', {
+      name: 'dry-run-isolation',
+      title: 'Dry-run isolation story',
+      description: 'Verify INIT_CHECK dry-run only previews bootstrap changes.',
+      type: 'feature',
+      priority: 'high',
+      checklist: [{ title: 'bootstrap worktree', context: 'dry-run regression case' }],
+    }));
+
+    const mainHeadBefore = git(temp, ['rev-parse', 'HEAD']);
+    const output = run(temp, 'story_advance', { storyId, phase: 'INIT_CHECK', dryRun: true });
+    const mainHeadAfter = git(temp, ['rev-parse', 'HEAD']);
+
+    assert(output.includes('[DRY-RUN] INIT_CHECK bootstrap plan'), 'dry-run should render bootstrap preview');
+    assert(mainHeadAfter === mainHeadBefore, 'INIT_CHECK dry-run should not move main HEAD');
+    try {
+      git(temp, ['rev-parse', '--verify', `story/${storyId}`]);
+      throw new Error('INIT_CHECK dry-run should not create the story branch');
+    } catch (error) {
+      const text = String(error.stdout || '') + String(error.stderr || '') + String(error.message || error);
+      assert(text.includes('Needed a single revision') || text.includes('unknown revision') || text.includes('not a valid ref'), 'dry-run branch lookup should fail because branch was not created');
+    }
+    assert(!existsSync(join(temp, '.worktrees', storyId)), 'INIT_CHECK dry-run should not create the worktree directory');
+  } finally {
+    rmSync(temp, { recursive: true, force: true });
+  }
+}
+
 async function main() {
   if (mode === 'concurrent' || mode === 'all') {
     await verifyConcurrentInitCheck();
+  }
+  if (mode === 'branch-isolation' || mode === 'all') {
+    verifyMainBranchNotPolluted();
+  }
+  if (mode === 'dry-run' || mode === 'all') {
+    verifyDryRunDoesNotMutate();
   }
   if (mode === 'scoped-stage' || mode === 'all') {
     verifyScopedStage();

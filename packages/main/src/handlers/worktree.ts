@@ -1,7 +1,8 @@
 
 import { execSync } from 'child_process';
-import { closeSync, existsSync, mkdirSync, openSync, realpathSync, statSync, unlinkSync, writeFileSync } from 'fs';
+import { closeSync, existsSync, mkdirSync, mkdtempSync, openSync, realpathSync, rmSync, statSync, unlinkSync, writeFileSync } from 'fs';
 import { dirname, join, relative, isAbsolute } from 'path';
+import { tmpdir } from 'os';
 import type { HandlerContext } from './context.js';
 import { collectContext, PHASE_TO_EVENT } from './context.js';
 import { createStoryActor, getStateName, getPhaseInvariantStatus } from '../core/machine.js';
@@ -20,6 +21,15 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       cwd: cwd || root,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+  }
+
+  function gitWithEnv(cmd: string, cwd: string, extraEnv: NodeJS.ProcessEnv): string {
+    return execSync(`git ${cmd}`, {
+      cwd,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+      env: { ...process.env, ...extraEnv },
     }).trim();
   }
 
@@ -119,9 +129,8 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       `  - worktree: ${args.worktreePath}`,
       `  - branch: ${args.branch}`,
       '  - write story.worktree metadata',
-      `  - git add -- ${args.stagePaths.join(' ')}`,
-      `  - git commit -m "koala: story ${args.storyId} init"`,
-      `  - git branch ${args.branch} <bootstrap-commit>`,
+      `  - create bootstrap commit for ${args.branch} only (current branch HEAD stays unchanged)`,
+      `  - git branch ${args.branch} <bootstrap-commit-with-story-metadata>`,
       `  - git worktree add "${args.worktreePath}" ${args.branch}`,
     ].join('\n');
   }
@@ -144,6 +153,54 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       stagePaths.push(relative(repoRoot, configPath).replace(/\\/g, '/'));
     }
     return stagePaths;
+  }
+
+  function createBootstrapBranchCommit(args: {
+    repoRootPath: string;
+    stagePaths: string[];
+    storyId: string;
+    storyIndexPath: string;
+  }): string {
+    const tempRoot = existsSync(getGitCommonDir())
+      ? join(getGitCommonDir(), 'koala')
+      : join(tmpdir(), 'koala');
+    mkdirSync(tempRoot, { recursive: true });
+    const tempDir = mkdtempSync(join(tempRoot, 'bootstrap-index-'));
+    const tempIndexPath = join(tempDir, 'index');
+    const tempEnv = { GIT_INDEX_FILE: tempIndexPath };
+
+    try {
+      const headSha = git('rev-parse HEAD', args.repoRootPath);
+      gitWithEnv(`read-tree ${headSha}`, args.repoRootPath, tempEnv);
+      gitWithEnv(`add -- ${args.stagePaths.map(shellQuote).join(' ')}`, args.repoRootPath, tempEnv);
+
+      const staged = gitWithEnv(
+        `diff --cached --name-only -- ${args.stagePaths.map(shellQuote).join(' ')}`,
+        args.repoRootPath,
+        tempEnv,
+      );
+      if (!staged.split('\n').some(line => line.trim() === args.storyIndexPath)) {
+        throw new Error(
+          `bootstrap staged changes missing ${args.storyIndexPath}\n` +
+          `staged:\n${staged || '(none)'}`
+        );
+      }
+
+      const treeSha = gitWithEnv('write-tree', args.repoRootPath, tempEnv);
+      const commitSha = gitWithEnv(
+        `commit-tree ${treeSha} -p ${headSha} -m ${shellQuote(`koala: story ${args.storyId} init`)}`,
+        args.repoRootPath,
+        tempEnv,
+      );
+
+      if (!commitContainsPath(commitSha, args.storyIndexPath)) {
+        throw new Error(`bootstrap commit ${commitSha} 不包含 ${args.storyIndexPath}`);
+      }
+
+      return commitSha;
+    } finally {
+      rmSync(tempDir, { recursive: true, force: true });
+    }
   }
 
   function acquireBootstrapLock(storyId: string): () => void {
@@ -287,7 +344,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       }
       if (!args.confirm) {
         throw new Error(
-          `dev_start(${args.storyId}) 会自动写 story.worktree metadata 并创建 bootstrap git commit，默认已阻止。\n` +
+          `dev_start(${args.storyId}) 会自动写 story.worktree metadata，并为 story 分支创建 bootstrap git commit，默认已阻止。\n` +
           bootstrapPlan + '\n' +
           '→ 先传 dryRun:true 预览，确认后再传 confirm:true 真实执行'
         );
@@ -302,26 +359,6 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         if (!lockedStory.startedAt) lockedStory.startedAt = now;
         store.writeStory(args.storyId, lockedStory);
 
-        git(`add -- ${stagePaths.map(shellQuote).join(' ')}`);
-        const staged = git(`diff --cached --name-only -- ${stagePaths.map(shellQuote).join(' ')}`);
-        if (!staged.split('\n').some(line => line.trim() === storyIndexPath)) {
-          throw new Error(
-            `bootstrap staged changes missing ${storyIndexPath}\n` +
-            `staged:\n${staged || '(none)'}`
-          );
-        }
-
-        try {
-          git(`commit -m ${shellQuote(`koala: story ${args.storyId} init`)}`);
-        } catch (e: any) {
-          throw new Error(`无法提交 ${args.storyId} 的 bootstrap metadata：${e.message || String(e)}`);
-        }
-
-        const commitSha = git('rev-parse HEAD');
-        if (!commitContainsPath(commitSha, storyIndexPath)) {
-          throw new Error(`bootstrap commit ${commitSha} 不包含 ${storyIndexPath}`);
-        }
-
         let branchExists = true;
         try {
           git(`rev-parse --verify ${branch}`);
@@ -330,6 +367,12 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         }
 
         if (!branchExists) {
+          const commitSha = createBootstrapBranchCommit({
+            repoRootPath,
+            stagePaths,
+            storyId: args.storyId,
+            storyIndexPath,
+          });
           try {
             git(`branch ${branch} ${commitSha}`);
           } catch (e: any) {

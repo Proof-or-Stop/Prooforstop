@@ -4,9 +4,29 @@
       "id": "CHK-001",
       "title": "重构 INIT_CHECK bootstrap 提交流程，使 metadata 只进入 story 分支",
       "context": "当前 worktree.ts 的 dev_start 先 git add/git commit，再 git branch story/...，导致 bootstrap commit 先出现在当前本地分支。应调整为先准备/切到 story 分支或等价隔离路径，再落 metadata 提交，确保 main 不被污染。相关风险在于 worktree 并发锁、已存在 branch/worktree 的恢复路径、以及 commitContainsPath 这类校验逻辑。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-18T00:00:33.198Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "INIT_CHECK confirm 后，bootstrap metadata commit 只存在于 story branch/worktree，当前 main 头部不新增 koala: story B-xxxx init 提交",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "若 story branch 已存在但基线不包含本次 story metadata，INIT_CHECK 明确 fail-fast，而不是把 main 或旧 branch 弄脏",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "并发或重试 INIT_CHECK 时，锁和 branch 校验仍能避免把 bootstrap commit 落到错误分支",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -14,7 +34,27 @@
       "context": "围绕现有 verify-init-check-bootstrap 或相关 fixture 增加断言：执行 INIT_CHECK confirm 后，当前主分支不新增 koala: story B-xxxx init 提交，story metadata 仅存在于 story 分支/worktree；并覆盖 dry-run、confirm、重试等关键路径。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "定向回归能证明执行 INIT_CHECK confirm 后，main 的最新提交仍保持 bootstrap 前的提交，而 story branch/worktree 拥有新 metadata",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "dry-run 仍只输出计划，不会改变 main HEAD、story branch 或 worktree 状态",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "后续有人把 bootstrap 顺序改回先 commit 后 branch 时，回归会直接失败并指出 main 被污染",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }

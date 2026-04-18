@@ -1,0 +1,61 @@
+{
+  "principles": [
+    "INIT_CHECK 不能污染当前本地主线分支",
+    "bootstrap 仍要保持可恢复、可诊断、可 dry-run",
+    "优先修正提交流程本身，而不是依赖事后 revert 清理"
+  ],
+  "drivers": [
+    "消除本地 main 自动出现 koala: story B-xxxx init 的异常体验",
+    "避免未来任何显式/隐式 push 把 bootstrap 噪音带上远端",
+    "保住现有 worktree 并发和坏分支防护"
+  ],
+  "options": [
+    {
+      "name": "A: 继续在当前分支提交，再事后 revert/清理",
+      "pros": [
+        "改动最小",
+        "兼容现有 branch/worktree 创建顺序"
+      ],
+      "cons": [
+        "main 仍会短暂被污染",
+        "依赖额外清理步骤，用户体验差",
+        "一旦后续有 push 仍可能把噪音带上远端"
+      ]
+    },
+    {
+      "name": "B: 先基于当前 HEAD 建立/更新 story 分支，再只在 story 分支提交 bootstrap metadata",
+      "pros": [
+        "init commit 从源头只存在于 story 分支",
+        "符合用户对 worktree 隔离的直觉",
+        "更容易为不污染 main 写回归"
+      ],
+      "cons": [
+        "需要重排 branch/worktree/bootstrap 校验逻辑",
+        "要仔细处理 stale branch 和重试路径"
+      ]
+    }
+  ],
+  "chosen": "B: 先基于当前 HEAD 建立/更新 story 分支，再只在 story 分支提交 bootstrap metadata",
+  "rationale": "问题根因是 bootstrap commit 落点错误，不是清理逻辑不足。把 metadata 提交从当前分支移到 story 分支，才能从源头消掉 main 被污染的现象，同时仍保留 worktree 生命周期和 dry-run/confirm 护栏。",
+  "preMortem": [
+    {
+      "scenario": "旧的 stale story branch 被错误复用",
+      "trigger": "branch 已存在但不包含新的 story metadata 基线",
+      "consequence": "INIT_CHECK 仍然失败或把 worktree 指向旧提交",
+      "mitigation": "在写 metadata 前先验证 branch 基线，不满足就 fail-fast 并给出清理提示"
+    },
+    {
+      "scenario": "改动后并发 INIT_CHECK 出现竞态",
+      "trigger": "多个 story 同时创建分支和 metadata commit",
+      "consequence": "worktree 或 branch 指向错乱",
+      "mitigation": "保留 bootstrap lock，并让分支创建/提交动作都落在锁范围内"
+    },
+    {
+      "scenario": "回归只测成功路径，main 污染再次回归",
+      "trigger": "未来有人改 bootstrap 顺序但没测主线落点",
+      "consequence": "本地自动 init commit 再次出现",
+      "mitigation": "增加明确断言 main HEAD 不新增 koala: story B-xxxx init 的脚本/fixture"
+    }
+  ],
+  "timestamp": "2026-04-17T23:55:22.277Z"
+}
