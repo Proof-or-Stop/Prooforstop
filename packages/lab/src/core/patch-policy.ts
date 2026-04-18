@@ -14,7 +14,7 @@
  */
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { loadConfig } from '../../../main/dist/core/config.js';
+import { loadLabProjectConfig } from './project-config.js';
 import type { LabExperimentConfig, LabPatchPolicyReport } from '../types.js';
 
 function normalize(path: string): string {
@@ -22,7 +22,7 @@ function normalize(path: string): string {
 }
 
 function blockedPrefixes(root: string): string[] {
-  const config = loadConfig(root);
+  const config = loadLabProjectConfig(root);
   const values = [config.storyDir, config.fixturesDir, 'docs/story', 'tests/fixtures'];
   return values.map((value) => normalize(value));
 }

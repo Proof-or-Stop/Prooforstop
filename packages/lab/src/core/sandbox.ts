@@ -15,7 +15,7 @@
 import { execFileSync } from 'child_process';
 import { existsSync, mkdirSync } from 'fs';
 import { dirname, join } from 'path';
-import { loadConfig } from '../../../main/dist/core/config.js';
+import { loadLabProjectConfig } from './project-config.js';
 import type { LabExperimentConfig, LabSandboxPlan } from '../types.js';
 
 function git(root: string, args: string[]): string {
@@ -40,7 +40,7 @@ function resolveRepoRoot(root: string): string {
 
 export function planSandbox(root: string, config: LabExperimentConfig, runId: string): LabSandboxPlan {
   const repoRoot = resolveRepoRoot(root);
-  const koalaConfig = loadConfig(root);
+  const koalaConfig = loadLabProjectConfig(root);
   const worktreeDir = koalaConfig.worktreeDir || '.worktrees';
   return {
     repoRootPath: repoRoot,

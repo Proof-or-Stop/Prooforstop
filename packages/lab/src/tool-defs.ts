@@ -1,8 +1,6 @@
 /**
  * @koala-agent/lab 提供的 CLI 工具定义。
  */
-import { z } from '../../main/dist/core/zod.js';
-
 interface RuntimeToolDef {
   name: string;
   description: string;
@@ -14,7 +12,8 @@ interface RuntimeToolDef {
   schema: Record<string, unknown>;
 }
 
-export const labToolDefs: RuntimeToolDef[] = [
+export function createLabToolDefs(z: any): RuntimeToolDef[] {
+  return [
   {
     name: 'lab_create',
     description: '创建 koala-lab 实验配置骨架',
@@ -62,4 +61,5 @@ export const labToolDefs: RuntimeToolDef[] = [
       config: z.string().describe('experiment.json 路径'),
     },
   },
-];
+  ];
+}

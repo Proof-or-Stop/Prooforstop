@@ -93,6 +93,16 @@ npm --prefix packages/utils run build
 npm --prefix packages/lab run build
 ```
 
+全局安装的 `koala`（来自 `@koala-agent/core`）在 `@koala-agent/lab` 可解析时也会自动启用 `koala lab ...`；如果没有安装 lab，普通 core 命令仍然可用，只有 `koala lab ...` 会提示安装/构建 lab。
+
+发布 `0.2.2` 前建议跑：
+
+```bash
+npm --prefix packages/main run build
+npm --prefix packages/lab run build
+npm run test:global-lab-entrypoint
+```
+
 ## koala-lab
 
 `koala-lab` 是 Koala 的离线优化实验室，用来创建实验配置、预览隔离 sandbox、校验 patch 白名单，以及为后续 compare/promote 留出统一骨架。
