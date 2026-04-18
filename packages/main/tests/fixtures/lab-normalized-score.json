@@ -1,0 +1,137 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: normalized score can exceed 0.8 while score stays weighted",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-normalized-score.mjs', 'normalized-high'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok normalized-high') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-0fb7:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-0fb7",
+      "_id": "537c7335-141b-42d7-af3c-4d47f3952da3",
+      "nextCaseId": "ca038e53-e162-43d8-905f-56948fb3c7a9"
+    },
+    {
+      "name": "CHK-001 edge: penalties reduce normalized score within range",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-normalized-score.mjs', 'normalized-penalty'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok normalized-penalty') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-0fb7:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-0fb7",
+      "_id": "ca038e53-e162-43d8-905f-56948fb3c7a9",
+      "prevCaseId": "537c7335-141b-42d7-af3c-4d47f3952da3",
+      "nextCaseId": "46ea10d2-a856-42dd-80e1-b54f2e56e7bf"
+    },
+    {
+      "name": "CHK-001 adversarial: invalid score inputs do not write misleading result",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-normalized-score.mjs', 'normalized-penalty'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok normalized-penalty') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-0fb7:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-0fb7",
+      "_id": "46ea10d2-a856-42dd-80e1-b54f2e56e7bf",
+      "prevCaseId": "ca038e53-e162-43d8-905f-56948fb3c7a9",
+      "nextCaseId": "bc409dec-d67f-4ba0-8527-331f7c5768b3"
+    },
+    {
+      "name": "CHK-002 happy: compare exposes normalizedScore and normalizedDelta",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-normalized-score.mjs', 'normalized-high'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok normalized-high') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-0fb7:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-0fb7",
+      "_id": "bc409dec-d67f-4ba0-8527-331f7c5768b3",
+      "prevCaseId": "46ea10d2-a856-42dd-80e1-b54f2e56e7bf",
+      "nextCaseId": "25078dea-220e-4a3e-a9b4-6c6a1d593043"
+    },
+    {
+      "name": "CHK-002 edge: promote exposes score and normalizedScore",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-normalized-score.mjs', 'normalized-high'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok normalized-high') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-0fb7:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-0fb7",
+      "_id": "25078dea-220e-4a3e-a9b4-6c6a1d593043",
+      "prevCaseId": "bc409dec-d67f-4ba0-8527-331f7c5768b3",
+      "nextCaseId": "fb9873c3-495c-4e1c-a1af-d794f9cb50cd"
+    },
+    {
+      "name": "CHK-002 adversarial: promote gate still uses kept run status",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-normalized-score.mjs', 'promote-gate'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok promote-gate') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-0fb7:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-0fb7",
+      "_id": "fb9873c3-495c-4e1c-a1af-d794f9cb50cd",
+      "prevCaseId": "25078dea-220e-4a3e-a9b4-6c6a1d593043",
+      "nextCaseId": "18afd7fb-c175-4940-b51e-2b7cccf70705"
+    },
+    {
+      "name": "CHK-003 happy: normalized score regression script passes",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-normalized-score.mjs', 'normalized-high'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok normalized-high') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-0fb7:CHK-003:happy:0",
+      "sandbox": false,
+      "storyId": "B-0fb7",
+      "_id": "18afd7fb-c175-4940-b51e-2b7cccf70705",
+      "prevCaseId": "fb9873c3-495c-4e1c-a1af-d794f9cb50cd",
+      "nextCaseId": "8d662865-7984-4748-ae5e-1c6789c34d7c"
+    },
+    {
+      "name": "CHK-003 edge: old run compatibility is preserved by compare fallback",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-normalized-score.mjs', 'normalized-penalty'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok normalized-penalty') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-0fb7:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-0fb7",
+      "_id": "8d662865-7984-4748-ae5e-1c6789c34d7c",
+      "prevCaseId": "18afd7fb-c175-4940-b51e-2b7cccf70705",
+      "nextCaseId": "8dcb34f5-8b75-4116-a59c-242cc0e7ddb2"
+    },
+    {
+      "name": "CHK-003 adversarial: rejected run cannot promote despite normalized score",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-normalized-score.mjs', 'promote-gate'], { cwd: $root, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] }); return { ok: out.includes('ok promote-gate') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-0fb7:CHK-003:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-0fb7",
+      "_id": "8dcb34f5-8b75-4116-a59c-242cc0e7ddb2",
+      "prevCaseId": "8d662865-7984-4748-ae5e-1c6789c34d7c"
+    }
+  ]
+}

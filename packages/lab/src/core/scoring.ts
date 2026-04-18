@@ -57,6 +57,16 @@ export function computeTotalScore(metrics: LabRunMetrics, scoring: LabScoringCon
   return round(clamp01(total));
 }
 
+export function computeNormalizedScore(metrics: LabRunMetrics): number {
+  validateMetrics(metrics);
+  const normalized =
+    clamp01(metrics.quality) -
+    clamp01(metrics.latencyPenalty) * 0.15 -
+    clamp01(metrics.complexityPenalty) * 0.15 -
+    clamp01(metrics.stabilityPenalty) * 0.1;
+  return round(clamp01(normalized));
+}
+
 export function computeStdDev(values: number[]): number {
   if (values.length <= 1) return 0;
   const mean = values.reduce((sum, value) => sum + value, 0) / values.length;

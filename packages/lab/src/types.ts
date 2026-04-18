@@ -92,6 +92,7 @@ export interface LabRunMetrics {
   latencyPenalty: number;
   complexityPenalty: number;
   stabilityPenalty: number;
+  normalizedScore?: number;
   submetrics: Record<string, number>;
   notes?: string[];
 }
@@ -100,8 +101,11 @@ export interface LabRunResult {
   runId: string;
   status: LabRunStatus;
   score: number;
+  normalizedScore?: number;
   baselineScore: number;
+  baselineNormalizedScore?: number;
   delta: number;
+  normalizedDelta?: number;
   candidatePatch: string | null;
   changedFiles: number;
   changedLines: number;
@@ -116,6 +120,7 @@ export interface LabBaselineRecord {
   experimentId: string;
   ref: string;
   score: number;
+  normalizedScore?: number;
   metrics: LabRunMetrics;
   evaluatedAt: string;
 }
