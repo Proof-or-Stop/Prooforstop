@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from 'fs';
 import { isAbsolute, join } from 'path';
 import type { HandlerContext } from '../../../main/dist/handlers/context.js';
 import { buildExperimentConfig, validateExperimentConfig } from '../core/config.js';
+import { createCandidatePatch } from '../core/diff.js';
 import { resolveProfile } from '../core/profile.js';
 import { evaluatePatchPolicy, parsePatchTouchedPaths, readPatchFile } from '../core/patch-policy.js';
 import { createSandbox, planSandbox } from '../core/sandbox.js';
@@ -224,6 +225,11 @@ export function createLabHandlers(ctx: HandlerContext) {
       }
 
       createSandbox(root, sandbox);
+      const patch = createCandidatePatch({
+        root,
+        config,
+        runId,
+      });
       const baseline = evaluateBaseline({
         root,
         config,
@@ -234,11 +240,20 @@ export function createLabHandlers(ctx: HandlerContext) {
         config,
         targetPath: config.target.entryFile,
       });
-      const decision = decideCandidate({
+      let decision = decideCandidate({
         baselineScore: baseline.score,
         candidateScore: candidate.score,
         selection: config.selectionPolicy,
       });
+      if (!patch.patchPath) {
+        decision = {
+          status: 'rejected',
+          delta: candidate.score - baseline.score,
+          reason: patch.violations.length > 0
+            ? `candidate patch rejected by patch policy: ${patch.violations.join('; ')}`
+            : 'no candidate patch relative to baseline',
+        };
+      }
       writeBaselineRecord(root, config, baseline);
       writeRunArtifacts({
         root,
@@ -252,7 +267,8 @@ export function createLabHandlers(ctx: HandlerContext) {
           score: candidate.score,
           baselineScore: baseline.score,
           delta: decision.delta,
-          changedFiles: candidate.changedFiles,
+          candidatePatch: patch.patchPath,
+          changedFiles: patch.touchedPaths.length || candidate.changedFiles,
           changedLines: candidate.changedLines,
           reason: decision.reason,
         },
@@ -265,11 +281,12 @@ export function createLabHandlers(ctx: HandlerContext) {
           `Score: ${candidate.score}`,
           `Baseline: ${baseline.score}`,
           `Delta: ${decision.delta}`,
+          `Patch: ${patch.patchPath ?? '(none)'}`,
           '',
           `Why ${decision.status}:`,
           `- ${decision.reason}`,
           `- profile: ${config.dataset.profile}`,
-          `- changed files: ${candidate.changedFiles}, changed lines: ${candidate.changedLines}`,
+          `- changed files: ${patch.touchedPaths.length || candidate.changedFiles}, changed lines: ${candidate.changedLines}`,
         ].join('\n'),
       });
 
@@ -278,6 +295,7 @@ export function createLabHandlers(ctx: HandlerContext) {
         `[lab] branch: ${sandbox.branch}`,
         `[lab] score: ${candidate.score} (baseline ${baseline.score}, delta ${decision.delta})`,
         `[lab] decision: ${decision.status}`,
+        `[lab] patch: ${patch.patchPath ?? '(none)'}`,
         `✓ ${decision.reason}.`,
       ].join('\n');
     },
@@ -315,6 +333,8 @@ export function createLabHandlers(ctx: HandlerContext) {
           score: best.result.score,
           status: best.result.status,
           delta: best.result.delta,
+          patch: best.result.candidatePatch,
+          reason: best.result.reason,
         },
         decision: best.result.status,
         runs: runs.map((run) => ({
@@ -322,6 +342,7 @@ export function createLabHandlers(ctx: HandlerContext) {
           score: run.result.score,
           status: run.result.status,
           delta: run.result.delta,
+          patch: run.result.candidatePatch,
         })),
       }, null, 2);
     },
@@ -342,6 +363,8 @@ export function createLabHandlers(ctx: HandlerContext) {
         status: 'ready_for_review',
         bestRunId: best.runId,
         promotePatch: best.result.candidatePatch,
+        baselineRef: config.baseline.ref,
+        reason: best.result.reason,
         summaryPath: `${config.outputs.runDir}/${best.runId}/summary.md`,
       }, null, 2);
     },
