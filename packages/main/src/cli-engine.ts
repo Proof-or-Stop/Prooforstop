@@ -304,6 +304,11 @@ export const MAIN_TOOLS: ToolDef[] = [
  */
 let TOOLS: ToolDef[] = MAIN_TOOLS;
 
+function displayCommandName(name: string): string {
+  if (name.startsWith('lab_')) return `lab ${name.slice(4)}`;
+  return name;
+}
+
 // ── Phase detection ──
 
 interface ActiveStory { storyId: string; phase: string; }
@@ -352,7 +357,8 @@ function getDesc(t: ZodType): string {
 }
 
 function printToolHelp(tool: ToolDef) {
-  console.log(`\n  koala ${tool.name} — ${tool.description}\n`);
+  const displayName = displayCommandName(tool.name);
+  console.log(`\n  koala ${displayName} — ${tool.description}\n`);
 
   // 如果有 longHelp（核心命令），先打印完整 PROMPT
   if (tool.longHelp) {
@@ -363,7 +369,7 @@ function printToolHelp(tool: ToolDef) {
   const entries = Object.entries(tool.schema);
   if (entries.length === 0) {
     console.log('  无参数\n');
-    console.log(`  用法: koala ${tool.name}`);
+    console.log(`  用法: koala ${displayName}`);
     console.log(SESSION_BRIEF_FOOTER);
     return;
   }
@@ -385,9 +391,35 @@ function printToolHelp(tool: ToolDef) {
     const base = inner instanceof ZodOptional ? (inner as any)._def.innerType : inner;
     return base instanceof ZodBoolean ? `[--${k}]` : `[--${k}=值]`;
   });
-  console.log(`\n  用法: koala ${tool.name} ${[...reqParts, ...optParts].join(' ')}`);
+  console.log(`\n  用法: koala ${displayName} ${[...reqParts, ...optParts].join(' ')}`);
   console.log('  (* = 必填)');
   console.log(SESSION_BRIEF_FOOTER);
+}
+
+function printNamespaceHelp(namespace: 'lab') {
+  const tools = TOOLS.filter((tool) => tool.name.startsWith(`${namespace}_`));
+  if (tools.length === 0) {
+    const reason = process.env.KOALA_LAB_IMPORT_ERROR
+      ? `\n  Lab import error: ${process.env.KOALA_LAB_IMPORT_ERROR}`
+      : '';
+    console.log(`\n  koala lab — koala-lab 尚未构建，当前不可用。\n`);
+    console.log('  Recovery:');
+    console.log('    1. npm --prefix packages/main run build');
+    console.log('    2. npm --prefix packages/utils run build');
+    console.log('    3. npm --prefix packages/lab run build');
+    console.log('    4. Retry: koala lab create --target=test-case-reviewer --profile=reviewer-quality-v1');
+    if (reason) console.log(reason);
+    console.log('');
+    return;
+  }
+
+  const maxN = Math.max(...tools.map((tool) => displayCommandName(tool.name).length), 0);
+  console.log(`\n  koala lab — 离线优化实验室\n`);
+  console.log('  用法: koala lab <subcommand> [flags]\n');
+  for (const tool of tools) {
+    console.log(`    ${displayCommandName(tool.name).padEnd(maxN + 2)} ${tool.description}`);
+  }
+  console.log('\n  提示: 用 `koala lab <subcommand> --help` 查看参数\n');
 }
 
 function printHelp(activeStory?: ActiveStory | null) {
@@ -412,13 +444,14 @@ function printHelp(activeStory?: ActiveStory | null) {
     bug: 'Bug',
     test: 'Test',
     fixture: 'Fixture',
+    lab: 'Lab',
     aux: 'Aux',
     truth: 'Truth',
     gap: 'Gap',
     convergence: 'Gap',
   };
   // 已知分组的展示顺序；不在列表里的分组（来自 extras）按字母序追加
-  const KNOWN_ORDER = ['Story', 'Review', 'Checklist', 'Bug', 'Test', 'Fixture', 'Truth', 'Gap', 'Aux'];
+  const KNOWN_ORDER = ['Story', 'Review', 'Checklist', 'Bug', 'Test', 'Fixture', 'Truth', 'Gap', 'Aux', 'Lab'];
 
   const groups: Record<string, ToolDef[]> = {};
   for (const t of TOOLS) {
@@ -441,7 +474,7 @@ function printHelp(activeStory?: ActiveStory | null) {
   ];
   for (const g of orderedGroups) {
     console.log(`  ${g}:`);
-    for (const t of groups[g]) console.log(`    ${t.name.padEnd(maxN + 2)} ${t.description}`);
+    for (const t of groups[g]) console.log(`    ${displayCommandName(t.name).padEnd(maxN + 2)} ${t.description}`);
   }
   console.log(`
   开发流程:
@@ -617,14 +650,30 @@ export async function runCli(opts?: {
   const ri = argv.indexOf('--root');
   if (ri !== -1 && argv[ri + 1]) { rootOverride = argv[ri + 1]; argv.splice(ri, 2); }
 
-  const cmd = argv[0];
-  const arg = argv[1];
+  let cmd = argv[0];
+  let arg = argv[1];
+  let rawArgStart = 1;
 
   // Detect active story from git branch
   const root0 = resolveRoot(rootOverride);
   const activeStory = detectActiveStory(root0);
 
   if (!cmd || cmd === 'help' || cmd === '--help') { printHelp(activeStory); return; }
+
+  if (cmd === 'lab') {
+    const hasLabTools = TOOLS.some((tool) => tool.name.startsWith('lab_'));
+    if (!hasLabTools) {
+      printNamespaceHelp('lab');
+      process.exit(1);
+    }
+    if (!argv[1] || argv[1] === 'help' || argv[1] === '--help' || argv[1] === '-h') {
+      printNamespaceHelp('lab');
+      return;
+    }
+    cmd = `lab_${argv[1]}`;
+    arg = argv[2];
+    rawArgStart = 2;
+  }
 
   // init 走独立脚本
   if (cmd === 'init') {
@@ -637,7 +686,7 @@ export async function runCli(opts?: {
   if (!tool) {
     console.error(`未知命令: ${cmd}`);
     const m = TOOLS.filter(t => t.name.includes(cmd) || cmd.includes(t.name.split('_')[0]));
-    if (m.length) { console.error('你是不是要找:'); for (const t of m) console.error(`  koala ${t.name}`); }
+    if (m.length) { console.error('你是不是要找:'); for (const t of m) console.error(`  koala ${displayCommandName(t.name)}`); }
     console.error('用 koala help 查看所有命令');
     process.exit(1);
   }
@@ -662,7 +711,7 @@ export async function runCli(opts?: {
   //   3. '{"key":"value"}'  (JSON body, 兼容旧用法)
   let parsed: Record<string, unknown> = {};
   {
-    const rawArgs = argv.slice(1);
+    const rawArgs = argv.slice(rawArgStart);
     if (rawArgs.length === 0) {
       // 无参数，空对象
     } else if (rawArgs.length === 1 && rawArgs[0].startsWith('{')) {

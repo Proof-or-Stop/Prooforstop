@@ -14,6 +14,7 @@ Koala 是一套围绕 Story 工作流的 AI 开发编排 CLI。这个仓库当�
 ```bash
 npm --prefix packages/main run build
 npm --prefix packages/utils run build
+npm --prefix packages/lab run build
 ```
 
 ### 2. 在 Codex 里优先用仓库内入口
@@ -22,11 +23,13 @@ npm --prefix packages/utils run build
 node bin/koala-codex.js session_brief
 node bin/koala-codex.js aux_doc_list --format=json
 node bin/koala-codex.js story_create '...'
+node bin/koala-codex.js lab create --target=test-case-reviewer --profile=reviewer-quality-v1
 ```
 
 原因：
 
 - 这个入口会加载 `main + utils`，所以 `aux_*` 命令可用
+- 如果 `packages/lab` 已构建，它也会把 `koala lab ...` 子命令一起接进来
 - 它会把 Koala 调用写入 `docs/story/activity.jsonl`
 - 写入记录会带 `source=codex`，可以和普通 CLI、Claude Code 区分
 
@@ -87,7 +90,24 @@ KOALA_ACTIVITY_SOURCE=codex koala session_brief
 ```bash
 npm --prefix packages/main run build
 npm --prefix packages/utils run build
+npm --prefix packages/lab run build
 ```
+
+## koala-lab
+
+`koala-lab` 是 Koala 的离线优化实验室，用来创建实验配置、预览隔离 sandbox、校验 patch 白名单，以及为后续 compare/promote 留出统一骨架。
+
+```bash
+node bin/koala.js lab create --target=test-case-reviewer --profile=reviewer-quality-v1
+node bin/koala.js lab run --config experiments/configs/lab-reviewer-reviewer-quality-v1.json --dry-run
+node bin/koala.js lab eval '{"config":"experiments/configs/lab-reviewer-reviewer-quality-v1.json","files":[".Codex/agents/test-case-reviewer.md"]}'
+```
+
+第一版默认只支持离线、安全的实验配置：
+
+- `lab run` 需要先 `--dry-run` 预览，真实创建 sandbox 时带 `--confirm`
+- `lab eval` 默认拦截 `docs/story`、`tests/fixtures` 和任何不在 `editableFiles` 白名单内的路径
+- `packages/lab` 未构建时，普通 `koala` 命令仍可继续使用；只有 `koala lab ...` 会提示补 build
 
 ## Claude Code
 

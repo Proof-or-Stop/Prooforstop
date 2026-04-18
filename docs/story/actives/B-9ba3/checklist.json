@@ -11,7 +11,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "创建一个最小 reviewer 实验配置 → 返回 experiment.json，自动填入默认 budget、candidatePolicy、selectionPolicy 字段",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "配置只传 target/profile 等最小输入 → 缺省字段仍落成安全默认值，不要求用户补全危险开关",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "配置中尝试声明 allowStoryMutation 或 allowFixtureMutation 为 true → schema 校验或策略层拒绝越权默认值",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -24,7 +44,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "运行 koala lab create → CLI 能识别 lab 子命令并生成实验配置路径与 next step",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "packages/lab 未构建时执行普通非 lab 命令 → 主系统仍可正常运行，不因 lab 缺失整体报错",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "输入未知子命令 koala lab explode → 返回 lab 相关帮助和有效建议，而不是误路由到普通命令",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -36,7 +76,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "运行 koala lab run --dry-run → 输出独立 sandbox/worktree 路径和将写入的结果文件清单，不修改正式项目文件",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "实验目录不存在时首次运行 → 自动创建 experiments/runs 和所需子目录并写入 config snapshot/result 占位产物",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "sandbox/worktree 创建失败或路径冲突 → 命令明确报错并清理半成品目录，不留下伪活跃 worktree",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
@@ -47,9 +107,29 @@
         "AGENTS.md#规则",
         "docs/requirements/decisions/test-fixture-spec.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-18T00:22:10.425Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "候选 patch 只修改 editableFiles 白名单中的 prompt 文件 → 实验允许运行并记录通过的 policy 检查结果",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "候选 patch 同时触碰白名单文件和一个额外未授权源码文件 → policy 明确指出越权文件并拒绝执行",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "候选 patch 试图修改 docs/story 或 tests/fixtures 路径 → 即使路径存在也被强制拦截，实验结果标记为 rejected",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }
