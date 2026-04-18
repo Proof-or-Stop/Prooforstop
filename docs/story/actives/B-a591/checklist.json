@@ -1,0 +1,53 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "实现统一 total score 评分器",
+      "context": "把 quality latency complexity stability 四类分值收敛到统一公式中，避免不同实验目标各算各的，导致后续比较失真。",
+      "relatedDocs": [
+        "README.md",
+        "docs/requirements/decisions/framework.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "实现 eval profile 与 metric extractor 接口",
+      "context": "reviewer intent session brief gate recovery 等目标都要共用一套 profile 接口，不能把指标提取写死在 runner 中。",
+      "relatedDocs": [
+        "AGENTS.md#三方制衡",
+        "docs/requirements/decisions/test-intent-review.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "实现 baseline best candidate 的 keep discard 逻辑",
+      "context": "需要明确 minScoreGain no regression 和 tie break 的判定，保证实验能够稳定输出保留或丢弃决策。",
+      "relatedDocs": [
+        "AGENTS.md#主 agent 行为准则",
+        "docs/requirements/decisions/project-vision.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "实现重复评估与稳定性惩罚",
+      "context": "同一候选至少重复评估两次，识别高方差和 crash，避免把偶然好结果 promote 成默认策略。",
+      "relatedDocs": [
+        "AGENTS.md#TEST 阶段详细流程",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
