@@ -45,6 +45,10 @@ export function validateMetrics(metrics: LabRunMetrics): void {
 
 export function computeTotalScore(metrics: LabRunMetrics, scoring: LabScoringConfig): number {
   validateMetrics(metrics);
+  ensureFinite('qualityWeight', scoring.qualityWeight);
+  ensureFinite('latencyWeight', scoring.latencyWeight);
+  ensureFinite('complexityWeight', scoring.complexityWeight);
+  ensureFinite('stabilityWeight', scoring.stabilityWeight);
   const total =
     clamp01(metrics.quality) * scoring.qualityWeight -
     clamp01(metrics.latencyPenalty) * scoring.latencyWeight -

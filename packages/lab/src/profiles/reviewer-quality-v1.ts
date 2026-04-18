@@ -47,6 +47,9 @@ export function evaluateReviewerQualityProfile(ctx: LabProfileContext): LabRunMe
   let qualityAdjustment = 0;
   if (text.includes('[lab:boost-reviewer]')) qualityAdjustment += 0.12;
   if (text.includes('[lab:weaken-reviewer]')) qualityAdjustment -= 0.12;
+  if (text.includes('[lab:soft-volatile]')) {
+    qualityAdjustment += ctx.repeatIndex % 2 === 0 ? 0.03 : -0.03;
+  }
   if (text.includes('[lab:volatile]')) {
     qualityAdjustment += ctx.repeatIndex % 2 === 0 ? 0.14 : -0.14;
   }

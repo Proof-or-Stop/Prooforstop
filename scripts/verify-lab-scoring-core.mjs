@@ -7,6 +7,7 @@ import { join } from 'path';
 
 const repoRoot = process.cwd();
 const cli = join(repoRoot, 'bin', 'koala.js');
+const mode = process.argv[2] || 'all';
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -53,6 +54,19 @@ function createTempProject(initialPrompt) {
   return dir;
 }
 
+function readRunArtifacts(projectRoot) {
+  const runRoot = join(projectRoot, 'experiments', 'runs', 'lab-reviewer-reviewer-quality-v1', 'run-001');
+  return {
+    metrics: JSON.parse(readFileSync(join(runRoot, 'metrics.json'), 'utf8')),
+    result: JSON.parse(readFileSync(join(runRoot, 'result.json'), 'utf8')),
+    compare: parseCliJson(run(projectRoot, ['lab', 'compare', '--config', 'experiments/configs/lab-reviewer-reviewer-quality-v1.json'])),
+  };
+}
+
+function rewritePrompt(projectRoot, prompt) {
+  writeFileSync(join(projectRoot, '.Codex', 'agents', 'test-case-reviewer.md'), prompt);
+}
+
 const strongPrompt = [
   '# reviewer',
   '判定权在你',
@@ -80,80 +94,192 @@ const weakPrompt = [
   '',
 ].join('\n');
 
-const checks = [];
-
-checks.push(() => {
-  const temp = createTempProject(weakPrompt);
-  try {
-    writeFileSync(join(temp, '.Codex', 'agents', 'test-case-reviewer.md'), strongPrompt);
-    const runOut = run(temp, ['lab', 'run', '--config', 'experiments/configs/lab-reviewer-reviewer-quality-v1.json', '--confirm']);
-    const compare = parseCliJson(run(temp, ['lab', 'compare', '--config', 'experiments/configs/lab-reviewer-reviewer-quality-v1.json']));
-    const promote = parseCliJson(run(temp, ['lab', 'promote', '--config', 'experiments/configs/lab-reviewer-reviewer-quality-v1.json']));
-    assert(runOut.includes('decision: kept'), 'candidate should be kept when reviewer prompt adds missing rubric');
-    assert(compare.decision === 'kept', 'compare should report kept decision');
-    assert(promote.status === 'ready_for_review', 'promote should succeed for kept run');
-  } finally {
-    rmSync(temp, { recursive: true, force: true });
-  }
-});
-
-checks.push(() => {
-  const temp = createTempProject(strongPrompt);
-  try {
-    writeFileSync(join(temp, '.Codex', 'agents', 'test-case-reviewer.md'), `${strongPrompt}${'padding line\\n'.repeat(260)}`);
-    const runOut = run(temp, ['lab', 'run', '--config', 'experiments/configs/lab-reviewer-reviewer-quality-v1.json', '--confirm']);
-    assert(runOut.includes('decision: rejected'), 'candidate with heavy latency/complexity should be rejected');
-  } finally {
-    rmSync(temp, { recursive: true, force: true });
-  }
-});
-
-checks.push(() => {
-  const temp = createTempProject(weakPrompt);
-  try {
-    const distPath = join(temp, '.Codex', 'agents', 'test-case-reviewer.md');
-    writeFileSync(distPath, `${weakPrompt}[lab:volatile]\n5 轮 cap\n`);
-    run(temp, ['lab', 'run', '--config', 'experiments/configs/lab-reviewer-reviewer-quality-v1.json', '--confirm']);
-    const result = JSON.parse(readFileSync(join(temp, 'experiments', 'runs', 'lab-reviewer-reviewer-quality-v1', 'run-001', 'result.json'), 'utf8'));
-    const metrics = JSON.parse(readFileSync(join(temp, 'experiments', 'runs', 'lab-reviewer-reviewer-quality-v1', 'run-001', 'metrics.json'), 'utf8'));
-    assert(metrics.stabilityPenalty > 0, 'volatile candidate should carry a stability penalty');
-    assert(result.score < 1, 'stability penalty should reduce the total score');
-  } finally {
-    rmSync(temp, { recursive: true, force: true });
-  }
-});
-
-checks.push(() => {
-  const temp = createTempProject(strongPrompt);
-  try {
-    let failed = false;
+const cases = {
+  'score-happy': () => {
+    const temp = createTempProject(weakPrompt);
     try {
-      run(temp, ['lab', 'compare', '--config', 'experiments/configs/missing.json']);
-    } catch {
-      failed = true;
-    }
-    assert(failed, 'compare should fail for missing config');
-
-    const configPath = join(temp, 'experiments', 'configs', 'lab-reviewer-reviewer-quality-v1.json');
-    const config = JSON.parse(readFileSync(configPath, 'utf8'));
-    config.dataset.profile = 'unknown-profile';
-    writeFileSync(configPath, JSON.stringify(config, null, 2));
-    failed = false;
-    try {
+      rewritePrompt(temp, strongPrompt);
       run(temp, ['lab', 'run', '--config', 'experiments/configs/lab-reviewer-reviewer-quality-v1.json', '--confirm']);
-    } catch (error) {
-      const text = String(error.stdout || '') + String(error.stderr || '');
-      failed = text.includes('未知 koala-lab profile');
+      const { result } = readRunArtifacts(temp);
+      assert(result.score > result.baselineScore, 'happy score should beat baseline');
+      assert(Number.isFinite(result.score), 'happy score should be finite');
+    } finally {
+      rmSync(temp, { recursive: true, force: true });
     }
-    assert(failed, 'unknown profile should fail with explicit profile error');
-  } finally {
-    rmSync(temp, { recursive: true, force: true });
-  }
-});
+  },
+  'score-edge': () => {
+    const temp = createTempProject(strongPrompt);
+    try {
+      rewritePrompt(temp, `${strongPrompt}${'padding line\n'.repeat(260)}`);
+      const out = run(temp, ['lab', 'run', '--config', 'experiments/configs/lab-reviewer-reviewer-quality-v1.json', '--confirm']);
+      assert(out.includes('decision: rejected'), 'edge score should reject high-penalty candidate');
+    } finally {
+      rmSync(temp, { recursive: true, force: true });
+    }
+  },
+  'score-invalid': () => {
+    const temp = createTempProject(weakPrompt);
+    try {
+      const configPath = join(temp, 'experiments', 'configs', 'lab-reviewer-reviewer-quality-v1.json');
+      const config = JSON.parse(readFileSync(configPath, 'utf8'));
+      config.scoring.qualityWeight = 'oops';
+      writeFileSync(configPath, JSON.stringify(config, null, 2));
+      let failed = false;
+      try {
+        run(temp, ['lab', 'run', '--config', 'experiments/configs/lab-reviewer-reviewer-quality-v1.json', '--confirm']);
+      } catch (error) {
+        const text = String(error.stdout || '') + String(error.stderr || '');
+        failed = text.includes('qualityWeight') || text.includes('invalid baselineScore');
+      }
+      assert(failed, 'invalid scoring weights should fail explicitly');
+    } finally {
+      rmSync(temp, { recursive: true, force: true });
+    }
+  },
+  'profile-happy': () => {
+    const temp = createTempProject(weakPrompt);
+    try {
+      rewritePrompt(temp, strongPrompt);
+      run(temp, ['lab', 'run', '--config', 'experiments/configs/lab-reviewer-reviewer-quality-v1.json', '--confirm']);
+      const { metrics } = readRunArtifacts(temp);
+      assert(metrics.profile === 'reviewer-quality-v1', 'metrics should record reviewer profile name');
+      assert(typeof metrics.submetrics.fileLineEvidence === 'number', 'profile should emit numeric submetrics');
+    } finally {
+      rmSync(temp, { recursive: true, force: true });
+    }
+  },
+  'profile-edge': () => {
+    const temp = createTempProject(weakPrompt);
+    try {
+      rewritePrompt(temp, weakPrompt);
+      run(temp, ['lab', 'run', '--config', 'experiments/configs/lab-reviewer-reviewer-quality-v1.json', '--confirm']);
+      const { metrics } = readRunArtifacts(temp);
+      assert(Object.prototype.hasOwnProperty.call(metrics.submetrics, 'capGuidance'), 'profile should keep default submetric shape even when cap guidance is absent');
+    } finally {
+      rmSync(temp, { recursive: true, force: true });
+    }
+  },
+  'profile-unknown': () => {
+    const temp = createTempProject(weakPrompt);
+    try {
+      const configPath = join(temp, 'experiments', 'configs', 'lab-reviewer-reviewer-quality-v1.json');
+      const config = JSON.parse(readFileSync(configPath, 'utf8'));
+      config.dataset.profile = 'unknown-profile';
+      writeFileSync(configPath, JSON.stringify(config, null, 2));
+      let failed = false;
+      try {
+        run(temp, ['lab', 'run', '--config', 'experiments/configs/lab-reviewer-reviewer-quality-v1.json', '--confirm']);
+      } catch (error) {
+        const text = String(error.stdout || '') + String(error.stderr || '');
+        failed = text.includes('未知 koala-lab profile');
+      }
+      assert(failed, 'unknown profile should fail with explicit error');
+    } finally {
+      rmSync(temp, { recursive: true, force: true });
+    }
+  },
+  'compare-kept': () => {
+    const temp = createTempProject(weakPrompt);
+    try {
+      rewritePrompt(temp, strongPrompt);
+      run(temp, ['lab', 'run', '--config', 'experiments/configs/lab-reviewer-reviewer-quality-v1.json', '--confirm']);
+      const { compare } = readRunArtifacts(temp);
+      assert(compare.decision === 'kept', 'compare should report kept for improved candidate');
+      assert(compare.best.delta > 0, 'compare should expose a positive delta');
+    } finally {
+      rmSync(temp, { recursive: true, force: true });
+    }
+  },
+  'compare-discard': () => {
+    const temp = createTempProject(strongPrompt);
+    try {
+      rewritePrompt(temp, `${strongPrompt}${'padding line\n'.repeat(260)}`);
+      run(temp, ['lab', 'run', '--config', 'experiments/configs/lab-reviewer-reviewer-quality-v1.json', '--confirm']);
+      const { compare } = readRunArtifacts(temp);
+      assert(compare.decision === 'rejected', 'compare should report rejected for discarded candidate');
+    } finally {
+      rmSync(temp, { recursive: true, force: true });
+    }
+  },
+  'promote-no-kept': () => {
+    const temp = createTempProject(strongPrompt);
+    try {
+      rewritePrompt(temp, `${strongPrompt}${'padding line\n'.repeat(260)}`);
+      run(temp, ['lab', 'run', '--config', 'experiments/configs/lab-reviewer-reviewer-quality-v1.json', '--confirm']);
+      let failed = false;
+      try {
+        run(temp, ['lab', 'promote', '--config', 'experiments/configs/lab-reviewer-reviewer-quality-v1.json']);
+      } catch (error) {
+        const text = String(error.stdout || '') + String(error.stderr || '');
+        failed = text.includes('还没有可晋升的 kept run');
+      }
+      assert(failed, 'promote should fail when no kept run exists');
+    } finally {
+      rmSync(temp, { recursive: true, force: true });
+    }
+  },
+  'stability-stable': () => {
+    const temp = createTempProject(weakPrompt);
+    try {
+      rewritePrompt(temp, strongPrompt);
+      run(temp, ['lab', 'run', '--config', 'experiments/configs/lab-reviewer-reviewer-quality-v1.json', '--confirm']);
+      const { metrics } = readRunArtifacts(temp);
+      assert(metrics.stabilityPenalty === 0, 'stable candidate should have zero stability penalty');
+    } finally {
+      rmSync(temp, { recursive: true, force: true });
+    }
+  },
+  'stability-soft-volatile': () => {
+    const temp = createTempProject(weakPrompt);
+    try {
+      rewritePrompt(temp, [
+        '# reviewer',
+        '判定权在你',
+        '不要运行 test_auto',
+        'file:line',
+        'severity',
+        '5 轮 cap',
+        '不修改代码',
+        '不修改测试',
+        'testintent_check',
+        '[lab:soft-volatile]',
+        '',
+      ].join('\n'));
+      run(temp, ['lab', 'run', '--config', 'experiments/configs/lab-reviewer-reviewer-quality-v1.json', '--confirm']);
+      const { metrics } = readRunArtifacts(temp);
+      assert(metrics.submetrics.stabilityStdDev > 0, 'soft volatile candidate should report non-zero stddev');
+      assert(metrics.stabilityPenalty === 0, 'soft volatility below threshold should not be penalized');
+    } finally {
+      rmSync(temp, { recursive: true, force: true });
+    }
+  },
+  'stability-crash': () => {
+    const temp = createTempProject(weakPrompt);
+    try {
+      rewritePrompt(temp, `${strongPrompt}[lab:crash-on-repeat]\n`);
+      run(temp, ['lab', 'run', '--config', 'experiments/configs/lab-reviewer-reviewer-quality-v1.json', '--confirm']);
+      const { metrics, result } = readRunArtifacts(temp);
+      assert(metrics.stabilityPenalty > 0, 'crash-on-repeat candidate should be penalized');
+      assert(result.status === 'rejected', 'crash-on-repeat candidate should not be kept');
+    } finally {
+      rmSync(temp, { recursive: true, force: true });
+    }
+  },
+};
 
-for (const [index, check] of checks.entries()) {
+if (mode !== 'all') {
+  const target = cases[mode];
+  if (!target) {
+    throw new Error(`unknown verify-lab-scoring-core mode: ${mode}`);
+  }
+  target();
+  console.log(`ok ${mode}`);
+  process.exit(0);
+}
+
+for (const [name, check] of Object.entries(cases)) {
   check();
-  console.log(`ok ${index + 1}/${checks.length}`);
+  console.log(`ok ${name}`);
 }
 
 console.log('lab scoring core verified');
