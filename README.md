@@ -109,6 +109,21 @@ node bin/koala.js lab eval '{"config":"experiments/configs/lab-reviewer-reviewer
 - `lab eval` 默认拦截 `docs/story`、`tests/fixtures` 和任何不在 `editableFiles` 白名单内的路径
 - `packages/lab` 未构建时，普通 `koala` 命令仍可继续使用；只有 `koala lab ...` 会提示补 build
 
+当前 `reviewer-quality-v1` 已经能给出真实的 baseline / score / delta / kept-discard 决策：
+
+```bash
+node bin/koala.js lab run --config experiments/configs/lab-reviewer-reviewer-quality-v1.json --confirm
+node bin/koala.js lab compare --config experiments/configs/lab-reviewer-reviewer-quality-v1.json
+node bin/koala.js lab promote --config experiments/configs/lab-reviewer-reviewer-quality-v1.json
+```
+
+可用回归：
+
+```bash
+npm run test:lab-foundation
+npm run test:lab-scoring-core
+```
+
 ## Claude Code
 
 Claude Code 侧仍然使用 `.claude/` 下的配置和 hooks。Codex 侧的说明放在：

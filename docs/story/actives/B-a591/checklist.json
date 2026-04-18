@@ -1,0 +1,229 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "实现统一 total score 评分器",
+      "context": "把 quality latency complexity stability 四类分值收敛到统一公式中，避免不同实验目标各算各的，导致后续比较失真。",
+      "relatedDocs": [
+        "README.md",
+        "docs/requirements/decisions/framework.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-18T01:09:02.124Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "给定一组 quality/latency/complexity/stability 指标 → 统一评分器返回可复算的 total score",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T01:10:10.666Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-scoring-core.json:4 — case runs score-happy and proves lab_run writes a finite score higher than baseline, covering deterministic total-score generation | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "quality 很高但 complexity penalty 也很高 → total score 会被拉低，而不是盲目保留",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T01:10:10.929Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-scoring-core.json:18 — case runs score-edge and shows penalty-heavy input gets rejected despite high base quality, covering the complexity-overrides-quality edge path | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "输入包含 NaN/越界权重或缺失关键字段 → 评分器拒绝非法输入而不是产出误导分数",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T01:10:11.176Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-scoring-core.json:33 — case runs score-invalid and confirms malformed scoring weights fail explicitly instead of yielding a misleading score | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "实现 eval profile 与 metric extractor 接口",
+      "context": "reviewer intent session brief gate recovery 等目标都要共用一套 profile 接口，不能把指标提取写死在 runner 中。",
+      "relatedDocs": [
+        "AGENTS.md#三方制衡",
+        "docs/requirements/decisions/test-intent-review.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-18T01:09:17.461Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "给 reviewer-quality-v1 提供一组样本 metrics → profile 输出统一格式的 metric bundle 给 scoring core 消费",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T01:10:11.419Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-scoring-core.json:48 — case runs profile-happy and verifies reviewer-quality-v1 emits a named metric bundle with numeric submetrics, matching the profile contract | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "profile 输入缺少可选子指标时 → 仍然返回稳定的默认 metric 结构，不把 compare 跑崩",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T01:10:11.660Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-scoring-core.json:63 — case runs profile-edge and proves missing optional cues still yield a stable metric shape, so compare does not crash on absent submetrics | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "请求未知 profile 名称 → lab_run/lab_compare 明确报错并提示可用 profile，而不是静默退回 placeholder",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T01:10:11.903Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-scoring-core.json:78 — case runs profile-unknown and confirms lab_run surfaces an explicit unknown-profile error instead of falling back to placeholders | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-003",
+      "title": "实现 baseline best candidate 的 keep discard 逻辑",
+      "context": "需要明确 minScoreGain no regression 和 tie break 的判定，保证实验能够稳定输出保留或丢弃决策。",
+      "relatedDocs": [
+        "AGENTS.md#主 agent 行为准则",
+        "docs/requirements/decisions/project-vision.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-18T01:08:40.587Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "baseline 和 candidate 的 score 都生成后 → lab_compare 返回 best run、delta 和 kept/discard decision",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T01:10:12.158Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-scoring-core.json:93 — case runs compare-kept and verifies lab_compare reports a positive delta plus kept decision for the best run | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "candidate 分数只比 baseline 高很小且低于 minScoreGain → compare/promote 把它标成 discarded",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T01:10:12.439Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-scoring-core.json:108 — case runs compare-discard and proves candidates below minScoreGain are marked rejected in compare output | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "没有任何有效 run 就调用 lab_promote → 明确失败并说明还缺少可晋升 run",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T01:10:12.708Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-scoring-core.json:123 — case runs promote-no-kept and confirms lab_promote fails clearly when there is no kept run to promote | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-004",
+      "title": "实现重复评估与稳定性惩罚",
+      "context": "同一候选至少重复评估两次，识别高方差和 crash，避免把偶然好结果 promote 成默认策略。",
+      "relatedDocs": [
+        "AGENTS.md#TEST 阶段详细流程",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-18T01:09:02.109Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "同一候选重复评估两次且结果稳定 → stability penalty 为 0 或极低，候选可正常参与 kept/discard 决策",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T01:10:12.960Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-scoring-core.json:138 — case runs stability-stable and verifies repeated evaluation can leave stabilityPenalty at zero for stable candidates | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "重复评估结果有轻微波动但未超阈值 → 记录 stddev 但不错误惩罚为 rejected",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T01:10:13.208Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-scoring-core.json:153 — case runs stability-soft-volatile and shows non-zero stddev can be recorded without triggering a penalty when volatility stays below threshold | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "重复评估中有 crash 或显著高方差 → stability penalty 增加并拉低 total score，防止偶然好结果被 promote",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T01:10:13.462Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-scoring-core.json:168 — case runs stability-crash and confirms crash-on-repeat raises stabilityPenalty and prevents the candidate from being kept | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

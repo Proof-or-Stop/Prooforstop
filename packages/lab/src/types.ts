@@ -2,6 +2,7 @@ export type LabTargetKind = 'prompt' | 'policy' | 'summary';
 export type LabMode = 'offline';
 export type LabStatus = 'draft' | 'active';
 export type LabSelectionTieBreak = 'lower_complexity';
+export type LabRunStatus = 'initialized' | 'kept' | 'rejected';
 
 export interface LabTargetConfig {
   kind: LabTargetKind;
@@ -92,11 +93,12 @@ export interface LabRunMetrics {
   complexityPenalty: number;
   stabilityPenalty: number;
   submetrics: Record<string, number>;
+  notes?: string[];
 }
 
 export interface LabRunResult {
   runId: string;
-  status: 'initialized' | 'kept' | 'rejected';
+  status: LabRunStatus;
   score: number;
   baselineScore: number;
   delta: number;
@@ -107,6 +109,29 @@ export interface LabRunResult {
     wallClockSeconds: number;
     evalSeconds: number;
   };
+  reason: string;
+}
+
+export interface LabBaselineRecord {
+  experimentId: string;
+  ref: string;
+  score: number;
+  metrics: LabRunMetrics;
+  evaluatedAt: string;
+}
+
+export interface LabProfileContext {
+  config: LabExperimentConfig;
+  content: string;
+  targetPath: string;
+  repeatIndex: number;
+  changedFiles: number;
+  changedLines: number;
+}
+
+export interface LabScoreDecision {
+  status: Exclude<LabRunStatus, 'initialized'>;
+  delta: number;
   reason: string;
 }
 
