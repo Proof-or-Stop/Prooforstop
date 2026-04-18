@@ -4,7 +4,7 @@
   "title": "全局 koala 支持 lab 扩展并发布 0.2.2",
   "description": "让全局安装的 @koala-agent/core 在启动 koala 时可加载 @koala-agent/lab，从而支持 koala lab create/run/eval/compare/promote。同步将 core/utils/lab 版本调整为 0.2.2，并补本地回归证明 core-only bin 也能显示 lab 命令。",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "lane": "mainline",
   "parallelSafe": "no",
@@ -17,7 +17,7 @@
   ],
   "createdAt": "2026-04-18T23:51:11.644Z",
   "startedAt": "2026-04-18T23:51:11.644Z",
-  "endedAt": null,
+  "endedAt": "2026-04-18T23:58:08.710Z",
   "events": [
     {
       "phase": "INIT",
@@ -74,11 +74,14 @@
       "branch": "story/B-48ac",
       "user": "Harmonygo",
       "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-18T23:58:08.710Z",
+      "branch": "story/B-48ac",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ],
-  "worktree": {
-    "path": ".worktrees/B-48ac",
-    "branch": "story/B-48ac",
-    "createdAt": "2026-04-18T23:52:28.050Z"
-  }
+  ]
 }
