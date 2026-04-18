@@ -8,9 +8,29 @@
         "README.md",
         "docs/requirements/decisions/project-vision.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-18T01:17:19.615Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "修改 reviewer prompt 后运行 lab_run → run 目录写出真实 patch.diff，并且 patch 内容对应 baseline ref 到当前 workspace 的改动",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "当前 workspace 没有改动 reviewer target 时运行 lab_run → patch.diff 为空或缺席，结果明确说明没有 candidate patch",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "patch 里混入 editableFiles 之外的路径 → reviewer MVP 仍然被 patch policy 拦截，不会把脏 patch 带进 promote",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -22,7 +42,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "存在 kept reviewer run 时调用 lab_compare/lab_promote → 输出包含 baseline ref、delta、decision 和 promotePatch 路径",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "compare 选 best run 时遇到同分候选 → 按 tieBreak 选择复杂度更低的 run，并在输出中保持稳定",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "candidate run 被 rejected 或 patch 缺失时调用 lab_promote → 明确拒绝，不会伪装成 ready_for_review",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -34,7 +74,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "真实 reviewer target 的 verify 脚本从修改 prompt 到 promote 全链跑通 → 返回 kept 和 patch artifact",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "reviewer prompt 改动不足以超过 minScoreGain → verify 显示 compare 为 rejected 且 promote 失败",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "reviewer prompt 加入 crash/volatile marker → verify 仍然记录 score 与 stability 结果，但不会错误 promote",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }

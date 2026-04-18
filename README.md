@@ -117,11 +117,14 @@ node bin/koala.js lab compare --config experiments/configs/lab-reviewer-reviewer
 node bin/koala.js lab promote --config experiments/configs/lab-reviewer-reviewer-quality-v1.json
 ```
 
+对 reviewer 目标来说，`lab run --confirm` 现在还会把真实 `patch.diff` 写进 run 目录；`lab compare` / `lab promote` 会把对应的 patch 路径和 baseline ref 一起带出来，便于直接审阅。
+
 可用回归：
 
 ```bash
 npm run test:lab-foundation
 npm run test:lab-scoring-core
+npm run test:lab-reviewer-mvp
 ```
 
 ## Claude Code
