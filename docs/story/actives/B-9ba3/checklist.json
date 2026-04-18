@@ -1,0 +1,231 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "定义 koala-lab experiment run result 的 schema 与默认参数",
+      "context": "先把配置结构和结果结构定住，后续 profile runner scorer 才不会反复返工；默认值要体现离线优先和安全优先。",
+      "relatedDocs": [
+        "README.md",
+        "AGENTS.md#Story 阶段流转",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-18T00:24:35.051Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "创建一个最小 reviewer 实验配置 → 返回 experiment.json，自动填入默认 budget、candidatePolicy、selectionPolicy 字段",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T00:27:06.015Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-foundation.json:4 — case creates the minimal reviewer experiment config and asserts default budget/selectionPolicy fields, matching the happy-path config contract | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "配置只传 target/profile 等最小输入 → 缺省字段仍落成安全默认值，不要求用户补全危险开关",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T00:27:06.032Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-foundation.json:19 — case omits extra knobs, then verifies the config still lands safe defaults and the default editableFiles entry, covering the minimal-input edge path | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "配置中尝试声明 allowStoryMutation 或 allowFixtureMutation 为 true → schema 校验或策略层拒绝越权默认值",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T00:28:52.638Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-foundation.json:35 — case injects allowStoryMutation=true into a hand-written config and asserts lab_run rejects it, covering the unsafe-config adversarial path | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "新增 packages/lab 模块与 koala lab CLI 骨架",
+      "context": "模块要和 main utils 解耦，保证主流程没有 lab 也能正常工作；先提供 create run compare promote 等入口骨架。",
+      "relatedDocs": [
+        "README.md",
+        "AGENTS.md#koala CLI",
+        "docs/requirements/decisions/framework.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-18T00:24:22.031Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "运行 koala lab create → CLI 能识别 lab 子命令并生成实验配置路径与 next step",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T00:27:07.544Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-foundation.json:50 — case invokes koala lab create through the namespaced CLI and checks both config creation and next-step guidance, covering the primary lab entrypoint | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "packages/lab 未构建时执行普通非 lab 命令 → 主系统仍可正常运行，不因 lab 缺失整体报错",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T00:27:18.959Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-foundation.json:66 — case temporarily removes packages/lab/dist and proves session_brief still works, which covers the no-lab-build edge path without breaking ordinary commands | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "输入未知子命令 koala lab explode → 返回 lab 相关帮助和有效建议，而不是误路由到普通命令",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T00:27:18.958Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-foundation.json:81 — case calls an unknown lab subcommand and asserts the CLI suggests koala lab create, covering the adversarial misroute path with explicit recovery guidance | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-003",
+      "title": "实现实验隔离 worktree 与目录落盘",
+      "context": "所有实验都必须在独立 worktree 中执行，并将 config snapshot logs metrics result summary 落到 experiments 目录，形成可追溯记录。",
+      "relatedDocs": [
+        "AGENTS.md#Worktree 自动管理",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-18T00:24:49.444Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "运行 koala lab run --dry-run → 输出独立 sandbox/worktree 路径和将写入的结果文件清单，不修改正式项目文件",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T00:27:18.972Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-foundation.json:96 — case runs koala lab run --dry-run and verifies sandbox preview plus no-mutation messaging, matching the dry-run happy path contract | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "实验目录不存在时首次运行 → 自动创建 experiments/runs 和所需子目录并写入 config snapshot/result 占位产物",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T00:28:10.166Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-foundation.json:112 — case runs lab_run --confirm in a fresh temp repo and asserts placeholder result.json is written, covering first-run artifact creation | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "sandbox/worktree 创建失败或路径冲突 → 命令明确报错并清理半成品目录，不留下伪活跃 worktree",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T00:27:29.266Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-foundation.json:128 — case pre-creates the target sandbox path and asserts lab_run fails fast with a path-exists error, covering cleanup-safe conflict handling | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-004",
+      "title": "实现 patch 白名单与越权拦截",
+      "context": "第一版必须拦住依赖变更和 docs story tests fixtures 等高风险写入，防止优化引擎污染正式流程数据。",
+      "relatedDocs": [
+        "AGENTS.md#行为准则",
+        "AGENTS.md#规则",
+        "docs/requirements/decisions/test-fixture-spec.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-18T00:22:10.425Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "候选 patch 只修改 editableFiles 白名单中的 prompt 文件 → 实验允许运行并记录通过的 policy 检查结果",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T00:27:29.248Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-foundation.json:143 — case passes only the editable prompt path into lab_eval and gets ok=true, proving the whitelist allows the intended target file | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "候选 patch 同时触碰白名单文件和一个额外未授权源码文件 → policy 明确指出越权文件并拒绝执行",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T00:27:29.269Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-foundation.json:158 — case mixes the allowed prompt file with packages/main/src/cli-engine.ts and asserts lab_eval rejects the extra path, covering unauthorized-source edge handling | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "候选 patch 试图修改 docs/story 或 tests/fixtures 路径 → 即使路径存在也被强制拦截，实验结果标记为 rejected",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T00:27:29.278Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-foundation.json:173 — case points lab_eval at docs/story/actives/B-1234/index.json and asserts blocked protected path, covering the protected-data adversarial path | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

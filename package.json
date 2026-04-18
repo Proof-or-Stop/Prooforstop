@@ -9,6 +9,7 @@
   "scripts": {
     "audit:silent-catches": "node scripts/audit-silent-catches.mjs",
     "build": "cd packages/main && npm run build",
+    "build:lab": "npm --prefix packages/lab run build",
     "test": "npm run test:e2e",
     "test:codex-assets": "node scripts/verify-codex-assets.mjs",
     "test:entrypoints": "node scripts/verify-entrypoints.mjs",
@@ -34,6 +35,7 @@
     "test:role-telemetry": "node scripts/verify-role-telemetry.mjs",
     "test:runtime-reviewer-contract": "node scripts/verify-runtime-reviewer-contract.mjs",
     "test:session-brief": "node scripts/verify-session-brief-command-center.mjs",
+    "test:lab-foundation": "node scripts/verify-lab-foundation.mjs",
     "test:flow-step-desc": "node scripts/verify-flow-step-desc.mjs",
     "test:e2e": "node packages/main/dist/tasks/cli-e2e.js",
     "lint:tasks": "node packages/main/dist/tasks/cli-validate.js"

@@ -85,6 +85,7 @@ export interface KoalaConfig {
 const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
   '*': [
     'story_get', 'story_list', 'story_discard',
+    'lab_*',
     'aux_*', // 全部辅助工具：scan/detail/coverage/locate/sync/trace/diagnose/doc_list
     'checklist_get',
     'truth_*', 'gap_*', 'convergence_check',
