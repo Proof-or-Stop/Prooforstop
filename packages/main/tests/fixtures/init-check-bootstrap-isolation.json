@@ -1,0 +1,98 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: INIT_CHECK bootstrap commit stays off main",
+      "run_type": "cli",
+      "file": "handlers/worktree",
+      "execute": "const { execFileSync } = await import(\"node:child_process\"); const out = execFileSync(\"node\", [$root + \"/scripts/verify-init-check-bootstrap.mjs\", \"branch-isolation\"], { cwd: $root, encoding: \"utf8\", stdio: [\"pipe\",\"pipe\",\"pipe\"] }); return { ok: out.includes(\"init-check bootstrap verified (branch-isolation)\") };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-5b3e:CHK-001:happy:0",
+      "sandbox": false,
+      "timeoutMs": 60000,
+      "storyId": "B-5b3e",
+      "_id": "8e11cba2-5b72-4a2c-8a7c-2058ea8af68d",
+      "nextCaseId": "a3bb961d-d3b2-46b3-b91c-4e56429c5d0c"
+    },
+    {
+      "name": "CHK-001 edge: stale story branch fails before pollution",
+      "run_type": "cli",
+      "file": "handlers/worktree",
+      "execute": "const { execFileSync } = await import(\"node:child_process\"); const out = execFileSync(\"node\", [$root + \"/scripts/verify-init-check-bootstrap.mjs\", \"bad-branch\"], { cwd: $root, encoding: \"utf8\", stdio: [\"pipe\",\"pipe\",\"pipe\"] }); return { ok: out.includes(\"init-check bootstrap verified (bad-branch)\") };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-5b3e:CHK-001:edge:0",
+      "sandbox": false,
+      "timeoutMs": 60000,
+      "storyId": "B-5b3e",
+      "_id": "a3bb961d-d3b2-46b3-b91c-4e56429c5d0c",
+      "prevCaseId": "8e11cba2-5b72-4a2c-8a7c-2058ea8af68d",
+      "nextCaseId": "b5e7044a-5872-4e3d-abe0-f5678ef0c73b"
+    },
+    {
+      "name": "CHK-001 adversarial: concurrent INIT_CHECK keeps branch assignment stable",
+      "run_type": "cli",
+      "file": "handlers/worktree",
+      "execute": "const { execFileSync } = await import(\"node:child_process\"); const out = execFileSync(\"node\", [$root + \"/scripts/verify-init-check-bootstrap.mjs\", \"concurrent\"], { cwd: $root, encoding: \"utf8\", stdio: [\"pipe\",\"pipe\",\"pipe\"] }); return { ok: out.includes(\"init-check bootstrap verified (concurrent)\") };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-5b3e:CHK-001:adversarial:0",
+      "sandbox": false,
+      "timeoutMs": 60000,
+      "storyId": "B-5b3e",
+      "_id": "b5e7044a-5872-4e3d-abe0-f5678ef0c73b",
+      "prevCaseId": "a3bb961d-d3b2-46b3-b91c-4e56429c5d0c",
+      "nextCaseId": "aa0beea2-bc4c-4bce-bd57-df3d4f710d55"
+    },
+    {
+      "name": "CHK-002 happy: regression script proves main HEAD does not move",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { execFileSync } = await import(\"node:child_process\"); const out = execFileSync(\"node\", [$root + \"/scripts/verify-init-check-bootstrap.mjs\", \"branch-isolation\"], { cwd: $root, encoding: \"utf8\", stdio: [\"pipe\",\"pipe\",\"pipe\"] }); return { ok: out.includes(\"init-check bootstrap verified (branch-isolation)\") };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-5b3e:CHK-002:happy:0",
+      "sandbox": false,
+      "timeoutMs": 60000,
+      "storyId": "B-5b3e",
+      "_id": "aa0beea2-bc4c-4bce-bd57-df3d4f710d55",
+      "prevCaseId": "b5e7044a-5872-4e3d-abe0-f5678ef0c73b",
+      "nextCaseId": "72d3d9bf-a4d7-472f-9956-654cf667826d"
+    },
+    {
+      "name": "CHK-002 edge: dry-run preview stays read-only",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { execFileSync } = await import(\"node:child_process\"); const out = execFileSync(\"node\", [$root + \"/scripts/verify-init-check-bootstrap.mjs\", \"dry-run\"], { cwd: $root, encoding: \"utf8\", stdio: [\"pipe\",\"pipe\",\"pipe\"] }); return { ok: out.includes(\"init-check bootstrap verified (dry-run)\") };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-5b3e:CHK-002:edge:0",
+      "sandbox": false,
+      "timeoutMs": 60000,
+      "storyId": "B-5b3e",
+      "_id": "72d3d9bf-a4d7-472f-9956-654cf667826d",
+      "prevCaseId": "aa0beea2-bc4c-4bce-bd57-df3d4f710d55",
+      "nextCaseId": "21df0347-0625-4ce2-8221-c53f4aa67918"
+    },
+    {
+      "name": "CHK-002 adversarial: scoped stage ignores unrelated dirty files",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { execFileSync } = await import(\"node:child_process\"); const out = execFileSync(\"node\", [$root + \"/scripts/verify-init-check-bootstrap.mjs\", \"scoped-stage\"], { cwd: $root, encoding: \"utf8\", stdio: [\"pipe\",\"pipe\",\"pipe\"] }); return { ok: out.includes(\"init-check bootstrap verified (scoped-stage)\") };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-5b3e:CHK-002:adversarial:0",
+      "sandbox": false,
+      "timeoutMs": 60000,
+      "storyId": "B-5b3e",
+      "_id": "21df0347-0625-4ce2-8221-c53f4aa67918",
+      "prevCaseId": "72d3d9bf-a4d7-472f-9956-654cf667826d"
+    }
+  ]
+}
