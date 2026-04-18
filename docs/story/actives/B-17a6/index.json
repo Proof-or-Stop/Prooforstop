@@ -4,7 +4,7 @@
   "title": "打通 test-case-reviewer prompt 的 koala-lab MVP",
   "description": "将 .Codex/agents/test-case-reviewer.md 作为 koala-lab 的首个真实优化目标，补上真实 candidate patch artifact、baseline/candidate compare 输出和 promote 结果，让 koala-lab 不只是会算分，还能给出可晋升的 reviewer prompt 变更产物。",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "TEST",
   "priority": "high",
   "lane": "mainline",
   "parallelSafe": "no",
@@ -47,6 +47,30 @@
       "branch": "story/B-17a6",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-18T01:18:16.509Z",
+      "branch": "story/B-17a6",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-18T01:18:20.904Z",
+      "branch": "story/B-17a6",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-18T01:19:03.023Z",
+      "branch": "story/B-17a6",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
     }
   ],
   "worktree": {

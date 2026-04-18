@@ -15,19 +15,43 @@
         "happy": [
           {
             "desc": "修改 reviewer prompt 后运行 lab_run → run 目录写出真实 patch.diff，并且 patch 内容对应 baseline ref 到当前 workspace 的改动",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T01:18:53.628Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-reviewer-mvp.json:4 — case runs patch-happy and verifies run-001 writes a real patch.diff whose content matches the reviewer prompt delta | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "当前 workspace 没有改动 reviewer target 时运行 lab_run → patch.diff 为空或缺席，结果明确说明没有 candidate patch",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T01:18:53.870Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-reviewer-mvp.json:18 — case runs patch-none and proves no-op reviewer changes leave candidatePatch empty and the run rejected, covering the no-patch edge path | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "patch 里混入 editableFiles 之外的路径 → reviewer MVP 仍然被 patch policy 拦截，不会把脏 patch 带进 promote",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T01:18:54.124Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-reviewer-mvp.json:33 — case runs patch-policy-reject and confirms a protected-path diff is rejected by patch policy before it can be promoted | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -47,19 +71,43 @@
         "happy": [
           {
             "desc": "存在 kept reviewer run 时调用 lab_compare/lab_promote → 输出包含 baseline ref、delta、decision 和 promotePatch 路径",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T01:18:54.373Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-reviewer-mvp.json:48 — case runs compare-promote-happy and verifies compare/promote both expose baseline ref plus patch path for a kept reviewer run | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "compare 选 best run 时遇到同分候选 → 按 tieBreak 选择复杂度更低的 run，并在输出中保持稳定",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T01:18:54.612Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-reviewer-mvp.json:63 — case runs compare-tiebreak and proves equal-score runs are resolved by lower-complexity tieBreak, keeping compare output stable | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "candidate run 被 rejected 或 patch 缺失时调用 lab_promote → 明确拒绝，不会伪装成 ready_for_review",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T01:18:54.857Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-reviewer-mvp.json:78 — case runs promote-rejected and confirms patchless or rejected runs cannot masquerade as ready_for_review | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -72,26 +120,50 @@
         ".Codex/agents/test-case-reviewer.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-04-18T01:18:09.986Z",
       "testIntent": {
         "happy": [
           {
             "desc": "真实 reviewer target 的 verify 脚本从修改 prompt 到 promote 全链跑通 → 返回 kept 和 patch artifact",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T01:18:55.096Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-reviewer-mvp.json:93 — case runs verify-happy and proves the end-to-end reviewer flow reaches kept plus patch artifact output | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "reviewer prompt 改动不足以超过 minScoreGain → verify 显示 compare 为 rejected 且 promote 失败",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T01:18:55.373Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-reviewer-mvp.json:108 — case runs verify-rejected and shows insufficient reviewer gains stay rejected and fail promotion | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "reviewer prompt 加入 crash/volatile marker → verify 仍然记录 score 与 stability 结果，但不会错误 promote",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T01:18:55.636Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-reviewer-mvp.json:123 — case runs verify-volatile and records score/stability data without allowing volatile reviewer runs to promote | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
