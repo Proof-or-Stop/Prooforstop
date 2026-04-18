@@ -10,8 +10,41 @@
  */
 
 import { runCli } from './cli-engine.js';
+import { z } from './core/zod.js';
+import { dirname, join } from 'path';
+import { fileURLToPath, pathToFileURL } from 'url';
+
+async function loadOptionalLabExtension() {
+  const distDir = dirname(fileURLToPath(import.meta.url));
+  const localLabDist = pathToFileURL(join(distDir, '..', '..', 'lab', 'dist', 'index.js')).href;
+  const candidates = ['@koala-agent/lab', localLabDist];
+  for (const specifier of candidates) {
+    try {
+      const mod = await import(specifier);
+      const createLabToolDefs = mod.createLabToolDefs;
+      const register = mod.register;
+      if (typeof createLabToolDefs === 'function' && typeof register === 'function') {
+        return {
+          tools: createLabToolDefs(z),
+          register,
+        };
+      }
+    } catch (error: any) {
+      const code = error?.code || '';
+      if (code !== 'ERR_MODULE_NOT_FOUND' && code !== 'MODULE_NOT_FOUND') {
+        process.env.KOALA_LAB_IMPORT_ERROR = error?.message || String(error);
+      }
+    }
+  }
+  return null;
+}
 
 const _isDirectRun = !import.meta.url.includes('?');
 if (_isDirectRun) {
-  runCli().catch(e => { console.error(e); process.exit(1); });
+  loadOptionalLabExtension()
+    .then((lab) => runCli(lab ? {
+      extraTools: lab.tools,
+      extraRegister: lab.register,
+    } : undefined))
+    .catch(e => { console.error(e); process.exit(1); });
 }

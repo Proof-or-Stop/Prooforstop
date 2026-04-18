@@ -1,7 +1,7 @@
 import { execFileSync } from 'child_process';
 import { existsSync, readFileSync } from 'fs';
 import { isAbsolute, join } from 'path';
-import type { HandlerContext } from '../../../main/dist/handlers/context.js';
+import type { LabHandlerContext } from '../core/runtime-types.js';
 import { buildExperimentConfig, validateExperimentConfig } from '../core/config.js';
 import { createCandidatePatch } from '../core/diff.js';
 import { resolveProfile } from '../core/profile.js';
@@ -198,7 +198,7 @@ function evaluateCandidate(args: {
   };
 }
 
-export function createLabHandlers(ctx: HandlerContext) {
+export function createLabHandlers(ctx: LabHandlerContext) {
   const { root } = ctx;
 
   return {

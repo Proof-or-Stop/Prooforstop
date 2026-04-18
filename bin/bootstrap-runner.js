@@ -65,7 +65,12 @@ export async function runLocalBootstrap() {
       try {
         const labModule = await import(pathToFileURL(LAB_DIST).href);
         labRegister = typeof labModule.register === 'function' ? labModule.register : null;
-        labToolDefs = Array.isArray(labModule.labToolDefs) ? labModule.labToolDefs : [];
+        if (typeof labModule.createLabToolDefs === 'function') {
+          const zodModule = await import(pathToFileURL(join(repoRoot, 'packages', 'main', 'dist', 'core', 'zod.js')).href);
+          labToolDefs = labModule.createLabToolDefs(zodModule.z);
+        } else {
+          labToolDefs = Array.isArray(labModule.labToolDefs) ? labModule.labToolDefs : [];
+        }
       } catch (error) {
         const err = error instanceof Error ? error : new Error(String(error));
         process.env.KOALA_LAB_IMPORT_ERROR = err.message;

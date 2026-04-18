@@ -7,9 +7,29 @@
       "relatedDocs": [
         "README.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-18T23:56:43.407Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "node packages/main/dist/cli.js lab --help → 显示 lab create/run/eval/compare/promote 命令",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "@koala-agent/lab 不可解析时运行 session_brief → 普通 core 命令仍成功",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "@koala-agent/lab 不可解析时运行 lab create → 明确提示 lab 未安装或需构建，而不是崩溃堆栈",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -18,9 +38,29 @@
       "relatedDocs": [
         "README.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-18T23:56:43.670Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "读取 package.json → core/utils/lab 三个包 version 均为 0.2.2",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "lab package 作为独立依赖被 core 可选加载 → lab 包 exports/register 与 main 入口保持可解析",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "版本或依赖仍指向旧 0.2.0/0.2.1.1 → 回归脚本失败并指出不一致包",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -29,9 +69,29 @@
       "relatedDocs": [
         "README.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-18T23:56:28.976Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "运行全局 lab 入口回归 → node packages/main/dist/cli.js lab --help 和 lab create 均成功",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "运行 core 普通命令回归 → node packages/main/dist/cli.js session_brief 仍成功",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "模拟无 lab 扩展环境 → lab 子命令失败但输出恢复提示，普通命令通过",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }
