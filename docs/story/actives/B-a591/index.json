@@ -4,7 +4,7 @@
   "title": "实现 koala-lab 评分与评估内核",
   "description": "为 koala-lab 实现统一评分公式、评估 profile 接口、baseline 与 candidate 比较逻辑，以及重复评估的稳定性检查。目标是让实验结果能被结构化判断，而不是只看测试是否通过，并为后续 reviewer prompt、test-intent prompt、session_brief 等优化目标提供统一评估框架。",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "lane": "mainline",
   "parallelSafe": "no",
@@ -20,7 +20,7 @@
   ],
   "createdAt": "2026-04-18T00:57:04.825Z",
   "startedAt": "2026-04-18T00:57:04.825Z",
-  "endedAt": null,
+  "endedAt": "2026-04-18T01:11:10.256Z",
   "events": [
     {
       "phase": "INIT",
@@ -77,11 +77,14 @@
       "branch": "story/B-a591",
       "user": "Harmonygo",
       "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-18T01:11:10.256Z",
+      "branch": "story/B-a591",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ],
-  "worktree": {
-    "path": ".worktrees/B-a591",
-    "branch": "story/B-a591",
-    "createdAt": "2026-04-18T00:57:14.622Z"
-  }
+  ]
 }
