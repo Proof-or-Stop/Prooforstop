@@ -59,6 +59,7 @@ function pickBestRun(runs: Array<{ runId: string; result: LabRunResult }>): { ru
     const currentComplexity = current.result.changedFiles * 1000 + current.result.changedLines;
     const bestComplexity = best.result.changedFiles * 1000 + best.result.changedLines;
     if (currentComplexity < bestComplexity) return current;
+    if (currentComplexity === bestComplexity && best.result.normalizedScore == null && current.result.normalizedScore != null) return current;
     return best;
   });
 }
