@@ -11,19 +11,43 @@
         "happy": [
           {
             "desc": "INIT_CHECK confirm 后，bootstrap metadata commit 只存在于 story branch/worktree，当前 main 头部不新增 koala: story B-xxxx init 提交",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T00:04:09.200Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/init-check-bootstrap-isolation.json:4 WHY:该 case 直接跑 branch-isolation 脚本并断言 main HEAD 不前进、story branch 保留 bootstrap commit，覆盖 happy path 的用户核心承诺 severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "若 story branch 已存在但基线不包含本次 story metadata，INIT_CHECK 明确 fail-fast，而不是把 main 或旧 branch 弄脏",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T00:04:09.292Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/init-check-bootstrap-isolation.json:19 WHY:该 case 直接验证 stale story branch 会 fail-fast 且不会继续污染 main/旧 branch，覆盖 edge 分支复用风险 severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "并发或重试 INIT_CHECK 时，锁和 branch 校验仍能避免把 bootstrap commit 落到错误分支",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T00:04:09.382Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/init-check-bootstrap-isolation.json:35 WHY:该 case 并发触发 INIT_CHECK 并全部通过，证明锁与分支校验没有把 bootstrap commit 落到错误分支 severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -39,19 +63,43 @@
         "happy": [
           {
             "desc": "定向回归能证明执行 INIT_CHECK confirm 后，main 的最新提交仍保持 bootstrap 前的提交，而 story branch/worktree 拥有新 metadata",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T00:04:09.472Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/init-check-bootstrap-isolation.json:51 WHY:该回归再次断言 main 最新提交保持 bootstrap 前状态而 story branch/worktree 有新 metadata，直接证明不污染 main severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "dry-run 仍只输出计划，不会改变 main HEAD、story branch 或 worktree 状态",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T00:04:09.561Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/init-check-bootstrap-isolation.json:67 WHY:该 case 跑 dry-run 脚本并确认 main HEAD、story branch、worktree 都不变，覆盖只预览不落盘的边界 severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "后续有人把 bootstrap 顺序改回先 commit 后 branch 时，回归会直接失败并指出 main 被污染",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T00:04:09.650Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/init-check-bootstrap-isolation.json:83 WHY:该 case 保留 unrelated dirty README 并验证 story bootstrap commit 不吸入它，能在回归时及时抓住顺序回退或错误 stage 行为 severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
