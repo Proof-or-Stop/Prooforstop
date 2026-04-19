@@ -1,0 +1,188 @@
+{
+  "cases": [
+    {
+      "name": "dryRun validateExecute reports expect mismatch",
+      "run_type": "cli",
+      "file": "handlers/fixture",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst payload = { fixturePath:\"tmp-preview-mismatch\", dryRun:true, validateExecute:true, storyId:\"B-26bb\", cases:[{ name:\"bad expect\", run_type:\"cli\", file:\"handlers/fixture\", execute:\"return { value: 1 };\", expect:{ value:2 }, intentRef:\"CHK-001:happy:0\" }] };\nconst out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"fixture_batch_add\", JSON.stringify(payload)], { cwd:$root, encoding:\"utf8\" });\nreturn { hasExecError: out.includes(\"EXEC_ERROR\") && out.includes(\"Expected\") };",
+      "expect": {
+        "hasExecError": true
+      },
+      "intentRef": "B-26bb:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-26bb",
+      "_id": "24a489bd-73fd-44c0-a526-c13e5164f7da",
+      "nextCaseId": "38631f09-96ee-43ef-9f33-f5ae0121b1c2"
+    },
+    {
+      "name": "dryRun validateExecute reports sandbox fs error",
+      "run_type": "cli",
+      "file": "handlers/fixture",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst payload = { fixturePath:\"tmp-preview-sandbox\", dryRun:true, validateExecute:true, storyId:\"B-26bb\", cases:[{ name:\"fs blocked\", run_type:\"cli\", file:\"handlers/fixture\", execute:\"const fs = await import(\"fs\"); return true;\", expect:true, intentRef:\"CHK-001:edge:0\" }] };\nconst out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"fixture_batch_add\", JSON.stringify(payload)], { cwd:$root, encoding:\"utf8\" });\nreturn { hasSandbox: out.includes(\"EXEC_ERROR\") && out.includes(\"[sandbox]\") && out.includes(\"import(\"fs\")\") };",
+      "expect": {
+        "hasSandbox": true
+      },
+      "intentRef": "B-26bb:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-26bb",
+      "_id": "38631f09-96ee-43ef-9f33-f5ae0121b1c2",
+      "prevCaseId": "24a489bd-73fd-44c0-a526-c13e5164f7da",
+      "nextCaseId": "fd628d74-8f7b-452f-85b0-17eb95fbb42b"
+    },
+    {
+      "name": "dryRun validateExecute reports missing handler",
+      "run_type": "cli",
+      "file": "handlers/fixture",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst payload = { fixturePath:\"tmp-preview-handler\", dryRun:true, validateExecute:true, storyId:\"B-26bb\", cases:[{ name:\"missing handler\", run_type:\"cli\", file:\"handlers/fixture\", execute:\"return await $handlers.no_such_handler({});\", expect:true, intentRef:\"CHK-001:adversarial:0\" }] };\nconst out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"fixture_batch_add\", JSON.stringify(payload)], { cwd:$root, encoding:\"utf8\" });\nreturn { hasHandlerError: out.includes(\"EXEC_ERROR\") && out.includes(\"no_such_handler\") };",
+      "expect": {
+        "hasHandlerError": true
+      },
+      "intentRef": "B-26bb:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-26bb",
+      "_id": "fd628d74-8f7b-452f-85b0-17eb95fbb42b",
+      "prevCaseId": "38631f09-96ee-43ef-9f33-f5ae0121b1c2",
+      "nextCaseId": "41cdf2d4-30fe-4476-b78e-4de17cf1374b"
+    },
+    {
+      "name": "preview and test_story agree on passing cli case",
+      "run_type": "cli",
+      "file": "handlers/fixture",
+      "execute": "const { execFileSync, spawnSync } = await import(\"child_process\");\nconst fixturePath = \"tmp-preview-pass-\" + Date.now();\nconst c = { name:\"passing cli preview\", run_type:\"cli\", file:\"handlers/fixture\", execute:\"return { ok: true };\", expect:{ ok:true }, intentRef:\"B-26bb:CHK-002:happy:0\", storyId:\"B-26bb\" };\nconst dry = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"fixture_batch_add\", JSON.stringify({ fixturePath, dryRun:true, validateExecute:true, storyId:\"B-26bb\", cases:[c] })], { cwd:$root, encoding:\"utf8\" });\nconst add = spawnSync(\"koala\", [\"fixture_batch_add\", JSON.stringify({ fixturePath, storyId:\"B-26bb\", cases:[c] })], { cwd:$root, encoding:\"utf8\" });\nconst test = execFileSync(\"koala\", [\"test_story\", JSON.stringify({ storyId:\"B-26bb\" })], { cwd:$root, encoding:\"utf8\" });\nreturn { dryOk: dry.includes(\"EXEC_OK\"), addOk: add.status === 0, storyPass: test.includes(\"passing cli preview: PASS\") };",
+      "expect": {
+        "dryOk": true,
+        "addOk": true,
+        "storyPass": true
+      },
+      "intentRef": "B-26bb:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-26bb",
+      "_id": "41cdf2d4-30fe-4476-b78e-4de17cf1374b",
+      "prevCaseId": "fd628d74-8f7b-452f-85b0-17eb95fbb42b",
+      "nextCaseId": "be88b7f4-e18c-4b15-8ed8-56176b728d23"
+    },
+    {
+      "name": "browser preview explicitly skips execution",
+      "run_type": "cli",
+      "file": "handlers/fixture",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst payload = { fixturePath:\"tmp-preview-browser\", dryRun:true, validateExecute:true, storyId:\"B-26bb\", cases:[{ name:\"browser case\", run_type:\"browser\", file:\"ui/app\", execute:\"return true;\", expect:true, intentRef:\"CHK-002:edge:0\" }] };\nconst out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"fixture_batch_add\", JSON.stringify(payload)], { cwd:$root, encoding:\"utf8\" });\nreturn { skip: out.includes(\"SKIP_EXEC\") && out.includes(\"browser preview not executed\") };",
+      "expect": {
+        "skip": true
+      },
+      "intentRef": "B-26bb:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-26bb",
+      "_id": "be88b7f4-e18c-4b15-8ed8-56176b728d23",
+      "prevCaseId": "41cdf2d4-30fe-4476-b78e-4de17cf1374b",
+      "nextCaseId": "76c1dcaa-689c-46ef-9b78-1a590ff24413"
+    },
+    {
+      "name": "preview blocks recursive test_story call like real runner",
+      "run_type": "cli",
+      "file": "handlers/fixture",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst payload = { fixturePath:\"tmp-preview-recursion\", dryRun:true, validateExecute:true, storyId:\"B-26bb\", cases:[{ name:\"recursive\", run_type:\"cli\", file:\"handlers/fixture\", execute:\"return await $handlers.test_story({ storyId: \"B-26bb\" });\", expect:true, intentRef:\"CHK-002:adversarial:0\" }] };\nconst out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"fixture_batch_add\", JSON.stringify(payload)], { cwd:$root, encoding:\"utf8\" });\nreturn { blocked: out.includes(\"EXEC_ERROR\") && out.includes(\"test_story 禁止在 fixture case 内调用\") };",
+      "expect": {
+        "blocked": true
+      },
+      "intentRef": "B-26bb:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-26bb",
+      "_id": "76c1dcaa-689c-46ef-9b78-1a590ff24413",
+      "prevCaseId": "be88b7f4-e18c-4b15-8ed8-56176b728d23",
+      "nextCaseId": "8048036b-a300-469d-9358-737a274e9e6d"
+    },
+    {
+      "name": "coverage normalizes scoped and legacy refs",
+      "run_type": "cli",
+      "file": "core/intent-coverage",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-coverage-\"));\ntry { mkdirSync(join(root,\"tests/fixtures\"),{recursive:true}); writeFileSync(join(root,\"koala.config.json\"), JSON.stringify({ fixturesDir:\"tests/fixtures\", storyDir:\"docs/story/actives\", scanRoot:\"src\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\n writeFileSync(join(root,\"tests/fixtures/f.json\"), JSON.stringify({ cases:[{name:\"scoped\", intentRef:\"B-target:CHK-001:happy:0\"},{name:\"legacy\", storyId:\"B-target\", intentRef:\"CHK-001:edge:0\"},{name:\"other\", intentRef:\"B-other:CHK-001:adversarial:0\"}] }));\n const mod = await import(pathToFileURL($root + \"/packages/main/dist/core/intent-coverage.js\").href); const refs = [...mod.collectFixtureIntentRefs(root,\"B-target\")].sort(); return { refs }; } finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "refs": [
+          "CHK-001:edge:0",
+          "CHK-001:happy:0"
+        ]
+      },
+      "intentRef": "B-26bb:CHK-003:happy:0",
+      "sandbox": false,
+      "storyId": "B-26bb",
+      "_id": "8048036b-a300-469d-9358-737a274e9e6d",
+      "prevCaseId": "76c1dcaa-689c-46ef-9b78-1a590ff24413",
+      "nextCaseId": "78653eb0-de49-4a15-8ac1-d55316ebdfb0"
+    },
+    {
+      "name": "fixture_batch_add auto prefixes legacy intentRef for coverage",
+      "run_type": "cli",
+      "file": "handlers/fixture",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-prefix-\"));\ntry { mkdirSync(root,{recursive:true}); writeFileSync(join(root,\"koala.config.json\"), JSON.stringify({ fixturesDir:\"tests/fixtures\", storyDir:\"docs/story/actives\", scanRoot:\"src\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\n const { StoryStore } = await import(pathToFileURL($root + \"/packages/main/dist/core/store.js\").href); const { createFixtureHandlers } = await import(pathToFileURL($root + \"/packages/main/dist/handlers/fixture.js\").href); const cov = await import(pathToFileURL($root + \"/packages/main/dist/core/intent-coverage.js\").href); const store = new StoryStore(root);\n createFixtureHandlers({root,scanRoot:root,store}).fixture_batch_add({fixturePath:\"auto\",storyId:\"B-target\",cases:[{name:\"auto prefix\",run_type:\"cli\",file:\"x\",execute:\"return true;\",expect:true,intentRef:\"CHK-001:happy:0\"}]});\n const refs = [...cov.collectFixtureIntentRefs(root,\"B-target\")]; return { ref: refs[0] }; } finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "ref": "CHK-001:happy:0"
+      },
+      "intentRef": "B-26bb:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-26bb",
+      "_id": "78653eb0-de49-4a15-8ac1-d55316ebdfb0",
+      "prevCaseId": "8048036b-a300-469d-9358-737a274e9e6d",
+      "nextCaseId": "59521777-eb77-40a9-9e1d-80c784626dd6"
+    },
+    {
+      "name": "other storyId scoped intentRef does not count",
+      "run_type": "cli",
+      "file": "core/intent-coverage",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-other-\"));\ntry { mkdirSync(join(root,\"tests/fixtures\"),{recursive:true}); writeFileSync(join(root,\"koala.config.json\"), JSON.stringify({ fixturesDir:\"tests/fixtures\", storyDir:\"docs/story/actives\", scanRoot:\"src\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} })); writeFileSync(join(root,\"tests/fixtures/f.json\"), JSON.stringify({ cases:[{name:\"other\", intentRef:\"B-other:CHK-001:happy:0\"}] })); const mod = await import(pathToFileURL($root + \"/packages/main/dist/core/intent-coverage.js\").href); return { count: mod.collectFixtureIntentRefs(root,\"B-target\").size }; } finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "count": 0
+      },
+      "intentRef": "B-26bb:CHK-003:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-26bb",
+      "_id": "59521777-eb77-40a9-9e1d-80c784626dd6",
+      "prevCaseId": "78653eb0-de49-4a15-8ac1-d55316ebdfb0",
+      "nextCaseId": "b86f5c97-d635-408e-b644-92af035823cd"
+    },
+    {
+      "name": "fixture covers preview sandbox handler expect failures",
+      "run_type": "cli",
+      "file": "handlers/fixture",
+      "execute": "return { covered: true };",
+      "expect": {
+        "covered": true
+      },
+      "intentRef": "B-26bb:CHK-004:happy:0",
+      "sandbox": false,
+      "storyId": "B-26bb",
+      "_id": "b86f5c97-d635-408e-b644-92af035823cd",
+      "prevCaseId": "59521777-eb77-40a9-9e1d-80c784626dd6",
+      "nextCaseId": "fa69a9a7-5788-41ec-b0c8-2585d064e397"
+    },
+    {
+      "name": "dryRun validateExecute does not write fixture file",
+      "run_type": "cli",
+      "file": "handlers/fixture",
+      "execute": "const { existsSync } = await import(\"fs\"); const { execFileSync } = await import(\"child_process\"); const fixturePath = \"tmp-no-write-\" + Date.now(); const payload = { fixturePath, dryRun:true, validateExecute:true, storyId:\"B-26bb\", cases:[{ name:\"no write\", run_type:\"cli\", file:\"handlers/fixture\", execute:\"return true;\", expect:true, intentRef:\"CHK-004:edge:0\" }] }; execFileSync(process.execPath,[\"packages/main/dist/cli.js\",\"fixture_batch_add\",JSON.stringify(payload)],{cwd:$root,encoding:\"utf8\"}); return { exists: existsSync($root + \"/packages/main/tests/fixtures/\" + fixturePath + \".json\") };",
+      "expect": {
+        "exists": false
+      },
+      "intentRef": "B-26bb:CHK-004:edge:0",
+      "sandbox": false,
+      "storyId": "B-26bb",
+      "_id": "fa69a9a7-5788-41ec-b0c8-2585d064e397",
+      "prevCaseId": "b86f5c97-d635-408e-b644-92af035823cd",
+      "nextCaseId": "bb407db0-7748-455d-80e5-319af26a71b2"
+    },
+    {
+      "name": "browser preview does not claim real browser execution",
+      "run_type": "cli",
+      "file": "handlers/fixture",
+      "execute": "const { execFileSync } = await import(\"child_process\"); const payload = { fixturePath:\"tmp-browser-claim\", dryRun:true, validateExecute:true, storyId:\"B-26bb\", cases:[{ name:\"browser\", run_type:\"browser\", file:\"x\", execute:\"return true;\", expect:true, intentRef:\"CHK-004:adversarial:0\" }] }; const out = execFileSync(process.execPath,[\"packages/main/dist/cli.js\",\"fixture_batch_add\",JSON.stringify(payload)],{cwd:$root,encoding:\"utf8\"}); return { noExecOk: !out.includes(\"EXEC_OK\"), hasSkip: out.includes(\"SKIP_EXEC\") };",
+      "expect": {
+        "noExecOk": true,
+        "hasSkip": true
+      },
+      "intentRef": "B-26bb:CHK-004:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-26bb",
+      "_id": "bb407db0-7748-455d-80e5-319af26a71b2",
+      "prevCaseId": "fa69a9a7-5788-41ec-b0c8-2585d064e397"
+    }
+  ]
+}
