@@ -22,6 +22,7 @@ export interface StoryWorktreeRuntime {
   linkedExists: boolean;
   branchExists: boolean;
   branchMerged: boolean;
+  branchContainsMain: boolean | null;
   drift: boolean;
   canRepairPath: boolean;
   status: 'ok' | 'drift' | 'missing' | 'orphaned';
@@ -141,6 +142,15 @@ export function getStoryWorktreeRuntime(
   try {
     branchMerged = readBranches(repoRoot, ['--merged=main']).has(branch);
   } catch { /* PROBE */ }
+  let branchContainsMain: boolean | null = null;
+  if (branchExists) {
+    try {
+      git(repoRoot, ['merge-base', '--is-ancestor', 'main', branch]);
+      branchContainsMain = true;
+    } catch {
+      branchContainsMain = false;
+    }
+  }
 
   const drift = Boolean(linkedPath && recordedAbsPath && canonicalPath(linkedPath) !== canonicalPath(recordedAbsPath));
   const canRepairPath = Boolean(linkedPath && (!recordedAbsPath || drift));
@@ -176,6 +186,10 @@ export function getStoryWorktreeRuntime(
       : `分支 ${branch} 已不存在，先检查是否应 reconcile / discard / 重新 INIT_CHECK`;
   }
 
+  if (linkedPath && branchContainsMain === false) {
+    warnings.push(`branch ${branch} does not contain current main; merge/rebase main before DEV if latest baseline matters`);
+  }
+
   return {
     storyId,
     repoRoot,
@@ -189,6 +203,7 @@ export function getStoryWorktreeRuntime(
     linkedExists,
     branchExists,
     branchMerged,
+    branchContainsMain,
     drift,
     canRepairPath,
     status,

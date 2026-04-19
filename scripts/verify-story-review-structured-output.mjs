@@ -97,7 +97,7 @@ const checks = {
       const review = parseJson(run(dir, 'story_review', { storyId }));
       assert(review.summary.blockerCount > 0, 'missing intent should produce blocker');
       assert(review.actionSummary.hasBlockers === true, 'actionSummary should report blockers');
-      assert(review.actionSummary.nextFix.includes('testIntent'), 'nextFix should point to testIntent');
+      assert(review.actionSummary.nextFix.includes('testintent_handoff'), 'nextFix should point to the test-intent handoff command');
       assert(review.actionSummary.missingIntentItems.length === 1, 'missing intent item should be listed');
       assert(review.reviewPromptSummary.hasUnderstanding === true, 'reviewPromptSummary should see understanding');
       assert(typeof review._reviewPrompt === 'string' && review._reviewPrompt.length > 0, 'full _reviewPrompt should remain');

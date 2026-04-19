@@ -88,6 +88,7 @@ const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'lab_*',
     'aux_*', // 全部辅助工具：scan/detail/coverage/locate/sync/trace/diagnose/doc_list
     'checklist_get',
+    'testintent_handoff', // 只读交接包：任何阶段都可生成，避免 PLAN 门禁变死胡同
     'truth_*', 'gap_*', 'convergence_check',
     'story_advance', // 任何阶段都可以推进（cwd 门禁负责保护）
     'session_brief', // 全局：开场简报，任何阶段都可以查

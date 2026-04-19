@@ -31,6 +31,7 @@ import { getPhaseInvariantStatus } from '../core/machine.js';
 import { getArtifactContractStatus } from '../core/artifact-contract.js';
 import { getReviewerStatus, type ReviewerStatus } from '../core/reviewer-status.js';
 import { getStoryWorktreeRuntime } from '../core/worktree-runtime.js';
+import { collectBaselineRisk, renderBaselineRiskLines } from '../core/baseline-risk.js';
 
 interface ActiveStoryDetected {
   storyId: string;
@@ -293,6 +294,15 @@ function renderRuntimeHealthLines(runtime: ReturnType<typeof getStoryWorktreeRun
     lines.push(`  hint: ${runtime.recoveryHint}`);
   }
   return lines;
+}
+
+function renderMainBaselineRiskLines(root: string): string[] {
+  const risk = collectBaselineRisk(root, { maxEntries: 6 });
+  const lines = renderBaselineRiskLines(risk, {
+    prefix: '⚠ Main baseline risk',
+    includeVolatileSummary: true,
+  });
+  return lines.length > 0 ? ['', ...lines] : [];
 }
 
 function renderReviewerStatusLines(status: ReviewerStatus): string[] {
@@ -689,6 +699,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
           lines.push('');
           lines.push(`Working tree dirty (${gitMain.porcelain.length} files).`);
         }
+        lines.push(...renderMainBaselineRiskLines(ctx.root));
 
         // B-89c7 CHK-013: Recent router-log tail with cache warning.
         const routerTail = readRouterLogTail(ctx.root, 3);

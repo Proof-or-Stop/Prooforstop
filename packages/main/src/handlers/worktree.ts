@@ -10,6 +10,7 @@ import type { StoryPhase } from '../core/types.js';
 import { loadConfig } from '../core/config.js';
 import { formatPhaseGateDecision } from '../core/phase-protocol.js';
 import { getStoryWorktreeRuntime, getRepoRoot, resolveLinkedWorktreePath, resolveLinkedWorktreeStoryPath } from '../core/worktree-runtime.js';
+import { collectBaselineRisk, renderBaselineRiskLines, type BaselineRisk } from '../core/baseline-risk.js';
 
 export function createWorktreeHandlers(ctx: HandlerContext) {
   const { store, root } = ctx;
@@ -120,10 +121,11 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     worktreePath: string;
     branch: string;
     stagePaths: string[];
+    baselineRisk: BaselineRisk;
     dryRun?: boolean;
   }): string {
     const prefix = args.dryRun ? '[DRY-RUN] ' : '';
-    return [
+    const lines = [
       `${prefix}INIT_CHECK bootstrap plan:`,
       `  - repo: ${args.repoRootPath}`,
       `  - worktree: ${args.worktreePath}`,
@@ -132,7 +134,12 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       `  - create bootstrap commit for ${args.branch} only (current branch HEAD stays unchanged)`,
       `  - git branch ${args.branch} <bootstrap-commit-with-story-metadata>`,
       `  - git worktree add "${args.worktreePath}" ${args.branch}`,
-    ].join('\n');
+    ];
+    const riskLines = renderBaselineRiskLines(args.baselineRisk, { includeVolatileSummary: true });
+    if (riskLines.length > 0) {
+      lines.push('', ...riskLines);
+    }
+    return lines.join('\n');
   }
 
   function commitContainsPath(revision: string, targetPath: string): boolean {
@@ -153,6 +160,12 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       stagePaths.push(relative(repoRoot, configPath).replace(/\\/g, '/'));
     }
     return stagePaths;
+  }
+
+  function collectStoryBaselineRisk(storyId: string, repoRootPath = repoRoot()): BaselineRisk {
+    return collectBaselineRisk(repoRootPath, {
+      excludePaths: getBootstrapStagePaths(storyId, repoRootPath),
+    });
   }
 
   function createBootstrapBranchCommit(args: {
@@ -283,6 +296,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
             `Story ${args.storyId} worktree 已存在`,
             `路径: ${linkedPath}`,
             `分支: ${story.worktree.branch}`,
+            ...renderBaselineRiskLines(collectStoryBaselineRisk(args.storyId), { includeVolatileSummary: true }),
             ...(runtime.drift ? ['⚠ story.worktree.path 与 git linked worktree 不一致，请同步修正'] : []),
           ].join('\n');
         }
@@ -330,6 +344,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         canonicalPath(join(root, loadConfig(root).storyDir, args.storyId, 'index.json')),
       ).replace(/\\/g, '/');
       const stagePaths = getBootstrapStagePaths(args.storyId, repoRootPath);
+      const baselineRisk = collectStoryBaselineRisk(args.storyId, repoRootPath);
 
       const bootstrapPlan = renderInitCheckBootstrapPlan({
         storyId: args.storyId,
@@ -337,6 +352,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         worktreePath,
         branch,
         stagePaths,
+        baselineRisk,
         dryRun: args.dryRun,
       });
       if (args.dryRun) {
@@ -424,6 +440,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         `Story ${args.storyId} 开发环境已就绪`,
         `分支: ${branch}`,
         `路径: ${worktreePath}`,
+        ...renderBaselineRiskLines(baselineRisk, { includeVolatileSummary: true }),
         `→ cd ${worktreePath} 进入 worktree 开发，所有 koala 命令在此目录执行`,
         `→ sub agent 不要使用 isolation:"worktree"，直接在主 agent 的 worktree 中跑`,
         `→ checklist_get(${args.storyId}) 查看待开发项`,

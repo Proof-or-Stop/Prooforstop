@@ -132,6 +132,10 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'testintent_check', description: '检查 testIntent 审核通过状态', schema: {
     storyId: z.string().describe('Story ID'),
   }},
+  { name: 'testintent_handoff', description: '生成交给 test-intent agent 的 PLAN 阶段任务包', schema: {
+    storyId: z.string().describe('Story ID'),
+    itemIds: z.array(z.string()).optional().describe('只交接指定 checklist item（默认全部）'),
+  }},
   // Understanding (Pre-context Intake snapshot, OMX 风格)
   { name: 'understanding_set', description: 'PLAN 阶段落 task 理解快照（task/outcome/facts/constraints/unknowns/touchpoints）', schema: {
     storyId: z.string().describe('Story ID'),

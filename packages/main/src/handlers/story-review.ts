@@ -361,9 +361,13 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         .filter(i => i.type === 'missing_intent' || i.type === 'weak_intent')
         .map(i => i.itemId)
         .filter((id): id is string => Boolean(id));
+      const blockingMissingIntentItems = issues
+        .filter(i => i.severity === 'blocker' && (i.type === 'missing_intent' || i.type === 'weak_intent'))
+        .map(i => i.itemId)
+        .filter((id): id is string => Boolean(id));
       const nextFix = blockerCount > 0
-        ? (missingIntentItems.length > 0
-          ? `补齐 ${Array.from(new Set(missingIntentItems)).join(', ')} 的 testIntent 后重新 story_review`
+        ? (blockingMissingIntentItems.length > 0
+          ? `运行 koala testintent_handoff '{"storyId":"${args.storyId}"}'，把 prompt 交给 test-intent agent 补齐 ${Array.from(new Set(blockingMissingIntentItems)).join(', ')}，然后重新 story_review`
           : '修复 blocker 后重新 story_review')
         : (coveragePct < 100
           ? `补齐 fixture intentRef 覆盖后继续（当前 intent 覆盖率 ${coveragePct}%）`
@@ -428,7 +432,9 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           : undefined,
         truthDocsCount: truthDocs.length,
         _hint: blockerCount > 0
-          ? `第 ${reviewData.reviews.length} 轮审查发现 ${blockerCount} 个 blocker，请修复后再次 story_review`
+          ? (blockingMissingIntentItems.length > 0
+            ? `第 ${reviewData.reviews.length} 轮审查发现 ${blockerCount} 个 blocker。下一步: koala testintent_handoff '{"storyId":"${args.storyId}"}'，交给 test-intent agent 后再次 story_review`
+            : `第 ${reviewData.reviews.length} 轮审查发现 ${blockerCount} 个 blocker，请修复后再次 story_review`)
           : `✅ 第 ${reviewData.reviews.length} 轮审查通过（${blockerCount} blocker, ${issues.length} advisory）${coveragePct < 100 ? `，intent 覆盖率 ${coveragePct}%（${coveredCount}/${totalIntentEntries}）` : ''}，可进入开发`,
         _reviewPrompt: (() => {
           // 拼出完整 review prompt：truth docs + checklist/intent + understanding + decision

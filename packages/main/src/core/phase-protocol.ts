@@ -33,7 +33,7 @@ function buildHumanHint(
 ): string | null {
   switch (reasonCode) {
     case 'missing_test_intent':
-      return `补齐 checklist 的 testIntent.happy，然后重新执行 story_review 与 story_advance --storyId=${storyId} --phase=${targetPhase}`;
+      return `运行 testintent_handoff --storyId=${storyId} 生成交接包，交给 test-intent agent 补齐 testIntent.happy，然后重新执行 story_review 与 story_advance --storyId=${storyId} --phase=${targetPhase}`;
     case 'story_review_missing':
       return `先执行 story_review --storyId=${storyId} 生成审查记录，再推进 ${targetPhase}`;
     case 'review_signature_invalid':
