@@ -1,0 +1,12 @@
+# r02-blocker-first Blocker First
+
+{
+  "summary": { "issueCount": 4, "blockerCount": 2, "intentCoverage": { "covered": 7, "total": 9 } },
+  "issues": [
+    { "type": "missing_intent", "severity": "blocker", "message": "CHK-002 缺少 testIntent" },
+    { "type": "missing_decision", "severity": "blocker", "message": "高风险 story 缺 decision/preMortem" },
+    { "type": "risk_signals", "severity": "advisory", "message": "riskSignals 命中 gate" }
+  ],
+  "_hint": "先补 testIntent 和 decision，然后重新 story_review",
+  "_reviewPrompt": "请审查 issueCount/blockerCount/testIntent/riskSignals/decision/preMortem"
+}

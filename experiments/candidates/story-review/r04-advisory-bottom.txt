@@ -1,0 +1,19 @@
+# r04-advisory-bottom Advisory Bottom
+
+BLOCKERS
+- missing_intent: CHK-002 缺少 testIntent
+- missing_decision: high-risk story needs decision/preMortem
+
+Coverage
+- intentCoverage: 7/9
+- issueCount: 4
+- blockerCount: 2
+
+Fix
+- Run checklist_update, decision_set, story_review again.
+
+Advisory
+- riskSignals: gate
+
+_reviewPrompt: present
+_hint: actionable
