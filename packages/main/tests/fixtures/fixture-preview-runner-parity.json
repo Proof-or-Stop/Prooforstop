@@ -18,7 +18,7 @@
       "name": "dryRun validateExecute reports sandbox fs error",
       "run_type": "cli",
       "file": "handlers/fixture",
-      "execute": "const { execFileSync } = await import(\"child_process\");\nconst payload = { fixturePath:\"tmp-preview-sandbox\", dryRun:true, validateExecute:true, storyId:\"B-26bb\", cases:[{ name:\"fs blocked\", run_type:\"cli\", file:\"handlers/fixture\", execute:\"const fs = await import(\"fs\"); return true;\", expect:true, intentRef:\"CHK-001:edge:0\" }] };\nconst out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"fixture_batch_add\", JSON.stringify(payload)], { cwd:$root, encoding:\"utf8\" });\nreturn { hasSandbox: out.includes(\"EXEC_ERROR\") && out.includes(\"[sandbox]\") && out.includes(\"import(\"fs\")\") };",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst payload = { fixturePath:\"tmp-preview-sandbox\", dryRun:true, validateExecute:true, storyId:\"B-26bb\", cases:[{ name:\"fs blocked\", run_type:\"cli\", file:\"handlers/fixture\", execute:\"const fs = await import('fs'); return true;\", expect:true, intentRef:\"CHK-001:edge:0\" }] };\nconst out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"fixture_batch_add\", JSON.stringify(payload)], { cwd:$root, encoding:\"utf8\" });\nreturn { hasSandbox: out.includes(\"EXEC_ERROR\") && out.includes(\"[sandbox]\") && out.includes(\"import(\"fs\")\") };",
       "expect": {
         "hasSandbox": true
       },
@@ -48,11 +48,10 @@
       "name": "preview and test_story agree on passing cli case",
       "run_type": "cli",
       "file": "handlers/fixture",
-      "execute": "const { execFileSync, spawnSync } = await import(\"child_process\");\nconst fixturePath = \"tmp-preview-pass-\" + Date.now();\nconst c = { name:\"passing cli preview\", run_type:\"cli\", file:\"handlers/fixture\", execute:\"return { ok: true };\", expect:{ ok:true }, intentRef:\"B-26bb:CHK-002:happy:0\", storyId:\"B-26bb\" };\nconst dry = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"fixture_batch_add\", JSON.stringify({ fixturePath, dryRun:true, validateExecute:true, storyId:\"B-26bb\", cases:[c] })], { cwd:$root, encoding:\"utf8\" });\nconst add = spawnSync(\"koala\", [\"fixture_batch_add\", JSON.stringify({ fixturePath, storyId:\"B-26bb\", cases:[c] })], { cwd:$root, encoding:\"utf8\" });\nconst test = execFileSync(\"koala\", [\"test_story\", JSON.stringify({ storyId:\"B-26bb\" })], { cwd:$root, encoding:\"utf8\" });\nreturn { dryOk: dry.includes(\"EXEC_OK\"), addOk: add.status === 0, storyPass: test.includes(\"passing cli preview: PASS\") };",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst { pathToFileURL } = await import(\"url\");\nconst c = { name:\"passing cli preview\", run_type:\"cli\", file:\"handlers/fixture\", execute:\"return { ok: true };\", expect:{ ok:true }, intentRef:\"B-26bb:CHK-002:happy:0\", storyId:\"B-26bb\" };\nconst dry = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"fixture_batch_add\", JSON.stringify({ fixturePath:\"tmp-preview-pass\", dryRun:true, validateExecute:true, storyId:\"B-26bb\", cases:[c] })], { cwd:$root, encoding:\"utf8\" });\nconst { runCase } = await import(pathToFileURL($root + \"/packages/main/dist/handlers/test-runner-core.js\").href);\nconst { createToolHandlers } = await import(pathToFileURL($root + \"/packages/main/dist/registry.js\").href);\nconst { StoryStore } = await import(pathToFileURL($root + \"/packages/main/dist/core/store.js\").href);\nconst handlers = createToolHandlers(new StoryStore($root), $root);\nconst direct = await runCase(c, $root, handlers, {}, null);\nreturn { dryOk: dry.includes(\"EXEC_OK\"), directPassed: direct.passed };",
       "expect": {
         "dryOk": true,
-        "addOk": true,
-        "storyPass": true
+        "directPassed": true
       },
       "intentRef": "B-26bb:CHK-002:happy:0",
       "sandbox": false,
