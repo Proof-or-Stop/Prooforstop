@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "StoryStore 写 checklist 时使用原子写入并校验 JSON 可读",
+      "context": "writeJson 先 JSON.stringify 到字符串，再写临时文件并 rename；写前/写后对 checklist 数据进行 JSON parse roundtrip，避免长 testIntent 或中断写入留下半截 JSON。",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-intent-review.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "checklist_update 长 testIntent 支持安全输入与失败不破坏原文件",
+      "context": "覆盖长 desc、多栏 testIntent、引号/换行等内容；如果输入校验失败或写入失败，原 checklist.json 仍可 JSON.parse。",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-intent-review.md",
+        "docs/requirements/decisions/test-fixture-spec.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "DONE confirm 不因自己写 activity.jsonl 造成 dirty 阻塞",
+      "context": "DONE gate 和 DONE auto-git preflight 应忽略 docs/story/activity.jsonl 这类 volatile activity log；必要时 DONE 命令本身不写 activity 或在 worktree 移除后安全跳过。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
