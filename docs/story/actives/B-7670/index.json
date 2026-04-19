@@ -1,0 +1,42 @@
+{
+  "storyId": "B-7670",
+  "name": "story-review-structured-output",
+  "title": "优化生产 story_review 结构化输出",
+  "description": "根据 koala-lab 的 story_review 结构化候选实验，将生产 story_review 输出优化为更清晰的结构化摘要：突出 issueCount、blockerCount、intentCoverage、missing_intent、risk_signals、decision/preMortem 和可执行 hint，同时保留必要的完整 reviewPrompt 供追溯。",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "lane": "mainline",
+  "parallelSafe": "no",
+  "sharedHotspots": [
+    "packages/main/src/handlers/story-review.ts",
+    "packages/main/src/handlers/story.ts",
+    "packages/main/src/cli-engine.ts"
+  ],
+  "createdAt": "2026-04-19T01:00:18.000Z",
+  "startedAt": "2026-04-19T01:00:18.000Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-19T01:00:18.001Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-19T01:00:26.725Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-7670",
+    "branch": "story/B-7670",
+    "createdAt": "2026-04-19T01:00:26.941Z"
+  }
+}

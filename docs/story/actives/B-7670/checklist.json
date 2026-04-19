@@ -1,0 +1,38 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "优化 story_review 返回结构化摘要",
+      "context": "根据实验最佳候选 r09-json-concise，把 summary/issues/_hint/_reviewPrompt 的高价值字段前置，减少用户先看到长 truth source 的噪音。",
+      "relatedDocs": [
+        "experiments/reports/story-review-structured-v1.md",
+        "README.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "保留完整 reviewPrompt 追溯能力",
+      "context": "不能为了压缩输出丢掉 reviewer 所需上下文；完整 prompt 可保留在字段中，但 compare/CLI 首屏应先展示摘要。",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-intent-review.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "补 story_review 输出回归验证",
+      "context": "验证 story_review 对 missing_intent、riskSignals、decision/preMortem、intentCoverage 和 actionable hint 的输出结构。",
+      "relatedDocs": [
+        "packages/main/tests/fixtures/story-review*.json"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
