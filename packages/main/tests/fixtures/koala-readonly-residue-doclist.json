@@ -34,7 +34,7 @@
       "name": "mutating checklist command still appends activity",
       "run_type": "cli",
       "file": "cli-engine",
-      "execute": "const { readFileSync } = await import(\"fs\");\nconst { execFileSync } = await import(\"child_process\");\nconst activity = $root + \"/docs/story/activity.jsonl\";\nconst count = () => readFileSync(activity, \"utf8\").split(\"\\n\").filter(Boolean).length;\nconst before = count();\nexecFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"summary_set\", JSON.stringify({ storyId: \"B-d139\", changes: \"Fixture verifies mutating commands still write activity\", usage: \"Run koala session_brief and aux_doc_list normally\", limitations: \"none -- fixture coverage only\", pitfalls: \"Use TEST-safe mutating command in this fixture\" })], { cwd: $root, encoding: \"utf8\" });\nconst after = count();\nreturn { before, after, appended: after > before };",
+      "execute": "const { readFileSync } = await import(\"fs\");\nconst { execFileSync } = await import(\"child_process\");\nconst activity = $root + \"/docs/story/activity.jsonl\";\nconst count = () => readFileSync(activity, \"utf8\").split(\"\\n\").filter(Boolean).length;\nconst before = count();\nexecFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"story_discard\", JSON.stringify({ storyId: \"B-0072\", dryRun: true })], { cwd: $root, encoding: \"utf8\" });\nconst after = count();\nreturn { before, after, appended: after > before };",
       "expect": {
         "appended": true
       },
