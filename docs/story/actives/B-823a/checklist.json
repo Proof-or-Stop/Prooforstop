@@ -1,0 +1,39 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "定义真实 story replay 评分模型",
+      "context": "为 B-7670/B-8d6a/B-57e7/B-9c2c/B-990d/B-e452/B-78d2/B-6bee/B-8bcf 等真实任务计算可解释 score，并输出 why/explain。",
+      "relatedDocs": [
+        "docs/requirements/decisions/framework.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "实现 replay 报告生成入口",
+      "context": "新增可复跑命令或脚本，生成 experiments/reports/real-story-replay-v1.md/json，表格必须稳定包含 score、why、explain。",
+      "relatedDocs": [
+        "README.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "补 replay 报告回归验证",
+      "context": "验证报告包含指定真实 story、分数列、why/explain 解释列，并保证缺 summary 的旧 story 也能被解释。",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-fixture-spec.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
