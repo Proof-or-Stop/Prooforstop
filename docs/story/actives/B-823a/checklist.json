@@ -15,19 +15,43 @@
         "happy": [
           {
             "desc": "评分模型对 PASS 且 0 open bug 的真实 story 给出高分，并在 why 中列出 tests/bugs/summary 来源",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:13:48.816Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/real-story-replay-benchmark.json:4 WHY verifies high-score PASS story rows include score/why/explain source signals; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "缺 summary 的旧 story 仍被纳入报告，但 score 降低且 explain 明确 artifact gap",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:13:49.046Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/real-story-replay-benchmark.json:19 WHY verifies missing summary stories remain in the report with lower score and artifact-gap explanation; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "score 不允许为空、NaN、超过 1 或缺少 why/explain，否则验证失败",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:13:49.306Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/real-story-replay-benchmark.json:35 WHY verifies every score is finite, bounded 0..1, and every row has why/explain; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -47,19 +71,43 @@
         "happy": [
           {
             "desc": "运行 replay 脚本生成 real-story-replay-v1.md/json，并包含指定真实 story 行",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:13:49.568Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/real-story-replay-benchmark.json:51 WHY verifies replay script generates target real story rows in markdown/json; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "重复运行 replay 脚本输出稳定，报告表头仍含 Score/Why/Explain",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:13:49.831Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/real-story-replay-benchmark.json:67 WHY verifies rerunning the replay is stable and keeps the required table shape; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "报告不得只生成聊天式描述，必须同时有机器可读 JSON 和用户可读 Markdown",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:13:50.091Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/real-story-replay-benchmark.json:83 WHY verifies the output is not chat-only and writes both JSON and Markdown artifacts; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -78,19 +126,43 @@
         "happy": [
           {
             "desc": "回归 fixture 校验 markdown 表格含 Story/Score/Why/Explain 且 B-9c2c 为高分",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:13:50.376Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/real-story-replay-benchmark.json:99 WHY validates markdown score table and B-9c2c high score evidence; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "回归 fixture 校验 B-e452 缺 summary 时仍有分数和解释，不崩溃",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:13:50.697Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/real-story-replay-benchmark.json:115 WHY validates B-e452 missing-summary path does not crash and is explained; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "回归 fixture 校验每个 replay item 都有 why 和 explain，缺任一字段即失败",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:13:50.990Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/real-story-replay-benchmark.json:131 WHY validates every replay item requires why and explain fields; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
