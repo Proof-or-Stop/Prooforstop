@@ -4,7 +4,7 @@
   "title": "修复 checklist_update 长 testIntent 写坏 JSON 与 DONE activity 自阻塞",
   "description": "修复两个 Koala 自身问题：checklist_update 写较长 testIntent 时可能导致 checklist.json JSON parse error，需要原子写入并在写前/写后校验；DONE confirm 写 activity log 后又让工作区 dirty，导致 DONE gate 或 auto-merge 自己阻塞自己，需要让 activity log 不参与 DONE 工作区阻塞或延后记录。",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "lane": "mainline",
   "parallelSafe": "no",
@@ -22,7 +22,7 @@
   ],
   "createdAt": "2026-04-19T22:59:02.531Z",
   "startedAt": "2026-04-19T22:59:02.531Z",
-  "endedAt": null,
+  "endedAt": "2026-04-19T23:08:17.272Z",
   "events": [
     {
       "phase": "INIT",
@@ -79,11 +79,14 @@
       "branch": "story/B-ae82",
       "user": "Harmonygo",
       "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-19T23:08:17.272Z",
+      "branch": "story/B-ae82",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ],
-  "worktree": {
-    "path": ".worktrees/B-ae82",
-    "branch": "story/B-ae82",
-    "createdAt": "2026-04-19T22:59:08.271Z"
-  }
+  ]
 }
