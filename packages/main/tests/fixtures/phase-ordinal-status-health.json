@@ -1,0 +1,161 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: DEV phase info exposes ordinal and allowed transitions",
+      "run_type": "cli",
+      "file": "core/phase-flow",
+      "execute": "const m = await import(\"file:///\" + $root.split(\"\\\\\").join(\"/\") + \"/packages/main/dist/core/phase-flow.js\"); const info = m.getPhaseInfo(\"DEV\"); return { ordinal: info.ordinal, total: info.total, label: info.label, next: info.allowedNext.includes(\"TEST_CASE\"), rollback: info.allowedRollback.includes(\"PLAN\") };",
+      "expect": {
+        "ordinal": 5,
+        "total": 9,
+        "label": "DEV",
+        "next": true,
+        "rollback": true
+      },
+      "intentRef": "B-fc3b:CHK-001:happy:0",
+      "storyId": "B-fc3b",
+      "_id": "e25439d0-b0b9-4a33-b87f-65b2188cb250",
+      "nextCaseId": "dd512971-bb5a-49ee-b64d-3f2ec953ab74"
+    },
+    {
+      "name": "CHK-001 edge: terminal and unknown phases are handled",
+      "run_type": "cli",
+      "file": "core/phase-flow",
+      "execute": "const m = await import(\"file:///\" + $root.split(\"\\\\\").join(\"/\") + \"/packages/main/dist/core/phase-flow.js\"); const discarded = m.getPhaseInfo(\"DISCARDED\"); const unknown = m.getPhaseInfo(\"NOPE\"); const health = m.checkPhaseTransition(\"DEV\", \"NOPE\"); return { discardedTerminal: discarded.terminal, discardedOrdinal: discarded.ordinal, unknownNull: unknown === null, unknownWarning: health.kind === \"unknown\" && !!health.warning };",
+      "expect": {
+        "discardedTerminal": true,
+        "discardedOrdinal": 9,
+        "unknownNull": true,
+        "unknownWarning": true
+      },
+      "intentRef": "B-fc3b:CHK-001:edge:0",
+      "storyId": "B-fc3b",
+      "_id": "dd512971-bb5a-49ee-b64d-3f2ec953ab74",
+      "prevCaseId": "e25439d0-b0b9-4a33-b87f-65b2188cb250",
+      "nextCaseId": "7019c905-77f5-4875-9e61-93b8febde5b0"
+    },
+    {
+      "name": "CHK-001 adversarial: legal rollback is not confused with illegal jump",
+      "run_type": "cli",
+      "file": "core/phase-flow",
+      "execute": "const m = await import(\"file:///\" + $root.split(\"\\\\\").join(\"/\") + \"/packages/main/dist/core/phase-flow.js\"); return { testRollback: m.checkPhaseTransition(\"TEST\", \"DEV\"), reviewRollback: m.checkPhaseTransition(\"TEST_CASE_REVIEW\", \"DEV\"), illegalJump: m.checkPhaseTransition(\"DEV\", \"TEST\") };",
+      "expect": {
+        "testRollback": {
+          "ok": true,
+          "kind": "rollback"
+        },
+        "reviewRollback": {
+          "ok": true,
+          "kind": "rollback"
+        },
+        "illegalJump": {
+          "ok": false,
+          "kind": "invalid"
+        }
+      },
+      "intentRef": "B-fc3b:CHK-001:adversarial:0",
+      "storyId": "B-fc3b",
+      "_id": "7019c905-77f5-4875-9e61-93b8febde5b0",
+      "prevCaseId": "dd512971-bb5a-49ee-b64d-3f2ec953ab74",
+      "nextCaseId": "c239fbfd-3a55-4677-9aaa-c3f168e4cab4"
+    },
+    {
+      "name": "CHK-002 happy: status shows phase ordinal and allowed transitions",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { execFileSync } = await import(\"node:child_process\"); const out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"status\", \"--concise\"], { cwd: $root, encoding: \"utf8\" }); return { hasOrdinal: out.includes(\"**Phase**: 6/9 TEST_CASE\"), hasNext: out.includes(\"allowed next: TEST_CASE_REVIEW\"), hasRollback: out.includes(\"allowed rollback: DEV\") };",
+      "expect": {
+        "hasOrdinal": true,
+        "hasNext": true,
+        "hasRollback": true
+      },
+      "intentRef": "B-fc3b:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-fc3b",
+      "_id": "c239fbfd-3a55-4677-9aaa-c3f168e4cab4",
+      "prevCaseId": "7019c905-77f5-4875-9e61-93b8febde5b0",
+      "nextCaseId": "3f1e2c26-6596-4afb-a05b-0fa905f22a71"
+    },
+    {
+      "name": "CHK-002 edge: transition health renderer reports drift without mutating story",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const m = await import(\"file:///\" + $root.split(\"\\\\\").join(\"/\") + \"/packages/main/dist/core/phase-flow.js\"); const health = m.checkPhaseTransition(\"PLAN\", \"TEST\"); return { ok: health.ok, kind: health.kind, warning: !!health.warning, main: m.formatPhaseOrdinal(\"PLAN\"), worktree: m.formatPhaseOrdinal(\"TEST\") };",
+      "expect": {
+        "ok": false,
+        "kind": "invalid",
+        "warning": true,
+        "main": "4/9 PLAN",
+        "worktree": "8/9 TEST"
+      },
+      "intentRef": "B-fc3b:CHK-002:edge:0",
+      "storyId": "B-fc3b",
+      "_id": "3f1e2c26-6596-4afb-a05b-0fa905f22a71",
+      "prevCaseId": "c239fbfd-3a55-4677-9aaa-c3f168e4cab4",
+      "nextCaseId": "e88a16d5-3b4d-46f1-a947-f550aa578f09"
+    },
+    {
+      "name": "CHK-002 adversarial: status phase health remains read-only",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { execFileSync } = await import(\"node:child_process\"); const tracked = [\"--\", \".koala\", \"docs/story/actives/B-fc3b/index.json\"]; const before = execFileSync(\"git\", [\"status\", \"--short\", ...tracked], { cwd: $root, encoding: \"utf8\" }); execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"status\", \"--concise\"], { cwd: $root, encoding: \"utf8\" }); const after = execFileSync(\"git\", [\"status\", \"--short\", ...tracked], { cwd: $root, encoding: \"utf8\" }); return before === after;",
+      "expect": true,
+      "intentRef": "B-fc3b:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-fc3b",
+      "_id": "e88a16d5-3b4d-46f1-a947-f550aa578f09",
+      "prevCaseId": "3f1e2c26-6596-4afb-a05b-0fa905f22a71",
+      "nextCaseId": "04fc86e9-9263-46dd-969a-2de72adb1843"
+    },
+    {
+      "name": "CHK-003 happy: fixture covers phase-flow and status output",
+      "run_type": "cli",
+      "file": "core/phase-flow",
+      "execute": "const fs = await import(\"node:fs\"); const text = fs.readFileSync($root + \"/packages/main/tests/fixtures/phase-ordinal-status-health.json\", \"utf8\"); return { hasPhaseFlowCase: text.includes(\"DEV phase info exposes ordinal\"), hasStatusCase: text.includes(\"status shows phase ordinal\"), hasRefs: text.includes(\"B-fc3b:CHK-001:happy:0\") && text.includes(\"B-fc3b:CHK-002:happy:0\") };",
+      "expect": {
+        "hasPhaseFlowCase": true,
+        "hasStatusCase": true,
+        "hasRefs": true
+      },
+      "intentRef": "B-fc3b:CHK-003:happy:0",
+      "sandbox": false,
+      "storyId": "B-fc3b",
+      "_id": "04fc86e9-9263-46dd-969a-2de72adb1843",
+      "prevCaseId": "e88a16d5-3b4d-46f1-a947-f550aa578f09",
+      "nextCaseId": "a3ea1b90-1e6d-4097-a6b5-9e23b42152b3"
+    },
+    {
+      "name": "CHK-003 edge: fixture covers rollback and unknown phase warnings",
+      "run_type": "cli",
+      "file": "core/phase-flow",
+      "execute": "const fs = await import(\"node:fs\"); const text = fs.readFileSync($root + \"/packages/main/tests/fixtures/phase-ordinal-status-health.json\", \"utf8\"); return { rollback: text.includes(\"legal rollback is not confused\"), unknown: text.includes(\"unknown phases are handled\"), drift: text.includes(\"reports drift\") };",
+      "expect": {
+        "rollback": true,
+        "unknown": true,
+        "drift": true
+      },
+      "intentRef": "B-fc3b:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-fc3b",
+      "_id": "a3ea1b90-1e6d-4097-a6b5-9e23b42152b3",
+      "prevCaseId": "04fc86e9-9263-46dd-969a-2de72adb1843",
+      "nextCaseId": "f1a8caae-9dc6-44de-94f4-07e4c9cbeb87"
+    },
+    {
+      "name": "CHK-003 adversarial: fixture covers illegal jump and status read-only",
+      "run_type": "cli",
+      "file": "core/phase-flow",
+      "execute": "const fs = await import(\"node:fs\"); const text = fs.readFileSync($root + \"/packages/main/tests/fixtures/phase-ordinal-status-health.json\", \"utf8\"); return { illegal: text.includes(\"illegalJump\"), readonly: text.includes(\"status phase health remains read-only\"), noEventSequence: !text.includes(\"event sequence\") };",
+      "expect": {
+        "illegal": true,
+        "readonly": true,
+        "noEventSequence": true
+      },
+      "intentRef": "B-fc3b:CHK-003:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-fc3b",
+      "_id": "f1a8caae-9dc6-44de-94f4-07e4c9cbeb87",
+      "prevCaseId": "a3ea1b90-1e6d-4097-a6b5-9e23b42152b3"
+    }
+  ]
+}
