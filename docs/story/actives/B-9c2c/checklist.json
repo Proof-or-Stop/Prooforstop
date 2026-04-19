@@ -7,9 +7,29 @@
       "relatedDocs": [
         "AGENTS.md#Fixture 写法"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-04-19T10:20:38.909Z",
+      "endTime": "2026-04-19T10:24:20.028Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "story_get detail 读取当前 story 的 B-test:CHK-001:happy:0 → fixture 指向 current fixture case",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "fixture intentRef 不带 storyId 前缀但匹配 CHK-001:happy:0 → 当前 story 仍能绑定",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "其它 story 的 B-other:CHK-001:happy:0 或无关 fixture → 不会误挂到当前 story testIntent",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -18,9 +38,29 @@
       "relatedDocs": [
         "docs/requirements/decisions/test-fixture-spec.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-04-19T10:24:23.131Z",
+      "endTime": "2026-04-19T10:24:26.376Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "回归 fixture 构造多个相似 intentRef → story_get 只显示正确 fixture",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "没有匹配 fixture → story_get 不显示 fixture 字段或保持为空",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "错误 fuzzy mapping 出现 zombie-linked-worktree 类无关 case → 回归失败",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }

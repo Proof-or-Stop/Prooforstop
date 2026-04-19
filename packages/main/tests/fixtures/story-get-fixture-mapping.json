@@ -1,0 +1,88 @@
+{
+  "cases": [
+    {
+      "name": "story_get maps scoped current-story fixture",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const detail = $handlers.story_get({ storyId: \"B-9c2c\", detail: true });\nconst item = detail.checklist.items.find((i) => i.id === \"CHK-001\");\nconst fx = item.testIntent.happy[0].fixture;\nif (!fx || fx.file !== \"story-get-fixture-mapping.json\" || fx.name !== \"story_get maps scoped current-story fixture\" || !(fx.line > 0)) {\n  throw new Error(\"scoped fixture mismatch: \" + JSON.stringify(fx));\n}\nreturn { ok: true, mapped: fx.name, file: fx.file };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-9c2c:CHK-001:happy:0",
+      "storyId": "B-9c2c",
+      "_id": "4ed6a059-cac4-4448-be4e-e8973bf6b9b2",
+      "nextCaseId": "503f6d9f-4634-4a10-ba5b-e3e93ed35cda"
+    },
+    {
+      "name": "story_get ignores other-story and unowned legacy fixture refs",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const fs = await import(\"fs\");\nconst path = await import(\"path\");\nconst decoyPath = path.join($root, \"packages/main/tests/fixtures/zz-story-get-fixture-mapping-decoy.json\");\nfs.writeFileSync(decoyPath, JSON.stringify({ cases: [\n  { name: \"zombie-linked-worktree decoy\", run_type: \"cli\", file: \"handlers/story-query\", execute: \"return true\", intentRef: \"CHK-001:adversarial:0\" },\n  { name: \"other story scoped decoy\", run_type: \"cli\", file: \"handlers/story-query\", execute: \"return true\", intentRef: \"B-other:CHK-001:adversarial:0\", storyId: \"B-other\" }\n] }, null, 2) + \"\\n\");\nconst detail = $handlers.story_get({ storyId: \"B-9c2c\", detail: true });\nconst item = detail.checklist.items.find((i) => i.id === \"CHK-001\");\nconst fx = item.testIntent.adversarial[0].fixture;\nif (!fx || fx.name !== \"story_get ignores other-story and unowned legacy fixture refs\") {\n  throw new Error(\"adversarial fixture mismatch: \" + JSON.stringify(fx));\n}\nreturn { ok: true, mapped: fx.name };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-9c2c:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-9c2c",
+      "_id": "503f6d9f-4634-4a10-ba5b-e3e93ed35cda",
+      "prevCaseId": "4ed6a059-cac4-4448-be4e-e8973bf6b9b2",
+      "nextCaseId": "0e2304e4-fd4d-4024-a3e5-65f197ab6c73"
+    },
+    {
+      "name": "story_get keeps similar refs isolated",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const fs = await import(\"fs\");\nconst path = await import(\"path\");\nconst decoyPath = path.join($root, \"packages/main/tests/fixtures/zz-story-get-fixture-mapping-similar.json\");\nfs.writeFileSync(decoyPath, JSON.stringify({ cases: [\n  { name: \"similar other story CHK-002\", run_type: \"cli\", file: \"handlers/story-query\", execute: \"return true\", intentRef: \"B-other:CHK-002:happy:0\", storyId: \"B-other\" },\n  { name: \"similar unowned CHK-002\", run_type: \"cli\", file: \"handlers/story-query\", execute: \"return true\", intentRef: \"CHK-002:happy:0\" }\n] }, null, 2) + \"\\n\");\nconst detail = $handlers.story_get({ storyId: \"B-9c2c\", detail: true });\nconst item = detail.checklist.items.find((i) => i.id === \"CHK-002\");\nconst fx = item.testIntent.happy[0].fixture;\nif (!fx || fx.name !== \"story_get keeps similar refs isolated\") {\n  throw new Error(\"similar ref fixture mismatch: \" + JSON.stringify(fx));\n}\nreturn { ok: true, mapped: fx.name };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-9c2c:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-9c2c",
+      "_id": "0e2304e4-fd4d-4024-a3e5-65f197ab6c73",
+      "prevCaseId": "503f6d9f-4634-4a10-ba5b-e3e93ed35cda",
+      "nextCaseId": "2476b23d-753a-4771-8cfa-c0727b8db51c"
+    },
+    {
+      "name": "story_get leaves unmatched temp story fixture null",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const storyId = await $testStory({ checklist: [{ id: \"CHK-777\", title: \"unmatched fixture\" }] });\nawait $handlers.checklist_update({ storyId, itemId: \"CHK-777\", testIntent: { happy: [{ desc: \"no fixture exists\", type: \"cli_blackbox\" }], edge: [], adversarial: [] } });\nconst detail = $handlers.story_get({ storyId, detail: true });\nconst item = detail.checklist.items.find((i) => i.id === \"CHK-777\");\nconst fx = item.testIntent.happy[0].fixture;\nif (fx !== null) throw new Error(\"expected null fixture, got \" + JSON.stringify(fx));\nreturn { ok: true, fixture: fx };",
+      "expect": {
+        "ok": true,
+        "fixture": null
+      },
+      "intentRef": "B-9c2c:CHK-002:edge:0",
+      "storyId": "B-9c2c",
+      "_id": "2476b23d-753a-4771-8cfa-c0727b8db51c",
+      "prevCaseId": "0e2304e4-fd4d-4024-a3e5-65f197ab6c73",
+      "nextCaseId": "6783b83f-10a4-4395-aa51-53dc78a49c73"
+    },
+    {
+      "name": "story_get rejects zombie-linked-worktree fuzzy fixture",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const fs = await import(\"fs\");\nconst path = await import(\"path\");\nconst decoyPath = path.join($root, \"packages/main/tests/fixtures/zz-story-get-fixture-mapping-zombie.json\");\nfs.writeFileSync(decoyPath, JSON.stringify({ cases: [\n  { name: \"zombie-linked-worktree\", run_type: \"cli\", file: \"handlers/story-query\", execute: \"return true\", intentRef: \"CHK-002:adversarial:0\" }\n] }, null, 2) + \"\\n\");\nconst detail = $handlers.story_get({ storyId: \"B-9c2c\", detail: true });\nconst item = detail.checklist.items.find((i) => i.id === \"CHK-002\");\nconst fx = item.testIntent.adversarial[0].fixture;\nif (!fx || fx.name !== \"story_get rejects zombie-linked-worktree fuzzy fixture\") {\n  throw new Error(\"zombie fuzzy fixture mismatch: \" + JSON.stringify(fx));\n}\nreturn { ok: true, mapped: fx.name };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-9c2c:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-9c2c",
+      "_id": "6783b83f-10a4-4395-aa51-53dc78a49c73",
+      "prevCaseId": "2476b23d-753a-4771-8cfa-c0727b8db51c"
+    },
+    {
+      "name": "story_get maps legacy current-story fixture refs",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const detail = $handlers.story_get({ storyId: \"B-9c2c\", detail: true });\nconst item = detail.checklist.items.find((i) => i.id === \"CHK-001\");\nconst fx = item.testIntent.edge[0].fixture;\nif (!fx || fx.file !== \"story-get-fixture-mapping.json\" || fx.name !== \"story_get maps legacy current-story fixture refs\") {\n  throw new Error(\"legacy fixture mismatch: \" + JSON.stringify(fx));\n}\nreturn { ok: true, mapped: fx.name, file: fx.file };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "CHK-001:edge:0",
+      "_id": "3dd60ea6-6ce7-40b8-91b8-be3fb628305c",
+      "storyId": "B-9c2c"
+    }
+  ]
+}
