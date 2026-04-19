@@ -1,0 +1,26 @@
+{
+  "task": "重排 DEV/TEST_CASE/TEST_CASE_REVIEW 阶段职责与 testIntent 覆盖门禁",
+  "outcome": "用户在 DEV 阶段完成代码后，可以直接 `koala checklist_update --status=done`，不会因为尚未写 fixture 被拒；进入 TEST_CASE 后可写 fixture 并用 `koala test_fixture` 验证；进入 TEST 前，Koala 在 TEST_CASE_REVIEW→TEST 统一检查 fixture coverage 和 reviewer pass，缺任何一项都会明确拒绝。",
+  "facts": [
+    "当前流程可能要求 DEV done 时已有 fixture coverage，导致 agent 被迫在 DEV 写测试。",
+    "phaseTools 已经在 core/config.ts 控制各阶段可用命令。",
+    "reviewer-status/intent-coverage 已经能计算 testIntent reviewer pass 与 fixture coverage。",
+    "TEST_CASE_REVIEW→TEST gate 目前已有 reviewerStatus blockers，但需要确认 coverage blocking 的职责完整。"
+  ],
+  "constraints": [
+    "DEV 阶段仍不能放松实现完成判断，只是不检查 fixture coverage。",
+    "缺 fixture coverage 不能进入 TEST/DONE。",
+    "testintent_check 和 test_fixture 放行必须只读/验证，不允许绕过 mutating gate。",
+    "必须通过 fixture 证明阶段职责新行为。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/reviewer-status.ts",
+    "packages/main/src/core/intent-coverage.ts",
+    "packages/main/tests/fixtures/phase-role-gate-realignment.json"
+  ],
+  "timestamp": "2026-04-19T23:33:30.821Z"
+}

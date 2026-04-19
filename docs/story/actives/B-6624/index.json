@@ -1,0 +1,117 @@
+{
+  "storyId": "B-6624",
+  "name": "phase-role-gate-realignment",
+  "title": "重排 DEV/TEST_CASE 阶段职责与 testIntent 覆盖门禁",
+  "description": "修复 Koala 阶段职责矛盾：DEV 阶段应只完成实现并允许 checklist done，不要求 fixture 覆盖；TEST_CASE 阶段负责编写/验证 fixture；TEST_CASE_REVIEW→TEST 统一检查 testIntent reviewer pass 与 fixture coverage。testintent_check 应作为只读命令全阶段可用，test_fixture 在 TEST_CASE 阶段可用。",
+  "type": "bug",
+  "phase": "DONE",
+  "priority": "high",
+  "lane": "mainline",
+  "parallelSafe": "no",
+  "sharedHotspots": [
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/reviewer-status.ts",
+    "packages/main/src/core/intent-coverage.ts"
+  ],
+  "riskSignals": [
+    {
+      "category": "状态机/门禁",
+      "matched": "gate"
+    }
+  ],
+  "createdAt": "2026-04-19T23:33:03.994Z",
+  "startedAt": "2026-04-19T23:33:03.994Z",
+  "endedAt": "2026-04-19T23:40:30.827Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-19T23:33:03.994Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-19T23:33:11.425Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-19T23:33:19.882Z",
+      "branch": "story/B-6624",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-19T23:35:00.680Z",
+      "branch": "story/B-6624",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-19T23:36:09.533Z",
+      "branch": "story/B-6624",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-19T23:37:31.788Z",
+      "branch": "story/B-6624",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-19T23:38:01.257Z",
+      "branch": "story/B-6624",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-19T23:38:39.658Z",
+      "branch": "story/B-6624",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-19T23:39:32.139Z",
+      "branch": "story/B-6624",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-19T23:39:32.282Z",
+      "branch": "story/B-6624",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-19T23:40:30.827Z",
+      "branch": "story/B-6624",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}

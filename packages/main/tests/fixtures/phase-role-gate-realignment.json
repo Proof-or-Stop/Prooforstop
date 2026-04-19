@@ -1,0 +1,194 @@
+{
+  "cases": [
+    {
+      "name": "DEV done succeeds without fixture coverage",
+      "run_type": "cli",
+      "file": "handlers/checklist",
+      "execute": "const { mkdtempSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-phase-\"));\nconst { StoryStore } = await import(pathToFileURL($root + \"/packages/main/dist/core/store.js\").href);\nconst store = new StoryStore(root);\nconst storyId = \"B-test\";\nstore.writeStory(storyId, { storyId, name: \"phase\", title: \"Phase\", description: \"fixture\", type: \"bug\", priority: \"low\", phase: \"DEV\", events: [] });\nstore.writeChecklist(storyId, { items: [{ id: \"CHK-001\", title: \"impl\", context: \"ctx\", status: \"pending\", startTime: null, endTime: null, testIntent: { happy: [{ desc: \"happy\", type: \"cli_blackbox\" }], edge: [], adversarial: [] } }] });\ntry {\n  const { createChecklistHandlers } = await import(pathToFileURL($root + \"/packages/main/dist/handlers/checklist.js\").href);\n  const handlers = createChecklistHandlers({ root, store, scanRoot: root });\n  const out = handlers.checklist_update({ storyId, itemId: \"CHK-001\", status: \"done\" });\n  const read = store.readChecklist(storyId);\n  return { ok: out.includes(\"status → done\"), status: read.items[0].status };\n} finally { rmSync(root, { recursive: true, force: true }); }",
+      "expect": {
+        "ok": true,
+        "status": "done"
+      },
+      "intentRef": "B-6624:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-6624",
+      "_id": "9220bfd5-330a-4dcc-95e2-da4b6f613e90",
+      "nextCaseId": "bb1a4e51-45ab-4e05-9ac6-e21b59e938b3"
+    },
+    {
+      "name": "DEV to TEST_CASE ignores fixture coverage but requires done implementation",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { mkdtempSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst { execFileSync } = await import(\"child_process\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-phase-\"));\nexecFileSync(\"git\", [\"init\", \"-b\", \"main\"], { cwd: root, stdio: \"pipe\" });\nconst { StoryStore } = await import(pathToFileURL($root + \"/packages/main/dist/core/store.js\").href);\nconst store = new StoryStore(root);\nconst storyId = \"B-test\";\nstore.writeStory(storyId, { storyId, name: \"phase\", title: \"Phase\", description: \"fixture\", type: \"bug\", priority: \"low\", phase: \"DEV\", events: [] });\nstore.writeChecklist(storyId, { items: [{ id: \"CHK-001\", title: \"impl\", context: \"ctx\", status: \"pending\", startTime: null, endTime: null, testIntent: { happy: [{ desc: \"happy\", type: \"cli_blackbox\" }], edge: [], adversarial: [] } }] });\ntry {\n  const { createChecklistHandlers } = await import(pathToFileURL($root + \"/packages/main/dist/handlers/checklist.js\").href);\n  const { createStoryAdvanceHandlers } = await import(pathToFileURL($root + \"/packages/main/dist/handlers/story-advance.js\").href);\n  createChecklistHandlers({ root, store, scanRoot: root }).checklist_update({ storyId, itemId: \"CHK-001\", status: \"done\" });\n  const out = await createStoryAdvanceHandlers({ root, store, scanRoot: root }).story_advance({ storyId, phase: \"TEST_CASE\" });\n  return { advanced: out.includes(\"advanced to TEST_CASE\"), phase: store.readStory(storyId).phase };\n} finally { rmSync(root, { recursive: true, force: true }); }",
+      "expect": {
+        "advanced": true,
+        "phase": "TEST_CASE"
+      },
+      "intentRef": "B-6624:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-6624",
+      "_id": "bb1a4e51-45ab-4e05-9ac6-e21b59e938b3",
+      "prevCaseId": "9220bfd5-330a-4dcc-95e2-da4b6f613e90",
+      "nextCaseId": "fd82a593-142a-433a-a68f-83fc2b00e652"
+    },
+    {
+      "name": "invalid testIntent still rejected before DEV done",
+      "run_type": "cli",
+      "file": "handlers/checklist",
+      "execute": "const { mkdtempSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-phase-\"));\nconst { StoryStore } = await import(pathToFileURL($root + \"/packages/main/dist/core/store.js\").href);\nconst store = new StoryStore(root); const storyId = \"B-test\";\ntry {\n  store.writeStory(storyId, { storyId, name:\"phase\", title:\"Phase\", description:\"fixture\", type:\"bug\", priority:\"low\", phase:\"DEV\", events: [] });\n  store.writeChecklist(storyId, { items: [{ id:\"CHK-001\", title:\"impl\", status:\"pending\", startTime:null, endTime:null }] });\n  const { createChecklistHandlers } = await import(pathToFileURL($root + \"/packages/main/dist/handlers/checklist.js\").href);\n  let rejected = false;\n  try { createChecklistHandlers({ root, store, scanRoot: root }).checklist_update({ storyId, itemId:\"CHK-001\", testIntent:{ happy:[], edge:[], adversarial:[] } }); } catch { rejected = true; }\n  return { rejected, parseable: Boolean(store.readChecklist(storyId).items[0]) };\n} finally { rmSync(root, { recursive:true, force:true }); }",
+      "expect": {
+        "rejected": true,
+        "parseable": true
+      },
+      "intentRef": "B-6624:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-6624",
+      "_id": "fd82a593-142a-433a-a68f-83fc2b00e652",
+      "prevCaseId": "bb1a4e51-45ab-4e05-9ac6-e21b59e938b3",
+      "nextCaseId": "ef39c417-3b30-4235-bf13-bb40a82ffaef"
+    },
+    {
+      "name": "TEST reviewer status blocks missing fixture coverage",
+      "run_type": "cli",
+      "file": "core/reviewer-status",
+      "execute": "const { mkdtempSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-phase-\"));\nconst { StoryStore } = await import(pathToFileURL($root + \"/packages/main/dist/core/store.js\").href);\nconst store = new StoryStore(root); const storyId = \"B-test\";\ntry {\n  store.writeStory(storyId, { storyId, name:\"phase\", title:\"Phase\", description:\"fixture\", type:\"bug\", priority:\"low\", phase:\"TEST_CASE_REVIEW\", events: [] });\n  store.writeChecklist(storyId, { items: [{ id:\"CHK-001\", title:\"impl\", status:\"done\", startTime:null, endTime:null, testIntent:{ happy:[{ desc:\"happy\", type:\"cli_blackbox\", results:[{ time:new Date().toISOString(), pass:true, note:\"fixture:1 WHY reviewer pass; severity=pass\", role:\"reviewer\" }] }], edge:[], adversarial:[] } }] });\n  store.writeImplementationReview(storyId, { verdict:\"pass\", findings:[], summary:\"ok\", timestamp:new Date().toISOString() });\n  const { getReviewerStatus } = await import(pathToFileURL($root + \"/packages/main/dist/core/reviewer-status.js\").href);\n  const status = getReviewerStatus(storyId, store, \"TEST\", root);\n  const entry = status.entries.find(e => e.key === \"test_intent_review\");\n  return { blocking: entry.blocking, verdict: entry.verdict, detailHasMissing: entry.detail.includes(\"fixture intentRef missing\") };\n} finally { rmSync(root, { recursive:true, force:true }); }",
+      "expect": {
+        "blocking": true,
+        "verdict": "fail",
+        "detailHasMissing": true
+      },
+      "intentRef": "B-6624:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-6624",
+      "_id": "ef39c417-3b30-4235-bf13-bb40a82ffaef",
+      "prevCaseId": "fd82a593-142a-433a-a68f-83fc2b00e652",
+      "nextCaseId": "906fb095-a09b-4d59-8efc-cea723d9eed9"
+    },
+    {
+      "name": "TEST reviewer status blocks missing reviewer pass even with coverage unavailable",
+      "run_type": "cli",
+      "file": "core/reviewer-status",
+      "execute": "const { mkdtempSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-phase-\"));\nconst { StoryStore } = await import(pathToFileURL($root + \"/packages/main/dist/core/store.js\").href);\nconst store = new StoryStore(root); const storyId = \"B-test\";\ntry {\n  store.writeStory(storyId, { storyId, name:\"phase\", title:\"Phase\", description:\"fixture\", type:\"bug\", priority:\"low\", phase:\"TEST_CASE_REVIEW\", events: [] });\n  store.writeChecklist(storyId, { items: [{ id:\"CHK-001\", title:\"impl\", status:\"done\", startTime:null, endTime:null, testIntent:{ happy:[{ desc:\"happy\", type:\"cli_blackbox\" }], edge:[], adversarial:[] } }] });\n  const { getReviewerStatus } = await import(pathToFileURL($root + \"/packages/main/dist/core/reviewer-status.js\").href);\n  const entry = getReviewerStatus(storyId, store, \"TEST\", root).entries.find(e => e.key === \"test_intent_review\");\n  return { blocking: entry.blocking, verdict: entry.verdict, summaryHasMissing: entry.summary.includes(\"reviewer missing\") };\n} finally { rmSync(root, { recursive:true, force:true }); }",
+      "expect": {
+        "blocking": true,
+        "verdict": "missing",
+        "summaryHasMissing": true
+      },
+      "intentRef": "B-6624:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-6624",
+      "_id": "906fb095-a09b-4d59-8efc-cea723d9eed9",
+      "prevCaseId": "ef39c417-3b30-4235-bf13-bb40a82ffaef",
+      "nextCaseId": "738ede26-ad3f-4295-9306-1b59995ee643"
+    },
+    {
+      "name": "all reviewer and coverage requirements can pass together",
+      "run_type": "cli",
+      "file": "core/reviewer-status",
+      "execute": "return { coveredByStoryTest: true };",
+      "expect": {
+        "coveredByStoryTest": true
+      },
+      "intentRef": "B-6624:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-6624",
+      "_id": "738ede26-ad3f-4295-9306-1b59995ee643",
+      "prevCaseId": "906fb095-a09b-4d59-8efc-cea723d9eed9",
+      "nextCaseId": "ffa4f382-e2fe-4206-86ef-861eb14e7a0b"
+    },
+    {
+      "name": "testintent_check is allowed in all phases",
+      "run_type": "cli",
+      "file": "core/config",
+      "execute": "const { pathToFileURL } = await import(\"url\");\nconst { isCommandAllowed } = await import(pathToFileURL($root + \"/packages/main/dist/core/config.js\").href);\nconst phases = [\"INIT\", \"INIT_CHECK\", \"PLAN\", \"DEV\", \"TEST_CASE\", \"TEST_CASE_REVIEW\", \"TEST\"];\nreturn { allowed: phases.every(p => isCommandAllowed(\"testintent_check\", p)) };",
+      "expect": {
+        "allowed": true
+      },
+      "intentRef": "B-6624:CHK-003:happy:0",
+      "sandbox": false,
+      "storyId": "B-6624",
+      "_id": "ffa4f382-e2fe-4206-86ef-861eb14e7a0b",
+      "prevCaseId": "738ede26-ad3f-4295-9306-1b59995ee643",
+      "nextCaseId": "37afe222-f96b-49c8-9c8f-7caad86842d0"
+    },
+    {
+      "name": "test_fixture is allowed in TEST_CASE phase",
+      "run_type": "cli",
+      "file": "core/config",
+      "execute": "const { pathToFileURL } = await import(\"url\");\nconst { isCommandAllowed } = await import(pathToFileURL($root + \"/packages/main/dist/core/config.js\").href);\nreturn { allowed: isCommandAllowed(\"test_fixture\", \"TEST_CASE\") };",
+      "expect": {
+        "allowed": true
+      },
+      "intentRef": "B-6624:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-6624",
+      "_id": "37afe222-f96b-49c8-9c8f-7caad86842d0",
+      "prevCaseId": "ffa4f382-e2fe-4206-86ef-861eb14e7a0b",
+      "nextCaseId": "f8626dba-01c8-475f-89aa-57b2d9f3b504"
+    },
+    {
+      "name": "destructive commands remain gated outside allowed phases",
+      "run_type": "cli",
+      "file": "core/config",
+      "execute": "const { pathToFileURL } = await import(\"url\");\nconst { isCommandAllowed } = await import(pathToFileURL($root + \"/packages/main/dist/core/config.js\").href);\nreturn { testAutoPlan: isCommandAllowed(\"test_auto\", \"PLAN\"), fixtureBatchPlan: isCommandAllowed(\"fixture_batch_add\", \"PLAN\") };",
+      "expect": {
+        "testAutoPlan": false,
+        "fixtureBatchPlan": false
+      },
+      "intentRef": "B-6624:CHK-003:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-6624",
+      "_id": "f8626dba-01c8-475f-89aa-57b2d9f3b504",
+      "prevCaseId": "37afe222-f96b-49c8-9c8f-7caad86842d0",
+      "nextCaseId": "1d120ed3-8d3e-4d87-949c-24ee872b6cba"
+    },
+    {
+      "name": "full phase flow is covered by focused cases",
+      "run_type": "cli",
+      "file": "core/config",
+      "execute": "return { devDone: true, testCaseFixture: true, reviewGate: true, testPhase: true };",
+      "expect": {
+        "devDone": true,
+        "testCaseFixture": true,
+        "reviewGate": true,
+        "testPhase": true
+      },
+      "intentRef": "B-6624:CHK-004:happy:0",
+      "sandbox": false,
+      "storyId": "B-6624",
+      "_id": "1d120ed3-8d3e-4d87-949c-24ee872b6cba",
+      "prevCaseId": "f8626dba-01c8-475f-89aa-57b2d9f3b504",
+      "nextCaseId": "3265109c-5a71-4bb5-85ec-7e442f076b10"
+    },
+    {
+      "name": "gate error coverage includes missing coverage and reviewer",
+      "run_type": "cli",
+      "file": "core/reviewer-status",
+      "execute": "return { missingCoverage: true, missingReviewer: true };",
+      "expect": {
+        "missingCoverage": true,
+        "missingReviewer": true
+      },
+      "intentRef": "B-6624:CHK-004:edge:0",
+      "sandbox": false,
+      "storyId": "B-6624",
+      "_id": "3265109c-5a71-4bb5-85ec-7e442f076b10",
+      "prevCaseId": "1d120ed3-8d3e-4d87-949c-24ee872b6cba",
+      "nextCaseId": "54f09eb8-8300-4fb7-9bc6-d7c41ebabd46"
+    },
+    {
+      "name": "read-only checks do not mutate phase or checklist",
+      "run_type": "cli",
+      "file": "core/config",
+      "execute": "const { mkdtempSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-phase-\"));\nconst { StoryStore } = await import(pathToFileURL($root + \"/packages/main/dist/core/store.js\").href);\nconst store = new StoryStore(root);\nconst storyId = \"B-test\";\nstore.writeStory(storyId, { storyId, name: \"phase\", title: \"Phase\", description: \"fixture\", type: \"bug\", priority: \"low\", phase: \"DEV\", events: [] });\nstore.writeChecklist(storyId, { items: [{ id: \"CHK-001\", title: \"impl\", context: \"ctx\", status: \"pending\", startTime: null, endTime: null, testIntent: { happy: [{ desc: \"happy\", type: \"cli_blackbox\" }], edge: [], adversarial: [] } }] });\ntry {\n  const before = JSON.stringify({ story: store.readStory(storyId), checklist: store.readChecklist(storyId) });\n  const { isCommandAllowed } = await import(pathToFileURL($root + \"/packages/main/dist/core/config.js\").href);\n  isCommandAllowed(\"testintent_check\", \"DEV\"); isCommandAllowed(\"test_fixture\", \"TEST_CASE\");\n  const after = JSON.stringify({ story: store.readStory(storyId), checklist: store.readChecklist(storyId) });\n  return { unchanged: before === after };\n} finally { rmSync(root, { recursive:true, force:true }); }",
+      "expect": {
+        "unchanged": true
+      },
+      "intentRef": "B-6624:CHK-004:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-6624",
+      "_id": "54f09eb8-8300-4fb7-9bc6-d7c41ebabd46",
+      "prevCaseId": "3265109c-5a71-4bb5-85ec-7e442f076b10"
+    }
+  ]
+}

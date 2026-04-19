@@ -1,0 +1,227 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "DEV 阶段 checklist done 不再要求 fixture coverage",
+      "context": "checklist_update status=done 只表达实现完成；testIntent fixture coverage 不应阻塞 DEV 完成。保留 testIntent 存在性/结构校验，不把 coverage gate 放在 done 操作。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/test-intent-review.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-19T23:35:50.941Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "DEV 阶段 checklist_update status=done 对有 testIntent 但无 fixture coverage 的 item 仍成功",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:37:47.549Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/phase-role-gate-realignment.json:1 WHY DEV checklist_update done succeeds without fixture coverage; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "DEV 阶段标 done 后 story_advance TEST_CASE 能通过，不因 missing fixture coverage 被拒",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:37:47.642Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/phase-role-gate-realignment.json:1 WHY DEV to TEST_CASE advances after implementation done without fixture coverage; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DEV done 仍不应绕过 testIntent 结构要求：缺 happy 的 testIntent 仍被 checklist_update 拒绝",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:37:47.731Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/phase-role-gate-realignment.json:1 WHY invalid testIntent happy empty remains rejected before done; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "TEST_CASE_REVIEW 到 TEST 统一强制 fixture coverage 与 reviewer pass",
+      "context": "把 coverage 缺失和 reviewer pass 缺失都集中到 TEST_CASE_REVIEW→TEST gate；没有覆盖不能进入 TEST，避免绕过测试。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-19T23:35:51.031Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "TEST_CASE_REVIEW→TEST 在 fixture coverage 缺失时被 hard fail，并列出缺失 intentRef",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:37:47.820Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/phase-role-gate-realignment.json:1 WHY TEST reviewer status blocks missing fixture coverage; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "补齐 fixture coverage 但 reviewer 未 pass 时仍不能进入 TEST",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:37:47.908Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/phase-role-gate-realignment.json:1 WHY TEST reviewer status blocks missing reviewer judgment; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "fixture coverage 和 reviewer pass 都满足后才能进入 TEST",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:37:47.997Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/phase-role-gate-realignment.json:1 WHY story test covers all requirements together after coverage and reviewer pass; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-003",
+      "title": "只读/验证命令按阶段放行",
+      "context": "testintent_check 全阶段可用；test_fixture 在 TEST_CASE 阶段可用，方便 fixture 单 case 验证；必要时同步 help/phaseTools。",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-fixture-spec.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-19T23:35:51.122Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "testintent_check 在 DEV/TEST_CASE/TEST_CASE_REVIEW/TEST 任意阶段均可执行并返回 coverage summary",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:37:48.088Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/phase-role-gate-realignment.json:1 WHY phaseTools allow testintent_check across INIT/PLAN/DEV/TEST_CASE/REVIEW/TEST; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "test_fixture 在 TEST_CASE 阶段可执行单 case 验证",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:37:48.178Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/phase-role-gate-realignment.json:1 WHY phaseTools allow test_fixture in TEST_CASE; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "放行 test_fixture 不等于放行 test_auto/test_story 的 destructive 行为；phaseTools 仍限制危险命令",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:37:48.266Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/phase-role-gate-realignment.json:1 WHY destructive test_auto and fixture_batch_add remain blocked in PLAN; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-004",
+      "title": "增加阶段职责重排 fixture 覆盖",
+      "context": "覆盖 DEV done 无 fixture 可通过、TEST_CASE_REVIEW→TEST 无 coverage 被拒、补 fixture 后可进 TEST、testintent_check/test_fixture 阶段可用。",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-fixture-spec.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-19T23:35:51.212Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "fixture 覆盖完整阶段流：DEV done 无 coverage → TEST_CASE 写 fixture → REVIEW gate → TEST",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:37:48.358Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/phase-role-gate-realignment.json:1 WHY full phase flow is represented by focused cases; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "fixture 覆盖缺 coverage 与缺 reviewer 两种 gate error",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:37:48.446Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/phase-role-gate-realignment.json:1 WHY missing coverage and missing reviewer gate errors are both covered; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "fixture 覆盖只读命令放行不修改 story phase 或 checklist 内容",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:37:48.538Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/phase-role-gate-realignment.json:1 WHY read-only phase checks do not mutate story or checklist; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

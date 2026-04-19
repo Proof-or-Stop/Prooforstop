@@ -1,0 +1,68 @@
+{
+  "principles": [
+    "阶段职责要和门禁语义一致",
+    "实现完成与测试覆盖是不同状态",
+    "只读检查命令应全阶段可用",
+    "严格 coverage gate 应靠近进入 TEST 的边界"
+  ],
+  "drivers": [
+    "消除 DEV 阶段被迫写 fixture 的流程矛盾",
+    "保持 TEST/DONE 前测试覆盖严格性",
+    "提升 fixture 调试效率",
+    "减少 agent 通过错误信息间接探测覆盖状态"
+  ],
+  "options": [
+    {
+      "name": "A: DEV done 不查 coverage，TEST_CASE_REVIEW→TEST 查 reviewer+coverage，放行只读验证命令",
+      "pros": [
+        "符合现有 phase 职责",
+        "改动面可控",
+        "不会降低进入 TEST 的质量门槛"
+      ],
+      "cons": [
+        "done 字段继续复用为实现完成，语义仍不够精细"
+      ]
+    },
+    {
+      "name": "B: 新增 devDone/testCovered 两套状态字段",
+      "pros": [
+        "语义最准确"
+      ],
+      "cons": [
+        "涉及 checklist schema 迁移和大量 gate/hint 变更，短期风险高"
+      ]
+    },
+    {
+      "name": "C: 维持现状，只更新文档允许 DEV 写 fixture",
+      "pros": [
+        "代码改动小"
+      ],
+      "cons": [
+        "承认流程违规为常态，继续混淆阶段职责"
+      ]
+    }
+  ],
+  "chosen": "A: DEV done 不查 coverage，TEST_CASE_REVIEW→TEST 查 reviewer+coverage，放行只读验证命令",
+  "rationale": "选 A，因为它用最小 schema 改动修复实际卡点，同时把严格性保留在进入 TEST 的边界。",
+  "preMortem": [
+    {
+      "scenario": "未覆盖 testIntent 进入 TEST",
+      "trigger": "coverage gate 从 checklist done 移除后，没有在 TEST_CASE_REVIEW→TEST 补严",
+      "consequence": "测试缺口进入 TEST/DONE",
+      "mitigation": "story_advance TEST gate 使用 reviewerStatus blockers 和 fixtureCoverage 缺失作为 hard fail，并加 fixture 验证"
+    },
+    {
+      "scenario": "test_fixture 在 TEST_CASE 被滥用修改状态",
+      "trigger": "test_fixture 执行时写 bug/evidence 或修改 story",
+      "consequence": "TEST_CASE 阶段职责污染",
+      "mitigation": "确认 test_fixture 是验证单 case/链路，阶段放行只用于调试；bug/evidence 仍由 test_story/TEST 负责"
+    },
+    {
+      "scenario": "DEV done 无 coverage 后 agent 忘记写 fixture",
+      "trigger": "session hints 仍提示旧流程或 TEST_CASE_REVIEW gate 信息不清晰",
+      "consequence": "在 review 阶段才被挡住，体验变差",
+      "mitigation": "更新 hint/错误信息，明确 TEST_CASE 写 fixture、REVIEW 前检查 coverage"
+    }
+  ],
+  "timestamp": "2026-04-19T23:33:43.731Z"
+}
