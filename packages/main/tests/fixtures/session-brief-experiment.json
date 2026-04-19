@@ -1,0 +1,137 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: baseline and 12 session brief candidates exist",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-session-brief-experiment.mjs', 'samples-complete'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok samples-complete') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-ff27:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-ff27",
+      "_id": "de71cd1d-09dd-4f15-a707-d006d404f897",
+      "nextCaseId": "3a27a888-fc3d-45b2-9eb4-afe5b1bbf6f8"
+    },
+    {
+      "name": "CHK-001 edge: missing signal candidate still scores with content summary",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-session-brief-experiment.mjs', 'samples-missing-signals'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok samples-missing-signals') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-ff27:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-ff27",
+      "_id": "3a27a888-fc3d-45b2-9eb4-afe5b1bbf6f8",
+      "prevCaseId": "de71cd1d-09dd-4f15-a707-d006d404f897",
+      "nextCaseId": "7426bb1d-9e7e-49c3-9ffa-9209045d5b4b"
+    },
+    {
+      "name": "CHK-001 adversarial: candidate directory generation is required",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-session-brief-experiment.mjs', 'samples-empty-fails'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok samples-empty-fails') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-ff27:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-ff27",
+      "_id": "7426bb1d-9e7e-49c3-9ffa-9209045d5b4b",
+      "prevCaseId": "3a27a888-fc3d-45b2-9eb4-afe5b1bbf6f8",
+      "nextCaseId": "78ac4c49-3037-49fa-8011-d6f0769906cc"
+    },
+    {
+      "name": "CHK-002 happy: experiment outputs score table for all candidates",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-session-brief-experiment.mjs', 'scores-table'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok scores-table') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-ff27:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-ff27",
+      "_id": "78ac4c49-3037-49fa-8011-d6f0769906cc",
+      "prevCaseId": "7426bb1d-9e7e-49c3-9ffa-9209045d5b4b",
+      "nextCaseId": "2bd9d400-b410-457c-8cb6-7eb659952c11"
+    },
+    {
+      "name": "CHK-002 edge: negative delta candidates remain in report",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-session-brief-experiment.mjs', 'negative-delta-kept'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok negative-delta-kept') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-ff27:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-ff27",
+      "_id": "2bd9d400-b410-457c-8cb6-7eb659952c11",
+      "prevCaseId": "78ac4c49-3037-49fa-8011-d6f0769906cc",
+      "nextCaseId": "039e5614-1c9e-4f5d-ac6c-4dbd7819d837"
+    },
+    {
+      "name": "CHK-002 adversarial: bad candidate does not abort experiment",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-session-brief-experiment.mjs', 'bad-candidate-contained'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok bad-candidate-contained') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-ff27:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-ff27",
+      "_id": "039e5614-1c9e-4f5d-ac6c-4dbd7819d837",
+      "prevCaseId": "2bd9d400-b410-457c-8cb6-7eb659952c11",
+      "nextCaseId": "bfb9b0fd-f182-46ea-9c73-cffbf3ea5bef"
+    },
+    {
+      "name": "CHK-003 happy: report contains Top 3 and recommendation",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-session-brief-experiment.mjs', 'report-top3'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok report-top3') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-ff27:CHK-003:happy:0",
+      "sandbox": false,
+      "storyId": "B-ff27",
+      "_id": "bfb9b0fd-f182-46ea-9c73-cffbf3ea5bef",
+      "prevCaseId": "039e5614-1c9e-4f5d-ac6c-4dbd7819d837",
+      "nextCaseId": "bac1179d-310b-42fd-8e60-b09c648835ea"
+    },
+    {
+      "name": "CHK-003 edge: report explains score/readability tradeoff",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-session-brief-experiment.mjs', 'report-tradeoff'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok report-tradeoff') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-ff27:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-ff27",
+      "_id": "bac1179d-310b-42fd-8e60-b09c648835ea",
+      "prevCaseId": "bfb9b0fd-f182-46ea-9c73-cffbf3ea5bef",
+      "nextCaseId": "e899ac72-0651-4b25-b83e-212df7d68100"
+    },
+    {
+      "name": "CHK-003 adversarial: report avoids recommending unsafe production change",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-session-brief-experiment.mjs', 'report-no-production-change'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok report-no-production-change') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-ff27:CHK-003:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-ff27",
+      "_id": "e899ac72-0651-4b25-b83e-212df7d68100",
+      "prevCaseId": "bac1179d-310b-42fd-8e60-b09c648835ea"
+    }
+  ]
+}

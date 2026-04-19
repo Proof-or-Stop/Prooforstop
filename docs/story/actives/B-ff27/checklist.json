@@ -7,9 +7,29 @@
       "relatedDocs": [
         "README.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-19T00:46:22.690Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "生成 baseline 和 12 个 session_brief 候选样本 → 文件数量与命名完整",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "候选样本缺少必需块 → 脚本仍能评分并在 contentSummary 标出缺失项",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "候选目录为空 → 实验脚本明确失败并提示缺少 candidates",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -18,9 +38,29 @@
       "relatedDocs": [
         "README.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-19T00:46:22.942Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "运行实验脚本 → 输出 baseline 与 12 个候选的 score/normalizedScore/length delta/contentSummary",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "候选分数低于 baseline → 报告仍保留并标记 negative delta",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "评分脚本遇到不可解析候选 → 报告该候选失败但不中断其它候选汇总",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -29,9 +69,29 @@
       "relatedDocs": [
         "README.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-19T00:46:23.195Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "生成推荐报告 → 包含 Top 3、baseline 对比、推荐实现和不推荐项",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "最高分候选太长 → 报告能说明分数与人工可读性 tradeoff",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "候选缺少 Git dirty 或 next step 关键风险提示 → 报告不推荐该候选",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }

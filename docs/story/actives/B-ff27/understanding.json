@@ -1,0 +1,21 @@
+{
+  "task": "用 koala-lab 的 session-brief-quality-v1 跑当前 session_brief 与 12 个结构化候选样本的跑前/跑后数据对比。",
+  "outcome": "$ node scripts/run-session-brief-experiment.mjs\nBaseline normalizedScore: 0.xx\nBest candidate: c03-next-step-top normalizedScore: 0.yy (+0.zz)\nReport: experiments/reports/session-brief-structured-v1.md\n\n报告列出 12 个候选的 score、normalizedScore、长度变化、contentSummary 和推荐实现方案。",
+  "facts": [
+    "session-brief-quality-v1 已经实现。",
+    "当前 story 不直接改生产 session_brief 代码。",
+    "需要产出可提交的 experiments/candidates 与 report，作为后续实现依据。"
+  ],
+  "constraints": [
+    "baseline 固定为当前真实 session_brief 输出。",
+    "candidate 必须是结构化样本，不伪装成已实现。",
+    "报告必须同时包含机器分数和人工解释。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "experiments/candidates/session-brief",
+    "experiments/reports/session-brief-structured-v1.md",
+    "scripts/run-session-brief-experiment.mjs"
+  ],
+  "timestamp": "2026-04-19T00:42:20.292Z"
+}
