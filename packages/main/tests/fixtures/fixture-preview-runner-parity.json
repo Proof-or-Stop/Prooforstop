@@ -4,7 +4,7 @@
       "name": "dryRun validateExecute reports expect mismatch",
       "run_type": "cli",
       "file": "handlers/fixture",
-      "execute": "const { execFileSync } = await import(\"child_process\");\nconst payload = { fixturePath:\"tmp-preview-mismatch\", dryRun:true, validateExecute:true, storyId:\"B-26bb\", cases:[{ name:\"bad expect\", run_type:\"cli\", file:\"handlers/fixture\", execute:\"return { value: 1 };\", expect:{ value:2 }, intentRef:\"CHK-001:happy:0\" }] };\nconst out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"fixture_batch_add\", JSON.stringify(payload)], { cwd:$root, encoding:\"utf8\" });\nreturn { hasExecError: out.includes(\"EXEC_ERROR\") && out.includes(\"Expected\") };",
+      "execute": "const { pathToFileURL } = await import(\"url\");\nconst { StoryStore } = await import(pathToFileURL($root + \"/packages/main/dist/core/store.js\").href);\nconst { createFixtureHandlers } = await import(pathToFileURL($root + \"/packages/main/dist/handlers/fixture.js\").href);\nconst preview = createFixtureHandlers({ root:$root, scanRoot:$root, store:new StoryStore($root) });\nconst payload = { fixturePath:\"tmp-preview-mismatch\", dryRun:true, validateExecute:true, storyId:\"B-26bb\", cases:[{ name:\"bad expect\", run_type:\"cli\", file:\"handlers/fixture\", execute:\"return { value: 1 };\", expect:{ value:2 }, intentRef:\"CHK-001:happy:0\" }] };\nconst out = await preview.fixture_batch_add(payload);\nreturn { hasExecError: out.includes(\"EXEC_ERROR\") && out.includes(\"Expected\") };",
       "expect": {
         "hasExecError": true
       },
@@ -18,7 +18,7 @@
       "name": "dryRun validateExecute reports sandbox fs error",
       "run_type": "cli",
       "file": "handlers/fixture",
-      "execute": "const { execFileSync } = await import(\"child_process\");\nconst payload = { fixturePath:\"tmp-preview-sandbox\", dryRun:true, validateExecute:true, storyId:\"B-26bb\", cases:[{ name:\"fs blocked\", run_type:\"cli\", file:\"handlers/fixture\", execute:\"const fs = await import('fs'); return true;\", expect:true, intentRef:\"CHK-001:edge:0\" }] };\nconst out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"fixture_batch_add\", JSON.stringify(payload)], { cwd:$root, encoding:\"utf8\" });\nreturn { hasSandbox: out.includes(\"EXEC_ERROR\") && out.includes(\"[sandbox]\") && out.includes('import(\"fs\")') };",
+      "execute": "const { pathToFileURL } = await import(\"url\");\nconst { StoryStore } = await import(pathToFileURL($root + \"/packages/main/dist/core/store.js\").href);\nconst { createFixtureHandlers } = await import(pathToFileURL($root + \"/packages/main/dist/handlers/fixture.js\").href);\nconst preview = createFixtureHandlers({ root:$root, scanRoot:$root, store:new StoryStore($root) });\nconst payload = { fixturePath:\"tmp-preview-sandbox\", dryRun:true, validateExecute:true, storyId:\"B-26bb\", cases:[{ name:\"fs blocked\", run_type:\"cli\", file:\"handlers/fixture\", execute:\"const fs = await import('fs'); return true;\", expect:true, intentRef:\"CHK-001:edge:0\" }] };\nconst out = await preview.fixture_batch_add(payload);\nreturn { hasSandbox: out.includes(\"EXEC_ERROR\") && out.includes(\"[sandbox]\") && out.includes('import(\"fs\")') };",
       "expect": {
         "hasSandbox": true
       },
@@ -33,7 +33,7 @@
       "name": "dryRun validateExecute reports missing handler",
       "run_type": "cli",
       "file": "handlers/fixture",
-      "execute": "const { execFileSync } = await import(\"child_process\");\nconst payload = { fixturePath:\"tmp-preview-handler\", dryRun:true, validateExecute:true, storyId:\"B-26bb\", cases:[{ name:\"missing handler\", run_type:\"cli\", file:\"handlers/fixture\", execute:\"return await $handlers.no_such_handler({});\", expect:true, intentRef:\"CHK-001:adversarial:0\" }] };\nconst out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"fixture_batch_add\", JSON.stringify(payload)], { cwd:$root, encoding:\"utf8\" });\nreturn { hasHandlerError: out.includes(\"EXEC_ERROR\") && out.includes(\"no_such_handler\") };",
+      "execute": "const { pathToFileURL } = await import(\"url\");\nconst { StoryStore } = await import(pathToFileURL($root + \"/packages/main/dist/core/store.js\").href);\nconst { createFixtureHandlers } = await import(pathToFileURL($root + \"/packages/main/dist/handlers/fixture.js\").href);\nconst preview = createFixtureHandlers({ root:$root, scanRoot:$root, store:new StoryStore($root) });\nconst payload = { fixturePath:\"tmp-preview-handler\", dryRun:true, validateExecute:true, storyId:\"B-26bb\", cases:[{ name:\"missing handler\", run_type:\"cli\", file:\"handlers/fixture\", execute:\"return await $handlers.no_such_handler({});\", expect:true, intentRef:\"CHK-001:adversarial:0\" }] };\nconst out = await preview.fixture_batch_add(payload);\nreturn { hasHandlerError: out.includes(\"EXEC_ERROR\") && out.includes(\"no_such_handler\") };",
       "expect": {
         "hasHandlerError": true
       },
@@ -48,7 +48,7 @@
       "name": "preview and test_story agree on passing cli case",
       "run_type": "cli",
       "file": "handlers/fixture",
-      "execute": "const { execFileSync } = await import(\"child_process\");\nconst { pathToFileURL } = await import(\"url\");\nconst c = { name:\"passing cli preview\", run_type:\"cli\", file:\"handlers/fixture\", execute:\"return { ok: true };\", expect:{ ok:true }, intentRef:\"B-26bb:CHK-002:happy:0\", storyId:\"B-26bb\" };\nconst dry = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"fixture_batch_add\", JSON.stringify({ fixturePath:\"tmp-preview-pass\", dryRun:true, validateExecute:true, storyId:\"B-26bb\", cases:[c] })], { cwd:$root, encoding:\"utf8\" });\nconst { runCase } = await import(pathToFileURL($root + \"/packages/main/dist/handlers/test-runner-core.js\").href);\nconst { createToolHandlers } = await import(pathToFileURL($root + \"/packages/main/dist/registry.js\").href);\nconst { StoryStore } = await import(pathToFileURL($root + \"/packages/main/dist/core/store.js\").href);\nconst handlers = createToolHandlers(new StoryStore($root), $root);\nconst direct = await runCase(c, $root, handlers, {}, null);\nreturn { dryOk: dry.includes(\"EXEC_OK\"), directPassed: direct.passed };",
+      "execute": "const { pathToFileURL } = await import(\"url\");\nconst { StoryStore } = await import(pathToFileURL($root + \"/packages/main/dist/core/store.js\").href);\nconst { createFixtureHandlers } = await import(pathToFileURL($root + \"/packages/main/dist/handlers/fixture.js\").href);\nconst preview = createFixtureHandlers({ root:$root, scanRoot:$root, store:new StoryStore($root) });\nconst c = { name:\"passing cli preview\", run_type:\"cli\", file:\"handlers/fixture\", execute:\"return { ok: true };\", expect:{ ok:true }, intentRef:\"B-26bb:CHK-002:happy:0\", storyId:\"B-26bb\" };\nconst dry = await preview.fixture_batch_add({ fixturePath:\"tmp-preview-pass\", dryRun:true, validateExecute:true, storyId:\"B-26bb\", cases:[c] });\nconst { runCase } = await import(pathToFileURL($root + \"/packages/main/dist/handlers/test-runner-core.js\").href);\nconst { createToolHandlers } = await import(pathToFileURL($root + \"/packages/main/dist/registry.js\").href);\nconst handlers = createToolHandlers(new StoryStore($root), $root);\nconst direct = await runCase(c, $root, handlers, {}, null);\nreturn { dryOk: dry.includes(\"EXEC_OK\"), directPassed: direct.passed };",
       "expect": {
         "dryOk": true,
         "directPassed": true
@@ -64,7 +64,7 @@
       "name": "browser preview explicitly skips execution",
       "run_type": "cli",
       "file": "handlers/fixture",
-      "execute": "const { execFileSync } = await import(\"child_process\");\nconst payload = { fixturePath:\"tmp-preview-browser\", dryRun:true, validateExecute:true, storyId:\"B-26bb\", cases:[{ name:\"browser case\", run_type:\"browser\", file:\"ui/app\", execute:\"return true;\", expect:true, intentRef:\"CHK-002:edge:0\" }] };\nconst out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"fixture_batch_add\", JSON.stringify(payload)], { cwd:$root, encoding:\"utf8\" });\nreturn { skip: out.includes(\"SKIP_EXEC\") && out.includes(\"browser preview not executed\") };",
+      "execute": "const { pathToFileURL } = await import(\"url\");\nconst { StoryStore } = await import(pathToFileURL($root + \"/packages/main/dist/core/store.js\").href);\nconst { createFixtureHandlers } = await import(pathToFileURL($root + \"/packages/main/dist/handlers/fixture.js\").href);\nconst preview = createFixtureHandlers({ root:$root, scanRoot:$root, store:new StoryStore($root) });\nconst payload = { fixturePath:\"tmp-preview-browser\", dryRun:true, validateExecute:true, storyId:\"B-26bb\", cases:[{ name:\"browser case\", run_type:\"browser\", file:\"ui/app\", execute:\"return true;\", expect:true, intentRef:\"CHK-002:edge:0\" }] };\nconst out = await preview.fixture_batch_add(payload);\nreturn { skip: out.includes(\"SKIP_EXEC\") && out.includes(\"browser preview not executed\") };",
       "expect": {
         "skip": true
       },
@@ -79,7 +79,7 @@
       "name": "preview blocks recursive test_story call like real runner",
       "run_type": "cli",
       "file": "handlers/fixture",
-      "execute": "const { execFileSync } = await import(\"child_process\");\nconst payload = { fixturePath:\"tmp-preview-recursion\", dryRun:true, validateExecute:true, storyId:\"B-26bb\", cases:[{ name:\"recursive\", run_type:\"cli\", file:\"handlers/fixture\", execute:\"return await $handlers.test_story({ storyId: 'B-26bb' });\", expect:true, intentRef:\"CHK-002:adversarial:0\" }] };\nconst out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"fixture_batch_add\", JSON.stringify(payload)], { cwd:$root, encoding:\"utf8\" });\nreturn { blocked: out.includes(\"EXEC_ERROR\") && out.includes(\"test_story 禁止在 fixture case 内调用\") };",
+      "execute": "const { pathToFileURL } = await import(\"url\");\nconst { StoryStore } = await import(pathToFileURL($root + \"/packages/main/dist/core/store.js\").href);\nconst { createFixtureHandlers } = await import(pathToFileURL($root + \"/packages/main/dist/handlers/fixture.js\").href);\nconst preview = createFixtureHandlers({ root:$root, scanRoot:$root, store:new StoryStore($root) });\nconst payload = { fixturePath:\"tmp-preview-recursion\", dryRun:true, validateExecute:true, storyId:\"B-26bb\", cases:[{ name:\"recursive\", run_type:\"cli\", file:\"handlers/fixture\", execute:\"return await $handlers.test_story({ storyId: 'B-26bb' });\", expect:true, intentRef:\"CHK-002:adversarial:0\" }] };\nconst out = await preview.fixture_batch_add(payload);\nreturn { blocked: out.includes(\"EXEC_ERROR\") && out.includes(\"test_story 禁止在 fixture case 内调用\") };",
       "expect": {
         "blocked": true
       },
@@ -157,7 +157,7 @@
       "name": "dryRun validateExecute does not write fixture file",
       "run_type": "cli",
       "file": "handlers/fixture",
-      "execute": "const { existsSync } = await import(\"fs\"); const { execFileSync } = await import(\"child_process\"); const fixturePath = \"tmp-no-write-\" + Date.now(); const payload = { fixturePath, dryRun:true, validateExecute:true, storyId:\"B-26bb\", cases:[{ name:\"no write\", run_type:\"cli\", file:\"handlers/fixture\", execute:\"return true;\", expect:true, intentRef:\"CHK-004:edge:0\" }] }; execFileSync(process.execPath,[\"packages/main/dist/cli.js\",\"fixture_batch_add\",JSON.stringify(payload)],{cwd:$root,encoding:\"utf8\"}); return { exists: existsSync($root + \"/packages/main/tests/fixtures/\" + fixturePath + \".json\") };",
+      "execute": "const { pathToFileURL } = await import(\"url\");\nconst { StoryStore } = await import(pathToFileURL($root + \"/packages/main/dist/core/store.js\").href);\nconst { createFixtureHandlers } = await import(pathToFileURL($root + \"/packages/main/dist/handlers/fixture.js\").href);\nconst preview = createFixtureHandlers({ root:$root, scanRoot:$root, store:new StoryStore($root) });\nconst { existsSync } = await import(\"fs\"); const fixturePath = \"tmp-no-write-\" + Date.now(); const payload = { fixturePath, dryRun:true, validateExecute:true, storyId:\"B-26bb\", cases:[{ name:\"no write\", run_type:\"cli\", file:\"handlers/fixture\", execute:\"return true;\", expect:true, intentRef:\"CHK-004:edge:0\" }] }; await preview.fixture_batch_add(payload); return { exists: existsSync($root + \"/packages/main/tests/fixtures/\" + fixturePath + \".json\") };",
       "expect": {
         "exists": false
       },
@@ -172,7 +172,7 @@
       "name": "browser preview does not claim real browser execution",
       "run_type": "cli",
       "file": "handlers/fixture",
-      "execute": "const { execFileSync } = await import(\"child_process\"); const payload = { fixturePath:\"tmp-browser-claim\", dryRun:true, validateExecute:true, storyId:\"B-26bb\", cases:[{ name:\"browser\", run_type:\"browser\", file:\"x\", execute:\"return true;\", expect:true, intentRef:\"CHK-004:adversarial:0\" }] }; const out = execFileSync(process.execPath,[\"packages/main/dist/cli.js\",\"fixture_batch_add\",JSON.stringify(payload)],{cwd:$root,encoding:\"utf8\"}); return { noExecOk: !out.includes(\"EXEC_OK\"), hasSkip: out.includes(\"SKIP_EXEC\") };",
+      "execute": "const { pathToFileURL } = await import(\"url\");\nconst { StoryStore } = await import(pathToFileURL($root + \"/packages/main/dist/core/store.js\").href);\nconst { createFixtureHandlers } = await import(pathToFileURL($root + \"/packages/main/dist/handlers/fixture.js\").href);\nconst preview = createFixtureHandlers({ root:$root, scanRoot:$root, store:new StoryStore($root) });\nconst payload = { fixturePath:\"tmp-browser-claim\", dryRun:true, validateExecute:true, storyId:\"B-26bb\", cases:[{ name:\"browser\", run_type:\"browser\", file:\"x\", execute:\"return true;\", expect:true, intentRef:\"CHK-004:adversarial:0\" }] }; const out = await preview.fixture_batch_add(payload); return { noExecOk: !out.includes(\"EXEC_OK\"), hasSkip: out.includes(\"SKIP_EXEC\") };",
       "expect": {
         "noExecOk": true,
         "hasSkip": true
