@@ -142,7 +142,7 @@ npm run test:lab-flow-profiles
 npm run test:real-story-replay
 ```
 
-真实任务回放评分表可用下面的脚本生成，输出同时包含 `Score`、`Why`、`Explain`，并写入 `experiments/reports/real-story-replay-v1.{md,json}`：
+真实任务回放评分表可用下面的脚本生成，输出同时包含 `Score`、`Evidence Quality`、`Why`、`Explain`，并写入 `experiments/reports/real-story-replay-v1.{md,json}`。`Evidence Quality=backfilled` 代表该行使用了显式 replay metadata 补齐旧 story 的证据缺口，分数会低权重计算并在解释中标明来源。
 
 ```bash
 node scripts/real-story-replay-benchmark.mjs

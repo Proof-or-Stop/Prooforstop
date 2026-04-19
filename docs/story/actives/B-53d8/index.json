@@ -4,7 +4,7 @@
   "title": "补齐真实任务 replay 证据质量",
   "description": "为 real-story-replay benchmark 中证据较弱的历史真实任务补充可审计 artifact 或 replay metadata，重点让 B-e452 这类缺 summary 的 story 能被合理评分，并在报告中展示 evidenceQuality/why/explain。",
   "type": "feature",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "high",
   "lane": "mainline",
   "parallelSafe": "no",
@@ -40,6 +40,14 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-04-19T16:20:51.762Z",
+      "branch": "story/B-53d8",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-19T16:21:47.433Z",
       "branch": "story/B-53d8",
       "user": "Harmonygo",
       "agent": "main"
