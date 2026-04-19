@@ -1,0 +1,146 @@
+{
+  "cases": [
+    {
+      "name": "score model high PASS stories",
+      "run_type": "cli",
+      "file": "handlers/summary",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst out = execFileSync(\"node\", [\"scripts/verify-real-story-replay-benchmark.mjs\", \"score-table\"], { cwd: $root, encoding: \"utf8\" });\nif (!out.includes(\"ok score-table\")) throw new Error(out);\nreturn { ok: true, mode: \"score-table\" };",
+      "expect": {
+        "ok": true,
+        "mode": "score-table"
+      },
+      "intentRef": "B-823a:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-823a",
+      "_id": "cdd8de2c-fe03-4658-b759-ff022e0f012b",
+      "nextCaseId": "60bcff6d-2844-460f-b3a8-19c107ced979"
+    },
+    {
+      "name": "score model explains missing summary",
+      "run_type": "cli",
+      "file": "handlers/summary",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst out = execFileSync(\"node\", [\"scripts/verify-real-story-replay-benchmark.mjs\", \"missing-summary-explained\"], { cwd: $root, encoding: \"utf8\" });\nif (!out.includes(\"ok missing-summary-explained\")) throw new Error(out);\nreturn { ok: true, mode: \"missing-summary-explained\" };",
+      "expect": {
+        "ok": true,
+        "mode": "missing-summary-explained"
+      },
+      "intentRef": "B-823a:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-823a",
+      "_id": "60bcff6d-2844-460f-b3a8-19c107ced979",
+      "prevCaseId": "cdd8de2c-fe03-4658-b759-ff022e0f012b",
+      "nextCaseId": "b2e0238e-00e4-4cba-b2c1-c674c032d778"
+    },
+    {
+      "name": "score model rejects invalid score shape",
+      "run_type": "cli",
+      "file": "handlers/summary",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst out = execFileSync(\"node\", [\"scripts/verify-real-story-replay-benchmark.mjs\", \"score-table\"], { cwd: $root, encoding: \"utf8\" });\nif (!out.includes(\"ok score-table\")) throw new Error(out);\nreturn { ok: true, mode: \"score-table\" };",
+      "expect": {
+        "ok": true,
+        "mode": "score-table"
+      },
+      "intentRef": "B-823a:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-823a",
+      "_id": "b2e0238e-00e4-4cba-b2c1-c674c032d778",
+      "prevCaseId": "60bcff6d-2844-460f-b3a8-19c107ced979",
+      "nextCaseId": "d026af2e-1af9-444c-84c7-9633121bc5d4"
+    },
+    {
+      "name": "replay report includes target stories",
+      "run_type": "cli",
+      "file": "handlers/summary",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst out = execFileSync(\"node\", [\"scripts/verify-real-story-replay-benchmark.mjs\", \"known-stories\"], { cwd: $root, encoding: \"utf8\" });\nif (!out.includes(\"ok known-stories\")) throw new Error(out);\nreturn { ok: true, mode: \"known-stories\" };",
+      "expect": {
+        "ok": true,
+        "mode": "known-stories"
+      },
+      "intentRef": "B-823a:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-823a",
+      "_id": "d026af2e-1af9-444c-84c7-9633121bc5d4",
+      "prevCaseId": "b2e0238e-00e4-4cba-b2c1-c674c032d778",
+      "nextCaseId": "dbbdc446-87b1-488f-847b-bd910f75f485"
+    },
+    {
+      "name": "replay report rerun is stable",
+      "run_type": "cli",
+      "file": "handlers/summary",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst out = execFileSync(\"node\", [\"scripts/verify-real-story-replay-benchmark.mjs\", \"stable-rerun\"], { cwd: $root, encoding: \"utf8\" });\nif (!out.includes(\"ok stable-rerun\")) throw new Error(out);\nreturn { ok: true, mode: \"stable-rerun\" };",
+      "expect": {
+        "ok": true,
+        "mode": "stable-rerun"
+      },
+      "intentRef": "B-823a:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-823a",
+      "_id": "dbbdc446-87b1-488f-847b-bd910f75f485",
+      "prevCaseId": "d026af2e-1af9-444c-84c7-9633121bc5d4",
+      "nextCaseId": "a00f48fe-d153-4f7b-9342-efa0381ac115"
+    },
+    {
+      "name": "replay report writes json and markdown",
+      "run_type": "cli",
+      "file": "handlers/summary",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst out = execFileSync(\"node\", [\"scripts/verify-real-story-replay-benchmark.mjs\", \"score-table\"], { cwd: $root, encoding: \"utf8\" });\nif (!out.includes(\"ok score-table\")) throw new Error(out);\nreturn { ok: true, mode: \"score-table\" };",
+      "expect": {
+        "ok": true,
+        "mode": "score-table"
+      },
+      "intentRef": "B-823a:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-823a",
+      "_id": "a00f48fe-d153-4f7b-9342-efa0381ac115",
+      "prevCaseId": "dbbdc446-87b1-488f-847b-bd910f75f485",
+      "nextCaseId": "720ebe36-e973-4f21-a7ec-c48ca985e8c3"
+    },
+    {
+      "name": "replay fixture validates markdown score table",
+      "run_type": "cli",
+      "file": "handlers/summary",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst out = execFileSync(\"node\", [\"scripts/verify-real-story-replay-benchmark.mjs\", \"known-stories\"], { cwd: $root, encoding: \"utf8\" });\nif (!out.includes(\"ok known-stories\")) throw new Error(out);\nreturn { ok: true, mode: \"known-stories\" };",
+      "expect": {
+        "ok": true,
+        "mode": "known-stories"
+      },
+      "intentRef": "B-823a:CHK-003:happy:0",
+      "sandbox": false,
+      "storyId": "B-823a",
+      "_id": "720ebe36-e973-4f21-a7ec-c48ca985e8c3",
+      "prevCaseId": "a00f48fe-d153-4f7b-9342-efa0381ac115",
+      "nextCaseId": "091b9a43-ddac-4847-a21e-699c980845b2"
+    },
+    {
+      "name": "replay fixture handles missing summary story",
+      "run_type": "cli",
+      "file": "handlers/summary",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst out = execFileSync(\"node\", [\"scripts/verify-real-story-replay-benchmark.mjs\", \"missing-summary-explained\"], { cwd: $root, encoding: \"utf8\" });\nif (!out.includes(\"ok missing-summary-explained\")) throw new Error(out);\nreturn { ok: true, mode: \"missing-summary-explained\" };",
+      "expect": {
+        "ok": true,
+        "mode": "missing-summary-explained"
+      },
+      "intentRef": "B-823a:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-823a",
+      "_id": "091b9a43-ddac-4847-a21e-699c980845b2",
+      "prevCaseId": "720ebe36-e973-4f21-a7ec-c48ca985e8c3",
+      "nextCaseId": "ac1c9af2-ad15-4bbe-9bc9-634600ec39cc"
+    },
+    {
+      "name": "replay fixture requires why and explain",
+      "run_type": "cli",
+      "file": "handlers/summary",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst out = execFileSync(\"node\", [\"scripts/verify-real-story-replay-benchmark.mjs\", \"score-table\"], { cwd: $root, encoding: \"utf8\" });\nif (!out.includes(\"ok score-table\")) throw new Error(out);\nreturn { ok: true, mode: \"score-table\" };",
+      "expect": {
+        "ok": true,
+        "mode": "score-table"
+      },
+      "intentRef": "B-823a:CHK-003:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-823a",
+      "_id": "ac1c9af2-ad15-4bbe-9bc9-634600ec39cc",
+      "prevCaseId": "091b9a43-ddac-4847-a21e-699c980845b2"
+    }
+  ]
+}
