@@ -15,19 +15,43 @@
         "happy": [
           {
             "desc": "给 session_brief 改前/改后样本文本 → session-brief-quality-v1 输出 reviewer/artifact/git/nextStep 等 submetrics 和 contentSummary",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T00:32:23.708Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-flow-profiles.json:4 — session-happy verifies session-brief profile emits submetrics and contentSummary for reviewer/artifact/git/nextStep blocks | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "session_brief 缺少某些可选块 → profile 给出低一点的分数但不崩溃",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T00:32:23.944Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-flow-profiles.json:18 — session-edge verifies missing optional blocks reduce summary without crashing | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "session_brief 只有空文本或无 next step → profile 明确低分并在 contentSummary 标出 missing next step",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T00:32:24.178Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-flow-profiles.json:33 — session-adversarial verifies empty/no-next-step output is marked missing nextStep | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -47,19 +71,43 @@
         "happy": [
           {
             "desc": "给 story_review 改前/改后 JSON 文本 → story-review-quality-v1 输出 blocker/advisory/testIntent/risk/decision 等 submetrics 和 contentSummary",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T00:32:24.406Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-flow-profiles.json:48 — review-happy verifies story-review profile emits blocker/advisory/testIntent/risk/decision submetrics and summary | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "story_review 只有 advisory 没有 blocker → profile 能区分 advisory noise 与 required gate 信息",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T00:32:24.636Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-flow-profiles.json:63 — review-edge verifies advisory-only review remains scorable with blockerCount summary | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "story_review 缺失 issueCount/blockerCount/testIntent 信息 → profile 低分并标出 missing review gates",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T00:32:24.871Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-flow-profiles.json:78 — review-adversarial verifies missing review gates produce missing issueCount summary | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -78,19 +126,43 @@
         "happy": [
           {
             "desc": "lab_compare 对新 profile run → 输出 baseline/best/runs 的 score、normalizedScore、contentSummary 和 patch 路径",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T00:32:25.113Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-flow-profiles.json:93 — compare-happy verifies compare includes score, normalizedScore, contentSummary and patch path | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "读取旧 run 缺 contentSummary → compare 兼容返回空摘要而不崩溃",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T00:32:25.368Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-flow-profiles.json:108 — compare-old-run verifies old runs without contentSummary remain compatible | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "candidate 分数更高但内容摘要缺少关键 next step → compare 仍展示摘要，便于人工发现分数与内容不一致",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T00:32:25.613Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/lab-flow-profiles.json:123 — compare-adversarial verifies contentSummary surfaces missing nextStep even when scoring changes | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
