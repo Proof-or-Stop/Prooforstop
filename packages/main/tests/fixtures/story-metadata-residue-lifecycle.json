@@ -102,7 +102,7 @@
       "name": "story_reconcile dry-run reports terminal untracked residue",
       "run_type": "cli",
       "file": "handlers/story-query",
-      "execute": "const name = \"terminal-residue-\" + Date.now();\nconst created = await $handlers.story_create({ name, title: \"Terminal residue\", description: \"fixture\", type: \"bug\", priority: \"low\", forceNew: true });\nconst storyId = created.match(/B-[a-f0-9]+/)[0];\nawait $handlers.story_discard({ storyId, confirm: true, reason: \"fixture setup\" });\nconst out = await $handlers.story_reconcile({ dryRun: true });\nawait $handlers.story_discard({ storyId, cleanupResidue: true, confirm: true });\nreturn { listed: out.includes(storyId) && out.includes(\"safe-untracked\") };",
+      "execute": "const { mkdirSync, writeFileSync, rmSync } = await import(\"fs\");\nconst storyId = \"B-res\" + Date.now().toString(16).slice(-3);\nconst dir = $root + \"/docs/story/actives/\" + storyId;\nmkdirSync(dir, { recursive: true });\nwriteFileSync(dir + \"/index.json\", JSON.stringify({ storyId, name: \"residue\", title: \"Residue\", type: \"bug\", priority: \"low\", phase: \"DISCARDED\" }) + \"\\n\");\nwriteFileSync(dir + \"/checklist.json\", JSON.stringify({ items: [] }) + \"\\n\");\ntry {\n  const out = await $handlers.story_reconcile({ dryRun: true });\n  return { listed: out.includes(storyId) && out.includes(\"safe-untracked\") };\n} finally { rmSync(dir, { recursive: true, force: true }); }",
       "expect": {
         "listed": true
       },
@@ -120,7 +120,7 @@
       "execute": "const name = \"active-residue-\" + Date.now();\nconst created = await $handlers.story_create({ name, title: \"Active residue\", description: \"fixture\", type: \"bug\", priority: \"low\", forceNew: true });\nconst storyId = created.match(/B-[a-f0-9]+/)[0];\nconst out = await $handlers.story_reconcile({ dryRun: false });\nconst stillReadable = await $handlers.story_get({ storyId });\nawait $handlers.story_discard({ storyId, cleanupResidue: true, confirm: true });\nreturn { notListed: !out.includes(storyId), phase: stillReadable.story.phase };",
       "expect": {
         "notListed": true,
-        "phase": "INIT"
+        "phase": "IDEA"
       },
       "intentRef": "B-eb3c:CHK-003:edge:0",
       "sandbox": false,
@@ -133,7 +133,7 @@
       "name": "story_reconcile reports unsafe tracked terminal residue",
       "run_type": "cli",
       "file": "handlers/story-query",
-      "execute": "const { mkdirSync, writeFileSync, rmSync } = await import(\"fs\");\nconst { execFileSync } = await import(\"child_process\");\nconst storyId = \"B-track\" + Date.now().toString(16).slice(-2);\nconst dir = $root + \"/docs/story/actives/\" + storyId;\nmkdirSync(dir, { recursive: true });\nwriteFileSync(dir + \"/index.json\", JSON.stringify({ storyId, name: \"tracked\", title: \"Tracked\", type: \"bug\", priority: \"low\", phase: \"DISCARDED\" }) + \"\\n\");\nwriteFileSync(dir + \"/checklist.json\", JSON.stringify({ items: [] }) + \"\\n\");\nexecFileSync(\"git\", [\"add\", \"docs/story/actives/\" + storyId + \"/index.json\"], { cwd: $root });\ntry {\n  const out = await $handlers.story_reconcile({ dryRun: true });\n  execFileSync(\"git\", [\"reset\", \"--\", \"docs/story/actives/\" + storyId + \"/index.json\"], { cwd: $root });\n  rmSync(dir, { recursive: true, force: true });\n  return { unsafe: out.includes(storyId) && out.includes(\"unsafe\") };\n} catch (e) {\n  execFileSync(\"git\", [\"reset\", \"--\", \"docs/story/actives/\" + storyId + \"/index.json\"], { cwd: $root });\n  rmSync(dir, { recursive: true, force: true });\n  throw e;\n}",
+      "execute": "const { mkdirSync, writeFileSync, rmSync } = await import(\"fs\");\nconst { execFileSync } = await import(\"child_process\");\nconst storyId = \"B-track\" + Date.now().toString(16).slice(-2);\nconst dir = $root + \"/docs/story/actives/\" + storyId;\nmkdirSync(dir, { recursive: true });\nwriteFileSync(dir + \"/index.json\", JSON.stringify({ storyId, name: \"tracked\", title: \"Tracked\", type: \"bug\", priority: \"low\", phase: \"DISCARDED\" }) + \"\\n\");\nwriteFileSync(dir + \"/checklist.json\", JSON.stringify({ items: [] }) + \"\\n\");\nexecFileSync(\"git\", [\"add\", \"docs/story/actives/\" + storyId + \"/index.json\", \"docs/story/actives/\" + storyId + \"/checklist.json\"], { cwd: $root });\ntry {\n  const out = await $handlers.story_reconcile({ dryRun: true });\n  return { unsafe: out.includes(storyId) && out.includes(\"unsafe\") };\n} finally {\n  execFileSync(\"git\", [\"reset\", \"--\", \"docs/story/actives/\" + storyId], { cwd: $root });\n  rmSync(dir, { recursive: true, force: true });\n}",
       "expect": {
         "unsafe": true
       },

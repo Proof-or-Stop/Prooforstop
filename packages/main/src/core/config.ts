@@ -89,7 +89,7 @@ export interface KoalaConfig {
 /** 默认各阶段可用命令白名单 */
 const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
   '*': [
-    'story_get', 'story_list', 'story_discard',
+    'story_get', 'story_list', 'story_discard', 'story_reconcile',
     'lab_*',
     'aux_*', // 全部辅助工具：scan/detail/coverage/locate/sync/trace/diagnose/doc_list
     'checklist_get',
