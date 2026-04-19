@@ -1,0 +1,82 @@
+{
+  "result": {
+    "runId": "run-001",
+    "status": "rejected",
+    "score": 0.0065,
+    "normalizedScore": 0.0731,
+    "baselineScore": 0.0372,
+    "baselineNormalizedScore": 0.1039,
+    "delta": -0.0307,
+    "normalizedDelta": -0.0308,
+    "contentSummary": [
+      "missing threeLanes",
+      "missing typeCoverage",
+      "missing operationResult",
+      "missing fixtureMapping",
+      "weak adversarialStrength",
+      "has antiDuplicate"
+    ],
+    "candidatePatch": "experiments/runs/lab-test-intent-prompt-fixture-friendly-v1/run-001/patch.diff",
+    "changedFiles": 1,
+    "changedLines": 20,
+    "timing": {
+      "wallClockSeconds": 0,
+      "evalSeconds": 0
+    },
+    "reason": "candidate regressed below baseline (0.0065 < 0.0372)"
+  },
+  "compare": {
+    "experimentId": "lab-test-intent-prompt-fixture-friendly-v1",
+    "baseline": {
+      "score": 0.0372,
+      "normalizedScore": 0.1039,
+      "ref": "HEAD"
+    },
+    "baselineContentSummary": [
+      "missing threeLanes",
+      "missing typeCoverage",
+      "missing operationResult",
+      "missing fixtureMapping",
+      "weak adversarialStrength",
+      "has antiDuplicate"
+    ],
+    "best": {
+      "runId": "run-001",
+      "score": 0.0065,
+      "normalizedScore": 0.0731,
+      "status": "rejected",
+      "delta": -0.0307,
+      "normalizedDelta": -0.0308,
+      "patch": "experiments/runs/lab-test-intent-prompt-fixture-friendly-v1/run-001/patch.diff",
+      "reason": "candidate regressed below baseline (0.0065 < 0.0372)",
+      "contentSummary": [
+        "missing threeLanes",
+        "missing typeCoverage",
+        "missing operationResult",
+        "missing fixtureMapping",
+        "weak adversarialStrength",
+        "has antiDuplicate"
+      ]
+    },
+    "decision": "rejected",
+    "runs": [
+      {
+        "runId": "run-001",
+        "score": 0.0065,
+        "normalizedScore": 0.0731,
+        "status": "rejected",
+        "delta": -0.0307,
+        "normalizedDelta": -0.0308,
+        "patch": "experiments/runs/lab-test-intent-prompt-fixture-friendly-v1/run-001/patch.diff",
+        "contentSummary": [
+          "missing threeLanes",
+          "missing typeCoverage",
+          "missing operationResult",
+          "missing fixtureMapping",
+          "weak adversarialStrength",
+          "has antiDuplicate"
+        ]
+      }
+    ]
+  }
+}

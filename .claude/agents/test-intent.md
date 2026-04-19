@@ -117,6 +117,25 @@ koala checklist_update '{"storyId":"<ID>","itemId":"<ITEM_ID>","testIntent":null
 
 不确定时优先 `cli_blackbox`。
 
+### fixture-heavy item 的推荐字段
+
+当 item 涉及 CLI/纯函数/文件 I/O，后续明显需要写 fixture 时，优先把 testIntent 写成 reviewer-friendly 结构：
+
+```json
+{
+  "desc": "调用 lab_create({target,profile}) → 返回 Created experiment；WHY: 覆盖主路径和可观察输出",
+  "type": "cli_blackbox",
+  "input": {"target": "test-case-reviewer", "profile": "reviewer-quality-v1"},
+  "expect": {"pattern": "Created experiment"}
+}
+```
+
+- `desc` 仍然必须是 `操作/条件 → 预期结果`，并尽量补 `WHY:` 说明覆盖意图
+- `type` 仍然必填
+- `input` / `expect` 是 **fixture-heavy story 的推荐字段**，不是所有简单 story 的硬性要求
+- 如果不适合写 `input` / `expect`，至少在 `desc` 里写清楚可观察输入和断言点
+- edge/adversarial 不要只是 happy 改几个字；adversarial 要体现并发、越权、脏状态、非法输入、失败时序等真实对抗条件
+
 ### 写入
 
 ```bash
@@ -128,6 +147,7 @@ koala checklist_update '{"storyId":"<STORY_ID>","itemId":"<ITEM_ID>","testIntent
 - happy 必填至少一条；edge/adversarial 强烈建议补全（story_review 会以 advisory 提示）
 - 简单的 chore/refactor 类 item，edge/adversarial 可为空
 - desc 格式：`操作/条件 → 预期结果`（如 "输入空字符串 → 抛出 required 错误"）
+- fixture-heavy item 优先提供 `input` / `expect`，并在 `desc` 中加入 `WHY:`，方便主 agent 直接写 fixture case 和 reviewer 审核
 - 不写笼统意图（"测试正常情况"），必须具体到操作和预期
 - adversarial 不是 edge 的重复，要有真正的对抗场景
 
