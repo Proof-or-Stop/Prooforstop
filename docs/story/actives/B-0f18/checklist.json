@@ -14,19 +14,43 @@
         "happy": [
           {
             "desc": "生成当前 story_review baseline 与结构化候选样本 → 文件数量与命名完整",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T00:55:30.625Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-review-experiment.json:4 — samples-complete verifies baseline and story_review candidate sample files exist | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "候选缺少 blocker 或 risk 信息 → 脚本仍能评分并在 contentSummary 标出缺失项",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T00:55:30.857Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-review-experiment.json:18 — samples-missing-gates verifies missing gate signals are captured in contentSummary | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "候选目录为空 → 实验脚本明确失败并提示缺少 candidates",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T00:55:31.091Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-review-experiment.json:33 — samples-empty-fails verifies candidate generation prerequisites are enforced | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -45,19 +69,43 @@
         "happy": [
           {
             "desc": "运行实验脚本 → 输出 baseline 与候选的 score/normalizedScore/length delta/contentSummary",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T00:55:31.323Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-review-experiment.json:48 — scores-table verifies score/normalizedScore rows for all candidates | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "候选分数低于 baseline → 报告保留并标记 negative delta",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T00:55:31.558Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-review-experiment.json:63 — negative-delta-kept verifies below-baseline candidates remain visible | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "评分脚本遇到低质量候选 → 报告该候选低分但不中断汇总",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T00:55:31.786Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-review-experiment.json:78 — bad-candidate-contained verifies low-quality candidates do not abort the report | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -76,19 +124,43 @@
         "happy": [
           {
             "desc": "生成推荐报告 → 包含 Top 3、baseline 对比、推荐实现和不推荐项",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T00:55:32.023Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-review-experiment.json:93 — report-top3 verifies Top 3 and recommendation sections exist | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "最高分候选过长或噪音大 → 报告说明分数与可读性 tradeoff",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T00:55:32.282Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-review-experiment.json:108 — report-tradeoff verifies concise/blocker-first tradeoff is documented | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "候选缺少修复建议或 riskSignals → 报告不推荐该候选",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T00:55:32.524Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-review-experiment.json:123 — report-recommends-candidate verifies recommended candidate preserves gates | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
