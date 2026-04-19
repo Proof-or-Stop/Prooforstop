@@ -8,9 +8,29 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/stack-layering.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-19T22:25:35.691Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "collectBaselineRisk 接收 accepted local paths 后，AGENTS.md/CLAUDE.md 这类已接受文件不进入 materialEntries",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "accepted local paths 中的目录项（如 .claude/skills/）能隐藏其子路径，但不会隐藏 sibling 路径",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "未被 accepted local paths 声明的 untracked 文件仍保留为 material baseline risk",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -20,9 +40,29 @@
         "AGENTS.md",
         "CLAUDE.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-19T22:25:41.915Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "当前项目配置 accepted local paths 后，repo-local session_brief 不再把 AGENTS.md、CLAUDE.md、.claude/skills/koala/skill.md 列为 Main baseline risk",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "当前项目 session_brief 仍显示未接受的 experiments/reports/story-review-output-lab-v1.json baseline risk",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "INIT_CHECK dry-run baseline risk 也复用 accepted local paths，不再在 bootstrap 风险中提示已接受路径",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -31,9 +71,29 @@
       "relatedDocs": [
         "docs/requirements/decisions/test-fixture-spec.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-19T22:25:48.408Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "fixture 覆盖 accepted 文件路径、accepted 目录路径、未接受路径三种 baseline risk 分类",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "fixture 覆盖 docs/story/activity.jsonl 与 .omx 路径仍按 volatile 统计，不受 accepted local paths 改动影响",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "fixture 覆盖空 accepted local paths 时保持原有保守行为，不会默认隐藏 AGENTS.md/CLAUDE.md",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }

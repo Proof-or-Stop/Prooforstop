@@ -4,6 +4,7 @@ export interface BaselineRiskEntry {
   code: string;
   path: string;
   volatile: boolean;
+  acceptedLocal: boolean;
 }
 
 export interface BaselineRisk {
@@ -37,11 +38,26 @@ function isVolatilePath(path: string): boolean {
   return path.startsWith('.omx/') || path === 'docs/story/activity.jsonl';
 }
 
+/**
+ * @task B-13af
+ * @checklist CHK-001
+ * @title filter accepted local paths out of material baseline risk
+ * @type feature
+ * @priority medium
+ * @description
+ *   Some projects intentionally keep local agent/runtime files outside the
+ *   story worktree baseline. Accepted local paths are still visible in raw
+ *   git status, but they should not be rendered as material baseline risk.
+ * @changes
+ *   - [CHK-001] Support acceptedLocalPaths alongside existing excludePaths
+ *   - [CHK-003] Preserve volatile path accounting separately from accepted local paths
+ */
 export function collectBaselineRisk(
   repoRoot: string,
-  opts: { excludePaths?: string[]; maxEntries?: number } = {},
+  opts: { excludePaths?: string[]; acceptedLocalPaths?: string[]; maxEntries?: number } = {},
 ): BaselineRisk {
   const excluded = (opts.excludePaths || []).map(normalizePath);
+  const accepted = (opts.acceptedLocalPaths || []).map(normalizePath);
   const maxEntries = opts.maxEntries ?? 8;
   let raw = '';
   try {
@@ -59,12 +75,17 @@ export function collectBaselineRisk(
     .map((line) => {
       const path = parseStatusPath(line);
       if (!path) return null;
-      return { code: line.slice(0, 2), path, volatile: isVolatilePath(path) };
+      return {
+        code: line.slice(0, 2),
+        path,
+        volatile: isVolatilePath(path),
+        acceptedLocal: accepted.some((parent) => isUnder(path, parent)),
+      };
     })
     .filter((entry): entry is BaselineRiskEntry => Boolean(entry))
     .filter((entry) => !excluded.some((parent) => isUnder(entry.path, parent)));
 
-  const material = all.filter((entry) => !entry.volatile);
+  const material = all.filter((entry) => !entry.volatile && !entry.acceptedLocal);
   return {
     total: all.length,
     materialTotal: material.length,
