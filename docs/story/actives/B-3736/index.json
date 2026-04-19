@@ -4,7 +4,7 @@
   "title": "Koala 增加 project-state runtime 边界与 status/next 入口",
   "description": "用户确认 Koala 应借鉴 OMX 的可观察、可恢复、可诊断思想，但不复制 Codex/Claude/OMX 的 agent runtime。第一步需要把边界沉淀为真相源，并提供只读 status/next 命令，让任意 agent/session 能快速知道当前 story/phase/gate/下一步。",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "TEST_CASE",
   "priority": "high",
   "keywords": [
     "project-state-runtime",
@@ -51,6 +51,14 @@
       "phase": "DEV",
       "action": "advance",
       "timestamp": "2026-04-19T19:07:51.774Z",
+      "branch": "story/B-3736",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-19T19:11:46.725Z",
       "branch": "story/B-3736",
       "user": "Harmonygo",
       "agent": "main"
