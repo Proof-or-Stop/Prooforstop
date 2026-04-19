@@ -4,7 +4,7 @@
   "title": "DONE gate 校验 test evidence 对应当前 HEAD",
   "description": "修复 story merge main 后旧 test evidence 仍可能被 DONE gate 接受的问题：test_story 写入当前 git HEAD，DONE gate 校验 evidence commit 与 story 分支 HEAD 一致，并在 Branch synced with main 失败时明确提示 merge main 后重跑 test_story。",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-04-19T22:30:33.665Z",
   "startedAt": "2026-04-19T22:30:33.665Z",
-  "endedAt": null,
+  "endedAt": "2026-04-19T22:44:24.004Z",
   "events": [
     {
       "phase": "INIT",
@@ -71,11 +71,14 @@
       "branch": "story/B-4832",
       "user": "Harmonygo",
       "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-19T22:44:24.004Z",
+      "branch": "story/B-4832",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ],
-  "worktree": {
-    "path": ".worktrees/B-4832",
-    "branch": "story/B-4832",
-    "createdAt": "2026-04-19T22:30:42.704Z"
-  }
+  ]
 }
