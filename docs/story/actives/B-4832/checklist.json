@@ -16,19 +16,43 @@
         "happy": [
           {
             "desc": "运行 test_story 并产生 PASS evidence -> test-evidence.json 包含当前 git HEAD commit；WHY: 证明 evidence 可绑定代码版本",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T22:42:19.931Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-evidence-head-gate.json:4 WHY validates test_story persists git HEAD in evidence severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "git HEAD 可读取但测试输出包含零个或多个 case -> evidence 仍写入 commit 字段且保留原有 PASS/FAIL 语义；WHY: schema 扩展不能破坏现有统计",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T22:42:20.015Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-evidence-head-gate.json:43 WHY zero-case PASS evidence keeps git metadata severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "git 命令失败或不在 git worktree -> test_story 不崩溃，evidence 使用 unknown/null commit 并让 DONE gate 后续 fail closed；WHY: 证据缺版本不能误放行",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T22:42:20.096Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-evidence-head-gate.json:56 WHY non-git roots produce null git identity without crashing severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -48,19 +72,43 @@
         "happy": [
           {
             "desc": "evidence commit 等于 story 分支 HEAD 且 result=PASS -> DONE checklist Test evidence 通过；WHY: 验证新鲜证据可放行",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T22:42:20.180Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-evidence-head-gate.json:69 WHY matching evidence HEAD passes DONE gate severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "旧 evidence 缺少 commit 字段 -> DONE checklist 拒绝并提示重跑 test_story；WHY: 兼容旧文件时必须 fail closed",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T22:42:20.262Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-evidence-head-gate.json:82 WHY legacy evidence without git HEAD fails closed severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "evidence commit 与当前 story HEAD 不一致 -> DONE dry-run 阻塞并显示 stale evidence、当前 HEAD、evidence commit 与重跑命令；WHY: 覆盖 merge main 后直接 DONE 的真实风险",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T22:42:20.345Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-evidence-head-gate.json:17 WHY stale evidence HEAD blocks DONE dry-run severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -79,19 +127,43 @@
         "happy": [
           {
             "desc": "Branch synced with main 失败 -> hint 明确要求 merge main 后重跑 test_story 再执行 DONE dry-run/confirm；WHY: 防止 agent 只 merge 不复测",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T22:42:20.428Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-evidence-head-gate.json:30 WHY main sync hint requires merge and retest severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "merge main 产生冲突 -> hint 仍给出解决冲突、提交、重跑 test_story 的顺序；WHY: 覆盖最常见的人机协作路径",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T22:42:20.509Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-evidence-head-gate.json:95 WHY hint includes conflict resolution and retest sequence severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "agent 看到 main sync 阻塞后机械重试 DONE -> 返回文本持续指向重跑 test_story 而不是只要求 confirm；WHY: 把安全流程写进错误文本",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T22:42:20.589Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-evidence-head-gate.json:108 WHY repeated DONE retries keep retest instruction visible severity=info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
