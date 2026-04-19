@@ -1,0 +1,137 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: session brief profile reports submetrics and content summary",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-flow-profiles.mjs', 'session-happy'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok session-happy') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-780e:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-780e",
+      "_id": "0365a1bb-bd1d-4151-8c0c-66a0cf7750a0",
+      "nextCaseId": "96850187-daae-4da6-99e8-d291ddde95f0"
+    },
+    {
+      "name": "CHK-001 edge: session brief profile handles optional missing blocks",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-flow-profiles.mjs', 'session-edge'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok session-edge') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-780e:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-780e",
+      "_id": "96850187-daae-4da6-99e8-d291ddde95f0",
+      "prevCaseId": "0365a1bb-bd1d-4151-8c0c-66a0cf7750a0",
+      "nextCaseId": "df74fcb1-88ab-4df8-b309-c4fe8f9ea23a"
+    },
+    {
+      "name": "CHK-001 adversarial: empty session brief marks missing next step",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-flow-profiles.mjs', 'session-adversarial'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok session-adversarial') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-780e:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-780e",
+      "_id": "df74fcb1-88ab-4df8-b309-c4fe8f9ea23a",
+      "prevCaseId": "96850187-daae-4da6-99e8-d291ddde95f0",
+      "nextCaseId": "1fa5f8c1-aa1c-4c48-8025-2819c712dcaa"
+    },
+    {
+      "name": "CHK-002 happy: story review profile reports gate submetrics and summary",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-flow-profiles.mjs', 'review-happy'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok review-happy') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-780e:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-780e",
+      "_id": "1fa5f8c1-aa1c-4c48-8025-2819c712dcaa",
+      "prevCaseId": "df74fcb1-88ab-4df8-b309-c4fe8f9ea23a",
+      "nextCaseId": "7d35321b-93c2-4352-8e5d-7acb518da472"
+    },
+    {
+      "name": "CHK-002 edge: advisory-only review is scored without crashing",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-flow-profiles.mjs', 'review-edge'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok review-edge') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-780e:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-780e",
+      "_id": "7d35321b-93c2-4352-8e5d-7acb518da472",
+      "prevCaseId": "1fa5f8c1-aa1c-4c48-8025-2819c712dcaa",
+      "nextCaseId": "7c67f174-c360-406f-852b-d8bc94fb7709"
+    },
+    {
+      "name": "CHK-002 adversarial: empty story review marks missing gate fields",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-flow-profiles.mjs', 'review-adversarial'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok review-adversarial') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-780e:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-780e",
+      "_id": "7c67f174-c360-406f-852b-d8bc94fb7709",
+      "prevCaseId": "7d35321b-93c2-4352-8e5d-7acb518da472",
+      "nextCaseId": "15c29f38-9952-40e9-951e-3b399f1add51"
+    },
+    {
+      "name": "CHK-003 happy: compare exposes contentSummary and patch path",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-flow-profiles.mjs', 'compare-happy'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok compare-happy') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-780e:CHK-003:happy:0",
+      "sandbox": false,
+      "storyId": "B-780e",
+      "_id": "15c29f38-9952-40e9-951e-3b399f1add51",
+      "prevCaseId": "7c67f174-c360-406f-852b-d8bc94fb7709",
+      "nextCaseId": "2e8f1f4d-43f2-41ee-9346-379a0eb0b474"
+    },
+    {
+      "name": "CHK-003 edge: compare tolerates old run without contentSummary",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-flow-profiles.mjs', 'compare-old-run'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok compare-old-run') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-780e:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-780e",
+      "_id": "2e8f1f4d-43f2-41ee-9346-379a0eb0b474",
+      "prevCaseId": "15c29f38-9952-40e9-951e-3b399f1add51",
+      "nextCaseId": "5651d29c-ef4a-4387-80eb-6077748908ac"
+    },
+    {
+      "name": "CHK-003 adversarial: compare surfaces missing next step despite score",
+      "run_type": "cli",
+      "file": "handlers/lab",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-lab-flow-profiles.mjs', 'compare-adversarial'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok compare-adversarial') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-780e:CHK-003:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-780e",
+      "_id": "5651d29c-ef4a-4387-80eb-6077748908ac",
+      "prevCaseId": "2e8f1f4d-43f2-41ee-9346-379a0eb0b474"
+    }
+  ]
+}
