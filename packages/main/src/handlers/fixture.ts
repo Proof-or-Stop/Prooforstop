@@ -189,6 +189,22 @@ export function createFixtureHandlers(ctx: HandlerContext) {
     },
 
     /**
+     * @task B-26bb
+     * @checklist CHK-001, CHK-002
+     * @title preview fixture execution with the real CLI runner
+     * @type bugfix
+     * @priority high
+     * @description
+     *   Structure-only fixture previews can say OK for cases that later fail
+     *   in test_story because sandbox, handler injection, or expect matching
+     *   are only exercised by the real runner. validateExecute reuses runCase
+     *   for CLI cases while keeping dryRun from writing fixture files.
+     * @changes
+     *   - [CHK-001] Add dryRun validateExecute execution preview for CLI cases
+     *   - [CHK-002] Use the same handler registry and sandbox checks as test_story/test_fixture
+     *   - [CHK-002] Mark browser cases as SKIP_EXEC instead of pretending they ran
+     */
+    /**
      * @task B-4b17
      * @checklist CHK-001
      * @title fixture_batch_add dry-run preview for batch filesystem writes
@@ -202,7 +218,7 @@ export function createFixtureHandlers(ctx: HandlerContext) {
      *   - [CHK-001] 真实执行继续沿用 batchCases + 链关系落盘逻辑
      * @test dangerous-command-guardrails
      */
-    fixture_batch_add(args: { fixturePath: string; cases: Array<Record<string, unknown>>; storyId?: string; dryRun?: boolean }) {
+    fixture_batch_add(args: { fixturePath: string; cases: Array<Record<string, unknown>>; storyId?: string; dryRun?: boolean; validateExecute?: boolean }) {
       const data = readFixture(args.fixturePath);
       const added: string[] = [];
       // B-c745: infer storyId (explicit arg > git branch). intentRefs get
@@ -239,7 +255,30 @@ export function createFixtureHandlers(ctx: HandlerContext) {
         added.push(`${c.name}: OK`);
       }
       if (args.dryRun) {
-        return `[DRY-RUN] fixture_batch_add ${args.fixturePath} would add ${batchCases.length}/${args.cases.length} cases (current total: ${data.cases.length}, next total: ${data.cases.length + batchCases.length})\n${added.join('\n')}\n→ 去掉 --dryRun 真实执行`;
+        const preview = async () => {
+          if (args.validateExecute) {
+            const { runCase } = await import('./test-runner-core.js');
+            const { createToolHandlers } = await import('../registry.js');
+            const { StoryStore } = await import('../core/store.js');
+            const previewStore = new StoryStore(root);
+            const handlers = createToolHandlers(previewStore, root, ctx.log) as Record<string, Function>;
+            const sharedCtx: Record<string, unknown> = {};
+            for (const c of batchCases) {
+              if (c.run_type === 'browser') {
+                added.push(`${c.name}: SKIP_EXEC (browser preview not executed; use test_auto/test_story for browser runner)`);
+                continue;
+              }
+              const result = await runCase(c, root, handlers, sharedCtx, null);
+              if (result.passed) {
+                added.push(`${c.name}: EXEC_OK`);
+              } else {
+                added.push(`${c.name}: EXEC_ERROR ${result.error || 'case failed'}`);
+              }
+            }
+          }
+          return `[DRY-RUN] fixture_batch_add ${args.fixturePath} would add ${batchCases.length}/${args.cases.length} cases (current total: ${data.cases.length}, next total: ${data.cases.length + batchCases.length})\n${added.join('\n')}\n→ 去掉 --dryRun 真实执行`;
+        };
+        return preview();
       }
       // CHK-002: 批量添加时按顺序建立链关系（仅同批 case 之间）
       if (batchCases.length > 1) {

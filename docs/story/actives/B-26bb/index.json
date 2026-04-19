@@ -1,0 +1,112 @@
+{
+  "storyId": "B-26bb",
+  "name": "fixture-preview-runner-parity",
+  "title": "统一 fixture_batch_add preview 与 test_story 真实执行环境",
+  "description": "修复 fixture_batch_add/preview 显示 OK 但 test_story 才暴露 sandbox、fs、browser mock、handler registry、intentRef normalize 等问题。目标是 preview/validation 与真实 test runner 共享执行/校验路径，至少能在写入前暴露 ESM/sandbox/fs/browser mock/intentRef 格式不一致。",
+  "type": "bug",
+  "phase": "DONE",
+  "priority": "high",
+  "lane": "mainline",
+  "parallelSafe": "no",
+  "sharedHotspots": [
+    "packages/main/src/handlers/fixture.ts",
+    "packages/main/src/handlers/test-runner-core.ts",
+    "packages/main/src/handlers/test-story.ts",
+    "packages/main/src/core/intent-coverage.ts",
+    "packages/main/src/tasks/cli-executor.ts",
+    "packages/main/src/tasks/browser-executor.ts"
+  ],
+  "createdAt": "2026-04-19T23:42:02.870Z",
+  "startedAt": "2026-04-19T23:42:02.870Z",
+  "endedAt": "2026-04-19T23:53:52.804Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-19T23:42:02.870Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-19T23:42:12.534Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-19T23:42:30.385Z",
+      "branch": "story/B-26bb",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-19T23:45:34.200Z",
+      "branch": "story/B-26bb",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-19T23:45:50.959Z",
+      "branch": "story/B-26bb",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-19T23:50:21.702Z",
+      "branch": "story/B-26bb",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-19T23:50:56.659Z",
+      "branch": "story/B-26bb",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-19T23:51:16.489Z",
+      "branch": "story/B-26bb",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-19T23:52:35.444Z",
+      "branch": "story/B-26bb",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-19T23:52:35.567Z",
+      "branch": "story/B-26bb",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-19T23:53:52.804Z",
+      "branch": "story/B-26bb",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}

@@ -351,6 +351,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     })).describe('case 数组'),
     storyId: z.string().optional().describe('显式指定 storyId，用于自动给 legacy intentRef 加 story 前缀'),
     dryRun: z.boolean().optional().describe('仅预览新增/跳过/报错结果，不写入 fixture'),
+    validateExecute: z.boolean().optional().describe('dryRun 时用真实 CLI runner 轻量执行预检 CLI case，提前暴露 sandbox/handler/expect 错误'),
   }, guardrails: { supportsDryRun: true }},
 
 ];
