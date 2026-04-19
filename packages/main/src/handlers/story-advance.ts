@@ -228,6 +228,25 @@ function shortCommit(value: string | null | undefined): string {
   return value ? value.slice(0, 12) : 'unknown';
 }
 
+function getEvidenceFreshness(root: string, storyId: string, evidenceHead: string, currentHead: string): { fresh: boolean; metadataOnly: boolean; changedPaths: string[] } {
+  if (evidenceHead === currentHead) {
+    return { fresh: true, metadataOnly: false, changedPaths: [] };
+  }
+  try {
+    const raw = execSync(`git diff --name-only ${JSON.stringify(evidenceHead)}..${JSON.stringify(currentHead)}`, {
+      cwd: root,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    const changedPaths = raw.split('\n').map(line => line.trim()).filter(Boolean);
+    const storyMetaPrefix = `docs/story/actives/${storyId}/`;
+    const metadataOnly = changedPaths.length > 0 && changedPaths.every(path => path === storyMetaPrefix.slice(0, -1) || path.startsWith(storyMetaPrefix));
+    return { fresh: metadataOnly, metadataOnly, changedPaths };
+  } catch { /* PROBE: diff can fail if evidence commit is unavailable */
+    return { fresh: false, metadataOnly: false, changedPaths: [] };
+  }
+}
+
 function assertDoneMainMergeSafe(plan: DoneAutoGitPlan, preflight: DoneMainMergePreflight): void {
   if (preflight.blockingPaths.length === 0) return;
   throw new Error(
@@ -297,19 +316,24 @@ function buildDoneChecklist(storyId: string, store: StoryStore, root: string): D
           detail: `无法读取当前 ${currentRef} 的 git HEAD`,
           hint: '确认当前目录是 story worktree 且 git 状态正常，然后重跑 test_story',
         });
-      } else if (evidenceHead !== currentHead) {
-        rows.push({
-          status: 'fail',
-          label: 'Test evidence',
-          detail: `stale: evidence=${shortCommit(evidenceHead)} current=${shortCommit(currentHead)}`,
-          hint: `当前代码已变化（例如 merge main 或新 commit）。请先重跑 koala test_story '{"storyId":"${storyId}"}'，再执行 DONE dry-run/confirm`,
-        });
       } else {
-        rows.push({
-          status: 'pass',
-          label: 'Test evidence',
-          detail: `PASS @ ${evidence.timestamp} (${shortCommit(evidenceHead)})`,
-        });
+        const freshness = getEvidenceFreshness(root, storyId, evidenceHead, currentHead);
+        if (!freshness.fresh) {
+          rows.push({
+            status: 'fail',
+            label: 'Test evidence',
+            detail: `stale: evidence=${shortCommit(evidenceHead)} current=${shortCommit(currentHead)}`,
+            hint: `当前代码已变化（例如 merge main 或新 commit）。请先重跑 koala test_story '{"storyId":"${storyId}"}'，再执行 DONE dry-run/confirm`,
+          });
+        } else {
+          rows.push({
+            status: 'pass',
+            label: 'Test evidence',
+            detail: freshness.metadataOnly
+              ? `PASS @ ${evidence.timestamp} (${shortCommit(evidenceHead)}; current ${shortCommit(currentHead)} metadata-only)`
+              : `PASS @ ${evidence.timestamp} (${shortCommit(evidenceHead)})`,
+          });
+        }
       }
     }
   }
