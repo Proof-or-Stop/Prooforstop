@@ -4,7 +4,7 @@
   "title": "为 koala-lab 增加 test-intent prompt 质量评分",
   "description": "新增 test-intent-prompt-quality-v1 profile，专门评估 .claude/.Codex 的 test-intent agent prompt 是否包含 fixture-heavy、input/expect、WHY、desc/type、非全局强制和 adversarial 去重等生产 prompt 规则，并用它对当前生产 prompt 做有效 Koala Lab 评分验证。",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DEV",
   "priority": "high",
   "lane": "mainline",
   "parallelSafe": "no",
@@ -30,6 +30,22 @@
       "action": "advance",
       "timestamp": "2026-04-19T09:25:30.115Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-19T09:25:44.810Z",
+      "branch": "story/B-57e7",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-19T09:26:25.893Z",
+      "branch": "story/B-57e7",
       "user": "Harmonygo",
       "agent": "main"
     }

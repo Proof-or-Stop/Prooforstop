@@ -7,9 +7,29 @@
       "relatedDocs": [
         "experiments/reports/test-intent-structured-v1.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-19T09:27:47.982Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "给当前 test-intent prompt 文本 → prompt profile 输出 fixtureHeavy/input/expect/WHY 等 submetrics",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "prompt 缺少 optional 非硬性说明 → profile 标出 missing nonMandatory",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "prompt 缺少 WHY/input/expect → profile 低分并 contentSummary 标出缺失项",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -19,9 +39,29 @@
         ".claude/agents/test-intent.md",
         ".Codex/agents/test-intent.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-19T09:27:48.212Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "用新 profile 跑当前生产 prompt → normalizedScore 超过 0.8 且 decision kept",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "旧版 prompt 缺少 fixture-friendly 规则 → baseline 分数低于当前 prompt",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "直接用 test-intent-quality-v1 评 prompt 不再作为有效验证路径 → 报告说明 profile mismatch",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -30,9 +70,29 @@
       "relatedDocs": [
         "README.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-19T09:27:48.452Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "运行 prompt profile 回归脚本 → 当前 prompt 高分、缺失规则样本低分",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "profile registry 包含 test-intent-prompt-quality-v1 且不影响原 test-intent-quality-v1",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "删除 fixture-heavy 规则后脚本失败 → 防止回归",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }
