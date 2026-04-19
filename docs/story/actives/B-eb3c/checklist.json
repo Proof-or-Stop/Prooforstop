@@ -15,19 +15,43 @@
         "happy": [
           {
             "desc": "DONE dry-run/confirm 遇到 main 上同 story untracked docs/story/actives/<id>/ residue 时，输出自动备份计划并在 confirm 中备份后继续",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:25:21.667Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-metadata-residue-lifecycle.json:1 WHY same-story untracked residue is auto-backup eligible and backup removes source; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "同 story residue 为 tracked/staged/modified 时，DONE preflight 阻塞并提示人工确认，不自动移动",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:25:21.772Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-metadata-residue-lifecycle.json:1 WHY staged same-story metadata remains blocking and is not auto-backed up; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "其它 active story 的 docs/story/actives/<otherId>/ residue 不会被当前 story DONE 自动处理或误删",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:25:21.922Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-metadata-residue-lifecycle.json:1 WHY other-story residue is dirty but neither blocking nor auto-backed for current story; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -47,19 +71,43 @@
         "happy": [
           {
             "desc": "DONE merge 后当前 story index.json/checklist.json 来自 story 分支 canonical 版本，phase 不会被 main INIT_CHECK 旧版本覆盖",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:25:22.117Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-metadata-residue-lifecycle.json:1 WHY merge after residue backup keeps story branch phase TEST and canonical title; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "activity.jsonl 不参与 DONE story branch semantic merge，不产生 content conflict 并不会覆盖 story metadata",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:25:22.248Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-metadata-residue-lifecycle.json:1 WHY activity path is classified volatile while story metadata is not; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "DONE merge 自动解决只作用于当前 story metadata，不会 checkout 覆盖其它 story 的 docs/story/actives 目录",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:25:22.372Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-metadata-residue-lifecycle.json:1 WHY other story metadata overlap remains blocking and is not auto-resolved; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -78,19 +126,43 @@
         "happy": [
           {
             "desc": "story_reconcile 或 doctor dry-run 能列出 DONE/DISCARDED story 的 untracked residue，并给出 repair 操作",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:25:22.481Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-metadata-residue-lifecycle.json:1 WHY story_reconcile dry-run reports terminal untracked residue as safe-untracked; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "repair 只清理终态 story 的 untracked residue；当前 active story residue 保留",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:25:22.589Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-metadata-residue-lifecycle.json:1 WHY story_reconcile repair skips active IDEA story residue; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "tracked/staged residue 被报告为 unsafe，不会被 repair 自动删除",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:25:22.700Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-metadata-residue-lifecycle.json:1 WHY staged terminal residue is reported unsafe and is not repaired; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -109,19 +181,43 @@
         "happy": [
           {
             "desc": "fixture 覆盖同 story untracked residue 自动备份、tracked residue 阻塞、activity 不冲突、metadata 取 story branch、active story 不误清五类路径",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:25:22.811Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-metadata-residue-lifecycle.json:1 WHY fixture covers auto-backup, tracked block, activity, canonical metadata, active skip; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "fixture 使用临时 git repo 验证路径，不污染真实 docs/story/actives 残留",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:25:22.920Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-metadata-residue-lifecycle.json:1 WHY merge lifecycle tests run in temporary git repositories rather than real story dirs; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "fixture 失败时清理临时 repo/备份目录，避免留下新的 Koala residue 噪音",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:25:23.027Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-metadata-residue-lifecycle.json:1 WHY cleanup assertion confirms synthetic residue paths are absent after test; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
