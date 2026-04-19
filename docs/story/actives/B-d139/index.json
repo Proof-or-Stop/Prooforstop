@@ -4,7 +4,7 @@
   "title": "修复 Koala 只读状态污染与 discarded 残留处理",
   "description": "修复确认的 Koala bug：session_brief/status/doc/query 等只读命令不应默认写 activity 导致 dirty；story_discard 对已 DISCARDED 且被 stash 恢复的 untracked story 目录应能清理；story_get 应明确显示 DISCARDED phase；core-only koala 应提供 aux_doc_list，避免 AGENTS 要求与 CLI 能力不一致。",
   "type": "bug",
-  "phase": "TEST_CASE",
+  "phase": "TEST",
   "priority": "high",
   "createdAt": "2026-04-19T19:49:59.840Z",
   "startedAt": "2026-04-19T19:49:59.840Z",
@@ -49,6 +49,22 @@
       "branch": "story/B-d139",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-19T20:58:00.922Z",
+      "branch": "story/B-d139",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-19T20:58:51.672Z",
+      "branch": "story/B-d139",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
     }
   ],
   "worktree": {

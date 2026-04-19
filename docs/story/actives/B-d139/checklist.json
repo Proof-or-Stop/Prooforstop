@@ -15,19 +15,43 @@
         "happy": [
           {
             "desc": "在已有 activity.jsonl 的 worktree 中连续运行 session_brief/status/next 后，activity.jsonl 行数不增加，命令仍正常输出 next step",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T20:58:39.393Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/koala-readonly-residue-doclist.json:1 WHY covers session_brief/status/next activity line stability via dist CLI; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "docs/story/activity.jsonl 已经 dirty 时，session_brief 的 Main baseline risk 不把该文件列为 material risk，只在 volatile summary 中隐藏",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T20:58:39.502Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/koala-readonly-residue-doclist.json:1 WHY dirties activity log and verifies baseline risk output hides docs/story/activity.jsonl; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "read-only skip 只作用于查询命令；执行 story_advance/checklist_update 这类变更命令仍会追加 activity 记录",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T20:58:39.610Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/koala-readonly-residue-doclist.json:1 WHY mutating checklist_update still appends activity, proving skip list is scoped to read-only commands; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -46,19 +70,43 @@
         "happy": [
           {
             "desc": "对 phase=DISCARDED 且目录为 untracked residue 的 story 运行 story_discard cleanupResidue dryRun 时，输出将清理该目录的预览而不是“无需重复操作”",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T20:58:39.718Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/koala-readonly-residue-doclist.json:1 WHY creates synthetic untracked DISCARDED residue and verifies cleanupResidue dry-run previews removal; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "story_get detail=false 查询 DISCARDED story 时，返回对象包含 story.phase、terminal=true、discarded=true 和提示说明",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T20:58:39.865Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/koala-readonly-residue-doclist.json:1 WHY story_get via dist CLI returns phase DISCARDED plus terminal/discarded flags; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "cleanupResidue 遇到 tracked/staged 的 DISCARDED story 目录时拒绝删除并输出需要人工确认的错误",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T20:58:39.977Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/koala-readonly-residue-doclist.json:1 WHY tracked DISCARDED artifact is preserved with explicit warning instead of deletion; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -78,19 +126,43 @@
         "happy": [
           {
             "desc": "core-only node packages/main/dist/cli.js aux_doc_list 可以列出根目录和 docs/requirements 下的文档，不再出现未知命令或 handler not found",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T20:58:40.182Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/koala-readonly-residue-doclist.json:1 WHY core dist CLI aux_doc_list returns docs and AGENTS.md without handler missing; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "node bin/koala.js aux_doc_list 在 main 和 utils 都存在 aux_doc_list 时仍可启动，且不会因重复注册报错",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T20:58:40.302Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/koala-readonly-residue-doclist.json:1 WHY bootstrap bin/koala.js aux_doc_list succeeds without duplicate handler registration; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "aux_doc_list 扫描时跳过 docs/story 与 fixtures 管理目录，避免把 story/fixture 运行数据当作 relatedDocs 候选",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T20:58:40.408Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/koala-readonly-residue-doclist.json:1 WHY aux_doc_list JSON excludes docs/story and fixture runtime paths; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
