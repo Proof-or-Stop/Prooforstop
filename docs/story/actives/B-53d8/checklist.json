@@ -1,0 +1,39 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "补充历史 story 的 replay metadata",
+      "context": "为 B-e452 等缺 summary 的真实任务提供可审计 fallback metadata，必须解释 evidence 来源，不能硬改 score。",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-completeness.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "在 replay 评分中加入 evidenceQuality",
+      "context": "score 表格继续包含 Score/Why/Explain，并新增 evidenceQuality，明确哪些分来自正式 artifact，哪些来自 backfill metadata。",
+      "relatedDocs": [
+        "docs/requirements/decisions/framework.md",
+        "README.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "补 backfill 后的回归验证",
+      "context": "验证 B-e452 分数提升到合理区间但 why/explain 明确说明 backfilled metadata；重复运行报告稳定。",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-fixture-spec.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

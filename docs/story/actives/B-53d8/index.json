@@ -1,0 +1,45 @@
+{
+  "storyId": "B-53d8",
+  "name": "backfill-replay-artifacts",
+  "title": "补齐真实任务 replay 证据质量",
+  "description": "为 real-story-replay benchmark 中证据较弱的历史真实任务补充可审计 artifact 或 replay metadata，重点让 B-e452 这类缺 summary 的 story 能被合理评分，并在报告中展示 evidenceQuality/why/explain。",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "lane": "mainline",
+  "parallelSafe": "no",
+  "sharedHotspots": [
+    "scripts/real-story-replay-benchmark.mjs",
+    "scripts/verify-real-story-replay-benchmark.mjs",
+    "experiments/reports/real-story-replay-v1.md",
+    "experiments/reports/real-story-replay-v1.json",
+    "experiments/replay-artifacts/real-story-replay-v1.json",
+    "packages/main/tests/fixtures/real-story-replay-benchmark.json"
+  ],
+  "createdAt": "2026-04-19T16:20:38.779Z",
+  "startedAt": "2026-04-19T16:20:38.779Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-19T16:20:38.779Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-19T16:20:44.223Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-53d8",
+    "branch": "story/B-53d8",
+    "createdAt": "2026-04-19T16:20:44.442Z"
+  }
+}
