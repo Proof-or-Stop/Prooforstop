@@ -1,6 +1,7 @@
 import { createHash } from 'crypto';
 import type { StoryPhase } from './types.js';
 import type { StoryStore } from './store.js';
+import { summarizeIntentCoverage } from './intent-coverage.js';
 
 export type ReviewerArtifactKey = 'story_review' | 'test_intent_review' | 'implementation_review';
 export type ReviewerVerdict = 'pass' | 'fail' | 'missing';
@@ -76,7 +77,7 @@ function summarizeStoryReview(store: StoryStore, storyId: string, phase: StoryPh
   };
 }
 
-function summarizeTestIntentReview(store: StoryStore, storyId: string, phase: StoryPhase): ReviewerStatusEntry {
+function summarizeTestIntentReview(store: StoryStore, storyId: string, phase: StoryPhase, root?: string): ReviewerStatusEntry {
   const checklist = store.readChecklist(storyId);
   const required = isRequired('test_intent_review', phase);
   let total = 0;
@@ -114,22 +115,31 @@ function summarizeTestIntentReview(store: StoryStore, storyId: string, phase: St
   else if (present && missing === 0) verdict = 'pass';
   else if (exemptOnly) verdict = 'pass';
 
+  let coverageSummary = '';
+  let coverageMissing = 0;
+  if (root && total > 0) {
+    const coverage = summarizeIntentCoverage(root, store, storyId);
+    coverageMissing = coverage.missing.length;
+    coverageSummary = `; fixture coverage ${coverage.covered}/${coverage.total}`;
+    if (coverageMissing > 0 && verdict === 'pass') verdict = 'fail';
+  }
+
   return {
     key: 'test_intent_review',
-    label: 'test-intent review',
+    label: 'testIntent reviewer + fixture coverage',
     required,
     present: present || exemptOnly,
     verdict,
     blocking: required && verdict !== 'pass',
     summary: exemptOnly
       ? 'pass (all checklist items marked not auto-testable)'
-      : `${verdict} (${passed}/${total} pass, ${missing} missing, ${failed} fail)`,
+      : `${verdict} (${passed}/${total} reviewer pass, ${missing} reviewer missing, ${failed} fail${coverageSummary})`,
     detail: exemptOnly
       ? 'all checklist items explicitly marked testIntent:null'
       : total === 0
       ? 'no testIntent entries'
-      : `${passed}/${total} reviewer judgments passed`,
-    findings: failed + missing,
+      : `${passed}/${total} reviewer judgments passed${coverageMissing > 0 ? `; ${coverageMissing} fixture intentRef missing` : ''}`,
+    findings: failed + missing + coverageMissing,
   };
 }
 
@@ -174,10 +184,11 @@ export function getReviewerStatus(
   storyId: string,
   store: StoryStore,
   phase: StoryPhase,
+  root?: string,
 ): ReviewerStatus {
   const entries = [
     summarizeStoryReview(store, storyId, phase),
-    summarizeTestIntentReview(store, storyId, phase),
+    summarizeTestIntentReview(store, storyId, phase, root),
     summarizeImplementationReview(store, storyId, phase),
   ];
   const order = primaryOrder(phase);

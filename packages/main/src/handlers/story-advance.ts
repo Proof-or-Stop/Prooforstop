@@ -266,7 +266,7 @@ function buildDoneChecklist(storyId: string, store: StoryStore, root: string): D
     }
   }
 
-  const reviewerStatus = getReviewerStatus(storyId, store, 'DONE');
+  const reviewerStatus = getReviewerStatus(storyId, store, 'DONE', root);
   const reviewerBlockers = reviewerStatus.entries.filter((entry) => entry.blocking && entry.verdict !== 'pass');
   if (reviewerBlockers.length > 0) {
     rows.push({
@@ -461,7 +461,7 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
 
       // TEST_CASE_REVIEW→TEST 门禁：检查 testIntent results（兜底，防止手动跳过 reviewer）
       if (args.phase === 'TEST' && story.phase === 'TEST_CASE_REVIEW') {
-        const reviewerStatus = getReviewerStatus(args.storyId, store, 'TEST');
+        const reviewerStatus = getReviewerStatus(args.storyId, store, 'TEST', ctx.root);
         const blockers = reviewerStatus.entries.filter((entry) => entry.blocking && entry.verdict !== 'pass');
 
         if (blockers.length > 0) {

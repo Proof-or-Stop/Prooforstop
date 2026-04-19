@@ -85,6 +85,18 @@ KOALA_ACTIVITY_SOURCE=codex koala session_brief
 
 这能保证 activity 里仍然按 `source=codex` 记账；但如果没有 bootstrap 入口，`aux_*` 命令可能不可用。
 
+如果全局 core 入口提示 `未知命令: aux_doc_list`，在 Koala 仓库内使用完整 bootstrap：
+
+```bash
+node bin/koala.js aux_doc_list --format=json
+```
+
+`story_create` / `story_update` 支持并行调度元数据，建议在多 story 并行时显式填写：
+
+```bash
+koala story_update '{"storyId":"B-xxxx","lane":"mainline","parallelSafe":"plan_only","sharedHotspots":["packages/main/src/handlers/session.ts"]}'
+```
+
 如果完整入口提示缺少 `packages/main/dist/*` 或 `packages/utils/dist/*`，先执行：
 
 ```bash

@@ -694,6 +694,13 @@ export async function runCli(opts?: {
     console.error(`未知命令: ${cmd}`);
     const m = TOOLS.filter(t => t.name.includes(cmd) || cmd.includes(t.name.split('_')[0]));
     if (m.length) { console.error('你是不是要找:'); for (const t of m) console.error(`  koala ${displayCommandName(t.name)}`); }
+    if (cmd.startsWith('aux_') || cmd === 'aux') {
+      const bootstrapPath = join(process.cwd(), 'bin', 'koala.js');
+      if (existsSync(bootstrapPath)) {
+        console.error(`aux_* 命令属于 utils/bootstrap 入口。当前 core-only koala 不包含它。`);
+        console.error(`可改用: node bin/koala.js ${cmd}${arg ? ` ${arg}` : ''}`);
+      }
+    }
     console.error('用 koala help 查看所有命令');
     process.exit(1);
   }

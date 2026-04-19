@@ -3,16 +3,17 @@
 ## 阶段流转
 
 ```
-PLAN → DEV → TEST_CASE_REVIEW → TEST → DONE
-        ↑                         |
-        └─────────────────────────┘ (自动回退)
+PLAN → DEV → TEST_CASE → TEST_CASE_REVIEW → TEST → DONE
+        ↑                                      |
+        └──────────────────────────────────────┘ (自动回退)
 ```
 
 | Phase | 含义 | 进入门禁 |
 |---|---|---|
 | PLAN | 已拆解 checklist + testIntent | story_review 对抗审查通过 |
-| DEV | 开发 + 写 fixture | 无 |
-| TEST_CASE_REVIEW | reviewer 审核 testIntent 覆盖 | checklist 全部 done |
+| DEV | 开发实现；可提前补 fixture 做兼容验证 | 无 |
+| TEST_CASE | 编写/补齐 fixture case，并立即用 `test_story --storyId=...` 验证 | checklist 全部 done |
+| TEST_CASE_REVIEW | reviewer 审核 testIntent 覆盖 | fixture 覆盖 + reviewer 结论通过 |
 | TEST | 自动化测试 | testIntent 审核全部 pass |
 | DONE | 完成 | 测试全部 PASS + bug 全部 fixed |
 | DISCARDED | 已废弃 | story_discard，任何阶段可用 |
@@ -37,8 +38,9 @@ PLAN → DEV → TEST_CASE_REVIEW → TEST → DONE
 - **Story 即 Feature**：删除了独立的 Feature/Backlog 概念，Story 本身就是最小可追踪单元
 - **状态机管理**：使用 xstate 而非手动 if 判断，门禁（guard）内置到状态机定义中
 - **自动回退**：TEST fail 和 TEST_CASE_REVIEW fail 自动回退 DEV，不需要手动操作
-- **门禁不可跳过**：DEV→TEST_CASE_REVIEW 必须 checklist 全 done，TEST→DONE 必须测试通过且 bug 全 fixed
-- **DEV 合并写测试**：原 TEST_CASE 阶段砍掉，DEV 同时写代码和 fixture，reviewer 审核兜底质量
+- **门禁不可跳过**：DEV→TEST_CASE 必须 checklist 全 done，TEST_CASE_REVIEW→TEST 必须 fixture 覆盖 + reviewer 结论通过，TEST→DONE 必须测试通过且 bug 全 fixed
+- **DEV done 不检查 fixture 覆盖**：DEV done 表示实现项完成；fixture intentRef 覆盖在 TEST_CASE / TEST_CASE_REVIEW 口径检查，避免 DEV done 与 TEST_CASE 入口互相卡住
+- **TEST_CASE 可本地验证**：TEST_CASE 阶段允许 `test_story --storyId=...` 只跑当前 story 关联 case，便于刚写完 fixture 就发现运行时错误
 - **统一推进命令**：`story_advance` 统一处理所有阶段推进，砍掉 dev_start / dev_finish / dev_merge
 
 ## Phase-Aware 工具过滤
@@ -74,7 +76,14 @@ PLAN → DEV → TEST_CASE_REVIEW → TEST → DONE
 | `diagnose` | **只输出根因建议**，不关联 bug |
 | `fixture_batch_add` | 批量添加 case |
 | `fixture_get` / `fixture_update` | 可读可写 |
-| `story_advance` → TEST_CASE_REVIEW | 推进 |
+| `story_advance` → TEST_CASE | 推进 |
+
+### TEST_CASE
+| 工具 | 行为 |
+|---|---|
+| `fixture_batch_add` / `fixture_update` | 写 fixture case |
+| `test_story` / `test_fixture` | 只跑当前 story/case 验证，不跑全量 `test_auto` |
+| `story_advance` → TEST_CASE_REVIEW | fixture 完成后进入审核 |
 
 ### TEST_CASE_REVIEW
 | 工具 | 行为 |
@@ -97,9 +106,15 @@ PLAN → DEV → TEST_CASE_REVIEW → TEST → DONE
 ### 关键行为差异
 - `test_auto`：DEV 不还原+警告 → TEST 正常还原
 - `diagnose`：DEV 纯建议 → TEST 自动挂 bug_report
-- `fixture_*`：DEV 可读可写 → 其余只读
+- `fixture_*`：DEV 可提前写入兼容验证；TEST_CASE 正式写入；REVIEW/TEST 只读
 - `checklist_update`：PLAN 只改 testIntent → DEV 可改 status+testIntent → 其余禁用
 - `checklist_add`：PLAN（test-intent agent 填）→ DEV（主 agent 自填）→ 其余禁用
+
+### session_brief 与 linked worktree phase
+
+主目录 `session_brief` 必须同时看主目录 story metadata 和 linked worktree 内的真实 `index.json`。
+如果两者 phase 不一致，输出使用 `main phase (worktree phase: X)` 的形式，并把下一步指向 linked worktree。
+这样可以避免主目录 metadata 滞后时，agent 按旧 brief 重复推进到已经完成的 phase。
 
 ## 三方制衡
 

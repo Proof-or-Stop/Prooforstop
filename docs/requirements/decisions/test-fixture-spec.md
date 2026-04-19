@@ -81,6 +81,13 @@ replyRoomMessage(conversationKey, targetEventId, content) { ... }
 | `construct` | 否 | array | 类构造函数参数（仅 fn 为 ClassName.methodName 时有效） |
 | `intentRef` | 否 | string | 关联 testIntent（如 CHK-001:happy:0） |
 
+## 阶段语义
+
+- `DEV` 阶段可以提前用 `fixture_batch_add` 补 fixture，主要用于兼容验证或边写边跑；这不是完成测试阶段的必要条件。
+- `TEST_CASE` 阶段是正式补齐 fixture 覆盖的阶段。写完 case 后应立即运行 `test_story --storyId=...` 验证当前 story 关联 case。
+- `checklist_update --status=done` 不再要求 fixture intentRef 已覆盖；fixture 覆盖由 `testintent_check` / TEST_CASE_REVIEW gate 负责。
+- 如果 `testintent_check` 报 fixture coverage missing，请给对应 case 添加 `intentRef`，格式如 `CHK-001:happy:0`。在 story worktree 中 `fixture_batch_add` 会自动补成带 storyId 的 scoped ref。
+
 ### expect 匹配规则
 
 1. **部分匹配**：expect 中的每个字段都必须在 actual 中存在且相等，actual 可以有额外字段

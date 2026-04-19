@@ -113,6 +113,7 @@ const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
   ],
   TEST_CASE: [
     'fixture_batch_add', 'fixture_get', 'fixture_update',
+    'test_story', 'test_fixture',
     'checklist_update',
   ],
   DEV: [
