@@ -1,0 +1,84 @@
+{
+  "storyId": "B-ff27",
+  "name": "lab-session-brief-experiment",
+  "title": "用 koala-lab 跑 session_brief 结构化候选实验",
+  "description": "基于 session-brief-quality-v1，准备当前 session_brief baseline 和 12 个结构化候选输出样本，跑实验并生成跑前/跑后分数、normalizedScore、contentSummary、长度变化和推荐候选报告。该 story 不直接改 session_brief 生产代码，只产出实验数据与下一步建议。",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "high",
+  "lane": "exploratory",
+  "parallelSafe": "yes",
+  "sharedHotspots": [
+    "experiments",
+    "scripts"
+  ],
+  "createdAt": "2026-04-19T00:41:45.654Z",
+  "startedAt": "2026-04-19T00:41:45.654Z",
+  "endedAt": "2026-04-19T00:47:44.745Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-19T00:41:45.654Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-19T00:41:52.734Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-19T00:42:04.783Z",
+      "branch": "story/B-ff27",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-19T00:42:52.448Z",
+      "branch": "story/B-ff27",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-19T00:46:42.949Z",
+      "branch": "story/B-ff27",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-19T00:46:43.375Z",
+      "branch": "story/B-ff27",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-19T00:47:07.917Z",
+      "branch": "story/B-ff27",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-19T00:47:44.745Z",
+      "branch": "story/B-ff27",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-04-19T00:42:34.745Z",
+      "issueCount": 1,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_decision",
+          "severity": "blocker",
+          "message": "高风险 story 必须填 decision.json (principles/drivers/options/chosen/≥3 preMortem)。调用: koala decision_set '{...}'"
+        }
+      ],
+      "_hash": "7e3066daf323fa99adf0179dec57adc53e2690f8d03c0de5ceef2f4627b9ed0b"
+    },
+    {
+      "timestamp": "2026-04-19T00:42:52.063Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "review_advisory",
+          "severity": "advisory",
+          "message": "审查未发现 blocker，但建议对照 _reviewPrompt 中的真相源文档人工复核 testIntent 完整性"
+        }
+      ],
+      "_hash": "de401e3916af3d7018c17ed5335644afd3ac6362157886f3ba29a94521dcdd75"
+    }
+  ]
+}

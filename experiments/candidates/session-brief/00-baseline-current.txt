@@ -1,0 +1,50 @@
+[0.0s] running session_brief...
+[0.2s] session_brief done
+# koala session brief
+
+**Story**: B-ff27 — 用 koala-lab 跑 session_brief 结构化候选实验
+**Phase**: DEV
+
+## Checklist (0/3 done)
+  next pending: CHK-001 准备 session_brief baseline 与 12 个候选样本 (+2 more)
+
+## Runtime health
+  [✓] worktree registered — /Users/jek/Documents/Work/Orchestrate/.worktrees/B-ff27
+
+## Reviewer status
+  [✓] story review (required) — pass (0 blocker)
+  [!] test-intent review (advisory) — missing (0/9 pass, 9 missing, 0 fail)
+  [!] implementation review (advisory) — missing
+  primary: implementation review → missing
+
+## Recent activity (last 3)
+  2026-04-19T00:44:32.049Z session_brief [codex/main/ok]
+  2026-04-19T00:43:11.747Z session_brief [codex/main/ok]
+  2026-04-19T00:42:52.297Z story_advance [codex/main/ok]
+
+## Git
+  recent commits:
+    69654e7 koala: story B-ff27 init
+    ea04165 merge: B-780e 为 koala-lab 增加 session/story review 流程量化 profile
+    78668cd koala: mark B-780e DONE + clear worktree
+  uncommitted (8):
+    M docs/story/actives/B-ff27/checklist.json
+     M docs/story/actives/B-ff27/index.json
+    ?? docs/story/actives/B-ff27/decision.json
+    ?? docs/story/actives/B-ff27/review.json
+    ?? docs/story/actives/B-ff27/understanding.json
+    ?? experiments/candidates/
+    ?? experiments/reports/
+    ?? scripts/run-session-brief-experiment.mjs
+
+## Artifacts
+  [✓] understanding (required) — present
+  [✓] decision (required) — present
+  [✓] story review (required) — present
+  [✓] test-intent review (advisory) — present
+  [!] implementation review (advisory) — missing
+  [!] test evidence (advisory) — missing
+  [!] summary (advisory) — missing
+
+## → Next step
+  DEV 阶段。下一项：checklist_update --storyId=B-ff27 --itemId=CHK-001 --status=in_progress（准备 session_brief baseline 与 12 个候选样本）
