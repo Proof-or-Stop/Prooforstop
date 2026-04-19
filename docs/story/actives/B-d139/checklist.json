@@ -1,0 +1,39 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "只读状态命令不再污染 activity baseline",
+      "context": "session_brief/status/next/aux_doc_list/story_get/story_list/checklist_get 是查询类命令，默认不写 docs/story/activity.jsonl；baseline risk 把 activity log 当 volatile 噪音隐藏。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/stack-layering.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "DISCARDED story 可安全清理 untracked 残留并在查询中显式提示",
+      "context": "story_discard 增加 cleanupResidue 路径，只清理 git status 判定为 untracked 的 DISCARDED story 目录；story_get 默认返回 phase/terminal/discarded 摘要，避免误以为要继续执行。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "core-only koala 内置 aux_doc_list",
+      "context": "把文档列表能力移入 main/core CLI，并让 bootstrap utils 注册时跳过重复 handler，保证全局 core-only koala 也满足 AGENTS 的 aux_doc_list 前置要求。",
+      "relatedDocs": [
+        "AGENTS.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

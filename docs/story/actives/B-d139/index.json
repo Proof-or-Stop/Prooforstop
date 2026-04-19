@@ -1,0 +1,35 @@
+{
+  "storyId": "B-d139",
+  "name": "koala-readonly-residue-doclist",
+  "title": "修复 Koala 只读状态污染与 discarded 残留处理",
+  "description": "修复确认的 Koala bug：session_brief/status/doc/query 等只读命令不应默认写 activity 导致 dirty；story_discard 对已 DISCARDED 且被 stash 恢复的 untracked story 目录应能清理；story_get 应明确显示 DISCARDED phase；core-only koala 应提供 aux_doc_list，避免 AGENTS 要求与 CLI 能力不一致。",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "createdAt": "2026-04-19T19:49:59.840Z",
+  "startedAt": "2026-04-19T19:49:59.840Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-19T19:49:59.841Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-19T19:50:13.121Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-d139",
+    "branch": "story/B-d139",
+    "createdAt": "2026-04-19T19:50:13.343Z"
+  }
+}
