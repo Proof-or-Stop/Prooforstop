@@ -220,24 +220,36 @@ const claudeAgentsSrc = join(packageRoot, '..', '..', '.claude', 'agents');
 const claudeAgentsDst = join(targetDir, '.claude', 'agents');
 const codexAgentsDst = join(targetDir, '.Codex', 'agents');
 const codexReadmeDst = join(targetDir, '.Codex', 'README.md');
+const koalaSkillFallback = `# /koala — 项目管理入口
+
+你是项目管理引擎。执行 /koala 了解项目全貌并开始工作。
+
+详细用法参考 @koala/main 文档。
+`;
+
+function writeFallbackKoalaSkill(): void {
+  write('.claude/skills/koala/skill.md', koalaSkillFallback);
+}
+
 if (existsSync(skillSrc)) {
-  const skillFile = join(skillSrc, 'skill.md');
+  const skillFile = ['skill.md', 'SKILL.md']
+    .map(name => join(skillSrc, name))
+    .find(path => existsSync(path));
   const dstFile = join(skillDst, 'skill.md');
   if (!existsSync(dstFile)) {
     if (!existsSync(skillDst)) mkdirSync(skillDst, { recursive: true });
-    cpSync(skillFile, dstFile);
-    console.log('  ✓ .claude/skills/koala/skill.md');
+    if (skillFile) {
+      cpSync(skillFile, dstFile);
+      console.log('  ✓ .claude/skills/koala/skill.md');
+    } else {
+      writeFallbackKoalaSkill();
+    }
   } else {
     console.log('  - .claude/skills/koala/skill.md (exists, skip)');
   }
 } else {
   // 从模板生成最小 skill
-  write('.claude/skills/koala/skill.md', `# /koala — 项目管理入口
-
-你是项目管理引擎。执行 /koala 了解项目全貌并开始工作。
-
-详细用法参考 @koala/main 文档。
-`);
+  writeFallbackKoalaSkill();
 }
 copyAgentDefinitions(claudeAgentsSrc, claudeAgentsDst, '.claude/agents');
 copyAgentDefinitions(claudeAgentsSrc, codexAgentsDst, '.Codex/agents', renderCodexAgentContent);

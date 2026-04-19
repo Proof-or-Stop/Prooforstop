@@ -12,8 +12,8 @@ import { buildRollbackDecision, formatPhaseGateDecision } from '../core/phase-pr
 import { getArtifactContractStatus } from '../core/artifact-contract.js';
 import { getReviewerStatus } from '../core/reviewer-status.js';
 import { execSync } from 'child_process';
-import { dirname } from 'path';
-import { existsSync, rmSync } from 'fs';
+import { dirname, join } from 'path';
+import { closeSync, existsSync, mkdirSync, openSync, readFileSync, rmSync, statSync, unlinkSync, writeFileSync } from 'fs';
 
 const SESSION_OWNERSHIP_GATED_PHASES = new Set<StoryPhase>(['TEST', 'DONE']);
 
@@ -42,6 +42,17 @@ type DoneAutoGitPlan = {
   wtPathAbs: string;
   commitMessage: string;
   mergeMessage: string;
+};
+
+type DoneMainMergePreflight = {
+  dirtyPaths: string[];
+  branchPaths: string[];
+  blockingPaths: string[];
+};
+
+type DoneAutoGitLock = {
+  path: string;
+  release: () => void;
 };
 
 function detectDoneAutoGitPlan(storyId: string, storyTitle: string): DoneAutoGitPlan | null {
@@ -86,12 +97,128 @@ function renderDoneAutoGitPlan(plan: DoneAutoGitPlan, dryRun = false): string {
     `  - repo: ${plan.mainRepoRoot}`,
     `  - worktree: ${plan.wtPathAbs}`,
     `  - branch: ${plan.branch}`,
+    '  - acquire DONE auto-git lock (serializes main/index/worktree cleanup)',
     '  - git add docs/story',
     `  - git commit -m "${plan.commitMessage}"`,
     `  - git merge ${plan.branch} --no-ff -m "${plan.mergeMessage}"`,
     `  - git worktree remove "${plan.wtPathAbs}" (dirty 时会 fallback --force)`,
     `  - git branch -d ${plan.branch}`,
   ].join('\n');
+}
+
+function acquireDoneAutoGitLock(plan: DoneAutoGitPlan, storyId: string): DoneAutoGitLock {
+  const lockDir = join(plan.mainRepoRoot, '.git', 'koala');
+  const lockPath = join(lockDir, 'done-auto-git.lock');
+  mkdirSync(lockDir, { recursive: true });
+  try {
+    const fd = openSync(lockPath, 'wx');
+    try {
+      writeFileSync(fd, JSON.stringify({
+        storyId,
+        branch: plan.branch,
+        pid: process.pid,
+        acquiredAt: new Date().toISOString(),
+      }) + '\n', 'utf-8');
+    } finally {
+      closeSync(fd);
+    }
+    return {
+      path: lockPath,
+      release: () => {
+        try {
+          unlinkSync(lockPath);
+        } catch (e: any) {
+          if (e?.code !== 'ENOENT') throw e;
+        }
+      },
+    };
+  } catch (e: any) {
+    if (e?.code !== 'EEXIST') {
+      throw new Error(`Cannot enter DONE: 无法获取 DONE auto-git 锁 ${lockPath}: ${e.message || String(e)}`);
+    }
+    let holder = 'unknown';
+    try {
+      holder = readFileSync(lockPath, 'utf-8').trim() || 'unknown';
+    } catch { /* PROBE: lock holder unreadable */ }
+    let age = 'unknown';
+    try {
+      age = `${Math.round((Date.now() - statSync(lockPath).mtimeMs) / 1000)}s`;
+    } catch { /* PROBE: lock stat unavailable */ }
+    throw new Error(
+      `Cannot enter DONE: another DONE auto-git operation is already running.\n` +
+      `lock: ${lockPath}\n` +
+      `age: ${age}\n` +
+      `holder: ${holder}\n\n` +
+      `不要并行执行多个 DONE confirm。请等当前 merge/worktree cleanup 完成后，再重新运行本 story 的 DONE dry-run/confirm。`
+    );
+  }
+}
+
+function parseGitPorcelainPaths(raw: string): string[] {
+  return raw.split('\n')
+    .map(line => line.trimEnd())
+    .filter(Boolean)
+    .map(line => {
+      const rawPath = line.slice(3).trim();
+      const renameMarker = ' -> ';
+      const path = rawPath.includes(renameMarker)
+        ? rawPath.slice(rawPath.indexOf(renameMarker) + renameMarker.length)
+        : rawPath;
+      return path.replace(/^"|"$/g, '').replace(/\\/g, '/');
+    })
+    .filter(Boolean);
+}
+
+function pathOverlaps(a: string, b: string): boolean {
+  const left = a.replace(/\/+$/, '');
+  const right = b.replace(/\/+$/, '');
+  return left === right || left.startsWith(`${right}/`) || right.startsWith(`${left}/`);
+}
+
+function inspectDoneMainMergePreflight(plan: DoneAutoGitPlan): DoneMainMergePreflight {
+  const runGit = (cmd: string): string =>
+    execSync(`git ${cmd}`, { cwd: plan.mainRepoRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).toString().trim();
+  let dirtyPaths: string[] = [];
+  let branchPaths: string[] = [];
+  try {
+    dirtyPaths = parseGitPorcelainPaths(runGit('status --porcelain -uall'));
+  } catch { /* PROBE: if status cannot be read, leave empty and let merge surface the real error */ }
+  try {
+    branchPaths = runGit(`diff --name-only HEAD...${plan.branch}`)
+      .split('\n')
+      .map(line => line.trim().replace(/\\/g, '/'))
+      .filter(Boolean);
+  } catch { /* PROBE: branch diff unavailable, merge will surface the real error */ }
+  const blockingPaths = dirtyPaths.filter(dirty => branchPaths.some(changed => pathOverlaps(dirty, changed)));
+  return { dirtyPaths, branchPaths, blockingPaths };
+}
+
+function renderDoneMainMergePreflight(preflight: DoneMainMergePreflight): string {
+  if (preflight.blockingPaths.length === 0) {
+    if (preflight.dirtyPaths.length === 0) {
+      return '  - main working tree: clean';
+    }
+    return `  - main working tree: ${preflight.dirtyPaths.length} dirty/untracked path(s), none overlap this story branch`;
+  }
+  const lines = [
+    `  - main working tree merge risk: ${preflight.blockingPaths.length} dirty/untracked path(s) overlap this story branch`,
+    ...preflight.blockingPaths.slice(0, 12).map(path => `    • ${path}`),
+  ];
+  if (preflight.blockingPaths.length > 12) {
+    lines.push(`    • ... ${preflight.blockingPaths.length - 12} more`);
+  }
+  lines.push('  → 请先让用户确认这些 main 工作区文件要 commit / stash / 移走，再重新执行 DONE confirm');
+  return lines.join('\n');
+}
+
+function assertDoneMainMergeSafe(plan: DoneAutoGitPlan, preflight: DoneMainMergePreflight): void {
+  if (preflight.blockingPaths.length === 0) return;
+  throw new Error(
+    `Cannot enter DONE: main 工作区有会被 story merge 覆盖的 dirty/untracked 文件。\n` +
+    `${renderDoneMainMergePreflight(preflight)}\n\n` +
+    `Koala 没有自动 stash/修改这些文件，因为它们属于主目录用户改动。\n` +
+    `处理后重试: koala story_advance '{"storyId":"${plan.branch.slice('story/'.length)}","phase":"DONE","confirm":true}'`
+  );
 }
 
 function buildDoneChecklist(storyId: string, store: StoryStore, root: string): DoneCheckRow[] {
@@ -444,6 +571,7 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
       const actor = createStoryActor(args.storyId, store, story.phase);
       actor.start();
       let doneAutoGitPlan: DoneAutoGitPlan | null = null;
+      let doneAutoGitLock: DoneAutoGitLock | null = null;
 
       let eventType = PHASE_TO_EVENT[args.phase];
       if (!eventType) {
@@ -537,12 +665,14 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
         }
 
         doneAutoGitPlan = detectDoneAutoGitPlan(args.storyId, story.title);
+        let doneMainPreflight = doneAutoGitPlan ? inspectDoneMainMergePreflight(doneAutoGitPlan) : null;
         if (args.dryRun) {
           actor.stop();
           if (doneAutoGitPlan) {
             return (
               rendered + '\n\n' +
               renderDoneAutoGitPlan(doneAutoGitPlan, true) + '\n' +
+              (doneMainPreflight ? renderDoneMainMergePreflight(doneMainPreflight) + '\n' : '') +
               `→ 这是 dry-run 预览。确认无误后，执行: koala story_advance '{"storyId":"${args.storyId}","phase":"DONE","confirm":true}'`
             );
           }
@@ -558,16 +688,42 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
             rendered + '\n\n' +
             '该 DONE 路径会自动执行 git commit/merge，默认已阻止。\n' +
             renderDoneAutoGitPlan(doneAutoGitPlan) + '\n' +
+            (doneMainPreflight ? renderDoneMainMergePreflight(doneMainPreflight) + '\n' : '') +
             `→ 先执行: koala story_advance '{"storyId":"${args.storyId}","phase":"DONE","dryRun":true}'\n` +
             `→ 确认后执行: koala story_advance '{"storyId":"${args.storyId}","phase":"DONE","confirm":true}'`
           );
+        }
+        if (doneAutoGitPlan) {
+          try {
+            doneAutoGitLock = acquireDoneAutoGitLock(doneAutoGitPlan, args.storyId);
+            doneMainPreflight = inspectDoneMainMergePreflight(doneAutoGitPlan);
+          } catch (e) {
+            actor.stop();
+            throw e;
+          }
+        }
+        if (doneAutoGitPlan && doneMainPreflight && doneMainPreflight.blockingPaths.length > 0) {
+          if (doneAutoGitLock) {
+            doneAutoGitLock.release();
+            doneAutoGitLock = null;
+          }
+          actor.stop();
+          assertDoneMainMergeSafe(doneAutoGitPlan, doneMainPreflight);
         }
 
         // 全部硬检查通过，把渲染好的 checklist 暂存，最终拼到 advance 成功消息里
         (globalThis as any).__koalaDoneChecklistRendered = rendered;
       }
 
-      actor.send({ type: eventType } as any);
+      try {
+        actor.send({ type: eventType } as any);
+      } catch (e) {
+        if (doneAutoGitLock) {
+          doneAutoGitLock.release();
+          doneAutoGitLock = null;
+        }
+        throw e;
+      }
       const newState = getStateName(actor);
       actor.stop();
 
@@ -731,11 +887,18 @@ ${testAntiStall(args.storyId)}
               );
               mergeLines.push(`✓ 分支 ${branch} 已合并到 ${mainBranch}`);
             } catch (e: any) {
+              if (doneAutoGitLock) {
+                doneAutoGitLock.release();
+                doneAutoGitLock = null;
+              }
               throw new Error(
                 `Story ${args.storyId} 已标记为 DONE 但自动合并失败:\n` +
                 `${e.stderr?.toString() || e.message}\n\n` +
+                `状态说明: story 分支 ${branch} 可能已经包含 DONE commit，但 main 尚未同步。\n` +
+                `不要并行执行其它 DONE confirm；先处理 main 工作区 dirty/untracked 或 merge 冲突后再继续。\n\n` +
                 `请手动完成:\n` +
                 `  cd "${mainRepoRoot}"\n` +
+                `  git status --short\n` +
                 `  git merge ${branch}\n` +
                 `  git worktree remove --force "${wtPathAbs}"\n` +
                 `  git branch -d ${branch}`,
@@ -800,6 +963,10 @@ ${testAntiStall(args.storyId)}
 
           if (mergeLines.length > 0) {
             doneMergeReport = `\n\n${mergeLines.join('\n')}`;
+          }
+          if (doneAutoGitLock) {
+            doneAutoGitLock.release();
+            doneAutoGitLock = null;
           }
         }
       }

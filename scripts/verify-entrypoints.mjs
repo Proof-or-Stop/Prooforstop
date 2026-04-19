@@ -45,6 +45,7 @@ checks.push(() => {
     const requiredFiles = [
       'AGENTS.md',
       'CLAUDE.md',
+      '.claude/skills/koala/skill.md',
       '.Codex/README.md',
       '.Codex/agents/test-intent.md',
       '.Codex/agents/test-case-reviewer.md',
