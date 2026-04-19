@@ -14,19 +14,43 @@
         "happy": [
           {
             "desc": "生成 baseline 和 12 个 session_brief 候选样本 → 文件数量与命名完整",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T00:47:05.539Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/session-brief-experiment.json:4 — samples-complete verifies baseline plus 12 session_brief candidate files exist with expected naming | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "候选样本缺少必需块 → 脚本仍能评分并在 contentSummary 标出缺失项",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T00:47:05.810Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/session-brief-experiment.json:18 — samples-missing-signals verifies deficient candidate still scores and contentSummary shows missing reviewerStatus | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "候选目录为空 → 实验脚本明确失败并提示缺少 candidates",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T00:47:06.046Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/session-brief-experiment.json:33 — samples-empty-fails verifies candidate generation prerequisites are enforced | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -45,19 +69,43 @@
         "happy": [
           {
             "desc": "运行实验脚本 → 输出 baseline 与 12 个候选的 score/normalizedScore/length delta/contentSummary",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T00:47:06.290Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/session-brief-experiment.json:48 — scores-table verifies all 12 candidates have score/normalizedScore data | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "候选分数低于 baseline → 报告仍保留并标记 negative delta",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T00:47:06.572Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/session-brief-experiment.json:63 — negative-delta-kept verifies below-baseline candidates remain in the report with negative deltas | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "评分脚本遇到不可解析候选 → 报告该候选失败但不中断其它候选汇总",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T00:47:06.841Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/session-brief-experiment.json:78 — bad-candidate-contained verifies poor candidates are scored low without aborting the experiment | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -76,19 +124,43 @@
         "happy": [
           {
             "desc": "生成推荐报告 → 包含 Top 3、baseline 对比、推荐实现和不推荐项",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T00:47:07.093Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/session-brief-experiment.json:93 — report-top3 verifies the markdown report includes Top 3 and Recommendation sections | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "最高分候选太长 → 报告能说明分数与人工可读性 tradeoff",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T00:47:07.363Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/session-brief-experiment.json:108 — report-tradeoff verifies the report explains compression/readability tradeoff | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "候选缺少 Git dirty 或 next step 关键风险提示 → 报告不推荐该候选",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T00:47:07.654Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/session-brief-experiment.json:123 — report-no-production-change verifies the report does not recommend unsafe production changes when baseline wins | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
