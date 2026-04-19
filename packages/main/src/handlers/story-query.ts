@@ -26,6 +26,68 @@ interface ZombieInfo {
   worktreePath?: string;
 }
 
+interface IntentFixtureLocation {
+  file: string;
+  line: number;
+  name: string;
+}
+
+function isLegacyIntentRef(ref: string): boolean {
+  return /^CHK-\d+:(happy|edge|adversarial):\d+$/.test(ref);
+}
+
+function lineOfCaseName(raw: string, caseName: unknown): number {
+  if (typeof caseName !== 'string') return 0;
+  const compactIdx = raw.indexOf(`"name":"${caseName}"`);
+  const prettyIdx = raw.indexOf(`"name": "${caseName}"`);
+  const idx = compactIdx >= 0 ? compactIdx : prettyIdx;
+  return idx >= 0 ? raw.substring(0, idx).split('\n').length : 0;
+}
+
+function relativeFixtureFile(fixturesDir: string, filePath: string): string {
+  return filePath
+    .replace(fixturesDir + '/', '')
+    .replace(fixturesDir + '\\', '');
+}
+
+function collectStoryIntentFixtures(
+  fixturesDir: string,
+  storyId: string,
+): Map<string, IntentFixtureLocation> {
+  const refs = new Map<string, IntentFixtureLocation>();
+  if (!existsSync(fixturesDir)) return refs;
+
+  const scopedPrefix = `${storyId}:`;
+  const scanDir = (dir: string) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const filePath = join(dir, entry.name);
+      if (entry.isDirectory()) { scanDir(filePath); continue; }
+      if (!entry.name.endsWith('.json')) continue;
+      try {
+        const raw = readFileSync(filePath, 'utf-8');
+        const content = JSON.parse(raw);
+        for (const c of content.cases || []) {
+          if (!c.intentRef || typeof c.intentRef !== 'string') continue;
+          const ref = c.intentRef as string;
+          const location = {
+            file: relativeFixtureFile(fixturesDir, filePath),
+            line: lineOfCaseName(raw, c.name),
+            name: c.name,
+          };
+
+          if (ref.startsWith(scopedPrefix)) {
+            refs.set(ref.slice(scopedPrefix.length), location);
+          } else if (c.storyId === storyId && isLegacyIntentRef(ref)) {
+            refs.set(ref, location);
+          }
+        }
+      } catch { /* ignore corrupt fixture files while rendering story detail */ }
+    }
+  };
+  scanDir(fixturesDir);
+  return refs;
+}
+
 /**
  * 检测"僵尸" story：phase 非终态但分支已合并到 main（或分支已删除）。
  * 返回所有异常 story 列表。
@@ -103,30 +165,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
     story_get(args: { storyId: string; detail?: boolean }): object {
       const config = loadConfig(ctx.root);
       const fixturesDir = join(ctx.root, config.fixturesDir);
-
-      // 扫描所有 fixture，建立 intentRef → {file, line, name} 的映射
-      const intentRefMap = new Map<string, { file: string; line: number; name: string }>();
-      if (existsSync(fixturesDir)) {
-        const scanDir = (dir: string) => {
-          for (const entry of readdirSync(dir, { withFileTypes: true })) {
-            if (entry.isDirectory()) { scanDir(join(dir, entry.name)); continue; }
-            if (!entry.name.endsWith('.json')) continue;
-            try {
-              const raw = readFileSync(join(dir, entry.name), 'utf-8');
-              const content = JSON.parse(raw);
-              for (const c of content.cases || []) {
-                if (c.intentRef) {
-                  // 粗略算行号：找 case name 在原始文本中的位置
-                  const idx = raw.indexOf(`"name":"${c.name}"`);
-                  const line = idx >= 0 ? raw.substring(0, idx).split('\n').length : 0;
-                  intentRefMap.set(c.intentRef, { file: entry.name, line, name: c.name });
-                }
-              }
-            } catch { /* ignore */ }
-          }
-        };
-        scanDir(fixturesDir);
-      }
+      const intentRefMap = collectStoryIntentFixtures(fixturesDir, args.storyId);
 
       // 读 checklist 并填入 fixture 关联
       const cl = (() => {

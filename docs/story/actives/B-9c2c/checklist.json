@@ -1,0 +1,114 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "定位并修复 story_get fixture 映射逻辑",
+      "context": "应只匹配当前 story 的 intentRef，支持带 storyId 前缀和不带前缀的格式，禁止模糊误配。",
+      "relatedDocs": [
+        "AGENTS.md#Fixture 写法"
+      ],
+      "status": "done",
+      "startTime": "2026-04-19T10:20:38.909Z",
+      "endTime": "2026-04-19T10:24:20.028Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "story_get detail 读取当前 story 的 B-test:CHK-001:happy:0 → fixture 指向 current fixture case",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T10:25:11.136Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-get-fixture-mapping.json:4 WHY scoped current-story intentRef maps to the matching fixture case with file/name/line assertions; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "fixture intentRef 不带 storyId 前缀但匹配 CHK-001:happy:0 → 当前 story 仍能绑定",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T10:25:11.381Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-get-fixture-mapping.json:76 WHY legacy CHK intentRef is accepted only when case.storyId equals B-9c2c; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "其它 story 的 B-other:CHK-001:happy:0 或无关 fixture → 不会误挂到当前 story testIntent",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T10:25:11.636Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-get-fixture-mapping.json:17 WHY other-story scoped refs and unowned legacy refs are injected as decoys and must not hijack current mapping; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "补误配回归 fixture",
+      "context": "构造两个 story 的 fixture，其中一个无关 fixture 名称相似，验证 story_get 只显示正确 fixture。",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-fixture-spec.md"
+      ],
+      "status": "done",
+      "startTime": "2026-04-19T10:24:23.131Z",
+      "endTime": "2026-04-19T10:24:26.376Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "回归 fixture 构造多个相似 intentRef → story_get 只显示正确 fixture",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T10:25:11.880Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-get-fixture-mapping.json:32 WHY similar CHK refs from another story and unowned legacy refs stay isolated from current story_get detail; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "没有匹配 fixture → story_get 不显示 fixture 字段或保持为空",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T10:25:12.120Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-get-fixture-mapping.json:47 WHY temp story with no matching fixture returns fixture null, proving unmatched intents remain empty; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "错误 fuzzy mapping 出现 zombie-linked-worktree 类无关 case → 回归失败",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T10:25:12.358Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-get-fixture-mapping.json:62 WHY zombie-linked-worktree-style fuzzy decoy cannot override the current story fixture mapping; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
