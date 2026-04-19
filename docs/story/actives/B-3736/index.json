@@ -1,0 +1,48 @@
+{
+  "storyId": "B-3736",
+  "name": "koala-project-state-status-next",
+  "title": "Koala 增加 project-state runtime 边界与 status/next 入口",
+  "description": "用户确认 Koala 应借鉴 OMX 的可观察、可恢复、可诊断思想，但不复制 Codex/Claude/OMX 的 agent runtime。第一步需要把边界沉淀为真相源，并提供只读 status/next 命令，让任意 agent/session 能快速知道当前 story/phase/gate/下一步。",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "project-state-runtime",
+    "status",
+    "next",
+    "omx-layering",
+    "session-brief"
+  ],
+  "riskSignals": [
+    {
+      "category": "状态机/门禁",
+      "matched": "gate"
+    }
+  ],
+  "createdAt": "2026-04-19T18:03:02.838Z",
+  "startedAt": "2026-04-19T18:03:02.838Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-19T18:03:02.841Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-19T18:04:23.052Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-3736",
+    "branch": "story/B-3736",
+    "createdAt": "2026-04-19T18:04:23.226Z"
+  }
+}
