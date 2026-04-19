@@ -13,7 +13,7 @@ import { getArtifactContractStatus } from '../core/artifact-contract.js';
 import { getReviewerStatus } from '../core/reviewer-status.js';
 import { execSync } from 'child_process';
 import { dirname, join } from 'path';
-import { closeSync, existsSync, mkdirSync, openSync, readFileSync, rmSync, statSync, unlinkSync, writeFileSync } from 'fs';
+import { closeSync, existsSync, mkdirSync, openSync, readFileSync, renameSync, rmSync, statSync, unlinkSync, writeFileSync } from 'fs';
 
 const SESSION_OWNERSHIP_GATED_PHASES = new Set<StoryPhase>(['TEST', 'DONE']);
 
@@ -38,16 +38,25 @@ type DoneCheckRow = {
 
 type DoneAutoGitPlan = {
   branch: string;
+  storyId: string;
   mainRepoRoot: string;
   wtPathAbs: string;
   commitMessage: string;
   mergeMessage: string;
 };
 
+type DoneDirtyEntry = {
+  code: string;
+  path: string;
+};
+
 type DoneMainMergePreflight = {
+  dirtyEntries: DoneDirtyEntry[];
   dirtyPaths: string[];
   branchPaths: string[];
   blockingPaths: string[];
+  autoBackupPaths: string[];
+  autoBackupDir: string | null;
 };
 
 type DoneAutoGitLock = {
@@ -83,6 +92,7 @@ function detectDoneAutoGitPlan(storyId: string, storyTitle: string): DoneAutoGit
 
   return {
     branch: detectedBranch,
+    storyId,
     mainRepoRoot,
     wtPathAbs,
     commitMessage: `koala: mark ${storyId} DONE + clear worktree`,
@@ -154,7 +164,7 @@ function acquireDoneAutoGitLock(plan: DoneAutoGitPlan, storyId: string): DoneAut
   }
 }
 
-function parseGitPorcelainPaths(raw: string): string[] {
+function parseGitPorcelainEntries(raw: string): DoneDirtyEntry[] {
   return raw.split('\n')
     .map(line => line.trimEnd())
     .filter(Boolean)
@@ -164,9 +174,16 @@ function parseGitPorcelainPaths(raw: string): string[] {
       const path = rawPath.includes(renameMarker)
         ? rawPath.slice(rawPath.indexOf(renameMarker) + renameMarker.length)
         : rawPath;
-      return path.replace(/^"|"$/g, '').replace(/\\/g, '/');
+      return {
+        code: line.slice(0, 2),
+        path: path.replace(/^"|"$/g, '').replace(/\\/g, '/'),
+      };
     })
-    .filter(Boolean);
+    .filter(entry => Boolean(entry.path));
+}
+
+function parseGitPorcelainPaths(raw: string): string[] {
+  return parseGitPorcelainEntries(raw).map(entry => entry.path);
 }
 
 function pathOverlaps(a: string, b: string): boolean {
@@ -196,11 +213,11 @@ export function isDoneVolatilePath(path: string): boolean {
 function inspectDoneMainMergePreflight(plan: DoneAutoGitPlan): DoneMainMergePreflight {
   const runGit = (cmd: string): string =>
     execSync(`git ${cmd}`, { cwd: plan.mainRepoRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).toString().trim();
-  let dirtyPaths: string[] = [];
+  let dirtyEntries: DoneDirtyEntry[] = [];
   let branchPaths: string[] = [];
   try {
-    dirtyPaths = parseGitPorcelainPaths(runGit('status --porcelain -uall'))
-      .filter(path => !isDoneVolatilePath(path));
+    dirtyEntries = parseGitPorcelainEntries(runGit('status --porcelain -uall'))
+      .filter(entry => !isDoneVolatilePath(entry.path));
   } catch { /* PROBE: if status cannot be read, leave empty and let merge surface the real error */ }
   try {
     branchPaths = runGit(`diff --name-only HEAD...${plan.branch}`)
@@ -208,16 +225,38 @@ function inspectDoneMainMergePreflight(plan: DoneAutoGitPlan): DoneMainMergePref
       .map(line => line.trim().replace(/\\/g, '/'))
       .filter(Boolean);
   } catch { /* PROBE: branch diff unavailable, merge will surface the real error */ }
-  const blockingPaths = dirtyPaths.filter(dirty => branchPaths.some(changed => pathOverlaps(dirty, changed)));
-  return { dirtyPaths, branchPaths, blockingPaths };
+  const dirtyPaths = dirtyEntries.map(entry => entry.path);
+  const overlapEntries = dirtyEntries.filter(dirty => branchPaths.some(changed => pathOverlaps(dirty.path, changed)));
+  const storyDir = `docs/story/actives/${plan.storyId}`;
+  const storyPrefix = `${storyDir}/`;
+  const storyResidueEntries = overlapEntries.filter(entry => entry.path === storyDir || entry.path.startsWith(storyPrefix));
+  const canAutoBackupResidue = storyResidueEntries.length > 0
+    && storyResidueEntries.length === overlapEntries.length
+    && storyResidueEntries.every(entry => entry.code === '??');
+  const autoBackupPaths = canAutoBackupResidue ? storyResidueEntries.map(entry => entry.path) : [];
+  const blockingPaths = overlapEntries
+    .filter(entry => !autoBackupPaths.includes(entry.path))
+    .map(entry => entry.path);
+  return {
+    dirtyEntries,
+    dirtyPaths,
+    branchPaths,
+    blockingPaths,
+    autoBackupPaths,
+    autoBackupDir: autoBackupPaths.length > 0 ? storyDir : null,
+  };
 }
 
 function renderDoneMainMergePreflight(preflight: DoneMainMergePreflight): string {
   if (preflight.blockingPaths.length === 0) {
-    if (preflight.dirtyPaths.length === 0) {
+    if (preflight.dirtyPaths.length === 0 && preflight.autoBackupPaths.length === 0) {
       return '  - main working tree: clean';
     }
-    return `  - main working tree: ${preflight.dirtyPaths.length} dirty/untracked path(s), none overlap this story branch`;
+    const lines = [`  - main working tree: ${preflight.dirtyPaths.length} dirty/untracked path(s), none block this story branch`];
+    if (preflight.autoBackupDir) {
+      lines.push(`  - auto-backup same-story residue: ${preflight.autoBackupDir}`);
+    }
+    return lines.join('\n');
   }
   const lines = [
     `  - main working tree merge risk: ${preflight.blockingPaths.length} dirty/untracked path(s) overlap this story branch`,
@@ -228,6 +267,17 @@ function renderDoneMainMergePreflight(preflight: DoneMainMergePreflight): string
   }
   lines.push('  → 请先让用户确认这些 main 工作区文件要 commit / stash / 移走，再重新执行 DONE confirm');
   return lines.join('\n');
+}
+
+function backupDoneMainResidue(plan: DoneAutoGitPlan, preflight: DoneMainMergePreflight): string | null {
+  if (!preflight.autoBackupDir) return null;
+  const source = join(plan.mainRepoRoot, preflight.autoBackupDir);
+  if (!existsSync(source)) return null;
+  const backupBase = '/tmp/koala-main-residue-backup';
+  mkdirSync(backupBase, { recursive: true });
+  const target = join(backupBase, `${plan.storyId}-main-${Date.now()}`);
+  renameSync(source, target);
+  return target;
 }
 
 function readGitHead(cwd: string, ref = 'HEAD'): string | null {
@@ -810,6 +860,25 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
           actor.stop();
           assertDoneMainMergeSafe(doneAutoGitPlan, doneMainPreflight);
         }
+        if (doneAutoGitPlan && doneMainPreflight && doneMainPreflight.autoBackupPaths.length > 0) {
+          try {
+            const backupPath = backupDoneMainResidue(doneAutoGitPlan, doneMainPreflight);
+            if (backupPath) {
+              (globalThis as any).__koalaDoneMainResidueBackup = backupPath;
+            }
+            doneMainPreflight = inspectDoneMainMergePreflight(doneAutoGitPlan);
+            if (doneMainPreflight.blockingPaths.length > 0) {
+              throw new Error(renderDoneMainMergePreflight(doneMainPreflight));
+            }
+          } catch (e) {
+            if (doneAutoGitLock) {
+              doneAutoGitLock.release();
+              doneAutoGitLock = null;
+            }
+            actor.stop();
+            throw e;
+          }
+        }
 
         // 全部硬检查通过，把渲染好的 checklist 暂存，最终拼到 advance 成功消息里
         (globalThis as any).__koalaDoneChecklistRendered = rendered;
@@ -966,6 +1035,10 @@ ${testAntiStall(args.storyId)}
             // Step 2: commit 所有 story metadata（phase=DONE + worktree=undefined +
             // endedAt + reviewer/test 产物）。dev_merge:228 用的是同一招。
             try {
+              // Keep activity.jsonl out of story branch semantic merges. It is
+              // append-only runtime telemetry and frequently conflicts with
+              // main, while story metadata is the canonical payload here.
+              try { runGit('checkout main -- docs/story/activity.jsonl', wtPathAbs); } catch { /* PROBE: activity log may not exist */ }
               runGit('add docs/story', wtPathAbs);
               const staged = runGit('diff --cached --name-only', wtPathAbs);
               if (staged) {
@@ -986,6 +1059,11 @@ ${testAntiStall(args.storyId)}
                 mainRepoRoot,
               );
               mergeLines.push(`✓ 分支 ${branch} 已合并到 ${mainBranch}`);
+              const backupPath = (globalThis as any).__koalaDoneMainResidueBackup;
+              if (backupPath) {
+                mergeLines.push(`✓ main 同 story residue 已备份: ${backupPath}`);
+                delete (globalThis as any).__koalaDoneMainResidueBackup;
+              }
             } catch (e: any) {
               if (doneAutoGitLock) {
                 doneAutoGitLock.release();

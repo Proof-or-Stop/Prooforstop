@@ -4,7 +4,7 @@
   "title": "修复 Koala story metadata residue 与 DONE merge 生命周期",
   "description": "修复 story_create/INIT_CHECK/DONE 生命周期中 main residue、add/add merge conflict、git merge main 覆盖 story phase、DISCARDED/DONE 残留目录需要人工处理的问题。目标是让 Koala 自动识别同 story 的 main untracked residue，安全备份/清理；DONE merge 时 story metadata 以 story 分支 canonical 版本为准；activity log 不再造成合并冲突；story_reconcile/doctor 能诊断并清理残留。",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DEV",
   "priority": "high",
   "lane": "mainline",
   "parallelSafe": "no",
@@ -32,6 +32,22 @@
       "action": "advance",
       "timestamp": "2026-04-19T23:15:28.425Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-19T23:15:43.970Z",
+      "branch": "story/B-eb3c",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-19T23:18:56.942Z",
+      "branch": "story/B-eb3c",
       "user": "Harmonygo",
       "agent": "main"
     }
