@@ -1,0 +1,50 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "DONE preflight 自动处理同 story main residue",
+      "context": "当 main 工作区存在 docs/story/actives/<storyId>/ untracked residue 且 DONE branch 将写同路径时，Koala 应自动移动到 /tmp/koala-main-residue-backup 并继续，不要求人工 stash/mv；tracked/staged 改动仍阻塞。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/stack-layering.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "DONE merge 对当前 story metadata 采用 story 分支 canonical 版本",
+      "context": "自动 merge 失败若只涉及当前 story index/checklist add-add 或 phase 被 main 旧版本覆盖，Koala 应以 story branch 版本解决；activity.jsonl 用安全策略避免 content conflict 或从 merge 中排除。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "story_reconcile/doctor 诊断并清理终态 story residue",
+      "context": "为 DONE/DISCARDED story 的 untracked docs/story/actives/<id>/ 残留提供 dry-run/repair 入口；当前 active story residue 不误删，tracked/staged 内容不自动删。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "为 metadata residue/merge 生命周期增加 fixture 覆盖",
+      "context": "覆盖同 story untracked residue 自动备份、tracked residue 阻塞、activity log 不冲突、当前 story metadata 取 story branch、active story residue 不误清。",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-fixture-spec.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
