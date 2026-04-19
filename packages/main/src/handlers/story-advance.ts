@@ -175,13 +175,32 @@ function pathOverlaps(a: string, b: string): boolean {
   return left === right || left.startsWith(`${right}/`) || right.startsWith(`${left}/`);
 }
 
+/**
+ * @task B-ae82
+ * @checklist CHK-003
+ * @title ignore activity log in DONE cleanliness checks
+ * @type bugfix
+ * @priority high
+ * @description
+ *   DONE dry-run/confirm may run near CLI activity logging. The activity log
+ *   is Koala-generated runtime state and must not make DONE block itself, but
+ *   real story/code changes still need to fail the gate.
+ * @changes
+ *   - [CHK-003] Exclude docs/story/activity.jsonl from DONE worktree cleanliness checks
+ *   - [CHK-003] Exclude the same path from main merge preflight overlap checks
+ */
+export function isDoneVolatilePath(path: string): boolean {
+  return path.replace(/\\/g, '/') === 'docs/story/activity.jsonl';
+}
+
 function inspectDoneMainMergePreflight(plan: DoneAutoGitPlan): DoneMainMergePreflight {
   const runGit = (cmd: string): string =>
     execSync(`git ${cmd}`, { cwd: plan.mainRepoRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).toString().trim();
   let dirtyPaths: string[] = [];
   let branchPaths: string[] = [];
   try {
-    dirtyPaths = parseGitPorcelainPaths(runGit('status --porcelain -uall'));
+    dirtyPaths = parseGitPorcelainPaths(runGit('status --porcelain -uall'))
+      .filter(path => !isDoneVolatilePath(path));
   } catch { /* PROBE: if status cannot be read, leave empty and let merge surface the real error */ }
   try {
     branchPaths = runGit(`diff --name-only HEAD...${plan.branch}`)
@@ -359,13 +378,19 @@ function buildDoneChecklist(storyId: string, store: StoryStore, root: string): D
 
   // 3. git working tree clean
   try {
-    execSync('git diff --quiet && git diff --cached --quiet', { cwd: root, stdio: 'pipe' });
+    const dirty = execSync('git status --porcelain -uall', { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] })
+      .split('\n')
+      .map(line => line.trimEnd())
+      .filter(Boolean)
+      .map(line => line.slice(3).trim().replace(/^"|"$/g, '').replace(/\\/g, '/'))
+      .filter(path => !isDoneVolatilePath(path));
+    if (dirty.length > 0) throw new Error(dirty.join('\n'));
     rows.push({ status: 'pass', label: 'git working tree', detail: 'clean' });
-  } catch {
+  } catch (e: any) {
     rows.push({
       status: 'fail',
       label: 'git working tree',
-      detail: '有未提交的改动',
+      detail: e?.message ? `有未提交的改动: ${e.message.split('\n').slice(0, 3).join(', ')}` : '有未提交的改动',
       hint: '如需本地 git add + git commit，未经用户 confirm 不允许；确认后先提交所有改动，再 advance DONE',
     });
   }

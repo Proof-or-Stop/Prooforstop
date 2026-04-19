@@ -1,0 +1,146 @@
+{
+  "cases": [
+    {
+      "name": "store writes long testIntent as parseable checklist json",
+      "run_type": "cli",
+      "file": "core/store",
+      "execute": "const { mkdtempSync, readFileSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-store-\"));\ntry {\n  const { StoryStore } = await import(pathToFileURL($root + \"/packages/main/dist/core/store.js\").href);\n  const store = new StoryStore(root);\n  const long = \"long-desc-\" + \"x\".repeat(20000) + \"\\nquoted \\\" text\";\n  const data = { items: [{ id: \"CHK-001\", title: \"long\", status: \"pending\", startTime: null, endTime: null, testIntent: { happy: [{ desc: long, type: \"cli_blackbox\" }], edge: [], adversarial: [] } }] };\n  store.writeChecklist(\"B-test\", data);\n  const raw = readFileSync(join(root, \"docs/story/actives/B-test/checklist.json\"), \"utf8\");\n  const parsed = JSON.parse(raw);\n  return { parseable: true, descMatches: parsed.items[0].testIntent.happy[0].desc === long, endsWithBrace: raw.trim().endsWith(\"}\") };\n} finally { rmSync(root, { recursive: true, force: true }); }",
+      "expect": {
+        "parseable": true,
+        "descMatches": true,
+        "endsWithBrace": true
+      },
+      "intentRef": "B-ae82:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-ae82",
+      "_id": "e624e208-9618-4e5c-a9ee-4124e4289d4e",
+      "nextCaseId": "36d39d16-4111-42d3-8171-adc87f6a4233"
+    },
+    {
+      "name": "failed stringify preserves previous checklist json",
+      "run_type": "cli",
+      "file": "core/store",
+      "execute": "const { mkdtempSync, readFileSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-store-\"));\ntry {\n  const { StoryStore } = await import(pathToFileURL($root + \"/packages/main/dist/core/store.js\").href);\n  const store = new StoryStore(root);\n  store.writeChecklist(\"B-test\", { items: [{ id: \"CHK-001\", title: \"original\", status: \"pending\", startTime: null, endTime: null }] });\n  const circular = { items: [] }; circular.self = circular;\n  let failed = false;\n  try { store.writeChecklist(\"B-test\", circular); } catch { failed = true; }\n  const parsed = JSON.parse(readFileSync(join(root, \"docs/story/actives/B-test/checklist.json\"), \"utf8\"));\n  return { failed, title: parsed.items[0].title };\n} finally { rmSync(root, { recursive: true, force: true }); }",
+      "expect": {
+        "failed": true,
+        "title": "original"
+      },
+      "intentRef": "B-ae82:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-ae82",
+      "_id": "36d39d16-4111-42d3-8171-adc87f6a4233",
+      "prevCaseId": "e624e208-9618-4e5c-a9ee-4124e4289d4e",
+      "nextCaseId": "7cb53ddc-af21-4437-b522-b1ef304228cc"
+    },
+    {
+      "name": "failed json write leaves no corrupt target",
+      "run_type": "cli",
+      "file": "core/store",
+      "execute": "const { mkdtempSync, readFileSync, readdirSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-store-\"));\ntry {\n  const { StoryStore } = await import(pathToFileURL($root + \"/packages/main/dist/core/store.js\").href);\n  const store = new StoryStore(root);\n  store.writeChecklist(\"B-test\", { items: [{ id: \"CHK-001\", title: \"safe\", status: \"pending\", startTime: null, endTime: null }] });\n  const bad = { items: [] }; bad.self = bad;\n  try { store.writeChecklist(\"B-test\", bad); } catch {}\n  const dir = join(root, \"docs/story/actives/B-test\");\n  const files = readdirSync(dir);\n  const parsed = JSON.parse(readFileSync(join(dir, \"checklist.json\"), \"utf8\"));\n  return { title: parsed.items[0].title, tempLeft: files.some((f) => f.includes(\".tmp-\")) };\n} finally { rmSync(root, { recursive: true, force: true }); }",
+      "expect": {
+        "title": "safe",
+        "tempLeft": false
+      },
+      "intentRef": "B-ae82:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-ae82",
+      "_id": "7cb53ddc-af21-4437-b522-b1ef304228cc",
+      "prevCaseId": "36d39d16-4111-42d3-8171-adc87f6a4233",
+      "nextCaseId": "bc0c74b9-b44c-4b04-bd56-704d3d4d24e9"
+    },
+    {
+      "name": "cli checklist_update long intent remains readable",
+      "run_type": "cli",
+      "file": "handlers/checklist",
+      "execute": "const name = \"long-intent-\" + Date.now();\nconst created = await $handlers.story_create({ name, title: \"Long intent fixture\", description: \"fixture\", type: \"bug\", priority: \"low\", forceNew: true, checklist: [{ title: \"item\", context: \"ctx\" }] });\nconst storyId = created.match(/B-[a-f0-9]+/)[0];\nconst long = \"quoted \\\" text with newline\\n\" + \"x\".repeat(15000);\nawait $handlers.checklist_update({ storyId, itemId: \"CHK-001\", testIntent: { happy: [{ desc: long, type: \"cli_blackbox\" }], edge: [{ desc: \"edge\", type: \"cli_blackbox\" }], adversarial: [{ desc: \"adv\", type: \"cli_blackbox\" }] }, agent: \"test-intent\" });\nconst read = await $handlers.checklist_get({ storyId });\nawait $handlers.story_discard({ storyId, cleanupResidue: true, confirm: true });\nreturn { len: read.items[0].testIntent.happy[0].desc.length, phase: read.items[0].testIntent.happy[0].type };",
+      "expect": {
+        "len": 15027,
+        "phase": "cli_blackbox"
+      },
+      "intentRef": "B-ae82:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-ae82",
+      "_id": "bc0c74b9-b44c-4b04-bd56-704d3d4d24e9",
+      "prevCaseId": "7cb53ddc-af21-4437-b522-b1ef304228cc",
+      "nextCaseId": "6497f29c-f0bb-4a43-99b3-9029e6241c31"
+    },
+    {
+      "name": "invalid testIntent update preserves checklist readability",
+      "run_type": "cli",
+      "file": "handlers/checklist",
+      "execute": "const name = \"invalid-intent-\" + Date.now();\nconst created = await $handlers.story_create({ name, title: \"Invalid intent fixture\", description: \"fixture\", type: \"bug\", priority: \"low\", forceNew: true, checklist: [{ title: \"item\", context: \"ctx\" }] });\nconst storyId = created.match(/B-[a-f0-9]+/)[0];\nlet rejected = false;\ntry { await $handlers.checklist_update({ storyId, itemId: \"CHK-001\", testIntent: { happy: [], edge: [], adversarial: [] }, agent: \"test-intent\" }); } catch { rejected = true; }\nconst read = await $handlers.checklist_get({ storyId });\nawait $handlers.story_discard({ storyId, cleanupResidue: true, confirm: true });\nreturn { rejected, hasIntent: Boolean(read.items[0].testIntent) };",
+      "expect": {
+        "rejected": true,
+        "hasIntent": false
+      },
+      "intentRef": "B-ae82:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-ae82",
+      "_id": "6497f29c-f0bb-4a43-99b3-9029e6241c31",
+      "prevCaseId": "bc0c74b9-b44c-4b04-bd56-704d3d4d24e9",
+      "nextCaseId": "9480ace1-0df9-4c40-9e74-47184c138720"
+    },
+    {
+      "name": "very long testIntent does not truncate checklist json",
+      "run_type": "cli",
+      "file": "handlers/checklist",
+      "execute": "const { readFileSync } = await import(\"fs\");\nconst { join } = await import(\"path\");\nconst name = \"very-long-intent-\" + Date.now();\nconst created = await $handlers.story_create({ name, title: \"Very long intent fixture\", description: \"fixture\", type: \"bug\", priority: \"low\", forceNew: true, checklist: [{ title: \"item\", context: \"ctx\" }] });\nconst storyId = created.match(/B-[a-f0-9]+/)[0];\nconst long = \"y\".repeat(60000);\nawait $handlers.checklist_update({ storyId, itemId: \"CHK-001\", testIntent: { happy: [{ desc: long, type: \"cli_blackbox\" }], edge: [], adversarial: [] }, agent: \"test-intent\" });\nconst raw = readFileSync(join($root, \"docs/story/actives\", storyId, \"checklist.json\"), \"utf8\");\nconst parsed = JSON.parse(raw);\nawait $handlers.story_discard({ storyId, cleanupResidue: true, confirm: true });\nreturn { len: parsed.items[0].testIntent.happy[0].desc.length, endsWithBrace: raw.trim().endsWith(\"}\") };",
+      "expect": {
+        "len": 60000,
+        "endsWithBrace": true
+      },
+      "intentRef": "B-ae82:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-ae82",
+      "_id": "9480ace1-0df9-4c40-9e74-47184c138720",
+      "prevCaseId": "6497f29c-f0bb-4a43-99b3-9029e6241c31",
+      "nextCaseId": "d71c79ff-e087-40c1-84be-7d27bc38aa79"
+    },
+    {
+      "name": "dryRun command does not append activity",
+      "run_type": "cli",
+      "file": "cli-engine",
+      "execute": "const { readFileSync } = await import(\"fs\");\nconst { execFileSync } = await import(\"child_process\");\nconst activity = $root + \"/docs/story/activity.jsonl\";\nconst count = () => readFileSync(activity, \"utf8\").split(\"\\n\").filter(Boolean).length;\nconst before = count();\nexecFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"story_discard\", JSON.stringify({ storyId: \"B-0072\", dryRun: true })], { cwd: $root, encoding: \"utf8\" });\nconst after = count();\nreturn { before, after, stable: before === after };",
+      "expect": {
+        "stable": true
+      },
+      "intentRef": "B-ae82:CHK-003:happy:0",
+      "sandbox": false,
+      "storyId": "B-ae82",
+      "_id": "d71c79ff-e087-40c1-84be-7d27bc38aa79",
+      "prevCaseId": "9480ace1-0df9-4c40-9e74-47184c138720",
+      "nextCaseId": "b331c40a-c091-479d-8c25-78da88aed063"
+    },
+    {
+      "name": "done volatile path helper only accepts activity log",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { pathToFileURL } = await import(\"url\");\nconst mod = await import(pathToFileURL($root + \"/packages/main/dist/handlers/story-advance.js\").href);\nreturn { activity: mod.isDoneVolatilePath(\"docs/story/activity.jsonl\"), source: mod.isDoneVolatilePath(\"packages/main/src/foo.ts\") };",
+      "expect": {
+        "activity": true,
+        "source": false
+      },
+      "intentRef": "B-ae82:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-ae82",
+      "_id": "b331c40a-c091-479d-8c25-78da88aed063",
+      "prevCaseId": "d71c79ff-e087-40c1-84be-7d27bc38aa79",
+      "nextCaseId": "03c74cbe-2114-49fd-8492-c21d7b8a5bd0"
+    },
+    {
+      "name": "done volatile helper does not ignore story metadata overlaps",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { pathToFileURL } = await import(\"url\");\nconst mod = await import(pathToFileURL($root + \"/packages/main/dist/handlers/story-advance.js\").href);\nreturn { index: mod.isDoneVolatilePath(\"docs/story/actives/B-test/index.json\"), checklist: mod.isDoneVolatilePath(\"docs/story/actives/B-test/checklist.json\") };",
+      "expect": {
+        "index": false,
+        "checklist": false
+      },
+      "intentRef": "B-ae82:CHK-003:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-ae82",
+      "_id": "03c74cbe-2114-49fd-8492-c21d7b8a5bd0",
+      "prevCaseId": "b331c40a-c091-479d-8c25-78da88aed063"
+    }
+  ]
+}

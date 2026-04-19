@@ -37,6 +37,26 @@ const READ_ONLY_COMMANDS_WITHOUT_ACTIVITY_LOG = new Set([
   'checklist_get',
 ]);
 
+/**
+ * @task B-ae82
+ * @checklist CHK-003
+ * @title keep dry-run commands read-only
+ * @type bugfix
+ * @priority high
+ * @description
+ *   Dry-run commands are used immediately before destructive confirmations.
+ *   If the CLI writes activity.jsonl for the preview itself, DONE confirm can
+ *   be blocked by the dirty worktree the preview just created.
+ * @changes
+ *   - [CHK-003] Skip activity logging for all dryRun=true commands
+ *   - [CHK-003] Preserve activity logging for real mutating commands
+ */
+function shouldWriteActivityLog(cmd: string, args: Record<string, unknown>): boolean {
+  if (READ_ONLY_COMMANDS_WITHOUT_ACTIVITY_LOG.has(cmd)) return false;
+  if (args.dryRun === true) return false;
+  return true;
+}
+
 export interface ToolDef {
   name: string;
   /** 一行描述（出现在 koala help 列表里） */
@@ -938,7 +958,7 @@ export async function runCli(opts?: {
       if (result && typeof (result as any).then === 'function') result = await result;
       clearInterval(watchdog);
       log(`${cmd} done`);
-      if (!READ_ONLY_COMMANDS_WITHOUT_ACTIVITY_LOG.has(cmd)) {
+      if (shouldWriteActivityLog(cmd, parsed)) {
         writeLog({ command: cmd, args: parsed, startTime: runStart, endTime: new Date().toISOString(), success: true, staleWarnings });
       }
       // 注入 next-step hint（hints.ts 注册的命令才有效；其它命令原样返回）
@@ -967,7 +987,7 @@ export async function runCli(opts?: {
     } catch (e: any) {
       clearInterval(watchdog);
       log(`${cmd} failed: ${e.message}`);
-      if (!READ_ONLY_COMMANDS_WITHOUT_ACTIVITY_LOG.has(cmd)) {
+      if (shouldWriteActivityLog(cmd, parsed)) {
         writeLog({ command: cmd, args: parsed, startTime: runStart, endTime: new Date().toISOString(), success: false, error: e.message, staleWarnings });
       }
       // onError hook — best-effort; always runs before exit(1).
