@@ -4,7 +4,7 @@
   "title": "Koala status 增加 phase 编号与 transition health 检查",
   "description": "用户建议给 Koala 的每个状态配置稳定编号，并在 status 中展示当前状态序号；如果状态跳转顺序不符合预期，就能及时发现异常。设计上不能只用数字 +1 判断，因为 Koala 支持合法回退；本 story 先实现 phase ordinal 展示和基于合法 transition graph 的 health 检查，不引入 event sequence 持久化。",
   "type": "feature",
-  "phase": "TEST_CASE",
+  "phase": "TEST",
   "priority": "high",
   "keywords": [
     "status",
@@ -80,6 +80,22 @@
       "branch": "story/B-fc3b",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-19T19:45:11.806Z",
+      "branch": "story/B-fc3b",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-19T19:45:11.958Z",
+      "branch": "story/B-fc3b",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
     }
   ],
   "worktree": {
