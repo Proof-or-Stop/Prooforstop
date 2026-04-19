@@ -1,0 +1,23 @@
+{
+  "task": "用 koala-lab 跑 testIntent 结构化候选实验，量化不同 testIntent 写法的具体性、三栏完整度、类型标注、fixture 映射性和重复噪音。",
+  "outcome": "$ node scripts/run-test-intent-experiment.mjs\nBaseline normalizedScore: 0.xx\nBest candidate: t03-fixture-mappable normalizedScore: 0.yy (+0.zz)\nReport: experiments/reports/test-intent-structured-v1.md\n\n报告列出候选 testIntent 格式的 score、normalizedScore、contentSummary、fixture 映射性和推荐 prompt 修改方向。",
+  "facts": [
+    "当前 koala-lab 还没有 test-intent-quality-v1 profile。",
+    "testIntent 质量影响 fixture 可写性和 reviewer 轮次。",
+    "本 story 只做实验样本与报告，不直接改 .Codex/agents/test-intent.md。"
+  ],
+  "constraints": [
+    "profile deterministic，不调 LLM。",
+    "候选是样本，不伪装生产实现。",
+    "报告必须说明分数对应的具体内容信号。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/lab/src/profiles/test-intent-quality-v1.ts",
+    "packages/lab/src/core/profile.ts",
+    "scripts/run-test-intent-experiment.mjs",
+    "experiments/candidates/test-intent",
+    "experiments/reports/test-intent-structured-v1.md"
+  ],
+  "timestamp": "2026-04-19T01:22:54.489Z"
+}

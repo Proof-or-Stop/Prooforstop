@@ -1,0 +1,57 @@
+{
+  "principles": [
+    "先量化候选，再改生产 prompt。",
+    "testIntent profile 要关注可映射到 fixture 的程度。",
+    "报告必须同时保留机器分和人工解释。"
+  ],
+  "drivers": [
+    "降低 fixture 编写和 reviewer 审核成本。",
+    "找出最适合 Koala 的 testIntent 表达格式。",
+    "避免过早改 test-intent agent prompt。"
+  ],
+  "options": [
+    {
+      "name": "A: 新增 deterministic test-intent profile 并跑样本候选实验",
+      "pros": [
+        "可快速比较格式。",
+        "不改生产 prompt。",
+        "能为后续 prompt 修改提供证据。"
+      ],
+      "cons": [
+        "样本不等同真实 agent 输出，需要后续 dogfood。"
+      ]
+    },
+    {
+      "name": "B: 直接改 test-intent prompt",
+      "pros": [
+        "立刻影响后续 story。"
+      ],
+      "cons": [
+        "缺少对比数据，容易改错方向。"
+      ]
+    }
+  ],
+  "chosen": "A: 新增 deterministic test-intent profile 并跑样本候选实验",
+  "rationale": "先实验能用真实分数和报告说明哪种 testIntent 格式更好，再决定是否修改生产 test-intent prompt，风险最低。",
+  "preMortem": [
+    {
+      "scenario": "profile 鼓励格式化但不提升可测性",
+      "trigger": "只检查 happy/edge/adversarial 是否存在",
+      "consequence": "高分候选仍然难写 fixture",
+      "mitigation": "submetrics 必须包含 fixtureMapping、inputExpectation、adversarialStrength"
+    },
+    {
+      "scenario": "候选过度复杂，agent 难以稳定输出",
+      "trigger": "推荐格式字段太多",
+      "consequence": "后续 prompt 难落地",
+      "mitigation": "报告加入 lineCount/complexity 和人工备注"
+    },
+    {
+      "scenario": "实验结论和 reviewer 实战不一致",
+      "trigger": "样本场景太少",
+      "consequence": "生产 prompt 修改收益不明显",
+      "mitigation": "先不改生产 prompt，报告只作为下一步建议"
+    }
+  ],
+  "timestamp": "2026-04-19T01:22:54.727Z"
+}

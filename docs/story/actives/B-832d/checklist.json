@@ -8,9 +8,29 @@
         "README.md",
         "docs/requirements/decisions/test-intent-review.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-19T01:25:55.392Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "生成 testIntent baseline 与结构化候选样本 → 文件数量与命名完整",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "候选缺少 fixture 映射字段 → 脚本仍能评分并在 contentSummary 标出缺失项",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "候选目录为空 → 实验脚本明确失败并提示缺少 candidates",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -19,9 +39,29 @@
       "relatedDocs": [
         "docs/requirements/decisions/test-intent-review.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-19T01:25:55.637Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "运行 testIntent 实验脚本 → 输出候选 score/normalizedScore/fixtureMapping/contentSummary",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "重复或弱 adversarial 候选 → 报告标出 duplicate/weak adversarial 信号",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "低质量候选 → 低分但不中断整体汇总",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -30,9 +70,29 @@
       "relatedDocs": [
         ".Codex/agents/test-intent.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-19T01:25:55.878Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "生成推荐报告 → 包含 Top 3、baseline 对比、推荐 prompt 修改方向",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "最高分候选过复杂 → 报告说明分数与可落地性 tradeoff",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "候选缺少 adversarial 或 type 标注 → 报告不推荐该候选",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }

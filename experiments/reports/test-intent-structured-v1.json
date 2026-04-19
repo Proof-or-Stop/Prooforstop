@@ -1,0 +1,305 @@
+{
+  "generatedAt": "2026-04-19T01:25:28.098Z",
+  "results": [
+    {
+      "id": "t01-current",
+      "title": "Current Baseline",
+      "score": 0.4,
+      "normalizedScore": 0.6667,
+      "delta": 0,
+      "normalizedDelta": 0,
+      "status": "rejected",
+      "lineCount": 17,
+      "lengthDelta": 0,
+      "contentSummary": [
+        "has threeLanes",
+        "missing typeCoverage",
+        "has operationResult",
+        "missing fixtureMapping",
+        "has adversarialStrength",
+        "has antiDuplicate"
+      ],
+      "submetrics": {
+        "laneCompleteness": 1,
+        "typeCoverage": 0,
+        "operationResultCoverage": 1,
+        "fixtureMappingCoverage": 0,
+        "adversarialStrength": 1,
+        "antiDuplicate": 1,
+        "stabilityStdDev": 0
+      },
+      "baselineScore": 0.4,
+      "baselineNormalizedScore": 0.6667
+    },
+    {
+      "id": "t02-operation-result",
+      "title": "Operation Result",
+      "score": 0.4913,
+      "normalizedScore": 0.8246,
+      "delta": 0.0913,
+      "normalizedDelta": 0.1579,
+      "status": "kept",
+      "lineCount": 20,
+      "lengthDelta": 253,
+      "contentSummary": [
+        "has threeLanes",
+        "has typeCoverage",
+        "has operationResult",
+        "has fixtureMapping",
+        "weak adversarialStrength",
+        "has antiDuplicate"
+      ],
+      "submetrics": {
+        "laneCompleteness": 1,
+        "typeCoverage": 1,
+        "operationResultCoverage": 1,
+        "fixtureMappingCoverage": 1,
+        "adversarialStrength": 0,
+        "antiDuplicate": 1,
+        "stabilityStdDev": 0
+      },
+      "baselineScore": 0.4,
+      "baselineNormalizedScore": 0.6667
+    },
+    {
+      "id": "t03-fixture-mappable",
+      "title": "Fixture Mappable",
+      "score": 0.4853,
+      "normalizedScore": 0.8186,
+      "delta": 0.0853,
+      "normalizedDelta": 0.1519,
+      "status": "kept",
+      "lineCount": 40,
+      "lengthDelta": 769,
+      "contentSummary": [
+        "has threeLanes",
+        "has typeCoverage",
+        "has operationResult",
+        "has fixtureMapping",
+        "weak adversarialStrength",
+        "has antiDuplicate"
+      ],
+      "submetrics": {
+        "laneCompleteness": 1,
+        "typeCoverage": 1,
+        "operationResultCoverage": 1,
+        "fixtureMappingCoverage": 1,
+        "adversarialStrength": 0,
+        "antiDuplicate": 1,
+        "stabilityStdDev": 0
+      },
+      "baselineScore": 0.4,
+      "baselineNormalizedScore": 0.6667
+    },
+    {
+      "id": "t04-trigger-condition-result",
+      "title": "Trigger Condition Result",
+      "score": 0.2895,
+      "normalizedScore": 0.4895,
+      "delta": -0.1105,
+      "normalizedDelta": -0.1772,
+      "status": "rejected",
+      "lineCount": 26,
+      "lengthDelta": 358,
+      "contentSummary": [
+        "has threeLanes",
+        "has typeCoverage",
+        "has operationResult",
+        "missing fixtureMapping",
+        "weak adversarialStrength",
+        "has duplicate antiDuplicate"
+      ],
+      "submetrics": {
+        "laneCompleteness": 1,
+        "typeCoverage": 1,
+        "operationResultCoverage": 1,
+        "fixtureMappingCoverage": 0,
+        "adversarialStrength": 0,
+        "antiDuplicate": 0,
+        "stabilityStdDev": 0
+      },
+      "baselineScore": 0.4,
+      "baselineNormalizedScore": 0.6667
+    },
+    {
+      "id": "t05-adversarial-first",
+      "title": "Adversarial First",
+      "score": 0.5838,
+      "normalizedScore": 0.9838,
+      "delta": 0.1838,
+      "normalizedDelta": 0.3171,
+      "status": "kept",
+      "lineCount": 39,
+      "lengthDelta": 550,
+      "contentSummary": [
+        "has threeLanes",
+        "has typeCoverage",
+        "has operationResult",
+        "has fixtureMapping",
+        "has adversarialStrength",
+        "has antiDuplicate"
+      ],
+      "submetrics": {
+        "laneCompleteness": 1,
+        "typeCoverage": 1,
+        "operationResultCoverage": 1,
+        "fixtureMappingCoverage": 1,
+        "adversarialStrength": 1,
+        "antiDuplicate": 1,
+        "stabilityStdDev": 0
+      },
+      "baselineScore": 0.4,
+      "baselineNormalizedScore": 0.6667
+    },
+    {
+      "id": "t06-compact-json",
+      "title": "Compact JSON",
+      "score": 0.4886,
+      "normalizedScore": 0.8219,
+      "delta": 0.0886,
+      "normalizedDelta": 0.1552,
+      "status": "kept",
+      "lineCount": 1,
+      "lengthDelta": 190,
+      "contentSummary": [
+        "has threeLanes",
+        "has typeCoverage",
+        "has operationResult",
+        "has fixtureMapping",
+        "weak adversarialStrength",
+        "has antiDuplicate"
+      ],
+      "submetrics": {
+        "laneCompleteness": 1,
+        "typeCoverage": 1,
+        "operationResultCoverage": 1,
+        "fixtureMappingCoverage": 1,
+        "adversarialStrength": 0,
+        "antiDuplicate": 1,
+        "stabilityStdDev": 0
+      },
+      "baselineScore": 0.4,
+      "baselineNormalizedScore": 0.6667
+    },
+    {
+      "id": "t07-reviewer-friendly",
+      "title": "Reviewer Friendly",
+      "score": 0.5856,
+      "normalizedScore": 0.9856,
+      "delta": 0.1856,
+      "normalizedDelta": 0.3189,
+      "status": "kept",
+      "lineCount": 39,
+      "lengthDelta": 674,
+      "contentSummary": [
+        "has threeLanes",
+        "has typeCoverage",
+        "has operationResult",
+        "has fixtureMapping",
+        "has adversarialStrength",
+        "has antiDuplicate"
+      ],
+      "submetrics": {
+        "laneCompleteness": 1,
+        "typeCoverage": 1,
+        "operationResultCoverage": 1,
+        "fixtureMappingCoverage": 1,
+        "adversarialStrength": 1,
+        "antiDuplicate": 1,
+        "stabilityStdDev": 0
+      },
+      "baselineScore": 0.4,
+      "baselineNormalizedScore": 0.6667
+    },
+    {
+      "id": "t08-duplicate-noise",
+      "title": "Duplicate Noise",
+      "score": 0.3246,
+      "normalizedScore": 0.5468,
+      "delta": -0.0754,
+      "normalizedDelta": -0.1199,
+      "status": "rejected",
+      "lineCount": 20,
+      "lengthDelta": 116,
+      "contentSummary": [
+        "has threeLanes",
+        "has typeCoverage",
+        "has operationResult",
+        "missing fixtureMapping",
+        "weak adversarialStrength",
+        "has duplicate antiDuplicate"
+      ],
+      "submetrics": {
+        "laneCompleteness": 1,
+        "typeCoverage": 1,
+        "operationResultCoverage": 1,
+        "fixtureMappingCoverage": 0,
+        "adversarialStrength": 0,
+        "antiDuplicate": 0.3333,
+        "stabilityStdDev": 0
+      },
+      "baselineScore": 0.4,
+      "baselineNormalizedScore": 0.6667
+    },
+    {
+      "id": "t09-missing-adversarial",
+      "title": "Missing Adversarial",
+      "score": 0.3574,
+      "normalizedScore": 0.6018,
+      "delta": -0.0426,
+      "normalizedDelta": -0.0649,
+      "status": "rejected",
+      "lineCount": 14,
+      "lengthDelta": 12,
+      "contentSummary": [
+        "missing threeLanes",
+        "has typeCoverage",
+        "has operationResult",
+        "missing fixtureMapping",
+        "weak adversarialStrength",
+        "has antiDuplicate"
+      ],
+      "submetrics": {
+        "laneCompleteness": 0.6667,
+        "typeCoverage": 1,
+        "operationResultCoverage": 1,
+        "fixtureMappingCoverage": 0,
+        "adversarialStrength": 0,
+        "antiDuplicate": 1,
+        "stabilityStdDev": 0
+      },
+      "baselineScore": 0.4,
+      "baselineNormalizedScore": 0.6667
+    },
+    {
+      "id": "t10-no-types",
+      "title": "No Types",
+      "score": 0.3922,
+      "normalizedScore": 0.6589,
+      "delta": -0.0078,
+      "normalizedDelta": -0.0078,
+      "status": "rejected",
+      "lineCount": 17,
+      "lengthDelta": 19,
+      "contentSummary": [
+        "has threeLanes",
+        "missing typeCoverage",
+        "has operationResult",
+        "missing fixtureMapping",
+        "has adversarialStrength",
+        "has antiDuplicate"
+      ],
+      "submetrics": {
+        "laneCompleteness": 1,
+        "typeCoverage": 0,
+        "operationResultCoverage": 1,
+        "fixtureMappingCoverage": 0,
+        "adversarialStrength": 1,
+        "antiDuplicate": 1,
+        "stabilityStdDev": 0
+      },
+      "baselineScore": 0.4,
+      "baselineNormalizedScore": 0.6667
+    }
+  ]
+}

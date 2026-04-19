@@ -1,0 +1,39 @@
+{
+  "adversarial": [
+    {
+      "desc": "并发重复运行 lab create 同一个 id → 不破坏已存在 config，输出明确覆盖/已存在行为",
+      "type": "cli_blackbox",
+      "input": {
+        "id": "same"
+      },
+      "expect": {
+        "noCorruption": true
+      }
+    }
+  ],
+  "happy": [
+    {
+      "desc": "正常运行 lab create → config 写入且输出 Created experiment",
+      "type": "cli_blackbox",
+      "input": {
+        "target": "test-case-reviewer",
+        "profile": "reviewer-quality-v1"
+      },
+      "expect": {
+        "created": true
+      }
+    }
+  ],
+  "edge": [
+    {
+      "desc": "profile 为空字符串 → 参数校验失败",
+      "type": "cli_blackbox",
+      "input": {
+        "profile": ""
+      },
+      "expect": {
+        "throws": "profile"
+      }
+    }
+  ]
+}
