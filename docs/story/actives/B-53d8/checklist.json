@@ -10,7 +10,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "B-e452 backfill metadata 提供 source/why/explain/evidenceQuality，且不会写入原始 story summary",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "缺 summary 的 story 使用 backfill 后仍在 explain 中声明 artifact gap",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "backfill metadata 缺 source/why/explain/evidenceQuality 任一字段时验证失败",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -22,7 +42,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "replay 表格新增 Evidence Quality 列，B-e452 score 提升到 0.75+ 且 why 明确 backfilled",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "没有 backfill 的 story 仍显示 native evidenceQuality 且分数不被改变",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "score 不允许按 storyId 硬编码；必须由通用 evidence components 计算并解释",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -33,7 +73,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "npm run test:real-story-replay 覆盖 evidenceQuality、B-e452 分数提升、稳定复跑",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "重复运行 replay 脚本不会因为 generatedAt 或 metadata 顺序造成 diff 抖动",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "报告缺 Score/Why/Explain/Evidence Quality 任一列时 fixture 失败",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }
