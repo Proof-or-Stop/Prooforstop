@@ -4,7 +4,7 @@
   "title": "统一 fixture_batch_add preview 与 test_story 真实执行环境",
   "description": "修复 fixture_batch_add/preview 显示 OK 但 test_story 才暴露 sandbox、fs、browser mock、handler registry、intentRef normalize 等问题。目标是 preview/validation 与真实 test runner 共享执行/校验路径，至少能在写入前暴露 ESM/sandbox/fs/browser mock/intentRef 格式不一致。",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "TEST_CASE",
   "priority": "high",
   "lane": "mainline",
   "parallelSafe": "no",
@@ -75,6 +75,14 @@
       "branch": "story/B-26bb",
       "user": "Harmonygo",
       "agent": "gate-auto"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-19T23:51:16.489Z",
+      "branch": "story/B-26bb",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
