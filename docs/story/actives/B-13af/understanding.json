@@ -1,0 +1,26 @@
+{
+  "task": "给 Koala baseline risk 增加 accepted local paths 配置",
+  "outcome": "用户运行 `koala session_brief` 时仍能看到真正未接受的 baseline risk，比如 `experiments/reports/...`，但不会再把已确认的 `AGENTS.md`、`CLAUDE.md`、`.claude/skills/` 列为需要 commit/stash/copy 的风险；如果用户把新路径加入 `koala.config.json` 的 accepted local paths，也会被同样隐藏。",
+  "facts": [
+    "当前 baseline risk 只区分 .omx 和 docs/story/activity.jsonl 这类 volatile path。",
+    "session_brief 和 INIT_CHECK bootstrap 都通过 collectBaselineRisk/renderBaselineRiskLines 输出 baseline risk。",
+    "用户已明确 AGENTS.md、CLAUDE.md、.claude/skills/ 是正常本地/运行态文件，不应称为脏文件。",
+    "experiments/reports/story-review-output-lab-v1.json 仍未被用户接受为正常本地路径，应继续提示。"
+  ],
+  "constraints": [
+    "只通过 Koala CLI 操作 story metadata，不直接读写 docs/story JSON。",
+    "accepted local paths 必须配置化，不硬编码到 baseline-risk 逻辑里。",
+    "目录路径应支持前缀匹配，精确文件路径应支持精确匹配。",
+    "volatile path 统计不能回退。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/baseline-risk.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/worktree.ts",
+    "koala.config.json",
+    "packages/main/tests/fixtures/baseline-risk-accepted-local-paths.json"
+  ],
+  "timestamp": "2026-04-19T22:23:09.042Z"
+}

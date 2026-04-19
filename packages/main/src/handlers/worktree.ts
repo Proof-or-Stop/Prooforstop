@@ -192,7 +192,9 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
   }
 
   function collectStoryBaselineRisk(storyId: string, repoRootPath = repoRoot()): BaselineRisk {
+    const config = loadConfig(repoRootPath);
     return collectBaselineRisk(repoRootPath, {
+      acceptedLocalPaths: config.baselineRiskAcceptedLocalPaths,
       excludePaths: getBootstrapStagePaths(storyId, repoRootPath),
     });
   }

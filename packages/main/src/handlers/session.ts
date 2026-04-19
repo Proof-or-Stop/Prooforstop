@@ -32,6 +32,7 @@ import { getArtifactContractStatus } from '../core/artifact-contract.js';
 import { getReviewerStatus, type ReviewerStatus } from '../core/reviewer-status.js';
 import { getStoryWorktreeRuntime } from '../core/worktree-runtime.js';
 import { collectBaselineRisk, renderBaselineRiskLines } from '../core/baseline-risk.js';
+import { loadConfig } from '../core/config.js';
 import {
   checkPhaseTransition,
   describeAllowedTransitions,
@@ -292,7 +293,11 @@ function renderRuntimeHealthLines(runtime: ReturnType<typeof getStoryWorktreeRun
 }
 
 function renderMainBaselineRiskLines(root: string): string[] {
-  const risk = collectBaselineRisk(root, { maxEntries: 6 });
+  const config = loadConfig(root);
+  const risk = collectBaselineRisk(root, {
+    acceptedLocalPaths: config.baselineRiskAcceptedLocalPaths,
+    maxEntries: 6,
+  });
   const lines = renderBaselineRiskLines(risk, {
     prefix: '⚠ Main baseline risk',
     includeVolatileSummary: true,
