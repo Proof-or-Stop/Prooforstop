@@ -1,0 +1,48 @@
+{
+  "storyId": "B-780e",
+  "name": "lab-flow-profiles-v2",
+  "title": "为 koala-lab 增加 session/story review 流程量化 profile",
+  "description": "为 koala-lab V2 增加 session-brief-quality-v1 与 story-review-quality-v1 两个流程 profile，并让 lab compare/report 能展示改前与改后的评分、normalizedScore、内容摘要和 diff/patch 对比。目标是从只评 reviewer prompt 扩展到量化 Koala 流程入口和 PLAN gate。",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "lane": "mainline",
+  "parallelSafe": "no",
+  "sharedHotspots": [
+    "packages/lab/src/profiles",
+    "packages/lab/src/handlers/lab.ts",
+    "packages/lab/src/core"
+  ],
+  "riskSignals": [
+    {
+      "category": "状态机/门禁",
+      "matched": "gate"
+    }
+  ],
+  "createdAt": "2026-04-19T00:27:51.664Z",
+  "startedAt": "2026-04-19T00:27:51.664Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-19T00:27:51.665Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-19T00:27:58.449Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-780e",
+    "branch": "story/B-780e",
+    "createdAt": "2026-04-19T00:27:58.666Z"
+  }
+}
