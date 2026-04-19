@@ -4,10 +4,11 @@
       "name": "store writes long testIntent as parseable checklist json",
       "run_type": "cli",
       "file": "core/store",
-      "execute": "const { mkdtempSync, readFileSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-store-\"));\ntry {\n  const { StoryStore } = await import(pathToFileURL($root + \"/packages/main/dist/core/store.js\").href);\n  const store = new StoryStore(root);\n  const long = \"long-desc-\" + \"x\".repeat(20000) + \"\\nquoted \\\" text\";\n  const data = { items: [{ id: \"CHK-001\", title: \"long\", status: \"pending\", startTime: null, endTime: null, testIntent: { happy: [{ desc: long, type: \"cli_blackbox\" }], edge: [], adversarial: [] } }] };\n  store.writeChecklist(\"B-test\", data);\n  const raw = readFileSync(join(root, \"docs/story/actives/B-test/checklist.json\"), \"utf8\");\n  const parsed = JSON.parse(raw);\n  return { parseable: true, descLength: parsed.items[0].testIntent.happy[0].desc.length };\n} finally { rmSync(root, { recursive: true, force: true }); }",
+      "execute": "const { mkdtempSync, readFileSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-store-\"));\ntry {\n  const { StoryStore } = await import(pathToFileURL($root + \"/packages/main/dist/core/store.js\").href);\n  const store = new StoryStore(root);\n  const long = \"long-desc-\" + \"x\".repeat(20000) + \"\\nquoted \\\" text\";\n  const data = { items: [{ id: \"CHK-001\", title: \"long\", status: \"pending\", startTime: null, endTime: null, testIntent: { happy: [{ desc: long, type: \"cli_blackbox\" }], edge: [], adversarial: [] } }] };\n  store.writeChecklist(\"B-test\", data);\n  const raw = readFileSync(join(root, \"docs/story/actives/B-test/checklist.json\"), \"utf8\");\n  const parsed = JSON.parse(raw);\n  return { parseable: true, descMatches: parsed.items[0].testIntent.happy[0].desc === long, endsWithBrace: raw.trim().endsWith(\"}\") };\n} finally { rmSync(root, { recursive: true, force: true }); }",
       "expect": {
         "parseable": true,
-        "descLength": 20027
+        "descMatches": true,
+        "endsWithBrace": true
       },
       "intentRef": "B-ae82:CHK-001:happy:0",
       "sandbox": false,
