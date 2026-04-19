@@ -15,19 +15,43 @@
         "happy": [
           {
             "desc": "story_review 有 missing_intent blocker → 输出 summary/issues/actionSummary，并把 nextFix 指向补 testIntent",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T01:04:40.250Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-review-structured-output.json:4 — missing-intent verifies actionSummary nextFix points to missing testIntent blocker | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "story_review 只有 advisory 无 blocker → actionSummary 表示可进入开发或人工复核，而不是误报 blocker",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T01:04:40.510Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-review-structured-output.json:18 — advisory-only verifies canEnterDev true and no false blocker | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "高风险 story 缺 decision/preMortem → reviewPromptSummary 标出 decision/preMortem 缺失并保留完整 _reviewPrompt",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T01:04:40.757Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-review-structured-output.json:33 — high-risk verifies missing decision/preMortem summarized | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -46,19 +70,43 @@
         "happy": [
           {
             "desc": "story_review 返回仍包含完整 _reviewPrompt → reviewer agent 可继续读取完整上下文",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T01:04:40.998Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-review-structured-output.json:48 — missing-intent verifies full _reviewPrompt remains present | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "reviewPromptSummary 存在但 _reviewPrompt 为空异常 → 测试应失败，防止摘要替代完整 prompt",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T01:04:41.231Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-review-structured-output.json:63 — missing-intent verifies summary does not replace full prompt | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "长 truth source 存在时 → summary/actionSummary 仍在顶层，完整 prompt 只作为追溯字段",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T01:04:41.463Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-review-structured-output.json:78 — high-risk verifies long prompt still has top-level summary fields | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -77,19 +125,43 @@
         "happy": [
           {
             "desc": "story_review 输出回归 fixture → 覆盖 missing_intent/riskSignals/intentCoverage/actionSummary/reviewPromptSummary",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T01:04:41.732Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-review-structured-output.json:93 — missing-intent covers new structured fields | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "旧字段 summary/issues/_hint/_reviewPrompt 仍存在 → 兼容旧调用方",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T01:04:41.989Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-review-structured-output.json:108 — advisory-only confirms legacy summary/issues/_hint/_reviewPrompt fields remain | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "review 输出不含 actionSummary 或 reviewPromptSummary → 回归失败",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T01:04:42.229Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-review-structured-output.json:123 — high-risk would fail if actionSummary/reviewPromptSummary were missing | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
