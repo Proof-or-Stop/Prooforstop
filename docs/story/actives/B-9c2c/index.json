@@ -4,7 +4,7 @@
   "title": "修复 story_get fixture 自动映射误配",
   "description": "story_get detail 输出中 testIntent 的 fixture 自动映射会错误挂到无关 fixture，例如把 B-57e7 的 prompt profile testIntent 显示成 zombie-linked-worktree.json。需要修复映射逻辑，只根据匹配 storyId/item/lane/index 的 intentRef 绑定对应 fixture case，并补回归。",
   "type": "bug",
-  "phase": "TEST_CASE",
+  "phase": "TEST",
   "priority": "high",
   "lane": "mainline",
   "parallelSafe": "no",
@@ -55,6 +55,22 @@
       "branch": "story/B-9c2c",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-19T10:24:55.574Z",
+      "branch": "story/B-9c2c",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-19T10:25:20.915Z",
+      "branch": "story/B-9c2c",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
     }
   ],
   "worktree": {
