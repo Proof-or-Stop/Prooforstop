@@ -8,9 +8,29 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/stack-layering.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-19T19:54:02.197Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "在已有 activity.jsonl 的 worktree 中连续运行 session_brief/status/next 后，activity.jsonl 行数不增加，命令仍正常输出 next step",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "docs/story/activity.jsonl 已经 dirty 时，session_brief 的 Main baseline risk 不把该文件列为 material risk，只在 volatile summary 中隐藏",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "read-only skip 只作用于查询命令；执行 story_advance/checklist_update 这类变更命令仍会追加 activity 记录",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -19,9 +39,29 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-19T19:54:05.672Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "对 phase=DISCARDED 且目录为 untracked residue 的 story 运行 story_discard cleanupResidue dryRun 时，输出将清理该目录的预览而不是“无需重复操作”",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "story_get detail=false 查询 DISCARDED story 时，返回对象包含 story.phase、terminal=true、discarded=true 和提示说明",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "cleanupResidue 遇到 tracked/staged 的 DISCARDED story 目录时拒绝删除并输出需要人工确认的错误",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -31,9 +71,29 @@
         "AGENTS.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-19T19:54:11.871Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "core-only node packages/main/dist/cli.js aux_doc_list 可以列出根目录和 docs/requirements 下的文档，不再出现未知命令或 handler not found",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "node bin/koala.js aux_doc_list 在 main 和 utils 都存在 aux_doc_list 时仍可启动，且不会因重复注册报错",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "aux_doc_list 扫描时跳过 docs/story 与 fixtures 管理目录，避免把 story/fixture 运行数据当作 relatedDocs 候选",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }

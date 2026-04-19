@@ -27,6 +27,16 @@ import {
 
 // ── Tool Registry ──
 
+const READ_ONLY_COMMANDS_WITHOUT_ACTIVITY_LOG = new Set([
+  'session_brief',
+  'status',
+  'next',
+  'aux_doc_list',
+  'story_get',
+  'story_list',
+  'checklist_get',
+]);
+
 export interface ToolDef {
   name: string;
   /** 一行描述（出现在 koala help 列表里） */
@@ -85,7 +95,11 @@ export const MAIN_TOOLS: ToolDef[] = [
     force: z.boolean().optional().describe('强制丢弃未提交改动'),
     dryRun: z.boolean().optional().describe('仅预览将执行的操作，不实际修改 story/worktree/git'),
     confirm: z.boolean().optional().describe('显式确认执行危险操作'),
+    cleanupResidue: z.boolean().optional().describe('清理已 DISCARDED story 被 stash/merge 恢复出来的 untracked 残留目录'),
   }, guardrails: { supportsDryRun: true, requiresConfirm: true }},
+  { name: 'aux_doc_list', description: '列出项目文档（PLAN 阶段挑选 relatedDocs 用）', schema: {
+    format: z.enum(['text','json']).optional().describe('输出格式（默认 text）'),
+  }},
   { name: 'story_reconcile', description: '检测并修复僵尸 story（分支已合并/删除但 phase 非终态）', schema: {
     dryRun: z.boolean().optional().describe('默认 true 只报告不修改，false 执行修复'),
   }},
@@ -663,8 +677,10 @@ export async function runCli(opts?: {
   extraRegister?: (registry: Registry, ctx: HandlerContext) => void;
 }): Promise<void> {
   // 注入 extras：合并 tool defs，并保留 extras register 待会儿调用
-  TOOLS = opts?.extraTools && opts.extraTools.length > 0
-    ? [...MAIN_TOOLS, ...opts.extraTools]
+  const mainToolNames = new Set(MAIN_TOOLS.map((tool) => tool.name));
+  const extraTools = (opts?.extraTools || []).filter((tool) => !mainToolNames.has(tool.name));
+  TOOLS = extraTools.length > 0
+    ? [...MAIN_TOOLS, ...extraTools]
     : MAIN_TOOLS;
 
   const argv = process.argv.slice(2);
@@ -922,7 +938,9 @@ export async function runCli(opts?: {
       if (result && typeof (result as any).then === 'function') result = await result;
       clearInterval(watchdog);
       log(`${cmd} done`);
-      writeLog({ command: cmd, args: parsed, startTime: runStart, endTime: new Date().toISOString(), success: true, staleWarnings });
+      if (!READ_ONLY_COMMANDS_WITHOUT_ACTIVITY_LOG.has(cmd)) {
+        writeLog({ command: cmd, args: parsed, startTime: runStart, endTime: new Date().toISOString(), success: true, staleWarnings });
+      }
       // 注入 next-step hint（hints.ts 注册的命令才有效；其它命令原样返回）
       const hintActive: ActiveStoryInfo | null = activeStory
         ? { storyId: activeStory.storyId, phase: activeStory.phase }
@@ -949,7 +967,9 @@ export async function runCli(opts?: {
     } catch (e: any) {
       clearInterval(watchdog);
       log(`${cmd} failed: ${e.message}`);
-      writeLog({ command: cmd, args: parsed, startTime: runStart, endTime: new Date().toISOString(), success: false, error: e.message, staleWarnings });
+      if (!READ_ONLY_COMMANDS_WITHOUT_ACTIVITY_LOG.has(cmd)) {
+        writeLog({ command: cmd, args: parsed, startTime: runStart, endTime: new Date().toISOString(), success: false, error: e.message, staleWarnings });
+      }
       // onError hook — best-effort; always runs before exit(1).
       // Print a hint so the user knows why a failed command takes a few extra seconds.
       if (config0?.hooks?.onError) {
