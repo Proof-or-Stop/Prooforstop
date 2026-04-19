@@ -1,0 +1,51 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "DEV 阶段 checklist done 不再要求 fixture coverage",
+      "context": "checklist_update status=done 只表达实现完成；testIntent fixture coverage 不应阻塞 DEV 完成。保留 testIntent 存在性/结构校验，不把 coverage gate 放在 done 操作。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/test-intent-review.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "TEST_CASE_REVIEW 到 TEST 统一强制 fixture coverage 与 reviewer pass",
+      "context": "把 coverage 缺失和 reviewer pass 缺失都集中到 TEST_CASE_REVIEW→TEST gate；没有覆盖不能进入 TEST，避免绕过测试。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "只读/验证命令按阶段放行",
+      "context": "testintent_check 全阶段可用；test_fixture 在 TEST_CASE 阶段可用，方便 fixture 单 case 验证；必要时同步 help/phaseTools。",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-fixture-spec.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "增加阶段职责重排 fixture 覆盖",
+      "context": "覆盖 DEV done 无 fixture 可通过、TEST_CASE_REVIEW→TEST 无 coverage 被拒、补 fixture 后可进 TEST、testintent_check/test_fixture 阶段可用。",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-fixture-spec.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
