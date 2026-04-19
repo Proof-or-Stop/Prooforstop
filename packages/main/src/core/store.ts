@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from 'fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, renameSync, rmSync } from 'fs';
 import { join } from 'path';
 import type {
   StoryInfo, ChecklistData, BugData, TestEvidenceData, ReviewData,
@@ -30,10 +30,35 @@ export class StoryStore {
     return JSON.parse(readFileSync(filePath, 'utf-8')) as T;
   }
 
+  /**
+   * @task B-ae82
+   * @checklist CHK-001
+   * @title atomically persist story JSON files
+   * @type bugfix
+   * @priority high
+   * @description
+   *   Story artifacts are long-lived project state. Directly writing the
+   *   target JSON file can leave a half-written checklist after interruption
+   *   or filesystem failure, which then breaks later JSON.parse calls.
+   * @changes
+   *   - [CHK-001] Serialize and parse-check data before touching the target file
+   *   - [CHK-001] Write to a same-directory temp file, parse-check it, then rename atomically
+   *   - [CHK-001] Remove temp files on failure while preserving the previous target file
+   */
   private writeJson<T>(storyId: string, file: string, data: T): void {
     this.ensureDir(storyId);
     const filePath = join(this.storyDir(storyId), file);
-    writeFileSync(filePath, JSON.stringify(data, null, 2) + '\n', 'utf-8');
+    const serialized = JSON.stringify(data, null, 2) + '\n';
+    JSON.parse(serialized);
+    const tmpPath = `${filePath}.tmp-${process.pid}-${Date.now()}`;
+    try {
+      writeFileSync(tmpPath, serialized, 'utf-8');
+      JSON.parse(readFileSync(tmpPath, 'utf-8'));
+      renameSync(tmpPath, filePath);
+    } catch (e) {
+      try { rmSync(tmpPath, { force: true }); } catch { /* PROBE: best-effort temp cleanup */ }
+      throw e;
+    }
   }
 
   // ── Story ──
