@@ -189,7 +189,7 @@ function pathOverlaps(a: string, b: string): boolean {
  *   - [CHK-003] Exclude docs/story/activity.jsonl from DONE worktree cleanliness checks
  *   - [CHK-003] Exclude the same path from main merge preflight overlap checks
  */
-function isDoneVolatilePath(path: string): boolean {
+export function isDoneVolatilePath(path: string): boolean {
   return path.replace(/\\/g, '/') === 'docs/story/activity.jsonl';
 }
 

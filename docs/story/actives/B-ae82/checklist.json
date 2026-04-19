@@ -78,19 +78,19 @@
       "testIntent": {
         "happy": [
           {
-            "desc": "story_advance DONE dryRun 不增加 docs/story/activity.jsonl 行数，也不让工作区变 dirty",
+            "desc": "dryRun 命令不增加 docs/story/activity.jsonl 行数，也不让工作区因预览命令变 dirty",
             "type": "cli_blackbox"
           }
         ],
         "edge": [
           {
-            "desc": "DONE gate 的 git working tree 检查忽略 docs/story/activity.jsonl 修改但仍阻塞真实源码改动",
+            "desc": "DONE gate 的工作区路径过滤将 docs/story/activity.jsonl 视为 volatile，但不把源码改动视为 volatile",
             "type": "cli_blackbox"
           }
         ],
         "adversarial": [
           {
-            "desc": "DONE main merge preflight 忽略 main 上的 docs/story/activity.jsonl overlap，不忽略同 story index/checklist overlap",
+            "desc": "DONE main merge preflight 的路径过滤只忽略 docs/story/activity.jsonl，不忽略同 story index/checklist overlap",
             "type": "cli_blackbox"
           }
         ]
