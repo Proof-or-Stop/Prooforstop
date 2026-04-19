@@ -1,0 +1,39 @@
+{
+  "happy": [
+    {
+      "desc": "调用 lab_create({target,profile}) → 返回 Created experiment；WHY: 覆盖主路径和可观察输出",
+      "type": "cli_blackbox",
+      "input": {
+        "target": "test-case-reviewer",
+        "profile": "reviewer-quality-v1"
+      },
+      "expect": {
+        "pattern": "Created experiment"
+      }
+    }
+  ],
+  "edge": [
+    {
+      "desc": "调用 lab_create({target}) → 参数校验失败；WHY: 覆盖缺少必填字段",
+      "type": "cli_blackbox",
+      "input": {
+        "target": "test-case-reviewer"
+      },
+      "expect": {
+        "throws": "profile"
+      }
+    }
+  ],
+  "adversarial": [
+    {
+      "desc": "调用 lab_create({target:\"../../docs/story\"}) → 拒绝未知/越权 target；WHY: 覆盖恶意路径输入",
+      "type": "cli_blackbox",
+      "input": {
+        "target": "../../docs/story"
+      },
+      "expect": {
+        "throws": "unknown target"
+      }
+    }
+  ]
+}

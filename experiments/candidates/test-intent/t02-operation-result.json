@@ -1,0 +1,20 @@
+{
+  "happy": [
+    {
+      "desc": "运行 koala lab create --target=test-case-reviewer --profile=reviewer-quality-v1 → 写入 config 并返回 Next step",
+      "type": "cli_blackbox"
+    }
+  ],
+  "edge": [
+    {
+      "desc": "缺少 profile 参数 → 抛出参数校验错误并不写 config",
+      "type": "cli_blackbox"
+    }
+  ],
+  "adversarial": [
+    {
+      "desc": "传入未知 target → 抛出 unknown target 错误并保留现有 experiments 目录",
+      "type": "cli_blackbox"
+    }
+  ]
+}
