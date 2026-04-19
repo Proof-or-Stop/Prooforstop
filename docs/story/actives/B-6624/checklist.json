@@ -8,9 +8,29 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/test-intent-review.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-19T23:35:50.941Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "DEV 阶段 checklist_update status=done 对有 testIntent 但无 fixture coverage 的 item 仍成功",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "DEV 阶段标 done 后 story_advance TEST_CASE 能通过，不因 missing fixture coverage 被拒",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DEV done 仍不应绕过 testIntent 结构要求：缺 happy 的 testIntent 仍被 checklist_update 拒绝",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -20,9 +40,29 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-19T23:35:51.031Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "TEST_CASE_REVIEW→TEST 在 fixture coverage 缺失时被 hard fail，并列出缺失 intentRef",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "补齐 fixture coverage 但 reviewer 未 pass 时仍不能进入 TEST",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "fixture coverage 和 reviewer pass 都满足后才能进入 TEST",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -32,9 +72,29 @@
         "docs/requirements/decisions/test-fixture-spec.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-19T23:35:51.122Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "testintent_check 在 DEV/TEST_CASE/TEST_CASE_REVIEW/TEST 任意阶段均可执行并返回 coverage summary",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "test_fixture 在 TEST_CASE 阶段可执行单 case 验证",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "放行 test_fixture 不等于放行 test_auto/test_story 的 destructive 行为；phaseTools 仍限制危险命令",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
@@ -43,9 +103,29 @@
       "relatedDocs": [
         "docs/requirements/decisions/test-fixture-spec.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-19T23:35:51.212Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "fixture 覆盖完整阶段流：DEV done 无 coverage → TEST_CASE 写 fixture → REVIEW gate → TEST",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "fixture 覆盖缺 coverage 与缺 reviewer 两种 gate error",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "fixture 覆盖只读命令放行不修改 story phase 或 checklist 内容",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }

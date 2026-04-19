@@ -4,7 +4,7 @@
   "title": "重排 DEV/TEST_CASE 阶段职责与 testIntent 覆盖门禁",
   "description": "修复 Koala 阶段职责矛盾：DEV 阶段应只完成实现并允许 checklist done，不要求 fixture 覆盖；TEST_CASE 阶段负责编写/验证 fixture；TEST_CASE_REVIEW→TEST 统一检查 testIntent reviewer pass 与 fixture coverage。testintent_check 应作为只读命令全阶段可用，test_fixture 在 TEST_CASE 阶段可用。",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DEV",
   "priority": "high",
   "lane": "mainline",
   "parallelSafe": "no",
@@ -38,6 +38,22 @@
       "action": "advance",
       "timestamp": "2026-04-19T23:33:11.425Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-19T23:33:19.882Z",
+      "branch": "story/B-6624",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-19T23:35:00.680Z",
+      "branch": "story/B-6624",
       "user": "Harmonygo",
       "agent": "main"
     }

@@ -93,6 +93,9 @@ const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'lab_*',
     'aux_*', // 全部辅助工具：scan/detail/coverage/locate/sync/trace/diagnose/doc_list
     'checklist_get',
+    // B-6624: read-only coverage/status check; available in every phase so
+    // agents do not probe coverage by attempting mutating checklist updates.
+    'testintent_check',
     'testintent_handoff', // 只读交接包：任何阶段都可生成，避免 PLAN 门禁变死胡同
     'truth_*', 'gap_*', 'convergence_check',
     'story_advance', // 任何阶段都可以推进（cwd 门禁负责保护）
