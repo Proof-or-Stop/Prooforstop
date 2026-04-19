@@ -1,0 +1,74 @@
+{
+  "principles": [
+    "phase 编号只用于可观察状态，不改变真实 xstate gate 语义",
+    "合法 transition graph 必须显式表达前进与回退，不能用 +1 连续性替代",
+    "phase 顺序和展示逻辑应集中复用，减少 session/summary/docs 分叉",
+    "status 输出默认保持短，详细信息放在 concise=false 或结构化 helper 中"
+  ],
+  "drivers": [
+    "快速发现 phase metadata/worktree drift",
+    "让人和 agent 一眼知道当前进度序号和允许去向",
+    "避免合法回退被错误当成异常"
+  ],
+  "options": [
+    {
+      "name": "A: 新增 core/phase-flow.ts 集中定义 ordinal 和合法 transition graph，status 只读消费",
+      "pros": [
+        "单一来源，能替代 session.ts 的局部 PHASE_PRIORITY",
+        "最小侵入，不改 xstate transition 执行逻辑",
+        "方便 fixture 直接导入纯函数验证合法/非法跳转"
+      ],
+      "cons": [
+        "短期会与 machine.ts 的 xstate 定义并存，需要保持同步",
+        "第一版只能发现展示层/metadata 风险，不能证明事件日志连续"
+      ]
+    },
+    {
+      "name": "B: 直接从 xstate machine introspection 自动生成 ordinal/transition graph",
+      "pros": [
+        "理论上避免双写 transition graph",
+        "和真实执行状态机一致性最高"
+      ],
+      "cons": [
+        "xstate introspection API 更复杂，测试成本高",
+        "回退/语义标签仍需要额外手写",
+        "不适合当前 status 最小闭环"
+      ]
+    },
+    {
+      "name": "C: 引入 event sequence 日志并基于事件号判断状态连续性",
+      "pros": [
+        "最能发现并发覆盖、日志断裂和状态漂移",
+        "长期可观察性最好"
+      ],
+      "cons": [
+        "需要新的持久化协议和迁移策略",
+        "会把本 story 从只读 status 展示扩大到 event log runtime",
+        "第一版容易制造第二真相源疑虑"
+      ]
+    }
+  ],
+  "chosen": "A: 新增 core/phase-flow.ts 集中定义 ordinal 和合法 transition graph，status 只读消费",
+  "rationale": "选择 A，因为它能最小成本实现用户要的状态编号和异常跳转提示，同时保留合法回退语义，并把 event sequence 留给后续独立 story。",
+  "preMortem": [
+    {
+      "scenario": "合法回退被误报为异常",
+      "trigger": "实现时只比较 ordinal 是否递增或 +1",
+      "consequence": "TEST 或 review fail 后 status 报假警，agent 不信任 status",
+      "mitigation": "用 allowedTransitions/rollbackTransitions 显式判定，fixture 覆盖 TEST→DEV 和 TEST_CASE_REVIEW→DEV"
+    },
+    {
+      "scenario": "phase 顺序继续多处散落，后续改状态时只改一处",
+      "trigger": "新增 phase-flow 后没有替换 session.ts/summary.ts 局部 order",
+      "consequence": "status、summary、排序出现不同编号或顺序",
+      "mitigation": "本 story 至少替换 session 的 PHASE_PRIORITY，并让 summary 使用同一 PHASE_ORDER"
+    },
+    {
+      "scenario": "status 输出过载，违背上一条 story 的精简目标",
+      "trigger": "默认 status 把完整状态表都列出来",
+      "consequence": "用户恢复现场时被噪音淹没，next/status 失去短入口价值",
+      "mitigation": "默认只显示当前 ordinal + allowed next/rollback + health warning，完整状态表后续放 verbose/json"
+    }
+  ],
+  "timestamp": "2026-04-19T19:32:50.194Z"
+}
