@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "test_story 记录当前 git HEAD 到 test-evidence",
+      "context": "当前 test-evidence 只有时间戳和 PASS/FAIL，无法判断 PASS 是在哪个提交上跑出来的。需要让证据包含 git commit 标识，作为 DONE gate 判断 freshness 的依据。",
+      "relatedDocs": [
+        "AGENTS.md#DONE-门禁",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "DONE gate 拒绝过期的 test evidence",
+      "context": "当 story worktree merge main 或继续提交后，旧 PASS 证据不能再代表当前 HEAD。DONE final checklist 应比较 evidence 记录的 commit 与 story 分支 HEAD，不一致时阻塞并提示重跑 test_story。",
+      "relatedDocs": [
+        "AGENTS.md#DONE-门禁",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "DONE gate 的 main sync 提示说明 merge 后必须重跑测试",
+      "context": "当前提示只说确认后 git merge main，容易让 agent merge 后直接重试 DONE。应把正确闭环写进 hint：merge main、解决冲突、重跑 test_story、再 dry-run/confirm DONE。",
+      "relatedDocs": [
+        "AGENTS.md#DONE-门禁"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
