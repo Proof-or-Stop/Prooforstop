@@ -1,0 +1,306 @@
+{
+  "storyId": "B-f76b",
+  "runOut": "[0.0s] running lab_run...\n[0.1s] lab_run done\n[lab] sandbox ready at /private/var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-story-review-real-output-GYnpUJ/.worktrees/lab-story-review-real-output-v1-run-001\n[lab] branch: lab/lab-story-review-real-output-v1/run-001\n[lab] score: 0.5667 (baseline 0.225, delta 0.3417)\n[lab] normalizedScore: 0.9667 (baseline 0.375, delta 0.5917)\n[lab] decision: kept\n[lab] patch: experiments/runs/lab-story-review-real-output-v1/run-001/patch.diff\n✓ candidate beat baseline by 0.3417.\n",
+  "result": {
+    "runId": "run-001",
+    "status": "kept",
+    "score": 0.5667,
+    "normalizedScore": 0.9667,
+    "baselineScore": 0.225,
+    "baselineNormalizedScore": 0.375,
+    "delta": 0.3417,
+    "normalizedDelta": 0.5917,
+    "contentSummary": [
+      "has issueCount",
+      "has blockerCount",
+      "has missingIntent",
+      "has riskSignals",
+      "has decisionGate",
+      "has reviewPrompt",
+      "has actionableHint",
+      "has intentCoverage"
+    ],
+    "candidatePatch": "experiments/runs/lab-story-review-real-output-v1/run-001/patch.diff",
+    "changedFiles": 1,
+    "changedLines": 91,
+    "timing": {
+      "wallClockSeconds": 0,
+      "evalSeconds": 0
+    },
+    "reason": "candidate beat baseline by 0.3417"
+  },
+  "metrics": {
+    "profile": "story-review-quality-v1",
+    "quality": 1,
+    "latencyPenalty": 0,
+    "complexityPenalty": 0.222,
+    "stabilityPenalty": 0,
+    "submetrics": {
+      "issueCount": 1,
+      "blockerCount": 1,
+      "missingIntent": 1,
+      "riskSignals": 1,
+      "decisionGate": 1,
+      "reviewPrompt": 1,
+      "actionableHint": 1,
+      "intentCoverage": 1,
+      "stabilityStdDev": 0
+    },
+    "contentSummary": [
+      "has issueCount",
+      "has blockerCount",
+      "has missingIntent",
+      "has riskSignals",
+      "has decisionGate",
+      "has reviewPrompt",
+      "has actionableHint",
+      "has intentCoverage"
+    ],
+    "notes": [
+      "lineCount=82"
+    ],
+    "normalizedScore": 0.9667
+  },
+  "compare": {
+    "experimentId": "lab-story-review-real-output-v1",
+    "baseline": {
+      "score": 0.225,
+      "normalizedScore": 0.375,
+      "ref": "HEAD"
+    },
+    "baselineContentSummary": [
+      "has issueCount",
+      "has blockerCount",
+      "missing missingIntent",
+      "missing riskSignals",
+      "missing decisionGate",
+      "has reviewPrompt",
+      "missing actionableHint",
+      "missing intentCoverage"
+    ],
+    "best": {
+      "runId": "run-001",
+      "score": 0.5667,
+      "normalizedScore": 0.9667,
+      "status": "kept",
+      "delta": 0.3417,
+      "normalizedDelta": 0.5917,
+      "patch": "experiments/runs/lab-story-review-real-output-v1/run-001/patch.diff",
+      "reason": "candidate beat baseline by 0.3417",
+      "contentSummary": [
+        "has issueCount",
+        "has blockerCount",
+        "has missingIntent",
+        "has riskSignals",
+        "has decisionGate",
+        "has reviewPrompt",
+        "has actionableHint",
+        "has intentCoverage"
+      ]
+    },
+    "decision": "kept",
+    "runs": [
+      {
+        "runId": "run-001",
+        "score": 0.5667,
+        "normalizedScore": 0.9667,
+        "status": "kept",
+        "delta": 0.3417,
+        "normalizedDelta": 0.5917,
+        "patch": "experiments/runs/lab-story-review-real-output-v1/run-001/patch.diff",
+        "contentSummary": [
+          "has issueCount",
+          "has blockerCount",
+          "has missingIntent",
+          "has riskSignals",
+          "has decisionGate",
+          "has reviewPrompt",
+          "has actionableHint",
+          "has intentCoverage"
+        ]
+      }
+    ]
+  },
+  "promote": {
+    "experimentId": "lab-story-review-real-output-v1",
+    "status": "ready_for_review",
+    "bestRunId": "run-001",
+    "promotePatch": "experiments/runs/lab-story-review-real-output-v1/run-001/patch.diff",
+    "baselineRef": "HEAD",
+    "score": 0.5667,
+    "normalizedScore": 0.9667,
+    "contentSummary": [
+      "has issueCount",
+      "has blockerCount",
+      "has missingIntent",
+      "has riskSignals",
+      "has decisionGate",
+      "has reviewPrompt",
+      "has actionableHint",
+      "has intentCoverage"
+    ],
+    "reason": "candidate beat baseline by 0.3417",
+    "summaryPath": "experiments/runs/lab-story-review-real-output-v1/run-001/summary.md"
+  },
+  "oldStyle": {
+    "reviews": [
+      {
+        "timestamp": "2026-04-19T01:19:42.674Z",
+        "issueCount": 1,
+        "blockerCount": 0,
+        "issues": [
+          {
+            "type": "review_advisory",
+            "severity": "advisory",
+            "message": "审查未发现 blocker，但建议对照 _reviewPrompt 中的真相源文档人工复核 testIntent 完整性"
+          }
+        ],
+        "_hash": "baseline"
+      }
+    ]
+  },
+  "realReview": {
+    "storyId": "B-f76b",
+    "title": "Real output story",
+    "reviewRound": 1,
+    "summary": {
+      "totalItems": 1,
+      "withIntent": 0,
+      "withoutIntent": 1,
+      "totalIntents": 0,
+      "issueCount": 6,
+      "blockerCount": 2,
+      "intentCoverage": {
+        "covered": 0,
+        "total": 0,
+        "percentage": 100
+      }
+    },
+    "issues": [
+      {
+        "type": "missing_intent",
+        "severity": "blocker",
+        "itemId": "CHK-001",
+        "message": "CHK-001「Implement gate output」缺少 testIntent"
+      },
+      {
+        "type": "risk_signals",
+        "severity": "advisory",
+        "message": "story 命中 1 个高风险信号: 状态机/门禁。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）"
+      },
+      {
+        "type": "parallel_policy_missing_lane",
+        "severity": "advisory",
+        "message": "未声明 lane。当前默认会按 mainline 推断，但建议显式设置 mainline/supporting/exploratory，避免并行调度时主线判断漂移"
+      },
+      {
+        "type": "parallel_policy_missing_safety",
+        "severity": "advisory",
+        "message": "未声明 parallelSafe。当前默认会按 plan_only 推断，建议显式设置 yes/no/plan_only，让 session_brief 能稳定给出并行建议"
+      },
+      {
+        "type": "missing_decision",
+        "severity": "blocker",
+        "message": "高风险 story 必须填 decision.json (principles/drivers/options/chosen/≥3 preMortem)。调用: koala decision_set '{...}'"
+      },
+      {
+        "type": "weak_outcome_transcript",
+        "severity": "advisory",
+        "message": "understanding.outcome 看起来偏抽象，不像用户真正会看到的 transcript。建议改成具体终端/UI 文本，避免工程通过但用户仍然会问“然后呢？”"
+      }
+    ],
+    "actionSummary": {
+      "canEnterDev": false,
+      "hasBlockers": true,
+      "blockerTypes": [
+        "missing_intent",
+        "missing_decision"
+      ],
+      "advisoryTypes": [
+        "risk_signals",
+        "parallel_policy_missing_lane",
+        "parallel_policy_missing_safety",
+        "weak_outcome_transcript"
+      ],
+      "missingIntentItems": [
+        "CHK-001"
+      ],
+      "nextFix": "补齐 CHK-001 的 testIntent 后重新 story_review"
+    },
+    "reviewPromptSummary": {
+      "hasUnderstanding": true,
+      "hasDecision": false,
+      "hasPreMortem": false,
+      "hasRiskSignals": true,
+      "truthDocsCount": 1,
+      "checklistItems": 1,
+      "testIntentEntries": 0,
+      "hasFullPrompt": true
+    },
+    "truthDocsCount": 1,
+    "_hint": "第 1 轮审查发现 2 个 blocker，请修复后再次 story_review",
+    "_reviewPrompt": "请审查以下 story 的 PLAN 阶段产物。重点检查:\n  1. understanding 是否真切（unknowns 是否被 facts 自相矛盾，touchpoints 是否真实）\n  2. decision 是否选择合理（为什么不选其他 option，rationale 是否呼应 drivers）\n  3. testIntent 是否覆盖 description + truth docs 中的所有场景\n  4. preMortem 是否列出了真实的失败模式（不是凑数）\n\n---\nStory: Real output story\nDescription: Verify real structured story_review output for gate/risk.\nPriority: high (riskSignals: 状态机/门禁)\n---\nUnderstanding Snapshot:\ntask: verify story review output\noutcome: > koala story_review\n{ actionSummary, reviewPromptSummary }\nfacts:\n  - fact\nconstraints:\n  - constraint\nunknowns:\n  (none)\ntouchpoints:\n  - packages/main/src/handlers/story-review.ts\n---\nDecision: (not provided)\n---\nChecklist + TestIntent:\n- CHK-001: Implement gate output\n  (无 testIntent)\n---\nTruth Source (1 篇):\n# Truth\n\nUse structured review output.\n"
+  },
+  "patchPreview": [
+    "diff --git a/samples/story-review-output.json b/samples/story-review-output.json",
+    "index e32fc58..9e1ac49 100644",
+    "--- a/samples/story-review-output.json",
+    "+++ b/samples/story-review-output.json",
+    "@@ -1,17 +1,82 @@",
+    " {",
+    "-  \"reviews\": [",
+    "+  \"storyId\": \"B-f76b\",",
+    "+  \"title\": \"Real output story\",",
+    "+  \"reviewRound\": 1,",
+    "+  \"summary\": {",
+    "+    \"totalItems\": 1,",
+    "+    \"withIntent\": 0,",
+    "+    \"withoutIntent\": 1,",
+    "+    \"totalIntents\": 0,",
+    "+    \"issueCount\": 6,",
+    "+    \"blockerCount\": 2,",
+    "+    \"intentCoverage\": {",
+    "+      \"covered\": 0,",
+    "+      \"total\": 0,",
+    "+      \"percentage\": 100",
+    "+    }",
+    "+  },",
+    "+  \"issues\": [",
+    "+    {",
+    "+      \"type\": \"missing_intent\",",
+    "+      \"severity\": \"blocker\",",
+    "+      \"itemId\": \"CHK-001\",",
+    "+      \"message\": \"CHK-001「Implement gate output」缺少 testIntent\"",
+    "+    },",
+    "+    {",
+    "+      \"type\": \"risk_signals\",",
+    "+      \"severity\": \"advisory\",",
+    "+      \"message\": \"story 命中 1 个高风险信号: 状态机/门禁。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）\"",
+    "+    },",
+    "+    {",
+    "+      \"type\": \"parallel_policy_missing_lane\",",
+    "+      \"severity\": \"advisory\",",
+    "+      \"message\": \"未声明 lane。当前默认会按 mainline 推断，但建议显式设置 mainline/supporting/exploratory，避免并行调度时主线判断漂移\"",
+    "+    },",
+    "+    {",
+    "+      \"type\": \"parallel_policy_missing_safety\",",
+    "+      \"severity\": \"advisory\",",
+    "+      \"message\": \"未声明 parallelSafe。当前默认会按 plan_only 推断，建议显式设置 yes/no/plan_only，让 session_brief 能稳定给出并行建议\"",
+    "+    },",
+    "+    {",
+    "+      \"type\": \"missing_decision\",",
+    "+      \"severity\": \"blocker\",",
+    "+      \"message\": \"高风险 story 必须填 decision.json (principles/drivers/options/chosen/≥3 preMortem)。调用: koala decision_set '{...}'\"",
+    "+    },",
+    "     {",
+    "-      \"timestamp\": \"2026-04-19T01:19:42.674Z\",",
+    "-      \"issueCount\": 1,",
+    "-      \"blockerCount\": 0,",
+    "-      \"issues\": [",
+    "-        {",
+    "-          \"type\": \"review_advisory\",",
+    "-          \"severity\": \"advisory\",",
+    "-          \"message\": \"审查未发现 blocker，但建议对照 _reviewPrompt 中的真相源文档人工复核 testIntent 完整性\"",
+    "-        }"
+  ]
+}
