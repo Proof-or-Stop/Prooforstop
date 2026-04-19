@@ -138,6 +138,7 @@ npm run test:lab-foundation
 npm run test:lab-scoring-core
 npm run test:lab-reviewer-mvp
 npm run test:lab-normalized-score
+npm run test:lab-flow-profiles
 ```
 
 ## Claude Code

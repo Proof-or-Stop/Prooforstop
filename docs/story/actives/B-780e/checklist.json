@@ -10,7 +10,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "给 session_brief 改前/改后样本文本 → session-brief-quality-v1 输出 reviewer/artifact/git/nextStep 等 submetrics 和 contentSummary",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "session_brief 缺少某些可选块 → profile 给出低一点的分数但不崩溃",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "session_brief 只有空文本或无 next step → profile 明确低分并在 contentSummary 标出 missing next step",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -22,7 +42,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "给 story_review 改前/改后 JSON 文本 → story-review-quality-v1 输出 blocker/advisory/testIntent/risk/decision 等 submetrics 和 contentSummary",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "story_review 只有 advisory 没有 blocker → profile 能区分 advisory noise 与 required gate 信息",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "story_review 缺失 issueCount/blockerCount/testIntent 信息 → profile 低分并标出 missing review gates",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -33,7 +73,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "lab_compare 对新 profile run → 输出 baseline/best/runs 的 score、normalizedScore、contentSummary 和 patch 路径",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "读取旧 run 缺 contentSummary → compare 兼容返回空摘要而不崩溃",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "candidate 分数更高但内容摘要缺少关键 next step → compare 仍展示摘要，便于人工发现分数与内容不一致",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }

@@ -14,11 +14,15 @@
  */
 import type { LabProfileContext, LabRunMetrics } from '../types.js';
 import { evaluateReviewerQualityProfile } from '../profiles/reviewer-quality-v1.js';
+import { evaluateSessionBriefQualityProfile } from '../profiles/session-brief-quality-v1.js';
+import { evaluateStoryReviewQualityProfile } from '../profiles/story-review-quality-v1.js';
 
 export type LabProfileEvaluator = (ctx: LabProfileContext) => LabRunMetrics;
 
 const PROFILES: Record<string, LabProfileEvaluator> = {
   'reviewer-quality-v1': evaluateReviewerQualityProfile,
+  'session-brief-quality-v1': evaluateSessionBriefQualityProfile,
+  'story-review-quality-v1': evaluateStoryReviewQualityProfile,
 };
 
 export function resolveProfile(profileName: string): LabProfileEvaluator {
