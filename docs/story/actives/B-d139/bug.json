@@ -1,0 +1,94 @@
+{
+  "bugs": [
+    {
+      "id": "BUG-f8ae70ed",
+      "title": "[auto] koala-readonly-residue-doclist.json:discarded untracked residue cleanup dry run previews removal — Expected {\"hasRemovePlan\":true}, got {\"preview\":\"Story B-9ddc 已是 DISCARDED 状态，无需重复操作\",\"hasRemovePlan",
+      "status": "fixed",
+      "foundAt": "2026-04-19T20:35:11.955Z",
+      "fixedAt": "2026-04-19T20:45:11.707Z",
+      "fixtureId": "f8ae70ed-63d2-4bc7-8fc8-5f7e5f077172",
+      "diagnose": {
+        "rootCause": [
+          "Expected {\"hasRemovePlan\":true}, got {\"preview\":\"Story B-9ddc 已是 DISCARDED 状态，无需重复操作\",\"hasRemovePlan\":false}"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-f2226bd0",
+      "title": "[auto] koala-readonly-residue-doclist.json:story_get surfaces discarded phase summary — Expected {\"phase\":\"DISCARDED\",\"terminal\":true,\"discarded\":true}, got undefined",
+      "status": "fixed",
+      "foundAt": "2026-04-19T20:35:11.955Z",
+      "fixedAt": "2026-04-19T20:43:39.922Z",
+      "fixtureId": "f2226bd0-5003-4e22-a55b-c3668e194c51",
+      "diagnose": {
+        "rootCause": [
+          "Expected {\"phase\":\"DISCARDED\",\"terminal\":true,\"discarded\":true}, got undefined"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-d09496d1",
+      "title": "[auto] koala-readonly-residue-doclist.json:cleanup residue refuses tracked discarded directories — Expected {\"preserved\":true}, got {\"preview\":\"Story B-0072 已是 DISCARDED 状态，无需重复操作\",\"preserved\":false}",
+      "status": "fixed",
+      "foundAt": "2026-04-19T20:35:11.956Z",
+      "fixedAt": "2026-04-19T20:43:39.922Z",
+      "fixtureId": "d09496d1-5a57-45a3-9b89-96d1ff02d779",
+      "diagnose": {
+        "rootCause": [
+          "Expected {\"preserved\":true}, got {\"preview\":\"Story B-0072 已是 DISCARDED 状态，无需重复操作\",\"preserved\":false}"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-2b8b1b00",
+      "title": "[auto] koala-readonly-residue-doclist.json:core aux_doc_list lists project docs — $handlers.aux_doc_list is not a function",
+      "status": "fixed",
+      "foundAt": "2026-04-19T20:35:11.956Z",
+      "fixedAt": "2026-04-19T20:43:39.922Z",
+      "fixtureId": "2b8b1b00-de1d-4568-82e7-e1bc04498f43",
+      "diagnose": {
+        "rootCause": [
+          "$handlers.aux_doc_list is not a function"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-05cf360a",
+      "title": "[auto] koala-readonly-residue-doclist.json:aux_doc_list skips story and fixture runtime dirs — $handlers.aux_doc_list is not a function",
+      "status": "fixed",
+      "foundAt": "2026-04-19T20:35:11.956Z",
+      "fixedAt": "2026-04-19T20:43:39.922Z",
+      "fixtureId": "05cf360a-a2e0-4958-9e13-f5998a202157",
+      "diagnose": {
+        "rootCause": [
+          "$handlers.aux_doc_list is not a function"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-7471d556",
+      "title": "[auto] koala-readonly-residue-doclist.json:mutating checklist command still appends activity — Command failed: /Users/jek/.nvm/versions/node/v22.13.0/bin/node packages/main/dist/cli.js checklist_",
+      "status": "fixed",
+      "foundAt": "2026-04-19T20:59:18.682Z",
+      "fixedAt": "2026-04-19T21:07:32.820Z",
+      "fixtureId": "7471d556-b20a-4c19-a33b-9f42f8f45e28",
+      "diagnose": {
+        "rootCause": [
+          "Command failed: /Users/jek/.nvm/versions/node/v22.13.0/bin/node packages/main/dist/cli.js checklist_update {\"storyId\":\"B-d139\",\"itemId\":\"CHK-003\",\"status\":\"done\"}\n❌ 命令 \"checklist_update\" 在 TEST 阶段不可用\n   Story: B-d139  Phase: TEST\n   当前阶段可用命令: story_get, story_list, story_discard, lab_*, aux_*, checklist_get, testintent_handoff, truth_*, gap_*, convergence_check, story_advance, session_brief, status, next, doctor, summary_get, summary_set, implementation_review_result_get, implementation_review_result_set, test_auto, test_story, test_fixture, bug_report, bug_update, bug_list, bug_analyze, fixture_get, story_advance\n"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    }
+  ]
+}

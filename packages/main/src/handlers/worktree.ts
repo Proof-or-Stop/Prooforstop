@@ -68,6 +68,35 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     return `"${value.replace(/(["\\$`])/g, '\\$1')}"`;
   }
 
+  function storyArtifactDir(storyId: string): string {
+    const config = loadConfig(root);
+    return join(root, config.storyDir, storyId);
+  }
+
+  function cleanupDiscardedStoryResidue(storyId: string, dryRun: boolean): string[] {
+    const dir = storyArtifactDir(storyId);
+    if (!existsSync(dir)) return [`✓ Story ${storyId} 没有残留目录需要清理`];
+
+    const rel = relative(root, dir).split('\\').join('/');
+    const status = git(`status --porcelain -- ${shellQuote(rel)}`);
+    if (!status) {
+      return [`⚠ Story ${storyId} 的目录仍被 git 跟踪，已保留: ${rel}`];
+    }
+
+    const lines = status.split('\n').filter(Boolean);
+    const allUntracked = lines.every((line) => line.startsWith('?? '));
+    if (!allUntracked) {
+      throw new Error(
+        `Story ${storyId} 的残留目录包含 tracked/staged 改动，拒绝自动清理:\n${status}\n` +
+        `→ 先人工确认这些改动是否要保留，再重试 cleanupResidue`
+      );
+    }
+
+    if (dryRun) return [`- remove untracked discarded story residue: ${rel}`];
+    rmSync(dir, { recursive: true, force: true });
+    return [`✓ 已清理 DISCARDED story 残留目录: ${rel}`];
+  }
+
   function waitMs(ms: number): void {
     const until = Date.now() + ms;
     while (Date.now() < until) { /* busy-wait; execSync is already sync */ }
@@ -666,13 +695,19 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
      *   - [CHK-001] 真实执行路径保持在 confirm 之后，避免误触直接落盘
      * @test dangerous-command-guardrails
      */
-    story_discard(args: { storyId: string; reason?: string; force?: boolean; dryRun?: boolean; confirm?: boolean }): string {
+    story_discard(args: { storyId: string; reason?: string; force?: boolean; dryRun?: boolean; confirm?: boolean; cleanupResidue?: boolean }): string {
       const story = store.readStory(args.storyId);
 
       if (story.phase === 'DONE') {
         throw new Error(`Story ${args.storyId} 已 DONE，不能 discard（已完成的 story 请通过 git revert 撤销）`);
       }
       if (story.phase === 'DISCARDED') {
+        if (args.cleanupResidue) {
+          const lines = args.dryRun
+            ? [`[DRY-RUN] story_discard ${args.storyId} cleanup residue would:`, ...cleanupDiscardedStoryResidue(args.storyId, true), '→ 加 --confirm 真实执行']
+            : cleanupDiscardedStoryResidue(args.storyId, false);
+          return lines.join('\n');
+        }
         return `Story ${args.storyId} 已是 DISCARDED 状态，无需重复操作`;
       }
 

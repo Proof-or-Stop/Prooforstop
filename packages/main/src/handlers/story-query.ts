@@ -163,6 +163,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
     },
 
     story_get(args: { storyId: string; detail?: boolean }): object {
+      const story = store.readStory(args.storyId);
       const config = loadConfig(ctx.root);
       const fixturesDir = join(ctx.root, config.fixturesDir);
       const intentRefMap = collectStoryIntentFixtures(fixturesDir, args.storyId);
@@ -189,11 +190,23 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
         try { return store.readReview(args.storyId); } catch { return null; }
       })();
 
-      const result: Record<string, unknown> = { checklist: cl, review };
+      const result: Record<string, unknown> = {
+        story: {
+          storyId: args.storyId,
+          title: story.title,
+          phase: story.phase,
+          terminal: story.phase === 'DONE' || story.phase === 'DISCARDED',
+          discarded: story.phase === 'DISCARDED',
+          note: story.phase === 'DISCARDED'
+            ? 'This story is DISCARDED; any visible files may be stale residue unless explicitly restored.'
+            : undefined,
+        },
+        checklist: cl,
+        review,
+      };
       if (args.detail) {
-        try { result.index = store.readStory(args.storyId); } catch { result.index = null; }
+        try { result.index = story; } catch { result.index = null; }
         try {
-          const story = store.readStory(args.storyId);
           result.runtimeHealth = getStoryWorktreeRuntime(args.storyId, store, ctx.root);
           result.reviewers = getReviewerStatus(args.storyId, store, story.phase);
           result.artifactContract = getArtifactContractStatus(args.storyId, store, story.phase);

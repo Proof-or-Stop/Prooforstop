@@ -45,6 +45,7 @@ import { createImplementationReviewHandlers } from './handlers/implementation-re
 import { createDoctorHandlers } from './handlers/doctor.js';
 import { createSessionHandlers } from './handlers/session.js';
 import { createTestIntentHandoffHandlers } from './handlers/testintent-handoff.js';
+import { createAuxDocHandlers } from './handlers/aux-doc.js';
 import { nextStoryId } from './handlers/context.js';
 
 export type HandlerFn = (...args: any[]) => any;
@@ -106,6 +107,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createDoctorHandlers(ctx));
   registry.registerBatch(createSessionHandlers(ctx));
   registry.registerBatch(createTestIntentHandoffHandlers(ctx));
+  registry.registerBatch(createAuxDocHandlers(ctx));
 
   // 内部辅助：返回下一个 story id（fixture/测试 runner 用）
   registry.register('_nextStoryId', (prefix?: string) => nextStoryId(ctx.store, prefix));

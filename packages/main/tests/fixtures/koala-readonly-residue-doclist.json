@@ -1,0 +1,142 @@
+{
+  "cases": [
+    {
+      "name": "readonly cli commands do not append activity",
+      "run_type": "cli",
+      "file": "cli-engine",
+      "execute": "const { readFileSync } = await import(\"fs\");\nconst { execFileSync } = await import(\"child_process\");\nconst activity = $root + \"/docs/story/activity.jsonl\";\nconst count = () => readFileSync(activity, \"utf8\").split(\"\\n\").filter(Boolean).length;\nconst before = count();\nexecFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"session_brief\", \"--concise\"], { cwd: $root, encoding: \"utf8\" });\nexecFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"status\", \"--concise\"], { cwd: $root, encoding: \"utf8\" });\nexecFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"next\"], { cwd: $root, encoding: \"utf8\" });\nconst after = count();\nreturn { before, after, stable: before === after };",
+      "expect": {
+        "stable": true
+      },
+      "intentRef": "B-d139:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-d139",
+      "_id": "7854c5fc-c6e7-40f6-aeb9-4e4b4c2c0ff7",
+      "nextCaseId": "476ae865-80ba-4fa9-9b75-7aa98e9fa001"
+    },
+    {
+      "name": "activity log dirty is volatile baseline noise",
+      "run_type": "cli",
+      "file": "core/baseline-risk",
+      "execute": "const { appendFileSync } = await import(\"fs\");\nconst { execFileSync } = await import(\"child_process\");\nappendFileSync($root + \"/docs/story/activity.jsonl\", JSON.stringify({ tool: \"fixture-noise\", status: \"ok\" }) + \"\\n\");\nconst out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"session_brief\", \"--concise\"], { cwd: $root, encoding: \"utf8\" });\nreturn { hidesActivityPath: !out.includes(\"docs/story/activity.jsonl\"), hasBrief: out.includes(\"# koala session brief\") };",
+      "expect": {
+        "hidesActivityPath": true,
+        "hasBrief": true
+      },
+      "intentRef": "B-d139:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-d139",
+      "_id": "476ae865-80ba-4fa9-9b75-7aa98e9fa001",
+      "prevCaseId": "7854c5fc-c6e7-40f6-aeb9-4e4b4c2c0ff7",
+      "nextCaseId": "7471d556-b20a-4c19-a33b-9f42f8f45e28"
+    },
+    {
+      "name": "mutating checklist command still appends activity",
+      "run_type": "cli",
+      "file": "cli-engine",
+      "execute": "const { readFileSync } = await import(\"fs\");\nconst { execFileSync } = await import(\"child_process\");\nconst activity = $root + \"/docs/story/activity.jsonl\";\nconst count = () => readFileSync(activity, \"utf8\").split(\"\\n\").filter(Boolean).length;\nconst before = count();\nexecFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"story_discard\", JSON.stringify({ storyId: \"B-0072\", dryRun: true })], { cwd: $root, encoding: \"utf8\" });\nconst after = count();\nreturn { before, after, appended: after > before };",
+      "expect": {
+        "appended": true
+      },
+      "intentRef": "B-d139:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-d139",
+      "_id": "7471d556-b20a-4c19-a33b-9f42f8f45e28",
+      "prevCaseId": "476ae865-80ba-4fa9-9b75-7aa98e9fa001",
+      "nextCaseId": "f8ae70ed-63d2-4bc7-8fc8-5f7e5f077172"
+    },
+    {
+      "name": "discarded untracked residue cleanup dry run previews removal",
+      "run_type": "cli",
+      "file": "handlers/worktree",
+      "execute": "const { mkdirSync, writeFileSync } = await import(\"fs\");\nconst { execFileSync } = await import(\"child_process\");\nconst storyId = \"B-\" + Date.now().toString(16).slice(-4);\nconst dir = $root + \"/docs/story/actives/\" + storyId;\nmkdirSync(dir, { recursive: true });\nwriteFileSync(dir + \"/index.json\", JSON.stringify({ storyId, name: \"synthetic-residue\", title: \"Synthetic residue\", description: \"Synthetic DISCARDED residue\", type: \"bug\", priority: \"low\", phase: \"DISCARDED\", events: [] }, null, 2) + \"\\n\");\nconst preview = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"story_discard\", JSON.stringify({ storyId, cleanupResidue: true, dryRun: true })], { cwd: $root, encoding: \"utf8\" });\nexecFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"story_discard\", JSON.stringify({ storyId, cleanupResidue: true, confirm: true })], { cwd: $root, encoding: \"utf8\" });\nreturn { preview, hasRemovePlan: preview.includes(\"remove untracked discarded story residue\") };",
+      "expect": {
+        "hasRemovePlan": true
+      },
+      "intentRef": "B-d139:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-d139",
+      "_id": "f8ae70ed-63d2-4bc7-8fc8-5f7e5f077172",
+      "prevCaseId": "7471d556-b20a-4c19-a33b-9f42f8f45e28",
+      "nextCaseId": "f2226bd0-5003-4e22-a55b-c3668e194c51"
+    },
+    {
+      "name": "story_get surfaces discarded phase summary",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"story_get\", JSON.stringify({ storyId: \"B-0072\" })], { cwd: $root, encoding: \"utf8\" });\nconst result = JSON.parse(out.slice(out.indexOf(\"{\")));\nreturn result.story;",
+      "expect": {
+        "phase": "DISCARDED",
+        "terminal": true,
+        "discarded": true
+      },
+      "intentRef": "B-d139:CHK-002:edge:0",
+      "storyId": "B-d139",
+      "_id": "f2226bd0-5003-4e22-a55b-c3668e194c51",
+      "prevCaseId": "f8ae70ed-63d2-4bc7-8fc8-5f7e5f077172",
+      "nextCaseId": "d09496d1-5a57-45a3-9b89-96d1ff02d779",
+      "sandbox": false
+    },
+    {
+      "name": "cleanup residue refuses tracked discarded directories",
+      "run_type": "cli",
+      "file": "handlers/worktree",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst preview = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"story_discard\", JSON.stringify({ storyId: \"B-0072\", cleanupResidue: true, dryRun: true })], { cwd: $root, encoding: \"utf8\" });\nreturn { preview, preserved: preview.includes(\"仍被 git 跟踪\") };",
+      "expect": {
+        "preserved": true
+      },
+      "intentRef": "B-d139:CHK-002:adversarial:0",
+      "storyId": "B-d139",
+      "_id": "d09496d1-5a57-45a3-9b89-96d1ff02d779",
+      "prevCaseId": "f2226bd0-5003-4e22-a55b-c3668e194c51",
+      "nextCaseId": "2b8b1b00-de1d-4568-82e7-e1bc04498f43",
+      "sandbox": false
+    },
+    {
+      "name": "core aux_doc_list lists project docs",
+      "run_type": "cli",
+      "file": "handlers/aux-doc",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"aux_doc_list\", \"--format=json\"], { cwd: $root, encoding: \"utf8\" });\nconst parsed = JSON.parse(out.slice(out.indexOf(\"{\")));\nreturn { hasDocs: parsed.count > 0, hasAgents: parsed.docs.some((d) => d.path === \"AGENTS.md\") };",
+      "expect": {
+        "hasDocs": true,
+        "hasAgents": true
+      },
+      "intentRef": "B-d139:CHK-003:happy:0",
+      "storyId": "B-d139",
+      "_id": "2b8b1b00-de1d-4568-82e7-e1bc04498f43",
+      "prevCaseId": "d09496d1-5a57-45a3-9b89-96d1ff02d779",
+      "nextCaseId": "41747334-a051-4e4c-ae7e-f211d44eed00",
+      "sandbox": false
+    },
+    {
+      "name": "bootstrap aux_doc_list tolerates duplicate core handler",
+      "run_type": "cli",
+      "file": "cli-engine",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst out = execFileSync(process.execPath, [\"bin/koala.js\", \"aux_doc_list\", \"--format=json\"], { cwd: $root, encoding: \"utf8\" });\nreturn { ok: out.includes(\"\\\"count\\\"\") && !out.includes(\"Handler already registered\") };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-d139:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-d139",
+      "_id": "41747334-a051-4e4c-ae7e-f211d44eed00",
+      "prevCaseId": "2b8b1b00-de1d-4568-82e7-e1bc04498f43",
+      "nextCaseId": "05cf360a-a2e0-4958-9e13-f5998a202157"
+    },
+    {
+      "name": "aux_doc_list skips story and fixture runtime dirs",
+      "run_type": "cli",
+      "file": "handlers/aux-doc",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"aux_doc_list\", \"--format=json\"], { cwd: $root, encoding: \"utf8\" });\nconst parsed = JSON.parse(out.slice(out.indexOf(\"{\")));\nreturn { skipsStory: !parsed.docs.some((d) => d.path.startsWith(\"docs/story/\")), skipsFixtures: !parsed.docs.some((d) => d.path.includes(\"tests/fixtures\")) };",
+      "expect": {
+        "skipsStory": true,
+        "skipsFixtures": true
+      },
+      "intentRef": "B-d139:CHK-003:adversarial:0",
+      "storyId": "B-d139",
+      "_id": "05cf360a-a2e0-4958-9e13-f5998a202157",
+      "prevCaseId": "41747334-a051-4e4c-ae7e-f211d44eed00",
+      "sandbox": false
+    }
+  ]
+}

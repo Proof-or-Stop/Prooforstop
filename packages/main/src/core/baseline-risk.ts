@@ -34,7 +34,7 @@ function isUnder(path: string, parent: string): boolean {
 }
 
 function isVolatilePath(path: string): boolean {
-  return path.startsWith('.omx/');
+  return path.startsWith('.omx/') || path === 'docs/story/activity.jsonl';
 }
 
 export function collectBaselineRisk(

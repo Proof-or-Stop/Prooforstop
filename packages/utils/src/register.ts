@@ -12,10 +12,16 @@ import { createAuxDocHandlers } from './handlers/aux-doc.js';
 import { createToolStatusHandlers } from './handlers/tool-status.js';
 
 export function register(registry: Registry, ctx: HandlerContext): void {
+  const registerIfMissing = (handlers: Record<string, (...args: any[]) => any>) => {
+    for (const [name, handler] of Object.entries(handlers)) {
+      if (!registry.has(name)) registry.register(name, handler);
+    }
+  };
+
   registry.registerBatch(createAuxHandlers(ctx));
   registry.registerBatch(createAuxSyncHandlers(ctx));
   registry.registerBatch(createAuxTraceHandlers(ctx));
   registry.registerBatch(createAuxDiagnoseHandlers(ctx));
-  registry.registerBatch(createAuxDocHandlers(ctx));
+  registerIfMissing(createAuxDocHandlers(ctx));
   registry.registerBatch(createToolStatusHandlers(ctx));
 }
