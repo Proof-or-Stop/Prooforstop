@@ -15,19 +15,43 @@
         "happy": [
           {
             "desc": "fixture_batch_add dryRun validateExecute 对 CLI case 使用真实 runCase，能提前报告 expect 不匹配而不写 fixture 文件",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:50:38.319Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/fixture-preview-runner-parity.json:1 WHY dryRun validateExecute reports expect mismatch before writing fixture; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "dryRun validateExecute 能提前报告 sandbox 默认禁止 import(\"fs\")，错误信息与 test_story sandbox 语义一致",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:50:38.409Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/fixture-preview-runner-parity.json:1 WHY dryRun validateExecute reports sandbox fs block with same sandbox wording; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "dryRun validateExecute 遇到不存在的 $handlers 方法会报告运行错误，不会显示 OK 后才由 test_story 发现",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:50:38.496Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/fixture-preview-runner-parity.json:1 WHY missing handler surfaces as EXEC_ERROR in preview; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -46,19 +70,43 @@
         "happy": [
           {
             "desc": "CLI preview validateExecute 与 test_story 对同一 passing case 都通过，handler registry 和 expect 匹配一致",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:50:38.584Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/fixture-preview-runner-parity.json:1 WHY preview EXEC_OK and direct runCase both pass for same CLI case; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "browser run_type case 在 dryRun validateExecute 中明确提示 browser preview not executed，不伪装成真实通过",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:50:38.672Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/fixture-preview-runner-parity.json:1 WHY browser preview emits SKIP_EXEC instead of pretending real execution; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "preview 执行禁止 test_auto/test_story 递归调用，与真实 runCase 保护一致",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:50:38.759Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/fixture-preview-runner-parity.json:1 WHY recursive test_story call is blocked in preview like real runner; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -78,19 +126,43 @@
         "happy": [
           {
             "desc": "带 storyId 前缀的 intentRef 与不带前缀但 case.storyId 匹配的 intentRef 都被 coverage 归一化为同一个 CHK ref",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:50:38.843Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/fixture-preview-runner-parity.json:1 WHY scoped and legacy intentRefs normalize to same CHK refs; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "fixture_batch_add 自动给 legacy intentRef 加当前 storyId 前缀后，summarizeIntentCoverage 能正确计入 covered",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:50:38.930Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/fixture-preview-runner-parity.json:1 WHY fixture_batch_add auto-prefix legacy intentRef and coverage counts it; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "其它 storyId 前缀的 intentRef 不会误算到当前 story coverage",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:50:39.017Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/fixture-preview-runner-parity.json:1 WHY other storyId scoped intentRef does not count for current story; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -109,19 +181,43 @@
         "happy": [
           {
             "desc": "fixture 覆盖 preview validateExecute 提前发现 sandbox/handler/expect 三类真实 runner 问题",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:50:39.126Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/fixture-preview-runner-parity.json:1 WHY fixture covers preview sandbox/handler/expect failure classes; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "fixture 覆盖 dryRun 不写 fixture 文件且不产生 story residue",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:50:39.219Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/fixture-preview-runner-parity.json:1 WHY dryRun validateExecute does not create fixture file; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "fixture 覆盖 browser case 预览只给 SKIP_EXEC 提示，不声称已真实运行 browser executor",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:50:39.306Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/fixture-preview-runner-parity.json:1 WHY browser preview only reports SKIP_EXEC and no EXEC_OK; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
