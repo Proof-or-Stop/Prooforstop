@@ -17,55 +17,8 @@
 import type { HandlerContext } from './context.js';
 import { collectContext, getCurrentSessionId, getStorySessionOwner } from './context.js';
 import { createStoryActor } from '../core/machine.js';
-import { loadConfig } from '../core/config.js';
-import { readFileSync, existsSync, readdirSync } from 'fs';
-import { join } from 'path';
+import { summarizeIntentCoverage } from '../core/intent-coverage.js';
 import { renderAntiStall, reviewAntiStall, waitingAntiStall } from '../core/anti-stall.js';
-
-/**
- * Collect intentRef values from fixture files under fixturesDir, scoped by storyId.
- *
- * B-c745: intentRef used to be a flat string like "CHK-001:happy:0" which
- * collided across stories when the same CHK id appeared in different stories.
- * The scoped format is "<storyId>:CHK-NNN:lane:idx" (e.g. "B-c745:CHK-001:happy:0").
- *
- * This function returns the set of *unscoped* refs that belong to `storyId`:
- *   - "<storyId>:CHK-NNN:lane:idx" in fixtures → "CHK-NNN:lane:idx" in returned set
- *   - Bare "CHK-NNN:lane:idx" (legacy, no story prefix) → treated as belonging
- *     to whichever story owns the fixture file (detected via case.storyId), or
- *     if case.storyId is absent, IGNORED (no cross-story leakage).
- *
- * This means legacy fixtures that predate storyId scoping CANNOT keep new
- * stories passing by accident — they have to be explicitly re-tagged.
- */
-function collectIntentRefs(fixturesDir: string, storyId: string): Set<string> {
-  const refs = new Set<string>();
-  if (!existsSync(fixturesDir)) return refs;
-  const scopedPrefix = `${storyId}:`;
-  const scanDir = (dir: string) => {
-    for (const entry of readdirSync(dir, { withFileTypes: true })) {
-      if (entry.isDirectory()) { scanDir(join(dir, entry.name)); continue; }
-      if (!entry.name.endsWith('.json')) continue;
-      try {
-        const content = JSON.parse(readFileSync(join(dir, entry.name), 'utf-8'));
-        for (const c of content.cases || []) {
-          if (!c.intentRef || typeof c.intentRef !== 'string') continue;
-          const ref = c.intentRef as string;
-          if (ref.startsWith(scopedPrefix)) {
-            // Scoped form: "<storyId>:CHK-xxx:lane:idx" → store the CHK suffix.
-            refs.add(ref.slice(scopedPrefix.length));
-          } else if (c.storyId === storyId && /^CHK-\d+:(happy|edge|adversarial):\d+$/.test(ref)) {
-            // Legacy unscoped form on a case that explicitly claims storyId.
-            refs.add(ref);
-          }
-          // Anything else (bare unscoped + no case.storyId) is dropped.
-        }
-      } catch { /* ignore */ }
-    }
-  };
-  scanDir(fixturesDir);
-  return refs;
-}
 
 export function createChecklistHandlers(ctx: HandlerContext) {
   const { store } = ctx;
@@ -171,36 +124,6 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       }
 
       if (args.status) {
-        // 标 done 时检查 testIntent 覆盖率
-        if (args.status === 'done' && (item as any).testIntent) {
-          const intent = (item as any).testIntent as { happy: Array<string | { desc: string }>; edge: Array<string | { desc: string }>; adversarial: Array<string | { desc: string }> };
-          const config = loadConfig(ctx.root);
-          const fixturesDir = join(ctx.root, config.fixturesDir);
-          const allRefs = collectIntentRefs(fixturesDir, args.storyId);
-
-          const uncovered: string[] = [];
-          for (const lane of ['happy', 'edge', 'adversarial'] as const) {
-            const entries = intent[lane] || [];
-            for (let i = 0; i < entries.length; i++) {
-              const ref = `${args.itemId}:${lane}:${i}`;
-              if (!allRefs.has(ref)) {
-                const label = typeof entries[i] === 'string' ? entries[i] : (entries[i] as { desc: string }).desc;
-                uncovered.push(`${ref} → ${label}`);
-              }
-            }
-          }
-
-          if (uncovered.length > 0) {
-            const total = intent.happy.length + intent.edge.length + intent.adversarial.length;
-            const covered = total - uncovered.length;
-            throw new Error(
-              `Cannot mark ${args.itemId} as done: ${uncovered.length}/${total} testIntent 未覆盖\n` +
-              uncovered.map(u => `  - ${u}`).join('\n') +
-              `\n\n→ 给 fixture case 添加 intentRef 字段（如 "intentRef": "${args.itemId}:happy:0"）`
-            );
-          }
-        }
-
         item.status = args.status;
         if (args.status === 'in_progress' && !item.startTime) {
           item.startTime = now;
@@ -400,8 +323,10 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       const passed = results.filter(r => r.pass === true).length;
       const failed = results.filter(r => r.pass === false).length;
       const unreviewed = results.filter(r => r.pass === null).length;
+      const coverage = summarizeIntentCoverage(ctx.root, store, args.storyId);
+      const coverageMissing = coverage.missing.length;
 
-      const isAllPass = allPass && !hasUnreviewed;
+      const isAllPass = allPass && !hasUnreviewed && coverageMissing === 0;
       let hint = '';
       let autoAdvanced = false;
       if (isAllPass) {
@@ -437,6 +362,8 @@ export function createChecklistHandlers(ctx: HandlerContext) {
             ? `→ 全部通过，已由 gate-auto 自动推进到 TEST。请立即执行: test_story('${args.storyId}')`
             : `→ 全部通过，可推进: story_advance('${args.storyId}', 'TEST')`;
         }
+      } else if (coverageMissing > 0) {
+        hint = `→ 有 ${coverageMissing}/${coverage.total} 条 testIntent 缺少 fixture intentRef 覆盖。请在 TEST_CASE 阶段用 fixture_batch_add 补 case，并先运行 test_story --storyId=${args.storyId} 验证`;
       } else if (hasUnreviewed) {
         hint = `→ 有 ${unreviewed} 条未审核，请继续审核后再检查\n${waitingAntiStall(args.storyId)}`;
       } else {
@@ -466,8 +393,11 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       return {
         storyId: args.storyId,
         allPass: isAllPass,
-        summary: { total: results.length, passed, failed, unreviewed },
-        failures: results.filter(r => r.pass !== true),
+        summary: { total: results.length, passed, failed, unreviewed, fixtureCoverage: { total: coverage.total, covered: coverage.covered, missing: coverageMissing } },
+        failures: [
+          ...results.filter(r => r.pass !== true),
+          ...coverage.missing.map(m => ({ ref: m.ref, desc: m.desc, pass: false, note: 'fixture intentRef missing' })),
+        ],
         hint,
       };
     },

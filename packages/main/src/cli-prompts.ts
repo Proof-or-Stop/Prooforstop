@@ -318,11 +318,12 @@ export const FIXTURE_BATCH_ADD_LONG = `
 
 WHEN TO USE
   ✓ Story is in TEST_CASE phase, writing tests for the implemented code
+  ✓ Story is still in DEV and you intentionally add fixture cases early for compatibility validation
   ✓ You have 2+ cases to add to one fixture file (1 batch_add > N fixture_update)
   ✓ Adding chained cases (fixture_batch_add auto-builds prevCaseId/nextCaseId)
 
 WHEN NOT TO USE
-  ✗ Story still in DEV — finish DEV first, then advance to TEST_CASE
+  ✗ Any phase where fixture_batch_add is not listed by koala help — phase gate will hard fail
   ✗ Modifying ONE existing case — use fixture_update --action=update
   ✗ Editing fixture JSON directly — that's banned, use this CLI
 

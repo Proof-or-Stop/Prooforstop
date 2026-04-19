@@ -435,10 +435,30 @@ function formatTimeAgo(iso: string): string {
 interface ActiveStoryBrief {
   storyId: string;
   phase: string;
+  linkedPhase?: string;
   title: string;
   bugsOpen: number;
   story: StoryInfo;
   policy: ParallelPolicyView;
+}
+
+function readLinkedStoryPhase(storyId: string, linkedPath: string | null): string | null {
+  if (!linkedPath) return null;
+  const storyPath = join(linkedPath, 'docs', 'story', 'actives', storyId, 'index.json');
+  if (!existsSync(storyPath)) return null;
+  try {
+    const parsed = JSON.parse(readFileSync(storyPath, 'utf-8')) as { phase?: unknown };
+    return typeof parsed.phase === 'string' ? parsed.phase : null;
+  } catch {
+    return null;
+  }
+}
+
+function displayPhase(story: ActiveStoryBrief): string {
+  if (story.linkedPhase && story.linkedPhase !== story.phase) {
+    return `${story.phase} (worktree phase: ${story.linkedPhase})`;
+  }
+  return story.phase;
 }
 
 function formatParallelBadge(policy: ParallelPolicyView): string {
@@ -571,14 +591,19 @@ export function createSessionHandlers(ctx: HandlerContext) {
         // Active stories + worktree paths.
         const worktrees = listActiveWorktrees(ctx.root);
         if (activeStories.length > 0) {
-          activeStories = activeStories.map((story) => ({
-            ...story,
-            policy: summarizeParallelPolicy(story.story, storiesById),
-          }));
+          activeStories = activeStories.map((story) => {
+            const runtime = getStoryWorktreeRuntime(story.storyId, ctx.store, ctx.root);
+            const linkedPhase = readLinkedStoryPhase(story.storyId, runtime.linkedPath);
+            return {
+              ...story,
+              linkedPhase: linkedPhase || undefined,
+              policy: summarizeParallelPolicy(story.story, storiesById),
+            };
+          });
           activeStories.sort((a, b) => {
             const laneDelta = Number(b.policy.lane === 'mainline') - Number(a.policy.lane === 'mainline');
             if (laneDelta !== 0) return laneDelta;
-            const phaseDelta = rankPhase(b.phase) - rankPhase(a.phase);
+            const phaseDelta = rankPhase(b.linkedPhase || b.phase) - rankPhase(a.linkedPhase || a.phase);
             if (phaseDelta !== 0) return phaseDelta;
             const worktreeDelta = Number(Boolean(worktrees[b.storyId])) - Number(Boolean(worktrees[a.storyId]));
             if (worktreeDelta !== 0) return worktreeDelta;
@@ -593,10 +618,10 @@ export function createSessionHandlers(ctx: HandlerContext) {
             const bugStr = s.bugsOpen > 0 ? ` [${s.bugsOpen} bugs]` : '';
             const policyStr = ` [${formatParallelBadge(s.policy)}]`;
             if (wt) {
-              lines.push(`  ${s.storyId} ${s.phase.padEnd(16)} ${s.title}${bugStr}${policyStr}`);
+              lines.push(`  ${s.storyId} ${displayPhase(s).padEnd(30)} ${s.title}${bugStr}${policyStr}`);
               lines.push(`    → cd ${wt}`);
             } else {
-              lines.push(`  ${s.storyId} ${s.phase.padEnd(16)} ${s.title}${bugStr}${policyStr}`);
+              lines.push(`  ${s.storyId} ${displayPhase(s).padEnd(30)} ${s.title}${bugStr}${policyStr}`);
             }
           }
           if (activeStories.length > limit) {
@@ -608,13 +633,14 @@ export function createSessionHandlers(ctx: HandlerContext) {
         if (parallelBrief.primary) {
           lines.push('');
           lines.push('## Primary lane');
-          lines.push(`  ${parallelBrief.primary.storyId} ${parallelBrief.primary.phase} ${parallelBrief.primary.title} [${formatParallelBadge(parallelBrief.primary.policy)}]`);
+          lines.push(`  ${parallelBrief.primary.storyId} ${displayPhase(parallelBrief.primary)} ${parallelBrief.primary.title} [${formatParallelBadge(parallelBrief.primary.policy)}]`);
 
           const primaryRuntime = getStoryWorktreeRuntime(parallelBrief.primary.storyId, ctx.store, ctx.root);
           const primaryReviewers = getReviewerStatus(
             parallelBrief.primary.storyId,
             ctx.store,
             parallelBrief.primary.phase as any,
+            ctx.root,
           );
           lines.push('');
           for (const line of renderRuntimeHealthLines(primaryRuntime)) lines.push(line);
@@ -711,7 +737,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
         if (parallelBrief.primary) {
           const top = parallelBrief.primary;
           const runtime = getStoryWorktreeRuntime(top.storyId, ctx.store, ctx.root);
-          const reviewerStatus = getReviewerStatus(top.storyId, ctx.store, top.phase as any);
+          const reviewerStatus = getReviewerStatus(top.storyId, ctx.store, top.phase as any, ctx.root);
           const blocker = reviewerStatus.entries.find((entry) => entry.blocking && entry.verdict !== 'pass') || null;
           const failingReviewer = reviewerStatus.entries.find((entry) => entry.verdict === 'fail') || null;
           const wt = runtime.linkedPath || worktrees[top.storyId];
@@ -721,7 +747,10 @@ export function createSessionHandlers(ctx: HandlerContext) {
             lines.push(`  Primary lane ${failingReviewer.label} 当前为 ${failingReviewer.summary}。建议先修这条 reviewer 结论，再继续推进。`);
           } else if (wt) {
             const driftNote = runtime.drift ? ' (git linked worktree 已恢复，story 记录待同步)' : '';
-            lines.push(`  Resume: cd ${wt} (story ${top.storyId} is in ${top.phase})${driftNote}`);
+            const phaseNote = top.linkedPhase && top.linkedPhase !== top.phase
+              ? `main metadata ${top.phase}, linked worktree ${top.linkedPhase}`
+              : `story ${top.storyId} is in ${top.phase}`;
+            lines.push(`  Resume: cd ${wt} (${phaseNote})${driftNote}`);
           } else if (runtime.recoveryHint) {
             lines.push(`  Story ${top.storyId} runtime is ${runtime.status}. ${runtime.recoveryHint}`);
           } else {
@@ -744,7 +773,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
       lines.push(`**Story**: ${storyId} — ${story.title}`);
       lines.push(`**Phase**: ${story.phase}`);
       const runtimeStatus = getStoryWorktreeRuntime(storyId, ctx.store, ctx.root);
-      const reviewerStatus = getReviewerStatus(storyId, ctx.store, story.phase);
+      const reviewerStatus = getReviewerStatus(storyId, ctx.store, story.phase, ctx.root);
 
       // Checklist (kept: done/total + in_progress list).
       let checklistSummary: ChecklistSummary | null = null;

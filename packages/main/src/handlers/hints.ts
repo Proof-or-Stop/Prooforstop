@@ -132,7 +132,7 @@ const checklistUpdateHint: HintFn = (ctx) => {
     if (summary.allDone) {
       const phase = story?.phase ?? '';
       if (phase === 'DEV') {
-        return `→ 所有 ${summary.total} 个 checklist item 已 done。下一步：如需本地 git commit，未经用户 confirm 不允许；确认后再提交当前改动，并 story_advance --storyId=${storyId} --phase=TEST_CASE 进入测试编写`;
+        return `→ 所有 ${summary.total} 个 checklist item 已 done。下一步：story_advance --storyId=${storyId} --phase=TEST_CASE 进入测试编写；fixture 覆盖会在 TEST_CASE_REVIEW 前检查`;
       }
       if (phase === 'TEST_CASE') {
         return `→ 所有 item 已 done。下一步：如需本地 git commit fixture，未经用户 confirm 不允许；确认后再提交，并 story_advance --storyId=${storyId} --phase=TEST_CASE_REVIEW 进入审核`;
@@ -168,7 +168,7 @@ const fixtureBatchAddHint: HintFn = (ctx) => {
     return `→ Fixture cases 已添加。若要本地 git commit fixture，未经用户 confirm 不允许；确认后建议先提交，再跑 test_story --storyId=${storyId} 本地验证一遍，然后 story_advance --storyId=${storyId} --phase=TEST_CASE_REVIEW`;
   }
   if (phase === 'DEV') {
-    return `→ Fixture cases 已添加。注意当前还在 DEV 阶段，应先 story_advance phase=TEST_CASE 后再写 fixture（已写的不会丢，但流程上反了）`;
+    return `→ Fixture cases 已添加。DEV 阶段允许提前补 fixture 做兼容验证；建议仍在 TEST_CASE 阶段运行 test_story --storyId=${storyId} 后再进入审核`;
   }
   return `→ Fixture cases 已添加。下一步：先 test_story 验证；如需本地 git commit，未经用户 confirm 不允许；确认后再提交并 story_advance 推进`;
 };

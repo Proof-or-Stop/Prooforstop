@@ -228,21 +228,21 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         issues.push({
           type: 'parallel_policy_missing_lane',
           severity: 'advisory',
-          message: `未声明 lane。当前默认会按 ${parallelPolicy.lane} 推断，但建议显式设置 mainline/supporting/exploratory，避免并行调度时主线判断漂移`,
+          message: `未声明 lane。当前默认会按 ${parallelPolicy.lane} 推断，但建议显式设置 mainline/supporting/exploratory，避免并行调度时主线判断漂移。示例: koala story_update '{"storyId":"${story.storyId}","lane":"mainline"}'`,
         });
       }
       if (!story.parallelSafe) {
         issues.push({
           type: 'parallel_policy_missing_safety',
           severity: 'advisory',
-          message: `未声明 parallelSafe。当前默认会按 ${parallelPolicy.safety} 推断，建议显式设置 yes/no/plan_only，让 session_brief 能稳定给出并行建议`,
+          message: `未声明 parallelSafe。当前默认会按 ${parallelPolicy.safety} 推断，建议显式设置 yes/no/plan_only，让 session_brief 能稳定给出并行建议。示例: koala story_update '{"storyId":"${story.storyId}","parallelSafe":"plan_only"}'`,
         });
       }
       if ((story.phase === 'PLAN' || story.phase === 'DEV') && parallelPolicy.sharedHotspots.length === 0) {
         issues.push({
           type: 'parallel_policy_missing_hotspots',
           severity: 'advisory',
-          message: 'sharedHotspots 为空。建议列出会争抢的核心文件或模块，便于 session_brief 提前提示冲突',
+          message: `sharedHotspots 为空。建议列出会争抢的核心文件或模块，便于 session_brief 提前提示冲突。示例: koala story_update '{"storyId":"${story.storyId}","sharedHotspots":["packages/main/src/handlers/session.ts"]}'`,
         });
       }
       if ((story.depends?.length ?? 0) > 0 && parallelPolicy.safety === 'yes') {

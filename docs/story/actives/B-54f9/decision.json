@@ -1,0 +1,74 @@
+{
+  "principles": [
+    "阶段门禁只能保护用户工作，不能制造流程循环。",
+    "fixture 覆盖属于测试阶段责任，DEV done 只代表实现项完成。",
+    "只读验证应尽量靠近写入动作，避免把运行时错误推迟到后续阶段。",
+    "session_brief 必须以真实可恢复状态为先，而不是只展示当前 checkout 的旧 metadata。"
+  ],
+  "drivers": [
+    "真实用户已在两个 story 中遇到 phase drift 和 fixture gate 循环。",
+    "当前 CLI 帮助、phase filter、实际 handler 行为不一致。",
+    "Koala 自身测试有副作用限制，修复必须可用临时仓库或目标脚本验证。"
+  ],
+  "options": [
+    {
+      "name": "A: 最小一致性修复，保留 TEST_CASE phase",
+      "pros": [
+        "改动范围可控。",
+        "保留现有 story 流程和 reviewer 阶段。",
+        "可以直接消除 DEV done/fixture/test_story 的矛盾。"
+      ],
+      "cons": [
+        "仍保留 DEV 允许 fixture 的历史兼容，需要文案讲清楚。"
+      ]
+    },
+    {
+      "name": "B: 删除 TEST_CASE phase，回到 DEV 写代码和 fixture",
+      "pros": [
+        "流程更短。",
+        "与旧 story-lifecycle 文档部分一致。"
+      ],
+      "cons": [
+        "会触及状态机、历史 story、phase tool、文档和测试大量兼容面，风险高。"
+      ]
+    },
+    {
+      "name": "C: 禁止 DEV 写 fixture，强制 TEST_CASE 后再覆盖",
+      "pros": [
+        "职责分离最严格。"
+      ],
+      "cons": [
+        "如果 TEST_CASE 进入仍依赖 checklist done，而 checklist done 仍查 coverage，就无法打破当前循环。"
+      ]
+    }
+  ],
+  "chosen": "A: 最小一致性修复，保留 TEST_CASE phase",
+  "rationale": "选择 A，因为当前用户痛点来自门禁和文案不一致，不需要在本 story 中重构整个 phase 模型。先把 coverage gate 移到合适阶段，允许 TEST_CASE 立即 test_story，并让 session_brief 显示真实 runtime drift。",
+  "preMortem": [
+    {
+      "scenario": "放开 TEST_CASE 的 test_story 后测试写入 bug/evidence 污染阶段",
+      "trigger": "用户在 TEST_CASE 运行 failing story test",
+      "consequence": "提前生成 bug/evidence 或影响后续 reviewer 判断",
+      "mitigation": "确认 test_story 语义；若副作用不可接受，增加 verify-only 或在文案中说明 TEST_CASE 可运行 story 级验证。"
+    },
+    {
+      "scenario": "移除 checklist done coverage gate 后实现项被标 done 但没有测试覆盖",
+      "trigger": "agent 忘记在 TEST_CASE 添加 fixture",
+      "consequence": "测试覆盖延迟暴露",
+      "mitigation": "在 TEST_CASE_REVIEW/testintent_check 前强制 reviewer coverage，session/hint 明确 fixture_batch_add 加 test_story。"
+    },
+    {
+      "scenario": "session_brief 读取 linked worktree metadata 失败导致误报 drift",
+      "trigger": "worktree 被删除、路径漂移、JSON 解析失败",
+      "consequence": "brief 输出制造更多困惑",
+      "mitigation": "失败时降级为 runtime warning，不阻塞 brief，并给 reconcile 或 INIT_CHECK 恢复命令。"
+    },
+    {
+      "scenario": "帮助文档更新不完整，用户继续按旧流程操作",
+      "trigger": "只改 handler 不改 cli-prompts/README/requirements",
+      "consequence": "工具行为正确但 agent 仍被提示带偏",
+      "mitigation": "同批更新 help/hints/requirements，并用入口脚本验证关键文案。"
+    }
+  ],
+  "timestamp": "2026-04-19T16:47:10.754Z"
+}
