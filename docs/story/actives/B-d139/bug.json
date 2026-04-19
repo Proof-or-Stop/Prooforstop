@@ -74,6 +74,21 @@
         "traceDiff": null,
         "suggestedFix": "检查 case 报错信息定位根因"
       }
+    },
+    {
+      "id": "BUG-7471d556",
+      "title": "[auto] koala-readonly-residue-doclist.json:mutating checklist command still appends activity — Command failed: /Users/jek/.nvm/versions/node/v22.13.0/bin/node packages/main/dist/cli.js checklist_",
+      "status": "fixed",
+      "foundAt": "2026-04-19T20:59:18.682Z",
+      "fixedAt": "2026-04-19T21:07:32.820Z",
+      "fixtureId": "7471d556-b20a-4c19-a33b-9f42f8f45e28",
+      "diagnose": {
+        "rootCause": [
+          "Command failed: /Users/jek/.nvm/versions/node/v22.13.0/bin/node packages/main/dist/cli.js checklist_update {\"storyId\":\"B-d139\",\"itemId\":\"CHK-003\",\"status\":\"done\"}\n❌ 命令 \"checklist_update\" 在 TEST 阶段不可用\n   Story: B-d139  Phase: TEST\n   当前阶段可用命令: story_get, story_list, story_discard, lab_*, aux_*, checklist_get, testintent_handoff, truth_*, gap_*, convergence_check, story_advance, session_brief, status, next, doctor, summary_get, summary_set, implementation_review_result_get, implementation_review_result_set, test_auto, test_story, test_fixture, bug_report, bug_update, bug_list, bug_analyze, fixture_get, story_advance\n"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
     }
   ]
 }
