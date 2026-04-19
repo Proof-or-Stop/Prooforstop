@@ -1,0 +1,194 @@
+{
+  "generatedAt": "real-story-replay-v1",
+  "rows": [
+    {
+      "storyId": "B-7670",
+      "title": "优化生产 story_review 结构化输出",
+      "category": "story_review output",
+      "beforeProblem": "story_review output was too diffuse for agents to pick the next action confidently.",
+      "afterCapability": "Adds actionSummary and reviewPromptSummary while preserving legacy fields.",
+      "score": 1,
+      "why": "PASS evidence + summary artifact present + 9 fixture case(s) + 0 open bugs",
+      "explain": "Score=1 from deterministic artifacts: testEvidence 0.25, summary 0.20, fixtures 0.15, bugClosure 0.15, relevance 0.15, artifactDepth 0.10. Summary says: story_review 返回新增 actionSummary 和 reviewPromptSummary 两个顶层字段：actionSummary 从 issues/coverage 派生 canEnterDev、blockerTypes、advisoryTypes、missingInten...",
+      "evidence": {
+        "testPassed": true,
+        "hasSummary": true,
+        "fixtureCases": 9,
+        "cumulativePassedCases": 9,
+        "fixedBugs": 0,
+        "openBugs": 0,
+        "hasPhaseStats": true,
+        "hasImplementationReview": true,
+        "totalDurationMs": 297101
+      }
+    },
+    {
+      "storyId": "B-8d6a",
+      "title": "将 fixture-friendly testIntent 格式落到生产 prompt",
+      "category": "testIntent prompt",
+      "beforeProblem": "test-intent guidance was too abstract to translate directly into fixture cases.",
+      "afterCapability": "Adds fixture-heavy desc/type/input/expect/WHY guidance to production prompts.",
+      "score": 1,
+      "why": "PASS evidence + summary artifact present + 9 fixture case(s) + 0 open bugs",
+      "explain": "Score=1 from deterministic artifacts: testEvidence 0.25, summary 0.20, fixtures 0.15, bugClosure 0.15, relevance 0.15, artifactDepth 0.10. Summary says: 在 .claude/agents/test-intent.md 增加 fixture-heavy item 推荐字段说明，要求在适用时优先给出 desc/type/input/expect/WHY，保留简单 story 只写 desc/type 的轻量路径；同步 .Codex/agents/t...",
+      "evidence": {
+        "testPassed": true,
+        "hasSummary": true,
+        "fixtureCases": 9,
+        "cumulativePassedCases": 9,
+        "fixedBugs": 0,
+        "openBugs": 0,
+        "hasPhaseStats": true,
+        "hasImplementationReview": true,
+        "totalDurationMs": 379438
+      }
+    },
+    {
+      "storyId": "B-57e7",
+      "title": "为 koala-lab 增加 test-intent prompt 质量评分",
+      "category": "lab scoring profile",
+      "beforeProblem": "test-intent prompt quality had no repeatable score.",
+      "afterCapability": "Adds test-intent-prompt-quality-v1 with normalizedScore support.",
+      "score": 1,
+      "why": "PASS evidence + summary artifact present + 9 fixture case(s) + 0 open bugs",
+      "explain": "Score=1 from deterministic artifacts: testEvidence 0.25, summary 0.20, fixtures 0.15, bugClosure 0.15, relevance 0.15, artifactDepth 0.10. Summary says: 新增 test-intent-prompt-quality-v1 profile，专门评估 test-intent agent prompt 文档是否包含 fixture-heavy、input/expect、WHY、非全局硬性、desc/type 和 adversarial 去重等规则；新增...",
+      "evidence": {
+        "testPassed": true,
+        "hasSummary": true,
+        "fixtureCases": 9,
+        "cumulativePassedCases": 9,
+        "fixedBugs": 0,
+        "openBugs": 0,
+        "hasPhaseStats": true,
+        "hasImplementationReview": true,
+        "totalDurationMs": 236490
+      }
+    },
+    {
+      "storyId": "B-9c2c",
+      "title": "修复 story_get fixture 自动映射误配",
+      "category": "real bug fix",
+      "beforeProblem": "story_get detail could attach fixture evidence from an unrelated story.",
+      "afterCapability": "Scopes fixture mapping to the current story intentRef and records regression cases.",
+      "score": 1,
+      "why": "PASS evidence + summary artifact present + 6 fixture case(s) + 0 open bugs",
+      "explain": "Score=1 from deterministic artifacts: testEvidence 0.25, summary 0.20, fixtures 0.15, bugClosure 0.15, relevance 0.15, artifactDepth 0.10. Summary says: story_get detail now builds fixture mappings with current-story scoped intentRefs only; cli fixture schemas now preserve storyId so legacy refs can...",
+      "evidence": {
+        "testPassed": true,
+        "hasSummary": true,
+        "fixtureCases": 6,
+        "cumulativePassedCases": 6,
+        "fixedBugs": 0,
+        "openBugs": 0,
+        "hasPhaseStats": true,
+        "hasImplementationReview": true,
+        "totalDurationMs": 502972
+      }
+    },
+    {
+      "storyId": "B-990d",
+      "title": "为 Koala 增加面向用户价值的 product-reviewer 验收链路",
+      "category": "user value review",
+      "beforeProblem": "DONE could be technically green while missing user-facing value evidence.",
+      "afterCapability": "Adds product-reviewer advisory checks and outcome transcript quality pressure.",
+      "score": 0.98,
+      "why": "PASS evidence + summary artifact present + 9 fixture case(s) + 0 open bugs + 3 bug(s) fixed",
+      "explain": "Score=0.98 from deterministic artifacts: testEvidence 0.25, summary 0.20, fixtures 0.15, bugClosure 0.15, relevance 0.15, artifactDepth 0.05. Summary says: 新增 product-reviewer agent 定义，并让 init 资产生成链路把它一起纳入 Claude/Codex 两侧；story_review 增加 weak_outcome_transcript advisory 检查，用于识别过短或过抽象的 outcome transcrip...",
+      "evidence": {
+        "testPassed": true,
+        "hasSummary": true,
+        "fixtureCases": 9,
+        "cumulativePassedCases": 35,
+        "fixedBugs": 3,
+        "openBugs": 0,
+        "hasPhaseStats": true,
+        "hasImplementationReview": false,
+        "totalDurationMs": 19281173
+      }
+    },
+    {
+      "storyId": "B-e452",
+      "title": "把用户价值验收收紧为 transcript-diff gate",
+      "category": "transcript gate",
+      "beforeProblem": "User-value validation depended on agent discipline instead of a replayable artifact.",
+      "afterCapability": "Adds transcript-diff gate; this older story also reveals summary artifact gaps.",
+      "score": 0.43,
+      "why": "PASS evidence + summary artifact missing + no fixture case count + 0 open bugs",
+      "explain": "Score=0.43 from deterministic artifacts: testEvidence 0.25, summary 0.00, fixtures 0.00, bugClosure 0.15, relevance 0.15, artifactDepth 0.00. Summary is missing, so this story is kept in the benchmark but penalized as an artifact gap.",
+      "evidence": {
+        "testPassed": true,
+        "hasSummary": false,
+        "fixtureCases": 0,
+        "cumulativePassedCases": 0,
+        "fixedBugs": 0,
+        "openBugs": 0,
+        "hasPhaseStats": false,
+        "hasImplementationReview": false,
+        "totalDurationMs": null
+      }
+    },
+    {
+      "storyId": "B-78d2",
+      "title": "把 implementation-reviewer 补成有结果协议的完整能力",
+      "category": "implementation review",
+      "beforeProblem": "implementation-reviewer had no structured result protocol for session_brief to consume.",
+      "afterCapability": "Adds verdict/findings/summary artifacts and reviewer status visibility.",
+      "score": 0.98,
+      "why": "PASS evidence + summary artifact present + 12 fixture case(s) + 0 open bugs + 4 bug(s) fixed",
+      "explain": "Score=0.98 from deterministic artifacts: testEvidence 0.25, summary 0.20, fixtures 0.15, bugClosure 0.15, relevance 0.15, artifactDepth 0.05. Summary says: 给 implementation-reviewer 增加了结构化结果协议（verdict/findings/summary），并让 session_brief 能显示 implementation review verdict 与 findings 数量；同时补了 12 条 implement...",
+      "evidence": {
+        "testPassed": true,
+        "hasSummary": true,
+        "fixtureCases": 12,
+        "cumulativePassedCases": 80,
+        "fixedBugs": 4,
+        "openBugs": 0,
+        "hasPhaseStats": true,
+        "hasImplementationReview": false,
+        "totalDurationMs": 1137913
+      }
+    },
+    {
+      "storyId": "B-6bee",
+      "title": "把 session_brief 升级为多角色指挥台",
+      "category": "session recovery",
+      "beforeProblem": "session_brief did not expose enough role/activity context to resume confidently.",
+      "afterCapability": "Adds source/role/status activity semantics and sharper next-step inference.",
+      "score": 0.98,
+      "why": "PASS evidence + summary artifact present + 9 fixture case(s) + 0 open bugs + 4 bug(s) fixed",
+      "explain": "Score=0.98 from deterministic artifacts: testEvidence 0.25, summary 0.20, fixtures 0.15, bugClosure 0.15, relevance 0.15, artifactDepth 0.05. Summary says: 增强 session_brief 的 Recent activity 输出，让它展示 source/role/status 三元语义；主分支的 active stories 会按 phase 深度、是否已有 worktree 等因素排序，next step 会优先恢复更深 phase 的 st...",
+      "evidence": {
+        "testPassed": true,
+        "hasSummary": true,
+        "fixtureCases": 9,
+        "cumulativePassedCases": 22,
+        "fixedBugs": 4,
+        "openBugs": 0,
+        "hasPhaseStats": true,
+        "hasImplementationReview": false,
+        "totalDurationMs": 16289729
+      }
+    },
+    {
+      "storyId": "B-8bcf",
+      "title": "把 INIT_CHECK 的 worktree bootstrap 做成串行临界区",
+      "category": "worktree stability",
+      "beforeProblem": "Concurrent INIT_CHECK bootstrap could race and create broken story worktrees.",
+      "afterCapability": "Serializes bootstrap with a lock and verifies story metadata reaches the branch.",
+      "score": 0.98,
+      "why": "PASS evidence + summary artifact present + 6 fixture case(s) + 0 open bugs + 6 bug(s) fixed",
+      "explain": "Score=0.98 from deterministic artifacts: testEvidence 0.25, summary 0.20, fixtures 0.15, bugClosure 0.15, relevance 0.15, artifactDepth 0.05. Summary says: 把 INIT_CHECK 的 worktree bootstrap 改成共享锁保护的串行临界区，改为只 stage 当前 story metadata 与 koala.config，并在创建 branch/worktree 前后显式校验目标 commit 确实包含 story index。新增...",
+      "evidence": {
+        "testPassed": true,
+        "hasSummary": true,
+        "fixtureCases": 6,
+        "cumulativePassedCases": 6,
+        "fixedBugs": 6,
+        "openBugs": 0,
+        "hasPhaseStats": true,
+        "hasImplementationReview": false,
+        "totalDurationMs": 887347
+      }
+    }
+  ]
+}

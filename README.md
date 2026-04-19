@@ -139,6 +139,13 @@ npm run test:lab-scoring-core
 npm run test:lab-reviewer-mvp
 npm run test:lab-normalized-score
 npm run test:lab-flow-profiles
+npm run test:real-story-replay
+```
+
+真实任务回放评分表可用下面的脚本生成，输出同时包含 `Score`、`Why`、`Explain`，并写入 `experiments/reports/real-story-replay-v1.{md,json}`：
+
+```bash
+node scripts/real-story-replay-benchmark.mjs
 ```
 
 ## Claude Code
