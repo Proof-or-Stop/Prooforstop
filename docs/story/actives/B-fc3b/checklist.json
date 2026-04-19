@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "定义并复用 Koala phase 编号与合法跳转图",
       "context": "在代码中集中定义 phase order、ordinal、合法 next/back transitions，避免 session/status/story lifecycle 文档各写一套；relatedDocs: docs/requirements/decisions/story-lifecycle.md, docs/requirements/decisions/stack-layering.md",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
+      "status": "done",
+      "startTime": "2026-04-19T19:35:04.950Z",
+      "endTime": "2026-04-19T19:38:51.466Z",
       "testIntent": {
         "happy": [
           {
@@ -32,9 +32,9 @@
       "id": "CHK-002",
       "title": "在 koala status 中展示当前 phase 编号和 transition health",
       "context": "status/session_brief active story 分支展示 Phase: 5/9 DEV，并显示 allowed next/rollback；若 story metadata 与 linked worktree phase 不一致或非法跳转风险，给 health warning；relatedDocs: docs/requirements/decisions/story-lifecycle.md",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
+      "status": "done",
+      "startTime": "2026-04-19T19:38:51.561Z",
+      "endTime": "2026-04-19T19:38:51.655Z",
       "testIntent": {
         "happy": [
           {
@@ -83,6 +83,44 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-04-19T19:35:04.950Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "开始抽取 phase ordinal 与合法 transition graph"
+    },
+    {
+      "timestamp": "2026-04-19T19:38:51.466Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "phase-flow.ts 集中定义 phase order/ordinal/legal transitions，并替换 session/summary 局部顺序"
+    },
+    {
+      "timestamp": "2026-04-19T19:38:51.561Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "开始验证 status 中 phase ordinal 与 transition health 展示"
+    },
+    {
+      "timestamp": "2026-04-19T19:38:51.655Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "status --concise 已显示 5/9 DEV、allowed next TEST_CASE、allowed rollback PLAN，且保持只读"
     }
   ]
 }

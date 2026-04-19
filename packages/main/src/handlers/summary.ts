@@ -28,6 +28,7 @@ import { join, relative } from 'path';
 import type { HandlerContext } from './context.js';
 import type { StorySummaryData, StoryInfo, BugData, StoryTestRunsData } from '../core/types.js';
 import { loadConfig } from '../core/config.js';
+import { ACTIVE_PHASE_ORDER } from '../core/phase-flow.js';
 
 /**
  * B-1522: Compute per-phase visit count + accumulated duration from story.events.
@@ -419,8 +420,8 @@ export function renderSummaryForHint(summary: StorySummaryData): string {
   // B-1522: 各阶段进入次数 + 耗时
   if (summary.phaseStats && Object.keys(summary.phaseStats).length > 0) {
     lines.push('## 各阶段耗时');
-    // 按常见 phase 顺序排序，未列入的放最后
-    const phaseOrder = ['INIT', 'INIT_CHECK', 'PLAN', 'DEV', 'TEST_CASE', 'TEST_CASE_REVIEW', 'TEST', 'DONE'];
+    // 按核心 phase 顺序排序，未列入的放最后
+    const phaseOrder: string[] = ACTIVE_PHASE_ORDER.filter((phase) => phase !== 'IDEA');
     const ordered = Object.keys(summary.phaseStats).sort((a, b) => {
       const ia = phaseOrder.indexOf(a);
       const ib = phaseOrder.indexOf(b);

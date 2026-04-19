@@ -32,6 +32,12 @@ import { getArtifactContractStatus } from '../core/artifact-contract.js';
 import { getReviewerStatus, type ReviewerStatus } from '../core/reviewer-status.js';
 import { getStoryWorktreeRuntime } from '../core/worktree-runtime.js';
 import { collectBaselineRisk, renderBaselineRiskLines } from '../core/baseline-risk.js';
+import {
+  checkPhaseTransition,
+  describeAllowedTransitions,
+  formatPhaseOrdinal,
+  phaseRank,
+} from '../core/phase-flow.js';
 
 interface ActiveStoryDetected {
   storyId: string;
@@ -93,19 +99,8 @@ function readActivityTail(root: string, lines: number): Array<{
   }
 }
 
-const PHASE_PRIORITY: Record<string, number> = {
-  TEST: 7,
-  TEST_CASE_REVIEW: 6,
-  TEST_CASE: 5,
-  DEV: 4,
-  PLAN: 3,
-  INIT_CHECK: 2,
-  INIT: 1,
-  IDEA: 0,
-};
-
 function rankPhase(phase: string): number {
-  return PHASE_PRIORITY[phase] ?? -1;
+  return phaseRank(phase);
 }
 
 function inferRoleAwareNextStep(
@@ -456,9 +451,20 @@ function readLinkedStoryPhase(storyId: string, linkedPath: string | null): strin
 
 function displayPhase(story: ActiveStoryBrief): string {
   if (story.linkedPhase && story.linkedPhase !== story.phase) {
-    return `${story.phase} (worktree phase: ${story.linkedPhase})`;
+    return `${formatPhaseOrdinal(story.phase)} (worktree phase: ${formatPhaseOrdinal(story.linkedPhase)})`;
   }
-  return story.phase;
+  return formatPhaseOrdinal(story.phase);
+}
+
+function renderPhaseFlowLines(phase: string, linkedPhase?: string): string[] {
+  const lines = describeAllowedTransitions(phase).map((line) => `  ${line}`);
+  if (linkedPhase && linkedPhase !== phase) {
+    const health = checkPhaseTransition(phase, linkedPhase);
+    const marker = health.ok ? '✓' : '!';
+    lines.push(`  transition health: [${marker}] main ${formatPhaseOrdinal(phase)} -> worktree ${formatPhaseOrdinal(linkedPhase)} (${health.kind})`);
+    if (health.warning) lines.push(`  warning: ${health.warning}`);
+  }
+  return lines;
 }
 
 function formatParallelBadge(policy: ParallelPolicyView): string {
@@ -784,10 +790,17 @@ export function createSessionHandlers(ctx: HandlerContext) {
       // full pending list, JSON.stringify summary, long activity tail).
       // Reads only answer "what's happening now + what should I do next".
       const { storyId, story } = detected;
-      lines.push(`**Story**: ${storyId} — ${story.title}`);
-      lines.push(`**Phase**: ${story.phase}`);
       const runtimeStatus = getStoryWorktreeRuntime(storyId, ctx.store, ctx.root);
       const reviewerStatus = getReviewerStatus(storyId, ctx.store, story.phase, ctx.root);
+      lines.push(`**Story**: ${storyId} — ${story.title}`);
+      const linkedPhase = readLinkedStoryPhase(storyId, runtimeStatus.linkedPath);
+      lines.push(`**Phase**: ${formatPhaseOrdinal(story.phase)}`);
+      if (linkedPhase && linkedPhase !== story.phase) {
+        lines.push(`**Worktree phase**: ${formatPhaseOrdinal(linkedPhase)}`);
+      }
+      lines.push('');
+      lines.push('## Phase flow');
+      for (const line of renderPhaseFlowLines(story.phase, linkedPhase || undefined)) lines.push(line);
 
       // Checklist (kept: done/total + in_progress list).
       let checklistSummary: ChecklistSummary | null = null;
