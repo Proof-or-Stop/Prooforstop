@@ -7,6 +7,7 @@ import { join } from 'path';
 const root = process.cwd();
 const mode = process.argv[2] || 'all';
 const script = join(root, 'scripts', 'real-story-replay-benchmark.mjs');
+const backfillPath = join(root, 'experiments', 'replay-artifacts', 'real-story-replay-v1.json');
 const jsonPath = join(root, 'experiments', 'reports', 'real-story-replay-v1.json');
 const mdPath = join(root, 'experiments', 'reports', 'real-story-replay-v1.md');
 
@@ -35,13 +36,14 @@ const checks = {
   'score-table': () => {
     const out = runReplay();
     const { json, md } = loadReport();
-    assert(out.includes('| Story | Score | Why | Explain |'), 'stdout should include score/why/explain table');
-    assert(md.includes('| Story | Category | Score | Why | Explain |'), 'markdown should include Score/Why/Explain headers');
+    assert(out.includes('| Story | Score | Evidence Quality | Why | Explain |'), 'stdout should include score/evidenceQuality/why/explain table');
+    assert(md.includes('| Story | Category | Score | Evidence Quality | Why | Explain |'), 'markdown should include Score/Evidence Quality/Why/Explain headers');
     assert(json.rows.length >= 9, 'report should include the real story sample set');
     for (const row of json.rows) {
       assert(row.storyId && typeof row.storyId === 'string', 'each row needs storyId');
       assert(Number.isFinite(row.score), `${row.storyId} score should be finite`);
       assert(row.score >= 0 && row.score <= 1, `${row.storyId} score should be between 0 and 1`);
+      assert(row.evidenceQuality && typeof row.evidenceQuality === 'string', `${row.storyId} needs evidenceQuality`);
       assert(row.why && typeof row.why === 'string', `${row.storyId} needs why`);
       assert(row.explain && typeof row.explain === 'string', `${row.storyId} needs explain`);
     }
@@ -61,9 +63,29 @@ const checks = {
     const { json } = loadReport();
     const row = json.rows.find((item) => item.storyId === 'B-e452');
     assert(row, 'B-e452 row should exist');
-    assert(row.score < 0.9, 'B-e452 should be penalized for missing summary');
-    assert(row.why.includes('summary artifact missing'), 'B-e452 why should mention missing summary');
-    assert(row.explain.includes('artifact gap'), 'B-e452 explain should describe artifact gap');
+    assert(row.score >= 0.75 && row.score < 0.9, `B-e452 should improve but remain lower-weighted, got ${row.score}`);
+    assert(row.evidenceQuality === 'backfilled', 'B-e452 should be marked backfilled');
+    assert(row.why.includes('backfilled summary evidence'), 'B-e452 why should mention backfilled summary');
+    assert(row.explain.includes('Native summary is missing'), 'B-e452 explain should preserve artifact gap');
+  },
+  'evidence-quality': () => {
+    runReplay();
+    const { json, md } = loadReport();
+    const byId = new Map(json.rows.map((row) => [row.storyId, row]));
+    assert(byId.get('B-e452').evidenceQuality === 'backfilled', 'B-e452 should be backfilled');
+    assert(byId.get('B-9c2c').evidenceQuality === 'native', 'B-9c2c should remain native');
+    assert(md.includes('`native` evidence comes from story artifacts'), 'markdown should explain native evidence');
+    assert(md.includes('`backfilled` evidence is explicitly marked'), 'markdown should explain backfilled evidence');
+  },
+  'backfill-metadata-required': () => {
+    const metadata = JSON.parse(readFileSync(backfillPath, 'utf8'));
+    for (const [storyId, item] of Object.entries(metadata.stories || {})) {
+      for (const field of ['evidenceQuality', 'source', 'why', 'explain']) {
+        assert(item[field] && typeof item[field] === 'string', `${storyId} backfill missing ${field}`);
+      }
+      assert(item.summary?.changes && item.summary?.usage, `${storyId} backfill needs summary changes/usage`);
+      assert(item.evidence && typeof item.evidence === 'object', `${storyId} backfill needs evidence object`);
+    }
   },
   'stable-rerun': () => {
     runReplay();
