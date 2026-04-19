@@ -4,7 +4,7 @@
   "title": "将 fixture-friendly testIntent 格式落到生产 prompt",
   "description": "根据 koala-lab 的 testIntent 结构化候选实验，将 t07-reviewer-friendly 的关键要求落到 .claude/agents/test-intent.md，并同步 .Codex/agents/test-intent.md：在保留现有 desc/type 要求的基础上，为 fixture-heavy story 明确推荐 input/expect 与 WHY/context，让 testIntent 更容易映射到 fixture 和 reviewer 审核。",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DEV",
   "priority": "high",
   "lane": "mainline",
   "parallelSafe": "no",
@@ -30,6 +30,22 @@
       "action": "advance",
       "timestamp": "2026-04-19T09:15:47.624Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-19T09:15:55.345Z",
+      "branch": "story/B-8d6a",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-19T09:16:46.926Z",
+      "branch": "story/B-8d6a",
       "user": "Harmonygo",
       "agent": "main"
     }

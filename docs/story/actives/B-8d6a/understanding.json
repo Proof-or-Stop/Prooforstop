@@ -1,0 +1,21 @@
+{
+  "task": "把 koala-lab testIntent 实验胜出的 fixture-friendly 写法落到生产 test-intent agent prompt。",
+  "outcome": "$ npm run test:codex-assets\ncodex assets verified\n\n$ node scripts/verify-test-intent-prompt-fixture-friendly.mjs\nok fixture-friendly prompt rule\n\n$ koala lab compare --config experiments/configs/lab-test-intent-prompt-v1.json\n{ \"best\": { \"normalizedScore\": 0.98, \"decision\": \"kept\" } }\n用户确认 test-intent prompt 已经要求 fixture-heavy story 优先写 input/expect/WHY，且 Codex/Claude 资产没有漂移。",
+  "facts": [
+    "testIntent 实验显示 t07-reviewer-friendly normalizedScore=0.9856，明显高于 baseline 0.6667。",
+    "当前 test-intent prompt 只要求 desc + type，不明确推荐 input/expect/WHY。",
+    ".Codex/agents 从 .claude/agents transform 生成，必须同步。"
+  ],
+  "constraints": [
+    "不能强制所有简单 story 都写 input/expect，避免 prompt 过重。",
+    "fixture-heavy story 应明确推荐 input/expect/WHY。",
+    "npm run test:codex-assets 必须通过。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    ".claude/agents/test-intent.md",
+    ".Codex/agents/test-intent.md",
+    "scripts/verify-test-intent-prompt-fixture-friendly.mjs"
+  ],
+  "timestamp": "2026-04-19T09:16:15.418Z"
+}

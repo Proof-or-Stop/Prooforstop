@@ -10,7 +10,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "读取 .claude/agents/test-intent.md → 包含 fixture-heavy 推荐 input/expect/WHY 格式说明",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "简单 story 规则仍允许只写 desc/type → prompt 不把 input/expect 设为全局硬性要求",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "prompt 缺少 WHY 或 fixture 映射说明 → 回归脚本失败",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -22,7 +42,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "运行 npm run test:codex-assets → .Codex/agents/test-intent.md 与 .claude transform 保持一致",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "检查 .Codex/agents/test-intent.md → 包含 Codex 路径语义且不出现 Claude Code isolation 文案",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果 .Codex agent 漂移 → test:codex-assets 失败并指出 drift",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -33,7 +73,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "运行 prompt fixture-friendly 回归脚本 → 检测 desc/type/input/expect/WHY 规则存在",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "运行 koala-lab prompt 对比 → 新 prompt normalizedScore 不低于旧 prompt",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "prompt 误把 input/expect 写成所有 story 必填 → 回归脚本失败",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }
