@@ -6,7 +6,27 @@
       "context": "基于 docs/requirements/decisions/stack-layering.md 和 project-vision.md，明确 Koala 不做 agent runtime，只负责 story/phase/gate/evidence/project state；relatedDocs: docs/requirements/decisions/stack-layering.md, docs/requirements/decisions/project-vision.md, README.md",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "用户查看分层真相源或 README -> 能看到 Koala 明确定位为 project-state runtime/project execution substrate，而 Codex/Claude/OMX 负责 agent runtime/workflow；WHY: 覆盖边界说明的正向可见结果",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "文档同时提到 OMX 借鉴点 -> 必须说明只借鉴可观察/可恢复/可诊断思想，不把 .koala/state 或 agent orchestration 作为当前 story 的真相源；WHY: 防止边界说明含糊导致后续实现膨胀",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "搜索文档中的 runtime 表述 -> 不应出现 Koala 负责启动/管理 Codex、Claude session 或通用 worker 池的承诺；WHY: 对抗性验证 Koala 没越界成 agent runtime",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -14,7 +34,27 @@
       "context": "复用 session_brief 已有事实来源，输出 active story、phase/worktree、dirty baseline risk、open bugs、review/test 状态；先只读，不写 .koala/state；relatedDocs: docs/requirements/decisions/story-lifecycle.md, docs/requirements/decisions/testing-infra.md",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "在主分支或 story worktree 运行 `koala status` -> 输出包含 Dashboard/Active story 或当前 story、Runtime health、Reviewer status、Artifacts、Working tree/dirty risk 等工程状态总览；WHY: 覆盖 status 的用户可观察主路径",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "没有 active story 或当前处于 INIT/PLAN 等早期阶段时运行 `koala status` -> 命令仍只读成功，并给出 no active story 或当前 phase 的可理解状态，不要求 .koala/state 存在；WHY: 覆盖恢复现场和空状态边界",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "运行 `koala status` 前后比较 git status 与 story phase -> 不应产生文件改动、不推进 phase、不写 .koala/state；WHY: 对抗性验证 status 是只读 project-state 视图",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -22,7 +62,27 @@
       "context": "从 status/session_brief 推断最可信下一步，面向 agent 恢复现场；输出应简洁可执行，不推进 phase、不修改文件；relatedDocs: docs/requirements/decisions/story-lifecycle.md",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "在有 active story 的 worktree 运行 `koala next` -> 输出简洁的下一步建议，包含当前 phase 相关的可执行 koala 命令；WHY: 覆盖 next 的主恢复场景",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "当前状态缺 understanding/decision/reviewer/test evidence 等 artifact 时运行 `koala next` -> 优先指出最靠前的缺口，而不是泛泛建议继续开发；WHY: 覆盖 gate 缺口排序和早期 PLAN 场景",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "运行 `koala next` 前后比较 git status 与 story phase -> 不应产生文件改动、不推进 phase、不写 .koala/state，且输出不应包含完整 session_brief 噪音；WHY: 对抗性验证 next 是只读且面向下一步的精简入口",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }
