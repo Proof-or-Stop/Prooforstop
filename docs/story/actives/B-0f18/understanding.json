@@ -1,0 +1,21 @@
+{
+  "task": "用 koala-lab 的 story-review-quality-v1 跑当前 story_review 与结构化候选样本的跑前/跑后数据对比。",
+  "outcome": "$ node scripts/run-story-review-experiment.mjs\nBaseline normalizedScore: 0.xx\nBest candidate: r02-blocker-first normalizedScore: 0.yy (+0.zz)\nReport: experiments/reports/story-review-structured-v1.md\n\n报告列出候选 story_review 输出格式的 score、normalizedScore、contentSummary、长度变化和推荐实现方向。",
+  "facts": [
+    "story-review-quality-v1 已经实现。",
+    "当前 story 不直接改生产 story_review 代码。",
+    "需要产出 experiments/candidates/story-review 与 report，作为后续实现依据。"
+  ],
+  "constraints": [
+    "baseline 固定为当前真实 story_review 输出。",
+    "candidate 是样本文本，不伪装成生产实现。",
+    "报告必须同时包含机器分数、内容摘要和人工建议。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "experiments/candidates/story-review",
+    "experiments/reports/story-review-structured-v1.md",
+    "scripts/run-story-review-experiment.mjs"
+  ],
+  "timestamp": "2026-04-19T00:51:29.446Z"
+}

@@ -1,0 +1,16 @@
+# r03-fix-command-first Fix Command First
+
+Fix first:
+1. koala checklist_update '{"storyId":"B-x","itemId":"CHK-002","testIntent":{...}}'
+2. koala decision_set '{...preMortem...}'
+3. koala story_review '{"storyId":"B-x"}'
+
+Review data:
+issueCount=4
+blockerCount=2
+missing_intent=CHK-002
+riskSignals=gate
+intentCoverage=7/9
+decision/preMortem missing
+_hint=fix blockers
+_reviewPrompt=review prompt present
