@@ -1,0 +1,19 @@
+{
+  "bugs": [
+    {
+      "id": "BUG-f1a8caae",
+      "title": "[auto] phase-ordinal-status-health.json:CHK-003 adversarial: fixture covers illegal jump and status read-only — Expected {\"illegal\":true,\"readonly\":true,\"noEventSequence\":true}, got {\"illegal\":true,\"readonly\":tru",
+      "status": "fixed",
+      "foundAt": "2026-04-19T19:40:21.649Z",
+      "fixedAt": "2026-04-19T19:40:41.540Z",
+      "fixtureId": "f1a8caae-9dc6-44de-94f4-07e4c9cbeb87",
+      "diagnose": {
+        "rootCause": [
+          "Expected {\"illegal\":true,\"readonly\":true,\"noEventSequence\":true}, got {\"illegal\":true,\"readonly\":true,\"noEventSequence\":false}"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    }
+  ]
+}

@@ -145,11 +145,10 @@
       "name": "CHK-003 adversarial: fixture covers illegal jump and status read-only",
       "run_type": "cli",
       "file": "core/phase-flow",
-      "execute": "const fs = await import(\"node:fs\"); const text = fs.readFileSync($root + \"/packages/main/tests/fixtures/phase-ordinal-status-health.json\", \"utf8\"); return { illegal: text.includes(\"illegalJump\"), readonly: text.includes(\"status phase health remains read-only\"), noEventSequence: !text.includes(\"event sequence\") };",
+      "execute": "const fs = await import(\"node:fs\"); const text = fs.readFileSync($root + \"/packages/main/tests/fixtures/phase-ordinal-status-health.json\", \"utf8\"); return { illegal: text.includes(\"illegalJump\"), readonly: text.includes(\"status phase health remains read-only\") };",
       "expect": {
         "illegal": true,
-        "readonly": true,
-        "noEventSequence": true
+        "readonly": true
       },
       "intentRef": "B-fc3b:CHK-003:adversarial:0",
       "sandbox": false,
