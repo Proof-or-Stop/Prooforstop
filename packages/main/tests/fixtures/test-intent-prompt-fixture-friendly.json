@@ -1,0 +1,137 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: claude prompt contains fixture-heavy fields",
+      "run_type": "cli",
+      "file": "agents/test-intent",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('bash', ['-lc', \"node scripts/verify-test-intent-prompt-fixture-friendly.mjs\"], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: true, out };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-8d6a:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-8d6a",
+      "_id": "f862df8d-cd6d-4fea-9a22-43cdc1bdfc0f",
+      "nextCaseId": "937f3c8a-fd75-4657-b87e-b9b9fb6e6b7c"
+    },
+    {
+      "name": "CHK-001 edge: prompt does not require input expect globally",
+      "run_type": "cli",
+      "file": "agents/test-intent",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('bash', ['-lc', \"node scripts/verify-test-intent-prompt-fixture-friendly.mjs\"], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: true, out };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-8d6a:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-8d6a",
+      "_id": "937f3c8a-fd75-4657-b87e-b9b9fb6e6b7c",
+      "prevCaseId": "f862df8d-cd6d-4fea-9a22-43cdc1bdfc0f",
+      "nextCaseId": "d97f0484-c6f7-4ea9-9568-934c0f55c234"
+    },
+    {
+      "name": "CHK-001 adversarial: missing WHY would fail prompt verifier",
+      "run_type": "cli",
+      "file": "agents/test-intent",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('bash', ['-lc', \"node scripts/verify-test-intent-prompt-fixture-friendly.mjs\"], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: true, out };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-8d6a:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-8d6a",
+      "_id": "d97f0484-c6f7-4ea9-9568-934c0f55c234",
+      "prevCaseId": "937f3c8a-fd75-4657-b87e-b9b9fb6e6b7c",
+      "nextCaseId": "8d73ee74-331d-481e-ae10-ce8795156132"
+    },
+    {
+      "name": "CHK-002 happy: codex assets verified",
+      "run_type": "cli",
+      "file": "agents/test-intent",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('bash', ['-lc', \"npm run test:codex-assets\"], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: true, out };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-8d6a:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-8d6a",
+      "_id": "8d73ee74-331d-481e-ae10-ce8795156132",
+      "prevCaseId": "d97f0484-c6f7-4ea9-9568-934c0f55c234",
+      "nextCaseId": "80b99f13-ef0a-43f9-ac25-625b54303a9b"
+    },
+    {
+      "name": "CHK-002 edge: codex prompt has Codex wording",
+      "run_type": "cli",
+      "file": "agents/test-intent",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('bash', ['-lc', \"node scripts/verify-test-intent-prompt-fixture-friendly.mjs\"], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: true, out };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-8d6a:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-8d6a",
+      "_id": "80b99f13-ef0a-43f9-ac25-625b54303a9b",
+      "prevCaseId": "8d73ee74-331d-481e-ae10-ce8795156132",
+      "nextCaseId": "5273aee3-3ad3-45da-afda-d2b6a7618c7a"
+    },
+    {
+      "name": "CHK-002 adversarial: codex drift is caught by verifier",
+      "run_type": "cli",
+      "file": "agents/test-intent",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('bash', ['-lc', \"npm run test:codex-assets\"], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: true, out };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-8d6a:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-8d6a",
+      "_id": "5273aee3-3ad3-45da-afda-d2b6a7618c7a",
+      "prevCaseId": "80b99f13-ef0a-43f9-ac25-625b54303a9b",
+      "nextCaseId": "0455c762-d1cc-4937-b209-f37c1637343e"
+    },
+    {
+      "name": "CHK-003 happy: prompt regression script passes",
+      "run_type": "cli",
+      "file": "agents/test-intent",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('bash', ['-lc', \"node scripts/verify-test-intent-prompt-fixture-friendly.mjs\"], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: true, out };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-8d6a:CHK-003:happy:0",
+      "sandbox": false,
+      "storyId": "B-8d6a",
+      "_id": "0455c762-d1cc-4937-b209-f37c1637343e",
+      "prevCaseId": "5273aee3-3ad3-45da-afda-d2b6a7618c7a",
+      "nextCaseId": "28ddf44b-cd51-4c3d-8518-3bdb4849c8ee"
+    },
+    {
+      "name": "CHK-003 edge: lab prompt comparison record exists",
+      "run_type": "cli",
+      "file": "agents/test-intent",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('bash', ['-lc', \"test -f experiments/reports/test-intent-prompt-fixture-friendly-v1.json\"], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: true, out };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-8d6a:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-8d6a",
+      "_id": "28ddf44b-cd51-4c3d-8518-3bdb4849c8ee",
+      "prevCaseId": "0455c762-d1cc-4937-b209-f37c1637343e",
+      "nextCaseId": "b57fa456-1074-439b-a3ec-871f98164a72"
+    },
+    {
+      "name": "CHK-003 adversarial: prompt verifier guards mandatory input expect wording",
+      "run_type": "cli",
+      "file": "agents/test-intent",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('bash', ['-lc', \"node scripts/verify-test-intent-prompt-fixture-friendly.mjs\"], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: true, out };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-8d6a:CHK-003:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-8d6a",
+      "_id": "b57fa456-1074-439b-a3ec-871f98164a72",
+      "prevCaseId": "28ddf44b-cd51-4c3d-8518-3bdb4849c8ee"
+    }
+  ]
+}
