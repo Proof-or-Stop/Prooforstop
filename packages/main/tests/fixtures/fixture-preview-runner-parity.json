@@ -18,7 +18,7 @@
       "name": "dryRun validateExecute reports sandbox fs error",
       "run_type": "cli",
       "file": "handlers/fixture",
-      "execute": "const { execFileSync } = await import(\"child_process\");\nconst payload = { fixturePath:\"tmp-preview-sandbox\", dryRun:true, validateExecute:true, storyId:\"B-26bb\", cases:[{ name:\"fs blocked\", run_type:\"cli\", file:\"handlers/fixture\", execute:\"const fs = await import('fs'); return true;\", expect:true, intentRef:\"CHK-001:edge:0\" }] };\nconst out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"fixture_batch_add\", JSON.stringify(payload)], { cwd:$root, encoding:\"utf8\" });\nreturn { hasSandbox: out.includes(\"EXEC_ERROR\") && out.includes(\"[sandbox]\") && out.includes(\"import(\"fs\")\") };",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst payload = { fixturePath:\"tmp-preview-sandbox\", dryRun:true, validateExecute:true, storyId:\"B-26bb\", cases:[{ name:\"fs blocked\", run_type:\"cli\", file:\"handlers/fixture\", execute:\"const fs = await import('fs'); return true;\", expect:true, intentRef:\"CHK-001:edge:0\" }] };\nconst out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"fixture_batch_add\", JSON.stringify(payload)], { cwd:$root, encoding:\"utf8\" });\nreturn { hasSandbox: out.includes(\"EXEC_ERROR\") && out.includes(\"[sandbox]\") && out.includes('import(\"fs\")') };",
       "expect": {
         "hasSandbox": true
       },
@@ -79,7 +79,7 @@
       "name": "preview blocks recursive test_story call like real runner",
       "run_type": "cli",
       "file": "handlers/fixture",
-      "execute": "const { execFileSync } = await import(\"child_process\");\nconst payload = { fixturePath:\"tmp-preview-recursion\", dryRun:true, validateExecute:true, storyId:\"B-26bb\", cases:[{ name:\"recursive\", run_type:\"cli\", file:\"handlers/fixture\", execute:\"return await $handlers.test_story({ storyId: \"B-26bb\" });\", expect:true, intentRef:\"CHK-002:adversarial:0\" }] };\nconst out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"fixture_batch_add\", JSON.stringify(payload)], { cwd:$root, encoding:\"utf8\" });\nreturn { blocked: out.includes(\"EXEC_ERROR\") && out.includes(\"test_story 禁止在 fixture case 内调用\") };",
+      "execute": "const { execFileSync } = await import(\"child_process\");\nconst payload = { fixturePath:\"tmp-preview-recursion\", dryRun:true, validateExecute:true, storyId:\"B-26bb\", cases:[{ name:\"recursive\", run_type:\"cli\", file:\"handlers/fixture\", execute:\"return await $handlers.test_story({ storyId: 'B-26bb' });\", expect:true, intentRef:\"CHK-002:adversarial:0\" }] };\nconst out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"fixture_batch_add\", JSON.stringify(payload)], { cwd:$root, encoding:\"utf8\" });\nreturn { blocked: out.includes(\"EXEC_ERROR\") && out.includes(\"test_story 禁止在 fixture case 内调用\") };",
       "expect": {
         "blocked": true
       },
