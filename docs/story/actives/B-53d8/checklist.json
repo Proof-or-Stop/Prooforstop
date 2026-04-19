@@ -15,19 +15,43 @@
         "happy": [
           {
             "desc": "B-e452 backfill metadata 提供 source/why/explain/evidenceQuality，且不会写入原始 story summary",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:25:23.243Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/real-story-replay-benchmark.json:146 WHY verifies B-e452 backfill metadata has source/why/explain/evidenceQuality and does not mutate native summary; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "缺 summary 的 story 使用 backfill 后仍在 explain 中声明 artifact gap",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:25:23.491Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/real-story-replay-benchmark.json:161 WHY verifies missing native summary remains visible in explain while score uses backfill; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "backfill metadata 缺 source/why/explain/evidenceQuality 任一字段时验证失败",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:25:23.729Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/real-story-replay-benchmark.json:177 WHY verifies required backfill metadata fields are enforced by the verifier; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -47,19 +71,43 @@
         "happy": [
           {
             "desc": "replay 表格新增 Evidence Quality 列，B-e452 score 提升到 0.75+ 且 why 明确 backfilled",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:25:23.961Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/real-story-replay-benchmark.json:193 WHY verifies Evidence Quality column and B-e452 transparent score lift to 0.75+; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "没有 backfill 的 story 仍显示 native evidenceQuality 且分数不被改变",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:25:24.194Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/real-story-replay-benchmark.json:209 WHY verifies native stories keep native evidenceQuality and are not changed by backfill; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "score 不允许按 storyId 硬编码；必须由通用 evidence components 计算并解释",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:25:24.450Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/real-story-replay-benchmark.json:225 WHY verifies score remains component-based and includes explanation, not storyId hardcoding; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -78,19 +126,43 @@
         "happy": [
           {
             "desc": "npm run test:real-story-replay 覆盖 evidenceQuality、B-e452 分数提升、稳定复跑",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:25:24.690Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/real-story-replay-benchmark.json:241 WHY verifies npm test covers evidenceQuality and backfilled story score; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "重复运行 replay 脚本不会因为 generatedAt 或 metadata 顺序造成 diff 抖动",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:25:24.954Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/real-story-replay-benchmark.json:257 WHY verifies replay reruns are stable after backfill metadata; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "报告缺 Score/Why/Explain/Evidence Quality 任一列时 fixture 失败",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:25:25.208Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/real-story-replay-benchmark.json:273 WHY verifies report requires Score/Why/Explain/Evidence Quality columns; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
