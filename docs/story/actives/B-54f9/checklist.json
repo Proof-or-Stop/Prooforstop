@@ -1,0 +1,107 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "打破 DEV done gate 与 TEST_CASE fixture 覆盖循环",
+      "context": "当前 checklist_update --status=done 要求所有 testIntent 已被 fixture intentRef 覆盖，但 fixture_batch_add 的帮助与阶段语义要求在 TEST_CASE 写 fixture，而 story_advance TEST_CASE 又要求 DEV checklist 已 done。需要重新定义 gate：DEV done 只验证实现项完成，fixture coverage 移到 TEST_CASE/TEST_CASE_REVIEW；或正式允许 DEV 写 fixture 并更新帮助与 phase 规则。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/test-fixture-spec.md",
+        "docs/requirements/decisions/test-intent-review.md",
+        "AGENTS.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "让 session_brief 显示 linked worktree 的真实 phase 并提示漂移",
+      "context": "主目录 session_brief 可能只读 main checkout 的 story metadata，显示 INIT_CHECK；但 worktree 内真实 story 已是 PLAN，再推进会报 Cannot transition from PLAN to PLAN。需要 brief 对比主目录 metadata、linked worktree metadata、git worktree runtime，并把 drift/接管命令写清楚。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/stack-layering.md",
+        "AGENTS.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "对齐 fixture_batch_add 的阶段门禁、实际行为和帮助文档",
+      "context": "命令在 DEV 阶段真实写入 fixture，但文档说不该用且只给警告。需要二选一：如果禁止则 hard fail；如果为了 coverage gate 允许，则帮助、hint、phase policy 都要明确这是合法前置验证路径。",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-fixture-spec.md",
+        "docs/requirements/decisions/testing-infra.md",
+        "AGENTS.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "允许 TEST_CASE 阶段运行 story 级 fixture 验证",
+      "context": "TEST_CASE 是写 fixture 的阶段，用户最需要立刻运行 test_story 验证刚写的 case；当前阶段限制拒绝 test_story，导致验证链路不顺。需要允许 test_story 在 TEST_CASE 阶段只跑当前 story 关联 case，或提供等价只读验证入口。",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/test-fixture-spec.md",
+        "AGENTS.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "把 aux_doc_list bootstrap fallback 暴露到 help/session 指引",
+      "context": "全局 core koala 不包含 aux_doc_list，但 AGENTS 要求行动前调用。当前正确命令是 node bin/koala.js aux_doc_list。需要让 help、session_brief 或 AGENTS 初始化模板明确 core-only 与 bootstrap 入口差异，避免每轮未知命令。",
+      "relatedDocs": [
+        "README.md",
+        "AGENTS.md",
+        "docs/guide.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "拆分 session_brief 中 testIntent presence 与 reviewer coverage 文案",
+      "context": "story_review 已能看到 testIntent，但 session_brief 显示 test-intent review missing (0/9 pass, 9 missing)，容易被理解为 test-intent agent 没工作。需要区分 testIntent present、fixture intentRef coverage、reviewer result 三个状态。",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-intent-review.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "让并行 story metadata 可在创建/更新时自然填写",
+      "context": "story_review advisory 提示 missing lane / parallelSafe / sharedHotspots，但 story_create 示例和 help 不明显支持字段，session_brief 又依赖它们给并行建议。需要 story_create/story_update 文档化字段或提供补录命令示例。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/role-separation.md",
+        "README.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-008",
+      "title": "持续强化 worktree dirty baseline 的前置提示",
+      "context": "主目录未提交 chart/demo JSON 不会进入 story worktree，容易在旧基线上开发。已有 Main baseline risk 提示，但需要确认 INIT_CHECK dry-run/confirm、复用 existing worktree、session_brief 都覆盖，并在需要时给出 commit/stash/copy 的下一步建议。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "AGENTS.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
