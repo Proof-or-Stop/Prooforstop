@@ -4,7 +4,7 @@
   "title": "优化生产 story_review 结构化输出",
   "description": "根据 koala-lab 的 story_review 结构化候选实验，将生产 story_review 输出优化为更清晰的结构化摘要：突出 issueCount、blockerCount、intentCoverage、missing_intent、risk_signals、decision/preMortem 和可执行 hint，同时保留必要的完整 reviewPrompt 供追溯。",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DEV",
   "priority": "high",
   "lane": "mainline",
   "parallelSafe": "no",
@@ -30,6 +30,22 @@
       "action": "advance",
       "timestamp": "2026-04-19T01:00:26.725Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-19T01:00:40.418Z",
+      "branch": "story/B-7670",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-19T01:01:15.363Z",
+      "branch": "story/B-7670",
       "user": "Harmonygo",
       "agent": "main"
     }
