@@ -210,7 +210,7 @@ export function isDoneVolatilePath(path: string): boolean {
   return path.replace(/\\/g, '/') === 'docs/story/activity.jsonl';
 }
 
-function inspectDoneMainMergePreflight(plan: DoneAutoGitPlan): DoneMainMergePreflight {
+export function inspectDoneMainMergePreflight(plan: DoneAutoGitPlan): DoneMainMergePreflight {
   const runGit = (cmd: string): string =>
     execSync(`git ${cmd}`, { cwd: plan.mainRepoRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).toString().trim();
   let dirtyEntries: DoneDirtyEntry[] = [];
@@ -269,7 +269,7 @@ function renderDoneMainMergePreflight(preflight: DoneMainMergePreflight): string
   return lines.join('\n');
 }
 
-function backupDoneMainResidue(plan: DoneAutoGitPlan, preflight: DoneMainMergePreflight): string | null {
+export function backupDoneMainResidue(plan: DoneAutoGitPlan, preflight: DoneMainMergePreflight): string | null {
   if (!preflight.autoBackupDir) return null;
   const source = join(plan.mainRepoRoot, preflight.autoBackupDir);
   if (!existsSync(source)) return null;
