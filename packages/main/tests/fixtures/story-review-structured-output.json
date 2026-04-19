@@ -1,0 +1,137 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: missing intent blocker gets actionSummary",
+      "run_type": "cli",
+      "file": "handlers/story-review",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-story-review-structured-output.mjs', 'missing-intent'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok missing-intent') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-7670:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-7670",
+      "_id": "617e08b8-37b2-4d4e-a15b-294eb17ba18b",
+      "nextCaseId": "63b212e5-98c2-4184-9aef-a3de8979f1b1"
+    },
+    {
+      "name": "CHK-001 edge: advisory-only review has non-blocking actionSummary",
+      "run_type": "cli",
+      "file": "handlers/story-review",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-story-review-structured-output.mjs', 'advisory-only'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok advisory-only') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-7670:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-7670",
+      "_id": "63b212e5-98c2-4184-9aef-a3de8979f1b1",
+      "prevCaseId": "617e08b8-37b2-4d4e-a15b-294eb17ba18b",
+      "nextCaseId": "5f0fcaf9-6fec-4539-b3ba-b1f2358e8fd4"
+    },
+    {
+      "name": "CHK-001 adversarial: high-risk missing decision summarized",
+      "run_type": "cli",
+      "file": "handlers/story-review",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-story-review-structured-output.mjs', 'high-risk'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok high-risk') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-7670:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-7670",
+      "_id": "5f0fcaf9-6fec-4539-b3ba-b1f2358e8fd4",
+      "prevCaseId": "63b212e5-98c2-4184-9aef-a3de8979f1b1",
+      "nextCaseId": "8ce0986a-bc3a-413d-a3da-17f513541550"
+    },
+    {
+      "name": "CHK-002 happy: full reviewPrompt is preserved",
+      "run_type": "cli",
+      "file": "handlers/story-review",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-story-review-structured-output.mjs', 'missing-intent'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok missing-intent') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-7670:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-7670",
+      "_id": "8ce0986a-bc3a-413d-a3da-17f513541550",
+      "prevCaseId": "5f0fcaf9-6fec-4539-b3ba-b1f2358e8fd4",
+      "nextCaseId": "e5ae2804-8213-4dd4-acbf-d0cd6fd34bf5"
+    },
+    {
+      "name": "CHK-002 edge: reviewPromptSummary cannot replace full prompt",
+      "run_type": "cli",
+      "file": "handlers/story-review",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-story-review-structured-output.mjs', 'missing-intent'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok missing-intent') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-7670:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-7670",
+      "_id": "e5ae2804-8213-4dd4-acbf-d0cd6fd34bf5",
+      "prevCaseId": "8ce0986a-bc3a-413d-a3da-17f513541550",
+      "nextCaseId": "274799a0-4495-4714-ae60-e6f8e584a37c"
+    },
+    {
+      "name": "CHK-002 adversarial: long prompt keeps summary at top",
+      "run_type": "cli",
+      "file": "handlers/story-review",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-story-review-structured-output.mjs', 'high-risk'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok high-risk') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-7670:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-7670",
+      "_id": "274799a0-4495-4714-ae60-e6f8e584a37c",
+      "prevCaseId": "e5ae2804-8213-4dd4-acbf-d0cd6fd34bf5",
+      "nextCaseId": "5b5ba804-e3af-4a4c-ab4d-98fd43188357"
+    },
+    {
+      "name": "CHK-003 happy: structured story_review fixture covers new fields",
+      "run_type": "cli",
+      "file": "handlers/story-review",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-story-review-structured-output.mjs', 'missing-intent'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok missing-intent') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-7670:CHK-003:happy:0",
+      "sandbox": false,
+      "storyId": "B-7670",
+      "_id": "5b5ba804-e3af-4a4c-ab4d-98fd43188357",
+      "prevCaseId": "274799a0-4495-4714-ae60-e6f8e584a37c",
+      "nextCaseId": "7e5ae534-e1e9-4e1c-a2e8-c802e4ed2936"
+    },
+    {
+      "name": "CHK-003 edge: legacy story_review fields remain present",
+      "run_type": "cli",
+      "file": "handlers/story-review",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-story-review-structured-output.mjs', 'advisory-only'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok advisory-only') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-7670:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-7670",
+      "_id": "7e5ae534-e1e9-4e1c-a2e8-c802e4ed2936",
+      "prevCaseId": "5b5ba804-e3af-4a4c-ab4d-98fd43188357",
+      "nextCaseId": "4005638d-92e5-45fa-a6a1-b6b156cb6b18"
+    },
+    {
+      "name": "CHK-003 adversarial: missing new summary fields would fail",
+      "run_type": "cli",
+      "file": "handlers/story-review",
+      "execute": "const { execFileSync } = await import('node:child_process'); const out = execFileSync('node', [$root + '/scripts/verify-story-review-structured-output.mjs', 'high-risk'], { cwd:$root, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { ok: out.includes('ok high-risk') };",
+      "expect": {
+        "ok": true
+      },
+      "intentRef": "B-7670:CHK-003:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-7670",
+      "_id": "4005638d-92e5-45fa-a6a1-b6b156cb6b18",
+      "prevCaseId": "7e5ae534-e1e9-4e1c-a2e8-c802e4ed2936"
+    }
+  ]
+}

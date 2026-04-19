@@ -355,6 +355,29 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         return sum + (i.testIntent.happy?.length || 0) + (i.testIntent.edge?.length || 0) + (i.testIntent.adversarial?.length || 0);
       }, 0);
       const blockerCount = issues.filter(i => i.severity === 'blocker').length;
+      const blockerTypes = Array.from(new Set(issues.filter(i => i.severity === 'blocker').map(i => i.type)));
+      const advisoryTypes = Array.from(new Set(issues.filter(i => i.severity === 'advisory').map(i => i.type)));
+      const missingIntentItems = issues
+        .filter(i => i.type === 'missing_intent' || i.type === 'weak_intent')
+        .map(i => i.itemId)
+        .filter((id): id is string => Boolean(id));
+      const nextFix = blockerCount > 0
+        ? (missingIntentItems.length > 0
+          ? `补齐 ${Array.from(new Set(missingIntentItems)).join(', ')} 的 testIntent 后重新 story_review`
+          : '修复 blocker 后重新 story_review')
+        : (coveragePct < 100
+          ? `补齐 fixture intentRef 覆盖后继续（当前 intent 覆盖率 ${coveragePct}%）`
+          : '无 blocker，可进入 DEV；建议人工快速复核 advisory');
+      const reviewPromptSummary = {
+        hasUnderstanding: Boolean(understanding),
+        hasDecision: Boolean(decision),
+        hasPreMortem: Boolean(decision?.preMortem && decision.preMortem.length > 0),
+        hasRiskSignals: activeRiskSignals.length > 0,
+        truthDocsCount: truthDocs.length,
+        checklistItems: totalItems,
+        testIntentEntries: totalIntents,
+        hasFullPrompt: truthDocs.length > 0 || Boolean(understanding) || Boolean(decision),
+      };
 
       // 5. 写入 review.json（带签名，防止主 agent 伪造）
       const reviewData = store.readReview(args.storyId);
@@ -391,6 +414,15 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           },
         },
         issues,
+        actionSummary: {
+          canEnterDev: blockerCount === 0,
+          hasBlockers: blockerCount > 0,
+          blockerTypes,
+          advisoryTypes,
+          missingIntentItems: Array.from(new Set(missingIntentItems)),
+          nextFix,
+        },
+        reviewPromptSummary,
         intentCoverageDetail: intentCoverage.length > 0
           ? intentCoverage.filter(c => !c.covered).map(c => `${c.itemId}:${c.lane}:${c.index} → ${c.text}`)
           : undefined,
