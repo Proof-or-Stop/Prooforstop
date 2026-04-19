@@ -4,7 +4,7 @@ import type { StoryPhase, StoryInfo } from '../core/types.js';
 import { collectContext } from './context.js';
 import { loadConfig } from '../core/config.js';
 import { join } from 'path';
-import { existsSync, readFileSync, readdirSync } from 'fs';
+import { existsSync, readFileSync, readdirSync, rmSync } from 'fs';
 import { execSync } from 'child_process';
 import { getArtifactContractStatus } from '../core/artifact-contract.js';
 import { getReviewerStatus } from '../core/reviewer-status.js';
@@ -24,6 +24,14 @@ interface ZombieInfo {
   branchMerged: boolean;
   worktreeExists: boolean;
   worktreePath?: string;
+}
+
+interface StoryResidueInfo {
+  storyId: string;
+  phase: string;
+  path: string;
+  safe: boolean;
+  status: string;
 }
 
 interface IntentFixtureLocation {
@@ -354,13 +362,14 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
     story_reconcile(args?: { dryRun?: boolean }): string {
       const dryRun = args?.dryRun !== false; // 默认 dry run
       const zombies = detectZombieStories(store, ctx.root);
+      const residues = scanTerminalStoryResidues(store, ctx.root);
 
-      if (zombies.length === 0) {
+      if (zombies.length === 0 && residues.length === 0) {
         return 'story_reconcile: 未检测到僵尸 story，所有非终态 story 的分支状态正常。';
       }
 
       const lines: string[] = [];
-      lines.push(`检测到 ${zombies.length} 个僵尸 story（分支已合并/删除但 phase 非终态）：`);
+      lines.push(`检测到 ${zombies.length} 个僵尸 story（分支已合并/删除但 phase 非终态），${residues.length} 个终态 story residue：`);
       lines.push('');
 
       for (const z of zombies) {
@@ -422,6 +431,21 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
         }
       }
 
+      if (residues.length > 0) {
+        lines.push('');
+        lines.push('终态 story residue:');
+        for (const residue of residues) {
+          lines.push(`  ${residue.storyId} phase=${residue.phase} ${residue.safe ? 'safe-untracked' : 'unsafe-tracked/staged'} — ${residue.path}`);
+          if (residue.status) {
+            for (const line of residue.status.split('\n').slice(0, 4)) lines.push(`    ${line}`);
+          }
+          if (!dryRun && residue.safe) {
+            rmSync(residue.path, { recursive: true, force: true });
+            lines.push('    → 已清理 residue 目录');
+          }
+        }
+      }
+
       if (dryRun) {
         lines.push('');
         lines.push('以上为 dry run 结果，未做任何修改。');
@@ -431,4 +455,51 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
       return lines.join('\n');
     },
   };
+}
+
+/**
+ * @task B-eb3c
+ * @checklist CHK-003
+ * @title find terminal story residue directories
+ * @type bugfix
+ * @priority high
+ * @description
+ *   Stash/merge recovery can reintroduce DONE/DISCARDED story directories as
+ *   untracked files. story_reconcile should identify those Koala-managed
+ *   residues and repair only the safe untracked ones.
+ * @changes
+ *   - [CHK-003] List terminal story directories with git status changes
+ *   - [CHK-003] Mark all-untracked terminal directories safe for repair
+ *   - [CHK-003] Leave tracked/staged residue for human inspection
+ */
+function scanTerminalStoryResidues(store: any, root: string): StoryResidueInfo[] {
+  const cfg = loadConfig(root);
+  const base = join(root, cfg.storyDir);
+  const residues: StoryResidueInfo[] = [];
+  let ids: string[] = [];
+  try { ids = store.listStoryIds(); } catch { return []; }
+  for (const id of ids) {
+    let story: StoryInfo;
+    try { story = store.readStory(id); } catch { continue; }
+    if (story.phase !== 'DONE' && story.phase !== 'DISCARDED') continue;
+    const rel = `${cfg.storyDir.replace(/\\/g, '/')}/${id}`;
+    let status = '';
+    try {
+      status = execSync(`git status --porcelain -uall -- ${JSON.stringify(rel)}`, {
+        cwd: root,
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      }).trim();
+    } catch { continue; }
+    if (!status) continue;
+    const lines = status.split('\n').filter(Boolean);
+    residues.push({
+      storyId: id,
+      phase: story.phase,
+      path: join(base, id),
+      safe: lines.length > 0 && lines.every(line => line.startsWith('?? ')),
+      status,
+    });
+  }
+  return residues;
 }
