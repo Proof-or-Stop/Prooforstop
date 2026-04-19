@@ -4,7 +4,7 @@
   "title": "baseline risk 支持 accepted local paths 配置",
   "description": "给 baseline risk 增加配置化 ignore/accepted-local paths，让 AGENTS.md、CLAUDE.md、.claude/skills/ 等用户确认的本地路径不再作为 material baseline risk 噪音提示，同时保留真实未接受改动的风险提醒。",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "TEST_CASE",
   "priority": "medium",
   "lane": "mainline",
   "parallelSafe": "no",
@@ -46,6 +46,14 @@
       "phase": "DEV",
       "action": "advance",
       "timestamp": "2026-04-19T22:23:59.239Z",
+      "branch": "story/B-13af",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-19T22:26:20.531Z",
       "branch": "story/B-13af",
       "user": "Harmonygo",
       "agent": "main"

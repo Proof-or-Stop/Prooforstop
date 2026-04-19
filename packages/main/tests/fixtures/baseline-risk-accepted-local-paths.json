@@ -1,0 +1,156 @@
+{
+  "cases": [
+    {
+      "name": "accepted file paths are not material baseline risk",
+      "run_type": "cli",
+      "file": "core/baseline-risk",
+      "execute": "const { mkdtempSync, writeFileSync, mkdirSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { execFileSync } = await import(\"child_process\");\nconst { pathToFileURL } = await import(\"url\");\nconst repo = mkdtempSync(join(tmpdir(), \"koala-risk-\"));\ntry {\n  execFileSync(\"git\", [\"init\"], { cwd: repo, stdio: \"pipe\" });\n  writeFileSync(join(repo, \"AGENTS.md\"), \"local agents\\n\");\n  writeFileSync(join(repo, \"CLAUDE.md\"), \"local claude\\n\");\n  mkdirSync(join(repo, \"experiments\", \"reports\"), { recursive: true });\n  writeFileSync(join(repo, \"experiments\", \"reports\", \"keep.json\"), \"{}\\n\");\n  const mod = await import(pathToFileURL($root + \"/packages/main/dist/core/baseline-risk.js\").href);\n  const risk = mod.collectBaselineRisk(repo, { acceptedLocalPaths: [\"AGENTS.md\", \"CLAUDE.md\"] });\n  return { material: risk.materialEntries.map((e) => e.path), materialTotal: risk.materialTotal };\n} finally { rmSync(repo, { recursive: true, force: true }); }",
+      "expect": {
+        "material": [
+          "experiments/reports/keep.json"
+        ],
+        "materialTotal": 1
+      },
+      "intentRef": "B-13af:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-13af",
+      "_id": "b72f30cf-3503-49c1-8684-7e5b16b8b7a9",
+      "nextCaseId": "d6ab34cf-6671-49ce-bbd7-de10d63ca3e2"
+    },
+    {
+      "name": "accepted directory hides children not siblings",
+      "run_type": "cli",
+      "file": "core/baseline-risk",
+      "execute": "const { mkdtempSync, writeFileSync, mkdirSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { execFileSync } = await import(\"child_process\");\nconst { pathToFileURL } = await import(\"url\");\nconst repo = mkdtempSync(join(tmpdir(), \"koala-risk-\"));\ntry {\n  execFileSync(\"git\", [\"init\"], { cwd: repo, stdio: \"pipe\" });\n  mkdirSync(join(repo, \".claude\", \"skills\", \"koala\"), { recursive: true });\n  writeFileSync(join(repo, \".claude\", \"skills\", \"koala\", \"skill.md\"), \"accepted\\n\");\n  writeFileSync(join(repo, \".claude\", \"notes.md\"), \"not accepted\\n\");\n  const mod = await import(pathToFileURL($root + \"/packages/main/dist/core/baseline-risk.js\").href);\n  const risk = mod.collectBaselineRisk(repo, { acceptedLocalPaths: [\".claude/skills/\"] });\n  return { material: risk.materialEntries.map((e) => e.path), acceptedHidden: !risk.materialEntries.some((e) => e.path.includes(\"skills/koala\")) };\n} finally { rmSync(repo, { recursive: true, force: true }); }",
+      "expect": {
+        "material": [
+          ".claude/notes.md"
+        ],
+        "acceptedHidden": true
+      },
+      "intentRef": "B-13af:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-13af",
+      "_id": "d6ab34cf-6671-49ce-bbd7-de10d63ca3e2",
+      "prevCaseId": "b72f30cf-3503-49c1-8684-7e5b16b8b7a9",
+      "nextCaseId": "e4da1685-4a28-400d-988a-521e867e55cb"
+    },
+    {
+      "name": "unaccepted files remain material risk",
+      "run_type": "cli",
+      "file": "core/baseline-risk",
+      "execute": "const { mkdtempSync, writeFileSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { execFileSync } = await import(\"child_process\");\nconst { pathToFileURL } = await import(\"url\");\nconst repo = mkdtempSync(join(tmpdir(), \"koala-risk-\"));\ntry {\n  execFileSync(\"git\", [\"init\"], { cwd: repo, stdio: \"pipe\" });\n  writeFileSync(join(repo, \"AGENTS.md\"), \"local agents\\n\");\n  const mod = await import(pathToFileURL($root + \"/packages/main/dist/core/baseline-risk.js\").href);\n  const risk = mod.collectBaselineRisk(repo, { acceptedLocalPaths: [] });\n  return { material: risk.materialEntries.map((e) => e.path) };\n} finally { rmSync(repo, { recursive: true, force: true }); }",
+      "expect": {
+        "material": [
+          "AGENTS.md"
+        ]
+      },
+      "intentRef": "B-13af:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-13af",
+      "_id": "e4da1685-4a28-400d-988a-521e867e55cb",
+      "prevCaseId": "d6ab34cf-6671-49ce-bbd7-de10d63ca3e2",
+      "nextCaseId": "6fc6099b-63af-4796-bcb9-b4db46ac6855"
+    },
+    {
+      "name": "session_brief hides configured accepted local paths",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { writeFileSync, mkdirSync, rmSync } = await import(\"fs\");\nconst { execFileSync } = await import(\"child_process\");\nconst accepted = $root + \"/.claude/skills/koala/fixture-accepted.md\";\nconst unaccepted = $root + \"/experiments/reports/fixture-unaccepted.json\";\nmkdirSync($root + \"/.claude/skills/koala\", { recursive: true });\nmkdirSync($root + \"/experiments/reports\", { recursive: true });\nwriteFileSync(accepted, \"accepted fixture\\n\");\nwriteFileSync(unaccepted, \"{}\\n\");\ntry {\n  const out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"session_brief\", \"--concise\"], { cwd: $root, encoding: \"utf8\" });\n  return { hidesAccepted: !out.includes(\"fixture-accepted.md\"), showsUnaccepted: out.includes(\"fixture-unaccepted.json\") };\n} finally {\n  rmSync(accepted, { force: true });\n  rmSync(unaccepted, { force: true });\n}",
+      "expect": {
+        "hidesAccepted": true,
+        "showsUnaccepted": true
+      },
+      "intentRef": "B-13af:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-13af",
+      "_id": "6fc6099b-63af-4796-bcb9-b4db46ac6855",
+      "prevCaseId": "e4da1685-4a28-400d-988a-521e867e55cb",
+      "nextCaseId": "d56792d0-6387-42db-84dc-319593917ea6"
+    },
+    {
+      "name": "session_brief keeps unaccepted report risk",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { writeFileSync, mkdirSync, rmSync } = await import(\"fs\");\nconst { execFileSync } = await import(\"child_process\");\nconst unaccepted = $root + \"/experiments/reports/fixture-unaccepted-edge.json\";\nmkdirSync($root + \"/experiments/reports\", { recursive: true });\nwriteFileSync(unaccepted, \"{}\\n\");\ntry {\n  const out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"session_brief\", \"--concise\"], { cwd: $root, encoding: \"utf8\" });\n  return { showsUnaccepted: out.includes(\"fixture-unaccepted-edge.json\") };\n} finally { rmSync(unaccepted, { force: true }); }",
+      "expect": {
+        "showsUnaccepted": true
+      },
+      "intentRef": "B-13af:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-13af",
+      "_id": "d56792d0-6387-42db-84dc-319593917ea6",
+      "prevCaseId": "6fc6099b-63af-4796-bcb9-b4db46ac6855",
+      "nextCaseId": "e8280022-cda0-48ed-82a3-3e769992984b"
+    },
+    {
+      "name": "baseline risk accepts paths for bootstrap shared collector",
+      "run_type": "cli",
+      "file": "handlers/worktree",
+      "execute": "const { mkdtempSync, writeFileSync, mkdirSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { execFileSync } = await import(\"child_process\");\nconst { pathToFileURL } = await import(\"url\");\nconst repo = mkdtempSync(join(tmpdir(), \"koala-risk-\"));\ntry {\n  execFileSync(\"git\", [\"init\"], { cwd: repo, stdio: \"pipe\" });\n  writeFileSync(join(repo, \"AGENTS.md\"), \"accepted\\n\");\n  mkdirSync(join(repo, \"real\"), { recursive: true });\n  writeFileSync(join(repo, \"real\", \"risk.txt\"), \"risk\\n\");\n  const mod = await import(pathToFileURL($root + \"/packages/main/dist/core/baseline-risk.js\").href);\n  const risk = mod.collectBaselineRisk(repo, { acceptedLocalPaths: [\"AGENTS.md\"] });\n  return { material: risk.materialEntries.map((e) => e.path) };\n} finally { rmSync(repo, { recursive: true, force: true }); }",
+      "expect": {
+        "material": [
+          "real/risk.txt"
+        ]
+      },
+      "intentRef": "B-13af:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-13af",
+      "_id": "e8280022-cda0-48ed-82a3-3e769992984b",
+      "prevCaseId": "d56792d0-6387-42db-84dc-319593917ea6",
+      "nextCaseId": "027efc22-067d-474b-aec8-a8fa22fdbe97"
+    },
+    {
+      "name": "fixture covers accepted files dirs and unaccepted path",
+      "run_type": "cli",
+      "file": "core/baseline-risk",
+      "execute": "const { mkdtempSync, writeFileSync, mkdirSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { execFileSync } = await import(\"child_process\");\nconst { pathToFileURL } = await import(\"url\");\nconst repo = mkdtempSync(join(tmpdir(), \"koala-risk-\"));\ntry {\n  execFileSync(\"git\", [\"init\"], { cwd: repo, stdio: \"pipe\" });\n  writeFileSync(join(repo, \"AGENTS.md\"), \"accepted\\n\");\n  mkdirSync(join(repo, \".claude\", \"skills\"), { recursive: true });\n  writeFileSync(join(repo, \".claude\", \"skills\", \"skill.md\"), \"accepted\\n\");\n  writeFileSync(join(repo, \"other.txt\"), \"risk\\n\");\n  const mod = await import(pathToFileURL($root + \"/packages/main/dist/core/baseline-risk.js\").href);\n  const risk = mod.collectBaselineRisk(repo, { acceptedLocalPaths: [\"AGENTS.md\", \".claude/skills/\"] });\n  return { material: risk.materialEntries.map((e) => e.path), total: risk.total };\n} finally { rmSync(repo, { recursive: true, force: true }); }",
+      "expect": {
+        "material": [
+          "other.txt"
+        ],
+        "total": 3
+      },
+      "intentRef": "B-13af:CHK-003:happy:0",
+      "sandbox": false,
+      "storyId": "B-13af",
+      "_id": "027efc22-067d-474b-aec8-a8fa22fdbe97",
+      "prevCaseId": "e8280022-cda0-48ed-82a3-3e769992984b",
+      "nextCaseId": "7579968a-6945-4915-bf9a-d55efb3001c1"
+    },
+    {
+      "name": "volatile accounting remains separate from accepted paths",
+      "run_type": "cli",
+      "file": "core/baseline-risk",
+      "execute": "const { mkdtempSync, writeFileSync, mkdirSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { execFileSync } = await import(\"child_process\");\nconst { pathToFileURL } = await import(\"url\");\nconst repo = mkdtempSync(join(tmpdir(), \"koala-risk-\"));\ntry {\n  execFileSync(\"git\", [\"init\"], { cwd: repo, stdio: \"pipe\" });\n  mkdirSync(join(repo, \"docs\", \"story\"), { recursive: true });\n  mkdirSync(join(repo, \".omx\"), { recursive: true });\n  writeFileSync(join(repo, \"docs\", \"story\", \"activity.jsonl\"), \"{}\\n\");\n  writeFileSync(join(repo, \".omx\", \"state.json\"), \"{}\\n\");\n  const mod = await import(pathToFileURL($root + \"/packages/main/dist/core/baseline-risk.js\").href);\n  const risk = mod.collectBaselineRisk(repo, { acceptedLocalPaths: [\"AGENTS.md\"] });\n  return { total: risk.total, materialTotal: risk.materialTotal, volatile: risk.entries.every((e) => e.volatile) };\n} finally { rmSync(repo, { recursive: true, force: true }); }",
+      "expect": {
+        "total": 2,
+        "materialTotal": 0,
+        "volatile": true
+      },
+      "intentRef": "B-13af:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-13af",
+      "_id": "7579968a-6945-4915-bf9a-d55efb3001c1",
+      "prevCaseId": "027efc22-067d-474b-aec8-a8fa22fdbe97",
+      "nextCaseId": "ab22e604-0dbc-464f-9b9a-0e2a8c03deba"
+    },
+    {
+      "name": "empty accepted paths preserve conservative behavior",
+      "run_type": "cli",
+      "file": "core/baseline-risk",
+      "execute": "const { mkdtempSync, writeFileSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { execFileSync } = await import(\"child_process\");\nconst { pathToFileURL } = await import(\"url\");\nconst repo = mkdtempSync(join(tmpdir(), \"koala-risk-\"));\ntry {\n  execFileSync(\"git\", [\"init\"], { cwd: repo, stdio: \"pipe\" });\n  writeFileSync(join(repo, \"AGENTS.md\"), \"risk\\n\");\n  writeFileSync(join(repo, \"CLAUDE.md\"), \"risk\\n\");\n  const mod = await import(pathToFileURL($root + \"/packages/main/dist/core/baseline-risk.js\").href);\n  const risk = mod.collectBaselineRisk(repo, {});\n  return { material: risk.materialEntries.map((e) => e.path).sort() };\n} finally { rmSync(repo, { recursive: true, force: true }); }",
+      "expect": {
+        "material": [
+          "AGENTS.md",
+          "CLAUDE.md"
+        ]
+      },
+      "intentRef": "B-13af:CHK-003:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-13af",
+      "_id": "ab22e604-0dbc-464f-9b9a-0e2a8c03deba",
+      "prevCaseId": "7579968a-6945-4915-bf9a-d55efb3001c1"
+    }
+  ]
+}
