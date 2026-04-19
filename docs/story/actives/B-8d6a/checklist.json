@@ -15,19 +15,43 @@
         "happy": [
           {
             "desc": "读取 .claude/agents/test-intent.md → 包含 fixture-heavy 推荐 input/expect/WHY 格式说明",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T09:21:13.542Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-intent-prompt-fixture-friendly.json:4 — prompt verifier confirms .claude prompt includes fixture-heavy input/expect/WHY guidance | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "简单 story 规则仍允许只写 desc/type → prompt 不把 input/expect 设为全局硬性要求",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T09:21:13.759Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-intent-prompt-fixture-friendly.json:18 — prompt verifier confirms input/expect is not a global hard requirement | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "prompt 缺少 WHY 或 fixture 映射说明 → 回归脚本失败",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T09:21:13.992Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-intent-prompt-fixture-friendly.json:33 — prompt verifier would fail if WHY/fixture mapping guidance were absent | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -47,19 +71,43 @@
         "happy": [
           {
             "desc": "运行 npm run test:codex-assets → .Codex/agents/test-intent.md 与 .claude transform 保持一致",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T09:21:14.205Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-intent-prompt-fixture-friendly.json:48 — codex-assets verifier confirms .Codex prompt matches .claude transform | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "检查 .Codex/agents/test-intent.md → 包含 Codex 路径语义且不出现 Claude Code isolation 文案",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T09:21:14.444Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-intent-prompt-fixture-friendly.json:63 — prompt verifier confirms Codex wording is preserved | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "如果 .Codex agent 漂移 → test:codex-assets 失败并指出 drift",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T09:21:14.686Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-intent-prompt-fixture-friendly.json:78 — codex-assets verifier would catch drift | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -78,19 +126,43 @@
         "happy": [
           {
             "desc": "运行 prompt fixture-friendly 回归脚本 → 检测 desc/type/input/expect/WHY 规则存在",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T09:21:14.904Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-intent-prompt-fixture-friendly.json:93 — prompt regression script passes | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "运行 koala-lab prompt 对比 → 新 prompt normalizedScore 不低于旧 prompt",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T09:21:15.139Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-intent-prompt-fixture-friendly.json:108 — lab prompt comparison report exists | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "prompt 误把 input/expect 写成所有 story 必填 → 回归脚本失败",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T09:21:15.410Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-intent-prompt-fixture-friendly.json:123 — verifier guards against making input/expect mandatory for every story | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
