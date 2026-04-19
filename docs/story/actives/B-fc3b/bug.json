@@ -1,0 +1,34 @@
+{
+  "bugs": [
+    {
+      "id": "BUG-f1a8caae",
+      "title": "[auto] phase-ordinal-status-health.json:CHK-003 adversarial: fixture covers illegal jump and status read-only — Expected {\"illegal\":true,\"readonly\":true,\"noEventSequence\":true}, got {\"illegal\":true,\"readonly\":tru",
+      "status": "fixed",
+      "foundAt": "2026-04-19T19:40:21.649Z",
+      "fixedAt": "2026-04-19T19:40:41.540Z",
+      "fixtureId": "f1a8caae-9dc6-44de-94f4-07e4c9cbeb87",
+      "diagnose": {
+        "rootCause": [
+          "Expected {\"illegal\":true,\"readonly\":true,\"noEventSequence\":true}, got {\"illegal\":true,\"readonly\":true,\"noEventSequence\":false}"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-c239fbfd",
+      "title": "[auto] phase-ordinal-status-health.json:CHK-002 happy: status shows phase ordinal and allowed transitions — Expected {\"hasOrdinal\":true,\"hasNext\":true,\"hasRollback\":true}, got {\"hasOrdinal\":false,\"hasNext\":fa",
+      "status": "fixed",
+      "foundAt": "2026-04-19T19:42:47.879Z",
+      "fixedAt": "2026-04-19T19:43:24.602Z",
+      "fixtureId": "c239fbfd-3a55-4677-9aaa-c3f168e4cab4",
+      "diagnose": {
+        "rootCause": [
+          "Expected {\"hasOrdinal\":true,\"hasNext\":true,\"hasRollback\":true}, got {\"hasOrdinal\":false,\"hasNext\":false,\"hasRollback\":true}"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    }
+  ]
+}

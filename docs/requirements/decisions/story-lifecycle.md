@@ -8,6 +8,36 @@ PLAN → DEV → TEST_CASE → TEST_CASE_REVIEW → TEST → DONE
         └──────────────────────────────────────┘ (自动回退)
 ```
 
+## Phase 编号与健康检查
+
+Koala 给可执行主流程 phase 一个稳定编号，用于 `koala status` 展示进度：
+
+| 编号 | Phase | 说明 |
+|---:|---|---|
+| 1/9 | IDEA | 需求还未形成 checklist |
+| 2/9 | INIT | story 已创建，尚未 bootstrap worktree |
+| 3/9 | INIT_CHECK | worktree bootstrap 检查/创建阶段 |
+| 4/9 | PLAN | 拆 checklist、理解快照、结构化决策、testIntent |
+| 5/9 | DEV | 实现代码 |
+| 6/9 | TEST_CASE | 编写 fixture case |
+| 7/9 | TEST_CASE_REVIEW | reviewer 审核 fixture/testIntent 覆盖 |
+| 8/9 | TEST | 执行 story/test 回归并处理 bug |
+| 9/9 | DONE | 完成并合并 |
+
+`DISCARDED` 是终止态，不参与主流程进度百分比。
+
+编号只用于可观察状态，不用于判断是否异常。Koala 的流程允许合法回退，
+因此不能用“当前编号必须等于上个编号 +1”来判错。健康检查必须使用合法
+transition graph：
+
+- 正向：`INIT → INIT_CHECK → PLAN → DEV → TEST_CASE → TEST_CASE_REVIEW → TEST → DONE`
+- 兼容正向：`IDEA → INIT`、`IDEA → PLAN`
+- 合法回退：`DEV → PLAN`、`TEST_CASE → DEV`、`TEST_CASE_REVIEW → DEV`、`TEST_CASE_REVIEW → TEST_CASE`、`TEST → DEV`
+- 终止：任何未完成 story 可通过 `story_discard` 进入 `DISCARDED`
+
+`koala status` 应展示当前编号、allowed next、allowed rollback，并在 main metadata
+与 linked worktree phase 不一致时给出 transition health warning。
+
 | Phase | 含义 | 进入门禁 |
 |---|---|---|
 | PLAN | 已拆解 checklist + testIntent | story_review 对抗审查通过 |

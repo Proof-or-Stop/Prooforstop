@@ -1,0 +1,217 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "定义并复用 Koala phase 编号与合法跳转图",
+      "context": "在代码中集中定义 phase order、ordinal、合法 next/back transitions，避免 session/status/story lifecycle 文档各写一套；relatedDocs: docs/requirements/decisions/story-lifecycle.md, docs/requirements/decisions/stack-layering.md",
+      "status": "done",
+      "startTime": "2026-04-19T19:35:04.950Z",
+      "endTime": "2026-04-19T19:38:51.466Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "导入 phase-flow 纯函数查询 DEV -> 返回 ordinal 5/9、label DEV、allowed next 包含 TEST_CASE、allowed rollback 包含 PLAN；WHY: 覆盖稳定编号和合法跳转图主路径",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T19:42:00.583Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/phase-ordinal-status-health.json:4 WHY verifies DEV maps to 5/9 plus TEST_CASE next and PLAN rollback through phase-flow API; severity=low",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "查询 DISCARDED 或未知 phase -> DISCARDED 有 terminal/特殊标记，未知 phase 给出 unknown health warning 而不崩溃；WHY: 覆盖终态和脏数据边界",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T19:42:00.687Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/phase-ordinal-status-health.json:21 WHY verifies DISCARDED terminal metadata and unknown phase warning without crashing; severity=low",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "验证 TEST→DEV 与 TEST_CASE_REVIEW→DEV 是合法 rollback，而 DEV→TEST 是非法跳跃；WHY: 防止用 ordinal +1 或单调递增误判合法回退",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T19:42:00.781Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/phase-ordinal-status-health.json:38 WHY verifies TEST→DEV and TEST_CASE_REVIEW→DEV are rollback while DEV→TEST is invalid; severity=medium",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "在 koala status 中展示当前 phase 编号和 transition health",
+      "context": "status/session_brief active story 分支展示 Phase: 5/9 DEV，并显示 allowed next/rollback；若 story metadata 与 linked worktree phase 不一致或非法跳转风险，给 health warning；relatedDocs: docs/requirements/decisions/story-lifecycle.md",
+      "status": "done",
+      "startTime": "2026-04-19T19:38:51.561Z",
+      "endTime": "2026-04-19T19:38:51.655Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "在 active story worktree 运行 `koala status --concise` -> Phase 行显示 `n/9 PHASE`，并展示 allowed next/rollback 信息；WHY: 覆盖用户可见状态编号",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T19:42:00.877Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/phase-ordinal-status-health.json:63 WHY validates status output exposes 6/9 TEST_CASE plus allowed next and rollback lines; severity=low",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "main metadata 与 linked worktree phase 不一致时 status -> 显示两边 phase 编号并给 transition health warning；WHY: 覆盖工作区/主目录漂移诊断",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T19:42:00.971Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/phase-ordinal-status-health.json:80 WHY validates drift/invalid transition health formatting with numbered main/worktree phases; severity=medium",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "运行 status 前后 git status 对 .koala 和 story phase 文件无变化；WHY: 验证 transition health 仍是只读检查，不写投影状态",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T19:42:01.073Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/phase-ordinal-status-health.json:98 WHY wraps status with git status before/after to prove read-only behavior; severity=medium",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-003",
+      "title": "为 phase ordinal 和 transition health 增加 fixture 覆盖",
+      "context": "覆盖正常编号、合法回退不误报、非法/未知 phase 给出 warning、status 输出包含编号且仍保持只读；relatedDocs: docs/requirements/decisions/test-fixture-spec.md",
+      "status": "done",
+      "startTime": "2026-04-19T19:39:40.931Z",
+      "endTime": "2026-04-19T19:40:20.864Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "fixture 执行 phase-flow 正常编号和 status 输出检查 -> 全部通过并绑定 intentRef；WHY: 覆盖实现主路径可回归",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T19:42:01.170Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/phase-ordinal-status-health.json:111 WHY self-checks fixture includes phase-flow and status coverage with scoped intentRefs; severity=low",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "fixture 覆盖合法 rollback 不误报、未知 phase 输出 warning -> 全部通过；WHY: 覆盖非线性状态流的关键边界",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T19:42:01.265Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/phase-ordinal-status-health.json:128 WHY self-checks fixture includes rollback, unknown phase, and drift warning coverage; severity=low",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "fixture 覆盖非法跳跃和 status 只读性 -> 非法跳跃被标 warning，status 不产生文件改动；WHY: 覆盖对抗性异常检测和无副作用",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T19:42:01.359Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/phase-ordinal-status-health.json:145 WHY self-checks fixture includes illegal jump and status read-only assertions; severity=low",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      },
+      "phase": "TEST_CASE"
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-04-19T19:35:04.950Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "开始抽取 phase ordinal 与合法 transition graph"
+    },
+    {
+      "timestamp": "2026-04-19T19:38:51.466Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "phase-flow.ts 集中定义 phase order/ordinal/legal transitions，并替换 session/summary 局部顺序"
+    },
+    {
+      "timestamp": "2026-04-19T19:38:51.561Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "开始验证 status 中 phase ordinal 与 transition health 展示"
+    },
+    {
+      "timestamp": "2026-04-19T19:38:51.655Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "status --concise 已显示 5/9 DEV、allowed next TEST_CASE、allowed rollback PLAN，且保持只读"
+    },
+    {
+      "timestamp": "2026-04-19T19:39:40.931Z",
+      "phase": "TEST_CASE",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "开始编写 phase ordinal/status health fixture"
+    },
+    {
+      "timestamp": "2026-04-19T19:40:20.864Z",
+      "phase": "TEST_CASE",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "phase ordinal/status health 的 9 条 fixture 已添加并覆盖全部 intentRef"
+    }
+  ]
+}
