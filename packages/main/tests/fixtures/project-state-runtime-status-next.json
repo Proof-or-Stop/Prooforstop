@@ -1,0 +1,150 @@
+{
+  "cases": [
+    {
+      "name": "CHK-001 happy: docs state Koala owns project-state runtime, not agent runtime",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const fs = await import(\"node:fs\"); const read = (p) => fs.readFileSync($root + \"/\" + p, \"utf8\"); const text = read(\"README.md\") + \"\\n\" + read(\"docs/requirements/decisions/stack-layering.md\"); return { hasProjectStateRuntime: text.includes(\"project-state runtime\"), hasAgentRuntimeBoundary: text.includes(\"agent runtime\"), hasStatusNext: text.includes(\"koala status\") && text.includes(\"koala next\") };",
+      "expect": {
+        "hasProjectStateRuntime": true,
+        "hasAgentRuntimeBoundary": true,
+        "hasStatusNext": true
+      },
+      "intentRef": "B-3736:CHK-001:happy:0",
+      "storyId": "B-3736",
+      "_id": "b05f0f78-df13-45bd-b14a-2cc626881b06",
+      "nextCaseId": "cf13ad20-abf6-41d2-9db1-9fcb1c673b79",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-001 edge: docs limit OMX borrowing to observable recoverable project-state ideas",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const fs = await import(\"node:fs\"); const text = fs.readFileSync($root + \"/docs/requirements/decisions/stack-layering.md\", \"utf8\"); return { mentionsOmxBorrowing: text.includes(\"借鉴 OMX\"), mentionsKoalaStateProjection: text.includes(\".koala/state\"), rejectsSecondTruth: text.includes(\"第二真相源\") };",
+      "expect": {
+        "mentionsOmxBorrowing": true,
+        "mentionsKoalaStateProjection": true,
+        "rejectsSecondTruth": true
+      },
+      "intentRef": "B-3736:CHK-001:edge:0",
+      "storyId": "B-3736",
+      "_id": "cf13ad20-abf6-41d2-9db1-9fcb1c673b79",
+      "prevCaseId": "b05f0f78-df13-45bd-b14a-2cc626881b06",
+      "nextCaseId": "8258cbb2-0c3a-4a4f-9e94-a2756221660f",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-001 adversarial: docs do not promise Koala agent-runtime responsibilities",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const fs = await import(\"node:fs\"); const text = fs.readFileSync($root + \"/docs/requirements/decisions/stack-layering.md\", \"utf8\") + \"\\n\" + fs.readFileSync($root + \"/README.md\", \"utf8\"); const forbidden = [\"Koala 负责启动\", \"Koala 负责恢复 Codex\", \"Koala 负责调度 Codex\", \"通用 worker 池、prompt marketplace、token/model 管理或通知系统。\"].slice(0,3); return forbidden.every((s) => !text.includes(s));",
+      "expect": true,
+      "intentRef": "B-3736:CHK-001:adversarial:0",
+      "storyId": "B-3736",
+      "_id": "8258cbb2-0c3a-4a4f-9e94-a2756221660f",
+      "prevCaseId": "cf13ad20-abf6-41d2-9db1-9fcb1c673b79",
+      "nextCaseId": "e2790651-b96c-4c11-a73c-2a528d78888d",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-002 happy: koala status shows project-state sections",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { execFileSync } = await import(\"node:child_process\"); const out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"status\", \"--concise\"], { cwd: $root, encoding: \"utf8\" }); return { hasHeader: out.includes(\"# koala status\"), hasStory: out.includes(\"**Story**\") || out.includes(\"**Dashboard**\"), hasRuntime: out.includes(\"Runtime health\"), hasReviewer: out.includes(\"Reviewer status\"), hasArtifacts: out.includes(\"Artifacts\"), hasNext: out.includes(\"Next step\") };",
+      "expect": {
+        "hasHeader": true,
+        "hasStory": true,
+        "hasRuntime": true,
+        "hasReviewer": true,
+        "hasArtifacts": true,
+        "hasNext": true
+      },
+      "intentRef": "B-3736:CHK-002:happy:0",
+      "storyId": "B-3736",
+      "_id": "e2790651-b96c-4c11-a73c-2a528d78888d",
+      "prevCaseId": "8258cbb2-0c3a-4a4f-9e94-a2756221660f",
+      "nextCaseId": "57223778-9c21-48f8-8269-ec4414dac494",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-002 edge: koala status works without .koala state projection",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const fs = await import(\"node:fs\"); const { execFileSync } = await import(\"node:child_process\"); const out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"status\", \"--concise\"], { cwd: $root, encoding: \"utf8\" }); return { statusOk: out.includes(\"# koala status\"), noStateDirRequired: !fs.existsSync($root + \"/.koala/state\"), noStateOutputDependency: !out.includes(\".koala/state\") };",
+      "expect": {
+        "statusOk": true,
+        "noStateDirRequired": true,
+        "noStateOutputDependency": true
+      },
+      "intentRef": "B-3736:CHK-002:edge:0",
+      "storyId": "B-3736",
+      "_id": "57223778-9c21-48f8-8269-ec4414dac494",
+      "prevCaseId": "e2790651-b96c-4c11-a73c-2a528d78888d",
+      "nextCaseId": "d756f6b9-14a0-4199-8ff9-84c3fb380ce6",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-002 adversarial: koala status is read-only for state files and phase",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { execFileSync } = await import(\"node:child_process\"); const tracked = [\"--\", \".koala\", \"docs/story/actives/B-3736/index.json\"]; const before = execFileSync(\"git\", [\"status\", \"--short\", ...tracked], { cwd: $root, encoding: \"utf8\" }); execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"status\", \"--concise\"], { cwd: $root, encoding: \"utf8\" }); const after = execFileSync(\"git\", [\"status\", \"--short\", ...tracked], { cwd: $root, encoding: \"utf8\" }); return before === after;",
+      "expect": true,
+      "intentRef": "B-3736:CHK-002:adversarial:0",
+      "storyId": "B-3736",
+      "_id": "d756f6b9-14a0-4199-8ff9-84c3fb380ce6",
+      "prevCaseId": "57223778-9c21-48f8-8269-ec4414dac494",
+      "nextCaseId": "0cdc14e4-2794-4f96-9f39-00a9a5c8c552",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-003 happy: koala next prints only an executable next-step line",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { execFileSync } = await import(\"node:child_process\"); const out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"next\"], { cwd: $root, encoding: \"utf8\" }); return { startsWithNext: out.includes(\"Next step:\"), mentionsPhase: out.includes(\"阶段\") || out.includes(\"Resume:\"), omitsBriefHeader: !out.includes(\"# koala session brief\") && !out.includes(\"# koala status\") };",
+      "expect": {
+        "startsWithNext": true,
+        "mentionsPhase": true,
+        "omitsBriefHeader": true
+      },
+      "intentRef": "B-3736:CHK-003:happy:0",
+      "storyId": "B-3736",
+      "_id": "0cdc14e4-2794-4f96-9f39-00a9a5c8c552",
+      "prevCaseId": "d756f6b9-14a0-4199-8ff9-84c3fb380ce6",
+      "nextCaseId": "8e109af4-ae76-483f-8ccd-c073e23f52b6",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-003 edge: next keeps PLAN artifact gap priority in computeNextStep",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const fs = await import(\"node:fs\"); const text = fs.readFileSync($root + \"/packages/main/src/handlers/session.ts\", \"utf8\"); return { checksMissingUnderstanding: text.includes(\"PLAN 阶段缺 understanding\"), checksMissingDecision: text.includes(\"PLAN 阶段已有 understanding，缺 decision\"), extractsSameNextStep: text.includes(\"## → Next step\") && text.includes(\"renderNext\") };",
+      "expect": {
+        "checksMissingUnderstanding": true,
+        "checksMissingDecision": true,
+        "extractsSameNextStep": true
+      },
+      "intentRef": "B-3736:CHK-003:edge:0",
+      "storyId": "B-3736",
+      "_id": "8e109af4-ae76-483f-8ccd-c073e23f52b6",
+      "prevCaseId": "0cdc14e4-2794-4f96-9f39-00a9a5c8c552",
+      "nextCaseId": "923df5e7-4eab-43b4-b5a7-6db3d9eb9258",
+      "sandbox": false
+    },
+    {
+      "name": "CHK-003 adversarial: koala next is read-only and not a full brief",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { execFileSync } = await import(\"node:child_process\"); const tracked = [\"--\", \".koala\", \"docs/story/actives/B-3736/index.json\"]; const before = execFileSync(\"git\", [\"status\", \"--short\", ...tracked], { cwd: $root, encoding: \"utf8\" }); const out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"next\"], { cwd: $root, encoding: \"utf8\" }); const after = execFileSync(\"git\", [\"status\", \"--short\", ...tracked], { cwd: $root, encoding: \"utf8\" }); return { readOnly: before === after, compact: out.split(\"\\n\").filter(Boolean).length <= 3, noFullBrief: !out.includes(\"## Artifacts\") && !out.includes(\"## Reviewer status\") };",
+      "expect": {
+        "readOnly": true,
+        "compact": true,
+        "noFullBrief": true
+      },
+      "intentRef": "B-3736:CHK-003:adversarial:0",
+      "storyId": "B-3736",
+      "_id": "923df5e7-4eab-43b4-b5a7-6db3d9eb9258",
+      "prevCaseId": "8e109af4-ae76-483f-8ccd-c073e23f52b6",
+      "sandbox": false
+    }
+  ]
+}

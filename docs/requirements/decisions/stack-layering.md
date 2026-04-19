@@ -235,6 +235,22 @@ Claude/Codex 提供运行时与交互，但不应成为：
 
 否则一旦跨 session / 跨 tool / 跨 agent，就会丢状态。
 
+### 原则 4：Koala 的 runtime 只限 project state
+
+这里的 runtime 不是 agent runtime。Koala 不负责启动、恢复或调度 Codex/Claude
+session，也不实现通用 worker 池、prompt marketplace、token/model 管理或通知系统。
+
+Koala 可以借鉴 OMX 的可观察、可恢复、可诊断思想，但借鉴对象应落在
+project-state runtime：
+
+- `status`：只读展示 story / phase / worktree / reviewer / artifact / dirty risk
+- `next`：只读输出当前最可信的下一步
+- `doctor`：诊断 Koala 流程和本地状态健康
+- 后续可选的 `.koala/state`：只能是可删除、可重建的投影缓存，不能成为第二真相源
+
+硬边界是：story、checklist、fixture、requirements、git 仍然是真相源；所有 gate
+仍由确定性 CLI / fixture / review record 判定，不由 LLM 的即时判断判定。
+
 ## 当前实践对应关系
 
 结合当前仓库，已经能看到这个分层开始成型：

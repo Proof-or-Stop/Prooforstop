@@ -9,6 +9,25 @@ Koala 是一套围绕 Story 工作流的 AI 开发编排 CLI。这个仓库当�
 
 ## Codex 使用
 
+## Koala 状态入口
+
+Koala 不负责 Codex / Claude Code 的 agent runtime；它负责 project state：
+story、phase、worktree、gate、review、fixture、bug 和 evidence。
+
+恢复现场时优先使用只读入口：
+
+```bash
+koala status
+koala next
+```
+
+- `koala status` 展示当前工程状态总览，复用 `session_brief` 的事实来源
+- `koala next` 只输出当前最可信的下一步建议
+- 两个命令都不推进 phase、不写 `.koala/state`、不修改 story/fixture/git
+
+`session_brief` 仍然是新 agent session 的开场简报入口；`status` / `next` 是给人和
+agent 在工作中快速恢复现场的短入口。
+
 ### 1. 先构建完整 CLI
 
 ```bash

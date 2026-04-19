@@ -277,6 +277,23 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'session_brief', description: '生成本 session 的开场简报：active story + checklist + bug + activity + 推断的下一步', schema: {
     concise: z.boolean().optional().describe('B-89c7 CHK-008 简短模式：< 4KB 输出，用于 SessionStart hook 注入'),
   } },
+  /**
+   * @task B-3736
+   * @checklist CHK-002, CHK-003
+   * @title register read-only project-state runtime commands
+   * @type feature
+   * @priority high
+   * @description
+   *   Expose status/next as first-class CLI commands so users and agents can
+   *   recover Koala project state without knowing the longer session_brief name.
+   * @changes
+   *   - [CHK-002] Register status with concise option
+   *   - [CHK-003] Register next without mutating arguments
+   */
+  { name: 'status', description: '只读展示当前 Koala 工程状态：story/phase/runtime/reviewer/artifact/dirty risk', schema: {
+    concise: z.boolean().optional().describe('简短模式：只保留关键状态字段'),
+  } },
+  { name: 'next', description: '只读输出当前 Koala 工程状态推断出的下一步建议', schema: {} },
 
   // Doctor (health issue 巡检)
   { name: 'doctor', description: '查看 koala 自身的 health issue（被 silent catch 接住的 PERSIST 失败）+ 扫 .worktrees/ 孤儿目录', schema: {
