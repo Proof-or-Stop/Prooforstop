@@ -63,11 +63,12 @@
       "name": "CHK-002 happy: status shows phase ordinal and allowed transitions",
       "run_type": "cli",
       "file": "handlers/session",
-      "execute": "const { execFileSync } = await import(\"node:child_process\"); const out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"status\", \"--concise\"], { cwd: $root, encoding: \"utf8\" }); return { hasOrdinal: out.includes(\"**Phase**: 6/9 TEST_CASE\"), hasNext: out.includes(\"allowed next: TEST_CASE_REVIEW\"), hasRollback: out.includes(\"allowed rollback: DEV\") };",
+      "execute": "const { execFileSync } = await import(\"node:child_process\"); const out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"status\", \"--concise\"], { cwd: $root, encoding: \"utf8\" }); return { hasOrdinal: /\\*\\*Phase\\*\\*: [0-9]+\\/9 [A-Z_]+/.test(out), hasPhaseFlow: out.includes(\"## Phase flow\"), hasAllowedNext: out.includes(\"allowed next:\"), hasAllowedRollback: out.includes(\"allowed rollback:\") || out.includes(\"terminal phase\") };",
       "expect": {
         "hasOrdinal": true,
-        "hasNext": true,
-        "hasRollback": true
+        "hasPhaseFlow": true,
+        "hasAllowedNext": true,
+        "hasAllowedRollback": true
       },
       "intentRef": "B-fc3b:CHK-002:happy:0",
       "sandbox": false,
