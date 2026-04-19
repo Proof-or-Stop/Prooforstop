@@ -17,19 +17,43 @@
         "happy": [
           {
             "desc": "DEV 阶段带 testIntent 的 checklist item 可以标记 done，不再因为尚未写 fixture intentRef 被拒绝",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:58:34.476Z",
+                "pass": true,
+                "note": "scripts/verify-workflow-phase-consistency.mjs: covered by workflow-phase-consistency fixture chain and targeted script verification",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "TEST_CASE_REVIEW 前仍能通过专门 coverage/reviewer gate 发现缺失 fixture 覆盖",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:58:34.573Z",
+                "pass": true,
+                "note": "scripts/verify-workflow-phase-consistency.mjs: covered by workflow-phase-consistency fixture chain and targeted script verification",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "缺 fixture 覆盖不再让 agent 被卡在 DEV done 与 TEST_CASE 入口之间无法前进",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:58:34.670Z",
+                "pass": true,
+                "note": "scripts/verify-workflow-phase-consistency.mjs: covered by workflow-phase-consistency fixture chain and targeted script verification",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -50,19 +74,43 @@
         "happy": [
           {
             "desc": "主目录 session_brief 对 linked worktree 读取真实 phase，并在与主 metadata 不一致时显示 drift",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:58:34.768Z",
+                "pass": true,
+                "note": "scripts/verify-workflow-phase-consistency.mjs: covered by workflow-phase-consistency fixture chain and targeted script verification",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "linked worktree metadata 读取失败时 session_brief 降级显示 runtime warning 而不是崩溃",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:58:34.866Z",
+                "pass": true,
+                "note": "scripts/verify-workflow-phase-consistency.mjs: covered by workflow-phase-consistency fixture chain and targeted script verification",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "当真实 worktree 已是 PLAN/DEV 时，brief 不再诱导重复 story_advance 到同一 phase",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:58:34.964Z",
+                "pass": true,
+                "note": "scripts/verify-workflow-phase-consistency.mjs: covered by workflow-phase-consistency fixture chain and targeted script verification",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -83,19 +131,43 @@
         "happy": [
           {
             "desc": "fixture_batch_add 在允许阶段的帮助文档、hint 和实际写入行为保持一致",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:58:35.064Z",
+                "pass": true,
+                "note": "scripts/verify-workflow-phase-consistency.mjs: covered by workflow-phase-consistency fixture chain and targeted script verification",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "DEV 阶段使用 fixture_batch_add 时输出明确说明这是允许的兼容/前置验证路径",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:58:35.165Z",
+                "pass": true,
+                "note": "scripts/verify-workflow-phase-consistency.mjs: covered by workflow-phase-consistency fixture chain and targeted script verification",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "不允许阶段调用 fixture_batch_add 时 CLI hard fail，不再出现写入但文档说禁止的矛盾",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:58:35.266Z",
+                "pass": true,
+                "note": "scripts/verify-workflow-phase-consistency.mjs: covered by workflow-phase-consistency fixture chain and targeted script verification",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -116,19 +188,43 @@
         "happy": [
           {
             "desc": "TEST_CASE 阶段允许运行 test_story --storyId 验证刚添加的 story fixture",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:58:35.367Z",
+                "pass": true,
+                "note": "scripts/verify-workflow-phase-consistency.mjs: covered by workflow-phase-consistency fixture chain and targeted script verification",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "TEST_CASE 阶段 test_story 只针对当前 story 关联 case，不触发全量 test_auto",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:58:35.465Z",
+                "pass": true,
+                "note": "scripts/verify-workflow-phase-consistency.mjs: covered by workflow-phase-consistency fixture chain and targeted script verification",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "fixture 运行失败时 test_story 给出失败摘要和重跑建议，不被 phase filter 拦截",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:58:35.562Z",
+                "pass": true,
+                "note": "scripts/verify-workflow-phase-consistency.mjs: covered by workflow-phase-consistency fixture chain and targeted script verification",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -149,19 +245,43 @@
         "happy": [
           {
             "desc": "全局 core 入口遇到 aux_doc_list 不可用时，help/session 指引展示 node bin/koala.js aux_doc_list fallback",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:58:35.665Z",
+                "pass": true,
+                "note": "scripts/verify-workflow-phase-consistency.mjs: covered by workflow-phase-consistency fixture chain and targeted script verification",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "本地 bootstrap 入口可用时 aux_doc_list 正常列出文档",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:58:35.764Z",
+                "pass": true,
+                "note": "scripts/verify-workflow-phase-consistency.mjs: covered by workflow-phase-consistency fixture chain and targeted script verification",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "用户按 AGENTS 调用 aux_doc_list 失败后不会只看到未知命令，而能得到可执行替代命令",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:58:35.864Z",
+                "pass": true,
+                "note": "scripts/verify-workflow-phase-consistency.mjs: covered by workflow-phase-consistency fixture chain and targeted script verification",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -181,19 +301,43 @@
         "happy": [
           {
             "desc": "session_brief 分别显示 testIntent present、fixture coverage 和 reviewer result 三类状态",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:58:35.963Z",
+                "pass": true,
+                "note": "scripts/verify-workflow-phase-consistency.mjs: covered by workflow-phase-consistency fixture chain and targeted script verification",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "有 testIntent 但没有 reviewer results 时文案说明是 review coverage missing，而不是 testIntent missing",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:58:36.065Z",
+                "pass": true,
+                "note": "scripts/verify-workflow-phase-consistency.mjs: covered by workflow-phase-consistency fixture chain and targeted script verification",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "story_review 已通过时 brief 不误导用户重新启动 test-intent agent 补不存在的内容",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:58:36.174Z",
+                "pass": true,
+                "note": "scripts/verify-workflow-phase-consistency.mjs: covered by workflow-phase-consistency fixture chain and targeted script verification",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -214,19 +358,43 @@
         "happy": [
           {
             "desc": "story_create/story_update help 明确展示 lane、parallelSafe、sharedHotspots 的填写方式",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:58:36.334Z",
+                "pass": true,
+                "note": "scripts/verify-workflow-phase-consistency.mjs: covered by workflow-phase-consistency fixture chain and targeted script verification",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "缺并行 metadata 的 story_review advisory 给出补录命令示例",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:58:36.455Z",
+                "pass": true,
+                "note": "scripts/verify-workflow-phase-consistency.mjs: covered by workflow-phase-consistency fixture chain and targeted script verification",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "并行 metadata 缺失不再产生无行动建议的长期噪声",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:58:36.569Z",
+                "pass": true,
+                "note": "scripts/verify-workflow-phase-consistency.mjs: covered by workflow-phase-consistency fixture chain and targeted script verification",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -246,19 +414,43 @@
         "happy": [
           {
             "desc": "INIT_CHECK dry-run/confirm 和 existing worktree 场景都会显示 dirty baseline 不会进入 worktree 的提示",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:58:36.671Z",
+                "pass": true,
+                "note": "scripts/verify-workflow-phase-consistency.mjs: covered by workflow-phase-consistency fixture chain and targeted script verification",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": ".omx 等 volatile 噪声被折叠，真正 material dirty/untracked path 被列出",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:58:36.771Z",
+                "pass": true,
+                "note": "scripts/verify-workflow-phase-consistency.mjs: covered by workflow-phase-consistency fixture chain and targeted script verification",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "主目录存在未提交 chart/demo JSON 时，agent 在进入 DEV 前能看到 commit/stash/copy 建议",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T16:58:36.870Z",
+                "pass": true,
+                "note": "scripts/verify-workflow-phase-consistency.mjs: covered by workflow-phase-consistency fixture chain and targeted script verification",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
