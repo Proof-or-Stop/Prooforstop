@@ -9,9 +9,29 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-19T22:36:51.375Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "运行 test_story 并产生 PASS evidence -> test-evidence.json 包含当前 git HEAD commit；WHY: 证明 evidence 可绑定代码版本",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "git HEAD 可读取但测试输出包含零个或多个 case -> evidence 仍写入 commit 字段且保留原有 PASS/FAIL 语义；WHY: schema 扩展不能破坏现有统计",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "git 命令失败或不在 git worktree -> test_story 不崩溃，evidence 使用 unknown/null commit 并让 DONE gate 后续 fail closed；WHY: 证据缺版本不能误放行",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -21,9 +41,29 @@
         "AGENTS.md#DONE-门禁",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-19T22:36:47.420Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "evidence commit 等于 story 分支 HEAD 且 result=PASS -> DONE checklist Test evidence 通过；WHY: 验证新鲜证据可放行",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "旧 evidence 缺少 commit 字段 -> DONE checklist 拒绝并提示重跑 test_story；WHY: 兼容旧文件时必须 fail closed",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "evidence commit 与当前 story HEAD 不一致 -> DONE dry-run 阻塞并显示 stale evidence、当前 HEAD、evidence commit 与重跑命令；WHY: 覆盖 merge main 后直接 DONE 的真实风险",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -32,9 +72,58 @@
       "relatedDocs": [
         "AGENTS.md#DONE-门禁"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-19T22:36:47.421Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "Branch synced with main 失败 -> hint 明确要求 merge main 后重跑 test_story 再执行 DONE dry-run/confirm；WHY: 防止 agent 只 merge 不复测",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "merge main 产生冲突 -> hint 仍给出解决冲突、提交、重跑 test_story 的顺序；WHY: 覆盖最常见的人机协作路径",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "agent 看到 main sync 阻塞后机械重试 DONE -> 返回文本持续指向重跑 test_story 而不是只要求 confirm；WHY: 把安全流程写进错误文本",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-04-19T22:36:47.420Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "DONE checklist now fails closed when evidence git head is missing or stale against current story HEAD"
+    },
+    {
+      "timestamp": "2026-04-19T22:36:47.421Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Branch synced with main failure hint now instructs merge main, resolve conflicts, commit, rerun test_story, then DONE dry-run/confirm"
+    },
+    {
+      "timestamp": "2026-04-19T22:36:51.375Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "test_story and test_add now persist git identity on test evidence; fixtures cover fresh, zero-case, and non-git paths"
     }
   ]
 }

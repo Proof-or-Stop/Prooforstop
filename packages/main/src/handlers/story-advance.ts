@@ -73,7 +73,7 @@ function detectDoneAutoGitPlan(storyId: string, storyTitle: string): DoneAutoGit
     if (cwdInWorktree !== mainRepoRoot && detectedBranch.startsWith('story/')) {
       wtPathAbs = cwdInWorktree;
     }
-  } catch {
+  } catch { /* PROBE: refs may be absent in synthetic git repos */
     return null;
   }
 
@@ -211,6 +211,23 @@ function renderDoneMainMergePreflight(preflight: DoneMainMergePreflight): string
   return lines.join('\n');
 }
 
+function readGitHead(cwd: string, ref = 'HEAD'): string | null {
+  try {
+    const value = execSync(`git rev-parse ${JSON.stringify(ref)}`, {
+      cwd,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    return value || null;
+  } catch {
+    return null;
+  }
+}
+
+function shortCommit(value: string | null | undefined): string {
+  return value ? value.slice(0, 12) : 'unknown';
+}
+
 function assertDoneMainMergeSafe(plan: DoneAutoGitPlan, preflight: DoneMainMergePreflight): void {
   if (preflight.blockingPaths.length === 0) return;
   throw new Error(
@@ -255,11 +272,45 @@ function buildDoneChecklist(storyId: string, store: StoryStore, root: string): D
       }
     } catch { /* output 不是 JSON 也算 PASS（兼容旧格式）*/ }
     if (allPassedOk) {
-      rows.push({
-        status: 'pass',
-        label: 'Test evidence',
-        detail: `PASS @ ${evidence.timestamp}`,
-      });
+      const evidenceHead = evidence.git?.head || null;
+      let currentHead = readGitHead(root);
+      let currentRef = 'HEAD';
+      try {
+        const story = store.readStory(storyId);
+        if (story.worktree?.branch) {
+          currentRef = story.worktree.branch;
+          currentHead = readGitHead(root, story.worktree.branch);
+        }
+      } catch { /* PROBE: story metadata may already have been checked by phase guard */ }
+
+      if (!evidenceHead) {
+        rows.push({
+          status: 'fail',
+          label: 'Test evidence',
+          detail: 'PASS evidence 缺少 git HEAD，无法证明覆盖当前代码',
+          hint: `重跑 koala test_story '{"storyId":"${storyId}"}' 刷新 evidence 后再推进 DONE`,
+        });
+      } else if (!currentHead) {
+        rows.push({
+          status: 'fail',
+          label: 'Test evidence',
+          detail: `无法读取当前 ${currentRef} 的 git HEAD`,
+          hint: '确认当前目录是 story worktree 且 git 状态正常，然后重跑 test_story',
+        });
+      } else if (evidenceHead !== currentHead) {
+        rows.push({
+          status: 'fail',
+          label: 'Test evidence',
+          detail: `stale: evidence=${shortCommit(evidenceHead)} current=${shortCommit(currentHead)}`,
+          hint: `当前代码已变化（例如 merge main 或新 commit）。请先重跑 koala test_story '{"storyId":"${storyId}"}'，再执行 DONE dry-run/confirm`,
+        });
+      } else {
+        rows.push({
+          status: 'pass',
+          label: 'Test evidence',
+          detail: `PASS @ ${evidence.timestamp} (${shortCommit(evidenceHead)})`,
+        });
+      }
     }
   }
 
@@ -308,7 +359,7 @@ function buildDoneChecklist(storyId: string, store: StoryStore, root: string): D
           status: 'fail',
           label: 'Branch synced with main',
           detail: `${branch} 未合并 main 的最新提交`,
-          hint: '如需在 worktree 里执行 git merge main，未经用户 confirm 不允许；确认后再合并',
+          hint: `如需在 worktree 里执行 git merge main，未经用户 confirm 不允许；确认后合并 main、解决冲突并提交，然后重跑 koala test_story '{"storyId":"${storyId}"}'，最后再执行 DONE dry-run/confirm`,
         });
       }
     }

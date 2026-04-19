@@ -297,6 +297,11 @@ export interface TestEvidenceData {
   result: TestResult;
   /** 时间戳 */
   timestamp: string;
+  /** 测试运行时的 git 版本信息；缺失或不匹配时 DONE gate 必须要求重跑测试 */
+  git?: {
+    head: string | null;
+    branch?: string | null;
+  };
   /** 运行环境 */
   environment?: {
     node: string;

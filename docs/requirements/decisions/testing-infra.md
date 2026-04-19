@@ -35,7 +35,7 @@
 - `story_advance(TEST)` 返回提示立即执行 `test_auto`
 - `test_auto` 自动执行白盒 fixture + 浏览器测试
 - 结果自动写入测试证据
-- `story_advance(DONE)` 门禁只认 test_auto 的记录
+- `test_story` 写入测试证据时记录当前 git HEAD；`story_advance(DONE)` 只接受 PASS 且 HEAD 匹配当前 story 分支的证据
 - TEST fail 时 `bug_report` 自动回退 DEV
 
 ## CLI 工具

@@ -21,6 +21,25 @@ import {
   createIsolatedHandlers, createTempStoryFactory, cleanupTempStories, cleanupFixtureDir,
 } from './test-runner-core.js';
 
+function readGitIdentity(cwd: string): { head: string | null; branch: string | null } {
+  const read = (cmd: string): string | null => {
+    try {
+      const value = execSync(cmd, {
+        cwd,
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      }).trim();
+      return value || null;
+    } catch { /* PROBE: git identity can be unavailable in synthetic test roots */
+      return null;
+    }
+  };
+  return {
+    head: read('git rev-parse HEAD'),
+    branch: read('git rev-parse --abbrev-ref HEAD'),
+  };
+}
+
 export function createTestStoryHandlers(ctx: HandlerContext) {
   const { root } = ctx;
   const progress = ctx.log || (() => {});
@@ -207,12 +226,14 @@ export function createTestStoryHandlers(ctx: HandlerContext) {
       const passedCasesS = fixtureResults.reduce((sum, r) => sum + r.cases.filter(c => c.passed).length, 0);
       const allPassedS = fixtureResults.every(r => r.allPassed) && errors.length === 0;
       const __runEndIso = new Date().toISOString();
+      const git = readGitIdentity(root);
       try {
         ctx.store.writeTestEvidence(storyId, {
           command: `koala test_story '{"storyId":"${storyId}"}'`,
           output: JSON.stringify({ totalCases: totalCasesS, passedCases: passedCasesS, failedCases: totalCasesS - passedCasesS, allPassed: allPassedS }),
           result: allPassedS ? 'PASS' : 'FAIL',
           timestamp: __runEndIso,
+          git,
           environment: { node: process.version, os: `${process.platform} ${process.arch}` },
         });
       } catch (e) {
