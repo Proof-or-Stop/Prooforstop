@@ -1,0 +1,39 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "更新 test-intent prompt 的 fixture-friendly 输出规范",
+      "context": "把 t07-reviewer-friendly 的 desc/type/input/expect/WHY 思路写进 prompt，但不要强制所有简单 story 都必须写 input/expect。",
+      "relatedDocs": [
+        "experiments/reports/test-intent-structured-v1.md",
+        ".claude/agents/test-intent.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "同步 Codex agent 资产并防漂移",
+      "context": ".Codex/agents 由 .claude/agents transform 生成，改完必须保持 npm run test:codex-assets 通过。",
+      "relatedDocs": [
+        "README.md",
+        ".Codex/agents/test-intent.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "补 prompt 规则回归验证与 Koala Lab 验证",
+      "context": "验证 prompt 包含 fixture-friendly 规范，并用 koala-lab 对新旧 prompt 做 output-level 对比。",
+      "relatedDocs": [
+        "experiments/reports/test-intent-structured-v1.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
