@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "沉淀 Koala 只做 project-state runtime 的边界说明",
       "context": "基于 docs/requirements/decisions/stack-layering.md 和 project-vision.md，明确 Koala 不做 agent runtime，只负责 story/phase/gate/evidence/project state；relatedDocs: docs/requirements/decisions/stack-layering.md, docs/requirements/decisions/project-vision.md, README.md",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
+      "status": "done",
+      "startTime": "2026-04-19T19:11:04.949Z",
+      "endTime": "2026-04-19T19:11:05.054Z",
       "testIntent": {
         "happy": [
           {
@@ -32,9 +32,9 @@
       "id": "CHK-002",
       "title": "提供只读 koala status 命令展示当前工程状态",
       "context": "复用 session_brief 已有事实来源，输出 active story、phase/worktree、dirty baseline risk、open bugs、review/test 状态；先只读，不写 .koala/state；relatedDocs: docs/requirements/decisions/story-lifecycle.md, docs/requirements/decisions/testing-infra.md",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
+      "status": "done",
+      "startTime": "2026-04-19T19:11:11.706Z",
+      "endTime": "2026-04-19T19:11:11.817Z",
       "testIntent": {
         "happy": [
           {
@@ -60,9 +60,9 @@
       "id": "CHK-003",
       "title": "提供只读 koala next 命令输出下一步建议",
       "context": "从 status/session_brief 推断最可信下一步，面向 agent 恢复现场；输出应简洁可执行，不推进 phase、不修改文件；relatedDocs: docs/requirements/decisions/story-lifecycle.md",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
+      "status": "done",
+      "startTime": "2026-04-19T19:11:21.334Z",
+      "endTime": "2026-04-19T19:11:21.440Z",
       "testIntent": {
         "happy": [
           {
@@ -83,6 +83,62 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-04-19T19:11:04.949Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "开始落实 project-state runtime 边界文档"
+    },
+    {
+      "timestamp": "2026-04-19T19:11:05.054Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "README 和 stack-layering 已明确 Koala 不做 agent runtime，只做 project-state runtime，并说明 status/next 只读边界"
+    },
+    {
+      "timestamp": "2026-04-19T19:11:11.706Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "开始实现只读 koala status 命令"
+    },
+    {
+      "timestamp": "2026-04-19T19:11:11.817Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "status 已注册为 CLI 命令，复用 session_brief 状态视图并通过 DEV phase gate smoke"
+    },
+    {
+      "timestamp": "2026-04-19T19:11:21.334Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "开始实现只读 koala next 命令"
+    },
+    {
+      "timestamp": "2026-04-19T19:11:21.440Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "next 已注册为 CLI 命令，从同一份 session_brief next-step 推断中抽取精简建议并通过 smoke"
     }
   ]
 }

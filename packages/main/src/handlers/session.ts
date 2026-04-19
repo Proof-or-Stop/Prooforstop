@@ -500,9 +500,23 @@ interface SessionBriefArgs {
   concise?: boolean;
 }
 
+/**
+ * @task B-3736
+ * @checklist CHK-002, CHK-003
+ * @title status and next reuse the session brief project-state view
+ * @type feature
+ * @priority high
+ * @description
+ *   status/next are read-only project-state runtime entrypoints. They
+ *   reuse session_brief facts so Koala has one source for story, phase,
+ *   runtime health, reviewer/artifact status, dirty risk, and next-step
+ *   inference.
+ * @changes
+ *   - [CHK-002] Add status as a session_brief-backed state view
+ *   - [CHK-003] Add next as a concise extraction of the same next-step inference
+ */
 export function createSessionHandlers(ctx: HandlerContext) {
-  return {
-    session_brief(args: SessionBriefArgs = {}): string {
+  const renderSessionBrief = (args: SessionBriefArgs = {}): string => {
       const concise = args.concise === true;
       const lines: string[] = [];
       lines.push('# koala session brief');
@@ -943,6 +957,32 @@ export function createSessionHandlers(ctx: HandlerContext) {
       lines.push(`  ${nextStep}`);
 
       return lines.join('\n');
+  };
+
+  const renderNext = (): string => {
+    const brief = renderSessionBrief({ concise: true });
+    const lines = brief.split('\n');
+    const markerIndex = lines.findIndex((line) => line.trim() === '## → Next step');
+    if (markerIndex === -1) {
+      return 'Next step: run `koala status` to inspect the current project state.';
+    }
+    const nextLines = lines
+      .slice(markerIndex + 1)
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0 && !line.startsWith('## '));
+    if (nextLines.length === 0) {
+      return 'Next step: run `koala status` to inspect the current project state.';
+    }
+    return `Next step: ${nextLines.join('\n')}`;
+  };
+
+  return {
+    session_brief: renderSessionBrief,
+    status(args: SessionBriefArgs = {}): string {
+      return renderSessionBrief(args).replace(/^# koala session brief/, '# koala status');
+    },
+    next(): string {
+      return renderNext();
     },
   };
 }

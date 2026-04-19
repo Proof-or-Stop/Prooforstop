@@ -92,6 +92,10 @@ const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'truth_*', 'gap_*', 'convergence_check',
     'story_advance', // 任何阶段都可以推进（cwd 门禁负责保护）
     'session_brief', // 全局：开场简报，任何阶段都可以查
+    // B-3736 CHK-002/CHK-003: status/next are read-only project-state
+    // runtime views, so agents must be able to run them from every phase.
+    'status',        // 全局：只读工程状态视图，任何阶段都可以查
+    'next',          // 全局：只读下一步建议，任何阶段都可以查
     'doctor',        // 全局：health 巡检，任何阶段都可以查
     'summary_get',   // 全局：读取 summary，任何阶段都可以查
     'summary_set',   // 全局：DONE 前强制落总结，koala short-path story 也需要
