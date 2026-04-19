@@ -15,19 +15,43 @@
         "happy": [
           {
             "desc": "生成 testIntent baseline 与结构化候选样本 → 文件数量与命名完整",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T01:26:53.792Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-intent-experiment.json:4 — samples-complete verifies baseline and structured candidate files exist | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "候选缺少 fixture 映射字段 → 脚本仍能评分并在 contentSummary 标出缺失项",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T01:26:54.024Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-intent-experiment.json:18 — samples-missing-mapping verifies missing type/fixture mapping is summarized | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "候选目录为空 → 实验脚本明确失败并提示缺少 candidates",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T01:26:54.259Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-intent-experiment.json:33 — samples-empty-fails verifies candidate directory prerequisite | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -46,19 +70,43 @@
         "happy": [
           {
             "desc": "运行 testIntent 实验脚本 → 输出候选 score/normalizedScore/fixtureMapping/contentSummary",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T01:26:54.493Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-intent-experiment.json:48 — scores-table verifies candidate scores and normalizedScore output | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "重复或弱 adversarial 候选 → 报告标出 duplicate/weak adversarial 信号",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T01:26:54.725Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-intent-experiment.json:63 — weak-adversarial verifies weak adversarial signal is detected | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "低质量候选 → 低分但不中断整体汇总",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T01:26:54.955Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-intent-experiment.json:78 — bad-candidate-contained verifies duplicate/noise candidate is scored without aborting | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -77,19 +125,43 @@
         "happy": [
           {
             "desc": "生成推荐报告 → 包含 Top 3、baseline 对比、推荐 prompt 修改方向",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T01:26:55.202Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-intent-experiment.json:93 — report-top3 verifies report structure | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "最高分候选过复杂 → 报告说明分数与可落地性 tradeoff",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T01:26:55.462Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-intent-experiment.json:108 — report-tradeoff verifies mapping/duplicate tradeoff is explained | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "候选缺少 adversarial 或 type 标注 → 报告不推荐该候选",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T01:26:55.701Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/test-intent-experiment.json:123 — report-recommends-candidate verifies recommended prompt direction is present | severity:info",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
