@@ -28,6 +28,7 @@ function defaultMetrics(config: LabExperimentConfig): LabRunMetrics {
     stabilityPenalty: 0,
     normalizedScore: 0,
     submetrics: {},
+    contentSummary: [],
   };
 }
 
@@ -41,6 +42,7 @@ function defaultResult(runId: string): LabRunResult {
     baselineNormalizedScore: 0,
     delta: 0,
     normalizedDelta: 0,
+    contentSummary: [],
     candidatePatch: null,
     changedFiles: 0,
     changedLines: 0,
@@ -281,6 +283,7 @@ export function createLabHandlers(ctx: LabHandlerContext) {
           baselineNormalizedScore: baseline.normalizedScore,
           delta: decision.delta,
           normalizedDelta: Number((candidate.normalizedScore - (baseline.normalizedScore ?? 0)).toFixed(4)),
+          contentSummary: candidate.metrics.contentSummary ?? [],
           candidatePatch: patch.patchPath,
           changedFiles: patch.touchedPaths.length || candidate.changedFiles,
           changedLines: candidate.changedLines,
@@ -346,6 +349,7 @@ export function createLabHandlers(ctx: LabHandlerContext) {
       return JSON.stringify({
         experimentId: config.id,
         baseline: baseline ? { score: baseline.score, normalizedScore: baseline.normalizedScore ?? null, ref: baseline.ref } : null,
+        baselineContentSummary: baseline?.metrics?.contentSummary ?? [],
         best: {
           runId: best.runId,
           score: best.result.score,
@@ -355,6 +359,7 @@ export function createLabHandlers(ctx: LabHandlerContext) {
           normalizedDelta: best.result.normalizedDelta ?? null,
           patch: best.result.candidatePatch,
           reason: best.result.reason,
+          contentSummary: best.result.contentSummary ?? [],
         },
         decision: best.result.status,
         runs: runs.map((run) => ({
@@ -365,6 +370,7 @@ export function createLabHandlers(ctx: LabHandlerContext) {
           delta: run.result.delta,
           normalizedDelta: run.result.normalizedDelta ?? null,
           patch: run.result.candidatePatch,
+          contentSummary: run.result.contentSummary ?? [],
         })),
       }, null, 2);
     },
@@ -388,6 +394,7 @@ export function createLabHandlers(ctx: LabHandlerContext) {
         baselineRef: config.baseline.ref,
         score: best.result.score,
         normalizedScore: best.result.normalizedScore ?? null,
+        contentSummary: best.result.contentSummary ?? [],
         reason: best.result.reason,
         summaryPath: `${config.outputs.runDir}/${best.runId}/summary.md`,
       }, null, 2);

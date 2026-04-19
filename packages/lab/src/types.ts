@@ -94,6 +94,7 @@ export interface LabRunMetrics {
   stabilityPenalty: number;
   normalizedScore?: number;
   submetrics: Record<string, number>;
+  contentSummary?: string[];
   notes?: string[];
 }
 
@@ -106,6 +107,7 @@ export interface LabRunResult {
   baselineNormalizedScore?: number;
   delta: number;
   normalizedDelta?: number;
+  contentSummary?: string[];
   candidatePatch: string | null;
   changedFiles: number;
   changedLines: number;
