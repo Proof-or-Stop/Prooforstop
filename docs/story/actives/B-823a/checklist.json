@@ -10,7 +10,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "评分模型对 PASS 且 0 open bug 的真实 story 给出高分，并在 why 中列出 tests/bugs/summary 来源",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "缺 summary 的旧 story 仍被纳入报告，但 score 降低且 explain 明确 artifact gap",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "score 不允许为空、NaN、超过 1 或缺少 why/explain，否则验证失败",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -22,7 +42,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "运行 replay 脚本生成 real-story-replay-v1.md/json，并包含指定真实 story 行",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "重复运行 replay 脚本输出稳定，报告表头仍含 Score/Why/Explain",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "报告不得只生成聊天式描述，必须同时有机器可读 JSON 和用户可读 Markdown",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -33,7 +73,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "回归 fixture 校验 markdown 表格含 Story/Score/Why/Explain 且 B-9c2c 为高分",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "回归 fixture 校验 B-e452 缺 summary 时仍有分数和解释，不崩溃",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "回归 fixture 校验每个 replay item 都有 why 和 explain，缺任一字段即失败",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }

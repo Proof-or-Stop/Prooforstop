@@ -4,7 +4,7 @@
   "title": "为真实 Koala 任务增加 replay 评分对比表",
   "description": "把已完成的真实 Koala 任务固化成 koala-lab 回放评测集，报告表格必须包含 score、why、explain，用于回答真实流程优化是否有效。",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "createdAt": "2026-04-19T16:08:36.698Z",
   "startedAt": "2026-04-19T16:08:36.698Z",
@@ -25,11 +25,27 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-19T16:08:57.064Z",
+      "branch": "story/B-823a",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-823a",
     "branch": "story/B-823a",
     "createdAt": "2026-04-19T16:08:48.922Z"
-  }
+  },
+  "lane": "mainline",
+  "parallelSafe": "no",
+  "sharedHotspots": [
+    "scripts/real-story-replay-benchmark.mjs",
+    "experiments/reports/real-story-replay-v1.md",
+    "experiments/reports/real-story-replay-v1.json",
+    "packages/main/tests/fixtures/real-story-replay-benchmark.json"
+  ]
 }
