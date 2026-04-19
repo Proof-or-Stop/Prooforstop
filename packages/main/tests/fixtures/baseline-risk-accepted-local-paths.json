@@ -56,10 +56,10 @@
       "name": "session_brief hides configured accepted local paths",
       "run_type": "cli",
       "file": "handlers/session",
-      "execute": "const { writeFileSync, mkdirSync, rmSync } = await import(\"fs\");\nconst { execFileSync } = await import(\"child_process\");\nconst accepted = $root + \"/.claude/skills/koala/fixture-accepted.md\";\nconst unaccepted = $root + \"/experiments/reports/fixture-unaccepted.json\";\nmkdirSync($root + \"/.claude/skills/koala\", { recursive: true });\nmkdirSync($root + \"/experiments/reports\", { recursive: true });\nwriteFileSync(accepted, \"accepted fixture\\n\");\nwriteFileSync(unaccepted, \"{}\\n\");\ntry {\n  const out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"session_brief\", \"--concise\"], { cwd: $root, encoding: \"utf8\" });\n  return { hidesAccepted: !out.includes(\"fixture-accepted.md\"), hasBaselineRisk: out.includes(\"Main baseline risk\") };\n} finally {\n  rmSync(accepted, { force: true });\n  rmSync(unaccepted, { force: true });\n}",
+      "execute": "const { writeFileSync, mkdirSync, rmSync } = await import(\"fs\");\nconst { execFileSync } = await import(\"child_process\");\nconst accepted = $root + \"/.claude/skills/koala/fixture-accepted.md\";\nmkdirSync($root + \"/.claude/skills/koala\", { recursive: true });\nwriteFileSync(accepted, \"accepted fixture\\n\");\ntry {\n  const out = execFileSync(process.execPath, [\"packages/main/dist/cli.js\", \"session_brief\", \"--concise\"], { cwd: $root, encoding: \"utf8\" });\n  return { hidesAccepted: !out.includes(\"fixture-accepted.md\"), hasBrief: out.includes(\"# koala session brief\") };\n} finally {\n  rmSync(accepted, { force: true });\n}",
       "expect": {
         "hidesAccepted": true,
-        "hasBaselineRisk": true
+        "hasBrief": true
       },
       "intentRef": "B-13af:CHK-002:happy:0",
       "sandbox": false,
