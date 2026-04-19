@@ -1,9 +1,29 @@
 
 import type { HandlerContext } from './context.js';
 import type { TestEvidenceData } from '../core/types.js';
+import { execSync } from 'child_process';
+
+function readGitIdentity(cwd: string): { head: string | null; branch: string | null } {
+  const read = (cmd: string): string | null => {
+    try {
+      const value = execSync(cmd, {
+        cwd,
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      }).trim();
+      return value || null;
+    } catch { /* PROBE: manual evidence can be recorded from non-git roots */
+      return null;
+    }
+  };
+  return {
+    head: read('git rev-parse HEAD'),
+    branch: read('git rev-parse --abbrev-ref HEAD'),
+  };
+}
 
 export function createTestHandlers(ctx: HandlerContext) {
-  const { store } = ctx;
+  const { store, root } = ctx;
   return {
     test_add(args: {
       storyId: string;
@@ -16,6 +36,7 @@ export function createTestHandlers(ctx: HandlerContext) {
         output: args.output,
         result: args.result,
         timestamp: new Date().toISOString(),
+        git: readGitIdentity(root),
         environment: {
           node: process.version,
           os: `${process.platform} ${process.arch}`,

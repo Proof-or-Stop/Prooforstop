@@ -45,7 +45,7 @@ transition graph：
 | TEST_CASE | 编写/补齐 fixture case，并立即用 `test_story --storyId=...` 验证 | checklist 全部 done |
 | TEST_CASE_REVIEW | reviewer 审核 testIntent 覆盖 | fixture 覆盖 + reviewer 结论通过 |
 | TEST | 自动化测试 | testIntent 审核全部 pass |
-| DONE | 完成 | 测试全部 PASS + bug 全部 fixed |
+| DONE | 完成 | 测试全部 PASS + bug 全部 fixed，且 test evidence 对应当前 story HEAD |
 | DISCARDED | 已废弃 | story_discard，任何阶段可用 |
 
 ## 自动回退
@@ -69,6 +69,7 @@ transition graph：
 - **状态机管理**：使用 xstate 而非手动 if 判断，门禁（guard）内置到状态机定义中
 - **自动回退**：TEST fail 和 TEST_CASE_REVIEW fail 自动回退 DEV，不需要手动操作
 - **门禁不可跳过**：DEV→TEST_CASE 必须 checklist 全 done，TEST_CASE_REVIEW→TEST 必须 fixture 覆盖 + reviewer 结论通过，TEST→DONE 必须测试通过且 bug 全 fixed
+- **DONE evidence 必须新鲜**：`test_story` 写入测试运行时的 git HEAD；DONE gate 比对该 HEAD 与当前 story 分支 HEAD。merge main、解决冲突或新增提交后，旧 PASS 证据会被视为 stale，必须重跑 `test_story`。
 - **DEV done 不检查 fixture 覆盖**：DEV done 表示实现项完成；fixture intentRef 覆盖在 TEST_CASE / TEST_CASE_REVIEW 口径检查，避免 DEV done 与 TEST_CASE 入口互相卡住
 - **TEST_CASE 可本地验证**：TEST_CASE 阶段允许 `test_story --storyId=...` 只跑当前 story 关联 case，便于刚写完 fixture 就发现运行时错误
 - **统一推进命令**：`story_advance` 统一处理所有阶段推进，砍掉 dev_start / dev_finish / dev_merge
