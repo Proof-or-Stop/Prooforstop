@@ -55,6 +55,11 @@ export interface KoalaConfig {
   worktreeDir?: string;
   /** doc_list 扫描的文档目录（相对项目根，默认 ['docs', 'requirements']） */
   docDirs?: string[];
+  /**
+   * Local paths that are intentionally allowed to differ from the committed
+   * baseline. These paths are hidden from baseline-risk material warnings.
+   */
+  baselineRiskAcceptedLocalPaths?: string[];
   /** stale-detector 阈值（分钟，缺失走 DEFAULT_STALE_THRESHOLDS） */
   staleThresholds?: {
     /** phase 没 advance 多久算卡死（默认 30） */
