@@ -1,0 +1,38 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "新增 story_sync_main 命令和门禁",
+      "context": "命令只能在对应 story worktree 中运行，检查当前分支/工作区状态，执行 git merge main，并只自动处理当前 story metadata 冲突。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "冲突处理只保护当前 story metadata",
+      "context": "对 .koala/story/actives/<storyId>/index.json/checklist.json 等当前 story artifact 自动 checkout --ours；其它冲突保留并提示用户处理。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "增加 story_sync_main fixture 覆盖",
+      "context": "覆盖 metadata-only 冲突自动解决、真实源码冲突仍失败、非 worktree/cwd 错误提示等场景。",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-fixture-spec.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
