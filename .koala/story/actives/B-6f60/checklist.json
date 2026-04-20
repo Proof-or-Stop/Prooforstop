@@ -10,7 +10,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "DONE auto-git merge 失败后，story index.json phase 恢复为失败前 phase，可再次 story_advance DONE 重试",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "rollback 只恢复 index.json story 状态，不删除 summary/test evidence/reviewer artifact",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果 rollback commit 自身失败，错误提示仍明确 story 分支可能需要人工恢复",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -21,7 +41,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "DONE merge 失败错误提示包含 git checkout <story-branch> -- .koala/story/actives/<storyId>/ 这类无歧义命令",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "提示同时说明在 main merge 中 story 分支版本才是 canonical metadata",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "提示不使用容易混淆的单独 --ours/--theirs 作为唯一指令",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -32,7 +72,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "story_reconcile 能检测 phase=INIT_CHECK 且 branch/worktree 都缺失但有 worktree 历史的 zombie story",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "phase=INIT 且 branch/worktree 都缺失的未启动 story 不被 zombie 检测误报",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "phase=INIT_CHECK 且 branch 仍存在或 linked worktree 仍存在时不被误判 zombie",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
@@ -43,7 +103,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "fixture 覆盖 DONE merge 失败 rollback、重试可行、conflict hint、INIT_CHECK zombie 检测",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "fixture 使用临时 git repo 与临时 StoryStore，不污染真实 .koala/story/actives",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "fixture 覆盖 INIT 未启动 story 不误判与 branch/worktree 存在不误判",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }
