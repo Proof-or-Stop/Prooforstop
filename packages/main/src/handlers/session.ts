@@ -33,6 +33,7 @@ import { getReviewerStatus, type ReviewerStatus } from '../core/reviewer-status.
 import { getStoryWorktreeRuntime } from '../core/worktree-runtime.js';
 import { collectBaselineRisk, renderBaselineRiskLines } from '../core/baseline-risk.js';
 import { loadConfig } from '../core/config.js';
+import { readActivityLogTail } from '../core/activity-log.js';
 import {
   checkPhaseTransition,
   describeAllowedTransitions,
@@ -74,23 +75,18 @@ function readActivityTail(root: string, lines: number): Array<{
   role: string;
   storyId: string | null;
 }> {
-  const activityPath = join(root, 'docs', 'story', 'activity.jsonl');
-  if (!existsSync(activityPath)) return [];
   try {
-    const content = readFileSync(activityPath, 'utf-8');
-    const allLines = content.split('\n').filter(l => l.trim().length > 0);
-    const tail = allLines.slice(-lines);
+    const tail = readActivityLogTail(root, lines);
     const records: Array<{ timestamp: string; tool: string; status: string; source: string; role: string; storyId: string | null }> = [];
-    for (const line of tail) {
+    for (const r of tail) {
       try {
-        const r = JSON.parse(line);
         records.push({
-          timestamp: r.startTime || r.endTime || '',
+          timestamp: String(r.startTime || r.endTime || ''),
           tool: r.tool || r.detail || '?',
-          status: r.status || '?',
-          source: r.source || 'unknown',
-          role: formatRoleLabel(r.role),
-          storyId: r.storyId || null,
+          status: String(r.status || '?'),
+          source: String(r.source || 'unknown'),
+          role: formatRoleLabel(typeof r.role === 'string' ? r.role : undefined),
+          storyId: typeof r.storyId === 'string' ? r.storyId : null,
         });
       } catch { /* skip malformed */ }
     }

@@ -11,13 +11,12 @@
  *   - 没有 active story 时直接 return []，避免 koala help / koala doctor 被打扰
  */
 
-import { existsSync, statSync, openSync, readSync, closeSync } from 'fs';
-import { join } from 'path';
 import { execSync } from 'child_process';
 import type { HandlerContext } from '../handlers/context.js';
 import type { StoryInfo, ChecklistData, BugData } from './types.js';
 import { loadConfig } from './config.js';
 import { reviewAntiStall, testAntiStall, waitingAntiStall } from './anti-stall.js';
+import { readLatestActivityLogEntry } from './activity-log.js';
 
 export interface StaleThresholds {
   /** phase 没 advance 多久算卡死（分钟） */
@@ -36,14 +35,6 @@ export const DEFAULT_STALE_THRESHOLDS: StaleThresholds = {
   idleKoala: 60,
   bugStale: 1440,
 };
-
-interface ActivityEntry {
-  source?: string;
-  role?: string;
-  endTime?: string;
-  startTime?: string;
-  tool?: string;
-}
 
 function formatMinutes(diffMs: number): string {
   const totalMin = Math.max(1, Math.round(diffMs / 60000));
@@ -65,24 +56,6 @@ function resolveThresholds(root: string): StaleThresholds {
     };
   } catch {
     return { ...DEFAULT_STALE_THRESHOLDS };
-  }
-}
-
-/**
- * Read tail bytes from a file without loading the whole thing.
- * Used for activity.jsonl which can grow indefinitely.
- */
-function readTail(filePath: string, maxBytes: number): string {
-  const fd = openSync(filePath, 'r');
-  try {
-    const stats = statSync(filePath);
-    const size = stats.size;
-    const len = Math.min(size, maxBytes);
-    const buf = Buffer.alloc(len);
-    readSync(fd, buf, 0, len, Math.max(0, size - len));
-    return buf.toString('utf-8');
-  } finally {
-    closeSync(fd);
   }
 }
 
@@ -155,56 +128,12 @@ function checkItemStale(checklist: ChecklistData, thresholds: StaleThresholds, n
 }
 
 /**
- * Try to parse the most-recent valid line from a tail string. Returns null if
- * no parseable line found, or if the only candidate is the *first* line of the
- * tail buffer — in that case the tail likely cuts the line in half and the
- * caller should retry with a larger window.
- */
-function pickLastEntry(tail: string): { entry: ActivityEntry; firstLineCandidate: boolean } | null {
-  const lines = tail.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-  if (lines.length === 0) return null;
-  for (let i = lines.length - 1; i >= 0; i--) {
-    try {
-      const parsed = JSON.parse(lines[i]) as ActivityEntry;
-      if (parsed && (parsed.endTime || parsed.startTime)) {
-        return { entry: parsed, firstLineCandidate: i === 0 };
-      }
-    } catch { /* skip corrupt line */ }
-  }
-  return null;
-}
-
-/**
  * Rule 3: 距离上次任意 koala 命令超过阈值。
- * 读 docs/story/activity.jsonl 的最后一条 valid 行。
- *
- * 默认从尾部读 4KB，但如果尾部第一行就是唯一可解析的 entry，说明 tail buffer
- * 可能从中间切开了真正的最后一条记录，按 2x / 4x 重试，最多 16KB。
+ * 读 .koala/activity.jsonl 与 legacy docs/story/activity.jsonl 的最后一条 valid 行。
  */
 function checkIdleKoala(root: string, thresholds: StaleThresholds, now: number): string | null {
   try {
-    const path = join(root, 'docs', 'story', 'activity.jsonl');
-    if (!existsSync(path)) return null;
-
-    const sizes = [4096, 16_384, 65_536];
-    let entry: ActivityEntry | null = null;
-    const fileSize = statSync(path).size;
-    for (const size of sizes) {
-      const tail = readTail(path, size);
-      if (!tail) break;
-      const picked = pickLastEntry(tail);
-      // Two truncation symptoms warrant retry:
-      //  1. picked is the first line of the tail buffer → its head may be cut
-      //  2. picked is null → no parseable line at all (last line bigger than buffer)
-      // Both cases: only retry if there's still more file to read.
-      const truncated = !picked || picked.firstLineCandidate;
-      if (truncated && fileSize > size) {
-        if (picked) entry = picked.entry; // keep best-effort fallback
-        continue;
-      }
-      if (picked) entry = picked.entry;
-      break;
-    }
+    const entry = readLatestActivityLogEntry(root);
     if (!entry) return null;
     const tsRaw = entry.endTime || entry.startTime;
     if (!tsRaw) return null;

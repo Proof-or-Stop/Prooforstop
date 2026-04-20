@@ -8,9 +8,29 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-20T00:01:58.506Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "非 dryRun 的 mutating Koala 命令会向 .koala/activity.jsonl 追加记录，不再写 docs/story/activity.jsonl",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "writeLog 在 worktree 被移除或 root 无效时不会重建 ghost docs/story 目录",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "dryRun/read-only 命令仍不写 .koala/activity.jsonl，保持只读语义",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -19,9 +39,29 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-20T00:01:58.613Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "session_brief recent activity 从 .koala/activity.jsonl 读取新记录",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "session_brief 仍能读取 legacy docs/story/activity.jsonl 中的旧记录",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "stale detector latest activity 选择新旧日志中时间最新的一条，而不是固定某个路径",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -30,9 +70,29 @@
       "relatedDocs": [
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-20T00:01:58.724Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "tool_status 统计 .koala/activity.jsonl 中的新记录",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "tool_status 兼容 legacy docs/story/activity.jsonl 历史记录",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "tool_status 按 source/role/days 过滤时对新旧日志合并结果一致生效",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
@@ -41,9 +101,29 @@
       "relatedDocs": [
         "docs/requirements/decisions/test-fixture-spec.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-20T00:01:58.826Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "fixture 覆盖新写路径、新旧双读、latest 排序、tool_status 统计四类行为",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "legacy docs/story/activity.jsonl 仍被 baseline 视为 volatile，不影响现有旧文件",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "新 .koala/activity.jsonl 位于 gitignored runtime 目录，不出现在 material baseline risk 中",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }

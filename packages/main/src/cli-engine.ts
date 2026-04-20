@@ -8,7 +8,7 @@
  */
 
 import { z, ZodType, ZodOptional, ZodEnum, ZodArray, ZodUnion, ZodString, ZodBoolean, ZodNumber, ZodObject } from 'zod';
-import { appendFileSync, mkdirSync, existsSync } from 'fs';
+import { existsSync } from 'fs';
 import { join } from 'path';
 import { StoryStore } from './core/store.js';
 import { createMainRegistry, type Registry } from './registry.js';
@@ -17,6 +17,7 @@ import { execSync } from 'child_process';
 import { loadConfig, isCommandAllowed, getAllowedPatterns } from './core/config.js';
 import { decorateResult, type ActiveStoryInfo } from './handlers/hints.js';
 import { reportHealthIssue } from './core/health.js';
+import { appendActivityLog } from './core/activity-log.js';
 import { detectStaleState } from './core/stale-detector.js';
 import { runHooks, truncateForEnv, buildHookEnv as buildSharedHookEnv, HOOK_TIMEOUT_MS } from './core/hooks.js';
 import { inferActivityRole } from './core/activity-role.js';
@@ -898,8 +899,6 @@ export async function runCli(opts?: {
           return;
         }
       }
-      const logDir = join(effectiveRoot, 'docs', 'story');
-      mkdirSync(logDir, { recursive: true });
       const activitySource = (process.env.KOALA_ACTIVITY_SOURCE || 'cli').trim() || 'cli';
       const activitySession = process.env.KOALA_ACTIVITY_SESSION?.trim() || null;
       const activityRole = inferActivityRole(entry.args, process.env.KOALA_ACTIVITY_ROLE?.trim() || null);
@@ -920,13 +919,13 @@ export async function runCli(opts?: {
       if (entry.staleWarnings && entry.staleWarnings.length > 0) {
         record.staleWarnings = entry.staleWarnings;
       }
-      appendFileSync(join(logDir, 'activity.jsonl'), JSON.stringify(record) + '\n');
+      appendActivityLog(effectiveRoot, record);
     } catch (e: unknown) {
       reportHealthIssue('persist:writeLog', e as Error, {
         command: entry.command,
         // Note: reports the original `root`, since effectiveRoot lives
         // inside the try-block scope. Health log is diagnostic only.
-        logDir: join(root, 'docs', 'story'),
+        logDir: join(root, '.koala'),
       });
     }
   }

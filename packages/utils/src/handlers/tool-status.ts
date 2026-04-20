@@ -1,12 +1,11 @@
 /**
  * tool_status — 统计 koala 工具的实际使用情况
  *
- * 数据源是 docs/story/activity.jsonl（CLI 调用 + Claude/Codex 接入都会落盘到这里）。
+ * 数据源是 .koala/activity.jsonl + legacy docs/story/activity.jsonl。
  * 不写任何状态，纯只读分析。
  */
 import type { HandlerContext } from '../../../main/dist/handlers/context.js';
-import { existsSync, readFileSync } from 'fs';
-import { join } from 'path';
+import { getActivityLogPaths, readActivityLogEntries } from '../../../main/dist/core/activity-log.js';
 
 interface LogEntry {
   source?: string;
@@ -46,11 +45,12 @@ export function createToolStatusHandlers(ctx: HandlerContext) {
       const limit = args?.limit ?? 20;
       const format = args?.format ?? 'text';
 
-      const logPath = join(root, 'docs', 'story', 'activity.jsonl');
-      if (!existsSync(logPath)) {
+      const logPaths = getActivityLogPaths(root);
+      const entries = readActivityLogEntries(root);
+      if (entries.length === 0) {
         return format === 'json'
-          ? { error: 'activity.jsonl 不存在', logPath }
-          : `(no data) ${logPath} 不存在`;
+          ? { error: 'activity.jsonl 不存在', logPaths }
+          : `(no data) ${logPaths.join(' / ')} 不存在或没有可解析记录`;
       }
 
       const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
@@ -59,12 +59,9 @@ export function createToolStatusHandlers(ctx: HandlerContext) {
       let parsedLines = 0;
       let filteredOut = 0;
 
-      const raw = readFileSync(logPath, 'utf-8');
-      for (const line of raw.split('\n')) {
-        if (!line.trim()) continue;
+      for (const rawEntry of entries) {
         totalLines++;
-        let entry: LogEntry;
-        try { entry = JSON.parse(line); } catch { continue; }
+        const entry = rawEntry as LogEntry;
         parsedLines++;
 
         if (!entry.tool || typeof entry.tool !== 'string') continue;
@@ -117,7 +114,7 @@ export function createToolStatusHandlers(ctx: HandlerContext) {
         source,
         role: role || 'all',
         days,
-        logFile: logPath,
+        logFiles: logPaths,
         totalLines,
         parsedLines,
         filteredOut,
@@ -137,7 +134,7 @@ export function createToolStatusHandlers(ctx: HandlerContext) {
       // text 格式：dashboard
       const lines: string[] = [];
       lines.push(`=== koala 工具使用统计（最近 ${days} 天，source=${source}, role=${role || 'all'}） ===`);
-      lines.push(`日志文件: ${logPath}`);
+      lines.push(`日志文件: ${logPaths.join(' + ')}`);
       lines.push(`总记录: ${totalLines} (解析 ${parsedLines}, 过滤 ${filteredOut})`);
       lines.push(`工具数: ${sorted.length}`);
       const sourceSummary = Object.entries(grandBySource)
