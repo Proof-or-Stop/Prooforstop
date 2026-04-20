@@ -58,6 +58,17 @@
 - `.koala/` 已经被 gitignore，activity log 不再参与 story metadata 合并、baseline risk、DONE merge。
 - `tool_status` 统计新旧两处日志，避免迁移后历史统计断档。
 
+**B-e3a4 — 将 Koala story artifacts 从 docs/story 迁移到 .koala/story**
+
+- `storyDir` 默认值与当前项目配置迁移为 `.koala/story/actives`，让 `docs/` 回归人类可读文档。
+- `.gitignore` 改为忽略 `.koala/*`，但显式追踪 `.koala/story/**`，确保 story artifacts 仍可版本化和参与 story branch 审计。
+- `StoryStore` 新目录优先、legacy `docs/story/actives` fallback，旧项目不会立即失效。
+- 新增 `story_migrate_storage`：
+  - `dryRun` 预览 legacy story 数、target story 数、待 copy 数；
+  - `confirm` 复制缺失 story 到 `.koala/story/actives`，并把 legacy `docs/story/actives` 备份到 `.koala/legacy-backup/`。
+- 更新 DONE、worktree、temp story cleanup、aux_doc_list 等核心路径消费者，减少对 `docs/story/actives` 的硬编码依赖。
+- 本仓库现有 story artifacts 已迁移到 `.koala/story/actives`。
+
 #### 3. DONE gate、test evidence 与 metadata 生命周期稳定性
 
 **B-4832 — DONE gate 校验 test evidence 对应当前 HEAD**
@@ -153,6 +164,7 @@
   - B-6624: 12/12
   - B-26bb: 12/12
   - B-86c0: 12/12
+  - B-e3a4: 12/12
 - `koala test_auto --confirm` 在 Koala 自身项目仍被保护性禁止，这是既有安全边界；使用 story 级测试作为最终验证。
 - `node bin/koala.js tool_status --format=json` 验证新旧 activity log 双源统计正常。
 
@@ -186,16 +198,27 @@
 
 - DONE 遇到当前 story 的 main untracked residue 时会自动备份，不再要求手动 stash/mv。
 
+- story artifacts 新位置：
+  ```text
+  .koala/story/actives/<storyId>/
+  ```
+  旧项目可迁移：
+  ```bash
+  koala story_migrate_storage '{"dryRun":true}'
+  koala story_migrate_storage '{"dryRun":false,"confirm":true}'
+  ```
+
 ### 已知限制
 
 - browser fixture preview 仍不跑真机，只明确 `SKIP_EXEC`。如果要做到 browser preview 与真机完全一致，需要单独做 browser runner parity story。
 - `sandbox:false` 的 CLI case 在 `validateExecute` 中仍可能有副作用，作者需要谨慎使用。
 - legacy `docs/story/activity.jsonl` 不自动迁移/删除，只作为只读历史来源保留。
 - `checklist.status=done` 仍复用为“实现完成”，没有引入 `devDone/testCovered` 双状态；如果未来需要更精细语义，应单独做 schema migration story。
+- 历史脚本中仍有若干 `docs/story/actives` 测试 fixture 初始化路径；runtime/core handler 已迁移，脚本清理可后续单独收敛。
 
 ### 统计
 
-- **完成 story 数**：9（B-3736、B-fc3b、B-d139、B-13af、B-ae82、B-eb3c、B-6624、B-26bb、B-86c0）
+- **完成 story 数**：10（B-3736、B-fc3b、B-d139、B-13af、B-ae82、B-eb3c、B-6624、B-26bb、B-86c0、B-e3a4）
 - **核心目标**：减少 Koala 自身流程的 dirty 噪音、merge 冲突、stage 职责错位和 preview/test 不一致。
 - **版本**：0.2.2 → 0.3.0
 
