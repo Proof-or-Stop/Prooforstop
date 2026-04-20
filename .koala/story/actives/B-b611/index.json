@@ -4,7 +4,7 @@
   "title": "DONE merge 忽略 runtime activity log 冲突",
   "description": "修复 Koala 0.3.0 后的残留问题：.koala/activity.jsonl 在 main 和 story 分支同时追加后，DONE merge 仍可能产生 content conflict。activity log 是 runtime telemetry，不应参与 story branch semantic merge。DONE 自动合并前应对齐/排除 .koala/activity.jsonl 与 legacy docs/story/activity.jsonl，避免日志冲突阻塞 story 完成。",
   "type": "bug",
-  "phase": "TEST_CASE",
+  "phase": "TEST",
   "priority": "high",
   "lane": "mainline",
   "parallelSafe": "no",
@@ -55,6 +55,22 @@
       "branch": "story/B-b611",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-20T10:55:53.404Z",
+      "branch": "story/B-b611",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-20T10:56:28.056Z",
+      "branch": "story/B-b611",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
     }
   ],
   "worktree": {
