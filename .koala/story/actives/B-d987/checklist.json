@@ -8,9 +8,29 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-20T12:19:47.132Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "DONE dry-run 在 branch-not-synced 且其它 gate 通过时，显示 confirm 会先 auto-sync main 但不修改 git 状态",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "DONE confirm 在只有 story metadata 冲突时自动 sync main，重新计算 gate 后成功进入 DONE",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE confirm 遇到源码冲突时失败并列出 unresolved conflicts，不推进 DONE",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -19,9 +39,29 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-20T12:19:47.331Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "auto-sync 后如果变化仅为当前 story metadata，test evidence 仍显示 metadata-only 并通过",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "auto-sync 后如果 main 带入源码变化，DONE gate 重新计算后要求重跑 test_story",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "branch sync 之外还有 dirty worktree 或 open bug 等失败时，DONE confirm 不执行 auto-sync",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -30,9 +70,29 @@
       "relatedDocs": [
         "docs/requirements/decisions/test-fixture-spec.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-20T12:19:47.461Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "fixture 覆盖 DONE confirm metadata-only auto-sync 成功路径",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "fixture 覆盖 DONE dry-run no mutation 且提示 auto-sync 计划",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "fixture 覆盖源码冲突保留和 DONE 不推进",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }

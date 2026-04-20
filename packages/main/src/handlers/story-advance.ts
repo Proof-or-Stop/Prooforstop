@@ -7,6 +7,7 @@ import type { StoryStore } from '../core/store.js';
 import { loadConfig } from '../core/config.js';
 import { runHooks, buildHookEnv } from '../core/hooks.js';
 import { renderSummaryForHint } from './summary.js';
+import { createStoryQueryHandlers } from './story-query.js';
 import { reviewAntiStall, testAntiStall } from '../core/anti-stall.js';
 import { buildRollbackDecision, formatPhaseGateDecision } from '../core/phase-protocol.js';
 import { getArtifactContractStatus } from '../core/artifact-contract.js';
@@ -119,6 +120,15 @@ function renderDoneAutoGitPlan(plan: DoneAutoGitPlan, dryRun = false): string {
     `  - git worktree remove "${plan.wtPathAbs}" (dirty 时会 fallback --force)`,
     `  - git branch -d ${plan.branch}`,
   ].join('\n');
+}
+
+function isDoneBranchSyncFailure(row: DoneCheckRow): boolean {
+  return row.status === 'fail' && row.label === 'Branch synced with main';
+}
+
+function shouldAutoSyncMainForDone(rows: DoneCheckRow[]): boolean {
+  const failed = rows.filter(row => row.status === 'fail');
+  return failed.length === 1 && isDoneBranchSyncFailure(failed[0]);
 }
 
 function acquireDoneAutoGitLock(plan: DoneAutoGitPlan, storyId: string): DoneAutoGitLock {
@@ -389,6 +399,9 @@ export function getEvidenceFreshness(root: string, storyId: string, evidenceHead
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
     const changedPaths = raw.split('\n').map(line => line.trim()).filter(Boolean);
+    if (changedPaths.length === 0) {
+      return { fresh: true, metadataOnly: true, changedPaths };
+    }
     const metadataOnly = changedPaths.length > 0 && changedPaths.every(path => isEvidenceMetadataOnlyPath(root, storyId, path));
     return { fresh: metadataOnly, metadataOnly, changedPaths };
   } catch { /* PROBE: diff can fail if evidence commit is unavailable */
@@ -538,7 +551,7 @@ function buildDoneChecklist(storyId: string, store: StoryStore, root: string): D
           status: 'fail',
           label: 'Branch synced with main',
           detail: `${branch} 未合并 main 的最新提交`,
-          hint: `如需在 worktree 里执行 git merge main，未经用户 confirm 不允许；确认后合并 main、解决冲突并提交，然后重跑 koala test_story '{"storyId":"${storyId}"}'，最后再执行 DONE dry-run/confirm`,
+          hint: `DONE confirm 会在这是唯一硬失败时自动执行安全 sync main；如需单独处理，先运行 koala story_sync_main '{"storyId":"${storyId}","dryRun":true}'，确认后运行 koala story_sync_main '{"storyId":"${storyId}","confirm":true}'，再重跑 koala test_story '{"storyId":"${storyId}"}'`,
         });
       }
     }
@@ -803,6 +816,7 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
       let doneAutoGitPlan: DoneAutoGitPlan | null = null;
       let doneAutoGitLock: DoneAutoGitLock | null = null;
       let doneRollbackStory: StoryInfo | null = null;
+      let doneAutoSyncReport = '';
 
       let eventType = PHASE_TO_EVENT[args.phase];
       if (!eventType) {
@@ -882,9 +896,49 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
       // 对应 OMX ralph 的 <Final_Checklist>。
       if (args.phase === 'DONE') {
         doneRollbackStory = JSON.parse(JSON.stringify(story)) as StoryInfo;
-        const checkRows = buildDoneChecklist(args.storyId, store, ctx.root);
-        const rendered = renderDoneChecklist(args.storyId, checkRows);
-        const failed = checkRows.filter(r => r.status === 'fail');
+        let checkRows = buildDoneChecklist(args.storyId, store, ctx.root);
+        let rendered = renderDoneChecklist(args.storyId, checkRows);
+        let failed = checkRows.filter(r => r.status === 'fail');
+        const canAutoSyncMain = shouldAutoSyncMainForDone(checkRows);
+
+        if (failed.length > 0) {
+          if (canAutoSyncMain && args.dryRun) {
+            actor.stop();
+            let syncPreview = '';
+            try {
+              syncPreview = createStoryQueryHandlers(ctx).story_sync_main({ storyId: args.storyId, dryRun: true });
+            } catch (e: any) {
+              syncPreview = `story_sync_main dry-run unavailable: ${e?.message || String(e)}`;
+            }
+            const donePlan = detectDoneAutoGitPlan(args.storyId, story.title);
+            const doneMainPreflight = donePlan ? inspectDoneMainMergePreflight(donePlan) : null;
+            return (
+              rendered + '\n\n' +
+              '[DRY-RUN] DONE confirm will auto-sync main first:\n' +
+              syncPreview + '\n\n' +
+              (donePlan
+                ? renderDoneAutoGitPlan(donePlan, true) + '\n' +
+                  (doneMainPreflight ? renderDoneMainMergePreflight(doneMainPreflight) + '\n' : '')
+                : '[DRY-RUN] 当前 DONE 路径不会自动执行 git commit/merge。\n') +
+              `→ 这是 dry-run 预览。确认无误后，执行: koala story_advance '{"storyId":"${args.storyId}","phase":"DONE","confirm":true}'`
+            );
+          }
+
+          if (canAutoSyncMain && args.confirm) {
+            try {
+              doneAutoSyncReport = createStoryQueryHandlers(ctx).story_sync_main({ storyId: args.storyId, confirm: true });
+              checkRows = buildDoneChecklist(args.storyId, store, ctx.root);
+              rendered = renderDoneChecklist(args.storyId, checkRows);
+              failed = checkRows.filter(r => r.status === 'fail');
+            } catch (e: any) {
+              actor.stop();
+              throw new Error(
+                rendered + '\n\n' +
+                `DONE auto-sync main failed:\n${e?.message || String(e)}`
+              );
+            }
+          }
+        }
 
         if (failed.length > 0) {
           actor.stop();
@@ -1245,7 +1299,7 @@ ${testAntiStall(args.storyId)}
           }
 
           if (mergeLines.length > 0) {
-            doneMergeReport = `\n\n${mergeLines.join('\n')}`;
+            doneMergeReport = `\n\n${[doneAutoSyncReport, ...mergeLines].filter(Boolean).join('\n\n')}`;
           }
           if (doneAutoGitLock) {
             doneAutoGitLock.release();
