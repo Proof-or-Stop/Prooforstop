@@ -4,7 +4,7 @@
   "title": "story storage migration 同步迁移 legacy activity log",
   "description": "增强 koala story_migrate_storage：除 docs/story/actives 外，也把 legacy docs/story/activity.jsonl 迁移/合并到 .koala/activity.jsonl，并将旧文件备份到 .koala/legacy-backup。迁移后如果 docs/story 为空则清理空目录；默认 dry-run 必须清楚展示 actives 与 activity 两类计划。",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-04-20T11:02:55.229Z",
   "startedAt": "2026-04-20T11:02:55.229Z",
-  "endedAt": null,
+  "endedAt": "2026-04-20T11:08:11.678Z",
   "events": [
     {
       "phase": "INIT",
@@ -103,11 +103,14 @@
       "branch": "story/B-281f",
       "user": "Harmonygo",
       "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-20T11:08:11.678Z",
+      "branch": "story/B-281f",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ],
-  "worktree": {
-    "path": ".worktrees/B-281f",
-    "branch": "story/B-281f",
-    "createdAt": "2026-04-20T11:03:05.054Z"
-  }
+  ]
 }
