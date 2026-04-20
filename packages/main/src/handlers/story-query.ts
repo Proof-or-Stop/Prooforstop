@@ -4,7 +4,7 @@ import type { StoryPhase, StoryInfo } from '../core/types.js';
 import { collectContext } from './context.js';
 import { loadConfig } from '../core/config.js';
 import { join } from 'path';
-import { existsSync, readFileSync, readdirSync, rmSync } from 'fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync } from 'fs';
 import { execSync } from 'child_process';
 import { getArtifactContractStatus } from '../core/artifact-contract.js';
 import { getReviewerStatus } from '../core/reviewer-status.js';
@@ -454,7 +454,76 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
 
       return lines.join('\n');
     },
+
+    /**
+     * @task B-e3a4
+     * @checklist CHK-002
+     * @title migrate story artifacts out of docs directory
+     * @type feature
+     * @priority high
+     * @description
+     *   Story artifacts are Koala machine state, not human documentation.
+     *   This command migrates legacy docs/story/actives data into the
+     *   configured storyDir, backing up the legacy tree under .koala.
+     * @changes
+     *   - [CHK-002] Preview legacy-to-runtime story storage migration
+     *   - [CHK-002] Copy legacy story directories to config.storyDir
+     *   - [CHK-002] Move legacy docs/story/actives to .koala/legacy-backup on confirm
+     */
+    story_migrate_storage(args?: { dryRun?: boolean; confirm?: boolean }): string {
+      const cfg = loadConfig(ctx.root);
+      const legacyRel = 'docs/story/actives';
+      const targetRel = cfg.storyDir.replace(/\\/g, '/');
+      const legacyRoot = join(ctx.root, legacyRel);
+      const targetRoot = join(ctx.root, targetRel);
+      const lines: string[] = [];
+      const legacyIds = listStoryDirs(legacyRoot);
+      const targetIds = listStoryDirs(targetRoot);
+      const toCopy = legacyIds.filter(id => !targetIds.includes(id));
+
+      lines.push(`story_migrate_storage: ${legacyRel} -> ${targetRel}`);
+      lines.push(`  legacy stories: ${legacyIds.length}`);
+      lines.push(`  target stories : ${targetIds.length}`);
+      lines.push(`  to copy        : ${toCopy.length}`);
+
+      if (legacyRel === targetRel) {
+        lines.push('  no-op: configured storyDir is still the legacy path');
+        return lines.join('\n');
+      }
+      if (!existsSync(legacyRoot)) {
+        lines.push('  no-op: legacy story directory does not exist');
+        return lines.join('\n');
+      }
+
+      if (args?.dryRun !== false || !args?.confirm) {
+        if (toCopy.length > 0) lines.push(`  will copy: ${toCopy.slice(0, 12).join(', ')}${toCopy.length > 12 ? ` (+${toCopy.length - 12} more)` : ''}`);
+        lines.push('  will backup legacy dir to .koala/legacy-backup/docs-story-actives-<timestamp>');
+        lines.push('→ 确认迁移: koala story_migrate_storage \'{"dryRun":false,"confirm":true}\'');
+        return lines.join('\n');
+      }
+
+      mkdirSync(targetRoot, { recursive: true });
+      for (const id of toCopy) {
+        cpSync(join(legacyRoot, id), join(targetRoot, id), { recursive: true, force: false });
+      }
+      const backupRoot = join(ctx.root, '.koala', 'legacy-backup');
+      mkdirSync(backupRoot, { recursive: true });
+      const backup = join(backupRoot, `docs-story-actives-${Date.now()}`);
+      renameSync(legacyRoot, backup);
+      lines.push(`  copied: ${toCopy.length}`);
+      lines.push(`  backup: ${backup}`);
+      lines.push('✓ story storage migrated');
+      return lines.join('\n');
+    },
   };
+}
+
+function listStoryDirs(base: string): string[] {
+  if (!existsSync(base)) return [];
+  return readdirSync(base, { withFileTypes: true })
+    .filter(entry => entry.isDirectory() && existsSync(join(base, entry.name, 'index.json')))
+    .map(entry => entry.name)
+    .sort();
 }
 
 /**
