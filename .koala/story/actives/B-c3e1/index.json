@@ -4,7 +4,7 @@
   "title": "DONE evidence freshness 忽略当前 story 测试元数据提交",
   "description": "修复 BUG-1 残留：test_story 写入 .koala/story/actives/<storyId>/test-evidence.json、test-runs.json、bug.json 等 Koala 测试元数据后，用户需要提交这些文件；该提交改变 HEAD 但不改变业务代码，不应导致 DONE gate 报 evidence stale。",
   "type": "bug",
-  "phase": "TEST_CASE",
+  "phase": "TEST",
   "priority": "high",
   "riskSignals": [
     {
@@ -71,6 +71,22 @@
       "branch": "story/B-c3e1",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-20T12:48:14.168Z",
+      "branch": "story/B-c3e1",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-20T12:48:28.601Z",
+      "branch": "story/B-c3e1",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
     }
   ],
   "worktree": {
