@@ -114,15 +114,21 @@ export function detectZombieStories(store: import('../core/store.js').StoryStore
     const branchExists = runtime.branchExists;
     const branchMerged = runtime.branchMerged;
 
-    // 分支已合并到 main，或分支已删除（被人手动删了或 merge 后删了）
-    // 对于 INIT/INIT_CHECK，分支可能还没创建，不算僵尸
-    if (story.phase === 'INIT' || story.phase === 'INIT_CHECK') {
-      if (!branchExists) continue; // 分支还没创建，正常
+    // 分支已合并到 main，或分支已删除（被人手动删了或 merge 后删了）。
+    // INIT 还没创建分支属于正常；INIT_CHECK 若已经有 worktree 记录/历史动作
+    // 但 branch/worktree 都消失，就是 B-bb59 类 phase 被覆盖后的僵尸状态。
+    if (story.phase === 'INIT') {
+      if (!branchExists) continue;
+    }
+    if (story.phase === 'INIT_CHECK' && !branchExists) {
+      const hadRuntime = Boolean(story.worktree || runtime.recordedAbsPath || (Array.isArray(story.events) && story.events.length > 1));
+      const worktreeGone = !runtime.linkedPath && !runtime.recordedExists;
+      if (!hadRuntime || !worktreeGone) continue;
     }
 
     if (runtime.linkedPath) continue;
 
-    const branchGone = !branchExists && (story.phase !== 'INIT' && story.phase !== 'INIT_CHECK');
+    const branchGone = !branchExists && story.phase !== 'INIT';
 
     if (!branchMerged && !branchGone) continue;
 

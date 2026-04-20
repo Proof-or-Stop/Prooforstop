@@ -4,7 +4,7 @@
   "title": "DONE confirm 事务化与 zombie reconcile 加固",
   "description": "修复剩余高风险链条：DONE confirm 先标 DONE 后 merge 失败导致状态不一致；merge conflict 提示缺少当前 story metadata 应使用 ours 的具体指引；story_reconcile 对 phase=INIT_CHECK 但 branch/worktree 已丢失的僵尸 story 漏检。目标是 DONE merge 失败可重试/可回滚，reconcile 能识别 B-bb59 类卡死状态。",
   "type": "bug",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "high",
   "lane": "mainline",
   "parallelSafe": "no",
@@ -38,6 +38,14 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-04-20T01:51:59.188Z",
+      "branch": "story/B-6f60",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-20T01:54:57.936Z",
       "branch": "story/B-6f60",
       "user": "Harmonygo",
       "agent": "main"
