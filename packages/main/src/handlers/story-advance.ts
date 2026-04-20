@@ -387,11 +387,15 @@ function normalizeRel(path: string): string {
  */
 export function isEvidenceMetadataOnlyPath(root: string, storyId: string, path: string): boolean {
   const rel = normalizeRel(path);
-  const storyMetaPrefix = `${loadConfig(root).storyDir.replace(/\\/g, '/')}/${storyId}/`;
+  const configuredStoryDir = normalizeRel(loadConfig(root).storyDir);
+  const storyMetaPrefixes = Array.from(new Set([
+    `${configuredStoryDir}/${storyId}/`,
+    `.koala/story/actives/${storyId}/`,
+    `docs/story/actives/${storyId}/`,
+  ]));
   const runtimeActivity = normalizeRel(relative(root, getRuntimeActivityLogPath(root)));
   const legacyActivity = normalizeRel(relative(root, getLegacyActivityLogPath(root)));
-  return rel === storyMetaPrefix.slice(0, -1)
-    || rel.startsWith(storyMetaPrefix)
+  return storyMetaPrefixes.some(prefix => rel === prefix.slice(0, -1) || rel.startsWith(prefix))
     || rel === runtimeActivity
     || rel === legacyActivity;
 }
