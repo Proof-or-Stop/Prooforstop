@@ -212,7 +212,7 @@ export interface BugData {
  * so agents can't fabricate "已跑" claims. Agents only supply `skipReasons`
  * for the cases marked as not-run.
  *
- * Stored at `docs/story/actives/<storyId>/summary.json`.
+ * Stored at the configured storyDir, e.g. `.koala/story/actives/<storyId>/summary.json`.
  */
 export interface StorySummaryData {
   /** Story ID, for sanity check on read/write */
@@ -270,7 +270,7 @@ export interface StorySummaryData {
  * B-1522: Append-only log of every test_story invocation for a story.
  * test-evidence.json is overwrite-only and loses run history; this file
  * preserves the sequence so summary_set can compute cumulative stats.
- * Stored at `docs/story/actives/<storyId>/test-runs.json`.
+ * Stored at the configured storyDir, e.g. `.koala/story/actives/<storyId>/test-runs.json`.
  */
 export interface StoryTestRun {
   timestamp: string;

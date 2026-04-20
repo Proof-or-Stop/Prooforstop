@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, renameSync, rmSync } from 'fs';
 import { join } from 'path';
+import { loadConfig } from './config.js';
 import type {
   StoryInfo, ChecklistData, BugData, TestEvidenceData, ReviewData,
   UnderstandingData, DecisionData, StorySummaryData, ImplementationReviewResultData,
@@ -8,22 +9,30 @@ import type {
 
 export class StoryStore {
   private baseDir: string;
+  private legacyBaseDir: string;
 
   constructor(projectRoot: string) {
-    this.baseDir = join(projectRoot, 'docs', 'story', 'actives');
+    const cfg = loadConfig(projectRoot);
+    this.baseDir = join(projectRoot, cfg.storyDir);
+    this.legacyBaseDir = join(projectRoot, 'docs', 'story', 'actives');
   }
 
-  private storyDir(storyId: string): string {
+  private storyDir(storyId: string, mode: 'read' | 'write' = 'read'): string {
+    if (mode === 'write') return join(this.baseDir, storyId);
+    const primary = join(this.baseDir, storyId);
+    if (existsSync(join(primary, 'index.json'))) return primary;
+    const legacy = join(this.legacyBaseDir, storyId);
+    if (existsSync(join(legacy, 'index.json'))) return legacy;
     return join(this.baseDir, storyId);
   }
 
   private ensureDir(storyId: string): void {
-    const dir = this.storyDir(storyId);
+    const dir = this.storyDir(storyId, 'write');
     if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
   }
 
   private readJson<T>(storyId: string, file: string): T {
-    const filePath = join(this.storyDir(storyId), file);
+    const filePath = join(this.storyDir(storyId, 'read'), file);
     if (!existsSync(filePath)) {
       throw new Error(`File not found: ${filePath}`);
     }
@@ -47,7 +56,7 @@ export class StoryStore {
    */
   private writeJson<T>(storyId: string, file: string, data: T): void {
     this.ensureDir(storyId);
-    const filePath = join(this.storyDir(storyId), file);
+    const filePath = join(this.storyDir(storyId, 'write'), file);
     const serialized = JSON.stringify(data, null, 2) + '\n';
     JSON.parse(serialized);
     const tmpPath = `${filePath}.tmp-${process.pid}-${Date.now()}`;
@@ -101,14 +110,18 @@ export class StoryStore {
   }
 
   storyExists(storyId: string): boolean {
-    return existsSync(join(this.storyDir(storyId), 'index.json'));
+    return existsSync(join(this.storyDir(storyId, 'read'), 'index.json'));
   }
 
   listStoryIds(): string[] {
-    if (!existsSync(this.baseDir)) return [];
-    return readdirSync(this.baseDir, { withFileTypes: true })
-      .filter(d => d.isDirectory() && existsSync(join(this.baseDir, d.name, 'index.json')))
-      .map(d => d.name);
+    const ids = new Set<string>();
+    for (const base of [this.baseDir, this.legacyBaseDir]) {
+      if (!existsSync(base)) continue;
+      for (const d of readdirSync(base, { withFileTypes: true })) {
+        if (d.isDirectory() && existsSync(join(base, d.name, 'index.json'))) ids.add(d.name);
+      }
+    }
+    return [...ids].sort();
   }
 
   // ── Checklist ──

@@ -29,7 +29,7 @@ koala-init — 初始化 koala 开发框架
   .claude/agents/             Claude Code sub-agent 定义
   .Codex/agents/              Codex sub-agent 定义
   .Codex/README.md            Codex 入口说明（使用 koala-codex wrapper）
-  docs/story/actives/           Story 数据目录
+  .koala/story/actives/         Story 数据目录
   docs/requirements/            真相源目录
   tests/fixtures/               测试 fixture 目录
 
@@ -61,7 +61,7 @@ function write(relPath: string, content: string) {
 // 1. 目录
 console.log('[1/5] 创建目录...');
 const dirs = [
-  'docs/story/actives',
+  '.koala/story/actives',
   'docs/requirements/decisions',
   'docs/requirements/extracted',
   '.claude/skills/koala',
@@ -99,7 +99,7 @@ const koalaConfig: Record<string, unknown> = {
   scanRoot: 'src',
   testsDir: 'tests',
   fixturesDir: 'tests/fixtures',
-  storyDir: 'docs/story/actives',
+  storyDir: '.koala/story/actives',
   requirementsDir: 'docs/requirements',
   storyPrefix: 'S',
 };

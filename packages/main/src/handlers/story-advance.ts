@@ -2,7 +2,7 @@
 import type { HandlerContext } from './context.js';
 import { collectContext, PHASE_TO_EVENT, assertCwdInWorktree, getCurrentSessionId, getStorySessionOwner } from './context.js';
 import { createStoryActor, getStateName, getGuardFailureReason, getPhaseInvariantStatus } from '../core/machine.js';
-import type { PhaseInvariantIssue, StoryPhase } from '../core/types.js';
+import type { PhaseInvariantIssue, StoryInfo, StoryPhase } from '../core/types.js';
 import type { StoryStore } from '../core/store.js';
 import { loadConfig } from '../core/config.js';
 import { runHooks, buildHookEnv } from '../core/hooks.js';
@@ -39,6 +39,8 @@ type DoneCheckRow = {
 type DoneAutoGitPlan = {
   branch: string;
   storyId: string;
+  storyDirRel: string;
+  storyRootRel: string;
   mainRepoRoot: string;
   wtPathAbs: string;
   commitMessage: string;
@@ -93,6 +95,8 @@ function detectDoneAutoGitPlan(storyId: string, storyTitle: string): DoneAutoGit
   return {
     branch: detectedBranch,
     storyId,
+    storyDirRel: loadConfig(cwdInWorktree).storyDir.replace(/\\/g, '/'),
+    storyRootRel: loadConfig(cwdInWorktree).storyDir.replace(/\\/g, '/').replace(/\/actives\/?$/, ''),
     mainRepoRoot,
     wtPathAbs,
     commitMessage: `koala: mark ${storyId} DONE + clear worktree`,
@@ -108,7 +112,7 @@ function renderDoneAutoGitPlan(plan: DoneAutoGitPlan, dryRun = false): string {
     `  - worktree: ${plan.wtPathAbs}`,
     `  - branch: ${plan.branch}`,
     '  - acquire DONE auto-git lock (serializes main/index/worktree cleanup)',
-    '  - git add docs/story',
+    `  - git add ${plan.storyRootRel}`,
     `  - git commit -m "${plan.commitMessage}"`,
     `  - git merge ${plan.branch} --no-ff -m "${plan.mergeMessage}"`,
     `  - git worktree remove "${plan.wtPathAbs}" (dirty 时会 fallback --force)`,
@@ -227,7 +231,7 @@ export function inspectDoneMainMergePreflight(plan: DoneAutoGitPlan): DoneMainMe
   } catch { /* PROBE: branch diff unavailable, merge will surface the real error */ }
   const dirtyPaths = dirtyEntries.map(entry => entry.path);
   const overlapEntries = dirtyEntries.filter(dirty => branchPaths.some(changed => pathOverlaps(dirty.path, changed)));
-  const storyDir = `docs/story/actives/${plan.storyId}`;
+  const storyDir = `${plan.storyDirRel}/${plan.storyId}`;
   const storyPrefix = `${storyDir}/`;
   const storyResidueEntries = overlapEntries.filter(entry => entry.path === storyDir || entry.path.startsWith(storyPrefix));
   const canAutoBackupResidue = storyResidueEntries.length > 0
@@ -308,7 +312,7 @@ function getEvidenceFreshness(root: string, storyId: string, evidenceHead: strin
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
     const changedPaths = raw.split('\n').map(line => line.trim()).filter(Boolean);
-    const storyMetaPrefix = `docs/story/actives/${storyId}/`;
+    const storyMetaPrefix = `${loadConfig(root).storyDir.replace(/\\/g, '/')}/${storyId}/`;
     const metadataOnly = changedPaths.length > 0 && changedPaths.every(path => path === storyMetaPrefix.slice(0, -1) || path.startsWith(storyMetaPrefix));
     return { fresh: metadataOnly, metadataOnly, changedPaths };
   } catch { /* PROBE: diff can fail if evidence commit is unavailable */
@@ -722,6 +726,7 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
       actor.start();
       let doneAutoGitPlan: DoneAutoGitPlan | null = null;
       let doneAutoGitLock: DoneAutoGitLock | null = null;
+      let doneRollbackStory: StoryInfo | null = null;
 
       let eventType = PHASE_TO_EVENT[args.phase];
       if (!eventType) {
@@ -800,6 +805,7 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
       // 无论 advance 成功失败都会输出这份 checklist，强制主 agent 读一遍多层验证状态。
       // 对应 OMX ralph 的 <Final_Checklist>。
       if (args.phase === 'DONE') {
+        doneRollbackStory = JSON.parse(JSON.stringify(story)) as StoryInfo;
         const checkRows = buildDoneChecklist(args.storyId, store, ctx.root);
         const rendered = renderDoneChecklist(args.storyId, checkRows);
         const failed = checkRows.filter(r => r.status === 'fail');
@@ -984,7 +990,7 @@ ${reviewAntiStall(args.storyId)}`,
         TEST: `→ 必须立即执行: test_story('${args.storyId}') 跑当前 story 关联 case，写 bug/evidence。fail 自动 aux_diagnose + bug_report，pass 自动标 bug fixed。需要刷新架构 trace 时再 test_auto({trace:true})
 → 如果准备推进 DONE，先执行 story_advance('${args.storyId}', 'DONE', dryRun=true) 预览；确认后再带 confirm=true 真实执行
 ${testAntiStall(args.storyId)}
-⚠ 工程验证 ≠ 用户验收: 即使 test_story 全 pass，也必须用用户视角真机跑一次（节奏: 把 PLAN outcome 当 expected → 跑 → 把实际输出当 actual → diff）。验证完把 actual transcript + 差异说明放到 docs/story/actives/${args.storyId}/evidence/transcript-diff.md。CLAUDE.md「用户价值验收」段有完整 5 题自检清单。`,
+⚠ 工程验证 ≠ 用户验收: 即使 test_story 全 pass，也必须用用户视角真机跑一次（节奏: 把 PLAN outcome 当 expected → 跑 → 把实际输出当 actual → diff）。验证完把 actual transcript + 差异说明放到 ${loadConfig(ctx.root).storyDir}/${args.storyId}/evidence/transcript-diff.md。CLAUDE.md「用户价值验收」段有完整 5 题自检清单。`,
         DONE: `→ 必须立即执行: 把下面的 Story 总结段落用你自己的话告诉用户（改了什么/怎么用/真机覆盖/限制/踩坑），然后 convergence_check 检查项目收敛状态
 ⚠ product-reviewer（第一版 advisory）: 在宣布“真的完成”前，至少做一次用户价值视角自检：outcome transcript 是否具体、最终输出最后一行会不会让用户想问“然后呢？”。如有需要，调用 product-reviewer agent 做独立复核。
 ⚠ DONE 自检 5 题（CLAUDE.md「用户价值验收」段）: (1) PLAN outcome 是具体 transcript 还是抽象? (2) 真机测试时读了用户视角输出还是只看事件日志? (3) 用户看到 actual transcript 最后一行会说"完成"还是"然后呢"? (4) 有没有工程 log 在用户眼里是噪音/重复? (5) 有没有一句人话总结任务结果? 任何一题答"没做到"就回 DEV，不要硬推 DONE。`,
@@ -1038,8 +1044,8 @@ ${testAntiStall(args.storyId)}
               // Keep activity.jsonl out of story branch semantic merges. It is
               // append-only runtime telemetry and frequently conflicts with
               // main, while story metadata is the canonical payload here.
-              try { runGit('checkout main -- docs/story/activity.jsonl', wtPathAbs); } catch { /* PROBE: activity log may not exist */ }
-              runGit('add docs/story', wtPathAbs);
+              try { runGit('checkout main -- docs/story/activity.jsonl', wtPathAbs); } catch { /* PROBE: legacy activity log may not exist */ }
+              runGit(`add ${doneAutoGitPlan.storyRootRel}`, wtPathAbs);
               const staged = runGit('diff --cached --name-only', wtPathAbs);
               if (staged) {
                 runGit(
@@ -1065,21 +1071,44 @@ ${testAntiStall(args.storyId)}
                 delete (globalThis as any).__koalaDoneMainResidueBackup;
               }
             } catch (e: any) {
+              let rollbackNote = '';
+              if (doneRollbackStory) {
+                try {
+                  store.writeStory(args.storyId, doneRollbackStory);
+                  runGit(`add ${doneAutoGitPlan.storyDirRel}/${args.storyId}/index.json`, wtPathAbs);
+                  const stagedRollback = runGit('diff --cached --name-only', wtPathAbs);
+                  if (stagedRollback) {
+                    runGit(
+                      `-c commit.gpgsign=false commit -m ${JSON.stringify(`koala: rollback ${args.storyId} DONE after failed merge`)}`,
+                      wtPathAbs,
+                    );
+                  }
+                  rollbackNote = `\nRollback: story 分支已恢复到 ${doneRollbackStory.phase}，可在修复 main 冲突后重新 DONE confirm。`;
+                } catch (rollbackError: any) {
+                  rollbackNote = `\nRollback failed: ${rollbackError?.message || String(rollbackError)}\n请手动检查 story 分支 ${branch} 的 ${doneAutoGitPlan.storyDirRel}/${args.storyId}/index.json。`;
+                }
+              }
               if (doneAutoGitLock) {
                 doneAutoGitLock.release();
                 doneAutoGitLock = null;
               }
               throw new Error(
-                `Story ${args.storyId} 已标记为 DONE 但自动合并失败:\n` +
+                `Story ${args.storyId} 自动合并失败:\n` +
                 `${e.stderr?.toString() || e.message}\n\n` +
-                `状态说明: story 分支 ${branch} 可能已经包含 DONE commit，但 main 尚未同步。\n` +
+                `状态说明: main 尚未同步 story 分支 ${branch}。\n` +
                 `不要并行执行其它 DONE confirm；先处理 main 工作区 dirty/untracked 或 merge 冲突后再继续。\n\n` +
+                `当前 story metadata 的 canonical 版本在 story 分支。若冲突涉及当前 story metadata，请在 main 仓库中执行:\n` +
+                `  git checkout ${branch} -- ${doneAutoGitPlan.storyDirRel}/${args.storyId}/\n\n` +
                 `请手动完成:\n` +
                 `  cd "${mainRepoRoot}"\n` +
                 `  git status --short\n` +
                 `  git merge ${branch}\n` +
+                `  git checkout ${branch} -- ${doneAutoGitPlan.storyDirRel}/${args.storyId}/   # 如当前 story metadata 冲突\n` +
+                `  git add ${doneAutoGitPlan.storyDirRel}/${args.storyId}/\n` +
+                `  git commit\n` +
                 `  git worktree remove --force "${wtPathAbs}"\n` +
-                `  git branch -d ${branch}`,
+                `  git branch -d ${branch}` +
+                rollbackNote,
               );
             }
 

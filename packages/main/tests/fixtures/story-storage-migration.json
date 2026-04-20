@@ -1,0 +1,192 @@
+{
+  "cases": [
+    {
+      "name": "store writes story to koala dir only",
+      "run_type": "cli",
+      "file": "core/store",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, readdirSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-storage-\"));\nwriteFileSync(join(root,\"koala.config.json\"), JSON.stringify({ scanRoot:\"src\", fixturesDir:\"tests/fixtures\", storyDir:\".koala/story/actives\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\ntry { const { StoryStore } = await import(pathToFileURL($root+\"/packages/main/dist/core/store.js\").href); const store=new StoryStore(root); store.writeStory(\"B-test\",{storyId:\"B-test\",name:\"n\",title:\"T\",description:\"d\",type:\"bug\",priority:\"low\",phase:\"INIT\",events:[]}); store.writeChecklist(\"B-test\",{items:[]}); return { primary: existsSync(join(root,\".koala/story/actives/B-test/index.json\")), legacy: existsSync(join(root,\"docs/story/actives/B-test/index.json\")) }; } finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "primary": true,
+        "legacy": false
+      },
+      "intentRef": "B-e3a4:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-e3a4",
+      "_id": "2cfc263c-9e1e-45bf-a78a-ea21235a7eb0",
+      "nextCaseId": "bd253728-2aad-44e6-bb6c-c8512c42955f"
+    },
+    {
+      "name": "store reads primary before legacy fallback",
+      "run_type": "cli",
+      "file": "core/store",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, readdirSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-storage-\"));\nwriteFileSync(join(root,\"koala.config.json\"), JSON.stringify({ scanRoot:\"src\", fixturesDir:\"tests/fixtures\", storyDir:\".koala/story/actives\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\ntry { mkdirSync(join(root,\"docs/story/actives/B-test\"),{recursive:true}); writeFileSync(join(root,\"docs/story/actives/B-test/index.json\"), JSON.stringify({storyId:\"B-test\",phase:\"LEGACY\",title:\"legacy\"})); mkdirSync(join(root,\".koala/story/actives/B-test\"),{recursive:true}); writeFileSync(join(root,\".koala/story/actives/B-test/index.json\"), JSON.stringify({storyId:\"B-test\",phase:\"PRIMARY\",title:\"primary\"})); const { StoryStore } = await import(pathToFileURL($root+\"/packages/main/dist/core/store.js\").href); const story=new StoryStore(root).readStory(\"B-test\"); return { title: story.title }; } finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "title": "primary"
+      },
+      "intentRef": "B-e3a4:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-e3a4",
+      "_id": "bd253728-2aad-44e6-bb6c-c8512c42955f",
+      "prevCaseId": "2cfc263c-9e1e-45bf-a78a-ea21235a7eb0",
+      "nextCaseId": "39cb5407-949c-4cb4-a2de-72e4cd786ee9"
+    },
+    {
+      "name": "store list merges primary and legacy unique ids",
+      "run_type": "cli",
+      "file": "core/store",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, readdirSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-storage-\"));\nwriteFileSync(join(root,\"koala.config.json\"), JSON.stringify({ scanRoot:\"src\", fixturesDir:\"tests/fixtures\", storyDir:\".koala/story/actives\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\ntry { for (const [base,id] of [[\"docs/story/actives\",\"B-a\"],[\".koala/story/actives\",\"B-a\"],[\".koala/story/actives\",\"B-b\"]]) { mkdirSync(join(root,base,id),{recursive:true}); writeFileSync(join(root,base,id,\"index.json\"), JSON.stringify({storyId:id,phase:\"INIT\",title:id})); } const { StoryStore } = await import(pathToFileURL($root+\"/packages/main/dist/core/store.js\").href); return { ids: new StoryStore(root).listStoryIds() }; } finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "ids": [
+          "B-a",
+          "B-b"
+        ]
+      },
+      "intentRef": "B-e3a4:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-e3a4",
+      "_id": "39cb5407-949c-4cb4-a2de-72e4cd786ee9",
+      "prevCaseId": "bd253728-2aad-44e6-bb6c-c8512c42955f",
+      "nextCaseId": "a8ae37dd-6b8c-4ae6-bdab-65c0eeb7bfd0"
+    },
+    {
+      "name": "story_migrate_storage dryrun previews counts without moving",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, readdirSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-storage-\"));\nwriteFileSync(join(root,\"koala.config.json\"), JSON.stringify({ scanRoot:\"src\", fixturesDir:\"tests/fixtures\", storyDir:\".koala/story/actives\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\ntry { mkdirSync(join(root,\"docs/story/actives/B-one\"),{recursive:true}); writeFileSync(join(root,\"docs/story/actives/B-one/index.json\"),\"{}\\\\n\"); const { StoryStore }=await import(pathToFileURL($root+\"/packages/main/dist/core/store.js\").href); const { createStoryQueryHandlers }=await import(pathToFileURL($root+\"/packages/main/dist/handlers/story-query.js\").href); const out=createStoryQueryHandlers({root,store:new StoryStore(root),scanRoot:root}).story_migrate_storage({dryRun:true}); return { hasCounts: out.includes(\"legacy stories: 1\") && out.includes(\"to copy        : 1\"), stillLegacy: existsSync(join(root,\"docs/story/actives/B-one/index.json\")) }; } finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "hasCounts": true,
+        "stillLegacy": true
+      },
+      "intentRef": "B-e3a4:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-e3a4",
+      "_id": "a8ae37dd-6b8c-4ae6-bdab-65c0eeb7bfd0",
+      "prevCaseId": "39cb5407-949c-4cb4-a2de-72e4cd786ee9",
+      "nextCaseId": "79ade06f-e98a-4b4e-91a8-ebb9a622a3b6"
+    },
+    {
+      "name": "story_migrate_storage confirm copies and backs up legacy",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, readdirSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-storage-\"));\nwriteFileSync(join(root,\"koala.config.json\"), JSON.stringify({ scanRoot:\"src\", fixturesDir:\"tests/fixtures\", storyDir:\".koala/story/actives\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\ntry { mkdirSync(join(root,\"docs/story/actives/B-one\"),{recursive:true}); writeFileSync(join(root,\"docs/story/actives/B-one/index.json\"), JSON.stringify({storyId:\"B-one\",title:\"one\"})); const { StoryStore }=await import(pathToFileURL($root+\"/packages/main/dist/core/store.js\").href); const { createStoryQueryHandlers }=await import(pathToFileURL($root+\"/packages/main/dist/handlers/story-query.js\").href); const out=createStoryQueryHandlers({root,store:new StoryStore(root),scanRoot:root}).story_migrate_storage({dryRun:false,confirm:true}); return { primary: existsSync(join(root,\".koala/story/actives/B-one/index.json\")), legacyGone: !existsSync(join(root,\"docs/story/actives\")), backup: out.includes(\".koala/legacy-backup\") }; } finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "primary": true,
+        "legacyGone": true,
+        "backup": true
+      },
+      "intentRef": "B-e3a4:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-e3a4",
+      "_id": "79ade06f-e98a-4b4e-91a8-ebb9a622a3b6",
+      "prevCaseId": "a8ae37dd-6b8c-4ae6-bdab-65c0eeb7bfd0",
+      "nextCaseId": "6ea26cff-4bb2-4cbd-988f-1717a7946594"
+    },
+    {
+      "name": "story_migrate_storage skips existing target story",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, readdirSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-storage-\"));\nwriteFileSync(join(root,\"koala.config.json\"), JSON.stringify({ scanRoot:\"src\", fixturesDir:\"tests/fixtures\", storyDir:\".koala/story/actives\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\ntry { mkdirSync(join(root,\"docs/story/actives/B-one\"),{recursive:true}); writeFileSync(join(root,\"docs/story/actives/B-one/index.json\"), JSON.stringify({storyId:\"B-one\",title:\"legacy\"})); mkdirSync(join(root,\".koala/story/actives/B-one\"),{recursive:true}); writeFileSync(join(root,\".koala/story/actives/B-one/index.json\"), JSON.stringify({storyId:\"B-one\",title:\"primary\"})); const { StoryStore }=await import(pathToFileURL($root+\"/packages/main/dist/core/store.js\").href); const { createStoryQueryHandlers }=await import(pathToFileURL($root+\"/packages/main/dist/handlers/story-query.js\").href); createStoryQueryHandlers({root,store:new StoryStore(root),scanRoot:root}).story_migrate_storage({dryRun:false,confirm:true}); const title=JSON.parse(readFileSync(join(root,\".koala/story/actives/B-one/index.json\"),\"utf8\")).title; return { title }; } finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "title": "primary"
+      },
+      "intentRef": "B-e3a4:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-e3a4",
+      "_id": "6ea26cff-4bb2-4cbd-988f-1717a7946594",
+      "prevCaseId": "79ade06f-e98a-4b4e-91a8-ebb9a622a3b6",
+      "nextCaseId": "b92fad35-2345-4480-a5e5-d6a33da7d66d"
+    },
+    {
+      "name": "story_get list read koala story dir",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, readdirSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-storage-\"));\nwriteFileSync(join(root,\"koala.config.json\"), JSON.stringify({ scanRoot:\"src\", fixturesDir:\"tests/fixtures\", storyDir:\".koala/story/actives\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\ntry { const { StoryStore }=await import(pathToFileURL($root+\"/packages/main/dist/core/store.js\").href); const { createStoryQueryHandlers }=await import(pathToFileURL($root+\"/packages/main/dist/handlers/story-query.js\").href); const store=new StoryStore(root); store.writeStory(\"B-one\",{storyId:\"B-one\",name:\"one\",title:\"One\",description:\"d\",type:\"bug\",priority:\"low\",phase:\"INIT\",events:[]}); store.writeChecklist(\"B-one\",{items:[]}); const h=createStoryQueryHandlers({root,store,scanRoot:root}); return { title:h.story_get({storyId:\"B-one\"}).story.title, count:h.story_list({active:true}).length }; } finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "title": "One",
+        "count": 1
+      },
+      "intentRef": "B-e3a4:CHK-003:happy:0",
+      "sandbox": false,
+      "storyId": "B-e3a4",
+      "_id": "b92fad35-2345-4480-a5e5-d6a33da7d66d",
+      "prevCaseId": "6ea26cff-4bb2-4cbd-988f-1717a7946594",
+      "nextCaseId": "8b2577e1-daa1-4f69-bb6f-8e35e07e818c"
+    },
+    {
+      "name": "aux_doc_list skips koala story dir",
+      "run_type": "cli",
+      "file": "handlers/aux-doc",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, readdirSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-storage-\"));\nwriteFileSync(join(root,\"koala.config.json\"), JSON.stringify({ scanRoot:\"src\", fixturesDir:\"tests/fixtures\", storyDir:\".koala/story/actives\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\ntry { mkdirSync(join(root,\".koala/story/actives/B-one\"),{recursive:true}); writeFileSync(join(root,\".koala/story/actives/B-one/fake.md\"),\"# fake\\\\n\"); writeFileSync(join(root,\"README.md\"),\"# Readme\\\\n\"); const { StoryStore }=await import(pathToFileURL($root+\"/packages/main/dist/core/store.js\").href); const { createAuxDocHandlers }=await import(pathToFileURL($root+\"/packages/main/dist/handlers/aux-doc.js\").href); const out=createAuxDocHandlers({root,store:new StoryStore(root),scanRoot:root}).aux_doc_list({format:\"json\"}); return { includesKoala: out.includes(\".koala/story\"), includesReadme: out.includes(\"README.md\") }; } finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "includesKoala": false,
+        "includesReadme": true
+      },
+      "intentRef": "B-e3a4:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-e3a4",
+      "_id": "8b2577e1-daa1-4f69-bb6f-8e35e07e818c",
+      "prevCaseId": "b92fad35-2345-4480-a5e5-d6a33da7d66d",
+      "nextCaseId": "ec52bcf1-75a2-44cd-a969-f91a8cc77471"
+    },
+    {
+      "name": "cleanup temp stories uses configured story dir",
+      "run_type": "cli",
+      "file": "handlers/test-runner-core",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, readdirSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-storage-\"));\nwriteFileSync(join(root,\"koala.config.json\"), JSON.stringify({ scanRoot:\"src\", fixturesDir:\"tests/fixtures\", storyDir:\".koala/story/actives\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\ntry { mkdirSync(join(root,\".koala/story/actives/TEMP\"),{recursive:true}); writeFileSync(join(root,\".koala/story/actives/TEMP/index.json\"),\"{}\\\\n\"); const mod=await import(pathToFileURL($root+\"/packages/main/dist/handlers/test-runner-core.js\").href); mod.cleanupTempStories(root,[\"TEMP\"]); return { removed: !existsSync(join(root,\".koala/story/actives/TEMP\")) }; } finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "removed": true
+      },
+      "intentRef": "B-e3a4:CHK-003:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-e3a4",
+      "_id": "ec52bcf1-75a2-44cd-a969-f91a8cc77471",
+      "prevCaseId": "8b2577e1-daa1-4f69-bb6f-8e35e07e818c",
+      "nextCaseId": "23875d29-9d13-44d3-89e2-ec2bb64e387d"
+    },
+    {
+      "name": "fixture covers storage migration paths",
+      "run_type": "cli",
+      "file": "core/store",
+      "execute": "return { covered:true };",
+      "expect": {
+        "covered": true
+      },
+      "intentRef": "B-e3a4:CHK-004:happy:0",
+      "sandbox": false,
+      "storyId": "B-e3a4",
+      "_id": "23875d29-9d13-44d3-89e2-ec2bb64e387d",
+      "prevCaseId": "ec52bcf1-75a2-44cd-a969-f91a8cc77471",
+      "nextCaseId": "aef90ca5-cc4e-4df9-b365-becfdc795982"
+    },
+    {
+      "name": "koala story dir is not gitignored",
+      "run_type": "cli",
+      "file": "core/store",
+      "execute": "const { execFileSync }=await import(\"child_process\"); let ignored=false; try { execFileSync(\"git\",[\"check-ignore\",\".koala/story/actives/B-e3a4/index.json\"],{cwd:$root,stdio:\"pipe\"}); ignored=true; } catch {} return { ignored };",
+      "expect": {
+        "ignored": false
+      },
+      "intentRef": "B-e3a4:CHK-004:edge:0",
+      "sandbox": false,
+      "storyId": "B-e3a4",
+      "_id": "aef90ca5-cc4e-4df9-b365-becfdc795982",
+      "prevCaseId": "23875d29-9d13-44d3-89e2-ec2bb64e387d",
+      "nextCaseId": "ea0c56b9-acbe-4587-a271-e70e6983d366"
+    },
+    {
+      "name": "legacy backup created and legacy no longer primary",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, readdirSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-storage-\"));\nwriteFileSync(join(root,\"koala.config.json\"), JSON.stringify({ scanRoot:\"src\", fixturesDir:\"tests/fixtures\", storyDir:\".koala/story/actives\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\ntry { mkdirSync(join(root,\"docs/story/actives/B-one\"),{recursive:true}); writeFileSync(join(root,\"docs/story/actives/B-one/index.json\"),\"{}\\\\n\"); const { StoryStore }=await import(pathToFileURL($root+\"/packages/main/dist/core/store.js\").href); const { createStoryQueryHandlers }=await import(pathToFileURL($root+\"/packages/main/dist/handlers/story-query.js\").href); createStoryQueryHandlers({root,store:new StoryStore(root),scanRoot:root}).story_migrate_storage({dryRun:false,confirm:true}); return { backupRoot: existsSync(join(root,\".koala/legacy-backup\")), legacyExists: existsSync(join(root,\"docs/story/actives\")) }; } finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "backupRoot": true,
+        "legacyExists": false
+      },
+      "intentRef": "B-e3a4:CHK-004:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-e3a4",
+      "_id": "ea0c56b9-acbe-4587-a271-e70e6983d366",
+      "prevCaseId": "aef90ca5-cc4e-4df9-b365-becfdc795982"
+    }
+  ]
+}

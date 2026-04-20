@@ -1,0 +1,32 @@
+{
+  "task": "将 Koala story artifacts 从 docs/story/actives 迁移到 .koala/story/actives",
+  "outcome": "用户打开 docs 目录时只看到人类文档，不再看到大量 B-xxxx JSON story artifacts；Koala 读写 story 时默认使用 .koala/story/actives；旧 docs/story/actives 仍可 fallback 读取，并可通过 story_migrate_storage dryRun/confirm 安全迁移和备份。",
+  "facts": [
+    "docs/story/actives 当前包含大量 Koala 机器状态 JSON，不属于人类文档。",
+    "StoryStore 当前直接使用 config.storyDir。",
+    ".koala/ 已用于 runtime state，但需要 unignore .koala/story 才能继续版本化 story artifacts。",
+    "许多 handler 已通过 Store API 读写 story，但仍有少量硬编码 docs/story/actives。",
+    "迁移会造成大量文件移动，必须可 dry-run 和备份。"
+  ],
+  "constraints": [
+    "不能丢失历史 story artifacts。",
+    "迁移必须先 copy 到新目录再 backup legacy。",
+    "新目录 story artifacts 仍需可被 git 跟踪，不能被 .gitignore 吞掉。",
+    "legacy docs/story/actives 必须可读兼容一段时间。",
+    "activity log 继续留在 .koala/activity.jsonl，不属于 story artifacts。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/handlers/story-query.ts",
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/handlers/test-runner-core.ts",
+    "packages/main/src/handlers/aux-doc.ts",
+    "packages/utils/src/handlers/aux-doc.ts",
+    "koala.config.json",
+    ".gitignore"
+  ],
+  "timestamp": "2026-04-20T00:38:18.723Z"
+}

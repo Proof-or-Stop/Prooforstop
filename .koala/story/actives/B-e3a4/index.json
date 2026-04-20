@@ -1,0 +1,95 @@
+{
+  "storyId": "B-e3a4",
+  "name": "story-storage-move-to-koala",
+  "title": "将 Koala story artifacts 从 docs/story 迁移到 .koala/story",
+  "description": "将 Koala 机器状态从 docs/story/actives 迁移到 .koala/story/actives，让 docs 目录回归人类文档。StoryStore 默认写 .koala/story/actives，并兼容读取 legacy docs/story/actives；提供 story_migrate_storage dryRun/confirm 迁移命令，迁移时备份 legacy 目录；更新相关扫描、baseline、DONE 和 story_reconcile 路径逻辑。",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "high",
+  "lane": "mainline",
+  "parallelSafe": "no",
+  "sharedHotspots": [
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/handlers/story-query.ts",
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/handlers/aux-doc.ts",
+    "packages/main/src/core/intent-coverage.ts"
+  ],
+  "riskSignals": [
+    {
+      "category": "数据迁移/破坏性",
+      "matched": "migration"
+    }
+  ],
+  "createdAt": "2026-04-20T00:30:02.332Z",
+  "startedAt": "2026-04-20T00:30:02.332Z",
+  "endedAt": "2026-04-20T00:48:37.481Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-20T00:30:02.332Z",
+      "branch": "codex/koala-0.3.0-release",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-20T00:30:14.253Z",
+      "branch": "codex/koala-0.3.0-release",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-20T00:30:25.031Z",
+      "branch": "story/B-e3a4",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-20T00:39:57.246Z",
+      "branch": "story/B-e3a4",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-20T00:41:29.061Z",
+      "branch": "story/B-e3a4",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-20T00:44:23.677Z",
+      "branch": "story/B-e3a4",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-20T00:45:05.016Z",
+      "branch": "story/B-e3a4",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-20T00:48:37.481Z",
+      "branch": "story/B-e3a4",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}

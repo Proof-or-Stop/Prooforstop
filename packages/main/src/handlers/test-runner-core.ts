@@ -382,7 +382,9 @@ export function createTempStoryFactory(
 
 /** 清理 fixture runner 创建的临时 story 目录 */
 export function cleanupTempStories(root: string, tempStoryIds: string[]): void {
+  const cfg = loadConfig(root);
   for (const id of tempStoryIds) {
+    try { rmSync(join(root, cfg.storyDir, id), { recursive: true, force: true }); } catch {}
     try { rmSync(join(root, 'docs', 'story', 'actives', id), { recursive: true, force: true }); } catch {}
   }
 }
