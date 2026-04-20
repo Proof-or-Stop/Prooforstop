@@ -1,0 +1,38 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "DONE confirm 自动执行安全 sync main",
+      "context": "当 branch synced with main gate 失败且 confirm=true 时，story_advance DONE 应先运行与 story_sync_main 相同的安全 merge main 逻辑，再重新计算 gate。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "DONE dry-run 展示 auto-sync 计划但不修改仓库",
+      "context": "dry-run 不能执行 merge，只提示 confirm 会先 sync main；confirm 执行后 metadata-only merge 不要求重跑 test_story。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "增加 DONE auto-sync fixture 覆盖",
+      "context": "覆盖 main 领先且只有 story metadata 冲突时 DONE confirm 成功；源码冲突时 DONE confirm 失败并保留冲突；dry-run 不改变 HEAD/status。",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-fixture-spec.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

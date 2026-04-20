@@ -1,0 +1,41 @@
+{
+  "storyId": "B-d987",
+  "name": "done-auto-sync-main",
+  "title": "DONE confirm 自动安全同步 main",
+  "description": "修复 BUG-4 残留：DONE gate 检测到 story branch 未包含 main 时，不再要求用户手动 git merge main；DONE confirm 先自动执行安全 sync main（当前 story metadata 冲突用 --ours，源码冲突仍阻塞），然后重新计算 DONE gate，避免手动 merge main 后 re-test 触发 evidence stale 循环。",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "状态机/门禁",
+      "matched": "gate"
+    }
+  ],
+  "createdAt": "2026-04-20T12:14:19.948Z",
+  "startedAt": "2026-04-20T12:14:19.948Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-20T12:14:19.949Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-20T12:15:11.991Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-d987",
+    "branch": "story/B-d987",
+    "createdAt": "2026-04-20T12:15:12.325Z"
+  }
+}
