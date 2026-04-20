@@ -8,9 +8,29 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-20T11:05:41.407Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "legacy docs/story/activity.jsonl 存在且 .koala/activity.jsonl 不存在时，confirm 会把日志迁到 .koala/activity.jsonl 并备份旧文件",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": ".koala/activity.jsonl 已存在时，迁移会追加 legacy 日志并保留两边原始行，不覆盖 target",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "confirm 后 docs/story 下仍有非 Koala 文件时，迁移不得删除 docs/story 目录或该文件",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -22,7 +42,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "dry-run 输出同时列出 story actives 迁移计划、activity log 迁移计划、backup 位置和确认命令",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "没有 legacy actives 但有 legacy activity 时，dry-run 仍提示 activity migration 而不是 no-op 退出",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "configured storyDir 仍是 docs/story/actives 时，命令不迁 story actives 但仍能预览/执行 activity log 迁移",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -33,7 +73,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "fixture 覆盖 confirm 后 primary story 存在、legacy actives 备份、legacy activity 迁入 runtime store",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "fixture 覆盖 target 已有 activity 时 append 合并并自动补换行",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "fixture 覆盖 dry-run 不创建 .koala/legacy-backup、不移动 legacy 文件、不删除 docs/story",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }

@@ -49,7 +49,7 @@ node bin/koala-codex.js lab create --target=test-case-reviewer --profile=reviewe
 
 - 这个入口会加载 `main + utils`，所以 `aux_*` 命令可用
 - 如果 `packages/lab` 已构建，它也会把 `koala lab ...` 子命令一起接进来
-- 它会把 Koala 调用写入 `docs/story/activity.jsonl`
+- 它会把 Koala 调用写入 `.koala/activity.jsonl`
 - 写入记录会带 `source=codex`，可以和普通 CLI、Claude Code 区分
 
 如果本地 bootstrap 还没准备好，wrapper 会直接打印恢复步骤，而不是抛出模糊的模块加载错误。

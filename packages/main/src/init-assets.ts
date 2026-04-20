@@ -10,7 +10,7 @@ KOALA_ACTIVITY_SOURCE=codex koala session_brief
 
 原因：
 
-- \`KOALA_ACTIVITY_SOURCE=codex\` 会把本次调用写入 \`docs/story/activity.jsonl\`，并标记 \`source=codex\`
+- \`KOALA_ACTIVITY_SOURCE=codex\` 会把本次调用写入 \`.koala/activity.jsonl\`，并标记 \`source=codex\`
 - 如果当前项目只有全局 \`koala\`，这是最稳妥的 Codex 入口
 
 如果当前仓库后续增加了本地 wrapper（例如 \`node bin/koala-codex.js\`），再优先切换到本地 wrapper。
