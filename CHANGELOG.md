@@ -1,5 +1,206 @@
 # Changelog
 
+## Koala 0.3.0 - 2026-04-20
+
+本版本是一次面向真实 Codex / Claude Code 使用链路的稳定性优化发布。0.2.2 之后，Koala 在多个真实 story 中暴露出一组共性问题：只读状态命令污染工作区、`activity.jsonl` 参与 story metadata 合并、DONE 流程反复被自己制造的 dirty 状态阻塞、main/story worktree metadata 生命周期不清、DEV 与 TEST_CASE 职责冲突、fixture 预览和真实 runner 不一致。0.3.0 将这些问题收敛为 8 个 story，核心目标是让 Koala 的 Story 流程更接近“可以反复自动执行的可靠 loop”。
+
+### 版本号
+
+- **上一版本**：0.2.2
+- **当前版本**：0.3.0
+- **版本类型**：minor release
+- **涉及包**：
+  - `@koala-agent/core`: 0.2.2 → 0.3.0
+  - `@koala-agent/utils`: 0.2.2 → 0.3.0
+  - `@koala-agent/lab`: 0.2.2 → 0.3.0
+
+### 核心优化概览
+
+#### 1. Project state/status 指挥台与 phase health
+
+**B-3736 — Koala 增加 project-state runtime 边界与 status/next 入口**
+
+- 新增 `koala status` 与 `koala next`，把 `session_brief` 中的工程状态视图拆成明确的只读入口。
+- 将 story runtime、reviewer status、artifact contract、dirty baseline risk 等状态统一投影，减少 agent 进入项目后靠猜测推进。
+- 明确 status/next 属于只读 project-state runtime，不应修改 story 或 fixture。
+
+**B-fc3b — Koala status 增加 phase 编号与 transition health 检查**
+
+- 新增 `core/phase-flow.ts`，集中定义 phase 顺序、ordinal、合法 forward/rollback/terminal transitions。
+- `session_brief/status` 展示如 `5/9 DEV`、`8/9 TEST` 的 phase 编号，减少多 session 恢复时的阶段误读。
+- 当 main metadata 与 linked worktree phase 不一致时，输出 transition health，辅助判断是正常 worktree drift 还是非法状态。
+
+#### 2. 只读命令与 activity log 污染治理
+
+**B-d139 — 修复 Koala 只读状态污染与 discarded 残留处理**
+
+- `session_brief`、`status`、`next`、`story_get`、`story_list`、`checklist_get`、`aux_doc_list` 等只读命令默认不再写 `docs/story/activity.jsonl`。
+- `story_get` 默认返回 story 摘要：`phase`、`terminal`、`discarded`，避免已 DISCARDED story 因残留目录被误认为还要继续执行。
+- `story_discard` 增加 `cleanupResidue`，可以清理已 DISCARDED 且 git 判定为 untracked 的 story artifact residue；tracked/staged 目录仍保守拒绝自动删除。
+- core-only `koala aux_doc_list` 内置，避免 AGENTS 要求与全局 CLI 能力不一致。
+
+**B-13af — baseline risk 支持 accepted local paths 配置**
+
+- `koala.config.json` 新增 `baselineRiskAcceptedLocalPaths`，允许项目声明已确认的本地/运行态路径。
+- 当前项目接受：
+  - `AGENTS.md`
+  - `CLAUDE.md`
+  - `.claude/skills/`
+- `session_brief` 和 INIT_CHECK baseline risk 会隐藏这些 accepted local paths，但仍提示未接受路径，例如 `experiments/reports/story-review-output-lab-v1.json`。
+- 保留 `.omx/` 和 legacy `docs/story/activity.jsonl` 的 volatile 统计语义。
+
+**B-86c0 — 将 Koala activity log 迁出 docs/story 运行时目录**
+
+- 新增 `core/activity-log.ts`。
+- 新的 activity 写入位置改为 `.koala/activity.jsonl`。
+- `docs/story/activity.jsonl` 改为 legacy read-only 来源，不再追加写入。
+- `session_brief`、stale detector、`tool_status` 均兼容读取 `.koala/activity.jsonl` 与 legacy `docs/story/activity.jsonl`，按时间合并排序。
+- `.koala/` 已经被 gitignore，activity log 不再参与 story metadata 合并、baseline risk、DONE merge。
+- `tool_status` 统计新旧两处日志，避免迁移后历史统计断档。
+
+#### 3. DONE gate、test evidence 与 metadata 生命周期稳定性
+
+**B-4832 — DONE gate 校验 test evidence 对应当前 HEAD**
+
+- DONE gate 不再只看“有 PASS evidence”，还会检查 test evidence 是否对应当前 HEAD。
+- metadata-only commit 可被识别为 fresh，避免 summary/review 这类 story artifact commit 让测试证据无意义失效。
+- 防止“代码又改了，但沿用旧 PASS evidence 直接 DONE”的假阳性。
+
+**B-ae82 — 修复 checklist_update 长 testIntent 写坏 JSON 与 DONE activity 自阻塞**
+
+- `StoryStore.writeJson` 改为原子 JSON 写入：
+  - stringify 后先 parse 校验
+  - 写入同目录临时文件
+  - 读回临时文件再 parse 校验
+  - rename 原子替换目标文件
+  - 失败时保留原文件并清理临时文件
+- 解决长 testIntent 写入后 `checklist.json` 半截、重复片段、`Unexpected non-whitespace character after JSON` 等问题。
+- 所有 `dryRun:true` 命令不再写 activity log。
+- DONE gate 与 main merge preflight 只忽略精确路径 `docs/story/activity.jsonl`，不会忽略源码或 `docs/story/actives/<id>/` 等真实 story metadata 改动。
+
+**B-eb3c — 修复 Koala story metadata residue 与 DONE merge 生命周期**
+
+- DONE preflight 能识别当前 story 的 main untracked residue：
+  - `docs/story/actives/<storyId>/index.json`
+  - `docs/story/actives/<storyId>/checklist.json`
+- 如果 residue 全是 `??` untracked，Koala 会自动备份到 `/tmp/koala-main-residue-backup/<storyId>-main-*` 并继续 DONE confirm。
+- tracked/staged/modified residue 仍然阻塞，避免覆盖用户有效改动。
+- 其它 active story 的 residue 不会被当前 story 自动处理。
+- DONE merge 前将 legacy `docs/story/activity.jsonl` 对齐 main，降低 append-only 日志 merge conflict。
+- `story_reconcile` 支持诊断终态 story residue：
+  - DONE/DISCARDED + untracked → `safe-untracked`
+  - tracked/staged → `unsafe`
+  - active story residue 不误清
+- `story_reconcile` 加入全阶段可用命令。
+
+#### 4. 阶段职责与测试门禁重排
+
+**B-6624 — 重排 DEV/TEST_CASE 阶段职责与 testIntent 覆盖门禁**
+
+- 明确 `checklist.status=done` 在 DEV 阶段表示“实现完成”，不再要求 fixture coverage。
+- fixture coverage 与 reviewer pass 统一在 TEST_CASE_REVIEW → TEST 边界强制检查。
+- `testintent_check` 加入全阶段只读命令白名单，agent 可以随时查看 reviewer/coverage 状态，不需要通过 mutating 命令探测。
+- 保留 `test_fixture` 在 TEST_CASE 阶段可用，方便写完或修改单个 fixture 后立即验证。
+- 没有放宽 TEST/DONE 严格性：缺 reviewer pass 或缺 fixture coverage 仍会阻止进入 TEST。
+
+#### 5. Fixture preview 与真实 runner 对齐
+
+**B-26bb — 统一 fixture_batch_add preview 与 test_story 真实执行环境**
+
+- `fixture_batch_add` 新增 `validateExecute`。
+- `fixture_batch_add --dryRun --validateExecute` 对 CLI case 使用真实 `test-runner-core.runCase` 做轻量执行预检。
+- preview 阶段可提前暴露：
+  - `expect` 不匹配
+  - sandbox 默认禁止 `import("fs")` / `child_process`
+  - `$handlers.xxx` 不存在
+  - 递归调用 `test_story` / `test_auto`
+- browser case 在 preview 中明确输出 `SKIP_EXEC (browser preview not executed...)`，不再伪装成真机执行成功。
+- 补齐 intentRef normalize 覆盖：
+  - `B-xxx:CHK-001:happy:0`
+  - `CHK-001:happy:0` + `case.storyId`
+  - 其它 storyId 前缀不会误算到当前 story。
+
+### 修复的问题清单
+
+- `checklist_update` 长 testIntent 导致 `checklist.json` 破损。
+- `story_review`、`checklist_get`、`session_brief` 因 checklist JSON 破损无法解析。
+- `session_brief` / status 类只读命令写 activity log，导致收尾阶段反复 dirty。
+- DONE dry-run 与 DONE confirm 因自写 activity log 行为不一致而出现“dry-run 通过、confirm 失败”。
+- DONE confirm 因 `docs/story/activity.jsonl` 或 main story residue 自阻塞。
+- DONE merge 中 `activity.jsonl` 高概率 content conflict。
+- main 上同 story `docs/story/actives/<id>/` residue 需要人工移动。
+- 已 DISCARDED story 被 stash 恢复后，Koala 不认领 residue。
+- `story_get` 对 DISCARDED story 显示不清晰。
+- core-only `koala aux_doc_list` 不可用。
+- DEV 阶段 checklist done 与 TEST_CASE fixture 职责矛盾。
+- `testintent_check` 在部分阶段不可用。
+- `fixture_batch_add` preview OK 但 `test_story` 才暴露 sandbox/handler/expect 问题。
+- 带 storyId 和不带 storyId 的 intentRef 覆盖检查不一致。
+
+### 验证摘要
+
+每个 story 均按 Koala 流程完成：PLAN → DEV → TEST_CASE → TEST_CASE_REVIEW → TEST → DONE。
+
+关键验证：
+
+- `npm --prefix packages/main run build`
+- `npm --prefix packages/utils run build`
+- `koala test_story` 对每个 story 的绑定 fixture 全部 PASS：
+  - B-d139: 9/9
+  - B-13af: 9/9
+  - B-ae82: 9/9
+  - B-eb3c: 12/12
+  - B-6624: 12/12
+  - B-26bb: 12/12
+  - B-86c0: 12/12
+- `koala test_auto --confirm` 在 Koala 自身项目仍被保护性禁止，这是既有安全边界；使用 story 级测试作为最终验证。
+- `node bin/koala.js tool_status --format=json` 验证新旧 activity log 双源统计正常。
+
+### 使用方式变化
+
+- 写 fixture 前可先运行：
+  ```bash
+  koala fixture_batch_add '{"fixturePath":"...","dryRun":true,"validateExecute":true,"cases":[...]}'
+  ```
+  CLI case 会进行真实 runner 预检；browser case 会标记为 `SKIP_EXEC`。
+
+- activity log 新位置：
+  ```text
+  .koala/activity.jsonl
+  ```
+  旧位置仍可读：
+  ```text
+  docs/story/activity.jsonl
+  ```
+
+- baseline risk 可配置 accepted local paths：
+  ```json
+  {
+    "baselineRiskAcceptedLocalPaths": [
+      "AGENTS.md",
+      "CLAUDE.md",
+      ".claude/skills/"
+    ]
+  }
+  ```
+
+- DONE 遇到当前 story 的 main untracked residue 时会自动备份，不再要求手动 stash/mv。
+
+### 已知限制
+
+- browser fixture preview 仍不跑真机，只明确 `SKIP_EXEC`。如果要做到 browser preview 与真机完全一致，需要单独做 browser runner parity story。
+- `sandbox:false` 的 CLI case 在 `validateExecute` 中仍可能有副作用，作者需要谨慎使用。
+- legacy `docs/story/activity.jsonl` 不自动迁移/删除，只作为只读历史来源保留。
+- `checklist.status=done` 仍复用为“实现完成”，没有引入 `devDone/testCovered` 双状态；如果未来需要更精细语义，应单独做 schema migration story。
+
+### 统计
+
+- **完成 story 数**：9（B-3736、B-fc3b、B-d139、B-13af、B-ae82、B-eb3c、B-6624、B-26bb、B-86c0）
+- **核心目标**：减少 Koala 自身流程的 dirty 噪音、merge 冲突、stage 职责错位和 preview/test 不一致。
+- **版本**：0.2.2 → 0.3.0
+
+---
+
 ## Koala 0.2.2 - 2026-04-19
 
 本版本跨越 4 天（04-16 ~ 04-19），完成 13 个 story，核心变化是新建 `packages/lab` 实验评估子系统并发布 0.2.2，同时对 worktree 隔离、元数据回链和测试门禁做了一轮系统性补强。
