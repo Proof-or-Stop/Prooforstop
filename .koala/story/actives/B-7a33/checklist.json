@@ -15,19 +15,43 @@
         "happy": [
           {
             "desc": "evidenceHead 与 currentHead 之间只包含 .koala/activity.jsonl 时，getEvidenceFreshness 返回 fresh=true",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T10:22:01.136Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/evidence-freshness-runtime-activity.json:1 WHY .koala/activity.jsonl only diff returns fresh metadataOnly; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "只包含 legacy docs/story/activity.jsonl 时也返回 fresh=true",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T10:22:01.241Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/evidence-freshness-runtime-activity.json:1 WHY legacy docs/story/activity.jsonl only diff returns fresh metadataOnly; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "activity 之外的 .koala/other.json 变化不被视为 fresh",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T10:22:01.342Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/evidence-freshness-runtime-activity.json:1 WHY .koala/other.json is not allowed and returns stale; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -46,19 +70,43 @@
         "happy": [
           {
             "desc": "当前 storyDir/<storyId>/ 下 test-evidence/summary/checklist/index 等 metadata-only commit 仍 fresh",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T10:22:01.448Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/evidence-freshness-runtime-activity.json:1 WHY current story metadata under storyDir keeps evidence fresh; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "activity + 当前 story metadata 组合变化仍 fresh",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T10:22:01.550Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/evidence-freshness-runtime-activity.json:1 WHY activity plus current story metadata remains fresh; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "其它 story metadata 变化不应让当前 story evidence fresh",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T10:22:01.650Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/evidence-freshness-runtime-activity.json:1 WHY other story metadata does not keep current story evidence fresh; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -77,19 +125,43 @@
         "happy": [
           {
             "desc": "src/demo/tests 等真实代码或业务文件变化返回 fresh=false/stale",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T10:22:01.749Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/evidence-freshness-runtime-activity.json:1 WHY source file change returns stale; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "activity + 真实代码组合变化返回 stale，不被 activity allowlist 掩盖",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T10:22:01.850Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/evidence-freshness-runtime-activity.json:1 WHY activity plus source change still returns stale; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "空 diff 或相同 head 仍按原逻辑 fresh=true",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T10:22:01.951Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/evidence-freshness-runtime-activity.json:1 WHY same head remains fresh with empty changedPaths; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
