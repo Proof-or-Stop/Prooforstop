@@ -4,7 +4,7 @@
   "title": "DONE evidence freshness 忽略 runtime activity-only commit",
   "description": "修复 test evidence freshness 在新 activity log 迁移后仍把 .koala/activity.jsonl 视为代码变化的问题。若 evidence commit 与 current HEAD 之间只包含 story artifact metadata、.koala/activity.jsonl 或 legacy activity.jsonl 变化，应视为 metadata/runtime-only fresh，避免 test_story → commit evidence/activity → DONE stale 死循环。",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "lane": "mainline",
   "parallelSafe": "no",
@@ -20,7 +20,7 @@
   ],
   "createdAt": "2026-04-20T10:15:56.924Z",
   "startedAt": "2026-04-20T10:15:56.924Z",
-  "endedAt": null,
+  "endedAt": "2026-04-20T10:24:15.940Z",
   "events": [
     {
       "phase": "INIT",
@@ -77,11 +77,14 @@
       "branch": "story/B-7a33",
       "user": "Harmonygo",
       "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-20T10:24:15.940Z",
+      "branch": "story/B-7a33",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ],
-  "worktree": {
-    "path": ".worktrees/B-7a33",
-    "branch": "story/B-7a33",
-    "createdAt": "2026-04-20T10:16:18.314Z"
-  }
+  ]
 }
