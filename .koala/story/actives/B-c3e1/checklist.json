@@ -1,0 +1,170 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "将当前 story 测试元数据纳入 metadata-only freshness",
+      "context": "getEvidenceFreshness/isEvidenceMetadataOnlyPath 应把当前 story 目录下的 test-evidence.json、test-runs.json、bug.json、summary/review/implementation-review/checklist/index 等 Koala artifact 视为 metadata-only；但其它 story 或源码变化仍 stale。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-20T12:47:07.715Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "配置 storyDir=.koala/story/actives 时，提交当前 story 的 .koala/story/actives/<id>/test-evidence.json 与 test-runs.json 后 evidence freshness 仍为 metadata-only pass",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T12:48:27.476Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/evidence-freshness-runtime-activity.json:156 WHY covers .koala current story test-evidence/test-runs metadata-only severity:high",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "配置 storyDir=.koala/story/actives 时，提交 legacy docs/story/actives/<id>/test-evidence.json 后也被识别为当前 story metadata-only",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T12:48:27.603Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/evidence-freshness-runtime-activity.json:171 WHY covers legacy docs/story current story evidence under new config severity:high",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "提交 docs/story/actives/<otherId>/test-evidence.json 或 .koala/story/actives/<otherId>/index.json 仍让 evidence stale",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T12:48:27.714Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/evidence-freshness-runtime-activity.json:216 WHY covers other story artifact remains stale severity:high",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "DONE gate stale 文案区分 metadata-only 与 source change",
+      "context": "当只有当前 story artifact 变化时显示 metadata-only pass；当源码或非当前 story artifact 变化时仍提示重跑 test_story。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-20T12:47:07.825Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "只有当前 story artifact 变化时 DONE checklist 显示 Test evidence PASS 且 detail 包含 metadata-only",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T12:48:27.830Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/evidence-freshness-runtime-activity.json:223 WHY metadata-only detail path uses current story evidence artifacts severity:medium",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "当前 story bug.json、summary.json、implementation-review.json 等 artifact 一起提交仍显示 metadata-only pass",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T12:48:27.954Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/evidence-freshness-runtime-activity.json:187 WHY covers bug/summary/implementation-review/test evidence artifacts severity:medium",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "同一提交包含 src/app.ts 源码变化时 DONE checklist 显示 stale 并提示重跑 test_story",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T12:48:28.087Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/evidence-freshness-runtime-activity.json:230 WHY source change remains stale severity:high",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-003",
+      "title": "增加 evidence freshness 回归 fixture",
+      "context": "覆盖 commit test-evidence/test-runs 后 freshness 仍 pass、当前 story bug/summary artifact pass、源码变化 fail、其它 story artifact fail。",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-fixture-spec.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-20T12:47:07.935Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "fixture 覆盖新旧 story root 下 current story test-evidence/test-runs metadata-only pass",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T12:48:28.213Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/evidence-freshness-runtime-activity.json:156 WHY fixture covers new and legacy story roots severity:medium",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "fixture 覆盖 current story 多种 artifact metadata-only pass",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T12:48:28.333Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/evidence-freshness-runtime-activity.json:237 WHY self-check confirms multi-artifact fixture exists severity:medium",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "fixture 覆盖 other story artifact 与 source change stale fail",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T12:48:28.452Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/evidence-freshness-runtime-activity.json:244 WHY self-check confirms stale fixtures for other story and source severity:medium",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
