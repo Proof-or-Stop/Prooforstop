@@ -4,7 +4,7 @@
   "title": "将 Koala story artifacts 从 docs/story 迁移到 .koala/story",
   "description": "将 Koala 机器状态从 docs/story/actives 迁移到 .koala/story/actives，让 docs 目录回归人类文档。StoryStore 默认写 .koala/story/actives，并兼容读取 legacy docs/story/actives；提供 story_migrate_storage dryRun/confirm 迁移命令，迁移时备份 legacy 目录；更新相关扫描、baseline、DONE 和 story_reconcile 路径逻辑。",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "lane": "mainline",
   "parallelSafe": "no",
@@ -25,7 +25,7 @@
   ],
   "createdAt": "2026-04-20T00:30:02.332Z",
   "startedAt": "2026-04-20T00:30:02.332Z",
-  "endedAt": null,
+  "endedAt": "2026-04-20T00:48:37.481Z",
   "events": [
     {
       "phase": "INIT",
@@ -82,11 +82,14 @@
       "branch": "story/B-e3a4",
       "user": "Harmonygo",
       "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-20T00:48:37.481Z",
+      "branch": "story/B-e3a4",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ],
-  "worktree": {
-    "path": ".worktrees/B-e3a4",
-    "branch": "story/B-e3a4",
-    "createdAt": "2026-04-20T00:30:14.412Z"
-  }
+  ]
 }
