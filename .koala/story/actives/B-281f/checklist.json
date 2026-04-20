@@ -15,19 +15,43 @@
         "happy": [
           {
             "desc": "legacy docs/story/activity.jsonl 存在且 .koala/activity.jsonl 不存在时，confirm 会把日志迁到 .koala/activity.jsonl 并备份旧文件",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T11:07:06.966Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-storage-migration.json:192 WHY verifies legacy docs/story/activity.jsonl migrates into .koala/activity.jsonl with backup severity:high",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": ".koala/activity.jsonl 已存在时，迁移会追加 legacy 日志并保留两边原始行，不覆盖 target",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T11:07:07.094Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-storage-migration.json:209 WHY verifies existing runtime activity is appended and not overwritten severity:high",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "confirm 后 docs/story 下仍有非 Koala 文件时，迁移不得删除 docs/story 目录或该文件",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T11:07:07.218Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-storage-migration.json:226 WHY verifies non-Koala docs/story content is preserved severity:high",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -47,19 +71,43 @@
         "happy": [
           {
             "desc": "dry-run 输出同时列出 story actives 迁移计划、activity log 迁移计划、backup 位置和确认命令",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T11:07:07.337Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-storage-migration.json:243 WHY dry-run shows actives, activity, backup and confirm guidance severity:medium",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "没有 legacy actives 但有 legacy activity 时，dry-run 仍提示 activity migration 而不是 no-op 退出",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T11:07:07.452Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-storage-migration.json:261 WHY activity-only legacy migration is not treated as no-op severity:medium",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "configured storyDir 仍是 docs/story/actives 时，命令不迁 story actives 但仍能预览/执行 activity log 迁移",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T11:07:07.570Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-storage-migration.json:277 WHY legacy storyDir config still permits activity migration while keeping actives severity:high",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -78,19 +126,43 @@
         "happy": [
           {
             "desc": "fixture 覆盖 confirm 后 primary story 存在、legacy actives 备份、legacy activity 迁入 runtime store",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T11:07:07.693Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-storage-migration.json:294 WHY fixture self-check confirms story plus activity migration coverage exists severity:medium",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "fixture 覆盖 target 已有 activity 时 append 合并并自动补换行",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T11:07:07.809Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-storage-migration.json:310 WHY fixture self-check confirms append/newline coverage exists severity:medium",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "fixture 覆盖 dry-run 不创建 .koala/legacy-backup、不移动 legacy 文件、不删除 docs/story",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T11:07:07.927Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-storage-migration.json:326 WHY fixture self-check confirms dry-run and non-empty docs/story guard coverage exists severity:medium",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
