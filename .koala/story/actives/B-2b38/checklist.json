@@ -15,19 +15,43 @@
         "happy": [
           {
             "desc": "在 story worktree 中 dry-run story_sync_main 时，只输出 merge main 计划、当前分支和将保护的 story metadata 路径，不修改 git 状态",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T11:32:07.451Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-sync-main.json:4 WHY dry-run case asserts plan output plus head/status unchanged severity:high",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "confirm 执行时 main 只与当前 story index/checklist 冲突，命令自动用 --ours 保留 story metadata 并提交 merge",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T11:32:07.568Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-sync-main.json:22 WHY metadata conflict case exercises confirm auto --ours merge severity:high",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "在非对应 story worktree 或 main 分支运行 story_sync_main，会失败并提示正确 worktree 路径",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T11:32:07.690Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-sync-main.json:40 WHY wrong cwd case verifies worktree gate rejects unsafe execution severity:high",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -46,19 +70,43 @@
         "happy": [
           {
             "desc": "main 与 story 分支只在 .koala/story/actives/<storyId>/index.json phase 冲突时，sync 后 phase 保持 story 分支当前值",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T11:32:07.807Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-sync-main.json:58 WHY phase stays TEST after sync, proving story branch index wins severity:high",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "当前 story metadata 目录下多个 JSON 冲突时，全部自动 --ours 并列入输出",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T11:32:07.942Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-sync-main.json:76 WHY multiple current story metadata conflicts are listed and resolved severity:high",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "另一个 story 的 metadata 冲突不会被自动解决，会作为 unresolved conflict 停下",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T11:32:08.064Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-sync-main.json:94 WHY other story metadata remains unresolved instead of being auto-resolved severity:high",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -77,19 +125,43 @@
         "happy": [
           {
             "desc": "fixture 覆盖 metadata-only 冲突自动解决和 merge 成功",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T11:32:08.183Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-sync-main.json:112 WHY fixture self-check confirms metadata-only sync coverage exists severity:medium",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "fixture 覆盖源码文件冲突时命令失败且保留冲突文件给用户处理",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T11:32:08.302Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-sync-main.json:126 WHY source conflict case confirms non-story conflicts remain visible severity:high",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "fixture 覆盖 dry-run 不产生 MERGE_HEAD、不改变 HEAD、不写工作区",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T11:32:08.498Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-sync-main.json:144 WHY dry-run self-check confirms no mutation assertions exist severity:medium",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
