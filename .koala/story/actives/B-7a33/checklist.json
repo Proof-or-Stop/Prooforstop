@@ -8,9 +8,29 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-20T10:20:16.511Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "evidenceHead 与 currentHead 之间只包含 .koala/activity.jsonl 时，getEvidenceFreshness 返回 fresh=true",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "只包含 legacy docs/story/activity.jsonl 时也返回 fresh=true",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "activity 之外的 .koala/other.json 变化不被视为 fresh",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -19,9 +39,29 @@
       "relatedDocs": [
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-20T10:20:16.620Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "当前 storyDir/<storyId>/ 下 test-evidence/summary/checklist/index 等 metadata-only commit 仍 fresh",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "activity + 当前 story metadata 组合变化仍 fresh",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "其它 story metadata 变化不应让当前 story evidence fresh",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -30,9 +70,29 @@
       "relatedDocs": [
         "docs/requirements/decisions/test-fixture-spec.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-20T10:20:16.722Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "src/demo/tests 等真实代码或业务文件变化返回 fresh=false/stale",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "activity + 真实代码组合变化返回 stale，不被 activity allowlist 掩盖",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "空 diff 或相同 head 仍按原逻辑 fresh=true",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }
