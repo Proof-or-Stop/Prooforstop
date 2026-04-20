@@ -496,7 +496,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         throw new Error(`Worktree 目录 ${wtPath} 不存在，已清理记录`);
       }
 
-      const storyDir = join('docs', 'story', 'actives', args.storyId);
+      const storyDir = join(loadConfig(root).storyDir, args.storyId).replace(/\\/g, '/');
       const autoCommitStoryFiles = hasPathChanges(wtPath, storyDir);
       const finishPlanLines = [
         `${args.dryRun ? '[DRY-RUN] ' : ''}dev_finish(${args.storyId}) plan:`,
@@ -581,7 +581,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         throw new Error(`Worktree 目录 ${wtPath} 不存在，已清理记录`);
       }
 
-      const storyDir = join('docs', 'story', 'actives', args.storyId);
+      const storyDir = join(loadConfig(root).storyDir, args.storyId).replace(/\\/g, '/');
       const autoCommitStoryFiles = hasPathChanges(wtPath, storyDir);
       const currentMainBranch = git('rev-parse --abbrev-ref HEAD');
       const mergePlanLines = [
