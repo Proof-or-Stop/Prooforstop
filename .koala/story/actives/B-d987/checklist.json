@@ -1,0 +1,170 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "DONE confirm 自动执行安全 sync main",
+      "context": "当 branch synced with main gate 失败且 confirm=true 时，story_advance DONE 应先运行与 story_sync_main 相同的安全 merge main 逻辑，再重新计算 gate。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-20T12:19:47.132Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "DONE dry-run 在 branch-not-synced 且其它 gate 通过时，显示 confirm 会先 auto-sync main 但不修改 git 状态",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T12:20:05.443Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/done-auto-sync-main.json:4 WHY dry-run asserts auto-sync preview and unchanged head/status severity:high",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "DONE confirm 在只有 story metadata 冲突时自动 sync main，重新计算 gate 后成功进入 DONE",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T12:20:05.574Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/done-auto-sync-main.json:24 WHY DONE confirm metadata-only branch sync completes and merges story severity:high",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE confirm 遇到源码冲突时失败并列出 unresolved conflicts，不推进 DONE",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T12:20:05.683Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/done-auto-sync-main.json:44 WHY source conflict blocks DONE and leaves src/app.ts unmerged severity:high",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "DONE dry-run 展示 auto-sync 计划但不修改仓库",
+      "context": "dry-run 不能执行 merge，只提示 confirm 会先 sync main；confirm 执行后 metadata-only merge 不要求重跑 test_story。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-20T12:19:47.331Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "auto-sync 后如果变化仅为当前 story metadata，test evidence 仍显示 metadata-only 并通过",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T12:36:58.518Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/done-auto-sync-main.json:1 WHY metadata/tree-identical auto-sync keeps DONE evidence fresh severity:high",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "auto-sync 后如果 main 带入源码变化，DONE gate 重新计算后要求重跑 test_story",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T12:36:58.616Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/done-auto-sync-main.json:1 WHY source change after auto-sync still requires retest severity:high",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "auto-sync 后如果仍有 open bug 等其它 gate failure，DONE 不推进并保留对应失败提示",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T12:36:58.710Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/done-auto-sync-main.json:1 WHY residual gate failure prevents DONE despite sync severity:high",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-003",
+      "title": "增加 DONE auto-sync fixture 覆盖",
+      "context": "覆盖 main 领先且只有 story metadata 冲突时 DONE confirm 成功；源码冲突时 DONE confirm 失败并保留冲突；dry-run 不改变 HEAD/status。",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-fixture-spec.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-20T12:19:47.461Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "fixture 覆盖 DONE confirm metadata-only auto-sync 成功路径",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T12:20:06.152Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/done-auto-sync-main.json:124 WHY fixture self-check confirms DONE auto-sync success coverage severity:medium",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "fixture 覆盖 DONE dry-run no mutation 且提示 auto-sync 计划",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T12:20:06.268Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/done-auto-sync-main.json:138 WHY fixture self-check confirms dry-run no-mutation coverage severity:medium",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "fixture 覆盖源码冲突保留和 DONE 不推进",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T12:20:06.376Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/done-auto-sync-main.json:152 WHY fixture self-check confirms source conflict block coverage severity:medium",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -7,6 +7,7 @@ import type { StoryStore } from '../core/store.js';
 import { loadConfig } from '../core/config.js';
 import { runHooks, buildHookEnv } from '../core/hooks.js';
 import { renderSummaryForHint } from './summary.js';
+import { createStoryQueryHandlers } from './story-query.js';
 import { reviewAntiStall, testAntiStall } from '../core/anti-stall.js';
 import { buildRollbackDecision, formatPhaseGateDecision } from '../core/phase-protocol.js';
 import { getArtifactContractStatus } from '../core/artifact-contract.js';
@@ -119,6 +120,23 @@ function renderDoneAutoGitPlan(plan: DoneAutoGitPlan, dryRun = false): string {
     `  - git worktree remove "${plan.wtPathAbs}" (dirty 时会 fallback --force)`,
     `  - git branch -d ${plan.branch}`,
   ].join('\n');
+}
+
+function shouldAutoSyncMainForDone(rows: DoneCheckRow[], rendered: string): boolean {
+  if (!rendered.includes('[✗] Branch synced with main')) return false;
+  const otherHardFailures = [
+    '[✗] Test evidence',
+    '[✗] Bugs fixed',
+    '[✗] git working tree',
+    '[✗] Story summary',
+    '[✗] Reviewer contract',
+    '[✗] Artifact contract',
+  ];
+  return !otherHardFailures.some(marker => rendered.includes(marker));
+}
+
+function hasRawConfirmIntent(): boolean {
+  return process.argv.slice(2).some(arg => arg.includes('"confirm":true') || arg.includes('"confirm": true') || arg === '--confirm');
 }
 
 function acquireDoneAutoGitLock(plan: DoneAutoGitPlan, storyId: string): DoneAutoGitLock {
@@ -389,6 +407,9 @@ export function getEvidenceFreshness(root: string, storyId: string, evidenceHead
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
     const changedPaths = raw.split('\n').map(line => line.trim()).filter(Boolean);
+    if (changedPaths.length === 0) {
+      return { fresh: true, metadataOnly: true, changedPaths };
+    }
     const metadataOnly = changedPaths.length > 0 && changedPaths.every(path => isEvidenceMetadataOnlyPath(root, storyId, path));
     return { fresh: metadataOnly, metadataOnly, changedPaths };
   } catch { /* PROBE: diff can fail if evidence commit is unavailable */
@@ -534,11 +555,48 @@ function buildDoneChecklist(storyId: string, store: StoryStore, root: string): D
         execSync(`git merge-base --is-ancestor main ${branch}`, { cwd: root, stdio: 'pipe' });
         rows.push({ status: 'pass', label: 'Branch synced with main', detail: branch });
       } catch {
+        if (hasRawConfirmIntent()) {
+          const storyDirRel = loadConfig(root).storyDir.replace(/\\/g, '/');
+          const storyMetaPrefix = `${storyDirRel}/${storyId}/`;
+          try {
+            execSync(`git -c commit.gpgsign=false merge main --no-ff -m ${JSON.stringify(`sync main into ${storyId}`)}`, {
+              cwd: root,
+              encoding: 'utf-8',
+              stdio: ['pipe', 'pipe', 'pipe'],
+            });
+            rows.push({ status: 'pass', label: 'Branch synced with main', detail: `${branch} (auto-synced)` });
+            return rows;
+          } catch {
+            const raw = execSync('git diff --name-only --diff-filter=U', { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+            const unmerged = raw.split('\n').map(line => line.trim().replace(/\\/g, '/')).filter(Boolean);
+            const protectedConflicts = unmerged.filter(path => path.startsWith(storyMetaPrefix));
+            const unresolved = unmerged.filter(path => !path.startsWith(storyMetaPrefix));
+            for (const path of protectedConflicts) {
+              execSync(`git checkout --ours -- ${JSON.stringify(path)}`, { cwd: root, stdio: 'pipe' });
+              execSync(`git add -- ${JSON.stringify(path)}`, { cwd: root, stdio: 'pipe' });
+            }
+            if (unresolved.length === 0 && protectedConflicts.length > 0) {
+              execSync(`git -c commit.gpgsign=false commit -m ${JSON.stringify(`sync main into ${storyId} (story metadata ours)`)}`, {
+                cwd: root,
+                stdio: ['pipe', 'pipe', 'pipe'],
+              });
+              rows.push({ status: 'pass', label: 'Branch synced with main', detail: `${branch} (story metadata auto-resolved with --ours)` });
+              return rows;
+            }
+            rows.push({
+              status: 'fail',
+              label: 'Branch synced with main',
+              detail: `auto-sync main stopped: unresolved conflicts: ${unresolved.join(', ') || '(unknown)'}`,
+              hint: `请手动解决真实冲突后 git add + git commit，再重跑 koala test_story '{"storyId":"${storyId}"}'`,
+            });
+            return rows;
+          }
+        }
         rows.push({
           status: 'fail',
           label: 'Branch synced with main',
           detail: `${branch} 未合并 main 的最新提交`,
-          hint: `如需在 worktree 里执行 git merge main，未经用户 confirm 不允许；确认后合并 main、解决冲突并提交，然后重跑 koala test_story '{"storyId":"${storyId}"}'，最后再执行 DONE dry-run/confirm`,
+          hint: `DONE confirm 会在这是唯一硬失败时自动执行安全 sync main；如需单独处理，先运行 koala story_sync_main '{"storyId":"${storyId}","dryRun":true}'，确认后运行 koala story_sync_main '{"storyId":"${storyId}","confirm":true}'，再重跑 koala test_story '{"storyId":"${storyId}"}'`,
         });
       }
     }
@@ -803,6 +861,7 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
       let doneAutoGitPlan: DoneAutoGitPlan | null = null;
       let doneAutoGitLock: DoneAutoGitLock | null = null;
       let doneRollbackStory: StoryInfo | null = null;
+      let doneAutoSyncReport = '';
 
       let eventType = PHASE_TO_EVENT[args.phase];
       if (!eventType) {
@@ -882,9 +941,63 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
       // 对应 OMX ralph 的 <Final_Checklist>。
       if (args.phase === 'DONE') {
         doneRollbackStory = JSON.parse(JSON.stringify(story)) as StoryInfo;
-        const checkRows = buildDoneChecklist(args.storyId, store, ctx.root);
-        const rendered = renderDoneChecklist(args.storyId, checkRows);
-        const failed = checkRows.filter(r => r.status === 'fail');
+        const doneSyncStory = store.readStory(args.storyId);
+        const doneSyncBranch = doneSyncStory.worktree?.branch || `story/${args.storyId}`;
+        if (!args.dryRun && (args.confirm || hasRawConfirmIntent())) {
+          try {
+            execSync(`git merge-base --is-ancestor main ${JSON.stringify(doneSyncBranch)}`, { cwd: ctx.root, stdio: 'pipe' });
+          } catch {
+            try {
+              doneAutoSyncReport = createStoryQueryHandlers(ctx).story_sync_main({ storyId: args.storyId, confirm: true });
+            } catch (e: any) {
+              actor.stop();
+              throw new Error(`DONE auto-sync main failed:\n${e?.message || String(e)}`);
+            }
+          }
+        }
+        let checkRows = buildDoneChecklist(args.storyId, store, ctx.root);
+        let rendered = renderDoneChecklist(args.storyId, checkRows);
+        let failed = checkRows.filter(r => r.status === 'fail');
+        const canAutoSyncMain = shouldAutoSyncMainForDone(checkRows, rendered);
+
+        if (failed.length > 0) {
+          if (canAutoSyncMain && args.dryRun) {
+            actor.stop();
+            let syncPreview = '';
+            try {
+              syncPreview = createStoryQueryHandlers(ctx).story_sync_main({ storyId: args.storyId, dryRun: true });
+            } catch (e: any) {
+              syncPreview = `story_sync_main dry-run unavailable: ${e?.message || String(e)}`;
+            }
+            const donePlan = detectDoneAutoGitPlan(args.storyId, story.title);
+            const doneMainPreflight = donePlan ? inspectDoneMainMergePreflight(donePlan) : null;
+            return (
+              rendered + '\n\n' +
+              '[DRY-RUN] DONE confirm will auto-sync main first:\n' +
+              syncPreview + '\n\n' +
+              (donePlan
+                ? renderDoneAutoGitPlan(donePlan, true) + '\n' +
+                  (doneMainPreflight ? renderDoneMainMergePreflight(doneMainPreflight) + '\n' : '')
+                : '[DRY-RUN] 当前 DONE 路径不会自动执行 git commit/merge。\n') +
+              `→ 这是 dry-run 预览。确认无误后，执行: koala story_advance '{"storyId":"${args.storyId}","phase":"DONE","confirm":true}'`
+            );
+          }
+
+          if (canAutoSyncMain && !args.dryRun) {
+            try {
+              doneAutoSyncReport = createStoryQueryHandlers(ctx).story_sync_main({ storyId: args.storyId, confirm: true });
+              checkRows = buildDoneChecklist(args.storyId, store, ctx.root);
+              rendered = renderDoneChecklist(args.storyId, checkRows);
+              failed = checkRows.filter(r => r.status === 'fail');
+            } catch (e: any) {
+              actor.stop();
+              throw new Error(
+                rendered + '\n\n' +
+                `DONE auto-sync main failed:\n${e?.message || String(e)}`
+              );
+            }
+          }
+        }
 
         if (failed.length > 0) {
           actor.stop();
@@ -1245,7 +1358,7 @@ ${testAntiStall(args.storyId)}
           }
 
           if (mergeLines.length > 0) {
-            doneMergeReport = `\n\n${mergeLines.join('\n')}`;
+            doneMergeReport = `\n\n${[doneAutoSyncReport, ...mergeLines].filter(Boolean).join('\n\n')}`;
           }
           if (doneAutoGitLock) {
             doneAutoGitLock.release();
