@@ -15,19 +15,43 @@
         "happy": [
           {
             "desc": "非 dryRun 的 mutating Koala 命令会向 .koala/activity.jsonl 追加记录，不再写 docs/story/activity.jsonl",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T00:03:59.303Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/activity-log-runtime-store.json:1 WHY appendActivityLog writes .koala/activity.jsonl and not legacy docs/story path; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "writeLog 在 worktree 被移除或 root 无效时不会重建 ghost docs/story 目录",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T00:03:59.411Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/activity-log-runtime-store.json:1 WHY invalid/no write path does not create legacy docs/story activity log; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "dryRun/read-only 命令仍不写 .koala/activity.jsonl，保持只读语义",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T00:03:59.523Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/activity-log-runtime-store.json:1 WHY no helper append means dry-run/read-only contract stays stable with zero records; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -46,19 +70,43 @@
         "happy": [
           {
             "desc": "session_brief recent activity 从 .koala/activity.jsonl 读取新记录",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T00:03:59.633Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/activity-log-runtime-store.json:1 WHY readActivityLogTail reads runtime .koala entries; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "session_brief 仍能读取 legacy docs/story/activity.jsonl 中的旧记录",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T00:03:59.740Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/activity-log-runtime-store.json:1 WHY readActivityLogTail reads legacy docs/story entries; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "stale detector latest activity 选择新旧日志中时间最新的一条，而不是固定某个路径",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T00:03:59.841Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/activity-log-runtime-store.json:1 WHY readLatestActivityLogEntry chooses newer runtime over legacy by timestamp; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -77,19 +125,43 @@
         "happy": [
           {
             "desc": "tool_status 统计 .koala/activity.jsonl 中的新记录",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T00:03:59.937Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/activity-log-runtime-store.json:1 WHY tool_status counts runtime activity through shared helper; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "tool_status 兼容 legacy docs/story/activity.jsonl 历史记录",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T00:04:00.039Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/activity-log-runtime-store.json:1 WHY tool_status counts legacy activity through shared helper; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "tool_status 按 source/role/days 过滤时对新旧日志合并结果一致生效",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T00:04:00.137Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/activity-log-runtime-store.json:1 WHY tool_status source/role filters work on merged runtime and legacy entries; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -108,19 +180,43 @@
         "happy": [
           {
             "desc": "fixture 覆盖新写路径、新旧双读、latest 排序、tool_status 统计四类行为",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T00:04:00.234Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/activity-log-runtime-store.json:1 WHY fixture covers write path, dual reads, latest sorting, tool_status stats; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "legacy docs/story/activity.jsonl 仍被 baseline 视为 volatile，不影响现有旧文件",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T00:04:00.333Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/activity-log-runtime-store.json:1 WHY baseline helper still treats legacy activity path as volatile; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "新 .koala/activity.jsonl 位于 gitignored runtime 目录，不出现在 material baseline risk 中",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T00:04:00.430Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/activity-log-runtime-store.json:1 WHY runtime path resolves under gitignored .koala/activity.jsonl; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
