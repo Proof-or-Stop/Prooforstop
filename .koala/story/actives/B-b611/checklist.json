@@ -1,0 +1,38 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "DONE merge 前排除 runtime activity log 变更",
+      "context": "story_advance DONE auto-git commit 前，将 .koala/activity.jsonl 和 docs/story/activity.jsonl 都对齐 main 或从 index 中移除，确保 story 分支 merge 不因 runtime log 冲突。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "DONE merge preflight 将 runtime activity log 视为 non-blocking volatile",
+      "context": "isDoneVolatilePath 同时识别 .koala/activity.jsonl 与 legacy docs/story/activity.jsonl；preflight overlap 不应阻塞这些 runtime paths。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "增加 activity conflict fixture 覆盖",
+      "context": "覆盖 main/story 同时修改 .koala/activity.jsonl 时，preflight 不阻塞，story branch 语义 commit 不包含 runtime activity 变更，merge 不产生 activity conflict。",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-fixture-spec.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
