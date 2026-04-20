@@ -122,13 +122,17 @@ function renderDoneAutoGitPlan(plan: DoneAutoGitPlan, dryRun = false): string {
   ].join('\n');
 }
 
-function isDoneBranchSyncFailure(row: DoneCheckRow): boolean {
-  return row.status === 'fail' && row.label === 'Branch synced with main';
-}
-
-function shouldAutoSyncMainForDone(rows: DoneCheckRow[]): boolean {
-  const failed = rows.filter(row => row.status === 'fail');
-  return failed.length === 1 && isDoneBranchSyncFailure(failed[0]);
+function shouldAutoSyncMainForDone(rows: DoneCheckRow[], rendered: string): boolean {
+  if (!rendered.includes('[✗] Branch synced with main')) return false;
+  const otherHardFailures = [
+    '[✗] Test evidence',
+    '[✗] Bugs fixed',
+    '[✗] git working tree',
+    '[✗] Story summary',
+    '[✗] Reviewer contract',
+    '[✗] Artifact contract',
+  ];
+  return !otherHardFailures.some(marker => rendered.includes(marker));
 }
 
 function acquireDoneAutoGitLock(plan: DoneAutoGitPlan, storyId: string): DoneAutoGitLock {
@@ -896,10 +900,22 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
       // 对应 OMX ralph 的 <Final_Checklist>。
       if (args.phase === 'DONE') {
         doneRollbackStory = JSON.parse(JSON.stringify(story)) as StoryInfo;
+        if (!args.dryRun && story.worktree?.branch) {
+          try {
+            execSync(`git merge-base --is-ancestor main ${JSON.stringify(story.worktree.branch)}`, { cwd: ctx.root, stdio: 'pipe' });
+          } catch {
+            try {
+              doneAutoSyncReport = createStoryQueryHandlers(ctx).story_sync_main({ storyId: args.storyId, confirm: true });
+            } catch (e: any) {
+              actor.stop();
+              throw new Error(`DONE auto-sync main failed:\n${e?.message || String(e)}`);
+            }
+          }
+        }
         let checkRows = buildDoneChecklist(args.storyId, store, ctx.root);
         let rendered = renderDoneChecklist(args.storyId, checkRows);
         let failed = checkRows.filter(r => r.status === 'fail');
-        const canAutoSyncMain = shouldAutoSyncMainForDone(checkRows);
+        const canAutoSyncMain = shouldAutoSyncMainForDone(checkRows, rendered);
 
         if (failed.length > 0) {
           if (canAutoSyncMain && args.dryRun) {
@@ -924,7 +940,7 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
             );
           }
 
-          if (canAutoSyncMain && args.confirm) {
+          if (canAutoSyncMain && !args.dryRun) {
             try {
               doneAutoSyncReport = createStoryQueryHandlers(ctx).story_sync_main({ storyId: args.storyId, confirm: true });
               checkRows = buildDoneChecklist(args.storyId, store, ctx.root);

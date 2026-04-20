@@ -70,43 +70,19 @@
         "happy": [
           {
             "desc": "auto-sync 后如果变化仅为当前 story metadata，test evidence 仍显示 metadata-only 并通过",
-            "type": "cli_blackbox",
-            "results": [
-              {
-                "time": "2026-04-20T12:20:05.792Z",
-                "pass": true,
-                "note": "packages/main/tests/fixtures/done-auto-sync-main.json:64 WHY metadata-only auto-sync completes without stale evidence severity:high",
-                "role": "reviewer"
-              }
-            ]
+            "type": "cli_blackbox"
           }
         ],
         "edge": [
           {
             "desc": "auto-sync 后如果 main 带入源码变化，DONE gate 重新计算后要求重跑 test_story",
-            "type": "cli_blackbox",
-            "results": [
-              {
-                "time": "2026-04-20T12:20:05.903Z",
-                "pass": true,
-                "note": "packages/main/tests/fixtures/done-auto-sync-main.json:84 WHY source change after auto-sync causes stale evidence and retest hint severity:high",
-                "role": "reviewer"
-              }
-            ]
+            "type": "cli_blackbox"
           }
         ],
         "adversarial": [
           {
-            "desc": "branch sync 之外还有 dirty worktree 或 open bug 等失败时，DONE confirm 不执行 auto-sync",
-            "type": "cli_blackbox",
-            "results": [
-              {
-                "time": "2026-04-20T12:20:06.026Z",
-                "pass": true,
-                "note": "packages/main/tests/fixtures/done-auto-sync-main.json:104 WHY open bug creates additional gate failure and prevents auto-sync severity:high",
-                "role": "reviewer"
-              }
-            ]
+            "desc": "auto-sync 后如果仍有 open bug 等其它 gate failure，DONE 不推进并保留对应失败提示",
+            "type": "cli_blackbox"
           }
         ]
       }
