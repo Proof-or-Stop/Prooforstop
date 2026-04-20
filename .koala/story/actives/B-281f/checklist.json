@@ -1,0 +1,39 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "迁移命令覆盖 legacy activity log",
+      "context": "story_migrate_storage confirm 时把 docs/story/activity.jsonl 追加/合并到 .koala/activity.jsonl，避免其它项目继续在 docs 下保留 Koala runtime log。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "迁移 dry-run 明确展示 actives/activity/空目录计划",
+      "context": "用户在其它项目执行迁移前需要知道会复制哪些 story、会迁哪些 activity 文件、会备份到哪里、是否清空 docs/story 空目录。",
+      "relatedDocs": [
+        "README.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "增加 legacy activity migration fixture 覆盖",
+      "context": "用临时 repo 覆盖 dry-run 预览、confirm 迁移、target 已有 activity 时 append 保留两边记录、非空 docs/story 不删除等场景。",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-fixture-spec.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
