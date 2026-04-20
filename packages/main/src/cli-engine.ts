@@ -128,6 +128,11 @@ export const MAIN_TOOLS: ToolDef[] = [
     dryRun: z.boolean().optional().describe('预览迁移计划（默认 true）'),
     confirm: z.boolean().optional().describe('显式确认执行迁移并备份 legacy 目录'),
   }, guardrails: { supportsDryRun: true, requiresConfirm: true }},
+  { name: 'story_sync_main', description: '安全同步 main 到当前 story worktree：story metadata 冲突自动保留 --ours，源码冲突仍阻塞', schema: {
+    storyId: z.string().describe('Story ID'),
+    dryRun: z.boolean().optional().describe('仅预览 git merge main 计划，不修改仓库'),
+    confirm: z.boolean().optional().describe('显式确认执行 git merge main 并自动保护当前 story metadata'),
+  }, guardrails: { supportsDryRun: true, requiresConfirm: true }},
 
   // Review
   { name: 'story_review', description: '对抗审查 testIntent 完整性', schema: {

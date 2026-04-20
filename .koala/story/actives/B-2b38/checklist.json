@@ -8,9 +8,29 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-20T11:31:42.430Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "在 story worktree 中 dry-run story_sync_main 时，只输出 merge main 计划、当前分支和将保护的 story metadata 路径，不修改 git 状态",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "confirm 执行时 main 只与当前 story index/checklist 冲突，命令自动用 --ours 保留 story metadata 并提交 merge",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "在非对应 story worktree 或 main 分支运行 story_sync_main，会失败并提示正确 worktree 路径",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -19,9 +39,29 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-20T11:31:42.614Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "main 与 story 分支只在 .koala/story/actives/<storyId>/index.json phase 冲突时，sync 后 phase 保持 story 分支当前值",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "当前 story metadata 目录下多个 JSON 冲突时，全部自动 --ours 并列入输出",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "另一个 story 的 metadata 冲突不会被自动解决，会作为 unresolved conflict 停下",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -30,9 +70,29 @@
       "relatedDocs": [
         "docs/requirements/decisions/test-fixture-spec.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-20T11:31:42.753Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "fixture 覆盖 metadata-only 冲突自动解决和 merge 成功",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "fixture 覆盖源码文件冲突时命令失败且保留冲突文件给用户处理",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "fixture 覆盖 dry-run 不产生 MERGE_HEAD、不改变 HEAD、不写工作区",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }

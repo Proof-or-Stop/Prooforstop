@@ -1,7 +1,7 @@
 
 import type { HandlerContext } from './context.js';
 import type { StoryPhase, StoryInfo } from '../core/types.js';
-import { collectContext } from './context.js';
+import { assertCwdInWorktree, collectContext } from './context.js';
 import { loadConfig } from '../core/config.js';
 import { join } from 'path';
 import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmdirSync, rmSync, writeFileSync } from 'fs';
@@ -108,6 +108,36 @@ function removeEmptyDir(path: string): boolean {
   if (readdirSync(path).length > 0) return false;
   rmdirSync(path);
   return true;
+}
+
+function shellQuote(value: string): string {
+  return JSON.stringify(value);
+}
+
+function gitOutput(cwd: string, args: string): string {
+  return execSync(`git ${args}`, { cwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+}
+
+function gitSucceeds(cwd: string, args: string): boolean {
+  try {
+    execSync(`git ${args}`, { cwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function gitUnmergedPaths(cwd: string): string[] {
+  const raw = gitOutput(cwd, 'diff --name-only --diff-filter=U');
+  return raw.split('\n').map(line => line.trim().replace(/\\/g, '/')).filter(Boolean);
+}
+
+function gitPorcelainPaths(cwd: string): string[] {
+  const raw = gitOutput(cwd, 'status --porcelain -uall');
+  return raw.split('\n')
+    .map(line => line.trimEnd())
+    .filter(Boolean)
+    .map(line => line.slice(3).trim().replace(/^"|"$/g, '').replace(/\\/g, '/'));
 }
 
 /**
@@ -579,6 +609,112 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
       lines.push(`  docs/story cleanup: ${removedDocsStory ? 'removed empty directory' : 'kept (missing or non-empty)'}`);
       lines.push('✓ story storage migrated');
       return lines.join('\n');
+    },
+
+    /**
+     * @task B-2b38
+     * @checklist CHK-001, CHK-002
+     * @title safely sync story branch with main
+     * @type feature
+     * @priority high
+     * @description
+     *   Manual `git merge main` inside a story worktree can overwrite the
+     *   story phase if users resolve `.koala/story/actives/<storyId>/index.json`
+     *   with main's version. story_sync_main wraps that operation: current
+     *   story metadata conflicts are resolved with `--ours`, while real code
+     *   conflicts remain visible and block completion.
+     * @changes
+     *   - [CHK-001] Add dry-run/confirm guarded story_sync_main command
+     *   - [CHK-002] Auto-resolve only current story metadata conflicts with --ours
+     *   - [CHK-002] Leave non-story conflicts unresolved with explicit guidance
+     */
+    story_sync_main(args: { storyId: string; dryRun?: boolean; confirm?: boolean }): string {
+      const story = ctx.store.readStory(args.storyId);
+      if (!story.worktree) {
+        throw new Error(`Story ${args.storyId} 没有 worktree metadata，无法安全 sync main。请先检查 story 状态。`);
+      }
+      assertCwdInWorktree(ctx.store, args.storyId);
+
+      const cwd = process.cwd();
+      const cfg = loadConfig(ctx.root);
+      const storyDirRel = cfg.storyDir.replace(/\\/g, '/');
+      const storyMetaPrefix = `${storyDirRel}/${args.storyId}/`;
+      const expectedBranch = story.worktree.branch || `story/${args.storyId}`;
+      const currentBranch = gitOutput(cwd, 'rev-parse --abbrev-ref HEAD');
+      const mainRef = 'main';
+      const lines: string[] = [];
+
+      if (currentBranch !== expectedBranch) {
+        throw new Error(
+          `Story ${args.storyId} 当前分支不匹配，拒绝 sync main。\n` +
+          `期望: ${expectedBranch}\n当前: ${currentBranch}`,
+        );
+      }
+
+      const currentHead = gitOutput(cwd, 'rev-parse --short HEAD');
+      let mainHead = 'unknown';
+      try { mainHead = gitOutput(cwd, `rev-parse --short ${mainRef}`); } catch { /* PROBE: main may not exist */ }
+      const alreadyContainsMain = gitSucceeds(cwd, `merge-base --is-ancestor ${shellQuote(mainRef)} HEAD`);
+
+      lines.push(`story_sync_main: ${args.storyId}`);
+      lines.push(`  cwd: ${cwd}`);
+      lines.push(`  branch: ${currentBranch}`);
+      lines.push(`  current HEAD: ${currentHead}`);
+      lines.push(`  main HEAD   : ${mainHead}`);
+      lines.push(`  protect    : ${storyMetaPrefix}*`);
+
+      if (args.dryRun === true || !args.confirm) {
+        lines.push(alreadyContainsMain
+          ? '  status     : story branch already contains main'
+          : '  status     : confirm will run git merge main');
+        lines.push('  metadata conflicts under the protected path will be resolved with --ours');
+        lines.push('  source/other conflicts will remain unresolved and stop the command');
+        lines.push(`→ 确认同步: koala story_sync_main '{"storyId":"${args.storyId}","confirm":true}'`);
+        return lines.join('\n');
+      }
+
+      const dirty = gitPorcelainPaths(cwd).filter(path => path !== '.koala/activity.jsonl' && path !== 'docs/story/activity.jsonl');
+      if (dirty.length > 0) {
+        throw new Error(`Cannot sync main: working tree has uncommitted changes:\n${dirty.slice(0, 20).join('\n')}`);
+      }
+
+      try {
+        const out = gitOutput(cwd, `-c commit.gpgsign=false merge ${shellQuote(mainRef)} --no-ff -m ${shellQuote(`sync main into ${args.storyId}`)}`);
+        lines.push(out || '✓ main already merged');
+        lines.push(`✓ Story ${args.storyId} is synced with main`);
+        lines.push(`→ 请重跑: koala test_story '{"storyId":"${args.storyId}"}'`);
+        return lines.join('\n');
+      } catch {
+        const unmerged = gitUnmergedPaths(cwd);
+        const protectedConflicts = unmerged.filter(path => path.startsWith(storyMetaPrefix));
+        const unresolved = unmerged.filter(path => !path.startsWith(storyMetaPrefix));
+
+        for (const path of protectedConflicts) {
+          gitOutput(cwd, `checkout --ours -- ${shellQuote(path)}`);
+          gitOutput(cwd, `add -- ${shellQuote(path)}`);
+        }
+
+        if (unresolved.length > 0) {
+          throw new Error(
+            `story_sync_main stopped: unresolved non-story conflicts remain.\n` +
+            (protectedConflicts.length > 0
+              ? `Story metadata conflicts auto-resolved with --ours:\n${protectedConflicts.map(path => `  - ${path}`).join('\n')}\n`
+              : '') +
+            `Unresolved conflicts:\n${unresolved.map(path => `  - ${path}`).join('\n')}\n\n` +
+            `请手动解决上述真实冲突后 git add + git commit，再重跑 koala test_story '{"storyId":"${args.storyId}"}'。`,
+          );
+        }
+
+        const staged = gitOutput(cwd, 'diff --cached --name-only');
+        if (staged) {
+          gitOutput(cwd, `-c commit.gpgsign=false commit -m ${shellQuote(`sync main into ${args.storyId} (story metadata ours)`)}`);
+        }
+        lines.push('Story metadata conflicts auto-resolved with --ours:');
+        for (const path of protectedConflicts) lines.push(`  - ${path}`);
+        lines.push(`✓ Story ${args.storyId} is synced with main`);
+        lines.push(`→ 请重跑: koala test_story '{"storyId":"${args.storyId}"}'`);
+        return lines.join('\n');
+      }
     },
   };
 }
