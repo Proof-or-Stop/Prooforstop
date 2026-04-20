@@ -213,6 +213,83 @@
       "storyId": "B-c3e1",
       "_id": "8af206bd-bc5a-4f38-b61f-e6af9738bd6f",
       "prevCaseId": "97ce5ff3-9beb-41c6-96da-5b13c6cb2f5f"
+    },
+    {
+      "name": "B-c3e1 adversarial: other story artifact remains stale",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { execFileSync } = await import(\"child_process\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-fresh-\"));\nconst git=(...args)=>execFileSync(\"git\",args,{cwd:root,encoding:\"utf8\",stdio:[\"pipe\",\"pipe\",\"pipe\"]});\ngit(\"init\",\"-b\",\"main\"); git(\"config\",\"user.email\",\"fixture@example.com\"); git(\"config\",\"user.name\",\"fixture\");\nwriteFileSync(join(root,\"koala.config.json\"), JSON.stringify({ scanRoot:\"src\", fixturesDir:\"tests/fixtures\", storyDir:\".koala/story/actives\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\nmkdirSync(join(root,\"src\"),{recursive:true}); writeFileSync(join(root,\"src/app.ts\"),\"export const v=1;\\n\"); git(\"add\",\".\"); git(\"commit\",\"-m\",\"base\"); const base=git(\"rev-parse\",\"HEAD\").trim();\ntry { mkdirSync(join(root,\".koala/story/actives/B-other\"),{recursive:true}); writeFileSync(join(root,\".koala/story/actives/B-other/index.json\"),\"{}\\n\"); git(\"add\",\".\"); git(\"commit\",\"-m\",\"other story meta\"); const head=git(\"rev-parse\",\"HEAD\").trim(); const mod=await import(pathToFileURL($root+\"/packages/main/dist/handlers/story-advance.js\").href); const f=mod.getEvidenceFreshness(root,\"B-test\",base,head); return {fresh:f.fresh, metadataOnly:f.metadataOnly}; } finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "fresh": false,
+        "metadataOnly": false
+      },
+      "intentRef": "B-c3e1:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-c3e1",
+      "_id": "bcbc548d-e87a-4240-9dcf-f3cbffcdbc90",
+      "nextCaseId": "1f9e0621-acf2-425a-b251-3dddd3cac758"
+    },
+    {
+      "name": "B-c3e1 CHK-002 happy: DONE metadata-only detail path",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { execFileSync } = await import(\"child_process\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-fresh-\"));\nconst git=(...args)=>execFileSync(\"git\",args,{cwd:root,encoding:\"utf8\",stdio:[\"pipe\",\"pipe\",\"pipe\"]});\ngit(\"init\",\"-b\",\"main\"); git(\"config\",\"user.email\",\"fixture@example.com\"); git(\"config\",\"user.name\",\"fixture\");\nwriteFileSync(join(root,\"koala.config.json\"), JSON.stringify({ scanRoot:\"src\", fixturesDir:\"tests/fixtures\", storyDir:\".koala/story/actives\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\nmkdirSync(join(root,\"src\"),{recursive:true}); writeFileSync(join(root,\"src/app.ts\"),\"export const v=1;\\n\"); git(\"add\",\".\"); git(\"commit\",\"-m\",\"base\"); const base=git(\"rev-parse\",\"HEAD\").trim();\ntry { mkdirSync(join(root,\".koala/story/actives/B-test\"),{recursive:true}); writeFileSync(join(root,\".koala/story/actives/B-test/test-evidence.json\"),\"{}\\n\"); writeFileSync(join(root,\".koala/story/actives/B-test/test-runs.json\"),\"{}\\n\"); git(\"add\",\".\"); git(\"commit\",\"-m\",\"evidence artifacts\"); const head=git(\"rev-parse\",\"HEAD\").trim(); const mod=await import(pathToFileURL($root+\"/packages/main/dist/handlers/story-advance.js\").href); const f=mod.getEvidenceFreshness(root,\"B-test\",base,head); return {fresh:f.fresh, metadataOnly:f.metadataOnly}; } finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "fresh": true,
+        "metadataOnly": true
+      },
+      "intentRef": "B-c3e1:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-c3e1",
+      "_id": "1f9e0621-acf2-425a-b251-3dddd3cac758",
+      "prevCaseId": "bcbc548d-e87a-4240-9dcf-f3cbffcdbc90",
+      "nextCaseId": "125db808-ffd3-4adb-8f74-dee1e38cc76d"
+    },
+    {
+      "name": "B-c3e1 CHK-002 adversarial: source change remains stale",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { execFileSync } = await import(\"child_process\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-fresh-\"));\nconst git=(...args)=>execFileSync(\"git\",args,{cwd:root,encoding:\"utf8\",stdio:[\"pipe\",\"pipe\",\"pipe\"]});\ngit(\"init\",\"-b\",\"main\"); git(\"config\",\"user.email\",\"fixture@example.com\"); git(\"config\",\"user.name\",\"fixture\");\nwriteFileSync(join(root,\"koala.config.json\"), JSON.stringify({ scanRoot:\"src\", fixturesDir:\"tests/fixtures\", storyDir:\".koala/story/actives\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\nmkdirSync(join(root,\"src\"),{recursive:true}); writeFileSync(join(root,\"src/app.ts\"),\"export const v=1;\\n\"); git(\"add\",\".\"); git(\"commit\",\"-m\",\"base\"); const base=git(\"rev-parse\",\"HEAD\").trim();\ntry { writeFileSync(join(root,\"src/app.ts\"),\"export const v=2;\\n\"); git(\"add\",\"src/app.ts\"); git(\"commit\",\"-m\",\"source change\"); const head=git(\"rev-parse\",\"HEAD\").trim(); const mod=await import(pathToFileURL($root+\"/packages/main/dist/handlers/story-advance.js\").href); const f=mod.getEvidenceFreshness(root,\"B-test\",base,head); return {fresh:f.fresh, metadataOnly:f.metadataOnly}; } finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "fresh": false,
+        "metadataOnly": false
+      },
+      "intentRef": "B-c3e1:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-c3e1",
+      "_id": "125db808-ffd3-4adb-8f74-dee1e38cc76d",
+      "prevCaseId": "1f9e0621-acf2-425a-b251-3dddd3cac758",
+      "nextCaseId": "ef798b1f-05d3-44e5-985a-51041e29a445"
+    },
+    {
+      "name": "B-c3e1 CHK-003 edge: multi artifact fixture exists",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { readFileSync } = await import(\"fs\"); const text=readFileSync($root+\"/packages/main/tests/fixtures/evidence-freshness-runtime-activity.json\",\"utf8\"); return { multi: text.includes(\"current story multi artifacts\") && text.includes(\"implementation-review.json\") };",
+      "expect": {
+        "multi": true
+      },
+      "intentRef": "B-c3e1:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-c3e1",
+      "_id": "ef798b1f-05d3-44e5-985a-51041e29a445",
+      "prevCaseId": "125db808-ffd3-4adb-8f74-dee1e38cc76d",
+      "nextCaseId": "f7cb3e76-ff43-43df-a164-9be4c2d44f23"
+    },
+    {
+      "name": "B-c3e1 CHK-003 adversarial: stale fixtures exist",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { readFileSync } = await import(\"fs\"); const text=readFileSync($root+\"/packages/main/tests/fixtures/evidence-freshness-runtime-activity.json\",\"utf8\"); return { other: text.includes(\"other story artifact remains stale\") || text.includes(\"other story metadata makes evidence stale\"), source: text.includes(\"source change makes evidence stale\") };",
+      "expect": {
+        "other": true,
+        "source": true
+      },
+      "intentRef": "B-c3e1:CHK-003:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-c3e1",
+      "_id": "f7cb3e76-ff43-43df-a164-9be4c2d44f23",
+      "prevCaseId": "ef798b1f-05d3-44e5-985a-51041e29a445"
     }
   ]
 }
