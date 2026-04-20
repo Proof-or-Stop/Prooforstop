@@ -4,7 +4,7 @@
   "title": "DONE confirm 自动安全同步 main",
   "description": "修复 BUG-4 残留：DONE gate 检测到 story branch 未包含 main 时，不再要求用户手动 git merge main；DONE confirm 先自动执行安全 sync main（当前 story metadata 冲突用 --ours，源码冲突仍阻塞），然后重新计算 DONE gate，避免手动 merge main 后 re-test 触发 evidence stale 循环。",
   "type": "feature",
-  "phase": "TEST_CASE_REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "riskSignals": [
     {
@@ -135,6 +135,14 @@
       "branch": "story/B-d987",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-20T12:36:58.822Z",
+      "branch": "story/B-d987",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
     }
   ],
   "worktree": {
