@@ -15,19 +15,43 @@
         "happy": [
           {
             "desc": "StoryStore 在新 config 下 writeStory/writeChecklist 写入 .koala/story/actives，不创建 docs/story/actives",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T00:44:40.785Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-storage-migration.json:1 WHY Store writes story/checklist to .koala/story/actives only; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "StoryStore 读取时优先 .koala/story/actives，目标不存在时 fallback legacy docs/story/actives",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T00:44:40.887Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-storage-migration.json:1 WHY Store reads primary before legacy fallback; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "listStoryIds 合并新旧目录且去重，重复 storyId 只返回一次",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T00:44:40.991Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-storage-migration.json:1 WHY Store listStoryIds merges primary and legacy with unique ids; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -46,19 +70,43 @@
         "happy": [
           {
             "desc": "story_migrate_storage dryRun 预览 legacy story 数、target story 数、to copy 数，不移动文件",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T00:44:41.097Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-storage-migration.json:1 WHY migration dry-run reports counts without moving legacy files; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "story_migrate_storage confirm copy legacy missing stories 到 .koala/story/actives 并备份 legacy docs/story/actives",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T00:44:41.201Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-storage-migration.json:1 WHY migration confirm copies missing legacy stories and backs up legacy dir; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "target 已存在同 storyId 时 migration 跳过，不覆盖 target 内容",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T00:44:41.306Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-storage-migration.json:1 WHY existing target story content is not overwritten by legacy migration; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -78,19 +126,43 @@
         "happy": [
           {
             "desc": "story_get/story_list/session_brief 在 storyDir=.koala/story/actives 后能读取新目录 story",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T00:44:41.406Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-storage-migration.json:1 WHY story_get/story_list read configured .koala storyDir; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "aux_doc_list 不扫描 .koala/story/actives 中的 story JSON",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T00:44:41.510Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-storage-migration.json:1 WHY aux_doc_list skips .koala/story markdown/json artifacts; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "DONE/test temp cleanup 使用 config.storyDir，不再只清 docs/story/actives",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T00:44:41.621Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-storage-migration.json:1 WHY cleanupTempStories removes temp story from configured storyDir; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -109,19 +181,43 @@
         "happy": [
           {
             "desc": "fixture 覆盖新目录写入、legacy fallback、迁移 dryRun/confirm 和 path consumer 适配",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T00:44:41.741Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-storage-migration.json:1 WHY fixture covers write, fallback, migration dry-run/confirm, and consumers; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "fixture 验证 .koala/story/actives 可被 git 追踪，不被 .gitignore 忽略",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T00:44:41.845Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-storage-migration.json:1 WHY git check-ignore verifies .koala/story/actives is trackable; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "fixture 验证 legacy backup 存在且迁移后 docs/story/actives 不再作为主 storyDir",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T00:44:41.951Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/story-storage-migration.json:1 WHY migration creates backup and removes legacy actives as primary storage; severity=pass",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
