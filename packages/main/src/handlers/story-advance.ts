@@ -11,8 +11,9 @@ import { reviewAntiStall, testAntiStall } from '../core/anti-stall.js';
 import { buildRollbackDecision, formatPhaseGateDecision } from '../core/phase-protocol.js';
 import { getArtifactContractStatus } from '../core/artifact-contract.js';
 import { getReviewerStatus } from '../core/reviewer-status.js';
+import { getLegacyActivityLogPath, getRuntimeActivityLogPath } from '../core/activity-log.js';
 import { execSync } from 'child_process';
-import { dirname, join } from 'path';
+import { dirname, join, relative } from 'path';
 import { closeSync, existsSync, mkdirSync, openSync, readFileSync, renameSync, rmSync, statSync, unlinkSync, writeFileSync } from 'fs';
 
 const SESSION_OWNERSHIP_GATED_PHASES = new Set<StoryPhase>(['TEST', 'DONE']);
@@ -301,7 +302,38 @@ function shortCommit(value: string | null | undefined): string {
   return value ? value.slice(0, 12) : 'unknown';
 }
 
-function getEvidenceFreshness(root: string, storyId: string, evidenceHead: string, currentHead: string): { fresh: boolean; metadataOnly: boolean; changedPaths: string[] } {
+function normalizeRel(path: string): string {
+  return path.replace(/\\/g, '/').replace(/^\/+/, '');
+}
+
+/**
+ * @task B-7a33
+ * @checklist CHK-001, CHK-002, CHK-003
+ * @title classify evidence freshness metadata-only paths
+ * @type bugfix
+ * @priority high
+ * @description
+ *   Test evidence freshness should fail only when code/business inputs change
+ *   after evidence was captured. Runtime activity telemetry and current-story
+ *   metadata commits are non-code changes and should not force an infinite
+ *   test_story/commit/DONE loop.
+ * @changes
+ *   - [CHK-001] Treat .koala/activity.jsonl and legacy docs/story/activity.jsonl as runtime-only
+ *   - [CHK-002] Keep current story metadata as metadata-only
+ *   - [CHK-003] Preserve stale behavior for real source/business file changes
+ */
+export function isEvidenceMetadataOnlyPath(root: string, storyId: string, path: string): boolean {
+  const rel = normalizeRel(path);
+  const storyMetaPrefix = `${loadConfig(root).storyDir.replace(/\\/g, '/')}/${storyId}/`;
+  const runtimeActivity = normalizeRel(relative(root, getRuntimeActivityLogPath(root)));
+  const legacyActivity = normalizeRel(relative(root, getLegacyActivityLogPath(root)));
+  return rel === storyMetaPrefix.slice(0, -1)
+    || rel.startsWith(storyMetaPrefix)
+    || rel === runtimeActivity
+    || rel === legacyActivity;
+}
+
+export function getEvidenceFreshness(root: string, storyId: string, evidenceHead: string, currentHead: string): { fresh: boolean; metadataOnly: boolean; changedPaths: string[] } {
   if (evidenceHead === currentHead) {
     return { fresh: true, metadataOnly: false, changedPaths: [] };
   }
@@ -312,8 +344,7 @@ function getEvidenceFreshness(root: string, storyId: string, evidenceHead: strin
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
     const changedPaths = raw.split('\n').map(line => line.trim()).filter(Boolean);
-    const storyMetaPrefix = `${loadConfig(root).storyDir.replace(/\\/g, '/')}/${storyId}/`;
-    const metadataOnly = changedPaths.length > 0 && changedPaths.every(path => path === storyMetaPrefix.slice(0, -1) || path.startsWith(storyMetaPrefix));
+    const metadataOnly = changedPaths.length > 0 && changedPaths.every(path => isEvidenceMetadataOnlyPath(root, storyId, path));
     return { fresh: metadataOnly, metadataOnly, changedPaths };
   } catch { /* PROBE: diff can fail if evidence commit is unavailable */
     return { fresh: false, metadataOnly: false, changedPaths: [] };
