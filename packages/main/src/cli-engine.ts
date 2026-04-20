@@ -124,7 +124,7 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'story_reconcile', description: '检测并修复僵尸 story（分支已合并/删除但 phase 非终态）', schema: {
     dryRun: z.boolean().optional().describe('默认 true 只报告不修改，false 执行修复'),
   }},
-  { name: 'story_migrate_storage', description: '迁移 story artifacts：docs/story/actives → 配置的 storyDir（默认 .koala/story/actives）', schema: {
+  { name: 'story_migrate_storage', description: '迁移 legacy Koala storage：docs/story/actives → storyDir，并把 docs/story/activity.jsonl → .koala/activity.jsonl', schema: {
     dryRun: z.boolean().optional().describe('预览迁移计划（默认 true）'),
     confirm: z.boolean().optional().describe('显式确认执行迁移并备份 legacy 目录'),
   }, guardrails: { supportsDryRun: true, requiresConfirm: true }},

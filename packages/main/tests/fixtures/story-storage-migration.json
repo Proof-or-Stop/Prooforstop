@@ -187,6 +187,155 @@
       "storyId": "B-e3a4",
       "_id": "ea0c56b9-acbe-4587-a271-e70e6983d366",
       "prevCaseId": "aef90ca5-cc4e-4df9-b365-becfdc795982"
+    },
+    {
+      "name": "B-281f CHK-001 happy: confirm migrates legacy activity to runtime store",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, readdirSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-storage-\"));\ntry {\n  writeFileSync(join(root,\"koala.config.json\"), JSON.stringify({ scanRoot:\"src\", fixturesDir:\"tests/fixtures\", storyDir:\".koala/story/actives\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\n  mkdirSync(join(root,\"docs/story\"),{recursive:true}); writeFileSync(join(root,\"docs/story/activity.jsonl\"), \"{\\\"legacy\\\":1}\\n\");\n  const { StoryStore }=await import(pathToFileURL($root+\"/packages/main/dist/core/store.js\").href); const { createStoryQueryHandlers }=await import(pathToFileURL($root+\"/packages/main/dist/handlers/story-query.js\").href);\n  const out=createStoryQueryHandlers({root,store:new StoryStore(root),scanRoot:root}).story_migrate_storage({dryRun:false,confirm:true});\n  const runtime=readFileSync(join(root,\".koala/activity.jsonl\"),\"utf8\");\n  const backups=readdirSync(join(root,\".koala/legacy-backup\"));\n  return { migrated: runtime.includes(\"legacy\"), legacyGone: !existsSync(join(root,\"docs/story/activity.jsonl\")), backup: backups.some((f)=>f.startsWith(\"docs-story-activity-\")), output: out.includes(\"activity migrated\") };\n} finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "migrated": true,
+        "legacyGone": true,
+        "backup": true,
+        "output": true
+      },
+      "intentRef": "B-281f:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-281f",
+      "_id": "974006d9-79eb-4d26-82ec-3b4c655c5f56",
+      "nextCaseId": "92f3646d-faab-443d-ab84-7fe744e61b32"
+    },
+    {
+      "name": "B-281f CHK-001 edge: existing runtime activity is appended not overwritten",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-storage-\"));\ntry {\n  writeFileSync(join(root,\"koala.config.json\"), JSON.stringify({ scanRoot:\"src\", fixturesDir:\"tests/fixtures\", storyDir:\".koala/story/actives\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\n  mkdirSync(join(root,\"docs/story\"),{recursive:true}); mkdirSync(join(root,\".koala\"),{recursive:true});\n  writeFileSync(join(root,\"docs/story/activity.jsonl\"), \"{\\\"legacy\\\":1}\\n\"); writeFileSync(join(root,\".koala/activity.jsonl\"), \"{\\\"runtime\\\":1}\");\n  const { StoryStore }=await import(pathToFileURL($root+\"/packages/main/dist/core/store.js\").href); const { createStoryQueryHandlers }=await import(pathToFileURL($root+\"/packages/main/dist/handlers/story-query.js\").href);\n  createStoryQueryHandlers({root,store:new StoryStore(root),scanRoot:root}).story_migrate_storage({dryRun:false,confirm:true});\n  const runtime=readFileSync(join(root,\".koala/activity.jsonl\"),\"utf8\");\n  return { hasRuntime: runtime.includes(\"runtime\"), hasLegacy: runtime.includes(\"legacy\"), newline: runtime.includes(\"1}\\n{\\\"legacy\") };\n} finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "hasRuntime": true,
+        "hasLegacy": true,
+        "newline": true
+      },
+      "intentRef": "B-281f:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-281f",
+      "_id": "92f3646d-faab-443d-ab84-7fe744e61b32",
+      "prevCaseId": "974006d9-79eb-4d26-82ec-3b4c655c5f56",
+      "nextCaseId": "88ed3fd5-a7f6-4499-a97c-80ed8626cfab"
+    },
+    {
+      "name": "B-281f CHK-001 adversarial: non-empty docs story is kept",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, existsSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-storage-\"));\ntry {\n  writeFileSync(join(root,\"koala.config.json\"), JSON.stringify({ scanRoot:\"src\", fixturesDir:\"tests/fixtures\", storyDir:\".koala/story/actives\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\n  mkdirSync(join(root,\"docs/story\"),{recursive:true}); writeFileSync(join(root,\"docs/story/activity.jsonl\"), \"{}\\n\"); writeFileSync(join(root,\"docs/story/notes.md\"), \"# keep\\n\");\n  const { StoryStore }=await import(pathToFileURL($root+\"/packages/main/dist/core/store.js\").href); const { createStoryQueryHandlers }=await import(pathToFileURL($root+\"/packages/main/dist/handlers/story-query.js\").href);\n  const out=createStoryQueryHandlers({root,store:new StoryStore(root),scanRoot:root}).story_migrate_storage({dryRun:false,confirm:true});\n  return { docsStoryKept: existsSync(join(root,\"docs/story\")), noteKept: existsSync(join(root,\"docs/story/notes.md\")), outputKept: out.includes(\"kept\") };\n} finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "docsStoryKept": true,
+        "noteKept": true,
+        "outputKept": true
+      },
+      "intentRef": "B-281f:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-281f",
+      "_id": "88ed3fd5-a7f6-4499-a97c-80ed8626cfab",
+      "prevCaseId": "92f3646d-faab-443d-ab84-7fe744e61b32",
+      "nextCaseId": "94389d3d-0d10-45c0-af14-ff2c51c348b0"
+    },
+    {
+      "name": "B-281f CHK-002 happy: dryrun shows actives activity backup and confirm command",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-storage-\"));\ntry {\n  writeFileSync(join(root,\"koala.config.json\"), JSON.stringify({ scanRoot:\"src\", fixturesDir:\"tests/fixtures\", storyDir:\".koala/story/actives\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\n  mkdirSync(join(root,\"docs/story/actives/B-one\"),{recursive:true}); writeFileSync(join(root,\"docs/story/actives/B-one/index.json\"),\"{}\\n\"); writeFileSync(join(root,\"docs/story/activity.jsonl\"), \"{}\\n\");\n  const { StoryStore }=await import(pathToFileURL($root+\"/packages/main/dist/core/store.js\").href); const { createStoryQueryHandlers }=await import(pathToFileURL($root+\"/packages/main/dist/handlers/story-query.js\").href);\n  const out=createStoryQueryHandlers({root,store:new StoryStore(root),scanRoot:root}).story_migrate_storage({dryRun:true});\n  return { actives: out.includes(\"will backup legacy dir\"), activity: out.includes(\"will migrate activity\"), backup: out.includes(\"will backup legacy activity\"), confirm: out.includes(\"confirm\") || out.includes(\"确认迁移\") };\n} finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "actives": true,
+        "activity": true,
+        "backup": true,
+        "confirm": true
+      },
+      "intentRef": "B-281f:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-281f",
+      "_id": "94389d3d-0d10-45c0-af14-ff2c51c348b0",
+      "prevCaseId": "88ed3fd5-a7f6-4499-a97c-80ed8626cfab",
+      "nextCaseId": "c1e9309b-5cbf-458c-a485-d270a00c6cbb"
+    },
+    {
+      "name": "B-281f CHK-002 edge: activity-only legacy is not no-op",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-storage-\"));\ntry {\n  writeFileSync(join(root,\"koala.config.json\"), JSON.stringify({ scanRoot:\"src\", fixturesDir:\"tests/fixtures\", storyDir:\".koala/story/actives\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\n  mkdirSync(join(root,\"docs/story\"),{recursive:true}); writeFileSync(join(root,\"docs/story/activity.jsonl\"), \"{}\\n\");\n  const { StoryStore }=await import(pathToFileURL($root+\"/packages/main/dist/core/store.js\").href); const { createStoryQueryHandlers }=await import(pathToFileURL($root+\"/packages/main/dist/handlers/story-query.js\").href);\n  const out=createStoryQueryHandlers({root,store:new StoryStore(root),scanRoot:root}).story_migrate_storage({dryRun:true});\n  return { activity: out.includes(\"will migrate activity\"), notNoop: !out.includes(\"no legacy story artifacts or activity log found\") };\n} finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "activity": true,
+        "notNoop": true
+      },
+      "intentRef": "B-281f:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-281f",
+      "_id": "c1e9309b-5cbf-458c-a485-d270a00c6cbb",
+      "prevCaseId": "94389d3d-0d10-45c0-af14-ff2c51c348b0",
+      "nextCaseId": "acfb6210-fb89-4eb5-8242-6a8e90590777"
+    },
+    {
+      "name": "B-281f CHK-002 adversarial: legacy storyDir still migrates activity",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, existsSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-storage-\"));\ntry {\n  writeFileSync(join(root,\"koala.config.json\"), JSON.stringify({ scanRoot:\"src\", fixturesDir:\"tests/fixtures\", storyDir:\"docs/story/actives\", requirementsDir:\"docs/requirements\", storyPrefix:\"B\", flows:{defaults:{},patterns:[]} }));\n  mkdirSync(join(root,\"docs/story/actives/B-one\"),{recursive:true}); writeFileSync(join(root,\"docs/story/actives/B-one/index.json\"),\"{}\\n\"); writeFileSync(join(root,\"docs/story/activity.jsonl\"), \"{}\\n\");\n  const { StoryStore }=await import(pathToFileURL($root+\"/packages/main/dist/core/store.js\").href); const { createStoryQueryHandlers }=await import(pathToFileURL($root+\"/packages/main/dist/handlers/story-query.js\").href);\n  const out=createStoryQueryHandlers({root,store:new StoryStore(root),scanRoot:root}).story_migrate_storage({dryRun:false,confirm:true});\n  return { storyNoop: out.includes(\"story dir no-op\"), activityMoved: existsSync(join(root,\".koala/activity.jsonl\")), activesKept: existsSync(join(root,\"docs/story/actives/B-one/index.json\")) };\n} finally { rmSync(root,{recursive:true,force:true}); }",
+      "expect": {
+        "storyNoop": true,
+        "activityMoved": true,
+        "activesKept": true
+      },
+      "intentRef": "B-281f:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-281f",
+      "_id": "acfb6210-fb89-4eb5-8242-6a8e90590777",
+      "prevCaseId": "c1e9309b-5cbf-458c-a485-d270a00c6cbb",
+      "nextCaseId": "05225ad6-f52e-46e1-8c18-15cc2690ce76"
+    },
+    {
+      "name": "B-281f CHK-003 happy: fixture covers story and activity confirm migration",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const { readFileSync } = await import(\"fs\"); const text=readFileSync($root+\"/packages/main/tests/fixtures/story-storage-migration.json\",\"utf8\"); return { story: text.includes(\"primary story\"), activity: text.includes(\"activity to runtime store\") || text.includes(\"migrates legacy activity\") };",
+      "expect": {
+        "story": true,
+        "activity": true
+      },
+      "intentRef": "B-281f:CHK-003:happy:0",
+      "sandbox": false,
+      "storyId": "B-281f",
+      "_id": "05225ad6-f52e-46e1-8c18-15cc2690ce76",
+      "prevCaseId": "acfb6210-fb89-4eb5-8242-6a8e90590777",
+      "nextCaseId": "76aaf6fb-709f-4dab-b8c6-5b7391b0cbcc"
+    },
+    {
+      "name": "B-281f CHK-003 edge: fixture covers append newline merge",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const { readFileSync } = await import(\"fs\"); const text=readFileSync($root+\"/packages/main/tests/fixtures/story-storage-migration.json\",\"utf8\"); return { append: text.includes(\"appended not overwritten\"), newline: text.includes(\"newline\") };",
+      "expect": {
+        "append": true,
+        "newline": true
+      },
+      "intentRef": "B-281f:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-281f",
+      "_id": "76aaf6fb-709f-4dab-b8c6-5b7391b0cbcc",
+      "prevCaseId": "05225ad6-f52e-46e1-8c18-15cc2690ce76",
+      "nextCaseId": "a49b4346-36b2-4578-939a-335a5c66fea1"
+    },
+    {
+      "name": "B-281f CHK-003 adversarial: fixture covers dryrun and non-empty docs story guard",
+      "run_type": "cli",
+      "file": "handlers/story-query",
+      "execute": "const { readFileSync } = await import(\"fs\"); const text=readFileSync($root+\"/packages/main/tests/fixtures/story-storage-migration.json\",\"utf8\"); return { dryrun: text.includes(\"dryrun shows actives activity\"), nonEmpty: text.includes(\"non-empty docs story is kept\") };",
+      "expect": {
+        "dryrun": true,
+        "nonEmpty": true
+      },
+      "intentRef": "B-281f:CHK-003:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-281f",
+      "_id": "a49b4346-36b2-4578-939a-335a5c66fea1",
+      "prevCaseId": "76aaf6fb-709f-4dab-b8c6-5b7391b0cbcc"
     }
   ]
 }

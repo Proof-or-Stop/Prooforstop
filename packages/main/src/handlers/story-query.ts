@@ -4,11 +4,12 @@ import type { StoryPhase, StoryInfo } from '../core/types.js';
 import { collectContext } from './context.js';
 import { loadConfig } from '../core/config.js';
 import { join } from 'path';
-import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync } from 'fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmdirSync, rmSync, writeFileSync } from 'fs';
 import { execSync } from 'child_process';
 import { getArtifactContractStatus } from '../core/artifact-contract.js';
 import { getReviewerStatus } from '../core/reviewer-status.js';
 import { getStoryWorktreeRuntime } from '../core/worktree-runtime.js';
+import { getLegacyActivityLogPath, getRuntimeActivityLogPath } from '../core/activity-log.js';
 
 // ─── 僵尸 story 检测：分支已合并到 main 但 phase 不是 DONE ─────────────────
 
@@ -94,6 +95,19 @@ function collectStoryIntentFixtures(
   };
   scanDir(fixturesDir);
   return refs;
+}
+
+function appendJsonlContent(existing: string, incoming: string): string {
+  if (!existing) return incoming;
+  if (!incoming) return existing;
+  return `${existing}${existing.endsWith('\n') ? '' : '\n'}${incoming}`;
+}
+
+function removeEmptyDir(path: string): boolean {
+  if (!existsSync(path)) return false;
+  if (readdirSync(path).length > 0) return false;
+  rmdirSync(path);
+  return true;
 }
 
 /**
@@ -468,13 +482,16 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
      * @type feature
      * @priority high
      * @description
-     *   Story artifacts are Koala machine state, not human documentation.
-     *   This command migrates legacy docs/story/actives data into the
-     *   configured storyDir, backing up the legacy tree under .koala.
+     *   Story artifacts and activity logs are Koala machine state, not human
+     *   documentation. This command migrates legacy docs/story/actives data
+     *   into the configured storyDir and legacy docs/story/activity.jsonl into
+     *   .koala/activity.jsonl, backing up removed legacy files under .koala.
      * @changes
      *   - [CHK-002] Preview legacy-to-runtime story storage migration
      *   - [CHK-002] Copy legacy story directories to config.storyDir
      *   - [CHK-002] Move legacy docs/story/actives to .koala/legacy-backup on confirm
+     *   - [B-281f/CHK-001] Merge legacy docs/story/activity.jsonl into .koala/activity.jsonl
+     *   - [B-281f/CHK-002] Remove docs/story only when it becomes empty after migration
      */
     story_migrate_storage(args?: { dryRun?: boolean; confirm?: boolean }): string {
       const cfg = loadConfig(ctx.root);
@@ -482,42 +499,84 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
       const targetRel = cfg.storyDir.replace(/\\/g, '/');
       const legacyRoot = join(ctx.root, legacyRel);
       const targetRoot = join(ctx.root, targetRel);
+      const legacyActivityRel = 'docs/story/activity.jsonl';
+      const targetActivityRel = '.koala/activity.jsonl';
+      const legacyActivityPath = getLegacyActivityLogPath(ctx.root);
+      const targetActivityPath = getRuntimeActivityLogPath(ctx.root);
+      const docsStoryRoot = join(ctx.root, 'docs', 'story');
       const lines: string[] = [];
       const legacyIds = listStoryDirs(legacyRoot);
       const targetIds = listStoryDirs(targetRoot);
       const toCopy = legacyIds.filter(id => !targetIds.includes(id));
+      const storyDirMigrationEnabled = legacyRel !== targetRel;
+      const hasLegacyActives = existsSync(legacyRoot);
+      const hasLegacyActivity = existsSync(legacyActivityPath);
+      const hasTargetActivity = existsSync(targetActivityPath);
 
       lines.push(`story_migrate_storage: ${legacyRel} -> ${targetRel}`);
       lines.push(`  legacy stories: ${legacyIds.length}`);
       lines.push(`  target stories : ${targetIds.length}`);
-      lines.push(`  to copy        : ${toCopy.length}`);
+      lines.push(`  to copy        : ${storyDirMigrationEnabled ? toCopy.length : 0}`);
+      lines.push(`  legacy activity: ${hasLegacyActivity ? legacyActivityRel : '(none)'}`);
+      lines.push(`  target activity: ${hasTargetActivity ? `${targetActivityRel} (append)` : targetActivityRel}`);
 
-      if (legacyRel === targetRel) {
-        lines.push('  no-op: configured storyDir is still the legacy path');
-        return lines.join('\n');
+      if (!storyDirMigrationEnabled) {
+        lines.push('  story dir no-op: configured storyDir is still the legacy path');
       }
-      if (!existsSync(legacyRoot)) {
-        lines.push('  no-op: legacy story directory does not exist');
+      if (!hasLegacyActives) {
+        lines.push('  story dir no-op: legacy story directory does not exist');
+      }
+      if (!hasLegacyActives && !hasLegacyActivity) {
+        lines.push('  no-op: no legacy story artifacts or activity log found');
         return lines.join('\n');
       }
 
       if (args?.dryRun !== false || !args?.confirm) {
-        if (toCopy.length > 0) lines.push(`  will copy: ${toCopy.slice(0, 12).join(', ')}${toCopy.length > 12 ? ` (+${toCopy.length - 12} more)` : ''}`);
-        lines.push('  will backup legacy dir to .koala/legacy-backup/docs-story-actives-<timestamp>');
+        if (storyDirMigrationEnabled && toCopy.length > 0) lines.push(`  will copy: ${toCopy.slice(0, 12).join(', ')}${toCopy.length > 12 ? ` (+${toCopy.length - 12} more)` : ''}`);
+        if (storyDirMigrationEnabled && hasLegacyActives) lines.push('  will backup legacy dir to .koala/legacy-backup/docs-story-actives-<timestamp>');
+        if (hasLegacyActivity) {
+          lines.push(`  will migrate activity: ${legacyActivityRel} -> ${targetActivityRel}${hasTargetActivity ? ' (append)' : ''}`);
+          lines.push('  will backup legacy activity to .koala/legacy-backup/docs-story-activity-<timestamp>.jsonl');
+        }
+        lines.push('  will remove docs/story only if it is empty after migration');
         lines.push('→ 确认迁移: koala story_migrate_storage \'{"dryRun":false,"confirm":true}\'');
         return lines.join('\n');
       }
 
-      mkdirSync(targetRoot, { recursive: true });
-      for (const id of toCopy) {
-        cpSync(join(legacyRoot, id), join(targetRoot, id), { recursive: true, force: false });
-      }
       const backupRoot = join(ctx.root, '.koala', 'legacy-backup');
       mkdirSync(backupRoot, { recursive: true });
-      const backup = join(backupRoot, `docs-story-actives-${Date.now()}`);
-      renameSync(legacyRoot, backup);
-      lines.push(`  copied: ${toCopy.length}`);
-      lines.push(`  backup: ${backup}`);
+      let copied = 0;
+      let activesBackup: string | null = null;
+      let activityBackup: string | null = null;
+      let activityMigrated = false;
+
+      if (storyDirMigrationEnabled && hasLegacyActives) {
+        mkdirSync(targetRoot, { recursive: true });
+        for (const id of toCopy) {
+          cpSync(join(legacyRoot, id), join(targetRoot, id), { recursive: true, force: false });
+          copied += 1;
+        }
+        activesBackup = join(backupRoot, `docs-story-actives-${Date.now()}`);
+        renameSync(legacyRoot, activesBackup);
+      }
+
+      if (hasLegacyActivity) {
+        const legacyActivity = readFileSync(legacyActivityPath, 'utf-8');
+        const targetActivity = hasTargetActivity ? readFileSync(targetActivityPath, 'utf-8') : '';
+        mkdirSync(join(ctx.root, '.koala'), { recursive: true });
+        writeFileSync(targetActivityPath, appendJsonlContent(targetActivity, legacyActivity));
+        activityBackup = join(backupRoot, `docs-story-activity-${Date.now()}.jsonl`);
+        renameSync(legacyActivityPath, activityBackup);
+        activityMigrated = true;
+      }
+
+      const removedDocsStory = removeEmptyDir(docsStoryRoot);
+
+      lines.push(`  copied: ${copied}`);
+      if (activesBackup) lines.push(`  backup actives: ${activesBackup}`);
+      if (activityMigrated) lines.push(`  activity migrated: ${legacyActivityRel} -> ${targetActivityRel}`);
+      if (activityBackup) lines.push(`  backup activity: ${activityBackup}`);
+      lines.push(`  docs/story cleanup: ${removedDocsStory ? 'removed empty directory' : 'kept (missing or non-empty)'}`);
       lines.push('✓ story storage migrated');
       return lines.join('\n');
     },
