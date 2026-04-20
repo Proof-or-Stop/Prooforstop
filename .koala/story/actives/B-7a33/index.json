@@ -1,0 +1,47 @@
+{
+  "storyId": "B-7a33",
+  "name": "evidence-freshness-ignore-runtime-activity",
+  "title": "DONE evidence freshness 忽略 runtime activity-only commit",
+  "description": "修复 test evidence freshness 在新 activity log 迁移后仍把 .koala/activity.jsonl 视为代码变化的问题。若 evidence commit 与 current HEAD 之间只包含 story artifact metadata、.koala/activity.jsonl 或 legacy activity.jsonl 变化，应视为 metadata/runtime-only fresh，避免 test_story → commit evidence/activity → DONE stale 死循环。",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "lane": "mainline",
+  "parallelSafe": "no",
+  "sharedHotspots": [
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/core/activity-log.ts"
+  ],
+  "riskSignals": [
+    {
+      "category": "状态机/门禁",
+      "matched": "gate"
+    }
+  ],
+  "createdAt": "2026-04-20T10:15:56.924Z",
+  "startedAt": "2026-04-20T10:15:56.924Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-20T10:15:56.925Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-20T10:16:18.120Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-7a33",
+    "branch": "story/B-7a33",
+    "createdAt": "2026-04-20T10:16:18.314Z"
+  }
+}
