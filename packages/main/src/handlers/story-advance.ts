@@ -210,9 +210,54 @@ function pathOverlaps(a: string, b: string): boolean {
  * @changes
  *   - [CHK-003] Exclude docs/story/activity.jsonl from DONE worktree cleanliness checks
  *   - [CHK-003] Exclude the same path from main merge preflight overlap checks
+ *   - [B-b611/CHK-002] Treat .koala/activity.jsonl the same as the legacy activity log
  */
+export const DONE_RUNTIME_ACTIVITY_PATHS = ['.koala/activity.jsonl', 'docs/story/activity.jsonl'] as const;
+
 export function isDoneVolatilePath(path: string): boolean {
-  return path.replace(/\\/g, '/') === 'docs/story/activity.jsonl';
+  const rel = normalizeRel(path);
+  return DONE_RUNTIME_ACTIVITY_PATHS.some(activityPath => rel === activityPath);
+}
+
+/**
+ * @task B-b611
+ * @checklist CHK-001
+ * @title remove runtime activity from DONE semantic merge payload
+ * @type bugfix
+ * @priority high
+ * @description
+ *   Activity logs are append-only runtime telemetry. If both main and a story
+ *   branch append .koala/activity.jsonl, a normal DONE merge can conflict even
+ *   though no user-facing story artifact disagrees. Before committing the
+ *   final story metadata, align tracked activity logs to main or remove them
+ *   from the story index so the later merge only carries semantic payload.
+ * @changes
+ *   - [CHK-001] Reset runtime and legacy activity logs to main before DONE merge
+ *   - [CHK-001] Remove story-only tracked activity logs from the index
+ */
+export function prepareDoneRuntimeActivityForMerge(cwd: string, mainRef = 'main'): string[] {
+  const prepared: string[] = [];
+  const git = (cmd: string): string =>
+    execSync(`git ${cmd}`, { cwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).toString().trim();
+
+  for (const activityPath of DONE_RUNTIME_ACTIVITY_PATHS) {
+    const quotedPath = JSON.stringify(activityPath);
+    try {
+      git(`cat-file -e ${JSON.stringify(`${mainRef}:${activityPath}`)}`);
+      git(`checkout ${JSON.stringify(mainRef)} -- ${quotedPath}`);
+      prepared.push(activityPath);
+      continue;
+    } catch { /* PROBE: main may not track this runtime log */ }
+
+    try {
+      const tracked = git(`ls-files -- ${quotedPath}`);
+      if (!tracked) continue;
+      git(`rm --cached --ignore-unmatch ${quotedPath}`);
+      prepared.push(activityPath);
+    } catch { /* PROBE: missing/untracked activity logs require no cleanup */ }
+  }
+
+  return prepared;
 }
 
 export function inspectDoneMainMergePreflight(plan: DoneAutoGitPlan): DoneMainMergePreflight {
@@ -1068,6 +1113,7 @@ ${testAntiStall(args.storyId)}
             story.worktree = undefined;
             story.endedAt = story.endedAt || new Date().toISOString();
             store.writeStory(args.storyId, story);
+            const mainBranch = runGit('rev-parse --abbrev-ref HEAD', mainRepoRoot);
 
             // Step 2: commit 所有 story metadata（phase=DONE + worktree=undefined +
             // endedAt + reviewer/test 产物）。dev_merge:228 用的是同一招。
@@ -1075,7 +1121,7 @@ ${testAntiStall(args.storyId)}
               // Keep activity.jsonl out of story branch semantic merges. It is
               // append-only runtime telemetry and frequently conflicts with
               // main, while story metadata is the canonical payload here.
-              try { runGit('checkout main -- docs/story/activity.jsonl', wtPathAbs); } catch { /* PROBE: legacy activity log may not exist */ }
+              prepareDoneRuntimeActivityForMerge(wtPathAbs, mainBranch);
               runGit(`add ${doneAutoGitPlan.storyRootRel}`, wtPathAbs);
               const staged = runGit('diff --cached --name-only', wtPathAbs);
               if (staged) {
@@ -1089,7 +1135,6 @@ ${testAntiStall(args.storyId)}
             // Step 3: 从主仓库根目录 merge story 分支。merge 冲突直接 throw 给上层
             // 让 agent 看到详细的手动 cleanup 步骤——phase 已经是 DONE，不回滚，但
             // 必须让 user 知道还有手动收尾要做。
-            const mainBranch = runGit('rev-parse --abbrev-ref HEAD', mainRepoRoot);
             try {
               runGit(
                 `-c commit.gpgsign=false merge ${branch} --no-ff -m ${JSON.stringify(doneAutoGitPlan.mergeMessage)}`,

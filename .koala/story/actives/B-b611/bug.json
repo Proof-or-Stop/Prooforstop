@@ -1,0 +1,94 @@
+{
+  "bugs": [
+    {
+      "id": "BUG-faf4ac2d",
+      "title": "[auto] checklist-json-done-log-dirty.json:B-b611 CHK-001 happy: runtime activity changes do not conflict on DONE merge — [sandbox] import(\"fs\") 被禁止，文件操作请使用 $handlers，如确需直接访问请在 case 中设置 sandbox: false",
+      "status": "fixed",
+      "foundAt": "2026-04-20T10:56:33.659Z",
+      "fixedAt": "2026-04-20T10:56:59.537Z",
+      "fixtureId": "faf4ac2d-3631-42c8-95bb-e6d18b171f51",
+      "diagnose": {
+        "rootCause": [
+          "[sandbox] import(\"fs\") 被禁止，文件操作请使用 $handlers，如确需直接访问请在 case 中设置 sandbox: false"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-7f9fe642",
+      "title": "[auto] checklist-json-done-log-dirty.json:B-b611 CHK-001 edge: story-only runtime activity is removed from index — [sandbox] import(\"fs\") 被禁止，文件操作请使用 $handlers，如确需直接访问请在 case 中设置 sandbox: false",
+      "status": "fixed",
+      "foundAt": "2026-04-20T10:56:33.659Z",
+      "fixedAt": "2026-04-20T10:56:59.537Z",
+      "fixtureId": "7f9fe642-9ec6-4634-8f51-b66be546bb30",
+      "diagnose": {
+        "rootCause": [
+          "[sandbox] import(\"fs\") 被禁止，文件操作请使用 $handlers，如确需直接访问请在 case 中设置 sandbox: false"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-d9426d6f",
+      "title": "[auto] checklist-json-done-log-dirty.json:B-b611 CHK-001 adversarial: source conflicts remain visible — [sandbox] import(\"fs\") 被禁止，文件操作请使用 $handlers，如确需直接访问请在 case 中设置 sandbox: false",
+      "status": "fixed",
+      "foundAt": "2026-04-20T10:56:33.659Z",
+      "fixedAt": "2026-04-20T10:56:59.537Z",
+      "fixtureId": "d9426d6f-84cb-43c7-8e7e-7f9ad4f7c3bb",
+      "diagnose": {
+        "rootCause": [
+          "[sandbox] import(\"fs\") 被禁止，文件操作请使用 $handlers，如确需直接访问请在 case 中设置 sandbox: false"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-a3c42040",
+      "title": "[auto] checklist-json-done-log-dirty.json:B-b611 CHK-003 happy: fixture covers runtime helper conflict reproduction — [sandbox] import(\"fs\") 被禁止，文件操作请使用 $handlers，如确需直接访问请在 case 中设置 sandbox: false",
+      "status": "fixed",
+      "foundAt": "2026-04-20T10:56:33.659Z",
+      "fixedAt": "2026-04-20T10:56:59.538Z",
+      "fixtureId": "a3c42040-d433-4c75-8438-17a9559e74ca",
+      "diagnose": {
+        "rootCause": [
+          "[sandbox] import(\"fs\") 被禁止，文件操作请使用 $handlers，如确需直接访问请在 case 中设置 sandbox: false"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-cb2ac179",
+      "title": "[auto] checklist-json-done-log-dirty.json:B-b611 CHK-003 edge: fixture names legacy and runtime paths — [sandbox] import(\"fs\") 被禁止，文件操作请使用 $handlers，如确需直接访问请在 case 中设置 sandbox: false",
+      "status": "fixed",
+      "foundAt": "2026-04-20T10:56:33.659Z",
+      "fixedAt": "2026-04-20T10:56:59.538Z",
+      "fixtureId": "cb2ac179-cf77-4d4f-b13e-720b0cc0d718",
+      "diagnose": {
+        "rootCause": [
+          "[sandbox] import(\"fs\") 被禁止，文件操作请使用 $handlers，如确需直接访问请在 case 中设置 sandbox: false"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-0eb015b2",
+      "title": "[auto] checklist-json-done-log-dirty.json:B-b611 CHK-003 adversarial: fixture covers non-activity conflict guard — [sandbox] import(\"fs\") 被禁止，文件操作请使用 $handlers，如确需直接访问请在 case 中设置 sandbox: false",
+      "status": "fixed",
+      "foundAt": "2026-04-20T10:56:33.659Z",
+      "fixedAt": "2026-04-20T10:56:59.538Z",
+      "fixtureId": "0eb015b2-fbe3-49ba-adcf-b79d41c93235",
+      "diagnose": {
+        "rootCause": [
+          "[sandbox] import(\"fs\") 被禁止，文件操作请使用 $handlers，如确需直接访问请在 case 中设置 sandbox: false"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    }
+  ]
+}
