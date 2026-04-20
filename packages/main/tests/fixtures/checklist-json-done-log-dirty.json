@@ -141,6 +141,139 @@
       "storyId": "B-ae82",
       "_id": "03c74cbe-2114-49fd-8492-c21d7b8a5bd0",
       "prevCaseId": "b331c40a-c091-479d-8c25-78da88aed063"
+    },
+    {
+      "name": "B-b611 CHK-001 happy: runtime activity changes do not conflict on DONE merge",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { execFileSync } = await import(\"child_process\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-done-activity-\"));\nconst git = (...args) => execFileSync(\"git\", args, { cwd: root, encoding: \"utf8\", stdio: [\"pipe\", \"pipe\", \"pipe\"] }).trim();\ntry {\n  git(\"init\", \"-b\", \"main\"); git(\"config\", \"user.email\", \"fixture@example.com\"); git(\"config\", \"user.name\", \"fixture\");\n  mkdirSync(join(root, \".koala\"), { recursive: true }); writeFileSync(join(root, \".koala/activity.jsonl\"), \"base\\n\");\n  git(\"add\", \".\"); git(\"commit\", \"-m\", \"base\");\n  git(\"checkout\", \"-b\", \"story/B-test\"); writeFileSync(join(root, \".koala/activity.jsonl\"), \"base\\nstory\\n\"); git(\"add\", \".\"); git(\"commit\", \"-m\", \"story activity\");\n  git(\"checkout\", \"main\"); writeFileSync(join(root, \".koala/activity.jsonl\"), \"base\\nmain\\n\"); git(\"add\", \".\"); git(\"commit\", \"-m\", \"main activity\");\n  git(\"checkout\", \"story/B-test\");\n  const mod = await import(pathToFileURL($root + \"/packages/main/dist/handlers/story-advance.js\").href);\n  const prepared = mod.prepareDoneRuntimeActivityForMerge(root, \"main\");\n  const staged = git(\"diff\", \"--cached\", \"--name-only\");\n  git(\"commit\", \"-m\", \"prepare activity\");\n  git(\"checkout\", \"main\"); git(\"merge\", \"story/B-test\", \"--no-ff\", \"-m\", \"merge story\");\n  const finalText = readFileSync(join(root, \".koala/activity.jsonl\"), \"utf8\");\n  return { preparedRuntime: prepared.includes(\".koala/activity.jsonl\"), stagedRuntime: staged.includes(\".koala/activity.jsonl\"), keptMain: finalText.includes(\"main\") && !finalText.includes(\"story\") };\n} finally { rmSync(root, { recursive: true, force: true }); }",
+      "expect": {
+        "preparedRuntime": true,
+        "stagedRuntime": true,
+        "keptMain": true
+      },
+      "intentRef": "B-b611:CHK-001:happy:0",
+      "storyId": "B-b611",
+      "_id": "faf4ac2d-3631-42c8-95bb-e6d18b171f51",
+      "nextCaseId": "7f9fe642-9ec6-4634-8f51-b66be546bb30"
+    },
+    {
+      "name": "B-b611 CHK-001 edge: story-only runtime activity is removed from index",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { execFileSync } = await import(\"child_process\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-done-activity-\"));\nconst git = (...args) => execFileSync(\"git\", args, { cwd: root, encoding: \"utf8\", stdio: [\"pipe\", \"pipe\", \"pipe\"] }).trim();\ntry {\n  git(\"init\", \"-b\", \"main\"); git(\"config\", \"user.email\", \"fixture@example.com\"); git(\"config\", \"user.name\", \"fixture\");\n  writeFileSync(join(root, \"README.md\"), \"base\\n\"); git(\"add\", \".\"); git(\"commit\", \"-m\", \"base\");\n  git(\"checkout\", \"-b\", \"story/B-test\"); mkdirSync(join(root, \".koala\"), { recursive: true }); writeFileSync(join(root, \".koala/activity.jsonl\"), \"story-only\\n\"); git(\"add\", \".\"); git(\"commit\", \"-m\", \"story activity\");\n  const mod = await import(pathToFileURL($root + \"/packages/main/dist/handlers/story-advance.js\").href);\n  const prepared = mod.prepareDoneRuntimeActivityForMerge(root, \"main\");\n  const staged = git(\"diff\", \"--cached\", \"--name-status\");\n  git(\"commit\", \"-m\", \"remove story-only activity\");\n  const tree = git(\"ls-tree\", \"-r\", \"--name-only\", \"HEAD\");\n  git(\"checkout\", \"main\"); git(\"merge\", \"story/B-test\", \"--no-ff\", \"-m\", \"merge story\");\n  return { preparedRuntime: prepared.includes(\".koala/activity.jsonl\"), stagedDelete: staged.includes(\".koala/activity.jsonl\"), absentFromStoryHead: !tree.includes(\".koala/activity.jsonl\") };\n} finally { rmSync(root, { recursive: true, force: true }); }",
+      "expect": {
+        "preparedRuntime": true,
+        "stagedDelete": true,
+        "absentFromStoryHead": true
+      },
+      "intentRef": "B-b611:CHK-001:edge:0",
+      "storyId": "B-b611",
+      "_id": "7f9fe642-9ec6-4634-8f51-b66be546bb30",
+      "prevCaseId": "faf4ac2d-3631-42c8-95bb-e6d18b171f51",
+      "nextCaseId": "d9426d6f-84cb-43c7-8e7e-7f9ad4f7c3bb"
+    },
+    {
+      "name": "B-b611 CHK-001 adversarial: source conflicts remain visible",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import(\"fs\");\nconst { tmpdir } = await import(\"os\");\nconst { join } = await import(\"path\");\nconst { execFileSync } = await import(\"child_process\");\nconst { pathToFileURL } = await import(\"url\");\nconst root = mkdtempSync(join(tmpdir(), \"koala-done-activity-\"));\nconst git = (...args) => execFileSync(\"git\", args, { cwd: root, encoding: \"utf8\", stdio: [\"pipe\", \"pipe\", \"pipe\"] }).trim();\ntry {\n  git(\"init\", \"-b\", \"main\"); git(\"config\", \"user.email\", \"fixture@example.com\"); git(\"config\", \"user.name\", \"fixture\");\n  mkdirSync(join(root, \"src\"), { recursive: true }); mkdirSync(join(root, \".koala\"), { recursive: true });\n  writeFileSync(join(root, \"src/app.ts\"), \"base\\n\"); writeFileSync(join(root, \".koala/activity.jsonl\"), \"base\\n\"); git(\"add\", \".\"); git(\"commit\", \"-m\", \"base\");\n  git(\"checkout\", \"-b\", \"story/B-test\"); writeFileSync(join(root, \"src/app.ts\"), \"story\\n\"); writeFileSync(join(root, \".koala/activity.jsonl\"), \"story\\n\"); git(\"add\", \".\"); git(\"commit\", \"-m\", \"story changes\");\n  git(\"checkout\", \"main\"); writeFileSync(join(root, \"src/app.ts\"), \"main\\n\"); writeFileSync(join(root, \".koala/activity.jsonl\"), \"main\\n\"); git(\"add\", \".\"); git(\"commit\", \"-m\", \"main changes\");\n  git(\"checkout\", \"story/B-test\"); const mod = await import(pathToFileURL($root + \"/packages/main/dist/handlers/story-advance.js\").href); mod.prepareDoneRuntimeActivityForMerge(root, \"main\"); git(\"add\", \"src/app.ts\"); git(\"commit\", \"-m\", \"prepare with source change\");\n  git(\"checkout\", \"main\"); let conflict = false; try { git(\"merge\", \"story/B-test\", \"--no-ff\", \"-m\", \"merge story\"); } catch { conflict = true; }\n  return { conflict };\n} finally { rmSync(root, { recursive: true, force: true }); }",
+      "expect": {
+        "conflict": true
+      },
+      "intentRef": "B-b611:CHK-001:adversarial:0",
+      "storyId": "B-b611",
+      "_id": "d9426d6f-84cb-43c7-8e7e-7f9ad4f7c3bb",
+      "prevCaseId": "7f9fe642-9ec6-4634-8f51-b66be546bb30",
+      "nextCaseId": "50d2b938-708e-4eb5-8819-d89f63297d1b"
+    },
+    {
+      "name": "B-b611 CHK-002 happy: runtime and legacy activity are volatile",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { pathToFileURL } = await import(\"url\"); const mod = await import(pathToFileURL($root + \"/packages/main/dist/handlers/story-advance.js\").href); return { runtime: mod.isDoneVolatilePath(\".koala/activity.jsonl\"), legacy: mod.isDoneVolatilePath(\"docs/story/activity.jsonl\") };",
+      "expect": {
+        "runtime": true,
+        "legacy": true
+      },
+      "intentRef": "B-b611:CHK-002:happy:0",
+      "storyId": "B-b611",
+      "_id": "50d2b938-708e-4eb5-8819-d89f63297d1b",
+      "prevCaseId": "d9426d6f-84cb-43c7-8e7e-7f9ad4f7c3bb",
+      "nextCaseId": "2d3e1f7a-46f5-45fd-8e9d-00b35e138d2a"
+    },
+    {
+      "name": "B-b611 CHK-002 edge: windows runtime path is volatile",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { pathToFileURL } = await import(\"url\"); const mod = await import(pathToFileURL($root + \"/packages/main/dist/handlers/story-advance.js\").href); return { windowsRuntime: mod.isDoneVolatilePath(\".koala\\\\activity.jsonl\") };",
+      "expect": {
+        "windowsRuntime": true
+      },
+      "intentRef": "B-b611:CHK-002:edge:0",
+      "storyId": "B-b611",
+      "_id": "2d3e1f7a-46f5-45fd-8e9d-00b35e138d2a",
+      "prevCaseId": "50d2b938-708e-4eb5-8819-d89f63297d1b",
+      "nextCaseId": "259bbabd-28cd-46c7-a10d-466ef71792f3"
+    },
+    {
+      "name": "B-b611 CHK-002 adversarial: nearby paths are not volatile",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { pathToFileURL } = await import(\"url\"); const mod = await import(pathToFileURL($root + \"/packages/main/dist/handlers/story-advance.js\").href); return { storyActivity: mod.isDoneVolatilePath(\".koala/story/activity.jsonl\"), source: mod.isDoneVolatilePath(\"packages/main/src/foo.ts\") };",
+      "expect": {
+        "storyActivity": false,
+        "source": false
+      },
+      "intentRef": "B-b611:CHK-002:adversarial:0",
+      "storyId": "B-b611",
+      "_id": "259bbabd-28cd-46c7-a10d-466ef71792f3",
+      "prevCaseId": "2d3e1f7a-46f5-45fd-8e9d-00b35e138d2a",
+      "nextCaseId": "a3c42040-d433-4c75-8438-17a9559e74ca"
+    },
+    {
+      "name": "B-b611 CHK-003 happy: fixture covers runtime helper conflict reproduction",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { readFileSync } = await import(\"fs\"); const text = readFileSync($root + \"/packages/main/tests/fixtures/checklist-json-done-log-dirty.json\", \"utf8\"); return { hasHelper: text.includes(\"prepareDoneRuntimeActivityForMerge\"), hasRuntimeConflictCase: text.includes(\"runtime activity changes do not conflict\") };",
+      "expect": {
+        "hasHelper": true,
+        "hasRuntimeConflictCase": true
+      },
+      "intentRef": "B-b611:CHK-003:happy:0",
+      "storyId": "B-b611",
+      "_id": "a3c42040-d433-4c75-8438-17a9559e74ca",
+      "prevCaseId": "259bbabd-28cd-46c7-a10d-466ef71792f3",
+      "nextCaseId": "cb2ac179-cf77-4d4f-b13e-720b0cc0d718"
+    },
+    {
+      "name": "B-b611 CHK-003 edge: fixture names legacy and runtime paths",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { readFileSync } = await import(\"fs\"); const text = readFileSync($root + \"/packages/main/tests/fixtures/checklist-json-done-log-dirty.json\", \"utf8\"); return { runtime: text.includes(\".koala/activity.jsonl\"), legacy: text.includes(\"docs/story/activity.jsonl\") };",
+      "expect": {
+        "runtime": true,
+        "legacy": true
+      },
+      "intentRef": "B-b611:CHK-003:edge:0",
+      "storyId": "B-b611",
+      "_id": "cb2ac179-cf77-4d4f-b13e-720b0cc0d718",
+      "prevCaseId": "a3c42040-d433-4c75-8438-17a9559e74ca",
+      "nextCaseId": "0eb015b2-fbe3-49ba-adcf-b79d41c93235"
+    },
+    {
+      "name": "B-b611 CHK-003 adversarial: fixture covers non-activity conflict guard",
+      "run_type": "cli",
+      "file": "handlers/story-advance",
+      "execute": "const { readFileSync } = await import(\"fs\"); const text = readFileSync($root + \"/packages/main/tests/fixtures/checklist-json-done-log-dirty.json\", \"utf8\"); return { sourceConflict: text.includes(\"source conflicts remain visible\"), nearbyPath: text.includes(\".koala/story/activity.jsonl\") };",
+      "expect": {
+        "sourceConflict": true,
+        "nearbyPath": true
+      },
+      "intentRef": "B-b611:CHK-003:adversarial:0",
+      "storyId": "B-b611",
+      "_id": "0eb015b2-fbe3-49ba-adcf-b79d41c93235",
+      "prevCaseId": "cb2ac179-cf77-4d4f-b13e-720b0cc0d718"
     }
   ]
 }
