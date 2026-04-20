@@ -1,0 +1,166 @@
+{
+  "runOut": "[0.0s] running lab_run...\n[0.1s] lab_run done\n[lab] sandbox ready at /private/var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-story-review-output-lab-voQTk1/.worktrees/lab-story-review-output-v1-run-001\n[lab] branch: lab/lab-story-review-output-v1/run-001\n[lab] score: 0.5733 (baseline 0.225, delta 0.3483)\n[lab] normalizedScore: 0.9733 (baseline 0.375, delta 0.5983)\n[lab] decision: kept\n[lab] patch: experiments/runs/lab-story-review-output-v1/run-001/patch.diff\n✓ candidate beat baseline by 0.3483.\n",
+  "compare": {
+    "experimentId": "lab-story-review-output-v1",
+    "baseline": {
+      "score": 0.225,
+      "normalizedScore": 0.375,
+      "ref": "HEAD"
+    },
+    "baselineContentSummary": [
+      "has issueCount",
+      "has blockerCount",
+      "missing missingIntent",
+      "missing riskSignals",
+      "missing decisionGate",
+      "has reviewPrompt",
+      "missing actionableHint",
+      "missing intentCoverage"
+    ],
+    "best": {
+      "runId": "run-001",
+      "score": 0.5733,
+      "normalizedScore": 0.9733,
+      "status": "kept",
+      "delta": 0.3483,
+      "normalizedDelta": 0.5983,
+      "patch": "experiments/runs/lab-story-review-output-v1/run-001/patch.diff",
+      "reason": "candidate beat baseline by 0.3483",
+      "contentSummary": [
+        "has issueCount",
+        "has blockerCount",
+        "has missingIntent",
+        "has riskSignals",
+        "has decisionGate",
+        "has reviewPrompt",
+        "has actionableHint",
+        "has intentCoverage"
+      ]
+    },
+    "decision": "kept",
+    "runs": [
+      {
+        "runId": "run-001",
+        "score": 0.5733,
+        "normalizedScore": 0.9733,
+        "status": "kept",
+        "delta": 0.3483,
+        "normalizedDelta": 0.5983,
+        "patch": "experiments/runs/lab-story-review-output-v1/run-001/patch.diff",
+        "contentSummary": [
+          "has issueCount",
+          "has blockerCount",
+          "has missingIntent",
+          "has riskSignals",
+          "has decisionGate",
+          "has reviewPrompt",
+          "has actionableHint",
+          "has intentCoverage"
+        ]
+      }
+    ]
+  },
+  "promoteOut": "[0.0s] running lab_promote...\n[0.0s] lab_promote done\n{\n  \"experimentId\": \"lab-story-review-output-v1\",\n  \"status\": \"ready_for_review\",\n  \"bestRunId\": \"run-001\",\n  \"promotePatch\": \"experiments/runs/lab-story-review-output-v1/run-001/patch.diff\",\n  \"baselineRef\": \"HEAD\",\n  \"score\": 0.5733,\n  \"normalizedScore\": 0.9733,\n  \"contentSummary\": [\n    \"has issueCount\",\n    \"has blockerCount\",\n    \"has missingIntent\",\n    \"has riskSignals\",\n    \"has decisionGate\",\n    \"has reviewPrompt\",\n    \"has actionableHint\",\n    \"has intentCoverage\"\n  ],\n  \"reason\": \"candidate beat baseline by 0.3483\",\n  \"summaryPath\": \"experiments/runs/lab-story-review-output-v1/run-001/summary.md\"\n}\n",
+  "result": {
+    "runId": "run-001",
+    "status": "kept",
+    "score": 0.5733,
+    "normalizedScore": 0.9733,
+    "baselineScore": 0.225,
+    "baselineNormalizedScore": 0.375,
+    "delta": 0.3483,
+    "normalizedDelta": 0.5983,
+    "contentSummary": [
+      "has issueCount",
+      "has blockerCount",
+      "has missingIntent",
+      "has riskSignals",
+      "has decisionGate",
+      "has reviewPrompt",
+      "has actionableHint",
+      "has intentCoverage"
+    ],
+    "candidatePatch": "experiments/runs/lab-story-review-output-v1/run-001/patch.diff",
+    "changedFiles": 1,
+    "changedLines": 69,
+    "timing": {
+      "wallClockSeconds": 0,
+      "evalSeconds": 0
+    },
+    "reason": "candidate beat baseline by 0.3483"
+  },
+  "metrics": {
+    "profile": "story-review-quality-v1",
+    "quality": 1,
+    "latencyPenalty": 0,
+    "complexityPenalty": 0.178,
+    "stabilityPenalty": 0,
+    "submetrics": {
+      "issueCount": 1,
+      "blockerCount": 1,
+      "missingIntent": 1,
+      "riskSignals": 1,
+      "decisionGate": 1,
+      "reviewPrompt": 1,
+      "actionableHint": 1,
+      "intentCoverage": 1,
+      "stabilityStdDev": 0
+    },
+    "contentSummary": [
+      "has issueCount",
+      "has blockerCount",
+      "has missingIntent",
+      "has riskSignals",
+      "has decisionGate",
+      "has reviewPrompt",
+      "has actionableHint",
+      "has intentCoverage"
+    ],
+    "notes": [
+      "lineCount=60"
+    ],
+    "normalizedScore": 0.9733
+  },
+  "patchPreview": [
+    "diff --git a/samples/story-review-output.json b/samples/story-review-output.json",
+    "index 8933490..81600e3 100644",
+    "--- a/samples/story-review-output.json",
+    "+++ b/samples/story-review-output.json",
+    "@@ -1,17 +1,60 @@",
+    " {",
+    "-  \"reviews\": [",
+    "+  \"storyId\": \"B-test\",",
+    "+  \"title\": \"Structured review output\",",
+    "+  \"reviewRound\": 1,",
+    "+  \"summary\": {",
+    "+    \"totalItems\": 1,",
+    "+    \"withIntent\": 0,",
+    "+    \"withoutIntent\": 1,",
+    "+    \"totalIntents\": 0,",
+    "+    \"issueCount\": 3,",
+    "+    \"blockerCount\": 1,",
+    "+    \"intentCoverage\": {",
+    "+      \"covered\": 0,",
+    "+      \"total\": 1,",
+    "+      \"percentage\": 0",
+    "+    }",
+    "+  },",
+    "+  \"issues\": [",
+    "+    {",
+    "+      \"type\": \"missing_intent\",",
+    "+      \"severity\": \"blocker\",",
+    "+      \"itemId\": \"CHK-001\",",
+    "+      \"message\": \"CHK-001 缺少 testIntent\"",
+    "+    },",
+    "     {",
+    "-      \"timestamp\": \"2026-04-19T00:51:50.339Z\",",
+    "-      \"issueCount\": 1,",
+    "-      \"blockerCount\": 0,",
+    "-      \"issues\": [",
+    "-        {",
+    "-          \"type\": \"review_advisory\",",
+    "-          \"severity\": \"advisory\",",
+    "-          \"message\": \"审查未发现 blocker，但建议对照 _reviewPrompt 中的真相源文档人工复核 testIntent 完整性\"",
+    "-        }"
+  ]
+}
