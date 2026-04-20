@@ -135,6 +135,10 @@ function shouldAutoSyncMainForDone(rows: DoneCheckRow[], rendered: string): bool
   return !otherHardFailures.some(marker => rendered.includes(marker));
 }
 
+function hasRawConfirmIntent(): boolean {
+  return process.argv.slice(2).some(arg => arg.includes('"confirm":true') || arg.includes('"confirm": true') || arg === '--confirm');
+}
+
 function acquireDoneAutoGitLock(plan: DoneAutoGitPlan, storyId: string): DoneAutoGitLock {
   const lockDir = join(plan.mainRepoRoot, '.git', 'koala');
   const lockPath = join(lockDir, 'done-auto-git.lock');
@@ -551,6 +555,43 @@ function buildDoneChecklist(storyId: string, store: StoryStore, root: string): D
         execSync(`git merge-base --is-ancestor main ${branch}`, { cwd: root, stdio: 'pipe' });
         rows.push({ status: 'pass', label: 'Branch synced with main', detail: branch });
       } catch {
+        if (hasRawConfirmIntent()) {
+          const storyDirRel = loadConfig(root).storyDir.replace(/\\/g, '/');
+          const storyMetaPrefix = `${storyDirRel}/${storyId}/`;
+          try {
+            execSync(`git -c commit.gpgsign=false merge main --no-ff -m ${JSON.stringify(`sync main into ${storyId}`)}`, {
+              cwd: root,
+              encoding: 'utf-8',
+              stdio: ['pipe', 'pipe', 'pipe'],
+            });
+            rows.push({ status: 'pass', label: 'Branch synced with main', detail: `${branch} (auto-synced)` });
+            return rows;
+          } catch {
+            const raw = execSync('git diff --name-only --diff-filter=U', { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+            const unmerged = raw.split('\n').map(line => line.trim().replace(/\\/g, '/')).filter(Boolean);
+            const protectedConflicts = unmerged.filter(path => path.startsWith(storyMetaPrefix));
+            const unresolved = unmerged.filter(path => !path.startsWith(storyMetaPrefix));
+            for (const path of protectedConflicts) {
+              execSync(`git checkout --ours -- ${JSON.stringify(path)}`, { cwd: root, stdio: 'pipe' });
+              execSync(`git add -- ${JSON.stringify(path)}`, { cwd: root, stdio: 'pipe' });
+            }
+            if (unresolved.length === 0 && protectedConflicts.length > 0) {
+              execSync(`git -c commit.gpgsign=false commit -m ${JSON.stringify(`sync main into ${storyId} (story metadata ours)`)}`, {
+                cwd: root,
+                stdio: ['pipe', 'pipe', 'pipe'],
+              });
+              rows.push({ status: 'pass', label: 'Branch synced with main', detail: `${branch} (story metadata auto-resolved with --ours)` });
+              return rows;
+            }
+            rows.push({
+              status: 'fail',
+              label: 'Branch synced with main',
+              detail: `auto-sync main stopped: unresolved conflicts: ${unresolved.join(', ') || '(unknown)'}`,
+              hint: `请手动解决真实冲突后 git add + git commit，再重跑 koala test_story '{"storyId":"${storyId}"}'`,
+            });
+            return rows;
+          }
+        }
         rows.push({
           status: 'fail',
           label: 'Branch synced with main',
@@ -900,9 +941,11 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
       // 对应 OMX ralph 的 <Final_Checklist>。
       if (args.phase === 'DONE') {
         doneRollbackStory = JSON.parse(JSON.stringify(story)) as StoryInfo;
-        if (!args.dryRun && story.worktree?.branch) {
+        const doneSyncStory = store.readStory(args.storyId);
+        const doneSyncBranch = doneSyncStory.worktree?.branch || `story/${args.storyId}`;
+        if (!args.dryRun && (args.confirm || hasRawConfirmIntent())) {
           try {
-            execSync(`git merge-base --is-ancestor main ${JSON.stringify(story.worktree.branch)}`, { cwd: ctx.root, stdio: 'pipe' });
+            execSync(`git merge-base --is-ancestor main ${JSON.stringify(doneSyncBranch)}`, { cwd: ctx.root, stdio: 'pipe' });
           } catch {
             try {
               doneAutoSyncReport = createStoryQueryHandlers(ctx).story_sync_main({ storyId: args.storyId, confirm: true });
