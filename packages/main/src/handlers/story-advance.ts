@@ -2,7 +2,7 @@
 import type { HandlerContext } from './context.js';
 import { collectContext, PHASE_TO_EVENT, assertCwdInWorktree, getCurrentSessionId, getStorySessionOwner } from './context.js';
 import { createStoryActor, getStateName, getGuardFailureReason, getPhaseInvariantStatus } from '../core/machine.js';
-import type { PhaseInvariantIssue, StoryPhase } from '../core/types.js';
+import type { PhaseInvariantIssue, StoryInfo, StoryPhase } from '../core/types.js';
 import type { StoryStore } from '../core/store.js';
 import { loadConfig } from '../core/config.js';
 import { runHooks, buildHookEnv } from '../core/hooks.js';
@@ -726,6 +726,7 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
       actor.start();
       let doneAutoGitPlan: DoneAutoGitPlan | null = null;
       let doneAutoGitLock: DoneAutoGitLock | null = null;
+      let doneRollbackStory: StoryInfo | null = null;
 
       let eventType = PHASE_TO_EVENT[args.phase];
       if (!eventType) {
@@ -804,6 +805,7 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
       // 无论 advance 成功失败都会输出这份 checklist，强制主 agent 读一遍多层验证状态。
       // 对应 OMX ralph 的 <Final_Checklist>。
       if (args.phase === 'DONE') {
+        doneRollbackStory = JSON.parse(JSON.stringify(story)) as StoryInfo;
         const checkRows = buildDoneChecklist(args.storyId, store, ctx.root);
         const rendered = renderDoneChecklist(args.storyId, checkRows);
         const failed = checkRows.filter(r => r.status === 'fail');
@@ -1069,21 +1071,44 @@ ${testAntiStall(args.storyId)}
                 delete (globalThis as any).__koalaDoneMainResidueBackup;
               }
             } catch (e: any) {
+              let rollbackNote = '';
+              if (doneRollbackStory) {
+                try {
+                  store.writeStory(args.storyId, doneRollbackStory);
+                  runGit(`add ${doneAutoGitPlan.storyDirRel}/${args.storyId}/index.json`, wtPathAbs);
+                  const stagedRollback = runGit('diff --cached --name-only', wtPathAbs);
+                  if (stagedRollback) {
+                    runGit(
+                      `-c commit.gpgsign=false commit -m ${JSON.stringify(`koala: rollback ${args.storyId} DONE after failed merge`)}`,
+                      wtPathAbs,
+                    );
+                  }
+                  rollbackNote = `\nRollback: story 分支已恢复到 ${doneRollbackStory.phase}，可在修复 main 冲突后重新 DONE confirm。`;
+                } catch (rollbackError: any) {
+                  rollbackNote = `\nRollback failed: ${rollbackError?.message || String(rollbackError)}\n请手动检查 story 分支 ${branch} 的 ${doneAutoGitPlan.storyDirRel}/${args.storyId}/index.json。`;
+                }
+              }
               if (doneAutoGitLock) {
                 doneAutoGitLock.release();
                 doneAutoGitLock = null;
               }
               throw new Error(
-                `Story ${args.storyId} 已标记为 DONE 但自动合并失败:\n` +
+                `Story ${args.storyId} 自动合并失败:\n` +
                 `${e.stderr?.toString() || e.message}\n\n` +
-                `状态说明: story 分支 ${branch} 可能已经包含 DONE commit，但 main 尚未同步。\n` +
+                `状态说明: main 尚未同步 story 分支 ${branch}。\n` +
                 `不要并行执行其它 DONE confirm；先处理 main 工作区 dirty/untracked 或 merge 冲突后再继续。\n\n` +
+                `当前 story metadata 的 canonical 版本在 story 分支。若冲突涉及当前 story metadata，请在 main 仓库中执行:\n` +
+                `  git checkout ${branch} -- ${doneAutoGitPlan.storyDirRel}/${args.storyId}/\n\n` +
                 `请手动完成:\n` +
                 `  cd "${mainRepoRoot}"\n` +
                 `  git status --short\n` +
                 `  git merge ${branch}\n` +
+                `  git checkout ${branch} -- ${doneAutoGitPlan.storyDirRel}/${args.storyId}/   # 如当前 story metadata 冲突\n` +
+                `  git add ${doneAutoGitPlan.storyDirRel}/${args.storyId}/\n` +
+                `  git commit\n` +
                 `  git worktree remove --force "${wtPathAbs}"\n` +
-                `  git branch -d ${branch}`,
+                `  git branch -d ${branch}` +
+                rollbackNote,
               );
             }
 
