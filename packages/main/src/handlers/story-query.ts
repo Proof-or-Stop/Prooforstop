@@ -4,7 +4,7 @@ import type { StoryPhase, StoryInfo } from '../core/types.js';
 import { collectContext } from './context.js';
 import { loadConfig } from '../core/config.js';
 import { join } from 'path';
-import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from 'fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmdirSync, rmSync, writeFileSync } from 'fs';
 import { execSync } from 'child_process';
 import { getArtifactContractStatus } from '../core/artifact-contract.js';
 import { getReviewerStatus } from '../core/reviewer-status.js';
@@ -106,7 +106,7 @@ function appendJsonlContent(existing: string, incoming: string): string {
 function removeEmptyDir(path: string): boolean {
   if (!existsSync(path)) return false;
   if (readdirSync(path).length > 0) return false;
-  rmSync(path, { recursive: false, force: false });
+  rmdirSync(path);
   return true;
 }
 
