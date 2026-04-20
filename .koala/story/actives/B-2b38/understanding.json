@@ -1,0 +1,24 @@
+{
+  "task": "增加安全 merge main 命令避免 story phase 被覆盖",
+  "outcome": "用户在 story worktree 中先运行 koala story_sync_main {\"storyId\":\"B-xxxx\",\"dryRun\":true}，终端显示将 merge main、会自动保护 .koala/story/actives/B-xxxx/ 下 metadata；确认运行 koala story_sync_main {\"storyId\":\"B-xxxx\",\"confirm\":true} 后，如果只有 index/checklist 冲突，输出 Story metadata conflicts auto-resolved with --ours，并提示重跑 koala test_story；如果有源码冲突，输出 unresolved conflicts 和具体文件，不会吞掉冲突。",
+  "facts": [
+    "BUG-4 残留来自手动 git merge main 时错误选择 --theirs 覆盖 story phase",
+    "在 story worktree merge main 时 ours 是当前 story 分支，theirs 是 main",
+    "当前 DONE gate 已会提示先 merge main，但没有专门安全命令",
+    "story metadata 现在默认位于 .koala/story/actives/<storyId>"
+  ],
+  "constraints": [
+    "命令只能在对应 story worktree 内执行",
+    "只能自动处理当前 story metadata 冲突",
+    "源码/业务文件冲突必须保留并失败提示",
+    "默认 dry-run，不得未经 confirm 执行 git merge"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/story-query.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/tests/fixtures/story-sync-main.json"
+  ],
+  "timestamp": "2026-04-20T11:28:11.606Z"
+}
