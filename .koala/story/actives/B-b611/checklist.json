@@ -8,9 +8,29 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-20T10:54:08.242Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "main 和 story 分支都修改 .koala/activity.jsonl 时，DONE 语义提交会先把该 runtime log 对齐 main，最终 merge 不产生 activity conflict",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "main 不存在 activity log 但 story 分支存在 tracked .koala/activity.jsonl 时，DONE cleanup 会从 index 移除 runtime log，不把它带进 main",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "同一次 DONE 里真实源码文件存在冲突时，runtime log cleanup 不应隐藏源码冲突",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -19,9 +39,29 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-20T10:54:16.634Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "isDoneVolatilePath 对 .koala/activity.jsonl 和 docs/story/activity.jsonl 都返回 true",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Windows 风格路径 .koala\\activity.jsonl 也被规范化为 volatile path",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "相似但非精确的 .koala/story/activity.jsonl 或源码路径不会被误判为 volatile",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -32,7 +72,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "新增 fixture 能在临时 git repo 复现 main/story activity 双写并验证 prepare helper 消除冲突源",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "fixture 覆盖 legacy docs/story/activity.jsonl，确保旧项目仍不因 legacy activity 冲突失败",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "fixture 同时断言非 activity 路径仍进入 preflight blocking 或 stale 检查，避免测试只验证 happy path",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }
