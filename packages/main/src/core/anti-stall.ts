@@ -1,63 +1,83 @@
 /**
- * @task B-727f
- * @checklist CHK-001
- * @title anti-stall retry/fix/discard guardrail
- * @type feature
- * @priority high
- * @description
- *   把“卡死不推进”显式变成 retry / fix / discard 三选一的反模式护栏。
- *   当 story 卡在 TEST_CASE_REVIEW / TEST / waiting 状态时，系统必须给出
- *   retry、fix、discard 三条出口，而不是让 main agent 无限重复同一个命令。
- * @changes
- *   - [CHK-001] anti-stall helper 统一输出 retry / fix / discard 三路提示，覆盖“卡死不推进是反模式”
+ * Anti-stall: structured "three exits" for stuck phases.
+ *
+ * When a story gets stuck (REVIEW blockers, TEST failures, waiting states),
+ * this module renders a consistent three-option escape hatch:
+ *   1. [retry]   — re-run the stuck operation
+ *   2. [fix]     — address the root cause
+ *   3. [discard] — (optional) abandon the story
  */
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
 export interface AntiStallOptions {
   storyId: string;
-  retry?: string;
-  fix?: string;
+  title: string;
+  retry: string;
+  fix: string;
   discard?: string;
-  title?: string;
 }
 
-function storyDiscardCommand(storyId: string): string {
-  return `story_discard '{"storyId":"${storyId}","reason":"<放弃原因>"}'`;
-}
+// ---------------------------------------------------------------------------
+// Core renderer
+// ---------------------------------------------------------------------------
 
-export function renderAntiStall(options: AntiStallOptions): string {
-  const lines: string[] = [];
-  lines.push(options.title || '⚠ anti-stall: 不要卡在当前状态不动');
-  if (options.retry) lines.push(`  - retry: ${options.retry}`);
-  if (options.fix) lines.push(`  - fix: ${options.fix}`);
-  lines.push(`  - discard: ${options.discard || storyDiscardCommand(options.storyId)}`);
+export function renderAntiStall(opts: AntiStallOptions): string {
+  const lines: string[] = [
+    `anti-stall: ${opts.title}`,
+    '',
+    `  1. [retry]   ${opts.retry}`,
+    `  2. [fix]     ${opts.fix}`,
+  ];
+
+  if (opts.discard != null) {
+    lines.push(`  3. [discard] ${opts.discard}`);
+  } else {
+    lines.push(
+      `  3. [discard] story_advance --phase=DISCARDED --storyId=${opts.storyId}`,
+    );
+  }
+
   return lines.join('\n');
 }
+
+// ---------------------------------------------------------------------------
+// Phase-specific helpers
+// ---------------------------------------------------------------------------
 
 export function reviewAntiStall(storyId: string): string {
   return renderAntiStall({
     storyId,
-    title: '⚠ anti-stall: TEST_CASE_REVIEW 卡住时，不要只停在“继续审核”',
-    retry: `重新运行 reviewer / testintent_check '${storyId}'，先确认是不是暂时状态`,
-    fix: `story_advance '${storyId}' 到 DEV 回退改代码，或到 TEST_CASE 回退改 fixture`,
+    title: 'REVIEW blocked by unresolved findings',
+    retry: `finding_list '{"storyId":"${storyId}"}' then resolve each blocking finding`,
+    fix: `story_advance '{"storyId":"${storyId}","phase":"DEV"}' to roll back and fix code`,
   });
 }
 
-export function testAntiStall(storyId: string, openBugIds: string[] = []): string {
-  const fix = openBugIds.length > 0
-    ? `先修 ${openBugIds.slice(0, 3).join(', ')}，再跑 test_fixture / test_story 验证`
-    : `补 test_story 证据或修掉当前测试阻塞，再继续推进 DONE`;
+export function testAntiStall(
+  storyId: string,
+  openBugIds?: string[],
+): string {
+  const bugHint =
+    openBugIds && openBugIds.length > 0
+      ? ` (open bugs: ${openBugIds.join(', ')})`
+      : '';
+
   return renderAntiStall({
     storyId,
-    title: '⚠ anti-stall: TEST 阶段卡住时，不要只重复跑命令',
-    retry: `先重新运行 test_story '${storyId}' / test_fixture 确认是不是瞬时失败或旧状态`,
-    fix,
+    title: `TEST blocked${bugHint}`,
+    retry: `koala validate then fix remaining failures`,
+    fix: `story_advance '{"storyId":"${storyId}","phase":"DEV"}' to roll back and fix code`,
   });
 }
 
 export function waitingAntiStall(storyId: string): string {
   return renderAntiStall({
     storyId,
-    title: '⚠ anti-stall: 当前像是在等待，不要长期悬空',
-    retry: `重新运行 session_brief / testintent_check 看状态是否已经变化`,
-    fix: `如果状态没变化，就回到 DEV 或 TEST_CASE 修掉真正的阻塞点`,
+    title: 'story waiting with no active progress',
+    retry: `koala status then resume the current phase`,
+    fix: `koala checklist_get '{"storyId":"${storyId}"}' to identify next actionable item`,
   });
 }

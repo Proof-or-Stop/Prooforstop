@@ -3,7 +3,6 @@ import { readFileSync, readdirSync, statSync, existsSync } from 'fs';
 import { join, relative, extname, dirname } from 'path';
 import type { TaskAnnotation, ExtractFilters, FlowStep, FlowChain } from './types.js';
 import { loadConfig } from '../core/config.js';
-import { MetadataStore } from './metadata-store.js';
 
 const EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx']);
 const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', 'build', 'coverage']);
@@ -14,57 +13,6 @@ const SINGLE_FIELDS = new Set([
   'flow', 'step', 'input', 'output', 'next', 'test',
 ]);
 const MULTI_FIELDS = new Set(['description', 'changes', 'affected']);
-
-function mergeStringArray(
-  base?: string[],
-  incoming?: string[],
-): string[] | undefined {
-  if (!base && !incoming) return undefined;
-  return Array.from(new Set([...(base || []), ...(incoming || [])]));
-}
-
-function pickPreferredString(
-  base?: string,
-  incoming?: string,
-  preferIncoming = false,
-): string | undefined {
-  if (!base) return incoming;
-  if (!incoming) return base;
-  if (preferIncoming) return incoming.length >= base.length ? incoming : base;
-  return base.length >= incoming.length ? base : incoming;
-}
-
-function mergeTaskAnnotations(
-  base: TaskAnnotation,
-  incoming: TaskAnnotation,
-  preferIncoming = false,
-): TaskAnnotation {
-  return {
-    task: preferIncoming ? incoming.task : base.task,
-    checklist: mergeStringArray(base.checklist, incoming.checklist),
-    title: pickPreferredString(base.title, incoming.title, preferIncoming),
-    type: preferIncoming ? (incoming.type || base.type) : (base.type || incoming.type),
-    priority: preferIncoming ? (incoming.priority || base.priority) : (base.priority || incoming.priority),
-    version: preferIncoming ? (incoming.version || base.version) : (base.version || incoming.version),
-    scope: preferIncoming ? (incoming.scope || base.scope) : (base.scope || incoming.scope),
-    depends: mergeStringArray(base.depends, incoming.depends),
-    author: preferIncoming ? (incoming.author || base.author) : (base.author || incoming.author),
-    date: preferIncoming ? (incoming.date || base.date) : (base.date || incoming.date),
-    description: pickPreferredString(base.description, incoming.description, preferIncoming),
-    changes: mergeStringArray(base.changes, incoming.changes),
-    affected: mergeStringArray(base.affected, incoming.affected),
-    sourceFile: preferIncoming ? incoming.sourceFile : base.sourceFile,
-    sourceLine: preferIncoming ? incoming.sourceLine || base.sourceLine : base.sourceLine || incoming.sourceLine,
-    functionName: preferIncoming ? (incoming.functionName || base.functionName) : (base.functionName || incoming.functionName),
-    functionSignature: pickPreferredString(base.functionSignature, incoming.functionSignature, preferIncoming),
-    flow: preferIncoming ? (incoming.flow || base.flow) : (base.flow || incoming.flow),
-    step: preferIncoming ? (incoming.step ?? base.step) : (base.step ?? incoming.step),
-    input: pickPreferredString(base.input, incoming.input, preferIncoming),
-    output: pickPreferredString(base.output, incoming.output, preferIncoming),
-    next: pickPreferredString(base.next, incoming.next, preferIncoming),
-    test: pickPreferredString(base.test, incoming.test, preferIncoming),
-  };
-}
 
 /** 递归遍历目录，收集 TS/TSX 文件 */
 export function walkDir(dir: string): string[] {
@@ -216,7 +164,83 @@ export function parseBlock(raw: string): Record<string, string | string[]> {
   return result;
 }
 
-export function scanSourceAnnotations(scanRoot: string): TaskAnnotation[] {
+export function scan(scanRoot: string): TaskAnnotation[] {
+  // 优先从 metadata store（task.json）读取，不再扫描源码
+  // 从 scanRoot 向上查找 koala.config.json 确定项目根，再定位 docs/metadata/task.json
+  let metadataPath = '';
+  let searchDir = scanRoot;
+  for (let i = 0; i < 10; i++) {
+    if (existsSync(join(searchDir, 'koala.config.json'))) {
+      const candidate = join(searchDir, 'docs', 'metadata', 'task.json');
+      if (existsSync(candidate)) metadataPath = candidate;
+      break;
+    }
+    const parent = join(searchDir, '..');
+    if (parent === searchDir) break;
+    searchDir = parent;
+  }
+  if (metadataPath) {
+    try {
+      const store = JSON.parse(readFileSync(metadataPath, 'utf-8'));
+      if (store.tasks && store.tasks.length > 0) {
+        const projectRoot = dirname(dirname(dirname(metadataPath))); // docs/metadata/task.json → root
+        const config = loadConfig(projectRoot);
+        const sr = join(projectRoot, config.scanRoot);
+
+        return store.tasks.map((t: any) => {
+          // functionSignature 缺失时从源码正则提取
+          let sig = t.functionSignature || '';
+          if (!sig && t.sourceFile && t.functionName) {
+            try {
+              const filePath = join(sr, t.sourceFile);
+              if (existsSync(filePath)) {
+                const code = readFileSync(filePath, 'utf-8');
+                const name = t.functionName;
+                // 匹配: [export] [async] function name(...) / name(...) { / name = (...) =>
+                const patterns = [
+                  new RegExp(`((?:export\\s+)?(?:async\\s+)?function\\s+${name}\\s*\\([^)]*\\)[^{]*)\\{`),
+                  new RegExp(`((?:static\\s+)?(?:async\\s+)?${name}\\s*\\([^)]*\\)[^{]*)\\{`),
+                  new RegExp(`((?:export\\s+)?(?:const|let)\\s+${name}\\s*=\\s*(?:async\\s+)?\\([^)]*\\)[^=]*=>)`),
+                  new RegExp(`(export\\s+class\\s+${name}[^{]*)\\{`),
+                ];
+                for (const p of patterns) {
+                  const m = code.match(p);
+                  if (m) { sig = m[1].trim().slice(0, 120); break; }
+                }
+              }
+            } catch {}
+          }
+          return {
+            task: t.task,
+            checklist: t.checklist,
+            title: t.title,
+            type: t.type,
+            priority: t.priority,
+            version: t.version,
+            scope: t.scope,
+            depends: t.depends,
+            author: t.author,
+            date: t.date,
+            description: t.description,
+            changes: t.changes,
+            affected: t.affected,
+            sourceFile: t.sourceFile,
+            sourceLine: t.sourceLine,
+            functionName: t.functionName,
+            functionSignature: sig || undefined,
+            flow: t.flow?.name,
+            step: t.flow?.step,
+            input: t.flow?.input,
+            output: t.flow?.output,
+            next: t.flow?.next,
+            test: t.test,
+          } as TaskAnnotation;
+        });
+      }
+    } catch { /* fallback to source scan */ }
+  }
+
+  // Fallback: 扫描源码（兼容未迁移的项目）
   const files = walkDir(scanRoot);
   const tasks: TaskAnnotation[] = [];
 
@@ -249,7 +273,6 @@ export function scanSourceAnnotations(scanRoot: string): TaskAnnotation[] {
         functionSignature: fnInfo?.functionSignature,
         flow: parsed.flow as string | undefined,
         step: parsed.step ? parseInt(parsed.step as string, 10) : undefined,
-        desc: parsed.desc as string | undefined,
         input: parsed.input as string | undefined,
         output: parsed.output as string | undefined,
         next: parsed.next as string | undefined,
@@ -259,111 +282,6 @@ export function scanSourceAnnotations(scanRoot: string): TaskAnnotation[] {
   }
 
   return tasks;
-}
-
-export function scan(scanRoot: string): TaskAnnotation[] {
-  // 优先从 metadata store（task.json）读取，不再扫描源码
-  // 从 scanRoot 向上查找 koala.config.json 确定项目根，再定位 docs/metadata/task.json
-  let metadataPath = '';
-  let searchDir = scanRoot;
-  for (let i = 0; i < 10; i++) {
-    if (existsSync(join(searchDir, 'koala.config.json'))) {
-      const candidate = join(searchDir, 'docs', 'metadata', 'task.json');
-      if (existsSync(candidate)) metadataPath = candidate;
-      break;
-    }
-    const parent = join(searchDir, '..');
-    if (parent === searchDir) break;
-    searchDir = parent;
-  }
-  if (metadataPath) {
-    try {
-      const store = JSON.parse(readFileSync(metadataPath, 'utf-8'));
-      if (store.tasks && store.tasks.length > 0) {
-        const liveAnnotations = scanSourceAnnotations(scanRoot);
-        const projectRoot = dirname(dirname(dirname(metadataPath))); // docs/metadata/task.json → root
-        const config = loadConfig(projectRoot);
-        const sr = join(projectRoot, config.scanRoot);
-        const keyForAnnotation = (annotation: TaskAnnotation) =>
-          `${annotation.sourceFile.replace(/\\/g, '/')}::${annotation.functionName || ''}`;
-        const merged = new Map<string, TaskAnnotation>();
-
-        for (const t of store.tasks as any[]) {
-          if (t.sourceFile) {
-            try {
-              const candidateFile = join(sr, t.sourceFile);
-              if (!existsSync(candidateFile)) {
-                continue;
-              }
-            } catch {
-              continue;
-            }
-          }
-          // functionSignature 缺失时从源码正则提取
-          let sig = t.functionSignature || '';
-          if (!sig && t.sourceFile && t.functionName) {
-            try {
-              const filePath = join(sr, t.sourceFile);
-              if (existsSync(filePath)) {
-                const code = readFileSync(filePath, 'utf-8');
-                const name = t.functionName;
-                // 匹配: [export] [async] function name(...) / name(...) { / name = (...) =>
-                const patterns = [
-                  new RegExp(`((?:export\\s+)?(?:async\\s+)?function\\s+${name}\\s*\\([^)]*\\)[^{]*)\\{`),
-                  new RegExp(`((?:static\\s+)?(?:async\\s+)?${name}\\s*\\([^)]*\\)[^{]*)\\{`),
-                  new RegExp(`((?:export\\s+)?(?:const|let)\\s+${name}\\s*=\\s*(?:async\\s+)?\\([^)]*\\)[^=]*=>)`),
-                  new RegExp(`(export\\s+class\\s+${name}[^{]*)\\{`),
-                ];
-                for (const p of patterns) {
-                  const m = code.match(p);
-                  if (m) { sig = m[1].trim().slice(0, 120); break; }
-                }
-              }
-            } catch {}
-          }
-          const annotation = {
-            task: t.task,
-            checklist: t.checklist,
-            title: t.title,
-            type: t.type,
-            priority: t.priority,
-            version: t.version,
-            scope: t.scope,
-            depends: t.depends,
-            author: t.author,
-            date: t.date,
-            description: t.description,
-            changes: t.changes,
-            affected: t.affected,
-            sourceFile: t.sourceFile,
-            sourceLine: t.sourceLine,
-            functionName: t.functionName,
-            functionSignature: sig || undefined,
-            flow: t.flow?.name,
-            step: t.flow?.step,
-            desc: t.flow?.desc,
-            input: t.flow?.input,
-            output: t.flow?.output,
-            next: t.flow?.next,
-            test: t.test,
-          } as TaskAnnotation;
-          const key = keyForAnnotation(annotation);
-          const existing = merged.get(key);
-          merged.set(key, existing ? mergeTaskAnnotations(existing, annotation) : annotation);
-        }
-
-        for (const annotation of liveAnnotations) {
-          const key = keyForAnnotation(annotation);
-          const existing = merged.get(key);
-          merged.set(key, existing ? mergeTaskAnnotations(existing, annotation, true) : annotation);
-        }
-
-        return Array.from(merged.values());
-      }
-    } catch { /* fallback to source scan */ }
-  }
-
-  return scanSourceAnnotations(scanRoot);
 }
 
 /** 按条件筛选 */
@@ -377,21 +295,6 @@ export function filterTasks(tasks: TaskAnnotation[], filters: ExtractFilters): T
   });
 }
 
-/**
- * @task B-4b17
- * @checklist CHK-002
- * @title extract flow step descriptions into executable flow metadata
- * @type feature
- * @priority high
- * @description
- *   Flow 的每一步都应该有说明，因此 extractFlows 现在不仅提取 step/input/output/next，
- *   还要把每一步的 @desc 说明保留到 FlowStep 中，让后续校验和执行链都能看到
- *   “这一跳在做什么”。
- * @changes
- *   - [CHK-002] TaskAnnotation 新增 desc 字段并继续传递到 FlowStep
- *   - [CHK-002] extractFlows 保留每一步的 @desc，避免说明在提取阶段丢失
- * @test flow-step-desc
- */
 export function extractFlows(tasks: TaskAnnotation[]): FlowChain[] {
   const flowMap = new Map<string, FlowStep[]>();
 
@@ -400,7 +303,6 @@ export function extractFlows(tasks: TaskAnnotation[]): FlowChain[] {
     const step: FlowStep = {
       flow: t.flow,
       step: t.step,
-      desc: t.desc,
       input: t.input,
       output: t.output,
       next: t.next,

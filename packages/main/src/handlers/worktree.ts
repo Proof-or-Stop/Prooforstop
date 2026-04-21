@@ -1,36 +1,22 @@
 
-import { execSync } from 'child_process';
-import { closeSync, existsSync, mkdirSync, mkdtempSync, openSync, realpathSync, rmSync, statSync, unlinkSync, writeFileSync } from 'fs';
-import { dirname, join, relative, isAbsolute } from 'path';
-import { tmpdir } from 'os';
+import { execFileSync, execSync } from 'child_process';
+import { existsSync } from 'fs';
+import { join, relative, isAbsolute } from 'path';
 import type { HandlerContext } from './context.js';
 import { collectContext, PHASE_TO_EVENT } from './context.js';
-import { createStoryActor, getStateName, getPhaseInvariantStatus } from '../core/machine.js';
+import { createStoryActor, getStateName, getGuardFailureReason } from '../core/machine.js';
 import type { StoryPhase } from '../core/types.js';
 import { loadConfig } from '../core/config.js';
-import { formatPhaseGateDecision } from '../core/phase-protocol.js';
-import { getStoryWorktreeRuntime, getRepoRoot, resolveLinkedWorktreePath, resolveLinkedWorktreeStoryPath } from '../core/worktree-runtime.js';
-import { collectBaselineRisk, renderBaselineRiskLines, type BaselineRisk } from '../core/baseline-risk.js';
+import { summarizeParallelPolicy } from '../core/parallel-policy.js';
 
 export function createWorktreeHandlers(ctx: HandlerContext) {
   const { store, root } = ctx;
-  const BOOTSTRAP_LOCK_TIMEOUT_MS = 10_000;
-  const BOOTSTRAP_LOCK_STALE_MS = 30_000;
 
   function git(cmd: string, cwd?: string): string {
     return execSync(`git ${cmd}`, {
       cwd: cwd || root,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim();
-  }
-
-  function gitWithEnv(cmd: string, cwd: string, extraEnv: NodeJS.ProcessEnv): string {
-    return execSync(`git ${cmd}`, {
-      cwd,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-      env: { ...process.env, ...extraEnv },
     }).trim();
   }
 
@@ -64,285 +50,129 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     throw lastErr;
   }
 
-  function shellQuote(value: string): string {
-    return `"${value.replace(/(["\\$`])/g, '\\$1')}"`;
-  }
-
-  function storyArtifactDir(storyId: string): string {
-    const config = loadConfig(root);
-    return join(root, config.storyDir, storyId);
-  }
-
-  function cleanupDiscardedStoryResidue(storyId: string, dryRun: boolean): string[] {
-    const dir = storyArtifactDir(storyId);
-    if (!existsSync(dir)) return [`✓ Story ${storyId} 没有残留目录需要清理`];
-
-    const rel = relative(root, dir).split('\\').join('/');
-    const status = git(`status --porcelain -- ${shellQuote(rel)}`);
-    if (!status) {
-      return [`⚠ Story ${storyId} 的目录仍被 git 跟踪，已保留: ${rel}`];
-    }
-
-    const lines = status.split('\n').filter(Boolean);
-    const allUntracked = lines.every((line) => line.startsWith('?? '));
-    if (!allUntracked) {
-      throw new Error(
-        `Story ${storyId} 的残留目录包含 tracked/staged 改动，拒绝自动清理:\n${status}\n` +
-        `→ 先人工确认这些改动是否要保留，再重试 cleanupResidue`
-      );
-    }
-
-    if (dryRun) return [`- remove untracked discarded story residue: ${rel}`];
-    rmSync(dir, { recursive: true, force: true });
-    return [`✓ 已清理 DISCARDED story 残留目录: ${rel}`];
-  }
-
-  function waitMs(ms: number): void {
-    const until = Date.now() + ms;
-    while (Date.now() < until) { /* busy-wait; execSync is already sync */ }
-  }
-
-  function canonicalPath(path: string): string {
+  function getRepoRoot(): string {
     try {
-      return realpathSync(path);
+      return execSync('git rev-parse --show-toplevel', { cwd: root, encoding: 'utf-8' }).trim();
     } catch {
-      return path;
+      return root;
     }
-  }
-
-  function getGitCommonDir(): string {
-    try {
-      const topLevel = canonicalPath(execSync('git rev-parse --show-toplevel', { cwd: root, encoding: 'utf-8' }).trim());
-      const commonDir = execSync('git rev-parse --git-common-dir', { cwd: root, encoding: 'utf-8' }).trim();
-      return canonicalPath(isAbsolute(commonDir) ? commonDir : join(topLevel, commonDir));
-    } catch {
-      return canonicalPath(join(root, '.git'));
-    }
-  }
-
-  function repoRoot(): string {
-    try {
-      const commonDir = getGitCommonDir();
-      if (commonDir.endsWith('/.git') || commonDir.endsWith('\\.git')) {
-        return dirname(commonDir);
-      }
-    } catch { /* PROBE */ }
-    return getRepoRoot(root);
   }
 
   /** 将 story 里存的 worktree.path（可能是相对或绝对）解析为绝对路径 */
   function resolveWorktreePath(storedPath: string): string {
     if (isAbsolute(storedPath)) return storedPath;
-    return join(repoRoot(), storedPath);
+    return join(getRepoRoot(), storedPath);
   }
 
-  function hasPathChanges(cwd: string, targetPath: string): boolean {
+  /**
+   * B-5fa4 CHK-003: Check for unpushed commits before worktree cleanup.
+   * Uses execFileSync to avoid shell injection. Returns a warning string
+   * or null if no unpushed commits (or if origin doesn't exist).
+   */
+  function checkUnpushedCommits(worktreePath: string, branch: string): { count: number; warning: string | null } {
     try {
-      return git(`status --porcelain -- ${shellQuote(targetPath)}`, cwd).length > 0;
+      // Check if origin remote exists at all
+      execFileSync('git', ['remote', 'get-url', 'origin'], {
+        cwd: worktreePath,
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      });
     } catch {
-      return false;
+      // No origin remote — local-only repo, skip check
+      return { count: 0, warning: null };
+    }
+
+    try {
+      // Check if origin has this branch
+      execFileSync('git', ['rev-parse', '--verify', `origin/${branch}`], {
+        cwd: worktreePath,
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      });
+    } catch {
+      // origin doesn't track this branch — all local commits are "unpushed"
+      // but this is expected for story branches, skip
+      return { count: 0, warning: null };
+    }
+
+    try {
+      const log = execFileSync('git', ['log', `origin/${branch}..HEAD`, '--oneline'], {
+        cwd: worktreePath,
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      }).trim();
+      if (!log) return { count: 0, warning: null };
+      const count = log.split('\n').filter(Boolean).length;
+      return {
+        count,
+        warning: `\u26a0 ${count} unpushed commit(s) on branch ${branch} will be lost after cleanup`,
+      };
+    } catch {
+      // git log failed — don't block, just skip
+      return { count: 0, warning: null };
     }
   }
 
-  function renderInitCheckBootstrapPlan(args: {
-    storyId: string;
-    repoRootPath: string;
-    worktreePath: string;
-    branch: string;
-    stagePaths: string[];
-    baselineRisk: BaselineRisk;
-    dryRun?: boolean;
-  }): string {
-    const prefix = args.dryRun ? '[DRY-RUN] ' : '';
-    const lines = [
-      `${prefix}INIT_CHECK bootstrap plan:`,
-      `  - repo: ${args.repoRootPath}`,
-      `  - worktree: ${args.worktreePath}`,
-      `  - branch: ${args.branch}`,
-      '  - write story.worktree metadata',
-      `  - create bootstrap commit for ${args.branch} only (current branch HEAD stays unchanged)`,
-      `  - git branch ${args.branch} <bootstrap-commit-with-story-metadata>`,
-      `  - git worktree add "${args.worktreePath}" ${args.branch}`,
-    ];
-    const riskLines = renderBaselineRiskLines(args.baselineRisk, { includeVolatileSummary: true });
-    if (riskLines.length > 0) {
-      lines.push('', ...riskLines);
+  /**
+   * B-5fa4 CHK-003: Detect sharedHotspots overlap between the current story
+   * and other active stories. Returns a warning string or null.
+   */
+  function checkParallelSafety(storyId: string): string | null {
+    const allStoryIds = store.listStoryIds();
+    const allStories = allStoryIds
+      .map((id) => {
+        try { return store.readStory(id); } catch { return null; }
+      })
+      .filter((s): s is NonNullable<typeof s> => s !== null);
+
+    const currentStory = allStories.find((s) => s.storyId === storyId);
+    if (!currentStory) return null;
+
+    // If no sharedHotspots on current story, nothing to check
+    if (!currentStory.sharedHotspots || currentStory.sharedHotspots.length === 0) {
+      return null;
     }
+
+    // Check if there are actual hotspot conflicts involving this story
+    const terminalPhases = new Set(['DONE', 'DISCARDED']);
+    const myHotspots = new Set(currentStory.sharedHotspots);
+    const conflicts: Array<{ storyId: string; files: string[] }> = [];
+
+    for (const other of allStories) {
+      if (other.storyId === storyId || terminalPhases.has(other.phase)) continue;
+      if (!other.sharedHotspots) continue;
+      const overlap = other.sharedHotspots.filter((hp) => myHotspots.has(hp));
+      if (overlap.length > 0) {
+        conflicts.push({ storyId: other.storyId, files: overlap });
+      }
+    }
+
+    if (conflicts.length === 0) return null;
+
+    const lines = [
+      `\u26a0 parallelSafety: ${storyId} shares hotspot files with other active stories:`,
+    ];
+    for (const c of conflicts) {
+      lines.push(`  ${c.storyId}: ${c.files.join(', ')}`);
+    }
+    lines.push('  Consider coordinating changes to avoid merge conflicts.');
+    lines.push('');
+    lines.push(summarizeParallelPolicy(allStories));
     return lines.join('\n');
   }
 
-  function commitContainsPath(revision: string, targetPath: string): boolean {
-    try {
-      const output = git(`ls-tree -r --name-only ${revision} -- ${shellQuote(targetPath)}`);
-      return output.split('\n').some(line => line.trim() === targetPath);
-    } catch {
-      return false;
-    }
-  }
-
-  function getBootstrapStagePaths(storyId: string, repoRoot: string): string[] {
-    const config = loadConfig(root);
-    const storyDir = canonicalPath(join(root, config.storyDir, storyId));
-    const stagePaths = [relative(repoRoot, storyDir).replace(/\\/g, '/')];
-    const configPath = canonicalPath(join(root, 'koala.config.json'));
-    if (existsSync(configPath)) {
-      stagePaths.push(relative(repoRoot, configPath).replace(/\\/g, '/'));
-    }
-    return stagePaths;
-  }
-
-  function collectStoryBaselineRisk(storyId: string, repoRootPath = repoRoot()): BaselineRisk {
-    const config = loadConfig(repoRootPath);
-    return collectBaselineRisk(repoRootPath, {
-      acceptedLocalPaths: config.baselineRiskAcceptedLocalPaths,
-      excludePaths: getBootstrapStagePaths(storyId, repoRootPath),
-    });
-  }
-
-  function createBootstrapBranchCommit(args: {
-    repoRootPath: string;
-    stagePaths: string[];
-    storyId: string;
-    storyIndexPath: string;
-  }): string {
-    const tempRoot = existsSync(getGitCommonDir())
-      ? join(getGitCommonDir(), 'koala')
-      : join(tmpdir(), 'koala');
-    mkdirSync(tempRoot, { recursive: true });
-    const tempDir = mkdtempSync(join(tempRoot, 'bootstrap-index-'));
-    const tempIndexPath = join(tempDir, 'index');
-    const tempEnv = { GIT_INDEX_FILE: tempIndexPath };
-
-    try {
-      const headSha = git('rev-parse HEAD', args.repoRootPath);
-      gitWithEnv(`read-tree ${headSha}`, args.repoRootPath, tempEnv);
-      gitWithEnv(`add -- ${args.stagePaths.map(shellQuote).join(' ')}`, args.repoRootPath, tempEnv);
-
-      const staged = gitWithEnv(
-        `diff --cached --name-only -- ${args.stagePaths.map(shellQuote).join(' ')}`,
-        args.repoRootPath,
-        tempEnv,
-      );
-      if (!staged.split('\n').some(line => line.trim() === args.storyIndexPath)) {
-        throw new Error(
-          `bootstrap staged changes missing ${args.storyIndexPath}\n` +
-          `staged:\n${staged || '(none)'}`
-        );
-      }
-
-      const treeSha = gitWithEnv('write-tree', args.repoRootPath, tempEnv);
-      const commitSha = gitWithEnv(
-        `commit-tree ${treeSha} -p ${headSha} -m ${shellQuote(`koala: story ${args.storyId} init`)}`,
-        args.repoRootPath,
-        tempEnv,
-      );
-
-      if (!commitContainsPath(commitSha, args.storyIndexPath)) {
-        throw new Error(`bootstrap commit ${commitSha} 不包含 ${args.storyIndexPath}`);
-      }
-
-      return commitSha;
-    } finally {
-      rmSync(tempDir, { recursive: true, force: true });
-    }
-  }
-
-  function acquireBootstrapLock(storyId: string): () => void {
-    const lockPath = join(getGitCommonDir(), 'koala', 'init-check.bootstrap.lock');
-    mkdirSync(dirname(lockPath), { recursive: true });
-    const delays = [0, 100, 250, 500, 1000, 1500, 2500, 3500];
-
-    for (const delay of delays) {
-      if (delay > 0) waitMs(delay);
-      try {
-        const fd = openSync(lockPath, 'wx');
-        try {
-          writeFileSync(fd, JSON.stringify({
-            storyId,
-            pid: process.pid,
-            acquiredAt: new Date().toISOString(),
-          }) + '\n', 'utf-8');
-        } finally {
-          closeSync(fd);
-        }
-
-        return () => {
-          try {
-            unlinkSync(lockPath);
-          } catch (e: any) {
-            if (e?.code !== 'ENOENT') throw e;
-          }
-        };
-      } catch (e: any) {
-        if (e?.code !== 'EEXIST') {
-          throw new Error(`无法获取 INIT_CHECK bootstrap 锁 ${lockPath}: ${e.message || String(e)}`);
-        }
-        try {
-          const ageMs = Date.now() - statSync(lockPath).mtimeMs;
-          if (ageMs > BOOTSTRAP_LOCK_STALE_MS) {
-            try {
-              unlinkSync(lockPath);
-            } catch { /* PROBE: another process may have released or replaced the stale lock */ }
-          }
-        } catch { /* PROBE: lock file disappeared while checking staleness */ }
-      }
-    }
-
-    throw new Error(
-      `INIT_CHECK bootstrap 正在被其他 story 串行执行（>${BOOTSTRAP_LOCK_TIMEOUT_MS}ms）\n` +
-      `lock: ${lockPath}\n` +
-      `→ 稍后重试 story_advance --phase=INIT_CHECK。若确认持锁进程已退出，可删除该 lock 后重试`
-    );
-  }
-
   return {
-    dev_start(args: { storyId: string; dryRun?: boolean; confirm?: boolean }): string {
+    dev_start(args: { storyId: string }): string {
       const story = store.readStory(args.storyId);
-      const runtime = getStoryWorktreeRuntime(args.storyId, store, root);
 
       // 已有 worktree 则直接返回路径
       if (story.worktree) {
-        const linkedPath = resolveLinkedWorktreePath(runtime);
-        if (runtime.linkedPath && runtime.canRepairPath) {
-          const repaired = store.readStory(args.storyId);
-          const existingWorktree = repaired.worktree;
-          if (!existingWorktree) {
-            throw new Error(`Story ${args.storyId} 缺少 worktree 记录，无法修正漂移`);
-          }
-          repaired.worktree = {
-            path: resolveLinkedWorktreeStoryPath(runtime) || existingWorktree.path,
-            branch: existingWorktree.branch,
-            createdAt: existingWorktree.createdAt,
-          };
-          store.writeStory(args.storyId, repaired);
-          return [
-            `Story ${args.storyId} worktree 已恢复`,
-            `路径: ${linkedPath}`,
-            `分支: ${repaired.worktree.branch}`,
-            '⚠ 检测到 story.worktree.path 漂移，已按 git worktree list 自动修正',
-          ].join('\n');
+        const absPath = resolveWorktreePath(story.worktree.path);
+        if (existsSync(absPath)) {
+          return `Story ${args.storyId} worktree 已存在\n路径: ${absPath}\n分支: ${story.worktree.branch}`;
         }
-        if (linkedPath && existsSync(linkedPath)) {
-          return [
-            `Story ${args.storyId} worktree 已存在`,
-            `路径: ${linkedPath}`,
-            `分支: ${story.worktree.branch}`,
-            ...renderBaselineRiskLines(collectStoryBaselineRisk(args.storyId), { includeVolatileSummary: true }),
-            ...(runtime.drift ? ['⚠ story.worktree.path 与 git linked worktree 不一致，请同步修正'] : []),
-          ].join('\n');
-        }
-        if (runtime.status === 'orphaned') {
-          throw new Error(
-            `Story ${args.storyId} 记录的 worktree 目录仍存在，但 git registry 没有匹配项\n` +
-            `路径: ${runtime.recordedAbsPath}\n` +
-            `→ 先检查 git worktree list / git worktree repair；若目录是残留，再清理后重试`
-          );
-        }
-        // worktree 目录与 git registry 都不存在了，清理记录后重建
-        if (!runtime.linkedPath && !runtime.recordedExists) {
-          story.worktree = undefined;
-          store.writeStory(args.storyId, story);
-        }
+        // worktree 目录不存在了，清理记录
+        story.worktree = undefined;
       }
 
       // 已在 worktree 里时拒绝嵌套
@@ -356,99 +186,64 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       }
 
       // INIT_CHECK 是创建 worktree 的标准入口；PLAN/DEV 也允许（向后兼容/手动恢复）
-      // dryRun / 未 confirm 的预览场景允许从 INIT 看 bootstrap 计划，但不实际执行。
-      const allowedPhases: StoryPhase[] = (args.dryRun || !args.confirm)
-        ? ['INIT', 'INIT_CHECK', 'PLAN', 'DEV']
-        : ['INIT_CHECK', 'PLAN', 'DEV'];
+      const allowedPhases: StoryPhase[] = ['INIT_CHECK', 'PLAN', 'DEV'];
       if (!allowedPhases.includes(story.phase)) {
         throw new Error(`Story ${args.storyId} 当前阶段 ${story.phase}，需要 INIT_CHECK / PLAN / DEV 才能创建 worktree`);
       }
 
       const branch = `story/${args.storyId}`;
       // 用 git repo root 创建 worktree（不用 project root，避免在子项目下嵌套）
-      const repoRootPath = repoRoot();
+      const repoRoot = getRepoRoot();
       const worktreeDir = loadConfig(root).worktreeDir || '.worktrees';
-      const worktreePath = join(repoRootPath, worktreeDir, args.storyId);
-      const relWorktreePath = relative(repoRootPath, worktreePath).replace(/\\/g, '/');
-      const storyIndexPath = relative(
-        repoRootPath,
-        canonicalPath(join(root, loadConfig(root).storyDir, args.storyId, 'index.json')),
-      ).replace(/\\/g, '/');
-      const stagePaths = getBootstrapStagePaths(args.storyId, repoRootPath);
-      const baselineRisk = collectStoryBaselineRisk(args.storyId, repoRootPath);
+      const worktreePath = join(repoRoot, worktreeDir, args.storyId);
+      const relWorktreePath = relative(repoRoot, worktreePath).replace(/\\/g, '/');
 
-      const bootstrapPlan = renderInitCheckBootstrapPlan({
-        storyId: args.storyId,
-        repoRootPath,
-        worktreePath,
-        branch,
-        stagePaths,
-        baselineRisk,
-        dryRun: args.dryRun,
-      });
-      if (args.dryRun) {
-        return bootstrapPlan + '\n→ 这是 dry-run 预览。确认无误后，再带 confirm:true 真实执行 INIT_CHECK bootstrap';
-      }
-      if (!args.confirm) {
-        throw new Error(
-          `dev_start(${args.storyId}) 会自动写 story.worktree metadata，并为 story 分支创建 bootstrap git commit，默认已阻止。\n` +
-          bootstrapPlan + '\n' +
-          '→ 先传 dryRun:true 预览，确认后再传 confirm:true 真实执行'
-        );
-      }
+      // B-7eed: 先把 story.worktree 字段写进 story index.json，再 git add/commit，
+      // 避免 commit 后 writeStory 留下主仓库 working tree 脏（会导致后续 DONE
+      // 阶段 `git merge story/B-xxx` 报 "local changes would be overwritten"）。
+      const now = new Date().toISOString();
+      story.worktree = { path: relWorktreePath, branch, createdAt: now };
+      if (!story.startedAt) story.startedAt = now;
+      store.writeStory(args.storyId, story);
 
-      const releaseBootstrapLock = acquireBootstrapLock(args.storyId);
-
+      // 先 commit story/metadata 文件，确保 worktree 能看到
+      // B-5246: fresh `git init` 仓库还没有任何 commit；`git branch story/B-xxx`
+      // 在没有 HEAD 的情况下会 `fatal: not a valid object name: 'main'`。
+      // 用 `git add -A` + `git commit --allow-empty` 在 worktree 之前确保至少有
+      // 一个 root commit 存在，这样 `git branch` 就能从当前 HEAD 创建。
       try {
-        const now = new Date().toISOString();
-        const lockedStory = store.readStory(args.storyId);
-        lockedStory.worktree = { path: relWorktreePath, branch, createdAt: now };
-        if (!lockedStory.startedAt) lockedStory.startedAt = now;
-        store.writeStory(args.storyId, lockedStory);
+        // 用 -A 而不是只 add docs/story —— 新项目里 koala.config.json 等也需要进入 worktree
+        git(`add -A`);
+        git(`commit -m "koala: story ${args.storyId} init" --allow-empty`);
+      } catch { /* 没有改动也没关系 */ }
 
-        let branchExists = true;
+      // 创建分支（如果不存在）
+      // B-5246: 在 fresh 仓库上 `git branch <name>` 仍可能因为 HEAD 是 unborn 状态而失败。
+      // 改用 `git branch <name> HEAD` 显式指向 HEAD；如果 HEAD 还是 unborn 就先用 checkout
+      // 创建一个空的 root branch。
+      try {
+        git(`rev-parse --verify ${branch}`);
+      } catch {
         try {
-          git(`rev-parse --verify ${branch}`);
+          git(`branch ${branch}`);
         } catch {
-          branchExists = false;
-        }
-
-        if (!branchExists) {
-          const commitSha = createBootstrapBranchCommit({
-            repoRootPath,
-            stagePaths,
-            storyId: args.storyId,
-            storyIndexPath,
-          });
+          // Fallback: HEAD 还没有任何 commit。强制创建一个空的 root commit 再分支。
           try {
-            git(`branch ${branch} ${commitSha}`);
+            git(`commit --allow-empty -m "koala: bootstrap empty root for ${args.storyId}"`);
+            git(`branch ${branch}`);
           } catch (e: any) {
             throw new Error(
-              `无法在仓库根创建 worktree 分支 ${branch}：${e.message || String(e)}。` +
-              `可能是仓库尚未 git init / 没有任何提交。若要本地 git commit 初始化仓库，未经用户 confirm 不允许；确认后再重试。`
+              `无法在仓库根创建 worktree 分支 ${branch}：${e.message}。可能是仓库尚未 git init / 没有任何提交。先 git commit 一次再重试。`,
             );
           }
         }
-
-        const branchSha = git(`rev-parse --verify ${branch}`);
-        if (!commitContainsPath(branchSha, storyIndexPath)) {
-          throw new Error(
-            `现有分支 ${branch} 指向的 commit ${branchSha} 不包含 ${storyIndexPath}\n` +
-            `→ 这通常说明之前并发 INIT_CHECK 曾从旧 HEAD 分叉。请清理该分支/坏 worktree 后重试`
-          );
-        }
-
-        git(`worktree add ${shellQuote(worktreePath)} ${branch}`);
-      } catch (e) {
-        if (!existsSync(worktreePath)) {
-          const freshStory = store.readStory(args.storyId);
-          freshStory.worktree = undefined;
-          store.writeStory(args.storyId, freshStory);
-        }
-        throw e;
-      } finally {
-        releaseBootstrapLock();
       }
+
+      // 创建 worktree
+      git(`worktree add "${worktreePath}" ${branch}`);
+
+      // B-5fa4 CHK-003: parallelSafety check at worktree creation
+      const parallelWarning = checkParallelSafety(args.storyId);
 
       // 依赖检查
       let depsWarning = '';
@@ -471,16 +266,16 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         `Story ${args.storyId} 开发环境已就绪`,
         `分支: ${branch}`,
         `路径: ${worktreePath}`,
-        ...renderBaselineRiskLines(baselineRisk, { includeVolatileSummary: true }),
         `→ cd ${worktreePath} 进入 worktree 开发，所有 koala 命令在此目录执行`,
         `→ sub agent 不要使用 isolation:"worktree"，直接在主 agent 的 worktree 中跑`,
         `→ checklist_get(${args.storyId}) 查看待开发项`,
-        `→ 开发完成后调用 dev_finish(${args.storyId})。若后续路径会自动触发本地 git commit / git merge，未经 confirm 不允许`,
+        `→ 开发完成后调用 dev_finish(${args.storyId}) 合并回主分支`,
+        parallelWarning || '',
         depsWarning,
       ].filter(Boolean).join('\n');
     },
 
-    dev_finish(args: { storyId: string; dryRun?: boolean; confirm?: boolean }): string {
+    dev_finish(args: { storyId: string }): string {
       const story = store.readStory(args.storyId);
 
       if (!story.worktree) {
@@ -496,28 +291,8 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         throw new Error(`Worktree 目录 ${wtPath} 不存在，已清理记录`);
       }
 
-      const storyDir = join(loadConfig(root).storyDir, args.storyId).replace(/\\/g, '/');
-      const autoCommitStoryFiles = hasPathChanges(wtPath, storyDir);
-      const finishPlanLines = [
-        `${args.dryRun ? '[DRY-RUN] ' : ''}dev_finish(${args.storyId}) plan:`,
-        `  - worktree: ${wtPath}`,
-        ...(autoCommitStoryFiles
-          ? [`  - git add ${storyDir}`, `  - git commit -m "koala: auto-add story files for ${args.storyId}"`]
-          : ['  - no automatic git commit needed for story runtime files']),
-        '  - advance story phase to TEST',
-      ];
-      if (args.dryRun) {
-        return finishPlanLines.join('\n') + '\n→ 这是 dry-run 预览。若需要自动提交 story 运行时文件，再加 confirm:true 真实执行';
-      }
-      if (autoCommitStoryFiles && !args.confirm) {
-        throw new Error(
-          `dev_finish(${args.storyId}) 会自动 git add/git commit story 运行时文件，默认已阻止。\n` +
-          finishPlanLines.join('\n') + '\n' +
-          '→ 先传 dryRun:true 预览，确认后再传 confirm:true 真实执行'
-        );
-      }
-
       // 自动提交 story 目录下的运行时产生的文件（review.json 等）
+      const storyDir = join('docs', 'story', 'actives', args.storyId);
       try {
         git(`add ${storyDir}`, wtPath);
         const staged = git('diff --cached --name-only', wtPath);
@@ -536,15 +311,15 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
 
       // 推进到 TEST（如果当前在 DEV）
       if (story.phase === 'DEV') {
-        const actor = createStoryActor(args.storyId, store, story.phase);
+        const actor = createStoryActor(args.storyId, store, story.phase, root);
         actor.start();
-        actor.send({ type: 'REVIEW' });
+        actor.send({ type: 'CODE_REVIEW' });
         const newState = getStateName(actor);
         actor.stop();
 
         if (newState === 'DEV') {
           // guard 失败，给出原因
-          const reason = formatPhaseGateDecision(getPhaseInvariantStatus(args.storyId, store, 'TEST'));
+          const reason = getGuardFailureReason(args.storyId, store, 'TEST', root);
           throw new Error(`无法推进到 TEST: ${reason || 'checklist 未全部完成'}`);
         }
 
@@ -558,13 +333,13 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         `✓ Story ${args.storyId} 开发完成，已进入 TEST`,
         `Worktree 保留供测试使用: ${wtPath}`,
         `→ 在 worktree 中运行测试`,
-        `→ 测试全部通过后如需自动收尾，先 dry-run 再 confirm 调用 dev_merge(${args.storyId})`,
+        `→ 测试全部通过后调用 dev_merge(${args.storyId}) 合并回主分支`,
       ];
 
       return results.join('\n');
     },
 
-    dev_merge(args: { storyId: string; dryRun?: boolean; confirm?: boolean }): string {
+    dev_merge(args: { storyId: string }): string {
       const story = store.readStory(args.storyId);
 
       if (!story.worktree) {
@@ -581,34 +356,8 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         throw new Error(`Worktree 目录 ${wtPath} 不存在，已清理记录`);
       }
 
-      const storyDir = join(loadConfig(root).storyDir, args.storyId).replace(/\\/g, '/');
-      const autoCommitStoryFiles = hasPathChanges(wtPath, storyDir);
-      const currentMainBranch = git('rev-parse --abbrev-ref HEAD');
-      const mergePlanLines = [
-        `${args.dryRun ? '[DRY-RUN] ' : ''}dev_merge(${args.storyId}) plan:`,
-        `  - main branch: ${currentMainBranch}`,
-        `  - story branch: ${branch}`,
-        `  - worktree: ${wtPath}`,
-        ...(autoCommitStoryFiles
-          ? [`  - git add ${storyDir}`, `  - git commit -m "koala: auto-add story files for ${args.storyId}"`]
-          : ['  - no automatic git commit needed for story runtime files']),
-        `  - git merge ${branch} --no-ff -m "merge: ${args.storyId} ${story.title}"`,
-        `  - git worktree remove ${wtPath}`,
-        `  - git branch -d ${branch}`,
-        '  - persist story metadata as DONE and clear worktree record',
-      ];
-      if (args.dryRun) {
-        return mergePlanLines.join('\n') + '\n→ 这是 dry-run 预览。确认无误后再传 confirm:true 真实执行';
-      }
-      if (!args.confirm) {
-        throw new Error(
-          `dev_merge(${args.storyId}) 会自动执行 git merge/worktree 清理/branch 删除${autoCommitStoryFiles ? '，并可能先自动提交 story 运行时文件' : ''}，默认已阻止。\n` +
-          mergePlanLines.join('\n') + '\n' +
-          '→ 先传 dryRun:true 预览，确认后再传 confirm:true 真实执行'
-        );
-      }
-
       // 自动提交 story 目录下的运行时产生的文件（review.json 等）
+      const storyDir = join('docs', 'story', 'actives', args.storyId);
       try {
         git(`add ${storyDir}`, wtPath);
         const staged = git('diff --cached --name-only', wtPath);
@@ -632,14 +381,14 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
 
       // 尝试推进到 DONE（门禁检查测试通过 + bug 修复）
       if (story.phase === 'TEST') {
-        const actor = createStoryActor(args.storyId, store, story.phase);
+        const actor = createStoryActor(args.storyId, store, story.phase, root);
         actor.start();
         actor.send({ type: 'FINISH' });
         const newState = getStateName(actor);
         actor.stop();
 
         if (newState === 'TEST') {
-          const reason = formatPhaseGateDecision(getPhaseInvariantStatus(args.storyId, store, 'DONE'));
+          const reason = getGuardFailureReason(args.storyId, store, 'DONE', root);
           throw new Error(`无法合并: ${reason || '测试未全部通过或存在未修复 bug'}`);
         }
 
@@ -648,8 +397,14 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         story.events.push(collectContext('DONE', 'advance'));
       }
 
-      const mainBranch = currentMainBranch;
+      const mainBranch = git('rev-parse --abbrev-ref HEAD');
       const results: string[] = [];
+
+      // B-5fa4 CHK-003: warn about unpushed commits before cleanup
+      const unpushed = checkUnpushedCommits(wtPath, branch);
+      if (unpushed.warning) {
+        results.push(unpushed.warning);
+      }
 
       // merge 到主分支
       try {
@@ -657,7 +412,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         results.push(`✓ 分支 ${branch} 已合并到 ${mainBranch}`);
       } catch (e: any) {
         throw new Error(
-          `合并冲突。若要手动执行 git merge ${branch}，未经用户 confirm 不允许；确认后再解决:\n${e.stderr || e.message}`
+          `合并冲突，请手动解决:\ngit merge ${branch}\n${e.stderr || e.message}`
         );
       }
 
@@ -682,55 +437,15 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       return results.join('\n');
     },
 
-    /**
-     * @task B-4b17
-     * @checklist CHK-001
-     * @title story_discard dry-run preview and explicit confirm path
-     * @type feature
-     * @priority high
-     * @description
-     *   story_discard 属于 destructive 命令：会删除 linked worktree、删除分支并把
-     *   story 标记为 DISCARDED。这里补上 dry-run 计划输出，让用户在 --confirm 前
-     *   能先看到会改什么，并把真实执行与预览拆开。
-     * @changes
-     *   - [CHK-001] 支持 story_discard --dry-run 只预览 remove worktree / delete branch / discard story
-     *   - [CHK-001] 真实执行路径保持在 confirm 之后，避免误触直接落盘
-     * @test dangerous-command-guardrails
-     */
-    story_discard(args: { storyId: string; reason?: string; force?: boolean; dryRun?: boolean; confirm?: boolean; cleanupResidue?: boolean }): string {
+    /** 废弃 story：任意阶段均可调用，强制清理 worktree 和分支 */
+    story_discard(args: { storyId: string; reason?: string; force?: boolean }): string {
       const story = store.readStory(args.storyId);
 
       if (story.phase === 'DONE') {
         throw new Error(`Story ${args.storyId} 已 DONE，不能 discard（已完成的 story 请通过 git revert 撤销）`);
       }
       if (story.phase === 'DISCARDED') {
-        if (args.cleanupResidue) {
-          const lines = args.dryRun
-            ? [`[DRY-RUN] story_discard ${args.storyId} cleanup residue would:`, ...cleanupDiscardedStoryResidue(args.storyId, true), '→ 加 --confirm 真实执行']
-            : cleanupDiscardedStoryResidue(args.storyId, false);
-          return lines.join('\n');
-        }
         return `Story ${args.storyId} 已是 DISCARDED 状态，无需重复操作`;
-      }
-
-      if (args.dryRun) {
-        const plan: string[] = [`[DRY-RUN] story_discard ${args.storyId} would:`];
-        if (story.worktree) {
-          const wtPath = resolveWorktreePath(story.worktree.path);
-          const { branch } = story.worktree;
-          if (existsSync(wtPath)) {
-            plan.push(`- remove linked worktree: ${wtPath}`);
-          } else {
-            plan.push(`- worktree already missing: ${wtPath}`);
-          }
-          plan.push(`- delete branch if present: ${branch}`);
-        } else {
-          plan.push('- no active worktree recorded');
-        }
-        plan.push(`- mark story phase as DISCARDED${args.reason ? ` (reason: ${args.reason})` : ''}`);
-        plan.push('- append discard event to story history');
-        plan.push('→ 加 --confirm 真实执行');
-        return plan.join('\n');
       }
 
       const results: string[] = [];
@@ -741,6 +456,12 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         const { branch } = story.worktree;
 
         if (existsSync(wtPath)) {
+          // B-5fa4 CHK-003: warn about unpushed commits before discard cleanup
+          const unpushed = checkUnpushedCommits(wtPath, branch);
+          if (unpushed.warning) {
+            results.push(unpushed.warning);
+          }
+
           // 检查未提交改动
           const wtStatus = git('status --porcelain', wtPath);
           if (wtStatus && !args.force) {

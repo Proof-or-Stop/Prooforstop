@@ -1,21 +1,4 @@
 /**
- * @task B-9dae
- * @checklist CHK-002, CHK-003
- * @title doctor command surfaces fail-fast health issues
- * @type feature
- * @priority high
- * @description
- *   `koala doctor` 负责把 reportHealthIssue 写入的 health.jsonl 按最近 24 小时、
- *   category 分组和 orphan worktree 一起展示出来，让操作者能看见哪些
- *   PERSIST 类 silent catch 已被留痕，而不是事后完全不可追溯。
- *
- *   这也是 gap / convergence 识别 fail-fast 能力的重要可见面：不只要能写入
- *   health issue，还要让用户通过 CLI 读出来。
- * @changes
- *   - [CHK-002] 让 fail-fast / silent catch / doctor / health issue 能被注释扫描和 gap 分析看到
- *   - [CHK-003] 提供 health issue 与 orphan worktree 的文本/json 巡检入口
- */
-/**
  * koala doctor — 输出最近 24 小时的 health issue（按 category 分组）
  *
  * 让用户能定期 `koala doctor` 检查 koala 自己有没有隐藏的 PERSIST 失败。
@@ -56,9 +39,9 @@ export function createDoctorHandlers(ctx: HandlerContext) {
           try {
             rmSync(orphan, { recursive: true, force: true });
             repaired.push(orphan);
-        } catch (e: any) { /* MUTATION: rmSync failed even with force, surface in doctor output */
-          repairFailed.push({ path: orphan, error: e.message || String(e) });
-        }
+          } catch (e: any) {
+            repairFailed.push({ path: orphan, error: e.message || String(e) });
+          }
         }
       }
 
@@ -157,7 +140,7 @@ function scanOrphanWorktrees(root: string): {
   let repoRoot: string;
   try {
     repoRoot = execSync('git rev-parse --show-toplevel', { cwd: root, encoding: 'utf-8' }).trim();
-  } catch { /* PROBE: doctor may run outside git or before repo init */
+  } catch {
     return { registered: [], orphans: [] };
   }
 
@@ -175,7 +158,7 @@ function scanOrphanWorktrees(root: string): {
       .filter(l => l.startsWith('worktree '))
       .map(l => l.slice('worktree '.length).trim())
       .map(p => p.replace(/\\/g, '/'));
-  } catch { /* PROBE: git worktree list unavailable → skip orphan scan */
+  } catch {
     return { registered: [], orphans: [] };
   }
 
@@ -183,7 +166,7 @@ function scanOrphanWorktrees(root: string): {
   let entries: string[];
   try {
     entries = readdirSync(worktreeBase);
-  } catch { /* PROBE: worktree base unreadable → treat as no orphans */
+  } catch {
     return { registered, orphans: [] };
   }
 
@@ -193,7 +176,7 @@ function scanOrphanWorktrees(root: string): {
     let isDir = false;
     try {
       isDir = statSync(abs).isDirectory();
-    } catch { /* PROBE: race while enumerating worktree entries */
+    } catch {
       continue;
     }
     if (!isDir) continue;

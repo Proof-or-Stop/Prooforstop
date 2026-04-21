@@ -35,22 +35,16 @@ function isUnder(path: string, parent: string): boolean {
 }
 
 function isVolatilePath(path: string): boolean {
-  return path.startsWith('.omx/') || path === 'docs/story/activity.jsonl';
+  return path.startsWith('.koala/') || path === 'docs/story/activity.jsonl';
 }
 
 /**
- * @task B-13af
- * @checklist CHK-001
- * @title filter accepted local paths out of material baseline risk
- * @type feature
- * @priority medium
- * @description
- *   Some projects intentionally keep local agent/runtime files outside the
- *   story worktree baseline. Accepted local paths are still visible in raw
- *   git status, but they should not be rendered as material baseline risk.
- * @changes
- *   - [CHK-001] Support acceptedLocalPaths alongside existing excludePaths
- *   - [CHK-003] Preserve volatile path accounting separately from accepted local paths
+ * Collect baseline risk from git status in a repo.
+ *
+ * Classifies each dirty/untracked path into:
+ *   - volatile: runtime workspace directories (.koala/, activity.jsonl) -- auto-ignored
+ *   - acceptedLocal: user-configured paths to suppress -- demoted from material
+ *   - material: real risk that should be reported
  */
 export function collectBaselineRisk(
   repoRoot: string,

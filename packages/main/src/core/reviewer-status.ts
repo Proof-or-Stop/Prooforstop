@@ -1,207 +1,138 @@
-import { createHash } from 'crypto';
-import type { StoryPhase } from './types.js';
-import type { StoryStore } from './store.js';
-import { summarizeIntentCoverage } from './intent-coverage.js';
+/**
+ * B-c622 CHK-008: Reviewer status aggregation.
+ *
+ * Provides two functions:
+ *   - summarizeStoryReview: check review.json signature + blocker count
+ *   - summarizeReviewerStatus: aggregate all reviewer statuses from findings + review
+ *
+ * Pure read-only module -- no I/O mutations. Consumes StoryStore for data access
+ * and reuses existing reviewer-opt-in / advisory / finding-verify modules.
+ */
 
-export type ReviewerArtifactKey = 'story_review' | 'test_intent_review' | 'implementation_review';
-export type ReviewerVerdict = 'pass' | 'fail' | 'missing';
+import { createHash } from 'crypto';
+import type { StoryStore } from './store.js';
+import { resolveOptInReviewers, resolveChannel, findingAgentMatchesReviewer } from './reviewer-opt-in.js';
+import { isAdvisoryThisRound, resolveReviewRoundCount } from './advisory.js';
+import { verifyFinding } from './finding-verify.js';
+
+// ── Public types ──
 
 export interface ReviewerStatusEntry {
-  key: ReviewerArtifactKey;
-  label: string;
+  name: string;
   required: boolean;
   present: boolean;
-  verdict: ReviewerVerdict;
-  blocking: boolean;
-  summary: string;
-  detail: string;
-  findings: number;
+  verdict: 'pass' | 'fail' | 'pending';
+  blockerCount: number;
 }
 
-export interface ReviewerStatus {
-  phase: StoryPhase;
+export interface ReviewerStatusSummary {
   entries: ReviewerStatusEntry[];
-  primary: ReviewerStatusEntry | null;
+  allPassed: boolean;
+  totalBlockers: number;
 }
 
-function isRequired(key: ReviewerArtifactKey, phase: StoryPhase): boolean {
-  if (key === 'story_review') {
-    return ['DEV', 'TEST_CASE', 'TEST_CASE_REVIEW', 'TEST', 'DONE'].includes(phase);
-  }
-  if (key === 'test_intent_review') {
-    return ['TEST', 'DONE'].includes(phase);
-  }
-  if (key === 'implementation_review') {
-    return ['TEST', 'DONE'].includes(phase);
-  }
-  return false;
-}
+// ── Constants ──
 
-function summarizeStoryReview(store: StoryStore, storyId: string, phase: StoryPhase): ReviewerStatusEntry {
-  const review = store.readReview(storyId);
-  const required = isRequired('story_review', phase);
-  const last = review.reviews[review.reviews.length - 1];
-  if (!last) {
-    return {
-      key: 'story_review',
-      label: 'story review',
-      required,
-      present: false,
-      verdict: 'missing',
-      blocking: required,
-      summary: 'missing',
-      detail: 'no story_review record',
-      findings: 0,
-    };
-  }
+const REVIEW_SALT = 'koala-review-integrity-v1';
 
-  const REVIEW_SALT = 'koala-review-integrity-v1';
-  const hashInput = `${storyId}:${last.timestamp}:${last.issueCount}:${last.blockerCount ?? last.issueCount}:${REVIEW_SALT}`;
-  const expectedHash = createHash('sha256').update(hashInput).digest('hex');
-  const invalid = !last._hash || last._hash !== expectedHash;
-  const blockers = last.blockerCount ?? last.issueCount;
-  const verdict: ReviewerVerdict = invalid || blockers > 0 ? 'fail' : 'pass';
+// ── Public API ──
 
-  return {
-    key: 'story_review',
-    label: 'story review',
-    required,
-    present: true,
-    verdict,
-    blocking: required && verdict !== 'pass',
-    summary: invalid ? 'invalid signature' : `${verdict} (${blockers} blocker)`,
-    detail: invalid
-      ? 'review.json signature invalid'
-      : `latest round: ${blockers} blocker / ${last.issueCount} total issue`,
-    findings: last.issueCount,
+/**
+ * Summarize story_review (review.json) status.
+ * Checks the latest review entry's signature and counts blockers.
+ */
+export function summarizeStoryReview(store: StoryStore, storyId: string): ReviewerStatusEntry {
+  const entry: ReviewerStatusEntry = {
+    name: 'story-review',
+    required: true,
+    present: false,
+    verdict: 'pending',
+    blockerCount: 0,
   };
+
+  const reviewData = store.readReview(storyId);
+  if (!reviewData.reviews || reviewData.reviews.length === 0) {
+    return entry;
+  }
+
+  const latest = reviewData.reviews[reviewData.reviews.length - 1];
+  entry.present = true;
+
+  // Verify signature: sha256(storyId:timestamp:issueCount:blockerCount:salt)
+  if (latest._hash) {
+    const expectedHash = createHash('sha256')
+      .update(`${storyId}:${latest.timestamp}:${latest.issueCount}:${latest.blockerCount ?? 0}:${REVIEW_SALT}`)
+      .digest('hex');
+    if (latest._hash !== expectedHash) {
+      entry.verdict = 'fail';
+      entry.blockerCount = 1; // tampered signature counts as a blocker
+      return entry;
+    }
+  }
+
+  entry.blockerCount = latest.blockerCount ?? 0;
+  entry.verdict = entry.blockerCount === 0 ? 'pass' : 'fail';
+  return entry;
 }
 
-function summarizeTestIntentReview(store: StoryStore, storyId: string, phase: StoryPhase, root?: string): ReviewerStatusEntry {
+/**
+ * Aggregate reviewer status from opt-in reviewers + findings.
+ *
+ * For each opted-in reviewer, checks whether findings from that reviewer exist
+ * and whether any open blockers remain (respecting round-based advisory rules).
+ */
+export function summarizeReviewerStatus(store: StoryStore, storyId: string): ReviewerStatusSummary {
+  const story = store.readStory(storyId);
   const checklist = store.readChecklist(storyId);
-  const required = isRequired('test_intent_review', phase);
-  let total = 0;
-  let passed = 0;
-  let failed = 0;
-  let missing = 0;
-  let exemptOnly = checklist.items.length > 0;
+  const understanding = store.readUnderstanding(storyId);
+  const touchpoints = understanding?.touchpoints ?? [];
 
-  for (const item of checklist.items) {
-    if (item.testIntent !== null) {
-      exemptOnly = false;
+  const channel = resolveChannel(
+    checklist.items.length,
+    story.riskSignals,
+  );
+  const reviewers = resolveOptInReviewers(story, channel, touchpoints);
+  const round = resolveReviewRoundCount(store, storyId);
+
+  const findingData = store.readFindings(storyId);
+  const findings = findingData.findings ?? [];
+
+  // story-review entry (always required)
+  const storyReviewEntry = summarizeStoryReview(store, storyId);
+
+  // Build entries for each opted-in LLM reviewer
+  const reviewerEntries: ReviewerStatusEntry[] = reviewers.map(r => {
+    const matched = findings.filter(f => findingAgentMatchesReviewer(f.agent, r.name));
+    const present = matched.length > 0;
+
+    // Count open blockers (not advisory this round, not resolved/dismissed, valid signature)
+    const blockerCount = matched.filter(f =>
+      f.status === 'open'
+      && !isAdvisoryThisRound(f.severity, round)
+      && verifyFinding(storyId, f),
+    ).length;
+
+    let verdict: 'pass' | 'fail' | 'pending';
+    if (!present) {
+      verdict = 'pending';
+    } else if (blockerCount > 0) {
+      verdict = 'fail';
+    } else {
+      verdict = 'pass';
     }
-    if (!item.testIntent) continue;
-    for (const lane of ['happy', 'edge', 'adversarial'] as const) {
-      const entries = item.testIntent[lane] || [];
-      for (const entry of entries) {
-        total++;
-        if (typeof entry === 'string') {
-          missing++;
-          continue;
-        }
-        const judgment = Array.isArray(entry.results)
-          ? [...entry.results].reverse().find((result) => result.role === 'reviewer' && result.pass !== undefined)
-          : undefined;
-        if (!judgment) missing++;
-        else if (judgment.pass === true) passed++;
-        else failed++;
-      }
-    }
-  }
 
-  const present = total > 0;
-  let verdict: ReviewerVerdict = 'missing';
-  if (failed > 0) verdict = 'fail';
-  else if (present && missing === 0) verdict = 'pass';
-  else if (exemptOnly) verdict = 'pass';
-
-  let coverageSummary = '';
-  let coverageMissing = 0;
-  if (root && total > 0) {
-    const coverage = summarizeIntentCoverage(root, store, storyId);
-    coverageMissing = coverage.missing.length;
-    coverageSummary = `; fixture coverage ${coverage.covered}/${coverage.total}`;
-    if (coverageMissing > 0 && verdict === 'pass') verdict = 'fail';
-  }
-
-  return {
-    key: 'test_intent_review',
-    label: 'testIntent reviewer + fixture coverage',
-    required,
-    present: present || exemptOnly,
-    verdict,
-    blocking: required && verdict !== 'pass',
-    summary: exemptOnly
-      ? 'pass (all checklist items marked not auto-testable)'
-      : `${verdict} (${passed}/${total} reviewer pass, ${missing} reviewer missing, ${failed} fail${coverageSummary})`,
-    detail: exemptOnly
-      ? 'all checklist items explicitly marked testIntent:null'
-      : total === 0
-      ? 'no testIntent entries'
-      : `${passed}/${total} reviewer judgments passed${coverageMissing > 0 ? `; ${coverageMissing} fixture intentRef missing` : ''}`,
-    findings: failed + missing + coverageMissing,
-  };
-}
-
-function summarizeImplementationReview(store: StoryStore, storyId: string, phase: StoryPhase): ReviewerStatusEntry {
-  const data = store.readImplementationReview(storyId);
-  const required = isRequired('implementation_review', phase);
-  if (!data) {
     return {
-      key: 'implementation_review',
-      label: 'implementation review',
-      required,
-      present: false,
-      verdict: 'missing',
-      blocking: required,
-      summary: 'missing',
-      detail: 'no implementation-review record',
-      findings: 0,
+      name: r.name,
+      required: true,
+      present,
+      verdict,
+      blockerCount,
     };
-  }
+  });
 
-  return {
-    key: 'implementation_review',
-    label: 'implementation review',
-    required,
-    present: true,
-    verdict: data.verdict,
-    blocking: required && data.verdict !== 'pass',
-    summary: `${data.verdict} (${data.findings.length} findings)`,
-    detail: data.summary,
-    findings: data.findings.length,
-  };
-}
+  const entries = [storyReviewEntry, ...reviewerEntries];
+  const totalBlockers = entries.reduce((sum, e) => sum + e.blockerCount, 0);
+  const allPassed = entries.every(e => e.verdict === 'pass');
 
-function primaryOrder(phase: StoryPhase): ReviewerArtifactKey[] {
-  if (phase === 'TEST_CASE_REVIEW' || phase === 'TEST' || phase === 'DONE') {
-    return ['implementation_review', 'test_intent_review', 'story_review'];
-  }
-  return ['story_review', 'implementation_review', 'test_intent_review'];
-}
-
-export function getReviewerStatus(
-  storyId: string,
-  store: StoryStore,
-  phase: StoryPhase,
-  root?: string,
-): ReviewerStatus {
-  const entries = [
-    summarizeStoryReview(store, storyId, phase),
-    summarizeTestIntentReview(store, storyId, phase, root),
-    summarizeImplementationReview(store, storyId, phase),
-  ];
-  const order = primaryOrder(phase);
-  const sorted = order
-    .map((key) => entries.find((entry) => entry.key === key))
-    .filter((entry): entry is ReviewerStatusEntry => Boolean(entry));
-
-  const primary =
-    sorted.find((entry) => entry.blocking && entry.verdict !== 'pass') ||
-    sorted.find((entry) => entry.verdict === 'fail') ||
-    sorted.find((entry) => entry.verdict === 'missing') ||
-    sorted.find((entry) => entry.verdict === 'pass') ||
-    null;
-
-  return { phase, entries, primary };
+  return { entries, allPassed, totalBlockers };
 }

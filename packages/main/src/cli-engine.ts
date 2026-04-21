@@ -9,6 +9,8 @@
 
 import { z, ZodType, ZodOptional, ZodEnum, ZodArray, ZodUnion, ZodString, ZodBoolean, ZodNumber, ZodObject } from 'zod';
 import { existsSync } from 'fs';
+import { appendActivityLog } from './core/activity-log.js';
+import { inferActivityRole } from './core/activity-role.js';
 import { join } from 'path';
 import { StoryStore } from './core/store.js';
 import { createMainRegistry, type Registry } from './registry.js';
@@ -17,46 +19,15 @@ import { execSync } from 'child_process';
 import { loadConfig, isCommandAllowed, getAllowedPatterns } from './core/config.js';
 import { decorateResult, type ActiveStoryInfo } from './handlers/hints.js';
 import { reportHealthIssue } from './core/health.js';
-import { appendActivityLog } from './core/activity-log.js';
 import { detectStaleState } from './core/stale-detector.js';
 import { runHooks, truncateForEnv, buildHookEnv as buildSharedHookEnv, HOOK_TIMEOUT_MS } from './core/hooks.js';
-import { inferActivityRole } from './core/activity-role.js';
 import {
-  STORY_CREATE_LONG, STORY_ADVANCE_LONG, CHECKLIST_UPDATE_LONG, FIXTURE_BATCH_ADD_LONG,
+  STORY_CREATE_LONG, STORY_ADVANCE_LONG, CHECKLIST_UPDATE_LONG,
+  STORY_REVIEW_LONG, BUG_REPORT_LONG, VALIDATE_LONG,
   SESSION_BRIEF_FOOTER,
 } from './cli-prompts.js';
 
 // ── Tool Registry ──
-
-const READ_ONLY_COMMANDS_WITHOUT_ACTIVITY_LOG = new Set([
-  'session_brief',
-  'status',
-  'next',
-  'aux_doc_list',
-  'story_get',
-  'story_list',
-  'checklist_get',
-]);
-
-/**
- * @task B-ae82
- * @checklist CHK-003
- * @title keep dry-run commands read-only
- * @type bugfix
- * @priority high
- * @description
- *   Dry-run commands are used immediately before destructive confirmations.
- *   If the CLI writes activity.jsonl for the preview itself, DONE confirm can
- *   be blocked by the dirty worktree the preview just created.
- * @changes
- *   - [CHK-003] Skip activity logging for all dryRun=true commands
- *   - [CHK-003] Preserve activity logging for real mutating commands
- */
-function shouldWriteActivityLog(cmd: string, args: Record<string, unknown>): boolean {
-  if (READ_ONLY_COMMANDS_WITHOUT_ACTIVITY_LOG.has(cmd)) return false;
-  if (args.dryRun === true) return false;
-  return true;
-}
 
 export interface ToolDef {
   name: string;
@@ -64,10 +35,6 @@ export interface ToolDef {
   description: string;
   /** 完整 PROMPT（出现在 koala <cmd> --help 里）。可选；缺省时只显示 description */
   longHelp?: string;
-  guardrails?: {
-    supportsDryRun?: boolean;
-    requiresConfirm?: boolean;
-  };
   schema: Record<string, ZodType>;
 }
 
@@ -79,63 +46,65 @@ export const MAIN_TOOLS: ToolDef[] = [
     description: z.string().describe('描述'), type: z.enum(['feature','bug','refactor','chore']).describe('类型'),
     priority: z.string().describe('优先级'), source: z.string().optional().describe('来源'),
     depends: z.array(z.string()).optional().describe('依赖 Story ID'),
-    lane: z.enum(['mainline','supporting','exploratory']).optional().describe('并行调度角色：主线/支持线/探索线'),
-    parallelSafe: z.enum(['yes','no','plan_only']).optional().describe('并行安全级别：可并行/禁止并行/仅允许并行做 PLAN'),
-    sharedHotspots: z.array(z.string()).optional().describe('共享热点文件或模块（用于并行冲突提示）'),
-    blockingFor: z.array(z.string()).optional().describe('会阻塞的其他 Story ID（供 session_brief 显示等待关系）'),
     keywords: z.array(z.string()).optional().describe('关键词（领域/模块/概念，用于查重）'),
-    checklist: z.array(z.object({ title: z.string(), context: z.string().optional(), relatedDocs: z.array(z.string()).optional().describe('关联文档路径（用于三次提醒）'), phase: z.enum(['DEV','TEST_CASE']).optional().describe('B-5010: item 所属阶段（默认 DEV）'), testIntent: z.object({ happy: z.array(z.union([z.string(), z.object({ desc: z.string(), type: z.enum(['cli_blackbox','browser_blackbox']) })])), edge: z.array(z.union([z.string(), z.object({ desc: z.string(), type: z.enum(['cli_blackbox','browser_blackbox']) })])).optional(), adversarial: z.array(z.union([z.string(), z.object({ desc: z.string(), type: z.enum(['cli_blackbox','browser_blackbox']) })])).optional() }).optional() })).optional().describe('开发清单'),
+    checklist: z.array(z.object({ title: z.string(), context: z.string().optional(), relatedDocs: z.array(z.string()).optional().describe('关联文档路径（用于三次提醒）'), excludes: z.array(z.string()).optional().describe('显式声明不做的功能点') })).optional().describe('开发清单'),
     prefix: z.string().optional().describe('ID 前缀(默认 B)'),
-    phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','TEST_CASE','TEST_CASE_REVIEW','TEST','DONE']).optional().describe('直接指定阶段'),
+    phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','REVIEW','TEST','DONE']).optional().describe('直接指定阶段'),
     forceNew: z.boolean().optional().describe('B-0af4: 绕过同名 story idempotency 强制新建（同名未完成 story 默认会被复用）'),
+    background: z.string().describe('B-45ed CHK-006: 四段式 background.md 内容（必填）。需含 "## 触发事件" / "## 关键洞察" / "## 方案取舍" / "## 对话纹理" 4 段，每段 ≥ 50 字符，总长 ≥ 300，触发事件段须含具体编号（B-xxxx / F-xxx / CHK-xxx / commit hash / YYYY-MM-DD）'),
+    fromDraft: z.string().optional().describe('B-9975: 从已审查的 draft 创建 story（传 draft name）。三层 gate 校验后直接进 INIT_CHECK'),
   }},
   { name: 'story_advance', description: '推进 Story 到下一阶段', longHelp: STORY_ADVANCE_LONG, schema: {
-    storyId: z.string().describe('Story ID'), phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','TEST_CASE','TEST_CASE_REVIEW','TEST','DONE']).describe('目标阶段'),
+    storyId: z.string().describe('Story ID'), phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','REVIEW','TEST','DONE']).describe('目标阶段'),
     checklist: z.array(z.object({ id: z.string(), title: z.string() })).optional().describe('开发清单'),
-    dryRun: z.boolean().optional().describe('仅预览 DONE 路径的自动 git 变更计划，不实际推进阶段'),
-    confirm: z.boolean().optional().describe('显式确认执行 DONE 路径里会自动触发的 git commit/merge 收尾'),
   }},
   { name: 'story_update', description: '编辑 Story 信息', schema: {
     storyId: z.string().describe('Story ID'), title: z.string().optional().describe('新标题'),
     description: z.string().optional().describe('新描述'), priority: z.string().optional().describe('新优先级'),
-    source: z.string().optional().describe('新来源'),
-    depends: z.array(z.string()).optional().describe('依赖 Story ID'),
-    lane: z.enum(['mainline','supporting','exploratory']).optional().describe('并行调度角色'),
-    parallelSafe: z.enum(['yes','no','plan_only']).optional().describe('并行安全级别'),
-    sharedHotspots: z.array(z.string()).optional().describe('共享热点文件或模块'),
-    blockingFor: z.array(z.string()).optional().describe('会阻塞的其他 Story ID'),
   }},
   { name: 'story_get', description: '读取 Story 详情', schema: { storyId: z.string().describe('Story ID'), detail: z.boolean().optional().describe('附带 index.json 全字段（phase/priority/name/description/...）到 result.index') }},
   { name: 'story_list', description: '列出全部 Story', schema: {
-    phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','TEST_CASE','TEST_CASE_REVIEW','TEST','DONE','DISCARDED']).optional().describe('按阶段过滤（与 active 互斥）'),
+    phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','REVIEW','TEST','DONE','DISCARDED']).optional().describe('按阶段过滤（与 active 互斥）'),
     active: z.boolean().optional().describe('仅列出非终态 story（排除 DONE/DISCARDED/IDEA）。B-89c7 CHK-016 新增'),
   }},
   { name: 'story_discard', description: '废弃 Story：清理 worktree/分支并标记为 DISCARDED', schema: {
     storyId: z.string().describe('Story ID'),
     reason: z.string().optional().describe('废弃原因（写入事件记录）'),
     force: z.boolean().optional().describe('强制丢弃未提交改动'),
-    dryRun: z.boolean().optional().describe('仅预览将执行的操作，不实际修改 story/worktree/git'),
-    confirm: z.boolean().optional().describe('显式确认执行危险操作'),
-    cleanupResidue: z.boolean().optional().describe('清理已 DISCARDED story 被 stash/merge 恢复出来的 untracked 残留目录'),
-  }, guardrails: { supportsDryRun: true, requiresConfirm: true }},
-  { name: 'aux_doc_list', description: '列出项目文档（PLAN 阶段挑选 relatedDocs 用）', schema: {
-    format: z.enum(['text','json']).optional().describe('输出格式（默认 text）'),
   }},
-  { name: 'story_reconcile', description: '检测并修复僵尸 story（分支已合并/删除但 phase 非终态）', schema: {
-    dryRun: z.boolean().optional().describe('默认 true 只报告不修改，false 执行修复'),
+
+  // Draft (B-9975: iterate on story shape before formal story_create)
+  { name: 'story_draft', description: '创建 draft（不分配 B-xxxx id，写到 docs/story/drafts/<name>/）', schema: {
+    name: z.string().describe('短名称（字母数字+连字符，3-60 字符）'),
+    title: z.string().describe('标题（≥ 5 字符）'),
+    description: z.string().describe('描述（≥ 5 字符）'),
+    type: z.enum(['feature', 'bug', 'refactor', 'chore']).describe('类型'),
+    priority: z.string().describe('优先级'),
+    checklist: z.array(z.object({ title: z.string(), context: z.string().optional() })).describe('开发清单（≥ 1 项）'),
+    background: z.string().describe('四段式 background.md 内容（必填，同 story_create 校验）'),
+    keywords: z.array(z.string()).optional().describe('关键词'),
   }},
-  { name: 'story_migrate_storage', description: '迁移 legacy Koala storage：docs/story/actives → storyDir，并把 docs/story/activity.jsonl → .koala/activity.jsonl', schema: {
-    dryRun: z.boolean().optional().describe('预览迁移计划（默认 true）'),
-    confirm: z.boolean().optional().describe('显式确认执行迁移并备份 legacy 目录'),
-  }, guardrails: { supportsDryRun: true, requiresConfirm: true }},
-  { name: 'story_sync_main', description: '安全同步 main 到当前 story worktree：story metadata 冲突自动保留 --ours，源码冲突仍阻塞', schema: {
-    storyId: z.string().describe('Story ID'),
-    dryRun: z.boolean().optional().describe('仅预览 git merge main 计划，不修改仓库'),
-    confirm: z.boolean().optional().describe('显式确认执行 git merge main 并自动保护当前 story metadata'),
-  }, guardrails: { supportsDryRun: true, requiresConfirm: true }},
+  { name: 'story_draft_list', description: '列出所有 draft', schema: {} },
+  { name: 'story_draft_discard', description: '删除指定 draft', schema: {
+    name: z.string().describe('要删除的 draft 名称'),
+  }},
+  { name: 'draft_check_set', description: '保存 draft check 结果（由 reviewer 调用，签名 draft 的 background + checklist）', schema: {
+    draftName: z.string().describe('Draft 名称'),
+    issues: z.array(z.object({
+      id: z.string().optional().describe('reviewer 自分配 id（如 INIT-001），可选（自动分配）'),
+      severity: z.enum(['critical', 'high', 'medium', 'low']).describe('issue 严重度'),
+      desc: z.string().min(1, 'desc 必填且 ≥ 1 字符').describe('issue 具体描述'),
+    })).describe('Reviewer 提出的 issue 列表（允许空数组）'),
+    agentId: z.string().optional().describe('Reviewer 自报 agent id，仅审计追溯用'),
+  }},
+  { name: 'draft_issue_resolve', description: '对 draft check 中的 issue 写入 resolution（≥ 20 字符）', schema: {
+    draftName: z.string().describe('Draft 名称'),
+    issueId: z.string().describe('Issue ID（如 INIT-001）'),
+    resolution: z.string().min(20, 'resolution ≥ 20 字符').describe('书面消解结论'),
+  }},
 
   // Review
-  { name: 'story_review', description: '对抗审查 testIntent 完整性', schema: {
+  { name: 'story_review', description: '对抗审查 checklist 完整性', longHelp: STORY_REVIEW_LONG, schema: {
     storyId: z.string().describe('Story ID'),
   }},
   { name: 'story_review_dismiss', description: '驳回一个被误报的 riskSignal 分类（B-5010）', schema: {
@@ -150,36 +119,40 @@ export const MAIN_TOOLS: ToolDef[] = [
     storyId: z.string().describe('Story ID'), title: z.string().describe('做什么（一句话）'),
     context: z.string().optional().describe('根因/参考方案'),
     relatedDocs: z.array(z.string()).optional().describe('关联文档路径（用于三次提醒）'),
-    phase: z.enum(['DEV','TEST_CASE']).optional().describe('B-5010: item 所属阶段（默认 DEV）；TEST_CASE 表示 fixture/perf 类，不纳入 DEV→TEST_CASE 门禁'),
+    userSees: z.string().optional().describe('用户完成此 item 后在终端/UI 看到的具体文本'),
+    excludes: z.array(z.string()).optional().describe('显式声明不做的功能点'),
+    files: z.object({
+      modify: z.array(z.string()),
+      create: z.array(z.string()),
+      test: z.array(z.string()),
+    }).optional().describe('B-45ed: 受影响的文件集合（PLAN 阶段声明，story_review 做 touchpoints→files 覆盖校验）'),
   }},
-  { name: 'checklist_update', description: '更新 checklist 项 (status/title/context/testIntent/relatedDocs/phase)', longHelp: CHECKLIST_UPDATE_LONG, schema: {
+  { name: 'checklist_remove', description: '从 story 中移除一个 checklist item（必须给出裁决 + 理由）', schema: {
+    storyId: z.string().describe('Story ID'), itemId: z.string().describe('要移除的项 ID'),
+    disposition: z.enum(['accept', 'reject', 'partial']).describe('裁决: accept=确认删除合理 / reject=不该删但要移除 / partial=部分合理'),
+    justification: z.string().describe('删除理由（≥10 字符）'),
+  }},
+  { name: 'checklist_update', description: '更新 checklist 项 (status/relatedDocs；title/context 从 PLAN 冻结，userSees 从 DEV 冻结)', longHelp: CHECKLIST_UPDATE_LONG, schema: {
     storyId: z.string().describe('Story ID'), itemId: z.string().describe('项 ID'),
     status: z.enum(['pending','in_progress','done']).optional().describe('新状态'),
-    title: z.string().optional().describe('新标题'),
-    context: z.string().optional().describe('新 context'),
+    title: z.string().optional().describe('新标题（PLAN 起冻结）'),
+    context: z.string().optional().describe('新 context（PLAN 起冻结）'),
     relatedDocs: z.array(z.string()).optional().describe('关联文档路径（用于三次提醒）'),
-    phase: z.enum(['DEV','TEST_CASE']).optional().describe('B-5010: item 所属阶段'),
-    testIntent: z.union([z.object({ happy: z.array(z.union([z.string(), z.object({ desc: z.string(), type: z.enum(['cli_blackbox','browser_blackbox']) })])).optional(), edge: z.array(z.union([z.string(), z.object({ desc: z.string(), type: z.enum(['cli_blackbox','browser_blackbox']) })])).optional(), adversarial: z.array(z.union([z.string(), z.object({ desc: z.string(), type: z.enum(['cli_blackbox','browser_blackbox']) })])).optional() }), z.null()]).optional().describe('测试意图三栏（happy 必填，edge/adversarial 选填；null=不可自动化测试）'),
+    userSees: z.string().optional().describe('用户完成此 item 后在终端/UI 看到的具体文本（PLAN 之前可写，DEV 起冻结）'),
+    files: z.object({
+      modify: z.array(z.string()),
+      create: z.array(z.string()),
+      test: z.array(z.string()),
+    }).optional().describe('B-45ed: 受影响的文件集合（PLAN 阶段声明）'),
     reason: z.string().optional().describe('变更原因'), agent: z.string().optional().describe('操作者'),
+    success: z.boolean().optional().describe('subagent 结果是否成功（仅 status=done 时有效，默认 true）'),
+  }},
+  { name: 'light_review', description: '记录一次轻量 review（DEV 阶段每完成一批 item 后调用）', schema: {
+    storyId: z.string().describe('Story ID'),
+    checklistIds: z.array(z.string()).describe('本次 review 覆盖的 checklist item ID 列表'),
+    note: z.string().optional().describe('review 备注'),
   }},
 
-  // TestIntent Results
-  { name: 'testintent_record', description: '追加 testIntent 审核结果', schema: {
-    storyId: z.string().describe('Story ID'), itemId: z.string().describe('Checklist 项 ID'),
-    lane: z.enum(['happy','edge','adversarial']).describe('栏位'),
-    index: z.number().describe('条目索引（从 0 开始）'),
-    pass: z.boolean().optional().describe('是否通过（不传=纯回复）'),
-    note: z.string().describe('说明（格式：file:line + WHY + severity）'),
-    agent: z.string().optional().describe('调用者标识（自动推断 role）'),
-  }},
-
-  { name: 'testintent_check', description: '检查 testIntent 审核通过状态', schema: {
-    storyId: z.string().describe('Story ID'),
-  }},
-  { name: 'testintent_handoff', description: '生成交给 test-intent agent 的 PLAN 阶段任务包', schema: {
-    storyId: z.string().describe('Story ID'),
-    itemIds: z.array(z.string()).optional().describe('只交接指定 checklist item（默认全部）'),
-  }},
   // Understanding (Pre-context Intake snapshot, OMX 风格)
   { name: 'understanding_set', description: 'PLAN 阶段落 task 理解快照（task/outcome/facts/constraints/unknowns/touchpoints）', schema: {
     storyId: z.string().describe('Story ID'),
@@ -222,61 +195,32 @@ export const MAIN_TOOLS: ToolDef[] = [
     usage: z.string().describe('怎么用（slash / tool / 调用示例，≥ 10 字符）'),
     limitations: z.string().describe('已知限制 / 设计偏离（没有就写 "none — fully covered"）'),
     pitfalls: z.string().describe('踩坑记录（卡在哪、绕了几次路、下个人应该知道什么，≥ 10 字符；禁止空话）'),
-    skipReasons: z.record(z.string(), z.string()).optional().describe('{case name: reason} 对每条 sandbox:false 但没跑的 case 说明原因；未提供则 koala 报错列出缺失项'),
+    skipReasons: z.record(z.string()).optional().describe('{case name: reason} 对每条 sandbox:false 但没跑的 case 说明原因；未提供则 koala 报错列出缺失项'),
   }},
   { name: 'summary_get', description: '读取 story summary', schema: {
     storyId: z.string().describe('Story ID'),
   }},
-  { name: 'implementation_review_result_set', description: '写入 implementation-reviewer 的结构化结果（第一版 advisory）', schema: {
-    storyId: z.string().describe('Story ID'),
-    verdict: z.enum(['pass','fail']).describe('实现 review 总结'),
-    findings: z.array(z.object({
-      file: z.string(),
-      line: z.number(),
-      why: z.string(),
-      severity: z.enum(['info','medium','high']),
-    })).describe('实现 review findings'),
-    summary: z.string().describe('一段简短总结'),
-  }},
-  { name: 'implementation_review_result_get', description: '读取 implementation review 结果', schema: {
-    storyId: z.string().describe('Story ID'),
-  }},
-  { name: 'testintent_resume', description: '人类介入：重置某条 testIntent 的 5 轮 cap，开新段', schema: {
-    storyId: z.string().describe('Story ID'),
-    itemId: z.string().describe('Checklist 项 ID'),
-    lane: z.enum(['happy','edge','adversarial']).describe('栏位'),
-    index: z.number().describe('条目索引'),
-    reason: z.string().describe('人类裁决理由（≥ 5 字符）'),
-    human: z.boolean().describe('必须传 true，确认是人类执行而非主 agent 自动调用'),
-  }},
-
   // Bug
-  { name: 'bug_report', description: '报告 bug', schema: {
+  { name: 'bug_report', description: '报告 bug', longHelp: BUG_REPORT_LONG, schema: {
     storyId: z.string().describe('Story ID'), id: z.string().describe('Bug ID'),
     title: z.string().describe('描述'), checklistId: z.string().optional().describe('关联 checklist ID'),
-    fixtureId: z.string().optional().describe('关联 fixture case uuid'),
   }},
   { name: 'bug_update', description: '更新 bug 状态', schema: {
     storyId: z.string().describe('Story ID'), id: z.string().describe('Bug ID'),
     status: z.enum(['open','fixed']).describe('新状态'),
+    evidence: z.object({
+      symptom: z.string().describe('用户可观测的症状'),
+      reproSteps: z.array(z.string()).describe('最小复现步骤'),
+      hypothesis: z.string().optional().describe('验证过的假设'),
+      rootCause: z.string().describe('确认的根因'),
+      fixEvidence: z.string().describe('修复点说明'),
+      reproTest: z.string().optional().describe('复现测试路径'),
+    }).optional().describe('调试证据链（标 fixed 时建议提供）'),
   }},
   { name: 'bug_list', description: '查看 bug 列表', schema: { storyId: z.string().describe('Story ID') }},
   { name: 'bug_analyze', description: '跨 story bug 质量仪表盘（markdown/json）', schema: {
     format: z.enum(['json','markdown']).optional().describe('输出格式（默认 json）'),
   }},
-
-  // Truth
-  { name: 'truth_scan', description: '扫描真相源目录，提取需求点/决策/约束/问题（summary=true 只返回统计）', schema: {
-    summary: z.boolean().optional().describe('仅返回统计摘要，不展开全部 entries'),
-  }},
-  { name: 'truth_nav', description: '生成/更新真相源 NAV.md 导航索引', schema: {}},
-  { name: 'truth_analyze', description: '分析真相源中的矛盾/模糊/缺失', schema: {}},
-  { name: 'truth_to_story', description: '从需求自动拆解成 Story 建议', schema: {}},
-  { name: 'truth_extract', description: '从代码+Story 反向提取真相源', schema: {}},
-
-  // Gap / Convergence
-  { name: 'gap_analyze', description: '对比真相源 vs 代码现实，输出差距报告', schema: {}},
-  { name: 'convergence_check', description: '判断项目是否收敛（需求覆盖、测试通过、无差距）', schema: {}},
 
   // Test
   { name: 'test_add', description: '记录测试证据', schema: {
@@ -286,58 +230,11 @@ export const MAIN_TOOLS: ToolDef[] = [
     result: z.enum(['PASS','FAIL']).describe('结果'),
   }},
   { name: 'test_list', description: '查看测试证据', schema: { storyId: z.string().describe('Story ID') }},
-  { name: 'test_auto', description: '全量回归：执行所有 fixture case（CLI + Browser）。trace 默认关闭', guardrails: { supportsDryRun: true, requiresConfirm: true }, schema: {
-    storyId: z.string().optional().describe('已废弃，请用 test_story'),
-    trace: z.boolean().optional().describe('启用 V8 profiler trace（默认关闭，仅刷新 aux_trace 数据时开）'),
-    enableProfiler: z.boolean().optional().describe('（兼容别名）等同于 trace'),
-    dryRun: z.boolean().optional().describe('仅预览将扫描/清理/执行的范围，不真实执行全量回归'),
-    confirm: z.boolean().optional().describe('显式确认执行 destructive 的全量回归'),
+  // Dashboard (实时看板)
+  { name: 'dashboard', description: '实时 story 进度看板（每 N 秒刷新，支持多项目切换）', schema: {
+    roots: z.string().optional().describe('项目根目录（逗号分隔多个路径；默认当前目录）'),
+    interval: z.number().optional().describe('刷新间隔秒数（默认 5）'),
   }},
-  { name: 'test_story', description: 'story 级测试：只跑关联 case，写 bug/evidence', schema: {
-    storyId: z.string().describe('Story ID'),
-  }},
-  { name: 'test_fixture', description: '单 case/单链测试：按 fixtureId(uuid) 定位', schema: {
-    fixtureId: z.string().describe('case 的 _id (uuid)'),
-  }},
-  // Fixture
-  { name: 'fixture_get', description: '读取 fixture cases', schema: { fixturePath: z.string().describe('路径(不含.json)') }},
-  { name: 'fixture_update', description: '增删改 fixture case', schema: {
-    fixturePath: z.string().describe('路径'), action: z.enum(['add','update','delete']).describe('操作'),
-    case: z.object({
-      name: z.string().describe('case 名'),
-      run_type: z.enum(['cli', 'browser']).optional().describe('运行类型'),
-      file: z.string().optional().describe('源文件路径'),
-      execute: z.string().optional().describe('函数体'),
-      expect: z.any().optional().describe('期望（对象走 subset 匹配：actual 含 expect 所有键且值等即通过）'),
-      throws: z.string().optional().describe('期望错误'),
-      debug: z.any().optional().describe('B-5010: 诊断字段，runner 不断言，仅在 fail 时附带打印'),
-      intentRef: z.string().optional().describe('关联 testIntent（如 CHK-001:happy:0）'),
-      storyId: z.string().optional().describe('legacy intentRef 所属 story（用于兼容无 storyId 前缀的 intentRef）'),
-      sandbox: z.boolean().optional().describe('沙箱模式（false=允许 fs 访问）'),
-      timeoutMs: z.number().optional().describe('单 case 超时（ms），默认 runner 全局超时'),
-    }).describe('case 数据'),
-  }},
-  // Session brief (跨 session 开场简报)
-  { name: 'session_brief', description: '生成本 session 的开场简报：active story + checklist + bug + activity + 推断的下一步', schema: {
-    concise: z.boolean().optional().describe('B-89c7 CHK-008 简短模式：< 4KB 输出，用于 SessionStart hook 注入'),
-  } },
-  /**
-   * @task B-3736
-   * @checklist CHK-002, CHK-003
-   * @title register read-only project-state runtime commands
-   * @type feature
-   * @priority high
-   * @description
-   *   Expose status/next as first-class CLI commands so users and agents can
-   *   recover Koala project state without knowing the longer session_brief name.
-   * @changes
-   *   - [CHK-002] Register status with concise option
-   *   - [CHK-003] Register next without mutating arguments
-   */
-  { name: 'status', description: '只读展示当前 Koala 工程状态：story/phase/runtime/reviewer/artifact/dirty risk', schema: {
-    concise: z.boolean().optional().describe('简短模式：只保留关键状态字段'),
-  } },
-  { name: 'next', description: '只读输出当前 Koala 工程状态推断出的下一步建议', schema: {} },
 
   // Doctor (health issue 巡检)
   { name: 'doctor', description: '查看 koala 自身的 health issue（被 silent catch 接住的 PERSIST 失败）+ 扫 .worktrees/ 孤儿目录', schema: {
@@ -346,23 +243,213 @@ export const MAIN_TOOLS: ToolDef[] = [
     repair: z.boolean().optional().describe('rm -rf 清理 .worktrees/ 下不在 git worktree list 的孤儿目录（activity.jsonl 等 hook 残留场景）'),
   }},
 
-  { name: 'fixture_batch_add', description: '批量添加多个 case（1次替代N次）', longHelp: FIXTURE_BATCH_ADD_LONG, schema: {
-    fixturePath: z.string().describe('路径(不含.json)'),
-    cases: z.array(z.object({
-      name: z.string(), run_type: z.enum(['cli', 'browser']).optional(),
-      file: z.string().optional(), execute: z.string().optional(),
-      expect: z.any().optional().describe('期望（对象走 subset 匹配）'),
-      throws: z.string().optional(),
-      debug: z.any().optional().describe('B-5010: 诊断字段，fail 时附带打印'),
-      intentRef: z.string().optional().describe('关联 testIntent（如 CHK-001:happy:0）'),
-      storyId: z.string().optional().describe('legacy intentRef 所属 story（用于兼容无 storyId 前缀的 intentRef）'),
-      sandbox: z.boolean().optional(),
-      timeoutMs: z.number().optional().describe('单 case 超时（ms）'),
-    })).describe('case 数组'),
-    storyId: z.string().optional().describe('显式指定 storyId，用于自动给 legacy intentRef 加 story 前缀'),
-    dryRun: z.boolean().optional().describe('仅预览新增/跳过/报错结果，不写入 fixture'),
-    validateExecute: z.boolean().optional().describe('dryRun 时用真实 CLI runner 轻量执行预检 CLI case，提前暴露 sandbox/handler/expect 错误'),
-  }, guardrails: { supportsDryRun: true }},
+  // Audit (framework self-audit — 跨 story 扫 CLAUDE.md 承诺 vs 实际 CLI 行为 drift)
+  { name: 'audit', description: '框架自省 audit（机械扫 CLAUDE.md drift → 写 B-META-framework-audit finding + report.md）', schema: {
+    framework: z.boolean().optional().describe('扫 CLAUDE.md / packages/koala/CLAUDE.md 的 CLI 命令/flag/路径 drift（当前 MVP 唯一档）'),
+    mode: z.enum(['semi-auto', 'full-auto', 'off']).optional().describe('覆盖配置默认模式；off = 直接退出不跑'),
+  }},
+
+  // Verifier (koala 内建代码验证)
+  { name: 'validate', description: '运行项目验证（静态 + 逻辑 + 集成测试）', longHelp: VALIDATE_LONG, schema: {
+    full: z.union([z.string(), z.boolean()]).optional().describe('含真机测试（--full 或 --full=PvE 按名称过滤）'),
+    story: z.string().optional().describe('只跑 story 改动涉及的 transition（TEST gate 用）'),
+    json: z.boolean().optional().describe('结构化 JSON 输出（ExternalVerifierResult）'),
+    // B-9d95 CHK-006: REVIEW→TEST preflight 三 gate 独立分流 flag
+    // 任一 flag 命中 → 只跑对应 CLI gate，不 spawn pytest（秒级返回）
+    // 同时传多个 flag → Promise.all 并行；任一 fail → exit 1
+    channel: z.boolean().optional().describe('B-9d95: 只跑 --channel gate（commit author 扫描，需配合 --story）'),
+    concept: z.boolean().optional().describe('B-9d95: 只跑 --concept gate（deleted symbol 残留扫描）'),
+    lint: z.boolean().optional().describe('B-9d95: 只跑 --lint gate（tsc + ruff + import-graph）'),
+  }},
+  { name: 'status', description: '项目全貌（story 进度 + 代码验证状态）', schema: {
+    concise: z.boolean().optional().describe('轻量模式（跳过代码验证，< 4KB，用于 hook 注入）'),
+  }},
+  { name: 'serve', description: '启动 HTTP API 调试服务（watch 文件 + 实时验证 + 浏览器代理）', schema: {
+    dev: z.string().optional().describe('Dev server 命令（如 "npm run dev"），启用浏览器代理'),
+    port: z.number().optional().describe('API 端口（默认 3456）'),
+  }},
+
+  // Evaluate (browser 项目 AI 评估)
+  { name: 'evaluate', description: '调 evaluator agent 对 browser 应用打分（功能完整性 + 可用性）', schema: {
+    storyId: z.string().describe('Story ID'),
+    port: z.number().optional().describe('koala serve 端口（默认 3456）'),
+  }},
+  { name: 'evaluate_save', description: '保存 evaluator 打分结果到 eval-evidence.json', schema: {
+    storyId: z.string().describe('Story ID'),
+    result: z.string().describe('evaluator 输出的 JSON 字符串'),
+  }},
+
+  // Finding (koala-reviewer 发现项)
+  { name: 'finding_add', description: '添加 finding（koala-reviewer 发现项）', schema: {
+    storyId: z.string().describe('Story ID'),
+    desc: z.string().describe('发现描述'),
+    severity: z.enum(['critical', 'high', 'medium', 'low']).describe('严重程度'),
+    category: z.enum(['happy', 'edge', 'adversarial', 'missing']).describe('分类'),
+    agent: z.string().optional().describe('调用者身份（可选，默认从 KOALA_AGENT 环境变量读）'),
+  }},
+  { name: 'finding_list', description: '查看 story 的 findings', schema: {
+    storyId: z.string().describe('Story ID'),
+    cluster: z.boolean().optional().describe('B-9d95 CHK-005: 返回 cluster 视图 { clusters, ungrouped } 而非 findings 平铺'),
+  }},
+  { name: 'finding_resolve', description: '标记 finding 为已解决', schema: {
+    storyId: z.string().describe('Story ID'),
+    findingId: z.string().describe('Finding ID（如 B-xxx:F-001）'),
+  }},
+  { name: 'finding_dismiss', description: '确认 finding 不修（需说明理由）', schema: {
+    storyId: z.string().describe('Story ID'),
+    findingId: z.string().describe('Finding ID（如 B-xxx:F-001）'),
+    reason: z.string().describe('不修的理由（≥10 字符）'),
+  }},
+
+  // Finding Cluster (B-e8c8 / B-9d95 CHK-005: 自动聚簇 + 手动 merge/split)
+  //
+  // 无参（默认模式）：按 files 交集 ≥ 50% + severity 一致自动聚簇，写回 clusters.json + findings.clusterId。
+  // merge：将给定 finding id 列表强制合为一个新簇。
+  // split：删除该簇，成员 finding 回 singleton。
+  // 阶段：与 finding_list 对齐，REVIEW/TEST 可用（详见 config.ts DEFAULT_PHASE_TOOLS）。
+  { name: 'finding_cluster', description: 'B-9d95: 聚簇 findings（auto / merge / split），输出簇摘要', schema: {
+    storyId: z.string().describe('Story ID'),
+    merge: z.union([z.array(z.string()), z.string()]).optional().describe('强制合为一个新簇：finding id 数组或逗号分隔字符串（F-001,F-002）'),
+    split: z.string().optional().describe('拆分目标簇 ID（CL-xxx），成员 finding 回 singleton'),
+  }},
+
+  // Init Check (B-e71f CHK-003: koala-review-story-init reviewer writes signed init-check.json)
+  // INIT→INIT_CHECK 硬门槛产物。EXP-001 已证伪 agentId 机械可校验性，故 agentId 仅审计，不校验。
+  // 三层校验中的 Zod 层（CLAUDE.md「Handler 编码约定」）：severity enum + desc.min(1)。
+  { name: 'init_check_set', description: '保存 init check 结果（由 koala-review-story-init reviewer 调用）', schema: {
+    storyId: z.string().describe('Story ID'),
+    issues: z.array(z.object({
+      id: z.string().optional().describe('reviewer 自分配 id（如 I-1），可选'),
+      severity: z.enum(['critical', 'high', 'medium', 'low']).describe('issue 严重度'),
+      desc: z.string().min(1, 'desc 必填且 ≥ 1 字符').describe('issue 具体描述（reviewer 主观判断需具体）'),
+    })).describe('Reviewer 提出的 issue 列表（advisory 模式，允许空数组）'),
+    agentId: z.string().optional().describe('Reviewer 自报 agent id，仅审计追溯用（EXP-001 已证伪机械校验）'),
+  }},
+
+  // Delivery Check (B-35ed: koala-review-delivery reviewer writes signed delivery-check.json)
+  // TEST→DONE 硬门槛产物。签名域：storyId + docsPromises + realMachineTests + closingSelfCheck + reviewRound。
+  { name: 'delivery_check_set', description: '保存 delivery check 结果（由 koala-review-delivery reviewer 调用）', schema: {
+    storyId: z.string().describe('Story ID'),
+    docsPromises: z.array(z.object({
+      docPath: z.string().describe('文档路径'),
+      promise: z.string().describe('文档中的承诺描述'),
+      verifiedBy: z.string().optional().describe('验证方式（如 grep/test/manual）'),
+      evidence: z.string().optional().describe('验证证据'),
+    })).describe('文档承诺列表'),
+    realMachineTests: z.array(z.object({
+      featureId: z.string().describe('功能点 ID（如 CHK-xxx）'),
+      transcript: z.string().describe('真机测试 transcript 或摘要'),
+      waiverReason: z.string().optional().describe('豁免理由（非空时 ≥ 30 字符，入签名）'),
+    })).describe('真机测试记录'),
+    closingSelfCheck: z.object({
+      hasRealMachineTest: z.boolean().describe('是否有真机测试'),
+      hasEdgeCaseCoverage: z.boolean().describe('是否覆盖边界情况'),
+      hasUnresolvedTodos: z.boolean().describe('是否有未解决的 TODO'),
+      summary: z.string().min(10, 'summary ≥ 10 字符').describe('闭合自检总结'),
+    }).describe('闭合自检'),
+    agentId: z.string().optional().describe('Reviewer 自报 agent id，仅审计追溯'),
+  }},
+
+  // Delivery Waiver (B-35ed CHK-005: 豁免审计，主 agent 为未验证的 docsPromise 补充豁免理由)
+  { name: 'delivery_waiver_add', description: '为 delivery-check.json 中某条 docsPromise 添加豁免理由（重签名）', schema: {
+    storyId: z.string().describe('Story ID'),
+    promiseId: z.string().describe('要豁免的 docPath（匹配 docsPromises[].docPath）'),
+    waiverReason: z.string().min(30, 'waiverReason must be at least 30 characters').describe('豁免理由（≥ 30 字符）'),
+  }},
+
+  // Scope Check (B-d4d1: scope agent writes signed scope-check.json)
+  { name: 'scope_check_save', description: '保存 scope check 结果（由 scope agent 调用）', schema: {
+    storyId: z.string().describe('Story ID'),
+    features: z.array(z.object({
+      feature: z.string(),
+      covered_by: z.string().nullable(),
+      // B-ed3e CHK-002: 5 档 status
+      status: z.enum(['covered', 'excluded', 'gap', 'orphan-suspect', 'drift']),
+      excluded_by: z.string().nullable(),
+      // B-ed3e CHK-002: source 标注来源（description / decisions:<path> / relatedDocs:<path>）
+      source: z.string().optional(),
+    })).describe('功能点覆盖分析结果'),
+    summary: z.object({
+      total: z.number(),
+      covered: z.number(),
+      excluded: z.number(),
+      gaps: z.number(),
+      // B-ed3e CHK-002: 新字段可选，默认 0；drift PLAN 阶段恒 0
+      orphanSuspect: z.number().optional(),
+      drift: z.number().optional(),
+    }).describe('汇总'),
+    // B-ed3e CHK-003: 第 6 通道 Open Questions（可选）。reviewer 写入时只做类型校验，
+    // 不校验业务完整性；主 agent 之后用 scope_question_resolve 书面消解。
+    openQuestions: z.array(z.object({
+      id: z.string(),
+      q: z.string(),
+      evidence: z.string(),
+      sourcePointers: z.array(z.string()),
+    })).optional().describe('Open Questions：reviewer 在 decisions/ 扫到"看见但不归类"的矛盾/疑问，主 agent 必须用 scope_question_resolve 消解'),
+  }},
+
+  // B-ed3e CHK-003: scope_question_resolve — 主 agent 对 reviewer 抛出的 OQ 写入书面 resolution
+  // 设计原则：resolution 不入签名 _hash（resolution 是 main agent 动作，不污染 reviewer 判定签名域）
+  { name: 'scope_question_resolve', description: '主 agent 对 scope reviewer 抛出的 Open Question 写入书面 resolution（防自我赦免）', schema: {
+    storyId: z.string().describe('Story ID'),
+    oqId: z.string().describe('Open Question ID（如 OQ-1）'),
+    resolution: z.string().min(20, 'resolution 必填且 ≥ 20 字符（书面消解，防自我赦免）').describe('主 agent 的书面消解结论（≥ 20 字符，应引 decisions/ 原文）'),
+    sourcePointers: z.array(z.string()).optional().describe('resolution 的证据指针（decisions/ 路径或 checklist item id），默认 []'),
+  }},
+
+  // Story dispatch (B-45ed CHK-005: implementer prompt generator)
+  { name: 'story_dispatch', description: '生成标准 implementer prompt 字符串（主 agent 派发 CHK-xxx 用）', schema: {
+    storyId: z.string().describe('Story ID'),
+    itemId: z.string().describe('Checklist item ID（如 CHK-001）'),
+    agentType: z.string().optional().describe('subagent 类型（如 koala-implementer / koala-review-channel）；CHK-008 will expand matrix'),
+  }},
+
+  // Finding dispatch (B-45ed CHK-010: reviewer-finding 修复 prompt generator，与 story_dispatch 同构)
+  // B-9d95 CHK-004: deprecated alias，首行 stdout 打印 deprecation warning，建议改用 `koala dispatch`
+  { name: 'finding_dispatch', description: '[deprecated: 请改用 koala dispatch] 生成标准 reviewer-finding 修复 prompt 字符串', schema: {
+    storyId: z.string().describe('Story ID'),
+    findingId: z.string().describe('Finding ID（如 F-001 或 B-xxx:F-001 完整形式）'),
+    agentType: z.string().optional().describe('subagent 类型（如 koala-implementer / koala-review-channel）；复用 CHK-008 分级矩阵'),
+  }},
+
+  // Unified dispatch (B-9d95 CHK-004: story_dispatch / finding_dispatch 合并为 `koala dispatch`，全阶段开放)
+  { name: 'dispatch', description: '统一派发入口：按 itemId / findingId / clusterId 恰好一个生成 subagent prompt（全阶段可用）', schema: {
+    storyId: z.string().describe('Story ID'),
+    itemId: z.string().optional().describe('Checklist item ID（CHK-xxx）；与 findingId / clusterId 互斥，恰好提供一个'),
+    findingId: z.string().optional().describe('Finding ID（F-xxx 或 B-xxx:F-xxx）；与 itemId / clusterId 互斥'),
+    clusterId: z.string().optional().describe('Cluster ID（CL-xxx）；与 itemId / findingId 互斥'),
+    agentType: z.string().optional().describe('subagent 类型（如 koala-implementer / koala-review-* ）；复用 CHK-008 分级矩阵'),
+  }},
+
+  // Background CLI 三件套 (B-45ed CHK-007: background.md set/append/get)
+  { name: 'background_set', description: '全量写入 background.md（四段式格式校验，复用 CHK-006 validator）', schema: {
+    storyId: z.string().describe('Story ID'),
+    content: z.string().describe('background.md 完整内容（四段式）'),
+  }},
+  { name: 'background_append', description: '追加内容到 background.md 指定段末尾，不影响其他段', schema: {
+    storyId: z.string().describe('Story ID'),
+    section: z.enum(['触发事件', '关键洞察', '方案取舍', '对话纹理']).describe('目标段名（四段之一）'),
+    content: z.string().describe('要追加的内容（通常是单行 bullet 或若干行）'),
+  }},
+  { name: 'background_get', description: '读取 background.md 全文', schema: {
+    storyId: z.string().describe('Story ID'),
+  }},
+
+  // Reviewer list (B-fdcf CHK-001: opt-in 名单查询，按 riskSignals / touchpoints / channel 实时计算)
+  { name: 'reviewer_list', description: '列出当前 story 的 opt-in reviewer 名单（baseline concept/quality + 按信号挂载 behavior/docs/channel）', schema: {
+    storyId: z.string().describe('Story ID'),
+    json: z.boolean().optional().describe('输出结构化 JSON（含 reviewers 数组）'),
+    forceReviewer: z.string().optional().describe('逗号分隔的 reviewer 名称，强制加挂；写入 story.events 审计（reviewer_forced）'),
+  }},
+
+  // Workflow profile
+  { name: 'workflow_set', description: '设置项目 workflow profile（light/balanced/strict）', schema: {
+    profile: z.string().describe('目标 profile：light / balanced / strict'),
+  }},
+  { name: 'workflow_show', description: '显示当前 workflow profile 和生效策略', schema: {} },
+  { name: 'workflow_explain', description: '解释某个 story 的实际生效 profile（project / required / effective）', schema: {
+    storyId: z.string().describe('Story ID'),
+  }},
 
 ];
 
@@ -372,11 +459,6 @@ export const MAIN_TOOLS: ToolDef[] = [
  * 不直接引用 MAIN_TOOLS。
  */
 let TOOLS: ToolDef[] = MAIN_TOOLS;
-
-function displayCommandName(name: string): string {
-  if (name.startsWith('lab_')) return `lab ${name.slice(4)}`;
-  return name;
-}
 
 // ── Phase detection ──
 
@@ -426,8 +508,7 @@ function getDesc(t: ZodType): string {
 }
 
 function printToolHelp(tool: ToolDef) {
-  const displayName = displayCommandName(tool.name);
-  console.log(`\n  koala ${displayName} — ${tool.description}\n`);
+  console.log(`\n  koala ${tool.name} — ${tool.description}\n`);
 
   // 如果有 longHelp（核心命令），先打印完整 PROMPT
   if (tool.longHelp) {
@@ -438,7 +519,7 @@ function printToolHelp(tool: ToolDef) {
   const entries = Object.entries(tool.schema);
   if (entries.length === 0) {
     console.log('  无参数\n');
-    console.log(`  用法: koala ${displayName}`);
+    console.log(`  用法: koala ${tool.name}`);
     console.log(SESSION_BRIEF_FOOTER);
     return;
   }
@@ -460,35 +541,9 @@ function printToolHelp(tool: ToolDef) {
     const base = inner instanceof ZodOptional ? (inner as any)._def.innerType : inner;
     return base instanceof ZodBoolean ? `[--${k}]` : `[--${k}=值]`;
   });
-  console.log(`\n  用法: koala ${displayName} ${[...reqParts, ...optParts].join(' ')}`);
+  console.log(`\n  用法: koala ${tool.name} ${[...reqParts, ...optParts].join(' ')}`);
   console.log('  (* = 必填)');
   console.log(SESSION_BRIEF_FOOTER);
-}
-
-function printNamespaceHelp(namespace: 'lab') {
-  const tools = TOOLS.filter((tool) => tool.name.startsWith(`${namespace}_`));
-  if (tools.length === 0) {
-    const reason = process.env.KOALA_LAB_IMPORT_ERROR
-      ? `\n  Lab import error: ${process.env.KOALA_LAB_IMPORT_ERROR}`
-      : '';
-    console.log(`\n  koala lab — koala-lab 尚未构建，当前不可用。\n`);
-    console.log('  Recovery:');
-    console.log('    1. npm --prefix packages/main run build');
-    console.log('    2. npm --prefix packages/utils run build');
-    console.log('    3. npm --prefix packages/lab run build');
-    console.log('    4. Retry: koala lab create --target=test-case-reviewer --profile=reviewer-quality-v1');
-    if (reason) console.log(reason);
-    console.log('');
-    return;
-  }
-
-  const maxN = Math.max(...tools.map((tool) => displayCommandName(tool.name).length), 0);
-  console.log(`\n  koala lab — 离线优化实验室\n`);
-  console.log('  用法: koala lab <subcommand> [flags]\n');
-  for (const tool of tools) {
-    console.log(`    ${displayCommandName(tool.name).padEnd(maxN + 2)} ${tool.description}`);
-  }
-  console.log('\n  提示: 用 `koala lab <subcommand> --help` 查看参数\n');
 }
 
 function printHelp(activeStory?: ActiveStory | null) {
@@ -509,18 +564,19 @@ function printHelp(activeStory?: ActiveStory | null) {
   const KNOWN_GROUP: Record<string, string> = {
     story: 'Story',
     checklist: 'Checklist',
-    testintent: 'Checklist',
     bug: 'Bug',
     test: 'Test',
-    fixture: 'Fixture',
-    lab: 'Lab',
+    validate: 'Validate',
+    status: 'Status',
+    serve: 'Serve',
     aux: 'Aux',
-    truth: 'Truth',
-    gap: 'Gap',
-    convergence: 'Gap',
+    evaluate: 'Evaluate',
+    dashboard: 'Session',
+    session: 'Session',
+    audit: 'Audit',
   };
   // 已知分组的展示顺序；不在列表里的分组（来自 extras）按字母序追加
-  const KNOWN_ORDER = ['Story', 'Review', 'Checklist', 'Bug', 'Test', 'Fixture', 'Truth', 'Gap', 'Aux', 'Lab'];
+  const KNOWN_ORDER = ['Story', 'Review', 'Checklist', 'Bug', 'Test', 'Validate', 'Evaluate', 'Workflow', 'Status', 'Serve', 'Session', 'Aux', 'Audit'];
 
   const groups: Record<string, ToolDef[]> = {};
   for (const t of TOOLS) {
@@ -543,25 +599,29 @@ function printHelp(activeStory?: ActiveStory | null) {
   ];
   for (const g of orderedGroups) {
     console.log(`  ${g}:`);
-    for (const t of groups[g]) console.log(`    ${displayCommandName(t.name).padEnd(maxN + 2)} ${t.description}`);
+    for (const t of groups[g]) console.log(`    ${t.name.padEnd(maxN + 2)} ${t.description}`);
   }
   console.log(`
   开发流程:
-    ── PLAN 阶段（需求分析）──
-    1. koala story_create '{"name":"x","title":"..","description":"..","type":"feature","priority":"high","checklist":[{"title":"做什么","context":"根因/参考方案"}]}'
-    2. koala story_review --storyId=B-xxx                     # 对抗审查 testIntent
-    3. koala story_advance --storyId=B-xxx --phase=INIT_CHECK # 自动创建 worktree
+    ── PLAN ──
+    1. koala story_create '{"name":"x","title":"..","description":"..","type":"feature","priority":"high","checklist":[{"title":"做什么","context":"上下文"}]}'
+    2. koala story_advance --storyId=B-xxx --phase=INIT_CHECK # 创建 worktree
+    3. cd .worktrees/B-xxx
+    4. koala story_review --storyId=B-xxx                     # 审查通过后进 DEV
+    5. koala story_advance --storyId=B-xxx --phase=DEV
 
-    ── DEV 阶段（开发）──
-    4. 写代码
-    5. koala fixture_batch_add '{"fixturePath":"x","cases":[...]}' # 按 testIntent 写测试
-    6. koala checklist_update --storyId=B-xxx --itemId=CHK-001 --status=done
+    ── DEV ──
+    6. 写代码 + 写测试（logicTest / integrationTest in validate.ts）
+    7. koala validate                                         # 验证
+    8. koala checklist_update --storyId=B-xxx --itemId=CHK-001 --status=done
 
-    ── TEST 阶段（测试）──
-   10. koala story_advance --storyId=B-xxx --phase=TEST
-   11. koala test_auto --storyId=B-xxx
+    ── REVIEW ──
+    9. koala story_advance --storyId=B-xxx --phase=REVIEW    # 进入代码审查
+   10. koala-reviewer 审查代码，提 finding                     # critical/high 必须 resolve
+
+    ── TEST → DONE ──
+   11. koala story_advance --storyId=B-xxx --phase=TEST
    12. koala story_advance --storyId=B-xxx --phase=DONE
-   13. koala truth_extract                                    # 从代码+Story 反向提取真相源
 
   初始化新项目:
     koala init                          # 在当前目录初始化 koala
@@ -588,7 +648,6 @@ export function parseFlagsTest(rawArgs: string[], schemaDesc: Record<string, str
 
 export function parseFlags(rawArgs: string[], schema: Record<string, ZodType>): Record<string, unknown> {
   const result: Record<string, unknown> = {};
-  const normalizeKey = (key: string) => key.replace(/-([a-z])/g, (_, ch: string) => ch.toUpperCase());
   const arrayKeys = new Set(
     Object.entries(schema).filter(([, t]) => {
       const inner = t instanceof ZodOptional ? (t as any)._def.innerType : t;
@@ -604,11 +663,11 @@ export function parseFlags(rawArgs: string[], schema: Record<string, ZodType>): 
       // --key=value or --key value or --flag (boolean)
       const eqIdx = arg.indexOf('=');
       if (eqIdx > 0) {
-        const key = normalizeKey(arg.slice(2, eqIdx));
+        const key = arg.slice(2, eqIdx);
         const val = arg.slice(eqIdx + 1);
         addValue(result, key, coerce(val, schema[key]), arrayKeys.has(key));
       } else {
-        const key = normalizeKey(arg.slice(2));
+        const key = arg.slice(2);
         // 下一个参数不是 flag → 当作 value
         if (i + 1 < rawArgs.length && !rawArgs[i + 1].startsWith('--')) {
           addValue(result, key, coerce(rawArgs[i + 1], schema[key]), arrayKeys.has(key));
@@ -621,7 +680,7 @@ export function parseFlags(rawArgs: string[], schema: Record<string, ZodType>): 
     } else if (arg.includes('=') && !arg.startsWith('{')) {
       // key=value (无 -- 前缀，兼容旧格式)
       const eqIdx = arg.indexOf('=');
-      const key = normalizeKey(arg.slice(0, eqIdx));
+      const key = arg.slice(0, eqIdx);
       const val = arg.slice(eqIdx + 1);
       addValue(result, key, coerce(val, schema[key]), arrayKeys.has(key));
     }
@@ -677,6 +736,36 @@ function resolveRoot(explicit?: string): string {
   return process.cwd();
 }
 
+// ── Activity log filter ──
+
+/**
+ * Read-only commands that should NOT write activity.jsonl.
+ * These are pure queries / status checks — logging them pollutes
+ * the audit trail and can cause DONE dirty-self-block (B-c622).
+ */
+const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
+  'session_brief',
+  'status',
+  'story_get',
+  'story_list',
+  'checklist_get',
+  'finding_list',
+  'bug_list',
+  'reviewer_list',
+  'workflow_explain',
+  'help',
+]);
+
+/**
+ * Decide whether a CLI invocation should be recorded in activity.jsonl.
+ * Returns false for read-only commands and dry-run invocations.
+ */
+export function shouldWriteActivityLog(cmdName: string, args: Record<string, unknown>): boolean {
+  if (READ_ONLY_COMMANDS.has(cmdName)) return false;
+  if (args.dryRun === true) return false;
+  return true;
+}
+
 // ── Main ──
 
 /**
@@ -686,32 +775,13 @@ function resolveRoot(explicit?: string): string {
  * @param opts.extraRegister  第三方包的 register 函数，在 createMainRegistry 之后调用
  *                            （收到 Registry 实例后用 registry.registerBatch(...) 注入 handler）
  */
-/**
- * @task B-4b17
- * @checklist CHK-001
- * @title CLI dangerous command guardrails for dry-run and confirm
- * @type feature
- * @priority high
- * @description
- *   为公开 CLI 命令提供统一的危险命令护栏：支持 dry-run 预览，并对
- *   irreversible / destructive 命令默认要求 --confirm。当前覆盖
- *   story_discard、fixture_batch_add、test_auto 等会删除 worktree、批量写文件
- *   或触发 git restore / clean 的入口。
- * @changes
- *   - [CHK-001] ToolDef 增加 guardrails 元数据，标记 supportsDryRun / requiresConfirm
- *   - [CHK-001] CLI dispatch 在命令真正执行前统一拦截未确认的危险命令
- *   - [CHK-001] 兼容 --dry-run 到 dryRun 的 kebab-case 参数形式
- * @test dangerous-command-guardrails
- */
 export async function runCli(opts?: {
   extraTools?: ToolDef[];
   extraRegister?: (registry: Registry, ctx: HandlerContext) => void;
 }): Promise<void> {
   // 注入 extras：合并 tool defs，并保留 extras register 待会儿调用
-  const mainToolNames = new Set(MAIN_TOOLS.map((tool) => tool.name));
-  const extraTools = (opts?.extraTools || []).filter((tool) => !mainToolNames.has(tool.name));
-  TOOLS = extraTools.length > 0
-    ? [...MAIN_TOOLS, ...extraTools]
+  TOOLS = opts?.extraTools && opts.extraTools.length > 0
+    ? [...MAIN_TOOLS, ...opts.extraTools]
     : MAIN_TOOLS;
 
   const argv = process.argv.slice(2);
@@ -721,30 +791,14 @@ export async function runCli(opts?: {
   const ri = argv.indexOf('--root');
   if (ri !== -1 && argv[ri + 1]) { rootOverride = argv[ri + 1]; argv.splice(ri, 2); }
 
-  let cmd = argv[0];
-  let arg = argv[1];
-  let rawArgStart = 1;
+  const cmd = argv[0];
+  const arg = argv[1];
 
   // Detect active story from git branch
   const root0 = resolveRoot(rootOverride);
   const activeStory = detectActiveStory(root0);
 
   if (!cmd || cmd === 'help' || cmd === '--help') { printHelp(activeStory); return; }
-
-  if (cmd === 'lab') {
-    const hasLabTools = TOOLS.some((tool) => tool.name.startsWith('lab_'));
-    if (!hasLabTools) {
-      printNamespaceHelp('lab');
-      process.exit(1);
-    }
-    if (!argv[1] || argv[1] === 'help' || argv[1] === '--help' || argv[1] === '-h') {
-      printNamespaceHelp('lab');
-      return;
-    }
-    cmd = `lab_${argv[1]}`;
-    arg = argv[2];
-    rawArgStart = 2;
-  }
 
   // init 走独立脚本
   if (cmd === 'init') {
@@ -753,18 +807,24 @@ export async function runCli(opts?: {
     return;
   }
 
+  // dashboard 走独立长驻模式
+  if (cmd === 'dashboard') {
+    const dashArgs = parseFlags(argv.slice(1), {
+      roots: z.string().optional(),
+      interval: z.number().optional(),
+    });
+    // 如果没指定 roots，用 --root（或自动检测）作为默认
+    if (!dashArgs.roots) dashArgs.roots = root0;
+    const { runDashboard } = await import('./dashboard.js');
+    await runDashboard(dashArgs as { roots?: string; interval?: number });
+    return;
+  }
+
   const tool = TOOLS.find(t => t.name === cmd);
   if (!tool) {
     console.error(`未知命令: ${cmd}`);
     const m = TOOLS.filter(t => t.name.includes(cmd) || cmd.includes(t.name.split('_')[0]));
-    if (m.length) { console.error('你是不是要找:'); for (const t of m) console.error(`  koala ${displayCommandName(t.name)}`); }
-    if (cmd.startsWith('aux_') || cmd === 'aux') {
-      const bootstrapPath = join(process.cwd(), 'bin', 'koala.js');
-      if (existsSync(bootstrapPath)) {
-        console.error(`aux_* 命令属于 utils/bootstrap 入口。当前 core-only koala 不包含它。`);
-        console.error(`可改用: node bin/koala.js ${cmd}${arg ? ` ${arg}` : ''}`);
-      }
-    }
+    if (m.length) { console.error('你是不是要找:'); for (const t of m) console.error(`  koala ${t.name}`); }
     console.error('用 koala help 查看所有命令');
     process.exit(1);
   }
@@ -789,7 +849,7 @@ export async function runCli(opts?: {
   //   3. '{"key":"value"}'  (JSON body, 兼容旧用法)
   let parsed: Record<string, unknown> = {};
   {
-    const rawArgs = argv.slice(rawArgStart);
+    const rawArgs = argv.slice(1);
     if (rawArgs.length === 0) {
       // 无参数，空对象
     } else if (rawArgs.length === 1 && rawArgs[0].startsWith('{')) {
@@ -816,22 +876,13 @@ export async function runCli(opts?: {
     process.exit(1);
   }
 
-  const guardrails = tool.guardrails;
-  if (guardrails?.requiresConfirm && !(v.data as any).confirm && !(v.data as any).dryRun) {
-    console.error(
-      `错误: ${cmd} 是危险命令，默认不会直接执行。\n` +
-      `→ 先用 --dry-run 预览会发生什么，或加 --confirm 明确执行`
-    );
-    process.exit(1);
-  }
-
   // Execute
   const root = resolveRoot(rootOverride);
   const store = new StoryStore(root);
   const _cliStart = Date.now();
   let log: (msg: string) => void = (msg) => {
     const elapsed = ((Date.now() - _cliStart) / 1000).toFixed(1);
-    process.stdout.write(`[${elapsed}s] ${msg}\n`);
+    process.stderr.write(`[${elapsed}s] ${msg}\n`);
   };
 
   const config0 = loadConfig(root);
@@ -877,7 +928,7 @@ export async function runCli(opts?: {
   }, 10000);
   watchdog.unref();
 
-  // 统一日志：写入 docs/story/activity.jsonl（和 Claude hook 日志合并）
+  // 统一日志：写入 .koala/activity.jsonl（双源模块，legacy 路径只读兼容）
   // 写入失败属于 PERSIST 类（audit 不完整 → 事后无法回溯），改为 reportHealthIssue
   // staleWarnings 也一并落盘，便于事后做趋势分析（agent 多久会忘记 advance 一次）
   function writeLog(entry: {
@@ -892,8 +943,8 @@ export async function runCli(opts?: {
     try {
       // B-9cd4 follow-up bug: story_advance --phase=DONE removes the current
       // worktree mid-command. The `root` captured at command start still
-      // points at that worktree. If we mkdirSync on the now-ghost path, we
-      // re-create `<ghost>/docs/story/` and leave a dangling audit log that
+      // points at that worktree. If we appendActivityLog on the now-ghost
+      // path, we re-create dirs and leave a dangling audit log that
       // masquerades as an active worktree.
       //
       // Detect this by checking if `root` still has koala.config.json. If
@@ -908,11 +959,9 @@ export async function runCli(opts?: {
           return;
         }
       }
-      const activitySource = (process.env.KOALA_ACTIVITY_SOURCE || 'cli').trim() || 'cli';
-      const activitySession = process.env.KOALA_ACTIVITY_SESSION?.trim() || null;
-      const activityRole = inferActivityRole(entry.args, process.env.KOALA_ACTIVITY_ROLE?.trim() || null);
       const record: Record<string, unknown> = {
-        source: activitySource,
+        source: process.env.KOALA_ACTIVITY_SOURCE || 'cli',
+        session: process.env.KOALA_ACTIVITY_SESSION || '',
         startTime: entry.startTime,
         endTime: entry.endTime,
         tool: entry.command,
@@ -922,9 +971,8 @@ export async function runCli(opts?: {
         result: entry.success ? null : undefined,
         error: entry.error || null,
         storyId: null,
+        role: inferActivityRole(entry.args),
       };
-      if (activitySession) record.session = activitySession;
-      if (activityRole) record.role = activityRole;
       if (entry.staleWarnings && entry.staleWarnings.length > 0) {
         record.staleWarnings = entry.staleWarnings;
       }
@@ -932,8 +980,6 @@ export async function runCli(opts?: {
     } catch (e: unknown) {
       reportHealthIssue('persist:writeLog', e as Error, {
         command: entry.command,
-        // Note: reports the original `root`, since effectiveRoot lives
-        // inside the try-block scope. Health log is diagnostic only.
         logDir: join(root, '.koala'),
       });
     }
@@ -1019,7 +1065,7 @@ export async function runCli(opts?: {
       if (!result.includes('(INIT)')) return result;
       const storyId = result.match(/Story\s+([\w-]+)/)?.[1];
       if (!storyId) return result;
-      return `${result}\n→ Story 停在 INIT 阶段。下一步:\n  1. 先 story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK","dryRun":true}' 预览 bootstrap git 变更\n  2. 若确认创建 worktree，执行 story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK","confirm":true}'\n  3. cd 到提示的 worktree 路径\n  4. story_advance '{"storyId":"${storyId}","phase":"PLAN"}' 进入 PLAN（cwd 必须是 worktree）`;
+      return `${result}\n→ Story 停在 INIT 阶段。下一步:\n  1. story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' 创建 worktree\n  2. cd 到提示的 worktree 路径\n  3. story_advance '{"storyId":"${storyId}","phase":"PLAN"}' 进入 PLAN（cwd 必须是 worktree）`;
     });
     return;
   }
@@ -1031,46 +1077,26 @@ export async function runCli(opts?: {
   if (cmd === 'story_advance' && (v.data as any)?.phase === 'INIT_CHECK') {
     await run(async () => {
       const storyId = (v.data as any).storyId;
-      const initArgs = v.data as any;
       // 探测当前 phase；若已在 INIT_CHECK 就跳过 advance 直接 dev_start 重试
+      // story_get 默认返回 {checklist, review}；phase 需要 detail:true 才在 result.index.phase
       let advanceResult = '';
-      let currentPhase = '';
-      try { currentPhase = store.readStory(storyId).phase; } catch { /* fallback below */ }
-      if (currentPhase === 'INIT' && (initArgs.dryRun || !initArgs.confirm)) {
-        const preview = handlers.dev_start({
-          storyId,
-          dryRun: initArgs.dryRun,
-          confirm: initArgs.confirm,
-        });
-        if (initArgs.dryRun) {
-          return `Story ${storyId} 当前在 INIT。进入 INIT_CHECK 会触发 bootstrap git 变更，先预览如下：\n\n${preview}`;
+      try {
+        const story: any = handlers.story_get({ storyId, detail: true });
+        const currentPhase = story?.index?.phase;
+        if (currentPhase === 'INIT_CHECK') {
+          advanceResult = `Story ${storyId} 已在 INIT_CHECK 阶段，重试 worktree 创建`;
+        } else {
+          advanceResult = await handlers.story_advance(v.data);
         }
-        if (!initArgs.confirm) {
-          throw new Error(
-            `Story ${storyId} 当前在 INIT。进入 INIT_CHECK 会触发 bootstrap git 变更，默认已阻止。\n\n${preview}`
-          );
-        }
-      }
-      if (currentPhase === 'INIT_CHECK') {
-        advanceResult = `Story ${storyId} 已在 INIT_CHECK 阶段，重试 worktree 创建`;
-      } else {
+      } catch {
+        // story_get 失败时退回原行为
         advanceResult = await handlers.story_advance(v.data);
       }
       try {
-        const wtResult = handlers.dev_start({
-          storyId,
-          dryRun: initArgs.dryRun,
-          confirm: initArgs.confirm,
-        });
-        if (initArgs.dryRun) {
-          return `${advanceResult}\n\n${wtResult}`;
-        }
+        const wtResult = handlers.dev_start({ storyId });
         return `${advanceResult}\n\n${wtResult}\n\n→ 现在请 cd 到上述 worktree 路径，然后调 story_advance phase=PLAN 进入 PLAN`;
       } catch (e: any) {
-        if (e?.message?.includes('默认已阻止')) {
-          throw e;
-        }
-        return `${advanceResult}\n⚠ worktree 创建失败: ${e.message}\n→ 排查后再次执行 story_advance --phase=INIT_CHECK（需要 bootstrap git 变更时先 dryRun，再 confirm），或手动 dev_start '{"storyId":"${storyId}","dryRun":true}'`;
+        return `${advanceResult}\n⚠ worktree 创建失败: ${e.message}\n→ 排查后再次执行 story_advance --phase=INIT_CHECK 自动重试，或手动 dev_start '{"storyId":"${storyId}"}'`;
       }
     });
     return;

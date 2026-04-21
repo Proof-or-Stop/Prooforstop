@@ -1,18 +1,4 @@
 /**
- * @task B-6fda
- * @checklist CHK-001
- * @title registry exposes the automated interface for humans and AI
- * @type feature
- * @priority high
- * @description
- *   框架的核心不是让人或 AI 直接操作源码，而是通过统一的自动化接口管理代码：
- *   createMainRegistry / createToolHandlers 把 story、checklist、fixture、truth、gap
- *   等能力收敛成同一个 handler registry。代码仓库因此是原生高效适配 AI、可解释、
- *   可追述的；人和 AI 都通过这层接口访问项目状态和业务逻辑。
- * @changes
- *   - [CHK-001] 用统一 registry 暴露自动化接口，覆盖“代码被自动化接口管理 / 人和 AI 通过接口操作代码”
- */
-/**
  * Handler Registry — koala 的工具注册中心
  *
  * 设计目的：让 main 暴露一个清晰的注册接口，外部包（如 @koala-agent/utils）
@@ -30,22 +16,27 @@ import type { HandlerContext } from './handlers/context.js';
 import { createStoryHandlers } from './handlers/story.js';
 import { createChecklistHandlers } from './handlers/checklist.js';
 import { createBugHandlers } from './handlers/bug.js';
-import { createTestHandlers } from './handlers/test.js';
-import { createTestAutoHandlers } from './handlers/test-auto.js';
-import { createTestStoryHandlers } from './handlers/test-story.js';
-import { createTestFixtureHandlers } from './handlers/test-fixture.js';
 import { createWorktreeHandlers } from './handlers/worktree.js';
-import { createFixtureHandlers } from './handlers/fixture.js';
-import { createGapHandlers } from './handlers/gap.js';
-import { createTruthHandlers } from './handlers/truth.js';
 import { createUnderstandingHandlers } from './handlers/understanding.js';
 import { createDecisionHandlers } from './handlers/decision.js';
 import { createSummaryHandlers } from './handlers/summary.js';
-import { createImplementationReviewHandlers } from './handlers/implementation-review.js';
 import { createDoctorHandlers } from './handlers/doctor.js';
 import { createSessionHandlers } from './handlers/session.js';
-import { createTestIntentHandoffHandlers } from './handlers/testintent-handoff.js';
-import { createAuxDocHandlers } from './handlers/aux-doc.js';
+import { createVerifierHandlers } from './handlers/verifier.js';
+import { createFindingHandlers } from './handlers/finding.js';
+import { createEvaluateHandlers } from './handlers/evaluate.js';
+import { createWorkflowHandlers } from './handlers/workflow.js';
+import { createScopeCheckHandlers } from './handlers/scope-check.js';
+import { createInitCheckHandlers } from './handlers/init-check.js';
+import { createScopeQuestionResolveHandlers } from './handlers/scope-question-resolve.js';
+import { createStoryDispatchHandlers } from './handlers/story-dispatch.js';
+import { createBackgroundHandlers } from './handlers/background.js';
+import { createAuditHandlers } from './handlers/audit.js';
+import { createClusterHandlers } from './handlers/cluster.js';
+import { createReviewerListHandlers } from './handlers/reviewer-list.js';
+import { createStoryDraftHandlers } from './handlers/story-draft.js';
+import { createDraftCheckHandlers } from './handlers/draft-check.js';
+import { createDeliveryCheckHandlers } from './handlers/delivery-check.js';
 import { nextStoryId } from './handlers/context.js';
 
 export type HandlerFn = (...args: any[]) => any;
@@ -92,22 +83,41 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createStoryHandlers(ctx));
   registry.registerBatch(createChecklistHandlers(ctx));
   registry.registerBatch(createBugHandlers(ctx));
-  registry.registerBatch(createTestHandlers(ctx));
-  registry.registerBatch(createTestAutoHandlers(ctx));
-  registry.registerBatch(createTestStoryHandlers(ctx));
-  registry.registerBatch(createTestFixtureHandlers(ctx));
   registry.registerBatch(createWorktreeHandlers(ctx));
-  registry.registerBatch(createFixtureHandlers(ctx));
-  registry.registerBatch(createGapHandlers(ctx));
-  registry.registerBatch(createTruthHandlers(ctx));
   registry.registerBatch(createUnderstandingHandlers(ctx));
   registry.registerBatch(createDecisionHandlers(ctx));
   registry.registerBatch(createSummaryHandlers(ctx));
-  registry.registerBatch(createImplementationReviewHandlers(ctx));
   registry.registerBatch(createDoctorHandlers(ctx));
   registry.registerBatch(createSessionHandlers(ctx));
-  registry.registerBatch(createTestIntentHandoffHandlers(ctx));
-  registry.registerBatch(createAuxDocHandlers(ctx));
+  registry.registerBatch(createVerifierHandlers(ctx));
+  registry.registerBatch(createFindingHandlers(ctx));
+  registry.registerBatch(createEvaluateHandlers(ctx));
+  registry.registerBatch(createWorkflowHandlers(ctx));
+  registry.registerBatch(createScopeCheckHandlers(ctx));
+  // B-e71f CHK-003: init_check_set — INIT→INIT_CHECK 硬门槛产物 init-check.json 写入
+  registry.registerBatch(createInitCheckHandlers(ctx));
+  registry.registerBatch(createScopeQuestionResolveHandlers(ctx));
+  registry.registerBatch(createStoryDispatchHandlers(ctx));
+  registry.registerBatch(createBackgroundHandlers(ctx));
+  registry.registerBatch(createAuditHandlers(ctx));
+
+  // B-9d95 CHK-005: 只 wire `finding_cluster`。createClusterHandlers 同时导出 `finding_dispatch`，
+  // 但那是 dispatch({clusterId}) 分支的内部实现，已由 story-dispatch.ts 的 finding_dispatch / dispatch
+  // 代理注册，此处重复 register 会触发 Registry 同名冲突。
+  const clusterHandlers = createClusterHandlers(ctx);
+  registry.register('finding_cluster', clusterHandlers.finding_cluster);
+
+  // B-fdcf CHK-001: reviewer_list CLI wire（按 riskSignals / touchpoints / channel 实时计算）
+  registry.registerBatch(createReviewerListHandlers(ctx));
+
+  // B-9975 CHK-001: story_draft / story_draft_list / story_draft_discard
+  registry.registerBatch(createStoryDraftHandlers(ctx));
+
+  // B-9975 CHK-002: draft_check_set / draft_issue_resolve
+  registry.registerBatch(createDraftCheckHandlers(ctx));
+
+  // B-35ed CHK-001: delivery_check_set — TEST→DONE 硬门槛产物 delivery-check.json 写入
+  registry.registerBatch(createDeliveryCheckHandlers(ctx));
 
   // 内部辅助：返回下一个 story id（fixture/测试 runner 用）
   registry.register('_nextStoryId', (prefix?: string) => nextStoryId(ctx.store, prefix));
@@ -119,8 +129,8 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
 }
 
 /**
- * Legacy 入口：保留以兼容 fixture runner / test_auto / test-flow-e2e 等
- * 旧调用方使用平铺对象的 `$handlers.foo()` 模式。新代码请用 createMainRegistry。
+ * Legacy 入口：保留以兼容旧代码路径。
+ * 新代码请用 createMainRegistry。
  */
 export function createToolHandlers(store: StoryStore, projectRoot?: string, log?: (msg: string) => void) {
   const root = projectRoot || process.env.KOALA_PROJECT_ROOT || process.cwd();

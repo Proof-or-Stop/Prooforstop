@@ -1,37 +1,12 @@
-/**
- * @task B-727f
- * @checklist CHK-002
- * @title story_review encodes Agent B adversarial review and checklist split quality
- * @type feature
- * @priority high
- * @description
- *   Agent B 负责审查 testIntent 完整性，而不是让 Agent A 自己审自己。
- *   story_review 在实现层承担这条职责：检查每个 checklist item 是否具备
- *   happy/edge/adversarial 三栏、是否遗漏交叉场景，以及 checklist item 是否
- *   同时满足“可观测结果 + 明确触发输入 + 三栏可填满”的拆解标准。
- * @changes
- *   - [CHK-002] 用独立 reviewer 检查 testIntent 完整性，覆盖 Agent A/B 分工
- *   - [CHK-002] 用 split_quality / cross_scenario / weak_intent 规则实现需求完整性的多层防线与 item 拆解标准
- */
 
 import type { HandlerContext } from './context.js';
 import { loadConfig } from '../core/config.js';
-import { join } from 'path';
+import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
+import { computeProcessMetrics } from '../core/process-metrics.js';
+import { SCOPE_CHECK_SALT, signScopeCheck } from './scope-check.js';
 import { existsSync, readFileSync, readdirSync } from 'fs';
+import { join } from 'path';
 import { createHash } from 'crypto';
-import type { StoryInfo } from '../core/types.js';
-import { summarizeParallelPolicy } from '../core/parallel-policy.js';
-import { getArtifactContractStatus } from '../core/artifact-contract.js';
-
-function outcomeLooksAbstract(outcome: string): boolean {
-  const text = outcome.trim();
-  if (text.length < 100) return true;
-  const abstractTerms = ['链路', '事件', '机制', '闭环', '打通', '触发', '状态', '流程'];
-  const hits = abstractTerms.filter((term) => text.includes(term)).length;
-  const transcriptSignals = ['>', '>>>', '[', '✓', '选项', '你选', '完成', 'Resume:', 'Next step'];
-  const transcriptLike = transcriptSignals.some((sig) => text.includes(sig));
-  return hits >= 2 && !transcriptLike;
-}
 
 export function createStoryReviewHandlers(ctx: HandlerContext) {
   const { store } = ctx;
@@ -40,13 +15,6 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
     story_review(args: { storyId: string }): object {
       const story = store.readStory(args.storyId);
       const cl = store.readChecklist(args.storyId);
-      const storiesById = new Map<string, StoryInfo>();
-      for (const storyId of store.listStoryIds()) {
-        try {
-          storiesById.set(storyId, store.readStory(storyId));
-        } catch { /* skip unreadable */ }
-      }
-      const parallelPolicy = summarizeParallelPolicy(story, storiesById);
 
       // 读取真相源
       const config = loadConfig(ctx.root);
@@ -78,8 +46,19 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         if (!item.title || item.title.trim().length < 4) {
           issues.push({ type: 'split_quality', severity: 'blocker', itemId: item.id, message: `${item.id} title 过短或缺失` });
         }
-        if (!(item as any).context || (item as any).context.trim().length < 8) {
+        if (!item.context || item.context.trim().length < 8) {
           issues.push({ type: 'split_quality', severity: 'advisory', itemId: item.id, message: `${item.id} 缺少 context（根因/参考方案）` });
+        }
+        // userSees 检查：用户可见输出描述
+        const userSees = item.userSees;
+        if (!userSees || userSees.trim().length < 10) {
+          issues.push({ type: 'missing_user_sees', severity: 'advisory', itemId: item.id, message: `${item.id} 缺少 userSees（用户完成此 item 后在终端/UI 看到的具体文本）。写法示例：'用户看到 "✓ 文件已创建: hello.txt" 然后返回提示符'` });
+        } else {
+          // 检测抽象描述：如果 userSees 不包含任何引号括起来的具体文本，可能太抽象
+          const hasConcreteText = /["'「」`]/.test(userSees) || /[✓✗→>$#]/.test(userSees);
+          if (!hasConcreteText) {
+            issues.push({ type: 'abstract_user_sees', severity: 'advisory', itemId: item.id, message: `${item.id} userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是"功能正常工作"这类描述` });
+          }
         }
       }
       // 0.3 颗粒度一致性：title 长度差异过大可能表示颗粒度不一致
@@ -96,117 +75,34 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         }
       }
 
-      // B-0af4 CHK-002: trivial-story 模式 — priority=low + <=1 item + type 在
-      // [chore, refactor, docs]。这类 story 跳过 testIntent 的 blocker 门禁（降级
-      // 为 advisory），与 machine.ts 的 PLAN→DEV guard 保持一致。
-      const trivialTypes = ['chore', 'refactor', 'docs'];
-      const isTrivial =
-        (story as any)?.priority === 'low' &&
-        cl.items.length <= 1 &&
-        trivialTypes.includes((story as any)?.type);
-      const intentSeverity: 'blocker' | 'advisory' = isTrivial ? 'advisory' : 'blocker';
+      // 0.4 审计日志：展示所有被删除的 item（disposition 在 checklist_remove 时已强制填写）
+      const auditLog = cl.auditLog;
+      if (auditLog && auditLog.length > 0) {
+        const deletions = auditLog.filter(e => e.action === 'delete');
+        for (const del of deletions) {
+          issues.push({
+            type: 'scope_change',
+            severity: 'advisory',
+            itemId: del.itemId,
+            message: `${del.itemId}（"${del.removedTitle || '?'}"）在 ${del.phase || '未知'} 阶段被删除 [${del.disposition}]: ${del.justification || ''}`,
+          });
+        }
+      }
 
-      // 1. 检查每个 item 是否有 testIntent（happy 必填，edge/adversarial 选填但建议补全）
+      // 1. 检查 checklist item 完整性（title/context 非空）
       for (const item of cl.items) {
-        if (item.testIntent === null) continue; // 标记为不可自动化测试，跳过
-        if (!item.testIntent) {
-          issues.push({ type: 'missing_intent', severity: intentSeverity, itemId: item.id, message: `${item.id}「${item.title}」缺少 testIntent${isTrivial ? '（trivial-story 降级为 advisory）' : ''}` });
-          continue;
-        }
-        if (!item.testIntent.happy || item.testIntent.happy.length === 0) {
-          issues.push({ type: 'weak_intent', severity: intentSeverity, itemId: item.id, message: `${item.id} happy 栏为空${isTrivial ? '（trivial-story 降级为 advisory）' : '（必填）'}` });
-        }
-        if (!item.testIntent.edge || item.testIntent.edge.length === 0) {
-          issues.push({ type: 'weak_intent', severity: 'advisory', itemId: item.id, message: `${item.id} edge 栏为空（建议补全）` });
-        }
-        if (!item.testIntent.adversarial || item.testIntent.adversarial.length === 0) {
-          issues.push({ type: 'weak_intent', severity: 'advisory', itemId: item.id, message: `${item.id} adversarial 栏为空（建议补全）` });
+        if (!item.title || item.title.trim().length < 3) {
+          issues.push({ type: 'weak_item', severity: 'blocker', itemId: item.id, message: `${item.id} title 过短或为空` });
         }
       }
 
-      // 2. intent-case 覆盖率报告
-      const config2 = loadConfig(ctx.root);
-      const fixturesDir2 = join(ctx.root, config2.fixturesDir);
-      const allIntentRefs = new Set<string>();
-      if (existsSync(fixturesDir2)) {
-        const scanFixtures = (dir: string) => {
-          for (const entry of readdirSync(dir, { withFileTypes: true })) {
-            if (entry.isDirectory()) { scanFixtures(join(dir, entry.name)); continue; }
-            if (!entry.name.endsWith('.json')) continue;
-            try {
-              const content = JSON.parse(readFileSync(join(dir, entry.name), 'utf-8'));
-              for (const c of content.cases || []) {
-                if (c.intentRef && typeof c.intentRef === 'string') {
-                  allIntentRefs.add(c.intentRef);
-                }
-              }
-            } catch { /* ignore */ }
-          }
-        };
-        scanFixtures(fixturesDir2);
-      }
-
-      const intentCoverage: Array<{ itemId: string; lane: string; index: number; text: string; covered: boolean }> = [];
-      for (const item of cl.items) {
-        if (!item.testIntent) continue;
-        for (const lane of ['happy', 'edge', 'adversarial'] as const) {
-          const entries = item.testIntent[lane] || [];
-          for (let i = 0; i < entries.length; i++) {
-            const ref = `${item.id}:${lane}:${i}`;
-            const entry = entries[i];
-            const text = typeof entry === 'string' ? entry : (entry as { desc: string }).desc;
-            intentCoverage.push({
-              itemId: item.id,
-              lane,
-              index: i,
-              text,
-              covered: allIntentRefs.has(ref),
-            });
-          }
-        }
-      }
-
-      const coveredCount = intentCoverage.filter(c => c.covered).length;
-      const totalIntentEntries = intentCoverage.length;
-      const coveragePct = totalIntentEntries > 0 ? Math.round(coveredCount / totalIntentEntries * 100) : 100;
-
-      // 3. 检查 item 之间的交叉场景
+      // 2. 检查 item 之间是否可能遗漏交叉场景
       if (cl.items.length >= 2) {
-        const crossPairs: Array<[string, string]> = [];
-        for (let i = 0; i < cl.items.length; i++) {
-          for (let j = i + 1; j < cl.items.length; j++) {
-            crossPairs.push([cl.items[i].id, cl.items[j].id]);
-          }
-        }
-        // 检查是否有任何 testIntent 提到了其他 item 的关键词（简单文本匹配）
-        const extractText = (e: string | { desc: string }) => typeof e === 'string' ? e : e.desc;
-
-        if (crossPairs.length > 0 && cl.items.every(i => i.testIntent)) {
-          // 如果没有任何 intent 文本引用其他 item 的关键词，提示可能遗漏交叉场景
-          let hasCrossRef = false;
-          for (const item of cl.items) {
-            if (!item.testIntent) continue;
-            const texts = [
-              ...(item.testIntent.happy || []).map(extractText),
-              ...(item.testIntent.edge || []).map(extractText),
-              ...(item.testIntent.adversarial || []).map(extractText),
-            ].join(' ');
-            for (const other of cl.items) {
-              if (other.id === item.id) continue;
-              // 从 title 提取关键词（去掉常见虚词）
-              const keywords = other.title.split(/[\s,，、]+/).filter(w => w.length > 1);
-              if (keywords.some(kw => texts.includes(kw))) { hasCrossRef = true; break; }
-            }
-            if (hasCrossRef) break;
-          }
-          if (!hasCrossRef) {
-            issues.push({
-              type: 'cross_scenario',
-              severity: 'advisory',
-              message: `${cl.items.length} 个 checklist item 的 testIntent 之间没有交叉引用，可能遗漏组合场景（如：${cl.items[0].title} + ${cl.items[1].title} 同时操作会怎样？）`,
-            });
-          }
-        }
+        issues.push({
+          type: 'cross_scenario',
+          severity: 'advisory',
+          message: `${cl.items.length} 个 checklist item，请检查是否有组合场景遗漏（如：${cl.items[0].title} + ${cl.items[1].title} 同时操作会怎样？）`,
+        });
       }
 
       // 2.4. 高风险信号提示（OMX 风格，story_create 已自动打标）
@@ -222,43 +118,6 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           message: `story 命中 ${activeRiskSignals.length} 个高风险信号: ${activeRiskSignals.map((r: any) => r.category).join(', ')}。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）`,
         });
       }
-
-      // 2.43. Multi-session parallel policy（B-d307）：并行调度元数据和热点冲突提示
-      if (!story.lane) {
-        issues.push({
-          type: 'parallel_policy_missing_lane',
-          severity: 'advisory',
-          message: `未声明 lane。当前默认会按 ${parallelPolicy.lane} 推断，但建议显式设置 mainline/supporting/exploratory，避免并行调度时主线判断漂移。示例: koala story_update '{"storyId":"${story.storyId}","lane":"mainline"}'`,
-        });
-      }
-      if (!story.parallelSafe) {
-        issues.push({
-          type: 'parallel_policy_missing_safety',
-          severity: 'advisory',
-          message: `未声明 parallelSafe。当前默认会按 ${parallelPolicy.safety} 推断，建议显式设置 yes/no/plan_only，让 session_brief 能稳定给出并行建议。示例: koala story_update '{"storyId":"${story.storyId}","parallelSafe":"plan_only"}'`,
-        });
-      }
-      if ((story.phase === 'PLAN' || story.phase === 'DEV') && parallelPolicy.sharedHotspots.length === 0) {
-        issues.push({
-          type: 'parallel_policy_missing_hotspots',
-          severity: 'advisory',
-          message: `sharedHotspots 为空。建议列出会争抢的核心文件或模块，便于 session_brief 提前提示冲突。示例: koala story_update '{"storyId":"${story.storyId}","sharedHotspots":["packages/main/src/handlers/session.ts"]}'`,
-        });
-      }
-      if ((story.depends?.length ?? 0) > 0 && parallelPolicy.safety === 'yes') {
-        issues.push({
-          type: 'parallel_policy_depends_conflict',
-          severity: 'advisory',
-          message: `story 有 depends=${story.depends!.join(', ')}，但 parallelSafe=yes。通常更适合先标成 plan_only，避免下游 story 抢跑 DEV`,
-        });
-      }
-      for (const conflict of parallelPolicy.conflicts) {
-        issues.push({
-          type: 'parallel_policy_conflict',
-          severity: 'advisory',
-          message: `并行风险：${conflict}`,
-        });
-      }
       if (dismissedCats.size > 0) {
         issues.push({
           type: 'risk_signals_dismissed',
@@ -268,11 +127,28 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
       }
 
       // 2.45. RALPLAN-DR decision.json 检查（OMX ralplan 风格）
-      const artifactContract = getArtifactContractStatus(args.storyId, store, story.phase);
+      // Respect workflow policy: skip check when policy says 'never', only check high_risk stories when 'high_risk'
+      const policy = resolveWorkflowPolicy(config, story);
+
+      // B-aa48 CHK-005: check if checklist references design documents
+      const allRelatedDocs = cl.items.flatMap(item => item.relatedDocs || []);
+      const hasDesignDocs = allRelatedDocs.some((doc: string) =>
+        doc.startsWith('decisions/') || doc.startsWith('requirements/') ||
+        doc.includes('/decisions/') || doc.includes('/requirements/')
+      );
+
+      // B-aa48 CHK-005: balanced profile + design docs referenced -> skip for non-high-risk
+      // (symmetric with shouldCheckUnderstanding; currently redundant under balanced's
+      // requireDecision='high_risk', but keeps intent explicit if config changes)
+      const shouldCheckDecision = (() => {
+        if (policy.plan.requireDecision === 'never') return false;
+        if (policy.plan.requireDecision === 'high_risk' && !isHighRisk) return false;
+        if (policy.profile === 'balanced' && hasDesignDocs && !isHighRisk) return false;
+        return true;
+      })();
       const decision = store.readDecision(args.storyId);
-      if (!decision) {
-        const contractDecision = artifactContract.entries.find((entry) => entry.key === 'decision');
-        if (contractDecision?.required || contractDecision?.present === false) {
+      if (shouldCheckDecision) {
+        if (!decision) {
           issues.push({
             type: 'missing_decision',
             severity: isHighRisk ? 'blocker' : 'advisory',
@@ -280,60 +156,201 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
               ? `高风险 story 必须填 decision.json (principles/drivers/options/chosen/≥3 preMortem)。调用: koala decision_set '{...}'`
               : '未填 decision.json。非高风险 story 可选，但建议补上以便 reviewer 审设计思路。',
           });
-        }
-      } else {
-        // decision 已存在，检查质量
-        if (decision.options.length < 2) {
-          // 单 option 必须 cons 里有 invalidation rationale（decision_set 写入时已校验，这里兜底）
-          const single = decision.options[0];
-          if (!single.cons || single.cons.length === 0) {
+        } else {
+          // decision 已存在，检查质量
+          if (decision.options.length < 2) {
+            // 单 option 必须 cons 里有 invalidation rationale（decision_set 写入时已校验，这里兜底）
+            const single = decision.options[0];
+            if (!single.cons || single.cons.length === 0) {
+              issues.push({
+                type: 'missing_alternatives',
+                severity: 'blocker',
+                message: 'decision.options 只有 1 个且 cons 为空。OMX Critic 同款要求: 必须有 fair alternatives 或显式 invalidation rationale',
+              });
+            }
+          }
+          if (isHighRisk && (!decision.preMortem || decision.preMortem.length < 3)) {
             issues.push({
-              type: 'missing_alternatives',
+              type: 'insufficient_premortem',
               severity: 'blocker',
-              message: 'decision.options 只有 1 个且 cons 为空。OMX Critic 同款要求: 必须有 fair alternatives 或显式 invalidation rationale',
+              message: `高风险 story 必须有 ≥ 3 个 preMortem 场景（当前: ${decision.preMortem?.length ?? 0}）`,
             });
           }
-        }
-        if (isHighRisk && (!decision.preMortem || decision.preMortem.length < 3)) {
-          issues.push({
-            type: 'insufficient_premortem',
-            severity: 'blocker',
-            message: `高风险 story 必须有 ≥ 3 个 preMortem 场景（当前: ${decision.preMortem?.length ?? 0}）`,
-          });
         }
       }
 
       // 2.5. Pre-context Intake snapshot 检查（OMX 风格，软引入）
+      // Respect workflow policy: skip check when policy says 'never', only check high_risk stories when 'high_risk'
+      const shouldCheckUnderstanding = (() => {
+        if (policy.plan.requireUnderstanding === 'never') return false;
+        if (policy.plan.requireUnderstanding === 'high_risk' && !isHighRisk) return false;
+        // B-aa48 CHK-005: balanced profile + design docs referenced -> skip for non-high-risk
+        if (policy.profile === 'balanced' && hasDesignDocs && !isHighRisk) return false;
+        return true;
+      })();
       const understanding = store.readUnderstanding(args.storyId);
-      if (!understanding) {
-        const contractUnderstanding = artifactContract.entries.find((entry) => entry.key === 'understanding');
-        if (contractUnderstanding?.required || contractUnderstanding?.present === false) {
+      if (shouldCheckUnderstanding) {
+        if (!understanding) {
           issues.push({
             type: 'missing_understanding',
             severity: 'advisory',
             message: '未填 understanding snapshot。建议在拆 checklist 前先调用 understanding_set 落 task/outcome/facts/constraints/unknowns/touchpoints 6 个字段，避免理解错误后期修复贵',
           });
+        } else {
+          if (understanding.unknowns.length > 0) {
+            issues.push({
+              type: 'unresolved_unknowns',
+              severity: 'advisory',
+              message: `understanding 还有 ${understanding.unknowns.length} 个未消化的 unknowns: ${understanding.unknowns.slice(0, 3).join('; ')}${understanding.unknowns.length > 3 ? '…' : ''}`,
+            });
+          }
+          if (understanding.touchpoints.length === 0) {
+            issues.push({
+              type: 'empty_touchpoints',
+              severity: 'advisory',
+              message: 'understanding.touchpoints 为空。补一下能让 reviewer 了解影响范围',
+            });
+          }
         }
-      } else {
-        if (understanding.unknowns.length > 0) {
+      }
+
+      // 2.52. B-45ed CHK-002: touchpoints → checklist.files 覆盖校验
+      // 若 understanding.touchpoints 非空：
+      //   - 若至少一个 checklist item 填了 files 字段 → 硬校验模式，每个未被覆盖的 touchpoint 计一条 blocker
+      //   - 若所有 item 都无 files 字段（旧 story）→ fallback advisory `touchpoint_mapping_missing`
+      // 覆盖判定：字符串相等，不做路径规范化。
+      if (understanding && understanding.touchpoints && understanding.touchpoints.length > 0) {
+        const itemsWithFiles = cl.items.filter(i => !!i.files);
+        if (itemsWithFiles.length === 0) {
           issues.push({
-            type: 'unresolved_unknowns',
+            type: 'touchpoint_mapping_missing',
             severity: 'advisory',
-            message: `understanding 还有 ${understanding.unknowns.length} 个未消化的 unknowns: ${understanding.unknowns.slice(0, 3).join('; ')}${understanding.unknowns.length > 3 ? '…' : ''}`,
+            message: 'checklist 所有 item 均未填写 files 字段（旧 story 兼容模式），无法对 understanding.touchpoints 做覆盖校验。请为至少一个 item 的 files.modify/create/test 列出改动文件，以启用 touchpoint→files 强校验',
+          });
+        } else {
+          // 硬校验模式：收集所有 item 已声明的 files 路径
+          const covered = new Set<string>();
+          for (const item of itemsWithFiles) {
+            const f = item.files!;
+            for (const p of f.modify || []) covered.add(p);
+            for (const p of f.create || []) covered.add(p);
+            for (const p of f.test || []) covered.add(p);
+          }
+          for (const tp of understanding.touchpoints) {
+            if (!covered.has(tp)) {
+              issues.push({
+                type: 'touchpoint_uncovered',
+                severity: 'blocker',
+                message: `touchpoint_uncovered: ${tp} 未被任何 checklist item 的 files 字段覆盖（请为相应 item 的 files.modify/create/test 加上此路径或用 excludes 显式排除）`,
+              });
+            }
+          }
+        }
+      }
+
+      // 2.55. plan.md 检查（respect policy.plan.requirePlanMd）
+      const shouldCheckPlanMd = (() => {
+        if (policy.plan.requirePlanMd === 'never') return false;
+        if (policy.plan.requirePlanMd === 'normal') return cl.items.length > 2 || isHighRisk;
+        return true; // 'always'
+      })();
+      if (shouldCheckPlanMd) {
+        const planPath = join(ctx.root, config.storyDir, args.storyId, 'plan.md');
+        if (!existsSync(planPath)) {
+          issues.push({
+            type: 'missing_plan_md',
+            severity: isHighRisk ? 'blocker' : 'advisory',
+            message: isHighRisk
+              ? '高风险 story 必须有 plan.md（执行计划）。按 CLAUDE.md plan.md 模板写，每个 CHK-xxx 一个章节'
+              : '未找到 plan.md。正常通道建议写 plan.md 明确执行顺序和依赖',
           });
         }
-        if (understanding.touchpoints.length === 0) {
+      }
+
+      // 2.6. Scope check: read scope-check.json (written by koala-review-scope-plan agent)
+      // Only check scope when understanding exists and checklist has items
+      // (without these, scope check is meaningless and would block trivial stories)
+      const scopeData = store.readScopeCheck(args.storyId);
+      if (!scopeData && understanding && cl.items.length > 0) {
+        issues.push({
+          type: 'missing_scope_check',
+          severity: 'blocker',
+          message: '未跑 scope check。请先启动 koala-review-scope-plan agent，agent 会自动调 scope_check_save 写入结果',
+        });
+      } else if (scopeData) {
+        // Verify signature using shared signScopeCheck function
+        const expectedHash = signScopeCheck(args.storyId, scopeData.checkedAt, scopeData.summary.gaps, scopeData.summary.covered, scopeData.reviewRound || '');
+        if (!scopeData._hash || scopeData._hash !== expectedHash) {
           issues.push({
-            type: 'empty_touchpoints',
-            severity: 'advisory',
-            message: 'understanding.touchpoints 为空。补一下能让 reviewer 了解影响范围',
+            type: 'scope_check_tampered',
+            severity: 'blocker',
+            message: 'scope-check.json 签名校验失败，必须由 scope agent 通过 scope_check_save 写入',
           });
+        } else {
+          // Verify review round matches current round
+          if (story.currentReviewRound && scopeData.reviewRound !== story.currentReviewRound) {
+            issues.push({
+              type: 'scope_check_stale',
+              severity: 'blocker',
+              message: `scope-check.json 的 reviewRound (${scopeData.reviewRound || '无'}) 与当前 review round (${story.currentReviewRound}) 不匹配，请重新跑 scope agent`,
+            });
+          }
+          // Report gaps as blocker
+          const gaps = (scopeData.features || []).filter(f => f.status === 'gap');
+          for (const gap of gaps) {
+            issues.push({
+              type: 'scope_gap',
+              severity: 'blocker',
+              message: `scope gap: description 提到 "${gap.feature}" 但无对应 checklist item 且未 exclude`,
+            });
+          }
+          // Report excluded as info (not counted as issue)
+          const excluded = (scopeData.features || []).filter(f => f.status === 'excluded');
+          if (excluded.length > 0) {
+            issues.push({
+              type: 'scope_excluded_info',
+              severity: 'advisory',
+              message: `${excluded.length} 个功能点已显式 exclude: ${excluded.map(e => e.feature).join(', ')}`,
+            });
+          }
+          // F-018/F-021: orphan-suspect 作为 advisory 输出（不 block，但让主 agent 可见）
+          // drift 在 PLAN 阶段恒为空集，S3 规划，此处不输出。
+          const orphanSuspect = (scopeData.features || []).filter(f => f.status === 'orphan-suspect');
+          for (const feat of orphanSuspect) {
+            const src = feat.source ? ` 见 ${feat.source}` : '';
+            issues.push({
+              type: 'scope_orphan_suspect',
+              severity: 'advisory',
+              message: `scope feature ${feat.feature} orphan-suspect:${src} 未被任何 CHK 覆盖但未显式 exclude，请确认`,
+            });
+          }
         }
-        if (outcomeLooksAbstract(understanding.outcome || '')) {
+      }
+
+      // 2.65. B-ed3e CHK-004: Open Questions gate —— 任何未 resolve 的 OQ 都 block PLAN→DEV。
+      // 防主 agent 对 scope-plan reviewer 的疑问装没看见（自我赦免）。向后兼容：
+      // 老 scope-check.json 无 openQuestions 字段（undefined）或空数组时不触发。
+      if (scopeData && scopeData.openQuestions && scopeData.openQuestions.length > 0) {
+        // F-019: 与 cli-engine.ts Zod schema (resolution.min(20)) 对齐；
+        // 1-19 字符的 resolution 视为未 resolve，防绕过。
+        const unresolved = scopeData.openQuestions.filter(
+          oq => !oq.resolution || oq.resolution.trim().length < 20,
+        );
+        for (const oq of unresolved) {
+          // F-017: oq.q 为空时用 '(无疑问文本)' 兜底，防输出 "... 未 resolve — """
+          const rawQ = oq.q ?? '';
+          const qText = rawQ.length > 80
+            ? `${rawQ.slice(0, 77)}...`
+            : (rawQ.length > 0 ? rawQ : '(无疑问文本)');
+          // F-019: 已写但 < 20 字符的 resolution 在消息里额外标注
+          const trimmedLen = (oq.resolution ?? '').trim().length;
+          const shortTag = (trimmedLen > 0 && trimmedLen < 20)
+            ? '（< 20 字符，视为未 resolve）'
+            : '';
           issues.push({
-            type: 'weak_outcome_transcript',
-            severity: 'advisory',
-            message: 'understanding.outcome 看起来偏抽象，不像用户真正会看到的 transcript。建议改成具体终端/UI 文本，避免工程通过但用户仍然会问“然后呢？”',
+            type: 'scope_open_question_unresolved',
+            severity: 'blocker',
+            message: `scope_open_question_unresolved: ${oq.id} 未 resolve — "${qText}"${shortTag}。请跑 \`koala scope_question_resolve --storyId=${args.storyId} --oqId=${oq.id} --resolution=...\` 书面消解（主 agent 对结论负责）`,
           });
         }
       }
@@ -343,45 +360,13 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         issues.push({
           type: 'review_advisory',
           severity: 'advisory',
-          message: '审查未发现 blocker，但建议对照 _reviewPrompt 中的真相源文档人工复核 testIntent 完整性',
+          message: '审查未发现 blocker，但建议对照 _reviewPrompt 中的真相源文档人工复核 checklist 完整性',
         });
       }
 
       // 4. 统计
       const totalItems = cl.items.length;
-      const withIntent = cl.items.filter(i => i.testIntent && i.testIntent !== null).length;
-      const totalIntents = cl.items.reduce((sum, i) => {
-        if (!i.testIntent || i.testIntent === null) return sum;
-        return sum + (i.testIntent.happy?.length || 0) + (i.testIntent.edge?.length || 0) + (i.testIntent.adversarial?.length || 0);
-      }, 0);
       const blockerCount = issues.filter(i => i.severity === 'blocker').length;
-      const blockerTypes = Array.from(new Set(issues.filter(i => i.severity === 'blocker').map(i => i.type)));
-      const advisoryTypes = Array.from(new Set(issues.filter(i => i.severity === 'advisory').map(i => i.type)));
-      const missingIntentItems = issues
-        .filter(i => i.type === 'missing_intent' || i.type === 'weak_intent')
-        .map(i => i.itemId)
-        .filter((id): id is string => Boolean(id));
-      const blockingMissingIntentItems = issues
-        .filter(i => i.severity === 'blocker' && (i.type === 'missing_intent' || i.type === 'weak_intent'))
-        .map(i => i.itemId)
-        .filter((id): id is string => Boolean(id));
-      const nextFix = blockerCount > 0
-        ? (blockingMissingIntentItems.length > 0
-          ? `运行 koala testintent_handoff '{"storyId":"${args.storyId}"}'，把 prompt 交给 test-intent agent 补齐 ${Array.from(new Set(blockingMissingIntentItems)).join(', ')}，然后重新 story_review`
-          : '修复 blocker 后重新 story_review')
-        : (coveragePct < 100
-          ? `补齐 fixture intentRef 覆盖后继续（当前 intent 覆盖率 ${coveragePct}%）`
-          : '无 blocker，可进入 DEV；建议人工快速复核 advisory');
-      const reviewPromptSummary = {
-        hasUnderstanding: Boolean(understanding),
-        hasDecision: Boolean(decision),
-        hasPreMortem: Boolean(decision?.preMortem && decision.preMortem.length > 0),
-        hasRiskSignals: activeRiskSignals.length > 0,
-        truthDocsCount: truthDocs.length,
-        checklistItems: totalItems,
-        testIntentEntries: totalIntents,
-        hasFullPrompt: truthDocs.length > 0 || Boolean(understanding) || Boolean(decision),
-      };
 
       // 5. 写入 review.json（带签名，防止主 agent 伪造）
       const reviewData = store.readReview(args.storyId);
@@ -400,42 +385,40 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
       reviewData.reviews.push(reviewEntry);
       store.writeReview(args.storyId, reviewData);
 
+      // B-aa48 CHK-002: write plan_reviewed process event
+      try {
+        store.appendProcessEvent(args.storyId, {
+          type: 'plan_reviewed',
+          round: reviewData.reviews.length,
+          blockerCount,
+          issueCount: issues.length,
+        });
+      } catch (e) {
+        console.warn(`[process-events] append failed for ${args.storyId}:`, (e as Error).message);
+      }
+
+      // B-abd8: auto-recompute process metrics
+      try {
+        const pm = computeProcessMetrics(args.storyId, store, ctx.root);
+        store.writeProcessMetrics(args.storyId, pm);
+      } catch (e) {
+        console.warn(`[process-metrics] recompute failed for ${args.storyId}:`, (e as Error).message);
+      }
+
       return {
         storyId: args.storyId,
         title: story.title,
         reviewRound: reviewData.reviews.length,
         summary: {
           totalItems,
-          withIntent,
-          withoutIntent: totalItems - withIntent,
-          totalIntents,
           issueCount: issues.length,
           blockerCount,
-          intentCoverage: {
-            covered: coveredCount,
-            total: totalIntentEntries,
-            percentage: coveragePct,
-          },
         },
         issues,
-        actionSummary: {
-          canEnterDev: blockerCount === 0,
-          hasBlockers: blockerCount > 0,
-          blockerTypes,
-          advisoryTypes,
-          missingIntentItems: Array.from(new Set(missingIntentItems)),
-          nextFix,
-        },
-        reviewPromptSummary,
-        intentCoverageDetail: intentCoverage.length > 0
-          ? intentCoverage.filter(c => !c.covered).map(c => `${c.itemId}:${c.lane}:${c.index} → ${c.text}`)
-          : undefined,
         truthDocsCount: truthDocs.length,
         _hint: blockerCount > 0
-          ? (blockingMissingIntentItems.length > 0
-            ? `第 ${reviewData.reviews.length} 轮审查发现 ${blockerCount} 个 blocker。下一步: koala testintent_handoff '{"storyId":"${args.storyId}"}'，交给 test-intent agent 后再次 story_review`
-            : `第 ${reviewData.reviews.length} 轮审查发现 ${blockerCount} 个 blocker，请修复后再次 story_review`)
-          : `✅ 第 ${reviewData.reviews.length} 轮审查通过（${blockerCount} blocker, ${issues.length} advisory）${coveragePct < 100 ? `，intent 覆盖率 ${coveragePct}%（${coveredCount}/${totalIntentEntries}）` : ''}，可进入开发`,
+          ? `第 ${reviewData.reviews.length} 轮审查发现 ${blockerCount} 个 blocker，请修复后再次 story_review`
+          : `✅ 第 ${reviewData.reviews.length} 轮审查通过（${blockerCount} blocker, ${issues.length} advisory），可进入开发`,
         _reviewPrompt: (() => {
           // 拼出完整 review prompt：truth docs + checklist/intent + understanding + decision
           // 让 reviewer 不光能审需求覆盖度，还能审"主 agent 是否真的理解了任务"和"为什么选这个设计"
@@ -459,9 +442,8 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
                 ? `\npreMortem:\n${decision.preMortem.map((pm: any) => `  - ${pm.scenario} (trigger: ${pm.trigger}; consequence: ${pm.consequence}; mitigation: ${pm.mitigation})`).join('\n')}`
                 : '')
             : '\n---\nDecision: (not provided)';
-          const checklistSection = `\n---\nChecklist + TestIntent:\n${cl.items.map(i => {
-            const et = (e: string | { desc: string }) => typeof e === 'string' ? e : e.desc;
-            return `- ${i.id}: ${i.title}\n  ${i.testIntent ? `happy: ${(i.testIntent.happy || []).map(et).join('; ')}\n  edge: ${(i.testIntent.edge || []).map(et).join('; ')}\n  adversarial: ${(i.testIntent.adversarial || []).map(et).join('; ')}` : '(无 testIntent)'}`;
+          const checklistSection = `\n---\nChecklist:\n${cl.items.map(i => {
+            return `- ${i.id}: ${i.title}${i.context ? ` (${i.context})` : ''}`;
           }).join('\n')}`;
           const truthSection = truthDocs.length > 0
             ? `\n---\nTruth Source (${truthDocs.length} 篇):\n${truthDocs.join('\n---\n')}`
@@ -471,7 +453,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           return `请审查以下 story 的 PLAN 阶段产物。重点检查:\n` +
             `  1. understanding 是否真切（unknowns 是否被 facts 自相矛盾，touchpoints 是否真实）\n` +
             `  2. decision 是否选择合理（为什么不选其他 option，rationale 是否呼应 drivers）\n` +
-            `  3. testIntent 是否覆盖 description + truth docs 中的所有场景\n` +
+            `  3. checklist 是否覆盖 description + truth docs 中的所有场景\n` +
             `  4. preMortem 是否列出了真实的失败模式（不是凑数）\n\n` +
             `---\nStory: ${story.title}\nDescription: ${story.description}\nPriority: ${story.priority}` +
             (story.riskSignals && story.riskSignals.length > 0

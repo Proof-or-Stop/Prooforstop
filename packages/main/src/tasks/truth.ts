@@ -7,8 +7,6 @@ import { loadConfig } from '../core/config.js';
 export interface TruthEntry {
   /** 来源文件（相对路径） */
   file: string;
-  /** 来源层级：primary = 人工真相源，derived = 反向提取参考层 */
-  tier: 'primary' | 'derived';
   /** 条目类型 */
   type: 'requirement' | 'decision' | 'constraint' | 'question';
   /** 内容摘要 */
@@ -54,7 +52,6 @@ function collectMdFiles(dir: string): string[] {
 function extractEntries(content: string, file: string): TruthEntry[] {
   const entries: TruthEntry[] = [];
   const lines = content.split('\n');
-  const tier: TruthEntry['tier'] = file.startsWith('extracted/') ? 'derived' : 'primary';
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
@@ -79,7 +76,6 @@ function extractEntries(content: string, file: string): TruthEntry[] {
     if (type) {
       entries.push({
         file,
-        tier,
         type,
         summary: text.length > 200 ? text.slice(0, 200) + '...' : text,
         line: i + 1,

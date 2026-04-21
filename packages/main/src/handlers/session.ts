@@ -23,23 +23,10 @@ import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import type { HandlerContext } from './context.js';
 import type { StoryInfo, ChecklistData, BugData } from '../core/types.js';
-import { detectZombieStories } from './story-query.js';
-import { formatRoleLabel } from '../core/activity-role.js';
-import { summarizeParallelPolicy, type ParallelPolicyView } from '../core/parallel-policy.js';
-import { renderAntiStall, reviewAntiStall, testAntiStall, waitingAntiStall } from '../core/anti-stall.js';
-import { getPhaseInvariantStatus } from '../core/machine.js';
-import { getArtifactContractStatus } from '../core/artifact-contract.js';
-import { getReviewerStatus, type ReviewerStatus } from '../core/reviewer-status.js';
-import { getStoryWorktreeRuntime } from '../core/worktree-runtime.js';
-import { collectBaselineRisk, renderBaselineRiskLines } from '../core/baseline-risk.js';
-import { loadConfig } from '../core/config.js';
+import { formatProcessMetricsSummary } from '../core/process-metrics.js';
 import { readActivityLogTail } from '../core/activity-log.js';
-import {
-  checkPhaseTransition,
-  describeAllowedTransitions,
-  formatPhaseOrdinal,
-  phaseRank,
-} from '../core/phase-flow.js';
+import { summarizeReviewerStatus } from '../core/reviewer-status.js';
+import { reviewAntiStall, testAntiStall } from '../core/anti-stall.js';
 
 interface ActiveStoryDetected {
   storyId: string;
@@ -71,69 +58,21 @@ function readActivityTail(root: string, lines: number): Array<{
   timestamp: string;
   tool: string;
   status: string;
-  source: string;
-  role: string;
   storyId: string | null;
 }> {
   try {
-    const tail = readActivityLogTail(root, lines);
-    const records: Array<{ timestamp: string; tool: string; status: string; source: string; role: string; storyId: string | null }> = [];
-    for (const r of tail) {
-      try {
-        records.push({
-          timestamp: String(r.startTime || r.endTime || ''),
-          tool: r.tool || r.detail || '?',
-          status: String(r.status || '?'),
-          source: String(r.source || 'unknown'),
-          role: formatRoleLabel(typeof r.role === 'string' ? r.role : undefined),
-          storyId: typeof r.storyId === 'string' ? r.storyId : null,
-        });
-      } catch { /* skip malformed */ }
-    }
-    return records;
+    // readActivityLogTail returns newest-first; reverse to match old
+    // chronological order expected by callers that .reverse() for display.
+    const entries = readActivityLogTail(root, lines).reverse();
+    return entries.map(r => ({
+      timestamp: String(r.startTime || r.endTime || ''),
+      tool: String(r.tool || r.detail || '?'),
+      status: String(r.status || '?'),
+      storyId: (r.storyId as string) || null,
+    }));
   } catch {
     return [];
   }
-}
-
-function rankPhase(phase: string): number {
-  return phaseRank(phase);
-}
-
-function inferRoleAwareNextStep(
-  storyId: string,
-  phase: string,
-  activity: Array<{ role: string; tool: string; source: string; status: string }>,
-): string | null {
-  const latest = activity[activity.length - 1];
-  if (!latest) return null;
-  const latestKnown = [...activity].reverse().find((a) => a.role !== 'unknown') || latest;
-
-  if (phase === 'TEST_CASE_REVIEW' && latestKnown.role === 'reviewer' && latestKnown.status === 'ok') {
-    return `TEST_CASE_REVIEW 阶段。reviewer 最近已完成审核；优先执行 testintent_check 查看最终判定，再按 hint 决定进入 TEST 或回退。\n${reviewAntiStall(storyId)}`;
-  }
-
-  if (phase === 'PLAN' && latestKnown.role === 'intent' && latestKnown.status === 'ok') {
-    return 'PLAN 阶段。test-intent agent 最近已更新内容；优先执行 story_review，确认 blocker 清零后进入 DEV。';
-  }
-
-  if (phase === 'DEV' && latestKnown.role === 'intent' && latestKnown.status === 'ok') {
-    return 'DEV 阶段。最近由 test-intent agent 更新了验收内容；优先执行 story_review，确认新的验收要求已被当前实现覆盖。';
-  }
-
-  if (latestKnown.role === 'reviewer' && latestKnown.status === 'ok') {
-    return `最近由 reviewer 更新了状态。优先执行 testintent_check 或相关只读命令确认最终判定，再决定继续开发还是进入测试。\n${waitingAntiStall(storyId)}`;
-  }
-
-  if (latestKnown.role === 'intent' && latestKnown.status === 'ok') {
-    return '最近由 test-intent agent 更新了验收内容。优先执行 story_review，确认新的验收要求后再继续推进。';
-  }
-
-  if (latestKnown.role === 'unknown') {
-    return '最近 activity 缺少可识别的 role。优先执行 checklist_get / testintent_check 等只读命令确认当前真实状态，再决定下一步。';
-  }
-
-  return null;
 }
 
 function readGitStatus(root: string): { porcelain: string[]; recentLog: string[] } {
@@ -273,48 +212,6 @@ function renderRouterLogTail(tail: RouterLogSummary[]): string[] {
   return lines;
 }
 
-function renderRuntimeHealthLines(runtime: ReturnType<typeof getStoryWorktreeRuntime>): string[] {
-  const lines: string[] = [];
-  lines.push('## Runtime health');
-  const marker = runtime.status === 'ok' ? '✓' : (runtime.status === 'drift' ? '!' : '✗');
-  const path = runtime.linkedPath || runtime.recordedAbsPath || '(none)';
-  lines.push(`  [${marker}] ${runtime.summary} — ${path}`);
-  for (const warning of runtime.warnings.slice(0, 3)) {
-    lines.push(`  - ${warning}`);
-  }
-  if (runtime.recoveryHint) {
-    lines.push(`  hint: ${runtime.recoveryHint}`);
-  }
-  return lines;
-}
-
-function renderMainBaselineRiskLines(root: string): string[] {
-  const config = loadConfig(root);
-  const risk = collectBaselineRisk(root, {
-    acceptedLocalPaths: config.baselineRiskAcceptedLocalPaths,
-    maxEntries: 6,
-  });
-  const lines = renderBaselineRiskLines(risk, {
-    prefix: '⚠ Main baseline risk',
-    includeVolatileSummary: true,
-  });
-  return lines.length > 0 ? ['', ...lines] : [];
-}
-
-function renderReviewerStatusLines(status: ReviewerStatus): string[] {
-  const lines: string[] = [];
-  lines.push('## Reviewer status');
-  for (const entry of status.entries) {
-    const marker = entry.verdict === 'pass' ? '✓' : (entry.blocking ? '✗' : '!');
-    const requirement = entry.required ? 'required' : 'advisory';
-    lines.push(`  [${marker}] ${entry.label} (${requirement}) — ${entry.summary}`);
-  }
-  if (status.primary) {
-    lines.push(`  primary: ${status.primary.label} → ${status.primary.summary}`);
-  }
-  return lines;
-}
-
 interface ChecklistSummary {
   total: number;
   done: number;
@@ -342,23 +239,17 @@ interface NextStepCtx {
   bugs: BugData | null;
   hasTestEvidence: boolean;
   testPassedAt: string | null;
-  reviewerStatus: ReviewerStatus;
-  runtimeStatus: ReturnType<typeof getStoryWorktreeRuntime>;
-  recentActivity: Array<{ role: string; tool: string; source: string; status: string }>;
 }
 
 function computeNextStep(c: NextStepCtx): string {
   const sid = c.storyId;
   const openBugs = c.bugs?.bugs.filter(b => b.status === 'open') ?? [];
-  const roleAwareHint = inferRoleAwareNextStep(c.storyId, c.phase, c.recentActivity);
-  if (roleAwareHint) return roleAwareHint;
-  const blockingReviewer = c.reviewerStatus.entries.find((entry) => entry.blocking && entry.verdict !== 'pass') || null;
 
   switch (c.phase) {
     case 'IDEA':
       return `Story 在 IDEA 阶段，没有 checklist。和用户讨论 checklist 后用 checklist_add 追加，或重新 story_create 时带上 checklist 字段`;
     case 'INIT':
-      return `Story 在 INIT 阶段。下一步：先 story_advance --storyId=${sid} --phase=INIT_CHECK --dryRun 预览 bootstrap git 变更；确认后再带 --confirm 创建 worktree，然后 cd 进去`;
+      return `Story 在 INIT 阶段。下一步：story_advance --storyId=${sid} --phase=INIT_CHECK 创建 worktree，然后 cd 进去`;
     case 'INIT_CHECK':
       return `Story 在 INIT_CHECK，worktree 已创建。下一步：cd 到 .worktrees/${sid}/ 然后 story_advance --phase=PLAN`;
     case 'PLAN': {
@@ -368,10 +259,7 @@ function computeNextStep(c: NextStepCtx): string {
       if (!c.hasDecision) {
         return `PLAN 阶段已有 understanding，缺 decision。下一步：decision_set 落 RALPLAN-DR 决策（principles/drivers/options/chosen/rationale/preMortem）`;
       }
-      const missingIntent = c.checklist
-        ? `（让 test-intent agent 补 testIntent）`
-        : '';
-      return `PLAN 阶段。下一步：story_review --storyId=${sid} 跑对抗审查 ${missingIntent}，issueCount=0 后 story_advance --phase=DEV`;
+      return `PLAN 阶段。下一步：story_review --storyId=${sid} 跑对抗审查，issueCount=0 后 story_advance --phase=DEV`;
     }
     case 'DEV': {
       if (!c.checklist) return `DEV 阶段。先 checklist_get --storyId=${sid} 看待办`;
@@ -383,32 +271,22 @@ function computeNextStep(c: NextStepCtx): string {
         const next = c.checklist.pending[0];
         return `DEV 阶段。下一项：checklist_update --storyId=${sid} --itemId=${next.id} --status=in_progress（${next.title}）`;
       }
-      return `DEV 阶段，所有 checklist 已 done。下一步：如需本地 git commit，未经用户 confirm 不允许；确认后再提交，并 story_advance --storyId=${sid} --phase=TEST_CASE 进入测试编写`;
+      return `DEV 阶段，所有 checklist 已 done。下一步：git commit + story_advance --storyId=${sid} --phase=TEST 进入验证`;
     }
+    case 'REVIEW':
+      return `REVIEW 阶段。koala-reviewer 审查代码，提 finding。critical/high finding 全部 resolved 后 story_advance --storyId=${sid} --phase=TEST`;
     case 'TEST_CASE':
-      return `TEST_CASE 阶段。下一步：根据每条 testIntent 用 fixture_batch_add 写 case，每条都需要 intentRef。若要本地 git commit fixture，未经用户 confirm 不允许；确认后再提交，并 story_advance --phase=TEST_CASE_REVIEW`;
+      return `TEST_CASE 阶段（legacy）。建议 story_advance --phase=TEST 直接进入验证`;
     case 'TEST_CASE_REVIEW':
-      if (c.reviewerStatus.entries.find((entry) => entry.key === 'implementation_review')?.verdict === 'fail') {
-        return `TEST_CASE_REVIEW 阶段。implementation review 已标记为 fail。下一步：先回 DEV 修实现，再继续 reviewer / TEST 推进。\n${reviewAntiStall(sid)}`;
-      }
-      if (blockingReviewer) {
-        return `TEST_CASE_REVIEW 阶段。${blockingReviewer.label} 当前为 ${blockingReviewer.summary}。下一步：先处理这条 reviewer 结论，再决定是否进入 TEST。\n${reviewAntiStall(sid)}`;
-      }
-      if (c.reviewerStatus.entries.find((entry) => entry.key === 'implementation_review')?.verdict === 'missing') {
-        return `TEST_CASE_REVIEW 阶段。下一步：启动 test-case-reviewer 审 fixture/testIntent，并建议同时用 implementation_review_result_set 记录 implementation-reviewer 的结果。\n${reviewAntiStall(sid)}`;
-      }
-      return `TEST_CASE_REVIEW 阶段。下一步：启动 test-case-reviewer agent 审核每条 testIntent。全部 reviewer pass 后 story_advance --phase=TEST。任意 fail 则回退 DEV 改代码\n${reviewAntiStall(sid)}`;
+      return `TEST_CASE_REVIEW 阶段（legacy）。建议 story_advance --phase=TEST 直接进入验证`;
     case 'TEST':
-      if (blockingReviewer) {
-        return `TEST 阶段。${blockingReviewer.label} 当前为 ${blockingReviewer.summary}，先修 reviewer 阻塞项，再继续测试或收尾。\n${testAntiStall(sid)}`;
-      }
       if (openBugs.length > 0) {
-        return `TEST 阶段，有 ${openBugs.length} 个 open bug：${openBugs.slice(0, 3).map(b => b.id).join(', ')}。修复后跑 test_fixture 验证，bug_update --status=fixed 自动确认\n${testAntiStall(sid, openBugs.map(b => b.id))}`;
+        return `TEST 阶段，有 ${openBugs.length} 个 open bug：${openBugs.slice(0, 3).map(b => b.id).join(', ')}。修复后跑 koala validate 验证`;
       }
       if (!c.hasTestEvidence) {
-        return `TEST 阶段。下一步：test_story --storyId=${sid} 跑当前 story 关联 case，写 bug/evidence\n${testAntiStall(sid)}`;
+        return `TEST 阶段。下一步：koala validate 跑验证，写 bug/evidence`;
       }
-      return `TEST 阶段，所有 bug 已 fixed。下一步：先 story_advance --storyId=${sid} --phase=DONE --dryRun 预览自动 git 收尾；确认后再带 --confirm 真实完成 story`;
+      return `TEST 阶段，所有 bug 已 fixed。下一步：story_advance --storyId=${sid} --phase=DONE 完成 story（会自动合并回 main）`;
     case 'DONE':
       return `Story 已 DONE。可以开始下一个 story`;
     default:
@@ -428,76 +306,6 @@ function formatTimeAgo(iso: string): string {
   return `${Math.round(hr / 24)}d ago`;
 }
 
-interface ActiveStoryBrief {
-  storyId: string;
-  phase: string;
-  linkedPhase?: string;
-  title: string;
-  bugsOpen: number;
-  story: StoryInfo;
-  policy: ParallelPolicyView;
-}
-
-function readLinkedStoryPhase(storyId: string, linkedPath: string | null): string | null {
-  if (!linkedPath) return null;
-  const storyPath = join(linkedPath, 'docs', 'story', 'actives', storyId, 'index.json');
-  if (!existsSync(storyPath)) return null;
-  try {
-    const parsed = JSON.parse(readFileSync(storyPath, 'utf-8')) as { phase?: unknown };
-    return typeof parsed.phase === 'string' ? parsed.phase : null;
-  } catch {
-    return null;
-  }
-}
-
-function displayPhase(story: ActiveStoryBrief): string {
-  if (story.linkedPhase && story.linkedPhase !== story.phase) {
-    return `${formatPhaseOrdinal(story.phase)} (worktree phase: ${formatPhaseOrdinal(story.linkedPhase)})`;
-  }
-  return formatPhaseOrdinal(story.phase);
-}
-
-function renderPhaseFlowLines(phase: string, linkedPhase?: string): string[] {
-  const lines = describeAllowedTransitions(phase).map((line) => `  ${line}`);
-  if (linkedPhase && linkedPhase !== phase) {
-    const health = checkPhaseTransition(phase, linkedPhase);
-    const marker = health.ok ? '✓' : '!';
-    lines.push(`  transition health: [${marker}] main ${formatPhaseOrdinal(phase)} -> worktree ${formatPhaseOrdinal(linkedPhase)} (${health.kind})`);
-    if (health.warning) lines.push(`  warning: ${health.warning}`);
-  }
-  return lines;
-}
-
-function formatParallelBadge(policy: ParallelPolicyView): string {
-  return `${policy.lane}/${policy.safety}`;
-}
-
-function buildParallelBrief(activeStories: ActiveStoryBrief[]): {
-  primary: ActiveStoryBrief | null;
-  candidates: Array<{ story: ActiveStoryBrief; note: string }>;
-  conflicts: string[];
-} {
-  const primary = activeStories.find((story) => story.policy.lane === 'mainline') || activeStories[0] || null;
-  const conflicts = Array.from(new Set(
-    activeStories.flatMap((story) => story.policy.conflicts.map((message) => `${story.storyId}: ${message}`)),
-  ));
-  const candidates = activeStories
-    .filter((story) => !primary || story.storyId !== primary.storyId)
-    .filter((story) => story.policy.safety !== 'no')
-    .filter((story) => !story.policy.conflicts.some((message) => message.includes(`shares hotspots with ${primary?.storyId}`)))
-    .map((story) => {
-      const notes = [
-        ...story.policy.reasons,
-        ...(story.policy.safety === 'yes' ? ['ready for parallel DEV'] : ['keep this in PLAN only']),
-      ];
-      return {
-        story,
-        note: notes.join('; '),
-      };
-    });
-  return { primary, candidates, conflicts };
-}
-
 /** B-89c7 CHK-008: session_brief input schema.
  *  concise=true → output < ~4KB, only critical fields. Used by the
  *  Claude Code SessionStart hook where head-of-context pollution must
@@ -507,23 +315,9 @@ interface SessionBriefArgs {
   concise?: boolean;
 }
 
-/**
- * @task B-3736
- * @checklist CHK-002, CHK-003
- * @title status and next reuse the session brief project-state view
- * @type feature
- * @priority high
- * @description
- *   status/next are read-only project-state runtime entrypoints. They
- *   reuse session_brief facts so Koala has one source for story, phase,
- *   runtime health, reviewer/artifact status, dirty risk, and next-step
- *   inference.
- * @changes
- *   - [CHK-002] Add status as a session_brief-backed state view
- *   - [CHK-003] Add next as a concise extraction of the same next-step inference
- */
 export function createSessionHandlers(ctx: HandlerContext) {
-  const renderSessionBrief = (args: SessionBriefArgs = {}): string => {
+  return {
+    session_brief(args: SessionBriefArgs = {}): string {
       const concise = args.concise === true;
       const lines: string[] = [];
       lines.push('# koala session brief');
@@ -557,17 +351,15 @@ export function createSessionHandlers(ctx: HandlerContext) {
         // We call the same handler via ctx-level helpers so the exact
         // same numbers show up in brief and in `koala story_list`.
         let dashboardText: string | null = null;
-        let activeStories: ActiveStoryBrief[] = [];
+        let activeStories: Array<{ storyId: string; phase: string; title: string; bugsOpen: number; hasBg: boolean }> = [];
         let totalBugsOpen = 0;
         let totalStories = allStoryIds.length;
         let doneStories = 0;
-        const storiesById = new Map<string, StoryInfo>();
         try {
           const phases: Record<string, number> = {};
           for (const id of allStoryIds) {
             try {
               const s = ctx.store.readStory(id);
-              storiesById.set(id, s);
               phases[s.phase] = (phases[s.phase] || 0) + 1;
               if (s.phase === 'DONE') doneStories++;
               // Non-terminal = active
@@ -581,13 +373,14 @@ export function createSessionHandlers(ctx: HandlerContext) {
                   const bd = ctx.store.readBugs(id);
                   bugsOpen = bd.bugs.filter(b => b.status === 'open').length;
                 } catch { /* no bugs file */ }
+                // B-45ed CHK-008: 每个 active story 检测 background.md 存在性 → bg:✓ 标记
+                const hasBg = existsSync(join(ctx.root, 'docs', 'story', 'actives', id, 'background.md'));
                 activeStories.push({
                   storyId: id,
                   phase: s.phase,
                   title: s.title || '',
                   bugsOpen,
-                  story: s,
-                  policy: summarizeParallelPolicy(s, storiesById),
+                  hasBg,
                 });
               }
             } catch { /* skip unreadable */ }
@@ -612,105 +405,25 @@ export function createSessionHandlers(ctx: HandlerContext) {
         // Active stories + worktree paths.
         const worktrees = listActiveWorktrees(ctx.root);
         if (activeStories.length > 0) {
-          activeStories = activeStories.map((story) => {
-            const runtime = getStoryWorktreeRuntime(story.storyId, ctx.store, ctx.root);
-            const linkedPhase = readLinkedStoryPhase(story.storyId, runtime.linkedPath);
-            return {
-              ...story,
-              linkedPhase: linkedPhase || undefined,
-              policy: summarizeParallelPolicy(story.story, storiesById),
-            };
-          });
-          activeStories.sort((a, b) => {
-            const laneDelta = Number(b.policy.lane === 'mainline') - Number(a.policy.lane === 'mainline');
-            if (laneDelta !== 0) return laneDelta;
-            const phaseDelta = rankPhase(b.linkedPhase || b.phase) - rankPhase(a.linkedPhase || a.phase);
-            if (phaseDelta !== 0) return phaseDelta;
-            const worktreeDelta = Number(Boolean(worktrees[b.storyId])) - Number(Boolean(worktrees[a.storyId]));
-            if (worktreeDelta !== 0) return worktreeDelta;
-            if (a.bugsOpen !== b.bugsOpen) return b.bugsOpen - a.bugsOpen;
-            return a.storyId.localeCompare(b.storyId);
-          });
           lines.push('');
           lines.push(`## Active stories (${activeStories.length})`);
           const limit = concise ? 3 : activeStories.length;
           for (const s of activeStories.slice(0, limit)) {
             const wt = worktrees[s.storyId];
             const bugStr = s.bugsOpen > 0 ? ` [${s.bugsOpen} bugs]` : '';
-            const policyStr = ` [${formatParallelBadge(s.policy)}]`;
+            // B-45ed CHK-008: bg:✓ 尾部标记；不存在 background.md 时不显示
+            const bgStr = s.hasBg ? ' bg:✓' : '';
             if (wt) {
-              lines.push(`  ${s.storyId} ${displayPhase(s).padEnd(30)} ${s.title}${bugStr}${policyStr}`);
+              lines.push(`  ${s.storyId} ${s.phase.padEnd(16)} ${s.title}${bugStr}${bgStr}`);
               lines.push(`    → cd ${wt}`);
             } else {
-              lines.push(`  ${s.storyId} ${displayPhase(s).padEnd(30)} ${s.title}${bugStr}${policyStr}`);
+              lines.push(`  ${s.storyId} ${s.phase.padEnd(16)} ${s.title}${bugStr}${bgStr}`);
             }
           }
           if (activeStories.length > limit) {
             lines.push(`  ... ${activeStories.length - limit} more`);
           }
         }
-
-        const parallelBrief = buildParallelBrief(activeStories);
-        if (parallelBrief.primary) {
-          lines.push('');
-          lines.push('## Primary lane');
-          lines.push(`  ${parallelBrief.primary.storyId} ${displayPhase(parallelBrief.primary)} ${parallelBrief.primary.title} [${formatParallelBadge(parallelBrief.primary.policy)}]`);
-
-          const primaryRuntime = getStoryWorktreeRuntime(parallelBrief.primary.storyId, ctx.store, ctx.root);
-          const primaryReviewers = getReviewerStatus(
-            parallelBrief.primary.storyId,
-            ctx.store,
-            parallelBrief.primary.phase as any,
-            ctx.root,
-          );
-          lines.push('');
-          for (const line of renderRuntimeHealthLines(primaryRuntime)) lines.push(line);
-          lines.push('');
-          for (const line of renderReviewerStatusLines(primaryReviewers)) lines.push(line);
-
-          const primaryArtifacts = getArtifactContractStatus(
-            parallelBrief.primary.storyId,
-            ctx.store,
-            parallelBrief.primary.phase as any,
-          );
-          lines.push('');
-          lines.push('## Artifacts');
-          for (const entry of primaryArtifacts.entries) {
-            const marker = entry.present ? '✓' : (entry.required ? '✗' : '!');
-            const requirement = entry.required ? 'required' : 'advisory';
-            lines.push(`  [${marker}] ${entry.label} (${requirement}) — ${entry.present ? 'present' : 'missing'}`);
-          }
-        }
-        if (parallelBrief.candidates.length > 0) {
-          lines.push('');
-          lines.push(`## Parallel candidates (${parallelBrief.candidates.length})`);
-          for (const candidate of parallelBrief.candidates.slice(0, concise ? 2 : parallelBrief.candidates.length)) {
-            lines.push(`  ${candidate.story.storyId} ${candidate.story.phase} [${formatParallelBadge(candidate.story.policy)}] ${candidate.note}`);
-          }
-        }
-        if (!concise && parallelBrief.conflicts.length > 0) {
-          lines.push('');
-          lines.push(`## Conflict warnings (${parallelBrief.conflicts.length})`);
-          for (const warning of parallelBrief.conflicts.slice(0, 6)) {
-            lines.push(`  - ${warning}`);
-          }
-        }
-
-        // 僵尸 story 检测：分支已合并/删除但 phase 非终态
-        try {
-          const zombies = detectZombieStories(ctx.store, ctx.root);
-          if (zombies.length > 0) {
-            lines.push('');
-            lines.push(`## ⚠ 僵尸 story (${zombies.length})`);
-            for (const z of zombies) {
-              const reason = z.branchMerged
-                ? `分支已合并到 main`
-                : `分支已删除`;
-              lines.push(`  ${z.storyId} phase=${z.phase} — ${reason}`);
-            }
-            lines.push(`  → 运行 koala story_reconcile 查看详情，story_reconcile '{"dryRun":false}' 修复`);
-          }
-        } catch { /* probe: git 不可用时不影响 brief */ }
 
         // Cross-story open bugs sample (concise mode skips this).
         if (!concise && totalBugsOpen > 0) {
@@ -746,7 +459,6 @@ export function createSessionHandlers(ctx: HandlerContext) {
           lines.push('');
           lines.push(`Working tree dirty (${gitMain.porcelain.length} files).`);
         }
-        lines.push(...renderMainBaselineRiskLines(ctx.root));
 
         // B-89c7 CHK-013: Recent router-log tail with cache warning.
         const routerTail = readRouterLogTail(ctx.root, 3);
@@ -755,25 +467,11 @@ export function createSessionHandlers(ctx: HandlerContext) {
         // Next step suggestion for main branch.
         lines.push('');
         lines.push('## → Next step');
-        if (parallelBrief.primary) {
-          const top = parallelBrief.primary;
-          const runtime = getStoryWorktreeRuntime(top.storyId, ctx.store, ctx.root);
-          const reviewerStatus = getReviewerStatus(top.storyId, ctx.store, top.phase as any, ctx.root);
-          const blocker = reviewerStatus.entries.find((entry) => entry.blocking && entry.verdict !== 'pass') || null;
-          const failingReviewer = reviewerStatus.entries.find((entry) => entry.verdict === 'fail') || null;
-          const wt = runtime.linkedPath || worktrees[top.storyId];
-          if (blocker) {
-            lines.push(`  Primary lane ${blocker.label} 当前为 ${blocker.summary}。先处理 reviewer 阻塞，再继续推进。`);
-          } else if (failingReviewer) {
-            lines.push(`  Primary lane ${failingReviewer.label} 当前为 ${failingReviewer.summary}。建议先修这条 reviewer 结论，再继续推进。`);
-          } else if (wt) {
-            const driftNote = runtime.drift ? ' (git linked worktree 已恢复，story 记录待同步)' : '';
-            const phaseNote = top.linkedPhase && top.linkedPhase !== top.phase
-              ? `main metadata ${top.phase}, linked worktree ${top.linkedPhase}`
-              : `story ${top.storyId} is in ${top.phase}`;
-            lines.push(`  Resume: cd ${wt} (${phaseNote})${driftNote}`);
-          } else if (runtime.recoveryHint) {
-            lines.push(`  Story ${top.storyId} runtime is ${runtime.status}. ${runtime.recoveryHint}`);
+        if (activeStories.length > 0) {
+          const top = activeStories[0];
+          const wt = worktrees[top.storyId];
+          if (wt) {
+            lines.push(`  Resume: cd ${wt} (story ${top.storyId} is in ${top.phase})`);
           } else {
             lines.push(`  Story ${top.storyId} is in ${top.phase} but has no worktree. Try \`koala story_advance --storyId=${top.storyId} --phase=INIT_CHECK\` to create one.`);
           }
@@ -791,17 +489,8 @@ export function createSessionHandlers(ctx: HandlerContext) {
       // full pending list, JSON.stringify summary, long activity tail).
       // Reads only answer "what's happening now + what should I do next".
       const { storyId, story } = detected;
-      const runtimeStatus = getStoryWorktreeRuntime(storyId, ctx.store, ctx.root);
-      const reviewerStatus = getReviewerStatus(storyId, ctx.store, story.phase, ctx.root);
       lines.push(`**Story**: ${storyId} — ${story.title}`);
-      const linkedPhase = readLinkedStoryPhase(storyId, runtimeStatus.linkedPath);
-      lines.push(`**Phase**: ${formatPhaseOrdinal(story.phase)}`);
-      if (linkedPhase && linkedPhase !== story.phase) {
-        lines.push(`**Worktree phase**: ${formatPhaseOrdinal(linkedPhase)}`);
-      }
-      lines.push('');
-      lines.push('## Phase flow');
-      for (const line of renderPhaseFlowLines(story.phase, linkedPhase || undefined)) lines.push(line);
+      lines.push(`**Phase**: ${story.phase}`);
 
       // Checklist (kept: done/total + in_progress list).
       let checklistSummary: ChecklistSummary | null = null;
@@ -827,15 +516,22 @@ export function createSessionHandlers(ctx: HandlerContext) {
         }
       }
 
-      lines.push('');
-      for (const line of renderRuntimeHealthLines(runtimeStatus)) lines.push(line);
-
-      lines.push('');
-      for (const line of renderReviewerStatusLines(reviewerStatus)) lines.push(line);
+      // B-5fa4 CHK-001: reviewer-status integration for REVIEW phase
+      if (story.phase === 'REVIEW') {
+        try {
+          const rs = summarizeReviewerStatus(ctx.store, storyId);
+          lines.push('');
+          lines.push(`## Reviewer status (${rs.allPassed ? 'all passed' : `${rs.totalBlockers} blockers`})`);
+          for (const entry of rs.entries) {
+            const marker = entry.verdict === 'pass' ? 'PASS' : (entry.verdict === 'fail' ? 'FAIL' : 'pending');
+            lines.push(`  [${marker}] ${entry.name}${entry.blockerCount > 0 ? ` (${entry.blockerCount} blockers)` : ''}`);
+          }
+        } catch { /* probe: reviewer status unavailable */ }
+      }
 
       // Understanding / Decision — probe only in PLAN phase (B-89c7 CHK-017
-      // lazy I/O). Elsewhere these fields are now summarized by artifact
-      // contract rendering below.
+      // lazy I/O). Elsewhere these fields are never rendered so the file
+      // read is wasted.
       let hasUnderstanding = false;
       let hasDecision = false;
       if (story.phase === 'PLAN') {
@@ -866,6 +562,19 @@ export function createSessionHandlers(ctx: HandlerContext) {
         }
       } catch { /* none */ }
 
+      // Anti-stall hints for REVIEW/TEST (helps weaker agents like Codex)
+      if (story.phase === 'REVIEW' || story.phase === 'TEST') {
+        const openBugIds = bugs?.bugs.filter(b => b.status === 'open').map(b => b.id) ?? [];
+        const stall = story.phase === 'REVIEW'
+          ? reviewAntiStall(storyId)
+          : testAntiStall(storyId, openBugIds.length > 0 ? openBugIds : undefined);
+        lines.push('');
+        lines.push(`## Anti-stall (${story.phase})`);
+        for (const line of stall.split('\n')) {
+          lines.push(`  ${line}`);
+        }
+      }
+
       // Test evidence (kept: timestamp + structured summary, not JSON dump).
       let hasTestEvidence = false;
       let testPassedAt: string | null = null;
@@ -889,15 +598,60 @@ export function createSessionHandlers(ctx: HandlerContext) {
         }
       } catch { /* none */ }
 
+      // DONE pre-check list for TEST phase stories
+      if (story.phase === 'TEST') {
+        const gitPre = readGitStatus(ctx.root);
+        const openBugs = bugs?.bugs.filter(b => b.status === 'open') ?? [];
+        let branchSynced = 'unknown';
+        try {
+          execSync(`git merge-base --is-ancestor main HEAD`, {
+            cwd: ctx.root,
+            encoding: 'utf-8',
+            stdio: ['pipe', 'pipe', 'pipe'],
+          });
+          branchSynced = 'yes';
+        } catch {
+          branchSynced = 'no';
+        }
+        let evalPresent = false;
+        try {
+          evalPresent = ctx.store.readEvalEvidence(storyId) !== null;
+        } catch { /* probe */ }
+        let summaryPresent = false;
+        try {
+          summaryPresent = ctx.store.readSummary(storyId) !== null;
+        } catch { /* probe */ }
+
+        lines.push('');
+        lines.push('## DONE pre-check');
+        lines.push(`  test evidence: ${hasTestEvidence ? 'PASS' : 'missing'}`);
+        lines.push(`  bugs: ${openBugs.length === 0 ? 'all fixed' : `${openBugs.length} open`}`);
+        lines.push(`  git working tree: ${gitPre.porcelain.length === 0 ? 'clean' : 'dirty'}`);
+        lines.push(`  branch synced with main: ${branchSynced}`);
+        lines.push(`  eval evidence: ${evalPresent ? 'present' : 'missing'}`);
+        lines.push(`  summary: ${summaryPresent ? 'present' : 'missing'}`);
+      }
+
+      // B-abd8: process metrics in session brief
+      const pm = ctx.store.readProcessMetrics(storyId);
+      if (pm) {
+        lines.push('');
+        lines.push(`## Process metrics`);
+        lines.push(`  ${formatProcessMetricsSummary(pm, 'compact')}`);
+        if (pm.overallGaps.length > 0) {
+          lines.push(`  gaps: ${pm.overallGaps.slice(0, 3).join('; ')}${pm.overallGaps.length > 3 ? ` (+${pm.overallGaps.length - 3} more)` : ''}`);
+        }
+      }
+
       // Activity tail — CHK-017 shrunk from 8 to 3 in full mode; skipped
       // entirely in concise mode (git log covers most of what it shows).
-      const activity = readActivityTail(ctx.root, 3);
       if (!concise) {
+        const activity = readActivityTail(ctx.root, 3);
         if (activity.length > 0) {
           lines.push('');
           lines.push(`## Recent activity (last ${activity.length})`);
           for (const a of activity.slice().reverse()) {
-            lines.push(`  ${a.timestamp} ${a.tool} [${a.source}/${a.role}/${a.status}]`);
+            lines.push(`  ${a.timestamp} ${a.tool} [${a.status}]`);
           }
         }
       }
@@ -928,30 +682,6 @@ export function createSessionHandlers(ctx: HandlerContext) {
       for (const l of renderRouterLogTail(routerTail)) lines.push(l);
 
       // Next step (kept — most important field).
-      const artifactContract = getArtifactContractStatus(storyId, ctx.store, story.phase);
-      lines.push('');
-      lines.push('## Artifacts');
-      for (const entry of artifactContract.entries) {
-        const marker = entry.present ? '✓' : (entry.required ? '✗' : '!');
-        const requirement = entry.required ? 'required' : 'advisory';
-        lines.push(`  [${marker}] ${entry.label} (${requirement}) — ${entry.present ? 'present' : 'missing'}`);
-      }
-
-      const phaseInvariantStatus = getPhaseInvariantStatus(storyId, ctx.store, story.phase);
-      if (phaseInvariantStatus.issues.length > 0) {
-        lines.push('');
-        lines.push(`## Missing invariants (${phaseInvariantStatus.issues.length})`);
-        if (phaseInvariantStatus.reasonCode) {
-          lines.push(`  primary reason: ${phaseInvariantStatus.reasonCode}`);
-        }
-        for (const issue of phaseInvariantStatus.issues) {
-          lines.push(`  - [${issue.code}] ${issue.detail}`);
-        }
-        if (phaseInvariantStatus.humanHint) {
-          lines.push(`  hint: ${phaseInvariantStatus.humanHint}`);
-        }
-      }
-
       const nextStep = computeNextStep({
         storyId,
         phase: story.phase,
@@ -961,9 +691,6 @@ export function createSessionHandlers(ctx: HandlerContext) {
         bugs,
         hasTestEvidence,
         testPassedAt,
-        reviewerStatus,
-        runtimeStatus,
-        recentActivity: activity,
       });
 
       lines.push('');
@@ -971,32 +698,6 @@ export function createSessionHandlers(ctx: HandlerContext) {
       lines.push(`  ${nextStep}`);
 
       return lines.join('\n');
-  };
-
-  const renderNext = (): string => {
-    const brief = renderSessionBrief({ concise: true });
-    const lines = brief.split('\n');
-    const markerIndex = lines.findIndex((line) => line.trim() === '## → Next step');
-    if (markerIndex === -1) {
-      return 'Next step: run `koala status` to inspect the current project state.';
-    }
-    const nextLines = lines
-      .slice(markerIndex + 1)
-      .map((line) => line.trim())
-      .filter((line) => line.length > 0 && !line.startsWith('## '));
-    if (nextLines.length === 0) {
-      return 'Next step: run `koala status` to inspect the current project state.';
-    }
-    return `Next step: ${nextLines.join('\n')}`;
-  };
-
-  return {
-    session_brief: renderSessionBrief,
-    status(args: SessionBriefArgs = {}): string {
-      return renderSessionBrief(args).replace(/^# koala session brief/, '# koala status');
-    },
-    next(): string {
-      return renderNext();
     },
   };
 }

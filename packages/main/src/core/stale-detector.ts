@@ -15,8 +15,7 @@ import { execSync } from 'child_process';
 import type { HandlerContext } from '../handlers/context.js';
 import type { StoryInfo, ChecklistData, BugData } from './types.js';
 import { loadConfig } from './config.js';
-import { reviewAntiStall, testAntiStall, waitingAntiStall } from './anti-stall.js';
-import { readLatestActivityLogEntry } from './activity-log.js';
+import { readActivityLogTail } from './activity-log.js';
 
 export interface StaleThresholds {
   /** phase 没 advance 多久算卡死（分钟） */
@@ -35,6 +34,7 @@ export const DEFAULT_STALE_THRESHOLDS: StaleThresholds = {
   idleKoala: 60,
   bugStale: 1440,
 };
+
 
 function formatMinutes(diffMs: number): string {
   const totalMin = Math.max(1, Math.round(diffMs / 60000));
@@ -93,14 +93,7 @@ function checkPhaseStale(story: StoryInfo, thresholds: StaleThresholds, now: num
     if (!Number.isFinite(lastTs)) return null;
     const diff = now - lastTs;
     if (diff > thresholds.phaseStale * 60_000) {
-      const base = `Story ${story.storyId} 已在 ${story.phase} 阶段 ${formatMinutes(diff)} 未 advance`;
-      if (story.phase === 'TEST_CASE_REVIEW') {
-        return `${base}\n${reviewAntiStall(story.storyId)}`;
-      }
-      if (story.phase === 'TEST') {
-        return `${base}\n${testAntiStall(story.storyId)}`;
-      }
-      return `${base}\n${waitingAntiStall(story.storyId)}`;
+      return `Story ${story.storyId} 已在 ${story.phase} 阶段 ${formatMinutes(diff)} 未 advance`;
     }
   } catch { /* PROBE */ }
   return null;
@@ -129,20 +122,20 @@ function checkItemStale(checklist: ChecklistData, thresholds: StaleThresholds, n
 
 /**
  * Rule 3: 距离上次任意 koala 命令超过阈值。
- * 读 .koala/activity.jsonl 与 legacy docs/story/activity.jsonl 的最后一条 valid 行。
+ * Uses readActivityLogTail (dual-source: .koala/activity.jsonl + legacy docs/story/activity.jsonl).
  */
 function checkIdleKoala(root: string, thresholds: StaleThresholds, now: number): string | null {
   try {
-    const entry = readLatestActivityLogEntry(root);
-    if (!entry) return null;
-    const tsRaw = entry.endTime || entry.startTime;
+    const entries = readActivityLogTail(root, 1);
+    if (entries.length === 0) return null;
+    const entry = entries[0];
+    const tsRaw = String(entry.endTime || entry.startTime || '');
     if (!tsRaw) return null;
     const ts = Date.parse(tsRaw);
     if (!Number.isFinite(ts)) return null;
     const diff = now - ts;
     if (diff > thresholds.idleKoala * 60_000) {
-      const actor = entry.role ? `（最近活跃角色: ${entry.role}）` : '';
-      return `距离上次 koala 命令已过 ${formatMinutes(diff)}${actor}，记得继续走流程`;
+      return `距离上次 koala 命令已过 ${formatMinutes(diff)}，记得继续走流程`;
     }
   } catch { /* PROBE */ }
   return null;

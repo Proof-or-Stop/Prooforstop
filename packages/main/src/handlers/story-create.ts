@@ -1,7 +1,13 @@
 
 import type { HandlerContext } from './context.js';
 import { collectContext, nextStoryId } from './context.js';
-import type { StoryInfo, StoryLane, StoryParallelSafety, StoryPhase, StoryType } from '../core/types.js';
+import type { StoryInfo, StoryPhase, StoryType } from '../core/types.js';
+import { validateBackground } from '../core/background-validator.js';
+import { writeFileSync, mkdirSync, existsSync, readFileSync, rmSync } from 'fs';
+import { join } from 'path';
+import { createHash } from 'crypto';
+import { computeDraftCheckHash } from '../core/draft-check-hash.js';
+import { computeChecklistHash } from './init-check.js';
 
 /**
  * 高风险关键词检测（OMX ralplan --deliberate 风格）。
@@ -12,7 +18,7 @@ const HIGH_RISK_PATTERNS: Array<{ pattern: RegExp; category: string }> = [
   { pattern: /\b(auth|authn|authz|security|password|token|secret|credential)\b/i, category: '安全/凭证' },
   { pattern: /\b(migration|schema migration|destructive|drop\s+table|truncate)\b/i, category: '数据迁移/破坏性' },
   { pattern: /\b(machine\.ts|state machine|guard|gate)\b/i, category: '状态机/门禁' },
-  { pattern: /\b(fixture\s*runner|test_auto|cleanupFixtureDir)\b/i, category: 'test runner 框架' },
+  { pattern: /\b(validate|verifier|test\s*runner)\b/i, category: '验证框架' },
   { pattern: /\b(git\s+(restore|reset|clean|push --force))\b/i, category: 'git 破坏性操作' },
   { pattern: /\b(production|incident|hotfix|p0|p1)\b/i, category: '生产环境/紧急' },
   { pattern: /\b(PII|personally identifiable|GDPR|compliance)\b/i, category: '合规/隐私' },
@@ -44,16 +50,120 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       priority: string;
       source?: string;
       depends?: string[];
-      lane?: StoryLane;
-      parallelSafe?: StoryParallelSafety;
-      sharedHotspots?: string[];
-      blockingFor?: string[];
       keywords?: string[];
-      checklist?: Array<{ title: string; context?: string; relatedDocs?: string[]; phase?: 'DEV' | 'TEST_CASE'; testIntent?: { happy: string[]; edge: string[]; adversarial: string[] } }>;
+      checklist?: Array<{ title: string; context?: string; relatedDocs?: string[] }>;
       prefix?: string;
       phase?: StoryPhase;
       forceNew?: boolean; // B-0af4 CHK-001: 绕过 idempotency 强制新建
+      background?: string; // B-45ed CHK-006: 必填四段式 background.md 内容
+      fromDraft?: string; // B-9975 CHK-003: from-draft mode
     }): string {
+      // === B-9975 CHK-003: FROM-DRAFT MODE ===
+      // When fromDraft is provided, bypass normal creation path entirely.
+      if (args.fromDraft) {
+        const draftName = args.fromDraft;
+        const draftsDir = join(ctx.root, 'docs', 'story', 'drafts', draftName);
+
+        // 1. Check draft exists
+        if (!existsSync(draftsDir)) {
+          throw new Error(`Draft '${draftName}' not found at docs/story/drafts/${draftName}/`);
+        }
+
+        // 2. Read draft files
+        const draftIndex = JSON.parse(readFileSync(join(draftsDir, 'index.json'), 'utf-8'));
+        const draftBg = readFileSync(join(draftsDir, 'background.md'), 'utf-8');
+        const draftChecklist = JSON.parse(readFileSync(join(draftsDir, 'checklist.json'), 'utf-8'));
+
+        // 3. GATE 1: missing_draft_check
+        const draftCheckPath = join(draftsDir, 'draft-check.json');
+        if (!existsSync(draftCheckPath)) {
+          throw new Error(
+            `Cannot create story from draft '${draftName}': draft-check.json 不存在。` +
+            `请先 spawn koala-review-story-init reviewer 对 draft 审查并调 draft_check_set。 [missing_draft_check]`
+          );
+        }
+        const draftCheck = JSON.parse(readFileSync(draftCheckPath, 'utf-8'));
+
+        // 4. GATE 2: draft_check_tampered
+        const bgHash = createHash('sha256').update(draftBg).digest('hex');
+        const clItems = draftChecklist.items.map((i: any) => ({ title: i.title, context: i.context ?? '' }));
+        const clHash = computeChecklistHash(clItems);
+        const expectedHash = computeDraftCheckHash(
+          draftName, bgHash, draftIndex.title, draftIndex.description, clHash, draftCheck.reviewRound || ''
+        );
+
+        if (draftCheck._hash !== expectedHash) {
+          throw new Error(
+            `Cannot create story from draft '${draftName}': draft-check.json _hash 失配` +
+            `（背景/标题/描述/checklist 已被修改），请重跑 reviewer。 [draft_check_tampered]`
+          );
+        }
+
+        // 5. GATE 3: draft_check_blocking_issues
+        const blockingSeverities = ['critical', 'high'];
+        const blockingIssues = (draftCheck.issues || []).filter((issue: any) =>
+          blockingSeverities.includes(issue.severity) &&
+          !(draftCheck.resolutions && draftCheck.resolutions[issue.id])
+        );
+        if (blockingIssues.length > 0) {
+          const ids = blockingIssues.map((i: any) => i.id || 'unknown').join(', ');
+          throw new Error(
+            `Cannot create story from draft '${draftName}': ${blockingIssues.length} blocking issue(s) 未 resolve: ${ids}。` +
+            `请用 draft_issue_resolve 逐条响应后重试。 [draft_check_blocking_issues]`
+          );
+        }
+
+        // 6. All gates passed — materialize!
+        const storyId = nextStoryId(store, args.prefix);
+        const now = new Date().toISOString();
+
+        // Detect risk signals from description + checklist
+        const scanText = [draftIndex.description, ...draftChecklist.items.map((c: any) => c.title + ' ' + (c.context ?? ''))].join('\n');
+        const riskSignals = detectRiskSignals(scanText);
+        let priority = draftIndex.priority || 'medium';
+        if (riskSignals.length > 0) {
+          const order = ['low', 'medium', 'high', 'critical'];
+          const curIdx = order.indexOf(priority);
+          if (curIdx < order.indexOf('high')) priority = 'high';
+        }
+
+        // Write story to actives
+        const story: StoryInfo = {
+          storyId,
+          name: draftIndex.name,
+          title: draftIndex.title,
+          description: draftIndex.description,
+          type: draftIndex.type || 'feature',
+          phase: 'INIT_CHECK' as StoryPhase,
+          priority,
+          ...(draftIndex.keywords?.length > 0 ? { keywords: draftIndex.keywords } : {}),
+          ...(riskSignals.length > 0 ? { riskSignals } : {}),
+          createdAt: now,
+          startedAt: now,
+          endedAt: null,
+          events: [collectContext('INIT_CHECK', 'create')],
+        };
+        store.writeStory(storyId, story);
+
+        // Write background.md
+        const storyDir = join(ctx.root, 'docs', 'story', 'actives', storyId);
+        if (!existsSync(storyDir)) mkdirSync(storyDir, { recursive: true });
+        const bgContent = draftBg.endsWith('\n') ? draftBg : draftBg + '\n';
+        writeFileSync(join(storyDir, 'background.md'), bgContent, 'utf-8');
+
+        // Write checklist.json (reuse draft's checklist items)
+        store.writeChecklist(storyId, draftChecklist);
+
+        // Delete draft directory
+        rmSync(draftsDir, { recursive: true, force: true });
+
+        return `Story ${storyId} created from draft '${draftName}' (phase=INIT_CHECK)\n→ draft '${draftName}' 已删除\n→ story_advance '{"storyId":"${storyId}","phase":"PLAN"}' 进 PLAN`;
+      }
+
+      // B-45ed CHK-006: background 必填 + 四段式校验。
+      // 只在"新建 story"路径上强校验；走 idempotency 复用分支不需要 background。
+      // 我们先查 idempotency（见下），若复用已有 story 则 return，不触及 background。
+      // 新建分支（通过 idempotency 之后）对 background 做硬校验 + 落盘。
       // B-0af4 CHK-001: Idempotency check — 同 name 且存在未 DONE/DISCARDED 的
       // story 时返回已有 storyId + 明确 warning，而不是静默新建 duplicate。
       // LLM 跨轮 session 里容易忘记已经创建过，这个护栏防止重复污染。
@@ -76,9 +186,38 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         }
       }
 
+      // B-45ed CHK-006: background 必填 + 四段式格式校验（硬下限）
+      if (typeof args.background !== 'string' || args.background.length === 0) {
+        throw new Error(
+          'story_create 需 background 字段（四段式格式）\n' +
+          '期望 4 段: "## 触发事件" / "## 关键洞察" / "## 方案取舍" / "## 对话纹理"\n' +
+          '硬下限: 每段 ≥ 50 字符 + 总长 ≥ 300 字符 + 触发事件段含 id 正则\n' +
+          '(B-[a-z0-9]{4} / F-\\d+ / CHK-\\d+ / commit hash / YYYY-MM-DD)'
+        );
+      }
+      const bgResult = validateBackground(args.background);
+      if (!bgResult.ok) {
+        throw new Error(
+          'background 格式校验失败:\n' +
+          bgResult.errors.map(e => `  - ${e}`).join('\n') + '\n' +
+          '期望 4 段: "## 触发事件" / "## 关键洞察" / "## 方案取舍" / "## 对话纹理"\n' +
+          '每段 ≥ 50 字符，总长 ≥ 300 字符，触发事件段须含具体编号'
+        );
+      }
+
       const storyId = nextStoryId(store, args.prefix);
       const now = new Date().toISOString();
       const hasChecklist = args.checklist && args.checklist.length > 0;
+
+      // B-45ed CHK-006: 落盘 background.md 到 docs/story/actives/{storyId}/background.md
+      const writeBackground = () => {
+        const storyDir = join(ctx.root, 'docs', 'story', 'actives', storyId);
+        if (!existsSync(storyDir)) mkdirSync(storyDir, { recursive: true });
+        const bgPath = join(storyDir, 'background.md');
+        // 保证以换行结尾，与 JSON 产物惯例一致
+        const content = args.background!.endsWith('\n') ? args.background! : args.background! + '\n';
+        writeFileSync(bgPath, content, 'utf-8');
+      };
 
       // 高风险关键词检测：扫描 description + checklist titles
       const scanText = [
@@ -110,6 +249,27 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         lines.push('  - decision_set 必须包含 ≥3 preMortem 场景');
         lines.push('  - story_review 通过（缺 decision 或 preMortem < 3 视为 blocker）');
         riskHint = lines.join('\n');
+      }
+
+      // B-9975 CHK-004: legacy one-step mode deprecation warning for normal-channel stories
+      {
+        const itemCount = args.checklist?.length ?? 0;
+        let channel: 'express' | 'fast' | 'normal';
+        if (riskSignals.length > 0) {
+          channel = 'normal';
+        } else if (itemCount <= 2) {
+          channel = 'express';
+        } else if (itemCount <= 5) {
+          channel = 'fast';
+        } else {
+          channel = 'normal';
+        }
+        if (channel === 'normal') {
+          process.stderr.write(
+            '⚠ [DEPRECATED] normal 通道 story 建议使用 story_draft + story_create --from-draft 两阶段模式。\n' +
+            '  直接 story_create 将在后续版本对 normal 通道硬 block。\n'
+          );
+        }
       }
 
       // 关键词查重：与已有非 DONE/DISCARDED story 比较 keywords
@@ -145,10 +305,6 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
           priority: elevatedPriority,
           ...(args.source ? { source: args.source } : {}),
           ...(args.depends && args.depends.length > 0 ? { depends: args.depends } : {}),
-          ...(args.lane ? { lane: args.lane } : {}),
-          ...(args.parallelSafe ? { parallelSafe: args.parallelSafe } : {}),
-          ...(args.sharedHotspots && args.sharedHotspots.length > 0 ? { sharedHotspots: args.sharedHotspots } : {}),
-          ...(args.blockingFor && args.blockingFor.length > 0 ? { blockingFor: args.blockingFor } : {}),
           ...(args.keywords && args.keywords.length > 0 ? { keywords: args.keywords } : {}),
           ...(riskSignals.length > 0 ? { riskSignals } : {}),
           createdAt: now,
@@ -157,6 +313,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
           events: [collectContext(args.phase, 'create')],
         };
         store.writeStory(storyId, story);
+        writeBackground();
         // 注：直接指定 phase 路径走的是 onboard 等场景，正常不需要 riskHint，但保持一致
         if (hasChecklist) {
           const isDone = args.phase === 'DONE';
@@ -166,8 +323,9 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
               title: c.title,
               ...(c.context ? { context: c.context } : {}),
               ...(c.relatedDocs !== undefined ? { relatedDocs: c.relatedDocs } : {}),
+              ...(c.userSees ? { userSees: c.userSees } : {}),
+              ...(c.excludes !== undefined ? { excludes: c.excludes } : {}),
               ...(c.phase !== undefined ? { phase: c.phase } : {}),
-              ...(c.testIntent ? { testIntent: c.testIntent } : {}),
               status: (isDone ? 'done' : 'pending') as 'done' | 'pending',
               startTime: isDone ? now : null,
               endTime: isDone ? now : null,
@@ -190,10 +348,6 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         priority: elevatedPriority,
         ...(args.source ? { source: args.source } : {}),
         ...(args.depends && args.depends.length > 0 ? { depends: args.depends } : {}),
-        ...(args.lane ? { lane: args.lane } : {}),
-        ...(args.parallelSafe ? { parallelSafe: args.parallelSafe } : {}),
-        ...(args.sharedHotspots && args.sharedHotspots.length > 0 ? { sharedHotspots: args.sharedHotspots } : {}),
-        ...(args.blockingFor && args.blockingFor.length > 0 ? { blockingFor: args.blockingFor } : {}),
         ...(args.keywords && args.keywords.length > 0 ? { keywords: args.keywords } : {}),
         ...(riskSignals.length > 0 ? { riskSignals } : {}),
         createdAt: now,
@@ -202,6 +356,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         events: [collectContext(phase, 'create')],
       };
       store.writeStory(storyId, story);
+      writeBackground();
 
       if (hasChecklist) {
         const checklist = {
@@ -210,7 +365,8 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
             title: c.title,
             ...(c.context ? { context: c.context } : {}),
             ...(c.relatedDocs !== undefined ? { relatedDocs: c.relatedDocs } : {}),
-            ...(c.testIntent ? { testIntent: c.testIntent } : {}),
+            ...(c.userSees ? { userSees: c.userSees } : {}),
+            ...(c.excludes !== undefined ? { excludes: c.excludes } : {}),
             status: 'pending' as const,
             startTime: null,
             endTime: null,
@@ -218,12 +374,17 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         };
         store.writeChecklist(storyId, checklist);
         const noContext = args.checklist!.filter((c: any) => !c.context).length;
-        const noIntent = args.checklist!.filter((c: any) => !c.testIntent).length;
         const hints: string[] = [];
         if (noContext > 0) hints.push(`${noContext} 项缺少 context（根因/参考），建议补充`);
-        if (noIntent > 0) hints.push(`${noIntent} 项缺少 testIntent（happy/edge/adversarial），建议补充后跑 story_review 审查`);
         const hint = hints.length > 0 ? '\n⚠ ' + hints.join('\n⚠ ') : '';
-        return `Story ${storyId} created (INIT) with ${checklist.items.length} checklist items${hint}${dupWarning}${riskHint}`;
+        // B-e71f CHK-004: INIT→INIT_CHECK 硬门槛引导。
+        // INIT 阶段必须由独立 subagent 审查 background + checklist 初版，主 agent 不得自调
+        // init_check_set 伪造签名（反自豁免）。审查通过后才能 story_advance INIT_CHECK。
+        const initReviewHint =
+          `\n\n→ 现在请 Agent({ subagent_type: "koala-review-story-init", prompt: \`审查 story ${storyId} 的 background + checklist 初版（运行 koala dispatch '{"storyId":"${storyId}","agentType":"koala-review-story-init"}' 取标准 prompt）\` }) spawn subagent 审查。\n` +
+          `  · 不要主 agent 自调 koala init_check_set（CLI 不做 agentId 机械校验，但 reviewer 模板 fresh-context fence + CLAUDE.md 行为规约要求由独立 subagent 调用——主 agent 自调相当于绕过 reviewer，违反反自豁免约定）\n` +
+          `  · 审查通过后调 koala story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' 进 INIT_CHECK`;
+        return `Story ${storyId} created (INIT) with ${checklist.items.length} checklist items${hint}${dupWarning}${riskHint}${initReviewHint}`;
       }
 
       return `Story ${storyId} created (IDEA)${dupWarning}${riskHint}`;

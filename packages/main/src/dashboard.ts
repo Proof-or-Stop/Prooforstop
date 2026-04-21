@@ -1,0 +1,309 @@
+/**
+ * koala dashboard — 实时 story 进度看板
+ *
+ * 每 N 秒刷新一次，支持多项目目录切换。
+ * 按数字键切换项目，按 q 退出。
+ */
+
+import { execSync } from 'child_process';
+import { existsSync, readFileSync } from 'fs';
+import { join, resolve, basename } from 'path';
+import { StoryStore } from './core/store.js';
+import { loadConfig } from './core/config.js';
+import type { StoryInfo, ChecklistData } from './core/types.js';
+
+// ── Types ──
+
+interface ProjectSnapshot {
+  root: string;
+  label: string;
+  stories: StorySnapshot[];
+  totalStories: number;
+  doneStories: number;
+  totalBugsOpen: number;
+  gitDirty: number;
+  error?: string;
+}
+
+interface StorySnapshot {
+  id: string;
+  phase: string;
+  title: string;
+  checklistDone: number;
+  checklistTotal: number;
+  bugsOpen: number;
+  worktreePath?: string;
+}
+
+// ── Data collection ──
+
+function collectProject(root: string): ProjectSnapshot {
+  const label = basename(resolve(root));
+  try {
+    const store = new StoryStore(root);
+    const ids = store.listStoryIds();
+
+    let doneStories = 0;
+    let totalBugsOpen = 0;
+    const stories: StorySnapshot[] = [];
+
+    // Worktree map
+    const worktrees: Record<string, string> = {};
+    try {
+      const raw = execSync('git worktree list --porcelain', {
+        cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
+      });
+      let currentPath = '';
+      for (const line of raw.split('\n')) {
+        if (line.startsWith('worktree ')) currentPath = line.slice(9).trim();
+        else if (line.startsWith('branch ')) {
+          const m = line.slice(7).trim().match(/refs\/heads\/story\/(.+)$/);
+          if (m && currentPath) worktrees[m[1]] = currentPath;
+        }
+      }
+    } catch { /* not git */ }
+
+    for (const id of ids) {
+      try {
+        const story = store.readStory(id);
+        if (story.phase === 'DONE') { doneStories++; }
+
+        let bugsOpen = 0;
+        try {
+          const bd = store.readBugs(id);
+          bugsOpen = bd.bugs.filter(b => b.status === 'open').length;
+        } catch { /* no bugs */ }
+        totalBugsOpen += bugsOpen;
+
+        // Skip terminal states for active list
+        if (story.phase === 'DONE' || story.phase === 'DISCARDED') continue;
+
+        let checklistDone = 0, checklistTotal = 0;
+        try {
+          const cl = store.readChecklist(id);
+          if (cl && Array.isArray(cl.items)) {
+            checklistTotal = cl.items.length;
+            checklistDone = cl.items.filter(i => i.status === 'done').length;
+          }
+        } catch { /* no checklist */ }
+
+        stories.push({
+          id,
+          phase: story.phase,
+          title: story.title || '',
+          checklistDone,
+          checklistTotal,
+          bugsOpen,
+          worktreePath: worktrees[id],
+        });
+      } catch { /* skip unreadable */ }
+    }
+
+    // Git dirty count
+    let gitDirty = 0;
+    try {
+      const status = execSync('git status --porcelain', {
+        cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
+      }).trim();
+      if (status) gitDirty = status.split('\n').length;
+    } catch { /* not git */ }
+
+    return {
+      root, label, stories,
+      totalStories: ids.length, doneStories, totalBugsOpen, gitDirty,
+    };
+  } catch (e) {
+    return {
+      root, label, stories: [],
+      totalStories: 0, doneStories: 0, totalBugsOpen: 0, gitDirty: 0,
+      error: (e as Error).message,
+    };
+  }
+}
+
+// ── Rendering ──
+
+function progressBar(done: number, total: number, width: number): string {
+  if (total === 0) return '░'.repeat(width);
+  const filled = Math.round((done / total) * width);
+  return '█'.repeat(filled) + '░'.repeat(width - filled);
+}
+
+function phaseColor(phase: string): string {
+  // ANSI colors
+  const colors: Record<string, string> = {
+    IDEA: '\x1b[90m',      // gray
+    INIT: '\x1b[37m',      // white
+    INIT_CHECK: '\x1b[37m',
+    PLAN: '\x1b[36m',      // cyan
+    DEV: '\x1b[33m',       // yellow
+    TEST_CASE: '\x1b[35m', // magenta
+    TEST_CASE_REVIEW: '\x1b[35m',
+    TEST: '\x1b[34m',      // blue
+    DONE: '\x1b[32m',      // green
+    DISCARDED: '\x1b[90m', // gray
+  };
+  return colors[phase] || '\x1b[0m';
+}
+
+const RESET = '\x1b[0m';
+const BOLD = '\x1b[1m';
+const DIM = '\x1b[2m';
+
+function renderProject(proj: ProjectSnapshot, index: number, selected: boolean): string[] {
+  const lines: string[] = [];
+  const marker = selected ? '▶' : ' ';
+  const highlight = selected ? BOLD : '';
+
+  if (proj.error) {
+    lines.push(`${marker} ${highlight}[${index + 1}] ${proj.label}${RESET}  ${DIM}${proj.root}${RESET}`);
+    lines.push(`     \x1b[31m✗ ${proj.error}${RESET}`);
+    return lines;
+  }
+
+  const donePct = proj.totalStories > 0
+    ? Math.round((proj.doneStories / proj.totalStories) * 100)
+    : 0;
+  const dashLine = `${proj.doneStories}/${proj.totalStories} DONE (${donePct}%)`;
+  const bugStr = proj.totalBugsOpen > 0 ? ` · \x1b[31m${proj.totalBugsOpen} bugs\x1b[0m` : '';
+  const dirtyStr = proj.gitDirty > 0 ? ` · ${DIM}${proj.gitDirty} dirty${RESET}` : '';
+
+  lines.push(`${marker} ${highlight}[${index + 1}] ${proj.label}${RESET}  ${DIM}${proj.root}${RESET}`);
+  lines.push(`     ${dashLine}${bugStr}${dirtyStr}`);
+
+  if (proj.stories.length === 0 && proj.totalStories > 0) {
+    lines.push(`     ${DIM}(all stories in terminal state)${RESET}`);
+    return lines;
+  }
+
+  // Sort: DEV/TEST first, then by phase
+  const phaseOrder: Record<string, number> = {
+    DEV: 0, TEST: 1, TEST_CASE: 2, TEST_CASE_REVIEW: 3,
+    PLAN: 4, INIT_CHECK: 5, INIT: 6, IDEA: 7,
+  };
+  const sorted = [...proj.stories].sort((a, b) =>
+    (phaseOrder[a.phase] ?? 99) - (phaseOrder[b.phase] ?? 99),
+  );
+
+  const maxShow = selected ? 50 : 5;
+  for (const s of sorted.slice(0, maxShow)) {
+    const phasePad = s.phase.padEnd(17);
+    const titleTrunc = s.title.length > 40 ? s.title.slice(0, 39) + '…' : s.title;
+    const bar = s.checklistTotal > 0
+      ? ` ${progressBar(s.checklistDone, s.checklistTotal, 8)} ${s.checklistDone}/${s.checklistTotal}`
+      : '';
+    const bugMark = s.bugsOpen > 0 ? ` \x1b[31m[${s.bugsOpen}bug]${RESET}` : '';
+    lines.push(`     ${phaseColor(s.phase)}${s.id} ${phasePad}${RESET} ${titleTrunc}${bar}${bugMark}`);
+  }
+
+  if (sorted.length > maxShow) {
+    lines.push(`     ${DIM}... ${sorted.length - maxShow} more${RESET}`);
+  }
+
+  return lines;
+}
+
+function render(projects: ProjectSnapshot[], selectedIdx: number, intervalSec: number): string {
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-GB', { hour12: false });
+  const dateStr = now.toISOString().slice(0, 10);
+
+  const lines: string[] = [];
+  lines.push('');
+  lines.push(`${BOLD}  koala dashboard${RESET}  ${DIM}⟳ ${intervalSec}s   ${dateStr} ${timeStr}${RESET}`);
+  lines.push(`  ${'─'.repeat(60)}`);
+
+  for (let i = 0; i < projects.length; i++) {
+    if (i > 0) lines.push('');
+    lines.push(...renderProject(projects[i], i, i === selectedIdx));
+  }
+
+  lines.push('');
+  lines.push(`  ${DIM}[1-${projects.length}] switch project  [q] quit  [r] refresh${RESET}`);
+  lines.push('');
+
+  return lines.join('\n');
+}
+
+// ── Main loop ──
+
+export interface DashboardArgs {
+  roots?: string;
+  interval?: number;
+}
+
+export async function runDashboard(args: DashboardArgs): Promise<void> {
+  // Parse roots — comma-separated or single
+  const rootsRaw = args.roots || process.cwd();
+  const roots = rootsRaw.split(',').map(r => r.trim()).filter(Boolean).map(r => resolve(r));
+
+  // Validate roots
+  for (const r of roots) {
+    if (!existsSync(join(r, 'koala.config.json'))) {
+      console.error(`✗ No koala.config.json found in: ${r}`);
+      process.exit(1);
+    }
+  }
+
+  const intervalSec = args.interval || 5;
+  let selectedIdx = 0;
+  let running = true;
+
+  // Setup raw mode for keypress
+  const stdin = process.stdin;
+  if (stdin.isTTY) {
+    stdin.setRawMode(true);
+    stdin.resume();
+    stdin.setEncoding('utf-8');
+  }
+
+  stdin.on('data', (key: string) => {
+    if (key === 'q' || key === '\x03') { // q or Ctrl+C
+      running = false;
+      cleanup();
+      process.exit(0);
+    }
+    if (key === 'r') {
+      // Force refresh
+      refresh();
+    }
+    // Number keys 1-9
+    const num = parseInt(key, 10);
+    if (num >= 1 && num <= roots.length) {
+      selectedIdx = num - 1;
+      refresh();
+    }
+  });
+
+  function cleanup() {
+    if (stdin.isTTY) {
+      stdin.setRawMode(false);
+    }
+    // Show cursor
+    process.stdout.write('\x1b[?25h');
+  }
+
+  function refresh() {
+    const projects = roots.map(r => collectProject(r));
+    // Clear screen + move cursor to top
+    process.stdout.write('\x1b[2J\x1b[H');
+    // Hide cursor for clean display
+    process.stdout.write('\x1b[?25l');
+    process.stdout.write(render(projects, selectedIdx, intervalSec));
+  }
+
+  // Handle exit gracefully
+  process.on('SIGINT', () => { cleanup(); process.exit(0); });
+  process.on('SIGTERM', () => { cleanup(); process.exit(0); });
+
+  // Initial render
+  refresh();
+
+  // Refresh loop
+  while (running) {
+    await new Promise(r => setTimeout(r, intervalSec * 1000));
+    if (running) refresh();
+  }
+
+  cleanup();
+}

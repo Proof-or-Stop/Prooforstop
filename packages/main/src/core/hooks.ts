@@ -11,7 +11,7 @@
  * 用户在 koala.config.json 的 hooks 字段配置：
  *   "hooks": {
  *     "preCommand": { "*": ["./scripts/notify"] , "story_advance": ["./scripts/sync"] },
- *     "onPhaseChange": { "*": ["echo $KOALA_OLD_PHASE"], "DEV->TEST_CASE": ["./scripts/freeze"] }
+ *     "onPhaseChange": { "*": ["echo $KOALA_OLD_PHASE"], "DEV->TEST": ["./scripts/freeze"] }
  *   }
  *
  * 设计原则：

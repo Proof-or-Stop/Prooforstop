@@ -2,12 +2,47 @@
 import { setup, createActor, type SnapshotFrom } from 'xstate';
 import type { StoryStore } from './store.js';
 import { createHash } from 'crypto';
-import type { PhaseInvariantIssue, PhaseGateDecision } from './types.js';
-import { buildPhaseGateDecision, formatPhaseGateDecision } from './phase-protocol.js';
+import { loadConfig } from './config.js';
+import { resolveWorkflowPolicy } from './workflow-policy.js';
+import { verifyFinding } from './finding-verify.js';
+import type { Finding } from './types.js';
+import { recomputeInitCheckHash } from '../handlers/init-check.js';
+import { recomputeDeliveryCheckHash } from '../handlers/delivery-check.js';
+
+/**
+ * Resolve effective blocking severities with round decay.
+ * Round count is derived from story events (how many times the story entered REVIEW phase),
+ * not from review.json which also contains PLAN-phase story_review entries.
+ */
+function resolveEffectiveBlockingSeverities(
+  store: StoryStore, storyId: string, policy: { review: { blockingSeverities: readonly string[] | string[] } }
+): { effectiveBlockingSeverities: string[]; roundCount: number } {
+  let roundCount = 1;
+  try {
+    const story = store.readStory(storyId);
+    if (story.events) {
+      const reviewEntries = story.events.filter(
+        (e: any) => e.phase === 'REVIEW' && e.action === 'advance'
+      );
+      roundCount = reviewEntries.length || 1;
+    }
+  } catch { /* fallback to 1 */ }
+
+  let effectiveBlockingSeverities: string[];
+  if (roundCount >= 3) {
+    effectiveBlockingSeverities = ['critical'];
+  } else if (roundCount >= 2) {
+    effectiveBlockingSeverities = ['critical', 'high'];
+  } else {
+    effectiveBlockingSeverities = policy.review.blockingSeverities as string[];
+  }
+  return { effectiveBlockingSeverities, roundCount };
+}
 
 export interface StoryMachineContext {
   storyId: string;
   store: StoryStore;
+  projectRoot: string;
 }
 
 export const storyMachine = setup({
@@ -20,94 +55,134 @@ export const storyMachine = setup({
       | { type: 'PLAN' }
       | { type: 'START' }
       | { type: 'REPLAN' }
-      | { type: 'WRITE_CASES' }
-      | { type: 'REQUEST_REVIEW' }
-      | { type: 'REVIEW' }
-      | { type: 'ROLLBACK_DEV' }
-      | { type: 'ROLLBACK_TEST_CASE' }
+      | { type: 'CODE_REVIEW' }
+      | { type: 'REVIEW_PASS' }
       | { type: 'FINISH' },
   },
   guards: {
     checklistAllDone: ({ context }) => {
-      // B-2fd7 / B-5010 CHK-002: honor item.phase here for the DEV→TEST_CASE
-      // transition. Items whose phase==='TEST_CASE' are intentionally deferred
-      // (fixture writing, smoke cases, perf sanity) and should not block
-      // leaving DEV. This mirrors the phase-aware logic in
-      // getGuardFailureReason (machine.ts:269). Without this, the xstate
-      // guard runs first and fails before getGuardFailureReason is reached,
-      // and forcing DEV-completion on TEST_CASE items would make the agent
-      // mark them done before doing the work.
       const cl = context.store.readChecklist(context.storyId);
-      const devPhaseItems = cl.items.filter((item: any) => (item.phase || 'DEV') !== 'TEST_CASE');
-      return devPhaseItems.every(item => item.status === 'done');
+      return cl.items.every(item => item.status === 'done');
+    },
+    // B-e71f CHK-006: INIT→INIT_CHECK 硬门槛 xstate 端兜底。
+    // getGuardFailureReason 在 story-advance.ts:335 仅当 actor.can() 返回 false 时才被调用，
+    // 因此必须在这里给 INIT→INIT_CHECK 转换挂 guard，否则 can() 始终 true，gate 永不触发。
+    // guard 与 getGuardFailureReason 共享同一判定逻辑：缺 init-check.json → false；
+    // _hash 失配 → false；通过 → true。失败原因由 getGuardFailureReason 渲染人类可读消息。
+    canEnterInitCheck: ({ context }) => {
+      try {
+        const story = context.store.readStory(context.storyId);
+        if (story.phase !== 'INIT') return true; // IDEA→INIT_CHECK 等其他来源不门禁
+        const initCheck = context.store.readInitCheck(context.storyId);
+        if (!initCheck) return false;
+        const expected = recomputeInitCheckHash(context.storyId, context.store, context.projectRoot);
+        return initCheck._hash === expected;
+      } catch (err) {
+        // B-e71f F-016: xstate guard 不能 throw（会让 actor 进 error state），但完全静默会
+        // 让 store 异常根因（fs 读不到 / json parse 失败 / recompute 路径 bug）被吞——
+        // 用户只看到 gate 拒绝、拿不到诊断。此处 console.warn 不影响 guard 返回值。
+        const msg = err instanceof Error ? err.message : String(err);
+        console.warn(`[canEnterInitCheck] ${context.storyId}: ${msg}`);
+        return false;
+      }
     },
     canStartDev: ({ context }) => {
-      // B-0af4 CHK-002: trivial-story 绕过 testIntent 要求（和 story_review 保持一致）
-      const cl = context.store.readChecklist(context.storyId);
-      let isTrivial = false;
+      // story_review 通过是进 DEV 的前提（除非 policy 不要求）
       try {
-        const storyInfo = context.store.readStory(context.storyId) as any;
-        const trivialTypes = ['chore', 'refactor', 'docs'];
-        isTrivial =
-          storyInfo?.priority === 'low' &&
-          cl.items.length <= 1 &&
-          trivialTypes.includes(storyInfo?.type);
-      } catch { /* treat as non-trivial */ }
-
-      if (!isTrivial) {
-        // happy 必填；edge/adversarial 选填（B-569d）
-        const allHaveIntent = cl.items.every((item: any) => {
-          const ti = item.testIntent;
-          if (ti === null) return true; // 显式标记不可测试，跳过
-          return ti && Array.isArray(ti.happy) && ti.happy.length > 0;
-        });
-        if (!allHaveIntent) return false;
-      }
-      try {
+        const config = loadConfig(context.projectRoot);
+        const story = context.store.readStory(context.storyId);
+        const policy = resolveWorkflowPolicy(config, story);
+        if (!policy.plan.requireStoryReview) return true;
         const review = context.store.readReview(context.storyId);
         if (!review || !review.reviews || review.reviews.length === 0) return false;
         const lastRound = review.reviews[review.reviews.length - 1];
-        // 验证签名
         const REVIEW_SALT = 'koala-review-integrity-v1';
         const hashInput = `${context.storyId}:${lastRound.timestamp}:${lastRound.issueCount}:${lastRound.blockerCount ?? lastRound.issueCount}:${REVIEW_SALT}`;
         const expectedHash = createHash('sha256').update(hashInput).digest('hex');
         if (!lastRound._hash || lastRound._hash !== expectedHash) return false;
-        // blockerCount=0 即可放行（advisory 不阻塞）
         return (lastRound.blockerCount ?? lastRound.issueCount) === 0;
       } catch {
         return false;
       }
     },
-    hasTestEvidence: ({ context }) => {
-      const evidence = context.store.readTestEvidence(context.storyId);
-      return evidence !== null && evidence.result === 'PASS';
+    canSkipPlan: ({ context }) => {
+      // 快速通道：由 WorkflowPolicy 决定是否允许跳过 PLAN
+      try {
+        const config = loadConfig(context.projectRoot);
+        const story = context.store.readStory(context.storyId);
+        const policy = resolveWorkflowPolicy(config, story);
+        if (!policy.quickPath.enabled) return false;
+        if (!policy.quickPath.allowRiskSignals && story.riskSignals && story.riskSignals.length > 0) return false;
+        const cl = context.store.readChecklist(context.storyId);
+        return cl.items.length <= policy.quickPath.maxChecklistItems;
+      } catch {
+        return false;
+      }
     },
-    allBugsFixed: ({ context }) => {
-      const bugs = context.store.readBugs(context.storyId);
-      return bugs.bugs.every(b => b.status === 'fixed');
-    },
-    allTestIntentsPass: ({ context }) => {
-      const cl = context.store.readChecklist(context.storyId);
-      for (const item of cl.items) {
-        if (!item.testIntent) return false;
-        for (const category of ['happy', 'edge', 'adversarial'] as const) {
-          const entries = (item.testIntent as any)[category] || [];
-          for (const entry of entries) {
-            if (typeof entry === 'string') continue;
-            if (!entry.results || entry.results.length === 0) return false;
-            const last = entry.results[entry.results.length - 1];
-            if (last.pass !== true) return false;
+    canPassReview: ({ context }) => {
+      try {
+        const config = loadConfig(context.projectRoot);
+        const story = context.store.readStory(context.storyId);
+        const policy = resolveWorkflowPolicy(config, story);
+
+        // If policy doesn't require reviewer, skip finding checks entirely
+        if (!policy.review.requireReviewer) return true;
+
+        const findings = context.store.readFindings(context.storyId);
+        if (!findings.findings || findings.findings.length === 0) return false;
+
+        // Check for reviewer-produced finding if policy requires it
+        if (policy.review.requireReviewerFinding) {
+          const currentRound = story.currentReviewRound;
+          const currentRoundReviewerFindings = findings.findings.filter(
+            (f: Finding) => f.agent && f.agent !== 'main' && verifyFinding(context.storyId, f)
+              // backward compat: 旧 story 无 currentReviewRound 时不拒绝
+              && (!currentRound || f.reviewRound === currentRound)
+          );
+
+          const { roundCount } = resolveEffectiveBlockingSeverities(context.store, context.storyId, policy);
+          if (roundCount <= 1) {
+            // Round 1: require findings from at least 5 distinct reviewer agents
+            const distinctReviewers = new Set(currentRoundReviewerFindings.map((f: Finding) => f.agent));
+            if (distinctReviewers.size < 5) return false;
+          } else {
+            // Round 2+: require at least 1 reviewer finding
+            if (currentRoundReviewerFindings.length === 0) return false;
           }
         }
+
+        const { effectiveBlockingSeverities } = resolveEffectiveBlockingSeverities(context.store, context.storyId, policy);
+
+        // Check blocking severities from policy (with round decay)
+        const blocking = findings.findings.filter(
+          f => effectiveBlockingSeverities.includes(f.severity) && f.status === 'open'
+        );
+        return blocking.length === 0;
+      } catch {
+        return false;
       }
-      return true;
     },
     canFinish: ({ context }) => {
+      // verifier result (test-evidence.json) must be PASS + all bugs fixed
       const evidence = context.store.readTestEvidence(context.storyId);
       const hasEvidence = evidence !== null && evidence.result === 'PASS';
       const bugs = context.store.readBugs(context.storyId);
       const bugsOk = bugs.bugs.every(b => b.status === 'fixed');
-      return hasEvidence && bugsOk;
+      if (!hasEvidence || !bugsOk) return false;
+
+      // delivery-check.json must exist and _hash must match
+      const deliveryCheck = context.store.readDeliveryCheck(context.storyId);
+      if (!deliveryCheck) return false;
+      const expectedHash = recomputeDeliveryCheckHash(context.storyId, context.store);
+      if (expectedHash === null || deliveryCheck._hash !== expectedHash) return false;
+
+      // every docsPromise must be verified or waived
+      const unverified = deliveryCheck.docsPromises.filter(
+        p => !p.verifiedBy && !p.waiverReason,
+      );
+      if (unverified.length > 0) return false;
+
+      return true;
     },
   },
 }).createMachine({
@@ -123,12 +198,15 @@ export const storyMachine = setup({
     },
     INIT: {
       on: {
-        INIT_CHECK: { target: 'INIT_CHECK' },
+        // B-e71f CHK-006: 必须挂 guard，否则 actor.can() 始终 true，
+        // story-advance.ts 的 getGuardFailureReason 失败消息渲染永不触发。
+        INIT_CHECK: { target: 'INIT_CHECK', guard: 'canEnterInitCheck' },
       },
     },
     INIT_CHECK: {
       on: {
         PLAN: { target: 'PLAN' },
+        START: { target: 'DEV', guard: 'canSkipPlan' },
       },
     },
     PLAN: {
@@ -138,8 +216,8 @@ export const storyMachine = setup({
     },
     DEV: {
       on: {
-        WRITE_CASES: {
-          target: 'TEST_CASE',
+        CODE_REVIEW: {
+          target: 'REVIEW',
           guard: 'checklistAllDone',
         },
         REPLAN: {
@@ -147,26 +225,14 @@ export const storyMachine = setup({
         },
       },
     },
-    TEST_CASE: {
+    REVIEW: {
       on: {
-        REQUEST_REVIEW: {
-          target: 'TEST_CASE_REVIEW',
+        REVIEW_PASS: {
+          target: 'TEST',
+          guard: 'canPassReview',
         },
         START: {
           target: 'DEV',
-        },
-      },
-    },
-    TEST_CASE_REVIEW: {
-      on: {
-        REVIEW: {
-          target: 'TEST',
-        },
-        ROLLBACK_DEV: {
-          target: 'DEV',
-        },
-        ROLLBACK_TEST_CASE: {
-          target: 'TEST_CASE',
         },
       },
     },
@@ -179,9 +245,6 @@ export const storyMachine = setup({
         START: {
           target: 'DEV',
         },
-        ROLLBACK_TEST_CASE: {
-          target: 'TEST_CASE',
-        },
       },
     },
     DONE: {
@@ -192,27 +255,13 @@ export const storyMachine = setup({
 
 export type StoryMachineSnapshot = SnapshotFrom<typeof storyMachine>;
 
-/**
- * @task B-1dc6
- * @checklist CHK-001
- * @title Story lifecycle state machine remains the source of gate decisions
- * @type feature
- * @priority high
- * @description
- *   stack-layering 的边界原则要求 gate 的最终判定记录由 Koala 持有。
- *   createStoryActor 是 story 生命周期状态机的统一入口，负责把 phase transition
- *   与 guard 判定绑定到 Koala 自己的 machine/store，而不是交给外部 workflow
- *   自行定义。
- * @changes
- *   - [CHK-001] 把 story lifecycle state machine 与 gate 判定入口回链到 createStoryActor
- * @test high-gap-annotation-backfill
- */
 export function createStoryActor(
   storyId: string,
   store: StoryStore,
   restoredState?: string,
+  projectRoot?: string,
 ) {
-  const context: StoryMachineContext = { storyId, store };
+  const context: StoryMachineContext = { storyId, store, projectRoot: projectRoot ?? process.cwd() };
 
   if (restoredState) {
     const snapshot = storyMachine.resolveState({
@@ -230,164 +279,191 @@ export function getStateName(actor: ReturnType<typeof createActor<typeof storyMa
   return typeof snapshot.value === 'string' ? snapshot.value : JSON.stringify(snapshot.value);
 }
 
-export function getPhaseInvariantStatus(
+export function getGuardFailureReason(
   storyId: string,
   store: StoryStore,
   targetPhase: string,
-): PhaseGateDecision {
-  const issues: PhaseInvariantIssue[] = [];
+  projectRoot?: string,
+): string | null {
+  // B-e71f CHK-005: INIT→INIT_CHECK 硬门槛。
+  // 仅当 story.phase === 'INIT' 时启用，IDEA→INIT_CHECK 等其他来源不门禁。
+  // 缺 init-check.json → missing_init_check；_hash 失配 → init_check_tampered。
+  // recomputeInitCheckHash 复用 CHK-001 已导出函数（禁两份实现）。
+  if (targetPhase === 'INIT_CHECK') {
+    const story = store.readStory(storyId);
+    if (story.phase !== 'INIT') return null;
+    const initCheck = store.readInitCheck(storyId);
+    if (!initCheck) {
+      return `Cannot enter INIT_CHECK: 未跑 koala-review-story-init agent（缺 init-check.json）。 [missing_init_check]\n→ Agent({ subagent_type: "koala-review-story-init", prompt: \`koala dispatch '{"storyId":"${storyId}","agentType":"koala-review-story-init"}'\` })`;
+    }
+    const expected = recomputeInitCheckHash(storyId, store, projectRoot ?? process.cwd());
+    if (initCheck._hash !== expected) {
+      return `Cannot enter INIT_CHECK: init-check.json _hash 失配（背景/标题/描述/checklist 已修改），请重跑 koala-review-story-init agent。 [init_check_tampered]`;
+    }
+    // critical issues advisory：不阻塞 gate；advance 成功消息 echo 警告由 story-advance.ts 处理
+    return null;
+  }
 
   if (targetPhase === 'DEV') {
-    const cl = store.readChecklist(storyId);
-    // B-0af4 CHK-002: trivial-story 模式 — priority=low + checklist.length<=1
-    // + type in [chore, refactor, docs] 的 story 跳过 testIntent.happy 要求。
-    // 解决 B-5246 发现的问题：单 LLM observer 凑不齐三方制衡过不了这个 gate。
-    // 注意：只跳 testIntent 要求，story_review 通过仍然强制。
-    let isTrivial = false;
-    try {
-      const storyInfo = store.readStory(storyId) as any;
-      const trivialTypes = ['chore', 'refactor', 'docs'];
-      isTrivial =
-        storyInfo?.priority === 'low' &&
-        cl.items.length <= 1 &&
-        trivialTypes.includes(storyInfo?.type);
-    } catch { /* read fail → 按非 trivial 处理 */ }
-
-    if (!isTrivial) {
-      // happy 必填；edge/adversarial 选填（B-569d）
-      const missingIntent = cl.items.filter((item: any) => {
-        const ti = item.testIntent;
-        if (ti === null) return false; // 显式标记不可测试，跳过
-        return !ti || !Array.isArray(ti.happy) || ti.happy.length === 0;
-      });
-      if (missingIntent.length > 0) {
-        issues.push({
-          code: 'missing_test_intent_happy',
-          detail: `${missingIntent.length} checklist item(s) 缺少 testIntent.happy: ${missingIntent.map((i: any) => i.id).join(', ')}`,
-        });
+    // 先检查是否从 INIT_CHECK 走快速通道
+    const story = store.readStory(storyId);
+    if (story.phase === 'INIT_CHECK') {
+      // 快速通道失败原因 — 读 WorkflowPolicy
+      const reasons: string[] = [];
+      try {
+        const config = loadConfig(projectRoot);
+        const policy = resolveWorkflowPolicy(config, story);
+        if (!policy.quickPath.enabled) {
+          reasons.push(`当前 profile=${policy.profile} 禁用快速通道`);
+        } else {
+          if (!policy.quickPath.allowRiskSignals && story.riskSignals && story.riskSignals.length > 0) {
+            reasons.push(`有高风险信号（${story.riskSignals.map(r => r.category).join(', ')}），必须走完整 PLAN`);
+          }
+          try {
+            const cl = store.readChecklist(storyId);
+            if (cl.items.length > policy.quickPath.maxChecklistItems) {
+              reasons.push(`checklist 有 ${cl.items.length} 项（> ${policy.quickPath.maxChecklistItems}），必须走完整 PLAN`);
+            }
+          } catch {
+            reasons.push('无 checklist，必须先 story_advance PLAN');
+          }
+        }
+      } catch {
+        reasons.push('无法加载配置，必须走完整 PLAN');
+      }
+      if (reasons.length > 0) {
+        return `Cannot skip PLAN:\n${reasons.map(r => `  - ${r}`).join('\n')}\n→ story_advance '{"storyId":"${storyId}","phase":"PLAN"}' 进入完整 PLAN 流程`;
       }
     }
+
+    // 正常 PLAN → DEV 路径：需要 story_review 通过（除非 policy 不要求）
     try {
-      const review = store.readReview(storyId);
-      if (!review || !review.reviews || review.reviews.length === 0) {
-        issues.push({
-          code: 'missing_story_review',
-          detail: '未通过 story_review 审查（无审查记录）',
-        });
+      const config2 = loadConfig(projectRoot);
+      const story2 = store.readStory(storyId);
+      const policy2 = resolveWorkflowPolicy(config2, story2);
+      if (!policy2.plan.requireStoryReview) {
+        // policy says no review needed — pass through
       } else {
-        const lastRound = review.reviews[review.reviews.length - 1];
-        // 验证签名：防止主 agent 伪造 review.json
-        const REVIEW_SALT = 'koala-review-integrity-v1';
-        const hashInput = `${storyId}:${lastRound.timestamp}:${lastRound.issueCount}:${lastRound.blockerCount ?? lastRound.issueCount}:${REVIEW_SALT}`;
-        const expectedHash = createHash('sha256').update(hashInput).digest('hex');
-        if (!lastRound._hash || lastRound._hash !== expectedHash) {
-          issues.push({
-            code: 'invalid_story_review_signature',
-            detail: 'review.json 签名校验失败，审查报告必须由 story_review CLI 生成',
-          });
-        } else if ((lastRound.blockerCount ?? lastRound.issueCount) > 0) {
-          issues.push({
-            code: 'story_review_blockers',
-            detail: `最近一轮 story_review 有 ${lastRound.blockerCount ?? lastRound.issueCount} 个 blocker 未修复`,
-          });
+        const reasons: string[] = [];
+        try {
+          const review = store.readReview(storyId);
+          if (!review || !review.reviews || review.reviews.length === 0) {
+            reasons.push('未通过 story_review 审查（无审查记录）');
+          } else {
+            const lastRound = review.reviews[review.reviews.length - 1];
+            const REVIEW_SALT = 'koala-review-integrity-v1';
+            const hashInput = `${storyId}:${lastRound.timestamp}:${lastRound.issueCount}:${lastRound.blockerCount ?? lastRound.issueCount}:${REVIEW_SALT}`;
+            const expectedHash = createHash('sha256').update(hashInput).digest('hex');
+            if (!lastRound._hash || lastRound._hash !== expectedHash) {
+              reasons.push('review.json 签名校验失败，审查报告必须由 story_review CLI 生成');
+            } else if ((lastRound.blockerCount ?? lastRound.issueCount) > 0) {
+              reasons.push(`最近一轮 story_review 有 ${lastRound.blockerCount ?? lastRound.issueCount} 个 blocker 未修复`);
+            }
+          }
+        } catch {
+          reasons.push('未通过 story_review 审查（无审查记录）');
+        }
+        if (reasons.length > 0) {
+          return `Cannot enter DEV:\n${reasons.map(r => `  - ${r}`).join('\n')}`;
         }
       }
     } catch {
-      issues.push({
-        code: 'missing_story_review',
-        detail: '未通过 story_review 审查（无审查记录）',
-      });
+      // config load failed — fall through (don't block on config error)
     }
   }
 
-  if (targetPhase === 'TEST_CASE') {
+  if (targetPhase === 'REVIEW') {
     const cl = store.readChecklist(storyId);
-    // B-5010 CHK-002: 只要求 phase!=='TEST_CASE' 的 item 已 done（即 DEV 阶段工作）。
-    // phase==='TEST_CASE' 的 item（fixture 编写 / perf sanity 等）本来就是 TEST_CASE
-    // 阶段的工作，不该在进入前强制 done，否则只能"先撒谎 mark done 再做"。
-    const devPhaseItems = cl.items.filter((i: any) => (i.phase || 'DEV') !== 'TEST_CASE');
-    const pending = devPhaseItems.filter(i => i.status !== 'done');
+    const pending = cl.items.filter(i => i.status !== 'done');
     if (pending.length > 0) {
-      issues.push({
-        code: 'pending_dev_checklist_items',
-        detail: `${pending.length} DEV-phase checklist item(s) not done: ${pending.map(i => i.id).join(', ')}`,
-      });
+      return `Cannot enter REVIEW: ${pending.length} checklist item(s) not done: ${pending.map(i => i.id).join(', ')}`;
     }
   }
 
   if (targetPhase === 'TEST') {
-    const cl = store.readChecklist(storyId);
-    const failures: Array<{ itemId: string; category: string; desc: string; type: string }> = [];
-    for (const item of cl.items) {
-      if (item.testIntent === null) {
-        continue;
-      }
-      if (!item.testIntent) {
-        failures.push({ itemId: item.id, category: '*', desc: 'missing testIntent', type: 'cli_blackbox' });
-        continue;
-      }
-      for (const category of ['happy', 'edge', 'adversarial'] as const) {
-        const entries = (item.testIntent as any)[category] || [];
-        for (const entry of entries) {
-          if (typeof entry === 'string') {
-            failures.push({ itemId: item.id, category, desc: entry, type: 'cli_blackbox' });
-            continue;
-          }
-          if (!entry.results || entry.results.length === 0) {
-            failures.push({ itemId: item.id, category, desc: entry.desc, type: entry.type || 'cli_blackbox' });
-            continue;
-          }
-          const last = entry.results[entry.results.length - 1];
-          if (last.pass !== true) {
-            failures.push({ itemId: item.id, category, desc: entry.desc, type: entry.type || 'cli_blackbox' });
+    const config = loadConfig(projectRoot);
+    const story = store.readStory(storyId);
+    const policy = resolveWorkflowPolicy(config, story);
+
+    // If policy doesn't require reviewer, skip finding checks
+    if (!policy.review.requireReviewer) {
+      // no review gate — pass through
+    } else {
+      try {
+        const findings = store.readFindings(storyId);
+        if (!findings.findings || findings.findings.length === 0) {
+          return `Cannot enter TEST: reviewer 未跑（findings.json 为空）\n→ 并行启动 5 个 koala-review-* agent 审查代码`;
+        }
+        if (policy.review.requireReviewerFinding) {
+          const currentRound = story.currentReviewRound;
+          const currentRoundReviewerFindings = findings.findings.filter(
+            (f: Finding) => f.agent && f.agent !== 'main' && verifyFinding(storyId, f)
+              // backward compat: 旧 story 无 currentReviewRound 时不拒绝
+              && (!currentRound || f.reviewRound === currentRound)
+          );
+
+          const { roundCount: rc } = resolveEffectiveBlockingSeverities(store, storyId, policy);
+          if (rc <= 1) {
+            // Round 1: require findings from at least 5 distinct reviewer agents
+            const distinctReviewers = new Set(currentRoundReviewerFindings.map((f: Finding) => f.agent));
+            if (distinctReviewers.size < 5) {
+              return `Cannot enter TEST: Round 1 要求全部 5 个 reviewer 跑完（当前 ${distinctReviewers.size} 个: ${Array.from(distinctReviewers).join(', ') || '无'}）\n→ 并行启动全部 koala-review-* agent`;
+            }
+          } else {
+            if (currentRoundReviewerFindings.length === 0) {
+              return currentRound
+                ? `Cannot enter TEST: Round ${rc} 当前 review round (${currentRound}) 无 reviewer finding，请启动对应的 koala-review-* agent`
+                : `Cannot enter TEST: findings 全部来自 main agent（reviewer 未跑）\n→ 启动 koala-review-* subagent`;
+            }
           }
         }
+        const { effectiveBlockingSeverities, roundCount } = resolveEffectiveBlockingSeverities(store, storyId, policy);
+
+        const blocking = findings.findings.filter(
+          f => effectiveBlockingSeverities.includes(f.severity) && f.status === 'open'
+        );
+        if (blocking.length > 0) {
+          return `Cannot enter TEST: ${blocking.length} blocking finding(s) open (Round ${roundCount}, blocking: ${effectiveBlockingSeverities.join('/')}):\n${blocking.map(f => `  - ${f.id} [${f.severity}] ${f.desc}`).join('\n')}\n→ 修复后 finding_resolve，或确认不修 finding_dismiss（需说明理由 ≥10 字符）`;
+        }
+      } catch {
+        return `Cannot enter TEST: reviewer 未跑（无 findings.json）\n→ 并行启动 5 个 koala-review-* agent 审查代码`;
       }
-    }
-    if (failures.length > 0) {
-      const detail = failures.map(f => `  - ${f.itemId}:${f.category} [${f.type}] ${f.desc}`).join('\n');
-      issues.push({
-        code: 'testintent_not_passed',
-        detail: `${failures.length} testIntent(s) not passed:\n${detail}`,
-      });
     }
   }
 
   if (targetPhase === 'DONE') {
     const evidence = store.readTestEvidence(storyId);
     if (!evidence) {
-      issues.push({
-        code: 'missing_test_evidence',
-        detail: 'no test evidence found',
-      });
+      return 'Cannot enter DONE: no test evidence (run koala validate first)';
     }
-    if (evidence && evidence.result !== 'PASS') {
-      issues.push({
-        code: 'test_not_passed',
-        detail: `test ${evidence.result}: ${evidence.output}`,
-      });
+    if (evidence.result !== 'PASS') {
+      return `Cannot enter DONE: test ${evidence.result}: ${evidence.output}`;
     }
     const bugs = store.readBugs(storyId);
     const openBugs = bugs.bugs.filter(b => b.status !== 'fixed');
     if (openBugs.length > 0) {
-      issues.push({
-        code: 'open_bugs',
-        detail: `${openBugs.length} unfixed bug(s): ${openBugs.map(b => b.id).join(', ')}`,
-      });
+      return `Cannot enter DONE: ${openBugs.length} unfixed bug(s): ${openBugs.map(b => b.id).join(', ')}`;
+    }
+
+    // delivery-check.json 签名校验
+    const deliveryCheck = store.readDeliveryCheck(storyId);
+    if (!deliveryCheck) {
+      return `Cannot enter DONE: 缺 delivery-check.json（需 koala-review-delivery reviewer 签名）。 [missing_delivery_check] → 运行 story_advance DEV 回炉补齐`;
+    }
+    const expectedDeliveryHash = recomputeDeliveryCheckHash(storyId, store);
+    if (expectedDeliveryHash === null || deliveryCheck._hash !== expectedDeliveryHash) {
+      return `Cannot enter DONE: delivery-check.json _hash 失配（内容已被篡改），请重跑 koala-review-delivery reviewer。 [delivery_check_tampered] → 运行 story_advance DEV 回炉补齐`;
+    }
+
+    // every docsPromise must be verified or waived
+    const unverifiedPromises = deliveryCheck.docsPromises.filter(
+      p => !p.verifiedBy && !p.waiverReason,
+    );
+    if (unverifiedPromises.length > 0) {
+      const names = unverifiedPromises.map(p => p.docPath).join(', ');
+      return `Cannot enter DONE: ${unverifiedPromises.length} 条 docsPromise 未验证且无豁免: ${names}。 [unverified_promise] → 用 delivery_waiver_add 写豁免或重跑 reviewer → 运行 story_advance DEV 回炉补齐`;
     }
   }
 
-  return buildPhaseGateDecision({
-    storyId,
-    targetPhase,
-    issues,
-  });
-}
-
-export function getGuardFailureReason(
-  storyId: string,
-  store: StoryStore,
-  targetPhase: string,
-): string | null {
-  return formatPhaseGateDecision(getPhaseInvariantStatus(storyId, store, targetPhase));
+  return null;
 }

@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 
-import { mkdirSync, writeFileSync, readFileSync, existsSync, cpSync } from 'fs';
-import { join, dirname } from 'path';
+import { mkdirSync, writeFileSync, readFileSync, existsSync, cpSync, readdirSync, symlinkSync, lstatSync, readlinkSync, unlinkSync } from 'fs';
+import { join, dirname, relative } from 'path';
 import { fileURLToPath } from 'url';
-import { CODEX_AGENT_FILES, CODEX_README_TEMPLATE, renderCodexAgentContent } from './init-assets.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -23,20 +22,21 @@ koala-init — 初始化 koala 开发框架
 
 初始化内容:
   koala.config.json             项目配置（扫描路径、Story 前缀）
-  CLAUDE.md                     Claude Code 指引（注释规范、/koala 入口）
-  AGENTS.md                     Codex 指引（session_brief / Story 流程 / Sub agent 约定）
-  .claude/skills/koala/       /koala skill 文件
-  .claude/agents/             Claude Code sub-agent 定义
-  .Codex/agents/              Codex sub-agent 定义
-  .Codex/README.md            Codex 入口说明（使用 koala-codex wrapper）
-  .koala/story/actives/         Story 数据目录
+  CLAUDE.md                     Claude Code 指引
+  src/core/app.ts               应用组装（平台无关）
+  src/core/debug.ts             调试入口（devHost）
+  src/core/machines/game/bridge.ts  Bridge 接口模板
+  src/shells/cli/main.ts        CLI shell 模板
+  src/shells/web/               Web shell 目录
+  .claude/agents/               koala-implementer 等 subagent 定义
+  .claude/skills/koala/         /koala skill 文件
+  docs/story/actives/           Story 数据目录
   docs/requirements/            真相源目录
-  tests/fixtures/               测试 fixture 目录
 
 初始化后:
   1. 编辑 koala.config.json 调整 scanRoot 等路径
-  2. 打开 Claude Code 执行 /koala，或打开 Codex 并让它先跑 koala session_brief
-  3. 可选: koala test_auto 跑自动化测试
+  2. 打开 Claude Code，执行 /koala 开始工作
+  3. 可选: koala validate 跑项目验证
 `);
   process.exit(0);
 }
@@ -61,13 +61,11 @@ function write(relPath: string, content: string) {
 // 1. 目录
 console.log('[1/5] 创建目录...');
 const dirs = [
-  '.koala/story/actives',
+  'docs/story/actives',
   'docs/requirements/decisions',
   'docs/requirements/extracted',
   '.claude/skills/koala',
   '.claude/agents',
-  '.Codex/agents',
-  'tests/fixtures',
 ];
 for (const d of dirs) {
   const full = join(targetDir, d);
@@ -93,13 +91,202 @@ if (!existsSync(giPath)) {
   console.log('  - .gitignore (exists, skip)');
 }
 
+// 1.6 项目代码目录（src/core + src/shells）
+const codeDirs = [
+  'src/core/machines/game',
+  'src/core/io',
+  'src/shells/cli',
+  'src/shells/web',
+  'tests',
+];
+for (const d of codeDirs) {
+  const full = join(targetDir, d);
+  if (!existsSync(full)) {
+    mkdirSync(full, { recursive: true });
+    console.log(`  ✓ ${d}/`);
+  }
+}
+
+// 生成 CLI shell 模板
+const cliMainPath = join(targetDir, 'src', 'shells', 'cli', 'main.ts');
+if (!existsSync(cliMainPath)) {
+  const dir = dirname(cliMainPath);
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+  writeFileSync(cliMainPath, `// CLI shell — 完整版交互入口
+// CLI 不是降级版，是完整版。覆盖所有 machine transitions。
+// 只通过 bridge 交互，不直接 import fn.ts。
+
+import * as readline from 'readline';
+import { createLocalBridge } from '../../core/machines/game/bridge.js';
+
+const bridge = createLocalBridge();
+const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+
+bridge.onStateChange((state) => {
+  // TODO: 根据 state 渲染 CLI 输出
+  console.log(JSON.stringify(state, null, 2));
+});
+
+function prompt() {
+  rl.question('> ', (input) => {
+    const trimmed = input.trim();
+    if (trimmed === 'quit' || trimmed === 'exit') {
+      rl.close();
+      return;
+    }
+    // TODO: 解析用户输入，调用 bridge.sendEvent(event, input)
+    bridge.sendEvent(trimmed, {});
+    prompt();
+  });
+}
+
+prompt();
+`);
+  console.log('  ✓ src/shells/cli/main.ts (CLI shell 模板)');
+}
+
+// 生成 bridge 模板
+const bridgePath = join(targetDir, 'src', 'core', 'machines', 'game', 'bridge.ts');
+if (!existsSync(bridgePath)) {
+  const dir = dirname(bridgePath);
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+  writeFileSync(bridgePath, `// Bridge — 逻辑层与 UI 层的隔离接口
+// Shell（CLI/Browser）只 import bridge.ts，不 import fn.ts。
+
+// import type { GameState } from './data.js';
+// import { GameMachine } from './machine.js';
+// import { parseInput } from './fn.js';
+
+export interface GameBridge {
+  sendEvent(event: string, input: any): boolean;
+  onStateChange(cb: (state: any) => void): () => void;
+  getState(): any;
+  getMachineState(): string;
+  reset(): void;
+}
+
+// LocalBridge：同进程直连
+export function createLocalBridge(): GameBridge {
+  // TODO: import machine + fn，实现事件分发
+  let state: any = {};
+  const listeners = new Set<(state: any) => void>();
+
+  function notify() {
+    for (const cb of listeners) cb(state);
+  }
+
+  return {
+    sendEvent(event: string, input: any): boolean {
+      // TODO: 从 machine 找 transition，调 guard + action
+      console.log(\`[bridge] event: \${event}\`, input);
+      return false;
+    },
+    onStateChange(cb: (state: any) => void) {
+      listeners.add(cb);
+      cb(state);
+      return () => listeners.delete(cb);
+    },
+    getState() { return state; },
+    getMachineState() { return 'initial'; },
+    reset() {
+      state = {};
+      notify();
+    },
+  };
+}
+
+// WSBridge：开发时通过 WS 连 core 进程
+export function createWSBridge(wsUrl: string): GameBridge {
+  const WS = typeof WebSocket !== 'undefined' ? WebSocket : (globalThis as any).WebSocket;
+  const ws = new WS(wsUrl);
+  let state: any = {};
+  let machineState = 'unknown';
+  const listeners = new Set<(state: any) => void>();
+
+  ws.onmessage = (e: any) => {
+    try {
+      const msg = JSON.parse(e.data);
+      if (msg.type === 'stateChange' || msg.type === 'init') {
+        state = msg.state;
+        machineState = msg.machineState || machineState;
+        for (const cb of listeners) cb(state);
+      }
+    } catch {}
+  };
+
+  return {
+    sendEvent(event: string, input: any): boolean {
+      ws.send(JSON.stringify({ type: 'event', event, input }));
+      return true;
+    },
+    onStateChange(cb: (state: any) => void) {
+      listeners.add(cb);
+      cb(state);
+      return () => listeners.delete(cb);
+    },
+    getState() { return state; },
+    getMachineState() { return machineState; },
+    reset() { ws.send(JSON.stringify({ type: 'reset' })); },
+  };
+}
+`);
+  console.log('  ✓ src/core/machines/game/bridge.ts (Bridge 模板)');
+}
+
+// 生成 app.ts 模板
+const appPath = join(targetDir, 'src', 'core', 'app.ts');
+if (!existsSync(appPath)) {
+  const dir = dirname(appPath);
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+  writeFileSync(appPath, `// app.ts — 应用组装（平台无关）
+// 浏览器和 Node.js 都能运行。不依赖 fs/ws/process。
+
+import { createLocalBridge } from './machines/game/bridge.js';
+
+export async function createApp() {
+  const bridge = createLocalBridge();
+
+  // IO 调度示例：
+  // bridge.onStateChange((state) => {
+  //   if (needsAI(state)) {
+  //     getAIMove(state).then(move => bridge.sendEvent('MOVE', move));
+  //   }
+  // });
+
+  return { bridge };
+}
+`);
+  console.log('  ✓ src/core/app.ts (应用组装模板)');
+}
+
+// 生成 debug.ts 模板
+const debugPath = join(targetDir, 'src', 'core', 'debug.ts');
+if (!existsSync(debugPath)) {
+  const dir = dirname(debugPath);
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+  writeFileSync(debugPath, `// debug.ts — 调试入口
+// 框架的 devHost() 负责：WS server + .koala-serve.json + cleanup
+
+import { devHost } from '@koala-agent/core/dev-host';
+import { createApp } from './app.js';
+// import { GameMachine } from './machines/game/machine.js';
+
+// const app = await devHost(createApp, GameMachine);
+
+// if (process.env.KOALA_SHELL === 'cli') {
+//   const { startCliShell } = await import('../shells/cli/main.js');
+//   startCliShell(app.bridge);
+// }
+`);
+  console.log('  ✓ src/core/debug.ts (调试入口模板)');
+}
+
 // 2. koala.config.json
 console.log('\n[2/5] 生成 koala.config.json...');
 const koalaConfig: Record<string, unknown> = {
   scanRoot: 'src',
   testsDir: 'tests',
-  fixturesDir: 'tests/fixtures',
-  storyDir: '.koala/story/actives',
+  storyDir: 'docs/story/actives',
   requirementsDir: 'docs/requirements',
   storyPrefix: 'S',
 };
@@ -130,67 +317,10 @@ if (existsSync(pkgPath)) {
 }
 write('koala.config.json', JSON.stringify(koalaConfig, null, 2) + '\n');
 
-function syncInstructionFile(targetPath: string, sourcePath: string, label: string, fallbackContent: string) {
-  if (!existsSync(targetPath)) {
-    if (existsSync(sourcePath)) {
-      const content = extractKoalaSection(readFileSync(sourcePath, 'utf-8'));
-      writeFileSync(targetPath, content + '\n');
-      console.log(`  ✓ ${label} (copied from koala, internal rules stripped)`);
-    } else {
-      writeFileSync(targetPath, fallbackContent);
-      console.log(`  ✓ ${label} (created minimal)`);
-    }
-    return;
-  }
-
-  if (!existsSync(sourcePath)) {
-    console.log(`  - ${label} (exists, skip)`);
-    return;
-  }
-
-  const existing = readFileSync(targetPath, 'utf-8');
-  const newSection = extractKoalaSection(readFileSync(sourcePath, 'utf-8'));
-  if (existing.match(/<!--\s*koala:start\s*-->[\s\S]*?<!--\s*koala:end\s*-->/)) {
-    const updated = existing.replace(/<!--\s*koala:start\s*-->[\s\S]*?<!--\s*koala:end\s*-->/, newSection);
-    if (updated !== existing) {
-      writeFileSync(targetPath, updated);
-      console.log(`  ✓ ${label} (koala section synced)`);
-    } else {
-      console.log(`  - ${label} (koala section up to date)`);
-    }
-  } else {
-    console.log(`  - ${label} (exists, no koala markers, skip)`);
-  }
-}
-
-function copyAgentDefinitions(sourceDir: string, targetDir: string, label: string, transform?: (content: string) => string) {
-  if (!existsSync(sourceDir)) {
-    console.log(`  - ${label} (source missing, skip)`);
-    return;
-  }
-  if (!existsSync(targetDir)) mkdirSync(targetDir, { recursive: true });
-
-  for (const file of CODEX_AGENT_FILES) {
-    const src = join(sourceDir, file);
-    const dst = join(targetDir, file);
-    if (!existsSync(src)) continue;
-    if (existsSync(dst)) {
-      console.log(`  - ${label}/${file} (exists, skip)`);
-      continue;
-    }
-    const raw = readFileSync(src, 'utf-8');
-    const next = transform ? transform(raw) : raw;
-    writeFileSync(dst, next);
-    console.log(`  ✓ ${label}/${file}`);
-  }
-}
-
-// 3. 指引文件（从 koala 项目复制 / 同步 koala:start~koala:end 区间）
-console.log('\n[3/5] 配置指引文件...');
+// 3. CLAUDE.md（从 koala 项目复制 / 同步 koala:start~koala:end 区间）
+console.log('\n[3/5] 配置 CLAUDE.md...');
 const claudeMdPath = join(targetDir, 'CLAUDE.md');
 const claudeMdSrc = join(packageRoot, '..', '..', 'CLAUDE.md');
-const agentsMdPath = join(targetDir, 'AGENTS.md');
-const agentsMdSrc = join(packageRoot, '..', '..', 'AGENTS.md');
 
 function extractKoalaSection(content: string): string {
   // 提取 koala:start ~ koala:end 区间，剥离 koala:internal
@@ -199,69 +329,95 @@ function extractKoalaSection(content: string): string {
   return m[0].replace(/<!--\s*koala:internal:start\s*-->[\s\S]*?<!--\s*koala:internal:end\s*-->\n?/g, '');
 }
 
-syncInstructionFile(
-  claudeMdPath,
-  claudeMdSrc,
-  'CLAUDE.md',
-  '# CLAUDE.md\n\n执行 `/koala` 即可了解项目全貌并开始工作。\n',
-);
-syncInstructionFile(
-  agentsMdPath,
-  agentsMdSrc,
-  'AGENTS.md',
-  '# AGENTS.md\n\n每次新 session 的第一条命令必须是 `koala session_brief`。\n',
-);
-
-// 4. 复制 skill + sub-agent 定义
-console.log('\n[4/5] 复制 skill / sub-agent 定义...');
-const skillSrc = join(packageRoot, '..', '..', '.claude', 'skills', 'koala');
-const skillDst = join(targetDir, '.claude', 'skills', 'koala');
-const claudeAgentsSrc = join(packageRoot, '..', '..', '.claude', 'agents');
-const claudeAgentsDst = join(targetDir, '.claude', 'agents');
-const codexAgentsDst = join(targetDir, '.Codex', 'agents');
-const codexReadmeDst = join(targetDir, '.Codex', 'README.md');
-const koalaSkillFallback = `# /koala — 项目管理入口
-
-你是项目管理引擎。执行 /koala 了解项目全貌并开始工作。
-
-详细用法参考 @koala/main 文档。
-`;
-
-function writeFallbackKoalaSkill(): void {
-  write('.claude/skills/koala/skill.md', koalaSkillFallback);
+if (!existsSync(claudeMdPath)) {
+  if (existsSync(claudeMdSrc)) {
+    const content = extractKoalaSection(readFileSync(claudeMdSrc, 'utf-8'));
+    writeFileSync(claudeMdPath, content + '\n');
+    console.log('  ✓ CLAUDE.md (copied from koala, internal rules stripped)');
+  } else {
+    writeFileSync(claudeMdPath, '# CLAUDE.md\n\n执行 `/koala` 即可了解项目全貌并开始工作。\n');
+    console.log('  ✓ CLAUDE.md (created minimal)');
+  }
+} else if (existsSync(claudeMdSrc)) {
+  // 已存在：同步 koala:start~koala:end 区间，保留区间外的项目内容
+  const existing = readFileSync(claudeMdPath, 'utf-8');
+  const newSection = extractKoalaSection(readFileSync(claudeMdSrc, 'utf-8'));
+  if (existing.match(/<!--\s*koala:start\s*-->[\s\S]*?<!--\s*koala:end\s*-->/)) {
+    const updated = existing.replace(/<!--\s*koala:start\s*-->[\s\S]*?<!--\s*koala:end\s*-->/, newSection);
+    if (updated !== existing) {
+      writeFileSync(claudeMdPath, updated);
+      console.log('  ✓ CLAUDE.md (koala section synced)');
+    } else {
+      console.log('  - CLAUDE.md (koala section up to date)');
+    }
+  } else {
+    console.log('  - CLAUDE.md (exists, no koala markers, skip)');
+  }
+} else {
+  console.log('  - CLAUDE.md (exists, skip)');
 }
 
+// 4. 复制 skill
+console.log('\n[4/5] 复制 /koala skill...');
+const skillSrc = join(packageRoot, '..', '..', '.claude', 'skills', 'koala');
+const skillDst = join(targetDir, '.claude', 'skills', 'koala');
 if (existsSync(skillSrc)) {
-  const skillFile = ['skill.md', 'SKILL.md']
-    .map(name => join(skillSrc, name))
-    .find(path => existsSync(path));
+  const skillFile = join(skillSrc, 'skill.md');
   const dstFile = join(skillDst, 'skill.md');
   if (!existsSync(dstFile)) {
     if (!existsSync(skillDst)) mkdirSync(skillDst, { recursive: true });
-    if (skillFile) {
-      cpSync(skillFile, dstFile);
-      console.log('  ✓ .claude/skills/koala/skill.md');
-    } else {
-      writeFallbackKoalaSkill();
-    }
+    cpSync(skillFile, dstFile);
+    console.log('  ✓ .claude/skills/koala/skill.md');
   } else {
     console.log('  - .claude/skills/koala/skill.md (exists, skip)');
   }
 } else {
   // 从模板生成最小 skill
-  writeFallbackKoalaSkill();
-}
-copyAgentDefinitions(claudeAgentsSrc, claudeAgentsDst, '.claude/agents');
-copyAgentDefinitions(claudeAgentsSrc, codexAgentsDst, '.Codex/agents', renderCodexAgentContent);
-if (!existsSync(codexReadmeDst)) {
-  writeFileSync(codexReadmeDst, CODEX_README_TEMPLATE);
-  console.log('  ✓ .Codex/README.md');
-} else {
-  console.log('  - .Codex/README.md (exists, skip)');
+  write('.claude/skills/koala/skill.md', `# /koala — 项目管理入口
+
+你是项目管理引擎。执行 /koala 了解项目全貌并开始工作。
+
+详细用法参考 @koala/main 文档。
+`);
 }
 
-// 5. hooks + settings.json
-console.log('\n[5/5] 配置 hooks...');
+// 5. agent 模板 → symlink（改框架自动全局生效）
+console.log('\n[5/6] 链接 agent 模板...');
+const agentTemplateDir = join(packageRoot, 'templates', 'agents');
+const agentDstDir = join(targetDir, '.claude', 'agents');
+if (existsSync(agentTemplateDir)) {
+  for (const file of readdirSync(agentTemplateDir)) {
+    if (!file.endsWith('.md')) continue;
+    const src = join(agentTemplateDir, file);
+    const dst = join(agentDstDir, file);
+    const relTarget = relative(agentDstDir, src);
+
+    // 已是正确 symlink → skip
+    if (existsSync(dst)) {
+      try {
+        const stat = lstatSync(dst);
+        if (stat.isSymbolicLink() && readlinkSync(dst) === relTarget) {
+          console.log(`  - .claude/agents/${file} (symlink ok)`);
+          continue;
+        }
+        // 旧 copy 或错误 symlink → 替换
+        unlinkSync(dst);
+        console.log(`  ↻ .claude/agents/${file} (replacing copy with symlink)`);
+      } catch {
+        // lstat 失败（断链等）→ 删除重建
+        try { unlinkSync(dst); } catch {}
+      }
+    }
+
+    symlinkSync(relTarget, dst);
+    console.log(`  ✓ .claude/agents/${file} → ${relTarget}`);
+  }
+} else {
+  console.log('  - agent 模板目录不存在, skip');
+}
+
+// 6. hooks + settings.json
+console.log('\n[6/6] 配置 hooks...');
 const hooksDir = join(targetDir, '.claude', 'hooks');
 const hookSrc = join(packageRoot, '..', '..', '.claude', 'hooks', 'log-tools.cjs');
 const hookDst = join(hooksDir, 'log-tools.cjs');
@@ -305,9 +461,11 @@ console.log(`
 ✓ 初始化完成
 
 Next steps:
-  1. Open Claude Code and run /koala, or open Codex and let it read AGENTS.md
-  2. First action in a new agent session should be: KOALA_ACTIVITY_SOURCE=codex koala session_brief
-  3. If this repo has local wrappers, prefer node bin/koala-codex.js <command>
-  4. Optional: edit koala.config.json to adjust scanRoot
-  5. Optional: koala test to run flow e2e tests
+  1. Open Claude Code, run /koala onboard
+  2. Optional: edit koala.config.json to adjust scanRoot
+  3. Optional: koala validate to verify project
 `);
+
+// NOTE: generateProfileSection / syncProfileSection were previously defined here.
+// They now live in claude-md-sync.ts (no side effects) to avoid triggering this
+// self-executing init script when imported by other modules (e.g. workflow.ts).

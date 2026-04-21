@@ -4,7 +4,8 @@
  * PLAN 阶段为每个非 trivial story 落一份 decision.json：
  *   - principles (3-5 条)
  *   - drivers (top 3 关键约束)
- *   - options (≥ 2 个备选 + pros/cons)
+ *   - options (≥ 2 个备选 + pros/cons；允许 options=[] 的"单一解"出口，
+ *             但要求 rationale ≥ 50 字符且含"排除"关键词说明为何不枚举备选)
  *   - chosen + rationale
  *   - preMortem (高风险 story 强制 ≥ 3)
  *
@@ -36,10 +37,18 @@ export function createDecisionHandlers(ctx: HandlerContext) {
       if (!Array.isArray(args.drivers) || args.drivers.length < 1 || args.drivers.length > 5) {
         throw new Error('decision.drivers 必须是 1-5 条（建议 top 3）');
       }
-      if (!Array.isArray(args.options) || args.options.length === 0) {
-        throw new Error('decision.options 必须是非空数组');
+      if (!Array.isArray(args.options)) {
+        throw new Error('decision.options 必须是数组');
       }
-      if (args.options.length < 2) {
+      if (args.options.length === 0) {
+        // 空数组出口：要求 rationale ≥ 50 字符且含"排除"关键词，显式列出被排除的方案理由
+        const rationale = args.rationale || '';
+        if (rationale.trim().length < 50 || !rationale.includes('排除')) {
+          throw new Error(
+            'options=[] 时 rationale 需 ≥50 字符且含"排除"关键词列出被排除的方案理由；或请提供 ≥ 2 个 options'
+          );
+        }
+      } else if (args.options.length < 2) {
         // 单选项必须说明为什么
         const opt = args.options[0];
         if (!opt.cons || opt.cons.length === 0) {
@@ -60,14 +69,21 @@ export function createDecisionHandlers(ctx: HandlerContext) {
           throw new Error(`option "${opt.name}" 缺少 cons（不能只列好处）`);
         }
       }
-      if (!args.chosen || args.chosen.trim().length < 3) {
-        throw new Error('decision.chosen 必须指向某个 option.name');
-      }
-      const chosenExists = args.options.some(o => o.name === args.chosen);
-      if (!chosenExists) {
-        throw new Error(
-          `decision.chosen "${args.chosen}" 不在 options 列表里。可选: ${args.options.map(o => o.name).join(', ')}`
-        );
+      if (args.options.length > 0) {
+        if (!args.chosen || args.chosen.trim().length < 3) {
+          throw new Error('decision.chosen 必须指向某个 option.name');
+        }
+        const chosenExists = args.options.some(o => o.name === args.chosen);
+        if (!chosenExists) {
+          throw new Error(
+            `decision.chosen "${args.chosen}" 不在 options 列表里。可选: ${args.options.map(o => o.name).join(', ')}`
+          );
+        }
+      } else {
+        // options=[] 出口：chosen 字段语义淡化（无 option 可指向），允许任意非空字符串作为单一解代号
+        if (!args.chosen || args.chosen.trim().length === 0) {
+          throw new Error('decision.chosen 不能为空（即使 options=[] 也需给单一解一个代号）');
+        }
       }
       if (!args.rationale || args.rationale.trim().length < 10) {
         throw new Error('decision.rationale 必须 ≥ 10 字符（说明为什么选这个）');

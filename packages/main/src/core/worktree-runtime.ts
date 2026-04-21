@@ -1,4 +1,4 @@
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import { existsSync, realpathSync } from 'fs';
 import { dirname, isAbsolute, join, relative } from 'path';
 import type { StoryStore } from './store.js';
@@ -32,19 +32,18 @@ export interface StoryWorktreeRuntime {
 }
 
 function git(root: string, args: string[]): string {
-  const quoted = args.map((arg) => `"${arg.replace(/(["\\$`])/g, '\\$1')}"`);
-  return execSync('git ' + quoted.join(' '), {
+  return execFileSync('git', args, {
     cwd: root,
     encoding: 'utf-8',
     stdio: ['pipe', 'pipe', 'pipe'],
   }).trim();
 }
 
-function canonicalPath(path: string): string {
+function canonicalPath(p: string): string {
   try {
-    return realpathSync(path);
+    return realpathSync(p);
   } catch {
-    return path;
+    return p;
   }
 }
 
@@ -81,7 +80,7 @@ export function listGitWorktrees(root: string): GitWorktreeEntry[] {
   const repoRoot = getRepoRoot(root);
   let raw = '';
   try {
-    raw = execSync('git worktree list --porcelain', {
+    raw = execFileSync('git', ['worktree', 'list', '--porcelain'], {
       cwd: repoRoot,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
