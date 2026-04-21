@@ -92,6 +92,18 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
         throw new Error(`promiseId "${args.promiseId}" not found in docsPromises`);
       }
 
+      // 3.5) 验证现有 _hash 合法（防止在已篡改的文件上追加 waiver 洗白签名）
+      const currentExpected = signDeliveryCheck(
+        data.storyId,
+        data.docsPromises,
+        data.realMachineTests,
+        data.closingSelfCheck,
+        data.reviewRound,
+      );
+      if (data._hash !== currentExpected) {
+        throw new Error('delivery-check.json _hash 已失效（文件可能被篡改），请重跑 koala-review-delivery reviewer');
+      }
+
       // 4) 设置 waiverReason
       promise.waiverReason = args.waiverReason.trim();
 

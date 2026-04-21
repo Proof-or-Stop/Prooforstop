@@ -145,29 +145,14 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       }
       if (args.story) {
         tsArgs.push(`--story=${args.story}`);
-        // Git diff 推断：从 story 分支的改动文件中识别涉及的模块
+        // Git diff 推断：把全部改动文件传给 validate.ts，让项目自己决定跑哪���测试
         try {
           const diff = execSync('git diff main...HEAD --name-only', { cwd: projectRoot, encoding: 'utf-8' }).trim();
           if (diff) {
-            const changedFiles = diff.split('\n');
-            // 找出改动的 fn.ts/machine.ts 所在的模块目录
-            const changedModules = new Set<string>();
-            for (const f of changedFiles) {
-              const fnMatch = f.match(/^(?:.*\/)?([^/]+)\/fn\.[tj]s$/);
-              if (fnMatch) changedModules.add(fnMatch[1]);
-              // 也检查直接改了 machine.ts 的情况
-              const machineMatch = f.match(/^(?:.*\/)?([^/]+)\/machine\.[tj]s$/);
-              if (machineMatch) changedModules.add(machineMatch[1]);
-            }
-            if (changedModules.size > 0) {
-              // 只跑涉及的模块的测试
-              const filter = [...changedModules].join(',');
-              tsArgs.push(`--full=${filter}`);
-              ctx.log?.(`story ${args.story}: git diff 推断受影响模块: ${filter}`);
-            } else {
-              // 没找到 fn/machine 改动，跑全部
-              ctx.log?.(`story ${args.story}: 无 fn/machine 改动，跑全部验证`);
-            }
+            const changedFiles = diff.split('\n').filter(Boolean);
+            // 传全部改动文件给 validate.ts，不假设项目遵循 D/M/F 范式
+            tsArgs.push(`--changed-files=${changedFiles.join(',')}`);
+            ctx.log?.(`story ${args.story}: git diff 发现 ${changedFiles.length} 个改动文件`);
           }
         } catch { /* git diff 失败不阻塞 */ }
       }

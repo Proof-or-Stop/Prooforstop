@@ -42,16 +42,19 @@ export interface ToolDef {
 export const MAIN_TOOLS: ToolDef[] = [
   // Story
   { name: 'story_create', description: '创建 Story 条目', longHelp: STORY_CREATE_LONG, schema: {
-    name: z.string().describe('短名称'), title: z.string().describe('标题'),
-    description: z.string().describe('描述'), type: z.enum(['feature','bug','refactor','chore']).describe('类型'),
-    priority: z.string().describe('优先级'), source: z.string().optional().describe('来源'),
+    name: z.string().optional().describe('短名称'),
+    title: z.string().optional().describe('标题'),
+    description: z.string().optional().describe('描述'),
+    type: z.enum(['feature','bug','refactor','chore']).optional().describe('类型'),
+    priority: z.string().optional().describe('优先级'),
+    source: z.string().optional().describe('来源'),
     depends: z.array(z.string()).optional().describe('依赖 Story ID'),
     keywords: z.array(z.string()).optional().describe('关键词（领域/模块/概念，用于查重）'),
     checklist: z.array(z.object({ title: z.string(), context: z.string().optional(), relatedDocs: z.array(z.string()).optional().describe('关联文档路径（用于三次提醒）'), excludes: z.array(z.string()).optional().describe('显式声明不做的功能点') })).optional().describe('开发清单'),
     prefix: z.string().optional().describe('ID 前缀(默认 B)'),
     phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','REVIEW','TEST','DONE']).optional().describe('直接指定阶段'),
     forceNew: z.boolean().optional().describe('B-0af4: 绕过同名 story idempotency 强制新建（同名未完成 story 默认会被复用）'),
-    background: z.string().describe('B-45ed CHK-006: 四段式 background.md 内容（必填）。需含 "## 触发事件" / "## 关键洞察" / "## 方案取舍" / "## 对话纹理" 4 段，每段 ≥ 50 字符，总长 ≥ 300，触发事件段须含具体编号（B-xxxx / F-xxx / CHK-xxx / commit hash / YYYY-MM-DD）'),
+    background: z.string().optional().describe('B-45ed CHK-006: 四段式 background.md 内容。需含 "## 触发事件" / "## 关键洞察" / "## 方案取舍" / "## 对话纹理" 4 段，每段 ≥ 50 字符，总长 ≥ 300，触发事件段须含具体编号（B-xxxx / F-xxx / CHK-xxx / commit hash / YYYY-MM-DD）。fromDraft 模式下不需要'),
     fromDraft: z.string().optional().describe('B-9975: 从已审查的 draft 创建 story（传 draft name）。三层 gate 校验后直接进 INIT_CHECK'),
   }},
   { name: 'story_advance', description: '推进 Story 到下一阶段', longHelp: STORY_ADVANCE_LONG, schema: {

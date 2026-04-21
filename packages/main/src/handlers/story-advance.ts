@@ -509,7 +509,7 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
               `Cannot enter TEST: CLI gate preflight 失败 (${failedGates})\n\n` +
               rendered +
               `\n\n→ 修复上述 gate 后重跑 koala story_advance --phase=TEST\n` +
-              `→ 单独复跑: koala validate --channel --story=${args.storyId} / --concept / --lint / --docs-drift`,
+              `→ 单独复跑: koala validate --channel --story=${args.storyId} / --concept / --lint`,
             );
           }
           ctx.log?.('4 CLI gate preflight: all pass');

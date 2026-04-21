@@ -186,6 +186,12 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         }
       }
 
+      // Runtime validation for non-fromDraft path: these fields are required
+      const missing = ['name','title','description','type','priority'].filter(k => !(args as any)[k]);
+      if (missing.length > 0) {
+        throw new Error(`story_create 非 fromDraft 模式下必填字段缺失: ${missing.join(', ')}`);
+      }
+
       // B-45ed CHK-006: background 必填 + 四段式格式校验（硬下限）
       if (typeof args.background !== 'string' || args.background.length === 0) {
         throw new Error(

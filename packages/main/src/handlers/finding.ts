@@ -10,7 +10,7 @@ import { computeProcessMetrics } from '../core/process-metrics.js';
 export function createFindingHandlers(ctx: HandlerContext) {
   const { store } = ctx;
   return {
-    finding_add(args: { storyId: string; desc: string; severity: string; category: string; agent?: string }): string {
+    finding_add(args: { storyId: string; desc: string; severity: string; category: string; agent?: string; files?: string[] }): string {
       const data = store.readFindings(args.storyId);
       const nextNum = data.findings.length + 1;
       const id = `${args.storyId}:F-${String(nextNum).padStart(3, '0')}`;
@@ -23,7 +23,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
       const story = store.readStory(args.storyId);
       const reviewRound = story.currentReviewRound || '';
 
-      const finding = {
+      const finding: Finding = {
         id,
         desc: args.desc,
         severity: args.severity as 'critical' | 'high' | 'medium' | 'low',
@@ -33,6 +33,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
         createdAt: timestamp,
         reviewRound,
         _hash: signFinding(args.storyId, id, args.desc, args.severity, timestamp, reviewRound),
+        ...(args.files && args.files.length > 0 ? { files: args.files } : {}),
       };
       data.findings.push(finding);
       store.writeFindings(args.storyId, data);
