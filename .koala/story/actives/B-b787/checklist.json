@@ -1,0 +1,38 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "识别 Windows/foreign worktree path",
+      "context": "worktree-runtime 对 C:\\... / C:/... / UNC 这类非当前平台绝对路径做 foreign 标记，不再 join(repoRoot, path)，输出保留原始路径并提示 stale foreign path。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "session_brief primary lane 排除 zombie story",
+      "context": "active stories 仍可列出，但 primary lane 应从非 zombie stories 中选择；如果全部 active 都是 zombie，应引导 story_reconcile，而不是显示 reviewer/artifacts missing。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "增加 foreign path / primary filter fixture 覆盖",
+      "context": "用临时 repo 构造 story.worktree.path=c:\\work\\... 且分支已删除，验证 session_brief 不选为 primary、story_reconcile 标注 foreign stale path。",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-fixture-spec.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
