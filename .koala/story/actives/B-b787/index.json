@@ -4,7 +4,7 @@
   "title": "session_brief 过滤 foreign worktree zombie",
   "description": "修复 Koala metadata 中保存 Windows 绝对路径时，macOS/Linux 下 session_brief 把 c:\\work\\... 拼到 repo root 后继续当 primary worktree 的问题。识别 foreign worktree path，story_reconcile 明确标注 stale foreign path，session_brief primary lane 不再选择 zombie story。",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "TEST_CASE",
   "priority": "high",
   "createdAt": "2026-04-22T14:16:34.614Z",
   "startedAt": "2026-04-22T14:16:34.614Z",
@@ -65,6 +65,14 @@
       "branch": "story/B-b787",
       "user": "Harmonygo",
       "agent": "gate-auto"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-23T10:42:06.535Z",
+      "branch": "story/B-b787",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
