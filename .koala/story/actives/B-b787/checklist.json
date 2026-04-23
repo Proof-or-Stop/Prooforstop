@@ -14,19 +14,43 @@
         "happy": [
           {
             "desc": "story.worktree.path 为 c:\\work\\ppt2\\repo\\.worktrees\\S-7801 时，runtime recordedAbsPath 保留原始 Windows 路径并标记 foreign stale path，不拼接 repo root",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-23T10:41:01.610Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/zombie-linked-worktree.json:1 WHY Windows backslash path stays raw and is marked foreign severity:high",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "story.worktree.path 为 C:/work/ppt2/repo/.worktrees/B-4699 时同样识别为 foreign path",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-23T10:41:01.721Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/zombie-linked-worktree.json:1 WHY Windows slash drive path is marked foreign severity:high",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "story.worktree.path 为 .worktrees/B-1234 或当前平台绝对路径时不被误判 foreign",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-23T10:41:01.832Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/zombie-linked-worktree.json:1 WHY relative worktree path is not marked foreign severity:high",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -46,19 +70,43 @@
         "happy": [
           {
             "desc": "session_brief 在 active stories 全是 zombie 时不输出 Primary lane reviewer/artifacts 噪音，而是提示 story_reconcile",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-23T10:41:01.946Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/zombie-linked-worktree.json:1 WHY all-zombie active list has no primary lane and points to reconcile severity:high",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "session_brief 有一个健康 story 和一个 zombie story 时，Primary lane 选择健康 story",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-23T10:41:02.056Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/zombie-linked-worktree.json:1 WHY healthy story wins primary over zombie severity:high",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "zombie story 仍出现在僵尸 story 区域，不被静默隐藏",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-23T10:41:02.162Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/zombie-linked-worktree.json:1 WHY zombie remains visible in zombie section severity:medium",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
@@ -77,19 +125,43 @@
         "happy": [
           {
             "desc": "story_reconcile dryRun 输出 foreign stale path 而不是 /repo/c:\\work\\... 混合路径",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-23T10:41:02.272Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/zombie-linked-worktree.json:1 WHY story_reconcile dry-run prints foreign stale path severity:high",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "edge": [
           {
             "desc": "story_reconcile dryRun 对 foreign path 不尝试删除本地目录",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-23T10:41:02.378Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/zombie-linked-worktree.json:1 WHY dry-run does not mutate repository severity:medium",
+                "role": "reviewer"
+              }
+            ]
           }
         ],
         "adversarial": [
           {
             "desc": "fixture 同时覆盖 Windows drive path 和 normal relative worktree path 的差异",
-            "type": "cli_blackbox"
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-23T10:41:02.503Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/zombie-linked-worktree.json:1 WHY fixture covers both foreign and normal path cases severity:medium",
+                "role": "reviewer"
+              }
+            ]
           }
         ]
       }
