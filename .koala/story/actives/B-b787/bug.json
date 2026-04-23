@@ -1,0 +1,64 @@
+{
+  "bugs": [
+    {
+      "id": "BUG-c9f04420",
+      "title": "[auto] zombie-linked-worktree.json:CHK-001 edge: implementation no longer parses git branch prefixes — Expected {\"usesForEachRef\":true,\"noGitBranchParsing\":true}, got {\"usesForEachRef\":false,\"noGitBranch",
+      "status": "fixed",
+      "foundAt": "2026-04-23T10:41:29.900Z",
+      "fixedAt": "2026-04-23T10:42:49.740Z",
+      "fixtureId": "c9f04420-1943-4a7d-89bf-7e8bac80822e",
+      "diagnose": {
+        "rootCause": [
+          "Expected {\"usesForEachRef\":true,\"noGitBranchParsing\":true}, got {\"usesForEachRef\":false,\"noGitBranchParsing\":true}"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-11a044ce",
+      "title": "[auto] zombie-linked-worktree.json:B-b787 CHK-001 happy: windows backslash path is foreign not repo-joined — Invalid or unexpected token",
+      "status": "open",
+      "foundAt": "2026-04-23T10:41:29.901Z",
+      "fixedAt": null,
+      "fixtureId": "11a044ce-7f20-4747-8a67-1ed0d2930812",
+      "diagnose": {
+        "rootCause": [
+          "Invalid or unexpected token"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-6873ac15",
+      "title": "[auto] zombie-linked-worktree.json:B-b787 CHK-001 adversarial: relative worktree path is not foreign — Expected {\"foreign\":false,\"joined\":true}, got {\"foreign\":false,\"joined\":false}",
+      "status": "fixed",
+      "foundAt": "2026-04-23T10:41:29.901Z",
+      "fixedAt": "2026-04-23T10:42:49.740Z",
+      "fixtureId": "6873ac15-fd84-4b2a-b444-18be67547f49",
+      "diagnose": {
+        "rootCause": [
+          "Expected {\"foreign\":false,\"joined\":true}, got {\"foreign\":false,\"joined\":false}"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-252b1402",
+      "title": "[auto] zombie-linked-worktree.json:B-b787 CHK-002 edge: healthy story wins primary over zombie — Expected {\"primaryOk\":true,\"zombieStillShown\":true}, got {\"primaryOk\":false,\"zombieStillShown\":true}",
+      "status": "fixed",
+      "foundAt": "2026-04-23T10:41:29.901Z",
+      "fixedAt": "2026-04-23T10:44:29.991Z",
+      "fixtureId": "252b1402-e8f0-41bb-8048-8b82754572f5",
+      "diagnose": {
+        "rootCause": [
+          "Expected {\"primaryOk\":true,\"zombieStillShown\":true}, got {\"primaryOk\":false,\"zombieStillShown\":true}"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    }
+  ]
+}
