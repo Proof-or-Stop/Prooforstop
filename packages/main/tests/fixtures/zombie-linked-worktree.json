@@ -19,7 +19,7 @@
       "name": "CHK-001 edge: implementation no longer parses git branch prefixes",
       "run_type": "cli",
       "file": "handlers/story-query",
-      "execute": "const { readFileSync } = await import(\"fs\");\nconst text = readFileSync($root + \"/packages/main/src/handlers/story-query.ts\", \"utf8\");\nreturn { usesForEachRef: text.includes(\"git for-each-ref\"), noGitBranchParsing: !text.includes(\"git branch --merged main\") && !text.includes(\"replace(/^\\* /\") };",
+      "execute": "const { readFileSync } = await import(\"fs\"); const text = readFileSync($root + \"/packages/main/src/core/worktree-runtime.ts\", \"utf8\"); return { usesForEachRef: text.includes(\"for-each-ref\"), noGitBranchParsing: !text.includes(\"git branch --list\") };",
       "expect": {
         "usesForEachRef": true,
         "noGitBranchParsing": true
@@ -96,6 +96,152 @@
       "storyId": "B-0b0a",
       "_id": "be1d9720-645d-42c6-ac82-1c74d6855f77",
       "prevCaseId": "8a635d69-29bf-4cb2-95a9-986da20d196a"
+    },
+    {
+      "name": "B-b787 CHK-001 happy: windows backslash path is foreign not repo-joined",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('fs');\nconst { tmpdir } = await import('os');\nconst { join } = await import('path');\nconst { execFileSync } = await import('child_process');\nconst { StoryStore } = await import($root + '/packages/main/dist/core/store.js');\nconst cli = $root + '/packages/main/dist/cli.js';\nconst makeRepo = (prefix) => {\n  const dir = mkdtempSync(join(tmpdir(), prefix));\n  mkdirSync(join(dir,'.koala/story/actives'), { recursive:true }); mkdirSync(join(dir,'docs/requirements'), { recursive:true }); mkdirSync(join(dir,'src'), { recursive:true });\n  writeFileSync(join(dir,'koala.config.json'), JSON.stringify({ scanRoot:'src', fixturesDir:'tests/fixtures', storyDir:'.koala/story/actives', requirementsDir:'docs/requirements', storyPrefix:'B' }, null, 2));\n  writeFileSync(join(dir,'.gitignore'), '.worktrees\\nnode_modules\\n'); writeFileSync(join(dir,'src/app.ts'), 'export const ok = true;\\n');\n  execFileSync('git', ['init','-b','main'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['config','user.name','Koala Test'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['config','user.email','koala@example.com'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['add','.'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['commit','-m','init'], { cwd:dir, stdio:['pipe','pipe','pipe'] });\n  return dir;\n};\nconst writeStory = (dir, storyId, phase, worktreePath, branch) => {\n  const store = new StoryStore(dir); const now = '2026-01-01T00:00:00.000Z';\n  store.writeStory(storyId, { storyId, name:storyId, title:storyId, description:storyId, type:'bug', phase, priority:'high', createdAt:now, startedAt:now, endedAt:null, worktree:{ path:worktreePath, branch, createdAt:now }, events:[{ phase:'INIT_CHECK', action:'advance', timestamp:now }] });\n  store.writeChecklist(storyId, { items:[] });\n};\nconst dir = makeRepo('koala-foreign-path-');\ntry { writeStory(dir, 'S-7801', 'TEST', ('c:' + '\\\\\\\\work\\\\ppt2\\\\repo\\\\.worktrees\\\\S-7801'), 'story/S-7801'); const { getStoryWorktreeRuntime } = await import($root + '/packages/main/dist/core/worktree-runtime.js'); const runtime = getStoryWorktreeRuntime('S-7801', new StoryStore(dir), dir); return { foreign: runtime.recordedForeignPath, rawPath: runtime.recordedAbsPath, notJoined: !String(runtime.recordedAbsPath).startsWith(dir), status: runtime.status, warning: runtime.warnings.join(String.fromCharCode(10)) }; } finally { rmSync(dir,{recursive:true,force:true}); }",
+      "expect": {
+        "foreign": true,
+        "rawPath": "c:\\\\work\\ppt2\\repo\\.worktrees\\S-7801",
+        "notJoined": true,
+        "status": "foreign",
+        "warning": "foreign stale path: c:\\\\work\\ppt2\\repo\\.worktrees\\S-7801"
+      },
+      "intentRef": "B-b787:CHK-001:happy:0",
+      "sandbox": false,
+      "storyId": "B-b787",
+      "_id": "11a044ce-7f20-4747-8a67-1ed0d2930812",
+      "nextCaseId": "9caa7ffa-2a35-4670-88af-03156496f0c1"
+    },
+    {
+      "name": "B-b787 CHK-001 edge: windows slash drive path is foreign",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('fs');\nconst { tmpdir } = await import('os');\nconst { join } = await import('path');\nconst { execFileSync } = await import('child_process');\nconst { StoryStore } = await import($root + '/packages/main/dist/core/store.js');\nconst cli = $root + '/packages/main/dist/cli.js';\nconst makeRepo = (prefix) => {\n  const dir = mkdtempSync(join(tmpdir(), prefix));\n  mkdirSync(join(dir,'.koala/story/actives'), { recursive:true }); mkdirSync(join(dir,'docs/requirements'), { recursive:true }); mkdirSync(join(dir,'src'), { recursive:true });\n  writeFileSync(join(dir,'koala.config.json'), JSON.stringify({ scanRoot:'src', fixturesDir:'tests/fixtures', storyDir:'.koala/story/actives', requirementsDir:'docs/requirements', storyPrefix:'B' }, null, 2));\n  writeFileSync(join(dir,'.gitignore'), '.worktrees\\nnode_modules\\n'); writeFileSync(join(dir,'src/app.ts'), 'export const ok = true;\\n');\n  execFileSync('git', ['init','-b','main'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['config','user.name','Koala Test'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['config','user.email','koala@example.com'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['add','.'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['commit','-m','init'], { cwd:dir, stdio:['pipe','pipe','pipe'] });\n  return dir;\n};\nconst writeStory = (dir, storyId, phase, worktreePath, branch) => {\n  const store = new StoryStore(dir); const now = '2026-01-01T00:00:00.000Z';\n  store.writeStory(storyId, { storyId, name:storyId, title:storyId, description:storyId, type:'bug', phase, priority:'high', createdAt:now, startedAt:now, endedAt:null, worktree:{ path:worktreePath, branch, createdAt:now }, events:[{ phase:'INIT_CHECK', action:'advance', timestamp:now }] });\n  store.writeChecklist(storyId, { items:[] });\n};\nconst dir = makeRepo('koala-foreign-path-');\ntry { writeStory(dir, 'B-4699', 'TEST', 'C:/work/ppt2/repo/.worktrees/B-4699', 'story/B-4699'); const { getStoryWorktreeRuntime } = await import($root + '/packages/main/dist/core/worktree-runtime.js'); const runtime = getStoryWorktreeRuntime('B-4699', new StoryStore(dir), dir); return { foreign: runtime.recordedForeignPath, path: runtime.recordedAbsPath, notJoined: !String(runtime.recordedAbsPath).startsWith(dir) }; } finally { rmSync(dir,{recursive:true,force:true}); }",
+      "expect": {
+        "foreign": true,
+        "path": "C:/work/ppt2/repo/.worktrees/B-4699",
+        "notJoined": true
+      },
+      "intentRef": "B-b787:CHK-001:edge:0",
+      "sandbox": false,
+      "storyId": "B-b787",
+      "_id": "9caa7ffa-2a35-4670-88af-03156496f0c1",
+      "prevCaseId": "11a044ce-7f20-4747-8a67-1ed0d2930812",
+      "nextCaseId": "6873ac15-fd84-4b2a-b444-18be67547f49"
+    },
+    {
+      "name": "B-b787 CHK-001 adversarial: relative worktree path is not foreign",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('fs');\nconst { tmpdir } = await import('os');\nconst { join } = await import('path');\nconst { execFileSync } = await import('child_process');\nconst { StoryStore } = await import($root + '/packages/main/dist/core/store.js');\nconst cli = $root + '/packages/main/dist/cli.js';\nconst makeRepo = (prefix) => {\n  const dir = mkdtempSync(join(tmpdir(), prefix));\n  mkdirSync(join(dir,'.koala/story/actives'), { recursive:true }); mkdirSync(join(dir,'docs/requirements'), { recursive:true }); mkdirSync(join(dir,'src'), { recursive:true });\n  writeFileSync(join(dir,'koala.config.json'), JSON.stringify({ scanRoot:'src', fixturesDir:'tests/fixtures', storyDir:'.koala/story/actives', requirementsDir:'docs/requirements', storyPrefix:'B' }, null, 2));\n  writeFileSync(join(dir,'.gitignore'), '.worktrees\\nnode_modules\\n'); writeFileSync(join(dir,'src/app.ts'), 'export const ok = true;\\n');\n  execFileSync('git', ['init','-b','main'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['config','user.name','Koala Test'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['config','user.email','koala@example.com'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['add','.'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['commit','-m','init'], { cwd:dir, stdio:['pipe','pipe','pipe'] });\n  return dir;\n};\nconst writeStory = (dir, storyId, phase, worktreePath, branch) => {\n  const store = new StoryStore(dir); const now = '2026-01-01T00:00:00.000Z';\n  store.writeStory(storyId, { storyId, name:storyId, title:storyId, description:storyId, type:'bug', phase, priority:'high', createdAt:now, startedAt:now, endedAt:null, worktree:{ path:worktreePath, branch, createdAt:now }, events:[{ phase:'INIT_CHECK', action:'advance', timestamp:now }] });\n  store.writeChecklist(storyId, { items:[] });\n};\nconst dir = makeRepo('koala-normal-path-');\ntry { writeStory(dir, 'B-1234', 'TEST', '.worktrees/B-1234', 'story/B-1234'); const { getStoryWorktreeRuntime } = await import($root + '/packages/main/dist/core/worktree-runtime.js'); const runtime = getStoryWorktreeRuntime('B-1234', new StoryStore(dir), dir); return { foreign: runtime.recordedForeignPath, hasWorktreePath: String(runtime.recordedAbsPath).includes(\".worktrees/B-1234\") }; } finally { rmSync(dir,{recursive:true,force:true}); }",
+      "expect": {
+        "foreign": false,
+        "hasWorktreePath": true
+      },
+      "intentRef": "B-b787:CHK-001:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-b787",
+      "_id": "6873ac15-fd84-4b2a-b444-18be67547f49",
+      "prevCaseId": "9caa7ffa-2a35-4670-88af-03156496f0c1",
+      "nextCaseId": "bf813612-5b3a-4c9a-8f67-42f0dad371b4"
+    },
+    {
+      "name": "B-b787 CHK-002 happy: all zombie active stories produce no primary lane",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('fs');\nconst { tmpdir } = await import('os');\nconst { join } = await import('path');\nconst { execFileSync } = await import('child_process');\nconst { StoryStore } = await import($root + '/packages/main/dist/core/store.js');\nconst cli = $root + '/packages/main/dist/cli.js';\nconst makeRepo = (prefix) => {\n  const dir = mkdtempSync(join(tmpdir(), prefix));\n  mkdirSync(join(dir,'.koala/story/actives'), { recursive:true }); mkdirSync(join(dir,'docs/requirements'), { recursive:true }); mkdirSync(join(dir,'src'), { recursive:true });\n  writeFileSync(join(dir,'koala.config.json'), JSON.stringify({ scanRoot:'src', fixturesDir:'tests/fixtures', storyDir:'.koala/story/actives', requirementsDir:'docs/requirements', storyPrefix:'B' }, null, 2));\n  writeFileSync(join(dir,'.gitignore'), '.worktrees\\nnode_modules\\n'); writeFileSync(join(dir,'src/app.ts'), 'export const ok = true;\\n');\n  execFileSync('git', ['init','-b','main'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['config','user.name','Koala Test'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['config','user.email','koala@example.com'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['add','.'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['commit','-m','init'], { cwd:dir, stdio:['pipe','pipe','pipe'] });\n  return dir;\n};\nconst writeStory = (dir, storyId, phase, worktreePath, branch) => {\n  const store = new StoryStore(dir); const now = '2026-01-01T00:00:00.000Z';\n  store.writeStory(storyId, { storyId, name:storyId, title:storyId, description:storyId, type:'bug', phase, priority:'high', createdAt:now, startedAt:now, endedAt:null, worktree:{ path:worktreePath, branch, createdAt:now }, events:[{ phase:'INIT_CHECK', action:'advance', timestamp:now }] });\n  store.writeChecklist(storyId, { items:[] });\n};\nconst dir = makeRepo('koala-zombie-primary-');\ntry { writeStory(dir, 'S-7801', 'TEST', 'c:\\\\work\\\\ppt2\\\\repo\\\\.worktrees\\\\S-7801', 'story/S-7801'); const out = execFileSync(process.execPath, [cli, '--root', dir, 'session_brief'], { cwd:dir, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { noPrimary: !out.includes('## Primary lane'), hasZombie: out.includes('## ⚠ 僵尸 story'), nextReconcile: out.includes('No healthy active story') }; } finally { rmSync(dir,{recursive:true,force:true}); }",
+      "expect": {
+        "noPrimary": true,
+        "hasZombie": true,
+        "nextReconcile": true
+      },
+      "intentRef": "B-b787:CHK-002:happy:0",
+      "sandbox": false,
+      "storyId": "B-b787",
+      "_id": "bf813612-5b3a-4c9a-8f67-42f0dad371b4",
+      "prevCaseId": "6873ac15-fd84-4b2a-b444-18be67547f49",
+      "nextCaseId": "252b1402-e8f0-41bb-8048-8b82754572f5"
+    },
+    {
+      "name": "B-b787 CHK-002 edge: healthy story wins primary over zombie",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('fs');\nconst { tmpdir } = await import('os');\nconst { join } = await import('path');\nconst { execFileSync } = await import('child_process');\nconst { StoryStore } = await import($root + '/packages/main/dist/core/store.js');\nconst cli = $root + '/packages/main/dist/cli.js';\nconst makeRepo = (prefix) => {\n  const dir = mkdtempSync(join(tmpdir(), prefix));\n  mkdirSync(join(dir,'.koala/story/actives'), { recursive:true }); mkdirSync(join(dir,'docs/requirements'), { recursive:true }); mkdirSync(join(dir,'src'), { recursive:true });\n  writeFileSync(join(dir,'koala.config.json'), JSON.stringify({ scanRoot:'src', fixturesDir:'tests/fixtures', storyDir:'.koala/story/actives', requirementsDir:'docs/requirements', storyPrefix:'B' }, null, 2));\n  writeFileSync(join(dir,'.gitignore'), '.worktrees\\nnode_modules\\n'); writeFileSync(join(dir,'src/app.ts'), 'export const ok = true;\\n');\n  execFileSync('git', ['init','-b','main'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['config','user.name','Koala Test'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['config','user.email','koala@example.com'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['add','.'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['commit','-m','init'], { cwd:dir, stdio:['pipe','pipe','pipe'] });\n  return dir;\n};\nconst writeStory = (dir, storyId, phase, worktreePath, branch) => {\n  const store = new StoryStore(dir); const now = '2026-01-01T00:00:00.000Z';\n  store.writeStory(storyId, { storyId, name:storyId, title:storyId, description:storyId, type:'bug', phase, priority:'high', createdAt:now, startedAt:now, endedAt:null, worktree:{ path:worktreePath, branch, createdAt:now }, events:[{ phase:'INIT_CHECK', action:'advance', timestamp:now }] });\n  store.writeChecklist(storyId, { items:[] });\n};\nconst dir = makeRepo('koala-zombie-primary-');\ntry { writeStory(dir, 'S-7801', 'TEST', 'c:\\\\work\\\\ppt2\\\\repo\\\\.worktrees\\\\S-7801', 'story/S-7801'); writeStory(dir, 'B-ok', 'TEST', '.worktrees/B-ok', 'story/B-ok'); execFileSync('git', ['branch','story/B-ok'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); mkdirSync(join(dir,'.worktrees'), { recursive:true }); execFileSync('git', ['worktree','add', join(dir,'.worktrees','B-ok'), 'story/B-ok'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); const out = execFileSync(process.execPath, [cli, '--root', dir, 'session_brief'], { cwd:dir, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { primaryOk: out.includes('## Primary lane') && out.includes('B-ok'), zombieStillShown: out.includes('S-7801 phase=TEST') }; } finally { rmSync(dir,{recursive:true,force:true}); }",
+      "expect": {
+        "primaryOk": true,
+        "zombieStillShown": true
+      },
+      "intentRef": "B-b787:CHK-002:edge:0",
+      "sandbox": false,
+      "storyId": "B-b787",
+      "_id": "252b1402-e8f0-41bb-8048-8b82754572f5",
+      "prevCaseId": "bf813612-5b3a-4c9a-8f67-42f0dad371b4",
+      "nextCaseId": "401d22ea-c2c3-4cab-9d43-47875781c2ca"
+    },
+    {
+      "name": "B-b787 CHK-002 adversarial: zombie story remains visible in zombie section",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('fs');\nconst { tmpdir } = await import('os');\nconst { join } = await import('path');\nconst { execFileSync } = await import('child_process');\nconst { StoryStore } = await import($root + '/packages/main/dist/core/store.js');\nconst cli = $root + '/packages/main/dist/cli.js';\nconst makeRepo = (prefix) => {\n  const dir = mkdtempSync(join(tmpdir(), prefix));\n  mkdirSync(join(dir,'.koala/story/actives'), { recursive:true }); mkdirSync(join(dir,'docs/requirements'), { recursive:true }); mkdirSync(join(dir,'src'), { recursive:true });\n  writeFileSync(join(dir,'koala.config.json'), JSON.stringify({ scanRoot:'src', fixturesDir:'tests/fixtures', storyDir:'.koala/story/actives', requirementsDir:'docs/requirements', storyPrefix:'B' }, null, 2));\n  writeFileSync(join(dir,'.gitignore'), '.worktrees\\nnode_modules\\n'); writeFileSync(join(dir,'src/app.ts'), 'export const ok = true;\\n');\n  execFileSync('git', ['init','-b','main'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['config','user.name','Koala Test'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['config','user.email','koala@example.com'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['add','.'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['commit','-m','init'], { cwd:dir, stdio:['pipe','pipe','pipe'] });\n  return dir;\n};\nconst writeStory = (dir, storyId, phase, worktreePath, branch) => {\n  const store = new StoryStore(dir); const now = '2026-01-01T00:00:00.000Z';\n  store.writeStory(storyId, { storyId, name:storyId, title:storyId, description:storyId, type:'bug', phase, priority:'high', createdAt:now, startedAt:now, endedAt:null, worktree:{ path:worktreePath, branch, createdAt:now }, events:[{ phase:'INIT_CHECK', action:'advance', timestamp:now }] });\n  store.writeChecklist(storyId, { items:[] });\n};\nconst dir = makeRepo('koala-zombie-visible-');\ntry { writeStory(dir, 'S-7801', 'TEST', 'c:\\\\work\\\\ppt2\\\\repo\\\\.worktrees\\\\S-7801', 'story/S-7801'); const out = execFileSync(process.execPath, [cli, '--root', dir, 'session_brief'], { cwd:dir, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { listed: out.includes('S-7801 phase=TEST'), foreign: out.includes('foreign stale path') }; } finally { rmSync(dir,{recursive:true,force:true}); }",
+      "expect": {
+        "listed": true,
+        "foreign": true
+      },
+      "intentRef": "B-b787:CHK-002:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-b787",
+      "_id": "401d22ea-c2c3-4cab-9d43-47875781c2ca",
+      "prevCaseId": "252b1402-e8f0-41bb-8048-8b82754572f5",
+      "nextCaseId": "965b735d-6426-46da-a9fe-1de0531e2086"
+    },
+    {
+      "name": "B-b787 CHK-003 happy: reconcile dry-run shows foreign stale path",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('fs');\nconst { tmpdir } = await import('os');\nconst { join } = await import('path');\nconst { execFileSync } = await import('child_process');\nconst { StoryStore } = await import($root + '/packages/main/dist/core/store.js');\nconst cli = $root + '/packages/main/dist/cli.js';\nconst makeRepo = (prefix) => {\n  const dir = mkdtempSync(join(tmpdir(), prefix));\n  mkdirSync(join(dir,'.koala/story/actives'), { recursive:true }); mkdirSync(join(dir,'docs/requirements'), { recursive:true }); mkdirSync(join(dir,'src'), { recursive:true });\n  writeFileSync(join(dir,'koala.config.json'), JSON.stringify({ scanRoot:'src', fixturesDir:'tests/fixtures', storyDir:'.koala/story/actives', requirementsDir:'docs/requirements', storyPrefix:'B' }, null, 2));\n  writeFileSync(join(dir,'.gitignore'), '.worktrees\\nnode_modules\\n'); writeFileSync(join(dir,'src/app.ts'), 'export const ok = true;\\n');\n  execFileSync('git', ['init','-b','main'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['config','user.name','Koala Test'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['config','user.email','koala@example.com'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['add','.'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['commit','-m','init'], { cwd:dir, stdio:['pipe','pipe','pipe'] });\n  return dir;\n};\nconst writeStory = (dir, storyId, phase, worktreePath, branch) => {\n  const store = new StoryStore(dir); const now = '2026-01-01T00:00:00.000Z';\n  store.writeStory(storyId, { storyId, name:storyId, title:storyId, description:storyId, type:'bug', phase, priority:'high', createdAt:now, startedAt:now, endedAt:null, worktree:{ path:worktreePath, branch, createdAt:now }, events:[{ phase:'INIT_CHECK', action:'advance', timestamp:now }] });\n  store.writeChecklist(storyId, { items:[] });\n};\nconst dir = makeRepo('koala-reconcile-foreign-');\ntry { writeStory(dir, 'S-7801', 'TEST', 'c:\\\\work\\\\ppt2\\\\repo\\\\.worktrees\\\\S-7801', 'story/S-7801'); const out = execFileSync(process.execPath, [cli, '--root', dir, 'story_reconcile', JSON.stringify({dryRun:true})], { cwd:dir, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); return { foreign: out.includes('foreign stale path'), notJoined: !out.includes(dir + '/c:') && !out.includes(dir + '/C:') }; } finally { rmSync(dir,{recursive:true,force:true}); }",
+      "expect": {
+        "foreign": true,
+        "notJoined": true
+      },
+      "intentRef": "B-b787:CHK-003:happy:0",
+      "sandbox": false,
+      "storyId": "B-b787",
+      "_id": "965b735d-6426-46da-a9fe-1de0531e2086",
+      "prevCaseId": "401d22ea-c2c3-4cab-9d43-47875781c2ca",
+      "nextCaseId": "d16155b3-878b-4c7e-b9d2-62d0cbc52fb3"
+    },
+    {
+      "name": "B-b787 CHK-003 edge: reconcile dry-run does not mutate foreign path story",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('fs');\nconst { tmpdir } = await import('os');\nconst { join } = await import('path');\nconst { execFileSync } = await import('child_process');\nconst { StoryStore } = await import($root + '/packages/main/dist/core/store.js');\nconst cli = $root + '/packages/main/dist/cli.js';\nconst makeRepo = (prefix) => {\n  const dir = mkdtempSync(join(tmpdir(), prefix));\n  mkdirSync(join(dir,'.koala/story/actives'), { recursive:true }); mkdirSync(join(dir,'docs/requirements'), { recursive:true }); mkdirSync(join(dir,'src'), { recursive:true });\n  writeFileSync(join(dir,'koala.config.json'), JSON.stringify({ scanRoot:'src', fixturesDir:'tests/fixtures', storyDir:'.koala/story/actives', requirementsDir:'docs/requirements', storyPrefix:'B' }, null, 2));\n  writeFileSync(join(dir,'.gitignore'), '.worktrees\\nnode_modules\\n'); writeFileSync(join(dir,'src/app.ts'), 'export const ok = true;\\n');\n  execFileSync('git', ['init','-b','main'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['config','user.name','Koala Test'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['config','user.email','koala@example.com'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['add','.'], { cwd:dir, stdio:['pipe','pipe','pipe'] }); execFileSync('git', ['commit','-m','init'], { cwd:dir, stdio:['pipe','pipe','pipe'] });\n  return dir;\n};\nconst writeStory = (dir, storyId, phase, worktreePath, branch) => {\n  const store = new StoryStore(dir); const now = '2026-01-01T00:00:00.000Z';\n  store.writeStory(storyId, { storyId, name:storyId, title:storyId, description:storyId, type:'bug', phase, priority:'high', createdAt:now, startedAt:now, endedAt:null, worktree:{ path:worktreePath, branch, createdAt:now }, events:[{ phase:'INIT_CHECK', action:'advance', timestamp:now }] });\n  store.writeChecklist(storyId, { items:[] });\n};\nconst dir = makeRepo('koala-reconcile-foreign-');\ntry { writeStory(dir, 'S-7801', 'TEST', 'c:\\\\work\\\\ppt2\\\\repo\\\\.worktrees\\\\S-7801', 'story/S-7801'); const before = execFileSync('git', ['status','--porcelain'], { cwd:dir, encoding:'utf8' }); execFileSync(process.execPath, [cli, '--root', dir, 'story_reconcile', JSON.stringify({dryRun:true})], { cwd:dir, encoding:'utf8', stdio:['pipe','pipe','pipe'] }); const after = execFileSync('git', ['status','--porcelain'], { cwd:dir, encoding:'utf8' }); return { unchanged: before === after }; } finally { rmSync(dir,{recursive:true,force:true}); }",
+      "expect": {
+        "unchanged": true
+      },
+      "intentRef": "B-b787:CHK-003:edge:0",
+      "sandbox": false,
+      "storyId": "B-b787",
+      "_id": "d16155b3-878b-4c7e-b9d2-62d0cbc52fb3",
+      "prevCaseId": "965b735d-6426-46da-a9fe-1de0531e2086",
+      "nextCaseId": "6bee8d3e-b35c-4d29-9be2-56f558d04fa3"
+    },
+    {
+      "name": "B-b787 CHK-003 adversarial: fixture covers foreign and normal path difference",
+      "run_type": "cli",
+      "file": "handlers/session",
+      "execute": "const { readFileSync } = await import('fs'); const text = readFileSync($root + '/packages/main/tests/fixtures/zombie-linked-worktree.json', 'utf8'); return { foreignCase: text.includes('windows backslash path is foreign'), normalCase: text.includes('relative worktree path is not foreign') };",
+      "expect": {
+        "foreignCase": true,
+        "normalCase": true
+      },
+      "intentRef": "B-b787:CHK-003:adversarial:0",
+      "sandbox": false,
+      "storyId": "B-b787",
+      "_id": "6bee8d3e-b35c-4d29-9be2-56f558d04fa3",
+      "prevCaseId": "d16155b3-878b-4c7e-b9d2-62d0cbc52fb3"
     }
   ]
 }

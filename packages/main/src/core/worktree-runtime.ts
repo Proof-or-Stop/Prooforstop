@@ -16,6 +16,7 @@ export interface StoryWorktreeRuntime {
   hasWorktreeRecord: boolean;
   recordedPath: string | null;
   recordedAbsPath: string | null;
+  recordedForeignPath: boolean;
   recordedExists: boolean;
   linkedPath: string | null;
   linkedRelPath: string | null;
@@ -25,7 +26,7 @@ export interface StoryWorktreeRuntime {
   branchContainsMain: boolean | null;
   drift: boolean;
   canRepairPath: boolean;
-  status: 'ok' | 'drift' | 'missing' | 'orphaned';
+  status: 'ok' | 'drift' | 'missing' | 'orphaned' | 'foreign';
   summary: string;
   warnings: string[];
   recoveryHint: string | null;
@@ -48,6 +49,10 @@ function canonicalPath(path: string): string {
   }
 }
 
+export function isForeignAbsolutePath(path: string): boolean {
+  return /^[A-Za-z]:[\\/]/.test(path) || /^\\\\[^\\]/.test(path) || /^\/\/[^/]/.test(path);
+}
+
 export function getRepoRoot(root: string): string {
   try {
     const topLevel = canonicalPath(git(root, ['rev-parse', '--show-toplevel']));
@@ -64,6 +69,7 @@ export function getRepoRoot(root: string): string {
 
 export function resolveWorktreePath(repoRoot: string, storedPath: string | null | undefined): string | null {
   if (!storedPath) return null;
+  if (isForeignAbsolutePath(storedPath)) return storedPath;
   if (isAbsolute(storedPath)) return storedPath;
   return join(repoRoot, storedPath);
 }
@@ -126,8 +132,9 @@ export function getStoryWorktreeRuntime(
   const repoRoot = getRepoRoot(root);
   const branch = story.worktree?.branch || `story/${storyId}`;
   const recordedPath = story.worktree?.path ?? null;
+  const recordedForeignPath = recordedPath ? isForeignAbsolutePath(recordedPath) : false;
   const recordedAbsPath = resolveWorktreePath(repoRoot, recordedPath);
-  const recordedExists = recordedAbsPath ? existsSync(recordedAbsPath) : false;
+  const recordedExists = recordedAbsPath && !recordedForeignPath ? existsSync(recordedAbsPath) : false;
 
   const linkedEntry = listGitWorktrees(repoRoot).find((entry) => entry.branch === branch) || null;
   const linkedPath = linkedEntry?.path ?? null;
@@ -169,6 +176,11 @@ export function getStoryWorktreeRuntime(
         ? `可按 git worktree list 自动修正到 ${linkedPath}`
         : '先确认当前活跃 linked worktree，再决定是否回写 story.worktree.path';
     }
+  } else if (recordedForeignPath) {
+    status = 'foreign';
+    summary = 'story worktree path is from another platform';
+    warnings.push(`foreign stale path: ${recordedAbsPath || recordedPath}`);
+    recoveryHint = `分支 ${branch} 已不存在或 worktree path 属于其它平台，先检查是否应 reconcile / discard / 重新 INIT_CHECK`;
   } else if (recordedExists) {
     status = 'orphaned';
     summary = 'recorded worktree directory exists but git registry has no matching linked worktree';
@@ -197,6 +209,7 @@ export function getStoryWorktreeRuntime(
     hasWorktreeRecord: Boolean(story.worktree),
     recordedPath,
     recordedAbsPath,
+    recordedForeignPath,
     recordedExists,
     linkedPath,
     linkedRelPath,

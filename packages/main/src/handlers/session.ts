@@ -650,7 +650,11 @@ export function createSessionHandlers(ctx: HandlerContext) {
           }
         }
 
-        const parallelBrief = buildParallelBrief(activeStories);
+        let zombiesForBrief: ReturnType<typeof detectZombieStories> = [];
+        try { zombiesForBrief = detectZombieStories(ctx.store, ctx.root); } catch { /* probe: git 不可用时不影响 brief */ }
+        const zombieIds = new Set(zombiesForBrief.map((z) => z.storyId));
+        const healthyActiveStories = activeStories.filter((story) => !zombieIds.has(story.storyId));
+        const parallelBrief = buildParallelBrief(healthyActiveStories);
         if (parallelBrief.primary) {
           lines.push('');
           lines.push('## Primary lane');
@@ -698,7 +702,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
 
         // 僵尸 story 检测：分支已合并/删除但 phase 非终态
         try {
-          const zombies = detectZombieStories(ctx.store, ctx.root);
+          const zombies = zombiesForBrief;
           if (zombies.length > 0) {
             lines.push('');
             lines.push(`## ⚠ 僵尸 story (${zombies.length})`);
@@ -706,7 +710,10 @@ export function createSessionHandlers(ctx: HandlerContext) {
               const reason = z.branchMerged
                 ? `分支已合并到 main`
                 : `分支已删除`;
-              lines.push(`  ${z.storyId} phase=${z.phase} — ${reason}`);
+              const pathNote = z.worktreeForeignPath && z.worktreePath
+                ? `; foreign stale path: ${z.worktreePath}`
+                : '';
+              lines.push(`  ${z.storyId} phase=${z.phase} — ${reason}${pathNote}`);
             }
             lines.push(`  → 运行 koala story_reconcile 查看详情，story_reconcile '{"dryRun":false}' 修复`);
           }
@@ -779,6 +786,8 @@ export function createSessionHandlers(ctx: HandlerContext) {
           }
         } else if (doneStories === totalStories) {
           lines.push('  All stories DONE. Archive old stories or `koala story_create` for new work.');
+        } else if (zombiesForBrief.length > 0) {
+          lines.push(`  No healthy active story. 先运行 koala story_reconcile '{"dryRun":true}' 查看 ${zombiesForBrief.length} 个僵尸 story，再确认是否 story_reconcile '{"dryRun":false}' 修复。`);
         } else {
           lines.push('  No active story. `koala story_create` to start one, or `koala story_list` to see all.');
         }
