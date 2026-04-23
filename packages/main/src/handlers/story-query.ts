@@ -25,6 +25,7 @@ interface ZombieInfo {
   branchMerged: boolean;
   worktreeExists: boolean;
   worktreePath?: string;
+  worktreeForeignPath?: boolean;
 }
 
 interface StoryResidueInfo {
@@ -184,6 +185,7 @@ export function detectZombieStories(store: import('../core/store.js').StoryStore
       branchMerged,
       worktreeExists: runtime.recordedExists,
       worktreePath: runtime.recordedAbsPath || undefined,
+      worktreeForeignPath: runtime.recordedForeignPath,
     });
   }
 
@@ -428,7 +430,9 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
           : `分支 ${z.branch} 已不存在`;
         lines.push(`  ${z.storyId}  phase=${z.phase}  ${reason}`);
 
-        if (z.worktreeExists) {
+        if (z.worktreeForeignPath && z.worktreePath) {
+          lines.push(`    worktree: ${z.worktreePath} (foreign stale path)`);
+        } else if (z.worktreeExists) {
           lines.push(`    worktree: ${z.worktreePath} (仍存在)`);
         } else if (z.worktreePath) {
           lines.push(`    worktree: ${z.worktreePath} (已不存在)`);

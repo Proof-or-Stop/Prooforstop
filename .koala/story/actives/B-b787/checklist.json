@@ -7,9 +7,29 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-23T10:40:29.867Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "story.worktree.path 为 c:\\work\\ppt2\\repo\\.worktrees\\S-7801 时，runtime recordedAbsPath 保留原始 Windows 路径并标记 foreign stale path，不拼接 repo root",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "story.worktree.path 为 C:/work/ppt2/repo/.worktrees/B-4699 时同样识别为 foreign path",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "story.worktree.path 为 .worktrees/B-1234 或当前平台绝对路径时不被误判 foreign",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -19,9 +39,29 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-23T10:40:29.975Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "session_brief 在 active stories 全是 zombie 时不输出 Primary lane reviewer/artifacts 噪音，而是提示 story_reconcile",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "session_brief 有一个健康 story 和一个 zombie story 时，Primary lane 选择健康 story",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "zombie story 仍出现在僵尸 story 区域，不被静默隐藏",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -30,9 +70,29 @@
       "relatedDocs": [
         "docs/requirements/decisions/test-fixture-spec.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-23T10:40:30.084Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "story_reconcile dryRun 输出 foreign stale path 而不是 /repo/c:\\work\\... 混合路径",
+            "type": "cli_blackbox"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "story_reconcile dryRun 对 foreign path 不尝试删除本地目录",
+            "type": "cli_blackbox"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "fixture 同时覆盖 Windows drive path 和 normal relative worktree path 的差异",
+            "type": "cli_blackbox"
+          }
+        ]
+      }
     }
   ]
 }
