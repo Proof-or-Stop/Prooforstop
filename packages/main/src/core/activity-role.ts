@@ -9,6 +9,7 @@ function normalizeRole(raw: string | null | undefined): ActivityRole | null {
   }
   if (val === 'test-intent') return 'intent';
   if (val === 'test-case-reviewer') return 'reviewer';
+  if (val === 'test-intent-reviewer') return 'reviewer';
   if (val.includes('implementer')) return 'implementer';
   if (val.includes('analyst')) return 'analyst';
   return null;
