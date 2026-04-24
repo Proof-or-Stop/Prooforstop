@@ -9,12 +9,13 @@ import type {
 } from './types.js';
 import type { ClusterData } from './cluster-types.js';
 import { appendProcessEvent as appendProcessEventFn, readProcessEvents as readProcessEventsFn } from './process-events.js';
+import { resolveStoryBaseDir } from './story-paths.js';
 
 export class StoryStore {
   private baseDir: string;
 
   constructor(projectRoot: string) {
-    this.baseDir = join(projectRoot, 'docs', 'story', 'actives');
+    this.baseDir = resolveStoryBaseDir(projectRoot);
   }
 
   private storyDir(storyId: string): string {

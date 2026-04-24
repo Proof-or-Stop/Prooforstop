@@ -6,13 +6,16 @@ import { execSync } from 'child_process';
 import type { VerificationEvidence, VerificationIntent } from '../core/types.js';
 import { makeEvidence } from '../core/verification.js';
 import { reportHealthIssue } from '../core/health.js';
+import { resolveStoryBaseDir } from '../core/story-paths.js';
+import { loadConfig } from '../core/config.js';
 
 /**
  * B-45ed CHK-008: 给定 storyId，若 background.md 存在则返回相对路径，否则返回 null。
  */
 function resolveBackgroundPath(root: string, storyId: string): string | null {
-  const rel = `docs/story/actives/${storyId}/background.md`;
-  const abs = join(root, rel);
+  const storyDir = loadConfig(root).storyDir;
+  const rel = join(storyDir, storyId, 'background.md').replace(/\\/g, '/');
+  const abs = join(resolveStoryBaseDir(root), storyId, 'background.md');
   return existsSync(abs) ? rel : null;
 }
 
@@ -21,7 +24,7 @@ function sleepMs(ms: number): void {
 }
 
 function withChecklistLock<T>(root: string, storyId: string, fn: () => T): T {
-  const lockDir = join(root, 'docs', 'story', 'actives', storyId, '.checklist.lock');
+  const lockDir = join(resolveStoryBaseDir(root), storyId, '.checklist.lock');
   const deadline = Date.now() + 5000;
   while (true) {
     try {

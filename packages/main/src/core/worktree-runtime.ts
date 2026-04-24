@@ -55,6 +55,12 @@ export function getRepoRoot(root: string): string {
     if (absCommonDir.endsWith('/.git') || absCommonDir.endsWith('\\.git')) {
       return dirname(absCommonDir);
     }
+    const normalized = absCommonDir.replace(/\\/g, '/');
+    const marker = '/.git/worktrees/';
+    const idx = normalized.indexOf(marker);
+    if (idx >= 0) {
+      return normalized.slice(0, idx);
+    }
     return topLevel;
   } catch {
     return canonicalPath(root);

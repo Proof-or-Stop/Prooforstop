@@ -24,9 +24,10 @@ import {
   validateBackground,
   type RequiredSection,
 } from '../core/background-validator.js';
+import { resolveStoryBaseDir } from '../core/story-paths.js';
 
 function backgroundPath(root: string, storyId: string): string {
-  return join(root, 'docs', 'story', 'actives', storyId, 'background.md');
+  return join(resolveStoryBaseDir(root), storyId, 'background.md');
 }
 
 export function createBackgroundHandlers(ctx: HandlerContext) {

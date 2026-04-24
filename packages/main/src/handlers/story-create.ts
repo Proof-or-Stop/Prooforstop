@@ -9,6 +9,7 @@ import { createHash } from 'crypto';
 import { computeDraftCheckHash } from '../core/draft-check-hash.js';
 import { computeChecklistHash } from './init-check.js';
 import { isGitRepository } from '../core/git-probe.js';
+import { resolveStoryBaseDir } from '../core/story-paths.js';
 
 /**
  * 高风险关键词检测（OMX ralplan --deliberate 风格）。
@@ -147,7 +148,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         store.writeStory(storyId, story);
 
         // Write background.md
-        const storyDir = join(ctx.root, 'docs', 'story', 'actives', storyId);
+        const storyDir = join(resolveStoryBaseDir(ctx.root), storyId);
         if (!existsSync(storyDir)) mkdirSync(storyDir, { recursive: true });
         const bgContent = draftBg.endsWith('\n') ? draftBg : draftBg + '\n';
         writeFileSync(join(storyDir, 'background.md'), bgContent, 'utf-8');
@@ -218,7 +219,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
 
       // B-45ed CHK-006: 落盘 background.md 到 docs/story/actives/{storyId}/background.md
       const writeBackground = () => {
-        const storyDir = join(ctx.root, 'docs', 'story', 'actives', storyId);
+        const storyDir = join(resolveStoryBaseDir(ctx.root), storyId);
         if (!existsSync(storyDir)) mkdirSync(storyDir, { recursive: true });
         const bgPath = join(storyDir, 'background.md');
         // 保证以换行结尾，与 JSON 产物惯例一致
