@@ -16,6 +16,7 @@ import { join } from 'path';
 import type { HandlerContext } from './context.js';
 import { readHealthIssues, summarizeHealthIssues, getHealthPath } from '../core/health.js';
 import { loadConfig } from '../core/config.js';
+import { gitProbe } from '../core/git-probe.js';
 
 export function createDoctorHandlers(ctx: HandlerContext) {
   const { root } = ctx;
@@ -97,23 +98,27 @@ export function createDoctorHandlers(ctx: HandlerContext) {
 
       // Worktree orphan section
       lines.push('Worktree scan:');
-      lines.push(`  registered: ${orphanScan.registered.length}`);
-      lines.push(`  orphans   : ${orphanScan.orphans.length}`);
-      if (orphanScan.orphans.length === 0) {
-        lines.push('  ✓ No orphan worktree directories.');
+      if (orphanScan.skippedReason) {
+        lines.push(`  skipped: ${orphanScan.skippedReason}`);
       } else {
-        for (const o of orphanScan.orphans) {
-          lines.push(`  - ${o}`);
-        }
-        if (args?.repair) {
-          lines.push('');
-          lines.push(`Repair:`);
-          for (const p of repaired) lines.push(`  ✓ removed ${p}`);
-          for (const f of repairFailed) lines.push(`  ✗ ${f.path}: ${f.error}`);
+        lines.push(`  registered: ${orphanScan.registered.length}`);
+        lines.push(`  orphans   : ${orphanScan.orphans.length}`);
+        if (orphanScan.orphans.length === 0) {
+          lines.push('  ✓ No orphan worktree directories.');
         } else {
-          lines.push('');
-          lines.push(`→ 这些目录不在 git worktree list 里，但 .worktrees/ 下还有残留。`);
-          lines.push(`→ 重跑: koala doctor --repair 清理`);
+          for (const o of orphanScan.orphans) {
+            lines.push(`  - ${o}`);
+          }
+          if (args?.repair) {
+            lines.push('');
+            lines.push(`Repair:`);
+            for (const p of repaired) lines.push(`  ✓ removed ${p}`);
+            for (const f of repairFailed) lines.push(`  ✗ ${f.path}: ${f.error}`);
+          } else {
+            lines.push('');
+            lines.push(`→ 这些目录不在 git worktree list 里，但 .worktrees/ 下还有残留。`);
+            lines.push(`→ 重跑: koala doctor --repair 清理`);
+          }
         }
       }
 
@@ -132,17 +137,23 @@ export function createDoctorHandlers(ctx: HandlerContext) {
 function scanOrphanWorktrees(root: string): {
   registered: string[];
   orphans: string[];
+  skippedReason?: string;
 } {
   const cfg = loadConfig(root);
   const worktreeDirName = cfg.worktreeDir || '.worktrees';
 
   // Find repo root from the current root
-  let repoRoot: string;
-  try {
-    repoRoot = execSync('git rev-parse --show-toplevel', { cwd: root, encoding: 'utf-8' }).trim();
-  } catch {
-    return { registered: [], orphans: [] };
+  const repo = gitProbe('git rev-parse --show-toplevel', { cwd: root });
+  if (!repo.ok) {
+    return {
+      registered: [],
+      orphans: [],
+      skippedReason: repo.reason === 'not_git'
+        ? 'not a git repository — worktree scan skipped'
+        : 'git probe failed — worktree scan skipped',
+    };
   }
+  const repoRoot = repo.output;
 
   const worktreeBase = join(repoRoot, worktreeDirName);
   if (!existsSync(worktreeBase)) {
@@ -152,7 +163,7 @@ function scanOrphanWorktrees(root: string): {
   // Collect the set of paths git currently considers active worktrees
   let registered: string[] = [];
   try {
-    const raw = execSync('git worktree list --porcelain', { cwd: repoRoot, encoding: 'utf-8' });
+    const raw = execSync('git worktree list --porcelain', { cwd: repoRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] });
     registered = raw
       .split(/\r?\n/)
       .filter(l => l.startsWith('worktree '))

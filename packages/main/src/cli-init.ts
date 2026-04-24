@@ -3,6 +3,7 @@
 import { mkdirSync, writeFileSync, readFileSync, existsSync, cpSync, readdirSync, symlinkSync, lstatSync, readlinkSync, unlinkSync } from 'fs';
 import { join, dirname, relative } from 'path';
 import { fileURLToPath } from 'url';
+import { renderInitAgentsTemplate, renderInitClaudeTemplate } from './init-assets.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -13,7 +14,7 @@ const rawArg = process.argv[2];
 const arg = (rawArg === 'init') ? process.argv[3] : rawArg;
 
 if (arg === '--help' || arg === '-h' || arg === 'help') {
-  console.log(`
+console.log(`
 koala-init — 初始化 koala 开发框架
 
 用法:
@@ -22,6 +23,7 @@ koala-init — 初始化 koala 开发框架
 
 初始化内容:
   koala.config.json             项目配置（扫描路径、Story 前缀）
+  AGENTS.md                     通用 agent 指引（与 koala.config.json 对齐）
   CLAUDE.md                     Claude Code 指引
   src/core/app.ts               应用组装（平台无关）
   src/core/debug.ts             调试入口（devHost）
@@ -30,7 +32,7 @@ koala-init — 初始化 koala 开发框架
   src/shells/web/               Web shell 目录
   .claude/agents/               koala-implementer 等 subagent 定义
   .claude/skills/koala/         /koala skill 文件
-  docs/story/actives/           Story 数据目录
+  .koala/story/actives/         Story 数据目录
   docs/requirements/            真相源目录
 
 初始化后:
@@ -61,7 +63,7 @@ function write(relPath: string, content: string) {
 // 1. 目录
 console.log('[1/5] 创建目录...');
 const dirs = [
-  'docs/story/actives',
+  '.koala/story/actives',
   'docs/requirements/decisions',
   'docs/requirements/extracted',
   '.claude/skills/koala',
@@ -286,7 +288,7 @@ console.log('\n[2/5] 生成 koala.config.json...');
 const koalaConfig: Record<string, unknown> = {
   scanRoot: 'src',
   testsDir: 'tests',
-  storyDir: 'docs/story/actives',
+  storyDir: '.koala/story/actives',
   requirementsDir: 'docs/requirements',
   storyPrefix: 'S',
 };
@@ -317,48 +319,34 @@ if (existsSync(pkgPath)) {
 }
 write('koala.config.json', JSON.stringify(koalaConfig, null, 2) + '\n');
 
-// 3. CLAUDE.md（从 koala 项目复制 / 同步 koala:start~koala:end 区间）
-console.log('\n[3/5] 配置 CLAUDE.md...');
-const claudeMdPath = join(targetDir, 'CLAUDE.md');
-const claudeMdSrc = join(packageRoot, '..', '..', 'CLAUDE.md');
+const initGuideConfig = {
+  storyDir: String(koalaConfig.storyDir),
+  storyPrefix: String(koalaConfig.storyPrefix),
+  worktreeDir: '.worktrees',
+};
 
-function extractKoalaSection(content: string): string {
-  // 提取 koala:start ~ koala:end 区间，剥离 koala:internal
-  const m = content.match(/<!--\s*koala:start\s*-->[\s\S]*?<!--\s*koala:end\s*-->/);
-  if (!m) return content;
-  return m[0].replace(/<!--\s*koala:internal:start\s*-->[\s\S]*?<!--\s*koala:internal:end\s*-->\n?/g, '');
+// 3. AGENTS.md（配置驱动模板，避免和 koala.config.json / CLAUDE.md 漂移）
+console.log('\n[3/7] 配置 AGENTS.md...');
+const agentsMdPath = join(targetDir, 'AGENTS.md');
+if (!existsSync(agentsMdPath)) {
+  writeFileSync(agentsMdPath, renderInitAgentsTemplate(initGuideConfig) + '\n');
+  console.log('  ✓ AGENTS.md (generated from koala config)');
+} else {
+  console.log('  - AGENTS.md (exists, skip)');
 }
 
+// 4. CLAUDE.md（配置驱动模板，不再直接复制仓库根静态文案）
+console.log('\n[4/7] 配置 CLAUDE.md...');
+const claudeMdPath = join(targetDir, 'CLAUDE.md');
 if (!existsSync(claudeMdPath)) {
-  if (existsSync(claudeMdSrc)) {
-    const content = extractKoalaSection(readFileSync(claudeMdSrc, 'utf-8'));
-    writeFileSync(claudeMdPath, content + '\n');
-    console.log('  ✓ CLAUDE.md (copied from koala, internal rules stripped)');
-  } else {
-    writeFileSync(claudeMdPath, '# CLAUDE.md\n\n执行 `/koala` 即可了解项目全貌并开始工作。\n');
-    console.log('  ✓ CLAUDE.md (created minimal)');
-  }
-} else if (existsSync(claudeMdSrc)) {
-  // 已存在：同步 koala:start~koala:end 区间，保留区间外的项目内容
-  const existing = readFileSync(claudeMdPath, 'utf-8');
-  const newSection = extractKoalaSection(readFileSync(claudeMdSrc, 'utf-8'));
-  if (existing.match(/<!--\s*koala:start\s*-->[\s\S]*?<!--\s*koala:end\s*-->/)) {
-    const updated = existing.replace(/<!--\s*koala:start\s*-->[\s\S]*?<!--\s*koala:end\s*-->/, newSection);
-    if (updated !== existing) {
-      writeFileSync(claudeMdPath, updated);
-      console.log('  ✓ CLAUDE.md (koala section synced)');
-    } else {
-      console.log('  - CLAUDE.md (koala section up to date)');
-    }
-  } else {
-    console.log('  - CLAUDE.md (exists, no koala markers, skip)');
-  }
+  writeFileSync(claudeMdPath, renderInitClaudeTemplate(initGuideConfig) + '\n');
+  console.log('  ✓ CLAUDE.md (generated from koala config)');
 } else {
   console.log('  - CLAUDE.md (exists, skip)');
 }
 
-// 4. 复制 skill
-console.log('\n[4/5] 复制 /koala skill...');
+// 5. 复制 skill
+console.log('\n[5/7] 复制 /koala skill...');
 const skillSrc = join(packageRoot, '..', '..', '.claude', 'skills', 'koala');
 const skillDst = join(targetDir, '.claude', 'skills', 'koala');
 if (existsSync(skillSrc)) {
@@ -381,8 +369,8 @@ if (existsSync(skillSrc)) {
 `);
 }
 
-// 5. agent 模板 → symlink（改框架自动全局生效）
-console.log('\n[5/6] 链接 agent 模板...');
+// 6. agent 模板 → symlink（改框架自动全局生效）
+console.log('\n[6/7] 链接 agent 模板...');
 const agentTemplateDir = join(packageRoot, 'templates', 'agents');
 const agentDstDir = join(targetDir, '.claude', 'agents');
 if (existsSync(agentTemplateDir)) {
@@ -416,8 +404,8 @@ if (existsSync(agentTemplateDir)) {
   console.log('  - agent 模板目录不存在, skip');
 }
 
-// 6. hooks + settings.json
-console.log('\n[6/6] 配置 hooks...');
+// 7. hooks + settings.json
+console.log('\n[7/7] 配置 hooks...');
 const hooksDir = join(targetDir, '.claude', 'hooks');
 const hookSrc = join(packageRoot, '..', '..', '.claude', 'hooks', 'log-tools.cjs');
 const hookDst = join(hooksDir, 'log-tools.cjs');
