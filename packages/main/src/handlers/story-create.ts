@@ -1,13 +1,14 @@
 
 import type { HandlerContext } from './context.js';
 import { collectContext, nextStoryId } from './context.js';
-import type { StoryInfo, StoryPhase, StoryType } from '../core/types.js';
+import type { StoryInfo, StoryPhase, StoryType, VerificationIntent } from '../core/types.js';
 import { validateBackground } from '../core/background-validator.js';
 import { writeFileSync, mkdirSync, existsSync, readFileSync, rmSync } from 'fs';
 import { join } from 'path';
 import { createHash } from 'crypto';
 import { computeDraftCheckHash } from '../core/draft-check-hash.js';
 import { computeChecklistHash } from './init-check.js';
+import { isGitRepository } from '../core/git-probe.js';
 
 /**
  * 高风险关键词检测（OMX ralplan --deliberate 风格）。
@@ -51,7 +52,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       source?: string;
       depends?: string[];
       keywords?: string[];
-      checklist?: Array<{ title: string; context?: string; relatedDocs?: string[] }>;
+      checklist?: Array<{ title: string; context?: string; relatedDocs?: string[]; userSees?: string; excludes?: string[]; verificationIntent?: VerificationIntent }>;
       prefix?: string;
       phase?: StoryPhase;
       forceNew?: boolean; // B-0af4 CHK-001: 绕过 idempotency 强制新建
@@ -331,6 +332,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
               ...(c.relatedDocs !== undefined ? { relatedDocs: c.relatedDocs } : {}),
               ...(c.userSees ? { userSees: c.userSees } : {}),
               ...(c.excludes !== undefined ? { excludes: c.excludes } : {}),
+              ...(c.verificationIntent !== undefined ? { verificationIntent: c.verificationIntent } : {}),
               ...(c.phase !== undefined ? { phase: c.phase } : {}),
               status: (isDone ? 'done' : 'pending') as 'done' | 'pending',
               startTime: isDone ? now : null,
@@ -339,7 +341,10 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
           };
           store.writeChecklist(storyId, checklist);
         }
-        return `Story ${storyId} created (${args.phase})${hasChecklist ? ` with ${args.checklist!.length} checklist items` : ''}${dupWarning}${riskHint}`;
+        const nonGitHint = !isGitRepository(ctx.root)
+          ? `\n⚠ 当前目录不是 git 仓库：story 已记录，但 branch/worktree phase 还不可用。要继续 INIT_CHECK/DEV 正常流，先 git init + 首次 commit。`
+          : '';
+        return `Story ${storyId} created (${args.phase})${hasChecklist ? ` with ${args.checklist!.length} checklist items` : ''}${dupWarning}${riskHint}${nonGitHint}`;
       }
 
       // 正常模式：有 checklist → INIT（之后 story_advance INIT_CHECK 创建 worktree → PLAN）
@@ -373,6 +378,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
             ...(c.relatedDocs !== undefined ? { relatedDocs: c.relatedDocs } : {}),
             ...(c.userSees ? { userSees: c.userSees } : {}),
             ...(c.excludes !== undefined ? { excludes: c.excludes } : {}),
+            ...(c.verificationIntent !== undefined ? { verificationIntent: c.verificationIntent } : {}),
             status: 'pending' as const,
             startTime: null,
             endTime: null,
@@ -390,7 +396,10 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
           `\n\n→ 现在请 Agent({ subagent_type: "koala-review-story-init", prompt: \`审查 story ${storyId} 的 background + checklist 初版（运行 koala dispatch '{"storyId":"${storyId}","agentType":"koala-review-story-init"}' 取标准 prompt）\` }) spawn subagent 审查。\n` +
           `  · 不要主 agent 自调 koala init_check_set（CLI 不做 agentId 机械校验，但 reviewer 模板 fresh-context fence + CLAUDE.md 行为规约要求由独立 subagent 调用——主 agent 自调相当于绕过 reviewer，违反反自豁免约定）\n` +
           `  · 审查通过后调 koala story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' 进 INIT_CHECK`;
-        return `Story ${storyId} created (INIT) with ${checklist.items.length} checklist items${hint}${dupWarning}${riskHint}${initReviewHint}`;
+        const nonGitHint = !isGitRepository(ctx.root)
+          ? `\n⚠ 当前目录不是 git 仓库：story 已记录，但 INIT_CHECK/worktree 流程仍需先 git init + 首次 commit。`
+          : '';
+        return `Story ${storyId} created (INIT) with ${checklist.items.length} checklist items${hint}${dupWarning}${riskHint}${initReviewHint}${nonGitHint}`;
       }
 
       return `Story ${storyId} created (IDEA)${dupWarning}${riskHint}`;

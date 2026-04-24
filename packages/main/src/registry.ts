@@ -22,6 +22,7 @@ import { createDecisionHandlers } from './handlers/decision.js';
 import { createSummaryHandlers } from './handlers/summary.js';
 import { createDoctorHandlers } from './handlers/doctor.js';
 import { createSessionHandlers } from './handlers/session.js';
+import { createTestHandlers } from './handlers/test.js';
 import { createVerifierHandlers } from './handlers/verifier.js';
 import { createFindingHandlers } from './handlers/finding.js';
 import { createEvaluateHandlers } from './handlers/evaluate.js';
@@ -89,6 +90,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createSummaryHandlers(ctx));
   registry.registerBatch(createDoctorHandlers(ctx));
   registry.registerBatch(createSessionHandlers(ctx));
+  registry.registerBatch(createTestHandlers(ctx));
   registry.registerBatch(createVerifierHandlers(ctx));
   registry.registerBatch(createFindingHandlers(ctx));
   registry.registerBatch(createEvaluateHandlers(ctx));

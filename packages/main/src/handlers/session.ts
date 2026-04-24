@@ -27,6 +27,7 @@ import { formatProcessMetricsSummary } from '../core/process-metrics.js';
 import { readActivityLogTail } from '../core/activity-log.js';
 import { summarizeReviewerStatus } from '../core/reviewer-status.js';
 import { reviewAntiStall, testAntiStall } from '../core/anti-stall.js';
+import { isGitRepository } from '../core/git-probe.js';
 
 interface ActiveStoryDetected {
   storyId: string;
@@ -239,6 +240,7 @@ interface NextStepCtx {
   bugs: BugData | null;
   hasTestEvidence: boolean;
   testPassedAt: string | null;
+  gitReady: boolean;
 }
 
 function computeNextStep(c: NextStepCtx): string {
@@ -249,8 +251,14 @@ function computeNextStep(c: NextStepCtx): string {
     case 'IDEA':
       return `Story 在 IDEA 阶段，没有 checklist。和用户讨论 checklist 后用 checklist_add 追加，或重新 story_create 时带上 checklist 字段`;
     case 'INIT':
+      if (!c.gitReady) {
+        return `Story 在 INIT 阶段，但当前项目不是 git 仓库。可以继续记录 metadata；若要进入 INIT_CHECK/worktree 流程，先 git init && git add . && git commit -m "init"`;
+      }
       return `Story 在 INIT 阶段。下一步：story_advance --storyId=${sid} --phase=INIT_CHECK 创建 worktree，然后 cd 进去`;
     case 'INIT_CHECK':
+      if (!c.gitReady) {
+        return `Story 在 INIT_CHECK 前置阶段，但当前项目不是 git 仓库。先 git init + 首次 commit，再继续 worktree / PLAN 流程`;
+      }
       return `Story 在 INIT_CHECK，worktree 已创建。下一步：cd 到 .worktrees/${sid}/ 然后 story_advance --phase=PLAN`;
     case 'PLAN': {
       if (!c.hasUnderstanding) {
@@ -320,6 +328,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
     session_brief(args: SessionBriefArgs = {}): string {
       const concise = args.concise === true;
       const lines: string[] = [];
+      const gitReady = isGitRepository(ctx.root);
       lines.push('# koala session brief');
       lines.push('');
 
@@ -338,6 +347,10 @@ export function createSessionHandlers(ctx: HandlerContext) {
           lines.push('**No active story** — no stories yet.');
           lines.push('');
           lines.push('Start with `koala story_create` to create your first story.');
+          if (!gitReady) {
+            lines.push('');
+            lines.push('⚠ Non-git project: Koala can still record story/test metadata here, but INIT_CHECK/worktree phases need `git init` + an initial commit first.');
+          }
           const gitNew = readGitStatus(ctx.root);
           if (gitNew.recentLog.length > 0) {
             lines.push('');
@@ -459,6 +472,10 @@ export function createSessionHandlers(ctx: HandlerContext) {
           lines.push('');
           lines.push(`Working tree dirty (${gitMain.porcelain.length} files).`);
         }
+        if (!gitReady) {
+          lines.push('');
+          lines.push('⚠ Non-git project: story metadata can be recorded here, but branch/worktree phases need `git init` + an initial commit first.');
+        }
 
         // B-89c7 CHK-013: Recent router-log tail with cache warning.
         const routerTail = readRouterLogTail(ctx.root, 3);
@@ -470,7 +487,9 @@ export function createSessionHandlers(ctx: HandlerContext) {
         if (activeStories.length > 0) {
           const top = activeStories[0];
           const wt = worktrees[top.storyId];
-          if (wt) {
+          if (!gitReady) {
+            lines.push(`  Project is not a git repo. You can keep recording story/test metadata, but before INIT_CHECK/worktree flow run: \`git init && git add . && git commit -m "init"\``);
+          } else if (wt) {
             lines.push(`  Resume: cd ${wt} (story ${top.storyId} is in ${top.phase})`);
           } else {
             lines.push(`  Story ${top.storyId} is in ${top.phase} but has no worktree. Try \`koala story_advance --storyId=${top.storyId} --phase=INIT_CHECK\` to create one.`);
@@ -691,6 +710,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
         bugs,
         hasTestEvidence,
         testPassedAt,
+        gitReady,
       });
 
       lines.push('');

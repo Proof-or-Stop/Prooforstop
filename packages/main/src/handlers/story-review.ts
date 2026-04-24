@@ -1,12 +1,13 @@
 
 import type { HandlerContext } from './context.js';
 import { loadConfig } from '../core/config.js';
-import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
+import { computeChannel, resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import { computeProcessMetrics } from '../core/process-metrics.js';
 import { SCOPE_CHECK_SALT, signScopeCheck } from './scope-check.js';
 import { existsSync, readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { createHash } from 'crypto';
+import { VERIFICATION_LANES, collectVerificationIntents } from '../core/verification.js';
 
 export function createStoryReviewHandlers(ctx: HandlerContext) {
   const { store } = ctx;
@@ -147,6 +148,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         return true;
       })();
       const decision = store.readDecision(args.storyId);
+      const channel = computeChannel(story, cl, decision);
       if (shouldCheckDecision) {
         if (!decision) {
           issues.push({
@@ -176,6 +178,36 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
               message: `高风险 story 必须有 ≥ 3 个 preMortem 场景（当前: ${decision.preMortem?.length ?? 0}）`,
             });
           }
+        }
+      }
+
+      // 2.47. Verification intent discipline: fold old testIntent rigor into PLAN without reviving TEST_CASE phases.
+      // Normal/high-risk stories must define happy/edge/adversarial intent per checklist item.
+      // Express/fast paths can skip explicit PLAN intent; their validation remains evidence/finding based.
+      const requireFullVerificationIntent = isHighRisk || channel === 'normal' || policy.profile === 'strict';
+      if (requireFullVerificationIntent) {
+        for (const item of cl.items) {
+          const intents = item.verificationIntent;
+          for (const lane of VERIFICATION_LANES) {
+            const entries = intents?.[lane] || [];
+            if (entries.length === 0) {
+              issues.push({
+                type: 'missing_verification_intent',
+                severity: 'blocker',
+                itemId: item.id,
+                message: `${item.id} 缺少 verificationIntent.${lane}。第二套流程保留 happy/edge/adversarial 测试纪律：在 PLAN 写 intent，在 DEV/TEST 通过 verification_evidence_add 或 validate 覆盖。`,
+              });
+            }
+          }
+        }
+      } else {
+        const missingHappy = cl.items.filter(item => (item.verificationIntent?.happy || []).length === 0);
+        if (missingHappy.length > 0) {
+          issues.push({
+            type: 'verification_intent_advisory',
+            severity: 'advisory',
+            message: `${channel} 通道允许快速路径，但建议为 ${missingHappy.map(i => i.id).join(', ')} 至少补一条 verificationIntent.happy，方便 REVIEW/test-coverage reviewer 对齐。`,
+          });
         }
       }
 
@@ -443,7 +475,11 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
                 : '')
             : '\n---\nDecision: (not provided)';
           const checklistSection = `\n---\nChecklist:\n${cl.items.map(i => {
-            return `- ${i.id}: ${i.title}${i.context ? ` (${i.context})` : ''}`;
+            const vi = collectVerificationIntents(i);
+            const intentLines = vi.length > 0
+              ? `\n  verificationIntent:\n${vi.map(v => `    - ${v.ref} [${v.lane}/${v.intent.priority || 'must'}/${v.intent.type}] ${v.intent.desc}`).join('\n')}`
+              : '';
+            return `- ${i.id}: ${i.title}${i.context ? ` (${i.context})` : ''}${intentLines}`;
           }).join('\n')}`;
           const truthSection = truthDocs.length > 0
             ? `\n---\nTruth Source (${truthDocs.length} 篇):\n${truthDocs.join('\n---\n')}`

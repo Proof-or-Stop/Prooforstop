@@ -21,6 +21,7 @@ const __dirname = dirname(__filename);
 import { runChannelGateCli } from './validate-channel.js';
 import { runConceptGateCli } from './validate-concept.js';
 import { runLintGateCli } from './validate-lint.js';
+import { buildVerificationCoverage, renderVerificationCoverage } from '../core/verification.js';
 
 function findValidateFile(projectRoot: string): string | null {
   const candidates = ['validate.ts', 'validate.js', 'validate.mts'];
@@ -49,6 +50,38 @@ function runCommand(command: string, args: string[], cwd: string): Promise<{ cod
 /** Strip ANSI escape codes for JSON parsing */
 function stripAnsi(str: string): string {
   return str.replace(/\x1B\[[0-9;]*m/g, '');
+}
+
+function currentHead(projectRoot: string): string | undefined {
+  try {
+    return execSync('git rev-parse HEAD', { cwd: projectRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+  } catch {
+    return undefined;
+  }
+}
+
+function decorateStoryVerification(ctx: HandlerContext, storyId: string, result: any): any {
+  let coverage;
+  try {
+    const cl = ctx.store.readChecklist(storyId);
+    coverage = buildVerificationCoverage(cl, currentHead(ctx.root));
+  } catch {
+    return result;
+  }
+  const rendered = renderVerificationCoverage(coverage);
+  const details = Array.isArray(result.details) ? [...result.details] : [];
+  details.push(...rendered.split('\n'));
+  const allPass = Boolean(result.allPass) && coverage.missingRequired === 0;
+  return {
+    ...result,
+    status: allPass ? (result.status === 'warn' ? 'warn' : 'pass') : 'fail',
+    allPass,
+    summary: coverage.missingRequired > 0
+      ? `${result.summary || 'Validation'}; verification coverage missing ${coverage.missingRequired} required intent(s)`
+      : result.summary,
+    details,
+    verificationCoverage: coverage,
+  };
 }
 
 export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
@@ -121,7 +154,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       if (!validateFile) {
         const msg = `✗ 找不到 validate.ts，请在项目根目录运行\n  当前目录: ${projectRoot}`;
         if (args.json) {
-          return JSON.stringify({
+          const base = {
             provider: 'koala-verifier',
             status: 'fail',
             allPass: false,
@@ -129,7 +162,8 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             details: [msg],
             warnings: [],
             timestamp: new Date().toISOString(),
-          });
+          };
+          return JSON.stringify(args.story ? decorateStoryVerification(ctx, args.story, base) : base);
         }
         return msg;
       }
@@ -167,9 +201,10 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         // Try to extract JSON from output (validate.ts should print JSON when --json is passed)
         const stripped = stripAnsi(output);
         // Look for JSON object in output
-        const jsonMatch = stripped.match(/\{[\s\S]*"provider"\s*:\s*"falcon"[\s\S]*\}/);
+        const jsonMatch = stripped.match(/\{[\s\S]*"provider"\s*:\s*"[^"]+"[\s\S]*\}/);
         if (jsonMatch) {
-          return jsonMatch[0];
+          const parsed = JSON.parse(jsonMatch[0]);
+          return JSON.stringify(args.story ? decorateStoryVerification(ctx, args.story, parsed) : parsed);
         }
         // If validate.ts doesn't support --json yet, wrap the output
         let headSha: string | undefined;
@@ -177,7 +212,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           headSha = execSync('git rev-parse --short HEAD', { cwd: projectRoot, encoding: 'utf-8' }).trim();
         } catch { /* not git */ }
 
-        return JSON.stringify({
+        const wrapped = {
           provider: 'koala-verifier',
           status: code === 0 ? 'pass' : 'fail',
           allPass: code === 0,
@@ -186,9 +221,19 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           warnings: [],
           timestamp: new Date().toISOString(),
           headSha,
-        });
+        };
+        return JSON.stringify(args.story ? decorateStoryVerification(ctx, args.story, wrapped) : wrapped);
       }
 
+      if (args.story) {
+        try {
+          const cl = ctx.store.readChecklist(args.story);
+          const coverage = buildVerificationCoverage(cl, currentHead(projectRoot));
+          return output + '\n' + renderVerificationCoverage(coverage) + (code !== 0 || coverage.missingRequired > 0 ? `\n(exit code: ${code || 1})` : '');
+        } catch {
+          // If story metadata cannot be read, fall back to raw verifier output.
+        }
+      }
       return output + (code !== 0 ? `\n(exit code: ${code})` : '');
     },
 

@@ -8,6 +8,7 @@ import { verifyFinding } from './finding-verify.js';
 import type { Finding } from './types.js';
 import { recomputeInitCheckHash } from '../handlers/init-check.js';
 import { recomputeDeliveryCheckHash } from '../handlers/delivery-check.js';
+import { getBlockingVerificationEvidenceIssues } from './verification.js';
 
 /**
  * Resolve effective blocking severities with round decay.
@@ -62,7 +63,8 @@ export const storyMachine = setup({
   guards: {
     checklistAllDone: ({ context }) => {
       const cl = context.store.readChecklist(context.storyId);
-      return cl.items.every(item => item.status === 'done');
+      if (!cl.items.every(item => item.status === 'done')) return false;
+      return getBlockingVerificationEvidenceIssues(cl).length === 0;
     },
     // B-e71f CHK-006: INIT→INIT_CHECK 硬门槛 xstate 端兜底。
     // getGuardFailureReason 在 story-advance.ts:335 仅当 actor.can() 返回 false 时才被调用，
@@ -377,6 +379,10 @@ export function getGuardFailureReason(
     const pending = cl.items.filter(i => i.status !== 'done');
     if (pending.length > 0) {
       return `Cannot enter REVIEW: ${pending.length} checklist item(s) not done: ${pending.map(i => i.id).join(', ')}`;
+    }
+    const missingEvidence = getBlockingVerificationEvidenceIssues(cl);
+    if (missingEvidence.length > 0) {
+      return `Cannot enter REVIEW: ${missingEvidence.length} required verification intent(s) lack passing evidence or waiver:\n${missingEvidence.map(i => `  - ${i}`).join('\n')}\n→ 运行 verification_evidence_add 记录 logic/integration/browser/manual 证据，或用 waiver 明确豁免`;
     }
   }
 

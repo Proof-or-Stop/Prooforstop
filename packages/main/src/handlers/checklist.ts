@@ -2,6 +2,9 @@
 import { existsSync } from 'fs';
 import { join } from 'path';
 import type { HandlerContext } from './context.js';
+import { execSync } from 'child_process';
+import type { VerificationEvidence, VerificationIntent } from '../core/types.js';
+import { makeEvidence } from '../core/verification.js';
 
 /**
  * B-45ed CHK-008: 给定 storyId，若 background.md 存在则返回相对路径，否则返回 null。
@@ -27,6 +30,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       userSees?: string;
       excludes?: string[];
       files?: { modify: string[]; create: string[]; test: string[] };
+      verificationIntent?: VerificationIntent;
     }): string {
       if (!args.title) throw new Error('title is required');
 
@@ -74,6 +78,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           create: args.files.create ?? [],
           test: args.files.test ?? [],
         } } : {}),
+        ...(args.verificationIntent !== undefined ? { verificationIntent: args.verificationIntent } : {}),
         status: 'pending',
         startTime: null,
         endTime: null,
@@ -171,12 +176,14 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       relatedDocs?: string[];
       userSees?: string;
       files?: { modify: string[]; create: string[]; test: string[] };
+      verificationIntent?: VerificationIntent;
+      verificationEvidence?: VerificationEvidence[];
       reason?: string;
       agent?: string;
       success?: boolean;
     }): string {
-      if (!args.status && args.title === undefined && args.context === undefined && args.relatedDocs === undefined && args.userSees === undefined && args.files === undefined) {
-        throw new Error('At least one of status/title/context/relatedDocs/userSees/files must be provided');
+      if (!args.status && args.title === undefined && args.context === undefined && args.relatedDocs === undefined && args.userSees === undefined && args.files === undefined && args.verificationIntent === undefined && args.verificationEvidence === undefined) {
+        throw new Error('At least one of status/title/context/relatedDocs/userSees/files/verificationIntent/verificationEvidence must be provided');
       }
 
       // Truth source protection: DEV 及之后阶段禁止修改 checklist 的根本信息
@@ -190,6 +197,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       const titleContextFields = ['title', 'context'] as const;
       const titleContextProtectedPhases = ['INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE'];
       const userSeesProtectedPhases = ['DEV', 'REVIEW', 'TEST', 'DONE'];
+      const verificationIntentProtectedPhases = ['DEV', 'REVIEW', 'TEST', 'DONE'];
 
       const attemptedTitleContext = titleContextFields.filter(f => args[f] !== undefined);
       if (attemptedTitleContext.length > 0 && titleContextProtectedPhases.includes(story.phase)) {
@@ -205,6 +213,12 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           `${args.itemId} 的 userSees 在 ${story.phase} 阶段不可修改。` +
           `userSees 冻结于 PLAN 末尾，DEV 起执行者不得改验收描述。` +
           `如需调整走 finding_add 申请回 PLAN`
+        );
+      }
+      if (args.verificationIntent !== undefined && verificationIntentProtectedPhases.includes(story.phase)) {
+        throw new Error(
+          `${args.itemId} 的 verificationIntent 在 ${story.phase} 阶段不可修改。` +
+          `verificationIntent 是 PLAN 阶段的测试意图真相源；DEV 之后只能追加 verificationEvidence 或由 finding 申请回 PLAN。`
         );
       }
 
@@ -239,6 +253,14 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           test: args.files.test ?? [],
         };
         results.push(`files updated (modify:${item.files.modify.length} create:${item.files.create.length} test:${item.files.test.length})`);
+      }
+      if (args.verificationIntent !== undefined) {
+        item.verificationIntent = args.verificationIntent;
+        results.push(`verificationIntent updated`);
+      }
+      if (args.verificationEvidence !== undefined) {
+        item.verificationEvidence = args.verificationEvidence;
+        results.push(`verificationEvidence updated (${args.verificationEvidence.length})`);
       }
 
       if (args.status) {
@@ -344,6 +366,48 @@ export function createChecklistHandlers(ctx: HandlerContext) {
 
       const ids = uniqueIds.join(', ');
       return `Light review recorded for ${args.storyId} (items: ${ids})`;
+    },
+
+    verification_evidence_add(args: {
+      storyId: string;
+      itemId: string;
+      intentRef: string;
+      kind: VerificationEvidence['kind'];
+      file?: string;
+      command?: string;
+      result?: 'pass' | 'fail';
+      note: string;
+    }): string {
+      if (!args.note || args.note.trim().length < 5) {
+        throw new Error('verification_evidence_add: note 必须 ≥ 5 字符，说明 evidence 为什么覆盖该 intent');
+      }
+      const cl = store.readChecklist(args.storyId);
+      const item = cl.items.find(i => i.id === args.itemId);
+      if (!item) throw new Error(`Checklist item ${args.itemId} not found`);
+
+      let headHash = '';
+      try {
+        headHash = execSync('git rev-parse HEAD', { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+      } catch { /* non-git or unavailable, omit freshness hash */ }
+
+      const evidence = makeEvidence({
+        intentRef: args.intentRef,
+        kind: args.kind,
+        ...(args.file ? { file: args.file } : {}),
+        ...(args.command ? { command: args.command } : {}),
+        ...(args.result ? { result: args.result } : {}),
+        note: args.note.trim(),
+        ...(headHash ? { headHash } : {}),
+      });
+
+      const existing = item.verificationEvidence || [];
+      const idx = existing.findIndex(e => e.intentRef === args.intentRef);
+      if (idx >= 0) existing[idx] = evidence;
+      else existing.push(evidence);
+      item.verificationEvidence = existing;
+
+      store.writeChecklist(args.storyId, cl);
+      return `Verification evidence recorded for ${args.itemId} → ${args.intentRef} (${args.kind})`;
     },
 
 

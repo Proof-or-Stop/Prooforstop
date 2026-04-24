@@ -5,7 +5,7 @@ import type {
   UnderstandingData, DecisionData, StorySummaryData,
   StoryTestRun, StoryTestRunsData, FindingData, EvalEvidenceData,
   StoryProcessMetrics, ProcessEvent, ScopeCheckData, InitCheckData,
-  DeliveryCheckData,
+  DeliveryCheckData, ImplementationReviewResultData,
 } from './types.js';
 import type { ClusterData } from './cluster-types.js';
 import { appendProcessEvent as appendProcessEventFn, readProcessEvents as readProcessEventsFn } from './process-events.js';
@@ -134,6 +134,20 @@ export class StoryStore {
 
   writeReview(storyId: string, data: ReviewData): void {
     this.writeJson(storyId, 'review.json', data);
+  }
+
+  // ── Legacy Implementation Review (kept so old imports compile; new flow uses findings) ──
+
+  readImplementationReview(storyId: string): ImplementationReviewResultData | null {
+    try {
+      return this.readJson<ImplementationReviewResultData>(storyId, 'implementation-review.json');
+    } catch {
+      return null;
+    }
+  }
+
+  writeImplementationReview(storyId: string, data: ImplementationReviewResultData): void {
+    this.writeJson(storyId, 'implementation-review.json', data);
   }
 
   // ── Understanding (Pre-context Intake snapshot, OMX 风格) ──

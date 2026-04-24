@@ -4,6 +4,7 @@ import type { StoryPhase, StoryEvent } from '../core/types.js';
 import { execSync } from 'child_process';
 import { join, isAbsolute } from 'path';
 import { randomBytes } from 'crypto';
+import { gitProbe } from '../core/git-probe.js';
 
 export interface HandlerContext {
   store: StoryStore;
@@ -33,8 +34,10 @@ export function collectContext(phase: StoryPhase, action: 'create' | 'advance' |
     action,
     timestamp: new Date().toISOString(),
   };
-  try { event.branch = execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf8' }).trim(); } catch {}
-  try { event.user = execSync('git config user.name', { encoding: 'utf8' }).trim(); } catch {}
+  const branch = gitProbe('git rev-parse --abbrev-ref HEAD');
+  if (branch.ok) event.branch = branch.output;
+  const user = gitProbe('git config user.name');
+  if (user.ok) event.user = user.output;
   event.sessionId = process.env.KOALA_SESSION_ID
     || process.env.CLAUDE_SESSION_ID
     || undefined;

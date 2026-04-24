@@ -169,6 +169,18 @@ function buildDoneChecklist(storyId: string, store: StoryStore, root: string): D
         detail: `PASS @ ${evidence.timestamp}`,
       });
     }
+    if (evidence.verificationCoverage) {
+      const vc = evidence.verificationCoverage;
+      rows.push({
+        status: vc.missingRequired > 0 ? 'fail' : 'pass',
+        label: 'Verification intent coverage',
+        detail: `${vc.covered}/${vc.total} covered, ${vc.missingRequired} required missing`,
+        hint: vc.entries
+          .filter(e => e.priority === 'must' && !['covered', 'waived'].includes(e.status))
+          .map(e => `${e.intentRef} [${e.status}] ${e.desc}`)
+          .join('\n'),
+      });
+    }
   }
 
   // 1b. evidence freshness (B-c622 CHK-009)
@@ -542,6 +554,7 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
             result: parsed.allPass ? 'PASS' : 'FAIL',
             timestamp: new Date().toISOString(),
             ...(evidenceHeadHash ? { headHash: evidenceHeadHash } : {}),
+            ...(parsed.verificationCoverage ? { verificationCoverage: parsed.verificationCoverage } : {}),
           });
 
           if (!parsed.allPass) {

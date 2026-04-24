@@ -86,6 +86,8 @@ export interface LogicTest {
   extractState: (actionResult: any) => any;
   /** 关联的 Finding ID（如 B-xxx:F-001） */
   findingRef?: string;
+  /** 关联的 verificationIntent refs（如 CHK-001:happy:0） */
+  intentRefs?: string[];
 }
 
 /** Core test step：在当前进程内通过 bridge 直接驱动 */
@@ -134,6 +136,8 @@ export interface IntegrationTest {
   serverReadyPattern?: string;
   /** 关联的 Finding ID（如 B-xxx:F-001） */
   findingRef?: string;
+  /** 关联的 verificationIntent refs（如 CHK-001:happy:0） */
+  intentRefs?: string[];
 }
 
 /** validate 选项 */

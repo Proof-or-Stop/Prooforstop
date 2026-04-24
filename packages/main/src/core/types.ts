@@ -60,6 +60,36 @@ export interface StoryInfo {
 
 export type ChecklistStatus = 'pending' | 'in_progress' | 'done';
 
+export type VerificationLane = 'happy' | 'edge' | 'adversarial';
+export type VerificationIntentType = 'logic' | 'cli' | 'browser' | 'manual' | 'docs';
+export type VerificationRequiredIn = 'light' | 'balanced' | 'strict';
+export type VerificationPriority = 'must' | 'should' | 'nice';
+export type VerificationEvidenceKind = 'logic_test' | 'integration_test' | 'browser_test' | 'manual_transcript' | 'docs_check' | 'waiver';
+
+export interface VerificationIntentItem {
+  /** Optional stable id. If absent, Koala derives CHK-001:happy:0 from lane/index. */
+  id?: string;
+  desc: string;
+  type: VerificationIntentType;
+  requiredIn?: VerificationRequiredIn;
+  priority?: VerificationPriority;
+}
+
+export type VerificationIntent = Record<VerificationLane, VerificationIntentItem[]>;
+
+export interface VerificationEvidence {
+  /** Reference like CHK-001:happy:0 or a custom VerificationIntentItem.id. */
+  intentRef: string;
+  kind: VerificationEvidenceKind;
+  file?: string;
+  command?: string;
+  result?: 'pass' | 'fail';
+  note: string;
+  /** Optional git HEAD captured when evidence was recorded. */
+  headHash?: string;
+  timestamp?: string;
+}
+
 export interface ChecklistItem {
   id: string;
   title: string;
@@ -81,9 +111,43 @@ export interface ChecklistItem {
     readonly create: readonly string[];
     readonly test: readonly string[];
   };
+  /**
+   * Test discipline folded into the second lifecycle:
+   * PLAN records happy/edge/adversarial intent, DEV/REVIEW/TEST attach evidence.
+   */
+  verificationIntent?: VerificationIntent;
+  verificationEvidence?: VerificationEvidence[];
+  /** @deprecated Legacy item phase from TEST_CASE lifecycle. New flow uses DEV/REVIEW/TEST only. */
+  phase?: 'DEV' | 'TEST_CASE';
+  /** @deprecated Legacy testIntent kept for old story data and compatibility helpers. */
+  testIntent?: TestIntent | null;
   status: ChecklistStatus;
   startTime: string | null;
   endTime: string | null;
+}
+
+export type TestIntentType = 'cli_blackbox' | 'browser_blackbox';
+
+export interface TestIntentItem {
+  desc: string;
+  type: TestIntentType;
+  results?: TestIntentResult[];
+}
+
+export interface TestIntentResult {
+  time: string;
+  pass?: boolean;
+  note: string;
+  role?: 'reviewer' | 'author' | 'intent';
+}
+
+export type TestIntentEntry = TestIntentItem | string;
+
+/** @deprecated Use verificationIntent. */
+export interface TestIntent {
+  happy: TestIntentEntry[];
+  edge: TestIntentEntry[];
+  adversarial: TestIntentEntry[];
 }
 
 export interface ChecklistAuditEntry {
@@ -127,6 +191,49 @@ export interface ReviewEntry {
 
 export interface ReviewData {
   reviews: ReviewEntry[];
+}
+
+export type StoryAdvanceReasonCode =
+  | 'missing_test_intent'
+  | 'story_review_missing'
+  | 'story_review_failed'
+  | 'review_signature_invalid'
+  | 'dev_checklist_incomplete'
+  | 'review_failed'
+  | 'test_evidence_missing'
+  | 'test_failed'
+  | 'bug_open'
+  | 'transition_blocked';
+
+export interface PhaseInvariantIssue {
+  code: string;
+  detail: string;
+}
+
+export interface PhaseGateDecision {
+  targetPhase: string;
+  ok: boolean;
+  outcome: 'allow' | 'block' | 'rollback';
+  reasonCode: StoryAdvanceReasonCode | null;
+  issues: PhaseInvariantIssue[];
+  humanHint: string | null;
+  rollbackPhase?: StoryPhase | null;
+}
+
+export interface ImplementationReviewFinding {
+  file: string;
+  line: number;
+  why: string;
+  severity: 'info' | 'medium' | 'high';
+}
+
+export interface ImplementationReviewResultData {
+  storyId: string;
+  verdict: 'pass' | 'fail';
+  findings: ImplementationReviewFinding[];
+  summary: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export type BugStatus = 'open' | 'fixed';
@@ -323,6 +430,32 @@ export interface TestEvidenceData {
   traceCoverage?: string[];
   /** 测试时的 git HEAD hash（用于 DONE gate evidence freshness 检查） */
   headHash?: string;
+  /** @deprecated Legacy evidence freshness field. New writes use headHash. */
+  git?: {
+    head: string | null;
+    branch?: string | null;
+  };
+  /** Story-level verification intent coverage captured during validate/story_advance. */
+  verificationCoverage?: VerificationCoverageReport;
+}
+
+export interface VerificationCoverageEntry {
+  intentRef: string;
+  itemId: string;
+  lane: VerificationLane;
+  desc: string;
+  type: VerificationIntentType;
+  priority: VerificationPriority;
+  status: 'covered' | 'missing' | 'failed' | 'waived' | 'stale';
+  evidence?: VerificationEvidence;
+}
+
+export interface VerificationCoverageReport {
+  total: number;
+  required: number;
+  covered: number;
+  missingRequired: number;
+  entries: VerificationCoverageEntry[];
 }
 
 /**
@@ -695,4 +828,3 @@ export const WORKFLOW_PRESETS: Record<WorkflowProfile, WorkflowPolicy> = {
     done: { requireSummary: 'full', requireBranchSynced: true, requireCleanGit: true },
   },
 };
-

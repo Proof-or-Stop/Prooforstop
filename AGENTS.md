@@ -1,6 +1,14 @@
 <!-- koala:start -->
 # AGENTS.md
 
+> Current lifecycle override: this branch uses the second Koala flow
+> `INIT → INIT_CHECK → PLAN/快速跳过 → DEV → REVIEW → TEST → DONE`.
+> Older references below to `TEST_CASE`, `TEST_CASE_REVIEW`, `testIntent`,
+> fixture-only validation, or `test_auto` are legacy background. The current
+> replacement is `verificationIntent` on checklist items, `verificationEvidence`
+> recorded during DEV/REVIEW/TEST, `koala-review-test-coverage` in REVIEW, and
+> `koala validate` in TEST.
+
 ## 行为准则
 
 0. **每次新 session 或恢复中断工作时，第一个命令必须是 `koala session_brief`**。它会输出 active story / phase / checklist / bug / 最近 activity / 推断的下一步，避免凭记忆瞎猜

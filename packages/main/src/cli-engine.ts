@@ -21,6 +21,7 @@ import { decorateResult, type ActiveStoryInfo } from './handlers/hints.js';
 import { reportHealthIssue } from './core/health.js';
 import { detectStaleState } from './core/stale-detector.js';
 import { runHooks, truncateForEnv, buildHookEnv as buildSharedHookEnv, HOOK_TIMEOUT_MS } from './core/hooks.js';
+import { gitProbe, isGitRepository } from './core/git-probe.js';
 import {
   STORY_CREATE_LONG, STORY_ADVANCE_LONG, CHECKLIST_UPDATE_LONG,
   STORY_REVIEW_LONG, BUG_REPORT_LONG, VALIDATE_LONG,
@@ -38,6 +39,31 @@ export interface ToolDef {
   schema: Record<string, ZodType>;
 }
 
+const verificationIntentItemSchema = z.object({
+  id: z.string().optional().describe('可选稳定 id；缺省时自动按 CHK-001:happy:0 推导'),
+  desc: z.string().describe('验证意图描述'),
+  type: z.enum(['logic', 'cli', 'browser', 'manual', 'docs']).describe('验证类型'),
+  requiredIn: z.enum(['light', 'balanced', 'strict']).optional().describe('从哪个 workflow profile 起要求'),
+  priority: z.enum(['must', 'should', 'nice']).optional().describe('must 会进入 evidence gate'),
+});
+
+const verificationIntentSchema = z.object({
+  happy: z.array(verificationIntentItemSchema).optional().default([]),
+  edge: z.array(verificationIntentItemSchema).optional().default([]),
+  adversarial: z.array(verificationIntentItemSchema).optional().default([]),
+});
+
+const verificationEvidenceSchema = z.object({
+  intentRef: z.string().describe('如 CHK-001:happy:0 或自定义 intent id'),
+  kind: z.enum(['logic_test', 'integration_test', 'browser_test', 'manual_transcript', 'docs_check', 'waiver']).describe('证据类型'),
+  file: z.string().optional().describe('测试/文档文件路径'),
+  command: z.string().optional().describe('执行命令'),
+  result: z.enum(['pass', 'fail']).optional().describe('执行结果'),
+  note: z.string().describe('为什么此证据覆盖该 intent'),
+  headHash: z.string().optional().describe('记录证据时的 git HEAD'),
+  timestamp: z.string().optional().describe('记录时间'),
+});
+
 /** main 自带的 CLI 工具定义 */
 export const MAIN_TOOLS: ToolDef[] = [
   // Story
@@ -50,7 +76,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     source: z.string().optional().describe('来源'),
     depends: z.array(z.string()).optional().describe('依赖 Story ID'),
     keywords: z.array(z.string()).optional().describe('关键词（领域/模块/概念，用于查重）'),
-    checklist: z.array(z.object({ title: z.string(), context: z.string().optional(), relatedDocs: z.array(z.string()).optional().describe('关联文档路径（用于三次提醒）'), excludes: z.array(z.string()).optional().describe('显式声明不做的功能点') })).optional().describe('开发清单'),
+    checklist: z.array(z.object({ title: z.string(), context: z.string().optional(), relatedDocs: z.array(z.string()).optional().describe('关联文档路径（用于三次提醒）'), userSees: z.string().optional().describe('用户可见输出'), excludes: z.array(z.string()).optional().describe('显式声明不做的功能点'), verificationIntent: verificationIntentSchema.optional().describe('happy/edge/adversarial 验证意图') })).optional().describe('开发清单'),
     prefix: z.string().optional().describe('ID 前缀(默认 B)'),
     phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','REVIEW','TEST','DONE']).optional().describe('直接指定阶段'),
     forceNew: z.boolean().optional().describe('B-0af4: 绕过同名 story idempotency 强制新建（同名未完成 story 默认会被复用）'),
@@ -129,6 +155,7 @@ export const MAIN_TOOLS: ToolDef[] = [
       create: z.array(z.string()),
       test: z.array(z.string()),
     }).optional().describe('B-45ed: 受影响的文件集合（PLAN 阶段声明，story_review 做 touchpoints→files 覆盖校验）'),
+    verificationIntent: verificationIntentSchema.optional().describe('happy/edge/adversarial 验证意图（PLAN 阶段）'),
   }},
   { name: 'checklist_remove', description: '从 story 中移除一个 checklist item（必须给出裁决 + 理由）', schema: {
     storyId: z.string().describe('Story ID'), itemId: z.string().describe('要移除的项 ID'),
@@ -147,8 +174,20 @@ export const MAIN_TOOLS: ToolDef[] = [
       create: z.array(z.string()),
       test: z.array(z.string()),
     }).optional().describe('B-45ed: 受影响的文件集合（PLAN 阶段声明）'),
+    verificationIntent: verificationIntentSchema.optional().describe('happy/edge/adversarial 验证意图（DEV 起冻结）'),
+    verificationEvidence: z.array(verificationEvidenceSchema).optional().describe('覆盖 verificationIntent 的证据列表'),
     reason: z.string().optional().describe('变更原因'), agent: z.string().optional().describe('操作者'),
     success: z.boolean().optional().describe('subagent 结果是否成功（仅 status=done 时有效，默认 true）'),
+  }},
+  { name: 'verification_evidence_add', description: '为 checklist item 追加/更新 verificationIntent 覆盖证据', schema: {
+    storyId: z.string().describe('Story ID'),
+    itemId: z.string().describe('Checklist item ID'),
+    intentRef: z.string().describe('如 CHK-001:happy:0 或自定义 intent id'),
+    kind: z.enum(['logic_test', 'integration_test', 'browser_test', 'manual_transcript', 'docs_check', 'waiver']).describe('证据类型'),
+    file: z.string().optional().describe('测试/文档文件路径'),
+    command: z.string().optional().describe('执行命令'),
+    result: z.enum(['pass', 'fail']).optional().describe('执行结果'),
+    note: z.string().describe('为什么此证据覆盖该 intent'),
   }},
   { name: 'light_review', description: '记录一次轻量 review（DEV 阶段每完成一批 item 后调用）', schema: {
     storyId: z.string().describe('Story ID'),
@@ -198,7 +237,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     usage: z.string().describe('怎么用（slash / tool / 调用示例，≥ 10 字符）'),
     limitations: z.string().describe('已知限制 / 设计偏离（没有就写 "none — fully covered"）'),
     pitfalls: z.string().describe('踩坑记录（卡在哪、绕了几次路、下个人应该知道什么，≥ 10 字符；禁止空话）'),
-    skipReasons: z.record(z.string()).optional().describe('{case name: reason} 对每条 sandbox:false 但没跑的 case 说明原因；未提供则 koala 报错列出缺失项'),
+    skipReasons: z.record(z.string(), z.string()).optional().describe('{case name: reason} 对每条 sandbox:false 但没跑的 case 说明原因；未提供则 koala 报错列出缺失项'),
   }},
   { name: 'summary_get', description: '读取 story summary', schema: {
     storyId: z.string().describe('Story ID'),
@@ -232,7 +271,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     output: z.string().describe('输出'), expected: z.string().describe('预期'),
     result: z.enum(['PASS','FAIL']).describe('结果'),
   }},
-  { name: 'test_list', description: '查看测试证据', schema: { storyId: z.string().describe('Story ID') }},
+  { name: 'test_list', description: '查看最新测试证据快照（当前不是历史列表）', schema: { storyId: z.string().describe('Story ID') }},
   // Dashboard (实时看板)
   { name: 'dashboard', description: '实时 story 进度看板（每 N 秒刷新，支持多项目切换）', schema: {
     roots: z.string().optional().describe('项目根目录（逗号分隔多个路径；默认当前目录）'),
@@ -730,12 +769,16 @@ function resolveRoot(explicit?: string): string {
     dir = parent;
   }
   // fallback: git worktree root
-  try {
-    const cd = execSync('git rev-parse --git-common-dir', { encoding: 'utf-8' }).trim();
+  const commonDir = gitProbe('git rev-parse --git-common-dir');
+  if (commonDir.ok) {
+    const cd = commonDir.output;
     if (cd !== '.git' && !cd.endsWith('/.git') && !cd.endsWith('\\.git')) {
-      return execSync('git worktree list --porcelain', { encoding: 'utf-8' }).split('\n')[0]?.replace('worktree ', '').trim() || process.cwd();
+      const wtList = gitProbe('git worktree list --porcelain');
+      if (wtList.ok) {
+        return wtList.output.split('\n')[0]?.replace('worktree ', '').trim() || process.cwd();
+      }
     }
-  } catch {}
+  }
   return process.cwd();
 }
 
@@ -800,6 +843,7 @@ export async function runCli(opts?: {
   // Detect active story from git branch
   const root0 = resolveRoot(rootOverride);
   const activeStory = detectActiveStory(root0);
+  const gitReady = isGitRepository(root0);
 
   if (!cmd || cmd === 'help' || cmd === '--help') { printHelp(activeStory); return; }
 
@@ -1068,6 +1112,10 @@ export async function runCli(opts?: {
       if (!result.includes('(INIT)')) return result;
       const storyId = result.match(/Story\s+([\w-]+)/)?.[1];
       if (!storyId) return result;
+      if (result.includes('当前目录不是 git 仓库')) return result;
+      if (!gitReady) {
+        return `${result}\n⚠ 当前目录不是 git 仓库：story 已记录，但 INIT_CHECK/worktree 流程还不能顺畅跑。\n→ 先在项目根执行 git init && git add . && git commit -m \"init\"，再 story_advance '{\"storyId\":\"${storyId}\",\"phase\":\"INIT_CHECK\"}'`;
+      }
       return `${result}\n→ Story 停在 INIT 阶段。下一步:\n  1. story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' 创建 worktree\n  2. cd 到提示的 worktree 路径\n  3. story_advance '{"storyId":"${storyId}","phase":"PLAN"}' 进入 PLAN（cwd 必须是 worktree）`;
     });
     return;

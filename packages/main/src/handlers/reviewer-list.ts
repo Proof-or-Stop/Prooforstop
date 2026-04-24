@@ -2,7 +2,7 @@
  * B-fdcf CHK-001: koala reviewer_list CLI
  *
  * 输出当前 story 的 opt-in reviewer 名单（按 5 档条件实时计算）：
- *   - concept  / quality   → baseline（永远开）
+ *   - concept  / quality / test-coverage → baseline（永远开）
  *   - behavior             → story.riskSignals 命中 {state machine / guard / gate}
  *   - docs                 → understanding.touchpoints 含 .md 文件（兜底扫 git diff）
  *   - channel              → computeChannel(story, checklist, decision) === 'normal'
@@ -25,7 +25,7 @@ import { computeChannel } from '../core/workflow-policy.js';
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
 
 export interface ActiveReviewer {
-  /** reviewer 短名：concept / quality / behavior / docs / channel / forced name */
+  /** reviewer 短名：concept / quality / test-coverage / behavior / docs / channel / forced name */
   name: string;
   /** 为什么启用：baseline / "riskSignal: <cats>" / "touchpoints .md" / "normal channel" / forced */
   reason: string;
@@ -37,11 +37,11 @@ export interface ActiveReviewer {
 const BEHAVIOR_TRIGGERS = ['state machine', 'guard', 'gate'];
 
 /**
- * 固定输出顺序（B-fdcf F-002）：baseline-first concept → quality → behavior → docs → channel。
+ * 固定输出顺序（B-fdcf F-002）：baseline-first concept → quality → test-coverage → behavior → docs → channel。
  * CHK-001 userSees 声明的顺序与此一致，不可改为 alphabetical。forced 名称以及任何
  * 未知 reviewer 名追加在末尾（按插入顺序）。
  */
-const REVIEWER_ORDER: readonly string[] = ['concept', 'quality', 'behavior', 'docs', 'channel'];
+const REVIEWER_ORDER: readonly string[] = ['concept', 'quality', 'test-coverage', 'behavior', 'docs', 'channel'];
 
 /**
  * 纯函数：按 story + checklist + decision 计算应启用的 reviewer 列表。
@@ -64,9 +64,12 @@ export function computeActiveReviewers(
 ): ActiveReviewer[] {
   const map = new Map<string, ActiveReviewer>();
 
-  // BASELINE: concept + quality 永远启用
+  // BASELINE: concept + quality + test-coverage 永远启用.
+  // test-coverage is the old TEST_CASE_REVIEW responsibility folded into REVIEW:
+  // it checks verificationIntent -> verificationEvidence coverage instead of owning a lifecycle phase.
   map.set('concept', { name: 'concept', reason: 'baseline' });
   map.set('quality', { name: 'quality', reason: 'baseline' });
+  map.set('test-coverage', { name: 'test-coverage', reason: 'baseline' });
 
   // behavior: riskSignals ∩ {state machine, guard, gate} 非空
   // 扁平化所有命中的 category（同时命中 gate+guard → "riskSignal: gate, guard"）

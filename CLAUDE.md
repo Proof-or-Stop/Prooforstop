@@ -30,10 +30,10 @@
 |---|---|
 | **INIT** | `story_create` 创建 story |
 | **INIT_CHECK** | `story_advance INIT_CHECK` 创建 worktree，提示 cd |
-| **PLAN** | understanding → decision → checklist → plan.md（正常通道）→ `story_review` 审查通过后进 DEV（快速通道跳过 PLAN） |
-| **DEV** | 写代码 + 写测试，checklist 全 done 后进 REVIEW |
-| **REVIEW** | 按 riskSignals / touchpoints / channel 自动挂载 LLM reviewer（baseline concept+quality，其他按信号 opt-in，详见下方「Reviewer opt-in 路由」）+ 3 CLI gate（`validate --channel` / `--concept` / `--lint`）在 REVIEW→TEST preflight 自动跑；`koala-review-channel` 已退役（S1），由 CLI 接管。主 agent 验收：`finding_list` 确认 reviewer finding 注册 → 逐条 resolve → blocking finding 全 resolved 后进 TEST（CLI gate 任一 fail 会直接 block） |
-| **TEST** | `koala validate` 验证，全绿 + bug 全 fixed 后进 DONE |
+| **PLAN** | understanding → decision → checklist + `verificationIntent` → plan.md（正常通道）→ `story_review` 审查通过后进 DEV（快速通道跳过 PLAN） |
+| **DEV** | 写代码 + 写测试，给 must intent 记录 `verificationEvidence`，checklist 全 done 后进 REVIEW |
+| **REVIEW** | 按 riskSignals / touchpoints / channel 自动挂载 LLM reviewer（baseline concept+quality+test-coverage，其他按信号 opt-in，详见下方「Reviewer opt-in 路由」）+ 3 CLI gate（`validate --channel` / `--concept` / `--lint`）在 REVIEW→TEST preflight 自动跑；`koala-review-channel` 已退役（S1），由 CLI 接管。主 agent 验收：`finding_list` 确认 reviewer finding 注册 → 逐条 resolve → blocking finding 全 resolved 后进 TEST（CLI gate 任一 fail 会直接 block） |
+| **TEST** | `koala validate` 验证，全绿 + verification coverage 通过 + bug 全 fixed 后进 DONE |
 | **DONE** | `story_advance DONE` 合并回 main 并清理 worktree。DONE 成功后按 `.koala/audit-config.json` 触发 audit 提示（semi-auto 模式在输出末追加 audit 建议；详见「框架自省 audit 配置」段） |
 
 ### 如何选通道
@@ -649,7 +649,7 @@ checklist + plan.md 写完后必须 `story_review` 通过（issueCount=0）才�
 |---|---|---|
 | **主 agent** | 需求管理（PLAN + plan.md）+ 分配任务 + 验收（REVIEW/TEST/DONE） | 仅快速通道 |
 | **koala-implementer** | 写代码 + 写测试，接受主 agent 按 plan.md 分配的 checklist item | 正常通道必须 |
-| **koala-review-\*** | REVIEW 阶段按 opt-in 路由并行审查（baseline concept+quality，按 riskSignals / touchpoints 加挂 behavior/docs），各自提 finding。`channel` LLM agent 已退役（S1）由 `validate --channel` CLI 接管；`quality` 假设 lint 已绿只审主观项 | 不写 |
+| **koala-review-\*** | REVIEW 阶段按 opt-in 路由并行审查（baseline concept+quality+test-coverage，按 riskSignals / touchpoints 加挂 behavior/docs），各自提 finding。`test-coverage` 继承旧 TEST_CASE_REVIEW 职责，检查 verificationIntent → verificationEvidence 覆盖；`channel` LLM agent 已退役（S1）由 `validate --channel` CLI 接管；`quality` 假设 lint 已绿只审主观项 | 不写 |
 | **koala-evaluator** | browser 项目产品质量打分（功能完整性 + 可用性） | 不写 |
 | **koala-evaluator-cli** | CLI / core 项目产品质量打分（通过 bridge API 驱动状态转换验证） | 不写 |
 
@@ -677,6 +677,24 @@ checklist + plan.md 写完后必须 `story_review` 通过（issueCount=0）才�
 
 ## REVIEW 阶段规则（框架实现）
 
+### Verification Intent / Evidence
+
+第二套流程不恢复 `TEST_CASE` / `TEST_CASE_REVIEW` 两个 phase；旧 testIntent 的纪律折叠进 checklist：
+
+| 字段 | 阶段 | 含义 |
+|---|---|---|
+| `verificationIntent` | PLAN | 每个 item 的 happy / edge / adversarial 验证意图；normal/high-risk/strict story 三栏必填 |
+| `verificationEvidence` | DEV/REVIEW/TEST | 覆盖某条 intent 的证据，可为 logic/integration/browser/manual/docs/waiver |
+
+常用命令：
+
+```bash
+koala checklist_update '{"storyId":"B-xxx","itemId":"CHK-001","verificationIntent":{"happy":[{"desc":"正常输入返回成功","type":"cli","priority":"must"}],"edge":[{"desc":"空输入给出清晰错误","type":"cli","priority":"must"}],"adversarial":[{"desc":"非法状态不会写坏数据","type":"logic","priority":"must"}]}}'
+koala verification_evidence_add '{"storyId":"B-xxx","itemId":"CHK-001","intentRef":"CHK-001:happy:0","kind":"integration_test","file":"validate.ts","command":"koala validate --story=B-xxx","result":"pass","note":"integration test 直接覆盖正常输入路径"}'
+```
+
+`DEV→REVIEW` 会阻塞缺失 must evidence/waiver 的 intent；`koala validate --story=B-xxx --json` 会输出 verification coverage，并写入 TEST evidence 供 DONE gate 展示。
+
 ### 3 CLI gate（REVIEW→TEST preflight，机械判定，秒级返回）
 
 进入 REVIEW 后由 `story_advance --phase=TEST` 自动跑 3 个 CLI gate，任一 fail 即 block 推进：
@@ -697,6 +715,7 @@ checklist + plan.md 写完后必须 `story_review` 通过（issueCount=0）才�
 |---|---|
 | **concept** | baseline（永远开） |
 | **quality** | baseline（永远开） |
+| **test-coverage** | baseline（永远开，审 verificationIntent 是否都有有效 evidence / waiver） |
 | **behavior** | riskSignals 含 `state machine` / `guard` / `gate` |
 | **docs** | touchpoints 含 `.md` 文件 |
 | **channel** | 正常通道（`computeChannel() === 'normal'`：> 5 项 / 多选型 / 有 riskSignals）；fast（≤ 5 项单一解无 risk）与 express（≤ 2 项无 risk）不挂 |

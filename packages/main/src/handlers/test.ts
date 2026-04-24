@@ -32,8 +32,20 @@ export function createTestHandlers(ctx: HandlerContext) {
       return `Test evidence updated (${args.result})`;
     },
 
-    test_list(args: { storyId: string }): TestEvidenceData | null {
-      return store.readTestEvidence(args.storyId);
+    test_list(args: { storyId: string }): TestEvidenceData | { _empty: true; _mode: 'latest_snapshot'; _hint: string } | { _mode: 'latest_snapshot'; latest: TestEvidenceData; _hint: string } | null {
+      const latest = store.readTestEvidence(args.storyId);
+      if (!latest) {
+        return {
+          _empty: true,
+          _mode: 'latest_snapshot',
+          _hint: 'test_list 当前返回的是“最后一条 test evidence 快照”，不是历史列表。还没有任何 test evidence。',
+        };
+      }
+      return {
+        _mode: 'latest_snapshot',
+        latest,
+        _hint: 'test_list 当前返回的是“最后一条 test evidence 快照”，不是历史列表。若要看历史，应结合 test-runs / validate 记录扩展。',
+      };
     },
   };
 }
