@@ -183,13 +183,13 @@ export function syncClusterResolves(
 
 /**
  * 浓缩 git stderr 为人类可读的一行 warning 摘要。
- * F-023: 把 `fatal: ambiguous argument 'main..HEAD': unknown revision ...` 压成
- * `main branch not found` 之类简短提示，避免 warning 里混入长 stderr。
+ * F-023: 把 `fatal: ambiguous argument '<base>..HEAD': unknown revision ...` 压成
+ * `<base> branch not found` 之类简短提示，避免 warning 里混入长 stderr。
  */
 function summarizeGitError(err: string): string {
   const lower = err.toLowerCase();
   if (lower.includes('unknown revision') || lower.includes('bad revision') || lower.includes('ambiguous argument')) {
-    return 'main branch not found (unknown revision main)';
+    return 'default branch not found (unknown revision for base branch)';
   }
   if (lower.includes('not a git repository')) {
     return 'not a git repository';

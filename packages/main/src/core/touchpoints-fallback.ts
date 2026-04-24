@@ -11,10 +11,12 @@
  * reviewer_list）统一从这里拿。
  */
 import { execSync } from 'child_process';
+import { resolveDefaultBranch } from './git-probe.js';
 
 export function detectMdTouchpointsFromGit(root: string): string[] | undefined {
   try {
-    const out = execSync('git diff main...HEAD --name-only', {
+    const baseBranch = resolveDefaultBranch(root);
+    const out = execSync(`git diff ${baseBranch}...HEAD --name-only`, {
       cwd: root,
       encoding: 'utf8',
       timeout: 5000,

@@ -28,3 +28,16 @@ export function gitProbe(
 export function isGitRepository(cwd: string): boolean {
   return gitProbe('git rev-parse --show-toplevel', { cwd }).ok;
 }
+
+export function resolveDefaultBranch(cwd: string): string {
+  const remoteHead = gitProbe('git symbolic-ref refs/remotes/origin/HEAD', { cwd });
+  if (remoteHead.ok) {
+    const m = remoteHead.output.match(/refs\/remotes\/origin\/(.+)$/);
+    if (m && m[1]) return m[1];
+  }
+  const localMain = gitProbe('git rev-parse --verify refs/heads/main', { cwd });
+  if (localMain.ok) return 'main';
+  const localMaster = gitProbe('git rev-parse --verify refs/heads/master', { cwd });
+  if (localMaster.ok) return 'master';
+  return 'main';
+}

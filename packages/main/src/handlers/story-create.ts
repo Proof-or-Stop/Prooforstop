@@ -251,10 +251,16 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         if (elevatedPriority !== args.priority) {
           lines.push(`已自动 elevate priority: ${args.priority} → ${elevatedPriority}`);
         }
-        lines.push('PLAN 阶段强制要求（高风险路径）:');
-        lines.push('  - understanding_set 落 task 理解快照（unknowns/touchpoints 必填）');
-        lines.push('  - decision_set 必须包含 ≥3 preMortem 场景');
-        lines.push('  - story_review 通过（缺 decision 或 preMortem < 3 视为 blocker）');
+        if (args.phase === 'DONE') {
+          lines.push('DONE/onboard 记录模式：高风险 artifact 建议补齐，但此处不阻塞创建。');
+          lines.push('  - 建议补 understanding_set / decision_set 供后续审计');
+          lines.push('  - 建议补 story_review 记录设计审查结论');
+        } else {
+          lines.push('PLAN 阶段强制要求（高风险路径）:');
+          lines.push('  - understanding_set 落 task 理解快照（unknowns/touchpoints 必填）');
+          lines.push('  - decision_set 必须包含 ≥3 preMortem 场景');
+          lines.push('  - story_review 通过（缺 decision 或 preMortem < 3 视为 blocker）');
+        }
         riskHint = lines.join('\n');
       }
 

@@ -1,10 +1,11 @@
 
-import { existsSync } from 'fs';
+import { existsSync, mkdirSync, rmSync } from 'fs';
 import { join } from 'path';
 import type { HandlerContext } from './context.js';
 import { execSync } from 'child_process';
 import type { VerificationEvidence, VerificationIntent } from '../core/types.js';
 import { makeEvidence } from '../core/verification.js';
+import { reportHealthIssue } from '../core/health.js';
 
 /**
  * B-45ed CHK-008: 给定 storyId，若 background.md 存在则返回相对路径，否则返回 null。
@@ -13,6 +14,32 @@ function resolveBackgroundPath(root: string, storyId: string): string | null {
   const rel = `docs/story/actives/${storyId}/background.md`;
   const abs = join(root, rel);
   return existsSync(abs) ? rel : null;
+}
+
+function sleepMs(ms: number): void {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+
+function withChecklistLock<T>(root: string, storyId: string, fn: () => T): T {
+  const lockDir = join(root, 'docs', 'story', 'actives', storyId, '.checklist.lock');
+  const deadline = Date.now() + 5000;
+  while (true) {
+    try {
+      mkdirSync(lockDir);
+      break;
+    } catch (e: any) {
+      if (e?.code !== 'EEXIST') throw e;
+      if (Date.now() > deadline) {
+        throw new Error(`checklist lock timeout for ${storyId}`);
+      }
+      sleepMs(50);
+    }
+  }
+  try {
+    return fn();
+  } finally {
+    try { rmSync(lockDir, { recursive: true, force: true }); } catch { /* best effort */ }
+  }
 }
 
 export function createChecklistHandlers(ctx: HandlerContext) {
@@ -222,75 +249,108 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         );
       }
 
-      const cl = store.readChecklist(args.storyId);
-      const item = cl.items.find(i => i.id === args.itemId);
-      if (!item) throw new Error(`Checklist item ${args.itemId} not found`);
+      const { results, oldStatus, item } = withChecklistLock(root, args.storyId, () => {
+        const results: string[] = [];
+        const now = new Date().toISOString();
+        const cl = store.readChecklist(args.storyId);
+        const item = cl.items.find(i => i.id === args.itemId);
+        if (!item) throw new Error(`Checklist item ${args.itemId} not found`);
+        const oldStatus: 'pending' | 'in_progress' | 'done' = item.status;
 
-      const results: string[] = [];
-      const now = new Date().toISOString();
-      const oldStatus = item.status;
-
-      if (args.title !== undefined) {
-        item.title = args.title;
-        results.push(`title updated`);
-      }
-      if (args.context !== undefined) {
-        item.context = args.context;
-        results.push(`context updated`);
-      }
-      if (args.relatedDocs !== undefined) {
-        item.relatedDocs = args.relatedDocs;
-        results.push(`relatedDocs updated (${args.relatedDocs.length})`);
-      }
-      if (args.userSees !== undefined) {
-        item.userSees = args.userSees;
-        results.push(`userSees updated`);
-      }
-      if (args.files !== undefined) {
-        item.files = {
-          modify: args.files.modify ?? [],
-          create: args.files.create ?? [],
-          test: args.files.test ?? [],
-        };
-        results.push(`files updated (modify:${item.files.modify.length} create:${item.files.create.length} test:${item.files.test.length})`);
-      }
-      if (args.verificationIntent !== undefined) {
-        item.verificationIntent = args.verificationIntent;
-        results.push(`verificationIntent updated`);
-      }
-      if (args.verificationEvidence !== undefined) {
-        item.verificationEvidence = args.verificationEvidence;
-        results.push(`verificationEvidence updated (${args.verificationEvidence.length})`);
-      }
-
-      if (args.status) {
-        item.status = args.status;
-        if (args.status === 'in_progress' && !item.startTime) {
-          item.startTime = now;
+        if (args.title !== undefined) {
+          item.title = args.title;
+          results.push('title updated');
         }
-        if (args.status === 'done') {
-          item.endTime = now;
+        if (args.context !== undefined) {
+          item.context = args.context;
+          results.push('context updated');
+        }
+        if (args.relatedDocs !== undefined) {
+          item.relatedDocs = args.relatedDocs;
+          results.push(`relatedDocs updated (${args.relatedDocs.length})`);
+        }
+        if (args.userSees !== undefined) {
+          item.userSees = args.userSees;
+          results.push('userSees updated');
+        }
+        if (args.files !== undefined) {
+          item.files = {
+            modify: args.files.modify ?? [],
+            create: args.files.create ?? [],
+            test: args.files.test ?? [],
+          };
+          results.push(`files updated (modify:${item.files.modify.length} create:${item.files.create.length} test:${item.files.test.length})`);
+        }
+        if (args.verificationIntent !== undefined) {
+          item.verificationIntent = args.verificationIntent;
+          results.push('verificationIntent updated');
+        }
+        if (args.verificationEvidence !== undefined) {
+          item.verificationEvidence = args.verificationEvidence;
+          results.push(`verificationEvidence updated (${args.verificationEvidence.length})`);
         }
 
-        // 修改操作写审计日志（新建 pending→pending 不算修改）
-        if (oldStatus !== args.status && args.reason) {
-          const story = store.readStory(args.storyId);
-          if (!cl.auditLog) cl.auditLog = [];
-          cl.auditLog.push({
-            timestamp: now,
-            phase: story.phase,
+        if (args.status) {
+          item.status = args.status;
+          if (args.status === 'in_progress' && !item.startTime) {
+            item.startTime = now;
+          }
+          if (args.status === 'done') {
+            item.endTime = now;
+          }
+
+          if (oldStatus !== args.status && args.reason) {
+            const story = store.readStory(args.storyId);
+            if (!cl.auditLog) cl.auditLog = [];
+            cl.auditLog.push({
+              timestamp: now,
+              phase: story.phase,
+              itemId: args.itemId,
+              action: 'update',
+              from: oldStatus,
+              to: args.status,
+              reason: args.reason,
+              ...(args.agent ? { agent: args.agent } : {}),
+            });
+          }
+          results.push(`status → ${args.status}`);
+        }
+
+        store.writeChecklist(args.storyId, cl);
+
+        const persisted = store.readChecklist(args.storyId);
+        const persistedItem = persisted.items.find(i => i.id === args.itemId);
+        const mismatches: string[] = [];
+        if (!persistedItem) {
+          mismatches.push('item missing after write');
+        } else {
+          if (args.status !== undefined && persistedItem.status !== args.status) {
+            mismatches.push(`status expected=${args.status} actual=${persistedItem.status}`);
+          }
+          if (args.title !== undefined && persistedItem.title !== args.title) {
+            mismatches.push('title mismatch after write');
+          }
+          if (args.context !== undefined && persistedItem.context !== args.context) {
+            mismatches.push('context mismatch after write');
+          }
+          if (args.userSees !== undefined && persistedItem.userSees !== args.userSees) {
+            mismatches.push('userSees mismatch after write');
+          }
+        }
+        if (mismatches.length > 0) {
+          reportHealthIssue('persist:checklist_update_diverged', new Error(mismatches.join('; ')), {
+            storyId: args.storyId,
             itemId: args.itemId,
-            action: 'update',
-            from: oldStatus,
-            to: args.status,
-            reason: args.reason,
-            ...(args.agent ? { agent: args.agent } : {}),
+            root,
           });
+          throw new Error(
+            `checklist_update 持久化校验失败：${mismatches.join('; ')}\n` +
+            `→ 命令没有可靠落盘，请先用 story_get/checklist_get 检查当前 story 副本（root=${root}）`
+          );
         }
-        results.push(`status → ${args.status}`);
-      }
 
-      store.writeChecklist(args.storyId, cl);
+        return { results, oldStatus, item: persistedItem || item };
+      });
 
       // B-3511: append process events on status transitions
       if (args.status && oldStatus !== args.status) {

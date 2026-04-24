@@ -16,6 +16,7 @@ import type { HandlerContext } from './handlers/context.js';
 import { createStoryHandlers } from './handlers/story.js';
 import { createChecklistHandlers } from './handlers/checklist.js';
 import { createBugHandlers } from './handlers/bug.js';
+import { createFixtureHandlers } from './handlers/fixture.js';
 import { createWorktreeHandlers } from './handlers/worktree.js';
 import { createUnderstandingHandlers } from './handlers/understanding.js';
 import { createDecisionHandlers } from './handlers/decision.js';
@@ -84,6 +85,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createStoryHandlers(ctx));
   registry.registerBatch(createChecklistHandlers(ctx));
   registry.registerBatch(createBugHandlers(ctx));
+  registry.registerBatch(createFixtureHandlers(ctx));
   registry.registerBatch(createWorktreeHandlers(ctx));
   registry.registerBatch(createUnderstandingHandlers(ctx));
   registry.registerBatch(createDecisionHandlers(ctx));

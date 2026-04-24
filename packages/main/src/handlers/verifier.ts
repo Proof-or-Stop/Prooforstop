@@ -22,6 +22,7 @@ import { runChannelGateCli } from './validate-channel.js';
 import { runConceptGateCli } from './validate-concept.js';
 import { runLintGateCli } from './validate-lint.js';
 import { buildVerificationCoverage, renderVerificationCoverage } from '../core/verification.js';
+import { resolveDefaultBranch } from '../core/git-probe.js';
 
 function findValidateFile(projectRoot: string): string | null {
   const candidates = ['validate.ts', 'validate.js', 'validate.mts'];
@@ -181,12 +182,13 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         tsArgs.push(`--story=${args.story}`);
         // Git diff 推断：把全部改动文件传给 validate.ts，让项目自己决定跑哪���测试
         try {
-          const diff = execSync('git diff main...HEAD --name-only', { cwd: projectRoot, encoding: 'utf-8' }).trim();
+          const baseBranch = resolveDefaultBranch(projectRoot);
+          const diff = execSync(`git diff ${baseBranch}...HEAD --name-only`, { cwd: projectRoot, encoding: 'utf-8' }).trim();
           if (diff) {
             const changedFiles = diff.split('\n').filter(Boolean);
             // 传全部改动文件给 validate.ts，不假设项目遵循 D/M/F 范式
             tsArgs.push(`--changed-files=${changedFiles.join(',')}`);
-            ctx.log?.(`story ${args.story}: git diff 发现 ${changedFiles.length} 个改动文件`);
+            ctx.log?.(`story ${args.story}: git diff ${baseBranch}...HEAD 发现 ${changedFiles.length} 个改动文件`);
           }
         } catch { /* git diff 失败不阻塞 */ }
       }

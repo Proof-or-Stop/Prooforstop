@@ -107,6 +107,21 @@ export function createFixtureHandlers(ctx: HandlerContext) {
   const config = loadConfig(root);
   const fixturesDir = join(root, config.fixturesDir);
 
+  function normalizeFixtureCaseInput(raw: Record<string, unknown>, explicitStoryId?: string): Record<string, unknown> {
+    const c = { ...raw };
+    const inferredStoryId = explicitStoryId || (typeof c.storyId === 'string' ? c.storyId as string : undefined) || inferStoryIdFromGit(root);
+    if (inferredStoryId) {
+      if (!c.storyId) c.storyId = inferredStoryId;
+      if (typeof c.intentRef === 'string') {
+        const ref = c.intentRef as string;
+        if (/^CHK-\d+:(happy|edge|adversarial):\d+$/.test(ref) && !ref.startsWith(`${inferredStoryId}:`)) {
+          c.intentRef = `${inferredStoryId}:${ref}`;
+        }
+      }
+    }
+    return c;
+  }
+
   function fixturePath(name: string): string {
     return join(fixturesDir, name + '.json');
   }
@@ -139,14 +154,16 @@ export function createFixtureHandlers(ctx: HandlerContext) {
     fixture_update(args: {
       fixturePath: string;
       action: 'add' | 'update' | 'delete';
-      case: { name: string; input?: unknown; expect?: unknown; throws?: string; fn?: string; executeFile?: string };
+      storyId?: string;
+      case: Record<string, unknown> & { name?: string; _id?: string };
     }) {
       const data = readFixture(args.fixturePath);
-      const c = { ...args.case };
+      let c = normalizeFixtureCaseInput(args.case, args.storyId);
 
       // CHK-001: executeFile → 从文件读取 execute 内容
-      if (c.executeFile) {
-        const filePath = isAbsolute(c.executeFile) ? c.executeFile : join(root, c.executeFile);
+      if (typeof c.executeFile === 'string' && c.executeFile.length > 0) {
+        const executeFile = c.executeFile;
+        const filePath = isAbsolute(executeFile) ? executeFile : join(root, executeFile);
         if (!existsSync(filePath)) {
           throw new Error(`executeFile not found: ${filePath}`);
         }
@@ -170,19 +187,32 @@ export function createFixtureHandlers(ctx: HandlerContext) {
       }
 
       if (args.action === 'update') {
-        const idx = data.cases.findIndex((x: any) => x.name === c.name);
-        if (idx === -1) throw new Error(`case "${c.name}" not found`);
+        let idx = -1;
+        if (typeof c._id === 'string') {
+          idx = data.cases.findIndex((x: any) => x._id === c._id);
+        }
+        if (idx === -1 && c.name) {
+          idx = data.cases.findIndex((x: any) => x.name === c.name);
+        }
+        if (idx === -1) throw new Error(`case not found (lookup by _id first, then name)`);
         Object.assign(data.cases[idx], c);
         writeFixture(args.fixturePath, data);
-        return `Case "${c.name}" updated`;
+        return `Case "${data.cases[idx].name}" updated`;
       }
 
       if (args.action === 'delete') {
-        const idx = data.cases.findIndex((x: any) => x.name === c.name);
-        if (idx === -1) throw new Error(`case "${c.name}" not found`);
+        let idx = -1;
+        if (typeof c._id === 'string') {
+          idx = data.cases.findIndex((x: any) => x._id === c._id);
+        }
+        if (idx === -1 && c.name) {
+          idx = data.cases.findIndex((x: any) => x.name === c.name);
+        }
+        if (idx === -1) throw new Error(`case not found (lookup by _id first, then name)`);
+        const deletedName = data.cases[idx].name;
         data.cases.splice(idx, 1);
         writeFixture(args.fixturePath, data);
-        return `Case "${c.name}" deleted (remaining: ${data.cases.length})`;
+        return `Case "${deletedName}" deleted (remaining: ${data.cases.length})`;
       }
 
       throw new Error(`Unknown action: ${args.action}`);

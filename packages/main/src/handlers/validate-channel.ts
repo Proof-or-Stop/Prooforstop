@@ -24,6 +24,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { StoryStore } from '../core/store.js';
 import { DEFAULT_BASE } from './validate-shared.js';
+import { resolveDefaultBranch } from '../core/git-probe.js';
 import { computeChannel } from '../core/workflow-policy.js';
 import type { StoryInfo, ChecklistData, DecisionData, ProcessEvent } from '../core/types.js';
 
@@ -320,7 +321,7 @@ export function checkCommitAuthor(
   storyId: string,
   deps: CheckCommitAuthorDeps,
 ): ChannelCheckResult {
-  const { store, projectRoot, gitLogReader = defaultGitLogReader, base = DEFAULT_BASE, planReader = defaultPlanReader } = deps;
+  const { store, projectRoot, gitLogReader = defaultGitLogReader, base = resolveDefaultBranch(projectRoot) || DEFAULT_BASE, planReader = defaultPlanReader } = deps;
 
   // story 存在性校验
   if (!store.storyExists(storyId)) {

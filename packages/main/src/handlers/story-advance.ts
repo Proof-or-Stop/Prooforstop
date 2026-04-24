@@ -18,13 +18,14 @@ import { cleanStrayWorktreeFiles } from './stray-file-cleanup.js';
 import { computeActiveReviewers, renderActiveReviewersText } from './reviewer-list.js';
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
 import { collectBaselineRisk, renderBaselineRiskLines } from '../core/baseline-risk.js';
+import { resolveDefaultBranch } from '../core/git-probe.js';
 
-// B-c622 CHK-004: DONE 阶段自动同步 main —— detect divergence + auto merge main
+// B-c622 CHK-004: DONE 阶段自动同步默认分支 —— detect divergence + auto merge base branch
 
-/** Check how many commits main has that the current branch doesn't. */
-function checkMainDivergence(projectRoot: string): { behind: number; needsSync: boolean } {
+/** Check how many commits base branch has that the current branch doesn't. */
+function checkMainDivergence(projectRoot: string, baseBranch: string): { behind: number; needsSync: boolean } {
   try {
-    const result = execSync('git rev-list --count HEAD..main', {
+    const result = execSync(`git rev-list --count HEAD..${baseBranch}`, {
       cwd: projectRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
     const behind = parseInt(result, 10) || 0;
@@ -34,19 +35,19 @@ function checkMainDivergence(projectRoot: string): { behind: number; needsSync: 
   }
 }
 
-/** Auto-sync main into the current branch. Returns success/failure + message. */
-function autoSyncMain(projectRoot: string): { ok: boolean; message: string } {
-  // Try to fetch origin main first (fails silently for local-only repos)
+/** Auto-sync base branch into the current branch. Returns success/failure + message. */
+function autoSyncMain(projectRoot: string, baseBranch: string): { ok: boolean; message: string } {
+  // Try to fetch origin <baseBranch> first (fails silently for local-only repos)
   try {
-    execSync('git fetch origin main:main', {
+    execSync(`git fetch origin ${baseBranch}:${baseBranch}`, {
       cwd: projectRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
     });
   } catch { /* local-only repo or no remote — skip fetch */ }
   try {
-    execSync('git merge main --no-edit', {
+    execSync(`git merge ${baseBranch} --no-edit`, {
       cwd: projectRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
     });
-    return { ok: true, message: 'main 已自动同步到当前分支' };
+    return { ok: true, message: `${baseBranch} 已自动同步到当前分支` };
   } catch {
     // conflict — abort merge to keep branch clean
     try {
@@ -54,7 +55,7 @@ function autoSyncMain(projectRoot: string): { ok: boolean; message: string } {
         cwd: projectRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
       });
     } catch { /* abort failed — already clean */ }
-    return { ok: false, message: 'merge main 有冲突（已 abort 保持分支干净）。\n→ 执�� git merge main，解决冲突后 git add + git commit，然后重跑 story_advance DONE' };
+    return { ok: false, message: `merge ${baseBranch} 有冲突（已 abort 保持分支干净）。\n→ 执行 git merge ${baseBranch}，解决冲突后 git add + git commit，然后重跑 story_advance DONE` };
   }
 }
 
@@ -126,6 +127,7 @@ type DoneCheckRow = {
 
 function buildDoneChecklist(storyId: string, store: StoryStore, root: string): DoneCheckRow[] {
   const rows: DoneCheckRow[] = [];
+  const baseBranch = resolveDefaultBranch(root);
 
   // Resolve workflow policy for policy-aware gates
   const config = loadConfig(root);
@@ -232,37 +234,37 @@ function buildDoneChecklist(storyId: string, store: StoryStore, root: string): D
     });
   }
 
-  // 4. branch synced with main (B-c622 CHK-004: 加入 divergence 检测提示)
+  // 4. branch synced with default base branch (B-c622 CHK-004: 加入 divergence 检测提示)
   try {
     const story = store.readStory(storyId);
-    if (story.worktree?.branch) {
-      const branch = story.worktree.branch;
-      try {
-        execSync(`git merge-base --is-ancestor main ${branch}`, { cwd: root, stdio: 'pipe' });
-        rows.push({ status: 'pass', label: 'Branch synced with main', detail: branch });
+      if (story.worktree?.branch) {
+        const branch = story.worktree.branch;
+        try {
+        execSync(`git merge-base --is-ancestor ${baseBranch} ${branch}`, { cwd: root, stdio: 'pipe' });
+        rows.push({ status: 'pass', label: `Branch synced with ${baseBranch}`, detail: branch });
       } catch {
-        const divergence = checkMainDivergence(root);
+        const divergence = checkMainDivergence(root, baseBranch);
         rows.push({
           status: 'fail',
-          label: 'Branch synced with main',
+          label: `Branch synced with ${baseBranch}`,
           detail: divergence.needsSync
-            ? `${branch} 落后 main ${divergence.behind} 个提交`
-            : `${branch} 未合并 main 的最新提交`,
-          hint: 'DONE 推进时将自动尝试 git merge main；若有冲突请手动解决',
+            ? `${branch} 落后 ${baseBranch} ${divergence.behind} 个提交`
+            : `${branch} 未合并 ${baseBranch} 的最新提交`,
+          hint: `DONE 推进时将自动尝试 git merge ${baseBranch}；若有冲突请手动解决`,
         });
       }
     } else {
       // No worktree branch recorded — detect from git directly
-      const divergence = checkMainDivergence(root);
+      const divergence = checkMainDivergence(root, baseBranch);
       if (divergence.needsSync) {
         rows.push({
           status: 'fail',
-          label: 'Branch synced with main',
-          detail: `当前分支落后 main ${divergence.behind} 个提交`,
-          hint: 'DONE 推进时将自动尝试 git merge main；若有冲突请手动解决',
+          label: `Branch synced with ${baseBranch}`,
+          detail: `当前分支落后 ${baseBranch} ${divergence.behind} 个提交`,
+          hint: `DONE 推进时将自动尝试 git merge ${baseBranch}；若有冲突请手动解决`,
         });
       } else {
-        rows.push({ status: 'pass', label: 'Branch synced with main', detail: 'up to date' });
+        rows.push({ status: 'pass', label: `Branch synced with ${baseBranch}`, detail: 'up to date' });
       }
     }
   } catch { /* 读 story 失败不阻塞，guard 已经报过错 */ }
@@ -283,7 +285,7 @@ function buildDoneChecklist(storyId: string, store: StoryStore, root: string): D
     if (allDocs.size > 0) {
       let changedFiles = new Set<string>();
       try {
-        const out = execSync('git diff main...HEAD --name-only', { cwd: root, encoding: 'utf8', timeout: 5000 }).trim();
+        const out = execSync(`git diff ${baseBranch}...HEAD --name-only`, { cwd: root, encoding: 'utf8', timeout: 5000 }).trim();
         if (out) changedFiles = new Set(out.split('\n'));
       } catch { /* ignore */ }
       const unchanged: Array<[string, string[]]> = [];
@@ -463,10 +465,11 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
       // B-c622 CL-006: auto-sync main BEFORE actor.can() to avoid TOCTOU —
       // guard evaluates post-merge state, not pre-merge state.
       if (args.phase === 'DONE') {
-        const divergence = checkMainDivergence(ctx.root);
+        const baseBranch = resolveDefaultBranch(ctx.root);
+        const divergence = checkMainDivergence(ctx.root, baseBranch);
         if (divergence.needsSync) {
-          ctx.log?.(`DONE pre-check: 当前分支落后 main ${divergence.behind} 个提交，自动同步...`);
-          const syncResult = autoSyncMain(ctx.root);
+          ctx.log?.(`DONE pre-check: 当前分支落后 ${baseBranch} ${divergence.behind} 个提交，自动同步...`);
+          const syncResult = autoSyncMain(ctx.root, baseBranch);
           if (syncResult.ok) {
             ctx.log?.(`✓ ${syncResult.message}`);
           } else {

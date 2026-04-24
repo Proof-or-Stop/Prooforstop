@@ -27,7 +27,7 @@ import { formatProcessMetricsSummary } from '../core/process-metrics.js';
 import { readActivityLogTail } from '../core/activity-log.js';
 import { summarizeReviewerStatus } from '../core/reviewer-status.js';
 import { reviewAntiStall, testAntiStall } from '../core/anti-stall.js';
-import { isGitRepository } from '../core/git-probe.js';
+import { isGitRepository, resolveDefaultBranch } from '../core/git-probe.js';
 
 interface ActiveStoryDetected {
   storyId: string;
@@ -621,9 +621,10 @@ export function createSessionHandlers(ctx: HandlerContext) {
       if (story.phase === 'TEST') {
         const gitPre = readGitStatus(ctx.root);
         const openBugs = bugs?.bugs.filter(b => b.status === 'open') ?? [];
+        const baseBranch = resolveDefaultBranch(ctx.root);
         let branchSynced = 'unknown';
         try {
-          execSync(`git merge-base --is-ancestor main HEAD`, {
+          execSync(`git merge-base --is-ancestor ${baseBranch} HEAD`, {
             cwd: ctx.root,
             encoding: 'utf-8',
             stdio: ['pipe', 'pipe', 'pipe'],
@@ -646,7 +647,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
         lines.push(`  test evidence: ${hasTestEvidence ? 'PASS' : 'missing'}`);
         lines.push(`  bugs: ${openBugs.length === 0 ? 'all fixed' : `${openBugs.length} open`}`);
         lines.push(`  git working tree: ${gitPre.porcelain.length === 0 ? 'clean' : 'dirty'}`);
-        lines.push(`  branch synced with main: ${branchSynced}`);
+        lines.push(`  branch synced with ${baseBranch}: ${branchSynced}`);
         lines.push(`  eval evidence: ${evalPresent ? 'present' : 'missing'}`);
         lines.push(`  summary: ${summaryPresent ? 'present' : 'missing'}`);
       }

@@ -91,6 +91,7 @@ const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'story_get', 'story_list', 'story_discard',
     'aux_*', // 全部辅助工具：scan/detail/coverage/locate/sync/trace/diagnose/doc_list
     'checklist_get',
+    'fixture_get',
     'truth_*', 'gap_*', 'convergence_check',
     'story_advance', // 任何阶段都可以推进（cwd 门禁负责保护）
     'status',        // 全局：项目全貌（story 进度 + 代码验证）
@@ -119,6 +120,7 @@ const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
   PLAN: [
     'story_update', 'story_review', 'story_review_dismiss',
     'checklist_add', 'checklist_update', 'checklist_remove',
+    'fixture_get', 'fixture_update', 'fixture_batch_add',
     'understanding_set', 'understanding_get',
     'decision_set', 'decision_get',
     'scope_check_save',
@@ -126,6 +128,7 @@ const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
   ],
   DEV: [
     'checklist_add', 'checklist_update', 'checklist_remove',
+    'fixture_get', 'fixture_update', 'fixture_batch_add',
     'light_review',
     'validate', 'status', 'serve',
     'story_advance',
@@ -134,6 +137,7 @@ const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
   ],
   REVIEW: [
     'finding_add', 'finding_list', 'finding_resolve', 'finding_dismiss',
+    'fixture_get',
     'finding_dispatch', // B-45ed CHK-010: 主 agent 派发 finding 修复
     'finding_cluster',  // B-9d95 CHK-005: auto/merge/split 聚簇
     'validate', 'status',
@@ -142,6 +146,7 @@ const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
   ],
   TEST: [
     'finding_list', 'finding_cluster', // B-9d95 CHK-005: 聚簇视图在 TEST 也允许查询
+    'fixture_get',
     'validate', 'evaluate', 'evaluate_save',
     'bug_report', 'bug_update', 'bug_list', 'bug_analyze',
     'delivery_check_set', 'delivery_waiver_add', // B-b089: delivery reviewer 在 TEST 阶段写签名

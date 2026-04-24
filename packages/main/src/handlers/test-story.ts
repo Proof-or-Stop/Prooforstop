@@ -15,6 +15,7 @@ import { loadConfig } from '../core/config.js';
 import { reportHealthIssue } from '../core/health.js';
 import { loadTraceSnapshot } from '../tasks/trace-store.js';
 import { diffTraces } from '../tasks/trace-diff.js';
+import { resolveDefaultBranch } from '../core/git-probe.js';
 import {
   type CaseResult, type FixtureResult,
   runCase, buildChainGroups, scanFixtureFiles, findCaseByName,
@@ -72,6 +73,7 @@ export function createTestStoryHandlers(ctx: HandlerContext) {
       const fixturesDir = join(root, config.fixturesDir);
       const warnings: string[] = [];
       const errors: string[] = [];
+      const baseBranch = resolveDefaultBranch(root);
 
       const storyId = args.storyId;
 
@@ -95,14 +97,14 @@ export function createTestStoryHandlers(ctx: HandlerContext) {
       if (!existsSync(fixturesDir)) throw new Error('fixture 目录不存在');
       const fixtureFiles = scanFixtureFiles(fixturesDir);
 
-      // 作用域：只跑当前 story 分支相对 main 触碰过的 fixture 文件（git diff --name-only main...HEAD）。
+      // 作用域：只跑当前 story 分支相对默认分支触碰过的 fixture 文件（git diff --name-only <base>...HEAD）。
       // 作用：避免旧格式 intentRef 误匹配到历史 story 的 fixture，大幅缩短 test_story 耗时。
       // 空集说明 story 没动过任何 fixture — 没什么要测的，直接返回 0 条。
       // git 失败（非 git 仓、detached 等）时回退到 "不限制文件" 的老行为并 warning。
       let scopedFiles: Set<string> | null = null;
       try {
         const diff = execSync(
-          `git diff --name-only --diff-filter=ACMR main...HEAD -- ${JSON.stringify(config.fixturesDir)}`,
+          `git diff --name-only --diff-filter=ACMR ${baseBranch}...HEAD -- ${JSON.stringify(config.fixturesDir)}`,
           { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }
         ).trim();
         if (diff.length > 0) {
@@ -116,7 +118,7 @@ export function createTestStoryHandlers(ctx: HandlerContext) {
           scopedFiles = new Set();
         }
       } catch (e: any) {
-        warnings.push(`git diff 失败 (fallback 到 intentRef-only 过滤): ${e.message}`);
+        warnings.push(`git diff 失败 (${baseBranch}...HEAD, fallback 到 intentRef-only 过滤): ${e.message}`);
       }
 
       const fixtureResults: FixtureResult[] = [];

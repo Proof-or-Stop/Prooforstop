@@ -91,7 +91,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     storyId: z.string().describe('Story ID'), title: z.string().optional().describe('新标题'),
     description: z.string().optional().describe('新描述'), priority: z.string().optional().describe('新优先级'),
   }},
-  { name: 'story_get', description: '读取 Story 详情', schema: { storyId: z.string().describe('Story ID'), detail: z.boolean().optional().describe('附带 index.json 全字段（phase/priority/name/description/...）到 result.index') }},
+  { name: 'story_get', description: '读取 Story 详情', schema: { storyId: z.string().describe('Story ID'), detail: z.boolean().optional().describe('附带 index.json 全字段（phase/priority/name/description/...）到 result.index'), json: z.boolean().optional().describe('脚本模式：配合 --quiet 只输出 JSON'), quiet: z.boolean().optional().describe('静默模式：不输出 running/done 等 stderr 包裹') }},
   { name: 'story_list', description: '列出全部 Story', schema: {
     phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','REVIEW','TEST','DONE','DISCARDED']).optional().describe('按阶段过滤（与 active 互斥）'),
     active: z.boolean().optional().describe('仅列出非终态 story（排除 DONE/DISCARDED/IDEA）。B-89c7 CHK-016 新增'),
@@ -143,7 +143,11 @@ export const MAIN_TOOLS: ToolDef[] = [
   }},
 
   // Checklist
-  { name: 'checklist_get', description: '读取 checklist', schema: { storyId: z.string().describe('Story ID') }},
+  { name: 'checklist_get', description: '读取 checklist', schema: {
+    storyId: z.string().describe('Story ID'),
+    json: z.boolean().optional().describe('脚本模式：配合 --quiet 只输出 JSON'),
+    quiet: z.boolean().optional().describe('静默模式：不输出 running/done 等 stderr 包裹'),
+  }},
   { name: 'checklist_add', description: '向已有 story 追加 checklist item', schema: {
     storyId: z.string().describe('Story ID'), title: z.string().describe('做什么（一句话）'),
     context: z.string().optional().describe('根因/参考方案'),
@@ -259,7 +263,11 @@ export const MAIN_TOOLS: ToolDef[] = [
       reproTest: z.string().optional().describe('复现测试路径'),
     }).optional().describe('调试证据链（标 fixed 时建议提供）'),
   }},
-  { name: 'bug_list', description: '查看 bug 列表', schema: { storyId: z.string().describe('Story ID') }},
+  { name: 'bug_list', description: '查看 bug 列表', schema: {
+    storyId: z.string().describe('Story ID'),
+    json: z.boolean().optional().describe('脚本模式：配合 --quiet 只输出 JSON'),
+    quiet: z.boolean().optional().describe('静默模式：不输出 running/done 等 stderr 包裹'),
+  }},
   { name: 'bug_analyze', description: '跨 story bug 质量仪表盘（markdown/json）', schema: {
     format: z.enum(['json','markdown']).optional().describe('输出格式（默认 json）'),
   }},
@@ -272,6 +280,25 @@ export const MAIN_TOOLS: ToolDef[] = [
     result: z.enum(['PASS','FAIL']).describe('结果'),
   }},
   { name: 'test_list', description: '查看最新测试证据快照（当前不是历史列表）', schema: { storyId: z.string().describe('Story ID') }},
+  // Fixture
+  { name: 'fixture_get', description: '读取 fixture cases', schema: {
+    fixturePath: z.string().describe('路径(不含 .json)'),
+    json: z.boolean().optional().describe('脚本模式：配合 --quiet 只输出 JSON'),
+    quiet: z.boolean().optional().describe('静默模式：不输出 running/done 等 stderr 包裹'),
+  }},
+  { name: 'fixture_update', description: '增删改单个 fixture case（update/delete 优先按 _id，找不到再按 name）', schema: {
+    fixturePath: z.string().describe('路径(不含 .json)'),
+    action: z.enum(['add', 'update', 'delete']).describe('操作'),
+    storyId: z.string().optional().describe('显式 storyId；未传时自动从当前 story branch 推断并补到 case'),
+    case: z.object({}).passthrough().describe('case 对象；可带 _id、name、intentRef、executeFile 等字段'),
+  }},
+  { name: 'fixture_batch_add', description: '批量添加多个 case（自动补 storyId / scoped intentRef，可 dry-run）', schema: {
+    fixturePath: z.string().describe('路径(不含 .json)'),
+    cases: z.array(z.object({}).passthrough()).describe('case 数组'),
+    storyId: z.string().optional().describe('显式 storyId；未传时自动从当前 story branch 推断'),
+    dryRun: z.boolean().optional().describe('预览，不写文件'),
+    validateExecute: z.boolean().optional().describe('dryRun 时顺手执行 CLI case 预检查'),
+  }},
   // Dashboard (实时看板)
   { name: 'dashboard', description: '实时 story 进度看板（每 N 秒刷新，支持多项目切换）', schema: {
     roots: z.string().optional().describe('项目根目录（逗号分隔多个路径；默认当前目录）'),
@@ -332,6 +359,8 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'finding_list', description: '查看 story 的 findings', schema: {
     storyId: z.string().describe('Story ID'),
     cluster: z.boolean().optional().describe('B-9d95 CHK-005: 返回 cluster 视图 { clusters, ungrouped } 而非 findings 平铺'),
+    json: z.boolean().optional().describe('脚本模式：配合 --quiet 只输出 JSON'),
+    quiet: z.boolean().optional().describe('静默模式：不输出 running/done 等 stderr 包裹'),
   }},
   { name: 'finding_resolve', description: '标记 finding 为已解决', schema: {
     storyId: z.string().describe('Story ID'),
@@ -759,7 +788,6 @@ export function addValue(obj: Record<string, unknown>, key: string, val: unknown
 
 function resolveRoot(explicit?: string): string {
   if (explicit) return explicit;
-  if (process.env.KOALA_PROJECT_ROOT) return process.env.KOALA_PROJECT_ROOT;
   // 向上查找 koala.config.json 确定项目根
   let dir = process.cwd();
   for (let i = 0; i < 10; i++) {
@@ -768,6 +796,10 @@ function resolveRoot(explicit?: string): string {
     if (parent === dir) break;
     dir = parent;
   }
+  // Env override stays useful for hooks/automation, but only after local cwd
+  // discovery so a stale KOALA_PROJECT_ROOT cannot silently redirect writes to
+  // another project.
+  if (process.env.KOALA_PROJECT_ROOT) return process.env.KOALA_PROJECT_ROOT;
   // fallback: git worktree root
   const commonDir = gitProbe('git rev-parse --git-common-dir');
   if (commonDir.ok) {
@@ -840,12 +872,12 @@ export async function runCli(opts?: {
   const cmd = argv[0];
   const arg = argv[1];
 
+  if (!cmd || cmd === 'help' || cmd === '--help') { printHelp(null); return; }
+
   // Detect active story from git branch
   const root0 = resolveRoot(rootOverride);
   const activeStory = detectActiveStory(root0);
   const gitReady = isGitRepository(root0);
-
-  if (!cmd || cmd === 'help' || cmd === '--help') { printHelp(activeStory); return; }
 
   // init 走独立脚本
   if (cmd === 'init') {
@@ -922,15 +954,16 @@ export async function runCli(opts?: {
     printToolHelp(tool);
     process.exit(1);
   }
+  const quietMode = Boolean((v.data as any).quiet || (v.data as any).json);
 
   // Execute
   const root = resolveRoot(rootOverride);
   const store = new StoryStore(root);
   const _cliStart = Date.now();
-  let log: (msg: string) => void = (msg) => {
+  let log: (msg: string) => void = quietMode ? (() => {}) : ((msg) => {
     const elapsed = ((Date.now() - _cliStart) / 1000).toFixed(1);
     process.stderr.write(`[${elapsed}s] ${msg}\n`);
-  };
+  });
 
   const config0 = loadConfig(root);
   const scanRoot = join(root, config0.scanRoot);
@@ -946,7 +979,7 @@ export async function runCli(opts?: {
   let staleWarnings: string[] = [];
   try {
     staleWarnings = detectStaleState(ctx);
-    if (staleWarnings.length > 0) {
+    if (!quietMode && staleWarnings.length > 0) {
       process.stderr.write('⚠ koala stale state warnings:\n');
       for (const w of staleWarnings) process.stderr.write(`  - ${w}\n`);
     }
@@ -1051,7 +1084,7 @@ export async function runCli(opts?: {
     const runStart = new Date().toISOString();
     log(`running ${cmd}...`);
     // preCommand hook — non-blocking failure, awaited so it always runs before the handler
-    if (config0?.hooks?.preCommand) {
+    if (!quietMode && config0?.hooks?.preCommand) {
       process.stderr.write(`[koala-hook] running preCommand hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
     }
     await runHooks('preCommand', cmd, buildHookEnvLocal('preCommand'), config0, root);
@@ -1077,7 +1110,7 @@ export async function runCli(opts?: {
       });
       // postCommand hook — runs before we exit; failure does not block exit(0)
       const resultText = typeof result === 'string' ? result : JSON.stringify(result);
-      if (config0?.hooks?.postCommand) {
+      if (!quietMode && config0?.hooks?.postCommand) {
         process.stderr.write(`[koala-hook] running postCommand hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
       }
       await runHooks('postCommand', cmd, buildHookEnvLocal('postCommand', {
@@ -1094,7 +1127,7 @@ export async function runCli(opts?: {
       }
       // onError hook — best-effort; always runs before exit(1).
       // Print a hint so the user knows why a failed command takes a few extra seconds.
-      if (config0?.hooks?.onError) {
+      if (!quietMode && config0?.hooks?.onError) {
         process.stderr.write(`[koala-hook] running onError hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
       }
       await runHooks('onError', cmd, buildHookEnvLocal('onError', {

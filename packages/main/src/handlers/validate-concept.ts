@@ -23,6 +23,7 @@
 
 import { execSync } from 'node:child_process';
 import { DEFAULT_BASE } from './validate-shared.js';
+import { resolveDefaultBranch } from '../core/git-probe.js';
 
 export interface ConceptResidual {
   symbol: string;
@@ -215,7 +216,7 @@ export function checkConcept(deps: CheckConceptDeps): ConceptCheckResult {
     projectRoot,
     gitDiffReader = defaultGitDiffReader,
     grepReader,
-    base = DEFAULT_BASE,
+    base = resolveDefaultBranch(projectRoot) || DEFAULT_BASE,
   } = deps;
 
   let diff: string;
