@@ -95,6 +95,8 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'story_list', description: '列出全部 Story', schema: {
     phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','REVIEW','TEST','DONE','DISCARDED']).optional().describe('按阶段过滤（与 active 互斥）'),
     active: z.boolean().optional().describe('仅列出非终态 story（排除 DONE/DISCARDED/IDEA）。B-89c7 CHK-016 新增'),
+    json: z.boolean().optional().describe('脚本模式：配合 --quiet 只输出 JSON'),
+    quiet: z.boolean().optional().describe('静默模式：不输出 running/done 等 stderr 包裹'),
   }},
   { name: 'story_discard', description: '废弃 Story：清理 worktree/分支并标记为 DISCARDED', schema: {
     storyId: z.string().describe('Story ID'),
@@ -233,6 +235,8 @@ export const MAIN_TOOLS: ToolDef[] = [
   }},
   { name: 'decision_get', description: '读取 decision snapshot', schema: {
     storyId: z.string().describe('Story ID'),
+    json: z.boolean().optional().describe('脚本模式：配合 --quiet 只输出 JSON'),
+    quiet: z.boolean().optional().describe('静默模式：不输出 running/done 等 stderr 包裹'),
   }},
   // Summary (B-093b: DONE-gate forced completion summary)
   { name: 'summary_set', description: 'DONE 前必须落：story 完成总结（changes/usage/limitations/pitfalls + 自动扫真机覆盖骨架）', schema: {
@@ -245,6 +249,8 @@ export const MAIN_TOOLS: ToolDef[] = [
   }},
   { name: 'summary_get', description: '读取 story summary', schema: {
     storyId: z.string().describe('Story ID'),
+    json: z.boolean().optional().describe('脚本模式：配合 --quiet 只输出 JSON'),
+    quiet: z.boolean().optional().describe('静默模式：不输出 running/done 等 stderr 包裹'),
   }},
   // Bug
   { name: 'bug_report', description: '报告 bug', longHelp: BUG_REPORT_LONG, schema: {
@@ -279,7 +285,11 @@ export const MAIN_TOOLS: ToolDef[] = [
     output: z.string().describe('输出'), expected: z.string().describe('预期'),
     result: z.enum(['PASS','FAIL']).describe('结果'),
   }},
-  { name: 'test_list', description: '查看最新测试证据快照（当前不是历史列表）', schema: { storyId: z.string().describe('Story ID') }},
+  { name: 'test_list', description: '查看最新测试证据快照（当前不是历史列表）', schema: {
+    storyId: z.string().describe('Story ID'),
+    json: z.boolean().optional().describe('脚本模式：配合 --quiet 只输出 JSON'),
+    quiet: z.boolean().optional().describe('静默模式：不输出 running/done 等 stderr 包裹'),
+  }},
   // Fixture
   { name: 'fixture_get', description: '读取 fixture cases', schema: {
     fixturePath: z.string().describe('路径(不含 .json)'),
@@ -504,12 +514,15 @@ export const MAIN_TOOLS: ToolDef[] = [
   }},
   { name: 'background_get', description: '读取 background.md 全文', schema: {
     storyId: z.string().describe('Story ID'),
+    json: z.boolean().optional().describe('脚本模式：配合 --quiet 只输出 JSON'),
+    quiet: z.boolean().optional().describe('静默模式：不输出 running/done 等 stderr 包裹'),
   }},
 
   // Reviewer list (B-fdcf CHK-001: opt-in 名单查询，按 riskSignals / touchpoints / channel 实时计算)
   { name: 'reviewer_list', description: '列出当前 story 的 opt-in reviewer 名单（baseline concept/quality + 按信号挂载 behavior/docs/channel）', schema: {
     storyId: z.string().describe('Story ID'),
     json: z.boolean().optional().describe('输出结构化 JSON（含 reviewers 数组）'),
+    quiet: z.boolean().optional().describe('静默模式：不输出 running/done 等 stderr 包裹'),
     forceReviewer: z.string().optional().describe('逗号分隔的 reviewer 名称，强制加挂；写入 story.events 审计（reviewer_forced）'),
   }},
 
@@ -517,9 +530,14 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'workflow_set', description: '设置项目 workflow profile（light/balanced/strict）', schema: {
     profile: z.string().describe('目标 profile：light / balanced / strict'),
   }},
-  { name: 'workflow_show', description: '显示当前 workflow profile 和生效策略', schema: {} },
+  { name: 'workflow_show', description: '显示当前 workflow profile 和生效策略', schema: {
+    json: z.boolean().optional().describe('脚本模式：配合 --quiet 只输出 JSON'),
+    quiet: z.boolean().optional().describe('静默模式：不输出 running/done 等 stderr 包裹'),
+  } },
   { name: 'workflow_explain', description: '解释某个 story 的实际生效 profile（project / required / effective）', schema: {
     storyId: z.string().describe('Story ID'),
+    json: z.boolean().optional().describe('脚本模式：配合 --quiet 只输出 JSON'),
+    quiet: z.boolean().optional().describe('静默模式：不输出 running/done 等 stderr 包裹'),
   }},
 
 ];
@@ -827,9 +845,15 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'story_get',
   'story_list',
   'checklist_get',
+  'decision_get',
+  'summary_get',
+  'test_list',
+  'fixture_get',
   'finding_list',
   'bug_list',
+  'background_get',
   'reviewer_list',
+  'workflow_show',
   'workflow_explain',
   'help',
 ]);

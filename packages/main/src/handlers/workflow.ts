@@ -65,10 +65,14 @@ export function createWorkflowHandlers(ctx: HandlerContext) {
       return lines.join('\n');
     },
 
-    workflow_show(): string {
+    workflow_show(args: { json?: boolean } = {}): string | object {
       const config = loadConfig(root);
       const profile: WorkflowProfile = config.workflow?.profile ?? 'balanced';
       const policy = WORKFLOW_PRESETS[profile];
+
+      if (args.json) {
+        return { profile, policy };
+      }
 
       const lines: string[] = [];
       lines.push(`Current workflow profile: ${profile}\n`);
@@ -83,7 +87,7 @@ export function createWorkflowHandlers(ctx: HandlerContext) {
       return lines.join('\n');
     },
 
-    workflow_explain(args: { storyId: string }): string {
+    workflow_explain(args: { storyId: string; json?: boolean }): string | object {
       const config = loadConfig(root);
       const story = store.readStory(args.storyId);
       const explanation = explainProfile(config, story);
@@ -102,6 +106,21 @@ export function createWorkflowHandlers(ctx: HandlerContext) {
         optionCount = decision && Array.isArray(decision.options) ? decision.options.length : 0;
         channel = computeChannel(story, cl, decision);
       } catch {}
+
+      if (args.json) {
+        return {
+          storyId: args.storyId,
+          projectProfile: explanation.projectProfile,
+          requiredProfile: explanation.requiredProfile,
+          effectiveProfile: explanation.effectiveProfile,
+          channel,
+          channelLabel: CHANNEL_LABELS[channel],
+          reasons: explanation.reasons,
+          itemsCount,
+          hasDecision,
+          optionCount,
+        };
+      }
 
       const lines: string[] = [];
       lines.push(`Story ${args.storyId} workflow profile:\n`);
