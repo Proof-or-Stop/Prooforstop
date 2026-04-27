@@ -49,31 +49,31 @@
           "intentRef": "CHK-001:happy:0",
           "kind": "integration_test",
           "file": "packages/main/src/core/config.ts",
-          "command": "npm link (from packages/main) && koala session_brief (from story worktree root)",
+          "command": "koala session_brief (from story worktree root, current HEAD)",
           "result": "pass",
-          "note": "After linking the current worktree build globally, the canonical user entrypoint koala session_brief succeeds in REVIEW and prints # koala session brief instead of unavailable command.",
-          "headHash": "f0ad19821891b32b68d35aa5a1b0b1fd3fedeec0",
-          "timestamp": "2026-04-27T13:31:23.202Z"
+          "note": "Current HEAD 1a3fe62 evidence: canonical user entrypoint koala session_brief succeeds in REVIEW and prints # koala session brief.",
+          "headHash": "1a3fe629fcf2b577c1c20eaecb0e68038f9819f8",
+          "timestamp": "2026-04-27T14:03:00.936Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
-          "kind": "integration_test",
-          "file": "packages/main/src/core/config.ts",
-          "command": "koala finding_add ... (from story worktree root while in DEV)",
-          "result": "pass",
-          "note": "Before REVIEW, canonical entrypoint koala finding_add remained phase-gated in DEV, proving session_brief all-phase access did not open mutation commands.",
-          "headHash": "f0ad19821891b32b68d35aa5a1b0b1fd3fedeec0",
-          "timestamp": "2026-04-27T13:31:28.053Z"
-        },
-        {
-          "intentRef": "CHK-001:adversarial:0",
-          "kind": "integration_test",
+          "kind": "logic_test",
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
           "command": "cd packages/main && npm run test:flow-stability-smoke",
           "result": "pass",
-          "note": "Smoke asserts session_brief bypasses custom empty phase tools while unrelated mutation commands remain rejected, covering adversarial phase-gate bypass risk.",
-          "headHash": "f0ad19821891b32b68d35aa5a1b0b1fd3fedeec0",
-          "timestamp": "2026-04-27T13:31:34.509Z"
+          "note": "Current HEAD 1a3fe62 evidence: smoke asserts session_brief all-phase allowlist does not open unrelated mutation commands.",
+          "headHash": "1a3fe629fcf2b577c1c20eaecb0e68038f9819f8",
+          "timestamp": "2026-04-27T14:03:06.525Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "cd packages/main && npm run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Current HEAD 1a3fe62 evidence: smoke covers adversarial phase-gate bypass risk by keeping mutation commands rejected.",
+          "headHash": "1a3fe629fcf2b577c1c20eaecb0e68038f9819f8",
+          "timestamp": "2026-04-27T14:03:25.112Z"
         }
       ]
     },
@@ -133,9 +133,9 @@
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
           "command": "cd packages/main && npm run test:flow-stability-smoke",
           "result": "pass",
-          "note": "Smoke constructs synthetic REVIEW state and asserts guard text expects 4 opt-in reviewers concept,quality,test-coverage,channel rather than hardcoded 5.",
-          "headHash": "f0ad19821891b32b68d35aa5a1b0b1fd3fedeec0",
-          "timestamp": "2026-04-27T13:31:38.829Z"
+          "note": "Current HEAD 1a3fe62 evidence: smoke asserts REVIEW gate expects opt-in reviewers from reviewer_list, not hardcoded five reviewers.",
+          "headHash": "1a3fe629fcf2b577c1c20eaecb0e68038f9819f8",
+          "timestamp": "2026-04-27T14:03:32.952Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -143,9 +143,9 @@
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
           "command": "cd packages/main && npm run test:flow-stability-smoke",
           "result": "pass",
-          "note": "Current HEAD evidence: smoke asserts all opt-in signed findings allow REVIEW→TEST without hardcoded five-reviewer requirement.",
-          "headHash": "f0ad19821891b32b68d35aa5a1b0b1fd3fedeec0",
-          "timestamp": "2026-04-27T13:33:11.032Z"
+          "note": "Current HEAD 1a3fe62 evidence: smoke asserts all required opt-in reviewer findings allow REVIEW→TEST without requiring a fifth reviewer.",
+          "headHash": "1a3fe629fcf2b577c1c20eaecb0e68038f9819f8",
+          "timestamp": "2026-04-27T14:03:38.395Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -153,9 +153,9 @@
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
           "command": "cd packages/main && npm run test:flow-stability-smoke",
           "result": "pass",
-          "note": "Current HEAD evidence: missing reviewer error lists opt-in names and missing reviewers instead of fixed five-reviewer wording.",
-          "headHash": "f0ad19821891b32b68d35aa5a1b0b1fd3fedeec0",
-          "timestamp": "2026-04-27T13:33:16.446Z"
+          "note": "Current HEAD 1a3fe62 evidence: missing reviewer error lists opt-in names and missing reviewers instead of fixed five-reviewer wording.",
+          "headHash": "1a3fe629fcf2b577c1c20eaecb0e68038f9819f8",
+          "timestamp": "2026-04-27T14:03:44.642Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -163,9 +163,9 @@
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
           "command": "cd packages/main && npm run test:flow-stability-smoke",
           "result": "pass",
-          "note": "Current HEAD evidence: non-opt-in docs finding cannot substitute for missing test-coverage or channel reviewer.",
-          "headHash": "f0ad19821891b32b68d35aa5a1b0b1fd3fedeec0",
-          "timestamp": "2026-04-27T13:33:20.476Z"
+          "note": "Current HEAD 1a3fe62 evidence: non-opt-in docs finding cannot substitute for missing opt-in reviewer.",
+          "headHash": "1a3fe629fcf2b577c1c20eaecb0e68038f9819f8",
+          "timestamp": "2026-04-27T14:03:51.447Z"
         }
       ]
     },
