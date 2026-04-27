@@ -62,6 +62,21 @@ export type GitLogReader = (args: {
 }) => string;
 
 const defaultGitLogReader: GitLogReader = ({ base, branch, projectRoot }) => {
+  try {
+    execSync(`git rev-parse --verify --quiet ${branch}`, { cwd: projectRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+  } catch {
+    try {
+      const currentBranch = execSync('git rev-parse --abbrev-ref HEAD', {
+        cwd: projectRoot,
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      }).trim();
+      execSync(`git merge-base --is-ancestor HEAD ${base}`, { cwd: projectRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+      if (currentBranch === base) return '';
+    } catch {
+      // Keep the original git log failure for non-main branches with a missing story ref.
+    }
+  }
   return execSync(
     `git log ${base}..${branch} "--format=%H|%an|%s"`,
     { cwd: projectRoot, encoding: 'utf-8' },
