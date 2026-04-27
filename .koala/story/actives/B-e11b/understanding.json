@@ -1,0 +1,28 @@
+{
+  "task": "把 koala validate 重构为语言无关验证协议与可插拔命令执行器的第一阶段",
+  "outcome": "用户在任意非 JS 项目里运行 `koala validate --json` 时，会看到统一的 ValidationResult：summary 明确说明执行了哪些命令，commands 数组包含每条命令的 label/code/output；如果没有验证入口，会显示 warn 和配置建议，而不是要求 validate.ts。",
+  "facts": [
+    "当前 verifier.ts 同时承担 validate.ts 查找、配置命令解析、自动语言发现、命令执行和结果包装",
+    "现有 discoverValidationCommands 已支持 npm/go/cargo/swift/maven/gradle/pytest 的基础发现",
+    "DONE/TEST gate 已消费 test-evidence.json 与 verificationCoverage",
+    "用户要求方向是语言无关测试协议 + 可插拔执行器，不是给某语言加特判 adapter"
+  ],
+  "constraints": [
+    "必须保持 validate.ts/js/mts 优先行为兼容",
+    "必须保持 validate.commands 配置优先于自动发现",
+    "不能让 DONE gate 知道具体语言细节",
+    "输出结构需要可被 test-evidence 和 verificationCoverage 继续消费",
+    "改动应先覆盖协议与执行器，不一次性实现全部语言 detector"
+  ],
+  "unknowns": [
+    "现有 e2e flow 是否足够覆盖 validate 分支，可能需要补新的轻量 CLI smoke"
+  ],
+  "touchpoints": [
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/tasks/cli-e2e.ts"
+  ],
+  "timestamp": "2026-04-27T01:25:22.501Z"
+}

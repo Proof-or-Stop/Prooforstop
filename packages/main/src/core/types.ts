@@ -1,4 +1,12 @@
 
+export type {
+  ValidationCommand,
+  ValidationCommandResult,
+  ValidationPlan,
+  ValidationResult,
+  ValidationStatus,
+} from './validation-types.js';
+
 export type StoryPhase = 'IDEA' | 'INIT' | 'INIT_CHECK' | 'PLAN' | 'DEV' | 'REVIEW' | 'TEST' | 'DONE' | 'DISCARDED'
   // Legacy phases kept for backward compat with existing story data
   | 'TEST_CASE' | 'TEST_CASE_REVIEW'

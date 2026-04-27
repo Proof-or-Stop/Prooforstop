@@ -1,0 +1,54 @@
+{
+  "storyId": "B-e11b",
+  "name": "validation-protocol-core",
+  "title": "固化跨语言 Validation Protocol 与执行器基础",
+  "description": "把 koala validate 从语言特定脚本调用升级为语言无关的验证协议。DONE gate 只消费统一 ValidationResult，底层由可插拔命令执行器产出结果。",
+  "type": "feature",
+  "phase": "DEV",
+  "priority": "high",
+  "keywords": [
+    "validation",
+    "protocol",
+    "executor",
+    "cross-language"
+  ],
+  "riskSignals": [
+    {
+      "category": "状态机/门禁",
+      "matched": "DONE gate"
+    },
+    {
+      "category": "验证框架",
+      "matched": "koala validate"
+    }
+  ],
+  "createdAt": "2026-04-27T01:25:03.874Z",
+  "startedAt": "2026-04-27T01:25:03.874Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT_CHECK",
+      "action": "create",
+      "timestamp": "2026-04-27T01:25:03.874Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-27T01:25:10.150Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-27T01:27:11.201Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}

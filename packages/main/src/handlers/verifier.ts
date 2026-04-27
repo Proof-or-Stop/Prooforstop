@@ -9,12 +9,14 @@
  * koala serve      → spawn `npx tsx serve.ts` or start falcon serve in project root
  */
 
-import { spawn, execSync } from 'node:child_process';
+import { execSync, spawn } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
-import { join, resolve, dirname } from 'node:path';
+import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { HandlerContext } from './context.js';
 import { loadConfig } from '../core/config.js';
+import type { ValidationCommand } from '../core/validation-types.js';
+import { executeValidationPlan, runValidationCommand, stripAnsi } from '../core/validation-executor.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -30,12 +32,6 @@ export function findValidateFile(projectRoot: string): string | null {
     if (existsSync(join(projectRoot, f))) return f;
   }
   return null;
-}
-
-export interface ValidationCommand {
-  label: string;
-  command: string;
-  args: string[];
 }
 
 function hasAny(projectRoot: string, paths: string[]): boolean {
@@ -117,6 +113,10 @@ function configuredValidationCommands(projectRoot: string): ValidationCommand[] 
           label: typeof entry.label === 'string' ? entry.label : `configured validate.commands[${i}]`,
           command: entry.command,
           args,
+          ...(typeof entry.cwd === 'string' ? { cwd: entry.cwd } : {}),
+          ...(entry.env && typeof entry.env === 'object' ? { env: Object.fromEntries(Object.entries(entry.env).map(([k, v]) => [k, String(v)])) } : {}),
+          ...(typeof entry.timeoutMs === 'number' ? { timeoutMs: entry.timeoutMs } : {}),
+          ...(typeof entry.optional === 'boolean' ? { optional: entry.optional } : {}),
         });
       }
     }
@@ -174,24 +174,18 @@ export function discoverValidationCommands(projectRoot: string): ValidationComma
 }
 
 /** Run a command and capture stdout+stderr, returning { code, output } */
-export function runCommand(command: string, args: string[], cwd: string): Promise<{ code: number; output: string }> {
-  return new Promise((resolve) => {
-    const child = spawn(command, args, {
-      cwd,
-      shell: process.platform === 'win32',
-      stdio: ['ignore', 'pipe', 'pipe'],
-    });
-    let output = '';
-    child.stdout?.on('data', (d: Buffer) => { output += d.toString(); });
-    child.stderr?.on('data', (d: Buffer) => { output += d.toString(); });
-    child.on('close', (code) => resolve({ code: code ?? 1, output }));
-    child.on('error', (e) => resolve({ code: 1, output: output + '\n' + e.message }));
-  });
-}
-
-/** Strip ANSI escape codes for JSON parsing */
-function stripAnsi(str: string): string {
-  return str.replace(/\x1B\[[0-9;]*m/g, '');
+export async function runCommand(
+  command: string,
+  args: string[],
+  cwd: string,
+): Promise<{ code: number; output: string; durationMs: number; timedOut?: boolean }> {
+  const result = await runValidationCommand({ label: command, command, args }, cwd);
+  return {
+    code: result.code,
+    output: result.output,
+    durationMs: result.durationMs,
+    ...(result.timedOut ? { timedOut: true } : {}),
+  };
 }
 
 function currentHead(projectRoot: string): string | undefined {
@@ -252,6 +246,7 @@ function externalResult(args: {
   details: string[];
   warnings?: string[];
   headSha?: string;
+  commands?: any[];
 }) {
   return {
     provider: args.provider ?? 'koala-verifier',
@@ -262,6 +257,7 @@ function externalResult(args: {
     warnings: args.warnings ?? [],
     timestamp: new Date().toISOString(),
     ...(args.headSha ? { headSha: args.headSha } : {}),
+    commands: args.commands ?? [],
   };
 }
 
@@ -362,28 +358,25 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           return renderExternalResult(decorated);
         }
 
-        const details: string[] = [];
-        let allPass = true;
         ctx.log?.(`validate.ts not found; running ${commands.length} discovered validation command(s)`);
-        for (const cmd of commands) {
-          ctx.log?.(`running: ${cmd.command} ${cmd.args.join(' ')}`);
-          const { code, output } = await runCommand(cmd.command, cmd.args, projectRoot);
-          const stripped = stripAnsi(output).trim();
-          details.push(`${code === 0 ? '✓' : '✗'} ${cmd.label}: ${cmd.command} ${cmd.args.join(' ')}`.trim());
-          if (stripped) {
-            details.push(...stripped.split('\n').filter(l => l.trim()).map(l => `  ${l}`));
-          }
-          if (code !== 0) allPass = false;
-        }
-        const base = externalResult({
+        const base = await executeValidationPlan({
           provider: 'koala-verifier-commands',
-          status: allPass ? 'pass' : 'fail',
-          summary: allPass ? 'Project validation commands passed' : 'Project validation commands failed',
-          details,
+          commands,
           warnings: ['validate.ts not found; used language/project validation command discovery'],
-          headSha: currentHead(projectRoot),
+        }, projectRoot, currentHead(projectRoot));
+        for (const cmd of commands) {
+          ctx.log?.(`ran: ${cmd.command} ${cmd.args.join(' ')}`);
+        }
+        const result = externalResult({
+          provider: base.provider,
+          status: base.status,
+          summary: base.summary,
+          details: base.details,
+          warnings: base.warnings,
+          headSha: base.headSha,
+          commands: base.commands,
         });
-        const decorated = args.story ? decorateStoryVerification(ctx, args.story, base) : base;
+        const decorated = args.story ? decorateStoryVerification(ctx, args.story, result) : result;
         if (args.story) persistStoryValidationEvidence(ctx, args.story, decorated, `koala validate --story=${args.story} --json`);
         if (args.json) return JSON.stringify(decorated);
         return renderExternalResult(decorated);
@@ -420,7 +413,12 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       }
 
       ctx.log?.(`running: npx tsx ${tsArgs.join(' ')}`);
-      const { code, output } = await runCommand('npx', ['tsx', ...tsArgs], projectRoot);
+      const commandResult = await runValidationCommand({
+        label: validateFile,
+        command: 'npx',
+        args: ['tsx', ...tsArgs],
+      }, projectRoot);
+      const { code, output } = commandResult;
 
       if (args.json) {
         // Try to extract JSON from output (validate.ts should print JSON when --json is passed)
@@ -448,6 +446,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           warnings: [],
           timestamp: new Date().toISOString(),
           headSha,
+          commands: [commandResult],
         };
         const decorated = args.story ? decorateStoryVerification(ctx, args.story, wrapped) : wrapped;
         if (args.story) persistStoryValidationEvidence(ctx, args.story, decorated, `koala validate --story=${args.story} --json`);
@@ -572,10 +571,10 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
 
       // Keep the process running (this handler won't return until killed)
       return new Promise<string>((resolveP) => {
-        child.on('close', (code) => {
+        child.on('close', (code: number | null) => {
           resolveP(`serve exited with code ${code}`);
         });
-        child.on('error', (e) => {
+        child.on('error', (e: Error) => {
           resolveP(`serve failed: ${e.message}`);
         });
       });

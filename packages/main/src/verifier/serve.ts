@@ -24,7 +24,8 @@ import { resolve, join, dirname } from 'node:path';
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync, unlinkSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import net from 'node:net';
-import { discoverValidationCommands, runCommand } from '../handlers/verifier.js';
+import { discoverValidationCommands } from '../handlers/verifier.js';
+import { executeValidationPlan } from '../core/validation-executor.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -153,6 +154,7 @@ function createValidateRunner(projectRoot: string) {
             'koala.config.json validate.command(s) not configured',
             'no standard language test command discovered',
           ],
+          commands: [],
           timestamp: new Date().toISOString(),
         });
         cache.running = false;
@@ -160,23 +162,12 @@ function createValidateRunner(projectRoot: string) {
         return;
       }
 
-      const details: string[] = [];
-      let allPass = true;
-      for (const cmd of commands) {
-        const { code, output } = await runCommand(cmd.command, cmd.args, projectRoot);
-        details.push(`${code === 0 ? '✓' : '✗'} ${cmd.label}: ${cmd.command} ${cmd.args.join(' ')}`.trim());
-        if (output.trim()) details.push(...stripAnsi(output).trim().split('\n').filter(Boolean).map(l => `  ${l}`));
-        if (code !== 0) allPass = false;
-      }
-      cache.result = JSON.stringify({
+      const result = await executeValidationPlan({
         provider: 'koala-serve-validator',
-        status: allPass ? 'pass' : 'fail',
-        allPass,
-        summary: allPass ? 'Project validation commands passed' : 'Project validation commands failed',
-        details,
+        commands,
         warnings: ['validate.ts not found; used language/project validation command discovery'],
-        timestamp: new Date().toISOString(),
-      });
+      }, projectRoot);
+      cache.result = JSON.stringify(result);
       cache.running = false;
       cache.lastRun = Date.now();
       return;

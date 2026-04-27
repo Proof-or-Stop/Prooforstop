@@ -43,7 +43,15 @@ export interface KoalaConfig {
   /** 项目级验证命令；没有 validate.ts/js 时由 koala validate 使用 */
   validate?: {
     command?: string;
-    commands?: Array<string | { label?: string; command: string; args?: string[] }>;
+    commands?: Array<string | {
+      label?: string;
+      command: string;
+      args?: string[];
+      cwd?: string;
+      env?: Record<string, string>;
+      timeoutMs?: number;
+      optional?: boolean;
+    }>;
   };
   /** 浏览器测试配置 */
   browser?: {
