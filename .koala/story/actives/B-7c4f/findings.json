@@ -27,7 +27,7 @@
       "desc": "packages/main/src/handlers/worktree.ts:76-77 unlinks the global @koala-agent/core symlink before creating the replacement, and packages/main/src/handlers/story-advance.ts:989-997 catches relink failure but still removes the worktree. If symlink creation fails, DONE can still break the global koala command, which contradicts CHK-003’s promise to preserve the usable CLI or only skip safely.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "agent": "koala-review-concept",
       "createdAt": "2026-04-27T13:40:52.647Z",
       "reviewRound": "2026-04-27T13:28:35.762Z",
@@ -38,11 +38,22 @@
       "desc": "quality reviewer finding: if global @koala-agent/core symlink points into the story worktree and relink throws, story-advance currently records only a warning and still removes the worktree, which can leave the user-facing koala command broken after DONE cleanup.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "agent": "koala-review-quality",
       "createdAt": "2026-04-27T13:40:59.126Z",
       "reviewRound": "2026-04-27T13:28:35.762Z",
       "_hash": "ea1889779514b53d00a9e98d8aacb86f2167dc5a8e09db710fa15cc3c266ca8d"
+    },
+    {
+      "id": "B-7c4f:F-005",
+      "desc": "test-coverage reviewer clean: current HEAD passes cd packages/main && npm run test:flow-stability-smoke, including coverage for session_brief all-phase gate, opt-in reviewer REVIEW gate, and global koala relink failure blocking worktree deletion.",
+      "severity": "low",
+      "category": "happy",
+      "status": "open",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-04-27T13:47:22.252Z",
+      "reviewRound": "2026-04-27T13:45:18.486Z",
+      "_hash": "d59e9dbfdf56c4a1287f7e6a5e71caeeb67db24d4b8ccb60bc4815c3de459de1"
     }
   ]
 }
