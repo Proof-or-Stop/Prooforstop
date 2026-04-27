@@ -1,0 +1,76 @@
+{
+  "principles": [
+    "不通过降低 gap 规则或弱化真相源来制造收敛",
+    "已有实现用可追溯 @task 映射到对应 requirement；缺实现才补最小代码",
+    "向后兼容旧 agent/文档 payload，输入层统一归一后再校验",
+    "验证必须覆盖用户实际遇到的 checklist_update/story_create/checklist_add 入口"
+  ],
+  "drivers": [
+    "当前 convergence_check 被 10 个 high gap 和 88% coverage 阻塞",
+    "旧 cli_blackbox/browser_blackbox payload 在 zod parse 阶段失败，用户无法推进 story",
+    "Koala 需要跨语言工作流稳定，不能把 schema drift 暴露给项目用户"
+  ],
+  "options": [
+    {
+      "name": "A: 真实覆盖映射 + 输入层 alias 归一",
+      "pros": [
+        "保留 gap_analyze 的发现能力",
+        "旧 payload 可继续使用",
+        "变更集中在 schema 和已实现模块注释，风险可控"
+      ],
+      "cons": [
+        "需要逐条核对 10 个 high gap，避免把愿景误标为已实现"
+      ]
+    },
+    {
+      "name": "B: 只更新文档要求用户改 type",
+      "pros": [
+        "代码改动少"
+      ],
+      "cons": [
+        "不能解决用户现有报错",
+        "把框架兼容责任转嫁给所有项目",
+        "不满足本 story 背景要求"
+      ]
+    },
+    {
+      "name": "C: 放宽 gap_analyze 或降低 high severity",
+      "pros": [
+        "能快速让 convergence_check 变绿"
+      ],
+      "cons": [
+        "属于假收敛，会掩盖真实需求覆盖问题",
+        "违反本 story 约束"
+      ]
+    }
+  ],
+  "chosen": "A: 真实覆盖映射 + 输入层 alias 归一",
+  "rationale": "选择 A，因为它同时处理用户的两个实际阻塞：high gap/coverage 不收敛和旧 verificationIntent type 报错；且不削弱 Koala 的质量门禁。",
+  "preMortem": [
+    {
+      "scenario": "@task 注释覆盖了需求关键词，但对应代码并未真正实现",
+      "trigger": "gap_analyze 变绿但 reviewer 或后续使用发现行为不存在",
+      "consequence": "形成假收敛，用户继续被流程坑住",
+      "mitigation": "每个 high gap 只标到已有实现模块；无法证明的 gap 改实现或保留为 gap，不靠注释遮盖"
+    },
+    {
+      "scenario": "alias 只在 checklist_update 生效，story_create/checklist_add 仍失败",
+      "trigger": "用户在 PLAN 创建或追加 checklist 时继续传 cli_blackbox",
+      "consequence": "兼容修复不完整，跨项目迁移仍会中断",
+      "mitigation": "在共享 verificationIntent schema 层归一，并加三个入口的 schema smoke 测试"
+    },
+    {
+      "scenario": "把旧 testIntent 的 cli_blackbox 类型和新 verificationIntent 混淆",
+      "trigger": "修改 core/types 或历史 testIntent runner 时影响老测试流",
+      "consequence": "遗留 testIntent 行为被破坏",
+      "mitigation": "只处理 verificationIntent 输入 schema alias，不改变旧 testIntent 类型语义"
+    },
+    {
+      "scenario": "coverage 达到 100% 但 medium no_test gap 仍存在，用户误以为全部完成",
+      "trigger": "只看需求覆盖率数字，不区分 high uncovered 和 medium no_test",
+      "consequence": "后续 convergence_check 仍可能提示非本 story 的测试 gap",
+      "mitigation": "本 story 明确优先 high gap 与需求覆盖率；验证输出中单独报告剩余 medium 测试 gap 状态"
+    }
+  ],
+  "timestamp": "2026-04-27T12:31:15.582Z"
+}
