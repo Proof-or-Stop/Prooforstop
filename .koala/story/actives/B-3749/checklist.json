@@ -51,9 +51,9 @@
           "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
           "command": "npm run test:verification-freshness-smoke",
           "result": "pass",
-          "note": "Smoke creates a git repo where evidence headHash is behind HEAD and only .koala/story or docs/story workflow metadata changed; checkEvidenceFreshnessForGit returns fresh after code commit 3bf78d3.",
-          "headHash": "3bf78d303aea6b890393292682b0285dfde03431",
-          "timestamp": "2026-04-27T12:12:19.365Z"
+          "note": "Smoke proves .koala/story and docs/story workflow metadata changes keep verification evidence fresh after docs commit 0b3f4cd.",
+          "headHash": "0b3f4cda0f3d09b4c36a6a378da9b98d97b07617",
+          "timestamp": "2026-04-27T12:18:11.517Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -61,9 +61,9 @@
           "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
           "command": "npm run test:verification-freshness-smoke",
           "result": "pass",
-          "note": "Smoke covers docs/koala/framework-audit as Koala local audit workflow metadata that keeps existing verification evidence fresh after code commit 3bf78d3.",
-          "headHash": "3bf78d303aea6b890393292682b0285dfde03431",
-          "timestamp": "2026-04-27T12:12:23.542Z"
+          "note": "Smoke proves docs/koala/framework-audit workflow metadata keeps verification evidence fresh after docs commit 0b3f4cd.",
+          "headHash": "0b3f4cda0f3d09b4c36a6a378da9b98d97b07617",
+          "timestamp": "2026-04-27T12:18:18.257Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -71,9 +71,9 @@
           "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
           "command": "npm run test:verification-freshness-smoke",
           "result": "pass",
-          "note": "Smoke verifies source, fixture, package, lockfile, koala.config, .koala/activity, and docs/requirements/decisions changes are material and make evidence stale after code commit 3bf78d3.",
-          "headHash": "3bf78d303aea6b890393292682b0285dfde03431",
-          "timestamp": "2026-04-27T12:12:28.209Z"
+          "note": "Smoke proves source, fixture, package, lockfile, koala.config, .koala/activity, and docs/requirements/decisions changes are material/stale after docs commit 0b3f4cd.",
+          "headHash": "0b3f4cda0f3d09b4c36a6a378da9b98d97b07617",
+          "timestamp": "2026-04-27T12:18:24.657Z"
         }
       ]
     },
@@ -130,9 +130,9 @@
           "file": "packages/main/src/tasks/testintent-handoff-smoke.ts",
           "command": "node dist/cli.js testintent_handoff --help && npm run test:testintent-handoff-smoke",
           "result": "pass",
-          "note": "CLI --help exposes testintent_handoff schema and smoke asserts MAIN_TOOLS includes the command for help discovery after code commit 3bf78d3.",
-          "headHash": "3bf78d303aea6b890393292682b0285dfde03431",
-          "timestamp": "2026-04-27T12:12:38.513Z"
+          "note": "CLI --help and smoke expose testintent_handoff command after docs commit 0b3f4cd.",
+          "headHash": "0b3f4cda0f3d09b4c36a6a378da9b98d97b07617",
+          "timestamp": "2026-04-27T12:18:30.571Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -140,9 +140,9 @@
           "file": "packages/main/src/tasks/testintent-handoff-smoke.ts",
           "command": "npm run test:testintent-handoff-smoke",
           "result": "pass",
-          "note": "Smoke asserts isCommandAllowed(testintent_handoff,PLAN) is true and registry dispatch can produce a handoff package for a PLAN story after code commit 3bf78d3.",
-          "headHash": "3bf78d303aea6b890393292682b0285dfde03431",
-          "timestamp": "2026-04-27T12:12:45.406Z"
+          "note": "Smoke proves testintent_handoff is allowed in PLAN and dispatches a handoff package after docs commit 0b3f4cd.",
+          "headHash": "0b3f4cda0f3d09b4c36a6a378da9b98d97b07617",
+          "timestamp": "2026-04-27T12:18:36.817Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -150,9 +150,9 @@
           "file": "packages/main/src/tasks/testintent-handoff-smoke.ts",
           "command": "npm run test:testintent-handoff-smoke",
           "result": "pass",
-          "note": "Smoke calls testintent_handoff with CHK-404 and asserts it throws Unknown checklist item(s) instead of emitting an invalid handoff after code commit 3bf78d3.",
-          "headHash": "3bf78d303aea6b890393292682b0285dfde03431",
-          "timestamp": "2026-04-27T12:12:52.231Z"
+          "note": "Smoke proves bad itemId returns Unknown checklist item(s) after docs commit 0b3f4cd.",
+          "headHash": "0b3f4cda0f3d09b4c36a6a378da9b98d97b07617",
+          "timestamp": "2026-04-27T12:18:44.122Z"
         }
       ]
     },
@@ -209,9 +209,9 @@
           "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
           "command": "npm run test:verification-freshness-smoke",
           "result": "pass",
-          "note": "New package script runs the freshness smoke and prints the expected pass line while covering metadata fresh and material stale after code commit 3bf78d3.",
-          "headHash": "3bf78d303aea6b890393292682b0285dfde03431",
-          "timestamp": "2026-04-27T12:12:56.432Z"
+          "note": "Freshness smoke package script passed after docs commit 0b3f4cd.",
+          "headHash": "0b3f4cda0f3d09b4c36a6a378da9b98d97b07617",
+          "timestamp": "2026-04-27T12:18:50.147Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -219,9 +219,9 @@
           "file": "packages/main/src/tasks/testintent-handoff-smoke.ts",
           "command": "npm run test:testintent-handoff-smoke",
           "result": "pass",
-          "note": "New package script runs the handoff smoke and covers help schema, PLAN phase allowlist, handler dispatch, and bad itemId behavior after code commit 3bf78d3.",
-          "headHash": "3bf78d303aea6b890393292682b0285dfde03431",
-          "timestamp": "2026-04-27T12:13:01.856Z"
+          "note": "Handoff smoke package script passed after docs commit 0b3f4cd.",
+          "headHash": "0b3f4cda0f3d09b4c36a6a378da9b98d97b07617",
+          "timestamp": "2026-04-27T12:18:57.028Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -229,9 +229,9 @@
           "file": "packages/main/package.json",
           "command": "npm run build && npm run test:e2e",
           "result": "pass",
-          "note": "TypeScript build and existing CLI e2e suite pass after wiring the new command and smoke scripts after code commit 3bf78d3.",
-          "headHash": "3bf78d303aea6b890393292682b0285dfde03431",
-          "timestamp": "2026-04-27T12:13:05.823Z"
+          "note": "Build and e2e passed after docs commit 0b3f4cd.",
+          "headHash": "0b3f4cda0f3d09b4c36a6a378da9b98d97b07617",
+          "timestamp": "2026-04-27T12:19:02.556Z"
         }
       ]
     }
