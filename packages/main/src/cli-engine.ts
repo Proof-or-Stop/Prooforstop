@@ -300,7 +300,7 @@ export const MAIN_TOOLS: ToolDef[] = [
       reproTest: z.string().optional().describe('复现测试路径'),
     }).optional().describe('调试证据链（标 fixed 时建议提供）'),
   }},
-  { name: 'bug_list', description: '查看 bug 列表', schema: { storyId: z.string().describe('Story ID') }},
+  { name: 'bug_list', description: '查看 bug 列表（不传 storyId 时全局汇总）', schema: { storyId: z.string().optional().describe('Story ID；不传则列出全部 story 的 bugs') }},
   { name: 'bug_analyze', description: '跨 story bug 质量仪表盘（markdown/json）', schema: {
     format: z.enum(['json','markdown']).optional().describe('输出格式（默认 json）'),
   }},
@@ -886,6 +886,8 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'checklist_get',
   'finding_list',
   'bug_list',
+  'test_list',
+  'aux_doc_list',
   'reviewer_list',
   'workflow_explain',
   'help',
@@ -1140,10 +1142,12 @@ export async function runCli(opts?: {
     const runStart = new Date().toISOString();
     log(`running ${cmd}...`);
     // preCommand hook — non-blocking failure, awaited so it always runs before the handler
-    if (config0?.hooks?.preCommand) {
+    if (config0?.hooks?.preCommand && !READ_ONLY_COMMANDS.has(cmd)) {
       process.stderr.write(`[koala-hook] running preCommand hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
     }
-    await runHooks('preCommand', cmd, buildHookEnvLocal('preCommand'), config0, root);
+    if (!READ_ONLY_COMMANDS.has(cmd)) {
+      await runHooks('preCommand', cmd, buildHookEnvLocal('preCommand'), config0, root);
+    }
     try {
       let result = fn();
       if (result && typeof (result as any).then === 'function') result = await result;
@@ -1166,12 +1170,14 @@ export async function runCli(opts?: {
       });
       // postCommand hook — runs before we exit; failure does not block exit(0)
       const resultText = typeof result === 'string' ? result : JSON.stringify(result);
-      if (config0?.hooks?.postCommand) {
+      if (config0?.hooks?.postCommand && !READ_ONLY_COMMANDS.has(cmd)) {
         process.stderr.write(`[koala-hook] running postCommand hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);
       }
-      await runHooks('postCommand', cmd, buildHookEnvLocal('postCommand', {
-        KOALA_RESULT_JSON: truncateForEnv(resultText),
-      }), config0, root);
+      if (!READ_ONLY_COMMANDS.has(cmd)) {
+        await runHooks('postCommand', cmd, buildHookEnvLocal('postCommand', {
+          KOALA_RESULT_JSON: truncateForEnv(resultText),
+        }), config0, root);
+      }
       if (typeof result === 'string') console.log(result);
       else console.log(JSON.stringify(result, null, 2));
       process.exit(0);

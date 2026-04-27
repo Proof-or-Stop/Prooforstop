@@ -376,7 +376,9 @@ export function createSessionHandlers(ctx: HandlerContext) {
         // same numbers show up in brief and in `koala story_list`.
         let dashboardText: string | null = null;
         const worktrees = listActiveWorktrees(ctx.root);
-        let activeStories: Array<{ storyId: string; phase: string; title: string; bugsOpen: number; hasBg: boolean }> = [];
+        const zombiesForBrief = detectZombieStories(ctx.store, ctx.root);
+        const zombieIds = new Set(zombiesForBrief.map(z => z.storyId));
+        let activeStories: Array<{ storyId: string; phase: string; mainPhase: string | null; title: string; bugsOpen: number; hasBg: boolean }> = [];
         let totalBugsOpen = 0;
         let totalStories = allStoryIds.length;
         let doneStories = 0;
@@ -396,7 +398,8 @@ export function createSessionHandlers(ctx: HandlerContext) {
               if (
                 s.phase !== 'DONE' &&
                 s.phase !== 'DISCARDED' &&
-                s.phase !== 'IDEA'
+                s.phase !== 'IDEA' &&
+                !zombieIds.has(id)
               ) {
                 let bugsOpen = 0;
                 try {
@@ -408,6 +411,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
                 activeStories.push({
                   storyId: id,
                   phase: s.phase,
+                  mainPhase: linked?.story && linked.story.phase !== mainStory.phase ? mainStory.phase : null,
                   title: s.title || '',
                   bugsOpen,
                   hasBg,
@@ -442,11 +446,12 @@ export function createSessionHandlers(ctx: HandlerContext) {
             const bugStr = s.bugsOpen > 0 ? ` [${s.bugsOpen} bugs]` : '';
             // B-45ed CHK-008: bg:✓ 尾部标记；不存在 background.md 时不显示
             const bgStr = s.hasBg ? ' bg:✓' : '';
+            const phaseStr = s.mainPhase ? `${s.phase} (main:${s.mainPhase})` : s.phase;
             if (wt) {
-              lines.push(`  ${s.storyId} ${s.phase.padEnd(16)} ${s.title}${bugStr}${bgStr}`);
+              lines.push(`  ${s.storyId} ${phaseStr.padEnd(16)} ${s.title}${bugStr}${bgStr}`);
               lines.push(`    → cd ${wt}`);
             } else {
-              lines.push(`  ${s.storyId} ${s.phase.padEnd(16)} ${s.title}${bugStr}${bgStr}`);
+              lines.push(`  ${s.storyId} ${phaseStr.padEnd(16)} ${s.title}${bugStr}${bgStr}`);
             }
           }
           if (activeStories.length > limit) {
@@ -496,9 +501,6 @@ export function createSessionHandlers(ctx: HandlerContext) {
         // B-89c7 CHK-013: Recent router-log tail with cache warning.
         const routerTail = readRouterLogTail(ctx.root, 3);
         for (const l of renderRouterLogTail(routerTail)) lines.push(l);
-
-        let zombiesForBrief: ReturnType<typeof detectZombieStories> = [];
-        try { zombiesForBrief = detectZombieStories(ctx.store, ctx.root); } catch { /* probe */ }
 
         // Next step suggestion for main branch.
         lines.push('');

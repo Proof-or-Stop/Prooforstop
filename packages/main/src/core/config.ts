@@ -109,6 +109,9 @@ const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'story_advance', // 任何阶段都可以推进（cwd 门禁负责保护）
     'status',        // 全局：项目全貌（story 进度 + 代码验证）
     'doctor',        // 全局：health 巡检，任何阶段都可以查
+    'test_list',     // 全局：读取测试证据快照，TEST/DEV 排障都需要
+    'bug_list',      // 全局：读取 bug 状态，便于复核 dashboard
+    'finding_list',  // 全局：只读查看 reviewer 结果，避免阶段 UX 陷阱
     'audit',         // 全局：B-9bd9 框架自省 audit（advisory，任何阶段都可以跑）
     'summary_get',   // 全局：读取 summary，任何阶段都可以查
     'summary_set',   // 全局：DONE 前强制落总结，koala short-path story 也需要

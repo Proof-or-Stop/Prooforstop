@@ -4,11 +4,17 @@ import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, renameSync, r
 import { join } from 'path';
 import type { HandlerContext } from './context.js';
 import type { StoryPhase, StoryInfo } from '../core/types.js';
-import type { StoryStore } from '../core/store.js';
+import { StoryStore } from '../core/store.js';
 import { assertCwdInWorktree, collectContext } from './context.js';
 import { loadConfig } from '../core/config.js';
 import { formatProcessMetricsSummary } from '../core/process-metrics.js';
-import { getRepoRoot, getStoryWorktreeRuntime } from '../core/worktree-runtime.js';
+import {
+  getRepoRoot,
+  getStoryWorktreeRuntime,
+  isForeignAbsolutePath,
+  listGitWorktrees,
+  resolveWorktreePath,
+} from '../core/worktree-runtime.js';
 import { getLegacyActivityLogPath, getRuntimeActivityLogPath } from '../core/activity-log.js';
 
 /** B-45ed CHK-008: 若 story 的 background.md 文件存在则返回 true。 */
@@ -166,16 +172,37 @@ function gitPorcelainPaths(cwd: string): string[] {
 export function detectZombieStories(store: StoryStore, root: string): ZombieInfo[] {
   const zombies: ZombieInfo[] = [];
   const ids = store.listStoryIds();
+  const repoRoot = getRepoRoot(root);
+  const linkedByBranch = new Map<string, string>();
+  for (const entry of listGitWorktrees(repoRoot)) {
+    if (entry.branch) linkedByBranch.set(entry.branch, entry.path);
+  }
+  const branches = new Set(
+    gitSafe(repoRoot, ['for-each-ref', '--format=%(refname:short)', 'refs/heads'])
+      .split('\n')
+      .map(line => line.trim())
+      .filter(Boolean),
+  );
+  const mergedBranches = new Set(
+    gitSafe(repoRoot, ['for-each-ref', '--format=%(refname:short)', '--merged=main', 'refs/heads'])
+      .split('\n')
+      .map(line => line.trim())
+      .filter(Boolean),
+  );
 
   for (const id of ids) {
     let story: StoryInfo;
     try { story = store.readStory(id); } catch { continue; }
     if (!NON_TERMINAL_PHASES.has(story.phase)) continue;
 
-    const runtime = getStoryWorktreeRuntime(id, store, root);
-    const branch = runtime.branch;
-    const branchExists = runtime.branchExists;
-    const branchMerged = runtime.branchMerged;
+    const branch = story.worktree?.branch || `story/${id}`;
+    const branchExists = branches.has(branch);
+    const branchMerged = mergedBranches.has(branch);
+    const linkedPath = linkedByBranch.get(branch) || null;
+    const recordedPath = story.worktree?.path ?? null;
+    const recordedForeignPath = recordedPath ? isForeignAbsolutePath(recordedPath) : false;
+    const recordedAbsPath = resolveWorktreePath(repoRoot, recordedPath);
+    const recordedExists = Boolean(recordedAbsPath && !recordedForeignPath && existsSync(recordedAbsPath));
 
     // INIT 还没创建分支属于正常；INIT_CHECK 若已经有 worktree 记录/历史动作
     // 但 branch/worktree 都消失，就是 phase 被覆盖后的僵尸状态。
@@ -183,12 +210,12 @@ export function detectZombieStories(store: StoryStore, root: string): ZombieInfo
       if (!branchExists) continue;
     }
     if (story.phase === 'INIT_CHECK' && !branchExists) {
-      const hadRuntime = Boolean(story.worktree || runtime.recordedAbsPath || (Array.isArray(story.events) && story.events.length > 1));
-      const worktreeGone = !runtime.linkedPath && !runtime.recordedExists;
+      const hadRuntime = Boolean(story.worktree || recordedAbsPath || (Array.isArray(story.events) && story.events.length > 1));
+      const worktreeGone = !linkedPath && !recordedExists;
       if (!hadRuntime || !worktreeGone) continue;
     }
 
-    if (runtime.linkedPath) continue;
+    if (linkedPath) continue;
 
     const branchGone = !branchExists && story.phase !== 'INIT';
 
@@ -200,9 +227,9 @@ export function detectZombieStories(store: StoryStore, root: string): ZombieInfo
       branch,
       branchExists,
       branchMerged,
-      worktreeExists: runtime.recordedExists,
-      worktreePath: runtime.recordedAbsPath || undefined,
-      worktreeForeignPath: runtime.recordedForeignPath,
+      worktreeExists: recordedExists,
+      worktreePath: recordedAbsPath || undefined,
+      worktreeForeignPath: recordedForeignPath,
     });
   }
 
@@ -251,6 +278,42 @@ export function detectStoryResidue(
 
 export function createStoryQueryHandlers(ctx: HandlerContext) {
   const { store, root } = ctx;
+
+  function readStoryProjection(id: string, linkedWorktrees: Map<string, string>): {
+    story: StoryInfo;
+    sourceStore: StoryStore;
+    mainPhase: StoryPhase | null;
+  } {
+    const mainStory = store.readStory(id);
+    const linkedPath = linkedWorktrees.get(id);
+    if (
+      linkedPath &&
+      mainStory.phase !== 'DONE' &&
+      mainStory.phase !== 'DISCARDED'
+    ) {
+      try {
+        const sourceStore = new StoryStore(linkedPath);
+        const story = sourceStore.readStory(id);
+        return {
+          story,
+          sourceStore,
+          mainPhase: story.phase !== mainStory.phase ? mainStory.phase : null,
+        };
+      } catch {
+        // PROBE: if the linked worktree cannot be read, fall back to main metadata.
+      }
+    }
+    return { story: mainStory, sourceStore: store, mainPhase: null };
+  }
+
+  function listLinkedStoryWorktrees(): Map<string, string> {
+    const out = new Map<string, string>();
+    for (const entry of listGitWorktrees(root)) {
+      const m = entry.branch?.match(/^story\/(.+)$/);
+      if (m) out.set(m[1], entry.path);
+    }
+    return out;
+  }
 
   return {
     story_update(args: {
@@ -310,13 +373,14 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
       const zombieIds = new Set(zombies.map(z => z.storyId));
       const residueIds = new Set(residues.map(r => r.storyId));
 
+      const linkedWorktrees = listLinkedStoryWorktrees();
       const results = ids.map(id => {
-        const story = store.readStory(id);
+        const { story, sourceStore, mainPhase } = readStoryProjection(id, linkedWorktrees);
         const cl = (() => {
-          try { return store.readChecklist(id); } catch { return { items: [] }; }
+          try { return sourceStore.readChecklist(id); } catch { return { items: [] }; }
         })();
-        const bugs = store.readBugs(id);
-        const evidence = store.readTestEvidence(id);
+        const bugs = sourceStore.readBugs(id);
+        const evidence = sourceStore.readTestEvidence(id);
 
         const clDone = cl.items.filter(i => i.status === 'done').length;
         const clTotal = cl.items.length;
@@ -324,11 +388,11 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
         const bugsFixed = bugs.bugs.filter(b => b.status === 'fixed').length;
 
         // B-abd8: process metrics summary
-        const pm = store.readProcessMetrics(id);
+        const pm = sourceStore.readProcessMetrics(id);
         const metricsField = pm ? formatProcessMetricsSummary(pm, 'verbose') : null;
 
         // B-45ed CHK-008: bg:✓ 标记（仅在 background.md 存在时输出字段，不存在时省略字段不报错）
-        const bgFlag = hasBackground(store, id) ? 'bg:✓' : null;
+        const bgFlag = hasBackground(sourceStore, id) ? 'bg:✓' : null;
 
         // B-5fa4 CHK-002: append [zombie] / [residue] labels
         const labels: string[] = [];
@@ -342,6 +406,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
           phase: story.phase,
           priority: story.priority,
           type: story.type,
+          ...(mainPhase ? { mainPhase } : {}),
           checklist: clTotal > 0 ? `${clDone}/${clTotal}` : '-',
           bugs: bugsOpen > 0 ? `${bugsOpen} open, ${bugsFixed} fixed` : (bugsFixed > 0 ? `${bugsFixed} fixed` : 'none'),
           tests: evidence && evidence.result ? evidence.result.toLowerCase() : 'none',

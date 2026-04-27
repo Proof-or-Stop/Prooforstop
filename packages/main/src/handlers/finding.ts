@@ -7,6 +7,21 @@ import type { Finding } from '../core/types.js';
 import { signFinding } from '../core/finding-verify.js';
 import { computeProcessMetrics } from '../core/process-metrics.js';
 
+function isNoBlockingIssuePlaceholder(finding: Pick<Finding, 'desc' | 'severity' | 'agent'>): boolean {
+  if (finding.severity !== 'low') return false;
+  if (!finding.agent || !finding.agent.startsWith('koala-review-')) return false;
+  return /\b(no blocking issues?|no blocking issue found|no blockers?|0 blocking)\b/i.test(finding.desc);
+}
+
+function normalizeFindingForList(finding: Finding): Finding {
+  if (finding.status !== 'open' || !isNoBlockingIssuePlaceholder(finding)) return finding;
+  return {
+    ...finding,
+    status: 'resolved',
+    resolvedReason: 'read-only view: reviewer registered no blocking issue placeholder',
+  };
+}
+
 export function createFindingHandlers(ctx: HandlerContext) {
   const { store } = ctx;
   return {
@@ -28,7 +43,9 @@ export function createFindingHandlers(ctx: HandlerContext) {
         desc: args.desc,
         severity: args.severity as 'critical' | 'high' | 'medium' | 'low',
         category: args.category as Finding["category"],
-        status: 'open' as const,
+        status: isNoBlockingIssuePlaceholder({ desc: args.desc, severity: args.severity as Finding['severity'], agent })
+          ? 'resolved' as const
+          : 'open' as const,
         agent,
         createdAt: timestamp,
         reviewRound,
@@ -68,10 +85,11 @@ export function createFindingHandlers(ctx: HandlerContext) {
         for (const c of clustersData.clusters) {
           for (const fid of c.findingIds) grouped.add(fid);
         }
-        const ungrouped = findingsData.findings.filter(f => !grouped.has(f.id));
+        const ungrouped = findingsData.findings.filter(f => !grouped.has(f.id)).map(normalizeFindingForList);
         return { clusters, ungrouped };
       }
-      return store.readFindings(args.storyId);
+      const data = store.readFindings(args.storyId);
+      return { ...data, findings: data.findings.map(normalizeFindingForList) };
     },
 
     finding_resolve(args: { storyId: string; findingId: string }): string {

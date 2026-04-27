@@ -3,7 +3,7 @@
  * 触发逻辑（B-9bd9 CHK-003）。
  *
  * 职责：
- *   - 读写 `<projectRoot>/docs/koala/framework-audit/state.json`（字段见 AuditState）
+ *   - 读写 `<projectRoot>/.koala/framework-audit/state.json`（字段见 AuditState）
  *   - 递增 doneSinceLastAudit 计数
  *   - 按 config（CHK-004 的 resolveAuditConfig）判定是否触发 audit
  *   - semi-auto → 只返回提示文本（不 spawn agent）；full-auto → 同进程直接跑 audit handler
@@ -61,10 +61,12 @@ const INITIAL_STATE: AuditState = {
 
 /**
  * state.json 相对 projectRoot 的位置。
+ * Mutable trigger state lives under ignored `.koala/`, so normal DONE/status
+ * bookkeeping does not dirty tracked docs.
  * 单一真相源：audit.ts 的 touchAuditState 也 import 此函数，避免路径双重硬编码。
  */
 export function stateFilePath(projectRoot: string): string {
-  return join(projectRoot, 'docs', 'koala', 'framework-audit', 'state.json');
+  return join(projectRoot, '.koala', 'framework-audit', 'state.json');
 }
 
 /**

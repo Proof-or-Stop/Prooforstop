@@ -85,8 +85,22 @@ export function createBugHandlers(ctx: HandlerContext) {
       return resultMsg;
     },
 
-    bug_list(args: { storyId: string }) {
-      return store.readBugs(args.storyId);
+    bug_list(args: { storyId?: string } = {}) {
+      if (args.storyId) return store.readBugs(args.storyId);
+
+      const stories = store.listStoryIds();
+      const bugs = stories.flatMap(storyId =>
+        store.readBugs(storyId).bugs.map(bug => ({ storyId, ...bug })),
+      );
+      return {
+        bugs,
+        summary: {
+          stories: stories.length,
+          total: bugs.length,
+          open: bugs.filter(b => b.status === 'open').length,
+          fixed: bugs.filter(b => b.status === 'fixed').length,
+        },
+      };
     },
 
     bug_analyze(args?: { format?: 'json' | 'markdown' }) {
