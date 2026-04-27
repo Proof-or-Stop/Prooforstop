@@ -9,7 +9,42 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户调用 koala verification_evidence_add 后，checklist.json 中新增的 evidence 同时包含 headHash 和 materialHash 字段。",
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/verification-freshness-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "verification_evidence_add 在 git 仓库内记录 evidence 时写入 materialHash。",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "非 git 或 material hash 计算失败时不阻塞 evidence 记录，仍保留 headHash 兼容行为。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "materialHash 只排除 story metadata，不把真实源码、测试、配置路径排除。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -20,7 +55,42 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户在 evidence 后只提交 story metadata，再运行 koala validate --story=<storyId>，verification coverage 保持 covered；修改实体文件后才显示 stale。",
+      "files": {
+        "modify": [
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/core/evidence-freshness.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/verification-freshness-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "当 evidence.materialHash 等于当前 material hash，即使 headHash 与 HEAD 不同也判 covered。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "旧 evidence 没有 materialHash 时继续使用现有 headHash diff fallback。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "material hash 不同时，即使 headHash diff 路径不可用也必须判 stale。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -31,7 +101,41 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "开发者运行 cd packages/main && npm run test:verification-freshness-smoke，输出 ✓ verification freshness smoke passed，覆盖 metadata-only fresh 和 material change stale。",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "packages/main/package.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/verification-freshness-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "smoke 证明 story metadata commit 不会让 materialHash evidence stale。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "smoke 证明旧 headHash-only evidence 仍可通过 metadata-only diff fallback。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "smoke 证明修改源码/测试/配置等 material 文件会让 evidence stale。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
