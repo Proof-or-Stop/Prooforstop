@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "新增 Android Gradle detector 的单元测试与 instrumentation 分层策略",
+      "context": "默认生成 ./gradlew test 或 testDebugUnitTest；connectedDebugAndroidTest 只在 validate.commands 或显式配置中执行。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "新增 Xcode detector 的配置式 xcodebuild test 支持",
+      "context": "探测 xcodeproj/xcworkspace 后给出 explain 建议；只有配置 scheme/destination 时生成执行命令。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "新增 CMake/CTest detector 的安全默认策略",
+      "context": "已有 build/CTestTestfile.cmake 时跑 ctest --test-dir build；否则建议配置 cmake configure/build/ctest 三段命令。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "支持 optional 和 timeoutMs 在复杂原生命令中的结果语义",
+      "context": "optional 失败降级 warn，不让 DONE gate 把设备不可用误判成代码失败；timeout 输出清楚说明。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "为 Android/Xcode/CMake detector 增加 explain 和 smoke 覆盖",
+      "context": "临时项目模拟 settings.gradle、xcodeproj、CMakeLists.txt、CTestTestfile.cmake，验证计划和提示。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

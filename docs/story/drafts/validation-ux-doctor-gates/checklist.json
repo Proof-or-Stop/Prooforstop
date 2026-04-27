@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "新增 koala validate --explain 输出 ValidationPlan 和 detector reason",
+      "context": "显示配置命令、validate.ts、自动 detector 的优先级和最终命令列表；json 模式也返回 plan。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "扩展 koala doctor 检查跨语言验证依赖",
+      "context": "检测 pytest/uv/phpunit/composer/gradle/xcodebuild/cmake/ctest 等是否可用，只给诊断不自动安装。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "统一 TEST/DONE gate 的跨语言错误摘要",
+      "context": "明确区分 command failure、optional warning、verification coverage missing、environment missing、metadata stale。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "补齐 validate evidence 写入和 freshness 的 UX 回归",
+      "context": "确保 validate --story --json 在所有执行器路径都回写 test-evidence，metadata-only commit 不触发 stale。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "增加面向用户文档或 help 文案",
+      "context": "在 validate --help 或 docs 中展示 Python/PHP/Android/C++/Xcode 配置示例，避免用户猜 validate.commands。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
