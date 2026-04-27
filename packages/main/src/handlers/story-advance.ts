@@ -11,7 +11,7 @@ import { runHooks, buildHookEnv } from '../core/hooks.js';
 import { checkMetaStoryAdvanceGuard } from '../core/audit-meta-store.js';
 import { maybeTriggerAudit } from '../core/audit-trigger.js';
 import { renderSummaryForHint } from './summary.js';
-import { execSync } from 'child_process';
+import { execFileSync, execSync } from 'child_process';
 import { dirname, join } from 'path';
 import { existsSync, rmSync } from 'fs';
 import { cleanStrayWorktreeFiles } from './stray-file-cleanup.js';
@@ -57,6 +57,28 @@ function autoSyncMain(projectRoot: string): { ok: boolean; message: string } {
     } catch { /* abort failed — already clean */ }
     return { ok: false, message: 'merge main 有冲突（已 abort 保持分支干净）。\n→ 执�� git merge main，解决冲突后 git add + git commit，然后重跑 story_advance DONE' };
   }
+}
+
+function gitRefExists(projectRoot: string, ref: string): boolean {
+  try {
+    execFileSync('git', ['rev-parse', '--verify', `${ref}^{commit}`], {
+      cwd: projectRoot,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function gitRefContainsMain(projectRoot: string, ref: string): boolean {
+  execFileSync('git', ['merge-base', '--is-ancestor', 'main', ref], {
+    cwd: projectRoot,
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+  return true;
 }
 
 // B-9d95 CHK-003: re-export 供 DONE merge 前 stray 文件清理。主实现在独立
@@ -198,19 +220,28 @@ function buildDoneChecklist(storyId: string, store: StoryStore, root: string): D
     const story = store.readStory(storyId);
     if (story.worktree?.branch) {
       const branch = story.worktree.branch;
-      try {
-        execSync(`git merge-base --is-ancestor main ${branch}`, { cwd: root, stdio: 'pipe' });
-        rows.push({ status: 'pass', label: 'Branch synced with main', detail: branch });
-      } catch {
-        const divergence = checkMainDivergence(root);
+      if (!gitRefExists(root, branch)) {
         rows.push({
-          status: 'fail',
+          status: 'warn',
           label: 'Branch synced with main',
-          detail: divergence.needsSync
-            ? `${branch} 落后 main ${divergence.behind} 个提交`
-            : `${branch} 未合并 main 的最新提交`,
-          hint: 'DONE 推进时将自动尝试 git merge main；若有冲突请手动解决',
+          detail: `${branch} 不存在（可能已手动合并并清理）`,
+          hint: `若 story 仍停在 TEST/DONE 边界，用 koala story_reconcile '{"dryRun":false}' 修复 phase/worktree metadata`,
         });
+      } else {
+        try {
+          gitRefContainsMain(root, branch);
+          rows.push({ status: 'pass', label: 'Branch synced with main', detail: branch });
+        } catch {
+          const divergence = checkMainDivergence(root);
+          rows.push({
+            status: 'fail',
+            label: 'Branch synced with main',
+            detail: divergence.needsSync
+              ? `${branch} 落后 main ${divergence.behind} 个提交`
+              : `${branch} 未合并 main 的最新提交`,
+            hint: 'DONE 推进时将自动尝试 git merge main；若有冲突请手动解决',
+          });
+        }
       }
     } else {
       // No worktree branch recorded — detect from git directly
