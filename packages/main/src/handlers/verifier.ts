@@ -228,12 +228,13 @@ function decorateStoryVerification(ctx: HandlerContext, storyId: string, result:
 function persistStoryValidationEvidence(ctx: HandlerContext, storyId: string, result: any, command: string): void {
   const statusPass = result.status === 'pass';
   const allPass = Boolean(result.allPass ?? result.allPassed ?? statusPass);
+  const headHash = currentHead(ctx.root) ?? result.headSha ?? result.headHash;
   ctx.store.writeTestEvidence(storyId, {
     command,
     output: JSON.stringify(result),
     result: allPass ? 'PASS' : 'FAIL',
     timestamp: new Date().toISOString(),
-    ...(result.headSha ? { headHash: result.headSha } : {}),
+    ...(headHash ? { headHash } : {}),
     ...(result.verificationCoverage ? { verificationCoverage: result.verificationCoverage } : {}),
   });
 }

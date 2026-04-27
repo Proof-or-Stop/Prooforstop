@@ -10,7 +10,12 @@ import type {
 import type { ClusterData } from './cluster-types.js';
 import { appendProcessEvent as appendProcessEventFn, readProcessEvents as readProcessEventsFn } from './process-events.js';
 import { loadConfig } from './config.js';
-import { normalizeLegacyPhase } from './phase-flow.js';
+import { normalizeLegacyPhase, phaseRank } from './phase-flow.js';
+
+type JsonCandidate<T> = {
+  filePath: string;
+  data: T;
+};
 
 export class StoryStore {
   private baseDir: string;
@@ -53,19 +58,30 @@ export class StoryStore {
 
   private readJson<T>(storyId: string, file: string): T {
     const tried: string[] = [];
+    const candidates: JsonCandidate<T>[] = [];
     for (const dir of this.candidateStoryDirs(storyId)) {
       const filePath = join(dir, file);
       tried.push(filePath);
       if (existsSync(filePath)) {
-        return JSON.parse(readFileSync(filePath, 'utf-8')) as T;
+        candidates.push({ filePath, data: JSON.parse(readFileSync(filePath, 'utf-8')) as T });
       }
     }
+    if (candidates.length > 0) return this.chooseJsonCandidate(file, candidates).data;
     throw new Error(`File not found: ${tried.join(' or ')}`);
   }
 
   private writeJson<T>(storyId: string, file: string, data: T): void {
     this.ensureDir(storyId);
-    const filePath = join(this.storyDir(storyId), file);
+    this.writeJsonFile(join(this.storyDir(storyId), file), data);
+
+    // If a project already has the legacy docs/story mirror, keep it in sync.
+    // This avoids stale phases/evidence when older branches still contain both trees.
+    for (const dir of this.candidateStoryDirs(storyId).slice(1)) {
+      if (existsSync(dir)) this.writeJsonFile(join(dir, file), data);
+    }
+  }
+
+  private writeJsonFile<T>(filePath: string, data: T): void {
     const serialized = JSON.stringify(data, null, 2) + '\n';
     const tmpPath = `${filePath}.tmp-${process.pid}-${Date.now()}`;
     try {
@@ -76,6 +92,54 @@ export class StoryStore {
       try { rmSync(tmpPath, { force: true }); } catch { /* best-effort cleanup */ }
       throw e;
     }
+  }
+
+  private chooseJsonCandidate<T>(file: string, candidates: JsonCandidate<T>[]): JsonCandidate<T> {
+    if (candidates.length === 1) return candidates[0];
+    if (file === 'index.json') {
+      return candidates.reduce((best, candidate) =>
+        this.compareStoryCandidate(candidate.data, best.data) > 0 ? candidate : best
+      );
+    }
+    if (file === 'test-evidence.json') {
+      return candidates.reduce((best, candidate) =>
+        this.compareTimestampCandidate(candidate.data, best.data) > 0 ? candidate : best
+      );
+    }
+    return candidates[0];
+  }
+
+  private compareStoryCandidate(a: unknown, b: unknown): number {
+    const aStory = a as Partial<StoryInfo>;
+    const bStory = b as Partial<StoryInfo>;
+    const aRank = aStory.phase ? phaseRank(normalizeLegacyPhase(aStory.phase)) : -1;
+    const bRank = bStory.phase ? phaseRank(normalizeLegacyPhase(bStory.phase)) : -1;
+    if (aRank !== bRank) return aRank - bRank;
+    return this.maxStoryTimestamp(aStory) - this.maxStoryTimestamp(bStory);
+  }
+
+  private compareTimestampCandidate(a: unknown, b: unknown): number {
+    return this.timestampOf((a as { timestamp?: unknown }).timestamp) -
+      this.timestampOf((b as { timestamp?: unknown }).timestamp);
+  }
+
+  private maxStoryTimestamp(story: Partial<StoryInfo>): number {
+    const timestamps = [
+      this.timestampOf((story as { createdAt?: unknown }).createdAt),
+      this.timestampOf((story as { startedAt?: unknown }).startedAt),
+      this.timestampOf((story as { endedAt?: unknown }).endedAt),
+    ];
+    const events = (story as { events?: Array<{ time?: unknown; timestamp?: unknown }> }).events;
+    if (Array.isArray(events)) {
+      for (const event of events) timestamps.push(this.timestampOf(event.time ?? event.timestamp));
+    }
+    return Math.max(0, ...timestamps);
+  }
+
+  private timestampOf(value: unknown): number {
+    if (typeof value !== 'string') return 0;
+    const parsed = Date.parse(value);
+    return Number.isNaN(parsed) ? 0 : parsed;
   }
 
   // ── Story ──
