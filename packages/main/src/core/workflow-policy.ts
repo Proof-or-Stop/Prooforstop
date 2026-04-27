@@ -2,6 +2,22 @@ import type { KoalaConfig } from './config.js';
 import type { StoryInfo, WorkflowProfile, WorkflowPolicy, DecisionData, ChecklistData } from './types.js';
 import { PROFILE_ORDER, WORKFLOW_PRESETS } from './types.js';
 
+/**
+ * @task B-ef9c
+ * @checklist CHK-001
+ * @title wave zero before broader workflow escalation
+ * @type feature
+ * @priority high
+ * @description
+ *   Wave 0 is the de-risking slice for workflow policy: risk signals and high
+ *   priority force stricter planning before later execution/review waves can
+ *   proceed, and channel computation keeps lightweight stories from pretending
+ *   they need the full Wave 1/2 machinery.
+ * @changes
+ *   - [CHK-001] Compute required workflow profile from risk and priority before downstream gates
+ *   - [CHK-001] Compute express/fast/normal channel so workflow layers are triggered, not redefined
+ */
+
 const VALID_PROFILES: WorkflowProfile[] = ['light', 'balanced', 'strict'];
 
 /**

@@ -16,6 +16,19 @@
  * 设计约束：
  *   - reportHealthIssue 自身不能抛错。health 模块崩溃不能拖死主流程。
  *   - JSONL 行格式稳定（schemaVersion=1），方便外部 tooling 消费。
+ *
+ * @task B-ef9c
+ * @checklist CHK-001
+ * @title classify silent catch handling
+ * @type feature
+ * @priority high
+ * @description
+ *   Some silent catch sites cannot all be deleted because probe/debug ignores
+ *   are legitimate, but they must be classified: DEBUG stays silent, PROBE
+ *   returns a default, PERSIST records health, and MUTATION must throw.
+ * @changes
+ *   - [CHK-001] Provide reportHealthIssue for persist failures that should degrade to health logs
+ *   - [CHK-001] Document when silent is ok, when to log, and when mutation failures must throw
  */
 
 import { appendFileSync, mkdirSync, existsSync, readFileSync } from 'fs';
