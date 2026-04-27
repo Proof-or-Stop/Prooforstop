@@ -101,6 +101,7 @@ export interface KoalaConfig {
 /** 默认各阶段可用命令白名单 */
 const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
   '*': [
+    'session_brief', // read-only recovery entrypoint; must work in every phase
     'story_get', 'story_list', 'story_discard',
     'aux_*', // 全部辅助工具：scan/detail/coverage/locate/sync/trace/diagnose/doc_list
     'checklist_get',
@@ -162,6 +163,10 @@ const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'story_advance',
   ],
 };
+
+const ALWAYS_ALLOWED_READ_ONLY_COMMANDS = new Set([
+  'session_brief',
+]);
 
 const DEFAULT_CONFIG: KoalaConfig = {
   scanRoot: 'src',
@@ -229,6 +234,7 @@ export function resetConfigCache(): void {
  * '*' key 中的命令对所有阶段可用。
  */
 export function isCommandAllowed(cmd: string, phase: string, phaseTools?: Record<string, string[]>): boolean {
+  if (ALWAYS_ALLOWED_READ_ONLY_COMMANDS.has(cmd)) return true;
   if (phaseTools !== undefined && (phaseTools === null || typeof phaseTools !== 'object' || Array.isArray(phaseTools))) return true; // 非对象降级全量放行
   const pt = phaseTools || DEFAULT_PHASE_TOOLS;
   const globalList = pt['*'] || [];
@@ -247,5 +253,5 @@ export function isCommandAllowed(cmd: string, phase: string, phaseTools?: Record
  */
 export function getAllowedPatterns(phase: string, phaseTools?: Record<string, string[]>): string[] {
   const pt = phaseTools || DEFAULT_PHASE_TOOLS;
-  return [...(pt['*'] || []), ...(pt[phase] || [])];
+  return Array.from(new Set([...ALWAYS_ALLOWED_READ_ONLY_COMMANDS, ...(pt['*'] || []), ...(pt[phase] || [])]));
 }

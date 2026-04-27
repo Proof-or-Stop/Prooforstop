@@ -7,9 +7,75 @@
       "relatedDocs": [
         "AGENTS.md#行为准则"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-27T13:25:58.162Z",
+      "userSees": "在 PLAN/DEV/REVIEW/TEST 任一阶段执行 `koala session_brief`，终端输出 `# koala session brief`，不再输出 `命令 session_brief 在 ... 阶段不可用`。",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/config.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "active story 处于 PLAN/DEV/REVIEW/TEST 时，session_brief 都能通过 phase command gate 并输出 brief。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "只读恢复入口被放行时，非白名单 mutation 命令仍按 phase allowlist 拒绝。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "未知命令或危险 mutation 命令不能借 session_brief 白名单绕过阶段门禁。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/core/config.ts",
+          "command": "koala session_brief (from story worktree root, current HEAD)",
+          "result": "pass",
+          "note": "Current HEAD 1a3fe62 evidence: canonical user entrypoint koala session_brief succeeds in REVIEW and prints # koala session brief.",
+          "headHash": "1a3fe629fcf2b577c1c20eaecb0e68038f9819f8",
+          "timestamp": "2026-04-27T14:03:00.936Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "cd packages/main && npm run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Current HEAD 1a3fe62 evidence: smoke asserts session_brief all-phase allowlist does not open unrelated mutation commands.",
+          "headHash": "1a3fe629fcf2b577c1c20eaecb0e68038f9819f8",
+          "timestamp": "2026-04-27T14:03:06.525Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "cd packages/main && npm run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Current HEAD 1a3fe62 evidence: smoke covers adversarial phase-gate bypass risk by keeping mutation commands rejected.",
+          "headHash": "1a3fe629fcf2b577c1c20eaecb0e68038f9819f8",
+          "timestamp": "2026-04-27T14:03:25.112Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -18,9 +84,90 @@
       "relatedDocs": [
         "AGENTS.md#story-阶段流转"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-27T13:26:03.155Z",
+      "userSees": "REVIEW→TEST 缺 reviewer 时错误文本显示 `期望 4 个 reviewer（opt-in: concept,quality,test-coverage,channel）`，不再固定显示 `要求全部 5 个 reviewer`。",
+      "files": {
+        "modify": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/guard-utils.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Round 1 REVIEW gate 使用 resolveOptInReviewers / reviewer_list 同源结果计算 expected reviewer 数量。",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "每个 opt-in reviewer 都有当前 reviewRound 的 signed finding 后，REVIEW→TEST 不再因硬编码 5 被挡。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "opt-in reviewer 集合变化时，错误提示列出缺失 reviewer 名称而不是泛化要求全部 5 个。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "非 opt-in reviewer 的 clean finding 不能替代缺失的 opt-in reviewer。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "cd packages/main && npm run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Current HEAD 1a3fe62 evidence: smoke asserts REVIEW gate expects opt-in reviewers from reviewer_list, not hardcoded five reviewers.",
+          "headHash": "1a3fe629fcf2b577c1c20eaecb0e68038f9819f8",
+          "timestamp": "2026-04-27T14:03:32.952Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "cd packages/main && npm run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Current HEAD 1a3fe62 evidence: smoke asserts all required opt-in reviewer findings allow REVIEW→TEST without requiring a fifth reviewer.",
+          "headHash": "1a3fe629fcf2b577c1c20eaecb0e68038f9819f8",
+          "timestamp": "2026-04-27T14:03:38.395Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "cd packages/main && npm run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Current HEAD 1a3fe62 evidence: missing reviewer error lists opt-in names and missing reviewers instead of fixed five-reviewer wording.",
+          "headHash": "1a3fe629fcf2b577c1c20eaecb0e68038f9819f8",
+          "timestamp": "2026-04-27T14:03:44.642Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "cd packages/main && npm run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Current HEAD 1a3fe62 evidence: non-opt-in docs finding cannot substitute for missing opt-in reviewer.",
+          "headHash": "1a3fe629fcf2b577c1c20eaecb0e68038f9819f8",
+          "timestamp": "2026-04-27T14:03:51.447Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -29,9 +176,76 @@
       "relatedDocs": [
         "AGENTS.md#worktree-自动管理"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-04-27T13:26:06.305Z",
+      "userSees": "DONE 清理 story worktree 后，主仓根目录执行 `command -v koala` 仍返回全局 koala 路径，`koala gap_analyze` 仍能运行，不出现 `command not found: koala`。",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-advance.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/package.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "当全局 @koala-agent/core symlink 指向即将删除的 story worktree packages/main 时，DONE cleanup 前后会自动 relink 到 main repo packages/main 或保持可执行。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "如果全局 koala 不是 symlink 或不是指向当前 story worktree，不做破坏性 relink，只给安全提示。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "不能硬编码用户本机 nvm 路径；测试必须能用临时 symlink 环境模拟断链场景。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "cd packages/main && npm run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Current HEAD 9746bf5 evidence: temp symlink pointing into story worktree relinks to main repo packages/main before cleanup.",
+          "headHash": "9746bf59fb6dc277dd2c3231bf5d59b48cd01bf8",
+          "timestamp": "2026-04-27T13:44:50.345Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "cd packages/main && npm run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Current HEAD 9746bf5 evidence: non-symlink and symlink-outside-worktree global installs are skipped without destructive changes.",
+          "headHash": "9746bf59fb6dc277dd2c3231bf5d59b48cd01bf8",
+          "timestamp": "2026-04-27T13:44:54.569Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "cd packages/main && npm run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Current HEAD 9746bf5 evidence: if relink is required but unlink/symlink fails, helper throws a blocking error and leaves the worktree-target symlink untouched instead of proceeding to delete the worktree.",
+          "headHash": "9746bf59fb6dc277dd2c3231bf5d59b48cd01bf8",
+          "timestamp": "2026-04-27T13:44:58.797Z"
+        }
+      ]
     }
   ]
 }

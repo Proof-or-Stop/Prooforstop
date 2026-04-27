@@ -10,6 +10,9 @@ import { recomputeInitCheckHash } from '../handlers/init-check.js';
 import { recomputeDeliveryCheckHash } from '../handlers/delivery-check.js';
 import { getBlockingVerificationEvidenceIssues } from './verification.js';
 import { normalizeLegacyPhase } from './phase-flow.js';
+import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
+import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
+import { computeActiveReviewers } from '../handlers/reviewer-list.js';
 
 /**
  * Resolve effective blocking severities with round decay.
@@ -145,9 +148,19 @@ export const storyMachine = setup({
 
           const { roundCount } = resolveEffectiveBlockingSeverities(context.store, context.storyId, policy);
           if (roundCount <= 1) {
-            // Round 1: require findings from at least 5 distinct reviewer agents
-            const distinctReviewers = new Set(currentRoundReviewerFindings.map((f: Finding) => f.agent));
-            if (distinctReviewers.size < 5) return false;
+            // Round 1: require findings from every opt-in reviewer (same source as reviewer_list).
+            let checklist: { items: unknown[] } = { items: [] };
+            try { checklist = context.store.readChecklist(context.storyId); } catch {}
+            let decision = null;
+            try { decision = context.store.readDecision(context.storyId); } catch {}
+            const understanding = context.store.readUnderstanding(context.storyId);
+            const touchpoints = understanding?.touchpoints
+              ?? detectMdTouchpointsFromGit(context.projectRoot ?? process.cwd());
+            const optIn = computeActiveReviewers(story, checklist, decision, touchpoints);
+            const missing = optIn.filter(reviewer => !currentRoundReviewerFindings.some(
+              (f: Finding) => findingAgentMatchesReviewer(f.agent, reviewer.name),
+            ));
+            if (missing.length > 0) return false;
           } else {
             // Round 2+: require at least 1 reviewer finding
             if (currentRoundReviewerFindings.length === 0) return false;
@@ -400,7 +413,7 @@ export function getGuardFailureReason(
       try {
         const findings = store.readFindings(storyId);
         if (!findings.findings || findings.findings.length === 0) {
-          return `Cannot enter TEST: reviewer 未跑（findings.json 为空）\n→ 并行启动 5 个 koala-review-* agent 审查代码`;
+          return `Cannot enter TEST: reviewer 未跑（findings.json 为空）\n→ 按 opt-in 结果启动 reviewer（见 koala reviewer_list）`;
         }
         if (policy.review.requireReviewerFinding) {
           const currentRound = story.currentReviewRound;
@@ -412,10 +425,23 @@ export function getGuardFailureReason(
 
           const { roundCount: rc } = resolveEffectiveBlockingSeverities(store, storyId, policy);
           if (rc <= 1) {
-            // Round 1: require findings from at least 5 distinct reviewer agents
-            const distinctReviewers = new Set(currentRoundReviewerFindings.map((f: Finding) => f.agent));
-            if (distinctReviewers.size < 5) {
-              return `Cannot enter TEST: Round 1 要求全部 5 个 reviewer 跑完（当前 ${distinctReviewers.size} 个: ${Array.from(distinctReviewers).join(', ') || '无'}）\n→ 并行启动全部 koala-review-* agent`;
+            // Round 1: require findings from every opt-in reviewer (same source as reviewer_list).
+            let checklist: { items: unknown[] } = { items: [] };
+            try { checklist = store.readChecklist(storyId); } catch {}
+            let decision = null;
+            try { decision = store.readDecision(storyId); } catch {}
+            const understanding = store.readUnderstanding(storyId);
+            const touchpoints = understanding?.touchpoints
+              ?? detectMdTouchpointsFromGit(projectRoot ?? process.cwd());
+            const optIn = computeActiveReviewers(story, checklist, decision, touchpoints);
+            const missing = optIn.filter(reviewer => !currentRoundReviewerFindings.some(
+              (f: Finding) => findingAgentMatchesReviewer(f.agent, reviewer.name),
+            ));
+            if (missing.length > 0) {
+              const names = optIn.map(r => r.name).join(',');
+              const missingNames = missing.map(r => r.name).join(',');
+              const presentAgents = Array.from(new Set(currentRoundReviewerFindings.map((f: Finding) => f.agent))).join(', ') || '无';
+              return `Cannot enter TEST: Round 1 期望 ${optIn.length} 个 reviewer（opt-in: ${names}）当前 ${currentRoundReviewerFindings.length} 个 finding 覆盖 ${optIn.length - missing.length} 个 reviewer（缺: ${missingNames}；已见 agent: ${presentAgents}）\n→ 并行启动缺失的 koala-review-* agent`;
             }
           } else {
             if (currentRoundReviewerFindings.length === 0) {
@@ -434,7 +460,7 @@ export function getGuardFailureReason(
           return `Cannot enter TEST: ${blocking.length} blocking finding(s) open (Round ${roundCount}, blocking: ${effectiveBlockingSeverities.join('/')}):\n${blocking.map(f => `  - ${f.id} [${f.severity}] ${f.desc}`).join('\n')}\n→ 修复后 finding_resolve，或确认不修 finding_dismiss（需说明理由 ≥10 字符）`;
         }
       } catch {
-        return `Cannot enter TEST: reviewer 未跑（无 findings.json）\n→ 并行启动 5 个 koala-review-* agent 审查代码`;
+        return `Cannot enter TEST: reviewer 未跑（无 findings.json）\n→ 按 opt-in 结果启动 reviewer（见 koala reviewer_list）`;
       }
     }
   }

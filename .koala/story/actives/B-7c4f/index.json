@@ -4,7 +4,7 @@
   "title": "修复 Koala 流程稳定性回归",
   "description": "B-ef9c 过程中暴露 3 个流程问题：session_brief 被 PLAN/DEV 阶段禁用但 AGENTS 要求恢复第一步必须跑；REVIEW→TEST gate 硬编码需要 5 个 reviewer finding，但 reviewer_list 当前只返回实际 opt-in reviewer；npm link 指向 story worktree 后，DONE 清理 worktree 会导致全局 koala 断链。目标是把这些真实踩坑修成框架行为，避免后续 story 重复卡住。",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-04-27T13:16:49.115Z",
   "startedAt": "2026-04-27T13:16:49.115Z",
-  "endedAt": null,
+  "endedAt": "2026-04-27T14:07:21.631Z",
   "events": [
     {
       "phase": "INIT",
@@ -31,11 +31,63 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-27T13:18:50.170Z",
+      "branch": "story/B-7c4f",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-27T13:20:29.270Z",
+      "branch": "story/B-7c4f",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-27T13:28:35.762Z",
+      "branch": "story/B-7c4f",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-27T13:41:02.016Z",
+      "branch": "story/B-7c4f",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-27T13:45:18.486Z",
+      "branch": "story/B-7c4f",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-27T14:04:12.960Z",
+      "branch": "story/B-7c4f",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-27T14:07:21.631Z",
+      "branch": "story/B-7c4f",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-7c4f",
-    "branch": "story/B-7c4f",
-    "createdAt": "2026-04-27T13:18:42.914Z"
-  }
+  "currentReviewRound": "2026-04-27T13:45:18.486Z"
 }
