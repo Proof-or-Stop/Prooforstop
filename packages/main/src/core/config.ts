@@ -1,20 +1,20 @@
 
-/**
- * @task B-6fda
- * @checklist CHK-001
- * @title phase tool policy makes the automation interface explicit
- * @type feature
- * @priority high
- * @description
- *   phaseTools / isCommandAllowed / getAllowedPatterns 把“谁可以在什么阶段通过
- *   自动化接口操作代码和项目状态”变成了可计算规则。这个入口层不是文档建议，
- *   而是真正限制人和 AI 通过统一接口访问 story、truth、gap、test 等能力的
- *   自动化边界。
- * @changes
- *   - [CHK-001] 用 phase tool policy 显式约束自动化接口边界，支撑可解释、可追述的 AI-first 仓库入口
- */
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
+import type { WorkflowProfile } from './types.js';
+import { resolveAuditConfig as _resolveAuditConfig, type AuditConfig } from './audit-config.js';
+
+/**
+ * audit-config 扩展点（B-9bd9 CHK-004）：
+ *   - profile 默认值由 `resolveAuditConfig` 接管（light=10, balanced=5, strict=3）
+ *   - 项目级覆盖文件为 `<projectRoot>/.koala/audit-config.json`
+ *   - 详见 packages/koala/CLAUDE.md「框架自省 audit 配置」
+ *
+ * 这里以 re-export 的形式挂到 config 入口，**不**改动现有 `loadConfig` /
+ * `isCommandAllowed` 等 profile 消费者的行为；没有用到 audit 的调用方无感知。
+ */
+export { _resolveAuditConfig as resolveAuditConfig };
+export type { AuditConfig };
 
 export interface KoalaFlowConfig {
   defaults: Record<string, Record<string, unknown>>;
@@ -40,6 +40,11 @@ export interface KoalaConfig {
   cli?: {
     command: string;
   };
+  /** 项目级验证命令；没有 validate.ts/js 时由 koala validate 使用 */
+  validate?: {
+    command?: string;
+    commands?: Array<string | { label?: string; command: string; args?: string[] }>;
+  };
   /** 浏览器测试配置 */
   browser?: {
     /** dev server 启动命令（如 "npx vite"） */
@@ -55,11 +60,10 @@ export interface KoalaConfig {
   worktreeDir?: string;
   /** doc_list 扫描的文档目录（相对项目根，默认 ['docs', 'requirements']） */
   docDirs?: string[];
-  /**
-   * Local paths that are intentionally allowed to differ from the committed
-   * baseline. These paths are hidden from baseline-risk material warnings.
-   */
-  baselineRiskAcceptedLocalPaths?: string[];
+  /** Workflow profile：治理强度配置 */
+  workflow?: {
+    profile?: WorkflowProfile;
+  };
   /** stale-detector 阈值（分钟，缺失走 DEFAULT_STALE_THRESHOLDS） */
   staleThresholds?: {
     /** phase 没 advance 多久算卡死（默认 30） */
@@ -89,64 +93,63 @@ export interface KoalaConfig {
 /** 默认各阶段可用命令白名单 */
 const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
   '*': [
-    'story_get', 'story_list', 'story_discard', 'story_reconcile', 'story_migrate_storage', 'story_sync_main',
-    'lab_*',
+    'story_get', 'story_list', 'story_discard',
     'aux_*', // 全部辅助工具：scan/detail/coverage/locate/sync/trace/diagnose/doc_list
     'checklist_get',
-    // B-6624: read-only coverage/status check; available in every phase so
-    // agents do not probe coverage by attempting mutating checklist updates.
-    'testintent_check',
-    'testintent_handoff', // 只读交接包：任何阶段都可生成，避免 PLAN 门禁变死胡同
     'truth_*', 'gap_*', 'convergence_check',
     'story_advance', // 任何阶段都可以推进（cwd 门禁负责保护）
-    'session_brief', // 全局：开场简报，任何阶段都可以查
-    // B-3736 CHK-002/CHK-003: status/next are read-only project-state
-    // runtime views, so agents must be able to run them from every phase.
-    'status',        // 全局：只读工程状态视图，任何阶段都可以查
-    'next',          // 全局：只读下一步建议，任何阶段都可以查
+    'status',        // 全局：项目全貌（story 进度 + 代码验证）
     'doctor',        // 全局：health 巡检，任何阶段都可以查
+    'audit',         // 全局：B-9bd9 框架自省 audit（advisory，任何阶段都可以跑）
     'summary_get',   // 全局：读取 summary，任何阶段都可以查
     'summary_set',   // 全局：DONE 前强制落总结，koala short-path story 也需要
-    'implementation_review_result_get',
-    'implementation_review_result_set',
+    'verification_evidence_add', // verification evidence is metadata, allowed across phases for reviewer/test handoff
+    'workflow_*',    // 全局：profile 查看/设置/解释，任何阶段都可以
+    'background_*',  // B-45ed CHK-007: background 是元数据，任何阶段可读写
+    'dispatch',      // B-9d95 CHK-004: 统一派发入口，全阶段开放（INIT_CHECK 起）
+    'reviewer_list', // B-fdcf CHK-001: 全阶段可查询 opt-in reviewer 名单
+    'story_draft',   // B-9975: draft 操作全阶段可用（不分配 story id）
+    'story_draft_list',
+    'story_draft_discard',
+    'draft_check_set',      // B-9975 CHK-002: draft check 全阶段可用
+    'draft_issue_resolve',
   ],
   INIT: [
     'story_update', 'checklist_update',
+    'init_check_set', // B-e71f CHK-003: koala-review-story-init reviewer 在 INIT 阶段写 init-check.json
   ],
   INIT_CHECK: [
     // story_advance 内部会代调 dev_start 创建 worktree，无需独立白名单
   ],
   PLAN: [
     'story_update', 'story_review', 'story_review_dismiss',
-    'checklist_add', 'checklist_update',
-    'testintent_*',
+    'checklist_add', 'checklist_update', 'checklist_remove',
     'understanding_set', 'understanding_get',
     'decision_set', 'decision_get',
-  ],
-  TEST_CASE: [
-    'fixture_batch_add', 'fixture_get', 'fixture_update',
-    'test_story', 'test_fixture',
-    'checklist_update',
+    'scope_check_save',
+    'scope_question_resolve', // B-ed3e CHK-003: 主 agent 消解 OQ
   ],
   DEV: [
-    'checklist_add', 'checklist_update',
-    'test_auto', 'test_story', 'test_fixture',
-    'fixture_batch_add', 'fixture_get', 'fixture_update',
+    'checklist_add', 'checklist_update', 'checklist_remove',
+    'light_review',
+    'validate', 'status', 'serve',
     'story_advance',
+    'story_dispatch', // B-45ed CHK-005: 主 agent 派发 implementer
+    'finding_dispatch', // B-45ed CHK-010: 主 agent 派发 finding 修复（DEV 阶段可能提前出现 finding）
   ],
-  TEST_CASE_REVIEW: [
-    'testintent_check', 'testintent_record', 'testintent_resume',
-    'fixture_get',
-    // B-5010 CHK-003: reviewer 可以只读地跑 test_fixture / test_story 实际验证
-    // fixture 是否通过，避免把运行时错误留到 TEST 阶段才发现。语义上是只读
-    // （bug_report/bug_update 仍被阻止），只是多一条动态验证路径
-    'test_fixture', 'test_story',
+  REVIEW: [
+    'finding_add', 'finding_list', 'finding_resolve', 'finding_dismiss',
+    'finding_dispatch', // B-45ed CHK-010: 主 agent 派发 finding 修复
+    'finding_cluster',  // B-9d95 CHK-005: auto/merge/split 聚簇
+    'validate', 'status',
+    'bug_report', 'bug_update', 'bug_list',
     'story_advance',
   ],
   TEST: [
-    'test_auto', 'test_story', 'test_fixture',
+    'finding_list', 'finding_cluster', // B-9d95 CHK-005: 聚簇视图在 TEST 也允许查询
+    'validate', 'evaluate', 'evaluate_save',
     'bug_report', 'bug_update', 'bug_list', 'bug_analyze',
-    'fixture_get',
+    'delivery_check_set', 'delivery_waiver_add', // B-b089: delivery reviewer 在 TEST 阶段写签名
     'story_advance',
   ],
 };
@@ -155,7 +158,7 @@ const DEFAULT_CONFIG: KoalaConfig = {
   scanRoot: 'src',
   testsDir: 'tests',
   fixturesDir: 'tests/fixtures',
-  storyDir: '.koala/story/actives',
+  storyDir: 'docs/story/actives',
   requirementsDir: 'docs/requirements',
   storyPrefix: 'B',
   flows: {

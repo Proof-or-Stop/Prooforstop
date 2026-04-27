@@ -9,7 +9,6 @@
 
 import type { HandlerContext } from './context.js';
 import type { UnderstandingData } from '../core/types.js';
-
 export function createUnderstandingHandlers(ctx: HandlerContext) {
   const { store } = ctx;
 

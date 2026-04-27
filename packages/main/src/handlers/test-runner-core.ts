@@ -12,6 +12,7 @@ import { pathToFileURL } from 'url';
 import { loadConfig } from '../core/config.js';
 import { FixtureProfilerSession, type ProfileNode } from '../tasks/profiler.js';
 import type { StoryStore } from '../core/store.js';
+import { getFixtureExecutor, isExecutableCase } from './fixture-executors.js';
 
 export const DEFAULT_TIMEOUT_MS = 180000;
 
@@ -146,6 +147,8 @@ export function validateSandbox(execute: string): string | null {
   return null;
 }
 
+export { isExecutableCase };
+
 /** 执行单条 case 的 execute 函数体。execute 中可用 $handlers、$root、$ctx、$testStory */
 export async function runCase(
   c: any,
@@ -159,48 +162,26 @@ export async function runCase(
   const start = Date.now();
 
   try {
-    // CHK-003: 沙箱静态检查（sandbox: false 可跳过，用于合法的测试 setup）
-    if (c.sandbox !== false) {
-      const sandboxError = validateSandbox(c.execute as string);
-      if (sandboxError) {
-        return { name: c.name, passed: false, error: `[sandbox] ${sandboxError}，如确需直接访问请在 case 中设置 sandbox: false`, durationMs: Date.now() - start };
-      }
-    }
-
     // CHK-004: start profiling via shared fixture-level session
     if (profilerSession) {
       try { await profilerSession.startCase(); } catch { /* non-fatal */ }
     }
 
-    // 替换 $file
-    let code = c.execute as string;
-    if (c.file) {
-      code = resolveFilePlaceholder(code, c.file, root);
+    const executor = getFixtureExecutor(c);
+    if (!executor) {
+      return { name: c.name, passed: false, error: 'fixture case 缺少可用 executor（需要 executor/execute/command）', durationMs: Date.now() - start };
     }
-
-    // 包成 async function，注入 $handlers、$root、$ctx、$testStory
-    // 禁止 case 内部调 test runner（会递归/卡死）
-    const BLOCKED_IN_CASE = ['test_auto', 'test_story'];
-    const safeHandlers: Record<string, Function> = { ...handlers };
-    for (const blocked of BLOCKED_IN_CASE) {
-      safeHandlers[blocked] = () => { throw new Error(blocked + ' 禁止在 fixture case 内调用'); };
-    }
-    // test_fixture 允许调用，但禁止调用当前 fixture 文件中的 case（防止自引用）
-    if (currentCaseIds && currentCaseIds.size > 0) {
-      const origTestFixture = handlers.test_fixture;
-      safeHandlers.test_fixture = (args: { fixtureId: string }) => {
-        if (currentCaseIds.has(args.fixtureId)) {
-          throw new Error('test_fixture 禁止调用当前 fixture 中的 case（自引用）');
-        }
-        return origTestFixture(args);
-      };
-    }
-    const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
-    // $q: shell-quote helper for paths with spaces; $rootQ: pre-quoted $root
-    const $q = (s: string) => `'${s.replace(/'/g, "'\\''")}'`;
-    const rootQ = $q(root);
-    const fn = new AsyncFunction('$handlers', '$root', '$ctx', '$testStory', '$q', '$rootQ', code);
-    const $testStory = testStoryFactory || (() => { throw new Error('$testStory not available'); });
+    const execute = () => executor.run(c, {
+      root,
+      handlers,
+      sharedCtx,
+      testStoryFactory,
+      currentCaseIds,
+      resolveFilePlaceholder,
+      validateSandbox,
+      withTimeout,
+      timeoutMs: typeof c.timeoutMs === 'number' ? c.timeoutMs : DEFAULT_TIMEOUT_MS,
+    });
 
     let result: CaseResult;
 
@@ -208,7 +189,7 @@ export async function runCase(
       let threw = false;
       let thrownError = '';
       try {
-        await withTimeout(fn(safeHandlers, root, sharedCtx, $testStory, $q, rootQ), DEFAULT_TIMEOUT_MS);
+        await execute();
       } catch (e: any) {
         threw = true;
         thrownError = e?.message || String(e);
@@ -222,7 +203,7 @@ export async function runCase(
         result = { name: c.name, passed: false, error: `Expected to throw "${c.throws}" but did not throw`, durationMs };
       }
     } else {
-      const actual = await withTimeout(fn(safeHandlers, root, sharedCtx, $testStory, $q, rootQ), DEFAULT_TIMEOUT_MS);
+      const actual = await execute();
       const durationMs = Date.now() - start;
       if (c.expect !== undefined) {
         const r = matchExpect(actual, c.expect);
@@ -385,7 +366,7 @@ export function cleanupTempStories(root: string, tempStoryIds: string[]): void {
   const cfg = loadConfig(root);
   for (const id of tempStoryIds) {
     try { rmSync(join(root, cfg.storyDir, id), { recursive: true, force: true }); } catch {}
-    try { rmSync(join(root, 'docs', 'story', 'actives', id), { recursive: true, force: true }); } catch {}
+    try { rmSync(join(root, cfg.storyDir, id), { recursive: true, force: true }); } catch {}
   }
 }
 

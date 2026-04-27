@@ -1,11 +1,8 @@
 
 import type { HandlerContext } from './context.js';
-import type { BugRecord } from '../core/types.js';
+import type { BugRecord, BugEvidence } from '../core/types.js';
 import { extractBugs } from '../tasks/bug-report.js';
-
-function isLegacyFixturelessBug(bug: BugRecord): boolean {
-  return !bug.fixtureId && /old style|old format|legacy/i.test(bug.title);
-}
+import { computeProcessMetrics } from '../core/process-metrics.js';
 
 export function createBugHandlers(ctx: HandlerContext) {
   const { store } = ctx;
@@ -39,58 +36,53 @@ export function createBugHandlers(ctx: HandlerContext) {
       storyId: string;
       id: string;
       status: 'open' | 'fixed';
+      evidence?: BugEvidence;
     }): Promise<string> {
       const data = store.readBugs(args.storyId);
       const bug = data.bugs.find(b => b.id === args.id);
       if (!bug) throw new Error(`Bug ${args.id} not found`);
 
-      // CHK-008: bug_update fixed 时通过 fixtureId 重跑 case 验证
+      // 标记 fixed（验证走 koala validate，不在 bug_update 里自动跑）
+      let resultMsg: string;
       if (args.status === 'fixed') {
-        if (!bug.fixtureId) {
-          if (isLegacyFixturelessBug(bug)) {
-            bug.status = 'fixed';
-            bug.fixedAt = new Date().toISOString();
-            (bug as any).legacyFixtureCleanup = true;
-            store.writeBugs(args.storyId, data);
-            return `Bug ${args.id} marked fixed (legacy bug without fixtureId — cleaned up after uuid migration)`;
-          }
-          throw new Error(`Bug ${args.id} 缺少 fixtureId，无法验证。请用新格式重报 bug（bug_report 时传 fixtureId）`);
-        }
-        const { createTestFixtureHandlers } = await import('./test-fixture.js');
-        const testHandlers = createTestFixtureHandlers(ctx);
-        try {
-          const result = JSON.parse(await testHandlers.test_fixture({ fixtureId: bug.fixtureId }));
-          if (!result.allPassed) {
-            const failedNames = result.details.filter((d: any) => !d.passed).map((d: any) => d.name).join(', ');
-            throw new Error(`bug_update fixed 被拒绝: case 仍然失败 — ${failedNames}`);
-          }
-        } catch (e: any) {
-          if (e.message.includes('bug_update fixed 被拒绝')) throw e;
-          if (e.message.includes('缺少 fixtureId')) throw e;
-          // B-d4fb: stale fixtureId (fixture was deleted/regenerated during
-          // DEV iteration). The bug points to a case that no longer exists,
-          // so the bug as a record of THIS case can no longer fail. Treat as
-          // fixed (the new case set is what runs in test_story; if any are
-          // broken, fresh bugs will be reported).
-          if (/未找到 _id=/.test(e.message)) {
-            bug.status = 'fixed';
-            bug.fixedAt = new Date().toISOString();
-            (bug as any).staleFixtureCleanup = true;
-            store.writeBugs(args.storyId, data);
-            return `Bug ${args.id} marked fixed (stale fixtureId — original case removed during fixture regeneration)`;
-          }
-          throw new Error(`bug_update fixed 验证失败: ${e.message}`);
+        if (!args.evidence) {
+          return `⚠ Bug ${args.id}: 标 fixed 时建议提供 evidence（symptom / rootCause / fixEvidence）。` +
+            ` 用法: koala bug_update '{"storyId":"...","id":"...","status":"fixed","evidence":{"symptom":"...","reproSteps":["..."],"rootCause":"...","fixEvidence":"..."}}'`;
         }
         bug.status = 'fixed';
         bug.fixedAt = new Date().toISOString();
+        bug.evidence = args.evidence;
         store.writeBugs(args.storyId, data);
-        return `Bug ${args.id} updated to fixed (✓ fixtureId=${bug.fixtureId} 验证通过)`;
+        resultMsg = `Bug ${args.id} updated to fixed (✓ evidence recorded: rootCause="${args.evidence.rootCause}")`;
+      } else {
+        // B-aa48 CHK-002: detect reopen (was fixed, now open)
+        const wasFixed = bug.status === 'fixed';
+        bug.status = args.status;
+        store.writeBugs(args.storyId, data);
+
+        if (wasFixed && args.status === 'open') {
+          try {
+            store.appendProcessEvent(args.storyId, {
+              type: 'bug_reopened',
+              bugId: args.id,
+            });
+          } catch (e) {
+            console.warn(`[process-events] append failed for ${args.storyId}:`, (e as Error).message);
+          }
+        }
+
+        resultMsg = `Bug ${args.id} updated to ${args.status}`;
       }
 
-      // open 状态直接更新
-      bug.status = args.status;
-      store.writeBugs(args.storyId, data);
-      return `Bug ${args.id} updated to ${args.status}`;
+      // B-abd8: auto-recompute process metrics (once, after either branch)
+      try {
+        const pm = computeProcessMetrics(args.storyId, store, ctx.root);
+        store.writeProcessMetrics(args.storyId, pm);
+      } catch (e) {
+        console.warn(`[process-metrics] recompute failed for ${args.storyId}:`, (e as Error).message);
+      }
+
+      return resultMsg;
     },
 
     bug_list(args: { storyId: string }) {

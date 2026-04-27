@@ -3,10 +3,11 @@
  */
 import type { HandlerContext } from '../../../main/dist/handlers/context.js';
 import { loadConfig } from '../../../main/dist/core/config.js';
-import { join } from 'path';
+import { extname, join } from 'path';
 import { existsSync, readFileSync, readdirSync } from 'fs';
 import { scanAllTraces } from '../../../main/dist/tasks/trace-store.js';
 import type { ProfileNode } from '../../../main/dist/tasks/profiler.js';
+import { CODE_EXTENSIONS } from '../../../main/dist/tasks/extract.js';
 
 interface LogicLine {
   entry: string;
@@ -210,7 +211,7 @@ function detectBlindZones(root: string, config: any, tracedFunctions: Set<string
       if (entry.isDirectory()) {
         if (entry.name === 'node_modules' || entry.name === '.git') continue;
         scan(join(dir, entry.name));
-      } else if (entry.name.endsWith('.ts') && !entry.name.endsWith('.d.ts')) {
+      } else if (CODE_EXTENSIONS.has(extname(entry.name)) && !entry.name.endsWith('.d.ts')) {
         const filePath = join(dir, entry.name);
         const relPath = filePath.replace(scanRoot, '').replace(/\\/g, '/').replace(/^\//, '');
         try {
@@ -224,6 +225,17 @@ function detectBlindZones(root: string, config: any, tracedFunctions: Set<string
           // 2. export const name = (...) => / export const name = function
           const arrowRegex = /export\s+const\s+(\w+)\s*=\s*(?:async\s+)?(?:\([^)]*\)\s*(?::\s*\w[^=]*?)?\s*=>|function\b)/g;
           while ((match = arrowRegex.exec(src)) !== null) exportedFns.push(match[1]);
+          const pythonRegex = /^(?:async\s+)?def\s+(\w+)\s*\(/gm;
+          while ((match = pythonRegex.exec(src)) !== null) exportedFns.push(match[1]);
+          const goRegex = /^func\s+(?:\([^)]*\)\s*)?(\w+)\s*\(/gm;
+          while ((match = goRegex.exec(src)) !== null) exportedFns.push(match[1]);
+          const swiftRegex = /^\s*(?:public\s+|private\s+|internal\s+|fileprivate\s+|static\s+|class\s+|mutating\s+)*func\s+(\w+)\s*\(/gm;
+          while ((match = swiftRegex.exec(src)) !== null) exportedFns.push(match[1]);
+          const javaLikeRegex = /^\s*(?:public\s+|private\s+|protected\s+|static\s+|final\s+|synchronized\s+|override\s+|virtual\s+|inline\s+|constexpr\s+)*[\w:<>,~*&\s]+\s+(\w+)\s*\(/gm;
+          while ((match = javaLikeRegex.exec(src)) !== null) {
+            const name = match[1];
+            if (!['if', 'for', 'while', 'switch', 'return', 'catch'].includes(name)) exportedFns.push(name);
+          }
           // 3. class methods in exported classes: export class Foo { methodName(
           const classRegex = /export\s+class\s+(\w+)/g;
           const methodRegex = /(?:^|\s|;|\{)(?:async\s+)?(\w+)\s*\(/gm;
@@ -251,7 +263,7 @@ function detectBlindZones(root: string, config: any, tracedFunctions: Set<string
           }
           for (const fnName of exportedFns) {
             const baseName = fnName.includes('.') ? fnName.split('.')[0] : fnName;
-            const isTraced = [...tracedFunctions].some(tf => tf.includes(baseName) && tf.includes(relPath.replace(/\.ts$/, '')));
+            const isTraced = [...tracedFunctions].some(tf => tf.includes(baseName) && tf.includes(relPath.slice(0, -extname(relPath).length)));
             if (!isTraced) blindZones.push(`${fnName}@${relPath}`);
           }
         } catch {}

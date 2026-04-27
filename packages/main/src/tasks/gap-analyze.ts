@@ -7,17 +7,6 @@ import type { TaskAnnotation, FlowChain } from './types.js';
 import { StoryStore } from '../core/store.js';
 import { join } from 'path';
 import { loadConfig } from '../core/config.js';
-import type { StoryPhase } from '../core/types.js';
-
-const NON_TERMINAL_STORY_PHASES = new Set<StoryPhase>([
-  'INIT',
-  'INIT_CHECK',
-  'PLAN',
-  'DEV',
-  'TEST_CASE',
-  'TEST_CASE_REVIEW',
-  'TEST',
-]);
 
 /** 差距项 */
 export interface GapItem {
@@ -62,7 +51,7 @@ export function analyzeGap(projectRoot: string, store?: StoryStore): GapResult {
   const gaps: GapItem[] = [];
 
   // 1. Requirements without any @task code coverage
-  const requirements = truth.entries.filter(e => e.type === 'requirement' && e.tier === 'primary');
+  const requirements = truth.entries.filter(e => e.type === 'requirement');
   const taskIds = new Set(tasks.map(t => t.task));
 
   for (const req of requirements) {
@@ -162,7 +151,7 @@ export function checkConvergence(projectRoot: string, store: StoryStore): Conver
   const storyIds = store.listStoryIds();
   const activeStories = storyIds.filter(id => {
     const story = store.readStory(id);
-    return NON_TERMINAL_STORY_PHASES.has(story.phase);
+    return story.phase !== 'DONE';
   });
 
   const checks: ConvergenceResult['checks'] = [];

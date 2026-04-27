@@ -9,7 +9,6 @@ const ROOT_DOC_FILES = ['CLAUDE.md', 'README.md', 'AGENTS.md'];
 const SKIP_DIRS = new Set([
   'node_modules', 'dist', 'build', 'coverage',
   '.git', '.worktrees', '.next', '.cache',
-  '.koala',
 ]);
 
 interface DocEntry {

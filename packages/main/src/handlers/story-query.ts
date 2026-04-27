@@ -1,20 +1,26 @@
 
+import { execFileSync, execSync } from 'child_process';
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmdirSync, rmSync, writeFileSync } from 'fs';
+import { join } from 'path';
 import type { HandlerContext } from './context.js';
 import type { StoryPhase, StoryInfo } from '../core/types.js';
+import type { StoryStore } from '../core/store.js';
 import { assertCwdInWorktree, collectContext } from './context.js';
 import { loadConfig } from '../core/config.js';
-import { join } from 'path';
-import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmdirSync, rmSync, writeFileSync } from 'fs';
-import { execSync } from 'child_process';
-import { getArtifactContractStatus } from '../core/artifact-contract.js';
-import { getReviewerStatus } from '../core/reviewer-status.js';
-import { getStoryWorktreeRuntime } from '../core/worktree-runtime.js';
+import { formatProcessMetricsSummary } from '../core/process-metrics.js';
+import { getRepoRoot, getStoryWorktreeRuntime } from '../core/worktree-runtime.js';
 import { getLegacyActivityLogPath, getRuntimeActivityLogPath } from '../core/activity-log.js';
 
-// ─── 僵尸 story 检测：分支已合并到 main 但 phase 不是 DONE ─────────────────
+/** B-45ed CHK-008: 若 story 的 background.md 文件存在则返回 true。 */
+function hasBackground(store: StoryStore, storyId: string): boolean {
+  return existsSync(store.storyFilePath(storyId, 'background.md'));
+}
+
+// ─── Non-terminal phases for zombie detection ──────────────────────────────
 
 const NON_TERMINAL_PHASES = new Set<string>([
-  'INIT', 'INIT_CHECK', 'PLAN', 'DEV', 'TEST_CASE', 'TEST_CASE_REVIEW', 'TEST',
+  'INIT', 'INIT_CHECK', 'PLAN', 'DEV', 'REVIEW',
+  'TEST_CASE', 'TEST_CASE_REVIEW', 'TEST',
 ]);
 
 interface ZombieInfo {
@@ -128,6 +134,18 @@ function gitSucceeds(cwd: string, args: string): boolean {
   }
 }
 
+function gitSafe(projectRoot: string, args: string[]): string {
+  try {
+    return execFileSync('git', args, {
+      cwd: projectRoot,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+  } catch {
+    return '';
+  }
+}
+
 function gitUnmergedPaths(cwd: string): string[] {
   const raw = gitOutput(cwd, 'diff --name-only --diff-filter=U');
   return raw.split('\n').map(line => line.trim().replace(/\\/g, '/')).filter(Boolean);
@@ -145,7 +163,7 @@ function gitPorcelainPaths(cwd: string): string[] {
  * 检测"僵尸" story：phase 非终态但分支已合并到 main（或分支已删除）。
  * 返回所有异常 story 列表。
  */
-export function detectZombieStories(store: import('../core/store.js').StoryStore, root: string): ZombieInfo[] {
+export function detectZombieStories(store: StoryStore, root: string): ZombieInfo[] {
   const zombies: ZombieInfo[] = [];
   const ids = store.listStoryIds();
 
@@ -159,9 +177,8 @@ export function detectZombieStories(store: import('../core/store.js').StoryStore
     const branchExists = runtime.branchExists;
     const branchMerged = runtime.branchMerged;
 
-    // 分支已合并到 main，或分支已删除（被人手动删了或 merge 后删了）。
     // INIT 还没创建分支属于正常；INIT_CHECK 若已经有 worktree 记录/历史动作
-    // 但 branch/worktree 都消失，就是 B-bb59 类 phase 被覆盖后的僵尸状态。
+    // 但 branch/worktree 都消失，就是 phase 被覆盖后的僵尸状态。
     if (story.phase === 'INIT') {
       if (!branchExists) continue;
     }
@@ -192,8 +209,48 @@ export function detectZombieStories(store: import('../core/store.js').StoryStore
   return zombies;
 }
 
+/**
+ * Detect story residue: .worktrees/ directories that belong to stories
+ * whose phase is already DONE or DISCARDED. These should have been
+ * cleaned up but weren't.
+ */
+export function detectStoryResidue(
+  store: StoryStore,
+  projectRoot: string,
+): Array<{ storyId: string; reason: string }> {
+  try {
+    const repoRoot = getRepoRoot(projectRoot);
+    const worktreesDir = join(repoRoot, '.worktrees');
+    if (!existsSync(worktreesDir)) return [];
+
+    const entries = readdirSync(worktreesDir, { withFileTypes: true });
+    const residues: Array<{ storyId: string; reason: string }> = [];
+
+    for (const entry of entries) {
+      if (!entry.isDirectory()) continue;
+      // worktree dirs are named B-xxxx
+      const dirName = entry.name;
+      if (!dirName.startsWith('B-')) continue;
+
+      let story;
+      try { story = store.readStory(dirName); } catch { continue; }
+
+      if (story.phase === 'DONE' || story.phase === 'DISCARDED') {
+        residues.push({
+          storyId: dirName,
+          reason: `worktree .worktrees/${dirName} still exists but phase=${story.phase}`,
+        });
+      }
+    }
+
+    return residues;
+  } catch {
+    return [];
+  }
+}
+
 export function createStoryQueryHandlers(ctx: HandlerContext) {
-  const { store } = ctx;
+  const { store, root } = ctx;
 
   return {
     story_update(args: {
@@ -203,10 +260,6 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
       priority?: string;
       source?: string;
       depends?: string[];
-      lane?: 'mainline' | 'supporting' | 'exploratory';
-      parallelSafe?: 'yes' | 'no' | 'plan_only';
-      sharedHotspots?: string[];
-      blockingFor?: string[];
     }): string {
       const story = store.readStory(args.storyId);
       if (args.title !== undefined) story.title = args.title;
@@ -214,67 +267,22 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
       if (args.priority !== undefined) story.priority = args.priority;
       if (args.source !== undefined) story.source = args.source;
       if (args.depends !== undefined) story.depends = args.depends;
-      if (args.lane !== undefined) story.lane = args.lane;
-      if (args.parallelSafe !== undefined) story.parallelSafe = args.parallelSafe;
-      if (args.sharedHotspots !== undefined) story.sharedHotspots = args.sharedHotspots;
-      if (args.blockingFor !== undefined) story.blockingFor = args.blockingFor;
       store.writeStory(args.storyId, story);
       return `Story ${args.storyId} updated`;
     },
 
     story_get(args: { storyId: string; detail?: boolean }): object {
-      const story = store.readStory(args.storyId);
-      const config = loadConfig(ctx.root);
-      const fixturesDir = join(ctx.root, config.fixturesDir);
-      const intentRefMap = collectStoryIntentFixtures(fixturesDir, args.storyId);
-
-      // 读 checklist 并填入 fixture 关联
       const cl = (() => {
-        try { return store.readChecklist(args.storyId); } catch { return { items: [] as any[] }; }
+        try { return store.readChecklist(args.storyId); } catch { return { items: [] }; }
       })();
-      for (const item of cl.items) {
-        if (!item.testIntent) continue;
-        for (const lane of ['happy', 'edge', 'adversarial'] as const) {
-          const entries = item.testIntent[lane] || [];
-          for (let i = 0; i < entries.length; i++) {
-            const entry = entries[i];
-            if (typeof entry === 'string') continue;
-            const ref = `${item.id}:${lane}:${i}`;
-            entry.fixture = intentRefMap.get(ref) || null;
-          }
-        }
-      }
 
-      // 读 review
       const review = (() => {
         try { return store.readReview(args.storyId); } catch { return null; }
       })();
 
-      const result: Record<string, unknown> = {
-        story: {
-          storyId: args.storyId,
-          title: story.title,
-          phase: story.phase,
-          terminal: story.phase === 'DONE' || story.phase === 'DISCARDED',
-          discarded: story.phase === 'DISCARDED',
-          note: story.phase === 'DISCARDED'
-            ? 'This story is DISCARDED; any visible files may be stale residue unless explicitly restored.'
-            : undefined,
-        },
-        checklist: cl,
-        review,
-      };
+      const result: Record<string, unknown> = { checklist: cl, review };
       if (args.detail) {
-        try { result.index = story; } catch { result.index = null; }
-        try {
-          result.runtimeHealth = getStoryWorktreeRuntime(args.storyId, store, ctx.root);
-          result.reviewers = getReviewerStatus(args.storyId, store, story.phase);
-          result.artifactContract = getArtifactContractStatus(args.storyId, store, story.phase);
-        } catch {
-          result.runtimeHealth = null;
-          result.reviewers = null;
-          result.artifactContract = null;
-        }
+        try { result.index = store.readStory(args.storyId); } catch { result.index = null; }
       }
       return result;
     },
@@ -295,6 +303,13 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
         'TEST' as StoryPhase,
       ]);
       const ids = store.listStoryIds();
+
+      // B-5fa4 CHK-002: zombie + residue detection
+      const zombies = detectZombieStories(store, root);
+      const residues = detectStoryResidue(store, root);
+      const zombieIds = new Set(zombies.map(z => z.storyId));
+      const residueIds = new Set(residues.map(r => r.storyId));
+
       const results = ids.map(id => {
         const story = store.readStory(id);
         const cl = (() => {
@@ -308,6 +323,18 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
         const bugsOpen = bugs.bugs.filter(b => b.status === 'open').length;
         const bugsFixed = bugs.bugs.filter(b => b.status === 'fixed').length;
 
+        // B-abd8: process metrics summary
+        const pm = store.readProcessMetrics(id);
+        const metricsField = pm ? formatProcessMetricsSummary(pm, 'verbose') : null;
+
+        // B-45ed CHK-008: bg:✓ 标记（仅在 background.md 存在时输出字段，不存在时省略字段不报错）
+        const bgFlag = hasBackground(store, id) ? 'bg:✓' : null;
+
+        // B-5fa4 CHK-002: append [zombie] / [residue] labels
+        const labels: string[] = [];
+        if (zombieIds.has(id)) labels.push('[zombie]');
+        if (residueIds.has(id)) labels.push('[residue]');
+
         return {
           storyId: id,
           name: story.name || '',
@@ -318,6 +345,9 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
           checklist: clTotal > 0 ? `${clDone}/${clTotal}` : '-',
           bugs: bugsOpen > 0 ? `${bugsOpen} open, ${bugsFixed} fixed` : (bugsFixed > 0 ? `${bugsFixed} fixed` : 'none'),
           tests: evidence && evidence.result ? evidence.result.toLowerCase() : 'none',
+          ...(metricsField ? { metrics: metricsField } : {}),
+          ...(bgFlag ? { bg: bgFlag } : {}),
+          ...(labels.length > 0 ? { labels: labels.join(' ') } : {}),
         };
       });
 
@@ -372,11 +402,8 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
         if (totalBugsOpen > 0) {
           bugSuggestions.push(`⚠ ${totalBugsOpen} 个 open bug 待修复，建议优先处理`);
         }
-        const unresolvedBugStories = bugStories.filter(
-          r => r.phase !== 'DONE' && r.phase !== 'DISCARDED',
-        );
-        if (unresolvedBugStories.length > 0) {
-          const openBugStories = unresolvedBugStories;
+        if (bugStories.filter(r => r.phase !== 'DONE').length > 0) {
+          const openBugStories = bugStories.filter(r => r.phase !== 'DONE');
           bugSuggestions.push(`⚠ Bug Story 未关闭: ${openBugStories.map(r => r.storyId).join(', ')}`);
         }
         if (totalBugs > 0 && total > 0) {
@@ -384,12 +411,17 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
           bugSuggestions.push(`Bug/Story 比率: ${bugRate}，可运行 bug_analyze() 查看详细报告`);
         }
 
-        // 僵尸 story 检测
-        const zombies = detectZombieStories(store, ctx.root);
-        const zombieWarning = zombies.length > 0
-          ? `⚠ 僵尸 story (${zombies.length}): ${zombies.map(z => `${z.storyId}(${z.phase})`).join(', ')} — 分支已合并/删除但 phase 非终态，运行 story_reconcile 修复`
-          : null;
-        if (zombieWarning) bugSuggestions.push(zombieWarning);
+        // B-5fa4 CHK-002: zombie + residue warnings in dashboard
+        if (zombies.length > 0) {
+          bugSuggestions.push(
+            `⚠ 僵尸 story (${zombies.length}): ${zombies.map(z => z.storyId).join(', ')} — 分支已合并/删除但 phase 非终态`,
+          );
+        }
+        if (residues.length > 0) {
+          bugSuggestions.push(
+            `⚠ Residue (${residues.length}): ${residues.map(r => r.storyId).join(', ')} — phase 已终态但 worktree 目录未清理`,
+          );
+        }
 
         return {
           _dashboard: dashboard,
@@ -731,22 +763,7 @@ function listStoryDirs(base: string): string[] {
     .sort();
 }
 
-/**
- * @task B-eb3c
- * @checklist CHK-003
- * @title find terminal story residue directories
- * @type bugfix
- * @priority high
- * @description
- *   Stash/merge recovery can reintroduce DONE/DISCARDED story directories as
- *   untracked files. story_reconcile should identify those Koala-managed
- *   residues and repair only the safe untracked ones.
- * @changes
- *   - [CHK-003] List terminal story directories with git status changes
- *   - [CHK-003] Mark all-untracked terminal directories safe for repair
- *   - [CHK-003] Leave tracked/staged residue for human inspection
- */
-function scanTerminalStoryResidues(store: any, root: string): StoryResidueInfo[] {
+function scanTerminalStoryResidues(store: StoryStore, root: string): StoryResidueInfo[] {
   const cfg = loadConfig(root);
   const base = join(root, cfg.storyDir);
   const residues: StoryResidueInfo[] = [];

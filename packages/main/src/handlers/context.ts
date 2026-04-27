@@ -4,7 +4,7 @@ import type { StoryPhase, StoryEvent } from '../core/types.js';
 import { execSync } from 'child_process';
 import { join, isAbsolute } from 'path';
 import { randomBytes } from 'crypto';
-import { getStoryWorktreeRuntime, resolveLinkedWorktreePath, resolveLinkedWorktreeStoryPath } from '../core/worktree-runtime.js';
+import { gitProbe } from '../core/git-probe.js';
 
 export interface HandlerContext {
   store: StoryStore;
@@ -21,39 +21,12 @@ const PHASE_TO_EVENT: Record<string, string> = {
   INIT_CHECK: 'INIT_CHECK',
   PLAN: 'PLAN',
   DEV: 'START',
-  TEST_CASE: 'WRITE_CASES',
-  TEST_CASE_REVIEW: 'REQUEST_REVIEW',
-  TEST: 'REVIEW',
+  REVIEW: 'CODE_REVIEW',
+  TEST: 'REVIEW_PASS',
   DONE: 'FINISH',
 };
 
 export { PHASE_TO_EVENT };
-
-const SYSTEM_STORY_AGENTS = new Set(['gate-auto', 'gate-rollback']);
-
-export function getCurrentSessionId(): string | undefined {
-  const raw = process.env.KOALA_SESSION_ID
-    || process.env.CLAUDE_SESSION_ID
-    || process.env.KOALA_ACTIVITY_SESSION
-    || process.env.CODEX_SESSION_ID
-    || process.env.OPENAI_SESSION_ID
-    || process.env.TERM_SESSION_ID
-    || '';
-  const trimmed = raw.trim();
-  return trimmed || undefined;
-}
-
-export function getStorySessionOwner(events?: StoryEvent[]): StoryEvent | null {
-  if (!events || events.length === 0) return null;
-  for (let i = events.length - 1; i >= 0; i--) {
-    const event = events[i];
-    if (event.action !== 'advance') continue;
-    if (!event.sessionId) continue;
-    if (event.agent && SYSTEM_STORY_AGENTS.has(event.agent)) continue;
-    return event;
-  }
-  return null;
-}
 
 export function collectContext(phase: StoryPhase, action: 'create' | 'advance' | 'discard'): StoryEvent {
   const event: StoryEvent = {
@@ -61,15 +34,19 @@ export function collectContext(phase: StoryPhase, action: 'create' | 'advance' |
     action,
     timestamp: new Date().toISOString(),
   };
-  try { event.branch = execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf8' }).trim(); } catch { /* PROBE: branch is unavailable outside git repos */ }
-  try { event.user = execSync('git config user.name', { encoding: 'utf8' }).trim(); } catch { /* PROBE: git user.name may be unset in CI/temp repos */ }
-  event.sessionId = getCurrentSessionId();
+  const branch = gitProbe('git rev-parse --abbrev-ref HEAD');
+  if (branch.ok) event.branch = branch.output;
+  const user = gitProbe('git config user.name');
+  if (user.ok) event.user = user.output;
+  event.sessionId = process.env.KOALA_SESSION_ID
+    || process.env.CLAUDE_SESSION_ID
+    || undefined;
   event.agent = process.env.KOALA_AGENT || 'main';
   return event;
 }
 
 /** PLAN ~ TEST 阶段必须在 worktree 里执行 koala 命令 */
-export const CWD_GATED_PHASES: Set<StoryPhase> = new Set(['PLAN', 'DEV', 'TEST_CASE', 'TEST_CASE_REVIEW', 'TEST']);
+export const CWD_GATED_PHASES: Set<StoryPhase> = new Set(['PLAN', 'DEV', 'REVIEW', 'TEST']);
 
 /**
  * 检查当前 cwd 是否在 story 的 worktree 中。
@@ -80,24 +57,14 @@ export function assertCwdInWorktree(store: StoryStore, storyId: string): void {
   let story;
   try {
     story = store.readStory(storyId);
-  } catch { /* PROBE: not all callers run inside a git worktree */
+  } catch {
     return; // story 不存在，跳过
   }
   if (!story.worktree) return; // 没有 worktree，跳过（兼容旧 story）
-  const runtime = getStoryWorktreeRuntime(storyId, store, process.cwd());
-  if (runtime.linkedPath && runtime.canRepairPath) {
-    const repaired = store.readStory(storyId);
-    if (repaired.worktree) {
-      repaired.worktree = {
-        path: resolveLinkedWorktreeStoryPath(runtime) || repaired.worktree.path,
-        branch: repaired.worktree.branch,
-        createdAt: repaired.worktree.createdAt,
-      };
-      store.writeStory(storyId, repaired);
-      story = repaired;
-    }
-  }
 
+  // B-9d95 CHK-001 whitelist: cwd 门禁——本函数的职责就是校验调用方 cwd 是否在 story 的 worktree。
+  // 这里必须读 process.cwd()（调用方视角），不能用 ctx.root（那是 handler 初始化时确定的，
+  // 不等于调用方真实 cwd）。故此 process.cwd() 调用点在白名单内。
   const cwd = process.cwd();
   let repoRoot = cwd;
   try {
@@ -114,13 +81,11 @@ export function assertCwdInWorktree(store: StoryStore, storyId: string): void {
     } else {
       repoRoot = execSync('git rev-parse --show-toplevel', { cwd, encoding: 'utf-8' }).trim();
     }
-  } catch { /* PROBE: cwd may not be inside a git repo */ }
+  } catch { /* not git */ }
 
-  const currentWorktree = story.worktree;
-  if (!currentWorktree) return;
-  const expectedAbsPath = resolveLinkedWorktreePath(runtime) || (isAbsolute(currentWorktree.path)
-    ? currentWorktree.path
-    : join(repoRoot, currentWorktree.path));
+  const expectedAbsPath = isAbsolute(story.worktree.path)
+    ? story.worktree.path
+    : join(repoRoot, story.worktree.path);
 
   if (cwd !== expectedAbsPath && !cwd.startsWith(expectedAbsPath + '/') && !cwd.startsWith(expectedAbsPath + '\\')) {
     throw new Error(

@@ -45,7 +45,7 @@ export function createTruthHandlers(ctx: HandlerContext) {
       }
 
       // 读 Story 数据
-      const storiesDir = join(root, 'docs', 'story', 'actives');
+      const storiesDir = join(root, config.storyDir);
       const stories: Array<{ id: string; title: string; description: string; phase: string }> = [];
       if (existsSync(storiesDir)) {
         for (const d of readdirSync(storiesDir, { withFileTypes: true })) {

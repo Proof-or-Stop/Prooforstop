@@ -10,7 +10,7 @@ import type { HandlerContext } from './context.js';
 import { loadConfig } from '../core/config.js';
 import {
   type CaseResult,
-  runCase, findCaseById, createIsolatedHandlers, cleanupFixtureDir,
+  runCase, findCaseById, createIsolatedHandlers, cleanupFixtureDir, isExecutableCase,
 } from './test-runner-core.js';
 
 export function createTestFixtureHandlers(ctx: HandlerContext) {
@@ -43,8 +43,8 @@ export function createTestFixtureHandlers(ctx: HandlerContext) {
         cur = cur.nextCaseId ? byId.get(cur.nextCaseId) : null;
       }
 
-      // 只跑有 execute 的 case
-      const executableCases = chain.filter((c: any) => c.execute);
+      // 跑语言无关 fixture protocol：executor / command / legacy JS execute
+      const executableCases = chain.filter((c: any) => isExecutableCase(c));
       if (executableCases.length === 0) throw new Error('链中无可执行 case');
 
       // 创建隔离 handlers

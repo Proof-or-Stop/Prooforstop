@@ -5,6 +5,7 @@ import { randomUUID } from 'crypto';
 import { execSync } from 'child_process';
 import type { HandlerContext } from './context.js';
 import { loadConfig } from '../core/config.js';
+import { FIXTURE_EXECUTOR_IDS } from './fixture-executors.js';
 
 /**
  * B-c745: infer current story from git branch 'story/B-xxx' so
@@ -26,8 +27,16 @@ function inferStoryIdFromGit(root: string): string | null {
   }
 }
 
-const NEW_FORMAT_FIELDS = new Set(['name', 'run_type', 'file', 'execute', 'expect', 'throws', 'debug', 'intentRef', 'storyId', 'sandbox', '_id', 'prevCaseId', 'nextCaseId', 'timeoutMs']);
-const DEPRECATED_FIELDS = new Set(['input', 'steps', 'browser', 'construct', 'setup', 'cli', 'command', 'env', 'cwd']);
+const NEW_FORMAT_FIELDS = new Set([
+  'name', 'run_type', 'executor', 'file', 'fn', 'input', 'execute', 'command', 'args',
+  'cwd', 'env', 'stdin', 'expect', 'throws', 'debug', 'intentRef', 'storyId', 'sandbox',
+  '_id', 'prevCaseId', 'nextCaseId', 'timeoutMs', 'python',
+  'go', 'package', 'packages', 'buildTool', 'maven', 'gradle', 'binary',
+  'swift', 'xcodebuild', 'workspace', 'project', 'scheme', 'destination',
+  'configuration', 'sdk', 'cargo',
+]);
+const DEPRECATED_FIELDS = new Set(['steps', 'browser', 'construct', 'setup', 'cli']);
+const EXECUTOR_IDS = new Set<string>(FIXTURE_EXECUTOR_IDS);
 
 export function validateFixtureCase(c: Record<string, unknown>): string[] {
   const errors: string[] = [];
@@ -39,7 +48,7 @@ export function validateFixtureCase(c: Record<string, unknown>): string[] {
   // 拒绝旧格式字段
   const deprecated = Object.keys(c).filter(k => DEPRECATED_FIELDS.has(k));
   if (deprecated.length > 0) {
-    errors.push(`旧格式字段不允许: ${deprecated.join(', ')}，请使用新格式（run_type/file/execute）`);
+    errors.push(`旧格式字段不允许: ${deprecated.join(', ')}，请使用新格式（run_type/executor 或 run_type/execute）`);
     return errors; // 旧格式不继续校验
   }
 
@@ -48,14 +57,49 @@ export function validateFixtureCase(c: Record<string, unknown>): string[] {
     errors.push('run_type 必须是 "cli" 或 "browser"');
   }
 
-  // file 必填（源文件路径）
-  if (!c.file || typeof c.file !== 'string' || (c.file as string).trim() === '') {
-    errors.push('file 必须是非空字符串（源文件路径）');
+  if (c.executor !== undefined) {
+    if (typeof c.executor !== 'string' || !EXECUTOR_IDS.has(c.executor)) {
+      errors.push(`executor 必须是 ${Array.from(EXECUTOR_IDS).join(' / ')} 之一`);
+    }
   }
 
-  // execute 必填
-  if (!c.execute || typeof c.execute !== 'string' || (c.execute as string).trim() === '') {
-    errors.push('execute 必须是非空字符串（函数体）');
+  const executor = typeof c.executor === 'string' ? c.executor : undefined;
+  const hasExecute = typeof c.execute === 'string' && (c.execute as string).trim() !== '';
+  const hasCommand = typeof c.command === 'string' || Array.isArray(c.command);
+  if (!executor && !hasExecute && !hasCommand) {
+    errors.push('case 必须提供 executor、execute 或 command');
+  }
+  if (c.execute !== undefined && typeof c.execute !== 'string') {
+    errors.push('execute 必须是字符串');
+  }
+  if (executor === 'js.execute' && !hasExecute) {
+    errors.push('js.execute case 的 execute 必须是非空字符串');
+  }
+  if ((executor === 'js.execute' || hasExecute) && (!c.file || typeof c.file !== 'string' || (c.file as string).trim() === '')) {
+    errors.push('js.execute case 的 file 必须是非空字符串（源文件路径）');
+  }
+  if (executor === 'python.function') {
+    if (!c.file || typeof c.file !== 'string' || (c.file as string).trim() === '') {
+      errors.push('python.function case 的 file 必须是非空字符串（Python 源文件路径）');
+    }
+    if (!c.fn || typeof c.fn !== 'string' || (c.fn as string).trim() === '') {
+      errors.push('python.function case 的 fn 必须是非空字符串');
+    }
+  }
+  if (executor === 'cpp.binary' && (!c.binary && !c.command)) {
+    errors.push('cpp.binary case 需要 binary 或 command 字段');
+  }
+  if (executor === 'java.junit' && c.buildTool !== undefined && c.buildTool !== 'maven' && c.buildTool !== 'gradle') {
+    errors.push('java.junit 的 buildTool 必须是 "maven" 或 "gradle"');
+  }
+  if ((executor === 'command' || (!executor && hasCommand)) && !hasCommand) {
+    errors.push('command executor 需要 command 字段');
+  }
+  if (c.command !== undefined && typeof c.command !== 'string' && !Array.isArray(c.command)) {
+    errors.push('command 必须是字符串或字符串数组');
+  }
+  if (c.args !== undefined && (!Array.isArray(c.args) || (c.args as unknown[]).some(v => typeof v !== 'string'))) {
+    errors.push('args 必须是字符串数组');
   }
 
   // expect 和 throws 互斥

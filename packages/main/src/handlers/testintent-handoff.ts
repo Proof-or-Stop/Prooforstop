@@ -1,15 +1,16 @@
 import type { HandlerContext } from './context.js';
 import type { ChecklistItem } from '../core/types.js';
+import { collectVerificationIntents } from '../core/verification.js';
 
 function laneCount(item: ChecklistItem, lane: 'happy' | 'edge' | 'adversarial'): number {
-  return item.testIntent && item.testIntent !== null
-    ? item.testIntent[lane]?.length ?? 0
-    : 0;
+  return item.verificationIntent?.[lane]?.length
+    ?? (item.testIntent && item.testIntent !== null ? item.testIntent[lane]?.length ?? 0 : 0);
 }
 
 function itemNeedsIntent(item: ChecklistItem): boolean {
   if (item.testIntent === null) return false;
-  return !item.testIntent || !Array.isArray(item.testIntent.happy) || item.testIntent.happy.length === 0;
+  return (item.verificationIntent?.happy?.length ?? 0) === 0
+    && (!item.testIntent || !Array.isArray(item.testIntent.happy) || item.testIntent.happy.length === 0);
 }
 
 function compactChecklistItem(item: ChecklistItem) {
@@ -19,7 +20,8 @@ function compactChecklistItem(item: ChecklistItem) {
     context: item.context ?? '',
     phase: item.phase ?? 'DEV',
     status: item.status,
-    testIntent: item.testIntent ?? undefined,
+    verificationIntent: item.verificationIntent ?? undefined,
+    legacyTestIntent: item.testIntent ?? undefined,
   };
 }
 
@@ -43,7 +45,7 @@ export function createTestIntentHandoffHandlers(ctx: HandlerContext) {
 
       const missingIntentItems = scopedItems.filter(itemNeedsIntent);
       const nullIntentItems = scopedItems.filter((item) => item.testIntent === null);
-      const existingIntentItems = scopedItems.filter((item) => item.testIntent && item.testIntent !== null);
+      const existingIntentItems = scopedItems.filter((item) => collectVerificationIntents(item).length > 0 || (item.testIntent && item.testIntent !== null));
       const worktreeHint = story.worktree?.path || ctx.root;
       const checklistJson = JSON.stringify(scopedItems.map(compactChecklistItem), null, 2);
       const missingList = missingIntentItems.map((item) => `${item.id} "${item.title}"`).join(', ') || '(none)';
@@ -66,13 +68,13 @@ export function createTestIntentHandoffHandlers(ctx: HandlerContext) {
         `phase: ${story.phase}`,
         `description: ${story.description}`,
         '',
-        `Checklist items to review (${scopedItems.length}; missing testIntent.happy: ${missingList}):`,
+        `Checklist items to review (${scopedItems.length}; missing verificationIntent.happy: ${missingList}):`,
         checklistJson,
         '',
-        'For each testable item, write structured testIntent entries:',
-        '{"happy":[{"desc":"操作/条件 -> 预期结果; WHY: 覆盖意图","type":"cli_blackbox"}],"edge":[{"desc":"边界条件 -> 预期结果; WHY: ...","type":"cli_blackbox"}],"adversarial":[{"desc":"对抗/失败时序 -> 预期结果; WHY: ...","type":"cli_blackbox"}]}',
+        'For each testable item, write structured verificationIntent entries:',
+        '{"happy":[{"desc":"操作/条件 -> 预期结果; WHY: 覆盖意图","type":"cli","priority":"must"}],"edge":[{"desc":"边界条件 -> 预期结果; WHY: ...","type":"cli","priority":"must"}],"adversarial":[{"desc":"对抗/失败时序 -> 预期结果; WHY: ...","type":"logic","priority":"must"}]}',
         '',
-        'Use browser_blackbox only for browser-visible UI interaction. Use testIntent:null only for truly non-automatable docs/config/process items.',
+        'Use type=browser only for browser-visible UI interaction. Use verification evidence kind=waiver only for truly non-automatable docs/config/process items.',
         '',
         'After updating, run:',
         `koala story_review '{"storyId":"${args.storyId}"}'`,
@@ -97,11 +99,11 @@ export function createTestIntentHandoffHandlers(ctx: HandlerContext) {
         },
         nextActions: [
           'Send prompt to the test-intent agent in the story worktree.',
-          'Let that agent update checklist testIntent via koala checklist_update.',
+          'Let that agent update checklist verificationIntent via koala checklist_update.',
           `Run koala story_review '{"storyId":"${args.storyId}"}' again.`,
         ],
         commandExamples: missingIntentItems.map((item) =>
-          `koala checklist_update '{"storyId":"${args.storyId}","itemId":"${item.id}","testIntent":{"happy":[{"desc":"...","type":"cli_blackbox"}],"edge":[{"desc":"...","type":"cli_blackbox"}],"adversarial":[{"desc":"...","type":"cli_blackbox"}]},"agent":"test-intent"}'`
+          `koala checklist_update '{"storyId":"${args.storyId}","itemId":"${item.id}","verificationIntent":{"happy":[{"desc":"...","type":"cli","priority":"must"}],"edge":[{"desc":"...","type":"cli","priority":"must"}],"adversarial":[{"desc":"...","type":"logic","priority":"must"}]},"agent":"test-intent"}'`
         ),
         prompt,
       };

@@ -1,8 +1,9 @@
 
 import { execSync } from 'child_process';
 import { readFileSync, existsSync } from 'fs';
-import { join } from 'path';
+import { extname, join } from 'path';
 import { scan, extractFlows } from './extract.js';
+import { CODE_EXTENSIONS } from './extract.js';
 import { loadConfig } from '../core/config.js';
 import type { TaskAnnotation, FlowChain } from './types.js';
 
@@ -48,8 +49,9 @@ export function getChangedFiles(projectRoot: string, base?: string): string[] {
     const output = execSync(`git diff --name-only ${baseRef}`, {
       cwd: projectRoot,
       encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
     });
-    return output.trim().split('\n').filter(f => f.endsWith('.ts') || f.endsWith('.tsx'));
+    return output.trim().split('\n').filter(f => CODE_EXTENSIONS.has(extname(f)));
   } catch {
     return [];
   }
@@ -132,7 +134,7 @@ export function runWhiteBoxAnalysis(
   for (const t of testsToRun) {
     const cases = loadFixture(projectRoot, t.test!);
     if (!cases) {
-      fixturesNotFound.push(`${t.functionName}: tests/fixtures/${t.test}.json`);
+      fixturesNotFound.push(`${t.functionName}: ${loadConfig(projectRoot).fixturesDir}/${t.test}.json`);
       continue;
     }
     testResults.push({

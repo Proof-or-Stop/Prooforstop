@@ -25,8 +25,6 @@ export interface TaskAnnotation {
   flow?: string;
   /** @flow 步骤序号 */
   step?: number;
-  /** @flow 步骤说明 */
-  desc?: string;
   /** @flow 输入描述 */
   input?: string;
   /** @flow 输出描述 */
@@ -100,7 +98,6 @@ export interface ExtractFilters {
 export interface FlowStep {
   flow: string;
   step: number;
-  desc?: string;
   input?: string;
   output?: string;
   next?: string;

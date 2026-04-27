@@ -1,42 +1,20 @@
 # Codex + Koala
 
-通用做法：
+Codex agents can use koala CLI with activity source tagging.
 
 ```bash
+# Recommended entry (tags source=codex in activity.jsonl)
 KOALA_ACTIVITY_SOURCE=codex koala session_brief
+
+# Daily operations
+KOALA_ACTIVITY_SOURCE=codex koala story_create '...'
+KOALA_ACTIVITY_SOURCE=codex koala checklist_update '...'
 ```
 
-如果当前仓库带了本地 bootstrap wrapper，再优先用它：
+Alternatively, use the dedicated Codex bootstrap script:
 
 ```bash
-node bin/koala-codex.js session_brief
-node bin/koala-codex.js aux_doc_list --format=json
-node bin/koala-codex.js story_create '...'
+node packages/koala/bin/koala-codex.js status
 ```
 
-原因：
-
-- `KOALA_ACTIVITY_SOURCE=codex` 会把本次调用写入 `docs/story/activity.jsonl`，并标记 `source=codex`。
-- `bin/koala-codex.js` 额外会加载 `main + utils`，所以 `aux_*` 命令也可用。
-- `tool_status --source=codex` 可以单独统计 Codex 侧的 Koala 使用情况。
-
-如果本地 wrapper 提示 bootstrap 未就绪，先在仓库根目录执行：
-
-```bash
-npm --prefix packages/main run build
-npm --prefix packages/utils run build
-```
-
-如果你在维护当前仓库本身，而不是消费一个下游项目，还可以跑：
-
-```bash
-npm run test:codex-assets
-```
-
-它会验证 `.Codex/agents` 仍然和 `.claude/agents` 的受控 transform 保持一致，并检查 README / AGENTS / `.Codex/README` 三层入口说明没有漂移。
-
-建议：
-
-- 新 session 第一条命令跑 `KOALA_ACTIVITY_SOURCE=codex koala session_brief`
-- 如果仓库有 `bin/koala-codex.js`，日常所有 story/checklist/fixture/bug 操作都走这个入口
-- 如果只用全局 `koala`，活动仍会记录，但默认会记成 `source=cli`
+See `.codex/agents/` for sub-agent prompt files.

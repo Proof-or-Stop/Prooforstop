@@ -9,19 +9,17 @@ import { createAuxSyncHandlers } from './handlers/aux-sync.js';
 import { createAuxTraceHandlers } from './handlers/aux-trace.js';
 import { createAuxDiagnoseHandlers } from './handlers/aux-diagnose.js';
 import { createAuxDocHandlers } from './handlers/aux-doc.js';
+import { createTruthHandlers } from './handlers/truth.js';
+import { createGapHandlers } from './handlers/gap.js';
 import { createToolStatusHandlers } from './handlers/tool-status.js';
 
 export function register(registry: Registry, ctx: HandlerContext): void {
-  const registerIfMissing = (handlers: Record<string, (...args: any[]) => any>) => {
-    for (const [name, handler] of Object.entries(handlers)) {
-      if (!registry.has(name)) registry.register(name, handler);
-    }
-  };
-
   registry.registerBatch(createAuxHandlers(ctx));
   registry.registerBatch(createAuxSyncHandlers(ctx));
   registry.registerBatch(createAuxTraceHandlers(ctx));
   registry.registerBatch(createAuxDiagnoseHandlers(ctx));
-  registerIfMissing(createAuxDocHandlers(ctx));
+  registry.registerBatch(createAuxDocHandlers(ctx));
+  registry.registerBatch(createTruthHandlers(ctx));
+  registry.registerBatch(createGapHandlers(ctx));
   registry.registerBatch(createToolStatusHandlers(ctx));
 }

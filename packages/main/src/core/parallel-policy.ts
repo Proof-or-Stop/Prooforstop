@@ -1,100 +1,136 @@
 /**
- * @task B-6fda
- * @checklist CHK-002
- * @title parallel policy encodes Wave 0 de-risking before downstream waves
- * @type feature
- * @priority high
- * @description
- *   Wave 0 必须先做完、决策不明朗之前不要同时开 Wave 1/2，这个要求在实现层
- *   由并行调度规则承载：depends、plan_only、sharedHotspots、mainline/supporting
- *   和 conflict 推断一起把“先做 de-risking 主线、下游 wave 不抢跑”落成可计算的
- *   gate 语义，而不是只停留在文档里。
- * @changes
- *   - [CHK-002] 用 parallel policy 的 depends/plan_only/conflict 规则覆盖 Wave 0 先完成再开后续 wave 的 gate 要求
+ * B-c622 CHK-007: Multi-story parallel safety policy.
+ *
+ * Resolves lane / parallelSafety from story metadata and detects
+ * shared-hotspot conflicts across active stories.
  */
-import type { StoryInfo, StoryLane, StoryParallelSafety } from './types.js';
+import type { StoryInfo } from './types.js';
 
-export interface ParallelPolicyView {
-  lane: StoryLane;
-  declaredLane: StoryLane | null;
-  safety: StoryParallelSafety;
-  declaredSafety: StoryParallelSafety | null;
-  sharedHotspots: string[];
-  blockingFor: string[];
-  reasons: string[];
-  conflicts: string[];
-}
+export type StoryLane = 'mainline' | 'supporting' | 'exploratory';
+export type ParallelSafety = 'yes' | 'no' | 'plan_only';
 
-function dedupe(values?: string[]): string[] {
-  if (!Array.isArray(values)) return [];
-  return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)));
-}
-
+/**
+ * Resolve the lane for a story based on its explicit `lane` field
+ * or inferred from `priority`.
+ *
+ * - critical / high  -> mainline
+ * - medium           -> supporting
+ * - low / everything else -> exploratory
+ */
 export function resolveStoryLane(story: StoryInfo): StoryLane {
   if (story.lane) return story.lane;
-  if (story.priority === 'critical' || story.priority === 'high') return 'mainline';
-  return 'supporting';
+
+  switch (story.priority) {
+    case 'critical':
+    case 'high':
+      return 'mainline';
+    case 'medium':
+      return 'supporting';
+    default:
+      return 'exploratory';
+  }
 }
 
-export function resolveParallelSafety(story: StoryInfo): StoryParallelSafety {
-  if (story.parallelSafe) return story.parallelSafe;
-  if (story.depends && story.depends.length > 0) return 'plan_only';
-  if (story.phase === 'PLAN' || story.phase === 'INIT' || story.phase === 'INIT_CHECK') return 'plan_only';
-  return 'yes';
-}
-
-export function summarizeParallelPolicy(
+/**
+ * Resolve whether a story can safely run in parallel with other active stories.
+ *
+ * Rules (evaluated in order):
+ * 1. Explicit `parallelSafe` on the story wins immediately.
+ * 2. If story.blockingFor mentions any id in `allStories` that is still active
+ *    (not DONE / DISCARDED) -> 'no'.
+ * 3. If story.sharedHotspots overlap with any other active story's
+ *    sharedHotspots -> 'plan_only' (can plan but not code simultaneously).
+ * 4. If story.depends includes an active story -> 'no'.
+ * 5. Otherwise -> 'yes'.
+ */
+export function resolveParallelSafety(
   story: StoryInfo,
-  storiesById: Map<string, StoryInfo>,
-): ParallelPolicyView {
-  const lane = resolveStoryLane(story);
-  const safety = resolveParallelSafety(story);
-  const sharedHotspots = dedupe(story.sharedHotspots);
-  const blockingFor = dedupe(story.blockingFor);
-  const reasons: string[] = [];
-  const conflicts: string[] = [];
+  allStories: StoryInfo[],
+): ParallelSafety {
+  // Explicit override
+  if (story.parallelSafe) return story.parallelSafe;
 
-  if (!story.lane) {
-    reasons.push(`lane defaulted to ${lane}`);
-  }
-  if (!story.parallelSafe) {
-    reasons.push(`parallelSafe defaulted to ${safety}`);
+  const terminalPhases = new Set(['DONE', 'DISCARDED']);
+  const activeOthers = allStories.filter(
+    (s) => s.storyId !== story.storyId && !terminalPhases.has(s.phase),
+  );
+
+  // blockingFor: this story blocks another active story -> cannot parallel
+  if (story.blockingFor && story.blockingFor.length > 0) {
+    const activeIds = new Set(activeOthers.map((s) => s.storyId));
+    for (const bid of story.blockingFor) {
+      if (activeIds.has(bid)) return 'no';
+    }
   }
 
+  // depends: this story depends on another active story -> cannot parallel
   if (story.depends && story.depends.length > 0) {
-    const unresolved = story.depends.filter((depId) => storiesById.get(depId)?.phase !== 'DONE');
-    if (unresolved.length > 0) {
-      reasons.push(`depends on ${unresolved.join(', ')}`);
-      if (safety === 'yes') {
-        conflicts.push(`declares parallelSafe=yes but still depends on ${unresolved.join(', ')}`);
+    const activeIds = new Set(activeOthers.map((s) => s.storyId));
+    for (const dep of story.depends) {
+      if (activeIds.has(dep)) return 'no';
+    }
+  }
+
+  // sharedHotspots overlap -> plan_only
+  if (story.sharedHotspots && story.sharedHotspots.length > 0) {
+    const myHotspots = new Set(story.sharedHotspots);
+    for (const other of activeOthers) {
+      if (other.sharedHotspots) {
+        for (const hp of other.sharedHotspots) {
+          if (myHotspots.has(hp)) return 'plan_only';
+        }
       }
     }
   }
 
-  for (const blockedId of blockingFor) {
-    if (!storiesById.has(blockedId)) {
-      conflicts.push(`blockingFor references unknown story ${blockedId}`);
+  return 'yes';
+}
+
+/**
+ * Produce a human-readable parallel-safety summary for a set of stories.
+ * Detects hotspot conflicts and blocking chains.
+ */
+export function summarizeParallelPolicy(stories: StoryInfo[]): string {
+  const terminalPhases = new Set(['DONE', 'DISCARDED']);
+  const active = stories.filter((s) => !terminalPhases.has(s.phase));
+
+  if (active.length === 0) return 'No active stories.';
+
+  const lines: string[] = [];
+  lines.push(`Active stories: ${active.length}`);
+
+  // Per-story lane + safety
+  for (const s of active) {
+    const lane = resolveStoryLane(s);
+    const safety = resolveParallelSafety(s, stories);
+    lines.push(`  ${s.storyId} [${lane}] parallel=${safety} (phase=${s.phase})`);
+  }
+
+  // Hotspot conflicts
+  const hotspotMap = new Map<string, string[]>();
+  for (const s of active) {
+    if (s.sharedHotspots) {
+      for (const hp of s.sharedHotspots) {
+        const list = hotspotMap.get(hp) ?? [];
+        list.push(s.storyId);
+        hotspotMap.set(hp, list);
+      }
     }
   }
 
-  for (const other of storiesById.values()) {
-    if (other.storyId === story.storyId) continue;
-    const otherHotspots = dedupe(other.sharedHotspots);
-    if (sharedHotspots.length === 0 || otherHotspots.length === 0) continue;
-    const overlap = sharedHotspots.filter((hotspot) => otherHotspots.includes(hotspot));
-    if (overlap.length === 0) continue;
-    if (other.phase === 'DONE' || other.phase === 'DISCARDED' || other.phase === 'IDEA') continue;
-    conflicts.push(`shares hotspots with ${other.storyId}: ${overlap.join(', ')}`);
+  const conflicts: string[] = [];
+  for (const [hp, ids] of hotspotMap) {
+    if (ids.length > 1) {
+      conflicts.push(`  ${hp}: ${ids.join(', ')}`);
+    }
   }
 
-  return {
-    lane,
-    declaredLane: story.lane ?? null,
-    safety,
-    declaredSafety: story.parallelSafe ?? null,
-    sharedHotspots,
-    blockingFor,
-    reasons,
-    conflicts,
-  };
+  if (conflicts.length > 0) {
+    lines.push('Hotspot conflicts:');
+    lines.push(...conflicts);
+  } else {
+    lines.push('No hotspot conflicts.');
+  }
+
+  return lines.join('\n');
 }

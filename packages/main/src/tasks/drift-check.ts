@@ -1,7 +1,8 @@
 
 import { execSync } from 'child_process';
-import { relative, join } from 'path';
+import { extname, relative, join } from 'path';
 import type { TaskAnnotation } from './types.js';
+import { CODE_EXTENSIONS } from './extract.js';
 
 export interface DiffFunction {
   file: string;       // relative to scanRoot
@@ -28,7 +29,7 @@ export function parseDiffFunctions(root: string, scanRoot: string, base = 'HEAD'
   try {
     diffOutput = execSync(
       `git diff ${base} --unified=0 --no-color -- "${scanRoot}"`,
-      { cwd: root, encoding: 'utf-8', maxBuffer: 10 * 1024 * 1024 },
+      { cwd: root, encoding: 'utf-8', maxBuffer: 10 * 1024 * 1024, stdio: ['pipe', 'pipe', 'pipe'] },
     );
   } catch {
     return [];
@@ -47,7 +48,7 @@ export function parseDiffFunctions(root: string, scanRoot: string, base = 'HEAD'
     }
 
     if (line.startsWith('@@') && currentFile) {
-      if (!/\.(ts|tsx|js|jsx)$/.test(currentFile)) continue;
+      if (!CODE_EXTENSIONS.has(extname(currentFile))) continue;
 
       const hunkMatch = line.match(/@@ [^@]+ @@\s*(.*)/);
       const funcContext = hunkMatch?.[1]?.trim();
@@ -84,6 +85,15 @@ function extractFunctionName(context: string): string | null {
 
   const classMatch = context.match(/class\s+(\w+)/);
   if (classMatch) return classMatch[1];
+
+  const pythonMatch = context.match(/(?:async\s+)?def\s+(\w+)/);
+  if (pythonMatch) return pythonMatch[1];
+
+  const goMatch = context.match(/func\s+(?:\([^)]*\)\s*)?(\w+)\s*\(/);
+  if (goMatch) return goMatch[1];
+
+  const swiftMatch = context.match(/\bfunc\s+(\w+)\s*\(/);
+  if (swiftMatch) return swiftMatch[1];
 
   const methodMatch = context.match(/(?:public|private|protected|static|async|\s)*(\w+)\s*\(/);
   if (methodMatch) {

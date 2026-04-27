@@ -1,81 +1,52 @@
 /**
- * @task B-86c0
- * @checklist CHK-001, CHK-002
- * @title move activity logging to runtime store with legacy read compatibility
- * @type feature
- * @priority high
- * @description
- *   Activity logs are runtime telemetry, not story metadata. Writing them
- *   under docs/story made status checks, DONE merges, and baseline risk noisy.
- *   New writes go to .koala/activity.jsonl while readers keep legacy
- *   docs/story/activity.jsonl compatibility.
- * @changes
- *   - [CHK-001] Define runtime and legacy activity log paths
- *   - [CHK-001] Append new activity records to .koala/activity.jsonl
- *   - [CHK-002] Read and merge runtime plus legacy activity entries
+ * Dual-source activity log module.
+ *
+ * Runtime logs go to <projectRoot>/.koala/activity.jsonl (new path).
+ * Legacy logs at <projectRoot>/docs/story/activity.jsonl are read-only
+ * for backward compatibility.  readActivityLogTail merges both sources.
  */
-import { appendFileSync, existsSync, mkdirSync, readFileSync } from 'fs';
-import { dirname, join } from 'path';
 
-export interface ActivityLogEntry {
-  source?: string;
-  role?: string;
-  startTime?: string | null;
-  endTime?: string | null;
-  tool?: string;
-  detail?: string;
-  status?: 'ok' | 'fail' | string;
-  error?: string | null;
-  storyId?: string | null;
-  [key: string]: unknown;
+import { appendFileSync, readFileSync, existsSync, mkdirSync } from 'fs';
+import { join, dirname } from 'path';
+
+/** Runtime activity log path: <projectRoot>/.koala/activity.jsonl */
+export function getRuntimeActivityLogPath(projectRoot: string): string {
+  return join(projectRoot, '.koala', 'activity.jsonl');
 }
 
-export function getRuntimeActivityLogPath(root: string): string {
-  return join(root, '.koala', 'activity.jsonl');
+/** Legacy path (read-only compat): <projectRoot>/docs/story/activity.jsonl */
+export function getLegacyActivityLogPath(projectRoot: string): string {
+  return join(projectRoot, 'docs', 'story', 'activity.jsonl');
 }
 
-export function getLegacyActivityLogPath(root: string): string {
-  return join(root, 'docs', 'story', 'activity.jsonl');
+/** Append one activity record to the runtime path. */
+export function appendActivityLog(projectRoot: string, record: Record<string, unknown>): void {
+  const logPath = getRuntimeActivityLogPath(projectRoot);
+  const dir = dirname(logPath);
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+  appendFileSync(logPath, JSON.stringify(record) + '\n');
 }
 
-export function getActivityLogPaths(root: string): string[] {
-  return [getRuntimeActivityLogPath(root), getLegacyActivityLogPath(root)];
-}
-
-export function appendActivityLog(root: string, record: Record<string, unknown>): void {
-  const path = getRuntimeActivityLogPath(root);
-  mkdirSync(dirname(path), { recursive: true });
-  appendFileSync(path, JSON.stringify(record) + '\n');
-}
-
-function activityTimestamp(entry: ActivityLogEntry): string {
-  return String(entry.endTime || entry.startTime || '');
-}
-
-export function readActivityLogEntries(root: string): ActivityLogEntry[] {
-  const entries: ActivityLogEntry[] = [];
-  for (const path of getActivityLogPaths(root)) {
-    if (!existsSync(path)) continue;
-    let raw = '';
-    try { raw = readFileSync(path, 'utf-8'); } catch { continue; }
-    for (const line of raw.split('\n')) {
-      if (!line.trim()) continue;
-      try {
-        const parsed = JSON.parse(line) as ActivityLogEntry;
-        if (parsed && (parsed.endTime || parsed.startTime)) entries.push(parsed);
-      } catch { /* skip malformed legacy/runtime log line */ }
-    }
+/**
+ * Read the most recent N activity entries (dual-source merge: runtime + legacy,
+ * sorted by timestamp descending).
+ */
+export function readActivityLogTail(projectRoot: string, count: number = 50): Record<string, unknown>[] {
+  const entries: Record<string, unknown>[] = [];
+  for (const logPath of [getRuntimeActivityLogPath(projectRoot), getLegacyActivityLogPath(projectRoot)]) {
+    if (!existsSync(logPath)) continue;
+    try {
+      const lines = readFileSync(logPath, 'utf-8').split('\n').filter(l => l.trim());
+      for (const line of lines) {
+        try { entries.push(JSON.parse(line)); } catch { /* skip corrupt line */ }
+      }
+    } catch { /* skip unreadable file */ }
   }
-  entries.sort((a, b) => activityTimestamp(a).localeCompare(activityTimestamp(b)));
-  return entries;
-}
-
-export function readActivityLogTail(root: string, lines: number): ActivityLogEntry[] {
-  if (lines <= 0) return [];
-  return readActivityLogEntries(root).slice(-lines);
-}
-
-export function readLatestActivityLogEntry(root: string): ActivityLogEntry | null {
-  const entries = readActivityLogEntries(root);
-  return entries.length > 0 ? entries[entries.length - 1] : null;
+  // Sort by timestamp descending
+  entries.sort((a, b) => {
+    const ta = String(a.timestamp || a.startTime || '');
+    const tb = String(b.timestamp || b.startTime || '');
+    return tb.localeCompare(ta);
+  });
+  return entries.slice(0, count);
 }

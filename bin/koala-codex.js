@@ -1,12 +1,8 @@
 #!/usr/bin/env node
 /**
  * Codex-friendly koala bootstrap.
- *
- * Uses the full main+utils toolset and tags activity.jsonl entries with
- * source=codex so Koala telemetry can distinguish Codex-driven runs from
- * plain CLI usage and Claude hooks.
+ * Tags activity.jsonl entries with source=codex.
  */
-
 process.env.KOALA_ACTIVITY_SOURCE = process.env.KOALA_ACTIVITY_SOURCE || 'codex';
 
 if (!process.env.KOALA_ACTIVITY_SESSION) {
@@ -17,6 +13,5 @@ if (!process.env.KOALA_ACTIVITY_SESSION) {
     '';
 }
 
-import { runLocalBootstrap } from './bootstrap-runner.js';
-
-runLocalBootstrap();
+// Reuse the existing koala bootstrap entry
+import('./koala.js');

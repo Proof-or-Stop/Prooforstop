@@ -21,8 +21,7 @@ export const ACTIVE_PHASE_ORDER = [
   'INIT_CHECK',
   'PLAN',
   'DEV',
-  'TEST_CASE',
-  'TEST_CASE_REVIEW',
+  'REVIEW',
   'TEST',
   'DONE',
 ] as const satisfies readonly StoryPhase[];
@@ -31,6 +30,9 @@ export const TERMINAL_PHASES = ['DONE', 'DISCARDED'] as const satisfies readonly
 
 export const PHASE_ORDER = [
   ...ACTIVE_PHASE_ORDER,
+  'TEST_CASE',
+  'TEST_CASE_REVIEW',
+  'META',
   'DISCARDED',
 ] as const satisfies readonly StoryPhase[];
 
@@ -59,18 +61,22 @@ const ACTIVE_TOTAL = ACTIVE_PHASE_ORDER.length;
 const FORWARD_TRANSITIONS: Record<StoryPhase, StoryPhase[]> = {
   IDEA: ['INIT', 'PLAN'],
   INIT: ['INIT_CHECK'],
-  INIT_CHECK: ['PLAN'],
+  INIT_CHECK: ['PLAN', 'DEV'],
   PLAN: ['DEV'],
-  DEV: ['TEST_CASE', 'PLAN'],
+  DEV: ['REVIEW', 'PLAN'],
+  REVIEW: ['TEST', 'DEV'],
+  // Legacy phases remain readable for old data only.
   TEST_CASE: ['TEST_CASE_REVIEW', 'DEV'],
   TEST_CASE_REVIEW: ['TEST', 'DEV', 'TEST_CASE'],
   TEST: ['DONE', 'DEV'],
   DONE: [],
   DISCARDED: [],
+  META: [],
 };
 
 const ROLLBACK_TRANSITIONS = new Set<string>([
   'DEV->PLAN',
+  'REVIEW->DEV',
   'TEST_CASE->DEV',
   'TEST_CASE_REVIEW->DEV',
   'TEST_CASE_REVIEW->TEST_CASE',
@@ -79,6 +85,13 @@ const ROLLBACK_TRANSITIONS = new Set<string>([
 
 export function isStoryPhase(value: string): value is StoryPhase {
   return (PHASE_ORDER as readonly string[]).includes(value);
+}
+
+export function normalizeLegacyPhase(phase: string): StoryPhase {
+  if (phase === 'TEST_CASE') return 'DEV';
+  if (phase === 'TEST_CASE_REVIEW') return 'REVIEW';
+  if (isStoryPhase(phase)) return phase;
+  return phase as StoryPhase;
 }
 
 export function phaseRank(phase: string): number {

@@ -2,24 +2,10 @@
  * @koala-agent/utils 提供的辅助工具 CLI 注册表。
  * 通过 bootstrap 脚本传给 main 的 runCli，与 main 自身的 mainToolDefs 合并。
  */
-import { z } from '../../main/dist/core/zod.js';
+import { z } from 'zod';
+import type { ToolDef } from '../../main/dist/cli-engine.js';
 
-/**
- * 注意：这里不要直接复用 main/dist 导出的 ToolDef 类型。
- *
- * main 的 d.ts 里 `schema` 绑定的是它那边解析到的 `zod` 类型身份，而 utils
- * 自己也依赖 zod。两边版本/安装位置一旦不同，TS 会把两个 `ZodType` 视为不兼容，
- * 导致 utils 明明运行时没问题却无法 build。这里保持 runtime 需要的最小结构，
- * 让 bootstrap 时按鸭子类型交给 runCli 即可。
- */
-interface RuntimeToolDef {
-  name: string;
-  description: string;
-  longHelp?: string;
-  schema: Record<string, unknown>;
-}
-
-export const utilsToolDefs: RuntimeToolDef[] = [
+export const utilsToolDefs: ToolDef[] = [
   // Doc 列表
   { name: 'aux_doc_list', description: '列出项目文档（PLAN 阶段挑选 relatedDocs 用）', schema: {
     format: z.enum(['text','json']).optional().describe('输出格式（默认 text）'),
@@ -53,10 +39,20 @@ export const utilsToolDefs: RuntimeToolDef[] = [
     query: z.string().describe('查询字符串'),
   }},
 
+  // Truth 真相源
+  { name: 'truth_scan', description: '扫描真相源', schema: { summary: z.boolean().optional().describe('摘要模式') }},
+  { name: 'truth_extract', description: '从代码+Story反向提取真相源文档', schema: {}},
+  { name: 'truth_nav', description: '生成导航索引', schema: {}},
+  { name: 'truth_analyze', description: '分析真相源矛盾/缺失', schema: {}},
+  { name: 'truth_to_story', description: '从需求拆解 Story 建议', schema: {}},
+
+  // Gap / 收敛
+  { name: 'gap_analyze', description: '真相源 vs 代码差距报告', schema: {}},
+  { name: 'convergence_check', description: '项目收敛检查', schema: {}},
+
   // Tool 使用统计
-  { name: 'tool_status', description: '统计 .koala/activity.jsonl + legacy docs/story/activity.jsonl 里的工具使用情况', schema: {
-    source: z.enum(['cli','claude','codex','all']).optional().describe('数据源（默认 all）'),
-    role: z.string().optional().describe('按 role 过滤（如 main / reviewer / intent）'),
+  { name: 'tool_status', description: '统计 activity.jsonl（.koala/ + docs/story/ 双源）里的工具使用情况', schema: {
+    source: z.enum(['cli','claude','all']).optional().describe('数据源（默认 all）'),
     days: z.number().optional().describe('时间窗口天数（默认 30）'),
     limit: z.number().optional().describe('Top N（默认 20）'),
     format: z.enum(['text','json']).optional().describe('输出格式（默认 text）'),

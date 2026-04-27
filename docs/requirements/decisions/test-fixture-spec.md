@@ -74,12 +74,121 @@ replyRoomMessage(conversationKey, targetEventId, content) { ... }
 | 字段 | 必填 | 类型 | 说明 |
 |------|------|------|------|
 | `name` | 是 | string | case 描述 |
-| `input` | 是 | any | 传给函数的参数（object 传单参，array 展开为多参） |
+| `executor` | 否 | string | 执行器 ID；缺省时有 `execute` 走 `js.execute`，有 `command` 走 `command` |
+| `input` | 否 | any | 传给函数的参数（函数 executor 中 array 展开为多参，object 传单参） |
 | `fn` | 否 | string | 指定调用哪个函数（多函数共享 fixture 时必填） |
+| `command` | 否 | string / array | `command` executor 的命令；数组形式为 `[cmd, ...args]` |
+| `args` | 否 | string[] | 追加给 `command` 的参数 |
+| `execute` | 否 | string | legacy JS executor 函数体 |
 | `expect` | 否 | any | 期望返回值（部分匹配） |
 | `throws` | 否 | string | 期望抛出的错误消息片段（与 expect 互斥） |
-| `construct` | 否 | array | 类构造函数参数（仅 fn 为 ClassName.methodName 时有效） |
 | `intentRef` | 否 | string | 关联 testIntent（如 CHK-001:happy:0） |
+
+### Executor 协议
+
+Fixture 是语言无关测试协议，不是 JS 脚本容器。`execute` 只代表 legacy `js.execute` executor；跨语言代码必须使用 `command`、语言 executor 或原生测试命令作为证据。
+
+内置 executor：
+
+| executor | 说明 |
+|---|---|
+| `js.execute` | 兼容旧格式，执行 JS `execute` 函数体并注入 `$handlers` / `$root` / `$ctx` |
+| `command` | 通用进程边界 executor，适合 `pytest`、`go test`、`ctest`、`mvn test`、`swift test`、`xcodebuild test` |
+| `python.function` | Python 函数级 executor，通过 JSON 调用 `file` 中的 `fn` |
+| `go.test` | Go 标准测试入口，默认运行 `go test ./...` |
+| `java.junit` | Java/JUnit 标准测试入口，默认运行 `mvn test`，`buildTool:"gradle"` 时运行 Gradle test |
+| `cpp.binary` | C/C++ 已编译测试二进制入口，运行 `binary` 或 `command` |
+| `swift.test` | Swift Package 测试入口，默认运行 `swift test` |
+| `objc.xcodebuild` | Objective-C / Apple 平台测试入口，默认运行 `xcodebuild test` |
+| `rust.cargo` | Rust Cargo 测试入口，默认运行 `cargo test` |
+
+语言策略：
+
+- 新语言优先走 `command`，保证任何 CLI/测试框架都能接入。
+- 常见语言用专用 executor 固化默认命令，减少每个 fixture 重复写命令细节。
+- 专用 executor 不改变断言模型；`expect`、`throws`、`timeoutMs`、`cwd`、`env` 仍由统一 runner 处理。
+
+#### command 示例
+
+```json
+{
+  "name": "go package tests pass",
+  "run_type": "cli",
+  "executor": "command",
+  "command": ["go", "test", "./..."],
+  "expect": { "pattern": "PASS|ok" },
+  "intentRef": "CHK-001:happy:0"
+}
+```
+
+#### python.function 示例
+
+```json
+{
+  "name": "calculator add",
+  "run_type": "cli",
+  "executor": "python.function",
+  "file": "src/calculator.py",
+  "fn": "add",
+  "input": [1, 2],
+  "expect": 3,
+  "intentRef": "CHK-001:happy:0"
+}
+```
+
+#### 常见语言 executor 示例
+
+```json
+{
+  "name": "go package tests pass",
+  "run_type": "cli",
+  "executor": "go.test",
+  "packages": ["./..."],
+  "expect": { "pattern": "PASS|ok" }
+}
+```
+
+```json
+{
+  "name": "java junit tests pass",
+  "run_type": "cli",
+  "executor": "java.junit",
+  "buildTool": "gradle",
+  "args": ["test"],
+  "expect": { "pattern": "BUILD SUCCESSFUL|BUILD SUCCESS" }
+}
+```
+
+```json
+{
+  "name": "cpp test binary passes",
+  "run_type": "cli",
+  "executor": "cpp.binary",
+  "binary": "./build/calculator_tests",
+  "expect": { "pattern": "PASS|OK" }
+}
+```
+
+```json
+{
+  "name": "swift package tests pass",
+  "run_type": "cli",
+  "executor": "swift.test",
+  "expect": { "pattern": "Test Suite.*passed|Build complete" }
+}
+```
+
+```json
+{
+  "name": "objc xcode tests pass",
+  "run_type": "cli",
+  "executor": "objc.xcodebuild",
+  "workspace": "App.xcworkspace",
+  "scheme": "AppTests",
+  "destination": "platform=iOS Simulator,name=iPhone 15",
+  "expect": { "pattern": "TEST SUCCEEDED" }
+}
+```
 
 ## 阶段语义
 
@@ -245,21 +354,20 @@ node /path/to/koala/scripts/convert-fixtures.cjs tests/fixtures/application/agen
 2. **constructor case** — `fn` 不会设为 `constructor`，需要在 wrapper 里特殊处理
 3. **`input.deps` / `input.stubTasks`** — 测试桩数据，wrapper 需要知道如何使用
 
-## fn 字段的路由机制
+## case 执行路由机制
 
-`executeCases`（test-auto.ts）的处理逻辑：
+`test_auto` / `test_story` / `test_fixture` 共用 executor registry：
 
 ```
 对 fixture 的每个 case:
-  targetFn = case.fn || 默认函数名
-  1. 解析 input 中的 $prev.xxx 引用 + 路径占位符
-  2. 在 handlers 中查找 targetFn:
-     → 找到: 直接调用 handler（共享 store/ctx）
-     → 未找到: fallback 到 importAndExecute（纯函数）
-  3. 执行结果写入共享 context（供后续 case 的 $prev 引用）
+  1. 若 case.executor 存在，选择对应 executor
+  2. 否则若 case.execute 存在，兼容为 js.execute
+  3. 否则若 case.command 存在，兼容为 command
+  4. executor 返回 actual 或抛错
+  5. runner 统一用 expect / throws 判定，并写入 evidence / bug / gate
 ```
 
-handler 优先：test-runtime 提供的 handler 函数直接调用，共享临时 store 和 ctx。纯函数（不在 handlers 中）fallback 到 importAndExecute 冷启动 import。
+handler 优先只属于 `js.execute` 兼容路径；跨语言项目不要依赖 JS import，应使用 `command` 或语言 executor。
 
 ## test-runtime 机制
 

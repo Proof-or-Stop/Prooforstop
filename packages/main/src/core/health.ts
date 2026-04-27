@@ -1,21 +1,4 @@
 /**
- * @task B-9dae
- * @checklist CHK-002, CHK-003
- * @title fail-fast health issue receiver
- * @type feature
- * @priority high
- * @description
- *   收敛 silent catch 的 fail-fast 分类处理：PERSIST 类失败不会再静默吞掉，
- *   而是通过 reportHealthIssue 追加到 ~/.koala/health.jsonl，供 koala doctor
- *   和后续 gap/convergence 验证读取。
- *
- *   这块实现对应 AGENTS.md 的 fail-fast policy，也覆盖了 cc-learnings 里
- *   “silent catch 需要分成 DEBUG / PROBE / PERSIST / MUTATION” 的要求。
- * @changes
- *   - [CHK-002] 暴露 fail-fast / silent catch / reportHealthIssue / doctor 关键词，让 gap_analyze 能识别已有能力
- *   - [CHK-003] 为 doctor 和回归脚本提供结构化 health issue 读写入口
- */
-/**
  * Health issue tracking — silent catch 分类处理的接收端
  *
  * 设计目的：
@@ -83,12 +66,12 @@ export function reportHealthIssue(
       context,
     };
     appendFileSync(healthPath, JSON.stringify(issue) + '\n');
-  } catch (e: unknown) { /* DEBUG: health fallback must never take down the caller */
+  } catch (e: unknown) {
     // 最后防线：health 自己崩了，写 stderr 但不抛错
     try {
       const msg = e instanceof Error ? e.message : String(e);
       process.stderr.write(`[koala-health] failed to record health issue: ${msg}\n`);
-    } catch { /* DEBUG: stderr itself may be unavailable in unusual runtimes */ }
+    } catch { /* 真的没辙了 */ }
   }
 }
 
@@ -110,10 +93,10 @@ export function readHealthIssues(maxCount = 1000): HealthIssue[] {
         if (parsed && typeof parsed.timestamp === 'string' && typeof parsed.category === 'string') {
           issues.push(parsed);
         }
-      } catch { /* PROBE: skip corrupt health.jsonl lines and keep reading the rest */ }
+      } catch { /* 跳过损坏行 */ }
     }
     return issues;
-  } catch { /* PROBE: unreadable health file behaves like "no visible issues" */
+  } catch {
     return [];
   }
 }

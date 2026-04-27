@@ -15,6 +15,26 @@ import { loadConfig } from '../core/config.js';
  */
 let _userOverrides: Record<string, unknown> | null = null;
 
+function defaultBackground(): string {
+  return [
+    '## 触发事件',
+    '2026-04-26 B-e2e 自动回归需要创建一个最小 story，用来确认当前 CLI 生命周期仍能从创建、推进到 checklist 更新都保持可执行。',
+    '这段背景刻意写成完整上下文，而不是短占位符，避免 e2e 绕过 story_create 的真实四段式门禁。',
+    '',
+    '## 关键洞察',
+    '当前 Koala 的 story_create 已经要求 background 成为真相源输入，旧 e2e 只传 title 和 description 会误报流程失败。',
+    '所以自动默认值必须模拟真实用户提供的上下文，而不是依赖 handler 放宽校验。',
+    '',
+    '## 方案取舍',
+    'e2e 采用最小但有效的 story 输入，保留当前门禁和签名机制，不在测试路径里添加特殊豁免。',
+    '这样可以验证 CLI 公开流程，也能在未来 background schema 漂移时尽早暴露问题。',
+    '',
+    '## 对话纹理',
+    '用户关心的是最新版 Koala 能不能被项目可靠使用，因此这条回归要像真实会话一样提供清晰动机、约束和验收语境。',
+    '测试内容保持简洁，但不牺牲对产品流程的基本尊重。',
+  ].join('\n');
+}
+
 function loadUserOverrides(flowName?: string): Record<string, unknown> {
   if (!_userOverrides) {
     const config = loadConfig();
@@ -53,7 +73,13 @@ function autoDefaults(
 
     // 常见命名模式 → 默认值
     // 精确匹配优先，模糊匹配在后
-    if (/^checklist$/i.test(field)) auto[field] = [{ title: 'E2E item 1' }, { title: 'E2E item 2' }];
+    if (/^checklist$/i.test(field)) auto[field] = [
+      {
+        title: 'Verify current story lifecycle e2e path',
+        context: 'E2E regression needs a concrete checklist item with context so current Koala truth-source gates exercise the real path.',
+      },
+    ];
+    else if (/^background$/i.test(field)) auto[field] = defaultBackground();
     else if (/id$/i.test(field)) auto[field] = 'test-001';
     else if (/name$/i.test(field)) auto[field] = 'e2e-auto';
     else if (/title$/i.test(field)) auto[field] = 'E2E Auto Test';
@@ -77,7 +103,7 @@ function autoDefaults(
     auto.phase = 'DEV';
   } else if (inputFields.includes('phase')) {
     const currentPhase = context.phase as string;
-    const phaseOrder = ['IDEA', 'PLAN', 'DEV', 'TEST_CASE', 'TEST_CASE_REVIEW', 'TEST', 'DONE'];
+    const phaseOrder = ['IDEA', 'INIT', 'INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE'];
     const nextIdx = phaseOrder.indexOf(currentPhase) + 1;
     auto.phase = phaseOrder[Math.min(nextIdx, phaseOrder.length - 1)];
   }
@@ -115,9 +141,24 @@ export async function createSandbox(realProjectRoot?: string): Promise<Sandbox> 
   const dir = mkdtempSync(join(tmpdir(), 'koala-e2e-'));
   mkdirSync(join(dir, 'docs', 'story', 'actives'), { recursive: true });
   mkdirSync(join(dir, 'docs', 'requirements'), { recursive: true });
+  mkdirSync(join(dir, 'packages', 'main', 'src'), { recursive: true });
+  writeFileSync(
+    join(dir, 'koala.config.json'),
+    JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      outDir: 'packages/main/dist',
+      testsDir: 'packages/main/tests',
+      fixturesDir: 'packages/main/tests/fixtures',
+      storyDir: 'docs/story/actives',
+      requirementsDir: 'docs/requirements',
+      storyPrefix: 'B',
+    }, null, 2),
+    'utf-8',
+  );
 
   const store = new StoryStore(dir);
-  const handlers = createToolHandlers(store, realProjectRoot || dir);
+  const handlers = createToolHandlers(store, dir);
 
   const cleanup = () => {
     rmSync(dir, { recursive: true, force: true });
@@ -203,6 +244,11 @@ function extractOutputToContext(
   if (outputFields.length > 0) {
     for (const field of outputFields) {
       if (field in obj) {
+        context[field] = obj[field];
+      }
+    }
+    for (const field of ['storyId', 'bugId', 'itemId', 'phase']) {
+      if (field in obj && !(field in context)) {
         context[field] = obj[field];
       }
     }
@@ -294,6 +340,17 @@ function ensureSandboxReady(
     // ignore
   }
 
+  // 确保 INIT→INIT_CHECK 的 reviewer 签名产物存在。
+  try {
+    const detail = handlers.story_get({ storyId, detail: true });
+    const phase = detail?.index?.phase || context.phase;
+    if (phase === 'INIT') {
+      handlers.init_check_set({ storyId, issues: [], agentId: 'koala-e2e' });
+    }
+  } catch {
+    // ignore
+  }
+
   // 确保 story_review 通过（PLAN→DEV 门禁要求 blockerCount=0）
   try {
     handlers.story_review({ storyId });
@@ -374,8 +431,9 @@ export async function runFlowE2E(flowName: string, scanRoot: string): Promise<Fl
     };
   }
 
-  // projectRoot = MCP server cwd（即项目根目录），不从 scanRoot 反推
-  const projectRoot = process.env.KOALA_PROJECT_ROOT || process.cwd();
+  // projectRoot is intentionally isolated: flow e2e must not write story
+  // artifacts or worktree metadata into the developer's real checkout.
+  const projectRoot = process.env.KOALA_E2E_PROJECT_ROOT;
   const sandbox = await createSandbox(projectRoot);
   const steps: FlowE2EStepResult[] = [];
   const context: Record<string, unknown> = {};
@@ -402,7 +460,13 @@ export async function runFlowE2E(flowName: string, scanRoot: string): Promise<Fl
       try {
         ensureSandboxReady(dir, handlers, context);
         input = buildInputFromContext(inputFields, context, flowName);
-        const result = fn.call(handlers, input);
+        if (flowStep.functionName === 'story_create' && input && typeof input === 'object') {
+          (input as Record<string, unknown>).background = defaultBackground();
+        }
+        if (flowStep.functionName === 'test_auto' && input && typeof input === 'object') {
+          (input as Record<string, unknown>).dryRun = true;
+        }
+        const result = await Promise.resolve(fn.call(handlers, input));
 
         const outputFields = parseFieldNames(flowStep.output);
         extractOutputToContext(result, outputFields, context);

@@ -9,7 +9,6 @@ import { existsSync, readFileSync, readdirSync } from 'fs';
 import { loadTraceSnapshot } from '../../../main/dist/tasks/trace-store.js';
 import { diffTraces, summarizeDiff, type TraceDiffResult } from '../../../main/dist/tasks/trace-diff.js';
 import { startProfiler, type ProfileNode } from '../../../main/dist/tasks/profiler.js';
-import { pathToFileURL } from 'url';
 
 export interface DiagnoseResult {
   caseName: string;
@@ -53,8 +52,12 @@ export function createAuxDiagnoseHandlers(ctx: HandlerContext) {
       let caseError = '';
       try {
         const profiler = await startProfiler();
-        try { await runCaseForDiagnose(caseObj, root, config); }
-        catch (e: any) { caseError = e?.message || String(e); }
+        try {
+          const result = await runCaseForDiagnose(caseObj, root);
+          if (!result.passed) caseError = result.error || 'case failed';
+        } catch (e: any) {
+          caseError = e?.message || String(e);
+        }
         currentTrace = await profiler.stop();
       } catch (e: any) {
         progress(`aux_diagnose: trace collection failed: ${e?.message}`);
@@ -112,25 +115,14 @@ function findCase(fixturesDir: string, caseName: string, fixturePath?: string): 
 
 let __diagnoseRunning = false;
 
-async function runCaseForDiagnose(caseObj: any, root: string, config: any): Promise<void> {
+async function runCaseForDiagnose(caseObj: any, root: string): Promise<{ passed: boolean; error?: string }> {
   // 递归防护：aux_diagnose → runCaseForDiagnose → execute 调 $handlers.aux_diagnose → 再次进入
-  if (__diagnoseRunning) return;
+  if (__diagnoseRunning) return { passed: true };
   __diagnoseRunning = true;
   try {
-  const { StoryStore } = await import('../../../main/dist/core/store.js');
-  const { createToolHandlers } = await import('../../../main/dist/registry.js');
-  const store = new StoryStore(root);
-  const handlers = createToolHandlers(store, root) as Record<string, Function>;
-  let code = caseObj.execute as string;
-  if (caseObj.file) {
-    const jsPath = join(root, config.outDir || 'dist', caseObj.file.replace(/\.ts$/, '') + '.js');
-    code = code.replace(/\$file/g, pathToFileURL(jsPath).href);
-  }
-  const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
-  const fn = new AsyncFunction('$handlers', '$root', '$ctx', code);
-  const timeout = new Promise<never>((_, reject) =>
-    setTimeout(() => reject(new Error('aux_diagnose: case execution timeout (30s)')), 30000));
-  await Promise.race([fn(handlers, root, {}), timeout]);
+    const { runCase, createIsolatedHandlers } = await import('../../../main/dist/handlers/test-runner-core.js');
+    const { handlers } = await createIsolatedHandlers(root);
+    return await runCase(caseObj, root, handlers as Record<string, Function>, {}, null);
   } finally { __diagnoseRunning = false; }
 }
 

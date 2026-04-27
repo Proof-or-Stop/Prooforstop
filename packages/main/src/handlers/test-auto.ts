@@ -19,7 +19,7 @@ import { saveTraceSnapshot, loadTraceSnapshot } from '../tasks/trace-store.js';
 import { diffTraces, summarizeDiff } from '../tasks/trace-diff.js';
 import {
   type CaseResult, type FixtureResult,
-  runCase, buildChainGroups, scanFixtureFiles,
+  runCase, buildChainGroups, scanFixtureFiles, isExecutableCase,
   createIsolatedHandlers, createTempStoryFactory, cleanupTempStories, cleanupFixtureDir,
 } from './test-runner-core.js';
 
@@ -137,8 +137,8 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
         const cases = content.cases || [];
         if (cases.length === 0) continue;
 
-        // 只执行有 execute 字段的新格式 case
-        const executableCases = cases.filter((c: any) => c.execute);
+        // 执行语言无关 fixture protocol：executor / command / legacy JS execute
+        const executableCases = cases.filter((c: any) => isExecutableCase(c));
         progress(`[DEBUG] ${fp.split(/[/\\]/).pop()}: total=${cases.length} executable=${executableCases.length}`);
         if (executableCases.length === 0) continue;
 

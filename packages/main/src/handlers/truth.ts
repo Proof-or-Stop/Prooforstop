@@ -56,7 +56,7 @@ export function createTruthHandlers(ctx: HandlerContext) {
         byFile.set(file, list);
       }
 
-      const storiesDir = join(root, 'docs', 'story', 'actives');
+      const storiesDir = join(root, config.storyDir);
       const stories: Array<{ id: string; title: string; description: string; phase: string }> = [];
       if (existsSync(storiesDir)) {
         for (const entry of readdirSync(storiesDir, { withFileTypes: true })) {

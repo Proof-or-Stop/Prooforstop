@@ -1,27 +1,22 @@
-/**
- * @task B-727f
- * @checklist CHK-002
- * @title checklist enforces Agent A ownership and multi-layer completeness
- * @type feature
- * @priority high
- * @description
- *   Agent A 负责拆解需求和实现代码，但不负责给自己写 testIntent。checklist
- *   的职责是逼出可观测结果、明确触发输入、以及 happy/edge/adversarial 三栏，
- *   通过 testIntent 覆盖门禁和 reviewer 记录形成“需求完整性没有银弹，靠多层
- *   防线降低遗漏概率”的实现层。
- * @changes
- *   - [CHK-002] 主 agent 不写 testIntent，happy 必填，done 前要求 testIntent 有对应 fixture 覆盖
- *   - [CHK-002] 用 reviewer 记录、5 轮 cap 和 anti-stall 提示把需求完整性做成多层防线
- */
 
+import { existsSync } from 'fs';
+import { join } from 'path';
 import type { HandlerContext } from './context.js';
-import { collectContext, getCurrentSessionId, getStorySessionOwner } from './context.js';
-import { createStoryActor } from '../core/machine.js';
-import { summarizeIntentCoverage } from '../core/intent-coverage.js';
-import { renderAntiStall, reviewAntiStall, waitingAntiStall } from '../core/anti-stall.js';
+import { execSync } from 'child_process';
+import type { VerificationEvidence, VerificationIntent } from '../core/types.js';
+import { makeEvidence } from '../core/verification.js';
+
+/**
+ * B-45ed CHK-008: 给定 storyId，若 background.md 存在则返回相对路径，否则返回 null。
+ */
+function resolveBackgroundPath(root: string, store: HandlerContext['store'], storyId: string): string | null {
+  const rel = `${store.storyDirRel()}/${storyId}/background.md`;
+  const abs = join(root, rel);
+  return existsSync(abs) ? rel : null;
+}
 
 export function createChecklistHandlers(ctx: HandlerContext) {
-  const { store } = ctx;
+  const { store, root } = ctx;
   return {
     checklist_get(args: { storyId: string }) {
       return store.readChecklist(args.storyId);
@@ -32,7 +27,10 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       title: string;
       context?: string;
       relatedDocs?: string[];
-      phase?: 'DEV' | 'TEST_CASE';
+      userSees?: string;
+      excludes?: string[];
+      files?: { modify: string[]; create: string[]; test: string[] };
+      verificationIntent?: VerificationIntent;
     }): string {
       if (!args.title) throw new Error('title is required');
 
@@ -52,19 +50,121 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       }
       const nextId = `CHK-${String(maxNum + 1).padStart(3, '0')}`;
 
+      // B-45ed CHK-008: 当 relatedDocs 未提供 / 为空数组时，自动注入 background.md 路径（若文件存在）。
+      // 若调用方已显式提供 relatedDocs 且非空，尊重其选择，不自动插入。
+      let effectiveRelatedDocs: string[] | undefined = args.relatedDocs;
+      if (!effectiveRelatedDocs || effectiveRelatedDocs.length === 0) {
+        const bgRel = resolveBackgroundPath(root, store, args.storyId);
+        if (bgRel) {
+          effectiveRelatedDocs = [bgRel];
+        } else if (args.relatedDocs !== undefined) {
+          // 用户显式传了空数组且 background.md 不存在 → 保持空数组
+          effectiveRelatedDocs = args.relatedDocs;
+        } else {
+          // 未传 && 无 background → 不写 relatedDocs 字段
+          effectiveRelatedDocs = undefined;
+        }
+      }
+
       cl.items.push({
         id: nextId,
         title: args.title,
         context: args.context,
-        ...(args.relatedDocs !== undefined ? { relatedDocs: args.relatedDocs } : {}),
-        ...(args.phase !== undefined ? { phase: args.phase } : {}),
+        ...(effectiveRelatedDocs !== undefined ? { relatedDocs: effectiveRelatedDocs } : {}),
+        ...(args.userSees ? { userSees: args.userSees } : {}),
+        ...(args.excludes !== undefined ? { excludes: args.excludes } : {}),
+        ...(args.files !== undefined ? { files: {
+          modify: args.files.modify ?? [],
+          create: args.files.create ?? [],
+          test: args.files.test ?? [],
+        } } : {}),
+        ...(args.verificationIntent !== undefined ? { verificationIntent: args.verificationIntent } : {}),
         status: 'pending',
         startTime: null,
         endTime: null,
       });
 
       store.writeChecklist(args.storyId, cl);
+      try {
+        const story = store.readStory(args.storyId);
+        store.appendProcessEvent(args.storyId, {
+          type: 'plan_updated',
+          action: 'add',
+          itemId: nextId,
+          phase: story.phase,
+        });
+      } catch (e) {
+        console.warn(`[process-events] append failed for ${args.storyId}:`, (e as Error).message);
+      }
       return `Checklist item ${nextId} added to ${args.storyId}`;
+    },
+
+    checklist_remove(args: {
+      storyId: string;
+      itemId: string;
+      disposition: 'accept' | 'reject' | 'partial';
+      justification: string;
+    }): string {
+      // 必须给出裁决理由
+      if (!args.justification || args.justification.trim().length < 10) {
+        throw new Error('justification 必须 ≥ 10 字符，说明为什么要删除这条 checklist item');
+      }
+      const validDispositions = ['accept', 'reject', 'partial'];
+      if (!validDispositions.includes(args.disposition)) {
+        throw new Error(`disposition 必须是 accept/reject/partial 之一，收到: ${args.disposition}`);
+      }
+
+      const cl = store.readChecklist(args.storyId);
+      const idx = cl.items.findIndex(i => i.id === args.itemId);
+      if (idx === -1) throw new Error(`Checklist item ${args.itemId} not found`);
+
+      const item = cl.items[idx];
+      if (item.status === 'done') {
+        throw new Error(`Cannot remove ${args.itemId}: already done. Re-open first if needed.`);
+      }
+
+      // 只有 INIT 和 PLAN 阶段允许删除，之后只能加不能删
+      const story = store.readStory(args.storyId);
+      const allowedPhases = ['INIT', 'PLAN'];
+      if (!allowedPhases.includes(story.phase)) {
+        throw new Error(`${story.phase} 阶段不允许删除 checklist item，只能 checklist_add 新增`);
+      }
+
+      const removed = cl.items.splice(idx, 1)[0];
+
+      // 审计日志：记录完整的被删 item 信息 + 裁决，自动写入
+      if (!cl.auditLog) cl.auditLog = [];
+      cl.auditLog.push({
+        timestamp: new Date().toISOString(),
+        phase: story.phase,
+        itemId: args.itemId,
+        action: 'delete',
+        from: removed.status,
+        to: 'pending' as const,
+        reason: args.justification.trim(),
+        removedTitle: removed.title,
+        removedContext: removed.context || '',
+        removedUserSees: removed.userSees || '',
+        disposition: args.disposition,
+        justification: args.justification.trim(),
+        disposedAt: new Date().toISOString(),
+      });
+
+      store.writeChecklist(args.storyId, cl);
+      try {
+        store.appendProcessEvent(args.storyId, {
+          type: 'plan_updated',
+          action: 'remove',
+          itemId: args.itemId,
+          phase: story.phase,
+        });
+      } catch (e) {
+        console.warn(`[process-events] append failed for ${args.storyId}:`, (e as Error).message);
+      }
+      return `Checklist item ${args.itemId} ("${removed.title}") removed from ${args.storyId}\n` +
+        `  disposition: ${args.disposition}\n` +
+        `  justification: ${args.justification.trim()}\n` +
+        `⚠ scope 变更已记录，story_review 会展示此删除供 reviewer 审查`;
     },
 
     checklist_update(args: {
@@ -74,13 +174,52 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       title?: string;
       context?: string;
       relatedDocs?: string[];
-      phase?: 'DEV' | 'TEST_CASE';
-      testIntent?: { happy: Array<string | { desc: string; type: string }>; edge: Array<string | { desc: string; type: string }>; adversarial: Array<string | { desc: string; type: string }> };
+      userSees?: string;
+      files?: { modify: string[]; create: string[]; test: string[] };
+      verificationIntent?: VerificationIntent;
+      verificationEvidence?: VerificationEvidence[];
       reason?: string;
       agent?: string;
+      success?: boolean;
     }): string {
-      if (!args.status && args.testIntent === undefined && args.title === undefined && args.context === undefined && args.relatedDocs === undefined && args.phase === undefined) {
-        throw new Error('At least one of status/testIntent/title/context/relatedDocs/phase must be provided');
+      if (!args.status && args.title === undefined && args.context === undefined && args.relatedDocs === undefined && args.userSees === undefined && args.files === undefined && args.verificationIntent === undefined && args.verificationEvidence === undefined) {
+        throw new Error('At least one of status/title/context/relatedDocs/userSees/files/verificationIntent/verificationEvidence must be provided');
+      }
+
+      // Truth source protection: DEV 及之后阶段禁止修改 checklist 的根本信息
+      // checklist 是真相源，执行者（主 agent / subagent）不能在执行过程中篡改需求定义
+      //
+      // B-9d95 CHK-008: userSees 从 title/context 的保护域拆出，单独分档
+      //   - title/context 在 INIT_CHECK 起保护（PLAN 想改也拒，需 story_advance 回 INIT_CHECK）
+      //   - userSees 是 PLAN 产物（见 CLAUDE.md checklist 写法），允许 PLAN 阶段补写/修改，
+      //     DEV 起冻结（执行者不得在实现过程中篡改验收描述）
+      const story = store.readStory(args.storyId);
+      const titleContextFields = ['title', 'context'] as const;
+      const titleContextProtectedPhases = ['INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE'];
+      const userSeesProtectedPhases = ['DEV', 'REVIEW', 'TEST', 'DONE'];
+      const verificationIntentProtectedPhases = ['DEV', 'REVIEW', 'TEST', 'DONE'];
+
+      const attemptedTitleContext = titleContextFields.filter(f => args[f] !== undefined);
+      if (attemptedTitleContext.length > 0 && titleContextProtectedPhases.includes(story.phase)) {
+        throw new Error(
+          `${args.itemId} 的 ${attemptedTitleContext.join('/')} 在 ${story.phase} 阶段不可修改。` +
+          `checklist 是真相源，INIT_CHECK 起执行者不得篡改需求定义。` +
+          `如需变更标题/上下文，先 story_advance 回 INIT_CHECK`
+        );
+      }
+
+      if (args.userSees !== undefined && userSeesProtectedPhases.includes(story.phase)) {
+        throw new Error(
+          `${args.itemId} 的 userSees 在 ${story.phase} 阶段不可修改。` +
+          `userSees 冻结于 PLAN 末尾，DEV 起执行者不得改验收描述。` +
+          `如需调整走 finding_add 申请回 PLAN`
+        );
+      }
+      if (args.verificationIntent !== undefined && verificationIntentProtectedPhases.includes(story.phase)) {
+        throw new Error(
+          `${args.itemId} 的 verificationIntent 在 ${story.phase} 阶段不可修改。` +
+          `verificationIntent 是 PLAN 阶段的测试意图真相源；DEV 之后只能追加 verificationEvidence 或由 finding 申请回 PLAN。`
+        );
       }
 
       const cl = store.readChecklist(args.storyId);
@@ -92,35 +231,36 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       const oldStatus = item.status;
 
       if (args.title !== undefined) {
-        (item as any).title = args.title;
+        item.title = args.title;
         results.push(`title updated`);
       }
       if (args.context !== undefined) {
-        (item as any).context = args.context;
+        item.context = args.context;
         results.push(`context updated`);
       }
       if (args.relatedDocs !== undefined) {
-        (item as any).relatedDocs = args.relatedDocs;
+        item.relatedDocs = args.relatedDocs;
         results.push(`relatedDocs updated (${args.relatedDocs.length})`);
       }
-      if (args.phase !== undefined) {
-        (item as any).phase = args.phase;
-        results.push(`phase set to ${args.phase}`);
+      if (args.userSees !== undefined) {
+        item.userSees = args.userSees;
+        results.push(`userSees updated`);
       }
-
-      if (args.testIntent !== undefined) {
-        if (args.testIntent === null) {
-          // testIntent: null → 标记为不可自动化测试（文档类/配置类 item）
-          (item as any).testIntent = null;
-          results.push('testIntent set to null (not auto-testable)');
-        } else {
-          const { happy = [], edge = [], adversarial = [] } = args.testIntent;
-          if (happy.length === 0) {
-            throw new Error('testIntent.happy is required (at least one entry)');
-          }
-          (item as any).testIntent = { happy, edge, adversarial };
-          results.push(`testIntent updated (${happy.length}h/${edge.length}e/${adversarial.length}a)`);
-        }
+      if (args.files !== undefined) {
+        item.files = {
+          modify: args.files.modify ?? [],
+          create: args.files.create ?? [],
+          test: args.files.test ?? [],
+        };
+        results.push(`files updated (modify:${item.files.modify.length} create:${item.files.create.length} test:${item.files.test.length})`);
+      }
+      if (args.verificationIntent !== undefined) {
+        item.verificationIntent = args.verificationIntent;
+        results.push(`verificationIntent updated`);
+      }
+      if (args.verificationEvidence !== undefined) {
+        item.verificationEvidence = args.verificationEvidence;
+        results.push(`verificationEvidence updated (${args.verificationEvidence.length})`);
       }
 
       if (args.status) {
@@ -152,254 +292,124 @@ export function createChecklistHandlers(ctx: HandlerContext) {
 
       store.writeChecklist(args.storyId, cl);
 
+      // B-3511: append process events on status transitions
+      if (args.status && oldStatus !== args.status) {
+        try {
+          if (args.status === 'in_progress') {
+            store.appendProcessEvent(args.storyId, {
+              type: 'dispatch',
+              checklistId: args.itemId,
+              ...(args.agent ? { agent: args.agent } : {}),
+            });
+          } else if (args.status === 'done') {
+            store.appendProcessEvent(args.storyId, {
+              type: 'subagent_result',
+              checklistId: args.itemId,
+              success: args.success !== false,
+            });
+          }
+        } catch (e) {
+          console.warn(`[process-events] append failed for ${args.storyId}:`, (e as Error).message);
+        }
+      }
+
       // CHK-003: pending/in_progress → done 且 item 有 relatedDocs 时，hint 关联文档清单
-      const docs = (item as any).relatedDocs as string[] | undefined;
+      // B-45ed CHK-008: done hint 列表统一包含 background.md（若存在且不在 item.relatedDocs 内），保证下游同步对齐
       const transitionedToDone = args.status === 'done' && oldStatus !== 'done';
-      if (transitionedToDone && Array.isArray(docs) && docs.length > 0) {
-        const lines = docs.map(d => `  - ${d}`).join('\n');
-        return `Checklist ${args.itemId}: ${results.join(', ')}\n\n📄 关联文档（请检查代码改动是否影响这些文档，趁记忆热及时同步）：\n${lines}`;
+      if (transitionedToDone) {
+        const docsList: string[] = [];
+        if (Array.isArray(item.relatedDocs)) {
+          for (const d of item.relatedDocs) docsList.push(d);
+        }
+        const bgRel = resolveBackgroundPath(root, store, args.storyId);
+        if (bgRel && !docsList.includes(bgRel)) {
+          docsList.push(bgRel);
+        }
+        if (docsList.length > 0) {
+          const lines = docsList.map(d => `  - ${d}`).join('\n');
+          return `Checklist ${args.itemId}: ${results.join(', ')}\n\n📄 关联文档（请检查代码改动是否影响这些文档，趁记忆热及时同步）：\n${lines}`;
+        }
       }
 
       return `Checklist ${args.itemId}: ${results.join(', ')}`;
     },
 
-    testintent_record(args: {
+    light_review(args: {
+      storyId: string;
+      checklistIds: string[];
+      note?: string;
+    }): string {
+      if (!args.storyId) throw new Error('storyId is required');
+      if (!Array.isArray(args.checklistIds) || args.checklistIds.length === 0) {
+        throw new Error('checklistIds must be a non-empty array');
+      }
+
+      // Validate story exists
+      store.readStory(args.storyId);
+
+      // Validate checklist item IDs exist
+      const cl = store.readChecklist(args.storyId);
+      const validIds = new Set(cl.items.map(i => i.id));
+      for (const id of args.checklistIds) {
+        if (!validIds.has(id)) throw new Error(`Checklist item ${id} not found in ${args.storyId}`);
+      }
+
+      // Deduplicate checklistIds
+      const uniqueIds = [...new Set(args.checklistIds)];
+
+      // Append process event
+      store.appendProcessEvent(args.storyId, {
+        type: 'light_review',
+        checklistIds: uniqueIds,
+        ...(args.note ? { note: args.note } : {}),
+      });
+
+      const ids = uniqueIds.join(', ');
+      return `Light review recorded for ${args.storyId} (items: ${ids})`;
+    },
+
+    verification_evidence_add(args: {
       storyId: string;
       itemId: string;
-      lane: 'happy' | 'edge' | 'adversarial';
-      index: number;
-      pass?: boolean;
+      intentRef: string;
+      kind: VerificationEvidence['kind'];
+      file?: string;
+      command?: string;
+      result?: 'pass' | 'fail';
       note: string;
-      agent?: string;
     }): string {
+      if (!args.note || args.note.trim().length < 5) {
+        throw new Error('verification_evidence_add: note 必须 ≥ 5 字符，说明 evidence 为什么覆盖该 intent');
+      }
       const cl = store.readChecklist(args.storyId);
       const item = cl.items.find(i => i.id === args.itemId);
       if (!item) throw new Error(`Checklist item ${args.itemId} not found`);
-      if (!item.testIntent) throw new Error(`${args.itemId} has no testIntent`);
 
-      const lane = item.testIntent[args.lane];
-      if (!lane || args.index < 0 || args.index >= lane.length) {
-        throw new Error(`Invalid ${args.lane}[${args.index}]: out of range (length=${lane?.length ?? 0})`);
-      }
+      let headHash = '';
+      try {
+        headHash = execSync('git rev-parse HEAD', { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+      } catch { /* non-git or unavailable, omit freshness hash */ }
 
-      const entry = lane[args.index];
-      if (typeof entry === 'string') {
-        throw new Error(`${args.itemId}:${args.lane}:${args.index} is still a string — migrate to {desc,type} first`);
-      }
+      const evidence = makeEvidence({
+        intentRef: args.intentRef,
+        kind: args.kind,
+        ...(args.file ? { file: args.file } : {}),
+        ...(args.command ? { command: args.command } : {}),
+        ...(args.result ? { result: args.result } : {}),
+        note: args.note.trim(),
+        ...(headHash ? { headHash } : {}),
+      });
 
-      // 5 轮 cap（segment-aware）：从末尾倒着数 reviewer/author 条目，遇到 human-resume 就停。
-      // 当前段 ≥ 5 时拒绝再写，强制人类裁决。OMX ralplan 同款。
-      const SEGMENT_CAP = 5;
-      const currentSegmentRounds = (() => {
-        const results = (entry as any).results || [];
-        let count = 0;
-        for (let i = results.length - 1; i >= 0; i--) {
-          const r = results[i];
-          if (r.role === 'human-resume') break;
-          if (r.role === 'reviewer' || r.role === 'author') count++;
-        }
-        return count;
-      })();
-      if (currentSegmentRounds >= SEGMENT_CAP) {
-        throw new Error(
-          `已达 ${SEGMENT_CAP} 轮 cap（当前段，不计前面段的轮数）。\n` +
-          `reviewer 与主 agent 对 ${args.itemId}:${args.lane}:${args.index} 有根本分歧。\n\n` +
-          `可选项:\n` +
-          `  (a) 修改 testIntent 描述本身（重新审视需求）\n` +
-          `  (b) 修改 checklist item 拆解（item 可能拆得不对）\n` +
-          `  (c) 调用 koala testintent_resume 让人类介入开新段:\n` +
-          `      koala testintent_resume '{"storyId":"${args.storyId}","itemId":"${args.itemId}","lane":"${args.lane}","index":${args.index},"reason":"<人类裁决理由>"}'\n\n` +
-          `注意 testintent_resume 只能由人类在场时执行（CLI 会要求 --human flag）。`
-        );
-      }
-
-      // 从 agent 字段自动推断 role
-      const AGENT_ROLE_MAP: Record<string, 'reviewer' | 'author' | 'intent'> = {
-        'test-case-reviewer': 'reviewer',
-        'test-intent': 'intent',
-      };
-      const role = (args.agent && AGENT_ROLE_MAP[args.agent]) || 'author';
-
-      const record = {
-        time: new Date().toISOString(),
-        pass: args.pass,
-        note: args.note,
-        role,
-      };
-
-      if (!entry.results) entry.results = [];
-      entry.results.push(record);
+      const existing = item.verificationEvidence || [];
+      const idx = existing.findIndex(e => e.intentRef === args.intentRef);
+      if (idx >= 0) existing[idx] = evidence;
+      else existing.push(evidence);
+      item.verificationEvidence = existing;
 
       store.writeChecklist(args.storyId, cl);
-      const passLabel = args.pass === undefined ? 'response' : `pass=${args.pass}`;
-      const remaining = SEGMENT_CAP - currentSegmentRounds - 1;
-      const capHint = remaining <= 1 ? ` ⚠ 当前段还剩 ${remaining} 轮就触发 cap` : '';
-      return `${args.itemId}:${args.lane}:${args.index} result recorded (${passLabel})${capHint}`;
+      return `Verification evidence recorded for ${args.itemId} → ${args.intentRef} (${args.kind})`;
     },
 
-    testintent_resume(args: {
-      storyId: string;
-      itemId: string;
-      lane: 'happy' | 'edge' | 'adversarial';
-      index: number;
-      reason: string;
-      human?: boolean;
-    }): string {
-      // 人类介入：写一条 role:human-resume 记录，开新段，cap 计数器从 0 重置。
-      // 必须带 human:true 防止主 agent 自动绕过 cap。
-      if (args.human !== true) {
-        throw new Error(
-          `testintent_resume 必须由人类执行，需要传 human:true。\n` +
-          `如果你是主 agent 在跑——这正是 cap 在保护你：先停下来等人类裁决。`
-        );
-      }
-      if (!args.reason || args.reason.trim().length < 5) {
-        throw new Error(`testintent_resume 必须给出 reason（人类裁决理由），至少 5 个字符`);
-      }
 
-      const cl = store.readChecklist(args.storyId);
-      const item = cl.items.find(i => i.id === args.itemId);
-      if (!item) throw new Error(`Checklist item ${args.itemId} not found`);
-      if (!item.testIntent) throw new Error(`${args.itemId} has no testIntent`);
-      const lane = item.testIntent[args.lane];
-      if (!lane || args.index < 0 || args.index >= lane.length) {
-        throw new Error(`Invalid ${args.lane}[${args.index}]: out of range`);
-      }
-      const entry = lane[args.index];
-      if (typeof entry === 'string') {
-        throw new Error(`${args.itemId}:${args.lane}:${args.index} is still a string`);
-      }
-
-      const record = {
-        time: new Date().toISOString(),
-        role: 'human-resume' as const,
-        note: args.reason,
-      };
-      if (!(entry as any).results) (entry as any).results = [];
-      (entry as any).results.push(record);
-      store.writeChecklist(args.storyId, cl);
-      return `${args.itemId}:${args.lane}:${args.index} resumed by human. cap 计数器已重置为 0，可继续 testintent_record。`;
-    },
-
-    testintent_check(args: { storyId: string }): object {
-      const cl = store.readChecklist(args.storyId);
-      const results: Array<{ ref: string; desc: string; pass: boolean | null; note?: string }> = [];
-      let allPass = true;
-      let hasUnreviewed = false;
-
-      for (const item of cl.items) {
-        if (!item.testIntent) continue;
-        for (const lane of ['happy', 'edge', 'adversarial'] as const) {
-          const entries = item.testIntent[lane] || [];
-          for (let i = 0; i < entries.length; i++) {
-            const ref = `${item.id}:${lane}:${i}`;
-            const entry = entries[i];
-
-            if (typeof entry === 'string') {
-              // 旧格式无法有 results
-              results.push({ ref, desc: entry, pass: null, note: '旧格式字符串，需迁移' });
-              hasUnreviewed = true;
-              allPass = false;
-              continue;
-            }
-
-            // 找最后一条 reviewer 的判定记录（跳过 author/intent 的回复）
-            const lastJudgment = entry.results
-              ? [...entry.results].reverse().find(r => r.role === 'reviewer' && r.pass !== undefined)
-              : undefined;
-
-            if (!lastJudgment) {
-              results.push({ ref, desc: entry.desc, pass: null });
-              hasUnreviewed = true;
-              allPass = false;
-            } else {
-              results.push({ ref, desc: entry.desc, pass: lastJudgment.pass ?? null, note: lastJudgment.note });
-              if (!lastJudgment.pass) allPass = false;
-            }
-          }
-        }
-      }
-
-      const passed = results.filter(r => r.pass === true).length;
-      const failed = results.filter(r => r.pass === false).length;
-      const unreviewed = results.filter(r => r.pass === null).length;
-      const coverage = summarizeIntentCoverage(ctx.root, store, args.storyId);
-      const coverageMissing = coverage.missing.length;
-
-      const isAllPass = allPass && !hasUnreviewed && coverageMissing === 0;
-      let hint = '';
-      let autoAdvanced = false;
-      if (isAllPass) {
-        // 自动推进到 TEST
-        try {
-          const story = store.readStory(args.storyId);
-          if (story.phase === 'TEST_CASE_REVIEW') {
-            const currentSession = getCurrentSessionId();
-            const ownerSession = getStorySessionOwner(story.events);
-            const hasConflict = ownerSession?.sessionId && currentSession && ownerSession.sessionId !== currentSession;
-            const takeoverAllowed = process.env.KOALA_ALLOW_SESSION_TAKEOVER === '1';
-            if (!hasConflict || takeoverAllowed) {
-              const actor = createStoryActor(args.storyId, store, story.phase);
-              actor.start();
-              actor.send({ type: 'REVIEW' } as any);
-              actor.stop();
-              story.phase = 'TEST' as any;
-              const evt = collectContext('TEST' as any, 'advance');
-              evt.agent = 'gate-auto';
-              if (!story.events) story.events = [];
-              story.events.push(evt);
-              store.writeStory(args.storyId, story);
-              autoAdvanced = true;
-            } else {
-              const who = ownerSession.user || ownerSession.agent || 'unknown';
-              hint = `→ 全部通过，但未自动推进到 TEST：Story ${args.storyId} 当前由 ${who} 于 ${ownerSession.timestamp} 持有（session: ${ownerSession.sessionId}）。\n` +
-                `→ 若确认接管，请执行: KOALA_ALLOW_SESSION_TAKEOVER=1 koala testintent_check '{"storyId":"${args.storyId}"}' 或 KOALA_ALLOW_SESSION_TAKEOVER=1 koala story_advance '{"storyId":"${args.storyId}","phase":"TEST"}'`;
-            }
-          }
-        } catch { /* 推进失败不阻塞返回 */ }
-        if (!hint) {
-          hint = autoAdvanced
-            ? `→ 全部通过，已由 gate-auto 自动推进到 TEST。请立即执行: test_story('${args.storyId}')`
-            : `→ 全部通过，可推进: story_advance('${args.storyId}', 'TEST')`;
-        }
-      } else if (coverageMissing > 0) {
-        hint = `→ 有 ${coverageMissing}/${coverage.total} 条 testIntent 缺少 fixture intentRef 覆盖。请在 TEST_CASE 阶段用 fixture_batch_add 补 case，并先运行 test_story --storyId=${args.storyId} 验证`;
-      } else if (hasUnreviewed) {
-        hint = `→ 有 ${unreviewed} 条未审核，请继续审核后再检查\n${waitingAntiStall(args.storyId)}`;
-      } else {
-        // 有 author 回复但 reviewer 还没最终判定的，提示 reviewer 再审
-        const hasAuthorReply = results.some(r => {
-          const item = cl.items.find(i => r.ref.startsWith(i.id));
-          if (!item?.testIntent) return false;
-          const [, lane, idx] = r.ref.match(/:(happy|edge|adversarial):(\d+)$/) || [];
-          if (!lane) return false;
-          const entry = (item.testIntent as any)[lane]?.[Number(idx)];
-          if (!entry?.results) return false;
-          const last = entry.results[entry.results.length - 1];
-          return last?.role === 'author';
-        });
-        if (hasAuthorReply) {
-          hint = `→ 有 author 回复待 reviewer 最终判定，请重新启动 reviewer 审核\n${reviewAntiStall(args.storyId)}`;
-        } else {
-          hint = `→ ${failed} 条未通过。\n${renderAntiStall({
-            storyId: args.storyId,
-            title: '⚠ anti-stall: 当前不是“继续解释”的时机',
-            retry: `重新运行 reviewer / testintent_check '${args.storyId}'，先确认是不是旧状态或临时失败`,
-            fix: `story_advance '${args.storyId}' 到 DEV 回退改代码，或到 TEST_CASE 回退改 fixture`,
-          })}`;
-        }
-      }
-
-      return {
-        storyId: args.storyId,
-        allPass: isAllPass,
-        summary: { total: results.length, passed, failed, unreviewed, fixtureCoverage: { total: coverage.total, covered: coverage.covered, missing: coverageMissing } },
-        failures: [
-          ...results.filter(r => r.pass !== true),
-          ...coverage.missing.map(m => ({ ref: m.ref, desc: m.desc, pass: false, note: 'fixture intentRef missing' })),
-        ],
-        hint,
-      };
-    },
   };
 }

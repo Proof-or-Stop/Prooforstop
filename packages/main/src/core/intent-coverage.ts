@@ -2,6 +2,7 @@ import { existsSync, readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { loadConfig } from './config.js';
 import type { StoryStore } from './store.js';
+import { collectVerificationIntents } from './verification.js';
 
 export interface IntentCoverageMissing {
   ref: string;
@@ -54,9 +55,20 @@ export function summarizeIntentCoverage(root: string, store: StoryStore, storyId
   let total = 0;
 
   for (const item of checklist.items) {
-    if (!item.testIntent) continue;
+    const verificationIntents = collectVerificationIntents(item);
+    if (verificationIntents.length > 0) {
+      for (const { ref, intent } of verificationIntents) {
+        total++;
+        if (!refs.has(ref)) missing.push({ ref, desc: intent.desc });
+      }
+      continue;
+    }
+
+    // Legacy fallback for pre-verificationIntent story data.
+    const legacyIntent = item.testIntent;
+    if (!legacyIntent) continue;
     for (const lane of ['happy', 'edge', 'adversarial'] as const) {
-      const entries = item.testIntent[lane] || [];
+      const entries = legacyIntent[lane] || [];
       for (let i = 0; i < entries.length; i++) {
         total++;
         const ref = `${item.id}:${lane}:${i}`;

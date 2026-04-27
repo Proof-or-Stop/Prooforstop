@@ -17,7 +17,7 @@ import { loadTraceSnapshot } from '../tasks/trace-store.js';
 import { diffTraces } from '../tasks/trace-diff.js';
 import {
   type CaseResult, type FixtureResult,
-  runCase, buildChainGroups, scanFixtureFiles, findCaseByName,
+  runCase, buildChainGroups, scanFixtureFiles, findCaseByName, isExecutableCase,
   createIsolatedHandlers, createTempStoryFactory, cleanupTempStories, cleanupFixtureDir,
 } from './test-runner-core.js';
 
@@ -132,7 +132,7 @@ export function createTestStoryHandlers(ctx: HandlerContext) {
 
         // case 级过滤：只跑 intentRef 匹配当前 story checklist 的 case
         // intentRef 格式: "CHK-001:happy:0" 或 "B-xxx:CHK-001:happy:0"（含 storyId 前缀）
-        let executableCases = cases.filter((c: any) => c.execute);
+        let executableCases = cases.filter((c: any) => isExecutableCase(c));
         executableCases = executableCases.filter((c: any) => {
           if (!c.intentRef) return false;
           const ref = c.intentRef as string;
