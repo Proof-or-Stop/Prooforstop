@@ -36,11 +36,13 @@ export function runValidationCommand(command: ValidationCommand, projectRoot: st
     let output = '';
     let timedOut = false;
     let settled = false;
+    let killTimer: NodeJS.Timeout | undefined;
 
     const finish = (code: number) => {
       if (settled) return;
       settled = true;
       if (timer) clearTimeout(timer);
+      if (killTimer) clearTimeout(killTimer);
       resolveResult({
         label: command.label,
         command: command.command,
@@ -65,6 +67,7 @@ export function runValidationCommand(command: ValidationCommand, projectRoot: st
       ? setTimeout(() => {
           timedOut = true;
           child.kill('SIGTERM');
+          killTimer = setTimeout(() => child.kill('SIGKILL'), 1000);
         }, command.timeoutMs)
       : undefined;
 
