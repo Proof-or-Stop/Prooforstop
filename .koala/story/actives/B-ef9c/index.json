@@ -1,0 +1,42 @@
+{
+  "storyId": "B-ef9c",
+  "name": "close-high-gaps-and-intent-aliases",
+  "title": "消除高优先级 gap 并兼容旧 verificationIntent type",
+  "description": "当前 convergence_check 仍有 10 个 high-priority uncovered_requirement，需求覆盖率 88%。同时用户遇到 verificationIntent.type 使用旧值 cli_blackbox 时被当前 schema 拒绝。目标是把真实已实现的需求通过代码注释/元数据准确映射，补齐缺失实现或文档归类，并让旧 cli_blackbox/browser_blackbox 输入被兼容或给出清晰迁移。",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "gap_analyze",
+    "coverage",
+    "verificationIntent",
+    "cli_blackbox",
+    "convergence"
+  ],
+  "createdAt": "2026-04-27T12:26:33.734Z",
+  "startedAt": "2026-04-27T12:26:33.734Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-27T12:26:33.743Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-27T12:28:50.519Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-ef9c",
+    "branch": "story/B-ef9c",
+    "createdAt": "2026-04-27T12:28:50.628Z"
+  }
+}
