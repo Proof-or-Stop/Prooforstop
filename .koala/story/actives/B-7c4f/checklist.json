@@ -9,7 +9,41 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "在 PLAN/DEV/REVIEW/TEST 任一阶段执行 `koala session_brief`，终端输出 `# koala session brief`，不再输出 `命令 session_brief 在 ... 阶段不可用`。",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/config.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "active story 处于 PLAN/DEV/REVIEW/TEST 时，session_brief 都能通过 phase command gate 并输出 brief。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "只读恢复入口被放行时，非白名单 mutation 命令仍按 phase allowlist 拒绝。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "未知命令或危险 mutation 命令不能借 session_brief 白名单绕过阶段门禁。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -20,7 +54,46 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "REVIEW→TEST 缺 reviewer 时错误文本显示 `期望 4 个 reviewer（opt-in: concept,quality,test-coverage,channel）`，不再固定显示 `要求全部 5 个 reviewer`。",
+      "files": {
+        "modify": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/guard-utils.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Round 1 REVIEW gate 使用 resolveOptInReviewers / reviewer_list 同源结果计算 expected reviewer 数量。",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "每个 opt-in reviewer 都有当前 reviewRound 的 signed finding 后，REVIEW→TEST 不再因硬编码 5 被挡。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "opt-in reviewer 集合变化时，错误提示列出缺失 reviewer 名称而不是泛化要求全部 5 个。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "非 opt-in reviewer 的 clean finding 不能替代缺失的 opt-in reviewer。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -31,7 +104,42 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "DONE 清理 story worktree 后，主仓根目录执行 `command -v koala` 仍返回全局 koala 路径，`koala gap_analyze` 仍能运行，不出现 `command not found: koala`。",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-advance.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/package.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "当全局 @koala-agent/core symlink 指向即将删除的 story worktree packages/main 时，DONE cleanup 前后会自动 relink 到 main repo packages/main 或保持可执行。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "如果全局 koala 不是 symlink 或不是指向当前 story worktree，不做破坏性 relink，只给安全提示。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "不能硬编码用户本机 nvm 路径；测试必须能用临时 symlink 环境模拟断链场景。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
