@@ -1,0 +1,15 @@
+{
+  "findings": [
+    {
+      "id": "B-ef9c:F-001",
+      "desc": "Verification for CHK-001/CHK-002 does not cover the actual koala entrypoint the user runs. In this worktree, npm run test:gap-coverage-smoke and node packages/main/dist/cli.js convergence_check both report 0 high gaps / 100% coverage, but koala gap_analyze and koala convergence_check still report 10 high gaps / 88% coverage. WHY: the stored evidence only proves the local dist/task path, so REVIEW cannot treat high-gap/coverage convergence as covered for the canonical koala command path. Severity: high because the checklist userSees promise is terminal-visible convergence output and the current koala command contradicts it.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-04-27T12:45:12.710Z",
+      "reviewRound": "2026-04-27T12:42:01.465Z",
+      "_hash": "8681ec6e69c07472f01671ac6bb970e330217cefa86472b1045ba7d9c047bd2f"
+    }
+  ]
+}

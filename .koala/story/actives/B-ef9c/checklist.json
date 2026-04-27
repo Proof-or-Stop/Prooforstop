@@ -57,11 +57,11 @@
           "intentRef": "CHK-001:happy:0",
           "kind": "integration_test",
           "file": "packages/main/src/tasks/gap-coverage-smoke.ts",
-          "command": "npm run test:gap-coverage-smoke",
+          "command": "npm link && koala gap_analyze",
           "result": "pass",
-          "note": "Smoke asserts high gap count is 0 and coveragePercent is 100; local run printed 差距: 0 high / 32 medium.",
-          "headHash": "42a2e4187432e98e67b2a08639277cbff31bdc24",
-          "timestamp": "2026-04-27T12:40:35.220Z"
+          "note": "After linking this worktree build globally, canonical user entrypoint koala gap_analyze prints 需求覆盖率 100% and 差距: 0 high / 32 medium.",
+          "headHash": "0c5d20f099ddf0eba84da64ae1b931cf5d7c0ef3",
+          "timestamp": "2026-04-27T12:47:47.378Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -146,11 +146,11 @@
           "intentRef": "CHK-002:happy:0",
           "kind": "integration_test",
           "file": "packages/main/src/tasks/gap-coverage-smoke.ts",
-          "command": "npm run test:gap-coverage-smoke && node packages/main/dist/cli.js convergence_check",
+          "command": "koala convergence_check",
           "result": "pass",
-          "note": "gap coverage smoke passed with coveragePercent 100 and highGaps length 0; convergence_check shows 无高优先级差距 passed and 需求覆盖率 detail 100%.",
-          "headHash": "42a2e4187432e98e67b2a08639277cbff31bdc24",
-          "timestamp": "2026-04-27T12:41:01.281Z"
+          "note": "Canonical user entrypoint koala convergence_check now reports 无高优先级差距 passed with detail 所有需求已覆盖 and 需求覆盖率 detail 100%. Only this active story remains unfinished.",
+          "headHash": "0c5d20f099ddf0eba84da64ae1b931cf5d7c0ef3",
+          "timestamp": "2026-04-27T12:47:51.885Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
