@@ -1,0 +1,37 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "让 session_brief 在所有阶段都可用",
+      "context": "AGENTS 明确要求新 session 或恢复时第一个命令必须是 koala session_brief，但当前 PLAN/DEV/REVIEW 等阶段会把它当 unavailable command 拒绝。修复应让 session_brief/status 类只读恢复入口不受 phase command allowlist 限制，并补回归验证。",
+      "relatedDocs": [
+        "AGENTS.md#行为准则"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "REVIEW gate 按 reviewer_list 的 opt-in reviewer 判定完成",
+      "context": "当前 REVIEW→TEST gate 在 machine.ts 里硬编码 Round 1 至少 5 个不同 reviewer finding；但 reviewer_list 对 B-ef9c 返回 concept/quality/test-coverage/channel 共 4 个。这导致必须伪造 docs reviewer clean finding。应统一使用 reviewer opt-in 解析结果，缺谁提示谁，而不是硬编码 5。",
+      "relatedDocs": [
+        "AGENTS.md#story-阶段流转"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "避免 npm link 指向 story worktree 后 DONE 清理导致全局 koala 断链",
+      "context": "B-ef9c 为验证全局入口执行 npm link 到 story worktree；DONE 自动删除 worktree 后，~/.nvm/.../@koala-agent/core symlink 变成悬挂，主仓根目录 command not found: koala。修复方向：DONE 清理前检测全局 @koala-agent/core 是否指向即将删除的 worktree，若是则 relink 到主仓 packages/main 或给出自动修复提示，并补 smoke。",
+      "relatedDocs": [
+        "AGENTS.md#worktree-自动管理"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
