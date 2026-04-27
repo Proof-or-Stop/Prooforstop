@@ -4,11 +4,11 @@
   "title": "让 verification evidence 只因实体文件变化失效",
   "description": "修复 verification evidence stale 过于敏感：提交 findings、summary、review.json、checklist 等 story metadata 后不应导致 evidence stale；应记录并比较非 story metadata 的 material tree hash，让 metadata-only commit 不需要重录 verification_evidence。",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "medium",
   "createdAt": "2026-04-27T14:14:36.571Z",
   "startedAt": "2026-04-27T14:14:36.571Z",
-  "endedAt": null,
+  "endedAt": "2026-04-27T14:23:05.096Z",
   "events": [
     {
       "phase": "INIT",
@@ -55,6 +55,14 @@
       "action": "advance",
       "timestamp": "2026-04-27T14:21:15.389Z",
       "branch": "story/B-c64a",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-27T14:23:05.096Z",
+      "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
     }
