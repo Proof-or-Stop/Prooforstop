@@ -1,0 +1,35 @@
+{
+  "storyId": "B-c64a",
+  "name": "verification-evidence-material-freshness",
+  "title": "让 verification evidence 只因实体文件变化失效",
+  "description": "修复 verification evidence stale 过于敏感：提交 findings、summary、review.json、checklist 等 story metadata 后不应导致 evidence stale；应记录并比较非 story metadata 的 material tree hash，让 metadata-only commit 不需要重录 verification_evidence。",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "medium",
+  "createdAt": "2026-04-27T14:14:36.571Z",
+  "startedAt": "2026-04-27T14:14:36.571Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-27T14:14:36.572Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-27T14:14:55.395Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-c64a",
+    "branch": "story/B-c64a",
+    "createdAt": "2026-04-27T14:14:55.512Z"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "记录 verification evidence 的 material tree hash",
+      "context": "在 verification_evidence_add 写入 headHash 的同时记录排除 story metadata 后的 material hash；旧 evidence 保持兼容。",
+      "relatedDocs": [
+        "AGENTS.md#用户价值验收"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "coverage stale 判定优先使用 material hash",
+      "context": "buildVerificationCoverage / validate --story 应在 material hash 相同的 metadata-only commit 后保持 covered；material 文件变化仍 stale。",
+      "relatedDocs": [
+        "AGENTS.md#用户价值验收"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "补 smoke 覆盖 metadata-only commit 和 material commit",
+      "context": "扩展 verification-freshness-smoke：metadata-only commit 保持 fresh，material source change 变 stale，旧 evidence fallback 继续有效。",
+      "relatedDocs": [
+        "AGENTS.md#用户价值验收"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
