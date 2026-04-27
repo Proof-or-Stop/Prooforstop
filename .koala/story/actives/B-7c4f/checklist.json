@@ -47,33 +47,33 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-001:happy:0",
-          "kind": "logic_test",
-          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
-          "command": "npm run test:flow-stability-smoke",
+          "kind": "integration_test",
+          "file": "packages/main/src/core/config.ts",
+          "command": "npm link (from packages/main) && koala session_brief (from story worktree root)",
           "result": "pass",
-          "note": "Post-commit evidence: flow-stability-smoke asserts session_brief is allowed across INIT/INIT_CHECK/PLAN/DEV/REVIEW/TEST/DONE.",
-          "headHash": "b21d1e218de1aac642af4b3cd6b0aa843be29baa",
-          "timestamp": "2026-04-27T13:26:55.070Z"
+          "note": "After linking the current worktree build globally, the canonical user entrypoint koala session_brief succeeds in REVIEW and prints # koala session brief instead of unavailable command.",
+          "headHash": "f0ad19821891b32b68d35aa5a1b0b1fd3fedeec0",
+          "timestamp": "2026-04-27T13:31:23.202Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
-          "kind": "logic_test",
-          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
-          "command": "npm run test:flow-stability-smoke && node packages/main/dist/cli.js finding_add ...",
+          "kind": "integration_test",
+          "file": "packages/main/src/core/config.ts",
+          "command": "koala finding_add ... (from story worktree root while in DEV)",
           "result": "pass",
-          "note": "Post-commit evidence: direct CLI check confirms finding_add remains phase-gated in DEV while session_brief is allowed.",
-          "headHash": "b21d1e218de1aac642af4b3cd6b0aa843be29baa",
-          "timestamp": "2026-04-27T13:26:59.365Z"
+          "note": "Before REVIEW, canonical entrypoint koala finding_add remained phase-gated in DEV, proving session_brief all-phase access did not open mutation commands.",
+          "headHash": "f0ad19821891b32b68d35aa5a1b0b1fd3fedeec0",
+          "timestamp": "2026-04-27T13:31:28.053Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
-          "kind": "logic_test",
+          "kind": "integration_test",
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
-          "command": "npm run test:flow-stability-smoke",
+          "command": "cd packages/main && npm run test:flow-stability-smoke",
           "result": "pass",
-          "note": "Post-commit evidence: custom empty phaseTools still cannot block session_brief or admit unrelated mutation commands.",
-          "headHash": "b21d1e218de1aac642af4b3cd6b0aa843be29baa",
-          "timestamp": "2026-04-27T13:27:05.778Z"
+          "note": "Smoke asserts session_brief bypasses custom empty phase tools while unrelated mutation commands remain rejected, covering adversarial phase-gate bypass risk.",
+          "headHash": "f0ad19821891b32b68d35aa5a1b0b1fd3fedeec0",
+          "timestamp": "2026-04-27T13:31:34.509Z"
         }
       ]
     },
@@ -131,41 +131,41 @@
           "intentRef": "CHK-002:happy:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
-          "command": "npm run test:flow-stability-smoke",
+          "command": "cd packages/main && npm run test:flow-stability-smoke",
           "result": "pass",
-          "note": "Post-commit evidence: synthetic REVIEW story asserts Round 1 gate uses computeActiveReviewers from reviewer_list.",
-          "headHash": "b21d1e218de1aac642af4b3cd6b0aa843be29baa",
-          "timestamp": "2026-04-27T13:27:09.822Z"
+          "note": "Smoke constructs synthetic REVIEW state and asserts guard text expects 4 opt-in reviewers concept,quality,test-coverage,channel rather than hardcoded 5.",
+          "headHash": "f0ad19821891b32b68d35aa5a1b0b1fd3fedeec0",
+          "timestamp": "2026-04-27T13:31:38.829Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
-          "command": "npm run test:flow-stability-smoke",
+          "command": "cd packages/main && npm run test:flow-stability-smoke",
           "result": "pass",
-          "note": "Post-commit evidence: all opt-in signed findings allow REVIEW→TEST without hardcoded five-reviewer requirement.",
-          "headHash": "b21d1e218de1aac642af4b3cd6b0aa843be29baa",
-          "timestamp": "2026-04-27T13:27:14.054Z"
+          "note": "Current HEAD evidence: smoke asserts all opt-in signed findings allow REVIEW→TEST without hardcoded five-reviewer requirement.",
+          "headHash": "f0ad19821891b32b68d35aa5a1b0b1fd3fedeec0",
+          "timestamp": "2026-04-27T13:33:11.032Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
-          "command": "npm run test:flow-stability-smoke",
+          "command": "cd packages/main && npm run test:flow-stability-smoke",
           "result": "pass",
-          "note": "Post-commit evidence: missing reviewer error lists opt-in names and missing reviewers instead of fixed five-reviewer wording.",
-          "headHash": "b21d1e218de1aac642af4b3cd6b0aa843be29baa",
-          "timestamp": "2026-04-27T13:27:18.161Z"
+          "note": "Current HEAD evidence: missing reviewer error lists opt-in names and missing reviewers instead of fixed five-reviewer wording.",
+          "headHash": "f0ad19821891b32b68d35aa5a1b0b1fd3fedeec0",
+          "timestamp": "2026-04-27T13:33:16.446Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
-          "command": "npm run test:flow-stability-smoke",
+          "command": "cd packages/main && npm run test:flow-stability-smoke",
           "result": "pass",
-          "note": "Post-commit evidence: non-opt-in docs finding cannot substitute for missing test-coverage or channel reviewer.",
-          "headHash": "b21d1e218de1aac642af4b3cd6b0aa843be29baa",
-          "timestamp": "2026-04-27T13:27:22.163Z"
+          "note": "Current HEAD evidence: non-opt-in docs finding cannot substitute for missing test-coverage or channel reviewer.",
+          "headHash": "f0ad19821891b32b68d35aa5a1b0b1fd3fedeec0",
+          "timestamp": "2026-04-27T13:33:20.476Z"
         }
       ]
     },
@@ -219,31 +219,31 @@
           "intentRef": "CHK-003:happy:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
-          "command": "npm run test:flow-stability-smoke",
+          "command": "cd packages/main && npm run test:flow-stability-smoke",
           "result": "pass",
-          "note": "Post-commit evidence: temp symlink pointing into story worktree relinks to main repo packages/main.",
-          "headHash": "b21d1e218de1aac642af4b3cd6b0aa843be29baa",
-          "timestamp": "2026-04-27T13:27:26.783Z"
+          "note": "Current HEAD 9746bf5 evidence: temp symlink pointing into story worktree relinks to main repo packages/main before cleanup.",
+          "headHash": "9746bf59fb6dc277dd2c3231bf5d59b48cd01bf8",
+          "timestamp": "2026-04-27T13:44:50.345Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
-          "command": "npm run test:flow-stability-smoke",
+          "command": "cd packages/main && npm run test:flow-stability-smoke",
           "result": "pass",
-          "note": "Post-commit evidence: non-symlink and symlink-outside-worktree global installs are skipped without destructive changes.",
-          "headHash": "b21d1e218de1aac642af4b3cd6b0aa843be29baa",
-          "timestamp": "2026-04-27T13:27:30.906Z"
+          "note": "Current HEAD 9746bf5 evidence: non-symlink and symlink-outside-worktree global installs are skipped without destructive changes.",
+          "headHash": "9746bf59fb6dc277dd2c3231bf5d59b48cd01bf8",
+          "timestamp": "2026-04-27T13:44:54.569Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
-          "command": "npm run test:flow-stability-smoke",
+          "command": "cd packages/main && npm run test:flow-stability-smoke",
           "result": "pass",
-          "note": "Post-commit evidence: global link smoke uses only temp directories and injected package path, no hardcoded user nvm path.",
-          "headHash": "b21d1e218de1aac642af4b3cd6b0aa843be29baa",
-          "timestamp": "2026-04-27T13:27:35.370Z"
+          "note": "Current HEAD 9746bf5 evidence: if relink is required but unlink/symlink fails, helper throws a blocking error and leaves the worktree-target symlink untouched instead of proceeding to delete the worktree.",
+          "headHash": "9746bf59fb6dc277dd2c3231bf5d59b48cd01bf8",
+          "timestamp": "2026-04-27T13:44:58.797Z"
         }
       ]
     }
