@@ -1,0 +1,195 @@
+{
+  "command": "koala validate --story=B-c64a --json",
+  "output": "{\"provider\":\"koala-verifier-commands\",\"status\":\"warn\",\"allPass\":true,\"summary\":\"Project validation commands passed\",\"details\":[\"✓ package.json test script: npm test\",\"  > koala@0.3.1 test\",\"  > npm run test:e2e\",\"  > koala@0.3.1 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 9/9 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/handlers/checklist.ts) — verification_evidence_add 在 git 仓库内记录 evidence 时写入 materialHash。\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/core/evidence-freshness.ts) — 非 git 或 material hash 计算失败时不阻塞 evidence 记录，仍保留 headHash 兼容行为。\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/verification-freshness-smoke.ts) — materialHash 只排除 story metadata，不把真实源码、测试、配置路径排除。\",\"  ✓ CHK-002:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/core/verification.ts) — 当 evidence.materialHash 等于当前 material hash，即使 headHash 与 HEAD 不同也判 covered。\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/core/evidence-freshness.ts) — 旧 evidence 没有 materialHash 时继续使用现有 headHash diff fallback。\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/core/evidence-freshness.ts) — material hash 不同时，即使 headHash diff 路径不可用也必须判 stale。\",\"  ✓ CHK-003:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/verification-freshness-smoke.ts) — smoke 证明 story metadata commit 不会让 materialHash evidence stale。\",\"  ✓ CHK-003:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/verification-freshness-smoke.ts) — smoke 证明旧 headHash-only evidence 仍可通过 metadata-only diff fallback。\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/verification-freshness-smoke.ts) — smoke 证明修改源码/测试/配置等 material 文件会让 evidence stale。\"],\"warnings\":[\"validate.ts not found; used language/project validation command discovery\"],\"timestamp\":\"2026-04-27T14:20:05.862Z\",\"headSha\":\"f50c27d47f1557ac4c70672542e50239f2f3a2f9\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.1 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.1 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":457}],\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":9,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"verification_evidence_add 在 git 仓库内记录 evidence 时写入 materialHash。\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/handlers/checklist.ts\",\"command\":\"node packages/main/dist/cli.js verification_evidence_add ... && node packages/main/dist/cli.js checklist_get\",\"result\":\"pass\",\"note\":\"Current HEAD evidence: verification_evidence_add writes both headHash and materialHash on recorded evidence.\",\"headHash\":\"f50c27d47f1557ac4c70672542e50239f2f3a2f9\",\"materialHash\":\"86c137ba577378df81dc3808bdac2b15a42532a2995fad60676b1190949b3b98\",\"timestamp\":\"2026-04-27T14:19:06.827Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"非 git 或 material hash 计算失败时不阻塞 evidence 记录，仍保留 headHash 兼容行为。\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/evidence-freshness.ts\",\"command\":\"cd packages/main && npm run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"Smoke covers material hash calculation fallback: unavailable material hash keeps legacy headHash behavior instead of blocking evidence recording.\",\"headHash\":\"f50c27d47f1557ac4c70672542e50239f2f3a2f9\",\"materialHash\":\"86c137ba577378df81dc3808bdac2b15a42532a2995fad60676b1190949b3b98\",\"timestamp\":\"2026-04-27T14:19:13.192Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"materialHash 只排除 story metadata，不把真实源码、测试、配置路径排除。\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/verification-freshness-smoke.ts\",\"command\":\"cd packages/main && npm run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts story metadata paths are excluded but source, tests, package files, config, and requirements docs remain material.\",\"headHash\":\"f50c27d47f1557ac4c70672542e50239f2f3a2f9\",\"materialHash\":\"86c137ba577378df81dc3808bdac2b15a42532a2995fad60676b1190949b3b98\",\"timestamp\":\"2026-04-27T14:19:17.780Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"当 evidence.materialHash 等于当前 material hash，即使 headHash 与 HEAD 不同也判 covered。\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/verification.ts\",\"command\":\"cd packages/main && npm run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"Smoke builds verification coverage where headHash differs after metadata-only commit but materialHash matches; status remains covered.\",\"headHash\":\"f50c27d47f1557ac4c70672542e50239f2f3a2f9\",\"materialHash\":\"86c137ba577378df81dc3808bdac2b15a42532a2995fad60676b1190949b3b98\",\"timestamp\":\"2026-04-27T14:19:22.228Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"旧 evidence 没有 materialHash 时继续使用现有 headHash diff fallback。\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/evidence-freshness.ts\",\"command\":\"cd packages/main && npm run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"Smoke keeps legacy headHash-only evidence fresh for metadata-only diffs, preserving old story compatibility.\",\"headHash\":\"f50c27d47f1557ac4c70672542e50239f2f3a2f9\",\"materialHash\":\"86c137ba577378df81dc3808bdac2b15a42532a2995fad60676b1190949b3b98\",\"timestamp\":\"2026-04-27T14:19:26.697Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"material hash 不同时，即使 headHash diff 路径不可用也必须判 stale。\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/evidence-freshness.ts\",\"command\":\"cd packages/main && npm run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"Smoke proves material file changes produce stale coverage even when materialHash is present.\",\"headHash\":\"f50c27d47f1557ac4c70672542e50239f2f3a2f9\",\"materialHash\":\"86c137ba577378df81dc3808bdac2b15a42532a2995fad60676b1190949b3b98\",\"timestamp\":\"2026-04-27T14:19:32.994Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"smoke 证明 story metadata commit 不会让 materialHash evidence stale。\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/verification-freshness-smoke.ts\",\"command\":\"cd packages/main && npm run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"Smoke verifies story metadata commits keep materialHash evidence fresh.\",\"headHash\":\"f50c27d47f1557ac4c70672542e50239f2f3a2f9\",\"materialHash\":\"86c137ba577378df81dc3808bdac2b15a42532a2995fad60676b1190949b3b98\",\"timestamp\":\"2026-04-27T14:19:38.132Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"smoke 证明旧 headHash-only evidence 仍可通过 metadata-only diff fallback。\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/verification-freshness-smoke.ts\",\"command\":\"cd packages/main && npm run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"Smoke verifies old headHash-only evidence remains compatible through metadata-only fallback.\",\"headHash\":\"f50c27d47f1557ac4c70672542e50239f2f3a2f9\",\"materialHash\":\"86c137ba577378df81dc3808bdac2b15a42532a2995fad60676b1190949b3b98\",\"timestamp\":\"2026-04-27T14:19:45.231Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"smoke 证明修改源码/测试/配置等 material 文件会让 evidence stale。\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/verification-freshness-smoke.ts\",\"command\":\"cd packages/main && npm run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"Smoke verifies material source, test, package, config, and requirements changes make evidence stale.\",\"headHash\":\"f50c27d47f1557ac4c70672542e50239f2f3a2f9\",\"materialHash\":\"86c137ba577378df81dc3808bdac2b15a42532a2995fad60676b1190949b3b98\",\"timestamp\":\"2026-04-27T14:19:49.654Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-04-27T14:20:05.899Z",
+  "headHash": "f50c27d47f1557ac4c70672542e50239f2f3a2f9",
+  "verificationCoverage": {
+    "total": 9,
+    "required": 9,
+    "covered": 9,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "verification_evidence_add 在 git 仓库内记录 evidence 时写入 materialHash。",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/handlers/checklist.ts",
+          "command": "node packages/main/dist/cli.js verification_evidence_add ... && node packages/main/dist/cli.js checklist_get",
+          "result": "pass",
+          "note": "Current HEAD evidence: verification_evidence_add writes both headHash and materialHash on recorded evidence.",
+          "headHash": "f50c27d47f1557ac4c70672542e50239f2f3a2f9",
+          "materialHash": "86c137ba577378df81dc3808bdac2b15a42532a2995fad60676b1190949b3b98",
+          "timestamp": "2026-04-27T14:19:06.827Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "非 git 或 material hash 计算失败时不阻塞 evidence 记录，仍保留 headHash 兼容行为。",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/evidence-freshness.ts",
+          "command": "cd packages/main && npm run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke covers material hash calculation fallback: unavailable material hash keeps legacy headHash behavior instead of blocking evidence recording.",
+          "headHash": "f50c27d47f1557ac4c70672542e50239f2f3a2f9",
+          "materialHash": "86c137ba577378df81dc3808bdac2b15a42532a2995fad60676b1190949b3b98",
+          "timestamp": "2026-04-27T14:19:13.192Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "materialHash 只排除 story metadata，不把真实源码、测试、配置路径排除。",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "cd packages/main && npm run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke asserts story metadata paths are excluded but source, tests, package files, config, and requirements docs remain material.",
+          "headHash": "f50c27d47f1557ac4c70672542e50239f2f3a2f9",
+          "materialHash": "86c137ba577378df81dc3808bdac2b15a42532a2995fad60676b1190949b3b98",
+          "timestamp": "2026-04-27T14:19:17.780Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "当 evidence.materialHash 等于当前 material hash，即使 headHash 与 HEAD 不同也判 covered。",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/verification.ts",
+          "command": "cd packages/main && npm run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke builds verification coverage where headHash differs after metadata-only commit but materialHash matches; status remains covered.",
+          "headHash": "f50c27d47f1557ac4c70672542e50239f2f3a2f9",
+          "materialHash": "86c137ba577378df81dc3808bdac2b15a42532a2995fad60676b1190949b3b98",
+          "timestamp": "2026-04-27T14:19:22.228Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "旧 evidence 没有 materialHash 时继续使用现有 headHash diff fallback。",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/evidence-freshness.ts",
+          "command": "cd packages/main && npm run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke keeps legacy headHash-only evidence fresh for metadata-only diffs, preserving old story compatibility.",
+          "headHash": "f50c27d47f1557ac4c70672542e50239f2f3a2f9",
+          "materialHash": "86c137ba577378df81dc3808bdac2b15a42532a2995fad60676b1190949b3b98",
+          "timestamp": "2026-04-27T14:19:26.697Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "material hash 不同时，即使 headHash diff 路径不可用也必须判 stale。",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/evidence-freshness.ts",
+          "command": "cd packages/main && npm run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke proves material file changes produce stale coverage even when materialHash is present.",
+          "headHash": "f50c27d47f1557ac4c70672542e50239f2f3a2f9",
+          "materialHash": "86c137ba577378df81dc3808bdac2b15a42532a2995fad60676b1190949b3b98",
+          "timestamp": "2026-04-27T14:19:32.994Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "smoke 证明 story metadata commit 不会让 materialHash evidence stale。",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "cd packages/main && npm run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke verifies story metadata commits keep materialHash evidence fresh.",
+          "headHash": "f50c27d47f1557ac4c70672542e50239f2f3a2f9",
+          "materialHash": "86c137ba577378df81dc3808bdac2b15a42532a2995fad60676b1190949b3b98",
+          "timestamp": "2026-04-27T14:19:38.132Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "smoke 证明旧 headHash-only evidence 仍可通过 metadata-only diff fallback。",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "cd packages/main && npm run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke verifies old headHash-only evidence remains compatible through metadata-only fallback.",
+          "headHash": "f50c27d47f1557ac4c70672542e50239f2f3a2f9",
+          "materialHash": "86c137ba577378df81dc3808bdac2b15a42532a2995fad60676b1190949b3b98",
+          "timestamp": "2026-04-27T14:19:45.231Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "smoke 证明修改源码/测试/配置等 material 文件会让 evidence stale。",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "cd packages/main && npm run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke verifies material source, test, package, config, and requirements changes make evidence stale.",
+          "headHash": "f50c27d47f1557ac4c70672542e50239f2f3a2f9",
+          "materialHash": "86c137ba577378df81dc3808bdac2b15a42532a2995fad60676b1190949b3b98",
+          "timestamp": "2026-04-27T14:19:49.654Z"
+        }
+      }
+    ]
+  }
+}
