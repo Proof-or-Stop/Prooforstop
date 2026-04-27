@@ -1,0 +1,47 @@
+{
+  "storyId": "B-e11b",
+  "changes": "Added language-neutral ValidationCommand ValidationPlan ValidationResult types, a serial validation executor, verifier and serve integration, configurable cwd env timeout optional command fields, validation protocol smoke coverage, timeout hard-kill fallback, and channel gate handling for cleaned-up story branches.",
+  "usage": "Run koala validate --json or koala validate --story=B-xxxx --json. Projects without validate.ts can set koala.config.json validate.command or validate.commands; discovered project commands still work and now return commands evidence.",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Provider/detector registry and language-specific detectors for Android PHP Python Go C++ Java Swift ObjC remain in the next planned Koala stories; this story establishes the shared protocol and executor foundation.",
+  "pitfalls": "Do not record evidence before code commits because headHash becomes stale. Story branch cleanup also affected channel gate, so missing story refs on main must be treated as already merged rather than a git failure.",
+  "phaseStats": {
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 6276
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 121051
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 414671
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 306530
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 59686
+    }
+  },
+  "totalDurationMs": 908214,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-04-27T01:40:12.088Z",
+  "updatedAt": "2026-04-27T01:40:12.088Z"
+}
