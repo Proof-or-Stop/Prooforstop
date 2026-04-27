@@ -1,0 +1,59 @@
+{
+  "findings": [
+    {
+      "id": "B-3749:F-001",
+      "desc": "Concept review PASS: verification evidence freshness now ignores only Koala workflow metadata prefixes (.koala/story/, docs/story/, docs/koala/framework-audit/) while smoke coverage keeps .koala/activity, source, tests/fixtures, package/lockfile, koala.config, and docs/requirements/decisions material/stale; testintent_handoff is restored through normal CLI wiring (MAIN_TOOLS schema, registry registration, PLAN allowlist, --help) rather than a one-off special case. Verified with npm run test:verification-freshness-smoke, npm run test:testintent-handoff-smoke, npm run build, koala validate, and node dist/cli.js testintent_handoff --help.",
+      "severity": "low",
+      "category": "happy",
+      "status": "open",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-04-27T12:14:40.159Z",
+      "reviewRound": "2026-04-27T12:13:39.414Z",
+      "_hash": "b00d7aab66b9f09195be17db247ea803ff99ca4cc24c2132553a2d074b78d279"
+    },
+    {
+      "id": "B-3749:F-002",
+      "desc": "channel validate passed: node packages/main/dist/cli.js validate --channel --story=B-3749 returned pass; 4 commits accepted as koala-implementer/koala CLI channel, dispatch/subagent_result evidence covers CHK-001, CHK-002, CHK-003; metadata exemption did not make evidence stale.",
+      "severity": "low",
+      "category": "happy",
+      "status": "resolved",
+      "agent": "koala-review-channel",
+      "createdAt": "2026-04-27T12:14:46.403Z",
+      "reviewRound": "2026-04-27T12:13:39.414Z",
+      "_hash": "cab203d840984d867ae54110ec2a1c44f879513ba2768d76c6caf759c00506c0"
+    },
+    {
+      "id": "B-3749:F-003",
+      "desc": "PASS quality review: evidence freshness allowlist is narrowly scoped to docs/story, .koala/story, and docs/koala/framework-audit while material files remain stale; testintent_handoff wiring is minimal across registry, CLI help schema, and PLAN phase allowlist; both smoke scripts are clear, temp-dir scoped, and cover happy/edge/adversarial behavior without broad production changes.",
+      "severity": "low",
+      "category": "happy",
+      "status": "resolved",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-04-27T12:15:05.150Z",
+      "reviewRound": "2026-04-27T12:13:39.414Z",
+      "_hash": "608068d3cfb0a9e0b01763682cb888ff7e4b16a6c4a4f5a4dc88f4c2abdf51cc"
+    },
+    {
+      "id": "B-3749:F-004",
+      "desc": "Test coverage review PASS: verificationIntent coverage is satisfied for metadata-only fresh, material stale, testintent_handoff help/PLAN gate/bad item, and build/e2e. Inspected packages/main/src/tasks/verification-freshness-smoke.ts and packages/main/src/tasks/testintent-handoff-smoke.ts; reran npm run build, npm run test:verification-freshness-smoke, npm run test:testintent-handoff-smoke, node dist/cli.js testintent_handoff --help, npm run test:e2e, and koala validate. Freshness smoke asserts .koala/story, docs/story, docs/koala/framework-audit stay fresh and .koala/activity, source, fixture, package, lockfile, koala.config, docs/requirements/decisions go stale. Handoff smoke asserts MAIN_TOOLS/help registration, registry handler, PLAN allowlist, successful handoff prompt, and Unknown checklist item(s) for CHK-404.",
+      "severity": "low",
+      "category": "happy",
+      "status": "resolved",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-04-27T12:15:11.750Z",
+      "reviewRound": "2026-04-27T12:13:39.414Z",
+      "_hash": "a0b7606bdd39652caf0d1bcaa44a9f5cb1f9ed9fdc81781a4ab3bc3969819d6c"
+    },
+    {
+      "id": "B-3749:F-005",
+      "desc": "文档需要更新：1) docs/requirements/decisions/story-lifecycle.md:48,72 仍写 DONE evidence 必须对应当前 HEAD、merge/main/新增提交都会 stale，但本 story 已把 .koala/story、docs/story、docs/koala/framework-audit 作为 metadata-only 例外，并且必须明确 docs/requirements/decisions 不是 metadata-only、仍会使 evidence stale；2) testintent_handoff 已恢复为 PLAN 阶段用户可见命令（help/schema/phase allowlist/handler），但 CLAUDE.md:689-696 和 story-lifecycle.md:90-99 只泛称 test-intent agent/testintent_*，没有说明用 koala testintent_handoff 生成交接包，用户文档应补齐命令入口与行为。",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-04-27T12:16:49.242Z",
+      "reviewRound": "2026-04-27T12:13:39.414Z",
+      "_hash": "d370dca3f22b7697182fd2413691e36b43061f8ae605d8f4f3d41a3de0640065"
+    }
+  ]
+}

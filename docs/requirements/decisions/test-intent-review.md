@@ -21,6 +21,12 @@
 
 **理由**：自己审自己找不到盲点。testIntent 是考卷（Agent B 审过的），fixture/browser case 是答题（Agent A 按意图写）。
 
+### testintent_handoff 交接包
+
+PLAN 阶段可运行 `koala testintent_handoff --storyId=B-xxx`，让 CLI 生成给 test-intent agent 的结构化交接包。交接包包含 story 摘要、目标 worktree、待补齐的 checklist item、已有 verificationIntent/testIntent 数量，以及 `checklist_update` 示例命令。
+
+`testintent_handoff` 是正式 CLI 命令，应同时满足三层一致性：`koala help` / `koala testintent_handoff --help` 可发现，handler registry 可调用，PLAN phase allowlist 允许执行。它不是特定 story 的 adapter，也不是 `dispatch` 的隐藏替代品；它的职责只是在 PLAN 阶段把 test-intent agent 需要的上下文打包清楚。
+
 ## 决策 3：白盒 fixture 和 browser test 的分工
 
 - **白盒 fixture**：函数正确性（fn + execute + expect）

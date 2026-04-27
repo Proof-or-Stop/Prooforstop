@@ -14,7 +14,11 @@ function headMatches(a: string, b: string): boolean {
 
 export function isStoryMetadataPath(path: string): boolean {
   const normalized = path.replace(/\\/g, '/');
-  return normalized.startsWith('docs/story/') || normalized.startsWith('.koala/');
+  return [
+    'docs/story/',
+    '.koala/story/',
+    'docs/koala/framework-audit/',
+  ].some(prefix => normalized.startsWith(prefix));
 }
 
 export function currentGitHead(projectRoot: string): string | undefined {

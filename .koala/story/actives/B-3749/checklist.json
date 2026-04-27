@@ -4,25 +4,236 @@
       "id": "CHK-001",
       "title": "metadata-only commit 不应让 verification evidence stale",
       "context": "修正 freshness 判定：evidence 记录后若只有 Koala workflow metadata 变化（.koala/story、docs/story、findings、summary、delivery/eval evidence 等流程产物），coverage 仍应 fresh；源码、测试、fixture、package/lockfile、koala.config、requirements/decisions 等会改变验证语义的文件变化仍应 stale。",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-04-27T12:07:36.037Z",
+      "endTime": "2026-04-27T12:10:21.747Z",
+      "userSees": "用户看到 \"Verification intent coverage: 12/12 covered (0 required missing)\"，metadata-only commit 后不会出现 \"stale\"。",
+      "files": {
+        "modify": [
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/verification.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/verification-freshness-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "packages/main/package.json"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "evidence headHash 落后当前 HEAD，但 diff 只有 .koala/story 或 docs/story 流程元数据时，coverage 仍为 covered",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "docs/koala/framework-audit 这类 Koala 本地审计状态变化不使 evidence stale",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "源码、测试、fixture、package/lockfile、koala.config、requirements/decisions 变化仍使旧 evidence stale",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke proves .koala/story and docs/story workflow metadata changes keep verification evidence fresh after docs commit 0b3f4cd.",
+          "headHash": "0b3f4cda0f3d09b4c36a6a378da9b98d97b07617",
+          "timestamp": "2026-04-27T12:18:11.517Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke proves docs/koala/framework-audit workflow metadata keeps verification evidence fresh after docs commit 0b3f4cd.",
+          "headHash": "0b3f4cda0f3d09b4c36a6a378da9b98d97b07617",
+          "timestamp": "2026-04-27T12:18:18.257Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke proves source, fixture, package, lockfile, koala.config, .koala/activity, and docs/requirements/decisions changes are material/stale after docs commit 0b3f4cd.",
+          "headHash": "0b3f4cda0f3d09b4c36a6a378da9b98d97b07617",
+          "timestamp": "2026-04-27T12:18:24.657Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "testintent_handoff 在 PLAN 阶段可用且命令注册一致",
       "context": "B-3145 PLAN 阶段调用 koala testintent_handoff 报未知命令；需要恢复 handler 注册、CLI schema、phase allowlist 或提供兼容别名。",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-04-27T12:10:24.485Z",
+      "endTime": "2026-04-27T12:10:39.182Z",
+      "userSees": "用户看到 \"testintent_handoff done\" 或包含 \"You are the test-intent agent\" 的交接 JSON，而不是 \"未知命令\"。",
+      "files": {
+        "modify": [
+          "packages/main/src/registry.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/handlers/testintent-handoff.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/testintent-handoff-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/testintent-handoff-smoke.ts",
+          "packages/main/package.json"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "koala help 和 koala testintent_handoff --help 都能发现该命令",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "在 PLAN 阶段的 active story 中调用 testintent_handoff 不被 phase gate 拒绝",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "传入不存在的 checklist itemId 时返回 Unknown checklist item(s) 而不是静默生成错误交接包",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/testintent-handoff-smoke.ts",
+          "command": "node dist/cli.js testintent_handoff --help && npm run test:testintent-handoff-smoke",
+          "result": "pass",
+          "note": "CLI --help and smoke expose testintent_handoff command after docs commit 0b3f4cd.",
+          "headHash": "0b3f4cda0f3d09b4c36a6a378da9b98d97b07617",
+          "timestamp": "2026-04-27T12:18:30.571Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/testintent-handoff-smoke.ts",
+          "command": "npm run test:testintent-handoff-smoke",
+          "result": "pass",
+          "note": "Smoke proves testintent_handoff is allowed in PLAN and dispatches a handoff package after docs commit 0b3f4cd.",
+          "headHash": "0b3f4cda0f3d09b4c36a6a378da9b98d97b07617",
+          "timestamp": "2026-04-27T12:18:36.817Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/testintent-handoff-smoke.ts",
+          "command": "npm run test:testintent-handoff-smoke",
+          "result": "pass",
+          "note": "Smoke proves bad itemId returns Unknown checklist item(s) after docs commit 0b3f4cd.",
+          "headHash": "0b3f4cda0f3d09b4c36a6a378da9b98d97b07617",
+          "timestamp": "2026-04-27T12:18:44.122Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "新增回归验证覆盖 stale 与 handoff",
       "context": "用 CLI/逻辑测试证明 metadata-only 不 stale、代码变化 stale、testintent_handoff 可被 help/调用发现。",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-04-27T12:10:41.811Z",
+      "endTime": "2026-04-27T12:10:57.458Z",
+      "userSees": "用户看到 \"✓ verification freshness smoke passed\" 和 \"✓ testintent handoff smoke passed\" 两行回归验证输出。",
+      "files": {
+        "modify": [
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "packages/main/src/tasks/testintent-handoff-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "packages/main/src/tasks/testintent-handoff-smoke.ts",
+          "packages/main/dist/tasks/verification-freshness-smoke.js",
+          "packages/main/dist/tasks/testintent-handoff-smoke.js"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "新增 freshness smoke script 通过，覆盖 metadata fresh 与 material stale",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "新增 handoff smoke script 通过，覆盖 help、PLAN gate、错误 itemId",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "npm run build 与 npm run test:e2e 仍通过，证明新 wiring 没破坏现有 CLI 流程",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Freshness smoke package script passed after docs commit 0b3f4cd.",
+          "headHash": "0b3f4cda0f3d09b4c36a6a378da9b98d97b07617",
+          "timestamp": "2026-04-27T12:18:50.147Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/testintent-handoff-smoke.ts",
+          "command": "npm run test:testintent-handoff-smoke",
+          "result": "pass",
+          "note": "Handoff smoke package script passed after docs commit 0b3f4cd.",
+          "headHash": "0b3f4cda0f3d09b4c36a6a378da9b98d97b07617",
+          "timestamp": "2026-04-27T12:18:57.028Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/package.json",
+          "command": "npm run build && npm run test:e2e",
+          "result": "pass",
+          "note": "Build and e2e passed after docs commit 0b3f4cd.",
+          "headHash": "0b3f4cda0f3d09b4c36a6a378da9b98d97b07617",
+          "timestamp": "2026-04-27T12:19:02.556Z"
+        }
+      ]
     }
   ]
 }

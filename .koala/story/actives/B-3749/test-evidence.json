@@ -1,0 +1,186 @@
+{
+  "command": "koala validate --story=B-3749 --json",
+  "output": "{\"provider\":\"koala-verifier-commands\",\"status\":\"warn\",\"allPass\":true,\"summary\":\"Project validation commands passed\",\"details\":[\"✓ package.json test script: npm test\",\"  > koala@0.3.1 test\",\"  > npm run test:e2e\",\"  > koala@0.3.1 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 9/9 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/verification-freshness-smoke.ts) — evidence headHash 落后当前 HEAD，但 diff 只有 .koala/story 或 docs/story 流程元数据时，coverage 仍为 covered\",\"  ✓ CHK-001:edge:0 [edge/should/logic] covered via logic_test (packages/main/src/tasks/verification-freshness-smoke.ts) — docs/koala/framework-audit 这类 Koala 本地审计状态变化不使 evidence stale\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/verification-freshness-smoke.ts) — 源码、测试、fixture、package/lockfile、koala.config、requirements/decisions 变化仍使旧 evidence stale\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/tasks/testintent-handoff-smoke.ts) — koala help 和 koala testintent_handoff --help 都能发现该命令\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via integration_test (packages/main/src/tasks/testintent-handoff-smoke.ts) — 在 PLAN 阶段的 active story 中调用 testintent_handoff 不被 phase gate 拒绝\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/testintent-handoff-smoke.ts) — 传入不存在的 checklist itemId 时返回 Unknown checklist item(s) 而不是静默生成错误交接包\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/tasks/verification-freshness-smoke.ts) — 新增 freshness smoke script 通过，覆盖 metadata fresh 与 material stale\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via integration_test (packages/main/src/tasks/testintent-handoff-smoke.ts) — 新增 handoff smoke script 通过，覆盖 help、PLAN gate、错误 itemId\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via integration_test (packages/main/package.json) — npm run build 与 npm run test:e2e 仍通过，证明新 wiring 没破坏现有 CLI 流程\"],\"warnings\":[\"validate.ts not found; used language/project validation command discovery\"],\"timestamp\":\"2026-04-27T12:19:43.073Z\",\"headSha\":\"d84d1eb6b8863f6d1419c23b5685f57c23142df0\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.1 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.1 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":311}],\"verificationCoverage\":{\"total\":9,\"required\":8,\"covered\":9,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"evidence headHash 落后当前 HEAD，但 diff 只有 .koala/story 或 docs/story 流程元数据时，coverage 仍为 covered\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/verification-freshness-smoke.ts\",\"command\":\"npm run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"Smoke proves .koala/story and docs/story workflow metadata changes keep verification evidence fresh after docs commit 0b3f4cd.\",\"headHash\":\"0b3f4cda0f3d09b4c36a6a378da9b98d97b07617\",\"timestamp\":\"2026-04-27T12:18:11.517Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"docs/koala/framework-audit 这类 Koala 本地审计状态变化不使 evidence stale\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/verification-freshness-smoke.ts\",\"command\":\"npm run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"Smoke proves docs/koala/framework-audit workflow metadata keeps verification evidence fresh after docs commit 0b3f4cd.\",\"headHash\":\"0b3f4cda0f3d09b4c36a6a378da9b98d97b07617\",\"timestamp\":\"2026-04-27T12:18:18.257Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"源码、测试、fixture、package/lockfile、koala.config、requirements/decisions 变化仍使旧 evidence stale\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/verification-freshness-smoke.ts\",\"command\":\"npm run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"Smoke proves source, fixture, package, lockfile, koala.config, .koala/activity, and docs/requirements/decisions changes are material/stale after docs commit 0b3f4cd.\",\"headHash\":\"0b3f4cda0f3d09b4c36a6a378da9b98d97b07617\",\"timestamp\":\"2026-04-27T12:18:24.657Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"koala help 和 koala testintent_handoff --help 都能发现该命令\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/testintent-handoff-smoke.ts\",\"command\":\"node dist/cli.js testintent_handoff --help && npm run test:testintent-handoff-smoke\",\"result\":\"pass\",\"note\":\"CLI --help and smoke expose testintent_handoff command after docs commit 0b3f4cd.\",\"headHash\":\"0b3f4cda0f3d09b4c36a6a378da9b98d97b07617\",\"timestamp\":\"2026-04-27T12:18:30.571Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"在 PLAN 阶段的 active story 中调用 testintent_handoff 不被 phase gate 拒绝\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/testintent-handoff-smoke.ts\",\"command\":\"npm run test:testintent-handoff-smoke\",\"result\":\"pass\",\"note\":\"Smoke proves testintent_handoff is allowed in PLAN and dispatches a handoff package after docs commit 0b3f4cd.\",\"headHash\":\"0b3f4cda0f3d09b4c36a6a378da9b98d97b07617\",\"timestamp\":\"2026-04-27T12:18:36.817Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"传入不存在的 checklist itemId 时返回 Unknown checklist item(s) 而不是静默生成错误交接包\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/testintent-handoff-smoke.ts\",\"command\":\"npm run test:testintent-handoff-smoke\",\"result\":\"pass\",\"note\":\"Smoke proves bad itemId returns Unknown checklist item(s) after docs commit 0b3f4cd.\",\"headHash\":\"0b3f4cda0f3d09b4c36a6a378da9b98d97b07617\",\"timestamp\":\"2026-04-27T12:18:44.122Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"新增 freshness smoke script 通过，覆盖 metadata fresh 与 material stale\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/verification-freshness-smoke.ts\",\"command\":\"npm run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"Freshness smoke package script passed after docs commit 0b3f4cd.\",\"headHash\":\"0b3f4cda0f3d09b4c36a6a378da9b98d97b07617\",\"timestamp\":\"2026-04-27T12:18:50.147Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"新增 handoff smoke script 通过，覆盖 help、PLAN gate、错误 itemId\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/testintent-handoff-smoke.ts\",\"command\":\"npm run test:testintent-handoff-smoke\",\"result\":\"pass\",\"note\":\"Handoff smoke package script passed after docs commit 0b3f4cd.\",\"headHash\":\"0b3f4cda0f3d09b4c36a6a378da9b98d97b07617\",\"timestamp\":\"2026-04-27T12:18:57.028Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"npm run build 与 npm run test:e2e 仍通过，证明新 wiring 没破坏现有 CLI 流程\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/package.json\",\"command\":\"npm run build && npm run test:e2e\",\"result\":\"pass\",\"note\":\"Build and e2e passed after docs commit 0b3f4cd.\",\"headHash\":\"0b3f4cda0f3d09b4c36a6a378da9b98d97b07617\",\"timestamp\":\"2026-04-27T12:19:02.556Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-04-27T12:19:43.233Z",
+  "headHash": "d84d1eb6b8863f6d1419c23b5685f57c23142df0",
+  "verificationCoverage": {
+    "total": 9,
+    "required": 8,
+    "covered": 9,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "evidence headHash 落后当前 HEAD，但 diff 只有 .koala/story 或 docs/story 流程元数据时，coverage 仍为 covered",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke proves .koala/story and docs/story workflow metadata changes keep verification evidence fresh after docs commit 0b3f4cd.",
+          "headHash": "0b3f4cda0f3d09b4c36a6a378da9b98d97b07617",
+          "timestamp": "2026-04-27T12:18:11.517Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "docs/koala/framework-audit 这类 Koala 本地审计状态变化不使 evidence stale",
+        "type": "logic",
+        "priority": "should",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke proves docs/koala/framework-audit workflow metadata keeps verification evidence fresh after docs commit 0b3f4cd.",
+          "headHash": "0b3f4cda0f3d09b4c36a6a378da9b98d97b07617",
+          "timestamp": "2026-04-27T12:18:18.257Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "源码、测试、fixture、package/lockfile、koala.config、requirements/decisions 变化仍使旧 evidence stale",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke proves source, fixture, package, lockfile, koala.config, .koala/activity, and docs/requirements/decisions changes are material/stale after docs commit 0b3f4cd.",
+          "headHash": "0b3f4cda0f3d09b4c36a6a378da9b98d97b07617",
+          "timestamp": "2026-04-27T12:18:24.657Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "koala help 和 koala testintent_handoff --help 都能发现该命令",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/testintent-handoff-smoke.ts",
+          "command": "node dist/cli.js testintent_handoff --help && npm run test:testintent-handoff-smoke",
+          "result": "pass",
+          "note": "CLI --help and smoke expose testintent_handoff command after docs commit 0b3f4cd.",
+          "headHash": "0b3f4cda0f3d09b4c36a6a378da9b98d97b07617",
+          "timestamp": "2026-04-27T12:18:30.571Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "在 PLAN 阶段的 active story 中调用 testintent_handoff 不被 phase gate 拒绝",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/testintent-handoff-smoke.ts",
+          "command": "npm run test:testintent-handoff-smoke",
+          "result": "pass",
+          "note": "Smoke proves testintent_handoff is allowed in PLAN and dispatches a handoff package after docs commit 0b3f4cd.",
+          "headHash": "0b3f4cda0f3d09b4c36a6a378da9b98d97b07617",
+          "timestamp": "2026-04-27T12:18:36.817Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "传入不存在的 checklist itemId 时返回 Unknown checklist item(s) 而不是静默生成错误交接包",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/testintent-handoff-smoke.ts",
+          "command": "npm run test:testintent-handoff-smoke",
+          "result": "pass",
+          "note": "Smoke proves bad itemId returns Unknown checklist item(s) after docs commit 0b3f4cd.",
+          "headHash": "0b3f4cda0f3d09b4c36a6a378da9b98d97b07617",
+          "timestamp": "2026-04-27T12:18:44.122Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "新增 freshness smoke script 通过，覆盖 metadata fresh 与 material stale",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Freshness smoke package script passed after docs commit 0b3f4cd.",
+          "headHash": "0b3f4cda0f3d09b4c36a6a378da9b98d97b07617",
+          "timestamp": "2026-04-27T12:18:50.147Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "新增 handoff smoke script 通过，覆盖 help、PLAN gate、错误 itemId",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/testintent-handoff-smoke.ts",
+          "command": "npm run test:testintent-handoff-smoke",
+          "result": "pass",
+          "note": "Handoff smoke package script passed after docs commit 0b3f4cd.",
+          "headHash": "0b3f4cda0f3d09b4c36a6a378da9b98d97b07617",
+          "timestamp": "2026-04-27T12:18:57.028Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "npm run build 与 npm run test:e2e 仍通过，证明新 wiring 没破坏现有 CLI 流程",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/package.json",
+          "command": "npm run build && npm run test:e2e",
+          "result": "pass",
+          "note": "Build and e2e passed after docs commit 0b3f4cd.",
+          "headHash": "0b3f4cda0f3d09b4c36a6a378da9b98d97b07617",
+          "timestamp": "2026-04-27T12:19:02.556Z"
+        }
+      }
+    ]
+  }
+}

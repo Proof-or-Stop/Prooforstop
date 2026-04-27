@@ -45,6 +45,7 @@ import { createReviewerListHandlers } from './handlers/reviewer-list.js';
 import { createStoryDraftHandlers } from './handlers/story-draft.js';
 import { createDraftCheckHandlers } from './handlers/draft-check.js';
 import { createDeliveryCheckHandlers } from './handlers/delivery-check.js';
+import { createTestIntentHandoffHandlers } from './handlers/testintent-handoff.js';
 import { nextStoryId } from './handlers/context.js';
 
 export type HandlerFn = (...args: any[]) => any;
@@ -134,6 +135,9 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
 
   // B-35ed CHK-001: delivery_check_set — TEST→DONE 硬门槛产物 delivery-check.json 写入
   registry.registerBatch(createDeliveryCheckHandlers(ctx));
+
+  // B-3749 CHK-002: PLAN handoff package for test-intent agents.
+  registry.registerBatch(createTestIntentHandoffHandlers(ctx));
 
   // 内部辅助：返回下一个 story id（fixture/测试 runner 用）
   registry.register('_nextStoryId', (prefix?: string) => nextStoryId(ctx.store, prefix));
