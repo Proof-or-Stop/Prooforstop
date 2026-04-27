@@ -141,6 +141,10 @@ export const MAIN_TOOLS: ToolDef[] = [
     category: z.string().describe('要驳回的 riskSignal.category（如 "状态机/门禁"、"test runner 框架"）'),
     reason: z.string().describe('驳回理由（≥ 5 字符，写清楚为什么该 signal 在本 story 是误报）'),
   }},
+  { name: 'testintent_handoff', description: '生成 test-intent agent 交接包（PLAN 阶段）', schema: {
+    storyId: z.string().describe('Story ID'),
+    itemIds: z.array(z.string()).optional().describe('只交接指定 checklist item ID；缺省为全部'),
+  }},
 
   // Checklist
   { name: 'checklist_get', description: '读取 checklist', schema: { storyId: z.string().describe('Story ID') }},

@@ -134,6 +134,7 @@ const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'checklist_add', 'checklist_update', 'checklist_remove',
     'understanding_set', 'understanding_get',
     'decision_set', 'decision_get',
+    'testintent_handoff',
     'scope_check_save',
     'scope_question_resolve', // B-ed3e CHK-003: 主 agent 消解 OQ
   ],
