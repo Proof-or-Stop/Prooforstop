@@ -69,7 +69,7 @@ transition graph：
 - **状态机管理**：使用 xstate 而非手动 if 判断，门禁（guard）内置到状态机定义中
 - **自动回退**：TEST fail 和 TEST_CASE_REVIEW fail 自动回退 DEV，不需要手动操作
 - **门禁不可跳过**：DEV→TEST_CASE 必须 checklist 全 done，TEST_CASE_REVIEW→TEST 必须 fixture 覆盖 + reviewer 结论通过，TEST→DONE 必须测试通过且 bug 全 fixed
-- **DONE evidence 必须新鲜**：`test_story` 写入测试运行时的 git HEAD；DONE gate 比对该 HEAD 与当前 story 分支 HEAD。merge main、解决冲突或新增提交后，旧 PASS 证据会被视为 stale，必须重跑 `test_story`。
+- **DONE evidence 必须新鲜**：`test_story` / `koala validate --story` 写入测试运行时的 git HEAD。DONE gate 比对 evidence HEAD 与当前 story 分支 HEAD，但只把会改变验证语义的文件变化视为 stale。源码、测试、fixture、package/lockfile、`koala.config.json`、`docs/requirements/decisions/` 等变化必须让旧 evidence stale；`.koala/story/`、`docs/story/`、`docs/koala/framework-audit/` 等 Koala workflow metadata 变化不应让旧 evidence stale，避免 findings/summary/delivery/eval 这类元数据提交造成重复记录 evidence 的死循环。
 - **DEV done 不检查 fixture 覆盖**：DEV done 表示实现项完成；fixture intentRef 覆盖在 TEST_CASE / TEST_CASE_REVIEW 口径检查，避免 DEV done 与 TEST_CASE 入口互相卡住
 - **TEST_CASE 可本地验证**：TEST_CASE 阶段允许 `test_story --storyId=...` 只跑当前 story 关联 case，便于刚写完 fixture 就发现运行时错误
 - **统一推进命令**：`story_advance` 统一处理所有阶段推进，砍掉 dev_start / dev_finish / dev_merge
@@ -95,6 +95,7 @@ transition graph：
 | `story_advance` → DEV | 自动建 worktree |
 | `checklist_add` | 追加 item，test-intent agent 填 testIntent |
 | `checklist_update` | 只能改 testIntent，不能改 status |
+| `testintent_handoff` | 生成 test-intent agent 交接包，帮助独立 agent 补齐 verificationIntent |
 | `testintent_*` | 写和审核 testIntent |
 
 ### DEV
