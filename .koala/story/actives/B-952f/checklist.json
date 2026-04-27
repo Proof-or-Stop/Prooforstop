@@ -1,0 +1,37 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "修正 convergence_check 的终态 story 统计口径",
+      "context": "DONE 与 DISCARDED 都是终态，convergence_check 的 activeStories 必须排除两者；保留 INIT/PLAN/DEV/REVIEW/TEST 等真实未完成 story 的阻塞能力。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "补齐 summary.ts 顶部 @task 注释必填字段",
+      "context": "validate(scanRoot) 报 summary.ts:1 缺 @checklist/@type/@priority/@changes；只补元数据，不改变 summary handler 行为。",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "补回归验证 convergence 与注释错误消失",
+      "context": "至少运行 npm run build、直接 validate annotation error 输出、koala convergence_check；预期未完成 story 不再列 DISCARDED，注释错误从 4 降到 0。",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-fixture-spec.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
