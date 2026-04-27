@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "metadata-only commit 不应让 verification evidence stale",
+      "context": "修正 freshness 判定：evidence 记录后若只有 Koala workflow metadata 变化（.koala/story、docs/story、findings、summary、delivery/eval evidence 等流程产物），coverage 仍应 fresh；源码、测试、fixture、package/lockfile、koala.config、requirements/decisions 等会改变验证语义的文件变化仍应 stale。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "testintent_handoff 在 PLAN 阶段可用且命令注册一致",
+      "context": "B-3145 PLAN 阶段调用 koala testintent_handoff 报未知命令；需要恢复 handler 注册、CLI schema、phase allowlist 或提供兼容别名。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "新增回归验证覆盖 stale 与 handoff",
+      "context": "用 CLI/逻辑测试证明 metadata-only 不 stale、代码变化 stale、testintent_handoff 可被 help/调用发现。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
