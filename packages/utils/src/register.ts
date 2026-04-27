@@ -14,12 +14,16 @@ import { createGapHandlers } from './handlers/gap.js';
 import { createToolStatusHandlers } from './handlers/tool-status.js';
 
 export function register(registry: Registry, ctx: HandlerContext): void {
+  const registryAny = registry as Registry & { registerBatchMissing?: Registry['registerBatch'] };
+  const registerBatch = registryAny.registerBatchMissing
+    ? registryAny.registerBatchMissing.bind(registry)
+    : registry.registerBatch.bind(registry);
   registry.registerBatch(createAuxHandlers(ctx));
-  registry.registerBatch(createAuxSyncHandlers(ctx));
-  registry.registerBatch(createAuxTraceHandlers(ctx));
-  registry.registerBatch(createAuxDiagnoseHandlers(ctx));
-  registry.registerBatch(createAuxDocHandlers(ctx));
-  registry.registerBatch(createTruthHandlers(ctx));
-  registry.registerBatch(createGapHandlers(ctx));
-  registry.registerBatch(createToolStatusHandlers(ctx));
+  registerBatch(createAuxSyncHandlers(ctx));
+  registerBatch(createAuxTraceHandlers(ctx));
+  registerBatch(createAuxDiagnoseHandlers(ctx));
+  registerBatch(createAuxDocHandlers(ctx));
+  registerBatch(createTruthHandlers(ctx));
+  registerBatch(createGapHandlers(ctx));
+  registerBatch(createToolStatusHandlers(ctx));
 }

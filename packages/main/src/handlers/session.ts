@@ -24,6 +24,7 @@ import { join } from 'path';
 import type { HandlerContext } from './context.js';
 import type { StoryInfo, ChecklistData, BugData } from '../core/types.js';
 import { detectZombieStories } from './story-query.js';
+import { StoryStore } from '../core/store.js';
 import { formatProcessMetricsSummary } from '../core/process-metrics.js';
 import { readActivityLogTail } from '../core/activity-log.js';
 import { summarizeReviewerStatus } from '../core/reviewer-status.js';
@@ -120,6 +121,15 @@ function listActiveWorktrees(root: string): Record<string, string> {
     }
   } catch { /* not a git repo or git worktree unsupported — PROBE, return empty */ }
   return out;
+}
+
+function readStoryFromLinkedWorktree(storyId: string, worktreePath: string): { story: StoryInfo; store: StoryStore } | null {
+  try {
+    const store = new StoryStore(worktreePath);
+    return { story: store.readStory(storyId), store };
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -365,6 +375,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
         // We call the same handler via ctx-level helpers so the exact
         // same numbers show up in brief and in `koala story_list`.
         let dashboardText: string | null = null;
+        const worktrees = listActiveWorktrees(ctx.root);
         let activeStories: Array<{ storyId: string; phase: string; title: string; bugsOpen: number; hasBg: boolean }> = [];
         let totalBugsOpen = 0;
         let totalStories = allStoryIds.length;
@@ -373,7 +384,12 @@ export function createSessionHandlers(ctx: HandlerContext) {
           const phases: Record<string, number> = {};
           for (const id of allStoryIds) {
             try {
-              const s = ctx.store.readStory(id);
+              const mainStory = ctx.store.readStory(id);
+              const linked = worktrees[id] && mainStory.phase !== 'DONE' && mainStory.phase !== 'DISCARDED'
+                ? readStoryFromLinkedWorktree(id, worktrees[id])
+                : null;
+              const sourceStore = linked?.store || ctx.store;
+              const s = linked?.story || mainStory;
               phases[s.phase] = (phases[s.phase] || 0) + 1;
               if (s.phase === 'DONE') doneStories++;
               // Non-terminal = active
@@ -384,11 +400,11 @@ export function createSessionHandlers(ctx: HandlerContext) {
               ) {
                 let bugsOpen = 0;
                 try {
-                  const bd = ctx.store.readBugs(id);
+                  const bd = sourceStore.readBugs(id);
                   bugsOpen = bd.bugs.filter(b => b.status === 'open').length;
                 } catch { /* no bugs file */ }
                 // B-45ed CHK-008: 每个 active story 检测 background.md 存在性 → bg:✓ 标记
-                const hasBg = existsSync(ctx.store.storyFilePath(id, 'background.md'));
+                const hasBg = existsSync(sourceStore.storyFilePath(id, 'background.md'));
                 activeStories.push({
                   storyId: id,
                   phase: s.phase,
@@ -417,7 +433,6 @@ export function createSessionHandlers(ctx: HandlerContext) {
         }
 
         // Active stories + worktree paths.
-        const worktrees = listActiveWorktrees(ctx.root);
         if (activeStories.length > 0) {
           lines.push('');
           lines.push(`## Active stories (${activeStories.length})`);

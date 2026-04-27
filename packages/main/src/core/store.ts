@@ -73,12 +73,6 @@ export class StoryStore {
   private writeJson<T>(storyId: string, file: string, data: T): void {
     this.ensureDir(storyId);
     this.writeJsonFile(join(this.storyDir(storyId), file), data);
-
-    // If a project already has the legacy docs/story mirror, keep it in sync.
-    // This avoids stale phases/evidence when older branches still contain both trees.
-    for (const dir of this.candidateStoryDirs(storyId).slice(1)) {
-      if (existsSync(dir)) this.writeJsonFile(join(dir, file), data);
-    }
   }
 
   private writeJsonFile<T>(filePath: string, data: T): void {

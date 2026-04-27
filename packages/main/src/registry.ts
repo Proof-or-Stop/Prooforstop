@@ -46,6 +46,7 @@ import { createStoryDraftHandlers } from './handlers/story-draft.js';
 import { createDraftCheckHandlers } from './handlers/draft-check.js';
 import { createDeliveryCheckHandlers } from './handlers/delivery-check.js';
 import { createTestIntentHandoffHandlers } from './handlers/testintent-handoff.js';
+import { createAuxDocHandlers } from './handlers/aux-doc.js';
 import { nextStoryId } from './handlers/context.js';
 
 export type HandlerFn = (...args: any[]) => any;
@@ -63,6 +64,12 @@ export class Registry {
 
   registerBatch(map: Record<string, HandlerFn>): void {
     for (const [name, fn] of Object.entries(map)) this.register(name, fn);
+  }
+
+  registerBatchMissing(map: Record<string, HandlerFn>): void {
+    for (const [name, fn] of Object.entries(map)) {
+      if (!this.handlers.has(name)) this.register(name, fn);
+    }
   }
 
   /** 允许覆盖已存在的 handler（用于测试桩 / 替换内置实现） */
@@ -138,6 +145,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
 
   // B-3749 CHK-002: PLAN handoff package for test-intent agents.
   registry.registerBatch(createTestIntentHandoffHandlers(ctx));
+  registry.registerBatch(createAuxDocHandlers(ctx));
 
   // 内部辅助：返回下一个 story id（fixture/测试 runner 用）
   registry.register('_nextStoryId', (prefix?: string) => nextStoryId(ctx.store, prefix));

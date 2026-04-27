@@ -26,6 +26,8 @@ import { runLintGateCli } from './validate-lint.js';
 import { buildVerificationCoverage, renderVerificationCoverage } from '../core/verification.js';
 import { checkEvidenceFreshnessForGit } from '../core/evidence-freshness.js';
 
+const STATUS_FALLBACK_TIMEOUT_MS = 10_000;
+
 export function findValidateFile(projectRoot: string): string | null {
   const candidates = ['validate.ts', 'validate.js', 'validate.mts'];
   for (const f of candidates) {
@@ -178,8 +180,9 @@ export async function runCommand(
   command: string,
   args: string[],
   cwd: string,
+  timeoutMs?: number,
 ): Promise<{ code: number; output: string; durationMs: number; timedOut?: boolean }> {
-  const result = await runValidationCommand({ label: command, command, args }, cwd);
+  const result = await runValidationCommand({ label: command, command, args, ...(timeoutMs ? { timeoutMs } : {}) }, cwd);
   return {
     code: result.code,
     output: result.output,
@@ -508,7 +511,16 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
 
         // Fallback: spawn tsx
         ctx.log?.('running: npx tsx ' + validateFile + ' --status');
-        const { output } = await runCommand('npx', ['tsx', validateFile, '--status'], projectRoot);
+        const { output, timedOut } = await runCommand('npx', ['tsx', validateFile, '--status'], projectRoot, STATUS_FALLBACK_TIMEOUT_MS);
+        if (timedOut) {
+          const cmd = `npx tsx ${validateFile} --status`;
+          const body = [
+            `✗ ${cmd} timed out after ${Math.round(STATUS_FALLBACK_TIMEOUT_MS / 1000)}s.`,
+            '  Run `koala validate` for full diagnostics, or start `koala serve` to use cached status.',
+          ];
+          if (output.trim()) body.push(...output.trim().split('\n').map(line => `  ${line}`));
+          return '\n── Code Verification ──\n' + body.join('\n');
+        }
         return output.trim() ? '\n── Code Verification ──\n' + output.trim() : '';
       })();
 

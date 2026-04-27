@@ -363,6 +363,9 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'session_brief', description: '跨 session 开场简报（active story / phase / checklist / bug / next step）', schema: {
     concise: z.boolean().optional().describe('轻量模式（默认 false）'),
   }},
+  { name: 'aux_doc_list', description: '列出项目文档（PLAN 阶段挑选 relatedDocs 用）', schema: {
+    format: z.enum(['text', 'json']).optional().describe('输出格式（默认 text）'),
+  }},
 
   // Doctor (health issue 巡检)
   { name: 'doctor', description: '查看 koala 自身的 health issue（被 silent catch 接住的 PERSIST 失败）+ 扫 .worktrees/ 孤儿目录', schema: {

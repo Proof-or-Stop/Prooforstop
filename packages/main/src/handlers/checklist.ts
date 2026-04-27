@@ -2,9 +2,10 @@
 import { existsSync } from 'fs';
 import { join } from 'path';
 import type { HandlerContext } from './context.js';
+import { assertCwdInWorktree } from './context.js';
 import { execSync } from 'child_process';
 import { currentMaterialHash } from '../core/evidence-freshness.js';
-import type { VerificationEvidence, VerificationIntent } from '../core/types.js';
+import type { StoryInfo, VerificationEvidence, VerificationIntent } from '../core/types.js';
 import { makeEvidence } from '../core/verification.js';
 
 /**
@@ -14,6 +15,12 @@ function resolveBackgroundPath(root: string, store: HandlerContext['store'], sto
   const rel = `${store.storyDirRel()}/${storyId}/background.md`;
   const abs = join(root, rel);
   return existsSync(abs) ? rel : null;
+}
+
+function assertChecklistMutationCwd(store: HandlerContext['store'], storyId: string): StoryInfo {
+  const story = store.readStory(storyId);
+  if (story.worktree) assertCwdInWorktree(store, storyId);
+  return story;
 }
 
 export function createChecklistHandlers(ctx: HandlerContext) {
@@ -35,8 +42,8 @@ export function createChecklistHandlers(ctx: HandlerContext) {
     }): string {
       if (!args.title) throw new Error('title is required');
 
-      // 验证 story 存在
-      store.readStory(args.storyId);
+      // 验证 story 存在；进入 worktree 流程后，checklist 只能在 story worktree 写。
+      assertChecklistMutationCwd(store, args.storyId);
 
       const cl = store.readChecklist(args.storyId);
 
@@ -125,7 +132,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       }
 
       // 只有 INIT 和 PLAN 阶段允许删除，之后只能加不能删
-      const story = store.readStory(args.storyId);
+      const story = assertChecklistMutationCwd(store, args.storyId);
       const allowedPhases = ['INIT', 'PLAN'];
       if (!allowedPhases.includes(story.phase)) {
         throw new Error(`${story.phase} 阶段不允许删除 checklist item，只能 checklist_add 新增`);
@@ -194,7 +201,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       //   - title/context 在 INIT_CHECK 起保护（PLAN 想改也拒，需 story_advance 回 INIT_CHECK）
       //   - userSees 是 PLAN 产物（见 CLAUDE.md checklist 写法），允许 PLAN 阶段补写/修改，
       //     DEV 起冻结（执行者不得在实现过程中篡改验收描述）
-      const story = store.readStory(args.storyId);
+      const story = assertChecklistMutationCwd(store, args.storyId);
       const titleContextFields = ['title', 'context'] as const;
       const titleContextProtectedPhases = ['INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE'];
       const userSeesProtectedPhases = ['DEV', 'REVIEW', 'TEST', 'DONE'];
