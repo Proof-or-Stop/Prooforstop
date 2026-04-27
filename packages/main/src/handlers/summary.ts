@@ -1,12 +1,18 @@
 /**
  * @task B-093b
+ * @checklist CHK-001
  * @title Story summary (DONE-gate forced completion summary)
+ * @type feature
+ * @priority high
  * @description
  *   Before advancing to DONE, the agent must call `summary_set` with:
  *     - changes       — what changed, user-facing
  *     - usage         — how to use it (slash command / tool / example)
  *     - limitations   — known limits / design divergences
  *     - pitfalls      — war stories, what future agents should know
+ * @changes
+ *   - Enforce explicit completion summaries before DONE.
+ *   - Keep generated summary metrics derived from story data.
  */
 
 import type { HandlerContext } from './context.js';

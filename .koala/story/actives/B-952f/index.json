@@ -4,11 +4,11 @@
   "title": "修复 convergence_check 假 blocker 与 summary 注释错误",
   "description": "convergence_check 当前把 DISCARDED story 计入未完成，导致项目级收敛误报 17 个历史废弃 story；同时 summary.ts 顶部 @task 注释缺少必填字段，造成 4 个注释错误。目标是先消掉这两个假 blocker，不处理 10 个 high gap 回链。",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "createdAt": "2026-04-27T11:16:57.168Z",
   "startedAt": "2026-04-27T11:16:57.168Z",
-  "endedAt": null,
+  "endedAt": "2026-04-27T11:47:09.388Z",
   "events": [
     {
       "phase": "INIT",
@@ -25,11 +25,47 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-27T11:18:43.729Z",
+      "branch": "story/B-952f",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-27T11:20:49.889Z",
+      "branch": "story/B-952f",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-27T11:26:25.684Z",
+      "branch": "story/B-952f",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-27T11:45:06.276Z",
+      "branch": "story/B-952f",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-27T11:47:09.388Z",
+      "branch": "story/B-952f",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-952f",
-    "branch": "story/B-952f",
-    "createdAt": "2026-04-27T11:18:39.433Z"
-  }
+  "currentReviewRound": "2026-04-27T11:26:25.684Z"
 }

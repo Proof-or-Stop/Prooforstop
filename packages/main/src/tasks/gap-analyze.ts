@@ -7,6 +7,7 @@ import type { TaskAnnotation, FlowChain } from './types.js';
 import { StoryStore } from '../core/store.js';
 import { join } from 'path';
 import { loadConfig } from '../core/config.js';
+import type { StoryPhase } from '../core/types.js';
 
 /** 差距项 */
 export interface GapItem {
@@ -148,10 +149,11 @@ export function checkConvergence(projectRoot: string, store: StoryStore): Conver
   const codeValidation = validate(scanRoot);
 
   // Check all stories
+  const terminalPhases = new Set<StoryPhase>(['DONE', 'DISCARDED']);
   const storyIds = store.listStoryIds();
   const activeStories = storyIds.filter(id => {
     const story = store.readStory(id);
-    return story.phase !== 'DONE';
+    return !terminalPhases.has(story.phase);
   });
 
   const checks: ConvergenceResult['checks'] = [];
