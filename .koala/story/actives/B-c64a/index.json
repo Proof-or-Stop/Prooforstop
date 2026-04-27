@@ -4,7 +4,7 @@
   "title": "让 verification evidence 只因实体文件变化失效",
   "description": "修复 verification evidence stale 过于敏感：提交 findings、summary、review.json、checklist 等 story metadata 后不应导致 evidence stale；应记录并比较非 story metadata 的 material tree hash，让 metadata-only commit 不需要重录 verification_evidence。",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "TEST",
   "priority": "medium",
   "createdAt": "2026-04-27T14:14:36.571Z",
   "startedAt": "2026-04-27T14:14:36.571Z",
@@ -25,11 +25,44 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-27T14:14:59.057Z",
+      "branch": "story/B-c64a",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-27T14:16:33.305Z",
+      "branch": "story/B-c64a",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-27T14:20:24.531Z",
+      "branch": "story/B-c64a",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-27T14:21:15.389Z",
+      "branch": "story/B-c64a",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-c64a",
     "branch": "story/B-c64a",
     "createdAt": "2026-04-27T14:14:55.512Z"
-  }
+  },
+  "currentReviewRound": "2026-04-27T14:20:24.531Z"
 }

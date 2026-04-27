@@ -3,6 +3,7 @@ import { existsSync } from 'fs';
 import { join } from 'path';
 import type { HandlerContext } from './context.js';
 import { execSync } from 'child_process';
+import { currentMaterialHash } from '../core/evidence-freshness.js';
 import type { VerificationEvidence, VerificationIntent } from '../core/types.js';
 import { makeEvidence } from '../core/verification.js';
 
@@ -389,6 +390,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       try {
         headHash = execSync('git rev-parse HEAD', { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
       } catch { /* non-git or unavailable, omit freshness hash */ }
+      const materialHash = currentMaterialHash(root);
 
       const evidence = makeEvidence({
         intentRef: args.intentRef,
@@ -398,6 +400,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         ...(args.result ? { result: args.result } : {}),
         note: args.note.trim(),
         ...(headHash ? { headHash } : {}),
+        ...(materialHash ? { materialHash } : {}),
       });
 
       const existing = item.verificationEvidence || [];
