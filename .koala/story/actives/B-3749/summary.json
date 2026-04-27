@@ -1,0 +1,51 @@
+{
+  "storyId": "B-3749",
+  "changes": "Restored testintent_handoff as a formal PLAN-stage CLI command through MAIN_TOOLS, registry, and phase allowlist; narrowed evidence freshness metadata handling to Koala workflow metadata; added smoke scripts for freshness and handoff; documented the new freshness boundary and handoff command in requirements decisions.",
+  "usage": "Run koala testintent_handoff --storyId=B-xxxx in PLAN to generate a test-intent handoff package. Run npm run test:verification-freshness-smoke and npm run test:testintent-handoff-smoke from packages/main to verify both regressions.",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Evidence still intentionally becomes stale after material requirements, source, test, fixture, package, lockfile, or koala.config changes; historical evidence is not migrated.",
+  "pitfalls": "Parallel checklist_update calls raced and dropped fields, so metadata writes should be sequential. Requirements documentation changes are material by design, so evidence must be refreshed after documenting freshness semantics.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 163996
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 3283
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 190500
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 398137
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 358116
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 26233
+    }
+  },
+  "totalDurationMs": 1140269,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-04-27T12:20:03.763Z",
+  "updatedAt": "2026-04-27T12:20:03.763Z"
+}
