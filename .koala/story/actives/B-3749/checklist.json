@@ -51,9 +51,9 @@
           "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
           "command": "npm run test:verification-freshness-smoke",
           "result": "pass",
-          "note": "Smoke creates a git repo where evidence headHash is behind HEAD and only .koala/story or docs/story workflow metadata changed; checkEvidenceFreshnessForGit returns fresh.",
-          "headHash": "ab4806422e0cf311ad073dae0e2cf220a7ffd4fd",
-          "timestamp": "2026-04-27T12:10:12.083Z"
+          "note": "Smoke creates a git repo where evidence headHash is behind HEAD and only .koala/story or docs/story workflow metadata changed; checkEvidenceFreshnessForGit returns fresh after code commit 3bf78d3.",
+          "headHash": "3bf78d303aea6b890393292682b0285dfde03431",
+          "timestamp": "2026-04-27T12:12:19.365Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -61,9 +61,9 @@
           "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
           "command": "npm run test:verification-freshness-smoke",
           "result": "pass",
-          "note": "Smoke covers docs/koala/framework-audit as Koala local audit workflow metadata that keeps existing verification evidence fresh.",
-          "headHash": "ab4806422e0cf311ad073dae0e2cf220a7ffd4fd",
-          "timestamp": "2026-04-27T12:10:15.563Z"
+          "note": "Smoke covers docs/koala/framework-audit as Koala local audit workflow metadata that keeps existing verification evidence fresh after code commit 3bf78d3.",
+          "headHash": "3bf78d303aea6b890393292682b0285dfde03431",
+          "timestamp": "2026-04-27T12:12:23.542Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -71,9 +71,9 @@
           "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
           "command": "npm run test:verification-freshness-smoke",
           "result": "pass",
-          "note": "Smoke verifies source, fixture, package, lockfile, koala.config, .koala/activity, and docs/requirements/decisions changes are material and make evidence stale.",
-          "headHash": "ab4806422e0cf311ad073dae0e2cf220a7ffd4fd",
-          "timestamp": "2026-04-27T12:10:19.258Z"
+          "note": "Smoke verifies source, fixture, package, lockfile, koala.config, .koala/activity, and docs/requirements/decisions changes are material and make evidence stale after code commit 3bf78d3.",
+          "headHash": "3bf78d303aea6b890393292682b0285dfde03431",
+          "timestamp": "2026-04-27T12:12:28.209Z"
         }
       ]
     },
@@ -130,9 +130,9 @@
           "file": "packages/main/src/tasks/testintent-handoff-smoke.ts",
           "command": "node dist/cli.js testintent_handoff --help && npm run test:testintent-handoff-smoke",
           "result": "pass",
-          "note": "CLI --help exposes testintent_handoff schema and smoke asserts MAIN_TOOLS includes the command for help discovery.",
-          "headHash": "ab4806422e0cf311ad073dae0e2cf220a7ffd4fd",
-          "timestamp": "2026-04-27T12:10:28.448Z"
+          "note": "CLI --help exposes testintent_handoff schema and smoke asserts MAIN_TOOLS includes the command for help discovery after code commit 3bf78d3.",
+          "headHash": "3bf78d303aea6b890393292682b0285dfde03431",
+          "timestamp": "2026-04-27T12:12:38.513Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -140,9 +140,9 @@
           "file": "packages/main/src/tasks/testintent-handoff-smoke.ts",
           "command": "npm run test:testintent-handoff-smoke",
           "result": "pass",
-          "note": "Smoke asserts isCommandAllowed(testintent_handoff,PLAN) is true and registry dispatch can produce a handoff package for a PLAN story.",
-          "headHash": "ab4806422e0cf311ad073dae0e2cf220a7ffd4fd",
-          "timestamp": "2026-04-27T12:10:31.827Z"
+          "note": "Smoke asserts isCommandAllowed(testintent_handoff,PLAN) is true and registry dispatch can produce a handoff package for a PLAN story after code commit 3bf78d3.",
+          "headHash": "3bf78d303aea6b890393292682b0285dfde03431",
+          "timestamp": "2026-04-27T12:12:45.406Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -150,9 +150,9 @@
           "file": "packages/main/src/tasks/testintent-handoff-smoke.ts",
           "command": "npm run test:testintent-handoff-smoke",
           "result": "pass",
-          "note": "Smoke calls testintent_handoff with CHK-404 and asserts it throws Unknown checklist item(s) instead of emitting an invalid handoff.",
-          "headHash": "ab4806422e0cf311ad073dae0e2cf220a7ffd4fd",
-          "timestamp": "2026-04-27T12:10:36.557Z"
+          "note": "Smoke calls testintent_handoff with CHK-404 and asserts it throws Unknown checklist item(s) instead of emitting an invalid handoff after code commit 3bf78d3.",
+          "headHash": "3bf78d303aea6b890393292682b0285dfde03431",
+          "timestamp": "2026-04-27T12:12:52.231Z"
         }
       ]
     },
@@ -209,9 +209,9 @@
           "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
           "command": "npm run test:verification-freshness-smoke",
           "result": "pass",
-          "note": "New package script runs the freshness smoke and prints the expected pass line while covering metadata fresh and material stale.",
-          "headHash": "ab4806422e0cf311ad073dae0e2cf220a7ffd4fd",
-          "timestamp": "2026-04-27T12:10:45.128Z"
+          "note": "New package script runs the freshness smoke and prints the expected pass line while covering metadata fresh and material stale after code commit 3bf78d3.",
+          "headHash": "3bf78d303aea6b890393292682b0285dfde03431",
+          "timestamp": "2026-04-27T12:12:56.432Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -219,9 +219,9 @@
           "file": "packages/main/src/tasks/testintent-handoff-smoke.ts",
           "command": "npm run test:testintent-handoff-smoke",
           "result": "pass",
-          "note": "New package script runs the handoff smoke and covers help schema, PLAN phase allowlist, handler dispatch, and bad itemId behavior.",
-          "headHash": "ab4806422e0cf311ad073dae0e2cf220a7ffd4fd",
-          "timestamp": "2026-04-27T12:10:49.952Z"
+          "note": "New package script runs the handoff smoke and covers help schema, PLAN phase allowlist, handler dispatch, and bad itemId behavior after code commit 3bf78d3.",
+          "headHash": "3bf78d303aea6b890393292682b0285dfde03431",
+          "timestamp": "2026-04-27T12:13:01.856Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -229,9 +229,9 @@
           "file": "packages/main/package.json",
           "command": "npm run build && npm run test:e2e",
           "result": "pass",
-          "note": "TypeScript build and existing CLI e2e suite pass after wiring the new command and smoke scripts.",
-          "headHash": "ab4806422e0cf311ad073dae0e2cf220a7ffd4fd",
-          "timestamp": "2026-04-27T12:10:54.894Z"
+          "note": "TypeScript build and existing CLI e2e suite pass after wiring the new command and smoke scripts after code commit 3bf78d3.",
+          "headHash": "3bf78d303aea6b890393292682b0285dfde03431",
+          "timestamp": "2026-04-27T12:13:05.823Z"
         }
       ]
     }
