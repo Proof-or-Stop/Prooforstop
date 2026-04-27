@@ -50,7 +50,11 @@ function isRequired(priority: VerificationPriority): boolean {
   return priority === 'must';
 }
 
-export function buildVerificationCoverage(cl: ChecklistData, currentHead?: string): VerificationCoverageReport {
+export function buildVerificationCoverage(
+  cl: ChecklistData,
+  currentHead?: string,
+  isEvidenceFresh?: (headHash: string) => boolean,
+): VerificationCoverageReport {
   const entries: VerificationCoverageEntry[] = [];
   for (const item of cl.items) {
     for (const collected of collectVerificationIntents(item)) {
@@ -60,7 +64,12 @@ export function buildVerificationCoverage(cl: ChecklistData, currentHead?: strin
       if (evidence) {
         if (evidence.kind === 'waiver') status = 'waived';
         else if (evidence.result === 'fail') status = 'failed';
-        else if (currentHead && evidence.headHash && !headMatches(evidence.headHash, currentHead)) status = 'stale';
+        else if (
+          currentHead &&
+          evidence.headHash &&
+          !headMatches(evidence.headHash, currentHead) &&
+          !(isEvidenceFresh?.(evidence.headHash) ?? false)
+        ) status = 'stale';
         else status = 'covered';
       }
       entries.push({

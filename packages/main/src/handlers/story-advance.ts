@@ -18,6 +18,7 @@ import { cleanStrayWorktreeFiles } from './stray-file-cleanup.js';
 import { computeActiveReviewers, renderActiveReviewersText } from './reviewer-list.js';
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
 import { collectBaselineRisk, renderBaselineRiskLines } from '../core/baseline-risk.js';
+import { checkEvidenceFreshnessForGit } from '../core/evidence-freshness.js';
 
 // B-c622 CHK-004: DONE 阶段自动同步 main —— detect divergence + auto merge main
 
@@ -68,48 +69,8 @@ export { cleanStrayWorktreeFiles, STRAY_FILE_WHITELIST } from './stray-file-clea
 function checkEvidenceFreshness(store: StoryStore, storyId: string, projectRoot: string): { fresh: boolean; message: string } {
   const evidence = store.readTestEvidence(storyId);
   if (!evidence) return { fresh: false, message: 'test-evidence.json 不存在' };
-
-  const evidenceHash = evidence.headHash || '';
-  if (!evidenceHash) {
-    // 旧格式没有 headHash，跳过检查（向后兼容）
-    return { fresh: true, message: 'evidence 无 headHash（旧格式，跳过新鲜度检查）' };
-  }
-
-  // 获取当前 HEAD
-  let currentHead = '';
-  try {
-    currentHead = execSync('git rev-parse HEAD', { cwd: projectRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
-  } catch {
-    return { fresh: true, message: '无法获取 git HEAD，跳过新鲜度检查' };
-  }
-
-  // 完整或前缀匹配（短 hash vs 长 hash）
-  if (evidenceHash === currentHead || currentHead.startsWith(evidenceHash) || evidenceHash.startsWith(currentHead)) {
-    return { fresh: true, message: 'evidence 对应当前 HEAD' };
-  }
-
-  // 检查中间 commit 是否只改了 metadata（docs/story/ 或 .koala/ 目录下的文件）
-  try {
-    const diffFiles = execSync(
-      `git diff --name-only ${evidenceHash}..HEAD`,
-      { cwd: projectRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] },
-    ).trim().split('\n').filter(f => f.trim());
-
-    const allMetadataOnly = diffFiles.every(f =>
-      f.startsWith('docs/story/') || f.startsWith('.koala/'),
-    );
-
-    if (allMetadataOnly) {
-      return { fresh: true, message: `evidence 后有 ${diffFiles.length} 个 metadata-only 变更，不失效` };
-    }
-
-    return {
-      fresh: false,
-      message: `evidence 基于 ${evidenceHash.slice(0, 7)}，但 HEAD 是 ${currentHead.slice(0, 7)}，有代码变更。请重跑 koala validate`,
-    };
-  } catch {
-    return { fresh: false, message: `evidence hash ${evidenceHash.slice(0, 7)} 与 HEAD ${currentHead.slice(0, 7)} 不匹配` };
-  }
+  const freshness = checkEvidenceFreshnessForGit(projectRoot, evidence.headHash);
+  return { fresh: freshness.fresh, message: freshness.reason };
 }
 
 /**
@@ -564,10 +525,27 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
 
           if (!parsed.allPass) {
             actor.stop();
-            const failCount = (parsed.details || []).filter((d: string) => d.startsWith('✗')).length;
+            const failedDetails = (parsed.details || []).filter((d: string) => d.startsWith('✗'));
+            const coverage = parsed.verificationCoverage;
+            const missingCoverage = coverage?.missingRequired ?? 0;
+            const coverageLines = Array.isArray(coverage?.entries)
+              ? coverage.entries
+                .filter((e: any) => e.priority === 'must' && !['covered', 'waived'].includes(e.status))
+                .map((e: any) => `  - ${e.intentRef} [${e.status}] ${e.desc}`)
+              : [];
+            const sections = [
+              failedDetails.length > 0 ? failedDetails.join('\n') : '',
+              missingCoverage > 0
+                ? `Verification coverage 不足: ${coverage.covered}/${coverage.total} covered, ${missingCoverage} required missing\n${coverageLines.join('\n')}`
+                : '',
+              parsed.summary ? `Summary: ${parsed.summary}` : '',
+            ].filter(Boolean);
             throw new Error(
-              `Cannot enter TEST: koala validate 报 ${failCount} 项失败\n` +
-              (parsed.details || []).filter((d: string) => d.startsWith('✗')).join('\n') +
+              `Cannot enter TEST: koala validate 未通过` +
+              (failedDetails.length > 0 ? `（${failedDetails.length} 项命令失败）` : '') +
+              (missingCoverage > 0 ? `（verification coverage 缺 ${missingCoverage} 项）` : '') +
+              '\n' +
+              sections.join('\n') +
               '\n\n→ 修复后重跑 koala validate，再 story_advance --phase=TEST'
             );
           }

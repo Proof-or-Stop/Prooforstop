@@ -26,9 +26,25 @@ import { existsSync, unlinkSync } from 'fs';
 import { loadConfig } from '../core/config.js';
 
 export const STRAY_FILE_WHITELIST: ReadonlyArray<string> = [
+  'background.md',
+  'bug.json',
+  'checklist.json',
+  'decision.json',
+  'delivery-check.json',
+  'eval-evidence.json',
+  'findings.json',
+  'implementation-review.json',
+  'index.json',
+  'init-check.json',
+  'plan.md',
   'process-events.jsonl',
   'process-metrics.json',
   'review.json',
+  'scope-check.json',
+  'story-test-runs.json',
+  'summary.json',
+  'test-evidence.json',
+  'understanding.json',
   'clusters.json',
 ];
 

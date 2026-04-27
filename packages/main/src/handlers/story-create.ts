@@ -18,8 +18,8 @@ import { isGitRepository } from '../core/git-probe.js';
 const HIGH_RISK_PATTERNS: Array<{ pattern: RegExp; category: string }> = [
   { pattern: /\b(auth|authn|authz|security|password|token|secret|credential)\b/i, category: '安全/凭证' },
   { pattern: /\b(migration|schema migration|destructive|drop\s+table|truncate)\b/i, category: '数据迁移/破坏性' },
-  { pattern: /\b(machine\.ts|state machine|guard|gate)\b/i, category: '状态机/门禁' },
-  { pattern: /\b(validate|verifier|test\s*runner)\b/i, category: '验证框架' },
+  { pattern: /\b(machine\.ts|state machine|phase flow|story_advance|DONE gate|TEST gate|guard logic)\b/i, category: '状态机/门禁' },
+  { pattern: /\b(validate\.ts|koala validate|validation protocol|verifier|fixture runner|test\s*runner|test_auto)\b/i, category: '验证框架' },
   { pattern: /\b(git\s+(restore|reset|clean|push --force))\b/i, category: 'git 破坏性操作' },
   { pattern: /\b(production|incident|hotfix|p0|p1)\b/i, category: '生产环境/紧急' },
   { pattern: /\b(PII|personally identifiable|GDPR|compliance)\b/i, category: '合规/隐私' },

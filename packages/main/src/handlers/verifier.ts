@@ -22,6 +22,7 @@ import { runChannelGateCli } from './validate-channel.js';
 import { runConceptGateCli } from './validate-concept.js';
 import { runLintGateCli } from './validate-lint.js';
 import { buildVerificationCoverage, renderVerificationCoverage } from '../core/verification.js';
+import { checkEvidenceFreshnessForGit } from '../core/evidence-freshness.js';
 
 export function findValidateFile(projectRoot: string): string | null {
   const candidates = ['validate.ts', 'validate.js', 'validate.mts'];
@@ -205,7 +206,12 @@ function decorateStoryVerification(ctx: HandlerContext, storyId: string, result:
   let coverage;
   try {
     const cl = ctx.store.readChecklist(storyId);
-    coverage = buildVerificationCoverage(cl, currentHead(ctx.root));
+    const head = currentHead(ctx.root);
+    coverage = buildVerificationCoverage(
+      cl,
+      head,
+      (headHash) => checkEvidenceFreshnessForGit(ctx.root, headHash).fresh,
+    );
   } catch {
     return result;
   }
@@ -451,7 +457,12 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       if (args.story) {
         try {
           const cl = ctx.store.readChecklist(args.story);
-          const coverage = buildVerificationCoverage(cl, currentHead(projectRoot));
+          const head = currentHead(projectRoot);
+          const coverage = buildVerificationCoverage(
+            cl,
+            head,
+            (headHash) => checkEvidenceFreshnessForGit(projectRoot, headHash).fresh,
+          );
           return output + '\n' + renderVerificationCoverage(coverage) + (code !== 0 || coverage.missingRequired > 0 ? `\n(exit code: ${code || 1})` : '');
         } catch {
           // If story metadata cannot be read, fall back to raw verifier output.
