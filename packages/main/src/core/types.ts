@@ -95,6 +95,8 @@ export interface VerificationEvidence {
   note: string;
   /** Optional git HEAD captured when evidence was recorded. */
   headHash?: string;
+  /** Hash of tracked non-story-metadata files captured when evidence was recorded. */
+  materialHash?: string;
   timestamp?: string;
 }
 

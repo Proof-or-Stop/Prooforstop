@@ -53,7 +53,7 @@ function isRequired(priority: VerificationPriority): boolean {
 export function buildVerificationCoverage(
   cl: ChecklistData,
   currentHead?: string,
-  isEvidenceFresh?: (headHash: string) => boolean,
+  isEvidenceFresh?: (headHash: string, evidence?: VerificationEvidence) => boolean,
 ): VerificationCoverageReport {
   const entries: VerificationCoverageEntry[] = [];
   for (const item of cl.items) {
@@ -68,7 +68,7 @@ export function buildVerificationCoverage(
           currentHead &&
           evidence.headHash &&
           !headMatches(evidence.headHash, currentHead) &&
-          !(isEvidenceFresh?.(evidence.headHash) ?? false)
+          !(isEvidenceFresh?.(evidence.headHash, evidence) ?? false)
         ) status = 'stale';
         else status = 'covered';
       }
@@ -117,10 +117,14 @@ export function renderVerificationCoverage(report: VerificationCoverageReport): 
   return lines.join('\n');
 }
 
-export function makeEvidence(args: Omit<VerificationEvidence, 'timestamp' | 'headHash'> & { headHash?: string }): VerificationEvidence {
+export function makeEvidence(args: Omit<VerificationEvidence, 'timestamp' | 'headHash' | 'materialHash'> & {
+  headHash?: string;
+  materialHash?: string;
+}): VerificationEvidence {
   return {
     ...args,
     timestamp: new Date().toISOString(),
     ...(args.headHash ? { headHash: args.headHash } : {}),
+    ...(args.materialHash ? { materialHash: args.materialHash } : {}),
   };
 }

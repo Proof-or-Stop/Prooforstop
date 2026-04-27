@@ -204,7 +204,7 @@ function decorateStoryVerification(ctx: HandlerContext, storyId: string, result:
     coverage = buildVerificationCoverage(
       cl,
       head,
-      (headHash) => checkEvidenceFreshnessForGit(ctx.root, headHash).fresh,
+      (headHash, evidence) => checkEvidenceFreshnessForGit(ctx.root, headHash, evidence?.materialHash).fresh,
     );
   } catch {
     return result;
@@ -460,7 +460,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           const coverage = buildVerificationCoverage(
             cl,
             head,
-            (headHash) => checkEvidenceFreshnessForGit(projectRoot, headHash).fresh,
+            (headHash, evidence) => checkEvidenceFreshnessForGit(projectRoot, headHash, evidence?.materialHash).fresh,
           );
           return output + '\n' + renderVerificationCoverage(coverage) + (code !== 0 || coverage.missingRequired > 0 ? `\n(exit code: ${code || 1})` : '');
         } catch {

@@ -1,4 +1,5 @@
 import { execFileSync } from 'child_process';
+import { createHash } from 'crypto';
 
 export type EvidenceFreshness = {
   fresh: boolean;
@@ -42,9 +43,36 @@ export function changedFilesBetween(projectRoot: string, fromHead: string, toHea
   return raw.split('\n').map(line => line.trim()).filter(Boolean);
 }
 
+export function currentMaterialHash(projectRoot: string, ref = 'HEAD'): string | undefined {
+  try {
+    const raw = execFileSync('git', ['ls-tree', '-r', '-z', ref], {
+      cwd: projectRoot,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    const entries = raw.split('\0').filter(Boolean);
+    const materialEntries: string[] = [];
+    for (const entry of entries) {
+      const tab = entry.indexOf('\t');
+      if (tab < 0) continue;
+      const meta = entry.slice(0, tab);
+      const filePath = entry.slice(tab + 1);
+      if (isStoryMetadataPath(filePath)) continue;
+      const objectId = meta.trim().split(/\s+/)[2];
+      if (!objectId) continue;
+      materialEntries.push(`${filePath}\0${objectId}`);
+    }
+    materialEntries.sort();
+    return createHash('sha256').update(materialEntries.join('\0')).digest('hex');
+  } catch {
+    return undefined;
+  }
+}
+
 export function checkEvidenceFreshnessForGit(
   projectRoot: string,
   evidenceHash: string | undefined,
+  evidenceMaterialHash?: string,
 ): EvidenceFreshness {
   if (!evidenceHash) {
     return {
@@ -63,6 +91,28 @@ export function checkEvidenceFreshnessForGit(
       changedFiles: [],
       materialFiles: [],
     };
+  }
+
+  if (evidenceMaterialHash) {
+    const materialHash = currentMaterialHash(projectRoot);
+    if (materialHash) {
+      if (materialHash === evidenceMaterialHash) {
+        return {
+          fresh: true,
+          reason: 'evidence materialHash 对应当前实体文件状态',
+          currentHead,
+          changedFiles: [],
+          materialFiles: [],
+        };
+      }
+      return {
+        fresh: false,
+        reason: `evidence materialHash 与当前实体文件状态不匹配`,
+        currentHead,
+        changedFiles: [],
+        materialFiles: ['<material-tree-changed>'],
+      };
+    }
   }
 
   if (headMatches(evidenceHash, currentHead)) {
