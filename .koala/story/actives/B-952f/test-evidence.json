@@ -1,9 +1,9 @@
 {
   "command": "koala validate --story=B-952f --json",
-  "output": "{\"provider\":\"koala-verifier-commands\",\"status\":\"warn\",\"allPass\":true,\"summary\":\"Project validation commands passed\",\"details\":[\"✓ package.json test script: npm test\",\"  > koala@0.3.1 test\",\"  > npm run test:e2e\",\"  > koala@0.3.1 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 9/9 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via logic_test (packages/main/src/tasks/convergence-discarded-smoke.ts) — 当前仓库只有 DONE/DISCARDED 终态时，convergence_check 的所有 Story 完成项通过或至少不列 DISCARDED 为未完成\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via logic_test (packages/main/src/tasks/convergence-discarded-smoke.ts) — 临时场景中包含 DISCARDED story 时，DISCARDED 被视为终态，不计入 activeStories\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via logic_test (packages/main/src/tasks/convergence-discarded-smoke.ts) — 临时场景中混入 DEV story 时，convergence_check 仍把 DEV 计入未完成，避免过度放行\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via logic_test (packages/main/src/handlers/summary.ts) — summary.ts 顶部 @task 块包含 @checklist @type @priority @changes 必填字段\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via logic_test (packages/main/src/handlers/summary.ts) — 补注释不改变 summary handler 的导入、函数签名和运行逻辑\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via logic_test (packages/main/src/tasks/gap-analyze.ts) — validate(scanRoot) 的 errors 数组不再包含 summary.ts:1 的 4 个 missing required field 错误\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via logic_test (packages/main/src/tasks/convergence-discarded-smoke.ts) — 新增 smoke 能证明 DISCARDED 不计入未完成 story\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via logic_test (packages/main/src/tasks/convergence-discarded-smoke.ts) — 新增 smoke 能证明 DEV story 仍计入未完成 story\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via integration_test (packages/main/src/tasks/gap-analyze.ts) — 真实仓库运行 convergence_check 后，所有 Story 完成项不再列出 17 个 DISCARDED story\"],\"warnings\":[\"validate.ts not found; used language/project validation command discovery\"],\"timestamp\":\"2026-04-27T11:27:19.038Z\",\"headSha\":\"ecc595b10a441db1f97eaa7dda343cea45cf3859\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.1 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.1 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":359}],\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":9,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"当前仓库只有 DONE/DISCARDED 终态时，convergence_check 的所有 Story 完成项通过或至少不列 DISCARDED 为未完成\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/convergence-discarded-smoke.ts\",\"command\":\"npm run test:convergence-false-blockers\",\"result\":\"pass\",\"note\":\"Smoke covers terminal-only store and asserts Story completion passes when only DONE/DISCARDED stories exist on code HEAD a322332.\",\"headHash\":\"a3223329f2b5f134091cd1c08541cfe0c60d7eaf\",\"timestamp\":\"2026-04-27T11:25:05.016Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"临时场景中包含 DISCARDED story 时，DISCARDED 被视为终态，不计入 activeStories\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/convergence-discarded-smoke.ts\",\"command\":\"npm run test:convergence-false-blockers\",\"result\":\"pass\",\"note\":\"Smoke writes a DISCARDED story and asserts it is absent from active story failure detail on code HEAD a322332.\",\"headHash\":\"a3223329f2b5f134091cd1c08541cfe0c60d7eaf\",\"timestamp\":\"2026-04-27T11:25:11.230Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"临时场景中混入 DEV story 时，convergence_check 仍把 DEV 计入未完成，避免过度放行\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/convergence-discarded-smoke.ts\",\"command\":\"npm run test:convergence-false-blockers\",\"result\":\"pass\",\"note\":\"Smoke adds a DEV story after terminal stories and asserts completion check fails with B-dev only on code HEAD a322332.\",\"headHash\":\"a3223329f2b5f134091cd1c08541cfe0c60d7eaf\",\"timestamp\":\"2026-04-27T11:25:17.362Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"summary.ts 顶部 @task 块包含 @checklist @type @priority @changes 必填字段\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/handlers/summary.ts\",\"command\":\"node dist/cli.js convergence_check\",\"result\":\"pass\",\"note\":\"Compiled convergence_check reports code annotations compliant, proving summary.ts has required fields on code HEAD a322332.\",\"headHash\":\"a3223329f2b5f134091cd1c08541cfe0c60d7eaf\",\"timestamp\":\"2026-04-27T11:25:21.579Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"补注释不改变 summary handler 的导入、函数签名和运行逻辑\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/handlers/summary.ts\",\"command\":\"git show --stat --oneline HEAD\",\"result\":\"pass\",\"note\":\"Commit changes only leading summary.ts @task metadata plus intended convergence smoke and package wiring; summary runtime code is unchanged.\",\"headHash\":\"a3223329f2b5f134091cd1c08541cfe0c60d7eaf\",\"timestamp\":\"2026-04-27T11:25:25.536Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"validate(scanRoot) 的 errors 数组不再包含 summary.ts:1 的 4 个 missing required field 错误\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/gap-analyze.ts\",\"command\":\"node dist/cli.js convergence_check\",\"result\":\"pass\",\"note\":\"Compiled convergence_check reports '代码注释合规' passed with 11 compliant annotations and no summary.ts missing-field errors on code HEAD a322332.\",\"headHash\":\"a3223329f2b5f134091cd1c08541cfe0c60d7eaf\",\"timestamp\":\"2026-04-27T11:25:31.607Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"新增 smoke 能证明 DISCARDED 不计入未完成 story\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/convergence-discarded-smoke.ts\",\"command\":\"npm run test:convergence-false-blockers\",\"result\":\"pass\",\"note\":\"New package script runs compiled smoke and passes DISCARDED terminal assertion on code HEAD a322332.\",\"headHash\":\"a3223329f2b5f134091cd1c08541cfe0c60d7eaf\",\"timestamp\":\"2026-04-27T11:25:37.244Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"新增 smoke 能证明 DEV story 仍计入未完成 story\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/convergence-discarded-smoke.ts\",\"command\":\"npm run test:convergence-false-blockers\",\"result\":\"pass\",\"note\":\"New package script runs compiled smoke and passes DEV still-blocks-convergence assertion on code HEAD a322332.\",\"headHash\":\"a3223329f2b5f134091cd1c08541cfe0c60d7eaf\",\"timestamp\":\"2026-04-27T11:25:43.086Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"真实仓库运行 convergence_check 后，所有 Story 完成项不再列出 17 个 DISCARDED story\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-analyze.ts\",\"command\":\"node dist/cli.js convergence_check\",\"result\":\"pass\",\"note\":\"Real repository convergence_check now lists only current B-952f as unfinished in Story completion detail, not historical DISCARDED stories, on code HEAD a322332.\",\"headHash\":\"a3223329f2b5f134091cd1c08541cfe0c60d7eaf\",\"timestamp\":\"2026-04-27T11:25:47.653Z\"}}]}}",
+  "output": "{\"provider\":\"koala-verifier-commands\",\"status\":\"warn\",\"allPass\":true,\"summary\":\"Project validation commands passed\",\"details\":[\"✓ package.json test script: npm test\",\"  > koala@0.3.1 test\",\"  > npm run test:e2e\",\"  > koala@0.3.1 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 9/9 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via logic_test (packages/main/src/tasks/convergence-discarded-smoke.ts) — 当前仓库只有 DONE/DISCARDED 终态时，convergence_check 的所有 Story 完成项通过或至少不列 DISCARDED 为未完成\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via logic_test (packages/main/src/tasks/convergence-discarded-smoke.ts) — 临时场景中包含 DISCARDED story 时，DISCARDED 被视为终态，不计入 activeStories\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via logic_test (packages/main/src/tasks/convergence-discarded-smoke.ts) — 临时场景中混入 DEV story 时，convergence_check 仍把 DEV 计入未完成，避免过度放行\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via logic_test (packages/main/src/handlers/summary.ts) — summary.ts 顶部 @task 块包含 @checklist @type @priority @changes 必填字段\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via logic_test (packages/main/src/handlers/summary.ts) — 补注释不改变 summary handler 的导入、函数签名和运行逻辑\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via logic_test (packages/main/src/tasks/gap-analyze.ts) — validate(scanRoot) 的 errors 数组不再包含 summary.ts:1 的 4 个 missing required field 错误\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via logic_test (packages/main/src/tasks/convergence-discarded-smoke.ts) — 新增 smoke 能证明 DISCARDED 不计入未完成 story\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via logic_test (packages/main/src/tasks/convergence-discarded-smoke.ts) — 新增 smoke 能证明 DEV story 仍计入未完成 story\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via integration_test (packages/main/src/tasks/gap-analyze.ts) — 真实仓库运行 convergence_check 后，所有 Story 完成项不再列出 17 个 DISCARDED story\"],\"warnings\":[\"validate.ts not found; used language/project validation command discovery\"],\"timestamp\":\"2026-04-27T11:43:07.209Z\",\"headSha\":\"7809ed7912a2b9f655e442c5fefedca67ee03688\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.1 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.1 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":375}],\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":9,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"当前仓库只有 DONE/DISCARDED 终态时，convergence_check 的所有 Story 完成项通过或至少不列 DISCARDED 为未完成\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/convergence-discarded-smoke.ts\",\"command\":\"npm run test:convergence-false-blockers\",\"result\":\"pass\",\"note\":\"Smoke covers terminal-only store and asserts Story completion passes when only DONE/DISCARDED stories exist after reworded code commit.\",\"headHash\":\"7809ed7912a2b9f655e442c5fefedca67ee03688\",\"timestamp\":\"2026-04-27T11:42:11.926Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"临时场景中包含 DISCARDED story 时，DISCARDED 被视为终态，不计入 activeStories\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/convergence-discarded-smoke.ts\",\"command\":\"npm run test:convergence-false-blockers\",\"result\":\"pass\",\"note\":\"Smoke writes a DISCARDED story and asserts it is absent from active story failure detail after reworded code commit.\",\"headHash\":\"7809ed7912a2b9f655e442c5fefedca67ee03688\",\"timestamp\":\"2026-04-27T11:42:17.150Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"临时场景中混入 DEV story 时，convergence_check 仍把 DEV 计入未完成，避免过度放行\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/convergence-discarded-smoke.ts\",\"command\":\"npm run test:convergence-false-blockers\",\"result\":\"pass\",\"note\":\"Smoke adds a DEV story after terminal stories and asserts completion check fails with B-dev only after reworded code commit.\",\"headHash\":\"7809ed7912a2b9f655e442c5fefedca67ee03688\",\"timestamp\":\"2026-04-27T11:42:22.171Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"summary.ts 顶部 @task 块包含 @checklist @type @priority @changes 必填字段\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/handlers/summary.ts\",\"command\":\"node dist/cli.js convergence_check\",\"result\":\"pass\",\"note\":\"Compiled convergence_check reports code annotations compliant, proving summary.ts has required fields after reworded code commit.\",\"headHash\":\"7809ed7912a2b9f655e442c5fefedca67ee03688\",\"timestamp\":\"2026-04-27T11:42:27.018Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"补注释不改变 summary handler 的导入、函数签名和运行逻辑\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/handlers/summary.ts\",\"command\":\"git show --stat --oneline 189ea4a\",\"result\":\"pass\",\"note\":\"Reworded implementation commit changes only leading summary.ts @task metadata plus intended convergence smoke and package wiring; summary runtime code is unchanged.\",\"headHash\":\"7809ed7912a2b9f655e442c5fefedca67ee03688\",\"timestamp\":\"2026-04-27T11:42:34.008Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"validate(scanRoot) 的 errors 数组不再包含 summary.ts:1 的 4 个 missing required field 错误\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/gap-analyze.ts\",\"command\":\"node dist/cli.js convergence_check\",\"result\":\"pass\",\"note\":\"Compiled convergence_check reports '代码注释合规' passed with 11 compliant annotations and no summary.ts missing-field errors after reworded code commit.\",\"headHash\":\"7809ed7912a2b9f655e442c5fefedca67ee03688\",\"timestamp\":\"2026-04-27T11:42:39.631Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"新增 smoke 能证明 DISCARDED 不计入未完成 story\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/convergence-discarded-smoke.ts\",\"command\":\"npm run test:convergence-false-blockers\",\"result\":\"pass\",\"note\":\"New package script runs compiled smoke and passes DISCARDED terminal assertion after reworded code commit.\",\"headHash\":\"7809ed7912a2b9f655e442c5fefedca67ee03688\",\"timestamp\":\"2026-04-27T11:42:45.293Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"新增 smoke 能证明 DEV story 仍计入未完成 story\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/convergence-discarded-smoke.ts\",\"command\":\"npm run test:convergence-false-blockers\",\"result\":\"pass\",\"note\":\"New package script runs compiled smoke and passes DEV still-blocks-convergence assertion after reworded code commit.\",\"headHash\":\"7809ed7912a2b9f655e442c5fefedca67ee03688\",\"timestamp\":\"2026-04-27T11:42:50.204Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"真实仓库运行 convergence_check 后，所有 Story 完成项不再列出 17 个 DISCARDED story\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-analyze.ts\",\"command\":\"node dist/cli.js convergence_check\",\"result\":\"pass\",\"note\":\"Real repository convergence_check now lists only current B-952f as unfinished in Story completion detail, not historical DISCARDED stories, after reworded code commit.\",\"headHash\":\"7809ed7912a2b9f655e442c5fefedca67ee03688\",\"timestamp\":\"2026-04-27T11:42:55.694Z\"}}]}}",
   "result": "PASS",
-  "timestamp": "2026-04-27T11:27:19.253Z",
-  "headHash": "ecc595b10a441db1f97eaa7dda343cea45cf3859",
+  "timestamp": "2026-04-27T11:43:07.234Z",
+  "headHash": "7809ed7912a2b9f655e442c5fefedca67ee03688",
   "verificationCoverage": {
     "total": 9,
     "required": 9,
@@ -24,9 +24,9 @@
           "file": "packages/main/src/tasks/convergence-discarded-smoke.ts",
           "command": "npm run test:convergence-false-blockers",
           "result": "pass",
-          "note": "Smoke covers terminal-only store and asserts Story completion passes when only DONE/DISCARDED stories exist on code HEAD a322332.",
-          "headHash": "a3223329f2b5f134091cd1c08541cfe0c60d7eaf",
-          "timestamp": "2026-04-27T11:25:05.016Z"
+          "note": "Smoke covers terminal-only store and asserts Story completion passes when only DONE/DISCARDED stories exist after reworded code commit.",
+          "headHash": "7809ed7912a2b9f655e442c5fefedca67ee03688",
+          "timestamp": "2026-04-27T11:42:11.926Z"
         }
       },
       {
@@ -43,9 +43,9 @@
           "file": "packages/main/src/tasks/convergence-discarded-smoke.ts",
           "command": "npm run test:convergence-false-blockers",
           "result": "pass",
-          "note": "Smoke writes a DISCARDED story and asserts it is absent from active story failure detail on code HEAD a322332.",
-          "headHash": "a3223329f2b5f134091cd1c08541cfe0c60d7eaf",
-          "timestamp": "2026-04-27T11:25:11.230Z"
+          "note": "Smoke writes a DISCARDED story and asserts it is absent from active story failure detail after reworded code commit.",
+          "headHash": "7809ed7912a2b9f655e442c5fefedca67ee03688",
+          "timestamp": "2026-04-27T11:42:17.150Z"
         }
       },
       {
@@ -62,9 +62,9 @@
           "file": "packages/main/src/tasks/convergence-discarded-smoke.ts",
           "command": "npm run test:convergence-false-blockers",
           "result": "pass",
-          "note": "Smoke adds a DEV story after terminal stories and asserts completion check fails with B-dev only on code HEAD a322332.",
-          "headHash": "a3223329f2b5f134091cd1c08541cfe0c60d7eaf",
-          "timestamp": "2026-04-27T11:25:17.362Z"
+          "note": "Smoke adds a DEV story after terminal stories and asserts completion check fails with B-dev only after reworded code commit.",
+          "headHash": "7809ed7912a2b9f655e442c5fefedca67ee03688",
+          "timestamp": "2026-04-27T11:42:22.171Z"
         }
       },
       {
@@ -81,9 +81,9 @@
           "file": "packages/main/src/handlers/summary.ts",
           "command": "node dist/cli.js convergence_check",
           "result": "pass",
-          "note": "Compiled convergence_check reports code annotations compliant, proving summary.ts has required fields on code HEAD a322332.",
-          "headHash": "a3223329f2b5f134091cd1c08541cfe0c60d7eaf",
-          "timestamp": "2026-04-27T11:25:21.579Z"
+          "note": "Compiled convergence_check reports code annotations compliant, proving summary.ts has required fields after reworded code commit.",
+          "headHash": "7809ed7912a2b9f655e442c5fefedca67ee03688",
+          "timestamp": "2026-04-27T11:42:27.018Z"
         }
       },
       {
@@ -98,11 +98,11 @@
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
           "file": "packages/main/src/handlers/summary.ts",
-          "command": "git show --stat --oneline HEAD",
+          "command": "git show --stat --oneline 189ea4a",
           "result": "pass",
-          "note": "Commit changes only leading summary.ts @task metadata plus intended convergence smoke and package wiring; summary runtime code is unchanged.",
-          "headHash": "a3223329f2b5f134091cd1c08541cfe0c60d7eaf",
-          "timestamp": "2026-04-27T11:25:25.536Z"
+          "note": "Reworded implementation commit changes only leading summary.ts @task metadata plus intended convergence smoke and package wiring; summary runtime code is unchanged.",
+          "headHash": "7809ed7912a2b9f655e442c5fefedca67ee03688",
+          "timestamp": "2026-04-27T11:42:34.008Z"
         }
       },
       {
@@ -119,9 +119,9 @@
           "file": "packages/main/src/tasks/gap-analyze.ts",
           "command": "node dist/cli.js convergence_check",
           "result": "pass",
-          "note": "Compiled convergence_check reports '代码注释合规' passed with 11 compliant annotations and no summary.ts missing-field errors on code HEAD a322332.",
-          "headHash": "a3223329f2b5f134091cd1c08541cfe0c60d7eaf",
-          "timestamp": "2026-04-27T11:25:31.607Z"
+          "note": "Compiled convergence_check reports '代码注释合规' passed with 11 compliant annotations and no summary.ts missing-field errors after reworded code commit.",
+          "headHash": "7809ed7912a2b9f655e442c5fefedca67ee03688",
+          "timestamp": "2026-04-27T11:42:39.631Z"
         }
       },
       {
@@ -138,9 +138,9 @@
           "file": "packages/main/src/tasks/convergence-discarded-smoke.ts",
           "command": "npm run test:convergence-false-blockers",
           "result": "pass",
-          "note": "New package script runs compiled smoke and passes DISCARDED terminal assertion on code HEAD a322332.",
-          "headHash": "a3223329f2b5f134091cd1c08541cfe0c60d7eaf",
-          "timestamp": "2026-04-27T11:25:37.244Z"
+          "note": "New package script runs compiled smoke and passes DISCARDED terminal assertion after reworded code commit.",
+          "headHash": "7809ed7912a2b9f655e442c5fefedca67ee03688",
+          "timestamp": "2026-04-27T11:42:45.293Z"
         }
       },
       {
@@ -157,9 +157,9 @@
           "file": "packages/main/src/tasks/convergence-discarded-smoke.ts",
           "command": "npm run test:convergence-false-blockers",
           "result": "pass",
-          "note": "New package script runs compiled smoke and passes DEV still-blocks-convergence assertion on code HEAD a322332.",
-          "headHash": "a3223329f2b5f134091cd1c08541cfe0c60d7eaf",
-          "timestamp": "2026-04-27T11:25:43.086Z"
+          "note": "New package script runs compiled smoke and passes DEV still-blocks-convergence assertion after reworded code commit.",
+          "headHash": "7809ed7912a2b9f655e442c5fefedca67ee03688",
+          "timestamp": "2026-04-27T11:42:50.204Z"
         }
       },
       {
@@ -176,9 +176,9 @@
           "file": "packages/main/src/tasks/gap-analyze.ts",
           "command": "node dist/cli.js convergence_check",
           "result": "pass",
-          "note": "Real repository convergence_check now lists only current B-952f as unfinished in Story completion detail, not historical DISCARDED stories, on code HEAD a322332.",
-          "headHash": "a3223329f2b5f134091cd1c08541cfe0c60d7eaf",
-          "timestamp": "2026-04-27T11:25:47.653Z"
+          "note": "Real repository convergence_check now lists only current B-952f as unfinished in Story completion detail, not historical DISCARDED stories, after reworded code commit.",
+          "headHash": "7809ed7912a2b9f655e442c5fefedca67ee03688",
+          "timestamp": "2026-04-27T11:42:55.694Z"
         }
       }
     ]

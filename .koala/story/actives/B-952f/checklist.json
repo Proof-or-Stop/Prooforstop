@@ -52,9 +52,9 @@
           "file": "packages/main/src/tasks/convergence-discarded-smoke.ts",
           "command": "npm run test:convergence-false-blockers",
           "result": "pass",
-          "note": "Smoke covers terminal-only store and asserts Story completion passes when only DONE/DISCARDED stories exist on code HEAD a322332.",
-          "headHash": "a3223329f2b5f134091cd1c08541cfe0c60d7eaf",
-          "timestamp": "2026-04-27T11:25:05.016Z"
+          "note": "Smoke covers terminal-only store and asserts Story completion passes when only DONE/DISCARDED stories exist after reworded code commit.",
+          "headHash": "7809ed7912a2b9f655e442c5fefedca67ee03688",
+          "timestamp": "2026-04-27T11:42:11.926Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -62,9 +62,9 @@
           "file": "packages/main/src/tasks/convergence-discarded-smoke.ts",
           "command": "npm run test:convergence-false-blockers",
           "result": "pass",
-          "note": "Smoke writes a DISCARDED story and asserts it is absent from active story failure detail on code HEAD a322332.",
-          "headHash": "a3223329f2b5f134091cd1c08541cfe0c60d7eaf",
-          "timestamp": "2026-04-27T11:25:11.230Z"
+          "note": "Smoke writes a DISCARDED story and asserts it is absent from active story failure detail after reworded code commit.",
+          "headHash": "7809ed7912a2b9f655e442c5fefedca67ee03688",
+          "timestamp": "2026-04-27T11:42:17.150Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -72,9 +72,9 @@
           "file": "packages/main/src/tasks/convergence-discarded-smoke.ts",
           "command": "npm run test:convergence-false-blockers",
           "result": "pass",
-          "note": "Smoke adds a DEV story after terminal stories and asserts completion check fails with B-dev only on code HEAD a322332.",
-          "headHash": "a3223329f2b5f134091cd1c08541cfe0c60d7eaf",
-          "timestamp": "2026-04-27T11:25:17.362Z"
+          "note": "Smoke adds a DEV story after terminal stories and asserts completion check fails with B-dev only after reworded code commit.",
+          "headHash": "7809ed7912a2b9f655e442c5fefedca67ee03688",
+          "timestamp": "2026-04-27T11:42:22.171Z"
         }
       ]
     },
@@ -126,19 +126,19 @@
           "file": "packages/main/src/handlers/summary.ts",
           "command": "node dist/cli.js convergence_check",
           "result": "pass",
-          "note": "Compiled convergence_check reports code annotations compliant, proving summary.ts has required fields on code HEAD a322332.",
-          "headHash": "a3223329f2b5f134091cd1c08541cfe0c60d7eaf",
-          "timestamp": "2026-04-27T11:25:21.579Z"
+          "note": "Compiled convergence_check reports code annotations compliant, proving summary.ts has required fields after reworded code commit.",
+          "headHash": "7809ed7912a2b9f655e442c5fefedca67ee03688",
+          "timestamp": "2026-04-27T11:42:27.018Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
           "file": "packages/main/src/handlers/summary.ts",
-          "command": "git show --stat --oneline HEAD",
+          "command": "git show --stat --oneline 189ea4a",
           "result": "pass",
-          "note": "Commit changes only leading summary.ts @task metadata plus intended convergence smoke and package wiring; summary runtime code is unchanged.",
-          "headHash": "a3223329f2b5f134091cd1c08541cfe0c60d7eaf",
-          "timestamp": "2026-04-27T11:25:25.536Z"
+          "note": "Reworded implementation commit changes only leading summary.ts @task metadata plus intended convergence smoke and package wiring; summary runtime code is unchanged.",
+          "headHash": "7809ed7912a2b9f655e442c5fefedca67ee03688",
+          "timestamp": "2026-04-27T11:42:34.008Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -146,9 +146,9 @@
           "file": "packages/main/src/tasks/gap-analyze.ts",
           "command": "node dist/cli.js convergence_check",
           "result": "pass",
-          "note": "Compiled convergence_check reports '代码注释合规' passed with 11 compliant annotations and no summary.ts missing-field errors on code HEAD a322332.",
-          "headHash": "a3223329f2b5f134091cd1c08541cfe0c60d7eaf",
-          "timestamp": "2026-04-27T11:25:31.607Z"
+          "note": "Compiled convergence_check reports '代码注释合规' passed with 11 compliant annotations and no summary.ts missing-field errors after reworded code commit.",
+          "headHash": "7809ed7912a2b9f655e442c5fefedca67ee03688",
+          "timestamp": "2026-04-27T11:42:39.631Z"
         }
       ]
     },
@@ -205,9 +205,9 @@
           "file": "packages/main/src/tasks/convergence-discarded-smoke.ts",
           "command": "npm run test:convergence-false-blockers",
           "result": "pass",
-          "note": "New package script runs compiled smoke and passes DISCARDED terminal assertion on code HEAD a322332.",
-          "headHash": "a3223329f2b5f134091cd1c08541cfe0c60d7eaf",
-          "timestamp": "2026-04-27T11:25:37.244Z"
+          "note": "New package script runs compiled smoke and passes DISCARDED terminal assertion after reworded code commit.",
+          "headHash": "7809ed7912a2b9f655e442c5fefedca67ee03688",
+          "timestamp": "2026-04-27T11:42:45.293Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -215,9 +215,9 @@
           "file": "packages/main/src/tasks/convergence-discarded-smoke.ts",
           "command": "npm run test:convergence-false-blockers",
           "result": "pass",
-          "note": "New package script runs compiled smoke and passes DEV still-blocks-convergence assertion on code HEAD a322332.",
-          "headHash": "a3223329f2b5f134091cd1c08541cfe0c60d7eaf",
-          "timestamp": "2026-04-27T11:25:43.086Z"
+          "note": "New package script runs compiled smoke and passes DEV still-blocks-convergence assertion after reworded code commit.",
+          "headHash": "7809ed7912a2b9f655e442c5fefedca67ee03688",
+          "timestamp": "2026-04-27T11:42:50.204Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -225,9 +225,9 @@
           "file": "packages/main/src/tasks/gap-analyze.ts",
           "command": "node dist/cli.js convergence_check",
           "result": "pass",
-          "note": "Real repository convergence_check now lists only current B-952f as unfinished in Story completion detail, not historical DISCARDED stories, on code HEAD a322332.",
-          "headHash": "a3223329f2b5f134091cd1c08541cfe0c60d7eaf",
-          "timestamp": "2026-04-27T11:25:47.653Z"
+          "note": "Real repository convergence_check now lists only current B-952f as unfinished in Story completion detail, not historical DISCARDED stories, after reworded code commit.",
+          "headHash": "7809ed7912a2b9f655e442c5fefedca67ee03688",
+          "timestamp": "2026-04-27T11:42:55.694Z"
         }
       ]
     }
