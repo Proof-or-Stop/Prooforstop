@@ -40,6 +40,11 @@ export interface KoalaConfig {
   cli?: {
     command: string;
   };
+  /** 项目级验证命令；没有 validate.ts/js 时由 koala validate 使用 */
+  validate?: {
+    command?: string;
+    commands?: Array<string | { label?: string; command: string; args?: string[] }>;
+  };
   /** 浏览器测试配置 */
   browser?: {
     /** dev server 启动命令（如 "npx vite"） */

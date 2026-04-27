@@ -74,10 +74,10 @@ function autoDefaults(
 
   // 动态推导 phase
   if (inputFields.includes('phase') && !context.phase) {
-    auto.phase = 'DEV';
+    auto.phase = 'PLAN';
   } else if (inputFields.includes('phase')) {
     const currentPhase = context.phase as string;
-    const phaseOrder = ['IDEA', 'PLAN', 'DEV', 'TEST_CASE', 'TEST_CASE_REVIEW', 'TEST', 'DONE'];
+    const phaseOrder = ['IDEA', 'INIT', 'INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE'];
     const nextIdx = phaseOrder.indexOf(currentPhase) + 1;
     auto.phase = phaseOrder[Math.min(nextIdx, phaseOrder.length - 1)];
   }
@@ -115,9 +115,19 @@ export async function createSandbox(realProjectRoot?: string): Promise<Sandbox> 
   const dir = mkdtempSync(join(tmpdir(), 'koala-e2e-'));
   mkdirSync(join(dir, 'docs', 'story', 'actives'), { recursive: true });
   mkdirSync(join(dir, 'docs', 'requirements'), { recursive: true });
+  writeFileSync(join(dir, 'koala.config.json'), JSON.stringify({
+    scanRoot: '.',
+    rootDir: '.',
+    outDir: 'dist',
+    testsDir: 'tests',
+    fixturesDir: 'tests/fixtures',
+    storyDir: 'docs/story/actives',
+    requirementsDir: 'docs/requirements',
+    storyPrefix: 'B',
+  }, null, 2) + '\n');
 
   const store = new StoryStore(dir);
-  const handlers = createToolHandlers(store, realProjectRoot || dir);
+  const handlers = createToolHandlers(store, dir);
 
   const cleanup = () => {
     rmSync(dir, { recursive: true, force: true });
@@ -402,6 +412,18 @@ export async function runFlowE2E(flowName: string, scanRoot: string): Promise<Fl
       try {
         ensureSandboxReady(dir, handlers, context);
         input = buildInputFromContext(inputFields, context, flowName);
+        if (flowStep.functionName === 'story_create' && input && typeof input === 'object') {
+          (input as Record<string, unknown>).background = [
+            '## 触发事件',
+            '2026-04-27 E2E 自动流程 B-e2e0 需要创建 story，用来验证 Koala CLI 在沙箱项目中能完成最小生命周期并暴露注册漂移。',
+            '## 关键洞察',
+            '这个背景文本只服务测试夹具，重点是满足 story_create 的四段式真相源约束，避免 e2e 因缺少必填业务背景而失败。',
+            '## 方案取舍',
+            '选择在 e2e 输入层补齐真实 background，而不是放宽 story_create 门禁，这样测试仍然覆盖生产路径和格式要求。',
+            '## 对话纹理',
+            '用户关心的是 Koala 新流程能否稳定全局使用；这个 e2e 背景记录了自动验证场景，而不是伪造产品需求。',
+          ].join('\n\n');
+        }
         const result = fn.call(handlers, input);
 
         const outputFields = parseFieldNames(flowStep.output);

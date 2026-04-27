@@ -23,6 +23,7 @@
 import { execFileSync } from 'child_process';
 import { basename, join } from 'path';
 import { existsSync, unlinkSync } from 'fs';
+import { loadConfig } from '../core/config.js';
 
 export const STRAY_FILE_WHITELIST: ReadonlyArray<string> = [
   'process-events.jsonl',
@@ -42,7 +43,8 @@ export function cleanStrayWorktreeFiles(
   worktreePath?: string,
 ): string[] {
   const report: string[] = [];
-  const storyDir = `docs/story/actives/${storyId}/`;
+  const config = loadConfig(mainRepoRoot);
+  const storyDir = `${config.storyDir.replace(/\\/g, '/')}/${storyId}/`;
 
   // 若主仓没有 storyDir（极少见：INIT 阶段就删掉了再创建 worktree），跳过。
   if (!existsSync(join(mainRepoRoot, storyDir))) {

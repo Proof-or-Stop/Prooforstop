@@ -9,17 +9,42 @@ import type {
 } from './types.js';
 import type { ClusterData } from './cluster-types.js';
 import { appendProcessEvent as appendProcessEventFn, readProcessEvents as readProcessEventsFn } from './process-events.js';
-import { resolveStoryBaseDir } from './story-paths.js';
+import { loadConfig } from './config.js';
+import { resolveLegacyStoryBaseDir, resolveStoryBaseDir } from './story-paths.js';
+import { normalizeLegacyPhase } from './phase-flow.js';
 
 export class StoryStore {
   private baseDir: string;
+  private legacyBaseDir: string;
+  private storyDirRelValue: string;
 
   constructor(projectRoot: string) {
+    const config = loadConfig(projectRoot);
+    this.storyDirRelValue = config.storyDir.replace(/\\/g, '/');
     this.baseDir = resolveStoryBaseDir(projectRoot);
+    this.legacyBaseDir = resolveLegacyStoryBaseDir(projectRoot);
+  }
+
+  storyDirRel(): string {
+    return this.storyDirRelValue;
+  }
+
+  storyDirPath(storyId: string): string {
+    return this.storyDir(storyId);
+  }
+
+  storyFilePath(storyId: string, file: string): string {
+    return join(this.storyDir(storyId), file);
   }
 
   private storyDir(storyId: string): string {
     return join(this.baseDir, storyId);
+  }
+
+  private candidateStoryDirs(storyId: string): string[] {
+    const configured = this.storyDir(storyId);
+    const legacy = join(this.legacyBaseDir, storyId);
+    return configured === legacy ? [configured] : [configured, legacy];
   }
 
   private ensureDir(storyId: string): void {
@@ -28,11 +53,15 @@ export class StoryStore {
   }
 
   private readJson<T>(storyId: string, file: string): T {
-    const filePath = join(this.storyDir(storyId), file);
-    if (!existsSync(filePath)) {
-      throw new Error(`File not found: ${filePath}`);
+    const tried: string[] = [];
+    for (const dir of this.candidateStoryDirs(storyId)) {
+      const filePath = join(dir, file);
+      tried.push(filePath);
+      if (existsSync(filePath)) {
+        return JSON.parse(readFileSync(filePath, 'utf-8')) as T;
+      }
     }
-    return JSON.parse(readFileSync(filePath, 'utf-8')) as T;
+    throw new Error(`File not found: ${tried.join(' or ')}`);
   }
 
   private writeJson<T>(storyId: string, file: string, data: T): void {
@@ -53,7 +82,9 @@ export class StoryStore {
   // ── Story ──
 
   readStory(storyId: string): StoryInfo {
-    return this.readJson<StoryInfo>(storyId, 'index.json');
+    const story = this.readJson<StoryInfo>(storyId, 'index.json');
+    const normalizedPhase = normalizeLegacyPhase(story.phase);
+    return normalizedPhase === story.phase ? story : { ...story, phase: normalizedPhase };
   }
 
   writeStory(storyId: string, data: StoryInfo): void {
@@ -61,14 +92,18 @@ export class StoryStore {
   }
 
   storyExists(storyId: string): boolean {
-    return existsSync(join(this.storyDir(storyId), 'index.json'));
+    return this.candidateStoryDirs(storyId).some(dir => existsSync(join(dir, 'index.json')));
   }
 
   listStoryIds(): string[] {
-    if (!existsSync(this.baseDir)) return [];
-    return readdirSync(this.baseDir, { withFileTypes: true })
-      .filter(d => d.isDirectory() && existsSync(join(this.baseDir, d.name, 'index.json')))
-      .map(d => d.name);
+    const ids = new Set<string>();
+    for (const base of [this.baseDir, this.legacyBaseDir]) {
+      if (!existsSync(base)) continue;
+      for (const d of readdirSync(base, { withFileTypes: true })) {
+        if (d.isDirectory() && existsSync(join(base, d.name, 'index.json'))) ids.add(d.name);
+      }
+    }
+    return [...ids].sort();
   }
 
   // ── Checklist ──

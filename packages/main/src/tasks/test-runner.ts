@@ -1,8 +1,8 @@
 
 import { execSync } from 'child_process';
 import { readFileSync, existsSync } from 'fs';
-import { join } from 'path';
-import { scan, extractFlows } from './extract.js';
+import { extname, join } from 'path';
+import { CODE_EXTENSIONS, scan, extractFlows } from './extract.js';
 import { loadConfig } from '../core/config.js';
 import type { TaskAnnotation, FlowChain } from './types.js';
 
@@ -49,7 +49,7 @@ export function getChangedFiles(projectRoot: string, base?: string): string[] {
       cwd: projectRoot,
       encoding: 'utf-8',
     });
-    return output.trim().split('\n').filter(f => f.endsWith('.ts') || f.endsWith('.tsx'));
+    return output.trim().split('\n').filter(f => CODE_EXTENSIONS.has(extname(f)));
   } catch {
     return [];
   }

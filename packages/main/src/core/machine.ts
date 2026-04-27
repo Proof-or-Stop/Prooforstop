@@ -9,6 +9,7 @@ import type { Finding } from './types.js';
 import { recomputeInitCheckHash } from '../handlers/init-check.js';
 import { recomputeDeliveryCheckHash } from '../handlers/delivery-check.js';
 import { getBlockingVerificationEvidenceIssues } from './verification.js';
+import { normalizeLegacyPhase } from './phase-flow.js';
 
 /**
  * Resolve effective blocking severities with round decay.
@@ -264,10 +265,11 @@ export function createStoryActor(
   projectRoot?: string,
 ) {
   const context: StoryMachineContext = { storyId, store, projectRoot: projectRoot ?? process.cwd() };
+  const normalizedState = restoredState ? normalizeLegacyPhase(restoredState) : undefined;
 
-  if (restoredState) {
+  if (normalizedState) {
     const snapshot = storyMachine.resolveState({
-      value: restoredState,
+      value: normalizedState,
       context,
     });
     return createActor(storyMachine, { snapshot, input: context });

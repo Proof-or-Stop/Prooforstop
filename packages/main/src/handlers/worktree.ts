@@ -292,7 +292,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       }
 
       // 自动提交 story 目录下的运行时产生的文件（review.json 等）
-      const storyDir = join('docs', 'story', 'actives', args.storyId);
+      const storyDir = join(store.storyDirRel(), args.storyId);
       try {
         git(`add ${storyDir}`, wtPath);
         const staged = git('diff --cached --name-only', wtPath);
@@ -357,7 +357,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       }
 
       // 自动提交 story 目录下的运行时产生的文件（review.json 等）
-      const storyDir = join('docs', 'story', 'actives', args.storyId);
+      const storyDir = join(store.storyDirRel(), args.storyId);
       try {
         git(`add ${storyDir}`, wtPath);
         const staged = git('diff --cached --name-only', wtPath);

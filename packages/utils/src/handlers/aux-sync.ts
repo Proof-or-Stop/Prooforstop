@@ -2,7 +2,7 @@
 import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import type { HandlerContext } from '../../../main/dist/handlers/context.js';
-import { scan, extractBlocks, extractFlows } from '../../../main/dist/tasks/extract.js';
+import { CODE_EXTENSIONS, scan, extractBlocks, extractFlows } from '../../../main/dist/tasks/extract.js';
 import { MetadataStore } from '../../../main/dist/tasks/metadata-store.js';
 import { validateMetadata } from '../../../main/dist/tasks/metadata-validate.js';
 import { loadConfig } from '../../../main/dist/core/config.js';
@@ -59,7 +59,6 @@ export function createAuxSyncHandlers(ctx: HandlerContext) {
     const { readdirSync, statSync } = require('fs');
     const { extname } = require('path');
 
-    const EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx']);
     const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', 'build', 'coverage']);
 
     function walkDir(dir: string): string[] {
@@ -68,7 +67,7 @@ export function createAuxSyncHandlers(ctx: HandlerContext) {
         if (entry.isDirectory()) {
           if (SKIP_DIRS.has(entry.name)) continue;
           results.push(...walkDir(join(dir, entry.name)));
-        } else if (EXTENSIONS.has(extname(entry.name))) {
+        } else if (CODE_EXTENSIONS.has(extname(entry.name))) {
           results.push(join(dir, entry.name));
         }
       }

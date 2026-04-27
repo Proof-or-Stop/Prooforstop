@@ -5,6 +5,7 @@ import { randomUUID } from 'crypto';
 import { execSync } from 'child_process';
 import type { HandlerContext } from './context.js';
 import { loadConfig } from '../core/config.js';
+import { FIXTURE_EXECUTOR_IDS } from './fixture-executors.js';
 
 /**
  * B-c745: infer current story from git branch 'story/B-xxx' so
@@ -26,8 +27,11 @@ function inferStoryIdFromGit(root: string): string | null {
   }
 }
 
-const NEW_FORMAT_FIELDS = new Set(['name', 'run_type', 'file', 'execute', 'expect', 'throws', 'debug', 'intentRef', 'storyId', 'sandbox', '_id', 'prevCaseId', 'nextCaseId', 'timeoutMs']);
-const DEPRECATED_FIELDS = new Set(['input', 'steps', 'browser', 'construct', 'setup', 'cli', 'command', 'env', 'cwd']);
+const NEW_FORMAT_FIELDS = new Set([
+  'name', 'run_type', 'file', 'execute', 'expect', 'throws', 'debug', 'intentRef', 'storyId', 'sandbox', '_id', 'prevCaseId', 'nextCaseId', 'timeoutMs',
+  'executor', 'command', 'args', 'stdin', 'cwd', 'env', 'module', 'function', 'fn', 'input', 'python', 'go', 'packages', 'swift', 'xcodebuild', 'cargo',
+]);
+const DEPRECATED_FIELDS = new Set(['steps', 'browser', 'construct', 'setup', 'cli']);
 
 export function validateFixtureCase(c: Record<string, unknown>): string[] {
   const errors: string[] = [];
@@ -43,19 +47,27 @@ export function validateFixtureCase(c: Record<string, unknown>): string[] {
     return errors; // 旧格式不继续校验
   }
 
+  const executor = typeof c.executor === 'string' ? c.executor as string : (typeof c.execute === 'string' ? 'js.execute' : (typeof c.command === 'string' ? 'command' : ''));
+
+  if (c.executor !== undefined && !FIXTURE_EXECUTOR_IDS.includes(c.executor as any)) {
+    errors.push(`executor 不支持: "${c.executor}"，支持: ${FIXTURE_EXECUTOR_IDS.join(', ')}`);
+  }
+
   // run_type 必填
   if (!c.run_type || !['cli', 'browser'].includes(c.run_type as string)) {
     errors.push('run_type 必须是 "cli" 或 "browser"');
   }
 
-  // file 必填（源文件路径）
-  if (!c.file || typeof c.file !== 'string' || (c.file as string).trim() === '') {
+  // file 对 js.execute 必填（源文件路径）；命令型 executor 可不需要 source file。
+  if (executor === 'js.execute' && (!c.file || typeof c.file !== 'string' || (c.file as string).trim() === '')) {
     errors.push('file 必须是非空字符串（源文件路径）');
   }
 
-  // execute 必填
-  if (!c.execute || typeof c.execute !== 'string' || (c.execute as string).trim() === '') {
+  if (executor === 'js.execute' && (!c.execute || typeof c.execute !== 'string' || (c.execute as string).trim() === '')) {
     errors.push('execute 必须是非空字符串（函数体）');
+  }
+  if (executor === 'command' && (!c.command || typeof c.command !== 'string' || (c.command as string).trim() === '')) {
+    errors.push('command executor requires command');
   }
 
   // expect 和 throws 互斥

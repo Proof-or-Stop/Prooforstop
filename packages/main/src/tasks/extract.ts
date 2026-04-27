@@ -4,7 +4,12 @@ import { join, relative, extname, dirname } from 'path';
 import type { TaskAnnotation, ExtractFilters, FlowStep, FlowChain } from './types.js';
 import { loadConfig } from '../core/config.js';
 
-const EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx']);
+export const CODE_EXTENSIONS = new Set([
+  '.ts', '.tsx', '.js', '.jsx', '.mts', '.mjs', '.cts', '.cjs',
+  '.py', '.go', '.java', '.kt', '.kts', '.swift', '.m', '.mm',
+  '.c', '.cc', '.cpp', '.cxx', '.h', '.hh', '.hpp', '.hxx',
+  '.rs', '.rb',
+]);
 const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', 'build', 'coverage']);
 
 const SINGLE_FIELDS = new Set([
@@ -14,7 +19,7 @@ const SINGLE_FIELDS = new Set([
 ]);
 const MULTI_FIELDS = new Set(['description', 'changes', 'affected']);
 
-/** 递归遍历目录，收集 TS/TSX 文件 */
+/** 递归遍历目录，收集常见语言源码文件 */
 export function walkDir(dir: string): string[] {
   const results: string[] = [];
   for (const entry of readdirSync(dir)) {
@@ -23,7 +28,7 @@ export function walkDir(dir: string): string[] {
     const stat = statSync(full);
     if (stat.isDirectory()) {
       results.push(...walkDir(full));
-    } else if (EXTENSIONS.has(extname(entry))) {
+    } else if (CODE_EXTENSIONS.has(extname(entry))) {
       results.push(full);
     }
   }
@@ -32,7 +37,20 @@ export function walkDir(dir: string): string[] {
 
 export function extractBlocks(content: string): Array<{ raw: string; line: number; endIndex: number }> {
   const blocks: Array<{ raw: string; line: number; endIndex: number }> = [];
-  const regex = /\/\*\*[\s\S]*?\*\//g;
+  const blockPatterns = [
+    /\/\*\*[\s\S]*?\*\//g,
+    /("""[\s\S]*?"""|'''[\s\S]*?''')/g,
+  ];
+  for (const regex of blockPatterns) {
+    let match: RegExpExecArray | null;
+    while ((match = regex.exec(content)) !== null) {
+      const block = match[0];
+      if (!block.includes('@task')) continue;
+      const line = content.slice(0, match.index).split('\n').length;
+      blocks.push({ raw: block, line, endIndex: match.index + block.length });
+    }
+  }
+  const regex = /(^[ \t]*(?:\/\/|#)[^\n]*(?:\n[ \t]*(?:\/\/|#)[^\n]*)*)/gm;
   let match: RegExpExecArray | null;
   while ((match = regex.exec(content)) !== null) {
     const block = match[0];
@@ -40,7 +58,7 @@ export function extractBlocks(content: string): Array<{ raw: string; line: numbe
     const line = content.slice(0, match.index).split('\n').length;
     blocks.push({ raw: block, line, endIndex: match.index + block.length });
   }
-  return blocks;
+  return blocks.sort((a, b) => a.line - b.line);
 }
 
 export function parseFunctionAfterBlock(
@@ -109,16 +127,47 @@ export function parseFunctionAfterBlock(
     return { functionName: name, functionSignature: sig };
   }
 
+  const pythonMatch = snippet.match(/^[\s\n]*(async\s+)?def\s+(\w+)\s*(\([^)]*\))/);
+  if (pythonMatch) {
+    const prefix = pythonMatch[1] || '';
+    const name = pythonMatch[2];
+    const params = pythonMatch[3];
+    return { functionName: name, functionSignature: `${prefix}def ${name}${params}`.replace(/\s+/g, ' ').trim() };
+  }
+
+  const goMatch = snippet.match(/^[\s\n]*func\s+(?:\([^)]*\)\s*)?(\w+)\s*(\([^)]*\))/);
+  if (goMatch) {
+    const name = goMatch[1];
+    return { functionName: name, functionSignature: `func ${name}${goMatch[2]}`.replace(/\s+/g, ' ').trim() };
+  }
+
+  const swiftMatch = snippet.match(/^[\s\n]*(?:public\s+|private\s+|internal\s+|fileprivate\s+|static\s+|class\s+|mutating\s+)*func\s+(\w+)\s*(\([^)]*\))/);
+  if (swiftMatch) {
+    const name = swiftMatch[1];
+    return { functionName: name, functionSignature: `func ${name}${swiftMatch[2]}`.replace(/\s+/g, ' ').trim() };
+  }
+
+  const javaLikeMatch = snippet.match(/^[\s\n]*(?:public\s+|private\s+|protected\s+|static\s+|final\s+|synchronized\s+|override\s+|virtual\s+|inline\s+|constexpr\s+)*[\w:<>,~*&\s]+\s+(\w+)\s*(\([^)]*\))/);
+  if (javaLikeMatch) {
+    const name = javaLikeMatch[1];
+    if (!['if', 'for', 'while', 'switch', 'return', 'catch'].includes(name)) {
+      return { functionName: name, functionSignature: snippet.slice(0, snippet.indexOf(')') + 1).replace(/\s+/g, ' ').trim() };
+    }
+  }
+
   return null;
 }
 
 /** 解析单个注释块为结构化对象 */
 export function parseBlock(raw: string): Record<string, string | string[]> {
-  const lines = raw
+  const normalized = raw
     .replace(/^\/\*\*\s*/, '')
     .replace(/\s*\*\/$/, '')
+    .replace(/^(?:"""|''')\s*/, '')
+    .replace(/\s*(?:"""|''')$/, '');
+  const lines = normalized
     .split('\n')
-    .map(l => l.replace(/^\s*\*\s?/, ''));
+    .map(l => l.replace(/^\s*(?:\*|\/\/|#)\s?/, ''));
 
   const result: Record<string, string | string[]> = {};
   let currentField: string | null = null;

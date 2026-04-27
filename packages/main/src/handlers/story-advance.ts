@@ -632,7 +632,7 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
             // 仅 dry-run：用 git ls-files 读出未追踪文件，按白名单分类。
             // 发现 offender → throw（此时 story.phase 仍为 TEST）。无 offender
             // → 返回，不做任何删除，后续 Step 2.5 才会真的 rm whitelist 文件。
-            const storyDir = `docs/story/actives/${args.storyId}/`;
+            const storyDir = `${store.storyDirRel()}/${args.storyId}/`;
             if (existsSync(join(mainRepoRoot, storyDir))) {
               let raw = '';
               try {
@@ -755,7 +755,7 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
             }
           }
           // B-45ed CHK-008: background.md 若存在且未出现 → 追加到 docMap（用 special 标签标记来源）
-          const bgRel = `docs/story/actives/${args.storyId}/background.md`;
+          const bgRel = `${store.storyDirRel()}/${args.storyId}/background.md`;
           const bgAbs = join(ctx.root, bgRel);
           if (existsSync(bgAbs) && !docMap.has(bgRel)) {
             docMap.set(bgRel, ['(story background)']);
@@ -839,7 +839,7 @@ ${agentLines}
         TEST_CASE: `→ Legacy phase. 建议直接 story_advance(${args.storyId}, TEST) 进入验证`,
         TEST_CASE_REVIEW: `→ Legacy phase. 建议直接 story_advance(${args.storyId}, TEST) 进入验证`,
         TEST: `→ 必须立即执行: koala validate 跑验证，写 bug/evidence。fail 自动 aux_diagnose + bug_report，pass 自动标 bug fixed。
-⚠ 工程验证 ≠ 用户验收: 即使 validate 全 pass，也必须用用户视角真机跑一次（节奏: 把 PLAN outcome 当 expected → 跑 → 把实际输出当 actual → diff）。验证完把 actual transcript + 差异说明放到 docs/story/actives/${args.storyId}/evidence/transcript-diff.md。CLAUDE.md「用户价值验收」段有完整 5 题自检清单。
+⚠ 工程验证 ≠ 用户验收: 即使 validate 全 pass，也必须用用户视角真机跑一次（节奏: 把 PLAN outcome 当 expected → 跑 → 把实际输出当 actual → diff）。验证完把 actual transcript + 差异说明放到 ${store.storyDirRel()}/${args.storyId}/evidence/transcript-diff.md。CLAUDE.md「用户价值验收」段有完整 5 题自检清单。
 ⚠ delivery-check 硬门槛: DONE 前必须 spawn koala-review-delivery reviewer 写 delivery-check.json 签名。reviewer 逆向扫 git diff 验证文档承诺落地 + 真机测试覆盖。未签名 → story_advance DONE 会卡 [missing_delivery_check]。`,
         DONE: `→ 必须立即执行: 把下面的 Story 总结段落用你自己的话告诉用户（改了什么/怎么用/真机覆盖/限制/踩坑），然后 convergence_check 检查项目收敛状态
 ⚠ DONE 自检 5 题（CLAUDE.md「用户价值验收」段）: (1) PLAN outcome 是具体 transcript 还是抽象? (2) 真机测试时读了用户视角输出还是只看事件日志? (3) 用户看到 actual transcript 最后一行会说"完成"还是"然后呢"? (4) 有没有工程 log 在用户眼里是噪音/重复? (5) 有没有一句人话总结任务结果? 任何一题答"没做到"就回 DEV，不要硬推 DONE。`,
@@ -913,7 +913,7 @@ ${agentLines}
             // Step 2: commit 所有 story metadata（phase=DONE + worktree=undefined +
             // endedAt + reviewer/test 产物）。dev_merge:228 用的是同一招。
             try {
-              runGit('add docs/story', cwdInWorktree);
+              runGit(`add ${store.storyDirRel()}`, cwdInWorktree);
               const staged = runGit('diff --cached --name-only', cwdInWorktree);
               if (staged) {
                 runGit(

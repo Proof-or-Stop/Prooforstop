@@ -87,6 +87,13 @@ export function isStoryPhase(value: string): value is StoryPhase {
   return (PHASE_ORDER as readonly string[]).includes(value);
 }
 
+export function normalizeLegacyPhase(phase: string): StoryPhase {
+  if (phase === 'TEST_CASE') return 'DEV';
+  if (phase === 'TEST_CASE_REVIEW') return 'REVIEW';
+  if (isStoryPhase(phase)) return phase;
+  return phase as StoryPhase;
+}
+
 export function phaseRank(phase: string): number {
   const index = (PHASE_ORDER as readonly string[]).indexOf(phase);
   return index === -1 ? -1 : index;
