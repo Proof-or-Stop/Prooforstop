@@ -1,0 +1,27 @@
+{
+  "scores": {
+    "functionality": 5,
+    "usability": 5
+  },
+  "total": 10,
+  "pass": true,
+  "itemResults": [
+    {
+      "itemId": "CHK-001",
+      "pass": true,
+      "note": "evidence now records materialHash"
+    },
+    {
+      "itemId": "CHK-002",
+      "pass": true,
+      "note": "validate coverage remains covered after metadata-only materialHash match"
+    },
+    {
+      "itemId": "CHK-003",
+      "pass": true,
+      "note": "freshness smoke covers metadata and material changes"
+    }
+  ],
+  "findings": [],
+  "timestamp": "2026-04-27T14:21:47.435Z"
+}
