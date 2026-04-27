@@ -1,0 +1,26 @@
+{
+  "storyId": "B-952f",
+  "checkedAt": "2026-04-27T11:45:51.480Z",
+  "reviewRound": "2026-04-27T11:26:25.684Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".koala/story/actives/B-952f/plan.md",
+      "promise": "No public docs update required; story plan records high-gap exclusion and transcript records remaining blockers.",
+      "evidence": ".koala/story/actives/B-952f/plan.md and evidence/transcript-diff.md"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-952f",
+      "transcript": "Build passed. Convergence discarded smoke passed. CLI e2e passed. Koala validate passed with verification intent coverage 9/9."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "DISCARDED stories and summary annotation metadata no longer create false convergence blockers; only out-of-scope historical high-priority gaps remain."
+  },
+  "_hash": "708c687e425a0b288a08538f004ca463166639ab6a234ff501dce9122d2c57ba"
+}
