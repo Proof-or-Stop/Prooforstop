@@ -17,6 +17,20 @@
  * 复用 workflow-policy.computeChannel（三档 express/fast/normal），不用
  * 老的 reviewer-opt-in.resolveChannel（两档 quick/normal，items>2 就 normal，
  * 与三档模型不一致，见 B-fdcf background 方案取舍 A 方案）。
+ *
+ * @task B-ef9c
+ * @checklist CHK-001
+ * @title reviewers are triggered by workflow policy
+ * @type feature
+ * @priority high
+ * @description
+ *   Superpowers and reviewers can trigger workflow participation, but they do
+ *   not define the workflow themselves: the baseline reviewers, risk-triggered
+ *   behavior reviewer, docs reviewer, and normal-channel reviewer are computed
+ *   from shared workflow policy and story artifacts.
+ * @changes
+ *   - [CHK-001] Keep reviewer opt-in as policy-driven trigger logic
+ *   - [CHK-001] Fold old test-coverage review responsibility into REVIEW
  */
 
 import type { HandlerContext } from './context.js';

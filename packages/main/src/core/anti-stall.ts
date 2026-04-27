@@ -6,6 +6,18 @@
  *   1. [retry]   — re-run the stuck operation
  *   2. [fix]     — address the root cause
  *   3. [discard] — (optional) abandon the story
+ *
+ * @task B-ef9c
+ * @checklist CHK-001
+ * @title stuck phases expose retry fix discard exits
+ * @type feature
+ * @priority high
+ * @description
+ *   "卡死不推进" is an anti-pattern. Stalled review, test, or waiting states
+ *   must surface a concrete retry / fix / discard choice instead of leaving the
+ *   agent parked with no next action.
+ * @changes
+ *   - [CHK-001] Render retry/fix/discard options for blocked REVIEW, TEST, and waiting states
  */
 
 // ---------------------------------------------------------------------------

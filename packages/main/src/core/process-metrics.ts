@@ -2,6 +2,22 @@
  * B-abd8 CHK-002: Six-dimension process metrics aggregator.
  * Computes StoryProcessMetrics from existing story artifacts.
  * Note: reads plan.md via fs (existsSync/readFileSync) — not a pure function.
+ *
+ * @task B-ef9c
+ * @checklist CHK-001
+ * @title explainable traceable ai adapted code process
+ * @type feature
+ * @priority high
+ * @description
+ *   The codebase is adapted for native, efficient AI collaboration by making
+ *   process state explainable and traceable across requirements, planning,
+ *   debugging, review discipline, and subagent collaboration metrics.
+ *   This supports the goal that code is managed through an automated interface
+ *   used by both humans and AI, with traceable artifacts instead of memory.
+ *   整个代码仓库应该是原生高效适配ai 并且可解释 可追述的；需求完整性没有银弹，靠多层防线降低遗漏概率。
+ * @changes
+ *   - [CHK-001] Aggregate story artifacts into explainable process metrics
+ *   - [CHK-001] Surface requirement completeness and multi-layer defense gaps
  */
 
 import { existsSync, readFileSync } from 'fs';

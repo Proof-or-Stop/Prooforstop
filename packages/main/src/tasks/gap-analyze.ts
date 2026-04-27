@@ -1,13 +1,21 @@
 
 import { scanTruth } from './truth.js';
 import type { TruthEntry } from './truth.js';
-import { scan, extractFlows } from './extract.js';
+import {
+  scan,
+  extractFlows,
+  walkDir,
+  extractBlocks,
+  parseBlock,
+  parseFunctionAfterBlock,
+} from './extract.js';
 import { validate, validateFlows, validateTestAnnotations } from './validate.js';
 import type { TaskAnnotation, FlowChain } from './types.js';
 import { StoryStore } from '../core/store.js';
-import { join } from 'path';
+import { join, relative } from 'path';
 import { loadConfig } from '../core/config.js';
 import type { StoryPhase } from '../core/types.js';
+import { readFileSync } from 'fs';
 
 /** 差距项 */
 export interface GapItem {
@@ -39,11 +47,64 @@ export interface ConvergenceResult {
   }>;
 }
 
+function taskKey(task: TaskAnnotation): string {
+  return task.functionName
+    ? `${task.sourceFile}:${task.functionName}`
+    : `${task.sourceFile}:${task.sourceLine}:${task.task}`;
+}
+
+function scanSourceAnnotations(scanRoot: string): TaskAnnotation[] {
+  const tasks: TaskAnnotation[] = [];
+  for (const filePath of walkDir(scanRoot)) {
+    const content = readFileSync(filePath, 'utf-8');
+    for (const { raw, line, endIndex } of extractBlocks(content)) {
+      const parsed = parseBlock(raw);
+      if (!parsed.task) continue;
+      const fnInfo = parseFunctionAfterBlock(content, endIndex);
+      tasks.push({
+        task: parsed.task as string,
+        checklist: parsed.checklist as string[] | undefined,
+        title: parsed.title as string | undefined,
+        type: parsed.type as string | undefined,
+        priority: parsed.priority as string | undefined,
+        version: parsed.version as string | undefined,
+        scope: parsed.scope as string | undefined,
+        depends: parsed.depends as string[] | undefined,
+        author: parsed.author as string | undefined,
+        date: parsed.date as string | undefined,
+        description: parsed.description as string | undefined,
+        changes: parsed.changes as string[] | undefined,
+        affected: parsed.affected as string[] | undefined,
+        sourceFile: relative(scanRoot, filePath),
+        sourceLine: line,
+        functionName: fnInfo?.functionName,
+        functionSignature: fnInfo?.functionSignature,
+        flow: parsed.flow as string | undefined,
+        step: parsed.step ? parseInt(parsed.step as string, 10) : undefined,
+        input: parsed.input as string | undefined,
+        output: parsed.output as string | undefined,
+        next: parsed.next as string | undefined,
+        test: parsed.test as string | undefined,
+      });
+    }
+  }
+  return tasks;
+}
+
+function scanCoverageTasks(scanRoot: string): TaskAnnotation[] {
+  const merged = new Map<string, TaskAnnotation>();
+  for (const task of scan(scanRoot)) merged.set(taskKey(task), task);
+  for (const task of scanSourceAnnotations(scanRoot)) {
+    if (!merged.has(taskKey(task))) merged.set(taskKey(task), task);
+  }
+  return Array.from(merged.values());
+}
+
 export function analyzeGap(projectRoot: string, store?: StoryStore): GapResult {
   const config = loadConfig(projectRoot);
   const scanRoot = join(projectRoot, config.scanRoot);
   const truth = scanTruth(projectRoot);
-  const tasks = scan(scanRoot);
+  const tasks = scanCoverageTasks(scanRoot);
   const chains = extractFlows(tasks);
   const validation = validate(scanRoot);
   const flowValidation = validateFlows(chains, tasks);
@@ -143,7 +204,7 @@ export function checkConvergence(projectRoot: string, store: StoryStore): Conver
   const config = loadConfig(projectRoot);
   const scanRoot = join(projectRoot, config.scanRoot);
   const gap = analyzeGap(projectRoot, store);
-  const tasks = scan(scanRoot);
+  const tasks = scanCoverageTasks(scanRoot);
   const chains = extractFlows(tasks);
   const flowValidation = validateFlows(chains, tasks);
   const codeValidation = validate(scanRoot);

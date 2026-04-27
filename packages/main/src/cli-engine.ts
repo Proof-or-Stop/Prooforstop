@@ -39,13 +39,50 @@ export interface ToolDef {
   schema: Record<string, ZodType>;
 }
 
+const verificationIntentTypeSchema = z.preprocess((value) => {
+  if (value === 'cli_blackbox') return 'cli';
+  if (value === 'browser_blackbox') return 'browser';
+  return value;
+}, z.enum(['logic', 'cli', 'browser', 'manual', 'docs']));
+
+/**
+ * @task B-ef9c
+ * @checklist CHK-003
+ * @title normalize legacy verificationIntent type aliases
+ * @type feature
+ * @priority high
+ * @description
+ *   The shared CLI schema accepts legacy verificationIntent aliases before enum
+ *   validation, so story_create, checklist_add, and checklist_update all parse
+ *   cli_blackbox/browser_blackbox and persist the normalized cli/browser types.
+ * @changes
+ *   - [CHK-003] Map cli_blackbox to cli and browser_blackbox to browser in the shared schema
+ *   - [CHK-003] Keep old testIntent types untouched; only verificationIntent is normalized
+ */
 const verificationIntentItemSchema = z.object({
   id: z.string().optional().describe('可选稳定 id；缺省时自动按 CHK-001:happy:0 推导'),
   desc: z.string().describe('验证意图描述'),
-  type: z.enum(['logic', 'cli', 'browser', 'manual', 'docs']).describe('验证类型'),
+  type: verificationIntentTypeSchema.describe('验证类型'),
   requiredIn: z.enum(['light', 'balanced', 'strict']).optional().describe('从哪个 workflow profile 起要求'),
   priority: z.enum(['must', 'should', 'nice']).optional().describe('must 会进入 evidence gate'),
 });
+
+/**
+ * @task B-ef9c
+ * @checklist CHK-001
+ * @title automated interface owns workflow extension
+ * @type feature
+ * @priority high
+ * @description
+ *   Koala exposes code/story operations through a managed automated interface:
+ *   people and AI both go through CLI schemas, command gates, handlers, and logs.
+ *   Superpowers can trigger workflow by registering extra tools and handlers, but
+ *   main command definitions win because MAIN_TOOLS are searched before extras.
+ *   更准确的说法是代码应该是被一个自动化的接口所管理的，人和ai都是通过这个接口来操作代码。
+ * @changes
+ *   - [CHK-001] Preserve CLI schema/handler dispatch as the operation interface for humans and AI
+ *   - [CHK-001] Allow superpowers to trigger workflow through extraRegister without redefining core workflow
+ */
 
 const verificationIntentSchema = z.object({
   happy: z.array(verificationIntentItemSchema).optional().default([]),

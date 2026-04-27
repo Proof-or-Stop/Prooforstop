@@ -9,6 +9,8 @@
  *   health checks cannot rely on simple +1 ordering because Koala allows
  *   explicit rollback transitions. This module is a read-only projection of
  *   phase ordering and allowed transitions for display/diagnostics.
+ *   因此不能用“当前编号必须等于上个编号 +1”来判错；健康检查必须使用合法
+ *   transition graph, including rollback and terminal transitions.
  * @changes
  *   - [CHK-001] Define phase order, ordinal metadata, and legal transitions
  *   - [CHK-001] Expose helpers for ranking, formatting, and transition health

@@ -1,3 +1,19 @@
+/**
+ * @task B-ef9c
+ * @checklist CHK-001
+ * @title story review enforces multi layer requirement completeness
+ * @type feature
+ * @priority high
+ * @description
+ *   Requirement completeness has no silver bullet; Koala lowers omission risk
+ *   through multiple defenses: understanding, decision, scope check, related
+ *   docs, checklist quality, verificationIntent lanes, and reviewer prompts.
+ *   Agent A is responsible for decomposing requirements and implementing code,
+ *   while review checks whether the plan has enough structure before DEV.
+ * @changes
+ *   - [CHK-001] Review checklist item quality and reject weak or empty items
+ *   - [CHK-001] Require qualified items to carry observable userSees plus happy/edge/adversarial verification intent in strict paths
+ */
 
 import type { HandlerContext } from './context.js';
 import { loadConfig } from '../core/config.js';

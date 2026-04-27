@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "消除 10 个 high uncovered_requirement",
       "context": "逐条核对 gap_analyze 输出：若已有实现则补/调整 @task 注释覆盖对应 truth 关键词；若缺实现则补最小实现；若是愿景/建议而非当前 requirement，则调整真相源分类或覆盖策略。",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
+      "status": "done",
+      "startTime": "2026-04-27T12:34:22.663Z",
+      "endTime": "2026-04-27T12:38:20.861Z",
       "userSees": "终端输出包含 \"high: 0\"，且不再出现 \"10 个高优先级差距\" / \"10 high-priority gaps\"。",
       "files": {
         "modify": [
@@ -57,9 +57,9 @@
       "id": "CHK-002",
       "title": "将需求覆盖率提升到 100% 或解释剩余非需求项",
       "context": "重新运行 gap_analyze/convergence_check，确保 high gap 为 0 且 coverage 不再因已覆盖需求停在 88%。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-04-27T12:38:13.749Z",
       "userSees": "终端输出包含 \"需求覆盖率: 100%\" 或 \"requirements coverage: 100%\"，并且 high uncovered requirement 数量为 0。",
       "files": {
         "modify": [
@@ -104,9 +104,9 @@
       "id": "CHK-003",
       "title": "兼容旧 verificationIntent type alias",
       "context": "当前 schema 只接受 logic/cli/browser/manual/docs；旧文档/agent 可能写 cli_blackbox/browser_blackbox。必须在 CLI 输入解析层自动归一：cli_blackbox -> cli、browser_blackbox -> browser，并补回归测试证明旧 payload 可以通过 checklist_update/story_create/checklist_add 等入口。不能只提示用户手动迁移。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-04-27T12:38:13.750Z",
       "userSees": "旧 payload 不再输出 \"Invalid enum value\"；smoke 测试输出 \"verificationIntent alias smoke passed\"。",
       "files": {
         "modify": [
