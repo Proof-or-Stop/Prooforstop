@@ -986,12 +986,8 @@ ${agentLines}
             // anything left in the worktree is either gitignored runtime
             // state or genuine leakage we want to erase.
             if (existsSync(wtPathAbs)) {
-              try {
-                const repair = repairGlobalKoalaLinkBeforeWorktreeDelete(wtPathAbs, mainRepoRoot);
-                if (repair.action === 'relinked') mergeLines.push(repair.message);
-              } catch (e: any) {
-                mergeLines.push(`⚠ global koala relink 检查失败: ${e.message}`);
-              }
+              const repair = repairGlobalKoalaLinkBeforeWorktreeDelete(wtPathAbs, mainRepoRoot);
+              if (repair.action === 'relinked') mergeLines.push(repair.message);
               try {
                 runGit(`worktree remove "${wtPathAbs}"`, mainRepoRoot);
                 mergeLines.push(`✓ Worktree ${wtPathAbs} 已清理`);

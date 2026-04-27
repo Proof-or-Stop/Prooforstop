@@ -11,6 +11,8 @@ import { summarizeParallelPolicy } from '../core/parallel-policy.js';
 
 export interface GlobalKoalaLinkRepairOptions {
   globalPackagePath?: string;
+  unlinkImpl?: typeof unlinkSync;
+  symlinkImpl?: typeof symlinkSync;
 }
 
 export interface GlobalKoalaLinkRepairResult {
@@ -73,8 +75,18 @@ export function repairGlobalKoalaLinkBeforeWorktreeDelete(
     return { action: 'skipped', message: `主仓 packages/main 不存在，跳过 relink: ${mainPackagePath}` };
   }
 
-  unlinkSync(globalPackagePath);
-  symlinkSync(mainPackagePath, globalPackagePath, process.platform === 'win32' ? 'junction' : 'dir');
+  const unlinkImpl = options.unlinkImpl ?? unlinkSync;
+  const symlinkImpl = options.symlinkImpl ?? symlinkSync;
+  try {
+    unlinkImpl(globalPackagePath);
+    symlinkImpl(mainPackagePath, globalPackagePath, process.platform === 'win32' ? 'junction' : 'dir');
+  } catch (e) {
+    const reason = e instanceof Error ? e.message : String(e);
+    throw new Error(
+      `global @koala-agent/core 当前指向待删除 worktree，relink 到主仓失败，已阻止删除 ${worktreePath}。` +
+      `请先修复 ${globalPackagePath} -> ${mainPackagePath} 后重试。原因: ${reason}`,
+    );
+  }
   return { action: 'relinked', message: `✓ global @koala-agent/core 已从 story worktree relink 到 ${mainPackagePath}` };
 }
 

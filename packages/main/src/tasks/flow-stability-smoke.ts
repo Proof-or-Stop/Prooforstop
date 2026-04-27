@@ -181,6 +181,21 @@ function assertGlobalLinkRepair(): void {
     assert.equal(normalSkipped.action, 'skipped');
     assert.equal(existsSync(normalInstall), true);
     assert.equal(lstatSync(normalInstall).isDirectory(), true);
+
+    const failingGlobalPackage = join(root, 'failing-global', 'node_modules', '@koala-agent', 'core');
+    mkdirSync(dirname(failingGlobalPackage), { recursive: true });
+    symlinkSync(worktreePackage, failingGlobalPackage, process.platform === 'win32' ? 'junction' : 'dir');
+
+    assert.throws(
+      () => repairGlobalKoalaLinkBeforeWorktreeDelete(worktree, mainRepo, {
+        globalPackagePath: failingGlobalPackage,
+        unlinkImpl: () => {
+          throw new Error('mock unlink failure');
+        },
+      }),
+      /已阻止删除 .*mock unlink failure/,
+    );
+    assert.equal(resolve(dirname(failingGlobalPackage), readlinkSync(failingGlobalPackage)), resolve(worktreePackage));
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
