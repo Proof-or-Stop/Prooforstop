@@ -19,9 +19,10 @@ import { resolveWorkflowPolicy } from './workflow-policy.js';
 import { verifyFinding } from './finding-verify.js';
 import type { Finding } from './types.js';
 import { storyMachine, type StoryMachineContext } from './machine.js';
-import { resolveOptInReviewers, resolveChannel, findingAgentMatchesReviewer } from './reviewer-opt-in.js';
+import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
 import { isAdvisoryThisRound } from './advisory.js';
 import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
+import { computeActiveReviewers } from '../handlers/reviewer-list.js';
 
 /**
  * Resolve effective blocking severities with round decay.
@@ -192,14 +193,15 @@ export function getGuardFailureReason(
           const { roundCount: rc } = resolveEffectiveBlockingSeverities(store, storyId, policy);
           if (rc <= 1) {
             // Round 1: require findings from every opt-in reviewer (B-e8c8)
-            let checklistItemsCount = 0;
-            try { checklistItemsCount = store.readChecklist(storyId).items.length; } catch {}
-            const channel = resolveChannel(checklistItemsCount, story.riskSignals);
+            let checklist: { items: unknown[] } = { items: [] };
+            try { checklist = store.readChecklist(storyId); } catch {}
+            let decision = null;
+            try { decision = store.readDecision(storyId); } catch {}
             const understanding = store.readUnderstanding(storyId);
             // F-021: touchpoints 为空时回退扫 git diff，避免只改 .md 的 story 丢 docs reviewer。
             const touchpoints = understanding?.touchpoints
               ?? detectMdTouchpointsFromGit(projectRoot ?? process.cwd());
-            const optIn = resolveOptInReviewers(story, channel, touchpoints);
+            const optIn = computeActiveReviewers(story, checklist, decision, touchpoints);
             const missing = optIn.filter(reviewer => !currentRoundReviewerFindings.some(
               (f: Finding) => findingAgentMatchesReviewer(f.agent, reviewer.name),
             ));

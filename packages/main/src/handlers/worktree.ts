@@ -1,13 +1,82 @@
 
 import { execFileSync, execSync } from 'child_process';
-import { existsSync } from 'fs';
-import { join, relative, isAbsolute } from 'path';
+import { existsSync, lstatSync, readlinkSync, symlinkSync, unlinkSync } from 'fs';
+import { dirname, join, relative, isAbsolute, resolve, sep } from 'path';
 import type { HandlerContext } from './context.js';
 import { collectContext, PHASE_TO_EVENT } from './context.js';
 import { createStoryActor, getStateName, getGuardFailureReason } from '../core/machine.js';
 import type { StoryPhase } from '../core/types.js';
 import { loadConfig } from '../core/config.js';
 import { summarizeParallelPolicy } from '../core/parallel-policy.js';
+
+export interface GlobalKoalaLinkRepairOptions {
+  globalPackagePath?: string;
+}
+
+export interface GlobalKoalaLinkRepairResult {
+  action: 'relinked' | 'skipped';
+  message: string;
+}
+
+function isPathInside(child: string, parent: string): boolean {
+  const childResolved = resolve(child);
+  const parentResolved = resolve(parent);
+  return childResolved === parentResolved || childResolved.startsWith(parentResolved.endsWith(sep) ? parentResolved : `${parentResolved}${sep}`);
+}
+
+function resolveGlobalCorePackagePath(options: GlobalKoalaLinkRepairOptions = {}): string | null {
+  if (options.globalPackagePath) return options.globalPackagePath;
+  try {
+    const globalRoot = execFileSync('npm', ['root', '-g'], {
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    return join(globalRoot, '@koala-agent', 'core');
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * DONE cleanup may delete a story worktree that was used as `npm link` target.
+ * Only rewrite the global package symlink when it clearly points inside the
+ * worktree being deleted; all other installs are left untouched.
+ */
+export function repairGlobalKoalaLinkBeforeWorktreeDelete(
+  worktreePath: string,
+  mainRepoRoot: string,
+  options: GlobalKoalaLinkRepairOptions = {},
+): GlobalKoalaLinkRepairResult {
+  const globalPackagePath = resolveGlobalCorePackagePath(options);
+  if (!globalPackagePath) {
+    return { action: 'skipped', message: 'global @koala-agent/core path 未找到，跳过 relink' };
+  }
+
+  let stat;
+  try {
+    stat = lstatSync(globalPackagePath);
+  } catch {
+    return { action: 'skipped', message: `global @koala-agent/core 不存在: ${globalPackagePath}` };
+  }
+  if (!stat.isSymbolicLink()) {
+    return { action: 'skipped', message: `global @koala-agent/core 不是 symlink，跳过 relink: ${globalPackagePath}` };
+  }
+
+  const rawTarget = readlinkSync(globalPackagePath);
+  const target = isAbsolute(rawTarget) ? rawTarget : resolve(dirname(globalPackagePath), rawTarget);
+  if (!isPathInside(target, worktreePath)) {
+    return { action: 'skipped', message: `global @koala-agent/core 未指向当前 worktree，跳过 relink: ${target}` };
+  }
+
+  const mainPackagePath = join(mainRepoRoot, 'packages', 'main');
+  if (!existsSync(mainPackagePath)) {
+    return { action: 'skipped', message: `主仓 packages/main 不存在，跳过 relink: ${mainPackagePath}` };
+  }
+
+  unlinkSync(globalPackagePath);
+  symlinkSync(mainPackagePath, globalPackagePath, process.platform === 'win32' ? 'junction' : 'dir');
+  return { action: 'relinked', message: `✓ global @koala-agent/core 已从 story worktree relink 到 ${mainPackagePath}` };
+}
 
 export function createWorktreeHandlers(ctx: HandlerContext) {
   const { store, root } = ctx;

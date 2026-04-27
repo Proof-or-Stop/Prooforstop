@@ -16,6 +16,7 @@ import { dirname, join } from 'path';
 import { existsSync, rmSync } from 'fs';
 import { cleanStrayWorktreeFiles } from './stray-file-cleanup.js';
 import { computeActiveReviewers, renderActiveReviewersText } from './reviewer-list.js';
+import { repairGlobalKoalaLinkBeforeWorktreeDelete } from './worktree.js';
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
 import { collectBaselineRisk, renderBaselineRiskLines } from '../core/baseline-risk.js';
 import { checkEvidenceFreshnessForGit } from '../core/evidence-freshness.js';
@@ -985,6 +986,12 @@ ${agentLines}
             // anything left in the worktree is either gitignored runtime
             // state or genuine leakage we want to erase.
             if (existsSync(wtPathAbs)) {
+              try {
+                const repair = repairGlobalKoalaLinkBeforeWorktreeDelete(wtPathAbs, mainRepoRoot);
+                if (repair.action === 'relinked') mergeLines.push(repair.message);
+              } catch (e: any) {
+                mergeLines.push(`⚠ global koala relink 检查失败: ${e.message}`);
+              }
               try {
                 runGit(`worktree remove "${wtPathAbs}"`, mainRepoRoot);
                 mergeLines.push(`✓ Worktree ${wtPathAbs} 已清理`);

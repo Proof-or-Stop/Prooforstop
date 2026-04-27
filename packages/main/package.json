@@ -29,7 +29,8 @@
     "test:verification-intent-alias-smoke": "node dist/tasks/verification-intent-alias-smoke.js",
     "test:verification-freshness-smoke": "node dist/tasks/verification-freshness-smoke.js",
     "test:testintent-handoff-smoke": "node dist/tasks/testintent-handoff-smoke.js",
-    "test:validation-protocol": "node dist/tasks/validation-protocol-smoke.js"
+    "test:validation-protocol": "node dist/tasks/validation-protocol-smoke.js",
+    "test:flow-stability-smoke": "node dist/tasks/flow-stability-smoke.js"
   },
   "dependencies": {
     "@koala-agent/lab": "0.3.1",
