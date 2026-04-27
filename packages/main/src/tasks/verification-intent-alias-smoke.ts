@@ -71,8 +71,13 @@ for (const current of ['logic', 'cli', 'browser', 'manual', 'docs']) {
 
 rejectTool('story_create', {
   name: 'bad-alias-smoke',
+  title: 'Bad alias smoke',
+  description: 'Prove invalid verificationIntent types are still rejected.',
+  type: 'feature',
+  priority: 'medium',
   checklist: [{
     title: 'Reject invalid',
+    context: 'Unknown type strings must not pass alias normalization.',
     verificationIntent: {
       happy: [{ desc: 'bad type', type: 'not_a_real_type' }],
     },
