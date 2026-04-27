@@ -1,13 +1,13 @@
 {
   "storyId": "B-3749",
-  "generatedAt": "2026-04-27T12:07:01.311Z",
+  "generatedAt": "2026-04-27T12:15:31.647Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
     "hasPlan": true,
     "checklistItems": 3,
     "reviewRounds": 2,
-    "findings": 0,
+    "findings": 4,
     "bugs": 0,
     "testRuns": 0,
     "hasEvalEvidence": false,
@@ -233,8 +233,7 @@
           "confidence": "medium",
           "sources": [
             "process-events.jsonl"
-          ],
-          "note": "no dispatch events"
+          ]
         }
       }
     },
@@ -261,7 +260,7 @@
           "note": "fast channel — main agent 允许自写代码"
         },
         "reviewerIndependence": {
-          "value": false,
+          "value": true,
           "unit": "bool",
           "confidence": "high",
           "sources": [
@@ -278,13 +277,12 @@
           "note": "fast channel — main agent 允许自写代码 — no violation possible"
         },
         "parallelBatchCount": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "medium",
           "sources": [
             "process-events.jsonl"
-          ],
-          "note": "no dispatch events"
+          ]
         },
         "blockedReturnCount": {
           "value": 0,
@@ -320,7 +318,7 @@
           ]
         },
         "formalFindingCount": {
-          "value": 0,
+          "value": 4,
           "unit": "count",
           "confidence": "high",
           "sources": [
@@ -346,13 +344,12 @@
           "note": "no test runs"
         },
         "reviewAfterEachBatch": {
-          "value": "n/a",
-          "unit": "text",
+          "value": false,
+          "unit": "bool",
           "confidence": "medium",
           "sources": [
             "process-events.jsonl"
-          ],
-          "note": "no dispatch events"
+          ]
         }
       }
     }

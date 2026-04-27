@@ -4,7 +4,7 @@
   "title": "修复 verification evidence metadata stale 与 testintent_handoff 缺失",
   "description": "用户在 B-3145 / B-ee6b 相关流程中遇到两个 Koala 框架问题：记录 verification evidence 后只修改 findings/summary 等 story metadata，代码没有变，但 evidence 因 headHash 改变被判 stale；PLAN 阶段提示或调用 testintent_handoff 时命令不存在，说明 handler 注册或阶段可用性不一致。目标是让 evidence freshness 基于代码相关变更判断，并恢复 testintent_handoff 的兼容入口。",
   "type": "bug",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "verification-evidence",
@@ -48,11 +48,20 @@
       "branch": "story/B-3749",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-27T12:13:39.414Z",
+      "branch": "story/B-3749",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-3749",
     "branch": "story/B-3749",
     "createdAt": "2026-04-27T12:03:47.628Z"
-  }
+  },
+  "currentReviewRound": "2026-04-27T12:13:39.414Z"
 }
