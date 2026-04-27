@@ -50,9 +50,9 @@
           "file": "packages/main/src/core/validation-types.ts",
           "command": "npm run build",
           "result": "pass",
-          "note": "packages/main/src/core/validation-types.ts exports ValidationCommand ValidationPlan ValidationResult; npm run build passed on committed HEAD",
-          "headHash": "dc28a61c2036598eb3867a795ac63696b9ce9286",
-          "timestamp": "2026-04-27T01:33:05.589Z"
+          "note": "packages/main/src/core/validation-types.ts exports ValidationCommand ValidationPlan ValidationResult; npm run build passed on committed HEAD f5884a3",
+          "headHash": "f5884a372dd9958006c5d6db5424f4a9d289cdc9",
+          "timestamp": "2026-04-27T01:38:04.530Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -60,9 +60,9 @@
           "file": "packages/main/src/handlers/verifier.ts",
           "command": "npm run build",
           "result": "pass",
-          "note": "packages/main/src/handlers/verifier.ts keeps parsed legacy validate JSON compatible; npm run build passed with optional commands field preserved only on Koala wrappers",
-          "headHash": "dc28a61c2036598eb3867a795ac63696b9ce9286",
-          "timestamp": "2026-04-27T01:33:09.406Z"
+          "note": "packages/main/src/handlers/verifier.ts keeps parsed legacy validate JSON compatible; npm run build passed on committed HEAD f5884a3",
+          "headHash": "f5884a372dd9958006c5d6db5424f4a9d289cdc9",
+          "timestamp": "2026-04-27T01:38:08.242Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -70,9 +70,9 @@
           "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
           "command": "npm run test:validation-protocol",
           "result": "pass",
-          "note": "validation-protocol-smoke asserts status allPass headSha commands code output duration fields, catching protocol shape drift",
-          "headHash": "dc28a61c2036598eb3867a795ac63696b9ce9286",
-          "timestamp": "2026-04-27T01:33:13.772Z"
+          "note": "validation-protocol-smoke asserts status allPass headSha commands code output duration fields, catching protocol shape drift on HEAD f5884a3",
+          "headHash": "f5884a372dd9958006c5d6db5424f4a9d289cdc9",
+          "timestamp": "2026-04-27T01:38:14.098Z"
         }
       ]
     },
@@ -125,9 +125,9 @@
           "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
           "command": "npm run test:validation-protocol",
           "result": "pass",
-          "note": "validation-protocol-smoke runs two serial node commands, second reads marker created by first, and asserts commands length plus output",
-          "headHash": "dc28a61c2036598eb3867a795ac63696b9ce9286",
-          "timestamp": "2026-04-27T01:33:18.019Z"
+          "note": "validation-protocol-smoke runs two serial node commands, second reads marker created by first, and asserts commands length plus output on HEAD f5884a3",
+          "headHash": "f5884a372dd9958006c5d6db5424f4a9d289cdc9",
+          "timestamp": "2026-04-27T01:38:17.500Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -135,9 +135,9 @@
           "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
           "command": "npm run test:validation-protocol",
           "result": "pass",
-          "note": "validation-protocol-smoke asserts optional command failure returns status warn and allPass true with warning text",
-          "headHash": "dc28a61c2036598eb3867a795ac63696b9ce9286",
-          "timestamp": "2026-04-27T01:33:20.985Z"
+          "note": "validation-protocol-smoke asserts optional command failure returns status warn and allPass true with warning text on HEAD f5884a3",
+          "headHash": "f5884a372dd9958006c5d6db5424f4a9d289cdc9",
+          "timestamp": "2026-04-27T01:38:20.865Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -145,9 +145,9 @@
           "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
           "command": "npm run test:validation-protocol",
           "result": "pass",
-          "note": "validation-protocol-smoke asserts required failure returns fail allPass false and timeout records timedOut true",
-          "headHash": "dc28a61c2036598eb3867a795ac63696b9ce9286",
-          "timestamp": "2026-04-27T01:33:25.173Z"
+          "note": "validation-protocol-smoke asserts required failure returns fail allPass false and timeout records timedOut true with SIGKILL fallback on HEAD f5884a3",
+          "headHash": "f5884a372dd9958006c5d6db5424f4a9d289cdc9",
+          "timestamp": "2026-04-27T01:38:24.405Z"
         }
       ]
     },
@@ -200,9 +200,9 @@
           "file": "packages/main/src/handlers/verifier.ts",
           "command": "npm run build",
           "result": "pass",
-          "note": "packages/main/src/handlers/verifier.ts keeps validate.ts discovery before plan fallback and compiles after wrapping npx tsx command results",
-          "headHash": "dc28a61c2036598eb3867a795ac63696b9ce9286",
-          "timestamp": "2026-04-27T01:33:28.122Z"
+          "note": "packages/main/src/handlers/verifier.ts keeps validate.ts discovery before plan fallback and compiles after wrapping npx tsx command results on HEAD f5884a3",
+          "headHash": "f5884a372dd9958006c5d6db5424f4a9d289cdc9",
+          "timestamp": "2026-04-27T01:38:27.686Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -210,9 +210,9 @@
           "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
           "command": "node packages/main/dist/cli.js validate --story=B-e11b --json",
           "result": "pass",
-          "note": "post-commit validate --story used ValidationPlan fallback without validate.ts and wrote parseable story test-evidence with commands and verificationCoverage",
-          "headHash": "dc28a61c2036598eb3867a795ac63696b9ce9286",
-          "timestamp": "2026-04-27T01:33:32.326Z"
+          "note": "post-commit validate --story uses ValidationPlan fallback without validate.ts and writes parseable story test-evidence with commands and verificationCoverage on HEAD f5884a3",
+          "headHash": "f5884a372dd9958006c5d6db5424f4a9d289cdc9",
+          "timestamp": "2026-04-27T01:38:31.109Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -220,9 +220,9 @@
           "file": "packages/main/src/handlers/verifier.ts",
           "command": "npm run build",
           "result": "pass",
-          "note": "verifier strips ANSI before JSON extraction and wraps non JSON command output into stable ValidationResult; TypeScript build verifies the branch",
-          "headHash": "dc28a61c2036598eb3867a795ac63696b9ce9286",
-          "timestamp": "2026-04-27T01:33:37.428Z"
+          "note": "verifier strips ANSI before JSON extraction and wraps non JSON command output into stable ValidationResult; TypeScript build verifies the branch on HEAD f5884a3",
+          "headHash": "f5884a372dd9958006c5d6db5424f4a9d289cdc9",
+          "timestamp": "2026-04-27T01:38:34.807Z"
         }
       ]
     },
@@ -273,9 +273,9 @@
           "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
           "command": "npm run test:validation-protocol",
           "result": "pass",
-          "note": "validation-protocol-smoke covers successful multi-command plan with allPass true and complete commands array",
-          "headHash": "dc28a61c2036598eb3867a795ac63696b9ce9286",
-          "timestamp": "2026-04-27T01:33:40.678Z"
+          "note": "validation-protocol-smoke covers successful multi-command plan with allPass true and complete commands array on HEAD f5884a3",
+          "headHash": "f5884a372dd9958006c5d6db5424f4a9d289cdc9",
+          "timestamp": "2026-04-27T01:38:38.612Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -283,9 +283,9 @@
           "file": "packages/main/src/handlers/verifier.ts",
           "command": "node packages/main/dist/cli.js validate --json",
           "result": "pass",
-          "note": "CLI validate on repo without validate.ts returned warn skip/fallback instead of missing validate.ts error and included command evidence",
-          "headHash": "dc28a61c2036598eb3867a795ac63696b9ce9286",
-          "timestamp": "2026-04-27T01:33:44.936Z"
+          "note": "CLI validate on repo without validate.ts returns warn fallback instead of missing validate.ts error and includes command evidence on HEAD f5884a3",
+          "headHash": "f5884a372dd9958006c5d6db5424f4a9d289cdc9",
+          "timestamp": "2026-04-27T01:38:44.449Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -293,9 +293,9 @@
           "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
           "command": "npm run test:validation-protocol",
           "result": "pass",
-          "note": "validation-protocol-smoke covers required failure optional failure timeout and configured command schema to protect evidence wrapper regressions",
-          "headHash": "dc28a61c2036598eb3867a795ac63696b9ce9286",
-          "timestamp": "2026-04-27T01:33:49.189Z"
+          "note": "validation-protocol-smoke covers required failure optional failure timeout and configured command schema to protect evidence wrapper regressions on HEAD f5884a3",
+          "headHash": "f5884a372dd9958006c5d6db5424f4a9d289cdc9",
+          "timestamp": "2026-04-27T01:38:47.877Z"
         }
       ]
     }
