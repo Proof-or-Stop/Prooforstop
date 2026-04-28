@@ -20,6 +20,7 @@ import { repairGlobalKoalaLinkBeforeWorktreeDelete } from './worktree.js';
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
 import { collectBaselineRisk, renderBaselineRiskLines } from '../core/baseline-risk.js';
 import { checkEvidenceFreshnessForGit } from '../core/evidence-freshness.js';
+import { reportHealthIssue } from '../core/health.js';
 
 // B-c622 CHK-004: DONE 阶段自动同步 main —— detect divergence + auto merge main
 
@@ -966,6 +967,7 @@ ${agentLines}
             }
 
             // Step 4: 清理 worktree
+            let cleanupFailure: string | null = null;
             //
             // Two-step cleanup: `git worktree remove` deregisters the worktree
             // from git's internal list (so `git worktree list` no longer shows
@@ -997,6 +999,7 @@ ${agentLines}
                   runGit(`worktree remove --force "${wtPathAbs}"`, mainRepoRoot);
                   mergeLines.push(`✓ Worktree ${wtPathAbs} 已强制清理`);
                 } catch (e: any) {
+                  cleanupFailure = `git worktree remove failed: ${e.message}`;
                   mergeLines.push(`⚠ Worktree 未清理: ${e.message}`);
                 }
               }
@@ -1009,8 +1012,12 @@ ${agentLines}
                   rmSync(wtPathAbs, { recursive: true, force: true });
                   mergeLines.push(`✓ Worktree 目录残留已清空`);
                 } catch (e: any) {
+                  cleanupFailure = `worktree directory cleanup failed: ${e.message}`;
                   mergeLines.push(`⚠ Worktree 目录残留清理失败: ${e.message}`);
                 }
+              }
+              if (existsSync(wtPathAbs) && !cleanupFailure) {
+                cleanupFailure = `worktree path still exists after cleanup: ${wtPathAbs}`;
               }
             }
 
@@ -1020,6 +1027,20 @@ ${agentLines}
               mergeLines.push(`✓ 分支 ${branch} 已删除`);
             } catch {
               mergeLines.push(`⚠ 分支 ${branch} 未删除（可能有未合并的提交）`);
+            }
+
+            if (cleanupFailure) {
+              const err = new Error(cleanupFailure);
+              reportHealthIssue('mutation:worktreeCleanup', err, {
+                storyId: args.storyId,
+                branch,
+                worktreePath: wtPathAbs,
+                mainRepoRoot,
+              });
+              throw new Error(
+                `Story ${args.storyId} 已合并，但 worktree 清理未完成: ${cleanupFailure}\n` +
+                `→ 请运行 koala doctor 查看，或执行 koala doctor --repair 清理终态 worktree 残留。`,
+              );
             }
           }
 

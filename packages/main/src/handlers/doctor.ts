@@ -12,13 +12,13 @@
 
 import { execSync } from 'child_process';
 import { existsSync, readdirSync, rmSync, statSync } from 'fs';
-import { join } from 'path';
+import { basename, join } from 'path';
 import type { HandlerContext } from './context.js';
 import { readHealthIssues, summarizeHealthIssues, getHealthPath } from '../core/health.js';
 import { loadConfig } from '../core/config.js';
 
 export function createDoctorHandlers(ctx: HandlerContext) {
-  const { root } = ctx;
+  const { root, store } = ctx;
 
   return {
     doctor(args?: { format?: 'text' | 'json'; limit?: number; repair?: boolean }): string | object {
@@ -31,16 +31,24 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       // after a DONE merge when Claude Code's activity.jsonl hook or tmp/
       // runtime files kept file handles open during `git worktree remove`,
       // so git deregistered the worktree but left the dir behind.
-      const orphanScan = scanOrphanWorktrees(root);
+      const orphanScan = scanOrphanWorktrees(root, store);
       const repaired: string[] = [];
       const repairFailed: Array<{ path: string; error: string }> = [];
-      if (args?.repair && orphanScan.orphans.length > 0) {
-        for (const orphan of orphanScan.orphans) {
+      const cleanupTargets = [...orphanScan.terminalRegistered, ...orphanScan.orphans];
+      if (args?.repair && cleanupTargets.length > 0) {
+        for (const target of cleanupTargets) {
           try {
-            rmSync(orphan, { recursive: true, force: true });
-            repaired.push(orphan);
+            if (orphanScan.terminalRegistered.includes(target)) {
+              try {
+                execSync(`git worktree remove --force "${target}"`, { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] });
+              } catch {
+                // Best-effort repair: still try to remove any directory left behind.
+              }
+            }
+            rmSync(target, { recursive: true, force: true });
+            repaired.push(target);
           } catch (e: any) {
-            repairFailed.push({ path: orphan, error: e.message || String(e) });
+            repairFailed.push({ path: target, error: e.message || String(e) });
           }
         }
       }
@@ -51,7 +59,10 @@ export function createDoctorHandlers(ctx: HandlerContext) {
           ...summary,
           worktrees: {
             registered: orphanScan.registered,
-            orphansFound: orphanScan.orphans,
+            orphanDirs: orphanScan.orphans,
+            terminalRegistered: orphanScan.terminalRegistered,
+            terminalDirs: orphanScan.terminalDirs,
+            needsRepair: cleanupTargets.length > 0,
             repaired,
             repairFailed,
             repairRequested: !!args?.repair,
@@ -67,8 +78,10 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       lines.push(`  shown : ${summary.recent.length} (${summary.recentWindow === '24h' ? 'last 24h' : 'most recent'})`);
       lines.push('');
 
-      if (summary.total === 0) {
+      if (summary.total === 0 && cleanupTargets.length === 0) {
         lines.push('✓ No health issues recorded. koala is healthy.');
+      } else if (summary.total === 0) {
+        lines.push('⚠ No health issues recorded, but worktree cleanup issues were found.');
       } else {
         lines.push('By category:');
         const sorted = Object.entries(summary.byCategory).sort((a, b) => b[1] - a[1]);
@@ -98,12 +111,19 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       // Worktree orphan section
       lines.push('Worktree scan:');
       lines.push(`  registered: ${orphanScan.registered.length}`);
-      lines.push(`  orphans   : ${orphanScan.orphans.length}`);
-      if (orphanScan.orphans.length === 0) {
-        lines.push('  ✓ No orphan worktree directories.');
+      lines.push(`  terminal registered: ${orphanScan.terminalRegistered.length}`);
+      lines.push(`  orphan dirs        : ${orphanScan.orphans.length}`);
+      lines.push(`  terminal dirs      : ${orphanScan.terminalDirs.length}`);
+      if (cleanupTargets.length === 0) {
+        lines.push('  ✓ No orphan or terminal worktree cleanup issues.');
       } else {
-        for (const o of orphanScan.orphans) {
-          lines.push(`  - ${o}`);
+        if (orphanScan.terminalRegistered.length > 0) {
+          lines.push('  Terminal registered worktrees:');
+          for (const p of orphanScan.terminalRegistered) lines.push(`  - ${p}`);
+        }
+        if (orphanScan.orphans.length > 0) {
+          lines.push('  Orphan directories:');
+          for (const o of orphanScan.orphans) lines.push(`  - ${o}`);
         }
         if (args?.repair) {
           lines.push('');
@@ -112,8 +132,9 @@ export function createDoctorHandlers(ctx: HandlerContext) {
           for (const f of repairFailed) lines.push(`  ✗ ${f.path}: ${f.error}`);
         } else {
           lines.push('');
-          lines.push(`→ 这些目录不在 git worktree list 里，但 .worktrees/ 下还有残留。`);
-          lines.push(`→ 重跑: koala doctor --repair 清理`);
+          lines.push(`→ terminal registered = story 已 DONE/DISCARDED 但 git 仍注册 worktree。`);
+          lines.push(`→ orphan dirs = 目录仍在 .worktrees/ 下但 git worktree list 已不认识。`);
+          lines.push(`→ 重跑: koala doctor --repair 清理这两类残留。`);
         }
       }
 
@@ -129,9 +150,11 @@ export function createDoctorHandlers(ctx: HandlerContext) {
  * 把它列为活动的 worktree。典型成因：`git worktree remove` 因为 activity.jsonl
  * 等 gitignored 运行时产物被 hook 持续写入，git 静默只清 registry 而没删目录。
  */
-function scanOrphanWorktrees(root: string): {
+function scanOrphanWorktrees(root: string, store: HandlerContext['store']): {
   registered: string[];
   orphans: string[];
+  terminalRegistered: string[];
+  terminalDirs: string[];
 } {
   const cfg = loadConfig(root);
   const worktreeDirName = cfg.worktreeDir || '.worktrees';
@@ -141,12 +164,12 @@ function scanOrphanWorktrees(root: string): {
   try {
     repoRoot = execSync('git rev-parse --show-toplevel', { cwd: root, encoding: 'utf-8' }).trim();
   } catch {
-    return { registered: [], orphans: [] };
+    return { registered: [], orphans: [], terminalRegistered: [], terminalDirs: [] };
   }
 
   const worktreeBase = join(repoRoot, worktreeDirName);
   if (!existsSync(worktreeBase)) {
-    return { registered: [], orphans: [] };
+    return { registered: [], orphans: [], terminalRegistered: [], terminalDirs: [] };
   }
 
   // Collect the set of paths git currently considers active worktrees
@@ -159,7 +182,7 @@ function scanOrphanWorktrees(root: string): {
       .map(l => l.slice('worktree '.length).trim())
       .map(p => p.replace(/\\/g, '/'));
   } catch {
-    return { registered: [], orphans: [] };
+    return { registered: [], orphans: [], terminalRegistered: [], terminalDirs: [] };
   }
 
   // Directories directly under worktreeBase
@@ -167,10 +190,11 @@ function scanOrphanWorktrees(root: string): {
   try {
     entries = readdirSync(worktreeBase);
   } catch {
-    return { registered, orphans: [] };
+    return { registered, orphans: [], terminalRegistered: [], terminalDirs: [] };
   }
 
   const orphans: string[] = [];
+  const terminalDirs: string[] = [];
   for (const name of entries) {
     const abs = join(worktreeBase, name);
     let isDir = false;
@@ -180,10 +204,26 @@ function scanOrphanWorktrees(root: string): {
       continue;
     }
     if (!isDir) continue;
+    if (isTerminalStory(store, name)) terminalDirs.push(abs);
     const norm = abs.replace(/\\/g, '/');
     const matched = registered.some(r => r === norm);
     if (!matched) orphans.push(abs);
   }
 
-  return { registered, orphans };
+  const terminalRegistered = registered.filter((p) => {
+    const norm = p.replace(/\\/g, '/');
+    if (!norm.startsWith(worktreeBase.replace(/\\/g, '/') + '/')) return false;
+    return isTerminalStory(store, basename(p));
+  });
+
+  return { registered, orphans, terminalRegistered, terminalDirs };
+}
+
+function isTerminalStory(store: HandlerContext['store'], storyId: string): boolean {
+  try {
+    const story = store.readStory(storyId);
+    return story.phase === 'DONE' || story.phase === 'DISCARDED';
+  } catch {
+    return false;
+  }
 }

@@ -394,10 +394,10 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
         // B-45ed CHK-008: bg:✓ 标记（仅在 background.md 存在时输出字段，不存在时省略字段不报错）
         const bgFlag = hasBackground(sourceStore, id) ? 'bg:✓' : null;
 
-        // B-5fa4 CHK-002: append [zombie] / [residue] labels
+        // B-5fa4 CHK-002: append [zombie] / [terminal-worktree] labels
         const labels: string[] = [];
         if (zombieIds.has(id)) labels.push('[zombie]');
-        if (residueIds.has(id)) labels.push('[residue]');
+        if (residueIds.has(id)) labels.push('[terminal-worktree]');
 
         return {
           storyId: id,
@@ -484,7 +484,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
         }
         if (residues.length > 0) {
           bugSuggestions.push(
-            `⚠ Residue (${residues.length}): ${residues.map(r => r.storyId).join(', ')} — phase 已终态但 worktree 目录未清理`,
+            `⚠ Terminal worktrees (${residues.length}): ${residues.map(r => r.storyId).join(', ')} — phase 已终态但 .worktrees/ 下仍有目录（可能仍 registered，也可能是 orphan）`,
           );
         }
 
