@@ -318,6 +318,14 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     return removed;
   }
 
+  function removePathWithTimeout(path: string): void {
+    execFileSync('rm', ['-rf', path], {
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+      timeout: 30000,
+    });
+  }
+
   function purgeSafeInitCommit(storyId: string, storyRel: string): string {
     const dirtyOutsideStory = git('status --porcelain')
       .split('\n')
@@ -789,7 +797,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
           } catch (e: any) {
             removeFailure = gitErrorMessage(e);
             try {
-              rmSync(wtPath, { recursive: true, force: true });
+              removePathWithTimeout(wtPath);
             } catch (rmError: any) {
               throw new Error(
                 `story_discard: worktree 移除失败，已停止 discard，避免留下半清理状态。\n` +
@@ -827,13 +835,28 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
             }
           }
         } else {
+          let pruneFailure: string | null = null;
           try {
             pruneWorktreeRegistry();
             results.push(`✓ stale worktree metadata 已 prune: ${wtPath}`);
           } catch (e: any) {
+            pruneFailure = gitErrorMessage(e);
+          }
+          if (findWorktreeResidue(args.storyId, branch, wtPath)) {
+            const removedAdmins = removeStaleWorktreeAdminDirs(args.storyId, branch, wtPath);
+            if (removedAdmins.length > 0) results.push(`✓ stale git worktree admin 已清理: ${removedAdmins.join(', ')}`);
+            try {
+              pruneWorktreeRegistry();
+              results.push(`✓ stale worktree metadata 已 prune: ${wtPath}`);
+              pruneFailure = null;
+            } catch (e: any) {
+              pruneFailure = pruneFailure || gitErrorMessage(e);
+            }
+          }
+          if (pruneFailure && findWorktreeResidue(args.storyId, branch, wtPath)) {
             throw new Error(
               `story_discard: worktree 路径不存在但 git metadata prune 失败，已停止 discard。\n` +
-              `worktree: ${wtPath}\nbranch: ${branch}\n原因: ${gitErrorMessage(e)}\n` +
+              `worktree: ${wtPath}\nbranch: ${branch}\n原因: ${pruneFailure}\n` +
               `→ 关闭占用该仓库的进程后重试。`,
             );
           }

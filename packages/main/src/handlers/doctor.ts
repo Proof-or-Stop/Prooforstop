@@ -37,15 +37,15 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       let cleanupTargets = collectWorktreeCleanupTargets(orphanScan);
       if (args?.repair && cleanupTargets.length > 0) {
         for (const target of cleanupTargets) {
-                    try {
-                        tryWorktreeRemove(root, target);
-                        removePathWithTimeout(target);
-                        removeStaleWorktreeAdminDirs(root, target);
-                        deleteTerminalStoryBranch(root, store, basename(target));
-                        if (existsSync(target)) {
-                            throw new Error('path still exists after rm -rf');
-                    }
-                    repaired.push(target);
+          try {
+            tryWorktreeRemove(root, target);
+            removePathWithTimeout(target);
+            removeStaleWorktreeAdminDirs(root, target);
+            deleteTerminalStoryBranch(root, store, basename(target));
+            if (existsSync(target)) {
+              throw new Error('path still exists after rm -rf');
+            }
+            repaired.push(target);
           } catch (e: any) {
             markRepairIgnored(target, e.message || String(e));
             repairFailed.push({ path: target, error: e.message || String(e) });
@@ -293,6 +293,9 @@ function removePathWithTimeout(target: string): void {
 
 function removeStaleWorktreeAdminDirs(root: string, target: string): string[] {
   const removed: string[] = [];
+  const storyId = basename(target);
+  const branch = `story/${storyId}`;
+  const branchRef = `refs/heads/${branch}`;
   const expectedPath = resolve(target).replace(/\\/g, '/');
   let commonDir: string;
   try {
@@ -313,11 +316,15 @@ function removeStaleWorktreeAdminDirs(root: string, target: string): string[] {
   }
   for (const name of names) {
     const adminDir = join(adminBase, name);
-    let matches = name === basename(target);
+    let matches = name === storyId;
     try {
       const gitdir = readFileSync(join(adminDir, 'gitdir'), 'utf-8').trim();
       const gitdirPath = gitdir.endsWith('/.git') || gitdir.endsWith('\\.git') ? dirname(gitdir) : gitdir;
       if (resolve(gitdirPath).replace(/\\/g, '/') === expectedPath) matches = true;
+    } catch { /* PROBE: malformed stale worktree metadata */ }
+    try {
+      const head = readFileSync(join(adminDir, 'HEAD'), 'utf-8').trim();
+      if (head === `ref: ${branchRef}` || head === `ref: ${branch}`) matches = true;
     } catch { /* PROBE: malformed stale worktree metadata */ }
     if (!matches) continue;
     try {
