@@ -39,6 +39,7 @@ import { createInitCheckHandlers } from './handlers/init-check.js';
 import { createScopeQuestionResolveHandlers } from './handlers/scope-question-resolve.js';
 import { createStoryDispatchHandlers } from './handlers/story-dispatch.js';
 import { createBackgroundHandlers } from './handlers/background.js';
+import { createPlanHandlers } from './handlers/plan.js';
 import { createAuditHandlers } from './handlers/audit.js';
 import { createClusterHandlers } from './handlers/cluster.js';
 import { createReviewerListHandlers } from './handlers/reviewer-list.js';
@@ -123,6 +124,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createScopeQuestionResolveHandlers(ctx));
   registry.registerBatch(createStoryDispatchHandlers(ctx));
   registry.registerBatch(createBackgroundHandlers(ctx));
+  registry.registerBatch(createPlanHandlers(ctx));
   registry.registerBatch(createAuditHandlers(ctx));
 
   // B-9d95 CHK-005: 只 wire `finding_cluster`。createClusterHandlers 同时导出 `finding_dispatch`，

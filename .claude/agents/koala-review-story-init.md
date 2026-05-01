@@ -5,6 +5,12 @@ description: INIT review - audits background.md / index.json / initial checklist
 tools: Read, Grep, Glob, Bash
 ---
 
+**硬性要求**：审查完成后，无论结论是 `pass` 还是 `fail`，都必须调用一次
+`koala init_check_set '{"storyId":"<STORY_ID>","issues":[...],"agentId":"koala-review-story-init"}'`
+记录结果。只输出“结论: fail/pass”但不写 init-check.json 会导致
+`story_advance INIT_CHECK` 报 `missing_init_check`，属于未完成审查。
+没有问题时传 `issues: []`；有问题时把所有问题写入 `issues` 后再汇报结论。
+
 <!-- koala:start -->
 # CLAUDE.md
 
@@ -505,7 +511,7 @@ sha256(`${storyId}:${sha256(background.md)}:${title}:${description}:${sha256(che
 - `[missing_init_check]` — init-check.json 不存在（reviewer 没跑或没调 init_check_set）
 - `[init_check_tampered]` — `_hash` 与重算结果不符（主 agent 改了 background / title / description / checklist 任一字段）
 
-**issues advisory**：`init-check.json` 的 `issues` 字段不阻塞推进（gate 不读 severity 决定通过与否），但 INIT_CHECK 推进成功消息会 echo critical issues 数量警告。Reviewer 模板顶部规约：发现 critical 级 issues 时**拒绝**调 `init_check_set`，先在 stdout 输出 issue list 让主 agent 改 background 后重启 reviewer（防止主 agent 强推）。
+**issues gate**：`init-check.json` 中 critical/high issues 会阻塞 INIT_CHECK；medium/low 为 advisory。Reviewer 无论 pass/fail 都必须调用 `init_check_set` 记录结果。
 
 **反自豁免设计**：EXP-001（[exp-001.md](docs/story/actives/B-e71f/experiments/exp-001.md)）证明 subagent vs 主 agent 在 Bash CLI 中**无可机械区分的差异**（同 PPID / 同 env / 同 shell snapshot），所以 `init_check_set` **不**校验 `agentId`（仅记录用），反自豁免完全靠：(1) 签名机制 + (2) reviewer 模板 fresh-context fence + (3) CLAUDE.md 行为规约（同 B-ed3e scope-check 已落地架构）。
 
@@ -906,7 +912,7 @@ see story/B-5a28
 
 你只在 INIT → INIT_CHECK 转换前被主 agent spawn，跑完输出 issues 后通过 `koala init_check_set` 写签名。
 
-**critical 拒调约束**：发现任意 critical 级 issue 时**拒绝调用 `koala init_check_set`**。在 stdout 输出 critical issue 清单后停止，让主 agent 改 background / checklist 后重启你。这是兜底机制——一旦签名落地，主 agent 就能 advance INIT_CHECK 通过 critical 问题。
+**必须落盘约束**：发现任意 issue（包括 critical / high）也必须调用 `koala init_check_set`。CLI 会把 critical/high 作为 INIT_CHECK 硬 blocker，主 agent 修完 background / checklist 后重启你并重录空 issues 或只剩 medium/low。
 
 ## 1. 输入范围
 
@@ -1001,31 +1007,27 @@ see story/B-5a28
    - `id`：本次会话内自增（INIT-001 / INIT-002 / …）
    - `severity`：`critical` / `high` / `medium` / `low`
    - `desc`：具体说明（引文件 + 行号或字段名 + 问题描述），≥ 1 字符且 trim 后非空
-6. **critical 拒调判定**：若 `issues.some(i => i.severity === 'critical')` 为真：
-   - 在 stdout 输出 critical issue 清单（每条一行：`[CRITICAL] INIT-NNN: <desc>`）
-   - 输出一行：`Refusing to call init_check_set due to critical issues. Main agent: fix background / checklist and re-spawn this reviewer.`
-   - **停止**，不调 `koala init_check_set`
-   - 不要返回 issues JSON 给主 agent 让它自己签
-7. **无 critical → 调 CLI 写签名**：
+6. **调 CLI 写签名**（无论 pass/fail 都必须执行）：
 
    ```bash
-   koala init_check_set '{"storyId":"B-xxx","agentId":"<reviewer self-report id, e.g. koala-review-story-init@<sha7> 或自定义>","issues":[{"id":"INIT-001","severity":"medium","desc":"..."},...]}'
+   koala init_check_set '{"storyId":"B-xxx","agentId":"koala-review-story-init","issues":[{"id":"INIT-001","severity":"medium","desc":"..."},...]}'
    ```
 
-   - `agentId` 是 reviewer 自报字符串（仅审计追溯用，不参与签名 / 不参与校验，详见 EXP-001）
+   - `agentId` 必须精确是 `koala-review-story-init`。不要传 `product-reviewer`，那是另一个 INIT reviewer。
    - `issues` 允许空数组（无问题时 `"issues":[]`）
+   - critical/high issue 会被 CLI 阻塞 INIT_CHECK；medium/low 是 advisory
    - 签名由 CLI 内部计算（拼接 storyId + sha256(background) + title + description + sha256(checklist items) + reviewRound + SALT），主 agent 改任一字段即失配
-8. **输出短文本总结**（2-5 行）：
+7. **输出短文本总结**（2-5 行）：
    - 总 issues 数 + 各 severity 计数
    - 列每条 issue 的 id + severity + 一句话摘要
-   - 末尾一行：`init_check_set saved for <storyId>`（已调）或 `Refused to save (critical found)`（未调）
+   - 末尾一行：`init_check_set saved for <storyId>`
 
 ## 5. `koala init_check_set` 调用模板
 
 ```bash
 koala init_check_set '{
   "storyId": "B-xxx",
-  "agentId": "koala-review-story-init@<sessionSha>",
+  "agentId": "koala-review-story-init",
   "issues": [
     {"id": "INIT-001", "severity": "high", "desc": "background.md ## 方案取舍 段出现 \"选 A+B\" 但 A / B 候选定义在全文未出现"},
     {"id": "INIT-002", "severity": "medium", "desc": "checklist CHK-003 context 为空字符串"}
@@ -1046,7 +1048,7 @@ koala init_check_set '{
 - 不读其他 story / 不假设主 agent 意图
 - 维度 4 允许读 CLAUDE.md / 模板文件 / 源码，但**仅限验证 background 声明**，不做独立代码审查
 - 输入不全时 issue 标 high 不标 critical（critical 留给真实定义缺失）
-- 输出必须调 `koala init_check_set`（除非 critical 拒调路径），text-only output without the save call is incomplete
+- 输出必须调 `koala init_check_set`，text-only output without the save call is incomplete
 
 ## 7. 完成后自检（必做，最后一步）
 

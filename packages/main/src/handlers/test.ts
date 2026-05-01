@@ -1,6 +1,7 @@
 
 import type { HandlerContext } from './context.js';
 import type { TestEvidenceData } from '../core/types.js';
+import { currentMaterialHash } from '../core/evidence-freshness.js';
 import { execSync } from 'child_process';
 
 export function createTestHandlers(ctx: HandlerContext) {
@@ -17,6 +18,7 @@ export function createTestHandlers(ctx: HandlerContext) {
       try {
         headHash = execSync('git rev-parse HEAD', { cwd: ctx.root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
       } catch { /* 无法获取 HEAD，跳过 */ }
+      const materialHash = currentMaterialHash(ctx.root);
       const data: TestEvidenceData = {
         command: args.command,
         output: args.output,
@@ -27,6 +29,7 @@ export function createTestHandlers(ctx: HandlerContext) {
           os: `${process.platform} ${process.arch}`,
         },
         ...(headHash ? { headHash } : {}),
+        ...(materialHash ? { materialHash } : {}),
       };
       store.writeTestEvidence(args.storyId, data);
       return `Test evidence updated (${args.result})`;

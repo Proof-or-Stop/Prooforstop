@@ -155,7 +155,7 @@ export function isAcceptableCommit(c: ChannelOffender): boolean {
 
 /**
  * F-021 (B-fdcf CHK-003): 读 plan.md 抽出声明 `**Owner**: main-agent` 的 CHK-id 集合。
- * 解析规则：按 `^## (CHK-\d+):` 段落拆分，在每段内找第一行 `**Owner**: main-agent`
+ * 解析规则：按 `^## (CHK-\d+)` 段落拆分，在每段内找第一行 `**Owner**: main-agent`
  * （宽松空白）。plan.md 不存在或解析失败 → 返回空集（fail-open，继续要求事件证据）。
  */
 export type PlanReader = (storyId: string, projectRoot: string) => string | null;
@@ -176,7 +176,7 @@ export function parseMainAgentOwnedItems(planContent: string | null): Set<string
   if (!planContent) return owned;
   const lines = planContent.split('\n');
   let currentChk: string | null = null;
-  const headerRe = /^##\s+(CHK-\d+)\s*:/;
+  const headerRe = /^##\s+(CHK-\d+)\b/;
   const ownerRe = /^\s*\*\*Owner\*\*\s*:\s*(\S[^\n]*)/i;
   for (const line of lines) {
     const hm = headerRe.exec(line);
@@ -440,7 +440,9 @@ export function checkCommitAuthor(
     };
   }
 
-  const authorOk = offenders.length === 0;
+  const itemIds = (checklist?.items ?? []).map(item => item.id).filter(Boolean);
+  const allItemsOwnedByMain = itemIds.length > 0 && itemIds.every(id => ownedByMain.has(id));
+  const authorOk = offenders.length === 0 || allItemsOwnedByMain;
 
   if (authorOk && evidence.ok) {
     // F-003 (B-fdcf Round 1): 判定 evidenceSource 标签，供 renderChannelResult 嵌入
@@ -462,12 +464,18 @@ export function checkCommitAuthor(
       else if (anyDispatch) evidenceSource = 'dispatch';
       else if (anySubagent) evidenceSource = 'subagent_result';
     }
+    const summary = allItemsOwnedByMain && offenders.length > 0
+      ? `正常通道：${commits.length} 条 commit 由 plan.md Owner=main-agent 明确豁免；dispatch 证据覆盖完整`
+      : `正常通道：${commits.length} 条 commit 全部由 koala-implementer 或 koala CLI 产出；dispatch 证据覆盖完整`;
     return {
       provider: 'koala-channel',
       status: 'pass',
-      summary: `正常通道：${commits.length} 条 commit 全部由 koala-implementer 或 koala CLI 产出；dispatch 证据覆盖完整`,
+      summary,
       details: [
         ...commits.map((c) => `${c.sha.slice(0, 7)} ${c.author} — ${c.subject}`),
+        ...(allItemsOwnedByMain && offenders.length > 0
+          ? ['plan.md Owner=main-agent author 豁免: all checklist items']
+          : []),
         ...evidence.details,
       ],
       evidenceSource,

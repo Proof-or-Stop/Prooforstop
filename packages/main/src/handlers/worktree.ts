@@ -1,7 +1,8 @@
 
 import { execFileSync, execSync } from 'child_process';
-import { existsSync, lstatSync, readlinkSync, symlinkSync, unlinkSync } from 'fs';
-import { dirname, join, relative, isAbsolute, resolve, sep } from 'path';
+import { existsSync, lstatSync, mkdtempSync, readFileSync, readdirSync, readlinkSync, rmSync, symlinkSync, unlinkSync } from 'fs';
+import { tmpdir } from 'os';
+import { basename, dirname, join, relative, isAbsolute, resolve, sep } from 'path';
 import type { HandlerContext } from './context.js';
 import { collectContext, PHASE_TO_EVENT } from './context.js';
 import { createStoryActor, getStateName, getGuardFailureReason } from '../core/machine.js';
@@ -122,13 +123,71 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         while (Date.now() < until) { /* busy-wait; execSync is already sync */ }
       }
       try {
-        git(`worktree remove${flag} "${wtPath}"`);
+        execFileSync('git', ['worktree', 'remove', ...(opts.force ? ['--force'] : []), wtPath], {
+          cwd: root,
+          encoding: 'utf-8',
+          stdio: ['pipe', 'pipe', 'pipe'],
+          timeout: 5000,
+        });
         return;
       } catch (e) {
         lastErr = e;
       }
     }
     throw lastErr;
+  }
+
+  function gitErrorMessage(e: any): string {
+    return String(e?.stderr || e?.stdout || e?.message || e).trim();
+  }
+
+  function gitFile(args: string[], cwd = root, env?: NodeJS.ProcessEnv): string {
+    return execFileSync('git', args, {
+      cwd,
+      env: env ? { ...process.env, ...env } : process.env,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+  }
+
+  function gitRefExists(ref: string, cwd = root): boolean {
+    try {
+      gitFile(['rev-parse', '--verify', ref], cwd);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  function gitTreePathExists(ref: string, relPath: string, cwd = root): boolean {
+    try {
+      gitFile(['cat-file', '-e', `${ref}:${relPath}`], cwd);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  function createScopedStoryBootstrapCommit(args: {
+    storyId: string;
+    branch: string;
+    storyRel: string;
+    repoRoot: string;
+  }): void {
+    const { storyId, branch, storyRel, repoRoot } = args;
+    const tempDir = mkdtempSync(join(tmpdir(), `koala-index-${storyId}-`));
+    const indexFile = join(tempDir, 'index');
+    try {
+      const head = gitFile(['rev-parse', '--verify', 'HEAD'], repoRoot);
+      const env = { GIT_INDEX_FILE: indexFile };
+      gitFile(['read-tree', 'HEAD'], repoRoot, env);
+      gitFile(['add', '--', storyRel], repoRoot, env);
+      const tree = gitFile(['write-tree'], repoRoot, env);
+      const commit = gitFile(['commit-tree', tree, '-p', head, '-m', `koala: story ${storyId} init`], repoRoot);
+      gitFile(['update-ref', `refs/heads/${branch}`, commit], repoRoot);
+    } finally {
+      try { rmSync(tempDir, { recursive: true, force: true }); } catch { /* DEBUG: temp index cleanup best effort */ }
+    }
   }
 
   function getRepoRoot(): string {
@@ -145,6 +204,178 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     return join(getRepoRoot(), storedPath);
   }
 
+  function branchExists(branch: string): boolean {
+    try {
+      execFileSync('git', ['rev-parse', '--verify', `${branch}^{commit}`], {
+        cwd: root,
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  type WorktreeRegistryEntry = {
+    path: string;
+    branch?: string;
+    head?: string;
+    prunable?: boolean;
+  };
+
+  function listWorktreeRegistry(): WorktreeRegistryEntry[] {
+    try {
+      const raw = execFileSync('git', ['worktree', 'list', '--porcelain'], {
+        cwd: root,
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      });
+      const entries: WorktreeRegistryEntry[] = [];
+      let current: WorktreeRegistryEntry | null = null;
+      for (const line of raw.split(/\r?\n/)) {
+        if (line.startsWith('worktree ')) {
+          if (current) entries.push(current);
+          current = { path: line.slice('worktree '.length).trim() };
+        } else if (current && line.startsWith('branch ')) {
+          current.branch = line.slice('branch '.length).trim();
+        } else if (current && line.startsWith('HEAD ')) {
+          current.head = line.slice('HEAD '.length).trim();
+        } else if (current && line.startsWith('prunable')) {
+          current.prunable = true;
+        }
+      }
+      if (current) entries.push(current);
+      return entries;
+    } catch { /* PROBE: non-git or old git */ }
+    return [];
+  }
+
+  function findWorktreePathByBranch(branch: string): string | null {
+    const branchRef = `refs/heads/${branch}`;
+    const entry = listWorktreeRegistry().find(e => e.branch === branchRef || e.branch === branch);
+    return entry?.path || null;
+  }
+
+  function findWorktreeResidue(storyId: string, branch: string, worktreePath?: string): string | null {
+    const branchRef = `refs/heads/${branch}`;
+    const expectedPath = worktreePath?.replace(/\\/g, '/');
+    for (const entry of listWorktreeRegistry()) {
+      const entryPath = entry.path.replace(/\\/g, '/');
+      if (entry.branch === branchRef || entry.branch === branch) return entry.path;
+      if (expectedPath && entryPath === expectedPath) return entry.path;
+      if (basename(entry.path) === storyId) return entry.path;
+    }
+    return null;
+  }
+
+  function pruneWorktreeRegistry(): void {
+    git('worktree prune --expire now');
+  }
+
+  function removeStaleWorktreeAdminDirs(storyId: string, branch: string, worktreePath?: string): string[] {
+    const removed: string[] = [];
+    const branchRef = `refs/heads/${branch}`;
+    const expectedPath = worktreePath ? resolve(worktreePath).replace(/\\/g, '/') : null;
+    let commonDir: string;
+    try {
+      commonDir = execFileSync('git', ['rev-parse', '--git-common-dir'], {
+        cwd: root,
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+        timeout: 5000,
+      }).trim();
+    } catch {
+      return removed;
+    }
+    const adminBase = isAbsolute(commonDir) ? join(commonDir, 'worktrees') : join(root, commonDir, 'worktrees');
+    let names: string[] = [];
+    try {
+      names = readdirSync(adminBase);
+    } catch {
+      return removed;
+    }
+    for (const name of names) {
+      const adminDir = join(adminBase, name);
+      let matches = name === storyId;
+      try {
+        const gitdir = readFileSync(join(adminDir, 'gitdir'), 'utf-8').trim();
+        const gitdirPath = gitdir.endsWith('/.git') || gitdir.endsWith('\\.git') ? dirname(gitdir) : gitdir;
+        if (expectedPath && resolve(gitdirPath).replace(/\\/g, '/') === expectedPath) matches = true;
+      } catch { /* PROBE: malformed stale worktree metadata */ }
+      try {
+        const head = readFileSync(join(adminDir, 'HEAD'), 'utf-8').trim();
+        if (head === `ref: ${branchRef}` || head === `ref: ${branch}`) matches = true;
+      } catch { /* PROBE: malformed stale worktree metadata */ }
+      if (!matches) continue;
+      try {
+        rmSync(adminDir, { recursive: true, force: true });
+        removed.push(adminDir);
+      } catch {
+        // MUTATION: caller verifies registry afterward and reports a hard failure.
+      }
+    }
+    return removed;
+  }
+
+  function purgeSafeInitCommit(storyId: string, storyRel: string): string {
+    const dirtyOutsideStory = git('status --porcelain')
+      .split('\n')
+      .filter(Boolean)
+      .filter(line => {
+        const status = line.slice(0, 2);
+        const path = line[2] === ' ' ? line.slice(3) : line.slice(2);
+        if (status === '??') return false;
+        return path && !path.startsWith(storyRel);
+      });
+    if (dirtyOutsideStory.length > 0) {
+      return `⚠ 未清理 main init commit：工作区有非 ${storyRel} 改动 (${dirtyOutsideStory.slice(0, 3).join(', ')})`;
+    }
+
+    let subject = '';
+    let files: string[] = [];
+    try {
+      subject = git('log -1 --pretty=%s');
+      files = git('diff-tree --no-commit-id --name-only -r HEAD')
+        .split('\n')
+        .map(s => s.trim())
+        .filter(Boolean);
+    } catch {
+      return '⚠ 未清理 main init commit：无法读取 HEAD';
+    }
+
+    const safeSubject = subject === `koala: story ${storyId} init` || subject.includes(storyId);
+    const safeFiles = files.length > 0 && files.every(path => path.startsWith(storyRel));
+    if (!safeSubject || !safeFiles) {
+      return `⚠ 未清理 main init commit：HEAD 不像 ${storyId} 的纯 metadata init commit`;
+    }
+
+    git('reset --hard HEAD~1');
+    return `✓ main init commit 已安全回退: ${subject}`;
+  }
+
+  function commitDiscardMetadata(storyId: string, storyRel: string): string {
+    try {
+      const dirty = git(`status --porcelain -- "${storyRel}"`);
+      if (!dirty) return '';
+      git(`add "${storyRel}"`);
+      const staged = git(`diff --cached --name-only -- "${storyRel}"`);
+      if (!staged) return '';
+      git(`-c commit.gpgsign=false commit -m "koala: discard ${storyId}" --only -- "${storyRel}"`);
+      const after = git(`status --porcelain -- "${storyRel}"`);
+      if (after) {
+        throw new Error(`story metadata still dirty:\n${after}`);
+      }
+      return `✓ discard metadata 已提交: koala: discard ${storyId}`;
+    } catch (e: any) {
+      throw new Error(
+        `story_discard: discard metadata 无法提交，已停止 discard。\n` +
+        `story: ${storyRel}\n原因: ${gitErrorMessage(e)}\n` +
+        `→ 请处理后重试，或手动提交/回滚 ${storyRel}。`,
+      );
+    }
+  }
+
   /**
    * B-5fa4 CHK-003: Check for unpushed commits before worktree cleanup.
    * Uses execFileSync to avoid shell injection. Returns a warning string
@@ -156,8 +387,9 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       execFileSync('git', ['remote', 'get-url', 'origin'], {
         cwd: worktreePath,
         encoding: 'utf-8',
-        stdio: ['pipe', 'pipe', 'pipe'],
-      });
+      stdio: ['pipe', 'pipe', 'pipe'],
+      timeout: 5000,
+    });
     } catch {
       // No origin remote — local-only repo, skip check
       return { count: 0, warning: null };
@@ -278,6 +510,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       const worktreeDir = loadConfig(root).worktreeDir || '.worktrees';
       const worktreePath = join(repoRoot, worktreeDir, args.storyId);
       const relWorktreePath = relative(repoRoot, worktreePath).replace(/\\/g, '/');
+      const storyRel = `${store.storyDirRel().replace(/\/$/, '')}/${args.storyId}`;
 
       // B-7eed: 先把 story.worktree 字段写进 story index.json，再 git add/commit，
       // 避免 commit 后 writeStory 留下主仓库 working tree 脏（会导致后续 DONE
@@ -287,36 +520,29 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       if (!story.startedAt) story.startedAt = now;
       store.writeStory(args.storyId, story);
 
-      // 先 commit story/metadata 文件，确保 worktree 能看到
-      // B-5246: fresh `git init` 仓库还没有任何 commit；`git branch story/B-xxx`
-      // 在没有 HEAD 的情况下会 `fatal: not a valid object name: 'main'`。
-      // 用 `git add -A` + `git commit --allow-empty` 在 worktree 之前确保至少有
-      // 一个 root commit 存在，这样 `git branch` 就能从当前 HEAD 创建。
-      try {
-        // 用 -A 而不是只 add docs/story —— 新项目里 koala.config.json 等也需要进入 worktree
-        git(`add -A`);
-        git(`commit -m "koala: story ${args.storyId} init" --allow-empty`);
-      } catch { /* 没有改动也没关系 */ }
-
-      // 创建分支（如果不存在）
-      // B-5246: 在 fresh 仓库上 `git branch <name>` 仍可能因为 HEAD 是 unborn 状态而失败。
-      // 改用 `git branch <name> HEAD` 显式指向 HEAD；如果 HEAD 还是 unborn 就先用 checkout
-      // 创建一个空的 root branch。
-      try {
-        git(`rev-parse --verify ${branch}`);
-      } catch {
+      // INIT_CHECK bootstrap must not advance or stage the user's current
+      // branch. Build a scoped tree with only this story directory in a
+      // temporary git index, then point story/B-* at that commit.
+      if (gitRefExists(branch, repoRoot)) {
+        const storyIndexRel = `${storyRel}/index.json`;
+        if (!gitTreePathExists(branch, storyIndexRel, repoRoot)) {
+          story.worktree = undefined;
+          store.writeStory(args.storyId, story);
+          throw new Error(
+            `分支 ${branch} 已存在，但不包含 ${storyIndexRel}。` +
+            `这通常表示旧/脏分支被复用；请先删除或修复该分支后重试。`,
+          );
+        }
+      } else {
         try {
-          git(`branch ${branch}`);
-        } catch {
-          // Fallback: HEAD 还没有任何 commit。强制创建一个空的 root commit 再分支。
-          try {
-            git(`commit --allow-empty -m "koala: bootstrap empty root for ${args.storyId}"`);
-            git(`branch ${branch}`);
-          } catch (e: any) {
-            throw new Error(
-              `无法在仓库根创建 worktree 分支 ${branch}：${e.message}。可能是仓库尚未 git init / 没有任何提交。先 git commit 一次再重试。`,
-            );
-          }
+          createScopedStoryBootstrapCommit({ storyId: args.storyId, branch, storyRel, repoRoot });
+        } catch (e: any) {
+          story.worktree = undefined;
+          store.writeStory(args.storyId, story);
+          throw new Error(
+            `无法为 ${branch} 创建 scoped story bootstrap commit：${gitErrorMessage(e)}。` +
+            `请确认当前仓库至少已有一个提交，且 ${storyRel} 可被 git add。`,
+          );
         }
       }
 
@@ -519,23 +745,25 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     },
 
     /** 废弃 story：任意阶段均可调用，强制清理 worktree 和分支 */
-    story_discard(args: { storyId: string; reason?: string; force?: boolean }): string {
+    story_discard(args: { storyId: string; reason?: string; force?: boolean; purge?: boolean }): string {
       const story = store.readStory(args.storyId);
 
       if (story.phase === 'DONE') {
         throw new Error(`Story ${args.storyId} 已 DONE，不能 discard（已完成的 story 请通过 git revert 撤销）`);
       }
-      if (story.phase === 'DISCARDED') {
-        return `Story ${args.storyId} 已是 DISCARDED 状态，无需重复操作`;
-      }
+      const wasDiscarded = story.phase === 'DISCARDED';
 
       const results: string[] = [];
+      const fallbackBranch = `story/${args.storyId}`;
+      const branch = story.worktree?.branch || fallbackBranch;
+      const detectedWorktreePath = story.worktree?.path
+        ? resolveWorktreePath(story.worktree.path)
+        : findWorktreeResidue(args.storyId, branch) || findWorktreePathByBranch(branch);
 
-      // 清理 worktree（如果存在）
-      if (story.worktree) {
-        const wtPath = resolveWorktreePath(story.worktree.path);
-        const { branch } = story.worktree;
-
+      // 清理 worktree（如果存在）。任何清理失败都 fail closed：不写
+      // DISCARDED，不删除 metadata，不输出“已清理”的伪成功。
+      if (detectedWorktreePath) {
+        const wtPath = detectedWorktreePath;
         if (existsSync(wtPath)) {
           // B-5fa4 CHK-003: warn about unpushed commits before discard cleanup
           const unpushed = checkUnpushedCommits(wtPath, branch);
@@ -552,36 +780,144 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
           }
 
           // 强制移除 worktree（B-0975: Windows Permission denied 瞬时锁重试）
+          // 如果 git remove 已经把 registry 弄成 prunable / 0000000，但
+          // 目录仍有残留，则继续 rm + prune，而不是把清理责任推给用户。
+          let removeFailure: string | null = null;
           try {
             worktreeRemoveWithRetry(wtPath, { force: true });
             results.push(`✓ Worktree ${wtPath} 已清理`);
           } catch (e: any) {
-            results.push(`⚠ worktree 移除失败: ${e.message}`);
+            removeFailure = gitErrorMessage(e);
+            try {
+              rmSync(wtPath, { recursive: true, force: true });
+            } catch (rmError: any) {
+              throw new Error(
+                `story_discard: worktree 移除失败，已停止 discard，避免留下半清理状态。\n` +
+                `worktree: ${wtPath}\nbranch: ${branch}\n原因: ${removeFailure}\n` +
+                `目录清理也失败: ${gitErrorMessage(rmError)}`,
+              );
+            }
           }
+
+          try {
+            pruneWorktreeRegistry();
+            if (removeFailure || findWorktreeResidue(args.storyId, branch, wtPath)) {
+              results.push(`✓ stale worktree metadata 已 prune: ${wtPath}`);
+            }
+          } catch (e: any) {
+            if (!removeFailure) removeFailure = 'git worktree remove succeeded but prune failed';
+            throw new Error(
+              `story_discard: worktree cleanup 后 metadata prune 失败，已停止 discard。\n` +
+              `worktree: ${wtPath}\nbranch: ${branch}\nremove 状态: ${removeFailure}\nprune 原因: ${gitErrorMessage(e)}`,
+            );
+          }
+
+          if (removeFailure && findWorktreeResidue(args.storyId, branch, wtPath)) {
+            try {
+              pruneWorktreeRegistry();
+            } catch (e: any) {
+              throw new Error(
+                `story_discard: worktree 移除失败后 metadata prune 失败，已停止 discard。\n` +
+                `worktree: ${wtPath}\nbranch: ${branch}\nremove 原因: ${removeFailure}\nprune 原因: ${gitErrorMessage(e)}`,
+              );
+            }
+            if (!existsSync(wtPath) && findWorktreeResidue(args.storyId, branch, wtPath)) {
+              const removedAdmins = removeStaleWorktreeAdminDirs(args.storyId, branch, wtPath);
+              if (removedAdmins.length > 0) results.push(`✓ stale git worktree admin 已清理: ${removedAdmins.join(', ')}`);
+            }
+          }
+        } else {
+          try {
+            pruneWorktreeRegistry();
+            results.push(`✓ stale worktree metadata 已 prune: ${wtPath}`);
+          } catch (e: any) {
+            throw new Error(
+              `story_discard: worktree 路径不存在但 git metadata prune 失败，已停止 discard。\n` +
+              `worktree: ${wtPath}\nbranch: ${branch}\n原因: ${gitErrorMessage(e)}\n` +
+              `→ 关闭占用该仓库的进程后重试。`,
+            );
+          }
+        }
+
+        const pathStillExists = existsSync(wtPath);
+        const lingeringWorktreePath = findWorktreeResidue(args.storyId, branch, wtPath);
+        if (pathStillExists || lingeringWorktreePath) {
+          try {
+            pruneWorktreeRegistry();
+          } catch (e: any) {
+            throw new Error(
+              `story_discard: worktree 清理后复查失败，metadata prune 也失败，已停止 discard。\n` +
+              `worktree: ${wtPath}\nbranch: ${branch}\n原因: ${gitErrorMessage(e)}`,
+            );
+          }
+          if (!existsSync(wtPath) && findWorktreeResidue(args.storyId, branch, wtPath)) {
+            const removedAdmins = removeStaleWorktreeAdminDirs(args.storyId, branch, wtPath);
+            if (removedAdmins.length > 0) results.push(`✓ stale git worktree admin 已清理: ${removedAdmins.join(', ')}`);
+          }
+        }
+
+        const finalPathStillExists = existsSync(wtPath);
+        const finalLingeringWorktreePath = findWorktreeResidue(args.storyId, branch, wtPath);
+        if (finalPathStillExists || finalLingeringWorktreePath) {
+          throw new Error(
+            `story_discard: worktree 复查仍有残留，已停止 discard。\n` +
+            `worktree: ${wtPath}${finalPathStillExists ? ' (path still exists)' : ''}\n` +
+            `branch: ${branch}${finalLingeringWorktreePath ? ` (${finalLingeringWorktreePath})` : ''}\n` +
+            `→ 关闭占用该 worktree 的进程后重试 story_discard。`,
+          );
         }
 
         // 强制删除分支
         try {
           git(`branch -D ${branch}`);
           results.push(`✓ 分支 ${branch} 已删除`);
-        } catch {
-          results.push(`⚠ 分支 ${branch} 未删除（可能已不存在）`);
+        } catch (e: any) {
+          if (branchExists(branch)) {
+            throw new Error(
+              `story_discard: 分支 ${branch} 删除失败，已停止 discard。\n原因: ${gitErrorMessage(e)}`,
+            );
+          }
+          results.push(`✓ 分支 ${branch} 已不存在`);
         }
 
         story.worktree = undefined;
+      } else if (branchExists(branch)) {
+        try {
+          git(`branch -D ${branch}`);
+          results.push(`✓ 分支 ${branch} 已删除`);
+        } catch (e: any) {
+          throw new Error(
+            `story_discard: 分支 ${branch} 删除失败，已停止 discard。\n原因: ${gitErrorMessage(e)}`,
+          );
+        }
+      }
+
+      if (args.purge) {
+        const storyRel = `${loadConfig(root).storyDir.replace(/\\/g, '/')}/${args.storyId}`;
+        rmSync(join(root, storyRel), { recursive: true, force: true });
+        results.push(`✓ Story metadata 已清理: ${storyRel}`);
+        results.push(purgeSafeInitCommit(args.storyId, storyRel));
+        return results.join('\n');
       }
 
       // 记录 discard 事件
+      const storyRel = `${loadConfig(root).storyDir.replace(/\\/g, '/')}/${args.storyId}`;
       const now = new Date().toISOString();
       story.phase = 'DISCARDED';
-      story.endedAt = now;
+      if (!story.endedAt) story.endedAt = now;
       if (!story.events) story.events = [];
-      const event = collectContext('DISCARDED', 'discard');
-      if (args.reason) event.reason = args.reason;
-      story.events.push(event);
+      if (!wasDiscarded) {
+        const event = collectContext('DISCARDED', 'discard');
+        if (args.reason) event.reason = args.reason;
+        story.events.push(event);
+      }
       store.writeStory(args.storyId, story);
+      const metadataCommit = commitDiscardMetadata(args.storyId, storyRel);
+      if (metadataCommit) results.push(metadataCommit);
 
-      results.push(`✓ Story ${args.storyId} 已标记为 DISCARDED${args.reason ? ` (原因: ${args.reason})` : ''}`);
+      results.push(wasDiscarded
+        ? `✓ Story ${args.storyId} 已是 DISCARDED；残留已检查/清理`
+        : `✓ Story ${args.storyId} 已标记为 DISCARDED${args.reason ? ` (原因: ${args.reason})` : ''}`);
       return results.join('\n');
     },
   };

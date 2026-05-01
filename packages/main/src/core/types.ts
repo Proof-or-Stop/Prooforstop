@@ -89,6 +89,8 @@ export interface VerificationEvidence {
   /** Reference like CHK-001:happy:0 or a custom VerificationIntentItem.id. */
   intentRef: string;
   kind: VerificationEvidenceKind;
+  /** Deferred waivers are temporary gate-self-test receipts and must be replaced by real evidence before TEST. */
+  waiverType?: 'permanent' | 'deferred_gate_evidence';
   file?: string;
   command?: string;
   result?: 'pass' | 'fail';
@@ -410,6 +412,20 @@ export interface FindingData {
   findings: Finding[];
 }
 
+/** Reviewer pass receipt: reviewer explicitly checked a round and found no blocker. */
+export interface ReviewPass {
+  id: string;
+  agent: string;
+  note: string;
+  createdAt: string;
+  reviewRound?: string;
+  _hash?: string;
+}
+
+export interface ReviewPassData {
+  passes: ReviewPass[];
+}
+
 /** Evaluator 打分证据（browser 项目 DONE gate 消费） */
 export interface EvalEvidenceData {
   scores: { functionality: number; usability: number };
@@ -440,6 +456,8 @@ export interface TestEvidenceData {
   traceCoverage?: string[];
   /** 测试时的 git HEAD hash（用于 DONE gate evidence freshness 检查） */
   headHash?: string;
+  /** 测试时的非 Koala 元数据文件树 hash（metadata-only commit 不应让 evidence stale） */
+  materialHash?: string;
   /** @deprecated Legacy evidence freshness field. New writes use headHash. */
   git?: {
     head: string | null;
@@ -456,7 +474,7 @@ export interface VerificationCoverageEntry {
   desc: string;
   type: VerificationIntentType;
   priority: VerificationPriority;
-  status: 'covered' | 'missing' | 'failed' | 'waived' | 'stale';
+  status: 'covered' | 'missing' | 'failed' | 'waived' | 'deferred' | 'stale';
   evidence?: VerificationEvidence;
 }
 
@@ -735,6 +753,16 @@ export interface InitCheckData {
    */
   issues: InitCheckIssue[];
   /**
+   * Per-reviewer records. New writes upsert by agentId so separate init reviewers
+   * cannot silently overwrite each other. Legacy init-check.json files without
+   * this field are interpreted as one record from `agentId`.
+   */
+  agentResults?: Array<{
+    agentId: string;
+    checkedAt: string;
+    issues: InitCheckIssue[];
+  }>;
+  /**
    * 签名：sha256(`${storyId}:${backgroundHash}:${title}:${description}:${checklistHash}:${reviewRound}:${INIT_CHECK_SALT}`)
    * 由 signInitCheck 计算。issues / agentId 不入签名域（issues 是 reviewer 主观判断，allow 后续修；
    * agentId 是 reviewer 自报易伪造，靠 reviewer 模板 fence 兜底）。
@@ -747,6 +775,11 @@ export interface InitCheckData {
 export interface DocsPromise {
   docPath: string;
   promise: string;
+  /**
+   * Optional reviewer-friendly status. DONE gate treats met/verified as
+   * verified and waived as an explicit waiver, matching delivery_check_set help.
+   */
+  status?: 'met' | 'verified' | 'waived' | 'unverified';
   verifiedBy?: string;
   evidence?: string;
   /** 豁免理由（≥ 30 字符），入签名防事后篡改 */

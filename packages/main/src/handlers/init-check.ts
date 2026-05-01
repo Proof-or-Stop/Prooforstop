@@ -18,12 +18,79 @@
  */
 
 import { createHash } from 'crypto';
-import { existsSync, readFileSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, statSync } from 'fs';
 import { StoryStore } from '../core/store.js';
 import type { HandlerContext } from './context.js';
 import type { InitCheckData, InitCheckIssue } from '../core/types.js';
 
 export const INIT_CHECK_SALT = 'koala-init-check-integrity-v1';
+export const REQUIRED_INIT_CHECK_AGENTS = ['koala-review-story-init', 'product-reviewer'] as const;
+
+function sleepSync(ms: number): void {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+
+function withInitCheckLock<T>(store: StoryStore, storyId: string, fn: () => T): T {
+  const lockDir = store.storyFilePath(storyId, 'init-check.lock');
+  const deadline = Date.now() + 5000;
+  while (true) {
+    try {
+      mkdirSync(lockDir);
+      break;
+    } catch (e: any) {
+      try {
+        const ageMs = Date.now() - statSync(lockDir).mtimeMs;
+        if (ageMs > 10000) rmSync(lockDir, { recursive: true, force: true });
+      } catch { /* PROBE: lock disappeared between mkdir attempts */ }
+      if (Date.now() > deadline) {
+        throw new Error(`init_check_set: timed out waiting for metadata lock (${e?.message || e})`);
+      }
+      sleepSync(50);
+    }
+  }
+  try {
+    return fn();
+  } finally {
+    rmSync(lockDir, { recursive: true, force: true });
+  }
+}
+
+function normalizeAgentId(agentId: string | undefined): string {
+  return (agentId || '').trim();
+}
+
+export function initCheckAgentMatches(agentId: string | undefined, required: string): boolean {
+  const normalized = normalizeAgentId(agentId);
+  return normalized === required || normalized.startsWith(`${required}@`);
+}
+
+export function initCheckAgentResults(data: InitCheckData): NonNullable<InitCheckData['agentResults']> {
+  if (Array.isArray(data.agentResults) && data.agentResults.length > 0) return data.agentResults;
+  return [{
+    agentId: normalizeAgentId(data.agentId),
+    checkedAt: data.checkedAt,
+    issues: Array.isArray(data.issues) ? data.issues : [],
+  }];
+}
+
+export function missingRequiredInitCheckAgents(data: InitCheckData): string[] {
+  const results = initCheckAgentResults(data);
+  return REQUIRED_INIT_CHECK_AGENTS.filter(required =>
+    !results.some(result => initCheckAgentMatches(result.agentId, required)),
+  );
+}
+
+export function blockingInitCheckIssues(data: InitCheckData): Array<{ agentId: string; issue: InitCheckIssue }> {
+  const blockers: Array<{ agentId: string; issue: InitCheckIssue }> = [];
+  for (const result of initCheckAgentResults(data)) {
+    for (const issue of result.issues || []) {
+      if (issue?.severity === 'critical' || issue?.severity === 'high') {
+        blockers.push({ agentId: result.agentId || '<unknown>', issue });
+      }
+    }
+  }
+  return blockers;
+}
 
 /**
  * 计算 background.md 全文的 sha256。文件不存在时返回固定字符串 "missing"，
@@ -119,8 +186,10 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
     init_check_set(args: {
       storyId: string;
       issues: InitCheckIssue[];
+      agent?: string;
       agentId?: string;
     }): string {
+      return withInitCheckLock(store, args.storyId, () => {
       // 1) story 存在性校验（同 scope_check_save 套路）
       let title = '';
       let description = '';
@@ -159,12 +228,21 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
       const _hash = signInitCheck(args.storyId, backgroundHash, title, description, checklistHash, reviewRound);
 
       // 5) 构造 InitCheckData 并落盘
+      const checkedAt = new Date().toISOString();
+      const agentId = normalizeAgentId(args.agentId || args.agent);
+      const previous = store.readInitCheck(args.storyId);
+      const agentResults = previous ? initCheckAgentResults(previous).filter(
+        result => !initCheckAgentMatches(result.agentId, agentId) && result.agentId !== agentId,
+      ) : [];
+      agentResults.push({ agentId, checkedAt, issues });
+
       const data: InitCheckData = {
         storyId: args.storyId,
-        checkedAt: new Date().toISOString(),
+        checkedAt,
         reviewRound,
-        agentId: args.agentId ?? '',
+        agentId,
         issues,
+        agentResults,
         _hash,
       };
       store.writeInitCheck(args.storyId, data);
@@ -180,7 +258,9 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
           case 'low': low++; break;
         }
       }
-      return `Init check saved for ${args.storyId}: ${issues.length} issues (${critical}/${high}/${medium}/${low})`;
+      const missing = missingRequiredInitCheckAgents(data);
+      return `Init check saved for ${args.storyId}: ${issues.length} issues (${critical}/${high}/${medium}/${low}); recorded agents: ${agentResults.map(r => r.agentId || '<unknown>').join(', ')}${missing.length > 0 ? `; missing required agents: ${missing.join(', ')}` : ''}`;
+      });
     },
   };
 }

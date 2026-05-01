@@ -3,6 +3,7 @@
 import { mkdirSync, writeFileSync, readFileSync, existsSync, cpSync, readdirSync, symlinkSync, lstatSync, readlinkSync, unlinkSync } from 'fs';
 import { join, dirname, relative } from 'path';
 import { fileURLToPath } from 'url';
+import { AGENTS_MD_TEMPLATE, CODEX_AGENT_FILES, CODEX_README_TEMPLATE, renderCodexAgentContent } from './init-assets.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -29,6 +30,7 @@ koala-init — 初始化 koala 开发框架
   src/shells/cli/main.ts        CLI shell 模板
   src/shells/web/               Web shell 目录
   .claude/agents/               koala-implementer 等 subagent 定义
+  .Codex/agents/                Codex subagent 定义
   .claude/skills/koala/         /koala skill 文件
   docs/story/actives/           Story 数据目录
   docs/requirements/            真相源目录
@@ -66,6 +68,7 @@ const dirs = [
   'docs/requirements/extracted',
   '.claude/skills/koala',
   '.claude/agents',
+  '.Codex/agents',
 ];
 for (const d of dirs) {
   const full = join(targetDir, d);
@@ -357,6 +360,25 @@ if (!existsSync(claudeMdPath)) {
   console.log('  - CLAUDE.md (exists, skip)');
 }
 
+const agentsMdPath = join(targetDir, 'AGENTS.md');
+if (!existsSync(agentsMdPath)) {
+  writeFileSync(agentsMdPath, AGENTS_MD_TEMPLATE);
+  console.log('  ✓ AGENTS.md (created)');
+} else {
+  const existing = readFileSync(agentsMdPath, 'utf-8');
+  if (existing.match(/<!--\s*koala:start\s*-->[\s\S]*?<!--\s*koala:end\s*-->/)) {
+    const updated = existing.replace(/<!--\s*koala:start\s*-->[\s\S]*?<!--\s*koala:end\s*-->/, AGENTS_MD_TEMPLATE.match(/<!--\s*koala:start\s*-->[\s\S]*?<!--\s*koala:end\s*-->/)?.[0] || AGENTS_MD_TEMPLATE);
+    if (updated !== existing) {
+      writeFileSync(agentsMdPath, updated);
+      console.log('  ✓ AGENTS.md (koala section synced)');
+    } else {
+      console.log('  - AGENTS.md (koala section up to date)');
+    }
+  } else {
+    console.log('  - AGENTS.md (exists, no koala markers, skip)');
+  }
+}
+
 // 4. 复制 skill
 console.log('\n[4/5] 复制 /koala skill...');
 const skillSrc = join(packageRoot, '..', '..', '.claude', 'skills', 'koala');
@@ -381,11 +403,14 @@ if (existsSync(skillSrc)) {
 `);
 }
 
-// 5. agent 模板 → symlink（改框架自动全局生效）
-console.log('\n[5/6] 链接 agent 模板...');
-const agentTemplateDir = join(packageRoot, 'templates', 'agents');
+// 5. agent 模板 → symlink/copy（发布包内置模板）
+console.log('\n[5/6] 同步 agent 模板...');
+const agentTemplateDir = [
+  join(packageRoot, 'templates', 'agents'),
+  join(packageRoot, '..', '..', '.claude', 'agents'),
+].find(existsSync);
 const agentDstDir = join(targetDir, '.claude', 'agents');
-if (existsSync(agentTemplateDir)) {
+if (agentTemplateDir) {
   for (const file of readdirSync(agentTemplateDir)) {
     if (!file.endsWith('.md')) continue;
     const src = join(agentTemplateDir, file);
@@ -414,6 +439,32 @@ if (existsSync(agentTemplateDir)) {
   }
 } else {
   console.log('  - agent 模板目录不存在, skip');
+}
+
+const codexReadmePath = join(targetDir, '.Codex', 'README.md');
+if (!existsSync(dirname(codexReadmePath))) mkdirSync(dirname(codexReadmePath), { recursive: true });
+writeFileSync(codexReadmePath, CODEX_README_TEMPLATE);
+console.log('  ✓ .Codex/README.md');
+
+if (agentTemplateDir) {
+  const codexAgentDir = join(targetDir, '.Codex', 'agents');
+  if (!existsSync(codexAgentDir)) mkdirSync(codexAgentDir, { recursive: true });
+  for (const file of CODEX_AGENT_FILES) {
+    const src = join(agentTemplateDir, file);
+    if (!existsSync(src)) continue;
+    const dst = join(codexAgentDir, file);
+    const content = renderCodexAgentContent(readFileSync(src, 'utf-8'));
+    if (existsSync(dst)) {
+      try {
+        const stat = lstatSync(dst);
+        if (stat.isSymbolicLink()) unlinkSync(dst);
+      } catch {
+        try { unlinkSync(dst); } catch {}
+      }
+    }
+    writeFileSync(dst, content);
+    console.log(`  ✓ .Codex/agents/${file}`);
+  }
 }
 
 // 6. hooks + settings.json

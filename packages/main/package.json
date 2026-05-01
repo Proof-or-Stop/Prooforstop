@@ -8,7 +8,7 @@
     "url": "https://github.com/koala-agent/koala.git",
     "directory": "packages/main"
   },
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "通用项目开发框架 — AI-driven Story 工作流 CLI",
   "type": "module",
   "main": "dist/index.js",
@@ -29,6 +29,7 @@
     "test:verification-intent-alias-smoke": "node dist/tasks/verification-intent-alias-smoke.js",
     "test:verification-freshness-smoke": "node dist/tasks/verification-freshness-smoke.js",
     "test:testintent-handoff-smoke": "node dist/tasks/testintent-handoff-smoke.js",
+    "test:review-pass-discard-smoke": "node dist/tasks/review-pass-discard-smoke.js",
     "test:validation-protocol": "node dist/tasks/validation-protocol-smoke.js",
     "test:flow-stability-smoke": "node dist/tasks/flow-stability-smoke.js"
   },

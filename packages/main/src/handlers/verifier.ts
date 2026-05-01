@@ -208,6 +208,7 @@ function decorateStoryVerification(ctx: HandlerContext, storyId: string, result:
       cl,
       head,
       (headHash, evidence) => checkEvidenceFreshnessForGit(ctx.root, headHash, evidence?.materialHash).fresh,
+      { deferredGateEvidence: 'missing' },
     );
   } catch {
     return result;
@@ -464,6 +465,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             cl,
             head,
             (headHash, evidence) => checkEvidenceFreshnessForGit(projectRoot, headHash, evidence?.materialHash).fresh,
+            { deferredGateEvidence: 'missing' },
           );
           return output + '\n' + renderVerificationCoverage(coverage) + (code !== 0 || coverage.missingRequired > 0 ? `\n(exit code: ${code || 1})` : '');
         } catch {

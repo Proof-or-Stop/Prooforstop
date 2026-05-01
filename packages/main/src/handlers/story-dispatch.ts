@@ -76,6 +76,82 @@ function resolveBackgroundPolicy(agentType: string | undefined): BackgroundPolic
 export function createStoryDispatchHandlers(ctx: HandlerContext) {
   const { store, root } = ctx;
 
+  function buildInitReviewPrompt(args: {
+    storyId: string;
+    agentType?: string;
+  }): { prompt: string } {
+    if (!args.storyId) throw new Error('storyId is required');
+    try {
+      store.readStory(args.storyId);
+    } catch {
+      throw new Error(`story ${args.storyId} not found`);
+    }
+    const bgPath = `${store.storyDirRel()}/${args.storyId}/background.md`;
+    const checklistPath = `${store.storyDirRel()}/${args.storyId}/checklist.json`;
+    return {
+      prompt: [
+        `审查 story ${args.storyId} 的 background + checklist 初版。`,
+        '',
+        '你是 koala-review-story-init reviewer；请 fresh-context 审查，不要沿用主 agent 的结论。',
+        `必读: ${bgPath}`,
+        `必读: ${checklistPath}`,
+        '',
+        '审查重点:',
+        '- background 是否足以说明触发事件、关键洞察、方案取舍、对话纹理',
+        '- checklist 是否拆成用户可观察、可验证、互不重叠的 item',
+        '- 是否存在高风险信号但缺少必要的 PLAN/decision/verification 准备',
+        '',
+        '执行节奏 / timeout:',
+        '- 开始后先输出 `INIT_REVIEW_START`，读完 background/checklist 后输出 `INIT_REVIEW_READ_DONE`。',
+        '- 最晚 5 分钟内必须二选一：调用 init_check_set，或输出明确 blocker + 当前卡点。',
+        '- 如果 4 分钟没有任何输出，主 agent 应视为 reviewer 卡住，可以重新运行本 dispatch 并重启 reviewer。',
+        '',
+        '硬性要求:',
+        `- 无论结论是 pass 还是 fail，都必须调用一次 init_check_set 记录结果；只输出文字结论不算完成。`,
+        `- 发现问题时也要调用: koala init_check_set '{"storyId":"${args.storyId}","issues":[{"severity":"low","desc":"..."}],"agentId":"koala-review-story-init"}'`,
+        `- 如果没有问题，issues 传空数组: koala init_check_set '{"storyId":"${args.storyId}","issues":[],"agentId":"koala-review-story-init"}'`,
+        '- INIT_CHECK gate 还要求 product-reviewer 也调用 init_check_set；你只负责 koala-review-story-init 这一条记录。',
+        '- 不要直接编辑 story 文件。',
+      ].join('\n'),
+    };
+  }
+
+  function buildProductInitReviewPrompt(args: {
+    storyId: string;
+    agentType?: string;
+  }): { prompt: string } {
+    if (!args.storyId) throw new Error('storyId is required');
+    try {
+      store.readStory(args.storyId);
+    } catch {
+      throw new Error(`story ${args.storyId} not found`);
+    }
+    const bgPath = `${store.storyDirRel()}/${args.storyId}/background.md`;
+    const checklistPath = `${store.storyDirRel()}/${args.storyId}/checklist.json`;
+    return {
+      prompt: [
+        `从用户价值角度审查 story ${args.storyId} 的 INIT 是否可推进。`,
+        '',
+        '你是 product-reviewer，不是 koala-review-story-init。请 fresh-context 审查，不要沿用主 agent 的结论。',
+        `必读: ${bgPath}`,
+        `必读: ${checklistPath}`,
+        '',
+        '审查重点:',
+        '- background 是否讲清用户为什么需要这件事，而不只是工程机制',
+        '- checklist 的每一项是否有用户可观察结果',
+        '- 完成后的 outcome 是否能让用户自然说“好了”，而不是还会问“然后呢？”',
+        '',
+        '硬性要求:',
+        '- 无论结论是 pass 还是 fail，都必须调用一次 init_check_set 记录结果；只输出文字结论不算完成。',
+        `- agentId 必须精确传 "product-reviewer"。不要传 "koala-review-story-init"，那是另一个 reviewer，会导致 INIT_CHECK gate 继续报缺 product-reviewer。`,
+        `- 发现问题时也要调用: koala init_check_set '{"storyId":"${args.storyId}","issues":[{"severity":"medium","desc":"..."}],"agentId":"product-reviewer"}'`,
+        `- 如果没有问题，issues 传空数组: koala init_check_set '{"storyId":"${args.storyId}","issues":[],"agentId":"product-reviewer"}'`,
+        '- critical/high issue 会硬阻塞 INIT_CHECK；medium/low 会记录为 advisory。',
+        '- 不要直接编辑 story 文件。',
+      ].join('\n'),
+    };
+  }
+
   function buildFindingPrompt(args: {
     storyId: string;
     findingId: string;
@@ -300,7 +376,8 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     /**
      * dispatch — B-9d95 CHK-004 统一入口
      *
-     * 按 itemId / findingId / clusterId 恰好一个分派；阶段 gate 全放开（INIT_CHECK 起可用）。
+     * 按 itemId / findingId / clusterId 恰好一个分派；若只传
+     * agentType=koala-review-story-init，则生成 INIT reviewer prompt。
      *
      * 互斥校验：三者必须恰好提供一个，多 / 少均抛 Error。
      * 返回：{ prompt: string } — 与老入口 byte-identical（clusterId 分支复用 cluster.ts 文本）。
@@ -319,8 +396,21 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         args.findingId ? 'findingId' : null,
         args.clusterId ? 'clusterId' : null,
       ].filter(Boolean);
+      const normalizedAgentType = normalizeAgentType(args.agentType);
+      if (provided.length === 0 && normalizedAgentType === 'koala-review-story-init') {
+        return buildInitReviewPrompt({
+          storyId: args.storyId,
+          agentType: args.agentType,
+        });
+      }
+      if (provided.length === 0 && normalizedAgentType === 'product-reviewer') {
+        return buildProductInitReviewPrompt({
+          storyId: args.storyId,
+          agentType: args.agentType,
+        });
+      }
       if (provided.length !== 1) {
-        throw new Error('dispatch 需要 itemId / findingId / clusterId 中恰好一个');
+        throw new Error('dispatch 需要 itemId / findingId / clusterId 中恰好一个；INIT reviewer 可只传 agentType=koala-review-story-init 或 product-reviewer');
       }
 
       if (args.itemId) {

@@ -74,10 +74,36 @@ function createTempProject() {
   return dir;
 }
 
+function makeBackground(label) {
+  return [
+    '## 触发事件',
+    `2026-05-01 B-0000 ${label} verifier needs a realistic story_create input before it can exercise INIT_CHECK bootstrap behavior.`,
+    '## 关键洞察',
+    'The bootstrap smoke owns worktree creation behavior, so its synthetic stories must satisfy the current background truth-source contract first.',
+    '## 方案取舍',
+    'Use one reusable four-section background helper instead of weakening story_create or duplicating long literals in every regression case.',
+    '## 对话纹理',
+    'The visible outcome remains the same for a maintainer: the verifier should fail only when INIT_CHECK bootstrap behavior regresses.',
+  ].join('\n\n');
+}
+
 function extractStoryId(text) {
   const storyId = text.match(/B-[a-f0-9]+/)?.[0];
   if (!storyId) throw new Error(`failed to parse story id from: ${text}`);
   return storyId;
+}
+
+function recordInitCheck(projectRoot, storyId) {
+  run(projectRoot, 'init_check_set', {
+    storyId,
+    issues: [],
+    agentId: 'koala-review-story-init',
+  });
+  run(projectRoot, 'init_check_set', {
+    storyId,
+    issues: [],
+    agentId: 'product-reviewer',
+  });
 }
 
 function extractWorktreePath(text) {
@@ -105,10 +131,12 @@ async function verifyConcurrentInitCheck() {
       name: `concurrent-${index}`,
       title: `Concurrent story ${index}`,
       description: 'Verify concurrent INIT_CHECK bootstrap serialization.',
+      background: makeBackground(`concurrent-${index}`),
       type: 'feature',
       priority: 'high',
       checklist: [{ title: 'bootstrap worktree', context: 'concurrency regression case' }],
     })));
+    for (const storyId of storyIds) recordInitCheck(temp, storyId);
 
     const outputs = await Promise.all(storyIds.map(storyId => runConcurrentInitCheck(temp, storyId)));
     const worktreePaths = outputs.map(extractWorktreePath);
@@ -133,10 +161,12 @@ function verifyScopedStage() {
       name: 'scoped-stage',
       title: 'Scoped stage story',
       description: 'Verify INIT_CHECK only stages story bootstrap files.',
+      background: makeBackground('scoped-stage'),
       type: 'feature',
       priority: 'high',
       checklist: [{ title: 'bootstrap worktree', context: 'scoped stage regression case' }],
     }));
+    recordInitCheck(temp, storyId);
 
     writeFileSync(join(temp, 'README.md'), '# temp project\n\nlocal dirty change\n');
     run(temp, 'story_advance', { storyId, phase: 'INIT_CHECK', confirm: true });
@@ -166,10 +196,12 @@ function verifyBadBranchFailsFast() {
       name: 'bad-branch',
       title: 'Bad branch story',
       description: 'Verify INIT_CHECK fails fast when branch points at an older commit.',
+      background: makeBackground('bad-branch'),
       type: 'feature',
       priority: 'high',
       checklist: [{ title: 'bootstrap worktree', context: 'bad branch regression case' }],
     }));
+    recordInitCheck(temp, storyId);
 
     execFileSync('git', ['branch', `story/${storyId}`], { cwd: temp, stdio: ['pipe', 'pipe', 'pipe'] });
     const output = runAllowWarning(temp, 'story_advance', { storyId, phase: 'INIT_CHECK', confirm: true });
@@ -190,10 +222,12 @@ function verifyMainBranchNotPolluted() {
       name: 'branch-isolation',
       title: 'Branch isolation story',
       description: 'Verify INIT_CHECK bootstrap commit only advances the story branch.',
+      background: makeBackground('branch-isolation'),
       type: 'feature',
       priority: 'high',
       checklist: [{ title: 'bootstrap worktree', context: 'branch isolation regression case' }],
     }));
+    recordInitCheck(temp, storyId);
 
     const mainHeadBefore = git(temp, ['rev-parse', 'HEAD']);
     const output = run(temp, 'story_advance', { storyId, phase: 'INIT_CHECK', confirm: true });
@@ -220,10 +254,12 @@ function verifyDryRunDoesNotMutate() {
       name: 'dry-run-isolation',
       title: 'Dry-run isolation story',
       description: 'Verify INIT_CHECK dry-run only previews bootstrap changes.',
+      background: makeBackground('dry-run-isolation'),
       type: 'feature',
       priority: 'high',
       checklist: [{ title: 'bootstrap worktree', context: 'dry-run regression case' }],
     }));
+    recordInitCheck(temp, storyId);
 
     const mainHeadBefore = git(temp, ['rev-parse', 'HEAD']);
     const output = run(temp, 'story_advance', { storyId, phase: 'INIT_CHECK', dryRun: true });

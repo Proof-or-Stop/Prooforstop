@@ -10,9 +10,9 @@
  * worktree remove 静默只清 registry 不清目录的场景。
  */
 
-import { execSync } from 'child_process';
-import { existsSync, readdirSync, rmSync, statSync } from 'fs';
-import { basename, join } from 'path';
+import { execFileSync, execSync } from 'child_process';
+import { existsSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'fs';
+import { basename, dirname, isAbsolute, join, resolve } from 'path';
 import type { HandlerContext } from './context.js';
 import { readHealthIssues, summarizeHealthIssues, getHealthPath } from '../core/health.js';
 import { loadConfig } from '../core/config.js';
@@ -31,26 +31,37 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       // after a DONE merge when Claude Code's activity.jsonl hook or tmp/
       // runtime files kept file handles open during `git worktree remove`,
       // so git deregistered the worktree but left the dir behind.
-      const orphanScan = scanOrphanWorktrees(root, store);
+      let orphanScan = scanOrphanWorktrees(root, store);
       const repaired: string[] = [];
       const repairFailed: Array<{ path: string; error: string }> = [];
-      const cleanupTargets = [...orphanScan.terminalRegistered, ...orphanScan.orphans];
+      let cleanupTargets = collectWorktreeCleanupTargets(orphanScan);
       if (args?.repair && cleanupTargets.length > 0) {
         for (const target of cleanupTargets) {
-          try {
-            if (orphanScan.terminalRegistered.includes(target)) {
-              try {
-                execSync(`git worktree remove --force "${target}"`, { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] });
-              } catch {
-                // Best-effort repair: still try to remove any directory left behind.
-              }
-            }
-            rmSync(target, { recursive: true, force: true });
-            repaired.push(target);
+                    try {
+                        tryWorktreeRemove(root, target);
+                        removePathWithTimeout(target);
+                        removeStaleWorktreeAdminDirs(root, target);
+                        deleteTerminalStoryBranch(root, store, basename(target));
+                        if (existsSync(target)) {
+                            throw new Error('path still exists after rm -rf');
+                    }
+                    repaired.push(target);
           } catch (e: any) {
+            markRepairIgnored(target, e.message || String(e));
             repairFailed.push({ path: target, error: e.message || String(e) });
           }
         }
+        try {
+          execFileSync('git', ['worktree', 'prune', '--expire', 'now'], {
+            cwd: root,
+            encoding: 'utf-8',
+            stdio: ['pipe', 'pipe', 'pipe'],
+          });
+        } catch (e: any) {
+          repairFailed.push({ path: '<git worktree prune>', error: e.message || String(e) });
+        }
+        orphanScan = scanOrphanWorktrees(root, store);
+        cleanupTargets = collectWorktreeCleanupTargets(orphanScan);
       }
 
       if (args?.format === 'json') {
@@ -125,6 +136,12 @@ export function createDoctorHandlers(ctx: HandlerContext) {
           lines.push('  Orphan directories:');
           for (const o of orphanScan.orphans) lines.push(`  - ${o}`);
         }
+        const alreadyListed = new Set([...orphanScan.terminalRegistered, ...orphanScan.orphans]);
+        const terminalDirsOnly = orphanScan.terminalDirs.filter(p => !alreadyListed.has(p));
+        if (terminalDirsOnly.length > 0) {
+          lines.push('  Terminal directories:');
+          for (const p of terminalDirsOnly) lines.push(`  - ${p}`);
+        }
         if (args?.repair) {
           lines.push('');
           lines.push(`Repair:`);
@@ -134,7 +151,8 @@ export function createDoctorHandlers(ctx: HandlerContext) {
           lines.push('');
           lines.push(`→ terminal registered = story 已 DONE/DISCARDED 但 git 仍注册 worktree。`);
           lines.push(`→ orphan dirs = 目录仍在 .worktrees/ 下但 git worktree list 已不认识。`);
-          lines.push(`→ 重跑: koala doctor --repair 清理这两类残留。`);
+          lines.push(`→ terminal dirs = DONE/DISCARDED story 的 worktree 目录仍存在。`);
+          lines.push(`→ 重跑: koala doctor --repair 清理这些残留。`);
         }
       }
 
@@ -168,9 +186,6 @@ function scanOrphanWorktrees(root: string, store: HandlerContext['store']): {
   }
 
   const worktreeBase = join(repoRoot, worktreeDirName);
-  if (!existsSync(worktreeBase)) {
-    return { registered: [], orphans: [], terminalRegistered: [], terminalDirs: [] };
-  }
 
   // Collect the set of paths git currently considers active worktrees
   let registered: string[] = [];
@@ -186,11 +201,13 @@ function scanOrphanWorktrees(root: string, store: HandlerContext['store']): {
   }
 
   // Directories directly under worktreeBase
-  let entries: string[];
-  try {
-    entries = readdirSync(worktreeBase);
-  } catch {
-    return { registered, orphans: [], terminalRegistered: [], terminalDirs: [] };
+  let entries: string[] = [];
+  if (existsSync(worktreeBase)) {
+    try {
+      entries = readdirSync(worktreeBase);
+    } catch {
+      entries = [];
+    }
   }
 
   const orphans: string[] = [];
@@ -204,6 +221,7 @@ function scanOrphanWorktrees(root: string, store: HandlerContext['store']): {
       continue;
     }
     if (!isDir) continue;
+    if (isRepairIgnoredDir(abs)) continue;
     if (isTerminalStory(store, name)) terminalDirs.push(abs);
     const norm = abs.replace(/\\/g, '/');
     const matched = registered.some(r => r === norm);
@@ -217,6 +235,111 @@ function scanOrphanWorktrees(root: string, store: HandlerContext['store']): {
   });
 
   return { registered, orphans, terminalRegistered, terminalDirs };
+}
+
+function collectWorktreeCleanupTargets(scan: {
+  orphans: string[];
+  terminalRegistered: string[];
+  terminalDirs: string[];
+}): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const path of [...scan.terminalRegistered, ...scan.orphans, ...scan.terminalDirs]) {
+    const key = path.replace(/\\/g, '/');
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(path);
+  }
+  return out;
+}
+
+function tryWorktreeRemove(root: string, target: string): void {
+  try {
+    execFileSync('git', ['worktree', 'remove', '--force', target], {
+      cwd: root,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+      timeout: 5000,
+    });
+  } catch {
+    // Best-effort repair: target may already be an orphan dir, or a prunable
+    // registered worktree whose metadata is removed by the prune step.
+  }
+}
+
+function isRepairIgnoredDir(target: string): boolean {
+  return existsSync(join(target, '.koala-repair-ignore'));
+}
+
+function markRepairIgnored(target: string, reason: string): void {
+  try {
+    writeFileSync(
+      join(target, '.koala-repair-ignore'),
+      JSON.stringify({ reason, timestamp: new Date().toISOString() }, null, 2) + '\n',
+      'utf-8',
+    );
+  } catch {
+    // PERSIST: repair failure is already surfaced in repairFailed.
+  }
+}
+
+function removePathWithTimeout(target: string): void {
+  execFileSync('rm', ['-rf', target], {
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+    timeout: 30000,
+  });
+}
+
+function removeStaleWorktreeAdminDirs(root: string, target: string): string[] {
+  const removed: string[] = [];
+  const expectedPath = resolve(target).replace(/\\/g, '/');
+  let commonDir: string;
+  try {
+    commonDir = execFileSync('git', ['rev-parse', '--git-common-dir'], {
+      cwd: root,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+  } catch {
+    return removed;
+  }
+  const adminBase = isAbsolute(commonDir) ? join(commonDir, 'worktrees') : join(root, commonDir, 'worktrees');
+  let names: string[] = [];
+  try {
+    names = readdirSync(adminBase);
+  } catch {
+    return removed;
+  }
+  for (const name of names) {
+    const adminDir = join(adminBase, name);
+    let matches = name === basename(target);
+    try {
+      const gitdir = readFileSync(join(adminDir, 'gitdir'), 'utf-8').trim();
+      const gitdirPath = gitdir.endsWith('/.git') || gitdir.endsWith('\\.git') ? dirname(gitdir) : gitdir;
+      if (resolve(gitdirPath).replace(/\\/g, '/') === expectedPath) matches = true;
+    } catch { /* PROBE: malformed stale worktree metadata */ }
+    if (!matches) continue;
+    try {
+      rmSync(adminDir, { recursive: true, force: true });
+      removed.push(adminDir);
+    } catch { /* MUTATION: caller rescans and reports repairFailed if residue remains */ }
+  }
+  return removed;
+}
+
+function deleteTerminalStoryBranch(root: string, store: HandlerContext['store'], storyId: string): void {
+  if (!isTerminalStory(store, storyId)) return;
+  const branch = `story/${storyId}`;
+  try {
+    execFileSync('git', ['branch', '-D', branch], {
+      cwd: root,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+  } catch {
+    // PROBE: branch may already be gone; doctor repair is idempotent.
+  }
 }
 
 function isTerminalStory(store: HandlerContext['store'], storyId: string): boolean {

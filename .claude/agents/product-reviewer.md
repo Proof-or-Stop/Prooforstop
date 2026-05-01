@@ -25,6 +25,18 @@ tools:
 - 不审 testIntent 的工程覆盖率
 - 不改代码、不改测试、不改 testIntent
 
+## INIT 审查兼容要求
+
+如果主 agent 让你承担 INIT review 或要求你判断 INIT 是否可推进，审查完成后无论结论是 `pass` 还是 `fail`，都必须调用一次：
+
+```bash
+koala init_check_set '{"storyId":"<STORY_ID>","issues":[...],"agentId":"product-reviewer"}'
+```
+
+`agentId` 必须精确是 `product-reviewer`，不要传 `koala-review-story-init`，那是另一个 INIT reviewer，会导致 gate 继续认为缺少 product-reviewer 记录。
+
+没有问题时传 `issues: []`；有问题时把问题写入 `issues`。只输出“结论: fail/pass”但不调用 CLI 会让 `story_advance INIT_CHECK` 报 `missing_init_check`。critical/high issue 会阻塞 INIT_CHECK；medium/low 是 advisory。
+
 ## 审核输入
 
 主 agent 会提供：

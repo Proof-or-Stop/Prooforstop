@@ -19,7 +19,7 @@ import { computeActiveReviewers, renderActiveReviewersText } from './reviewer-li
 import { repairGlobalKoalaLinkBeforeWorktreeDelete } from './worktree.js';
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
 import { collectBaselineRisk, renderBaselineRiskLines } from '../core/baseline-risk.js';
-import { checkEvidenceFreshnessForGit } from '../core/evidence-freshness.js';
+import { checkEvidenceFreshnessForGit, currentMaterialHash } from '../core/evidence-freshness.js';
 import { reportHealthIssue } from '../core/health.js';
 
 // B-c622 CHK-004: DONE 阶段自动同步 main —— detect divergence + auto merge main
@@ -61,6 +61,32 @@ function autoSyncMain(projectRoot: string): { ok: boolean; message: string } {
   }
 }
 
+function isRegisteredWorktree(repoRoot: string, worktreePath: string): boolean {
+  try {
+    const raw = execFileSync('git', ['worktree', 'list', '--porcelain'], {
+      cwd: repoRoot,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    const target = worktreePath.replace(/\\/g, '/');
+    return raw
+      .split(/\r?\n/)
+      .filter(line => line.startsWith('worktree '))
+      .map(line => line.slice('worktree '.length).trim().replace(/\\/g, '/'))
+      .includes(target);
+  } catch {
+    return false;
+  }
+}
+
+function pruneWorktreeRegistry(repoRoot: string): void {
+  execFileSync('git', ['worktree', 'prune', '--expire', 'now'], {
+    cwd: repoRoot,
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+}
+
 function gitRefExists(projectRoot: string, ref: string): boolean {
   try {
     execFileSync('git', ['rev-parse', '--verify', `${ref}^{commit}`], {
@@ -83,6 +109,51 @@ function gitRefContainsMain(projectRoot: string, ref: string): boolean {
   return true;
 }
 
+function autoCommitStoryMetadata(projectRoot: string, storyId: string, storyDirRel: string, phase: StoryPhase): string {
+  try {
+    const branch = execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
+      cwd: projectRoot,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    if (!branch.startsWith('story/')) return '';
+
+    const storyRel = `${storyDirRel.replace(/\/$/, '')}/${storyId}`;
+    const before = execFileSync('git', ['status', '--porcelain', '--', storyRel], {
+      cwd: projectRoot,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    if (!before) return '';
+
+    execFileSync('git', ['add', storyRel], {
+      cwd: projectRoot,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    const staged = execFileSync('git', ['diff', '--cached', '--name-only', '--', storyRel], {
+      cwd: projectRoot,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    if (!staged) return '';
+
+    execFileSync('git', ['-c', 'commit.gpgsign=false', 'commit', '-m', `koala: record ${storyId} ${phase} metadata`], {
+      cwd: projectRoot,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    return `\n✓ story metadata 已自动提交: koala: record ${storyId} ${phase} metadata`;
+  } catch (e: any) {
+    reportHealthIssue('mutation:storyMetadataCommit', e instanceof Error ? e : new Error(String(e)), {
+      storyId,
+      phase,
+      projectRoot,
+    });
+    return `\n⚠ story metadata 自动提交失败: ${e?.message || e}`;
+  }
+}
+
 // B-9d95 CHK-003: re-export 供 DONE merge 前 stray 文件清理。主实现在独立
 // 文件（stray-file-cleanup.ts），logicTest 直接 import，避免把 xstate/machine
 // 等重依赖拖进测试进程。
@@ -93,7 +164,7 @@ export { cleanStrayWorktreeFiles, STRAY_FILE_WHITELIST } from './stray-file-clea
 function checkEvidenceFreshness(store: StoryStore, storyId: string, projectRoot: string): { fresh: boolean; message: string } {
   const evidence = store.readTestEvidence(storyId);
   if (!evidence) return { fresh: false, message: 'test-evidence.json 不存在' };
-  const freshness = checkEvidenceFreshnessForGit(projectRoot, evidence.headHash);
+  const freshness = checkEvidenceFreshnessForGit(projectRoot, evidence.headHash, evidence.materialHash);
   return { fresh: freshness.fresh, message: freshness.reason };
 }
 
@@ -547,12 +618,14 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
           try {
             evidenceHeadHash = execSync('git rev-parse HEAD', { cwd: ctx.root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
           } catch { /* 无法获取 HEAD，跳过 */ }
+          const evidenceMaterialHash = currentMaterialHash(ctx.root);
           store.writeTestEvidence(args.storyId, {
             command: `koala validate --story=${args.storyId} --json`,
             output: String(jsonResult),
             result: parsed.allPass ? 'PASS' : 'FAIL',
             timestamp: new Date().toISOString(),
             ...(evidenceHeadHash ? { headHash: evidenceHeadHash } : {}),
+            ...(evidenceMaterialHash ? { materialHash: evidenceMaterialHash } : {}),
             ...(parsed.verificationCoverage ? { verificationCoverage: parsed.verificationCoverage } : {}),
           });
 
@@ -750,6 +823,11 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
         });
         await runHooks('onPhaseChange', `${oldPhase}->${newState}`, env, cfg, ctx.root);
       } catch { /* runHooks itself never throws, but defensive */ }
+
+      let metadataCommitReport = '';
+      if (args.phase === 'REVIEW') {
+        metadataCommitReport = autoCommitStoryMetadata(ctx.root, args.storyId, store.storyDirRel(), args.phase);
+      }
 
       // CHK-002: PLAN→DEV 时收集所有 relatedDocs 列出来作为开工提醒
       // B-45ed CHK-008: PLAN→DEV 和 DONE 的 docsHint 统一含 background.md
@@ -987,9 +1065,10 @@ ${agentLines}
             // the working tree is clean AND the branch is merged into main —
             // anything left in the worktree is either gitignored runtime
             // state or genuine leakage we want to erase.
-            if (existsSync(wtPathAbs)) {
+            if (existsSync(wtPathAbs) || isRegisteredWorktree(mainRepoRoot, wtPathAbs)) {
               const repair = repairGlobalKoalaLinkBeforeWorktreeDelete(wtPathAbs, mainRepoRoot);
               if (repair.action === 'relinked') mergeLines.push(repair.message);
+              let removeFailure: string | null = null;
               try {
                 runGit(`worktree remove "${wtPathAbs}"`, mainRepoRoot);
                 mergeLines.push(`✓ Worktree ${wtPathAbs} 已清理`);
@@ -999,7 +1078,7 @@ ${agentLines}
                   runGit(`worktree remove --force "${wtPathAbs}"`, mainRepoRoot);
                   mergeLines.push(`✓ Worktree ${wtPathAbs} 已强制清理`);
                 } catch (e: any) {
-                  cleanupFailure = `git worktree remove failed: ${e.message}`;
+                  removeFailure = `git worktree remove failed: ${e.message}`;
                   mergeLines.push(`⚠ Worktree 未清理: ${e.message}`);
                 }
               }
@@ -1016,8 +1095,20 @@ ${agentLines}
                   mergeLines.push(`⚠ Worktree 目录残留清理失败: ${e.message}`);
                 }
               }
+              try {
+                pruneWorktreeRegistry(mainRepoRoot);
+                if (removeFailure && !existsSync(wtPathAbs) && !isRegisteredWorktree(mainRepoRoot, wtPathAbs)) {
+                  mergeLines.push(`✓ stale worktree registry 已 prune`);
+                }
+              } catch (e: any) {
+                mergeLines.push(`⚠ git worktree prune 失败: ${e.message}`);
+              }
               if (existsSync(wtPathAbs) && !cleanupFailure) {
                 cleanupFailure = `worktree path still exists after cleanup: ${wtPathAbs}`;
+              }
+              if (isRegisteredWorktree(mainRepoRoot, wtPathAbs) && !cleanupFailure) {
+                cleanupFailure = removeFailure || `worktree is still registered after cleanup: ${wtPathAbs}`;
+                mergeLines.push(`⚠ Worktree 仍在 git registry 中: ${wtPathAbs}`);
               }
             }
 
@@ -1076,26 +1167,28 @@ ${agentLines}
         } catch { /* ignore */ }
       }
 
-      // B-e71f CHK-005: INIT→INIT_CHECK 成功后 echo critical issues 数量
-      // （advisory，不阻塞）。advance 已成功推进，gate 在 getGuardFailureReason 已校验
-      // init-check.json 签名通过；此处仅读 issues 字段统计 critical 计数让主 agent 看到。
+      // INIT→INIT_CHECK 成功后 echo non-blocking init reviewer issues。
+      // critical/high 已在 gate 中阻塞；这里仅提示 medium/low。
       // 与 init_check_set 同标准 trim().length >= 1 校验 issue.desc，过滤空白串。
       let initCheckAdvisory = '';
       if (args.phase === 'INIT_CHECK' && oldPhase === 'INIT') {
         try {
           const initCheck = store.readInitCheck(args.storyId);
-          if (initCheck && Array.isArray(initCheck.issues)) {
-            const criticalCount = initCheck.issues.filter(
-              i => i && typeof i.desc === 'string' && i.desc.trim().length >= 1 && i.severity === 'critical',
+          if (initCheck) {
+            const allIssues = Array.isArray(initCheck.agentResults) && initCheck.agentResults.length > 0
+              ? initCheck.agentResults.flatMap(result => result.issues || [])
+              : initCheck.issues || [];
+            const advisoryCount = allIssues.filter(
+              i => i && typeof i.desc === 'string' && i.desc.trim().length >= 1 && (i.severity === 'medium' || i.severity === 'low'),
             ).length;
-            if (criticalCount > 0) {
-              initCheckAdvisory = `\n\n⚠ reviewer 报 ${criticalCount} 个 critical issues 未修复，建议改 background 后重跑 koala-review-story-init agent（advisory，不阻塞推进）`;
+            if (advisoryCount > 0) {
+              initCheckAdvisory = `\n\n⚠ init reviewer 记录 ${advisoryCount} 个 medium/low advisory，建议在 PLAN 前消化`;
             }
           }
         } catch { /* ignore */ }
       }
 
-      return `${doneChecklistPrefix}Story ${args.storyId} advanced to ${newState}${doneMergeReport}\n${nextSteps[newState] || ''}${docsHint}${depsWarning}${sessionWarning}${doneSummarySuffix}${initCheckAdvisory}${baselineRiskWarning}`;
+      return `${doneChecklistPrefix}Story ${args.storyId} advanced to ${newState}${metadataCommitReport}${doneMergeReport}\n${nextSteps[newState] || ''}${docsHint}${depsWarning}${sessionWarning}${doneSummarySuffix}${initCheckAdvisory}${baselineRiskWarning}`;
     },
   };
 }
