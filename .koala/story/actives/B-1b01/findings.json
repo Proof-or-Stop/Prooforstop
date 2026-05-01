@@ -1,0 +1,15 @@
+{
+  "findings": [
+    {
+      "id": "B-1b01:F-001",
+      "desc": "channel gate blocker: normal channel requires implementation commits to be authored by koala-implementer or have subject prefix koala:, but koala validate --channel --story=B-1b01 fails on commit 6daa6a5 Harmonygo — fix(B-1b01): repair terminal worktree cleanup. This means subagent/commit channel evidence is not compliant before REVIEW can advance.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "agent": "koala-review-channel",
+      "createdAt": "2026-05-01T20:05:04.570Z",
+      "reviewRound": "2026-05-01T20:01:26.055Z",
+      "_hash": "04ea0c98e68494e65d3c7129d2fc3f5115743a8d8d40e653fb4577edef1ab936"
+    }
+  ]
+}

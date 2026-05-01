@@ -1,0 +1,312 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "doctor repair 清理 terminal/orphan worktree 残留且不再卡死",
+      "context": "对已删除路径、stale .git/worktrees admin、terminal story branch 进行兜底清理；对文件系统层面无法删除的目录写 quarantine marker，后续扫描跳过。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "done",
+      "startTime": "2026-05-01T15:21:11.621Z",
+      "endTime": "2026-05-01T19:59:23.566Z",
+      "userSees": "用户看到 `koala doctor --repair` 输出 `terminal registered: 0`、`orphan dirs        : 0`、`terminal dirs      : 0` 和 `✓ No orphan or terminal worktree cleanup issues.`，命令在超时保护内返回提示符。",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/doctor.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-repair-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "terminal registered、orphan dir、terminal dir repair 后 doctor JSON/text 计数归零",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "rm -rf 超时/失败时写 .koala-repair-ignore 并在 repairFailed 中报告原因，下一次 scan 跳过该目录",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "repair 遇到 git worktree prune 失败时报告 repairFailed，不伪装健康成功",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "Current HEAD focused smoke confirms doctor --repair clears terminal registered worktrees, orphan dirs, and terminal dirs.",
+          "headHash": "606453d7a289bb1eb99a1da13144b82da20dbdf3",
+          "materialHash": "6fa1334a167963c2f1dd34c901e6bf973cbf665b1c8a696e0b078029282a2377",
+          "timestamp": "2026-05-01T20:22:52.658Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "Current HEAD focused smoke confirms quarantined .koala-repair-ignore directories stop polluting later doctor/story_list scans.",
+          "headHash": "606453d7a289bb1eb99a1da13144b82da20dbdf3",
+          "materialHash": "6fa1334a167963c2f1dd34c901e6bf973cbf665b1c8a696e0b078029282a2377",
+          "timestamp": "2026-05-01T20:22:52.658Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "command": "koala validate --story=B-1b01 --json + npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "Current HEAD project validation command and focused smoke executed; repair still reports failures instead of faking healthy status when cleanup cannot be completed.",
+          "headHash": "606453d7a289bb1eb99a1da13144b82da20dbdf3",
+          "materialHash": "6fa1334a167963c2f1dd34c901e6bf973cbf665b1c8a696e0b078029282a2377",
+          "timestamp": "2026-05-01T20:22:52.658Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "story_discard 清理异常 worktree registry",
+      "context": "git worktree remove/prune 无法处理 0000000 或 missing-path 状态时，需要删除 stale admin dir，让 git worktree list 恢复正常。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "done",
+      "startTime": "2026-05-01T19:59:30.760Z",
+      "endTime": "2026-05-01T19:59:43.737Z",
+      "userSees": "用户运行 `story_discard` 后看到 `✓ stale git worktree admin 已清理: ...` 或 `✓ stale worktree metadata 已 prune: ...`，随后 `git worktree list` 不再显示 `0000000 [story/B-xxxx]`。",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/worktree.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-repair-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "story_discard 对 missing-path/prunable registry 执行 prune/admin-dir fallback 后，git worktree list 不再包含该 story branch",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "worktree path 已不存在但 admin dir 仍引用 story branch 时，按 HEAD/gitdir 匹配并删除 stale admin dir",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "admin dir 不匹配 storyId/branch/gitdir path 时不会被 story_discard 删除",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "Current HEAD focused smoke verifies story_discard repairs missing-path/prunable registry residue and removes story/B-discard from git worktree list.",
+          "headHash": "606453d7a289bb1eb99a1da13144b82da20dbdf3",
+          "materialHash": "6fa1334a167963c2f1dd34c901e6bf973cbf665b1c8a696e0b078029282a2377",
+          "timestamp": "2026-05-01T20:22:52.658Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "Current HEAD focused smoke covers stale admin-dir cleanup when the worktree path is gone but git registry still references the story branch.",
+          "headHash": "606453d7a289bb1eb99a1da13144b82da20dbdf3",
+          "materialHash": "6fa1334a167963c2f1dd34c901e6bf973cbf665b1c8a696e0b078029282a2377",
+          "timestamp": "2026-05-01T20:22:52.658Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "Current HEAD focused smoke asserts admin cleanup only targets matching story id, branch, and gitdir path, leaving unrelated worktrees intact.",
+          "headHash": "606453d7a289bb1eb99a1da13144b82da20dbdf3",
+          "materialHash": "6fa1334a167963c2f1dd34c901e6bf973cbf665b1c8a696e0b078029282a2377",
+          "timestamp": "2026-05-01T20:22:52.658Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "story_list 不再把已 quarantine 的不可删除残留当作 Terminal worktree",
+      "context": "已标记 .koala-repair-ignore 的目录代表物理层面不可删除，不应污染用户的 story health 报告。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "done",
+      "startTime": "2026-05-01T19:59:52.372Z",
+      "endTime": "2026-05-01T19:59:59.895Z",
+      "userSees": "用户运行 `koala story_list` 时 `_bugSummary` 不再包含 `Terminal worktrees (...)`，已写 `.koala-repair-ignore` 的 B-xxxx 目录不会出现在 terminal residue 报告里。",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-query.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-repair-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "DONE/DISCARDED story 的普通残留目录仍被 story_list 检出为 terminal residue",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "带 .koala-repair-ignore 的 DONE/DISCARDED 残留目录不会出现在 story_list Terminal worktrees 报告中",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "非 B-* 目录或读不到 story metadata 的目录不会污染 story_list residue 结果",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "Current HEAD focused smoke confirms ordinary non-ignored terminal residue is still detected before repair.",
+          "headHash": "606453d7a289bb1eb99a1da13144b82da20dbdf3",
+          "materialHash": "6fa1334a167963c2f1dd34c901e6bf973cbf665b1c8a696e0b078029282a2377",
+          "timestamp": "2026-05-01T20:22:52.658Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "Current HEAD focused smoke confirms .koala-repair-ignore terminal dirs do not appear in story_list Terminal worktrees output.",
+          "headHash": "606453d7a289bb1eb99a1da13144b82da20dbdf3",
+          "materialHash": "6fa1334a167963c2f1dd34c901e6bf973cbf665b1c8a696e0b078029282a2377",
+          "timestamp": "2026-05-01T20:22:52.658Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "Current HEAD focused smoke uses B-* filtering and story metadata checks so unrelated directories cannot pollute residue reporting.",
+          "headHash": "606453d7a289bb1eb99a1da13144b82da20dbdf3",
+          "materialHash": "6fa1334a167963c2f1dd34c901e6bf973cbf665b1c8a696e0b078029282a2377",
+          "timestamp": "2026-05-01T20:22:52.658Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "repair 不误删 active/non-terminal worktree、无关 branch 或用户目录",
+      "context": "这是 git/worktree mutation 的安全边界：doctor repair 和 story_discard 只能处理 terminal story residue；active story、非 terminal story、非 story/B-* branch、以及不在配置 worktreeDir 下的用户目录必须保持不变。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "userSees": "用户看到 `koala doctor --repair` 清理 terminal residue 后，`git worktree list` 仍包含 active story worktree，且无关 branch 仍可 `git rev-parse --verify`。",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/handlers/story-query.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-repair-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "synthetic terminal residue 被 doctor --repair 清理，active story worktree 保持注册和目录存在",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "不可删除目录写 .koala-repair-ignore 后，doctor/story_list 不再误报但目录不被反复删除",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "存在非 terminal worktree 或无关 branch 时 repair 不删除、不 prune、不改写这些对象",
+            "type": "cli"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-05-01T20:00:11.873Z",
+      "endTime": "2026-05-01T20:00:23.847Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "Current HEAD focused smoke asserts active story/B-active remains registered after doctor --repair.",
+          "headHash": "606453d7a289bb1eb99a1da13144b82da20dbdf3",
+          "materialHash": "6fa1334a167963c2f1dd34c901e6bf973cbf665b1c8a696e0b078029282a2377",
+          "timestamp": "2026-05-01T20:22:52.658Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "Current HEAD focused smoke asserts quarantined directories remain in place while no longer polluting doctor/story_list cleanup health.",
+          "headHash": "606453d7a289bb1eb99a1da13144b82da20dbdf3",
+          "materialHash": "6fa1334a167963c2f1dd34c901e6bf973cbf665b1c8a696e0b078029282a2377",
+          "timestamp": "2026-05-01T20:22:52.658Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "Current HEAD focused smoke asserts unrelated branches and worktreeDir-external user directories survive repair untouched.",
+          "headHash": "606453d7a289bb1eb99a1da13144b82da20dbdf3",
+          "materialHash": "6fa1334a167963c2f1dd34c901e6bf973cbf665b1c8a696e0b078029282a2377",
+          "timestamp": "2026-05-01T20:22:52.659Z"
+        }
+      ]
+    }
+  ]
+}
