@@ -258,6 +258,7 @@ export function detectStoryResidue(
       // worktree dirs are named B-xxxx
       const dirName = entry.name;
       if (!dirName.startsWith('B-')) continue;
+      if (existsSync(join(worktreesDir, dirName, '.koala-repair-ignore'))) continue;
 
       let story;
       try { story = store.readStory(dirName); } catch { continue; }

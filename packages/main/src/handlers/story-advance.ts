@@ -61,6 +61,32 @@ function autoSyncMain(projectRoot: string): { ok: boolean; message: string } {
   }
 }
 
+function isRegisteredWorktree(repoRoot: string, worktreePath: string): boolean {
+  try {
+    const raw = execFileSync('git', ['worktree', 'list', '--porcelain'], {
+      cwd: repoRoot,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    const target = worktreePath.replace(/\\/g, '/');
+    return raw
+      .split(/\r?\n/)
+      .filter(line => line.startsWith('worktree '))
+      .map(line => line.slice('worktree '.length).trim().replace(/\\/g, '/'))
+      .includes(target);
+  } catch {
+    return false;
+  }
+}
+
+function pruneWorktreeRegistry(repoRoot: string): void {
+  execFileSync('git', ['worktree', 'prune', '--expire', 'now'], {
+    cwd: repoRoot,
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+}
+
 function gitRefExists(projectRoot: string, ref: string): boolean {
   try {
     execFileSync('git', ['rev-parse', '--verify', `${ref}^{commit}`], {
@@ -1039,9 +1065,10 @@ ${agentLines}
             // the working tree is clean AND the branch is merged into main —
             // anything left in the worktree is either gitignored runtime
             // state or genuine leakage we want to erase.
-            if (existsSync(wtPathAbs)) {
+            if (existsSync(wtPathAbs) || isRegisteredWorktree(mainRepoRoot, wtPathAbs)) {
               const repair = repairGlobalKoalaLinkBeforeWorktreeDelete(wtPathAbs, mainRepoRoot);
               if (repair.action === 'relinked') mergeLines.push(repair.message);
+              let removeFailure: string | null = null;
               try {
                 runGit(`worktree remove "${wtPathAbs}"`, mainRepoRoot);
                 mergeLines.push(`✓ Worktree ${wtPathAbs} 已清理`);
@@ -1051,7 +1078,7 @@ ${agentLines}
                   runGit(`worktree remove --force "${wtPathAbs}"`, mainRepoRoot);
                   mergeLines.push(`✓ Worktree ${wtPathAbs} 已强制清理`);
                 } catch (e: any) {
-                  cleanupFailure = `git worktree remove failed: ${e.message}`;
+                  removeFailure = `git worktree remove failed: ${e.message}`;
                   mergeLines.push(`⚠ Worktree 未清理: ${e.message}`);
                 }
               }
@@ -1068,8 +1095,20 @@ ${agentLines}
                   mergeLines.push(`⚠ Worktree 目录残留清理失败: ${e.message}`);
                 }
               }
+              try {
+                pruneWorktreeRegistry(mainRepoRoot);
+                if (removeFailure && !existsSync(wtPathAbs) && !isRegisteredWorktree(mainRepoRoot, wtPathAbs)) {
+                  mergeLines.push(`✓ stale worktree registry 已 prune`);
+                }
+              } catch (e: any) {
+                mergeLines.push(`⚠ git worktree prune 失败: ${e.message}`);
+              }
               if (existsSync(wtPathAbs) && !cleanupFailure) {
                 cleanupFailure = `worktree path still exists after cleanup: ${wtPathAbs}`;
+              }
+              if (isRegisteredWorktree(mainRepoRoot, wtPathAbs) && !cleanupFailure) {
+                cleanupFailure = removeFailure || `worktree is still registered after cleanup: ${wtPathAbs}`;
+                mergeLines.push(`⚠ Worktree 仍在 git registry 中: ${wtPathAbs}`);
               }
             }
 
@@ -1128,20 +1167,22 @@ ${agentLines}
         } catch { /* ignore */ }
       }
 
-      // B-e71f CHK-005: INIT→INIT_CHECK 成功后 echo critical issues 数量
-      // （advisory，不阻塞）。advance 已成功推进，gate 在 getGuardFailureReason 已校验
-      // init-check.json 签名通过；此处仅读 issues 字段统计 critical 计数让主 agent 看到。
+      // INIT→INIT_CHECK 成功后 echo non-blocking init reviewer issues。
+      // critical/high 已在 gate 中阻塞；这里仅提示 medium/low。
       // 与 init_check_set 同标准 trim().length >= 1 校验 issue.desc，过滤空白串。
       let initCheckAdvisory = '';
       if (args.phase === 'INIT_CHECK' && oldPhase === 'INIT') {
         try {
           const initCheck = store.readInitCheck(args.storyId);
-          if (initCheck && Array.isArray(initCheck.issues)) {
-            const criticalCount = initCheck.issues.filter(
-              i => i && typeof i.desc === 'string' && i.desc.trim().length >= 1 && i.severity === 'critical',
+          if (initCheck) {
+            const allIssues = Array.isArray(initCheck.agentResults) && initCheck.agentResults.length > 0
+              ? initCheck.agentResults.flatMap(result => result.issues || [])
+              : initCheck.issues || [];
+            const advisoryCount = allIssues.filter(
+              i => i && typeof i.desc === 'string' && i.desc.trim().length >= 1 && (i.severity === 'medium' || i.severity === 'low'),
             ).length;
-            if (criticalCount > 0) {
-              initCheckAdvisory = `\n\n⚠ reviewer 报 ${criticalCount} 个 critical issues 未修复，建议改 background 后重跑 koala-review-story-init agent（advisory，不阻塞推进）`;
+            if (advisoryCount > 0) {
+              initCheckAdvisory = `\n\n⚠ init reviewer 记录 ${advisoryCount} 个 medium/low advisory，建议在 PLAN 前消化`;
             }
           }
         } catch { /* ignore */ }

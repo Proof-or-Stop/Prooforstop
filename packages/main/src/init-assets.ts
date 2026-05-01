@@ -1,5 +1,18 @@
 export const CODEX_AGENT_FILES = ['test-intent.md', 'test-case-reviewer.md', 'product-reviewer.md', 'implementation-reviewer.md'] as const;
 
+export const AGENTS_MD_TEMPLATE = `# AGENTS.md
+
+<!-- koala:start -->
+## Koala
+
+- 新 session 或恢复中断工作时，先运行 \`koala session_brief\`。
+- 行动前运行 \`koala aux_doc_list\` 查看相关文档；若当前全局 core-only 环境没有 aux 命令，用本地 bootstrap 或 shell 搜索兜底。
+- Story / checklist / fixture / bug 操作优先通过 \`koala\` CLI，不直接改 story/fixture JSON。
+- Codex subagent prompts 位于 \`.Codex/agents\`；Claude subagent prompts 位于 \`.claude/agents\`。
+
+<!-- koala:end -->
+`;
+
 export const CODEX_README_TEMPLATE = `# Codex + Koala
 
 通用做法：

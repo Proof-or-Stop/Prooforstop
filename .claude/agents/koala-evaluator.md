@@ -504,7 +504,7 @@ sha256(`${storyId}:${sha256(background.md)}:${title}:${description}:${sha256(che
 - `[missing_init_check]` — init-check.json 不存在（reviewer 没跑或没调 init_check_set）
 - `[init_check_tampered]` — `_hash` 与重算结果不符（主 agent 改了 background / title / description / checklist 任一字段）
 
-**issues advisory**：`init-check.json` 的 `issues` 字段不阻塞推进（gate 不读 severity 决定通过与否），但 INIT_CHECK 推进成功消息会 echo critical issues 数量警告。Reviewer 模板顶部规约：发现 critical 级 issues 时**拒绝**调 `init_check_set`，先在 stdout 输出 issue list 让主 agent 改 background 后重启 reviewer（防止主 agent 强推）。
+**issues gate**：`init-check.json` 中 critical/high issues 会阻塞 INIT_CHECK；medium/low 为 advisory。Reviewer 无论 pass/fail 都必须调用 `init_check_set` 记录结果。
 
 **反自豁免设计**：EXP-001（[exp-001.md](docs/story/actives/B-e71f/experiments/exp-001.md)）证明 subagent vs 主 agent 在 Bash CLI 中**无可机械区分的差异**（同 PPID / 同 env / 同 shell snapshot），所以 `init_check_set` **不**校验 `agentId`（仅记录用），反自豁免完全靠：(1) 签名机制 + (2) reviewer 模板 fresh-context fence + (3) CLAUDE.md 行为规约（同 B-ed3e scope-check 已落地架构）。
 

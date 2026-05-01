@@ -418,6 +418,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       itemId: string;
       intentRef: string;
       kind: VerificationEvidence['kind'];
+      waiverType?: VerificationEvidence['waiverType'];
       file?: string;
       command?: string;
       result?: 'pass' | 'fail';
@@ -425,6 +426,9 @@ export function createChecklistHandlers(ctx: HandlerContext) {
     }): string {
       if (!args.note || args.note.trim().length < 5) {
         throw new Error('verification_evidence_add: note 必须 ≥ 5 字符，说明 evidence 为什么覆盖该 intent');
+      }
+      if (args.waiverType && args.kind !== 'waiver') {
+        throw new Error('verification_evidence_add: waiverType 只能用于 kind=waiver');
       }
       return withChecklistLock(ctx, args.storyId, () => {
       const cl = store.readChecklist(args.storyId);
@@ -440,6 +444,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       const evidence = makeEvidence({
         intentRef: args.intentRef,
         kind: args.kind,
+        ...(args.waiverType ? { waiverType: args.waiverType } : {}),
         ...(args.file ? { file: args.file } : {}),
         ...(args.command ? { command: args.command } : {}),
         ...(args.result ? { result: args.result } : {}),
@@ -465,6 +470,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         itemId: string;
         intentRef: string;
         kind: VerificationEvidence['kind'];
+        waiverType?: VerificationEvidence['waiverType'];
         file?: string;
         command?: string;
         result?: 'pass' | 'fail';
@@ -487,11 +493,15 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         if (!entry.note || entry.note.trim().length < 5) {
           throw new Error(`verification_evidence_batch_add: ${entry.itemId} → ${entry.intentRef} note 必须 ≥ 5 字符`);
         }
+        if (entry.waiverType && entry.kind !== 'waiver') {
+          throw new Error(`verification_evidence_batch_add: ${entry.itemId} → ${entry.intentRef} waiverType 只能用于 kind=waiver`);
+        }
         const item = cl.items.find(i => i.id === entry.itemId);
         if (!item) throw new Error(`Checklist item ${entry.itemId} not found`);
         const evidence = makeEvidence({
           intentRef: entry.intentRef,
           kind: entry.kind,
+          ...(entry.waiverType ? { waiverType: entry.waiverType } : {}),
           ...(entry.file ? { file: entry.file } : {}),
           ...(entry.command ? { command: entry.command } : {}),
           ...(entry.result ? { result: entry.result } : {}),

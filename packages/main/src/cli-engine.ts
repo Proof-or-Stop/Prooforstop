@@ -93,6 +93,7 @@ const verificationIntentSchema = z.object({
 const verificationEvidenceSchema = z.object({
   intentRef: z.string().describe('如 CHK-001:happy:0 或自定义 intent id'),
   kind: z.enum(['logic_test', 'integration_test', 'browser_test', 'manual_transcript', 'docs_check', 'waiver']).describe('证据类型'),
+  waiverType: z.enum(['permanent', 'deferred_gate_evidence']).optional().describe('kind=waiver 时可标记为临时 gate 自测 evidence；后续 validate 会要求替换真实证据'),
   file: z.string().optional().describe('测试/文档文件路径'),
   command: z.string().optional().describe('执行命令'),
   result: z.enum(['pass', 'fail']).optional().describe('执行结果'),
@@ -123,6 +124,8 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'story_advance', description: '推进 Story 到下一阶段', longHelp: STORY_ADVANCE_LONG, schema: {
     storyId: z.string().describe('Story ID'), phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','REVIEW','TEST','DONE']).describe('目标阶段'),
     checklist: z.array(z.object({ id: z.string(), title: z.string() })).optional().describe('开发清单'),
+    dryRun: z.boolean().optional().describe('只预览 INIT_CHECK bootstrap，不推进 phase/创建 worktree'),
+    confirm: z.boolean().optional().describe('确认执行有副作用的推进（兼容脚本参数）'),
   }},
   { name: 'story_update', description: '编辑 Story 信息', schema: {
     storyId: z.string().describe('Story ID'), title: z.string().optional().describe('新标题'),
@@ -229,6 +232,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     itemId: z.string().describe('Checklist item ID'),
     intentRef: z.string().describe('如 CHK-001:happy:0 或自定义 intent id'),
     kind: z.enum(['logic_test', 'integration_test', 'browser_test', 'manual_transcript', 'docs_check', 'waiver']).describe('证据类型'),
+    waiverType: z.enum(['permanent', 'deferred_gate_evidence']).optional().describe('kind=waiver 时可标记为临时 gate 自测 evidence'),
     file: z.string().optional().describe('测试/文档文件路径'),
     command: z.string().optional().describe('执行命令'),
     result: z.enum(['pass', 'fail']).optional().describe('执行结果'),
@@ -240,6 +244,7 @@ export const MAIN_TOOLS: ToolDef[] = [
       itemId: z.string().describe('Checklist item ID'),
       intentRef: z.string().describe('如 CHK-001:happy:0 或自定义 intent id'),
       kind: z.enum(['logic_test', 'integration_test', 'browser_test', 'manual_transcript', 'docs_check', 'waiver']).describe('证据类型'),
+      waiverType: z.enum(['permanent', 'deferred_gate_evidence']).optional().describe('kind=waiver 时可标记为临时 gate 自测 evidence'),
       file: z.string().optional().describe('测试/文档文件路径'),
       command: z.string().optional().describe('执行命令'),
       result: z.enum(['pass', 'fail']).optional().describe('执行结果'),
@@ -392,7 +397,7 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'doctor', description: '查看 koala 自身的 health issue（被 silent catch 接住的 PERSIST 失败）+ 扫 .worktrees/ 孤儿目录', schema: {
     format: z.enum(['text', 'json']).optional().describe('输出格式（默认 text）'),
     limit: z.number().optional().describe('最多读取条数（默认 1000）'),
-    repair: z.boolean().optional().describe('rm -rf 清理 .worktrees/ 下不在 git worktree list 的孤儿目录（activity.jsonl 等 hook 残留场景）'),
+    repair: z.boolean().optional().describe('清理 DONE/DISCARDED terminal worktree 注册项、孤儿目录与 prunable 元数据'),
   }},
 
   // Audit (framework self-audit — 跨 story 扫 CLAUDE.md 承诺 vs 实际 CLI 行为 drift)
@@ -465,17 +470,19 @@ export const MAIN_TOOLS: ToolDef[] = [
     split: z.string().optional().describe('拆分目标簇 ID（CL-xxx），成员 finding 回 singleton'),
   }},
 
-  // Init Check (B-e71f CHK-003: koala-review-story-init reviewer writes signed init-check.json)
-  // INIT→INIT_CHECK 硬门槛产物。EXP-001 已证伪 agentId 机械可校验性，故 agentId 仅审计，不校验。
+  // Init Check (B-e71f CHK-003: init reviewers write signed init-check.json)
+  // INIT→INIT_CHECK 硬门槛产物。EXP-001 已证伪调用方机械可校验性，故 agentId/agent 仍是自报；
+  // gate 会校验必需 reviewer 名称是否已记录，prompt 必须传准确名称。
   // 三层校验中的 Zod 层（CLAUDE.md「Handler 编码约定」）：severity enum + desc.min(1)。
-  { name: 'init_check_set', description: '保存 init check 结果（由 koala-review-story-init reviewer 调用）', schema: {
+  { name: 'init_check_set', description: '保存 init check 结果（由 INIT reviewer 调用）', schema: {
     storyId: z.string().describe('Story ID'),
     issues: z.array(z.object({
       id: z.string().optional().describe('reviewer 自分配 id（如 I-1），可选'),
       severity: z.enum(['critical', 'high', 'medium', 'low']).describe('issue 严重度'),
       desc: z.string().min(1, 'desc 必填且 ≥ 1 字符').describe('issue 具体描述（reviewer 主观判断需具体）'),
-    })).describe('Reviewer 提出的 issue 列表（advisory 模式，允许空数组）'),
-    agentId: z.string().optional().describe('Reviewer 自报 agent id，仅审计追溯用（EXP-001 已证伪机械校验）'),
+    })).describe('Reviewer 提出的 issue 列表；critical/high 会阻塞 INIT_CHECK，允许空数组'),
+    agent: z.string().optional().describe('Reviewer 自报 agent 名；product-reviewer 必须传 product-reviewer'),
+    agentId: z.string().optional().describe('Reviewer 自报 agent id；product-reviewer 必须传 product-reviewer，不能传 koala-review-story-init'),
   }},
 
   // Delivery Check (B-35ed: koala-review-delivery reviewer writes signed delivery-check.json)
@@ -1297,6 +1304,18 @@ export async function runCli(opts?: {
   if (cmd === 'story_advance' && (v.data as any)?.phase === 'INIT_CHECK') {
     await run(async () => {
       const storyId = (v.data as any).storyId;
+      if ((v.data as any).dryRun === true) {
+        const story: any = handlers.story_get({ storyId, detail: true });
+        const currentPhase = story?.index?.phase || 'unknown';
+        return [
+          `[DRY-RUN] INIT_CHECK bootstrap plan for ${storyId}`,
+          `- current phase: ${currentPhase}`,
+          `- would verify init-check gate without mutating story metadata`,
+          `- would create/update branch story/${storyId} with scoped story bootstrap files`,
+          `- would create worktree under configured worktreeDir`,
+          `- no phase, branch, commit, or worktree changes were made`,
+        ].join('\n');
+      }
       // 探测当前 phase；若已在 INIT_CHECK 就跳过 advance 直接 dev_start 重试
       // story_get 默认返回 {checklist, review}；phase 需要 detail:true 才在 result.index.phase
       let advanceResult = '';

@@ -10,6 +10,7 @@ import type {
 } from './types.js';
 
 export const VERIFICATION_LANES: readonly VerificationLane[] = ['happy', 'edge', 'adversarial'];
+export type DeferredGateEvidenceMode = 'covered' | 'missing';
 
 export function intentRef(itemId: string, lane: VerificationLane, index: number, intent?: VerificationIntentItem): string {
   return intent?.id || `${itemId}:${lane}:${index}`;
@@ -50,10 +51,15 @@ function isRequired(priority: VerificationPriority): boolean {
   return priority === 'must';
 }
 
+function isDeferredGateEvidence(evidence: VerificationEvidence): boolean {
+  return evidence.kind === 'waiver' && evidence.waiverType === 'deferred_gate_evidence';
+}
+
 export function buildVerificationCoverage(
   cl: ChecklistData,
   currentHead?: string,
   isEvidenceFresh?: (headHash: string, evidence?: VerificationEvidence) => boolean,
+  options: { deferredGateEvidence?: DeferredGateEvidenceMode } = {},
 ): VerificationCoverageReport {
   const entries: VerificationCoverageEntry[] = [];
   for (const item of cl.items) {
@@ -62,7 +68,8 @@ export function buildVerificationCoverage(
       const evidence = pickEvidence(item, collected.ref);
       let status: VerificationCoverageEntry['status'] = 'missing';
       if (evidence) {
-        if (evidence.kind === 'waiver') status = 'waived';
+        if (isDeferredGateEvidence(evidence)) status = 'deferred';
+        else if (evidence.kind === 'waiver') status = 'waived';
         else if (evidence.result === 'fail') status = 'failed';
         else if (
           currentHead &&
@@ -86,6 +93,7 @@ export function buildVerificationCoverage(
   }
   const requiredEntries = entries.filter(e => isRequired(e.priority));
   const coveredStatuses = new Set(['covered', 'waived']);
+  if (options.deferredGateEvidence !== 'missing') coveredStatuses.add('deferred');
   return {
     total: entries.length,
     required: requiredEntries.length,
@@ -98,7 +106,7 @@ export function buildVerificationCoverage(
 export function getBlockingVerificationEvidenceIssues(cl: ChecklistData, currentHead?: string): string[] {
   const coverage = buildVerificationCoverage(cl, currentHead);
   return coverage.entries
-    .filter(e => e.priority === 'must' && !['covered', 'waived'].includes(e.status))
+    .filter(e => e.priority === 'must' && !['covered', 'waived', 'deferred'].includes(e.status))
     .map(e => `${e.intentRef} [${e.status}] ${e.desc}`);
 }
 
@@ -108,7 +116,11 @@ export function renderVerificationCoverage(report: VerificationCoverageReport): 
     `Verification intent coverage: ${report.covered}/${report.total} covered (${report.missingRequired} required missing)`,
   ];
   for (const e of report.entries) {
-    const marker = e.status === 'covered' || e.status === 'waived' ? '✓' : '✗';
+    const marker = e.status === 'covered' || e.status === 'waived'
+      ? '✓'
+      : e.status === 'deferred'
+        ? '~'
+        : '✗';
     const ev = e.evidence
       ? ` via ${e.evidence.kind}${e.evidence.file ? ` (${e.evidence.file})` : ''}`
       : '';

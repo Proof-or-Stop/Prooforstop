@@ -40,6 +40,14 @@ function initRepo(prefix: string): string {
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'balanced' },
   }, null, 2));
+  write(root, '.gitignore', [
+    '.worktrees/',
+    '**/activity.jsonl',
+    '.koala/*',
+    '!.koala/story/',
+    '!.koala/story/**',
+    '',
+  ].join('\n'));
   write(root, 'README.md', 'smoke\n');
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'init']);
@@ -217,6 +225,7 @@ async function assertDiscardRemovesUntrackedWorktreeAndBranch(): Promise<void> {
     assert.doesNotMatch(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`branch refs/heads/story/${storyId}`));
     assert.equal(git(root, ['branch', '--list', `story/${storyId}`]), '');
     assert.equal(new StoryStore(root).readStory(storyId).phase, 'DISCARDED');
+    assert.equal(git(root, ['status', '--porcelain']), '', 'story_discard should leave the repo clean after committing discarded metadata');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -250,6 +259,48 @@ async function assertDiscardCanCleanAlreadyDiscardedResidue(): Promise<void> {
     assert.doesNotMatch(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`branch refs/heads/story/${storyId}`));
     assert.equal(git(root, ['branch', '--list', `story/${storyId}`]), '');
     assert.equal(new StoryStore(root).readStory(storyId).phase, 'DISCARDED');
+    assert.equal(git(root, ['status', '--porcelain']), '', 'already-discarded residue cleanup should leave the repo clean');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+async function assertDiscardPrunesMissingWorktreeRegistry(): Promise<void> {
+  const root = initRepo('koala-discard-prunable-');
+  try {
+    const storyId = 'B-prunedrop';
+    const store = new StoryStore(root);
+    const now = '2026-04-30T10:00:00.000Z';
+    store.writeStory(storyId, {
+      storyId,
+      name: 'discard-prunable-smoke',
+      title: 'Discard prunable smoke',
+      description: 'Synthetic story whose git worktree metadata survived after the directory disappeared.',
+      type: 'chore',
+      phase: 'INIT_CHECK',
+      priority: 'medium',
+      createdAt: now,
+      startedAt: now,
+      endedAt: null,
+      events: [],
+      worktree: {
+        path: `.worktrees/${storyId}`,
+        branch: `story/${storyId}`,
+        createdAt: now,
+      },
+    });
+    git(root, ['branch', `story/${storyId}`]);
+    git(root, ['worktree', 'add', join(root, '.worktrees', storyId), `story/${storyId}`]);
+    rmSync(join(root, '.worktrees', storyId), { recursive: true, force: true });
+
+    const output = await runKoala(root, 'story_discard', { storyId, force: true, reason: 'smoke prunable cleanup' });
+
+    assert.match(output, /stale worktree metadata 已 prune/);
+    assert.doesNotMatch(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`branch refs/heads/story/${storyId}`));
+    assert.equal(git(root, ['branch', '--list', `story/${storyId}`]), '');
+    assert.equal(existsSync(join(root, '.worktrees', storyId)), false, 'missing worktree dir should stay gone');
+    assert.equal(new StoryStore(root).readStory(storyId).phase, 'DISCARDED');
+    assert.equal(git(root, ['status', '--porcelain']), '', 'prunable discard cleanup should leave the repo clean');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -276,7 +327,8 @@ async function assertDiscardFailureDoesNotMarkSuccess(): Promise<void> {
     });
     git(root, ['branch', `story/${storyId}`]);
     git(root, ['worktree', 'add', join(root, '.worktrees', storyId), `story/${storyId}`]);
-    chmodSync(join(root, '.git', 'worktrees'), 0o500);
+    chmodSync(join(root, '.worktrees', storyId), 0o500);
+    chmodSync(join(root, '.worktrees'), 0o500);
 
     let failed = false;
     try {
@@ -288,6 +340,8 @@ async function assertDiscardFailureDoesNotMarkSuccess(): Promise<void> {
     assert.equal(new StoryStore(root).readStory(storyId).phase, 'INIT_CHECK', 'failed discard must not mark story DISCARDED');
     assert.notEqual(git(root, ['branch', '--list', `story/${storyId}`]), '', 'failed discard must not delete the story branch');
   } finally {
+    try { chmodSync(join(root, '.worktrees'), 0o700); } catch { /* best-effort cleanup */ }
+    try { chmodSync(join(root, '.worktrees', storyId), 0o700); } catch { /* best-effort cleanup */ }
     try { chmodSync(join(root, '.git', 'worktrees'), 0o700); } catch { /* best-effort cleanup */ }
     rmSync(root, { recursive: true, force: true });
   }
@@ -385,13 +439,99 @@ function assertChannelAllowsExplicitMainAgentPlanOwnership(): void {
   }
 }
 
+async function assertInitDispatchPromptHasTimeoutGuidance(): Promise<void> {
+  const root = initRepo('koala-init-dispatch-timeout-');
+  try {
+    const storyId = 'B-init';
+    const now = '2026-04-30T10:00:00.000Z';
+    new StoryStore(root).writeStory(storyId, {
+      storyId,
+      name: 'init-dispatch-timeout-smoke',
+      title: 'Init dispatch timeout smoke',
+      description: 'Synthetic story for init reviewer dispatch guidance.',
+      type: 'chore',
+      phase: 'INIT',
+      priority: 'medium',
+      createdAt: now,
+      startedAt: now,
+      endedAt: null,
+      events: [],
+    });
+
+    const output = await runKoala(root, 'dispatch', { storyId, agentType: 'koala-review-story-init' });
+    assert.match(output, /INIT_REVIEW_START/, 'init dispatch should ask reviewer to emit start heartbeat');
+    assert.match(output, /INIT_REVIEW_READ_DONE/, 'init dispatch should ask reviewer to emit read heartbeat');
+    assert.match(output, /5 分钟/, 'init dispatch should include an upper time bound');
+    assert.match(output, /4 分钟/, 'init dispatch should include main-agent retry guidance');
+    assert.match(output, /init_check_set/, 'init dispatch should still require result recording');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+async function assertDoctorRepairCleansTerminalWorktrees(): Promise<void> {
+  const root = initRepo('koala-doctor-worktree-repair-');
+  try {
+    const store = new StoryStore(root);
+    const now = '2026-04-30T10:00:00.000Z';
+    for (const storyId of ['B-termreg', 'B-orphan', 'B-prune']) {
+      store.writeStory(storyId, {
+        storyId,
+        name: `${storyId}-repair-smoke`,
+        title: `${storyId} repair smoke`,
+        description: 'Synthetic terminal story for doctor worktree repair smoke.',
+        type: 'chore',
+        phase: 'DONE',
+        priority: 'medium',
+        createdAt: now,
+        startedAt: now,
+        endedAt: now,
+        events: [],
+      });
+    }
+    git(root, ['add', '.koala/story/actives']);
+    git(root, ['commit', '-m', 'add terminal story metadata']);
+
+    git(root, ['branch', 'story/B-termreg']);
+    git(root, ['worktree', 'add', join(root, '.worktrees', 'B-termreg'), 'story/B-termreg']);
+
+    mkdirSync(join(root, '.worktrees', 'B-orphan'), { recursive: true });
+    writeFileSync(join(root, '.worktrees', 'B-orphan', 'runtime.log'), 'orphan residue\n');
+
+    git(root, ['branch', 'story/B-prune']);
+    git(root, ['worktree', 'add', join(root, '.worktrees', 'B-prune'), 'story/B-prune']);
+    rmSync(join(root, '.worktrees', 'B-prune'), { recursive: true, force: true });
+
+    const before = JSON.parse(await runKoala(root, 'doctor', { format: 'json' }));
+    assert.equal(before.worktrees.needsRepair, true, 'doctor should detect terminal worktree repair targets');
+    assert(
+      before.worktrees.terminalRegistered.length > 0 || before.worktrees.orphanDirs.length > 0 || before.worktrees.terminalDirs.length > 0,
+      'doctor should report at least one terminal/orphan target before repair',
+    );
+
+    const repaired = JSON.parse(await runKoala(root, 'doctor', { format: 'json', repair: true }));
+    assert.equal(repaired.worktrees.needsRepair, false, 'doctor --repair should clear all terminal/orphan worktree targets');
+    assert.equal(repaired.worktrees.terminalRegistered.length, 0, 'terminal registered worktrees should be gone after repair');
+    assert.equal(repaired.worktrees.orphanDirs.length, 0, 'orphan dirs should be gone after repair');
+    assert.equal(repaired.worktrees.terminalDirs.length, 0, 'terminal dirs should be gone after repair');
+    assert.equal(existsSync(join(root, '.worktrees', 'B-termreg')), false, 'registered terminal worktree dir should be removed');
+    assert.equal(existsSync(join(root, '.worktrees', 'B-orphan')), false, 'orphan terminal dir should be removed');
+    assert.doesNotMatch(git(root, ['worktree', 'list', '--porcelain']), /story\/B-(termreg|prune)/, 'git worktree registry should be pruned');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 await assertReviewPassConcurrentWrites();
 await assertChecklistConcurrentUpdates();
 await assertChecklistConcurrentVerificationIntentUpdates();
 await assertDiscardRemovesUntrackedWorktreeAndBranch();
 await assertDiscardCanCleanAlreadyDiscardedResidue();
+await assertDiscardPrunesMissingWorktreeRegistry();
 await assertDiscardFailureDoesNotMarkSuccess();
 await assertPurgeDropsSafeInitCommit();
+await assertDoctorRepairCleansTerminalWorktrees();
+await assertInitDispatchPromptHasTimeoutGuidance();
 assertDocsDriftAllowsBootstrapAndLegacyCommands();
 assertChannelAllowsExplicitMainAgentPlanOwnership();
 

@@ -6,7 +6,7 @@ import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
 import { verifyFinding, verifyReviewPass } from './finding-verify.js';
 import type { Finding, ReviewPass } from './types.js';
-import { recomputeInitCheckHash } from '../handlers/init-check.js';
+import { blockingInitCheckIssues, missingRequiredInitCheckAgents, recomputeInitCheckHash } from '../handlers/init-check.js';
 import { recomputeDeliveryCheckHash } from '../handlers/delivery-check.js';
 import { getBlockingVerificationEvidenceIssues } from './verification.js';
 import { normalizeLegacyPhase } from './phase-flow.js';
@@ -98,7 +98,9 @@ export const storyMachine = setup({
         const initCheck = context.store.readInitCheck(context.storyId);
         if (!initCheck) return false;
         const expected = recomputeInitCheckHash(context.storyId, context.store, context.projectRoot);
-        return initCheck._hash === expected;
+        return initCheck._hash === expected
+          && missingRequiredInitCheckAgents(initCheck).length === 0
+          && blockingInitCheckIssues(initCheck).length === 0;
       } catch (err) {
         // B-e71f F-016: xstate guard 不能 throw（会让 actor 进 error state），但完全静默会
         // 让 store 异常根因（fs 读不到 / json parse 失败 / recompute 路径 bug）被吞——
@@ -324,13 +326,23 @@ export function getGuardFailureReason(
     if (story.phase !== 'INIT') return null;
     const initCheck = store.readInitCheck(storyId);
     if (!initCheck) {
-      return `Cannot enter INIT_CHECK: 未跑 koala-review-story-init agent（缺 init-check.json）。 [missing_init_check]\n→ Agent({ subagent_type: "koala-review-story-init", prompt: \`koala dispatch '{"storyId":"${storyId}","agentType":"koala-review-story-init"}'\` })`;
+      return `Cannot enter INIT_CHECK: 未跑 koala-review-story-init agent（缺 init-check.json）。 [missing_init_check]\n→ Agent({ subagent_type: "koala-review-story-init", prompt: \`koala dispatch '{"storyId":"${storyId}","agentType":"koala-review-story-init"}'\` })\n→ 若 reviewer 4 分钟无输出，重新运行 dispatch 并重启 reviewer。`;
     }
     const expected = recomputeInitCheckHash(storyId, store, projectRoot ?? process.cwd());
     if (initCheck._hash !== expected) {
       return `Cannot enter INIT_CHECK: init-check.json _hash 失配（背景/标题/描述/checklist 已修改），请重跑 koala-review-story-init agent。 [init_check_tampered]`;
     }
-    // critical issues advisory：不阻塞 gate；advance 成功消息 echo 警告由 story-advance.ts 处理
+    const missingAgents = missingRequiredInitCheckAgents(initCheck);
+    if (missingAgents.length > 0) {
+      return `Cannot enter INIT_CHECK: init-check.json 缺少必需 reviewer 记录: ${missingAgents.join(', ')}。 [missing_init_check_agent]\n→ 分别运行 koala dispatch '{"storyId":"${storyId}","agentType":"koala-review-story-init"}' 和 product-reviewer；每个 reviewer 无论 pass/fail 都必须调用 init_check_set。`;
+    }
+    const blockers = blockingInitCheckIssues(initCheck);
+    if (blockers.length > 0) {
+      const lines = blockers.slice(0, 8).map(({ agentId, issue }) =>
+        `  - ${agentId}: ${issue.severity} ${issue.id ? `${issue.id} ` : ''}${issue.desc}`,
+      );
+      return `Cannot enter INIT_CHECK: init-check reviewer 记录了 high/critical issue，必须先修复并重跑对应 reviewer。 [init_check_blocking_issues]\n${lines.join('\n')}`;
+    }
     return null;
   }
 
