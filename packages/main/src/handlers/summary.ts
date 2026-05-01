@@ -228,7 +228,7 @@ export function renderSummaryForHint(summary: StorySummaryData): string {
   if (summary.phaseStats && Object.keys(summary.phaseStats).length > 0) {
     lines.push('## 各阶段耗时');
     // 按常见 phase 顺序排序，未列入的放最后
-    const phaseOrder = ['INIT', 'INIT_CHECK', 'PLAN', 'DEV', 'TEST_CASE', 'TEST_CASE_REVIEW', 'TEST', 'DONE'];
+    const phaseOrder = ['INIT', 'INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE', 'TEST_CASE', 'TEST_CASE_REVIEW'];
     const ordered = Object.keys(summary.phaseStats).sort((a, b) => {
       const ia = phaseOrder.indexOf(a);
       const ib = phaseOrder.indexOf(b);

@@ -334,8 +334,22 @@ interface SessionBriefArgs {
   concise?: boolean;
 }
 
+function extractNextStep(brief: string): string {
+  const marker = '## → Next step';
+  const idx = brief.indexOf(marker);
+  if (idx < 0) return brief.trim();
+  const body = brief.slice(idx + marker.length).trim();
+  if (!body) return 'No next step available.';
+  const nextSection = body.split(/\n## /)[0] || body;
+  return nextSection
+    .split('\n')
+    .map(line => line.replace(/^ {2}/, ''))
+    .join('\n')
+    .trim();
+}
+
 export function createSessionHandlers(ctx: HandlerContext) {
-  return {
+  const handlers = {
     session_brief(args: SessionBriefArgs = {}): string {
       const concise = args.concise === true;
       const lines: string[] = [];
@@ -378,7 +392,15 @@ export function createSessionHandlers(ctx: HandlerContext) {
         const worktrees = listActiveWorktrees(ctx.root);
         const zombiesForBrief = detectZombieStories(ctx.store, ctx.root);
         const zombieIds = new Set(zombiesForBrief.map(z => z.storyId));
-        let activeStories: Array<{ storyId: string; phase: string; mainPhase: string | null; title: string; bugsOpen: number; hasBg: boolean }> = [];
+        let activeStories: Array<{
+          storyId: string;
+          phase: string;
+          mainPhase: string | null;
+          phaseAuthority: 'main' | 'worktree';
+          title: string;
+          bugsOpen: number;
+          hasBg: boolean;
+        }> = [];
         let totalBugsOpen = 0;
         let totalStories = allStoryIds.length;
         let doneStories = 0;
@@ -412,6 +434,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
                   storyId: id,
                   phase: s.phase,
                   mainPhase: linked?.story && linked.story.phase !== mainStory.phase ? mainStory.phase : null,
+                  phaseAuthority: linked?.story ? 'worktree' : 'main',
                   title: s.title || '',
                   bugsOpen,
                   hasBg,
@@ -446,12 +469,14 @@ export function createSessionHandlers(ctx: HandlerContext) {
             const bugStr = s.bugsOpen > 0 ? ` [${s.bugsOpen} bugs]` : '';
             // B-45ed CHK-008: bg:✓ 尾部标记；不存在 background.md 时不显示
             const bgStr = s.hasBg ? ' bg:✓' : '';
-            const phaseStr = s.mainPhase ? `${s.phase} (main:${s.mainPhase})` : s.phase;
+            const phaseStr = s.mainPhase
+              ? `${s.phase} (authority:worktree, main:${s.mainPhase})`
+              : `${s.phase} (authority:${s.phaseAuthority})`;
             if (wt) {
-              lines.push(`  ${s.storyId} ${phaseStr.padEnd(16)} ${s.title}${bugStr}${bgStr}`);
+              lines.push(`  ${s.storyId} ${phaseStr.padEnd(36)} ${s.title}${bugStr}${bgStr}`);
               lines.push(`    → cd ${wt}`);
             } else {
-              lines.push(`  ${s.storyId} ${phaseStr.padEnd(16)} ${s.title}${bugStr}${bgStr}`);
+              lines.push(`  ${s.storyId} ${phaseStr.padEnd(36)} ${s.title}${bugStr}${bgStr}`);
             }
           }
           if (activeStories.length > limit) {
@@ -511,7 +536,10 @@ export function createSessionHandlers(ctx: HandlerContext) {
           if (!gitReady) {
             lines.push(`  Project is not a git repo. You can keep recording story/test metadata, but before INIT_CHECK/worktree flow run: \`git init && git add . && git commit -m "init"\``);
           } else if (wt) {
-            lines.push(`  Resume: cd ${wt} (story ${top.storyId} is in ${top.phase})`);
+            const authority = top.mainPhase
+              ? `worktree phase ${top.phase}; main metadata still says ${top.mainPhase}`
+              : `${top.phase} from ${top.phaseAuthority} metadata`;
+            lines.push(`  Resume: cd ${wt} (story ${top.storyId}; authority: ${authority})`);
           } else {
             lines.push(`  Story ${top.storyId} is in ${top.phase} but has no worktree. Try \`koala story_advance --storyId=${top.storyId} --phase=INIT_CHECK\` to create one.`);
           }
@@ -742,5 +770,11 @@ export function createSessionHandlers(ctx: HandlerContext) {
 
       return lines.join('\n');
     },
+
+    next(args: SessionBriefArgs = {}): string {
+      const brief = handlers.session_brief({ concise: args.concise ?? true });
+      return extractNextStep(brief);
+    },
   };
+  return handlers;
 }

@@ -389,6 +389,9 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'session_brief', description: '跨 session 开场简报（active story / phase / checklist / bug / next step）', schema: {
     concise: z.boolean().optional().describe('轻量模式（默认 false）'),
   }},
+  { name: 'next', description: '只输出当前最可信的下一步（复用 session_brief 的权威 phase 判断）', schema: {
+    concise: z.boolean().optional().describe('轻量模式（默认 true）'),
+  }},
   { name: 'aux_doc_list', description: '列出项目文档（PLAN 阶段挑选 relatedDocs 用）', schema: {
     format: z.enum(['text', 'json']).optional().describe('输出格式（默认 text）'),
   }},
@@ -961,6 +964,7 @@ function resolveRoot(explicit?: string): string {
  */
 const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'session_brief',
+  'next',
   'status',
   'story_get',
   'story_list',
