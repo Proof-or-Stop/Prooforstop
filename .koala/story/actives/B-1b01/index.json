@@ -4,7 +4,7 @@
   "title": "修复 DONE/DISCARDED worktree 清理与 doctor repair 终端残留",
   "description": "doctor --repair 和 story_list 需要正确处理 DONE/DISCARDED 后留下的 stale git worktree admin、terminal branch、不可删除物理目录，避免 terminal registered/orphan dirs/terminal dirs 误报或卡死。",
   "type": "bug",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "createdAt": "2026-05-01T15:10:59.488Z",
   "startedAt": "2026-05-01T15:10:59.488Z",
@@ -41,11 +41,20 @@
       "branch": "story/B-1b01",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-01T20:01:26.055Z",
+      "branch": "story/B-1b01",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-1b01",
     "branch": "story/B-1b01",
     "createdAt": "2026-05-01T15:14:52.903Z"
-  }
+  },
+  "currentReviewRound": "2026-05-01T20:01:26.055Z"
 }
