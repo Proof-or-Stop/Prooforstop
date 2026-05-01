@@ -1,0 +1,82 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "doctor repair 清理 terminal/orphan worktree 残留且不再卡死",
+      "context": "对已删除路径、stale .git/worktrees admin、terminal story branch 进行兜底清理；对文件系统层面无法删除的目录写 quarantine marker，后续扫描跳过。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "story_discard 清理异常 worktree registry",
+      "context": "git worktree remove/prune 无法处理 0000000 或 missing-path 状态时，需要删除 stale admin dir，让 git worktree list 恢复正常。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "story_list 不再把已 quarantine 的不可删除残留当作 Terminal worktree",
+      "context": "已标记 .koala-repair-ignore 的目录代表物理层面不可删除，不应污染用户的 story health 报告。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "repair 不误删 active/non-terminal worktree、无关 branch 或用户目录",
+      "context": "这是 git/worktree mutation 的安全边界：doctor repair 和 story_discard 只能处理 terminal story residue；active story、非 terminal story、非 story/B-* branch、以及不在配置 worktreeDir 下的用户目录必须保持不变。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "userSees": "doctor/story_list 清理 terminal residue 后，active worktree 和无关 branch 仍保留。",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/handlers/story-query.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-repair-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "synthetic terminal residue 被 doctor --repair 清理，active story worktree 保持注册和目录存在",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "不可删除目录写 .koala-repair-ignore 后，doctor/story_list 不再误报但目录不被反复删除",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "存在非 terminal worktree 或无关 branch 时 repair 不删除、不 prune、不改写这些对象",
+            "type": "cli"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
