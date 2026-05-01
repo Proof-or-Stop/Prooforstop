@@ -8,9 +8,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-01T15:21:11.621Z",
-      "endTime": null,
+      "endTime": "2026-05-01T19:59:23.566Z",
       "userSees": "用户看到 `koala doctor --repair` 输出 `terminal registered: 0`、`orphan dirs        : 0`、`terminal dirs      : 0` 和 `✓ No orphan or terminal worktree cleanup issues.`，命令在超时保护内返回提示符。",
       "files": {
         "modify": [
@@ -84,9 +84,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
+      "status": "done",
+      "startTime": "2026-05-01T19:59:30.760Z",
+      "endTime": "2026-05-01T19:59:43.737Z",
       "userSees": "用户运行 `story_discard` 后看到 `✓ stale git worktree admin 已清理: ...` 或 `✓ stale worktree metadata 已 prune: ...`，随后 `git worktree list` 不再显示 `0000000 [story/B-xxxx]`。",
       "files": {
         "modify": [
@@ -160,9 +160,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
+      "status": "done",
+      "startTime": "2026-05-01T19:59:52.372Z",
+      "endTime": "2026-05-01T19:59:59.895Z",
       "userSees": "用户运行 `koala story_list` 时 `_bugSummary` 不再包含 `Terminal worktrees (...)`，已写 `.koala-repair-ignore` 的 B-xxxx 目录不会出现在 terminal residue 报告里。",
       "files": {
         "modify": [
@@ -269,9 +269,9 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
+      "status": "done",
+      "startTime": "2026-05-01T20:00:11.873Z",
+      "endTime": "2026-05-01T20:00:23.847Z",
       "verificationEvidence": [
         {
           "intentRef": "CHK-004:happy:0",
