@@ -1,0 +1,256 @@
+{
+  "command": "koala validate --story=B-1b01 --json",
+  "output": "{\"provider\":\"koala-verifier-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands failed; verification coverage missing 12 required intent(s)\",\"details\":[\"✗ package.json test script: npm test\",\"  > koala@0.3.2 test\",\"  > npm run test:e2e\",\"  > koala@0.3.2 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ✗ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✗ story_advance (step 2)\",\"      error: Cannot enter INIT_CHECK: init-check.json 缺少必需 reviewer 记录: koala-review-story-init, product-reviewer。 [missing_init_check_agent]\",\"  → 分别运行 koala dispatch '{\\\"storyId\\\":\\\"B-599c\\\",\\\"agentType\\\":\\\"koala-review-story-init\\\"}' 和 product-reviewer；每个 reviewer 无论 pass/fail 都必须调用 init_check_set。\",\"      input: {\\\"storyId\\\":\\\"B-599c\\\",\\\"phase\\\":\\\"INIT_CHECK\\\",\\\"checklist\\\":[{\\\"title\\\":\\\"Verify current story lifecycle e2e path\\\",\\\"context\\\":\\\"E2E regression needs a concrete checklist item with context so current Koala truth-source gates exercise the real path.\\\"}]}\",\"      hint: 函数 story_advance 执行出错。传入的参数: {\\\"storyId\\\":\\\"B-599c\\\",\\\"phase\\\":\\\"INIT_CHECK\\\",\\\"checklist\\\":[{\\\"title\\\":\\\"Verify current story lifecycle e2e path\\\",\\\"context\\\":\\\"E2E regression needs a concrete checklist item with context so current Koala truth-source gates exercise the real path.\\\"}]}。当前 context: [\\\"storyId\\\",\\\"phase\\\",\\\"itemId\\\"]。请检查函数逻辑或 @input/@output 注释是否匹配。\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✗ SOME FAILED\",\"Verification intent coverage: 0/12 covered (12 required missing)\",\"  ✗ CHK-001:happy:0 [happy/must/cli] stale via integration_test (packages/main/src/tasks/worktree-repair-smoke.ts) — terminal registered、orphan dir、terminal dir repair 后 doctor JSON/text 计数归零\",\"  ✗ CHK-001:edge:0 [edge/must/cli] stale via integration_test (packages/main/src/tasks/worktree-repair-smoke.ts) — rm -rf 超时/失败时写 .koala-repair-ignore 并在 repairFailed 中报告原因，下一次 scan 跳过该目录\",\"  ✗ CHK-001:adversarial:0 [adversarial/must/cli] stale via integration_test (packages/main/src/tasks/worktree-repair-smoke.ts) — repair 遇到 git worktree prune 失败时报告 repairFailed，不伪装健康成功\",\"  ✗ CHK-002:happy:0 [happy/must/cli] stale via integration_test (packages/main/src/tasks/worktree-repair-smoke.ts) — story_discard 对 missing-path/prunable registry 执行 prune/admin-dir fallback 后，git worktree list 不再包含该 story branch\",\"  ✗ CHK-002:edge:0 [edge/must/cli] stale via integration_test (packages/main/src/tasks/worktree-repair-smoke.ts) — worktree path 已不存在但 admin dir 仍引用 story branch 时，按 HEAD/gitdir 匹配并删除 stale admin dir\",\"  ✗ CHK-002:adversarial:0 [adversarial/must/cli] stale via integration_test (packages/main/src/tasks/worktree-repair-smoke.ts) — admin dir 不匹配 storyId/branch/gitdir path 时不会被 story_discard 删除\",\"  ✗ CHK-003:happy:0 [happy/must/cli] stale via integration_test (packages/main/src/tasks/worktree-repair-smoke.ts) — DONE/DISCARDED story 的普通残留目录仍被 story_list 检出为 terminal residue\",\"  ✗ CHK-003:edge:0 [edge/must/cli] stale via integration_test (packages/main/src/tasks/worktree-repair-smoke.ts) — 带 .koala-repair-ignore 的 DONE/DISCARDED 残留目录不会出现在 story_list Terminal worktrees 报告中\",\"  ✗ CHK-003:adversarial:0 [adversarial/must/cli] stale via integration_test (packages/main/src/tasks/worktree-repair-smoke.ts) — 非 B-* 目录或读不到 story metadata 的目录不会污染 story_list residue 结果\",\"  ✗ CHK-004:happy:0 [happy/must/cli] stale via integration_test (packages/main/src/tasks/worktree-repair-smoke.ts) — synthetic terminal residue 被 doctor --repair 清理，active story worktree 保持注册和目录存在\",\"  ✗ CHK-004:edge:0 [edge/must/cli] stale via integration_test (packages/main/src/tasks/worktree-repair-smoke.ts) — 不可删除目录写 .koala-repair-ignore 后，doctor/story_list 不再误报但目录不被反复删除\",\"  ✗ CHK-004:adversarial:0 [adversarial/must/cli] stale via integration_test (packages/main/src/tasks/worktree-repair-smoke.ts) — 存在非 terminal worktree 或无关 branch 时 repair 不删除、不 prune、不改写这些对象\"],\"warnings\":[\"validate.ts not found; used language/project validation command discovery\"],\"timestamp\":\"2026-05-01T20:12:37.534Z\",\"headSha\":\"8c099605b9ce7d122ebeaf2ddc4c268bdfbfb66a\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":1,\"output\":\"\\n> koala@0.3.2 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.2 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n\\n✗ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✗ story_advance (step 2)\\n    error: Cannot enter INIT_CHECK: init-check.json 缺少必需 reviewer 记录: koala-review-story-init, product-reviewer。 [missing_init_check_agent]\\n→ 分别运行 koala dispatch '{\\\"storyId\\\":\\\"B-599c\\\",\\\"agentType\\\":\\\"koala-review-story-init\\\"}' 和 product-reviewer；每个 reviewer 无论 pass/fail 都必须调用 init_check_set。\\n    input: {\\\"storyId\\\":\\\"B-599c\\\",\\\"phase\\\":\\\"INIT_CHECK\\\",\\\"checklist\\\":[{\\\"title\\\":\\\"Verify current story lifecycle e2e path\\\",\\\"context\\\":\\\"E2E regression needs a concrete checklist item with context so current Koala truth-source gates exercise the real path.\\\"}]}\\n    hint: 函数 story_advance 执行出错。传入的参数: {\\\"storyId\\\":\\\"B-599c\\\",\\\"phase\\\":\\\"INIT_CHECK\\\",\\\"checklist\\\":[{\\\"title\\\":\\\"Verify current story lifecycle e2e path\\\",\\\"context\\\":\\\"E2E regression needs a concrete checklist item with context so current Koala truth-source gates exercise the real path.\\\"}]}。当前 context: [\\\"storyId\\\",\\\"phase\\\",\\\"itemId\\\"]。请检查函数逻辑或 @input/@output 注释是否匹配。\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✗ SOME FAILED\\n\",\"durationMs\":347}],\"verificationCoverage\":{\"total\":12,\"required\":12,\"covered\":0,\"missingRequired\":12,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"terminal registered、orphan dir、terminal dir repair 后 doctor JSON/text 计数归零\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/worktree-repair-smoke.ts\",\"command\":\"npm run test:worktree-repair-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts doctor --repair clears terminalRegistered/orphanDirs/terminalDirs after synthetic terminal registered and orphan targets.\",\"headHash\":\"b96ba849018bea551f48db1e8cff75de8a579c5b\",\"materialHash\":\"0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623\",\"timestamp\":\"2026-05-01T19:58:54.277Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"rm -rf 超时/失败时写 .koala-repair-ignore 并在 repairFailed 中报告原因，下一次 scan 跳过该目录\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/worktree-repair-smoke.ts\",\"command\":\"npm run test:worktree-repair-smoke\",\"result\":\"pass\",\"note\":\"Smoke keeps a .koala-repair-ignore directory in place and asserts subsequent doctor/story_list health is not polluted by it.\",\"headHash\":\"b96ba849018bea551f48db1e8cff75de8a579c5b\",\"materialHash\":\"0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623\",\"timestamp\":\"2026-05-01T19:58:54.277Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"repair 遇到 git worktree prune 失败时报告 repairFailed，不伪装健康成功\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/worktree-repair-smoke.ts\",\"command\":\"npm run build && npm run test:worktree-repair-smoke\",\"result\":\"pass\",\"note\":\"Build plus smoke exercise repairFailed-safe paths and ensure repair only reports healthy after rescan clears targets.\",\"headHash\":\"b96ba849018bea551f48db1e8cff75de8a579c5b\",\"materialHash\":\"0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623\",\"timestamp\":\"2026-05-01T19:58:54.277Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"story_discard 对 missing-path/prunable registry 执行 prune/admin-dir fallback 后，git worktree list 不再包含该 story branch\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/worktree-repair-smoke.ts\",\"command\":\"npm run test:worktree-repair-smoke\",\"result\":\"pass\",\"note\":\"Smoke removes a story worktree path before story_discard, then asserts git worktree list no longer contains story/B-discard.\",\"headHash\":\"b96ba849018bea551f48db1e8cff75de8a579c5b\",\"materialHash\":\"0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623\",\"timestamp\":\"2026-05-01T19:58:54.277Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"worktree path 已不存在但 admin dir 仍引用 story branch 时，按 HEAD/gitdir 匹配并删除 stale admin dir\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/worktree-repair-smoke.ts\",\"command\":\"npm run test:worktree-repair-smoke\",\"result\":\"pass\",\"note\":\"Smoke covers missing-path registry repair through prune/admin cleanup before DISCARDED metadata is accepted.\",\"headHash\":\"b96ba849018bea551f48db1e8cff75de8a579c5b\",\"materialHash\":\"0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623\",\"timestamp\":\"2026-05-01T19:58:54.277Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"admin dir 不匹配 storyId/branch/gitdir path 时不会被 story_discard 删除\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/worktree-repair-smoke.ts\",\"command\":\"npm run test:worktree-repair-smoke\",\"result\":\"pass\",\"note\":\"Admin cleanup matches story id/branch/path only; safety assertions keep unrelated active worktree and branch intact.\",\"headHash\":\"b96ba849018bea551f48db1e8cff75de8a579c5b\",\"materialHash\":\"0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623\",\"timestamp\":\"2026-05-01T19:58:54.277Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"DONE/DISCARDED story 的普通残留目录仍被 story_list 检出为 terminal residue\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/worktree-repair-smoke.ts\",\"command\":\"npm run test:worktree-repair-smoke\",\"result\":\"pass\",\"note\":\"Smoke confirms non-ignored terminal residue is detected before repair via doctor JSON needsRepair true.\",\"headHash\":\"b96ba849018bea551f48db1e8cff75de8a579c5b\",\"materialHash\":\"0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623\",\"timestamp\":\"2026-05-01T19:58:54.277Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"带 .koala-repair-ignore 的 DONE/DISCARDED 残留目录不会出现在 story_list Terminal worktrees 报告中\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/worktree-repair-smoke.ts\",\"command\":\"npm run test:worktree-repair-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts .koala-repair-ignore terminal dir does not appear in story_list Terminal worktrees output.\",\"headHash\":\"b96ba849018bea551f48db1e8cff75de8a579c5b\",\"materialHash\":\"0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623\",\"timestamp\":\"2026-05-01T19:58:54.277Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"非 B-* 目录或读不到 story metadata 的目录不会污染 story_list residue 结果\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/worktree-repair-smoke.ts\",\"command\":\"npm run test:worktree-repair-smoke\",\"result\":\"pass\",\"note\":\"Smoke uses story metadata reads and B-* filtering to ensure unrelated directories do not become residue labels.\",\"headHash\":\"b96ba849018bea551f48db1e8cff75de8a579c5b\",\"materialHash\":\"0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623\",\"timestamp\":\"2026-05-01T19:58:54.277Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"synthetic terminal residue 被 doctor --repair 清理，active story worktree 保持注册和目录存在\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/worktree-repair-smoke.ts\",\"command\":\"npm run test:worktree-repair-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts active story/B-active remains in git worktree list after doctor --repair.\",\"headHash\":\"b96ba849018bea551f48db1e8cff75de8a579c5b\",\"materialHash\":\"0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623\",\"timestamp\":\"2026-05-01T19:58:54.277Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"不可删除目录写 .koala-repair-ignore 后，doctor/story_list 不再误报但目录不被反复删除\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/worktree-repair-smoke.ts\",\"command\":\"npm run test:worktree-repair-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts quarantined directory remains but no longer pollutes doctor/story_list cleanup issues.\",\"headHash\":\"b96ba849018bea551f48db1e8cff75de8a579c5b\",\"materialHash\":\"0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623\",\"timestamp\":\"2026-05-01T19:58:54.277Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"存在非 terminal worktree 或无关 branch 时 repair 不删除、不 prune、不改写这些对象\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/worktree-repair-smoke.ts\",\"command\":\"npm run test:worktree-repair-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts unrelated/keep-me branch and worktreeDir-external user dir survive repair untouched.\",\"headHash\":\"b96ba849018bea551f48db1e8cff75de8a579c5b\",\"materialHash\":\"0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623\",\"timestamp\":\"2026-05-01T19:58:54.277Z\"}}]}}",
+  "result": "FAIL",
+  "timestamp": "2026-05-01T20:12:37.841Z",
+  "headHash": "8c099605b9ce7d122ebeaf2ddc4c268bdfbfb66a",
+  "materialHash": "a985b94bf939051085427d66362fc9adcb097db5950200c24fff48b892ddf96c",
+  "verificationCoverage": {
+    "total": 12,
+    "required": 12,
+    "covered": 0,
+    "missingRequired": 12,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "terminal registered、orphan dir、terminal dir repair 后 doctor JSON/text 计数归零",
+        "type": "cli",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "command": "npm run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "Smoke asserts doctor --repair clears terminalRegistered/orphanDirs/terminalDirs after synthetic terminal registered and orphan targets.",
+          "headHash": "b96ba849018bea551f48db1e8cff75de8a579c5b",
+          "materialHash": "0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623",
+          "timestamp": "2026-05-01T19:58:54.277Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "rm -rf 超时/失败时写 .koala-repair-ignore 并在 repairFailed 中报告原因，下一次 scan 跳过该目录",
+        "type": "cli",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "command": "npm run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "Smoke keeps a .koala-repair-ignore directory in place and asserts subsequent doctor/story_list health is not polluted by it.",
+          "headHash": "b96ba849018bea551f48db1e8cff75de8a579c5b",
+          "materialHash": "0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623",
+          "timestamp": "2026-05-01T19:58:54.277Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "repair 遇到 git worktree prune 失败时报告 repairFailed，不伪装健康成功",
+        "type": "cli",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "command": "npm run build && npm run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "Build plus smoke exercise repairFailed-safe paths and ensure repair only reports healthy after rescan clears targets.",
+          "headHash": "b96ba849018bea551f48db1e8cff75de8a579c5b",
+          "materialHash": "0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623",
+          "timestamp": "2026-05-01T19:58:54.277Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "story_discard 对 missing-path/prunable registry 执行 prune/admin-dir fallback 后，git worktree list 不再包含该 story branch",
+        "type": "cli",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "command": "npm run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "Smoke removes a story worktree path before story_discard, then asserts git worktree list no longer contains story/B-discard.",
+          "headHash": "b96ba849018bea551f48db1e8cff75de8a579c5b",
+          "materialHash": "0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623",
+          "timestamp": "2026-05-01T19:58:54.277Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "worktree path 已不存在但 admin dir 仍引用 story branch 时，按 HEAD/gitdir 匹配并删除 stale admin dir",
+        "type": "cli",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "command": "npm run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "Smoke covers missing-path registry repair through prune/admin cleanup before DISCARDED metadata is accepted.",
+          "headHash": "b96ba849018bea551f48db1e8cff75de8a579c5b",
+          "materialHash": "0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623",
+          "timestamp": "2026-05-01T19:58:54.277Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "admin dir 不匹配 storyId/branch/gitdir path 时不会被 story_discard 删除",
+        "type": "cli",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "command": "npm run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "Admin cleanup matches story id/branch/path only; safety assertions keep unrelated active worktree and branch intact.",
+          "headHash": "b96ba849018bea551f48db1e8cff75de8a579c5b",
+          "materialHash": "0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623",
+          "timestamp": "2026-05-01T19:58:54.277Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "DONE/DISCARDED story 的普通残留目录仍被 story_list 检出为 terminal residue",
+        "type": "cli",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "command": "npm run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "Smoke confirms non-ignored terminal residue is detected before repair via doctor JSON needsRepair true.",
+          "headHash": "b96ba849018bea551f48db1e8cff75de8a579c5b",
+          "materialHash": "0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623",
+          "timestamp": "2026-05-01T19:58:54.277Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "带 .koala-repair-ignore 的 DONE/DISCARDED 残留目录不会出现在 story_list Terminal worktrees 报告中",
+        "type": "cli",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "command": "npm run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "Smoke asserts .koala-repair-ignore terminal dir does not appear in story_list Terminal worktrees output.",
+          "headHash": "b96ba849018bea551f48db1e8cff75de8a579c5b",
+          "materialHash": "0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623",
+          "timestamp": "2026-05-01T19:58:54.277Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "非 B-* 目录或读不到 story metadata 的目录不会污染 story_list residue 结果",
+        "type": "cli",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "command": "npm run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "Smoke uses story metadata reads and B-* filtering to ensure unrelated directories do not become residue labels.",
+          "headHash": "b96ba849018bea551f48db1e8cff75de8a579c5b",
+          "materialHash": "0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623",
+          "timestamp": "2026-05-01T19:58:54.277Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "synthetic terminal residue 被 doctor --repair 清理，active story worktree 保持注册和目录存在",
+        "type": "cli",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "command": "npm run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "Smoke asserts active story/B-active remains in git worktree list after doctor --repair.",
+          "headHash": "b96ba849018bea551f48db1e8cff75de8a579c5b",
+          "materialHash": "0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623",
+          "timestamp": "2026-05-01T19:58:54.277Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "不可删除目录写 .koala-repair-ignore 后，doctor/story_list 不再误报但目录不被反复删除",
+        "type": "cli",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "command": "npm run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "Smoke asserts quarantined directory remains but no longer pollutes doctor/story_list cleanup issues.",
+          "headHash": "b96ba849018bea551f48db1e8cff75de8a579c5b",
+          "materialHash": "0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623",
+          "timestamp": "2026-05-01T19:58:54.277Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "存在非 terminal worktree 或无关 branch 时 repair 不删除、不 prune、不改写这些对象",
+        "type": "cli",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "command": "npm run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "Smoke asserts unrelated/keep-me branch and worktreeDir-external user dir survive repair untouched.",
+          "headHash": "b96ba849018bea551f48db1e8cff75de8a579c5b",
+          "materialHash": "0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623",
+          "timestamp": "2026-05-01T19:58:54.277Z"
+        }
+      }
+    ]
+  }
+}

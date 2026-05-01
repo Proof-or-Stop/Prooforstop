@@ -345,7 +345,8 @@ function ensureSandboxReady(
     const detail = handlers.story_get({ storyId, detail: true });
     const phase = detail?.index?.phase || context.phase;
     if (phase === 'INIT') {
-      handlers.init_check_set({ storyId, issues: [], agentId: 'koala-e2e' });
+      handlers.init_check_set({ storyId, issues: [], agentId: 'koala-review-story-init' });
+      handlers.init_check_set({ storyId, issues: [], agentId: 'product-reviewer' });
     }
   } catch {
     // ignore

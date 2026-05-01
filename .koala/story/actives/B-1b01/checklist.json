@@ -48,10 +48,10 @@
           "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
           "command": "npm run test:worktree-repair-smoke",
           "result": "pass",
-          "note": "Smoke asserts doctor --repair clears terminalRegistered/orphanDirs/terminalDirs after synthetic terminal registered and orphan targets.",
-          "headHash": "b96ba849018bea551f48db1e8cff75de8a579c5b",
-          "materialHash": "0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623",
-          "timestamp": "2026-05-01T19:58:54.277Z"
+          "note": "Fresh HEAD smoke asserts doctor --repair clears terminalRegistered/orphanDirs/terminalDirs after synthetic terminal registered and orphan targets.",
+          "headHash": "8c099605b9ce7d122ebeaf2ddc4c268bdfbfb66a",
+          "materialHash": "a985b94bf939051085427d66362fc9adcb097db5950200c24fff48b892ddf96c",
+          "timestamp": "2026-05-01T20:13:37.666Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -59,10 +59,10 @@
           "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
           "command": "npm run test:worktree-repair-smoke",
           "result": "pass",
-          "note": "Smoke keeps a .koala-repair-ignore directory in place and asserts subsequent doctor/story_list health is not polluted by it.",
-          "headHash": "b96ba849018bea551f48db1e8cff75de8a579c5b",
-          "materialHash": "0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623",
-          "timestamp": "2026-05-01T19:58:54.277Z"
+          "note": "Fresh HEAD smoke keeps a .koala-repair-ignore directory in place and asserts subsequent doctor/story_list health is not polluted by it.",
+          "headHash": "8c099605b9ce7d122ebeaf2ddc4c268bdfbfb66a",
+          "materialHash": "a985b94bf939051085427d66362fc9adcb097db5950200c24fff48b892ddf96c",
+          "timestamp": "2026-05-01T20:13:37.666Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -70,10 +70,10 @@
           "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
           "command": "npm run build && npm run test:worktree-repair-smoke",
           "result": "pass",
-          "note": "Build plus smoke exercise repairFailed-safe paths and ensure repair only reports healthy after rescan clears targets.",
-          "headHash": "b96ba849018bea551f48db1e8cff75de8a579c5b",
-          "materialHash": "0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623",
-          "timestamp": "2026-05-01T19:58:54.277Z"
+          "note": "Fresh HEAD build plus smoke exercise repair safety paths and ensure repair only reports healthy after rescan clears targets.",
+          "headHash": "8c099605b9ce7d122ebeaf2ddc4c268bdfbfb66a",
+          "materialHash": "a985b94bf939051085427d66362fc9adcb097db5950200c24fff48b892ddf96c",
+          "timestamp": "2026-05-01T20:13:37.666Z"
         }
       ]
     },
@@ -124,10 +124,10 @@
           "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
           "command": "npm run test:worktree-repair-smoke",
           "result": "pass",
-          "note": "Smoke removes a story worktree path before story_discard, then asserts git worktree list no longer contains story/B-discard.",
-          "headHash": "b96ba849018bea551f48db1e8cff75de8a579c5b",
-          "materialHash": "0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623",
-          "timestamp": "2026-05-01T19:58:54.277Z"
+          "note": "Fresh HEAD smoke removes a story worktree path before story_discard, then asserts git worktree list no longer contains story/B-discard.",
+          "headHash": "8c099605b9ce7d122ebeaf2ddc4c268bdfbfb66a",
+          "materialHash": "a985b94bf939051085427d66362fc9adcb097db5950200c24fff48b892ddf96c",
+          "timestamp": "2026-05-01T20:13:37.666Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -135,10 +135,10 @@
           "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
           "command": "npm run test:worktree-repair-smoke",
           "result": "pass",
-          "note": "Smoke covers missing-path registry repair through prune/admin cleanup before DISCARDED metadata is accepted.",
-          "headHash": "b96ba849018bea551f48db1e8cff75de8a579c5b",
-          "materialHash": "0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623",
-          "timestamp": "2026-05-01T19:58:54.277Z"
+          "note": "Fresh HEAD smoke covers missing-path registry repair through prune/admin cleanup before DISCARDED metadata is accepted.",
+          "headHash": "8c099605b9ce7d122ebeaf2ddc4c268bdfbfb66a",
+          "materialHash": "a985b94bf939051085427d66362fc9adcb097db5950200c24fff48b892ddf96c",
+          "timestamp": "2026-05-01T20:13:37.666Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -146,10 +146,10 @@
           "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
           "command": "npm run test:worktree-repair-smoke",
           "result": "pass",
-          "note": "Admin cleanup matches story id/branch/path only; safety assertions keep unrelated active worktree and branch intact.",
-          "headHash": "b96ba849018bea551f48db1e8cff75de8a579c5b",
-          "materialHash": "0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623",
-          "timestamp": "2026-05-01T19:58:54.277Z"
+          "note": "Fresh HEAD admin cleanup matches story id/branch/path only; safety assertions keep unrelated active worktree and branch intact.",
+          "headHash": "8c099605b9ce7d122ebeaf2ddc4c268bdfbfb66a",
+          "materialHash": "a985b94bf939051085427d66362fc9adcb097db5950200c24fff48b892ddf96c",
+          "timestamp": "2026-05-01T20:13:37.666Z"
         }
       ]
     },
@@ -200,10 +200,10 @@
           "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
           "command": "npm run test:worktree-repair-smoke",
           "result": "pass",
-          "note": "Smoke confirms non-ignored terminal residue is detected before repair via doctor JSON needsRepair true.",
-          "headHash": "b96ba849018bea551f48db1e8cff75de8a579c5b",
-          "materialHash": "0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623",
-          "timestamp": "2026-05-01T19:58:54.277Z"
+          "note": "Fresh HEAD smoke confirms non-ignored terminal residue is detected before repair via doctor JSON needsRepair true.",
+          "headHash": "8c099605b9ce7d122ebeaf2ddc4c268bdfbfb66a",
+          "materialHash": "a985b94bf939051085427d66362fc9adcb097db5950200c24fff48b892ddf96c",
+          "timestamp": "2026-05-01T20:13:37.666Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -211,10 +211,10 @@
           "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
           "command": "npm run test:worktree-repair-smoke",
           "result": "pass",
-          "note": "Smoke asserts .koala-repair-ignore terminal dir does not appear in story_list Terminal worktrees output.",
-          "headHash": "b96ba849018bea551f48db1e8cff75de8a579c5b",
-          "materialHash": "0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623",
-          "timestamp": "2026-05-01T19:58:54.277Z"
+          "note": "Fresh HEAD smoke asserts .koala-repair-ignore terminal dir does not appear in story_list Terminal worktrees output.",
+          "headHash": "8c099605b9ce7d122ebeaf2ddc4c268bdfbfb66a",
+          "materialHash": "a985b94bf939051085427d66362fc9adcb097db5950200c24fff48b892ddf96c",
+          "timestamp": "2026-05-01T20:13:37.666Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -222,10 +222,10 @@
           "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
           "command": "npm run test:worktree-repair-smoke",
           "result": "pass",
-          "note": "Smoke uses story metadata reads and B-* filtering to ensure unrelated directories do not become residue labels.",
-          "headHash": "b96ba849018bea551f48db1e8cff75de8a579c5b",
-          "materialHash": "0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623",
-          "timestamp": "2026-05-01T19:58:54.277Z"
+          "note": "Fresh HEAD smoke uses story metadata reads and B-* filtering to ensure unrelated directories do not become residue labels.",
+          "headHash": "8c099605b9ce7d122ebeaf2ddc4c268bdfbfb66a",
+          "materialHash": "a985b94bf939051085427d66362fc9adcb097db5950200c24fff48b892ddf96c",
+          "timestamp": "2026-05-01T20:13:37.666Z"
         }
       ]
     },
@@ -279,10 +279,10 @@
           "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
           "command": "npm run test:worktree-repair-smoke",
           "result": "pass",
-          "note": "Smoke asserts active story/B-active remains in git worktree list after doctor --repair.",
-          "headHash": "b96ba849018bea551f48db1e8cff75de8a579c5b",
-          "materialHash": "0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623",
-          "timestamp": "2026-05-01T19:58:54.277Z"
+          "note": "Fresh HEAD smoke asserts active story/B-active remains in git worktree list after doctor --repair.",
+          "headHash": "8c099605b9ce7d122ebeaf2ddc4c268bdfbfb66a",
+          "materialHash": "a985b94bf939051085427d66362fc9adcb097db5950200c24fff48b892ddf96c",
+          "timestamp": "2026-05-01T20:13:37.666Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -290,10 +290,10 @@
           "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
           "command": "npm run test:worktree-repair-smoke",
           "result": "pass",
-          "note": "Smoke asserts quarantined directory remains but no longer pollutes doctor/story_list cleanup issues.",
-          "headHash": "b96ba849018bea551f48db1e8cff75de8a579c5b",
-          "materialHash": "0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623",
-          "timestamp": "2026-05-01T19:58:54.277Z"
+          "note": "Fresh HEAD smoke asserts quarantined directory remains but no longer pollutes doctor/story_list cleanup issues.",
+          "headHash": "8c099605b9ce7d122ebeaf2ddc4c268bdfbfb66a",
+          "materialHash": "a985b94bf939051085427d66362fc9adcb097db5950200c24fff48b892ddf96c",
+          "timestamp": "2026-05-01T20:13:37.666Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -301,10 +301,10 @@
           "file": "packages/main/src/tasks/worktree-repair-smoke.ts",
           "command": "npm run test:worktree-repair-smoke",
           "result": "pass",
-          "note": "Smoke asserts unrelated/keep-me branch and worktreeDir-external user dir survive repair untouched.",
-          "headHash": "b96ba849018bea551f48db1e8cff75de8a579c5b",
-          "materialHash": "0b8846bbccdc39a321280288d118169dd5017f4a2a4d669395303816abbe5623",
-          "timestamp": "2026-05-01T19:58:54.277Z"
+          "note": "Fresh HEAD smoke asserts unrelated/keep-me branch and worktreeDir-external user dir survive repair untouched.",
+          "headHash": "8c099605b9ce7d122ebeaf2ddc4c268bdfbfb66a",
+          "materialHash": "a985b94bf939051085427d66362fc9adcb097db5950200c24fff48b892ddf96c",
+          "timestamp": "2026-05-01T20:13:37.666Z"
         }
       ]
     }
