@@ -1,0 +1,74 @@
+{
+  "principles": [
+    "repair mutation must be bounded and auditable",
+    "terminal story cleanup should restore user-visible health reports",
+    "active worktrees and unrelated branches are protected objects",
+    "unremovable filesystem residue should be quarantined rather than retried forever"
+  ],
+  "drivers": [
+    "doctor/story_list currently surface terminal residue after DONE/DISCARDED",
+    "git worktree registry can contain stale admin dirs or 0000000 entries",
+    "macOS/iCloud directories may hang ordinary recursive deletion",
+    "user needs repeatable repair without manual git surgery"
+  ],
+  "options": [
+    {
+      "name": "A: repair at mutation boundaries plus quarantine marker",
+      "pros": [
+        "doctor --repair and story_discard own cleanup responsibility",
+        "story_list stays a read/reporting surface",
+        "unremovable residue stops causing repeated false alarms"
+      ],
+      "cons": [
+        "quarantine marker leaves a physical directory visible on disk when OS deletion is broken"
+      ]
+    },
+    {
+      "name": "B: make story_list auto-clean terminal residue",
+      "pros": [
+        "users see cleanup while listing stories"
+      ],
+      "cons": [
+        "turns read-only query into a mutation and risks repeating the original read-side-effect class of bugs"
+      ]
+    },
+    {
+      "name": "C: only document manual git/rm commands",
+      "pros": [
+        "smallest code change"
+      ],
+      "cons": [
+        "does not solve repair hanging or registry corruption for normal users"
+      ]
+    }
+  ],
+  "chosen": "A: repair at mutation boundaries plus quarantine marker",
+  "rationale": "选择 A，因为这把 mutation 留在 doctor/story_discard 这类显式清理命令里，同时让 story_list 保持查询语义；对 OS 层面无法删除的目录用 marker 留痕，避免 repair 卡死或持续误报。",
+  "preMortem": [
+    {
+      "scenario": "doctor --repair 误删 active story worktree",
+      "trigger": "cleanup target 收集没有区分 terminal story 和 active story",
+      "consequence": "用户正在开发的 worktree 丢失",
+      "mitigation": "只清理 terminalRegistered/orphans/terminalDirs，并用 smoke 覆盖 active worktree 保留"
+    },
+    {
+      "scenario": "rm -rf 遇到 iCloud/dataless 目录长时间卡死",
+      "trigger": "递归删除没有 timeout 或 fallback 又进入阻塞 API",
+      "consequence": "doctor --repair 一直无输出，用户以为 Koala 死锁",
+      "mitigation": "使用 execFileSync rm -rf timeout，失败后写 .koala-repair-ignore 并继续报告"
+    },
+    {
+      "scenario": "stale .git/worktrees admin 目录让 git worktree list 继续显示 0000000",
+      "trigger": "git worktree prune 无法处理 malformed/missing-path metadata",
+      "consequence": "story_list/doctor 继续报 terminal registered",
+      "mitigation": "按 branch/gitdir/path 匹配并删除 stale admin dir，然后重扫验证"
+    },
+    {
+      "scenario": "quarantine marker 掩盖真正仍应修复的 Koala residue",
+      "trigger": "任何 repair 失败都被静默 ignore",
+      "consequence": "用户看不到需要人工处理的失败原因",
+      "mitigation": "doctor repair 输出 repairFailed，marker 内记录 reason/timestamp，且只跳过后续 scan 报警"
+    }
+  ],
+  "timestamp": "2026-05-01T15:16:03.624Z"
+}

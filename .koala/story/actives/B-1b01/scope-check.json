@@ -1,0 +1,59 @@
+{
+  "storyId": "B-1b01",
+  "checkedAt": "2026-05-01T15:18:06.103Z",
+  "features": [
+    {
+      "feature": "用户要求修复 DONE/DISCARDED worktree 清理/repair 残留，使 doctor 清零 terminal registered、orphan dirs、terminal dirs 且不再卡死",
+      "covered_by": "background 触发事件/关键洞察; understanding.outcome; CHK-001; plan.md#CHK-001; decision chosen A",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "user request: koala doctor terminal registered/orphan dirs/terminal dirs 仍报"
+    },
+    {
+      "feature": "B-96c1 这类 terminal physical worktree residue 应由 doctor --repair 清理",
+      "covered_by": "understanding facts: B-96c1 物理 worktree 可被清理; CHK-001; plan.md#CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "user request: B-96c1 still exists .worktrees/B-96c1"
+    },
+    {
+      "feature": "B-e8bb 这类 0000000/stale git worktree registry 应由 story_discard/repair 清理到 git worktree list 不再异常",
+      "covered_by": "background 异常 registry; understanding.outcome; CHK-002; plan.md#CHK-002; decision preMortem stale admin dir",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "user request: git worktree list 里 B-e8bb 仍是 0000000 [story/B-e8bb]"
+    },
+    {
+      "feature": "story_list 不应把已 quarantine 的不可删除物理残留继续报成 Terminal worktrees",
+      "covered_by": "CHK-003; plan.md#CHK-003; decision option A and preMortem quarantine marker",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "user request: koala story_list 仍报 Terminal worktrees (43)"
+    },
+    {
+      "feature": "安全边界：repair/story_discard 不误删 active/non-terminal worktree、无关 branch、worktreeDir 外用户目录",
+      "covered_by": "understanding.constraints; CHK-004; CHK-004 verificationIntent happy/edge/adversarial; plan.md#CHK-004; decision preMortem active story worktree",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "scope safety boundary for git/fs mutation"
+    },
+    {
+      "feature": "只读命令保持只读，mutation 留在 doctor --repair/story_discard",
+      "covered_by": "background 方案取舍; decision option A vs B; CHK-003 context",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "user conclusion: 只读副作用修好了；cleanup/repair 未修好"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 6,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "13227e2bf31a59a72a25bc6cd60b1438d223f353d3335fe07ca60bd13d465b2a",
+  "openQuestions": []
+}

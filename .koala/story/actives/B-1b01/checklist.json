@@ -10,7 +10,37 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户看到 `koala doctor --repair` 输出 `terminal registered: 0`、`orphan dirs        : 0`、`terminal dirs      : 0` 和 `✓ No orphan or terminal worktree cleanup issues.`，命令在超时保护内返回提示符。",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/doctor.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-repair-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "terminal registered、orphan dir、terminal dir repair 后 doctor JSON/text 计数归零",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "rm -rf 超时/失败时写 .koala-repair-ignore 并在 repairFailed 中报告原因，下一次 scan 跳过该目录",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "repair 遇到 git worktree prune 失败时报告 repairFailed，不伪装健康成功",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -21,7 +51,37 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户运行 `story_discard` 后看到 `✓ stale git worktree admin 已清理: ...` 或 `✓ stale worktree metadata 已 prune: ...`，随后 `git worktree list` 不再显示 `0000000 [story/B-xxxx]`。",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/worktree.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-repair-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "story_discard 对 missing-path/prunable registry 执行 prune/admin-dir fallback 后，git worktree list 不再包含该 story branch",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "worktree path 已不存在但 admin dir 仍引用 story branch 时，按 HEAD/gitdir 匹配并删除 stale admin dir",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "admin dir 不匹配 storyId/branch/gitdir path 时不会被 story_discard 删除",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -32,7 +92,37 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户运行 `koala story_list` 时 `_bugSummary` 不再包含 `Terminal worktrees (...)`，已写 `.koala-repair-ignore` 的 B-xxxx 目录不会出现在 terminal residue 报告里。",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-query.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-repair-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "DONE/DISCARDED story 的普通残留目录仍被 story_list 检出为 terminal residue",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "带 .koala-repair-ignore 的 DONE/DISCARDED 残留目录不会出现在 story_list Terminal worktrees 报告中",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "非 B-* 目录或读不到 story metadata 的目录不会污染 story_list residue 结果",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
@@ -42,7 +132,7 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "userSees": "doctor/story_list 清理 terminal residue 后，active worktree 和无关 branch 仍保留。",
+      "userSees": "用户看到 `koala doctor --repair` 清理 terminal residue 后，`git worktree list` 仍包含 active story worktree，且无关 branch 仍可 `git rev-parse --verify`。",
       "files": {
         "modify": [
           "packages/main/src/handlers/doctor.ts",
