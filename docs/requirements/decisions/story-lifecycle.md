@@ -1,12 +1,21 @@
 # Story 生命周期
 
+> 当前主流程使用第二版 Koala flow：
+>
+> `INIT -> INIT_CHECK -> PLAN/快速跳过 -> DEV -> REVIEW -> TEST -> DONE`
+>
+> 旧 `TEST_CASE` / `TEST_CASE_REVIEW` / `testIntent` 只作为 legacy 兼容数据保留。当前活跃口径是 checklist item 上的 `verificationIntent`，DEV/REVIEW/TEST 阶段记录的 `verificationEvidence`，REVIEW 阶段的 coverage/reviewer gate，以及 TEST 阶段的 `koala validate`。
+
 ## 阶段流转
 
+```text
+INIT -> INIT_CHECK -> PLAN -> DEV -> REVIEW -> TEST -> DONE
+                              ^        |        |
+                              |        v        v
+                              +------ DEV <-----+
 ```
-PLAN → DEV → TEST_CASE → TEST_CASE_REVIEW → TEST → DONE
-        ↑                                      |
-        └──────────────────────────────────────┘ (自动回退)
-```
+
+快速通道可以在 gate 允许时跳过部分计划材料，但不能跳过 worktree、review、validate、DONE evidence 等确定性状态。
 
 ## Phase 编号与健康检查
 
@@ -14,142 +23,150 @@ Koala 给可执行主流程 phase 一个稳定编号，用于 `koala status` 展
 
 | 编号 | Phase | 说明 |
 |---:|---|---|
-| 1/9 | IDEA | 需求还未形成 checklist |
-| 2/9 | INIT | story 已创建，尚未 bootstrap worktree |
-| 3/9 | INIT_CHECK | worktree bootstrap 检查/创建阶段 |
-| 4/9 | PLAN | 拆 checklist、理解快照、结构化决策、testIntent |
-| 5/9 | DEV | 实现代码 |
-| 6/9 | TEST_CASE | 编写 fixture case |
-| 7/9 | TEST_CASE_REVIEW | reviewer 审核 fixture/testIntent 覆盖 |
-| 8/9 | TEST | 执行 story/test 回归并处理 bug |
-| 9/9 | DONE | 完成并合并 |
+| 1/8 | IDEA | 需求还未形成 checklist，兼容旧数据和草稿入口 |
+| 2/8 | INIT | story 已创建，尚未 bootstrap worktree |
+| 3/8 | INIT_CHECK | worktree bootstrap 检查/创建阶段 |
+| 4/8 | PLAN | 理解快照、checklist、verificationIntent、必要 decision |
+| 5/8 | DEV | 实现代码并记录 verificationEvidence |
+| 6/8 | REVIEW | reviewer 审实现，coverage gate 审 verificationIntent 覆盖 |
+| 7/8 | TEST | `koala validate` 写 validation evidence / bug |
+| 8/8 | DONE | 完成、合并、清理 worktree |
 
-`DISCARDED` 是终止态，不参与主流程进度百分比。
+`DISCARDED` 是终止态，不参与主流程进度百分比。`TEST_CASE` 和 `TEST_CASE_REVIEW` 是 legacy phase，只为旧 story 可读和迁移保留；新的 story 不应主动进入它们。
 
-编号只用于可观察状态，不用于判断是否异常。Koala 的流程允许合法回退，
-因此不能用“当前编号必须等于上个编号 +1”来判错。健康检查必须使用合法
-transition graph：
+编号只用于可观察状态，不用于判断是否异常。Koala 的流程允许合法回退，因此不能用“当前编号必须等于上个编号 + 1”来判错。健康检查必须使用合法 transition graph：
 
-- 正向：`INIT → INIT_CHECK → PLAN → DEV → TEST_CASE → TEST_CASE_REVIEW → TEST → DONE`
-- 兼容正向：`IDEA → INIT`、`IDEA → PLAN`
-- 合法回退：`DEV → PLAN`、`TEST_CASE → DEV`、`TEST_CASE_REVIEW → DEV`、`TEST_CASE_REVIEW → TEST_CASE`、`TEST → DEV`
+- 正向：`INIT -> INIT_CHECK -> PLAN -> DEV -> REVIEW -> TEST -> DONE`
+- 兼容正向：`IDEA -> INIT`、`IDEA -> PLAN`
+- 快速通道：`INIT_CHECK -> DEV` 可在策略允许时进入实现
+- 合法回退：`DEV -> PLAN`、`REVIEW -> DEV`、`TEST -> DEV`
+- Legacy 兼容：`TEST_CASE -> DEV`、`TEST_CASE_REVIEW -> DEV`、`TEST_CASE_REVIEW -> TEST_CASE`、`TEST_CASE_REVIEW -> TEST`
 - 终止：任何未完成 story 可通过 `story_discard` 进入 `DISCARDED`
 
-`koala status` 应展示当前编号、allowed next、allowed rollback，并在 main metadata
-与 linked worktree phase 不一致时给出 transition health warning。
+`koala status` / `koala session_brief` 应展示当前编号、allowed next、allowed rollback，并在 main metadata 与 linked worktree phase 不一致时明确执行权威：
 
-| Phase | 含义 | 进入门禁 |
-|---|---|---|
-| PLAN | 已拆解 checklist + testIntent | story_review 对抗审查通过 |
-| DEV | 开发实现；可提前补 fixture 做兼容验证 | 无 |
-| TEST_CASE | 编写/补齐 fixture case，并立即用 `test_story --storyId=...` 验证 | checklist 全部 done |
-| TEST_CASE_REVIEW | reviewer 审核 testIntent 覆盖 | fixture 覆盖 + reviewer 结论通过 |
-| TEST | 自动化测试 | testIntent 审核全部 pass |
-| DONE | 完成 | 测试全部 PASS + bug 全部 fixed，且 test evidence 对应当前 story HEAD |
-| DISCARDED | 已废弃 | story_discard，任何阶段可用 |
+- 有 linked worktree 时，worktree 内 story metadata 是执行权威。
+- main metadata 只作为索引和恢复入口，可能滞后。
+- 输出必须给出下一步应该 `cd` 到哪个 worktree。
+
+## Phase 职责和门禁
+
+| Phase | 含义 | 进入门禁 | 产物 |
+|---|---|---|---|
+| INIT | story 已创建 | `story_create` 成功 | story metadata、background |
+| INIT_CHECK | worktree bootstrap | init reviewers / draft gate 通过，git 可用 | `.worktrees/B-xxx`、`story/B-xxx` |
+| PLAN | 拆解和验收意图 | cwd 在 worktree；高风险 story 要 understanding + decision/preMortem | understanding、checklist、verificationIntent、decision |
+| DEV | 实现和记录证据 | PLAN/review gate 允许 | 代码、checklist status、verificationEvidence |
+| REVIEW | 独立审查 | DEV checklist 已完成、改动已提交 | reviewer findings、coverage result |
+| TEST | 自动验证 | REVIEW blocker 已解决，preflight gate 通过 | `koala validate` evidence、bug/test runs |
+| DONE | 收束 | validate PASS、bug fixed、evidence fresh、summary/delivery gate 通过、branch 包含 main | merge main、清理 worktree、summary |
+| DISCARDED | 已废弃 | `story_discard` | discard event、清理结果 |
 
 ## 自动回退
 
-- **TEST fail**：`bug_report` 自动回退 DEV + 标关联 item in_progress + 往 testIntent results 追加 pass=false
-- **TEST_CASE_REVIEW fail**：`testintent_record` 写入 pass=false 时自动回退 DEV
-- 回退后主 agent 可先查看反馈再决定怎么修，不强制立即行动
+- **REVIEW fail**：finding 或 coverage gate 发现问题时回 DEV。
+- **TEST fail**：`koala validate` 失败后写 bug/evidence，修复路径回 DEV。
+- **DONE gate fail**：保留在 TEST，按 DONE checklist 的失败项补 evidence、summary、delivery check、main sync 或 git clean。
+
+回退后主 agent 应先读失败证据，再决定改代码、补 evidence、补文档还是调整 checklist。不要用解释替代修复。
 
 ## Worktree 隔离
 
 每个 story 在独立 worktree 中开发，分支名 `story/{storyId}`。多并发 session 互不干扰。
 
-- `story_advance` → DEV：自动创建 worktree + 切分支
-- `story_advance` → DONE：自动 merge 回主分支 + 清理 worktree + 删分支。失败返回错误提示由 agent 处理
+- `story_advance -> INIT_CHECK`：自动创建 worktree + 切分支。
+- `story_advance -> DONE`：自动 merge 回主分支 + 清理 worktree + 删分支。失败返回错误提示由 agent 处理。
 
 通过 `git rev-parse --abbrev-ref HEAD` 检测当前分支，`story/` 开头则提取 storyId 识别 active story。
 
+主目录 `session_brief` 必须同时看主目录 story metadata 和 linked worktree 内的真实 story metadata。如果两者 phase 不一致，输出应采用：
+
+```text
+B-xxxx REVIEW (authority:worktree, main:INIT_CHECK)
+→ cd /path/to/.worktrees/B-xxxx
+```
+
+这表示继续工作时以 worktree phase 为准；main phase 只是滞后索引，不应该触发重复推进。
+
 ## 设计决策
 
-- **Story 即 Feature**：删除了独立的 Feature/Backlog 概念，Story 本身就是最小可追踪单元
-- **状态机管理**：使用 xstate 而非手动 if 判断，门禁（guard）内置到状态机定义中
-- **自动回退**：TEST fail 和 TEST_CASE_REVIEW fail 自动回退 DEV，不需要手动操作
-- **门禁不可跳过**：DEV→TEST_CASE 必须 checklist 全 done，TEST_CASE_REVIEW→TEST 必须 fixture 覆盖 + reviewer 结论通过，TEST→DONE 必须测试通过且 bug 全 fixed
-- **DONE evidence 必须新鲜**：`test_story` / `koala validate --story` 写入测试运行时的 git HEAD。DONE gate 比对 evidence HEAD 与当前 story 分支 HEAD，但只把会改变验证语义的文件变化视为 stale。源码、测试、fixture、package/lockfile、`koala.config.json`、`docs/requirements/decisions/` 等变化必须让旧 evidence stale；`.koala/story/`、`docs/story/`、`docs/koala/framework-audit/` 等 Koala workflow metadata 变化不应让旧 evidence stale，避免 findings/summary/delivery/eval 这类元数据提交造成重复记录 evidence 的死循环。
-- **DEV done 不检查 fixture 覆盖**：DEV done 表示实现项完成；fixture intentRef 覆盖在 TEST_CASE / TEST_CASE_REVIEW 口径检查，避免 DEV done 与 TEST_CASE 入口互相卡住
-- **TEST_CASE 可本地验证**：TEST_CASE 阶段允许 `test_story --storyId=...` 只跑当前 story 关联 case，便于刚写完 fixture 就发现运行时错误
-- **统一推进命令**：`story_advance` 统一处理所有阶段推进，砍掉 dev_start / dev_finish / dev_merge
+- **Story 即 Feature**：Story 是最小可追踪单元。
+- **状态机管理**：使用 xstate，而不是散落的手写 if。
+- **门禁不可跳过**：REVIEW/TEST/DONE 都必须由确定性 gate 判定。
+- **verificationIntent 前置**：PLAN 记录 happy/edge/adversarial 验收意图。
+- **verificationEvidence 跟随实现**：DEV/REVIEW/TEST 挂真实证据，不再把测试阶段拆成旧 `TEST_CASE` 流程。
+- **DONE evidence 必须新鲜**：`koala validate --story` 写入测试运行时的 git HEAD/material hash。DONE gate 比对当前 story 分支，验证语义相关文件变化会让旧 evidence stale。
+- **用户价值验收优先**：DONE 前必须能说清楚“用户看到什么变化、怎么使用、证据在哪里”。工程链路通过不等于任务真正完成。
+- **统一推进命令**：`story_advance` 统一处理所有阶段推进。
 
 ## Phase-Aware 工具过滤
 
 在 CLI 层按当前 story phase 过滤可用命令。无 active story（主分支）时全量可用。
 
 ### 全阶段可用
+
 | 工具 | 行为 |
 |---|---|
 | `story_get` / `story_list` | 只读查看 |
 | `story_discard` | 任何阶段可废弃 |
-| `task_scan` / `task_detail` | 了解项目（只读） |
+| `task_scan` / `task_detail` | 了解项目，只读 |
 | `checklist_get` | 只读查看 |
-| `truth_*` / `gap_*` / `arch_trace` | 分析参考（只读） |
+| `truth_*` / `gap_*` / `arch_trace` | 分析参考，只读 |
+| `session_brief` / `status` / `next` | 恢复现场和下一步建议，不推进 phase |
 
 ### PLAN
+
 | 工具 | 行为 |
 |---|---|
 | `story_update` | 编辑 story |
 | `story_review` | 对抗审查 |
-| `story_advance` → DEV | 自动建 worktree |
-| `checklist_add` | 追加 item，test-intent agent 填 testIntent |
-| `checklist_update` | 只能改 testIntent，不能改 status |
-| `testintent_handoff` | 生成 test-intent agent 交接包，帮助独立 agent 补齐 verificationIntent |
-| `testintent_*` | 写和审核 testIntent |
+| `story_advance -> DEV` | 通过 gate 后进入实现 |
+| `checklist_add` | 追加 item |
+| `checklist_update` | 补 verificationIntent / metadata，不应标 done |
+| `testintent_handoff` | legacy 名称，实际用于生成 verificationIntent 交接上下文 |
 
 ### DEV
-| 工具 | 行为 |
-|---|---|
-| `checklist_add` | 追加 item，主 agent 自填 testIntent |
-| `checklist_update` | 可改 status（done/in_progress）+ testIntent |
-| `task_annotate_batch` / `task_sync` | 标注和同步元数据 |
-| `test_auto` | **不还原代码** + 提示"注意：可能修改实际文件" |
-| `diagnose` | **只输出根因建议**，不关联 bug |
-| `fixture_batch_add` | 批量添加 case |
-| `fixture_get` / `fixture_update` | 可读可写 |
-| `story_advance` → TEST_CASE | 推进 |
 
-### TEST_CASE
 | 工具 | 行为 |
 |---|---|
-| `fixture_batch_add` / `fixture_update` | 写 fixture case |
-| `test_story` / `test_fixture` | 只跑当前 story/case 验证，不跑全量 `test_auto` |
-| `story_advance` → TEST_CASE_REVIEW | fixture 完成后进入审核 |
+| `checklist_add` | 必要时追加 item，并补 verificationIntent |
+| `checklist_update` | 可改 status + verificationIntent + verificationEvidence |
+| `fixture_batch_add` / `fixture_update` | 可提前补兼容验证 |
+| `koala validate` | 可手动预检，正式 evidence 在 TEST gate 写入 |
+| `story_advance -> REVIEW` | checklist 完成且改动提交后推进 |
 
-### TEST_CASE_REVIEW
+### REVIEW
+
 | 工具 | 行为 |
 |---|---|
-| `testintent_check` | 检查审核状态 |
-| `testintent_record` | 记录审核结果（pass=false 自动回退 DEV） |
-| `fixture_get` | 只读 |
-| `story_advance` → TEST | 审核通过后主 agent 推进 |
+| `finding_*` | reviewer 记录 findings |
+| `reviewer_list` | 查看需要哪些 reviewer |
+| `koala-review-test-coverage` | 检查 verificationIntent 覆盖 |
+| `story_advance -> TEST` | blocker 解决、preflight 通过后推进 |
+| `story_advance -> DEV` | 有问题时回实现 |
 
 ### TEST
+
 | 工具 | 行为 |
 |---|---|
-| `test_auto` | **正常还原**（标准测试流程） |
-| `browser_test` | 浏览器测试 |
-| `diagnose` | 根因 + **自动关联 bug_report** |
-| `bug_report` / `bug_update` / `bug_list` | bug_report 自动标 item in_progress + 写 testIntent results + 回退 DEV |
-| `fixture_get` | 只读 |
-| `story_advance` → DONE | 自动 merge + 清理 worktree |
+| `koala validate` | 标准验证，写 validation evidence |
+| `bug_report` / `bug_update` / `bug_list` | 管理验证失败产生的 bug |
+| `summary_set` | 写 DONE 前用户价值和使用说明 |
+| `delivery_check_set` | 记录 delivery reviewer 签名 |
+| `story_advance -> DONE` | DONE checklist 全通过后合并清理 |
 
 ### 关键行为差异
-- `test_auto`：DEV 不还原+警告 → TEST 正常还原
-- `diagnose`：DEV 纯建议 → TEST 自动挂 bug_report
-- `fixture_*`：DEV 可提前写入兼容验证；TEST_CASE 正式写入；REVIEW/TEST 只读
-- `checklist_update`：PLAN 只改 testIntent → DEV 可改 status+testIntent → 其余禁用
-- `checklist_add`：PLAN（test-intent agent 填）→ DEV（主 agent 自填）→ 其余禁用
 
-### session_brief 与 linked worktree phase
-
-主目录 `session_brief` 必须同时看主目录 story metadata 和 linked worktree 内的真实 `index.json`。
-如果两者 phase 不一致，输出使用 `main phase (worktree phase: X)` 的形式，并把下一步指向 linked worktree。
-这样可以避免主目录 metadata 滞后时，agent 按旧 brief 重复推进到已经完成的 phase。
+- `koala validate`：TEST gate 消费其结果作为 validation evidence。
+- `fixture_*`：DEV 可提前写验证；REVIEW/TEST 主要读取证据，不应绕过 review 改行为。
+- `checklist_update`：PLAN 补 intent，DEV 补 status/evidence，其余阶段谨慎使用。
+- `summary_set`：不是形式总结，DONE gate 和最终用户交付都要消费。
 
 ## 三方制衡
 
-- **主 agent**：写需求（checklist item）+ 写代码 + 写测试
-- **test-intent agent**：写验收标准（testIntent），对抗姿态逼出 edge/adversarial
-- **test-case-reviewer agent**：审验收，独立验证测试覆盖和通过情况
+- **主 agent**：写需求、拆 checklist、写代码、补 evidence、修 bug。
+- **test-intent / verification-intent agent**：写验收标准，逼出 edge/adversarial。
+- **reviewer**：审实现和覆盖，独立记录 finding / delivery check。
+- **用户**：最终产品价值裁决者。
+
+主 agent 不是裁判。reviewer fail 了，正确反应是读懂反馈并修复，而不是解释到 pass。

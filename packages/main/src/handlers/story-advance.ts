@@ -440,6 +440,15 @@ function buildDoneChecklist(storyId: string, store: StoryStore, root: string): D
           label: 'Story summary',
           detail: `complete (${covNote})`,
         });
+        rows.push({
+          status: 'pass',
+          label: 'User value summary',
+          detail: `changes: ${summary.changes.slice(0, 80)}${summary.changes.length > 80 ? '...' : ''}`,
+          hint: [
+            `usage: ${summary.usage}`,
+            `limitations: ${summary.limitations}`,
+          ].join('\n'),
+        });
       }
     }
   }
@@ -454,8 +463,8 @@ function renderDoneChecklist(storyId: string, rows: DoneCheckRow[]): string {
     let line = `  [${ICONS[row.status]}] ${row.label}`;
     if (row.detail) line += `: ${row.detail}`;
     lines.push(line);
-    // warn 行的多行明细缩进展示
-    if (row.status === 'warn' && row.hint) {
+    // warn 行和用户价值摘要都展开多行明细，方便 DONE 前复述给用户。
+    if ((row.status === 'warn' || row.label === 'User value summary') && row.hint) {
       for (const h of row.hint.split('\n')) {
         lines.push(`        - ${h}`);
       }

@@ -100,10 +100,16 @@ function createReviewStore(root: string): { store: StoryStore; storyId: string; 
 function assertSessionBriefGate(): void {
   for (const phase of ['INIT', 'INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE']) {
     assert.equal(isCommandAllowed('session_brief', phase), true, `session_brief should be allowed in ${phase}`);
+    assert.equal(isCommandAllowed('next', phase), true, `next should be allowed in ${phase}`);
     assert.equal(
       isCommandAllowed('session_brief', phase, { '*': [], [phase]: [] }),
       true,
       `session_brief should bypass custom phase tools in ${phase}`,
+    );
+    assert.equal(
+      isCommandAllowed('next', phase, { '*': [], [phase]: [] }),
+      true,
+      `next should bypass custom phase tools in ${phase}`,
     );
   }
 
