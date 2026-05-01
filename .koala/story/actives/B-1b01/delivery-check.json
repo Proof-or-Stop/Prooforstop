@@ -1,0 +1,49 @@
+{
+  "storyId": "B-1b01",
+  "checkedAt": "2026-05-01T20:19:32.906Z",
+  "reviewRound": "2026-05-01T20:09:09.783Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "TEST→DONE 需要测试 PASS、bug 全 fixed、evidence 对应当前 story HEAD；DONE 还要求分支包含 main 并能完成 merge/cleanup。",
+      "status": "unverified",
+      "verifiedBy": "koala session_brief + git merge-base + git status",
+      "evidence": "验证命令 PASS 且 bug resolved，但 session_brief 显示 summary: missing、git working tree: dirty、branch synced with main: no；git merge-base --is-ancestor main HEAD 返回 1。"
+    },
+    {
+      "docPath": "docs/requirements/decisions/testing-infra.md",
+      "promise": "test evidence 写入当前 git HEAD，验证覆盖 happy/edge/adversarial。",
+      "status": "verified",
+      "verifiedBy": "koala test_list + koala validate --story=B-1b01 --json",
+      "evidence": "test_list/validate 显示 allPass=true，Verification intent coverage 12/12 covered，headSha 7fadd2b3b4bc39b41cc5fa321197f83c00ac50d6。"
+    },
+    {
+      "docPath": ".koala/story/actives/B-1b01/evidence/transcript-diff.md",
+      "promise": "用户原始问题的 health transcript 被满足：doctor/story_list/git worktree list 不再报告 terminal residue。",
+      "status": "verified",
+      "verifiedBy": "transcript-diff review + smoke test",
+      "evidence": "transcript-diff 记录 B-96c1 已消失、B-e8bb 不再作为 0000000 registry entry 出现，剩余物理目录被 .koala-repair-ignore quarantine。"
+    },
+    {
+      "docPath": ".koala/story/actives/B-1b01/summary.md",
+      "promise": "DONE 前必须落 story summary，说明 changes/usage/limitations/pitfalls。",
+      "status": "unverified",
+      "verifiedBy": "koala summary_get",
+      "evidence": "summary_get 返回 {\"_empty\": true}，session_brief DONE pre-check 也显示 summary: missing。"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-1b01",
+      "transcript": "Reviewed transcript-diff plus reran npm run build, npm --prefix packages/main run test:worktree-repair-smoke, and koala validate --story=B-1b01 --json. Build passed; smoke printed ✓ worktree repair smoke passed; validate allPass=true and 12/12 verification intents covered. Original product transcript in evidence shows doctor terminal registered/orphan/terminal dirs are zero, story_list no Terminal worktrees, git worktree list no B-e8bb 0000000, active worktree remains."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": true,
+    "summary": "FAIL for DONE delivery readiness. The code diff and validation evidence satisfy the user-facing repair behavior, and docsPromise for testing coverage/transcript is verified. However delivery is not closable because summary_get is empty, the worktree still has uncommitted Koala evidence metadata, and the branch is not synced with main according to session_brief/git merge-base."
+  },
+  "_hash": "6eccfd223c36f87ea8733aeee1edc6358ab93842b2534cb144d0db8da5ba9d7b"
+}
