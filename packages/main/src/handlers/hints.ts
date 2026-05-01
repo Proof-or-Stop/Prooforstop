@@ -176,7 +176,14 @@ const devFinishHint: HintFn = (ctx) => {
 };
 
 const storyDiscardHint: HintFn = (ctx) => {
-  return `→ Story 已废弃，worktree 和分支已清理`;
+  const result = String(ctx.result || '');
+  if (result.includes('⚠')) {
+    return `→ Story discard 已执行，但存在未清理项；按上方 warning 处理后重试`;
+  }
+  if (result.includes('Story metadata 已清理')) {
+    return `→ 临时 Story metadata 已清理；如上方提示未回退 init commit，请按提示手动确认`;
+  }
+  return `→ Story discard 已完成；清理明细以上方输出为准`;
 };
 
 const validateHint: HintFn = (ctx) => {

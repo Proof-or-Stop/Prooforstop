@@ -106,6 +106,7 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
 
       // 4) 设置 waiverReason
       promise.waiverReason = args.waiverReason.trim();
+      promise.status = 'waived';
 
       // 5) 重新签名（docsPromises 含 waiverReason 后 hash 变化）
       data._hash = signDeliveryCheck(
@@ -139,12 +140,24 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
       }
 
       // 2) runtime 校验
-      const docsPromises = Array.isArray(args.docsPromises) ? args.docsPromises : [];
+      const docsPromises = Array.isArray(args.docsPromises) ? args.docsPromises.map(p => ({ ...p })) : [];
       const realMachineTests = Array.isArray(args.realMachineTests) ? args.realMachineTests : [];
       const closingSelfCheck = args.closingSelfCheck;
 
       if (!closingSelfCheck || typeof closingSelfCheck.summary !== 'string' || closingSelfCheck.summary.trim().length < 10) {
         throw new Error('delivery_check_set: closingSelfCheck.summary 必须 ≥ 10 字符');
+      }
+
+      for (const promise of docsPromises) {
+        if (promise.status === 'met' || promise.status === 'verified') {
+          promise.verifiedBy = promise.verifiedBy || `status:${promise.status}`;
+        } else if (promise.status === 'waived') {
+          if (!promise.waiverReason || promise.waiverReason.trim().length < 30) {
+            throw new Error(
+              `delivery_check_set: docsPromises status=waived 时 waiverReason 必须 ≥ 30 字符（docPath: ${promise.docPath}）`,
+            );
+          }
+        }
       }
 
       // waiverReason 校验：非空时必须 ≥ 30 字符

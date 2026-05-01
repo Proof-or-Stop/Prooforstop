@@ -4,8 +4,8 @@ import type { StoryStore } from './store.js';
 import { createHash } from 'crypto';
 import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
-import { verifyFinding } from './finding-verify.js';
-import type { Finding } from './types.js';
+import { verifyFinding, verifyReviewPass } from './finding-verify.js';
+import type { Finding, ReviewPass } from './types.js';
 import { recomputeInitCheckHash } from '../handlers/init-check.js';
 import { recomputeDeliveryCheckHash } from '../handlers/delivery-check.js';
 import { getBlockingVerificationEvidenceIssues } from './verification.js';
@@ -42,6 +42,22 @@ function resolveEffectiveBlockingSeverities(
     effectiveBlockingSeverities = policy.review.blockingSeverities as string[];
   }
   return { effectiveBlockingSeverities, roundCount };
+}
+
+function reviewerEvidenceForRound(store: StoryStore, storyId: string, currentRound?: string): Array<{ agent?: string; kind: 'finding' | 'pass' }> {
+  const findings = store.readFindings(storyId);
+  const findingEvidence = (findings.findings || [])
+    .filter((f: Finding) => f.agent && f.agent !== 'main' && verifyFinding(storyId, f)
+      && (!currentRound || f.reviewRound === currentRound))
+    .map((f: Finding) => ({ agent: f.agent, kind: 'finding' as const }));
+
+  const passes = store.readReviewPasses(storyId);
+  const passEvidence = (passes.passes || [])
+    .filter((p: ReviewPass) => p.agent && p.agent !== 'main' && verifyReviewPass(storyId, p)
+      && (!currentRound || p.reviewRound === currentRound))
+    .map((p: ReviewPass) => ({ agent: p.agent, kind: 'pass' as const }));
+
+  return [...findingEvidence, ...passEvidence];
 }
 
 export interface StoryMachineContext {
@@ -135,16 +151,13 @@ export const storyMachine = setup({
         if (!policy.review.requireReviewer) return true;
 
         const findings = context.store.readFindings(context.storyId);
-        if (!findings.findings || findings.findings.length === 0) return false;
+        const reviewPasses = context.store.readReviewPasses(context.storyId);
+        if ((!findings.findings || findings.findings.length === 0) && (!reviewPasses.passes || reviewPasses.passes.length === 0)) return false;
 
         // Check for reviewer-produced finding if policy requires it
         if (policy.review.requireReviewerFinding) {
           const currentRound = story.currentReviewRound;
-          const currentRoundReviewerFindings = findings.findings.filter(
-            (f: Finding) => f.agent && f.agent !== 'main' && verifyFinding(context.storyId, f)
-              // backward compat: 旧 story 无 currentReviewRound 时不拒绝
-              && (!currentRound || f.reviewRound === currentRound)
-          );
+          const currentRoundReviewerEvidence = reviewerEvidenceForRound(context.store, context.storyId, currentRound);
 
           const { roundCount } = resolveEffectiveBlockingSeverities(context.store, context.storyId, policy);
           if (roundCount <= 1) {
@@ -157,13 +170,13 @@ export const storyMachine = setup({
             const touchpoints = understanding?.touchpoints
               ?? detectMdTouchpointsFromGit(context.projectRoot ?? process.cwd());
             const optIn = computeActiveReviewers(story, checklist, decision, touchpoints);
-            const missing = optIn.filter(reviewer => !currentRoundReviewerFindings.some(
-              (f: Finding) => findingAgentMatchesReviewer(f.agent, reviewer.name),
+            const missing = optIn.filter(reviewer => !currentRoundReviewerEvidence.some(
+              e => findingAgentMatchesReviewer(e.agent, reviewer.name),
             ));
             if (missing.length > 0) return false;
           } else {
-            // Round 2+: require at least 1 reviewer finding
-            if (currentRoundReviewerFindings.length === 0) return false;
+            // Round 2+: require at least 1 reviewer finding or pass receipt
+            if (currentRoundReviewerEvidence.length === 0) return false;
           }
         }
 
@@ -194,7 +207,7 @@ export const storyMachine = setup({
 
       // every docsPromise must be verified or waived
       const unverified = deliveryCheck.docsPromises.filter(
-        p => !p.verifiedBy && !p.waiverReason,
+        p => !p.verifiedBy && !p.waiverReason && !['met', 'verified', 'waived'].includes(p.status || ''),
       );
       if (unverified.length > 0) return false;
 
@@ -412,16 +425,13 @@ export function getGuardFailureReason(
     } else {
       try {
         const findings = store.readFindings(storyId);
-        if (!findings.findings || findings.findings.length === 0) {
-          return `Cannot enter TEST: reviewer 未跑（findings.json 为空）\n→ 按 opt-in 结果启动 reviewer（见 koala reviewer_list）`;
+        const reviewPasses = store.readReviewPasses(storyId);
+        if ((!findings.findings || findings.findings.length === 0) && (!reviewPasses.passes || reviewPasses.passes.length === 0)) {
+          return `Cannot enter TEST: reviewer 未跑（无 findings 或 review pass）\n→ 按 opt-in 结果启动 reviewer（见 koala reviewer_list）；无问题时用 review_pass_set 记录通过`;
         }
         if (policy.review.requireReviewerFinding) {
           const currentRound = story.currentReviewRound;
-          const currentRoundReviewerFindings = findings.findings.filter(
-            (f: Finding) => f.agent && f.agent !== 'main' && verifyFinding(storyId, f)
-              // backward compat: 旧 story 无 currentReviewRound 时不拒绝
-              && (!currentRound || f.reviewRound === currentRound)
-          );
+          const currentRoundReviewerEvidence = reviewerEvidenceForRound(store, storyId, currentRound);
 
           const { roundCount: rc } = resolveEffectiveBlockingSeverities(store, storyId, policy);
           if (rc <= 1) {
@@ -434,19 +444,19 @@ export function getGuardFailureReason(
             const touchpoints = understanding?.touchpoints
               ?? detectMdTouchpointsFromGit(projectRoot ?? process.cwd());
             const optIn = computeActiveReviewers(story, checklist, decision, touchpoints);
-            const missing = optIn.filter(reviewer => !currentRoundReviewerFindings.some(
-              (f: Finding) => findingAgentMatchesReviewer(f.agent, reviewer.name),
+            const missing = optIn.filter(reviewer => !currentRoundReviewerEvidence.some(
+              e => findingAgentMatchesReviewer(e.agent, reviewer.name),
             ));
             if (missing.length > 0) {
               const names = optIn.map(r => r.name).join(',');
               const missingNames = missing.map(r => r.name).join(',');
-              const presentAgents = Array.from(new Set(currentRoundReviewerFindings.map((f: Finding) => f.agent))).join(', ') || '无';
-              return `Cannot enter TEST: Round 1 期望 ${optIn.length} 个 reviewer（opt-in: ${names}）当前 ${currentRoundReviewerFindings.length} 个 finding 覆盖 ${optIn.length - missing.length} 个 reviewer（缺: ${missingNames}；已见 agent: ${presentAgents}）\n→ 并行启动缺失的 koala-review-* agent`;
+              const presentAgents = Array.from(new Set(currentRoundReviewerEvidence.map(e => e.agent))).join(', ') || '无';
+              return `Cannot enter TEST: Round 1 期望 ${optIn.length} 个 reviewer（opt-in: ${names}）当前 ${currentRoundReviewerEvidence.length} 个 reviewer 证据覆盖 ${optIn.length - missing.length} 个 reviewer（缺: ${missingNames}；已见 agent: ${presentAgents}）\n→ 并行启动缺失的 koala-review-* agent；无问题时用 review_pass_set`;
             }
           } else {
-            if (currentRoundReviewerFindings.length === 0) {
+            if (currentRoundReviewerEvidence.length === 0) {
               return currentRound
-                ? `Cannot enter TEST: Round ${rc} 当前 review round (${currentRound}) 无 reviewer finding，请启动对应的 koala-review-* agent`
+                ? `Cannot enter TEST: Round ${rc} 当前 review round (${currentRound}) 无 reviewer finding/pass，请启动对应的 koala-review-* agent`
                 : `Cannot enter TEST: findings 全部来自 main agent（reviewer 未跑）\n→ 启动 koala-review-* subagent`;
             }
           }
@@ -491,7 +501,7 @@ export function getGuardFailureReason(
 
     // every docsPromise must be verified or waived
     const unverifiedPromises = deliveryCheck.docsPromises.filter(
-      p => !p.verifiedBy && !p.waiverReason,
+      p => !p.verifiedBy && !p.waiverReason && !['met', 'verified', 'waived'].includes(p.status || ''),
     );
     if (unverifiedPromises.length > 0) {
       const names = unverifiedPromises.map(p => p.docPath).join(', ');

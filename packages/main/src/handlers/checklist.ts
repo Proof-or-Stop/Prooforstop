@@ -1,5 +1,5 @@
 
-import { existsSync } from 'fs';
+import { existsSync, mkdirSync, rmSync, statSync } from 'fs';
 import { join } from 'path';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
@@ -7,6 +7,35 @@ import { execSync } from 'child_process';
 import { currentMaterialHash } from '../core/evidence-freshness.js';
 import type { StoryInfo, VerificationEvidence, VerificationIntent } from '../core/types.js';
 import { makeEvidence } from '../core/verification.js';
+
+function sleepSync(ms: number): void {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+
+function withChecklistLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
+  const lockDir = ctx.store.storyFilePath(storyId, 'checklist.lock');
+  const deadline = Date.now() + 5000;
+  while (true) {
+    try {
+      mkdirSync(lockDir);
+      break;
+    } catch (e: any) {
+      try {
+        const ageMs = Date.now() - statSync(lockDir).mtimeMs;
+        if (ageMs > 10000) rmSync(lockDir, { recursive: true, force: true });
+      } catch { /* PROBE: lock disappeared between mkdir attempts */ }
+      if (Date.now() > deadline) {
+        throw new Error(`checklist metadata lock timeout (${e?.message || e})`);
+      }
+      sleepSync(50);
+    }
+  }
+  try {
+    return fn();
+  } finally {
+    rmSync(lockDir, { recursive: true, force: true });
+  }
+}
 
 /**
  * B-45ed CHK-008: 给定 storyId，若 background.md 存在则返回相对路径，否则返回 null。
@@ -45,6 +74,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       // 验证 story 存在；进入 worktree 流程后，checklist 只能在 story worktree 写。
       assertChecklistMutationCwd(store, args.storyId);
 
+      return withChecklistLock(ctx, args.storyId, () => {
       const cl = store.readChecklist(args.storyId);
 
       // 从已有 item 中找最大 CHK 编号，分配下一个
@@ -105,6 +135,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         console.warn(`[process-events] append failed for ${args.storyId}:`, (e as Error).message);
       }
       return `Checklist item ${nextId} added to ${args.storyId}`;
+      });
     },
 
     checklist_remove(args: {
@@ -122,6 +153,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         throw new Error(`disposition 必须是 accept/reject/partial 之一，收到: ${args.disposition}`);
       }
 
+      return withChecklistLock(ctx, args.storyId, () => {
       const cl = store.readChecklist(args.storyId);
       const idx = cl.items.findIndex(i => i.id === args.itemId);
       if (idx === -1) throw new Error(`Checklist item ${args.itemId} not found`);
@@ -173,6 +205,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         `  disposition: ${args.disposition}\n` +
         `  justification: ${args.justification.trim()}\n` +
         `⚠ scope 变更已记录，story_review 会展示此删除供 reviewer 审查`;
+      });
     },
 
     checklist_update(args: {
@@ -194,6 +227,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         throw new Error('At least one of status/title/context/relatedDocs/userSees/files/verificationIntent/verificationEvidence must be provided');
       }
 
+      return withChecklistLock(ctx, args.storyId, () => {
       // Truth source protection: DEV 及之后阶段禁止修改 checklist 的根本信息
       // checklist 是真相源，执行者（主 agent / subagent）不能在执行过程中篡改需求定义
       //
@@ -340,6 +374,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       }
 
       return `Checklist ${args.itemId}: ${results.join(', ')}`;
+      });
     },
 
     light_review(args: {
@@ -356,6 +391,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       store.readStory(args.storyId);
 
       // Validate checklist item IDs exist
+      return withChecklistLock(ctx, args.storyId, () => {
       const cl = store.readChecklist(args.storyId);
       const validIds = new Set(cl.items.map(i => i.id));
       for (const id of args.checklistIds) {
@@ -374,6 +410,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
 
       const ids = uniqueIds.join(', ');
       return `Light review recorded for ${args.storyId} (items: ${ids})`;
+      });
     },
 
     verification_evidence_add(args: {
@@ -389,6 +426,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       if (!args.note || args.note.trim().length < 5) {
         throw new Error('verification_evidence_add: note 必须 ≥ 5 字符，说明 evidence 为什么覆盖该 intent');
       }
+      return withChecklistLock(ctx, args.storyId, () => {
       const cl = store.readChecklist(args.storyId);
       const item = cl.items.find(i => i.id === args.itemId);
       if (!item) throw new Error(`Checklist item ${args.itemId} not found`);
@@ -418,6 +456,60 @@ export function createChecklistHandlers(ctx: HandlerContext) {
 
       store.writeChecklist(args.storyId, cl);
       return `Verification evidence recorded for ${args.itemId} → ${args.intentRef} (${args.kind})`;
+      });
+    },
+
+    verification_evidence_batch_add(args: {
+      storyId: string;
+      evidences: Array<{
+        itemId: string;
+        intentRef: string;
+        kind: VerificationEvidence['kind'];
+        file?: string;
+        command?: string;
+        result?: 'pass' | 'fail';
+        note: string;
+      }>;
+    }): string {
+      if (!Array.isArray(args.evidences) || args.evidences.length === 0) {
+        throw new Error('verification_evidence_batch_add: evidences 必须是非空数组');
+      }
+      return withChecklistLock(ctx, args.storyId, () => {
+      const cl = store.readChecklist(args.storyId);
+      let headHash = '';
+      try {
+        headHash = execSync('git rev-parse HEAD', { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+      } catch { /* non-git or unavailable, omit freshness hash */ }
+      const materialHash = currentMaterialHash(root);
+
+      let written = 0;
+      for (const entry of args.evidences) {
+        if (!entry.note || entry.note.trim().length < 5) {
+          throw new Error(`verification_evidence_batch_add: ${entry.itemId} → ${entry.intentRef} note 必须 ≥ 5 字符`);
+        }
+        const item = cl.items.find(i => i.id === entry.itemId);
+        if (!item) throw new Error(`Checklist item ${entry.itemId} not found`);
+        const evidence = makeEvidence({
+          intentRef: entry.intentRef,
+          kind: entry.kind,
+          ...(entry.file ? { file: entry.file } : {}),
+          ...(entry.command ? { command: entry.command } : {}),
+          ...(entry.result ? { result: entry.result } : {}),
+          note: entry.note.trim(),
+          ...(headHash ? { headHash } : {}),
+          ...(materialHash ? { materialHash } : {}),
+        });
+        const existing = item.verificationEvidence || [];
+        const idx = existing.findIndex(e => e.intentRef === entry.intentRef);
+        if (idx >= 0) existing[idx] = evidence;
+        else existing.push(evidence);
+        item.verificationEvidence = existing;
+        written++;
+      }
+
+      store.writeChecklist(args.storyId, cl);
+      return `Verification evidence batch recorded for ${args.storyId}: ${written} item intent(s)`;
+      });
     },
 
 

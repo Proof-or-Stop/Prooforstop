@@ -76,6 +76,37 @@ function resolveBackgroundPolicy(agentType: string | undefined): BackgroundPolic
 export function createStoryDispatchHandlers(ctx: HandlerContext) {
   const { store, root } = ctx;
 
+  function buildInitReviewPrompt(args: {
+    storyId: string;
+    agentType?: string;
+  }): { prompt: string } {
+    if (!args.storyId) throw new Error('storyId is required');
+    try {
+      store.readStory(args.storyId);
+    } catch {
+      throw new Error(`story ${args.storyId} not found`);
+    }
+    const bgPath = `${store.storyDirRel()}/${args.storyId}/background.md`;
+    const checklistPath = `${store.storyDirRel()}/${args.storyId}/checklist.json`;
+    return {
+      prompt: [
+        `审查 story ${args.storyId} 的 background + checklist 初版。`,
+        '',
+        '你是 koala-review-story-init reviewer；请 fresh-context 审查，不要沿用主 agent 的结论。',
+        `必读: ${bgPath}`,
+        `必读: ${checklistPath}`,
+        '',
+        '审查重点:',
+        '- background 是否足以说明触发事件、关键洞察、方案取舍、对话纹理',
+        '- checklist 是否拆成用户可观察、可验证、互不重叠的 item',
+        '- 是否存在高风险信号但缺少必要的 PLAN/decision/verification 准备',
+        '',
+        `审查完成后只通过 CLI 写结果: koala init_check_set '{"storyId":"${args.storyId}","issues":[{"severity":"low","desc":"..."}],"agentId":"koala-review-story-init"}'`,
+        '如果没有问题，issues 传空数组。不要直接编辑 story 文件。',
+      ].join('\n'),
+    };
+  }
+
   function buildFindingPrompt(args: {
     storyId: string;
     findingId: string;
@@ -300,7 +331,8 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     /**
      * dispatch — B-9d95 CHK-004 统一入口
      *
-     * 按 itemId / findingId / clusterId 恰好一个分派；阶段 gate 全放开（INIT_CHECK 起可用）。
+     * 按 itemId / findingId / clusterId 恰好一个分派；若只传
+     * agentType=koala-review-story-init，则生成 INIT reviewer prompt。
      *
      * 互斥校验：三者必须恰好提供一个，多 / 少均抛 Error。
      * 返回：{ prompt: string } — 与老入口 byte-identical（clusterId 分支复用 cluster.ts 文本）。
@@ -319,8 +351,14 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         args.findingId ? 'findingId' : null,
         args.clusterId ? 'clusterId' : null,
       ].filter(Boolean);
+      if (provided.length === 0 && normalizeAgentType(args.agentType) === 'koala-review-story-init') {
+        return buildInitReviewPrompt({
+          storyId: args.storyId,
+          agentType: args.agentType,
+        });
+      }
       if (provided.length !== 1) {
-        throw new Error('dispatch 需要 itemId / findingId / clusterId 中恰好一个');
+        throw new Error('dispatch 需要 itemId / findingId / clusterId 中恰好一个；INIT reviewer 可只传 agentType=koala-review-story-init');
       }
 
       if (args.itemId) {

@@ -19,7 +19,7 @@ import { computeActiveReviewers, renderActiveReviewersText } from './reviewer-li
 import { repairGlobalKoalaLinkBeforeWorktreeDelete } from './worktree.js';
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
 import { collectBaselineRisk, renderBaselineRiskLines } from '../core/baseline-risk.js';
-import { checkEvidenceFreshnessForGit } from '../core/evidence-freshness.js';
+import { checkEvidenceFreshnessForGit, currentMaterialHash } from '../core/evidence-freshness.js';
 import { reportHealthIssue } from '../core/health.js';
 
 // B-c622 CHK-004: DONE 阶段自动同步 main —— detect divergence + auto merge main
@@ -83,6 +83,51 @@ function gitRefContainsMain(projectRoot: string, ref: string): boolean {
   return true;
 }
 
+function autoCommitStoryMetadata(projectRoot: string, storyId: string, storyDirRel: string, phase: StoryPhase): string {
+  try {
+    const branch = execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
+      cwd: projectRoot,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    if (!branch.startsWith('story/')) return '';
+
+    const storyRel = `${storyDirRel.replace(/\/$/, '')}/${storyId}`;
+    const before = execFileSync('git', ['status', '--porcelain', '--', storyRel], {
+      cwd: projectRoot,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    if (!before) return '';
+
+    execFileSync('git', ['add', storyRel], {
+      cwd: projectRoot,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    const staged = execFileSync('git', ['diff', '--cached', '--name-only', '--', storyRel], {
+      cwd: projectRoot,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    if (!staged) return '';
+
+    execFileSync('git', ['-c', 'commit.gpgsign=false', 'commit', '-m', `koala: record ${storyId} ${phase} metadata`], {
+      cwd: projectRoot,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    return `\n✓ story metadata 已自动提交: koala: record ${storyId} ${phase} metadata`;
+  } catch (e: any) {
+    reportHealthIssue('mutation:storyMetadataCommit', e instanceof Error ? e : new Error(String(e)), {
+      storyId,
+      phase,
+      projectRoot,
+    });
+    return `\n⚠ story metadata 自动提交失败: ${e?.message || e}`;
+  }
+}
+
 // B-9d95 CHK-003: re-export 供 DONE merge 前 stray 文件清理。主实现在独立
 // 文件（stray-file-cleanup.ts），logicTest 直接 import，避免把 xstate/machine
 // 等重依赖拖进测试进程。
@@ -93,7 +138,7 @@ export { cleanStrayWorktreeFiles, STRAY_FILE_WHITELIST } from './stray-file-clea
 function checkEvidenceFreshness(store: StoryStore, storyId: string, projectRoot: string): { fresh: boolean; message: string } {
   const evidence = store.readTestEvidence(storyId);
   if (!evidence) return { fresh: false, message: 'test-evidence.json 不存在' };
-  const freshness = checkEvidenceFreshnessForGit(projectRoot, evidence.headHash);
+  const freshness = checkEvidenceFreshnessForGit(projectRoot, evidence.headHash, evidence.materialHash);
   return { fresh: freshness.fresh, message: freshness.reason };
 }
 
@@ -547,12 +592,14 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
           try {
             evidenceHeadHash = execSync('git rev-parse HEAD', { cwd: ctx.root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
           } catch { /* 无法获取 HEAD，跳过 */ }
+          const evidenceMaterialHash = currentMaterialHash(ctx.root);
           store.writeTestEvidence(args.storyId, {
             command: `koala validate --story=${args.storyId} --json`,
             output: String(jsonResult),
             result: parsed.allPass ? 'PASS' : 'FAIL',
             timestamp: new Date().toISOString(),
             ...(evidenceHeadHash ? { headHash: evidenceHeadHash } : {}),
+            ...(evidenceMaterialHash ? { materialHash: evidenceMaterialHash } : {}),
             ...(parsed.verificationCoverage ? { verificationCoverage: parsed.verificationCoverage } : {}),
           });
 
@@ -750,6 +797,11 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
         });
         await runHooks('onPhaseChange', `${oldPhase}->${newState}`, env, cfg, ctx.root);
       } catch { /* runHooks itself never throws, but defensive */ }
+
+      let metadataCommitReport = '';
+      if (args.phase === 'REVIEW') {
+        metadataCommitReport = autoCommitStoryMetadata(ctx.root, args.storyId, store.storyDirRel(), args.phase);
+      }
 
       // CHK-002: PLAN→DEV 时收集所有 relatedDocs 列出来作为开工提醒
       // B-45ed CHK-008: PLAN→DEV 和 DONE 的 docsHint 统一含 background.md
@@ -1095,7 +1147,7 @@ ${agentLines}
         } catch { /* ignore */ }
       }
 
-      return `${doneChecklistPrefix}Story ${args.storyId} advanced to ${newState}${doneMergeReport}\n${nextSteps[newState] || ''}${docsHint}${depsWarning}${sessionWarning}${doneSummarySuffix}${initCheckAdvisory}${baselineRiskWarning}`;
+      return `${doneChecklistPrefix}Story ${args.storyId} advanced to ${newState}${metadataCommitReport}${doneMergeReport}\n${nextSteps[newState] || ''}${docsHint}${depsWarning}${sessionWarning}${doneSummarySuffix}${initCheckAdvisory}${baselineRiskWarning}`;
     },
   };
 }

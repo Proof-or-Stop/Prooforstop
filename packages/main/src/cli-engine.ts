@@ -133,10 +133,14 @@ export const MAIN_TOOLS: ToolDef[] = [
     phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','REVIEW','TEST','DONE','DISCARDED']).optional().describe('按阶段过滤（与 active 互斥）'),
     active: z.boolean().optional().describe('仅列出非终态 story（排除 DONE/DISCARDED/IDEA）。B-89c7 CHK-016 新增'),
   }},
+  { name: 'story_reconcile', description: '检测并修复僵尸 story / 终态 worktree residue（默认 dry run）', schema: {
+    dryRun: z.boolean().optional().describe('true=只报告；false=执行修复（默认 true）'),
+  }},
   { name: 'story_discard', description: '废弃 Story：清理 worktree/分支并标记为 DISCARDED', schema: {
     storyId: z.string().describe('Story ID'),
     reason: z.string().optional().describe('废弃原因（写入事件记录）'),
     force: z.boolean().optional().describe('强制丢弃未提交改动'),
+    purge: z.boolean().optional().describe('临时 story 专用：删除 story metadata，并在安全时回退纯 metadata init commit'),
   }},
 
   // Draft (B-9975: iterate on story shape before formal story_create)
@@ -230,10 +234,27 @@ export const MAIN_TOOLS: ToolDef[] = [
     result: z.enum(['pass', 'fail']).optional().describe('执行结果'),
     note: z.string().describe('为什么此证据覆盖该 intent'),
   }},
+  { name: 'verification_evidence_batch_add', description: '批量追加/更新 verificationIntent 覆盖证据（避免并发写 checklist 丢 evidence）', schema: {
+    storyId: z.string().describe('Story ID'),
+    evidences: z.array(z.object({
+      itemId: z.string().describe('Checklist item ID'),
+      intentRef: z.string().describe('如 CHK-001:happy:0 或自定义 intent id'),
+      kind: z.enum(['logic_test', 'integration_test', 'browser_test', 'manual_transcript', 'docs_check', 'waiver']).describe('证据类型'),
+      file: z.string().optional().describe('测试/文档文件路径'),
+      command: z.string().optional().describe('执行命令'),
+      result: z.enum(['pass', 'fail']).optional().describe('执行结果'),
+      note: z.string().describe('为什么此证据覆盖该 intent'),
+    })).describe('证据数组；同一次调用内读写 checklist 一次'),
+  }},
   { name: 'light_review', description: '记录一次轻量 review（DEV 阶段每完成一批 item 后调用）', schema: {
     storyId: z.string().describe('Story ID'),
     checklistIds: z.array(z.string()).describe('本次 review 覆盖的 checklist item ID 列表'),
     note: z.string().optional().describe('review 备注'),
+  }},
+  { name: 'review_pass_set', description: '记录 reviewer 已审查且无 blocking finding 的通过凭证', schema: {
+    storyId: z.string().describe('Story ID'),
+    agent: z.string().optional().describe('reviewer agent id（如 koala-review-quality；默认 KOALA_AGENT）'),
+    note: z.string().describe('审查范围与无 blocker 理由（≥10 字符）'),
   }},
 
   // Understanding (Pre-context Intake snapshot, OMX 风格)
@@ -464,8 +485,10 @@ export const MAIN_TOOLS: ToolDef[] = [
     docsPromises: z.array(z.object({
       docPath: z.string().describe('文档路径'),
       promise: z.string().describe('文档中的承诺描述'),
+      status: z.enum(['met', 'verified', 'waived', 'unverified']).optional().describe('可选状态；met/verified 视为已验证，waived 需 waiverReason'),
       verifiedBy: z.string().optional().describe('验证方式（如 grep/test/manual）'),
       evidence: z.string().optional().describe('验证证据'),
+      waiverReason: z.string().optional().describe('文档承诺豁免理由（status=waived 时 ≥ 30 字符）'),
     })).describe('文档承诺列表'),
     realMachineTests: z.array(z.object({
       featureId: z.string().describe('功能点 ID（如 CHK-xxx）'),
@@ -549,7 +572,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     itemId: z.string().optional().describe('Checklist item ID（CHK-xxx）；与 findingId / clusterId 互斥，恰好提供一个'),
     findingId: z.string().optional().describe('Finding ID（F-xxx 或 B-xxx:F-xxx）；与 itemId / clusterId 互斥'),
     clusterId: z.string().optional().describe('Cluster ID（CL-xxx）；与 itemId / findingId 互斥'),
-    agentType: z.string().optional().describe('subagent 类型（如 koala-implementer / koala-review-* ）；复用 CHK-008 分级矩阵'),
+    agentType: z.string().optional().describe('subagent 类型；INIT reviewer 可只传 koala-review-story-init，其他场景与 itemId/findingId/clusterId 搭配'),
   }},
 
   // Background CLI 三件套 (B-45ed CHK-007: background.md set/append/get)
@@ -563,6 +586,13 @@ export const MAIN_TOOLS: ToolDef[] = [
     content: z.string().describe('要追加的内容（通常是单行 bullet 或若干行）'),
   }},
   { name: 'background_get', description: '读取 background.md 全文', schema: {
+    storyId: z.string().describe('Story ID'),
+  }},
+  { name: 'plan_set', description: '全量写入 plan.md（每个 checklist item 需有 ## CHK-xxx 章节）', schema: {
+    storyId: z.string().describe('Story ID'),
+    content: z.string().describe('plan.md 完整内容'),
+  }},
+  { name: 'plan_get', description: '读取 plan.md 全文', schema: {
     storyId: z.string().describe('Story ID'),
   }},
 
@@ -638,6 +668,47 @@ function getDesc(t: ZodType): string {
   return (t as any).description || '';
 }
 
+function unwrapOptional(t: ZodType): ZodType {
+  return t instanceof ZodOptional ? (t as any)._def.innerType : t;
+}
+
+function objectShape(t: ZodObject<any>): Record<string, ZodType> {
+  const anyType = t as any;
+  const shape = anyType.shape ?? anyType._def?.shape;
+  return typeof shape === 'function' ? shape() : shape || {};
+}
+
+function arrayElement(t: ZodArray<any>): ZodType | null {
+  const anyType = t as any;
+  return anyType.element || anyType._def?.type || null;
+}
+
+function nestedSchemaLines(t: ZodType, prefix: string, indent = '      '): string[] {
+  const inner = unwrapOptional(t);
+  if (inner instanceof ZodArray) {
+    const element = arrayElement(inner);
+    if (!element) return [];
+    const elementInner = unwrapOptional(element);
+    if (elementInner instanceof ZodObject) {
+      return nestedSchemaLines(elementInner, `${prefix}[]`, indent);
+    }
+    return [`${indent}${prefix}[]: ${describeType(elementInner)} ${getDesc(elementInner)}`.trimEnd()];
+  }
+  if (!(inner instanceof ZodObject)) return [];
+  const shape = objectShape(inner);
+  const lines: string[] = [];
+  for (const [key, child] of Object.entries(shape)) {
+    const optional = child instanceof ZodOptional;
+    const childInner = unwrapOptional(child);
+    const path = prefix ? `${prefix}.${key}` : key;
+    lines.push(`${indent}${path}${optional ? '?' : ''}: ${describeType(child)} ${getDesc(child)}`.trimEnd());
+    if (childInner instanceof ZodObject || childInner instanceof ZodArray) {
+      lines.push(...nestedSchemaLines(childInner, path, indent + '  '));
+    }
+  }
+  return lines;
+}
+
 function printToolHelp(tool: ToolDef) {
   console.log(`\n  koala ${tool.name} — ${tool.description}\n`);
 
@@ -663,6 +734,9 @@ function printToolHelp(tool: ToolDef) {
     const isComplex = inner instanceof ZodArray || inner instanceof ZodObject;
     const flagHint = isComplex ? '(JSON)' : '';
     console.log(`    --${name.padEnd(maxN + 2)} ${describeType(type).padEnd(16)} ${getDesc(type)}${req} ${flagHint}`);
+    if (isComplex) {
+      for (const line of nestedSchemaLines(type, name)) console.log(line);
+    }
   }
   const required = entries.filter(([, t]) => !(t instanceof ZodOptional));
   const optional = entries.filter(([, t]) => t instanceof ZodOptional);

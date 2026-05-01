@@ -410,6 +410,20 @@ export interface FindingData {
   findings: Finding[];
 }
 
+/** Reviewer pass receipt: reviewer explicitly checked a round and found no blocker. */
+export interface ReviewPass {
+  id: string;
+  agent: string;
+  note: string;
+  createdAt: string;
+  reviewRound?: string;
+  _hash?: string;
+}
+
+export interface ReviewPassData {
+  passes: ReviewPass[];
+}
+
 /** Evaluator 打分证据（browser 项目 DONE gate 消费） */
 export interface EvalEvidenceData {
   scores: { functionality: number; usability: number };
@@ -440,6 +454,8 @@ export interface TestEvidenceData {
   traceCoverage?: string[];
   /** 测试时的 git HEAD hash（用于 DONE gate evidence freshness 检查） */
   headHash?: string;
+  /** 测试时的非 Koala 元数据文件树 hash（metadata-only commit 不应让 evidence stale） */
+  materialHash?: string;
   /** @deprecated Legacy evidence freshness field. New writes use headHash. */
   git?: {
     head: string | null;
@@ -747,6 +763,11 @@ export interface InitCheckData {
 export interface DocsPromise {
   docPath: string;
   promise: string;
+  /**
+   * Optional reviewer-friendly status. DONE gate treats met/verified as
+   * verified and waived as an explicit waiver, matching delivery_check_set help.
+   */
+  status?: 'met' | 'verified' | 'waived' | 'unverified';
   verifiedBy?: string;
   evidence?: string;
   /** 豁免理由（≥ 30 字符），入签名防事后篡改 */

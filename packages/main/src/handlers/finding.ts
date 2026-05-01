@@ -2,10 +2,40 @@
  * Finding handlers — reviewer 发现项管理（带签名防伪造）
  */
 
+import { mkdirSync, rmSync, statSync } from 'fs';
 import type { HandlerContext } from './context.js';
 import type { Finding } from '../core/types.js';
-import { signFinding } from '../core/finding-verify.js';
+import { signFinding, signReviewPass } from '../core/finding-verify.js';
 import { computeProcessMetrics } from '../core/process-metrics.js';
+
+function sleepSync(ms: number): void {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+
+function withReviewPassLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
+  const lockDir = ctx.store.storyFilePath(storyId, 'review-passes.lock');
+  const deadline = Date.now() + 5000;
+  while (true) {
+    try {
+      mkdirSync(lockDir);
+      break;
+    } catch (e: any) {
+      try {
+        const ageMs = Date.now() - statSync(lockDir).mtimeMs;
+        if (ageMs > 10000) rmSync(lockDir, { recursive: true, force: true });
+      } catch { /* PROBE: lock disappeared between mkdir attempts */ }
+      if (Date.now() > deadline) {
+        throw new Error(`review_pass_set: timed out waiting for metadata lock (${e?.message || e})`);
+      }
+      sleepSync(50);
+    }
+  }
+  try {
+    return fn();
+  } finally {
+    rmSync(lockDir, { recursive: true, force: true });
+  }
+}
 
 function isNoBlockingIssuePlaceholder(finding: Pick<Finding, 'desc' | 'severity' | 'agent'>): boolean {
   if (finding.severity !== 'low') return false;
@@ -64,6 +94,34 @@ export function createFindingHandlers(ctx: HandlerContext) {
       }
 
       return `Finding ${id} created by ${agent}: [${args.severity}/${args.category}] ${args.desc}`;
+    },
+
+    review_pass_set(args: { storyId: string; agent?: string; note: string }): string {
+      if (!args.note || args.note.trim().length < 10) {
+        throw new Error('review_pass_set: note 必须 ≥ 10 字符，说明 reviewer 检查了什么以及为什么无 blocker');
+      }
+      const agent = args.agent || process.env.KOALA_AGENT || 'main';
+      if (!agent.startsWith('koala-review-')) {
+        throw new Error('review_pass_set: agent 必须是 koala-review-* reviewer');
+      }
+      return withReviewPassLock(ctx, args.storyId, () => {
+        const story = store.readStory(args.storyId);
+        const data = store.readReviewPasses(args.storyId);
+        const id = `${args.storyId}:RP-${String(data.passes.length + 1).padStart(3, '0')}`;
+        const createdAt = new Date().toISOString();
+        const reviewRound = story.currentReviewRound || '';
+        const note = args.note.trim();
+        data.passes.push({
+          id,
+          agent,
+          note,
+          createdAt,
+          reviewRound,
+          _hash: signReviewPass(args.storyId, id, agent, note, createdAt, reviewRound),
+        });
+        store.writeReviewPasses(args.storyId, data);
+        return `Review pass ${id} recorded by ${agent}`;
+      });
     },
 
     finding_list(args: { storyId: string; cluster?: boolean }) {

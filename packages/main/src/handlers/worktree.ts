@@ -1,6 +1,6 @@
 
 import { execFileSync, execSync } from 'child_process';
-import { existsSync, lstatSync, readlinkSync, symlinkSync, unlinkSync } from 'fs';
+import { existsSync, lstatSync, readlinkSync, rmSync, symlinkSync, unlinkSync } from 'fs';
 import { dirname, join, relative, isAbsolute, resolve, sep } from 'path';
 import type { HandlerContext } from './context.js';
 import { collectContext, PHASE_TO_EVENT } from './context.js';
@@ -131,6 +131,10 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     throw lastErr;
   }
 
+  function gitErrorMessage(e: any): string {
+    return String(e?.stderr || e?.stdout || e?.message || e).trim();
+  }
+
   function getRepoRoot(): string {
     try {
       return execSync('git rev-parse --show-toplevel', { cwd: root, encoding: 'utf-8' }).trim();
@@ -143,6 +147,71 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
   function resolveWorktreePath(storedPath: string): string {
     if (isAbsolute(storedPath)) return storedPath;
     return join(getRepoRoot(), storedPath);
+  }
+
+  function branchExists(branch: string): boolean {
+    try {
+      execFileSync('git', ['rev-parse', '--verify', `${branch}^{commit}`], {
+        cwd: root,
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  function findWorktreePathByBranch(branch: string): string | null {
+    try {
+      const raw = execFileSync('git', ['worktree', 'list', '--porcelain'], {
+        cwd: root,
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      });
+      let currentPath = '';
+      for (const line of raw.split('\n')) {
+        if (line.startsWith('worktree ')) currentPath = line.slice('worktree '.length);
+        if (line === `branch refs/heads/${branch}`) return currentPath || null;
+      }
+    } catch { /* PROBE: non-git or old git */ }
+    return null;
+  }
+
+  function purgeSafeInitCommit(storyId: string, storyRel: string): string {
+    const dirtyOutsideStory = git('status --porcelain')
+      .split('\n')
+      .filter(Boolean)
+      .filter(line => {
+        const status = line.slice(0, 2);
+        const path = line[2] === ' ' ? line.slice(3) : line.slice(2);
+        if (status === '??') return false;
+        return path && !path.startsWith(storyRel);
+      });
+    if (dirtyOutsideStory.length > 0) {
+      return `⚠ 未清理 main init commit：工作区有非 ${storyRel} 改动 (${dirtyOutsideStory.slice(0, 3).join(', ')})`;
+    }
+
+    let subject = '';
+    let files: string[] = [];
+    try {
+      subject = git('log -1 --pretty=%s');
+      files = git('diff-tree --no-commit-id --name-only -r HEAD')
+        .split('\n')
+        .map(s => s.trim())
+        .filter(Boolean);
+    } catch {
+      return '⚠ 未清理 main init commit：无法读取 HEAD';
+    }
+
+    const safeSubject = subject === `koala: story ${storyId} init` || subject.includes(storyId);
+    const safeFiles = files.length > 0 && files.every(path => path.startsWith(storyRel));
+    if (!safeSubject || !safeFiles) {
+      return `⚠ 未清理 main init commit：HEAD 不像 ${storyId} 的纯 metadata init commit`;
+    }
+
+    git('reset --hard HEAD~1');
+    return `✓ main init commit 已安全回退: ${subject}`;
   }
 
   /**
@@ -519,23 +588,25 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     },
 
     /** 废弃 story：任意阶段均可调用，强制清理 worktree 和分支 */
-    story_discard(args: { storyId: string; reason?: string; force?: boolean }): string {
+    story_discard(args: { storyId: string; reason?: string; force?: boolean; purge?: boolean }): string {
       const story = store.readStory(args.storyId);
 
       if (story.phase === 'DONE') {
         throw new Error(`Story ${args.storyId} 已 DONE，不能 discard（已完成的 story 请通过 git revert 撤销）`);
       }
-      if (story.phase === 'DISCARDED') {
-        return `Story ${args.storyId} 已是 DISCARDED 状态，无需重复操作`;
-      }
+      const wasDiscarded = story.phase === 'DISCARDED';
 
       const results: string[] = [];
+      const fallbackBranch = `story/${args.storyId}`;
+      const branch = story.worktree?.branch || fallbackBranch;
+      const detectedWorktreePath = story.worktree?.path
+        ? resolveWorktreePath(story.worktree.path)
+        : findWorktreePathByBranch(branch);
 
-      // 清理 worktree（如果存在）
-      if (story.worktree) {
-        const wtPath = resolveWorktreePath(story.worktree.path);
-        const { branch } = story.worktree;
-
+      // 清理 worktree（如果存在）。任何清理失败都 fail closed：不写
+      // DISCARDED，不删除 metadata，不输出“已清理”的伪成功。
+      if (detectedWorktreePath) {
+        const wtPath = detectedWorktreePath;
         if (existsSync(wtPath)) {
           // B-5fa4 CHK-003: warn about unpushed commits before discard cleanup
           const unpushed = checkUnpushedCommits(wtPath, branch);
@@ -556,32 +627,80 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
             worktreeRemoveWithRetry(wtPath, { force: true });
             results.push(`✓ Worktree ${wtPath} 已清理`);
           } catch (e: any) {
-            results.push(`⚠ worktree 移除失败: ${e.message}`);
+            throw new Error(
+              `story_discard: worktree 移除失败，已停止 discard，避免留下半清理状态。\n` +
+              `worktree: ${wtPath}\nbranch: ${branch}\n原因: ${gitErrorMessage(e)}\n` +
+              `→ 关闭占用该 worktree 的进程后重试；若 git 已标记 prunable，先手动确认再运行 git worktree prune。`,
+            );
           }
+        } else {
+          try {
+            git('worktree prune');
+            results.push(`✓ stale worktree metadata 已 prune: ${wtPath}`);
+          } catch (e: any) {
+            throw new Error(
+              `story_discard: worktree 路径不存在但 git metadata prune 失败，已停止 discard。\n` +
+              `worktree: ${wtPath}\nbranch: ${branch}\n原因: ${gitErrorMessage(e)}`,
+            );
+          }
+        }
+
+        const lingeringWorktreePath = findWorktreePathByBranch(branch);
+        if (lingeringWorktreePath) {
+          throw new Error(
+            `story_discard: git worktree list 仍包含 ${branch} (${lingeringWorktreePath})，已停止 discard。\n` +
+            `→ 先清理该 worktree/prunable entry，再重试 story_discard。`,
+          );
         }
 
         // 强制删除分支
         try {
           git(`branch -D ${branch}`);
           results.push(`✓ 分支 ${branch} 已删除`);
-        } catch {
-          results.push(`⚠ 分支 ${branch} 未删除（可能已不存在）`);
+        } catch (e: any) {
+          if (branchExists(branch)) {
+            throw new Error(
+              `story_discard: 分支 ${branch} 删除失败，已停止 discard。\n原因: ${gitErrorMessage(e)}`,
+            );
+          }
+          results.push(`✓ 分支 ${branch} 已不存在`);
         }
 
         story.worktree = undefined;
+      } else if (branchExists(branch)) {
+        try {
+          git(`branch -D ${branch}`);
+          results.push(`✓ 分支 ${branch} 已删除`);
+        } catch (e: any) {
+          throw new Error(
+            `story_discard: 分支 ${branch} 删除失败，已停止 discard。\n原因: ${gitErrorMessage(e)}`,
+          );
+        }
+      }
+
+      if (args.purge) {
+        const storyRel = `${loadConfig(root).storyDir.replace(/\\/g, '/')}/${args.storyId}`;
+        rmSync(join(root, storyRel), { recursive: true, force: true });
+        results.push(`✓ Story metadata 已清理: ${storyRel}`);
+        results.push(purgeSafeInitCommit(args.storyId, storyRel));
+        return results.join('\n');
       }
 
       // 记录 discard 事件
       const now = new Date().toISOString();
       story.phase = 'DISCARDED';
-      story.endedAt = now;
+      if (!story.endedAt) story.endedAt = now;
       if (!story.events) story.events = [];
-      const event = collectContext('DISCARDED', 'discard');
-      if (args.reason) event.reason = args.reason;
-      story.events.push(event);
+      if (!wasDiscarded) {
+        const event = collectContext('DISCARDED', 'discard');
+        if (args.reason) event.reason = args.reason;
+        story.events.push(event);
+      }
       store.writeStory(args.storyId, story);
 
-      results.push(`✓ Story ${args.storyId} 已标记为 DISCARDED${args.reason ? ` (原因: ${args.reason})` : ''}`);
+      results.push(wasDiscarded
+        ? `✓ Story ${args.storyId} 已是 DISCARDED；残留已检查/清理`
+        : `✓ Story ${args.storyId} 已标记为 DISCARDED${args.reason ? ` (原因: ${args.reason})` : ''}`);
       return results.join('\n');
     },
   };

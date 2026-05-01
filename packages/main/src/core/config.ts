@@ -102,7 +102,7 @@ export interface KoalaConfig {
 const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
   '*': [
     'session_brief', // read-only recovery entrypoint; must work in every phase
-    'story_get', 'story_list', 'story_discard',
+    'story_get', 'story_list', 'story_reconcile', 'story_discard',
     'aux_*', // 全部辅助工具：scan/detail/coverage/locate/sync/trace/diagnose/doc_list
     'checklist_get',
     'truth_*', 'gap_*', 'convergence_check',
@@ -115,7 +115,8 @@ const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'audit',         // 全局：B-9bd9 框架自省 audit（advisory，任何阶段都可以跑）
     'summary_get',   // 全局：读取 summary，任何阶段都可以查
     'summary_set',   // 全局：DONE 前强制落总结，koala short-path story 也需要
-    'verification_evidence_add', // verification evidence is metadata, allowed across phases for reviewer/test handoff
+    'verification_evidence_add', 'verification_evidence_batch_add', // verification evidence is metadata, allowed across phases for reviewer/test handoff
+    'plan_get',
     'workflow_*',    // 全局：profile 查看/设置/解释，任何阶段都可以
     'background_*',  // B-45ed CHK-007: background 是元数据，任何阶段可读写
     'dispatch',      // B-9d95 CHK-004: 统一派发入口，全阶段开放（INIT_CHECK 起）
@@ -138,6 +139,7 @@ const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'checklist_add', 'checklist_update', 'checklist_remove',
     'understanding_set', 'understanding_get',
     'decision_set', 'decision_get',
+    'plan_set',
     'testintent_handoff',
     'scope_check_save',
     'scope_question_resolve', // B-ed3e CHK-003: 主 agent 消解 OQ
@@ -152,6 +154,7 @@ const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
   ],
   REVIEW: [
     'finding_add', 'finding_list', 'finding_resolve', 'finding_dismiss',
+    'review_pass_set',
     'finding_dispatch', // B-45ed CHK-010: 主 agent 派发 finding 修复
     'finding_cluster',  // B-9d95 CHK-005: auto/merge/split 聚簇
     'validate', 'status',
