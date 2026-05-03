@@ -1,15 +1,15 @@
 {
   "command": "koala validate --story=B-3a3b --json",
-  "output": "{\"provider\":\"koala-verifier-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands passed; verification coverage missing 9 required intent(s)\",\"details\":[\"✓ package.json test script: npm test\",\"  > koala@0.3.2 test\",\"  > npm run test:e2e\",\"  > koala@0.3.2 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 0/9 covered (9 required missing)\",\"  ✗ CHK-001:happy:0 [happy/must/cli] stale via integration_test (scripts/verify-codex-assets.mjs) — koala init generates Codex prompt files for all .claude/agents/*.md source prompts\",\"  ✗ CHK-001:edge:0 [edge/must/cli] stale via integration_test (scripts/verify-entrypoints.mjs) — new Claude agent prompt additions are picked up without editing a Codex whitelist\",\"  ✗ CHK-001:adversarial:0 [adversarial/must/cli] stale via manual_transcript — Claude-only hooks/settings/skills are not mirrored into .Codex as fake runtime support\",\"  ✗ CHK-002:happy:0 [happy/must/cli] stale via logic_test (scripts/verify-codex-assets.mjs) — test:codex-assets compares every .claude/agents/*.md source against .Codex/agents\",\"  ✗ CHK-002:edge:0 [edge/must/cli] stale via integration_test (scripts/verify-entrypoints.mjs) — test:entrypoints proves a fresh koala init includes representative full-mirror prompts like koala-review-quality and koala-implementer\",\"  ✗ CHK-002:adversarial:0 [adversarial/must/cli] stale via manual_transcript — stale Codex-only prompts such as implementer.md or reviewer.md fail verification instead of silently remaining\",\"  ✗ CHK-003:happy:0 [happy/must/cli] stale via docs_check (README.md) — README documents full Codex prompt mirroring and Claude-only runtime assets\",\"  ✗ CHK-003:edge:0 [edge/must/cli] stale via docs_check (packages/main/src/init-assets.ts) — .Codex/README template tells users Codex prompt mirroring exists but hooks/settings/skills remain .claude-only\",\"  ✗ CHK-003:adversarial:0 [adversarial/must/cli] stale via manual_transcript (AGENTS.md) — documentation does not imply .Codex/hooks or .Codex/settings.json will run in Codex\"],\"warnings\":[\"validate.ts not found; used language/project validation command discovery\"],\"timestamp\":\"2026-05-03T20:26:19.161Z\",\"headSha\":\"ae5fc842b71530e133319b1635e6e95f2f4b8dd0\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.2 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.2 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":373}],\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":0,\"missingRequired\":9,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"koala init generates Codex prompt files for all .claude/agents/*.md source prompts\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"integration_test\",\"file\":\"scripts/verify-codex-assets.mjs\",\"command\":\"npm run test:codex-assets\",\"result\":\"pass\",\"note\":\"Enumerates every .claude/agents/*.md prompt and compares transformed .Codex/agents content, proving full prompt mirroring.\",\"headHash\":\"95709fad96265e97d241125500bc8604ec7bbda8\",\"materialHash\":\"16eb0001a5b84d29a59587acc1ab5a88bb7dd1fc3b235905dcef49cef8231c82\",\"timestamp\":\"2026-05-03T20:23:28.417Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"new Claude agent prompt additions are picked up without editing a Codex whitelist\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"integration_test\",\"file\":\"scripts/verify-entrypoints.mjs\",\"command\":\"npm run test:entrypoints\",\"result\":\"pass\",\"note\":\"Fresh koala init verification requires representative full-mirror prompts, showing new source prompts are picked up through directory discovery rather than a Codex whitelist.\",\"headHash\":\"95709fad96265e97d241125500bc8604ec7bbda8\",\"materialHash\":\"16eb0001a5b84d29a59587acc1ab5a88bb7dd1fc3b235905dcef49cef8231c82\",\"timestamp\":\"2026-05-03T20:23:28.417Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Claude-only hooks/settings/skills are not mirrored into .Codex as fake runtime support\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"test ! -e .Codex/hooks && test ! -e .Codex/settings.json\",\"result\":\"pass\",\"note\":\"Manual filesystem check confirmed Codex runtime-only hooks/settings were not generated, preserving the Claude-only runtime boundary.\",\"headHash\":\"95709fad96265e97d241125500bc8604ec7bbda8\",\"materialHash\":\"16eb0001a5b84d29a59587acc1ab5a88bb7dd1fc3b235905dcef49cef8231c82\",\"timestamp\":\"2026-05-03T20:23:28.417Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"test:codex-assets compares every .claude/agents/*.md source against .Codex/agents\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"file\":\"scripts/verify-codex-assets.mjs\",\"command\":\"npm run test:codex-assets\",\"result\":\"pass\",\"note\":\"codex-assets verification passed after checking every Claude agent prompt against the transformed Codex prompt.\",\"headHash\":\"95709fad96265e97d241125500bc8604ec7bbda8\",\"materialHash\":\"16eb0001a5b84d29a59587acc1ab5a88bb7dd1fc3b235905dcef49cef8231c82\",\"timestamp\":\"2026-05-03T20:23:28.417Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"test:entrypoints proves a fresh koala init includes representative full-mirror prompts like koala-review-quality and koala-implementer\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"integration_test\",\"file\":\"scripts/verify-entrypoints.mjs\",\"command\":\"npm run test:entrypoints\",\"result\":\"pass\",\"note\":\"entrypoints verification passed and checks that fresh koala init includes koala-review-quality.md and koala-implementer.md.\",\"headHash\":\"95709fad96265e97d241125500bc8604ec7bbda8\",\"materialHash\":\"16eb0001a5b84d29a59587acc1ab5a88bb7dd1fc3b235905dcef49cef8231c82\",\"timestamp\":\"2026-05-03T20:23:28.417Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"stale Codex-only prompts such as implementer.md or reviewer.md fail verification instead of silently remaining\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"test ! -f .Codex/agents/implementer.md && test ! -f .Codex/agents/reviewer.md\",\"result\":\"pass\",\"note\":\"Manual filesystem check confirmed stale Codex-only prompts are absent; verify-codex-assets also rejects Codex prompts without a Claude source.\",\"headHash\":\"95709fad96265e97d241125500bc8604ec7bbda8\",\"materialHash\":\"16eb0001a5b84d29a59587acc1ab5a88bb7dd1fc3b235905dcef49cef8231c82\",\"timestamp\":\"2026-05-03T20:23:28.417Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"README documents full Codex prompt mirroring and Claude-only runtime assets\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"docs_check\",\"file\":\"README.md\",\"command\":\"npm run test:codex-assets\",\"result\":\"pass\",\"note\":\"README now states Codex agent prompts are fully generated from .claude/agents while Claude hooks/settings/skills remain Claude-only.\",\"headHash\":\"95709fad96265e97d241125500bc8604ec7bbda8\",\"materialHash\":\"16eb0001a5b84d29a59587acc1ab5a88bb7dd1fc3b235905dcef49cef8231c82\",\"timestamp\":\"2026-05-03T20:23:28.417Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\".Codex/README template tells users Codex prompt mirroring exists but hooks/settings/skills remain .claude-only\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"docs_check\",\"file\":\"packages/main/src/init-assets.ts\",\"command\":\"npm run test:codex-assets\",\"result\":\"pass\",\"note\":\"CODEX_README_TEMPLATE documents full prompt mirroring and says hooks/settings/skills remain under .claude, so new init projects explain the boundary.\",\"headHash\":\"95709fad96265e97d241125500bc8604ec7bbda8\",\"materialHash\":\"16eb0001a5b84d29a59587acc1ab5a88bb7dd1fc3b235905dcef49cef8231c82\",\"timestamp\":\"2026-05-03T20:23:28.418Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"documentation does not imply .Codex/hooks or .Codex/settings.json will run in Codex\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"manual_transcript\",\"file\":\"AGENTS.md\",\"command\":\"test ! -e .Codex/hooks && test ! -e .Codex/settings.json\",\"result\":\"pass\",\"note\":\"Docs and filesystem check avoid implying .Codex hooks or settings are a supported Codex runtime convention.\",\"headHash\":\"95709fad96265e97d241125500bc8604ec7bbda8\",\"materialHash\":\"16eb0001a5b84d29a59587acc1ab5a88bb7dd1fc3b235905dcef49cef8231c82\",\"timestamp\":\"2026-05-03T20:23:28.418Z\"}}]}}",
-  "result": "FAIL",
-  "timestamp": "2026-05-03T20:26:19.453Z",
-  "headHash": "ae5fc842b71530e133319b1635e6e95f2f4b8dd0",
+  "output": "{\"provider\":\"koala-verifier-commands\",\"status\":\"warn\",\"allPass\":true,\"summary\":\"Project validation commands passed\",\"details\":[\"✓ package.json test script: npm test\",\"  > koala@0.3.2 test\",\"  > npm run test:e2e\",\"  > koala@0.3.2 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 9/9 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via integration_test (scripts/verify-codex-assets.mjs) — koala init generates Codex prompt files for all .claude/agents/*.md source prompts\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via integration_test (scripts/verify-entrypoints.mjs) — new Claude agent prompt additions are picked up without editing a Codex whitelist\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via manual_transcript — Claude-only hooks/settings/skills are not mirrored into .Codex as fake runtime support\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via logic_test (scripts/verify-codex-assets.mjs) — test:codex-assets compares every .claude/agents/*.md source against .Codex/agents\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via integration_test (scripts/verify-entrypoints.mjs) — test:entrypoints proves a fresh koala init includes representative full-mirror prompts like koala-review-quality and koala-implementer\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via manual_transcript — stale Codex-only prompts such as implementer.md or reviewer.md fail verification instead of silently remaining\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via docs_check (README.md) — README documents full Codex prompt mirroring and Claude-only runtime assets\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via docs_check (packages/main/src/init-assets.ts) — .Codex/README template tells users Codex prompt mirroring exists but hooks/settings/skills remain .claude-only\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via manual_transcript (AGENTS.md) — documentation does not imply .Codex/hooks or .Codex/settings.json will run in Codex\"],\"warnings\":[\"validate.ts not found; used language/project validation command discovery\"],\"timestamp\":\"2026-05-03T20:26:40.511Z\",\"headSha\":\"697dc7b8921810a62039f74aee5452526d3abd41\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.2 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.2 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":333}],\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":9,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"koala init generates Codex prompt files for all .claude/agents/*.md source prompts\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"integration_test\",\"file\":\"scripts/verify-codex-assets.mjs\",\"command\":\"npm run test:codex-assets\",\"result\":\"pass\",\"note\":\"Enumerates every .claude/agents/*.md prompt and compares transformed .Codex/agents content, proving full prompt mirroring.\",\"headHash\":\"ae5fc842b71530e133319b1635e6e95f2f4b8dd0\",\"materialHash\":\"a3b519ddfa293c8e3ca378336114494310f22d87b3b2dce0066579a4310693ad\",\"timestamp\":\"2026-05-03T20:26:29.802Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"new Claude agent prompt additions are picked up without editing a Codex whitelist\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"integration_test\",\"file\":\"scripts/verify-entrypoints.mjs\",\"command\":\"npm run test:entrypoints\",\"result\":\"pass\",\"note\":\"Fresh koala init verification requires representative full-mirror prompts, showing new source prompts are picked up through directory discovery rather than a Codex whitelist.\",\"headHash\":\"ae5fc842b71530e133319b1635e6e95f2f4b8dd0\",\"materialHash\":\"a3b519ddfa293c8e3ca378336114494310f22d87b3b2dce0066579a4310693ad\",\"timestamp\":\"2026-05-03T20:26:29.802Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Claude-only hooks/settings/skills are not mirrored into .Codex as fake runtime support\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"test ! -e .Codex/hooks && test ! -e .Codex/settings.json\",\"result\":\"pass\",\"note\":\"Manual filesystem check confirmed Codex runtime-only hooks/settings were not generated, preserving the Claude-only runtime boundary.\",\"headHash\":\"ae5fc842b71530e133319b1635e6e95f2f4b8dd0\",\"materialHash\":\"a3b519ddfa293c8e3ca378336114494310f22d87b3b2dce0066579a4310693ad\",\"timestamp\":\"2026-05-03T20:26:29.802Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"test:codex-assets compares every .claude/agents/*.md source against .Codex/agents\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"file\":\"scripts/verify-codex-assets.mjs\",\"command\":\"npm run test:codex-assets\",\"result\":\"pass\",\"note\":\"codex-assets verification passed after checking every Claude agent prompt against the transformed Codex prompt.\",\"headHash\":\"ae5fc842b71530e133319b1635e6e95f2f4b8dd0\",\"materialHash\":\"a3b519ddfa293c8e3ca378336114494310f22d87b3b2dce0066579a4310693ad\",\"timestamp\":\"2026-05-03T20:26:29.802Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"test:entrypoints proves a fresh koala init includes representative full-mirror prompts like koala-review-quality and koala-implementer\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"integration_test\",\"file\":\"scripts/verify-entrypoints.mjs\",\"command\":\"npm run test:entrypoints\",\"result\":\"pass\",\"note\":\"entrypoints verification passed and checks that fresh koala init includes koala-review-quality.md and koala-implementer.md.\",\"headHash\":\"ae5fc842b71530e133319b1635e6e95f2f4b8dd0\",\"materialHash\":\"a3b519ddfa293c8e3ca378336114494310f22d87b3b2dce0066579a4310693ad\",\"timestamp\":\"2026-05-03T20:26:29.802Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"stale Codex-only prompts such as implementer.md or reviewer.md fail verification instead of silently remaining\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"test ! -f .Codex/agents/implementer.md && test ! -f .Codex/agents/reviewer.md\",\"result\":\"pass\",\"note\":\"Manual filesystem check confirmed stale Codex-only prompts are absent; verify-codex-assets also rejects Codex prompts without a Claude source.\",\"headHash\":\"ae5fc842b71530e133319b1635e6e95f2f4b8dd0\",\"materialHash\":\"a3b519ddfa293c8e3ca378336114494310f22d87b3b2dce0066579a4310693ad\",\"timestamp\":\"2026-05-03T20:26:29.802Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"README documents full Codex prompt mirroring and Claude-only runtime assets\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"docs_check\",\"file\":\"README.md\",\"command\":\"npm run test:codex-assets\",\"result\":\"pass\",\"note\":\"README now states Codex agent prompts are fully generated from .claude/agents while Claude hooks/settings/skills remain Claude-only.\",\"headHash\":\"ae5fc842b71530e133319b1635e6e95f2f4b8dd0\",\"materialHash\":\"a3b519ddfa293c8e3ca378336114494310f22d87b3b2dce0066579a4310693ad\",\"timestamp\":\"2026-05-03T20:26:29.802Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\".Codex/README template tells users Codex prompt mirroring exists but hooks/settings/skills remain .claude-only\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"docs_check\",\"file\":\"packages/main/src/init-assets.ts\",\"command\":\"npm run test:codex-assets\",\"result\":\"pass\",\"note\":\"CODEX_README_TEMPLATE documents full prompt mirroring and says hooks/settings/skills remain under .claude, so new init projects explain the boundary.\",\"headHash\":\"ae5fc842b71530e133319b1635e6e95f2f4b8dd0\",\"materialHash\":\"a3b519ddfa293c8e3ca378336114494310f22d87b3b2dce0066579a4310693ad\",\"timestamp\":\"2026-05-03T20:26:29.802Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"documentation does not imply .Codex/hooks or .Codex/settings.json will run in Codex\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"manual_transcript\",\"file\":\"AGENTS.md\",\"command\":\"test ! -e .Codex/hooks && test ! -e .Codex/settings.json\",\"result\":\"pass\",\"note\":\"Docs and filesystem check avoid implying .Codex hooks or settings are a supported Codex runtime convention.\",\"headHash\":\"ae5fc842b71530e133319b1635e6e95f2f4b8dd0\",\"materialHash\":\"a3b519ddfa293c8e3ca378336114494310f22d87b3b2dce0066579a4310693ad\",\"timestamp\":\"2026-05-03T20:26:29.802Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-05-03T20:26:40.723Z",
+  "headHash": "697dc7b8921810a62039f74aee5452526d3abd41",
   "materialHash": "a3b519ddfa293c8e3ca378336114494310f22d87b3b2dce0066579a4310693ad",
   "verificationCoverage": {
     "total": 9,
     "required": 9,
-    "covered": 0,
-    "missingRequired": 9,
+    "covered": 9,
+    "missingRequired": 0,
     "entries": [
       {
         "intentRef": "CHK-001:happy:0",
@@ -18,7 +18,7 @@
         "desc": "koala init generates Codex prompt files for all .claude/agents/*.md source prompts",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:happy:0",
           "kind": "integration_test",
@@ -26,9 +26,9 @@
           "command": "npm run test:codex-assets",
           "result": "pass",
           "note": "Enumerates every .claude/agents/*.md prompt and compares transformed .Codex/agents content, proving full prompt mirroring.",
-          "headHash": "95709fad96265e97d241125500bc8604ec7bbda8",
-          "materialHash": "16eb0001a5b84d29a59587acc1ab5a88bb7dd1fc3b235905dcef49cef8231c82",
-          "timestamp": "2026-05-03T20:23:28.417Z"
+          "headHash": "ae5fc842b71530e133319b1635e6e95f2f4b8dd0",
+          "materialHash": "a3b519ddfa293c8e3ca378336114494310f22d87b3b2dce0066579a4310693ad",
+          "timestamp": "2026-05-03T20:26:29.802Z"
         }
       },
       {
@@ -38,7 +38,7 @@
         "desc": "new Claude agent prompt additions are picked up without editing a Codex whitelist",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:edge:0",
           "kind": "integration_test",
@@ -46,9 +46,9 @@
           "command": "npm run test:entrypoints",
           "result": "pass",
           "note": "Fresh koala init verification requires representative full-mirror prompts, showing new source prompts are picked up through directory discovery rather than a Codex whitelist.",
-          "headHash": "95709fad96265e97d241125500bc8604ec7bbda8",
-          "materialHash": "16eb0001a5b84d29a59587acc1ab5a88bb7dd1fc3b235905dcef49cef8231c82",
-          "timestamp": "2026-05-03T20:23:28.417Z"
+          "headHash": "ae5fc842b71530e133319b1635e6e95f2f4b8dd0",
+          "materialHash": "a3b519ddfa293c8e3ca378336114494310f22d87b3b2dce0066579a4310693ad",
+          "timestamp": "2026-05-03T20:26:29.802Z"
         }
       },
       {
@@ -58,16 +58,16 @@
         "desc": "Claude-only hooks/settings/skills are not mirrored into .Codex as fake runtime support",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "manual_transcript",
           "command": "test ! -e .Codex/hooks && test ! -e .Codex/settings.json",
           "result": "pass",
           "note": "Manual filesystem check confirmed Codex runtime-only hooks/settings were not generated, preserving the Claude-only runtime boundary.",
-          "headHash": "95709fad96265e97d241125500bc8604ec7bbda8",
-          "materialHash": "16eb0001a5b84d29a59587acc1ab5a88bb7dd1fc3b235905dcef49cef8231c82",
-          "timestamp": "2026-05-03T20:23:28.417Z"
+          "headHash": "ae5fc842b71530e133319b1635e6e95f2f4b8dd0",
+          "materialHash": "a3b519ddfa293c8e3ca378336114494310f22d87b3b2dce0066579a4310693ad",
+          "timestamp": "2026-05-03T20:26:29.802Z"
         }
       },
       {
@@ -77,7 +77,7 @@
         "desc": "test:codex-assets compares every .claude/agents/*.md source against .Codex/agents",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:happy:0",
           "kind": "logic_test",
@@ -85,9 +85,9 @@
           "command": "npm run test:codex-assets",
           "result": "pass",
           "note": "codex-assets verification passed after checking every Claude agent prompt against the transformed Codex prompt.",
-          "headHash": "95709fad96265e97d241125500bc8604ec7bbda8",
-          "materialHash": "16eb0001a5b84d29a59587acc1ab5a88bb7dd1fc3b235905dcef49cef8231c82",
-          "timestamp": "2026-05-03T20:23:28.417Z"
+          "headHash": "ae5fc842b71530e133319b1635e6e95f2f4b8dd0",
+          "materialHash": "a3b519ddfa293c8e3ca378336114494310f22d87b3b2dce0066579a4310693ad",
+          "timestamp": "2026-05-03T20:26:29.802Z"
         }
       },
       {
@@ -97,7 +97,7 @@
         "desc": "test:entrypoints proves a fresh koala init includes representative full-mirror prompts like koala-review-quality and koala-implementer",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:edge:0",
           "kind": "integration_test",
@@ -105,9 +105,9 @@
           "command": "npm run test:entrypoints",
           "result": "pass",
           "note": "entrypoints verification passed and checks that fresh koala init includes koala-review-quality.md and koala-implementer.md.",
-          "headHash": "95709fad96265e97d241125500bc8604ec7bbda8",
-          "materialHash": "16eb0001a5b84d29a59587acc1ab5a88bb7dd1fc3b235905dcef49cef8231c82",
-          "timestamp": "2026-05-03T20:23:28.417Z"
+          "headHash": "ae5fc842b71530e133319b1635e6e95f2f4b8dd0",
+          "materialHash": "a3b519ddfa293c8e3ca378336114494310f22d87b3b2dce0066579a4310693ad",
+          "timestamp": "2026-05-03T20:26:29.802Z"
         }
       },
       {
@@ -117,16 +117,16 @@
         "desc": "stale Codex-only prompts such as implementer.md or reviewer.md fail verification instead of silently remaining",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "manual_transcript",
           "command": "test ! -f .Codex/agents/implementer.md && test ! -f .Codex/agents/reviewer.md",
           "result": "pass",
           "note": "Manual filesystem check confirmed stale Codex-only prompts are absent; verify-codex-assets also rejects Codex prompts without a Claude source.",
-          "headHash": "95709fad96265e97d241125500bc8604ec7bbda8",
-          "materialHash": "16eb0001a5b84d29a59587acc1ab5a88bb7dd1fc3b235905dcef49cef8231c82",
-          "timestamp": "2026-05-03T20:23:28.417Z"
+          "headHash": "ae5fc842b71530e133319b1635e6e95f2f4b8dd0",
+          "materialHash": "a3b519ddfa293c8e3ca378336114494310f22d87b3b2dce0066579a4310693ad",
+          "timestamp": "2026-05-03T20:26:29.802Z"
         }
       },
       {
@@ -136,7 +136,7 @@
         "desc": "README documents full Codex prompt mirroring and Claude-only runtime assets",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:happy:0",
           "kind": "docs_check",
@@ -144,9 +144,9 @@
           "command": "npm run test:codex-assets",
           "result": "pass",
           "note": "README now states Codex agent prompts are fully generated from .claude/agents while Claude hooks/settings/skills remain Claude-only.",
-          "headHash": "95709fad96265e97d241125500bc8604ec7bbda8",
-          "materialHash": "16eb0001a5b84d29a59587acc1ab5a88bb7dd1fc3b235905dcef49cef8231c82",
-          "timestamp": "2026-05-03T20:23:28.417Z"
+          "headHash": "ae5fc842b71530e133319b1635e6e95f2f4b8dd0",
+          "materialHash": "a3b519ddfa293c8e3ca378336114494310f22d87b3b2dce0066579a4310693ad",
+          "timestamp": "2026-05-03T20:26:29.802Z"
         }
       },
       {
@@ -156,7 +156,7 @@
         "desc": ".Codex/README template tells users Codex prompt mirroring exists but hooks/settings/skills remain .claude-only",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:edge:0",
           "kind": "docs_check",
@@ -164,9 +164,9 @@
           "command": "npm run test:codex-assets",
           "result": "pass",
           "note": "CODEX_README_TEMPLATE documents full prompt mirroring and says hooks/settings/skills remain under .claude, so new init projects explain the boundary.",
-          "headHash": "95709fad96265e97d241125500bc8604ec7bbda8",
-          "materialHash": "16eb0001a5b84d29a59587acc1ab5a88bb7dd1fc3b235905dcef49cef8231c82",
-          "timestamp": "2026-05-03T20:23:28.418Z"
+          "headHash": "ae5fc842b71530e133319b1635e6e95f2f4b8dd0",
+          "materialHash": "a3b519ddfa293c8e3ca378336114494310f22d87b3b2dce0066579a4310693ad",
+          "timestamp": "2026-05-03T20:26:29.802Z"
         }
       },
       {
@@ -176,7 +176,7 @@
         "desc": "documentation does not imply .Codex/hooks or .Codex/settings.json will run in Codex",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "manual_transcript",
@@ -184,9 +184,9 @@
           "command": "test ! -e .Codex/hooks && test ! -e .Codex/settings.json",
           "result": "pass",
           "note": "Docs and filesystem check avoid implying .Codex hooks or settings are a supported Codex runtime convention.",
-          "headHash": "95709fad96265e97d241125500bc8604ec7bbda8",
-          "materialHash": "16eb0001a5b84d29a59587acc1ab5a88bb7dd1fc3b235905dcef49cef8231c82",
-          "timestamp": "2026-05-03T20:23:28.418Z"
+          "headHash": "ae5fc842b71530e133319b1635e6e95f2f4b8dd0",
+          "materialHash": "a3b519ddfa293c8e3ca378336114494310f22d87b3b2dce0066579a4310693ad",
+          "timestamp": "2026-05-03T20:26:29.802Z"
         }
       }
     ]
