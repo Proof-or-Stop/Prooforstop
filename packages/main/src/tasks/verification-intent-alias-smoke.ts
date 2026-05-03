@@ -69,6 +69,24 @@ for (const current of ['logic', 'cli', 'browser', 'manual', 'docs']) {
   assert.equal(parsed.verificationIntent.happy[0].type, current);
 }
 
+parseTool('verification_evidence_refresh_stale', {
+  storyId: 'B-smoke',
+  dryRun: true,
+});
+
+const summary = parseTool('summary_set', {
+  storyId: 'B-smoke',
+  changes: 'User-visible change summary',
+  usage: 'Run koala next to see the current next step',
+  expectedOutcome: 'User sees a precise next action in the terminal',
+  actualTranscript: 'koala next prints the precise next action',
+  outcomeDiff: 'No user-visible difference remains',
+  acceptanceVerdict: 'accepted',
+  limitations: 'none — fully covered',
+  pitfalls: 'Remember to keep user value evidence structured',
+});
+assert.equal(summary.acceptanceVerdict, 'accepted');
+
 rejectTool('story_create', {
   name: 'bad-alias-smoke',
   title: 'Bad alias smoke',

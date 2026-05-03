@@ -4,9 +4,9 @@ import { join } from 'path';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
 import { execSync } from 'child_process';
-import { currentMaterialHash } from '../core/evidence-freshness.js';
+import { checkEvidenceFreshnessForGit, currentMaterialHash } from '../core/evidence-freshness.js';
 import type { StoryInfo, VerificationEvidence, VerificationIntent } from '../core/types.js';
-import { makeEvidence } from '../core/verification.js';
+import { buildVerificationCoverage, makeEvidence } from '../core/verification.js';
 
 function sleepSync(ms: number): void {
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
@@ -519,6 +519,64 @@ export function createChecklistHandlers(ctx: HandlerContext) {
 
       store.writeChecklist(args.storyId, cl);
       return `Verification evidence batch recorded for ${args.storyId}: ${written} item intent(s)`;
+      });
+    },
+
+    verification_evidence_refresh_stale(args: {
+      storyId: string;
+      dryRun?: boolean;
+    }): string {
+      return withChecklistLock(ctx, args.storyId, () => {
+      const cl = store.readChecklist(args.storyId);
+      let headHash = '';
+      try {
+        headHash = execSync('git rev-parse HEAD', { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+      } catch {
+        throw new Error('verification_evidence_refresh_stale: 当前目录无法读取 git HEAD，不能刷新 freshness');
+      }
+      const materialHash = currentMaterialHash(root);
+      const coverage = buildVerificationCoverage(
+        cl,
+        headHash,
+        (oldHeadHash, evidence) => checkEvidenceFreshnessForGit(root, oldHeadHash, evidence?.materialHash).fresh,
+        { deferredGateEvidence: 'missing' },
+      );
+      const stale = coverage.entries.filter(e => e.status === 'stale' && e.evidence);
+      if (stale.length === 0) {
+        return `No stale verification evidence for ${args.storyId}`;
+      }
+
+      const lines = [
+        `${args.dryRun ? '[DRY-RUN] ' : ''}Stale verification evidence for ${args.storyId}: ${stale.length}`,
+      ];
+      let refreshed = 0;
+      for (const entry of stale) {
+        const item = cl.items.find(i => i.id === entry.itemId);
+        const existing = item?.verificationEvidence || [];
+        const idx = existing.findIndex(e => e.intentRef === entry.intentRef);
+        const ev = idx >= 0 ? existing[idx] : entry.evidence;
+        lines.push(`  - ${entry.intentRef}: ${ev?.command || ev?.file || ev?.kind || 'evidence'} → ${headHash.slice(0, 7)}`);
+        if (args.dryRun || !item || idx < 0 || !ev) continue;
+        existing[idx] = makeEvidence({
+          intentRef: ev.intentRef,
+          kind: ev.kind,
+          ...(ev.waiverType ? { waiverType: ev.waiverType } : {}),
+          ...(ev.file ? { file: ev.file } : {}),
+          ...(ev.command ? { command: ev.command } : {}),
+          ...(ev.result ? { result: ev.result } : {}),
+          note: ev.note,
+          headHash,
+          ...(materialHash ? { materialHash } : {}),
+        });
+        item.verificationEvidence = existing;
+        refreshed++;
+      }
+
+      if (!args.dryRun) store.writeChecklist(args.storyId, cl);
+      lines.push(args.dryRun
+        ? '→ 重跑上述 command 后去掉 dryRun 刷新 evidence metadata'
+        : `Refreshed ${refreshed}/${stale.length} stale evidence item(s). Re-run koala validate --story=${args.storyId} --json`);
+      return lines.join('\n');
       });
     },
 

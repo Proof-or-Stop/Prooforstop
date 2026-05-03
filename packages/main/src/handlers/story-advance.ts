@@ -417,12 +417,16 @@ function buildDoneChecklist(storyId: string, store: StoryStore, root: string): D
         detail: summaryReq === 'full'
           ? '没有 summary.json'
           : '没有 summary.json（advisory — profile 要求 minimal）',
-        hint: `koala summary_set '{"storyId":"${storyId}","changes":"改了什么（≥10 字符）","usage":"怎么用（≥10 字符）","limitations":"已知限制或 \\"none — fully covered\\"","pitfalls":"踩坑记录（≥10 字符，强制段）"}'`,
+        hint: `koala summary_set '{"storyId":"${storyId}","changes":"改了什么（≥10 字符）","usage":"怎么用（≥10 字符）","expectedOutcome":"用户预期看到什么","actualTranscript":"真实运行看到什么","outcomeDiff":"expected vs actual 差异","acceptanceVerdict":"accepted","limitations":"已知限制或 \\"none — fully covered\\"","pitfalls":"踩坑记录（≥10 字符，强制段）"}'`,
       });
     } else {
       const missing: string[] = [];
       if (!summary.changes || summary.changes.trim().length < 10) missing.push('changes');
       if (!summary.usage || summary.usage.trim().length < 10) missing.push('usage');
+      if (!summary.expectedOutcome || summary.expectedOutcome.trim().length < 10) missing.push('expectedOutcome');
+      if (!summary.actualTranscript || summary.actualTranscript.trim().length < 10) missing.push('actualTranscript');
+      if (!summary.outcomeDiff || summary.outcomeDiff.trim().length < 5) missing.push('outcomeDiff');
+      if (!summary.acceptanceVerdict) missing.push('acceptanceVerdict');
       if (typeof summary.limitations !== 'string' || summary.limitations.trim().length < 2) missing.push('limitations');
       if (!summary.pitfalls || summary.pitfalls.trim().length < 10) missing.push('pitfalls');
       if (missing.length > 0) {
@@ -435,6 +439,7 @@ function buildDoneChecklist(storyId: string, store: StoryStore, root: string): D
       } else {
         const cov = summary.realMachineCoverage;
         const covNote = `${cov.ran.length} ran / ${cov.skipped.length} skipped`;
+        const expectedOutcome = summary.expectedOutcome || '';
         rows.push({
           status: 'pass',
           label: 'Story summary',
@@ -443,9 +448,11 @@ function buildDoneChecklist(storyId: string, store: StoryStore, root: string): D
         rows.push({
           status: 'pass',
           label: 'User value summary',
-          detail: `changes: ${summary.changes.slice(0, 80)}${summary.changes.length > 80 ? '...' : ''}`,
+          detail: `${summary.acceptanceVerdict}: ${expectedOutcome.slice(0, 80)}${expectedOutcome.length > 80 ? '...' : ''}`,
           hint: [
             `usage: ${summary.usage}`,
+            `actual: ${summary.actualTranscript}`,
+            `diff: ${summary.outcomeDiff}`,
             `limitations: ${summary.limitations}`,
           ].join('\n'),
         });

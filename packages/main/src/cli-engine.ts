@@ -251,6 +251,10 @@ export const MAIN_TOOLS: ToolDef[] = [
       note: z.string().describe('为什么此证据覆盖该 intent'),
     })).describe('证据数组；同一次调用内读写 checklist 一次'),
   }},
+  { name: 'verification_evidence_refresh_stale', description: '刷新 stale verificationEvidence 的 HEAD/material hash（需先重跑对应验证命令）', schema: {
+    storyId: z.string().describe('Story ID'),
+    dryRun: z.boolean().optional().describe('只报告将刷新的 stale evidence，不写入'),
+  }},
   { name: 'light_review', description: '记录一次轻量 review（DEV 阶段每完成一批 item 后调用）', schema: {
     storyId: z.string().describe('Story ID'),
     checklistIds: z.array(z.string()).describe('本次 review 覆盖的 checklist item ID 列表'),
@@ -298,10 +302,14 @@ export const MAIN_TOOLS: ToolDef[] = [
     storyId: z.string().describe('Story ID'),
   }},
   // Summary (B-093b: DONE-gate forced completion summary)
-  { name: 'summary_set', description: 'DONE 前必须落：story 完成总结（changes/usage/limitations/pitfalls + 自动扫真机覆盖骨架）', schema: {
+  { name: 'summary_set', description: 'DONE 前必须落：story 完成总结（changes/usage/user acceptance/limitations/pitfalls + 自动扫真机覆盖骨架）', schema: {
     storyId: z.string().describe('Story ID'),
     changes: z.string().describe('改了什么（每个文件关键改动，用户视角，≥ 10 字符）'),
     usage: z.string().describe('怎么用（slash / tool / 调用示例，≥ 10 字符）'),
+    expectedOutcome: z.string().optional().describe('DONE gate 必填：用户视角的预期可见结果 / expected transcript（≥ 10 字符）'),
+    actualTranscript: z.string().optional().describe('DONE gate 必填：实际运行看到的用户可见 transcript / 输出摘要（≥ 10 字符）'),
+    outcomeDiff: z.string().optional().describe('DONE gate 必填：expected vs actual 差异；没有差异也要明说（≥ 5 字符）'),
+    acceptanceVerdict: z.enum(['accepted', 'partial', 'rejected']).optional().describe('DONE gate 必填：用户价值验收结论'),
     limitations: z.string().describe('已知限制 / 设计偏离（没有就写 "none — fully covered"）'),
     pitfalls: z.string().describe('踩坑记录（卡在哪、绕了几次路、下个人应该知道什么，≥ 10 字符；禁止空话）'),
     skipReasons: z.record(z.string(), z.string()).optional().describe('{case name: reason} 对每条 sandbox:false 但没跑的 case 说明原因；未提供则 koala 报错列出缺失项'),

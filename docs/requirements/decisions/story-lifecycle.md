@@ -96,7 +96,9 @@ B-xxxx REVIEW (authority:worktree, main:INIT_CHECK)
 - **verificationIntent 前置**：PLAN 记录 happy/edge/adversarial 验收意图。
 - **verificationEvidence 跟随实现**：DEV/REVIEW/TEST 挂真实证据，不再把测试阶段拆成旧 `TEST_CASE` 流程。
 - **DONE evidence 必须新鲜**：`koala validate --story` 写入测试运行时的 git HEAD/material hash。DONE gate 比对当前 story 分支，验证语义相关文件变化会让旧 evidence stale。
+- **stale evidence 不能被“测试通过”覆盖**：`koala validate` 如果发现 verification coverage missing/stale，JSON 必须是 `allPass:false`，提示也必须指向补 evidence，而不是说“验证全绿”。可用 `verification_evidence_refresh_stale --storyId=B-xxx --dryRun` 查看需刷新项；重跑对应验证命令后去掉 dryRun 刷新 metadata。
 - **用户价值验收优先**：DONE 前必须能说清楚“用户看到什么变化、怎么使用、证据在哪里”。工程链路通过不等于任务真正完成。
+- **用户价值验收结构化**：`summary_set` 必须记录 `expectedOutcome`、`actualTranscript`、`outcomeDiff`、`acceptanceVerdict`。DONE gate 消费这些字段，缺失时不能进入 DONE。
 - **统一推进命令**：`story_advance` 统一处理所有阶段推进。
 
 ## Phase-Aware 工具过滤
@@ -150,14 +152,16 @@ B-xxxx REVIEW (authority:worktree, main:INIT_CHECK)
 | 工具 | 行为 |
 |---|---|
 | `koala validate` | 标准验证，写 validation evidence |
+| `verification_evidence_refresh_stale` | 根据 coverage 报告刷新 stale evidence 的 HEAD/material hash |
 | `bug_report` / `bug_update` / `bug_list` | 管理验证失败产生的 bug |
-| `summary_set` | 写 DONE 前用户价值和使用说明 |
+| `summary_set` | 写 DONE 前用户价值、actual transcript、diff 和使用说明 |
 | `delivery_check_set` | 记录 delivery reviewer 签名 |
 | `story_advance -> DONE` | DONE checklist 全通过后合并清理 |
 
 ### 关键行为差异
 
 - `koala validate`：TEST gate 消费其结果作为 validation evidence。
+- `verification_evidence_refresh_stale`：只刷新已经 stale 且原 evidence 仍存在的 intentRef；它不会替你证明测试真的跑过，因此 dry-run 输出里的 command 应先重跑。
 - `fixture_*`：DEV 可提前写验证；REVIEW/TEST 主要读取证据，不应绕过 review 改行为。
 - `checklist_update`：PLAN 补 intent，DEV 补 status/evidence，其余阶段谨慎使用。
 - `summary_set`：不是形式总结，DONE gate 和最终用户交付都要消费。

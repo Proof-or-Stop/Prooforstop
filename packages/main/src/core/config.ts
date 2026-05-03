@@ -116,7 +116,7 @@ const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'audit',         // 全局：B-9bd9 框架自省 audit（advisory，任何阶段都可以跑）
     'summary_get',   // 全局：读取 summary，任何阶段都可以查
     'summary_set',   // 全局：DONE 前强制落总结，koala short-path story 也需要
-    'verification_evidence_add', 'verification_evidence_batch_add', // verification evidence is metadata, allowed across phases for reviewer/test handoff
+    'verification_evidence_add', 'verification_evidence_batch_add', 'verification_evidence_refresh_stale', // verification evidence is metadata, allowed across phases for reviewer/test handoff
     'plan_get',
     'workflow_*',    // 全局：profile 查看/设置/解释，任何阶段都可以
     'background_*',  // B-45ed CHK-007: background 是元数据，任何阶段可读写

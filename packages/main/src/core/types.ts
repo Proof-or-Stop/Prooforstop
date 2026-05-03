@@ -310,6 +310,14 @@ export interface StorySummaryData {
   changes: string;
   /** 怎么用：slash command / tool / 调用示例 */
   usage: string;
+  /** 用户价值验收：PLAN/summary 预期的用户可见结果 */
+  expectedOutcome?: string;
+  /** 用户价值验收：真实运行后看到的 transcript / 输出摘要 */
+  actualTranscript?: string;
+  /** 用户价值验收：expected vs actual 的差异说明 */
+  outcomeDiff?: string;
+  /** 用户价值验收结论 */
+  acceptanceVerdict?: 'accepted' | 'partial' | 'rejected';
   /** 真机验证覆盖：auto-scaffolded by koala, agent fills skipReasons only */
   realMachineCoverage: {
     /** Cases that were actually run (auto-populated from test-evidence.json + evidence per fixture) */

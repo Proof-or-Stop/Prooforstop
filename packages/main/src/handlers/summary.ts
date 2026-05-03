@@ -123,6 +123,10 @@ export function createSummaryHandlers(ctx: HandlerContext) {
       storyId: string;
       changes: string;
       usage: string;
+      expectedOutcome?: string;
+      actualTranscript?: string;
+      outcomeDiff?: string;
+      acceptanceVerdict?: 'accepted' | 'partial' | 'rejected';
       limitations: string;
       pitfalls: string;
     }): string {
@@ -134,6 +138,15 @@ export function createSummaryHandlers(ctx: HandlerContext) {
       }
       if (!args.usage || args.usage.trim().length < 10) {
         throw new Error('summary.usage 必须非空且 ≥ 10 字符（描述如何使用新功能 — slash / tool / 示例）');
+      }
+      if (args.expectedOutcome !== undefined && args.expectedOutcome.trim().length < 10) {
+        throw new Error('summary.expectedOutcome 如提供则必须 ≥ 10 字符（用户预期看到什么）');
+      }
+      if (args.actualTranscript !== undefined && args.actualTranscript.trim().length < 10) {
+        throw new Error('summary.actualTranscript 如提供则必须 ≥ 10 字符（真实运行看到什么）');
+      }
+      if (args.outcomeDiff !== undefined && args.outcomeDiff.trim().length < 5) {
+        throw new Error('summary.outcomeDiff 如提供则必须 ≥ 5 字符（expected vs actual 差异，没有差异也要明说）');
       }
       if (typeof args.limitations !== 'string' || args.limitations.trim().length < 2) {
         throw new Error('summary.limitations 必须非空（没有限制就写 "none — fully covered"）');
@@ -154,6 +167,10 @@ export function createSummaryHandlers(ctx: HandlerContext) {
         storyId: args.storyId,
         changes: args.changes,
         usage: args.usage,
+        ...(args.expectedOutcome ? { expectedOutcome: args.expectedOutcome.trim() } : {}),
+        ...(args.actualTranscript ? { actualTranscript: args.actualTranscript.trim() } : {}),
+        ...(args.outcomeDiff ? { outcomeDiff: args.outcomeDiff.trim() } : {}),
+        ...(args.acceptanceVerdict ? { acceptanceVerdict: args.acceptanceVerdict } : {}),
         realMachineCoverage: { ran: [], skipped: [] },
         limitations: args.limitations,
         pitfalls: args.pitfalls,
@@ -181,6 +198,7 @@ export function createSummaryHandlers(ctx: HandlerContext) {
         `Summary saved for ${args.storyId}`,
         `  changes:     ${args.changes.length} chars`,
         `  usage:       ${args.usage.length} chars`,
+        `  acceptance:  ${args.acceptanceVerdict || 'not recorded'}`,
         `  limitations: ${args.limitations.length} chars`,
         `  pitfalls:    ${args.pitfalls.length} chars`,
         `  total time:  ${formatDuration(totalDurationMs)}`,
@@ -212,6 +230,12 @@ export function renderSummaryForHint(summary: StorySummaryData): string {
   lines.push('');
   lines.push('## 怎么用');
   lines.push(summary.usage);
+  lines.push('');
+  lines.push('## 用户价值验收');
+  lines.push(`  verdict: ${summary.acceptanceVerdict || 'not recorded'}`);
+  if (summary.expectedOutcome) lines.push(`  expected: ${summary.expectedOutcome}`);
+  if (summary.actualTranscript) lines.push(`  actual: ${summary.actualTranscript}`);
+  if (summary.outcomeDiff) lines.push(`  diff: ${summary.outcomeDiff}`);
   lines.push('');
   lines.push('## 真机验证覆盖');
   lines.push(`  ✓ 跑过: ${summary.realMachineCoverage.ran.length} 条`);

@@ -7,7 +7,9 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { checkEvidenceFreshnessForGit, currentMaterialHash, isStoryMetadataPath } from '../core/evidence-freshness.js';
 import { buildVerificationCoverage } from '../core/verification.js';
-import type { ChecklistData } from '../core/types.js';
+import { StoryStore } from '../core/store.js';
+import type { ChecklistData, StoryInfo } from '../core/types.js';
+import { createChecklistHandlers } from '../handlers/checklist.js';
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -151,6 +153,85 @@ for (const path of material) {
       true,
       'materialHash should keep evidence fresh even when legacy head diff is unavailable',
     );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+{
+  const root = mkdtempRoot();
+  try {
+    git(root, ['init']);
+    write(root, 'packages/main/src/base.ts', 'export const base = true;\n');
+    const base = commit(root, 'base');
+    const baseMaterialHash = currentMaterialHash(root);
+    assert.ok(baseMaterialHash, 'base material hash should be available');
+    write(root, 'packages/main/src/base.ts', 'export const base = false;\n');
+    commit(root, 'material change');
+    const head = git(root, ['rev-parse', 'HEAD']);
+
+    const store = new StoryStore(root);
+    const storyId = 'B-refresh';
+    const story: StoryInfo = {
+      storyId,
+      name: 'refresh-stale-evidence',
+      title: 'Refresh stale evidence',
+      description: 'Smoke story for stale evidence refresh helper.',
+      type: 'chore',
+      phase: 'TEST',
+      priority: 'medium',
+      createdAt: '2026-05-03T00:00:00.000Z',
+      startedAt: '2026-05-03T00:00:00.000Z',
+      endedAt: null,
+    };
+    const checklist: ChecklistData = {
+      items: [{
+        id: 'CHK-001',
+        title: 'Refresh stale evidence',
+        context: 'Refresh stale evidence',
+        status: 'done',
+        startTime: null,
+        endTime: null,
+        verificationIntent: {
+          happy: [{ desc: 'refresh stale evidence', type: 'logic', priority: 'must' }],
+          edge: [],
+          adversarial: [],
+        },
+        verificationEvidence: [{
+          intentRef: 'CHK-001:happy:0',
+          kind: 'logic_test',
+          result: 'pass',
+          note: 'old evidence before material change',
+          headHash: base,
+          materialHash: baseMaterialHash,
+          command: 'npm test',
+        }],
+      }],
+    };
+    store.writeStory(storyId, story);
+    store.writeChecklist(storyId, checklist);
+
+    const before = buildVerificationCoverage(
+      store.readChecklist(storyId),
+      head,
+      (headHash, evidence) => checkEvidenceFreshnessForGit(root, headHash, evidence?.materialHash).fresh,
+    );
+    assert.equal(before.entries[0]?.status, 'stale', 'material change should stale old evidence');
+
+    const handlers = createChecklistHandlers({ store, root, scanRoot: root });
+    const dryRun = handlers.verification_evidence_refresh_stale({ storyId, dryRun: true });
+    assert.match(dryRun, /\[DRY-RUN\] Stale verification evidence/);
+    assert.match(dryRun, /npm test/);
+
+    const result = handlers.verification_evidence_refresh_stale({ storyId });
+    assert.match(result, /Refreshed 1\/1 stale evidence/);
+    const after = buildVerificationCoverage(
+      store.readChecklist(storyId),
+      head,
+      (headHash, evidence) => checkEvidenceFreshnessForGit(root, headHash, evidence?.materialHash).fresh,
+    );
+    assert.equal(after.entries[0]?.status, 'covered', 'refresh helper should make stale evidence covered at current head');
+    assert.equal(after.entries[0]?.evidence?.headHash, head);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

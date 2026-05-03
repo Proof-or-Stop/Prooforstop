@@ -188,7 +188,24 @@ const storyDiscardHint: HintFn = (ctx) => {
 
 const validateHint: HintFn = (ctx) => {
   const result = String(ctx.result || '');
-  if (result.includes('allPass') && result.includes('true')) {
+  let parsed: any = null;
+  try {
+    parsed = JSON.parse(result);
+  } catch { /* non-json validate output */ }
+  if (parsed && parsed.allPass === false) {
+    const missing = parsed.verificationCoverage?.missingRequired;
+    if (typeof missing === 'number' && missing > 0) {
+      const storyId = getStoryId(ctx);
+      const stale = Array.isArray(parsed.verificationCoverage?.entries)
+        ? parsed.verificationCoverage.entries.filter((e: any) => e.status === 'stale').length
+        : 0;
+      return stale > 0 && storyId
+        ? `→ 验证命令通过，但 verification evidence 有 ${stale} 项 stale。下一步：verification_evidence_refresh_stale --storyId=${storyId}，然后重跑 koala validate --story=${storyId} --json`
+        : `→ 验证未通过：verification coverage 缺 ${missing} 项 required intent。补 evidence 后重跑 koala validate`;
+    }
+    return `→ 验证未通过。按上方 details 修复后重跑 koala validate`;
+  }
+  if (parsed ? parsed.allPass === true : (result.includes('allPass') && result.includes('true'))) {
     const storyId = getStoryId(ctx);
     if (storyId) {
       return `→ 验证全绿。下一步：story_advance --storyId=${storyId} --phase=DONE`;
