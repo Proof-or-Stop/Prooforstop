@@ -1,0 +1,30 @@
+{
+  "storyId": "B-3a3b",
+  "checkedAt": "2026-05-03T20:13:34.694Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [
+    {
+      "severity": "low",
+      "desc": "CHK-002 is valuable but framed as an internal drift test rather than a user-observable outcome; clarify that the observable product value is preventing future Koala init runs from shipping a .Codex/agents set that is missing or stale relative to .claude/agents."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-05-03T20:13:04.140Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-05-03T20:13:34.694Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "CHK-002 is valuable but framed as an internal drift test rather than a user-observable outcome; clarify that the observable product value is preventing future Koala init runs from shipping a .Codex/agents set that is missing or stale relative to .claude/agents."
+        }
+      ]
+    }
+  ],
+  "_hash": "b1e178ecb9656d1d8a13ae372cd0da24c88d6ae402c7dbd3762dbf8c0209528d"
+}

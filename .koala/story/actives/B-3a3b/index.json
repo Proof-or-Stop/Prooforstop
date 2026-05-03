@@ -1,0 +1,35 @@
+{
+  "storyId": "B-3a3b",
+  "name": "codex-agent-assets-full-mirror",
+  "title": "Codex agent assets mirror Claude agents",
+  "description": "Koala init should generate Codex agent prompts from the full Claude agent prompt set, while keeping Claude-only hooks, settings, and skills under .claude. This fixes the confusing mismatch where .claude/agents contains many koala agents but .Codex/agents only contains a small subset.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "createdAt": "2026-05-03T18:10:07.209Z",
+  "startedAt": "2026-05-03T18:10:07.209Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-05-03T18:10:07.209Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-05-03T20:13:51.291Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-3a3b",
+    "branch": "story/B-3a3b",
+    "createdAt": "2026-05-03T20:13:51.420Z"
+  }
+}
