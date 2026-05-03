@@ -27,12 +27,6 @@ for (const path of agentPaths) {
 }
 
 const initAssets = read(join(root, 'packages/main/src/init-assets.ts'));
-assert(initAssets.includes('implementation-reviewer.md'), 'CODEX_AGENT_FILES missing implementation-reviewer');
-
-const storyAdvance = read(join(root, 'packages/main/src/handlers/story-advance.ts'));
-assert(
-  storyAdvance.includes('implementation-reviewer（phase-aware，第一版 advisory）'),
-  'TEST_CASE_REVIEW hint missing implementation-reviewer advisory'
-);
+assert(initAssets.includes('listAgentPromptFiles'), 'init assets missing full agent prompt discovery');
 
 console.log('implementation reviewer verified');

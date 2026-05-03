@@ -3,7 +3,7 @@
 import { mkdirSync, writeFileSync, readFileSync, existsSync, cpSync, readdirSync, symlinkSync, lstatSync, readlinkSync, unlinkSync } from 'fs';
 import { join, dirname, relative } from 'path';
 import { fileURLToPath } from 'url';
-import { AGENTS_MD_TEMPLATE, CODEX_AGENT_FILES, CODEX_README_TEMPLATE, renderCodexAgentContent } from './init-assets.js';
+import { AGENTS_MD_TEMPLATE, CODEX_README_TEMPLATE, listAgentPromptFiles, renderCodexAgentContent } from './init-assets.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -449,9 +449,15 @@ console.log('  ✓ .Codex/README.md');
 if (agentTemplateDir) {
   const codexAgentDir = join(targetDir, '.Codex', 'agents');
   if (!existsSync(codexAgentDir)) mkdirSync(codexAgentDir, { recursive: true });
-  for (const file of CODEX_AGENT_FILES) {
+  const agentPromptFiles = listAgentPromptFiles(agentTemplateDir);
+  const agentPromptFileSet = new Set(agentPromptFiles);
+  for (const file of listAgentPromptFiles(codexAgentDir)) {
+    if (agentPromptFileSet.has(file)) continue;
+    unlinkSync(join(codexAgentDir, file));
+    console.log(`  - .Codex/agents/${file} (removed stale prompt)`);
+  }
+  for (const file of agentPromptFiles) {
     const src = join(agentTemplateDir, file);
-    if (!existsSync(src)) continue;
     const dst = join(codexAgentDir, file);
     const content = renderCodexAgentContent(readFileSync(src, 'utf-8'));
     if (existsSync(dst)) {

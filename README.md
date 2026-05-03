@@ -91,6 +91,7 @@ npm run test:codex-assets
 这会检查：
 
 - `.Codex/agents/*.md` 是否仍然等于 `.claude/agents/*.md` 的受控 transform 结果
+- `.Codex/agents` 是否没有漏掉 `.claude/agents` 中新增的 prompt
 - `.Codex/README.md` 是否保留正确的 Codex fallback 入口
 - `README.md` / `AGENTS.md` 是否仍然包含关键的 Codex 接入说明
 
@@ -181,12 +182,10 @@ node scripts/real-story-replay-benchmark.mjs
 
 ## Claude Code
 
-Claude Code 侧仍然使用 `.claude/` 下的配置和 hooks。Codex 侧的说明放在：
+Claude Code 侧仍然使用 `.claude/` 下的 hooks、settings 和 skill。Codex 不消费这些 Claude runtime 配置，但 Codex agent prompt 会从 `.claude/agents` 全量受控生成到 `.Codex/agents`。Codex 侧的说明放在：
 
 - [AGENTS.md](/Users/jek/Documents/Work/Orchestrate/AGENTS.md:1)
 - [.Codex/README.md](/Users/jek/Documents/Work/Orchestrate/.Codex/README.md:1)
-- [.Codex/agents/test-intent.md](/Users/jek/Documents/Work/Orchestrate/.Codex/agents/test-intent.md:1)
-- [.Codex/agents/test-case-reviewer.md](/Users/jek/Documents/Work/Orchestrate/.Codex/agents/test-case-reviewer.md:1)
-- [.Codex/agents/implementation-reviewer.md](/Users/jek/Documents/Work/Orchestrate/.Codex/agents/implementation-reviewer.md:1)
+- [.Codex/agents/](/Users/jek/Documents/Work/Orchestrate/.Codex/agents:1)
 
-当前仓库里 `.Codex/agents` 由 `.claude/agents` 经过受控 transform 生成，并通过 `npm run test:codex-assets` 防止后续漂移。
+当前仓库里 `.Codex/agents` 由 `.claude/agents` 经过受控 transform 全量生成，并通过 `npm run test:codex-assets` 防止后续漂移。

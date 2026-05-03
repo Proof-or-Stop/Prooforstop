@@ -2,7 +2,7 @@
 
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
-import { CODEX_AGENT_FILES, CODEX_README_TEMPLATE, renderCodexAgentContent } from '../packages/main/dist/init-assets.js';
+import { CODEX_README_TEMPLATE, listAgentPromptFiles, renderCodexAgentContent } from '../packages/main/dist/init-assets.js';
 
 const root = process.cwd();
 
@@ -14,7 +14,10 @@ function read(path) {
   return readFileSync(path, 'utf8').replace(/\r\n/g, '\n');
 }
 
-for (const file of CODEX_AGENT_FILES) {
+const claudeAgentDir = join(root, '.claude', 'agents');
+const codexAgentDir = join(root, '.Codex', 'agents');
+
+for (const file of listAgentPromptFiles(claudeAgentDir)) {
   const claudePath = join(root, '.claude', 'agents', file);
   const codexPath = join(root, '.Codex', 'agents', file);
   assert(existsSync(claudePath), `missing source agent: ${claudePath}`);
@@ -23,6 +26,11 @@ for (const file of CODEX_AGENT_FILES) {
   const expected = renderCodexAgentContent(read(claudePath)).trim();
   const actual = read(codexPath).trim();
   assert(actual === expected, `.Codex/agents/${file} drifted from transformed .claude source`);
+}
+
+for (const file of listAgentPromptFiles(codexAgentDir)) {
+  const claudePath = join(claudeAgentDir, file);
+  assert(existsSync(claudePath), `stale codex agent without .claude source: ${file}`);
 }
 
 const codexReadme = read(join(root, '.Codex', 'README.md'));

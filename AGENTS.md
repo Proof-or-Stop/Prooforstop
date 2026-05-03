@@ -126,7 +126,7 @@ test_auto 执行
 
 ### Subagent 定义
 
-subagent prompt 文件放在 `.Codex/agents/` 下（Codex 官方约定），格式为 Markdown + YAML frontmatter：
+subagent prompt 文件放在 `.Codex/agents/` 下（Codex 官方约定）；Koala init 会从 `.claude/agents/` 全量受控生成 Codex prompt，但 `.claude/hooks`、`.claude/settings.json`、`.claude/skills` 仍是 Claude Code 专属资产。prompt 格式为 Markdown + YAML frontmatter：
 
 ```markdown
 ---

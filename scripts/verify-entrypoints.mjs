@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { mkdtempSync, readFileSync, rmSync, existsSync } from 'fs';
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, existsSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { execFileSync } from 'child_process';
@@ -39,6 +39,10 @@ checks.push(() => {
 checks.push(() => {
   const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-'));
   try {
+    mkdirSync(join(tempDir, '.Codex', 'agents'), { recursive: true });
+    writeFileSync(join(tempDir, '.Codex', 'agents', 'implementer.md'), 'old codex-only prompt\n');
+    writeFileSync(join(tempDir, '.Codex', 'agents', 'reviewer.md'), 'old codex-only prompt\n');
+
     const initOut = run('node', ['packages/main/dist/cli.js', 'init', tempDir]);
     assertIncludes(initOut, '.Codex/README.md', 'koala init output');
 
@@ -49,6 +53,8 @@ checks.push(() => {
       '.Codex/README.md',
       '.Codex/agents/test-intent.md',
       '.Codex/agents/test-case-reviewer.md',
+      '.Codex/agents/koala-review-quality.md',
+      '.Codex/agents/koala-implementer.md',
     ];
     for (const rel of requiredFiles) {
       assert(existsSync(join(tempDir, rel)), `koala init missing ${rel}`);
@@ -56,6 +62,9 @@ checks.push(() => {
 
     const codexReadme = readFileSync(join(tempDir, '.Codex', 'README.md'), 'utf8');
     assertIncludes(codexReadme, 'KOALA_ACTIVITY_SOURCE=codex koala session_brief', '.Codex/README.md');
+    const codexAgents = readdirSync(join(tempDir, '.Codex', 'agents'));
+    assert(!codexAgents.includes('implementer.md'), 'koala init should not keep stale Codex-only implementer.md');
+    assert(!codexAgents.includes('reviewer.md'), 'koala init should not keep stale Codex-only reviewer.md');
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }

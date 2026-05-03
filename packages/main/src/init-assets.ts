@@ -1,4 +1,10 @@
-export const CODEX_AGENT_FILES = ['test-intent.md', 'test-case-reviewer.md', 'product-reviewer.md', 'implementation-reviewer.md'] as const;
+import { readdirSync } from 'fs';
+
+export function listAgentPromptFiles(agentDir: string): string[] {
+  return readdirSync(agentDir)
+    .filter(file => file.endsWith('.md'))
+    .sort((a, b) => a.localeCompare(b));
+}
 
 export const AGENTS_MD_TEMPLATE = `# AGENTS.md
 
@@ -25,6 +31,7 @@ KOALA_ACTIVITY_SOURCE=codex koala session_brief
 
 - \`KOALA_ACTIVITY_SOURCE=codex\` 会把本次调用写入 \`.koala/activity.jsonl\`，并标记 \`source=codex\`
 - 如果当前项目只有全局 \`koala\`，这是最稳妥的 Codex 入口
+- \`.Codex/agents\` 由 \`.claude/agents\` 的完整 prompt 集合受控生成；Claude hooks/settings/skills 仍只属于 \`.claude\`
 
 如果当前仓库后续增加了本地 wrapper（例如 \`node bin/koala-codex.js\`），再优先切换到本地 wrapper。
 
