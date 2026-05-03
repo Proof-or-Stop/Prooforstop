@@ -1,0 +1,57 @@
+{
+  "storyId": "B-3a3b",
+  "checkedAt": "2026-05-03T20:30:10.285Z",
+  "reviewRound": "2026-05-03T20:23:40.396Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "README.md#Claude-Code, AGENTS.md#Subagent-定义",
+      "promise": "Codex agent prompts are generated as a full controlled mirror of the complete .claude/agents prompt set into .Codex/agents.",
+      "status": "verified",
+      "verifiedBy": "diff/grep + manual init transcript + npm run test:codex-assets",
+      "evidence": "README.md:185-191 and AGENTS.md:129 state full prompt mirroring; packages/main/src/init-assets.ts:3-7 lists every *.md prompt; packages/main/src/cli-init.ts:452-462 renders every source prompt into .Codex/agents; manual temp init observed 16 Codex prompts with koala-implementer.md and koala-review-quality.md present."
+    },
+    {
+      "docPath": "README.md#Codex-assets-regression-check",
+      "promise": "npm run test:codex-assets prevents Codex asset drift, including missing prompts when .claude/agents gains a new prompt.",
+      "status": "verified",
+      "verifiedBy": "script inspection + npm run test:codex-assets",
+      "evidence": "README.md:88-96 promises drift and missing-prompt checks; scripts/verify-codex-assets.mjs:20-29 compares every .claude/agents/*.md source to transformed .Codex/agents content; scripts/verify-codex-assets.mjs:31-34 rejects stale Codex prompts; npm run test:codex-assets passed."
+    },
+    {
+      "docPath": "README.md#Claude-Code, AGENTS.md#Subagent-定义, packages/main/src/init-assets.ts#CODEX_README_TEMPLATE",
+      "promise": "Claude hooks, settings, and skills remain Claude-only runtime assets and are not mirrored as fake .Codex runtime support.",
+      "status": "verified",
+      "verifiedBy": "diff/grep + manual init transcript",
+      "evidence": "README.md:185 and AGENTS.md:129 state hooks/settings/skills are Claude-only; packages/main/src/init-assets.ts:34 puts the same boundary into the init-generated Codex README; packages/main/src/cli-init.ts:476-514 creates hooks/settings only under .claude; manual temp init observed hasCodexHooks=false and hasCodexSettings=false."
+    },
+    {
+      "docPath": ".Codex/README.md#agents-path",
+      "promise": ".Codex/README.md points users to the correctly cased .Codex/agents/ path.",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": ".Codex/README.md:20 now says `.Codex/agents/`, fixing the prior lowercase `.codex/agents/` typo; the directory exists and contains 16 prompt files."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Real temp-project init executed with node packages/main/dist/cli.js init <tmp>; observed codexAgentCount=16, koala-implementer.md=true, koala-review-quality.md=true, test-intent.md=true, staleImplementer=false, staleReviewer=false, hasCodexHooks=false, hasCodexSettings=false. Also npm run test:codex-assets passed."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm run test:codex-assets passed after verifying every .claude/agents/*.md source against transformed .Codex/agents output and rejecting Codex files without a Claude source. npm run test:entrypoints passed after seeding stale implementer.md/reviewer.md into a temp .Codex/agents and confirming init removes them while creating koala-review-quality.md and koala-implementer.md."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Docs boundary verified by grep/diff: README.md and AGENTS.md state full prompt mirror plus Claude-only hooks/settings/skills; generated CODEX_README_TEMPLATE includes the same boundary; real temp-project init README contained both .Codex/agents and .claude/agents wording and hooks/settings/skills remain under .claude. .Codex/README.md casing fix verified at line 20."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery promises are met: full Codex prompt mirroring works in a fresh init, drift and stale prompt regressions are covered by scripts, and Claude-only hooks/settings/skills are explicitly not generated under .Codex. No unresolved TODO/FIXME/HACK additions were found in the story diff."
+  },
+  "_hash": "3b94afdc63e8e0e3533a0c933bda35b8e741f465edad5e524883609588da1d12"
+}
