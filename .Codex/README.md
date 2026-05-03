@@ -17,4 +17,4 @@ Alternatively, use the dedicated Codex bootstrap script:
 node packages/koala/bin/koala-codex.js status
 ```
 
-See `.codex/agents/` for sub-agent prompt files.
+See `.Codex/agents/` for sub-agent prompt files.
