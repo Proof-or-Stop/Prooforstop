@@ -102,6 +102,11 @@ const verificationEvidenceSchema = z.object({
   timestamp: z.string().optional().describe('记录时间'),
 });
 
+const storyTypeSchema = z.preprocess((value) => {
+  if (value === 'test') return 'chore';
+  return value;
+}, z.enum(['feature','bug','refactor','chore']));
+
 /** main 自带的 CLI 工具定义 */
 export const MAIN_TOOLS: ToolDef[] = [
   // Story
@@ -109,7 +114,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     name: z.string().optional().describe('短名称'),
     title: z.string().optional().describe('标题'),
     description: z.string().optional().describe('描述'),
-    type: z.enum(['feature','bug','refactor','chore']).optional().describe('类型'),
+    type: storyTypeSchema.optional().describe('类型；test 会归一为 chore'),
     priority: z.string().optional().describe('优先级'),
     source: z.string().optional().describe('来源'),
     depends: z.array(z.string()).optional().describe('依赖 Story ID'),
@@ -151,7 +156,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     name: z.string().describe('短名称（字母数字+连字符，3-60 字符）'),
     title: z.string().describe('标题（≥ 5 字符）'),
     description: z.string().describe('描述（≥ 5 字符）'),
-    type: z.enum(['feature', 'bug', 'refactor', 'chore']).describe('类型'),
+    type: storyTypeSchema.describe('类型；test 会归一为 chore'),
     priority: z.string().describe('优先级'),
     checklist: z.array(z.object({ title: z.string(), context: z.string().optional() })).describe('开发清单（≥ 1 项）'),
     background: z.string().describe('四段式 background.md 内容（必填，同 story_create 校验）'),
@@ -930,7 +935,11 @@ export function coerce(val: string, schemaDef?: ZodType): unknown {
 export function addValue(obj: Record<string, unknown>, key: string, val: unknown, isArray: boolean) {
   if (isArray) {
     if (!Array.isArray(obj[key])) obj[key] = obj[key] !== undefined ? [obj[key]] : [];
-    (obj[key] as unknown[]).push(val);
+    if (Array.isArray(val)) {
+      (obj[key] as unknown[]).push(...val);
+    } else {
+      (obj[key] as unknown[]).push(val);
+    }
   } else {
     obj[key] = val;
   }

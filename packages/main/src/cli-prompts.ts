@@ -24,8 +24,13 @@ REQUIRED FIELDS
   name        — short slug
   title       — one-sentence summary
   description — multi-line context (the "why")
-  type        — feature | bug | refactor | chore
+  type        — feature | bug | refactor | chore (test is accepted as chore)
   priority    — high | medium | low
+  background  — four markdown sections:
+                ## 触发事件 / ## 关键洞察 / ## 方案取舍 / ## 对话纹理
+                Each section needs >= 50 chars; total >= 300 chars.
+                The 触发事件 section needs an concrete ID/date:
+                B-xxxx / F-123 / CHK-001 / commit hash / YYYY-MM-DD.
 
 OPTIONAL BUT RECOMMENDED
   keywords    — domain tags → triggers duplicate-detection
@@ -39,6 +44,7 @@ EXAMPLES
     "description":"商品列表 1k+ 条时全量渲染卡顿",
     "type":"feature",
     "priority":"high",
+    "background":"## 触发事件\n2026-05-03 用户反馈商品列表 1k+ 条时全量渲染卡顿，滚动和搜索都明显延迟，需要把性能问题记录为可追踪 story。\n\n## 关键洞察\n问题不只是页面慢，而是列表加载、分页状态和用户可见反馈共同影响体验；验收要覆盖正常加载、空结果和异常接口。\n\n## 方案取舍\n优先选择 cursor 分页并保持现有列表组件结构，避免一次性引入虚拟列表和接口重写，降低当前 story 风险。\n\n## 对话纹理\n用户关注的是实际使用时不卡顿，而不是内部实现名词；输出和验收都应该围绕可见响应速度与操作连续性。",
     "checklist":[
       {"title":"后端 API 加 cursor 参数","context":"参考 docs/api/pagination.md"},
       {"title":"前端列表组件接入分页","context":"复用 InfiniteScroll"}
