@@ -8,9 +8,42 @@
         "README.md",
         "AGENTS.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-03T20:18:06.059Z",
+      "endTime": "2026-05-03T20:22:03.848Z",
+      "userSees": "After koala init, .Codex/agents contains every Koala agent prompt name that appears under .claude/agents, including koala-implementer and koala-review-quality.",
+      "files": {
+        "modify": [
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/cli-init.ts",
+          ".Codex/agents"
+        ],
+        "create": [
+          ".Codex/agents/koala-implementer.md",
+          ".Codex/agents/koala-review-quality.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "koala init generates Codex prompt files for all .claude/agents/*.md source prompts",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "new Claude agent prompt additions are picked up without editing a Codex whitelist",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Claude-only hooks/settings/skills are not mirrored into .Codex as fake runtime support",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -19,9 +52,43 @@
       "relatedDocs": [
         "README.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-03T20:22:04.131Z",
+      "endTime": "2026-05-03T20:22:04.297Z",
+      "userSees": "Future koala init regressions fail test:codex-assets or test:entrypoints instead of shipping incomplete or obsolete .Codex/agents files.",
+      "files": {
+        "modify": [
+          "scripts/verify-codex-assets.mjs",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-implementation-reviewer.mjs"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-codex-assets.mjs",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-implementation-reviewer.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "test:codex-assets compares every .claude/agents/*.md source against .Codex/agents",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "test:entrypoints proves a fresh koala init includes representative full-mirror prompts like koala-review-quality and koala-implementer",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "stale Codex-only prompts such as implementer.md or reviewer.md fail verification instead of silently remaining",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -31,9 +98,41 @@
         "README.md",
         "AGENTS.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-03T20:22:04.438Z",
+      "endTime": "2026-05-03T20:22:04.589Z",
+      "userSees": "README and AGENTS explain that Codex mirrors agent prompts, while Claude hooks, settings, and skills remain Claude-only.",
+      "files": {
+        "modify": [
+          "README.md",
+          "AGENTS.md",
+          "packages/main/src/init-assets.ts"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-codex-assets.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "README documents full Codex prompt mirroring and Claude-only runtime assets",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": ".Codex/README template tells users Codex prompt mirroring exists but hooks/settings/skills remain .claude-only",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "documentation does not imply .Codex/hooks or .Codex/settings.json will run in Codex",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
