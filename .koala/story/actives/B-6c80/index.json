@@ -4,7 +4,7 @@
   "title": "Make koala init business template opt-in",
   "description": "User observed that every koala init creates a fresh src/ folder. In existing projects this template directory is usually unused and can mislead scanRoot detection, especially because init creates src before writing koala.config.json. Change default init behavior so Koala management assets are created by default, while starter business code under src/core and src/shells is created only when explicitly requested.",
   "type": "bug",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "createdAt": "2026-05-04T22:51:42.070Z",
   "startedAt": "2026-05-04T22:51:42.070Z",
@@ -57,6 +57,14 @@
       "branch": "story/B-6c80",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-04T23:24:21.330Z",
+      "branch": "story/B-6c80",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -64,5 +72,5 @@
     "branch": "story/B-6c80",
     "createdAt": "2026-05-04T22:59:35.911Z"
   },
-  "currentReviewRound": "2026-05-04T23:15:48.481Z"
+  "currentReviewRound": "2026-05-04T23:24:21.330Z"
 }
