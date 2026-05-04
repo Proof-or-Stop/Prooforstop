@@ -1,0 +1,20 @@
+{
+  "passes": [
+    {
+      "id": "B-d308:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept review passed: manifest is Koala-owned Codex adapter metadata, init does not generate fake .Codex/hooks or .Codex/settings.json, wrapper forces source=codex and records Codex session evidence.",
+      "createdAt": "2026-05-04T17:11:00.731Z",
+      "reviewRound": "2026-05-04T17:09:44.263Z",
+      "_hash": "990da9e19d9258a9afc5d1f121f27bff0424c687d7cb3a5f5486b6607fd040ae"
+    },
+    {
+      "id": "B-d308:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "Reviewed Codex adapter test coverage: koala init manifest generation, exact manifest fields, missing .Codex hooks/settings, wrapper source override, session propagation, and read-only session_brief heartbeat are covered by passing entrypoint/assets verification.",
+      "createdAt": "2026-05-04T17:11:22.849Z",
+      "reviewRound": "2026-05-04T17:09:44.263Z",
+      "_hash": "0dd52f495359754d960d1231ba4dec28c6b99338f577ad89c8c7d2c9e02850d4"
+    }
+  ]
+}

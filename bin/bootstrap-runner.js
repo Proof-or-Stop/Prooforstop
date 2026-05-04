@@ -40,7 +40,7 @@ function printBootstrapFailure(error) {
   console.error('');
   console.error('Fallbacks:');
   console.error('  - Core-only CLI: node packages/main/dist/cli.js <command>');
-  console.error('  - Global Codex path: KOALA_ACTIVITY_SOURCE=codex koala <command>');
+  console.error('  - Global Codex path: KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 koala <command>');
 
   if (error) {
     console.error('');

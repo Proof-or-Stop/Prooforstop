@@ -6,6 +6,7 @@ import { join } from 'path';
 import { execFileSync } from 'child_process';
 
 const repoRoot = process.cwd();
+const GLOBAL_CODEX_FALLBACK = 'KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 koala';
 
 function run(cmd, args, opts = {}) {
   return execFileSync(cmd, args, {
@@ -22,6 +23,17 @@ function assert(condition, message) {
 
 function assertIncludes(haystack, needle, label) {
   assert(haystack.includes(needle), `${label} missing "${needle}"`);
+}
+
+function readActivityRecord(session, tool) {
+  const activityPath = join(repoRoot, '.koala', 'activity.jsonl');
+  const text = readFileSync(activityPath, 'utf8').trim();
+  if (!text) return null;
+  const entries = text
+    .split('\n')
+    .filter(Boolean)
+    .map(line => JSON.parse(line));
+  return entries.findLast(entry => entry.session === session && entry.tool === tool) || null;
 }
 
 const checks = [];
@@ -43,15 +55,26 @@ checks.push(() => {
   });
   assertIncludes(out, '# koala session brief', 'bin/koala-codex.js session_brief');
 
-  const activityPath = join(repoRoot, '.koala', 'activity.jsonl');
-  const entries = readFileSync(activityPath, 'utf8')
-    .trim()
-    .split('\n')
-    .filter(Boolean)
-    .map(line => JSON.parse(line));
-  const record = entries.findLast(entry => entry.session === marker && entry.tool === 'session_brief');
+  const record = readActivityRecord(marker, 'session_brief');
   assert(record, 'bin/koala-codex.js should write a session_brief activity record');
   assert(record.source === 'codex', 'bin/koala-codex.js should force activity source=codex');
+});
+
+checks.push(() => {
+  const marker = `verify-entrypoints-global-${Date.now()}`;
+  const out = run('node', ['packages/main/dist/cli.js', 'session_brief'], {
+    env: {
+      ...process.env,
+      KOALA_ACTIVITY_SOURCE: 'codex',
+      KOALA_ACTIVITY_RECORD_READONLY: '1',
+      KOALA_ACTIVITY_SESSION: marker,
+    },
+  });
+  assertIncludes(out, '# koala session brief', 'global Codex fallback core CLI session_brief');
+
+  const record = readActivityRecord(marker, 'session_brief');
+  assert(record, 'global Codex fallback should write a session_brief activity record');
+  assert(record.source === 'codex', 'global Codex fallback should write source=codex');
 });
 
 checks.push(() => {
@@ -80,7 +103,8 @@ checks.push(() => {
     }
 
     const codexReadme = readFileSync(join(tempDir, '.Codex', 'README.md'), 'utf8');
-    assertIncludes(codexReadme, 'KOALA_ACTIVITY_SOURCE=codex koala session_brief', '.Codex/README.md');
+    assertIncludes(codexReadme, 'node bin/koala-codex.js session_brief', '.Codex/README.md');
+    assertIncludes(codexReadme, `${GLOBAL_CODEX_FALLBACK} session_brief`, '.Codex/README.md');
     assertIncludes(codexReadme, '.Codex/koala.json', '.Codex/README.md');
     assertIncludes(codexReadme, '不创建 `.Codex/hooks`', '.Codex/README.md');
 
@@ -92,8 +116,12 @@ checks.push(() => {
       'adapter manifest should recommend the local Codex wrapper',
     );
     assert(
-      codexManifest.recommendedEntrypoints.some(entry => entry.command === 'KOALA_ACTIVITY_SOURCE=codex koala'),
-      'adapter manifest should include the global source-tagged fallback',
+      codexManifest.recommendedEntrypoints[0]?.command === 'node bin/koala-codex.js',
+      'adapter manifest should prefer the local Codex wrapper first',
+    );
+    assert(
+      codexManifest.recommendedEntrypoints.some(entry => entry.command === GLOBAL_CODEX_FALLBACK),
+      'adapter manifest should include the global source-tagged read-only fallback',
     );
     assert(
       codexManifest.sessionEnv.sessionCandidates.includes('CODEX_SESSION_ID')

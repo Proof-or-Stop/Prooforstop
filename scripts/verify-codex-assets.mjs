@@ -11,6 +11,7 @@ import {
 } from '../packages/main/dist/init-assets.js';
 
 const root = process.cwd();
+const GLOBAL_CODEX_FALLBACK = 'KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 koala';
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -40,7 +41,8 @@ for (const file of listAgentPromptFiles(codexAgentDir)) {
 }
 
 const codexReadme = read(join(root, '.Codex', 'README.md'));
-assert(codexReadme.includes('KOALA_ACTIVITY_SOURCE=codex koala session_brief'), '.Codex/README missing fallback command');
+assert(codexReadme.includes('node bin/koala-codex.js session_brief'), '.Codex/README missing preferred wrapper command');
+assert(codexReadme.includes(`${GLOBAL_CODEX_FALLBACK} session_brief`), '.Codex/README missing fallback command');
 assert(codexReadme.includes('bin/koala-codex.js'), '.Codex/README missing wrapper guidance');
 assert(codexReadme.includes('.Codex/koala.json'), '.Codex/README missing adapter manifest guidance');
 assert(codexReadme.includes('不创建 `.Codex/hooks`'), '.Codex/README should say Codex hooks are not generated');
@@ -51,6 +53,8 @@ assert(existsSync(codexManifestPath), 'missing .Codex/koala.json adapter manifes
 assert(read(codexManifestPath) === renderCodexAdapterManifest(), '.Codex/koala.json drifted from template');
 assert(CODEX_ADAPTER_MANIFEST.adapterOwner === 'koala', 'adapter manifest owner must be koala');
 assert(CODEX_ADAPTER_MANIFEST.activitySource === 'codex', 'adapter manifest source must be codex');
+assert(CODEX_ADAPTER_MANIFEST.recommendedEntrypoints[0]?.command === 'node bin/koala-codex.js', 'adapter manifest should prefer wrapper first');
+assert(CODEX_ADAPTER_MANIFEST.recommendedEntrypoints.some(entry => entry.command === GLOBAL_CODEX_FALLBACK), 'adapter manifest missing read-only global fallback');
 assert(CODEX_ADAPTER_MANIFEST.excludedRuntimeAssets.includes('.Codex/hooks'), 'adapter manifest must exclude .Codex/hooks');
 assert(CODEX_ADAPTER_MANIFEST.excludedRuntimeAssets.includes('.Codex/settings.json'), 'adapter manifest must exclude .Codex/settings.json');
 assert(!existsSync(join(root, '.Codex', 'hooks')), 'Codex adapter should not create .Codex/hooks');
@@ -68,7 +72,8 @@ assert(agents.includes('.Codex/agents'), 'AGENTS.md missing Codex agent path gui
 assert(agents.includes('.Codex/koala.json'), 'AGENTS.md missing Codex adapter manifest guidance');
 assert(agents.includes('不要创建会误导用户的 `.Codex/hooks`'), 'AGENTS.md should reject fake Codex hooks');
 
-assert(CODEX_README_TEMPLATE.includes('KOALA_ACTIVITY_SOURCE=codex koala session_brief'), 'template missing fallback command');
+assert(CODEX_README_TEMPLATE.includes('node bin/koala-codex.js session_brief'), 'template missing preferred wrapper command');
+assert(CODEX_README_TEMPLATE.includes(`${GLOBAL_CODEX_FALLBACK} session_brief`), 'template missing fallback command');
 assert(CODEX_README_TEMPLATE.includes('.Codex/koala.json'), 'template missing adapter manifest guidance');
 assert(renderCodexAdapterManifest().includes('"activitySource": "codex"'), 'manifest template missing codex source');
 

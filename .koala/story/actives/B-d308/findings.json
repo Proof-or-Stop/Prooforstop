@@ -1,0 +1,59 @@
+{
+  "findings": [
+    {
+      "id": "B-d308:F-001",
+      "desc": "packages/main/src/init-assets.ts:34 and packages/main/src/init-assets.ts:68 document the global fallback as `KOALA_ACTIVITY_SOURCE=codex koala ...`, but packages/main/src/cli-engine.ts:1004-1007 only logs read-only commands when `KOALA_ACTIVITY_RECORD_READONLY=1`. That means the documented fallback `session_brief` path still produces no activity heartbeat/session record, contradicting .Codex/README/manifest guidance and leaving Codex users without the read-only logging this story is meant to harden. Include `KOALA_ACTIVITY_RECORD_READONLY=1` in the fallback entry/docs or make `KOALA_ACTIVITY_SOURCE=codex` imply the read-only opt-in for Codex fallback sessions.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-04T17:10:59.071Z",
+      "reviewRound": "2026-05-04T17:09:44.263Z",
+      "_hash": "196e02886b3c534769ac1f33f9d2b3fd57d9740461ebecd94f9a597329da3dd1"
+    },
+    {
+      "id": "B-d308:F-002",
+      "desc": ".Codex/README.md:3-16 says the generic Codex entrypoint is KOALA_ACTIVITY_SOURCE=codex koala and says to switch to node bin/koala-codex.js only if the repository later adds a local wrapper, but this story/repo already includes bin/koala-codex.js and .Codex/koala.json lists local-wrapper first. WHY: user-facing Codex guidance contradicts README.md:39-55 and the adapter manifest, so Codex users can keep using the less capable global fallback and miss aux_* bootstrap support. severity=medium",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-05-04T17:11:07.249Z",
+      "reviewRound": "2026-05-04T17:09:44.263Z",
+      "_hash": "a0c83ba2296ca596ee6304bbc5456508663ccd0c678229b7511235440645423d"
+    },
+    {
+      "id": "B-d308:F-003",
+      "desc": "packages/main/src/init-assets.ts:34 and packages/main/src/init-assets.ts:68 expose the global Codex fallback as `KOALA_ACTIVITY_SOURCE=codex koala session_brief`, and .Codex/koala.json documents KOALA_ACTIVITY_RECORD_READONLY separately. But packages/main/src/cli-engine.ts:1004-1007 only records read-only commands when KOALA_ACTIVITY_RECORD_READONLY=1, so the documented fallback does not actually create the session_brief activity heartbeat that the adapter guidance promises. Either include KOALA_ACTIVITY_RECORD_READONLY=1 in the fallback metadata/docs or make KOALA_ACTIVITY_SOURCE=codex imply read-only logging for Codex fallback calls.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-05-04T17:11:19.498Z",
+      "reviewRound": "2026-05-04T17:09:44.263Z",
+      "_hash": "aa28b1608b9cf45852ea882530b845d55248de217909340c73a220dad9f0e8f9"
+    },
+    {
+      "id": "B-d308:F-004",
+      "desc": "scripts/verify-entrypoints.mjs:34-55 verifies read-only session_brief heartbeat only through node bin/koala-codex.js, while packages/main/src/init-assets.ts:34 and .Codex/koala.json:12-20 also advertise the global fallback KOALA_ACTIVITY_SOURCE=codex koala with recordReadOnly documented separately. There is no test/evidence that the documented global fallback records a session_brief activity heartbeat, and cli-engine.ts:1004-1007 suggests read-only commands log only when KOALA_ACTIVITY_RECORD_READONLY=1. Add coverage for the fallback heartbeat or update the manifest/docs and tests to require KOALA_ACTIVITY_RECORD_READONLY=1 on that path.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-05-04T17:11:36.788Z",
+      "reviewRound": "2026-05-04T17:09:44.263Z",
+      "_hash": "bbd097b1c24161560b4e8ef5558581a94feb81b1deb88f9b05223f56c0a679cd"
+    },
+    {
+      "id": "B-d308:F-005",
+      "desc": ".Codex/README.md:5-11 and packages/main/src/init-assets.ts:67-73 present the global Codex fallback as KOALA_ACTIVITY_SOURCE=codex koala session_brief and promise it writes source=codex activity, but packages/main/src/cli-engine.ts:1004-1007 suppresses read-only command logging unless KOALA_ACTIVITY_RECORD_READONLY=1. WHY: the Codex channel guidance/manifest boundary is internally inconsistent; users without the local wrapper get no session_brief heartbeat even though the adapter output says this fallback records Codex activity. severity=medium",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "agent": "koala-review-channel",
+      "createdAt": "2026-05-04T17:11:48.493Z",
+      "reviewRound": "2026-05-04T17:09:44.263Z",
+      "_hash": "03e0f0ece14b5fdc9eeda67a9f526bfbb40e4fcf1bcf76ff8c4208166af1485d"
+    }
+  ]
+}

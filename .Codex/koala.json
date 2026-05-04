@@ -10,8 +10,8 @@
     },
     {
       "name": "global-fallback",
-      "command": "KOALA_ACTIVITY_SOURCE=codex koala",
-      "useWhen": "Only the global koala CLI is available."
+      "command": "KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 koala",
+      "useWhen": "Only the global koala CLI is available; include read-only recording for session_brief heartbeats."
     }
   ],
   "sessionEnv": {

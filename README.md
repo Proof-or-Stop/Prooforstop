@@ -51,6 +51,7 @@ node bin/koala-codex.js lab create --target=test-case-reviewer --profile=reviewe
 - 如果 `packages/lab` 已构建，它也会把 `koala lab ...` 子命令一起接进来
 - 它会把 Koala 调用写入 `.koala/activity.jsonl`
 - 写入记录会带 `source=codex`，可以和普通 CLI、Claude Code 区分
+- 它会为 `session_brief` 这类只读恢复命令启用 heartbeat 记录
 
 如果本地 bootstrap 还没准备好，wrapper 会直接打印恢复步骤，而不是抛出模糊的模块加载错误。
 
@@ -101,10 +102,10 @@ npm run test:codex-assets
 如果某个项目只有全局 `koala`，没有 `bin/koala-codex.js`，可以这样跑：
 
 ```bash
-KOALA_ACTIVITY_SOURCE=codex koala session_brief
+KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 koala session_brief
 ```
 
-这能保证 activity 里仍然按 `source=codex` 记账；但如果没有 bootstrap 入口，`aux_*` 命令可能不可用。
+这能保证 activity 里仍然按 `source=codex` 记账，并让 `session_brief` 这种只读入口也留下 heartbeat；但如果没有 bootstrap 入口，`aux_*` 命令可能不可用。
 
 如果全局 core 入口提示 `未知命令: aux_doc_list`，在 Koala 仓库内使用完整 bootstrap：
 
