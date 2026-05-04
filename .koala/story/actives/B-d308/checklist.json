@@ -52,10 +52,10 @@
           "file": "scripts/verify-entrypoints.mjs",
           "command": "npm run test:entrypoints",
           "result": "pass",
-          "note": "Fresh koala init verification requires .Codex/koala.json and asserts adapterOwner=koala plus activitySource=codex.",
-          "headHash": "513bfe949ffe68caff72a04a08f9dd97b10c25df",
-          "materialHash": "9be59fa8010ecded8a2b39dbe172cc8a357bbf2d67a39129bb2044df9f86c9e0",
-          "timestamp": "2026-05-04T17:16:10.754Z"
+          "note": "Fresh koala init verification requires .Codex/koala.json and asserts adapterOwner=koala plus activitySource=codex on current HEAD.",
+          "headHash": "3a2a7c17741d84bc300e1c68296f1d2d6539c64c",
+          "materialHash": "775cf3dcb1b7bdc6272d08508269836431aa5dc4a528796e09e989a9e0caab2c",
+          "timestamp": "2026-05-04T17:20:32.812Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -63,10 +63,10 @@
           "file": ".Codex/koala.json",
           "command": "npm run test:entrypoints",
           "result": "pass",
-          "note": "Generated manifest keeps node bin/koala-codex.js first and includes KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 koala fallback.",
-          "headHash": "513bfe949ffe68caff72a04a08f9dd97b10c25df",
-          "materialHash": "9be59fa8010ecded8a2b39dbe172cc8a357bbf2d67a39129bb2044df9f86c9e0",
-          "timestamp": "2026-05-04T17:16:10.754Z"
+          "note": "Generated manifest keeps node bin/koala-codex.js first and includes KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 koala fallback on current HEAD.",
+          "headHash": "3a2a7c17741d84bc300e1c68296f1d2d6539c64c",
+          "materialHash": "775cf3dcb1b7bdc6272d08508269836431aa5dc4a528796e09e989a9e0caab2c",
+          "timestamp": "2026-05-04T17:20:32.812Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -74,10 +74,10 @@
           "file": ".Codex/koala.json",
           "command": "test ! -e .Codex/hooks && test ! -e .Codex/settings.json",
           "result": "pass",
-          "note": "Manifest excludes .Codex/hooks and .Codex/settings.json; filesystem check confirms unsupported runtime files are absent.",
-          "headHash": "513bfe949ffe68caff72a04a08f9dd97b10c25df",
-          "materialHash": "9be59fa8010ecded8a2b39dbe172cc8a357bbf2d67a39129bb2044df9f86c9e0",
-          "timestamp": "2026-05-04T17:16:10.754Z"
+          "note": "Manifest excludes .Codex/hooks and .Codex/settings.json; filesystem check confirms unsupported runtime files are absent on current HEAD.",
+          "headHash": "3a2a7c17741d84bc300e1c68296f1d2d6539c64c",
+          "materialHash": "775cf3dcb1b7bdc6272d08508269836431aa5dc4a528796e09e989a9e0caab2c",
+          "timestamp": "2026-05-04T17:20:32.812Z"
         }
       ]
     },
@@ -129,10 +129,10 @@
           "file": "bin/koala-codex.js",
           "command": "npm run test:entrypoints",
           "result": "pass",
-          "note": "entrypoints verification runs node bin/koala-codex.js session_brief and sees # koala session brief.",
-          "headHash": "513bfe949ffe68caff72a04a08f9dd97b10c25df",
-          "materialHash": "9be59fa8010ecded8a2b39dbe172cc8a357bbf2d67a39129bb2044df9f86c9e0",
-          "timestamp": "2026-05-04T17:16:10.754Z"
+          "note": "entrypoints verification runs node bin/koala-codex.js session_brief and sees # koala session brief on current HEAD.",
+          "headHash": "3a2a7c17741d84bc300e1c68296f1d2d6539c64c",
+          "materialHash": "775cf3dcb1b7bdc6272d08508269836431aa5dc4a528796e09e989a9e0caab2c",
+          "timestamp": "2026-05-04T17:20:32.812Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -140,10 +140,10 @@
           "file": "scripts/verify-entrypoints.mjs",
           "command": "npm run test:entrypoints",
           "result": "pass",
-          "note": "entrypoints verification checks wrapper session propagation and a core/global fallback session_brief heartbeat with KOALA_ACTIVITY_RECORD_READONLY=1.",
-          "headHash": "513bfe949ffe68caff72a04a08f9dd97b10c25df",
-          "materialHash": "9be59fa8010ecded8a2b39dbe172cc8a357bbf2d67a39129bb2044df9f86c9e0",
-          "timestamp": "2026-05-04T17:16:10.754Z"
+          "note": "entrypoints verification checks wrapper session propagation and core/global fallback session_brief heartbeat with KOALA_ACTIVITY_RECORD_READONLY=1 on current HEAD.",
+          "headHash": "3a2a7c17741d84bc300e1c68296f1d2d6539c64c",
+          "materialHash": "775cf3dcb1b7bdc6272d08508269836431aa5dc4a528796e09e989a9e0caab2c",
+          "timestamp": "2026-05-04T17:20:32.812Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -151,10 +151,10 @@
           "file": "scripts/verify-entrypoints.mjs",
           "command": "npm run test:entrypoints",
           "result": "pass",
-          "note": "entrypoints verification overrides wrapper source to not-codex and asserts wrapper still records source=codex.",
-          "headHash": "513bfe949ffe68caff72a04a08f9dd97b10c25df",
-          "materialHash": "9be59fa8010ecded8a2b39dbe172cc8a357bbf2d67a39129bb2044df9f86c9e0",
-          "timestamp": "2026-05-04T17:16:10.754Z"
+          "note": "entrypoints verification overrides wrapper source to not-codex and asserts wrapper still records source=codex on current HEAD.",
+          "headHash": "3a2a7c17741d84bc300e1c68296f1d2d6539c64c",
+          "materialHash": "775cf3dcb1b7bdc6272d08508269836431aa5dc4a528796e09e989a9e0caab2c",
+          "timestamp": "2026-05-04T17:20:32.812Z"
         }
       ]
     },
@@ -210,10 +210,10 @@
           "file": "packages/main/src/init-assets.ts",
           "command": "npm run test:codex-assets",
           "result": "pass",
-          "note": "CODEX_README_TEMPLATE documents node bin/koala-codex.js as preferred and the read-only global fallback as fallback only.",
-          "headHash": "513bfe949ffe68caff72a04a08f9dd97b10c25df",
-          "materialHash": "9be59fa8010ecded8a2b39dbe172cc8a357bbf2d67a39129bb2044df9f86c9e0",
-          "timestamp": "2026-05-04T17:16:10.754Z"
+          "note": "CODEX_README_TEMPLATE documents node bin/koala-codex.js as preferred and the read-only global fallback as fallback only on current HEAD.",
+          "headHash": "3a2a7c17741d84bc300e1c68296f1d2d6539c64c",
+          "materialHash": "775cf3dcb1b7bdc6272d08508269836431aa5dc4a528796e09e989a9e0caab2c",
+          "timestamp": "2026-05-04T17:20:32.812Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -221,10 +221,10 @@
           "file": "README.md",
           "command": "npm run test:codex-assets",
           "result": "pass",
-          "note": "Root README and AGENTS are checked for .Codex/koala.json guidance and Codex adapter boundary.",
-          "headHash": "513bfe949ffe68caff72a04a08f9dd97b10c25df",
-          "materialHash": "9be59fa8010ecded8a2b39dbe172cc8a357bbf2d67a39129bb2044df9f86c9e0",
-          "timestamp": "2026-05-04T17:16:10.754Z"
+          "note": "Root README and AGENTS are checked for .Codex/koala.json guidance and Codex adapter boundary on current HEAD.",
+          "headHash": "3a2a7c17741d84bc300e1c68296f1d2d6539c64c",
+          "materialHash": "775cf3dcb1b7bdc6272d08508269836431aa5dc4a528796e09e989a9e0caab2c",
+          "timestamp": "2026-05-04T17:20:32.812Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -232,10 +232,10 @@
           "file": ".Codex/README.md",
           "command": "npm run test:codex-assets",
           "result": "pass",
-          "note": "Docs explicitly say .Codex/hooks and .Codex/settings.json are not created/executed by Codex runtime.",
-          "headHash": "513bfe949ffe68caff72a04a08f9dd97b10c25df",
-          "materialHash": "9be59fa8010ecded8a2b39dbe172cc8a357bbf2d67a39129bb2044df9f86c9e0",
-          "timestamp": "2026-05-04T17:16:10.754Z"
+          "note": "Docs explicitly say .Codex/hooks and .Codex/settings.json are not created/executed by Codex runtime on current HEAD.",
+          "headHash": "3a2a7c17741d84bc300e1c68296f1d2d6539c64c",
+          "materialHash": "775cf3dcb1b7bdc6272d08508269836431aa5dc4a528796e09e989a9e0caab2c",
+          "timestamp": "2026-05-04T17:20:32.812Z"
         }
       ]
     }
