@@ -87,6 +87,25 @@ function pruneWorktreeRegistry(repoRoot: string): void {
   });
 }
 
+function assertDoneMergeCanApplyBeforeStateMutation(storyId: string, worktreePath: string, mainRepoRoot: string): void {
+  try {
+    execFileSync('git', ['merge-tree', '--write-tree', 'main', 'HEAD'], {
+      cwd: worktreePath,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+  } catch (e: any) {
+    const detail = e?.stderr?.toString?.() || e?.stdout?.toString?.() || e?.message || String(e);
+    throw new Error(
+      `Cannot enter DONE: story/${storyId} 尚不能干净合并到 main；未修改 story phase。\n` +
+      `${detail}\n\n` +
+      `→ 在 worktree 内先解决与 main 的合并冲突，再重跑 story_advance --phase=DONE。\n` +
+      `→ 可执行: cd "${worktreePath}" && git merge main\n` +
+      `→ 主仓库: ${mainRepoRoot}`,
+    );
+  }
+}
+
 function gitRefExists(projectRoot: string, ref: string): boolean {
   try {
     execFileSync('git', ['rev-parse', '--verify', `${ref}^{commit}`], {
@@ -758,11 +777,12 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
                 );
               }
             }
+            assertDoneMergeCanApplyBeforeStateMutation(args.storyId, cwdInWorktree, mainRepoRoot);
           }
         } catch (e: any) {
           // throw 的错误信息（含 stash / worktree remove 指引）直接冒给 caller，
           // 不吞。只有 git 探测本身的非 throw 失败被上面的 catch 吃掉。
-          if (e?.message?.startsWith(`Story ${args.storyId} DONE `)) {
+          if (e?.message?.startsWith(`Story ${args.storyId} DONE `) || e?.message?.startsWith('Cannot enter DONE:')) {
             throw e;
           }
           // 其他意外（如 import 失败 / unknown）转成可见错误

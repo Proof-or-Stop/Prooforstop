@@ -88,7 +88,12 @@ function splitShellWords(command: string): string[] {
 }
 
 function commandFromString(label: string, value: string): ValidationCommand | null {
-  const parts = splitShellWords(value.trim());
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  if (/[;&|<>$()`]/.test(trimmed)) {
+    return { label, command: trimmed, args: [], shell: true };
+  }
+  const parts = splitShellWords(trimmed);
   if (parts.length === 0) return null;
   return { label, command: parts[0], args: parts.slice(1) };
 }
@@ -115,6 +120,7 @@ function configuredValidationCommands(projectRoot: string): ValidationCommand[] 
           label: typeof entry.label === 'string' ? entry.label : `configured validate.commands[${i}]`,
           command: entry.command,
           args,
+          ...(entry.shell === true ? { shell: true } : {}),
           ...(typeof entry.cwd === 'string' ? { cwd: entry.cwd } : {}),
           ...(entry.env && typeof entry.env === 'object' ? { env: Object.fromEntries(Object.entries(entry.env).map(([k, v]) => [k, String(v)])) } : {}),
           ...(typeof entry.timeoutMs === 'number' ? { timeoutMs: entry.timeoutMs } : {}),

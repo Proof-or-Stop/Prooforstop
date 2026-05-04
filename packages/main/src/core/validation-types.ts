@@ -4,6 +4,7 @@ export interface ValidationCommand {
   label: string;
   command: string;
   args: string[];
+  shell?: boolean;
   cwd?: string;
   env?: Record<string, string>;
   timeoutMs?: number;
@@ -14,6 +15,7 @@ export interface ValidationCommandResult {
   label: string;
   command: string;
   args: string[];
+  shell?: boolean;
   cwd?: string;
   code: number;
   output: string;

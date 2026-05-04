@@ -10,8 +10,9 @@
  * 判定规则（对齐 plan.md CHK-007 DoneWhen）：
  *   - channel:    status === 'pass'   → ok；'skipped'（快速通道） → ok；'fail' → block
  *   - concept:    status === 'pass'   → ok；'warn' 且 residuals < 5 → ok；
- *                 'warn' 且 residuals ≥ 5 → 要求对应 concept reviewer finding 全 resolved；
- *                 否则 block（recommendation=dispatch 且无 concept finding resolved）
+ *                 'warn'/'fail' 且 residuals ≥ 5 → 要求当前 REVIEW round 有
+ *                 concept reviewer finding 或 review_pass_set 记录；
+ *                 否则 block（recommendation=dispatch 且 reviewer 未登记）
  *   - lint:       status === 'pass' 或 'skipped' → ok；'fail' → block
  *   - docs-drift: status === 'pass' 或 'skipped' → ok；'fail' → block
  *
@@ -44,6 +45,8 @@ import {
   type FileReader,
 } from './validate-lint.js';
 import type { Finding } from '../core/types.js';
+import { findingAgentMatchesReviewer } from '../core/reviewer-opt-in.js';
+import { verifyReviewPass } from '../core/finding-verify.js';
 import {
   runDocsDriftGate,
   type DocsDriftGateResult,
@@ -143,19 +146,25 @@ function conceptReviewerHandledResiduals(
     const story = store.readStory(storyId);
     const currentRound = story.currentReviewRound;
     const findings = store.readFindings(storyId);
+    const passes = store.readReviewPasses(storyId);
     const conceptFindings = (findings?.findings ?? []).filter(
       (f: Finding) => f.agent === 'koala-review-concept'
         && (!currentRound || f.reviewRound === currentRound),
     );
-    if (conceptFindings.length === 0) {
+    const conceptPasses = (passes?.passes ?? []).filter(p =>
+      findingAgentMatchesReviewer(p.agent, 'concept')
+      && verifyReviewPass(storyId, p)
+      && (!currentRound || p.reviewRound === currentRound),
+    );
+    if (conceptFindings.length === 0 && conceptPasses.length === 0) {
       return {
         handled: false,
-        reason: '当前 REVIEW round 未见 koala-review-concept 的 finding（reviewer 未跑或未 register 任何结果，哪怕 0 issue 也需 register 一条 info 级 placeholder）',
+        reason: '当前 REVIEW round 未见 koala-review-concept 的 finding/review pass（reviewer 未跑或未 register 任何结果）',
       };
     }
     return {
       handled: true,
-      reason: `${conceptFindings.length} concept finding(s) registered in round ${currentRound ?? '(unknown)'} → reviewer ran`,
+      reason: `${conceptFindings.length} concept finding(s), ${conceptPasses.length} concept pass(es) registered in round ${currentRound ?? '(unknown)'} → reviewer ran`,
     };
   } catch (e: any) {
     return { handled: false, reason: `读 findings 失败: ${String(e?.message ?? e)}` };

@@ -14,6 +14,7 @@ export function stripAnsi(str: string): string {
 }
 
 export function formatValidationCommand(command: ValidationCommand): string {
+  if (command.shell) return command.command;
   return [command.command, ...command.args].join(' ').trim();
 }
 
@@ -47,6 +48,7 @@ export function runValidationCommand(command: ValidationCommand, projectRoot: st
         label: command.label,
         command: command.command,
         args: command.args,
+        ...(command.shell ? { shell: true } : {}),
         ...(command.cwd ? { cwd } : {}),
         code,
         output: trimOutput(stripAnsi(output)),
@@ -59,7 +61,7 @@ export function runValidationCommand(command: ValidationCommand, projectRoot: st
     const child = spawn(command.command, command.args, {
       cwd,
       env: command.env ? { ...process.env, ...command.env } : process.env,
-      shell: process.platform === 'win32',
+      shell: command.shell || process.platform === 'win32',
       stdio: ['ignore', 'pipe', 'pipe'],
     });
 
