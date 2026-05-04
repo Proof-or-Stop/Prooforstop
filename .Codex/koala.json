@@ -11,7 +11,7 @@
     {
       "name": "global-fallback",
       "command": "KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 koala",
-      "useWhen": "Only the global koala CLI is available; include read-only recording for session_brief heartbeats."
+      "useWhen": "Only the global koala CLI is available for read-only heartbeats; do not use it as current-worktree gate/status evidence when a local wrapper or core CLI exists."
     }
   ],
   "sessionEnv": {

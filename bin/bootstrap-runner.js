@@ -39,8 +39,10 @@ function printBootstrapFailure(error) {
   console.error('  3. Retry the same command');
   console.error('');
   console.error('Fallbacks:');
-  console.error('  - Core-only CLI: node packages/main/dist/cli.js <command>');
+  console.error('  - Core-only local CLI: node packages/main/dist/cli.js <command>');
+  console.error('    Use this for current-worktree gate/status/validate checks while developing Koala.');
   console.error('  - Global Codex path: KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 koala <command>');
+  console.error('    Heartbeat fallback only; it may lag this worktree and is not gate/status evidence.');
 
   if (error) {
     console.error('');

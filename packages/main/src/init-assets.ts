@@ -34,7 +34,7 @@ export const CODEX_ADAPTER_MANIFEST = {
     {
       name: 'global-fallback',
       command: 'KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 koala',
-      useWhen: 'Only the global koala CLI is available; include read-only recording for session_brief heartbeats.',
+      useWhen: 'Only the global koala CLI is available for read-only heartbeats; do not use it as current-worktree gate/status evidence when a local wrapper or core CLI exists.',
     },
   ],
   sessionEnv: {
@@ -89,6 +89,7 @@ fallback 说明：
 - \`KOALA_ACTIVITY_SOURCE=codex\` 会把本次调用标记为 \`source=codex\`
 - \`KOALA_ACTIVITY_RECORD_READONLY=1\` 会让 \`session_brief\` 这样的只读入口也记录 heartbeat
 - 全局 \`koala\` 可能是 core-only，\`aux_*\` 命令不一定可用
+- 全局 \`koala\` 也可能滞后于当前 worktree；有本地 wrapper 或 \`node packages/main/dist/cli.js\` 时，不要把 fallback 的 \`status\` / \`next\` / \`validate\` 输出当作 gate 证据
 - \`.Codex/agents\` 由 \`.claude/agents\` 的完整 prompt 集合受控生成；Claude hooks/settings/skills 仍只属于 \`.claude\`
 - \`.Codex/koala.json\` 是 Koala 自己读取的 Codex adapter manifest，用来说明推荐入口、session 环境变量和不生成的 runtime 资产
 
@@ -96,6 +97,7 @@ fallback 说明：
 
 - 新 session 第一条命令跑 \`node bin/koala-codex.js session_brief\`
 - 日常所有 story/checklist/fixture/bug 操作尽量保持同一入口
+- 在 Koala 仓库自身开发时，若完整 wrapper 暂不可用，用 \`node packages/main/dist/cli.js <command>\` 做当前 worktree 的 status/gate/validate 判断
 - 改动 Codex adapter 资产后运行 \`node bin/koala-codex.js verify_codex\`（或 \`node bin/koala.js verify_codex\`）；它会验证 manifest、agent mirror、wrapper heartbeat、global fallback heartbeat 和 runtime 排除项，并写入 gate 可消费的 process-event evidence
 - 初始化脚本可用 \`npx koala-init --verify-codex\` 做同源资产校验
 - 诊断 Codex adapter 时运行 \`node bin/koala-codex.js doctor\`，可同时查看共享检查、health 和 worktree 状态
