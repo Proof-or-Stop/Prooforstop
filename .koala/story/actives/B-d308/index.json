@@ -4,11 +4,11 @@
   "title": "Add Codex adapter config and wrapper hardening",
   "description": "Codex should get Koala-managed adapter capability similar in outcome to Claude hooks, without pretending Codex consumes .Codex/hooks or .Codex/settings.json. Add an explicit .Codex/koala.json config and harden bin/koala-codex.js / init docs so Codex activity tagging and entrypoint expectations are detectable and explained.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "createdAt": "2026-05-04T16:54:07.493Z",
   "startedAt": "2026-05-04T16:54:07.493Z",
-  "endedAt": null,
+  "endedAt": "2026-05-04T17:26:14.111Z",
   "events": [
     {
       "phase": "INIT",
@@ -73,12 +73,15 @@
       "branch": "story/B-d308",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-05-04T17:26:14.111Z",
+      "branch": "story/B-d308",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-d308",
-    "branch": "story/B-d308",
-    "createdAt": "2026-05-04T16:56:09.465Z"
-  },
   "currentReviewRound": "2026-05-04T17:16:48.524Z"
 }
