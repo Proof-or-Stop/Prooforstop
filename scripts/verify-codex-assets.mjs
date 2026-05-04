@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import {
+  chmodSync,
   cpSync,
   existsSync,
   mkdirSync,
@@ -166,6 +167,43 @@ assertCheckFails(
     rmSync(dir, { recursive: true, force: true });
   }
 }
+
+function shellQuote(value) {
+  return `'${value.replace(/'/g, `'\\''`)}'`;
+}
+
+function assertGlobalFallbackHeartbeatIgnoresParentCodexEntrypoint() {
+  const fakeBin = mkdtempSync(join(tmpdir(), 'koala-codex-fake-global-'));
+  const fakeKoala = join(fakeBin, 'koala');
+  const previousPath = process.env.PATH;
+  const previousEntrypoint = process.env.KOALA_CODEX_ENTRYPOINT;
+  try {
+    writeFileSync(
+      fakeKoala,
+      `#!/bin/sh\nexec ${shellQuote(process.execPath)} ${shellQuote(join(root, 'packages/main/dist/cli.js'))} "$@"\n`,
+    );
+    chmodSync(fakeKoala, 0o755);
+    process.env.PATH = `${fakeBin}:${previousPath || ''}`;
+    process.env.KOALA_CODEX_ENTRYPOINT = 'local-wrapper';
+
+    const checkResult = runCodexAdapterChecks(root, { executeHeartbeats: true });
+    if (!checkResult.ok) {
+      console.error(renderCodexAdapterChecks(checkResult));
+    }
+    assert(checkResult.ok, 'global fallback heartbeat should override inherited local-wrapper entrypoint');
+    const globalHeartbeat = checkResult.checks.find(check => check.id === 'global-fallback-heartbeat');
+    assert(globalHeartbeat?.status === 'pass', 'global fallback heartbeat should pass');
+    assertIncludes(globalHeartbeat.detail || '', 'entrypoint=global-fallback', 'global fallback heartbeat detail');
+  } finally {
+    if (previousPath === undefined) delete process.env.PATH;
+    else process.env.PATH = previousPath;
+    if (previousEntrypoint === undefined) delete process.env.KOALA_CODEX_ENTRYPOINT;
+    else process.env.KOALA_CODEX_ENTRYPOINT = previousEntrypoint;
+    rmSync(fakeBin, { recursive: true, force: true });
+  }
+}
+
+assertGlobalFallbackHeartbeatIgnoresParentCodexEntrypoint();
 
 function seedCodexStory(dir) {
   mkdirSync(join(dir, '.koala', 'story', 'actives'), { recursive: true });

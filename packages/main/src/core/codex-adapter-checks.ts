@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, relative, resolve } from 'node:path';
 import {
   CODEX_ADAPTER_MANIFEST,
   listAgentPromptFiles,
@@ -261,6 +261,29 @@ function runHeartbeat(
   push(checks, id, label, 'pass', true, `source=codex session=${session} entrypoint=${expectedEntrypoint}`);
 }
 
+function pathContains(parent: string, child: string): boolean {
+  const rel = relative(resolve(parent), resolve(child));
+  return rel === '' || (!!rel && !rel.startsWith('..') && !rel.startsWith('/'));
+}
+
+function resolveKoalaCommandPath(root: string): string | null {
+  const command = process.platform === 'win32' ? 'where' : 'sh';
+  const args = process.platform === 'win32' ? ['koala'] : ['-lc', 'command -v koala'];
+  try {
+    const out = execFileSync(command, args, {
+      cwd: root,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+      timeout: 2_000,
+      env: process.env,
+    }).trim();
+    return out.split(/\r?\n/).find(Boolean) || null;
+  } catch {
+    // probe: PATH may not expose a global koala; heartbeat execution reports the real failure.
+    return null;
+  }
+}
+
 function checkLocalWrapper(root: string, checks: CodexAdapterCheck[], executeHeartbeats: boolean, timeoutMs: number): void {
   const wrapper = join(root, 'bin', 'koala-codex.js');
   const localKoala = join(root, 'bin', 'koala.js');
@@ -314,7 +337,10 @@ function checkGlobalFallback(root: string, checks: CodexAdapterCheck[], executeH
     if (existsSync(currentCore) && existsSync(globalCore)) {
       const currentReal = realpathSync(currentCore);
       const globalReal = realpathSync(globalCore);
-      if (currentReal !== globalReal) {
+      const koalaCommand = resolveKoalaCommandPath(root);
+      const koalaReal = koalaCommand && existsSync(koalaCommand) ? realpathSync(koalaCommand) : '';
+      const actualKoalaUsesGlobalCore = !!koalaReal && pathContains(globalReal, koalaReal);
+      if (actualKoalaUsesGlobalCore && currentReal !== globalReal) {
         push(
           checks,
           'global-fallback-heartbeat',
