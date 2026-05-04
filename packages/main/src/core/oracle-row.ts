@@ -1,3 +1,7 @@
+/**
+ * B-e61b CHK-001: stable oracle row contract shared by gate checkers and
+ * status renderers. Gate modules decide; renderers format these rows.
+ */
 export type OracleRowStatus = 'pass' | 'fail' | 'warn';
 
 export interface OracleRow {
