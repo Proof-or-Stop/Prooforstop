@@ -27,9 +27,10 @@ import { detectZombieStories } from './story-query.js';
 import { StoryStore } from '../core/store.js';
 import { formatProcessMetricsSummary } from '../core/process-metrics.js';
 import { readActivityLogTail } from '../core/activity-log.js';
-import { summarizeReviewerStatus } from '../core/reviewer-status.js';
-import { reviewAntiStall, testAntiStall } from '../core/anti-stall.js';
+import { summarizeReviewerStatus, type ReviewerStatusSummary } from '../core/reviewer-status.js';
+import { renderAntiStall, reviewAntiStall, testAntiStall } from '../core/anti-stall.js';
 import { isGitRepository } from '../core/git-probe.js';
+import { buildDoneChecklist, type DoneCheckRow } from './story-advance.js';
 
 interface ActiveStoryDetected {
   storyId: string;
@@ -250,8 +251,28 @@ interface NextStepCtx {
   hasDecision: boolean;
   bugs: BugData | null;
   hasTestEvidence: boolean;
+  hasPassingTestEvidence: boolean;
   testPassedAt: string | null;
   gitReady: boolean;
+  donePrecheck: DonePrecheckSummary | null;
+}
+
+interface DonePrecheckSummary {
+  failed: DoneCheckRow[];
+  warnings: DoneCheckRow[];
+}
+
+function summarizeDonePrecheck(rows: DoneCheckRow[]): DonePrecheckSummary {
+  return {
+    failed: rows.filter(r => r.status === 'fail'),
+    warnings: rows.filter(r => r.status === 'warn'),
+  };
+}
+
+function summarizeDonePrecheckActions(failed: DoneCheckRow[]): string {
+  const actions = failed.map(row => row.hint || `补齐 ${row.label}`);
+  const unique = [...new Set(actions)];
+  return `${unique.join('；')}；全部通过后再 story_advance --phase=DONE`;
 }
 
 function computeNextStep(c: NextStepCtx): string {
@@ -304,6 +325,14 @@ function computeNextStep(c: NextStepCtx): string {
       }
       if (!c.hasTestEvidence) {
         return `TEST 阶段。下一步：koala validate 跑验证，写 bug/evidence`;
+      }
+      if (!c.hasPassingTestEvidence) {
+        return `TEST 阶段，最后一次验证未通过。下一步：修复失败项后重跑 koala validate`;
+      }
+      if (c.donePrecheck && c.donePrecheck.failed.length > 0) {
+        const labels = c.donePrecheck.failed.slice(0, 4).map(r => r.label).join(', ');
+        const more = c.donePrecheck.failed.length > 4 ? ` (+${c.donePrecheck.failed.length - 4} more)` : '';
+        return `TEST 阶段，DONE pre-check 还有 ${c.donePrecheck.failed.length} 项未通过：${labels}${more}。下一步：${summarizeDonePrecheckActions(c.donePrecheck.failed)}`;
       }
       return `TEST 阶段，所有 bug 已 fixed。下一步：story_advance --storyId=${sid} --phase=DONE 完成 story（会自动合并回 main）`;
     case 'DONE':
@@ -587,9 +616,11 @@ export function createSessionHandlers(ctx: HandlerContext) {
       }
 
       // B-5fa4 CHK-001: reviewer-status integration for REVIEW phase
+      let reviewerStatus: ReviewerStatusSummary | null = null;
       if (story.phase === 'REVIEW') {
         try {
-          const rs = summarizeReviewerStatus(ctx.store, storyId);
+          const rs = summarizeReviewerStatus(ctx.store, storyId, ctx.root);
+          reviewerStatus = rs;
           lines.push('');
           lines.push(`## Reviewer status (${rs.allPassed ? 'all passed' : `${rs.totalBlockers} blockers`})`);
           for (const entry of rs.entries) {
@@ -635,28 +666,49 @@ export function createSessionHandlers(ctx: HandlerContext) {
       // Anti-stall hints for REVIEW/TEST (helps weaker agents like Codex)
       if (story.phase === 'REVIEW' || story.phase === 'TEST') {
         const openBugIds = bugs?.bugs.filter(b => b.status === 'open').map(b => b.id) ?? [];
-        const stall = story.phase === 'REVIEW'
-          ? reviewAntiStall(storyId)
-          : testAntiStall(storyId, openBugIds.length > 0 ? openBugIds : undefined);
-        lines.push('');
-        lines.push(`## Anti-stall (${story.phase})`);
-        for (const line of stall.split('\n')) {
-          lines.push(`  ${line}`);
+        let stall: string | null = null;
+        if (story.phase === 'REVIEW') {
+          if (reviewerStatus && reviewerStatus.totalBlockers > 0) {
+            stall = reviewAntiStall(storyId);
+          } else if (reviewerStatus && !reviewerStatus.allPassed) {
+            const pending = reviewerStatus.entries
+              .filter(e => e.verdict === 'pending')
+              .map(e => e.name)
+              .join(', ') || 'reviewer evidence';
+            stall = renderAntiStall({
+              storyId,
+              title: `REVIEW waiting for ${pending}`,
+              retry: `reviewer_list '{"storyId":"${storyId}"}' then run the pending koala-review-* reviewers`,
+              fix: `review_pass_set '{"storyId":"${storyId}","agent":"koala-review-<name>","note":"..."}' when a reviewer found no blocker`,
+            });
+          }
+        } else {
+          stall = testAntiStall(storyId, openBugIds.length > 0 ? openBugIds : undefined);
+        }
+        if (stall) {
+          lines.push('');
+          lines.push(`## Anti-stall (${story.phase})`);
+          for (const line of stall.split('\n')) {
+            lines.push(`  ${line}`);
+          }
         }
       }
 
       // Test evidence (kept: timestamp + structured summary, not JSON dump).
       let hasTestEvidence = false;
+      let hasPassingTestEvidence = false;
       let testPassedAt: string | null = null;
       try {
         const ev = ctx.store.readTestEvidence(storyId);
         if (ev) {
           hasTestEvidence = true;
+          hasPassingTestEvidence = ev.result === 'PASS';
           const evAny = ev as { timestamp?: string; runAt?: string; summary?: { passed?: number; failed?: number; skipped?: number; total?: number } };
           testPassedAt = evAny.timestamp || evAny.runAt || null;
           lines.push('');
           lines.push(`## Last test run`);
           if (testPassedAt) lines.push(`  at: ${testPassedAt} (${formatTimeAgo(testPassedAt)})`);
+          if (ev.result) lines.push(`  result: ${ev.result}`);
           if (evAny.summary && typeof evAny.summary === 'object') {
             const s = evAny.summary;
             const parts: string[] = [];
@@ -669,37 +721,18 @@ export function createSessionHandlers(ctx: HandlerContext) {
       } catch { /* none */ }
 
       // DONE pre-check list for TEST phase stories
+      let donePrecheck: DonePrecheckSummary | null = null;
       if (story.phase === 'TEST') {
-        const gitPre = readGitStatus(ctx.root);
-        const openBugs = bugs?.bugs.filter(b => b.status === 'open') ?? [];
-        let branchSynced = 'unknown';
         try {
-          execSync(`git merge-base --is-ancestor main HEAD`, {
-            cwd: ctx.root,
-            encoding: 'utf-8',
-            stdio: ['pipe', 'pipe', 'pipe'],
-          });
-          branchSynced = 'yes';
-        } catch {
-          branchSynced = 'no';
-        }
-        let evalPresent = false;
-        try {
-          evalPresent = ctx.store.readEvalEvidence(storyId) !== null;
-        } catch { /* probe */ }
-        let summaryPresent = false;
-        try {
-          summaryPresent = ctx.store.readSummary(storyId) !== null;
-        } catch { /* probe */ }
-
-        lines.push('');
-        lines.push('## DONE pre-check');
-        lines.push(`  test evidence: ${hasTestEvidence ? 'PASS' : 'missing'}`);
-        lines.push(`  bugs: ${openBugs.length === 0 ? 'all fixed' : `${openBugs.length} open`}`);
-        lines.push(`  git working tree: ${gitPre.porcelain.length === 0 ? 'clean' : 'dirty'}`);
-        lines.push(`  branch synced with main: ${branchSynced}`);
-        lines.push(`  eval evidence: ${evalPresent ? 'present' : 'missing'}`);
-        lines.push(`  summary: ${summaryPresent ? 'present' : 'missing'}`);
+          const rows = buildDoneChecklist(storyId, ctx.store, ctx.root);
+          donePrecheck = summarizeDonePrecheck(rows);
+          lines.push('');
+          lines.push('## DONE pre-check');
+          for (const row of rows) {
+            const marker = row.status === 'pass' ? 'PASS' : (row.status === 'fail' ? 'FAIL' : 'warn');
+            lines.push(`  [${marker}] ${row.label}${row.detail ? `: ${row.detail}` : ''}`);
+          }
+        } catch { /* probe: DONE pre-check unavailable */ }
       }
 
       // B-abd8: process metrics in session brief
@@ -760,8 +793,10 @@ export function createSessionHandlers(ctx: HandlerContext) {
         hasDecision,
         bugs,
         hasTestEvidence,
+        hasPassingTestEvidence,
         testPassedAt,
         gitReady,
+        donePrecheck,
       });
 
       lines.push('');

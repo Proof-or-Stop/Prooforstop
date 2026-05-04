@@ -14,7 +14,8 @@ import type { StoryStore } from './store.js';
 import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
 import { isAdvisoryThisRound, resolveReviewRoundCount } from './advisory.js';
 import { verifyFinding, verifyReviewPass } from './finding-verify.js';
-import { computeChannel } from './workflow-policy.js';
+import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
+import { computeActiveReviewers } from '../handlers/reviewer-list.js';
 
 // ── Public types ──
 
@@ -82,33 +83,15 @@ export function summarizeStoryReview(store: StoryStore, storyId: string): Review
  * For each opted-in reviewer, checks whether findings from that reviewer exist
  * and whether any open blockers remain (respecting round-based advisory rules).
  */
-export function summarizeReviewerStatus(store: StoryStore, storyId: string): ReviewerStatusSummary {
+export function summarizeReviewerStatus(store: StoryStore, storyId: string, projectRoot?: string): ReviewerStatusSummary {
   const story = store.readStory(storyId);
-  const checklist = store.readChecklist(storyId);
+  let checklist: { items: unknown[] } = { items: [] };
+  try { checklist = store.readChecklist(storyId); } catch { /* probe: no checklist yet */ }
+  const decision = store.readDecision(storyId);
   const understanding = store.readUnderstanding(storyId);
-  const touchpoints = understanding?.touchpoints ?? [];
-
-  let decision = null;
-  try {
-    decision = store.readDecision(storyId);
-  } catch {
-    decision = null;
-  }
-  const reviewerNames = new Set<string>(['concept', 'quality', 'test-coverage']);
-  const activeCategories = new Set((story.riskSignals || [])
-    .filter(r => !(story.riskSignalsDismissed || []).some(d => d.category === r.category))
-    .map(r => r.category));
-  if (['state machine', 'guard', 'gate'].some(c => activeCategories.has(c))) {
-    reviewerNames.add('behavior');
-  }
-  if (touchpoints.some(t => typeof t === 'string' && t.endsWith('.md'))) {
-    reviewerNames.add('docs');
-  }
-  if (computeChannel(story, checklist, decision ?? undefined) === 'normal') {
-    reviewerNames.add('channel');
-  }
-  const reviewerOrder = ['concept', 'quality', 'test-coverage', 'behavior', 'docs', 'channel'];
-  const reviewers = reviewerOrder.filter(name => reviewerNames.has(name)).map(name => ({ name }));
+  const touchpoints = understanding?.touchpoints
+    ?? (projectRoot ? detectMdTouchpointsFromGit(projectRoot) : undefined);
+  const reviewers = computeActiveReviewers(story, checklist, decision, touchpoints);
   const round = resolveReviewRoundCount(store, storyId);
 
   const findingData = store.readFindings(storyId);

@@ -17,6 +17,7 @@ import { existsSync, rmSync } from 'fs';
 import { cleanStrayWorktreeFiles } from './stray-file-cleanup.js';
 import { computeActiveReviewers, renderActiveReviewersText } from './reviewer-list.js';
 import { repairGlobalKoalaLinkBeforeWorktreeDelete } from './worktree.js';
+import { recomputeDeliveryCheckHash } from './delivery-check.js';
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
 import { collectBaselineRisk, renderBaselineRiskLines } from '../core/baseline-risk.js';
 import { checkEvidenceFreshnessForGit, currentMaterialHash } from '../core/evidence-freshness.js';
@@ -197,14 +198,14 @@ function checkEvidenceFreshness(store: StoryStore, storyId: string, projectRoot:
  * 无论 advance 成功失败都打印，强制主 agent 读一遍多层验证状态。
  * 对应 OMX ralph 的 <Final_Checklist>。
  */
-type DoneCheckRow = {
+export type DoneCheckRow = {
   status: 'pass' | 'fail' | 'warn';
   label: string;
   detail?: string;
   hint?: string;       // fail 时的修复建议；warn 时作为多行明细
 };
 
-function buildDoneChecklist(storyId: string, store: StoryStore, root: string): DoneCheckRow[] {
+export function buildDoneChecklist(storyId: string, store: StoryStore, root: string): DoneCheckRow[] {
   const rows: DoneCheckRow[] = [];
 
   // Resolve workflow policy for policy-aware gates
@@ -308,7 +309,7 @@ function buildDoneChecklist(storyId: string, store: StoryStore, root: string): D
       status: 'fail',
       label: 'git working tree',
       detail: '有未提交的改动',
-      hint: '先 git add + git commit 提交所有改动，再 advance DONE',
+      hint: '先 git add + git commit 提交所有改动',
     });
   }
 
@@ -401,7 +402,46 @@ function buildDoneChecklist(storyId: string, store: StoryStore, root: string): D
     }
   } catch { /* ignore */ }
 
-  // 6. evaluator evidence (policy-aware: hard gate or advisory depending on profile)
+  // 6. delivery-check.json (hard gate, mirrors machine.canFinish / getGuardFailureReason)
+  const deliveryCheck = store.readDeliveryCheck(storyId);
+  if (!deliveryCheck) {
+    rows.push({
+      status: 'fail',
+      label: 'delivery-check',
+      detail: '缺 delivery-check.json（需 koala-review-delivery reviewer 签名）',
+      hint: '运行 koala-review-delivery reviewer，并用 delivery_check_set 写入签名产物',
+    });
+  } else {
+    const expectedHash = recomputeDeliveryCheckHash(storyId, store);
+    if (expectedHash === null || deliveryCheck._hash !== expectedHash) {
+      rows.push({
+        status: 'fail',
+        label: 'delivery-check',
+        detail: 'delivery-check.json _hash 失配',
+        hint: '重跑 koala-review-delivery reviewer 生成新的 delivery-check.json',
+      });
+    } else {
+      const unverified = deliveryCheck.docsPromises.filter(
+        p => !p.verifiedBy && !p.waiverReason && !['met', 'verified', 'waived'].includes(p.status || ''),
+      );
+      if (unverified.length > 0) {
+        rows.push({
+          status: 'fail',
+          label: 'delivery-check',
+          detail: `${unverified.length} 条 docsPromise 未验证且无豁免`,
+          hint: '用 delivery_waiver_add 写豁免，或重跑 koala-review-delivery reviewer 补验证证据',
+        });
+      } else {
+        rows.push({
+          status: 'pass',
+          label: 'delivery-check',
+          detail: `${deliveryCheck.docsPromises.length} docsPromises checked`,
+        });
+      }
+    }
+  }
+
+  // 7. evaluator evidence (policy-aware: hard gate or advisory depending on profile)
   if (config.browser?.devCommand) {
     const requireEval = policy.test.requireEvaluatorForBrowser;
     const evalEvidence = store.readEvalEvidence(storyId);
@@ -430,7 +470,7 @@ function buildDoneChecklist(storyId: string, store: StoryStore, root: string): D
     }
   }
 
-  // 7. summary.json (policy-aware: 'full' = hard gate, 'minimal' = warn, 'none' = skip)
+  // 8. summary.json (policy-aware: 'full' = hard gate, 'minimal' = warn, 'none' = skip)
   const summaryReq = policy.done.requireSummary;
   if (summaryReq !== 'none') {
     const summary = store.readSummary(storyId);

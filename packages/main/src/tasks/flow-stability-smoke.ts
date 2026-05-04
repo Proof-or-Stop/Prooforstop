@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { strict as assert } from 'node:assert';
+import { execFileSync } from 'node:child_process';
 import { mkdtempSync, rmSync, mkdirSync, writeFileSync, existsSync, lstatSync, readlinkSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -9,12 +10,17 @@ import { signFinding, signReviewPass } from '../core/finding-verify.js';
 import { getGuardFailureReason } from '../core/machine.js';
 import { summarizeReviewerStatus } from '../core/reviewer-status.js';
 import { StoryStore } from '../core/store.js';
-import type { ChecklistData, Finding, StoryInfo } from '../core/types.js';
+import type { ChecklistData, Finding, StoryInfo, TestEvidenceData } from '../core/types.js';
+import { createSessionHandlers } from '../handlers/session.js';
 import { repairGlobalKoalaLinkBeforeWorktreeDelete } from '../handlers/worktree.js';
 
 function write(root: string, path: string, content: string): void {
   mkdirSync(dirname(join(root, path)), { recursive: true });
   writeFileSync(join(root, path), content);
+}
+
+function git(root: string, args: string[]): void {
+  execFileSync('git', args, { cwd: root, stdio: 'ignore' });
 }
 
 function makeFinding(storyId: string, agent: string, reviewRound: string, idSuffix: string): Finding {
@@ -179,6 +185,113 @@ function assertReviewGateUsesOptIn(): void {
   }
 }
 
+function assertReviewerStatusUsesMdFallback(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-flow-doc-review-'));
+  try {
+    const { store, storyId, reviewRound } = createReviewStore(root);
+    store.writeUnderstanding(storyId, {
+      task: 'Check review gate',
+      outcome: 'Review gate reports git-detected docs reviewers',
+      facts: [],
+      constraints: [],
+      unknowns: [],
+      timestamp: '2026-04-27T12:00:00.000Z',
+    } as any);
+    git(root, ['init']);
+    git(root, ['config', 'user.email', 'koala@example.test']);
+    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'base']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+    write(root, 'docs/review-notes.md', '# Review notes\n\nDocs changed in story branch.\n');
+    git(root, ['add', 'docs/review-notes.md']);
+    git(root, ['commit', '-m', 'docs change']);
+
+    store.writeFindings(storyId, {
+      findings: [
+        makeFinding(storyId, 'koala-review-concept', reviewRound, '010'),
+        makeFinding(storyId, 'koala-review-quality', reviewRound, '011'),
+      ],
+    });
+    store.writeReviewPasses(storyId, {
+      passes: [
+        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '012'),
+        makeReviewPass(storyId, 'koala-review-channel', reviewRound, '013'),
+      ],
+    });
+
+    const status = summarizeReviewerStatus(store, storyId, root);
+    const byName = new Map(status.entries.map(e => [e.name, e]));
+    assert.equal(byName.get('docs')?.verdict, 'pending', 'reviewer status should include docs from git diff fallback');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertSessionBriefStatusHintsMatchGates(): void {
+  const reviewRoot = mkdtempSync(join(tmpdir(), 'koala-flow-session-review-'));
+  try {
+    const { store, storyId, reviewRound } = createReviewStore(reviewRoot);
+    git(reviewRoot, ['init']);
+    git(reviewRoot, ['config', 'user.email', 'koala@example.test']);
+    git(reviewRoot, ['config', 'user.name', 'Koala Smoke']);
+    git(reviewRoot, ['checkout', '-B', 'main']);
+    git(reviewRoot, ['add', '.']);
+    git(reviewRoot, ['commit', '-m', 'base']);
+    git(reviewRoot, ['checkout', '-b', `story/${storyId}`]);
+    store.writeReview(storyId, {
+      reviews: [{
+        timestamp: reviewRound,
+        issueCount: 0,
+        blockerCount: 0,
+        issues: [],
+      }],
+    });
+    store.writeReviewPasses(storyId, {
+      passes: [
+        makeReviewPass(storyId, 'koala-review-concept', reviewRound, '020'),
+        makeReviewPass(storyId, 'koala-review-quality', reviewRound, '021'),
+        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '022'),
+        makeReviewPass(storyId, 'koala-review-channel', reviewRound, '023'),
+      ],
+    });
+    const reviewBrief = createSessionHandlers({
+      store,
+      root: reviewRoot,
+      scanRoot: join(reviewRoot, 'packages/main'),
+    }).session_brief({ concise: true });
+    assert.doesNotMatch(reviewBrief, /REVIEW blocked by unresolved findings/);
+
+    const testStory = store.readStory(storyId);
+    testStory.phase = 'TEST';
+    store.writeStory(storyId, testStory);
+    const evidence: TestEvidenceData = {
+      command: 'koala validate --json',
+      output: JSON.stringify({ allPass: true }),
+      result: 'PASS',
+      timestamp: '2026-04-27T12:20:00.000Z',
+    };
+    store.writeTestEvidence(storyId, evidence);
+    const testBrief = createSessionHandlers({
+      store,
+      root: reviewRoot,
+      scanRoot: join(reviewRoot, 'packages/main'),
+    }).session_brief({ concise: true });
+    assert.match(testBrief, /\[FAIL\] delivery-check/);
+    assert.match(testBrief, /\[FAIL\] Story summary/);
+    assert.match(testBrief, /DONE pre-check 还有/);
+    assert.match(testBrief, /git add \+ git commit/);
+    assert.match(testBrief, /delivery_check_set/);
+    assert.match(testBrief, /summary_set/);
+    assert.match(testBrief, /全部通过后再 story_advance --phase=DONE/);
+    assert.doesNotMatch(testBrief, /下一步：story_advance --storyId=B-smoke --phase=DONE/);
+    assert.doesNotMatch(testBrief, /下一步：先 git add \+ git commit 提交所有改动，再 advance DONE/);
+  } finally {
+    rmSync(reviewRoot, { recursive: true, force: true });
+  }
+}
+
 function assertGlobalLinkRepair(): void {
   const root = mkdtempSync(join(tmpdir(), 'koala-flow-link-'));
   try {
@@ -234,6 +347,8 @@ function assertGlobalLinkRepair(): void {
 
 assertSessionBriefGate();
 assertReviewGateUsesOptIn();
+assertReviewerStatusUsesMdFallback();
+assertSessionBriefStatusHintsMatchGates();
 assertGlobalLinkRepair();
 
 console.log('✓ flow stability smoke passed');
