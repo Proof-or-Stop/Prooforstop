@@ -7,10 +7,13 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { isCommandAllowed, resetConfigCache } from '../core/config.js';
 import { signFinding, signReviewPass } from '../core/finding-verify.js';
+import { getArtifactContractStatus } from '../core/artifact-contract.js';
 import { getGuardFailureReason } from '../core/machine.js';
 import { summarizeReviewerStatus } from '../core/reviewer-status.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, Finding, StoryInfo, TestEvidenceData } from '../core/types.js';
+import { buildDoneChecklist } from '../handlers/story-advance.js';
+import { decorateResult } from '../handlers/hints.js';
 import { createSessionHandlers } from '../handlers/session.js';
 import { repairGlobalKoalaLinkBeforeWorktreeDelete } from '../handlers/worktree.js';
 
@@ -224,6 +227,17 @@ function assertReviewerStatusUsesMdFallback(): void {
     const status = summarizeReviewerStatus(store, storyId, root);
     const byName = new Map(status.entries.map(e => [e.name, e]));
     assert.equal(byName.get('docs')?.verdict, 'pending', 'reviewer status should include docs from git diff fallback');
+
+    const reviewBrief = createSessionHandlers({
+      store,
+      root,
+      scanRoot: join(root, 'packages/main'),
+    }).session_brief({ concise: true });
+    assert.match(reviewBrief, /\[pending\] docs/i);
+
+    const contract = getArtifactContractStatus(store, storyId, 'TEST', { projectRoot: root });
+    const findingsClear = contract.entries.find(entry => entry.name === 'findings-clear');
+    assert.equal(findingsClear?.present, false, 'artifact contract should use the same docs reviewer fallback as status');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -278,17 +292,147 @@ function assertSessionBriefStatusHintsMatchGates(): void {
       root: reviewRoot,
       scanRoot: join(reviewRoot, 'packages/main'),
     }).session_brief({ concise: true });
+    const nextStep = createSessionHandlers({
+      store,
+      root: reviewRoot,
+      scanRoot: join(reviewRoot, 'packages/main'),
+    }).next({ concise: true });
     assert.match(testBrief, /\[FAIL\] delivery-check/);
     assert.match(testBrief, /\[FAIL\] Story summary/);
     assert.match(testBrief, /DONE pre-check 还有/);
     assert.match(testBrief, /git add \+ git commit/);
     assert.match(testBrief, /delivery_check_set/);
     assert.match(testBrief, /summary_set/);
+    assert.match(nextStep, /git-working-tree, delivery-check, story-summary/);
+    assert.match(nextStep, /全部通过后再 story_advance --phase=DONE/);
     assert.match(testBrief, /全部通过后再 story_advance --phase=DONE/);
     assert.doesNotMatch(testBrief, /下一步：story_advance --storyId=B-smoke --phase=DONE/);
     assert.doesNotMatch(testBrief, /下一步：先 git add \+ git commit 提交所有改动，再 advance DONE/);
   } finally {
     rmSync(reviewRoot, { recursive: true, force: true });
+  }
+}
+
+function assertDevGuidanceUsesReviewPhase(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-flow-dev-guidance-'));
+  try {
+    const { store, storyId } = createReviewStore(root);
+    git(root, ['init']);
+    git(root, ['config', 'user.email', 'koala@example.test']);
+    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'base']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+    const story = store.readStory(storyId);
+    story.phase = 'DEV';
+    store.writeStory(storyId, story);
+
+    const brief = createSessionHandlers({
+      store,
+      root,
+      scanRoot: join(root, 'packages/main'),
+    }).session_brief({ concise: true });
+    assert.match(brief, /phase=REVIEW/);
+    assert.doesNotMatch(brief, /phase=TEST 进入验证/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertValidateHintsFollowStoryPhase(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-flow-validate-hint-'));
+  try {
+    const { store, storyId } = createReviewStore(root);
+    const result = JSON.stringify({ provider: 'koala-verifier', allPass: true });
+    const render = (phase: StoryInfo['phase']) => {
+      const story = store.readStory(storyId);
+      story.phase = phase;
+      store.writeStory(storyId, story);
+      return String(decorateResult({
+        cmd: 'validate',
+        args: { story: storyId },
+        result,
+        store,
+        root,
+        activeStory: { storyId, phase },
+      }));
+    };
+
+    const devHint = render('DEV');
+    assert.match(devHint, /phase=REVIEW/);
+    assert.doesNotMatch(devHint, /phase=DONE/);
+    assert.doesNotMatch(devHint, /phase=TEST/);
+
+    const reviewHint = render('REVIEW');
+    assert.match(reviewHint, /phase=TEST/);
+    assert.doesNotMatch(reviewHint, /phase=DONE/);
+
+    const testHint = render('TEST');
+    assert.match(testHint, /DONE pre-check/);
+    assert.match(testHint, /phase=DONE/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertDoneChecklistUsesStableOracleRows(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-flow-oracle-row-'));
+  try {
+    const { store, storyId, reviewRound } = createReviewStore(root);
+    git(root, ['init']);
+    git(root, ['config', 'user.email', 'koala@example.test']);
+    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'base']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+
+    const testStory = store.readStory(storyId);
+    testStory.phase = 'TEST';
+    store.writeStory(storyId, testStory);
+    store.writeReview(storyId, {
+      reviews: [{
+        timestamp: reviewRound,
+        issueCount: 0,
+        blockerCount: 0,
+        issues: [],
+      }],
+    });
+    store.writeReviewPasses(storyId, {
+      passes: [
+        makeReviewPass(storyId, 'koala-review-concept', reviewRound, '030'),
+        makeReviewPass(storyId, 'koala-review-quality', reviewRound, '031'),
+        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '032'),
+        makeReviewPass(storyId, 'koala-review-channel', reviewRound, '033'),
+      ],
+    });
+    const evidence: TestEvidenceData = {
+      command: 'koala validate --json',
+      output: JSON.stringify({ allPass: true }),
+      result: 'PASS',
+      timestamp: '2026-04-27T12:25:00.000Z',
+    };
+    store.writeTestEvidence(storyId, evidence);
+    write(root, 'packages/main/src/core/dirty.ts', 'export const dirty = true;\n');
+
+    const rows = buildDoneChecklist(storyId, store, root);
+    const byId = new Map(rows.map(row => [row.id, row]));
+    assert.deepEqual(
+      ['id', 'status', 'detail', 'hint', 'source', 'blocking'].every(key => key in (byId.get('delivery-check') ?? {})),
+      true,
+      'delivery-check row should expose the stable oracle contract',
+    );
+    assert.equal(byId.get('git-working-tree')?.status, 'fail');
+    assert.equal(byId.get('git-working-tree')?.source, 'git diff --quiet');
+    assert.equal(byId.get('git-working-tree')?.blocking, true);
+    assert.match(byId.get('delivery-check')?.hint ?? '', /delivery_check_set/);
+    assert.equal(byId.get('delivery-check')?.source, 'delivery-check.json');
+    assert.equal(byId.get('story-summary')?.status, 'fail');
+    assert.equal(byId.get('story-summary')?.source, 'summary.json');
+    assert.equal(byId.get('story-summary')?.blocking, true);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
   }
 }
 
@@ -349,6 +493,9 @@ assertSessionBriefGate();
 assertReviewGateUsesOptIn();
 assertReviewerStatusUsesMdFallback();
 assertSessionBriefStatusHintsMatchGates();
+assertDevGuidanceUsesReviewPhase();
+assertValidateHintsFollowStoryPhase();
+assertDoneChecklistUsesStableOracleRows();
 assertGlobalLinkRepair();
 
 console.log('✓ flow stability smoke passed');

@@ -33,6 +33,16 @@ export interface ReviewerStatusSummary {
   totalBlockers: number;
 }
 
+export function resolveReviewerTouchpoints(
+  store: StoryStore,
+  storyId: string,
+  projectRoot?: string,
+): string[] | undefined {
+  const understanding = store.readUnderstanding(storyId);
+  return understanding?.touchpoints
+    ?? (projectRoot ? detectMdTouchpointsFromGit(projectRoot) : undefined);
+}
+
 // ── Constants ──
 
 const REVIEW_SALT = 'koala-review-integrity-v1';
@@ -88,9 +98,7 @@ export function summarizeReviewerStatus(store: StoryStore, storyId: string, proj
   let checklist: { items: unknown[] } = { items: [] };
   try { checklist = store.readChecklist(storyId); } catch { /* probe: no checklist yet */ }
   const decision = store.readDecision(storyId);
-  const understanding = store.readUnderstanding(storyId);
-  const touchpoints = understanding?.touchpoints
-    ?? (projectRoot ? detectMdTouchpointsFromGit(projectRoot) : undefined);
+  const touchpoints = resolveReviewerTouchpoints(store, storyId, projectRoot);
   const reviewers = computeActiveReviewers(story, checklist, decision, touchpoints);
   const round = resolveReviewRoundCount(store, storyId);
 
