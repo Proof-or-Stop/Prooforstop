@@ -49,10 +49,10 @@
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
-          "note": "Current HEAD verifies stable oracle row contract fields through flow-stability smoke assertions for row id/status/detail/hint/source/blocking consumption.",
-          "headHash": "ccbdfce9e7290ec9de1874aac67dc5b3d4616aca",
-          "materialHash": "3047f7cbab5334de56a43e0a870af11cd4ee29b9efa84d1c1f489f2e8817aafa",
-          "timestamp": "2026-05-04T21:23:49.137Z"
+          "note": "Post-merge HEAD verifies stable oracle row contract fields through flow-stability smoke assertions for row id/status/detail/hint/source/blocking consumption.",
+          "headHash": "380d9fd18836ed3d25066087c875be1483e22c81",
+          "materialHash": "05d5d00cefefd0e410b626f91979cbd7ed59a6bee603de282556e89f074fee8f",
+          "timestamp": "2026-05-04T21:27:04.738Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -60,10 +60,10 @@
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
-          "note": "Current HEAD verifies delivery-check and summary row hints drive status/next output so label wording changes do not affect next-step guidance.",
-          "headHash": "ccbdfce9e7290ec9de1874aac67dc5b3d4616aca",
-          "materialHash": "3047f7cbab5334de56a43e0a870af11cd4ee29b9efa84d1c1f489f2e8817aafa",
-          "timestamp": "2026-05-04T21:23:49.264Z"
+          "note": "Post-merge HEAD verifies delivery-check and summary row hints drive status/next output so label wording changes do not affect next-step guidance.",
+          "headHash": "380d9fd18836ed3d25066087c875be1483e22c81",
+          "materialHash": "05d5d00cefefd0e410b626f91979cbd7ed59a6bee603de282556e89f074fee8f",
+          "timestamp": "2026-05-04T21:27:04.876Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -71,10 +71,10 @@
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
           "command": "npm --prefix packages/main run test:flow-stability-smoke && node packages/main/dist/cli.js validate --json",
           "result": "pass",
-          "note": "Current HEAD covers the real local CLI validate path and prevents optimistic DONE guidance when renderer lacks DONE oracle pre-check rows.",
-          "headHash": "ccbdfce9e7290ec9de1874aac67dc5b3d4616aca",
-          "materialHash": "3047f7cbab5334de56a43e0a870af11cd4ee29b9efa84d1c1f489f2e8817aafa",
-          "timestamp": "2026-05-04T21:23:49.394Z"
+          "note": "Post-merge HEAD covers the real local CLI validate path and prevents optimistic DONE guidance when renderer lacks DONE oracle pre-check rows.",
+          "headHash": "380d9fd18836ed3d25066087c875be1483e22c81",
+          "materialHash": "05d5d00cefefd0e410b626f91979cbd7ed59a6bee603de282556e89f074fee8f",
+          "timestamp": "2026-05-04T21:27:05.013Z"
         }
       ]
     },
@@ -127,10 +127,10 @@
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
-          "note": "Current HEAD verifies TEST status next step lists dirty tree, delivery-check, and story-summary pre-check failures instead of directly advancing DONE.",
-          "headHash": "ccbdfce9e7290ec9de1874aac67dc5b3d4616aca",
-          "materialHash": "3047f7cbab5334de56a43e0a870af11cd4ee29b9efa84d1c1f489f2e8817aafa",
-          "timestamp": "2026-05-04T21:23:49.521Z"
+          "note": "Post-merge HEAD verifies TEST status next step lists dirty tree, delivery-check, and story-summary pre-check failures instead of directly advancing DONE.",
+          "headHash": "380d9fd18836ed3d25066087c875be1483e22c81",
+          "materialHash": "05d5d00cefefd0e410b626f91979cbd7ed59a6bee603de282556e89f074fee8f",
+          "timestamp": "2026-05-04T21:27:05.149Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -138,10 +138,10 @@
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
-          "note": "Current HEAD verifies markdown touchpoints trigger docs reviewer fallback consistently in reviewer status and artifact contract status.",
-          "headHash": "ccbdfce9e7290ec9de1874aac67dc5b3d4616aca",
-          "materialHash": "3047f7cbab5334de56a43e0a870af11cd4ee29b9efa84d1c1f489f2e8817aafa",
-          "timestamp": "2026-05-04T21:23:49.650Z"
+          "note": "Post-merge HEAD verifies markdown touchpoints trigger docs reviewer fallback consistently in reviewer status and artifact contract status.",
+          "headHash": "380d9fd18836ed3d25066087c875be1483e22c81",
+          "materialHash": "05d5d00cefefd0e410b626f91979cbd7ed59a6bee603de282556e89f074fee8f",
+          "timestamp": "2026-05-04T21:27:05.285Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -149,10 +149,10 @@
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
-          "note": "Current HEAD verifies resolved findings no longer render REVIEW anti-stall text claiming unresolved findings still block progress.",
-          "headHash": "ccbdfce9e7290ec9de1874aac67dc5b3d4616aca",
-          "materialHash": "3047f7cbab5334de56a43e0a870af11cd4ee29b9efa84d1c1f489f2e8817aafa",
-          "timestamp": "2026-05-04T21:23:49.787Z"
+          "note": "Post-merge HEAD verifies resolved findings no longer render REVIEW anti-stall text claiming unresolved findings still block progress.",
+          "headHash": "380d9fd18836ed3d25066087c875be1483e22c81",
+          "materialHash": "05d5d00cefefd0e410b626f91979cbd7ed59a6bee603de282556e89f074fee8f",
+          "timestamp": "2026-05-04T21:27:05.422Z"
         }
       ]
     },
@@ -204,10 +204,10 @@
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
-          "note": "Current HEAD smoke constructs TEST story and asserts status/next includes delivery_check_set, summary_set, and git commit remediation from DONE pre-check rows.",
-          "headHash": "ccbdfce9e7290ec9de1874aac67dc5b3d4616aca",
-          "materialHash": "3047f7cbab5334de56a43e0a870af11cd4ee29b9efa84d1c1f489f2e8817aafa",
-          "timestamp": "2026-05-04T21:23:49.923Z"
+          "note": "Post-merge HEAD smoke constructs TEST story and asserts status/next includes delivery_check_set, summary_set, and git commit remediation from DONE pre-check rows.",
+          "headHash": "380d9fd18836ed3d25066087c875be1483e22c81",
+          "materialHash": "05d5d00cefefd0e410b626f91979cbd7ed59a6bee603de282556e89f074fee8f",
+          "timestamp": "2026-05-04T21:27:05.568Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -215,10 +215,10 @@
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
           "command": "npm run test:entrypoints && npm run test:codex-assets",
           "result": "pass",
-          "note": "Current HEAD entrypoint and codex asset checks cover docs/adapter fallback consistency including stale global fallback current-worktree boundary warnings.",
-          "headHash": "ccbdfce9e7290ec9de1874aac67dc5b3d4616aca",
-          "materialHash": "3047f7cbab5334de56a43e0a870af11cd4ee29b9efa84d1c1f489f2e8817aafa",
-          "timestamp": "2026-05-04T21:23:50.052Z"
+          "note": "Post-merge HEAD entrypoint and codex asset checks cover docs/adapter fallback consistency including stale global fallback current-worktree boundary warnings.",
+          "headHash": "380d9fd18836ed3d25066087c875be1483e22c81",
+          "materialHash": "05d5d00cefefd0e410b626f91979cbd7ed59a6bee603de282556e89f074fee8f",
+          "timestamp": "2026-05-04T21:27:05.715Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -226,10 +226,10 @@
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
-          "note": "Current HEAD smoke covers resolved finding anti-stall regression and confirms stale unresolved-blocker wording stays absent.",
-          "headHash": "ccbdfce9e7290ec9de1874aac67dc5b3d4616aca",
-          "materialHash": "3047f7cbab5334de56a43e0a870af11cd4ee29b9efa84d1c1f489f2e8817aafa",
-          "timestamp": "2026-05-04T21:23:50.180Z"
+          "note": "Post-merge HEAD smoke covers resolved finding anti-stall regression and confirms stale unresolved-blocker wording stays absent.",
+          "headHash": "380d9fd18836ed3d25066087c875be1483e22c81",
+          "materialHash": "05d5d00cefefd0e410b626f91979cbd7ed59a6bee603de282556e89f074fee8f",
+          "timestamp": "2026-05-04T21:27:05.851Z"
         }
       ]
     }
