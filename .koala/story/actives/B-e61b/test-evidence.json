@@ -1,0 +1,196 @@
+{
+  "command": "koala validate --story=B-e61b --json",
+  "output": "{\"provider\":\"koala-verifier-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands passed; verification coverage missing 9 required intent(s)\",\"details\":[\"✓ package.json test script: npm test\",\"  > koala@0.3.2 test\",\"  > npm run test:e2e\",\"  > koala@0.3.2 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 0/9 covered (9 required missing)\",\"  ✗ CHK-001:happy:0 [happy/must/cli] stale via docs_check (docs/requirements/decisions/story-lifecycle.md) — DONE pre-check row 暴露稳定 id/status/detail/hint/source/blocking 语义，status renderer 可按 id 与 hint 渲染，不依赖 label 文案。\",\"  ✗ CHK-001:edge:0 [edge/must/cli] stale via logic_test (packages/main/src/tasks/flow-stability-smoke.ts) — 新增 delivery-check 或 summary 等失败项时，row hint 能被 status/next 直接消费，label 文案变化不影响 next step。\",\"  ✗ CHK-001:adversarial:0 [adversarial/must/cli] stale via logic_test (packages/main/src/tasks/flow-stability-smoke.ts) — renderer 若只知道 phase=TEST 但没有调用 DONE oracle rows，不得输出乐观 story_advance DONE 提示；必须降级指向 pre-check 失败项。\",\"  ✗ CHK-002:happy:0 [happy/must/cli] stale via docs_check (docs/requirements/decisions/story-lifecycle.md) — TEST 阶段缺 git clean、delivery-check、summary 时，status next step 显示这些具体失败项与补救命令，而不是直接提示 DONE。\",\"  ✗ CHK-002:edge:0 [edge/must/cli] stale via logic_test (packages/main/src/tasks/flow-stability-smoke.ts) — 存在 docs 相关 git touchpoint 但未显式记录 docs reviewer 时，status 与 artifact contract 都要求 docs reviewer，不出现一个显示一个不显示。\",\"  ✗ CHK-002:adversarial:0 [adversarial/must/cli] stale via logic_test (packages/main/src/tasks/flow-stability-smoke.ts) — finding 已 resolved 或 reviewer evidence 已通过时，Anti-stall 不得继续渲染 blocked by unresolved findings 这类过期阻塞文案。\",\"  ✗ CHK-003:happy:0 [happy/must/cli] stale via docs_check (docs/requirements/decisions/testing-infra.md) — flow-stability smoke 构造 TEST story，断言 status/next 输出包含 delivery_check_set、summary_set、git commit 等真实 DONE pre-check 失败项。\",\"  ✗ CHK-003:edge:0 [edge/must/cli] stale via logic_test (packages/main/src/tasks/flow-stability-smoke.ts) — smoke 覆盖 docs reviewer fallback 与 artifact/status 一致性，防止 docs gate 被 status 漏显。\",\"  ✗ CHK-003:adversarial:0 [adversarial/must/cli] stale via logic_test (packages/main/src/tasks/flow-stability-smoke.ts) — smoke 覆盖 resolved finding 后 anti-stall 不显示 unresolved blocker，防止旧阻塞文案复发。\"],\"warnings\":[\"validate.ts not found; used language/project validation command discovery\"],\"timestamp\":\"2026-05-04T21:22:50.538Z\",\"headSha\":\"ccbdfce9e7290ec9de1874aac67dc5b3d4616aca\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.2 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.2 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":361}],\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":0,\"missingRequired\":9,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"DONE pre-check row 暴露稳定 id/status/detail/hint/source/blocking 语义，status renderer 可按 id 与 hint 渲染，不依赖 label 文案。\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/story-lifecycle.md\",\"command\":\"manual docs sync\",\"result\":\"pass\",\"note\":\"Truth source now documents stable oracle row contract fields used between gates and renderers.\",\"headHash\":\"0475b1ed6e34530f2ea6f6860f444e2cef5ed932\",\"materialHash\":\"c3fed9a1f65ad26f6a278ad747496e508d96bbf6b2d26058bb06181649f0a9f7\",\"timestamp\":\"2026-05-04T19:33:28.655Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"新增 delivery-check 或 summary 等失败项时，row hint 能被 status/next 直接消费，label 文案变化不影响 next step。\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/flow-stability-smoke.ts\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"assertSessionBriefStatusHintsMatchGates verifies delivery-check and story-summary row hints drive status/next even when labels are display text.\",\"headHash\":\"0475b1ed6e34530f2ea6f6860f444e2cef5ed932\",\"materialHash\":\"c3fed9a1f65ad26f6a278ad747496e508d96bbf6b2d26058bb06181649f0a9f7\",\"timestamp\":\"2026-05-04T19:32:34.866Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"renderer 若只知道 phase=TEST 但没有调用 DONE oracle rows，不得输出乐观 story_advance DONE 提示；必须降级指向 pre-check 失败项。\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/flow-stability-smoke.ts\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"assertValidateHintsFollowStoryPhase and TEST next assertions prevent phase-only optimistic DONE guidance without consulting current gate state.\",\"headHash\":\"0475b1ed6e34530f2ea6f6860f444e2cef5ed932\",\"materialHash\":\"c3fed9a1f65ad26f6a278ad747496e508d96bbf6b2d26058bb06181649f0a9f7\",\"timestamp\":\"2026-05-04T19:32:34.866Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"TEST 阶段缺 git clean、delivery-check、summary 时，status next step 显示这些具体失败项与补救命令，而不是直接提示 DONE。\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/story-lifecycle.md\",\"command\":\"manual docs sync\",\"result\":\"pass\",\"note\":\"Truth source now states status/session_brief/next must render gate oracle rows instead of duplicating gate rules.\",\"headHash\":\"0475b1ed6e34530f2ea6f6860f444e2cef5ed932\",\"materialHash\":\"c3fed9a1f65ad26f6a278ad747496e508d96bbf6b2d26058bb06181649f0a9f7\",\"timestamp\":\"2026-05-04T19:33:28.655Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"存在 docs 相关 git touchpoint 但未显式记录 docs reviewer 时，status 与 artifact contract 都要求 docs reviewer，不出现一个显示一个不显示。\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/flow-stability-smoke.ts\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"assertReviewerStatusUsesMdFallback checks status and artifact-contract both require docs reviewer from git markdown touchpoints.\",\"headHash\":\"0475b1ed6e34530f2ea6f6860f444e2cef5ed932\",\"materialHash\":\"c3fed9a1f65ad26f6a278ad747496e508d96bbf6b2d26058bb06181649f0a9f7\",\"timestamp\":\"2026-05-04T19:32:34.866Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"finding 已 resolved 或 reviewer evidence 已通过时，Anti-stall 不得继续渲染 blocked by unresolved findings 这类过期阻塞文案。\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/flow-stability-smoke.ts\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"assertSessionBriefStatusHintsMatchGates verifies resolved findings do not render REVIEW blocked by unresolved findings.\",\"headHash\":\"0475b1ed6e34530f2ea6f6860f444e2cef5ed932\",\"materialHash\":\"c3fed9a1f65ad26f6a278ad747496e508d96bbf6b2d26058bb06181649f0a9f7\",\"timestamp\":\"2026-05-04T19:32:34.866Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"flow-stability smoke 构造 TEST story，断言 status/next 输出包含 delivery_check_set、summary_set、git commit 等真实 DONE pre-check 失败项。\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/testing-infra.md\",\"command\":\"manual docs sync\",\"result\":\"pass\",\"note\":\"Testing infra docs now require validate success hints to be phase-aware and TEST to consult DONE pre-check rows.\",\"headHash\":\"0475b1ed6e34530f2ea6f6860f444e2cef5ed932\",\"materialHash\":\"c3fed9a1f65ad26f6a278ad747496e508d96bbf6b2d26058bb06181649f0a9f7\",\"timestamp\":\"2026-05-04T19:33:28.655Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"smoke 覆盖 docs reviewer fallback 与 artifact/status 一致性，防止 docs gate 被 status 漏显。\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/flow-stability-smoke.ts\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"Smoke coverage asserts docs reviewer fallback consistency between summarizeReviewerStatus and getArtifactContractStatus.\",\"headHash\":\"0475b1ed6e34530f2ea6f6860f444e2cef5ed932\",\"materialHash\":\"c3fed9a1f65ad26f6a278ad747496e508d96bbf6b2d26058bb06181649f0a9f7\",\"timestamp\":\"2026-05-04T19:32:34.866Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"smoke 覆盖 resolved finding 后 anti-stall 不显示 unresolved blocker，防止旧阻塞文案复发。\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/flow-stability-smoke.ts\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"Smoke coverage asserts resolved finding anti-stall regression stays fixed and stale blocker wording is absent.\",\"headHash\":\"0475b1ed6e34530f2ea6f6860f444e2cef5ed932\",\"materialHash\":\"c3fed9a1f65ad26f6a278ad747496e508d96bbf6b2d26058bb06181649f0a9f7\",\"timestamp\":\"2026-05-04T19:32:34.866Z\"}}]}}",
+  "result": "FAIL",
+  "timestamp": "2026-05-04T21:22:50.809Z",
+  "headHash": "ccbdfce9e7290ec9de1874aac67dc5b3d4616aca",
+  "materialHash": "3047f7cbab5334de56a43e0a870af11cd4ee29b9efa84d1c1f489f2e8817aafa",
+  "verificationCoverage": {
+    "total": 9,
+    "required": 9,
+    "covered": 0,
+    "missingRequired": 9,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "DONE pre-check row 暴露稳定 id/status/detail/hint/source/blocking 语义，status renderer 可按 id 与 hint 渲染，不依赖 label 文案。",
+        "type": "cli",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/story-lifecycle.md",
+          "command": "manual docs sync",
+          "result": "pass",
+          "note": "Truth source now documents stable oracle row contract fields used between gates and renderers.",
+          "headHash": "0475b1ed6e34530f2ea6f6860f444e2cef5ed932",
+          "materialHash": "c3fed9a1f65ad26f6a278ad747496e508d96bbf6b2d26058bb06181649f0a9f7",
+          "timestamp": "2026-05-04T19:33:28.655Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "新增 delivery-check 或 summary 等失败项时，row hint 能被 status/next 直接消费，label 文案变化不影响 next step。",
+        "type": "cli",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "assertSessionBriefStatusHintsMatchGates verifies delivery-check and story-summary row hints drive status/next even when labels are display text.",
+          "headHash": "0475b1ed6e34530f2ea6f6860f444e2cef5ed932",
+          "materialHash": "c3fed9a1f65ad26f6a278ad747496e508d96bbf6b2d26058bb06181649f0a9f7",
+          "timestamp": "2026-05-04T19:32:34.866Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "renderer 若只知道 phase=TEST 但没有调用 DONE oracle rows，不得输出乐观 story_advance DONE 提示；必须降级指向 pre-check 失败项。",
+        "type": "cli",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "assertValidateHintsFollowStoryPhase and TEST next assertions prevent phase-only optimistic DONE guidance without consulting current gate state.",
+          "headHash": "0475b1ed6e34530f2ea6f6860f444e2cef5ed932",
+          "materialHash": "c3fed9a1f65ad26f6a278ad747496e508d96bbf6b2d26058bb06181649f0a9f7",
+          "timestamp": "2026-05-04T19:32:34.866Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "TEST 阶段缺 git clean、delivery-check、summary 时，status next step 显示这些具体失败项与补救命令，而不是直接提示 DONE。",
+        "type": "cli",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/story-lifecycle.md",
+          "command": "manual docs sync",
+          "result": "pass",
+          "note": "Truth source now states status/session_brief/next must render gate oracle rows instead of duplicating gate rules.",
+          "headHash": "0475b1ed6e34530f2ea6f6860f444e2cef5ed932",
+          "materialHash": "c3fed9a1f65ad26f6a278ad747496e508d96bbf6b2d26058bb06181649f0a9f7",
+          "timestamp": "2026-05-04T19:33:28.655Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "存在 docs 相关 git touchpoint 但未显式记录 docs reviewer 时，status 与 artifact contract 都要求 docs reviewer，不出现一个显示一个不显示。",
+        "type": "cli",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "assertReviewerStatusUsesMdFallback checks status and artifact-contract both require docs reviewer from git markdown touchpoints.",
+          "headHash": "0475b1ed6e34530f2ea6f6860f444e2cef5ed932",
+          "materialHash": "c3fed9a1f65ad26f6a278ad747496e508d96bbf6b2d26058bb06181649f0a9f7",
+          "timestamp": "2026-05-04T19:32:34.866Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "finding 已 resolved 或 reviewer evidence 已通过时，Anti-stall 不得继续渲染 blocked by unresolved findings 这类过期阻塞文案。",
+        "type": "cli",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "assertSessionBriefStatusHintsMatchGates verifies resolved findings do not render REVIEW blocked by unresolved findings.",
+          "headHash": "0475b1ed6e34530f2ea6f6860f444e2cef5ed932",
+          "materialHash": "c3fed9a1f65ad26f6a278ad747496e508d96bbf6b2d26058bb06181649f0a9f7",
+          "timestamp": "2026-05-04T19:32:34.866Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "flow-stability smoke 构造 TEST story，断言 status/next 输出包含 delivery_check_set、summary_set、git commit 等真实 DONE pre-check 失败项。",
+        "type": "cli",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/testing-infra.md",
+          "command": "manual docs sync",
+          "result": "pass",
+          "note": "Testing infra docs now require validate success hints to be phase-aware and TEST to consult DONE pre-check rows.",
+          "headHash": "0475b1ed6e34530f2ea6f6860f444e2cef5ed932",
+          "materialHash": "c3fed9a1f65ad26f6a278ad747496e508d96bbf6b2d26058bb06181649f0a9f7",
+          "timestamp": "2026-05-04T19:33:28.655Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "smoke 覆盖 docs reviewer fallback 与 artifact/status 一致性，防止 docs gate 被 status 漏显。",
+        "type": "cli",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke coverage asserts docs reviewer fallback consistency between summarizeReviewerStatus and getArtifactContractStatus.",
+          "headHash": "0475b1ed6e34530f2ea6f6860f444e2cef5ed932",
+          "materialHash": "c3fed9a1f65ad26f6a278ad747496e508d96bbf6b2d26058bb06181649f0a9f7",
+          "timestamp": "2026-05-04T19:32:34.866Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "smoke 覆盖 resolved finding 后 anti-stall 不显示 unresolved blocker，防止旧阻塞文案复发。",
+        "type": "cli",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke coverage asserts resolved finding anti-stall regression stays fixed and stale blocker wording is absent.",
+          "headHash": "0475b1ed6e34530f2ea6f6860f444e2cef5ed932",
+          "materialHash": "c3fed9a1f65ad26f6a278ad747496e508d96bbf6b2d26058bb06181649f0a9f7",
+          "timestamp": "2026-05-04T19:32:34.866Z"
+        }
+      }
+    ]
+  }
+}

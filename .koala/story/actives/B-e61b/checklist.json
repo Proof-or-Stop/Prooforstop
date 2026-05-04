@@ -45,14 +45,14 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-001:happy:0",
-          "kind": "docs_check",
-          "file": "docs/requirements/decisions/story-lifecycle.md",
-          "command": "manual docs sync",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
-          "note": "Truth source now documents stable oracle row contract fields used between gates and renderers.",
-          "headHash": "0475b1ed6e34530f2ea6f6860f444e2cef5ed932",
-          "materialHash": "c3fed9a1f65ad26f6a278ad747496e508d96bbf6b2d26058bb06181649f0a9f7",
-          "timestamp": "2026-05-04T19:33:28.655Z"
+          "note": "Current HEAD verifies stable oracle row contract fields through flow-stability smoke assertions for row id/status/detail/hint/source/blocking consumption.",
+          "headHash": "ccbdfce9e7290ec9de1874aac67dc5b3d4616aca",
+          "materialHash": "3047f7cbab5334de56a43e0a870af11cd4ee29b9efa84d1c1f489f2e8817aafa",
+          "timestamp": "2026-05-04T21:23:49.137Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -60,21 +60,21 @@
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
-          "note": "assertSessionBriefStatusHintsMatchGates verifies delivery-check and story-summary row hints drive status/next even when labels are display text.",
-          "headHash": "0475b1ed6e34530f2ea6f6860f444e2cef5ed932",
-          "materialHash": "c3fed9a1f65ad26f6a278ad747496e508d96bbf6b2d26058bb06181649f0a9f7",
-          "timestamp": "2026-05-04T19:32:34.866Z"
+          "note": "Current HEAD verifies delivery-check and summary row hints drive status/next output so label wording changes do not affect next-step guidance.",
+          "headHash": "ccbdfce9e7290ec9de1874aac67dc5b3d4616aca",
+          "materialHash": "3047f7cbab5334de56a43e0a870af11cd4ee29b9efa84d1c1f489f2e8817aafa",
+          "timestamp": "2026-05-04T21:23:49.264Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
-          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke && node packages/main/dist/cli.js validate --json",
           "result": "pass",
-          "note": "assertValidateHintsFollowStoryPhase and TEST next assertions prevent phase-only optimistic DONE guidance without consulting current gate state.",
-          "headHash": "0475b1ed6e34530f2ea6f6860f444e2cef5ed932",
-          "materialHash": "c3fed9a1f65ad26f6a278ad747496e508d96bbf6b2d26058bb06181649f0a9f7",
-          "timestamp": "2026-05-04T19:32:34.866Z"
+          "note": "Current HEAD covers the real local CLI validate path and prevents optimistic DONE guidance when renderer lacks DONE oracle pre-check rows.",
+          "headHash": "ccbdfce9e7290ec9de1874aac67dc5b3d4616aca",
+          "materialHash": "3047f7cbab5334de56a43e0a870af11cd4ee29b9efa84d1c1f489f2e8817aafa",
+          "timestamp": "2026-05-04T21:23:49.394Z"
         }
       ]
     },
@@ -123,14 +123,14 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-002:happy:0",
-          "kind": "docs_check",
-          "file": "docs/requirements/decisions/story-lifecycle.md",
-          "command": "manual docs sync",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
-          "note": "Truth source now states status/session_brief/next must render gate oracle rows instead of duplicating gate rules.",
-          "headHash": "0475b1ed6e34530f2ea6f6860f444e2cef5ed932",
-          "materialHash": "c3fed9a1f65ad26f6a278ad747496e508d96bbf6b2d26058bb06181649f0a9f7",
-          "timestamp": "2026-05-04T19:33:28.655Z"
+          "note": "Current HEAD verifies TEST status next step lists dirty tree, delivery-check, and story-summary pre-check failures instead of directly advancing DONE.",
+          "headHash": "ccbdfce9e7290ec9de1874aac67dc5b3d4616aca",
+          "materialHash": "3047f7cbab5334de56a43e0a870af11cd4ee29b9efa84d1c1f489f2e8817aafa",
+          "timestamp": "2026-05-04T21:23:49.521Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -138,10 +138,10 @@
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
-          "note": "assertReviewerStatusUsesMdFallback checks status and artifact-contract both require docs reviewer from git markdown touchpoints.",
-          "headHash": "0475b1ed6e34530f2ea6f6860f444e2cef5ed932",
-          "materialHash": "c3fed9a1f65ad26f6a278ad747496e508d96bbf6b2d26058bb06181649f0a9f7",
-          "timestamp": "2026-05-04T19:32:34.866Z"
+          "note": "Current HEAD verifies markdown touchpoints trigger docs reviewer fallback consistently in reviewer status and artifact contract status.",
+          "headHash": "ccbdfce9e7290ec9de1874aac67dc5b3d4616aca",
+          "materialHash": "3047f7cbab5334de56a43e0a870af11cd4ee29b9efa84d1c1f489f2e8817aafa",
+          "timestamp": "2026-05-04T21:23:49.650Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -149,10 +149,10 @@
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
-          "note": "assertSessionBriefStatusHintsMatchGates verifies resolved findings do not render REVIEW blocked by unresolved findings.",
-          "headHash": "0475b1ed6e34530f2ea6f6860f444e2cef5ed932",
-          "materialHash": "c3fed9a1f65ad26f6a278ad747496e508d96bbf6b2d26058bb06181649f0a9f7",
-          "timestamp": "2026-05-04T19:32:34.866Z"
+          "note": "Current HEAD verifies resolved findings no longer render REVIEW anti-stall text claiming unresolved findings still block progress.",
+          "headHash": "ccbdfce9e7290ec9de1874aac67dc5b3d4616aca",
+          "materialHash": "3047f7cbab5334de56a43e0a870af11cd4ee29b9efa84d1c1f489f2e8817aafa",
+          "timestamp": "2026-05-04T21:23:49.787Z"
         }
       ]
     },
@@ -200,25 +200,25 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-003:happy:0",
-          "kind": "docs_check",
-          "file": "docs/requirements/decisions/testing-infra.md",
-          "command": "manual docs sync",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
-          "note": "Testing infra docs now require validate success hints to be phase-aware and TEST to consult DONE pre-check rows.",
-          "headHash": "0475b1ed6e34530f2ea6f6860f444e2cef5ed932",
-          "materialHash": "c3fed9a1f65ad26f6a278ad747496e508d96bbf6b2d26058bb06181649f0a9f7",
-          "timestamp": "2026-05-04T19:33:28.655Z"
+          "note": "Current HEAD smoke constructs TEST story and asserts status/next includes delivery_check_set, summary_set, and git commit remediation from DONE pre-check rows.",
+          "headHash": "ccbdfce9e7290ec9de1874aac67dc5b3d4616aca",
+          "materialHash": "3047f7cbab5334de56a43e0a870af11cd4ee29b9efa84d1c1f489f2e8817aafa",
+          "timestamp": "2026-05-04T21:23:49.923Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
-          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "command": "npm run test:entrypoints && npm run test:codex-assets",
           "result": "pass",
-          "note": "Smoke coverage asserts docs reviewer fallback consistency between summarizeReviewerStatus and getArtifactContractStatus.",
-          "headHash": "0475b1ed6e34530f2ea6f6860f444e2cef5ed932",
-          "materialHash": "c3fed9a1f65ad26f6a278ad747496e508d96bbf6b2d26058bb06181649f0a9f7",
-          "timestamp": "2026-05-04T19:32:34.866Z"
+          "note": "Current HEAD entrypoint and codex asset checks cover docs/adapter fallback consistency including stale global fallback current-worktree boundary warnings.",
+          "headHash": "ccbdfce9e7290ec9de1874aac67dc5b3d4616aca",
+          "materialHash": "3047f7cbab5334de56a43e0a870af11cd4ee29b9efa84d1c1f489f2e8817aafa",
+          "timestamp": "2026-05-04T21:23:50.052Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -226,10 +226,10 @@
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
-          "note": "Smoke coverage asserts resolved finding anti-stall regression stays fixed and stale blocker wording is absent.",
-          "headHash": "0475b1ed6e34530f2ea6f6860f444e2cef5ed932",
-          "materialHash": "c3fed9a1f65ad26f6a278ad747496e508d96bbf6b2d26058bb06181649f0a9f7",
-          "timestamp": "2026-05-04T19:32:34.866Z"
+          "note": "Current HEAD smoke covers resolved finding anti-stall regression and confirms stale unresolved-blocker wording stays absent.",
+          "headHash": "ccbdfce9e7290ec9de1874aac67dc5b3d4616aca",
+          "materialHash": "3047f7cbab5334de56a43e0a870af11cd4ee29b9efa84d1c1f489f2e8817aafa",
+          "timestamp": "2026-05-04T21:23:50.180Z"
         }
       ]
     }
