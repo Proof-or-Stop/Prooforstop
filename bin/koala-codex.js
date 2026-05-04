@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 /**
  * Codex-friendly koala bootstrap.
- * Tags activity.jsonl entries with source=codex.
+ * Tags activity.jsonl entries with source=codex and a stable session when
+ * the host exposes one.
  */
-process.env.KOALA_ACTIVITY_SOURCE = process.env.KOALA_ACTIVITY_SOURCE || 'codex';
+process.env.KOALA_ACTIVITY_SOURCE = 'codex';
+process.env.KOALA_ACTIVITY_RECORD_READONLY = '1';
 
 if (!process.env.KOALA_ACTIVITY_SESSION) {
   process.env.KOALA_ACTIVITY_SESSION =

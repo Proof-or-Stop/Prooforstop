@@ -1,0 +1,55 @@
+{
+  "storyId": "B-d308",
+  "changes": "Added a Koala-owned Codex adapter manifest, generated it from koala init, hardened bin/koala-codex.js and bootstrap-runner activity tagging, and updated README/.Codex guidance plus verification scripts for wrapper and fallback heartbeat behavior.",
+  "usage": "Preferred Codex entrypoint is node bin/koala-codex.js session_brief. If only global koala exists, use KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 koala session_brief.",
+  "expectedOutcome": "Codex users can see and use a Koala adapter manifest and wrapper without expecting unsupported .Codex/hooks or .Codex/settings.json runtime behavior.",
+  "actualTranscript": "node bin/koala-codex.js session_brief returned # koala session brief; .Codex/koala.json reports adapterOwner=koala, adapterKind=codex, activitySource=codex, local wrapper first, read-only global fallback, and excluded .Codex/hooks/.Codex/settings.json; filesystem check confirms those fake runtime assets are absent.",
+  "outcomeDiff": "No product-visible mismatch; expected adapter boundary and actual outputs match.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "No fake Codex runtime hooks/settings are introduced; global fallback only records read-only heartbeat when KOALA_ACTIVITY_RECORD_READONLY=1 is included as documented.",
+  "pitfalls": "Review found that documenting KOALA_ACTIVITY_SOURCE=codex alone was not enough for read-only session_brief heartbeat; fallback docs, manifest, and tests now include KOALA_ACTIVITY_RECORD_READONLY=1.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 121887
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 11457
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 116183
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 999302
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 347947
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 43598
+    }
+  },
+  "totalDurationMs": 1640374,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-05-04T17:21:27.867Z",
+  "updatedAt": "2026-05-04T17:21:27.867Z"
+}

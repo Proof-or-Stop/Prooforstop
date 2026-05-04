@@ -51,6 +51,7 @@ node bin/koala-codex.js lab create --target=test-case-reviewer --profile=reviewe
 - 如果 `packages/lab` 已构建，它也会把 `koala lab ...` 子命令一起接进来
 - 它会把 Koala 调用写入 `.koala/activity.jsonl`
 - 写入记录会带 `source=codex`，可以和普通 CLI、Claude Code 区分
+- 它会为 `session_brief` 这类只读恢复命令启用 heartbeat 记录
 
 如果本地 bootstrap 还没准备好，wrapper 会直接打印恢复步骤，而不是抛出模糊的模块加载错误。
 
@@ -92,6 +93,7 @@ npm run test:codex-assets
 
 - `.Codex/agents/*.md` 是否仍然等于 `.claude/agents/*.md` 的受控 transform 结果
 - `.Codex/agents` 是否没有漏掉 `.claude/agents` 中新增的 prompt
+- `.Codex/koala.json` 是否仍然声明 Koala-managed Codex adapter、`activitySource=codex`、推荐入口和不生成的 runtime 资产
 - `.Codex/README.md` 是否保留正确的 Codex fallback 入口
 - `README.md` / `AGENTS.md` 是否仍然包含关键的 Codex 接入说明
 
@@ -100,10 +102,10 @@ npm run test:codex-assets
 如果某个项目只有全局 `koala`，没有 `bin/koala-codex.js`，可以这样跑：
 
 ```bash
-KOALA_ACTIVITY_SOURCE=codex koala session_brief
+KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 koala session_brief
 ```
 
-这能保证 activity 里仍然按 `source=codex` 记账；但如果没有 bootstrap 入口，`aux_*` 命令可能不可用。
+这能保证 activity 里仍然按 `source=codex` 记账，并让 `session_brief` 这种只读入口也留下 heartbeat；但如果没有 bootstrap 入口，`aux_*` 命令可能不可用。
 
 如果全局 core 入口提示 `未知命令: aux_doc_list`，在 Koala 仓库内使用完整 bootstrap：
 
@@ -182,10 +184,11 @@ node scripts/real-story-replay-benchmark.mjs
 
 ## Claude Code
 
-Claude Code 侧仍然使用 `.claude/` 下的 hooks、settings 和 skill。Codex 不消费这些 Claude runtime 配置，但 Codex agent prompt 会从 `.claude/agents` 全量受控生成到 `.Codex/agents`。Codex 侧的说明放在：
+Claude Code 侧仍然使用 `.claude/` 下的 hooks、settings 和 skill。Codex 不消费这些 Claude runtime 配置，也不会读取 `.Codex/hooks` 或 `.Codex/settings.json`。Koala 为 Codex 生成的是 adapter 资产：agent prompt 会从 `.claude/agents` 全量受控生成到 `.Codex/agents`，`.Codex/koala.json` 记录 Koala-managed adapter 的推荐入口、`source=codex` 活动标记、session 环境变量和明确排除的 runtime 资产。Codex 侧的说明放在：
 
 - [AGENTS.md](/Users/jek/Documents/Work/Orchestrate/AGENTS.md:1)
 - [.Codex/README.md](/Users/jek/Documents/Work/Orchestrate/.Codex/README.md:1)
+- [.Codex/koala.json](/Users/jek/Documents/Work/Orchestrate/.Codex/koala.json:1)
 - [.Codex/agents/](/Users/jek/Documents/Work/Orchestrate/.Codex/agents:1)
 
 当前仓库里 `.Codex/agents` 由 `.claude/agents` 经过受控 transform 全量生成，并通过 `npm run test:codex-assets` 防止后续漂移。
