@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Make starter business files opt-in during koala init",
+      "context": "Remove default creation of src/core, src/shells, and business template files from koala init. Add an explicit --starter / --with-template flag that preserves old starter behavior when wanted. Keep bin wrappers, agent assets, docs/story and requirements directories as default Koala management assets.",
+      "relatedDocs": [
+        "README.md",
+        "docs/requirements/decisions/project-vision.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Detect scanRoot before any optional starter template creation",
+      "context": "Existing-project init should not write scanRoot=src merely because init created src. Compute project type/source-root hints before creating optional starter directories. For Python projects without existing src, scanRoot should remain .; for generic empty starter mode, scanRoot can be src.",
+      "relatedDocs": [
+        "docs/requirements/decisions/truth-source.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Cover default and starter init behavior in entrypoint smoke",
+      "context": "Extend scripts/verify-entrypoints.mjs so default koala init does not create src/core/shell templates, and --starter still creates them. Also assert Python project without pre-existing src keeps scanRoot=. after init.",
+      "relatedDocs": [
+        "README.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
