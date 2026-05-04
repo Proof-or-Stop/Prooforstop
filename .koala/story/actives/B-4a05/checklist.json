@@ -52,10 +52,10 @@
           "file": "packages/main/src/tasks/cli-argument-ergonomics-smoke.ts",
           "command": "node packages/main/dist/tasks/cli-argument-ergonomics-smoke.js",
           "result": "pass",
-          "note": "Smoke asserts invalid verificationIntent type exits nonzero and stderr contains verificationIntent.happy.0.type, integration_test, allowed enum values, and final failure summary.",
-          "headHash": "3d5b6cdb3d6b0c8da53c7afa0b46025affeb4acf",
+          "note": "Updated smoke runs spawned CLI from an isolated temp cwd with KOALA_PROJECT_ROOT removed, so it reaches schema validation even when the parent command is launched inside an active story phase.",
+          "headHash": "46ada62ce8afbb5f095a53d38d327d4ea8607479",
           "materialHash": "095062ad900d41fc7d253c8145c08c3cd07a779ffe86a4b6f21d45e3a423e952",
-          "timestamp": "2026-05-04T21:56:19.957Z"
+          "timestamp": "2026-05-04T22:02:14.765Z"
         },
         {
           "intentRef": "CHK-001:edge:0",

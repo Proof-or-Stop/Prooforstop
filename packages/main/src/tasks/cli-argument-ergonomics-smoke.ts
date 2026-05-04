@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
@@ -61,25 +63,35 @@ assert.deepEqual(emptyVerificationIntent.verificationIntent, {
   adversarial: [],
 });
 
-const invalidVerificationIntent = spawnSync(process.execPath, [
-  cliPath,
-  'checklist_update',
-  JSON.stringify({
-    storyId: 'B-smoke',
-    itemId: 'CHK-001',
-    verificationIntent: {
-      happy: [{ desc: 'bad enum', type: 'integration_test', priority: 'must' }],
-    },
-  }),
-], {
-  encoding: 'utf-8',
-});
-assert.notEqual(invalidVerificationIntent.status, 0, 'invalid verificationIntent enum should fail');
-assert.match(invalidVerificationIntent.stderr, /参数校验失败/);
-assert.match(invalidVerificationIntent.stderr, /verificationIntent\.happy\.0\.type/);
-assert.match(invalidVerificationIntent.stderr, /integration_test/);
-assert.match(invalidVerificationIntent.stderr, /logic[\s\S]*cli[\s\S]*browser[\s\S]*manual[\s\S]*docs/);
-assert.match(invalidVerificationIntent.stderr, /参数校验失败（摘要）/);
-assert.doesNotMatch(invalidVerificationIntent.stdout, /不知道现在该做什么|koala status/);
+const isolatedCwd = mkdtempSync(join(tmpdir(), 'koala-cli-arg-smoke-'));
+try {
+  const env = { ...process.env };
+  delete env.KOALA_PROJECT_ROOT;
+  const invalidVerificationIntent = spawnSync(process.execPath, [
+    cliPath,
+    'checklist_update',
+    JSON.stringify({
+      storyId: 'B-smoke',
+      itemId: 'CHK-001',
+      verificationIntent: {
+        happy: [{ desc: 'bad enum', type: 'integration_test', priority: 'must' }],
+      },
+    }),
+  ], {
+    cwd: isolatedCwd,
+    env,
+    encoding: 'utf-8',
+  });
+  assert.notEqual(invalidVerificationIntent.status, 0, 'invalid verificationIntent enum should fail');
+  assert.match(invalidVerificationIntent.stderr, /参数校验失败/);
+  assert.match(invalidVerificationIntent.stderr, /verificationIntent\.happy\.0\.type/);
+  assert.match(invalidVerificationIntent.stderr, /integration_test/);
+  assert.match(invalidVerificationIntent.stderr, /logic[\s\S]*cli[\s\S]*browser[\s\S]*manual[\s\S]*docs/);
+  assert.match(invalidVerificationIntent.stderr, /参数校验失败（摘要）/);
+  assert.doesNotMatch(invalidVerificationIntent.stderr, /命令 "checklist_update" 在 .* 阶段不可用/);
+  assert.doesNotMatch(invalidVerificationIntent.stdout, /不知道现在该做什么|koala status/);
+} finally {
+  rmSync(isolatedCwd, { recursive: true, force: true });
+}
 
 console.log('cli argument ergonomics smoke passed');
