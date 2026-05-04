@@ -4,7 +4,7 @@
   "title": "Harden Codex adapter diagnostics telemetry and init verification",
   "description": "Turn Codex adapter support from prompt-level guidance into hard CLI capabilities: doctor diagnostics, process-events role telemetry, and scriptable Codex init verification.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "codex",
@@ -16,7 +16,7 @@
   ],
   "createdAt": "2026-05-04T18:17:51.224Z",
   "startedAt": "2026-05-04T18:17:51.224Z",
-  "endedAt": null,
+  "endedAt": "2026-05-04T19:06:32.982Z",
   "events": [
     {
       "phase": "INIT",
@@ -97,12 +97,15 @@
       "branch": "story/B-01b5",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-05-04T19:06:32.982Z",
+      "branch": "story/B-01b5",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-01b5",
-    "branch": "story/B-01b5",
-    "createdAt": "2026-05-04T18:18:49.943Z"
-  },
   "currentReviewRound": "2026-05-04T18:58:37.696Z"
 }
