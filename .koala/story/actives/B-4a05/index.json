@@ -4,7 +4,7 @@
   "title": "Fix Koala CLI observability and lifecycle blocker regressions",
   "description": "Fix three high-value Koala workflow regressions from user feedback: invalid JSON/schema enum arguments silently fall back to help instead of showing validation errors, Koala-generated init-self-check.json blocks DONE cleanup as an untracked non-whitelisted file, and dispatch calls do not write auditable process-events even though channel review expects dispatch evidence. These issues create false green signals, repeated DONE blockers, and audit-chain mismatches.",
   "type": "bug",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "createdAt": "2026-05-04T21:43:30.374Z",
   "startedAt": "2026-05-04T21:43:30.374Z",
@@ -62,6 +62,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-05-04T22:02:31.388Z",
+      "branch": "story/B-4a05",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-05-04T22:06:07.699Z",
       "branch": "story/B-4a05",
       "user": "Harmonygo",
       "agent": "main"

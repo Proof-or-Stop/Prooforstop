@@ -1,0 +1,55 @@
+{
+  "storyId": "B-4a05",
+  "changes": "packages/main/src/cli-engine.ts: validation failure help now goes to stderr without generic status footer and repeats a final failure summary. packages/main/src/handlers/stray-file-cleanup.ts: init-self-check.json is a precise generated-metadata whitelist entry. packages/main/src/handlers/story-dispatch.ts: successful dispatch writes process-events evidence and append failures report persist health without blocking prompt return. Smoke tasks cover all three regressions.",
+  "usage": "Users keep using the same koala commands: invalid checklist_update verificationIntent now reports 参数校验失败 with the exact field path; story_advance DONE no longer blocks on Koala-generated init-self-check.json; koala dispatch writes audit evidence consumed by channel review.",
+  "expectedOutcome": "Expected: invalid enum commands fail nonzero with verificationIntent.happy.0.type and allowed values visible; generated init-self-check.json is safely cleaned during DONE; dispatch prompt retrieval also leaves process-events dispatch evidence.",
+  "actualTranscript": "Observed: node packages/main/dist/cli.js checklist_update with type=integration_test prints 参数校验失败, verificationIntent.happy.0.type, integration_test, allowed values, and 参数校验失败（摘要） with no generic koala status footer. node packages/main/dist/tasks/cli-argument-ergonomics-smoke.js passes from active REVIEW worktree. node packages/main/dist/tasks/review-pass-discard-smoke.js passes. koala validate --story=B-4a05 --json reports Project validation commands passed and Verification intent coverage: 9/9 covered.",
+  "outcomeDiff": "No remaining user-visible difference for the three targeted regressions; finding_cluster and reviewer round inheritance were intentionally left out of this hardcoded fix story.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Limited to the three highest-value feedback items: CLI schema error visibility, init-self-check cleanup whitelist, and dispatch audit events. It does not redesign Koala Lab or broader workflow status UX.",
+  "pitfalls": "The CHK-001 smoke originally inherited the active story cwd and hit REVIEW phase gate before schema validation; fixed by spawning CLI from a temp cwd and deleting KOALA_PROJECT_ROOT. Evidence had to be refreshed after committing the smoke isolation fix to avoid stale head/material metadata.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 59622
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 11667
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 357183
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 442380
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 486473
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 34692
+    }
+  },
+  "totalDurationMs": 1392017,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-05-04T22:06:42.391Z",
+  "updatedAt": "2026-05-04T22:06:42.391Z"
+}
