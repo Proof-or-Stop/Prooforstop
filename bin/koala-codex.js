@@ -16,5 +16,5 @@ if (!process.env.KOALA_ACTIVITY_SESSION) {
     '';
 }
 
-// Reuse the existing koala bootstrap entry
-import('./koala.js');
+// Reuse the existing koala bootstrap entry.
+await import('./koala.js');

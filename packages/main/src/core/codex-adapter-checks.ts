@@ -63,6 +63,8 @@ const CODEX_MATERIAL_PATHS = [
 
 interface RunCodexChecksOptions {
   executeHeartbeats?: boolean;
+  executeLocalHeartbeat?: boolean;
+  executeGlobalHeartbeat?: boolean;
   registryNames?: Set<string>;
   storyId?: string;
   store?: StoryStore;
@@ -260,6 +262,7 @@ function runHeartbeat(
 
 function checkLocalWrapper(root: string, checks: CodexAdapterCheck[], executeHeartbeats: boolean, timeoutMs: number): void {
   const wrapper = join(root, 'bin', 'koala-codex.js');
+  const localKoala = join(root, 'bin', 'koala.js');
   if (!existsSync(wrapper)) {
     push(checks, 'local-wrapper', 'Local Codex wrapper', 'fail', true, 'missing bin/koala-codex.js', LOCAL_INIT_VERIFY_COMMAND);
     return;
@@ -271,6 +274,10 @@ function checkLocalWrapper(root: string, checks: CodexAdapterCheck[], executeHea
     push(checks, 'local-wrapper', 'Local Codex wrapper', 'fail', true, `wrapper missing ${missing.join(', ')}`, LOCAL_INIT_VERIFY_COMMAND);
     return;
   }
+  if (!existsSync(localKoala)) {
+    push(checks, 'local-wrapper', 'Local Codex wrapper', 'fail', true, 'missing sibling bin/koala.js local bootstrap', LOCAL_INIT_VERIFY_COMMAND);
+    return;
+  }
   push(checks, 'local-wrapper', 'Local Codex wrapper', 'pass', true, 'bin/koala-codex.js sets Codex activity env');
   if (executeHeartbeats) {
     runHeartbeat(
@@ -278,7 +285,7 @@ function checkLocalWrapper(root: string, checks: CodexAdapterCheck[], executeHea
       checks,
       'local-wrapper-heartbeat',
       'Local wrapper heartbeat',
-      'node',
+      process.execPath,
       ['bin/koala-codex.js', 'session_brief'],
       `codex-check-local-${Date.now()}`,
       'local-wrapper',
@@ -322,11 +329,13 @@ function checkAuxAvailability(checks: CodexAdapterCheck[], registryNames?: Set<s
 export function runCodexAdapterChecks(root: string, options: RunCodexChecksOptions = {}): CodexAdapterCheckResult {
   const checks: CodexAdapterCheck[] = [];
   const timeoutMs = options.timeoutMs ?? 10_000;
+  const executeLocalHeartbeat = options.executeLocalHeartbeat ?? options.executeHeartbeats === true;
+  const executeGlobalHeartbeat = options.executeGlobalHeartbeat ?? options.executeHeartbeats === true;
   checkManifest(root, checks);
   checkAgentMirror(root, checks);
   checkExcludedAssets(root, checks);
-  checkLocalWrapper(root, checks, options.executeHeartbeats === true, timeoutMs);
-  checkGlobalFallback(root, checks, options.executeHeartbeats === true, timeoutMs);
+  checkLocalWrapper(root, checks, executeLocalHeartbeat, timeoutMs);
+  checkGlobalFallback(root, checks, executeGlobalHeartbeat, timeoutMs);
   checkAuxAvailability(checks, options.registryNames);
 
   const hardFailures = checks.filter(check => check.hard && check.status === 'fail');

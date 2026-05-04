@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, existsSync, writeFileSync } from 'fs';
+import { chmodSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, existsSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { execFileSync } from 'child_process';
@@ -23,6 +23,10 @@ function assert(condition, message) {
 
 function assertIncludes(haystack, needle, label) {
   assert(haystack.includes(needle), `${label} missing "${needle}"`);
+}
+
+function assertNotIncludes(haystack, needle, label) {
+  assert(!haystack.includes(needle), `${label} should not include "${needle}"`);
 }
 
 function readActivityRecord(session, tool) {
@@ -178,14 +182,55 @@ checks.push(() => {
     assert(!codexAgents.includes('reviewer.md'), 'koala init should not keep stale Codex-only reviewer.md');
 
     const generatedWrapper = readFileSync(join(tempDir, 'bin', 'koala-codex.js'), 'utf8');
+    const generatedBootstrap = readFileSync(join(tempDir, 'bin', 'koala.js'), 'utf8');
+    assert(existsSync(join(tempDir, 'bin', 'koala.js')), 'koala init should generate sibling bin/koala.js');
     assertIncludes(generatedWrapper, "join(binDir, 'koala.js')", 'generated Codex wrapper local bootstrap check');
-    assertIncludes(generatedWrapper, "spawnSync('koala', ['help']", 'generated Codex wrapper should probe global capability before fallback');
-    assertIncludes(generatedWrapper, "!help.includes('aux_doc_list') || !help.includes('verify_codex')", 'generated Codex wrapper should reject stale global fallback');
+    assertNotIncludes(generatedWrapper, "spawnSync('koala'", 'generated Codex wrapper should not delegate directly to global koala');
     assertIncludes(generatedWrapper, 'npx koala-init --verify-codex', 'generated Codex wrapper recovery hint');
+    assertIncludes(generatedBootstrap, 'coreCliEngineCandidates', 'generated local bootstrap candidate list');
+    assertIncludes(generatedBootstrap, "node_modules', '@koala-agent', 'core'", 'generated local bootstrap should search local @koala-agent/core');
+    assertIncludes(generatedBootstrap, "typeof mod.runCli", 'generated local bootstrap should execute a local CLI engine');
+    assertIncludes(generatedBootstrap, "!help.includes('aux_doc_list') || !help.includes('verify_codex')", 'generated local bootstrap should reject stale global fallback');
 
     const verifyInitOut = run('node', ['packages/main/dist/cli.js', 'init', '--verify-codex', tempDir]);
     assertIncludes(verifyInitOut, 'Codex verification:', 'koala init --verify-codex output');
     assertIncludes(verifyInitOut, 'Codex adapter checks passed', 'koala init --verify-codex checks');
+
+    const staleBin = join(tempDir, 'stale-bin');
+    mkdirSync(staleBin);
+    const staleKoala = join(staleBin, 'koala');
+    writeFileSync(staleKoala, '#!/bin/sh\necho "stale koala without Codex adapter commands"\nexit 0\n');
+    chmodSync(staleKoala, 0o755);
+    const minimalEnv = {
+      ...process.env,
+      PATH: `${staleBin}:/usr/bin:/bin`,
+      KOALA_ACTIVITY_SOURCE: 'not-codex',
+      KOALA_ACTIVITY_SESSION: `fresh-init-wrapper-${Date.now()}`,
+    };
+    const freshWrapperOut = run(process.execPath, [join(tempDir, 'bin', 'koala-codex.js'), 'session_brief'], { cwd: tempDir, env: minimalEnv });
+    assertIncludes(freshWrapperOut, '# koala session brief', 'fresh generated wrapper should run with stale global koala on PATH');
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+checks.push(() => {
+  const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-minpath-'));
+  const staleBin = join(tempDir, 'stale-bin');
+  try {
+    mkdirSync(staleBin);
+    const staleKoala = join(staleBin, 'koala');
+    writeFileSync(staleKoala, '#!/bin/sh\necho "stale koala without verify_codex"\nexit 0\n');
+    chmodSync(staleKoala, 0o755);
+    const out = run(process.execPath, ['packages/main/dist/cli.js', 'init', '--verify-codex', tempDir], {
+      env: {
+        ...process.env,
+        PATH: `${staleBin}:/usr/bin:/bin`,
+      },
+    });
+    assertIncludes(out, 'Codex verification:', 'fresh koala init --verify-codex minimal PATH output');
+    assertIncludes(out, 'Local wrapper heartbeat: source=codex', 'fresh koala init --verify-codex should execute generated wrapper heartbeat');
+    assertIncludes(out, 'Codex adapter checks passed', 'fresh koala init --verify-codex should pass via generated local bootstrap');
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }

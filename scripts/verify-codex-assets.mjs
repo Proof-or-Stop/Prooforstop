@@ -139,6 +139,11 @@ assertCheckFails(
   'excluded-assets',
   'forbidden .Codex/settings.json',
 );
+assertCheckFails(
+  (dir) => rmSync(join(dir, 'bin', 'koala.js'), { force: true }),
+  'local-wrapper',
+  'missing sibling local bootstrap',
+);
 
 function seedCodexStory(dir) {
   mkdirSync(join(dir, '.koala', 'story', 'actives'), { recursive: true });

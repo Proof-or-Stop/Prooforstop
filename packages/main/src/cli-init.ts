@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { mkdirSync, writeFileSync, readFileSync, existsSync, cpSync, readdirSync, symlinkSync, lstatSync, readlinkSync, unlinkSync } from 'fs';
+import { mkdirSync, writeFileSync, readFileSync, existsSync, cpSync, readdirSync, symlinkSync, lstatSync, readlinkSync, unlinkSync, chmodSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import {
@@ -69,6 +69,16 @@ function write(relPath: string, content: string) {
   return true;
 }
 
+function jsString(value: string): string {
+  return JSON.stringify(value);
+}
+
+function writeExecutable(relPath: string, content: string): boolean {
+  const created = write(relPath, content);
+  if (created) chmodSync(join(targetDir, relPath), 0o755);
+  return created;
+}
+
 // 1. 目录
 console.log('[1/5] 创建目录...');
 const dirs = [
@@ -121,8 +131,58 @@ for (const d of codeDirs) {
 }
 
 const codexWrapperPath = join(targetDir, 'bin', 'koala-codex.js');
+writeExecutable('bin/koala.js', `#!/usr/bin/env node
+import { existsSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { spawnSync } from 'node:child_process';
+
+const binDir = dirname(fileURLToPath(import.meta.url));
+const projectRoot = dirname(binDir);
+const coreCliEngineCandidates = [
+  join(projectRoot, 'packages', 'main', 'dist', 'cli-engine.js'),
+  join(projectRoot, 'node_modules', '@koala-agent', 'core', 'dist', 'cli-engine.js'),
+  join(${jsString(packageRoot)}, 'dist', 'cli-engine.js'),
+];
+
+for (const candidate of coreCliEngineCandidates) {
+  if (!existsSync(candidate)) continue;
+  const mod = await import(pathToFileURL(candidate).href);
+  if (typeof mod.runCli !== 'function') {
+    console.error(\`koala local bootstrap candidate has no runCli export: \${candidate}\`);
+    process.exit(1);
+  }
+  await mod.runCli();
+  process.exit(0);
+}
+
+const probe = spawnSync('koala', ['help'], {
+  encoding: 'utf8',
+  stdio: ['pipe', 'pipe', 'pipe'],
+  env: process.env,
+});
+const help = String(probe.stdout || '') + String(probe.stderr || '');
+if (probe.status !== 0 || !help.includes('aux_doc_list') || !help.includes('verify_codex')) {
+  console.error('bin/koala.js could not find a local @koala-agent/core CLI engine or a capable global koala.');
+  console.error('');
+  console.error('Checked local candidates:');
+  for (const candidate of coreCliEngineCandidates) console.error(\`  - \${candidate}\`);
+  console.error('');
+  console.error('Recovery:');
+  console.error('  - Install or update @koala-agent/core, then rerun: npx koala-init --verify-codex');
+  console.error('  - In the Koala repository, run: npm run build');
+  process.exit(1);
+}
+
+const result = spawnSync('koala', process.argv.slice(2), {
+  stdio: 'inherit',
+  env: process.env,
+});
+process.exit(result.status ?? 1);
+`);
+
 if (!existsSync(codexWrapperPath)) {
-  writeFileSync(codexWrapperPath, `#!/usr/bin/env node
+  writeExecutable('bin/koala-codex.js', `#!/usr/bin/env node
 import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -144,28 +204,12 @@ const localKoala = join(binDir, 'koala.js');
 if (existsSync(localKoala)) {
   await import(pathToFileURL(localKoala).href);
 } else {
-  const { spawnSync } = await import('node:child_process');
-  const probe = spawnSync('koala', ['help'], {
-    encoding: 'utf8',
-    stdio: ['pipe', 'pipe', 'pipe'],
-    env: process.env,
-  });
-  const help = String(probe.stdout || '') + String(probe.stderr || '');
-  if (probe.status !== 0 || !help.includes('aux_doc_list') || !help.includes('verify_codex')) {
-    console.error('bin/koala-codex.js did not find a sibling bin/koala.js local bootstrap.');
-    console.error('The global koala on PATH is missing Codex adapter commands, so this wrapper will not delegate to it.');
-    console.error('');
-    console.error('Recovery:');
-    console.error('  - In the Koala repository, run: node bin/koala-codex.js <command>');
-    console.error('  - To verify initialized Codex assets, run: npx koala-init --verify-codex');
-    console.error('  - If you only need a source-tagged fallback, run: KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 koala session_brief');
-    process.exit(1);
-  }
-  const result = spawnSync('koala', process.argv.slice(2), {
-    stdio: 'inherit',
-    env: process.env,
-  });
-  process.exit(result.status ?? 1);
+  console.error('bin/koala-codex.js did not find a sibling bin/koala.js local bootstrap.');
+  console.error('');
+  console.error('Recovery:');
+  console.error('  - Rerun: npx koala-init --verify-codex');
+  console.error('  - If this is the Koala repository, run: npm run build');
+  process.exit(1);
 }
 `);
   console.log('  ✓ bin/koala-codex.js (Codex wrapper)');
@@ -592,7 +636,7 @@ Next steps:
 
 if (verifyCodex) {
   console.log('Codex verification:');
-  const result = runCodexAdapterChecks(targetDir, { executeHeartbeats: existsSync(join(targetDir, 'bin', 'koala.js')) });
+  const result = runCodexAdapterChecks(targetDir, { executeLocalHeartbeat: true });
   console.log(renderCodexAdapterChecks(result));
   if (!result.ok) process.exit(1);
 }
