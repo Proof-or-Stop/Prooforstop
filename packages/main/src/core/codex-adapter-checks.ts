@@ -233,6 +233,7 @@ function runHeartbeat(
         KOALA_ACTIVITY_SOURCE: id === 'local-wrapper-heartbeat' ? 'not-codex' : 'codex',
         KOALA_ACTIVITY_RECORD_READONLY: '1',
         KOALA_ACTIVITY_SESSION: session,
+        KOALA_CODEX_ENTRYPOINT: expectedEntrypoint,
       },
     });
   } catch (e: any) {
