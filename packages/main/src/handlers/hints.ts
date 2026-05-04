@@ -30,7 +30,7 @@ function safeRead<T>(fn: () => T): T | null {
 }
 
 function getStoryId(ctx: HintContext): string | null {
-  const fromArgs = (ctx.args.storyId ?? ctx.args.id) as string | undefined;
+  const fromArgs = (ctx.args.storyId ?? ctx.args.story ?? ctx.args.id) as string | undefined;
   if (fromArgs && typeof fromArgs === 'string' && /^[A-Z]-/.test(fromArgs)) return fromArgs;
   if (ctx.activeStory) return ctx.activeStory.storyId;
   return null;
@@ -142,7 +142,7 @@ const bugUpdateHint: HintFn = (ctx) => {
   if (open.length === 0) {
     const story = getStory(ctx, storyId);
     if (story?.phase === 'TEST') {
-      return `→ 所有 bug 已 fixed。下一步：story_advance --storyId=${storyId} --phase=DONE`;
+      return `→ 所有 bug 已 fixed。下一步：运行 koala next 或 koala session_brief 查看 DONE pre-check；全部通过后再 story_advance --storyId=${storyId} --phase=DONE，未通过先补 gate`;
     }
     return `→ 所有 bug 已 fixed。继续推进 story`;
   }
@@ -208,7 +208,17 @@ const validateHint: HintFn = (ctx) => {
   if (parsed ? parsed.allPass === true : (result.includes('allPass') && result.includes('true'))) {
     const storyId = getStoryId(ctx);
     if (storyId) {
-      return `→ 验证全绿。下一步：story_advance --storyId=${storyId} --phase=DONE`;
+      const phase = getStory(ctx, storyId)?.phase ?? ctx.activeStory?.phase;
+      if (phase === 'DEV') {
+        return `→ 验证全绿。下一步：git commit，然后 story_advance --storyId=${storyId} --phase=REVIEW 进入代码审查`;
+      }
+      if (phase === 'REVIEW') {
+        return `→ 验证全绿。下一步：story_advance --storyId=${storyId} --phase=TEST 进入正式验证`;
+      }
+      if (phase === 'TEST') {
+        return `→ 验证全绿。下一步：运行 koala next 或 koala session_brief 查看 DONE pre-check；全部通过后 story_advance --storyId=${storyId} --phase=DONE，未通过先补 gate`;
+      }
+      return `→ 验证全绿。当前 story 在 ${phase ?? '未知'} 阶段；下一步先运行 koala next 确认当前 gate`;
     }
     return `→ 验证全绿。可以提交`;
   }

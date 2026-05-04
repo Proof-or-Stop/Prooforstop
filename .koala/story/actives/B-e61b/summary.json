@@ -1,0 +1,55 @@
+{
+  "storyId": "B-e61b",
+  "changes": "Added shared DONE oracle rows and refactored status/next/reviewer rendering to consume gate rows; added phase-aware validate and bug_update hints; hardened channel author checks; documented and verified stale global fallback boundaries.",
+  "usage": "Use node packages/main/dist/cli.js status or next to see gate-derived next steps; use node packages/main/dist/cli.js validate --story=B-e61b --json for current worktree validation; use node bin/koala-codex.js verify_codex to check Codex adapter evidence.",
+  "expectedOutcome": "In TEST, user sees DONE pre-check rows with exact failing ids and remediation, validate points REVIEW to TEST not DONE, and stale global koala is marked heartbeat-only rather than current-worktree evidence.",
+  "actualTranscript": "node packages/main/dist/cli.js status showed DONE pre-check from gate rows: test evidence pass, coverage 9/9, freshness pass, git clean pass, branch synced pass, relatedDocs pass, with only delivery-check and story-summary missing before summary. node packages/main/dist/cli.js validate --channel --story=B-e61b --json passed. node bin/koala-codex.js verify_codex passed with a warning that global @koala-agent/core resolves to main, not current worktree, so global koala is heartbeat-only.",
+  "outcomeDiff": "No user-visible behavior gap after current worktree validation; remaining DONE pre-check items are required delivery and summary artifacts, not product behavior failures.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "global koala installed outside this worktree cannot be made current until branch changes are merged or relinked; verify_codex now surfaces this as heartbeat-only stale fallback evidence.",
+  "pitfalls": "Avoid parallel writes to Koala finding JSON; one parallel resolve was overwritten. After merging main, refresh story validation with --story so test-evidence freshness updates. Merge conflict commits touching source must have koala-implementer author or channel gate fails.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 242270
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 10201
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 421395
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 2067601
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 5429934
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 329281
+    }
+  },
+  "totalDurationMs": 8500682,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-05-04T21:29:46.682Z",
+  "updatedAt": "2026-05-04T21:29:46.682Z"
+}

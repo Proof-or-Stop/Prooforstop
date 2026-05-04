@@ -31,6 +31,7 @@ import { summarizeReviewerStatus, type ReviewerStatusSummary } from '../core/rev
 import { renderAntiStall, reviewAntiStall, testAntiStall } from '../core/anti-stall.js';
 import { isGitRepository } from '../core/git-probe.js';
 import { buildDoneChecklist, type DoneCheckRow } from './story-advance.js';
+import { isBlockingOracleRow } from '../core/oracle-row.js';
 
 interface ActiveStoryDetected {
   storyId: string;
@@ -255,22 +256,27 @@ interface NextStepCtx {
   testPassedAt: string | null;
   gitReady: boolean;
   donePrecheck: DonePrecheckSummary | null;
+  reviewerStatus: ReviewerStatusSummary | null;
 }
 
 interface DonePrecheckSummary {
+  rows: DoneCheckRow[];
+  blocking: DoneCheckRow[];
   failed: DoneCheckRow[];
   warnings: DoneCheckRow[];
 }
 
 function summarizeDonePrecheck(rows: DoneCheckRow[]): DonePrecheckSummary {
   return {
+    rows,
+    blocking: rows.filter(isBlockingOracleRow),
     failed: rows.filter(r => r.status === 'fail'),
     warnings: rows.filter(r => r.status === 'warn'),
   };
 }
 
-function summarizeDonePrecheckActions(failed: DoneCheckRow[]): string {
-  const actions = failed.map(row => row.hint || `补齐 ${row.label}`);
+function summarizeDonePrecheckActions(rows: DoneCheckRow[]): string {
+  const actions = rows.map(row => row.hint || `补齐 ${row.id}`);
   const unique = [...new Set(actions)];
   return `${unique.join('；')}；全部通过后再 story_advance --phase=DONE`;
 }
@@ -311,9 +317,26 @@ function computeNextStep(c: NextStepCtx): string {
         const next = c.checklist.pending[0];
         return `DEV 阶段。下一项：checklist_update --storyId=${sid} --itemId=${next.id} --status=in_progress（${next.title}）`;
       }
-      return `DEV 阶段，所有 checklist 已 done。下一步：git commit + story_advance --storyId=${sid} --phase=TEST 进入验证`;
+      return `DEV 阶段，所有 checklist 已 done。下一步：git commit + story_advance --storyId=${sid} --phase=REVIEW 进入代码审查`;
     }
     case 'REVIEW':
+      if (c.reviewerStatus) {
+        if (c.reviewerStatus.totalBlockers > 0) {
+          const blocked = c.reviewerStatus.entries
+            .filter(e => e.blockerCount > 0)
+            .map(e => `${e.name}(${e.blockerCount})`)
+            .join(', ');
+          return `REVIEW 阶段，有 ${c.reviewerStatus.totalBlockers} 个 blocking finding：${blocked}。下一步：finding_list --storyId=${sid} 查看并修复，必要时 story_advance --storyId=${sid} --phase=DEV`;
+        }
+        if (!c.reviewerStatus.allPassed) {
+          const pending = c.reviewerStatus.entries
+            .filter(e => e.verdict === 'pending')
+            .map(e => e.name)
+            .join(', ') || 'reviewer evidence';
+          return `REVIEW 阶段，等待 reviewer evidence：${pending}。下一步：reviewer_list --storyId=${sid} 查看应运行的 koala-review-* reviewer，全部 pass 后再 story_advance --storyId=${sid} --phase=TEST`;
+        }
+        return `REVIEW 阶段，reviewer gate 全部通过。下一步：story_advance --storyId=${sid} --phase=TEST 进入正式验证`;
+      }
       return `REVIEW 阶段。koala-reviewer 审查代码，提 finding。critical/high finding 全部 resolved 后 story_advance --storyId=${sid} --phase=TEST`;
     case 'TEST_CASE':
       return `TEST_CASE 阶段（legacy）。建议 story_advance --phase=TEST 直接进入验证`;
@@ -329,10 +352,10 @@ function computeNextStep(c: NextStepCtx): string {
       if (!c.hasPassingTestEvidence) {
         return `TEST 阶段，最后一次验证未通过。下一步：修复失败项后重跑 koala validate`;
       }
-      if (c.donePrecheck && c.donePrecheck.failed.length > 0) {
-        const labels = c.donePrecheck.failed.slice(0, 4).map(r => r.label).join(', ');
-        const more = c.donePrecheck.failed.length > 4 ? ` (+${c.donePrecheck.failed.length - 4} more)` : '';
-        return `TEST 阶段，DONE pre-check 还有 ${c.donePrecheck.failed.length} 项未通过：${labels}${more}。下一步：${summarizeDonePrecheckActions(c.donePrecheck.failed)}`;
+      if (c.donePrecheck && c.donePrecheck.blocking.length > 0) {
+        const ids = c.donePrecheck.blocking.slice(0, 4).map(r => r.id).join(', ');
+        const more = c.donePrecheck.blocking.length > 4 ? ` (+${c.donePrecheck.blocking.length - 4} more)` : '';
+        return `TEST 阶段，DONE pre-check 还有 ${c.donePrecheck.blocking.length} 项未通过：${ids}${more}。下一步：${summarizeDonePrecheckActions(c.donePrecheck.blocking)}`;
       }
       return `TEST 阶段，所有 bug 已 fixed。下一步：story_advance --storyId=${sid} --phase=DONE 完成 story（会自动合并回 main）`;
     case 'DONE':
@@ -797,6 +820,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
         testPassedAt,
         gitReady,
         donePrecheck,
+        reviewerStatus,
       });
 
       lines.push('');

@@ -33,6 +33,10 @@
 3. 否则按项目类型自动发现标准命令：`npm test`、`python -m pytest`、`go test ./...`、`cargo test`、`swift test`、`mvn test`、`gradle test`。
 4. 仍找不到验证入口时返回 `warn/skip`，不把 Python/Go/C++ 等非 TS 项目误判为失败；需要强门禁的项目必须显式配置验证命令。
 
+`koala validate` 的成功提示必须使用当前 story phase 和 gate oracle，而不是硬编码 DONE：
+DEV 阶段通过后提示提交并进入 REVIEW；REVIEW 阶段通过后提示进入 TEST；
+TEST 阶段通过后提示查看 DONE pre-check，并按失败 row 的 hint 补 summary、delivery check、dirty tree 等门禁项。
+
 配置示例：
 
 ```json

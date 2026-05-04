@@ -53,7 +53,14 @@ node bin/koala-codex.js lab create --target=test-case-reviewer --profile=reviewe
 - 写入记录会带 `source=codex`，可以和普通 CLI、Claude Code 区分
 - 它会为 `session_brief` 这类只读恢复命令启用 heartbeat 记录
 
-如果本地 bootstrap 还没准备好，wrapper 会直接打印恢复步骤，而不是抛出模糊的模块加载错误。
+如果本地 bootstrap 还没准备好，wrapper 会直接打印恢复步骤，而不是抛出模糊的模块加载错误。在 Koala 仓库自己的 story worktree 里，状态、gate、`validate` 这类判断先用当前 worktree 的本地 core CLI：
+
+```bash
+node packages/main/dist/cli.js status
+node packages/main/dist/cli.js validate --json
+```
+
+全局 `koala` 只适合作为 source-tagged heartbeat fallback；它可能滞后于当前 worktree，不应作为当前 story 的 gate/status/next-step 证据。
 
 通过 `story_advance ... INIT_CHECK` 新建的 story worktree 不需要手工复制 `.Codex`。`git worktree` 会把当前分支已跟踪的仓库文件一并展开出来，所以只要 `.Codex`、`.claude`、`AGENTS.md`、`CLAUDE.md` 已经提交到仓库，新的 `.worktrees/B-xxx/` 里就会自然带上这些入口。只有两种常见缺失原因：这些文件本来就没被 git 跟踪，或这个 worktree 是从还没包含这些资产的旧分支/旧提交分出来的。
 
@@ -117,10 +124,12 @@ npx koala-init --verify-codex
 如果某个项目只有全局 `koala`，没有 `bin/koala-codex.js`，可以这样跑：
 
 ```bash
-KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 koala session_brief
+KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPOINT=global-fallback koala session_brief
 ```
 
-这能保证 activity 里仍然按 `source=codex` 记账，并让 `session_brief` 这种只读入口也留下 heartbeat；但如果没有 bootstrap 入口，`aux_*` 命令可能不可用。
+这能保证 activity 里仍然按 `source=codex` / `entrypoint=global-fallback` 记账，并让 `session_brief` 这种只读入口也留下 heartbeat；但如果没有 bootstrap 入口，`aux_*` 命令可能不可用。
+
+注意：在 Koala 仓库开发 Koala 自身时，全局 `koala` 可能来自旧安装、主仓或另一个 worktree。不要用它的 `status` / `next` / `validate` 输出判断当前 story 是否可推进；先构建本地 wrapper，或使用 `node packages/main/dist/cli.js <command>` 读取当前 worktree 的代码和状态。
 
 如果全局 core 入口提示 `未知命令: aux_doc_list`，在 Koala 仓库内使用完整 bootstrap：
 

@@ -233,7 +233,7 @@ export function getArtifactContractStatus(
       required: inPhaseSet(phase, TEST_AND_AFTER),
       present: (() => {
         try {
-          const rs = summarizeReviewerStatus(store, storyId);
+          const rs = summarizeReviewerStatus(store, storyId, opts?.projectRoot);
           return rs.allPassed;
         } catch {
           return false;

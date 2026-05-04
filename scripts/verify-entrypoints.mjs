@@ -6,7 +6,7 @@ import { join } from 'path';
 import { execFileSync } from 'child_process';
 
 const repoRoot = process.cwd();
-const GLOBAL_CODEX_FALLBACK = 'KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 koala';
+const GLOBAL_CODEX_FALLBACK = 'KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPOINT=global-fallback koala';
 
 function run(cmd, args, opts = {}) {
   return execFileSync(cmd, args, {
@@ -147,6 +147,7 @@ checks.push(() => {
     const codexReadme = readFileSync(join(tempDir, '.Codex', 'README.md'), 'utf8');
     assertIncludes(codexReadme, 'node bin/koala-codex.js session_brief', '.Codex/README.md');
     assertIncludes(codexReadme, `${GLOBAL_CODEX_FALLBACK} session_brief`, '.Codex/README.md');
+    assertIncludes(codexReadme, '不要把 fallback 的 `status` / `next` / `validate` 输出当作 gate 证据', '.Codex/README.md');
     assertIncludes(codexReadme, '.Codex/koala.json', '.Codex/README.md');
     assertIncludes(codexReadme, '不创建 `.Codex/hooks`', '.Codex/README.md');
 
@@ -164,6 +165,10 @@ checks.push(() => {
     assert(
       codexManifest.recommendedEntrypoints.some(entry => entry.command === GLOBAL_CODEX_FALLBACK),
       'adapter manifest should include the global source-tagged read-only fallback',
+    );
+    assert(
+      codexManifest.recommendedEntrypoints.some(entry => String(entry.useWhen || '').includes('current-worktree gate/status evidence')),
+      'adapter manifest should warn that global fallback is not current-worktree gate/status evidence',
     );
     assert(
       codexManifest.sessionEnv.sessionCandidates.includes('CODEX_SESSION_ID')

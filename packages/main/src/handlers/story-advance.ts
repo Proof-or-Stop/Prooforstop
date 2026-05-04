@@ -22,6 +22,7 @@ import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
 import { collectBaselineRisk, renderBaselineRiskLines } from '../core/baseline-risk.js';
 import { checkEvidenceFreshnessForGit, currentMaterialHash } from '../core/evidence-freshness.js';
 import { reportHealthIssue } from '../core/health.js';
+import type { OracleRow } from '../core/oracle-row.js';
 import {
   LOCAL_CODEX_VERIFY_COMMAND,
   summarizeCodexEvidence,
@@ -198,12 +199,14 @@ function checkEvidenceFreshness(store: StoryStore, storyId: string, projectRoot:
  * 无论 advance 成功失败都打印，强制主 agent 读一遍多层验证状态。
  * 对应 OMX ralph 的 <Final_Checklist>。
  */
-export type DoneCheckRow = {
-  status: 'pass' | 'fail' | 'warn';
-  label: string;
-  detail?: string;
-  hint?: string;       // fail 时的修复建议；warn 时作为多行明细
-};
+export type DoneCheckRow = OracleRow;
+
+function doneCheckRow(row: Omit<DoneCheckRow, 'blocking'> & { blocking?: boolean }): DoneCheckRow {
+  return {
+    blocking: row.blocking ?? row.status === 'fail',
+    ...row,
+  };
+}
 
 export function buildDoneChecklist(storyId: string, store: StoryStore, root: string): DoneCheckRow[] {
   const rows: DoneCheckRow[] = [];
@@ -216,43 +219,52 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   // 1. test evidence
   const evidence = store.readTestEvidence(storyId);
   if (!evidence) {
-    rows.push({
+    rows.push(doneCheckRow({
+      id: 'test-evidence',
       status: 'fail',
       label: 'Test evidence',
       detail: '没有测试证据',
       hint: `koala validate --json`,
-    });
+      source: 'test-evidence.json',
+    }));
   } else if (evidence.result !== 'PASS') {
-    rows.push({
+    rows.push(doneCheckRow({
+      id: 'test-evidence',
       status: 'fail',
       label: 'Test evidence',
       detail: `${evidence.result}: ${evidence.output.slice(0, 120)}`,
       hint: '修复失败后重跑 koala validate',
-    });
+      source: 'test-evidence.json',
+    }));
   } else {
     let allPassedOk = true;
     try {
       const parsed = JSON.parse(evidence.output);
       if (parsed.allPass !== true && parsed.allPassed !== true) {
         allPassedOk = false;
-        rows.push({
+        rows.push(doneCheckRow({
+          id: 'test-evidence',
           status: 'fail',
           label: 'Test evidence',
           detail: `allPassed=${parsed.allPass ?? parsed.allPassed}`,
           hint: '修复失败后重跑 koala validate',
-        });
+          source: 'test-evidence.json',
+        }));
       }
     } catch { /* output 不是 JSON 也算 PASS（兼容旧格式）*/ }
     if (allPassedOk) {
-      rows.push({
+      rows.push(doneCheckRow({
+        id: 'test-evidence',
         status: 'pass',
         label: 'Test evidence',
         detail: `PASS @ ${evidence.timestamp}`,
-      });
+        source: 'test-evidence.json',
+      }));
     }
     if (evidence.verificationCoverage) {
       const vc = evidence.verificationCoverage;
-      rows.push({
+      rows.push(doneCheckRow({
+        id: 'verification-intent-coverage',
         status: vc.missingRequired > 0 ? 'fail' : 'pass',
         label: 'Verification intent coverage',
         detail: `${vc.covered}/${vc.total} covered, ${vc.missingRequired} required missing`,
@@ -260,25 +272,30 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
           .filter(e => e.priority === 'must' && !['covered', 'waived'].includes(e.status))
           .map(e => `${e.intentRef} [${e.status}] ${e.desc}`)
           .join('\n'),
-      });
+        source: 'test-evidence.json.verificationCoverage',
+      }));
     }
   }
 
   // 1b. evidence freshness (B-c622 CHK-009)
   const freshness = checkEvidenceFreshness(store, storyId, root);
   if (!freshness.fresh) {
-    rows.push({
+    rows.push(doneCheckRow({
+      id: 'evidence-freshness',
       status: 'fail',
       label: 'Evidence freshness',
       detail: freshness.message,
       hint: 'koala validate --json',
-    });
+      source: 'test-evidence.json',
+    }));
   } else {
-    rows.push({
+    rows.push(doneCheckRow({
+      id: 'evidence-freshness',
       status: 'pass',
       label: 'Evidence freshness',
       detail: freshness.message,
-    });
+      source: 'test-evidence.json',
+    }));
   }
 
   // 2. all bugs fixed
@@ -286,31 +303,43 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   const total = bugData.bugs.length;
   const openBugs = bugData.bugs.filter(b => b.status === 'open');
   if (openBugs.length > 0) {
-    rows.push({
+    rows.push(doneCheckRow({
+      id: 'bugs-fixed',
       status: 'fail',
       label: 'Bugs fixed',
       detail: `${openBugs.length} open / ${total} total: ${openBugs.map(b => b.id).join(', ')}`,
       hint: '修复所有 open bug 后重跑 koala validate',
-    });
+      source: 'bugs.json',
+    }));
   } else {
-    rows.push({
+    rows.push(doneCheckRow({
+      id: 'bugs-fixed',
       status: 'pass',
       label: 'Bugs fixed',
       detail: total > 0 ? `${total}/${total}` : 'no bugs',
-    });
+      source: 'bugs.json',
+    }));
   }
 
   // 3. git working tree clean
   try {
     execSync('git diff --quiet && git diff --cached --quiet', { cwd: root, stdio: 'pipe' });
-    rows.push({ status: 'pass', label: 'git working tree', detail: 'clean' });
+    rows.push(doneCheckRow({
+      id: 'git-working-tree',
+      status: 'pass',
+      label: 'git working tree',
+      detail: 'clean',
+      source: 'git diff --quiet',
+    }));
   } catch {
-    rows.push({
+    rows.push(doneCheckRow({
+      id: 'git-working-tree',
       status: 'fail',
       label: 'git working tree',
       detail: '有未提交的改动',
       hint: '先 git add + git commit 提交所有改动',
-    });
+      source: 'git diff --quiet',
+    }));
   }
 
   // 4. branch synced with main (B-c622 CHK-004: 加入 divergence 检测提示)
@@ -320,39 +349,58 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       const branch = story.worktree.branch;
       if (!gitRefExists(root, branch)) {
         rows.push({
+          id: 'branch-synced-main',
           status: 'warn',
           label: 'Branch synced with main',
           detail: `${branch} 不存在（可能已手动合并并清理）`,
           hint: `若 story 仍停在 TEST/DONE 边界，用 koala story_reconcile '{"dryRun":false}' 修复 phase/worktree metadata`,
+          source: 'git worktree metadata',
+          blocking: false,
         });
       } else {
         try {
           gitRefContainsMain(root, branch);
-          rows.push({ status: 'pass', label: 'Branch synced with main', detail: branch });
+          rows.push(doneCheckRow({
+            id: 'branch-synced-main',
+            status: 'pass',
+            label: 'Branch synced with main',
+            detail: branch,
+            source: 'git merge-base --is-ancestor main',
+          }));
         } catch {
           const divergence = checkMainDivergence(root);
-          rows.push({
+          rows.push(doneCheckRow({
+            id: 'branch-synced-main',
             status: 'fail',
             label: 'Branch synced with main',
             detail: divergence.needsSync
               ? `${branch} 落后 main ${divergence.behind} 个提交`
               : `${branch} 未合并 main 的最新提交`,
             hint: 'DONE 推进时将自动尝试 git merge main；若有冲突请手动解决',
-          });
+            source: 'git merge-base --is-ancestor main',
+          }));
         }
       }
     } else {
       // No worktree branch recorded — detect from git directly
       const divergence = checkMainDivergence(root);
       if (divergence.needsSync) {
-        rows.push({
+        rows.push(doneCheckRow({
+          id: 'branch-synced-main',
           status: 'fail',
           label: 'Branch synced with main',
           detail: `当前分支落后 main ${divergence.behind} 个提交`,
           hint: 'DONE 推进时将自动尝试 git merge main；若有冲突请手动解决',
-        });
+          source: 'git rev-list HEAD..main',
+        }));
       } else {
-        rows.push({ status: 'pass', label: 'Branch synced with main', detail: 'up to date' });
+        rows.push(doneCheckRow({
+          id: 'branch-synced-main',
+          status: 'pass',
+          label: 'Branch synced with main',
+          detail: 'up to date',
+          source: 'git rev-list HEAD..main',
+        }));
       }
     }
   } catch { /* 读 story 失败不阻塞，guard 已经报过错 */ }
@@ -386,18 +434,24 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         if (!changedFiles.has(doc.split('#')[0])) unchanged.push([doc, items]);
       }
       if (unchanged.length > 0) {
-        rows.push({
+        rows.push(doneCheckRow({
+          id: 'related-docs',
           status: 'warn',
           label: 'relatedDocs',
           detail: `${unchanged.length}/${allDocs.size} untouched (advisory)`,
           hint: unchanged.map(([d, items]) => `${d}  (${items.join(', ')})`).join('\n'),
-        });
+          source: 'checklist.relatedDocs',
+          blocking: false,
+        }));
       } else {
-        rows.push({
+        rows.push(doneCheckRow({
+          id: 'related-docs',
           status: 'pass',
           label: 'relatedDocs',
           detail: `${allDocs.size}/${allDocs.size} touched`,
-        });
+          source: 'checklist.relatedDocs',
+          blocking: false,
+        }));
       }
     }
   } catch { /* ignore */ }
@@ -405,38 +459,46 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   // 6. delivery-check.json (hard gate, mirrors machine.canFinish / getGuardFailureReason)
   const deliveryCheck = store.readDeliveryCheck(storyId);
   if (!deliveryCheck) {
-    rows.push({
+    rows.push(doneCheckRow({
+      id: 'delivery-check',
       status: 'fail',
       label: 'delivery-check',
       detail: '缺 delivery-check.json（需 koala-review-delivery reviewer 签名）',
       hint: '运行 koala-review-delivery reviewer，并用 delivery_check_set 写入签名产物',
-    });
+      source: 'delivery-check.json',
+    }));
   } else {
     const expectedHash = recomputeDeliveryCheckHash(storyId, store);
     if (expectedHash === null || deliveryCheck._hash !== expectedHash) {
-      rows.push({
+      rows.push(doneCheckRow({
+        id: 'delivery-check',
         status: 'fail',
         label: 'delivery-check',
         detail: 'delivery-check.json _hash 失配',
         hint: '重跑 koala-review-delivery reviewer 生成新的 delivery-check.json',
-      });
+        source: 'delivery-check.json._hash',
+      }));
     } else {
       const unverified = deliveryCheck.docsPromises.filter(
         p => !p.verifiedBy && !p.waiverReason && !['met', 'verified', 'waived'].includes(p.status || ''),
       );
       if (unverified.length > 0) {
-        rows.push({
+        rows.push(doneCheckRow({
+          id: 'delivery-check',
           status: 'fail',
           label: 'delivery-check',
           detail: `${unverified.length} 条 docsPromise 未验证且无豁免`,
           hint: '用 delivery_waiver_add 写豁免，或重跑 koala-review-delivery reviewer 补验证证据',
-        });
+          source: 'delivery-check.json.docsPromises',
+        }));
       } else {
-        rows.push({
+        rows.push(doneCheckRow({
+          id: 'delivery-check',
           status: 'pass',
           label: 'delivery-check',
           detail: `${deliveryCheck.docsPromises.length} docsPromises checked`,
-        });
+          source: 'delivery-check.json.docsPromises',
+        }));
       }
     }
   }
@@ -446,27 +508,36 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
     const requireEval = policy.test.requireEvaluatorForBrowser;
     const evalEvidence = store.readEvalEvidence(storyId);
     if (!evalEvidence) {
-      rows.push({
+      rows.push(doneCheckRow({
+        id: 'eval-evidence',
         status: requireEval ? 'fail' : 'warn',
         label: 'Evaluator',
         detail: requireEval
           ? '没有 evaluator 打分（browser 项目必须跑 evaluator）'
           : '没有 evaluator 打分（advisory — profile 未要求）',
         hint: `koala evaluate '{"storyId":"${storyId}"}'`,
-      });
+        source: 'eval-evidence.json',
+        blocking: requireEval,
+      }));
     } else if (!evalEvidence.pass) {
-      rows.push({
+      rows.push(doneCheckRow({
+        id: 'eval-evidence',
         status: requireEval ? 'fail' : 'warn',
         label: 'Evaluator',
         detail: `未通过: functionality=${evalEvidence.scores.functionality} usability=${evalEvidence.scores.usability} total=${evalEvidence.total}`,
         hint: '修复 evaluator 发现的问题后重跑 koala evaluate',
-      });
+        source: 'eval-evidence.json',
+        blocking: requireEval,
+      }));
     } else {
-      rows.push({
+      rows.push(doneCheckRow({
+        id: 'eval-evidence',
         status: 'pass',
         label: 'Evaluator',
         detail: `functionality=${evalEvidence.scores.functionality} usability=${evalEvidence.scores.usability} total=${evalEvidence.total} @ ${evalEvidence.timestamp}`,
-      });
+        source: 'eval-evidence.json',
+        blocking: false,
+      }));
     }
   }
 
@@ -475,14 +546,17 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   if (summaryReq !== 'none') {
     const summary = store.readSummary(storyId);
     if (!summary) {
-      rows.push({
+      rows.push(doneCheckRow({
+        id: 'story-summary',
         status: summaryReq === 'full' ? 'fail' : 'warn',
         label: 'Story summary',
         detail: summaryReq === 'full'
           ? '没有 summary.json'
           : '没有 summary.json（advisory — profile 要求 minimal）',
         hint: `koala summary_set '{"storyId":"${storyId}","changes":"改了什么（≥10 字符）","usage":"怎么用（≥10 字符）","expectedOutcome":"用户预期看到什么","actualTranscript":"真实运行看到什么","outcomeDiff":"expected vs actual 差异","acceptanceVerdict":"accepted","limitations":"已知限制或 \\"none — fully covered\\"","pitfalls":"踩坑记录（≥10 字符，强制段）"}'`,
-      });
+        source: 'summary.json',
+        blocking: summaryReq === 'full',
+      }));
     } else {
       const missing: string[] = [];
       if (!summary.changes || summary.changes.trim().length < 10) missing.push('changes');
@@ -494,22 +568,29 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       if (typeof summary.limitations !== 'string' || summary.limitations.trim().length < 2) missing.push('limitations');
       if (!summary.pitfalls || summary.pitfalls.trim().length < 10) missing.push('pitfalls');
       if (missing.length > 0) {
-        rows.push({
+        rows.push(doneCheckRow({
+          id: 'story-summary',
           status: summaryReq === 'full' ? 'fail' : 'warn',
           label: 'Story summary',
           detail: `字段缺失/过短: ${missing.join(', ')}`,
           hint: `重新调 koala summary_set 补齐 ${missing.join(', ')}`,
-        });
+          source: 'summary.json',
+          blocking: summaryReq === 'full',
+        }));
       } else {
         const cov = summary.realMachineCoverage;
         const covNote = `${cov.ran.length} ran / ${cov.skipped.length} skipped`;
         const expectedOutcome = summary.expectedOutcome || '';
-        rows.push({
+        rows.push(doneCheckRow({
+          id: 'story-summary',
           status: 'pass',
           label: 'Story summary',
           detail: `complete (${covNote})`,
-        });
-        rows.push({
+          source: 'summary.json',
+          blocking: false,
+        }));
+        rows.push(doneCheckRow({
+          id: 'user-value-summary',
           status: 'pass',
           label: 'User value summary',
           detail: `${summary.acceptanceVerdict}: ${expectedOutcome.slice(0, 80)}${expectedOutcome.length > 80 ? '...' : ''}`,
@@ -519,7 +600,9 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
             `diff: ${summary.outcomeDiff}`,
             `limitations: ${summary.limitations}`,
           ].join('\n'),
-        });
+          source: 'summary.json',
+          blocking: false,
+        }));
       }
     }
   }
@@ -527,12 +610,14 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   // 8. Codex adapter hard evidence for Codex-touching stories.
   if (storyRequiresCodexEvidence(store, storyId)) {
     const codex = summarizeCodexEvidence(store, storyId, root);
-    rows.push({
+    rows.push(doneCheckRow({
+      id: 'codex-adapter-evidence',
       status: codex.status === 'passing' ? 'pass' : 'fail',
       label: 'Codex adapter evidence',
       detail: `${codex.status}: ${codex.detail}`,
       hint: codex.command,
-    });
+      source: 'process-events:codex_adapter_verification',
+    }));
   }
 
   return rows;
@@ -546,7 +631,7 @@ function renderDoneChecklist(storyId: string, rows: DoneCheckRow[]): string {
     if (row.detail) line += `: ${row.detail}`;
     lines.push(line);
     // warn 行和用户价值摘要都展开多行明细，方便 DONE 前复述给用户。
-    if ((row.status === 'warn' || row.label === 'User value summary') && row.hint) {
+    if ((row.status === 'warn' || row.id === 'user-value-summary') && row.hint) {
       for (const h of row.hint.split('\n')) {
         lines.push(`        - ${h}`);
       }
