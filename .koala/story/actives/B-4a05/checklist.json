@@ -53,9 +53,9 @@
           "command": "node packages/main/dist/tasks/cli-argument-ergonomics-smoke.js",
           "result": "pass",
           "note": "Updated smoke runs spawned CLI from an isolated temp cwd with KOALA_PROJECT_ROOT removed, so it reaches schema validation even when the parent command is launched inside an active story phase.",
-          "headHash": "46ada62ce8afbb5f095a53d38d327d4ea8607479",
-          "materialHash": "095062ad900d41fc7d253c8145c08c3cd07a779ffe86a4b6f21d45e3a423e952",
-          "timestamp": "2026-05-04T22:02:14.765Z"
+          "headHash": "be2c52e094977e7b9c1fd5a86e9de6de6ae8ee36",
+          "materialHash": "7fd2938b55fffd5e7e3d33c5eadf75b6add2852a156eb7cc72ff3687a081cba9",
+          "timestamp": "2026-05-04T22:05:27.036Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -64,9 +64,9 @@
           "command": "node packages/main/dist/tasks/cli-argument-ergonomics-smoke.js",
           "result": "pass",
           "note": "Smoke asserts invalid validation failure stdout does not contain the generic koala status/session footer.",
-          "headHash": "3d5b6cdb3d6b0c8da53c7afa0b46025affeb4acf",
-          "materialHash": "095062ad900d41fc7d253c8145c08c3cd07a779ffe86a4b6f21d45e3a423e952",
-          "timestamp": "2026-05-04T21:56:19.957Z"
+          "headHash": "be2c52e094977e7b9c1fd5a86e9de6de6ae8ee36",
+          "materialHash": "7fd2938b55fffd5e7e3d33c5eadf75b6add2852a156eb7cc72ff3687a081cba9",
+          "timestamp": "2026-05-04T22:05:27.036Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -75,9 +75,9 @@
           "command": "node packages/main/dist/tasks/cli-argument-ergonomics-smoke.js",
           "result": "pass",
           "note": "Smoke parses verificationIntent={} successfully and confirms default happy/edge/adversarial arrays remain accepted.",
-          "headHash": "3d5b6cdb3d6b0c8da53c7afa0b46025affeb4acf",
-          "materialHash": "095062ad900d41fc7d253c8145c08c3cd07a779ffe86a4b6f21d45e3a423e952",
-          "timestamp": "2026-05-04T21:56:19.957Z"
+          "headHash": "be2c52e094977e7b9c1fd5a86e9de6de6ae8ee36",
+          "materialHash": "7fd2938b55fffd5e7e3d33c5eadf75b6add2852a156eb7cc72ff3687a081cba9",
+          "timestamp": "2026-05-04T22:05:27.036Z"
         }
       ]
     },
@@ -132,9 +132,9 @@
           "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
           "result": "pass",
           "note": "Smoke asserts STRAY_FILE_WHITELIST includes the exact init-self-check.json basename.",
-          "headHash": "3d5b6cdb3d6b0c8da53c7afa0b46025affeb4acf",
-          "materialHash": "095062ad900d41fc7d253c8145c08c3cd07a779ffe86a4b6f21d45e3a423e952",
-          "timestamp": "2026-05-04T21:56:19.957Z"
+          "headHash": "be2c52e094977e7b9c1fd5a86e9de6de6ae8ee36",
+          "materialHash": "7fd2938b55fffd5e7e3d33c5eadf75b6add2852a156eb7cc72ff3687a081cba9",
+          "timestamp": "2026-05-04T22:05:27.036Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -143,9 +143,9 @@
           "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
           "result": "pass",
           "note": "Smoke writes an untracked story init-self-check.json, cleanStrayWorktreeFiles removes it, and the cleanup report names it.",
-          "headHash": "3d5b6cdb3d6b0c8da53c7afa0b46025affeb4acf",
-          "materialHash": "095062ad900d41fc7d253c8145c08c3cd07a779ffe86a4b6f21d45e3a423e952",
-          "timestamp": "2026-05-04T21:56:19.957Z"
+          "headHash": "be2c52e094977e7b9c1fd5a86e9de6de6ae8ee36",
+          "materialHash": "7fd2938b55fffd5e7e3d33c5eadf75b6add2852a156eb7cc72ff3687a081cba9",
+          "timestamp": "2026-05-04T22:05:27.036Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -154,9 +154,9 @@
           "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
           "result": "pass",
           "note": "Smoke writes operator-note.txt in the story metadata dir and confirms cleanup throws while leaving the draft file in place.",
-          "headHash": "3d5b6cdb3d6b0c8da53c7afa0b46025affeb4acf",
-          "materialHash": "095062ad900d41fc7d253c8145c08c3cd07a779ffe86a4b6f21d45e3a423e952",
-          "timestamp": "2026-05-04T21:56:19.957Z"
+          "headHash": "be2c52e094977e7b9c1fd5a86e9de6de6ae8ee36",
+          "materialHash": "7fd2938b55fffd5e7e3d33c5eadf75b6add2852a156eb7cc72ff3687a081cba9",
+          "timestamp": "2026-05-04T22:05:27.036Z"
         }
       ]
     },
@@ -212,9 +212,9 @@
           "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
           "result": "pass",
           "note": "Smoke dispatches itemId=CHK-001 and confirms a process event with type=dispatch, itemId/checklistId, agentType, phase, targetKind, and source.",
-          "headHash": "3d5b6cdb3d6b0c8da53c7afa0b46025affeb4acf",
-          "materialHash": "095062ad900d41fc7d253c8145c08c3cd07a779ffe86a4b6f21d45e3a423e952",
-          "timestamp": "2026-05-04T21:56:19.957Z"
+          "headHash": "be2c52e094977e7b9c1fd5a86e9de6de6ae8ee36",
+          "materialHash": "7fd2938b55fffd5e7e3d33c5eadf75b6add2852a156eb7cc72ff3687a081cba9",
+          "timestamp": "2026-05-04T22:05:27.036Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -223,9 +223,9 @@
           "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
           "result": "pass",
           "note": "Smoke dispatches koala-review-story-init without item/finding/cluster and confirms prompt guidance still returns while a targetKind=init-review event is written.",
-          "headHash": "3d5b6cdb3d6b0c8da53c7afa0b46025affeb4acf",
-          "materialHash": "095062ad900d41fc7d253c8145c08c3cd07a779ffe86a4b6f21d45e3a423e952",
-          "timestamp": "2026-05-04T21:56:19.957Z"
+          "headHash": "be2c52e094977e7b9c1fd5a86e9de6de6ae8ee36",
+          "materialHash": "7fd2938b55fffd5e7e3d33c5eadf75b6add2852a156eb7cc72ff3687a081cba9",
+          "timestamp": "2026-05-04T22:05:27.036Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -234,9 +234,9 @@
           "command": "npm run build",
           "result": "pass",
           "note": "Implementation wraps dispatch event append in reportHealthIssue persist handling and ctx.log, so append failures leave health evidence without blocking prompt return.",
-          "headHash": "3d5b6cdb3d6b0c8da53c7afa0b46025affeb4acf",
-          "materialHash": "095062ad900d41fc7d253c8145c08c3cd07a779ffe86a4b6f21d45e3a423e952",
-          "timestamp": "2026-05-04T21:56:19.957Z"
+          "headHash": "be2c52e094977e7b9c1fd5a86e9de6de6ae8ee36",
+          "materialHash": "7fd2938b55fffd5e7e3d33c5eadf75b6add2852a156eb7cc72ff3687a081cba9",
+          "timestamp": "2026-05-04T22:05:27.036Z"
         }
       ]
     }
