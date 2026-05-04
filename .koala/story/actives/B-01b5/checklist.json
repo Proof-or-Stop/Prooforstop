@@ -8,7 +8,7 @@
         "README.md",
         "AGENTS.md"
       ],
-      "userSees": "Running node bin/koala-codex.js doctor reports Codex adapter checks with PASS/warning/fail details instead of relying on README guidance.",
+      "userSees": "Terminal shows \"Codex adapter doctor\" followed by \"Status: PASS\" for healthy projects, or \"Status: FAIL\" with repair commands such as \"koala init --verify-codex\" when Codex assets drift.",
       "verificationIntent": {
         "happy": [
           {
@@ -31,7 +31,21 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "bin/koala-codex.js",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/init-assets.ts"
+        ],
+        "create": [
+          "packages/main/src/core/codex-adapter-checks.ts"
+        ],
+        "test": [
+          "scripts/verify-codex-assets.mjs",
+          "scripts/verify-entrypoints.mjs"
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -41,7 +55,7 @@
         "README.md",
         "AGENTS.md"
       ],
-      "userSees": "After Codex commands run, Koala activity/process events show source=codex with role/session/command attribution for main, implementer, reviewer, and delivery flows.",
+      "userSees": "After running \"KOALA_ACTIVITY_ROLE=reviewer node bin/koala-codex.js session_brief\", event output includes \"source=codex\", \"role=reviewer\", \"command=session_brief\", and \"result=ok\" for the current session.",
       "verificationIntent": {
         "happy": [
           {
@@ -64,7 +78,24 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "bin/koala-codex.js",
+          "bin/bootstrap-runner.js",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/activity.ts",
+          "packages/main/src/handlers/dispatch.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-pass.ts"
+        ],
+        "create": [
+          "packages/main/src/core/process-events.ts"
+        ],
+        "test": [
+          "scripts/verify-entrypoints.mjs"
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -74,7 +105,7 @@
         "README.md",
         "AGENTS.md"
       ],
-      "userSees": "Running koala init --verify-codex or koala verify_codex prints a Codex adapter verification report and exits non-zero on drift or unsupported files.",
+      "userSees": "Running \"koala verify_codex\" prints \"Codex adapter verification PASS\" with rows for manifest, agents mirror, local wrapper, global fallback heartbeat, and excluded runtime assets; \"koala init --verify-codex\" prints the same verification after init.",
       "verificationIntent": {
         "happy": [
           {
@@ -97,7 +128,21 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [
+          "packages/main/src/handlers/verify-codex.ts"
+        ],
+        "test": [
+          "scripts/verify-codex-assets.mjs",
+          "scripts/verify-entrypoints.mjs"
+        ]
+      }
     },
     {
       "id": "CHK-004",
@@ -107,7 +152,7 @@
         "README.md",
         "AGENTS.md"
       ],
-      "userSees": "Docs show the exact commands and explain that Koala enforces Codex adapter health through doctor, telemetry, and verification gates.",
+      "userSees": "README, AGENTS, and .Codex/README show exact commands: \"node bin/koala-codex.js doctor\", \"koala verify_codex\", and \"koala init --verify-codex\", and state \".Codex/hooks\" / \".Codex/settings.json\" are not Codex runtime assets.",
       "verificationIntent": {
         "happy": [
           {
@@ -124,6 +169,66 @@
         "adversarial": [
           {
             "desc": "Docs do not imply prompt-only compliance or fake Codex runtime hooks/settings",
+            "type": "cli"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "files": {
+        "modify": [
+          "README.md",
+          "AGENTS.md",
+          ".Codex/README.md",
+          "packages/main/src/init-assets.ts"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-codex-assets.mjs"
+        ]
+      }
+    },
+    {
+      "id": "CHK-005",
+      "title": "Make REVIEW and DONE gates consume Codex hard evidence",
+      "context": "Close the scope gap from koala-review-scope-plan: doctor, verify_codex, and role telemetry should not only exist; REVIEW/DONE checks must consume their machine-readable evidence so Codex adapter health becomes a gateable fact.",
+      "relatedDocs": [
+        "README.md",
+        "AGENTS.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "DONE pre-check output includes \"Codex hard evidence: PASS\" when doctor/verify/telemetry evidence is fresh, and prints \"Codex hard evidence: missing\" with \"koala verify_codex\" when it is absent or stale.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-advance.ts",
+          "packages/main/src/handlers/review-preflight.ts",
+          "packages/main/src/core/reviewer-status.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/core/health.ts"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-codex-assets.mjs",
+          "scripts/verify-entrypoints.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "REVIEW or DONE preflight can read Codex verify/doctor evidence and report it as a passing gate input",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Gate output distinguishes missing Codex evidence from failing Codex evidence with actionable commands",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE cannot pass on prompt-only Codex compliance when required Codex hard evidence is absent or stale",
             "type": "cli"
           }
         ]

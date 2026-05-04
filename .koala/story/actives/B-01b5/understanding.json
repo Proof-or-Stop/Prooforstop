@@ -1,0 +1,38 @@
+{
+  "task": "把 Codex adapter 从 prompt 指南升级为可诊断、可追踪、可验证的硬编码能力",
+  "outcome": "用户运行 node bin/koala-codex.js doctor 看到 Codex adapter doctor PASS；运行 koala verify_codex 看到 manifest、agents、wrapper、fallback、excluded runtime assets 全部 PASS；再运行 node bin/koala-codex.js session_brief 后能在 activity/process events 中看到 source=codex、role/session/command/result 记录。",
+  "facts": [
+    "B-d308 已添加 .Codex/koala.json、bin/koala-codex.js hardening、fallback read-only heartbeat 文档和验证",
+    "当前 main 无 active story，B-01b5 已创建并进入 PLAN",
+    "Codex 不支持 .Codex/hooks 或 .Codex/settings.json，不能用假 runtime 资产模拟 Claude hooks/settings",
+    "现有 scripts/verify-codex-assets.mjs 和 scripts/verify-entrypoints.mjs 可复用为 verify_codex 核心验证来源",
+    "Koala reviewer/finding/pass 需要可靠 agent 归因，之前流程依赖 prompt 提醒和 REVIEW gate 检查"
+  ],
+  "constraints": [
+    "所有 story/fixture 操作必须走 koala CLI，不能直接读写 docs/story 或 tests/fixtures JSON",
+    "硬能力优先，文档只能描述已实现行为，不能把建议当能力",
+    "不得创建 .Codex/hooks 或 .Codex/settings.json",
+    "fallback heartbeat 必须包含 KOALA_ACTIVITY_SOURCE=codex 和 KOALA_ACTIVITY_RECORD_READONLY=1",
+    "修改 CLI/gate/telemetry 后必须有脚本化测试和用户视角 transcript"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "bin/koala-codex.js",
+    "bin/bootstrap-runner.js",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/cli-init.ts",
+    "packages/main/src/init-assets.ts",
+    "packages/main/src/handlers/doctor.ts",
+    "packages/main/src/handlers/dispatch.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/handlers/review-pass.ts",
+    "packages/main/src/core/activity.ts",
+    "packages/main/src/core/health.ts",
+    "scripts/verify-codex-assets.mjs",
+    "scripts/verify-entrypoints.mjs",
+    "README.md",
+    "AGENTS.md",
+    ".Codex/README.md"
+  ],
+  "timestamp": "2026-05-04T18:19:11.282Z"
+}

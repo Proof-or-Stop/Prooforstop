@@ -1,0 +1,52 @@
+{
+  "storyId": "B-01b5",
+  "checkedAt": "2026-05-04T18:22:39.665Z",
+  "features": [
+    {
+      "feature": "Codex adapter doctor diagnostics expose hard health checks",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "agent=koala-review-scope-plan; checklist+plan: doctor reports manifest drift, wrapper/fallback health, unsupported runtime assets, agents mirror, source/session behavior, aux availability"
+    },
+    {
+      "feature": "Codex process-events and role telemetry are structured and attributable",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "agent=koala-review-scope-plan; checklist+plan: source/session/role/storyId/phase/command/entrypoint/result recorded; reviewer attribution protected"
+    },
+    {
+      "feature": "Codex init/verify path is scriptable hard validation",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "agent=koala-review-scope-plan; checklist+plan: verify_codex and init --verify-codex validate manifest, agents, wrapper, fallback heartbeat, exclusions"
+    },
+    {
+      "feature": "Docs describe only implemented Codex hard capabilities",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "agent=koala-review-scope-plan; checklist+plan: README/AGENTS/.Codex README updated after implementation, no fake runtime hooks/settings"
+    },
+    {
+      "feature": "REVIEW/DONE gates consume Codex doctor/verify/telemetry hard evidence",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "agent=koala-review-scope-plan; re-review of previous gap: CHK-005 requires gates distinguish missing/failing/passing evidence and rejects prompt-only DONE when evidence is absent or stale"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 5,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "ba40d6a115e53948ecb52894d09147250994668e1abeb6774d30a4dfd4b439c1",
+  "openQuestions": []
+}
