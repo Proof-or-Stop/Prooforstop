@@ -16,6 +16,7 @@ import { basename, dirname, isAbsolute, join, resolve } from 'path';
 import type { HandlerContext } from './context.js';
 import { readHealthIssues, summarizeHealthIssues, getHealthPath } from '../core/health.js';
 import { loadConfig } from '../core/config.js';
+import { renderCodexAdapterChecks, runCodexAdapterChecks } from '../core/codex-adapter-checks.js';
 
 export function createDoctorHandlers(ctx: HandlerContext) {
   const { root, store } = ctx;
@@ -25,6 +26,10 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       const limit = args?.limit ?? 1000;
       const issues = readHealthIssues(limit);
       const summary = summarizeHealthIssues(issues);
+      const codex = runCodexAdapterChecks(root, {
+        executeHeartbeats: true,
+        registryNames: ctx.getAllToolNames?.(),
+      });
 
       // B-7241 follow-up: scan for orphan worktrees (directory exists but
       // `git worktree list` doesn't know about it). This typically happens
@@ -78,6 +83,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
             repairFailed,
             repairRequested: !!args?.repair,
           },
+          codex,
         };
       }
 
@@ -155,6 +161,10 @@ export function createDoctorHandlers(ctx: HandlerContext) {
           lines.push(`→ 重跑: koala doctor --repair 清理这些残留。`);
         }
       }
+
+      lines.push('');
+      lines.push('Codex adapter scan:');
+      lines.push(renderCodexAdapterChecks(codex).split('\n').map((line, index) => index === 0 ? `  ${line}` : `  ${line}`).join('\n'));
 
       return lines.join('\n');
     },

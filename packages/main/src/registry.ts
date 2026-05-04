@@ -48,6 +48,7 @@ import { createDraftCheckHandlers } from './handlers/draft-check.js';
 import { createDeliveryCheckHandlers } from './handlers/delivery-check.js';
 import { createTestIntentHandoffHandlers } from './handlers/testintent-handoff.js';
 import { createAuxDocHandlers } from './handlers/aux-doc.js';
+import { createCodexAdapterHandlers } from './handlers/codex-adapter.js';
 import { nextStoryId } from './handlers/context.js';
 
 export type HandlerFn = (...args: any[]) => any;
@@ -148,6 +149,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // B-3749 CHK-002: PLAN handoff package for test-intent agents.
   registry.registerBatch(createTestIntentHandoffHandlers(ctx));
   registry.registerBatch(createAuxDocHandlers(ctx));
+  registry.registerBatch(createCodexAdapterHandlers(ctx));
 
   // 内部辅助：返回下一个 story id（fixture/测试 runner 用）
   registry.register('_nextStoryId', (prefix?: string) => nextStoryId(ctx.store, prefix));

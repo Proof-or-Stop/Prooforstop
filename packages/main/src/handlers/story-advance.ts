@@ -21,6 +21,7 @@ import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
 import { collectBaselineRisk, renderBaselineRiskLines } from '../core/baseline-risk.js';
 import { checkEvidenceFreshnessForGit, currentMaterialHash } from '../core/evidence-freshness.js';
 import { reportHealthIssue } from '../core/health.js';
+import { summarizeCodexEvidence, storyRequiresCodexEvidence } from '../core/codex-adapter-checks.js';
 
 // B-c622 CHK-004: DONE 阶段自动同步 main —— detect divergence + auto merge main
 
@@ -479,6 +480,17 @@ function buildDoneChecklist(storyId: string, store: StoryStore, root: string): D
     }
   }
 
+  // 8. Codex adapter hard evidence for Codex-touching stories.
+  if (storyRequiresCodexEvidence(store, storyId)) {
+    const codex = summarizeCodexEvidence(store, storyId);
+    rows.push({
+      status: codex.status === 'passing' ? 'pass' : 'fail',
+      label: 'Codex adapter evidence',
+      detail: `${codex.status}: ${codex.detail}`,
+      hint: codex.command,
+    });
+  }
+
   return rows;
 }
 
@@ -626,7 +638,7 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
               `Cannot enter TEST: CLI gate preflight 失败 (${failedGates})\n\n` +
               rendered +
               `\n\n→ 修复上述 gate 后重跑 koala story_advance --phase=TEST\n` +
-              `→ 单独复跑: koala validate --channel --story=${args.storyId} / --concept / --lint`,
+              `→ 单独复跑: koala validate --channel --story=${args.storyId} / --concept / --lint；Codex adapter 用 koala verify_codex`,
             );
           }
           ctx.log?.('4 CLI gate preflight: all pass');

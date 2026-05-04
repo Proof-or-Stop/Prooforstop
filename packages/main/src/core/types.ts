@@ -637,7 +637,17 @@ export interface StoryProcessMetrics {
 
 // ── Process Events (B-aa48: Phase 3 telemetry) ──
 
-export type ProcessEventType = 'plan_reviewed' | 'bug_reopened' | 'dispatch' | 'subagent_result' | 'light_review' | 'plan_updated';
+export type ProcessEventType =
+  | 'plan_reviewed'
+  | 'bug_reopened'
+  | 'dispatch'
+  | 'subagent_result'
+  | 'light_review'
+  | 'plan_updated'
+  | 'codex_cli'
+  | 'codex_adapter_verification'
+  | 'reviewer_finding'
+  | 'review_pass';
 
 export type ProcessEvent = {
   type: ProcessEventType;

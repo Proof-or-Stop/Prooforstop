@@ -87,6 +87,7 @@ npm run test:entrypoints
 
 ```bash
 npm run test:codex-assets
+koala verify_codex
 ```
 
 这会检查：
@@ -96,6 +97,14 @@ npm run test:codex-assets
 - `.Codex/koala.json` 是否仍然声明 Koala-managed Codex adapter、`activitySource=codex`、推荐入口和不生成的 runtime 资产
 - `.Codex/README.md` 是否保留正确的 Codex fallback 入口
 - `README.md` / `AGENTS.md` 是否仍然包含关键的 Codex 接入说明
+
+`koala verify_codex` 复用同一套共享检查，并额外执行本地 wrapper 与全局 fallback heartbeat：它确认 activity 记录包含 `source=codex`、session、entrypoint，并把 `codex_adapter_verification` 追加到当前 story 的 `process-events.jsonl`。触及 Codex adapter 的 story 在 REVIEW/DONE gate 会区分这条证据是 missing / failing / passing，并给出可直接重跑的命令。
+
+初始化新项目时也可以直接跑：
+
+```bash
+koala init --verify-codex
+```
 
 ## 没有本地 wrapper 时
 

@@ -36,6 +36,24 @@ function readActivityRecord(session, tool) {
   return entries.findLast(entry => entry.session === session && entry.tool === tool) || null;
 }
 
+function readProcessEvent(session, command) {
+  let storyId = '';
+  try {
+    const branch = execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], { cwd: repoRoot, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+    if (branch.startsWith('story/')) storyId = branch.slice('story/'.length);
+  } catch {}
+  if (!storyId) return null;
+  const storyDir = join(repoRoot, '.koala', 'story', 'actives', storyId);
+  const eventPath = join(storyDir, 'process-events.jsonl');
+  if (!existsSync(eventPath)) return null;
+  const entries = readFileSync(eventPath, 'utf8')
+    .trim()
+    .split('\n')
+    .filter(Boolean)
+    .map(line => JSON.parse(line));
+  return entries.findLast(entry => entry.session === session && entry.command === command) || null;
+}
+
 const checks = [];
 
 checks.push(() => {
@@ -58,6 +76,10 @@ checks.push(() => {
   const record = readActivityRecord(marker, 'session_brief');
   assert(record, 'bin/koala-codex.js should write a session_brief activity record');
   assert(record.source === 'codex', 'bin/koala-codex.js should force activity source=codex');
+  assert(record.entrypoint === 'local-wrapper', 'bin/koala-codex.js should mark entrypoint=local-wrapper');
+  const event = readProcessEvent(marker, 'session_brief');
+  assert(event, 'bin/koala-codex.js should write codex_cli process-event in active story');
+  assert(event.source === 'codex' && event.entrypoint === 'local-wrapper', 'codex_cli event should include source and local wrapper entrypoint');
 });
 
 checks.push(() => {
@@ -75,6 +97,7 @@ checks.push(() => {
   const record = readActivityRecord(marker, 'session_brief');
   assert(record, 'global Codex fallback should write a session_brief activity record');
   assert(record.source === 'codex', 'global Codex fallback should write source=codex');
+  assert(record.entrypoint === 'global-fallback', 'global Codex fallback should mark entrypoint=global-fallback');
 });
 
 checks.push(() => {

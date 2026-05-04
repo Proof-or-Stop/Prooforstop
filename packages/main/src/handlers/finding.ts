@@ -62,6 +62,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
       const timestamp = new Date().toISOString();
 
       // 记录调用者身份（环境变量 KOALA_AGENT 由 subagent 设置）
+      const missingAttribution = !args.agent && !process.env.KOALA_AGENT;
       const agent = args.agent || process.env.KOALA_AGENT || 'main';
 
       // 自动注入当前 review round（reviewer 无需传参）
@@ -85,6 +86,25 @@ export function createFindingHandlers(ctx: HandlerContext) {
       data.findings.push(finding);
       store.writeFindings(args.storyId, data);
 
+      try {
+        store.appendProcessEvent(args.storyId, {
+          type: 'reviewer_finding',
+          storyId: args.storyId,
+          command: 'finding_add',
+          role: agent.startsWith('koala-review-') ? 'reviewer' : 'main',
+          agent,
+          result: 'pass',
+          findingId: id,
+          severity: args.severity,
+          missingAttribution,
+          hardWarning: missingAttribution
+            ? 'finding_add called without agent/KOALA_AGENT; recorded as main and REVIEW/TEST gates may reject it'
+            : undefined,
+        });
+      } catch (e) {
+        console.warn(`[process-events] append failed for ${args.storyId}:`, (e as Error).message);
+      }
+
       // B-abd8: auto-recompute process metrics
       try {
         const pm = computeProcessMetrics(args.storyId, store, ctx.root);
@@ -93,7 +113,10 @@ export function createFindingHandlers(ctx: HandlerContext) {
         console.warn(`[process-metrics] recompute failed for ${args.storyId}:`, (e as Error).message);
       }
 
-      return `Finding ${id} created by ${agent}: [${args.severity}/${args.category}] ${args.desc}`;
+      const warning = missingAttribution
+        ? '\n⚠ finding_add 缺少 agent/KOALA_AGENT，已记录为 main；reviewer 必须传 agent="koala-review-*"，否则不会算 reviewer evidence。'
+        : '';
+      return `Finding ${id} created by ${agent}: [${args.severity}/${args.category}] ${args.desc}${warning}`;
     },
 
     review_pass_set(args: { storyId: string; agent?: string; note: string }): string {
@@ -120,6 +143,19 @@ export function createFindingHandlers(ctx: HandlerContext) {
           _hash: signReviewPass(args.storyId, id, agent, note, createdAt, reviewRound),
         });
         store.writeReviewPasses(args.storyId, data);
+        try {
+          store.appendProcessEvent(args.storyId, {
+            type: 'review_pass',
+            storyId: args.storyId,
+            command: 'review_pass_set',
+            role: 'reviewer',
+            agent,
+            result: 'pass',
+            reviewPassId: id,
+          });
+        } catch (e) {
+          console.warn(`[process-events] append failed for ${args.storyId}:`, (e as Error).message);
+        }
         return `Review pass ${id} recorded by ${agent}`;
       });
     },

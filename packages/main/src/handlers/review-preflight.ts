@@ -51,6 +51,7 @@ import {
   runDocsDriftGate,
   type DocsDriftGateResult,
 } from './validate-docs-drift.js';
+import { storyRequiresCodexEvidence, summarizeCodexEvidence } from '../core/codex-adapter-checks.js';
 
 /** Reads CLAUDE.md file contents for docs-drift gate */
 export type MdFileReader = (projectRoot: string) => string[];
@@ -76,7 +77,7 @@ export interface PreflightDeps {
 }
 
 export interface PreflightGateEntry {
-  name: 'channel' | 'concept' | 'lint' | 'docs-drift';
+  name: 'channel' | 'concept' | 'lint' | 'docs-drift' | 'codex-adapter';
   ok: boolean;
   status: string;
   summary: string;
@@ -226,7 +227,17 @@ export function runReviewCliGates(
       summary: '快速通道不检查 CLI gate',
       details: [],
     });
-    return { ok: true, fastChannel, gates };
+    if (storyRequiresCodexEvidence(deps.store, storyId)) {
+      const codex = summarizeCodexEvidence(deps.store, storyId);
+      gates.push({
+        name: 'codex-adapter',
+        ok: codex.status === 'passing',
+        status: codex.status,
+        summary: codex.detail,
+        details: codex.command ? [`run: ${codex.command}`] : [],
+      });
+    }
+    return { ok: gates.every((g) => g.ok), fastChannel, gates };
   }
 
   // ── channel ──
@@ -337,6 +348,17 @@ export function runReviewCliGates(
     });
   }
 
+  if (storyRequiresCodexEvidence(deps.store, storyId)) {
+    const codex = summarizeCodexEvidence(deps.store, storyId);
+    gates.push({
+      name: 'codex-adapter',
+      ok: codex.status === 'passing',
+      status: codex.status,
+      summary: codex.detail,
+      details: codex.command ? [`run: ${codex.command}`] : [],
+    });
+  }
+
   const ok = gates.every((g) => g.ok);
   return { ok, fastChannel, channel, concept, lint, docsDrift, gates };
 }
@@ -353,7 +375,8 @@ export function renderPreflight(result: PreflightResult): string {
   );
   for (const g of result.gates) {
     const icon = g.ok ? '✓' : '✗';
-    lines.push(`  [${icon}] validate --${g.name}: ${g.status} — ${g.summary}`);
+    const commandLabel = g.name === 'codex-adapter' ? 'koala verify_codex' : `validate --${g.name}`;
+    lines.push(`  [${icon}] ${commandLabel}: ${g.status} — ${g.summary}`);
     if (!g.ok && g.details.length > 0) {
       for (const d of g.details.slice(0, 20)) {
         lines.push(`        ${d}`);

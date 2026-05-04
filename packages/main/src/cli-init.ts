@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { mkdirSync, writeFileSync, readFileSync, existsSync, cpSync, readdirSync, symlinkSync, lstatSync, readlinkSync, unlinkSync } from 'fs';
-import { join, dirname, relative } from 'path';
+import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import {
   AGENTS_MD_TEMPLATE,
@@ -10,21 +10,24 @@ import {
   renderCodexAdapterManifest,
   renderCodexAgentContent,
 } from './init-assets.js';
+import { renderCodexAdapterChecks, runCodexAdapterChecks } from './core/codex-adapter-checks.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const packageRoot = join(__dirname, '..'); // @koala/main 的根目录
 
 // 通过 koala init 调用时 argv[2]='init'，跳过；直接 npx koala-init 时 argv[2] 是目标目录
-const rawArg = process.argv[2];
-const arg = (rawArg === 'init') ? process.argv[3] : rawArg;
+const initArgs = process.argv[2] === 'init' ? process.argv.slice(3) : process.argv.slice(2);
+const verifyCodex = initArgs.includes('--verify-codex');
+const arg = initArgs.find(a => !a.startsWith('--'));
 
-if (arg === '--help' || arg === '-h' || arg === 'help') {
+if (initArgs.includes('--help') || initArgs.includes('-h') || initArgs.includes('help')) {
   console.log(`
 koala-init — 初始化 koala 开发框架
 
 用法:
   npx koala-init [目标目录]     在指定目录初始化（默认当前目录）
+  npx koala-init --verify-codex 初始化后校验 Codex adapter 资产
   npx koala-init --help         显示帮助
 
 初始化内容:
@@ -102,6 +105,7 @@ if (!existsSync(giPath)) {
 
 // 1.6 项目代码目录（src/core + src/shells）
 const codeDirs = [
+  'bin',
   'src/core/machines/game',
   'src/core/io',
   'src/shells/cli',
@@ -114,6 +118,33 @@ for (const d of codeDirs) {
     mkdirSync(full, { recursive: true });
     console.log(`  ✓ ${d}/`);
   }
+}
+
+const codexWrapperPath = join(targetDir, 'bin', 'koala-codex.js');
+if (!existsSync(codexWrapperPath)) {
+  writeFileSync(codexWrapperPath, `#!/usr/bin/env node
+process.env.KOALA_ACTIVITY_SOURCE = 'codex';
+process.env.KOALA_ACTIVITY_RECORD_READONLY = '1';
+process.env.KOALA_CODEX_ENTRYPOINT = 'local-wrapper';
+
+if (!process.env.KOALA_ACTIVITY_SESSION) {
+  process.env.KOALA_ACTIVITY_SESSION =
+    process.env.CODEX_SESSION_ID ||
+    process.env.OPENAI_SESSION_ID ||
+    process.env.TERM_SESSION_ID ||
+    '';
+}
+
+const { spawnSync } = await import('node:child_process');
+const result = spawnSync('koala', process.argv.slice(2), {
+  stdio: 'inherit',
+  env: process.env,
+});
+process.exit(result.status ?? 1);
+`);
+  console.log('  ✓ bin/koala-codex.js (Codex wrapper)');
+} else {
+  console.log('  - bin/koala-codex.js (exists, skip)');
 }
 
 // 生成 CLI shell 模板
@@ -421,13 +452,13 @@ if (agentTemplateDir) {
     if (!file.endsWith('.md')) continue;
     const src = join(agentTemplateDir, file);
     const dst = join(agentDstDir, file);
-    const relTarget = relative(agentDstDir, src);
+    const linkTarget = src;
 
     // 已是正确 symlink → skip
     if (existsSync(dst)) {
       try {
         const stat = lstatSync(dst);
-        if (stat.isSymbolicLink() && readlinkSync(dst) === relTarget) {
+        if (stat.isSymbolicLink() && readlinkSync(dst) === linkTarget) {
           console.log(`  - .claude/agents/${file} (symlink ok)`);
           continue;
         }
@@ -440,8 +471,8 @@ if (agentTemplateDir) {
       }
     }
 
-    symlinkSync(relTarget, dst);
-    console.log(`  ✓ .claude/agents/${file} → ${relTarget}`);
+    symlinkSync(linkTarget, dst);
+    console.log(`  ✓ .claude/agents/${file} → ${linkTarget}`);
   }
 } else {
   console.log('  - agent 模板目录不存在, skip');
@@ -532,6 +563,13 @@ Next steps:
   2. Optional: edit koala.config.json to adjust scanRoot
   3. Optional: koala validate to verify project
 `);
+
+if (verifyCodex) {
+  console.log('Codex verification:');
+  const result = runCodexAdapterChecks(targetDir, { executeHeartbeats: true });
+  console.log(renderCodexAdapterChecks(result));
+  if (!result.ok) process.exit(1);
+}
 
 // NOTE: generateProfileSection / syncProfileSection were previously defined here.
 // They now live in claude-md-sync.ts (no side effects) to avoid triggering this

@@ -415,6 +415,10 @@ export const MAIN_TOOLS: ToolDef[] = [
     limit: z.number().optional().describe('最多读取条数（默认 1000）'),
     repair: z.boolean().optional().describe('清理 DONE/DISCARDED terminal worktree 注册项、孤儿目录与 prunable 元数据'),
   }},
+  { name: 'verify_codex', description: '验证 Codex adapter 资产、入口 heartbeat 与硬证据', schema: {
+    json: z.boolean().optional().describe('结构化 JSON 输出'),
+    storyId: z.string().optional().describe('可选 Story ID；缺省从 story/* 分支推断并记录 process-event evidence'),
+  }},
 
   // Audit (framework self-audit — 跨 story 扫 CLAUDE.md 承诺 vs 实际 CLI 行为 drift)
   { name: 'audit', description: '框架自省 audit（机械扫 CLAUDE.md drift → 写 B-META-framework-audit finding + report.md）', schema: {
@@ -997,6 +1001,20 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'help',
 ]);
 
+function inferCodexEntrypoint(): string {
+  if (process.env.KOALA_CODEX_ENTRYPOINT) return process.env.KOALA_CODEX_ENTRYPOINT;
+  const invoked = process.argv[1] || '';
+  if (invoked.includes('koala-codex')) return 'local-wrapper';
+  if (process.env.KOALA_ACTIVITY_SOURCE === 'codex') return 'global-fallback';
+  return 'cli';
+}
+
+function storyIdFromArgs(args: Record<string, unknown>, activeStory?: ActiveStory | null): string | null {
+  if (typeof args.storyId === 'string' && args.storyId.trim()) return args.storyId.trim();
+  if (typeof args.story === 'string' && args.story.trim()) return args.story.trim();
+  return activeStory?.storyId || null;
+}
+
 /**
  * Decide whether a CLI invocation should be recorded in activity.jsonl.
  * Returns false for read-only commands and dry-run invocations.
@@ -1206,6 +1224,7 @@ export async function runCli(opts?: {
       const record: Record<string, unknown> = {
         source: process.env.KOALA_ACTIVITY_SOURCE || 'cli',
         session: process.env.KOALA_ACTIVITY_SESSION || '',
+        entrypoint: inferCodexEntrypoint(),
         startTime: entry.startTime,
         endTime: entry.endTime,
         tool: entry.command,
@@ -1214,8 +1233,9 @@ export async function runCli(opts?: {
         status: entry.success ? 'ok' : 'fail',
         result: entry.success ? null : undefined,
         error: entry.error || null,
-        storyId: null,
-        role: inferActivityRole(entry.args),
+        storyId: storyIdFromArgs(entry.args as Record<string, unknown>, activeStory),
+        phase: activeStory?.phase || null,
+        role: inferActivityRole(entry.args, process.env.KOALA_ACTIVITY_ROLE || process.env.KOALA_AGENT),
       };
       if (entry.staleWarnings && entry.staleWarnings.length > 0) {
         record.staleWarnings = entry.staleWarnings;
@@ -1225,6 +1245,43 @@ export async function runCli(opts?: {
       reportHealthIssue('persist:writeLog', e as Error, {
         command: entry.command,
         logDir: join(root, '.koala'),
+      });
+    }
+  }
+
+  function writeCodexProcessEvent(entry: {
+    command: string;
+    args: unknown;
+    success: boolean;
+    error?: string;
+  }) {
+    if ((process.env.KOALA_ACTIVITY_SOURCE || '') !== 'codex') return;
+    const argsObject = entry.args && typeof entry.args === 'object' && !Array.isArray(entry.args)
+      ? entry.args as Record<string, unknown>
+      : {};
+    const storyId = storyIdFromArgs(argsObject, activeStory);
+    if (!storyId) return;
+    try {
+      let phase = activeStory?.phase || '';
+      if (!phase) {
+        try { phase = store.readStory(storyId).phase; } catch { phase = ''; }
+      }
+      store.appendProcessEvent(storyId, {
+        type: 'codex_cli',
+        source: 'codex',
+        session: process.env.KOALA_ACTIVITY_SESSION || '',
+        role: inferActivityRole(entry.args, process.env.KOALA_ACTIVITY_ROLE || process.env.KOALA_AGENT),
+        storyId,
+        phase,
+        command: entry.command,
+        entrypoint: inferCodexEntrypoint(),
+        result: entry.success ? 'pass' : 'fail',
+        ...(entry.error ? { errorSummary: entry.error.slice(0, 300) } : {}),
+      });
+    } catch (e: unknown) {
+      reportHealthIssue('persist:codexProcessEvent', e as Error, {
+        command: entry.command,
+        storyId,
       });
     }
   }
@@ -1262,6 +1319,7 @@ export async function runCli(opts?: {
       if (shouldWriteActivityLog(cmd, parsed)) {
         writeLog({ command: cmd, args: parsed, startTime: runStart, endTime: new Date().toISOString(), success: true, staleWarnings });
       }
+      writeCodexProcessEvent({ command: cmd, args: parsed, success: true });
       // 注入 next-step hint（hints.ts 注册的命令才有效；其它命令原样返回）
       const hintActive: ActiveStoryInfo | null = activeStory
         ? { storyId: activeStory.storyId, phase: activeStory.phase }
@@ -1293,6 +1351,7 @@ export async function runCli(opts?: {
       if (shouldWriteActivityLog(cmd, parsed)) {
         writeLog({ command: cmd, args: parsed, startTime: runStart, endTime: new Date().toISOString(), success: false, error: e.message, staleWarnings });
       }
+      writeCodexProcessEvent({ command: cmd, args: parsed, success: false, error: e.message });
       // onError hook — best-effort; always runs before exit(1).
       // Print a hint so the user knows why a failed command takes a few extra seconds.
       if (config0?.hooks?.onError) {

@@ -31,6 +31,8 @@ fallback 说明：
 
 - 新 session 第一条命令跑 `node bin/koala-codex.js session_brief`
 - 日常所有 story/checklist/fixture/bug 操作尽量保持同一入口
+- 改动 Codex adapter 资产后运行 `koala verify_codex`；它会验证 manifest、agent mirror、wrapper heartbeat、global fallback heartbeat 和 runtime 排除项，并写入 gate 可消费的 process-event evidence
+- 初始化脚本可用 `koala init --verify-codex` 做同源资产校验
 - 如果 `aux_*` 不可用，说明当前是 core-only koala：优先找本地 bootstrap 入口；没有的话，用 AGENTS.md 规定的 shell 搜索兜底
 
 边界：
