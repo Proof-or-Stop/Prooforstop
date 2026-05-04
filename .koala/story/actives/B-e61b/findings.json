@@ -1,0 +1,37 @@
+{
+  "findings": [
+    {
+      "id": "B-e61b:F-001",
+      "desc": "[packages/main/src/tasks/flow-stability-smoke.ts:343] validate hint coverage only stubs decorateResult with injected activeStory, so it does not exercise the real `koala validate --json` CLI path. In this REVIEW worktree, a fresh `koala validate --json` still ended with `→ 验证全绿。下一步：story_advance --storyId=B-e61b --phase=DONE`, which contradicts the expected REVIEW->TEST routing and the recorded verificationEvidence. This leaves CHK-001/CHK-003 validate-hint evidence insufficient and allows wrong gate guidance to escape.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-05-04T19:35:46.612Z",
+      "reviewRound": "2026-05-04T19:33:48.874Z",
+      "_hash": "04ec11b0342b0746361b261c37d36ee3f1e9c9604f2a3a9f2a8314e597711fd8"
+    },
+    {
+      "id": "B-e61b:F-002",
+      "desc": "[MEDIUM] packages/main/src/handlers/hints.ts:145 - bugUpdateHint still tells TEST-stage users to run story_advance --phase=DONE as soon as the last bug is fixed. That bypasses the new DONE pre-check guidance introduced in this story, so warning/blocking rows like delivery-check, summary, or dirty tree can still exist while the hint points straight at DONE. Align this path with the phase-aware validate/session guidance and send users to inspect DONE pre-check before advancing.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-04T19:36:51.154Z",
+      "reviewRound": "2026-05-04T19:33:48.874Z",
+      "_hash": "34a31012f0406b88fa22f9e26898363643b3a13ca8688625d3517d78bd6512bf"
+    },
+    {
+      "id": "B-e61b:F-003",
+      "desc": "packages/main/src/handlers/hints.ts:215 local worktree CLI correctly hints REVIEW -> TEST, but the shipped global koala command still prints REVIEW -> DONE for `koala validate --channel --story=B-e61b --json`; this environment difference is not surfaced and can mislead end users about the real next step.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "agent": "koala-review-channel",
+      "createdAt": "2026-05-04T19:37:33.924Z",
+      "reviewRound": "2026-05-04T19:33:48.874Z",
+      "_hash": "1fcceafd4276c15a0b33a4055b65f30f799f329933b24f6c8d3669273be767b8"
+    }
+  ]
+}

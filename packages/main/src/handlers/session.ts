@@ -256,6 +256,7 @@ interface NextStepCtx {
   testPassedAt: string | null;
   gitReady: boolean;
   donePrecheck: DonePrecheckSummary | null;
+  reviewerStatus: ReviewerStatusSummary | null;
 }
 
 interface DonePrecheckSummary {
@@ -319,6 +320,23 @@ function computeNextStep(c: NextStepCtx): string {
       return `DEV 阶段，所有 checklist 已 done。下一步：git commit + story_advance --storyId=${sid} --phase=REVIEW 进入代码审查`;
     }
     case 'REVIEW':
+      if (c.reviewerStatus) {
+        if (c.reviewerStatus.totalBlockers > 0) {
+          const blocked = c.reviewerStatus.entries
+            .filter(e => e.blockerCount > 0)
+            .map(e => `${e.name}(${e.blockerCount})`)
+            .join(', ');
+          return `REVIEW 阶段，有 ${c.reviewerStatus.totalBlockers} 个 blocking finding：${blocked}。下一步：finding_list --storyId=${sid} 查看并修复，必要时 story_advance --storyId=${sid} --phase=DEV`;
+        }
+        if (!c.reviewerStatus.allPassed) {
+          const pending = c.reviewerStatus.entries
+            .filter(e => e.verdict === 'pending')
+            .map(e => e.name)
+            .join(', ') || 'reviewer evidence';
+          return `REVIEW 阶段，等待 reviewer evidence：${pending}。下一步：reviewer_list --storyId=${sid} 查看应运行的 koala-review-* reviewer，全部 pass 后再 story_advance --storyId=${sid} --phase=TEST`;
+        }
+        return `REVIEW 阶段，reviewer gate 全部通过。下一步：story_advance --storyId=${sid} --phase=TEST 进入正式验证`;
+      }
       return `REVIEW 阶段。koala-reviewer 审查代码，提 finding。critical/high finding 全部 resolved 后 story_advance --storyId=${sid} --phase=TEST`;
     case 'TEST_CASE':
       return `TEST_CASE 阶段（legacy）。建议 story_advance --phase=TEST 直接进入验证`;
@@ -802,6 +820,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
         testPassedAt,
         gitReady,
         donePrecheck,
+        reviewerStatus,
       });
 
       lines.push('');

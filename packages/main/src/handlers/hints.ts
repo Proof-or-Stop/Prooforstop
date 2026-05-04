@@ -142,7 +142,7 @@ const bugUpdateHint: HintFn = (ctx) => {
   if (open.length === 0) {
     const story = getStory(ctx, storyId);
     if (story?.phase === 'TEST') {
-      return `→ 所有 bug 已 fixed。下一步：story_advance --storyId=${storyId} --phase=DONE`;
+      return `→ 所有 bug 已 fixed。下一步：运行 koala next 或 koala session_brief 查看 DONE pre-check；全部通过后再 story_advance --storyId=${storyId} --phase=DONE，未通过先补 gate`;
     }
     return `→ 所有 bug 已 fixed。继续推进 story`;
   }

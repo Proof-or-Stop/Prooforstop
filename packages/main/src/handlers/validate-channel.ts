@@ -4,7 +4,7 @@
  * 校验 story 分支上所有 commit 的 author 是否符合通道要求：
  * - 快速通道（checklist ≤ 2 且 riskSignals 空）：跳过，返回 skipped
  * - 正常通道：每个 commit 要么 author == "koala-implementer"，要么 commit subject
- *   以 "koala:" 开头（koala CLI 自身的 story init / phase advance / summary commit 豁免），
+ *   以 "koala:" 开头且只触及 story metadata（koala CLI 自身 metadata commit 豁免），
  *   否则返回 fail 并列出 offenders。
  *
  * 输出结构：
@@ -32,6 +32,7 @@ export interface ChannelOffender {
   sha: string;
   author: string;
   subject: string;
+  files?: string[];
 }
 
 export interface ChannelCheckResult {
@@ -61,6 +62,11 @@ export type GitLogReader = (args: {
   projectRoot: string;
 }) => string;
 
+export type GitChangedFilesReader = (args: {
+  sha: string;
+  projectRoot: string;
+}) => string[];
+
 const defaultGitLogReader: GitLogReader = ({ base, branch, projectRoot }) => {
   try {
     execSync(`git rev-parse --verify --quiet ${branch}`, { cwd: projectRoot, stdio: ['ignore', 'ignore', 'ignore'] });
@@ -81,6 +87,14 @@ const defaultGitLogReader: GitLogReader = ({ base, branch, projectRoot }) => {
     `git log ${base}..${branch} "--format=%H|%an|%s"`,
     { cwd: projectRoot, encoding: 'utf-8' },
   );
+};
+
+const defaultGitChangedFilesReader: GitChangedFilesReader = ({ sha, projectRoot }) => {
+  const raw = execSync(
+    `git show --name-only --format= --no-renames ${sha}`,
+    { cwd: projectRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] },
+  );
+  return raw.split('\n').map(line => line.trim()).filter(Boolean);
 };
 
 /** 解析 `%H|%an|%s` 行，容忍 subject 中含 `|` */
@@ -144,12 +158,23 @@ export function isNormalChannelWithStory(
 /**
  * 判定单个 commit 是否 acceptable。
  * - author == "koala-implementer" 通过
- * - subject 以 "koala:" 前缀（允许前导空白）通过——koala CLI 自身 commit（story init / phase advance / summary / merge 辅助）
+ * - subject 以 "koala:" 前缀且只触及 story metadata 时通过
  * - 否则为 offender
  */
+export function isStoryMetadataPath(file: string): boolean {
+  return file.startsWith('.koala/story/') || file.startsWith('docs/story/actives/');
+}
+
+export function isMetadataOnlyKoalaCommit(c: Pick<ChannelOffender, 'subject' | 'files'>): boolean {
+  return /^\s*koala:/.test(c.subject)
+    && Array.isArray(c.files)
+    && c.files.length > 0
+    && c.files.every(isStoryMetadataPath);
+}
+
 export function isAcceptableCommit(c: ChannelOffender): boolean {
   if (c.author === 'koala-implementer') return true;
-  if (/^\s*koala:/.test(c.subject)) return true;
+  if (isMetadataOnlyKoalaCommit(c)) return true;
   return false;
 }
 
@@ -324,6 +349,7 @@ export interface CheckCommitAuthorDeps {
   store: StoryStore;
   projectRoot: string;
   gitLogReader?: GitLogReader;
+  gitChangedFilesReader?: GitChangedFilesReader;
   base?: string;
   /** F-021: test injection for reading plan.md */
   planReader?: PlanReader;
@@ -337,7 +363,14 @@ export function checkCommitAuthor(
   storyId: string,
   deps: CheckCommitAuthorDeps,
 ): ChannelCheckResult {
-  const { store, projectRoot, gitLogReader = defaultGitLogReader, base = DEFAULT_BASE, planReader = defaultPlanReader } = deps;
+  const {
+    store,
+    projectRoot,
+    gitLogReader = defaultGitLogReader,
+    gitChangedFilesReader = defaultGitChangedFilesReader,
+    base = DEFAULT_BASE,
+    planReader = defaultPlanReader,
+  } = deps;
 
   // story 存在性校验
   if (!store.storyExists(storyId)) {
@@ -411,7 +444,14 @@ export function checkCommitAuthor(
   const commits = raw
     .split('\n')
     .map(parseGitLogLine)
-    .filter((c): c is ChannelOffender => c !== null);
+    .filter((c): c is ChannelOffender => c !== null)
+    .map((c) => {
+      try {
+        return { ...c, files: gitChangedFilesReader({ sha: c.sha, projectRoot }) };
+      } catch {
+        return c;
+      }
+    });
 
   const offenders = commits.filter((c) => !isAcceptableCommit(c));
 
@@ -466,7 +506,7 @@ export function checkCommitAuthor(
     }
     const summary = allItemsOwnedByMain && offenders.length > 0
       ? `正常通道：${commits.length} 条 commit 由 plan.md Owner=main-agent 明确豁免；dispatch 证据覆盖完整`
-      : `正常通道：${commits.length} 条 commit 全部由 koala-implementer 或 koala CLI 产出；dispatch 证据覆盖完整`;
+      : `正常通道：${commits.length} 条 commit 全部由 koala-implementer 或 metadata-only koala CLI 产出；dispatch 证据覆盖完整`;
     return {
       provider: 'koala-channel',
       status: 'pass',
@@ -487,7 +527,7 @@ export function checkCommitAuthor(
   const summaryParts: string[] = [];
   if (!authorOk) {
     summaryParts.push(`${offenders.length}/${commits.length} 条 commit 不符合 author 要求`);
-    failDetails.push(`期望 author="koala-implementer" 或 subject 以 "koala:" 开头`);
+    failDetails.push(`期望 author="koala-implementer" 或 metadata-only subject="koala:*" commit`);
     failDetails.push(`offenders:`);
     for (const c of offenders) {
       failDetails.push(`  ${c.sha.slice(0, 7)} ${c.author} — ${c.subject}`);

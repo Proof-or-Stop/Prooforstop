@@ -5,6 +5,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdtempSync, rmSync, mkdirSync, writeFileSync, existsSync, lstatSync, readlinkSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { isCommandAllowed, resetConfigCache } from '../core/config.js';
 import { signFinding, signReviewPass } from '../core/finding-verify.js';
 import { getArtifactContractStatus } from '../core/artifact-contract.js';
@@ -15,6 +16,7 @@ import type { ChecklistData, Finding, StoryInfo, TestEvidenceData } from '../cor
 import { buildDoneChecklist } from '../handlers/story-advance.js';
 import { decorateResult } from '../handlers/hints.js';
 import { createSessionHandlers } from '../handlers/session.js';
+import { checkCommitAuthor } from '../handlers/validate-channel.js';
 import { repairGlobalKoalaLinkBeforeWorktreeDelete } from '../handlers/worktree.js';
 
 function write(root: string, path: string, content: string): void {
@@ -24,6 +26,10 @@ function write(root: string, path: string, content: string): void {
 
 function git(root: string, args: string[]): void {
   execFileSync('git', args, { cwd: root, stdio: 'ignore' });
+}
+
+function localCliPath(): string {
+  return resolve(dirname(fileURLToPath(import.meta.url)), '..', 'cli.js');
 }
 
 function makeFinding(storyId: string, agent: string, reviewRound: string, idSuffix: string): Finding {
@@ -275,7 +281,14 @@ function assertSessionBriefStatusHintsMatchGates(): void {
       root: reviewRoot,
       scanRoot: join(reviewRoot, 'packages/main'),
     }).session_brief({ concise: true });
+    const reviewNext = createSessionHandlers({
+      store,
+      root: reviewRoot,
+      scanRoot: join(reviewRoot, 'packages/main'),
+    }).next({ concise: true });
     assert.doesNotMatch(reviewBrief, /REVIEW blocked by unresolved findings/);
+    assert.match(reviewNext, /reviewer gate 全部通过/);
+    assert.match(reviewNext, /phase=TEST/);
 
     const testStory = store.readStory(storyId);
     testStory.phase = 'TEST';
@@ -310,6 +323,72 @@ function assertSessionBriefStatusHintsMatchGates(): void {
     assert.doesNotMatch(testBrief, /下一步：先 git add \+ git commit 提交所有改动，再 advance DONE/);
   } finally {
     rmSync(reviewRoot, { recursive: true, force: true });
+  }
+}
+
+function assertReviewNextUsesReviewerGateState(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-flow-review-next-'));
+  try {
+    const { store, storyId, reviewRound } = createReviewStore(root);
+    git(root, ['init']);
+    git(root, ['config', 'user.email', 'koala@example.test']);
+    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'base']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+
+    const handlers = createSessionHandlers({
+      store,
+      root,
+      scanRoot: join(root, 'packages/main'),
+    });
+    const pendingNext = handlers.next({ concise: true });
+    assert.match(pendingNext, /等待 reviewer evidence/);
+    assert.match(pendingNext, /story-review/);
+    assert.match(pendingNext, /concept/);
+    assert.match(pendingNext, /quality/);
+    assert.match(pendingNext, /test-coverage/);
+    assert.match(pendingNext, /channel/);
+    assert.doesNotMatch(pendingNext, /critical\/high finding 全部 resolved/);
+
+    const id = `${storyId}:F-open`;
+    const createdAt = '2026-04-27T12:30:00.000Z';
+    const desc = 'concept blocking issue';
+    const severity = 'high';
+    store.writeReview(storyId, {
+      reviews: [{
+        timestamp: reviewRound,
+        issueCount: 0,
+        blockerCount: 0,
+        issues: [],
+      }],
+    });
+    store.writeFindings(storyId, {
+      findings: [{
+        id,
+        desc,
+        severity,
+        category: 'happy',
+        status: 'open',
+        agent: 'koala-review-concept',
+        createdAt,
+        reviewRound,
+        _hash: signFinding(storyId, id, desc, severity, createdAt, reviewRound),
+      }],
+    });
+    store.writeReviewPasses(storyId, {
+      passes: [
+        makeReviewPass(storyId, 'koala-review-quality', reviewRound, '041'),
+        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '042'),
+        makeReviewPass(storyId, 'koala-review-channel', reviewRound, '043'),
+      ],
+    });
+    const blockerNext = handlers.next({ concise: true });
+    assert.match(blockerNext, /1 个 blocking finding/);
+    assert.match(blockerNext, /concept\(1\)/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
   }
 }
 
@@ -371,6 +450,113 @@ function assertValidateHintsFollowStoryPhase(): void {
     const testHint = render('TEST');
     assert.match(testHint, /DONE pre-check/);
     assert.match(testHint, /phase=DONE/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertRealCliValidateHintFollowsActiveStoryPhase(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-flow-real-cli-validate-'));
+  try {
+    const { store, storyId } = createReviewStore(root);
+    write(root, 'validate-smoke.js', 'console.log(JSON.stringify({ provider: "smoke", status: "pass", allPass: true, summary: "ok", details: [] }));\n');
+    write(root, 'koala.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      storyDir: '.koala/story/actives',
+      requirementsDir: 'docs/requirements',
+      validate: { command: 'node validate-smoke.js' },
+      workflow: { profile: 'balanced' },
+    }));
+    resetConfigCache();
+    git(root, ['init']);
+    git(root, ['config', 'user.email', 'koala@example.test']);
+    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'base']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+    const story = store.readStory(storyId);
+    story.phase = 'DEV';
+    store.writeStory(storyId, story);
+
+    const output = execFileSync('node', [localCliPath(), 'validate', '--json'], {
+      cwd: root,
+      encoding: 'utf-8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    assert.match(output, /phase=REVIEW/);
+    assert.doesNotMatch(output, /phase=DONE/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertBugUpdateTestHintUsesDonePrecheck(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-flow-bug-hint-'));
+  try {
+    const { store, storyId } = createReviewStore(root);
+    const story = store.readStory(storyId);
+    story.phase = 'TEST';
+    store.writeStory(storyId, story);
+    store.writeBugs(storyId, {
+      bugs: [{
+        id: 'BUG-001',
+        title: 'last test bug',
+        status: 'fixed',
+        foundAt: '2026-04-27T12:00:00.000Z',
+        fixedAt: '2026-04-27T12:30:00.000Z',
+      }],
+    });
+
+    const output = String(decorateResult({
+      cmd: 'bug_update',
+      args: { storyId, id: 'BUG-001', status: 'fixed' },
+      result: 'Bug BUG-001 updated to fixed',
+      store,
+      root,
+      activeStory: { storyId, phase: 'TEST' },
+    }));
+    assert.match(output, /DONE pre-check/);
+    assert.match(output, /phase=DONE/);
+    assert.doesNotMatch(output, /下一步：story_advance --storyId=.*--phase=DONE/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertChannelGateRejectsKoalaSubjectForRealFiles(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-flow-channel-author-'));
+  try {
+    const { store, storyId } = createReviewStore(root);
+    git(root, ['init']);
+    git(root, ['config', 'user.email', 'koala@example.test']);
+    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'base']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+    write(root, 'packages/main/src/real-code.ts', 'export const realCode = true;\n');
+    git(root, ['add', 'packages/main/src/real-code.ts']);
+    git(root, [
+      '-c', 'user.name=main-agent',
+      '-c', 'user.email=main@example.test',
+      'commit',
+      '-m', 'koala: implement real code',
+    ]);
+    for (const suffix of ['001', '002', '003']) {
+      store.appendProcessEvent(storyId, {
+        type: 'subagent_result',
+        checklistId: `CHK-${suffix}`,
+        success: true,
+      });
+    }
+
+    const result = checkCommitAuthor(storyId, { store, projectRoot: root });
+    assert.equal(result.status, 'fail');
+    assert.match(result.summary, /commit 不符合 author 要求/);
+    assert.match(result.details.join('\n'), /koala: implement real code/);
+    assert.match(result.details.join('\n'), /metadata-only/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -493,8 +679,12 @@ assertSessionBriefGate();
 assertReviewGateUsesOptIn();
 assertReviewerStatusUsesMdFallback();
 assertSessionBriefStatusHintsMatchGates();
+assertReviewNextUsesReviewerGateState();
 assertDevGuidanceUsesReviewPhase();
 assertValidateHintsFollowStoryPhase();
+assertRealCliValidateHintFollowsActiveStoryPhase();
+assertBugUpdateTestHintUsesDonePrecheck();
+assertChannelGateRejectsKoalaSubjectForRealFiles();
 assertDoneChecklistUsesStableOracleRows();
 assertGlobalLinkRepair();
 
