@@ -1,0 +1,39 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Generate a Koala-managed Codex adapter manifest",
+      "context": "Add .Codex/koala.json through koala init with fields that describe adapter ownership, recommended entrypoint, activity source, and excluded Claude runtime assets.",
+      "relatedDocs": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Harden the Codex wrapper and entrypoint verification",
+      "context": "bin/koala-codex.js should remain the stable executable entry that tags source=codex/session, and tests should verify both wrapper behavior and the generated adapter manifest.",
+      "relatedDocs": [
+        "README.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Document that Codex gets an adapter, not hooks/settings",
+      "context": "Update .Codex/README template and root docs to explain the adapter manifest and why .Codex/hooks/.Codex/settings.json are intentionally absent.",
+      "relatedDocs": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
