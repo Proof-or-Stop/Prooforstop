@@ -115,7 +115,7 @@
       "desc": "packages/main/src/cli-init.ts:125-169 and packages/main/src/cli-init.ts:593-597 generate only bin/koala-codex.js, but the generated wrapper needs a sibling bin/koala.js to be a true local bootstrap and init --verify-codex skips wrapper heartbeats when that sibling is absent. WHY: a fresh initialized project can pass npx koala-init --verify-codex while its recommended node bin/koala-codex.js session_brief exits with “did not find a sibling bin/koala.js” whenever a capable global koala is not on PATH; this keeps new-project Codex sessions environment-dependent instead of verified. Evidence: temp init plus PATH=/usr/bin:/bin node <tmp>/bin/koala-codex.js session_brief exited 1.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "agent": "koala-review-quality",
       "createdAt": "2026-05-04T18:52:47.026Z",
       "reviewRound": "2026-05-04T18:50:20.884Z",
