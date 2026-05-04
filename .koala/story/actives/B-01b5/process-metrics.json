@@ -1,13 +1,13 @@
 {
   "storyId": "B-01b5",
-  "generatedAt": "2026-05-04T18:23:47.620Z",
+  "generatedAt": "2026-05-04T18:40:03.110Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
     "hasPlan": true,
     "checklistItems": 5,
     "reviewRounds": 3,
-    "findings": 0,
+    "findings": 10,
     "bugs": 0,
     "testRuns": 0,
     "hasEvalEvidence": false,
@@ -27,13 +27,12 @@
       },
       "metrics": {
         "findingCoverageRatio": {
-          "value": null,
+          "value": 0,
           "unit": "ratio",
-          "confidence": "unknown",
+          "confidence": "medium",
           "sources": [
             "findings.json"
-          ],
-          "note": "no data (0 denominator)"
+          ]
         },
         "bugFixWithReproEvidenceRatio": {
           "value": null,
@@ -100,7 +99,7 @@
           ]
         },
         "missingFindingCount": {
-          "value": 0,
+          "value": 3,
           "unit": "count",
           "confidence": "high",
           "sources": [
@@ -261,7 +260,7 @@
           "note": "fast channel — main agent 允许自写代码"
         },
         "reviewerIndependence": {
-          "value": false,
+          "value": true,
           "unit": "bool",
           "confidence": "high",
           "sources": [
@@ -301,7 +300,7 @@
     },
     "reviewDiscipline": {
       "effective": {
-        "value": true,
+        "value": false,
         "unit": "bool",
         "confidence": "high",
         "sources": [
@@ -320,7 +319,7 @@
           ]
         },
         "formalFindingCount": {
-          "value": 0,
+          "value": 10,
           "unit": "count",
           "confidence": "high",
           "sources": [
@@ -328,7 +327,7 @@
           ]
         },
         "criticalResolvedBeforeTest": {
-          "value": true,
+          "value": false,
           "unit": "bool",
           "confidence": "high",
           "sources": [

@@ -87,7 +87,7 @@ npm run test:entrypoints
 
 ```bash
 npm run test:codex-assets
-koala verify_codex
+node bin/koala-codex.js verify_codex
 ```
 
 这会检查：
@@ -98,12 +98,18 @@ koala verify_codex
 - `.Codex/README.md` 是否保留正确的 Codex fallback 入口
 - `README.md` / `AGENTS.md` 是否仍然包含关键的 Codex 接入说明
 
-`koala verify_codex` 复用同一套共享检查，并额外执行本地 wrapper 与全局 fallback heartbeat：它确认 activity 记录包含 `source=codex`、session、entrypoint，并把 `codex_adapter_verification` 追加到当前 story 的 `process-events.jsonl`。触及 Codex adapter 的 story 在 REVIEW/DONE gate 会区分这条证据是 missing / failing / passing，并给出可直接重跑的命令。
+`node bin/koala-codex.js verify_codex`（或 `node bin/koala.js verify_codex`）复用同一套共享检查，并额外执行本地 wrapper 与全局 fallback heartbeat：它确认 activity 记录包含 `source=codex`、session、entrypoint，并把带当前 HEAD/material hash 的 `codex_adapter_verification` 追加到当前 story 的 `process-events.jsonl`。触及 Codex adapter 的 story 在 REVIEW/DONE gate 会区分这条证据是 missing / failing / stale / passing，并给出可直接重跑的本地 wrapper 命令。
+
+诊断同一组 Codex adapter 检查、health 和 worktree 状态：
+
+```bash
+node bin/koala-codex.js doctor
+```
 
 初始化新项目时也可以直接跑：
 
 ```bash
-koala init --verify-codex
+npx koala-init --verify-codex
 ```
 
 ## 没有本地 wrapper 时

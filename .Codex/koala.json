@@ -32,6 +32,6 @@
     "This file is read by Koala tooling, not by the Codex runtime.",
     "Codex agent prompts live in .Codex/agents and are generated from .claude/agents.",
     "Claude Code hooks, settings, and skills remain under .claude only.",
-    "Run koala verify_codex after changing Codex adapter assets; it records codex_adapter_verification evidence for gates."
+    "Run node bin/koala-codex.js verify_codex after changing Codex adapter assets; it records codex_adapter_verification evidence for gates."
   ]
 }

@@ -51,7 +51,11 @@ import {
   runDocsDriftGate,
   type DocsDriftGateResult,
 } from './validate-docs-drift.js';
-import { storyRequiresCodexEvidence, summarizeCodexEvidence } from '../core/codex-adapter-checks.js';
+import {
+  LOCAL_CODEX_VERIFY_COMMAND,
+  storyRequiresCodexEvidence,
+  summarizeCodexEvidence,
+} from '../core/codex-adapter-checks.js';
 
 /** Reads CLAUDE.md file contents for docs-drift gate */
 export type MdFileReader = (projectRoot: string) => string[];
@@ -228,7 +232,7 @@ export function runReviewCliGates(
       details: [],
     });
     if (storyRequiresCodexEvidence(deps.store, storyId)) {
-      const codex = summarizeCodexEvidence(deps.store, storyId);
+      const codex = summarizeCodexEvidence(deps.store, storyId, deps.projectRoot);
       gates.push({
         name: 'codex-adapter',
         ok: codex.status === 'passing',
@@ -349,7 +353,7 @@ export function runReviewCliGates(
   }
 
   if (storyRequiresCodexEvidence(deps.store, storyId)) {
-    const codex = summarizeCodexEvidence(deps.store, storyId);
+    const codex = summarizeCodexEvidence(deps.store, storyId, deps.projectRoot);
     gates.push({
       name: 'codex-adapter',
       ok: codex.status === 'passing',
@@ -375,7 +379,7 @@ export function renderPreflight(result: PreflightResult): string {
   );
   for (const g of result.gates) {
     const icon = g.ok ? '✓' : '✗';
-    const commandLabel = g.name === 'codex-adapter' ? 'koala verify_codex' : `validate --${g.name}`;
+    const commandLabel = g.name === 'codex-adapter' ? LOCAL_CODEX_VERIFY_COMMAND : `validate --${g.name}`;
     lines.push(`  [${icon}] ${commandLabel}: ${g.status} — ${g.summary}`);
     if (!g.ok && g.details.length > 0) {
       for (const d of g.details.slice(0, 20)) {

@@ -1,6 +1,7 @@
 import { execSync } from 'node:child_process';
 import type { HandlerContext } from './context.js';
 import {
+  LOCAL_CODEX_VERIFY_COMMAND,
   renderCodexAdapterChecks,
   runCodexAdapterChecks,
 } from '../core/codex-adapter-checks.js';
@@ -33,9 +34,17 @@ export function createCodexAdapterHandlers(ctx: HandlerContext) {
           ctx.store.appendProcessEvent(storyId, {
             type: 'codex_adapter_verification',
             storyId,
-            command: 'koala verify_codex',
+            command: LOCAL_CODEX_VERIFY_COMMAND,
             result: result.ok ? 'pass' : 'fail',
             summary: result.summary,
+            headHash: result.materialSnapshot.headHash,
+            materialHash: result.materialSnapshot.materialHash,
+            materialFiles: result.materialSnapshot.files,
+            checkSnapshot: result.checks.map(check => ({
+              id: check.id,
+              status: check.status,
+              hard: check.hard,
+            })),
             failingChecks: result.checks
               .filter(check => check.hard && check.status === 'fail')
               .map(check => check.id),

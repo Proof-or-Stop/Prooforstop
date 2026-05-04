@@ -15,7 +15,8 @@ export const AGENTS_MD_TEMPLATE = `# AGENTS.md
 - 行动前运行 \`koala aux_doc_list\` 查看相关文档；若当前全局 core-only 环境没有 aux 命令，用本地 bootstrap 或 shell 搜索兜底。
 - Story / checklist / fixture / bug 操作优先通过 \`koala\` CLI，不直接改 story/fixture JSON。
 - Codex subagent prompts 位于 \`.Codex/agents\`；Claude subagent prompts 位于 \`.claude/agents\`。
-- 改动 Codex adapter / \`.Codex\` / \`bin/koala-codex.js\` 后运行 \`koala verify_codex\`，让 REVIEW/DONE gate 能消费硬证据。
+- 改动 Codex adapter / \`.Codex\` / \`bin/koala-codex.js\` 后运行 \`node bin/koala-codex.js verify_codex\`，让 REVIEW/DONE gate 能消费硬证据。
+- 诊断 Codex adapter 时运行 \`node bin/koala-codex.js doctor\`。
 
 <!-- koala:end -->
 `;
@@ -54,7 +55,7 @@ export const CODEX_ADAPTER_MANIFEST = {
     'This file is read by Koala tooling, not by the Codex runtime.',
     'Codex agent prompts live in .Codex/agents and are generated from .claude/agents.',
     'Claude Code hooks, settings, and skills remain under .claude only.',
-    'Run koala verify_codex after changing Codex adapter assets; it records codex_adapter_verification evidence for gates.',
+    'Run node bin/koala-codex.js verify_codex after changing Codex adapter assets; it records codex_adapter_verification evidence for gates.',
   ],
 } as const;
 
@@ -95,8 +96,9 @@ fallback 说明：
 
 - 新 session 第一条命令跑 \`node bin/koala-codex.js session_brief\`
 - 日常所有 story/checklist/fixture/bug 操作尽量保持同一入口
-- 改动 Codex adapter 资产后运行 \`koala verify_codex\`；它会验证 manifest、agent mirror、wrapper heartbeat、global fallback heartbeat 和 runtime 排除项，并写入 gate 可消费的 process-event evidence
-- 初始化脚本可用 \`koala init --verify-codex\` 做同源资产校验
+- 改动 Codex adapter 资产后运行 \`node bin/koala-codex.js verify_codex\`（或 \`node bin/koala.js verify_codex\`）；它会验证 manifest、agent mirror、wrapper heartbeat、global fallback heartbeat 和 runtime 排除项，并写入 gate 可消费的 process-event evidence
+- 初始化脚本可用 \`npx koala-init --verify-codex\` 做同源资产校验
+- 诊断 Codex adapter 时运行 \`node bin/koala-codex.js doctor\`，可同时查看共享检查、health 和 worktree 状态
 - 如果 \`aux_*\` 不可用，说明当前是 core-only koala：优先找本地 bootstrap 入口；没有的话，用 AGENTS.md 规定的 shell 搜索兜底
 
 边界：

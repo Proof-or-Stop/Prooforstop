@@ -1,0 +1,114 @@
+{
+  "findings": [
+    {
+      "id": "B-01b5:F-001",
+      "desc": "packages/main/src/core/codex-adapter-checks.ts:303-320 and packages/main/src/handlers/codex-adapter.ts:33-42: Codex gate evidence is only the latest codex_adapter_verification event with result=pass, and verify_codex records no headHash/materialHash/check snapshot freshness marker. REVIEW/DONE gates therefore pass on stale Codex evidence after later Codex adapter/.Codex/bin changes, violating CHK-005 adversarial stale-evidence intent. Bind the event to current HEAD/material hash or rerun checks in the gate so stale evidence becomes missing/failing.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-05-04T18:38:26.861Z",
+      "reviewRound": "2026-05-04T18:36:55.175Z",
+      "_hash": "7fe533dad4e453ff088ab7c6a82001df1941ef108638dc38b411333979863d5f"
+    },
+    {
+      "id": "B-01b5:F-002",
+      "desc": "README.md:90, README.md:106, .Codex/README.md:34-35, packages/main/src/init-assets.ts:98-99, AGENTS.md:104 tell Codex users to run bare `koala verify_codex` / `koala init --verify-codex`, but the current global `koala verify_codex --help` returns '未知命令' and global `koala init --help` omits --verify-codex; the repository wrapper exposes `node bin/koala-codex.js verify_codex`, and init help advertises `npx koala-init --verify-codex`. WHY: users following the user-facing docs can fail the Codex adapter REVIEW/DONE evidence path before reaching the command that actually exists in this repo/bootstrap. Severity high because it blocks the exact gate evidence flow this story documents.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-05-04T18:38:41.525Z",
+      "reviewRound": "2026-05-04T18:36:55.175Z",
+      "_hash": "b96dc151d2e74e26b61e88b6268e0c9ddc2abdc94696cb92340efd2ce781ee2b"
+    },
+    {
+      "id": "B-01b5:F-003",
+      "desc": "packages/main/src/core/codex-adapter-checks.ts:303 and packages/main/src/handlers/codex-adapter.ts:36 expose koala verify_codex as the remediation/evidence command, but the installed/global koala in this worktree returns unknown command for verify_codex while node bin/koala.js verify_codex and node bin/koala-codex.js verify_codex pass. For users on the documented global fallback/core-only path, the REVIEW/DONE gate hint is not executable, so the adapter boundary is not honest about local wrapper vs installed global constraints.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "agent": "koala-review-channel",
+      "createdAt": "2026-05-04T18:38:45.477Z",
+      "reviewRound": "2026-05-04T18:36:55.175Z",
+      "_hash": "ac7e7f63a4d2a9934460cd866780c24063d89b15de81b1fc319c29e20a7d7f4e"
+    },
+    {
+      "id": "B-01b5:F-004",
+      "desc": "README.md:68-107 and .Codex/README.md:30-42 describe Codex activity, verify_codex, init verification, and runtime exclusions, but they do not document the live diagnostic path `node bin/koala-codex.js doctor`; running `node bin/koala-codex.js doctor --format=json --limit=1` shows it returns the shared Codex adapter check block, including telemetry heartbeat, aux availability, and excluded .Codex/hooks/settings. WHY: when `verify_codex` or gates report adapter drift, users lack the documented doctor command that surfaces the same checks plus health/worktree diagnostics from the Codex wrapper entrypoint. Severity medium because verify_codex is documented, but doctor is the requested troubleshooting surface and is currently undiscoverable in the user-facing Codex docs.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-05-04T18:38:48.053Z",
+      "reviewRound": "2026-05-04T18:36:55.175Z",
+      "_hash": "f061e04b1d8624789a4090d11df3f6b8771d89ddb7ea9fe85224c8078270d4cf"
+    },
+    {
+      "id": "B-01b5:F-005",
+      "desc": "CHK-003 happy evidence names the user-facing command `koala verify_codex`, but a focused run in the story worktree returns `未知命令: verify_codex`; only `node bin/koala.js verify_codex` passes. This leaves the documented/gate hint command unverified and currently unusable through the actual `koala` entrypoint in this environment. Evidence: `koala verify_codex` failed; `node bin/koala.js verify_codex` passed. Files: scripts/verify-entrypoints.mjs, packages/main/src/handlers/codex-adapter.ts, README.md",
+      "severity": "high",
+      "category": "happy",
+      "status": "open",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-05-04T18:39:19.016Z",
+      "reviewRound": "2026-05-04T18:36:55.175Z",
+      "_hash": "76d8da3ff044081424bf57bb7d47138addf993bf33cc51848610988ae8a554ce"
+    },
+    {
+      "id": "B-01b5:F-006",
+      "desc": "CHK-002 edge says telemetry derives session from CODEX_SESSION_ID, OPENAI_SESSION_ID, TERM_SESSION_ID, or KOALA_ACTIVITY_SESSION consistently, but `scripts/verify-entrypoints.mjs` only proves CODEX_SESSION_ID and explicit KOALA_ACTIVITY_SESSION behavior; OPENAI_SESSION_ID and TERM_SESSION_ID are only present in manifest/docs assertions. Add focused runtime assertions for those fallback env vars. Files: scripts/verify-entrypoints.mjs, bin/koala-codex.js",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-05-04T18:39:22.833Z",
+      "reviewRound": "2026-05-04T18:36:55.175Z",
+      "_hash": "16f0102c707ed1682b4ef84cb8756d2c6a5e8c2c528bdcc7ea82bb7bd7cf6e73"
+    },
+    {
+      "id": "B-01b5:F-007",
+      "desc": "Several adversarial/gate intents are marked covered by healthy-path checks or docs_check only: `npm run test:codex-assets` verifies the current repo has no forbidden assets and matching manifest, but does not create `.Codex/hooks`, `.Codex/settings.json`, or manifest drift and assert doctor/verify failure; CHK-005 gate evidence is code/docs inspection rather than a focused missing/failing/stale codex_adapter_verification preflight/DONE block test. Add negative-path tests for forbidden assets, manifest drift, missing/failing/stale gate evidence. Files: scripts/verify-codex-assets.mjs, packages/main/src/core/codex-adapter-checks.ts, packages/main/src/handlers/review-preflight.ts, packages/main/src/handlers/story-advance.ts",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-05-04T18:39:27.352Z",
+      "reviewRound": "2026-05-04T18:36:55.175Z",
+      "_hash": "5875adbc70946040ccb59a702841830ef18382654cca34d4735ee040898c4a66"
+    },
+    {
+      "id": "B-01b5:F-008",
+      "desc": "packages/main/src/core/codex-adapter-checks.ts:285 and packages/main/src/handlers/story-advance.ts:483 accept the latest codex_adapter_verification pass without checking it against the current HEAD/material hash. WHY: a story can run koala verify_codex, then change Codex adapter code/docs/templates, and REVIEW/DONE still consume the stale passing event as hard evidence. severity=high because the new gate can be bypassed by normal post-verification edits.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-04T18:39:27.908Z",
+      "reviewRound": "2026-05-04T18:36:55.175Z",
+      "_hash": "a9d32f4a5c0a7c21db62832b20be4d240805c7d16c86281965d221d7c9aa78ba"
+    },
+    {
+      "id": "B-01b5:F-009",
+      "desc": "packages/main/src/cli-init.ts:138 generates bin/koala-codex.js as spawnSync(\"koala\", ...), while bin/koala-codex.js:20 in this repo imports the local bootstrap. WHY: initialized projects document the wrapper as the local Codex entry that loads bootstrap/main+utils, but the generated wrapper falls back to whatever global koala is on PATH, so core-only or stale global installs can miss aux_doc_list/verify_codex and produce different telemetry. severity=medium because new-project Codex sessions become environment-dependent.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-04T18:39:33.162Z",
+      "reviewRound": "2026-05-04T18:36:55.175Z",
+      "_hash": "cb0b4328645b0747060bce2e373473085874a296c6db247bd67e2737d6333c5f"
+    },
+    {
+      "id": "B-01b5:F-010",
+      "desc": "scripts/verify-codex-assets.mjs:15 now delegates to runCodexAdapterChecks, which does not inspect .Codex/README.md or root README.md/AGENTS.md, while README.md:93 still says npm run test:codex-assets checks those docs. WHY: docs/template drift can pass the named regression test, leaving future Codex adapter guidance unguarded and making the verification contract misleading. severity=medium because it is a regression in maintainability coverage rather than runtime behavior.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-04T18:39:39.485Z",
+      "reviewRound": "2026-05-04T18:36:55.175Z",
+      "_hash": "35bc3452986fec05d3108963b74a63aed785e60d2e93fb3a9a877032695316bf"
+    }
+  ]
+}

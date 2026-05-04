@@ -1,9 +1,9 @@
 {
   "command": "koala validate --story=B-01b5 --json",
-  "output": "{\"provider\":\"koala-verifier-commands\",\"status\":\"warn\",\"allPass\":true,\"summary\":\"Project validation commands passed\",\"details\":[\"✓ package.json test script: npm test\",\"  > koala@0.3.2 test\",\"  > npm run test:e2e\",\"  > koala@0.3.2 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 15/15 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via integration_test — Codex doctor reports PASS for a healthy local adapter with .Codex/koala.json and no fake hooks/settings\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via integration_test — Codex doctor warns or fails with actionable guidance when global fallback/read-only heartbeat or aux availability is missing\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via integration_test — Codex doctor detects unsupported .Codex/hooks or .Codex/settings.json if they appear\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via integration_test — Codex wrapper command writes a structured process event with source=codex, command, storyId or active story, phase, and result\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via integration_test — Telemetry derives session from CODEX_SESSION_ID, OPENAI_SESSION_ID, TERM_SESSION_ID, or KOALA_ACTIVITY_SESSION consistently\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via docs_check — Reviewer pass/finding commands without agent attribution are rejected or hard-warned so they cannot silently become main-agent records\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via integration_test — koala verify_codex passes on the repository Codex adapter and validates manifest, agents, wrapper, fallback, and exclusions\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via integration_test — koala init --verify-codex generates assets then runs the same verification logic\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via integration_test — verification fails if .Codex/koala.json drifts or .Codex/hooks/.Codex/settings.json are created\",\"  ✓ CHK-004:happy:0 [happy/must/cli] covered via docs_check — Docs list node bin/koala-codex.js doctor and koala verify_codex/koala init --verify-codex with accurate behavior\",\"  ✓ CHK-004:edge:0 [edge/must/cli] covered via docs_check — Docs distinguish doctor diagnostics from verify_codex scriptable validation without duplicating contradictory guidance\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/cli] covered via docs_check — Docs do not imply prompt-only compliance or fake Codex runtime hooks/settings\",\"  ✓ CHK-005:happy:0 [happy/must/cli] covered via docs_check — REVIEW or DONE preflight can read Codex verify/doctor evidence and report it as a passing gate input\",\"  ✓ CHK-005:edge:0 [edge/must/cli] covered via docs_check — Gate output distinguishes missing Codex evidence from failing Codex evidence with actionable commands\",\"  ✓ CHK-005:adversarial:0 [adversarial/must/cli] covered via docs_check — DONE cannot pass on prompt-only Codex compliance when required Codex hard evidence is absent or stale\"],\"warnings\":[\"validate.ts not found; used language/project validation command discovery\"],\"timestamp\":\"2026-05-04T18:35:41.881Z\",\"headSha\":\"5d5baa074b89afb8dfbee064ec7ef81da1c3d998\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.2 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.2 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":421}],\"verificationCoverage\":{\"total\":15,\"required\":15,\"covered\":15,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Codex doctor reports PASS for a healthy local adapter with .Codex/koala.json and no fake hooks/settings\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"integration_test\",\"command\":\"node bin/koala-codex.js doctor\",\"result\":\"pass\",\"note\":\"Doctor Codex adapter scan passed 7/7 on healthy repo, including manifest and runtime exclusions.\",\"headHash\":\"1d6353d653bc637cbd8ca33fe322afd69ba7b89b\",\"materialHash\":\"44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e\",\"timestamp\":\"2026-05-04T18:35:16.939Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Codex doctor warns or fails with actionable guidance when global fallback/read-only heartbeat or aux availability is missing\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"integration_test\",\"command\":\"node bin/koala-codex.js doctor\",\"result\":\"pass\",\"note\":\"Doctor now reports wrapper/fallback heartbeat and aux availability with actionable command hints when not executed or failing.\",\"headHash\":\"1d6353d653bc637cbd8ca33fe322afd69ba7b89b\",\"materialHash\":\"44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e\",\"timestamp\":\"2026-05-04T18:35:16.939Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Codex doctor detects unsupported .Codex/hooks or .Codex/settings.json if they appear\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"integration_test\",\"command\":\"npm run test:codex-assets\",\"result\":\"pass\",\"note\":\"Codex asset verification asserts .Codex/hooks and .Codex/settings.json are absent and manifest matches template.\",\"headHash\":\"1d6353d653bc637cbd8ca33fe322afd69ba7b89b\",\"materialHash\":\"44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e\",\"timestamp\":\"2026-05-04T18:35:16.939Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Codex wrapper command writes a structured process event with source=codex, command, storyId or active story, phase, and result\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"integration_test\",\"command\":\"npm run test:entrypoints\",\"result\":\"pass\",\"note\":\"Entrypoint verification asserts Codex wrapper writes source=codex activity and codex_cli process-event with command/story/phase/result context.\",\"headHash\":\"1d6353d653bc637cbd8ca33fe322afd69ba7b89b\",\"materialHash\":\"44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e\",\"timestamp\":\"2026-05-04T18:35:16.939Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Telemetry derives session from CODEX_SESSION_ID, OPENAI_SESSION_ID, TERM_SESSION_ID, or KOALA_ACTIVITY_SESSION consistently\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"integration_test\",\"command\":\"npm run test:entrypoints\",\"result\":\"pass\",\"note\":\"Entrypoint verification covers CODEX_SESSION_ID propagation through bin/koala-codex.js into activity/session telemetry.\",\"headHash\":\"1d6353d653bc637cbd8ca33fe322afd69ba7b89b\",\"materialHash\":\"44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e\",\"timestamp\":\"2026-05-04T18:35:16.939Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Reviewer pass/finding commands without agent attribution are rejected or hard-warned so they cannot silently become main-agent records\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"docs_check\",\"result\":\"pass\",\"note\":\"packages/main/src/handlers/finding.ts records a hard warning process-event when finding_add lacks agent attribution, while review_pass_set remains hard-enforced.\",\"headHash\":\"1d6353d653bc637cbd8ca33fe322afd69ba7b89b\",\"materialHash\":\"44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e\",\"timestamp\":\"2026-05-04T18:35:16.939Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"koala verify_codex passes on the repository Codex adapter and validates manifest, agents, wrapper, fallback, and exclusions\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"integration_test\",\"command\":\"koala verify_codex\",\"result\":\"pass\",\"note\":\"Local-bootstrap koala verify_codex passed 7/7 checks for manifest, agents, wrapper heartbeat, fallback heartbeat, exclusions, and aux availability.\",\"headHash\":\"1d6353d653bc637cbd8ca33fe322afd69ba7b89b\",\"materialHash\":\"44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e\",\"timestamp\":\"2026-05-04T18:35:16.939Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"koala init --verify-codex generates assets then runs the same verification logic\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"integration_test\",\"command\":\"koala init --verify-codex\",\"result\":\"pass\",\"note\":\"Temp-project koala init --verify-codex passed using the same shared checks after generating Codex assets and wrapper.\",\"headHash\":\"1d6353d653bc637cbd8ca33fe322afd69ba7b89b\",\"materialHash\":\"44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e\",\"timestamp\":\"2026-05-04T18:35:16.939Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"verification fails if .Codex/koala.json drifts or .Codex/hooks/.Codex/settings.json are created\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"integration_test\",\"command\":\"npm run test:codex-assets\",\"result\":\"pass\",\"note\":\"Shared Codex asset verifier fails on manifest drift or forbidden runtime assets; current run passed with exclusions enforced.\",\"headHash\":\"1d6353d653bc637cbd8ca33fe322afd69ba7b89b\",\"materialHash\":\"44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e\",\"timestamp\":\"2026-05-04T18:35:16.939Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Docs list node bin/koala-codex.js doctor and koala verify_codex/koala init --verify-codex with accurate behavior\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"docs_check\",\"result\":\"pass\",\"note\":\"README.md, AGENTS.md, .Codex/README.md, and init template document doctor, verify_codex, init --verify-codex, heartbeat evidence, and exclusions.\",\"headHash\":\"1d6353d653bc637cbd8ca33fe322afd69ba7b89b\",\"materialHash\":\"44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e\",\"timestamp\":\"2026-05-04T18:35:16.939Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Docs distinguish doctor diagnostics from verify_codex scriptable validation without duplicating contradictory guidance\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"docs_check\",\"result\":\"pass\",\"note\":\"Docs distinguish npm run test:codex-assets drift checks from koala verify_codex heartbeat/evidence checks.\",\"headHash\":\"1d6353d653bc637cbd8ca33fe322afd69ba7b89b\",\"materialHash\":\"44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e\",\"timestamp\":\"2026-05-04T18:35:16.939Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Docs do not imply prompt-only compliance or fake Codex runtime hooks/settings\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"docs_check\",\"result\":\"pass\",\"note\":\"Docs and manifest continue to say Codex does not use fake .Codex/hooks or .Codex/settings.json runtime assets.\",\"headHash\":\"1d6353d653bc637cbd8ca33fe322afd69ba7b89b\",\"materialHash\":\"44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e\",\"timestamp\":\"2026-05-04T18:35:16.939Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"REVIEW or DONE preflight can read Codex verify/doctor evidence and report it as a passing gate input\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"docs_check\",\"result\":\"pass\",\"note\":\"packages/main/src/handlers/review-preflight.ts and story-advance.ts consume codex_adapter_verification evidence as passing gate input.\",\"headHash\":\"1d6353d653bc637cbd8ca33fe322afd69ba7b89b\",\"materialHash\":\"44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e\",\"timestamp\":\"2026-05-04T18:35:16.939Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"Gate output distinguishes missing Codex evidence from failing Codex evidence with actionable commands\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"docs_check\",\"result\":\"pass\",\"note\":\"summarizeCodexEvidence distinguishes not-required, missing, failing, and passing states with koala verify_codex as the actionable command.\",\"headHash\":\"1d6353d653bc637cbd8ca33fe322afd69ba7b89b\",\"materialHash\":\"44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e\",\"timestamp\":\"2026-05-04T18:35:16.939Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"DONE cannot pass on prompt-only Codex compliance when required Codex hard evidence is absent or stale\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"docs_check\",\"result\":\"pass\",\"note\":\"DONE checklist adds a hard Codex adapter evidence row for Codex-touching stories, blocking prompt-only compliance when evidence is missing or failing.\",\"headHash\":\"1d6353d653bc637cbd8ca33fe322afd69ba7b89b\",\"materialHash\":\"44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e\",\"timestamp\":\"2026-05-04T18:35:16.939Z\"}}]}}",
+  "output": "{\"provider\":\"koala-verifier-commands\",\"status\":\"warn\",\"allPass\":true,\"summary\":\"Project validation commands passed\",\"details\":[\"✓ package.json test script: npm test\",\"  > koala@0.3.2 test\",\"  > npm run test:e2e\",\"  > koala@0.3.2 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 15/15 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via integration_test — Codex doctor reports PASS for a healthy local adapter with .Codex/koala.json and no fake hooks/settings\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via integration_test — Codex doctor warns or fails with actionable guidance when global fallback/read-only heartbeat or aux availability is missing\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via integration_test — Codex doctor detects unsupported .Codex/hooks or .Codex/settings.json if they appear\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via integration_test — Codex wrapper command writes a structured process event with source=codex, command, storyId or active story, phase, and result\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via integration_test — Telemetry derives session from CODEX_SESSION_ID, OPENAI_SESSION_ID, TERM_SESSION_ID, or KOALA_ACTIVITY_SESSION consistently\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via docs_check — Reviewer pass/finding commands without agent attribution are rejected or hard-warned so they cannot silently become main-agent records\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via integration_test — koala verify_codex passes on the repository Codex adapter and validates manifest, agents, wrapper, fallback, and exclusions\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via integration_test — koala init --verify-codex generates assets then runs the same verification logic\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via integration_test — verification fails if .Codex/koala.json drifts or .Codex/hooks/.Codex/settings.json are created\",\"  ✓ CHK-004:happy:0 [happy/must/cli] covered via docs_check — Docs list node bin/koala-codex.js doctor and koala verify_codex/koala init --verify-codex with accurate behavior\",\"  ✓ CHK-004:edge:0 [edge/must/cli] covered via docs_check — Docs distinguish doctor diagnostics from verify_codex scriptable validation without duplicating contradictory guidance\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/cli] covered via integration_test — Docs do not imply prompt-only compliance or fake Codex runtime hooks/settings\",\"  ✓ CHK-005:happy:0 [happy/must/cli] covered via integration_test — REVIEW or DONE preflight can read Codex verify/doctor evidence and report it as a passing gate input\",\"  ✓ CHK-005:edge:0 [edge/must/cli] covered via integration_test — Gate output distinguishes missing Codex evidence from failing Codex evidence with actionable commands\",\"  ✓ CHK-005:adversarial:0 [adversarial/must/cli] covered via integration_test — DONE cannot pass on prompt-only Codex compliance when required Codex hard evidence is absent or stale\"],\"warnings\":[\"validate.ts not found; used language/project validation command discovery\"],\"timestamp\":\"2026-05-04T18:48:06.325Z\",\"headSha\":\"c45e1cffe53d163cb2aad6262487daee30e4cf2e\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.2 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.2 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":502}],\"verificationCoverage\":{\"total\":15,\"required\":15,\"covered\":15,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Codex doctor reports PASS for a healthy local adapter with .Codex/koala.json and no fake hooks/settings\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"integration_test\",\"command\":\"node bin/koala-codex.js doctor\",\"result\":\"pass\",\"note\":\"Doctor Codex adapter scan passed 7/7 on the healthy repo, including manifest, mirror, runtime exclusions, wrapper heartbeat, global fallback heartbeat, and aux availability.\",\"headHash\":\"c45e1cffe53d163cb2aad6262487daee30e4cf2e\",\"materialHash\":\"44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e\",\"timestamp\":\"2026-05-04T18:48:01.258Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Codex doctor warns or fails with actionable guidance when global fallback/read-only heartbeat or aux availability is missing\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"integration_test\",\"command\":\"node bin/koala-codex.js doctor\",\"result\":\"pass\",\"note\":\"Doctor exposes the same Codex adapter scan with actionable local-wrapper remediation, including node bin/koala-codex.js verify_codex for skipped/failing heartbeat evidence.\",\"headHash\":\"c45e1cffe53d163cb2aad6262487daee30e4cf2e\",\"materialHash\":\"44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e\",\"timestamp\":\"2026-05-04T18:48:01.258Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Codex doctor detects unsupported .Codex/hooks or .Codex/settings.json if they appear\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"integration_test\",\"command\":\"npm run test:codex-assets\",\"result\":\"pass\",\"note\":\"Codex asset verification now creates negative temp projects and fails on .Codex/hooks or .Codex/settings.json, while the real repo has neither.\",\"headHash\":\"c45e1cffe53d163cb2aad6262487daee30e4cf2e\",\"materialHash\":\"44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e\",\"timestamp\":\"2026-05-04T18:48:01.258Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Codex wrapper command writes a structured process event with source=codex, command, storyId or active story, phase, and result\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"integration_test\",\"command\":\"npm run test:entrypoints\",\"result\":\"pass\",\"note\":\"Entrypoint verification asserts bin/koala-codex.js writes source=codex activity and codex_cli process-events with local-wrapper entrypoint.\",\"headHash\":\"c45e1cffe53d163cb2aad6262487daee30e4cf2e\",\"materialHash\":\"44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e\",\"timestamp\":\"2026-05-04T18:48:01.258Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Telemetry derives session from CODEX_SESSION_ID, OPENAI_SESSION_ID, TERM_SESSION_ID, or KOALA_ACTIVITY_SESSION consistently\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"integration_test\",\"command\":\"npm run test:entrypoints\",\"result\":\"pass\",\"note\":\"Entrypoint verification now runs CODEX_SESSION_ID, OPENAI_SESSION_ID, and TERM_SESSION_ID fallback sessions through bin/koala-codex.js and checks activity telemetry.\",\"headHash\":\"c45e1cffe53d163cb2aad6262487daee30e4cf2e\",\"materialHash\":\"44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e\",\"timestamp\":\"2026-05-04T18:48:01.258Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Reviewer pass/finding commands without agent attribution are rejected or hard-warned so they cannot silently become main-agent records\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"docs_check\",\"result\":\"pass\",\"note\":\"Existing reviewer/finding attribution guard remains covered; Codex telemetry changes did not relax the hard warning/enforcement path.\",\"headHash\":\"c45e1cffe53d163cb2aad6262487daee30e4cf2e\",\"materialHash\":\"44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e\",\"timestamp\":\"2026-05-04T18:48:01.258Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"koala verify_codex passes on the repository Codex adapter and validates manifest, agents, wrapper, fallback, and exclusions\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"integration_test\",\"command\":\"node bin/koala-codex.js verify_codex && node bin/koala.js verify_codex\",\"result\":\"pass\",\"note\":\"Both repo-local verification entrypoints passed 7/7 and recorded codex_adapter_verification events with current HEAD/material hash snapshots.\",\"headHash\":\"c45e1cffe53d163cb2aad6262487daee30e4cf2e\",\"materialHash\":\"44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e\",\"timestamp\":\"2026-05-04T18:48:01.258Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"koala init --verify-codex generates assets then runs the same verification logic\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"integration_test\",\"command\":\"npm run test:entrypoints\",\"result\":\"pass\",\"note\":\"Entrypoint verification reruns init --verify-codex on a temp project; init verifies generated assets with local wrapper commands and no bare global koala init guidance.\",\"headHash\":\"c45e1cffe53d163cb2aad6262487daee30e4cf2e\",\"materialHash\":\"44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e\",\"timestamp\":\"2026-05-04T18:48:01.258Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"verification fails if .Codex/koala.json drifts or .Codex/hooks/.Codex/settings.json are created\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"integration_test\",\"command\":\"npm run test:codex-assets\",\"result\":\"pass\",\"note\":\"Codex asset verification now asserts manifest drift and forbidden .Codex/hooks/.Codex/settings.json fail shared checks.\",\"headHash\":\"c45e1cffe53d163cb2aad6262487daee30e4cf2e\",\"materialHash\":\"44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e\",\"timestamp\":\"2026-05-04T18:48:01.258Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Docs list node bin/koala-codex.js doctor and koala verify_codex/koala init --verify-codex with accurate behavior\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"docs_check\",\"result\":\"pass\",\"note\":\"README.md, AGENTS.md, .Codex/README.md, .Codex/koala.json, and init templates document node bin/koala-codex.js doctor plus node bin/koala-codex.js verify_codex / node bin/koala.js verify_codex.\",\"headHash\":\"c45e1cffe53d163cb2aad6262487daee30e4cf2e\",\"materialHash\":\"44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e\",\"timestamp\":\"2026-05-04T18:48:01.258Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Docs distinguish doctor diagnostics from verify_codex scriptable validation without duplicating contradictory guidance\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"docs_check\",\"result\":\"pass\",\"note\":\"Docs distinguish doctor diagnostics from scriptable verify_codex and init verification, and use npx koala-init --verify-codex for init remediation.\",\"headHash\":\"c45e1cffe53d163cb2aad6262487daee30e4cf2e\",\"materialHash\":\"44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e\",\"timestamp\":\"2026-05-04T18:48:01.258Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Docs do not imply prompt-only compliance or fake Codex runtime hooks/settings\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"integration_test\",\"command\":\"npm run test:codex-assets\",\"result\":\"pass\",\"note\":\"Asset verification rejects bare `koala verify_codex` / `koala init --verify-codex` guidance and checks docs do not imply fake Codex runtime hooks/settings.\",\"headHash\":\"c45e1cffe53d163cb2aad6262487daee30e4cf2e\",\"materialHash\":\"44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e\",\"timestamp\":\"2026-05-04T18:48:01.258Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"REVIEW or DONE preflight can read Codex verify/doctor evidence and report it as a passing gate input\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"integration_test\",\"command\":\"npm run test:codex-assets\",\"result\":\"pass\",\"note\":\"Gate evidence tests seed fresh codex_adapter_verification events with current materialHash and assert summarizeCodexEvidence reports passing.\",\"headHash\":\"c45e1cffe53d163cb2aad6262487daee30e4cf2e\",\"materialHash\":\"44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e\",\"timestamp\":\"2026-05-04T18:48:01.258Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"Gate output distinguishes missing Codex evidence from failing Codex evidence with actionable commands\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"integration_test\",\"command\":\"npm run test:codex-assets\",\"result\":\"pass\",\"note\":\"Gate evidence tests distinguish missing and failing codex_adapter_verification events and remediate with node bin/koala-codex.js verify_codex.\",\"headHash\":\"c45e1cffe53d163cb2aad6262487daee30e4cf2e\",\"materialHash\":\"44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e\",\"timestamp\":\"2026-05-04T18:48:01.258Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"DONE cannot pass on prompt-only Codex compliance when required Codex hard evidence is absent or stale\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"integration_test\",\"command\":\"npm run test:codex-assets\",\"result\":\"pass\",\"note\":\"Gate evidence tests reject legacy pass events without materialHash and post-verification adapter edits as stale, so REVIEW/DONE cannot pass on stale evidence.\",\"headHash\":\"c45e1cffe53d163cb2aad6262487daee30e4cf2e\",\"materialHash\":\"44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e\",\"timestamp\":\"2026-05-04T18:48:01.258Z\"}}]}}",
   "result": "PASS",
-  "timestamp": "2026-05-04T18:35:42.266Z",
-  "headHash": "5d5baa074b89afb8dfbee064ec7ef81da1c3d998",
+  "timestamp": "2026-05-04T18:48:06.361Z",
+  "headHash": "c45e1cffe53d163cb2aad6262487daee30e4cf2e",
   "verificationCoverage": {
     "total": 15,
     "required": 15,
@@ -23,10 +23,10 @@
           "kind": "integration_test",
           "command": "node bin/koala-codex.js doctor",
           "result": "pass",
-          "note": "Doctor Codex adapter scan passed 7/7 on healthy repo, including manifest and runtime exclusions.",
-          "headHash": "1d6353d653bc637cbd8ca33fe322afd69ba7b89b",
+          "note": "Doctor Codex adapter scan passed 7/7 on the healthy repo, including manifest, mirror, runtime exclusions, wrapper heartbeat, global fallback heartbeat, and aux availability.",
+          "headHash": "c45e1cffe53d163cb2aad6262487daee30e4cf2e",
           "materialHash": "44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e",
-          "timestamp": "2026-05-04T18:35:16.939Z"
+          "timestamp": "2026-05-04T18:48:01.258Z"
         }
       },
       {
@@ -42,10 +42,10 @@
           "kind": "integration_test",
           "command": "node bin/koala-codex.js doctor",
           "result": "pass",
-          "note": "Doctor now reports wrapper/fallback heartbeat and aux availability with actionable command hints when not executed or failing.",
-          "headHash": "1d6353d653bc637cbd8ca33fe322afd69ba7b89b",
+          "note": "Doctor exposes the same Codex adapter scan with actionable local-wrapper remediation, including node bin/koala-codex.js verify_codex for skipped/failing heartbeat evidence.",
+          "headHash": "c45e1cffe53d163cb2aad6262487daee30e4cf2e",
           "materialHash": "44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e",
-          "timestamp": "2026-05-04T18:35:16.939Z"
+          "timestamp": "2026-05-04T18:48:01.258Z"
         }
       },
       {
@@ -61,10 +61,10 @@
           "kind": "integration_test",
           "command": "npm run test:codex-assets",
           "result": "pass",
-          "note": "Codex asset verification asserts .Codex/hooks and .Codex/settings.json are absent and manifest matches template.",
-          "headHash": "1d6353d653bc637cbd8ca33fe322afd69ba7b89b",
+          "note": "Codex asset verification now creates negative temp projects and fails on .Codex/hooks or .Codex/settings.json, while the real repo has neither.",
+          "headHash": "c45e1cffe53d163cb2aad6262487daee30e4cf2e",
           "materialHash": "44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e",
-          "timestamp": "2026-05-04T18:35:16.939Z"
+          "timestamp": "2026-05-04T18:48:01.258Z"
         }
       },
       {
@@ -80,10 +80,10 @@
           "kind": "integration_test",
           "command": "npm run test:entrypoints",
           "result": "pass",
-          "note": "Entrypoint verification asserts Codex wrapper writes source=codex activity and codex_cli process-event with command/story/phase/result context.",
-          "headHash": "1d6353d653bc637cbd8ca33fe322afd69ba7b89b",
+          "note": "Entrypoint verification asserts bin/koala-codex.js writes source=codex activity and codex_cli process-events with local-wrapper entrypoint.",
+          "headHash": "c45e1cffe53d163cb2aad6262487daee30e4cf2e",
           "materialHash": "44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e",
-          "timestamp": "2026-05-04T18:35:16.939Z"
+          "timestamp": "2026-05-04T18:48:01.258Z"
         }
       },
       {
@@ -99,10 +99,10 @@
           "kind": "integration_test",
           "command": "npm run test:entrypoints",
           "result": "pass",
-          "note": "Entrypoint verification covers CODEX_SESSION_ID propagation through bin/koala-codex.js into activity/session telemetry.",
-          "headHash": "1d6353d653bc637cbd8ca33fe322afd69ba7b89b",
+          "note": "Entrypoint verification now runs CODEX_SESSION_ID, OPENAI_SESSION_ID, and TERM_SESSION_ID fallback sessions through bin/koala-codex.js and checks activity telemetry.",
+          "headHash": "c45e1cffe53d163cb2aad6262487daee30e4cf2e",
           "materialHash": "44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e",
-          "timestamp": "2026-05-04T18:35:16.939Z"
+          "timestamp": "2026-05-04T18:48:01.258Z"
         }
       },
       {
@@ -117,10 +117,10 @@
           "intentRef": "CHK-002:adversarial:0",
           "kind": "docs_check",
           "result": "pass",
-          "note": "packages/main/src/handlers/finding.ts records a hard warning process-event when finding_add lacks agent attribution, while review_pass_set remains hard-enforced.",
-          "headHash": "1d6353d653bc637cbd8ca33fe322afd69ba7b89b",
+          "note": "Existing reviewer/finding attribution guard remains covered; Codex telemetry changes did not relax the hard warning/enforcement path.",
+          "headHash": "c45e1cffe53d163cb2aad6262487daee30e4cf2e",
           "materialHash": "44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e",
-          "timestamp": "2026-05-04T18:35:16.939Z"
+          "timestamp": "2026-05-04T18:48:01.258Z"
         }
       },
       {
@@ -134,12 +134,12 @@
         "evidence": {
           "intentRef": "CHK-003:happy:0",
           "kind": "integration_test",
-          "command": "koala verify_codex",
+          "command": "node bin/koala-codex.js verify_codex && node bin/koala.js verify_codex",
           "result": "pass",
-          "note": "Local-bootstrap koala verify_codex passed 7/7 checks for manifest, agents, wrapper heartbeat, fallback heartbeat, exclusions, and aux availability.",
-          "headHash": "1d6353d653bc637cbd8ca33fe322afd69ba7b89b",
+          "note": "Both repo-local verification entrypoints passed 7/7 and recorded codex_adapter_verification events with current HEAD/material hash snapshots.",
+          "headHash": "c45e1cffe53d163cb2aad6262487daee30e4cf2e",
           "materialHash": "44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e",
-          "timestamp": "2026-05-04T18:35:16.939Z"
+          "timestamp": "2026-05-04T18:48:01.258Z"
         }
       },
       {
@@ -153,12 +153,12 @@
         "evidence": {
           "intentRef": "CHK-003:edge:0",
           "kind": "integration_test",
-          "command": "koala init --verify-codex",
+          "command": "npm run test:entrypoints",
           "result": "pass",
-          "note": "Temp-project koala init --verify-codex passed using the same shared checks after generating Codex assets and wrapper.",
-          "headHash": "1d6353d653bc637cbd8ca33fe322afd69ba7b89b",
+          "note": "Entrypoint verification reruns init --verify-codex on a temp project; init verifies generated assets with local wrapper commands and no bare global koala init guidance.",
+          "headHash": "c45e1cffe53d163cb2aad6262487daee30e4cf2e",
           "materialHash": "44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e",
-          "timestamp": "2026-05-04T18:35:16.939Z"
+          "timestamp": "2026-05-04T18:48:01.258Z"
         }
       },
       {
@@ -174,10 +174,10 @@
           "kind": "integration_test",
           "command": "npm run test:codex-assets",
           "result": "pass",
-          "note": "Shared Codex asset verifier fails on manifest drift or forbidden runtime assets; current run passed with exclusions enforced.",
-          "headHash": "1d6353d653bc637cbd8ca33fe322afd69ba7b89b",
+          "note": "Codex asset verification now asserts manifest drift and forbidden .Codex/hooks/.Codex/settings.json fail shared checks.",
+          "headHash": "c45e1cffe53d163cb2aad6262487daee30e4cf2e",
           "materialHash": "44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e",
-          "timestamp": "2026-05-04T18:35:16.939Z"
+          "timestamp": "2026-05-04T18:48:01.258Z"
         }
       },
       {
@@ -192,10 +192,10 @@
           "intentRef": "CHK-004:happy:0",
           "kind": "docs_check",
           "result": "pass",
-          "note": "README.md, AGENTS.md, .Codex/README.md, and init template document doctor, verify_codex, init --verify-codex, heartbeat evidence, and exclusions.",
-          "headHash": "1d6353d653bc637cbd8ca33fe322afd69ba7b89b",
+          "note": "README.md, AGENTS.md, .Codex/README.md, .Codex/koala.json, and init templates document node bin/koala-codex.js doctor plus node bin/koala-codex.js verify_codex / node bin/koala.js verify_codex.",
+          "headHash": "c45e1cffe53d163cb2aad6262487daee30e4cf2e",
           "materialHash": "44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e",
-          "timestamp": "2026-05-04T18:35:16.939Z"
+          "timestamp": "2026-05-04T18:48:01.258Z"
         }
       },
       {
@@ -210,10 +210,10 @@
           "intentRef": "CHK-004:edge:0",
           "kind": "docs_check",
           "result": "pass",
-          "note": "Docs distinguish npm run test:codex-assets drift checks from koala verify_codex heartbeat/evidence checks.",
-          "headHash": "1d6353d653bc637cbd8ca33fe322afd69ba7b89b",
+          "note": "Docs distinguish doctor diagnostics from scriptable verify_codex and init verification, and use npx koala-init --verify-codex for init remediation.",
+          "headHash": "c45e1cffe53d163cb2aad6262487daee30e4cf2e",
           "materialHash": "44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e",
-          "timestamp": "2026-05-04T18:35:16.939Z"
+          "timestamp": "2026-05-04T18:48:01.258Z"
         }
       },
       {
@@ -226,12 +226,13 @@
         "status": "covered",
         "evidence": {
           "intentRef": "CHK-004:adversarial:0",
-          "kind": "docs_check",
+          "kind": "integration_test",
+          "command": "npm run test:codex-assets",
           "result": "pass",
-          "note": "Docs and manifest continue to say Codex does not use fake .Codex/hooks or .Codex/settings.json runtime assets.",
-          "headHash": "1d6353d653bc637cbd8ca33fe322afd69ba7b89b",
+          "note": "Asset verification rejects bare `koala verify_codex` / `koala init --verify-codex` guidance and checks docs do not imply fake Codex runtime hooks/settings.",
+          "headHash": "c45e1cffe53d163cb2aad6262487daee30e4cf2e",
           "materialHash": "44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e",
-          "timestamp": "2026-05-04T18:35:16.939Z"
+          "timestamp": "2026-05-04T18:48:01.258Z"
         }
       },
       {
@@ -244,12 +245,13 @@
         "status": "covered",
         "evidence": {
           "intentRef": "CHK-005:happy:0",
-          "kind": "docs_check",
+          "kind": "integration_test",
+          "command": "npm run test:codex-assets",
           "result": "pass",
-          "note": "packages/main/src/handlers/review-preflight.ts and story-advance.ts consume codex_adapter_verification evidence as passing gate input.",
-          "headHash": "1d6353d653bc637cbd8ca33fe322afd69ba7b89b",
+          "note": "Gate evidence tests seed fresh codex_adapter_verification events with current materialHash and assert summarizeCodexEvidence reports passing.",
+          "headHash": "c45e1cffe53d163cb2aad6262487daee30e4cf2e",
           "materialHash": "44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e",
-          "timestamp": "2026-05-04T18:35:16.939Z"
+          "timestamp": "2026-05-04T18:48:01.258Z"
         }
       },
       {
@@ -262,12 +264,13 @@
         "status": "covered",
         "evidence": {
           "intentRef": "CHK-005:edge:0",
-          "kind": "docs_check",
+          "kind": "integration_test",
+          "command": "npm run test:codex-assets",
           "result": "pass",
-          "note": "summarizeCodexEvidence distinguishes not-required, missing, failing, and passing states with koala verify_codex as the actionable command.",
-          "headHash": "1d6353d653bc637cbd8ca33fe322afd69ba7b89b",
+          "note": "Gate evidence tests distinguish missing and failing codex_adapter_verification events and remediate with node bin/koala-codex.js verify_codex.",
+          "headHash": "c45e1cffe53d163cb2aad6262487daee30e4cf2e",
           "materialHash": "44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e",
-          "timestamp": "2026-05-04T18:35:16.939Z"
+          "timestamp": "2026-05-04T18:48:01.258Z"
         }
       },
       {
@@ -280,12 +283,13 @@
         "status": "covered",
         "evidence": {
           "intentRef": "CHK-005:adversarial:0",
-          "kind": "docs_check",
+          "kind": "integration_test",
+          "command": "npm run test:codex-assets",
           "result": "pass",
-          "note": "DONE checklist adds a hard Codex adapter evidence row for Codex-touching stories, blocking prompt-only compliance when evidence is missing or failing.",
-          "headHash": "1d6353d653bc637cbd8ca33fe322afd69ba7b89b",
+          "note": "Gate evidence tests reject legacy pass events without materialHash and post-verification adapter edits as stale, so REVIEW/DONE cannot pass on stale evidence.",
+          "headHash": "c45e1cffe53d163cb2aad6262487daee30e4cf2e",
           "materialHash": "44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e",
-          "timestamp": "2026-05-04T18:35:16.939Z"
+          "timestamp": "2026-05-04T18:48:01.258Z"
         }
       }
     ]

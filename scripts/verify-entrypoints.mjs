@@ -54,6 +54,27 @@ function readProcessEvent(session, command) {
   return entries.findLast(entry => entry.session === session && entry.command === command) || null;
 }
 
+function assertCodexWrapperSessionFrom(envName) {
+  const marker = `verify-entrypoints-${envName.toLowerCase()}-${Date.now()}`;
+  const env = {
+    ...process.env,
+    KOALA_ACTIVITY_SOURCE: 'not-codex',
+    KOALA_ACTIVITY_SESSION: '',
+    CODEX_SESSION_ID: '',
+    OPENAI_SESSION_ID: '',
+    TERM_SESSION_ID: '',
+    [envName]: marker,
+  };
+  const out = run('node', ['bin/koala-codex.js', 'session_brief'], { env });
+  assertIncludes(out, '# koala session brief', `bin/koala-codex.js ${envName} session_brief`);
+
+  const record = readActivityRecord(marker, 'session_brief');
+  assert(record, `bin/koala-codex.js should derive session from ${envName}`);
+  assert(record.source === 'codex', 'bin/koala-codex.js should force activity source=codex');
+  assert(record.entrypoint === 'local-wrapper', 'bin/koala-codex.js should mark entrypoint=local-wrapper');
+  return marker;
+}
+
 const checks = [];
 
 checks.push(() => {
@@ -62,24 +83,18 @@ checks.push(() => {
 });
 
 checks.push(() => {
-  const marker = `verify-entrypoints-${Date.now()}`;
-  const out = run('node', ['bin/koala-codex.js', 'session_brief'], {
-    env: {
-      ...process.env,
-      KOALA_ACTIVITY_SOURCE: 'not-codex',
-      KOALA_ACTIVITY_SESSION: '',
-      CODEX_SESSION_ID: marker,
-    },
-  });
-  assertIncludes(out, '# koala session brief', 'bin/koala-codex.js session_brief');
-
-  const record = readActivityRecord(marker, 'session_brief');
-  assert(record, 'bin/koala-codex.js should write a session_brief activity record');
-  assert(record.source === 'codex', 'bin/koala-codex.js should force activity source=codex');
-  assert(record.entrypoint === 'local-wrapper', 'bin/koala-codex.js should mark entrypoint=local-wrapper');
+  const marker = assertCodexWrapperSessionFrom('CODEX_SESSION_ID');
   const event = readProcessEvent(marker, 'session_brief');
   assert(event, 'bin/koala-codex.js should write codex_cli process-event in active story');
   assert(event.source === 'codex' && event.entrypoint === 'local-wrapper', 'codex_cli event should include source and local wrapper entrypoint');
+});
+
+checks.push(() => {
+  assertCodexWrapperSessionFrom('OPENAI_SESSION_ID');
+});
+
+checks.push(() => {
+  assertCodexWrapperSessionFrom('TERM_SESSION_ID');
 });
 
 checks.push(() => {
@@ -161,6 +176,16 @@ checks.push(() => {
     const codexAgents = readdirSync(join(tempDir, '.Codex', 'agents'));
     assert(!codexAgents.includes('implementer.md'), 'koala init should not keep stale Codex-only implementer.md');
     assert(!codexAgents.includes('reviewer.md'), 'koala init should not keep stale Codex-only reviewer.md');
+
+    const generatedWrapper = readFileSync(join(tempDir, 'bin', 'koala-codex.js'), 'utf8');
+    assertIncludes(generatedWrapper, "join(binDir, 'koala.js')", 'generated Codex wrapper local bootstrap check');
+    assertIncludes(generatedWrapper, "spawnSync('koala', ['help']", 'generated Codex wrapper should probe global capability before fallback');
+    assertIncludes(generatedWrapper, "!help.includes('aux_doc_list') || !help.includes('verify_codex')", 'generated Codex wrapper should reject stale global fallback');
+    assertIncludes(generatedWrapper, 'npx koala-init --verify-codex', 'generated Codex wrapper recovery hint');
+
+    const verifyInitOut = run('node', ['packages/main/dist/cli.js', 'init', '--verify-codex', tempDir]);
+    assertIncludes(verifyInitOut, 'Codex verification:', 'koala init --verify-codex output');
+    assertIncludes(verifyInitOut, 'Codex adapter checks passed', 'koala init --verify-codex checks');
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }

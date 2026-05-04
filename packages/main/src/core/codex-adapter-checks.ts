@@ -1,5 +1,6 @@
 import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   CODEX_ADAPTER_MANIFEST,
@@ -27,9 +28,38 @@ export interface CodexAdapterCheckResult {
   summary: string;
   checks: CodexAdapterCheck[];
   timestamp: string;
+  materialSnapshot: CodexAdapterMaterialSnapshot;
 }
 
+export interface CodexAdapterMaterialSnapshot {
+  headHash: string;
+  materialHash: string;
+  files: string[];
+}
+
+export const LOCAL_CODEX_VERIFY_COMMAND = 'node bin/koala-codex.js verify_codex';
+export const LOCAL_MAIN_VERIFY_COMMAND = 'node bin/koala.js verify_codex';
+export const LOCAL_INIT_VERIFY_COMMAND = 'npx koala-init --verify-codex';
 export const GLOBAL_CODEX_FALLBACK_COMMAND = 'KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 koala';
+
+const CODEX_MATERIAL_PATHS = [
+  '.Codex/README.md',
+  '.Codex/koala.json',
+  '.Codex/agents',
+  '.claude/agents',
+  'AGENTS.md',
+  'README.md',
+  'bin/koala-codex.js',
+  'bin/koala.js',
+  'bin/bootstrap-runner.js',
+  'packages/main/templates/agents',
+  'packages/main/src/init-assets.ts',
+  'packages/main/src/cli-init.ts',
+  'packages/main/src/core/codex-adapter-checks.ts',
+  'packages/main/src/handlers/codex-adapter.ts',
+  'packages/main/src/handlers/review-preflight.ts',
+  'packages/main/src/handlers/story-advance.ts',
+] as const;
 
 interface RunCodexChecksOptions {
   executeHeartbeats?: boolean;
@@ -41,6 +71,60 @@ interface RunCodexChecksOptions {
 
 function readText(path: string): string {
   return readFileSync(path, 'utf-8').replace(/\r\n/g, '\n');
+}
+
+function normalizeRel(path: string): string {
+  return path.split('\\').join('/');
+}
+
+function collectMaterialFiles(root: string, rel: string): string[] {
+  const abs = join(root, rel);
+  if (!existsSync(abs)) return [normalizeRel(rel)];
+  const stat = statSync(abs);
+  if (!stat.isDirectory()) return [normalizeRel(rel)];
+  return readdirSync(abs)
+    .sort((a, b) => a.localeCompare(b))
+    .flatMap((child) => collectMaterialFiles(root, join(rel, child)));
+}
+
+function readGitHead(root: string): string {
+  try {
+    return execFileSync('git', ['rev-parse', 'HEAD'], {
+      cwd: root,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+      timeout: 2_000,
+    }).trim();
+  } catch {
+    // probe: temporary projects or unpacked packages may not be git worktrees.
+    return 'unknown';
+  }
+}
+
+export function computeCodexAdapterMaterialSnapshot(root: string): CodexAdapterMaterialSnapshot {
+  const files = Array.from(new Set(CODEX_MATERIAL_PATHS.flatMap((rel) => collectMaterialFiles(root, rel))))
+    .sort((a, b) => a.localeCompare(b));
+  const hash = createHash('sha256');
+  for (const rel of files) {
+    const abs = join(root, rel);
+    hash.update(`path:${normalizeRel(rel)}\n`);
+    if (!existsSync(abs)) {
+      hash.update('missing\n');
+      continue;
+    }
+    const stat = statSync(abs);
+    if (stat.isDirectory()) {
+      hash.update('dir\n');
+      continue;
+    }
+    hash.update(readFileSync(abs));
+    hash.update('\n');
+  }
+  return {
+    headHash: readGitHead(root),
+    materialHash: hash.digest('hex'),
+    files,
+  };
 }
 
 function push(
@@ -58,13 +142,13 @@ function push(
 function checkManifest(root: string, checks: CodexAdapterCheck[]): void {
   const manifestPath = join(root, '.Codex', 'koala.json');
   if (!existsSync(manifestPath)) {
-    push(checks, 'manifest', 'Codex manifest', 'fail', true, 'missing .Codex/koala.json', 'koala init --verify-codex');
+    push(checks, 'manifest', 'Codex manifest', 'fail', true, 'missing .Codex/koala.json', LOCAL_INIT_VERIFY_COMMAND);
     return;
   }
   const actual = readText(manifestPath);
   const expected = renderCodexAdapterManifest();
   if (actual !== expected) {
-    push(checks, 'manifest', 'Codex manifest', 'fail', true, '.Codex/koala.json drifted from Koala template', 'koala init --verify-codex');
+    push(checks, 'manifest', 'Codex manifest', 'fail', true, '.Codex/koala.json drifted from Koala template', LOCAL_INIT_VERIFY_COMMAND);
     return;
   }
   const parsed = JSON.parse(actual);
@@ -73,7 +157,7 @@ function checkManifest(root: string, checks: CodexAdapterCheck[]): void {
     parsed?.adapterKind !== CODEX_ADAPTER_MANIFEST.adapterKind ||
     parsed?.activitySource !== CODEX_ADAPTER_MANIFEST.activitySource
   ) {
-    push(checks, 'manifest', 'Codex manifest', 'fail', true, '.Codex/koala.json has invalid adapter identity', 'koala init --verify-codex');
+    push(checks, 'manifest', 'Codex manifest', 'fail', true, '.Codex/koala.json has invalid adapter identity', LOCAL_INIT_VERIFY_COMMAND);
     return;
   }
   push(checks, 'manifest', 'Codex manifest', 'pass', true, '.Codex/koala.json matches template');
@@ -83,7 +167,7 @@ function checkAgentMirror(root: string, checks: CodexAdapterCheck[]): void {
   const claudeDir = join(root, '.claude', 'agents');
   const codexDir = join(root, '.Codex', 'agents');
   if (!existsSync(claudeDir) || !existsSync(codexDir)) {
-    push(checks, 'agents-mirror', 'Codex agents mirror', 'fail', true, 'missing .claude/agents or .Codex/agents', 'koala init --verify-codex');
+    push(checks, 'agents-mirror', 'Codex agents mirror', 'fail', true, 'missing .claude/agents or .Codex/agents', LOCAL_INIT_VERIFY_COMMAND);
     return;
   }
   const sourceFiles = listAgentPromptFiles(claudeDir);
@@ -105,7 +189,7 @@ function checkAgentMirror(root: string, checks: CodexAdapterCheck[]): void {
     if (!sourceSet.has(file)) issues.push(`stale .Codex/agents/${file}`);
   }
   if (issues.length > 0) {
-    push(checks, 'agents-mirror', 'Codex agents mirror', 'fail', true, issues.slice(0, 6).join('; '), 'koala init --verify-codex');
+    push(checks, 'agents-mirror', 'Codex agents mirror', 'fail', true, issues.slice(0, 6).join('; '), LOCAL_INIT_VERIFY_COMMAND);
     return;
   }
   push(checks, 'agents-mirror', 'Codex agents mirror', 'pass', true, `${sourceFiles.length} prompt(s) mirrored`);
@@ -177,14 +261,14 @@ function runHeartbeat(
 function checkLocalWrapper(root: string, checks: CodexAdapterCheck[], executeHeartbeats: boolean, timeoutMs: number): void {
   const wrapper = join(root, 'bin', 'koala-codex.js');
   if (!existsSync(wrapper)) {
-    push(checks, 'local-wrapper', 'Local Codex wrapper', 'fail', true, 'missing bin/koala-codex.js', 'koala init --verify-codex');
+    push(checks, 'local-wrapper', 'Local Codex wrapper', 'fail', true, 'missing bin/koala-codex.js', LOCAL_INIT_VERIFY_COMMAND);
     return;
   }
   const text = readText(wrapper);
   const required = ['KOALA_ACTIVITY_SOURCE', 'codex', 'KOALA_ACTIVITY_RECORD_READONLY', 'KOALA_CODEX_ENTRYPOINT'];
   const missing = required.filter(piece => !text.includes(piece));
   if (missing.length > 0) {
-    push(checks, 'local-wrapper', 'Local Codex wrapper', 'fail', true, `wrapper missing ${missing.join(', ')}`, 'koala init --verify-codex');
+    push(checks, 'local-wrapper', 'Local Codex wrapper', 'fail', true, `wrapper missing ${missing.join(', ')}`, LOCAL_INIT_VERIFY_COMMAND);
     return;
   }
   push(checks, 'local-wrapper', 'Local Codex wrapper', 'pass', true, 'bin/koala-codex.js sets Codex activity env');
@@ -201,7 +285,7 @@ function checkLocalWrapper(root: string, checks: CodexAdapterCheck[], executeHea
       timeoutMs,
     );
   } else {
-    push(checks, 'local-wrapper-heartbeat', 'Local wrapper heartbeat', 'warn', false, 'not executed in this diagnostic mode', 'koala verify_codex');
+    push(checks, 'local-wrapper-heartbeat', 'Local wrapper heartbeat', 'warn', false, 'not executed in this diagnostic mode', LOCAL_CODEX_VERIFY_COMMAND);
   }
 }
 
@@ -246,6 +330,7 @@ export function runCodexAdapterChecks(root: string, options: RunCodexChecksOptio
   checkAuxAvailability(checks, options.registryNames);
 
   const hardFailures = checks.filter(check => check.hard && check.status === 'fail');
+  const materialSnapshot = computeCodexAdapterMaterialSnapshot(root);
   return {
     ok: hardFailures.length === 0,
     summary: hardFailures.length === 0
@@ -253,6 +338,7 @@ export function runCodexAdapterChecks(root: string, options: RunCodexChecksOptio
       : `Codex adapter checks failed (${hardFailures.length} hard failure(s))`,
     checks,
     timestamp: new Date().toISOString(),
+    materialSnapshot,
   };
 }
 
@@ -292,8 +378,8 @@ export function latestCodexVerificationEvent(store: StoryStore, storyId: string)
   }
 }
 
-export function summarizeCodexEvidence(store: StoryStore, storyId: string): {
-  status: 'not-required' | 'missing' | 'failing' | 'passing';
+export function summarizeCodexEvidence(store: StoryStore, storyId: string, root?: string): {
+  status: 'not-required' | 'missing' | 'failing' | 'stale' | 'passing';
   detail: string;
   command?: string;
 } {
@@ -305,18 +391,36 @@ export function summarizeCodexEvidence(store: StoryStore, storyId: string): {
     return {
       status: 'missing',
       detail: 'no codex_adapter_verification process-event recorded',
-      command: 'koala verify_codex',
+      command: LOCAL_CODEX_VERIFY_COMMAND,
     };
   }
   if (event.result !== 'pass') {
     return {
       status: 'failing',
-      detail: String(event.summary || 'latest koala verify_codex failed'),
-      command: 'koala verify_codex',
+      detail: String(event.summary || `latest ${LOCAL_CODEX_VERIFY_COMMAND} failed`),
+      command: LOCAL_CODEX_VERIFY_COMMAND,
+    };
+  }
+  if (root) {
+    const current = computeCodexAdapterMaterialSnapshot(root);
+    const eventMaterialHash = typeof event.materialHash === 'string' ? event.materialHash : '';
+    if (!eventMaterialHash) {
+      return {
+        status: 'stale',
+        detail: 'latest codex_adapter_verification lacks a material hash snapshot',
+        command: LOCAL_CODEX_VERIFY_COMMAND,
+      };
+    }
+    if (eventMaterialHash !== current.materialHash) {
+      return {
+        status: 'stale',
+        detail: `material changed since verification (${eventMaterialHash.slice(0, 12)} != ${current.materialHash.slice(0, 12)})`,
+        command: LOCAL_CODEX_VERIFY_COMMAND,
+      };
     };
   }
   return {
     status: 'passing',
-    detail: String(event.summary || `koala verify_codex passed at ${event.timestamp}`),
+    detail: String(event.summary || `${LOCAL_CODEX_VERIFY_COMMAND} passed at ${event.timestamp}`),
   };
 }
