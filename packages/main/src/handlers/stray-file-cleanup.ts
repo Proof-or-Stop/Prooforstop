@@ -36,6 +36,7 @@ export const STRAY_FILE_WHITELIST: ReadonlyArray<string> = [
   'implementation-review.json',
   'index.json',
   'init-check.json',
+  'init-self-check.json',
   'plan.md',
   'process-events.jsonl',
   'process-metrics.json',

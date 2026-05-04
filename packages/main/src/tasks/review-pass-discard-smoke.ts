@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
+import { cleanStrayWorktreeFiles, STRAY_FILE_WHITELIST } from '../handlers/stray-file-cleanup.js';
 import { checkCommitAuthor } from '../handlers/validate-channel.js';
 import { runDocsDriftGate } from '../handlers/validate-docs-drift.js';
 
@@ -464,6 +465,36 @@ async function assertInitDispatchPromptHasTimeoutGuidance(): Promise<void> {
     assert.match(output, /5 分钟/, 'init dispatch should include an upper time bound');
     assert.match(output, /4 分钟/, 'init dispatch should include main-agent retry guidance');
     assert.match(output, /init_check_set/, 'init dispatch should still require result recording');
+    const events = new StoryStore(root).readProcessEvents(storyId);
+    const dispatchEvent = events.find(ev => ev.type === 'dispatch');
+    assert.equal(dispatchEvent?.targetKind, 'init-review', 'init dispatch should write an init-review dispatch event');
+    assert.equal(dispatchEvent?.agentType, 'koala-review-story-init', 'init dispatch should preserve reviewer agentType');
+    assert.equal(dispatchEvent?.phase, 'INIT', 'init dispatch event should include story phase');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+async function assertItemDispatchWritesChannelEvidence(): Promise<void> {
+  const root = initRepo('koala-item-dispatch-event-');
+  try {
+    const storyId = 'B-dispatch';
+    writeChecklistConcurrencyStory(root, storyId, 'DEV');
+
+    const output = await runKoala(root, 'dispatch', {
+      storyId,
+      itemId: 'CHK-001',
+      agentType: 'koala-implementer',
+    });
+    assert.match(output, /CHK-001/, 'item dispatch should still return the item prompt');
+
+    const events = new StoryStore(root).readProcessEvents(storyId);
+    const dispatchEvent = events.find(ev => ev.type === 'dispatch' && ev.itemId === 'CHK-001');
+    assert.equal(dispatchEvent?.targetKind, 'checklist', 'item dispatch should write checklist targetKind');
+    assert.equal(dispatchEvent?.checklistId, 'CHK-001', 'item dispatch should write checklistId for channel gate');
+    assert.equal(dispatchEvent?.agentType, 'koala-implementer', 'item dispatch should write agentType');
+    assert.equal(dispatchEvent?.phase, 'DEV', 'item dispatch event should include story phase');
+    assert.equal(dispatchEvent?.source, 'koala dispatch', 'item dispatch event should name source');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -522,6 +553,47 @@ async function assertDoctorRepairCleansTerminalWorktrees(): Promise<void> {
   }
 }
 
+function assertStrayCleanupAllowsInitSelfCheck(): void {
+  const root = initRepo('koala-stray-init-self-check-');
+  try {
+    const storyId = 'B-stray';
+    const now = '2026-04-30T10:00:00.000Z';
+    new StoryStore(root).writeStory(storyId, {
+      storyId,
+      name: 'stray-init-self-check-smoke',
+      title: 'Stray init self check smoke',
+      description: 'Synthetic story for DONE stray metadata cleanup.',
+      type: 'chore',
+      phase: 'TEST',
+      priority: 'medium',
+      createdAt: now,
+      startedAt: now,
+      endedAt: null,
+      events: [],
+    });
+    git(root, ['add', '.koala/story/actives']);
+    git(root, ['commit', '-m', 'add story metadata']);
+
+    assert(STRAY_FILE_WHITELIST.includes('init-self-check.json'), 'init-self-check.json should be a precise whitelist entry');
+    const initSelfCheckPath = join(root, '.koala/story/actives', storyId, 'init-self-check.json');
+    writeFileSync(initSelfCheckPath, '{"reviewers":[]}\n');
+    const report = cleanStrayWorktreeFiles(root, storyId, join(root, '.worktrees', storyId));
+    assert.equal(existsSync(initSelfCheckPath), false, 'init-self-check.json should be removed as generated metadata');
+    assert(report.some(line => line.includes('init-self-check.json')), 'cleanup report should name init-self-check.json');
+
+    const draftPath = join(root, '.koala/story/actives', storyId, 'operator-note.txt');
+    writeFileSync(draftPath, 'manual draft\n');
+    assert.throws(
+      () => cleanStrayWorktreeFiles(root, storyId, join(root, '.worktrees', storyId)),
+      /operator-note\.txt/,
+      'non-whitelisted story files should still block cleanup',
+    );
+    assert.equal(existsSync(draftPath), true, 'non-whitelisted story files should not be deleted');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 await assertReviewPassConcurrentWrites();
 await assertChecklistConcurrentUpdates();
 await assertChecklistConcurrentVerificationIntentUpdates();
@@ -532,6 +604,8 @@ await assertDiscardFailureDoesNotMarkSuccess();
 await assertPurgeDropsSafeInitCommit();
 await assertDoctorRepairCleansTerminalWorktrees();
 await assertInitDispatchPromptHasTimeoutGuidance();
+await assertItemDispatchWritesChannelEvidence();
+assertStrayCleanupAllowsInitSelfCheck();
 assertDocsDriftAllowsBootstrapAndLegacyCommands();
 assertChannelAllowsExplicitMainAgentPlanOwnership();
 

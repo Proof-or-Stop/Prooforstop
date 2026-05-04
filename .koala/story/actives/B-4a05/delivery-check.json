@@ -1,0 +1,64 @@
+{
+  "storyId": "B-4a05",
+  "checkedAt": "2026-05-04T22:08:37.252Z",
+  "reviewRound": "2026-05-04T22:02:31.388Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "TEST uses koala validate evidence and DONE requires delivery check / clean-tree hygiene before promotion.",
+      "status": "verified",
+      "verifiedBy": "koala validate --story=B-4a05 --json; git diff --name-only main...HEAD; session_brief",
+      "evidence": "No doc changes in final diff; validation evidence is present and the story remains in TEST awaiting the delivery signature path."
+    },
+    {
+      "docPath": "docs/requirements/decisions/testing-infra.md",
+      "promise": "TEST records validation evidence from koala validate and uses it as the gate input.",
+      "status": "verified",
+      "verifiedBy": "koala validate --story=B-4a05 --json",
+      "evidence": "validation evidence records all 9/9 verification intents and the smoke tasks passed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/role-separation.md",
+      "promise": "dispatch/channel responsibilities stay separated and channel review consumes dispatch evidence.",
+      "status": "verified",
+      "verifiedBy": "review_pass_set plus koala validate --channel --story=B-4a05",
+      "evidence": "process-events.jsonl includes dispatch and subagent_result events; the channel gate passed for all current commits."
+    },
+    {
+      "docPath": "README.md",
+      "promise": "Codex adapter verification guidance remains unchanged for this story.",
+      "status": "waived",
+      "waiverReason": "This story does not modify Codex adapter paths or the README guidance; the related doc stayed untouched in the final diff."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CLI-INVALID-ENUM",
+      "transcript": "node packages/main/dist/cli.js checklist_update with type=integration_test prints 参数校验失败, verificationIntent.happy.0.type, integration_test, allowed values, and 参数校验失败（摘要） with no generic koala status footer."
+    },
+    {
+      "featureId": "SMOKE-CLI-ARG",
+      "transcript": "node packages/main/dist/tasks/cli-argument-ergonomics-smoke.js passes from the active REVIEW worktree after isolating cwd and KOALA_PROJECT_ROOT."
+    },
+    {
+      "featureId": "SMOKE-REVIEW-DISCARD",
+      "transcript": "node packages/main/dist/tasks/review-pass-discard-smoke.js passes and covers init-self-check cleanup plus dispatch audit-event emission."
+    },
+    {
+      "featureId": "VALIDATE-JSON",
+      "transcript": "koala validate --story=B-4a05 --json reports Project validation commands passed and Verification intent coverage: 9/9 covered."
+    },
+    {
+      "featureId": "CHANNEL-GATE",
+      "transcript": "koala validate --channel --story=B-4a05 passes; all current commits are normal-channel compliant and dispatch evidence is present."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Behavioral evidence is green, related docs were untouched or waived, and the story now has the required delivery-signature record for downstream DONE gating."
+  },
+  "_hash": "e79edbb9e9d0b7cd472cd30889bb9243ecb7a6a996ccb1cf75861c3b468d7ef7"
+}
