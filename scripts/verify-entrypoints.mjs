@@ -6,7 +6,7 @@ import { join } from 'path';
 import { execFileSync } from 'child_process';
 
 const repoRoot = process.cwd();
-const GLOBAL_CODEX_FALLBACK = 'KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 koala';
+const GLOBAL_CODEX_FALLBACK = 'KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPOINT=global-fallback koala';
 
 function run(cmd, args, opts = {}) {
   return execFileSync(cmd, args, {

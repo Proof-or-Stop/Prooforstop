@@ -124,10 +124,10 @@ npx koala-init --verify-codex
 如果某个项目只有全局 `koala`，没有 `bin/koala-codex.js`，可以这样跑：
 
 ```bash
-KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 koala session_brief
+KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPOINT=global-fallback koala session_brief
 ```
 
-这能保证 activity 里仍然按 `source=codex` 记账，并让 `session_brief` 这种只读入口也留下 heartbeat；但如果没有 bootstrap 入口，`aux_*` 命令可能不可用。
+这能保证 activity 里仍然按 `source=codex` / `entrypoint=global-fallback` 记账，并让 `session_brief` 这种只读入口也留下 heartbeat；但如果没有 bootstrap 入口，`aux_*` 命令可能不可用。
 
 注意：在 Koala 仓库开发 Koala 自身时，全局 `koala` 可能来自旧安装、主仓或另一个 worktree。不要用它的 `status` / `next` / `validate` 输出判断当前 story 是否可推进；先构建本地 wrapper，或使用 `node packages/main/dist/cli.js <command>` 读取当前 worktree 的代码和状态。
 

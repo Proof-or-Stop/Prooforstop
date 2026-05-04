@@ -145,6 +145,28 @@ assertCheckFails(
   'missing sibling local bootstrap',
 );
 
+{
+  const dir = copyCodexAssetsToTemp();
+  try {
+    mkdirSync(join(dir, 'packages', 'main'), { recursive: true });
+    const checkResult = runCodexAdapterChecks(dir, {
+      executeLocalHeartbeat: false,
+      executeGlobalHeartbeat: true,
+      timeoutMs: 5_000,
+    });
+    const globalCheck = checkResult.checks.find(check => check.id === 'global-fallback-heartbeat');
+    assert(globalCheck, 'stale global fallback check should be present');
+    assert(globalCheck.status === 'warn', `stale global fallback should warn, got ${globalCheck.status}`);
+    assert(
+      globalCheck.detail.includes('not current worktree') && globalCheck.detail.includes('heartbeat-only'),
+      `stale global fallback warning should explain current-worktree boundary: ${globalCheck.detail}`,
+    );
+    assert(checkResult.ok, 'stale global fallback warning should not be a hard failure');
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
 function seedCodexStory(dir) {
   mkdirSync(join(dir, '.koala', 'story', 'actives'), { recursive: true });
   const store = new StoryStore(dir);

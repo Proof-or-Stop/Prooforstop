@@ -1,6 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   CODEX_ADAPTER_MANIFEST,
@@ -40,7 +40,7 @@ export interface CodexAdapterMaterialSnapshot {
 export const LOCAL_CODEX_VERIFY_COMMAND = 'node bin/koala-codex.js verify_codex';
 export const LOCAL_MAIN_VERIFY_COMMAND = 'node bin/koala.js verify_codex';
 export const LOCAL_INIT_VERIFY_COMMAND = 'npx koala-init --verify-codex';
-export const GLOBAL_CODEX_FALLBACK_COMMAND = 'KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 koala';
+export const GLOBAL_CODEX_FALLBACK_COMMAND = 'KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPOINT=global-fallback koala';
 
 const CODEX_MATERIAL_PATHS = [
   '.Codex/README.md',
@@ -233,6 +233,7 @@ function runHeartbeat(
         KOALA_ACTIVITY_SOURCE: id === 'local-wrapper-heartbeat' ? 'not-codex' : 'codex',
         KOALA_ACTIVITY_RECORD_READONLY: '1',
         KOALA_ACTIVITY_SESSION: session,
+        KOALA_CODEX_ENTRYPOINT: expectedEntrypoint,
       },
     });
   } catch (e: any) {
@@ -300,6 +301,34 @@ function checkGlobalFallback(root: string, checks: CodexAdapterCheck[], executeH
   if (!executeHeartbeats) {
     push(checks, 'global-fallback-heartbeat', 'Global fallback heartbeat', 'warn', false, 'not executed in this diagnostic mode', `${GLOBAL_CODEX_FALLBACK_COMMAND} session_brief`);
     return;
+  }
+  const currentCore = join(root, 'packages', 'main');
+  try {
+    const globalRoot = execFileSync('npm', ['root', '-g'], {
+      cwd: root,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+      timeout: 2_000,
+    }).trim();
+    const globalCore = join(globalRoot, '@koala-agent', 'core');
+    if (existsSync(currentCore) && existsSync(globalCore)) {
+      const currentReal = realpathSync(currentCore);
+      const globalReal = realpathSync(globalCore);
+      if (currentReal !== globalReal) {
+        push(
+          checks,
+          'global-fallback-heartbeat',
+          'Global fallback heartbeat',
+          'warn',
+          false,
+          `global @koala-agent/core resolves to ${globalReal}, not current worktree ${currentReal}; treat global koala as heartbeat-only, not current-worktree gate/status evidence`,
+          'node bin/koala-codex.js session_brief',
+        );
+        return;
+      }
+    }
+  } catch {
+    // probe: npm/global package lookup is best-effort; heartbeat below is the real check.
   }
   runHeartbeat(
     root,

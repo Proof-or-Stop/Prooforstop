@@ -33,7 +33,7 @@ export const CODEX_ADAPTER_MANIFEST = {
     },
     {
       name: 'global-fallback',
-      command: 'KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 koala',
+      command: 'KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPOINT=global-fallback koala',
       useWhen: 'Only the global koala CLI is available for read-only heartbeats; do not use it as current-worktree gate/status evidence when a local wrapper or core CLI exists.',
     },
   ],
@@ -81,13 +81,14 @@ node bin/koala-codex.js aux_doc_list --format=json
 只有当前项目没有本地 wrapper 时，才使用全局 fallback：
 
 \`\`\`bash
-KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 koala session_brief
+KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPOINT=global-fallback koala session_brief
 \`\`\`
 
 fallback 说明：
 
 - \`KOALA_ACTIVITY_SOURCE=codex\` 会把本次调用标记为 \`source=codex\`
 - \`KOALA_ACTIVITY_RECORD_READONLY=1\` 会让 \`session_brief\` 这样的只读入口也记录 heartbeat
+- \`KOALA_CODEX_ENTRYPOINT=global-fallback\` 会防止本地 wrapper 子进程把 global fallback 误记成 \`local-wrapper\`
 - 全局 \`koala\` 可能是 core-only，\`aux_*\` 命令不一定可用
 - 全局 \`koala\` 也可能滞后于当前 worktree；有本地 wrapper 或 \`node packages/main/dist/cli.js\` 时，不要把 fallback 的 \`status\` / \`next\` / \`validate\` 输出当作 gate 证据
 - \`.Codex/agents\` 由 \`.claude/agents\` 的完整 prompt 集合受控生成；Claude hooks/settings/skills 仍只属于 \`.claude\`
