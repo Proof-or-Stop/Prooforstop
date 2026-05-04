@@ -1,0 +1,20 @@
+{
+  "passes": [
+    {
+      "id": "B-6c80:RP-001",
+      "agent": "koala-review-quality",
+      "note": "Reviewed cli-init/cli-engine/verify-entrypoints: changes stay minimal and scoped, flag parsing works with starter/template/verify-codex path combinations, existing-skip behavior is preserved, the Zod record typing fix builds cleanly, and init/codex wrapper regressions are covered by passing entrypoint verification.",
+      "createdAt": "2026-05-04T23:19:13.528Z",
+      "reviewRound": "2026-05-04T23:15:48.481Z",
+      "_hash": "926dbf98251eae96bb97d0a4c8b55b3bad714da0a601b3258c7a5439cdd9f2ff"
+    },
+    {
+      "id": "B-6c80:RP-002",
+      "agent": "koala-review-concept",
+      "note": "Reviewed checklist, plan, commit diff, and current init smoke changes. Default init is management-only, starter remains opt-in, scanRoot uses pre-init src detection, and Python no-src stays scanRoot=.; only a non-blocking unrelated cli-engine schema hunk should be split later.",
+      "createdAt": "2026-05-04T23:19:17.326Z",
+      "reviewRound": "2026-05-04T23:15:48.481Z",
+      "_hash": "c7dcd14f4269de488c43ea52ed29b3c92be8e115b1544a6d9ebac362a8de0f42"
+    }
+  ]
+}

@@ -84,11 +84,12 @@ node bin/koala.js tool_status --source=codex --days=1 --limit=10
 npm run test:entrypoints
 ```
 
-这会验证：
+这会验证当前 worktree 的 repo-local entrypoints / generated local wrapper，不要求当前环境里的 bare global `koala` 已经更新：
 
 - 当前仓库的 `bin/koala.js` / `bin/koala-codex.js`
-- `koala init` 默认只生成 Koala management assets，不生成 starter `src/core` / `src/shells` / `tests`
-- `koala init --starter` / `koala init --with-template` 会生成旧版 starter 模板，并使用 `scanRoot: "src"`
+- repo-local `node packages/main/dist/cli.js init --help` 和 generated local wrapper `node bin/koala.js init --help` 都把 `--starter` / `--with-template` 标为可选 starter 内容
+- repo-local default init 只生成 Koala management assets，不生成 starter `src/core` / `src/shells` / `tests`
+- repo-local `init --starter` / `init --with-template` 会生成旧版 starter 模板，并使用 `scanRoot: "src"`
 - Python no-src 项目默认 init 不创建 `src/`，并使用 `scanRoot: "."`
 - `.Codex/README.md` 是否包含正确的降级入口说明
 

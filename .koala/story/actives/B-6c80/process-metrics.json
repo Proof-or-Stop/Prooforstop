@@ -1,13 +1,13 @@
 {
   "storyId": "B-6c80",
-  "generatedAt": "2026-05-04T23:04:41.678Z",
+  "generatedAt": "2026-05-04T23:20:27.228Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
     "hasPlan": true,
     "checklistItems": 3,
     "reviewRounds": 2,
-    "findings": 0,
+    "findings": 3,
     "bugs": 0,
     "testRuns": 0,
     "hasEvalEvidence": false,
@@ -100,7 +100,7 @@
           ]
         },
         "missingFindingCount": {
-          "value": 0,
+          "value": 2,
           "unit": "count",
           "confidence": "high",
           "sources": [
@@ -260,7 +260,7 @@
           "note": "fast channel — main agent 允许自写代码"
         },
         "reviewerIndependence": {
-          "value": false,
+          "value": true,
           "unit": "bool",
           "confidence": "high",
           "sources": [
@@ -277,7 +277,7 @@
           "note": "fast channel — main agent 允许自写代码 — no violation possible"
         },
         "parallelBatchCount": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "medium",
           "sources": [
@@ -318,7 +318,7 @@
           ]
         },
         "formalFindingCount": {
-          "value": 0,
+          "value": 3,
           "unit": "count",
           "confidence": "high",
           "sources": [

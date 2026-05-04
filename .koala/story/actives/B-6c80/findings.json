@@ -1,0 +1,37 @@
+{
+  "findings": [
+    {
+      "id": "B-6c80:F-001",
+      "desc": "CHK-002 edge intent says a project with a pre-existing real src directory should keep scanRoot=src, but the recorded evidence for that intent is only npm run build plus a logic note against packages/main/src/cli-init.ts:413-421. scripts/verify-entrypoints.mjs:153-305 never creates a temp repo with an existing src before init, so this runtime branch is not actually exercised. Compile success is not sufficient evidence for the pre-existing-src detection path.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-05-04T23:18:20.295Z",
+      "reviewRound": "2026-05-04T23:15:48.481Z",
+      "_hash": "39dcf82690c36536da7baed9ad25ec5f5005af0e9fbed2115dda0546e57a85b8"
+    },
+    {
+      "id": "B-6c80:F-002",
+      "desc": "packages/main/src/cli-engine.ts:360,364 changes fixture schema typing (z.record signature) even though B-6c80 is scoped to koala init behavior. Keep this story focused on init or move the cli-engine hunk into its own story/commit so concept review stays narrow.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-05-04T23:19:17.326Z",
+      "reviewRound": "2026-05-04T23:15:48.481Z",
+      "_hash": "3dbc54eea4f6b1a01d81a6c8e9bd78b3e420b95a8f49161c60bd907cdba4e75f"
+    },
+    {
+      "id": "B-6c80:F-003",
+      "desc": "README entrypoint smoke只覆盖本地 node entrypoint；当前 bare `koala init --help` 仍显示默认生成 src/core/src/shells/tests 的旧文案，用户路径与 README/本地 dist 帮助不一致。",
+      "severity": "medium",
+      "category": "happy",
+      "status": "open",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-05-04T23:19:34.293Z",
+      "reviewRound": "2026-05-04T23:15:48.481Z",
+      "_hash": "e488e034b1d115ed16bdc6d1f95472f22da4ef9f56756330219635b3bbcc38b9"
+    }
+  ]
+}

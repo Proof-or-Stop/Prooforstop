@@ -41,6 +41,31 @@ function assertPathMissing(root, relPath, label = relPath) {
   assert(!existsSync(join(root, relPath)), `${label} should not exist`);
 }
 
+function sectionBetween(text, startNeedle, endNeedle, label) {
+  const start = text.indexOf(startNeedle);
+  assert(start >= 0, `${label} missing section "${startNeedle}"`);
+  const from = start + startNeedle.length;
+  const end = text.indexOf(endNeedle, from);
+  assert(end >= 0, `${label} missing section terminator "${endNeedle}"`);
+  return text.slice(from, end);
+}
+
+function assertInitHelpDocumentsStarterAsOptional(help, label) {
+  assertIncludes(help, '--starter', label);
+  assertIncludes(help, '--with-template', label);
+  assertIncludes(help, '可选 starter 内容（仅 --starter / --with-template）', label);
+
+  const defaultInitSection = sectionBetween(help, '初始化内容:', '可选 starter 内容', label);
+  assertNotIncludes(defaultInitSection, 'src/core/app.ts', `${label} default init section`);
+  assertNotIncludes(defaultInitSection, 'src/shells/cli/main.ts', `${label} default init section`);
+  assertNotIncludes(defaultInitSection, 'tests/', `${label} default init section`);
+
+  const optionalStarterSection = sectionBetween(help, '可选 starter 内容', '初始化后:', label);
+  assertIncludes(optionalStarterSection, 'src/core/app.ts', `${label} optional starter section`);
+  assertIncludes(optionalStarterSection, 'src/shells/cli/main.ts', `${label} optional starter section`);
+  assertIncludes(optionalStarterSection, 'tests/', `${label} optional starter section`);
+}
+
 function assertManagedInitAssets(tempDir) {
   const requiredFiles = [
     'AGENTS.md',
@@ -115,6 +140,14 @@ const checks = [];
 checks.push(() => {
   const out = run('node', ['bin/koala.js', 'aux_doc_list', '--format=json']);
   assertIncludes(out, '"docs"', 'bin/koala.js aux_doc_list');
+});
+
+checks.push(() => {
+  const coreHelp = run('node', ['packages/main/dist/cli.js', 'init', '--help']);
+  assertInitHelpDocumentsStarterAsOptional(coreHelp, 'repo-local core CLI init --help');
+
+  const localWrapperHelp = run('node', ['bin/koala.js', 'init', '--help']);
+  assertInitHelpDocumentsStarterAsOptional(localWrapperHelp, 'generated local wrapper init --help');
 });
 
 checks.push(() => {
@@ -240,6 +273,26 @@ checks.push(() => {
     };
     const freshWrapperOut = run(process.execPath, [join(tempDir, 'bin', 'koala-codex.js'), 'session_brief'], { cwd: tempDir, env: minimalEnv });
     assertIncludes(freshWrapperOut, '# koala session brief', 'fresh generated wrapper should run with stale global koala on PATH');
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+checks.push(() => {
+  const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-existing-src-'));
+  try {
+    mkdirSync(join(tempDir, 'src'), { recursive: true });
+    writeFileSync(join(tempDir, 'src', 'index.ts'), 'export const alreadyHere = true;\n');
+
+    run('node', ['packages/main/dist/cli.js', 'init', tempDir]);
+    assertManagedInitAssets(tempDir);
+
+    const config = readJson(tempDir, 'koala.config.json');
+    assert(config.scanRoot === 'src', 'default koala init with preexisting src should keep scanRoot=src');
+    assertPathExists(tempDir, 'src/index.ts', 'preexisting src/index.ts');
+    assertPathMissing(tempDir, 'src/core/app.ts', 'default koala init with preexisting src src/core/app.ts');
+    assertPathMissing(tempDir, 'src/shells/cli/main.ts', 'default koala init with preexisting src cli shell');
+    assertPathMissing(tempDir, 'tests', 'default koala init with preexisting src tests');
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }
