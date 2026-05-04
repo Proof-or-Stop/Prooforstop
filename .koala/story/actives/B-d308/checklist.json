@@ -44,7 +44,42 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-entrypoints.mjs",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "Fresh koala init verification requires .Codex/koala.json and asserts adapterOwner=koala plus activitySource=codex.",
+          "headHash": "dd87c72c25ae65059f3dd282770e55313697789e",
+          "materialHash": "9be59fa8010ecded8a2b39dbe172cc8a357bbf2d67a39129bb2044df9f86c9e0",
+          "timestamp": "2026-05-04T17:08:27.345Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": ".Codex/koala.json",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "Generated manifest contains recommendedEntrypoints for node bin/koala-codex.js and KOALA_ACTIVITY_SOURCE=codex koala fallback.",
+          "headHash": "dd87c72c25ae65059f3dd282770e55313697789e",
+          "materialHash": "9be59fa8010ecded8a2b39dbe172cc8a357bbf2d67a39129bb2044df9f86c9e0",
+          "timestamp": "2026-05-04T17:08:27.345Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": ".Codex/koala.json",
+          "command": "test ! -e .Codex/hooks && test ! -e .Codex/settings.json",
+          "result": "pass",
+          "note": "Manifest excludes .Codex/hooks and .Codex/settings.json; filesystem check confirms unsupported runtime files are absent.",
+          "headHash": "dd87c72c25ae65059f3dd282770e55313697789e",
+          "materialHash": "9be59fa8010ecded8a2b39dbe172cc8a357bbf2d67a39129bb2044df9f86c9e0",
+          "timestamp": "2026-05-04T17:08:27.345Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -86,7 +121,42 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "bin/koala-codex.js",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "entrypoints verification runs node bin/koala-codex.js session_brief and sees # koala session brief.",
+          "headHash": "dd87c72c25ae65059f3dd282770e55313697789e",
+          "materialHash": "9be59fa8010ecded8a2b39dbe172cc8a357bbf2d67a39129bb2044df9f86c9e0",
+          "timestamp": "2026-05-04T17:08:27.345Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-entrypoints.mjs",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "entrypoints verification sets CODEX_SESSION_ID and checks activity.jsonl contains a session_brief record with that session.",
+          "headHash": "dd87c72c25ae65059f3dd282770e55313697789e",
+          "materialHash": "9be59fa8010ecded8a2b39dbe172cc8a357bbf2d67a39129bb2044df9f86c9e0",
+          "timestamp": "2026-05-04T17:08:27.345Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-entrypoints.mjs",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "entrypoints verification overrides KOALA_ACTIVITY_SOURCE=not-codex and asserts wrapper still records source=codex.",
+          "headHash": "dd87c72c25ae65059f3dd282770e55313697789e",
+          "materialHash": "9be59fa8010ecded8a2b39dbe172cc8a357bbf2d67a39129bb2044df9f86c9e0",
+          "timestamp": "2026-05-04T17:08:27.345Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -132,7 +202,42 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/init-assets.ts",
+          "command": "npm run test:codex-assets",
+          "result": "pass",
+          "note": "CODEX_README_TEMPLATE documents .Codex/koala.json and recommended Codex entrypoints.",
+          "headHash": "dd87c72c25ae65059f3dd282770e55313697789e",
+          "materialHash": "9be59fa8010ecded8a2b39dbe172cc8a357bbf2d67a39129bb2044df9f86c9e0",
+          "timestamp": "2026-05-04T17:08:27.345Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "README.md",
+          "command": "npm run test:codex-assets",
+          "result": "pass",
+          "note": "Root README and AGENTS are checked for .Codex/koala.json guidance and Codex adapter boundary.",
+          "headHash": "dd87c72c25ae65059f3dd282770e55313697789e",
+          "materialHash": "9be59fa8010ecded8a2b39dbe172cc8a357bbf2d67a39129bb2044df9f86c9e0",
+          "timestamp": "2026-05-04T17:08:27.345Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": ".Codex/README.md",
+          "command": "npm run test:codex-assets",
+          "result": "pass",
+          "note": "Docs explicitly say .Codex/hooks and .Codex/settings.json are not created/executed by Codex runtime.",
+          "headHash": "dd87c72c25ae65059f3dd282770e55313697789e",
+          "materialHash": "9be59fa8010ecded8a2b39dbe172cc8a357bbf2d67a39129bb2044df9f86c9e0",
+          "timestamp": "2026-05-04T17:08:27.345Z"
+        }
+      ]
     }
   ]
 }
