@@ -1,0 +1,28 @@
+{
+  "passes": [
+    {
+      "id": "B-4a05:RP-001",
+      "agent": "koala-review-channel",
+      "note": "PASS: commit authors are compliant (koala-implementer plus metadata-only Harmonygo commits), process-events.jsonl contains the expected dispatch and subagent_result evidence for CHK-001..003, and koala validate --channel --story=B-4a05 passes for the normal-channel gate.",
+      "createdAt": "2026-05-04T21:57:43.010Z",
+      "reviewRound": "2026-05-04T21:56:51.805Z",
+      "_hash": "b45aabf5c3f4297668b609c6e09e9160aee0cadad794b77d44e69c037d78628c"
+    },
+    {
+      "id": "B-4a05:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "Reviewed CHK-001..CHK-003 verificationIntent coverage on REVIEW head 722ac1c. Re-ran cli-argument-ergonomics smoke in isolated cwd (/tmp) to avoid REVIEW phase gating and confirmed CHK-001 happy/edge/adversarial coverage. Re-ran review-pass-discard smoke and confirmed CHK-002 whitelist/cleanup/blocking coverage plus CHK-003 dispatch event coverage for item and INIT reviewer flows. Added a targeted runtime probe against createStoryDispatchHandlers with appendProcessEvent forced to throw and verified prompt return, ctx.log health message, and persist:dispatchProcessEvent health record for CHK-003 adversarial.",
+      "createdAt": "2026-05-04T21:59:11.789Z",
+      "reviewRound": "2026-05-04T21:56:51.805Z",
+      "_hash": "623602af2d260a9ddfae555e98b26b4f09aabffb7f543a04ca149fc124f90d0c"
+    },
+    {
+      "id": "B-4a05:RP-003",
+      "agent": "koala-review-concept",
+      "note": "Concept fit verified: checklist_update validation now prints exact failing paths plus allowed enum/help text without the generic session footer; stray cleanup whitelists init-self-check.json as a single explicit filename while still blocking non-whitelisted files; dispatch writes process-events evidence for init-review and checklist routes including phase/agentType/checklistId for downstream channel gating. Verified via tsc diagnostics, cli-argument-ergonomics-smoke, review-pass-discard-smoke, and direct CLI stderr check.",
+      "createdAt": "2026-05-04T21:59:50.661Z",
+      "reviewRound": "2026-05-04T21:56:51.805Z",
+      "_hash": "b573452279e4657783c6d47df1739b7d1f9f979a55d243c27aac1aae67cba7e6"
+    }
+  ]
+}
