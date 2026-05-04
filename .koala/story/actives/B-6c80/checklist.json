@@ -8,9 +8,9 @@
         "README.md",
         "docs/requirements/decisions/project-vision.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-04T23:05:02.032Z",
-      "endTime": null,
+      "endTime": "2026-05-04T23:15:25.903Z",
       "userSees": "Default `koala init` output no longer lists `src/core/app.ts`, `src/shells/cli/main.ts`, or `tests/`; `koala init --help` tells users to pass `--starter` or `--with-template` when they want starter business files.",
       "files": {
         "modify": [
@@ -44,7 +44,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-entrypoints.mjs",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "Entry point smoke asserts default init creates managed Koala/Codex assets while src/core, src/shells, and tests are absent.",
+          "headHash": "aed3351e35432b8512b0ee3af66c01991adb25e0",
+          "materialHash": "4300ae15339c99d853c5a0989e44dae89ddcb07c3342f46a78a3302aff2236c0",
+          "timestamp": "2026-05-04T23:15:21.160Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-entrypoints.mjs",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "Existing stale .Codex/agents prompts are removed while default init still does not create starter source/test directories.",
+          "headHash": "aed3351e35432b8512b0ee3af66c01991adb25e0",
+          "materialHash": "4300ae15339c99d853c5a0989e44dae89ddcb07c3342f46a78a3302aff2236c0",
+          "timestamp": "2026-05-04T23:15:21.160Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-entrypoints.mjs",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "Smoke runs both --starter and --with-template and asserts legacy starter source/test templates are created only when opted in.",
+          "headHash": "aed3351e35432b8512b0ee3af66c01991adb25e0",
+          "materialHash": "4300ae15339c99d853c5a0989e44dae89ddcb07c3342f46a78a3302aff2236c0",
+          "timestamp": "2026-05-04T23:15:21.160Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -54,9 +89,9 @@
         "docs/requirements/decisions/truth-source.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-04T23:05:02.081Z",
-      "endTime": null,
+      "endTime": "2026-05-04T23:15:29.068Z",
       "userSees": "In a Python project that has no real `src/` before init, the generated `koala.config.json` shows `language: python` and `scanRoot: .`; starter mode still uses `scanRoot: src` because it intentionally creates the starter source tree.",
       "files": {
         "modify": [
@@ -89,7 +124,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-entrypoints.mjs",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "Python no-src smoke creates pyproject.toml before init, asserts no src/tests are created, and asserts language=python with scanRoot=.",
+          "headHash": "aed3351e35432b8512b0ee3af66c01991adb25e0",
+          "materialHash": "4300ae15339c99d853c5a0989e44dae89ddcb07c3342f46a78a3302aff2236c0",
+          "timestamp": "2026-05-04T23:15:21.160Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/cli-init.ts",
+          "command": "npm run build",
+          "result": "pass",
+          "note": "Build verifies scanRoot logic compiles; hadSrcBeforeInit is captured before starter files are created and controls default scanRoot.",
+          "headHash": "aed3351e35432b8512b0ee3af66c01991adb25e0",
+          "materialHash": "4300ae15339c99d853c5a0989e44dae89ddcb07c3342f46a78a3302aff2236c0",
+          "timestamp": "2026-05-04T23:15:21.160Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-entrypoints.mjs",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "Starter-mode smoke asserts intentionally created starter source tree pairs with scanRoot=src.",
+          "headHash": "aed3351e35432b8512b0ee3af66c01991adb25e0",
+          "materialHash": "4300ae15339c99d853c5a0989e44dae89ddcb07c3342f46a78a3302aff2236c0",
+          "timestamp": "2026-05-04T23:15:21.160Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -99,9 +169,9 @@
         "README.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-04T23:05:02.140Z",
-      "endTime": null,
+      "endTime": "2026-05-04T23:15:32.176Z",
       "userSees": "`npm run test:entrypoints` fails if default init recreates starter `src` or `tests`, fails if `--starter` no longer creates the legacy templates, and fails if Python default init writes `scanRoot: src` without a pre-existing `src` directory.",
       "files": {
         "modify": [
@@ -135,7 +205,42 @@
             "priority": "should"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-entrypoints.mjs",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "Full entrypoint smoke passed 9/9 checks after build, including default init, starter aliases, and Python no-src scanRoot assertions.",
+          "headHash": "aed3351e35432b8512b0ee3af66c01991adb25e0",
+          "materialHash": "4300ae15339c99d853c5a0989e44dae89ddcb07c3342f46a78a3302aff2236c0",
+          "timestamp": "2026-05-04T23:15:21.160Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-entrypoints.mjs",
+          "command": "code review of assertions plus npm run test:entrypoints",
+          "result": "pass",
+          "note": "Assertions check both presence of managed assets and absence of starter src/tests in default init.",
+          "headHash": "aed3351e35432b8512b0ee3af66c01991adb25e0",
+          "materialHash": "4300ae15339c99d853c5a0989e44dae89ddcb07c3342f46a78a3302aff2236c0",
+          "timestamp": "2026-05-04T23:15:21.160Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-entrypoints.mjs",
+          "command": "code review of negative assertions plus npm run test:entrypoints",
+          "result": "pass",
+          "note": "A regression that recreates default starter dirs, removes starter templates, or writes Python scanRoot=src would fail the explicit smoke assertions.",
+          "headHash": "aed3351e35432b8512b0ee3af66c01991adb25e0",
+          "materialHash": "4300ae15339c99d853c5a0989e44dae89ddcb07c3342f46a78a3302aff2236c0",
+          "timestamp": "2026-05-04T23:15:21.160Z"
+        }
+      ]
     }
   ]
 }
