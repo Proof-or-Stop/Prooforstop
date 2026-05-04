@@ -49,7 +49,7 @@
       "desc": "koala validate --channel --story=B-6c80 --json fails on HEAD: normal channel requires implementer commits for non-metadata changes. Offenders are 066ba4a (Harmonygo — fix init smoke review gaps) touching README.md and scripts/verify-entrypoints.mjs, and aed3351 (Harmonygo — fix init starter opt-in) touching packages/main/src/cli-init.ts, packages/main/src/cli-engine.ts, README.md, and scripts/verify-entrypoints.mjs. Only metadata-only koala:* commits may be non-implementer in normal channel, so this bypasses the channel gate. Fix by replaying the code changes through koala-implementer commits (or marking every CHK as Owner=main-agent in plan.md before implementation if that exemption is intentional), then rerun koala validate --channel --story=B-6c80 --json.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "agent": "koala-review-channel",
       "createdAt": "2026-05-04T23:32:17.058Z",
       "reviewRound": "2026-05-04T23:24:21.330Z",
