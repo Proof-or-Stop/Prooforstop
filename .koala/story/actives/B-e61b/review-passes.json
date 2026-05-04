@@ -7,6 +7,38 @@
       "createdAt": "2026-05-04T19:36:40.719Z",
       "reviewRound": "2026-05-04T19:33:48.874Z",
       "_hash": "64c9a5c5b4566352432456dbc3bd50ab5f2ed95ff65ca212bc770e5809d4261a"
+    },
+    {
+      "id": "B-e61b:RP-002",
+      "agent": "koala-review-concept",
+      "note": "Concept review passed after 2937189: changes remain scoped to oracle/status/next consistency and local-vs-global fallback evidence guidance; no source-scope expansion or deleted exports found.",
+      "createdAt": "2026-05-04T20:06:26.213Z",
+      "reviewRound": "2026-05-04T20:03:51.724Z",
+      "_hash": "6632be6ae1ecc2d147393816f6771e86034abb79e8e52ce4f51ad17b3d8597d1"
+    },
+    {
+      "id": "B-e61b:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "F-001 fixed: flow-stability-smoke now executes node packages/main/dist/cli.js validate --json via localCliPath in a temp story repo; npm run build, npm --prefix packages/main run test:flow-stability-smoke, and node packages/main/dist/cli.js validate --json all passed.",
+      "createdAt": "2026-05-04T20:07:30.535Z",
+      "reviewRound": "2026-05-04T20:03:51.724Z",
+      "_hash": "87140442eb9ec53974c6ce367369afde867a9d008cbe5803904efc5ff7ee93c2"
+    },
+    {
+      "id": "B-e61b:RP-004",
+      "agent": "koala-review-channel",
+      "note": "F-003 fixed after stale global fallback hardening: verify_codex now overrides global-fallback entrypoint and warns when global core realpath differs from current worktree; entrypoints, codex-assets, flow smoke passed.",
+      "createdAt": "2026-05-04T21:21:57.146Z",
+      "reviewRound": "2026-05-04T20:03:51.724Z",
+      "_hash": "f8dac26c226cc2bdcd718eb20429c966f95e6eda4092197b1839d4bc0da03b1b"
+    },
+    {
+      "id": "B-e61b:RP-005",
+      "agent": "koala-review-quality",
+      "note": "F-002 re-reviewed after hints.ts bugUpdateHint TEST flow: npm run build, flow-stability smoke, local validate --json, and temp bug_update reproduction confirm DONE pre-check guidance replaces direct DONE.",
+      "createdAt": "2026-05-04T21:21:57.197Z",
+      "reviewRound": "2026-05-04T20:03:51.724Z",
+      "_hash": "7b22678906c97c0f5bf3c635f91a2e84334447b7038ec6a651917a7c8cd26153"
     }
   ]
 }
