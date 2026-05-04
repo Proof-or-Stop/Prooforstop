@@ -55,9 +55,22 @@ export const IGNORED_DIRS = [
   'node_modules',
   'dist',
   '.git',
+  '.koala',
   'tmp',
   '.worktrees',
 ];
+
+const IGNORED_PATH_PREFIXES = [
+  '.koala/',
+  'docs/story/',
+  'tests/fixtures/',
+  'packages/main/tests/fixtures/',
+];
+
+function isIgnoredResidualFile(file: string): boolean {
+  const normalized = file.replace(/\\/g, '/').replace(/^\.\//, '');
+  return IGNORED_PATH_PREFIXES.some(prefix => normalized.startsWith(prefix));
+}
 
 const defaultGitDiffReader: GitDiffReader = ({ base, projectRoot }) => {
   return execSync(`git diff ${base}...HEAD`, {
@@ -189,6 +202,7 @@ export function grepResiduals(
     for (const line of raw.split('\n')) {
       const parsed = parseGrepLine(line, symbol);
       if (!parsed) continue;
+      if (isIgnoredResidualFile(parsed.file)) continue;
       out.push({ symbol, ...parsed });
     }
   }
@@ -331,5 +345,8 @@ export function renderConceptResult(r: ConceptCheckResult): string {
     }
   }
   lines.push(`  recommendation: ${r.recommendation}`);
+  if (r.status === 'fail') {
+    lines.push('  note: standalone validate --concept only reports raw residuals; REVIEW→TEST preflight may accept them after koala-review-concept records a finding or review_pass_set in the current review round.');
+  }
   return lines.join('\n');
 }

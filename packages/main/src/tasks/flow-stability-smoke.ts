@@ -5,8 +5,9 @@ import { mkdtempSync, rmSync, mkdirSync, writeFileSync, existsSync, lstatSync, r
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { isCommandAllowed, resetConfigCache } from '../core/config.js';
-import { signFinding } from '../core/finding-verify.js';
+import { signFinding, signReviewPass } from '../core/finding-verify.js';
 import { getGuardFailureReason } from '../core/machine.js';
+import { summarizeReviewerStatus } from '../core/reviewer-status.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, Finding, StoryInfo } from '../core/types.js';
 import { repairGlobalKoalaLinkBeforeWorktreeDelete } from '../handlers/worktree.js';
@@ -31,6 +32,20 @@ function makeFinding(storyId: string, agent: string, reviewRound: string, idSuff
     createdAt,
     reviewRound,
     _hash: signFinding(storyId, id, desc, severity, createdAt, reviewRound),
+  };
+}
+
+function makeReviewPass(storyId: string, agent: string, reviewRound: string, idSuffix: string) {
+  const id = `${storyId}:RP-${idSuffix}`;
+  const createdAt = `2026-04-27T12:10:${idSuffix}.000Z`;
+  const note = `${agent} checked the story and found no blocking issue`;
+  return {
+    id,
+    agent,
+    note,
+    createdAt,
+    reviewRound,
+    _hash: signReviewPass(storyId, id, agent, note, createdAt, reviewRound),
   };
 }
 
@@ -113,7 +128,8 @@ function assertSessionBriefGate(): void {
     );
   }
 
-  assert.equal(isCommandAllowed('finding_add', 'DEV'), false, 'mutation command should remain phase-gated');
+  assert.equal(isCommandAllowed('finding_add', 'DEV'), true, 'DEV reviewers should be able to register findings');
+  assert.equal(isCommandAllowed('review_pass_set', 'DEV'), true, 'DEV reviewers should be able to register passes');
   assert.equal(
     isCommandAllowed('finding_add', 'DEV', { '*': ['status'], DEV: ['checklist_get'] }),
     false,
@@ -143,12 +159,21 @@ function assertReviewGateUsesOptIn(): void {
       findings: [
         makeFinding(storyId, 'koala-review-concept', reviewRound, '004'),
         makeFinding(storyId, 'koala-review-quality', reviewRound, '005'),
-        makeFinding(storyId, 'koala-review-test-coverage', reviewRound, '006'),
-        makeFinding(storyId, 'koala-review-channel', reviewRound, '007'),
+      ],
+    });
+    store.writeReviewPasses(storyId, {
+      passes: [
+        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '006'),
+        makeReviewPass(storyId, 'koala-review-channel', reviewRound, '007'),
       ],
     });
     const pass = getGuardFailureReason(storyId, store, 'TEST', root);
     assert.equal(pass, null);
+
+    const status = summarizeReviewerStatus(store, storyId);
+    const byName = new Map(status.entries.map(e => [e.name, e]));
+    assert.equal(byName.get('test-coverage')?.verdict, 'pass');
+    assert.equal(byName.get('channel')?.verdict, 'pass');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

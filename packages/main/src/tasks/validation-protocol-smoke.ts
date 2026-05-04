@@ -55,6 +55,17 @@ try {
   assert.equal(optionalFailure.allPass, true);
   assert.match(optionalFailure.warnings.join('\n'), /optional validation failed/);
 
+  const shellCommand = await executeValidationPlan({
+    provider: 'smoke-shell',
+    commands: [
+      { label: 'shell command', command: 'cd sub && node -e "process.stdout.write(process.cwd())"', args: [], shell: true },
+    ],
+  }, tmp);
+  assert.equal(shellCommand.status, 'pass');
+  assert.match(shellCommand.details[0], /cd sub && node -e/);
+  assert.equal(shellCommand.commands[0].shell, true);
+  assert.match(shellCommand.commands[0].output, /sub$/);
+
   const timeout = await executeValidationPlan({
     provider: 'smoke-timeout',
     commands: [
@@ -87,6 +98,18 @@ try {
   assert.equal(discovered[0].env?.KOALA_SMOKE, 'yes');
   assert.equal(discovered[0].timeoutMs, 1234);
   assert.equal(discovered[0].optional, true);
+
+  writeFileSync(join(tmp, 'koala.config.json'), JSON.stringify({
+    validate: {
+      command: 'cd sub && node -e "process.stdout.write(process.cwd())"',
+    },
+  }));
+  resetConfigCache();
+  const shellDiscovered = discoverValidationCommands(tmp);
+  assert.equal(shellDiscovered.length, 1);
+  assert.equal(shellDiscovered[0].shell, true);
+  assert.equal(shellDiscovered[0].command, 'cd sub && node -e "process.stdout.write(process.cwd())"');
+  assert.deepEqual(shellDiscovered[0].args, []);
 
   console.log('✓ validation protocol smoke passed');
 } finally {

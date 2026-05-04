@@ -11,9 +11,10 @@
 
 import { createHash } from 'crypto';
 import type { StoryStore } from './store.js';
-import { resolveOptInReviewers, resolveChannel, findingAgentMatchesReviewer } from './reviewer-opt-in.js';
+import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
 import { isAdvisoryThisRound, resolveReviewRoundCount } from './advisory.js';
-import { verifyFinding } from './finding-verify.js';
+import { verifyFinding, verifyReviewPass } from './finding-verify.js';
+import { computeChannel } from './workflow-policy.js';
 
 // ── Public types ──
 
@@ -87,15 +88,33 @@ export function summarizeReviewerStatus(store: StoryStore, storyId: string): Rev
   const understanding = store.readUnderstanding(storyId);
   const touchpoints = understanding?.touchpoints ?? [];
 
-  const channel = resolveChannel(
-    checklist.items.length,
-    story.riskSignals,
-  );
-  const reviewers = resolveOptInReviewers(story, channel, touchpoints);
+  let decision = null;
+  try {
+    decision = store.readDecision(storyId);
+  } catch {
+    decision = null;
+  }
+  const reviewerNames = new Set<string>(['concept', 'quality', 'test-coverage']);
+  const activeCategories = new Set((story.riskSignals || [])
+    .filter(r => !(story.riskSignalsDismissed || []).some(d => d.category === r.category))
+    .map(r => r.category));
+  if (['state machine', 'guard', 'gate'].some(c => activeCategories.has(c))) {
+    reviewerNames.add('behavior');
+  }
+  if (touchpoints.some(t => typeof t === 'string' && t.endsWith('.md'))) {
+    reviewerNames.add('docs');
+  }
+  if (computeChannel(story, checklist, decision ?? undefined) === 'normal') {
+    reviewerNames.add('channel');
+  }
+  const reviewerOrder = ['concept', 'quality', 'test-coverage', 'behavior', 'docs', 'channel'];
+  const reviewers = reviewerOrder.filter(name => reviewerNames.has(name)).map(name => ({ name }));
   const round = resolveReviewRoundCount(store, storyId);
 
   const findingData = store.readFindings(storyId);
   const findings = findingData.findings ?? [];
+  const passData = store.readReviewPasses(storyId);
+  const passes = passData.passes ?? [];
 
   // story-review entry (always required)
   const storyReviewEntry = summarizeStoryReview(store, storyId);
@@ -103,7 +122,12 @@ export function summarizeReviewerStatus(store: StoryStore, storyId: string): Rev
   // Build entries for each opted-in LLM reviewer
   const reviewerEntries: ReviewerStatusEntry[] = reviewers.map(r => {
     const matched = findings.filter(f => findingAgentMatchesReviewer(f.agent, r.name));
-    const present = matched.length > 0;
+    const matchedPasses = passes.filter(p =>
+      findingAgentMatchesReviewer(p.agent, r.name)
+      && verifyReviewPass(storyId, p)
+      && (!story.currentReviewRound || p.reviewRound === story.currentReviewRound),
+    );
+    const present = matched.length > 0 || matchedPasses.length > 0;
 
     // Count open blockers (not advisory this round, not resolved/dismissed, valid signature)
     const blockerCount = matched.filter(f =>
