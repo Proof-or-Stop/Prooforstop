@@ -4,7 +4,7 @@
   "title": "Separate Koala gate oracles from status renderers",
   "description": "Establish a single-source oracle/render contract so status, session_brief, and next render shared gate artifacts instead of duplicating phase, reviewer, or DONE gate rules. This prevents misleading guidance when gates evolve.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-05-04T19:08:06.000Z",
   "startedAt": "2026-05-04T19:08:06.000Z",
-  "endedAt": null,
+  "endedAt": "2026-05-04T21:30:33.350Z",
   "events": [
     {
       "phase": "INIT",
@@ -79,12 +79,15 @@
       "branch": "story/B-e61b",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-05-04T21:30:33.350Z",
+      "branch": "story/B-e61b",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-e61b",
-    "branch": "story/B-e61b",
-    "createdAt": "2026-05-04T19:12:08.512Z"
-  },
   "currentReviewRound": "2026-05-04T20:03:51.724Z"
 }
