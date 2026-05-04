@@ -29,9 +29,9 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-04T18:34:47.384Z",
       "files": {
         "modify": [
           "bin/koala-codex.js",
@@ -53,9 +53,9 @@
           "command": "node bin/koala-codex.js doctor",
           "result": "pass",
           "note": "Doctor Codex adapter scan passed 7/7 on healthy repo, including manifest and runtime exclusions.",
-          "headHash": "cbdf488dfcbb8738e17cf4b03b76bd13034038b5",
-          "materialHash": "ca5217fb869cdf5390cdbdc9ae7e229fcc9e6594d98b4a2dfaa1af17347057ff",
-          "timestamp": "2026-05-04T18:34:13.411Z"
+          "headHash": "1d6353d653bc637cbd8ca33fe322afd69ba7b89b",
+          "materialHash": "44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e",
+          "timestamp": "2026-05-04T18:35:16.939Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -63,9 +63,9 @@
           "command": "node bin/koala-codex.js doctor",
           "result": "pass",
           "note": "Doctor now reports wrapper/fallback heartbeat and aux availability with actionable command hints when not executed or failing.",
-          "headHash": "cbdf488dfcbb8738e17cf4b03b76bd13034038b5",
-          "materialHash": "ca5217fb869cdf5390cdbdc9ae7e229fcc9e6594d98b4a2dfaa1af17347057ff",
-          "timestamp": "2026-05-04T18:34:13.411Z"
+          "headHash": "1d6353d653bc637cbd8ca33fe322afd69ba7b89b",
+          "materialHash": "44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e",
+          "timestamp": "2026-05-04T18:35:16.939Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -73,9 +73,9 @@
           "command": "npm run test:codex-assets",
           "result": "pass",
           "note": "Codex asset verification asserts .Codex/hooks and .Codex/settings.json are absent and manifest matches template.",
-          "headHash": "cbdf488dfcbb8738e17cf4b03b76bd13034038b5",
-          "materialHash": "ca5217fb869cdf5390cdbdc9ae7e229fcc9e6594d98b4a2dfaa1af17347057ff",
-          "timestamp": "2026-05-04T18:34:13.411Z"
+          "headHash": "1d6353d653bc637cbd8ca33fe322afd69ba7b89b",
+          "materialHash": "44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e",
+          "timestamp": "2026-05-04T18:35:16.939Z"
         }
       ]
     },
@@ -108,9 +108,9 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-04T18:34:47.540Z",
       "files": {
         "modify": [
           "bin/koala-codex.js",
@@ -135,9 +135,9 @@
           "command": "npm run test:entrypoints",
           "result": "pass",
           "note": "Entrypoint verification asserts Codex wrapper writes source=codex activity and codex_cli process-event with command/story/phase/result context.",
-          "headHash": "cbdf488dfcbb8738e17cf4b03b76bd13034038b5",
-          "materialHash": "ca5217fb869cdf5390cdbdc9ae7e229fcc9e6594d98b4a2dfaa1af17347057ff",
-          "timestamp": "2026-05-04T18:34:13.411Z"
+          "headHash": "1d6353d653bc637cbd8ca33fe322afd69ba7b89b",
+          "materialHash": "44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e",
+          "timestamp": "2026-05-04T18:35:16.939Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -145,18 +145,18 @@
           "command": "npm run test:entrypoints",
           "result": "pass",
           "note": "Entrypoint verification covers CODEX_SESSION_ID propagation through bin/koala-codex.js into activity/session telemetry.",
-          "headHash": "cbdf488dfcbb8738e17cf4b03b76bd13034038b5",
-          "materialHash": "ca5217fb869cdf5390cdbdc9ae7e229fcc9e6594d98b4a2dfaa1af17347057ff",
-          "timestamp": "2026-05-04T18:34:13.411Z"
+          "headHash": "1d6353d653bc637cbd8ca33fe322afd69ba7b89b",
+          "materialHash": "44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e",
+          "timestamp": "2026-05-04T18:35:16.939Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "docs_check",
           "result": "pass",
           "note": "packages/main/src/handlers/finding.ts records a hard warning process-event when finding_add lacks agent attribution, while review_pass_set remains hard-enforced.",
-          "headHash": "cbdf488dfcbb8738e17cf4b03b76bd13034038b5",
-          "materialHash": "ca5217fb869cdf5390cdbdc9ae7e229fcc9e6594d98b4a2dfaa1af17347057ff",
-          "timestamp": "2026-05-04T18:34:13.411Z"
+          "headHash": "1d6353d653bc637cbd8ca33fe322afd69ba7b89b",
+          "materialHash": "44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e",
+          "timestamp": "2026-05-04T18:35:16.939Z"
         }
       ]
     },
@@ -189,9 +189,9 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-04T18:34:47.669Z",
       "files": {
         "modify": [
           "packages/main/src/cli-init.ts",
@@ -213,9 +213,9 @@
           "command": "koala verify_codex",
           "result": "pass",
           "note": "Local-bootstrap koala verify_codex passed 7/7 checks for manifest, agents, wrapper heartbeat, fallback heartbeat, exclusions, and aux availability.",
-          "headHash": "cbdf488dfcbb8738e17cf4b03b76bd13034038b5",
-          "materialHash": "ca5217fb869cdf5390cdbdc9ae7e229fcc9e6594d98b4a2dfaa1af17347057ff",
-          "timestamp": "2026-05-04T18:34:13.411Z"
+          "headHash": "1d6353d653bc637cbd8ca33fe322afd69ba7b89b",
+          "materialHash": "44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e",
+          "timestamp": "2026-05-04T18:35:16.939Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -223,9 +223,9 @@
           "command": "koala init --verify-codex",
           "result": "pass",
           "note": "Temp-project koala init --verify-codex passed using the same shared checks after generating Codex assets and wrapper.",
-          "headHash": "cbdf488dfcbb8738e17cf4b03b76bd13034038b5",
-          "materialHash": "ca5217fb869cdf5390cdbdc9ae7e229fcc9e6594d98b4a2dfaa1af17347057ff",
-          "timestamp": "2026-05-04T18:34:13.411Z"
+          "headHash": "1d6353d653bc637cbd8ca33fe322afd69ba7b89b",
+          "materialHash": "44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e",
+          "timestamp": "2026-05-04T18:35:16.939Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -233,9 +233,9 @@
           "command": "npm run test:codex-assets",
           "result": "pass",
           "note": "Shared Codex asset verifier fails on manifest drift or forbidden runtime assets; current run passed with exclusions enforced.",
-          "headHash": "cbdf488dfcbb8738e17cf4b03b76bd13034038b5",
-          "materialHash": "ca5217fb869cdf5390cdbdc9ae7e229fcc9e6594d98b4a2dfaa1af17347057ff",
-          "timestamp": "2026-05-04T18:34:13.411Z"
+          "headHash": "1d6353d653bc637cbd8ca33fe322afd69ba7b89b",
+          "materialHash": "44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e",
+          "timestamp": "2026-05-04T18:35:16.939Z"
         }
       ]
     },
@@ -268,9 +268,9 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-04T18:34:47.803Z",
       "files": {
         "modify": [
           "README.md",
@@ -289,27 +289,27 @@
           "kind": "docs_check",
           "result": "pass",
           "note": "README.md, AGENTS.md, .Codex/README.md, and init template document doctor, verify_codex, init --verify-codex, heartbeat evidence, and exclusions.",
-          "headHash": "cbdf488dfcbb8738e17cf4b03b76bd13034038b5",
-          "materialHash": "ca5217fb869cdf5390cdbdc9ae7e229fcc9e6594d98b4a2dfaa1af17347057ff",
-          "timestamp": "2026-05-04T18:34:13.411Z"
+          "headHash": "1d6353d653bc637cbd8ca33fe322afd69ba7b89b",
+          "materialHash": "44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e",
+          "timestamp": "2026-05-04T18:35:16.939Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "docs_check",
           "result": "pass",
           "note": "Docs distinguish npm run test:codex-assets drift checks from koala verify_codex heartbeat/evidence checks.",
-          "headHash": "cbdf488dfcbb8738e17cf4b03b76bd13034038b5",
-          "materialHash": "ca5217fb869cdf5390cdbdc9ae7e229fcc9e6594d98b4a2dfaa1af17347057ff",
-          "timestamp": "2026-05-04T18:34:13.411Z"
+          "headHash": "1d6353d653bc637cbd8ca33fe322afd69ba7b89b",
+          "materialHash": "44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e",
+          "timestamp": "2026-05-04T18:35:16.939Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "docs_check",
           "result": "pass",
           "note": "Docs and manifest continue to say Codex does not use fake .Codex/hooks or .Codex/settings.json runtime assets.",
-          "headHash": "cbdf488dfcbb8738e17cf4b03b76bd13034038b5",
-          "materialHash": "ca5217fb869cdf5390cdbdc9ae7e229fcc9e6594d98b4a2dfaa1af17347057ff",
-          "timestamp": "2026-05-04T18:34:13.411Z"
+          "headHash": "1d6353d653bc637cbd8ca33fe322afd69ba7b89b",
+          "materialHash": "44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e",
+          "timestamp": "2026-05-04T18:35:16.939Z"
         }
       ]
     },
@@ -357,36 +357,36 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-04T18:34:47.941Z",
       "verificationEvidence": [
         {
           "intentRef": "CHK-005:happy:0",
           "kind": "docs_check",
           "result": "pass",
           "note": "packages/main/src/handlers/review-preflight.ts and story-advance.ts consume codex_adapter_verification evidence as passing gate input.",
-          "headHash": "cbdf488dfcbb8738e17cf4b03b76bd13034038b5",
-          "materialHash": "ca5217fb869cdf5390cdbdc9ae7e229fcc9e6594d98b4a2dfaa1af17347057ff",
-          "timestamp": "2026-05-04T18:34:13.411Z"
+          "headHash": "1d6353d653bc637cbd8ca33fe322afd69ba7b89b",
+          "materialHash": "44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e",
+          "timestamp": "2026-05-04T18:35:16.939Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
           "kind": "docs_check",
           "result": "pass",
           "note": "summarizeCodexEvidence distinguishes not-required, missing, failing, and passing states with koala verify_codex as the actionable command.",
-          "headHash": "cbdf488dfcbb8738e17cf4b03b76bd13034038b5",
-          "materialHash": "ca5217fb869cdf5390cdbdc9ae7e229fcc9e6594d98b4a2dfaa1af17347057ff",
-          "timestamp": "2026-05-04T18:34:13.411Z"
+          "headHash": "1d6353d653bc637cbd8ca33fe322afd69ba7b89b",
+          "materialHash": "44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e",
+          "timestamp": "2026-05-04T18:35:16.939Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
           "kind": "docs_check",
           "result": "pass",
           "note": "DONE checklist adds a hard Codex adapter evidence row for Codex-touching stories, blocking prompt-only compliance when evidence is missing or failing.",
-          "headHash": "cbdf488dfcbb8738e17cf4b03b76bd13034038b5",
-          "materialHash": "ca5217fb869cdf5390cdbdc9ae7e229fcc9e6594d98b4a2dfaa1af17347057ff",
-          "timestamp": "2026-05-04T18:34:13.411Z"
+          "headHash": "1d6353d653bc637cbd8ca33fe322afd69ba7b89b",
+          "materialHash": "44d693398f321fd4af56c4ec22f783ee7ef8df91b3010bed5e22afa9d7d5442e",
+          "timestamp": "2026-05-04T18:35:16.939Z"
         }
       ]
     }
