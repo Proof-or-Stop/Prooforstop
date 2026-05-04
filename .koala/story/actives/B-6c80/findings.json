@@ -32,6 +32,17 @@
       "createdAt": "2026-05-04T23:19:34.293Z",
       "reviewRound": "2026-05-04T23:15:48.481Z",
       "_hash": "e488e034b1d115ed16bdc6d1f95472f22da4ef9f56756330219635b3bbcc38b9"
+    },
+    {
+      "id": "B-6c80:F-004",
+      "desc": "scripts/verify-entrypoints.mjs:145-150 and 284-295 now cover the repo-local init --help contract and the pre-existing src runtime branch, so F-001's missing smoke path is fixed. However the verification evidence has not been refreshed for the current HEAD: koala validate --story=B-6c80 --json on 68f8ddcd reports 9 stale entries / 6 required missing because every CHK-001..003 evidence record still points at older head hashes (71ccb3d or aed3351). WHY: test-coverage review requires current-head evidence, and without verification_evidence_refresh_stale plus a fresh validate pass this story is still blocked at REVIEW.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-05-04T23:26:33.451Z",
+      "reviewRound": "2026-05-04T23:24:21.330Z",
+      "_hash": "fb37abf82596aa38aa397a9a6736b4aa1a5af014dfbc29100ea23f5673ba794b"
     }
   ]
 }

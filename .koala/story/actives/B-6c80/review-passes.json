@@ -15,6 +15,30 @@
       "createdAt": "2026-05-04T23:19:17.326Z",
       "reviewRound": "2026-05-04T23:15:48.481Z",
       "_hash": "c7dcd14f4269de488c43ea52ed29b3c92be8e115b1544a6d9ebac362a8de0f42"
+    },
+    {
+      "id": "B-6c80:RP-003",
+      "agent": "koala-review-docs",
+      "note": "复审 F-003：README 84-93 明确将入口回归 scope 到当前 worktree 的 repo-local entrypoints / generated local wrapper，并显式说明不要求 bare global koala 已更新；实测 node packages/main/dist/cli.js init --help 与 node bin/koala.js init --help 都把 starter 内容标为仅 --starter/--with-template 可选；npm run test:entrypoints 通过。",
+      "createdAt": "2026-05-04T23:27:00.054Z",
+      "reviewRound": "2026-05-04T23:24:21.330Z",
+      "_hash": "013e964aadc13be48c7e5f11412e9e7280c85c5c1fd57c481e1a1086a9acc107"
+    },
+    {
+      "id": "B-6c80:RP-004",
+      "agent": "koala-review-concept",
+      "note": "Re-review on HEAD 68f8ddc: scope remains acceptable. Functional changes stay focused on koala init, README, and entrypoint smoke coverage. packages/main/src/cli-engine.ts:360,364 only switch z.record to the explicit key/value signature required by the repo's Zod 4.3.6 + tsc setup; npm run build passes, package-level tsc diagnostics are clean, and a runtime safeParse comparison shows the old and new record schemas accept the same sample payload with identical results.",
+      "createdAt": "2026-05-04T23:27:20.572Z",
+      "reviewRound": "2026-05-04T23:24:21.330Z",
+      "_hash": "890dc9be894ac36f3fe7d02c48586e9c6940d345c0e1e16d7cb665fd58bf1e8d"
+    },
+    {
+      "id": "B-6c80:RP-005",
+      "agent": "koala-review-quality",
+      "note": "Reviewed cli-init, cli-engine, verify-entrypoints, and README against main...HEAD. Spec intent matches opt-in starter init plus pre-init scanRoot detection. packages/main/src/cli-init.ts and packages/main/src/cli-engine.ts have zero tsc diagnostics; scripts/verify-entrypoints.mjs has zero diagnostics via lsp and node --check. npm run build passed, and npm run test:entrypoints passed 11/11. Smoke contract is reasonable because it explicitly validates repo-local dist/local-wrapper help text, default init omits starter assets, --starter/--with-template restore them, Python no-src keeps scanRoot=., and README now documents that worktree-local contract.",
+      "createdAt": "2026-05-04T23:27:55.346Z",
+      "reviewRound": "2026-05-04T23:24:21.330Z",
+      "_hash": "f8d59354a2daff297a06d9b3933683c5ad789cba06ca443e04ca42970a9b8aff"
     }
   ]
 }
