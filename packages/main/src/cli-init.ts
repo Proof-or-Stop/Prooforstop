@@ -3,7 +3,13 @@
 import { mkdirSync, writeFileSync, readFileSync, existsSync, cpSync, readdirSync, symlinkSync, lstatSync, readlinkSync, unlinkSync } from 'fs';
 import { join, dirname, relative } from 'path';
 import { fileURLToPath } from 'url';
-import { AGENTS_MD_TEMPLATE, CODEX_README_TEMPLATE, listAgentPromptFiles, renderCodexAgentContent } from './init-assets.js';
+import {
+  AGENTS_MD_TEMPLATE,
+  CODEX_README_TEMPLATE,
+  listAgentPromptFiles,
+  renderCodexAdapterManifest,
+  renderCodexAgentContent,
+} from './init-assets.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -445,6 +451,10 @@ const codexReadmePath = join(targetDir, '.Codex', 'README.md');
 if (!existsSync(dirname(codexReadmePath))) mkdirSync(dirname(codexReadmePath), { recursive: true });
 writeFileSync(codexReadmePath, CODEX_README_TEMPLATE);
 console.log('  ✓ .Codex/README.md');
+
+const codexManifestPath = join(targetDir, '.Codex', 'koala.json');
+writeFileSync(codexManifestPath, renderCodexAdapterManifest());
+console.log('  ✓ .Codex/koala.json');
 
 if (agentTemplateDir) {
   const codexAgentDir = join(targetDir, '.Codex', 'agents');

@@ -92,6 +92,7 @@ npm run test:codex-assets
 
 - `.Codex/agents/*.md` 是否仍然等于 `.claude/agents/*.md` 的受控 transform 结果
 - `.Codex/agents` 是否没有漏掉 `.claude/agents` 中新增的 prompt
+- `.Codex/koala.json` 是否仍然声明 Koala-managed Codex adapter、`activitySource=codex`、推荐入口和不生成的 runtime 资产
 - `.Codex/README.md` 是否保留正确的 Codex fallback 入口
 - `README.md` / `AGENTS.md` 是否仍然包含关键的 Codex 接入说明
 
@@ -182,10 +183,11 @@ node scripts/real-story-replay-benchmark.mjs
 
 ## Claude Code
 
-Claude Code 侧仍然使用 `.claude/` 下的 hooks、settings 和 skill。Codex 不消费这些 Claude runtime 配置，但 Codex agent prompt 会从 `.claude/agents` 全量受控生成到 `.Codex/agents`。Codex 侧的说明放在：
+Claude Code 侧仍然使用 `.claude/` 下的 hooks、settings 和 skill。Codex 不消费这些 Claude runtime 配置，也不会读取 `.Codex/hooks` 或 `.Codex/settings.json`。Koala 为 Codex 生成的是 adapter 资产：agent prompt 会从 `.claude/agents` 全量受控生成到 `.Codex/agents`，`.Codex/koala.json` 记录 Koala-managed adapter 的推荐入口、`source=codex` 活动标记、session 环境变量和明确排除的 runtime 资产。Codex 侧的说明放在：
 
 - [AGENTS.md](/Users/jek/Documents/Work/Orchestrate/AGENTS.md:1)
 - [.Codex/README.md](/Users/jek/Documents/Work/Orchestrate/.Codex/README.md:1)
+- [.Codex/koala.json](/Users/jek/Documents/Work/Orchestrate/.Codex/koala.json:1)
 - [.Codex/agents/](/Users/jek/Documents/Work/Orchestrate/.Codex/agents:1)
 
 当前仓库里 `.Codex/agents` 由 `.claude/agents` 经过受控 transform 全量生成，并通过 `npm run test:codex-assets` 防止后续漂移。

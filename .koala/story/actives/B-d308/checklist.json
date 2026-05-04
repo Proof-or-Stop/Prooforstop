@@ -8,9 +8,43 @@
         "README.md",
         "AGENTS.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "in_progress",
+      "startTime": "2026-05-04T16:59:27.991Z",
+      "endTime": null,
+      "userSees": "After koala init, .Codex/koala.json contains \"adapterOwner\":\"koala\", \"activitySource\":\"codex\", and \"excludedRuntimeAssets\":[\".Codex/hooks\",\".Codex/settings.json\"].",
+      "files": {
+        "modify": [
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/cli-init.ts"
+        ],
+        "create": [
+          ".Codex/koala.json"
+        ],
+        "test": [
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-codex-assets.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "koala init writes .Codex/koala.json with adapterOwner=koala and activitySource=codex",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "adapter manifest records recommended entrypoints for both local wrapper and global KOALA_ACTIVITY_SOURCE fallback",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "manifest explicitly excludes .Codex/hooks and .Codex/settings.json instead of generating unsupported runtime files",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -21,7 +55,38 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Running node bin/koala-codex.js session_brief still prints # koala session brief and writes activity with source=codex/session tagging behavior covered by verification.",
+      "files": {
+        "modify": [
+          "bin/koala-codex.js",
+          "scripts/verify-entrypoints.mjs"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-entrypoints.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "bin/koala-codex.js remains a working Codex-specific entrypoint for session_brief",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "wrapper derives a stable activity session from Codex/OpenAI/terminal environment variables when available",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "verification fails if wrapper stops tagging activity source as codex",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -33,7 +98,41 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": ".Codex/README.md says Codex uses a Koala-managed adapter manifest and does not support fake .Codex/hooks or .Codex/settings.json runtime hooks.",
+      "files": {
+        "modify": [
+          "packages/main/src/init-assets.ts",
+          "README.md",
+          "AGENTS.md",
+          ".Codex/README.md"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-codex-assets.mjs",
+          "scripts/verify-entrypoints.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": ".Codex/README template documents the adapter manifest and recommended Codex entrypoint",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "root README/AGENTS distinguish Codex adapter from Claude hooks/settings/skills",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "docs do not imply .Codex/hooks or .Codex/settings.json will be executed by Codex",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }

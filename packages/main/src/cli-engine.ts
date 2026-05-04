@@ -975,9 +975,11 @@ function resolveRoot(explicit?: string): string {
 // ── Activity log filter ──
 
 /**
- * Read-only commands that should NOT write activity.jsonl.
+ * Read-only commands that should NOT write activity.jsonl by default.
  * These are pure queries / status checks — logging them pollutes
  * the audit trail and can cause DONE dirty-self-block (B-c622).
+ * Codex wrapper sessions opt in because session_brief is their primary
+ * cross-session tracking heartbeat.
  */
 const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'session_brief',
@@ -1000,7 +1002,9 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
  * Returns false for read-only commands and dry-run invocations.
  */
 export function shouldWriteActivityLog(cmdName: string, args: Record<string, unknown>): boolean {
-  if (READ_ONLY_COMMANDS.has(cmdName)) return false;
+  if (READ_ONLY_COMMANDS.has(cmdName)) {
+    return process.env.KOALA_ACTIVITY_RECORD_READONLY === '1';
+  }
   if (args.dryRun === true) return false;
   return true;
 }

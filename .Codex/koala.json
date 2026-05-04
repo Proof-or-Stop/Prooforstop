@@ -1,0 +1,36 @@
+{
+  "adapterOwner": "koala",
+  "adapterKind": "codex",
+  "activitySource": "codex",
+  "recommendedEntrypoints": [
+    {
+      "name": "local-wrapper",
+      "command": "node bin/koala-codex.js",
+      "useWhen": "This repository includes the Koala bootstrap wrapper."
+    },
+    {
+      "name": "global-fallback",
+      "command": "KOALA_ACTIVITY_SOURCE=codex koala",
+      "useWhen": "Only the global koala CLI is available."
+    }
+  ],
+  "sessionEnv": {
+    "source": "KOALA_ACTIVITY_SOURCE",
+    "session": "KOALA_ACTIVITY_SESSION",
+    "recordReadOnly": "KOALA_ACTIVITY_RECORD_READONLY",
+    "sessionCandidates": [
+      "CODEX_SESSION_ID",
+      "OPENAI_SESSION_ID",
+      "TERM_SESSION_ID"
+    ]
+  },
+  "excludedRuntimeAssets": [
+    ".Codex/hooks",
+    ".Codex/settings.json"
+  ],
+  "notes": [
+    "This file is read by Koala tooling, not by the Codex runtime.",
+    "Codex agent prompts live in .Codex/agents and are generated from .claude/agents.",
+    "Claude Code hooks, settings, and skills remain under .claude only."
+  ]
+}
