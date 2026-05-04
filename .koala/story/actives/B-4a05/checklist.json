@@ -9,9 +9,9 @@
         "docs/requirements/decisions/testing-infra.md",
         "README.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-04T21:56:23.638Z",
       "userSees": "非法 verificationIntent enum 会非零失败，并在最终可见输出里显示字段路径、收到的值和允许值；不会只留下泛用 help/next step。",
       "files": {
         "modify": [
@@ -44,7 +44,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/cli-argument-ergonomics-smoke.ts",
+          "command": "node packages/main/dist/tasks/cli-argument-ergonomics-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts invalid verificationIntent type exits nonzero and stderr contains verificationIntent.happy.0.type, integration_test, allowed enum values, and final failure summary.",
+          "headHash": "3d5b6cdb3d6b0c8da53c7afa0b46025affeb4acf",
+          "materialHash": "095062ad900d41fc7d253c8145c08c3cd07a779ffe86a4b6f21d45e3a423e952",
+          "timestamp": "2026-05-04T21:56:19.957Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/cli-argument-ergonomics-smoke.ts",
+          "command": "node packages/main/dist/tasks/cli-argument-ergonomics-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts invalid validation failure stdout does not contain the generic koala status/session footer.",
+          "headHash": "3d5b6cdb3d6b0c8da53c7afa0b46025affeb4acf",
+          "materialHash": "095062ad900d41fc7d253c8145c08c3cd07a779ffe86a4b6f21d45e3a423e952",
+          "timestamp": "2026-05-04T21:56:19.957Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/cli-argument-ergonomics-smoke.ts",
+          "command": "node packages/main/dist/tasks/cli-argument-ergonomics-smoke.js",
+          "result": "pass",
+          "note": "Smoke parses verificationIntent={} successfully and confirms default happy/edge/adversarial arrays remain accepted.",
+          "headHash": "3d5b6cdb3d6b0c8da53c7afa0b46025affeb4acf",
+          "materialHash": "095062ad900d41fc7d253c8145c08c3cd07a779ffe86a4b6f21d45e3a423e952",
+          "timestamp": "2026-05-04T21:56:19.957Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -53,9 +88,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-04T21:56:27.622Z",
       "userSees": "完整 Koala 生命周期进入 DONE 时，Koala 自己生成的 init-self-check.json 不再被当作人工草稿阻塞；非白名单文件仍会阻塞并提示人工处理。",
       "files": {
         "modify": [
@@ -88,7 +123,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts STRAY_FILE_WHITELIST includes the exact init-self-check.json basename.",
+          "headHash": "3d5b6cdb3d6b0c8da53c7afa0b46025affeb4acf",
+          "materialHash": "095062ad900d41fc7d253c8145c08c3cd07a779ffe86a4b6f21d45e3a423e952",
+          "timestamp": "2026-05-04T21:56:19.957Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
+          "result": "pass",
+          "note": "Smoke writes an untracked story init-self-check.json, cleanStrayWorktreeFiles removes it, and the cleanup report names it.",
+          "headHash": "3d5b6cdb3d6b0c8da53c7afa0b46025affeb4acf",
+          "materialHash": "095062ad900d41fc7d253c8145c08c3cd07a779ffe86a4b6f21d45e3a423e952",
+          "timestamp": "2026-05-04T21:56:19.957Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
+          "result": "pass",
+          "note": "Smoke writes operator-note.txt in the story metadata dir and confirms cleanup throws while leaving the draft file in place.",
+          "headHash": "3d5b6cdb3d6b0c8da53c7afa0b46025affeb4acf",
+          "materialHash": "095062ad900d41fc7d253c8145c08c3cd07a779ffe86a4b6f21d45e3a423e952",
+          "timestamp": "2026-05-04T21:56:19.957Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -98,9 +168,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/role-separation.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-04T21:56:33.646Z",
       "userSees": "koala dispatch 成功返回 prompt 的同时，会在 process-events.jsonl 记录 dispatch 事件，channel gate 能消费这条审计证据且 prompt 文本不变。",
       "files": {
         "modify": [
@@ -133,7 +203,71 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
+          "result": "pass",
+          "note": "Smoke dispatches itemId=CHK-001 and confirms a process event with type=dispatch, itemId/checklistId, agentType, phase, targetKind, and source.",
+          "headHash": "3d5b6cdb3d6b0c8da53c7afa0b46025affeb4acf",
+          "materialHash": "095062ad900d41fc7d253c8145c08c3cd07a779ffe86a4b6f21d45e3a423e952",
+          "timestamp": "2026-05-04T21:56:19.957Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
+          "result": "pass",
+          "note": "Smoke dispatches koala-review-story-init without item/finding/cluster and confirms prompt guidance still returns while a targetKind=init-review event is written.",
+          "headHash": "3d5b6cdb3d6b0c8da53c7afa0b46025affeb4acf",
+          "materialHash": "095062ad900d41fc7d253c8145c08c3cd07a779ffe86a4b6f21d45e3a423e952",
+          "timestamp": "2026-05-04T21:56:19.957Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/handlers/story-dispatch.ts",
+          "command": "npm run build",
+          "result": "pass",
+          "note": "Implementation wraps dispatch event append in reportHealthIssue persist handling and ctx.log, so append failures leave health evidence without blocking prompt return.",
+          "headHash": "3d5b6cdb3d6b0c8da53c7afa0b46025affeb4acf",
+          "materialHash": "095062ad900d41fc7d253c8145c08c3cd07a779ffe86a4b6f21d45e3a423e952",
+          "timestamp": "2026-05-04T21:56:19.957Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-05-04T21:56:23.638Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "CLI validation failure output hardened and covered by cli argument ergonomics smoke."
+    },
+    {
+      "timestamp": "2026-05-04T21:56:27.622Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "init-self-check.json precise whitelist entry added and covered by stray cleanup smoke."
+    },
+    {
+      "timestamp": "2026-05-04T21:56:33.646Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "dispatch now writes process-events audit evidence consumed by channel review, with smoke coverage."
     }
   ]
 }
