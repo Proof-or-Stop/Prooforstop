@@ -15,6 +15,46 @@
       "createdAt": "2026-05-04T17:11:22.849Z",
       "reviewRound": "2026-05-04T17:09:44.263Z",
       "_hash": "0dd52f495359754d960d1231ba4dec28c6b99338f577ad89c8c7d2c9e02850d4"
+    },
+    {
+      "id": "B-d308:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Round 2 docs re-review: .Codex/README now prefers node bin/koala-codex.js, global fallback includes KOALA_ACTIVITY_RECORD_READONLY=1, and README/manifest state Codex does not use hooks/settings; no blocking docs finding.",
+      "createdAt": "2026-05-04T17:18:42.518Z",
+      "reviewRound": "2026-05-04T17:16:48.524Z",
+      "_hash": "ebdc6cdea72d73d0b41528c4e9241e8bf7d4555730336c9bcadf5e8aad16da8f"
+    },
+    {
+      "id": "B-d308:RP-004",
+      "agent": "koala-review-concept",
+      "note": "Round 2 concept re-review passed: local wrapper is preferred, global fallback includes KOALA_ACTIVITY_RECORD_READONLY=1 for session_brief heartbeat, and Codex assets do not create fake hooks/settings; targeted Codex asset and entrypoint verification passed.",
+      "createdAt": "2026-05-04T17:18:59.751Z",
+      "reviewRound": "2026-05-04T17:16:48.524Z",
+      "_hash": "7026c014c81aa80379f2259b6fc30375b53aa978a4e35b74f2a24a728e536cb7"
+    },
+    {
+      "id": "B-d308:RP-005",
+      "agent": "koala-review-test-coverage",
+      "note": "Round 2 re-review passed: focused tests cover wrapper session_brief heartbeat, global KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 fallback heartbeat, exact generated .Codex/koala.json manifest, and absence of .Codex/hooks/.Codex/settings.json.",
+      "createdAt": "2026-05-04T17:19:08.658Z",
+      "reviewRound": "2026-05-04T17:16:48.524Z",
+      "_hash": "98daf003432ba73c9ac7a7fbc93a66fe0bb74eba5e72d1d29162b28f8494d9cd"
+    },
+    {
+      "id": "B-d308:RP-006",
+      "agent": "koala-review-quality",
+      "note": "Round 2 re-review passed: F-001..F-005 are resolved; wrapper/bootstrap fallback docs, init Codex manifest generation, README guidance, and entrypoint/codex-assets verification now cover local wrapper plus read-only global fallback heartbeat.",
+      "createdAt": "2026-05-04T17:19:16.742Z",
+      "reviewRound": "2026-05-04T17:16:48.524Z",
+      "_hash": "a04998df269f1e96c18df95198b6626a976e2e89f11d9f54c3554190faa675fd"
+    },
+    {
+      "id": "B-d308:RP-007",
+      "agent": "koala-review-channel",
+      "note": "Round 2 channel re-review passed: Codex adapter assets are Koala-owned, Claude hooks/settings/skills remain .claude-only, no .Codex hooks/settings are generated, and fallback heartbeat guidance includes KOALA_ACTIVITY_RECORD_READONLY=1 with focused verification passing.",
+      "createdAt": "2026-05-04T17:19:22.828Z",
+      "reviewRound": "2026-05-04T17:16:48.524Z",
+      "_hash": "1b381c9f1ffba781f9e5c3052c9d3859ffb7c5e7368a5716ce24bf7aca98cd6a"
     }
   ]
 }
