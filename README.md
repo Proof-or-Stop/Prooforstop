@@ -87,7 +87,9 @@ npm run test:entrypoints
 这会验证：
 
 - 当前仓库的 `bin/koala.js` / `bin/koala-codex.js`
-- `koala init` 生成的新项目产物
+- `koala init` 默认只生成 Koala management assets，不生成 starter `src/core` / `src/shells` / `tests`
+- `koala init --starter` / `koala init --with-template` 会生成旧版 starter 模板，并使用 `scanRoot: "src"`
+- Python no-src 项目默认 init 不创建 `src/`，并使用 `scanRoot: "."`
 - `.Codex/README.md` 是否包含正确的降级入口说明
 
 ### 6. 验证 Codex 资产没有漂移

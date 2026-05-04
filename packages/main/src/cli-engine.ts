@@ -357,11 +357,11 @@ export const MAIN_TOOLS: ToolDef[] = [
   }},
   { name: 'fixture_update', description: '替换 fixture cases（兼容维护命令）', schema: {
     fixturePath: z.string().describe('fixture 路径（相对 fixturesDir，不含 .json）'),
-    cases: z.array(z.record(z.unknown())).describe('完整 cases 数组'),
+    cases: z.array(z.record(z.string(), z.unknown())).describe('完整 cases 数组'),
   }},
   { name: 'fixture_batch_add', description: '批量追加 fixture case（支持 executor / command / legacy execute）', schema: {
     fixturePath: z.string().describe('fixture 路径（相对 fixturesDir，不含 .json）'),
-    cases: z.array(z.record(z.unknown())).describe('要追加的 case 数组'),
+    cases: z.array(z.record(z.string(), z.unknown())).describe('要追加的 case 数组'),
     storyId: z.string().optional().describe('用于自动补全 intentRef story 前缀'),
     dryRun: z.boolean().optional().describe('只预览，不落盘'),
     validateExecute: z.boolean().optional().describe('追加前预执行 CLI case'),

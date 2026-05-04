@@ -1,0 +1,58 @@
+{
+  "storyId": "B-6c80",
+  "checkedAt": "2026-05-04T23:04:11.045Z",
+  "features": [
+    {
+      "feature": "Default init installs only Koala-managed assets and stops creating starter src/tests by default",
+      "covered_by": "CHK-001; understanding.outcome; plan CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "packages/main/src/cli-init.ts:33-45,116-123,396-410; README.md:87-91"
+    },
+    {
+      "feature": "Legacy starter business template remains available only via explicit --starter/--with-template opt-in",
+      "covered_by": "CHK-001; decision option A; plan CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "packages/main/src/cli-init.ts:19-31; checklist CHK-001 userSees/adversarial"
+    },
+    {
+      "feature": "scanRoot detection must use pre-init project shape before any optional starter creation",
+      "covered_by": "CHK-002; understanding.facts; plan CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "packages/main/src/cli-init.ts:396-410; docs/requirements/decisions/truth-source.md:16-35"
+    },
+    {
+      "feature": "Python projects without a pre-existing src directory keep scanRoot=.",
+      "covered_by": "CHK-002; CHK-003; understanding.outcome",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "packages/main/src/cli-init.ts:404-410; docs/requirements/decisions/testing-infra.md:28-34"
+    },
+    {
+      "feature": "Entrypoint smoke must cover default init, starter init, and Python scanRoot regression paths",
+      "covered_by": "CHK-003; plan CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "scripts/verify-entrypoints.mjs:123-202; README.md:81-91"
+    },
+    {
+      "feature": "README and init --help must describe the new default-vs-starter contract",
+      "covered_by": "CHK-001; CHK-003; decision preMortem #1",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "packages/main/src/cli-init.ts:24-50,628-634; README.md:81-91"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 6,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "e638dff0f391106d480eb39c76306f054501c9a68059d0ed4948071bc08bdc3a"
+}

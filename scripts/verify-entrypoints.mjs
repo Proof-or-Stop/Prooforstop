@@ -29,6 +29,37 @@ function assertNotIncludes(haystack, needle, label) {
   assert(!haystack.includes(needle), `${label} should not include "${needle}"`);
 }
 
+function readJson(root, relPath) {
+  return JSON.parse(readFileSync(join(root, relPath), 'utf8'));
+}
+
+function assertPathExists(root, relPath, label = relPath) {
+  assert(existsSync(join(root, relPath)), `${label} should exist`);
+}
+
+function assertPathMissing(root, relPath, label = relPath) {
+  assert(!existsSync(join(root, relPath)), `${label} should not exist`);
+}
+
+function assertManagedInitAssets(tempDir) {
+  const requiredFiles = [
+    'AGENTS.md',
+    'CLAUDE.md',
+    'bin/koala.js',
+    'bin/koala-codex.js',
+    '.claude/skills/koala/skill.md',
+    '.Codex/README.md',
+    '.Codex/koala.json',
+    '.Codex/agents/test-intent.md',
+    '.Codex/agents/test-case-reviewer.md',
+    '.Codex/agents/koala-review-quality.md',
+    '.Codex/agents/koala-implementer.md',
+  ];
+  for (const rel of requiredFiles) {
+    assertPathExists(tempDir, rel, `koala init ${rel}`);
+  }
+}
+
 function readActivityRecord(session, tool) {
   const activityPath = join(repoRoot, '.koala', 'activity.jsonl');
   const text = readFileSync(activityPath, 'utf8').trim();
@@ -128,21 +159,13 @@ checks.push(() => {
 
     const initOut = run('node', ['packages/main/dist/cli.js', 'init', tempDir]);
     assertIncludes(initOut, '.Codex/README.md', 'koala init output');
+    assertManagedInitAssets(tempDir);
 
-    const requiredFiles = [
-      'AGENTS.md',
-      'CLAUDE.md',
-      '.claude/skills/koala/skill.md',
-      '.Codex/README.md',
-      '.Codex/koala.json',
-      '.Codex/agents/test-intent.md',
-      '.Codex/agents/test-case-reviewer.md',
-      '.Codex/agents/koala-review-quality.md',
-      '.Codex/agents/koala-implementer.md',
-    ];
-    for (const rel of requiredFiles) {
-      assert(existsSync(join(tempDir, rel)), `koala init missing ${rel}`);
-    }
+    const defaultConfig = readJson(tempDir, 'koala.config.json');
+    assert(defaultConfig.scanRoot === '.', 'default koala init without preexisting src should set scanRoot=.');
+    assertPathMissing(tempDir, 'src/core', 'default koala init src/core');
+    assertPathMissing(tempDir, 'src/shells', 'default koala init src/shells');
+    assertPathMissing(tempDir, 'tests', 'default koala init tests');
 
     const codexReadme = readFileSync(join(tempDir, '.Codex', 'README.md'), 'utf8');
     assertIncludes(codexReadme, 'node bin/koala-codex.js session_brief', '.Codex/README.md');
@@ -151,7 +174,7 @@ checks.push(() => {
     assertIncludes(codexReadme, '.Codex/koala.json', '.Codex/README.md');
     assertIncludes(codexReadme, '不创建 `.Codex/hooks`', '.Codex/README.md');
 
-    const codexManifest = JSON.parse(readFileSync(join(tempDir, '.Codex', 'koala.json'), 'utf8'));
+    const codexManifest = readJson(tempDir, '.Codex/koala.json');
     assert(codexManifest.adapterOwner === 'koala', 'adapter manifest should be owned by koala');
     assert(codexManifest.activitySource === 'codex', 'adapter manifest should declare activitySource=codex');
     assert(
@@ -179,8 +202,8 @@ checks.push(() => {
     assert(codexManifest.sessionEnv.recordReadOnly === 'KOALA_ACTIVITY_RECORD_READONLY', 'adapter manifest should document read-only activity opt-in');
     assert(codexManifest.excludedRuntimeAssets.includes('.Codex/hooks'), 'adapter manifest should exclude .Codex/hooks');
     assert(codexManifest.excludedRuntimeAssets.includes('.Codex/settings.json'), 'adapter manifest should exclude .Codex/settings.json');
-    assert(!existsSync(join(tempDir, '.Codex', 'hooks')), 'koala init should not create .Codex/hooks');
-    assert(!existsSync(join(tempDir, '.Codex', 'settings.json')), 'koala init should not create .Codex/settings.json');
+    assertPathMissing(tempDir, '.Codex/hooks', 'koala init .Codex/hooks');
+    assertPathMissing(tempDir, '.Codex/settings.json', 'koala init .Codex/settings.json');
 
     const codexAgents = readdirSync(join(tempDir, '.Codex', 'agents'));
     assert(!codexAgents.includes('implementer.md'), 'koala init should not keep stale Codex-only implementer.md');
@@ -200,6 +223,9 @@ checks.push(() => {
     const verifyInitOut = run('node', ['packages/main/dist/cli.js', 'init', '--verify-codex', tempDir]);
     assertIncludes(verifyInitOut, 'Codex verification:', 'koala init --verify-codex output');
     assertIncludes(verifyInitOut, 'Codex adapter checks passed', 'koala init --verify-codex checks');
+    assertPathMissing(tempDir, 'src/core', 'koala init --verify-codex src/core');
+    assertPathMissing(tempDir, 'src/shells', 'koala init --verify-codex src/shells');
+    assertPathMissing(tempDir, 'tests', 'koala init --verify-codex tests');
 
     const staleBin = join(tempDir, 'stale-bin');
     mkdirSync(staleBin);
@@ -214,6 +240,46 @@ checks.push(() => {
     };
     const freshWrapperOut = run(process.execPath, [join(tempDir, 'bin', 'koala-codex.js'), 'session_brief'], { cwd: tempDir, env: minimalEnv });
     assertIncludes(freshWrapperOut, '# koala session brief', 'fresh generated wrapper should run with stale global koala on PATH');
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+checks.push(() => {
+  for (const flag of ['--starter', '--with-template']) {
+    const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-starter-'));
+    try {
+      const initOut = run('node', ['packages/main/dist/cli.js', 'init', flag, tempDir]);
+      assertIncludes(initOut, 'src/core/app.ts', `koala init ${flag} output`);
+      assertManagedInitAssets(tempDir);
+
+      const config = readJson(tempDir, 'koala.config.json');
+      assert(config.scanRoot === 'src', `koala init ${flag} should set scanRoot=src`);
+      assertPathExists(tempDir, 'src/core/app.ts', `koala init ${flag} src/core/app.ts`);
+      assertPathExists(tempDir, 'src/core/debug.ts', `koala init ${flag} src/core/debug.ts`);
+      assertPathExists(tempDir, 'src/core/machines/game/bridge.ts', `koala init ${flag} bridge.ts`);
+      assertPathExists(tempDir, 'src/shells/cli/main.ts', `koala init ${flag} cli shell`);
+      assertPathExists(tempDir, 'src/shells/web', `koala init ${flag} web shell dir`);
+      assertPathExists(tempDir, 'tests', `koala init ${flag} tests dir`);
+    } finally {
+      rmSync(tempDir, { recursive: true, force: true });
+    }
+  }
+});
+
+checks.push(() => {
+  const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-python-'));
+  try {
+    writeFileSync(join(tempDir, 'pyproject.toml'), '[project]\nname = "koala-smoke"\nversion = "0.0.0"\n');
+    const initOut = run('node', ['packages/main/dist/cli.js', 'init', tempDir]);
+    assertIncludes(initOut, '检测到 Python 项目', 'python no-src koala init output');
+    assertManagedInitAssets(tempDir);
+
+    const config = readJson(tempDir, 'koala.config.json');
+    assert(config.language === 'python', 'python no-src koala init should set language=python');
+    assert(config.scanRoot === '.', 'python no-src koala init should set scanRoot=.');
+    assertPathMissing(tempDir, 'src', 'python no-src koala init src');
+    assertPathMissing(tempDir, 'tests', 'python no-src koala init tests');
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }

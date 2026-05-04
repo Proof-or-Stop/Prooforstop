@@ -1,0 +1,24 @@
+{
+  "task": "Make koala init install only Koala management assets by default and move starter business files behind an explicit opt-in flag.",
+  "outcome": "User runs `node packages/main/dist/cli.js init /tmp/python-proj` in an existing Python project and sees only Koala management assets listed, with no `src/core/app.ts`, `src/shells/cli/main.ts`, or `tests/` created. Opening `koala.config.json` shows `language: python` and `scanRoot: .`. When the user runs `node packages/main/dist/cli.js init --starter /tmp/empty-proj`, the output includes `src/core/app.ts` and `src/shells/cli/main.ts`, and the generated config uses `scanRoot: src`.",
+  "facts": [
+    "packages/main/src/cli-init.ts currently creates src/core, src/shells, and tests before writing koala.config.json.",
+    "Python detection currently checks whether src exists after init has already created src, so Python projects without a source directory can be misconfigured as scanRoot=src.",
+    "scripts/verify-entrypoints.mjs validates generated Koala/Codex assets, but currently does not distinguish default init from starter-template init.",
+    "README.md describes the entrypoint smoke as covering koala init generated project artifacts."
+  ],
+  "constraints": [
+    "Default init must still create Koala management assets: local bin wrappers, .claude/.Codex assets, docs/story, docs/requirements, and koala.config.json.",
+    "Default init must not pollute existing user projects with business starter code or a tests directory.",
+    "--starter and --with-template must preserve the old sample business template behavior for users who want a fresh scaffold.",
+    "Existing user files must remain skip-on-exists and must not be overwritten.",
+    "Verification must run against built dist because entrypoint smoke invokes packages/main/dist/cli.js."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/cli-init.ts",
+    "scripts/verify-entrypoints.mjs",
+    "README.md"
+  ],
+  "timestamp": "2026-05-04T23:01:04.767Z"
+}

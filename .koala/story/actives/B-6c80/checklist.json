@@ -8,9 +8,43 @@
         "README.md",
         "docs/requirements/decisions/project-vision.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "in_progress",
+      "startTime": "2026-05-04T23:05:02.032Z",
+      "endTime": null,
+      "userSees": "Default `koala init` output no longer lists `src/core/app.ts`, `src/shells/cli/main.ts`, or `tests/`; `koala init --help` tells users to pass `--starter` or `--with-template` when they want starter business files.",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-init.ts",
+          "README.md"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-entrypoints.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run default init on a temp project and verify Koala management assets exist while `src/core`, `src/shells`, and `tests` starter assets are absent.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run default init where `.Codex/agents` already contains stale prompts and verify Koala still refreshes managed Codex assets without creating starter source files.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run init with explicit `--starter` and verify the legacy starter templates are created only in that opt-in mode.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -20,9 +54,42 @@
         "docs/requirements/decisions/truth-source.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "in_progress",
+      "startTime": "2026-05-04T23:05:02.081Z",
+      "endTime": null,
+      "userSees": "In a Python project that has no real `src/` before init, the generated `koala.config.json` shows `language: python` and `scanRoot: .`; starter mode still uses `scanRoot: src` because it intentionally creates the starter source tree.",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-init.ts"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-entrypoints.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run default init in a temp Python project with `requirements.txt` and no `src`; verify no `src` is created and config has `scanRoot` equal to `.`.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run default init in a project with a pre-existing real `src` directory and verify config can still use `scanRoot: src` without treating Koala-created files as evidence.",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run starter init in an empty temp project and verify the intentionally created starter source tree pairs with `scanRoot: src`.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -32,9 +99,43 @@
         "README.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "in_progress",
+      "startTime": "2026-05-04T23:05:02.140Z",
+      "endTime": null,
+      "userSees": "`npm run test:entrypoints` fails if default init recreates starter `src` or `tests`, fails if `--starter` no longer creates the legacy templates, and fails if Python default init writes `scanRoot: src` without a pre-existing `src` directory.",
+      "files": {
+        "modify": [
+          "scripts/verify-entrypoints.mjs",
+          "README.md"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-entrypoints.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run `npm run test:entrypoints` after building and see the default-init, starter-init, and Python scanRoot assertions pass.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Inspect the smoke assertions to confirm they check absence of starter directories as well as presence of managed Koala/Codex assets.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Break one of the init contracts locally in thought or by reading assertions and confirm the smoke would fail on that regression path.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      }
     }
   ]
 }
