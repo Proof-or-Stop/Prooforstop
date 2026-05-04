@@ -19,6 +19,7 @@ const packageRoot = join(__dirname, '..'); // @koala/main 的根目录
 // 通过 koala init 调用时 argv[2]='init'，跳过；直接 npx koala-init 时 argv[2] 是目标目录
 const initArgs = process.argv[2] === 'init' ? process.argv.slice(3) : process.argv.slice(2);
 const verifyCodex = initArgs.includes('--verify-codex');
+const withStarter = initArgs.includes('--starter') || initArgs.includes('--with-template');
 const arg = initArgs.find(a => !a.startsWith('--'));
 
 if (initArgs.includes('--help') || initArgs.includes('-h') || initArgs.includes('help')) {
@@ -26,23 +27,30 @@ if (initArgs.includes('--help') || initArgs.includes('-h') || initArgs.includes(
 koala-init — 初始化 koala 开发框架
 
 用法:
-  npx koala-init [目标目录]     在指定目录初始化（默认当前目录）
-  npx koala-init --verify-codex 初始化后校验 Codex adapter 资产
-  npx koala-init --help         显示帮助
+  npx koala-init [目标目录]                  在指定目录初始化（默认当前目录）
+  npx koala-init --starter [目标目录]        额外生成旧版 starter 业务模板
+  npx koala-init --with-template [目标目录]  --starter 的同义 alias
+  npx koala-init --verify-codex [目标目录]   初始化后校验 Codex adapter 资产
+  npx koala-init --help                      显示帮助
 
 初始化内容:
   koala.config.json             项目配置（扫描路径、Story 前缀）
-  CLAUDE.md                     Claude Code 指引
-  src/core/app.ts               应用组装（平台无关）
-  src/core/debug.ts             调试入口（devHost）
-  src/core/machines/game/bridge.ts  Bridge 接口模板
-  src/shells/cli/main.ts        CLI shell 模板
-  src/shells/web/               Web shell 目录
+  bin/koala.js                  本地 koala bootstrap
+  bin/koala-codex.js            Codex 本地 wrapper
+  CLAUDE.md / AGENTS.md         Agent 指引
   .claude/agents/               koala-implementer 等 subagent 定义
   .Codex/agents/                Codex subagent 定义
   .claude/skills/koala/         /koala skill 文件
   docs/story/actives/           Story 数据目录
   docs/requirements/            真相源目录
+
+可选 starter 内容（仅 --starter / --with-template）:
+  src/core/app.ts               应用组装（平台无关）
+  src/core/debug.ts             调试入口（devHost）
+  src/core/machines/game/bridge.ts  Bridge 接口模板
+  src/shells/cli/main.ts        CLI shell 模板
+  src/shells/web/               Web shell 目录
+  tests/                        测试目录
 
 初始化后:
   1. 编辑 koala.config.json 调整 scanRoot 等路径
@@ -53,8 +61,15 @@ koala-init — 初始化 koala 开发框架
 }
 
 const targetDir = arg || process.cwd();
+const hadSrcBeforeInit = existsSync(join(targetDir, 'src'));
+const isPython = existsSync(join(targetDir, 'requirements.txt'))
+  || existsSync(join(targetDir, 'pyproject.toml'))
+  || existsSync(join(targetDir, 'setup.py'));
 
 console.log(`\nInitializing koala in ${targetDir}\n`);
+if (withStarter) {
+  console.log('Starter template: enabled (--starter / --with-template)\n');
+}
 
 function write(relPath: string, content: string) {
   const full = join(targetDir, relPath);
@@ -113,20 +128,21 @@ if (!existsSync(giPath)) {
   console.log('  - .gitignore (exists, skip)');
 }
 
-// 1.6 项目代码目录（src/core + src/shells）
-const codeDirs = [
-  'bin',
-  'src/core/machines/game',
-  'src/core/io',
-  'src/shells/cli',
-  'src/shells/web',
-  'tests',
-];
-for (const d of codeDirs) {
-  const full = join(targetDir, d);
-  if (!existsSync(full)) {
-    mkdirSync(full, { recursive: true });
-    console.log(`  ✓ ${d}/`);
+// 1.6 可选 starter 项目代码目录（src/core + src/shells）
+if (withStarter) {
+  const codeDirs = [
+    'src/core/machines/game',
+    'src/core/io',
+    'src/shells/cli',
+    'src/shells/web',
+    'tests',
+  ];
+  for (const d of codeDirs) {
+    const full = join(targetDir, d);
+    if (!existsSync(full)) {
+      mkdirSync(full, { recursive: true });
+      console.log(`  ✓ ${d}/`);
+    }
   }
 }
 
@@ -219,7 +235,7 @@ if (existsSync(localKoala)) {
 
 // 生成 CLI shell 模板
 const cliMainPath = join(targetDir, 'src', 'shells', 'cli', 'main.ts');
-if (!existsSync(cliMainPath)) {
+if (withStarter && !existsSync(cliMainPath)) {
   const dir = dirname(cliMainPath);
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
   writeFileSync(cliMainPath, `// CLI shell — 完整版交互入口
@@ -257,7 +273,7 @@ prompt();
 
 // 生成 bridge 模板
 const bridgePath = join(targetDir, 'src', 'core', 'machines', 'game', 'bridge.ts');
-if (!existsSync(bridgePath)) {
+if (withStarter && !existsSync(bridgePath)) {
   const dir = dirname(bridgePath);
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
   writeFileSync(bridgePath, `// Bridge — 逻辑层与 UI 层的隔离接口
@@ -345,7 +361,7 @@ export function createWSBridge(wsUrl: string): GameBridge {
 
 // 生成 app.ts 模板
 const appPath = join(targetDir, 'src', 'core', 'app.ts');
-if (!existsSync(appPath)) {
+if (withStarter && !existsSync(appPath)) {
   const dir = dirname(appPath);
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
   writeFileSync(appPath, `// app.ts — 应用组装（平台无关）
@@ -371,7 +387,7 @@ export async function createApp() {
 
 // 生成 debug.ts 模板
 const debugPath = join(targetDir, 'src', 'core', 'debug.ts');
-if (!existsSync(debugPath)) {
+if (withStarter && !existsSync(debugPath)) {
   const dir = dirname(debugPath);
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
   writeFileSync(debugPath, `// debug.ts — 调试入口
@@ -394,20 +410,15 @@ import { createApp } from './app.js';
 // 2. koala.config.json
 console.log('\n[2/5] 生成 koala.config.json...');
 const koalaConfig: Record<string, unknown> = {
-  scanRoot: 'src',
+  scanRoot: withStarter || hadSrcBeforeInit ? 'src' : '.',
   testsDir: 'tests',
   storyDir: 'docs/story/actives',
   requirementsDir: 'docs/requirements',
   storyPrefix: 'S',
 };
-// 自动检测项目类型
-const isPython = existsSync(join(targetDir, 'requirements.txt'))
-  || existsSync(join(targetDir, 'pyproject.toml'))
-  || existsSync(join(targetDir, 'setup.py'));
-
 if (isPython) {
   koalaConfig.language = 'python';
-  koalaConfig.scanRoot = existsSync(join(targetDir, 'src')) ? 'src' : '.';
+  koalaConfig.scanRoot = withStarter || hadSrcBeforeInit ? 'src' : '.';
   console.log('  ✓ 检测到 Python 项目');
 }
 
