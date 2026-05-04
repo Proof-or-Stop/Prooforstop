@@ -1,0 +1,136 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add Codex adapter doctor diagnostics",
+      "context": "Extend the Codex wrapper/doctor path so users can run a Codex-focused health check for manifest drift, wrapper/fallback health, excluded runtime assets, agents mirror, source/session behavior, and aux availability.",
+      "relatedDocs": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "userSees": "Running node bin/koala-codex.js doctor reports Codex adapter checks with PASS/warning/fail details instead of relying on README guidance.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Codex doctor reports PASS for a healthy local adapter with .Codex/koala.json and no fake hooks/settings",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Codex doctor warns or fails with actionable guidance when global fallback/read-only heartbeat or aux availability is missing",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Codex doctor detects unsupported .Codex/hooks or .Codex/settings.json if they appear",
+            "type": "cli"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Record Codex process-events and role telemetry",
+      "context": "Hard-code structured Codex activity events so session_brief can stop guessing who did what. Capture source, session, role, storyId, phase, command, entrypoint and result for wrapper/global Codex calls.",
+      "relatedDocs": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "userSees": "After Codex commands run, Koala activity/process events show source=codex with role/session/command attribution for main, implementer, reviewer, and delivery flows.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Codex wrapper command writes a structured process event with source=codex, command, storyId or active story, phase, and result",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Telemetry derives session from CODEX_SESSION_ID, OPENAI_SESSION_ID, TERM_SESSION_ID, or KOALA_ACTIVITY_SESSION consistently",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reviewer pass/finding commands without agent attribution are rejected or hard-warned so they cannot silently become main-agent records",
+            "type": "cli"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add scriptable Codex init verification",
+      "context": "Expose a hard verification path, either koala verify_codex and koala init --verify-codex sharing the same implementation, that validates generated Codex assets, wrapper heartbeat, fallback heartbeat, agents mirror, and absence of fake runtime assets.",
+      "relatedDocs": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "userSees": "Running koala init --verify-codex or koala verify_codex prints a Codex adapter verification report and exits non-zero on drift or unsupported files.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "koala verify_codex passes on the repository Codex adapter and validates manifest, agents, wrapper, fallback, and exclusions",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "koala init --verify-codex generates assets then runs the same verification logic",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "verification fails if .Codex/koala.json drifts or .Codex/hooks/.Codex/settings.json are created",
+            "type": "cli"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Document Codex hard capabilities only after implementation",
+      "context": "Update README, AGENTS, and .Codex/README so they describe doctor, telemetry, and verify_codex as actual hard CLI behavior, not aspirational prompt instructions.",
+      "relatedDocs": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "userSees": "Docs show the exact commands and explain that Koala enforces Codex adapter health through doctor, telemetry, and verification gates.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Docs list node bin/koala-codex.js doctor and koala verify_codex/koala init --verify-codex with accurate behavior",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Docs distinguish doctor diagnostics from verify_codex scriptable validation without duplicating contradictory guidance",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Docs do not imply prompt-only compliance or fake Codex runtime hooks/settings",
+            "type": "cli"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
