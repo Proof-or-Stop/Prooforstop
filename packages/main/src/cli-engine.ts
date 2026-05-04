@@ -736,23 +736,34 @@ function nestedSchemaLines(t: ZodType, prefix: string, indent = '      '): strin
   return lines;
 }
 
-function printToolHelp(tool: ToolDef) {
-  console.log(`\n  koala ${tool.name} — ${tool.description}\n`);
+type HelpOutputOptions = {
+  stream?: { write(chunk: string): unknown };
+  includeFooter?: boolean;
+};
+
+function printToolHelp(tool: ToolDef, options: HelpOutputOptions = {}) {
+  const out = (line = '') => {
+    if (options.stream) options.stream.write(`${line}\n`);
+    else console.log(line);
+  };
+  const includeFooter = options.includeFooter !== false;
+
+  out(`\n  koala ${tool.name} — ${tool.description}\n`);
 
   // 如果有 longHelp（核心命令），先打印完整 PROMPT
   if (tool.longHelp) {
-    console.log(tool.longHelp);
-    console.log('');
+    out(tool.longHelp);
+    out('');
   }
 
   const entries = Object.entries(tool.schema);
   if (entries.length === 0) {
-    console.log('  无参数\n');
-    console.log(`  用法: koala ${tool.name}`);
-    console.log(SESSION_BRIEF_FOOTER);
+    out('  无参数\n');
+    out(`  用法: koala ${tool.name}`);
+    if (includeFooter) out(SESSION_BRIEF_FOOTER);
     return;
   }
-  console.log('  参数:');
+  out('  参数:');
   const maxN = Math.max(...entries.map(([k]) => k.length));
   for (const [name, type] of entries) {
     const opt = type instanceof ZodOptional;
@@ -760,9 +771,9 @@ function printToolHelp(tool: ToolDef) {
     const inner = type instanceof ZodOptional ? (type as any)._def.innerType : type;
     const isComplex = inner instanceof ZodArray || inner instanceof ZodObject;
     const flagHint = isComplex ? '(JSON)' : '';
-    console.log(`    --${name.padEnd(maxN + 2)} ${describeType(type).padEnd(16)} ${getDesc(type)}${req} ${flagHint}`);
+    out(`    --${name.padEnd(maxN + 2)} ${describeType(type).padEnd(16)} ${getDesc(type)}${req} ${flagHint}`);
     if (isComplex) {
-      for (const line of nestedSchemaLines(type, name)) console.log(line);
+      for (const line of nestedSchemaLines(type, name)) out(line);
     }
   }
   const required = entries.filter(([, t]) => !(t instanceof ZodOptional));
@@ -773,9 +784,23 @@ function printToolHelp(tool: ToolDef) {
     const base = inner instanceof ZodOptional ? (inner as any)._def.innerType : inner;
     return base instanceof ZodBoolean ? `[--${k}]` : `[--${k}=值]`;
   });
-  console.log(`\n  用法: koala ${tool.name} ${[...reqParts, ...optParts].join(' ')}`);
-  console.log('  (* = 必填)');
-  console.log(SESSION_BRIEF_FOOTER);
+  out(`\n  用法: koala ${tool.name} ${[...reqParts, ...optParts].join(' ')}`);
+  out('  (* = 必填)');
+  if (includeFooter) out(SESSION_BRIEF_FOOTER);
+}
+
+function formatValidationIssue(issue: z.ZodIssue): string {
+  const path = issue.path.length > 0 ? issue.path.join('.') : '(root)';
+  return `  ${path}: ${issue.message}`;
+}
+
+function printValidationFailure(tool: ToolDef, issues: z.ZodIssue[]) {
+  const lines = issues.map(formatValidationIssue);
+  process.stderr.write('参数校验失败:\n');
+  for (const line of lines) process.stderr.write(`${line}\n`);
+  printToolHelp(tool, { stream: process.stderr, includeFooter: false });
+  process.stderr.write('\n参数校验失败（摘要）:\n');
+  for (const line of lines) process.stderr.write(`${line}\n`);
 }
 
 function printHelp(activeStory?: ActiveStory | null) {
@@ -1119,7 +1144,7 @@ export async function runCli(opts?: {
       try { parsed = JSON.parse(rawArgs[0]); }
       catch (e) {
         console.error(`JSON 解析失败: ${(e as Error).message}\n输入: ${rawArgs[0]}`);
-        printToolHelp(tool);
+        printToolHelp(tool, { stream: process.stderr, includeFooter: false });
         process.exit(1);
       }
     } else {
@@ -1132,9 +1157,7 @@ export async function runCli(opts?: {
   const schema = z.object(tool.schema);
   const v = schema.safeParse(parsed);
   if (!v.success) {
-    console.error('参数校验失败:');
-    for (const i of v.error.issues) console.error(`  ${i.path.join('.')}: ${i.message}`);
-    printToolHelp(tool);
+    printValidationFailure(tool, v.error.issues);
     process.exit(1);
   }
 

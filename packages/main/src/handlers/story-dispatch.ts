@@ -24,6 +24,7 @@ import { join } from 'path';
 import type { HandlerContext } from './context.js';
 import { createClusterHandlers } from './cluster.js';
 import type { StoryStore } from '../core/store.js';
+import { reportHealthIssue } from '../core/health.js';
 
 // B-45ed CHK-008: agent-type → background 注入策略映射表
 // 来源：CLAUDE.md "background.md 分级注入（subagent）" 小节
@@ -75,6 +76,41 @@ function resolveBackgroundPolicy(agentType: string | undefined): BackgroundPolic
  */
 export function createStoryDispatchHandlers(ctx: HandlerContext) {
   const { store, root } = ctx;
+
+  function appendDispatchEvent(args: {
+    storyId: string;
+    agentType?: string;
+    targetKind: 'init-review' | 'checklist' | 'finding' | 'cluster';
+    itemId?: string;
+    findingId?: string;
+    clusterId?: string;
+  }): void {
+    try {
+      const story = store.readStory(args.storyId);
+      const agentType = normalizeAgentType(args.agentType) || 'koala-implementer';
+      store.appendProcessEvent(args.storyId, {
+        type: 'dispatch',
+        storyId: args.storyId,
+        phase: story.phase,
+        source: 'koala dispatch',
+        targetKind: args.targetKind,
+        agentType,
+        ...(args.itemId ? { itemId: args.itemId, checklistId: args.itemId } : {}),
+        ...(args.findingId ? { findingId: args.findingId } : {}),
+        ...(args.clusterId ? { clusterId: args.clusterId } : {}),
+      });
+    } catch (e: any) {
+      reportHealthIssue('persist:dispatchProcessEvent', e as Error, {
+        storyId: args.storyId,
+        agentType: args.agentType,
+        targetKind: args.targetKind,
+        itemId: args.itemId,
+        findingId: args.findingId,
+        clusterId: args.clusterId,
+      });
+      ctx.log?.(`[process-events] dispatch append failed for ${args.storyId}: ${e?.message || e}`);
+    }
+  }
 
   function buildInitReviewPrompt(args: {
     storyId: string;
@@ -398,40 +434,72 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       ].filter(Boolean);
       const normalizedAgentType = normalizeAgentType(args.agentType);
       if (provided.length === 0 && normalizedAgentType === 'koala-review-story-init') {
-        return buildInitReviewPrompt({
+        const result = buildInitReviewPrompt({
           storyId: args.storyId,
           agentType: args.agentType,
         });
+        appendDispatchEvent({
+          storyId: args.storyId,
+          agentType: args.agentType,
+          targetKind: 'init-review',
+        });
+        return result;
       }
       if (provided.length === 0 && normalizedAgentType === 'product-reviewer') {
-        return buildProductInitReviewPrompt({
+        const result = buildProductInitReviewPrompt({
           storyId: args.storyId,
           agentType: args.agentType,
         });
+        appendDispatchEvent({
+          storyId: args.storyId,
+          agentType: args.agentType,
+          targetKind: 'init-review',
+        });
+        return result;
       }
       if (provided.length !== 1) {
         throw new Error('dispatch 需要 itemId / findingId / clusterId 中恰好一个；INIT reviewer 可只传 agentType=koala-review-story-init 或 product-reviewer');
       }
 
       if (args.itemId) {
-        return buildItemPrompt({
+        const result = buildItemPrompt({
           storyId: args.storyId,
           itemId: args.itemId,
           agentType: args.agentType,
         });
+        appendDispatchEvent({
+          storyId: args.storyId,
+          agentType: args.agentType,
+          targetKind: 'checklist',
+          itemId: args.itemId,
+        });
+        return result;
       }
       if (args.findingId) {
-        return buildFindingPrompt({
+        const result = buildFindingPrompt({
           storyId: args.storyId,
           findingId: args.findingId,
           agentType: args.agentType,
         });
+        appendDispatchEvent({
+          storyId: args.storyId,
+          agentType: args.agentType,
+          targetKind: 'finding',
+          findingId: args.findingId,
+        });
+        return result;
       }
       // clusterId branch — 复用 cluster.ts 的 finding_dispatch（输出 string）。
       // 包装成 { prompt } 保持接口一致。
       const clusterHandlers = createClusterHandlers(ctx);
       const prompt = clusterHandlers.finding_dispatch({
         storyId: args.storyId,
+        clusterId: args.clusterId!,
+      });
+      appendDispatchEvent({
+        storyId: args.storyId,
+        agentType: args.agentType,
+        targetKind: 'cluster',
         clusterId: args.clusterId!,
       });
       return { prompt };

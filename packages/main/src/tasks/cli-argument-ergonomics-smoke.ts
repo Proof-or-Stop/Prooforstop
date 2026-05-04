@@ -1,6 +1,12 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
 import { MAIN_TOOLS, parseFlags } from '../cli-engine.js';
+
+const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const cliPath = join(packageRoot, 'cli.js');
 
 function schemaFor(name: string) {
   const tool = MAIN_TOOLS.find(t => t.name === name);
@@ -43,5 +49,37 @@ const storyCreate = schemaFor('story_create').parse({
   ].join('\n'),
 });
 assert.equal(storyCreate.type, 'chore');
+
+const emptyVerificationIntent = schemaFor('checklist_update').parse({
+  storyId: 'B-smoke',
+  itemId: 'CHK-001',
+  verificationIntent: {},
+});
+assert.deepEqual(emptyVerificationIntent.verificationIntent, {
+  happy: [],
+  edge: [],
+  adversarial: [],
+});
+
+const invalidVerificationIntent = spawnSync(process.execPath, [
+  cliPath,
+  'checklist_update',
+  JSON.stringify({
+    storyId: 'B-smoke',
+    itemId: 'CHK-001',
+    verificationIntent: {
+      happy: [{ desc: 'bad enum', type: 'integration_test', priority: 'must' }],
+    },
+  }),
+], {
+  encoding: 'utf-8',
+});
+assert.notEqual(invalidVerificationIntent.status, 0, 'invalid verificationIntent enum should fail');
+assert.match(invalidVerificationIntent.stderr, /参数校验失败/);
+assert.match(invalidVerificationIntent.stderr, /verificationIntent\.happy\.0\.type/);
+assert.match(invalidVerificationIntent.stderr, /integration_test/);
+assert.match(invalidVerificationIntent.stderr, /logic[\s\S]*cli[\s\S]*browser[\s\S]*manual[\s\S]*docs/);
+assert.match(invalidVerificationIntent.stderr, /参数校验失败（摘要）/);
+assert.doesNotMatch(invalidVerificationIntent.stdout, /不知道现在该做什么|koala status/);
 
 console.log('cli argument ergonomics smoke passed');
