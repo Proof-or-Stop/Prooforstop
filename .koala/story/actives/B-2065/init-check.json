@@ -1,0 +1,25 @@
+{
+  "storyId": "B-2065",
+  "checkedAt": "2026-05-05T12:58:44.984Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-05-05T12:58:39.932Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "CHK-005 is framed primarily as internal regression/test coverage. It should make the user-observable outcome explicit, e.g. what doctor/advisory signal or validation confidence the user sees after the hardening, so the item does not read as engineering completion alone."
+        }
+      ]
+    },
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-05-05T12:58:44.984Z",
+      "issues": []
+    }
+  ],
+  "_hash": "70cd4aab1425a5409f9a9d66adb4b500d06fb452bce56074f9ccaec7a77e5f73"
+}

@@ -1,0 +1,41 @@
+{
+  "storyId": "B-2065",
+  "name": "koala-hardening-validate-cli-gates",
+  "title": "Koala validation and gate reliability hardening",
+  "description": "Turn recent process failures into general Koala framework capabilities: validate commands must fail hard instead of false-green, CLI JSON enum/schema errors must be visible, status next-step messaging must use gate preflight facts, and Koala-generated lifecycle artifacts must not block DONE as stray files.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "状态机/门禁",
+      "matched": "story_advance"
+    }
+  ],
+  "createdAt": "2026-05-05T12:55:46.901Z",
+  "startedAt": "2026-05-05T12:55:46.901Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-05-05T12:55:46.901Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-05-05T12:59:10.764Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-2065",
+    "branch": "story/B-2065",
+    "createdAt": "2026-05-05T12:59:10.897Z"
+  }
+}
