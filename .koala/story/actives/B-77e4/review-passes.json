@@ -1,0 +1,36 @@
+{
+  "passes": [
+    {
+      "id": "B-77e4:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "Focused smoke coverage is adequate: outcome-semantics-smoke asserts dashboard/session outcome rendering, summary outcomeKind success default and invalid enum rejection, blocked_classified evidence verdict rendering, and authority wording; deferred-gate-evidence-smoke plus verification-freshness-smoke confirm gate and stale-evidence semantics remain unchanged; aux_doc_list and doc references cover the smoke/docs surface.",
+      "createdAt": "2026-05-06T14:34:53.430Z",
+      "reviewRound": "2026-05-06T14:32:25.140Z",
+      "_hash": "8253e436b1dc2ef381183f6269aba02c5b29c6b8a8e3a3d6fb695417c20737f5"
+    },
+    {
+      "id": "B-77e4:RP-002",
+      "agent": "koala-review-channel",
+      "note": "Channel review passed: checklist audit log records DEV completion by koala-implementer, process events show subagent_result updates for each item, verification evidence remains fresh at current HEAD via material-hash validate pass, and verdict rendering changes in checklist/verification preserve existing fail/waiver gate semantics.",
+      "createdAt": "2026-05-06T14:35:20.602Z",
+      "reviewRound": "2026-05-06T14:32:25.140Z",
+      "_hash": "fb90030e4ef6bfad3f3d3c431cc855b392438f8e6e223b07731e14235c986720"
+    },
+    {
+      "id": "B-77e4:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Reviewed README.md:69-75 and docs/requirements/decisions/story-lifecycle.md:46-51,104,160; test-intent-review.md:47-49; testing-infra.md:40-47 against packages/main/src/core/types.ts:76-80,304-385, handlers/summary.ts:137-220,253-255, handlers/session.ts:41-50,608-611, and tasks/outcome-semantics-smoke.ts:78-97,131-175,182-219. Docs correctly separate lifecycle DONE from outcome semantics, document summary_set.outcomeKind, keep verification evidence verdict gating semantics distinct from rendered hyphenated labels, and describe the focused smoke without implying unrelated aux_doc_list coverage.",
+      "createdAt": "2026-05-06T14:35:56.462Z",
+      "reviewRound": "2026-05-06T14:32:25.140Z",
+      "_hash": "0a896acfd881fd111ce0f3ae613dc7cffd830f1e7a7e4304a6e7a4865c4fdb40"
+    },
+    {
+      "id": "B-77e4:RP-004",
+      "agent": "koala-review-concept",
+      "note": "Concept review passed: dashboard/session now label lifecycle DONE separately from terminal outcomes; summary_set.outcomeKind and verification evidence verdict only enrich user-facing semantics while DONE/test gates still rely on existing summary/evidence/delivery rules; legacy stories without outcomeKind fall back to success/default; implementation is Koala-core-wide (cli/core/dashboard/session/docs/smoke) rather than story-specific hardcode.",
+      "createdAt": "2026-05-06T14:36:24.543Z",
+      "reviewRound": "2026-05-06T14:32:25.140Z",
+      "_hash": "893f6ae07618faeb8e15f62abe57cd131dfa3594582d309c20a46038d613e7c7"
+    }
+  ]
+}
