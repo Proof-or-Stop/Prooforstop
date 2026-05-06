@@ -4,11 +4,11 @@
   "title": "Koala outcome semantics and dashboard clarity",
   "description": "C2 feedback showed Koala story DONE percentage can be mistaken for technical completion, blocked spike stories are forced into happy-path pass/fail evidence language, and worktree/main phase authority text feels alarming. Add explicit completion outcome semantics so DONE-success, DONE-blocked, and DONE-audit-only are visible without weakening gates, plus verdict-style evidence for classified blocked spikes.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "createdAt": "2026-05-06T11:49:57.966Z",
   "startedAt": "2026-05-06T11:49:57.966Z",
-  "endedAt": null,
+  "endedAt": "2026-05-06T15:10:16.318Z",
   "events": [
     {
       "phase": "INIT",
@@ -89,12 +89,15 @@
       "branch": "story/B-77e4",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-05-06T15:10:16.318Z",
+      "branch": "story/B-77e4",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-77e4",
-    "branch": "story/B-77e4",
-    "createdAt": "2026-05-06T14:01:38.593Z"
-  },
   "currentReviewRound": "2026-05-06T15:00:16.289Z"
 }
