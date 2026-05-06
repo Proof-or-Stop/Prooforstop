@@ -243,12 +243,6 @@ export function discoverFallbackValidationCommands(projectRoot: string): Validat
   return discovered;
 }
 
-export function discoverValidationCommands(projectRoot: string): ValidationCommand[] {
-  const configured = configuredValidationCommands(projectRoot);
-  if (configured.length > 0) return configured;
-  return discoverFallbackValidationCommands(projectRoot);
-}
-
 export function scanValidationSetup(projectRoot: string): ValidationSetupScan {
   const validateFiles = ['validate.ts', 'validate.js', 'validate.mts'].map((name) => ({
     name,

@@ -8,7 +8,11 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { executeValidationPlan } from '../core/validation-executor.js';
 import { resetConfigCache } from '../core/config.js';
-import { createVerifierHandlers, discoverValidationCommands } from '../handlers/verifier.js';
+import {
+  configuredValidationCommands,
+  createVerifierHandlers,
+  discoverFallbackValidationCommands,
+} from '../handlers/verifier.js';
 import { createDoctorHandlers } from '../handlers/doctor.js';
 import { StoryStore } from '../core/store.js';
 
@@ -102,7 +106,7 @@ try {
     },
   }));
   resetConfigCache();
-  const discovered = discoverValidationCommands(tmp);
+  const discovered = configuredValidationCommands(tmp);
   assert.equal(discovered.length, 1);
   assert.equal(discovered[0].label, 'configured command');
   assert.equal(discovered[0].cwd, 'sub');
@@ -116,7 +120,7 @@ try {
     },
   }));
   resetConfigCache();
-  const shellDiscovered = discoverValidationCommands(tmp);
+  const shellDiscovered = configuredValidationCommands(tmp);
   assert.equal(shellDiscovered.length, 1);
   assert.equal(shellDiscovered[0].shell, true);
   assert.equal(shellDiscovered[0].command, 'cd sub && node -e "process.stdout.write(process.cwd())"');
@@ -164,6 +168,9 @@ try {
       scripts: { test: 'node -e "process.stdout.write(\\"fallback-ok\\")"' },
     }));
     resetConfigCache();
+    const fallbackCommands = discoverFallbackValidationCommands(fallbackRoot);
+    assert.equal(fallbackCommands.length, 1);
+    assert.equal(fallbackCommands[0].label, 'package.json test script');
     const fallbackJson = await createVerifierHandlers({
       root: fallbackRoot,
       scanRoot: fallbackRoot,
