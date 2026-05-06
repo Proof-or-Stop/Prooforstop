@@ -480,25 +480,29 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
 
         const commands = configuredCommands.length > 0 ? configuredCommands : fallbackCommands;
         const usingConfigured = configuredCommands.length > 0;
-        const warnings = usingConfigured
-          ? []
-          : ['validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery'];
+        const fallbackDiscoveryDetail = 'validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery';
         ctx.log?.(usingConfigured
           ? `running ${commands.length} configured validate.command(s)`
           : `validate.ts/js/mts not found and no configured validate.command(s); running ${commands.length} advisory fallback validation command(s)`);
         const base = await executeValidationPlan({
           provider: usingConfigured ? 'koala-verifier-configured-commands' : 'koala-verifier-fallback-commands',
           commands,
-          warnings,
+          warnings: [],
         }, projectRoot, currentHead(projectRoot));
         for (const cmd of commands) {
           ctx.log?.(`ran: ${cmd.command} ${cmd.args.join(' ')}`);
         }
+        const summary = usingConfigured
+          ? base.summary
+          : `${base.summary}; ${fallbackDiscoveryDetail}`;
+        const details = usingConfigured
+          ? base.details
+          : [fallbackDiscoveryDetail, ...base.details];
         const result = externalResult({
           provider: base.provider,
           status: base.status,
-          summary: base.summary,
-          details: base.details,
+          summary,
+          details,
           warnings: base.warnings,
           headSha: base.headSha,
           commands: base.commands,

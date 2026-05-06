@@ -172,10 +172,11 @@ try {
     }).validate({ json: true });
     const fallbackResult = JSON.parse(fallbackJson);
     assert.equal(fallbackResult.provider, 'koala-verifier-fallback-commands');
-    assert.equal(fallbackResult.status, 'warn');
+    assert.equal(fallbackResult.status, 'pass');
     assert.equal(fallbackResult.allPass, true);
-    assert.match(fallbackResult.warnings.join('\n'), /advisory fallback command discovery/);
-    assert.match(fallbackResult.warnings.join('\n'), /no configured validate\.command/);
+    assert.deepEqual(fallbackResult.warnings, []);
+    assert.match(`${fallbackResult.summary}\n${fallbackResult.details.join('\n')}`, /advisory fallback command discovery/);
+    assert.match(`${fallbackResult.summary}\n${fallbackResult.details.join('\n')}`, /no configured validate\.command/);
     assert.match(fallbackResult.commands[0].output, /fallback-ok/);
   } finally {
     rmSync(fallbackRoot, { recursive: true, force: true });
