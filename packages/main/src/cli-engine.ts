@@ -22,6 +22,7 @@ import { reportHealthIssue } from './core/health.js';
 import { detectStaleState } from './core/stale-detector.js';
 import { runHooks, truncateForEnv, buildHookEnv as buildSharedHookEnv, HOOK_TIMEOUT_MS } from './core/hooks.js';
 import { gitProbe, isGitRepository } from './core/git-probe.js';
+import { STORY_OUTCOME_KINDS, VERIFICATION_EVIDENCE_VERDICTS } from './core/types.js';
 import {
   STORY_CREATE_LONG, STORY_ADVANCE_LONG, CHECKLIST_UPDATE_LONG,
   STORY_REVIEW_LONG, BUG_REPORT_LONG, VALIDATE_LONG,
@@ -93,6 +94,7 @@ const verificationIntentSchema = z.object({
 const verificationEvidenceSchema = z.object({
   intentRef: z.string().describe('如 CHK-001:happy:0 或自定义 intent id'),
   kind: z.enum(['logic_test', 'integration_test', 'browser_test', 'manual_transcript', 'docs_check', 'waiver']).describe('证据类型'),
+  verdict: z.enum(VERIFICATION_EVIDENCE_VERDICTS).optional().describe('证据结论语义；不覆盖 result pass/fail gate'),
   waiverType: z.enum(['permanent', 'deferred_gate_evidence']).optional().describe('kind=waiver 时可标记为临时 gate 自测 evidence；后续 validate 会要求替换真实证据'),
   file: z.string().optional().describe('测试/文档文件路径'),
   command: z.string().optional().describe('执行命令'),
@@ -237,6 +239,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     itemId: z.string().describe('Checklist item ID'),
     intentRef: z.string().describe('如 CHK-001:happy:0 或自定义 intent id'),
     kind: z.enum(['logic_test', 'integration_test', 'browser_test', 'manual_transcript', 'docs_check', 'waiver']).describe('证据类型'),
+    verdict: z.enum(VERIFICATION_EVIDENCE_VERDICTS).optional().describe('证据结论语义；不覆盖 result pass/fail gate'),
     waiverType: z.enum(['permanent', 'deferred_gate_evidence']).optional().describe('kind=waiver 时可标记为临时 gate 自测 evidence'),
     file: z.string().optional().describe('测试/文档文件路径'),
     command: z.string().optional().describe('执行命令'),
@@ -249,6 +252,7 @@ export const MAIN_TOOLS: ToolDef[] = [
       itemId: z.string().describe('Checklist item ID'),
       intentRef: z.string().describe('如 CHK-001:happy:0 或自定义 intent id'),
       kind: z.enum(['logic_test', 'integration_test', 'browser_test', 'manual_transcript', 'docs_check', 'waiver']).describe('证据类型'),
+      verdict: z.enum(VERIFICATION_EVIDENCE_VERDICTS).optional().describe('证据结论语义；不覆盖 result pass/fail gate'),
       waiverType: z.enum(['permanent', 'deferred_gate_evidence']).optional().describe('kind=waiver 时可标记为临时 gate 自测 evidence'),
       file: z.string().optional().describe('测试/文档文件路径'),
       command: z.string().optional().describe('执行命令'),
@@ -315,6 +319,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     actualTranscript: z.string().optional().describe('DONE gate 必填：实际运行看到的用户可见 transcript / 输出摘要（≥ 10 字符）'),
     outcomeDiff: z.string().optional().describe('DONE gate 必填：expected vs actual 差异；没有差异也要明说（≥ 5 字符）'),
     acceptanceVerdict: z.enum(['accepted', 'partial', 'rejected']).optional().describe('DONE gate 必填：用户价值验收结论'),
+    outcomeKind: z.enum(STORY_OUTCOME_KINDS).optional().describe('DONE outcome classification: success / blocked / audit_only'),
     limitations: z.string().describe('已知限制 / 设计偏离（没有就写 "none — fully covered"）'),
     pitfalls: z.string().describe('踩坑记录（卡在哪、绕了几次路、下个人应该知道什么，≥ 10 字符；禁止空话）'),
     skipReasons: z.record(z.string(), z.string()).optional().describe('{case name: reason} 对每条 sandbox:false 但没跑的 case 说明原因；未提供则 koala 报错列出缺失项'),

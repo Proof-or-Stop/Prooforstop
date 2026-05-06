@@ -73,6 +73,12 @@ export type VerificationIntentType = 'logic' | 'cli' | 'browser' | 'manual' | 'd
 export type VerificationRequiredIn = 'light' | 'balanced' | 'strict';
 export type VerificationPriority = 'must' | 'should' | 'nice';
 export type VerificationEvidenceKind = 'logic_test' | 'integration_test' | 'browser_test' | 'manual_transcript' | 'docs_check' | 'waiver';
+export const VERIFICATION_EVIDENCE_VERDICTS = ['success', 'blocked_classified', 'audit_only', 'waived'] as const;
+export type VerificationEvidenceVerdict = typeof VERIFICATION_EVIDENCE_VERDICTS[number];
+
+export function formatVerificationEvidenceVerdict(verdict: VerificationEvidenceVerdict): string {
+  return verdict.replaceAll('_', '-');
+}
 
 export interface VerificationIntentItem {
   /** Optional stable id. If absent, Koala derives CHK-001:happy:0 from lane/index. */
@@ -89,6 +95,8 @@ export interface VerificationEvidence {
   /** Reference like CHK-001:happy:0 or a custom VerificationIntentItem.id. */
   intentRef: string;
   kind: VerificationEvidenceKind;
+  /** Human-facing classification; does not override result/pass/fail gate semantics. */
+  verdict?: VerificationEvidenceVerdict;
   /** Deferred waivers are temporary gate-self-test receipts and must be replaced by real evidence before TEST. */
   waiverType?: 'permanent' | 'deferred_gate_evidence';
   file?: string;
@@ -293,6 +301,9 @@ export interface BugData {
   bugs: BugRecord[];
 }
 
+export const STORY_OUTCOME_KINDS = ['success', 'blocked', 'audit_only'] as const;
+export type StoryOutcomeKind = typeof STORY_OUTCOME_KINDS[number];
+
 /**
  * B-093b: Story completion summary written before advancing to DONE.
  *
@@ -318,6 +329,8 @@ export interface StorySummaryData {
   outcomeDiff?: string;
   /** 用户价值验收结论 */
   acceptanceVerdict?: 'accepted' | 'partial' | 'rejected';
+  /** Terminal outcome classification for DONE stories; omitted legacy data defaults to success. */
+  outcomeKind?: StoryOutcomeKind;
   /** 真机验证覆盖：auto-scaffolded by koala, agent fills skipReasons only */
   realMachineCoverage: {
     /** Cases that were actually run (auto-populated from test-evidence.json + evidence per fixture) */
@@ -361,6 +374,18 @@ export interface StorySummaryData {
   createdAt: string;
   /** ISO 8601 last update time */
   updatedAt: string;
+}
+
+export function isStoryOutcomeKind(outcomeKind: unknown): outcomeKind is StoryOutcomeKind {
+  return typeof outcomeKind === 'string' && STORY_OUTCOME_KINDS.includes(outcomeKind as StoryOutcomeKind);
+}
+
+export function normalizeStoryOutcomeKind(outcomeKind: unknown): StoryOutcomeKind {
+  return isStoryOutcomeKind(outcomeKind) ? outcomeKind : 'success';
+}
+
+export function formatStoryOutcomeKind(outcomeKind: StoryOutcomeKind): string {
+  return outcomeKind === 'audit_only' ? 'audit-only' : outcomeKind;
 }
 
 /**

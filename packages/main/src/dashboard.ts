@@ -10,16 +10,17 @@ import { existsSync, readFileSync } from 'fs';
 import { join, resolve, basename } from 'path';
 import { StoryStore } from './core/store.js';
 import { loadConfig } from './core/config.js';
-import type { StoryInfo, ChecklistData } from './core/types.js';
+import { formatStoryOutcomeKind, normalizeStoryOutcomeKind, type StoryOutcomeKind, type StoryInfo, type ChecklistData } from './core/types.js';
 
 // ── Types ──
 
-interface ProjectSnapshot {
+export interface ProjectSnapshot {
   root: string;
   label: string;
   stories: StorySnapshot[];
   totalStories: number;
   doneStories: number;
+  doneOutcomes: Record<StoryOutcomeKind, number>;
   totalBugsOpen: number;
   gitDirty: number;
   error?: string;
@@ -37,13 +38,26 @@ interface StorySnapshot {
 
 // ── Data collection ──
 
-function collectProject(root: string): ProjectSnapshot {
+function emptyDoneOutcomes(): Record<StoryOutcomeKind, number> {
+  return { success: 0, blocked: 0, audit_only: 0 };
+}
+
+function renderDoneOutcomes(outcomes: Record<StoryOutcomeKind, number>): string {
+  return [
+    `DONE-${formatStoryOutcomeKind('success')}/default=${outcomes.success}`,
+    `DONE-${formatStoryOutcomeKind('blocked')}=${outcomes.blocked}`,
+    `DONE-${formatStoryOutcomeKind('audit_only')}=${outcomes.audit_only}`,
+  ].join(' ');
+}
+
+export function collectProject(root: string): ProjectSnapshot {
   const label = basename(resolve(root));
   try {
     const store = new StoryStore(root);
     const ids = store.listStoryIds();
 
     let doneStories = 0;
+    const doneOutcomes = emptyDoneOutcomes();
     let totalBugsOpen = 0;
     const stories: StorySnapshot[] = [];
 
@@ -66,7 +80,11 @@ function collectProject(root: string): ProjectSnapshot {
     for (const id of ids) {
       try {
         const story = store.readStory(id);
-        if (story.phase === 'DONE') { doneStories++; }
+        if (story.phase === 'DONE') {
+          doneStories++;
+          const summary = store.readSummary(id);
+          doneOutcomes[normalizeStoryOutcomeKind(summary?.outcomeKind)]++;
+        }
 
         let bugsOpen = 0;
         try {
@@ -110,12 +128,12 @@ function collectProject(root: string): ProjectSnapshot {
 
     return {
       root, label, stories,
-      totalStories: ids.length, doneStories, totalBugsOpen, gitDirty,
+      totalStories: ids.length, doneStories, doneOutcomes, totalBugsOpen, gitDirty,
     };
   } catch (e) {
     return {
       root, label, stories: [],
-      totalStories: 0, doneStories: 0, totalBugsOpen: 0, gitDirty: 0,
+      totalStories: 0, doneStories: 0, doneOutcomes: emptyDoneOutcomes(), totalBugsOpen: 0, gitDirty: 0,
       error: (e as Error).message,
     };
   }
@@ -150,7 +168,7 @@ const RESET = '\x1b[0m';
 const BOLD = '\x1b[1m';
 const DIM = '\x1b[2m';
 
-function renderProject(proj: ProjectSnapshot, index: number, selected: boolean): string[] {
+export function renderProject(proj: ProjectSnapshot, index: number, selected: boolean): string[] {
   const lines: string[] = [];
   const marker = selected ? '▶' : ' ';
   const highlight = selected ? BOLD : '';
@@ -164,7 +182,7 @@ function renderProject(proj: ProjectSnapshot, index: number, selected: boolean):
   const donePct = proj.totalStories > 0
     ? Math.round((proj.doneStories / proj.totalStories) * 100)
     : 0;
-  const dashLine = `${proj.doneStories}/${proj.totalStories} DONE (${donePct}%)`;
+  const dashLine = `Lifecycle DONE: ${proj.doneStories}/${proj.totalStories} (${donePct}%) · outcomes: ${renderDoneOutcomes(proj.doneOutcomes)}`;
   const bugStr = proj.totalBugsOpen > 0 ? ` · \x1b[31m${proj.totalBugsOpen} bugs\x1b[0m` : '';
   const dirtyStr = proj.gitDirty > 0 ? ` · ${DIM}${proj.gitDirty} dirty${RESET}` : '';
 

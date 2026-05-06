@@ -1,0 +1,84 @@
+{
+  "passes": [
+    {
+      "id": "B-77e4:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "Focused smoke coverage is adequate: outcome-semantics-smoke asserts dashboard/session outcome rendering, summary outcomeKind success default and invalid enum rejection, blocked_classified evidence verdict rendering, and authority wording; deferred-gate-evidence-smoke plus verification-freshness-smoke confirm gate and stale-evidence semantics remain unchanged; aux_doc_list and doc references cover the smoke/docs surface.",
+      "createdAt": "2026-05-06T14:34:53.430Z",
+      "reviewRound": "2026-05-06T14:32:25.140Z",
+      "_hash": "8253e436b1dc2ef381183f6269aba02c5b29c6b8a8e3a3d6fb695417c20737f5"
+    },
+    {
+      "id": "B-77e4:RP-002",
+      "agent": "koala-review-channel",
+      "note": "Channel review passed: checklist audit log records DEV completion by koala-implementer, process events show subagent_result updates for each item, verification evidence remains fresh at current HEAD via material-hash validate pass, and verdict rendering changes in checklist/verification preserve existing fail/waiver gate semantics.",
+      "createdAt": "2026-05-06T14:35:20.602Z",
+      "reviewRound": "2026-05-06T14:32:25.140Z",
+      "_hash": "fb90030e4ef6bfad3f3d3c431cc855b392438f8e6e223b07731e14235c986720"
+    },
+    {
+      "id": "B-77e4:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Reviewed README.md:69-75 and docs/requirements/decisions/story-lifecycle.md:46-51,104,160; test-intent-review.md:47-49; testing-infra.md:40-47 against packages/main/src/core/types.ts:76-80,304-385, handlers/summary.ts:137-220,253-255, handlers/session.ts:41-50,608-611, and tasks/outcome-semantics-smoke.ts:78-97,131-175,182-219. Docs correctly separate lifecycle DONE from outcome semantics, document summary_set.outcomeKind, keep verification evidence verdict gating semantics distinct from rendered hyphenated labels, and describe the focused smoke without implying unrelated aux_doc_list coverage.",
+      "createdAt": "2026-05-06T14:35:56.462Z",
+      "reviewRound": "2026-05-06T14:32:25.140Z",
+      "_hash": "0a896acfd881fd111ce0f3ae613dc7cffd830f1e7a7e4304a6e7a4865c4fdb40"
+    },
+    {
+      "id": "B-77e4:RP-004",
+      "agent": "koala-review-concept",
+      "note": "Concept review passed: dashboard/session now label lifecycle DONE separately from terminal outcomes; summary_set.outcomeKind and verification evidence verdict only enrich user-facing semantics while DONE/test gates still rely on existing summary/evidence/delivery rules; legacy stories without outcomeKind fall back to success/default; implementation is Koala-core-wide (cli/core/dashboard/session/docs/smoke) rather than story-specific hardcode.",
+      "createdAt": "2026-05-06T14:36:24.543Z",
+      "reviewRound": "2026-05-06T14:32:25.140Z",
+      "_hash": "893f6ae07618faeb8e15f62abe57cd131dfa3594582d309c20a46038d613e7c7"
+    },
+    {
+      "id": "B-77e4:RP-005",
+      "agent": "koala-review-test-coverage",
+      "note": "packages/main/src/tasks/outcome-semantics-smoke.ts:82-103 and :109-143 cover dashboard/session with corrupt persisted outcomeKind=\"typo\"; :149-184 covers summary outcomeKind enum/default handling; :190-227 covers verdict rendering while buildVerificationCoverage still marks result=fail as failed. Re-ran npm --prefix packages/main run test:outcome-semantics-smoke and it passed on a394399.",
+      "createdAt": "2026-05-06T14:44:48.326Z",
+      "reviewRound": "2026-05-06T14:41:38.297Z",
+      "_hash": "9390f9f3a63bd961d280d37f29178320cb4b1a5977c26097111dfed9fde3c472"
+    },
+    {
+      "id": "B-77e4:RP-006",
+      "agent": "koala-review-docs",
+      "note": "Docs reviewed against the outcomeKind runtime fallback fix. README + story-lifecycle explain lifecycle DONE vs terminal outcome and legacy outcomeKind defaulting; test-intent-review explains verdict schema enums vs hyphenated display labels; testing-infra documents the focused smoke command, and npm --prefix packages/main run test:outcome-semantics-smoke passes in this worktree.",
+      "createdAt": "2026-05-06T14:45:10.968Z",
+      "reviewRound": "2026-05-06T14:41:38.297Z",
+      "_hash": "83ee480f05475d260efc56457d8de9e8b256e68e27c23554a3d9471f05d91dca"
+    },
+    {
+      "id": "B-77e4:RP-007",
+      "agent": "koala-review-concept",
+      "note": "Re-reviewed after F-001: dashboard and session_brief now separate Lifecycle DONE from outcome buckets, legacy or corrupt summary.outcomeKind values normalize through shared helpers into the success/default compatibility bucket, verificationEvidence.verdict stays classification-only because coverage status still keys off result/waiver/freshness, and the global smoke path (build + test:outcome-semantics-smoke) passed.",
+      "createdAt": "2026-05-06T14:45:29.850Z",
+      "reviewRound": "2026-05-06T14:41:38.297Z",
+      "_hash": "8bc4691a12c80d053fdd8302039757ae91242b1b987cb74f2c4cc758bcf11ab3"
+    },
+    {
+      "id": "B-77e4:RP-008",
+      "agent": "koala-review-test-coverage",
+      "note": "Confirmed validate [ok] at current HEAD 3ef4152 on 2026-05-06T15:01:32Z; recent commits since prior review touch only .koala/story metadata (test-evidence/findings/process-metrics/index), with no source code changes requiring re-validation.",
+      "createdAt": "2026-05-06T15:02:35.827Z",
+      "reviewRound": "2026-05-06T15:00:16.289Z",
+      "_hash": "9c01f01846e45a006e3cb225ab423964c604de4fd4cd90e08ef80df379554233"
+    },
+    {
+      "id": "B-77e4:RP-009",
+      "agent": "koala-review-docs",
+      "note": "Re-review pass: since ddce73d only Koala metadata changed; README and requirement docs still match outcome semantics, outcomeKind compatibility, verdict wording, and focused smoke coverage, with no open docs blockers.",
+      "createdAt": "2026-05-06T15:03:21.568Z",
+      "reviewRound": "2026-05-06T15:00:16.289Z",
+      "_hash": "c48e370357b4fbf54682f22f546da3fea900f84d0d4b33a3d88b648baf8b1ebf"
+    },
+    {
+      "id": "B-77e4:RP-010",
+      "agent": "koala-review-concept",
+      "note": "Re-review scoped to a394399..HEAD: only Koala metadata changed, no source files changed since prior concept pass, and all recorded findings are resolved.",
+      "createdAt": "2026-05-06T15:03:29.885Z",
+      "reviewRound": "2026-05-06T15:00:16.289Z",
+      "_hash": "04af66e1a4c096c75f03073753a1480b0f69b561f67e91facf6218ec98d91087"
+    }
+  ]
+}

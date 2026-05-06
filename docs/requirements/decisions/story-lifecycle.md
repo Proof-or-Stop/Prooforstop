@@ -48,6 +48,7 @@ Koala 给可执行主流程 phase 一个稳定编号，用于 `koala status` 展
 - 有 linked worktree 时，worktree 内 story metadata 是执行权威。
 - main metadata 只作为索引和恢复入口，可能滞后。
 - 输出必须给出下一步应该 `cd` 到哪个 worktree。
+- Dashboard / `session_brief` 的 DONE 展示必须区分 lifecycle 与 outcome：`Lifecycle DONE: N/M` 只说明 phase 已 DONE；`DONE-success/default`、`DONE-blocked`、`DONE-audit-only` 才说明终态性质。旧 summary 没有 `outcomeKind` 时进入 success/default 兼容桶。
 
 ## Phase 职责和门禁
 
@@ -82,7 +83,7 @@ Koala 给可执行主流程 phase 一个稳定编号，用于 `koala status` 展
 主目录 `session_brief` 必须同时看主目录 story metadata 和 linked worktree 内的真实 story metadata。如果两者 phase 不一致，输出应采用：
 
 ```text
-B-xxxx REVIEW (authority:worktree, main:INIT_CHECK)
+B-xxxx REVIEW (authority:worktree, mirror:INIT_CHECK)
 → cd /path/to/.worktrees/B-xxxx
 ```
 
@@ -100,7 +101,7 @@ B-xxxx REVIEW (authority:worktree, main:INIT_CHECK)
 - **Gate oracle 与 renderer 分离**：DONE pre-check 等 gate 输出必须先形成稳定 row contract（`id/status/detail/hint/source/blocking`），`status` / `session_brief` / `next` 只渲染这些 row。展示层不能用 phase 或 label 文案复制一份 gate 规则。
 - **下一步提示必须 phase-aware**：`koala validate` 通过只代表验证命令通过，不代表可以跨过当前 phase。DEV 通过后提示 commit + REVIEW，REVIEW 通过后提示 TEST，TEST 通过后仍要渲染 DONE pre-check 的失败 row 和补救 hint。
 - **用户价值验收优先**：DONE 前必须能说清楚“用户看到什么变化、怎么使用、证据在哪里”。工程链路通过不等于任务真正完成。
-- **用户价值验收结构化**：`summary_set` 必须记录 `expectedOutcome`、`actualTranscript`、`outcomeDiff`、`acceptanceVerdict`。DONE gate 消费这些字段，缺失时不能进入 DONE。
+- **用户价值验收结构化**：`summary_set` 必须记录 `expectedOutcome`、`actualTranscript`、`outcomeDiff`、`acceptanceVerdict`，并可记录 `outcomeKind=success|blocked|audit_only`。DONE gate 消费这些字段，缺失时不能进入 DONE；缺 `outcomeKind` 的 legacy summary 按 success/default 展示。
 - **统一推进命令**：`story_advance` 统一处理所有阶段推进。
 
 ## Phase-Aware 工具过滤
@@ -156,7 +157,7 @@ B-xxxx REVIEW (authority:worktree, main:INIT_CHECK)
 | `koala validate` | 标准验证，写 validation evidence |
 | `verification_evidence_refresh_stale` | 根据 coverage 报告刷新 stale evidence 的 HEAD/material hash |
 | `bug_report` / `bug_update` / `bug_list` | 管理验证失败产生的 bug |
-| `summary_set` | 写 DONE 前用户价值、actual transcript、diff 和使用说明 |
+| `summary_set` | 写 DONE 前用户价值、actual transcript、diff、outcomeKind 和使用说明 |
 | `delivery_check_set` | 记录 delivery reviewer 签名 |
 | `story_advance -> DONE` | DONE checklist 全通过后合并清理 |
 
