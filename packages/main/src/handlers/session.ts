@@ -22,7 +22,7 @@ import { execSync } from 'child_process';
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import type { HandlerContext } from './context.js';
-import type { StoryInfo, ChecklistData, BugData } from '../core/types.js';
+import { formatStoryOutcomeKind, normalizeStoryOutcomeKind, type StoryInfo, type ChecklistData, type BugData, type StoryOutcomeKind } from '../core/types.js';
 import { detectZombieStories } from './story-query.js';
 import { StoryStore } from '../core/store.js';
 import { formatProcessMetricsSummary } from '../core/process-metrics.js';
@@ -36,6 +36,18 @@ import { isBlockingOracleRow } from '../core/oracle-row.js';
 interface ActiveStoryDetected {
   storyId: string;
   story: StoryInfo;
+}
+
+function emptyDoneOutcomes(): Record<StoryOutcomeKind, number> {
+  return { success: 0, blocked: 0, audit_only: 0 };
+}
+
+function renderDoneOutcomes(outcomes: Record<StoryOutcomeKind, number>): string {
+  return [
+    `DONE-${formatStoryOutcomeKind('success')}/default=${outcomes.success}`,
+    `DONE-${formatStoryOutcomeKind('blocked')}=${outcomes.blocked}`,
+    `DONE-${formatStoryOutcomeKind('audit_only')}=${outcomes.audit_only}`,
+  ].join(' ');
 }
 
 function detectActiveStoryFromGit(ctx: HandlerContext): ActiveStoryDetected | null {
@@ -456,6 +468,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
         let totalBugsOpen = 0;
         let totalStories = allStoryIds.length;
         let doneStories = 0;
+        const doneOutcomes = emptyDoneOutcomes();
         try {
           const phases: Record<string, number> = {};
           for (const id of allStoryIds) {
@@ -467,7 +480,11 @@ export function createSessionHandlers(ctx: HandlerContext) {
               const sourceStore = linked?.store || ctx.store;
               const s = linked?.story || mainStory;
               phases[s.phase] = (phases[s.phase] || 0) + 1;
-              if (s.phase === 'DONE') doneStories++;
+              if (s.phase === 'DONE') {
+                doneStories++;
+                const summary = sourceStore.readSummary(id);
+                doneOutcomes[normalizeStoryOutcomeKind(summary?.outcomeKind)]++;
+              }
               // Non-terminal = active
               if (
                 s.phase !== 'DONE' &&
@@ -502,7 +519,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
             } catch { /* probe */ }
           }
           const donePct = totalStories > 0 ? Math.round((doneStories / totalStories) * 100) : 0;
-          dashboardText = `${doneStories}/${totalStories} DONE (${donePct}%) · ${totalBugsOpen} open bugs across all stories`;
+          dashboardText = `Lifecycle DONE: ${doneStories}/${totalStories} (${donePct}%) · outcomes: ${renderDoneOutcomes(doneOutcomes)} · ${totalBugsOpen} open bugs across all stories`;
         } catch { /* defensive: leave dashboardText null */ }
 
         if (dashboardText) {
@@ -522,7 +539,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
             // B-45ed CHK-008: bg:✓ 尾部标记；不存在 background.md 时不显示
             const bgStr = s.hasBg ? ' bg:✓' : '';
             const phaseStr = s.mainPhase
-              ? `${s.phase} (authority:worktree, main:${s.mainPhase})`
+              ? `${s.phase} (authority:worktree, mirror:${s.mainPhase})`
               : `${s.phase} (authority:${s.phaseAuthority})`;
             if (wt) {
               lines.push(`  ${s.storyId} ${phaseStr.padEnd(36)} ${s.title}${bugStr}${bgStr}`);
@@ -589,7 +606,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
             lines.push(`  Project is not a git repo. You can keep recording story/test metadata, but before INIT_CHECK/worktree flow run: \`git init && git add . && git commit -m "init"\``);
           } else if (wt) {
             const authority = top.mainPhase
-              ? `worktree phase ${top.phase}; main metadata still says ${top.mainPhase}`
+              ? `worktree phase ${top.phase} is authoritative; main metadata mirror is lagging at ${top.mainPhase}`
               : `${top.phase} from ${top.phaseAuthority} metadata`;
             lines.push(`  Resume: cd ${wt} (story ${top.storyId}; authority: ${authority})`);
           } else {

@@ -418,6 +418,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       itemId: string;
       intentRef: string;
       kind: VerificationEvidence['kind'];
+      verdict?: VerificationEvidence['verdict'];
       waiverType?: VerificationEvidence['waiverType'];
       file?: string;
       command?: string;
@@ -444,6 +445,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       const evidence = makeEvidence({
         intentRef: args.intentRef,
         kind: args.kind,
+        ...(args.verdict ? { verdict: args.verdict } : {}),
         ...(args.waiverType ? { waiverType: args.waiverType } : {}),
         ...(args.file ? { file: args.file } : {}),
         ...(args.command ? { command: args.command } : {}),
@@ -470,6 +472,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         itemId: string;
         intentRef: string;
         kind: VerificationEvidence['kind'];
+        verdict?: VerificationEvidence['verdict'];
         waiverType?: VerificationEvidence['waiverType'];
         file?: string;
         command?: string;
@@ -501,6 +504,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         const evidence = makeEvidence({
           intentRef: entry.intentRef,
           kind: entry.kind,
+          ...(entry.verdict ? { verdict: entry.verdict } : {}),
           ...(entry.waiverType ? { waiverType: entry.waiverType } : {}),
           ...(entry.file ? { file: entry.file } : {}),
           ...(entry.command ? { command: entry.command } : {}),
@@ -560,6 +564,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         existing[idx] = makeEvidence({
           intentRef: ev.intentRef,
           kind: ev.kind,
+          ...(ev.verdict ? { verdict: ev.verdict } : {}),
           ...(ev.waiverType ? { waiverType: ev.waiverType } : {}),
           ...(ev.file ? { file: ev.file } : {}),
           ...(ev.command ? { command: ev.command } : {}),

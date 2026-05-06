@@ -37,6 +37,15 @@
 DEV 阶段通过后提示提交并进入 REVIEW；REVIEW 阶段通过后提示进入 TEST；
 TEST 阶段通过后提示查看 DONE pre-check，并按失败 row 的 hint 补 summary、delivery check、dirty tree 等门禁项。
 
+Outcome semantics 的 focused smoke 覆盖 dashboard/session wording、`summary_set.outcomeKind` schema、verification evidence verdict 渲染，以及 worktree authority wording：
+
+```bash
+npm --prefix packages/main run build
+npm --prefix packages/main run test:outcome-semantics-smoke
+```
+
+它必须在回归成单一含糊 DONE 百分比，或恢复旧的 alarming main metadata wording 时失败。
+
 配置示例：
 
 ```json

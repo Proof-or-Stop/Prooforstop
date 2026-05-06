@@ -8,9 +8,9 @@
         "README.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-06T14:25:54.676Z",
       "userSees": "session_brief and dashboard show lifecycle progress separately from outcome breakdown, for example: Lifecycle DONE 23/26; outcomes success=20 blocked=2 audit-only=1, so blocked spike DONE no longer looks like technical success.",
       "files": {
         "modify": [
@@ -44,7 +44,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/outcome-semantics-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:outcome-semantics-smoke",
+          "result": "pass",
+          "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: dashboard renders Lifecycle DONE separately from DONE-success/default, DONE-blocked, DONE-audit-only.",
+          "headHash": "1f42dbd6f258307ca7672fed9b0dffb76af949c5",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T14:26:57.775Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/outcome-semantics-smoke.ts",
+          "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
+          "result": "pass",
+          "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: legacy DONE story without outcomeKind is counted in success/default.",
+          "headHash": "1f42dbd6f258307ca7672fed9b0dffb76af949c5",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T14:26:57.775Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "verdict": "blocked_classified",
+          "file": "packages/main/src/tasks/outcome-semantics-smoke.ts",
+          "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
+          "result": "pass",
+          "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: blocked DONE contributes to lifecycle DONE but not success/default.",
+          "headHash": "1f42dbd6f258307ca7672fed9b0dffb76af949c5",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T14:26:57.775Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -53,9 +91,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-06T14:25:59.393Z",
       "userSees": "summary_set accepts an explicit outcomeKind and summary output shows both acceptance verdict and completion outcome, e.g. verdict=partial with outcome=blocked tells users the story closed by classifying a blocker, not by shipping success.",
       "files": {
         "modify": [
@@ -91,7 +129,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/outcome-semantics-smoke.ts",
+          "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
+          "result": "pass",
+          "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: summary_set stores success, blocked, and audit_only outcomeKind values.",
+          "headHash": "1f42dbd6f258307ca7672fed9b0dffb76af949c5",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T14:26:57.775Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/outcome-semantics-smoke.ts",
+          "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
+          "result": "pass",
+          "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: omitted outcomeKind renders as success/default for legacy summaries.",
+          "headHash": "1f42dbd6f258307ca7672fed9b0dffb76af949c5",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T14:26:57.775Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/outcome-semantics-smoke.ts",
+          "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
+          "result": "pass",
+          "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: invalid outcomeKind fails Zod enum parsing before summary metadata is written.",
+          "headHash": "1f42dbd6f258307ca7672fed9b0dffb76af949c5",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T14:26:57.775Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -101,9 +177,9 @@
         "docs/requirements/decisions/test-intent-review.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-06T14:26:03.739Z",
       "userSees": "Verification coverage output can say verdict=blocked-classified or verdict=audit-only for explicit spike/audit evidence, so the user sees that a failure was classified rather than hidden behind pass/fail wording.",
       "files": {
         "modify": [
@@ -140,7 +216,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "verdict": "blocked_classified",
+          "file": "packages/main/src/tasks/outcome-semantics-smoke.ts",
+          "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
+          "result": "pass",
+          "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: verification_evidence_add schema accepts verdict=blocked_classified and coverage renders it.",
+          "headHash": "1f42dbd6f258307ca7672fed9b0dffb76af949c5",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T14:26:57.775Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/deferred-gate-evidence-smoke.ts",
+          "command": "node packages/main/dist/tasks/deferred-gate-evidence-smoke.js && npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "packages/main/src/tasks/deferred-gate-evidence-smoke.ts: existing waiver/freshness semantics still pass with evidence lacking verdict.",
+          "headHash": "1f42dbd6f258307ca7672fed9b0dffb76af949c5",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T14:26:57.775Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "verdict": "blocked_classified",
+          "file": "packages/main/src/tasks/outcome-semantics-smoke.ts",
+          "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
+          "result": "pass",
+          "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: failed evidence with verdict=blocked_classified remains coverage status failed.",
+          "headHash": "1f42dbd6f258307ca7672fed9b0dffb76af949c5",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T14:26:57.775Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -149,9 +263,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-06T14:26:08.242Z",
       "userSees": "When an active worktree is ahead of main metadata, session_brief says the worktree is authoritative and main metadata is a lagging mirror, then gives the exact cd command instead of implying corruption.",
       "files": {
         "modify": [
@@ -184,7 +298,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/outcome-semantics-smoke.ts",
+          "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
+          "result": "pass",
+          "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: session_brief renders worktree-authoritative mirror-lag wording.",
+          "headHash": "1f42dbd6f258307ca7672fed9b0dffb76af949c5",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T14:26:57.775Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/handlers/session.ts",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "packages/main/src/handlers/session.ts: no-mismatch branch still uses concise authority phase wording.",
+          "headHash": "1f42dbd6f258307ca7672fed9b0dffb76af949c5",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T14:26:57.775Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/outcome-semantics-smoke.ts",
+          "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
+          "result": "pass",
+          "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: smoke rejects old phrase main metadata still says.",
+          "headHash": "1f42dbd6f258307ca7672fed9b0dffb76af949c5",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T14:26:57.775Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -194,9 +346,9 @@
         "docs/requirements/decisions/testing-infra.md",
         "README.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-06T14:26:13.033Z",
       "userSees": "Running the focused outcome-semantics smoke prints a clear pass line proving dashboard outcome breakdown, summary outcomeKind, verdict evidence rendering, and worktree authority wording are all guarded against regression.",
       "files": {
         "modify": [
@@ -235,7 +387,97 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/outcome-semantics-smoke.ts",
+          "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
+          "result": "pass",
+          "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: focused command prints outcome semantics smoke passed.",
+          "headHash": "1f42dbd6f258307ca7672fed9b0dffb76af949c5",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T14:26:57.775Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "docs_check",
+          "verdict": "audit_only",
+          "file": "docs/requirements/decisions/testing-infra.md",
+          "command": "koala aux_doc_list",
+          "result": "pass",
+          "note": "docs/requirements/decisions/testing-infra.md: smoke reference avoids aux_doc_list scope expansion and unrelated indexing changes.",
+          "headHash": "1f42dbd6f258307ca7672fed9b0dffb76af949c5",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T14:26:57.775Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/outcome-semantics-smoke.ts",
+          "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
+          "result": "pass",
+          "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: smoke fails on ambiguous DONE percentage or old alarming wording.",
+          "headHash": "1f42dbd6f258307ca7672fed9b0dffb76af949c5",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T14:26:57.775Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-05-06T14:25:54.676Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented lifecycle DONE/outcome category split and recorded smoke evidence.",
+      "agent": "koala-implementer"
+    },
+    {
+      "timestamp": "2026-05-06T14:25:59.393Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented summary_set outcomeKind schema, persistence, rendering, and invalid enum smoke coverage.",
+      "agent": "koala-implementer"
+    },
+    {
+      "timestamp": "2026-05-06T14:26:03.739Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented verification evidence verdict schema, storage, rendering, and gate-preserving smoke coverage.",
+      "agent": "koala-implementer"
+    },
+    {
+      "timestamp": "2026-05-06T14:26:08.242Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Rephrased session authority mismatch as worktree authoritative with main metadata mirror lag.",
+      "agent": "koala-implementer"
+    },
+    {
+      "timestamp": "2026-05-06T14:26:13.033Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Added outcome-semantics smoke script, package script, README, and decision-doc references.",
+      "agent": "koala-implementer"
     }
   ]
 }

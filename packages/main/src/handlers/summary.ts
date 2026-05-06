@@ -16,7 +16,16 @@
  */
 
 import type { HandlerContext } from './context.js';
-import type { StorySummaryData, StoryInfo, BugData, StoryTestRunsData } from '../core/types.js';
+import {
+  formatStoryOutcomeKind,
+  normalizeStoryOutcomeKind,
+  STORY_OUTCOME_KINDS,
+  type StorySummaryData,
+  type StoryInfo,
+  type BugData,
+  type StoryOutcomeKind,
+  type StoryTestRunsData,
+} from '../core/types.js';
 import { computeProcessMetrics, formatProcessMetricsSummary } from '../core/process-metrics.js';
 
 /**
@@ -103,6 +112,12 @@ function formatDuration(ms: number): string {
   return `${h}h ${rm}m ${rs}s`;
 }
 
+function assertOutcomeKind(value: unknown): asserts value is StoryOutcomeKind | undefined {
+  if (value === undefined) return;
+  if (!STORY_OUTCOME_KINDS.includes(value as StoryOutcomeKind)) {
+    throw new Error(`summary.outcomeKind 必须是 ${STORY_OUTCOME_KINDS.join('/')} 之一，收到: ${String(value)}`);
+  }
+}
 
 export function createSummaryHandlers(ctx: HandlerContext) {
   const { store, root } = ctx;
@@ -127,11 +142,13 @@ export function createSummaryHandlers(ctx: HandlerContext) {
       actualTranscript?: string;
       outcomeDiff?: string;
       acceptanceVerdict?: 'accepted' | 'partial' | 'rejected';
+      outcomeKind?: StoryOutcomeKind;
       limitations: string;
       pitfalls: string;
     }): string {
       const story = store.readStory(args.storyId); // validate exists
       void story;
+      assertOutcomeKind(args.outcomeKind);
 
       if (!args.changes || args.changes.trim().length < 10) {
         throw new Error('summary.changes 必须非空且 ≥ 10 字符（描述改了什么文件的关键改动）');
@@ -171,6 +188,7 @@ export function createSummaryHandlers(ctx: HandlerContext) {
         ...(args.actualTranscript ? { actualTranscript: args.actualTranscript.trim() } : {}),
         ...(args.outcomeDiff ? { outcomeDiff: args.outcomeDiff.trim() } : {}),
         ...(args.acceptanceVerdict ? { acceptanceVerdict: args.acceptanceVerdict } : {}),
+        ...(args.outcomeKind ? { outcomeKind: args.outcomeKind } : {}),
         realMachineCoverage: { ran: [], skipped: [] },
         limitations: args.limitations,
         pitfalls: args.pitfalls,
@@ -199,6 +217,7 @@ export function createSummaryHandlers(ctx: HandlerContext) {
         `  changes:     ${args.changes.length} chars`,
         `  usage:       ${args.usage.length} chars`,
         `  acceptance:  ${args.acceptanceVerdict || 'not recorded'}`,
+        `  outcome:     ${formatStoryOutcomeKind(normalizeStoryOutcomeKind(args.outcomeKind))}${args.outcomeKind ? '' : ' (default)'}`,
         `  limitations: ${args.limitations.length} chars`,
         `  pitfalls:    ${args.pitfalls.length} chars`,
         `  total time:  ${formatDuration(totalDurationMs)}`,
@@ -233,6 +252,7 @@ export function renderSummaryForHint(summary: StorySummaryData): string {
   lines.push('');
   lines.push('## 用户价值验收');
   lines.push(`  verdict: ${summary.acceptanceVerdict || 'not recorded'}`);
+  lines.push(`  outcome: ${formatStoryOutcomeKind(normalizeStoryOutcomeKind(summary.outcomeKind))}${summary.outcomeKind ? '' : ' (default)'}`);
   if (summary.expectedOutcome) lines.push(`  expected: ${summary.expectedOutcome}`);
   if (summary.actualTranscript) lines.push(`  actual: ${summary.actualTranscript}`);
   if (summary.outcomeDiff) lines.push(`  diff: ${summary.outcomeDiff}`);
