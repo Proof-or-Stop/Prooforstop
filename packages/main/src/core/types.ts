@@ -76,6 +76,10 @@ export type VerificationEvidenceKind = 'logic_test' | 'integration_test' | 'brow
 export const VERIFICATION_EVIDENCE_VERDICTS = ['success', 'blocked_classified', 'audit_only', 'waived'] as const;
 export type VerificationEvidenceVerdict = typeof VERIFICATION_EVIDENCE_VERDICTS[number];
 
+export function formatVerificationEvidenceVerdict(verdict: VerificationEvidenceVerdict): string {
+  return verdict.replaceAll('_', '-');
+}
+
 export interface VerificationIntentItem {
   /** Optional stable id. If absent, Koala derives CHK-001:happy:0 from lane/index. */
   id?: string;

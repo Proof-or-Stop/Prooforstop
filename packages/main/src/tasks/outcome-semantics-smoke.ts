@@ -216,7 +216,7 @@ function assertVerificationEvidenceVerdict(): void {
   const coverage = buildVerificationCoverage(checklist);
   assert.equal(coverage.entries[0]?.status, 'failed');
   assert.equal(coverage.missingRequired, 1);
-  assert.match(renderVerificationCoverage(coverage), /verdict=blocked_classified/);
+  assert.match(renderVerificationCoverage(coverage), /verdict=blocked-classified/);
 }
 
 assertOutcomeDashboard();

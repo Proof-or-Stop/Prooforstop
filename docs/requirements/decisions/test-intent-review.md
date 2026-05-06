@@ -46,7 +46,7 @@ DEV 阶段同时写代码和 fixture（含 browser case），testIntent 前置�
 
 ## 决策 4.1：verificationEvidence 可以表达 verdict，但不改 gate 语义
 
-当前 lifecycle 使用 `verificationIntent` / `verificationEvidence` 取代旧 `testIntent` fixture-only 流程。Evidence 仍以 `kind`、`result=pass|fail`、waiver、freshness 决定 gate 结果；新增 `verdict=success|blocked_classified|audit_only|waived` 只用于说明证据语义。比如 spike 证明并分类了一个 blocker 时可以显示 `verdict=blocked_classified`，但只要 `result=fail`，coverage 仍是 failed，不能被算作 success。
+当前 lifecycle 使用 `verificationIntent` / `verificationEvidence` 取代旧 `testIntent` fixture-only 流程。Evidence 仍以 `kind`、`result=pass|fail`、waiver、freshness 决定 gate 结果；schema enum 仍是 `verdict=success|blocked_classified|audit_only|waived`，但用户可见 coverage 渲染为 hyphenated label，如 `verdict=blocked-classified` / `verdict=audit-only`。比如 spike 证明并分类了一个 blocker 时可以显示 `verdict=blocked-classified`，但只要 `result=fail`，coverage 仍是 failed，不能被算作 success。
 
 ## 决策 5：checklist item 拆解标准
 

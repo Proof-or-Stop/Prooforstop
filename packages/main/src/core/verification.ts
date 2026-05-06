@@ -8,6 +8,7 @@ import type {
   VerificationLane,
   VerificationPriority,
 } from './types.js';
+import { formatVerificationEvidenceVerdict } from './types.js';
 
 export const VERIFICATION_LANES: readonly VerificationLane[] = ['happy', 'edge', 'adversarial'];
 export type DeferredGateEvidenceMode = 'covered' | 'missing';
@@ -122,7 +123,7 @@ export function renderVerificationCoverage(report: VerificationCoverageReport): 
         ? '~'
         : '✗';
     const ev = e.evidence
-      ? ` via ${e.evidence.kind}${e.evidence.verdict ? ` verdict=${e.evidence.verdict}` : ''}${e.evidence.file ? ` (${e.evidence.file})` : ''}`
+      ? ` via ${e.evidence.kind}${e.evidence.verdict ? ` verdict=${formatVerificationEvidenceVerdict(e.evidence.verdict)}` : ''}${e.evidence.file ? ` (${e.evidence.file})` : ''}`
       : '';
     lines.push(`  ${marker} ${e.intentRef} [${e.lane}/${e.priority}/${e.type}] ${e.status}${ev} — ${e.desc}`);
   }
