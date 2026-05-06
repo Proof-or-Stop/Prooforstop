@@ -55,6 +55,30 @@
       "createdAt": "2026-05-06T14:45:29.850Z",
       "reviewRound": "2026-05-06T14:41:38.297Z",
       "_hash": "8bc4691a12c80d053fdd8302039757ae91242b1b987cb74f2c4cc758bcf11ab3"
+    },
+    {
+      "id": "B-77e4:RP-008",
+      "agent": "koala-review-test-coverage",
+      "note": "Confirmed validate [ok] at current HEAD 3ef4152 on 2026-05-06T15:01:32Z; recent commits since prior review touch only .koala/story metadata (test-evidence/findings/process-metrics/index), with no source code changes requiring re-validation.",
+      "createdAt": "2026-05-06T15:02:35.827Z",
+      "reviewRound": "2026-05-06T15:00:16.289Z",
+      "_hash": "9c01f01846e45a006e3cb225ab423964c604de4fd4cd90e08ef80df379554233"
+    },
+    {
+      "id": "B-77e4:RP-009",
+      "agent": "koala-review-docs",
+      "note": "Re-review pass: since ddce73d only Koala metadata changed; README and requirement docs still match outcome semantics, outcomeKind compatibility, verdict wording, and focused smoke coverage, with no open docs blockers.",
+      "createdAt": "2026-05-06T15:03:21.568Z",
+      "reviewRound": "2026-05-06T15:00:16.289Z",
+      "_hash": "c48e370357b4fbf54682f22f546da3fea900f84d0d4b33a3d88b648baf8b1ebf"
+    },
+    {
+      "id": "B-77e4:RP-010",
+      "agent": "koala-review-concept",
+      "note": "Re-review scoped to a394399..HEAD: only Koala metadata changed, no source files changed since prior concept pass, and all recorded findings are resolved.",
+      "createdAt": "2026-05-06T15:03:29.885Z",
+      "reviewRound": "2026-05-06T15:00:16.289Z",
+      "_hash": "04af66e1a4c096c75f03073753a1480b0f69b561f67e91facf6218ec98d91087"
     }
   ]
 }
