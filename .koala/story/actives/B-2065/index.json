@@ -4,7 +4,7 @@
   "title": "Koala validation and gate reliability hardening",
   "description": "Turn recent process failures into general Koala framework capabilities: validate commands must fail hard instead of false-green, CLI JSON enum/schema errors must be visible, status next-step messaging must use gate preflight facts, and Koala-generated lifecycle artifacts must not block DONE as stray files.",
   "type": "bug",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "riskSignals": [
     {
@@ -68,6 +68,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-05-06T02:36:58.194Z",
+      "branch": "story/B-2065",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-05-06T02:41:13.329Z",
       "branch": "story/B-2065",
       "user": "Harmonygo",
       "agent": "main"
