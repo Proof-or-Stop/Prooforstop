@@ -453,8 +453,12 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
 
       const validateFile = findValidateFile(projectRoot);
       if (!validateFile) {
-        const commands = discoverValidationCommands(projectRoot);
-        if (commands.length === 0) {
+        const configuredCommands = configuredValidationCommands(projectRoot);
+        const fallbackCommands = configuredCommands.length === 0
+          ? discoverFallbackValidationCommands(projectRoot)
+          : [];
+
+        if (configuredCommands.length === 0 && fallbackCommands.length === 0) {
           const base = externalResult({
             status: 'warn',
             summary: 'No project validator configured; skipped project-specific validation',
@@ -474,11 +478,18 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           return renderExternalResult(decorated);
         }
 
-        ctx.log?.(`validate.ts not found; running ${commands.length} discovered validation command(s)`);
+        const commands = configuredCommands.length > 0 ? configuredCommands : fallbackCommands;
+        const usingConfigured = configuredCommands.length > 0;
+        const warnings = usingConfigured
+          ? []
+          : ['validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery'];
+        ctx.log?.(usingConfigured
+          ? `running ${commands.length} configured validate.command(s)`
+          : `validate.ts/js/mts not found and no configured validate.command(s); running ${commands.length} advisory fallback validation command(s)`);
         const base = await executeValidationPlan({
-          provider: 'koala-verifier-commands',
+          provider: usingConfigured ? 'koala-verifier-configured-commands' : 'koala-verifier-fallback-commands',
           commands,
-          warnings: ['validate.ts not found; used language/project validation command discovery'],
+          warnings,
         }, projectRoot, currentHead(projectRoot));
         for (const cmd of commands) {
           ctx.log?.(`ran: ${cmd.command} ${cmd.args.join(' ')}`);

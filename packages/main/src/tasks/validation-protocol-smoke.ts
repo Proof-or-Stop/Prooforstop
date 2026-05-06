@@ -8,7 +8,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { executeValidationPlan } from '../core/validation-executor.js';
 import { resetConfigCache } from '../core/config.js';
-import { discoverValidationCommands } from '../handlers/verifier.js';
+import { createVerifierHandlers, discoverValidationCommands } from '../handlers/verifier.js';
 import { createDoctorHandlers } from '../handlers/doctor.js';
 import { StoryStore } from '../core/store.js';
 
@@ -71,6 +71,10 @@ try {
   assert.equal(shellCommand.status, 'pass');
   assert.match(shellCommand.details[0], /cd sub && node -e/);
   assert.equal(shellCommand.commands[0].shell, true);
+  assert.equal(shellCommand.commands[0].command, 'cd sub && node -e "process.stdout.write(process.cwd())"');
+  assert.equal(shellCommand.commands[0].code, 0);
+  assert.equal(typeof shellCommand.commands[0].durationMs, 'number');
+  assert.ok(shellCommand.commands[0].durationMs >= 0);
   assert.match(shellCommand.commands[0].output, /sub$/);
 
   const timeout = await executeValidationPlan({
@@ -118,6 +122,65 @@ try {
   assert.equal(shellDiscovered[0].command, 'cd sub && node -e "process.stdout.write(process.cwd())"');
   assert.deepEqual(shellDiscovered[0].args, []);
 
+  const configuredOnlyRoot = mkdtempSync(join(tmpdir(), 'koala-validation-configured-'));
+  try {
+    writeFileSync(join(configuredOnlyRoot, 'koala.config.json'), JSON.stringify({
+      validate: {
+        commands: [
+          {
+            label: 'configured validate smoke',
+            command: 'node',
+            args: ['-e', 'process.stdout.write("configured-ok")'],
+          },
+        ],
+      },
+    }));
+    resetConfigCache();
+    const logs: string[] = [];
+    const validateJson = await createVerifierHandlers({
+      root: configuredOnlyRoot,
+      scanRoot: configuredOnlyRoot,
+      store: new StoryStore(configuredOnlyRoot),
+      log: (line) => logs.push(line),
+    }).validate({ json: true });
+    const configuredResult = JSON.parse(validateJson);
+    assert.equal(configuredResult.provider, 'koala-verifier-configured-commands');
+    assert.equal(configuredResult.status, 'pass');
+    assert.equal(configuredResult.allPass, true);
+    assert.deepEqual(configuredResult.warnings, []);
+    assert.match(configuredResult.commands[0].output, /configured-ok/);
+    assert.equal(configuredResult.commands[0].command, 'node');
+    assert.equal(configuredResult.commands[0].code, 0);
+    assert.equal(typeof configuredResult.commands[0].durationMs, 'number');
+    assert.ok(configuredResult.commands[0].durationMs >= 0);
+    assert.doesNotMatch(`${configuredResult.summary}\n${configuredResult.details.join('\n')}\n${configuredResult.warnings.join('\n')}\n${logs.join('\n')}`, /discover|fallback|advisory|validate\.ts not found/i);
+  } finally {
+    rmSync(configuredOnlyRoot, { recursive: true, force: true });
+  }
+
+  const fallbackRoot = mkdtempSync(join(tmpdir(), 'koala-validation-fallback-'));
+  try {
+    writeFileSync(join(fallbackRoot, 'package.json'), JSON.stringify({
+      scripts: { test: 'node -e "process.stdout.write(\\"fallback-ok\\")"' },
+    }));
+    resetConfigCache();
+    const fallbackJson = await createVerifierHandlers({
+      root: fallbackRoot,
+      scanRoot: fallbackRoot,
+      store: new StoryStore(fallbackRoot),
+      log: () => {},
+    }).validate({ json: true });
+    const fallbackResult = JSON.parse(fallbackJson);
+    assert.equal(fallbackResult.provider, 'koala-verifier-fallback-commands');
+    assert.equal(fallbackResult.status, 'warn');
+    assert.equal(fallbackResult.allPass, true);
+    assert.match(fallbackResult.warnings.join('\n'), /advisory fallback command discovery/);
+    assert.match(fallbackResult.warnings.join('\n'), /no configured validate\.command/);
+    assert.match(fallbackResult.commands[0].output, /fallback-ok/);
+  } finally {
+    rmSync(fallbackRoot, { recursive: true, force: true });
+  }
+
   const invalidArgCwd = mkdtempSync(join(tmpdir(), 'koala-validation-schema-'));
   const env = { ...process.env };
   delete env.KOALA_PROJECT_ROOT;
@@ -143,6 +206,22 @@ try {
   assert.match(invalidVerificationIntent.stderr, /logic[\s\S]*cli[\s\S]*browser[\s\S]*manual[\s\S]*docs/);
   assert.equal(existsSync(join(invalidArgCwd, '.koala')), false, 'schema failure should happen before metadata mutation');
   rmSync(invalidArgCwd, { recursive: true, force: true });
+
+  const malformedJsonCwd = mkdtempSync(join(tmpdir(), 'koala-validation-malformed-json-'));
+  const malformedJson = spawnSync(process.execPath, [
+    cliPath,
+    'story_create',
+    '{"name":"broken",',
+  ], {
+    cwd: malformedJsonCwd,
+    env,
+    encoding: 'utf-8',
+  });
+  assert.notEqual(malformedJson.status, 0, 'malformed JSON body should fail');
+  assert.match(malformedJson.stderr, /JSON 解析失败|JSON parse|Unexpected end of JSON input/);
+  assert.match(malformedJson.stderr.trim().split('\n')[0], /JSON 解析失败|JSON parse/);
+  assert.equal(existsSync(join(malformedJsonCwd, '.koala')), false, 'malformed JSON should not create project metadata');
+  rmSync(malformedJsonCwd, { recursive: true, force: true });
 
   writeFileSync(join(tmp, 'package.json'), JSON.stringify({
     scripts: { test: 'node -e "process.stdout.write(\\"fallback\\")"' },
