@@ -1,0 +1,55 @@
+{
+  "storyId": "B-2065",
+  "changes": "Hardened Koala validate command handling, JSON argument failure reporting coverage, doctor validation scan, fallback validation status, and reviewer/channel evidence gates without adding PVSC-specific assumptions.",
+  "usage": "Run node packages/main/dist/cli.js validate --json or koala validate --json to see structured receipts; run node packages/main/dist/cli.js doctor to inspect Validation scan and fallback/configured command state.",
+  "expectedOutcome": "Configured validate.command receipts clearly show command, shell, code, durationMs, and output; invalid JSON schema errors fail loudly; fallback validation success is PASS with advisory details, not WARN noise.",
+  "actualTranscript": "npm run build passed; validation-protocol, flow-stability, and review-pass-discard smoke tests passed; validate --channel, --concept, --lint all passed; validate --story=B-2065 --json reported status pass, warnings [], and Verification intent coverage 15/15 covered.",
+  "outcomeDiff": "No product-level difference from expected; the only advisory text left is explicit fallback discovery detail in summary/details, not a warn status.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Dashboard DONE-success/DONE-blocked/DONE-audit-only and spike verdict evidence were intentionally not implemented in this story; they should be separate outcome-semantics work.",
+  "pitfalls": "Global koala can point at the main checkout instead of the story worktree, so verification used node packages/main/dist/cli.js for current-code evidence; finding_resolve is REVIEW-only, not DEV.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 203863
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 4371
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 44323169
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 4274822
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 720203
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 44950
+    }
+  },
+  "totalDurationMs": 49571378,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-05-06T02:41:58.279Z",
+  "updatedAt": "2026-05-06T02:41:58.279Z"
+}
