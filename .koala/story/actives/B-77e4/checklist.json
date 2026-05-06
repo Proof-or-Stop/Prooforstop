@@ -61,14 +61,13 @@
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "integration_test",
-          "verdict": "success",
           "file": "packages/main/src/tasks/outcome-semantics-smoke.ts",
-          "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:outcome-semantics-smoke",
           "result": "pass",
-          "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: legacy DONE story without outcomeKind is counted in success/default.",
-          "headHash": "f3b2ff8803acf4a8d5d25b29f7c2fe7d3728f249",
+          "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: corrupt persisted outcomeKind=\"typo\" is counted in visible success/default buckets for dashboard and session brief, keeping DONE totals and bucket totals consistent.",
+          "headHash": "b3b2ab0c2659ff9821c8f95b420ecd4bd36a72b3",
           "materialHash": "43fa453aaf3673f728ca6bb44e0bdf181f299d0545cea0bd73effdc9645e5c57",
-          "timestamp": "2026-05-06T14:32:09.120Z"
+          "timestamp": "2026-05-06T14:40:24.241Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -416,14 +415,13 @@
         {
           "intentRef": "CHK-005:adversarial:0",
           "kind": "integration_test",
-          "verdict": "success",
           "file": "packages/main/src/tasks/outcome-semantics-smoke.ts",
-          "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:outcome-semantics-smoke",
           "result": "pass",
-          "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: smoke fails on ambiguous DONE percentage or old alarming wording.",
-          "headHash": "f3b2ff8803acf4a8d5d25b29f7c2fe7d3728f249",
+          "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: smoke now fails if corrupt persisted outcomeKind values can create invisible outcome buckets or make DONE totals disagree with visible buckets.",
+          "headHash": "b3b2ab0c2659ff9821c8f95b420ecd4bd36a72b3",
           "materialHash": "43fa453aaf3673f728ca6bb44e0bdf181f299d0545cea0bd73effdc9645e5c57",
-          "timestamp": "2026-05-06T14:32:09.120Z"
+          "timestamp": "2026-05-06T14:40:30.501Z"
         }
       ]
     }

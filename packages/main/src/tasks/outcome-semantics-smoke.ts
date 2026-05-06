@@ -69,6 +69,10 @@ function makeSummary(storyId: string, outcomeKind?: StorySummaryData['outcomeKin
   };
 }
 
+function makePersistedCorruptSummary(storyId: string): StorySummaryData {
+  return { ...makeSummary(storyId), outcomeKind: 'typo' } as unknown as StorySummaryData;
+}
+
 function schemaFor(name: string) {
   const tool = MAIN_TOOLS.find(t => t.name === name);
   assert.ok(tool, `missing tool schema: ${name}`);
@@ -87,11 +91,13 @@ function assertOutcomeDashboard(): void {
     store.writeStory('B-audit', makeStory('B-audit'));
     store.writeSummary('B-audit', makeSummary('B-audit', 'audit_only'));
     store.writeStory('B-legacy', makeStory('B-legacy'));
+    store.writeStory('B-corrupt', makeStory('B-corrupt'));
+    store.writeSummary('B-corrupt', makePersistedCorruptSummary('B-corrupt'));
 
     const snapshot = collectProject(root);
     const dashboard = renderProject(snapshot, 0, true).join('\n');
-    assert.match(dashboard, /Lifecycle DONE: 4\/4 \(100%\)/);
-    assert.match(dashboard, /DONE-success\/default=2/);
+    assert.match(dashboard, /Lifecycle DONE: 5\/5 \(100%\)/);
+    assert.match(dashboard, /DONE-success\/default=3/);
     assert.match(dashboard, /DONE-blocked=1/);
     assert.match(dashboard, /DONE-audit-only=1/);
     assert.doesNotMatch(dashboard, /^\s+\d+\/\d+ DONE \(\d+%\)/m);
@@ -107,6 +113,8 @@ function assertSessionDashboardAndAuthorityWording(): void {
     const store = new StoryStore(root);
     store.writeStory('B-smoke', makeStory('B-smoke', 'INIT_CHECK'));
     store.writeChecklist('B-smoke', { items: [] });
+    store.writeStory('B-corrupt', makeStory('B-corrupt', 'DONE'));
+    store.writeSummary('B-corrupt', makePersistedCorruptSummary('B-corrupt'));
     write(root, 'packages/main/src/index.ts', 'export {};\n');
     git(root, ['init']);
     git(root, ['config', 'user.email', 'koala@example.test']);
@@ -128,8 +136,8 @@ function assertSessionDashboardAndAuthorityWording(): void {
       scanRoot: join(root, 'packages/main'),
     }).session_brief();
 
-    assert.match(brief, /Lifecycle DONE: 0\/1 \(0%\)/);
-    assert.match(brief, /outcomes: DONE-success\/default=0 DONE-blocked=0 DONE-audit-only=0/);
+    assert.match(brief, /Lifecycle DONE: 1\/2 \(50%\)/);
+    assert.match(brief, /outcomes: DONE-success\/default=1 DONE-blocked=0 DONE-audit-only=0/);
     assert.match(brief, /worktree phase REVIEW is authoritative; main metadata mirror is lagging at INIT_CHECK/);
     assert.doesNotMatch(brief, /main metadata still says/);
     assert.doesNotMatch(brief, /^\*\*Dashboard\*\*: \d+\/\d+ DONE \(\d+%\)/m);

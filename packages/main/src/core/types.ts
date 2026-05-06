@@ -376,8 +376,12 @@ export interface StorySummaryData {
   updatedAt: string;
 }
 
-export function normalizeStoryOutcomeKind(outcomeKind: StoryOutcomeKind | undefined | null): StoryOutcomeKind {
-  return outcomeKind ?? 'success';
+export function isStoryOutcomeKind(outcomeKind: unknown): outcomeKind is StoryOutcomeKind {
+  return typeof outcomeKind === 'string' && STORY_OUTCOME_KINDS.includes(outcomeKind as StoryOutcomeKind);
+}
+
+export function normalizeStoryOutcomeKind(outcomeKind: unknown): StoryOutcomeKind {
+  return isStoryOutcomeKind(outcomeKind) ? outcomeKind : 'success';
 }
 
 export function formatStoryOutcomeKind(outcomeKind: StoryOutcomeKind): string {
