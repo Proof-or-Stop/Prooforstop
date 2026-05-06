@@ -10,7 +10,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-05-06T14:25:54.676Z",
+      "endTime": "2026-05-06T15:00:02.992Z",
       "userSees": "session_brief and dashboard show lifecycle progress separately from outcome breakdown, for example: Lifecycle DONE 23/26; outcomes success=20 blocked=2 audit-only=1, so blocked spike DONE no longer looks like technical success.",
       "files": {
         "modify": [
@@ -49,14 +49,13 @@
         {
           "intentRef": "CHK-001:happy:0",
           "kind": "integration_test",
-          "verdict": "success",
           "file": "packages/main/src/tasks/outcome-semantics-smoke.ts",
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:outcome-semantics-smoke",
           "result": "pass",
           "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: dashboard renders Lifecycle DONE separately from DONE-success/default, DONE-blocked, DONE-audit-only.",
-          "headHash": "f3b2ff8803acf4a8d5d25b29f7c2fe7d3728f249",
-          "materialHash": "43fa453aaf3673f728ca6bb44e0bdf181f299d0545cea0bd73effdc9645e5c57",
-          "timestamp": "2026-05-06T14:32:09.120Z"
+          "headHash": "a394399772a5011daac5d9926f47769ff0b77758",
+          "materialHash": "5d01e054c96bee0576367f777c119c78827143dc5314c0c04fb0edc9507955be",
+          "timestamp": "2026-05-06T14:59:28.944Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -65,21 +64,20 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:outcome-semantics-smoke",
           "result": "pass",
           "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: corrupt persisted outcomeKind=\"typo\" is counted in visible success/default buckets for dashboard and session brief, keeping DONE totals and bucket totals consistent.",
-          "headHash": "b3b2ab0c2659ff9821c8f95b420ecd4bd36a72b3",
-          "materialHash": "43fa453aaf3673f728ca6bb44e0bdf181f299d0545cea0bd73effdc9645e5c57",
-          "timestamp": "2026-05-06T14:40:24.241Z"
+          "headHash": "a394399772a5011daac5d9926f47769ff0b77758",
+          "materialHash": "5d01e054c96bee0576367f777c119c78827143dc5314c0c04fb0edc9507955be",
+          "timestamp": "2026-05-06T14:59:28.944Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "integration_test",
-          "verdict": "blocked_classified",
           "file": "packages/main/src/tasks/outcome-semantics-smoke.ts",
           "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
           "result": "pass",
           "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: blocked DONE contributes to lifecycle DONE but not success/default.",
-          "headHash": "f3b2ff8803acf4a8d5d25b29f7c2fe7d3728f249",
-          "materialHash": "43fa453aaf3673f728ca6bb44e0bdf181f299d0545cea0bd73effdc9645e5c57",
-          "timestamp": "2026-05-06T14:32:09.120Z"
+          "headHash": "a394399772a5011daac5d9926f47769ff0b77758",
+          "materialHash": "5d01e054c96bee0576367f777c119c78827143dc5314c0c04fb0edc9507955be",
+          "timestamp": "2026-05-06T14:59:28.944Z"
         }
       ]
     },
@@ -133,38 +131,35 @@
         {
           "intentRef": "CHK-002:happy:0",
           "kind": "integration_test",
-          "verdict": "success",
           "file": "packages/main/src/tasks/outcome-semantics-smoke.ts",
           "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
           "result": "pass",
           "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: summary_set stores success, blocked, and audit_only outcomeKind values.",
-          "headHash": "f3b2ff8803acf4a8d5d25b29f7c2fe7d3728f249",
-          "materialHash": "43fa453aaf3673f728ca6bb44e0bdf181f299d0545cea0bd73effdc9645e5c57",
-          "timestamp": "2026-05-06T14:32:09.120Z"
+          "headHash": "a394399772a5011daac5d9926f47769ff0b77758",
+          "materialHash": "5d01e054c96bee0576367f777c119c78827143dc5314c0c04fb0edc9507955be",
+          "timestamp": "2026-05-06T14:59:28.944Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "integration_test",
-          "verdict": "success",
           "file": "packages/main/src/tasks/outcome-semantics-smoke.ts",
           "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
           "result": "pass",
           "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: omitted outcomeKind renders as success/default for legacy summaries.",
-          "headHash": "f3b2ff8803acf4a8d5d25b29f7c2fe7d3728f249",
-          "materialHash": "43fa453aaf3673f728ca6bb44e0bdf181f299d0545cea0bd73effdc9645e5c57",
-          "timestamp": "2026-05-06T14:32:09.120Z"
+          "headHash": "a394399772a5011daac5d9926f47769ff0b77758",
+          "materialHash": "5d01e054c96bee0576367f777c119c78827143dc5314c0c04fb0edc9507955be",
+          "timestamp": "2026-05-06T14:59:28.944Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "integration_test",
-          "verdict": "success",
           "file": "packages/main/src/tasks/outcome-semantics-smoke.ts",
           "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
           "result": "pass",
           "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: invalid outcomeKind fails Zod enum parsing before summary metadata is written.",
-          "headHash": "f3b2ff8803acf4a8d5d25b29f7c2fe7d3728f249",
-          "materialHash": "43fa453aaf3673f728ca6bb44e0bdf181f299d0545cea0bd73effdc9645e5c57",
-          "timestamp": "2026-05-06T14:32:09.120Z"
+          "headHash": "a394399772a5011daac5d9926f47769ff0b77758",
+          "materialHash": "5d01e054c96bee0576367f777c119c78827143dc5314c0c04fb0edc9507955be",
+          "timestamp": "2026-05-06T14:59:28.944Z"
         }
       ]
     },
@@ -220,38 +215,35 @@
         {
           "intentRef": "CHK-003:happy:0",
           "kind": "integration_test",
-          "verdict": "blocked_classified",
           "file": "packages/main/src/tasks/outcome-semantics-smoke.ts",
           "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
           "result": "pass",
           "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: verification_evidence_add schema accepts verdict=blocked_classified and coverage renders it.",
-          "headHash": "f3b2ff8803acf4a8d5d25b29f7c2fe7d3728f249",
-          "materialHash": "43fa453aaf3673f728ca6bb44e0bdf181f299d0545cea0bd73effdc9645e5c57",
-          "timestamp": "2026-05-06T14:32:09.120Z"
+          "headHash": "a394399772a5011daac5d9926f47769ff0b77758",
+          "materialHash": "5d01e054c96bee0576367f777c119c78827143dc5314c0c04fb0edc9507955be",
+          "timestamp": "2026-05-06T14:59:28.944Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "integration_test",
-          "verdict": "success",
           "file": "packages/main/src/tasks/deferred-gate-evidence-smoke.ts",
           "command": "node packages/main/dist/tasks/deferred-gate-evidence-smoke.js && npm --prefix packages/main run test:verification-freshness-smoke",
           "result": "pass",
           "note": "packages/main/src/tasks/deferred-gate-evidence-smoke.ts: existing waiver/freshness semantics still pass with evidence lacking verdict.",
-          "headHash": "f3b2ff8803acf4a8d5d25b29f7c2fe7d3728f249",
-          "materialHash": "43fa453aaf3673f728ca6bb44e0bdf181f299d0545cea0bd73effdc9645e5c57",
-          "timestamp": "2026-05-06T14:32:09.120Z"
+          "headHash": "a394399772a5011daac5d9926f47769ff0b77758",
+          "materialHash": "5d01e054c96bee0576367f777c119c78827143dc5314c0c04fb0edc9507955be",
+          "timestamp": "2026-05-06T14:59:28.944Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "integration_test",
-          "verdict": "blocked_classified",
           "file": "packages/main/src/tasks/outcome-semantics-smoke.ts",
           "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
           "result": "pass",
           "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: failed evidence with verdict=blocked_classified remains coverage status failed.",
-          "headHash": "f3b2ff8803acf4a8d5d25b29f7c2fe7d3728f249",
-          "materialHash": "43fa453aaf3673f728ca6bb44e0bdf181f299d0545cea0bd73effdc9645e5c57",
-          "timestamp": "2026-05-06T14:32:09.120Z"
+          "headHash": "a394399772a5011daac5d9926f47769ff0b77758",
+          "materialHash": "5d01e054c96bee0576367f777c119c78827143dc5314c0c04fb0edc9507955be",
+          "timestamp": "2026-05-06T14:59:28.944Z"
         }
       ]
     },
@@ -302,38 +294,35 @@
         {
           "intentRef": "CHK-004:happy:0",
           "kind": "integration_test",
-          "verdict": "success",
           "file": "packages/main/src/tasks/outcome-semantics-smoke.ts",
           "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
           "result": "pass",
           "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: session_brief renders worktree-authoritative mirror-lag wording.",
-          "headHash": "f3b2ff8803acf4a8d5d25b29f7c2fe7d3728f249",
-          "materialHash": "43fa453aaf3673f728ca6bb44e0bdf181f299d0545cea0bd73effdc9645e5c57",
-          "timestamp": "2026-05-06T14:32:09.120Z"
+          "headHash": "a394399772a5011daac5d9926f47769ff0b77758",
+          "materialHash": "5d01e054c96bee0576367f777c119c78827143dc5314c0c04fb0edc9507955be",
+          "timestamp": "2026-05-06T14:59:28.944Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "logic_test",
-          "verdict": "success",
           "file": "packages/main/src/handlers/session.ts",
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "packages/main/src/handlers/session.ts: no-mismatch branch still uses concise authority phase wording.",
-          "headHash": "f3b2ff8803acf4a8d5d25b29f7c2fe7d3728f249",
-          "materialHash": "43fa453aaf3673f728ca6bb44e0bdf181f299d0545cea0bd73effdc9645e5c57",
-          "timestamp": "2026-05-06T14:32:09.120Z"
+          "headHash": "a394399772a5011daac5d9926f47769ff0b77758",
+          "materialHash": "5d01e054c96bee0576367f777c119c78827143dc5314c0c04fb0edc9507955be",
+          "timestamp": "2026-05-06T14:59:28.944Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "integration_test",
-          "verdict": "success",
           "file": "packages/main/src/tasks/outcome-semantics-smoke.ts",
           "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
           "result": "pass",
           "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: smoke rejects old phrase main metadata still says.",
-          "headHash": "f3b2ff8803acf4a8d5d25b29f7c2fe7d3728f249",
-          "materialHash": "43fa453aaf3673f728ca6bb44e0bdf181f299d0545cea0bd73effdc9645e5c57",
-          "timestamp": "2026-05-06T14:32:09.120Z"
+          "headHash": "a394399772a5011daac5d9926f47769ff0b77758",
+          "materialHash": "5d01e054c96bee0576367f777c119c78827143dc5314c0c04fb0edc9507955be",
+          "timestamp": "2026-05-06T14:59:28.944Z"
         }
       ]
     },
@@ -347,7 +336,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-05-06T14:26:13.033Z",
+      "endTime": "2026-05-06T15:00:03.069Z",
       "userSees": "Running the focused outcome-semantics smoke prints a clear pass line proving dashboard outcome breakdown, summary outcomeKind, verdict evidence rendering, and worktree authority wording are all guarded against regression.",
       "files": {
         "modify": [
@@ -391,26 +380,24 @@
         {
           "intentRef": "CHK-005:happy:0",
           "kind": "integration_test",
-          "verdict": "success",
           "file": "packages/main/src/tasks/outcome-semantics-smoke.ts",
           "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
           "result": "pass",
           "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: focused command prints outcome semantics smoke passed.",
-          "headHash": "f3b2ff8803acf4a8d5d25b29f7c2fe7d3728f249",
-          "materialHash": "43fa453aaf3673f728ca6bb44e0bdf181f299d0545cea0bd73effdc9645e5c57",
-          "timestamp": "2026-05-06T14:32:09.120Z"
+          "headHash": "a394399772a5011daac5d9926f47769ff0b77758",
+          "materialHash": "5d01e054c96bee0576367f777c119c78827143dc5314c0c04fb0edc9507955be",
+          "timestamp": "2026-05-06T14:59:28.944Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
           "kind": "docs_check",
-          "verdict": "audit_only",
           "file": "docs/requirements/decisions/testing-infra.md",
           "command": "koala aux_doc_list",
           "result": "pass",
           "note": "docs/requirements/decisions/testing-infra.md: smoke reference avoids aux_doc_list scope expansion and unrelated indexing changes.",
-          "headHash": "f3b2ff8803acf4a8d5d25b29f7c2fe7d3728f249",
-          "materialHash": "43fa453aaf3673f728ca6bb44e0bdf181f299d0545cea0bd73effdc9645e5c57",
-          "timestamp": "2026-05-06T14:32:09.120Z"
+          "headHash": "a394399772a5011daac5d9926f47769ff0b77758",
+          "materialHash": "5d01e054c96bee0576367f777c119c78827143dc5314c0c04fb0edc9507955be",
+          "timestamp": "2026-05-06T14:59:28.944Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -419,9 +406,9 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:outcome-semantics-smoke",
           "result": "pass",
           "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: smoke now fails if corrupt persisted outcomeKind values can create invisible outcome buckets or make DONE totals disagree with visible buckets.",
-          "headHash": "b3b2ab0c2659ff9821c8f95b420ecd4bd36a72b3",
-          "materialHash": "43fa453aaf3673f728ca6bb44e0bdf181f299d0545cea0bd73effdc9645e5c57",
-          "timestamp": "2026-05-06T14:40:30.501Z"
+          "headHash": "a394399772a5011daac5d9926f47769ff0b77758",
+          "materialHash": "5d01e054c96bee0576367f777c119c78827143dc5314c0c04fb0edc9507955be",
+          "timestamp": "2026-05-06T14:59:28.944Z"
         }
       ]
     }
