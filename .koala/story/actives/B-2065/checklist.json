@@ -53,9 +53,9 @@
           "command": "npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
           "note": "Covers configured string validate.command with cd && as shell=true receipt including command, code, durationMs, and output.",
-          "headHash": "b7b6181e3e40889996b73e953e619e795ce1a534",
-          "materialHash": "bcda6eee5f121505b3e692b282e41ca36c45a7df6c520c6ebea3dc2f69cb5d06",
-          "timestamp": "2026-05-06T01:24:55.022Z"
+          "headHash": "aad14019687ee5eb4f768b856e27d4a63159122f",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T02:40:49.513Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -64,9 +64,9 @@
           "command": "npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
           "note": "Covers structured configured command object preserving args/env/cwd/timeout/optional without shell.",
-          "headHash": "b7b6181e3e40889996b73e953e619e795ce1a534",
-          "materialHash": "bcda6eee5f121505b3e692b282e41ca36c45a7df6c520c6ebea3dc2f69cb5d06",
-          "timestamp": "2026-05-06T01:24:55.022Z"
+          "headHash": "aad14019687ee5eb4f768b856e27d4a63159122f",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T02:40:49.513Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -75,9 +75,9 @@
           "command": "npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
           "note": "Covers required nonzero command as fail/allPass=false and optional nonzero command as warn/allPass=true.",
-          "headHash": "b7b6181e3e40889996b73e953e619e795ce1a534",
-          "materialHash": "bcda6eee5f121505b3e692b282e41ca36c45a7df6c520c6ebea3dc2f69cb5d06",
-          "timestamp": "2026-05-06T01:24:55.022Z"
+          "headHash": "aad14019687ee5eb4f768b856e27d4a63159122f",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T02:40:49.513Z"
         }
       ]
     },
@@ -133,9 +133,9 @@
           "command": "npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
           "note": "Covers invalid nested verificationIntent enum reporting verificationIntent.happy.0.type with legal values.",
-          "headHash": "b7b6181e3e40889996b73e953e619e795ce1a534",
-          "materialHash": "bcda6eee5f121505b3e692b282e41ca36c45a7df6c520c6ebea3dc2f69cb5d06",
-          "timestamp": "2026-05-06T01:24:55.022Z"
+          "headHash": "aad14019687ee5eb4f768b856e27d4a63159122f",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T02:40:49.513Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -144,9 +144,9 @@
           "command": "npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
           "note": "Existing CLI engine path still reports parse/schema failures before dispatch; malformed JSON path remains fail-fast at the engine boundary.",
-          "headHash": "b7b6181e3e40889996b73e953e619e795ce1a534",
-          "materialHash": "bcda6eee5f121505b3e692b282e41ca36c45a7df6c520c6ebea3dc2f69cb5d06",
-          "timestamp": "2026-05-06T01:24:55.022Z"
+          "headHash": "aad14019687ee5eb4f768b856e27d4a63159122f",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T02:40:49.513Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -155,9 +155,9 @@
           "command": "npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
           "note": "Covers invalid verificationIntent type exiting nonzero before .koala metadata is created or mutated.",
-          "headHash": "b7b6181e3e40889996b73e953e619e795ce1a534",
-          "materialHash": "bcda6eee5f121505b3e692b282e41ca36c45a7df6c520c6ebea3dc2f69cb5d06",
-          "timestamp": "2026-05-06T01:24:55.022Z"
+          "headHash": "aad14019687ee5eb4f768b856e27d4a63159122f",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T02:40:49.513Z"
         }
       ]
     },
@@ -214,9 +214,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Covers TEST phase session_brief rendering DONE pre-check blockers for delivery-check and summary.",
-          "headHash": "b7b6181e3e40889996b73e953e619e795ce1a534",
-          "materialHash": "bcda6eee5f121505b3e692b282e41ca36c45a7df6c520c6ebea3dc2f69cb5d06",
-          "timestamp": "2026-05-06T01:24:55.022Z"
+          "headHash": "aad14019687ee5eb4f768b856e27d4a63159122f",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T02:40:49.513Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -225,9 +225,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Covers koala next summarizing blocking DONE pre-check rows before recommending story_advance DONE.",
-          "headHash": "b7b6181e3e40889996b73e953e619e795ce1a534",
-          "materialHash": "bcda6eee5f121505b3e692b282e41ca36c45a7df6c520c6ebea3dc2f69cb5d06",
-          "timestamp": "2026-05-06T01:24:55.022Z"
+          "headHash": "aad14019687ee5eb4f768b856e27d4a63159122f",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T02:40:49.513Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -236,9 +236,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Covers absence of the old optimistic DONE shortcut while blockers exist.",
-          "headHash": "b7b6181e3e40889996b73e953e619e795ce1a534",
-          "materialHash": "bcda6eee5f121505b3e692b282e41ca36c45a7df6c520c6ebea3dc2f69cb5d06",
-          "timestamp": "2026-05-06T01:24:55.022Z"
+          "headHash": "aad14019687ee5eb4f768b856e27d4a63159122f",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T02:40:49.513Z"
         }
       ]
     },
@@ -293,9 +293,9 @@
           "command": "npm --prefix packages/main run test:review-pass-discard-smoke",
           "result": "pass",
           "note": "Covers init-self-check.json exact whitelist removal by cleanStrayWorktreeFiles.",
-          "headHash": "b7b6181e3e40889996b73e953e619e795ce1a534",
-          "materialHash": "bcda6eee5f121505b3e692b282e41ca36c45a7df6c520c6ebea3dc2f69cb5d06",
-          "timestamp": "2026-05-06T01:24:55.022Z"
+          "headHash": "aad14019687ee5eb4f768b856e27d4a63159122f",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T02:40:49.513Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -304,9 +304,9 @@
           "command": "npm --prefix packages/main run test:review-pass-discard-smoke",
           "result": "pass",
           "note": "Covers cleanup report naming init-self-check.json when Koala removes it.",
-          "headHash": "b7b6181e3e40889996b73e953e619e795ce1a534",
-          "materialHash": "bcda6eee5f121505b3e692b282e41ca36c45a7df6c520c6ebea3dc2f69cb5d06",
-          "timestamp": "2026-05-06T01:24:55.022Z"
+          "headHash": "aad14019687ee5eb4f768b856e27d4a63159122f",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T02:40:49.513Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -315,9 +315,9 @@
           "command": "npm --prefix packages/main run test:review-pass-discard-smoke",
           "result": "pass",
           "note": "Covers unknown non-whitelisted story files blocking cleanup and remaining on disk.",
-          "headHash": "b7b6181e3e40889996b73e953e619e795ce1a534",
-          "materialHash": "bcda6eee5f121505b3e692b282e41ca36c45a7df6c520c6ebea3dc2f69cb5d06",
-          "timestamp": "2026-05-06T01:24:55.022Z"
+          "headHash": "aad14019687ee5eb4f768b856e27d4a63159122f",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T02:40:49.513Z"
         }
       ]
     },
@@ -375,9 +375,9 @@
           "command": "npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
           "note": "Covers doctor JSON/text Validation scan for configured commands, shell receipts, fallback labels, and no-validator state.",
-          "headHash": "b7b6181e3e40889996b73e953e619e795ce1a534",
-          "materialHash": "bcda6eee5f121505b3e692b282e41ca36c45a7df6c520c6ebea3dc2f69cb5d06",
-          "timestamp": "2026-05-06T01:24:55.022Z"
+          "headHash": "aad14019687ee5eb4f768b856e27d4a63159122f",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T02:40:49.513Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -386,9 +386,9 @@
           "command": "npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
           "note": "Docs explain doctor Validation scan is advisory and validate.command(s) are explicit gate configuration.",
-          "headHash": "b7b6181e3e40889996b73e953e619e795ce1a534",
-          "materialHash": "bcda6eee5f121505b3e692b282e41ca36c45a7df6c520c6ebea3dc2f69cb5d06",
-          "timestamp": "2026-05-06T01:24:55.022Z"
+          "headHash": "aad14019687ee5eb4f768b856e27d4a63159122f",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T02:40:49.513Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -397,9 +397,9 @@
           "command": "npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
           "note": "Covers doctor scan output staying generic without PVSC, story id, or exact pass-count assumptions.",
-          "headHash": "b7b6181e3e40889996b73e953e619e795ce1a534",
-          "materialHash": "bcda6eee5f121505b3e692b282e41ca36c45a7df6c520c6ebea3dc2f69cb5d06",
-          "timestamp": "2026-05-06T01:24:55.022Z"
+          "headHash": "aad14019687ee5eb4f768b856e27d4a63159122f",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T02:40:49.513Z"
         }
       ]
     }
