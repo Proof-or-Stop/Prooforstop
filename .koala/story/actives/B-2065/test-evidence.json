@@ -1,0 +1,315 @@
+{
+  "command": "koala validate --story=B-2065 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.2 test\",\"  > npm run test:e2e\",\"  > koala@0.3.2 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 15/15 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via logic_test (packages/main/src/tasks/validation-protocol-smoke.ts) — Configured validate.command containing cd and && is discovered as one shell command and JSON receipt includes shell=true, command, code, durationMs, and output.\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via logic_test (packages/main/src/tasks/validation-protocol-smoke.ts) — Configured command object with explicit args/env/cwd/timeout/optional still executes without shell and preserves receipt metadata.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/validation-protocol-smoke.ts) — A required validation command that exits nonzero returns status=fail and allPass=false, while optional failure stays warn/allPass=true.\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via logic_test (packages/main/src/tasks/validation-protocol-smoke.ts) — Invalid nested JSON enum values are reported with the exact dotted field path and expected values.\",\"  ✓ CHK-002:edge:0 [edge/should/cli] covered via logic_test (packages/main/src/cli-engine.ts) — Malformed JSON body still reports JSON parse failure and command help without being logged as a successful mutation.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/validation-protocol-smoke.ts) — Invalid verificationIntent type must not mutate checklist metadata and must not print only generic help or status guidance.\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via logic_test (packages/main/src/tasks/flow-stability-smoke.ts) — TEST phase session_brief renders DONE pre-check blockers for missing delivery-check and story summary.\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via logic_test (packages/main/src/tasks/flow-stability-smoke.ts) — koala next summarizes the blocking DONE pre-check row ids instead of rendering a generic optimistic DONE instruction.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/flow-stability-smoke.ts) — When blockers exist, status/brief output must not contain the old optimistic next step text that says to advance DONE after only committing.\",\"  ✓ CHK-004:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/review-pass-discard-smoke.ts) — init-self-check.json is an exact whitelist entry and is removed by cleanStrayWorktreeFiles as generated metadata.\",\"  ✓ CHK-004:edge:0 [edge/should/logic] covered via logic_test (packages/main/src/tasks/review-pass-discard-smoke.ts) — Cleanup report names init-self-check.json so users can see what Koala removed.\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/review-pass-discard-smoke.ts) — A non-whitelisted story file still blocks cleanup and remains on disk, preserving human drafts.\",\"  ✓ CHK-005:happy:0 [happy/must/cli] covered via logic_test (packages/main/src/tasks/validation-protocol-smoke.ts) — koala doctor exposes a user-readable Validation scan section for configured validate command status and fallback warnings.\",\"  ✓ CHK-005:edge:0 [edge/should/docs] covered via docs_check (docs/requirements/decisions/testing-infra.md) — Doctor/advisory wording distinguishes validate.ts missing fallback from a hard validation failure.\",\"  ✓ CHK-005:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/validation-protocol-smoke.ts) — Doctor validation scan must not require PVSC, exact pytest counts, or Python-specific benchmark assumptions.\"],\"warnings\":[],\"timestamp\":\"2026-05-06T02:41:26.045Z\",\"headSha\":\"81ceba7e76f0a4dcee377c5d5f76ae69bc170dfd\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.2 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.2 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":290}],\"verificationCoverage\":{\"total\":15,\"required\":12,\"covered\":15,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Configured validate.command containing cd and && is discovered as one shell command and JSON receipt includes shell=true, command, code, durationMs, and output.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/validation-protocol-smoke.ts\",\"command\":\"npm --prefix packages/main run test:validation-protocol\",\"result\":\"pass\",\"note\":\"Covers configured string validate.command with cd && as shell=true receipt including command, code, durationMs, and output.\",\"headHash\":\"aad14019687ee5eb4f768b856e27d4a63159122f\",\"materialHash\":\"55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60\",\"timestamp\":\"2026-05-06T02:40:49.513Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Configured command object with explicit args/env/cwd/timeout/optional still executes without shell and preserves receipt metadata.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/validation-protocol-smoke.ts\",\"command\":\"npm --prefix packages/main run test:validation-protocol\",\"result\":\"pass\",\"note\":\"Covers structured configured command object preserving args/env/cwd/timeout/optional without shell.\",\"headHash\":\"aad14019687ee5eb4f768b856e27d4a63159122f\",\"materialHash\":\"55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60\",\"timestamp\":\"2026-05-06T02:40:49.513Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"A required validation command that exits nonzero returns status=fail and allPass=false, while optional failure stays warn/allPass=true.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/validation-protocol-smoke.ts\",\"command\":\"npm --prefix packages/main run test:validation-protocol\",\"result\":\"pass\",\"note\":\"Covers required nonzero command as fail/allPass=false and optional nonzero command as warn/allPass=true.\",\"headHash\":\"aad14019687ee5eb4f768b856e27d4a63159122f\",\"materialHash\":\"55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60\",\"timestamp\":\"2026-05-06T02:40:49.513Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Invalid nested JSON enum values are reported with the exact dotted field path and expected values.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/validation-protocol-smoke.ts\",\"command\":\"npm --prefix packages/main run test:validation-protocol\",\"result\":\"pass\",\"note\":\"Covers invalid nested verificationIntent enum reporting verificationIntent.happy.0.type with legal values.\",\"headHash\":\"aad14019687ee5eb4f768b856e27d4a63159122f\",\"materialHash\":\"55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60\",\"timestamp\":\"2026-05-06T02:40:49.513Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Malformed JSON body still reports JSON parse failure and command help without being logged as a successful mutation.\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/cli-engine.ts\",\"command\":\"npm --prefix packages/main run test:validation-protocol\",\"result\":\"pass\",\"note\":\"Existing CLI engine path still reports parse/schema failures before dispatch; malformed JSON path remains fail-fast at the engine boundary.\",\"headHash\":\"aad14019687ee5eb4f768b856e27d4a63159122f\",\"materialHash\":\"55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60\",\"timestamp\":\"2026-05-06T02:40:49.513Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Invalid verificationIntent type must not mutate checklist metadata and must not print only generic help or status guidance.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/validation-protocol-smoke.ts\",\"command\":\"npm --prefix packages/main run test:validation-protocol\",\"result\":\"pass\",\"note\":\"Covers invalid verificationIntent type exiting nonzero before .koala metadata is created or mutated.\",\"headHash\":\"aad14019687ee5eb4f768b856e27d4a63159122f\",\"materialHash\":\"55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60\",\"timestamp\":\"2026-05-06T02:40:49.513Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"TEST phase session_brief renders DONE pre-check blockers for missing delivery-check and story summary.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/flow-stability-smoke.ts\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"Covers TEST phase session_brief rendering DONE pre-check blockers for delivery-check and summary.\",\"headHash\":\"aad14019687ee5eb4f768b856e27d4a63159122f\",\"materialHash\":\"55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60\",\"timestamp\":\"2026-05-06T02:40:49.513Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"koala next summarizes the blocking DONE pre-check row ids instead of rendering a generic optimistic DONE instruction.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/flow-stability-smoke.ts\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"Covers koala next summarizing blocking DONE pre-check rows before recommending story_advance DONE.\",\"headHash\":\"aad14019687ee5eb4f768b856e27d4a63159122f\",\"materialHash\":\"55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60\",\"timestamp\":\"2026-05-06T02:40:49.513Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"When blockers exist, status/brief output must not contain the old optimistic next step text that says to advance DONE after only committing.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/flow-stability-smoke.ts\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"Covers absence of the old optimistic DONE shortcut while blockers exist.\",\"headHash\":\"aad14019687ee5eb4f768b856e27d4a63159122f\",\"materialHash\":\"55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60\",\"timestamp\":\"2026-05-06T02:40:49.513Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"init-self-check.json is an exact whitelist entry and is removed by cleanStrayWorktreeFiles as generated metadata.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/review-pass-discard-smoke.ts\",\"command\":\"npm --prefix packages/main run test:review-pass-discard-smoke\",\"result\":\"pass\",\"note\":\"Covers init-self-check.json exact whitelist removal by cleanStrayWorktreeFiles.\",\"headHash\":\"aad14019687ee5eb4f768b856e27d4a63159122f\",\"materialHash\":\"55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60\",\"timestamp\":\"2026-05-06T02:40:49.513Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Cleanup report names init-self-check.json so users can see what Koala removed.\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/review-pass-discard-smoke.ts\",\"command\":\"npm --prefix packages/main run test:review-pass-discard-smoke\",\"result\":\"pass\",\"note\":\"Covers cleanup report naming init-self-check.json when Koala removes it.\",\"headHash\":\"aad14019687ee5eb4f768b856e27d4a63159122f\",\"materialHash\":\"55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60\",\"timestamp\":\"2026-05-06T02:40:49.513Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"A non-whitelisted story file still blocks cleanup and remains on disk, preserving human drafts.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/review-pass-discard-smoke.ts\",\"command\":\"npm --prefix packages/main run test:review-pass-discard-smoke\",\"result\":\"pass\",\"note\":\"Covers unknown non-whitelisted story files blocking cleanup and remaining on disk.\",\"headHash\":\"aad14019687ee5eb4f768b856e27d4a63159122f\",\"materialHash\":\"55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60\",\"timestamp\":\"2026-05-06T02:40:49.513Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"koala doctor exposes a user-readable Validation scan section for configured validate command status and fallback warnings.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/validation-protocol-smoke.ts\",\"command\":\"npm --prefix packages/main run test:validation-protocol\",\"result\":\"pass\",\"note\":\"Covers doctor JSON/text Validation scan for configured commands, shell receipts, fallback labels, and no-validator state.\",\"headHash\":\"aad14019687ee5eb4f768b856e27d4a63159122f\",\"materialHash\":\"55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60\",\"timestamp\":\"2026-05-06T02:40:49.513Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"Doctor/advisory wording distinguishes validate.ts missing fallback from a hard validation failure.\",\"type\":\"docs\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/testing-infra.md\",\"command\":\"npm --prefix packages/main run test:validation-protocol\",\"result\":\"pass\",\"note\":\"Docs explain doctor Validation scan is advisory and validate.command(s) are explicit gate configuration.\",\"headHash\":\"aad14019687ee5eb4f768b856e27d4a63159122f\",\"materialHash\":\"55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60\",\"timestamp\":\"2026-05-06T02:40:49.513Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"Doctor validation scan must not require PVSC, exact pytest counts, or Python-specific benchmark assumptions.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/validation-protocol-smoke.ts\",\"command\":\"npm --prefix packages/main run test:validation-protocol\",\"result\":\"pass\",\"note\":\"Covers doctor scan output staying generic without PVSC, story id, or exact pass-count assumptions.\",\"headHash\":\"aad14019687ee5eb4f768b856e27d4a63159122f\",\"materialHash\":\"55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60\",\"timestamp\":\"2026-05-06T02:40:49.513Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-05-06T02:41:26.339Z",
+  "headHash": "81ceba7e76f0a4dcee377c5d5f76ae69bc170dfd",
+  "verificationCoverage": {
+    "total": 15,
+    "required": 12,
+    "covered": 15,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Configured validate.command containing cd and && is discovered as one shell command and JSON receipt includes shell=true, command, code, durationMs, and output.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Covers configured string validate.command with cd && as shell=true receipt including command, code, durationMs, and output.",
+          "headHash": "aad14019687ee5eb4f768b856e27d4a63159122f",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T02:40:49.513Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Configured command object with explicit args/env/cwd/timeout/optional still executes without shell and preserves receipt metadata.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Covers structured configured command object preserving args/env/cwd/timeout/optional without shell.",
+          "headHash": "aad14019687ee5eb4f768b856e27d4a63159122f",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T02:40:49.513Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "A required validation command that exits nonzero returns status=fail and allPass=false, while optional failure stays warn/allPass=true.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Covers required nonzero command as fail/allPass=false and optional nonzero command as warn/allPass=true.",
+          "headHash": "aad14019687ee5eb4f768b856e27d4a63159122f",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T02:40:49.513Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Invalid nested JSON enum values are reported with the exact dotted field path and expected values.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Covers invalid nested verificationIntent enum reporting verificationIntent.happy.0.type with legal values.",
+          "headHash": "aad14019687ee5eb4f768b856e27d4a63159122f",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T02:40:49.513Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Malformed JSON body still reports JSON parse failure and command help without being logged as a successful mutation.",
+        "type": "cli",
+        "priority": "should",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/cli-engine.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Existing CLI engine path still reports parse/schema failures before dispatch; malformed JSON path remains fail-fast at the engine boundary.",
+          "headHash": "aad14019687ee5eb4f768b856e27d4a63159122f",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T02:40:49.513Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Invalid verificationIntent type must not mutate checklist metadata and must not print only generic help or status guidance.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Covers invalid verificationIntent type exiting nonzero before .koala metadata is created or mutated.",
+          "headHash": "aad14019687ee5eb4f768b856e27d4a63159122f",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T02:40:49.513Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "TEST phase session_brief renders DONE pre-check blockers for missing delivery-check and story summary.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Covers TEST phase session_brief rendering DONE pre-check blockers for delivery-check and summary.",
+          "headHash": "aad14019687ee5eb4f768b856e27d4a63159122f",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T02:40:49.513Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "koala next summarizes the blocking DONE pre-check row ids instead of rendering a generic optimistic DONE instruction.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Covers koala next summarizing blocking DONE pre-check rows before recommending story_advance DONE.",
+          "headHash": "aad14019687ee5eb4f768b856e27d4a63159122f",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T02:40:49.513Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "When blockers exist, status/brief output must not contain the old optimistic next step text that says to advance DONE after only committing.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Covers absence of the old optimistic DONE shortcut while blockers exist.",
+          "headHash": "aad14019687ee5eb4f768b856e27d4a63159122f",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T02:40:49.513Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "init-self-check.json is an exact whitelist entry and is removed by cleanStrayWorktreeFiles as generated metadata.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "command": "npm --prefix packages/main run test:review-pass-discard-smoke",
+          "result": "pass",
+          "note": "Covers init-self-check.json exact whitelist removal by cleanStrayWorktreeFiles.",
+          "headHash": "aad14019687ee5eb4f768b856e27d4a63159122f",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T02:40:49.513Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "Cleanup report names init-self-check.json so users can see what Koala removed.",
+        "type": "logic",
+        "priority": "should",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "command": "npm --prefix packages/main run test:review-pass-discard-smoke",
+          "result": "pass",
+          "note": "Covers cleanup report naming init-self-check.json when Koala removes it.",
+          "headHash": "aad14019687ee5eb4f768b856e27d4a63159122f",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T02:40:49.513Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "A non-whitelisted story file still blocks cleanup and remains on disk, preserving human drafts.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "command": "npm --prefix packages/main run test:review-pass-discard-smoke",
+          "result": "pass",
+          "note": "Covers unknown non-whitelisted story files blocking cleanup and remaining on disk.",
+          "headHash": "aad14019687ee5eb4f768b856e27d4a63159122f",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T02:40:49.513Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:happy:0",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "koala doctor exposes a user-readable Validation scan section for configured validate command status and fallback warnings.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Covers doctor JSON/text Validation scan for configured commands, shell receipts, fallback labels, and no-validator state.",
+          "headHash": "aad14019687ee5eb4f768b856e27d4a63159122f",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T02:40:49.513Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:edge:0",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "Doctor/advisory wording distinguishes validate.ts missing fallback from a hard validation failure.",
+        "type": "docs",
+        "priority": "should",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/testing-infra.md",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Docs explain doctor Validation scan is advisory and validate.command(s) are explicit gate configuration.",
+          "headHash": "aad14019687ee5eb4f768b856e27d4a63159122f",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T02:40:49.513Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:adversarial:0",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "Doctor validation scan must not require PVSC, exact pytest counts, or Python-specific benchmark assumptions.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Covers doctor scan output staying generic without PVSC, story id, or exact pass-count assumptions.",
+          "headHash": "aad14019687ee5eb4f768b856e27d4a63159122f",
+          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
+          "timestamp": "2026-05-06T02:40:49.513Z"
+        }
+      }
+    ]
+  }
+}

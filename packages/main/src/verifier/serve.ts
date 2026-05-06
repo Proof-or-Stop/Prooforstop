@@ -24,7 +24,10 @@ import { resolve, join, dirname } from 'node:path';
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync, unlinkSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import net from 'node:net';
-import { discoverValidationCommands } from '../handlers/verifier.js';
+import {
+  configuredValidationCommands,
+  discoverFallbackValidationCommands,
+} from '../handlers/verifier.js';
 import { executeValidationPlan } from '../core/validation-executor.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -142,7 +145,12 @@ function createValidateRunner(projectRoot: string) {
       join('src', 'validate.ts'), join('src', 'validate.js'), join('src', 'validate.mts'),
     ].find(f => existsSync(join(projectRoot, f)));
     if (!validateFile) {
-      const commands = discoverValidationCommands(projectRoot);
+      const configuredCommands = configuredValidationCommands(projectRoot);
+      const fallbackCommands = configuredCommands.length === 0
+        ? discoverFallbackValidationCommands(projectRoot)
+        : [];
+      const commands = configuredCommands.length > 0 ? configuredCommands : fallbackCommands;
+      const usingConfigured = configuredCommands.length > 0;
       if (commands.length === 0) {
         cache.result = JSON.stringify({
           provider: 'koala-serve-validator',
@@ -163,10 +171,17 @@ function createValidateRunner(projectRoot: string) {
       }
 
       const result = await executeValidationPlan({
-        provider: 'koala-serve-validator',
+        provider: usingConfigured
+          ? 'koala-serve-validator-configured-commands'
+          : 'koala-serve-validator-fallback-commands',
         commands,
-        warnings: ['validate.ts not found; used language/project validation command discovery'],
+        warnings: [],
       }, projectRoot);
+      if (!usingConfigured) {
+        const detail = 'validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery';
+        result.summary = `${result.summary}; ${detail}`;
+        result.details = [detail, ...result.details];
+      }
       cache.result = JSON.stringify(result);
       cache.running = false;
       cache.lastRun = Date.now();

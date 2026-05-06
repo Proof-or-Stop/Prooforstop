@@ -50,6 +50,19 @@ TEST 阶段通过后提示查看 DONE pre-check，并按失败 row 的 hint 补 
 }
 ```
 
+`validate.command` / `validate.commands` 的 JSON receipt 是审计证据：每条命令应记录
+`command`、`args`、`code`、`durationMs`、`output`，以及需要 shell 语义时的
+`shell=true`。字符串命令里包含 `cd`/`&&`/管道/重定向等 shell 语义时，Koala 会把它
+作为一个有意的 shell receipt 执行；结构化命令对象默认不走 shell，除非显式写
+`"shell": true`。必需命令失败时 `koala validate` hard fail；`optional:true`
+命令失败时只返回 warn。
+
+`koala doctor` 的 Validation scan 是项目级 advisory，不替代 `koala validate`：
+它说明 `validate.ts/js/mts` 是否存在、`koala.config.json` 是否配置了验证命令、
+自动发现的 fallback 命令标签、是否处于 no-validator warning，以及 shell 风格配置
+是否会留下 `shell=true` receipt。这里不能写项目专属测试数量或 PVSC 之类的假设；
+需要强门禁时应配置显式 validate command。
+
 ### 阶段行为差异
 
 - **DEV 阶段**：`test_auto` 不还原代码 + 提示"注意：可能修改实际文件"

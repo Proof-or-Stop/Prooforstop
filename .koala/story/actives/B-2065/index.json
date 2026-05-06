@@ -1,0 +1,93 @@
+{
+  "storyId": "B-2065",
+  "name": "koala-hardening-validate-cli-gates",
+  "title": "Koala validation and gate reliability hardening",
+  "description": "Turn recent process failures into general Koala framework capabilities: validate commands must fail hard instead of false-green, CLI JSON enum/schema errors must be visible, status next-step messaging must use gate preflight facts, and Koala-generated lifecycle artifacts must not block DONE as stray files.",
+  "type": "bug",
+  "phase": "DONE",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "状态机/门禁",
+      "matched": "story_advance"
+    }
+  ],
+  "createdAt": "2026-05-05T12:55:46.901Z",
+  "startedAt": "2026-05-05T12:55:46.901Z",
+  "endedAt": "2026-05-06T10:23:55.469Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-05-05T12:55:46.901Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-05-05T12:59:10.764Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-05-05T12:59:15.135Z",
+      "branch": "story/B-2065",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-06T01:17:58.304Z",
+      "branch": "story/B-2065",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-06T01:28:12.329Z",
+      "branch": "story/B-2065",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-06T01:35:57.397Z",
+      "branch": "story/B-2065",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-06T02:36:58.194Z",
+      "branch": "story/B-2065",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-05-06T02:41:13.329Z",
+      "branch": "story/B-2065",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-05-06T10:23:55.469Z",
+      "branch": "story/B-2065",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-05-06T02:36:58.194Z"
+}

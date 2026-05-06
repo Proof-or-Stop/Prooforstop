@@ -17,6 +17,8 @@ import type { HandlerContext } from './context.js';
 import { readHealthIssues, summarizeHealthIssues, getHealthPath } from '../core/health.js';
 import { loadConfig } from '../core/config.js';
 import { renderCodexAdapterChecks, runCodexAdapterChecks } from '../core/codex-adapter-checks.js';
+import { formatValidationCommand } from '../core/validation-executor.js';
+import { scanValidationSetup, type ValidationSetupScan } from './verifier.js';
 
 export function createDoctorHandlers(ctx: HandlerContext) {
   const { root, store } = ctx;
@@ -30,6 +32,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
         executeHeartbeats: true,
         registryNames: ctx.getAllToolNames?.(),
       });
+      const validation = scanValidationSetup(root);
 
       // B-7241 follow-up: scan for orphan worktrees (directory exists but
       // `git worktree list` doesn't know about it). This typically happens
@@ -84,6 +87,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
             repairRequested: !!args?.repair,
           },
           codex,
+          validation,
         };
       }
 
@@ -163,12 +167,58 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       }
 
       lines.push('');
+      lines.push(renderValidationScan(validation));
+      lines.push('');
       lines.push('Codex adapter scan:');
       lines.push(renderCodexAdapterChecks(codex).split('\n').map((line, index) => index === 0 ? `  ${line}` : `  ${line}`).join('\n'));
 
       return lines.join('\n');
     },
   };
+}
+
+function renderValidationScan(scan: ValidationSetupScan): string {
+  const lines: string[] = [];
+  lines.push('Validation scan:');
+  const fileSummary = scan.validateFiles
+    .map((file) => `${file.name}=${file.present ? 'present' : 'missing'}`)
+    .join(', ');
+  lines.push(`  validate files: ${fileSummary}`);
+  lines.push(`  active validate file: ${scan.validateFile ?? 'none'}`);
+
+  lines.push(`  configured commands: ${scan.configuredCommands.length}`);
+  if (scan.configuredCommands.length > 0) {
+    for (const cmd of scan.configuredCommands) {
+      const shell = cmd.shell ? ' shell=true' : '';
+      const optional = cmd.optional ? ' optional=true' : '';
+      lines.push(`  - ${cmd.label}: ${formatValidationCommand(cmd)}${shell}${optional}`);
+    }
+  }
+
+  const fallbackLabels = scan.discoveredFallbackLabels.length > 0
+    ? scan.discoveredFallbackLabels.join(', ')
+    : 'none';
+  lines.push(`  discovered fallback labels: ${fallbackLabels}`);
+  lines.push(`  no-validator warning: ${scan.noValidatorWarning ? 'yes' : 'no'}`);
+
+  if (scan.configuredShellStyleCommands.length === 0) {
+    lines.push('  configured shell receipts: none');
+  } else {
+    const receiptStatus = scan.configuredShellReceiptsIntentional ? 'intentional' : 'needs attention';
+    lines.push(`  configured shell receipts: ${receiptStatus}`);
+    for (const cmd of scan.configuredShellStyleCommands) {
+      lines.push(`  - ${cmd.label}: shell=${cmd.shell ? 'true' : 'false'} source=${cmd.source}`);
+    }
+  }
+
+  if (scan.warnings.length > 0) {
+    lines.push('  warnings:');
+    for (const warning of scan.warnings) lines.push(`  - ${warning}`);
+  } else {
+    lines.push('  warnings: none');
+  }
+  lines.push('  note: fallback command discovery is advisory; configure validate.command(s) for an explicit project gate.');
+  return lines.join('\n');
 }
 
 /**
