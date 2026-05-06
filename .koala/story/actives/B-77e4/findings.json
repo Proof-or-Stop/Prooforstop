@@ -5,7 +5,7 @@
       "desc": "packages/main/src/dashboard.ts:85 and packages/main/src/handlers/session.ts:485 index doneOutcomes with summary.outcomeKind from unchecked JSON. A parseable but invalid value (reproduced with outcomeKind=\"typo\") creates a hidden bucket and renders \"Lifecycle DONE: 1/1\" with DONE-success/default=0 DONE-blocked=0 DONE-audit-only=0, so legacy/corrupt summaries silently undercount outcomes. Fix by adding a runtime normalizer/enum guard before indexing or rendering, and default unknown values to the compatibility bucket (or an explicit unknown bucket) instead of trusting the stored string.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "agent": "koala-review-quality",
       "createdAt": "2026-05-06T14:36:48.978Z",
       "reviewRound": "2026-05-06T14:32:25.140Z",
