@@ -27,6 +27,25 @@ import { buildVerificationCoverage, renderVerificationCoverage } from '../core/v
 import { checkEvidenceFreshnessForGit } from '../core/evidence-freshness.js';
 
 const STATUS_FALLBACK_TIMEOUT_MS = 10_000;
+const SHELL_META_RE = /[;&|<>$()`]/;
+
+export interface ValidationSetupScan {
+  validateFiles: Array<{ name: string; present: boolean }>;
+  validateFile: string | null;
+  configuredCommands: ValidationCommand[];
+  fallbackCommands: ValidationCommand[];
+  discoveredFallbackLabels: string[];
+  noValidatorWarning: boolean;
+  configuredShellStyleCommands: Array<{
+    label: string;
+    command: string;
+    shell: boolean;
+    intentionalShellReceipt: boolean;
+    source: 'string' | 'object';
+  }>;
+  configuredShellReceiptsIntentional: boolean;
+  warnings: string[];
+}
 
 export function findValidateFile(projectRoot: string): string | null {
   const candidates = ['validate.ts', 'validate.js', 'validate.mts'];
@@ -90,7 +109,7 @@ function splitShellWords(command: string): string[] {
 function commandFromString(label: string, value: string): ValidationCommand | null {
   const trimmed = value.trim();
   if (!trimmed) return null;
-  if (/[;&|<>$()`]/.test(trimmed)) {
+  if (SHELL_META_RE.test(trimmed)) {
     return { label, command: trimmed, args: [], shell: true };
   }
   const parts = splitShellWords(trimmed);
@@ -98,7 +117,7 @@ function commandFromString(label: string, value: string): ValidationCommand | nu
   return { label, command: parts[0], args: parts.slice(1) };
 }
 
-function configuredValidationCommands(projectRoot: string): ValidationCommand[] {
+export function configuredValidationCommands(projectRoot: string): ValidationCommand[] {
   const cfg = loadConfig(projectRoot) as any;
   const validate = cfg.validate || cfg.validation;
   const commands: ValidationCommand[] = [];
@@ -132,6 +151,52 @@ function configuredValidationCommands(projectRoot: string): ValidationCommand[] 
   return commands;
 }
 
+function configuredShellStyleEntries(projectRoot: string): ValidationSetupScan['configuredShellStyleCommands'] {
+  const cfg = loadConfig(projectRoot) as any;
+  const validate = cfg.validate || cfg.validation;
+  const out: ValidationSetupScan['configuredShellStyleCommands'] = [];
+  if (!validate || typeof validate !== 'object') return out;
+
+  if (typeof validate.command === 'string' && SHELL_META_RE.test(validate.command.trim())) {
+    const cmd = commandFromString('configured validate.command', validate.command);
+    out.push({
+      label: 'configured validate.command',
+      command: validate.command.trim(),
+      shell: cmd?.shell === true,
+      intentionalShellReceipt: cmd?.shell === true,
+      source: 'string',
+    });
+  }
+
+  if (Array.isArray(validate.commands)) {
+    for (let i = 0; i < validate.commands.length; i++) {
+      const entry = validate.commands[i];
+      if (typeof entry === 'string') {
+        if (!SHELL_META_RE.test(entry.trim())) continue;
+        const cmd = commandFromString(`configured validate.commands[${i}]`, entry);
+        out.push({
+          label: `configured validate.commands[${i}]`,
+          command: entry.trim(),
+          shell: cmd?.shell === true,
+          intentionalShellReceipt: cmd?.shell === true,
+          source: 'string',
+        });
+      } else if (entry && typeof entry === 'object' && typeof entry.command === 'string' && SHELL_META_RE.test(entry.command.trim())) {
+        const shell = entry.shell === true;
+        out.push({
+          label: typeof entry.label === 'string' ? entry.label : `configured validate.commands[${i}]`,
+          command: entry.command.trim(),
+          shell,
+          intentionalShellReceipt: shell,
+          source: 'object',
+        });
+      }
+    }
+  }
+
+  return out;
+}
+
 function packageJsonTestCommand(projectRoot: string): ValidationCommand | null {
   const packageJson = join(projectRoot, 'package.json');
   if (!existsSync(packageJson)) return null;
@@ -147,10 +212,7 @@ function packageJsonTestCommand(projectRoot: string): ValidationCommand | null {
   return null;
 }
 
-export function discoverValidationCommands(projectRoot: string): ValidationCommand[] {
-  const configured = configuredValidationCommands(projectRoot);
-  if (configured.length > 0) return configured;
-
+export function discoverFallbackValidationCommands(projectRoot: string): ValidationCommand[] {
   const discovered: ValidationCommand[] = [];
   const npmTest = packageJsonTestCommand(projectRoot);
   if (npmTest) discovered.push(npmTest);
@@ -179,6 +241,50 @@ export function discoverValidationCommands(projectRoot: string): ValidationComma
   }
 
   return discovered;
+}
+
+export function discoverValidationCommands(projectRoot: string): ValidationCommand[] {
+  const configured = configuredValidationCommands(projectRoot);
+  if (configured.length > 0) return configured;
+  return discoverFallbackValidationCommands(projectRoot);
+}
+
+export function scanValidationSetup(projectRoot: string): ValidationSetupScan {
+  const validateFiles = ['validate.ts', 'validate.js', 'validate.mts'].map((name) => ({
+    name,
+    present: existsSync(join(projectRoot, name)),
+  }));
+  const validateFile = validateFiles.find((f) => f.present)?.name ?? null;
+  const configuredCommands = configuredValidationCommands(projectRoot);
+  const fallbackCommands = discoverFallbackValidationCommands(projectRoot);
+  const configuredShellStyleCommands = configuredShellStyleEntries(projectRoot);
+  const configuredShellReceiptsIntentional = configuredShellStyleCommands.every((cmd) => cmd.intentionalShellReceipt);
+  const noValidatorWarning = !validateFile && configuredCommands.length === 0 && fallbackCommands.length === 0;
+  const warnings: string[] = [];
+
+  if (!validateFile && configuredCommands.length === 0 && fallbackCommands.length > 0) {
+    warnings.push('validate.ts/js/mts not found; validation will use advisory fallback command discovery');
+  }
+  if (noValidatorWarning) {
+    warnings.push('No validate.ts/js/mts, configured validate.command(s), or fallback validation commands found');
+  }
+  for (const entry of configuredShellStyleCommands) {
+    if (!entry.intentionalShellReceipt) {
+      warnings.push(`${entry.label} looks shell-style but is not configured with shell=true`);
+    }
+  }
+
+  return {
+    validateFiles,
+    validateFile,
+    configuredCommands,
+    fallbackCommands,
+    discoveredFallbackLabels: fallbackCommands.map((cmd) => cmd.label),
+    noValidatorWarning,
+    configuredShellStyleCommands,
+    configuredShellReceiptsIntentional,
+    warnings,
+  };
 }
 
 /** Run a command and capture stdout+stderr, returning { code, output } */

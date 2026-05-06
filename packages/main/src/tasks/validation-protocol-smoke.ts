@@ -1,12 +1,19 @@
 #!/usr/bin/env node
 
 import { strict as assert } from 'node:assert';
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { execFileSync, spawnSync } from 'node:child_process';
+import { existsSync, mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { executeValidationPlan } from '../core/validation-executor.js';
 import { resetConfigCache } from '../core/config.js';
 import { discoverValidationCommands } from '../handlers/verifier.js';
+import { createDoctorHandlers } from '../handlers/doctor.js';
+import { StoryStore } from '../core/store.js';
+
+const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const cliPath = join(packageRoot, 'cli.js');
 
 const tmp = mkdtempSync(join(tmpdir(), 'koala-validation-protocol-'));
 
@@ -110,6 +117,60 @@ try {
   assert.equal(shellDiscovered[0].shell, true);
   assert.equal(shellDiscovered[0].command, 'cd sub && node -e "process.stdout.write(process.cwd())"');
   assert.deepEqual(shellDiscovered[0].args, []);
+
+  const invalidArgCwd = mkdtempSync(join(tmpdir(), 'koala-validation-schema-'));
+  const env = { ...process.env };
+  delete env.KOALA_PROJECT_ROOT;
+  const invalidVerificationIntent = spawnSync(process.execPath, [
+    cliPath,
+    'checklist_update',
+    JSON.stringify({
+      storyId: 'B-smoke',
+      itemId: 'CHK-001',
+      verificationIntent: {
+        happy: [{ desc: 'bad enum', type: 'integration_test', priority: 'must' }],
+      },
+    }),
+  ], {
+    cwd: invalidArgCwd,
+    env,
+    encoding: 'utf-8',
+  });
+  assert.notEqual(invalidVerificationIntent.status, 0, 'invalid nested verificationIntent enum should fail');
+  assert.match(invalidVerificationIntent.stderr, /参数校验失败/);
+  assert.match(invalidVerificationIntent.stderr, /verificationIntent\.happy\.0\.type/);
+  assert.match(invalidVerificationIntent.stderr, /integration_test/);
+  assert.match(invalidVerificationIntent.stderr, /logic[\s\S]*cli[\s\S]*browser[\s\S]*manual[\s\S]*docs/);
+  assert.equal(existsSync(join(invalidArgCwd, '.koala')), false, 'schema failure should happen before metadata mutation');
+  rmSync(invalidArgCwd, { recursive: true, force: true });
+
+  writeFileSync(join(tmp, 'package.json'), JSON.stringify({
+    scripts: { test: 'node -e "process.stdout.write(\\"fallback\\")"' },
+  }));
+  execFileSync('git', ['init'], { cwd: tmp, stdio: ['ignore', 'ignore', 'ignore'] });
+  resetConfigCache();
+  const doctor = createDoctorHandlers({
+    root: tmp,
+    scanRoot: tmp,
+    store: new StoryStore(tmp),
+    log: () => {},
+    getAllToolNames: () => new Set<string>(),
+  }).doctor;
+  const doctorJson = doctor({ format: 'json' }) as any;
+  assert.equal(doctorJson.validation.validateFile, null);
+  assert.equal(doctorJson.validation.configuredCommands.length, 1);
+  assert.equal(doctorJson.validation.configuredCommands[0].shell, true);
+  assert.equal(doctorJson.validation.configuredShellReceiptsIntentional, true);
+  assert.deepEqual(doctorJson.validation.discoveredFallbackLabels, ['package.json test script']);
+  assert.equal(doctorJson.validation.noValidatorWarning, false);
+
+  const doctorText = doctor() as string;
+  assert.match(doctorText, /Validation scan:/);
+  assert.match(doctorText, /configured validate\.command/);
+  assert.match(doctorText, /shell=true/);
+  assert.match(doctorText, /discovered fallback labels: package\.json test script/);
+  assert.match(doctorText, /fallback command discovery is advisory/);
+  assert.doesNotMatch(doctorText, /PVSC|B-2065|\b\d+\s+passed\b/);
 
   console.log('✓ validation protocol smoke passed');
 } finally {
