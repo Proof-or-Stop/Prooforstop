@@ -1,0 +1,70 @@
+{
+  "storyId": "B-77e4",
+  "checkedAt": "2026-05-06T15:08:56.603Z",
+  "reviewRound": "2026-05-06T15:00:16.289Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "README.md",
+      "promise": "README documents the lifecycle-vs-outcome DONE split and the focused outcome-semantics smoke command.",
+      "status": "verified",
+      "verifiedBy": "git diff + focused smoke",
+      "evidence": "README.md:69-74 documents Lifecycle DONE vs outcome buckets and points to npm --prefix packages/main run test:outcome-semantics-smoke, which passed in this review."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "Story lifecycle docs describe DONE outcome buckets, mirror wording, and summary_set outcomeKind semantics.",
+      "status": "verified",
+      "verifiedBy": "git diff + session_brief + summary review",
+      "evidence": "story-lifecycle.md:51,86,104,160 matches the implemented Lifecycle DONE wording, mirror authority wording, and summary_set outcomeKind support observed in session_brief and summary_get."
+    },
+    {
+      "docPath": "docs/requirements/decisions/test-intent-review.md",
+      "promise": "Verification evidence verdicts are documented as classification-only and do not override pass/fail or freshness gates.",
+      "status": "verified",
+      "verifiedBy": "git diff + validate coverage review",
+      "evidence": "test-intent-review.md:49 states verdict labels are classification-only; validate coverage still reports failed when result=fail even with verdict=blocked_classified."
+    },
+    {
+      "docPath": "docs/requirements/decisions/testing-infra.md",
+      "promise": "Testing infra docs describe the focused outcome semantics smoke and its regression target.",
+      "status": "verified",
+      "verifiedBy": "git diff + focused smoke",
+      "evidence": "testing-infra.md:40-44 documents the smoke and its scope; npm --prefix packages/main run test:outcome-semantics-smoke passed during this review."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Reviewed terminal-facing output through koala session_brief plus the focused smoke assertions for Lifecycle DONE and DONE-success/default, DONE-blocked, DONE-audit-only.",
+      "waiverReason": "No separate real-machine run was required because this behavior is a deterministic terminal rendering path already exercised by the focused smoke and direct session_brief output in this review."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Reviewed summary_set/summary_get outcomeKind behavior through the focused smoke and summary_get evidence recorded on B-77e4.",
+      "waiverReason": "No separate real-machine run was required because outcomeKind is persisted CLI metadata with deterministic schema/runtime behavior and no device-specific interaction path."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Reviewed verification evidence verdict rendering and gate semantics through validate coverage output and the focused smoke assertions.",
+      "waiverReason": "No separate real-machine run was required because verdict handling is CLI metadata classification logic and the gate semantics were verified through direct validate output at the current HEAD."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Reviewed session_brief mirror-lag wording directly in terminal output and through the focused smoke mismatch assertions.",
+      "waiverReason": "No separate real-machine run was required because the wording change is terminal-only and was directly observed in koala session_brief during this review."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Ran npm --prefix packages/main run test:outcome-semantics-smoke and observed the expected pass line outcome semantics smoke passed.",
+      "waiverReason": "No additional real-machine run was required because this checklist item is itself the focused smoke command and it passed in the same local environment used for delivery review."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": false,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review confirmed the final diff, docs promises, summary outcomeKind semantics, verification verdict gate preservation, mirror-lag wording, focused smoke, and green dist CLI validate output. No unresolved delivery blocker remains beyond the expected post-review metadata commit."
+  },
+  "_hash": "211c318b1752a656bff820159fd9e44a0df18fd19cbec8bca84dbcd5acfb091b"
+}
