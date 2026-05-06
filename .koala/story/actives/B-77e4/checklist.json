@@ -54,9 +54,9 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:outcome-semantics-smoke",
           "result": "pass",
           "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: dashboard renders Lifecycle DONE separately from DONE-success/default, DONE-blocked, DONE-audit-only.",
-          "headHash": "1f42dbd6f258307ca7672fed9b0dffb76af949c5",
-          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
-          "timestamp": "2026-05-06T14:26:57.775Z"
+          "headHash": "f3b2ff8803acf4a8d5d25b29f7c2fe7d3728f249",
+          "materialHash": "43fa453aaf3673f728ca6bb44e0bdf181f299d0545cea0bd73effdc9645e5c57",
+          "timestamp": "2026-05-06T14:32:09.120Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -66,9 +66,9 @@
           "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
           "result": "pass",
           "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: legacy DONE story without outcomeKind is counted in success/default.",
-          "headHash": "1f42dbd6f258307ca7672fed9b0dffb76af949c5",
-          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
-          "timestamp": "2026-05-06T14:26:57.775Z"
+          "headHash": "f3b2ff8803acf4a8d5d25b29f7c2fe7d3728f249",
+          "materialHash": "43fa453aaf3673f728ca6bb44e0bdf181f299d0545cea0bd73effdc9645e5c57",
+          "timestamp": "2026-05-06T14:32:09.120Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -78,9 +78,9 @@
           "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
           "result": "pass",
           "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: blocked DONE contributes to lifecycle DONE but not success/default.",
-          "headHash": "1f42dbd6f258307ca7672fed9b0dffb76af949c5",
-          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
-          "timestamp": "2026-05-06T14:26:57.775Z"
+          "headHash": "f3b2ff8803acf4a8d5d25b29f7c2fe7d3728f249",
+          "materialHash": "43fa453aaf3673f728ca6bb44e0bdf181f299d0545cea0bd73effdc9645e5c57",
+          "timestamp": "2026-05-06T14:32:09.120Z"
         }
       ]
     },
@@ -139,9 +139,9 @@
           "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
           "result": "pass",
           "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: summary_set stores success, blocked, and audit_only outcomeKind values.",
-          "headHash": "1f42dbd6f258307ca7672fed9b0dffb76af949c5",
-          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
-          "timestamp": "2026-05-06T14:26:57.775Z"
+          "headHash": "f3b2ff8803acf4a8d5d25b29f7c2fe7d3728f249",
+          "materialHash": "43fa453aaf3673f728ca6bb44e0bdf181f299d0545cea0bd73effdc9645e5c57",
+          "timestamp": "2026-05-06T14:32:09.120Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -151,9 +151,9 @@
           "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
           "result": "pass",
           "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: omitted outcomeKind renders as success/default for legacy summaries.",
-          "headHash": "1f42dbd6f258307ca7672fed9b0dffb76af949c5",
-          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
-          "timestamp": "2026-05-06T14:26:57.775Z"
+          "headHash": "f3b2ff8803acf4a8d5d25b29f7c2fe7d3728f249",
+          "materialHash": "43fa453aaf3673f728ca6bb44e0bdf181f299d0545cea0bd73effdc9645e5c57",
+          "timestamp": "2026-05-06T14:32:09.120Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -163,9 +163,9 @@
           "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
           "result": "pass",
           "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: invalid outcomeKind fails Zod enum parsing before summary metadata is written.",
-          "headHash": "1f42dbd6f258307ca7672fed9b0dffb76af949c5",
-          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
-          "timestamp": "2026-05-06T14:26:57.775Z"
+          "headHash": "f3b2ff8803acf4a8d5d25b29f7c2fe7d3728f249",
+          "materialHash": "43fa453aaf3673f728ca6bb44e0bdf181f299d0545cea0bd73effdc9645e5c57",
+          "timestamp": "2026-05-06T14:32:09.120Z"
         }
       ]
     },
@@ -226,9 +226,9 @@
           "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
           "result": "pass",
           "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: verification_evidence_add schema accepts verdict=blocked_classified and coverage renders it.",
-          "headHash": "1f42dbd6f258307ca7672fed9b0dffb76af949c5",
-          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
-          "timestamp": "2026-05-06T14:26:57.775Z"
+          "headHash": "f3b2ff8803acf4a8d5d25b29f7c2fe7d3728f249",
+          "materialHash": "43fa453aaf3673f728ca6bb44e0bdf181f299d0545cea0bd73effdc9645e5c57",
+          "timestamp": "2026-05-06T14:32:09.120Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -238,9 +238,9 @@
           "command": "node packages/main/dist/tasks/deferred-gate-evidence-smoke.js && npm --prefix packages/main run test:verification-freshness-smoke",
           "result": "pass",
           "note": "packages/main/src/tasks/deferred-gate-evidence-smoke.ts: existing waiver/freshness semantics still pass with evidence lacking verdict.",
-          "headHash": "1f42dbd6f258307ca7672fed9b0dffb76af949c5",
-          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
-          "timestamp": "2026-05-06T14:26:57.775Z"
+          "headHash": "f3b2ff8803acf4a8d5d25b29f7c2fe7d3728f249",
+          "materialHash": "43fa453aaf3673f728ca6bb44e0bdf181f299d0545cea0bd73effdc9645e5c57",
+          "timestamp": "2026-05-06T14:32:09.120Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -250,9 +250,9 @@
           "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
           "result": "pass",
           "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: failed evidence with verdict=blocked_classified remains coverage status failed.",
-          "headHash": "1f42dbd6f258307ca7672fed9b0dffb76af949c5",
-          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
-          "timestamp": "2026-05-06T14:26:57.775Z"
+          "headHash": "f3b2ff8803acf4a8d5d25b29f7c2fe7d3728f249",
+          "materialHash": "43fa453aaf3673f728ca6bb44e0bdf181f299d0545cea0bd73effdc9645e5c57",
+          "timestamp": "2026-05-06T14:32:09.120Z"
         }
       ]
     },
@@ -308,9 +308,9 @@
           "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
           "result": "pass",
           "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: session_brief renders worktree-authoritative mirror-lag wording.",
-          "headHash": "1f42dbd6f258307ca7672fed9b0dffb76af949c5",
-          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
-          "timestamp": "2026-05-06T14:26:57.775Z"
+          "headHash": "f3b2ff8803acf4a8d5d25b29f7c2fe7d3728f249",
+          "materialHash": "43fa453aaf3673f728ca6bb44e0bdf181f299d0545cea0bd73effdc9645e5c57",
+          "timestamp": "2026-05-06T14:32:09.120Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -320,9 +320,9 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "packages/main/src/handlers/session.ts: no-mismatch branch still uses concise authority phase wording.",
-          "headHash": "1f42dbd6f258307ca7672fed9b0dffb76af949c5",
-          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
-          "timestamp": "2026-05-06T14:26:57.775Z"
+          "headHash": "f3b2ff8803acf4a8d5d25b29f7c2fe7d3728f249",
+          "materialHash": "43fa453aaf3673f728ca6bb44e0bdf181f299d0545cea0bd73effdc9645e5c57",
+          "timestamp": "2026-05-06T14:32:09.120Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -332,9 +332,9 @@
           "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
           "result": "pass",
           "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: smoke rejects old phrase main metadata still says.",
-          "headHash": "1f42dbd6f258307ca7672fed9b0dffb76af949c5",
-          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
-          "timestamp": "2026-05-06T14:26:57.775Z"
+          "headHash": "f3b2ff8803acf4a8d5d25b29f7c2fe7d3728f249",
+          "materialHash": "43fa453aaf3673f728ca6bb44e0bdf181f299d0545cea0bd73effdc9645e5c57",
+          "timestamp": "2026-05-06T14:32:09.120Z"
         }
       ]
     },
@@ -397,9 +397,9 @@
           "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
           "result": "pass",
           "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: focused command prints outcome semantics smoke passed.",
-          "headHash": "1f42dbd6f258307ca7672fed9b0dffb76af949c5",
-          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
-          "timestamp": "2026-05-06T14:26:57.775Z"
+          "headHash": "f3b2ff8803acf4a8d5d25b29f7c2fe7d3728f249",
+          "materialHash": "43fa453aaf3673f728ca6bb44e0bdf181f299d0545cea0bd73effdc9645e5c57",
+          "timestamp": "2026-05-06T14:32:09.120Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -409,9 +409,9 @@
           "command": "koala aux_doc_list",
           "result": "pass",
           "note": "docs/requirements/decisions/testing-infra.md: smoke reference avoids aux_doc_list scope expansion and unrelated indexing changes.",
-          "headHash": "1f42dbd6f258307ca7672fed9b0dffb76af949c5",
-          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
-          "timestamp": "2026-05-06T14:26:57.775Z"
+          "headHash": "f3b2ff8803acf4a8d5d25b29f7c2fe7d3728f249",
+          "materialHash": "43fa453aaf3673f728ca6bb44e0bdf181f299d0545cea0bd73effdc9645e5c57",
+          "timestamp": "2026-05-06T14:32:09.120Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -421,9 +421,9 @@
           "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
           "result": "pass",
           "note": "packages/main/src/tasks/outcome-semantics-smoke.ts: smoke fails on ambiguous DONE percentage or old alarming wording.",
-          "headHash": "1f42dbd6f258307ca7672fed9b0dffb76af949c5",
-          "materialHash": "55b2bdbf693ddade9a92ba0b327dbb317ea77956f9bfc024a519da7f72245c60",
-          "timestamp": "2026-05-06T14:26:57.775Z"
+          "headHash": "f3b2ff8803acf4a8d5d25b29f7c2fe7d3728f249",
+          "materialHash": "43fa453aaf3673f728ca6bb44e0bdf181f299d0545cea0bd73effdc9645e5c57",
+          "timestamp": "2026-05-06T14:32:09.120Z"
         }
       ]
     }
