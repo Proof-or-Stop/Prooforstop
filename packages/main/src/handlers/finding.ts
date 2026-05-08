@@ -4,9 +4,11 @@
 
 import { mkdirSync, rmSync, statSync } from 'fs';
 import type { HandlerContext } from './context.js';
+import { assertCwdInWorktree } from './context.js';
 import type { Finding } from '../core/types.js';
 import { signFinding, signReviewPass } from '../core/finding-verify.js';
 import { computeProcessMetrics } from '../core/process-metrics.js';
+import { syncClusterResolves } from '../core/cluster-sync.js';
 
 function sleepSync(ms: number): void {
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
@@ -56,6 +58,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
   const { store } = ctx;
   return {
     finding_add(args: { storyId: string; desc: string; severity: string; category: string; agent?: string; files?: string[] }): string {
+      assertCwdInWorktree(store, args.storyId);
       const data = store.readFindings(args.storyId);
       const nextNum = data.findings.length + 1;
       const id = `${args.storyId}:F-${String(nextNum).padStart(3, '0')}`;
@@ -127,22 +130,36 @@ export function createFindingHandlers(ctx: HandlerContext) {
       if (!agent.startsWith('koala-review-')) {
         throw new Error('review_pass_set: agent 必须是 koala-review-* reviewer');
       }
+      assertCwdInWorktree(store, args.storyId);
       return withReviewPassLock(ctx, args.storyId, () => {
         const story = store.readStory(args.storyId);
         const data = store.readReviewPasses(args.storyId);
-        const id = `${args.storyId}:RP-${String(data.passes.length + 1).padStart(3, '0')}`;
+        const nextNum = data.passes.reduce((max, pass) => {
+          const m = pass.id.match(/:RP-(\d+)$/);
+          return m ? Math.max(max, Number(m[1])) : max;
+        }, 0) + 1;
+        const id = `${args.storyId}:RP-${String(nextNum).padStart(3, '0')}`;
+        if (data.passes.some(pass => pass.id === id)) {
+          throw new Error(`review_pass_set: duplicate review pass id ${id}; refusing to report success`);
+        }
         const createdAt = new Date().toISOString();
         const reviewRound = story.currentReviewRound || '';
         const note = args.note.trim();
-        data.passes.push({
+        const pass = {
           id,
           agent,
           note,
           createdAt,
           reviewRound,
           _hash: signReviewPass(args.storyId, id, agent, note, createdAt, reviewRound),
-        });
+        };
+        data.passes.push(pass);
         store.writeReviewPasses(args.storyId, data);
+        const persisted = store.readReviewPasses(args.storyId);
+        const persistedPass = persisted.passes.find(p => p.id === id);
+        if (!persistedPass || persistedPass._hash !== pass._hash || persistedPass.agent !== agent) {
+          throw new Error(`review_pass_set: ${id} was not durably persisted; refusing to report success`);
+        }
         try {
           store.appendProcessEvent(args.storyId, {
             type: 'review_pass',
@@ -161,9 +178,12 @@ export function createFindingHandlers(ctx: HandlerContext) {
     },
 
     finding_list(args: { storyId: string; cluster?: boolean }) {
+      assertCwdInWorktree(store, args.storyId);
+      const synced = syncClusterResolves(args.storyId, store, ctx.root, ctx.log);
+      if (synced.resolved > 0) {
+        ctx.log?.(`cluster-sync: auto-resolved ${synced.resolved} finding(s) before finding_list`);
+      }
       // B-9d95 CHK-005: cluster 视图 — 读 clusters.json + findings.json，按簇归类 + 未归簇列表。
-      // Phase-2 TODO：commit-auto-resolve（cluster-sync.ts 的 syncClusterResolves）此处尚未串上；
-      //   现阶段只做静态视图聚合，不扫 git log，避免在 finding_list 路径引入 execSync 开销。
       if (args.cluster) {
         const findingsData = store.readFindings(args.storyId);
         const clustersData = store.readClusters(args.storyId);
@@ -187,6 +207,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
     },
 
     finding_resolve(args: { storyId: string; findingId: string }): string {
+      assertCwdInWorktree(store, args.storyId);
       const data = store.readFindings(args.storyId);
       const f = data.findings.find(f => f.id === args.findingId);
       if (!f) throw new Error(`Finding ${args.findingId} not found`);
@@ -205,6 +226,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
     },
 
     finding_dismiss(args: { storyId: string; findingId: string; reason: string }): string {
+      assertCwdInWorktree(store, args.storyId);
       if (!args.reason || args.reason.trim().length < 10) {
         throw new Error('finding_dismiss: reason 必须 ≥ 10 字符，说清楚为什么不修');
       }

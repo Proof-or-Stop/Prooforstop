@@ -101,6 +101,7 @@ const verificationEvidenceSchema = z.object({
   result: z.enum(['pass', 'fail']).optional().describe('执行结果'),
   note: z.string().describe('为什么此证据覆盖该 intent'),
   headHash: z.string().optional().describe('记录证据时的 git HEAD'),
+  materialHash: z.string().optional().describe('记录证据时的非 story-metadata 实体文件哈希'),
   timestamp: z.string().optional().describe('记录时间'),
 });
 
@@ -211,6 +212,7 @@ export const MAIN_TOOLS: ToolDef[] = [
       test: z.array(z.string()),
     }).optional().describe('B-45ed: 受影响的文件集合（PLAN 阶段声明，story_review 做 touchpoints→files 覆盖校验）'),
     verificationIntent: verificationIntentSchema.optional().describe('happy/edge/adversarial 验证意图（PLAN 阶段）'),
+    reason: z.string().optional().describe('PLAN 阶段追加 item 时必须提供的 replan/scope audit 理由（≥10 字符）'),
   }},
   { name: 'checklist_remove', description: '从 story 中移除一个 checklist item（必须给出裁决 + 理由）', schema: {
     storyId: z.string().describe('Story ID'), itemId: z.string().describe('要移除的项 ID'),
@@ -436,12 +438,13 @@ export const MAIN_TOOLS: ToolDef[] = [
     full: z.union([z.string(), z.boolean()]).optional().describe('含真机测试（--full 或 --full=PvE 按名称过滤）'),
     story: z.string().optional().describe('只跑 story 改动涉及的 transition（TEST gate 用）'),
     json: z.boolean().optional().describe('结构化 JSON 输出（ExternalVerifierResult）'),
-    // B-9d95 CHK-006: REVIEW→TEST preflight 三 gate 独立分流 flag
+    // B-9d95 CHK-006: REVIEW→TEST preflight CLI gate 独立分流 flag
     // 任一 flag 命中 → 只跑对应 CLI gate，不 spawn pytest（秒级返回）
     // 同时传多个 flag → Promise.all 并行；任一 fail → exit 1
     channel: z.boolean().optional().describe('B-9d95: 只跑 --channel gate（commit author 扫描，需配合 --story）'),
     concept: z.boolean().optional().describe('B-9d95: 只跑 --concept gate（deleted symbol 残留扫描）'),
     lint: z.boolean().optional().describe('B-9d95: 只跑 --lint gate（tsc + ruff + import-graph）'),
+    noSync: z.boolean().optional().describe('跳过 validate 前的 cluster commit auto-resolve 同步（诊断用）'),
   }},
   { name: 'status', description: '项目全貌（story 进度 + 代码验证状态）', schema: {
     concise: z.boolean().optional().describe('轻量模式（跳过代码验证，< 4KB，用于 hook 注入）'),
@@ -628,8 +631,8 @@ export const MAIN_TOOLS: ToolDef[] = [
     storyId: z.string().describe('Story ID'),
   }},
 
-  // Reviewer list (B-fdcf CHK-001: opt-in 名单查询，按 riskSignals / touchpoints / channel 实时计算)
-  { name: 'reviewer_list', description: '列出当前 story 的 opt-in reviewer 名单（baseline concept/quality + 按信号挂载 behavior/docs/channel）', schema: {
+  // Reviewer list (B-fdcf CHK-001: opt-in 名单查询，按 riskSignals / touchpoints 实时计算)
+  { name: 'reviewer_list', description: '列出当前 story 的 opt-in reviewer 名单（baseline concept/quality/test-coverage + 按信号挂载 behavior/docs；channel LLM 已退役）', schema: {
     storyId: z.string().describe('Story ID'),
     json: z.boolean().optional().describe('输出结构化 JSON（含 reviewers 数组）'),
     forceReviewer: z.string().optional().describe('逗号分隔的 reviewer 名称，强制加挂；写入 story.events 审计（reviewer_forced）'),
@@ -1397,6 +1400,19 @@ export async function runCli(opts?: {
   if (cmd === 'story_create') {
     await run(() => {
       const result = handlers.story_create(v.data);
+      if (result.includes('created from draft') && result.includes('(phase=INIT_CHECK)')) {
+        const storyId = result.match(/Story\s+([\w-]+)/)?.[1];
+        if (!storyId) return result;
+        if (!gitReady) {
+          return `${result}\n⚠ 当前目录不是 git 仓库：story 已记录，但 from-draft worktree 不能自动创建。\n→ 先 git init + 首次 commit 后重试 story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'`;
+        }
+        try {
+          const wtResult = handlers.dev_start({ storyId });
+          return `${result}\n\n${wtResult}\n\n→ 现在请 cd 到上述 worktree 路径，然后调 story_advance phase=PLAN 进入 PLAN`;
+        } catch (e: any) {
+          return `${result}\n⚠ worktree 创建失败: ${e.message}\n→ 排查后再次执行 story_advance --phase=INIT_CHECK 自动重试，或手动 dev_start '{"storyId":"${storyId}"}'`;
+        }
+      }
       if (!result.includes('(INIT)')) return result;
       const storyId = result.match(/Story\s+([\w-]+)/)?.[1];
       if (!storyId) return result;

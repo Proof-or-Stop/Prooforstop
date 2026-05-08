@@ -14,6 +14,7 @@ import { summarizeReviewerStatus } from '../core/reviewer-status.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, Finding, StoryInfo, TestEvidenceData } from '../core/types.js';
 import { buildDoneChecklist } from '../handlers/story-advance.js';
+import { createStoryAdvanceHandlers } from '../handlers/story-advance.js';
 import { decorateResult } from '../handlers/hints.js';
 import { createSessionHandlers } from '../handlers/session.js';
 import { checkCommitAuthor } from '../handlers/validate-channel.js';
@@ -165,8 +166,8 @@ function assertReviewGateUsesOptIn(): void {
     });
 
     const missing = getGuardFailureReason(storyId, store, 'TEST', root);
-    assert.match(missing ?? '', /期望 4 个 reviewer（opt-in: concept,quality,test-coverage,channel）/);
-    assert.match(missing ?? '', /缺: test-coverage,channel/);
+    assert.match(missing ?? '', /期望 3 个 reviewer（opt-in: concept,quality,test-coverage）/);
+    assert.match(missing ?? '', /缺: test-coverage/);
     assert.match(missing ?? '', /koala-review-docs/);
     assert.doesNotMatch(missing ?? '', /全部 5 个 reviewer/);
 
@@ -179,7 +180,6 @@ function assertReviewGateUsesOptIn(): void {
     store.writeReviewPasses(storyId, {
       passes: [
         makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '006'),
-        makeReviewPass(storyId, 'koala-review-channel', reviewRound, '007'),
       ],
     });
     const pass = getGuardFailureReason(storyId, store, 'TEST', root);
@@ -188,8 +188,41 @@ function assertReviewGateUsesOptIn(): void {
     const status = summarizeReviewerStatus(store, storyId);
     const byName = new Map(status.entries.map(e => [e.name, e]));
     assert.equal(byName.get('test-coverage')?.verdict, 'pass');
-    assert.equal(byName.get('channel')?.verdict, 'pass');
+    assert.equal(byName.has('channel'), false);
   } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(): Promise<void> {
+  const root = mkdtempSync(join(tmpdir(), 'koala-flow-review-echo-'));
+  const oldCwd = process.cwd();
+  try {
+    const { store, storyId } = createReviewStore(root);
+    git(root, ['init']);
+    git(root, ['config', 'user.email', 'koala@example.test']);
+    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'base']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+    const story = store.readStory(storyId);
+    story.phase = 'DEV';
+    story.currentReviewRound = undefined;
+    store.writeStory(storyId, story);
+
+    process.chdir(root);
+    const output = await createStoryAdvanceHandlers({
+      store,
+      root,
+      scanRoot: join(root, 'packages/main'),
+    }).story_advance({ storyId, phase: 'REVIEW' });
+
+    assert.match(output, /Active reviewers: concept, quality, test-coverage/);
+    assert.doesNotMatch(output, /koala-review-channel/);
+    assert.doesNotMatch(output, /channel \(normal channel\)/);
+  } finally {
+    process.chdir(oldCwd);
     rmSync(root, { recursive: true, force: true });
   }
 }
@@ -226,7 +259,6 @@ function assertReviewerStatusUsesMdFallback(): void {
     store.writeReviewPasses(storyId, {
       passes: [
         makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '012'),
-        makeReviewPass(storyId, 'koala-review-channel', reviewRound, '013'),
       ],
     });
 
@@ -273,7 +305,6 @@ function assertSessionBriefStatusHintsMatchGates(): void {
         makeReviewPass(storyId, 'koala-review-concept', reviewRound, '020'),
         makeReviewPass(storyId, 'koala-review-quality', reviewRound, '021'),
         makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '022'),
-        makeReviewPass(storyId, 'koala-review-channel', reviewRound, '023'),
       ],
     });
     const reviewBrief = createSessionHandlers({
@@ -349,7 +380,7 @@ function assertReviewNextUsesReviewerGateState(): void {
     assert.match(pendingNext, /concept/);
     assert.match(pendingNext, /quality/);
     assert.match(pendingNext, /test-coverage/);
-    assert.match(pendingNext, /channel/);
+    assert.doesNotMatch(pendingNext, /channel/);
     assert.doesNotMatch(pendingNext, /critical\/high finding 全部 resolved/);
 
     const id = `${storyId}:F-open`;
@@ -381,7 +412,6 @@ function assertReviewNextUsesReviewerGateState(): void {
       passes: [
         makeReviewPass(storyId, 'koala-review-quality', reviewRound, '041'),
         makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '042'),
-        makeReviewPass(storyId, 'koala-review-channel', reviewRound, '043'),
       ],
     });
     const blockerNext = handlers.next({ concise: true });
@@ -562,6 +592,110 @@ function assertChannelGateRejectsKoalaSubjectForRealFiles(): void {
   }
 }
 
+function assertChannelGateAcceptsImplementerAuthorWithoutDispatch(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-flow-channel-author-fallback-'));
+  try {
+    const { store, storyId } = createReviewStore(root);
+    git(root, ['init']);
+    git(root, ['config', 'user.email', 'koala@example.test']);
+    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'base']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+    write(root, 'packages/main/src/real-code.ts', 'export const realCode = true;\n');
+    git(root, ['add', 'packages/main/src/real-code.ts']);
+    git(root, [
+      '-c', 'user.name=koala-implementer',
+      '-c', 'user.email=implementer@example.test',
+      'commit',
+      '-m', 'implement real code',
+    ]);
+
+    const result = checkCommitAuthor(storyId, { store, projectRoot: root });
+    assert.equal(result.status, 'pass');
+    assert.equal(result.evidenceSource, 'commit_author');
+    assert.match(result.summary, /commit author 作为直派执行证据/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertChannelGateAcceptsSuccessfulSubagentResultEvidence(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-flow-channel-subagent-evidence-'));
+  try {
+    const { store, storyId } = createReviewStore(root);
+    git(root, ['init']);
+    git(root, ['config', 'user.email', 'koala@example.test']);
+    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'base']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+    write(root, 'packages/main/src/real-code.ts', 'export const realCode = true;\n');
+    git(root, ['add', 'packages/main/src/real-code.ts']);
+    git(root, [
+      '-c', 'user.name=koala-implementer',
+      '-c', 'user.email=implementer@example.test',
+      'commit',
+      '-m', 'implement real code',
+    ]);
+    for (const suffix of ['001', '002', '003']) {
+      store.appendProcessEvent(storyId, {
+        type: 'subagent_result',
+        checklistId: `CHK-${suffix}`,
+        success: true,
+      });
+    }
+
+    const result = checkCommitAuthor(storyId, { store, projectRoot: root });
+    assert.equal(result.status, 'pass');
+    assert.equal(result.evidenceSource, 'subagent_result');
+    assert.match(renderedDetails(result), /已覆盖: CHK-001, CHK-002, CHK-003/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertChannelGateAcceptsDispatchEvidence(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-flow-channel-dispatch-evidence-'));
+  try {
+    const { store, storyId } = createReviewStore(root);
+    git(root, ['init']);
+    git(root, ['config', 'user.email', 'koala@example.test']);
+    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'base']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+    write(root, 'packages/main/src/real-code.ts', 'export const realCode = true;\n');
+    git(root, ['add', 'packages/main/src/real-code.ts']);
+    git(root, [
+      '-c', 'user.name=koala-implementer',
+      '-c', 'user.email=implementer@example.test',
+      'commit',
+      '-m', 'implement real code',
+    ]);
+    for (const suffix of ['001', '002', '003']) {
+      store.appendProcessEvent(storyId, {
+        type: 'dispatch',
+        checklistId: `CHK-${suffix}`,
+      });
+    }
+
+    const result = checkCommitAuthor(storyId, { store, projectRoot: root });
+    assert.equal(result.status, 'pass');
+    assert.equal(result.evidenceSource, 'dispatch');
+    assert.match(renderedDetails(result), /已覆盖: CHK-001, CHK-002, CHK-003/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function renderedDetails(result: { details: string[] }): string {
+  return result.details.join('\n');
+}
+
 function assertDoneChecklistUsesStableOracleRows(): void {
   const root = mkdtempSync(join(tmpdir(), 'koala-flow-oracle-row-'));
   try {
@@ -590,7 +724,6 @@ function assertDoneChecklistUsesStableOracleRows(): void {
         makeReviewPass(storyId, 'koala-review-concept', reviewRound, '030'),
         makeReviewPass(storyId, 'koala-review-quality', reviewRound, '031'),
         makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '032'),
-        makeReviewPass(storyId, 'koala-review-channel', reviewRound, '033'),
       ],
     });
     const evidence: TestEvidenceData = {
@@ -677,6 +810,7 @@ function assertGlobalLinkRepair(): void {
 
 assertSessionBriefGate();
 assertReviewGateUsesOptIn();
+await assertStoryAdvanceReviewEchoOmitsRetiredChannel();
 assertReviewerStatusUsesMdFallback();
 assertSessionBriefStatusHintsMatchGates();
 assertReviewNextUsesReviewerGateState();
@@ -685,6 +819,9 @@ assertValidateHintsFollowStoryPhase();
 assertRealCliValidateHintFollowsActiveStoryPhase();
 assertBugUpdateTestHintUsesDonePrecheck();
 assertChannelGateRejectsKoalaSubjectForRealFiles();
+assertChannelGateAcceptsSuccessfulSubagentResultEvidence();
+assertChannelGateAcceptsDispatchEvidence();
+assertChannelGateAcceptsImplementerAuthorWithoutDispatch();
 assertDoneChecklistUsesStableOracleRows();
 assertGlobalLinkRepair();
 

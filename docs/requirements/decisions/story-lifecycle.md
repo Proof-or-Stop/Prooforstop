@@ -134,7 +134,7 @@ B-xxxx REVIEW (authority:worktree, mirror:INIT_CHECK)
 
 | 工具 | 行为 |
 |---|---|
-| `checklist_add` | 必要时追加 item，并补 verificationIntent |
+| `checklist_add` | 必要时追加 item，并补 verificationIntent；PLAN 阶段必须提供 replan/scope audit reason |
 | `checklist_update` | 可改 status + verificationIntent + verificationEvidence |
 | `fixture_batch_add` / `fixture_update` | 可提前补兼容验证 |
 | `koala validate` | 可手动预检，正式 evidence 在 TEST gate 写入 |

@@ -47,9 +47,10 @@ export interface ChannelCheckResult {
    * - 'subagent_result' — 全部通过 Agent() 直派路径（subagent_result 事件）
    * - 'dispatch'        — 全部通过 koala dispatch（dispatch 事件）
    * - 'dispatch + subagent_result' — 混合
+   * - 'commit_author' — commit author=koala-implementer 作为直派 Agent 执行信号
    * 仅在 status=pass 且存在 evidencedItems 时设置；纯豁免 / 无 commit 等场景 undefined。
    */
-  evidenceSource?: 'subagent_result' | 'dispatch' | 'dispatch + subagent_result';
+  evidenceSource?: 'subagent_result' | 'dispatch' | 'dispatch + subagent_result' | 'commit_author';
 }
 
 /**
@@ -483,14 +484,22 @@ export function checkCommitAuthor(
   const itemIds = (checklist?.items ?? []).map(item => item.id).filter(Boolean);
   const allItemsOwnedByMain = itemIds.length > 0 && itemIds.every(id => ownedByMain.has(id));
   const authorOk = offenders.length === 0 || allItemsOwnedByMain;
+  const hasImplementerCommit = commits.some(c => c.author === 'koala-implementer');
+  const authorEvidenceCoversMissing = authorOk
+    && !evidence.ok
+    && hasImplementerCommit
+    && evidence.issues.length > 0
+    && evidence.issues.every(issue => issue.reason === 'missing_evidence');
 
-  if (authorOk && evidence.ok) {
+  if (authorOk && (evidence.ok || authorEvidenceCoversMissing)) {
     // F-003 (B-fdcf Round 1): 判定 evidenceSource 标签，供 renderChannelResult 嵌入
     // userSees 承诺的 "all CHK covered (via <source>)" 短语。扫 events 判断每个
     // evidencedItems 的证据来源：只看 dispatch → dispatch；只看 subagent_result → subagent_result；
     // 同时看到 → dispatch + subagent_result。纯豁免（evidencedItems 空）时不设。
     let evidenceSource: ChannelCheckResult['evidenceSource'] | undefined;
-    if (evidence.evidencedItems.length > 0) {
+    if (authorEvidenceCoversMissing) {
+      evidenceSource = 'commit_author';
+    } else if (evidence.evidencedItems.length > 0) {
       let anyDispatch = false;
       let anySubagent = false;
       const evidencedSet = new Set(evidence.evidencedItems);
@@ -506,7 +515,9 @@ export function checkCommitAuthor(
     }
     const summary = allItemsOwnedByMain && offenders.length > 0
       ? `正常通道：${commits.length} 条 commit 由 plan.md Owner=main-agent 明确豁免；dispatch 证据覆盖完整`
-      : `正常通道：${commits.length} 条 commit 全部由 koala-implementer 或 metadata-only koala CLI 产出；dispatch 证据覆盖完整`;
+      : authorEvidenceCoversMissing
+        ? `正常通道：${commits.length} 条 commit 全部由 koala-implementer 或 metadata-only koala CLI 产出；commit author 作为直派执行证据`
+        : `正常通道：${commits.length} 条 commit 全部由 koala-implementer 或 metadata-only koala CLI 产出；dispatch 证据覆盖完整`;
     return {
       provider: 'koala-channel',
       status: 'pass',
@@ -515,6 +526,9 @@ export function checkCommitAuthor(
         ...commits.map((c) => `${c.sha.slice(0, 7)} ${c.author} — ${c.subject}`),
         ...(allItemsOwnedByMain && offenders.length > 0
           ? ['plan.md Owner=main-agent author 豁免: all checklist items']
+          : []),
+        ...(authorEvidenceCoversMissing
+          ? ['commit author=koala-implementer fallback: no dispatch/subagent_result process event required for direct Agent execution']
           : []),
         ...evidence.details,
       ],

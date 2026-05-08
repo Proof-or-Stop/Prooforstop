@@ -32,7 +32,7 @@
 | **INIT_CHECK** | `story_advance INIT_CHECK` 创建 worktree，提示 cd |
 | **PLAN** | understanding → decision → checklist + `verificationIntent` → plan.md（正常通道）→ `story_review` 审查通过后进 DEV（快速通道跳过 PLAN） |
 | **DEV** | 写代码 + 写测试，给 must intent 记录 `verificationEvidence`，checklist 全 done 后进 REVIEW |
-| **REVIEW** | 按 riskSignals / touchpoints / channel 自动挂载 LLM reviewer（baseline concept+quality+test-coverage，其他按信号 opt-in，详见下方「Reviewer opt-in 路由」）+ 3 CLI gate（`validate --channel` / `--concept` / `--lint`）在 REVIEW→TEST preflight 自动跑；`koala-review-channel` 已退役（S1），由 CLI 接管。主 agent 验收：`finding_list` 确认 reviewer finding 注册 → 逐条 resolve → blocking finding 全 resolved 后进 TEST（CLI gate 任一 fail 会直接 block） |
+| **REVIEW** | 按 riskSignals / touchpoints 自动挂载 LLM reviewer（baseline concept+quality+test-coverage，其他按信号 opt-in，详见下方「Reviewer opt-in 路由」）+ CLI preflight gate（`validate --channel` / `--concept` / `--lint` / `docs-drift`，触及 Codex adapter 时另加 `codex-adapter`）在 REVIEW→TEST 自动跑；`koala-review-channel` 已退役（S1），由 CLI 接管。主 agent 验收：`finding_list` 确认 reviewer finding 注册 → 逐条 resolve → blocking finding 全 resolved 后进 TEST（CLI gate 任一 fail 会直接 block） |
 | **TEST** | `koala validate` 验证，全绿 + verification coverage 通过 + bug 全 fixed 后进 DONE |
 | **DONE** | `story_advance DONE` 合并回 main 并清理 worktree。DONE 成功后按 `.koala/audit-config.json` 触发 audit 提示（semi-auto 模式在输出末追加 audit 建议；详见「框架自省 audit 配置」段） |
 
@@ -664,7 +664,7 @@ checklist + plan.md 写完后必须 `story_review` 通过（issueCount=0）才�
 - 代码由 koala-implementer subagent 写（在主 agent 的 worktree 里，不额外开 worktree）
 - REVIEW 阶段 reviewer 检查 commit author——正常通道全是主 agent 写的 → critical finding → 卡住 REVIEW→TEST
 
-**通道实时计算**：不存储，每次进 DEV 时从 checklist.items.length + story.riskSignals 实时判定。checklist_add/remove 改变 items 数量后自动生效。
+**通道实时计算**：不存储，每次进 DEV 时从 checklist.items.length + story.riskSignals 实时判定。checklist_add/remove 改变 items 数量后自动生效。PLAN 阶段新增 item 必须提供 `reason`（≥10 字符）作为 replan/scope audit 信号，避免用 remove+add 静默绕过 title/context 冻结。
 
 ### 主 agent 行为准则
 
@@ -695,21 +695,23 @@ koala verification_evidence_add '{"storyId":"B-xxx","itemId":"CHK-001","intentRe
 
 `DEV→REVIEW` 会阻塞缺失 must evidence/waiver 的 intent；`koala validate --story=B-xxx --json` 会输出 verification coverage，并写入 TEST evidence 供 DONE gate 展示。
 
-### 3 CLI gate（REVIEW→TEST preflight，机械判定，秒级返回）
+### CLI gate（REVIEW→TEST preflight，机械判定，秒级返回）
 
-进入 REVIEW 后由 `story_advance --phase=TEST` 自动跑 3 个 CLI gate，任一 fail 即 block 推进：
+进入 REVIEW 后由 `story_advance --phase=TEST` 自动跑 CLI gate，任一 fail 即 block 推进：
 
 | gate | 命令 | 职责 | 失败处理 |
 |---|---|---|---|
 | channel | `koala validate --channel --story=B-xxx` | 正常通道 commit author 必须含 `koala-implementer` 或 subject 以 `koala:` 开头 | fail → block REVIEW→TEST |
 | concept | `koala validate --concept` | 扫 `git diff main...HEAD` 抽 deleted symbols + 全仓 grep 残留引用 | ≥ 5 残留 → 触发 concept reviewer；< 5 → skip |
 | lint | `koala validate --lint` | tsc / ruff / import-graph（shells 不得 import fn.ts） | fail → block；工具缺失 → skip |
+| docs-drift | `docs-drift` preflight | 校验 reviewer/流程文档引用的 koala 命令与 registry 对齐 | fail → block REVIEW→TEST |
+| codex-adapter | `node bin/koala-codex.js verify_codex` | 仅当 story 触及 Codex adapter 入口资产时要求 adapter 证据 | 缺失或 stale → block REVIEW→TEST |
 
-`koala-review-channel` LLM agent 已退役（S1），由 CLI 接管；`koala-review-concept` 按需 spawn（CLI 残留 ≥ 5 时）；`koala-review-quality` 假设 lint 已绿只审主观项。
+`koala-review-channel` LLM agent 已退役（S1），由 `koala validate --channel --story=<id>` CLI gate 接管；`koala-review-concept` 按需 spawn（CLI 残留 ≥ 5 时）；`koala-review-quality` 假设 lint 已绿只审主观项。
 
 ### Reviewer opt-in 路由（按 riskSignals 挂载）
 
-除了 CLI gate，Round 1 的 LLM reviewer 集合不再硬要 5 个。框架按 story 的 riskSignals / touchpoints / channel 自动挂载 reviewer 子集，基础集合永远开，其余按信号挂载：
+除了 CLI gate，Round 1 的 LLM reviewer 集合不再硬要 5 个。框架按 story 的 riskSignals / touchpoints 自动挂载 reviewer 子集，基础集合永远开，其余按信号挂载：
 
 | reviewer | 挂载条件 |
 |---|---|
@@ -718,14 +720,13 @@ koala verification_evidence_add '{"storyId":"B-xxx","itemId":"CHK-001","intentRe
 | **test-coverage** | baseline（永远开，审 verificationIntent 是否都有有效 evidence / waiver） |
 | **behavior** | riskSignals 含 `state machine` / `guard` / `gate` |
 | **docs** | touchpoints 含 `.md` 文件 |
-| **channel** | 正常通道（`computeChannel() === 'normal'`：> 5 项 / 多选型 / 有 riskSignals）；fast（≤ 5 项单一解无 risk）与 express（≤ 2 项无 risk）不挂 |
 
 **查看当前 story 的 reviewer 名单**：
 
 ```bash
-koala reviewer_list '{"storyId":"B-xxx"}'               # 文本: Active reviewers: concept, quality, behavior (riskSignal: state machine)
+koala reviewer_list '{"storyId":"B-xxx"}'               # 文本: Active reviewers: concept, quality, test-coverage, behavior (riskSignal: state machine)
 koala reviewer_list '{"storyId":"B-xxx","json":true}'   # 结构化: {reviewers:[{name,reason}]}
-koala reviewer_list '{"storyId":"B-xxx","forceReviewer":"docs,channel"}'  # 手动加挂（写 story.events）
+koala reviewer_list '{"storyId":"B-xxx","forceReviewer":"docs,behavior"}' # 手动加挂（写 story.events）
 ```
 
 `story_advance REVIEW` 会 echo 当前 reviewer 名单。gate（`canPassReview`）按 opt-in 实际名单校验，不再硬编码 5。
@@ -894,9 +895,9 @@ type CommandRunner = (cmd: string, args: string[], cwd: string) => {
 
 生产路径用 `defaultRunner`（`child_process.spawnSync` + 合并 stdout/stderr + 区分 ENOENT）。
 
-### 与 3 CLI gate 的关系
+### 与 CLI gate 的关系
 
-`koala validate --lint` 是 REVIEW→TEST preflight 的三 gate 之一（见上文「3 CLI gate」段）。B-5a28 前：lint gate 只扫根 tsconfig → monorepo 子包漏检。B-5a28 后：lint gate 递归扫所有子包 → 子包编译错误直接 block REVIEW→TEST。pre-push hook 是「即使 lint gate 被跳过也兜住」的最后一道防线。
+`koala validate --lint` 是 REVIEW→TEST preflight 的 CLI gate 之一（见上文「CLI gate」段）。B-5a28 前：lint gate 只扫根 tsconfig → monorepo 子包漏检。B-5a28 后：lint gate 递归扫所有子包 → 子包编译错误直接 block REVIEW→TEST。pre-push hook 是「即使 lint gate 被跳过也兜住」的最后一道防线。
 
 see story/B-5a28
 

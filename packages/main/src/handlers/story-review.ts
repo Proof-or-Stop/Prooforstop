@@ -16,6 +16,7 @@
  */
 
 import type { HandlerContext } from './context.js';
+import { assertCwdInWorktree } from './context.js';
 import { loadConfig } from '../core/config.js';
 import { computeChannel, resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import { computeProcessMetrics } from '../core/process-metrics.js';
@@ -25,12 +26,24 @@ import { join } from 'path';
 import { createHash } from 'crypto';
 import { VERIFICATION_LANES, collectVerificationIntents } from '../core/verification.js';
 
+function normalizeTouchpointPath(value: string): string {
+  const trimmed = value
+    .trim()
+    .replace(/^[-*]\s+/, '')
+    .replace(/^`|`$/g, '')
+    .trim();
+  const firstSegment = trimmed.split(/\s+\(/)[0].split(/\s+-\s+/)[0].trim();
+  const token = firstSegment.split(/\s+/)[0] || firstSegment;
+  return token.replace(/[),:;]+$/g, '').replace(/^`|`$/g, '').trim();
+}
+
 export function createStoryReviewHandlers(ctx: HandlerContext) {
   const { store } = ctx;
 
   return {
     story_review(args: { storyId: string }): object {
       const story = store.readStory(args.storyId);
+      assertCwdInWorktree(store, args.storyId);
       const cl = store.readChecklist(args.storyId);
 
       // 读取真相源
@@ -50,6 +63,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
       }
 
       const issues: Array<{ type: string; severity: 'blocker' | 'advisory'; itemId?: string; message: string }> = [];
+      const info: Array<{ type: string; message: string }> = [];
 
       // 0. checklist 拆分质量静态检查
       // 0.1 数量异常
@@ -96,6 +110,15 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
       const auditLog = cl.auditLog;
       if (auditLog && auditLog.length > 0) {
         const deletions = auditLog.filter(e => e.action === 'delete');
+        const additions = auditLog.filter(e => e.action === 'add');
+        for (const add of additions) {
+          issues.push({
+            type: 'scope_change',
+            severity: 'advisory',
+            itemId: add.itemId,
+            message: `${add.itemId}（"${add.addedTitle || '?'}"）在 ${add.phase || '未知'} 阶段被新增: ${add.reason || ''}`,
+          });
+        }
         for (const del of deletions) {
           issues.push({
             type: 'scope_change',
@@ -266,7 +289,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
       // 若 understanding.touchpoints 非空：
       //   - 若至少一个 checklist item 填了 files 字段 → 硬校验模式，每个未被覆盖的 touchpoint 计一条 blocker
       //   - 若所有 item 都无 files 字段（旧 story）→ fallback advisory `touchpoint_mapping_missing`
-      // 覆盖判定：字符串相等，不做路径规范化。
+      // 覆盖判定：提取 path 前缀后比较，允许 "src/foo.ts (reason)" 这类人类说明。
       if (understanding && understanding.touchpoints && understanding.touchpoints.length > 0) {
         const itemsWithFiles = cl.items.filter(i => !!i.files);
         if (itemsWithFiles.length === 0) {
@@ -280,12 +303,13 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           const covered = new Set<string>();
           for (const item of itemsWithFiles) {
             const f = item.files!;
-            for (const p of f.modify || []) covered.add(p);
-            for (const p of f.create || []) covered.add(p);
-            for (const p of f.test || []) covered.add(p);
+            for (const p of f.modify || []) covered.add(normalizeTouchpointPath(p));
+            for (const p of f.create || []) covered.add(normalizeTouchpointPath(p));
+            for (const p of f.test || []) covered.add(normalizeTouchpointPath(p));
           }
           for (const tp of understanding.touchpoints) {
-            if (!covered.has(tp)) {
+            const normalizedTp = normalizeTouchpointPath(tp);
+            if (!covered.has(normalizedTp)) {
               issues.push({
                 type: 'touchpoint_uncovered',
                 severity: 'blocker',
@@ -355,9 +379,8 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           // Report excluded as info (not counted as issue)
           const excluded = (scopeData.features || []).filter(f => f.status === 'excluded');
           if (excluded.length > 0) {
-            issues.push({
+            info.push({
               type: 'scope_excluded_info',
-              severity: 'advisory',
               message: `${excluded.length} 个功能点已显式 exclude: ${excluded.map(e => e.feature).join(', ')}`,
             });
           }
@@ -463,6 +486,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           blockerCount,
         },
         issues,
+        ...(info.length > 0 ? { info } : {}),
         truthDocsCount: truthDocs.length,
         _hint: blockerCount > 0
           ? `第 ${reviewData.reviews.length} 轮审查发现 ${blockerCount} 个 blocker，请修复后再次 story_review`

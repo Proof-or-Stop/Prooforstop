@@ -35,6 +35,7 @@ export const DEFAULT_STALE_THRESHOLDS: StaleThresholds = {
   bugStale: 1440,
 };
 
+const STALE_WARNING_COOLDOWN_MS = 30 * 60_000;
 
 function formatMinutes(diffMs: number): string {
   const totalMin = Math.max(1, Math.round(diffMs / 60000));
@@ -162,6 +163,27 @@ function checkBugStale(bugs: BugData, thresholds: StaleThresholds, now: number):
   return out;
 }
 
+function suppressRecentlyEmittedWarnings(root: string, warnings: string[], now: number): string[] {
+  if (warnings.length === 0) return warnings;
+  try {
+    const entries = readActivityLogTail(root, 25);
+    const recent = new Set<string>();
+    for (const entry of entries) {
+      const tsRaw = String(entry.endTime || entry.startTime || entry.timestamp || '');
+      const ts = Date.parse(tsRaw);
+      if (!Number.isFinite(ts) || now - ts > STALE_WARNING_COOLDOWN_MS) continue;
+      const staleWarnings = (entry as { staleWarnings?: unknown }).staleWarnings;
+      if (!Array.isArray(staleWarnings)) continue;
+      for (const warning of staleWarnings) {
+        if (typeof warning === 'string') recent.add(warning);
+      }
+    }
+    return warnings.filter(w => !recent.has(w));
+  } catch {
+    return warnings;
+  }
+}
+
 /**
  * Public API. Returns warning lines (no leading prefix). Caller prints to stderr.
  *
@@ -197,7 +219,7 @@ export function detectStaleState(ctx: HandlerContext): string[] {
     const w3 = checkIdleKoala(ctx.root, thresholds, now);
     if (w3) warnings.push(w3);
 
-    return warnings;
+    return suppressRecentlyEmittedWarnings(ctx.root, warnings, now);
   } catch {
     return [];
   }

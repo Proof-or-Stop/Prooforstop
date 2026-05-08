@@ -14,6 +14,7 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { HandlerContext } from './context.js';
+import { assertCwdInWorktree } from './context.js';
 import { loadConfig } from '../core/config.js';
 import type { ValidationCommand } from '../core/validation-types.js';
 import { executeValidationPlan, runValidationCommand, stripAnsi } from '../core/validation-executor.js';
@@ -25,6 +26,7 @@ import { runConceptGateCli } from './validate-concept.js';
 import { runLintGateCli } from './validate-lint.js';
 import { buildVerificationCoverage, renderVerificationCoverage } from '../core/verification.js';
 import { checkEvidenceFreshnessForGit } from '../core/evidence-freshness.js';
+import { syncClusterResolves } from '../core/cluster-sync.js';
 
 const STATUS_FALLBACK_TIMEOUT_MS = 10_000;
 const SHELL_META_RE = /[;&|<>$()`]/;
@@ -391,14 +393,24 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       full?: string | boolean;
       story?: string;
       json?: boolean;
-      // B-9d95 CHK-006: REVIEW→TEST preflight 三 gate 独立分流
+      // B-9d95 CHK-006: REVIEW→TEST preflight CLI gate 独立分流
       channel?: boolean;
       concept?: boolean;
       lint?: boolean;
+      noSync?: boolean;
     }) {
       const projectRoot = ctx.root;
+      if (args.story) {
+        assertCwdInWorktree(ctx.store, args.story);
+        if (!args.noSync) {
+          const synced = syncClusterResolves(args.story, ctx.store, projectRoot, ctx.log);
+          if (synced.resolved > 0) {
+            ctx.log?.(`cluster-sync: auto-resolved ${synced.resolved} finding(s) from commit message Resolves tags`);
+          }
+        }
+      }
 
-      // B-9d95 CHK-006: 三 gate flag 分流——任一命中即只跑对应 gate，
+      // B-9d95 CHK-006: CLI gate flag 分流——任一命中即只跑对应 gate，
       // 不 spawn pytest 的全量 validate.ts。多个 flag 同时传 → Promise.all 并行。
       if (args.channel || args.concept || args.lint) {
         type GateTask = () => Promise<{ name: string; ok: boolean; rendered: string; result: unknown }>;

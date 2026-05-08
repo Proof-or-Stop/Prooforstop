@@ -1,5 +1,5 @@
 /**
- * review-preflight — REVIEW→TEST gate 的 4 CLI gate 预检。
+ * review-preflight — REVIEW→TEST gate 的 CLI gate 预检。
  *
  * 在 story_advance 推进 REVIEW→TEST 前聚合调用：
  *   - checkCommitAuthor  (validate-channel.ts)
@@ -192,7 +192,7 @@ function defaultMdFileReader(projectRoot: string): string[] {
 }
 
 /**
- * 运行 4 CLI gate 并聚合为一个结构化结果。
+ * 运行 CLI gate 并聚合为一个结构化结果。
  * 快速通道 → 四个 gate 均 forced-pass（不实际跑 channel/concept/lint/docs-drift）。
  */
 export function runReviewCliGates(

@@ -5,7 +5,7 @@ import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
 import { execSync } from 'child_process';
 import { checkEvidenceFreshnessForGit, currentMaterialHash } from '../core/evidence-freshness.js';
-import type { StoryInfo, VerificationEvidence, VerificationIntent } from '../core/types.js';
+import type { ChecklistStatus, StoryInfo, VerificationEvidence, VerificationIntent } from '../core/types.js';
 import { buildVerificationCoverage, makeEvidence } from '../core/verification.js';
 
 function sleepSync(ms: number): void {
@@ -48,8 +48,36 @@ function resolveBackgroundPath(root: string, store: HandlerContext['store'], sto
 
 function assertChecklistMutationCwd(store: HandlerContext['store'], storyId: string): StoryInfo {
   const story = store.readStory(storyId);
-  if (story.worktree) assertCwdInWorktree(store, storyId);
+  assertCwdInWorktree(store, storyId);
   return story;
+}
+
+function evidenceHashes(root: string): { headHash?: string; materialHash?: string } {
+  let headHash = '';
+  try {
+    headHash = execSync('git rev-parse HEAD', { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+  } catch { /* PROBE: non-git or unavailable, omit freshness hash */ }
+  const materialHash = currentMaterialHash(root);
+  return {
+    ...(headHash ? { headHash } : {}),
+    ...(materialHash ? { materialHash } : {}),
+  };
+}
+
+function normalizeEvidence(root: string, input: VerificationEvidence): VerificationEvidence {
+  const hashes = evidenceHashes(root);
+  return makeEvidence({
+    intentRef: input.intentRef,
+    kind: input.kind,
+    ...(input.verdict ? { verdict: input.verdict } : {}),
+    ...(input.waiverType ? { waiverType: input.waiverType } : {}),
+    ...(input.file ? { file: input.file } : {}),
+    ...(input.command ? { command: input.command } : {}),
+    ...(input.result ? { result: input.result } : {}),
+    note: input.note.trim(),
+    headHash: input.headHash || hashes.headHash,
+    materialHash: input.materialHash || hashes.materialHash,
+  });
 }
 
 export function createChecklistHandlers(ctx: HandlerContext) {
@@ -68,11 +96,15 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       excludes?: string[];
       files?: { modify: string[]; create: string[]; test: string[] };
       verificationIntent?: VerificationIntent;
+      reason?: string;
     }): string {
       if (!args.title) throw new Error('title is required');
 
       // 验证 story 存在；进入 worktree 流程后，checklist 只能在 story worktree 写。
-      assertChecklistMutationCwd(store, args.storyId);
+      const story = assertChecklistMutationCwd(store, args.storyId);
+      if (story.phase === 'PLAN' && (!args.reason || args.reason.trim().length < 10)) {
+        throw new Error('PLAN 阶段 checklist_add 必须提供 reason ≥ 10 字符，作为 replan/scope audit 信号，避免绕过 title/context 冻结');
+      }
 
       return withChecklistLock(ctx, args.storyId, () => {
       const cl = store.readChecklist(args.storyId);
@@ -122,9 +154,23 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         endTime: null,
       });
 
+      if (story.phase === 'PLAN') {
+        if (!cl.auditLog) cl.auditLog = [];
+        cl.auditLog.push({
+          timestamp: new Date().toISOString(),
+          phase: story.phase,
+          itemId: nextId,
+          action: 'add',
+          from: 'pending' as ChecklistStatus,
+          to: 'pending' as ChecklistStatus,
+          reason: args.reason!.trim(),
+          addedTitle: args.title,
+          addedContext: args.context || '',
+        });
+      }
+
       store.writeChecklist(args.storyId, cl);
       try {
-        const story = store.readStory(args.storyId);
         store.appendProcessEvent(args.storyId, {
           type: 'plan_updated',
           action: 'add',
@@ -301,7 +347,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         results.push(`verificationIntent updated`);
       }
       if (args.verificationEvidence !== undefined) {
-        item.verificationEvidence = args.verificationEvidence;
+        item.verificationEvidence = args.verificationEvidence.map(ev => normalizeEvidence(root, ev));
         results.push(`verificationEvidence updated (${args.verificationEvidence.length})`);
       }
 
@@ -436,11 +482,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       const item = cl.items.find(i => i.id === args.itemId);
       if (!item) throw new Error(`Checklist item ${args.itemId} not found`);
 
-      let headHash = '';
-      try {
-        headHash = execSync('git rev-parse HEAD', { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
-      } catch { /* non-git or unavailable, omit freshness hash */ }
-      const materialHash = currentMaterialHash(root);
+      const hashes = evidenceHashes(root);
 
       const evidence = makeEvidence({
         intentRef: args.intentRef,
@@ -451,8 +493,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         ...(args.command ? { command: args.command } : {}),
         ...(args.result ? { result: args.result } : {}),
         note: args.note.trim(),
-        ...(headHash ? { headHash } : {}),
-        ...(materialHash ? { materialHash } : {}),
+        ...hashes,
       });
 
       const existing = item.verificationEvidence || [];
@@ -485,11 +526,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       }
       return withChecklistLock(ctx, args.storyId, () => {
       const cl = store.readChecklist(args.storyId);
-      let headHash = '';
-      try {
-        headHash = execSync('git rev-parse HEAD', { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
-      } catch { /* non-git or unavailable, omit freshness hash */ }
-      const materialHash = currentMaterialHash(root);
+      const hashes = evidenceHashes(root);
 
       let written = 0;
       for (const entry of args.evidences) {
@@ -510,8 +547,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           ...(entry.command ? { command: entry.command } : {}),
           ...(entry.result ? { result: entry.result } : {}),
           note: entry.note.trim(),
-          ...(headHash ? { headHash } : {}),
-          ...(materialHash ? { materialHash } : {}),
+          ...hashes,
         });
         const existing = item.verificationEvidence || [];
         const idx = existing.findIndex(e => e.intentRef === entry.intentRef);

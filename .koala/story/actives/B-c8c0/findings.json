@@ -1,0 +1,70 @@
+{
+  "findings": [
+    {
+      "id": "B-c8c0:F-001",
+      "desc": "CLAUDE.md:35 - REVIEW→TEST preflight still says 3 CLI gates (validate --channel / --concept / --lint), but the implemented preflight now also runs docs-drift (and conditionally codex-adapter) before TEST. The process doc understates required gating and can mislead agents into thinking TEST is reachable without clearing the docs gate.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-05-08T11:54:50.731Z",
+      "reviewRound": "2026-05-08T11:48:22.929Z",
+      "_hash": "6900e140ff23fe27c5772007635ba0442f1b06eb1079bd618110578fb7d9402d"
+    },
+    {
+      "id": "B-c8c0:F-002",
+      "desc": "packages/main/src/tasks/flow-stability-smoke.ts:577 and :595 - CHK-005 edge promises validate --channel accepts successful subagent_result and dispatch evidence, but smoke only covers a failing subagent_result path plus commit_author fallback; there is no positive dispatch/subagent_result acceptance assertion for checkDispatchEvidence/checkCommitAuthor, so the intended behavior is not meaningfully exercised.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-05-08T11:55:23.110Z",
+      "reviewRound": "2026-05-08T11:48:22.929Z",
+      "_hash": "31653b41b5e56031b50296e02c36b6c99b2e73860b497de6835f433b4d88650d"
+    },
+    {
+      "id": "B-c8c0:F-003",
+      "desc": "packages/main/src/handlers/checklist.ts:49 - INIT_CHECK-linked stories still accept checklist_add/update/remove from main because cwd authority only gates PLAN/DEV/REVIEW/TEST, so active-story metadata can still drift before PLAN and CHK-001 is not fully fixed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-08T11:57:52.022Z",
+      "reviewRound": "2026-05-08T11:48:22.929Z",
+      "_hash": "38dc08ce096a4f5fed5f8655e04d0566a7b0809fb5ecfd6b8855f86a55f63af2"
+    },
+    {
+      "id": "B-c8c0:F-004",
+      "desc": "REVIEW gate contract still diverges: runtime preflight is 4 gates plus optional codex-adapter (packages/main/src/handlers/review-preflight.ts:1-18,194-244; packages/main/src/handlers/story-advance.ts:747-777), but reviewer-facing docs still instruct the retired 3-gate model (CLAUDE.md:698-708; .Codex/agents/koala-review-concept.md:42,687-695; .claude/agents/koala-review-concept.md:42,687-695). This breaks the single-source REVIEW→TEST architecture and can misroute reviewer decisions.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-05-08T12:04:29.336Z",
+      "reviewRound": "2026-05-08T12:02:00.587Z",
+      "_hash": "479c7c7a15f779c3d52e405705392c6606bf7419385dec6998108deb5d8faa7d"
+    },
+    {
+      "id": "B-c8c0:F-005",
+      "desc": "REVIEW gate docs/prompts still drift: .Codex/agents/koala-review-quality.md:42 and :687-709 still say '3 CLI gate', omit docs-drift/codex-adapter, and still list a channel reviewer; .Codex/agents/koala-review-concept.md:711 and CLAUDE.md:723 still keep channel in reviewer opt-in. Runtime reviewer_list is correct, but prompt/docs are not yet consistent with the live routing, so REVIEW guidance can still spawn retired channel review work.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-05-08T12:10:23.597Z",
+      "reviewRound": "2026-05-08T12:07:57.113Z",
+      "_hash": "b80650b65fb4db715363e82782216ceeb45e6c91426875111b060f7dd817d472"
+    },
+    {
+      "id": "B-c8c0:F-006",
+      "desc": "packages/main/src/cli-engine.ts:635 - reviewer_list help text still says 'baseline concept/quality + 按信号挂载 behavior/docs/channel', and node packages/main/dist/cli.js reviewer_list --help renders that stale contract even though runtime reviewer_list now returns concept/quality/test-coverage baseline with no channel reviewer. This round was meant to synchronize reviewer gate prompts/comments, so leaving the public CLI description stale can still mislead users/agents into expecting a retired channel reviewer and missing test-coverage. Fix by updating the reviewer_list description to match the live routing (baseline concept/quality/test-coverage; signal-driven behavior/docs only).",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-08T12:19:05.569Z",
+      "reviewRound": "2026-05-08T12:15:30.872Z",
+      "_hash": "979eade2198481dfcb2a24ec5e4aeb74e8dd67b86477814e1e70c4bfa70ce225"
+    }
+  ]
+}

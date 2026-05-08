@@ -134,7 +134,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   const clusterHandlers = createClusterHandlers(ctx);
   registry.register('finding_cluster', clusterHandlers.finding_cluster);
 
-  // B-fdcf CHK-001: reviewer_list CLI wire（按 riskSignals / touchpoints / channel 实时计算）
+  // B-fdcf CHK-001: reviewer_list CLI wire（按 riskSignals / touchpoints 实时计算）
   registry.registerBatch(createReviewerListHandlers(ctx));
 
   // B-9975 CHK-001: story_draft / story_draft_list / story_draft_discard

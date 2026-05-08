@@ -744,14 +744,13 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
         );
       }
 
-      // F-019 (B-9d95 Round 1 review): REVIEW→TEST preflight 跑 3 CLI gate。
-      // CLAUDE.md 承诺 "进入 REVIEW 后由 story_advance --phase=TEST 自动跑 3 个 CLI gate"，
-      // 但旧实现只跑 validate.ts 全量，三个 gate 从未独立执行。这里用
-      // runReviewCliGates 聚合 checkCommitAuthor / checkConcept / checkLint，
+      // F-019 (B-9d95 Round 1 review): REVIEW→TEST preflight 跑 CLI gates。
+      // runReviewCliGates 聚合 checkCommitAuthor / checkConcept / checkLint /
+      // docs-drift，并在 Codex adapter 触点存在时追加 codex-adapter gate。
       // 任一 fail 即 block；快速通道走 runReviewCliGates 内部的 fastChannel
-      // 路径（三项统一 skip），与 F-015 修正后的 computeChannel 口径一致。
+      // 路径（常规 gate 统一 skip），与 F-015 修正后的 computeChannel 口径一致。
       if (args.phase === 'TEST' && story.phase === 'REVIEW') {
-        ctx.log?.('REVIEW→TEST preflight: running 4 CLI gates (channel/concept/lint/docs-drift)...');
+        ctx.log?.('REVIEW→TEST preflight: running CLI gates (channel/concept/lint/docs-drift plus conditional codex-adapter)...');
         try {
           const { runReviewCliGates, renderPreflight } = await import('./review-preflight.js');
           const preflight = runReviewCliGates(args.storyId, {
@@ -767,15 +766,15 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
               `Cannot enter TEST: CLI gate preflight 失败 (${failedGates})\n\n` +
               rendered +
               `\n\n→ 修复上述 gate 后重跑 koala story_advance --phase=TEST\n` +
-              `→ 单独复跑: koala validate --channel --story=${args.storyId} / --concept / --lint；Codex adapter 用 ${LOCAL_CODEX_VERIFY_COMMAND}`,
+              `→ 单独复跑: koala validate --channel --story=${args.storyId} / --concept / --lint；docs-drift 随 preflight 执行；Codex adapter 用 ${LOCAL_CODEX_VERIFY_COMMAND}`,
             );
           }
-          ctx.log?.('4 CLI gate preflight: all pass');
+          ctx.log?.('CLI gate preflight: all pass');
         } catch (e: any) {
           if (e?.message?.startsWith('Cannot enter TEST')) throw e;
           // 预检查本身失败（review-preflight.ts import 失败等）→ fail-closed
           // 为 warning：不阻推进，只 log；全量 validate 下方仍会跑
-          ctx.log?.(`3 CLI gate preflight 自身错误（不阻塞推进）: ${e?.message ?? e}`);
+          ctx.log?.(`CLI gate preflight 自身错误（不阻塞推进）: ${e?.message ?? e}`);
         }
       }
 

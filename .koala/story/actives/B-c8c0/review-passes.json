@@ -1,0 +1,92 @@
+{
+  "passes": [
+    {
+      "id": "B-c8c0:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept review: checked from-draft worktree bootstrap, worktree metadata authority, cluster auto-resolve entrypoints, durable review_pass persistence, semantic evidence freshness, retired channel reviewer routing, dispatch/author evidence, plan freeze audit, touchpoint matching, stale warning cooldown, and scope_excluded info; no blocking finding because the fixes route through the real CLI/workflow entrypoints and the targeted smoke tasks passed.",
+      "createdAt": "2026-05-08T11:56:26.854Z",
+      "reviewRound": "2026-05-08T11:48:22.929Z",
+      "_hash": "2484bb90e76a08ec4604050826b6c1fa1f0873a2551e9ea552a04fe25f731bdd"
+    },
+    {
+      "id": "B-c8c0:RP-002",
+      "agent": "koala-review-docs",
+      "note": "Verified CLAUDE.md, .Codex/agents/koala-review-concept.md, and .claude/agents/koala-review-concept.md all present the same 4 CLI gates (channel, concept, lint, docs-drift) plus conditional codex-adapter gating in REVIEW→TEST; no retired 3-gate wording remains in the REVIEW gate flow.",
+      "createdAt": "2026-05-08T12:09:38.416Z",
+      "reviewRound": "2026-05-08T12:07:57.113Z",
+      "_hash": "1a6ea09f62509d7caf9e544f9ad79e93f6f1c6f24d92ac6c44ed2ef68b4f820f"
+    },
+    {
+      "id": "B-c8c0:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "Re-reviewed final coverage after fixes: node packages/main/dist/tasks/flow-stability-smoke.js passes with positive success-path coverage for subagent_result and dispatch evidence, and node packages/main/dist/tasks/worktree-authority-smoke.js passes with INIT_CHECK main-cwd rejection coverage; no blocker remains for this round.",
+      "createdAt": "2026-05-08T12:10:27.320Z",
+      "reviewRound": "2026-05-08T12:07:57.113Z",
+      "_hash": "aa4ea802888804367e2a5332f57e9079da67c21711d89143cec145b4dbb65de2"
+    },
+    {
+      "id": "B-c8c0:RP-004",
+      "agent": "koala-review-quality",
+      "note": "Re-reviewed INIT_CHECK worktree authority guard and added smoke coverage; targeted smokes passed and modified TS files are diagnostics-clean with no new quality blockers.",
+      "createdAt": "2026-05-08T12:11:32.770Z",
+      "reviewRound": "2026-05-08T12:07:57.113Z",
+      "_hash": "217bf2576f770f1fa96e1c12b2cda21e1142f195b40e1eb624c9be3eb8486d2d"
+    },
+    {
+      "id": "B-c8c0:RP-005",
+      "agent": "koala-review-concept",
+      "note": "No retired 3-gate/channel routing drift found in prompt/docs corpus; reviewer_list remains concept, quality, test-coverage, docs.",
+      "createdAt": "2026-05-08T12:16:47.264Z",
+      "reviewRound": "2026-05-08T12:15:30.872Z",
+      "_hash": "29be9f46b9e305ab2f0500d5533b8252e038e6a3f3713f91ac0816b05d7e6bd0"
+    },
+    {
+      "id": "B-c8c0:RP-006",
+      "agent": "koala-review-test-coverage",
+      "note": "Round 5 coverage review pass: validate --story=B-c8c0 --json reports 18/18 required verification intents covered at current HEAD, including CHK-001 INIT_CHECK authority coverage and CHK-005 edge channel-evidence acceptance after prompt sync.",
+      "createdAt": "2026-05-08T12:17:22.225Z",
+      "reviewRound": "2026-05-08T12:15:30.872Z",
+      "_hash": "84da6c0f9a7c6074094b88335b1ec2820f25b10abddd62b3998330ff73d63f3b"
+    },
+    {
+      "id": "B-c8c0:RP-007",
+      "agent": "koala-review-docs",
+      "note": "Verified prompt/docs/template alignment with CLI gates: channel, concept, lint, docs-drift, and conditional codex-adapter; no channel reviewer opt-in row remains.",
+      "createdAt": "2026-05-08T12:17:26.297Z",
+      "reviewRound": "2026-05-08T12:15:30.872Z",
+      "_hash": "b41e4e230efefaccb76fe9157dff85ac57a10c423f6ca7ff85722862149faadb"
+    },
+    {
+      "id": "B-c8c0:RP-008",
+      "agent": "koala-review-concept",
+      "note": "Current round concept review pass: reviewer routing and prompt/doc/source gate wording align with concept/quality/test-coverage baseline, docs opt-in, and retired channel LLM.",
+      "createdAt": "2026-05-08T12:23:56.139Z",
+      "reviewRound": "2026-05-08T12:21:26.633Z",
+      "_hash": "70699e9654d1a98ad1f205567d97dbbf33c88c019f43b7140e11f8a08c0ffbd2"
+    },
+    {
+      "id": "B-c8c0:RP-009",
+      "agent": "koala-review-quality",
+      "note": "Current round quality review pass: reviewer_list help/runtime match live routing and packages/main build is clean.",
+      "createdAt": "2026-05-08T12:24:00.228Z",
+      "reviewRound": "2026-05-08T12:21:26.633Z",
+      "_hash": "dccbdc7da298c57950c60c6e462fec5d21e449c9ea66f53ad9f40540f1272f76"
+    },
+    {
+      "id": "B-c8c0:RP-010",
+      "agent": "koala-review-docs",
+      "note": "Current round docs review pass: CLAUDE, Codex/Claude prompts, templates, source comments, and reviewer_list help all reflect current CLI gates and retired channel reviewer behavior.",
+      "createdAt": "2026-05-08T12:24:08.117Z",
+      "reviewRound": "2026-05-08T12:21:26.633Z",
+      "_hash": "850eda2aff0e1aaaaa3c2769ef1e96b55b30765f43e6de918890e2a5f719adc2"
+    },
+    {
+      "id": "B-c8c0:RP-011",
+      "agent": "koala-review-test-coverage",
+      "note": "Current round test-coverage review pass: story validation and targeted smoke tasks cover fromDraft worktrees, cluster resolves, worktree-safe state, RP durability, evidence freshness, retired channel routing, dispatch fallback, freeze/audit, and touchpoint normalization.",
+      "createdAt": "2026-05-08T12:24:16.101Z",
+      "reviewRound": "2026-05-08T12:21:26.633Z",
+      "_hash": "6ad96cb495b572a6db40375cadccdb2744957152ae5359814cd39563d7eeafeb"
+    }
+  ]
+}
