@@ -14,6 +14,7 @@ import { summarizeReviewerStatus } from '../core/reviewer-status.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, Finding, StoryInfo, TestEvidenceData } from '../core/types.js';
 import { buildDoneChecklist } from '../handlers/story-advance.js';
+import { createStoryAdvanceHandlers } from '../handlers/story-advance.js';
 import { decorateResult } from '../handlers/hints.js';
 import { createSessionHandlers } from '../handlers/session.js';
 import { checkCommitAuthor } from '../handlers/validate-channel.js';
@@ -189,6 +190,39 @@ function assertReviewGateUsesOptIn(): void {
     assert.equal(byName.get('test-coverage')?.verdict, 'pass');
     assert.equal(byName.has('channel'), false);
   } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(): Promise<void> {
+  const root = mkdtempSync(join(tmpdir(), 'koala-flow-review-echo-'));
+  const oldCwd = process.cwd();
+  try {
+    const { store, storyId } = createReviewStore(root);
+    git(root, ['init']);
+    git(root, ['config', 'user.email', 'koala@example.test']);
+    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'base']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+    const story = store.readStory(storyId);
+    story.phase = 'DEV';
+    story.currentReviewRound = undefined;
+    store.writeStory(storyId, story);
+
+    process.chdir(root);
+    const output = await createStoryAdvanceHandlers({
+      store,
+      root,
+      scanRoot: join(root, 'packages/main'),
+    }).story_advance({ storyId, phase: 'REVIEW' });
+
+    assert.match(output, /Active reviewers: concept, quality, test-coverage/);
+    assert.doesNotMatch(output, /koala-review-channel/);
+    assert.doesNotMatch(output, /channel \(normal channel\)/);
+  } finally {
+    process.chdir(oldCwd);
     rmSync(root, { recursive: true, force: true });
   }
 }
@@ -701,6 +735,7 @@ function assertGlobalLinkRepair(): void {
 
 assertSessionBriefGate();
 assertReviewGateUsesOptIn();
+await assertStoryAdvanceReviewEchoOmitsRetiredChannel();
 assertReviewerStatusUsesMdFallback();
 assertSessionBriefStatusHintsMatchGates();
 assertReviewNextUsesReviewerGateState();
