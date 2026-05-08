@@ -88,9 +88,9 @@
           "command": "node packages/main/dist/tasks/session-brief-prompt-sync-smoke.js",
           "result": "pass",
           "note": "Smoke scans CLAUDE.md, CLI help/footer, templates, and generated prompts for stale first-session koala status wording and requires session_brief footer text.",
-          "headHash": "caef97df63f1f7f54fd9f8a38a5488e61f4b0a23",
-          "materialHash": "e1a006e3c011d9ec39ea59f1fec7a77b6f2547dafaedb74de26d4beb9c5a746e",
-          "timestamp": "2026-05-08T23:36:55.520Z"
+          "headHash": "55253a12780ffb28b944ce62ea619468c299d168",
+          "materialHash": "02217301037ad84c1015af3d4ce691e1ffb492251000789fc52d1e777e6052c5",
+          "timestamp": "2026-05-08T23:39:24.354Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -99,9 +99,9 @@
           "command": "node packages/main/dist/tasks/session-brief-prompt-sync-smoke.js",
           "result": "pass",
           "note": "Smoke keeps status allowed only as an in-work quick status command while blocking first-session/lost-next-step status wording.",
-          "headHash": "caef97df63f1f7f54fd9f8a38a5488e61f4b0a23",
-          "materialHash": "e1a006e3c011d9ec39ea59f1fec7a77b6f2547dafaedb74de26d4beb9c5a746e",
-          "timestamp": "2026-05-08T23:36:55.520Z"
+          "headHash": "55253a12780ffb28b944ce62ea619468c299d168",
+          "materialHash": "02217301037ad84c1015af3d4ce691e1ffb492251000789fc52d1e777e6052c5",
+          "timestamp": "2026-05-08T23:39:24.354Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -109,9 +109,9 @@
           "command": "node bin/koala-codex.js verify_codex",
           "result": "pass",
           "note": "verify_codex passed after .Codex and .claude agent prompt mirror changes; only global fallback warning remains heartbeat-only.",
-          "headHash": "caef97df63f1f7f54fd9f8a38a5488e61f4b0a23",
-          "materialHash": "e1a006e3c011d9ec39ea59f1fec7a77b6f2547dafaedb74de26d4beb9c5a746e",
-          "timestamp": "2026-05-08T23:36:55.520Z"
+          "headHash": "55253a12780ffb28b944ce62ea619468c299d168",
+          "materialHash": "02217301037ad84c1015af3d4ce691e1ffb492251000789fc52d1e777e6052c5",
+          "timestamp": "2026-05-08T23:39:24.354Z"
         }
       ]
     },
@@ -176,9 +176,9 @@
           "command": "node packages/main/dist/tasks/session-brief-prompt-sync-smoke.js",
           "result": "pass",
           "note": "Smoke requires CLAUDE.md and INIT_CHECK prompt sections to list missing/tampered/missing required agent/high-critical blockers.",
-          "headHash": "caef97df63f1f7f54fd9f8a38a5488e61f4b0a23",
-          "materialHash": "e1a006e3c011d9ec39ea59f1fec7a77b6f2547dafaedb74de26d4beb9c5a746e",
-          "timestamp": "2026-05-08T23:36:55.520Z"
+          "headHash": "55253a12780ffb28b944ce62ea619468c299d168",
+          "materialHash": "02217301037ad84c1015af3d4ce691e1ffb492251000789fc52d1e777e6052c5",
+          "timestamp": "2026-05-08T23:39:24.354Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -187,9 +187,9 @@
           "command": "node packages/main/dist/tasks/session-brief-prompt-sync-smoke.js",
           "result": "pass",
           "note": "Smoke rejects old issues advisory/gate ignores severity wording while allowing medium/low advisory wording.",
-          "headHash": "caef97df63f1f7f54fd9f8a38a5488e61f4b0a23",
-          "materialHash": "e1a006e3c011d9ec39ea59f1fec7a77b6f2547dafaedb74de26d4beb9c5a746e",
-          "timestamp": "2026-05-08T23:36:55.520Z"
+          "headHash": "55253a12780ffb28b944ce62ea619468c299d168",
+          "materialHash": "02217301037ad84c1015af3d4ce691e1ffb492251000789fc52d1e777e6052c5",
+          "timestamp": "2026-05-08T23:39:24.354Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -198,9 +198,9 @@
           "command": "node packages/main/dist/tasks/init-check-required-agents-smoke.js",
           "result": "pass",
           "note": "Existing smoke proves high issue and missing required reviewer block INIT_CHECK while medium issue can advance.",
-          "headHash": "caef97df63f1f7f54fd9f8a38a5488e61f4b0a23",
-          "materialHash": "e1a006e3c011d9ec39ea59f1fec7a77b6f2547dafaedb74de26d4beb9c5a746e",
-          "timestamp": "2026-05-08T23:36:55.520Z"
+          "headHash": "55253a12780ffb28b944ce62ea619468c299d168",
+          "materialHash": "02217301037ad84c1015af3d4ce691e1ffb492251000789fc52d1e777e6052c5",
+          "timestamp": "2026-05-08T23:39:24.354Z"
         }
       ]
     },
@@ -262,9 +262,9 @@
           "command": "node packages/main/dist/tasks/session-brief-prompt-sync-smoke.js",
           "result": "pass",
           "note": "Smoke executes the UserPromptSubmit hook with stale session_brief activity and observes the reminder output.",
-          "headHash": "caef97df63f1f7f54fd9f8a38a5488e61f4b0a23",
-          "materialHash": "e1a006e3c011d9ec39ea59f1fec7a77b6f2547dafaedb74de26d4beb9c5a746e",
-          "timestamp": "2026-05-08T23:36:55.520Z"
+          "headHash": "55253a12780ffb28b944ce62ea619468c299d168",
+          "materialHash": "02217301037ad84c1015af3d4ce691e1ffb492251000789fc52d1e777e6052c5",
+          "timestamp": "2026-05-08T23:39:24.354Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -273,9 +273,9 @@
           "command": "node packages/main/dist/tasks/session-brief-prompt-sync-smoke.js",
           "result": "pass",
           "note": "Smoke executes the hook with fresh .koala activity and legacy Claude Bash activity, and verifies both stay silent.",
-          "headHash": "caef97df63f1f7f54fd9f8a38a5488e61f4b0a23",
-          "materialHash": "e1a006e3c011d9ec39ea59f1fec7a77b6f2547dafaedb74de26d4beb9c5a746e",
-          "timestamp": "2026-05-08T23:36:55.520Z"
+          "headHash": "55253a12780ffb28b944ce62ea619468c299d168",
+          "materialHash": "02217301037ad84c1015af3d4ce691e1ffb492251000789fc52d1e777e6052c5",
+          "timestamp": "2026-05-08T23:39:24.354Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -283,9 +283,9 @@
           "command": "node bin/koala-codex.js verify_codex",
           "result": "pass",
           "note": "verify_codex passed and confirmed no .Codex/hooks or .Codex/settings.json were created.",
-          "headHash": "caef97df63f1f7f54fd9f8a38a5488e61f4b0a23",
-          "materialHash": "e1a006e3c011d9ec39ea59f1fec7a77b6f2547dafaedb74de26d4beb9c5a746e",
-          "timestamp": "2026-05-08T23:36:55.520Z"
+          "headHash": "55253a12780ffb28b944ce62ea619468c299d168",
+          "materialHash": "02217301037ad84c1015af3d4ce691e1ffb492251000789fc52d1e777e6052c5",
+          "timestamp": "2026-05-08T23:39:24.354Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
