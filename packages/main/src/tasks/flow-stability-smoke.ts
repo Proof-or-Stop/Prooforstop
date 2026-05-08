@@ -621,6 +621,81 @@ function assertChannelGateAcceptsImplementerAuthorWithoutDispatch(): void {
   }
 }
 
+function assertChannelGateAcceptsSuccessfulSubagentResultEvidence(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-flow-channel-subagent-evidence-'));
+  try {
+    const { store, storyId } = createReviewStore(root);
+    git(root, ['init']);
+    git(root, ['config', 'user.email', 'koala@example.test']);
+    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'base']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+    write(root, 'packages/main/src/real-code.ts', 'export const realCode = true;\n');
+    git(root, ['add', 'packages/main/src/real-code.ts']);
+    git(root, [
+      '-c', 'user.name=koala-implementer',
+      '-c', 'user.email=implementer@example.test',
+      'commit',
+      '-m', 'implement real code',
+    ]);
+    for (const suffix of ['001', '002', '003']) {
+      store.appendProcessEvent(storyId, {
+        type: 'subagent_result',
+        checklistId: `CHK-${suffix}`,
+        success: true,
+      });
+    }
+
+    const result = checkCommitAuthor(storyId, { store, projectRoot: root });
+    assert.equal(result.status, 'pass');
+    assert.equal(result.evidenceSource, 'subagent_result');
+    assert.match(renderedDetails(result), /已覆盖: CHK-001, CHK-002, CHK-003/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertChannelGateAcceptsDispatchEvidence(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-flow-channel-dispatch-evidence-'));
+  try {
+    const { store, storyId } = createReviewStore(root);
+    git(root, ['init']);
+    git(root, ['config', 'user.email', 'koala@example.test']);
+    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'base']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+    write(root, 'packages/main/src/real-code.ts', 'export const realCode = true;\n');
+    git(root, ['add', 'packages/main/src/real-code.ts']);
+    git(root, [
+      '-c', 'user.name=koala-implementer',
+      '-c', 'user.email=implementer@example.test',
+      'commit',
+      '-m', 'implement real code',
+    ]);
+    for (const suffix of ['001', '002', '003']) {
+      store.appendProcessEvent(storyId, {
+        type: 'dispatch',
+        checklistId: `CHK-${suffix}`,
+      });
+    }
+
+    const result = checkCommitAuthor(storyId, { store, projectRoot: root });
+    assert.equal(result.status, 'pass');
+    assert.equal(result.evidenceSource, 'dispatch');
+    assert.match(renderedDetails(result), /已覆盖: CHK-001, CHK-002, CHK-003/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function renderedDetails(result: { details: string[] }): string {
+  return result.details.join('\n');
+}
+
 function assertDoneChecklistUsesStableOracleRows(): void {
   const root = mkdtempSync(join(tmpdir(), 'koala-flow-oracle-row-'));
   try {
@@ -744,6 +819,8 @@ assertValidateHintsFollowStoryPhase();
 assertRealCliValidateHintFollowsActiveStoryPhase();
 assertBugUpdateTestHintUsesDonePrecheck();
 assertChannelGateRejectsKoalaSubjectForRealFiles();
+assertChannelGateAcceptsSuccessfulSubagentResultEvidence();
+assertChannelGateAcceptsDispatchEvidence();
 assertChannelGateAcceptsImplementerAuthorWithoutDispatch();
 assertDoneChecklistUsesStableOracleRows();
 assertGlobalLinkRepair();

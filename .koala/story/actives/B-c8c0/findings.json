@@ -1,0 +1,37 @@
+{
+  "findings": [
+    {
+      "id": "B-c8c0:F-001",
+      "desc": "CLAUDE.md:35 - REVIEW→TEST preflight still says 3 CLI gates (validate --channel / --concept / --lint), but the implemented preflight now also runs docs-drift (and conditionally codex-adapter) before TEST. The process doc understates required gating and can mislead agents into thinking TEST is reachable without clearing the docs gate.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-05-08T11:54:50.731Z",
+      "reviewRound": "2026-05-08T11:48:22.929Z",
+      "_hash": "6900e140ff23fe27c5772007635ba0442f1b06eb1079bd618110578fb7d9402d"
+    },
+    {
+      "id": "B-c8c0:F-002",
+      "desc": "packages/main/src/tasks/flow-stability-smoke.ts:577 and :595 - CHK-005 edge promises validate --channel accepts successful subagent_result and dispatch evidence, but smoke only covers a failing subagent_result path plus commit_author fallback; there is no positive dispatch/subagent_result acceptance assertion for checkDispatchEvidence/checkCommitAuthor, so the intended behavior is not meaningfully exercised.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-05-08T11:55:23.110Z",
+      "reviewRound": "2026-05-08T11:48:22.929Z",
+      "_hash": "31653b41b5e56031b50296e02c36b6c99b2e73860b497de6835f433b4d88650d"
+    },
+    {
+      "id": "B-c8c0:F-003",
+      "desc": "packages/main/src/handlers/checklist.ts:49 - INIT_CHECK-linked stories still accept checklist_add/update/remove from main because cwd authority only gates PLAN/DEV/REVIEW/TEST, so active-story metadata can still drift before PLAN and CHK-001 is not fully fixed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-08T11:57:52.022Z",
+      "reviewRound": "2026-05-08T11:48:22.929Z",
+      "_hash": "38dc08ce096a4f5fed5f8655e04d0566a7b0809fb5ecfd6b8855f86a55f63af2"
+    }
+  ]
+}

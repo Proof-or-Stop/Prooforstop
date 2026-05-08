@@ -36,6 +36,19 @@ function runKoala(root: string, command: string, args: Record<string, unknown>):
   });
 }
 
+function runKoalaExpectFail(root: string, command: string, args: Record<string, unknown>): string {
+  try {
+    runKoala(root, command, args);
+  } catch (e: any) {
+    return [
+      e?.stdout?.toString?.() ?? '',
+      e?.stderr?.toString?.() ?? '',
+      e?.message ?? '',
+    ].join('\n');
+  }
+  assert.fail(`${command} should have failed`);
+}
+
 function validBackground(): string {
   return [
     '## 触发事件',
@@ -124,6 +137,48 @@ function assertRecordedWorktreeRejectsMainCwd(): void {
   }
 }
 
+function assertInitCheckChecklistMutationRejectsMainCwd(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-authority-init-check-'));
+  const previousCwd = process.cwd();
+  try {
+    write(root, 'koala.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      storyDir: '.koala/story/actives',
+      requirementsDir: 'docs/requirements',
+    }, null, 2));
+    git(root, ['init']);
+    git(root, ['checkout', '-B', 'main']);
+    write(root, 'README.md', 'init check authority smoke\n');
+    git(root, ['add', '.']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'base']);
+    resetConfigCache();
+    const store = new StoryStore(root);
+    const storyId = 'B-init-authority';
+    const worktreePath = join(root, '.worktrees', storyId);
+    mkdirSync(dirname(worktreePath), { recursive: true });
+    git(root, ['branch', `story/${storyId}`]);
+    git(root, ['worktree', 'add', worktreePath, `story/${storyId}`]);
+    writeStory(store, storyId, 'INIT_CHECK', {
+      path: `.worktrees/${storyId}`,
+      branch: `story/${storyId}`,
+      createdAt: '2026-05-08T10:00:00.000Z',
+    });
+
+    process.chdir(root);
+    const output = runKoalaExpectFail(root, 'checklist_add', {
+      storyId,
+      title: 'Should not land in main',
+      context: 'INIT_CHECK linked stories must still use the story worktree authority.',
+    });
+    assert.match(output, /必须在 worktree 里执行 koala 命令/);
+    assert.equal(new StoryStore(root).readChecklist(storyId).items.length, 1);
+  } finally {
+    process.chdir(previousCwd);
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 function assertTerminalStoriesDoNotRedirect(): void {
   const root = mkdtempSync(join(tmpdir(), 'koala-authority-terminal-'));
   const previousCwd = process.cwd();
@@ -197,6 +252,7 @@ function assertFromDraftCreatesWorktreeThroughCli(): void {
 }
 
 assertRecordedWorktreeRejectsMainCwd();
+assertInitCheckChecklistMutationRejectsMainCwd();
 assertTerminalStoriesDoNotRedirect();
 assertFromDraftCreatesWorktreeThroughCli();
 

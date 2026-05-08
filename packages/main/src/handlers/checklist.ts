@@ -48,7 +48,7 @@ function resolveBackgroundPath(root: string, store: HandlerContext['store'], sto
 
 function assertChecklistMutationCwd(store: HandlerContext['store'], storyId: string): StoryInfo {
   const story = store.readStory(storyId);
-  if (['PLAN', 'DEV', 'REVIEW', 'TEST'].includes(story.phase)) assertCwdInWorktree(store, storyId);
+  assertCwdInWorktree(store, storyId);
   return story;
 }
 

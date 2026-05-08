@@ -744,12 +744,11 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
         );
       }
 
-      // F-019 (B-9d95 Round 1 review): REVIEW→TEST preflight 跑 3 CLI gate。
-      // CLAUDE.md 承诺 "进入 REVIEW 后由 story_advance --phase=TEST 自动跑 3 个 CLI gate"，
-      // 但旧实现只跑 validate.ts 全量，三个 gate 从未独立执行。这里用
-      // runReviewCliGates 聚合 checkCommitAuthor / checkConcept / checkLint，
+      // F-019 (B-9d95 Round 1 review): REVIEW→TEST preflight 跑 CLI gates。
+      // runReviewCliGates 聚合 checkCommitAuthor / checkConcept / checkLint /
+      // docs-drift，并在 Codex adapter 触点存在时追加 codex-adapter gate。
       // 任一 fail 即 block；快速通道走 runReviewCliGates 内部的 fastChannel
-      // 路径（三项统一 skip），与 F-015 修正后的 computeChannel 口径一致。
+      // 路径（常规 gate 统一 skip），与 F-015 修正后的 computeChannel 口径一致。
       if (args.phase === 'TEST' && story.phase === 'REVIEW') {
         ctx.log?.('REVIEW→TEST preflight: running 4 CLI gates (channel/concept/lint/docs-drift)...');
         try {
