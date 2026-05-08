@@ -261,7 +261,7 @@ MODES
   koala validate --concept          # only deleted-symbol residue scan
   koala validate --channel --story=B-xxx  # only commit-author check
 
-REVIEW→TEST PREFLIGHT (3 CLI gates)
+REVIEW→TEST PREFLIGHT (CLI gates)
   These run automatically on story_advance --phase=TEST:
   1. --channel: normal channel requires implementer commits
   2. --concept: deleted symbols with ≥5 residual refs → spawn reviewer

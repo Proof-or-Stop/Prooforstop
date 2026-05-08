@@ -393,7 +393,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       full?: string | boolean;
       story?: string;
       json?: boolean;
-      // B-9d95 CHK-006: REVIEW→TEST preflight 三 gate 独立分流
+      // B-9d95 CHK-006: REVIEW→TEST preflight CLI gate 独立分流
       channel?: boolean;
       concept?: boolean;
       lint?: boolean;
@@ -410,7 +410,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         }
       }
 
-      // B-9d95 CHK-006: 三 gate flag 分流——任一命中即只跑对应 gate，
+      // B-9d95 CHK-006: CLI gate flag 分流——任一命中即只跑对应 gate，
       // 不 spawn pytest 的全量 validate.ts。多个 flag 同时传 → Promise.all 并行。
       if (args.channel || args.concept || args.lint) {
         type GateTask = () => Promise<{ name: string; ok: boolean; rendered: string; result: unknown }>;

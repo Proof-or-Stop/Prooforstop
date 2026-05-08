@@ -438,7 +438,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     full: z.union([z.string(), z.boolean()]).optional().describe('含真机测试（--full 或 --full=PvE 按名称过滤）'),
     story: z.string().optional().describe('只跑 story 改动涉及的 transition（TEST gate 用）'),
     json: z.boolean().optional().describe('结构化 JSON 输出（ExternalVerifierResult）'),
-    // B-9d95 CHK-006: REVIEW→TEST preflight 三 gate 独立分流 flag
+    // B-9d95 CHK-006: REVIEW→TEST preflight CLI gate 独立分流 flag
     // 任一 flag 命中 → 只跑对应 CLI gate，不 spawn pytest（秒级返回）
     // 同时传多个 flag → Promise.all 并行；任一 fail → exit 1
     channel: z.boolean().optional().describe('B-9d95: 只跑 --channel gate（commit author 扫描，需配合 --story）'),
@@ -631,7 +631,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     storyId: z.string().describe('Story ID'),
   }},
 
-  // Reviewer list (B-fdcf CHK-001: opt-in 名单查询，按 riskSignals / touchpoints / channel 实时计算)
+  // Reviewer list (B-fdcf CHK-001: opt-in 名单查询，按 riskSignals / touchpoints 实时计算)
   { name: 'reviewer_list', description: '列出当前 story 的 opt-in reviewer 名单（baseline concept/quality + 按信号挂载 behavior/docs/channel）', schema: {
     storyId: z.string().describe('Story ID'),
     json: z.boolean().optional().describe('输出结构化 JSON（含 reviewers 数组）'),

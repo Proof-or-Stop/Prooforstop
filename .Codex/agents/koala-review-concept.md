@@ -708,14 +708,13 @@ checklist + plan.md 写完后必须 `story_review` 通过（issueCount=0）才�
 | **quality** | baseline（永远开） |
 | **behavior** | riskSignals 含 `state machine` / `guard` / `gate` |
 | **docs** | touchpoints 含 `.md` 文件 |
-| **channel** | 正常通道（`computeChannel() === 'normal'`：> 5 项 / 多选型 / 有 riskSignals）；fast（≤ 5 项单一解无 risk）与 express（≤ 2 项无 risk）不挂 |
 
 **查看当前 story 的 reviewer 名单**：
 
 ```bash
-koala reviewer_list '{"storyId":"B-xxx"}'               # 文本: Active reviewers: concept, quality, behavior (riskSignal: state machine)
+koala reviewer_list '{"storyId":"B-xxx"}'               # 文本: Active reviewers: concept, quality, test-coverage, behavior (riskSignal: state machine)
 koala reviewer_list '{"storyId":"B-xxx","json":true}'   # 结构化: {reviewers:[{name,reason}]}
-koala reviewer_list '{"storyId":"B-xxx","forceReviewer":"docs,channel"}'  # 手动加挂（写 story.events）
+koala reviewer_list '{"storyId":"B-xxx","forceReviewer":"docs,behavior"}' # 手动加挂（写 story.events）
 ```
 
 `story_advance REVIEW` 会 echo 当前 reviewer 名单。gate（`canPassReview`）按 opt-in 实际名单校验，不再硬编码 5。
