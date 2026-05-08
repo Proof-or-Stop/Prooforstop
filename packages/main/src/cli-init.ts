@@ -598,31 +598,45 @@ if (agentTemplateDir) {
 // 6. hooks + settings.json
 console.log('\n[6/6] 配置 hooks...');
 const hooksDir = join(targetDir, '.claude', 'hooks');
-const hookSrc = join(packageRoot, '..', '..', '.claude', 'hooks', 'log-tools.cjs');
-const hookDst = join(hooksDir, 'log-tools.cjs');
-if (existsSync(hookSrc) && !existsSync(hookDst)) {
-  if (!existsSync(hooksDir)) mkdirSync(hooksDir, { recursive: true });
-  cpSync(hookSrc, hookDst);
-  console.log('  ✓ .claude/hooks/log-tools.cjs');
-} else if (existsSync(hookDst)) {
-  console.log('  - .claude/hooks/log-tools.cjs (exists, skip)');
+for (const hookFile of ['log-tools.cjs', 'session-brief-reminder.cjs']) {
+  const hookSrc = join(packageRoot, '..', '..', '.claude', 'hooks', hookFile);
+  const hookDst = join(hooksDir, hookFile);
+  if (existsSync(hookSrc) && !existsSync(hookDst)) {
+    if (!existsSync(hooksDir)) mkdirSync(hooksDir, { recursive: true });
+    cpSync(hookSrc, hookDst);
+    console.log(`  ✓ .claude/hooks/${hookFile}`);
+  } else if (existsSync(hookDst)) {
+    console.log(`  - .claude/hooks/${hookFile} (exists, skip)`);
+  }
 }
 
 // 合并 settings.json（不覆盖已有配置）
 const settingsPath = join(targetDir, '.claude', 'settings.json');
+const hookCommand = (hookFile: string) => `node "$(git -C "$CLAUDE_PROJECT_DIR" rev-parse --show-toplevel 2>/dev/null || echo "$CLAUDE_PROJECT_DIR")/.claude/hooks/${hookFile}"`;
 const koalaHooks = {
-  PostToolUse: [{ matcher: '', hooks: [{ type: 'command', command: 'node "$(git -C "$CLAUDE_PROJECT_DIR" rev-parse --show-toplevel 2>/dev/null || echo "$CLAUDE_PROJECT_DIR")/.claude/hooks/log-tools.cjs"' }] }],
-  PostToolUseFailure: [{ matcher: '', hooks: [{ type: 'command', command: 'node "$(git -C "$CLAUDE_PROJECT_DIR" rev-parse --show-toplevel 2>/dev/null || echo "$CLAUDE_PROJECT_DIR")/.claude/hooks/log-tools.cjs"' }] }],
+  UserPromptSubmit: [{ matcher: '', hooks: [{ type: 'command', command: hookCommand('session-brief-reminder.cjs') }] }],
+  PostToolUse: [{ matcher: '', hooks: [{ type: 'command', command: hookCommand('log-tools.cjs') }] }],
+  PostToolUseFailure: [{ matcher: '', hooks: [{ type: 'command', command: hookCommand('log-tools.cjs') }] }],
 };
+function hasHookCommand(entries: any, command: string): boolean {
+  return Array.isArray(entries) && entries.some((entry: any) =>
+    Array.isArray(entry?.hooks) && entry.hooks.some((hook: any) => hook?.type === 'command' && hook?.command === command));
+}
 if (existsSync(settingsPath)) {
   try {
     const existing = JSON.parse(readFileSync(settingsPath, 'utf-8'));
     if (!existing.hooks) existing.hooks = {};
-    // 只添加不存在的 hook 事件
+    // 只添加缺失的 koala hook，不覆盖用户已有配置。
     for (const [event, hooks] of Object.entries(koalaHooks)) {
+      const command = hooks[0]?.hooks?.[0]?.command;
       if (!existing.hooks[event]) {
         existing.hooks[event] = hooks;
         console.log(`  ✓ settings.json: 添加 ${event} hook`);
+      } else if (!Array.isArray(existing.hooks[event])) {
+        console.log(`  - settings.json: ${event} hook 已存在但格式不兼容, skip`);
+      } else if (command && !hasHookCommand(existing.hooks[event], command)) {
+        existing.hooks[event].push(...hooks);
+        console.log(`  ✓ settings.json: 合并 ${event} koala hook`);
       } else {
         console.log(`  - settings.json: ${event} hook 已存在, skip`);
       }

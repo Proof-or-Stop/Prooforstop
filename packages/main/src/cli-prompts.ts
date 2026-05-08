@@ -55,7 +55,7 @@ EXAMPLES
   }'
 
 STEP-BY-STEP
-  1. koala status — check for existing active story
+  1. koala session_brief — recover active story and next step
   2. koala story_list — check for duplicates
   3. Discuss with user until requirements crystallize
   4. story_create with checklist
@@ -106,7 +106,7 @@ DONE FINAL CHECKLIST
   missing summary_set, untouched relatedDocs, open bugs, missing test evidence.
 
 STEP-BY-STEP
-  1. koala status — see current phase
+  1. koala session_brief — see current phase and next gate hint
   2. Read gate error carefully
   3. Fix root cause
   4. Try advance (max 2 retries before reflecting)
@@ -293,4 +293,4 @@ STEP-BY-STEP
   4. git commit + checklist_update --status=done
 `.trim();
 
-export const SESSION_BRIEF_FOOTER = '\n→ 不知道现在该做什么？跑 koala status 看项目全貌\n';
+export const SESSION_BRIEF_FOOTER = '\n→ 不知道现在该做什么？跑 koala session_brief 看项目全貌\n';
