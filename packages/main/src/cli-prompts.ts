@@ -246,7 +246,7 @@ WHEN TO USE
   ✓ After writing / modifying code — verify before committing
   ✓ Before story_advance to TEST or DONE — gate requires validate PASS
   ✓ Debugging a test failure — re-run to confirm fix
-  ✓ REVIEW preflight — CLI gates (--channel / --concept / --lint) run automatically
+  ✓ REVIEW preflight — CLI gates (--channel / --concept / --lint / docs-drift, plus conditional codex-adapter) run automatically
 
 WHEN NOT TO USE
   ✗ No code changes since last green run — skip to save time
@@ -266,6 +266,8 @@ REVIEW→TEST PREFLIGHT (CLI gates)
   1. --channel: normal channel requires implementer commits
   2. --concept: deleted symbols with ≥5 residual refs → spawn reviewer
   3. --lint: tsc/ruff/import-graph — fail blocks advance
+  4. docs-drift: CLAUDE.md command references must match registry
+  5. codex-adapter: required only when Codex adapter surfaces changed
 
 EXAMPLES
 

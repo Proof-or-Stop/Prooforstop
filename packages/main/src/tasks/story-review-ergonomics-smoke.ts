@@ -126,7 +126,31 @@ function assertPlanAddNeedsAuditReason(): void {
   }
 }
 
+function assertPlanRemoveCannotBypassFreeze(): void {
+  const { root, store, storyId } = initStore();
+  try {
+    const handlers = createChecklistHandlers({
+      store,
+      root,
+      scanRoot: join(root, 'packages/main'),
+    });
+    assert.throws(
+      () => handlers.checklist_remove({
+        storyId,
+        itemId: 'CHK-001',
+        disposition: 'accept',
+        justification: 'Attempting to replace the frozen checklist item',
+      }),
+      /不允许删除 checklist item.*remove\+add 绕过/,
+    );
+    assert.equal(store.readChecklist(storyId).items.some(item => item.id === 'CHK-001'), true);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 assertTouchpointAndExcludedInfoAreQuiet();
 assertPlanAddNeedsAuditReason();
+assertPlanRemoveCannotBypassFreeze();
 
 console.log('✓ story review ergonomics smoke passed');

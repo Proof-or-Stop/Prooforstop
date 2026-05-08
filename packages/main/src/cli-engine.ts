@@ -1347,7 +1347,7 @@ export async function runCli(opts?: {
       if (result && typeof (result as any).then === 'function') result = await result;
       clearInterval(watchdog);
       log(`${cmd} done`);
-      if (shouldWriteActivityLog(cmd, parsed)) {
+      if (shouldWriteActivityLog(cmd, parsed) || staleWarnings.length > 0) {
         writeLog({ command: cmd, args: parsed, startTime: runStart, endTime: new Date().toISOString(), success: true, staleWarnings });
       }
       writeCodexProcessEvent({ command: cmd, args: parsed, success: true });
@@ -1379,7 +1379,7 @@ export async function runCli(opts?: {
     } catch (e: any) {
       clearInterval(watchdog);
       log(`${cmd} failed: ${e.message}`);
-      if (shouldWriteActivityLog(cmd, parsed)) {
+      if (shouldWriteActivityLog(cmd, parsed) || staleWarnings.length > 0) {
         writeLog({ command: cmd, args: parsed, startTime: runStart, endTime: new Date().toISOString(), success: false, error: e.message, staleWarnings });
       }
       writeCodexProcessEvent({ command: cmd, args: parsed, success: false, error: e.message });

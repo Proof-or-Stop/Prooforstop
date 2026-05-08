@@ -209,11 +209,12 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         throw new Error(`Cannot remove ${args.itemId}: already done. Re-open first if needed.`);
       }
 
-      // 只有 INIT 和 PLAN 阶段允许删除，之后只能加不能删
+      // 只有 INIT 阶段允许删除。INIT_CHECK 起 title/context 已冻结；
+      // 若 PLAN 仍允许 remove+add，就等价于绕过 checklist_update 的冻结门禁。
       const story = assertChecklistMutationCwd(store, args.storyId);
-      const allowedPhases = ['INIT', 'PLAN'];
+      const allowedPhases = ['INIT'];
       if (!allowedPhases.includes(story.phase)) {
-        throw new Error(`${story.phase} 阶段不允许删除 checklist item，只能 checklist_add 新增`);
+        throw new Error(`${story.phase} 阶段不允许删除 checklist item；INIT_CHECK 起 checklist title/context 冻结，避免 remove+add 绕过。需要新增范围只能 checklist_add，原 item 继续保留给 gate 审查`);
       }
 
       const removed = cl.items.splice(idx, 1)[0];
