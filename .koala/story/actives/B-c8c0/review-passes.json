@@ -31,6 +31,30 @@
       "createdAt": "2026-05-08T12:11:32.770Z",
       "reviewRound": "2026-05-08T12:07:57.113Z",
       "_hash": "217bf2576f770f1fa96e1c12b2cda21e1142f195b40e1eb624c9be3eb8486d2d"
+    },
+    {
+      "id": "B-c8c0:RP-005",
+      "agent": "koala-review-concept",
+      "note": "No retired 3-gate/channel routing drift found in prompt/docs corpus; reviewer_list remains concept, quality, test-coverage, docs.",
+      "createdAt": "2026-05-08T12:16:47.264Z",
+      "reviewRound": "2026-05-08T12:15:30.872Z",
+      "_hash": "29be9f46b9e305ab2f0500d5533b8252e038e6a3f3713f91ac0816b05d7e6bd0"
+    },
+    {
+      "id": "B-c8c0:RP-006",
+      "agent": "koala-review-test-coverage",
+      "note": "Round 5 coverage review pass: validate --story=B-c8c0 --json reports 18/18 required verification intents covered at current HEAD, including CHK-001 INIT_CHECK authority coverage and CHK-005 edge channel-evidence acceptance after prompt sync.",
+      "createdAt": "2026-05-08T12:17:22.225Z",
+      "reviewRound": "2026-05-08T12:15:30.872Z",
+      "_hash": "84da6c0f9a7c6074094b88335b1ec2820f25b10abddd62b3998330ff73d63f3b"
+    },
+    {
+      "id": "B-c8c0:RP-007",
+      "agent": "koala-review-docs",
+      "note": "Verified prompt/docs/template alignment with CLI gates: channel, concept, lint, docs-drift, and conditional codex-adapter; no channel reviewer opt-in row remains.",
+      "createdAt": "2026-05-08T12:17:26.297Z",
+      "reviewRound": "2026-05-08T12:15:30.872Z",
+      "_hash": "b41e4e230efefaccb76fe9157dff85ac57a10c423f6ca7ff85722862149faadb"
     }
   ]
 }
