@@ -1,0 +1,74 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Repair story creation and multi-worktree metadata authority",
+      "context": "fromDraft currently writes INIT_CHECK metadata without creating or recording a linked worktree; main/worktree metadata drift also lets checklist/review-pass writes land in the wrong copy. Fix bootstrap and mutation authority so active story worktree state is authoritative.",
+      "relatedDocs": [
+        "CLAUDE.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Wire cluster commit auto-resolve into promised entrypoints",
+      "context": "syncClusterResolves exists but finding_list and validate do not call it, contradicting CLAUDE.md and leaving Resolves: CL-xxx commits ineffective.",
+      "relatedDocs": [
+        "CLAUDE.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Make review pass persistence and DONE stray cleanup robust",
+      "context": "review_pass_set can report success while writing to the wrong metadata authority; DONE stray cleanup also omits review-passes.json from whitelist, causing untracked main metadata to block merge.",
+      "relatedDocs": [
+        "CLAUDE.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Relax evidence freshness to semantic material changes",
+      "context": "verification evidence should not stale on metadata-only commits and should consistently record materialHash even through checklist_update paths; refresh helpers should stay available for true material changes.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/test-intent-review.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Align channel reviewer routing and dispatch evidence with retired LLM channel policy",
+      "context": "CLAUDE.md says koala-review-channel is retired and CLI validate --channel owns the mechanical gate, but REVIEW opt-in still asks for the LLM reviewer; dispatch evidence should also accept direct Agent execution signals when available.",
+      "relatedDocs": [
+        "CLAUDE.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Tighten plan freezing and reduce story_review/stale warning noise",
+      "context": "PLAN title/context freeze can be bypassed with remove+add, touchpoint matching treats descriptions as paths, scope_excluded_info is counted as advisory noise, and stale-state warnings repeat after long expected reviewer idles.",
+      "relatedDocs": [
+        "CLAUDE.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

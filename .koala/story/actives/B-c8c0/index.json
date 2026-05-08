@@ -1,0 +1,45 @@
+{
+  "storyId": "B-c8c0",
+  "name": "koala-framework-bug-batch-2026-05-08",
+  "title": "Fix Koala framework workflow regressions from SimCell field report",
+  "description": "Fix confirmed Koala framework bugs around from-draft worktree bootstrap, cluster auto-resolve, multi-worktree metadata authority, review-pass persistence, evidence freshness, DONE stray metadata cleanup, reviewer routing, channel dispatch evidence, checklist freezing, touchpoint matching, stale warnings, and scope-excluded noise.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "source": "user",
+  "keywords": [
+    "koala",
+    "worktree",
+    "review-pass",
+    "cluster-sync",
+    "verification-evidence",
+    "reviewer-routing",
+    "story-review"
+  ],
+  "createdAt": "2026-05-08T10:49:02.602Z",
+  "startedAt": "2026-05-08T10:49:02.602Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-05-08T10:49:02.605Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-05-08T10:49:16.747Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-c8c0",
+    "branch": "story/B-c8c0",
+    "createdAt": "2026-05-08T10:49:16.858Z"
+  }
+}
