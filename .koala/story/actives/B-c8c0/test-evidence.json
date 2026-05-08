@@ -1,9 +1,9 @@
 {
   "command": "koala validate --story=B-c8c0 --json",
-  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.2 test\",\"  > npm run test:e2e\",\"  > koala@0.3.2 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 18/18 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via integration_test — fromDraft story_create creates or reports a linked worktree and records story.worktree metadata\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via logic_test — mutable checklist commands for an active story reject main cwd when a linked worktree exists\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test — authority detection does not redirect terminal DONE/DISCARDED stories or stories without linked worktrees\",\"  ✓ CHK-002:happy:0 [happy/must/logic] covered via integration_test — finding_list invokes syncClusterResolves before rendering cluster or plain finding views\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via integration_test — validate --story invokes syncClusterResolves unless noSync is explicitly requested\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test — unknown cluster references remain warnings and do not crash validate or finding_list\",\"  ✓ CHK-003:happy:0 [happy/must/logic] covered via integration_test — review_pass_set reads back the persisted pass and reports the same id after writing\",\"  ✓ CHK-003:edge:0 [edge/must/logic] covered via logic_test — review-passes.json is treated as safe stray story metadata during DONE merge cleanup\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test — review_pass_set detects duplicate or non-persisted RP ids instead of returning success\",\"  ✓ CHK-004:happy:0 [happy/must/logic] covered via logic_test — new verification evidence written by all supported handlers includes materialHash when git is available\",\"  ✓ CHK-004:edge:0 [edge/must/logic] covered via logic_test — metadata-only commits under story metadata paths do not stale evidence\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/logic] covered via logic_test — material source/config/test file changes still stale old evidence\",\"  ✓ CHK-005:happy:0 [happy/must/logic] covered via logic_test — normal channel reviewer opt-in excludes retired channel LLM reviewer while keeping baseline reviewers\",\"  ✓ CHK-005:edge:0 [edge/must/logic] covered via logic_test — validate --channel accepts direct successful subagent_result evidence as well as dispatch events\",\"  ✓ CHK-005:adversarial:0 [adversarial/must/logic] covered via logic_test — normal-channel commits by non-implementer without metadata exemption or item evidence still fail channel gate\",\"  ✓ CHK-006:happy:0 [happy/must/logic] covered via logic_test — touchpoint coverage extracts path prefixes before comparing against checklist files\",\"  ✓ CHK-006:edge:0 [edge/must/logic] covered via logic_test — PLAN remove+add cannot silently bypass title/context freeze without explicit replan/scope audit signal\",\"  ✓ CHK-006:adversarial:0 [adversarial/must/logic] covered via logic_test — scope_excluded_info and repeated stale idle warnings do not inflate actionable issue counts\"],\"warnings\":[],\"timestamp\":\"2026-05-08T12:17:11.798Z\",\"headSha\":\"2a29a4030640b8d4a07a47d4b83471f00f6e80b0\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.2 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.2 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1125}],\"verificationCoverage\":{\"total\":18,\"required\":18,\"covered\":18,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"fromDraft story_create creates or reports a linked worktree and records story.worktree metadata\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"integration_test\",\"command\":\"node packages/main/dist/tasks/worktree-authority-smoke.js\",\"result\":\"pass\",\"note\":\"fromDraft CLI smoke creates worktree and records story.worktree metadata\",\"headHash\":\"3aae0a2430481b6f9eae264b77f0f94d915ba17d\",\"materialHash\":\"8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf\",\"timestamp\":\"2026-05-08T12:15:17.475Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"mutable checklist commands for an active story reject main cwd when a linked worktree exists\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/worktree-authority-smoke.js\",\"result\":\"pass\",\"note\":\"worktree authority smoke rejects main cwd for active linked story mutations\",\"headHash\":\"3aae0a2430481b6f9eae264b77f0f94d915ba17d\",\"materialHash\":\"8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf\",\"timestamp\":\"2026-05-08T12:15:17.475Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"authority detection does not redirect terminal DONE/DISCARDED stories or stories without linked worktrees\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/worktree-authority-smoke.js\",\"result\":\"pass\",\"note\":\"worktree authority smoke confirms terminal DONE stories do not redirect\",\"headHash\":\"3aae0a2430481b6f9eae264b77f0f94d915ba17d\",\"materialHash\":\"8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf\",\"timestamp\":\"2026-05-08T12:15:17.475Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"finding_list invokes syncClusterResolves before rendering cluster or plain finding views\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"integration_test\",\"command\":\"node packages/main/dist/tasks/cluster-sync-entrypoints-smoke.js\",\"result\":\"pass\",\"note\":\"cluster sync smoke proves finding_list applies Resolves CL tags before rendering\",\"headHash\":\"3aae0a2430481b6f9eae264b77f0f94d915ba17d\",\"materialHash\":\"8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf\",\"timestamp\":\"2026-05-08T12:15:17.475Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"validate --story invokes syncClusterResolves unless noSync is explicitly requested\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"integration_test\",\"command\":\"node packages/main/dist/tasks/cluster-sync-entrypoints-smoke.js\",\"result\":\"pass\",\"note\":\"cluster sync smoke proves validate story syncs unless noSync is requested\",\"headHash\":\"3aae0a2430481b6f9eae264b77f0f94d915ba17d\",\"materialHash\":\"8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf\",\"timestamp\":\"2026-05-08T12:15:17.475Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"unknown cluster references remain warnings and do not crash validate or finding_list\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/cluster-sync-entrypoints-smoke.js\",\"result\":\"pass\",\"note\":\"cluster sync smoke exercises warning-safe entrypoints without crashing\",\"headHash\":\"3aae0a2430481b6f9eae264b77f0f94d915ba17d\",\"materialHash\":\"8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf\",\"timestamp\":\"2026-05-08T12:15:17.475Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"review_pass_set reads back the persisted pass and reports the same id after writing\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"integration_test\",\"command\":\"node packages/main/dist/tasks/review-pass-discard-smoke.js\",\"result\":\"pass\",\"note\":\"review pass smoke proves concurrent review_pass_set writes persist durable passes\",\"headHash\":\"3aae0a2430481b6f9eae264b77f0f94d915ba17d\",\"materialHash\":\"8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf\",\"timestamp\":\"2026-05-08T12:15:17.475Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"review-passes.json is treated as safe stray story metadata during DONE merge cleanup\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/review-pass-discard-smoke.js\",\"result\":\"pass\",\"note\":\"stray cleanup smoke proves review-passes json is whitelisted generated metadata\",\"headHash\":\"3aae0a2430481b6f9eae264b77f0f94d915ba17d\",\"materialHash\":\"8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf\",\"timestamp\":\"2026-05-08T12:15:17.475Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"review_pass_set detects duplicate or non-persisted RP ids instead of returning success\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/review-pass-discard-smoke.js\",\"result\":\"pass\",\"note\":\"review pass handler now reads back persisted pass and refuses non durable success\",\"headHash\":\"3aae0a2430481b6f9eae264b77f0f94d915ba17d\",\"materialHash\":\"8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf\",\"timestamp\":\"2026-05-08T12:15:17.475Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"new verification evidence written by all supported handlers includes materialHash when git is available\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/verification-freshness-smoke.js\",\"result\":\"pass\",\"note\":\"freshness smoke proves direct checklist_update evidence gets headHash and materialHash\",\"headHash\":\"3aae0a2430481b6f9eae264b77f0f94d915ba17d\",\"materialHash\":\"8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf\",\"timestamp\":\"2026-05-08T12:15:17.475Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"metadata-only commits under story metadata paths do not stale evidence\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/verification-freshness-smoke.js\",\"result\":\"pass\",\"note\":\"freshness smoke proves story metadata changes keep material hash evidence covered\",\"headHash\":\"3aae0a2430481b6f9eae264b77f0f94d915ba17d\",\"materialHash\":\"8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf\",\"timestamp\":\"2026-05-08T12:15:17.475Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"material source/config/test file changes still stale old evidence\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/verification-freshness-smoke.js\",\"result\":\"pass\",\"note\":\"freshness smoke proves material source config and test changes stale old evidence\",\"headHash\":\"3aae0a2430481b6f9eae264b77f0f94d915ba17d\",\"materialHash\":\"8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf\",\"timestamp\":\"2026-05-08T12:15:17.475Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"normal channel reviewer opt-in excludes retired channel LLM reviewer while keeping baseline reviewers\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/flow-stability-smoke.js\",\"result\":\"pass\",\"note\":\"flow stability smoke proves retired channel reviewer is absent from reviewer_list and story_advance REVIEW echo while baseline reviewers remain active\",\"headHash\":\"3aae0a2430481b6f9eae264b77f0f94d915ba17d\",\"materialHash\":\"8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf\",\"timestamp\":\"2026-05-08T12:15:17.475Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"validate --channel accepts direct successful subagent_result evidence as well as dispatch events\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/flow-stability-smoke.js\",\"result\":\"pass\",\"note\":\"flow stability smoke proves validate-channel accepts successful subagent_result evidence and dispatch evidence for all CHK items, with separate commit_author fallback coverage\",\"headHash\":\"3aae0a2430481b6f9eae264b77f0f94d915ba17d\",\"materialHash\":\"8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf\",\"timestamp\":\"2026-05-08T12:15:17.475Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"normal-channel commits by non-implementer without metadata exemption or item evidence still fail channel gate\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/flow-stability-smoke.js\",\"result\":\"pass\",\"note\":\"flow stability smoke still rejects non-implementer real-code commits without metadata exemption despite koala subject\",\"headHash\":\"3aae0a2430481b6f9eae264b77f0f94d915ba17d\",\"materialHash\":\"8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf\",\"timestamp\":\"2026-05-08T12:15:17.475Z\"}},{\"intentRef\":\"CHK-006:happy:0\",\"itemId\":\"CHK-006\",\"lane\":\"happy\",\"desc\":\"touchpoint coverage extracts path prefixes before comparing against checklist files\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:happy:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/story-review-ergonomics-smoke.js\",\"result\":\"pass\",\"note\":\"story review ergonomics smoke proves touchpoint path prefixes are normalized\",\"headHash\":\"3aae0a2430481b6f9eae264b77f0f94d915ba17d\",\"materialHash\":\"8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf\",\"timestamp\":\"2026-05-08T12:15:17.475Z\"}},{\"intentRef\":\"CHK-006:edge:0\",\"itemId\":\"CHK-006\",\"lane\":\"edge\",\"desc\":\"PLAN remove+add cannot silently bypass title/context freeze without explicit replan/scope audit signal\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:edge:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/story-review-ergonomics-smoke.js\",\"result\":\"pass\",\"note\":\"story review ergonomics smoke proves PLAN checklist_add requires explicit audit reason\",\"headHash\":\"3aae0a2430481b6f9eae264b77f0f94d915ba17d\",\"materialHash\":\"8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf\",\"timestamp\":\"2026-05-08T12:15:17.475Z\"}},{\"intentRef\":\"CHK-006:adversarial:0\",\"itemId\":\"CHK-006\",\"lane\":\"adversarial\",\"desc\":\"scope_excluded_info and repeated stale idle warnings do not inflate actionable issue counts\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/story-review-ergonomics-smoke.js\",\"result\":\"pass\",\"note\":\"story review ergonomics smoke proves scope excluded info does not inflate issue count\",\"headHash\":\"3aae0a2430481b6f9eae264b77f0f94d915ba17d\",\"materialHash\":\"8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf\",\"timestamp\":\"2026-05-08T12:15:17.475Z\"}}]}}",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.2 test\",\"  > npm run test:e2e\",\"  > koala@0.3.2 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 18/18 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via integration_test — fromDraft story_create creates or reports a linked worktree and records story.worktree metadata\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via logic_test — mutable checklist commands for an active story reject main cwd when a linked worktree exists\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test — authority detection does not redirect terminal DONE/DISCARDED stories or stories without linked worktrees\",\"  ✓ CHK-002:happy:0 [happy/must/logic] covered via integration_test — finding_list invokes syncClusterResolves before rendering cluster or plain finding views\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via integration_test — validate --story invokes syncClusterResolves unless noSync is explicitly requested\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test — unknown cluster references remain warnings and do not crash validate or finding_list\",\"  ✓ CHK-003:happy:0 [happy/must/logic] covered via integration_test — review_pass_set reads back the persisted pass and reports the same id after writing\",\"  ✓ CHK-003:edge:0 [edge/must/logic] covered via logic_test — review-passes.json is treated as safe stray story metadata during DONE merge cleanup\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test — review_pass_set detects duplicate or non-persisted RP ids instead of returning success\",\"  ✓ CHK-004:happy:0 [happy/must/logic] covered via logic_test — new verification evidence written by all supported handlers includes materialHash when git is available\",\"  ✓ CHK-004:edge:0 [edge/must/logic] covered via logic_test — metadata-only commits under story metadata paths do not stale evidence\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/logic] covered via logic_test — material source/config/test file changes still stale old evidence\",\"  ✓ CHK-005:happy:0 [happy/must/logic] covered via logic_test — normal channel reviewer opt-in excludes retired channel LLM reviewer while keeping baseline reviewers\",\"  ✓ CHK-005:edge:0 [edge/must/logic] covered via logic_test — validate --channel accepts direct successful subagent_result evidence as well as dispatch events\",\"  ✓ CHK-005:adversarial:0 [adversarial/must/logic] covered via logic_test — normal-channel commits by non-implementer without metadata exemption or item evidence still fail channel gate\",\"  ✓ CHK-006:happy:0 [happy/must/logic] covered via logic_test — touchpoint coverage extracts path prefixes before comparing against checklist files\",\"  ✓ CHK-006:edge:0 [edge/must/logic] covered via logic_test — PLAN remove+add cannot silently bypass title/context freeze without explicit replan/scope audit signal\",\"  ✓ CHK-006:adversarial:0 [adversarial/must/logic] covered via logic_test — scope_excluded_info and repeated stale idle warnings do not inflate actionable issue counts\"],\"warnings\":[],\"timestamp\":\"2026-05-08T12:23:41.648Z\",\"headSha\":\"6e667fae04d2cf6f4c8039a788047986b7b04335\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.2 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.2 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1625}],\"verificationCoverage\":{\"total\":18,\"required\":18,\"covered\":18,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"fromDraft story_create creates or reports a linked worktree and records story.worktree metadata\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"integration_test\",\"command\":\"node packages/main/dist/tasks/worktree-authority-smoke.js\",\"result\":\"pass\",\"note\":\"fromDraft CLI smoke creates worktree and records story.worktree metadata\",\"headHash\":\"e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9\",\"materialHash\":\"0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4\",\"timestamp\":\"2026-05-08T12:21:08.557Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"mutable checklist commands for an active story reject main cwd when a linked worktree exists\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/worktree-authority-smoke.js\",\"result\":\"pass\",\"note\":\"worktree authority smoke rejects main cwd for active linked story mutations\",\"headHash\":\"e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9\",\"materialHash\":\"0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4\",\"timestamp\":\"2026-05-08T12:21:08.557Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"authority detection does not redirect terminal DONE/DISCARDED stories or stories without linked worktrees\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/worktree-authority-smoke.js\",\"result\":\"pass\",\"note\":\"worktree authority smoke confirms terminal DONE stories do not redirect\",\"headHash\":\"e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9\",\"materialHash\":\"0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4\",\"timestamp\":\"2026-05-08T12:21:08.557Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"finding_list invokes syncClusterResolves before rendering cluster or plain finding views\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"integration_test\",\"command\":\"node packages/main/dist/tasks/cluster-sync-entrypoints-smoke.js\",\"result\":\"pass\",\"note\":\"cluster sync smoke proves finding_list applies Resolves CL tags before rendering\",\"headHash\":\"e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9\",\"materialHash\":\"0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4\",\"timestamp\":\"2026-05-08T12:21:08.557Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"validate --story invokes syncClusterResolves unless noSync is explicitly requested\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"integration_test\",\"command\":\"node packages/main/dist/tasks/cluster-sync-entrypoints-smoke.js\",\"result\":\"pass\",\"note\":\"cluster sync smoke proves validate story syncs unless noSync is requested\",\"headHash\":\"e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9\",\"materialHash\":\"0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4\",\"timestamp\":\"2026-05-08T12:21:08.557Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"unknown cluster references remain warnings and do not crash validate or finding_list\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/cluster-sync-entrypoints-smoke.js\",\"result\":\"pass\",\"note\":\"cluster sync smoke exercises warning-safe entrypoints without crashing\",\"headHash\":\"e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9\",\"materialHash\":\"0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4\",\"timestamp\":\"2026-05-08T12:21:08.557Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"review_pass_set reads back the persisted pass and reports the same id after writing\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"integration_test\",\"command\":\"node packages/main/dist/tasks/review-pass-discard-smoke.js\",\"result\":\"pass\",\"note\":\"review pass smoke proves concurrent review_pass_set writes persist durable passes\",\"headHash\":\"e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9\",\"materialHash\":\"0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4\",\"timestamp\":\"2026-05-08T12:21:08.557Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"review-passes.json is treated as safe stray story metadata during DONE merge cleanup\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/review-pass-discard-smoke.js\",\"result\":\"pass\",\"note\":\"stray cleanup smoke proves review-passes json is whitelisted generated metadata\",\"headHash\":\"e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9\",\"materialHash\":\"0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4\",\"timestamp\":\"2026-05-08T12:21:08.557Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"review_pass_set detects duplicate or non-persisted RP ids instead of returning success\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/review-pass-discard-smoke.js\",\"result\":\"pass\",\"note\":\"review pass handler now reads back persisted pass and refuses non durable success\",\"headHash\":\"e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9\",\"materialHash\":\"0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4\",\"timestamp\":\"2026-05-08T12:21:08.557Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"new verification evidence written by all supported handlers includes materialHash when git is available\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/verification-freshness-smoke.js\",\"result\":\"pass\",\"note\":\"freshness smoke proves direct checklist_update evidence gets headHash and materialHash\",\"headHash\":\"e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9\",\"materialHash\":\"0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4\",\"timestamp\":\"2026-05-08T12:21:08.557Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"metadata-only commits under story metadata paths do not stale evidence\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/verification-freshness-smoke.js\",\"result\":\"pass\",\"note\":\"freshness smoke proves story metadata changes keep material hash evidence covered\",\"headHash\":\"e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9\",\"materialHash\":\"0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4\",\"timestamp\":\"2026-05-08T12:21:08.557Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"material source/config/test file changes still stale old evidence\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/verification-freshness-smoke.js\",\"result\":\"pass\",\"note\":\"freshness smoke proves material source config and test changes stale old evidence\",\"headHash\":\"e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9\",\"materialHash\":\"0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4\",\"timestamp\":\"2026-05-08T12:21:08.558Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"normal channel reviewer opt-in excludes retired channel LLM reviewer while keeping baseline reviewers\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/flow-stability-smoke.js\",\"result\":\"pass\",\"note\":\"flow stability smoke proves retired channel reviewer is absent from reviewer_list and story_advance REVIEW echo while baseline reviewers remain active\",\"headHash\":\"e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9\",\"materialHash\":\"0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4\",\"timestamp\":\"2026-05-08T12:21:08.558Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"validate --channel accepts direct successful subagent_result evidence as well as dispatch events\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/flow-stability-smoke.js\",\"result\":\"pass\",\"note\":\"flow stability smoke proves validate-channel accepts successful subagent_result evidence and dispatch evidence for all CHK items, with separate commit_author fallback coverage\",\"headHash\":\"e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9\",\"materialHash\":\"0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4\",\"timestamp\":\"2026-05-08T12:21:08.558Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"normal-channel commits by non-implementer without metadata exemption or item evidence still fail channel gate\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/flow-stability-smoke.js\",\"result\":\"pass\",\"note\":\"flow stability smoke still rejects non-implementer real-code commits without metadata exemption despite koala subject\",\"headHash\":\"e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9\",\"materialHash\":\"0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4\",\"timestamp\":\"2026-05-08T12:21:08.558Z\"}},{\"intentRef\":\"CHK-006:happy:0\",\"itemId\":\"CHK-006\",\"lane\":\"happy\",\"desc\":\"touchpoint coverage extracts path prefixes before comparing against checklist files\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:happy:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/story-review-ergonomics-smoke.js\",\"result\":\"pass\",\"note\":\"story review ergonomics smoke proves touchpoint path prefixes are normalized\",\"headHash\":\"e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9\",\"materialHash\":\"0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4\",\"timestamp\":\"2026-05-08T12:21:08.558Z\"}},{\"intentRef\":\"CHK-006:edge:0\",\"itemId\":\"CHK-006\",\"lane\":\"edge\",\"desc\":\"PLAN remove+add cannot silently bypass title/context freeze without explicit replan/scope audit signal\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:edge:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/story-review-ergonomics-smoke.js\",\"result\":\"pass\",\"note\":\"story review ergonomics smoke proves PLAN checklist_add requires explicit audit reason\",\"headHash\":\"e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9\",\"materialHash\":\"0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4\",\"timestamp\":\"2026-05-08T12:21:08.558Z\"}},{\"intentRef\":\"CHK-006:adversarial:0\",\"itemId\":\"CHK-006\",\"lane\":\"adversarial\",\"desc\":\"scope_excluded_info and repeated stale idle warnings do not inflate actionable issue counts\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"node packages/main/dist/tasks/story-review-ergonomics-smoke.js\",\"result\":\"pass\",\"note\":\"story review ergonomics smoke proves scope excluded info does not inflate issue count\",\"headHash\":\"e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9\",\"materialHash\":\"0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4\",\"timestamp\":\"2026-05-08T12:21:08.558Z\"}}]}}",
   "result": "PASS",
-  "timestamp": "2026-05-08T12:17:12.349Z",
-  "headHash": "2a29a4030640b8d4a07a47d4b83471f00f6e80b0",
+  "timestamp": "2026-05-08T12:23:42.409Z",
+  "headHash": "6e667fae04d2cf6f4c8039a788047986b7b04335",
   "verificationCoverage": {
     "total": 18,
     "required": 18,
@@ -24,9 +24,9 @@
           "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
           "result": "pass",
           "note": "fromDraft CLI smoke creates worktree and records story.worktree metadata",
-          "headHash": "3aae0a2430481b6f9eae264b77f0f94d915ba17d",
-          "materialHash": "8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf",
-          "timestamp": "2026-05-08T12:15:17.475Z"
+          "headHash": "e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9",
+          "materialHash": "0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4",
+          "timestamp": "2026-05-08T12:21:08.557Z"
         }
       },
       {
@@ -43,9 +43,9 @@
           "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
           "result": "pass",
           "note": "worktree authority smoke rejects main cwd for active linked story mutations",
-          "headHash": "3aae0a2430481b6f9eae264b77f0f94d915ba17d",
-          "materialHash": "8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf",
-          "timestamp": "2026-05-08T12:15:17.475Z"
+          "headHash": "e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9",
+          "materialHash": "0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4",
+          "timestamp": "2026-05-08T12:21:08.557Z"
         }
       },
       {
@@ -62,9 +62,9 @@
           "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
           "result": "pass",
           "note": "worktree authority smoke confirms terminal DONE stories do not redirect",
-          "headHash": "3aae0a2430481b6f9eae264b77f0f94d915ba17d",
-          "materialHash": "8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf",
-          "timestamp": "2026-05-08T12:15:17.475Z"
+          "headHash": "e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9",
+          "materialHash": "0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4",
+          "timestamp": "2026-05-08T12:21:08.557Z"
         }
       },
       {
@@ -81,9 +81,9 @@
           "command": "node packages/main/dist/tasks/cluster-sync-entrypoints-smoke.js",
           "result": "pass",
           "note": "cluster sync smoke proves finding_list applies Resolves CL tags before rendering",
-          "headHash": "3aae0a2430481b6f9eae264b77f0f94d915ba17d",
-          "materialHash": "8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf",
-          "timestamp": "2026-05-08T12:15:17.475Z"
+          "headHash": "e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9",
+          "materialHash": "0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4",
+          "timestamp": "2026-05-08T12:21:08.557Z"
         }
       },
       {
@@ -100,9 +100,9 @@
           "command": "node packages/main/dist/tasks/cluster-sync-entrypoints-smoke.js",
           "result": "pass",
           "note": "cluster sync smoke proves validate story syncs unless noSync is requested",
-          "headHash": "3aae0a2430481b6f9eae264b77f0f94d915ba17d",
-          "materialHash": "8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf",
-          "timestamp": "2026-05-08T12:15:17.475Z"
+          "headHash": "e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9",
+          "materialHash": "0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4",
+          "timestamp": "2026-05-08T12:21:08.557Z"
         }
       },
       {
@@ -119,9 +119,9 @@
           "command": "node packages/main/dist/tasks/cluster-sync-entrypoints-smoke.js",
           "result": "pass",
           "note": "cluster sync smoke exercises warning-safe entrypoints without crashing",
-          "headHash": "3aae0a2430481b6f9eae264b77f0f94d915ba17d",
-          "materialHash": "8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf",
-          "timestamp": "2026-05-08T12:15:17.475Z"
+          "headHash": "e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9",
+          "materialHash": "0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4",
+          "timestamp": "2026-05-08T12:21:08.557Z"
         }
       },
       {
@@ -138,9 +138,9 @@
           "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
           "result": "pass",
           "note": "review pass smoke proves concurrent review_pass_set writes persist durable passes",
-          "headHash": "3aae0a2430481b6f9eae264b77f0f94d915ba17d",
-          "materialHash": "8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf",
-          "timestamp": "2026-05-08T12:15:17.475Z"
+          "headHash": "e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9",
+          "materialHash": "0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4",
+          "timestamp": "2026-05-08T12:21:08.557Z"
         }
       },
       {
@@ -157,9 +157,9 @@
           "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
           "result": "pass",
           "note": "stray cleanup smoke proves review-passes json is whitelisted generated metadata",
-          "headHash": "3aae0a2430481b6f9eae264b77f0f94d915ba17d",
-          "materialHash": "8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf",
-          "timestamp": "2026-05-08T12:15:17.475Z"
+          "headHash": "e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9",
+          "materialHash": "0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4",
+          "timestamp": "2026-05-08T12:21:08.557Z"
         }
       },
       {
@@ -176,9 +176,9 @@
           "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
           "result": "pass",
           "note": "review pass handler now reads back persisted pass and refuses non durable success",
-          "headHash": "3aae0a2430481b6f9eae264b77f0f94d915ba17d",
-          "materialHash": "8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf",
-          "timestamp": "2026-05-08T12:15:17.475Z"
+          "headHash": "e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9",
+          "materialHash": "0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4",
+          "timestamp": "2026-05-08T12:21:08.557Z"
         }
       },
       {
@@ -195,9 +195,9 @@
           "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
           "result": "pass",
           "note": "freshness smoke proves direct checklist_update evidence gets headHash and materialHash",
-          "headHash": "3aae0a2430481b6f9eae264b77f0f94d915ba17d",
-          "materialHash": "8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf",
-          "timestamp": "2026-05-08T12:15:17.475Z"
+          "headHash": "e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9",
+          "materialHash": "0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4",
+          "timestamp": "2026-05-08T12:21:08.557Z"
         }
       },
       {
@@ -214,9 +214,9 @@
           "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
           "result": "pass",
           "note": "freshness smoke proves story metadata changes keep material hash evidence covered",
-          "headHash": "3aae0a2430481b6f9eae264b77f0f94d915ba17d",
-          "materialHash": "8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf",
-          "timestamp": "2026-05-08T12:15:17.475Z"
+          "headHash": "e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9",
+          "materialHash": "0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4",
+          "timestamp": "2026-05-08T12:21:08.557Z"
         }
       },
       {
@@ -233,9 +233,9 @@
           "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
           "result": "pass",
           "note": "freshness smoke proves material source config and test changes stale old evidence",
-          "headHash": "3aae0a2430481b6f9eae264b77f0f94d915ba17d",
-          "materialHash": "8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf",
-          "timestamp": "2026-05-08T12:15:17.475Z"
+          "headHash": "e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9",
+          "materialHash": "0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4",
+          "timestamp": "2026-05-08T12:21:08.558Z"
         }
       },
       {
@@ -252,9 +252,9 @@
           "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
           "note": "flow stability smoke proves retired channel reviewer is absent from reviewer_list and story_advance REVIEW echo while baseline reviewers remain active",
-          "headHash": "3aae0a2430481b6f9eae264b77f0f94d915ba17d",
-          "materialHash": "8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf",
-          "timestamp": "2026-05-08T12:15:17.475Z"
+          "headHash": "e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9",
+          "materialHash": "0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4",
+          "timestamp": "2026-05-08T12:21:08.558Z"
         }
       },
       {
@@ -271,9 +271,9 @@
           "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
           "note": "flow stability smoke proves validate-channel accepts successful subagent_result evidence and dispatch evidence for all CHK items, with separate commit_author fallback coverage",
-          "headHash": "3aae0a2430481b6f9eae264b77f0f94d915ba17d",
-          "materialHash": "8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf",
-          "timestamp": "2026-05-08T12:15:17.475Z"
+          "headHash": "e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9",
+          "materialHash": "0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4",
+          "timestamp": "2026-05-08T12:21:08.558Z"
         }
       },
       {
@@ -290,9 +290,9 @@
           "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
           "note": "flow stability smoke still rejects non-implementer real-code commits without metadata exemption despite koala subject",
-          "headHash": "3aae0a2430481b6f9eae264b77f0f94d915ba17d",
-          "materialHash": "8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf",
-          "timestamp": "2026-05-08T12:15:17.475Z"
+          "headHash": "e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9",
+          "materialHash": "0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4",
+          "timestamp": "2026-05-08T12:21:08.558Z"
         }
       },
       {
@@ -309,9 +309,9 @@
           "command": "node packages/main/dist/tasks/story-review-ergonomics-smoke.js",
           "result": "pass",
           "note": "story review ergonomics smoke proves touchpoint path prefixes are normalized",
-          "headHash": "3aae0a2430481b6f9eae264b77f0f94d915ba17d",
-          "materialHash": "8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf",
-          "timestamp": "2026-05-08T12:15:17.475Z"
+          "headHash": "e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9",
+          "materialHash": "0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4",
+          "timestamp": "2026-05-08T12:21:08.558Z"
         }
       },
       {
@@ -328,9 +328,9 @@
           "command": "node packages/main/dist/tasks/story-review-ergonomics-smoke.js",
           "result": "pass",
           "note": "story review ergonomics smoke proves PLAN checklist_add requires explicit audit reason",
-          "headHash": "3aae0a2430481b6f9eae264b77f0f94d915ba17d",
-          "materialHash": "8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf",
-          "timestamp": "2026-05-08T12:15:17.475Z"
+          "headHash": "e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9",
+          "materialHash": "0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4",
+          "timestamp": "2026-05-08T12:21:08.558Z"
         }
       },
       {
@@ -347,9 +347,9 @@
           "command": "node packages/main/dist/tasks/story-review-ergonomics-smoke.js",
           "result": "pass",
           "note": "story review ergonomics smoke proves scope excluded info does not inflate issue count",
-          "headHash": "3aae0a2430481b6f9eae264b77f0f94d915ba17d",
-          "materialHash": "8c3a94121a5c6e013f54f68985b70190842a1bed1d5940d755f1811d5ef0fbaf",
-          "timestamp": "2026-05-08T12:15:17.475Z"
+          "headHash": "e6401a4d94f0f4e1846cca7e4201b9c27e0e31f9",
+          "materialHash": "0876ba005d5958da2c371af618b6a82cb89d645d6520a49ac5c69422d27f3ac4",
+          "timestamp": "2026-05-08T12:21:08.558Z"
         }
       }
     ]

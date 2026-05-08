@@ -55,6 +55,38 @@
       "createdAt": "2026-05-08T12:17:26.297Z",
       "reviewRound": "2026-05-08T12:15:30.872Z",
       "_hash": "b41e4e230efefaccb76fe9157dff85ac57a10c423f6ca7ff85722862149faadb"
+    },
+    {
+      "id": "B-c8c0:RP-008",
+      "agent": "koala-review-concept",
+      "note": "Current round concept review pass: reviewer routing and prompt/doc/source gate wording align with concept/quality/test-coverage baseline, docs opt-in, and retired channel LLM.",
+      "createdAt": "2026-05-08T12:23:56.139Z",
+      "reviewRound": "2026-05-08T12:21:26.633Z",
+      "_hash": "70699e9654d1a98ad1f205567d97dbbf33c88c019f43b7140e11f8a08c0ffbd2"
+    },
+    {
+      "id": "B-c8c0:RP-009",
+      "agent": "koala-review-quality",
+      "note": "Current round quality review pass: reviewer_list help/runtime match live routing and packages/main build is clean.",
+      "createdAt": "2026-05-08T12:24:00.228Z",
+      "reviewRound": "2026-05-08T12:21:26.633Z",
+      "_hash": "dccbdc7da298c57950c60c6e462fec5d21e449c9ea66f53ad9f40540f1272f76"
+    },
+    {
+      "id": "B-c8c0:RP-010",
+      "agent": "koala-review-docs",
+      "note": "Current round docs review pass: CLAUDE, Codex/Claude prompts, templates, source comments, and reviewer_list help all reflect current CLI gates and retired channel reviewer behavior.",
+      "createdAt": "2026-05-08T12:24:08.117Z",
+      "reviewRound": "2026-05-08T12:21:26.633Z",
+      "_hash": "850eda2aff0e1aaaaa3c2769ef1e96b55b30765f43e6de918890e2a5f719adc2"
+    },
+    {
+      "id": "B-c8c0:RP-011",
+      "agent": "koala-review-test-coverage",
+      "note": "Current round test-coverage review pass: story validation and targeted smoke tasks cover fromDraft worktrees, cluster resolves, worktree-safe state, RP durability, evidence freshness, retired channel routing, dispatch fallback, freeze/audit, and touchpoint normalization.",
+      "createdAt": "2026-05-08T12:24:16.101Z",
+      "reviewRound": "2026-05-08T12:21:26.633Z",
+      "_hash": "6ad96cb495b572a6db40375cadccdb2744957152ae5359814cd39563d7eeafeb"
     }
   ]
 }
