@@ -134,6 +134,27 @@ async function runKoala(root: string, command: string, args: Record<string, unkn
   });
 }
 
+async function runKoalaFromCwd(cwd: string, command: string, args: Record<string, unknown>): Promise<string> {
+  return new Promise<string>((resolvePromise, reject) => {
+    const env = { ...process.env };
+    delete env.KOALA_PROJECT_ROOT;
+    const child = spawn(process.execPath, [cliPath, command, JSON.stringify(args)], {
+      cwd,
+      env,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', chunk => { stdout += String(chunk); });
+    child.stderr.on('data', chunk => { stderr += String(chunk); });
+    child.on('error', reject);
+    child.on('exit', code => {
+      if (code === 0) resolvePromise(stdout);
+      else reject(new Error(`${command} exited ${code}: ${stderr}`));
+    });
+  });
+}
+
 async function assertReviewPassConcurrentWrites(): Promise<void> {
   const root = initRepo('koala-review-pass-');
   try {
@@ -354,6 +375,54 @@ async function assertDiscardCleansInvalidGitPointerResidue(): Promise<void> {
     assert.equal(git(root, ['branch', '--list', `story/${storyId}`]), '');
     assert.equal(new StoryStore(root).readStory(storyId).phase, 'DISCARDED');
     assert.equal(git(root, ['status', '--porcelain']), '', 'invalid pointer discard cleanup should leave the repo clean');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+async function assertDiscardForceFromInvalidWorktreeCwd(): Promise<void> {
+  const root = initRepo('koala-discard-invalid-cwd-');
+  try {
+    const storyId = 'B-badcwd';
+    const store = new StoryStore(root);
+    const now = '2026-04-30T10:00:00.000Z';
+    store.writeStory(storyId, {
+      storyId,
+      name: 'discard-invalid-cwd-smoke',
+      title: 'Discard invalid cwd smoke',
+      description: 'Synthetic story whose discard is invoked from the broken worktree cwd.',
+      type: 'chore',
+      phase: 'INIT_CHECK',
+      priority: 'medium',
+      createdAt: now,
+      startedAt: now,
+      endedAt: null,
+      events: [],
+      worktree: {
+        path: `.worktrees/${storyId}`,
+        branch: `story/${storyId}`,
+        createdAt: now,
+      },
+    });
+    store.writeChecklist(storyId, { items: [] });
+    git(root, ['add', '.koala/story/actives']);
+    git(root, ['commit', '-m', `koala: story ${storyId} init`]);
+    git(root, ['branch', `story/${storyId}`]);
+    const worktreePath = join(root, '.worktrees', storyId);
+    git(root, ['worktree', 'add', worktreePath, `story/${storyId}`]);
+    rmSync(join(root, '.git', 'worktrees', storyId), { recursive: true, force: true });
+    writeFileSync(join(worktreePath, 'runtime.log'), 'stale residue\n');
+
+    const output = await runKoalaFromCwd(worktreePath, 'story_discard', {
+      storyId,
+      force: true,
+      reason: 'smoke invalid cwd cleanup',
+    });
+
+    assert.match(output, /invalid worktree residue 已清理|Worktree .* 已清理/);
+    assert.equal(existsSync(worktreePath), false, 'forced discard from broken worktree cwd should remove the physical residue dir');
+    assert.equal(git(root, ['branch', '--list', `story/${storyId}`]), '');
+    assert.equal(new StoryStore(root).readStory(storyId).phase, 'DISCARDED');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -661,6 +730,7 @@ await assertDiscardRemovesUntrackedWorktreeAndBranch();
 await assertDiscardCanCleanAlreadyDiscardedResidue();
 await assertDiscardPrunesMissingWorktreeRegistry();
 await assertDiscardCleansInvalidGitPointerResidue();
+await assertDiscardForceFromInvalidWorktreeCwd();
 await assertDiscardFailureDoesNotMarkSuccess();
 await assertPurgeDropsSafeInitCommit();
 await assertDoctorRepairCleansTerminalWorktrees();

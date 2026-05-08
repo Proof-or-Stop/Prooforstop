@@ -8,7 +8,7 @@
  */
 
 import { z, ZodType, ZodOptional, ZodEnum, ZodArray, ZodUnion, ZodString, ZodBoolean, ZodNumber, ZodObject } from 'zod';
-import { existsSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { appendActivityLog } from './core/activity-log.js';
 import { inferActivityRole } from './core/activity-role.js';
 import { join } from 'path';
@@ -1020,6 +1020,32 @@ function resolveRoot(explicit?: string): string {
   return process.cwd();
 }
 
+function resolveMainRootFromWorktreeRoot(root: string): string | null {
+  try {
+    const dotGit = join(root, '.git');
+    if (!existsSync(dotGit)) return null;
+    const content = readFileSync(dotGit, 'utf-8').trim();
+    const m = content.match(/^gitdir:\s*(.+)$/i);
+    if (!m) return null;
+    const gitdir = m[1].trim();
+    const absGitdir = gitdir.startsWith('/') ? gitdir : join(root, gitdir);
+    const marker = `${join('.git', 'worktrees')}`;
+    const normalized = absGitdir.replace(/\\/g, '/');
+    const markerNormalized = marker.replace(/\\/g, '/');
+    const idx = normalized.indexOf(`/${markerNormalized}/`);
+    if (idx === -1) return null;
+    return normalized.slice(0, idx);
+  } catch {
+    return null;
+  }
+}
+
+function resolveRootForCommand(cmd: string, explicit?: string): string {
+  const root = resolveRoot(explicit);
+  if (cmd !== 'story_discard') return root;
+  return resolveMainRootFromWorktreeRoot(root) || root;
+}
+
 // ── Activity log filter ──
 
 /**
@@ -1100,7 +1126,7 @@ export async function runCli(opts?: {
   const arg = argv[1];
 
   // Detect active story from git branch
-  const root0 = resolveRoot(rootOverride);
+  const root0 = resolveRootForCommand(cmd, rootOverride);
   const activeStory = detectActiveStory(root0);
   const gitReady = isGitRepository(root0);
 
@@ -1181,7 +1207,7 @@ export async function runCli(opts?: {
   }
 
   // Execute
-  const root = resolveRoot(rootOverride);
+  const root = resolveRootForCommand(cmd, rootOverride);
   const store = new StoryStore(root);
   const _cliStart = Date.now();
   let log: (msg: string) => void = (msg) => {

@@ -40,7 +40,12 @@ export interface ClusterSyncResult {
  * 避免模块级带 /g flag 的 lastIndex 在并发/重入场景被污染。
  * F-030: CL-\d{3,} 允许 3 位及以上数字（padStart(3) 保证最小宽度，CL-1000+ 4 位自然匹配）。
  */
-const RESOLVES_RE_SOURCE = 'Resolves?:\\s+(CL-\\d{3,})';
+const RESOLVES_LINE_RE_SOURCE = '^\\s*Resolves?:\\s+(.+)$';
+const RESOLVES_TOKEN_RE_SOURCE = '(?:[A-Za-z0-9_-]+:)?F-\\d{3,}|CL-\\d{3,}';
+
+function findingDisplayRef(finding: Finding, rawRef: string): string {
+  return rawRef.includes(':') ? finding.id : finding.id.split(':').pop() || finding.id;
+}
 
 /**
  * Pure sub-function：给定 findings / clusters / commitMessages，返回应用 Resolves 后的结果。
@@ -54,43 +59,66 @@ export function applyCommitResolves(
   commitMessages: CommitMeta[],
 ): ClusterSyncResult {
   const clusterById = new Map<string, ClusterRecord>();
-  for (const c of clusters) clusterById.set(c.clusterId, c);
+  for (const c of clusters) clusterById.set(c.clusterId.toUpperCase(), c);
 
   const findingById = new Map<string, Finding>();
-  for (const f of findings) findingById.set(f.id, f);
+  for (const f of findings) {
+    findingById.set(f.id.toUpperCase(), f);
+    const short = f.id.split(':').pop();
+    if (short) findingById.set(short.toUpperCase(), f);
+  }
 
   const matchedCommits: Array<{ sha: string; clusterId: string }> = [];
   const warnings: string[] = [];
   let resolved = 0;
 
   // F-010: 函数局部 RegExp，每次调用独立 lastIndex，线程/重入安全。
-  const re = new RegExp(RESOLVES_RE_SOURCE, 'gi');
+  const lineRe = new RegExp(RESOLVES_LINE_RE_SOURCE, 'gim');
+  const tokenRe = new RegExp(RESOLVES_TOKEN_RE_SOURCE, 'gi');
   for (const { sha, message } of commitMessages) {
-    re.lastIndex = 0;
-    let m: RegExpExecArray | null;
+    lineRe.lastIndex = 0;
+    let lineMatch: RegExpExecArray | null;
     const seenInThisCommit = new Set<string>();
-    while ((m = re.exec(message)) !== null) {
-      const clusterId = m[1].toUpperCase();
-      if (seenInThisCommit.has(clusterId)) continue; // 同 commit 重复 tag 只算一次
-      seenInThisCommit.add(clusterId);
+    while ((lineMatch = lineRe.exec(message)) !== null) {
+      tokenRe.lastIndex = 0;
+      const refsText = lineMatch[1];
+      let tokenMatch: RegExpExecArray | null;
+      while ((tokenMatch = tokenRe.exec(refsText)) !== null) {
+        const rawRef = tokenMatch[0];
+        const ref = rawRef.toUpperCase();
+        if (seenInThisCommit.has(ref)) continue; // 同 commit 重复 tag 只算一次
+        seenInThisCommit.add(ref);
 
-      const cluster = clusterById.get(clusterId);
-      if (!cluster) {
-        const short = sha.slice(0, 7);
-        warnings.push(`Resolves: ${clusterId} references unknown cluster (commit ${short})`);
-        continue;
-      }
+        const shortSha = sha.slice(0, 7);
+        if (ref.startsWith('CL-')) {
+          const cluster = clusterById.get(ref);
+          if (!cluster) {
+            warnings.push(`Resolves: ${ref} references unknown cluster (commit ${shortSha})`);
+            continue;
+          }
 
-      matchedCommits.push({ sha, clusterId });
+          matchedCommits.push({ sha, clusterId: ref });
+          for (const fid of cluster.findingIds) {
+            const f = findingById.get(fid.toUpperCase());
+            if (!f) continue;
+            if (f.status !== 'open') continue; // 幂等：已 resolved/dismissed 的跳过，不覆盖 resolvedBy
+            f.status = 'resolved';
+            // CHK-010: 审计字段 — 记录是哪个 cluster 的哪个 commit 导致的 resolve
+            f.resolvedBy = `${ref}@${shortSha}`;
+            resolved += 1;
+          }
+          continue;
+        }
 
-      const shortSha = sha.slice(0, 7);
-      for (const fid of cluster.findingIds) {
-        const f = findingById.get(fid);
-        if (!f) continue;
-        if (f.status !== 'open') continue; // 幂等：已 resolved/dismissed 的跳过，不覆盖 resolvedBy
-        f.status = 'resolved';
-        // CHK-010: 审计字段 — 记录是哪个 cluster 的哪个 commit 导致的 resolve
-        f.resolvedBy = `${clusterId}@${shortSha}`;
+        const finding = findingById.get(ref);
+        if (!finding) {
+          warnings.push(`Resolves: ${rawRef} references unknown finding (commit ${shortSha})`);
+          continue;
+        }
+        matchedCommits.push({ sha, clusterId: findingDisplayRef(finding, rawRef) });
+        if (finding.status !== 'open') continue;
+        finding.status = 'resolved';
+        finding.resolvedBy = `${findingDisplayRef(finding, rawRef)}@${shortSha}`;
         resolved += 1;
       }
     }
@@ -155,9 +183,6 @@ export function syncClusterResolves(
   log?: (msg: string) => void,
 ): ClusterSyncResult {
   const clustersData = store.readClusters(storyId);
-  if (!clustersData.clusters || clustersData.clusters.length === 0) {
-    return { resolved: 0, warnings: [], matchedCommits: [] };
-  }
   const { commits, error } = readCommitsSinceMain(projectRoot);
   if (error) {
     // F-023: git fatal (bad revision / main 分支不存在 / 非 git 目录) 转 warning 暴露给用户。

@@ -45,7 +45,7 @@ function initRoot(): { root: string; store: StoryStore; storyId: string } {
   const storyId = 'B-cluster';
   git(root, ['checkout', '-b', `story/${storyId}`]);
   write(root, 'packages/main/src/feature.ts', 'export const feature = true;\n');
-  commit(root, 'implement cluster fix\n\nResolves: CL-001');
+  commit(root, `implement cluster fix\n\nResolves: CL-001 ${storyId}:F-002`);
   resetConfigCache();
 
   const store = new StoryStore(root);
@@ -84,6 +84,16 @@ function initRoot(): { root: string; store: StoryStore; storyId: string } {
       createdAt: now,
       reviewRound: now,
       _hash: 'smoke',
+    }, {
+      id: `${storyId}:F-002`,
+      desc: 'direct finding',
+      severity: 'medium',
+      category: 'edge',
+      status: 'open',
+      agent: 'koala-review-concept',
+      createdAt: now,
+      reviewRound: now,
+      _hash: 'smoke',
     }],
   };
   store.writeStory(storyId, story);
@@ -110,6 +120,9 @@ async function assertFindingListSyncs(): Promise<void> {
     const finding = store.readFindings(storyId).findings[0];
     assert.equal(finding.status, 'resolved');
     assert.match(finding.resolvedBy ?? '', /^CL-001@/);
+    const direct = store.readFindings(storyId).findings[1];
+    assert.equal(direct.status, 'resolved');
+    assert.match(direct.resolvedBy ?? '', /^B-cluster:F-002@/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -127,6 +140,7 @@ async function assertValidateSyncsUnlessNoSync(): Promise<void> {
     assert.equal(synced.store.readFindings(synced.storyId).findings[0].status, 'open', 'noSync should skip commit auto-resolve');
     await handlers.validate({ story: synced.storyId, json: true });
     assert.equal(synced.store.readFindings(synced.storyId).findings[0].status, 'resolved', 'validate --story should sync cluster resolves');
+    assert.equal(synced.store.readFindings(synced.storyId).findings[1].status, 'resolved', 'validate --story should sync direct finding resolves');
   } finally {
     rmSync(synced.root, { recursive: true, force: true });
   }

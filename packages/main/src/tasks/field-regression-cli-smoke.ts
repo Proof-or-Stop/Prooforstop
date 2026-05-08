@@ -41,6 +41,18 @@ function commit(cwd: string, message: string, author = 'Koala Smoke'): string {
   return git(cwd, ['rev-parse', 'HEAD']);
 }
 
+function allowEmptyCommit(cwd: string, message: string, author = 'koala-implementer'): string {
+  git(cwd, [
+    '-c', `user.name=${author}`,
+    '-c', 'user.email=smoke@example.test',
+    '-c', 'commit.gpgsign=false',
+    'commit',
+    '--allow-empty',
+    '-m', message,
+  ]);
+  return git(cwd, ['rev-parse', 'HEAD']);
+}
+
 function initRepo(prefix: string): string {
   const root = mkdtempSync(join(tmpdir(), prefix));
   git(root, ['init']);
@@ -177,7 +189,7 @@ async function assertClusterAutoResolveCliSurface(): Promise<void> {
     const storyId = 'B-clsync';
     git(root, ['checkout', '-b', `story/${storyId}`]);
     write(root, 'packages/main/src/clustered.ts', 'export const clustered = true;\n');
-    commit(root, 'implement cluster fix\n\nResolves: CL-001', 'koala-implementer');
+    commit(root, 'implement cluster fix\n\nResolves: CL-001 CL-002', 'koala-implementer');
 
     const store = new StoryStore(root);
     writeReviewStory(store, storyId);
@@ -191,6 +203,15 @@ async function assertClusterAutoResolveCliSurface(): Promise<void> {
         agent: 'koala-review-quality',
         createdAt: now(),
         reviewRound: now(),
+      }, {
+        id: `${storyId}:F-002`,
+        desc: 'second clustered finding',
+        severity: 'medium',
+        category: 'edge',
+        status: 'open',
+        agent: 'koala-review-concept',
+        createdAt: now(),
+        reviewRound: now(),
       }],
     });
     store.writeClusters(storyId, {
@@ -201,12 +222,60 @@ async function assertClusterAutoResolveCliSurface(): Promise<void> {
         files: ['packages/main/src/clustered.ts'],
         findingIds: [`${storyId}:F-001`],
         createdAt: now(),
+      }, {
+        clusterId: 'CL-002',
+        rootCause: 'Second synthetic root cause',
+        severity: 'medium',
+        files: ['packages/main/src/clustered.ts'],
+        findingIds: [`${storyId}:F-002`],
+        createdAt: now(),
       }],
     });
 
     const output = await runKoala(root, 'finding_list', { storyId });
-    assert.match(output, /"status":\s*"resolved"/);
+    assert.match(output, /"id":\s*"B-clsync:F-001"[\s\S]*"status":\s*"resolved"/);
     assert.match(output, /"resolvedBy":\s*"CL-001@/);
+    assert.match(output, /"id":\s*"B-clsync:F-002"[\s\S]*"status":\s*"resolved"/);
+    assert.match(output, /"resolvedBy":\s*"CL-002@/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+async function assertDirectFindingAutoResolveCliSurface(): Promise<void> {
+  const root = initRepo('koala-field-finding-sync-');
+  try {
+    const storyId = 'B-fsync';
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+    const store = new StoryStore(root);
+    writeReviewStory(store, storyId);
+
+    await runKoala(root, 'finding_add', {
+      storyId,
+      desc: 'direct finding should resolve from commit tag',
+      severity: 'high',
+      category: 'happy',
+      agent: 'koala-review-quality',
+    });
+    allowEmptyCommit(root, `resolve direct finding\n\nResolves: ${storyId}:F-001`);
+
+    const output = await runKoala(root, 'finding_list', { storyId });
+    assert.match(output, /"status":\s*"resolved"/);
+    assert.match(output, /"resolvedBy":\s*"B-fsync:F-001@/);
+
+    await runKoala(root, 'finding_add', {
+      storyId,
+      desc: 'validate entry should also resolve direct finding',
+      severity: 'medium',
+      category: 'edge',
+      agent: 'koala-review-concept',
+    });
+    allowEmptyCommit(root, 'resolve short direct finding\n\nResolves: F-002');
+    const validateOutput = await runKoala(root, 'validate', { story: storyId, json: true });
+    assert.match(validateOutput, /"allPass":\s*true/);
+    const findings = new StoryStore(root).readFindings(storyId).findings;
+    assert.equal(findings.find(f => f.id === `${storyId}:F-002`)?.status, 'resolved');
+    assert.match(findings.find(f => f.id === `${storyId}:F-002`)?.resolvedBy || '', /^F-002@/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -580,6 +649,7 @@ async function assertStaleWarningCooldownCliSurface(): Promise<void> {
 
 await assertPlanRemoveIsHardBlocked();
 await assertClusterAutoResolveCliSurface();
+await assertDirectFindingAutoResolveCliSurface();
 await assertReviewPassConcurrentCliSurface();
 await assertChannelGateAcceptsSubagentResultCliSurface();
 await assertEvidenceFreshAfterMetadataOnlyCliSurface();

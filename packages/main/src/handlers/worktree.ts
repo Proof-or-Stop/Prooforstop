@@ -803,18 +803,20 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
               );
             }
           } else {
-            // B-5fa4 CHK-003: warn about unpushed commits before discard cleanup
-            const unpushed = checkUnpushedCommits(wtPath, branch);
-            if (unpushed.warning) {
-              results.push(unpushed.warning);
-            }
+            if (!args.force) {
+              // B-5fa4 CHK-003: warn about unpushed commits before discard cleanup
+              const unpushed = checkUnpushedCommits(wtPath, branch);
+              if (unpushed.warning) {
+                results.push(unpushed.warning);
+              }
 
-            // 检查未提交改动
-            const wtStatus = git('status --porcelain', wtPath);
-            if (wtStatus && !args.force) {
-              throw new Error(
-                `Worktree 有未提交的改动:\n${wtStatus}\n→ 如确认丢弃，加 force:true 重试：koala story_discard '{"storyId":"${args.storyId}","force":true}'`
-              );
+              // 检查未提交改动。force:true 是用户明确确认丢弃，不能先因 git status 失败卡死。
+              const wtStatus = git('status --porcelain', wtPath);
+              if (wtStatus) {
+                throw new Error(
+                  `Worktree 有未提交的改动:\n${wtStatus}\n→ 如确认丢弃，加 force:true 重试：koala story_discard '{"storyId":"${args.storyId}","force":true}'`
+                );
+              }
             }
 
             // 强制移除 worktree（B-0975: Windows Permission denied 瞬时锁重试）
