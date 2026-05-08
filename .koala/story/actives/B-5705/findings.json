@@ -1,0 +1,26 @@
+{
+  "findings": [
+    {
+      "id": "B-5705:F-001",
+      "desc": ".claude/hooks/session-brief-reminder.cjs:78 only reads .koala/activity.jsonl and root docs/story/activity.jsonl, but the existing Claude PostToolUse logger records story-branch Bash activity under docs/story/actives/<storyId>/activity.jsonl. WHY: after a normal Claude Bash run of koala session_brief in a story worktree, UserPromptSubmit can still think there is no fresh heartbeat and keep warning on every prompt. severity: high",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-08T23:28:05.914Z",
+      "reviewRound": "2026-05-08T23:26:11.314Z",
+      "_hash": "76d0d40454d63add2647c64c014ad4905673cf9e53408f77bdfe554715c386d2"
+    },
+    {
+      "id": "B-5705:F-002",
+      "desc": ".claude/hooks/session-brief-reminder.cjs:78 misses the actual Claude Bash activity path used by .claude/hooks/log-tools.cjs:36; a fresh story-branch Bash `koala session_brief` is written to docs/story/actives/<storyId>/activity.jsonl, but the reminder hook only checks .koala/activity.jsonl and docs/story/activity.jsonl, so the next UserPromptSubmit still prints the reminder. Repro: temp root with docs/story/actives/B-demo/activity.jsonl containing fresh Bash detail `koala session_brief` produced `建议先运行 koala session_brief 恢复现场`. This leaves CHK-003 edge behavior / recorded evidence partially unimplemented.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-05-08T23:34:19.650Z",
+      "reviewRound": "2026-05-08T23:26:11.314Z",
+      "_hash": "7b12e834b8b74419b9f5f6fd8c7c200fe247fe2c0a6b9535feb7648b2c9d4c20"
+    }
+  ]
+}

@@ -79,7 +79,20 @@ function activityFiles(root) {
   return [
     path.join(root, '.koala', 'activity.jsonl'),
     path.join(root, 'docs', 'story', 'activity.jsonl'),
+    ...storyActivityFiles(root),
   ];
+}
+
+function storyActivityFiles(root) {
+  const activesDir = path.join(root, 'docs', 'story', 'actives');
+  try {
+    return fs.readdirSync(activesDir, { withFileTypes: true })
+      .filter(entry => entry.isDirectory())
+      .map(entry => path.join(activesDir, entry.name, 'activity.jsonl'));
+  } catch {
+    // PROBE: older repos may not have story-scoped Claude activity logs.
+    return [];
+  }
 }
 
 function readFreshSessionBrief(file, now, thresholdMs) {
