@@ -65,7 +65,7 @@ koala decision_set '{"storyId":"B-xxx","principles":[],"drivers":[],"options":[]
 
 ## Claude Prompt Hook
 
-`.claude/settings.json` 安装了 `UserPromptSubmit` hook：每次 Claude Code 收到用户 prompt 时，会读取仓库 `.koala/activity.jsonl` 里的最近 `session_brief` heartbeat。默认 60 分钟内跑过 `koala session_brief` 就静默；超过 60 分钟、没有记录或没有 activity 文件时，只输出软提醒：
+`.claude/settings.json` 安装了 `UserPromptSubmit` hook：每次 Claude Code 收到用户 prompt 时，会读取仓库 `.koala/activity.jsonl`、`docs/story/activity.jsonl` 以及 story-scoped `docs/story/actives/*/activity.jsonl` 里的最近 `session_brief` heartbeat。默认 60 分钟内跑过 `koala session_brief` 就静默；超过 60 分钟、没有记录或没有任何 activity 文件时，只输出软提醒：
 
 ```text
 建议先运行 koala session_brief 恢复现场

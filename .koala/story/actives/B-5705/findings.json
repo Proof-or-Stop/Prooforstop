@@ -21,6 +21,17 @@
       "createdAt": "2026-05-08T23:34:19.650Z",
       "reviewRound": "2026-05-08T23:26:11.314Z",
       "_hash": "7b12e834b8b74419b9f5f6fd8c7c200fe247fe2c0a6b9535feb7648b2c9d4c20"
+    },
+    {
+      "id": "B-5705:F-003",
+      "desc": "CLAUDE.md:68 and docs/guide-hooks.md:27 still describe the UserPromptSubmit hook as reading only .koala/activity.jsonl / missing activity files. Latest code in .claude/hooks/session-brief-reminder.cjs:78-91 also reads docs/story/activity.jsonl and docs/story/actives/*/activity.jsonl, with smoke coverage in packages/main/src/tasks/session-brief-prompt-sync-smoke.ts:138-150. WHY: docs promise a reminder when root activity is missing, but implementation can stay silent when a fresh story-scoped log exists, so the hook/smoke fix introduced doc-code drift.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-05-08T23:38:37.225Z",
+      "reviewRound": "2026-05-08T23:37:18.856Z",
+      "_hash": "a6785142a584a2dba672a8089b818a822d1b42a6c5f1906f491c8db340772b61"
     }
   ]
 }

@@ -24,7 +24,7 @@ Koala 初始化会在 `.claude/settings.json` 合并一个 Claude Code `UserProm
 }
 ```
 
-这个 hook 只做软提醒：它从 hook JSON 的 `cwd`、`CLAUDE_PROJECT_DIR` 或当前 cwd 定位仓库，读取 `.koala/activity.jsonl`，寻找最近一次 `session_brief` heartbeat。默认 60 分钟内视为 fresh 并保持静默；超过 60 分钟或没有 fresh 记录时，输出：
+这个 hook 只做软提醒：它从 hook JSON 的 `cwd`、`CLAUDE_PROJECT_DIR` 或当前 cwd 定位仓库，读取 `.koala/activity.jsonl`、`docs/story/activity.jsonl` 以及 story-scoped `docs/story/actives/*/activity.jsonl`，寻找最近一次 `session_brief` heartbeat。默认 60 分钟内视为 fresh 并保持静默；超过 60 分钟或没有 fresh 记录时，输出：
 
 ```text
 建议先运行 koala session_brief 恢复现场
