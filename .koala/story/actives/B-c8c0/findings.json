@@ -60,7 +60,7 @@
       "desc": "packages/main/src/cli-engine.ts:635 - reviewer_list help text still says 'baseline concept/quality + 按信号挂载 behavior/docs/channel', and node packages/main/dist/cli.js reviewer_list --help renders that stale contract even though runtime reviewer_list now returns concept/quality/test-coverage baseline with no channel reviewer. This round was meant to synchronize reviewer gate prompts/comments, so leaving the public CLI description stale can still mislead users/agents into expecting a retired channel reviewer and missing test-coverage. Fix by updating the reviewer_list description to match the live routing (baseline concept/quality/test-coverage; signal-driven behavior/docs only).",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "agent": "koala-review-quality",
       "createdAt": "2026-05-08T12:19:05.569Z",
       "reviewRound": "2026-05-08T12:15:30.872Z",
