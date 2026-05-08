@@ -307,6 +307,58 @@ async function assertDiscardPrunesMissingWorktreeRegistry(): Promise<void> {
   }
 }
 
+async function assertDiscardCleansInvalidGitPointerResidue(): Promise<void> {
+  const root = initRepo('koala-discard-invalid-pointer-');
+  try {
+    const storyId = 'B-badptr';
+    const store = new StoryStore(root);
+    const now = '2026-04-30T10:00:00.000Z';
+    store.writeStory(storyId, {
+      storyId,
+      name: 'discard-invalid-pointer-smoke',
+      title: 'Discard invalid pointer smoke',
+      description: 'Synthetic story whose physical worktree dir survived after git admin metadata disappeared.',
+      type: 'chore',
+      phase: 'INIT_CHECK',
+      priority: 'medium',
+      createdAt: now,
+      startedAt: now,
+      endedAt: null,
+      events: [],
+      worktree: {
+        path: `.worktrees/${storyId}`,
+        branch: `story/${storyId}`,
+        createdAt: now,
+      },
+    });
+    git(root, ['branch', `story/${storyId}`]);
+    const worktreePath = join(root, '.worktrees', storyId);
+    mkdirSync(worktreePath, { recursive: true });
+    writeFileSync(join(worktreePath, '.git'), `gitdir: ${join(root, '.git', 'worktrees', storyId)}\n`);
+    writeFileSync(join(worktreePath, 'runtime.log'), 'stale residue\n');
+
+    let refusedWithoutForce = false;
+    try {
+      await runKoala(root, 'story_discard', { storyId, reason: 'smoke invalid pointer cleanup' });
+    } catch (error) {
+      refusedWithoutForce = String((error as Error).message).includes('Worktree git metadata 已损坏');
+    }
+    assert.equal(refusedWithoutForce, true, 'invalid pointer cleanup should ask for force before deleting a physical residue dir');
+    assert.equal(existsSync(worktreePath), true, 'non-forced invalid pointer cleanup should keep the residue dir');
+    assert.equal(new StoryStore(root).readStory(storyId).phase, 'INIT_CHECK', 'non-forced invalid pointer cleanup must not discard');
+
+    const output = await runKoala(root, 'story_discard', { storyId, force: true, reason: 'smoke invalid pointer cleanup' });
+
+    assert.match(output, /invalid worktree residue 已清理/);
+    assert.equal(existsSync(worktreePath), false, 'forced invalid pointer cleanup should remove the physical residue dir');
+    assert.equal(git(root, ['branch', '--list', `story/${storyId}`]), '');
+    assert.equal(new StoryStore(root).readStory(storyId).phase, 'DISCARDED');
+    assert.equal(git(root, ['status', '--porcelain']), '', 'invalid pointer discard cleanup should leave the repo clean');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 async function assertDiscardFailureDoesNotMarkSuccess(): Promise<void> {
   const root = initRepo('koala-discard-fail-closed-');
   const storyId = 'B-stuck';
@@ -605,6 +657,7 @@ await assertChecklistConcurrentVerificationIntentUpdates();
 await assertDiscardRemovesUntrackedWorktreeAndBranch();
 await assertDiscardCanCleanAlreadyDiscardedResidue();
 await assertDiscardPrunesMissingWorktreeRegistry();
+await assertDiscardCleansInvalidGitPointerResidue();
 await assertDiscardFailureDoesNotMarkSuccess();
 await assertPurgeDropsSafeInitCommit();
 await assertDoctorRepairCleansTerminalWorktrees();

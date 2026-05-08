@@ -269,6 +269,14 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     return null;
   }
 
+  function isUsableGitWorktree(worktreePath: string): boolean {
+    try {
+      return gitFile(['rev-parse', '--is-inside-work-tree'], worktreePath) === 'true';
+    } catch {
+      return false;
+    }
+  }
+
   function pruneWorktreeRegistry(): void {
     git('worktree prune --expire now');
   }
@@ -773,41 +781,65 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       if (detectedWorktreePath) {
         const wtPath = detectedWorktreePath;
         if (existsSync(wtPath)) {
-          // B-5fa4 CHK-003: warn about unpushed commits before discard cleanup
-          const unpushed = checkUnpushedCommits(wtPath, branch);
-          if (unpushed.warning) {
-            results.push(unpushed.warning);
-          }
-
-          // 检查未提交改动
-          const wtStatus = git('status --porcelain', wtPath);
-          if (wtStatus && !args.force) {
+          const usableGitWorktree = isUsableGitWorktree(wtPath);
+          if (!usableGitWorktree && !args.force) {
             throw new Error(
-              `Worktree 有未提交的改动:\n${wtStatus}\n→ 如确认丢弃，加 force:true 重试：koala story_discard '{"storyId":"${args.storyId}","force":true}'`
+              `Worktree git metadata 已损坏，无法安全检查未提交改动:\n` +
+              `${wtPath}\n` +
+              `→ 如确认这是残留目录并要丢弃，加 force:true 重试：koala story_discard '{"storyId":"${args.storyId}","force":true}'`,
             );
           }
 
-          // 强制移除 worktree（B-0975: Windows Permission denied 瞬时锁重试）
-          // 如果 git remove 已经把 registry 弄成 prunable / 0000000，但
-          // 目录仍有残留，则继续 rm + prune，而不是把清理责任推给用户。
           let removeFailure: string | null = null;
-          try {
-            worktreeRemoveWithRetry(wtPath, { force: true });
-            results.push(`✓ Worktree ${wtPath} 已清理`);
-          } catch (e: any) {
-            removeFailure = gitErrorMessage(e);
+          if (!usableGitWorktree) {
             try {
               removePathWithTimeout(wtPath);
+              results.push(`✓ invalid worktree residue 已清理: ${wtPath}`);
             } catch (rmError: any) {
               throw new Error(
-                `story_discard: worktree 移除失败，已停止 discard，避免留下半清理状态。\n` +
+                `story_discard: invalid worktree residue 清理失败，已停止 discard，避免留下半清理状态。\n` +
                 `worktree: ${wtPath}\nbranch: ${branch}\n原因: ${removeFailure}\n` +
                 `目录清理也失败: ${gitErrorMessage(rmError)}`,
               );
             }
+          } else {
+            // B-5fa4 CHK-003: warn about unpushed commits before discard cleanup
+            const unpushed = checkUnpushedCommits(wtPath, branch);
+            if (unpushed.warning) {
+              results.push(unpushed.warning);
+            }
+
+            // 检查未提交改动
+            const wtStatus = git('status --porcelain', wtPath);
+            if (wtStatus && !args.force) {
+              throw new Error(
+                `Worktree 有未提交的改动:\n${wtStatus}\n→ 如确认丢弃，加 force:true 重试：koala story_discard '{"storyId":"${args.storyId}","force":true}'`
+              );
+            }
+
+            // 强制移除 worktree（B-0975: Windows Permission denied 瞬时锁重试）
+            // 如果 git remove 已经把 registry 弄成 prunable / 0000000，但
+            // 目录仍有残留，则继续 rm + prune，而不是把清理责任推给用户。
+            try {
+              worktreeRemoveWithRetry(wtPath, { force: true });
+              results.push(`✓ Worktree ${wtPath} 已清理`);
+            } catch (e: any) {
+              removeFailure = gitErrorMessage(e);
+              try {
+                removePathWithTimeout(wtPath);
+              } catch (rmError: any) {
+                throw new Error(
+                  `story_discard: worktree 移除失败，已停止 discard，避免留下半清理状态。\n` +
+                  `worktree: ${wtPath}\nbranch: ${branch}\n原因: ${removeFailure}\n` +
+                  `目录清理也失败: ${gitErrorMessage(rmError)}`,
+                );
+              }
+            }
           }
 
           try {
+            const removedAdmins = removeStaleWorktreeAdminDirs(args.storyId, branch, wtPath);
+            if (removedAdmins.length > 0) results.push(`✓ stale git worktree admin 已清理: ${removedAdmins.join(', ')}`);
             pruneWorktreeRegistry();
             if (removeFailure || findWorktreeResidue(args.storyId, branch, wtPath)) {
               results.push(`✓ stale worktree metadata 已 prune: ${wtPath}`);
