@@ -5,7 +5,7 @@
       "desc": "CLAUDE.md:35 - REVIEW→TEST preflight still says 3 CLI gates (validate --channel / --concept / --lint), but the implemented preflight now also runs docs-drift (and conditionally codex-adapter) before TEST. The process doc understates required gating and can mislead agents into thinking TEST is reachable without clearing the docs gate.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "agent": "koala-review-docs",
       "createdAt": "2026-05-08T11:54:50.731Z",
       "reviewRound": "2026-05-08T11:48:22.929Z",
@@ -16,7 +16,7 @@
       "desc": "packages/main/src/tasks/flow-stability-smoke.ts:577 and :595 - CHK-005 edge promises validate --channel accepts successful subagent_result and dispatch evidence, but smoke only covers a failing subagent_result path plus commit_author fallback; there is no positive dispatch/subagent_result acceptance assertion for checkDispatchEvidence/checkCommitAuthor, so the intended behavior is not meaningfully exercised.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-05-08T11:55:23.110Z",
       "reviewRound": "2026-05-08T11:48:22.929Z",
@@ -27,11 +27,22 @@
       "desc": "packages/main/src/handlers/checklist.ts:49 - INIT_CHECK-linked stories still accept checklist_add/update/remove from main because cwd authority only gates PLAN/DEV/REVIEW/TEST, so active-story metadata can still drift before PLAN and CHK-001 is not fully fixed.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "agent": "koala-review-quality",
       "createdAt": "2026-05-08T11:57:52.022Z",
       "reviewRound": "2026-05-08T11:48:22.929Z",
       "_hash": "38dc08ce096a4f5fed5f8655e04d0566a7b0809fb5ecfd6b8855f86a55f63af2"
+    },
+    {
+      "id": "B-c8c0:F-004",
+      "desc": "REVIEW gate contract still diverges: runtime preflight is 4 gates plus optional codex-adapter (packages/main/src/handlers/review-preflight.ts:1-18,194-244; packages/main/src/handlers/story-advance.ts:747-777), but reviewer-facing docs still instruct the retired 3-gate model (CLAUDE.md:698-708; .Codex/agents/koala-review-concept.md:42,687-695; .claude/agents/koala-review-concept.md:42,687-695). This breaks the single-source REVIEW→TEST architecture and can misroute reviewer decisions.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-05-08T12:04:29.336Z",
+      "reviewRound": "2026-05-08T12:02:00.587Z",
+      "_hash": "479c7c7a15f779c3d52e405705392c6606bf7419385dec6998108deb5d8faa7d"
     }
   ]
 }

@@ -695,21 +695,23 @@ koala verification_evidence_add '{"storyId":"B-xxx","itemId":"CHK-001","intentRe
 
 `DEV→REVIEW` 会阻塞缺失 must evidence/waiver 的 intent；`koala validate --story=B-xxx --json` 会输出 verification coverage，并写入 TEST evidence 供 DONE gate 展示。
 
-### 3 CLI gate（REVIEW→TEST preflight，机械判定，秒级返回）
+### CLI gate（REVIEW→TEST preflight，机械判定，秒级返回）
 
-进入 REVIEW 后由 `story_advance --phase=TEST` 自动跑 3 个 CLI gate，任一 fail 即 block 推进：
+进入 REVIEW 后由 `story_advance --phase=TEST` 自动跑 CLI gate，任一 fail 即 block 推进：
 
 | gate | 命令 | 职责 | 失败处理 |
 |---|---|---|---|
 | channel | `koala validate --channel --story=B-xxx` | 正常通道 commit author 必须含 `koala-implementer` 或 subject 以 `koala:` 开头 | fail → block REVIEW→TEST |
 | concept | `koala validate --concept` | 扫 `git diff main...HEAD` 抽 deleted symbols + 全仓 grep 残留引用 | ≥ 5 残留 → 触发 concept reviewer；< 5 → skip |
 | lint | `koala validate --lint` | tsc / ruff / import-graph（shells 不得 import fn.ts） | fail → block；工具缺失 → skip |
+| docs-drift | `docs-drift` preflight | 校验 reviewer/流程文档引用的 koala 命令与 registry 对齐 | fail → block REVIEW→TEST |
+| codex-adapter | `node bin/koala-codex.js verify_codex` | 仅当 story 触及 Codex adapter 入口资产时要求 adapter 证据 | 缺失或 stale → block REVIEW→TEST |
 
 `koala-review-channel` LLM agent 已退役（S1），由 `koala validate --channel --story=<id>` CLI gate 接管；`koala-review-concept` 按需 spawn（CLI 残留 ≥ 5 时）；`koala-review-quality` 假设 lint 已绿只审主观项。
 
 ### Reviewer opt-in 路由（按 riskSignals 挂载）
 
-除了 CLI gate，Round 1 的 LLM reviewer 集合不再硬要 5 个。框架按 story 的 riskSignals / touchpoints / channel 自动挂载 reviewer 子集，基础集合永远开，其余按信号挂载：
+除了 CLI gate，Round 1 的 LLM reviewer 集合不再硬要 5 个。框架按 story 的 riskSignals / touchpoints 自动挂载 reviewer 子集，基础集合永远开，其余按信号挂载：
 
 | reviewer | 挂载条件 |
 |---|---|
@@ -894,9 +896,9 @@ type CommandRunner = (cmd: string, args: string[], cwd: string) => {
 
 生产路径用 `defaultRunner`（`child_process.spawnSync` + 合并 stdout/stderr + 区分 ENOENT）。
 
-### 与 3 CLI gate 的关系
+### 与 CLI gate 的关系
 
-`koala validate --lint` 是 REVIEW→TEST preflight 的三 gate 之一（见上文「3 CLI gate」段）。B-5a28 前：lint gate 只扫根 tsconfig → monorepo 子包漏检。B-5a28 后：lint gate 递归扫所有子包 → 子包编译错误直接 block REVIEW→TEST。pre-push hook 是「即使 lint gate 被跳过也兜住」的最后一道防线。
+`koala validate --lint` 是 REVIEW→TEST preflight 的 CLI gate 之一（见上文「CLI gate」段）。B-5a28 前：lint gate 只扫根 tsconfig → monorepo 子包漏检。B-5a28 后：lint gate 递归扫所有子包 → 子包编译错误直接 block REVIEW→TEST。pre-push hook 是「即使 lint gate 被跳过也兜住」的最后一道防线。
 
 see story/B-5a28
 
