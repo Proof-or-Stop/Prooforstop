@@ -1,0 +1,35 @@
+{
+  "storyId": "B-5705",
+  "name": "sync-session-brief-prompts",
+  "title": "同步 Koala session_brief 提醒与文档口径",
+  "description": "用户确认收口 Koala 周边 drift：当前 AGENTS.md 要求新 session 先跑 session_brief，但 CLAUDE.md 与 agent prompt 仍保留旧 status 口径；INIT_CHECK 文档还把 high/critical issue 描述成 advisory，而代码已阻塞；Claude hook 只有工具后记录，缺少 prompt 入口提醒，容易让 agent 忘记先恢复现场。",
+  "type": "chore",
+  "phase": "INIT_CHECK",
+  "priority": "medium",
+  "createdAt": "2026-05-08T23:02:28.523Z",
+  "startedAt": "2026-05-08T23:02:28.523Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-05-08T23:02:28.523Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-05-08T23:05:42.976Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-5705",
+    "branch": "story/B-5705",
+    "createdAt": "2026-05-08T23:05:43.169Z"
+  }
+}

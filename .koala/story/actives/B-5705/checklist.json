@@ -1,0 +1,187 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "同步新 session 入口为 session_brief",
+      "context": "CLAUDE.md、agent prompt 模板、已生成 .claude/.Codex prompt 和 CLI help/footer 仍有旧 koala status 入口口径；应统一为 session_brief，并保留 status 作为工作中短入口。",
+      "relatedDocs": [
+        "AGENTS.md",
+        "CLAUDE.md",
+        "README.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "新 session 入口文档和 reviewer prompt 都提示先运行 session_brief，status 只作为工作中短入口保留。",
+      "files": {
+        "modify": [
+          "CLAUDE.md",
+          "packages/main/src/cli-prompts.ts",
+          "packages/main/templates/agents/koala-evaluator.md",
+          "packages/main/templates/agents/koala-implementer.md",
+          "packages/main/templates/agents/koala-review-behavior.md",
+          "packages/main/templates/agents/koala-review-channel.md",
+          "packages/main/templates/agents/koala-review-concept.md",
+          "packages/main/templates/agents/koala-review-delivery.md",
+          "packages/main/templates/agents/koala-review-docs.md",
+          "packages/main/templates/agents/koala-review-quality.md",
+          "packages/main/templates/agents/koala-review-scope-plan.md",
+          "packages/main/templates/agents/koala-review-story-init.md",
+          ".claude/agents/koala-evaluator.md",
+          ".claude/agents/koala-implementer.md",
+          ".claude/agents/koala-review-behavior.md",
+          ".claude/agents/koala-review-channel.md",
+          ".claude/agents/koala-review-concept.md",
+          ".claude/agents/koala-review-delivery.md",
+          ".claude/agents/koala-review-docs.md",
+          ".claude/agents/koala-review-quality.md",
+          ".claude/agents/koala-review-scope-plan.md",
+          ".claude/agents/koala-review-story-init.md",
+          ".Codex/agents/koala-evaluator.md",
+          ".Codex/agents/koala-implementer.md",
+          ".Codex/agents/koala-review-behavior.md",
+          ".Codex/agents/koala-review-channel.md",
+          ".Codex/agents/koala-review-concept.md",
+          ".Codex/agents/koala-review-delivery.md",
+          ".Codex/agents/koala-review-docs.md",
+          ".Codex/agents/koala-review-quality.md",
+          ".Codex/agents/koala-review-scope-plan.md",
+          ".Codex/agents/koala-review-story-init.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "新 session / 恢复工作入口在 CLAUDE.md、模板和生成 prompt 中统一提示 session_brief",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "status 仍作为工作中快速恢复入口保留，但不再作为新 session 第一命令",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "触及 .Codex agent prompt 后 verify_codex 产出通过，证明 Codex 资产没有漂移",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "修正 INIT_CHECK issue blocker 文档口径",
+      "context": "代码已要求必需 reviewer 且 high/critical issue 阻塞 INIT_CHECK；CLAUDE.md 和部分模板仍写 issues advisory，需与 machine/init-check 实现对齐。",
+      "relatedDocs": [
+        "CLAUDE.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "INIT_CHECK 文档明确说明 high/critical reviewer issue 会阻塞推进，且与当前 machine/init-check 实现一致。",
+      "files": {
+        "modify": [
+          "CLAUDE.md",
+          "packages/main/templates/agents/koala-review-delivery.md",
+          "packages/main/templates/agents/koala-review-docs.md",
+          "packages/main/templates/agents/koala-review-story-init.md",
+          ".claude/agents/koala-review-delivery.md",
+          ".claude/agents/koala-review-docs.md",
+          ".claude/agents/koala-review-story-init.md",
+          ".Codex/agents/koala-review-delivery.md",
+          ".Codex/agents/koala-review-docs.md",
+          ".Codex/agents/koala-review-story-init.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "INIT_CHECK section documents missing/tampered/required reviewer/high-critical blocker behavior matching machine.ts",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "medium/low issues remain advisory in docs while high/critical are not described as advisory",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "smoke check fails if CLAUDE.md or generated reviewer prompts regress to issues advisory wording",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-003",
+      "title": "添加 Claude prompt 入口的 session_brief 提醒 hook",
+      "context": "现有 .claude/settings.json 只配置 PostToolUse/PostToolUseFailure；需要在 UserPromptSubmit 时检查最近 session_brief heartbeat，超过阈值时给软提醒，且不影响 Codex runtime 边界。",
+      "relatedDocs": [
+        "docs/guide-hooks.md",
+        "AGENTS.md",
+        "CLAUDE.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "Claude Code 在用户 prompt 入口可获得 session_brief 软提醒；最近已跑过 session_brief 时不重复打扰。",
+      "files": {
+        "modify": [
+          ".claude/settings.json",
+          "packages/main/src/cli-init.ts",
+          "docs/guide-hooks.md",
+          "CLAUDE.md"
+        ],
+        "create": [
+          ".claude/hooks/session-brief-reminder.cjs"
+        ],
+        "test": [
+          "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "UserPromptSubmit hook 在无近期 session_brief heartbeat 时输出软提醒",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "近期已有 session_brief heartbeat 时 hook 静默，避免每条 prompt 都打扰",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "hook 输入 malformed 或 activity 文件缺失时零退出且不阻塞用户 prompt；verify_codex 仍通过 Codex runtime 边界检查",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
+    }
+  ]
+}
