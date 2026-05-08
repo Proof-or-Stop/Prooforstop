@@ -119,6 +119,24 @@ function tmpRoot(prefix: string): string {
 }
 
 {
+  const root = tmpRoot('koala-session-brief-legacy-bash-');
+  try {
+    mkdirSync(join(root, 'docs', 'story'), { recursive: true });
+    writeFileSync(join(root, 'docs', 'story', 'activity.jsonl'), JSON.stringify({
+      tool: 'Bash',
+      detail: 'koala session_brief',
+      args: { command: 'koala session_brief' },
+      endTime: new Date().toISOString(),
+    }) + '\n');
+    const result = runHook(root, JSON.stringify({ cwd: root }));
+    assert.equal(result.status, 0);
+    assert.equal(result.output, '');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+{
   const root = tmpRoot('koala-session-brief-malformed-');
   try {
     const result = runHook(root, '{bad json');

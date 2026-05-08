@@ -109,10 +109,18 @@ function readFreshSessionBrief(file, now, thresholdMs) {
 }
 
 function isSessionBrief(entry) {
-  return entry
-    && (
-      entry.tool === 'session_brief'
-      || entry.command === 'session_brief'
-      || entry.detail === 'session_brief'
-    );
+  if (!entry) return false;
+  return entry.tool === 'session_brief'
+    || entry.command === 'session_brief'
+    || entry.detail === 'session_brief'
+    || containsSessionBriefCommand(entry.detail)
+    || containsSessionBriefCommand(entry.args && entry.args.command);
+}
+
+function containsSessionBriefCommand(value) {
+  if (typeof value !== 'string') return false;
+  const command = value.replace(/["']/g, '').trim();
+  return /(?:^|[\s;&|()])(?:[\w.-]+=\S+\s+)*koala\s+session_brief(?:$|[\s;&|()])/.test(command)
+    || /(?:^|[\s;&|()])node\s+(?:\.\/)?(?:.*\/)?bin\/koala(?:-codex)?\.js\s+session_brief(?:$|[\s;&|()])/.test(command)
+    || /(?:^|[\s;&|()])node\s+(?:\.\/)?(?:.*\/)?packages\/main\/dist\/cli\.js\s+session_brief(?:$|[\s;&|()])/.test(command);
 }
