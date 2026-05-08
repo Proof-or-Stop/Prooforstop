@@ -8,6 +8,9 @@ import { checkEvidenceFreshnessForGit, currentMaterialHash } from '../core/evide
 import type { ChecklistStatus, StoryInfo, VerificationEvidence, VerificationIntent } from '../core/types.js';
 import { buildVerificationCoverage, makeEvidence } from '../core/verification.js';
 
+type VerificationEvidenceKindInput = VerificationEvidence['kind'] | 'cli' | 'logic';
+type VerificationEvidenceInput = Omit<VerificationEvidence, 'kind'> & { kind: VerificationEvidenceKindInput };
+
 function sleepSync(ms: number): void {
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
 }
@@ -64,11 +67,18 @@ function evidenceHashes(root: string): { headHash?: string; materialHash?: strin
   };
 }
 
-function normalizeEvidence(root: string, input: VerificationEvidence): VerificationEvidence {
+function normalizeEvidenceKind(kind: VerificationEvidenceKindInput): VerificationEvidence['kind'] {
+  if (kind === 'cli') return 'manual_transcript';
+  if (kind === 'logic') return 'logic_test';
+  return kind;
+}
+
+function normalizeEvidence(root: string, input: VerificationEvidenceInput): VerificationEvidence {
   const hashes = evidenceHashes(root);
+  const kind = normalizeEvidenceKind(input.kind);
   return makeEvidence({
     intentRef: input.intentRef,
-    kind: input.kind,
+    kind,
     ...(input.verdict ? { verdict: input.verdict } : {}),
     ...(input.waiverType ? { waiverType: input.waiverType } : {}),
     ...(input.file ? { file: input.file } : {}),
@@ -265,7 +275,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       userSees?: string;
       files?: { modify: string[]; create: string[]; test: string[] };
       verificationIntent?: VerificationIntent;
-      verificationEvidence?: VerificationEvidence[];
+      verificationEvidence?: VerificationEvidenceInput[];
       reason?: string;
       agent?: string;
       success?: boolean;
@@ -464,7 +474,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       storyId: string;
       itemId: string;
       intentRef: string;
-      kind: VerificationEvidence['kind'];
+      kind: VerificationEvidenceKindInput;
       verdict?: VerificationEvidence['verdict'];
       waiverType?: VerificationEvidence['waiverType'];
       file?: string;
@@ -475,7 +485,8 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       if (!args.note || args.note.trim().length < 5) {
         throw new Error('verification_evidence_add: note 必须 ≥ 5 字符，说明 evidence 为什么覆盖该 intent');
       }
-      if (args.waiverType && args.kind !== 'waiver') {
+      const kind = normalizeEvidenceKind(args.kind);
+      if (args.waiverType && kind !== 'waiver') {
         throw new Error('verification_evidence_add: waiverType 只能用于 kind=waiver');
       }
       return withChecklistLock(ctx, args.storyId, () => {
@@ -487,7 +498,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
 
       const evidence = makeEvidence({
         intentRef: args.intentRef,
-        kind: args.kind,
+        kind,
         ...(args.verdict ? { verdict: args.verdict } : {}),
         ...(args.waiverType ? { waiverType: args.waiverType } : {}),
         ...(args.file ? { file: args.file } : {}),
@@ -504,7 +515,8 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       item.verificationEvidence = existing;
 
       store.writeChecklist(args.storyId, cl);
-      return `Verification evidence recorded for ${args.itemId} → ${args.intentRef} (${args.kind})`;
+      const aliasNote = kind !== args.kind ? `, alias ${args.kind}` : '';
+      return `Verification evidence recorded for ${args.itemId} → ${args.intentRef} (${kind}${aliasNote})`;
       });
     },
 
@@ -513,7 +525,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       evidences: Array<{
         itemId: string;
         intentRef: string;
-        kind: VerificationEvidence['kind'];
+        kind: VerificationEvidenceKindInput;
         verdict?: VerificationEvidence['verdict'];
         waiverType?: VerificationEvidence['waiverType'];
         file?: string;
@@ -534,14 +546,15 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         if (!entry.note || entry.note.trim().length < 5) {
           throw new Error(`verification_evidence_batch_add: ${entry.itemId} → ${entry.intentRef} note 必须 ≥ 5 字符`);
         }
-        if (entry.waiverType && entry.kind !== 'waiver') {
+        const kind = normalizeEvidenceKind(entry.kind);
+        if (entry.waiverType && kind !== 'waiver') {
           throw new Error(`verification_evidence_batch_add: ${entry.itemId} → ${entry.intentRef} waiverType 只能用于 kind=waiver`);
         }
         const item = cl.items.find(i => i.id === entry.itemId);
         if (!item) throw new Error(`Checklist item ${entry.itemId} not found`);
         const evidence = makeEvidence({
           intentRef: entry.intentRef,
-          kind: entry.kind,
+          kind,
           ...(entry.verdict ? { verdict: entry.verdict } : {}),
           ...(entry.waiverType ? { waiverType: entry.waiverType } : {}),
           ...(entry.file ? { file: entry.file } : {}),

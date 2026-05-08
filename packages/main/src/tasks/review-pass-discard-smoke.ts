@@ -539,6 +539,9 @@ async function assertItemDispatchWritesChannelEvidence(): Promise<void> {
       agentType: 'koala-implementer',
     });
     assert.match(output, /CHK-001/, 'item dispatch should still return the item prompt');
+    assert.match(output, /DISPATCH_START:koala-implementer\/CHK-001/, 'item dispatch should ask worker to emit a liveness heartbeat');
+    assert.match(output, /4 分钟/, 'item dispatch should include status-check timing');
+    assert.match(output, /10 分钟\/600s/, 'item dispatch should include stalled retry timing');
 
     const events = new StoryStore(root).readProcessEvents(storyId);
     const dispatchEvent = events.find(ev => ev.type === 'dispatch' && ev.itemId === 'CHK-001');

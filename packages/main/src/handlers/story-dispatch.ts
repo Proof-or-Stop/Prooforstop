@@ -112,6 +112,14 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     }
   }
 
+  function appendDispatchLivenessGuidance(lines: string[], label: string): void {
+    lines.push('执行节奏 / liveness:');
+    lines.push(`- 开始后先输出 \`DISPATCH_START:${label}\`，让主 agent 知道进程已启动。`);
+    lines.push('- 4 分钟没有任何输出时，主 agent 应询问一次状态；10 分钟/600s 仍无结果时视为 stalled，可以重启该 reviewer/worker。');
+    lines.push('- 若是 retry，请在最终回复里说明前一次 stalled，避免把网络/启动失败误判为审查结论。');
+    lines.push('');
+  }
+
   function buildInitReviewPrompt(args: {
     storyId: string;
     agentType?: string;
@@ -251,6 +259,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       // 是当前最可靠的绝对路径来源（优于 process.cwd()——后者依赖调用方 shell 当前目录）。
       lines.push(`工作目录（subagent 必须 cd 到此）: ${root}`);
       lines.push('');
+      appendDispatchLivenessGuidance(lines, `${displayAgent}/${shortFid}`);
 
       if (bgPolicy === 'required') {
         const prefix = bgExists ? '' : '⚠ 缺失，强烈建议先写 `koala background_set` — ';
@@ -330,6 +339,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       // 是当前最可靠的绝对路径来源（优于 process.cwd()——后者依赖调用方 shell 当前目录）。
       lines.push(`工作目录（subagent 必须 cd 到此）: ${root}`);
       lines.push('');
+      appendDispatchLivenessGuidance(lines, `${agentType || 'koala-implementer'}/${args.itemId}`);
       lines.push('必读（按顺序）:');
       let idx = 1;
       if (bgPolicy === 'required') {

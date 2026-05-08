@@ -615,6 +615,8 @@ Note: `waiverReason` 长度校验（≥ 30 字符）在 `delivery_check_set` han
 `story_create` 自动扫描命中以下关键词时 elevate priority 到 high：
 auth / password / token / migration / destructive / state machine / guard / gate / git restore / reset / production / incident / hotfix / PII / GDPR / breaking change
 
+该 elevate 使用**有效 priority** 覆盖原始输入；即使调用方传 `priority:"low"`，命中 `hotfix` / `incident` / 破坏性 git 等关键词也按 high-risk story 处理，并触发 decision + ≥3 preMortem 等 gate。
+
 ### 对抗审查
 
 checklist + plan.md 写完后必须 `story_review` 通过（issueCount=0）才能进 DEV。
@@ -684,7 +686,7 @@ checklist + plan.md 写完后必须 `story_review` 通过（issueCount=0）才�
 | 字段 | 阶段 | 含义 |
 |---|---|---|
 | `verificationIntent` | PLAN | 每个 item 的 happy / edge / adversarial 验证意图；normal/high-risk/strict story 三栏必填 |
-| `verificationEvidence` | DEV/REVIEW/TEST | 覆盖某条 intent 的证据，可为 logic/integration/browser/manual/docs/waiver |
+| `verificationEvidence` | DEV/REVIEW/TEST | 覆盖某条 intent 的证据，可为 logic_test/integration_test/browser_test/manual_transcript/docs_check/waiver；CLI 也接受 `logic`→`logic_test`、`cli`→`manual_transcript` aliases |
 
 常用命令：
 

@@ -26,6 +26,9 @@ REQUIRED FIELDS
   description — multi-line context (the "why")
   type        — feature | bug | refactor | chore (test is accepted as chore)
   priority    — high | medium | low
+                high-risk keywords such as hotfix/incident/git reset override
+                the requested value: even priority=low is elevated to the
+                effective high-risk gate with decision + ≥3 preMortem.
   background  — four markdown sections:
                 ## 触发事件 / ## 关键洞察 / ## 方案取舍 / ## 对话纹理
                 Each section needs >= 50 chars; total >= 300 chars.

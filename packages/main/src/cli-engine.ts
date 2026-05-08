@@ -91,9 +91,20 @@ const verificationIntentSchema = z.object({
   adversarial: z.array(verificationIntentItemSchema).optional().default([]),
 });
 
+const verificationEvidenceKindSchema = z.enum([
+  'logic_test',
+  'integration_test',
+  'browser_test',
+  'manual_transcript',
+  'docs_check',
+  'waiver',
+  'cli',
+  'logic',
+]).describe('证据类型；aliases: cli→manual_transcript, logic→logic_test');
+
 const verificationEvidenceSchema = z.object({
   intentRef: z.string().describe('如 CHK-001:happy:0 或自定义 intent id'),
-  kind: z.enum(['logic_test', 'integration_test', 'browser_test', 'manual_transcript', 'docs_check', 'waiver']).describe('证据类型'),
+  kind: verificationEvidenceKindSchema,
   verdict: z.enum(VERIFICATION_EVIDENCE_VERDICTS).optional().describe('证据结论语义；不覆盖 result pass/fail gate'),
   waiverType: z.enum(['permanent', 'deferred_gate_evidence']).optional().describe('kind=waiver 时可标记为临时 gate 自测 evidence；后续 validate 会要求替换真实证据'),
   file: z.string().optional().describe('测试/文档文件路径'),
@@ -240,7 +251,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     storyId: z.string().describe('Story ID'),
     itemId: z.string().describe('Checklist item ID'),
     intentRef: z.string().describe('如 CHK-001:happy:0 或自定义 intent id'),
-    kind: z.enum(['logic_test', 'integration_test', 'browser_test', 'manual_transcript', 'docs_check', 'waiver']).describe('证据类型'),
+    kind: verificationEvidenceKindSchema,
     verdict: z.enum(VERIFICATION_EVIDENCE_VERDICTS).optional().describe('证据结论语义；不覆盖 result pass/fail gate'),
     waiverType: z.enum(['permanent', 'deferred_gate_evidence']).optional().describe('kind=waiver 时可标记为临时 gate 自测 evidence'),
     file: z.string().optional().describe('测试/文档文件路径'),
@@ -253,7 +264,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     evidences: z.array(z.object({
       itemId: z.string().describe('Checklist item ID'),
       intentRef: z.string().describe('如 CHK-001:happy:0 或自定义 intent id'),
-      kind: z.enum(['logic_test', 'integration_test', 'browser_test', 'manual_transcript', 'docs_check', 'waiver']).describe('证据类型'),
+      kind: verificationEvidenceKindSchema,
       verdict: z.enum(VERIFICATION_EVIDENCE_VERDICTS).optional().describe('证据结论语义；不覆盖 result pass/fail gate'),
       waiverType: z.enum(['permanent', 'deferred_gate_evidence']).optional().describe('kind=waiver 时可标记为临时 gate 自测 evidence'),
       file: z.string().optional().describe('测试/文档文件路径'),

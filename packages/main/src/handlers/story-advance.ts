@@ -1098,6 +1098,7 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
           return `→ ${activeLine}
 → 并行启动上述 reviewer 审查代码（在同一条消息里发出所有 Agent 调用）：
 ${agentLines}
+→ reviewer liveness：每个 reviewer 启动后应先输出 REVIEW_START:<reviewer>；4 分钟无输出先问状态，10 分钟/600s 无结果视为 stalled，重启该 reviewer 并在 retry prompt 中注明前一次 stalled
 → 全部回来后 koala finding_list 汇总
 → critical/high 全 resolved 后：story_advance(${args.storyId}, TEST)
 → 需要改代码：story_advance(${args.storyId}, DEV) 回 DEV

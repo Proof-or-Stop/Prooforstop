@@ -2,7 +2,7 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync, spawn } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,6 +10,7 @@ import { resetConfigCache } from '../core/config.js';
 import { currentMaterialHash } from '../core/evidence-freshness.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, DeliveryCheckData, StoryInfo, StorySummaryData, TestEvidenceData } from '../core/types.js';
+import { getRuntimeActivityLogPath } from '../core/activity-log.js';
 import { signDeliveryCheck } from '../handlers/delivery-check.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -305,6 +306,107 @@ async function assertEvidenceFreshAfterMetadataOnlyCliSurface(): Promise<void> {
   }
 }
 
+async function assertVerificationEvidenceKindAliasesCliSurface(): Promise<void> {
+  const root = initRepo('koala-field-evidence-alias-');
+  try {
+    const storyId = 'B-evalias';
+    const store = new StoryStore(root);
+    store.writeStory(storyId, {
+      storyId,
+      name: 'evidence-kind-alias-cli',
+      title: 'Evidence kind alias CLI',
+      description: 'Synthetic story for verification evidence kind alias CLI surface.',
+      type: 'chore',
+      phase: 'DEV',
+      priority: 'medium',
+      createdAt: now(),
+      startedAt: now(),
+      endedAt: null,
+      events: [{ phase: 'DEV', action: 'advance', timestamp: now() }],
+    });
+    store.writeChecklist(storyId, {
+      items: [{
+        id: 'CHK-001',
+        title: 'Evidence aliases item',
+        context: 'Evidence aliases context',
+        status: 'in_progress',
+        startTime: now(),
+        endTime: null,
+        verificationIntent: {
+          happy: [{ desc: 'cli alias records a manual transcript evidence kind', type: 'cli', priority: 'must' }],
+          edge: [{ desc: 'logic alias records a logic test evidence kind', type: 'logic', priority: 'must' }],
+          adversarial: [],
+        },
+      }],
+    });
+
+    const cliOutput = await runKoala(root, 'verification_evidence_add', {
+      storyId,
+      itemId: 'CHK-001',
+      intentRef: 'CHK-001:happy:0',
+      kind: 'cli',
+      result: 'pass',
+      note: 'CLI alias should persist as manual transcript evidence',
+    });
+    assert.match(cliOutput, /manual_transcript, alias cli/);
+
+    const batchOutput = await runKoala(root, 'verification_evidence_batch_add', {
+      storyId,
+      evidences: [{
+        itemId: 'CHK-001',
+        intentRef: 'CHK-001:edge:0',
+        kind: 'logic',
+        result: 'pass',
+        note: 'Logic alias should persist as logic test evidence',
+      }],
+    });
+    assert.match(batchOutput, /1 item intent/);
+
+    const evidence = new StoryStore(root).readChecklist(storyId).items[0].verificationEvidence || [];
+    assert.equal(evidence.find(ev => ev.intentRef === 'CHK-001:happy:0')?.kind, 'manual_transcript');
+    assert.equal(evidence.find(ev => ev.intentRef === 'CHK-001:edge:0')?.kind, 'logic_test');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+async function assertHotfixPriorityElevationCliSurface(): Promise<void> {
+  const root = initRepo('koala-field-hotfix-priority-');
+  try {
+    const background = [
+      '## 触发事件',
+      '2026-05-08 B-hotfix 用户报告 hotfix 修复需要记录，即使请求低优先级也应该显式进入高风险审查路径，避免紧急词被文档口径隐藏。',
+      '',
+      '## 关键洞察',
+      '这里要验证的不是业务功能，而是 CLI surface 是否诚实说明 effective priority 会覆盖原始 priority，并让 agent 预期 preMortem gate。',
+      '',
+      '## 方案取舍',
+      '保留 hotfix 自动 elevate 行为，因为它保护生产和紧急修复路径；本 smoke 只锁住输出文案和持久化 priority。',
+      '',
+      '## 对话纹理',
+      '用户之前观察到 low priority hotfix 也会要求 preMortem，这个行为可以接受，但文档和命令输出必须直接讲清楚。',
+    ].join('\n');
+    const output = await runKoala(root, 'story_create', {
+      name: 'hotfix-priority-surface',
+      title: 'Hotfix priority surface',
+      description: 'low priority hotfix should still use effective high-risk gate',
+      type: 'chore',
+      priority: 'low',
+      background,
+      checklist: [{ title: 'Record effective priority wording', context: 'CLI output should explain low hotfix elevation' }],
+    });
+    assert.match(output, /已自动 elevate priority: low → high/);
+    assert.match(output, /原始 priority=low/);
+    const [storyId] = new StoryStore(root).listStoryIds();
+    assert.ok(storyId);
+    const story = new StoryStore(root).readStory(storyId);
+    assert.equal(story.priority, 'high');
+    assert.ok((story.riskSignals || []).some(sig => sig.matched.toLowerCase() === 'hotfix'));
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 function writeDoneReadyStory(worktree: string, storyId: string): void {
   const store = new StoryStore(worktree);
   const timestamp = now();
@@ -459,6 +561,15 @@ async function assertStaleWarningCooldownCliSurface(): Promise<void> {
     const first = await runKoalaRaw(root, 'session_brief');
     assert.equal(first.code, 0);
     assert.match(first.stderr, /koala stale state warnings/);
+    const logPath = getRuntimeActivityLogPath(root);
+    const lines = readFileSync(logPath, 'utf-8').trim().split('\n');
+    const last = JSON.parse(lines[lines.length - 1]);
+    assert.ok(Array.isArray(last.staleWarnings));
+    last.staleWarnings = last.staleWarnings.map((warning: string) =>
+      warning.replace(/\d+h(?: \d+ 分钟)?|\d+ 分钟/, '999h'),
+    );
+    lines[lines.length - 1] = JSON.stringify(last);
+    writeFileSync(logPath, `${lines.join('\n')}\n`);
     const second = await runKoalaRaw(root, 'session_brief');
     assert.equal(second.code, 0);
     assert.doesNotMatch(second.stderr, /koala stale state warnings/);
@@ -472,6 +583,8 @@ await assertClusterAutoResolveCliSurface();
 await assertReviewPassConcurrentCliSurface();
 await assertChannelGateAcceptsSubagentResultCliSurface();
 await assertEvidenceFreshAfterMetadataOnlyCliSurface();
+await assertVerificationEvidenceKindAliasesCliSurface();
+await assertHotfixPriorityElevationCliSurface();
 await assertDoneMergeCleansMainUntrackedReviewPasses();
 await assertStaleWarningCooldownCliSurface();
 

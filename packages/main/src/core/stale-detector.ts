@@ -163,6 +163,18 @@ function checkBugStale(bugs: BugData, thresholds: StaleThresholds, now: number):
   return out;
 }
 
+function cooldownKeyForWarning(warning: string): string {
+  return warning
+    .replace(/(已在 \S+ 阶段 )\d+h(?: \d+ 分钟)?( 未 advance)/, '$1<duration>$2')
+    .replace(/(已在 \S+ 阶段 )\d+ 分钟( 未 advance)/, '$1<duration>$2')
+    .replace(/(已 in_progress )\d+h(?: \d+ 分钟)?/, '$1<duration>')
+    .replace(/(已 in_progress )\d+ 分钟/, '$1<duration>')
+    .replace(/(已过 )\d+h(?: \d+ 分钟)?(，记得继续走流程)/, '$1<duration>$2')
+    .replace(/(已过 )\d+ 分钟(，记得继续走流程)/, '$1<duration>$2')
+    .replace(/(已 open )\d+h(?: \d+ 分钟)?(，建议优先修复)/, '$1<duration>$2')
+    .replace(/(已 open )\d+ 分钟(，建议优先修复)/, '$1<duration>$2');
+}
+
 function suppressRecentlyEmittedWarnings(root: string, warnings: string[], now: number): string[] {
   if (warnings.length === 0) return warnings;
   try {
@@ -175,10 +187,10 @@ function suppressRecentlyEmittedWarnings(root: string, warnings: string[], now: 
       const staleWarnings = (entry as { staleWarnings?: unknown }).staleWarnings;
       if (!Array.isArray(staleWarnings)) continue;
       for (const warning of staleWarnings) {
-        if (typeof warning === 'string') recent.add(warning);
+        if (typeof warning === 'string') recent.add(cooldownKeyForWarning(warning));
       }
     }
-    return warnings.filter(w => !recent.has(w));
+    return warnings.filter(w => !recent.has(cooldownKeyForWarning(w)));
   } catch {
     return warnings;
   }

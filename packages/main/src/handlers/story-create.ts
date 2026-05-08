@@ -251,6 +251,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         if (elevatedPriority !== args.priority) {
           lines.push(`已自动 elevate priority: ${args.priority} → ${elevatedPriority}`);
         }
+        lines.push('说明：riskSignals 命中后按有效 high-risk priority 处理，即使原始 priority=low 也会触发高风险 gate。');
         lines.push('PLAN 阶段强制要求（高风险路径）:');
         lines.push('  - understanding_set 落 task 理解快照（unknowns/touchpoints 必填）');
         lines.push('  - decision_set 必须包含 ≥3 preMortem 场景');
