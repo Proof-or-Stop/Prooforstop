@@ -2,9 +2,11 @@
 import { StoryStore } from '../core/store.js';
 import type { StoryPhase, StoryEvent } from '../core/types.js';
 import { execSync } from 'child_process';
+import { existsSync, realpathSync } from 'fs';
 import { join, isAbsolute } from 'path';
 import { randomBytes } from 'crypto';
 import { gitProbe } from '../core/git-probe.js';
+import { getStoryWorktreeRuntime, resolveLinkedWorktreePath } from '../core/worktree-runtime.js';
 
 export interface HandlerContext {
   store: StoryStore;
@@ -60,13 +62,22 @@ export function assertCwdInWorktree(store: StoryStore, storyId: string): void {
   } catch {
     return; // story 不存在，跳过
   }
-  if (!story.worktree) return; // 没有 worktree，跳过（兼容旧 story）
+  if (story.phase === 'DONE' || story.phase === 'DISCARDED') return;
 
   // B-9d95 CHK-001 whitelist: cwd 门禁——本函数的职责就是校验调用方 cwd 是否在 story 的 worktree。
   // 这里必须读 process.cwd()（调用方视角），不能用 ctx.root（那是 handler 初始化时确定的，
   // 不等于调用方真实 cwd）。故此 process.cwd() 调用点在白名单内。
   const cwd = process.cwd();
+  let expectedAbsPath: string | null = null;
   let repoRoot = cwd;
+  try {
+    const runtime = getStoryWorktreeRuntime(storyId, store, cwd);
+    expectedAbsPath = resolveLinkedWorktreePath(runtime);
+    repoRoot = runtime.repoRoot;
+  } catch { /* PROBE: fall back to stored story.worktree below */ }
+
+  if (!expectedAbsPath && !story.worktree) return; // 没有 worktree，跳过（兼容旧 story）
+
   try {
     // Use git common-dir to find the MAIN repo root, not the worktree root.
     // From a linked worktree, --show-toplevel returns the worktree itself,
@@ -83,17 +94,30 @@ export function assertCwdInWorktree(store: StoryStore, storyId: string): void {
     }
   } catch { /* not git */ }
 
-  const expectedAbsPath = isAbsolute(story.worktree.path)
-    ? story.worktree.path
-    : join(repoRoot, story.worktree.path);
+  if (!expectedAbsPath && story.worktree) {
+    expectedAbsPath = isAbsolute(story.worktree.path)
+      ? story.worktree.path
+      : join(repoRoot, story.worktree.path);
+  }
+  if (!expectedAbsPath) return;
 
-  if (cwd !== expectedAbsPath && !cwd.startsWith(expectedAbsPath + '/') && !cwd.startsWith(expectedAbsPath + '\\')) {
+  const normalizedCwd = canonicalPath(cwd);
+  const normalizedExpected = canonicalPath(expectedAbsPath);
+  if (normalizedCwd !== normalizedExpected && !normalizedCwd.startsWith(normalizedExpected + '/') && !normalizedCwd.startsWith(normalizedExpected + '\\')) {
     throw new Error(
       `Story ${storyId} 必须在 worktree 里执行 koala 命令\n` +
-      `期望 cwd: ${expectedAbsPath}\n` +
+      `期望 cwd: ${normalizedExpected}\n` +
       `当前 cwd: ${cwd}\n` +
-      `→ cd ${expectedAbsPath}`
+      `→ cd ${normalizedExpected}`
     );
+  }
+}
+
+function canonicalPath(path: string): string {
+  try {
+    return existsSync(path) ? realpathSync(path) : path;
+  } catch {
+    return path;
   }
 }
 

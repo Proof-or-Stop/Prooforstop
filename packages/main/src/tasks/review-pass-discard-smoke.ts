@@ -553,8 +553,8 @@ async function assertDoctorRepairCleansTerminalWorktrees(): Promise<void> {
   }
 }
 
-function assertStrayCleanupAllowsInitSelfCheck(): void {
-  const root = initRepo('koala-stray-init-self-check-');
+function assertStrayCleanupAllowsGeneratedReviewMetadata(): void {
+  const root = initRepo('koala-stray-generated-review-metadata-');
   try {
     const storyId = 'B-stray';
     const now = '2026-04-30T10:00:00.000Z';
@@ -575,11 +575,16 @@ function assertStrayCleanupAllowsInitSelfCheck(): void {
     git(root, ['commit', '-m', 'add story metadata']);
 
     assert(STRAY_FILE_WHITELIST.includes('init-self-check.json'), 'init-self-check.json should be a precise whitelist entry');
+    assert(STRAY_FILE_WHITELIST.includes('review-passes.json'), 'review-passes.json should be a precise whitelist entry');
     const initSelfCheckPath = join(root, '.koala/story/actives', storyId, 'init-self-check.json');
+    const reviewPassesPath = join(root, '.koala/story/actives', storyId, 'review-passes.json');
     writeFileSync(initSelfCheckPath, '{"reviewers":[]}\n');
+    writeFileSync(reviewPassesPath, '{"passes":[]}\n');
     const report = cleanStrayWorktreeFiles(root, storyId, join(root, '.worktrees', storyId));
     assert.equal(existsSync(initSelfCheckPath), false, 'init-self-check.json should be removed as generated metadata');
+    assert.equal(existsSync(reviewPassesPath), false, 'review-passes.json should be removed as generated metadata');
     assert(report.some(line => line.includes('init-self-check.json')), 'cleanup report should name init-self-check.json');
+    assert(report.some(line => line.includes('review-passes.json')), 'cleanup report should name review-passes.json');
 
     const draftPath = join(root, '.koala/story/actives', storyId, 'operator-note.txt');
     writeFileSync(draftPath, 'manual draft\n');
@@ -605,7 +610,7 @@ await assertPurgeDropsSafeInitCommit();
 await assertDoctorRepairCleansTerminalWorktrees();
 await assertInitDispatchPromptHasTimeoutGuidance();
 await assertItemDispatchWritesChannelEvidence();
-assertStrayCleanupAllowsInitSelfCheck();
+assertStrayCleanupAllowsGeneratedReviewMetadata();
 assertDocsDriftAllowsBootstrapAndLegacyCommands();
 assertChannelAllowsExplicitMainAgentPlanOwnership();
 

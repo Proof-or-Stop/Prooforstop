@@ -174,11 +174,14 @@ export interface ChecklistAuditEntry {
   timestamp: string;
   phase: StoryPhase;
   itemId: string;
-  action: 'update' | 'delete';
+  action: 'update' | 'delete' | 'add';
   from: ChecklistStatus;
   to: ChecklistStatus;
   reason: string;
   agent?: string;
+  /** add 时记录新增 item 的初始内容，供 story_review 展示 PLAN replan/scope audit */
+  addedTitle?: string;
+  addedContext?: string;
   /** delete 时记录被删 item 的原始内容，供 story_review 门禁展示 */
   removedTitle?: string;
   removedContext?: string;

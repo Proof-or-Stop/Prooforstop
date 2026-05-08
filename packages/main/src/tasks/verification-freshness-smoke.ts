@@ -237,4 +237,72 @@ for (const path of material) {
   }
 }
 
+function assertChecklistUpdateEvidenceGetsMaterialHash(): void {
+  const root = mkdtempRoot();
+  try {
+    git(root, ['init']);
+    write(root, 'koala.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      storyDir: '.koala/story/actives',
+      requirementsDir: 'docs/requirements',
+    }, null, 2));
+    write(root, 'packages/main/src/base.ts', 'export const base = true;\n');
+    commit(root, 'base');
+    const store = new StoryStore(root);
+    const storyId = 'B-evidence';
+    const now = '2026-05-08T10:00:00.000Z';
+    store.writeStory(storyId, {
+      storyId,
+      name: 'evidence-direct-update',
+      title: 'Evidence direct update',
+      description: 'Synthetic story for checklist_update evidence normalization.',
+      type: 'chore',
+      phase: 'DEV',
+      priority: 'medium',
+      createdAt: now,
+      startedAt: now,
+      endedAt: null,
+      events: [{ phase: 'DEV', action: 'advance', timestamp: now }],
+    });
+    store.writeChecklist(storyId, {
+      items: [{
+        id: 'CHK-001',
+        title: 'Evidence item',
+        context: 'Evidence item',
+        status: 'pending',
+        startTime: null,
+        endTime: null,
+        verificationIntent: {
+          happy: [{ desc: 'direct evidence', type: 'logic', priority: 'must' }],
+          edge: [],
+          adversarial: [],
+        },
+      }],
+    });
+    const handlers = createChecklistHandlers({
+      store,
+      root,
+      scanRoot: join(root, 'packages/main'),
+    });
+    handlers.checklist_update({
+      storyId,
+      itemId: 'CHK-001',
+      verificationEvidence: [{
+        intentRef: 'CHK-001:happy:0',
+        kind: 'logic_test',
+        result: 'pass',
+        note: 'direct update evidence smoke',
+      }],
+    });
+    const evidence = new StoryStore(root).readChecklist(storyId).items[0].verificationEvidence?.[0];
+    assert.ok(evidence?.headHash, 'checklist_update evidence should capture headHash');
+    assert.ok(evidence?.materialHash, 'checklist_update evidence should capture materialHash');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+assertChecklistUpdateEvidenceGetsMaterialHash();
+
 console.log('✓ verification freshness smoke passed');

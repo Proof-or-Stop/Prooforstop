@@ -5,7 +5,7 @@
  *   - concept  / quality / test-coverage → baseline（永远开）
  *   - behavior             → story.riskSignals 命中 {state machine / guard / gate}
  *   - docs                 → understanding.touchpoints 含 .md 文件（兜底扫 git diff）
- *   - channel              → computeChannel(story, checklist, decision) === 'normal'
+ *   - channel LLM reviewer 已退役；normal-channel 由 validate --channel CLI gate 接管
  *
  * 设计说明（decision.json A1）：
  *   - 纯函数 computeActiveReviewers 供 canPassReview (CHK-002) / story-advance REVIEW echo 共用
@@ -26,7 +26,7 @@
  * @description
  *   Superpowers and reviewers can trigger workflow participation, but they do
  *   not define the workflow themselves: the baseline reviewers, risk-triggered
- *   behavior reviewer, docs reviewer, and normal-channel reviewer are computed
+ *   behavior reviewer, and docs reviewer are computed
  *   from shared workflow policy and story artifacts.
  * @changes
  *   - [CHK-001] Keep reviewer opt-in as policy-driven trigger logic
@@ -35,11 +35,10 @@
 
 import type { HandlerContext } from './context.js';
 import type { StoryInfo, ChecklistData, DecisionData, StoryEvent } from '../core/types.js';
-import { computeChannel } from '../core/workflow-policy.js';
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
 
 export interface ActiveReviewer {
-  /** reviewer 短名：concept / quality / test-coverage / behavior / docs / channel / forced name */
+  /** reviewer 短名：concept / quality / test-coverage / behavior / docs / forced name */
   name: string;
   /** 为什么启用：baseline / "riskSignal: <cats>" / "touchpoints .md" / "normal channel" / forced */
   reason: string;
@@ -51,11 +50,11 @@ export interface ActiveReviewer {
 const BEHAVIOR_TRIGGERS = ['state machine', 'guard', 'gate'];
 
 /**
- * 固定输出顺序（B-fdcf F-002）：baseline-first concept → quality → test-coverage → behavior → docs → channel。
+ * 固定输出顺序（B-fdcf F-002）：baseline-first concept → quality → test-coverage → behavior → docs。
  * CHK-001 userSees 声明的顺序与此一致，不可改为 alphabetical。forced 名称以及任何
  * 未知 reviewer 名追加在末尾（按插入顺序）。
  */
-const REVIEWER_ORDER: readonly string[] = ['concept', 'quality', 'test-coverage', 'behavior', 'docs', 'channel'];
+const REVIEWER_ORDER: readonly string[] = ['concept', 'quality', 'test-coverage', 'behavior', 'docs'];
 
 /**
  * 纯函数：按 story + checklist + decision 计算应启用的 reviewer 列表。
@@ -104,11 +103,8 @@ export function computeActiveReviewers(
     map.set('docs', { name: 'docs', reason: 'touchpoints .md' });
   }
 
-  // channel: 三档通道 === 'normal'（与 computeChannel 口径一致）
-  const channel = computeChannel(story, checklist, decision ?? undefined);
-  if (channel === 'normal') {
-    map.set('channel', { name: 'channel', reason: 'normal channel' });
-  }
+  // channel LLM reviewer 已退役；normal-channel 机械约束由 REVIEW→TEST 的
+  // `koala validate --channel --story=<id>` preflight 负责。
 
   // forced override：命令行 --forceReviewer=a,b,c 显式加挂
   // 同名 auto reviewer 会被 override 成 reason='forced' + forced=true

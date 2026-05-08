@@ -1,0 +1,68 @@
+{
+  "principles": [
+    "Worktree authority must be deterministic: active linked worktree wins for mutable story metadata.",
+    "Promised automation should run at the documented entrypoints or fail visibly.",
+    "Reviewer gates should require durable evidence without resurrecting retired LLM roles.",
+    "Freshness checks should track semantic material changes, not incidental metadata churn."
+  ],
+  "drivers": [
+    "SimCell field report shows repeated manual repair cost.",
+    "Current bugs can block DONE or create false success reports.",
+    "Fixes touch lifecycle gates, so regression tests must be narrow but explicit."
+  ],
+  "options": [
+    {
+      "name": "A: targeted wiring and authority guards",
+      "pros": [
+        "Small patch surface",
+        "Keeps current CLI and JSON shapes compatible",
+        "Can add smoke tasks for each regression"
+      ],
+      "cons": [
+        "Does not eliminate all main/worktree mirror duplication",
+        "Some legacy direct handler paths still need cautious compatibility"
+      ]
+    },
+    {
+      "name": "B: central metadata service rewrite",
+      "pros": [
+        "Could unify all metadata reads and writes long-term",
+        "Removes many classes of drift by construction"
+      ],
+      "cons": [
+        "Too large for this bug batch",
+        "High risk of breaking existing stories and fixtures",
+        "Would delay immediate SimCell workflow relief"
+      ]
+    }
+  ],
+  "chosen": "A: targeted wiring and authority guards",
+  "rationale": "选择 A，因为这些问题已经有明确根因和局部接线点，当前目标是快速恢复真实 workflow 可用性，同时用 smoke tests 固定行为。",
+  "preMortem": [
+    {
+      "scenario": "Authority guard redirects a command to the wrong linked worktree",
+      "trigger": "Story id exists in main and another registered worktree with stale metadata",
+      "consequence": "Checklist or review-pass writes still drift",
+      "mitigation": "Only resolve linked worktree by exact story branch and throw explicit cwd guidance for mutable commands when caller is outside it."
+    },
+    {
+      "scenario": "Cluster sync mutates findings during read-only-looking validate and surprises users",
+      "trigger": "validate/finding_list scans commit messages and writes findings.json",
+      "consequence": "Unexpected metadata diff appears",
+      "mitigation": "Document/implement noSync for validate and keep sync idempotent; finding_list sync matches existing CLAUDE.md promise."
+    },
+    {
+      "scenario": "Retiring channel reviewer weakens normal-channel checks",
+      "trigger": "Removing koala-review-channel from opt-in without preserving CLI gate",
+      "consequence": "Main-agent-written normal channel code slips through",
+      "mitigation": "Keep validate --channel as REVIEW→TEST preflight and improve its evidence sources instead of requiring reviewer pass."
+    },
+    {
+      "scenario": "Relaxed evidence freshness lets stale tests through",
+      "trigger": "Material hash too broad or absent on old evidence",
+      "consequence": "Real code changes no longer force evidence refresh",
+      "mitigation": "Use materialHash when present, continue treating material tree changes as stale, and ensure new write paths add materialHash."
+    }
+  ],
+  "timestamp": "2026-05-08T10:50:03.437Z"
+}
