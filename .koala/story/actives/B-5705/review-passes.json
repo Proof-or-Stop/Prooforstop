@@ -39,6 +39,38 @@
       "createdAt": "2026-05-08T23:38:29.418Z",
       "reviewRound": "2026-05-08T23:37:18.856Z",
       "_hash": "7bba37e7b740e5c3e540934a4b488316f6b5c40613a29f74aeb05a6cd78332d6"
+    },
+    {
+      "id": "B-5705:RP-006",
+      "agent": "koala-review-docs",
+      "note": "Re-reviewed F-003 on latest HEAD: CLAUDE.md and docs/guide-hooks.md now list .koala/activity.jsonl, docs/story/activity.jsonl, and docs/story/actives/*/activity.jsonl; hook code and smoke coverage match. No docs blocker remains.",
+      "createdAt": "2026-05-08T23:40:23.062Z",
+      "reviewRound": "2026-05-08T23:39:41.506Z",
+      "_hash": "8cfd174555759db0e17fb1fcc42099e89f64e3bee7988af164eebda993ff2c8e"
+    },
+    {
+      "id": "B-5705:RP-007",
+      "agent": "koala-review-concept",
+      "note": "concept review passed on latest HEAD f82ae2f: docs sync commit 55253a1 only updated CLAUDE.md and docs/guide-hooks.md to mention .koala/activity.jsonl, docs/story/activity.jsonl, and story-scoped docs/story/actives/*/activity.jsonl; hook code and smoke test already cover docs/story/actives/B-demo fresh Bash detail `koala session_brief` with silent output. Fixed-string scans found no stale first-session koala status or old issues-advisory wording outside intentional smoke forbidden-string assertions. No new concept residue or blocker found.",
+      "createdAt": "2026-05-08T23:40:39.379Z",
+      "reviewRound": "2026-05-08T23:39:41.506Z",
+      "_hash": "899b0d5cea7c03c3b992c2ee0068bd61a7a579be11ad860834eec768e6422963"
+    },
+    {
+      "id": "B-5705:RP-008",
+      "agent": "koala-review-quality",
+      "note": "quality re-review passed on latest HEAD: F-001 remains fixed; docs now describe .koala/activity.jsonl, docs/story/activity.jsonl, and story-scoped docs/story/actives/*/activity.jsonl matching session-brief-reminder.cjs. session-brief-prompt-sync-smoke passed, manual fresh/stale story-scoped heartbeat check behaved correctly, and evidence refresh/review metadata commits introduced no implementation or fail-fast catch blocker.",
+      "createdAt": "2026-05-08T23:40:44.884Z",
+      "reviewRound": "2026-05-08T23:39:41.506Z",
+      "_hash": "e391f52e7a2c5707ba68f227fbb244ebd4e003f1865c1f9e87567fb7e1dc5632"
+    },
+    {
+      "id": "B-5705:RP-009",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed on latest HEAD f82ae2f: koala validate ran at current HEAD and reports 9/9 verificationIntent coverage with 0 required missing; checklist has 9 must intents, 0 waivers; smoke evidence covers stale/fresh/legacy/story-scoped session_brief activity plus prompt/docs drift; verify_codex evidence remains adequate because 55253a1..HEAD changes only Koala story metadata, no Codex/Claude assets or code.",
+      "createdAt": "2026-05-08T23:40:53.077Z",
+      "reviewRound": "2026-05-08T23:39:41.506Z",
+      "_hash": "9c1dd1e388cd13534d2073b43adf70896aa7da482896a71f5ded554bdcbd6ffd"
     }
   ]
 }
