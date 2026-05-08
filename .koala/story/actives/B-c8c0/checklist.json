@@ -8,9 +8,9 @@
         "CLAUDE.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-08T11:44:46.154Z",
       "userSees": "`koala story_create --fromDraft=<draft>` returns a worktree path under `.worktrees/B-xxxx`, and running checklist/review-pass mutations from main for that active story fails with a clear `cd <worktree>` instruction instead of silently writing stale main metadata.",
       "files": {
         "modify": [
@@ -55,9 +55,9 @@
           "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
           "result": "pass",
           "note": "fromDraft CLI smoke creates worktree and records story.worktree metadata",
-          "headHash": "41a84cd41bcb7b3107b5f681c9314c0fa74b47de",
-          "materialHash": "5d01e054c96bee0576367f777c119c78827143dc5314c0c04fb0edc9507955be",
-          "timestamp": "2026-05-08T11:34:49.246Z"
+          "headHash": "21c61d0d01e2803c5f1acee8020d98cbf1945590",
+          "materialHash": "9fa6a2b5343641b87ae04c8c4a0a223b7d8e9c052f977a7bf8cd10ff7937615a",
+          "timestamp": "2026-05-08T11:44:38.461Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -65,9 +65,9 @@
           "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
           "result": "pass",
           "note": "worktree authority smoke rejects main cwd for active linked story mutations",
-          "headHash": "41a84cd41bcb7b3107b5f681c9314c0fa74b47de",
-          "materialHash": "5d01e054c96bee0576367f777c119c78827143dc5314c0c04fb0edc9507955be",
-          "timestamp": "2026-05-08T11:34:49.246Z"
+          "headHash": "21c61d0d01e2803c5f1acee8020d98cbf1945590",
+          "materialHash": "9fa6a2b5343641b87ae04c8c4a0a223b7d8e9c052f977a7bf8cd10ff7937615a",
+          "timestamp": "2026-05-08T11:44:38.461Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -75,9 +75,9 @@
           "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
           "result": "pass",
           "note": "worktree authority smoke confirms terminal DONE stories do not redirect",
-          "headHash": "41a84cd41bcb7b3107b5f681c9314c0fa74b47de",
-          "materialHash": "5d01e054c96bee0576367f777c119c78827143dc5314c0c04fb0edc9507955be",
-          "timestamp": "2026-05-08T11:34:49.246Z"
+          "headHash": "21c61d0d01e2803c5f1acee8020d98cbf1945590",
+          "materialHash": "9fa6a2b5343641b87ae04c8c4a0a223b7d8e9c052f977a7bf8cd10ff7937615a",
+          "timestamp": "2026-05-08T11:44:38.461Z"
         }
       ]
     },
@@ -88,9 +88,9 @@
       "relatedDocs": [
         "CLAUDE.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-08T11:44:46.293Z",
       "userSees": "After a commit message contains `Resolves: CL-001`, `koala finding_list --cluster` and `koala validate --story=B-xxxx --json` show the clustered findings resolved with `resolvedBy: CL-001@<sha7>` without manual `finding_resolve`.",
       "files": {
         "modify": [
@@ -133,9 +133,9 @@
           "command": "node packages/main/dist/tasks/cluster-sync-entrypoints-smoke.js",
           "result": "pass",
           "note": "cluster sync smoke proves finding_list applies Resolves CL tags before rendering",
-          "headHash": "41a84cd41bcb7b3107b5f681c9314c0fa74b47de",
-          "materialHash": "5d01e054c96bee0576367f777c119c78827143dc5314c0c04fb0edc9507955be",
-          "timestamp": "2026-05-08T11:34:49.246Z"
+          "headHash": "21c61d0d01e2803c5f1acee8020d98cbf1945590",
+          "materialHash": "9fa6a2b5343641b87ae04c8c4a0a223b7d8e9c052f977a7bf8cd10ff7937615a",
+          "timestamp": "2026-05-08T11:44:38.461Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -143,9 +143,9 @@
           "command": "node packages/main/dist/tasks/cluster-sync-entrypoints-smoke.js",
           "result": "pass",
           "note": "cluster sync smoke proves validate story syncs unless noSync is requested",
-          "headHash": "41a84cd41bcb7b3107b5f681c9314c0fa74b47de",
-          "materialHash": "5d01e054c96bee0576367f777c119c78827143dc5314c0c04fb0edc9507955be",
-          "timestamp": "2026-05-08T11:34:49.246Z"
+          "headHash": "21c61d0d01e2803c5f1acee8020d98cbf1945590",
+          "materialHash": "9fa6a2b5343641b87ae04c8c4a0a223b7d8e9c052f977a7bf8cd10ff7937615a",
+          "timestamp": "2026-05-08T11:44:38.461Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -153,9 +153,9 @@
           "command": "node packages/main/dist/tasks/cluster-sync-entrypoints-smoke.js",
           "result": "pass",
           "note": "cluster sync smoke exercises warning-safe entrypoints without crashing",
-          "headHash": "41a84cd41bcb7b3107b5f681c9314c0fa74b47de",
-          "materialHash": "5d01e054c96bee0576367f777c119c78827143dc5314c0c04fb0edc9507955be",
-          "timestamp": "2026-05-08T11:34:49.246Z"
+          "headHash": "21c61d0d01e2803c5f1acee8020d98cbf1945590",
+          "materialHash": "9fa6a2b5343641b87ae04c8c4a0a223b7d8e9c052f977a7bf8cd10ff7937615a",
+          "timestamp": "2026-05-08T11:44:38.461Z"
         }
       ]
     },
@@ -167,9 +167,9 @@
         "CLAUDE.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-08T11:44:46.437Z",
       "userSees": "`koala review_pass_set` either records a pass in the active worktree authority and returns the persisted RP id, or errors clearly; DONE cleanup no longer blocks on a stray main-copy `review-passes.json`.",
       "files": {
         "modify": [
@@ -212,9 +212,9 @@
           "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
           "result": "pass",
           "note": "review pass smoke proves concurrent review_pass_set writes persist durable passes",
-          "headHash": "41a84cd41bcb7b3107b5f681c9314c0fa74b47de",
-          "materialHash": "5d01e054c96bee0576367f777c119c78827143dc5314c0c04fb0edc9507955be",
-          "timestamp": "2026-05-08T11:34:49.246Z"
+          "headHash": "21c61d0d01e2803c5f1acee8020d98cbf1945590",
+          "materialHash": "9fa6a2b5343641b87ae04c8c4a0a223b7d8e9c052f977a7bf8cd10ff7937615a",
+          "timestamp": "2026-05-08T11:44:38.461Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -222,9 +222,9 @@
           "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
           "result": "pass",
           "note": "stray cleanup smoke proves review-passes json is whitelisted generated metadata",
-          "headHash": "41a84cd41bcb7b3107b5f681c9314c0fa74b47de",
-          "materialHash": "5d01e054c96bee0576367f777c119c78827143dc5314c0c04fb0edc9507955be",
-          "timestamp": "2026-05-08T11:34:49.246Z"
+          "headHash": "21c61d0d01e2803c5f1acee8020d98cbf1945590",
+          "materialHash": "9fa6a2b5343641b87ae04c8c4a0a223b7d8e9c052f977a7bf8cd10ff7937615a",
+          "timestamp": "2026-05-08T11:44:38.461Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -232,9 +232,9 @@
           "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
           "result": "pass",
           "note": "review pass handler now reads back persisted pass and refuses non durable success",
-          "headHash": "41a84cd41bcb7b3107b5f681c9314c0fa74b47de",
-          "materialHash": "5d01e054c96bee0576367f777c119c78827143dc5314c0c04fb0edc9507955be",
-          "timestamp": "2026-05-08T11:34:49.246Z"
+          "headHash": "21c61d0d01e2803c5f1acee8020d98cbf1945590",
+          "materialHash": "9fa6a2b5343641b87ae04c8c4a0a223b7d8e9c052f977a7bf8cd10ff7937615a",
+          "timestamp": "2026-05-08T11:44:38.461Z"
         }
       ]
     },
@@ -246,9 +246,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/test-intent-review.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-08T11:44:46.578Z",
       "userSees": "Evidence recorded through both `verification_evidence_add` and `checklist_update --verificationEvidence` contains material freshness data; metadata-only commits remain covered while real material changes still report stale.",
       "files": {
         "modify": [
@@ -291,9 +291,9 @@
           "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
           "result": "pass",
           "note": "freshness smoke proves direct checklist_update evidence gets headHash and materialHash",
-          "headHash": "41a84cd41bcb7b3107b5f681c9314c0fa74b47de",
-          "materialHash": "5d01e054c96bee0576367f777c119c78827143dc5314c0c04fb0edc9507955be",
-          "timestamp": "2026-05-08T11:34:49.246Z"
+          "headHash": "21c61d0d01e2803c5f1acee8020d98cbf1945590",
+          "materialHash": "9fa6a2b5343641b87ae04c8c4a0a223b7d8e9c052f977a7bf8cd10ff7937615a",
+          "timestamp": "2026-05-08T11:44:38.461Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -301,9 +301,9 @@
           "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
           "result": "pass",
           "note": "freshness smoke proves story metadata changes keep material hash evidence covered",
-          "headHash": "41a84cd41bcb7b3107b5f681c9314c0fa74b47de",
-          "materialHash": "5d01e054c96bee0576367f777c119c78827143dc5314c0c04fb0edc9507955be",
-          "timestamp": "2026-05-08T11:34:49.246Z"
+          "headHash": "21c61d0d01e2803c5f1acee8020d98cbf1945590",
+          "materialHash": "9fa6a2b5343641b87ae04c8c4a0a223b7d8e9c052f977a7bf8cd10ff7937615a",
+          "timestamp": "2026-05-08T11:44:38.461Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -311,9 +311,9 @@
           "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
           "result": "pass",
           "note": "freshness smoke proves material source config and test changes stale old evidence",
-          "headHash": "41a84cd41bcb7b3107b5f681c9314c0fa74b47de",
-          "materialHash": "5d01e054c96bee0576367f777c119c78827143dc5314c0c04fb0edc9507955be",
-          "timestamp": "2026-05-08T11:34:49.246Z"
+          "headHash": "21c61d0d01e2803c5f1acee8020d98cbf1945590",
+          "materialHash": "9fa6a2b5343641b87ae04c8c4a0a223b7d8e9c052f977a7bf8cd10ff7937615a",
+          "timestamp": "2026-05-08T11:44:38.461Z"
         }
       ]
     },
@@ -324,9 +324,9 @@
       "relatedDocs": [
         "CLAUDE.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-08T11:44:46.716Z",
       "userSees": "`koala story_advance --phase=REVIEW` lists concept/quality/test-coverage plus relevant docs/behavior reviewers, but no longer asks for `koala-review-channel`; `koala validate --channel` still enforces normal-channel commit/evidence rules.",
       "files": {
         "modify": [
@@ -371,9 +371,9 @@
           "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
           "note": "flow stability smoke proves retired channel reviewer is absent from opt in gates",
-          "headHash": "41a84cd41bcb7b3107b5f681c9314c0fa74b47de",
-          "materialHash": "5d01e054c96bee0576367f777c119c78827143dc5314c0c04fb0edc9507955be",
-          "timestamp": "2026-05-08T11:34:49.246Z"
+          "headHash": "21c61d0d01e2803c5f1acee8020d98cbf1945590",
+          "materialHash": "9fa6a2b5343641b87ae04c8c4a0a223b7d8e9c052f977a7bf8cd10ff7937615a",
+          "timestamp": "2026-05-08T11:44:38.461Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -381,9 +381,9 @@
           "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
           "note": "flow stability smoke proves direct implementer commit author can satisfy channel evidence fallback",
-          "headHash": "41a84cd41bcb7b3107b5f681c9314c0fa74b47de",
-          "materialHash": "5d01e054c96bee0576367f777c119c78827143dc5314c0c04fb0edc9507955be",
-          "timestamp": "2026-05-08T11:34:49.246Z"
+          "headHash": "21c61d0d01e2803c5f1acee8020d98cbf1945590",
+          "materialHash": "9fa6a2b5343641b87ae04c8c4a0a223b7d8e9c052f977a7bf8cd10ff7937615a",
+          "timestamp": "2026-05-08T11:44:38.461Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -391,9 +391,9 @@
           "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
           "note": "flow stability smoke still rejects main agent real code commits despite koala subject",
-          "headHash": "41a84cd41bcb7b3107b5f681c9314c0fa74b47de",
-          "materialHash": "5d01e054c96bee0576367f777c119c78827143dc5314c0c04fb0edc9507955be",
-          "timestamp": "2026-05-08T11:34:49.246Z"
+          "headHash": "21c61d0d01e2803c5f1acee8020d98cbf1945590",
+          "materialHash": "9fa6a2b5343641b87ae04c8c4a0a223b7d8e9c052f977a7bf8cd10ff7937615a",
+          "timestamp": "2026-05-08T11:44:38.461Z"
         }
       ]
     },
@@ -405,9 +405,9 @@
         "CLAUDE.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-08T11:44:46.856Z",
       "userSees": "`koala story_review` accepts touchpoints like `src/foo.ts (reason)` when `files.modify` contains `src/foo.ts`, reports excluded scope as info instead of an issue, and stale warnings stop repeating after an acknowledged long idle.",
       "files": {
         "modify": [
@@ -452,9 +452,9 @@
           "command": "node packages/main/dist/tasks/story-review-ergonomics-smoke.js",
           "result": "pass",
           "note": "story review ergonomics smoke proves touchpoint path prefixes are normalized",
-          "headHash": "41a84cd41bcb7b3107b5f681c9314c0fa74b47de",
-          "materialHash": "5d01e054c96bee0576367f777c119c78827143dc5314c0c04fb0edc9507955be",
-          "timestamp": "2026-05-08T11:34:49.246Z"
+          "headHash": "21c61d0d01e2803c5f1acee8020d98cbf1945590",
+          "materialHash": "9fa6a2b5343641b87ae04c8c4a0a223b7d8e9c052f977a7bf8cd10ff7937615a",
+          "timestamp": "2026-05-08T11:44:38.461Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -462,9 +462,9 @@
           "command": "node packages/main/dist/tasks/story-review-ergonomics-smoke.js",
           "result": "pass",
           "note": "story review ergonomics smoke proves PLAN checklist_add requires explicit audit reason",
-          "headHash": "41a84cd41bcb7b3107b5f681c9314c0fa74b47de",
-          "materialHash": "5d01e054c96bee0576367f777c119c78827143dc5314c0c04fb0edc9507955be",
-          "timestamp": "2026-05-08T11:34:49.246Z"
+          "headHash": "21c61d0d01e2803c5f1acee8020d98cbf1945590",
+          "materialHash": "9fa6a2b5343641b87ae04c8c4a0a223b7d8e9c052f977a7bf8cd10ff7937615a",
+          "timestamp": "2026-05-08T11:44:38.461Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
@@ -472,11 +472,73 @@
           "command": "node packages/main/dist/tasks/story-review-ergonomics-smoke.js",
           "result": "pass",
           "note": "story review ergonomics smoke proves scope excluded info does not inflate issue count",
-          "headHash": "41a84cd41bcb7b3107b5f681c9314c0fa74b47de",
-          "materialHash": "5d01e054c96bee0576367f777c119c78827143dc5314c0c04fb0edc9507955be",
-          "timestamp": "2026-05-08T11:34:49.246Z"
+          "headHash": "21c61d0d01e2803c5f1acee8020d98cbf1945590",
+          "materialHash": "9fa6a2b5343641b87ae04c8c4a0a223b7d8e9c052f977a7bf8cd10ff7937615a",
+          "timestamp": "2026-05-08T11:44:38.461Z"
         }
       ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-05-08T11:44:46.154Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "from-draft bootstrap and linked worktree authority covered by worktree-authority smoke",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-05-08T11:44:46.293Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "cluster auto-resolve entrypoints covered by cluster-sync-entrypoints smoke",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-05-08T11:44:46.437Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "review pass persistence and stray metadata cleanup covered by review-pass-discard smoke",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-05-08T11:44:46.578Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "material evidence freshness covered by verification-freshness smoke",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-05-08T11:44:46.716Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "retired channel reviewer routing and channel evidence covered by flow-stability smoke",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-05-08T11:44:46.856Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "plan audit, touchpoint matching, scope info, stale warning behavior covered by story-review-ergonomics smoke",
+      "agent": "main-agent"
     }
   ]
 }
