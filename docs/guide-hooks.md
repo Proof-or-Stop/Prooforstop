@@ -2,6 +2,36 @@
 
 koala 在每条命令的生命周期中提供 4 个事件点，允许在 `koala.config.json` 配置 shell hook 命令。灵感来自 Claude Code 的 PreToolUse / PostToolUse / SessionStart / Stop 机制，目的是把"agent 跑完命令后想做点别的事"从 koala 框架核心解耦出去。
 
+## Claude Code Prompt 提醒
+
+Koala 初始化会在 `.claude/settings.json` 合并一个 Claude Code `UserPromptSubmit` hook：
+
+```json
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(git -C \"$CLAUDE_PROJECT_DIR\" rev-parse --show-toplevel 2>/dev/null || echo \"$CLAUDE_PROJECT_DIR\")/.claude/hooks/session-brief-reminder.cjs\""
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+这个 hook 只做软提醒：它从 hook JSON 的 `cwd`、`CLAUDE_PROJECT_DIR` 或当前 cwd 定位仓库，读取 `.koala/activity.jsonl`，寻找最近一次 `session_brief` heartbeat。默认 60 分钟内视为 fresh 并保持静默；超过 60 分钟或没有 fresh 记录时，输出：
+
+```text
+建议先运行 koala session_brief 恢复现场
+```
+
+阈值可通过 `KOALA_SESSION_BRIEF_FRESH_MINUTES` 调整。malformed stdin、缺 activity 文件、单行解析失败等情况都零退出，不能阻塞用户 prompt。Claude Code hooks/settings 只属于 `.claude/`；Koala init 不会创建 `.Codex/hooks` 或 `.Codex/settings.json`。
+
 ## 适用场景
 
 - agent 跑完 `story_advance phase=DEV` 后自动 `git fetch origin main && git merge`

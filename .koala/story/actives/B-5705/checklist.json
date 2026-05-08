@@ -10,14 +10,17 @@
         "README.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
-      "userSees": "新 session 入口文档和 reviewer prompt 都提示先运行 session_brief，status 只作为工作中短入口保留。",
+      "status": "done",
+      "startTime": "2026-05-08T23:10:51.394Z",
+      "endTime": "2026-05-08T23:21:42.706Z",
+      "userSees": "用户在 CLAUDE.md 和 reviewer prompt 顶部看到：\"每次新 session 先 koala session_brief\"；CLI 迷路提示显示：\"跑 koala session_brief 看项目全貌\"。",
       "files": {
         "modify": [
           "CLAUDE.md",
           "packages/main/src/cli-prompts.ts",
+          "packages/main/templates/agents/*.md",
+          ".claude/agents/*.md",
+          ".Codex/agents/*.md",
           "packages/main/templates/agents/koala-evaluator.md",
           "packages/main/templates/agents/koala-implementer.md",
           "packages/main/templates/agents/koala-review-behavior.md",
@@ -57,14 +60,14 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "新 session / 恢复工作入口在 CLAUDE.md、模板和生成 prompt 中统一提示 session_brief",
+            "desc": "新 session / 恢复工作入口在 CLAUDE.md、CLI help/footer、模板和生成 prompt 中统一提示 session_brief",
             "type": "docs",
             "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "status 仍作为工作中快速恢复入口保留，但不再作为新 session 第一命令",
+            "desc": "status 仍作为工作中快速恢复入口保留，但 CLI help/footer 不再把 status 写成迷路时的唯一入口",
             "type": "docs",
             "priority": "must"
           }
@@ -76,7 +79,41 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts",
+          "command": "node packages/main/dist/tasks/session-brief-prompt-sync-smoke.js",
+          "result": "pass",
+          "note": "Smoke scans CLAUDE.md, CLI help/footer, templates, and generated prompts for stale first-session koala status wording and requires session_brief footer text.",
+          "headHash": "5743af69e9e63c42692db725843d252921e01cb8",
+          "materialHash": "6e99475f50b757580a5d1521e8e435c5613e071201baaca543dbca08b7128ace",
+          "timestamp": "2026-05-08T23:21:42.738Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts",
+          "command": "node packages/main/dist/tasks/session-brief-prompt-sync-smoke.js",
+          "result": "pass",
+          "note": "Smoke keeps status allowed only as an in-work quick status command while blocking first-session/lost-next-step status wording.",
+          "headHash": "5743af69e9e63c42692db725843d252921e01cb8",
+          "materialHash": "6e99475f50b757580a5d1521e8e435c5613e071201baaca543dbca08b7128ace",
+          "timestamp": "2026-05-08T23:21:42.763Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node bin/koala-codex.js verify_codex",
+          "result": "pass",
+          "note": "verify_codex passed after .Codex and .claude agent prompt mirror changes; only global fallback warning remains heartbeat-only.",
+          "headHash": "5743af69e9e63c42692db725843d252921e01cb8",
+          "materialHash": "6e99475f50b757580a5d1521e8e435c5613e071201baaca543dbca08b7128ace",
+          "timestamp": "2026-05-08T23:21:42.787Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -86,10 +123,10 @@
         "CLAUDE.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
-      "userSees": "INIT_CHECK 文档明确说明 high/critical reviewer issue 会阻塞推进，且与当前 machine/init-check 实现一致。",
+      "status": "done",
+      "startTime": "2026-05-08T23:10:54.069Z",
+      "endTime": "2026-05-08T23:21:50.538Z",
+      "userSees": "用户在 INIT_CHECK 文档段看到：\"critical/high issue 会阻塞 INIT_CHECK；medium/low 是 advisory\"，不再看到 high/critical 也是 advisory 的旧说法。",
       "files": {
         "modify": [
           "CLAUDE.md",
@@ -130,7 +167,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts",
+          "command": "node packages/main/dist/tasks/session-brief-prompt-sync-smoke.js",
+          "result": "pass",
+          "note": "Smoke requires CLAUDE.md and INIT_CHECK prompt sections to list missing/tampered/missing required agent/high-critical blockers.",
+          "headHash": "5743af69e9e63c42692db725843d252921e01cb8",
+          "materialHash": "6e99475f50b757580a5d1521e8e435c5613e071201baaca543dbca08b7128ace",
+          "timestamp": "2026-05-08T23:21:50.566Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts",
+          "command": "node packages/main/dist/tasks/session-brief-prompt-sync-smoke.js",
+          "result": "pass",
+          "note": "Smoke rejects old issues advisory/gate ignores severity wording while allowing medium/low advisory wording.",
+          "headHash": "5743af69e9e63c42692db725843d252921e01cb8",
+          "materialHash": "6e99475f50b757580a5d1521e8e435c5613e071201baaca543dbca08b7128ace",
+          "timestamp": "2026-05-08T23:21:50.592Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+          "command": "node packages/main/dist/tasks/init-check-required-agents-smoke.js",
+          "result": "pass",
+          "note": "Existing smoke proves high issue and missing required reviewer block INIT_CHECK while medium issue can advance.",
+          "headHash": "5743af69e9e63c42692db725843d252921e01cb8",
+          "materialHash": "6e99475f50b757580a5d1521e8e435c5613e071201baaca543dbca08b7128ace",
+          "timestamp": "2026-05-08T23:21:50.617Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -141,10 +213,10 @@
         "AGENTS.md",
         "CLAUDE.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
-      "userSees": "Claude Code 在用户 prompt 入口可获得 session_brief 软提醒；最近已跑过 session_brief 时不重复打扰。",
+      "status": "done",
+      "startTime": "2026-05-08T23:10:58.277Z",
+      "endTime": "2026-05-08T23:21:58.224Z",
+      "userSees": "用户发 prompt 时若超过 60 分钟没跑 session_brief，会看到：\"建议先运行 koala session_brief 恢复现场\"；刚跑过则没有额外提示。",
       "files": {
         "modify": [
           ".claude/settings.json",
@@ -162,14 +234,14 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "UserPromptSubmit hook 在无近期 session_brief heartbeat 时输出软提醒",
+            "desc": "UserPromptSubmit hook 在 .koala/activity.jsonl 中没有 60 分钟内 session_brief heartbeat 时输出软提醒",
             "type": "logic",
             "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "近期已有 session_brief heartbeat 时 hook 静默，避免每条 prompt 都打扰",
+            "desc": "60 分钟内已有 session_brief heartbeat 时 hook 静默，避免每条 prompt 都打扰",
             "type": "logic",
             "priority": "must"
           }
@@ -181,7 +253,52 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts",
+          "command": "node packages/main/dist/tasks/session-brief-prompt-sync-smoke.js",
+          "result": "pass",
+          "note": "Smoke executes the UserPromptSubmit hook with stale session_brief activity and observes the reminder output.",
+          "headHash": "5743af69e9e63c42692db725843d252921e01cb8",
+          "materialHash": "6e99475f50b757580a5d1521e8e435c5613e071201baaca543dbca08b7128ace",
+          "timestamp": "2026-05-08T23:21:58.248Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts",
+          "command": "node packages/main/dist/tasks/session-brief-prompt-sync-smoke.js",
+          "result": "pass",
+          "note": "Smoke executes the hook with a fresh session_brief activity and verifies it stays silent.",
+          "headHash": "5743af69e9e63c42692db725843d252921e01cb8",
+          "materialHash": "6e99475f50b757580a5d1521e8e435c5613e071201baaca543dbca08b7128ace",
+          "timestamp": "2026-05-08T23:21:58.273Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts",
+          "command": "node packages/main/dist/tasks/session-brief-prompt-sync-smoke.js",
+          "result": "pass",
+          "note": "Smoke verifies malformed input exits 0 silently, missing activity exits 0, and cli-init.ts contains UserPromptSubmit plus session-brief-reminder.cjs.",
+          "headHash": "5743af69e9e63c42692db725843d252921e01cb8",
+          "materialHash": "6e99475f50b757580a5d1521e8e435c5613e071201baaca543dbca08b7128ace",
+          "timestamp": "2026-05-08T23:21:58.297Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node bin/koala-codex.js verify_codex",
+          "result": "pass",
+          "note": "verify_codex passed and confirmed no .Codex/hooks or .Codex/settings.json were created.",
+          "headHash": "5743af69e9e63c42692db725843d252921e01cb8",
+          "materialHash": "6e99475f50b757580a5d1521e8e435c5613e071201baaca543dbca08b7128ace",
+          "timestamp": "2026-05-08T23:21:58.321Z"
+        }
+      ]
     }
   ]
 }

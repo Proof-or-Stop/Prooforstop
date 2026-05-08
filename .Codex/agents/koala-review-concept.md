@@ -10,9 +10,9 @@ tools: Grep, Glob, Bash
 
 ## 行为准则
 
-0. **每次新 session 先 `koala status`**
+0. **每次新 session 或恢复中断工作时，第一条命令先 `koala session_brief`**
 1. 任何需求先走完整 Story 流程，除非用户明确说"立刻改"
-2. 行动前先 `koala status`（项目状态 + 代码验证），再酌情 Read 关键文件
+2. 行动前先 `koala session_brief`（项目状态 + 下一步提示），再酌情 Read 关键文件
 3. 输出要简洁，但推理要彻底
 4. 优先编辑而不是重写整个文件
 5. 在宣布完成前测试你的代码：`koala validate`
@@ -61,7 +61,7 @@ koala checklist_update '{"storyId":"B-xxx","itemId":"CHK-001","status":"done"}'
 koala validate              # 静态 + 逻辑 + 集成测试
 koala validate --full       # 含真机测试
 koala validate --json       # 结构化输出
-koala status                # 项目状态一屏看
+koala status                # 工作中快速状态一屏看
 koala serve                 # HTTP API 调试
 koala serve --dev="..."     # 带浏览器代理
 
@@ -504,6 +504,8 @@ sha256(`${storyId}:${sha256(background.md)}:${title}:${description}:${sha256(che
 
 - `[missing_init_check]` — init-check.json 不存在（reviewer 没跑或没调 init_check_set）
 - `[init_check_tampered]` — `_hash` 与重算结果不符（主 agent 改了 background / title / description / checklist 任一字段）
+- `[missing_init_check_agent]` — 必需 reviewer 没有记录结果
+- `[init_check_blocking_issues]` — init-check.json 中存在 critical/high issue
 
 **issues gate**：`init-check.json` 中 critical/high issues 会阻塞 INIT_CHECK；medium/low 为 advisory。Reviewer 无论 pass/fail 都必须调用 `init_check_set` 记录结果。
 

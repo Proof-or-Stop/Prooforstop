@@ -1,0 +1,32 @@
+{
+  "task": "同步 Koala session_brief 入口提醒、INIT_CHECK 文档口径和 Claude prompt hook 提醒体验。",
+  "outcome": "用户打开新会话或恢复中断工作时，文档与 agent prompt 都明确提示先跑 session_brief；Claude Code 收到 prompt 时若 60 分钟内没有 session_brief heartbeat，会看到一条软提醒；INIT_CHECK 文档说明 high/critical issue 会阻塞，与实际 gate 一致。",
+  "facts": [
+    "AGENTS.md 已要求新 session 第一命令为 koala session_brief。",
+    "CLAUDE.md 和已生成 agent prompt 仍有多处旧 koala status 入口口径。",
+    "machine.ts/init-check.ts 当前已把缺 reviewer、签名失配、high/critical issue 作为 INIT_CHECK blocker。",
+    ".claude/settings.json 当前只配置 PostToolUse/PostToolUseFailure。",
+    "Codex runtime 不应生成 .Codex/hooks 或 .Codex/settings.json；触及 .Codex agent prompt 后必须跑 verify_codex。"
+  ],
+  "constraints": [
+    "不得直接读写 docs/story 或 tests/fixtures 底层 JSON；story/checklist 操作用 koala CLI。",
+    "保持 Codex adapter 边界，不创建 .Codex hooks/settings。",
+    "hook 必须软提醒且零退出，不能阻塞 prompt。",
+    "status 仍应作为工作中短入口保留，不能全仓粗暴删除。",
+    "修改 .Codex/.claude agent prompt 后必须运行 node bin/koala-codex.js verify_codex。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "CLAUDE.md",
+    "docs/guide-hooks.md",
+    "packages/main/src/cli-prompts.ts",
+    "packages/main/src/cli-init.ts",
+    ".claude/settings.json",
+    ".claude/hooks/session-brief-reminder.cjs",
+    "packages/main/templates/agents/*.md",
+    ".claude/agents/*.md",
+    ".Codex/agents/*.md",
+    "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts"
+  ],
+  "timestamp": "2026-05-08T23:06:24.526Z"
+}

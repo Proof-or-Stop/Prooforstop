@@ -3,9 +3,9 @@
 
 ## 行为准则
 
-0. **每次新 session 先 `koala status`**
+0. **每次新 session 或恢复中断工作时，第一条命令先 `koala session_brief`**
 1. 任何需求先走完整 Story 流程，除非用户明确说"立刻改"
-2. 行动前先 `koala status`（项目状态 + 代码验证），再酌情 Read 关键文件
+2. 行动前先 `koala session_brief`（项目状态 + 下一步提示），再酌情 Read 关键文件
 3. 输出要简洁，但推理要彻底
 4. 优先编辑而不是重写整个文件
 5. 在宣布完成前测试你的代码：`koala validate`
@@ -54,7 +54,7 @@ koala checklist_update '{"storyId":"B-xxx","itemId":"CHK-001","status":"done"}'
 koala validate              # 静态 + 逻辑 + 集成测试
 koala validate --full       # 含真机测试
 koala validate --json       # 结构化输出
-koala status                # 项目状态一屏看
+koala status                # 工作中快速状态一屏看
 koala serve                 # HTTP API 调试
 koala serve --dev="..."     # 带浏览器代理
 
@@ -62,6 +62,16 @@ koala serve --dev="..."     # 带浏览器代理
 koala understanding_set '{"storyId":"B-xxx","task":"...","outcome":"...","facts":[],"constraints":[],"unknowns":[],"touchpoints":[]}'
 koala decision_set '{"storyId":"B-xxx","principles":[],"drivers":[],"options":[],"chosen":"A","rationale":"..."}'
 ```
+
+## Claude Prompt Hook
+
+`.claude/settings.json` 安装了 `UserPromptSubmit` hook：每次 Claude Code 收到用户 prompt 时，会读取仓库 `.koala/activity.jsonl` 里的最近 `session_brief` heartbeat。默认 60 分钟内跑过 `koala session_brief` 就静默；超过 60 分钟、没有记录或没有 activity 文件时，只输出软提醒：
+
+```text
+建议先运行 koala session_brief 恢复现场
+```
+
+阈值可用 `KOALA_SESSION_BRIEF_FRESH_MINUTES` 配置。hook 对 malformed stdin、缺文件、解析失败都零退出，不阻塞 prompt。Claude hook/settings 只放在 `.claude/`，不要创建 `.Codex/hooks` 或 `.Codex/settings.json`。
 
 ## 框架自省 audit 配置
 
@@ -497,8 +507,10 @@ sha256(`${storyId}:${sha256(background.md)}:${title}:${description}:${sha256(che
 
 - `[missing_init_check]` — init-check.json 不存在（reviewer 没跑或没调 init_check_set）
 - `[init_check_tampered]` — `_hash` 与重算结果不符（主 agent 改了 background / title / description / checklist 任一字段）
+- `[missing_init_check_agent]` — 必需 reviewer 没有记录结果
+- `[init_check_blocking_issues]` — init-check.json 中存在 critical/high issue
 
-**issues advisory**：`init-check.json` 的 `issues` 字段不阻塞推进（gate 不读 severity 决定通过与否），但 INIT_CHECK 推进成功消息会 echo critical issues 数量警告。Reviewer 模板顶部规约：发现 critical 级 issues 时**拒绝**调 `init_check_set`，先在 stdout 输出 issue list 让主 agent 改 background 后重启 reviewer（防止主 agent 强推）。
+**issues gate**：`init-check.json` 中 critical/high issues 会阻塞 INIT_CHECK；medium/low 为 advisory。Reviewer 无论 pass/fail 都必须调用 `init_check_set` 记录结果。
 
 **反自豁免设计**：EXP-001（[exp-001.md](docs/story/actives/B-e71f/experiments/exp-001.md)）证明 subagent vs 主 agent 在 Bash CLI 中**无可机械区分的差异**（同 PPID / 同 env / 同 shell snapshot），所以 `init_check_set` **不**校验 `agentId`（仅记录用），反自豁免完全靠：(1) 签名机制 + (2) reviewer 模板 fresh-context fence + (3) CLAUDE.md 行为规约（同 B-ed3e scope-check 已落地架构）。
 
