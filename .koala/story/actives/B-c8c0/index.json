@@ -4,7 +4,7 @@
   "title": "Fix Koala framework workflow regressions from SimCell field report",
   "description": "Fix confirmed Koala framework bugs around from-draft worktree bootstrap, cluster auto-resolve, multi-worktree metadata authority, review-pass persistence, evidence freshness, DONE stray metadata cleanup, reviewer routing, channel dispatch evidence, checklist freezing, touchpoint matching, stale warnings, and scope-excluded noise.",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "source": "user",
   "keywords": [
@@ -18,7 +18,7 @@
   ],
   "createdAt": "2026-05-08T10:49:02.602Z",
   "startedAt": "2026-05-08T10:49:02.602Z",
-  "endedAt": null,
+  "endedAt": "2026-05-08T12:28:44.072Z",
   "events": [
     {
       "phase": "INIT",
@@ -163,12 +163,15 @@
       "branch": "story/B-c8c0",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-05-08T12:28:44.072Z",
+      "branch": "story/B-c8c0",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-c8c0",
-    "branch": "story/B-c8c0",
-    "createdAt": "2026-05-08T10:49:16.858Z"
-  },
   "currentReviewRound": "2026-05-08T12:21:26.633Z"
 }
