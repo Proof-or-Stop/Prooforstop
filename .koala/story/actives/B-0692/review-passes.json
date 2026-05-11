@@ -15,6 +15,30 @@
       "createdAt": "2026-05-11T14:41:05.796Z",
       "reviewRound": "2026-05-11T14:38:36.836Z",
       "_hash": "6bd6c68aa0635706ec2068c6d7d9572c768c8936599a7b43b901b32b3913c924"
+    },
+    {
+      "id": "B-0692:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "reviewed review fixes for F-001/F-002: process-fact contract now asserts truth_nav/truth_extract/doctor controlled mutation levels, and review-pass-discard smoke asserts reviewer item dispatch uses review-only prompt without git commit or checklist_update. Ran npm run build, npm run test:process-fact-contract, and npm --prefix packages/main run test:review-pass-discard-smoke after build; no blocker found.",
+      "createdAt": "2026-05-11T14:49:12.552Z",
+      "reviewRound": "2026-05-11T14:47:13.053Z",
+      "_hash": "672d2b84b78bad17e1495d092e44173e709cf5c8a7814127bbab9057e80330e2"
+    },
+    {
+      "id": "B-0692:RP-004",
+      "agent": "koala-review-concept",
+      "note": "reviewed B-0692 review fixes: registry and contract boundary remains self-consistent; lifecycle runtime gates are not driven by the registry.",
+      "createdAt": "2026-05-11T14:49:30.306Z",
+      "reviewRound": "2026-05-11T14:47:13.053Z",
+      "_hash": "23b46bbaf40c48d2ad0adc5ddc4b1c8dc091364943b763ffafc4c8fcfe7f8d05"
+    },
+    {
+      "id": "B-0692:RP-005",
+      "agent": "koala-review-quality",
+      "note": "packages/main/src/core/process-fact-levels.ts:91 truth_nav, :94 truth_extract, and :101 doctor are L2 with contract assertions in scripts/verify-process-fact-contract.mjs:47 and :541; packages/main/src/handlers/story-dispatch.ts:336 emits reviewer-only item dispatch and packages/main/src/tasks/review-pass-discard-smoke.ts:627 asserts no implementer prompt, git commit, or checklist_update. Verified npm run test:process-fact-contract, npm --prefix packages/main run test:review-pass-discard-smoke, and npm run build passed.",
+      "createdAt": "2026-05-11T14:50:05.239Z",
+      "reviewRound": "2026-05-11T14:47:13.053Z",
+      "_hash": "f613b72726f78ee0f341e7177373d0ccefab830b37361ede85b64eaf53fbcf36"
     }
   ]
 }
