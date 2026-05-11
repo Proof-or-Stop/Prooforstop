@@ -23,34 +23,29 @@ const reviewPassReviewerPrompts = new Set([
   'koala-review-quality.md',
   'koala-review-test-coverage.md',
 ]);
-const processFactCliInventory = new Set([
-  'story_advance',
-  'review_pass_set',
-  'finding_add',
-  'finding_list',
-  'finding_resolve',
-  'finding_dismiss',
-  'finding_cluster',
-  'verification_evidence_add',
-  'verification_evidence_batch_add',
-  'verification_evidence_refresh_stale',
-  'init_check_set',
-  'scope_check_save',
-  'scope_question_resolve',
-  'delivery_check_set',
-  'delivery_waiver_add',
-  'draft_check_set',
-]);
+const processFactLevelRegistryPath = 'packages/main/src/core/process-fact-levels.ts';
+const requiredRuntimeEntries = [
+  'runtime:phase_tools_malformed_allow_all',
+  'runtime:test_auto_recursive_skip',
+  'runtime:validate_fallback_discovery',
+];
 const processFactCommandNamePatterns = [
   /^story_advance$/,
+  /^story_review$/,
   /^review_pass_set$/,
-  /^finding_/,
+  /^finding_(add|resolve|dismiss|cluster)$/,
   /^verification_evidence_/,
   /_check_set$/,
   /^init_check_set$/,
-  /^scope_/,
-  /^delivery_/,
-  /^draft_check_set$/,
+  /^scope_(check_save|question_resolve)$/,
+  /^delivery_(check_set|waiver_add)$/,
+  /^draft_(check_set|issue_resolve)$/,
+  /^summary_set$/,
+  /^evaluate_save$/,
+  /^test_add$/,
+  /^test_story$/,
+  /^validate$/,
+  /^checklist_update$/,
 ];
 
 const passOnlyFindingAddPatterns = [
@@ -314,9 +309,95 @@ function assertSyntheticAdversarialChecks() {
 
   const syntheticCli = "  { name: 'surprise_check_set', description: '保存新的流程确认', schema: {} },";
   assert(
-    findUninventoriedProcessFactCommands(syntheticCli, new Set()).includes('surprise_check_set'),
+    findUninventoriedProcessFactCommands(syntheticCli).includes('surprise_check_set'),
     'synthetic new process fact handler should fail until inventoried',
   );
+}
+
+function extractExportedArrayBody(text, exportName) {
+  const marker = `export const ${exportName} = [`;
+  const start = text.indexOf(marker);
+  assert(start !== -1, `${processFactLevelRegistryPath} should export ${exportName}`);
+  if (start === -1) return '';
+
+  let depth = 0;
+  let inString = false;
+  let quote = '';
+  let escaped = false;
+  const arrayStart = start + marker.length - 1;
+
+  for (let index = arrayStart; index < text.length; index += 1) {
+    const char = text[index];
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+    if (inString) {
+      if (char === '\\') escaped = true;
+      else if (char === quote) inString = false;
+      continue;
+    }
+    if (char === '"' || char === "'" || char === '`') {
+      inString = true;
+      quote = char;
+      continue;
+    }
+    if (char === '[') {
+      depth += 1;
+      continue;
+    }
+    if (char === ']') {
+      depth -= 1;
+      if (depth === 0) return text.slice(arrayStart + 1, index);
+    }
+  }
+
+  fail(`${processFactLevelRegistryPath} ${exportName} array should close`);
+  return '';
+}
+
+let cachedProcessFactLevelEntries = null;
+
+function parseProcessFactLevelRegistry() {
+  if (cachedProcessFactLevelEntries) return cachedProcessFactLevelEntries;
+
+  const text = read(processFactLevelRegistryPath);
+  const body = extractExportedArrayBody(text, 'PROCESS_FACT_LEVELS');
+  const entryPattern = /\{\s*name:\s*'([^']+)'\s*,\s*level:\s*'(L[0-4])'\s*,\s*category:\s*'([^']+)'\s*,\s*owner:\s*'([^']+)'\s*,\s*rationale:\s*'([^']+)'(?:\s*,\s*gateConsumer:\s*'([^']+)')?\s*,?\s*\}/g;
+  const entries = [...body.matchAll(entryPattern)].map(match => ({
+    name: match[1],
+    level: match[2],
+    category: match[3],
+    owner: match[4],
+    rationale: match[5],
+    gateConsumer: match[6],
+  }));
+  const declaredObjectCount = [...body.matchAll(/\{\s*name:\s*'/g)].length;
+  assert(entries.length === declaredObjectCount, `${processFactLevelRegistryPath}: every registry entry must declare name/level/category/owner/rationale in parseable order`);
+  assert(entries.length > 0, `${processFactLevelRegistryPath}: registry should not be empty`);
+
+  cachedProcessFactLevelEntries = entries;
+  return entries;
+}
+
+function parseProcessFactLevelDefinitions() {
+  const text = read(processFactLevelRegistryPath);
+  const body = extractExportedArrayBody(text, 'PROCESS_FACT_LEVEL_DEFINITIONS');
+  return [...body.matchAll(/level:\s*'(L[0-4])'/g)].map(match => match[1]);
+}
+
+function duplicateNames(values) {
+  const seen = new Set();
+  const duplicates = new Set();
+  for (const value of values) {
+    if (seen.has(value)) duplicates.add(value);
+    seen.add(value);
+  }
+  return [...duplicates].sort();
+}
+
+function processFactRegistryMap() {
+  return new Map(parseProcessFactLevelRegistry().map(entry => [entry.name, entry]));
 }
 
 function extractCliToolNames(cliText) {
@@ -330,7 +411,7 @@ function isProcessFactCommandName(commandName) {
   return processFactCommandNamePatterns.some(pattern => pattern.test(commandName));
 }
 
-function findUninventoriedProcessFactCommands(cliText, inventory = processFactCliInventory) {
+function findUninventoriedProcessFactCommands(cliText, inventory = processFactRegistryMap()) {
   return extractCliToolNames(cliText)
     .filter(isProcessFactCommandName)
     .filter(commandName => !inventory.has(commandName));
@@ -338,11 +419,85 @@ function findUninventoriedProcessFactCommands(cliText, inventory = processFactCl
 
 function assertProcessFactCommandInventory() {
   const cliText = read('packages/main/src/cli-engine.ts');
+  const cliToolNames = extractCliToolNames(cliText);
+  const cliToolNameSet = new Set(cliToolNames);
+  const registryEntries = parseProcessFactLevelRegistry();
+  const registry = new Map(registryEntries.map(entry => [entry.name, entry]));
+
+  const definitionLevels = new Set(parseProcessFactLevelDefinitions());
+  for (const level of ['L0', 'L1', 'L2', 'L3', 'L4']) {
+    assert(definitionLevels.has(level), `${processFactLevelRegistryPath}: missing ${level} definition`);
+  }
+
+  const duplicateCliNames = duplicateNames(cliToolNames);
+  assert(
+    duplicateCliNames.length === 0,
+    `CLI schema: duplicate MAIN_TOOLS command(s): ${duplicateCliNames.join(', ')}`,
+  );
+
+  const duplicateRegistryNames = duplicateNames(registryEntries.map(entry => entry.name));
+  assert(
+    duplicateRegistryNames.length === 0,
+    `${processFactLevelRegistryPath}: duplicate registry entries: ${duplicateRegistryNames.join(', ')}`,
+  );
+
+  const missingCliEntries = cliToolNames.filter(commandName => !registry.has(commandName));
+  assert(
+    missingCliEntries.length === 0,
+    `${processFactLevelRegistryPath}: MAIN_TOOLS command(s) missing from registry: ${missingCliEntries.join(', ')}`,
+  );
+
+  const unknownCliEntries = registryEntries
+    .filter(entry => !entry.name.startsWith('runtime:'))
+    .map(entry => entry.name)
+    .filter(name => !cliToolNameSet.has(name));
+  assert(
+    unknownCliEntries.length === 0,
+    `${processFactLevelRegistryPath}: CLI registry entry not present in MAIN_TOOLS: ${unknownCliEntries.join(', ')}`,
+  );
+
   const missing = findUninventoriedProcessFactCommands(cliText);
   assert(
     missing.length === 0,
-    `CLI schema: process fact command(s) missing from inventory: ${missing.join(', ')}`,
+    `CLI schema: process fact command(s) missing from registry: ${missing.join(', ')}`,
   );
+
+  const l0ProcessFactCandidates = cliToolNames
+    .filter(isProcessFactCommandName)
+    .filter(commandName => registry.get(commandName)?.level === 'L0');
+  assert(
+    l0ProcessFactCandidates.length === 0,
+    `${processFactLevelRegistryPath}: process-fact candidate command(s) cannot be L0: ${l0ProcessFactCandidates.join(', ')}`,
+  );
+
+  const l4WithoutGate = registryEntries
+    .filter(entry => entry.level === 'L4')
+    .filter(entry => !entry.gateConsumer || entry.gateConsumer.trim().length === 0)
+    .map(entry => entry.name);
+  assert(
+    l4WithoutGate.length === 0,
+    `${processFactLevelRegistryPath}: L4 entry must declare gateConsumer: ${l4WithoutGate.join(', ')}`,
+  );
+
+  const missingRuntimeEntries = requiredRuntimeEntries.filter(name => !registry.has(name));
+  assert(
+    missingRuntimeEntries.length === 0,
+    `${processFactLevelRegistryPath}: runtime behavior entry missing: ${missingRuntimeEntries.join(', ')}`,
+  );
+}
+
+function printProcessFactLevelRegistrySummary() {
+  const entries = parseProcessFactLevelRegistry();
+  const cliCount = entries.filter(entry => !entry.name.startsWith('runtime:')).length;
+  const runtimeCount = entries.length - cliCount;
+  const levelCounts = new Map();
+  for (const level of ['L0', 'L1', 'L2', 'L3', 'L4']) levelCounts.set(level, 0);
+  for (const entry of entries) levelCounts.set(entry.level, (levelCounts.get(entry.level) || 0) + 1);
+
+  console.log('');
+  console.log('Process Fact Level Registry');
+  console.log(`- entries: ${entries.length} (${cliCount} CLI, ${runtimeCount} runtime)`);
+  console.log(`- levels: ${[...levelCounts.entries()].map(([level, count]) => `${level}=${count}`).join(', ')}`);
 }
 
 function assertFilePatterns(entryName, relPath, patterns) {
@@ -529,6 +684,7 @@ for (const dir of promptDirs) {
 comparePromptSemantics(promptMap);
 assertSyntheticAdversarialChecks();
 assertProcessFactCommandInventory();
+printProcessFactLevelRegistrySummary();
 
 console.log(`Prompt drift scan: ${reviewerPromptCount} reviewer prompt files checked`);
 if (warnings.length) {

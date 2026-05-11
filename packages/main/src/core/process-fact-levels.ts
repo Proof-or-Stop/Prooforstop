@@ -1,0 +1,142 @@
+export type ProcessFactLevel = 'L0' | 'L1' | 'L2' | 'L3' | 'L4';
+
+export interface ProcessFactLevelDefinition {
+  level: ProcessFactLevel;
+  title: string;
+  description: string;
+}
+
+export interface ProcessFactLevelEntry {
+  name: string;
+  level: ProcessFactLevel;
+  category: string;
+  owner: string;
+  rationale: string;
+  gateConsumer?: string;
+}
+
+export const PROCESS_FACT_LEVEL_DEFINITIONS = [
+  {
+    level: 'L0',
+    title: 'Read-only and reporting',
+    description: 'Commands that only read state, report status, dispatch prompts, or expose help-like views.',
+  },
+  {
+    level: 'L1',
+    title: 'Schema, advisory, config, and fallback management',
+    description: 'Commands that shape workflow inputs or configuration but are not themselves gate evidence.',
+  },
+  {
+    level: 'L2',
+    title: 'Controlled mutation or runtime normalization',
+    description: 'Commands and runtime behaviors that mutate workflow support state or reject unsafe runtime paths.',
+  },
+  {
+    level: 'L3',
+    title: 'Durable artifact or signed evidence',
+    description: 'Commands that write durable evidence or signed artifacts not directly consumed by a lifecycle gate.',
+  },
+  {
+    level: 'L4',
+    title: 'Lifecycle gate consumed fact',
+    description: 'Commands that write or transition facts consumed by lifecycle gates; every entry declares gateConsumer.',
+  },
+] as const satisfies readonly ProcessFactLevelDefinition[];
+
+export const PROCESS_FACT_LEVELS = [
+  { name: 'story_create', level: 'L1', category: 'story', owner: 'handlers/story-create', rationale: 'Creates the initial story envelope and schema-normalized inputs before gate evidence exists.' },
+  { name: 'story_advance', level: 'L4', category: 'lifecycle', owner: 'handlers/story-advance', rationale: 'Moves lifecycle phase and invokes phase guards before writing the transition.', gateConsumer: 'storyMachine phase guards and story_advance preflight gates' },
+  { name: 'story_update', level: 'L2', category: 'story', owner: 'handlers/story', rationale: 'Mutates story metadata under CLI schema control without serving as gate evidence.' },
+  { name: 'story_get', level: 'L0', category: 'story-read', owner: 'handlers/story-query', rationale: 'Reads one story and does not persist process facts.' },
+  { name: 'story_list', level: 'L0', category: 'story-read', owner: 'handlers/story-query', rationale: 'Lists stories and does not persist process facts.' },
+  { name: 'story_reconcile', level: 'L2', category: 'story-maintenance', owner: 'handlers/story-reconcile', rationale: 'Repairs terminal residue and zombie state through controlled mutation.' },
+  { name: 'story_discard', level: 'L2', category: 'story-maintenance', owner: 'handlers/story-discard', rationale: 'Marks a story discarded and may clean branches or metadata under explicit arguments.' },
+  { name: 'story_draft', level: 'L1', category: 'draft', owner: 'handlers/story-draft', rationale: 'Creates pre-story draft inputs before formal lifecycle facts are established.' },
+  { name: 'story_draft_list', level: 'L0', category: 'draft-read', owner: 'handlers/story-draft', rationale: 'Lists drafts and does not mutate process state.' },
+  { name: 'story_draft_discard', level: 'L2', category: 'draft', owner: 'handlers/story-draft', rationale: 'Deletes draft state through an explicit maintenance command.' },
+  { name: 'draft_check_set', level: 'L3', category: 'draft-check', owner: 'handlers/draft-check', rationale: 'Writes a signed draft review artifact used before formal story creation.' },
+  { name: 'draft_issue_resolve', level: 'L3', category: 'draft-check', owner: 'handlers/draft-check', rationale: 'Adds durable resolution text to a draft check artifact.' },
+  { name: 'story_review', level: 'L4', category: 'plan-review', owner: 'handlers/story-review', rationale: 'Writes the signed PLAN review result consumed before DEV can start.', gateConsumer: 'storyMachine.canStartDev PLAN to DEV gate' },
+  { name: 'story_review_dismiss', level: 'L2', category: 'plan-review', owner: 'handlers/story-review', rationale: 'Dismisses a risk signal with an audit reason but is not the review gate receipt.' },
+  { name: 'testintent_handoff', level: 'L1', category: 'handoff', owner: 'handlers/testintent-handoff', rationale: 'Generates reviewer handoff context without persisting gate evidence.' },
+  { name: 'checklist_get', level: 'L0', category: 'checklist-read', owner: 'handlers/checklist', rationale: 'Reads checklist state without changing process facts.' },
+  { name: 'checklist_add', level: 'L2', category: 'checklist', owner: 'handlers/checklist', rationale: 'Mutates checklist structure under schema and phase controls.' },
+  { name: 'checklist_remove', level: 'L2', category: 'checklist', owner: 'handlers/checklist', rationale: 'Removes a checklist item only with disposition and justification.' },
+  { name: 'checklist_update', level: 'L4', category: 'checklist', owner: 'handlers/checklist', rationale: 'Updates item completion and may carry evidence consumed by DEV to REVIEW gates.', gateConsumer: 'storyMachine.checklistAllDone DEV to REVIEW gate' },
+  { name: 'verification_evidence_add', level: 'L4', category: 'verification-evidence', owner: 'handlers/checklist', rationale: 'Writes verification evidence consumed by checklist coverage and freshness gates.', gateConsumer: 'storyMachine.checklistAllDone and validate verification coverage' },
+  { name: 'verification_evidence_batch_add', level: 'L4', category: 'verification-evidence', owner: 'handlers/checklist', rationale: 'Batch-writes verification evidence consumed by checklist coverage and freshness gates.', gateConsumer: 'storyMachine.checklistAllDone and validate verification coverage' },
+  { name: 'verification_evidence_refresh_stale', level: 'L4', category: 'verification-evidence', owner: 'handlers/checklist', rationale: 'Refreshes evidence hashes used by stale evidence gate checks.', gateConsumer: 'validate verification freshness gate' },
+  { name: 'light_review', level: 'L1', category: 'review-advisory', owner: 'handlers/light-review', rationale: 'Records lightweight review notes and does not satisfy lifecycle gates.' },
+  { name: 'review_pass_set', level: 'L4', category: 'review-evidence', owner: 'handlers/finding', rationale: 'Writes a signed no-blocker reviewer receipt consumed by REVIEW to TEST.', gateConsumer: 'storyMachine.canPassReview REVIEW to TEST gate' },
+  { name: 'understanding_set', level: 'L1', category: 'planning-context', owner: 'handlers/understanding', rationale: 'Stores planning context used for review guidance and reviewer selection.' },
+  { name: 'understanding_get', level: 'L0', category: 'planning-context-read', owner: 'handlers/understanding', rationale: 'Reads the understanding snapshot without mutation.' },
+  { name: 'decision_set', level: 'L1', category: 'planning-context', owner: 'handlers/decision', rationale: 'Stores structured decision context for review guidance before hard evidence.' },
+  { name: 'decision_get', level: 'L0', category: 'planning-context-read', owner: 'handlers/decision', rationale: 'Reads the decision snapshot without mutation.' },
+  { name: 'summary_set', level: 'L4', category: 'done-summary', owner: 'handlers/summary', rationale: 'Writes DONE summary fields checked by DONE preflight policy.', gateConsumer: 'story_advance DONE summary checklist' },
+  { name: 'summary_get', level: 'L0', category: 'done-summary-read', owner: 'handlers/summary', rationale: 'Reads summary state without mutation.' },
+  { name: 'bug_report', level: 'L2', category: 'bug', owner: 'handlers/bug', rationale: 'Creates defect tracking state that is controlled workflow mutation, not signed gate evidence.' },
+  { name: 'bug_update', level: 'L2', category: 'bug', owner: 'handlers/bug', rationale: 'Updates defect tracking status with optional evidence but remains operational bug state.' },
+  { name: 'bug_list', level: 'L0', category: 'bug-read', owner: 'handlers/bug', rationale: 'Reads bug state without mutation.' },
+  { name: 'bug_analyze', level: 'L0', category: 'bug-read', owner: 'handlers/bug', rationale: 'Reports aggregate bug quality without mutation.' },
+  { name: 'test_add', level: 'L4', category: 'test-evidence', owner: 'handlers/test', rationale: 'Writes test-evidence.json consumed by DONE guards.', gateConsumer: 'storyMachine.canFinish DONE gate' },
+  { name: 'test_list', level: 'L0', category: 'test-evidence-read', owner: 'handlers/test', rationale: 'Reads the latest test evidence snapshot without mutation.' },
+  { name: 'fixture_get', level: 'L0', category: 'fixture-read', owner: 'handlers/fixture', rationale: 'Reads fixture cases without mutation.' },
+  { name: 'fixture_update', level: 'L2', category: 'fixture', owner: 'handlers/fixture', rationale: 'Replaces fixture cases through controlled maintenance mutation.' },
+  { name: 'fixture_batch_add', level: 'L2', category: 'fixture', owner: 'handlers/fixture', rationale: 'Adds fixture cases and chain metadata through controlled mutation.' },
+  { name: 'test_auto', level: 'L2', category: 'test-runtime', owner: 'handlers/test-auto', rationale: 'Runs fixture automation and contains runtime safety behavior outside direct gate evidence writes.' },
+  { name: 'test_story', level: 'L4', category: 'test-evidence', owner: 'handlers/test-story', rationale: 'Runs story-scoped fixtures and writes test evidence consumed by DONE.', gateConsumer: 'storyMachine.canFinish DONE gate' },
+  { name: 'test_fixture', level: 'L2', category: 'test-runtime', owner: 'handlers/test-fixture', rationale: 'Runs a selected fixture or chain without being a lifecycle receipt by itself.' },
+  { name: 'task_coverage', level: 'L1', category: 'coverage-advisory', owner: 'handlers/task-coverage', rationale: 'Checks annotation coverage and reports advisory coverage gaps.' },
+  { name: 'truth_scan', level: 'L0', category: 'truth-read', owner: 'handlers/truth', rationale: 'Scans truth sources and reports extracted facts without workflow mutation.' },
+  { name: 'truth_nav', level: 'L0', category: 'truth-read', owner: 'handlers/truth', rationale: 'Generates truth source navigation output without workflow mutation.' },
+  { name: 'truth_analyze', level: 'L0', category: 'truth-read', owner: 'handlers/truth', rationale: 'Reports truth-source ambiguity without workflow mutation.' },
+  { name: 'truth_to_story', level: 'L0', category: 'truth-read', owner: 'handlers/truth', rationale: 'Reports candidate stories from truth sources without creating process facts.' },
+  { name: 'truth_extract', level: 'L0', category: 'truth-read', owner: 'handlers/truth', rationale: 'Extracts requirement text for reporting without lifecycle gate facts.' },
+  { name: 'gap_analyze', level: 'L0', category: 'truth-read', owner: 'handlers/gap', rationale: 'Reports truth versus implementation gaps without mutation.' },
+  { name: 'convergence_check', level: 'L0', category: 'truth-read', owner: 'handlers/convergence', rationale: 'Reports convergence status without mutation.' },
+  { name: 'dashboard', level: 'L0', category: 'status', owner: 'handlers/dashboard', rationale: 'Displays live project status and does not persist process facts.' },
+  { name: 'session_brief', level: 'L0', category: 'status', owner: 'handlers/session', rationale: 'Reports current story status and inferred next step without mutation.' },
+  { name: 'next', level: 'L0', category: 'status', owner: 'handlers/session', rationale: 'Reports the next step without mutation.' },
+  { name: 'aux_doc_list', level: 'L0', category: 'docs-read', owner: 'handlers/aux-doc-list', rationale: 'Lists documentation paths for planning without mutation.' },
+  { name: 'doctor', level: 'L0', category: 'health-read', owner: 'handlers/doctor', rationale: 'Reports health issues and orphan state unless explicit repair is requested.' },
+  { name: 'verify_codex', level: 'L4', category: 'adapter-evidence', owner: 'handlers/verify-codex', rationale: 'Writes Codex adapter verification evidence consumed by adapter gates.', gateConsumer: 'Codex adapter REVIEW and DONE evidence gate' },
+  { name: 'audit', level: 'L2', category: 'audit', owner: 'handlers/audit', rationale: 'Performs framework self-audit and may write audit findings or reports.' },
+  { name: 'validate', level: 'L4', category: 'validation', owner: 'handlers/verifier', rationale: 'Runs validation and writes verifier evidence consumed by TEST and DONE flows.', gateConsumer: 'story_advance TEST and DONE validation gate' },
+  { name: 'status', level: 'L0', category: 'status', owner: 'handlers/status', rationale: 'Reports project status without persisting process facts.' },
+  { name: 'serve', level: 'L1', category: 'runtime-service', owner: 'handlers/serve', rationale: 'Starts a debug service that supports validation but does not itself write gate evidence.' },
+  { name: 'evaluate', level: 'L0', category: 'evaluation-read', owner: 'handlers/evaluate', rationale: 'Returns evaluator instructions and target context without persisting evidence.' },
+  { name: 'evaluate_save', level: 'L4', category: 'evaluation-evidence', owner: 'handlers/evaluate', rationale: 'Writes eval-evidence.json consumed by DONE policy for browser projects.', gateConsumer: 'story_advance DONE evaluator evidence gate' },
+  { name: 'finding_add', level: 'L4', category: 'finding', owner: 'handlers/finding', rationale: 'Writes a signed reviewer finding consumed as blocker evidence.', gateConsumer: 'storyMachine.canPassReview REVIEW to TEST gate' },
+  { name: 'finding_list', level: 'L0', category: 'finding-read', owner: 'handlers/finding', rationale: 'Reads findings and optional clusters without mutation.' },
+  { name: 'finding_resolve', level: 'L4', category: 'finding', owner: 'handlers/finding', rationale: 'Marks a finding resolved, changing blocker state consumed by REVIEW gates.', gateConsumer: 'storyMachine.canPassReview REVIEW to TEST gate' },
+  { name: 'finding_dismiss', level: 'L4', category: 'finding', owner: 'handlers/finding', rationale: 'Dismisses a finding with reason, changing blocker state consumed by REVIEW gates.', gateConsumer: 'storyMachine.canPassReview REVIEW to TEST gate' },
+  { name: 'finding_cluster', level: 'L2', category: 'finding', owner: 'handlers/finding', rationale: 'Maintains reviewer finding clusters without directly satisfying gate evidence.' },
+  { name: 'init_check_set', level: 'L4', category: 'init-check', owner: 'handlers/init-check', rationale: 'Writes signed init-check.json consumed by INIT to INIT_CHECK.', gateConsumer: 'storyMachine.canEnterInitCheck INIT to INIT_CHECK gate' },
+  { name: 'delivery_check_set', level: 'L4', category: 'delivery-check', owner: 'handlers/delivery-check', rationale: 'Writes signed delivery-check.json consumed by DONE.', gateConsumer: 'storyMachine.canFinish DONE gate' },
+  { name: 'delivery_waiver_add', level: 'L4', category: 'delivery-check', owner: 'handlers/delivery-check', rationale: 'Adds waiver data and resigns delivery-check facts consumed by DONE.', gateConsumer: 'storyMachine.canFinish DONE gate' },
+  { name: 'scope_check_save', level: 'L4', category: 'scope-check', owner: 'handlers/scope-check', rationale: 'Writes signed scope-check.json consumed by PLAN review.', gateConsumer: 'story_review scope-check gate' },
+  { name: 'scope_question_resolve', level: 'L4', category: 'scope-check', owner: 'handlers/scope-question-resolve', rationale: 'Resolves scope open questions consumed by PLAN review.', gateConsumer: 'story_review open question gate' },
+  { name: 'story_dispatch', level: 'L0', category: 'dispatch', owner: 'handlers/story-dispatch', rationale: 'Generates implementer prompt text without mutation.' },
+  { name: 'finding_dispatch', level: 'L0', category: 'dispatch', owner: 'handlers/story-dispatch', rationale: 'Generates deprecated finding repair prompt text without mutation.' },
+  { name: 'dispatch', level: 'L0', category: 'dispatch', owner: 'handlers/story-dispatch', rationale: 'Generates unified subagent prompt text without mutation.' },
+  { name: 'background_set', level: 'L1', category: 'background', owner: 'handlers/background', rationale: 'Writes planning background prose before it becomes signed gate evidence.' },
+  { name: 'background_append', level: 'L1', category: 'background', owner: 'handlers/background', rationale: 'Appends planning background prose before it becomes signed gate evidence.' },
+  { name: 'background_get', level: 'L0', category: 'background-read', owner: 'handlers/background', rationale: 'Reads background prose without mutation.' },
+  { name: 'plan_set', level: 'L1', category: 'plan', owner: 'handlers/plan', rationale: 'Writes implementation plan prose used for coordination, not direct gate evidence.' },
+  { name: 'plan_get', level: 'L0', category: 'plan-read', owner: 'handlers/plan', rationale: 'Reads plan prose without mutation.' },
+  { name: 'reviewer_list', level: 'L0', category: 'reviewer-read', owner: 'handlers/reviewer-list', rationale: 'Computes active reviewers from current facts without mutation.' },
+  { name: 'workflow_set', level: 'L1', category: 'workflow-config', owner: 'core/config', rationale: 'Changes workflow profile configuration that influences later gates.' },
+  { name: 'workflow_show', level: 'L0', category: 'workflow-config-read', owner: 'core/config', rationale: 'Reads workflow profile configuration without mutation.' },
+  { name: 'workflow_explain', level: 'L0', category: 'workflow-config-read', owner: 'core/config', rationale: 'Explains effective workflow profile without mutation.' },
+  { name: 'runtime:phase_tools_malformed_allow_all', level: 'L1', category: 'runtime-behavior', owner: 'core/config', rationale: 'Malformed phase tool configuration falls back to allow-all as advisory config behavior.' },
+  { name: 'runtime:test_auto_recursive_skip', level: 'L2', category: 'runtime-behavior', owner: 'handlers/test-auto', rationale: 'Runtime guard skips recursive test_auto execution to avoid destructive reentry.' },
+  { name: 'runtime:validate_fallback_discovery', level: 'L1', category: 'runtime-behavior', owner: 'handlers/verifier', rationale: 'Validation command discovery falls back when explicit config is missing.' },
+] as const satisfies readonly ProcessFactLevelEntry[];
+
+export const PROCESS_FACT_LEVEL_BY_NAME: Record<string, ProcessFactLevelEntry> = Object.fromEntries(
+  PROCESS_FACT_LEVELS.map((entry) => [entry.name, entry]),
+) as Record<string, ProcessFactLevelEntry>;
+
+export function getProcessFactLevelEntry(name: string): ProcessFactLevelEntry | undefined {
+  return PROCESS_FACT_LEVEL_BY_NAME[name];
+}
