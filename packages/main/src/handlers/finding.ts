@@ -10,6 +10,13 @@ import { signFinding, signReviewPass } from '../core/finding-verify.js';
 import { computeProcessMetrics } from '../core/process-metrics.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
 
+const CANONICAL_FINDING_CATEGORIES = ['happy', 'edge', 'adversarial', 'missing'] as const;
+const LEGACY_FINDING_CATEGORIES = ['cleanup', 'doc-promise-undelivered', 'doc-code-drift', 'spec-boundary'] as const;
+const KNOWN_FINDING_CATEGORIES = new Set<string>([
+  ...CANONICAL_FINDING_CATEGORIES,
+  ...LEGACY_FINDING_CATEGORIES,
+]);
+
 function sleepSync(ms: number): void {
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
 }
@@ -48,12 +55,16 @@ function isPassOnlyReviewRecord(finding: Pick<Finding, 'desc' | 'severity' | 'ag
     /\b(consistency check\s+passed|consistency check\s+pass|consistency passed)\b/i,
     /\b(?:docs?|documentation)\s+(?:consistency\s+)?(?:check\s+)?passed\b/i,
     /\b(?:test\s+coverage|coverage|concept|quality|channel)?\s*review\s+passed\b/i,
+    /\bno\s+findings?\b/i,
+    /\b(?:all\s+)?(?:checks?|scan|audit)\s+passed\b/i,
+    /\bPASS(?:ED)?\b/,
     /\bno\s+concept\s+(?:changes?|removals?|deletions?|replacements?)\b/i,
     /\bno\s+(?:(?:docs?|documentation)\s+)?(?:drift|inconsistenc(?:y|ies)|mismatch)(?:\s+found)?\b/i,
     /(?:未发现|没有|无)(?:文档)?(?:不一致|漂移|错位|缺少|遗漏)/,
     /(?:本次)?无概念(?:变更|删除|替换)/,
     /文档一致性检查通过/,
     /一致性检查通过/,
+    /检查通过/,
     /(?:极速|快速)通道.*(?:主 agent 自写|main agent).*?(?:合规|允许|符合规则)/,
     /退化模式.*(?:主 agent|main agent).*?(?:合规|允许|符合规则)/,
   ];
@@ -75,7 +86,13 @@ function normalizeFindingForList(finding: Finding): Finding {
 }
 
 function normalizeFindingCategory(category: string): Finding['category'] {
-  if (['cleanup', 'doc-promise-undelivered', 'doc-code-drift', 'spec-boundary'].includes(category)) {
+  if (!KNOWN_FINDING_CATEGORIES.has(category)) {
+    throw new Error(
+      `finding_add: category must be one of ${CANONICAL_FINDING_CATEGORIES.join('|')} ` +
+      `(legacy compatibility: ${LEGACY_FINDING_CATEGORIES.join('|')})`,
+    );
+  }
+  if ((LEGACY_FINDING_CATEGORIES as readonly string[]).includes(category)) {
     return 'missing';
   }
   return category as Finding['category'];

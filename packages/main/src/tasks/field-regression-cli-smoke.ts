@@ -12,6 +12,7 @@ import { StoryStore } from '../core/store.js';
 import type { ChecklistData, DeliveryCheckData, StoryInfo, StorySummaryData, TestEvidenceData } from '../core/types.js';
 import { getRuntimeActivityLogPath } from '../core/activity-log.js';
 import { signDeliveryCheck } from '../handlers/delivery-check.js';
+import { createFindingHandlers } from '../handlers/finding.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
@@ -355,6 +356,36 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
     assert.match(channelPassOutput, /Review pass B-passonly:RP-004 recorded by koala-review-channel/);
     assert.equal(store.readFindings(storyId).findings.length, 0, 'channel pass-only finding_add should not write findings.json');
 
+    const noFindingsOutput = await runKoala(root, 'finding_add', {
+      storyId,
+      desc: 'No findings after checking process facts.',
+      severity: 'low',
+      category: 'happy',
+      agent: 'koala-review-quality',
+    });
+    assert.match(noFindingsOutput, /Review pass B-passonly:RP-005 recorded by koala-review-quality/);
+    assert.equal(store.readFindings(storyId).findings.length, 0, 'no findings wording should convert to review pass');
+
+    const genericPassOutput = await runKoala(root, 'finding_add', {
+      storyId,
+      desc: '检查通过：流程事实入口都有 hardcoded fallback。',
+      severity: 'low',
+      category: 'happy',
+      agent: 'koala-review-behavior',
+    });
+    assert.match(genericPassOutput, /Review pass B-passonly:RP-006 recorded by koala-review-behavior/);
+    assert.equal(store.readFindings(storyId).findings.length, 0, 'generic check-pass wording should convert to review pass');
+
+    const explicitPassOutput = await runKoala(root, 'finding_add', {
+      storyId,
+      desc: 'PASS: schema and handler fallback are aligned.',
+      severity: 'low',
+      category: 'happy',
+      agent: 'koala-review-docs',
+    });
+    assert.match(explicitPassOutput, /Review pass B-passonly:RP-007 recorded by koala-review-docs/);
+    assert.equal(store.readFindings(storyId).findings.length, 0, 'explicit PASS wording should convert to review pass');
+
     const findingOutput = await runKoala(root, 'finding_add', {
       storyId,
       desc: '文档一致性检查通过但是 README 示例命令失败，需修正文档。',
@@ -390,6 +421,18 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
     const docPromiseFindings = store.readFindings(storyId).findings;
     assert.equal(docPromiseFindings.length, 3);
     assert.equal(docPromiseFindings[2].category, 'missing');
+
+    assert.throws(
+      () => createFindingHandlers({ store, root, scanRoot: join(root, 'packages/main') }).finding_add({
+        storyId,
+        desc: 'novel category should be rejected by handler fallback.',
+        severity: 'medium',
+        category: 'docs',
+        agent: 'koala-review-quality',
+      }),
+      /category must be one of happy\|edge\|adversarial\|missing/,
+      'unknown finding category should be rejected even when bypassing CLI schema',
+    );
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

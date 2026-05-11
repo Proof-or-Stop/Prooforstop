@@ -630,6 +630,18 @@ checklist + plan.md 写完后必须 `story_review` 通过（issueCount=0）才�
 检查内容：item 间交叉场景遗漏、Machine 边界完整性（happy/edge/adversarial）、真相源未覆盖的约束。
 正常通道额外检查（主 agent 手动）：plan.md 是否覆盖所有 checklist item、DependsOn 是否有环、每个 item 是否声明了 Files 和 Verify。（当前无框架自动检查，后续按需加 `plan_review` CLI）
 
+## 流程事实双层契约
+
+流程事实需要 prompt guidance + hardcoded CLI/handler/gate fallback 两层。Prompt 告诉 agent 应该调用哪个命令、如何表达范围；代码入口负责最终判定、归一、签名、拒绝和 gate 消费。任何会改变流程状态或审计事实的口径，不能只停在 prompt 里。
+
+范围只限流程事实：phase / state transition、pass / no-issue confirmations、finding category / severity / role / agent、review pass、verificationEvidence、init check、scope check、delivery check、REVIEW / TEST / DONE gate artifact。普通解释性 prose、背景说明、设计 rationale 不属于流程事实，除非被 CLI 或 gate 当作证据读取。
+
+执行规则：
+- 无 finding / no blocker / 检查通过 这类 reviewer 结论必须用 `review_pass_set` 记录；如果 reviewer 误用 pass-only `finding_add`，handler 必须转换为 review pass。
+- `finding_add` 的 category 只接受当前 canonical `happy|edge|adversarial|missing`，已知 legacy `cleanup|doc-promise-undelivered|doc-code-drift|spec-boundary` 只作为兼容输入归一为 `missing`，不能作为 active prompt 示例继续传播。
+- Gate 消费结构化事实：签名、hash、verificationEvidence、review pass、init/scope/delivery check 和 validate evidence。不要让 gate 从普通文本“通过/无问题”推断流程事实。
+- 改 reviewer prompt、CLI schema、handler 或 gate 时，运行 `npm run test:process-fact-contract`，确认 prompt 没漂移且 process fact inventory 仍能证明硬兜底存在。
+
 ## Handler 编码约定
 
 **约定**：凡 Zod schema 有 `min` / `max` / `enum` / 正则 约束，handler 入口和所有消费该字段的 gate / fn 必须在 runtime 再校验一次（不是只靠 Zod）。
