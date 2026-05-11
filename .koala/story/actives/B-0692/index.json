@@ -4,7 +4,7 @@
   "title": "统一流程事实硬度分级配置表",
   "description": "为 Koala 的状态、流程、验证、执行类流程事实建立 L0-L4 分级配置表，并让流程事实 contract test 从配置表推导命令覆盖，避免 prompt 约束和硬编码兜底继续分散漂移。",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "DEV",
   "priority": "high",
   "riskSignals": [
     {
@@ -29,6 +29,22 @@
       "action": "advance",
       "timestamp": "2026-05-11T14:25:05.306Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-05-11T14:25:09.629Z",
+      "branch": "story/B-0692",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-11T14:28:52.684Z",
+      "branch": "story/B-0692",
       "user": "Harmonygo",
       "agent": "main"
     }
