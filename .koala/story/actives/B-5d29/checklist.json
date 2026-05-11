@@ -64,9 +64,9 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "CLAUDE.md, AGENTS.md, story-lifecycle, and koala-review prompts now state Process Fact Contract: prompt guides, CLI/handler/gate decides.",
-          "headHash": "4e369c0cc28ca37623f68be1f3ffdcd152aa20ff",
-          "materialHash": "f9702d303ae1ae8aef0d5ddb6342c8436594a84d71f2c544ca6bde1c39e04c9d",
-          "timestamp": "2026-05-11T13:33:50.124Z"
+          "headHash": "5c46c1c559fe7b95962a7f3da874826d72bcd766",
+          "materialHash": "c4ddbb4c8a36627dbc372e2eee64f042171624caeed2f17cd4df64cf0362d501",
+          "timestamp": "2026-05-11T13:44:00.636Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -76,9 +76,9 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "Verifier output declares scope is process facts only and out-of-scope ordinary explanatory prose; script passes with that scoped rule.",
-          "headHash": "4e369c0cc28ca37623f68be1f3ffdcd152aa20ff",
-          "materialHash": "f9702d303ae1ae8aef0d5ddb6342c8436594a84d71f2c544ca6bde1c39e04c9d",
-          "timestamp": "2026-05-11T13:33:50.124Z"
+          "headHash": "5c46c1c559fe7b95962a7f3da874826d72bcd766",
+          "materialHash": "c4ddbb4c8a36627dbc372e2eee64f042171624caeed2f17cd4df64cf0362d501",
+          "timestamp": "2026-05-11T13:44:00.636Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -88,9 +88,9 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "Synthetic adversarial checks reject pass-only finding_add prompts and no-finding prompts without review_pass_set.",
-          "headHash": "4e369c0cc28ca37623f68be1f3ffdcd152aa20ff",
-          "materialHash": "f9702d303ae1ae8aef0d5ddb6342c8436594a84d71f2c544ca6bde1c39e04c9d",
-          "timestamp": "2026-05-11T13:33:50.124Z"
+          "headHash": "5c46c1c559fe7b95962a7f3da874826d72bcd766",
+          "materialHash": "c4ddbb4c8a36627dbc372e2eee64f042171624caeed2f17cd4df64cf0362d501",
+          "timestamp": "2026-05-11T13:44:00.636Z"
         }
       ]
     },
@@ -150,9 +150,9 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "Script scanned templates, .claude, and .Codex reviewer prompts and reported Process fact contract verified.",
-          "headHash": "4e369c0cc28ca37623f68be1f3ffdcd152aa20ff",
-          "materialHash": "f9702d303ae1ae8aef0d5ddb6342c8436594a84d71f2c544ca6bde1c39e04c9d",
-          "timestamp": "2026-05-11T13:33:50.124Z"
+          "headHash": "5c46c1c559fe7b95962a7f3da874826d72bcd766",
+          "materialHash": "c4ddbb4c8a36627dbc372e2eee64f042171624caeed2f17cd4df64cf0362d501",
+          "timestamp": "2026-05-11T13:44:00.637Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -162,9 +162,9 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "Scanner allows canonical finding categories and keeps known legacy categories only as compatibility text, not active finding_add examples.",
-          "headHash": "4e369c0cc28ca37623f68be1f3ffdcd152aa20ff",
-          "materialHash": "f9702d303ae1ae8aef0d5ddb6342c8436594a84d71f2c544ca6bde1c39e04c9d",
-          "timestamp": "2026-05-11T13:33:50.124Z"
+          "headHash": "5c46c1c559fe7b95962a7f3da874826d72bcd766",
+          "materialHash": "c4ddbb4c8a36627dbc372e2eee64f042171624caeed2f17cd4df64cf0362d501",
+          "timestamp": "2026-05-11T13:44:00.637Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -174,9 +174,9 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "Synthetic illegal category and active legacy category prompt cases are asserted to fail inside the verifier.",
-          "headHash": "4e369c0cc28ca37623f68be1f3ffdcd152aa20ff",
-          "materialHash": "f9702d303ae1ae8aef0d5ddb6342c8436594a84d71f2c544ca6bde1c39e04c9d",
-          "timestamp": "2026-05-11T13:33:50.124Z"
+          "headHash": "5c46c1c559fe7b95962a7f3da874826d72bcd766",
+          "materialHash": "c4ddbb4c8a36627dbc372e2eee64f042171624caeed2f17cd4df64cf0362d501",
+          "timestamp": "2026-05-11T13:44:00.637Z"
         }
       ]
     },
@@ -235,9 +235,9 @@
           "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
           "result": "pass",
           "note": "Field regression smoke verifies pass-only reviewer finding_add routes to review pass without writing findings.json.",
-          "headHash": "4e369c0cc28ca37623f68be1f3ffdcd152aa20ff",
-          "materialHash": "f9702d303ae1ae8aef0d5ddb6342c8436594a84d71f2c544ca6bde1c39e04c9d",
-          "timestamp": "2026-05-11T13:33:50.124Z"
+          "headHash": "5c46c1c559fe7b95962a7f3da874826d72bcd766",
+          "materialHash": "c4ddbb4c8a36627dbc372e2eee64f042171624caeed2f17cd4df64cf0362d501",
+          "timestamp": "2026-05-11T13:44:00.637Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -247,9 +247,9 @@
           "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
           "result": "pass",
           "note": "Field regression smoke verifies known legacy categories normalize to missing and preserve findings.",
-          "headHash": "4e369c0cc28ca37623f68be1f3ffdcd152aa20ff",
-          "materialHash": "f9702d303ae1ae8aef0d5ddb6342c8436594a84d71f2c544ca6bde1c39e04c9d",
-          "timestamp": "2026-05-11T13:33:50.124Z"
+          "headHash": "5c46c1c559fe7b95962a7f3da874826d72bcd766",
+          "materialHash": "c4ddbb4c8a36627dbc372e2eee64f042171624caeed2f17cd4df64cf0362d501",
+          "timestamp": "2026-05-11T13:44:00.637Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -259,9 +259,9 @@
           "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
           "result": "pass",
           "note": "Field regression smoke verifies ambiguous pass wording with failure semantics remains a finding and unknown runtime category is rejected.",
-          "headHash": "4e369c0cc28ca37623f68be1f3ffdcd152aa20ff",
-          "materialHash": "f9702d303ae1ae8aef0d5ddb6342c8436594a84d71f2c544ca6bde1c39e04c9d",
-          "timestamp": "2026-05-11T13:33:50.124Z"
+          "headHash": "5c46c1c559fe7b95962a7f3da874826d72bcd766",
+          "materialHash": "c4ddbb4c8a36627dbc372e2eee64f042171624caeed2f17cd4df64cf0362d501",
+          "timestamp": "2026-05-11T13:44:00.637Z"
         }
       ]
     },
@@ -333,9 +333,9 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "Process Fact Inventory output covers phase/review/finding/evidence/init/scope/delivery gates and CLI schema.",
-          "headHash": "4e369c0cc28ca37623f68be1f3ffdcd152aa20ff",
-          "materialHash": "f9702d303ae1ae8aef0d5ddb6342c8436594a84d71f2c544ca6bde1c39e04c9d",
-          "timestamp": "2026-05-11T13:33:50.124Z"
+          "headHash": "5c46c1c559fe7b95962a7f3da874826d72bcd766",
+          "materialHash": "c4ddbb4c8a36627dbc372e2eee64f042171624caeed2f17cd4df64cf0362d501",
+          "timestamp": "2026-05-11T13:44:00.637Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -345,9 +345,9 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "Inventory assertions distinguish hard gates, signatures, normalization, rejection, and compatibility warnings instead of treating unknown entries as covered.",
-          "headHash": "4e369c0cc28ca37623f68be1f3ffdcd152aa20ff",
-          "materialHash": "f9702d303ae1ae8aef0d5ddb6342c8436594a84d71f2c544ca6bde1c39e04c9d",
-          "timestamp": "2026-05-11T13:33:50.124Z"
+          "headHash": "5c46c1c559fe7b95962a7f3da874826d72bcd766",
+          "materialHash": "c4ddbb4c8a36627dbc372e2eee64f042171624caeed2f17cd4df64cf0362d501",
+          "timestamp": "2026-05-11T13:44:00.637Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -357,9 +357,9 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "Synthetic new process fact command surprise_check_set is asserted to fail until added to the CLI process fact inventory.",
-          "headHash": "4e369c0cc28ca37623f68be1f3ffdcd152aa20ff",
-          "materialHash": "f9702d303ae1ae8aef0d5ddb6342c8436594a84d71f2c544ca6bde1c39e04c9d",
-          "timestamp": "2026-05-11T13:33:50.124Z"
+          "headHash": "5c46c1c559fe7b95962a7f3da874826d72bcd766",
+          "materialHash": "c4ddbb4c8a36627dbc372e2eee64f042171624caeed2f17cd4df64cf0362d501",
+          "timestamp": "2026-05-11T13:44:00.637Z"
         }
       ]
     }
