@@ -49,9 +49,9 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "contract test reads process-fact-levels registry and reports 87 entries covering 84 CLI commands plus runtime behaviors.",
-          "headHash": "a94adccbc71113c07f0e822603da07dc959a2f91",
-          "materialHash": "bbb6359d861b3d9dbbca7760f5cbc59a0e2f03479c52e4c5e1ccfb2bfdc4cac2",
-          "timestamp": "2026-05-11T14:38:14.387Z"
+          "headHash": "be88f40cf1918b8fa52f83f4730c6bab438563c7",
+          "materialHash": "7e192a614e19fa86928736be558f2c9d2b18a7c61a73906037cac492802ac7e9",
+          "timestamp": "2026-05-11T14:46:44.874Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -60,9 +60,9 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "contract asserts process-fact candidate commands cannot be L0 while ordinary read/status commands may remain L0.",
-          "headHash": "a94adccbc71113c07f0e822603da07dc959a2f91",
-          "materialHash": "bbb6359d861b3d9dbbca7760f5cbc59a0e2f03479c52e4c5e1ccfb2bfdc4cac2",
-          "timestamp": "2026-05-11T14:38:14.387Z"
+          "headHash": "be88f40cf1918b8fa52f83f4730c6bab438563c7",
+          "materialHash": "7e192a614e19fa86928736be558f2c9d2b18a7c61a73906037cac492802ac7e9",
+          "timestamp": "2026-05-11T14:46:44.874Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -71,9 +71,9 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "synthetic surprise_check_set remains detected as missing when not registered in the process fact level registry.",
-          "headHash": "a94adccbc71113c07f0e822603da07dc959a2f91",
-          "materialHash": "bbb6359d861b3d9dbbca7760f5cbc59a0e2f03479c52e4c5e1ccfb2bfdc4cac2",
-          "timestamp": "2026-05-11T14:38:14.387Z"
+          "headHash": "be88f40cf1918b8fa52f83f4730c6bab438563c7",
+          "materialHash": "7e192a614e19fa86928736be558f2c9d2b18a7c61a73906037cac492802ac7e9",
+          "timestamp": "2026-05-11T14:46:44.874Z"
         }
       ]
     },
@@ -126,9 +126,9 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "script no longer uses a local processFactCliInventory set; command coverage comes from the registry parser.",
-          "headHash": "a94adccbc71113c07f0e822603da07dc959a2f91",
-          "materialHash": "bbb6359d861b3d9dbbca7760f5cbc59a0e2f03479c52e4c5e1ccfb2bfdc4cac2",
-          "timestamp": "2026-05-11T14:38:14.387Z"
+          "headHash": "be88f40cf1918b8fa52f83f4730c6bab438563c7",
+          "materialHash": "7e192a614e19fa86928736be558f2c9d2b18a7c61a73906037cac492802ac7e9",
+          "timestamp": "2026-05-11T14:46:44.874Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -137,9 +137,9 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "existing prompt drift, pass-only finding_add, legacy category, and unknown category synthetic checks still pass.",
-          "headHash": "a94adccbc71113c07f0e822603da07dc959a2f91",
-          "materialHash": "bbb6359d861b3d9dbbca7760f5cbc59a0e2f03479c52e4c5e1ccfb2bfdc4cac2",
-          "timestamp": "2026-05-11T14:38:14.387Z"
+          "headHash": "be88f40cf1918b8fa52f83f4730c6bab438563c7",
+          "materialHash": "7e192a614e19fa86928736be558f2c9d2b18a7c61a73906037cac492802ac7e9",
+          "timestamp": "2026-05-11T14:46:44.874Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -148,9 +148,9 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "contract fails missing or duplicate registry command entries and validates MAIN_TOOLS coverage from registry.",
-          "headHash": "a94adccbc71113c07f0e822603da07dc959a2f91",
-          "materialHash": "bbb6359d861b3d9dbbca7760f5cbc59a0e2f03479c52e4c5e1ccfb2bfdc4cac2",
-          "timestamp": "2026-05-11T14:38:14.387Z"
+          "headHash": "be88f40cf1918b8fa52f83f4730c6bab438563c7",
+          "materialHash": "7e192a614e19fa86928736be558f2c9d2b18a7c61a73906037cac492802ac7e9",
+          "timestamp": "2026-05-11T14:46:44.874Z"
         }
       ]
     },
@@ -172,11 +172,13 @@
           "scripts/verify-process-fact-contract.mjs",
           "packages/main/src/core/config.ts",
           "packages/main/src/handlers/test-auto.ts",
-          "packages/main/src/handlers/verifier.ts"
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/handlers/story-dispatch.ts"
         ],
         "create": [],
         "test": [
-          "scripts/verify-process-fact-contract.mjs"
+          "scripts/verify-process-fact-contract.mjs",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts"
         ]
       },
       "verificationIntent": {
@@ -207,9 +209,9 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "contract output includes runtime:phase_tools_malformed_allow_all, runtime:test_auto_recursive_skip, and runtime:validate_fallback_discovery entries.",
-          "headHash": "a94adccbc71113c07f0e822603da07dc959a2f91",
-          "materialHash": "bbb6359d861b3d9dbbca7760f5cbc59a0e2f03479c52e4c5e1ccfb2bfdc4cac2",
-          "timestamp": "2026-05-11T14:38:14.387Z"
+          "headHash": "be88f40cf1918b8fa52f83f4730c6bab438563c7",
+          "materialHash": "7e192a614e19fa86928736be558f2c9d2b18a7c61a73906037cac492802ac7e9",
+          "timestamp": "2026-05-11T14:46:44.874Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -218,9 +220,9 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "registry accepts runtime-prefixed behavior entries while requiring non-runtime entries to match MAIN_TOOLS.",
-          "headHash": "a94adccbc71113c07f0e822603da07dc959a2f91",
-          "materialHash": "bbb6359d861b3d9dbbca7760f5cbc59a0e2f03479c52e4c5e1ccfb2bfdc4cac2",
-          "timestamp": "2026-05-11T14:38:14.387Z"
+          "headHash": "be88f40cf1918b8fa52f83f4730c6bab438563c7",
+          "materialHash": "7e192a614e19fa86928736be558f2c9d2b18a7c61a73906037cac492802ac7e9",
+          "timestamp": "2026-05-11T14:46:44.874Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -229,9 +231,9 @@
           "command": "npm run test:process-fact-contract && npm run build",
           "result": "pass",
           "note": "contract asserts every L4 registry entry declares gateConsumer, so soft fallback entries cannot masquerade as gate facts.",
-          "headHash": "a94adccbc71113c07f0e822603da07dc959a2f91",
-          "materialHash": "bbb6359d861b3d9dbbca7760f5cbc59a0e2f03479c52e4c5e1ccfb2bfdc4cac2",
-          "timestamp": "2026-05-11T14:38:14.387Z"
+          "headHash": "be88f40cf1918b8fa52f83f4730c6bab438563c7",
+          "materialHash": "7e192a614e19fa86928736be558f2c9d2b18a7c61a73906037cac492802ac7e9",
+          "timestamp": "2026-05-11T14:46:44.874Z"
         }
       ]
     }

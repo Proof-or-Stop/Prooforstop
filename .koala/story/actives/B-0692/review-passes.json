@@ -1,0 +1,20 @@
+{
+  "passes": [
+    {
+      "id": "B-0692:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: scripts/verify-process-fact-contract.mjs:435 checks registry coverage, duplicate entries, L0 process-fact candidates, L4 gateConsumer, runtime entries, and scripts/verify-process-fact-contract.mjs:245 keeps synthetic pass-only/category/new-command drift checks. Verified npm run test:process-fact-contract and npm run build passed.",
+      "createdAt": "2026-05-11T14:40:59.749Z",
+      "reviewRound": "2026-05-11T14:38:36.836Z",
+      "_hash": "36e8d1b53a78f4f7f4a50356acfcf3e11e892a64a9a641e72082a8b1d525573c"
+    },
+    {
+      "id": "B-0692:RP-002",
+      "agent": "koala-review-concept",
+      "note": "Concept review passed: user request maps to L0-L4 registry plus contract consumption; implementation keeps full runtime-gate rewrite explicitly out of scope and surfaces soft fallback behaviors as non-L4 entries.",
+      "createdAt": "2026-05-11T14:41:05.796Z",
+      "reviewRound": "2026-05-11T14:38:36.836Z",
+      "_hash": "6bd6c68aa0635706ec2068c6d7d9572c768c8936599a7b43b901b32b3913c924"
+    }
+  ]
+}
