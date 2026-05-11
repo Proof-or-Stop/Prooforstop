@@ -1,0 +1,68 @@
+{
+  "storyId": "B-5d29",
+  "checkedAt": "2026-05-11T13:51:55.223Z",
+  "reviewRound": "2026-05-11T13:44:15.651Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "AGENTS.md#流程事实双层契约",
+      "promise": "流程事实必须同时有 prompt 指路和 CLI/handler/gate 的硬编码兜底，不能只改 prompt。",
+      "status": "verified",
+      "verifiedBy": "git diff + npm run test:process-fact-contract",
+      "evidence": "AGENTS.md:53-60 新增双层契约；scripts/verify-process-fact-contract.mjs 会扫描 reviewer prompt 语义和流程事实 inventory，审查中已实际运行并通过。"
+    },
+    {
+      "docPath": "CLAUDE.md#流程事实双层契约",
+      "promise": "reviewer 无 finding 时必须走 review_pass_set；误用的 pass-only finding_add 必须在 handler 层转成 review pass。",
+      "status": "verified",
+      "verifiedBy": "grep + field regression smoke",
+      "evidence": "CLAUDE.md:645；packages/main/src/handlers/finding.ts:49-144 扩展 pass-only 模式并通过 recordReviewPass 转换；node packages/main/dist/tasks/field-regression-cli-smoke.js 审查中通过，覆盖 no findings / 检查通过 / PASS 三类输入。"
+    },
+    {
+      "docPath": "CLAUDE.md#流程事实双层契约",
+      "promise": "finding_add 只接受 canonical category happy|edge|adversarial|missing；legacy category 仅兼容归一到 missing，未知 category 必须拒绝。",
+      "status": "verified",
+      "verifiedBy": "grep + field regression smoke",
+      "evidence": "CLAUDE.md:646；packages/main/src/handlers/finding.ts:13-14,88-97 定义 canonical/legacy 集合并在未知值时报错；packages/main/src/tasks/field-regression-cli-smoke.ts:421-434 断言 unknown category 被 handler 拒绝。"
+    },
+    {
+      "docPath": "CLAUDE.md#流程事实双层契约",
+      "promise": "改 reviewer prompt、CLI schema、handler 或 gate 时，必须有 npm run test:process-fact-contract 检测 prompt drift 并验证流程事实 inventory。",
+      "status": "verified",
+      "verifiedBy": "package.json + script execution",
+      "evidence": "CLAUDE.md:648；package.json:34 新增 test:process-fact-contract；scripts/verify-process-fact-contract.mjs:235-556 扫描 27 个 reviewer prompt、synthetic adversarial case 和 process fact inventory，审查中运行通过。"
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md#流程事实必须双层保护",
+      "promise": "流程事实 inventory 必须覆盖 phase/state、review pass、verification evidence、init/scope/delivery check，以及 REVIEW/TEST/DONE gate artifact。",
+      "status": "verified",
+      "verifiedBy": "diff + verifier inventory",
+      "evidence": "story-lifecycle.md:104-106；scripts/verify-process-fact-contract.mjs:344-507 明确检查 phase advance、finding_add、review_pass_set、verification evidence、init check、scope check、delivery check、REVIEW/TEST/DONE gates 与 CLI schema，审查中运行通过。"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Ran npm run test:process-fact-contract. Output printed Process Fact Contract, Prompt guides; CLI/handler/gate decides, Prompt drift scan: 27 reviewer prompt files checked, Process Fact Inventory, then Process fact contract verified. This exercises the docs/prompt contract and its synthetic adversarial prompt checks."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Ran npm run test:process-fact-contract. The verifier scans template/.claude/.Codex reviewer prompts, compares command/path semantics, and fails synthetic pass-only finding_add, missing review_pass_set, legacy category, unknown category, and uninventoried process-fact command cases before reporting success."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Ran node packages/main/dist/tasks/field-regression-cli-smoke.js. The smoke passed and covers pass-only finding_add conversion for no findings / 检查通过 / PASS wording, preserves ambiguous failure phrasing as a finding, normalizes legacy categories to missing, and rejects unknown categories at handler runtime."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Ran npm run test:process-fact-contract. The inventory section verified hard guards/signatures/normalization coverage for phase advance, finding_add, review_pass_set, verification evidence, init check, scope check, delivery check, REVIEW/TEST/DONE gates, and CLI schema."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "5 docs promises were verified against code and executable checks. The branch delivers both layers of the stated process-fact contract: prompt guidance is mirrored in docs/prompts, and handler/runtime/test coverage now enforces pass-only review conversion, category normalization/rejection, and process-fact inventory drift detection."
+  },
+  "_hash": "d10ea5bf196f3a22b619294b8486367ad61667d41965dd3fa0fd751bb3e58fae"
+}

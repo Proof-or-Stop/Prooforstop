@@ -50,6 +50,17 @@
 
 逻辑层可通过 fixture 测试覆盖，渲染层通过浏览器 trace 验证。新建函数时先判断属于哪一层。
 
+## 流程事实双层契约
+
+流程事实必须同时有两层保护：prompt 负责指路和约束角色行为，CLI / handler / gate 负责硬编码判定与兜底。只改 prompt 不算完成；只要事实会影响 phase、review、test、done 或审计，就必须能在代码入口被机械验证。
+
+这个原则只覆盖流程事实，不覆盖普通解释性文案。流程事实包括：phase / state transition、pass / no-issue 确认、finding 的 category / severity / role / agent 归属、review pass、verificationEvidence、init / scope / delivery check、REVIEW / TEST / DONE gate 产物。普通设计说明、背景叙述、示例 prose 可以由 prompt / docs 表达，但不能被 gate 当作证据。
+
+典型落点：
+- reviewer 没有 finding 时，prompt 要求调用 `review_pass_set`；handler 仍要把 pass-only `finding_add` 转成 review pass，而不是写入 finding。
+- finding category 的有效集合由 CLI schema + handler runtime 共同收窄；已知 legacy category 只做兼容归一到 `missing`，不能扩成新类别。
+- gate 只能消费签名、hash、evidence、check artifact 等结构化事实，不能靠“检查通过”之类文本当证据。
+
 ## Story 阶段流转
 
 ```
