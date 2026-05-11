@@ -4,7 +4,7 @@
   "title": "固化流程事实的硬编码兜底与 prompt 指路原则",
   "description": "把刚确认的原则落实到 Koala：所有流程执行、确认通过、关闭问题、推进阶段、留下证据的动作，都必须有 prompt 指路和 CLI/handler/gate 硬编码兜底，减少自然语言确认漂移。",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "gate",
@@ -64,6 +64,14 @@
       "branch": "story/B-5d29",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-11T13:44:15.651Z",
+      "branch": "story/B-5d29",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -71,5 +79,5 @@
     "branch": "story/B-5d29",
     "createdAt": "2026-05-11T13:11:29.157Z"
   },
-  "currentReviewRound": "2026-05-11T13:34:59.107Z"
+  "currentReviewRound": "2026-05-11T13:44:15.651Z"
 }
