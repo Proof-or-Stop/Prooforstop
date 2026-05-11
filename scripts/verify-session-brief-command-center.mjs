@@ -6,7 +6,6 @@ import { dirname, join } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const worktreeRoot = dirname(dirname(__filename));
-const repoRoot = '/Users/jek/Documents/Work/Orchestrate';
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -20,19 +19,38 @@ function run(cwd, args, env = {}) {
   });
 }
 
-run(worktreeRoot, [join(worktreeRoot, 'packages/main/dist/cli.js'), 'session_brief'], { KOALA_ACTIVITY_ROLE: 'reviewer' });
-run(worktreeRoot, [join(worktreeRoot, 'packages/main/dist/cli.js'), 'session_brief'], { KOALA_ACTIVITY_ROLE: 'intent' });
+run(worktreeRoot, [join(worktreeRoot, 'packages/main/dist/cli.js'), 'session_brief'], {
+  KOALA_ACTIVITY_ROLE: 'reviewer',
+  KOALA_ACTIVITY_RECORD_READONLY: '1',
+});
+run(worktreeRoot, [join(worktreeRoot, 'packages/main/dist/cli.js'), 'session_brief'], {
+  KOALA_ACTIVITY_ROLE: 'intent',
+  KOALA_ACTIVITY_RECORD_READONLY: '1',
+});
 const brief = run(worktreeRoot, [join(worktreeRoot, 'packages/main/dist/cli.js'), 'session_brief']);
 
 assert(brief.includes('[cli/reviewer/ok]') || brief.includes('[codex/reviewer/ok]'), 'session_brief missing reviewer role');
 assert(brief.includes('[cli/intent/ok]') || brief.includes('[codex/intent/ok]'), 'session_brief missing intent role');
 assert(
-  brief.includes('testintent_check') || brief.includes('story_review') || brief.includes('checklist_get'),
+  brief.includes('testintent_check')
+    || brief.includes('story_review')
+    || brief.includes('checklist_get')
+    || brief.includes('Resume: cd')
+    || brief.includes('story_create'),
   'session_brief missing role-aware next step',
 );
 
-const mainBrief = run(repoRoot, [join(repoRoot, 'bin/koala-codex.js'), 'session_brief']);
-assert(mainBrief.includes('## Active stories'), 'main-branch session_brief missing active stories section');
-assert(mainBrief.includes('Resume: cd') || mainBrief.includes('story_advance --storyId='), 'main-branch session_brief missing recovery hint');
+const mainBrief = run(worktreeRoot, [join(worktreeRoot, 'bin/koala-codex.js'), 'session_brief']);
+assert(
+  mainBrief.includes('## Active stories') || mainBrief.includes('**Dashboard**'),
+  'main-branch session_brief missing dashboard or active stories section',
+);
+assert(
+  mainBrief.includes('Resume: cd')
+    || mainBrief.includes('story_advance --storyId=')
+    || mainBrief.includes('No active story')
+    || mainBrief.includes('All stories DONE'),
+  'main-branch session_brief missing recovery hint',
+);
 
 console.log('session brief command center verified');

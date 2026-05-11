@@ -10,7 +10,8 @@ import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
 interface LogEntry {
-  source?: 'cli' | 'claude';
+  source?: 'cli' | 'claude' | 'codex' | string;
+  role?: string;
   startTime?: string | null;
   endTime?: string | null;
   tool?: string;
@@ -26,6 +27,8 @@ interface ToolStat {
   fail: number;
   cli: number;
   claude: number;
+  codex: number;
+  byRole: Record<string, number>;
   lastUsed: string | null;
 }
 
@@ -34,12 +37,14 @@ export function createToolStatusHandlers(ctx: HandlerContext) {
 
   return {
     tool_status(args?: {
-      source?: 'cli' | 'claude' | 'all';
+      source?: 'cli' | 'claude' | 'codex' | 'all';
+      role?: string;
       days?: number;
       limit?: number;
       format?: 'text' | 'json';
     }) {
       const source = args?.source ?? 'all';
+      const role = args?.role;
       const days = args?.days ?? 30;
       const limit = args?.limit ?? 20;
       const format = args?.format ?? 'text';
@@ -75,6 +80,7 @@ export function createToolStatusHandlers(ctx: HandlerContext) {
 
         if (!entry.tool || typeof entry.tool !== 'string') continue;
         if (source !== 'all' && entry.source !== source) { filteredOut++; continue; }
+        if (role && entry.role !== role) { filteredOut++; continue; }
 
         // 时间过滤：endTime 优先，没有就用 startTime
         const ts = entry.endTime || entry.startTime;
@@ -85,7 +91,7 @@ export function createToolStatusHandlers(ctx: HandlerContext) {
 
         let s = stats.get(entry.tool);
         if (!s) {
-          s = { tool: entry.tool, total: 0, ok: 0, fail: 0, cli: 0, claude: 0, lastUsed: null };
+          s = { tool: entry.tool, total: 0, ok: 0, fail: 0, cli: 0, claude: 0, codex: 0, byRole: {}, lastUsed: null };
           stats.set(entry.tool, s);
         }
         s.total++;
@@ -93,6 +99,9 @@ export function createToolStatusHandlers(ctx: HandlerContext) {
         else if (entry.status === 'fail') s.fail++;
         if (entry.source === 'cli') s.cli++;
         else if (entry.source === 'claude') s.claude++;
+        else if (entry.source === 'codex') s.codex++;
+        const entryRole = entry.role || 'unknown';
+        s.byRole[entryRole] = (s.byRole[entryRole] || 0) + 1;
         if (ts && (!s.lastUsed || ts > s.lastUsed)) s.lastUsed = ts;
       }
 
@@ -104,10 +113,18 @@ export function createToolStatusHandlers(ctx: HandlerContext) {
       const grandFail = sorted.reduce((sum, s) => sum + s.fail, 0);
       const grandCli = sorted.reduce((sum, s) => sum + s.cli, 0);
       const grandClaude = sorted.reduce((sum, s) => sum + s.claude, 0);
+      const grandCodex = sorted.reduce((sum, s) => sum + s.codex, 0);
+      const byRole = sorted.reduce<Record<string, number>>((acc, s) => {
+        for (const [key, value] of Object.entries(s.byRole)) {
+          acc[key] = (acc[key] || 0) + value;
+        }
+        return acc;
+      }, {});
       const successPct = grandTotal > 0 ? Math.round(grandOk / grandTotal * 100) : 0;
 
       const summary = {
         source,
+        role: role ?? 'all',
         days,
         logFiles: logPaths,
         totalLines,
@@ -118,7 +135,8 @@ export function createToolStatusHandlers(ctx: HandlerContext) {
         ok: grandOk,
         fail: grandFail,
         successRate: `${successPct}%`,
-        bySource: { cli: grandCli, claude: grandClaude },
+        bySource: { cli: grandCli, claude: grandClaude, codex: grandCodex },
+        byRole,
       };
 
       if (format === 'json') {
@@ -127,11 +145,11 @@ export function createToolStatusHandlers(ctx: HandlerContext) {
 
       // text 格式：dashboard
       const lines: string[] = [];
-      lines.push(`=== koala 工具使用统计（最近 ${days} 天，source=${source}） ===`);
+      lines.push(`=== koala 工具使用统计（最近 ${days} 天，source=${source}, role=${role ?? 'all'}） ===`);
       lines.push(`日志文件: ${logPaths.join(' + ')}`);
       lines.push(`总记录: ${totalLines} (解析 ${parsedLines}, 过滤 ${filteredOut})`);
       lines.push(`工具数: ${sorted.length}`);
-      lines.push(`总调用: ${grandTotal} (cli ${grandCli}, claude ${grandClaude})`);
+      lines.push(`总调用: ${grandTotal} (cli ${grandCli}, claude ${grandClaude}, codex ${grandCodex})`);
       lines.push(`成功率: ${grandOk}/${grandTotal} (${successPct}%) — fail ${grandFail}`);
       lines.push('');
       lines.push(`Top ${Math.min(limit, sorted.length)} 工具:`);
@@ -143,7 +161,7 @@ export function createToolStatusHandlers(ctx: HandlerContext) {
           `${String(s.total).padStart(5)}  ` +
           `ok=${String(s.ok).padStart(4)} ` +
           `fail=${String(s.fail).padStart(3)}  ` +
-          `[cli ${s.cli}, claude ${s.claude}]  ` +
+          `[cli ${s.cli}, claude ${s.claude}, codex ${s.codex}]  ` +
           `last ${last}`
         );
       }

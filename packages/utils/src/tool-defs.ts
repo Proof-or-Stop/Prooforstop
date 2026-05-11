@@ -52,7 +52,8 @@ export const utilsToolDefs: ToolDef[] = [
 
   // Tool 使用统计
   { name: 'tool_status', description: '统计 activity.jsonl（.koala/ + docs/story/ 双源）里的工具使用情况', schema: {
-    source: z.enum(['cli','claude','all']).optional().describe('数据源（默认 all）'),
+    source: z.enum(['cli','claude','codex','all']).optional().describe('数据源（默认 all）'),
+    role: z.string().optional().describe('按 activity role 过滤（如 reviewer / intent / main）'),
     days: z.number().optional().describe('时间窗口天数（默认 30）'),
     limit: z.number().optional().describe('Top N（默认 20）'),
     format: z.enum(['text','json']).optional().describe('输出格式（默认 text）'),

@@ -75,6 +75,8 @@ function readActivityTail(root: string, lines: number): Array<{
   timestamp: string;
   tool: string;
   status: string;
+  source: string;
+  role: string;
   storyId: string | null;
 }> {
   try {
@@ -85,11 +87,18 @@ function readActivityTail(root: string, lines: number): Array<{
       timestamp: String(r.startTime || r.endTime || ''),
       tool: String(r.tool || r.detail || '?'),
       status: String(r.status || '?'),
+      source: String(r.source || 'unknown'),
+      role: String(r.role || 'unknown'),
       storyId: (r.storyId as string) || null,
     }));
   } catch {
     return [];
   }
+}
+
+function renderActivityLine(a: { timestamp: string; tool: string; status: string; source: string; role: string; storyId: string | null }): string {
+  const story = a.storyId ? ` (${a.storyId})` : '';
+  return `${a.timestamp} ${a.tool} [${a.source}/${a.role}/${a.status}]${story}`;
 }
 
 function readGitStatus(root: string): { porcelain: string[]; recentLog: string[] } {
@@ -592,6 +601,17 @@ export function createSessionHandlers(ctx: HandlerContext) {
           lines.push('⚠ Non-git project: story metadata can be recorded here, but branch/worktree phases need `git init` + an initial commit first.');
         }
 
+        if (!concise) {
+          const activity = readActivityTail(ctx.root, 3);
+          if (activity.length > 0) {
+            lines.push('');
+            lines.push(`## Recent activity (last ${activity.length})`);
+            for (const a of activity.slice().reverse()) {
+              lines.push(`  ${renderActivityLine(a)}`);
+            }
+          }
+        }
+
         // B-89c7 CHK-013: Recent router-log tail with cache warning.
         const routerTail = readRouterLogTail(ctx.root, 3);
         for (const l of renderRouterLogTail(routerTail)) lines.push(l);
@@ -794,7 +814,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
           lines.push('');
           lines.push(`## Recent activity (last ${activity.length})`);
           for (const a of activity.slice().reverse()) {
-            lines.push(`  ${a.timestamp} ${a.tool} [${a.status}]`);
+            lines.push(`  ${renderActivityLine(a)}`);
           }
         }
       }
