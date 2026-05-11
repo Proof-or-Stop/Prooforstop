@@ -1,0 +1,20 @@
+{
+  "passes": [
+    {
+      "id": "B-5d29:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: checked 12 must verification intents across CHK-001..CHK-004; each has concrete passing verificationEvidence with no waiver or uncovered blocker.",
+      "createdAt": "2026-05-11T13:35:56.348Z",
+      "reviewRound": "2026-05-11T13:34:59.107Z",
+      "_hash": "a73bc5a584acd40627a3e53b23de0e0ac78f2061a3fcb260039859a2c17a8e79"
+    },
+    {
+      "id": "B-5d29:RP-002",
+      "agent": "koala-review-concept",
+      "note": "Concept review passed: checked main...HEAD diff for removed active prompt concepts (pass-only finding_add and legacy finding categories), grep found only synthetic verifier cases, and both npm run test:process-fact-contract and field-regression-cli-smoke passed with no blocker.",
+      "createdAt": "2026-05-11T13:37:13.812Z",
+      "reviewRound": "2026-05-11T13:34:59.107Z",
+      "_hash": "14785035b77b2ef6270bb37a72cdf35ea0cc209fea24c42aa91f6663d19aa0c5"
+    }
+  ]
+}

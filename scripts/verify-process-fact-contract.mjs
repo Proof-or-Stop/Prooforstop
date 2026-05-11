@@ -95,11 +95,67 @@ function isReviewerPrompt(relPath, text) {
   return name.startsWith('koala-review-') || text.includes('review_pass_set');
 }
 
-function commandLines(text, command) {
-  return text
-    .split(/\r?\n/)
-    .map((line, index) => ({ line, lineNo: index + 1 }))
-    .filter(({ line }) => new RegExp(`\\bkoala\\s+${command}\\b`).test(line));
+function scanBraceState(line, state) {
+  for (const char of line) {
+    if (state.escaped) {
+      state.escaped = false;
+      continue;
+    }
+    if (state.inString) {
+      if (char === '\\') state.escaped = true;
+      else if (char === '"') state.inString = false;
+      continue;
+    }
+    if (char === '"') {
+      state.inString = true;
+      continue;
+    }
+    if (char === '{') {
+      state.seenJson = true;
+      state.depth += 1;
+      continue;
+    }
+    if (char === '}') {
+      state.depth -= 1;
+    }
+  }
+  return state;
+}
+
+function commandBlocks(text, command) {
+  const commandPattern = new RegExp(`\\bkoala\\s+${command}\\b`);
+  const anyKoalaCommandPattern = /\bkoala\s+[a-z_][a-z0-9_]*\b/;
+  const lines = text.split(/\r?\n/);
+  const blocks = [];
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    const match = line.match(commandPattern);
+    if (!match) continue;
+
+    const state = scanBraceState(line.slice(match.index), {
+      depth: 0,
+      escaped: false,
+      inString: false,
+      seenJson: false,
+    });
+    const blockLines = [line];
+
+    for (let nextIndex = index + 1; nextIndex < lines.length; nextIndex += 1) {
+      if (state.seenJson && state.depth <= 0) break;
+
+      const nextLine = lines[nextIndex];
+      const trimmed = nextLine.trim();
+      if (!state.seenJson && (!trimmed || trimmed.startsWith('```') || anyKoalaCommandPattern.test(nextLine))) break;
+
+      blockLines.push(nextLine);
+      scanBraceState(nextLine, state);
+    }
+
+    blocks.push({ block: blockLines.join('\n'), lineNo: index + 1 });
+  }
+
+  return blocks;
 }
 
 function requiresReviewPassProtocol(label) {
@@ -108,12 +164,12 @@ function requiresReviewPassProtocol(label) {
 
 function scanPromptText(text, label) {
   const issues = [];
-  const findingLines = commandLines(text, 'finding_add');
-  for (const { line, lineNo } of findingLines) {
-    if (passOnlyFindingAddPatterns.some(pattern => pattern.test(line))) {
+  const findingBlocks = commandBlocks(text, 'finding_add');
+  for (const { block, lineNo } of findingBlocks) {
+    if (passOnlyFindingAddPatterns.some(pattern => pattern.test(block))) {
       issues.push(`${label}:${lineNo} pass-only finding_add must use review_pass_set`);
     }
-    for (const match of line.matchAll(/"category"\s*:\s*"([^"]+)"/g)) {
+    for (const match of block.matchAll(/["']?category["']?\s*:\s*["']([^"']+)["']/g)) {
       const category = match[1];
       if (currentCategories.has(category)) continue;
       if (legacyCategories.has(category)) {
@@ -167,9 +223,9 @@ function comparePromptSemantics(promptMap) {
       const extra = mirrorTokens.filter(token => !templateTokens.includes(token));
       if (missing.length || extra.length) {
         const changed = [...missing, ...extra];
-        const commandDrift = changed.some(token => token.startsWith('cmd:'));
+        const commandOrPathDrift = changed.some(token => token.startsWith('cmd:') || token.startsWith('path:'));
         const message = `${mirrorRel} command/path semantics drifted from template ${templateRel}; missing=[${missing.join(', ')}] extra=[${extra.join(', ')}]`;
-        if (commandDrift) fail(message);
+        if (commandOrPathDrift) fail(message);
         else warn(message);
       }
     }
@@ -189,6 +245,19 @@ function assertSyntheticAdversarialChecks() {
       `synthetic pass-only finding_add prompt ${index + 1} should fail`,
     );
   }
+  const multilinePassOnly = [
+    "koala finding_add '{",
+    '  storyId:"B-x",',
+    '  desc:"PASS",',
+    '  severity:"low",',
+    '  category:"happy",',
+    '  agent:"koala-review-quality"',
+    "}'",
+  ].join('\n');
+  assert(
+    scanPromptText(multilinePassOnly, 'synthetic-multiline-pass-only').some(issue => issue.includes('pass-only finding_add')),
+    'synthetic multiline pass-only finding_add prompt should fail',
+  );
 
   const noReviewPass = [
     'Use koala finding_add for every problem.',
@@ -204,11 +273,37 @@ function assertSyntheticAdversarialChecks() {
     scanPromptText(activeLegacy, 'synthetic-active-legacy').some(issue => issue.includes('legacy category')),
     'synthetic active legacy category should fail',
   );
+  const multilineLegacy = [
+    "koala finding_add '{",
+    '  storyId:"B-x",',
+    '  desc:"real issue",',
+    '  severity:"medium",',
+    '  category:"cleanup",',
+    '  agent:"koala-review-quality"',
+    "}'",
+  ].join('\n');
+  assert(
+    scanPromptText(multilineLegacy, 'synthetic-multiline-legacy').some(issue => issue.includes('legacy category')),
+    'synthetic multiline legacy category should fail',
+  );
 
   const unknownCategory = 'koala finding_add \'{"storyId":"B-x","desc":"docs","severity":"medium","category":"docs","agent":"koala-review-quality"}\'';
   assert(
     scanPromptText(unknownCategory, 'synthetic-unknown-category').some(issue => issue.includes('unknown category')),
     'synthetic unknown category should fail',
+  );
+  const multilineUnknown = [
+    "koala finding_add '{",
+    '  storyId:"B-x",',
+    '  desc:"real issue",',
+    '  severity:"medium",',
+    '  category:"docs",',
+    '  agent:"koala-review-quality"',
+    "}'",
+  ].join('\n');
+  assert(
+    scanPromptText(multilineUnknown, 'synthetic-multiline-unknown').some(issue => issue.includes('unknown category')),
+    'synthetic multiline unknown category should fail',
   );
 
   const goodPrompt = [

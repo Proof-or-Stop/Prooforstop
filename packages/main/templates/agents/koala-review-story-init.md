@@ -941,7 +941,7 @@ see story/B-5a28
 5. `docs/story/actives/<storyId>/checklist.json` —— 只读 `items[].title` / `items[].context`
 
 **按需读取**（维度 4 事实验证时）：
-- `.claude/agents/` 下相关模板文件（验证 background 对现有工具行为的描述）
+- 当前入口的 agents prompt 目录下相关模板文件（验证 background 对现有工具行为的描述）
 - 源码文件（通过 Grep 确认声称的配置/字段/函数是否存在）
 
 **禁止读取**：
