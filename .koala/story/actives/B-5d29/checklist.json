@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "定义流程事实双层契约原则",
+      "context": "把 Prompt 指路、CLI/handler/gate 裁判的原则写入 Koala 的权威文档与 reviewer 通用 prompt 区，范围限定为状态推进、通过确认、证据落盘、finding/category/role 等流程事实。",
+      "relatedDocs": [
+        "CLAUDE.md",
+        "AGENTS.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "后续 agent 能在 Koala 文档和 reviewer prompt 中看到流程事实必须结构化落盘且有硬编码兜底的原则。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "增加 reviewer prompt 与 CLI schema 漂移审计",
+      "context": "新增/扩展 smoke，扫描 reviewer prompt 中非法 finding category、pass-only finding_add、纯文本 passed 等模式，防止 prompt 再次诱导 agent 写错结构化事实。",
+      "relatedDocs": [
+        "packages/main/templates/agents/",
+        "packages/main/src/cli-engine.ts"
+      ],
+      "userSees": "运行回归测试时能自动发现 reviewer prompt 再次出现非法 category 或 pass-only finding_add。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "加固流程事实入口的兼容与拒绝策略",
+      "context": "检查 finding/review/evidence 等流程事实入口，能安全归一 legacy category/pass-only 记录，或对无法归一的错误用法给出明确拒绝与提示。",
+      "relatedDocs": [
+        "packages/main/src/handlers/finding.ts",
+        "packages/main/src/core/machine.ts"
+      ],
+      "userSees": "即使 reviewer prompt 或手动命令复制旧写法，Koala 也不会把通过确认污染成 finding，且会给出可操作的结构化命令路径。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
