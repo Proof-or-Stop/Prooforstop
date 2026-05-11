@@ -25,9 +25,24 @@ const reviewPassReviewerPrompts = new Set([
 ]);
 const processFactLevelRegistryPath = 'packages/main/src/core/process-fact-levels.ts';
 const requiredRuntimeEntries = [
-  'runtime:phase_tools_malformed_allow_all',
-  'runtime:test_auto_recursive_skip',
-  'runtime:validate_fallback_discovery',
+  {
+    name: 'runtime:phase_tools_malformed_allow_all',
+    level: 'L1',
+    owner: 'core/config',
+    line: '- runtime:phase_tools_malformed_allow_all [L1] owner=core/config',
+  },
+  {
+    name: 'runtime:test_auto_recursive_skip',
+    level: 'L2',
+    owner: 'handlers/test-auto',
+    line: '- runtime:test_auto_recursive_skip [L2] owner=handlers/test-auto',
+  },
+  {
+    name: 'runtime:validate_fallback_discovery',
+    level: 'L1',
+    owner: 'handlers/verifier',
+    line: '- runtime:validate_fallback_discovery [L1] owner=handlers/verifier',
+  },
 ];
 const processFactCommandNamePatterns = [
   /^story_advance$/,
@@ -479,11 +494,34 @@ function assertProcessFactCommandInventory() {
     `${processFactLevelRegistryPath}: L4 entry must declare gateConsumer: ${l4WithoutGate.join(', ')}`,
   );
 
-  const missingRuntimeEntries = requiredRuntimeEntries.filter(name => !registry.has(name));
+  const missingRuntimeEntries = requiredRuntimeEntries
+    .map(entry => entry.name)
+    .filter(name => !registry.has(name));
   assert(
     missingRuntimeEntries.length === 0,
     `${processFactLevelRegistryPath}: runtime behavior entry missing: ${missingRuntimeEntries.join(', ')}`,
   );
+  for (const expected of requiredRuntimeEntries) {
+    const actual = registry.get(expected.name);
+    if (!actual) continue;
+    assert(
+      actual.level === expected.level,
+      `${processFactLevelRegistryPath}: ${expected.name} level drifted: expected ${expected.level}, got ${actual.level}`,
+    );
+    assert(
+      actual.owner === expected.owner,
+      `${processFactLevelRegistryPath}: ${expected.name} owner drifted: expected ${expected.owner}, got ${actual.owner}`,
+    );
+    assert(
+      formatProcessFactLevelRegistryEntry(actual) === expected.line,
+      `${processFactLevelRegistryPath}: ${expected.name} summary line drifted`,
+    );
+  }
+}
+
+function formatProcessFactLevelRegistryEntry(entry) {
+  const gateSuffix = entry.level === 'L4' && entry.gateConsumer ? ` gate=${entry.gateConsumer}` : '';
+  return `- ${entry.name} [${entry.level}] owner=${entry.owner}${gateSuffix}`;
 }
 
 function printProcessFactLevelRegistrySummary() {
@@ -498,6 +536,10 @@ function printProcessFactLevelRegistrySummary() {
   console.log('Process Fact Level Registry');
   console.log(`- entries: ${entries.length} (${cliCount} CLI, ${runtimeCount} runtime)`);
   console.log(`- levels: ${[...levelCounts.entries()].map(([level, count]) => `${level}=${count}`).join(', ')}`);
+  console.log('- registry entries:');
+  for (const entry of [...entries].sort((a, b) => a.name.localeCompare(b.name))) {
+    console.log(formatProcessFactLevelRegistryEntry(entry));
+  }
 }
 
 function assertFilePatterns(entryName, relPath, patterns) {
