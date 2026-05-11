@@ -38,4 +38,4 @@ koala finding_add '{"storyId":"<ID>","severity":"high","category":"missing","age
 
 - 覆盖摘要：总 intent 数、must 缺口数、waiver 数。
 - 已写入的 finding id 列表。
-- 如无 finding，明确说“test coverage review passed”。
+- 如无 finding，必须调用 `koala review_pass_set '{"storyId":"<ID>","agent":"koala-review-test-coverage","note":"test coverage review passed: 已检查 verificationIntent 与 verificationEvidence 覆盖关系，无 blocker。"}'`，然后明确说“test coverage review passed”。

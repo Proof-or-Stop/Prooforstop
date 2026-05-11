@@ -901,7 +901,7 @@ see story/B-5a28
 
 ## Closing Self-Check（完成一阶检查后必做）
 
-完成下方全部检查流程后，额外自问：**本次 diff 是否有「承诺但未兑现」的部分？** CLAUDE.md / README 新增的 `koala <cmd>` 示例、handler schema 字段、ENV 变量、行为段落——都必须反查代码有无对应实现。发现「承诺但未兑现」→ **critical finding**（category: `doc-promise-undelivered`）。
+完成下方全部检查流程后，额外自问：**本次 diff 是否有「承诺但未兑现」的部分？** CLAUDE.md / README 新增的 `koala <cmd>` 示例、handler schema 字段、ENV 变量、行为段落——都必须反查代码有无对应实现。发现「承诺但未兑现」→ **critical finding**（category=`missing`，desc 前缀写 `doc-promise-undelivered:`）。
 
 ## 0. 项目上下文
 以上 koala 框架约定（由 build 自动注入）定义了系统架构和概念。
@@ -926,10 +926,10 @@ see story/B-5a28
    koala story_get '{"storyId":"B-xxx"}'
    ```
 
-   - **极速**（items ≤ 2 且无 riskSignals）：跳过 dispatch 检查，提 1 条 low finding "极速通道，主 agent 自写合规"
-   - **快速**（items ≤ 5 且无 riskSignals 且单一解 / 无 decision.options 多选）：advisory 模式，提 1 条 low finding "快速通道，允许主 agent 自写"，**不报 critical**
+   - **极速**（items ≤ 2 且无 riskSignals）：跳过 dispatch 检查，调用 `review_pass_set` 记录"极速通道，主 agent 自写合规"
+   - **快速**（items ≤ 5 且无 riskSignals 且单一解 / 无 decision.options 多选）：advisory 模式，调用 `review_pass_set` 记录"快速通道，允许主 agent 自写"，**不报 critical**
    - **正常**（其他 / 有 riskSignals）：继续 step 2
-   - 正常通道但主 agent 在 story 描述 / checklist 含"退化模式"/"fallback mode" → 提 1 条 low finding 跳过
+   - 正常通道但主 agent 在 story 描述 / checklist 含"退化模式"/"fallback mode" → 调用 `review_pass_set` 记录退化模式原因后跳过
 
 2. 检查 dispatch 覆盖：
 
@@ -952,7 +952,7 @@ see story/B-5a28
 
 ```bash
 # 正常通道 + 所有 CHK 有 dispatch 证据
-# → 不调 finding_add（通过）
+koala review_pass_set '{"storyId":"B-xxx","agent":"koala-review-channel","note":"正常通道 dispatch 覆盖全部 CHK；channel review passed。"}'
 
 # 正常通道 + 部分 CHK 缺 dispatch
 koala finding_add '{"storyId":"B-xxx","desc":"正常通道 CHK-003/CHK-005/CHK-007 在 process-events.jsonl 中无 dispatch 事件，疑似主 agent 自写。应派 koala-implementer。","severity":"critical","category":"missing","agent":"koala-review-channel"}'
@@ -961,13 +961,13 @@ koala finding_add '{"storyId":"B-xxx","desc":"正常通道 CHK-003/CHK-005/CHK-0
 koala finding_add '{"storyId":"B-xxx","desc":"跨仓元工作流检测：10 个 CHK 中 9 个 files 指向仓外绝对路径（/Users/.../koala/...），dispatch 证据可能在外部仓；建议人工确认而非机械判违规。","severity":"medium","category":"edge","agent":"koala-review-channel"}'
 
 # 极速通道
-koala finding_add '{"storyId":"B-xxx","desc":"极速通道（≤2 items，无 riskSignals），主 agent 自写合规","severity":"low","category":"happy","agent":"koala-review-channel"}'
+koala review_pass_set '{"storyId":"B-xxx","agent":"koala-review-channel","note":"极速通道（≤2 items，无 riskSignals），主 agent 自写合规。"}'
 
 # 快速通道
-koala finding_add '{"storyId":"B-xxx","desc":"快速通道（≤5 items，单一解，无 riskSignals），允许主 agent 自写","severity":"low","category":"happy","agent":"koala-review-channel"}'
+koala review_pass_set '{"storyId":"B-xxx","agent":"koala-review-channel","note":"快速通道（≤5 items，单一解，无 riskSignals），允许主 agent 自写。"}'
 
 # 退化模式
-koala finding_add '{"storyId":"B-xxx","desc":"退化模式（无 subagent fallback），主 agent 自己写代码符合规则","severity":"low","category":"happy","agent":"koala-review-channel"}'
+koala review_pass_set '{"storyId":"B-xxx","agent":"koala-review-channel","note":"退化模式（无 subagent fallback），主 agent 自己写代码符合规则。"}'
 ```
 
 ## 输入约束（fresh-context hygiene）

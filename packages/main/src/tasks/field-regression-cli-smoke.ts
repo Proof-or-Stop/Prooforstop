@@ -335,6 +335,26 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
     assert.match(noDriftOutput, /Review pass B-passonly:RP-002 recorded by koala-review-docs/);
     assert.equal(store.readFindings(storyId).findings.length, 0, 'negated no-drift wording should remain a review pass');
 
+    const conceptPassOutput = await runKoala(root, 'finding_add', {
+      storyId,
+      desc: '本次无概念变更',
+      severity: 'low',
+      category: 'happy',
+      agent: 'koala-review-concept',
+    });
+    assert.match(conceptPassOutput, /Review pass B-passonly:RP-003 recorded by koala-review-concept/);
+    assert.equal(store.readFindings(storyId).findings.length, 0, 'concept pass-only finding_add should not write findings.json');
+
+    const channelPassOutput = await runKoala(root, 'finding_add', {
+      storyId,
+      desc: '极速通道（≤2 items，无 riskSignals），主 agent 自写合规',
+      severity: 'low',
+      category: 'happy',
+      agent: 'koala-review-channel',
+    });
+    assert.match(channelPassOutput, /Review pass B-passonly:RP-004 recorded by koala-review-channel/);
+    assert.equal(store.readFindings(storyId).findings.length, 0, 'channel pass-only finding_add should not write findings.json');
+
     const findingOutput = await runKoala(root, 'finding_add', {
       storyId,
       desc: '文档一致性检查通过但是 README 示例命令失败，需修正文档。',
@@ -346,6 +366,30 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
     const findings = store.readFindings(storyId).findings;
     assert.equal(findings.length, 1);
     assert.equal(findings[0].status, 'open');
+
+    const cleanupOutput = await runKoala(root, 'finding_add', {
+      storyId,
+      desc: 'concept-cleanup: 概念 X 删除不完整，Y 文件仍有 2 处引用。',
+      severity: 'critical',
+      category: 'cleanup',
+      agent: 'koala-review-concept',
+    });
+    assert.match(cleanupOutput, /Finding B-passonly:F-002 created by koala-review-concept: \[critical\/missing\]/);
+    const cleanupFindings = store.readFindings(storyId).findings;
+    assert.equal(cleanupFindings.length, 2);
+    assert.equal(cleanupFindings[1].category, 'missing');
+
+    const docPromiseOutput = await runKoala(root, 'finding_add', {
+      storyId,
+      desc: 'doc-promise-undelivered: README 承诺了 koala foo 命令，但 registry 中不存在。',
+      severity: 'critical',
+      category: 'doc-promise-undelivered',
+      agent: 'koala-review-quality',
+    });
+    assert.match(docPromiseOutput, /Finding B-passonly:F-003 created by koala-review-quality: \[critical\/missing\]/);
+    const docPromiseFindings = store.readFindings(storyId).findings;
+    assert.equal(docPromiseFindings.length, 3);
+    assert.equal(docPromiseFindings[2].category, 'missing');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

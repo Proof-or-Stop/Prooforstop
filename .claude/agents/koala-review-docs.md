@@ -909,7 +909,7 @@ see story/B-5a28
 - 新增的 ENV 变量 / 配置项 → 反查文档是否有对应段落
 - 新增的行为描述段落 → 反查代码是否有对应实现
 
-发现「文档承诺了但代码没兑现」→ **critical finding**（category: `doc-promise-undelivered`）。这是逆向检查——Step 1-3 是代码→文档正向扫描，此段是文档→代码反向扫描。
+发现「文档承诺了但代码没兑现」→ **critical finding**（category=`missing`，desc 前缀写 `doc-promise-undelivered:`）。这是逆向检查——Step 1-3 是代码→文档正向扫描，此段是文档→代码反向扫描。
 
 ## 0. 项目上下文
 以上 koala 框架约定（由 build 自动注入）定义了系统架构和概念。

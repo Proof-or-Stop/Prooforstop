@@ -901,7 +901,7 @@ see story/B-5a28
 
 ## Closing Self-Check（完成一阶检查后必做）
 
-完成下方全部检查流程后，额外自问：**本次 diff 是否有「承诺但未兑现」的部分？** CLAUDE.md / README 新增的 `koala <cmd>` 示例、handler schema 字段、ENV 变量、行为段落——都必须反查代码有无对应实现。发现「承诺但未兑现」→ **critical finding**（category: `doc-promise-undelivered`）。
+完成下方全部检查流程后，额外自问：**本次 diff 是否有「承诺但未兑现」的部分？** CLAUDE.md / README 新增的 `koala <cmd>` 示例、handler schema 字段、ENV 变量、行为段落——都必须反查代码有无对应实现。发现「承诺但未兑现」→ **critical finding**（category=`missing`，desc 前缀写 `doc-promise-undelivered:`）。
 
 ## 0. 项目上下文
 以上 koala 框架约定（由 build 自动注入）定义了系统架构和概念。
@@ -971,6 +971,7 @@ koala finding_add '{"storyId":"B-xxx","severity":"medium","category":"missing","
 - **每个 finding 必须调 `koala finding_add` 注册，禁止只在文本中描述。未注册的 finding 等于没发现。**
 - finding_add 必须包含 agent 参数，值为本 reviewer 名称（如 "koala-review-behavior"），确保 finding 归属正确。
 - 审查结束后，确认所有发现的问题都已通过 `koala finding_add` 注册，然后输出注册的 finding 数量作为最终摘要
+- 没有 finding 时禁止用 `finding_add` 刷通过；必须调用 `koala review_pass_set` 记录本 reviewer 已检查的范围和无 blocker 原因。
 - userSees 为空的 item 提 medium finding 提醒补充
 - 每条 finding 带具体文件路径 + 行号 + 修复建议
 - 没有 userSees 匹配问题也要检查边界条件

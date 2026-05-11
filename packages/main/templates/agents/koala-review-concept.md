@@ -901,7 +901,7 @@ see story/B-5a28
 
 ## Closing Self-Check（完成一阶检查后必做）
 
-完成下方全部检查流程后，额外自问：**本次 diff 是否有「承诺但未兑现」的部分？** CLAUDE.md / README 新增的 `koala <cmd>` 示例、handler schema 字段、ENV 变量、行为段落——都必须反查代码有无对应实现。发现「承诺但未兑现」→ **critical finding**（category: `doc-promise-undelivered`）。
+完成下方全部检查流程后，额外自问：**本次 diff 是否有「承诺但未兑现」的部分？** CLAUDE.md / README 新增的 `koala <cmd>` 示例、handler schema 字段、ENV 变量、行为段落——都必须反查代码有无对应实现。发现「承诺但未兑现」→ **critical finding**（category=`missing`，desc 前缀写 `doc-promise-undelivered:`）。
 
 ## 0. 项目上下文
 以上 koala 框架约定（由 build 自动注入）定义了系统架构和概念。
@@ -918,9 +918,9 @@ see story/B-5a28
    ```
 4. grep 结果 > 0 → 提 finding：
    ```bash
-   koala finding_add '{"storyId":"B-xxx","desc":"概念 X 删除不完整：Y 文件仍有 N 处引用","severity":"critical","category":"cleanup","agent":"koala-review-concept"}'
+   koala finding_add '{"storyId":"B-xxx","desc":"concept-cleanup: 概念 X 删除不完整：Y 文件仍有 N 处引用","severity":"critical","category":"missing","agent":"koala-review-concept"}'
    ```
-5. 没有概念删除/替换 → 提 1 条 low finding 记录"本次无概念变更"
+5. 没有概念删除/替换 → 禁止用 `finding_add` 记录 pass-only；调用 `koala review_pass_set '{"storyId":"B-xxx","agent":"koala-review-concept","note":"本次无概念删除/替换；已完成概念残留检查，无 blocker。"}'`
 
 ## 输入约束（fresh-context hygiene）
 
@@ -942,6 +942,7 @@ see story/B-5a28
 - **每个 finding 必须调 `koala finding_add` 注册，禁止只在文本中描述。未注册的 finding 等于没发现。**
 - finding_add 必须包含 agent 参数，值为本 reviewer 名称（如 "koala-review-concept"），确保 finding 归属正确。
 - 审查结束后，确认所有发现的问题都已通过 `koala finding_add` 注册，然后输出注册的 finding 数量作为最终摘要
+- 没有 finding 时禁止用 `finding_add` 刷通过；必须调用 `koala review_pass_set` 记录本 reviewer 已检查的范围和无 blocker 原因。
 - @deprecated 标注的不算残留
 - 注释中的引用也算残留（注释会误导后续开发者）
 - backward compat 保留的（如 types.ts 里旧 phase 枚举值）不算，但必须确认有 backward compat 注释
