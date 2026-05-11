@@ -624,6 +624,34 @@ async function assertItemDispatchWritesChannelEvidence(): Promise<void> {
   }
 }
 
+async function assertReviewerItemDispatchUsesReviewerPrompt(): Promise<void> {
+  const root = initRepo('koala-reviewer-item-dispatch-');
+  try {
+    const storyId = 'B-review-dispatch';
+    writeChecklistConcurrencyStory(root, storyId, 'REVIEW');
+
+    const output = await runKoala(root, 'dispatch', {
+      storyId,
+      itemId: 'CHK-001',
+      agentType: 'koala-review-quality',
+    });
+    assert.match(output, /作为 koala-review-quality 审查/, 'reviewer item dispatch should identify reviewer role');
+    assert.match(output, /只审查/, 'reviewer item dispatch should constrain the role to review only');
+    assert.match(output, /finding_add/, 'reviewer item dispatch should tell reviewers how to record findings');
+    assert.match(output, /review_pass_set/, 'reviewer item dispatch should tell reviewers how to record pass evidence');
+    assert.doesNotMatch(output, /作为 koala-implementer/, 'reviewer item dispatch must not generate implementer prompt');
+    assert.doesNotMatch(output, /git commit/, 'reviewer item dispatch must not ask reviewer to commit');
+    assert.doesNotMatch(output, /checklist_update/, 'reviewer item dispatch must not ask reviewer to mark checklist done');
+
+    const events = new StoryStore(root).readProcessEvents(storyId);
+    const dispatchEvent = events.find(ev => ev.type === 'dispatch' && ev.itemId === 'CHK-001');
+    assert.equal(dispatchEvent?.targetKind, 'checklist', 'reviewer item dispatch should still write checklist targetKind');
+    assert.equal(dispatchEvent?.agentType, 'koala-review-quality', 'reviewer item dispatch should preserve reviewer agentType');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 async function assertDoctorRepairCleansTerminalWorktrees(): Promise<void> {
   const root = initRepo('koala-doctor-worktree-repair-');
   try {
@@ -736,6 +764,7 @@ await assertPurgeDropsSafeInitCommit();
 await assertDoctorRepairCleansTerminalWorktrees();
 await assertInitDispatchPromptHasTimeoutGuidance();
 await assertItemDispatchWritesChannelEvidence();
+await assertReviewerItemDispatchUsesReviewerPrompt();
 assertStrayCleanupAllowsGeneratedReviewMetadata();
 assertDocsDriftAllowsBootstrapAndLegacyCommands();
 assertChannelAllowsExplicitMainAgentPlanOwnership();

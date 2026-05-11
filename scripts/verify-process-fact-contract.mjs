@@ -44,6 +44,26 @@ const requiredRuntimeEntries = [
     line: '- runtime:validate_fallback_discovery [L1] owner=handlers/verifier',
   },
 ];
+const requiredControlledMutationEntries = [
+  {
+    name: 'truth_nav',
+    level: 'L2',
+    owner: 'handlers/truth',
+    rationalePattern: /NAV\.md|documentation mutation/i,
+  },
+  {
+    name: 'truth_extract',
+    level: 'L2',
+    owner: 'handlers/truth',
+    rationalePattern: /writes generated requirements files|controlled mutation/i,
+  },
+  {
+    name: 'doctor',
+    level: 'L2',
+    owner: 'handlers/doctor',
+    rationalePattern: /repair|removes terminal worktree residue/i,
+  },
+];
 const processFactCommandNamePatterns = [
   /^story_advance$/,
   /^story_review$/,
@@ -515,6 +535,28 @@ function assertProcessFactCommandInventory() {
     assert(
       formatProcessFactLevelRegistryEntry(actual) === expected.line,
       `${processFactLevelRegistryPath}: ${expected.name} summary line drifted`,
+    );
+  }
+
+  for (const expected of requiredControlledMutationEntries) {
+    const actual = registry.get(expected.name);
+    assert(actual, `${processFactLevelRegistryPath}: controlled mutation entry missing: ${expected.name}`);
+    if (!actual) continue;
+    assert(
+      actual.level === expected.level,
+      `${processFactLevelRegistryPath}: ${expected.name} must stay ${expected.level}; got ${actual.level}`,
+    );
+    assert(
+      actual.level !== 'L0',
+      `${processFactLevelRegistryPath}: ${expected.name} writes or repairs state and must not be L0`,
+    );
+    assert(
+      actual.owner === expected.owner,
+      `${processFactLevelRegistryPath}: ${expected.name} owner drifted: expected ${expected.owner}, got ${actual.owner}`,
+    );
+    assert(
+      expected.rationalePattern.test(actual.rationale),
+      `${processFactLevelRegistryPath}: ${expected.name} rationale must mention the mutation/repair condition`,
     );
   }
 }
