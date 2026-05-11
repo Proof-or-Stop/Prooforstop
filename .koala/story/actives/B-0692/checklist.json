@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "建立流程事实 L0-L4 分级 registry",
+      "context": "把流程事实命令的硬度、owner、说明和消费方式集中在代码级配置里，作为 prompt、runtime、contract test 的单一事实源。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "AGENTS.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "让 process fact contract test 消费 registry",
+      "context": "现有 scripts/verify-process-fact-contract.mjs 维护了独立 inventory，应改为读取 registry，并继续覆盖 pass-only finding_add、legacy category、prompt drift 和新增流程事实命令未登记。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "AGENTS.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "补齐边缘执行语义的硬化覆盖",
+      "context": "把 phaseTools 配置异常、test_auto 递归跳过、validate fallback 这类软点至少登记为分级事实并用测试说明其硬度边界，避免误以为它们是 gate 级别。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "AGENTS.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
