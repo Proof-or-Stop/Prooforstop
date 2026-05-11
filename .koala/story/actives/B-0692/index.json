@@ -1,0 +1,93 @@
+{
+  "storyId": "B-0692",
+  "name": "process-fact-level-registry",
+  "title": "统一流程事实硬度分级配置表",
+  "description": "为 Koala 的状态、流程、验证、执行类流程事实建立 L0-L4 分级配置表，并让流程事实 contract test 从配置表推导命令覆盖，避免 prompt 约束和硬编码兜底继续分散漂移。",
+  "type": "chore",
+  "phase": "DONE",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "验证框架",
+      "matched": "test_auto"
+    }
+  ],
+  "createdAt": "2026-05-11T14:23:45.581Z",
+  "startedAt": "2026-05-11T14:23:45.581Z",
+  "endedAt": "2026-05-11T14:55:38.093Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-05-11T14:23:45.581Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-05-11T14:25:05.306Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-05-11T14:25:09.629Z",
+      "branch": "story/B-0692",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-11T14:28:52.684Z",
+      "branch": "story/B-0692",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-11T14:38:36.836Z",
+      "branch": "story/B-0692",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-11T14:42:50.858Z",
+      "branch": "story/B-0692",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-11T14:47:13.053Z",
+      "branch": "story/B-0692",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-05-11T14:51:34.804Z",
+      "branch": "story/B-0692",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-05-11T14:55:38.093Z",
+      "branch": "story/B-0692",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-05-11T14:47:13.053Z"
+}

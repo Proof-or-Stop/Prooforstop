@@ -67,6 +67,10 @@ function resolveBackgroundPolicy(agentType: string | undefined): BackgroundPolic
   return AGENT_BG_POLICY[agentType] ?? 'required';
 }
 
+function isReviewAgent(agentType: string | undefined): boolean {
+  return !!agentType && agentType.startsWith('koala-review-');
+}
+
 /**
  * B-9d95 CHK-004: 统一 dispatch 入口。
  *
@@ -329,7 +333,62 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       //    - none     → 完全不注入
       const bgPolicy = resolveBackgroundPolicy(agentType);
 
-      // 8. 组装 prompt
+      if (isReviewAgent(agentType)) {
+        const displayAgent = agentType!;
+        const lines: string[] = [];
+        lines.push(`作为 ${displayAgent} 审查 ${args.storyId} ${args.itemId}: ${item.title}`);
+        lines.push('');
+        lines.push(`工作目录（subagent 必须 cd 到此）: ${root}`);
+        lines.push('');
+        appendDispatchLivenessGuidance(lines, `${displayAgent}/${args.itemId}`);
+        lines.push('角色边界:');
+        lines.push('- 只审查，不改代码、不写测试、不更新 checklist。');
+        lines.push('- fresh-context 阅读材料，独立判断是否存在 blocker 或需要回炉的问题。');
+        lines.push('');
+        lines.push('审查材料:');
+        let idx = 1;
+        if (bgPolicy === 'required') {
+          const prefix = bgExists ? '' : '⚠ 缺失，强烈建议先写 `koala background_set` — ';
+          lines.push(`${idx}. 必读 background.md 理解意图 — ${prefix}${bgPath}`);
+          idx++;
+        }
+        const planRef = `${store.storyDirRel()}/${args.storyId}/plan.md#${args.itemId}`;
+        lines.push(`${idx}. ${planRef}`);
+        idx++;
+        const seen = new Set<string>([bgPath, planRef]);
+        if (Array.isArray(item.relatedDocs) && item.relatedDocs.length > 0) {
+          for (const doc of item.relatedDocs) {
+            if (seen.has(doc)) continue;
+            seen.add(doc);
+            lines.push(`${idx}. ${doc}`);
+            idx++;
+          }
+        }
+        if (bgPolicy === 'advisory') {
+          const prefix = bgExists ? '' : '⚠ 缺失 — ';
+          lines.push('');
+          lines.push(`可选参考 background.md（理解意图，但本 agent 以审查职责为主）: ${prefix}${bgPath}`);
+        }
+        lines.push('');
+        lines.push(`Context: ${item.context || '（未声明）'}`);
+        lines.push('');
+        lines.push('Files:');
+        lines.push(`- Modify: ${filesBlock.modify}`);
+        lines.push(`- Create: ${filesBlock.create}`);
+        lines.push(`- Test:   ${filesBlock.test}`);
+        lines.push('');
+        lines.push(`Verify expectation: ${verifyText}`);
+        lines.push('');
+        lines.push('结论记录（必须二选一）:');
+        lines.push(`- 有问题: koala finding_add '{"storyId":"${args.storyId}","desc":"<file:line WHY + severity>","severity":"high|medium|low","category":"missing|edge|adversarial|happy","agent":"${displayAgent}"}'`);
+        lines.push(`- 无 blocker: koala review_pass_set '{"storyId":"${args.storyId}","agent":"${displayAgent}","note":"reviewed ${args.itemId}: checked implementation against the item context and found no blocker."}'`);
+
+        void story;
+
+        return { prompt: lines.join('\n') };
+      }
+
+      // 8. 组装 implementer prompt
       const lines: string[] = [];
       lines.push(`作为 koala-implementer 实施 ${args.storyId} ${args.itemId}: ${item.title}`);
       lines.push('');
