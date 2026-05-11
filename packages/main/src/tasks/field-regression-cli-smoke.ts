@@ -303,6 +303,54 @@ async function assertReviewPassConcurrentCliSurface(): Promise<void> {
   }
 }
 
+async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<void> {
+  const root = initRepo('koala-field-pass-only-finding-');
+  try {
+    const storyId = 'B-passonly';
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+    const store = new StoryStore(root);
+    writeReviewStory(store, storyId);
+
+    const passOutput = await runKoala(root, 'finding_add', {
+      storyId,
+      desc: '文档一致性检查通过：Step 1 抽出 2 个符号，Step 2 比对 3 个段落；consistency check PASSED。',
+      severity: 'low',
+      category: 'happy',
+      agent: 'koala-review-docs',
+    });
+    assert.match(passOutput, /Review pass B-passonly:RP-001 recorded by koala-review-docs/);
+    assert.equal(store.readFindings(storyId).findings.length, 0, 'pass-only finding_add should not write findings.json');
+    const passes = store.readReviewPasses(storyId).passes;
+    assert.equal(passes.length, 1);
+    assert.equal(passes[0].agent, 'koala-review-docs');
+    assert.match(passes[0].note, /文档一致性检查通过/);
+
+    const noDriftOutput = await runKoala(root, 'finding_add', {
+      storyId,
+      desc: '文档一致性检查通过：未发现不一致。',
+      severity: 'low',
+      category: 'happy',
+      agent: 'koala-review-docs',
+    });
+    assert.match(noDriftOutput, /Review pass B-passonly:RP-002 recorded by koala-review-docs/);
+    assert.equal(store.readFindings(storyId).findings.length, 0, 'negated no-drift wording should remain a review pass');
+
+    const findingOutput = await runKoala(root, 'finding_add', {
+      storyId,
+      desc: '文档一致性检查通过但是 README 示例命令失败，需修正文档。',
+      severity: 'low',
+      category: 'edge',
+      agent: 'koala-review-docs',
+    });
+    assert.match(findingOutput, /Finding B-passonly:F-001 created by koala-review-docs/);
+    const findings = store.readFindings(storyId).findings;
+    assert.equal(findings.length, 1);
+    assert.equal(findings[0].status, 'open');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 async function assertChannelGateAcceptsSubagentResultCliSurface(): Promise<void> {
   const root = initRepo('koala-field-channel-');
   try {
@@ -651,6 +699,7 @@ await assertPlanRemoveIsHardBlocked();
 await assertClusterAutoResolveCliSurface();
 await assertDirectFindingAutoResolveCliSurface();
 await assertReviewPassConcurrentCliSurface();
+await assertPassOnlyFindingConvertsToReviewPassCliSurface();
 await assertChannelGateAcceptsSubagentResultCliSurface();
 await assertEvidenceFreshAfterMetadataOnlyCliSurface();
 await assertVerificationEvidenceKindAliasesCliSurface();

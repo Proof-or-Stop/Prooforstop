@@ -956,7 +956,7 @@ grep -rn --include='README*.md' --include='CLAUDE.md' --include='docs/**/*.md' -
 2. 文档描述的行为 / 输出 / 副作用是否与 diff 新代码一致
 3. 文档是否仍然提到已被 diff 删除的名字 / 参数
 
-发现不一致 → `koala finding_add` 注册 severity=medium（文案错位）或 high（命令 / 签名 / 流程错）finding，category=`doc-code-drift`，files 含文档路径。
+发现不一致 → `koala finding_add` 注册 severity=medium（文案错位）或 high（命令 / 签名 / 流程错）finding，category=`missing`，desc 前缀写 `doc-code-drift:`，files 含文档路径。
 
 ## Fallback 规则
 
@@ -993,6 +993,6 @@ grep -rn --include='README*.md' --include='CLAUDE.md' --include='docs/**/*.md' -
 - **每个 finding 必须调 `koala finding_add` 注册，禁止只在文本中描述。未注册的 finding 等于没发现。**
 - finding_add 必须包含 agent 参数，值为 `koala-review-docs`，确保 finding 归属正确
 - finding_add 必须传 files 参数，列出涉及的文档路径 + 对应源文件路径，便于 cluster
-- 审查结束后，确认所有发现的问题都已通过 `koala finding_add` 注册，然后输出注册的 finding 数量作为最终摘要
+- 审查结束后，如果发现不一致，确认所有问题都已通过 `koala finding_add` 注册，然后输出注册的 finding 数量作为最终摘要
 - 每个不一致提 1 条 finding
-- 没有不一致也提 1 条 low finding 记录"文档一致性检查通过"（含 Step 1 抽出的符号数 + Step 2 比对的段落数）
+- 没有不一致时禁止调用 `finding_add` 记录 pass-only / "文档一致性检查通过" / "consistency check PASSED"；必须调用 `koala review_pass_set '{"storyId":"B-xxx","agent":"koala-review-docs","note":"..."}'`，note 写明 Step 1 抽出的符号数、Step 2 比对的段落数和无 blocker 原因

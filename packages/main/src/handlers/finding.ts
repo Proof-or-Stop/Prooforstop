@@ -39,14 +39,28 @@ function withReviewPassLock<T>(ctx: HandlerContext, storyId: string, fn: () => T
   }
 }
 
-function isNoBlockingIssuePlaceholder(finding: Pick<Finding, 'desc' | 'severity' | 'agent'>): boolean {
+function isPassOnlyReviewRecord(finding: Pick<Finding, 'desc' | 'severity' | 'agent'>): boolean {
   if (finding.severity !== 'low') return false;
   if (!finding.agent || !finding.agent.startsWith('koala-review-')) return false;
-  return /\b(no blocking issues?|no blocking issue found|no blockers?|0 blocking)\b/i.test(finding.desc);
+  const desc = finding.desc.trim();
+  const passOnlyPatterns = [
+    /\b(no blocking issues?|no blocking issue found|no blockers?|0 blocking)\b/i,
+    /\b(consistency check\s+passed|consistency check\s+pass|consistency passed)\b/i,
+    /\b(?:docs?|documentation)\s+(?:consistency\s+)?(?:check\s+)?passed\b/i,
+    /\bno\s+(?:(?:docs?|documentation)\s+)?(?:drift|inconsistenc(?:y|ies)|mismatch)(?:\s+found)?\b/i,
+    /(?:未发现|没有|无)(?:文档)?(?:不一致|漂移|错位|缺少|遗漏)/,
+    /文档一致性检查通过/,
+    /一致性检查通过/,
+  ];
+  const neutralizedDesc = desc
+    .replace(/(?:未发现|没有|无)(?:文档)?(?:不一致|漂移|错位|缺少|遗漏)/g, '')
+    .replace(/\bno\s+(?:(?:docs?|documentation)\s+)?(?:drift|inconsistenc(?:y|ies)|mismatch)(?:\s+found)?\b/gi, '');
+  const ambiguityPattern = /\b(?:but|except|however|unless)\b|但|但是|不过|除外|仍|失败|未通过|不一致|缺少|遗漏|blocker found|issue found|problem found|failed/i;
+  return passOnlyPatterns.some(pattern => pattern.test(desc)) && !ambiguityPattern.test(neutralizedDesc);
 }
 
 function normalizeFindingForList(finding: Finding): Finding {
-  if (finding.status !== 'open' || !isNoBlockingIssuePlaceholder(finding)) return finding;
+  if (finding.status !== 'open' || !isPassOnlyReviewRecord(finding)) return finding;
   return {
     ...finding,
     status: 'resolved',
@@ -54,19 +68,71 @@ function normalizeFindingForList(finding: Finding): Finding {
   };
 }
 
+function recordReviewPass(ctx: HandlerContext, storyId: string, agent: string, note: string): string {
+  return withReviewPassLock(ctx, storyId, () => {
+    const story = ctx.store.readStory(storyId);
+    const data = ctx.store.readReviewPasses(storyId);
+    const nextNum = data.passes.reduce((max, pass) => {
+      const m = pass.id.match(/:RP-(\d+)$/);
+      return m ? Math.max(max, Number(m[1])) : max;
+    }, 0) + 1;
+    const id = `${storyId}:RP-${String(nextNum).padStart(3, '0')}`;
+    if (data.passes.some(pass => pass.id === id)) {
+      throw new Error(`review_pass_set: duplicate review pass id ${id}; refusing to report success`);
+    }
+    const createdAt = new Date().toISOString();
+    const reviewRound = story.currentReviewRound || '';
+    const trimmedNote = note.trim();
+    const pass = {
+      id,
+      agent,
+      note: trimmedNote,
+      createdAt,
+      reviewRound,
+      _hash: signReviewPass(storyId, id, agent, trimmedNote, createdAt, reviewRound),
+    };
+    data.passes.push(pass);
+    ctx.store.writeReviewPasses(storyId, data);
+    const persisted = ctx.store.readReviewPasses(storyId);
+    const persistedPass = persisted.passes.find(p => p.id === id);
+    if (!persistedPass || persistedPass._hash !== pass._hash || persistedPass.agent !== agent) {
+      throw new Error(`review_pass_set: ${id} was not durably persisted; refusing to report success`);
+    }
+    try {
+      ctx.store.appendProcessEvent(storyId, {
+        type: 'review_pass',
+        storyId,
+        command: 'review_pass_set',
+        role: 'reviewer',
+        agent,
+        result: 'pass',
+        reviewPassId: id,
+      });
+    } catch (e) {
+      console.warn(`[process-events] append failed for ${storyId}:`, (e as Error).message);
+    }
+    return `Review pass ${id} recorded by ${agent}`;
+  });
+}
+
 export function createFindingHandlers(ctx: HandlerContext) {
   const { store } = ctx;
   return {
     finding_add(args: { storyId: string; desc: string; severity: string; category: string; agent?: string; files?: string[] }): string {
       assertCwdInWorktree(store, args.storyId);
-      const data = store.readFindings(args.storyId);
-      const nextNum = data.findings.length + 1;
-      const id = `${args.storyId}:F-${String(nextNum).padStart(3, '0')}`;
-      const timestamp = new Date().toISOString();
 
       // 记录调用者身份（环境变量 KOALA_AGENT 由 subagent 设置）
       const missingAttribution = !args.agent && !process.env.KOALA_AGENT;
       const agent = args.agent || process.env.KOALA_AGENT || 'main';
+
+      if (isPassOnlyReviewRecord({ desc: args.desc, severity: args.severity as Finding['severity'], agent })) {
+        return recordReviewPass(ctx, args.storyId, agent, `Converted pass-only finding_add record: ${args.desc}`);
+      }
+
+      const data = store.readFindings(args.storyId);
+      const nextNum = data.findings.length + 1;
+      const id = `${args.storyId}:F-${String(nextNum).padStart(3, '0')}`;
+      const timestamp = new Date().toISOString();
 
       // 自动注入当前 review round（reviewer 无需传参）
       const story = store.readStory(args.storyId);
@@ -77,7 +143,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
         desc: args.desc,
         severity: args.severity as 'critical' | 'high' | 'medium' | 'low',
         category: args.category as Finding["category"],
-        status: isNoBlockingIssuePlaceholder({ desc: args.desc, severity: args.severity as Finding['severity'], agent })
+        status: isPassOnlyReviewRecord({ desc: args.desc, severity: args.severity as Finding['severity'], agent })
           ? 'resolved' as const
           : 'open' as const,
         agent,
@@ -131,50 +197,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
         throw new Error('review_pass_set: agent 必须是 koala-review-* reviewer');
       }
       assertCwdInWorktree(store, args.storyId);
-      return withReviewPassLock(ctx, args.storyId, () => {
-        const story = store.readStory(args.storyId);
-        const data = store.readReviewPasses(args.storyId);
-        const nextNum = data.passes.reduce((max, pass) => {
-          const m = pass.id.match(/:RP-(\d+)$/);
-          return m ? Math.max(max, Number(m[1])) : max;
-        }, 0) + 1;
-        const id = `${args.storyId}:RP-${String(nextNum).padStart(3, '0')}`;
-        if (data.passes.some(pass => pass.id === id)) {
-          throw new Error(`review_pass_set: duplicate review pass id ${id}; refusing to report success`);
-        }
-        const createdAt = new Date().toISOString();
-        const reviewRound = story.currentReviewRound || '';
-        const note = args.note.trim();
-        const pass = {
-          id,
-          agent,
-          note,
-          createdAt,
-          reviewRound,
-          _hash: signReviewPass(args.storyId, id, agent, note, createdAt, reviewRound),
-        };
-        data.passes.push(pass);
-        store.writeReviewPasses(args.storyId, data);
-        const persisted = store.readReviewPasses(args.storyId);
-        const persistedPass = persisted.passes.find(p => p.id === id);
-        if (!persistedPass || persistedPass._hash !== pass._hash || persistedPass.agent !== agent) {
-          throw new Error(`review_pass_set: ${id} was not durably persisted; refusing to report success`);
-        }
-        try {
-          store.appendProcessEvent(args.storyId, {
-            type: 'review_pass',
-            storyId: args.storyId,
-            command: 'review_pass_set',
-            role: 'reviewer',
-            agent,
-            result: 'pass',
-            reviewPassId: id,
-          });
-        } catch (e) {
-          console.warn(`[process-events] append failed for ${args.storyId}:`, (e as Error).message);
-        }
-        return `Review pass ${id} recorded by ${agent}`;
-      });
+      return recordReviewPass(ctx, args.storyId, agent, args.note);
     },
 
     finding_list(args: { storyId: string; cluster?: boolean }) {

@@ -482,6 +482,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     severity: z.enum(['critical', 'high', 'medium', 'low']).describe('严重程度'),
     category: z.enum(['happy', 'edge', 'adversarial', 'missing']).describe('分类'),
     agent: z.string().optional().describe('调用者身份（可选，默认从 KOALA_AGENT 环境变量读）'),
+    files: z.array(z.string()).optional().describe('关联文件路径（用于 reviewer finding cluster 与溯源）'),
   }},
   { name: 'finding_list', description: '查看 story 的 findings', schema: {
     storyId: z.string().describe('Story ID'),
