@@ -4,7 +4,7 @@
   "title": "统一命令生命周期与 phase policy 硬编码兜底",
   "description": "建立命令生命周期/phase policy 的统一硬编码事实源，识别 supported/rootOnly/retired/replacedBy/gateEvidence/maintenance 等状态，防止 process fact registry、phaseTools、handler runtime 和 docs/prompt 对命令可用性的理解漂移。重点覆盖 finding workflow 已修问题的同类风险，以及 test/fixture legacy command drift。",
   "type": "chore",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "riskSignals": [
     {
@@ -79,6 +79,14 @@
       "branch": "story/B-5c5e",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-12T01:29:42.661Z",
+      "branch": "story/B-5c5e",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -86,5 +94,5 @@
     "branch": "story/B-5c5e",
     "createdAt": "2026-05-12T00:44:51.001Z"
   },
-  "currentReviewRound": "2026-05-12T01:20:24.141Z"
+  "currentReviewRound": "2026-05-12T01:29:42.661Z"
 }
