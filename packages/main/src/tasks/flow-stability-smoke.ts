@@ -6,7 +6,7 @@ import { mkdtempSync, rmSync, mkdirSync, writeFileSync, existsSync, lstatSync, r
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { isCommandAllowed, resetConfigCache } from '../core/config.js';
+import { getAllowedPatterns, isCommandAllowed, resetConfigCache } from '../core/config.js';
 import { signFinding, signReviewPass } from '../core/finding-verify.js';
 import { getArtifactContractStatus } from '../core/artifact-contract.js';
 import { getGuardFailureReason } from '../core/machine.js';
@@ -162,6 +162,36 @@ function assertSessionBriefGate(): void {
     isCommandAllowed('bug_report', 'DEV'),
     false,
     'finding_cluster in DEV must not broaden unrelated TEST/REVIEW commands',
+  );
+  assert.equal(
+    isCommandAllowed('test_auto', 'REVIEW', { REVIEW: ['test_auto'] }),
+    false,
+    'custom phase tools must not widen legacy rootOnly commands into REVIEW',
+  );
+  assert.equal(
+    isCommandAllowed('bug_report', 'DEV', null as any),
+    false,
+    'malformed phaseTools must still respect command policy disallowing bug_report in DEV',
+  );
+  assert.equal(
+    isCommandAllowed('test_auto', 'REVIEW', null as any),
+    false,
+    'malformed phaseTools must not allow legacy rootOnly commands with no active producer phase',
+  );
+  assert.equal(
+    isCommandAllowed('validate', 'DEV', null as any),
+    true,
+    'malformed phaseTools should fall back to the lifecycle policy ceiling for policy-approved commands',
+  );
+  assert.equal(
+    getAllowedPatterns('REVIEW', { REVIEW: ['test_auto', 'finding_add'] }).includes('test_auto'),
+    false,
+    'allowed pattern display must filter commands blocked by lifecycle policy',
+  );
+  assert.equal(
+    getAllowedPatterns('REVIEW', { REVIEW: ['test_auto', 'finding_add'] }).includes('finding_add'),
+    true,
+    'allowed pattern display should keep policy-approved custom commands',
   );
   assert.equal(
     isCommandAllowed('finding_add', 'DEV', { '*': ['status'], DEV: ['checklist_get'] }),

@@ -128,7 +128,7 @@ export const PROCESS_FACT_LEVELS = [
   { name: 'workflow_set', level: 'L1', category: 'workflow-config', owner: 'core/config', rationale: 'Changes workflow profile configuration that influences later gates.' },
   { name: 'workflow_show', level: 'L0', category: 'workflow-config-read', owner: 'core/config', rationale: 'Reads workflow profile configuration without mutation.' },
   { name: 'workflow_explain', level: 'L0', category: 'workflow-config-read', owner: 'core/config', rationale: 'Explains effective workflow profile without mutation.' },
-  { name: 'runtime:phase_tools_malformed_allow_all', level: 'L1', category: 'runtime-behavior', owner: 'core/config', rationale: 'Malformed phase tool configuration falls back to allow-all as advisory config behavior.' },
+  { name: 'runtime:phase_tools_malformed_policy_ceiling', level: 'L1', category: 'runtime-behavior', owner: 'core/config', rationale: 'Malformed phase tool configuration falls back to the lifecycle policy ceiling instead of widening rootOnly or legacy commands.' },
   { name: 'runtime:test_auto_recursive_skip', level: 'L2', category: 'runtime-behavior', owner: 'handlers/test-auto', rationale: 'Runtime guard skips recursive test_auto execution to avoid destructive reentry.' },
   { name: 'runtime:validate_fallback_discovery', level: 'L1', category: 'runtime-behavior', owner: 'handlers/verifier', rationale: 'Validation command discovery falls back when explicit config is missing.' },
 ] as const satisfies readonly ProcessFactLevelEntry[];

@@ -386,7 +386,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     validateExecute: z.boolean().optional().describe('追加前预执行 CLI case'),
   }},
   { name: 'test_auto', description: 'legacy 全量 fixture 回归（真实执行需 confirm；dryRun 预览）', schema: {
-    storyId: z.string().optional().describe('已废弃；story 级测试请用 test_story'),
+    storyId: z.string().optional().describe('已废弃；当前 story 验证请用 koala validate --story=<storyId> 并记录 verificationEvidence'),
     trace: z.boolean().optional().describe('收集 trace'),
     enableProfiler: z.boolean().optional().describe('启用 profiler'),
     dryRun: z.boolean().optional().describe('只输出执行计划'),
