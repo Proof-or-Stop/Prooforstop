@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "DONE cleanup uses git top-level worktree root even when invoked from a nested cwd",
       "context": "In packages/main/src/handlers/story-advance.ts, replace the assumption that process.cwd() is the worktree root with a canonical worktreeRoot from git rev-parse --show-toplevel. Use that root, not the nested cwd, for assertDoneMergeCanApplyBeforeStateMutation, cleanStrayWorktreeFiles, git add/commit of story metadata, repairGlobalKoalaLinkBeforeWorktreeDelete, git worktree remove, rm -rf residue cleanup, and branch delete. Add a guard so Koala never rm -rf removes an arbitrary nested cwd that is not a registered worktree root.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
+      "status": "done",
+      "startTime": "2026-05-12T17:36:39.682Z",
+      "endTime": "2026-05-12T17:43:54.455Z",
       "relatedDocs": [
         "CLAUDE.md#Worktree 自动管理"
       ],
@@ -43,15 +43,47 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && npm run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "DONE context now comes from git rev-parse --show-toplevel; focused build passed and nested-cwd smoke output rejects PVSC cleanup target.",
+          "headHash": "719c96f412aeb9985a177c783db2d4b7d90a0a08",
+          "materialHash": "54e8e0d03d6726121ba8c7f8dc3b01d2a74e0511f1dc34a764def9ad999d285d",
+          "timestamp": "2026-05-12T17:45:21.399Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "Temp repo DONE from PVSC/child verified main metadata became DONE with worktree cleared after root-based story metadata commit and merge.",
+          "headHash": "719c96f412aeb9985a177c783db2d4b7d90a0a08",
+          "materialHash": "54e8e0d03d6726121ba8c7f8dc3b01d2a74e0511f1dc34a764def9ad999d285d",
+          "timestamp": "2026-05-12T17:45:21.399Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "Smoke leaves runtime residue under PVSC/child and fails if output/removal target uses the nested cwd; residual rm guard only allows the registered canonical worktree root.",
+          "headHash": "719c96f412aeb9985a177c783db2d4b7d90a0a08",
+          "materialHash": "54e8e0d03d6726121ba8c7f8dc3b01d2a74e0511f1dc34a764def9ad999d285d",
+          "timestamp": "2026-05-12T17:45:21.399Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Regression smoke covers DONE from a nested worktree subdirectory",
       "context": "Add or extend a smoke test to create a temporary repo/story worktree with a nested subdirectory like PVSC, run story_advance DONE from that nested directory, and assert main receives DONE metadata, git worktree list no longer contains the story worktree, the story branch is deleted, and the nested directory is not treated as the worktree remove target.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
+      "status": "done",
+      "startTime": "2026-05-12T17:44:04.859Z",
+      "endTime": "2026-05-12T17:44:05.214Z",
       "relatedDocs": [
         "CLAUDE.md#Worktree 自动管理"
       ],
@@ -89,7 +121,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "command": "npm run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "worktree-authority smoke now includes assertDoneFromNestedCwdUsesCanonicalWorktreeRoot and passes on the fixed path.",
+          "headHash": "719c96f412aeb9985a177c783db2d4b7d90a0a08",
+          "materialHash": "54e8e0d03d6726121ba8c7f8dc3b01d2a74e0511f1dc34a764def9ad999d285d",
+          "timestamp": "2026-05-12T17:45:21.399Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "Regression asserts story branch deletion, clean git worktree registry, removed canonical worktree directory, and DONE metadata cleared in main.",
+          "headHash": "719c96f412aeb9985a177c783db2d4b7d90a0a08",
+          "materialHash": "54e8e0d03d6726121ba8c7f8dc3b01d2a74e0511f1dc34a764def9ad999d285d",
+          "timestamp": "2026-05-12T17:45:21.399Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "Regression asserts DONE output does not contain PVSC or the child cwd path, so the old nested cleanup target fails this smoke.",
+          "headHash": "719c96f412aeb9985a177c783db2d4b7d90a0a08",
+          "materialHash": "54e8e0d03d6726121ba8c7f8dc3b01d2a74e0511f1dc34a764def9ad999d285d",
+          "timestamp": "2026-05-12T17:45:21.399Z"
+        }
+      ]
     }
   ],
   "auditLog": [

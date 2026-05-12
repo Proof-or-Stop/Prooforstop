@@ -12,7 +12,7 @@ import { checkMetaStoryAdvanceGuard } from '../core/audit-meta-store.js';
 import { maybeTriggerAudit } from '../core/audit-trigger.js';
 import { renderSummaryForHint } from './summary.js';
 import { execFileSync, execSync } from 'child_process';
-import { dirname, join } from 'path';
+import { dirname, join, resolve } from 'path';
 import { existsSync, rmSync } from 'fs';
 import { cleanStrayWorktreeFiles } from './stray-file-cleanup.js';
 import { computeActiveReviewers, renderActiveReviewersText } from './reviewer-list.js';
@@ -92,6 +92,63 @@ function pruneWorktreeRegistry(repoRoot: string): void {
     encoding: 'utf-8',
     stdio: ['pipe', 'pipe', 'pipe'],
   });
+}
+
+type DoneWorktreeContext = {
+  invocationCwd: string;
+  worktreeRoot: string;
+  mainRepoRoot: string;
+  branch: string;
+};
+
+function samePath(a: string, b: string): boolean {
+  return resolve(a).replace(/\\/g, '/') === resolve(b).replace(/\\/g, '/');
+}
+
+function detectDoneStoryWorktreeContext(invocationCwd = process.cwd()): DoneWorktreeContext | null {
+  try {
+    const branch = execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
+      cwd: invocationCwd,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    if (!branch.startsWith('story/')) return null;
+
+    const worktreeRoot = execFileSync('git', ['rev-parse', '--show-toplevel'], {
+      cwd: invocationCwd,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    const commonDirRaw = execFileSync('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'], {
+      cwd: invocationCwd,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    const mainRepoRoot = dirname(commonDirRaw);
+    if (samePath(worktreeRoot, mainRepoRoot)) return null;
+
+    return {
+      invocationCwd: resolve(invocationCwd),
+      worktreeRoot: resolve(worktreeRoot),
+      mainRepoRoot: resolve(mainRepoRoot),
+      branch,
+    };
+  } catch {
+    // PROBE: not in a git worktree or git metadata is unavailable.
+    return null;
+  }
+}
+
+function assertSafeResidualWorktreeRm(ctx: DoneWorktreeContext, target: string, wasRegisteredWorktree: boolean): void {
+  if (!samePath(target, ctx.worktreeRoot)) {
+    throw new Error(`refusing residual cleanup outside canonical worktree root: ${target}`);
+  }
+  if (!wasRegisteredWorktree) {
+    throw new Error(`refusing residual cleanup for unregistered worktree path: ${target}`);
+  }
+  if (!samePath(ctx.invocationCwd, ctx.worktreeRoot) && samePath(target, ctx.invocationCwd)) {
+    throw new Error(`refusing residual cleanup of nested invocation cwd: ${target}`);
+  }
 }
 
 function assertDoneMergeCanApplyBeforeStateMutation(storyId: string, worktreePath: string, mainRepoRoot: string): void {
@@ -874,25 +931,12 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
         //   - 有 offender → throw（保留文件，不落盘 DONE）
         //   - 无 offender → 继续走完整流程，whitelist rm 在 Step 2.5 执行
         try {
-          const cwdInWorktree = process.cwd();
-          let mainRepoRoot = '';
-          let detectedBranch = '';
-          try {
-            detectedBranch = execSync('git rev-parse --abbrev-ref HEAD', {
-              cwd: cwdInWorktree, encoding: 'utf-8',
-            }).toString().trim();
-            const commonDirRaw = execSync('git rev-parse --path-format=absolute --git-common-dir', {
-              cwd: cwdInWorktree, encoding: 'utf-8',
-            }).toString().trim();
-            mainRepoRoot = dirname(commonDirRaw);
-          } catch {
-            // 不在 git 仓 → 跳过（merge 流程自己会报错）
-            mainRepoRoot = '';
-          }
-          if (mainRepoRoot && cwdInWorktree !== mainRepoRoot && detectedBranch.startsWith('story/')) {
+          const doneWorktree = detectDoneStoryWorktreeContext();
+          if (doneWorktree) {
             // 仅 dry-run：用 git ls-files 读出未追踪文件，按白名单分类。
             // 发现 offender → throw（此时 story.phase 仍为 TEST）。无 offender
             // → 返回，不做任何删除，后续 Step 2.5 才会真的 rm whitelist 文件。
+            const { mainRepoRoot, worktreeRoot } = doneWorktree;
             const storyDir = `${store.storyDirRel()}/${args.storyId}/`;
             if (existsSync(join(mainRepoRoot, storyDir))) {
               let raw = '';
@@ -909,7 +953,7 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
                 // 复用 cleanStrayWorktreeFiles 的 throw 消息（单一真相源），
                 // 传入 worktreePath 让消息含 git worktree remove / branch -d 指引。
                 actor.stop();
-                cleanStrayWorktreeFiles(mainRepoRoot, args.storyId, cwdInWorktree);
+                cleanStrayWorktreeFiles(mainRepoRoot, args.storyId, worktreeRoot);
                 // cleanStrayWorktreeFiles 在有 offender 时必然 throw；能到这行
                 // 说明逻辑偏离，fallback：主动抛错避免 phase 默认落盘。
                 throw new Error(
@@ -917,7 +961,7 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
                 );
               }
             }
-            assertDoneMergeCanApplyBeforeStateMutation(args.storyId, cwdInWorktree, mainRepoRoot);
+            assertDoneMergeCanApplyBeforeStateMutation(args.storyId, worktreeRoot, mainRepoRoot);
           }
         } catch (e: any) {
           // throw 的错误信息（含 stash / worktree remove 指引）直接冒给 caller，
@@ -1142,33 +1186,14 @@ ${agentLines}
         // 注意：不能依赖 story.worktree 字段——INIT_CHECK 把这个字段写到了 main
         // 仓库的 index.json，但 worktree 内 checkout 的版本是 INIT_CHECK 之前的，
         // 没有这个字段。所以 readStory(from worktree) 永远拿到 worktree=undefined。
-        // 改为从 git 实际状态推断：cwd（worktree 路径）+ 当前分支 + git common dir。
-        // B-9d95 CHK-001 whitelist: worktree 探测——DONE 推进时调用方必须在 worktree 里执行（见 cwd 门禁），
-        // 所以 process.cwd() 正是 worktree 绝对路径。ctx.root 在 worktree 内的 handler 调用也是 worktree 路径，
-        // 但本段逻辑语义是"调用方站在哪"，读 process.cwd() 更直观地表达这个意图。
-        const cwdInWorktree = process.cwd();
-        let detectedBranch = '';
-        let mainRepoRoot = '';
-        let wtPathAbs = '';
-        try {
-          detectedBranch = execSync('git rev-parse --abbrev-ref HEAD', {
-            cwd: cwdInWorktree, encoding: 'utf-8',
-          }).trim();
-          const commonDirRaw = execSync('git rev-parse --path-format=absolute --git-common-dir', {
-            cwd: cwdInWorktree, encoding: 'utf-8',
-          }).trim();
-          mainRepoRoot = dirname(commonDirRaw);
-          // 只有 cwd 真的是 worktree 而非 main 时才走自动合并
-          if (cwdInWorktree !== mainRepoRoot && detectedBranch.startsWith('story/')) {
-            wtPathAbs = cwdInWorktree;
-          }
-        } catch {
-          // PROBE: 不在 git 仓库或 git 命令失败 → 跳过自动合并
-        }
+        // 改为从 git 实际状态推断：调用 cwd、git 顶层 worktree、当前分支、git common dir。
+        // DONE 可从 worktree 子目录触发，所以 cleanup 目标必须是 git top-level，
+        // 不能把 process.cwd() 当作可删除路径。
+        const doneWorktree = detectDoneStoryWorktreeContext();
 
-        if (detectedBranch && wtPathAbs && mainRepoRoot && detectedBranch.startsWith('story/')) {
+        if (doneWorktree) {
           const mergeLines: string[] = [];
-          const branch = detectedBranch;
+          const { branch, mainRepoRoot, worktreeRoot: wtPathAbs } = doneWorktree;
           {
             const runGit = (cmd: string, cwd: string): string =>
               execSync(`git ${cmd}`, { cwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).toString().trim();
@@ -1181,12 +1206,12 @@ ${agentLines}
             // Step 2: commit 所有 story metadata（phase=DONE + worktree=undefined +
             // endedAt + reviewer/test 产物）。dev_merge:228 用的是同一招。
             try {
-              runGit(`add ${store.storyDirRel()}`, cwdInWorktree);
-              const staged = runGit('diff --cached --name-only', cwdInWorktree);
+              runGit(`add ${store.storyDirRel()}`, wtPathAbs);
+              const staged = runGit('diff --cached --name-only', wtPathAbs);
               if (staged) {
                 runGit(
                   `-c commit.gpgsign=false commit -m "koala: mark ${args.storyId} DONE + clear worktree"`,
-                  cwdInWorktree,
+                  wtPathAbs,
                 );
               }
             } catch { /* PROBE: 没东西 commit 也无所谓 */ }
@@ -1243,6 +1268,7 @@ ${agentLines}
             // anything left in the worktree is either gitignored runtime
             // state or genuine leakage we want to erase.
             if (existsSync(wtPathAbs) || isRegisteredWorktree(mainRepoRoot, wtPathAbs)) {
+              const wasRegisteredWorktree = isRegisteredWorktree(mainRepoRoot, wtPathAbs);
               const repair = repairGlobalKoalaLinkBeforeWorktreeDelete(wtPathAbs, mainRepoRoot);
               if (repair.action === 'relinked') mergeLines.push(repair.message);
               let removeFailure: string | null = null;
@@ -1265,6 +1291,7 @@ ${agentLines}
               // leftovers from Claude Code hooks.
               if (existsSync(wtPathAbs)) {
                 try {
+                  assertSafeResidualWorktreeRm(doneWorktree, wtPathAbs, wasRegisteredWorktree);
                   rmSync(wtPathAbs, { recursive: true, force: true });
                   mergeLines.push(`✓ Worktree 目录残留已清空`);
                 } catch (e: any) {

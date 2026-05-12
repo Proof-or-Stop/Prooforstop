@@ -380,7 +380,7 @@ project/
 4. `story_advance PLAN` → 正式进入开发流程
 5. PLAN / DEV / TEST 全部在 worktree 里完成
 6. `story_advance --phase=TEST` → 推进 TEST
-7. `story_advance --phase=DONE` → 合并回 main 并清理 worktree
+7. `story_advance --phase=DONE` → 合并回 main 并清理 worktree（可从 worktree 子目录触发，清理目标仍是 git 顶层 worktree）
 
 **cwd 门禁**：PLAN 起所有 `story_advance` 都校验 cwd 是 story 的 worktree。
 
