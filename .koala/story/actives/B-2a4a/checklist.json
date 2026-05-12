@@ -53,9 +53,9 @@
           "command": "node scripts/verify-story-review-structured-output.mjs",
           "result": "pass",
           "note": "Structured-output smoke asserts story_review exposes numeric planReviewRound and keeps legacy reviewRound equal to that numeric PLAN round.",
-          "headHash": "a02d6126c609b3211db81a6a7bac3cfdfd0580fc",
-          "materialHash": "1ec52fcd2ce2a00a88a82389fc09f4d79da9aefeb90e3113d7dace6b9e130dea",
-          "timestamp": "2026-05-12T22:21:57.463Z"
+          "headHash": "4589a05d97a1441b774f2a1a9457b721cb069bf4",
+          "materialHash": "f12c424a96a13dc3aa73fd2cbe6f18dceb4d5d7e368ed3fa42a5159694f4eacd",
+          "timestamp": "2026-05-12T22:29:04.489Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -63,9 +63,9 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "Process fact contract requires docs to label story_review.reviewRound as legacy numeric PLAN review alias, distinct from signed artifact reviewRound.",
-          "headHash": "a02d6126c609b3211db81a6a7bac3cfdfd0580fc",
-          "materialHash": "1ec52fcd2ce2a00a88a82389fc09f4d79da9aefeb90e3113d7dace6b9e130dea",
-          "timestamp": "2026-05-12T22:21:57.491Z"
+          "headHash": "4589a05d97a1441b774f2a1a9457b721cb069bf4",
+          "materialHash": "f12c424a96a13dc3aa73fd2cbe6f18dceb4d5d7e368ed3fa42a5159694f4eacd",
+          "timestamp": "2026-05-12T22:29:04.490Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -73,9 +73,9 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "Contract fails if docs omit the distinction between story_review.planReviewRound number and signed artifact reviewRound ISO string.",
-          "headHash": "a02d6126c609b3211db81a6a7bac3cfdfd0580fc",
-          "materialHash": "1ec52fcd2ce2a00a88a82389fc09f4d79da9aefeb90e3113d7dace6b9e130dea",
-          "timestamp": "2026-05-12T22:21:57.518Z"
+          "headHash": "4589a05d97a1441b774f2a1a9457b721cb069bf4",
+          "materialHash": "f12c424a96a13dc3aa73fd2cbe6f18dceb4d5d7e368ed3fa42a5159694f4eacd",
+          "timestamp": "2026-05-12T22:29:04.490Z"
         }
       ]
     },
