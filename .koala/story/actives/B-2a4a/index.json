@@ -4,11 +4,11 @@
   "title": "Disambiguate story_review numeric round from signed reviewRound",
   "description": "story_review currently returns a numeric reviewRound that can be confused with signed finding/review pass reviewRound, which is an ISO 8601 string. Rename or supplement the story_review response with an explicit numeric field and document the distinction so schema readers do not infer that findings.json reviewRound is a number.",
   "type": "chore",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "medium",
   "createdAt": "2026-05-12T22:11:10.874Z",
   "startedAt": "2026-05-12T22:11:10.874Z",
-  "endedAt": null,
+  "endedAt": "2026-05-12T22:31:56.963Z",
   "events": [
     {
       "phase": "INIT",
@@ -73,12 +73,15 @@
       "branch": "story/B-2a4a",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-05-12T22:31:56.963Z",
+      "branch": "story/B-2a4a",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-2a4a",
-    "branch": "story/B-2a4a",
-    "createdAt": "2026-05-12T22:12:01.005Z"
-  },
   "currentReviewRound": "2026-05-12T22:26:13.761Z"
 }
