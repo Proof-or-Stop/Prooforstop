@@ -597,6 +597,7 @@ TEST 阶段自动 spawn `koala-review-delivery` 产出 `delivery-check.json`。`
 - delivery-check.json 缺失 → `missing_delivery_check` blocker
 - `_hash` 重算不匹配 → `delivery_check_tampered` blocker
 - docsPromises 中存在 `verifiedBy` 为空且无 `waiverReason` 的条目 → `unverified_promise` blocker（用 `delivery_waiver_add` 豁免或让 reviewer 重跑）
+- transcript/delivery evidence is required; prompt-only user-value claims are not enough。用户最终说“好了”属于 non-mechanical user approval，Koala 不能完全自动证明；DONE gate 只能消费 transcript、verificationEvidence、delivery-check / product-reviewer evidence 或 waiver，不能把普通文本“用户价值已完成”当证据。
 
 Note: `waiverReason` 长度校验（≥ 30 字符）在 `delivery_check_set` handler 调用时抛错，不是 DONE gate blocker。
 
@@ -608,7 +609,7 @@ Note: `waiverReason` 长度校验（≥ 30 字符）在 `delivery_check_set` han
   "docsPromises": [{ "docPath": "CLAUDE.md#section", "promise": "描述承诺", "verifiedBy": "diff/grep", "evidence": "具体证据", "waiverReason?": "≥30字符豁免理由" }],
   "realMachineTests": [{ "featureId": "CHK-001", "transcript": "测试记录", "waiverReason?": "≥30字符豁免理由" }],
   "closingSelfCheck": { "hasRealMachineTest": true, "hasEdgeCaseCoverage": true, "hasUnresolvedTodos": false, "summary": "一句话总结" },
-  "reviewRound": 1,
+  "reviewRound": "2026-05-12T21:00:00.000Z",
   "_hash": "sha256-..."
 }
 ```
@@ -691,6 +692,7 @@ checklist + plan.md 写完后必须 `story_review` 通过（issueCount=0）才�
 
 - **正常通道必须分配**：用 `Agent({ subagent_type: "koala-implementer", prompt: "..." })` 分配
 - **fresh worker per item**：每个 CHK-xxx 派一个新的 koala-implementer，不复用上下文。prompt 只给该 item 需要的最小信息（storyId + plan.md 对应章节 + 必读文件），不给整段会话历史
+- **fresh worker 机械边界**：prompt-only worker claims are not mechanical evidence。可审计证据只来自 `koala dispatch` / dispatch/process-event/commit evidence / commit author 等结构化事实。Koala cannot mechanically prove true subagent context isolation，只能证明可观察 assignment evidence；prompt 里说“已派 fresh worker”不能作为 gate 证据。
 - **并行条件**：只有同时满足以下条件的 item 才能并行派发：(1) DependsOn 为空或依赖已 done (2) Files 写集不重叠 (3) 不共享稀缺资源。不满足时串行
 - **REVIEW 验收必须完整**：reviewer 返回后，先 `finding_list` 确认所有 finding 都已通过 `finding_add` 注册（reviewer 只在文本里报告但没注册 = 没发现，要求 reviewer 重跑）。然后逐条 resolve 或回 DEV 修复，不允许跳过 medium finding 留给下一个 story
 - **多揽责任少推卸**：发现问题时主动修，不要说"不在 scope 内"
@@ -733,7 +735,7 @@ koala reviewer_list '{"storyId":"B-xxx","forceReviewer":"docs,behavior"}' # 手�
 
 `story_advance REVIEW` 会 echo 当前 reviewer 名单。gate（`canPassReview`）按 opt-in 实际名单校验，不再硬编码 5。
 
-**Finding 签名验证**：reviewer 的 finding 带签名（`_hash` + `reviewRound`），gate 验签，主 agent 无法伪造。`finding_add` 自动注入当前 review round 和签名。手动 `finding_add` 伪造 reviewer finding 绕过 gate 不允许。
+**Finding 签名验证**：reviewer 的 finding 带签名（`_hash` + `reviewRound`），gate 验签，主 agent 无法伪造。签名 `reviewRound` 是 ISO 8601 string，来自 `story.currentReviewRound`，不是数字轮次。`finding_add` 自动注入当前 review round 和签名。手动 `finding_add` 伪造 reviewer finding 绕过 gate 不允许。
 
 ### Cluster 聚簇（finding 批量处理）
 
@@ -764,7 +766,7 @@ koala dispatch '{"storyId":"B-xxx","clusterId":"CL-001"}'  # 输出 implementer 
 ```ts
 {
   findings: Finding[],            // 每条 finding 追加 advisoryLabel: "[R2-ADVISORY]" | "[R3-ADVISORY]" | null
-  reviewRound: number,            // 当前 REVIEW 轮次（1 / 2 / 3+）
+  reviewRound: string,            // reviewRound: string (ISO 8601 review round id)
   blockingHeading: string,        // 例 "# Blocking (Round 2)"
   advisoryHeading: string,        // 例 "# Advisory (not blocking this round)"
   blocking: string[],             // status=open 且 advisoryLabel=null 的 finding.id 列表
@@ -778,11 +780,11 @@ koala dispatch '{"storyId":"B-xxx","clusterId":"CL-001"}'  # 输出 implementer 
 {
   clusters: Array<{
     clusterId, rootCause, findingCount, severity, files, findingIds,
-    reviewRound: number,          // F-035: 簇级 reviewRound
+    reviewRound: string,          // F-035: 簇级 reviewRound: string (ISO 8601 review round id)
     advisoryLabel: string | null, // F-035: 簇内全员同 label 时升级为簇级，否则 null（混合态由成员 label 表达）
   }>,
   ungrouped: Finding[],
-  reviewRound: number,            // F-035: 顶层 reviewRound
+  reviewRound: string,            // F-035: 顶层 reviewRound: string (ISO 8601 review round id)
 }
 ```
 

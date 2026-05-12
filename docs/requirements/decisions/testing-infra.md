@@ -21,6 +21,8 @@
 2. 在真实浏览器中执行用户可见流程
 3. 将 transcript、截图/trace、命令和结果通过 `checklist_update` 关联到对应 `verificationIntent`
 
+用户价值验收只能逼近，不能伪装成全自动证明：transcript/delivery evidence is required; prompt-only user-value claims are not enough。用户最终认可属于 non-mechanical user approval，Koala gate 只能消费 transcript、verificationEvidence、delivery-check / product-reviewer evidence 或 waiver。
+
 ### Legacy fixture 兼容
 
 `test_auto` / `test_story` / `test_fixture` / `fixture_batch_add` / `fixture_update` / `test_add` / `task_coverage` 是旧 fixture/test 家族，保留给旧 story、迁移、诊断和维护。它们不是当前 story 的默认流程；新流程应优先使用 `verificationIntent`、`verificationEvidence` 和 `koala validate`。
@@ -121,6 +123,7 @@ truth/config scan：`koala.config.json`、`AGENTS.md`、`CLAUDE.md`、`README.md
 - `story_review.planReviewRound: number (PLAN review round count)` 是 PLAN review 输出数字计数；`story_review.reviewRound` 仅是 legacy numeric PLAN review alias，不能作为 finding / review pass / delivery check 的 signed artifact schema。
 - pass-only finding_add 归一化：low severity 且 agent 为 `koala-review-*` 的 pass-only finding 转为 `review_pass_set`；含 failure / blocker / 缺少 / 失败 等矛盾语义、非 reviewer、非 low severity 都必须保留为 finding。
 - Express exemption：express channel 且 zero `verificationIntent` 输出 `Verification policy: express-exempt (channel=express; PLAN verificationIntent intentionally skipped)`；normal / fast zero intent 只显示普通 coverage 缺失文案，不显示 `express-exempt`。
+- Worker evidence boundary：prompt-only worker claims are not mechanical evidence。可审计 worker 事实只来自 `koala dispatch` / dispatch/process-event/commit evidence / commit author 等结构化记录；Koala cannot mechanically prove true subagent context isolation，只能证明可观察 assignment evidence。
 
 ## 测试流程
 

@@ -18,6 +18,7 @@ tools:
 - `understanding.outcome` 是否写成了具体的 user-facing transcript
 - story 收尾时，用户看到的最后一段输出会不会让人想问“然后呢？”
 - 是否存在工程上全绿、但用户价值没有闭环的情况
+- transcript/delivery evidence is required; prompt-only user-value claims are not enough。普通文本宣称“用户价值已完成”不是证据；产品验收只能消费具体 user-facing transcript、delivery evidence、product-reviewer finding/pass 或 waiver，并明确 non-mechanical user approval 的边界。
 
 ## 你不负责什么
 
