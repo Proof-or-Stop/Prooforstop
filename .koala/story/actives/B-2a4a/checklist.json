@@ -124,22 +124,22 @@
         {
           "intentRef": "CHK-002:happy:0",
           "kind": "logic_test",
-          "command": "npm run test:flow-stability-smoke && npm run test:field-regression-cli-smoke",
+          "command": "npm run test:field-regression-cli-smoke",
           "result": "pass",
-          "note": "Existing flow and field regression smokes continue to pass with signed finding/review pass reviewRound as story.currentReviewRound ISO strings.",
-          "headHash": "a02d6126c609b3211db81a6a7bac3cfdfd0580fc",
-          "materialHash": "1ec52fcd2ce2a00a88a82389fc09f4d79da9aefeb90e3113d7dace6b9e130dea",
-          "timestamp": "2026-05-12T22:22:05.014Z"
+          "note": "Field regression smoke now directly asserts CLI-created finding.reviewRound and reviewPass.reviewRound equal story.currentReviewRound and match ISO 8601 shape.",
+          "headHash": "100f6bb7ee3ab0f5e4f0fb8348282890af058748",
+          "materialHash": "f12c424a96a13dc3aa73fd2cbe6f18dceb4d5d7e368ed3fa42a5159694f4eacd",
+          "timestamp": "2026-05-12T22:26:05.853Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
           "command": "node scripts/verify-story-review-structured-output.mjs",
           "result": "pass",
-          "note": "Structured-output smoke asserts numeric planReviewRound is present and consumers do not need to treat signed artifact reviewRound as a number.",
-          "headHash": "a02d6126c609b3211db81a6a7bac3cfdfd0580fc",
-          "materialHash": "1ec52fcd2ce2a00a88a82389fc09f4d79da9aefeb90e3113d7dace6b9e130dea",
-          "timestamp": "2026-05-12T22:22:05.042Z"
+          "note": "Structured-output smoke asserts numeric planReviewRound is present and legacy story_review.reviewRound remains only a numeric PLAN alias.",
+          "headHash": "100f6bb7ee3ab0f5e4f0fb8348282890af058748",
+          "materialHash": "f12c424a96a13dc3aa73fd2cbe6f18dceb4d5d7e368ed3fa42a5159694f4eacd",
+          "timestamp": "2026-05-12T22:26:05.876Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -147,9 +147,9 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "Contract enforces docs for both signed reviewRound ISO string and story_review.planReviewRound numeric PLAN count, preventing collapsed semantics.",
-          "headHash": "a02d6126c609b3211db81a6a7bac3cfdfd0580fc",
-          "materialHash": "1ec52fcd2ce2a00a88a82389fc09f4d79da9aefeb90e3113d7dace6b9e130dea",
-          "timestamp": "2026-05-12T22:22:05.069Z"
+          "headHash": "100f6bb7ee3ab0f5e4f0fb8348282890af058748",
+          "materialHash": "f12c424a96a13dc3aa73fd2cbe6f18dceb4d5d7e368ed3fa42a5159694f4eacd",
+          "timestamp": "2026-05-12T22:26:05.897Z"
         }
       ]
     }
