@@ -6,7 +6,44 @@
       "context": "In packages/main/src/handlers/story-advance.ts, replace the assumption that process.cwd() is the worktree root with a canonical worktreeRoot from git rev-parse --show-toplevel. Use that root, not the nested cwd, for assertDoneMergeCanApplyBeforeStateMutation, cleanStrayWorktreeFiles, git add/commit of story metadata, repairGlobalKoalaLinkBeforeWorktreeDelete, git worktree remove, rm -rf residue cleanup, and branch delete. Add a guard so Koala never rm -rf removes an arbitrary nested cwd that is not a registered worktree root.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "CLAUDE.md#Worktree 自动管理"
+      ],
+      "userSees": "从 .worktrees/B-xxx/PVSC 运行 DONE 时，输出的 worktree cleanup target 是真实的 .worktrees/B-xxx 根，不包含 /PVSC；DONE metadata 从 worktree 根提交进 story 分支并合并回 main；没有 child-directory git worktree remove fatal warning。",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-advance.ts",
+          "CLAUDE.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "DONE cleanup resolves worktreeRoot via git top-level, so nested cwd uses .worktrees/B-xxx as wtPathAbs rather than .worktrees/B-xxx/PVSC.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "git add/commit of DONE metadata runs from the canonical worktree root, so main receives index.json phase DONE after merge even when command was invoked from a child directory.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If cwd is inside a story worktree but not itself the registered worktree root, Koala must not rm -rf the nested cwd as cleanup target.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -14,7 +51,45 @@
       "context": "Add or extend a smoke test to create a temporary repo/story worktree with a nested subdirectory like PVSC, run story_advance DONE from that nested directory, and assert main receives DONE metadata, git worktree list no longer contains the story worktree, the story branch is deleted, and the nested directory is not treated as the worktree remove target.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "CLAUDE.md#Worktree 自动管理"
+      ],
+      "userSees": "A regression smoke simulates a PVSC-like nested subdirectory, runs DONE from there, and passes only if main story metadata is DONE, the registered worktree is removed, story branch is deleted, and no nested directory target is used for cleanup.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "packages/main/package.json",
+          "package.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "worktree-authority smoke has a nested-cwd DONE regression case that passes on the fixed cleanup path.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The regression asserts the story branch is deleted and git worktree list no longer contains the story worktree root after DONE from nested cwd.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The regression would fail if cleanup output/target uses the PVSC child directory or leaves main metadata at TEST.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ],
   "auditLog": [
