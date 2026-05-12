@@ -4,7 +4,7 @@
   "title": "Harden remaining process drift gates",
   "description": "Problem: several process-safety guarantees still have residual soft or drifting surfaces. Evidence: runtime-reviewer-contract hardcodes an obsolete story worktree CLI path; agent prompt templates still allow reviewRound:number snippets to survive; audit:silent-catches reports uncategorized catches without failing on regression. Desired outcome: these checks are hardcoded and mechanically fail on drift. Scope: update contract scripts and prompt schema checks only, preserving existing local dirty changes and clarifying non-fully-mechanical guarantees through explicit evidence boundaries.",
   "type": "chore",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "createdAt": "2026-05-12T23:09:36.766Z",
   "startedAt": "2026-05-12T23:09:36.766Z",
@@ -41,11 +41,20 @@
       "branch": "story/B-8960",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-12T23:30:12.076Z",
+      "branch": "story/B-8960",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-8960",
     "branch": "story/B-8960",
     "createdAt": "2026-05-12T23:12:00.752Z"
-  }
+  },
+  "currentReviewRound": "2026-05-12T23:30:12.076Z"
 }
