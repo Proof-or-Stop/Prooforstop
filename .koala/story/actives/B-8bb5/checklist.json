@@ -47,10 +47,10 @@
           "kind": "manual_transcript",
           "command": "node packages/main/dist/cli.js finding_cluster JSON(storyId=B-8bb5)",
           "result": "pass",
-          "note": "Local built CLI in DEV accepted finding_cluster and returned No findings to cluster instead of the DEV unavailable-command error.",
-          "headHash": "78dbf5916affce25d33cecb1680554d1b84bd394",
-          "materialHash": "7e192a614e19fa86928736be558f2c9d2b18a7c61a73906037cac492802ac7e9",
-          "timestamp": "2026-05-12T00:16:58.713Z"
+          "note": "After contract hardening commit, local built CLI in DEV accepted finding_cluster and returned a cluster summary instead of the DEV unavailable-command error.",
+          "headHash": "828ed86c0e38226dca9f20a45028d89f51b0df18",
+          "materialHash": "cbadbf4a7677ff5be4bc2a61dce5b66a84d02bf19e56c02ab86995568b500ed7",
+          "timestamp": "2026-05-12T00:22:15.712Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -58,9 +58,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Flow stability smoke asserts finding_cluster remains allowed in REVIEW and TEST after the DEV whitelist addition.",
-          "headHash": "78dbf5916affce25d33cecb1680554d1b84bd394",
-          "materialHash": "7e192a614e19fa86928736be558f2c9d2b18a7c61a73906037cac492802ac7e9",
-          "timestamp": "2026-05-12T00:16:58.713Z"
+          "headHash": "828ed86c0e38226dca9f20a45028d89f51b0df18",
+          "materialHash": "cbadbf4a7677ff5be4bc2a61dce5b66a84d02bf19e56c02ab86995568b500ed7",
+          "timestamp": "2026-05-12T00:22:15.712Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -68,9 +68,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Flow stability smoke asserts custom phaseTools can still block finding_cluster when a project explicitly overrides defaults.",
-          "headHash": "78dbf5916affce25d33cecb1680554d1b84bd394",
-          "materialHash": "7e192a614e19fa86928736be558f2c9d2b18a7c61a73906037cac492802ac7e9",
-          "timestamp": "2026-05-12T00:16:58.713Z"
+          "headHash": "828ed86c0e38226dca9f20a45028d89f51b0df18",
+          "materialHash": "cbadbf4a7677ff5be4bc2a61dce5b66a84d02bf19e56c02ab86995568b500ed7",
+          "timestamp": "2026-05-12T00:22:15.712Z"
         }
       ]
     },
@@ -122,9 +122,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke asserts DEV allows finding_add, finding_dispatch, and finding_cluster together for reviewer finding workflows.",
-          "headHash": "78dbf5916affce25d33cecb1680554d1b84bd394",
-          "materialHash": "7e192a614e19fa86928736be558f2c9d2b18a7c61a73906037cac492802ac7e9",
-          "timestamp": "2026-05-12T00:16:58.713Z"
+          "headHash": "828ed86c0e38226dca9f20a45028d89f51b0df18",
+          "materialHash": "cbadbf4a7677ff5be4bc2a61dce5b66a84d02bf19e56c02ab86995568b500ed7",
+          "timestamp": "2026-05-12T00:22:15.712Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -132,19 +132,19 @@
           "command": "node packages/main/dist/cli.js bug_report JSON(storyId=B-8bb5,desc=probe,severity=low)",
           "result": "pass",
           "note": "Command failed as expected with DEV-stage unavailable-command error, proving unrelated bug_report stayed blocked.",
-          "headHash": "78dbf5916affce25d33cecb1680554d1b84bd394",
-          "materialHash": "7e192a614e19fa86928736be558f2c9d2b18a7c61a73906037cac492802ac7e9",
-          "timestamp": "2026-05-12T00:16:58.713Z"
+          "headHash": "828ed86c0e38226dca9f20a45028d89f51b0df18",
+          "materialHash": "cbadbf4a7677ff5be4bc2a61dce5b66a84d02bf19e56c02ab86995568b500ed7",
+          "timestamp": "2026-05-12T00:22:15.712Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "integration_test",
           "command": "npm run test:process-fact-contract",
           "result": "pass",
-          "note": "Process-fact contract now asserts finding_cluster stays L2 and DEV phaseTools keep finding_add/finding_dispatch/finding_cluster together.",
-          "headHash": "78dbf5916affce25d33cecb1680554d1b84bd394",
-          "materialHash": "7e192a614e19fa86928736be558f2c9d2b18a7c61a73906037cac492802ac7e9",
-          "timestamp": "2026-05-12T00:16:58.713Z"
+          "note": "Process-fact contract now parses DEV phaseTools string-literal entries, asserts finding_cluster stays L2, and keeps finding_add/finding_dispatch/finding_cluster together.",
+          "headHash": "828ed86c0e38226dca9f20a45028d89f51b0df18",
+          "materialHash": "cbadbf4a7677ff5be4bc2a61dce5b66a84d02bf19e56c02ab86995568b500ed7",
+          "timestamp": "2026-05-12T00:22:15.712Z"
         }
       ]
     }
