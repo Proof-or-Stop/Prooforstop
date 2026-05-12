@@ -1,0 +1,37 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "DONE cleanup uses git top-level worktree root even when invoked from a nested cwd",
+      "context": "In packages/main/src/handlers/story-advance.ts, replace the assumption that process.cwd() is the worktree root with a canonical worktreeRoot from git rev-parse --show-toplevel. Use that root, not the nested cwd, for assertDoneMergeCanApplyBeforeStateMutation, cleanStrayWorktreeFiles, git add/commit of story metadata, repairGlobalKoalaLinkBeforeWorktreeDelete, git worktree remove, rm -rf residue cleanup, and branch delete. Add a guard so Koala never rm -rf removes an arbitrary nested cwd that is not a registered worktree root.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Regression smoke covers DONE from a nested worktree subdirectory",
+      "context": "Add or extend a smoke test to create a temporary repo/story worktree with a nested subdirectory like PVSC, run story_advance DONE from that nested directory, and assert main receives DONE metadata, git worktree list no longer contains the story worktree, the story branch is deleted, and the nested directory is not treated as the worktree remove target.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-05-12T17:24:45.420Z",
+      "phase": "INIT",
+      "itemId": "CHK-003",
+      "action": "delete",
+      "from": "pending",
+      "to": "pending",
+      "reason": "INIT reviewers correctly scoped this story to the nested-cwd DONE cleanup regression; reviewRound documentation drift is real but should be tracked as a separate story so this bugfix has one user-visible outcome.",
+      "removedTitle": "reviewRound documentation matches runtime string semantics",
+      "removedContext": "Update CLAUDE.md schema snippets and any docs that say finding/review cluster reviewRound is number/1/2/3+ to string/ISO review round id. If useful, add a lightweight contract assertion to prevent docs from reintroducing reviewRound:number while core/types.ts keeps Finding.reviewRound and ReviewPass.reviewRound as string.",
+      "removedUserSees": "",
+      "disposition": "accept",
+      "justification": "INIT reviewers correctly scoped this story to the nested-cwd DONE cleanup regression; reviewRound documentation drift is real but should be tracked as a separate story so this bugfix has one user-visible outcome.",
+      "disposedAt": "2026-05-12T17:24:45.420Z"
+    }
+  ]
+}
