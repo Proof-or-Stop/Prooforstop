@@ -1,0 +1,52 @@
+{
+  "storyId": "B-8bb5",
+  "checkedAt": "2026-05-12T00:14:28.499Z",
+  "features": [
+    {
+      "feature": "Observed DEV cluster gap: DEV already permits reviewer finding creation and dispatch but rejects finding_cluster",
+      "covered_by": "understanding facts identify SimCell B-cacf; CHK-001 context states DEV permits finding_add, review_pass_set, finding_dispatch, and dispatch but rejects finding_cluster; config.ts:125,150-158,159-170 show dispatch/finding_add/finding_dispatch are DEV/global while finding_cluster is REVIEW/TEST only.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "user focus + PLAN artifacts + packages/main/src/core/config.ts"
+    },
+    {
+      "feature": "Minimal DEV whitelist fix: add only finding_cluster to DEV default phaseTools",
+      "covered_by": "decision option A chooses add finding_cluster only to DEV phaseTools; plan CHK-001 says edit config.ts only enough to add finding_cluster to DEV and keep REVIEW/TEST unchanged; checklist implementation touchpoint is packages/main/src/core/config.ts.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decision_get + plan_get + checklist_get"
+    },
+    {
+      "feature": "Regression coverage for SimCell B-cacf failure mode and future phase-tool drift",
+      "covered_by": "CHK-002 verificationIntent covers DEV finding_cluster alongside finding_add/finding_dispatch; plan CHK-002 requires flow-stability smoke and process-fact contract coverage; flow-stability-smoke.ts:147-153 and verify-process-fact-contract.mjs:739-745 are the intended assertion surfaces.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get + plan_get + source scan"
+    },
+    {
+      "feature": "Negative boundary: unrelated DEV-gated commands stay blocked and custom phaseTools overrides remain explicit",
+      "covered_by": "understanding constraints require bug_report to remain blocked in DEV and custom phaseTools to remain explicit; CHK-001 adversarial covers custom overrides removing finding_cluster; CHK-002 edge covers bug_report blocked in DEV; config.ts:248-260 uses supplied phaseTools explicitly.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding_get + checklist_get + packages/main/src/core/config.ts"
+    },
+    {
+      "feature": "Broad phaseTools redesign or automatic derivation from process-fact levels",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "decision option C is rejected as a larger state-machine/policy redesign; plan CHK-002 says the contract must not imply all L2 commands are globally available; process-fact-levels.ts:109-121 keeps finding_cluster L2 while config.ts remains the explicit phase gate.",
+      "source": "decision_get + plan_get + packages/main/src/core/process-fact-levels.ts"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 4,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "b39c83f1ebff34dd64b7a5672999cccda8d107b89021dada693c38b69a09d3b4",
+  "openQuestions": []
+}

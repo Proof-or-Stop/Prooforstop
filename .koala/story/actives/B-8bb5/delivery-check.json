@@ -1,0 +1,39 @@
+{
+  "storyId": "B-8bb5",
+  "checkedAt": "2026-05-12T00:27:10.867Z",
+  "reviewRound": "2026-05-12T00:22:28.307Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "AGENTS.md#流程事实双层契约",
+      "promise": "Flow facts that affect phase, review, test, done, audit, or gate behavior must have both prompt guidance and hard CLI/handler/gate enforcement; prompt-only drift must not count as evidence.",
+      "status": "verified",
+      "verifiedBy": "git diff review plus npm run test:process-fact-contract",
+      "evidence": "scripts/verify-process-fact-contract.mjs now strips comments, parses exact DEV phaseTools string-literal entries from packages/main/src/core/config.ts, asserts finding_cluster stays L2, requires finding_add/finding_dispatch/finding_cluster together in DEV, and rejects bug_report in DEV. Rerun passed: Process fact contract verified."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md#阶段职责",
+      "promise": "Story lifecycle and tooling are phase-aware: DEV records implementation/evidence, REVIEW/TEST retain verification continuity, and phase-sensitive behavior must be enforced by deterministic gates rather than prose alone.",
+      "status": "verified",
+      "verifiedBy": "git diff review plus npm --prefix packages/main run test:flow-stability-smoke plus koala test_list",
+      "evidence": "packages/main/src/core/config.ts adds finding_cluster to DEV phaseTools while REVIEW/TEST already retain it. packages/main/src/tasks/flow-stability-smoke.ts asserts DEV finding_cluster availability, REVIEW/TEST continuity, DEV bug_report remains blocked, and custom phaseTools overrides can still remove finding_cluster. Rerun passed: flow stability smoke passed; koala test_list shows 6/6 verification intents covered."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Manual transcript evidence: node packages/main/dist/cli.js finding_cluster JSON(storyId=B-8bb5) in DEV returned a normal cluster summary instead of the DEV-stage unavailable-command error. Supporting machine coverage: npm --prefix packages/main run test:flow-stability-smoke passed, including REVIEW/TEST finding_cluster continuity and custom phaseTools override blocking."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Manual transcript evidence: node packages/main/dist/cli.js bug_report JSON(...) remained blocked in DEV, preserving the negative boundary. Supporting machine coverage: npm --prefix packages/main run test:flow-stability-smoke passed for DEV finding_add/finding_dispatch/finding_cluster consistency and bug_report exclusion; npm run test:process-fact-contract passed with exact DEV phaseTools parsing and finding_cluster L2 verification."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review verified the expected source/test delta, checklist evidence, story summary, docs promises, committed diff, and fresh targeted test reruns. No source blocker found; only story metadata remains to be committed before DONE."
+  },
+  "_hash": "12b56adcdb9d7d85d7b4a6cd74f7a4a8a387054956520c7fb71ee568ecdf9d94"
+}

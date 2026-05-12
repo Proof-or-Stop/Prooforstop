@@ -1,0 +1,21 @@
+{
+  "task": "Allow DEV stories to cluster reviewer findings before dispatching grouped fixes.",
+  "outcome": "User is in a DEV story like SimCell B-cacf and runs `koala finding_cluster {\"storyId\":\"B-cacf\"}`. Instead of seeing `命令 \"finding_cluster\" 在 DEV 阶段不可用`, the terminal prints a normal cluster result such as `Clustered 9 findings into ... clusters` or `Clustered 0 findings into 0 clusters`, and the user can then dispatch a cluster or decide to handle ungrouped findings.",
+  "facts": [
+    "SimCell B-cacf is a real observed DEV-stage failure: finding_add/finding_list worked but finding_cluster was blocked by phaseTools.",
+    "Default phaseTools currently allow finding_cluster in REVIEW and TEST but not DEV.",
+    "finding_cluster is registered as an L2 process fact command: metadata maintenance, not a gate-satisfying evidence artifact."
+  ],
+  "constraints": [
+    "Do not weaken gate evidence semantics: finding_cluster must not become a pass/finding resolution signal.",
+    "Keep the change minimal; unrelated commands such as bug_report must remain blocked in DEV by default.",
+    "Project-level custom phaseTools overrides must continue to behave as explicit overrides."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/config.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "timestamp": "2026-05-12T00:12:05.645Z"
+}

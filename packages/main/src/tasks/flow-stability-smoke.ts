@@ -147,9 +147,31 @@ function assertSessionBriefGate(): void {
   assert.equal(isCommandAllowed('finding_add', 'DEV'), true, 'DEV reviewers should be able to register findings');
   assert.equal(isCommandAllowed('review_pass_set', 'DEV'), true, 'DEV reviewers should be able to register passes');
   assert.equal(
+    isCommandAllowed('finding_dispatch', 'DEV'),
+    true,
+    'DEV implementers should be able to dispatch finding fixes',
+  );
+  assert.equal(
+    isCommandAllowed('finding_cluster', 'DEV'),
+    true,
+    'DEV stories with reviewer findings should be able to cluster before dispatch',
+  );
+  assert.equal(isCommandAllowed('finding_cluster', 'REVIEW'), true, 'REVIEW should still allow finding clustering');
+  assert.equal(isCommandAllowed('finding_cluster', 'TEST'), true, 'TEST should still allow finding clustering');
+  assert.equal(
+    isCommandAllowed('bug_report', 'DEV'),
+    false,
+    'finding_cluster in DEV must not broaden unrelated TEST/REVIEW commands',
+  );
+  assert.equal(
     isCommandAllowed('finding_add', 'DEV', { '*': ['status'], DEV: ['checklist_get'] }),
     false,
     'custom phase tools should still reject unrelated mutation commands',
+  );
+  assert.equal(
+    isCommandAllowed('finding_cluster', 'DEV', { '*': ['status'], DEV: ['finding_add', 'finding_dispatch'] }),
+    false,
+    'custom phase tools should still be able to override DEV finding_cluster availability',
   );
 }
 
