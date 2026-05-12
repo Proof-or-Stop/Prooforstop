@@ -34,7 +34,7 @@
       "desc": "CLAUDE.md:383 documents that DONE may be invoked from a worktree subdirectory and cleans the git top-level worktree, but the current REVIEW implementation also adds a user-visible fail-closed guard for mismatched/non-story linked worktree branches before mutating DONE state. Without documenting that expected-branch invariant in the Worktree 生命周期/DONE 门禁 text, CLAUDE.md is incomplete for the final behavior: users seeing \"refusing DONE cleanup: detected branch ...\" get no guidance that this is intentional and mutation-safe. Add a concise note that DONE must run from the expected story/<storyId> branch and refuses before merge/delete/state mutation otherwise.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "agent": "koala-review-docs",
       "createdAt": "2026-05-12T18:15:51.144Z",
       "reviewRound": "2026-05-12T18:11:40.902Z",
