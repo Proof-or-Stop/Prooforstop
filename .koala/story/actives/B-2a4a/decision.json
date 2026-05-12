@@ -1,0 +1,45 @@
+{
+  "principles": [
+    "Separate public process semantics by field name instead of relying on explanations.",
+    "Keep compatibility for existing story_review consumers while steering new consumers to explicit names.",
+    "Back every process-fact naming rule with source-level test or contract coverage."
+  ],
+  "drivers": [
+    "Avoid confusion between PLAN review count and signed artifact ISO reviewRound.",
+    "Minimize blast radius in a local CLI used across projects.",
+    "Keep docs aligned with runtime output."
+  ],
+  "options": [
+    {
+      "name": "A: Add explicit numeric aliases and keep legacy reviewRound temporarily",
+      "pros": [
+        "Low compatibility risk",
+        "New consumers get unambiguous planReviewRound/reviewRoundNumber",
+        "Can document legacy alias clearly"
+      ],
+      "cons": [
+        "Old ambiguous field remains visible until a later breaking cleanup"
+      ]
+    },
+    {
+      "name": "B: Rename reviewRound outright and remove the old field",
+      "pros": [
+        "Eliminates ambiguity immediately"
+      ],
+      "cons": [
+        "Could break unknown scripts or agents parsing story_review.reviewRound"
+      ]
+    }
+  ],
+  "chosen": "A: Add explicit numeric aliases and keep legacy reviewRound temporarily",
+  "rationale": "Choose the compatibility path because story_review is a public CLI response and this story is about removing semantic confusion without surprising existing local automation. The hard signal becomes the new explicit field plus contract/smoke documentation.",
+  "preMortem": [
+    {
+      "scenario": "Consumers still read legacy reviewRound and remain confused",
+      "trigger": "Docs only mention the alias without warning",
+      "consequence": "The original schema ambiguity survives",
+      "mitigation": "Document legacyReviewRound compatibility and assert explicit numeric fields in tests."
+    }
+  ],
+  "timestamp": "2026-05-12T22:12:56.215Z"
+}
