@@ -42,6 +42,22 @@
       "files": [
         "CLAUDE.md"
       ]
+    },
+    {
+      "id": "B-9e48:F-004",
+      "desc": "koala validate --story=B-9e48 now reports verification coverage 0/6 covered: every required CHK-001 and CHK-002 verificationIntent is stale after the REVIEW-round material changes. Re-run the focused build/smoke on current HEAD and update checklist verificationEvidence for nested cwd, wrong-branch, and non-story smoke coverage before this lane can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-05-12T18:24:05.336Z",
+      "reviewRound": "2026-05-12T18:19:49.915Z",
+      "_hash": "f7abd9c806a8aff726458591795d656dac3a3834127126ca56f0182d6a8e1034",
+      "files": [
+        "packages/main/src/tasks/worktree-authority-smoke.ts",
+        "packages/main/src/handlers/story-advance.ts",
+        "CLAUDE.md"
+      ]
     }
   ]
 }
