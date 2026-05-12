@@ -1,0 +1,60 @@
+{
+  "principles": [
+    "流程事实必须由代码入口机械验证",
+    "现有历史债务可以 baseline 但不能继续增长",
+    "不可完全机械证明的 agent/产品边界必须转成可审计证据要求"
+  ],
+  "drivers": [
+    "用户明确要求使用硬编码",
+    "已有 contract 暴露 runtime path 和 prompt schema 漂移",
+    "silent catch 规则当前无法阻止新增未分类 catch"
+  ],
+  "options": [
+    {
+      "name": "A: harden existing contract scripts with focused baselines",
+      "pros": [
+        "改动范围小",
+        "直接覆盖已发现漂移",
+        "保持现有 Koala 工作流"
+      ],
+      "cons": [
+        "不会一次性清掉全部旧 silent catch 债务",
+        "fresh worker 只能证明可观察事件而非真实上下文"
+      ]
+    },
+    {
+      "name": "B: rewrite process validation framework",
+      "pros": [
+        "可以统一所有状态验证模型"
+      ],
+      "cons": [
+        "范围过大",
+        "会和当前 dirty worktree 产生更多冲突",
+        "不适合修当前明确遗留"
+      ]
+    }
+  ],
+  "chosen": "A: harden existing contract scripts with focused baselines",
+  "rationale": "选择 A，因为用户要的是把当前遗留变成硬编码防回退。动态 CLI 路径、prompt schema 扫描、silent catch baseline 都能用小范围脚本改动完成，并通过现有 npm scripts 验证。",
+  "preMortem": [
+    {
+      "scenario": "silent catch baseline 过宽导致新债仍然通过",
+      "trigger": "baseline 只记录数量不记录 file/line/snippet",
+      "consequence": "新增 catch 可以被旧总数掩盖",
+      "mitigation": "baseline 记录稳定 key 列表，脚本比较集合并列出新增项"
+    },
+    {
+      "scenario": "reviewRound 扫描误杀 planReviewRound 文档",
+      "trigger": "简单 grep 禁止所有 reviewRound:number",
+      "consequence": "合法的 story_review.planReviewRound 别名说明无法写入",
+      "mitigation": "扫描上下文允许 planReviewRound，禁止裸 reviewRound:number 和 F-035 旧文案"
+    },
+    {
+      "scenario": "runtime reviewer contract 仍依赖调用 cwd",
+      "trigger": "脚本从当前目录拼错 repo root 或 dist 未 build",
+      "consequence": "外部运行失败或测试旧代码",
+      "mitigation": "从脚本路径定位 repo root，检查 dist/cli.js 存在并给出 build 提示"
+    }
+  ],
+  "timestamp": "2026-05-12T23:12:48.726Z"
+}
