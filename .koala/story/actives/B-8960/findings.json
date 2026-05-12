@@ -1,0 +1,34 @@
+{
+  "findings": [
+    {
+      "id": "B-8960:F-001",
+      "desc": "scripts/verify-runtime-reviewer-contract.mjs:67 hardcoded worktree guard only matches a single quoted .worktrees/B-*/packages/main/dist/cli.js literal. It would miss the original regression shape const worktreeRoot=\".../.worktrees/B-xxxx\" followed by join(worktreeRoot,\"packages/main/dist/cli.js\"), so the hardcoded-path contract is not actually guarding the bug class it was added for. Apply the same broader source scan to runtime health too.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-12T23:32:07.870Z",
+      "reviewRound": "2026-05-12T23:30:12.076Z",
+      "_hash": "4ce8d583306ff0057189fb97c0a6a5cf10cac0ad328939e4d5288f7490720b06",
+      "files": [
+        "scripts/verify-runtime-reviewer-contract.mjs",
+        "scripts/verify-main-branch-runtime-health.mjs"
+      ]
+    },
+    {
+      "id": "B-8960:F-002",
+      "desc": "scripts/audit-silent-catches.mjs:46 uses file:line:snippet as the baseline key. Any unrelated line insertion above an existing legacy catch will turn the old key into resolved debt and the same catch into newUncategorized, failing audit:silent-catches even though no new silent catch was added. Use a line-stable identity such as file plus catch ordinal/context hash, and keep line number as display metadata.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-12T23:32:12.626Z",
+      "reviewRound": "2026-05-12T23:30:12.076Z",
+      "_hash": "d7b3fb6163d22137d41b31ef1375230d441e9ef0ba26a76b7c2a3dc90fb73701",
+      "files": [
+        "scripts/audit-silent-catches.mjs",
+        "scripts/audit-silent-catches-baseline.json"
+      ]
+    }
+  ]
+}
