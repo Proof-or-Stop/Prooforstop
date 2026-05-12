@@ -142,45 +142,45 @@
           "intentRef": "CHK-002:happy:0",
           "kind": "integration_test",
           "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
-          "command": "npm run test:field-regression-cli-smoke",
+          "command": "npm --prefix packages/main run build && npm run test:field-regression-cli-smoke",
           "result": "pass",
-          "note": "Pass-only finding_add records Review pass B-passonly:RP-* and finding_list remains empty for pass-only records.",
-          "headHash": "8e138a84941c4c8a68698efd117df98197cc09ce",
-          "materialHash": "72b7beabd39761f58146c7ca6aeed285c260d5aeeb349767ac58cabf6fd21955",
-          "timestamp": "2026-05-12T21:25:28.441Z"
+          "note": "Fresh run after handler fix: pass-only finding_add records Review pass B-passonly:RP-* and finding_list stays empty for pass-only records.",
+          "headHash": "7a9d2536b6ebb38e7e286e3083fd67a1db23361b",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:35:24.327Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
-          "command": "npm run test:flow-stability-smoke",
+          "command": "npm --prefix packages/main run build && npm run test:flow-stability-smoke",
           "result": "pass",
-          "note": "Flow smoke verifies reviewRound flow policy is registered as schema-contract and docs/types use ISO string semantics.",
-          "headHash": "8e138a84941c4c8a68698efd117df98197cc09ce",
-          "materialHash": "72b7beabd39761f58146c7ca6aeed285c260d5aeeb349767ac58cabf6fd21955",
-          "timestamp": "2026-05-12T21:25:28.466Z"
+          "note": "Fresh run after handler fix: flow smoke verifies reviewRound flow policy remains registered as schema-contract with ISO string semantics.",
+          "headHash": "7a9d2536b6ebb38e7e286e3083fd67a1db23361b",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:35:24.327Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "integration_test",
           "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
-          "command": "npm run test:field-regression-cli-smoke",
+          "command": "npm --prefix packages/main run build && npm run test:field-regression-cli-smoke",
           "result": "pass",
-          "note": "Ambiguous pass plus failure text creates a real open finding instead of review pass evidence.",
-          "headHash": "8e138a84941c4c8a68698efd117df98197cc09ce",
-          "materialHash": "72b7beabd39761f58146c7ca6aeed285c260d5aeeb349767ac58cabf6fd21955",
-          "timestamp": "2026-05-12T21:25:28.490Z"
+          "note": "Fresh run after handler fix: ambiguous pass plus failure text creates a real open finding instead of review pass evidence.",
+          "headHash": "7a9d2536b6ebb38e7e286e3083fd67a1db23361b",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:35:24.327Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
-          "command": "npm run test:field-regression-cli-smoke",
+          "command": "npm --prefix packages/main run build && npm run test:field-regression-cli-smoke",
           "result": "pass",
-          "note": "Non-low and non-reviewer pass-like finding_add calls remain findings, not review passes.",
-          "headHash": "8e138a84941c4c8a68698efd117df98197cc09ce",
-          "materialHash": "72b7beabd39761f58146c7ca6aeed285c260d5aeeb349767ac58cabf6fd21955",
-          "timestamp": "2026-05-12T21:25:28.514Z"
+          "note": "Fresh run after handler fix: non-low/non-reviewer pass-like calls remain findings, and direct handler pass-only text with unknown category throws before review-pass normalization.",
+          "headHash": "7a9d2536b6ebb38e7e286e3083fd67a1db23361b",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:35:24.327Z"
         }
       ]
     },
@@ -325,34 +325,34 @@
           "intentRef": "CHK-004:happy:0",
           "kind": "integration_test",
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
-          "command": "npm run test:flow-stability-smoke && npm run test:field-regression-cli-smoke && npm --prefix packages/main run test:outcome-semantics-smoke",
+          "command": "npm --prefix packages/main run build && npm run test:flow-stability-smoke && npm run test:field-regression-cli-smoke && npm --prefix packages/main run test:outcome-semantics-smoke",
           "result": "pass",
-          "note": "Dedicated smoke coverage passes for registry completeness, pass-only normalization, ISO reviewRound policy, and express-exempt rendering.",
-          "headHash": "8e138a84941c4c8a68698efd117df98197cc09ce",
-          "materialHash": "72b7beabd39761f58146c7ca6aeed285c260d5aeeb349767ac58cabf6fd21955",
-          "timestamp": "2026-05-12T21:25:43.967Z"
+          "note": "Fresh build plus smoke coverage passes for registry completeness, pass-only normalization, ISO reviewRound policy, unknown-category pass-only rejection, and express-exempt rendering.",
+          "headHash": "7a9d2536b6ebb38e7e286e3083fd67a1db23361b",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:35:24.327Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "integration_test",
           "file": "scripts/verify-process-fact-contract.mjs",
-          "command": "npm run test:field-regression-cli-smoke && npm run test:process-fact-contract",
+          "command": "npm --prefix packages/main run build && npm run test:field-regression-cli-smoke && npm run test:process-fact-contract",
           "result": "pass",
-          "note": "Existing field regression smoke and strengthened process fact contract both pass.",
-          "headHash": "8e138a84941c4c8a68698efd117df98197cc09ce",
-          "materialHash": "72b7beabd39761f58146c7ca6aeed285c260d5aeeb349767ac58cabf6fd21955",
-          "timestamp": "2026-05-12T21:25:43.997Z"
+          "note": "Fresh build plus existing field regression smoke and strengthened process fact contract both pass, including direct handler unknown category pass-only guard.",
+          "headHash": "7a9d2536b6ebb38e7e286e3083fd67a1db23361b",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:35:24.327Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/outcome-semantics-smoke.ts",
-          "command": "npm run test:field-regression-cli-smoke && npm --prefix packages/main run test:outcome-semantics-smoke",
+          "command": "npm --prefix packages/main run build && npm run test:field-regression-cli-smoke && npm --prefix packages/main run test:outcome-semantics-smoke && git diff --check",
           "result": "pass",
-          "note": "Tests fail if pass-only records appear in finding_list or if non-express zero-intent stories render express-exempt.",
-          "headHash": "8e138a84941c4c8a68698efd117df98197cc09ce",
-          "materialHash": "72b7beabd39761f58146c7ca6aeed285c260d5aeeb349767ac58cabf6fd21955",
-          "timestamp": "2026-05-12T21:25:44.027Z"
+          "note": "Fresh build plus adversarial tests fail if pass-only records appear in finding_list, if unknown pass-only category normalizes to review pass, or if non-express zero-intent stories render express-exempt; git diff --check passed.",
+          "headHash": "7a9d2536b6ebb38e7e286e3083fd67a1db23361b",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:35:24.327Z"
         }
       ]
     }

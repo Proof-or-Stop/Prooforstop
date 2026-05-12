@@ -125,11 +125,11 @@ export function createFindingHandlers(ctx: HandlerContext) {
       // 记录调用者身份（环境变量 KOALA_AGENT 由 subagent 设置）
       const missingAttribution = !args.agent && !process.env.KOALA_AGENT;
       const agent = args.agent || process.env.KOALA_AGENT || 'main';
+      const category = normalizeFindingCategory(args.category);
 
       if (isPassOnlyReviewFindingRecord({ desc: args.desc, severity: args.severity, agent })) {
         return recordReviewPass(ctx, args.storyId, agent, `Converted pass-only finding_add record: ${args.desc}`);
       }
-      const category = normalizeFindingCategory(args.category);
 
       const data = store.readFindings(args.storyId);
       const nextNum = data.findings.length + 1;

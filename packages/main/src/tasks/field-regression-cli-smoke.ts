@@ -455,6 +455,17 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
       /category must be one of happy\|edge\|adversarial\|missing/,
       'unknown finding category should be rejected even when bypassing CLI schema',
     );
+    assert.throws(
+      () => createFindingHandlers({ store, root, scanRoot: join(root, 'packages/main') }).finding_add({
+        storyId,
+        desc: 'PASS: schema and handler fallback are aligned.',
+        severity: 'low',
+        category: 'docs',
+        agent: 'koala-review-quality',
+      }),
+      /category must be one of happy\|edge\|adversarial\|missing/,
+      'unknown finding category must be rejected before pass-only review normalization',
+    );
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

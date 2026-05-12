@@ -4,7 +4,7 @@
   "title": "Hard-code flow fact registry for review and express verification policy",
   "description": "Implement a centralized flow fact policy registry and hard-coded validation/normalization for Koala process facts that currently rely on prompts or docs. Scope covers review pass/finding facts, reviewRound schema drift, express verificationIntent policy, and regression smoke tests so phase/review/test/DONE evidence semantics are enforced by code rather than prompt memory.",
   "type": "chore",
-  "phase": "REVIEW",
+  "phase": "DEV",
   "priority": "high",
   "createdAt": "2026-05-12T21:05:13.971Z",
   "startedAt": "2026-05-12T21:05:13.971Z",
@@ -46,6 +46,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-05-12T21:27:56.965Z",
+      "branch": "story/B-9b8f",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-12T21:32:07.387Z",
       "branch": "story/B-9b8f",
       "user": "Harmonygo",
       "agent": "main"
