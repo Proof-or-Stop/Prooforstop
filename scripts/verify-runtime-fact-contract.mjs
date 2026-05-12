@@ -2,7 +2,7 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -125,6 +125,32 @@ async function main() {
       }
       check(report.externalReferencePolicy.connectivityChecked === false, 'external-reference-policy must not claim connectivity pass');
       check(report.externalReferencePolicy.actual.policy === 'reference-only', 'external-reference-policy should be policy-only');
+      check(report.projectLocalBin.status === 'pass', 'project-local-bin should pass when no project-local bin exists');
+      check(report.projectLocalBin.actual.present === false, 'project-local-bin should record absent local bin');
+
+      const localBinName = process.platform === 'win32' ? 'koala.cmd' : 'koala';
+      const localBinDir = join(tmp, 'node_modules', '.bin');
+      const localBin = join(localBinDir, localBinName);
+      mkdirSync(localBinDir, { recursive: true });
+      writeFileSync(localBin, 'local koala');
+      const matchingLocalBinReport = checksModule.runRuntimeEnvironmentChecks(tmp, {
+        commandResolver: () => localBin,
+        globalNpmRootResolver: () => null,
+      });
+      check(matchingLocalBinReport.projectLocalBin.status === 'pass', 'project-local-bin should pass when local bin realpath equals active CLI realpath');
+      check(matchingLocalBinReport.projectLocalBin.actual.matchesEntrypoint === true, 'project-local-bin should record matching local bin realpath');
+      check(matchingLocalBinReport.projectLocalBin.actual.shadowsEntrypoint === false, 'project-local-bin should not shadow when realpaths match');
+
+      const activeCli = join(tmp, 'active-koala');
+      writeFileSync(activeCli, 'active koala');
+      const mismatchedLocalBinReport = checksModule.runRuntimeEnvironmentChecks(tmp, {
+        commandResolver: () => activeCli,
+        globalNpmRootResolver: () => null,
+      });
+      check(mismatchedLocalBinReport.projectLocalBin.status !== 'pass', 'project-local-bin should warn or fail when local bin resolves differently from active CLI');
+      check(mismatchedLocalBinReport.projectLocalBin.actual.matchesEntrypoint === false, 'project-local-bin should record mismatched local bin realpath');
+      check(mismatchedLocalBinReport.projectLocalBin.actual.shadowsEntrypoint === true, 'project-local-bin should shadow when realpaths differ');
+      check((mismatchedLocalBinReport.projectLocalBin.warnings ?? []).some((warning) => warning.includes('resolves to')), 'project-local-bin mismatch should explain the local and active CLI targets');
     }
 
     if (doctorModule && storeModule) {

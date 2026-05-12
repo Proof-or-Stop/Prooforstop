@@ -211,7 +211,8 @@ function checkProjectLocalBin(context: RuntimeCheckContext, severity: RuntimeFac
   const localBinExists = existsSync(localBin);
   const localRealpath = localBinExists ? safeRealpath(localBin) : null;
   const cliRealpath = context.cliEntrypoint ? safeRealpath(context.cliEntrypoint) : null;
-  const shadowsEntrypoint = !!localRealpath && !!cliRealpath && samePath(localRealpath, cliRealpath);
+  const matchesEntrypoint = localBinExists && !!localRealpath && !!cliRealpath && samePath(localRealpath, cliRealpath);
+  const shadowsEntrypoint = localBinExists && !matchesEntrypoint;
   const status = shadowsEntrypoint ? statusForDrift(severity) : 'pass';
   return {
     status,
@@ -219,10 +220,12 @@ function checkProjectLocalBin(context: RuntimeCheckContext, severity: RuntimeFac
       path: localBin,
       present: localBinExists,
       realpath: localRealpath,
+      cliRealpath,
+      matchesEntrypoint,
       shadowsEntrypoint,
     },
-    expected: 'project-local koala should not shadow the intended CLI entrypoint',
-    ...(shadowsEntrypoint ? { warnings: [`${localBin} shadows ${context.cliEntrypoint}`] } : {}),
+    expected: 'project-local koala should be absent or resolve to the active CLI entrypoint',
+    ...(shadowsEntrypoint ? { warnings: [localBinWarning(localBin, localRealpath, cliRealpath, context.cliEntrypoint)] } : {}),
   };
 }
 
@@ -417,6 +420,7 @@ function listMarkdownFiles(absDir: string, relDir: string): string[] {
   try {
     entries = readdirSync(absDir);
   } catch {
+    // PROBE: unreadable optional docs/requirements directory means there are no bounded docs to scan.
     return out;
   }
   for (const entry of entries) {
@@ -426,6 +430,7 @@ function listMarkdownFiles(absDir: string, relDir: string): string[] {
     try {
       stat = statSync(abs);
     } catch {
+      // PROBE: skip entries that disappear or cannot be statted during the bounded scan.
       continue;
     }
     if (stat.isDirectory()) {
@@ -458,6 +463,7 @@ function runCommand(command: string, args: string[], cwd: string, timeoutMs = 2_
       env: process.env,
     }).trim();
   } catch {
+    // PROBE: command discovery is best-effort for runtime diagnostics.
     return null;
   }
 }
@@ -512,6 +518,7 @@ function readPackageJson(dir: string): any | null {
   try {
     return JSON.parse(readFileSync(path, 'utf-8'));
   } catch {
+    // PROBE: missing or malformed package.json is reported as an unavailable package summary.
     return null;
   }
 }
@@ -525,6 +532,7 @@ function readText(path: string): string {
   try {
     return readFileSync(path, 'utf-8');
   } catch {
+    // PROBE: optional bounded reference files may be absent or unreadable.
     return '';
   }
 }
@@ -535,6 +543,7 @@ function hasDirectoryEntry(projectRoot: string, dir: string, suffix: string): bo
   try {
     return readdirSync(abs).some((entry) => entry.endsWith(suffix));
   } catch {
+    // PROBE: optional test directories may be absent or unreadable.
     return false;
   }
 }
@@ -543,12 +552,19 @@ function safeRealpath(path: string): string | null {
   try {
     return realpathSync(path);
   } catch {
+    // PROBE: unresolved realpaths are surfaced to callers as null for drift reporting.
     return null;
   }
 }
 
 function samePath(a: string, b: string): boolean {
   return resolve(a) === resolve(b);
+}
+
+function localBinWarning(localBin: string, localRealpath: string | null, cliRealpath: string | null, cliEntrypoint: string | null): string {
+  if (!localRealpath) return `${localBin} exists but its realpath could not be resolved`;
+  if (!cliRealpath) return `${localBin} exists but active koala CLI could not be resolved for comparison`;
+  return `${localBin} resolves to ${localRealpath}, active CLI ${cliEntrypoint ?? 'koala'} resolves to ${cliRealpath}`;
 }
 
 function statusForDrift(severity: RuntimeFactSeverity): RuntimeFactStatus {
