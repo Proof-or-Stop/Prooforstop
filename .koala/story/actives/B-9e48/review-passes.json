@@ -39,6 +39,14 @@
       "createdAt": "2026-05-12T18:06:32.732Z",
       "reviewRound": "2026-05-12T17:59:24.436Z",
       "_hash": "6f7a5c5ecaf4a3e89a6990b05b72cf38c557d2cddcd4e208d3e8e490e0f748b6"
+    },
+    {
+      "id": "B-9e48:RP-006",
+      "agent": "koala-review-test-coverage",
+      "note": "Reviewed final verification coverage after F-001/F-002: current HEAD smoke source covers nested cwd, wrong story branch, and non-story linked worktree; ran npm --prefix packages/main run build && npm run test:worktree-authority-smoke at cf29abca and it passed with no blocking coverage gaps.",
+      "createdAt": "2026-05-12T18:16:46.998Z",
+      "reviewRound": "2026-05-12T18:11:40.902Z",
+      "_hash": "79897a9313070e7e36e48a36c0dce2a8895ecc575899a611b79f3aae55103e67"
     }
   ]
 }
