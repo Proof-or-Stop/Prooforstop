@@ -102,6 +102,7 @@ B-xxxx REVIEW (authority:worktree, mirror:INIT_CHECK)
 - **Gate oracle 与 renderer 分离**：DONE pre-check 等 gate 输出必须先形成稳定 row contract（`id/status/detail/hint/source/blocking`），`status` / `session_brief` / `next` 只渲染这些 row。展示层不能用 phase 或 label 文案复制一份 gate 规则。
 - **下一步提示必须 phase-aware**：`koala validate` 通过只代表验证命令通过，不代表可以跨过当前 phase。DEV 通过后提示 commit + REVIEW，REVIEW 通过后提示 TEST，TEST 通过后仍要渲染 DONE pre-check 的失败 row 和补救 hint。
 - **流程事实必须双层保护**：prompt 只负责指导 agent 调用正确命令；CLI / handler / gate 必须硬编码兜底，负责 schema、runtime 归一、签名、hash、evidence fresh check 和拒绝策略。该原则只覆盖流程事实：phase / state transition、pass / no-issue confirmation、finding category / role / severity、verification evidence、init / scope / delivery check、REVIEW / TEST / DONE gate artifact。普通解释性 prose 不应被当作流程证据。
+- **流程事实需要 typed registry**：`packages/main/src/core/process-fact-registry.ts` 从 `COMMAND_POLICIES` 与 `PROCESS_FACT_LEVELS` 机械组装 command fact，并显式覆盖 reviewer lane、artifact、required semantic facts（如 validation-status、verification-evidence、review-pass、finding-state）。维护者新增 gate、reviewer lane 或 artifact 时，必须先让 registry 和 contract verifier 同步更新。
 - **Pass 结论不是 finding**：reviewer 没有 finding 时必须写 `review_pass_set`。为了兼容旧 prompt 或误用，pass-only `finding_add`（如 no findings、检查通过、PASS/PASSED）在 handler 里转成 review pass；含“但是/failed/issue found”等歧义失败语义时仍保留为 finding。
 - **Finding category 不扩散**：当前 canonical category 是 `happy|edge|adversarial|missing`。已知 legacy category（`cleanup|doc-promise-undelivered|doc-code-drift|spec-boundary`）只作为兼容输入归一到 `missing`，不得作为 active reviewer prompt 示例或新流程语义继续传播。
 - **用户价值验收优先**：DONE 前必须能说清楚“用户看到什么变化、怎么使用、证据在哪里”。工程链路通过不等于任务真正完成。
@@ -173,6 +174,7 @@ B-xxxx REVIEW (authority:worktree, mirror:INIT_CHECK)
 - `fixture_*`：legacy/compat 维护入口；DEV 如需迁移旧 fixture 可用，但新 story 不应把它当作标准验证流。REVIEW/TEST 主要读取 `verificationEvidence`，不应绕过 review 改行为。
 - `checklist_update`：PLAN 补 intent，DEV 补 status/evidence，其余阶段谨慎使用。
 - `summary_set`：不是形式总结，DONE gate 和最终用户交付都要消费。
+- `process-fact-registry` + `verify-process-fact-contract`：静态 contract 负责校验 MAIN_TOOLS、DEFAULT_PHASE_TOOLS、reviewer lanes、signed/gate artifacts、L4 gate evidence 与 required semantic facts 是否一致；fail 文案必须直接点名 `missing from PROCESS_FACT_REGISTRY` 或 `required process fact missing`，避免维护者只看到 prompt 漂移。
 
 ## 三方制衡
 

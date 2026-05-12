@@ -1,0 +1,106 @@
+{
+  "storyId": "B-5964",
+  "name": "unified-process-fact-registry",
+  "title": "统一流程事实 registry，给维护者稳定诊断",
+  "description": "维护者新增或修改 command、reviewer lane、gate evidence、signed artifact 或 phase rule 时，只需要围绕代码内 typed process fact registry 对齐事实；contract verifier 会给出稳定、可操作的 drift 诊断，而不是崩溃或依赖 prompt。项目配置只能收窄或补项目本地验证命令，不能放宽核心 gate 语义。本 story 同时修复当前 process-fact contract 源码 fallback 解析 DEFAULT_PHASE_TOOLS 星号 key 时崩溃的问题。",
+  "type": "chore",
+  "phase": "REVIEW",
+  "priority": "high",
+  "keywords": [
+    "registry",
+    "phase gate",
+    "process fact",
+    "gate evidence",
+    "reviewer lane",
+    "contract"
+  ],
+  "riskSignals": [
+    {
+      "category": "验证框架",
+      "matched": "verifier"
+    }
+  ],
+  "createdAt": "2026-05-12T12:09:02.178Z",
+  "startedAt": "2026-05-12T12:09:02.178Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-05-12T12:09:02.182Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-05-12T12:15:31.891Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-05-12T12:15:41.331Z",
+      "branch": "story/B-5964",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-12T12:30:32.702Z",
+      "branch": "story/B-5964",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-12T13:17:24.587Z",
+      "branch": "story/B-5964",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-12T13:25:51.812Z",
+      "branch": "story/B-5964",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-12T13:41:34.784Z",
+      "branch": "story/B-5964",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-12T13:49:09.394Z",
+      "branch": "story/B-5964",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-12T13:58:49.955Z",
+      "branch": "story/B-5964",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-5964",
+    "branch": "story/B-5964",
+    "createdAt": "2026-05-12T12:15:31.974Z"
+  },
+  "currentReviewRound": "2026-05-12T13:58:49.955Z"
+}

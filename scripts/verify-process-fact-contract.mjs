@@ -66,6 +66,58 @@ const legacyTestAutoProcessFactClaimPatterns = [
 ];
 const legacyTestAutoNegatedProcessFactPattern = /(?:不会|不写|不再|不能|并不|does\s+not|doesn't|do\s+not|not|never|without|no\s+longer).{0,90}(?:bug|test-?evidence|test evidence|verificationEvidence|测试证据)/i;
 const commandPolicyStatuses = new Set(['supported', 'rootOnly', 'legacy', 'retired', 'maintenance', 'gateEvidence']);
+const processFactRegistryPath = 'packages/main/src/core/process-fact-registry.ts';
+const processFactRegistryKinds = new Set([
+  'command',
+  'runtime-behavior',
+  'gate-evidence',
+  'execution-status',
+  'validation-status',
+  'review-pass',
+  'finding',
+  'reviewer-lane',
+  'signed-artifact',
+  'artifact',
+]);
+const requiredProcessFactSemantics = {
+  validate: ['validation-status', 'validation-result', 'gate-evidence'],
+  test_add: ['test-evidence', 'validation-result'],
+  test_story: ['test-evidence', 'validation-result'],
+  verification_evidence_add: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
+  verification_evidence_batch_add: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
+  verification_evidence_refresh_stale: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
+  review_pass_set: ['review-pass', 'no-blocker-evidence', 'gate-evidence'],
+  finding_add: ['finding-state', 'blocker-state', 'gate-evidence'],
+  finding_resolve: ['finding-state', 'blocker-state', 'gate-evidence'],
+  finding_dismiss: ['finding-state', 'blocker-state', 'gate-evidence'],
+};
+const requiredReviewerLanes = [
+  'koala-review-story-init',
+  'product-reviewer',
+  'koala-review-scope-plan',
+  'koala-review-concept',
+  'koala-review-quality',
+  'koala-review-test-coverage',
+  'koala-review-behavior',
+  'koala-review-docs',
+  'koala-review-channel',
+  'koala-review-delivery',
+];
+const requiredArtifactFacts = [
+  { name: 'artifact:index.json', path: 'index.json', signed: false },
+  { name: 'artifact:review.json', path: 'review.json', signed: true, signaturePattern: /sha256\(storyId:timestamp:issueCount:blockerCount/ },
+  { name: 'artifact:checklist.json', path: 'checklist.json', signed: false },
+  { name: 'artifact:init-check.json', path: 'init-check.json', signed: true, signaturePattern: /signInitCheck\/recomputeInitCheckHash/ },
+  { name: 'artifact:scope-check.json', path: 'scope-check.json', signed: true, signaturePattern: /signScopeCheck/ },
+  { name: 'artifact:delivery-check.json', path: 'delivery-check.json', signed: true, signaturePattern: /signDeliveryCheck\/recomputeDeliveryCheckHash/ },
+  { name: 'artifact:findings.json', path: 'findings.json', signed: true, signaturePattern: /signFinding\/verifyFinding/ },
+  { name: 'artifact:review-passes.json', path: 'review-passes.json', signed: true, signaturePattern: /signReviewPass\/verifyReviewPass/ },
+  { name: 'artifact:draft-check.json', path: 'draft-check.json', signed: true, signaturePattern: /computeDraftCheckHash/ },
+  { name: 'artifact:summary.json', path: 'summary.json', signed: false },
+  { name: 'artifact:test-evidence.json', path: 'test-evidence.json', signed: false },
+  { name: 'artifact:eval-evidence.json', path: 'eval-evidence.json', signed: false },
+  { name: 'artifact:process-events.jsonl', path: 'process-events.jsonl', signed: false },
+];
 const legacyCommandPolicyGuidance = {
   test_auto: {
     destructiveRisk: 'workspace-destructive',
@@ -168,8 +220,12 @@ async function importBuiltModule(relPath) {
   }
 }
 
-const builtCommandPolicyModule = await importBuiltModule('packages/main/dist/core/command-policy.js');
-const builtConfigModule = await importBuiltModule('packages/main/dist/core/config.js');
+// Contract verification is source-first by design. Stale dist output must not be
+// allowed to hide current source drift, so the verifier parses src files even
+// when compiled modules exist.
+const builtCommandPolicyModule = null;
+const builtConfigModule = null;
+const builtProcessFactRegistryModule = null;
 
 const passOnlyFindingAddPatterns = [
   /文档一致性检查通过/,
@@ -527,6 +583,59 @@ function assertSyntheticAdversarialChecks() {
     'synthetic command policy parser should tolerate typed exports, apostrophes, escaped quotes, and template strings',
   );
 
+  const syntheticPhaseTools = [
+    'const unrelated = "DEV: [\'comment_only_command\']";',
+    '// DEV: [\'line_comment_command\']',
+    'export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {',
+    "  // '*': ['commented_global_tool']",
+    "  '*': [",
+    "    'session_brief',",
+    "    'aux_*', // 'comment_only_command' must not be parsed",
+    "    'quoted # value',",
+    '  ],',
+    '  DEV: [',
+    "    'checklist_update',",
+    '    /*',
+    "      '*': ['commented_star_command']",
+    "      'commented_dev_command'",
+    '    */',
+    "    'finding_add',",
+    '  ],',
+    '  REVIEW: [',
+    "    'review_pass_set',",
+    '  ],',
+    '} as const;',
+  ].join('\n');
+  const syntheticGlobalTools = extractPhaseToolEntries(syntheticPhaseTools, '*');
+  assert(
+    syntheticGlobalTools.has('session_brief') &&
+      syntheticGlobalTools.has('aux_*') &&
+      syntheticGlobalTools.has('quoted # value') &&
+      !syntheticGlobalTools.has('comment_only_command') &&
+      !syntheticGlobalTools.has('commented_global_tool') &&
+      !syntheticGlobalTools.has('commented_star_command'),
+    'synthetic DEFAULT_PHASE_TOOLS parser should handle quoted "*" key, strings, and comments',
+  );
+  const syntheticDevTools = extractPhaseToolEntries(syntheticPhaseTools, 'DEV');
+  assert(
+    syntheticDevTools.has('checklist_update') &&
+      syntheticDevTools.has('finding_add') &&
+      !syntheticDevTools.has('commented_dev_command') &&
+      !syntheticDevTools.has('line_comment_command'),
+    'synthetic DEFAULT_PHASE_TOOLS parser should handle ordinary phase keys without reading comments',
+  );
+
+  const widenedPhaseTools = {
+    DEV: ['test_auto', 'test_add', 'review_pass_set', 'validate'],
+  };
+  assert(
+    !commandAllowedByConfiguredPhaseTools('test_auto', 'DEV', widenedPhaseTools) &&
+      !commandAllowedByConfiguredPhaseTools('test_add', 'DEV', widenedPhaseTools) &&
+      commandAllowedByConfiguredPhaseTools('review_pass_set', 'DEV', widenedPhaseTools) &&
+      commandAllowedByConfiguredPhaseTools('validate', 'DEV', widenedPhaseTools),
+    'runtime phaseTools config must narrow only: it cannot widen rootOnly/legacy commands, while policy-approved gate evidence stays allowed',
+  );
+
   const badTestAutoBugDoc = [
     'Legacy `test_auto` 是兼容 runner。',
     '6. 自动 bug 管理：fail 创建 bug，pass 自动 fix bug',
@@ -574,16 +683,15 @@ function assertSyntheticAdversarialChecks() {
 }
 
 function extractExportedArrayBody(text, exportName) {
-  const marker = `export const ${exportName} = [`;
-  const start = text.indexOf(marker);
-  assert(start !== -1, `${processFactLevelRegistryPath} should export ${exportName}`);
-  if (start === -1) return '';
+  const match = new RegExp(`\\bexport\\s+const\\s+${exportName}\\b(?:\\s*:\\s*[^=]+)?\\s*=\\s*\\[`).exec(text);
+  assert(Boolean(match), `source should export ${exportName}`);
+  if (!match) return '';
 
   let depth = 0;
   let inString = false;
   let quote = '';
   let escaped = false;
-  const arrayStart = start + marker.length - 1;
+  const arrayStart = match.index + match[0].lastIndexOf('[');
 
   for (let index = arrayStart; index < text.length; index += 1) {
     const char = text[index];
@@ -657,6 +765,156 @@ function extractExportedObjectBody(text, exportName, relPath) {
   if (!match) return '';
   const objectStart = match.index + match[0].lastIndexOf('{');
   return extractBalancedBlock(text, objectStart, '{', '}', `${relPath} ${exportName}`);
+}
+
+function extractConstInitializer(text, constName, relPath) {
+  const match = new RegExp(`\\b(?:export\\s+)?const\\s+${constName}\\b(?:\\s*:\\s*[^=]+)?\\s*=\\s*`).exec(text);
+  assert(Boolean(match), `${relPath} should declare ${constName}`);
+  if (!match) return '';
+
+  const startIndex = match.index + match[0].length;
+  let parenDepth = 0;
+  let bracketDepth = 0;
+  let braceDepth = 0;
+  let inString = false;
+  let quote = '';
+  let escaped = false;
+
+  for (let index = startIndex; index < text.length; index += 1) {
+    const char = text[index];
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+    if (inString) {
+      if (char === '\\') escaped = true;
+      else if (char === quote) inString = false;
+      continue;
+    }
+    if (char === '"' || char === "'" || char === '`') {
+      inString = true;
+      quote = char;
+      continue;
+    }
+    if (char === '(') {
+      parenDepth += 1;
+      continue;
+    }
+    if (char === ')') {
+      parenDepth -= 1;
+      continue;
+    }
+    if (char === '[') {
+      bracketDepth += 1;
+      continue;
+    }
+    if (char === ']') {
+      bracketDepth -= 1;
+      continue;
+    }
+    if (char === '{') {
+      braceDepth += 1;
+      continue;
+    }
+    if (char === '}') {
+      braceDepth -= 1;
+      continue;
+    }
+    if (char === ';' && parenDepth === 0 && bracketDepth === 0 && braceDepth === 0) {
+      return text.slice(startIndex, index).trim();
+    }
+  }
+
+  fail(`${relPath} ${constName} initializer should terminate with a semicolon`);
+  return '';
+}
+
+function assertInitializerPattern(initializer, label, pattern, message) {
+  assert(pattern.test(initializer), `${processFactRegistryPath}: ${label} ${message}`);
+}
+
+function assertProcessFactMappedSourceContracts(sourceText) {
+  const commandFactsInitializer = extractConstInitializer(sourceText, 'COMMAND_PROCESS_FACTS', processFactRegistryPath);
+  assertInitializerPattern(
+    commandFactsInitializer,
+    'COMMAND_PROCESS_FACTS',
+    /\bPROCESS_FACT_LEVELS\.map\s*\(/,
+    'must map PROCESS_FACT_LEVELS directly',
+  );
+  assertInitializerPattern(
+    commandFactsInitializer,
+    'COMMAND_PROCESS_FACTS',
+    /\bconst\s+policy\s*=\s*commandPolicy\(entry\.name\)\s*;/,
+    'must derive lifecycle policy from commandPolicy(entry.name)',
+  );
+  assertInitializerPattern(
+    commandFactsInitializer,
+    'COMMAND_PROCESS_FACTS',
+    /\bconst\s+rootOnly\s*=\s*policy\s*\?\s*policy\.rootOnly\s*===\s*true\s*\|\|\s*policy\.status\s*===\s*'rootOnly'\s*:\s*undefined\s*;/,
+    'must wire rootOnly from policy.rootOnly/status',
+  );
+  assertInitializerPattern(
+    commandFactsInitializer,
+    'COMMAND_PROCESS_FACTS',
+    /\bconst\s+gateEvidence\s*=\s*policy\s*\?\s*policy\.gateEvidence\s*===\s*true\s*\|\|\s*policy\.status\s*===\s*'gateEvidence'\s*:\s*undefined\s*;/,
+    'must wire gateEvidence from policy.gateEvidence/status',
+  );
+  for (const [fieldLabel, pattern] of [
+    ['name', /\bname:\s*entry\.name\b/],
+    ['kind', /\bkind:\s*commandFactKind\(entry\.name,\s*entry\.level\)/],
+    ['semantics', /\bsemantics:\s*commandFactSemantics\(entry\.name,\s*entry\.level\)/],
+    ['level', /\blevel:\s*entry\.level\b/],
+    ['lifecycle', /\blifecycle:\s*policy\?\.status\b/],
+    ['allowedPhases', /\ballowedPhases:\s*policy\?\.allowedPhases\b/],
+    ['rootOnly', /\brootOnly\s*,/],
+    ['legacy', /\blegacy:\s*policy\s*\?\s*policy\.status\s*===\s*'legacy'\s*:\s*undefined\b/],
+    ['gateEvidence', /\bgateEvidence\s*,/],
+    ['destructiveRisk', /\bdestructiveRisk:\s*policy\?\.destructiveRisk\b/],
+    ['producer', /\bproducer:\s*entry\.owner\b/],
+    ['consumerGate', /\bconsumerGate:\s*entry\.gateConsumer\b/],
+    ['artifact', /\bartifact:\s*PROCESS_FACT_ARTIFACT_BY_COMMAND\[entry\.name\]/],
+    ['reviewerLane', /\breviewerLane:\s*PROCESS_FACT_ARTIFACT_BY_COMMAND\[entry\.name\]\?\.reviewerLane\b/],
+    ['rationale', /\brationale:\s*entry\.rationale\b/],
+  ]) {
+    assertInitializerPattern(
+      commandFactsInitializer,
+      'COMMAND_PROCESS_FACTS',
+      pattern,
+      `must wire ${fieldLabel} from level/policy/artifact sources`,
+    );
+  }
+
+  const reviewerLanesInitializer = extractConstInitializer(sourceText, 'PROCESS_FACT_REVIEWER_LANES', processFactRegistryPath);
+  assertInitializerPattern(
+    reviewerLanesInitializer,
+    'PROCESS_FACT_REVIEWER_LANES',
+    /\bPROCESS_FACT_REVIEWER_LANE_DEFINITIONS\.map\s*\(/,
+    'must map PROCESS_FACT_REVIEWER_LANE_DEFINITIONS directly',
+  );
+  assertInitializerPattern(
+    reviewerLanesInitializer,
+    'PROCESS_FACT_REVIEWER_LANES',
+    /\.\.\.entry\b/,
+    'must preserve name/producer/consumerGate/reviewerLane/artifact/rationale via ...entry',
+  );
+  assertInitializerPattern(
+    reviewerLanesInitializer,
+    'PROCESS_FACT_REVIEWER_LANES',
+    /\bkind:\s*'reviewer-lane'\s+as\s+const\b/,
+    'must hard-code reviewer-lane kind',
+  );
+  assertInitializerPattern(
+    reviewerLanesInitializer,
+    'PROCESS_FACT_REVIEWER_LANES',
+    /\bsemantics:\s*\[\s*'reviewer-lane'\s*,\s*'gate-evidence'\s*\]\s+as\s+const\b/,
+    'must hard-code reviewer-lane gate-evidence semantics',
+  );
+  assertInitializerPattern(
+    reviewerLanesInitializer,
+    'PROCESS_FACT_REVIEWER_LANES',
+    /\blevel:\s*'L4'\s+as\s+const\b/,
+    'must hard-code L4 reviewer-lane level',
+  );
 }
 
 let cachedProcessFactLevelEntries = null;
@@ -827,8 +1085,205 @@ function duplicateNames(values) {
   return [...duplicates].sort();
 }
 
+let cachedProcessFactRegistryEntries = null;
+
+function parseTopLevelObjectBlocks(arrayBody, label) {
+  const blocks = [];
+  for (let index = 0; index < arrayBody.length; index += 1) {
+    const char = arrayBody[index];
+    if (char === '\'' || char === '"' || char === '`') {
+      const literal = readQuotedLiteralAt(arrayBody, index);
+      index = literal ? literal.endIndex - 1 : index;
+      continue;
+    }
+    if (char !== '{') continue;
+    const block = extractBalancedBlock(arrayBody, index, '{', '}', `${label} entry`);
+    blocks.push(block);
+    index += block.length + 1;
+  }
+  return blocks;
+}
+
+function parseRegistryArrayEntriesFromSource(text, exportName) {
+  const body = extractExportedArrayBody(text, exportName);
+  return parseTopLevelObjectBlocks(body, `${processFactRegistryPath} ${exportName}`)
+    .map(block => ({
+      name: readStringProperty(block, 'name'),
+      kind: readStringProperty(block, 'kind'),
+      semantics: parseStringArrayProperty(block, 'semantics') || [],
+      level: readStringProperty(block, 'level'),
+      producer: readStringProperty(block, 'producer'),
+      consumerGate: readStringProperty(block, 'consumerGate') || undefined,
+      reviewerLane: readStringProperty(block, 'reviewerLane') || undefined,
+      rationale: readStringProperty(block, 'rationale'),
+      block,
+    }))
+    .filter(entry => entry.name);
+}
+
+function parseProcessFactKindByCommandFromSource(text) {
+  const body = extractExportedObjectBody(text, 'PROCESS_FACT_KIND_BY_COMMAND', processFactRegistryPath);
+  return new Map([...body.matchAll(/^\s*([a-z_][a-z0-9_]*):\s*'([^']+)'/gm)].map(match => [match[1], match[2]]));
+}
+
+function parseProcessFactArtifactByCommandFromSource(text) {
+  const body = extractExportedObjectBody(text, 'PROCESS_FACT_ARTIFACT_BY_COMMAND', processFactRegistryPath);
+  const artifacts = new Map();
+  const keyPattern = /^\s*([a-z_][a-z0-9_]*):\s*\{/gm;
+  for (const match of body.matchAll(keyPattern)) {
+    const commandName = match[1];
+    const openIndex = match.index + match[0].lastIndexOf('{');
+    const block = extractBalancedBlock(body, openIndex, '{', '}', `${processFactRegistryPath} artifact ${commandName}`);
+    artifacts.set(commandName, {
+      path: readStringProperty(block, 'path'),
+      signed: /\bsigned:\s*true\b/.test(block),
+      signature: readStringProperty(block, 'signature'),
+      producerCommand: readStringProperty(block, 'producerCommand'),
+      consumerGate: readStringProperty(block, 'consumerGate'),
+      reviewerLane: readStringProperty(block, 'reviewerLane'),
+      block,
+    });
+  }
+  return artifacts;
+}
+
+function parseProcessFactRequiredSemanticsFromSource(text) {
+  const body = extractExportedObjectBody(text, 'PROCESS_FACT_REQUIRED_SEMANTICS', processFactRegistryPath);
+  const semantics = new Map();
+  const keyPattern = /^\s*([a-z_][a-z0-9_]*):\s*\[/gm;
+  for (const match of body.matchAll(keyPattern)) {
+    const name = match[1];
+    const openIndex = match.index + match[0].lastIndexOf('[');
+    const block = extractBalancedBlock(body, openIndex, '[', ']', `${processFactRegistryPath} semantics ${name}`);
+    semantics.set(name, [...block.matchAll(/['"`]([^'"`]+)['"`]/g)].map(([, value]) => value));
+  }
+  return semantics;
+}
+
+function processFactKindForCommand(name, level, kindByCommand) {
+  if (kindByCommand.has(name)) return kindByCommand.get(name);
+  if (name.startsWith('runtime:')) return 'runtime-behavior';
+  return level === 'L4' ? 'gate-evidence' : 'command';
+}
+
+function processFactSemanticsForCommand(name, level, semanticsByCommand) {
+  const semantics = new Set(semanticsByCommand.get(name) || []);
+  if (name.startsWith('runtime:')) semantics.add('runtime-behavior');
+  if (level === 'L4') semantics.add('gate-evidence');
+  if (semantics.size === 0) semantics.add('command');
+  return [...semantics].sort();
+}
+
+function parseProcessFactRegistry() {
+  if (cachedProcessFactRegistryEntries) return cachedProcessFactRegistryEntries;
+
+  const sourceText = read(processFactRegistryPath);
+  for (const token of [
+    'PROCESS_FACT_REGISTRY',
+    'PROCESS_FACT_REQUIRED_SEMANTICS',
+    'PROCESS_FACT_SIGNED_ARTIFACTS',
+    'PROCESS_FACT_REQUIRED_ARTIFACTS',
+    'semantics',
+    'kind',
+    'lifecycle',
+    'allowedPhases',
+    'rootOnly',
+    'destructiveRisk',
+    'producer',
+    'consumerGate',
+    'artifact',
+    'signature',
+    'reviewerLane',
+  ]) {
+    assert(sourceText.includes(token), `${processFactRegistryPath}: typed registry must expose ${token}`);
+  }
+
+  const finalRegistryBody = extractExportedArrayBody(sourceText, 'PROCESS_FACT_REGISTRY');
+  for (const requiredSpread of ['COMMAND_PROCESS_FACTS', 'PROCESS_FACT_REVIEWER_LANES', 'PROCESS_FACT_ARTIFACTS']) {
+    assert(
+      finalRegistryBody.includes(`...${requiredSpread}`),
+      `${processFactRegistryPath}: final PROCESS_FACT_REGISTRY export missing ...${requiredSpread}`,
+    );
+  }
+
+  assertProcessFactMappedSourceContracts(sourceText);
+
+  if (builtProcessFactRegistryModule?.PROCESS_FACT_REGISTRY) {
+    const entries = builtProcessFactRegistryModule.PROCESS_FACT_REGISTRY.map(entry => ({
+      name: entry.name,
+      kind: entry.kind,
+      semantics: Array.isArray(entry.semantics) ? [...entry.semantics] : [],
+      level: entry.level,
+      lifecycle: entry.lifecycle,
+      allowedPhases: entry.allowedPhases === 'all'
+        ? [...ALL_PHASES]
+        : (Array.isArray(entry.allowedPhases) ? [...entry.allowedPhases] : []),
+      rootOnly: entry.rootOnly === true,
+      legacy: entry.legacy === true,
+      gateEvidence: entry.gateEvidence === true,
+      destructiveRisk: entry.destructiveRisk || '',
+      producer: entry.producer || '',
+      consumerGate: entry.consumerGate || '',
+      artifact: entry.artifact || null,
+      reviewerLane: entry.reviewerLane || '',
+      rationale: entry.rationale || '',
+    }));
+    assert(entries.length > 0, `${processFactRegistryPath}: compiled PROCESS_FACT_REGISTRY should not be empty`);
+    cachedProcessFactRegistryEntries = entries;
+    return entries;
+  }
+
+  const policyByName = new Map(parseCommandPolicyEntries().map(entry => [entry.name, entry]));
+  const kindByCommand = parseProcessFactKindByCommandFromSource(sourceText);
+  const semanticsByCommand = parseProcessFactRequiredSemanticsFromSource(sourceText);
+  const artifactByCommand = parseProcessFactArtifactByCommandFromSource(sourceText);
+  const commandEntries = parseProcessFactLevelRegistry().map(entry => {
+    const policy = policyByName.get(entry.name);
+    const semantics = processFactSemanticsForCommand(entry.name, entry.level, semanticsByCommand);
+    const inferredRootOnly = Boolean(policy) && (policy.rootOnly || policy.status === 'rootOnly');
+    const inferredGateEvidence = Boolean(policy?.gateEvidence) || policy?.status === 'gateEvidence';
+    return {
+      name: entry.name,
+      kind: processFactKindForCommand(entry.name, entry.level, kindByCommand),
+      semantics,
+      level: entry.level,
+      lifecycle: policy?.status || '',
+      allowedPhases: policy?.allowedPhases || [],
+      rootOnly: inferredRootOnly,
+      legacy: policy?.status === 'legacy',
+      gateEvidence: inferredGateEvidence,
+      destructiveRisk: policy?.destructiveRisk || '',
+      producer: entry.owner,
+      consumerGate: entry.gateConsumer || '',
+      artifact: artifactByCommand.get(entry.name) || null,
+      reviewerLane: artifactByCommand.get(entry.name)?.reviewerLane || '',
+      rationale: entry.rationale,
+    };
+  });
+
+  const laneEntries = parseRegistryArrayEntriesFromSource(sourceText, 'PROCESS_FACT_REVIEWER_LANE_DEFINITIONS').map(entry => {
+    const artifactRefMatch = /artifact:\s*PROCESS_FACT_ARTIFACT_BY_COMMAND\.([a-z_][a-z0-9_]*)/.exec(entry.block);
+    const artifact = artifactRefMatch ? artifactByCommand.get(artifactRefMatch[1]) : null;
+    return {
+      ...entry,
+      kind: 'reviewer-lane',
+      semantics: ['gate-evidence', 'reviewer-lane'],
+      level: 'L4',
+      artifact: artifact || null,
+    };
+  });
+  const artifactEntries = parseRegistryArrayEntriesFromSource(sourceText, 'PROCESS_FACT_ARTIFACTS').map(entry => {
+    const artifactRefMatch = /artifact:\s*PROCESS_FACT_ARTIFACT_BY_COMMAND\.([a-z_][a-z0-9_]*)/.exec(entry.block);
+    const artifact = artifactRefMatch ? artifactByCommand.get(artifactRefMatch[1]) : null;
+    return { ...entry, artifact: artifact || null };
+  });
+
+  cachedProcessFactRegistryEntries = [...commandEntries, ...laneEntries, ...artifactEntries];
+  return cachedProcessFactRegistryEntries;
+}
+
 function processFactRegistryMap() {
-  return new Map(parseProcessFactLevelRegistry().map(entry => [entry.name, entry]));
+  return new Map(parseProcessFactRegistry().map(entry => [entry.name, entry]));
 }
 
 function extractCliToolNames(cliText) {
@@ -975,17 +1430,91 @@ function stripTsComments(text) {
   return out;
 }
 
+function readQuotedLiteralAt(text, openIndex) {
+  const quote = text[openIndex];
+  let escaped = false;
+  let value = '';
+  for (let index = openIndex + 1; index < text.length; index += 1) {
+    const char = text[index];
+    if (escaped) {
+      value += char;
+      escaped = false;
+      continue;
+    }
+    if (char === '\\') {
+      escaped = true;
+      continue;
+    }
+    if (char === quote) return { value, endIndex: index + 1 };
+    value += char;
+  }
+  return null;
+}
+
+function skipWhitespace(text, index) {
+  let cursor = index;
+  while (cursor < text.length && /\s/.test(text[cursor])) cursor += 1;
+  return cursor;
+}
+
+function findObjectArrayPropertyOpen(body, propertyName) {
+  let index = 0;
+  while (index < body.length) {
+    index = skipWhitespace(body, index);
+    if (body[index] === ',') {
+      index += 1;
+      continue;
+    }
+
+    let key = '';
+    if (body[index] === '\'' || body[index] === '"' || body[index] === '`') {
+      const literal = readQuotedLiteralAt(body, index);
+      if (!literal) return -1;
+      key = literal.value;
+      index = literal.endIndex;
+    } else {
+      const match = /^[A-Za-z_$][A-Za-z0-9_$]*/.exec(body.slice(index));
+      if (!match) {
+        index += 1;
+        continue;
+      }
+      key = match[0];
+      index += match[0].length;
+    }
+
+    index = skipWhitespace(body, index);
+    if (body[index] !== ':') continue;
+    index = skipWhitespace(body, index + 1);
+    if (key === propertyName && body[index] === '[') return index;
+
+    if (body[index] === '{') {
+      const block = extractBalancedBlock(body, index, '{', '}', `DEFAULT_PHASE_TOOLS ${key}`);
+      index += block.length + 2;
+    } else if (body[index] === '[') {
+      const block = extractBalancedBlock(body, index, '[', ']', `DEFAULT_PHASE_TOOLS ${key}`);
+      index += block.length + 2;
+    } else if (body[index] === '\'' || body[index] === '"' || body[index] === '`') {
+      const literal = readQuotedLiteralAt(body, index);
+      index = literal ? literal.endIndex : index + 1;
+    } else {
+      while (index < body.length && body[index] !== ',') index += 1;
+    }
+  }
+  return -1;
+}
+
 function extractPhaseToolEntries(configText, phaseName) {
   const text = stripTsComments(configText);
-  const match = new RegExp(`\\b${phaseName}:\\s*\\[`).exec(text);
-  if (!match) return new Set();
+  const body = extractExportedObjectBody(text, 'DEFAULT_PHASE_TOOLS', 'packages/main/src/core/config.ts');
+  const openIndex = findObjectArrayPropertyOpen(body, phaseName);
+  if (openIndex === -1) return new Set();
 
   let depth = 1;
   let quote = null;
   let escaped = false;
   let block = '';
-  for (let index = match.index + match[0].length; index < text.length; index += 1) {
-    const char = text[index];
+  for (let index = openIndex + 1; index < body.length; index += 1) {
+    const char = body[index];
 
     if (quote) {
       block += char;
@@ -1025,6 +1554,26 @@ function patternMatchesCommand(pattern, commandName) {
   return pattern === commandName;
 }
 
+function isPhaseToolsRecord(value) {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+function commandAllowedByLifecyclePolicySource(commandName, phaseName) {
+  if (commandName === 'session_brief' || commandName === 'next') return true;
+  const policy = parseCommandPolicyEntries().find(entry => entry.name === commandName);
+  if (!policy) return true;
+  return policy.allowedPhases.includes(phaseName);
+}
+
+function commandAllowedByConfiguredPhaseTools(commandName, phaseName, phaseTools) {
+  if (commandName === 'session_brief' || commandName === 'next') return true;
+  if (!commandAllowedByLifecyclePolicySource(commandName, phaseName)) return false;
+  if (phaseTools !== undefined && !isPhaseToolsRecord(phaseTools)) return true;
+  const pt = phaseTools || {};
+  const patterns = [...(pt['*'] || []), ...(pt[phaseName] || [])].filter(value => typeof value === 'string');
+  return patterns.some(pattern => patternMatchesCommand(pattern, commandName));
+}
+
 function getDefaultPhaseToolEntries(configText, phaseName) {
   if (builtConfigModule?.DEFAULT_PHASE_TOOLS) {
     return new Set([
@@ -1043,11 +1592,18 @@ function commandAllowedByDefaultConfig(commandName, phaseName, configText) {
     return builtConfigModule.isCommandAllowed(commandName, phaseName);
   }
   const patterns = getDefaultPhaseToolEntries(configText, phaseName);
+  if (!commandAllowedByLifecyclePolicySource(commandName, phaseName)) return false;
   return [...patterns].some(pattern => patternMatchesCommand(pattern, commandName));
 }
 
 function patternHasPolicyApprovedCommand(pattern, phaseName, policyEntries) {
   return policyEntries.some(entry => (
+    patternMatchesCommand(pattern, entry.name) && entry.allowedPhases.includes(phaseName)
+  ));
+}
+
+function patternHasRegistryApprovedCommand(pattern, phaseName, registryCommandEntries) {
+  return registryCommandEntries.some(entry => (
     patternMatchesCommand(pattern, entry.name) && entry.allowedPhases.includes(phaseName)
   ));
 }
@@ -1093,17 +1649,231 @@ function assertL4ProducerOrReplacement(registryEntries, policyByName, configText
   }
 }
 
+function sameStringArray(a, b) {
+  return a.length === b.length && a.every((value, index) => value === b[index]);
+}
+
+function isCommandRegistryEntry(entry) {
+  return !entry.name.includes(':');
+}
+
+function assertProcessFactRegistryContract(cliToolNames, policyEntries, configText) {
+  const registryEntries = parseProcessFactRegistry();
+  const registry = new Map(registryEntries.map(entry => [entry.name, entry]));
+  const registryCommandEntries = registryEntries.filter(isCommandRegistryEntry);
+  const registryCommandByName = new Map(registryCommandEntries.map(entry => [entry.name, entry]));
+  const policyByName = new Map(policyEntries.map(entry => [entry.name, entry]));
+
+  const duplicateRegistryNames = duplicateNames(registryEntries.map(entry => entry.name));
+  assert(
+    duplicateRegistryNames.length === 0,
+    `${processFactRegistryPath}: duplicate PROCESS_FACT_REGISTRY entries: ${duplicateRegistryNames.join(', ')}`,
+  );
+
+  for (const entry of registryEntries) {
+    assert(processFactRegistryKinds.has(entry.kind), `${processFactRegistryPath}: ${entry.name} has unknown kind "${entry.kind}"`);
+    assert(Array.isArray(entry.semantics), `${processFactRegistryPath}: ${entry.name} must declare semantics[]`);
+    assert(entry.producer && entry.producer.trim().length > 0, `${processFactRegistryPath}: ${entry.name} must declare producer`);
+    assert(entry.rationale && entry.rationale.trim().length > 0, `${processFactRegistryPath}: ${entry.name} must declare rationale`);
+    if (entry.level === 'L4') {
+      assert(
+        entry.consumerGate && entry.consumerGate.trim().length > 0,
+        `${processFactRegistryPath}: L4 gate evidence ${entry.name} must name consumer gate`,
+      );
+    }
+  }
+
+  for (const commandName of cliToolNames) {
+    assert(
+      registryCommandByName.has(commandName),
+      `${processFactRegistryPath}: MAIN_TOOLS command missing from PROCESS_FACT_REGISTRY: command=${commandName}`,
+    );
+  }
+
+  for (const entry of registryCommandEntries) {
+    if (entry.name.startsWith('runtime:')) continue;
+    assert(
+      cliToolNames.includes(entry.name),
+      `${processFactRegistryPath}: command registry entry not present in MAIN_TOOLS: command=${entry.name}`,
+    );
+  }
+
+  for (const levelEntry of parseProcessFactLevelRegistry()) {
+    const registryEntry = registry.get(levelEntry.name);
+    assert(
+      registryEntry,
+      `${processFactRegistryPath}: required process fact missing from PROCESS_FACT_REGISTRY: ${levelEntry.name}`,
+    );
+    if (!registryEntry) continue;
+    assert(
+      registryEntry.level === levelEntry.level,
+      `${processFactRegistryPath}: level drift for command=${levelEntry.name} (registry=${registryEntry.level}, PROCESS_FACT_LEVELS=${levelEntry.level})`,
+    );
+    if (levelEntry.gateConsumer) {
+      assert(
+        registryEntry.consumerGate === levelEntry.gateConsumer,
+        `${processFactRegistryPath}: gate drift for command=${levelEntry.name} (registry=${registryEntry.consumerGate || '<missing>'}, PROCESS_FACT_LEVELS=${levelEntry.gateConsumer})`,
+      );
+    }
+  }
+
+  for (const policy of policyEntries) {
+    const registryEntry = registryCommandByName.get(policy.name);
+    if (!registryEntry) continue;
+    assert(
+      registryEntry.lifecycle === policy.status,
+      `${processFactRegistryPath}: policy drift for command=${policy.name} lifecycle registry=${registryEntry.lifecycle || '<missing>'} policy=${policy.status}`,
+    );
+    assert(
+      registryEntry.destructiveRisk === policy.destructiveRisk,
+      `${processFactRegistryPath}: policy drift for command=${policy.name} destructiveRisk registry=${registryEntry.destructiveRisk || '<missing>'} policy=${policy.destructiveRisk || '<missing>'}`,
+    );
+    assert(
+      registryEntry.rootOnly === policy.rootOnly,
+      `${processFactRegistryPath}: policy drift for command=${policy.name} rootOnly registry=${registryEntry.rootOnly} policy=${policy.rootOnly}`,
+    );
+    assert(
+      registryEntry.gateEvidence === policy.gateEvidence,
+      `${processFactRegistryPath}: policy drift for command=${policy.name} gateEvidence registry=${registryEntry.gateEvidence} policy=${policy.gateEvidence}`,
+    );
+    assert(
+      sameStringArray(registryEntry.allowedPhases, policy.allowedPhases),
+      `${processFactRegistryPath}: policy drift for command=${policy.name} allowedPhases registry=[${registryEntry.allowedPhases.join(',')}] policy=[${policy.allowedPhases.join(',')}]`,
+    );
+  }
+
+  for (const [commandName, expectedSemantics] of Object.entries(requiredProcessFactSemantics)) {
+    const entry = registryCommandByName.get(commandName);
+    assert(entry, `${processFactRegistryPath}: required process fact missing from PROCESS_FACT_REGISTRY: ${commandName}`);
+    if (!entry) continue;
+    assert(
+      expectedSemantics.every((semantic) => entry.semantics.includes(semantic)),
+      `${processFactRegistryPath}: required semantic fact missing for command=${commandName} expected=[${expectedSemantics.join(', ')}] got=[${entry.semantics.join(', ')}]`,
+    );
+  }
+
+  const l4CommandEntries = registryCommandEntries.filter(entry => entry.level === 'L4');
+  for (const entry of l4CommandEntries) {
+    const policy = policyByName.get(entry.name);
+    assert(policy, `${processFactRegistryPath}: L4 command ${entry.name} must have COMMAND_POLICIES entry`);
+    if (!policy) continue;
+    assert(
+      policy.gateEvidence,
+      `${processFactRegistryPath}: L4 gate evidence command=${entry.name} must be gateEvidence in COMMAND_POLICIES`,
+    );
+    assert(
+      entry.semantics.includes('gate-evidence'),
+      `${processFactRegistryPath}: L4 gate evidence command=${entry.name} missing gate-evidence semantic`,
+    );
+  }
+
+  for (const phaseName of ALL_PHASES) {
+    for (const pattern of getDefaultPhaseToolEntries(configText, phaseName)) {
+      assert(
+        patternHasRegistryApprovedCommand(pattern, phaseName, registryCommandEntries),
+        `${processFactRegistryPath}: DEFAULT_PHASE_TOOLS phase allowlist drift phase=${phaseName} pattern=${pattern}`,
+      );
+    }
+  }
+
+  for (const lane of requiredReviewerLanes) {
+    const entry = registry.get(`reviewer-lane:${lane}`);
+    assert(entry, `${processFactRegistryPath}: reviewer lane missing from PROCESS_FACT_REGISTRY: lane=${lane}`);
+    if (!entry) continue;
+    assert(entry.kind === 'reviewer-lane', `${processFactRegistryPath}: reviewer lane ${lane} must have kind reviewer-lane`);
+    assert(entry.reviewerLane === lane, `${processFactRegistryPath}: reviewer lane drift for lane=${lane}`);
+    assert(entry.consumerGate, `${processFactRegistryPath}: reviewer lane ${lane} must name consumer gate`);
+    assert(entry.artifact, `${processFactRegistryPath}: reviewer lane ${lane} must name produced/consumed artifact`);
+  }
+
+  const promptReviewerLanes = listMarkdown('packages/main/templates/agents')
+    .map(relPath => basename(relPath, '.md'))
+    .filter(name => name.startsWith('koala-review-') || name === 'product-reviewer');
+  for (const lane of promptReviewerLanes) {
+    assert(
+      registry.has(`reviewer-lane:${lane}`),
+      `${processFactRegistryPath}: reviewer lane prompt missing registry fact: lane=${lane}`,
+    );
+  }
+
+  const artifactEntries = registryEntries.filter(entry => entry.name.startsWith('artifact:'));
+  for (const entry of registryEntries.filter(item => item.artifact)) {
+    const artifactName = `artifact:${entry.artifact.path}`;
+    const artifactEntry = registry.get(artifactName);
+    assert(
+      artifactEntry,
+      `${processFactRegistryPath}: command/reviewer artifact ref missing registry artifact: fact=${entry.name} artifact=${artifactName}`,
+    );
+    if (!artifactEntry?.artifact) continue;
+    assert(
+      artifactEntry.artifact.path === entry.artifact.path,
+      `${processFactRegistryPath}: artifact ref path drift fact=${entry.name} artifact=${artifactName}`,
+    );
+    assert(
+      artifactEntry.artifact.signed === entry.artifact.signed,
+      `${processFactRegistryPath}: artifact ref signed drift fact=${entry.name} artifact=${artifactName}`,
+    );
+  }
+
+  for (const entry of artifactEntries) {
+    assert(entry.artifact, `${processFactRegistryPath}: artifact registry entry ${entry.name} must include artifact metadata`);
+    if (!entry.artifact) continue;
+    assert(entry.semantics.includes('artifact'), `${processFactRegistryPath}: artifact=${entry.name} missing artifact semantic`);
+    assert(
+      entry.kind === (entry.artifact.signed ? 'signed-artifact' : 'artifact'),
+      `${processFactRegistryPath}: artifact kind drift for artifact=${entry.name}`,
+    );
+    if (entry.artifact.signed) {
+      assert(entry.semantics.includes('signed-artifact'), `${processFactRegistryPath}: artifact=${entry.name} missing signed-artifact semantic`);
+      assert(
+        (entry.artifact.signature || '').trim().length > 0,
+        `${processFactRegistryPath}: signed artifact=${entry.name} must declare signature`,
+      );
+    }
+    if (entry.level === 'L4') {
+      assert(entry.consumerGate, `${processFactRegistryPath}: artifact=${entry.name} must name consumer gate`);
+      assert(entry.semantics.includes('gate-evidence'), `${processFactRegistryPath}: L4 artifact=${entry.name} missing gate-evidence semantic`);
+    }
+  }
+
+  for (const expected of requiredArtifactFacts) {
+    const entry = registry.get(expected.name);
+    assert(entry, `${processFactRegistryPath}: artifact missing from PROCESS_FACT_REGISTRY: artifact=${expected.name}`);
+    if (!entry) continue;
+    assert(
+      entry.kind === (expected.signed ? 'signed-artifact' : 'artifact'),
+      `${processFactRegistryPath}: artifact kind drift for artifact=${expected.name} expected=${expected.signed ? 'signed-artifact' : 'artifact'} got=${entry.kind}`,
+    );
+    assert(entry.artifact, `${processFactRegistryPath}: artifact=${expected.name} must include artifact metadata`);
+    if (!entry.artifact) continue;
+    assert(entry.artifact.path === expected.path, `${processFactRegistryPath}: artifact path drift for artifact=${expected.name} path=${entry.artifact.path}`);
+    assert(entry.artifact.signed === expected.signed, `${processFactRegistryPath}: artifact signed drift for artifact=${expected.name}`);
+    if (expected.signed) {
+      assert(
+        expected.signaturePattern.test(entry.artifact.signature || ''),
+        `${processFactRegistryPath}: artifact=${expected.name} signature drift (${entry.artifact.signature || '<missing>'})`,
+      );
+      assert(entry.semantics.includes('signed-artifact'), `${processFactRegistryPath}: artifact=${expected.name} missing signed-artifact semantic`);
+    }
+    assert(entry.semantics.includes('artifact'), `${processFactRegistryPath}: artifact=${expected.name} missing artifact semantic`);
+    assert(entry.consumerGate, `${processFactRegistryPath}: artifact=${expected.name} must name consumer gate`);
+  }
+}
+
 function assertProcessFactCommandInventory() {
   const cliText = read('packages/main/src/cli-engine.ts');
   const configText = read('packages/main/src/core/config.ts');
   const cliToolNames = extractCliToolNames(cliText);
   const cliToolNameSet = new Set(cliToolNames);
-  const registryEntries = parseProcessFactLevelRegistry();
+  const levelRegistryEntries = parseProcessFactLevelRegistry();
+  const registryEntries = parseProcessFactRegistry();
   const registry = new Map(registryEntries.map(entry => [entry.name, entry]));
+  const levelRegistry = new Map(levelRegistryEntries.map(entry => [entry.name, entry]));
   const policyEntries = parseCommandPolicyEntries();
   const policyByName = new Map(policyEntries.map(entry => [entry.name, entry]));
   assertCommandPolicyInventory(cliToolNames);
   assertCommandPolicyPhaseAlignment(policyEntries, configText);
+  assertProcessFactRegistryContract(cliToolNames, policyEntries, configText);
 
   const definitionLevels = new Set(parseProcessFactLevelDefinitions());
   for (const level of ['L0', 'L1', 'L2', 'L3', 'L4']) {
@@ -1116,7 +1886,7 @@ function assertProcessFactCommandInventory() {
     `CLI schema: duplicate MAIN_TOOLS command(s): ${duplicateCliNames.join(', ')}`,
   );
 
-  const duplicateRegistryNames = duplicateNames(registryEntries.map(entry => entry.name));
+  const duplicateRegistryNames = duplicateNames(levelRegistryEntries.map(entry => entry.name));
   assert(
     duplicateRegistryNames.length === 0,
     `${processFactLevelRegistryPath}: duplicate registry entries: ${duplicateRegistryNames.join(', ')}`,
@@ -1131,6 +1901,7 @@ function assertProcessFactCommandInventory() {
   const unknownCliEntries = registryEntries
     .filter(entry => !entry.name.startsWith('runtime:'))
     .map(entry => entry.name)
+    .filter(name => !name.includes(':'))
     .filter(name => !cliToolNameSet.has(name));
   assert(
     unknownCliEntries.length === 0,
@@ -1151,7 +1922,7 @@ function assertProcessFactCommandInventory() {
     `${processFactLevelRegistryPath}: process-fact candidate command(s) cannot be L0: ${l0ProcessFactCandidates.join(', ')}`,
   );
 
-  const l4WithoutGate = registryEntries
+  const l4WithoutGate = levelRegistryEntries
     .filter(entry => entry.level === 'L4')
     .filter(entry => !entry.gateConsumer || entry.gateConsumer.trim().length === 0)
     .map(entry => entry.name);
@@ -1159,7 +1930,7 @@ function assertProcessFactCommandInventory() {
     l4WithoutGate.length === 0,
     `${processFactLevelRegistryPath}: L4 entry must declare gateConsumer: ${l4WithoutGate.join(', ')}`,
   );
-  assertL4ProducerOrReplacement(registryEntries, policyByName, configText);
+  assertL4ProducerOrReplacement(levelRegistryEntries, policyByName, configText);
 
   const missingRuntimeEntries = requiredRuntimeEntries
     .map(entry => entry.name)
@@ -1169,7 +1940,7 @@ function assertProcessFactCommandInventory() {
     `${processFactLevelRegistryPath}: runtime behavior entry missing: ${missingRuntimeEntries.join(', ')}`,
   );
   for (const expected of requiredRuntimeEntries) {
-    const actual = registry.get(expected.name);
+    const actual = levelRegistry.get(expected.name);
     if (!actual) continue;
     assert(
       actual.level === expected.level,
@@ -1186,7 +1957,7 @@ function assertProcessFactCommandInventory() {
   }
 
   for (const expected of requiredControlledMutationEntries) {
-    const actual = registry.get(expected.name);
+    const actual = levelRegistry.get(expected.name);
     assert(actual, `${processFactLevelRegistryPath}: controlled mutation entry missing: ${expected.name}`);
     if (!actual) continue;
     assert(
@@ -1207,7 +1978,7 @@ function assertProcessFactCommandInventory() {
     );
   }
 
-  const findingClusterEntry = registry.get('finding_cluster');
+  const findingClusterEntry = levelRegistry.get('finding_cluster');
   const devPhaseToolEntries = extractPhaseToolEntries(configText, 'DEV');
   assert(
     findingClusterEntry?.level === 'L2',
@@ -1230,21 +2001,33 @@ function formatProcessFactLevelRegistryEntry(entry) {
   return `- ${entry.name} [${entry.level}] owner=${entry.owner}${gateSuffix}`;
 }
 
+function formatProcessFactRegistryEntry(entry) {
+  const gateSuffix = entry.consumerGate ? ` gate=${entry.consumerGate}` : '';
+  const producerSuffix = entry.producer ? ` producer=${entry.producer}` : '';
+  const artifactSuffix = entry.artifact?.path ? ` artifact=${entry.artifact.path}${entry.artifact.signed ? ':signed' : ''}` : '';
+  return `- ${entry.name} [${entry.level}/${entry.kind}]${producerSuffix}${gateSuffix}${artifactSuffix}`;
+}
+
 function printProcessFactLevelRegistrySummary() {
-  const entries = parseProcessFactLevelRegistry();
-  const cliCount = entries.filter(entry => !entry.name.startsWith('runtime:')).length;
-  const runtimeCount = entries.length - cliCount;
+  const entries = parseProcessFactRegistry();
+  const cliCount = entries.filter(entry => !entry.name.startsWith('runtime:') && !entry.name.includes(':')).length;
+  const runtimeCount = entries.filter(entry => entry.name.startsWith('runtime:')).length;
+  const laneCount = entries.filter(entry => entry.kind === 'reviewer-lane').length;
+  const artifactCount = entries.filter(entry => entry.kind === 'artifact' || entry.kind === 'signed-artifact').length;
   const levelCounts = new Map();
   for (const level of ['L0', 'L1', 'L2', 'L3', 'L4']) levelCounts.set(level, 0);
   for (const entry of entries) levelCounts.set(entry.level, (levelCounts.get(entry.level) || 0) + 1);
+  const kindCounts = new Map();
+  for (const entry of entries) kindCounts.set(entry.kind, (kindCounts.get(entry.kind) || 0) + 1);
 
   console.log('');
-  console.log('Process Fact Level Registry');
-  console.log(`- entries: ${entries.length} (${cliCount} CLI, ${runtimeCount} runtime)`);
+  console.log('Process Fact Registry');
+  console.log(`- entries: ${entries.length} (${cliCount} CLI, ${runtimeCount} runtime, ${laneCount} reviewer lanes, ${artifactCount} artifacts)`);
   console.log(`- levels: ${[...levelCounts.entries()].map(([level, count]) => `${level}=${count}`).join(', ')}`);
+  console.log(`- kinds: ${[...kindCounts.entries()].sort().map(([kind, count]) => `${kind}=${count}`).join(', ')}`);
   console.log('- registry entries:');
   for (const entry of [...entries].sort((a, b) => a.name.localeCompare(b.name))) {
-    console.log(formatProcessFactLevelRegistryEntry(entry));
+    console.log(formatProcessFactRegistryEntry(entry));
   }
 }
 

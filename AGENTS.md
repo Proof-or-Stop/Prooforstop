@@ -60,6 +60,7 @@
 - reviewer 没有 finding 时，prompt 要求调用 `review_pass_set`；handler 仍要把 pass-only `finding_add` 转成 review pass，而不是写入 finding。
 - finding category 的有效集合由 CLI schema + handler runtime 共同收窄；已知 legacy category 只做兼容归一到 `missing`，不能扩成新类别。
 - gate 只能消费签名、hash、evidence、check artifact 等结构化事实，不能靠“检查通过”之类文本当证据。
+- `packages/main/src/core/process-fact-registry.ts` 是流程事实 registry：它从 `COMMAND_POLICIES` + `PROCESS_FACT_LEVELS` 组装 command facts，并显式登记 reviewer lane、artifact、required semantics。新增/修改 gate evidence、review lane、signed artifact、validation/review-pass/finding 语义时，必须同时更新 registry 和 `scripts/verify-process-fact-contract.mjs`，不能只改 prompt 或文档。
 
 ## Story 阶段流转
 
