@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Remove hardcoded runtime reviewer CLI path",
       "context": "scripts/verify-runtime-reviewer-contract.mjs must derive the CLI under test from the current repo instead of a stale .worktrees/B-8f6a path, so the contract runs from any checkout and fails only on real runtime/reviewer regressions.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
+      "status": "done",
+      "startTime": "2026-05-12T23:17:05.226Z",
+      "endTime": "2026-05-12T23:23:38.663Z",
       "verificationIntent": {
         "happy": [
           {
@@ -39,15 +39,27 @@
         "test": [
           "scripts/verify-runtime-reviewer-contract.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm run test:runtime-reviewer-contract",
+          "result": "pass",
+          "note": "runtime reviewer contract now resolves a runnable repo dist CLI dynamically and no longer hardcodes stale .worktrees/B-8f6a; command passed.",
+          "headHash": "0f285e3eb87c66e63eb761bef2a44491656d4d25",
+          "materialHash": "484339adb80e9cd5076fc95bdb8f8b867527d8a403288c92db44e94b93aa1900",
+          "timestamp": "2026-05-12T23:23:38.691Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Block prompt/template reviewRound number drift",
       "context": "scripts/verify-process-fact-contract.mjs must scan agent templates and mirrors for reviewRound:number schema snippets and fail unless the text explicitly refers to story_review.planReviewRound. Template/mirror docs should say signed reviewRound is ISO string.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
+      "status": "done",
+      "startTime": "2026-05-12T23:17:29.769Z",
+      "endTime": "2026-05-12T23:20:39.629Z",
       "verificationIntent": {
         "happy": [
           {
@@ -83,15 +95,47 @@
         "test": [
           "scripts/verify-process-fact-contract.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Process fact contract now scans prompt templates and mirrors for bare reviewRound:number, F-035 numeric reviewRound, and numeric reviewRound JSON examples; command passed.",
+          "headHash": "7c84bf0a214e628bd15b9364d58e191434a795df",
+          "materialHash": "f12c424a96a13dc3aa73fd2cbe6f18dceb4d5d7e368ed3fa42a5159694f4eacd",
+          "timestamp": "2026-05-12T23:20:39.656Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Synthetic story_review.planReviewRound:number case remains allowed while signed reviewRound:number snippets fail; command passed.",
+          "headHash": "7c84bf0a214e628bd15b9364d58e191434a795df",
+          "materialHash": "f12c424a96a13dc3aa73fd2cbe6f18dceb4d5d7e368ed3fa42a5159694f4eacd",
+          "timestamp": "2026-05-12T23:20:39.678Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "rg reviewRound numeric prompt drift scan",
+          "result": "pass",
+          "note": "No prompt/template/mirror numeric reviewRound drift remains after updating templates and mirrors.",
+          "headHash": "7c84bf0a214e628bd15b9364d58e191434a795df",
+          "materialHash": "f12c424a96a13dc3aa73fd2cbe6f18dceb4d5d7e368ed3fa42a5159694f4eacd",
+          "timestamp": "2026-05-12T23:20:39.699Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Make silent catch audit a baseline gate",
       "context": "scripts/audit-silent-catches.mjs should compare uncategorized catches against a committed baseline. Existing debt may remain in the baseline, but any new uncategorized catch must fail instead of just reporting.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-12T23:23:43.611Z",
       "verificationIntent": {
         "happy": [
           {
@@ -126,7 +170,29 @@
         "test": [
           "scripts/audit-silent-catches.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm run audit:silent-catches",
+          "result": "pass",
+          "note": "audit:silent-catches now loads committed baseline, reports 501 existing uncategorized catch debt, and passed with newUncategorized=0.",
+          "headHash": "0f285e3eb87c66e63eb761bef2a44491656d4d25",
+          "materialHash": "484339adb80e9cd5076fc95bdb8f8b867527d8a403288c92db44e94b93aa1900",
+          "timestamp": "2026-05-12T23:23:43.630Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node scripts/audit-silent-catches.mjs --update-baseline",
+          "result": "pass",
+          "note": "baseline update path regenerated scripts/audit-silent-catches-baseline.json and self-validated baseline schema/duplicates with newUncategorized=0.",
+          "headHash": "0f285e3eb87c66e63eb761bef2a44491656d4d25",
+          "materialHash": "484339adb80e9cd5076fc95bdb8f8b867527d8a403288c92db44e94b93aa1900",
+          "timestamp": "2026-05-12T23:23:43.651Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -135,9 +201,9 @@
       "relatedDocs": [
         ".koala/story/actives/B-8960/background.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
+      "status": "done",
+      "startTime": "2026-05-12T23:20:54.377Z",
+      "endTime": "2026-05-12T23:20:54.576Z",
       "verificationIntent": {
         "happy": [
           {
@@ -172,7 +238,39 @@
         "test": [
           "scripts/verify-process-fact-contract.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Process fact contract asserts fresh-worker guidance names dispatch/process-event/commit evidence and rejects prompt-only worker claims as mechanical evidence.",
+          "headHash": "7c84bf0a214e628bd15b9364d58e191434a795df",
+          "materialHash": "f12c424a96a13dc3aa73fd2cbe6f18dceb4d5d7e368ed3fa42a5159694f4eacd",
+          "timestamp": "2026-05-12T23:20:54.606Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "command": "rg fresh-worker-boundary docs and prompts",
+          "result": "pass",
+          "note": "CLAUDE.md, testing-infra.md, templates, and mirrors state Koala cannot mechanically prove true subagent context isolation, only observable assignment evidence.",
+          "headHash": "7c84bf0a214e628bd15b9364d58e191434a795df",
+          "materialHash": "f12c424a96a13dc3aa73fd2cbe6f18dceb4d5d7e368ed3fa42a5159694f4eacd",
+          "timestamp": "2026-05-12T23:20:54.629Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Contract checks prompt-only worker claims are not mechanical evidence in every prompt containing fresh worker guidance.",
+          "headHash": "7c84bf0a214e628bd15b9364d58e191434a795df",
+          "materialHash": "f12c424a96a13dc3aa73fd2cbe6f18dceb4d5d7e368ed3fa42a5159694f4eacd",
+          "timestamp": "2026-05-12T23:20:54.654Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -181,9 +279,9 @@
       "relatedDocs": [
         ".koala/story/actives/B-8960/background.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
+      "status": "done",
+      "startTime": "2026-05-12T23:21:00.266Z",
+      "endTime": "2026-05-12T23:21:00.453Z",
       "verificationIntent": {
         "happy": [
           {
@@ -218,7 +316,39 @@
         "test": [
           "scripts/verify-process-fact-contract.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "docs_check",
+          "command": "rg transcript/delivery evidence boundary docs and prompts",
+          "result": "pass",
+          "note": "CLAUDE.md, testing-infra.md, product-reviewer prompt, and delivery-aware agent prompts state transcript/delivery evidence is required and prompt-only user-value claims are not enough.",
+          "headHash": "7c84bf0a214e628bd15b9364d58e191434a795df",
+          "materialHash": "f12c424a96a13dc3aa73fd2cbe6f18dceb4d5d7e368ed3fa42a5159694f4eacd",
+          "timestamp": "2026-05-12T23:21:00.475Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "docs_check",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Process fact contract asserts non-mechanical user approval wording so docs distinguish subjective user approval from mechanical evidence artifacts.",
+          "headHash": "7c84bf0a214e628bd15b9364d58e191434a795df",
+          "materialHash": "f12c424a96a13dc3aa73fd2cbe6f18dceb4d5d7e368ed3fa42a5159694f4eacd",
+          "timestamp": "2026-05-12T23:21:00.499Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Contract checks delivery/product guidance rejects prompt-only user-value claims and requires transcript, verificationEvidence, delivery-check/product-reviewer evidence, or waiver.",
+          "headHash": "7c84bf0a214e628bd15b9364d58e191434a795df",
+          "materialHash": "f12c424a96a13dc3aa73fd2cbe6f18dceb4d5d7e368ed3fa42a5159694f4eacd",
+          "timestamp": "2026-05-12T23:21:00.522Z"
+        }
+      ]
     }
   ]
 }

@@ -110,8 +110,10 @@ const baselineKeys = new Set(baseline.uncategorizedCatchKeys);
 const currentKeys = new Set(currentUncategorizedKeys);
 const newUncategorizedKeys = currentUncategorizedKeys.filter((key) => !baselineKeys.has(key));
 const resolvedBaselineKeys = baseline.uncategorizedCatchKeys.filter((key) => !currentKeys.has(key));
+const status = newUncategorizedKeys.length === 0 ? 'silent catch audit passed' : 'silent catch audit failed';
 
 const output = {
+  status,
   total: records.length,
   summary,
   baseline: {

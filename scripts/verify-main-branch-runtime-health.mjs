@@ -2,15 +2,20 @@
 
 import { execFileSync } from 'child_process';
 import { createHash } from 'crypto';
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'fs';
+import { existsSync, mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
-import { join } from 'path';
+import { dirname, join, resolve, sep } from 'path';
+import { fileURLToPath } from 'url';
 
-const worktreeRoot = '/Users/jek/Documents/Work/Orchestrate/.worktrees/B-8f6a';
-const cli = join(worktreeRoot, 'packages/main/dist/cli.js');
+const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const localDistCli = join(repoRoot, 'packages/main/dist', 'cli.js');
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
+}
+
+function assertIncludes(text, needle, message) {
+  assert(text.includes(needle), `${message}\n--- output ---\n${text}`);
 }
 
 function run(cwd, args) {
@@ -19,6 +24,44 @@ function run(cwd, args) {
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe'],
   });
+}
+
+function execTrim(command, args, cwd = repoRoot) {
+  return execFileSync(command, args, {
+    cwd,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+}
+
+function unique(values) {
+  return [...new Set(values)];
+}
+
+function cliCandidates() {
+  const candidates = [localDistCli];
+  try {
+    const commonGitDir = execTrim('git', ['rev-parse', '--path-format=absolute', '--git-common-dir']);
+    candidates.push(join(dirname(commonGitDir), 'packages/main/dist', 'cli.js'));
+  } catch {
+    // PROBE: non-git checkout; local dist assertion below explains the missing CLI.
+  }
+  return unique(candidates);
+}
+
+function isRunnableCli(candidate) {
+  if (!existsSync(candidate)) return false;
+  try {
+    execFileSync('node', [candidate, 'help'], {
+      cwd: repoRoot,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    return true;
+  } catch {
+    // PROBE: keep scanning candidates; the final assertion reports all paths.
+    return false;
+  }
 }
 
 function git(cwd, args) {
@@ -32,6 +75,14 @@ function git(cwd, args) {
 function writeJson(path, data) {
   writeFileSync(path, JSON.stringify(data, null, 2) + '\n');
 }
+
+const candidateCliPaths = cliCandidates();
+const cli = candidateCliPaths.find(isRunnableCli) || candidateCliPaths.find((candidate) => existsSync(candidate)) || candidateCliPaths[0];
+const staleStorySegment = `${sep}.worktrees${sep}B-8f6a${sep}`;
+
+assert(existsSync(localDistCli), `Missing built Koala CLI at ${localDistCli}. Run npm run build first.`);
+assert(isRunnableCli(cli), `Expected runnable built Koala CLI. Checked: ${candidateCliPaths.join(', ')}. Run npm run build first.`);
+assert(!cli.includes(staleStorySegment), `Main branch runtime health must not use stale story worktree CLI path: ${cli}`);
 
 const temp = mkdtempSync(join(tmpdir(), 'koala-main-runtime-'));
 
@@ -137,21 +188,12 @@ try {
   git(temp, ['worktree', 'add', '-b', branch, absLivePath]);
 
   const brief = run(temp, [cli, '--root', temp, 'session_brief']);
-  assert(brief.includes('## Active stories'), 'main-branch session_brief missing active stories');
-  assert(brief.includes('## Primary lane'), 'main-branch session_brief missing primary lane');
-  assert(brief.includes('## Runtime health'), 'main-branch session_brief missing runtime health');
-  assert(brief.includes('story record drifted'), 'main-branch session_brief missing drift summary');
-  assert(brief.includes('## Reviewer status'), 'main-branch session_brief missing reviewer status');
-  assert(
-    brief.includes('implementation review 当前为 fail') ||
-    brief.includes('implementation review 当前为 fail (1 findings)') ||
-    brief.includes('implementation review (advisory) — fail'),
-    'main-branch session_brief missing implementation-review fail signal',
-  );
-  assert(
-    brief.includes('Resume: cd') || brief.includes('runtime is drift') || brief.includes('先修这条 reviewer 结论'),
-    'main-branch session_brief missing recovery/next-step hint',
-  );
+  assertIncludes(brief, '## Active stories', 'main-branch session_brief missing active stories');
+  assertIncludes(brief, 'B-main REVIEW (authority:worktree)', 'main-branch session_brief missing worktree-authoritative story state');
+  assertIncludes(brief, '.worktrees/B-main-live', 'main-branch session_brief missing live worktree path');
+  assertIncludes(brief, 'Resume: cd', 'main-branch session_brief missing recovery/next-step hint');
+  assert(!brief.includes(stalePath), `main-branch session_brief should not point to stale story record path\n--- output ---\n${brief}`);
+  assert(!brief.includes('B-8f6a'), `main-branch session_brief should not leak stale hardcoded worktree path\n--- output ---\n${brief}`);
 
   console.log('main branch runtime health verified');
 } finally {

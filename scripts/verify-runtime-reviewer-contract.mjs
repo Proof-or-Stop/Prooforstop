@@ -2,12 +2,13 @@
 
 import { execFileSync } from 'child_process';
 import { createHash } from 'crypto';
-import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs';
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
-import { dirname, join, resolve, sep } from 'path';
+import { dirname, join, relative, resolve, sep } from 'path';
 import { fileURLToPath } from 'url';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const localDistCli = join(repoRoot, 'packages/main/dist', 'cli.js');
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -30,7 +31,6 @@ function unique(values) {
 }
 
 function cliCandidates() {
-  const localDistCli = join(repoRoot, 'packages/main/dist', 'cli.js');
   const candidates = [localDistCli];
   try {
     const commonGitDir = execTrim('git', ['rev-parse', '--path-format=absolute', '--git-common-dir']);
@@ -60,8 +60,26 @@ const candidateCliPaths = cliCandidates();
 const cli = candidateCliPaths.find(isRunnableCli) || candidateCliPaths.find((candidate) => existsSync(candidate)) || candidateCliPaths[0];
 const staleStorySegment = `${sep}.worktrees${sep}B-8f6a${sep}`;
 
+assert(existsSync(localDistCli), `Missing built Koala CLI at ${localDistCli}. Run npm run build first.`);
 assert(isRunnableCli(cli), `Expected runnable built Koala CLI. Checked: ${candidateCliPaths.join(', ')}. Run npm run build first.`);
 assert(!cli.includes(staleStorySegment), `Runtime reviewer contract must not use stale story worktree CLI path: ${cli}`);
+
+function assertNoHardcodedWorktreeCliPaths() {
+  const scriptsDir = join(repoRoot, 'scripts');
+  const staleCliLiteral = /['"][^'"]*[/\\]\.worktrees[/\\]B-[^'"]*[/\\]packages[/\\]main[/\\]dist[/\\]cli\.js['"]/;
+  for (const entry of readdirSync(scriptsDir)) {
+    if (!entry.endsWith('.mjs')) continue;
+    const path = join(scriptsDir, entry);
+    const source = readFileSync(path, 'utf8');
+    const match = source.match(staleCliLiteral);
+    assert(
+      !match,
+      `${relative(repoRoot, path)} hardcodes a story worktree CLI path (${match?.[0]}). Derive CLI candidates from the current checkout instead.`,
+    );
+  }
+}
+
+assertNoHardcodedWorktreeCliPaths();
 
 function run(cwd, args) {
   return execFileSync('node', args, {
