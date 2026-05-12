@@ -1,0 +1,25 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Make story_review numeric round field explicit",
+      "context": "The handler response currently uses reviewRound: reviewData.reviews.length for PLAN review rounds, while signed finding/pass artifacts use reviewRound as story.currentReviewRound ISO string. Keep behavior compatible if needed, but add a clearly named numeric field such as planReviewRound/reviewRoundNumber and make the ambiguity visible in tests/docs.",
+      "relatedDocs": [
+        "CLAUDE.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add regression coverage for reviewRound schema distinction",
+      "context": "Tests should prove signed finding/pass reviewRound remains ISO string and story_review numeric round is exposed under an unambiguous name, so future contract drift catches this class of confusion.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

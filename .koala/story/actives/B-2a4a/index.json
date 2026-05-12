@@ -1,0 +1,35 @@
+{
+  "storyId": "B-2a4a",
+  "name": "disambiguate-story-review-round",
+  "title": "Disambiguate story_review numeric round from signed reviewRound",
+  "description": "story_review currently returns a numeric reviewRound that can be confused with signed finding/review pass reviewRound, which is an ISO 8601 string. Rename or supplement the story_review response with an explicit numeric field and document the distinction so schema readers do not infer that findings.json reviewRound is a number.",
+  "type": "chore",
+  "phase": "INIT_CHECK",
+  "priority": "medium",
+  "createdAt": "2026-05-12T22:11:10.874Z",
+  "startedAt": "2026-05-12T22:11:10.874Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-05-12T22:11:10.874Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-05-12T22:12:00.878Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-2a4a",
+    "branch": "story/B-2a4a",
+    "createdAt": "2026-05-12T22:12:01.005Z"
+  }
+}
