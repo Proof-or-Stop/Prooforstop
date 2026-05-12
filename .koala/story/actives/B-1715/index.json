@@ -4,7 +4,7 @@
   "title": "统一 runtime/environment fact registry，阻断跨项目漂移",
   "description": "把 Koala 内部流程事实之外的剩余漂移面也做成硬编码检查：全局 koala 入口、项目本地 bin 覆盖、Node/nvm 版本、validate fallback 强度、外部 service/memory 引用健康检查。目标是让维护者在任意项目运行一个命令即可看到当前项目是否真的使用预期 Koala runtime，以及哪些漂移只是 warning、哪些会影响 gate/evidence。prompt 只能提示，不能作为兜底。",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "createdAt": "2026-05-12T15:47:12.792Z",
   "startedAt": "2026-05-12T15:47:12.792Z",
@@ -23,6 +23,14 @@
       "action": "advance",
       "timestamp": "2026-05-12T15:50:59.143Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-05-12T15:51:04.423Z",
+      "branch": "story/B-1715",
       "user": "Harmonygo",
       "agent": "main"
     }

@@ -1,0 +1,70 @@
+{
+  "principles": [
+    "运行环境事实必须机器可查，不能只靠 README 或 prompt。",
+    "runtime/environment facts 与 process facts 分域管理，避免 gate 语义污染。",
+    "外部项目默认给可执行 warning，Orchestrate 自身和 gate/evidence 消费路径才升级 hard。"
+  ],
+  "drivers": [
+    "用户想知道所有本地项目是否真的用到当前 Koala。",
+    "已有 doctor 是跨项目可用入口，扩展它比新增命令更少迁移成本。",
+    "外部 service/memory 漂移需要先结构化暴露，不应假装第一版能连接所有服务。"
+  ],
+  "options": [
+    {
+      "name": "A: 扩展 doctor 并新增 runtime fact registry",
+      "pros": [
+        "复用现有跨项目入口",
+        "可以直接进入 doctor JSON/text 输出",
+        "实现范围较小且可被现有 validation-protocol smoke 扩展"
+      ],
+      "cons": [
+        "没有单独 env_check 命令那么显眼",
+        "doctor 输出会更长，需要分区清晰"
+      ]
+    },
+    {
+      "name": "B: 新增 env_check 命令",
+      "pros": [
+        "用户语义非常直接",
+        "后续可独立升级为 gate"
+      ],
+      "cons": [
+        "需要新增 CLI schema/registry/phase policy/process fact 条目",
+        "和 doctor 功能重叠，第一版容易散"
+      ]
+    },
+    {
+      "name": "C: 只写 docs 指南",
+      "pros": [
+        "改动最小"
+      ],
+      "cons": [
+        "不满足硬编码兜底原则",
+        "无法阻断跨项目入口漂移"
+      ]
+    }
+  ],
+  "chosen": "A: 扩展 doctor 并新增 runtime fact registry",
+  "rationale": "选择 A，因为 doctor 已经是健康诊断入口且跨项目可用；新增 runtime fact registry 后，doctor 可以输出结构化 runtime facts，并由 contract 脚本保证 registry 与 checker 输出一致。env_check 可作为后续别名，不在第一版扩散命令面。",
+  "preMortem": [
+    {
+      "scenario": "外部项目被 Orchestrate-only hard rule 误杀",
+      "trigger": "checker 要求 global core realpath 必须等于当前 repo packages/main",
+      "consequence": "普通用户项目 doctor 一直 fail，无法使用 Koala",
+      "mitigation": "registry 给每个 fact 配置 severity/selfSeverity；外部项目 local mismatch 默认 warn，只有 repo-local wrapper/gate evidence 场景 hard。"
+    },
+    {
+      "scenario": "外部 service health 被误认为真的检查过",
+      "trigger": "第一版只扫引用却在文案里写 health pass",
+      "consequence": "用户仍会踩 memory URL/端口漂移",
+      "mitigation": "输出命名为 external-reference-policy 或 health-check-required，不输出 connectivity pass；只有有显式 health command 才能 pass connectivity。"
+    },
+    {
+      "scenario": "runtime registry 本身漂移",
+      "trigger": "新增 checker 字段但忘记更新 registry/contract",
+      "consequence": "doctor 输出缺事实项但测试仍绿",
+      "mitigation": "新增 verify-runtime-fact-contract.mjs，检查 required fact IDs、checker output keys、doctor JSON 分区和 docs 文案。"
+    }
+  ],
+  "timestamp": "2026-05-12T15:52:09.644Z"
+}
