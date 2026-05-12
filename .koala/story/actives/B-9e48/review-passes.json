@@ -23,6 +23,22 @@
       "createdAt": "2026-05-12T17:51:56.491Z",
       "reviewRound": "2026-05-12T17:48:22.269Z",
       "_hash": "52837b5567495dcc5a57a6c40ce33cfc63c8093bc4c044c2b65139b3c14cfa62"
+    },
+    {
+      "id": "B-9e48:RP-004",
+      "agent": "koala-review-docs",
+      "note": "CLAUDE.md DONE cleanup note matches runtime behavior: DONE may be invoked from a worktree subdirectory while cleanup uses the git top-level worktree root; the CLAUDE.md diff introduces no express/reviewRound scope.",
+      "createdAt": "2026-05-12T18:04:53.827Z",
+      "reviewRound": "2026-05-12T17:59:24.436Z",
+      "_hash": "8ada64301a401b686efe88b9cd7a063c58aba53b1d7e86e68b74923fb5606553"
+    },
+    {
+      "id": "B-9e48:RP-005",
+      "agent": "koala-review-test-coverage",
+      "note": "No test-coverage blockers. verificationIntent/evidence cover the nested-cwd DONE cleanup through npm --prefix packages/main run build && npm run test:worktree-authority-smoke, and the current smoke includes a mismatched branch regression that asserts DONE aborts before state mutation, branch deletion, or worktree removal. Re-ran the focused build + smoke locally and it passed.",
+      "createdAt": "2026-05-12T18:06:32.732Z",
+      "reviewRound": "2026-05-12T17:59:24.436Z",
+      "_hash": "6f7a5c5ecaf4a3e89a6990b05b72cf38c557d2cddcd4e208d3e8e490e0f748b6"
     }
   ]
 }

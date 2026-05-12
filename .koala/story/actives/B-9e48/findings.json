@@ -13,6 +13,21 @@
       "files": [
         "packages/main/src/handlers/story-advance.ts"
       ]
+    },
+    {
+      "id": "B-9e48:F-002",
+      "desc": "packages/main/src/handlers/story-advance.ts:115 only builds DONE cleanup context for branches starting with story/, so a linked worktree checked out to a non-story branch returns null instead of failing the expected story branch guard. The DONE precheck then skips assertDoneStoryBranchMatches, lines 1015-1022 persist phase DONE in that wrong branch, and lines 1204-1206 skip merge/worktree cleanup entirely. I reproduced this in a temp repo: story_advance DONE from feature/not-story reported DONE, worktreePhase=DONE, mainPhase=TEST, worktreeExists=true. Severity high because the user sees DONE while main never receives the DONE metadata and the worktree/branch are left behind. Fix by detecting any linked worktree context before the story/ prefix filter and rejecting branch !== story/<storyId> before actor.send; add a non-story-branch smoke alongside the existing wrong-story-branch case.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-05-12T18:07:50.757Z",
+      "reviewRound": "2026-05-12T17:59:24.436Z",
+      "_hash": "e6760b0f2a541d5885eb79336fcedb5f0913d1993b4ba6948d5415afee8e7de1",
+      "files": [
+        "packages/main/src/handlers/story-advance.ts",
+        "packages/main/src/tasks/worktree-authority-smoke.ts"
+      ]
     }
   ]
 }
