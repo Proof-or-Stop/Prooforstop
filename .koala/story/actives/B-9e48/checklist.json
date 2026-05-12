@@ -50,30 +50,30 @@
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && npm run test:worktree-authority-smoke",
           "result": "pass",
-          "note": "DONE context now comes from git rev-parse --show-toplevel; focused build passed and nested-cwd smoke output rejects PVSC cleanup target.",
-          "headHash": "c4ff7303ed53888530d9e8b25f821f7f844c085e",
-          "materialHash": "fdb176e8c4b34027dc25de2425002e803f03bc8d8139a9f90a5c160880779fae",
-          "timestamp": "2026-05-12T18:25:34.514Z"
+          "note": "Build and smoke passed after moving the DONE linked-worktree branch guard before checkMainDivergence/autoSyncMain; nested DONE cleanup still resolves the canonical git top-level root.",
+          "headHash": "8c6d9912eb7e61e9b9ab6ff4d4146e5fb29c3c91",
+          "materialHash": "72b7beabd39761f58146c7ca6aeed285c260d5aeeb349767ac58cabf6fd21955",
+          "timestamp": "2026-05-12T18:36:20.280Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
           "command": "npm run test:worktree-authority-smoke",
           "result": "pass",
-          "note": "Temp repo DONE from PVSC/child verified main metadata became DONE with worktree cleared after root-based story metadata commit and merge.",
-          "headHash": "c4ff7303ed53888530d9e8b25f821f7f844c085e",
-          "materialHash": "fdb176e8c4b34027dc25de2425002e803f03bc8d8139a9f90a5c160880779fae",
-          "timestamp": "2026-05-12T18:25:34.514Z"
+          "note": "Smoke confirms DONE metadata still commits and merges from the canonical story worktree root on the correct story/B-9e48-style branch.",
+          "headHash": "8c6d9912eb7e61e9b9ab6ff4d4146e5fb29c3c91",
+          "materialHash": "72b7beabd39761f58146c7ca6aeed285c260d5aeeb349767ac58cabf6fd21955",
+          "timestamp": "2026-05-12T18:36:20.280Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
           "command": "npm run test:worktree-authority-smoke",
           "result": "pass",
-          "note": "Smoke leaves runtime residue under PVSC/child and fails if output/removal target uses the nested cwd; residual rm guard only allows the registered canonical worktree root.",
-          "headHash": "c4ff7303ed53888530d9e8b25f821f7f844c085e",
-          "materialHash": "fdb176e8c4b34027dc25de2425002e803f03bc8d8139a9f90a5c160880779fae",
-          "timestamp": "2026-05-12T18:25:34.514Z"
+          "note": "Smoke now makes wrong linked branches behind main and verifies Koala rejects before auto-sync can merge main or mutate the linked worktree.",
+          "headHash": "8c6d9912eb7e61e9b9ab6ff4d4146e5fb29c3c91",
+          "materialHash": "72b7beabd39761f58146c7ca6aeed285c260d5aeeb349767ac58cabf6fd21955",
+          "timestamp": "2026-05-12T18:36:20.280Z"
         }
       ]
     },
@@ -128,30 +128,30 @@
           "kind": "integration_test",
           "command": "npm run test:worktree-authority-smoke",
           "result": "pass",
-          "note": "worktree-authority smoke now includes assertDoneFromNestedCwdUsesCanonicalWorktreeRoot and passes on the fixed path.",
-          "headHash": "c4ff7303ed53888530d9e8b25f821f7f844c085e",
-          "materialHash": "fdb176e8c4b34027dc25de2425002e803f03bc8d8139a9f90a5c160880779fae",
-          "timestamp": "2026-05-12T18:25:34.514Z"
+          "note": "worktree-authority smoke passed with the nested-cwd DONE regression plus the new wrong-branch and non-story behind-main regression cases.",
+          "headHash": "8c6d9912eb7e61e9b9ab6ff4d4146e5fb29c3c91",
+          "materialHash": "72b7beabd39761f58146c7ca6aeed285c260d5aeeb349767ac58cabf6fd21955",
+          "timestamp": "2026-05-12T18:36:20.280Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
           "command": "npm run test:worktree-authority-smoke",
           "result": "pass",
-          "note": "Regression asserts story branch deletion, clean git worktree registry, removed canonical worktree directory, and DONE metadata cleared in main.",
-          "headHash": "c4ff7303ed53888530d9e8b25f821f7f844c085e",
-          "materialHash": "fdb176e8c4b34027dc25de2425002e803f03bc8d8139a9f90a5c160880779fae",
-          "timestamp": "2026-05-12T18:25:34.514Z"
+          "note": "Wrong story branch smoke records a main-only commit after checkout and asserts that commit is not an ancestor of story/B-other after DONE rejection.",
+          "headHash": "8c6d9912eb7e61e9b9ab6ff4d4146e5fb29c3c91",
+          "materialHash": "72b7beabd39761f58146c7ca6aeed285c260d5aeeb349767ac58cabf6fd21955",
+          "timestamp": "2026-05-12T18:36:20.280Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
           "command": "npm run test:worktree-authority-smoke",
           "result": "pass",
-          "note": "Regression asserts DONE output does not contain PVSC or the child cwd path, so the old nested cleanup target fails this smoke.",
-          "headHash": "c4ff7303ed53888530d9e8b25f821f7f844c085e",
-          "materialHash": "fdb176e8c4b34027dc25de2425002e803f03bc8d8139a9f90a5c160880779fae",
-          "timestamp": "2026-05-12T18:25:34.514Z"
+          "note": "Non-story branch smoke records a main-only commit after checkout and asserts feature/not-story neither receives the file nor absorbs main before rejection.",
+          "headHash": "8c6d9912eb7e61e9b9ab6ff4d4146e5fb29c3c91",
+          "materialHash": "72b7beabd39761f58146c7ca6aeed285c260d5aeeb349767ac58cabf6fd21955",
+          "timestamp": "2026-05-12T18:36:20.280Z"
         }
       ]
     }
