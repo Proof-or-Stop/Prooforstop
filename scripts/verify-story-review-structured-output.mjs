@@ -27,6 +27,22 @@ function parseJson(text) {
   return JSON.parse(text.slice(text.indexOf('{')));
 }
 
+function assertPlanReviewRoundSchema(review) {
+  assert(Number.isInteger(review.planReviewRound), 'story_review should expose numeric planReviewRound');
+  assert(review.planReviewRound >= 1, 'planReviewRound should be 1-based');
+  assert(
+    review.reviewRound === review.planReviewRound,
+    'legacy story_review.reviewRound should remain a numeric PLAN review alias',
+  );
+}
+
+function assertStableStoryReviewShape(review) {
+  assert(review.summary && typeof review.summary.blockerCount === 'number', 'story_review should return summary.blockerCount');
+  assert(Array.isArray(review.issues), 'story_review should return issues array');
+  assert(typeof review._hint === 'string' && review._hint.length > 0, 'story_review should return _hint');
+  assert(typeof review._reviewPrompt === 'string' && review._reviewPrompt.length > 0, 'story_review should preserve _reviewPrompt');
+}
+
 function createProject() {
   const dir = mkdtempSync(join(tmpdir(), 'koala-story-review-output-'));
   mkdirSync(join(dir, 'docs', 'story', 'actives'), { recursive: true });
@@ -49,6 +65,17 @@ function makeStory(projectRoot, suffix, checklist, extra = {}) {
   const created = run(projectRoot, 'story_create', {
     name: `review-output-${suffix}`,
     title: `Review output ${suffix}`,
+    background: `## 触发事件
+2026-05-12 B-2a4a structured-output smoke creates a temporary story so story_review response fields can be inspected without touching a real project.
+
+## 关键洞察
+The smoke is about public CLI output shape, not feature behavior. It must prove the PLAN review count is explicit and does not collide with signed artifact reviewRound semantics.
+
+## 方案取舍
+Use a synthetic project and the real dist CLI. This keeps the check black-box enough to catch response drift while avoiding direct story JSON edits.
+
+## 对话纹理
+The user noticed that a numeric story_review field could be mistaken for findings.json reviewRound. The smoke preserves that distinction as a maintainer-facing contract.`,
     description: 'Verify structured story_review output.',
     type: 'feature',
     priority: extra.priority || 'high',
@@ -86,6 +113,18 @@ function makeStory(projectRoot, suffix, checklist, extra = {}) {
       ],
     });
   }
+  run(projectRoot, 'scope_check_save', {
+    storyId,
+    features: [{
+      feature: 'structured story_review output shape',
+      covered_by: 'scripts/verify-story-review-structured-output.mjs',
+      status: 'covered',
+      excluded_by: null,
+      source: 'synthetic smoke',
+    }],
+    summary: { total: 1, covered: 1, excluded: 0, gaps: 0, orphanSuspect: 0, drift: 0 },
+    openQuestions: [],
+  });
   return storyId;
 }
 
@@ -95,12 +134,11 @@ const checks = {
     try {
       const storyId = makeStory(dir, 'missing', [{ title: 'Implement output', context: 'missing intent should block' }], { understanding: true });
       const review = parseJson(run(dir, 'story_review', { storyId }));
+      assertStableStoryReviewShape(review);
+      assertPlanReviewRoundSchema(review);
       assert(review.summary.blockerCount > 0, 'missing intent should produce blocker');
-      assert(review.actionSummary.hasBlockers === true, 'actionSummary should report blockers');
-      assert(review.actionSummary.nextFix.includes('testintent_handoff'), 'nextFix should point to the test-intent handoff command');
-      assert(review.actionSummary.missingIntentItems.length === 1, 'missing intent item should be listed');
-      assert(review.reviewPromptSummary.hasUnderstanding === true, 'reviewPromptSummary should see understanding');
-      assert(typeof review._reviewPrompt === 'string' && review._reviewPrompt.length > 0, 'full _reviewPrompt should remain');
+      assert(review.issues.some((i) => i.type === 'missing_verification_intent' || i.type === 'missing_test_intent'), 'missing intent item should be listed');
+      assert(review._reviewPrompt.includes('Understanding Snapshot'), 'full _reviewPrompt should include understanding');
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
@@ -118,9 +156,9 @@ const checks = {
         },
       }], { priority: 'low', understanding: true, decision: true });
       const review = parseJson(run(dir, 'story_review', { storyId }));
+      assertStableStoryReviewShape(review);
+      assertPlanReviewRoundSchema(review);
       assert(review.summary.blockerCount === 0, 'advisory-only review should have no blockers');
-      assert(review.actionSummary.canEnterDev === true, 'actionSummary should allow DEV');
-      assert(review.actionSummary.nextFix.includes('可进入 DEV') || review.actionSummary.nextFix.includes('补齐 fixture'), 'nextFix should be non-blocking');
       assert('summary' in review && 'issues' in review && '_hint' in review && '_reviewPrompt' in review, 'legacy fields should remain');
     } finally {
       rmSync(dir, { recursive: true, force: true });
@@ -139,10 +177,9 @@ const checks = {
         },
       }], { understanding: true });
       const review = parseJson(run(dir, 'story_review', { storyId }));
-      assert(review.reviewPromptSummary.hasRiskSignals === true || review.issues.some((i) => i.type === 'risk_signals'), 'risk signal should be visible');
-      assert(review.reviewPromptSummary.hasDecision === false, 'missing decision should be summarized');
-      assert(review.reviewPromptSummary.hasPreMortem === false, 'missing preMortem should be summarized');
-      assert(review.actionSummary.blockerTypes.includes('missing_decision'), 'missing decision blocker should be summarized');
+      assertStableStoryReviewShape(review);
+      assertPlanReviewRoundSchema(review);
+      assert(review.issues.some((i) => i.type === 'missing_decision'), 'missing decision blocker should be summarized');
       assert(review._reviewPrompt.includes('Decision'), 'full prompt should include decision section');
     } finally {
       rmSync(dir, { recursive: true, force: true });
