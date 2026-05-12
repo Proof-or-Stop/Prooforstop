@@ -1,0 +1,399 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Remove hardcoded runtime reviewer CLI path",
+      "context": "scripts/verify-runtime-reviewer-contract.mjs must derive the CLI under test from the current repo instead of a stale .worktrees/B-8f6a path, so the contract runs from any checkout and fails only on real runtime/reviewer regressions.",
+      "status": "done",
+      "startTime": "2026-05-12T23:17:05.226Z",
+      "endTime": "2026-05-12T23:23:38.663Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Running npm run test:runtime-reviewer-contract uses the current repository dist CLI, not any .worktrees/B-* path, and passes after build.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If packages/main/dist/cli.js is missing, the contract fails with an actionable build message instead of silently using a stale path.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The contract source must not contain a hardcoded Orchestrate .worktrees/B-* CLI path.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "用户运行 `npm run test:runtime-reviewer-contract`，终端显示 \"runtime reviewer contract verified\"；脚本源码里不再出现 `.worktrees/B-*` CLI 路径。",
+      "files": {
+        "modify": [
+          "scripts/verify-runtime-reviewer-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-runtime-reviewer-contract.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-runtime-reviewer-contract.mjs",
+          "command": "npm run test:runtime-reviewer-contract",
+          "result": "pass",
+          "note": "Runtime reviewer contract passed at HEAD 0a650268 using dynamic current-checkout CLI candidates and printed runtime reviewer contract verified.",
+          "headHash": "e37ca8eccbb3b6d4353341575b0caa8f5b211d4f",
+          "materialHash": "f27235423570af0147a7f84787b85e908ce53f8ac875e0d610dea0a298df2bac",
+          "timestamp": "2026-05-12T23:42:21.998Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-runtime-reviewer-contract.mjs",
+          "command": "rg Missing built Koala CLI scripts/verify-runtime-reviewer-contract.mjs scripts/verify-main-branch-runtime-health.mjs",
+          "result": "pass",
+          "note": "Both runtime verification scripts assert the local dist CLI exists and emit an actionable Run npm run build first message instead of silently relying on stale worktree paths.",
+          "headHash": "e37ca8eccbb3b6d4353341575b0caa8f5b211d4f",
+          "materialHash": "f27235423570af0147a7f84787b85e908ce53f8ac875e0d610dea0a298df2bac",
+          "timestamp": "2026-05-12T23:42:21.998Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-runtime-reviewer-contract.mjs",
+          "command": "rg hardcoded .worktrees/B-* packages/main/dist/cli.js scripts -g *.mjs",
+          "result": "pass",
+          "note": "No verification script contains a literal story worktree dist CLI path; runtime reviewer contract also scans scripts/*.mjs and fails if such a path returns.",
+          "headHash": "e37ca8eccbb3b6d4353341575b0caa8f5b211d4f",
+          "materialHash": "f27235423570af0147a7f84787b85e908ce53f8ac875e0d610dea0a298df2bac",
+          "timestamp": "2026-05-12T23:42:21.998Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Block prompt/template reviewRound number drift",
+      "context": "scripts/verify-process-fact-contract.mjs must scan agent templates and mirrors for reviewRound:number schema snippets and fail unless the text explicitly refers to story_review.planReviewRound. Template/mirror docs should say signed reviewRound is ISO string.",
+      "status": "done",
+      "startTime": "2026-05-12T23:17:29.769Z",
+      "endTime": "2026-05-12T23:20:39.629Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Running npm run test:process-fact-contract fails on prompt/template schema snippets that say reviewRound:number for signed finding/review pass fields.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The contract still allows story_review.planReviewRound:number and the legacy numeric PLAN alias wording when explicitly distinguished from signed reviewRound.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Agent prompt mirrors and templates contain no bare reviewRound:number or F-035 numeric reviewRound drift after the fix.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "用户运行 `npm run test:process-fact-contract`，终端显示 \"Process fact contract verified\"；如果 prompt/template 写回 `reviewRound: number`，终端显示具体文件行并失败。",
+      "files": {
+        "modify": [
+          "scripts/verify-process-fact-contract.mjs",
+          "packages/main/templates/agents",
+          ".claude/agents",
+          ".Codex/agents"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Process fact contract passed at HEAD 0a650268 and includes synthetic failures for bare reviewRound:number and numeric reviewRound JSON in prompt schemas.",
+          "headHash": "e37ca8eccbb3b6d4353341575b0caa8f5b211d4f",
+          "materialHash": "f27235423570af0147a7f84787b85e908ce53f8ac875e0d610dea0a298df2bac",
+          "timestamp": "2026-05-12T23:42:21.998Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Contract still allows explicit story_review.planReviewRound:number while rejecting signed finding/review pass reviewRound:number drift.",
+          "headHash": "e37ca8eccbb3b6d4353341575b0caa8f5b211d4f",
+          "materialHash": "f27235423570af0147a7f84787b85e908ce53f8ac875e0d610dea0a298df2bac",
+          "timestamp": "2026-05-12T23:42:21.998Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/templates/agents",
+          "command": "rg reviewRound numeric prompt drift scan across templates and mirrors",
+          "result": "pass",
+          "note": "Prompt/template/mirror scan returned no bare reviewRound:number or numeric reviewRound JSON outside the contract synthetic tests.",
+          "headHash": "e37ca8eccbb3b6d4353341575b0caa8f5b211d4f",
+          "materialHash": "f27235423570af0147a7f84787b85e908ce53f8ac875e0d610dea0a298df2bac",
+          "timestamp": "2026-05-12T23:42:21.998Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Make silent catch audit a baseline gate",
+      "context": "scripts/audit-silent-catches.mjs should compare uncategorized catches against a committed baseline. Existing debt may remain in the baseline, but any new uncategorized catch must fail instead of just reporting.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-05-12T23:23:43.611Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Running npm run audit:silent-catches passes with the committed baseline for existing uncategorized catch debt.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The audit output identifies the baseline file and current uncategorized count so maintainers know old debt is intentionally tracked.",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Injecting a new uncategorized catch outside the baseline causes audit:silent-catches to fail and report the new file/line/snippet.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "用户运行 `npm run audit:silent-catches`，终端显示 \"silent catch audit passed\"，并显示 baseline 文件和当前 uncategorized 数量。",
+      "files": {
+        "modify": [
+          "scripts/audit-silent-catches.mjs"
+        ],
+        "create": [
+          "scripts/audit-silent-catches-baseline.json"
+        ],
+        "test": [
+          "scripts/audit-silent-catches.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "scripts/audit-silent-catches.mjs",
+          "command": "npm run audit:silent-catches",
+          "result": "pass",
+          "note": "Audit passed at HEAD 0a650268 with status silent catch audit passed, uncategorizedDebt=501, newUncategorized=0.",
+          "headHash": "e37ca8eccbb3b6d4353341575b0caa8f5b211d4f",
+          "materialHash": "f27235423570af0147a7f84787b85e908ce53f8ac875e0d610dea0a298df2bac",
+          "timestamp": "2026-05-12T23:42:21.998Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "scripts/audit-silent-catches-baseline.json",
+          "command": "npm run audit:silent-catches",
+          "result": "pass",
+          "note": "Audit output reports baseline path scripts/audit-silent-catches-baseline.json, version 1, uncategorizedDebt 501, and resolvedBaselineDebt 0 so existing debt is explicit.",
+          "headHash": "e37ca8eccbb3b6d4353341575b0caa8f5b211d4f",
+          "materialHash": "f27235423570af0147a7f84787b85e908ce53f8ac875e0d610dea0a298df2bac",
+          "timestamp": "2026-05-12T23:42:21.998Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "scripts/audit-silent-catches.mjs",
+          "command": "temporarily add packages/main/src/__koala_silent_catch_regression_tmp.ts then npm run audit:silent-catches",
+          "result": "pass",
+          "note": "Negative test verified the gate: npm run audit:silent-catches exited 1 with status silent catch audit failed, newUncategorized=1, and file/line/snippet packages/main/src/__koala_silent_catch_regression_tmp.ts:4:} catch {. The temporary file was deleted afterward and the audit passed again.",
+          "headHash": "e37ca8eccbb3b6d4353341575b0caa8f5b211d4f",
+          "materialHash": "f27235423570af0147a7f84787b85e908ce53f8ac875e0d610dea0a298df2bac",
+          "timestamp": "2026-05-12T23:42:21.998Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Encode fresh-worker evidence boundary",
+      "context": "Koala cannot mechanically prove a spawned agent has no prior context, but it can hardcode the observable boundary: dispatch/process-event evidence must record worker assignment and current gates must not treat prompt-only claims as worker proof. Add or verify a contract that documents and tests the mechanical evidence boundary.",
+      "relatedDocs": [
+        ".koala/story/actives/B-8960/background.md"
+      ],
+      "status": "done",
+      "startTime": "2026-05-12T23:20:54.377Z",
+      "endTime": "2026-05-12T23:20:54.576Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A hardcoded contract or smoke verifies worker evidence is based on dispatch/process-event/commit evidence, not prompt-only text claims.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Documentation or contract text states Koala cannot prove true subagent context isolation, only observable assignment evidence.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A prompt-only claim that a fresh worker was used is not accepted as sufficient mechanical evidence in the relevant contract wording.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "用户运行 `npm run test:process-fact-contract`，终端显示 \"Process fact contract verified\"，且 contract 文案明确 \"prompt-only worker claims are not mechanical evidence\"。",
+      "files": {
+        "modify": [
+          "scripts/verify-process-fact-contract.mjs",
+          "CLAUDE.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Process fact contract passed and keeps fresh-worker guidance tied to dispatch/process-event/commit evidence rather than prompt-only claims.",
+          "headHash": "e37ca8eccbb3b6d4353341575b0caa8f5b211d4f",
+          "materialHash": "f27235423570af0147a7f84787b85e908ce53f8ac875e0d610dea0a298df2bac",
+          "timestamp": "2026-05-12T23:42:21.998Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/testing-infra.md",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Contract and docs state Koala cannot mechanically prove true subagent context isolation, only observable assignment evidence.",
+          "headHash": "e37ca8eccbb3b6d4353341575b0caa8f5b211d4f",
+          "materialHash": "f27235423570af0147a7f84787b85e908ce53f8ac875e0d610dea0a298df2bac",
+          "timestamp": "2026-05-12T23:42:21.998Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Contract rejects prompt-only fresh-worker claims as mechanical proof and requires observable evidence wording in prompts/docs.",
+          "headHash": "e37ca8eccbb3b6d4353341575b0caa8f5b211d4f",
+          "materialHash": "f27235423570af0147a7f84787b85e908ce53f8ac875e0d610dea0a298df2bac",
+          "timestamp": "2026-05-12T23:42:21.998Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-005",
+      "title": "Encode user-value delivery evidence boundary",
+      "context": "Product acceptance cannot be fully reduced to code, but DONE/delivery checks can require concrete transcript/evidence artifacts instead of accepting text-only claims. Add or verify hardcoded contract coverage for transcript/delivery evidence expectations and document the non-mechanical boundary.",
+      "relatedDocs": [
+        ".koala/story/actives/B-8960/background.md"
+      ],
+      "status": "done",
+      "startTime": "2026-05-12T23:21:00.266Z",
+      "endTime": "2026-05-12T23:21:00.453Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Delivery/product acceptance boundary is backed by transcript or delivery evidence language, not a plain completion claim.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The contract distinguishes non-mechanical user approval from mechanical evidence artifacts, avoiding a fake fully automated guarantee.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE guidance must not imply prompt-only user-value claims can satisfy delivery evidence without transcript/evidence reviewer support.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "用户运行 `npm run test:process-fact-contract`，终端显示 \"Process fact contract verified\"，且 contract 文案明确 \"transcript/delivery evidence is required; prompt-only user-value claims are not enough\"。",
+      "files": {
+        "modify": [
+          "scripts/verify-process-fact-contract.mjs",
+          "CLAUDE.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/testing-infra.md",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Delivery/product guidance requires transcript, verificationEvidence, delivery-check/product-reviewer evidence, or waiver instead of plain completion claims.",
+          "headHash": "e37ca8eccbb3b6d4353341575b0caa8f5b211d4f",
+          "materialHash": "f27235423570af0147a7f84787b85e908ce53f8ac875e0d610dea0a298df2bac",
+          "timestamp": "2026-05-12T23:42:21.998Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "docs_check",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Contract distinguishes non-mechanical user approval from mechanical evidence artifacts to avoid fake fully automated product acceptance.",
+          "headHash": "e37ca8eccbb3b6d4353341575b0caa8f5b211d4f",
+          "materialHash": "f27235423570af0147a7f84787b85e908ce53f8ac875e0d610dea0a298df2bac",
+          "timestamp": "2026-05-12T23:42:21.998Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Contract checks DONE/product guidance does not accept prompt-only user-value claims without transcript or delivery evidence support.",
+          "headHash": "e37ca8eccbb3b6d4353341575b0caa8f5b211d4f",
+          "materialHash": "f27235423570af0147a7f84787b85e908ce53f8ac875e0d610dea0a298df2bac",
+          "timestamp": "2026-05-12T23:42:21.998Z"
+        }
+      ]
+    }
+  ]
+}

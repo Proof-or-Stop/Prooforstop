@@ -1,0 +1,31 @@
+{
+  "task": "Harden the remaining Koala process-drift checks with mechanical gates",
+  "outcome": "用户在 Orchestrate 运行 npm run test:runtime-reviewer-contract、npm run test:process-fact-contract、npm run audit:silent-catches 时看到三条命令都 PASS；如果有人重新写死旧 worktree CLI 路径、在 agent prompt 写 reviewRound:number、或新增未分类 catch，命令会直接失败并指出具体文件/行。",
+  "facts": [
+    "Global koala points at packages/main/dist/cli.js after build",
+    "runtime-reviewer-contract currently hardcodes .worktrees/B-8f6a and fails when that worktree is gone",
+    "agent templates and mirrors currently contain reviewRound:number snippets",
+    "audit:silent-catches currently reports 565 catches with 501 uncategorized catches from direct script output",
+    "process facts must be prompt guidance plus hardcoded CLI/handler/gate fallback"
+  ],
+  "constraints": [
+    "Use hardcoded checks, not prompt-only rules",
+    "Preserve existing dirty changes on main",
+    "Do not directly edit story JSON outside koala commands",
+    "Existing uncategorized catch debt may be baselined, but new debt must fail",
+    "Fresh-worker isolation and product acceptance cannot be fully proven, so encode observable evidence boundaries"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "scripts/verify-runtime-reviewer-contract.mjs",
+    "scripts/verify-process-fact-contract.mjs",
+    "scripts/audit-silent-catches.mjs",
+    "scripts/audit-silent-catches-baseline.json",
+    "packages/main/templates/agents",
+    ".claude/agents",
+    ".Codex/agents",
+    "CLAUDE.md",
+    "docs/requirements/decisions/testing-infra.md"
+  ],
+  "timestamp": "2026-05-12T23:12:39.392Z"
+}

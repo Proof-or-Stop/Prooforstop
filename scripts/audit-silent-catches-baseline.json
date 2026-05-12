@@ -1,0 +1,5019 @@
+{
+  "version": 2,
+  "scanRoot": "packages/main/src",
+  "policy": "Existing uncategorized catch blocks are tracked as baseline debt; new line-stable uncategorized catch keys fail audit:silent-catches. Line numbers are display metadata only.",
+  "uncategorizedCatchKeys": [
+    "packages/main/src/cli-engine.ts:catch:0378309c48a6:1",
+    "packages/main/src/cli-engine.ts:catch:560350b2af31:1",
+    "packages/main/src/cli-engine.ts:catch:6149ad6e1897:1",
+    "packages/main/src/cli-engine.ts:catch:647e0ea21bae:1",
+    "packages/main/src/cli-engine.ts:catch:6d5a03cc7e6d:1",
+    "packages/main/src/cli-engine.ts:catch:720d26732c12:1",
+    "packages/main/src/cli-engine.ts:catch:7eb20cb873cd:1",
+    "packages/main/src/cli-engine.ts:catch:94f7881d39df:1",
+    "packages/main/src/cli-engine.ts:catch:d4303482e6a1:1",
+    "packages/main/src/cli-engine.ts:catch:d89fe2c24c75:1",
+    "packages/main/src/cli-engine.ts:catch:f19411c718b5:1",
+    "packages/main/src/cli-init.ts:catch:1f4449cbde1a:1",
+    "packages/main/src/cli-init.ts:catch:371737537e34:1",
+    "packages/main/src/cli-init.ts:catch:6cac413cf848:1",
+    "packages/main/src/cli-init.ts:catch:8d0bb53c6d4c:1",
+    "packages/main/src/cli-init.ts:catch:8db47632dbb7:1",
+    "packages/main/src/cli-init.ts:catch:b03c86f3ebe1:1",
+    "packages/main/src/cli-init.ts:catch:f064860fde89:1",
+    "packages/main/src/cli.ts:catch:233f3920cd45:1",
+    "packages/main/src/core/activity-log.ts:catch:192486d9b7ef:1",
+    "packages/main/src/core/activity-log.ts:catch:4f563c5a256c:1",
+    "packages/main/src/core/advisory.ts:catch:dfa58112874c:1",
+    "packages/main/src/core/artifact-contract.ts:catch:1884179288ef:1",
+    "packages/main/src/core/artifact-contract.ts:catch:60b70a6bb0a1:1",
+    "packages/main/src/core/artifact-contract.ts:catch:7b1960b40722:1",
+    "packages/main/src/core/artifact-contract.ts:catch:8320acffefef:1",
+    "packages/main/src/core/artifact-contract.ts:catch:9ec0c247d72f:1",
+    "packages/main/src/core/artifact-contract.ts:catch:a163e7d66de6:1",
+    "packages/main/src/core/artifact-contract.ts:catch:ad9a96f8a6fd:1",
+    "packages/main/src/core/artifact-contract.ts:catch:b149698e942e:1",
+    "packages/main/src/core/artifact-contract.ts:catch:bc04622b3efa:1",
+    "packages/main/src/core/artifact-contract.ts:catch:d7de48af7566:1",
+    "packages/main/src/core/artifact-contract.ts:catch:de668aa951e4:1",
+    "packages/main/src/core/audit-config.ts:catch:e9e1d6e2ba3d:1",
+    "packages/main/src/core/audit-meta-store.ts:catch:319ffdf60804:1",
+    "packages/main/src/core/audit-scan.ts:catch:0565fd23bfda:1",
+    "packages/main/src/core/audit-scan.ts:catch:32776ce0edc0:1",
+    "packages/main/src/core/audit-scan.ts:catch:701dcc7c5039:1",
+    "packages/main/src/core/audit-scan.ts:catch:7135102919e3:1",
+    "packages/main/src/core/audit-scan.ts:catch:87d943af2149:1",
+    "packages/main/src/core/audit-scan.ts:catch:9f017ea3aaec:1",
+    "packages/main/src/core/audit-scan.ts:catch:ae8207a85f86:1",
+    "packages/main/src/core/audit-trigger.ts:catch:383f61b320dc:1",
+    "packages/main/src/core/audit-trigger.ts:catch:481bd4ea6752:1",
+    "packages/main/src/core/audit-trigger.ts:catch:4a5004697af2:1",
+    "packages/main/src/core/audit-trigger.ts:catch:b51e789732a0:1",
+    "packages/main/src/core/audit-trigger.ts:catch:e6b8db3c1b1b:1",
+    "packages/main/src/core/audit-trigger.ts:catch:f4e335ec2100:1",
+    "packages/main/src/core/baseline-risk.ts:catch:49af0b7a57a9:1",
+    "packages/main/src/core/cluster-sync.ts:catch:73f0018b96b1:1",
+    "packages/main/src/core/codex-adapter-checks.ts:catch:398db913394b:1",
+    "packages/main/src/core/codex-adapter-checks.ts:catch:422aa4b93b84:1",
+    "packages/main/src/core/codex-adapter-checks.ts:catch:c9c71e6115e9:1",
+    "packages/main/src/core/config.ts:catch:4fa1b614ba7b:1",
+    "packages/main/src/core/evidence-freshness.ts:catch:631679825bd0:1",
+    "packages/main/src/core/evidence-freshness.ts:catch:c5e974fc82ba:1",
+    "packages/main/src/core/evidence-freshness.ts:catch:f86e04828fc2:1",
+    "packages/main/src/core/git-probe.ts:catch:65711354994f:1",
+    "packages/main/src/core/guard-utils.ts:catch:435b3f2a5738:1",
+    "packages/main/src/core/guard-utils.ts:catch:450cfd530ee1:1",
+    "packages/main/src/core/guard-utils.ts:catch:4a6a360f86a6:1",
+    "packages/main/src/core/guard-utils.ts:catch:702828a85d30:1",
+    "packages/main/src/core/guard-utils.ts:catch:7665e4c53da8:1",
+    "packages/main/src/core/guard-utils.ts:catch:bf9518728a79:1",
+    "packages/main/src/core/guard-utils.ts:catch:c03dc5881c6d:1",
+    "packages/main/src/core/guard-utils.ts:catch:f84c6dbc3cad:1",
+    "packages/main/src/core/health.ts:catch:068205d281ec:1",
+    "packages/main/src/core/health.ts:catch:0e716e2ef6a7:1",
+    "packages/main/src/core/health.ts:catch:2018418cd6e4:1",
+    "packages/main/src/core/health.ts:catch:2ec6097cf7d9:1",
+    "packages/main/src/core/hooks.ts:catch:6a11e341346a:1",
+    "packages/main/src/core/hooks.ts:catch:e73aa2638369:1",
+    "packages/main/src/core/hooks.ts:catch:ed2d05618583:1",
+    "packages/main/src/core/hooks.ts:catch:f493d817cae9:1",
+    "packages/main/src/core/machine.ts:catch:06c6372cf8e2:1",
+    "packages/main/src/core/machine.ts:catch:435b3f2a5738:1",
+    "packages/main/src/core/machine.ts:catch:450cfd530ee1:1",
+    "packages/main/src/core/machine.ts:catch:4a6a360f86a6:1",
+    "packages/main/src/core/machine.ts:catch:4d4933fe111f:1",
+    "packages/main/src/core/machine.ts:catch:6d9fc06f541c:1",
+    "packages/main/src/core/machine.ts:catch:702828a85d30:1",
+    "packages/main/src/core/machine.ts:catch:7665e4c53da8:1",
+    "packages/main/src/core/machine.ts:catch:a3a65cb3abd2:1",
+    "packages/main/src/core/machine.ts:catch:aa02a940f9a3:1",
+    "packages/main/src/core/machine.ts:catch:bf9518728a79:1",
+    "packages/main/src/core/machine.ts:catch:c03dc5881c6d:1",
+    "packages/main/src/core/machine.ts:catch:d1876411eba4:1",
+    "packages/main/src/core/machine.ts:catch:f84c6dbc3cad:1",
+    "packages/main/src/core/process-events.ts:catch:f9292d3c9824:1",
+    "packages/main/src/core/process-metrics.ts:catch:341ff99108a6:1",
+    "packages/main/src/core/process-metrics.ts:catch:5462b8e6d74c:1",
+    "packages/main/src/core/process-metrics.ts:catch:59bc0c1b3912:1",
+    "packages/main/src/core/process-metrics.ts:catch:620603ef1ddc:1",
+    "packages/main/src/core/process-metrics.ts:catch:a1713b954f84:1",
+    "packages/main/src/core/process-metrics.ts:catch:a22fa399adc2:1",
+    "packages/main/src/core/process-metrics.ts:catch:a7d9803fe6f1:1",
+    "packages/main/src/core/process-metrics.ts:catch:c12be4e02b61:1",
+    "packages/main/src/core/process-metrics.ts:catch:d03e645dbaae:1",
+    "packages/main/src/core/process-metrics.ts:catch:d2c82c5b9493:1",
+    "packages/main/src/core/process-metrics.ts:catch:e2f2f1af673c:1",
+    "packages/main/src/core/process-metrics.ts:catch:edd4da80d812:1",
+    "packages/main/src/core/stale-detector.ts:catch:983ccd4a8d0f:1",
+    "packages/main/src/core/stale-detector.ts:catch:b986beeaea01:1",
+    "packages/main/src/core/stale-detector.ts:catch:bf109e542639:1",
+    "packages/main/src/core/stale-detector.ts:catch:df31d92c9c92:1",
+    "packages/main/src/core/store.ts:catch:0d799f62261a:1",
+    "packages/main/src/core/store.ts:catch:140bd4488531:1",
+    "packages/main/src/core/store.ts:catch:1d212bfb7e5c:1",
+    "packages/main/src/core/store.ts:catch:3c211fb6fc5c:1",
+    "packages/main/src/core/store.ts:catch:42b5ab16532d:1",
+    "packages/main/src/core/store.ts:catch:50f9b2aa6a29:1",
+    "packages/main/src/core/store.ts:catch:5874fdd681a7:1",
+    "packages/main/src/core/store.ts:catch:6de4ea5615d8:1",
+    "packages/main/src/core/store.ts:catch:736e5b5b7114:1",
+    "packages/main/src/core/store.ts:catch:94d56bc59f16:1",
+    "packages/main/src/core/store.ts:catch:b772eb6bceeb:1",
+    "packages/main/src/core/store.ts:catch:bae6f9592763:1",
+    "packages/main/src/core/store.ts:catch:dd5efd3ba441:1",
+    "packages/main/src/core/store.ts:catch:dee0532f2a37:1",
+    "packages/main/src/core/store.ts:catch:e169791a34fb:1",
+    "packages/main/src/core/store.ts:catch:e44017f3f872:1",
+    "packages/main/src/core/store.ts:catch:e6ffb7f5b698:1",
+    "packages/main/src/core/store.ts:catch:ebed82868563:1",
+    "packages/main/src/core/touchpoints-fallback.ts:catch:542ec8ab1e4e:1",
+    "packages/main/src/core/worktree-runtime.ts:catch:0b8005ec4c87:1",
+    "packages/main/src/core/worktree-runtime.ts:catch:7fe1b70fa54c:1",
+    "packages/main/src/core/worktree-runtime.ts:catch:ce293201f829:1",
+    "packages/main/src/core/worktree-runtime.ts:catch:ed6099c37ca3:1",
+    "packages/main/src/dashboard.ts:catch:2ab827c93213:1",
+    "packages/main/src/dashboard.ts:catch:5b38e71e122d:1",
+    "packages/main/src/dashboard.ts:catch:5d50ca4126d5:1",
+    "packages/main/src/dashboard.ts:catch:63f62d4cf757:1",
+    "packages/main/src/dashboard.ts:catch:b7c48179ce43:1",
+    "packages/main/src/dashboard.ts:catch:ecef39229613:1",
+    "packages/main/src/handlers/audit.ts:catch:087c7ce524a8:1",
+    "packages/main/src/handlers/audit.ts:catch:093719c92518:1",
+    "packages/main/src/handlers/audit.ts:catch:efb93d048266:1",
+    "packages/main/src/handlers/aux-doc.ts:catch:ea45be82bbd9:1",
+    "packages/main/src/handlers/bug.ts:catch:15ab0c55c1f4:1",
+    "packages/main/src/handlers/bug.ts:catch:fbf28dc2c347:1",
+    "packages/main/src/handlers/checklist.ts:catch:15ab0c55c1f4:1",
+    "packages/main/src/handlers/checklist.ts:catch:15ab0c55c1f4:2",
+    "packages/main/src/handlers/checklist.ts:catch:3be491183c34:1",
+    "packages/main/src/handlers/checklist.ts:catch:8870705bf590:1",
+    "packages/main/src/handlers/checklist.ts:catch:d9ec10199e8c:1",
+    "packages/main/src/handlers/codex-adapter.ts:catch:1b98832ed684:1",
+    "packages/main/src/handlers/codex-adapter.ts:catch:296a647ab79f:1",
+    "packages/main/src/handlers/context.ts:catch:5d50ca4126d5:1",
+    "packages/main/src/handlers/context.ts:catch:5d75a64da24d:1",
+    "packages/main/src/handlers/context.ts:catch:90199e56254e:1",
+    "packages/main/src/handlers/delivery-check.ts:catch:53cd3823459a:1",
+    "packages/main/src/handlers/doctor.ts:catch:15b2bd168d9c:1",
+    "packages/main/src/handlers/doctor.ts:catch:213c1b4b72bc:1",
+    "packages/main/src/handlers/doctor.ts:catch:2f92b2c8943a:1",
+    "packages/main/src/handlers/doctor.ts:catch:74569166d725:1",
+    "packages/main/src/handlers/doctor.ts:catch:7b81b6d0b4cb:1",
+    "packages/main/src/handlers/doctor.ts:catch:97c7166dffbb:1",
+    "packages/main/src/handlers/doctor.ts:catch:a4597038cf47:1",
+    "packages/main/src/handlers/doctor.ts:catch:b48819e3f00f:1",
+    "packages/main/src/handlers/doctor.ts:catch:b93299a9da7d:1",
+    "packages/main/src/handlers/doctor.ts:catch:cd2e1202ed13:1",
+    "packages/main/src/handlers/draft-check.ts:catch:c4e9bd4a66c2:1",
+    "packages/main/src/handlers/evaluate.ts:catch:08eecb661f2b:1",
+    "packages/main/src/handlers/evaluate.ts:catch:13beed752f4d:1",
+    "packages/main/src/handlers/evaluate.ts:catch:46fe1298c3d6:1",
+    "packages/main/src/handlers/finding.ts:catch:15ab0c55c1f4:1",
+    "packages/main/src/handlers/finding.ts:catch:85bd89fe82a1:1",
+    "packages/main/src/handlers/finding.ts:catch:d9ec10199e8c:1",
+    "packages/main/src/handlers/finding.ts:catch:fbf28dc2c347:1",
+    "packages/main/src/handlers/finding.ts:catch:fbf28dc2c347:2",
+    "packages/main/src/handlers/finding.ts:catch:fbf28dc2c347:3",
+    "packages/main/src/handlers/fixture.ts:catch:2889197c7cb3:1",
+    "packages/main/src/handlers/fixture.ts:catch:bf109e542639:1",
+    "packages/main/src/handlers/hints.ts:catch:74a1e4da59f4:1",
+    "packages/main/src/handlers/hints.ts:catch:da72e7bf4142:1",
+    "packages/main/src/handlers/hints.ts:catch:ebab1b293896:1",
+    "packages/main/src/handlers/init-check.ts:catch:53cd3823459a:1",
+    "packages/main/src/handlers/init-check.ts:catch:caf85cf57d4b:1",
+    "packages/main/src/handlers/init-check.ts:catch:d9ec10199e8c:1",
+    "packages/main/src/handlers/init-check.ts:catch:eca12d756450:1",
+    "packages/main/src/handlers/review-preflight.ts:catch:a734eb21d15a:1",
+    "packages/main/src/handlers/review-preflight.ts:catch:d322ca37e7ff:1",
+    "packages/main/src/handlers/reviewer-list.ts:catch:0b76be29cc74:1",
+    "packages/main/src/handlers/reviewer-list.ts:catch:6f9efbb3951a:1",
+    "packages/main/src/handlers/scope-check.ts:catch:53cd3823459a:1",
+    "packages/main/src/handlers/session.ts:catch:0de0b2245730:1",
+    "packages/main/src/handlers/session.ts:catch:14df4da6c2ee:1",
+    "packages/main/src/handlers/session.ts:catch:2e35731ee565:1",
+    "packages/main/src/handlers/session.ts:catch:3c6ab62a2b5d:1",
+    "packages/main/src/handlers/session.ts:catch:3c6ab62a2b5d:2",
+    "packages/main/src/handlers/session.ts:catch:3f4c9cd8c4e1:1",
+    "packages/main/src/handlers/session.ts:catch:6c721b1683db:1",
+    "packages/main/src/handlers/session.ts:catch:6f8a31c49576:1",
+    "packages/main/src/handlers/session.ts:catch:8b9a12b0ec84:1",
+    "packages/main/src/handlers/session.ts:catch:c2d186e2fea9:1",
+    "packages/main/src/handlers/session.ts:catch:c9e06870a344:1",
+    "packages/main/src/handlers/session.ts:catch:d0963961c728:1",
+    "packages/main/src/handlers/session.ts:catch:d2bf2d7bce41:1",
+    "packages/main/src/handlers/session.ts:catch:f0ffd3db8a08:1",
+    "packages/main/src/handlers/session.ts:catch:fd8eb02e6a6b:1",
+    "packages/main/src/handlers/story-advance.ts:catch:055a13eaa85c:1",
+    "packages/main/src/handlers/story-advance.ts:catch:1aa4b8eecaf2:1",
+    "packages/main/src/handlers/story-advance.ts:catch:1aa4b8eecaf2:2",
+    "packages/main/src/handlers/story-advance.ts:catch:2074cb38bc05:1",
+    "packages/main/src/handlers/story-advance.ts:catch:26f9d9aa55c1:1",
+    "packages/main/src/handlers/story-advance.ts:catch:334489981bd1:1",
+    "packages/main/src/handlers/story-advance.ts:catch:369d504604e7:1",
+    "packages/main/src/handlers/story-advance.ts:catch:371737537e34:1",
+    "packages/main/src/handlers/story-advance.ts:catch:371737537e34:2",
+    "packages/main/src/handlers/story-advance.ts:catch:371737537e34:3",
+    "packages/main/src/handlers/story-advance.ts:catch:4e54a2f4f33f:1",
+    "packages/main/src/handlers/story-advance.ts:catch:5061e6718e20:1",
+    "packages/main/src/handlers/story-advance.ts:catch:555639170ffa:1",
+    "packages/main/src/handlers/story-advance.ts:catch:595431bc1611:1",
+    "packages/main/src/handlers/story-advance.ts:catch:6910cbd30c36:1",
+    "packages/main/src/handlers/story-advance.ts:catch:6995fb8daf4c:1",
+    "packages/main/src/handlers/story-advance.ts:catch:6a65a4590994:1",
+    "packages/main/src/handlers/story-advance.ts:catch:6aa87e36bfef:1",
+    "packages/main/src/handlers/story-advance.ts:catch:740e18a362a3:1",
+    "packages/main/src/handlers/story-advance.ts:catch:7483afed2779:1",
+    "packages/main/src/handlers/story-advance.ts:catch:75f78c305761:1",
+    "packages/main/src/handlers/story-advance.ts:catch:9431f14d05ee:1",
+    "packages/main/src/handlers/story-advance.ts:catch:9b14dd15d2b8:1",
+    "packages/main/src/handlers/story-advance.ts:catch:9de2ffd73b87:1",
+    "packages/main/src/handlers/story-advance.ts:catch:a3ca4e1ddc86:1",
+    "packages/main/src/handlers/story-advance.ts:catch:b28097db45f3:1",
+    "packages/main/src/handlers/story-advance.ts:catch:b2d5397f4f45:1",
+    "packages/main/src/handlers/story-advance.ts:catch:b7139e4a8a84:1",
+    "packages/main/src/handlers/story-advance.ts:catch:bbe8122b5540:1",
+    "packages/main/src/handlers/story-advance.ts:catch:cba9a225a432:1",
+    "packages/main/src/handlers/story-advance.ts:catch:d3a0509dcc43:1",
+    "packages/main/src/handlers/story-advance.ts:catch:d4c5761e9789:1",
+    "packages/main/src/handlers/story-advance.ts:catch:ee641c5eee6f:1",
+    "packages/main/src/handlers/story-advance.ts:catch:f858aaf4e0b0:1",
+    "packages/main/src/handlers/story-advance.ts:catch:fbf28dc2c347:1",
+    "packages/main/src/handlers/story-advance.ts:catch:fc18ae1b605e:1",
+    "packages/main/src/handlers/story-create.ts:catch:371737537e34:1",
+    "packages/main/src/handlers/story-create.ts:catch:bd2e3e2a9765:1",
+    "packages/main/src/handlers/story-dispatch.ts:catch:3eef4aeef5e3:1",
+    "packages/main/src/handlers/story-dispatch.ts:catch:3eef4aeef5e3:2",
+    "packages/main/src/handlers/story-dispatch.ts:catch:3eef4aeef5e3:3",
+    "packages/main/src/handlers/story-dispatch.ts:catch:9145ffad2c99:1",
+    "packages/main/src/handlers/story-draft.ts:catch:aa44b3babbfd:1",
+    "packages/main/src/handlers/story-query.ts:catch:0259655ec5dd:1",
+    "packages/main/src/handlers/story-query.ts:catch:13469733ac5c:1",
+    "packages/main/src/handlers/story-query.ts:catch:2c06c39d4449:1",
+    "packages/main/src/handlers/story-query.ts:catch:62e9a9f51359:1",
+    "packages/main/src/handlers/story-query.ts:catch:6aa87e36bfef:1",
+    "packages/main/src/handlers/story-query.ts:catch:79ab1fd0168a:1",
+    "packages/main/src/handlers/story-query.ts:catch:8cd4fc4141e1:1",
+    "packages/main/src/handlers/story-query.ts:catch:96bf1f6fbfae:1",
+    "packages/main/src/handlers/story-query.ts:catch:9ef577e4d6dd:1",
+    "packages/main/src/handlers/story-query.ts:catch:aeaa01700c79:1",
+    "packages/main/src/handlers/story-query.ts:catch:b2ef90203f78:1",
+    "packages/main/src/handlers/story-query.ts:catch:d10723181ee6:1",
+    "packages/main/src/handlers/story-query.ts:catch:d3909d707a9b:1",
+    "packages/main/src/handlers/story-query.ts:catch:d3b66f1c89f4:1",
+    "packages/main/src/handlers/story-query.ts:catch:d7179b70fe9d:1",
+    "packages/main/src/handlers/story-query.ts:catch:e6b60dd948a6:1",
+    "packages/main/src/handlers/story-query.ts:catch:fd007857d8b6:1",
+    "packages/main/src/handlers/story-review.ts:catch:15ab0c55c1f4:1",
+    "packages/main/src/handlers/story-review.ts:catch:fbf28dc2c347:1",
+    "packages/main/src/handlers/stray-file-cleanup.ts:catch:10d7c1315452:1",
+    "packages/main/src/handlers/stray-file-cleanup.ts:catch:1c904631b5ee:1",
+    "packages/main/src/handlers/summary.ts:catch:68fd06e11946:1",
+    "packages/main/src/handlers/test-auto.ts:catch:0b95834cac4c:1",
+    "packages/main/src/handlers/test-auto.ts:catch:1ee63fc946a9:1",
+    "packages/main/src/handlers/test-auto.ts:catch:371737537e34:1",
+    "packages/main/src/handlers/test-auto.ts:catch:3934d3e94b07:1",
+    "packages/main/src/handlers/test-auto.ts:catch:408b2d7e4e20:1",
+    "packages/main/src/handlers/test-auto.ts:catch:445d1da1649e:1",
+    "packages/main/src/handlers/test-auto.ts:catch:87188cbacf18:1",
+    "packages/main/src/handlers/test-auto.ts:catch:982d02a198a0:1",
+    "packages/main/src/handlers/test-auto.ts:catch:abc63ec6c3ba:1",
+    "packages/main/src/handlers/test-auto.ts:catch:b03e3e9b6ef4:1",
+    "packages/main/src/handlers/test-auto.ts:catch:d25cc613d0bf:1",
+    "packages/main/src/handlers/test-auto.ts:catch:dac95de3afbe:1",
+    "packages/main/src/handlers/test-auto.ts:catch:eed4254b3057:1",
+    "packages/main/src/handlers/test-runner-core.ts:catch:124fda75512f:1",
+    "packages/main/src/handlers/test-runner-core.ts:catch:49c3c9daa6f3:1",
+    "packages/main/src/handlers/test-runner-core.ts:catch:66169c28c433:1",
+    "packages/main/src/handlers/test-runner-core.ts:catch:68ef0d55a8f7:1",
+    "packages/main/src/handlers/test-runner-core.ts:catch:8178c8366ce5:1",
+    "packages/main/src/handlers/test-runner-core.ts:catch:9faee6edab21:1",
+    "packages/main/src/handlers/test-runner-core.ts:catch:a9ed114192ab:1",
+    "packages/main/src/handlers/test-runner-core.ts:catch:b8859786fa81:1",
+    "packages/main/src/handlers/test-runner-core.ts:catch:ce5243a7bee0:1",
+    "packages/main/src/handlers/test-runner-core.ts:catch:e3406dfae822:1",
+    "packages/main/src/handlers/test-runner-core.ts:catch:edfdf60261a7:1",
+    "packages/main/src/handlers/test-story.ts:catch:279c68f3867f:1",
+    "packages/main/src/handlers/test-story.ts:catch:87188cbacf18:1",
+    "packages/main/src/handlers/test-story.ts:catch:9377a29f8d03:1",
+    "packages/main/src/handlers/test-story.ts:catch:a5990c9e9202:1",
+    "packages/main/src/handlers/test-story.ts:catch:d8f0ae157501:1",
+    "packages/main/src/handlers/test.ts:catch:bcabde40c022:1",
+    "packages/main/src/handlers/validate-channel.ts:catch:0415636d7962:1",
+    "packages/main/src/handlers/validate-channel.ts:catch:08fc52ee85eb:1",
+    "packages/main/src/handlers/validate-channel.ts:catch:2f6404a61157:1",
+    "packages/main/src/handlers/validate-channel.ts:catch:41a3784a480b:1",
+    "packages/main/src/handlers/validate-channel.ts:catch:56fd87c71a1c:1",
+    "packages/main/src/handlers/validate-channel.ts:catch:5a0b87363c09:1",
+    "packages/main/src/handlers/validate-channel.ts:catch:65a65ccb92d5:1",
+    "packages/main/src/handlers/validate-channel.ts:catch:b7d4e428ecb8:1",
+    "packages/main/src/handlers/validate-channel.ts:catch:d639ce8312a5:1",
+    "packages/main/src/handlers/validate-concept.ts:catch:36823d2ed99d:1",
+    "packages/main/src/handlers/validate-concept.ts:catch:66db1f6e616f:1",
+    "packages/main/src/handlers/validate-concept.ts:catch:b739764bb41b:1",
+    "packages/main/src/handlers/validate-lint.ts:catch:4773cc2a62cf:1",
+    "packages/main/src/handlers/validate-lint.ts:catch:7e8dc479d61d:1",
+    "packages/main/src/handlers/validate-lint.ts:catch:a66152a70a91:1",
+    "packages/main/src/handlers/validate-lint.ts:catch:af53cfc68534:1",
+    "packages/main/src/handlers/validate-lint.ts:catch:b1551aedd2b0:1",
+    "packages/main/src/handlers/validate-lint.ts:catch:b1551aedd2b0:2",
+    "packages/main/src/handlers/validate-lint.ts:catch:d882d9014dfb:1",
+    "packages/main/src/handlers/verifier.ts:catch:34c94f153055:1",
+    "packages/main/src/handlers/verifier.ts:catch:3c3eeae85da7:1",
+    "packages/main/src/handlers/verifier.ts:catch:55f8112bffc0:1",
+    "packages/main/src/handlers/verifier.ts:catch:63851480c75f:1",
+    "packages/main/src/handlers/verifier.ts:catch:6c721b1683db:1",
+    "packages/main/src/handlers/verifier.ts:catch:8e7f4429377f:1",
+    "packages/main/src/handlers/verifier.ts:catch:9ba8e347d373:1",
+    "packages/main/src/handlers/verifier.ts:catch:9f0266b79930:1",
+    "packages/main/src/handlers/verifier.ts:catch:a614a71f3dda:1",
+    "packages/main/src/handlers/verifier.ts:catch:be6206d893ce:1",
+    "packages/main/src/handlers/verifier.ts:catch:c5808f2850cb:1",
+    "packages/main/src/handlers/workflow.ts:catch:2587176cb680:1",
+    "packages/main/src/handlers/workflow.ts:catch:7a43792c0046:1",
+    "packages/main/src/handlers/workflow.ts:catch:f5fe4a51e2d7:1",
+    "packages/main/src/handlers/worktree.ts:catch:0d4528bab3cf:1",
+    "packages/main/src/handlers/worktree.ts:catch:16e743d1ee64:1",
+    "packages/main/src/handlers/worktree.ts:catch:19ce9665ef70:1",
+    "packages/main/src/handlers/worktree.ts:catch:19ce9665ef70:2",
+    "packages/main/src/handlers/worktree.ts:catch:28a78ba059e6:1",
+    "packages/main/src/handlers/worktree.ts:catch:2933949d67d2:1",
+    "packages/main/src/handlers/worktree.ts:catch:2a36ac69c83f:1",
+    "packages/main/src/handlers/worktree.ts:catch:30fb447fb7b1:1",
+    "packages/main/src/handlers/worktree.ts:catch:37be347360e2:1",
+    "packages/main/src/handlers/worktree.ts:catch:37d685809c1e:1",
+    "packages/main/src/handlers/worktree.ts:catch:37d685809c1e:2",
+    "packages/main/src/handlers/worktree.ts:catch:5886520654d1:1",
+    "packages/main/src/handlers/worktree.ts:catch:5def21272462:1",
+    "packages/main/src/handlers/worktree.ts:catch:628e8834cd2f:1",
+    "packages/main/src/handlers/worktree.ts:catch:68ac7f3fb2e4:1",
+    "packages/main/src/handlers/worktree.ts:catch:6aa87e36bfef:1",
+    "packages/main/src/handlers/worktree.ts:catch:6aa87e36bfef:2",
+    "packages/main/src/handlers/worktree.ts:catch:6aa87e36bfef:3",
+    "packages/main/src/handlers/worktree.ts:catch:8468baf76862:1",
+    "packages/main/src/handlers/worktree.ts:catch:854ac5d03108:1",
+    "packages/main/src/handlers/worktree.ts:catch:9239045059b3:1",
+    "packages/main/src/handlers/worktree.ts:catch:97159f49904d:1",
+    "packages/main/src/handlers/worktree.ts:catch:97c7166dffbb:1",
+    "packages/main/src/handlers/worktree.ts:catch:9808c70a1bfe:1",
+    "packages/main/src/handlers/worktree.ts:catch:a381a7e5ae8d:1",
+    "packages/main/src/handlers/worktree.ts:catch:a9959b313a88:1",
+    "packages/main/src/handlers/worktree.ts:catch:abd98e105777:1",
+    "packages/main/src/handlers/worktree.ts:catch:af275e522adf:1",
+    "packages/main/src/handlers/worktree.ts:catch:b93299a9da7d:1",
+    "packages/main/src/handlers/worktree.ts:catch:bf0bac879f31:1",
+    "packages/main/src/handlers/worktree.ts:catch:cd1bb14a8cdd:1",
+    "packages/main/src/handlers/worktree.ts:catch:dc0d7f3b2497:1",
+    "packages/main/src/handlers/worktree.ts:catch:ed18501cc759:1",
+    "packages/main/src/handlers/worktree.ts:catch:f29219e713ab:1",
+    "packages/main/src/providers/claude-cli.ts:catch:5cb6ee3253e0:1",
+    "packages/main/src/providers/claude-cli.ts:catch:68ef0d55a8f7:1",
+    "packages/main/src/providers/claude-cli.ts:catch:6af50070efe5:1",
+    "packages/main/src/providers/claude-cli.ts:catch:80d47c942693:1",
+    "packages/main/src/providers/claude-cli.ts:catch:aa91ca51db4a:1",
+    "packages/main/src/providers/claude-cli.ts:catch:b6e8954af9c6:1",
+    "packages/main/src/tasks/browser-client.ts:catch:0558dbbb1f1e:1",
+    "packages/main/src/tasks/browser-client.ts:catch:31005f8355d4:1",
+    "packages/main/src/tasks/browser-client.ts:catch:9f8e3a8d1577:1",
+    "packages/main/src/tasks/browser-client.ts:catch:b5ca8c042be7:1",
+    "packages/main/src/tasks/browser-client.ts:catch:f621337cc5b0:1",
+    "packages/main/src/tasks/browser-executor.ts:catch:2bbc86214e67:1",
+    "packages/main/src/tasks/browser-executor.ts:catch:43d04c28dc04:1",
+    "packages/main/src/tasks/browser-executor.ts:catch:4b16971828d6:1",
+    "packages/main/src/tasks/browser-executor.ts:catch:509c4e772c15:1",
+    "packages/main/src/tasks/browser-executor.ts:catch:51e4a1a6ed54:1",
+    "packages/main/src/tasks/browser-executor.ts:catch:574d49e4303c:1",
+    "packages/main/src/tasks/browser-executor.ts:catch:5da193c6ab29:1",
+    "packages/main/src/tasks/browser-executor.ts:catch:779420438b58:1",
+    "packages/main/src/tasks/browser-executor.ts:catch:807d3bad271c:1",
+    "packages/main/src/tasks/browser-executor.ts:catch:8343e1b46dbe:1",
+    "packages/main/src/tasks/browser-executor.ts:catch:94eaa31c9ac7:1",
+    "packages/main/src/tasks/browser-executor.ts:catch:a357233d1f98:1",
+    "packages/main/src/tasks/browser-executor.ts:catch:b02168d0b101:1",
+    "packages/main/src/tasks/browser-executor.ts:catch:b09f32909f41:1",
+    "packages/main/src/tasks/browser-executor.ts:catch:b79ccb3f8aa6:1",
+    "packages/main/src/tasks/browser-executor.ts:catch:c515cb6de5ff:1",
+    "packages/main/src/tasks/browser-executor.ts:catch:d16fba0afb58:1",
+    "packages/main/src/tasks/browser-executor.ts:catch:db9501d81930:1",
+    "packages/main/src/tasks/browser-executor.ts:catch:f2914ea92d6c:1",
+    "packages/main/src/tasks/browser-server.ts:catch:2a0514bcd5e6:1",
+    "packages/main/src/tasks/browser-server.ts:catch:58906c98e395:1",
+    "packages/main/src/tasks/browser-server.ts:catch:638379476ff5:1",
+    "packages/main/src/tasks/bug-report.ts:catch:b978168e10b1:1",
+    "packages/main/src/tasks/bug-report.ts:catch:e5801c4f4ad8:1",
+    "packages/main/src/tasks/bug-report.ts:catch:e9a39c6a326b:1",
+    "packages/main/src/tasks/cli-executor.ts:catch:2b68212408b8:1",
+    "packages/main/src/tasks/cli-executor.ts:catch:9840de6b5abf:1",
+    "packages/main/src/tasks/drift-check.ts:catch:93e0c565a6b9:1",
+    "packages/main/src/tasks/extract.ts:catch:7e241e7457d0:1",
+    "packages/main/src/tasks/extract.ts:catch:e9972c07f172:1",
+    "packages/main/src/tasks/flow-stability-smoke.ts:catch:4db50128f446:1",
+    "packages/main/src/tasks/init-check-required-agents-smoke.ts:catch:77c444d785a3:1",
+    "packages/main/src/tasks/profiler.ts:catch:19faeb83754d:1",
+    "packages/main/src/tasks/review-pass-discard-smoke.ts:catch:2bb83f33b506:1",
+    "packages/main/src/tasks/review-pass-discard-smoke.ts:catch:38feee194604:1",
+    "packages/main/src/tasks/review-pass-discard-smoke.ts:catch:b4b6d04a4a92:1",
+    "packages/main/src/tasks/review-pass-discard-smoke.ts:catch:d4866ab03715:1",
+    "packages/main/src/tasks/review-pass-discard-smoke.ts:catch:d5c839117c40:1",
+    "packages/main/src/tasks/test-flow-e2e.ts:catch:0f401f4a45a8:1",
+    "packages/main/src/tasks/test-flow-e2e.ts:catch:1b8f94418069:1",
+    "packages/main/src/tasks/test-flow-e2e.ts:catch:371737537e34:1",
+    "packages/main/src/tasks/test-flow-e2e.ts:catch:48bb1ab702f2:1",
+    "packages/main/src/tasks/test-flow-e2e.ts:catch:97ade31fc505:1",
+    "packages/main/src/tasks/test-flow-e2e.ts:catch:97ade31fc505:2",
+    "packages/main/src/tasks/test-flow-e2e.ts:catch:97ade31fc505:3",
+    "packages/main/src/tasks/test-runner.ts:catch:41b3d729b1f4:1",
+    "packages/main/src/tasks/test-runner.ts:catch:789efc3f6497:1",
+    "packages/main/src/tasks/trace-store.ts:catch:1fbbe441bebd:1",
+    "packages/main/src/tasks/trace-store.ts:catch:2643779ddb60:1",
+    "packages/main/src/tasks/trace-store.ts:catch:bb2be5679042:1",
+    "packages/main/src/tasks/trace-store.ts:catch:cbe85b561bec:1",
+    "packages/main/src/tasks/trace-store.ts:catch:e9972c07f172:1",
+    "packages/main/src/tasks/validate.ts:catch:1506bb1fa12f:1",
+    "packages/main/src/tasks/validate.ts:catch:7b8fbe9e0791:1",
+    "packages/main/src/tasks/worktree-authority-smoke.ts:catch:67214191f5c3:1",
+    "packages/main/src/tasks/worktree-authority-smoke.ts:catch:6aa87e36bfef:1",
+    "packages/main/src/tasks/worktree-authority-smoke.ts:catch:c0a177cf0ac3:1",
+    "packages/main/src/verifier/bridge-host.ts:catch:37496b2a9936:1",
+    "packages/main/src/verifier/bridge-host.ts:catch:3934d3e94b07:1",
+    "packages/main/src/verifier/bridge-utils.ts:catch:165bb689fb8f:1",
+    "packages/main/src/verifier/browser-client.ts:catch:0558dbbb1f1e:1",
+    "packages/main/src/verifier/browser-client.ts:catch:31005f8355d4:1",
+    "packages/main/src/verifier/browser-client.ts:catch:9f8e3a8d1577:1",
+    "packages/main/src/verifier/browser-client.ts:catch:b5ca8c042be7:1",
+    "packages/main/src/verifier/browser-client.ts:catch:cc8d6148f399:1",
+    "packages/main/src/verifier/browser-executor.ts:catch:2564a850f323:1",
+    "packages/main/src/verifier/browser-executor.ts:catch:2bbc86214e67:1",
+    "packages/main/src/verifier/browser-executor.ts:catch:404baff7b799:1",
+    "packages/main/src/verifier/browser-executor.ts:catch:43d04c28dc04:1",
+    "packages/main/src/verifier/browser-executor.ts:catch:4b16971828d6:1",
+    "packages/main/src/verifier/browser-executor.ts:catch:51e4a1a6ed54:1",
+    "packages/main/src/verifier/browser-executor.ts:catch:576a239f6afc:1",
+    "packages/main/src/verifier/browser-executor.ts:catch:5da193c6ab29:1",
+    "packages/main/src/verifier/browser-executor.ts:catch:8343e1b46dbe:1",
+    "packages/main/src/verifier/browser-executor.ts:catch:a357233d1f98:1",
+    "packages/main/src/verifier/browser-executor.ts:catch:a8c471ffbf3f:1",
+    "packages/main/src/verifier/browser-executor.ts:catch:c515cb6de5ff:1",
+    "packages/main/src/verifier/browser-server.ts:catch:2a0514bcd5e6:1",
+    "packages/main/src/verifier/browser-server.ts:catch:58906c98e395:1",
+    "packages/main/src/verifier/browser-server.ts:catch:638379476ff5:1",
+    "packages/main/src/verifier/cli-executor.ts:catch:2b68212408b8:1",
+    "packages/main/src/verifier/cli-executor.ts:catch:9840de6b5abf:1",
+    "packages/main/src/verifier/dev-cli.ts:catch:52dbe30d73be:1",
+    "packages/main/src/verifier/dev-host.ts:catch:2d341245c4a3:1",
+    "packages/main/src/verifier/dev-host.ts:catch:3934d3e94b07:1",
+    "packages/main/src/verifier/dev-host.ts:catch:8c5739443b9a:1",
+    "packages/main/src/verifier/serve.ts:catch:14368dcd09f2:1",
+    "packages/main/src/verifier/serve.ts:catch:1b12ebac7c1f:1",
+    "packages/main/src/verifier/serve.ts:catch:360adac5dbf5:1",
+    "packages/main/src/verifier/serve.ts:catch:37496b2a9936:1",
+    "packages/main/src/verifier/serve.ts:catch:3880d286ef4e:1",
+    "packages/main/src/verifier/serve.ts:catch:3934d3e94b07:1",
+    "packages/main/src/verifier/serve.ts:catch:48ebbc69635a:1",
+    "packages/main/src/verifier/serve.ts:catch:4a07fc6ef604:1",
+    "packages/main/src/verifier/serve.ts:catch:4a3b43ecfd33:1",
+    "packages/main/src/verifier/serve.ts:catch:50ed7c1f7ae5:1",
+    "packages/main/src/verifier/serve.ts:catch:51e4a1a6ed54:1",
+    "packages/main/src/verifier/serve.ts:catch:58646668ab02:1",
+    "packages/main/src/verifier/serve.ts:catch:65d13438c4a1:1",
+    "packages/main/src/verifier/serve.ts:catch:6cf7b2c41bb9:1",
+    "packages/main/src/verifier/serve.ts:catch:6cf7b2c41bb9:2",
+    "packages/main/src/verifier/serve.ts:catch:75a1e4329542:1",
+    "packages/main/src/verifier/serve.ts:catch:8afa4eb13133:1",
+    "packages/main/src/verifier/serve.ts:catch:8d0bb53c6d4c:1",
+    "packages/main/src/verifier/serve.ts:catch:8d0bb53c6d4c:2",
+    "packages/main/src/verifier/serve.ts:catch:97c99c0dcc8b:1",
+    "packages/main/src/verifier/serve.ts:catch:9c9ab383c892:1",
+    "packages/main/src/verifier/serve.ts:catch:a31904a1cc1e:1",
+    "packages/main/src/verifier/serve.ts:catch:a762eb22e653:1",
+    "packages/main/src/verifier/serve.ts:catch:b410e3c4cd08:1",
+    "packages/main/src/verifier/serve.ts:catch:ce12f47db4a1:1",
+    "packages/main/src/verifier/serve.ts:catch:d0ea64383a6d:1",
+    "packages/main/src/verifier/serve.ts:catch:d1d2dc7f3f1c:1",
+    "packages/main/src/verifier/serve.ts:catch:d412f6d01b52:1",
+    "packages/main/src/verifier/serve.ts:catch:d76acd716777:1",
+    "packages/main/src/verifier/serve.ts:catch:dbbf9f526a0e:1",
+    "packages/main/src/verifier/serve.ts:catch:dc226e6eb1fc:1",
+    "packages/main/src/verifier/serve.ts:catch:e9972c07f172:1",
+    "packages/main/src/verifier/serve.ts:catch:e9972c07f172:2",
+    "packages/main/src/verifier/serve.ts:catch:e9972c07f172:3",
+    "packages/main/src/verifier/serve.ts:catch:f861f8e9b7ee:1",
+    "packages/main/src/verifier/serve.ts:catch:fd4dc6e15a0f:1",
+    "packages/main/src/verifier/validate.ts:catch:2d649de3c601:1",
+    "packages/main/src/verifier/validate.ts:catch:34dcf22b5c03:1",
+    "packages/main/src/verifier/validate.ts:catch:58a083a4d4cb:1",
+    "packages/main/src/verifier/validate.ts:catch:58a083a4d4cb:2",
+    "packages/main/src/verifier/validate.ts:catch:61a649cd94d0:1",
+    "packages/main/src/verifier/validate.ts:catch:6c5e67cf79fe:1"
+  ],
+  "uncategorizedCatchRecords": [
+    {
+      "key": "packages/main/src/cli-engine.ts:catch:0378309c48a6:1",
+      "file": "packages/main/src/cli-engine.ts",
+      "line": 700,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "0378309c48a6",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/cli-engine.ts:catch:560350b2af31:1",
+      "file": "packages/main/src/cli-engine.ts",
+      "line": 704,
+      "snippet": "} catch {",
+      "catchOrdinal": 2,
+      "contextHash": "560350b2af31",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/cli-engine.ts:catch:6149ad6e1897:1",
+      "file": "packages/main/src/cli-engine.ts",
+      "line": 1428,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 10,
+      "contextHash": "6149ad6e1897",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/cli-engine.ts:catch:647e0ea21bae:1",
+      "file": "packages/main/src/cli-engine.ts",
+      "line": 1347,
+      "snippet": "try { phase = store.readStory(storyId).phase; } catch { phase = ''; }",
+      "catchOrdinal": 8,
+      "contextHash": "647e0ea21bae",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/cli-engine.ts:catch:6d5a03cc7e6d:1",
+      "file": "packages/main/src/cli-engine.ts",
+      "line": 983,
+      "snippet": "try { return JSON.parse(val); } catch { /* fall through */ }",
+      "catchOrdinal": 3,
+      "contextHash": "6d5a03cc7e6d",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/cli-engine.ts:catch:720d26732c12:1",
+      "file": "packages/main/src/cli-engine.ts",
+      "line": 1248,
+      "snippet": "} catch { /* never block */ }",
+      "catchOrdinal": 6,
+      "contextHash": "720d26732c12",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/cli-engine.ts:catch:7eb20cb873cd:1",
+      "file": "packages/main/src/cli-engine.ts",
+      "line": 1461,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 11,
+      "contextHash": "7eb20cb873cd",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/cli-engine.ts:catch:94f7881d39df:1",
+      "file": "packages/main/src/cli-engine.ts",
+      "line": 1049,
+      "snippet": "} catch {",
+      "catchOrdinal": 4,
+      "contextHash": "94f7881d39df",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/cli-engine.ts:catch:d4303482e6a1:1",
+      "file": "packages/main/src/cli-engine.ts",
+      "line": 1202,
+      "snippet": "catch (e) {",
+      "catchOrdinal": 5,
+      "contextHash": "d4303482e6a1",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/cli-engine.ts:catch:d89fe2c24c75:1",
+      "file": "packages/main/src/cli-engine.ts",
+      "line": 1514,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 13,
+      "contextHash": "d89fe2c24c75",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/cli-engine.ts:catch:f19411c718b5:1",
+      "file": "packages/main/src/cli-engine.ts",
+      "line": 1507,
+      "snippet": "} catch {",
+      "catchOrdinal": 12,
+      "contextHash": "f19411c718b5",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/cli-init.ts:catch:1f4449cbde1a:1",
+      "file": "packages/main/src/cli-init.ts",
+      "line": 549,
+      "snippet": "} catch {",
+      "catchOrdinal": 3,
+      "contextHash": "1f4449cbde1a",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/cli-init.ts:catch:371737537e34:1",
+      "file": "packages/main/src/cli-init.ts",
+      "line": 437,
+      "snippet": "} catch { /* ignore */ }",
+      "catchOrdinal": 2,
+      "contextHash": "371737537e34",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/cli-init.ts:catch:6cac413cf848:1",
+      "file": "packages/main/src/cli-init.ts",
+      "line": 645,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 7,
+      "contextHash": "6cac413cf848",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/cli-init.ts:catch:8d0bb53c6d4c:1",
+      "file": "packages/main/src/cli-init.ts",
+      "line": 340,
+      "snippet": "} catch {}",
+      "catchOrdinal": 1,
+      "contextHash": "8d0bb53c6d4c",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/cli-init.ts:catch:8db47632dbb7:1",
+      "file": "packages/main/src/cli-init.ts",
+      "line": 589,
+      "snippet": "} catch {",
+      "catchOrdinal": 5,
+      "contextHash": "8db47632dbb7",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/cli-init.ts:catch:b03c86f3ebe1:1",
+      "file": "packages/main/src/cli-init.ts",
+      "line": 551,
+      "snippet": "try { unlinkSync(dst); } catch {}",
+      "catchOrdinal": 4,
+      "contextHash": "b03c86f3ebe1",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/cli-init.ts:catch:f064860fde89:1",
+      "file": "packages/main/src/cli-init.ts",
+      "line": 590,
+      "snippet": "try { unlinkSync(dst); } catch {}",
+      "catchOrdinal": 6,
+      "contextHash": "f064860fde89",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/cli.ts:catch:233f3920cd45:1",
+      "file": "packages/main/src/cli.ts",
+      "line": 15,
+      "snippet": "runCli().catch(e => { console.error(e); process.exit(1); });",
+      "catchOrdinal": 1,
+      "contextHash": "233f3920cd45",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/activity-log.ts:catch:192486d9b7ef:1",
+      "file": "packages/main/src/core/activity-log.ts",
+      "line": 41,
+      "snippet": "try { entries.push(JSON.parse(line)); } catch { /* skip corrupt line */ }",
+      "catchOrdinal": 1,
+      "contextHash": "192486d9b7ef",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/activity-log.ts:catch:4f563c5a256c:1",
+      "file": "packages/main/src/core/activity-log.ts",
+      "line": 43,
+      "snippet": "} catch { /* skip unreadable file */ }",
+      "catchOrdinal": 2,
+      "contextHash": "4f563c5a256c",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/advisory.ts:catch:dfa58112874c:1",
+      "file": "packages/main/src/core/advisory.ts",
+      "line": 70,
+      "snippet": "} catch { /* fallback */ }",
+      "catchOrdinal": 1,
+      "contextHash": "dfa58112874c",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/artifact-contract.ts:catch:1884179288ef:1",
+      "file": "packages/main/src/core/artifact-contract.ts",
+      "line": 109,
+      "snippet": "} catch {",
+      "catchOrdinal": 6,
+      "contextHash": "1884179288ef",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/artifact-contract.ts:catch:60b70a6bb0a1:1",
+      "file": "packages/main/src/core/artifact-contract.ts",
+      "line": 80,
+      "snippet": "} catch {",
+      "catchOrdinal": 3,
+      "contextHash": "60b70a6bb0a1",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/artifact-contract.ts:catch:7b1960b40722:1",
+      "file": "packages/main/src/core/artifact-contract.ts",
+      "line": 238,
+      "snippet": "} catch {",
+      "catchOrdinal": 11,
+      "contextHash": "7b1960b40722",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/artifact-contract.ts:catch:8320acffefef:1",
+      "file": "packages/main/src/core/artifact-contract.ts",
+      "line": 72,
+      "snippet": "} catch {",
+      "catchOrdinal": 2,
+      "contextHash": "8320acffefef",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/artifact-contract.ts:catch:9ec0c247d72f:1",
+      "file": "packages/main/src/core/artifact-contract.ts",
+      "line": 125,
+      "snippet": "} catch {",
+      "catchOrdinal": 8,
+      "contextHash": "9ec0c247d72f",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/artifact-contract.ts:catch:a163e7d66de6:1",
+      "file": "packages/main/src/core/artifact-contract.ts",
+      "line": 117,
+      "snippet": "} catch {",
+      "catchOrdinal": 7,
+      "contextHash": "a163e7d66de6",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/artifact-contract.ts:catch:ad9a96f8a6fd:1",
+      "file": "packages/main/src/core/artifact-contract.ts",
+      "line": 134,
+      "snippet": "} catch {",
+      "catchOrdinal": 9,
+      "contextHash": "ad9a96f8a6fd",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/artifact-contract.ts:catch:b149698e942e:1",
+      "file": "packages/main/src/core/artifact-contract.ts",
+      "line": 88,
+      "snippet": "} catch {",
+      "catchOrdinal": 4,
+      "contextHash": "b149698e942e",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/artifact-contract.ts:catch:bc04622b3efa:1",
+      "file": "packages/main/src/core/artifact-contract.ts",
+      "line": 96,
+      "snippet": "} catch {",
+      "catchOrdinal": 5,
+      "contextHash": "bc04622b3efa",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/artifact-contract.ts:catch:d7de48af7566:1",
+      "file": "packages/main/src/core/artifact-contract.ts",
+      "line": 162,
+      "snippet": "} catch {",
+      "catchOrdinal": 10,
+      "contextHash": "d7de48af7566",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/artifact-contract.ts:catch:de668aa951e4:1",
+      "file": "packages/main/src/core/artifact-contract.ts",
+      "line": 63,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "de668aa951e4",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/audit-config.ts:catch:e9e1d6e2ba3d:1",
+      "file": "packages/main/src/core/audit-config.ts",
+      "line": 114,
+      "snippet": "} catch (err) {",
+      "catchOrdinal": 1,
+      "contextHash": "e9e1d6e2ba3d",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/audit-meta-store.ts:catch:319ffdf60804:1",
+      "file": "packages/main/src/core/audit-meta-store.ts",
+      "line": 115,
+      "snippet": "} catch (err) {",
+      "catchOrdinal": 1,
+      "contextHash": "319ffdf60804",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/audit-scan.ts:catch:0565fd23bfda:1",
+      "file": "packages/main/src/core/audit-scan.ts",
+      "line": 246,
+      "snippet": "} catch {/* pass */}",
+      "catchOrdinal": 2,
+      "contextHash": "0565fd23bfda",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/audit-scan.ts:catch:32776ce0edc0:1",
+      "file": "packages/main/src/core/audit-scan.ts",
+      "line": 302,
+      "snippet": "try { md = readFileSync(abs, 'utf-8'); } catch { continue; }",
+      "catchOrdinal": 4,
+      "contextHash": "32776ce0edc0",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/audit-scan.ts:catch:701dcc7c5039:1",
+      "file": "packages/main/src/core/audit-scan.ts",
+      "line": 352,
+      "snippet": "} catch (e: unknown) {",
+      "catchOrdinal": 6,
+      "contextHash": "701dcc7c5039",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/audit-scan.ts:catch:7135102919e3:1",
+      "file": "packages/main/src/core/audit-scan.ts",
+      "line": 252,
+      "snippet": "} catch (e: unknown) {",
+      "catchOrdinal": 3,
+      "contextHash": "7135102919e3",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/audit-scan.ts:catch:87d943af2149:1",
+      "file": "packages/main/src/core/audit-scan.ts",
+      "line": 373,
+      "snippet": "} catch (e: unknown) {",
+      "catchOrdinal": 7,
+      "contextHash": "87d943af2149",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/audit-scan.ts:catch:9f017ea3aaec:1",
+      "file": "packages/main/src/core/audit-scan.ts",
+      "line": 322,
+      "snippet": "try { return readFileSync(abs, 'utf-8'); } catch { return ''; }",
+      "catchOrdinal": 5,
+      "contextHash": "9f017ea3aaec",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/audit-scan.ts:catch:ae8207a85f86:1",
+      "file": "packages/main/src/core/audit-scan.ts",
+      "line": 224,
+      "snippet": "try { return existsSync(abs); } catch { return false; }",
+      "catchOrdinal": 1,
+      "contextHash": "ae8207a85f86",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/audit-trigger.ts:catch:383f61b320dc:1",
+      "file": "packages/main/src/core/audit-trigger.ts",
+      "line": 257,
+      "snippet": "} catch (err) {",
+      "catchOrdinal": 5,
+      "contextHash": "383f61b320dc",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/audit-trigger.ts:catch:481bd4ea6752:1",
+      "file": "packages/main/src/core/audit-trigger.ts",
+      "line": 87,
+      "snippet": "} catch (err) {",
+      "catchOrdinal": 1,
+      "contextHash": "481bd4ea6752",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/audit-trigger.ts:catch:4a5004697af2:1",
+      "file": "packages/main/src/core/audit-trigger.ts",
+      "line": 124,
+      "snippet": "} catch (err) {",
+      "catchOrdinal": 3,
+      "contextHash": "4a5004697af2",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/audit-trigger.ts:catch:b51e789732a0:1",
+      "file": "packages/main/src/core/audit-trigger.ts",
+      "line": 299,
+      "snippet": "} catch (err) {",
+      "catchOrdinal": 6,
+      "contextHash": "b51e789732a0",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/audit-trigger.ts:catch:e6b8db3c1b1b:1",
+      "file": "packages/main/src/core/audit-trigger.ts",
+      "line": 149,
+      "snippet": "} catch {",
+      "catchOrdinal": 4,
+      "contextHash": "e6b8db3c1b1b",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/audit-trigger.ts:catch:f4e335ec2100:1",
+      "file": "packages/main/src/core/audit-trigger.ts",
+      "line": 96,
+      "snippet": "} catch (err) {",
+      "catchOrdinal": 2,
+      "contextHash": "f4e335ec2100",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/baseline-risk.ts:catch:49af0b7a57a9:1",
+      "file": "packages/main/src/core/baseline-risk.ts",
+      "line": 63,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "49af0b7a57a9",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/cluster-sync.ts:catch:73f0018b96b1:1",
+      "file": "packages/main/src/core/cluster-sync.ts",
+      "line": 146,
+      "snippet": "} catch (e) {",
+      "catchOrdinal": 1,
+      "contextHash": "73f0018b96b1",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/codex-adapter-checks.ts:catch:398db913394b:1",
+      "file": "packages/main/src/core/codex-adapter-checks.ts",
+      "line": 239,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 2,
+      "contextHash": "398db913394b",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/codex-adapter-checks.ts:catch:422aa4b93b84:1",
+      "file": "packages/main/src/core/codex-adapter-checks.ts",
+      "line": 430,
+      "snippet": "} catch {",
+      "catchOrdinal": 5,
+      "contextHash": "422aa4b93b84",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/codex-adapter-checks.ts:catch:c9c71e6115e9:1",
+      "file": "packages/main/src/core/codex-adapter-checks.ts",
+      "line": 440,
+      "snippet": "} catch {",
+      "catchOrdinal": 6,
+      "contextHash": "c9c71e6115e9",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/config.ts:catch:4fa1b614ba7b:1",
+      "file": "packages/main/src/core/config.ts",
+      "line": 258,
+      "snippet": "} catch { /* ignore parse errors */ }",
+      "catchOrdinal": 1,
+      "contextHash": "4fa1b614ba7b",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/evidence-freshness.ts:catch:631679825bd0:1",
+      "file": "packages/main/src/core/evidence-freshness.ts",
+      "line": 147,
+      "snippet": "} catch {",
+      "catchOrdinal": 3,
+      "contextHash": "631679825bd0",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/evidence-freshness.ts:catch:c5e974fc82ba:1",
+      "file": "packages/main/src/core/evidence-freshness.ts",
+      "line": 32,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "c5e974fc82ba",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/evidence-freshness.ts:catch:f86e04828fc2:1",
+      "file": "packages/main/src/core/evidence-freshness.ts",
+      "line": 67,
+      "snippet": "} catch {",
+      "catchOrdinal": 2,
+      "contextHash": "f86e04828fc2",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/git-probe.ts:catch:65711354994f:1",
+      "file": "packages/main/src/core/git-probe.ts",
+      "line": 19,
+      "snippet": "} catch (e) {",
+      "catchOrdinal": 1,
+      "contextHash": "65711354994f",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/guard-utils.ts:catch:435b3f2a5738:1",
+      "file": "packages/main/src/core/guard-utils.ts",
+      "line": 158,
+      "snippet": "} catch {",
+      "catchOrdinal": 5,
+      "contextHash": "435b3f2a5738",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/guard-utils.ts:catch:450cfd530ee1:1",
+      "file": "packages/main/src/core/guard-utils.ts",
+      "line": 151,
+      "snippet": "} catch {",
+      "catchOrdinal": 4,
+      "contextHash": "450cfd530ee1",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/guard-utils.ts:catch:4a6a360f86a6:1",
+      "file": "packages/main/src/core/guard-utils.ts",
+      "line": 46,
+      "snippet": "} catch { /* fallback to 1 */ }",
+      "catchOrdinal": 1,
+      "contextHash": "4a6a360f86a6",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/guard-utils.ts:catch:702828a85d30:1",
+      "file": "packages/main/src/core/guard-utils.ts",
+      "line": 199,
+      "snippet": "try { decision = store.readDecision(storyId); } catch {}",
+      "catchOrdinal": 7,
+      "contextHash": "702828a85d30",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/guard-utils.ts:catch:7665e4c53da8:1",
+      "file": "packages/main/src/core/guard-utils.ts",
+      "line": 115,
+      "snippet": "} catch {",
+      "catchOrdinal": 2,
+      "contextHash": "7665e4c53da8",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/guard-utils.ts:catch:bf9518728a79:1",
+      "file": "packages/main/src/core/guard-utils.ts",
+      "line": 233,
+      "snippet": "} catch {",
+      "catchOrdinal": 8,
+      "contextHash": "bf9518728a79",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/guard-utils.ts:catch:c03dc5881c6d:1",
+      "file": "packages/main/src/core/guard-utils.ts",
+      "line": 197,
+      "snippet": "try { checklist = store.readChecklist(storyId); } catch {}",
+      "catchOrdinal": 6,
+      "contextHash": "c03dc5881c6d",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/guard-utils.ts:catch:f84c6dbc3cad:1",
+      "file": "packages/main/src/core/guard-utils.ts",
+      "line": 119,
+      "snippet": "} catch {",
+      "catchOrdinal": 3,
+      "contextHash": "f84c6dbc3cad",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/health.ts:catch:068205d281ec:1",
+      "file": "packages/main/src/core/health.ts",
+      "line": 82,
+      "snippet": "} catch (e: unknown) {",
+      "catchOrdinal": 1,
+      "contextHash": "068205d281ec",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/health.ts:catch:0e716e2ef6a7:1",
+      "file": "packages/main/src/core/health.ts",
+      "line": 112,
+      "snippet": "} catch {",
+      "catchOrdinal": 4,
+      "contextHash": "0e716e2ef6a7",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/health.ts:catch:2018418cd6e4:1",
+      "file": "packages/main/src/core/health.ts",
+      "line": 87,
+      "snippet": "} catch { /* 真的没辙了 */ }",
+      "catchOrdinal": 2,
+      "contextHash": "2018418cd6e4",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/health.ts:catch:2ec6097cf7d9:1",
+      "file": "packages/main/src/core/health.ts",
+      "line": 109,
+      "snippet": "} catch { /* 跳过损坏行 */ }",
+      "catchOrdinal": 3,
+      "contextHash": "2ec6097cf7d9",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/hooks.ts:catch:6a11e341346a:1",
+      "file": "packages/main/src/core/hooks.ts",
+      "line": 148,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 1,
+      "contextHash": "6a11e341346a",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/hooks.ts:catch:e73aa2638369:1",
+      "file": "packages/main/src/core/hooks.ts",
+      "line": 155,
+      "snippet": "try { proc.kill('SIGKILL'); } catch { /* ignore */ }",
+      "catchOrdinal": 2,
+      "contextHash": "e73aa2638369",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/hooks.ts:catch:ed2d05618583:1",
+      "file": "packages/main/src/core/hooks.ts",
+      "line": 208,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 4,
+      "contextHash": "ed2d05618583",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/hooks.ts:catch:f493d817cae9:1",
+      "file": "packages/main/src/core/hooks.ts",
+      "line": 198,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 3,
+      "contextHash": "f493d817cae9",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/machine.ts:catch:06c6372cf8e2:1",
+      "file": "packages/main/src/core/machine.ts",
+      "line": 142,
+      "snippet": "} catch {",
+      "catchOrdinal": 4,
+      "contextHash": "06c6372cf8e2",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/machine.ts:catch:435b3f2a5738:1",
+      "file": "packages/main/src/core/machine.ts",
+      "line": 412,
+      "snippet": "} catch {",
+      "catchOrdinal": 11,
+      "contextHash": "435b3f2a5738",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/machine.ts:catch:450cfd530ee1:1",
+      "file": "packages/main/src/core/machine.ts",
+      "line": 405,
+      "snippet": "} catch {",
+      "catchOrdinal": 10,
+      "contextHash": "450cfd530ee1",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/machine.ts:catch:4a6a360f86a6:1",
+      "file": "packages/main/src/core/machine.ts",
+      "line": 34,
+      "snippet": "} catch { /* fallback to 1 */ }",
+      "catchOrdinal": 1,
+      "contextHash": "4a6a360f86a6",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/machine.ts:catch:4d4933fe111f:1",
+      "file": "packages/main/src/core/machine.ts",
+      "line": 170,
+      "snippet": "try { decision = context.store.readDecision(context.storyId); } catch {}",
+      "catchOrdinal": 6,
+      "contextHash": "4d4933fe111f",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/machine.ts:catch:6d9fc06f541c:1",
+      "file": "packages/main/src/core/machine.ts",
+      "line": 192,
+      "snippet": "} catch {",
+      "catchOrdinal": 7,
+      "contextHash": "6d9fc06f541c",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/machine.ts:catch:702828a85d30:1",
+      "file": "packages/main/src/core/machine.ts",
+      "line": 454,
+      "snippet": "try { decision = store.readDecision(storyId); } catch {}",
+      "catchOrdinal": 13,
+      "contextHash": "702828a85d30",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/machine.ts:catch:7665e4c53da8:1",
+      "file": "packages/main/src/core/machine.ts",
+      "line": 369,
+      "snippet": "} catch {",
+      "catchOrdinal": 8,
+      "contextHash": "7665e4c53da8",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/machine.ts:catch:a3a65cb3abd2:1",
+      "file": "packages/main/src/core/machine.ts",
+      "line": 128,
+      "snippet": "} catch {",
+      "catchOrdinal": 3,
+      "contextHash": "a3a65cb3abd2",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/machine.ts:catch:aa02a940f9a3:1",
+      "file": "packages/main/src/core/machine.ts",
+      "line": 104,
+      "snippet": "} catch (err) {",
+      "catchOrdinal": 2,
+      "contextHash": "aa02a940f9a3",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/machine.ts:catch:bf9518728a79:1",
+      "file": "packages/main/src/core/machine.ts",
+      "line": 484,
+      "snippet": "} catch {",
+      "catchOrdinal": 14,
+      "contextHash": "bf9518728a79",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/machine.ts:catch:c03dc5881c6d:1",
+      "file": "packages/main/src/core/machine.ts",
+      "line": 452,
+      "snippet": "try { checklist = store.readChecklist(storyId); } catch {}",
+      "catchOrdinal": 12,
+      "contextHash": "c03dc5881c6d",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/machine.ts:catch:d1876411eba4:1",
+      "file": "packages/main/src/core/machine.ts",
+      "line": 168,
+      "snippet": "try { checklist = context.store.readChecklist(context.storyId); } catch {}",
+      "catchOrdinal": 5,
+      "contextHash": "d1876411eba4",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/machine.ts:catch:f84c6dbc3cad:1",
+      "file": "packages/main/src/core/machine.ts",
+      "line": 373,
+      "snippet": "} catch {",
+      "catchOrdinal": 9,
+      "contextHash": "f84c6dbc3cad",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/process-events.ts:catch:f9292d3c9824:1",
+      "file": "packages/main/src/core/process-events.ts",
+      "line": 29,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "f9292d3c9824",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/process-metrics.ts:catch:341ff99108a6:1",
+      "file": "packages/main/src/core/process-metrics.ts",
+      "line": 635,
+      "snippet": "try { planContent = readFileSync(planPath, 'utf-8'); } catch { /* ignore */ }",
+      "catchOrdinal": 12,
+      "contextHash": "341ff99108a6",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/process-metrics.ts:catch:5462b8e6d74c:1",
+      "file": "packages/main/src/core/process-metrics.ts",
+      "line": 615,
+      "snippet": "catch { bugs = { bugs: [] }; }",
+      "catchOrdinal": 5,
+      "contextHash": "5462b8e6d74c",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/process-metrics.ts:catch:59bc0c1b3912:1",
+      "file": "packages/main/src/core/process-metrics.ts",
+      "line": 626,
+      "snippet": "const decision = (() => { try { return store.readDecision(storyId); } catch { return null; } })();",
+      "catchOrdinal": 9,
+      "contextHash": "59bc0c1b3912",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/process-metrics.ts:catch:620603ef1ddc:1",
+      "file": "packages/main/src/core/process-metrics.ts",
+      "line": 623,
+      "snippet": "catch { processEvents = []; }",
+      "catchOrdinal": 7,
+      "contextHash": "620603ef1ddc",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/process-metrics.ts:catch:a1713b954f84:1",
+      "file": "packages/main/src/core/process-metrics.ts",
+      "line": 625,
+      "snippet": "const understanding = (() => { try { return store.readUnderstanding(storyId); } catch { return null; } })();",
+      "catchOrdinal": 8,
+      "contextHash": "a1713b954f84",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/process-metrics.ts:catch:a22fa399adc2:1",
+      "file": "packages/main/src/core/process-metrics.ts",
+      "line": 611,
+      "snippet": "catch { findings = { findings: [] }; }",
+      "catchOrdinal": 4,
+      "contextHash": "a22fa399adc2",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/process-metrics.ts:catch:a7d9803fe6f1:1",
+      "file": "packages/main/src/core/process-metrics.ts",
+      "line": 607,
+      "snippet": "catch { review = { reviews: [] }; }",
+      "catchOrdinal": 3,
+      "contextHash": "a7d9803fe6f1",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/process-metrics.ts:catch:c12be4e02b61:1",
+      "file": "packages/main/src/core/process-metrics.ts",
+      "line": 603,
+      "snippet": "catch { checklist = { items: [] }; }",
+      "catchOrdinal": 2,
+      "contextHash": "c12be4e02b61",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/process-metrics.ts:catch:d03e645dbaae:1",
+      "file": "packages/main/src/core/process-metrics.ts",
+      "line": 628,
+      "snippet": "const evalEvidence = (() => { try { return store.readEvalEvidence(storyId); } catch { return null; } })();",
+      "catchOrdinal": 11,
+      "contextHash": "d03e645dbaae",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/process-metrics.ts:catch:d2c82c5b9493:1",
+      "file": "packages/main/src/core/process-metrics.ts",
+      "line": 627,
+      "snippet": "const summary = (() => { try { return store.readSummary(storyId); } catch { return null; } })();",
+      "catchOrdinal": 10,
+      "contextHash": "d2c82c5b9493",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/process-metrics.ts:catch:e2f2f1af673c:1",
+      "file": "packages/main/src/core/process-metrics.ts",
+      "line": 599,
+      "snippet": "catch { story = { storyId, name: '', title: '', description: '', type: 'feature', phase: 'INIT', priority: 'medium', createdAt: new Date().toISOString(), startedAt: null, endedAt: null }; }",
+      "catchOrdinal": 1,
+      "contextHash": "e2f2f1af673c",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/process-metrics.ts:catch:edd4da80d812:1",
+      "file": "packages/main/src/core/process-metrics.ts",
+      "line": 619,
+      "snippet": "catch { testRuns = { runs: [] }; }",
+      "catchOrdinal": 6,
+      "contextHash": "edd4da80d812",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/stale-detector.ts:catch:983ccd4a8d0f:1",
+      "file": "packages/main/src/core/stale-detector.ts",
+      "line": 235,
+      "snippet": "} catch {",
+      "catchOrdinal": 11,
+      "contextHash": "983ccd4a8d0f",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/stale-detector.ts:catch:b986beeaea01:1",
+      "file": "packages/main/src/core/stale-detector.ts",
+      "line": 58,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "b986beeaea01",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/stale-detector.ts:catch:bf109e542639:1",
+      "file": "packages/main/src/core/stale-detector.ts",
+      "line": 77,
+      "snippet": "} catch {",
+      "catchOrdinal": 2,
+      "contextHash": "bf109e542639",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/stale-detector.ts:catch:df31d92c9c92:1",
+      "file": "packages/main/src/core/stale-detector.ts",
+      "line": 194,
+      "snippet": "} catch {",
+      "catchOrdinal": 7,
+      "contextHash": "df31d92c9c92",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/store.ts:catch:0d799f62261a:1",
+      "file": "packages/main/src/core/store.ts",
+      "line": 85,
+      "snippet": "} catch (e) {",
+      "catchOrdinal": 1,
+      "contextHash": "0d799f62261a",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/store.ts:catch:140bd4488531:1",
+      "file": "packages/main/src/core/store.ts",
+      "line": 353,
+      "snippet": "} catch {",
+      "catchOrdinal": 15,
+      "contextHash": "140bd4488531",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/store.ts:catch:1d212bfb7e5c:1",
+      "file": "packages/main/src/core/store.ts",
+      "line": 296,
+      "snippet": "} catch {",
+      "catchOrdinal": 11,
+      "contextHash": "1d212bfb7e5c",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/store.ts:catch:3c211fb6fc5c:1",
+      "file": "packages/main/src/core/store.ts",
+      "line": 382,
+      "snippet": "} catch {",
+      "catchOrdinal": 16,
+      "contextHash": "3c211fb6fc5c",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/store.ts:catch:42b5ab16532d:1",
+      "file": "packages/main/src/core/store.ts",
+      "line": 308,
+      "snippet": "} catch {",
+      "catchOrdinal": 12,
+      "contextHash": "42b5ab16532d",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/store.ts:catch:50f9b2aa6a29:1",
+      "file": "packages/main/src/core/store.ts",
+      "line": 411,
+      "snippet": "} catch {",
+      "catchOrdinal": 18,
+      "contextHash": "50f9b2aa6a29",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/store.ts:catch:5874fdd681a7:1",
+      "file": "packages/main/src/core/store.ts",
+      "line": 325,
+      "snippet": "} catch {",
+      "catchOrdinal": 13,
+      "contextHash": "5874fdd681a7",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/store.ts:catch:6de4ea5615d8:1",
+      "file": "packages/main/src/core/store.ts",
+      "line": 397,
+      "snippet": "} catch {",
+      "catchOrdinal": 17,
+      "contextHash": "6de4ea5615d8",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/store.ts:catch:736e5b5b7114:1",
+      "file": "packages/main/src/core/store.ts",
+      "line": 223,
+      "snippet": "} catch {",
+      "catchOrdinal": 6,
+      "contextHash": "736e5b5b7114",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/store.ts:catch:94d56bc59f16:1",
+      "file": "packages/main/src/core/store.ts",
+      "line": 251,
+      "snippet": "} catch {",
+      "catchOrdinal": 8,
+      "contextHash": "94d56bc59f16",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/store.ts:catch:b772eb6bceeb:1",
+      "file": "packages/main/src/core/store.ts",
+      "line": 279,
+      "snippet": "} catch {",
+      "catchOrdinal": 10,
+      "contextHash": "b772eb6bceeb",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/store.ts:catch:bae6f9592763:1",
+      "file": "packages/main/src/core/store.ts",
+      "line": 265,
+      "snippet": "} catch {",
+      "catchOrdinal": 9,
+      "contextHash": "bae6f9592763",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/store.ts:catch:dd5efd3ba441:1",
+      "file": "packages/main/src/core/store.ts",
+      "line": 181,
+      "snippet": "} catch {",
+      "catchOrdinal": 3,
+      "contextHash": "dd5efd3ba441",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/store.ts:catch:dee0532f2a37:1",
+      "file": "packages/main/src/core/store.ts",
+      "line": 237,
+      "snippet": "} catch {",
+      "catchOrdinal": 7,
+      "contextHash": "dee0532f2a37",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/store.ts:catch:e169791a34fb:1",
+      "file": "packages/main/src/core/store.ts",
+      "line": 86,
+      "snippet": "try { rmSync(tmpPath, { force: true }); } catch { /* best-effort cleanup */ }",
+      "catchOrdinal": 2,
+      "contextHash": "e169791a34fb",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/store.ts:catch:e44017f3f872:1",
+      "file": "packages/main/src/core/store.ts",
+      "line": 209,
+      "snippet": "} catch {",
+      "catchOrdinal": 5,
+      "contextHash": "e44017f3f872",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/store.ts:catch:e6ffb7f5b698:1",
+      "file": "packages/main/src/core/store.ts",
+      "line": 339,
+      "snippet": "} catch {",
+      "catchOrdinal": 14,
+      "contextHash": "e6ffb7f5b698",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/store.ts:catch:ebed82868563:1",
+      "file": "packages/main/src/core/store.ts",
+      "line": 195,
+      "snippet": "} catch {",
+      "catchOrdinal": 4,
+      "contextHash": "ebed82868563",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/touchpoints-fallback.ts:catch:542ec8ab1e4e:1",
+      "file": "packages/main/src/core/touchpoints-fallback.ts",
+      "line": 26,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "542ec8ab1e4e",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/worktree-runtime.ts:catch:0b8005ec4c87:1",
+      "file": "packages/main/src/core/worktree-runtime.ts",
+      "line": 156,
+      "snippet": "} catch {",
+      "catchOrdinal": 6,
+      "contextHash": "0b8005ec4c87",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/worktree-runtime.ts:catch:7fe1b70fa54c:1",
+      "file": "packages/main/src/core/worktree-runtime.ts",
+      "line": 46,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "7fe1b70fa54c",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/worktree-runtime.ts:catch:ce293201f829:1",
+      "file": "packages/main/src/core/worktree-runtime.ts",
+      "line": 94,
+      "snippet": "} catch {",
+      "catchOrdinal": 3,
+      "contextHash": "ce293201f829",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/core/worktree-runtime.ts:catch:ed6099c37ca3:1",
+      "file": "packages/main/src/core/worktree-runtime.ts",
+      "line": 64,
+      "snippet": "} catch {",
+      "catchOrdinal": 2,
+      "contextHash": "ed6099c37ca3",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/dashboard.ts:catch:2ab827c93213:1",
+      "file": "packages/main/src/dashboard.ts",
+      "line": 133,
+      "snippet": "} catch (e) {",
+      "catchOrdinal": 6,
+      "contextHash": "2ab827c93213",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/dashboard.ts:catch:5b38e71e122d:1",
+      "file": "packages/main/src/dashboard.ts",
+      "line": 117,
+      "snippet": "} catch { /* skip unreadable */ }",
+      "catchOrdinal": 4,
+      "contextHash": "5b38e71e122d",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/dashboard.ts:catch:5d50ca4126d5:1",
+      "file": "packages/main/src/dashboard.ts",
+      "line": 78,
+      "snippet": "} catch { /* not git */ }",
+      "catchOrdinal": 1,
+      "contextHash": "5d50ca4126d5",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/dashboard.ts:catch:63f62d4cf757:1",
+      "file": "packages/main/src/dashboard.ts",
+      "line": 106,
+      "snippet": "} catch { /* no checklist */ }",
+      "catchOrdinal": 3,
+      "contextHash": "63f62d4cf757",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/dashboard.ts:catch:b7c48179ce43:1",
+      "file": "packages/main/src/dashboard.ts",
+      "line": 93,
+      "snippet": "} catch { /* no bugs */ }",
+      "catchOrdinal": 2,
+      "contextHash": "b7c48179ce43",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/dashboard.ts:catch:ecef39229613:1",
+      "file": "packages/main/src/dashboard.ts",
+      "line": 127,
+      "snippet": "} catch { /* not git */ }",
+      "catchOrdinal": 5,
+      "contextHash": "ecef39229613",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/audit.ts:catch:087c7ce524a8:1",
+      "file": "packages/main/src/handlers/audit.ts",
+      "line": 282,
+      "snippet": "} catch { current = {}; }",
+      "catchOrdinal": 3,
+      "contextHash": "087c7ce524a8",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/audit.ts:catch:093719c92518:1",
+      "file": "packages/main/src/handlers/audit.ts",
+      "line": 154,
+      "snippet": "try { recordRound(store, round); } catch {/* advisory */}",
+      "catchOrdinal": 1,
+      "contextHash": "093719c92518",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/audit.ts:catch:efb93d048266:1",
+      "file": "packages/main/src/handlers/audit.ts",
+      "line": 169,
+      "snippet": "} catch { /* advisory */ }",
+      "catchOrdinal": 2,
+      "contextHash": "efb93d048266",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/aux-doc.ts:catch:ea45be82bbd9:1",
+      "file": "packages/main/src/handlers/aux-doc.ts",
+      "line": 52,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "ea45be82bbd9",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/bug.ts:catch:15ab0c55c1f4:1",
+      "file": "packages/main/src/handlers/bug.ts",
+      "line": 69,
+      "snippet": "} catch (e) {",
+      "catchOrdinal": 1,
+      "contextHash": "15ab0c55c1f4",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/bug.ts:catch:fbf28dc2c347:1",
+      "file": "packages/main/src/handlers/bug.ts",
+      "line": 81,
+      "snippet": "} catch (e) {",
+      "catchOrdinal": 2,
+      "contextHash": "fbf28dc2c347",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/checklist.ts:catch:15ab0c55c1f4:1",
+      "file": "packages/main/src/handlers/checklist.ts",
+      "line": 190,
+      "snippet": "} catch (e) {",
+      "catchOrdinal": 4,
+      "contextHash": "15ab0c55c1f4",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/checklist.ts:catch:15ab0c55c1f4:2",
+      "file": "packages/main/src/handlers/checklist.ts",
+      "line": 258,
+      "snippet": "} catch (e) {",
+      "catchOrdinal": 5,
+      "contextHash": "15ab0c55c1f4",
+      "contextOrdinal": 2
+    },
+    {
+      "key": "packages/main/src/handlers/checklist.ts:catch:3be491183c34:1",
+      "file": "packages/main/src/handlers/checklist.ts",
+      "line": 588,
+      "snippet": "} catch {",
+      "catchOrdinal": 7,
+      "contextHash": "3be491183c34",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/checklist.ts:catch:8870705bf590:1",
+      "file": "packages/main/src/handlers/checklist.ts",
+      "line": 410,
+      "snippet": "} catch (e) {",
+      "catchOrdinal": 6,
+      "contextHash": "8870705bf590",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/checklist.ts:catch:d9ec10199e8c:1",
+      "file": "packages/main/src/handlers/checklist.ts",
+      "line": 25,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 1,
+      "contextHash": "d9ec10199e8c",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/codex-adapter.ts:catch:1b98832ed684:1",
+      "file": "packages/main/src/handlers/codex-adapter.ts",
+      "line": 17,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "1b98832ed684",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/codex-adapter.ts:catch:296a647ab79f:1",
+      "file": "packages/main/src/handlers/codex-adapter.ts",
+      "line": 52,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 2,
+      "contextHash": "296a647ab79f",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/context.ts:catch:5d50ca4126d5:1",
+      "file": "packages/main/src/handlers/context.ts",
+      "line": 95,
+      "snippet": "} catch { /* not git */ }",
+      "catchOrdinal": 3,
+      "contextHash": "5d50ca4126d5",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/context.ts:catch:5d75a64da24d:1",
+      "file": "packages/main/src/handlers/context.ts",
+      "line": 119,
+      "snippet": "} catch {",
+      "catchOrdinal": 4,
+      "contextHash": "5d75a64da24d",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/context.ts:catch:90199e56254e:1",
+      "file": "packages/main/src/handlers/context.ts",
+      "line": 62,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "90199e56254e",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/delivery-check.ts:catch:53cd3823459a:1",
+      "file": "packages/main/src/handlers/delivery-check.ts",
+      "line": 138,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "53cd3823459a",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/doctor.ts:catch:15b2bd168d9c:1",
+      "file": "packages/main/src/handlers/doctor.ts",
+      "line": 264,
+      "snippet": "} catch {",
+      "catchOrdinal": 4,
+      "contextHash": "15b2bd168d9c",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/doctor.ts:catch:213c1b4b72bc:1",
+      "file": "packages/main/src/handlers/doctor.ts",
+      "line": 70,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 2,
+      "contextHash": "213c1b4b72bc",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/doctor.ts:catch:2f92b2c8943a:1",
+      "file": "packages/main/src/handlers/doctor.ts",
+      "line": 59,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 1,
+      "contextHash": "2f92b2c8943a",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/doctor.ts:catch:74569166d725:1",
+      "file": "packages/main/src/handlers/doctor.ts",
+      "line": 329,
+      "snippet": "} catch {",
+      "catchOrdinal": 7,
+      "contextHash": "74569166d725",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/doctor.ts:catch:7b81b6d0b4cb:1",
+      "file": "packages/main/src/handlers/doctor.ts",
+      "line": 285,
+      "snippet": "} catch {",
+      "catchOrdinal": 6,
+      "contextHash": "7b81b6d0b4cb",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/doctor.ts:catch:97c7166dffbb:1",
+      "file": "packages/main/src/handlers/doctor.ts",
+      "line": 372,
+      "snippet": "} catch {",
+      "catchOrdinal": 9,
+      "contextHash": "97c7166dffbb",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/doctor.ts:catch:a4597038cf47:1",
+      "file": "packages/main/src/handlers/doctor.ts",
+      "line": 249,
+      "snippet": "} catch {",
+      "catchOrdinal": 3,
+      "contextHash": "a4597038cf47",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/doctor.ts:catch:b48819e3f00f:1",
+      "file": "packages/main/src/handlers/doctor.ts",
+      "line": 273,
+      "snippet": "} catch {",
+      "catchOrdinal": 5,
+      "contextHash": "b48819e3f00f",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/doctor.ts:catch:b93299a9da7d:1",
+      "file": "packages/main/src/handlers/doctor.ts",
+      "line": 379,
+      "snippet": "} catch {",
+      "catchOrdinal": 10,
+      "contextHash": "b93299a9da7d",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/doctor.ts:catch:cd2e1202ed13:1",
+      "file": "packages/main/src/handlers/doctor.ts",
+      "line": 421,
+      "snippet": "} catch {",
+      "catchOrdinal": 15,
+      "contextHash": "cd2e1202ed13",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/draft-check.ts:catch:c4e9bd4a66c2:1",
+      "file": "packages/main/src/handlers/draft-check.ts",
+      "line": 63,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "c4e9bd4a66c2",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/evaluate.ts:catch:08eecb661f2b:1",
+      "file": "packages/main/src/handlers/evaluate.ts",
+      "line": 56,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "08eecb661f2b",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/evaluate.ts:catch:13beed752f4d:1",
+      "file": "packages/main/src/handlers/evaluate.ts",
+      "line": 100,
+      "snippet": "} catch {",
+      "catchOrdinal": 2,
+      "contextHash": "13beed752f4d",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/evaluate.ts:catch:46fe1298c3d6:1",
+      "file": "packages/main/src/handlers/evaluate.ts",
+      "line": 130,
+      "snippet": "} catch (e) {",
+      "catchOrdinal": 3,
+      "contextHash": "46fe1298c3d6",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/finding.ts:catch:15ab0c55c1f4:1",
+      "file": "packages/main/src/handlers/finding.ts",
+      "line": 173,
+      "snippet": "} catch (e) {",
+      "catchOrdinal": 4,
+      "contextHash": "15ab0c55c1f4",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/finding.ts:catch:85bd89fe82a1:1",
+      "file": "packages/main/src/handlers/finding.ts",
+      "line": 112,
+      "snippet": "} catch (e) {",
+      "catchOrdinal": 3,
+      "contextHash": "85bd89fe82a1",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/finding.ts:catch:d9ec10199e8c:1",
+      "file": "packages/main/src/handlers/finding.ts",
+      "line": 32,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 1,
+      "contextHash": "d9ec10199e8c",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/finding.ts:catch:fbf28dc2c347:1",
+      "file": "packages/main/src/handlers/finding.ts",
+      "line": 181,
+      "snippet": "} catch (e) {",
+      "catchOrdinal": 5,
+      "contextHash": "fbf28dc2c347",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/finding.ts:catch:fbf28dc2c347:2",
+      "file": "packages/main/src/handlers/finding.ts",
+      "line": 244,
+      "snippet": "} catch (e) {",
+      "catchOrdinal": 6,
+      "contextHash": "fbf28dc2c347",
+      "contextOrdinal": 2
+    },
+    {
+      "key": "packages/main/src/handlers/finding.ts:catch:fbf28dc2c347:3",
+      "file": "packages/main/src/handlers/finding.ts",
+      "line": 276,
+      "snippet": "} catch (e) {",
+      "catchOrdinal": 7,
+      "contextHash": "fbf28dc2c347",
+      "contextOrdinal": 3
+    },
+    {
+      "key": "packages/main/src/handlers/fixture.ts:catch:2889197c7cb3:1",
+      "file": "packages/main/src/handlers/fixture.ts",
+      "line": 115,
+      "snippet": "try { new RegExp((c.expect as any).pattern); } catch {",
+      "catchOrdinal": 2,
+      "contextHash": "2889197c7cb3",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/fixture.ts:catch:bf109e542639:1",
+      "file": "packages/main/src/handlers/fixture.ts",
+      "line": 25,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "bf109e542639",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/hints.ts:catch:74a1e4da59f4:1",
+      "file": "packages/main/src/handlers/hints.ts",
+      "line": 255,
+      "snippet": "try { hint = fn(ctx); } catch { return ctx.result; }",
+      "catchOrdinal": 3,
+      "contextHash": "74a1e4da59f4",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/hints.ts:catch:da72e7bf4142:1",
+      "file": "packages/main/src/handlers/hints.ts",
+      "line": 29,
+      "snippet": "try { return fn(); } catch { return null; }",
+      "catchOrdinal": 1,
+      "contextHash": "da72e7bf4142",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/hints.ts:catch:ebab1b293896:1",
+      "file": "packages/main/src/handlers/hints.ts",
+      "line": 194,
+      "snippet": "} catch { /* non-json validate output */ }",
+      "catchOrdinal": 2,
+      "contextHash": "ebab1b293896",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/init-check.ts:catch:53cd3823459a:1",
+      "file": "packages/main/src/handlers/init-check.ts",
+      "line": 202,
+      "snippet": "} catch {",
+      "catchOrdinal": 4,
+      "contextHash": "53cd3823459a",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/init-check.ts:catch:caf85cf57d4b:1",
+      "file": "packages/main/src/handlers/init-check.ts",
+      "line": 155,
+      "snippet": "} catch {",
+      "catchOrdinal": 3,
+      "contextHash": "caf85cf57d4b",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/init-check.ts:catch:d9ec10199e8c:1",
+      "file": "packages/main/src/handlers/init-check.ts",
+      "line": 40,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 1,
+      "contextHash": "d9ec10199e8c",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/init-check.ts:catch:eca12d756450:1",
+      "file": "packages/main/src/handlers/init-check.ts",
+      "line": 222,
+      "snippet": "} catch {",
+      "catchOrdinal": 5,
+      "contextHash": "eca12d756450",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/review-preflight.ts:catch:a734eb21d15a:1",
+      "file": "packages/main/src/handlers/review-preflight.ts",
+      "line": 117,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "a734eb21d15a",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/review-preflight.ts:catch:d322ca37e7ff:1",
+      "file": "packages/main/src/handlers/review-preflight.ts",
+      "line": 174,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 2,
+      "contextHash": "d322ca37e7ff",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/reviewer-list.ts:catch:0b76be29cc74:1",
+      "file": "packages/main/src/handlers/reviewer-list.ts",
+      "line": 154,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "0b76be29cc74",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/reviewer-list.ts:catch:6f9efbb3951a:1",
+      "file": "packages/main/src/handlers/reviewer-list.ts",
+      "line": 164,
+      "snippet": "} catch {",
+      "catchOrdinal": 2,
+      "contextHash": "6f9efbb3951a",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/scope-check.ts:catch:53cd3823459a:1",
+      "file": "packages/main/src/handlers/scope-check.ts",
+      "line": 51,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "53cd3823459a",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/session.ts:catch:0de0b2245730:1",
+      "file": "packages/main/src/handlers/session.ts",
+      "line": 215,
+      "snippet": "} catch { /* skip malformed */ }",
+      "catchOrdinal": 9,
+      "contextHash": "0de0b2245730",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/session.ts:catch:14df4da6c2ee:1",
+      "file": "packages/main/src/handlers/session.ts",
+      "line": 110,
+      "snippet": "} catch { /* not a git repo */ }",
+      "catchOrdinal": 4,
+      "contextHash": "14df4da6c2ee",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/session.ts:catch:2e35731ee565:1",
+      "file": "packages/main/src/handlers/session.ts",
+      "line": 532,
+      "snippet": "} catch { /* defensive: leave dashboardText null */ }",
+      "catchOrdinal": 14,
+      "contextHash": "2e35731ee565",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/session.ts:catch:3c6ab62a2b5d:1",
+      "file": "packages/main/src/handlers/session.ts",
+      "line": 724,
+      "snippet": "} catch { /* none */ }",
+      "catchOrdinal": 20,
+      "contextHash": "3c6ab62a2b5d",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/session.ts:catch:3c6ab62a2b5d:2",
+      "file": "packages/main/src/handlers/session.ts",
+      "line": 781,
+      "snippet": "} catch { /* none */ }",
+      "catchOrdinal": 21,
+      "contextHash": "3c6ab62a2b5d",
+      "contextOrdinal": 2
+    },
+    {
+      "key": "packages/main/src/handlers/session.ts:catch:3f4c9cd8c4e1:1",
+      "file": "packages/main/src/handlers/session.ts",
+      "line": 186,
+      "snippet": "} catch { return []; }",
+      "catchOrdinal": 8,
+      "contextHash": "3f4c9cd8c4e1",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/session.ts:catch:6c721b1683db:1",
+      "file": "packages/main/src/handlers/session.ts",
+      "line": 69,
+      "snippet": "} catch {",
+      "catchOrdinal": 2,
+      "contextHash": "6c721b1683db",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/session.ts:catch:6f8a31c49576:1",
+      "file": "packages/main/src/handlers/session.ts",
+      "line": 508,
+      "snippet": "} catch { /* no bugs file */ }",
+      "catchOrdinal": 11,
+      "contextHash": "6f8a31c49576",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/session.ts:catch:8b9a12b0ec84:1",
+      "file": "packages/main/src/handlers/session.ts",
+      "line": 441,
+      "snippet": "try { return ctx.store.listStoryIds(); } catch { return []; }",
+      "catchOrdinal": 10,
+      "contextHash": "8b9a12b0ec84",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/session.ts:catch:c2d186e2fea9:1",
+      "file": "packages/main/src/handlers/session.ts",
+      "line": 114,
+      "snippet": "} catch { /* no commits */ }",
+      "catchOrdinal": 5,
+      "contextHash": "c2d186e2fea9",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/session.ts:catch:c9e06870a344:1",
+      "file": "packages/main/src/handlers/session.ts",
+      "line": 94,
+      "snippet": "} catch {",
+      "catchOrdinal": 3,
+      "contextHash": "c9e06870a344",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/session.ts:catch:d0963961c728:1",
+      "file": "packages/main/src/handlers/session.ts",
+      "line": 66,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "d0963961c728",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/session.ts:catch:d2bf2d7bce41:1",
+      "file": "packages/main/src/handlers/session.ts",
+      "line": 521,
+      "snippet": "} catch { /* skip unreadable */ }",
+      "catchOrdinal": 12,
+      "contextHash": "d2bf2d7bce41",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/session.ts:catch:f0ffd3db8a08:1",
+      "file": "packages/main/src/handlers/session.ts",
+      "line": 153,
+      "snippet": "} catch {",
+      "catchOrdinal": 7,
+      "contextHash": "f0ffd3db8a08",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/session.ts:catch:fd8eb02e6a6b:1",
+      "file": "packages/main/src/handlers/session.ts",
+      "line": 659,
+      "snippet": "} catch { /* no checklist */ }",
+      "catchOrdinal": 16,
+      "contextHash": "fd8eb02e6a6b",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:055a13eaa85c:1",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 1318,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 35,
+      "contextHash": "055a13eaa85c",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:1aa4b8eecaf2:1",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 524,
+      "snippet": "} catch { /* ignore */ }",
+      "catchOrdinal": 15,
+      "contextHash": "1aa4b8eecaf2",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:1aa4b8eecaf2:2",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 1194,
+      "snippet": "} catch { /* ignore */ }",
+      "catchOrdinal": 30,
+      "contextHash": "1aa4b8eecaf2",
+      "contextOrdinal": 2
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:2074cb38bc05:1",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 844,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 17,
+      "contextHash": "2074cb38bc05",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:26f9d9aa55c1:1",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 1142,
+      "snippet": "try { checklistForReview = store.readChecklist(args.storyId); } catch { /* none */ }",
+      "catchOrdinal": 27,
+      "contextHash": "26f9d9aa55c1",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:334489981bd1:1",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 1258,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 32,
+      "contextHash": "334489981bd1",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:369d504604e7:1",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 744,
+      "snippet": "} catch {",
+      "catchOrdinal": 16,
+      "contextHash": "369d504604e7",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:371737537e34:1",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 1104,
+      "snippet": "} catch { /* ignore */ }",
+      "catchOrdinal": 24,
+      "contextHash": "371737537e34",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:371737537e34:2",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 1392,
+      "snippet": "} catch { /* ignore */ }",
+      "catchOrdinal": 39,
+      "contextHash": "371737537e34",
+      "contextOrdinal": 2
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:371737537e34:3",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 1413,
+      "snippet": "} catch { /* ignore */ }",
+      "catchOrdinal": 40,
+      "contextHash": "371737537e34",
+      "contextOrdinal": 3
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:4e54a2f4f33f:1",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 905,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 19,
+      "contextHash": "4e54a2f4f33f",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:5061e6718e20:1",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 498,
+      "snippet": "} catch { /* ignore */ }",
+      "catchOrdinal": 14,
+      "contextHash": "5061e6718e20",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:555639170ffa:1",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 1299,
+      "snippet": "} catch {",
+      "catchOrdinal": 33,
+      "contextHash": "555639170ffa",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:595431bc1611:1",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 1377,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 38,
+      "contextHash": "595431bc1611",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:6910cbd30c36:1",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 866,
+      "snippet": "} catch { /* 无法获取 HEAD，跳过 */ }",
+      "catchOrdinal": 18,
+      "contextHash": "6910cbd30c36",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:6995fb8daf4c:1",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 1304,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 34,
+      "contextHash": "6995fb8daf4c",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:6a65a4590994:1",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 437,
+      "snippet": "} catch {",
+      "catchOrdinal": 12,
+      "contextHash": "6a65a4590994",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:6aa87e36bfef:1",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 191,
+      "snippet": "} catch {",
+      "catchOrdinal": 8,
+      "contextHash": "6aa87e36bfef",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:740e18a362a3:1",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 1144,
+      "snippet": "try { decisionForReview = store.readDecision(args.storyId); } catch { /* none */ }",
+      "catchOrdinal": 28,
+      "contextHash": "740e18a362a3",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:7483afed2779:1",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 982,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 21,
+      "contextHash": "7483afed2779",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:75f78c305761:1",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 171,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 7,
+      "contextHash": "75f78c305761",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:9431f14d05ee:1",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 84,
+      "snippet": "} catch {",
+      "catchOrdinal": 5,
+      "contextHash": "9431f14d05ee",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:9b14dd15d2b8:1",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 1328,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 36,
+      "contextHash": "9b14dd15d2b8",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:9de2ffd73b87:1",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 60,
+      "snippet": "} catch {",
+      "catchOrdinal": 3,
+      "contextHash": "9de2ffd73b87",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:a3ca4e1ddc86:1",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 42,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "a3ca4e1ddc86",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:b28097db45f3:1",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 1065,
+      "snippet": "} catch { /* runHooks itself never throws, but defensive */ }",
+      "catchOrdinal": 23,
+      "contextHash": "b28097db45f3",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:b2d5397f4f45:1",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 1344,
+      "snippet": "} catch {",
+      "catchOrdinal": 37,
+      "contextHash": "b2d5397f4f45",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:b7139e4a8a84:1",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 473,
+      "snippet": "} catch { /* 读 story 失败不阻塞，guard 已经报过错 */ }",
+      "catchOrdinal": 13,
+      "contextHash": "b7139e4a8a84",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:bbe8122b5540:1",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 1158,
+      "snippet": "} catch {",
+      "catchOrdinal": 29,
+      "contextHash": "bbe8122b5540",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:cba9a225a432:1",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 1118,
+      "snippet": "try { decision = store.readDecision(args.storyId); } catch {}",
+      "catchOrdinal": 25,
+      "contextHash": "cba9a225a432",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:d3a0509dcc43:1",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 321,
+      "snippet": "} catch { /* output 不是 JSON 也算 PASS（兼容旧格式）*/ }",
+      "catchOrdinal": 10,
+      "contextHash": "d3a0509dcc43",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:d4c5761e9789:1",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 1120,
+      "snippet": "} catch {}",
+      "catchOrdinal": 26,
+      "contextHash": "d4c5761e9789",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:ee641c5eee6f:1",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 66,
+      "snippet": "} catch { /* abort failed — already clean */ }",
+      "catchOrdinal": 4,
+      "contextHash": "ee641c5eee6f",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:f858aaf4e0b0:1",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 401,
+      "snippet": "} catch {",
+      "catchOrdinal": 11,
+      "contextHash": "f858aaf4e0b0",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:fbf28dc2c347:1",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 1038,
+      "snippet": "} catch (e) {",
+      "catchOrdinal": 22,
+      "contextHash": "fbf28dc2c347",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-advance.ts:catch:fc18ae1b605e:1",
+      "file": "packages/main/src/handlers/story-advance.ts",
+      "line": 54,
+      "snippet": "} catch { /* local-only repo or no remote — skip fetch */ }",
+      "catchOrdinal": 2,
+      "contextHash": "fc18ae1b605e",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-create.ts:catch:371737537e34:1",
+      "file": "packages/main/src/handlers/story-create.ts",
+      "line": 296,
+      "snippet": "} catch { /* ignore */ }",
+      "catchOrdinal": 2,
+      "contextHash": "371737537e34",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-create.ts:catch:bd2e3e2a9765:1",
+      "file": "packages/main/src/handlers/story-create.ts",
+      "line": 186,
+      "snippet": "} catch { /* ignore unreadable */ }",
+      "catchOrdinal": 1,
+      "contextHash": "bd2e3e2a9765",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-dispatch.ts:catch:3eef4aeef5e3:1",
+      "file": "packages/main/src/handlers/story-dispatch.ts",
+      "line": 134,
+      "snippet": "} catch {",
+      "catchOrdinal": 2,
+      "contextHash": "3eef4aeef5e3",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-dispatch.ts:catch:3eef4aeef5e3:2",
+      "file": "packages/main/src/handlers/story-dispatch.ts",
+      "line": 174,
+      "snippet": "} catch {",
+      "catchOrdinal": 3,
+      "contextHash": "3eef4aeef5e3",
+      "contextOrdinal": 2
+    },
+    {
+      "key": "packages/main/src/handlers/story-dispatch.ts:catch:3eef4aeef5e3:3",
+      "file": "packages/main/src/handlers/story-dispatch.ts",
+      "line": 217,
+      "snippet": "} catch {",
+      "catchOrdinal": 4,
+      "contextHash": "3eef4aeef5e3",
+      "contextOrdinal": 3
+    },
+    {
+      "key": "packages/main/src/handlers/story-dispatch.ts:catch:9145ffad2c99:1",
+      "file": "packages/main/src/handlers/story-dispatch.ts",
+      "line": 304,
+      "snippet": "} catch {",
+      "catchOrdinal": 5,
+      "contextHash": "9145ffad2c99",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-draft.ts:catch:aa44b3babbfd:1",
+      "file": "packages/main/src/handlers/story-draft.ts",
+      "line": 135,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "aa44b3babbfd",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-query.ts:catch:0259655ec5dd:1",
+      "file": "packages/main/src/handlers/story-query.ts",
+      "line": 344,
+      "snippet": "try { return store.readReview(args.storyId); } catch { return null; }",
+      "catchOrdinal": 9,
+      "contextHash": "0259655ec5dd",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-query.ts:catch:13469733ac5c:1",
+      "file": "packages/main/src/handlers/story-query.ts",
+      "line": 556,
+      "snippet": "} catch { actions.push('worktree 清理失败'); }",
+      "catchOrdinal": 13,
+      "contextHash": "13469733ac5c",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-query.ts:catch:2c06c39d4449:1",
+      "file": "packages/main/src/handlers/story-query.ts",
+      "line": 565,
+      "snippet": "} catch {",
+      "catchOrdinal": 14,
+      "contextHash": "2c06c39d4449",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-query.ts:catch:62e9a9f51359:1",
+      "file": "packages/main/src/handlers/story-query.ts",
+      "line": 275,
+      "snippet": "} catch {",
+      "catchOrdinal": 6,
+      "contextHash": "62e9a9f51359",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-query.ts:catch:6aa87e36bfef:1",
+      "file": "packages/main/src/handlers/story-query.ts",
+      "line": 138,
+      "snippet": "} catch {",
+      "catchOrdinal": 2,
+      "contextHash": "6aa87e36bfef",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-query.ts:catch:79ab1fd0168a:1",
+      "file": "packages/main/src/handlers/story-query.ts",
+      "line": 150,
+      "snippet": "} catch {",
+      "catchOrdinal": 3,
+      "contextHash": "79ab1fd0168a",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-query.ts:catch:8cd4fc4141e1:1",
+      "file": "packages/main/src/handlers/story-query.ts",
+      "line": 789,
+      "snippet": "} catch {",
+      "catchOrdinal": 16,
+      "contextHash": "8cd4fc4141e1",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-query.ts:catch:96bf1f6fbfae:1",
+      "file": "packages/main/src/handlers/story-query.ts",
+      "line": 340,
+      "snippet": "try { return store.readChecklist(args.storyId); } catch { return { items: [] }; }",
+      "catchOrdinal": 8,
+      "contextHash": "96bf1f6fbfae",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-query.ts:catch:9ef577e4d6dd:1",
+      "file": "packages/main/src/handlers/story-query.ts",
+      "line": 264,
+      "snippet": "try { story = store.readStory(dirName); } catch { continue; }",
+      "catchOrdinal": 5,
+      "contextHash": "9ef577e4d6dd",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-query.ts:catch:aeaa01700c79:1",
+      "file": "packages/main/src/handlers/story-query.ts",
+      "line": 106,
+      "snippet": "} catch { /* ignore corrupt fixture files while rendering story detail */ }",
+      "catchOrdinal": 1,
+      "contextHash": "aeaa01700c79",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-query.ts:catch:b2ef90203f78:1",
+      "file": "packages/main/src/handlers/story-query.ts",
+      "line": 837,
+      "snippet": "try { ids = store.listStoryIds(); } catch { return []; }",
+      "catchOrdinal": 17,
+      "contextHash": "b2ef90203f78",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-query.ts:catch:d10723181ee6:1",
+      "file": "packages/main/src/handlers/story-query.ts",
+      "line": 550,
+      "snippet": "} catch {",
+      "catchOrdinal": 12,
+      "contextHash": "d10723181ee6",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-query.ts:catch:d3909d707a9b:1",
+      "file": "packages/main/src/handlers/story-query.ts",
+      "line": 381,
+      "snippet": "try { return sourceStore.readChecklist(id); } catch { return { items: [] }; }",
+      "catchOrdinal": 11,
+      "contextHash": "d3909d707a9b",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-query.ts:catch:d3b66f1c89f4:1",
+      "file": "packages/main/src/handlers/story-query.ts",
+      "line": 195,
+      "snippet": "try { story = store.readStory(id); } catch { continue; }",
+      "catchOrdinal": 4,
+      "contextHash": "d3b66f1c89f4",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-query.ts:catch:d7179b70fe9d:1",
+      "file": "packages/main/src/handlers/story-query.ts",
+      "line": 840,
+      "snippet": "try { story = store.readStory(id); } catch { continue; }",
+      "catchOrdinal": 18,
+      "contextHash": "d7179b70fe9d",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-query.ts:catch:e6b60dd948a6:1",
+      "file": "packages/main/src/handlers/story-query.ts",
+      "line": 850,
+      "snippet": "} catch { continue; }",
+      "catchOrdinal": 19,
+      "contextHash": "e6b60dd948a6",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-query.ts:catch:fd007857d8b6:1",
+      "file": "packages/main/src/handlers/story-query.ts",
+      "line": 349,
+      "snippet": "try { result.index = store.readStory(args.storyId); } catch { result.index = null; }",
+      "catchOrdinal": 10,
+      "contextHash": "fd007857d8b6",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-review.ts:catch:15ab0c55c1f4:1",
+      "file": "packages/main/src/handlers/story-review.ts",
+      "line": 467,
+      "snippet": "} catch (e) {",
+      "catchOrdinal": 1,
+      "contextHash": "15ab0c55c1f4",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/story-review.ts:catch:fbf28dc2c347:1",
+      "file": "packages/main/src/handlers/story-review.ts",
+      "line": 475,
+      "snippet": "} catch (e) {",
+      "catchOrdinal": 2,
+      "contextHash": "fbf28dc2c347",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/stray-file-cleanup.ts:catch:10d7c1315452:1",
+      "file": "packages/main/src/handlers/stray-file-cleanup.ts",
+      "line": 135,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 2,
+      "contextHash": "10d7c1315452",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/stray-file-cleanup.ts:catch:1c904631b5ee:1",
+      "file": "packages/main/src/handlers/stray-file-cleanup.ts",
+      "line": 83,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "1c904631b5ee",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/summary.ts:catch:68fd06e11946:1",
+      "file": "packages/main/src/handlers/summary.ts",
+      "line": 211,
+      "snippet": "} catch (e) {",
+      "catchOrdinal": 1,
+      "contextHash": "68fd06e11946",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/test-auto.ts:catch:0b95834cac4c:1",
+      "file": "packages/main/src/handlers/test-auto.ts",
+      "line": 206,
+      "snippet": "if (profilerSession) { try { await profilerSession.close(); } catch {} }",
+      "catchOrdinal": 10,
+      "contextHash": "0b95834cac4c",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/test-auto.ts:catch:1ee63fc946a9:1",
+      "file": "packages/main/src/handlers/test-auto.ts",
+      "line": 172,
+      "snippet": "} catch { profilerSession = null; }",
+      "catchOrdinal": 5,
+      "contextHash": "1ee63fc946a9",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/test-auto.ts:catch:371737537e34:1",
+      "file": "packages/main/src/handlers/test-auto.ts",
+      "line": 244,
+      "snippet": "} catch { /* ignore */ }",
+      "catchOrdinal": 13,
+      "contextHash": "371737537e34",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/test-auto.ts:catch:3934d3e94b07:1",
+      "file": "packages/main/src/handlers/test-auto.ts",
+      "line": 230,
+      "snippet": "} catch {}",
+      "catchOrdinal": 12,
+      "contextHash": "3934d3e94b07",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/test-auto.ts:catch:408b2d7e4e20:1",
+      "file": "packages/main/src/handlers/test-auto.ts",
+      "line": 199,
+      "snippet": "try { saveTraceSnapshot(root, fileName, c.name, result.trace); } catch {}",
+      "catchOrdinal": 8,
+      "contextHash": "408b2d7e4e20",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/test-auto.ts:catch:445d1da1649e:1",
+      "file": "packages/main/src/handlers/test-auto.ts",
+      "line": 87,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 1,
+      "contextHash": "445d1da1649e",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/test-auto.ts:catch:87188cbacf18:1",
+      "file": "packages/main/src/handlers/test-auto.ts",
+      "line": 203,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 9,
+      "contextHash": "87188cbacf18",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/test-auto.ts:catch:982d02a198a0:1",
+      "file": "packages/main/src/handlers/test-auto.ts",
+      "line": 113,
+      "snippet": "} catch { branchesBefore = new Set(); }",
+      "catchOrdinal": 3,
+      "contextHash": "982d02a198a0",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/test-auto.ts:catch:abc63ec6c3ba:1",
+      "file": "packages/main/src/handlers/test-auto.ts",
+      "line": 179,
+      "snippet": "try { _cfgBefore = readFileSync(_cfgPath, 'utf-8').slice(0, 30); } catch {}",
+      "catchOrdinal": 6,
+      "contextHash": "abc63ec6c3ba",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/test-auto.ts:catch:b03e3e9b6ef4:1",
+      "file": "packages/main/src/handlers/test-auto.ts",
+      "line": 186,
+      "snippet": "try { _cfgAfter = readFileSync(_cfgPath, 'utf-8').slice(0, 30); } catch {}",
+      "catchOrdinal": 7,
+      "contextHash": "b03e3e9b6ef4",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/test-auto.ts:catch:d25cc613d0bf:1",
+      "file": "packages/main/src/handlers/test-auto.ts",
+      "line": 136,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 4,
+      "contextHash": "d25cc613d0bf",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/test-auto.ts:catch:dac95de3afbe:1",
+      "file": "packages/main/src/handlers/test-auto.ts",
+      "line": 258,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 14,
+      "contextHash": "dac95de3afbe",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/test-auto.ts:catch:eed4254b3057:1",
+      "file": "packages/main/src/handlers/test-auto.ts",
+      "line": 227,
+      "snippet": "try { execSync(`git branch -D \"${b}\"`, { cwd: root, stdio: 'pipe' }); } catch {}",
+      "catchOrdinal": 11,
+      "contextHash": "eed4254b3057",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/test-runner-core.ts:catch:124fda75512f:1",
+      "file": "packages/main/src/handlers/test-runner-core.ts",
+      "line": 193,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 3,
+      "contextHash": "124fda75512f",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/test-runner-core.ts:catch:49c3c9daa6f3:1",
+      "file": "packages/main/src/handlers/test-runner-core.ts",
+      "line": 368,
+      "snippet": "try { rmSync(join(root, cfg.storyDir, id), { recursive: true, force: true }); } catch {}",
+      "catchOrdinal": 10,
+      "contextHash": "49c3c9daa6f3",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/test-runner-core.ts:catch:66169c28c433:1",
+      "file": "packages/main/src/handlers/test-runner-core.ts",
+      "line": 225,
+      "snippet": "} catch { /* trace collection failure is non-fatal */ }",
+      "catchOrdinal": 5,
+      "contextHash": "66169c28c433",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/test-runner-core.ts:catch:68ef0d55a8f7:1",
+      "file": "packages/main/src/handlers/test-runner-core.ts",
+      "line": 290,
+      "snippet": "} catch { /* skip */ }",
+      "catchOrdinal": 8,
+      "contextHash": "68ef0d55a8f7",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/test-runner-core.ts:catch:8178c8366ce5:1",
+      "file": "packages/main/src/handlers/test-runner-core.ts",
+      "line": 47,
+      "snippet": "} catch { /* not a git repo, use original path */ }",
+      "catchOrdinal": 1,
+      "contextHash": "8178c8366ce5",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/test-runner-core.ts:catch:9faee6edab21:1",
+      "file": "packages/main/src/handlers/test-runner-core.ts",
+      "line": 232,
+      "snippet": "try { await profilerSession.stopCase(); } catch {}",
+      "catchOrdinal": 7,
+      "contextHash": "9faee6edab21",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/test-runner-core.ts:catch:a9ed114192ab:1",
+      "file": "packages/main/src/handlers/test-runner-core.ts",
+      "line": 378,
+      "snippet": "} catch { /* ignore */ }",
+      "catchOrdinal": 12,
+      "contextHash": "a9ed114192ab",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/test-runner-core.ts:catch:b8859786fa81:1",
+      "file": "packages/main/src/handlers/test-runner-core.ts",
+      "line": 229,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 6,
+      "contextHash": "b8859786fa81",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/test-runner-core.ts:catch:ce5243a7bee0:1",
+      "file": "packages/main/src/handlers/test-runner-core.ts",
+      "line": 167,
+      "snippet": "try { await profilerSession.startCase(); } catch { /* non-fatal */ }",
+      "catchOrdinal": 2,
+      "contextHash": "ce5243a7bee0",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/test-runner-core.ts:catch:e3406dfae822:1",
+      "file": "packages/main/src/handlers/test-runner-core.ts",
+      "line": 301,
+      "snippet": "} catch { return null; }",
+      "catchOrdinal": 9,
+      "contextHash": "e3406dfae822",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/test-runner-core.ts:catch:edfdf60261a7:1",
+      "file": "packages/main/src/handlers/test-runner-core.ts",
+      "line": 369,
+      "snippet": "try { rmSync(join(root, cfg.storyDir, id), { recursive: true, force: true }); } catch {}",
+      "catchOrdinal": 11,
+      "contextHash": "edfdf60261a7",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/test-story.ts:catch:279c68f3867f:1",
+      "file": "packages/main/src/handlers/test-story.ts",
+      "line": 204,
+      "snippet": "} catch {}",
+      "catchOrdinal": 6,
+      "contextHash": "279c68f3867f",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/test-story.ts:catch:87188cbacf18:1",
+      "file": "packages/main/src/handlers/test-story.ts",
+      "line": 167,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 5,
+      "contextHash": "87188cbacf18",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/test-story.ts:catch:9377a29f8d03:1",
+      "file": "packages/main/src/handlers/test-story.ts",
+      "line": 118,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 3,
+      "contextHash": "9377a29f8d03",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/test-story.ts:catch:a5990c9e9202:1",
+      "file": "packages/main/src/handlers/test-story.ts",
+      "line": 129,
+      "snippet": "try { content = JSON.parse(readFileSync(fp, 'utf-8')); } catch (e: any) { warnings.push(`fixture 解析失败: ${fp}: ${e.message}`); continue; }",
+      "catchOrdinal": 4,
+      "contextHash": "a5990c9e9202",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/test-story.ts:catch:d8f0ae157501:1",
+      "file": "packages/main/src/handlers/test-story.ts",
+      "line": 83,
+      "snippet": "} catch {",
+      "catchOrdinal": 2,
+      "contextHash": "d8f0ae157501",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/test.ts:catch:bcabde40c022:1",
+      "file": "packages/main/src/handlers/test.ts",
+      "line": 20,
+      "snippet": "} catch { /* 无法获取 HEAD，跳过 */ }",
+      "catchOrdinal": 1,
+      "contextHash": "bcabde40c022",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/validate-channel.ts:catch:0415636d7962:1",
+      "file": "packages/main/src/handlers/validate-channel.ts",
+      "line": 389,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 4,
+      "contextHash": "0415636d7962",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/validate-channel.ts:catch:08fc52ee85eb:1",
+      "file": "packages/main/src/handlers/validate-channel.ts",
+      "line": 195,
+      "snippet": "} catch {",
+      "catchOrdinal": 3,
+      "contextHash": "08fc52ee85eb",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/validate-channel.ts:catch:2f6404a61157:1",
+      "file": "packages/main/src/handlers/validate-channel.ts",
+      "line": 436,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 7,
+      "contextHash": "2f6404a61157",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/validate-channel.ts:catch:41a3784a480b:1",
+      "file": "packages/main/src/handlers/validate-channel.ts",
+      "line": 464,
+      "snippet": "} catch { events = []; }",
+      "catchOrdinal": 9,
+      "contextHash": "41a3784a480b",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/validate-channel.ts:catch:56fd87c71a1c:1",
+      "file": "packages/main/src/handlers/validate-channel.ts",
+      "line": 74,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "56fd87c71a1c",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/validate-channel.ts:catch:5a0b87363c09:1",
+      "file": "packages/main/src/handlers/validate-channel.ts",
+      "line": 452,
+      "snippet": "} catch {",
+      "catchOrdinal": 8,
+      "contextHash": "5a0b87363c09",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/validate-channel.ts:catch:65a65ccb92d5:1",
+      "file": "packages/main/src/handlers/validate-channel.ts",
+      "line": 83,
+      "snippet": "} catch {",
+      "catchOrdinal": 2,
+      "contextHash": "65a65ccb92d5",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/validate-channel.ts:catch:b7d4e428ecb8:1",
+      "file": "packages/main/src/handlers/validate-channel.ts",
+      "line": 416,
+      "snippet": "} catch { decision = null; }",
+      "catchOrdinal": 6,
+      "contextHash": "b7d4e428ecb8",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/validate-channel.ts:catch:d639ce8312a5:1",
+      "file": "packages/main/src/handlers/validate-channel.ts",
+      "line": 401,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 5,
+      "contextHash": "d639ce8312a5",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/validate-concept.ts:catch:36823d2ed99d:1",
+      "file": "packages/main/src/handlers/validate-concept.ts",
+      "line": 93,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 1,
+      "contextHash": "36823d2ed99d",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/validate-concept.ts:catch:66db1f6e616f:1",
+      "file": "packages/main/src/handlers/validate-concept.ts",
+      "line": 238,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 3,
+      "contextHash": "66db1f6e616f",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/validate-concept.ts:catch:b739764bb41b:1",
+      "file": "packages/main/src/handlers/validate-concept.ts",
+      "line": 198,
+      "snippet": "} catch {",
+      "catchOrdinal": 2,
+      "contextHash": "b739764bb41b",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/validate-lint.ts:catch:4773cc2a62cf:1",
+      "file": "packages/main/src/handlers/validate-lint.ts",
+      "line": 182,
+      "snippet": "try { s = stat(full); } catch { continue; }",
+      "catchOrdinal": 3,
+      "contextHash": "4773cc2a62cf",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/validate-lint.ts:catch:7e8dc479d61d:1",
+      "file": "packages/main/src/handlers/validate-lint.ts",
+      "line": 472,
+      "snippet": "try { content = readFile(f); } catch { continue; }",
+      "catchOrdinal": 7,
+      "contextHash": "7e8dc479d61d",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/validate-lint.ts:catch:a66152a70a91:1",
+      "file": "packages/main/src/handlers/validate-lint.ts",
+      "line": 425,
+      "snippet": "} catch {",
+      "catchOrdinal": 4,
+      "contextHash": "a66152a70a91",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/validate-lint.ts:catch:af53cfc68534:1",
+      "file": "packages/main/src/handlers/validate-lint.ts",
+      "line": 437,
+      "snippet": "try { s = stat(full); } catch { continue; }",
+      "catchOrdinal": 6,
+      "contextHash": "af53cfc68534",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/validate-lint.ts:catch:b1551aedd2b0:1",
+      "file": "packages/main/src/handlers/validate-lint.ts",
+      "line": 177,
+      "snippet": "try { entries = readdir(dir); } catch { continue; }",
+      "catchOrdinal": 2,
+      "contextHash": "b1551aedd2b0",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/validate-lint.ts:catch:b1551aedd2b0:2",
+      "file": "packages/main/src/handlers/validate-lint.ts",
+      "line": 433,
+      "snippet": "try { entries = readdir(dir); } catch { continue; }",
+      "catchOrdinal": 5,
+      "contextHash": "b1551aedd2b0",
+      "contextOrdinal": 2
+    },
+    {
+      "key": "packages/main/src/handlers/validate-lint.ts:catch:d882d9014dfb:1",
+      "file": "packages/main/src/handlers/validate-lint.ts",
+      "line": 169,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "d882d9014dfb",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/verifier.ts:catch:34c94f153055:1",
+      "file": "packages/main/src/handlers/verifier.ts",
+      "line": 306,
+      "snippet": "} catch {",
+      "catchOrdinal": 3,
+      "contextHash": "34c94f153055",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/verifier.ts:catch:3c3eeae85da7:1",
+      "file": "packages/main/src/handlers/verifier.ts",
+      "line": 590,
+      "snippet": "} catch { /* not git */ }",
+      "catchOrdinal": 8,
+      "contextHash": "3c3eeae85da7",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/verifier.ts:catch:55f8112bffc0:1",
+      "file": "packages/main/src/handlers/verifier.ts",
+      "line": 327,
+      "snippet": "} catch {",
+      "catchOrdinal": 5,
+      "contextHash": "55f8112bffc0",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/verifier.ts:catch:63851480c75f:1",
+      "file": "packages/main/src/handlers/verifier.ts",
+      "line": 620,
+      "snippet": "} catch {",
+      "catchOrdinal": 9,
+      "contextHash": "63851480c75f",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/verifier.ts:catch:6c721b1683db:1",
+      "file": "packages/main/src/handlers/verifier.ts",
+      "line": 212,
+      "snippet": "} catch {",
+      "catchOrdinal": 2,
+      "contextHash": "6c721b1683db",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/verifier.ts:catch:8e7f4429377f:1",
+      "file": "packages/main/src/handlers/verifier.ts",
+      "line": 661,
+      "snippet": "} catch { /* serve not running, fall through */ }",
+      "catchOrdinal": 11,
+      "contextHash": "8e7f4429377f",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/verifier.ts:catch:9ba8e347d373:1",
+      "file": "packages/main/src/handlers/verifier.ts",
+      "line": 561,
+      "snippet": "} catch { /* git diff 失败不阻塞 */ }",
+      "catchOrdinal": 7,
+      "contextHash": "9ba8e347d373",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/verifier.ts:catch:9f0266b79930:1",
+      "file": "packages/main/src/handlers/verifier.ts",
+      "line": 70,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "9f0266b79930",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/verifier.ts:catch:a614a71f3dda:1",
+      "file": "packages/main/src/handlers/verifier.ts",
+      "line": 351,
+      "snippet": "try { decision = ctx.store.readDecision(storyId); } catch { /* no decision for express/fast stories */ }",
+      "catchOrdinal": 6,
+      "contextHash": "a614a71f3dda",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/verifier.ts:catch:be6206d893ce:1",
+      "file": "packages/main/src/handlers/verifier.ts",
+      "line": 318,
+      "snippet": "try { decision = ctx.store.readDecision(storyId); } catch { /* no decision for express/fast stories */ }",
+      "catchOrdinal": 4,
+      "contextHash": "be6206d893ce",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/verifier.ts:catch:c5808f2850cb:1",
+      "file": "packages/main/src/handlers/verifier.ts",
+      "line": 644,
+      "snippet": "} catch { return ''; }",
+      "catchOrdinal": 10,
+      "contextHash": "c5808f2850cb",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/workflow.ts:catch:2587176cb680:1",
+      "file": "packages/main/src/handlers/workflow.ts",
+      "line": 100,
+      "snippet": "try { decision = store.readDecision(args.storyId); } catch {}",
+      "catchOrdinal": 2,
+      "contextHash": "2587176cb680",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/workflow.ts:catch:7a43792c0046:1",
+      "file": "packages/main/src/handlers/workflow.ts",
+      "line": 104,
+      "snippet": "} catch {}",
+      "catchOrdinal": 3,
+      "contextHash": "7a43792c0046",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/workflow.ts:catch:f5fe4a51e2d7:1",
+      "file": "packages/main/src/handlers/workflow.ts",
+      "line": 47,
+      "snippet": "} catch (err) {",
+      "catchOrdinal": 1,
+      "contextHash": "f5fe4a51e2d7",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:0d4528bab3cf:1",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 386,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 18,
+      "contextHash": "0d4528bab3cf",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:16e743d1ee64:1",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 945,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 39,
+      "contextHash": "16e743d1ee64",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:19ce9665ef70:1",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 625,
+      "snippet": "} catch { /* 没有新文件也没关系 */ }",
+      "catchOrdinal": 26,
+      "contextHash": "19ce9665ef70",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:19ce9665ef70:2",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 690,
+      "snippet": "} catch { /* 没有新文件也没关系 */ }",
+      "catchOrdinal": 27,
+      "contextHash": "19ce9665ef70",
+      "contextOrdinal": 2
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:28a78ba059e6:1",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 84,
+      "snippet": "} catch (e) {",
+      "catchOrdinal": 3,
+      "contextHash": "28a78ba059e6",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:2933949d67d2:1",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 513,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 23,
+      "contextHash": "2933949d67d2",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:2a36ac69c83f:1",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 359,
+      "snippet": "} catch {",
+      "catchOrdinal": 17,
+      "contextHash": "2a36ac69c83f",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:30fb447fb7b1:1",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 38,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "30fb447fb7b1",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:37be347360e2:1",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 736,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 28,
+      "contextHash": "37be347360e2",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:37d685809c1e:1",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 860,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 34,
+      "contextHash": "37d685809c1e",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:37d685809c1e:2",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 904,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 37,
+      "contextHash": "37d685809c1e",
+      "contextOrdinal": 2
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:5886520654d1:1",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 453,
+      "snippet": "try { return store.readStory(id); } catch { return null; }",
+      "catchOrdinal": 22,
+      "contextHash": "5886520654d1",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:5def21272462:1",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 275,
+      "snippet": "} catch {",
+      "catchOrdinal": 11,
+      "contextHash": "5def21272462",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:628e8834cd2f:1",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 876,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 35,
+      "contextHash": "628e8834cd2f",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:68ac7f3fb2e4:1",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 828,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 31,
+      "contextHash": "68ac7f3fb2e4",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:6aa87e36bfef:1",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 157,
+      "snippet": "} catch {",
+      "catchOrdinal": 5,
+      "contextHash": "6aa87e36bfef",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:6aa87e36bfef:2",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 166,
+      "snippet": "} catch {",
+      "catchOrdinal": 6,
+      "contextHash": "6aa87e36bfef",
+      "contextOrdinal": 2
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:6aa87e36bfef:3",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 215,
+      "snippet": "} catch {",
+      "catchOrdinal": 9,
+      "contextHash": "6aa87e36bfef",
+      "contextOrdinal": 3
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:8468baf76862:1",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 421,
+      "snippet": "} catch {",
+      "catchOrdinal": 20,
+      "contextHash": "8468baf76862",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:854ac5d03108:1",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 196,
+      "snippet": "} catch {",
+      "catchOrdinal": 8,
+      "contextHash": "854ac5d03108",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:9239045059b3:1",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 886,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 36,
+      "contextHash": "9239045059b3",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:97159f49904d:1",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 849,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 33,
+      "contextHash": "97159f49904d",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:97c7166dffbb:1",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 296,
+      "snippet": "} catch {",
+      "catchOrdinal": 12,
+      "contextHash": "97c7166dffbb",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:9808c70a1bfe:1",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 579,
+      "snippet": "} catch {",
+      "catchOrdinal": 25,
+      "contextHash": "9808c70a1bfe",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:a381a7e5ae8d:1",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 439,
+      "snippet": "} catch {",
+      "catchOrdinal": 21,
+      "contextHash": "a381a7e5ae8d",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:a9959b313a88:1",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 832,
+      "snippet": "} catch (rmError: any) {",
+      "catchOrdinal": 32,
+      "contextHash": "a9959b313a88",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:abd98e105777:1",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 931,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 38,
+      "contextHash": "abd98e105777",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:af275e522adf:1",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 409,
+      "snippet": "} catch {",
+      "catchOrdinal": 19,
+      "contextHash": "af275e522adf",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:b93299a9da7d:1",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 303,
+      "snippet": "} catch {",
+      "catchOrdinal": 13,
+      "contextHash": "b93299a9da7d",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:bf0bac879f31:1",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 133,
+      "snippet": "} catch (e) {",
+      "catchOrdinal": 4,
+      "contextHash": "bf0bac879f31",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:cd1bb14a8cdd:1",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 555,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 24,
+      "contextHash": "cd1bb14a8cdd",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:dc0d7f3b2497:1",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 750,
+      "snippet": "} catch {",
+      "catchOrdinal": 29,
+      "contextHash": "dc0d7f3b2497",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:ed18501cc759:1",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 61,
+      "snippet": "} catch {",
+      "catchOrdinal": 2,
+      "contextHash": "ed18501cc759",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/worktree.ts:catch:f29219e713ab:1",
+      "file": "packages/main/src/handlers/worktree.ts",
+      "line": 798,
+      "snippet": "} catch (rmError: any) {",
+      "catchOrdinal": 30,
+      "contextHash": "f29219e713ab",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/providers/claude-cli.ts:catch:5cb6ee3253e0:1",
+      "file": "packages/main/src/providers/claude-cli.ts",
+      "line": 182,
+      "snippet": "} catch (e) {",
+      "catchOrdinal": 5,
+      "contextHash": "5cb6ee3253e0",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/providers/claude-cli.ts:catch:68ef0d55a8f7:1",
+      "file": "packages/main/src/providers/claude-cli.ts",
+      "line": 147,
+      "snippet": "} catch { /* skip */ }",
+      "catchOrdinal": 3,
+      "contextHash": "68ef0d55a8f7",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/providers/claude-cli.ts:catch:6af50070efe5:1",
+      "file": "packages/main/src/providers/claude-cli.ts",
+      "line": 168,
+      "snippet": "try { unlinkSync(tmpFile); } catch { /* ignore */ }",
+      "catchOrdinal": 4,
+      "contextHash": "6af50070efe5",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/providers/claude-cli.ts:catch:80d47c942693:1",
+      "file": "packages/main/src/providers/claude-cli.ts",
+      "line": 102,
+      "snippet": "} catch { /* skip non-json lines */ }",
+      "catchOrdinal": 1,
+      "contextHash": "80d47c942693",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/providers/claude-cli.ts:catch:aa91ca51db4a:1",
+      "file": "packages/main/src/providers/claude-cli.ts",
+      "line": 127,
+      "snippet": "try { unlinkSync(tmpFile); } catch { /* ignore */ }",
+      "catchOrdinal": 2,
+      "contextHash": "aa91ca51db4a",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/providers/claude-cli.ts:catch:b6e8954af9c6:1",
+      "file": "packages/main/src/providers/claude-cli.ts",
+      "line": 208,
+      "snippet": "try { rmSync(this.tmpDir, { recursive: true, force: true }); } catch { /* ignore */ }",
+      "catchOrdinal": 6,
+      "contextHash": "b6e8954af9c6",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/browser-client.ts:catch:0558dbbb1f1e:1",
+      "file": "packages/main/src/tasks/browser-client.ts",
+      "line": 96,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 5,
+      "contextHash": "0558dbbb1f1e",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/browser-client.ts:catch:31005f8355d4:1",
+      "file": "packages/main/src/tasks/browser-client.ts",
+      "line": 60,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 3,
+      "contextHash": "31005f8355d4",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/browser-client.ts:catch:9f8e3a8d1577:1",
+      "file": "packages/main/src/tasks/browser-client.ts",
+      "line": 28,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "9f8e3a8d1577",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/browser-client.ts:catch:b5ca8c042be7:1",
+      "file": "packages/main/src/tasks/browser-client.ts",
+      "line": 92,
+      "snippet": "} catch {",
+      "catchOrdinal": 4,
+      "contextHash": "b5ca8c042be7",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/browser-client.ts:catch:f621337cc5b0:1",
+      "file": "packages/main/src/tasks/browser-client.ts",
+      "line": 55,
+      "snippet": "try { window.close(); } catch {}",
+      "catchOrdinal": 2,
+      "contextHash": "f621337cc5b0",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/browser-executor.ts:catch:2bbc86214e67:1",
+      "file": "packages/main/src/tasks/browser-executor.ts",
+      "line": 307,
+      "snippet": "try { child.stdin?.destroy(); } catch {}",
+      "catchOrdinal": 8,
+      "contextHash": "2bbc86214e67",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/browser-executor.ts:catch:43d04c28dc04:1",
+      "file": "packages/main/src/tasks/browser-executor.ts",
+      "line": 478,
+      "snippet": "try { env.proxy.close(); } catch {}",
+      "catchOrdinal": 12,
+      "contextHash": "43d04c28dc04",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/browser-executor.ts:catch:4b16971828d6:1",
+      "file": "packages/main/src/tasks/browser-executor.ts",
+      "line": 464,
+      "snippet": "} catch { return false; }",
+      "catchOrdinal": 10,
+      "contextHash": "4b16971828d6",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/browser-executor.ts:catch:509c4e772c15:1",
+      "file": "packages/main/src/tasks/browser-executor.ts",
+      "line": 544,
+      "snippet": "try { execSync(`taskkill /T /F /PID ${pid}`, { stdio: 'ignore', timeout: 3000 }); } catch {}",
+      "catchOrdinal": 13,
+      "contextHash": "509c4e772c15",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/browser-executor.ts:catch:51e4a1a6ed54:1",
+      "file": "packages/main/src/tasks/browser-executor.ts",
+      "line": 237,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 3,
+      "contextHash": "51e4a1a6ed54",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/browser-executor.ts:catch:574d49e4303c:1",
+      "file": "packages/main/src/tasks/browser-executor.ts",
+      "line": 122,
+      "snippet": "} catch { return []; }",
+      "catchOrdinal": 1,
+      "contextHash": "574d49e4303c",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/browser-executor.ts:catch:5da193c6ab29:1",
+      "file": "packages/main/src/tasks/browser-executor.ts",
+      "line": 334,
+      "snippet": "} catch {",
+      "catchOrdinal": 9,
+      "contextHash": "5da193c6ab29",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/browser-executor.ts:catch:779420438b58:1",
+      "file": "packages/main/src/tasks/browser-executor.ts",
+      "line": 686,
+      "snippet": "} catch (e) {",
+      "catchOrdinal": 19,
+      "contextHash": "779420438b58",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/browser-executor.ts:catch:807d3bad271c:1",
+      "file": "packages/main/src/tasks/browser-executor.ts",
+      "line": 548,
+      "snippet": "} catch { /* no process */ }",
+      "catchOrdinal": 14,
+      "contextHash": "807d3bad271c",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/browser-executor.ts:catch:8343e1b46dbe:1",
+      "file": "packages/main/src/tasks/browser-executor.ts",
+      "line": 283,
+      "snippet": "} catch { /* not ready */ }",
+      "catchOrdinal": 4,
+      "contextHash": "8343e1b46dbe",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/browser-executor.ts:catch:94eaa31c9ac7:1",
+      "file": "packages/main/src/tasks/browser-executor.ts",
+      "line": 682,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 18,
+      "contextHash": "94eaa31c9ac7",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/browser-executor.ts:catch:a357233d1f98:1",
+      "file": "packages/main/src/tasks/browser-executor.ts",
+      "line": 306,
+      "snippet": "try { child.stderr?.destroy(); } catch {}",
+      "catchOrdinal": 7,
+      "contextHash": "a357233d1f98",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/browser-executor.ts:catch:b02168d0b101:1",
+      "file": "packages/main/src/tasks/browser-executor.ts",
+      "line": 473,
+      "snippet": "} catch { return false; }",
+      "catchOrdinal": 11,
+      "contextHash": "b02168d0b101",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/browser-executor.ts:catch:b09f32909f41:1",
+      "file": "packages/main/src/tasks/browser-executor.ts",
+      "line": 305,
+      "snippet": "try { child.stdout?.destroy(); } catch {}",
+      "catchOrdinal": 6,
+      "contextHash": "b09f32909f41",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/browser-executor.ts:catch:b79ccb3f8aa6:1",
+      "file": "packages/main/src/tasks/browser-executor.ts",
+      "line": 134,
+      "snippet": "`if(typeof window!=='undefined'&&window.__trace){try{var __a=[...arguments].map(a=>{try{return JSON.parse(JSON.stringify(a))}catch{return'[unserializable]'}});window.__trace.push({fn:'${name}',file:'${file}',time:Date.now(),args:__a});}catch{window.__trace.push({fn:'${name}',file:'${file}',time:Date.now()});}}`;",
+      "catchOrdinal": 2,
+      "contextHash": "b79ccb3f8aa6",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/browser-executor.ts:catch:c515cb6de5ff:1",
+      "file": "packages/main/src/tasks/browser-executor.ts",
+      "line": 599,
+      "snippet": "} catch {}",
+      "catchOrdinal": 15,
+      "contextHash": "c515cb6de5ff",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/browser-executor.ts:catch:d16fba0afb58:1",
+      "file": "packages/main/src/tasks/browser-executor.ts",
+      "line": 624,
+      "snippet": "} catch { /* non-fatal */ }",
+      "catchOrdinal": 16,
+      "contextHash": "d16fba0afb58",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/browser-executor.ts:catch:db9501d81930:1",
+      "file": "packages/main/src/tasks/browser-executor.ts",
+      "line": 642,
+      "snippet": "} catch { /* non-fatal */ }",
+      "catchOrdinal": 17,
+      "contextHash": "db9501d81930",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/browser-executor.ts:catch:f2914ea92d6c:1",
+      "file": "packages/main/src/tasks/browser-executor.ts",
+      "line": 303,
+      "snippet": "} catch { /* ignore */ }",
+      "catchOrdinal": 5,
+      "contextHash": "f2914ea92d6c",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/browser-server.ts:catch:2a0514bcd5e6:1",
+      "file": "packages/main/src/tasks/browser-server.ts",
+      "line": 157,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 3,
+      "contextHash": "2a0514bcd5e6",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/browser-server.ts:catch:58906c98e395:1",
+      "file": "packages/main/src/tasks/browser-server.ts",
+      "line": 26,
+      "snippet": "try { browserSocket.send(JSON.stringify({ type: 'close' })); } catch {}",
+      "catchOrdinal": 1,
+      "contextHash": "58906c98e395",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/browser-server.ts:catch:638379476ff5:1",
+      "file": "packages/main/src/tasks/browser-server.ts",
+      "line": 41,
+      "snippet": "} catch (e) {",
+      "catchOrdinal": 2,
+      "contextHash": "638379476ff5",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/bug-report.ts:catch:b978168e10b1:1",
+      "file": "packages/main/src/tasks/bug-report.ts",
+      "line": 361,
+      "snippet": "try { return store.readStory(sid).type === 'bug'; } catch { return false; }",
+      "catchOrdinal": 3,
+      "contextHash": "b978168e10b1",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/bug-report.ts:catch:e5801c4f4ad8:1",
+      "file": "packages/main/src/tasks/bug-report.ts",
+      "line": 169,
+      "snippet": "} catch { /* no checklist */ }",
+      "catchOrdinal": 1,
+      "contextHash": "e5801c4f4ad8",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/bug-report.ts:catch:e9a39c6a326b:1",
+      "file": "packages/main/src/tasks/bug-report.ts",
+      "line": 193,
+      "snippet": "} catch {",
+      "catchOrdinal": 2,
+      "contextHash": "e9a39c6a326b",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/cli-executor.ts:catch:2b68212408b8:1",
+      "file": "packages/main/src/tasks/cli-executor.ts",
+      "line": 155,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 1,
+      "contextHash": "2b68212408b8",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/cli-executor.ts:catch:9840de6b5abf:1",
+      "file": "packages/main/src/tasks/cli-executor.ts",
+      "line": 167,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 2,
+      "contextHash": "9840de6b5abf",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/drift-check.ts:catch:93e0c565a6b9:1",
+      "file": "packages/main/src/tasks/drift-check.ts",
+      "line": 34,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "93e0c565a6b9",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/extract.ts:catch:7e241e7457d0:1",
+      "file": "packages/main/src/tasks/extract.ts",
+      "line": 290,
+      "snippet": "} catch { /* fallback to source scan */ }",
+      "catchOrdinal": 2,
+      "contextHash": "7e241e7457d0",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/extract.ts:catch:e9972c07f172:1",
+      "file": "packages/main/src/tasks/extract.ts",
+      "line": 261,
+      "snippet": "} catch {}",
+      "catchOrdinal": 1,
+      "contextHash": "e9972c07f172",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/flow-stability-smoke.ts:catch:4db50128f446:1",
+      "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+      "line": 312,
+      "snippet": "} catch (error: any) {",
+      "catchOrdinal": 1,
+      "contextHash": "4db50128f446",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/init-check-required-agents-smoke.ts:catch:77c444d785a3:1",
+      "file": "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+      "line": 29,
+      "snippet": "} catch (error: any) {",
+      "catchOrdinal": 1,
+      "contextHash": "77c444d785a3",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/profiler.ts:catch:19faeb83754d:1",
+      "file": "packages/main/src/tasks/profiler.ts",
+      "line": 57,
+      "snippet": "try { await this.session.post('Profiler.disable'); } catch {}",
+      "catchOrdinal": 1,
+      "contextHash": "19faeb83754d",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/review-pass-discard-smoke.ts:catch:2bb83f33b506:1",
+      "file": "packages/main/src/tasks/review-pass-discard-smoke.ts",
+      "line": 364,
+      "snippet": "} catch (error) {",
+      "catchOrdinal": 1,
+      "contextHash": "2bb83f33b506",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/review-pass-discard-smoke.ts:catch:38feee194604:1",
+      "file": "packages/main/src/tasks/review-pass-discard-smoke.ts",
+      "line": 465,
+      "snippet": "try { chmodSync(join(root, '.worktrees'), 0o700); } catch { /* best-effort cleanup */ }",
+      "catchOrdinal": 3,
+      "contextHash": "38feee194604",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/review-pass-discard-smoke.ts:catch:b4b6d04a4a92:1",
+      "file": "packages/main/src/tasks/review-pass-discard-smoke.ts",
+      "line": 458,
+      "snippet": "} catch (error) {",
+      "catchOrdinal": 2,
+      "contextHash": "b4b6d04a4a92",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/review-pass-discard-smoke.ts:catch:d4866ab03715:1",
+      "file": "packages/main/src/tasks/review-pass-discard-smoke.ts",
+      "line": 467,
+      "snippet": "try { chmodSync(join(root, '.git', 'worktrees'), 0o700); } catch { /* best-effort cleanup */ }",
+      "catchOrdinal": 5,
+      "contextHash": "d4866ab03715",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/review-pass-discard-smoke.ts:catch:d5c839117c40:1",
+      "file": "packages/main/src/tasks/review-pass-discard-smoke.ts",
+      "line": 466,
+      "snippet": "try { chmodSync(join(root, '.worktrees', storyId), 0o700); } catch { /* best-effort cleanup */ }",
+      "catchOrdinal": 4,
+      "contextHash": "d5c839117c40",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/test-flow-e2e.ts:catch:0f401f4a45a8:1",
+      "file": "packages/main/src/tasks/test-flow-e2e.ts",
+      "line": 218,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "0f401f4a45a8",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/test-flow-e2e.ts:catch:1b8f94418069:1",
+      "file": "packages/main/src/tasks/test-flow-e2e.ts",
+      "line": 476,
+      "snippet": "} catch (err: any) {",
+      "catchOrdinal": 7,
+      "contextHash": "1b8f94418069",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/test-flow-e2e.ts:catch:371737537e34:1",
+      "file": "packages/main/src/tasks/test-flow-e2e.ts",
+      "line": 309,
+      "snippet": "} catch { /* ignore */ }",
+      "catchOrdinal": 2,
+      "contextHash": "371737537e34",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/test-flow-e2e.ts:catch:48bb1ab702f2:1",
+      "file": "packages/main/src/tasks/test-flow-e2e.ts",
+      "line": 358,
+      "snippet": "} catch {",
+      "catchOrdinal": 5,
+      "contextHash": "48bb1ab702f2",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/test-flow-e2e.ts:catch:97ade31fc505:1",
+      "file": "packages/main/src/tasks/test-flow-e2e.ts",
+      "line": 339,
+      "snippet": "} catch {",
+      "catchOrdinal": 3,
+      "contextHash": "97ade31fc505",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/test-flow-e2e.ts:catch:97ade31fc505:2",
+      "file": "packages/main/src/tasks/test-flow-e2e.ts",
+      "line": 351,
+      "snippet": "} catch {",
+      "catchOrdinal": 4,
+      "contextHash": "97ade31fc505",
+      "contextOrdinal": 2
+    },
+    {
+      "key": "packages/main/src/tasks/test-flow-e2e.ts:catch:97ade31fc505:3",
+      "file": "packages/main/src/tasks/test-flow-e2e.ts",
+      "line": 370,
+      "snippet": "} catch {",
+      "catchOrdinal": 6,
+      "contextHash": "97ade31fc505",
+      "contextOrdinal": 3
+    },
+    {
+      "key": "packages/main/src/tasks/test-runner.ts:catch:41b3d729b1f4:1",
+      "file": "packages/main/src/tasks/test-runner.ts",
+      "line": 55,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "41b3d729b1f4",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/test-runner.ts:catch:789efc3f6497:1",
+      "file": "packages/main/src/tasks/test-runner.ts",
+      "line": 104,
+      "snippet": "} catch {",
+      "catchOrdinal": 2,
+      "contextHash": "789efc3f6497",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/trace-store.ts:catch:1fbbe441bebd:1",
+      "file": "packages/main/src/tasks/trace-store.ts",
+      "line": 33,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "1fbbe441bebd",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/trace-store.ts:catch:2643779ddb60:1",
+      "file": "packages/main/src/tasks/trace-store.ts",
+      "line": 131,
+      "snippet": "} catch { return null; }",
+      "catchOrdinal": 4,
+      "contextHash": "2643779ddb60",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/trace-store.ts:catch:bb2be5679042:1",
+      "file": "packages/main/src/tasks/trace-store.ts",
+      "line": 154,
+      "snippet": "} catch {}",
+      "catchOrdinal": 5,
+      "contextHash": "bb2be5679042",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/trace-store.ts:catch:cbe85b561bec:1",
+      "file": "packages/main/src/tasks/trace-store.ts",
+      "line": 41,
+      "snippet": "} catch {",
+      "catchOrdinal": 2,
+      "contextHash": "cbe85b561bec",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/trace-store.ts:catch:e9972c07f172:1",
+      "file": "packages/main/src/tasks/trace-store.ts",
+      "line": 77,
+      "snippet": "} catch {}",
+      "catchOrdinal": 3,
+      "contextHash": "e9972c07f172",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/validate.ts:catch:1506bb1fa12f:1",
+      "file": "packages/main/src/tasks/validate.ts",
+      "line": 309,
+      "snippet": "} catch {",
+      "catchOrdinal": 2,
+      "contextHash": "1506bb1fa12f",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/validate.ts:catch:7b8fbe9e0791:1",
+      "file": "packages/main/src/tasks/validate.ts",
+      "line": 68,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "7b8fbe9e0791",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/worktree-authority-smoke.ts:catch:67214191f5c3:1",
+      "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+      "line": 64,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 2,
+      "contextHash": "67214191f5c3",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/worktree-authority-smoke.ts:catch:6aa87e36bfef:1",
+      "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+      "line": 31,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "6aa87e36bfef",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/tasks/worktree-authority-smoke.ts:catch:c0a177cf0ac3:1",
+      "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+      "line": 77,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 3,
+      "contextHash": "c0a177cf0ac3",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/bridge-host.ts:catch:37496b2a9936:1",
+      "file": "packages/main/src/verifier/bridge-host.ts",
+      "line": 143,
+      "snippet": "} catch {}",
+      "catchOrdinal": 2,
+      "contextHash": "37496b2a9936",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/bridge-host.ts:catch:3934d3e94b07:1",
+      "file": "packages/main/src/verifier/bridge-host.ts",
+      "line": 54,
+      "snippet": "} catch {}",
+      "catchOrdinal": 1,
+      "contextHash": "3934d3e94b07",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/bridge-utils.ts:catch:165bb689fb8f:1",
+      "file": "packages/main/src/verifier/bridge-utils.ts",
+      "line": 30,
+      "snippet": "} catch { /* dev server not running, fall through to local */ }",
+      "catchOrdinal": 1,
+      "contextHash": "165bb689fb8f",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/browser-client.ts:catch:0558dbbb1f1e:1",
+      "file": "packages/main/src/verifier/browser-client.ts",
+      "line": 93,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 5,
+      "contextHash": "0558dbbb1f1e",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/browser-client.ts:catch:31005f8355d4:1",
+      "file": "packages/main/src/verifier/browser-client.ts",
+      "line": 59,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 3,
+      "contextHash": "31005f8355d4",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/browser-client.ts:catch:9f8e3a8d1577:1",
+      "file": "packages/main/src/verifier/browser-client.ts",
+      "line": 28,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "9f8e3a8d1577",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/browser-client.ts:catch:b5ca8c042be7:1",
+      "file": "packages/main/src/verifier/browser-client.ts",
+      "line": 89,
+      "snippet": "} catch {",
+      "catchOrdinal": 4,
+      "contextHash": "b5ca8c042be7",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/browser-client.ts:catch:cc8d6148f399:1",
+      "file": "packages/main/src/verifier/browser-client.ts",
+      "line": 54,
+      "snippet": "try { window.close(); } catch {}",
+      "catchOrdinal": 2,
+      "contextHash": "cc8d6148f399",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/browser-executor.ts:catch:2564a850f323:1",
+      "file": "packages/main/src/verifier/browser-executor.ts",
+      "line": 197,
+      "snippet": "} catch { /* ignore */ }",
+      "catchOrdinal": 3,
+      "contextHash": "2564a850f323",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/browser-executor.ts:catch:2bbc86214e67:1",
+      "file": "packages/main/src/verifier/browser-executor.ts",
+      "line": 200,
+      "snippet": "try { child.stdin?.destroy(); } catch {}",
+      "catchOrdinal": 6,
+      "contextHash": "2bbc86214e67",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/browser-executor.ts:catch:404baff7b799:1",
+      "file": "packages/main/src/verifier/browser-executor.ts",
+      "line": 198,
+      "snippet": "try { child.stdout?.destroy(); } catch {}",
+      "catchOrdinal": 4,
+      "contextHash": "404baff7b799",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/browser-executor.ts:catch:43d04c28dc04:1",
+      "file": "packages/main/src/verifier/browser-executor.ts",
+      "line": 341,
+      "snippet": "try { env.proxy.close(); } catch {}",
+      "catchOrdinal": 10,
+      "contextHash": "43d04c28dc04",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/browser-executor.ts:catch:4b16971828d6:1",
+      "file": "packages/main/src/verifier/browser-executor.ts",
+      "line": 329,
+      "snippet": "} catch { return false; }",
+      "catchOrdinal": 8,
+      "contextHash": "4b16971828d6",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/browser-executor.ts:catch:51e4a1a6ed54:1",
+      "file": "packages/main/src/verifier/browser-executor.ts",
+      "line": 131,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 1,
+      "contextHash": "51e4a1a6ed54",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/browser-executor.ts:catch:576a239f6afc:1",
+      "file": "packages/main/src/verifier/browser-executor.ts",
+      "line": 337,
+      "snippet": "} catch { return false; }",
+      "catchOrdinal": 9,
+      "contextHash": "576a239f6afc",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/browser-executor.ts:catch:5da193c6ab29:1",
+      "file": "packages/main/src/verifier/browser-executor.ts",
+      "line": 227,
+      "snippet": "} catch {",
+      "catchOrdinal": 7,
+      "contextHash": "5da193c6ab29",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/browser-executor.ts:catch:8343e1b46dbe:1",
+      "file": "packages/main/src/verifier/browser-executor.ts",
+      "line": 177,
+      "snippet": "} catch { /* not ready */ }",
+      "catchOrdinal": 2,
+      "contextHash": "8343e1b46dbe",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/browser-executor.ts:catch:a357233d1f98:1",
+      "file": "packages/main/src/verifier/browser-executor.ts",
+      "line": 199,
+      "snippet": "try { child.stderr?.destroy(); } catch {}",
+      "catchOrdinal": 5,
+      "contextHash": "a357233d1f98",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/browser-executor.ts:catch:a8c471ffbf3f:1",
+      "file": "packages/main/src/verifier/browser-executor.ts",
+      "line": 475,
+      "snippet": "} catch (e) {",
+      "catchOrdinal": 12,
+      "contextHash": "a8c471ffbf3f",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/browser-executor.ts:catch:c515cb6de5ff:1",
+      "file": "packages/main/src/verifier/browser-executor.ts",
+      "line": 439,
+      "snippet": "} catch {}",
+      "catchOrdinal": 11,
+      "contextHash": "c515cb6de5ff",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/browser-server.ts:catch:2a0514bcd5e6:1",
+      "file": "packages/main/src/verifier/browser-server.ts",
+      "line": 150,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 3,
+      "contextHash": "2a0514bcd5e6",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/browser-server.ts:catch:58906c98e395:1",
+      "file": "packages/main/src/verifier/browser-server.ts",
+      "line": 27,
+      "snippet": "try { browserSocket.send(JSON.stringify({ type: 'close' })); } catch {}",
+      "catchOrdinal": 1,
+      "contextHash": "58906c98e395",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/browser-server.ts:catch:638379476ff5:1",
+      "file": "packages/main/src/verifier/browser-server.ts",
+      "line": 42,
+      "snippet": "} catch (e) {",
+      "catchOrdinal": 2,
+      "contextHash": "638379476ff5",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/cli-executor.ts:catch:2b68212408b8:1",
+      "file": "packages/main/src/verifier/cli-executor.ts",
+      "line": 152,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 1,
+      "contextHash": "2b68212408b8",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/cli-executor.ts:catch:9840de6b5abf:1",
+      "file": "packages/main/src/verifier/cli-executor.ts",
+      "line": 164,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 2,
+      "contextHash": "9840de6b5abf",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/dev-cli.ts:catch:52dbe30d73be:1",
+      "file": "packages/main/src/verifier/dev-cli.ts",
+      "line": 45,
+      "snippet": "for (const c of children) { try { c.kill(); } catch {} }",
+      "catchOrdinal": 1,
+      "contextHash": "52dbe30d73be",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/dev-host.ts:catch:2d341245c4a3:1",
+      "file": "packages/main/src/verifier/dev-host.ts",
+      "line": 76,
+      "snippet": "const cleanup = () => { try { unlinkSync(infoPath); } catch {} };",
+      "catchOrdinal": 3,
+      "contextHash": "2d341245c4a3",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/dev-host.ts:catch:3934d3e94b07:1",
+      "file": "packages/main/src/verifier/dev-host.ts",
+      "line": 58,
+      "snippet": "} catch {}",
+      "catchOrdinal": 2,
+      "contextHash": "3934d3e94b07",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/dev-host.ts:catch:8c5739443b9a:1",
+      "file": "packages/main/src/verifier/dev-host.ts",
+      "line": 55,
+      "snippet": "try { process.kill(old.pid, 0); } catch { break; }",
+      "catchOrdinal": 1,
+      "contextHash": "8c5739443b9a",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:14368dcd09f2:1",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 690,
+      "snippet": "else if (el.tagName === 'SELECT') { try { input[key] = JSON.parse(el.value); } catch { input[key] = el.value; } }",
+      "catchOrdinal": 7,
+      "contextHash": "14368dcd09f2",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:1b12ebac7c1f:1",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 264,
+      "snippet": "} catch {",
+      "catchOrdinal": 3,
+      "contextHash": "1b12ebac7c1f",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:360adac5dbf5:1",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 805,
+      "snippet": "try { unlinkSync(infoPath); } catch {}",
+      "catchOrdinal": 15,
+      "contextHash": "360adac5dbf5",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:37496b2a9936:1",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 255,
+      "snippet": "} catch {}",
+      "catchOrdinal": 2,
+      "contextHash": "37496b2a9936",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:3880d286ef4e:1",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 2184,
+      "snippet": "try { unlinkSync(serveInfoPath); } catch {}",
+      "catchOrdinal": 36,
+      "contextHash": "3880d286ef4e",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:3934d3e94b07:1",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 762,
+      "snippet": "} catch {}",
+      "catchOrdinal": 11,
+      "contextHash": "3934d3e94b07",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:48ebbc69635a:1",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 2144,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 35,
+      "contextHash": "48ebbc69635a",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:4a07fc6ef604:1",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 1491,
+      "snippet": "} catch {}",
+      "catchOrdinal": 31,
+      "contextHash": "4a07fc6ef604",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:4a3b43ecfd33:1",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 1419,
+      "snippet": "} catch(e) { console.error('sendEvent error', e); }",
+      "catchOrdinal": 28,
+      "contextHash": "4a3b43ecfd33",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:50ed7c1f7ae5:1",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 1104,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 23,
+      "contextHash": "50ed7c1f7ae5",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:51e4a1a6ed54:1",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 967,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 21,
+      "contextHash": "51e4a1a6ed54",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:58646668ab02:1",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 319,
+      "snippet": "if (ws) try { ws.close(); } catch {}",
+      "catchOrdinal": 4,
+      "contextHash": "58646668ab02",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:65d13438c4a1:1",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 1112,
+      "snippet": "try { serveInfo = JSON.parse(readFileSync(serveInfoPath, 'utf-8')); } catch {}",
+      "catchOrdinal": 24,
+      "contextHash": "65d13438c4a1",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:6cf7b2c41bb9:1",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 1007,
+      "snippet": "try { body = JSON.parse(Buffer.concat(chunks).toString()); } catch {}",
+      "catchOrdinal": 22,
+      "contextHash": "6cf7b2c41bb9",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:6cf7b2c41bb9:2",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 1863,
+      "snippet": "try { body = JSON.parse(Buffer.concat(chunks).toString()); } catch {}",
+      "catchOrdinal": 34,
+      "contextHash": "6cf7b2c41bb9",
+      "contextOrdinal": 2
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:75a1e4329542:1",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 1543,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 32,
+      "contextHash": "75a1e4329542",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:8afa4eb13133:1",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 814,
+      "snippet": "try { unlinkSync(infoPath); } catch {}",
+      "catchOrdinal": 17,
+      "contextHash": "8afa4eb13133",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:8d0bb53c6d4c:1",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 542,
+      "snippet": "} catch {}",
+      "catchOrdinal": 5,
+      "contextHash": "8d0bb53c6d4c",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:8d0bb53c6d4c:2",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 1470,
+      "snippet": "} catch {}",
+      "catchOrdinal": 29,
+      "contextHash": "8d0bb53c6d4c",
+      "contextOrdinal": 2
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:97c99c0dcc8b:1",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 710,
+      "snippet": "} catch { alert('Invalid JSON'); }",
+      "catchOrdinal": 9,
+      "contextHash": "97c99c0dcc8b",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:9c9ab383c892:1",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 1218,
+      "snippet": "} catch {}",
+      "catchOrdinal": 26,
+      "contextHash": "9c9ab383c892",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:a31904a1cc1e:1",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 697,
+      "snippet": "try { input = JSON.parse(raw); } catch { alert('Invalid JSON'); return; }",
+      "catchOrdinal": 8,
+      "contextHash": "a31904a1cc1e",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:a762eb22e653:1",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 1482,
+      "snippet": "} catch {}",
+      "catchOrdinal": 30,
+      "contextHash": "a762eb22e653",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:b410e3c4cd08:1",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 779,
+      "snippet": "catch { document.getElementById('api-result').textContent = text; }",
+      "catchOrdinal": 12,
+      "contextHash": "b410e3c4cd08",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:ce12f47db4a1:1",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 804,
+      "snippet": "try { process.kill(info.pid, 0); } catch {",
+      "catchOrdinal": 14,
+      "contextHash": "ce12f47db4a1",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:d0ea64383a6d:1",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 678,
+      "snippet": "} catch(e) { console.warn('refresh error', e); }",
+      "catchOrdinal": 6,
+      "contextHash": "d0ea64383a6d",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:d1d2dc7f3f1c:1",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 837,
+      "snippet": "} catch {}",
+      "catchOrdinal": 19,
+      "contextHash": "d1d2dc7f3f1c",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:d412f6d01b52:1",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 816,
+      "snippet": "} catch {}",
+      "catchOrdinal": 18,
+      "contextHash": "d412f6d01b52",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:d76acd716777:1",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 812,
+      "snippet": "} catch {}",
+      "catchOrdinal": 16,
+      "contextHash": "d76acd716777",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:dbbf9f526a0e:1",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 104,
+      "snippet": "catch(e) { return '[unserializable]'; }",
+      "catchOrdinal": 1,
+      "contextHash": "dbbf9f526a0e",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:dc226e6eb1fc:1",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 800,
+      "snippet": "try { unlinkSync(infoPath); } catch {}",
+      "catchOrdinal": 13,
+      "contextHash": "dc226e6eb1fc",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:e9972c07f172:1",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 734,
+      "snippet": "} catch {}",
+      "catchOrdinal": 10,
+      "contextHash": "e9972c07f172",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:e9972c07f172:2",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 872,
+      "snippet": "} catch {}",
+      "catchOrdinal": 20,
+      "contextHash": "e9972c07f172",
+      "contextOrdinal": 2
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:e9972c07f172:3",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 1258,
+      "snippet": "} catch {}",
+      "catchOrdinal": 27,
+      "contextHash": "e9972c07f172",
+      "contextOrdinal": 3
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:f861f8e9b7ee:1",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 1596,
+      "snippet": "try { client.write(`data: ${data}\\n\\n`); } catch { sseClients.delete(client); }",
+      "catchOrdinal": 33,
+      "contextHash": "f861f8e9b7ee",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/serve.ts:catch:fd4dc6e15a0f:1",
+      "file": "packages/main/src/verifier/serve.ts",
+      "line": 1211,
+      "snippet": "} catch { continue; }",
+      "catchOrdinal": 25,
+      "contextHash": "fd4dc6e15a0f",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/validate.ts:catch:2d649de3c601:1",
+      "file": "packages/main/src/verifier/validate.ts",
+      "line": 477,
+      "snippet": "} catch (e) {",
+      "catchOrdinal": 3,
+      "contextHash": "2d649de3c601",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/validate.ts:catch:34dcf22b5c03:1",
+      "file": "packages/main/src/verifier/validate.ts",
+      "line": 739,
+      "snippet": "} catch { /* not git */ }",
+      "catchOrdinal": 6,
+      "contextHash": "34dcf22b5c03",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/validate.ts:catch:58a083a4d4cb:1",
+      "file": "packages/main/src/verifier/validate.ts",
+      "line": 520,
+      "snippet": "} catch (e) {",
+      "catchOrdinal": 4,
+      "contextHash": "58a083a4d4cb",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/validate.ts:catch:58a083a4d4cb:2",
+      "file": "packages/main/src/verifier/validate.ts",
+      "line": 563,
+      "snippet": "} catch (e) {",
+      "catchOrdinal": 5,
+      "contextHash": "58a083a4d4cb",
+      "contextOrdinal": 2
+    },
+    {
+      "key": "packages/main/src/verifier/validate.ts:catch:61a649cd94d0:1",
+      "file": "packages/main/src/verifier/validate.ts",
+      "line": 309,
+      "snippet": "} catch { /* guard 抛异常 = 不匹配 */ }",
+      "catchOrdinal": 1,
+      "contextHash": "61a649cd94d0",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/verifier/validate.ts:catch:6c5e67cf79fe:1",
+      "file": "packages/main/src/verifier/validate.ts",
+      "line": 321,
+      "snippet": "} catch (e) {",
+      "catchOrdinal": 2,
+      "contextHash": "6c5e67cf79fe",
+      "contextOrdinal": 1
+    }
+  ]
+}

@@ -217,6 +217,17 @@ const reviewRoundIsoDocPaths = [
   'docs/requirements/decisions/story-lifecycle.md',
   'docs/requirements/decisions/testing-infra.md',
 ];
+const evidenceBoundaryDocPaths = [
+  'CLAUDE.md',
+  'docs/requirements/decisions/testing-infra.md',
+];
+const requiredEvidenceBoundaryPhrases = [
+  'prompt-only worker claims are not mechanical evidence',
+  'dispatch/process-event/commit evidence',
+  'Koala cannot mechanically prove true subagent context isolation',
+  'transcript/delivery evidence is required; prompt-only user-value claims are not enough',
+  'non-mechanical user approval',
+];
 const requiredControlledMutationEntries = [
   {
     name: 'truth_nav',
@@ -411,6 +422,26 @@ function scanPromptText(text, label) {
   return issues;
 }
 
+function scanReviewRoundPromptSchema(text, label) {
+  const issues = [];
+  const lines = text.split(/\r?\n/);
+  for (const [index, line] of lines.entries()) {
+    const context = lines.slice(Math.max(0, index - 2), Math.min(lines.length, index + 3)).join('\n');
+    if (context.includes('story_review.planReviewRound')) continue;
+
+    if (/\breviewRound\s*:\s*number\b/.test(line)) {
+      issues.push(`${label}:${index + 1} bare reviewRound:number drift; signed reviewRound must be ISO string`);
+    }
+    if (/["']reviewRound["']\s*:\s*\d+\b/.test(line)) {
+      issues.push(`${label}:${index + 1} numeric reviewRound example drift; signed reviewRound must be ISO string`);
+    }
+    if (/F-035\b/.test(line) && /reviewRound/.test(line) && /\bnumber\b/.test(line)) {
+      issues.push(`${label}:${index + 1} F-035 numeric reviewRound drift; use ISO string signed reviewRound wording`);
+    }
+  }
+  return issues;
+}
+
 function promptSemanticTokens(text) {
   const tokens = new Set();
   for (const match of text.matchAll(/\bkoala\s+([a-z_][a-z0-9_]*)\b/g)) {
@@ -584,6 +615,25 @@ function assertSyntheticAdversarialChecks() {
   assert(
     scanPromptText(unknownCategory, 'synthetic-unknown-category').some(issue => issue.includes('unknown category')),
     'synthetic unknown category should fail',
+  );
+  assert(
+    scanReviewRoundPromptSchema('reviewRound: number, // 当前 REVIEW 轮次（1 / 2 / 3+）', 'synthetic-review-round-number')
+      .some(issue => issue.includes('bare reviewRound:number drift')),
+    'synthetic bare reviewRound:number prompt schema should fail',
+  );
+  assert(
+    scanReviewRoundPromptSchema('reviewRound: number, // F-035: 顶层 reviewRound', 'synthetic-review-round-f035')
+      .some(issue => issue.includes('bare reviewRound:number drift')),
+    'synthetic F-035 numeric reviewRound prompt schema should fail',
+  );
+  assert(
+    scanReviewRoundPromptSchema('"reviewRound": 1,', 'synthetic-review-round-json-number')
+      .some(issue => issue.includes('numeric reviewRound example drift')),
+    'synthetic numeric reviewRound JSON example should fail',
+  );
+  assert(
+    scanReviewRoundPromptSchema('story_review.planReviewRound: number (PLAN review round count)', 'synthetic-plan-review-round').length === 0,
+    'synthetic story_review.planReviewRound numeric docs should pass',
   );
   const multilineUnknown = [
     "koala finding_add '{",
@@ -1538,6 +1588,41 @@ function assertReviewRoundIsoDocs() {
   }
 }
 
+function assertEvidenceBoundaryDocs() {
+  for (const relPath of evidenceBoundaryDocPaths) {
+    const text = read(relPath);
+    for (const phrase of requiredEvidenceBoundaryPhrases) {
+      assert(text.includes(phrase), `${relPath}: missing process evidence boundary phrase "${phrase}"`);
+    }
+  }
+}
+
+function assertPromptEvidenceBoundaries(promptMap) {
+  for (const [relPath, text] of promptMap.entries()) {
+    const name = basename(relPath);
+    if (text.includes('fresh worker per item')) {
+      assert(
+        text.includes('prompt-only worker claims are not mechanical evidence'),
+        `${relPath}: fresh-worker guidance must state prompt-only worker claims are not mechanical evidence`,
+      );
+      assert(
+        text.includes('dispatch/process-event/commit evidence'),
+        `${relPath}: fresh-worker guidance must name dispatch/process-event/commit evidence as the observable boundary`,
+      );
+    }
+    if (text.includes('delivery-check.json') || name === 'product-reviewer.md') {
+      assert(
+        text.includes('transcript/delivery evidence is required; prompt-only user-value claims are not enough'),
+        `${relPath}: delivery/product guidance must reject prompt-only user-value claims`,
+      );
+      assert(
+        text.includes('non-mechanical user approval'),
+        `${relPath}: delivery/product guidance must distinguish subjective approval from mechanical evidence`,
+      );
+    }
+  }
+}
+
 function stripTsComments(text) {
   let out = '';
   let quote = null;
@@ -2443,6 +2528,7 @@ for (const dir of promptDirs) {
   for (const relPath of listMarkdown(dir)) {
     const text = read(relPath);
     promptMap.set(relPath, text);
+    for (const issue of scanReviewRoundPromptSchema(text, relPath)) fail(issue);
     if (!isReviewerPrompt(relPath, text)) continue;
     reviewerPromptCount += 1;
     for (const issue of scanPromptText(text, relPath)) fail(issue);
@@ -2452,6 +2538,8 @@ comparePromptSemantics(promptMap);
 assertSyntheticAdversarialChecks();
 assertActiveLifecycleDocGuidance();
 assertReviewRoundIsoDocs();
+assertEvidenceBoundaryDocs();
+assertPromptEvidenceBoundaries(promptMap);
 assertProcessFactCommandInventory();
 printProcessFactLevelRegistrySummary();
 

@@ -600,6 +600,7 @@ TEST 阶段自动 spawn `koala-review-delivery` 产出 `delivery-check.json`。`
 - delivery-check.json 缺失 → `missing_delivery_check` blocker
 - `_hash` 重算不匹配 → `delivery_check_tampered` blocker
 - docsPromises 中存在 `verifiedBy` 为空且无 `waiverReason` 的条目 → `unverified_promise` blocker（用 `delivery_waiver_add` 豁免或让 reviewer 重跑）
+- transcript/delivery evidence is required; prompt-only user-value claims are not enough。用户最终说“好了”属于 non-mechanical user approval，Koala 不能完全自动证明；DONE gate 只能消费 transcript、verificationEvidence、delivery-check / product-reviewer evidence 或 waiver，不能把普通文本“用户价值已完成”当证据。
 
 Note: `waiverReason` 长度校验（≥ 30 字符）在 `delivery_check_set` handler 调用时抛错，不是 DONE gate blocker。
 
@@ -696,6 +697,7 @@ checklist + plan.md 写完后必须 `story_review` 通过（issueCount=0）才�
 
 - **正常通道必须分配**：用 `Agent({ subagent_type: "koala-implementer", prompt: "..." })` 分配
 - **fresh worker per item**：每个 CHK-xxx 派一个新的 koala-implementer，不复用上下文。prompt 只给该 item 需要的最小信息（storyId + plan.md 对应章节 + 必读文件），不给整段会话历史
+- **fresh worker 机械边界**：prompt-only worker claims are not mechanical evidence。可审计证据只来自 `koala dispatch` / dispatch/process-event/commit evidence / commit author 等结构化事实。Koala cannot mechanically prove true subagent context isolation，只能证明可观察 assignment evidence；prompt 里说“已派 fresh worker”不能作为 gate 证据。
 - **并行条件**：只有同时满足以下条件的 item 才能并行派发：(1) DependsOn 为空或依赖已 done (2) Files 写集不重叠 (3) 不共享稀缺资源。不满足时串行
 - **REVIEW 验收必须完整**：reviewer 返回后，先 `finding_list` 确认所有 finding 都已通过 `finding_add` 注册（reviewer 只在文本里报告但没注册 = 没发现，要求 reviewer 重跑）。然后逐条 resolve 或回 DEV 修复，不允许跳过 medium finding 留给下一个 story
 - **多揽责任少推卸**：发现问题时主动修，不要说"不在 scope 内"
