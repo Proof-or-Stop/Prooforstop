@@ -58,9 +58,9 @@
           "command": "npm run build && npm run test:runtime-fact-contract",
           "result": "pass",
           "note": "Build passed and runtime contract verified required registry facts, output keys, and typed metadata.",
-          "headHash": "adc6465a3569e05454703776d97b9f49703af409",
-          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
-          "timestamp": "2026-05-12T16:29:33.045Z"
+          "headHash": "408e27e241a470c8b4130470ecbf66d92a01af18",
+          "materialHash": "4076f313b38e15a81c80e4d048cfce3fef4c2fde2444cf3d7e53fb797e79c89b",
+          "timestamp": "2026-05-12T16:51:47.325Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -68,9 +68,9 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "Process fact contract passed with runtime environment facts kept out of process-fact-registry.",
-          "headHash": "adc6465a3569e05454703776d97b9f49703af409",
-          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
-          "timestamp": "2026-05-12T16:29:33.067Z"
+          "headHash": "408e27e241a470c8b4130470ecbf66d92a01af18",
+          "materialHash": "4076f313b38e15a81c80e4d048cfce3fef4c2fde2444cf3d7e53fb797e79c89b",
+          "timestamp": "2026-05-12T16:51:47.325Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -78,9 +78,9 @@
           "command": "npm run test:runtime-fact-contract",
           "result": "pass",
           "note": "Runtime contract fails with Runtime fact contract failed and names missing required facts/output keys; normal run verified all required facts.",
-          "headHash": "adc6465a3569e05454703776d97b9f49703af409",
-          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
-          "timestamp": "2026-05-12T16:29:33.087Z"
+          "headHash": "408e27e241a470c8b4130470ecbf66d92a01af18",
+          "materialHash": "4076f313b38e15a81c80e4d048cfce3fef4c2fde2444cf3d7e53fb797e79c89b",
+          "timestamp": "2026-05-12T16:51:47.325Z"
         }
       ]
     },
@@ -139,9 +139,9 @@
           "command": "npm run test:runtime-fact-contract",
           "result": "pass",
           "note": "Contract smoke exercised doctor JSON runtime output for cliEntrypoint/globalCoreRealpath/projectLocalBin and all required output keys.",
-          "headHash": "adc6465a3569e05454703776d97b9f49703af409",
-          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
-          "timestamp": "2026-05-12T16:29:41.763Z"
+          "headHash": "408e27e241a470c8b4130470ecbf66d92a01af18",
+          "materialHash": "4076f313b38e15a81c80e4d048cfce3fef4c2fde2444cf3d7e53fb797e79c89b",
+          "timestamp": "2026-05-12T16:51:47.325Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -149,9 +149,9 @@
           "command": "npm run test:runtime-fact-contract",
           "result": "pass",
           "note": "Runtime checker reports project-local-bin as warn-level runtime drift and keeps it outside process gates.",
-          "headHash": "adc6465a3569e05454703776d97b9f49703af409",
-          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
-          "timestamp": "2026-05-12T16:29:41.785Z"
+          "headHash": "408e27e241a470c8b4130470ecbf66d92a01af18",
+          "materialHash": "4076f313b38e15a81c80e4d048cfce3fef4c2fde2444cf3d7e53fb797e79c89b",
+          "timestamp": "2026-05-12T16:51:47.325Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -159,9 +159,9 @@
           "command": "npm run build",
           "result": "pass",
           "note": "Type-checked self/external severity split so self project realpath drift can fail while external projects remain warn/advisory.",
-          "headHash": "adc6465a3569e05454703776d97b9f49703af409",
-          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
-          "timestamp": "2026-05-12T16:29:41.806Z"
+          "headHash": "408e27e241a470c8b4130470ecbf66d92a01af18",
+          "materialHash": "4076f313b38e15a81c80e4d048cfce3fef4c2fde2444cf3d7e53fb797e79c89b",
+          "timestamp": "2026-05-12T16:51:47.325Z"
         }
       ]
     },
@@ -230,9 +230,9 @@
           "command": "npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
           "note": "Validation protocol smoke asserted doctor JSON runtime.validateSource exists and doctor text contains Runtime scan plus Validation scan.",
-          "headHash": "adc6465a3569e05454703776d97b9f49703af409",
-          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
-          "timestamp": "2026-05-12T16:29:54.548Z"
+          "headHash": "408e27e241a470c8b4130470ecbf66d92a01af18",
+          "materialHash": "4076f313b38e15a81c80e4d048cfce3fef4c2fde2444cf3d7e53fb797e79c89b",
+          "timestamp": "2026-05-12T16:51:47.325Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -240,9 +240,9 @@
           "command": "npm run test:runtime-fact-contract",
           "result": "pass",
           "note": "Runtime checker bounded external-reference-policy to docs/config surfaces and reports connectivityChecked=false policy-only output.",
-          "headHash": "adc6465a3569e05454703776d97b9f49703af409",
-          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
-          "timestamp": "2026-05-12T16:29:54.569Z"
+          "headHash": "408e27e241a470c8b4130470ecbf66d92a01af18",
+          "materialHash": "4076f313b38e15a81c80e4d048cfce3fef4c2fde2444cf3d7e53fb797e79c89b",
+          "timestamp": "2026-05-12T16:51:47.325Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -250,9 +250,9 @@
           "command": "npm run test:runtime-fact-contract",
           "result": "pass",
           "note": "External references without health semantics stay reference-only warnings; localhost/internal examples are ignored by checker logic.",
-          "headHash": "adc6465a3569e05454703776d97b9f49703af409",
-          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
-          "timestamp": "2026-05-12T16:29:54.590Z"
+          "headHash": "408e27e241a470c8b4130470ecbf66d92a01af18",
+          "materialHash": "4076f313b38e15a81c80e4d048cfce3fef4c2fde2444cf3d7e53fb797e79c89b",
+          "timestamp": "2026-05-12T16:51:47.325Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -260,9 +260,9 @@
           "command": "npm run build",
           "result": "pass",
           "note": "validate-source checker type-checked missing/fallback states as warnings with repair hint for validate.ts/js/mts or configured commands.",
-          "headHash": "adc6465a3569e05454703776d97b9f49703af409",
-          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
-          "timestamp": "2026-05-12T16:29:54.610Z"
+          "headHash": "408e27e241a470c8b4130470ecbf66d92a01af18",
+          "materialHash": "4076f313b38e15a81c80e4d048cfce3fef4c2fde2444cf3d7e53fb797e79c89b",
+          "timestamp": "2026-05-12T16:51:47.325Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -270,9 +270,9 @@
           "command": "npm run test:runtime-fact-contract",
           "result": "pass",
           "note": "Contract asserted external-reference-policy actual.policy is reference-only and connectivityChecked is false, preventing false connectivity pass.",
-          "headHash": "adc6465a3569e05454703776d97b9f49703af409",
-          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
-          "timestamp": "2026-05-12T16:29:54.630Z"
+          "headHash": "408e27e241a470c8b4130470ecbf66d92a01af18",
+          "materialHash": "4076f313b38e15a81c80e4d048cfce3fef4c2fde2444cf3d7e53fb797e79c89b",
+          "timestamp": "2026-05-12T16:51:47.325Z"
         }
       ]
     },
@@ -332,9 +332,9 @@
           "command": "npm run test:runtime-fact-contract",
           "result": "pass",
           "note": "Runtime fact contract verified all required IDs and aligned runtime output keys.",
-          "headHash": "adc6465a3569e05454703776d97b9f49703af409",
-          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
-          "timestamp": "2026-05-12T16:30:08.005Z"
+          "headHash": "408e27e241a470c8b4130470ecbf66d92a01af18",
+          "materialHash": "4076f313b38e15a81c80e4d048cfce3fef4c2fde2444cf3d7e53fb797e79c89b",
+          "timestamp": "2026-05-12T16:51:47.325Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -342,9 +342,9 @@
           "command": "npm run test:runtime-fact-contract && npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
           "note": "Contract and validation smoke asserted doctor JSON runtime section and text Runtime scan section.",
-          "headHash": "adc6465a3569e05454703776d97b9f49703af409",
-          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
-          "timestamp": "2026-05-12T16:30:08.027Z"
+          "headHash": "408e27e241a470c8b4130470ecbf66d92a01af18",
+          "materialHash": "4076f313b38e15a81c80e4d048cfce3fef4c2fde2444cf3d7e53fb797e79c89b",
+          "timestamp": "2026-05-12T16:51:47.325Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -352,9 +352,9 @@
           "command": "npm run test:runtime-fact-contract",
           "result": "pass",
           "note": "Contract implementation emits Runtime fact contract failed and names missing runtime fact/output key when required registry/output coverage is removed.",
-          "headHash": "adc6465a3569e05454703776d97b9f49703af409",
-          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
-          "timestamp": "2026-05-12T16:30:08.088Z"
+          "headHash": "408e27e241a470c8b4130470ecbf66d92a01af18",
+          "materialHash": "4076f313b38e15a81c80e4d048cfce3fef4c2fde2444cf3d7e53fb797e79c89b",
+          "timestamp": "2026-05-12T16:51:47.325Z"
         }
       ]
     }
