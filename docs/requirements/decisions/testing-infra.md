@@ -2,28 +2,30 @@
 
 ## 测试策略
 
-### 白盒测试（@test fixture 驱动）
+当前测试契约以 story checklist 为中心：
 
-1. 通过 `git diff` 找到改动的函数
-2. 匹配函数上的 `@test` 注释找到对应 fixture
-3. 自动执行单函数测试
+1. PLAN 阶段为每个 checklist item 记录 happy/edge/adversarial `verificationIntent`。
+2. DEV 阶段实现代码，并通过 `checklist_update` 记录 `verificationEvidence`（命令、摘要、intentRef、hash 等）。
+3. REVIEW 阶段由 reviewer 和 `koala-review-test-coverage` 检查实现与 evidence 覆盖。
+4. TEST 阶段运行 `koala validate`，写 validation evidence、bug、stale/missing evidence 结果。
+
+### 项目原生验证
+
+优先使用项目自己的验证命令（如 `npm test`、`pytest`、`go test`、`cargo test`）产出 evidence。Koala 不要求所有项目都有 TypeScript `validate.ts`，也不要求通过 fixture 才算验证。
 
 ### 浏览器真机测试
 
+浏览器黑盒验证仍可作为 `verificationEvidence`：
+
 1. 启动项目 dev server + bridge proxy
-2. 在真实浏览器中执行 fixture 中的 browser case
-3. 含 V8 profiler trace 采集
+2. 在真实浏览器中执行用户可见流程
+3. 将 transcript、截图/trace、命令和结果通过 `checklist_update` 关联到对应 `verificationIntent`
+
+### Legacy fixture 兼容
+
+`test_auto` / `test_story` / `test_fixture` / `fixture_batch_add` / `fixture_update` / `test_add` / `task_coverage` 是旧 fixture/test 家族，保留给旧 story、迁移、诊断和维护。它们不是当前 story 的默认流程；新流程应优先使用 `verificationIntent`、`verificationEvidence` 和 `koala validate`。
 
 ## 测试执行
-
-`test_auto` 是统一测试入口：
-
-1. 扫描 `fixturesDir` 下所有 `.json` fixture 文件
-2. 校验 `fn` + `file` 字段是否指向真实源码
-3. 通过语言无关 executor registry 执行每个 case：优先 `executor` / `command`，兼容 legacy JS `execute`
-4. 验证结果（`expect` 精确/pattern 匹配，或 `throws` 错误匹配）
-5. 采集 V8 profiler trace，检测调用链变化
-6. 自动 bug 管理：fail 创建 bug，pass 自动 fix bug
 
 `koala validate` 是项目级验证入口，不能假设所有项目都有 TypeScript
 `validate.ts`。执行优先级：
@@ -35,7 +37,16 @@
 
 `koala validate` 的成功提示必须使用当前 story phase 和 gate oracle，而不是硬编码 DONE：
 DEV 阶段通过后提示提交并进入 REVIEW；REVIEW 阶段通过后提示进入 TEST；
-TEST 阶段通过后提示查看 DONE pre-check，并按失败 row 的 hint 补 summary、delivery check、dirty tree 等门禁项。
+TEST 阶段通过后提示查看 DONE pre-check，并按失败 row 的 hint 补 summary、delivery check、dirty tree、missing/stale `verificationEvidence` 等门禁项。
+
+Legacy `test_auto` 是兼容 runner，不是统一入口。维护旧 fixture 时它的行为是：
+
+1. 扫描 `fixturesDir` 下所有 `.json` fixture 文件
+2. 校验 `fn` + `file` 字段是否指向真实源码
+3. 通过语言无关 executor registry 执行每个 case：优先 `executor` / `command`，兼容 legacy JS `execute`
+4. 验证结果（`expect` 精确/pattern 匹配，或 `throws` 错误匹配）
+5. 采集 V8 profiler trace，检测调用链变化
+6. 自动 bug 管理：fail 创建 bug，pass 自动 fix bug
 
 Outcome semantics 的 focused smoke 覆盖 dashboard/session wording、`summary_set.outcomeKind` schema、verification evidence verdict 渲染，以及 worktree authority wording：
 
@@ -74,24 +85,32 @@ npm --prefix packages/main run test:outcome-semantics-smoke
 
 ### 阶段行为差异
 
-- **DEV 阶段**：`test_auto` 不还原代码 + 提示"注意：可能修改实际文件"
-- **TEST 阶段**：`test_auto` 正常还原（`git restore . && git clean -fd`）
+- **DEV 阶段**：用项目原生命令验证，并通过 `checklist_update` 写 `verificationEvidence`；legacy `test_auto` 只在维护旧 fixture 时可用，且必须明确提示可能修改实际文件
+- **REVIEW 阶段**：reviewer 和 coverage gate 消费 `verificationIntent` / `verificationEvidence`
+- **TEST 阶段**：`koala validate` 写 validation evidence；legacy `test_auto` 若被维护场景显式调用，仍会执行 `git restore . && git clean -fd`
 
 ## 测试流程
 
-- `story_advance(TEST)` 返回提示立即执行 `test_auto`
-- `test_auto` 自动执行白盒 fixture + 浏览器测试
-- 结果自动写入测试证据
-- `test_story` 写入测试证据时记录当前 git HEAD；`story_advance(DONE)` 只接受 PASS 且 HEAD 匹配当前 story 分支的证据
-- TEST fail 时 `bug_report` 自动回退 DEV
+- PLAN：用 `verificationIntent` 描述每个 checklist item 的 happy/edge/adversarial 验收。
+- DEV：实现后跑项目原生命令或浏览器流程，并用 `checklist_update` 写入 `verificationEvidence`。
+- REVIEW：`koala-review-test-coverage` 检查 `verificationIntent` 是否都有可追溯 evidence。
+- TEST：`koala validate` 执行项目级验证，记录 validation evidence；缺失或 stale evidence 时返回 `allPass:false`。
+- DONE：只接受 PASS、bug fixed、evidence fresh、summary/delivery gate 全部满足的结果。
 
 ## CLI 工具
 
 | 工具 | 用途 |
 |---|---|
-| `test_auto` | 自动执行白盒 fixture + 浏览器测试 |
-| `browser_test` | 单独跑浏览器测试 |
-| `test_add` | 记录测试证据 |
+| `koala validate` | 当前标准项目级验证入口，写 validation evidence / bug / stale evidence 结果 |
+| `checklist_update` | DEV 阶段记录 checklist status、`verificationIntent`、`verificationEvidence` |
+| `verification_evidence_refresh_stale` | 在重跑真实验证后刷新 stale evidence 的 HEAD/material hash |
+| `test_auto` | legacy/compat 全量 fixture runner，维护旧 fixture 时才用 |
+| `test_story` | legacy/compat story fixture runner |
+| `test_fixture` | legacy/compat 单 fixture/链路 runner |
+| `fixture_batch_add` / `fixture_update` | legacy/compat fixture 维护入口 |
+| `test_add` | legacy/compat 测试证据写入；新流程用 `verificationEvidence` |
+| `task_coverage` | legacy/maintenance 覆盖辅助；当前 coverage gate 读取 `verificationEvidence` |
+| `browser_test` | 单独跑浏览器测试，结果应转写为 `verificationEvidence` |
 | `test_list` | 查看测试证据 |
 | `bug_report` | 报告 bug（自动标关联 item in_progress + 回退 DEV） |
 | `bug_update` | 更新 bug 状态 |
@@ -100,7 +119,7 @@ npm --prefix packages/main run test:outcome-semantics-smoke
 
 ## 跨语言执行协议
 
-Fixture 是语言无关测试协议，不是 JS 脚本容器。`execute` 只代表 legacy `js.execute` executor；Python、Go、C++、Java、Swift、Objective-C 等项目应优先通过 `command` / 语言 executor / 原生测试命令产生证据。
+Legacy fixture 是语言无关测试协议，不是 JS 脚本容器。`execute` 只代表 legacy `js.execute` executor；Python、Go、C++、Java、Swift、Objective-C 等项目应优先通过 `command` / 语言 executor / 原生测试命令产生 `verificationEvidence`，再由 `koala validate` 在 TEST 阶段消费。
 
 第一批内置 executor：
 
@@ -116,4 +135,4 @@ Fixture 是语言无关测试协议，不是 JS 脚本容器。`execute` 只代�
 | `objc.xcodebuild` | Objective-C / Apple 平台标准入口，默认 `xcodebuild test` |
 | `rust.cargo` | Rust 标准入口，默认 `cargo test` |
 
-Reviewer 不能把“JS runner 无法 import Python/Go/C++/Java/Swift/OC”判定为测试通过；这只能说明缺少对应 executor 证据。
+Reviewer 不能把“JS runner 无法 import Python/Go/C++/Java/Swift/OC”判定为测试通过；这只能说明缺少对应 executor 证据或 `verificationEvidence`。

@@ -140,7 +140,7 @@ B-xxxx REVIEW (authority:worktree, mirror:INIT_CHECK)
 |---|---|
 | `checklist_add` | 必要时追加 item，并补 verificationIntent；PLAN 阶段必须提供 replan/scope audit reason |
 | `checklist_update` | 可改 status + verificationIntent + verificationEvidence |
-| `fixture_batch_add` / `fixture_update` | 可提前补兼容验证 |
+| `fixture_batch_add` / `fixture_update` | legacy/compat 维护入口，只用于旧 fixture 或迁移；新流程用 `checklist_update` 补 `verificationEvidence` |
 | `koala validate` | 可手动预检，正式 evidence 在 TEST gate 写入 |
 | `story_advance -> REVIEW` | checklist 完成且改动提交后推进 |
 
@@ -169,7 +169,7 @@ B-xxxx REVIEW (authority:worktree, mirror:INIT_CHECK)
 
 - `koala validate`：TEST gate 消费其结果作为 validation evidence。
 - `verification_evidence_refresh_stale`：只刷新已经 stale 且原 evidence 仍存在的 intentRef；它不会替你证明测试真的跑过，因此 dry-run 输出里的 command 应先重跑。
-- `fixture_*`：DEV 可提前写验证；REVIEW/TEST 主要读取证据，不应绕过 review 改行为。
+- `fixture_*`：legacy/compat 维护入口；DEV 如需迁移旧 fixture 可用，但新 story 不应把它当作标准验证流。REVIEW/TEST 主要读取 `verificationEvidence`，不应绕过 review 改行为。
 - `checklist_update`：PLAN 补 intent，DEV 补 status/evidence，其余阶段谨慎使用。
 - `summary_set`：不是形式总结，DONE gate 和最终用户交付都要消费。
 

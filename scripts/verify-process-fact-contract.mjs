@@ -24,6 +24,59 @@ const reviewPassReviewerPrompts = new Set([
   'koala-review-test-coverage.md',
 ]);
 const processFactLevelRegistryPath = 'packages/main/src/core/process-fact-levels.ts';
+const commandPolicyPath = 'packages/main/src/core/command-policy.ts';
+const legacyTestFixtureCommands = [
+  'test_auto',
+  'test_story',
+  'test_fixture',
+  'fixture_batch_add',
+  'fixture_update',
+  'test_add',
+  'task_coverage',
+];
+const activeLifecycleDocPaths = [
+  'AGENTS.md',
+  'docs/requirements/decisions/story-lifecycle.md',
+  'docs/requirements/decisions/testing-infra.md',
+];
+const activeLifecycleDocCurrentTerms = [
+  'verificationIntent',
+  'verificationEvidence',
+  'koala validate',
+  'checklist_update',
+];
+const legacyCommandDocContextPattern = /\blegacy\b|\bcompat\b|\bmaintenance\b|兼容|维护|旧|迁移|背景|destructive/i;
+const commandPolicyStatuses = new Set(['supported', 'rootOnly', 'legacy', 'retired', 'maintenance', 'gateEvidence']);
+const legacyCommandPolicyGuidance = {
+  test_auto: {
+    destructiveRisk: 'workspace-destructive',
+    patterns: [/koala validate --story=<storyId>/, /verificationEvidence/, /dryRun/, /confirm/, /git restore\/git clean/],
+  },
+  test_story: {
+    destructiveRisk: 'fixture-write',
+    patterns: [/koala validate --story=<storyId>/, /verification_evidence_add|verificationEvidence/],
+  },
+  test_fixture: {
+    destructiveRisk: 'fixture-write',
+    patterns: [/project-native command|koala validate --story=<storyId>/, /verification_evidence_add|verificationEvidence/],
+  },
+  fixture_batch_add: {
+    destructiveRisk: 'fixture-write',
+    patterns: [/dryRun/, /validateExecute|verification_evidence_add|verificationEvidence/],
+  },
+  fixture_update: {
+    destructiveRisk: 'fixture-write',
+    patterns: [/fixture_batch_add/, /dryRun/, /project-native tests|verification_evidence_add|verificationEvidence/],
+  },
+  test_add: {
+    destructiveRisk: 'metadata-write',
+    patterns: [/verification_evidence_add|verificationEvidence/, /checklist_update/],
+  },
+  task_coverage: {
+    destructiveRisk: 'none',
+    patterns: [/validate|process-fact/, /verificationEvidence/],
+  },
+};
 const requiredRuntimeEntries = [
   {
     name: 'runtime:phase_tools_malformed_allow_all',
@@ -391,6 +444,51 @@ function extractExportedArrayBody(text, exportName) {
   return '';
 }
 
+function extractBalancedBlock(text, openIndex, openChar, closeChar, label) {
+  let depth = 0;
+  let inString = false;
+  let quote = '';
+  let escaped = false;
+
+  for (let index = openIndex; index < text.length; index += 1) {
+    const char = text[index];
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+    if (inString) {
+      if (char === '\\') escaped = true;
+      else if (char === quote) inString = false;
+      continue;
+    }
+    if (char === '"' || char === "'" || char === '`') {
+      inString = true;
+      quote = char;
+      continue;
+    }
+    if (char === openChar) {
+      depth += 1;
+      continue;
+    }
+    if (char === closeChar) {
+      depth -= 1;
+      if (depth === 0) return text.slice(openIndex + 1, index);
+    }
+  }
+
+  fail(`${label} block should close`);
+  return '';
+}
+
+function extractExportedObjectBody(text, exportName, relPath) {
+  const marker = `export const ${exportName} = {`;
+  const start = text.indexOf(marker);
+  assert(start !== -1, `${relPath} should export ${exportName}`);
+  if (start === -1) return '';
+  const objectStart = start + marker.length - 1;
+  return extractBalancedBlock(text, objectStart, '{', '}', `${relPath} ${exportName}`);
+}
+
 let cachedProcessFactLevelEntries = null;
 
 function parseProcessFactLevelRegistry() {
@@ -419,6 +517,44 @@ function parseProcessFactLevelDefinitions() {
   const text = read(processFactLevelRegistryPath);
   const body = extractExportedArrayBody(text, 'PROCESS_FACT_LEVEL_DEFINITIONS');
   return [...body.matchAll(/level:\s*'(L[0-4])'/g)].map(match => match[1]);
+}
+
+let cachedCommandPolicyEntries = null;
+
+function parseCommandPolicyEntries() {
+  if (cachedCommandPolicyEntries) return cachedCommandPolicyEntries;
+
+  const text = read(commandPolicyPath);
+  const body = extractExportedObjectBody(text, 'COMMAND_POLICIES', commandPolicyPath);
+  const entries = [];
+  const keyPattern = /^\s*([a-z_][a-z0-9_]*):\s*\{/gm;
+  for (const match of body.matchAll(keyPattern)) {
+    const name = match[1];
+    const openIndex = match.index + match[0].lastIndexOf('{');
+    const block = extractBalancedBlock(body, openIndex, '{', '}', `${commandPolicyPath} ${name}`);
+    const status = block.match(/\bstatus:\s*'([^']+)'/)?.[1] || '';
+    const reason = block.match(/\breason:\s*'([^']*)'/)?.[1] || '';
+    const replacement = block.match(/\breplacement:\s*'([^']*)'/)?.[1] || '';
+    const destructiveRisk = block.match(/\bdestructiveRisk:\s*'([^']+)'/)?.[1] || '';
+    entries.push({
+      name,
+      block,
+      status,
+      reason,
+      replacement,
+      destructiveRisk,
+      hasAllowedPhases: /\ballowedPhases:\s*(?:'all'|\[)/.test(block),
+      rootOnly: /\brootOnly:\s*true\b/.test(block) || status === 'rootOnly',
+      gateEvidence: /\bgateEvidence:\s*true\b/.test(block) || status === 'gateEvidence',
+    });
+  }
+
+  const declaredObjectCount = [...body.matchAll(/^\s*[a-z_][a-z0-9_]*:\s*\{/gm)].length;
+  assert(entries.length === declaredObjectCount, `${commandPolicyPath}: every policy entry must be parseable as commandName: { ... }`);
+  assert(entries.length > 0, `${commandPolicyPath}: command policy should not be empty`);
+
+  cachedCommandPolicyEntries = entries;
+  return entries;
 }
 
 function duplicateNames(values) {
@@ -450,6 +586,87 @@ function findUninventoriedProcessFactCommands(cliText, inventory = processFactRe
   return extractCliToolNames(cliText)
     .filter(isProcessFactCommandName)
     .filter(commandName => !inventory.has(commandName));
+}
+
+function assertCommandPolicyInventory(cliToolNames) {
+  const text = read(commandPolicyPath);
+  for (const helperName of ['getCommandLifecyclePolicy', 'formatCommandLifecycleHint', 'getCommandPolicyEntries']) {
+    assert(text.includes(helperName), `${commandPolicyPath}: missing helper ${helperName}`);
+  }
+
+  const policyEntries = parseCommandPolicyEntries();
+  const policyNames = policyEntries.map(entry => entry.name);
+  const policyByName = new Map(policyEntries.map(entry => [entry.name, entry]));
+  const cliToolNameSet = new Set(cliToolNames);
+
+  const duplicatePolicyNames = duplicateNames(policyNames);
+  assert(
+    duplicatePolicyNames.length === 0,
+    `${commandPolicyPath}: duplicate policy entries: ${duplicatePolicyNames.join(', ')}`,
+  );
+
+  const missingPolicyEntries = cliToolNames.filter(commandName => !policyByName.has(commandName));
+  assert(
+    missingPolicyEntries.length === 0,
+    `${commandPolicyPath}: MAIN_TOOLS command(s) missing lifecycle policy: ${missingPolicyEntries.join(', ')}`,
+  );
+
+  const unknownPolicyEntries = policyNames.filter(name => !cliToolNameSet.has(name));
+  assert(
+    unknownPolicyEntries.length === 0,
+    `${commandPolicyPath}: lifecycle policy entry not present in MAIN_TOOLS: ${unknownPolicyEntries.join(', ')}`,
+  );
+
+  for (const entry of policyEntries) {
+    assert(commandPolicyStatuses.has(entry.status), `${commandPolicyPath}: ${entry.name} has unknown status "${entry.status}"`);
+    assert(entry.reason.trim().length > 0, `${commandPolicyPath}: ${entry.name} must explain lifecycle reason`);
+    assert(entry.hasAllowedPhases || entry.rootOnly, `${commandPolicyPath}: ${entry.name} must declare allowedPhases or rootOnly`);
+    assert(entry.destructiveRisk !== '', `${commandPolicyPath}: ${entry.name} must declare destructiveRisk, even when none`);
+  }
+
+  for (const commandName of legacyTestFixtureCommands) {
+    const entry = policyByName.get(commandName);
+    assert(entry, `${commandPolicyPath}: legacy test/fixture command missing policy: ${commandName}`);
+    if (!entry) continue;
+
+    const guidance = legacyCommandPolicyGuidance[commandName];
+    assert(entry.status === 'legacy', `${commandPolicyPath}: ${commandName} must be classified as legacy`);
+    assert(entry.rootOnly, `${commandPolicyPath}: ${commandName} must stay rootOnly/phase-gated`);
+    assert(entry.replacement.trim().length > 0, `${commandPolicyPath}: ${commandName} must include replacement guidance`);
+    assert(
+      entry.destructiveRisk === guidance.destructiveRisk,
+      `${commandPolicyPath}: ${commandName} destructiveRisk drifted: expected ${guidance.destructiveRisk}, got ${entry.destructiveRisk || '<missing>'}`,
+    );
+    for (const pattern of guidance.patterns) {
+      assert(
+        pattern.test(entry.block),
+        `${commandPolicyPath}: ${commandName} replacement/destructive guidance missing ${pattern}`,
+      );
+    }
+  }
+}
+
+function assertActiveLifecycleDocGuidance() {
+  for (const relPath of activeLifecycleDocPaths) {
+    const text = read(relPath);
+    for (const term of activeLifecycleDocCurrentTerms) {
+      assert(text.includes(term), `${relPath}: active lifecycle docs must mention current flow term "${term}"`);
+    }
+
+    const lines = text.split(/\r?\n/);
+    for (const [index, line] of lines.entries()) {
+      const commandName = legacyTestFixtureCommands.find(command => new RegExp(`\\b${command}\\b`).test(line));
+      if (!commandName) continue;
+
+      const contextStart = Math.max(0, index - 2);
+      const contextEnd = Math.min(lines.length, index + 3);
+      const context = lines.slice(contextStart, contextEnd).join('\n');
+      assert(
+        legacyCommandDocContextPattern.test(context),
+        `${relPath}:${index + 1} ${commandName} mention must be labelled legacy/compat/maintenance or be in historical context`,
+      );
+    }
+  }
 }
 
 function stripTsComments(text) {
@@ -549,6 +766,7 @@ function assertProcessFactCommandInventory() {
   const cliToolNameSet = new Set(cliToolNames);
   const registryEntries = parseProcessFactLevelRegistry();
   const registry = new Map(registryEntries.map(entry => [entry.name, entry]));
+  assertCommandPolicyInventory(cliToolNames);
 
   const definitionLevels = new Set(parseProcessFactLevelDefinitions());
   for (const level of ['L0', 'L1', 'L2', 'L3', 'L4']) {
@@ -875,6 +1093,7 @@ for (const dir of promptDirs) {
 }
 comparePromptSemantics(promptMap);
 assertSyntheticAdversarialChecks();
+assertActiveLifecycleDocGuidance();
 assertProcessFactCommandInventory();
 printProcessFactLevelRegistrySummary();
 

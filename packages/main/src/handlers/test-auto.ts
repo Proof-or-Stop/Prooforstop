@@ -88,6 +88,10 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
         if (e.message.includes('禁止 test_auto')) throw e;
       }
 
+      if (args.confirm !== true) {
+        throw new Error('test_auto 真实执行需要 confirm:true；请先用 dryRun:true 查看 git restore/git clean cleanup 范围');
+      }
+
       // CHK-004: storyId 已废弃
       if (args.storyId) {
         warnings.push('⚠ storyId 已废弃，test_auto 现在始终执行全量回归。story 级测试请用 test_story');

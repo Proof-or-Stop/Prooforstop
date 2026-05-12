@@ -175,6 +175,93 @@ function assertSessionBriefGate(): void {
   );
 }
 
+function createActiveStoryRoot(phase: StoryInfo['phase'], configPatch: Record<string, unknown> = {}): { root: string; storyId: string } {
+  const root = mkdtempSync(join(tmpdir(), 'koala-flow-command-policy-'));
+  const { store, storyId } = createReviewStore(root);
+  const config = {
+    scanRoot: 'packages/main',
+    rootDir: 'src',
+    storyDir: '.koala/story/actives',
+    requirementsDir: 'docs/requirements',
+    workflow: { profile: 'balanced' },
+    ...configPatch,
+  };
+  write(root, 'koala.config.json', JSON.stringify(config));
+  git(root, ['init']);
+  git(root, ['config', 'user.email', 'koala@example.test']);
+  git(root, ['config', 'user.name', 'Koala Smoke']);
+  git(root, ['checkout', '-B', 'main']);
+  git(root, ['add', '.']);
+  git(root, ['commit', '-m', 'base']);
+  git(root, ['checkout', '-b', `story/${storyId}`]);
+  const story = store.readStory(storyId);
+  story.phase = phase;
+  store.writeStory(storyId, story);
+  return { root, storyId };
+}
+
+function runBlockedCli(root: string, args: string[]): string {
+  try {
+    execFileSync('node', [localCliPath(), ...args], {
+      cwd: root,
+      encoding: 'utf-8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+  } catch (error: any) {
+    assert.notEqual(error.status, 0, `${args.join(' ')} should fail`);
+    return `${error.stdout || ''}${error.stderr || ''}`;
+  }
+  assert.fail(`${args.join(' ')} should have been blocked by phase gate`);
+}
+
+function assertPhaseGatePolicyHints(): void {
+  const supported = createActiveStoryRoot('DEV');
+  try {
+    const output = runBlockedCli(supported.root, ['bug_report']);
+    assert.match(output, /命令 "bug_report" 在 DEV 阶段不可用/);
+    assert.match(output, /Lifecycle: supported/);
+    assert.match(output, /Requested phase: DEV/);
+    assert.match(output, /Allowed phases: REVIEW, TEST/);
+    assert.match(output, /Reason: Bug records are REVIEW\/TEST feedback artifacts/);
+    assert.match(output, /Policy source: packages\/main\/src\/core\/command-policy\.ts/);
+  } finally {
+    rmSync(supported.root, { recursive: true, force: true });
+  }
+
+  const legacy = createActiveStoryRoot('DEV');
+  try {
+    const output = runBlockedCli(legacy.root, ['test_auto']);
+    assert.match(output, /Lifecycle: legacy/);
+    assert.match(output, /Requested phase: DEV/);
+    assert.match(output, /Allowed phases: root-only/);
+    assert.match(output, /Replacement: .*koala validate --story=<storyId>/);
+    assert.match(output, /verificationEvidence/);
+    assert.match(output, /Destructive risk: workspace-destructive/);
+    assert.match(output, /confirm/);
+  } finally {
+    rmSync(legacy.root, { recursive: true, force: true });
+  }
+}
+
+function assertPhaseToolsOverrideStillBlocks(): void {
+  const override = createActiveStoryRoot('DEV', {
+    phaseTools: {
+      '*': ['session_brief'],
+      DEV: ['status'],
+    },
+  });
+  try {
+    const output = runBlockedCli(override.root, ['finding_add']);
+    assert.match(output, /命令 "finding_add" 在 DEV 阶段不可用/);
+    assert.match(output, /Lifecycle: gateEvidence/);
+    assert.match(output, /Requested phase: DEV/);
+    assert.match(output, /Allowed phases: DEV, REVIEW/);
+    assert.match(output, /Current phaseTools allow: session_brief, next, status/);
+  } finally {
+    rmSync(override.root, { recursive: true, force: true });
+  }
+}
+
 function assertReviewGateUsesOptIn(): void {
   const root = mkdtempSync(join(tmpdir(), 'koala-flow-review-'));
   try {
@@ -831,6 +918,8 @@ function assertGlobalLinkRepair(): void {
 }
 
 assertSessionBriefGate();
+assertPhaseGatePolicyHints();
+assertPhaseToolsOverrideStillBlocks();
 assertReviewGateUsesOptIn();
 await assertStoryAdvanceReviewEchoOmitsRetiredChannel();
 assertReviewerStatusUsesMdFallback();
