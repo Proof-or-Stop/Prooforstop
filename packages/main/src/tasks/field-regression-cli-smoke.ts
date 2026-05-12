@@ -110,6 +110,11 @@ function now(): string {
   return '2026-05-08T10:00:00.000Z';
 }
 
+function assertIsoReviewRound(value: string | undefined, expected: string, context: string): void {
+  assert.equal(value, expected, `${context} should use story.currentReviewRound`);
+  assert.match(value || '', /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/, `${context} should be ISO 8601`);
+}
+
 function writeReviewStory(store: StoryStore, storyId: string): void {
   const timestamp = now();
   const story: StoryInfo = {
@@ -275,8 +280,10 @@ async function assertDirectFindingAutoResolveCliSurface(): Promise<void> {
     const validateOutput = await runKoala(root, 'validate', { story: storyId, json: true });
     assert.match(validateOutput, /"allPass":\s*true/);
     const findings = new StoryStore(root).readFindings(storyId).findings;
-    assert.equal(findings.find(f => f.id === `${storyId}:F-002`)?.status, 'resolved');
-    assert.match(findings.find(f => f.id === `${storyId}:F-002`)?.resolvedBy || '', /^F-002@/);
+    const directFinding = findings.find(f => f.id === `${storyId}:F-002`);
+    assert.equal(directFinding?.status, 'resolved');
+    assert.match(directFinding?.resolvedBy || '', /^F-002@/);
+    assertIsoReviewRound(directFinding?.reviewRound, now(), 'CLI-created finding reviewRound');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -298,7 +305,11 @@ async function assertReviewPassConcurrentCliSurface(): Promise<void> {
     const ids = outputs.map(out => out.match(/B-rpcli:RP-\d+/)?.[0]).filter(Boolean);
     assert.equal(ids.length, agents.length);
     assert.equal(new Set(ids).size, agents.length, 'review_pass_set CLI outputs should all report unique durable ids');
-    assert.equal(new StoryStore(root).readReviewPasses(storyId).passes.length, agents.length);
+    const passes = new StoryStore(root).readReviewPasses(storyId).passes;
+    assert.equal(passes.length, agents.length);
+    for (const pass of passes) {
+      assertIsoReviewRound(pass.reviewRound, now(), `CLI-created review pass ${pass.id} reviewRound`);
+    }
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -325,6 +336,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
     assert.equal(passes.length, 1);
     assert.equal(passes[0].agent, 'koala-review-docs');
     assert.match(passes[0].note, /文档一致性检查通过/);
+    assertIsoReviewRound(passes[0].reviewRound, now(), 'pass-only converted review pass reviewRound');
     const emptyFindingList = await runKoala(root, 'finding_list', { storyId });
     assert.match(emptyFindingList, /"findings":\s*\[\]/, 'pass-only finding_add should not appear in finding_list');
 
