@@ -30,6 +30,10 @@ function unique(values) {
   return [...new Set(values)];
 }
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function cliCandidates() {
   const candidates = [localDistCli];
   try {
@@ -64,19 +68,87 @@ assert(existsSync(localDistCli), `Missing built Koala CLI at ${localDistCli}. Ru
 assert(isRunnableCli(cli), `Expected runnable built Koala CLI. Checked: ${candidateCliPaths.join(', ')}. Run npm run build first.`);
 assert(!cli.includes(staleStorySegment), `Runtime reviewer contract must not use stale story worktree CLI path: ${cli}`);
 
+function findHardcodedWorktreeCliIssues(source, label, options = {}) {
+  const issues = [];
+  const directCliLiteral = /['"][^'"]*[/\\]\.worktrees[/\\]B-[a-f0-9]{4,}[^'"]*[/\\]packages[/\\]main[/\\]dist[/\\]cli\.js['"]/g;
+  const storyWorktreeLiteral = /['"][^'"]*[/\\]\.worktrees[/\\]B-[a-f0-9]{4,}(?:[/\\][^'"]*)?['"]/g;
+  const rootAssignment = /(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(['"])([^'"]*[/\\]\.worktrees[/\\]B-[a-f0-9]{4,}(?:[/\\][^'"]*)?)\2/g;
+
+  for (const match of source.matchAll(directCliLiteral)) {
+    issues.push(`${label} hardcodes a story worktree CLI path literal (${match[0]})`);
+  }
+
+  if (options.forbidStandaloneStoryWorktreeLiteral) {
+    for (const match of source.matchAll(storyWorktreeLiteral)) {
+      issues.push(`${label} hardcodes a story worktree root literal (${match[0]})`);
+    }
+  }
+
+  for (const match of source.matchAll(rootAssignment)) {
+    const variableName = match[1];
+    const escapedVariableName = escapeRegExp(variableName);
+    const segmentedJoin = new RegExp(
+      `\\b(?:join|resolve)\\s*\\(\\s*${escapedVariableName}\\s*,\\s*['"]packages['"]\\s*,\\s*['"]main['"]\\s*,\\s*['"]dist['"]\\s*,\\s*['"]cli\\.js['"]`,
+    );
+    const combinedJoin = new RegExp(
+      `\\b(?:join|resolve)\\s*\\(\\s*${escapedVariableName}\\s*,\\s*['"]packages[/\\\\]main[/\\\\]dist[/\\\\]cli\\.js['"]`,
+    );
+    const templateJoin = new RegExp(
+      '`[^`]*\\$\\{\\s*' + escapedVariableName + '\\s*\\}[/\\\\]packages[/\\\\]main[/\\\\]dist[/\\\\]cli\\.js[^`]*`',
+    );
+    if (segmentedJoin.test(source) || combinedJoin.test(source) || templateJoin.test(source)) {
+      issues.push(
+        `${label} derives a CLI path from hardcoded story worktree root ${match[3]} via ${variableName}`,
+      );
+    }
+  }
+
+  return issues;
+}
+
 function assertNoHardcodedWorktreeCliPaths() {
   const scriptsDir = join(repoRoot, 'scripts');
-  const staleCliLiteral = /['"][^'"]*[/\\]\.worktrees[/\\]B-[^'"]*[/\\]packages[/\\]main[/\\]dist[/\\]cli\.js['"]/;
+  const runtimeContractScripts = new Set([
+    'verify-runtime-reviewer-contract.mjs',
+    'verify-main-branch-runtime-health.mjs',
+  ]);
+  const issues = [];
+
   for (const entry of readdirSync(scriptsDir)) {
     if (!entry.endsWith('.mjs')) continue;
     const path = join(scriptsDir, entry);
     const source = readFileSync(path, 'utf8');
-    const match = source.match(staleCliLiteral);
-    assert(
-      !match,
-      `${relative(repoRoot, path)} hardcodes a story worktree CLI path (${match?.[0]}). Derive CLI candidates from the current checkout instead.`,
+    issues.push(
+      ...findHardcodedWorktreeCliIssues(source, relative(repoRoot, path), {
+        forbidStandaloneStoryWorktreeLiteral: runtimeContractScripts.has(entry),
+      }),
     );
   }
+
+  const syntheticStoryWorktreeRoot = '"/tmp/project/' + '.worktrees/' + 'B-cafe"';
+  const splitRootIssues = findHardcodedWorktreeCliIssues(
+    `const worktreeRoot = ${syntheticStoryWorktreeRoot};\nconst cli = join(worktreeRoot, "packages/main/dist/cli.js");\n`,
+    'synthetic split worktree root',
+  );
+  assert(
+    splitRootIssues.some((issue) => issue.includes('derives a CLI path from hardcoded story worktree root')),
+    'hardcoded worktree scanner must catch split root + joined packages/main/dist/cli.js regression shape',
+  );
+
+  const standaloneRootIssues = findHardcodedWorktreeCliIssues(
+    `const worktreeRoot = ${syntheticStoryWorktreeRoot};\n`,
+    'synthetic standalone worktree root',
+    { forbidStandaloneStoryWorktreeLiteral: true },
+  );
+  assert(
+    standaloneRootIssues.some((issue) => issue.includes('hardcodes a story worktree root literal')),
+    'hardcoded worktree scanner must catch standalone story worktree root literals in runtime contract scripts',
+  );
+
+  assert(
+    issues.length === 0,
+    `Hardcoded story worktree CLI path contract failed:\n${issues.map((issue) => `- ${issue}`).join('\n')}`,
+  );
 }
 
 assertNoHardcodedWorktreeCliPaths();
