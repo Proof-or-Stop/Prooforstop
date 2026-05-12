@@ -1,13 +1,13 @@
 {
   "storyId": "B-8bb5",
-  "generatedAt": "2026-05-12T00:14:41.934Z",
+  "generatedAt": "2026-05-12T00:20:14.868Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
     "hasPlan": true,
     "checklistItems": 2,
     "reviewRounds": 2,
-    "findings": 0,
+    "findings": 2,
     "bugs": 0,
     "testRuns": 0,
     "hasEvalEvidence": false,
@@ -260,7 +260,7 @@
           "note": "express channel — main agent 允许自写代码"
         },
         "reviewerIndependence": {
-          "value": false,
+          "value": true,
           "unit": "bool",
           "confidence": "high",
           "sources": [
@@ -277,7 +277,7 @@
           "note": "express channel — main agent 允许自写代码 — no violation possible"
         },
         "parallelBatchCount": {
-          "value": 1,
+          "value": 2,
           "unit": "count",
           "confidence": "medium",
           "sources": [
@@ -318,7 +318,7 @@
           ]
         },
         "formalFindingCount": {
-          "value": 0,
+          "value": 2,
           "unit": "count",
           "confidence": "high",
           "sources": [

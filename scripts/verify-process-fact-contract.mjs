@@ -452,6 +452,96 @@ function findUninventoriedProcessFactCommands(cliText, inventory = processFactRe
     .filter(commandName => !inventory.has(commandName));
 }
 
+function stripTsComments(text) {
+  let out = '';
+  let quote = null;
+  let escaped = false;
+  for (let index = 0; index < text.length; index += 1) {
+    const char = text[index];
+    const next = text[index + 1];
+
+    if (quote) {
+      out += char;
+      if (escaped) {
+        escaped = false;
+      } else if (char === '\\') {
+        escaped = true;
+      } else if (char === quote) {
+        quote = null;
+      }
+      continue;
+    }
+
+    if (char === '\'' || char === '"' || char === '`') {
+      quote = char;
+      out += char;
+      continue;
+    }
+
+    if (char === '/' && next === '/') {
+      while (index < text.length && text[index] !== '\n') index += 1;
+      out += '\n';
+      continue;
+    }
+
+    if (char === '/' && next === '*') {
+      index += 2;
+      while (index < text.length && !(text[index] === '*' && text[index + 1] === '/')) index += 1;
+      index += 1;
+      out += ' ';
+      continue;
+    }
+
+    out += char;
+  }
+  return out;
+}
+
+function extractPhaseToolEntries(configText, phaseName) {
+  const text = stripTsComments(configText);
+  const match = new RegExp(`\\b${phaseName}:\\s*\\[`).exec(text);
+  if (!match) return new Set();
+
+  let depth = 1;
+  let quote = null;
+  let escaped = false;
+  let block = '';
+  for (let index = match.index + match[0].length; index < text.length; index += 1) {
+    const char = text[index];
+
+    if (quote) {
+      block += char;
+      if (escaped) {
+        escaped = false;
+      } else if (char === '\\') {
+        escaped = true;
+      } else if (char === quote) {
+        quote = null;
+      }
+      continue;
+    }
+
+    if (char === '\'' || char === '"' || char === '`') {
+      quote = char;
+      block += char;
+      continue;
+    }
+
+    if (char === '[') depth += 1;
+    if (char === ']') {
+      depth -= 1;
+      if (depth === 0) break;
+    }
+    block += char;
+  }
+
+  const entries = new Set();
+  for (const literal of block.matchAll(/['"]((?:\\.|[^'"\\])*)['"]/g)) {
+    entries.add(literal[1].replace(/\\(['"\\])/g, '$1'));
+  }
+  return entries;
+}
+
 function assertProcessFactCommandInventory() {
   const cliText = read('packages/main/src/cli-engine.ts');
   const configText = read('packages/main/src/core/config.ts');
@@ -562,19 +652,19 @@ function assertProcessFactCommandInventory() {
   }
 
   const findingClusterEntry = registry.get('finding_cluster');
-  const devPhaseToolsBlock = configText.match(/DEV:\s*\[([\s\S]*?)\],\s*REVIEW:/m)?.[1] || '';
+  const devPhaseToolEntries = extractPhaseToolEntries(configText, 'DEV');
   assert(
     findingClusterEntry?.level === 'L2',
     `${processFactLevelRegistryPath}: finding_cluster must stay L2 metadata maintenance, not gate evidence`,
   );
   assert(
-    devPhaseToolsBlock.includes('finding_add') &&
-      devPhaseToolsBlock.includes('finding_dispatch') &&
-      devPhaseToolsBlock.includes('finding_cluster'),
+    devPhaseToolEntries.has('finding_add') &&
+      devPhaseToolEntries.has('finding_dispatch') &&
+      devPhaseToolEntries.has('finding_cluster'),
     'packages/main/src/core/config.ts: DEV phaseTools must keep finding_add/finding_dispatch/finding_cluster available together',
   );
   assert(
-    devPhaseToolsBlock.length > 0 && !devPhaseToolsBlock.includes('bug_report'),
+    devPhaseToolEntries.size > 0 && !devPhaseToolEntries.has('bug_report'),
     'packages/main/src/core/config.ts: DEV finding_cluster fix must not allow unrelated bug_report',
   );
 }

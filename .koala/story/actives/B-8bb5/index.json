@@ -4,7 +4,7 @@
   "title": "Allow finding clustering in DEV when reviewer findings exist",
   "description": "Fix phaseTools drift where DEV allows finding_add/finding_dispatch but rejects finding_cluster, causing local projects with DEV findings to be unable to auto-cluster before dispatching fixes.",
   "type": "bug",
-  "phase": "REVIEW",
+  "phase": "DEV",
   "priority": "high",
   "createdAt": "2026-05-12T00:09:20.314Z",
   "startedAt": "2026-05-12T00:09:20.314Z",
@@ -46,6 +46,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-05-12T00:17:23.568Z",
+      "branch": "story/B-8bb5",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-12T00:20:14.843Z",
       "branch": "story/B-8bb5",
       "user": "Harmonygo",
       "agent": "main"
