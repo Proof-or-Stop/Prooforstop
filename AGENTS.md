@@ -61,6 +61,7 @@
 - finding category 的有效集合由 CLI schema + handler runtime 共同收窄；已知 legacy category 只做兼容归一到 `missing`，不能扩成新类别。
 - gate 只能消费签名、hash、evidence、check artifact 等结构化事实，不能靠“检查通过”之类文本当证据。
 - `packages/main/src/core/process-fact-registry.ts` 是流程事实 registry：它从 `COMMAND_POLICIES` + `PROCESS_FACT_LEVELS` 组装 command facts，并显式登记 reviewer lane、artifact、required semantics。新增/修改 gate evidence、review lane、signed artifact、validation/review-pass/finding 语义时，必须同时更新 registry 和 `scripts/verify-process-fact-contract.mjs`，不能只改 prompt 或文档。
+- runtime / environment facts 不混入 process registry。`packages/main/src/core/runtime-fact-registry.ts` 只登记 CLI entrypoint、global core realpath、project-local bin、Node/package version、validate source、external-reference-policy 等运行环境事实；`doctor` 通过 `Runtime scan:` 展示，`scripts/verify-runtime-fact-contract.mjs` 负责防回退。外部项目对 Orchestrate 本地 symlink/realpath 期望只能 warn/advisory，不能 hard fail。`external-reference-policy` 是 bounded docs/config policy scan，不代表联网探活；localhost / 127.0.0.1 / ::1 视为 internal example。
 
 ## Story 阶段流转
 

@@ -47,6 +47,10 @@ gate 消费的验证结果 artifact。`scripts/verify-process-fact-contract.mjs`
 `DEFAULT_PHASE_TOOLS`、reviewer lane 和 signed artifact 一致；项目配置只能补
 本地验证命令或收窄可用命令，不能放宽 legacy/rootOnly/gateEvidence 语义。
 
+runtime/environment drift 事实必须单独登记在 `packages/main/src/core/runtime-fact-registry.ts`，
+并用 `scripts/verify-runtime-fact-contract.mjs` 防回退；不要把 CLI entrypoint、
+global realpath、project-local bin 这类环境事实混入流程事实 registry。
+
 Legacy `test_auto` 是兼容 runner，不是统一入口。当前 handler 只负责执行 legacy fixture 并返回执行摘要；维护旧 fixture 时它的行为是：
 
 1. 扫描 `fixturesDir` 下所有 `.json` fixture 文件
@@ -92,6 +96,16 @@ npm --prefix packages/main run test:outcome-semantics-smoke
 自动发现的 fallback 命令标签、是否处于 no-validator warning，以及 shell 风格配置
 是否会留下 `shell=true` receipt。这里不能写项目专属测试数量或 PVSC 之类的假设；
 需要强门禁时应配置显式 validate command。
+
+`koala doctor` 的 `Runtime scan:` 是另一类 advisory / warn 输出：它检查 Koala 运行环境事实，
+不写 validation evidence，也不进入 `process-fact-registry`。runtime facts 由
+`packages/main/src/core/runtime-fact-registry.ts` 声明，并由
+`scripts/verify-runtime-fact-contract.mjs` 验证 registry ID、output key、checker wiring、
+doctor JSON `runtime` 分区和 text source coverage。`external-reference-policy` 只做 bounded
+truth/config scan：`koala.config.json`、`AGENTS.md`、`CLAUDE.md`、`README.md`、
+`docs/requirements/**/*.md`；排除 `.koala/story`、`docs/story`、`tests/fixtures`、
+`node_modules`、`dist/build` 和普通源码注释。扫描到外部 URL / host:port 且没有 health command
+语义时只能输出 reference-only / health-check-required warning，不能声称 connectivity pass。
 
 ### 阶段行为差异
 

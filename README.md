@@ -66,6 +66,8 @@ node packages/main/dist/cli.js doctor --format=json
 `validate --json` 的 `commands[]` 是验证 receipt：结构化命令默认记录 argv 形式；
 包含 `cd`、`&&`、管道或重定向等 shell 语义的字符串配置会记录 `shell=true`，表示这是有意的 shell receipt。必需命令失败会让 validate fail；`optional:true` 失败只会 warn。`doctor` 的 Validation scan 只做 advisory：它展示 validate 文件、配置命令、fallback 发现和 no-validator warning，帮助你决定是否要补显式 `validate.command(s)`。
 
+`doctor` 还会输出 `Runtime scan:`，这不是流程 gate 证据，而是运行环境漂移检查。runtime facts 由 `packages/main/src/core/runtime-fact-registry.ts` 定义并由 `scripts/verify-runtime-fact-contract.mjs` 保护，覆盖 CLI entrypoint、global `@koala-agent/core` realpath、项目本地 `node_modules/.bin/koala`、Node/package version、validate source 和 `external-reference-policy`。外部项目只收到 warn/advisory，不因为 Orchestrate 本仓的 symlink 期望 hard fail。`external-reference-policy` 只扫描 `koala.config.json`、`AGENTS.md`、`CLAUDE.md`、`README.md`、`docs/requirements/**/*.md`，排除 story/fixture/build/source-comment 噪音；它只报告 policy warning，不声明 connectivity pass。
+
 Dashboard 和 `session_brief` 会把 lifecycle progress 与 terminal outcome 分开显示：
 `Lifecycle DONE: N/M (...)` 只表示 story 进入 DONE；`DONE-success/default`、`DONE-blocked`、`DONE-audit-only` 来自 `summary_set.outcomeKind`，旧 summary 缺字段时归入 success/default 兼容桶。相关回归可运行：
 
