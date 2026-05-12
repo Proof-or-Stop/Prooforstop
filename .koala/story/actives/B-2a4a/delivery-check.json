@@ -1,0 +1,46 @@
+{
+  "storyId": "B-2a4a",
+  "checkedAt": "2026-05-12T22:31:07.912Z",
+  "reviewRound": "2026-05-12T22:26:13.761Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "CLAUDE.md",
+      "promise": "Documents that story_review.planReviewRound is the numeric PLAN review count, story_review.reviewRound is only a legacy numeric PLAN alias, and signed artifact reviewRound remains an ISO 8601 string.",
+      "status": "verified",
+      "verifiedBy": "git diff docs review + npm run test:process-fact-contract",
+      "evidence": "CLAUDE.md diff includes story_review.planReviewRound: number (PLAN review round count), legacy numeric PLAN review alias, and reviewRound: string (ISO 8601 review round id); process fact contract passed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "Lifecycle process facts distinguish signed reviewRound ISO string from story_review.planReviewRound numeric PLAN review count and the legacy story_review.reviewRound numeric alias.",
+      "status": "verified",
+      "verifiedBy": "git diff docs review + npm run test:process-fact-contract",
+      "evidence": "story-lifecycle.md diff includes both reviewRound: string (ISO 8601 review round id) and story_review.planReviewRound: number (PLAN review round count); process fact contract passed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/testing-infra.md",
+      "promise": "Testing infrastructure docs require code policy/gate protection for reviewRound schema and distinguish story_review PLAN number from signed artifact ISO reviewRound.",
+      "status": "verified",
+      "verifiedBy": "git diff docs review + npm run test:process-fact-contract",
+      "evidence": "testing-infra.md diff includes signed reviewRound ISO, story_review.planReviewRound number, and legacy numeric alias language; process fact contract passed."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node scripts/verify-story-review-structured-output.mjs -> ok missing-intent; ok advisory-only; ok high-risk; story review structured output verified. npm run test:process-fact-contract -> Process fact contract verified. Confirms explicit numeric planReviewRound and docs contract for legacy alias vs signed ISO reviewRound."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm run test:field-regression-cli-smoke -> field regression CLI smoke passed. npm run build -> exit 0. Confirms CLI-created finding/review-pass/pass-only reviewRound remains story.currentReviewRound ISO string while structured story_review output uses numeric planReviewRound."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review found no blocker. git diff, summary_get, transcript-diff evidence, checklist evidence, review passes, docs promises, and rerun tests all support DONE: story_review.planReviewRound is explicit numeric PLAN count, story_review.reviewRound remains legacy numeric alias, and signed finding/review-pass/delivery reviewRound remains ISO string."
+  },
+  "_hash": "db339b9ab2c4fae7a7e5b5da933a304aaa540fc680b41f556818c8918adaefef"
+}
