@@ -5,7 +5,7 @@
       "desc": "[test-coverage] CHK-002 happy evidence overclaims signed artifact coverage: npm run test:flow-stability-smoke and npm run test:field-regression-cli-smoke pass, and the new structured-output smoke covers story_review.planReviewRound, but the cited flow/field tests do not assert that CLI-created findings/review-passes persist reviewRound as an ISO 8601 string sourced from story.currentReviewRound. In packages/main/src/tasks/field-regression-cli-smoke.ts:254-279 finding_add assertions check status/resolvedBy only, and lines 293-301 review_pass_set assertions check ids/count only; packages/main/src/tasks/flow-stability-smoke.ts:234-236 checks only the registry semantic. Add explicit assertions for finding.reviewRound and reviewPass.reviewRound equality to the synthetic story currentReviewRound plus ISO shape, then refresh verificationEvidence.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-05-12T22:23:48.298Z",
       "reviewRound": "2026-05-12T22:22:13.602Z",
