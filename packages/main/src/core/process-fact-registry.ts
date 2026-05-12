@@ -6,6 +6,7 @@ import {
   type CommandPhase,
   type KnownCommandName,
 } from './command-policy.js';
+import { FLOW_FACT_POLICIES } from './flow-fact-policy.js';
 import { PROCESS_FACT_LEVELS, type ProcessFactLevel, type ProcessFactLevelEntry } from './process-fact-levels.js';
 
 export type ProcessFactKind =
@@ -16,6 +17,7 @@ export type ProcessFactKind =
   | 'validation-status'
   | 'review-pass'
   | 'finding'
+  | 'flow-policy'
   | 'reviewer-lane'
   | 'signed-artifact'
   | 'artifact';
@@ -26,16 +28,20 @@ export type ProcessFactSemantic =
   | 'command'
   | 'execution-evidence'
   | 'finding-state'
+  | 'flow-policy'
   | 'gate-evidence'
   | 'no-blocker-evidence'
+  | 'normalization-policy'
   | 'review-pass'
   | 'reviewer-lane'
   | 'runtime-behavior'
+  | 'schema-contract'
   | 'signed-artifact'
   | 'test-evidence'
   | 'validation-result'
   | 'validation-status'
-  | 'verification-evidence';
+  | 'verification-evidence'
+  | 'verification-policy';
 
 export interface ProcessFactArtifactRef {
   name: string;
@@ -412,7 +418,9 @@ function commandPolicy(name: string): CommandPolicy | undefined {
   return COMMAND_POLICIES[name as KnownCommandName] as CommandPolicy | undefined;
 }
 
-const COMMAND_PROCESS_FACTS: ProcessFactRegistryEntry[] = PROCESS_FACT_LEVELS.map((entry: ProcessFactLevelEntry) => {
+const COMMAND_PROCESS_FACTS: ProcessFactRegistryEntry[] = PROCESS_FACT_LEVELS
+  .filter((entry: ProcessFactLevelEntry) => !entry.name.startsWith('flow-policy:'))
+  .map((entry: ProcessFactLevelEntry) => {
   const policy = commandPolicy(entry.name);
   const rootOnly = policy ? policy.rootOnly === true || policy.status === 'rootOnly' : undefined;
   const gateEvidence = policy ? policy.gateEvidence === true || policy.status === 'gateEvidence' : undefined;
@@ -434,6 +442,19 @@ const COMMAND_PROCESS_FACTS: ProcessFactRegistryEntry[] = PROCESS_FACT_LEVELS.ma
     rationale: entry.rationale,
   };
 });
+
+export const PROCESS_FACT_FLOW_POLICIES = FLOW_FACT_POLICIES.map((policy) => ({
+  name: policy.name,
+  kind: 'flow-policy' as const,
+  semantics: policy.semantics as readonly ProcessFactSemantic[],
+  level: policy.level as ProcessFactLevel,
+  producer: policy.owner,
+  consumerGate: policy.consumerGate,
+  artifact: 'artifactCommand' in policy && policy.artifactCommand
+    ? PROCESS_FACT_ARTIFACT_BY_COMMAND[policy.artifactCommand]
+    : undefined,
+  rationale: policy.rationale,
+})) as readonly ProcessFactRegistryEntry[];
 
 export const PROCESS_FACT_REVIEWER_LANES = PROCESS_FACT_REVIEWER_LANE_DEFINITIONS.map((entry) => ({
   ...entry,
@@ -587,6 +608,7 @@ export const PROCESS_FACT_REGISTRY: readonly ProcessFactRegistryEntry[] = [
   ...COMMAND_PROCESS_FACTS,
   ...PROCESS_FACT_REVIEWER_LANES,
   ...PROCESS_FACT_ARTIFACTS,
+  ...PROCESS_FACT_FLOW_POLICIES,
 ];
 
 export const PROCESS_FACT_REGISTRY_BY_NAME: Record<string, ProcessFactRegistryEntry> = Object.fromEntries(

@@ -1,0 +1,87 @@
+{
+  "storyId": "B-9b8f",
+  "checkedAt": "2026-05-12T21:13:55.323Z",
+  "features": [
+    {
+      "feature": "Process facts affecting phase, review, test, DONE, finding/pass, evidence, branch/worktree, and cleanup are treated as policy metadata with hard CLI/handler/gate fallback, not only prompt prose.",
+      "covered_by": "CHK-001 central process fact registry; CHK-002 review fact schema; CHK-003 express verification policy; CHK-004 regression smoke/contract coverage",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "background.md + CLAUDE.md process fact contract"
+    },
+    {
+      "feature": "Typed registry is the single process-fact source and is assembled from COMMAND_POLICIES plus PROCESS_FACT_LEVELS with reviewer lanes, artifacts, L4 consumer gates, and required semantics.",
+      "covered_by": "CHK-001 files include process-fact-registry.ts, process-fact-levels.ts, scripts/verify-process-fact-contract.mjs; CHK-001 happy/edge intents require registry facts and L4 gate checks",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/story-lifecycle.md:104-105,178"
+    },
+    {
+      "feature": "scripts/verify-process-fact-contract.mjs must be updated so MAIN_TOOLS, DEFAULT_PHASE_TOOLS, reviewer lanes, signed/gate artifacts, L4 gate evidence, and required semantic facts fail loudly on drift.",
+      "covered_by": "CHK-001 modify/test includes scripts/verify-process-fact-contract.mjs; CHK-004 modify/test includes scripts/verify-process-fact-contract.mjs; plan.md CHK-001 and CHK-004 explicitly name the script",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/story-lifecycle.md:178; testing-infra.md:42-48"
+    },
+    {
+      "feature": "Review pass is not a finding: no-blocker results must be review_pass_set, pass-only finding_add is normalized, ambiguous pass plus failure language remains a finding.",
+      "covered_by": "CHK-002 happy/edge/adversarial intents cover pass-only conversion, ambiguous language, and non-reviewer attribution; CHK-004 smoke covers pass-only records not appearing as findings",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CLAUDE.md process fact execution rules; story-lifecycle.md:107"
+    },
+    {
+      "feature": "Finding schema remains constrained at process-fact boundaries, including canonical category/role/severity semantics and existing legacy category normalization.",
+      "covered_by": "CHK-002 includes handlers/finding.ts and core/types.ts; CHK-001 registry semantics cover finding_add/finding_resolve/finding_dismiss; CHK-004 field regression and process contract tests are in scope",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CLAUDE.md process fact execution rules; story-lifecycle.md:104,108"
+    },
+    {
+      "feature": "reviewRound is consistently treated as an ISO string across runtime types, docs, finding output, and smoke assertions without breaking signed history compatibility.",
+      "covered_by": "CHK-002 userSees and happy intent name ISO string docs/runtime behavior; CHK-002 touches docs/code; CHK-004 smoke locks regression",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decision preMortem and checklist CHK-002"
+    },
+    {
+      "feature": "Express verificationIntent bypass is explicit, machine-readable, and limited to computeChannel(...)=express; normal/fast/risky stories with zero intent keep missing-intent behavior.",
+      "covered_by": "CHK-003 happy/edge/adversarial intents cover express-only behavior; CHK-004 smoke asserts express exemption and non-express failure behavior",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "testing-infra.md verification policy + checklist CHK-003"
+    },
+    {
+      "feature": "Validation and verification evidence facts remain gate artifacts: validate, verification_evidence_*, and test-evidence.json are represented in registry/contract and tested with phase-aware outputs.",
+      "covered_by": "CHK-001 registry/contract scope; CHK-003 verifier/workflow output scope; CHK-004 smoke/contract commands",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/testing-infra.md:38-48"
+    },
+    {
+      "feature": "No parallel policy table is introduced that can drift from process-fact-registry.",
+      "covered_by": "decision chooses option A and rejects independent flowFactPolicy.json option B; CHK-001 adversarial intent explicitly forbids a new parallel policy table",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "decision.json options A/B/C + CHK-001 adversarial intent"
+    },
+    {
+      "feature": "Runtime/environment facts such as CLI entrypoint, global core realpath, project-local bin, Node/package version, validate source, and external-reference-policy stay out of process-fact-registry.",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "testing-infra.md says runtime/environment facts use runtime-fact-registry plus verify-runtime-fact-contract; this story write-set intentionally stays on process facts and does not include runtime-fact-registry changes",
+      "source": "docs/requirements/decisions/testing-infra.md:50-52; story-lifecycle.md runtime/environment bullet"
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "covered": 9,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "fe8086bed18f6045817db56bf2bca7b61382173584447d0abbaa7450a0a6dd9d",
+  "openQuestions": []
+}

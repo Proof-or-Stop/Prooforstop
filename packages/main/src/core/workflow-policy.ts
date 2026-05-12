@@ -1,6 +1,7 @@
 import type { KoalaConfig } from './config.js';
 import type { StoryInfo, WorkflowProfile, WorkflowPolicy, DecisionData, ChecklistData } from './types.js';
 import { PROFILE_ORDER, WORKFLOW_PRESETS } from './types.js';
+import { EXPRESS_VERIFICATION_EXEMPTION_MESSAGE } from './flow-fact-policy.js';
 
 /**
  * @task B-ef9c
@@ -101,6 +102,7 @@ export function explainProfile(config: KoalaConfig, story: StoryInfo): ProfileEx
 // 硬规则：riskSignals 非空 → 强制 normal（即便 items ≤ 2）
 // ─────────────────────────────────────────────────────────────────
 export type StoryChannel = 'express' | 'fast' | 'normal';
+export type VerificationIntentPolicyKind = 'express-exempt' | 'explicit-intent' | 'missing-intent';
 
 /**
  * Channel 中文显示名（workflow_explain 输出用）
@@ -114,6 +116,14 @@ export const CHANNEL_LABELS: Record<StoryChannel, string> = {
 type ChannelStory = Pick<StoryInfo, 'riskSignals'> & Partial<Pick<StoryInfo, 'riskSignalsDismissed'>>;
 type ChannelChecklist = Pick<ChecklistData, 'items'> | { items: Array<unknown> };
 type ChannelDecision = Pick<DecisionData, 'options' | 'chosen'> | null | undefined;
+
+export interface VerificationIntentPolicyResolution {
+  policy: VerificationIntentPolicyKind;
+  channel: StoryChannel;
+  intentCount: number;
+  message?: string;
+  reason: string;
+}
 
 /**
  * 实时计算 story 的通道分档。不持久化，每次调用重新算。
@@ -155,4 +165,48 @@ export function computeChannel(
   }
 
   return 'normal';
+}
+
+function countVerificationIntentEntries(checklist: ChannelChecklist): number {
+  if (!Array.isArray(checklist.items)) return 0;
+  return checklist.items.reduce<number>((total, item: any) => {
+    const vi = item?.verificationIntent;
+    if (!vi || typeof vi !== 'object') return total;
+    return total
+      + (Array.isArray(vi.happy) ? vi.happy.length : 0)
+      + (Array.isArray(vi.edge) ? vi.edge.length : 0)
+      + (Array.isArray(vi.adversarial) ? vi.adversarial.length : 0);
+  }, 0);
+}
+
+export function resolveVerificationIntentPolicy(
+  story: ChannelStory,
+  checklist: ChannelChecklist,
+  decision?: ChannelDecision,
+): VerificationIntentPolicyResolution {
+  const channel = computeChannel(story, checklist, decision);
+  const intentCount = countVerificationIntentEntries(checklist);
+  if (intentCount > 0) {
+    return {
+      policy: 'explicit-intent',
+      channel,
+      intentCount,
+      reason: `verificationIntent entries present (${intentCount})`,
+    };
+  }
+  if (channel === 'express') {
+    return {
+      policy: 'express-exempt',
+      channel,
+      intentCount,
+      message: EXPRESS_VERIFICATION_EXEMPTION_MESSAGE,
+      reason: 'express channel has no riskSignals and at most two checklist items',
+    };
+  }
+  return {
+    policy: 'missing-intent',
+    channel,
+    intentCount,
+    reason: `${channel} channel has zero verificationIntent entries`,
+  };
 }

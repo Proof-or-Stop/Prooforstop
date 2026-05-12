@@ -27,6 +27,7 @@ import { runLintGateCli } from './validate-lint.js';
 import { buildVerificationCoverage, renderVerificationCoverage } from '../core/verification.js';
 import { checkEvidenceFreshnessForGit } from '../core/evidence-freshness.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
+import { resolveVerificationIntentPolicy } from '../core/workflow-policy.js';
 
 const STATUS_FALLBACK_TIMEOUT_MS = 10_000;
 const SHELL_META_RE = /[;&|<>$()`]/;
@@ -309,8 +310,13 @@ function currentHead(projectRoot: string): string | undefined {
 
 function decorateStoryVerification(ctx: HandlerContext, storyId: string, result: any): any {
   let coverage;
+  let verificationPolicy;
   try {
+    const story = ctx.store.readStory(storyId);
     const cl = ctx.store.readChecklist(storyId);
+    let decision = null;
+    try { decision = ctx.store.readDecision(storyId); } catch { /* no decision for express/fast stories */ }
+    verificationPolicy = resolveVerificationIntentPolicy(story, cl, decision);
     const head = currentHead(ctx.root);
     coverage = buildVerificationCoverage(
       cl,
@@ -321,7 +327,7 @@ function decorateStoryVerification(ctx: HandlerContext, storyId: string, result:
   } catch {
     return result;
   }
-  const rendered = renderVerificationCoverage(coverage);
+  const rendered = renderVerificationCoverage(coverage, verificationPolicy);
   const details = Array.isArray(result.details) ? [...result.details] : [];
   details.push(...rendered.split('\n'));
   const allPass = Boolean(result.allPass) && coverage.missingRequired === 0;
@@ -333,8 +339,17 @@ function decorateStoryVerification(ctx: HandlerContext, storyId: string, result:
       ? `${result.summary || 'Validation'}; verification coverage missing ${coverage.missingRequired} required intent(s)`
       : result.summary,
     details,
+    verificationPolicy,
     verificationCoverage: coverage,
   };
+}
+
+function resolveStoryVerificationPolicy(ctx: HandlerContext, storyId: string) {
+  const story = ctx.store.readStory(storyId);
+  const cl = ctx.store.readChecklist(storyId);
+  let decision = null;
+  try { decision = ctx.store.readDecision(storyId); } catch { /* no decision for express/fast stories */ }
+  return resolveVerificationIntentPolicy(story, cl, decision);
 }
 
 function persistStoryValidationEvidence(ctx: HandlerContext, storyId: string, result: any, command: string): void {
@@ -600,7 +615,8 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             (headHash, evidence) => checkEvidenceFreshnessForGit(projectRoot, headHash, evidence?.materialHash).fresh,
             { deferredGateEvidence: 'missing' },
           );
-          return output + '\n' + renderVerificationCoverage(coverage) + (code !== 0 || coverage.missingRequired > 0 ? `\n(exit code: ${code || 1})` : '');
+          const verificationPolicy = resolveStoryVerificationPolicy(ctx, args.story);
+          return output + '\n' + renderVerificationCoverage(coverage, verificationPolicy) + (code !== 0 || coverage.missingRequired > 0 ? `\n(exit code: ${code || 1})` : '');
         } catch {
           // If story metadata cannot be read, fall back to raw verifier output.
         }

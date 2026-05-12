@@ -26,6 +26,7 @@ const reviewPassReviewerPrompts = new Set([
 ]);
 const processFactLevelRegistryPath = 'packages/main/src/core/process-fact-levels.ts';
 const commandPolicyPath = 'packages/main/src/core/command-policy.ts';
+const flowFactPolicyPath = 'packages/main/src/core/flow-fact-policy.ts';
 const legacyTestFixtureCommands = [
   'test_auto',
   'test_story',
@@ -75,6 +76,7 @@ const processFactRegistryKinds = new Set([
   'validation-status',
   'review-pass',
   'finding',
+  'flow-policy',
   'reviewer-lane',
   'signed-artifact',
   'artifact',
@@ -167,6 +169,53 @@ const requiredRuntimeEntries = [
     owner: 'handlers/verifier',
     line: '- runtime:validate_fallback_discovery [L1] owner=handlers/verifier',
   },
+];
+const requiredFlowFactPolicies = [
+  {
+    name: 'flow-policy:review-pass',
+    policyId: 'review-pass',
+    artifactPath: 'review-passes.json',
+    consumerGatePattern: /storyMachine\.canPassReview/,
+    semantics: ['flow-policy', 'review-pass', 'no-blocker-evidence', 'gate-evidence'],
+    disposition: '',
+  },
+  {
+    name: 'flow-policy:finding',
+    policyId: 'finding',
+    artifactPath: 'findings.json',
+    consumerGatePattern: /storyMachine\.canPassReview/,
+    semantics: ['flow-policy', 'finding-state', 'blocker-state', 'gate-evidence'],
+    disposition: '',
+  },
+  {
+    name: 'flow-policy:pass-only-normalization',
+    policyId: 'pass-only-normalization',
+    artifactPath: 'review-passes.json',
+    consumerGatePattern: /storyMachine\.canPassReview/,
+    semantics: ['flow-policy', 'normalization-policy', 'review-pass', 'gate-evidence'],
+    disposition: 'finding_add:pass-only->review_pass_set',
+  },
+  {
+    name: 'flow-policy:review-round-iso-string',
+    policyId: 'review-round-iso-string',
+    artifactPath: 'findings.json',
+    consumerGatePattern: /review signatures.*storyMachine\.canPassReview/,
+    semantics: ['flow-policy', 'schema-contract', 'finding-state', 'review-pass', 'gate-evidence'],
+    disposition: '',
+  },
+  {
+    name: 'flow-policy:express-verification-policy',
+    policyId: 'express-verification-policy',
+    artifactPath: '',
+    consumerGatePattern: /validate verification coverage.*story_review/,
+    semantics: ['flow-policy', 'verification-policy', 'gate-evidence'],
+    disposition: 'express-exempt',
+  },
+];
+const reviewRoundIsoDocPaths = [
+  'CLAUDE.md',
+  'docs/requirements/decisions/story-lifecycle.md',
+  'docs/requirements/decisions/testing-infra.md',
 ];
 const requiredControlledMutationEntries = [
   {
@@ -838,8 +887,8 @@ function assertProcessFactMappedSourceContracts(sourceText) {
   assertInitializerPattern(
     commandFactsInitializer,
     'COMMAND_PROCESS_FACTS',
-    /\bPROCESS_FACT_LEVELS\.map\s*\(/,
-    'must map PROCESS_FACT_LEVELS directly',
+    /\bPROCESS_FACT_LEVELS\s*[\s\S]*\.filter\s*\(\s*\(entry:\s*ProcessFactLevelEntry\)\s*=>\s*!entry\.name\.startsWith\('flow-policy:'\)\s*\)\s*[\s\S]*\.map\s*\(/,
+    'must map PROCESS_FACT_LEVELS directly while excluding flow-policy facts from command facts',
   );
   assertInitializerPattern(
     commandFactsInitializer,
@@ -914,6 +963,32 @@ function assertProcessFactMappedSourceContracts(sourceText) {
     'PROCESS_FACT_REVIEWER_LANES',
     /\blevel:\s*'L4'\s+as\s+const\b/,
     'must hard-code L4 reviewer-lane level',
+  );
+
+  const flowPoliciesInitializer = extractConstInitializer(sourceText, 'PROCESS_FACT_FLOW_POLICIES', processFactRegistryPath);
+  assertInitializerPattern(
+    flowPoliciesInitializer,
+    'PROCESS_FACT_FLOW_POLICIES',
+    /\bFLOW_FACT_POLICIES\.map\s*\(/,
+    'must map FLOW_FACT_POLICIES directly',
+  );
+  assertInitializerPattern(
+    flowPoliciesInitializer,
+    'PROCESS_FACT_FLOW_POLICIES',
+    /\bkind:\s*'flow-policy'\s+as\s+const\b/,
+    'must hard-code flow-policy kind',
+  );
+  assertInitializerPattern(
+    flowPoliciesInitializer,
+    'PROCESS_FACT_FLOW_POLICIES',
+    /\bsemantics:\s*policy\.semantics\s+as\s+readonly\s+ProcessFactSemantic\[\]/,
+    'must wire semantics from centralized policy',
+  );
+  assertInitializerPattern(
+    flowPoliciesInitializer,
+    'PROCESS_FACT_FLOW_POLICIES',
+    /\bartifact:\s*'artifactCommand'\s+in\s+policy\s*&&\s*policy\.artifactCommand\s*\?\s*PROCESS_FACT_ARTIFACT_BY_COMMAND\[policy\.artifactCommand\]/,
+    'must resolve artifact metadata from policy artifactCommand',
   );
 }
 
@@ -1160,6 +1235,46 @@ function parseProcessFactRequiredSemanticsFromSource(text) {
   return semantics;
 }
 
+let cachedFlowFactPolicyEntries = null;
+
+function parseFlowFactPolicies() {
+  if (cachedFlowFactPolicyEntries) return cachedFlowFactPolicyEntries;
+
+  const text = read(flowFactPolicyPath);
+  for (const token of [
+    'FLOW_FACT_POLICIES',
+    'PASS_ONLY_REVIEW_FINDING_POLICY',
+    'EXPRESS_VERIFICATION_EXEMPTION_MESSAGE',
+    'isPassOnlyReviewFindingRecord',
+    'express-exempt',
+    'review-round-iso-string',
+  ]) {
+    assert(text.includes(token), `${flowFactPolicyPath}: centralized flow fact policy must expose ${token}`);
+  }
+
+  const body = extractExportedArrayBody(text, 'FLOW_FACT_POLICIES');
+  const entries = parseTopLevelObjectBlocks(body, `${flowFactPolicyPath} FLOW_FACT_POLICIES`)
+    .map(block => ({
+      name: readStringProperty(block, 'name'),
+      policyId: readStringProperty(block, 'policyId'),
+      disposition: readStringProperty(block, 'disposition'),
+      level: readStringProperty(block, 'level'),
+      category: readStringProperty(block, 'category'),
+      owner: readStringProperty(block, 'owner'),
+      consumerGate: readStringProperty(block, 'consumerGate'),
+      artifactCommand: readStringProperty(block, 'artifactCommand'),
+      semantics: parseStringArrayProperty(block, 'semantics') || [],
+      rationale: readStringProperty(block, 'rationale'),
+      block,
+    }))
+    .filter(entry => entry.name);
+
+  const declaredObjectCount = [...body.matchAll(/\{\s*name:\s*'/g)].length;
+  assert(entries.length === declaredObjectCount, `${flowFactPolicyPath}: every flow policy must be parseable`);
+  cachedFlowFactPolicyEntries = entries;
+  return entries;
+}
+
 function processFactKindForCommand(name, level, kindByCommand) {
   if (kindByCommand.has(name)) return kindByCommand.get(name);
   if (name.startsWith('runtime:')) return 'runtime-behavior';
@@ -1181,6 +1296,7 @@ function parseProcessFactRegistry() {
   for (const token of [
     'PROCESS_FACT_REGISTRY',
     'PROCESS_FACT_REQUIRED_SEMANTICS',
+    'PROCESS_FACT_FLOW_POLICIES',
     'PROCESS_FACT_SIGNED_ARTIFACTS',
     'PROCESS_FACT_REQUIRED_ARTIFACTS',
     'semantics',
@@ -1199,7 +1315,7 @@ function parseProcessFactRegistry() {
   }
 
   const finalRegistryBody = extractExportedArrayBody(sourceText, 'PROCESS_FACT_REGISTRY');
-  for (const requiredSpread of ['COMMAND_PROCESS_FACTS', 'PROCESS_FACT_REVIEWER_LANES', 'PROCESS_FACT_ARTIFACTS']) {
+  for (const requiredSpread of ['COMMAND_PROCESS_FACTS', 'PROCESS_FACT_REVIEWER_LANES', 'PROCESS_FACT_ARTIFACTS', 'PROCESS_FACT_FLOW_POLICIES']) {
     assert(
       finalRegistryBody.includes(`...${requiredSpread}`),
       `${processFactRegistryPath}: final PROCESS_FACT_REGISTRY export missing ...${requiredSpread}`,
@@ -1237,7 +1353,7 @@ function parseProcessFactRegistry() {
   const kindByCommand = parseProcessFactKindByCommandFromSource(sourceText);
   const semanticsByCommand = parseProcessFactRequiredSemanticsFromSource(sourceText);
   const artifactByCommand = parseProcessFactArtifactByCommandFromSource(sourceText);
-  const commandEntries = parseProcessFactLevelRegistry().map(entry => {
+  const commandEntries = parseProcessFactLevelRegistry().filter(entry => !entry.name.startsWith('flow-policy:')).map(entry => {
     const policy = policyByName.get(entry.name);
     const semantics = processFactSemanticsForCommand(entry.name, entry.level, semanticsByCommand);
     const inferredRootOnly = Boolean(policy) && (policy.rootOnly || policy.status === 'rootOnly');
@@ -1277,8 +1393,19 @@ function parseProcessFactRegistry() {
     const artifact = artifactRefMatch ? artifactByCommand.get(artifactRefMatch[1]) : null;
     return { ...entry, artifact: artifact || null };
   });
+  const flowPolicyEntries = parseFlowFactPolicies().map(entry => ({
+    name: entry.name,
+    kind: 'flow-policy',
+    semantics: [...entry.semantics],
+    level: entry.level,
+    producer: entry.owner,
+    consumerGate: entry.consumerGate,
+    artifact: entry.artifactCommand ? artifactByCommand.get(entry.artifactCommand) || null : null,
+    reviewerLane: '',
+    rationale: entry.rationale,
+  }));
 
-  cachedProcessFactRegistryEntries = [...commandEntries, ...laneEntries, ...artifactEntries];
+  cachedProcessFactRegistryEntries = [...commandEntries, ...laneEntries, ...artifactEntries, ...flowPolicyEntries];
   return cachedProcessFactRegistryEntries;
 }
 
@@ -1382,6 +1509,24 @@ function assertActiveLifecycleDocGuidance() {
         `${relPath}:${index + 1} ${commandName} mention must be labelled legacy/compat/maintenance or be in historical context`,
       );
     }
+  }
+}
+
+function assertReviewRoundIsoDocs() {
+  for (const relPath of reviewRoundIsoDocPaths) {
+    const text = read(relPath);
+    assert(
+      text.includes('reviewRound: string (ISO 8601 review round id)'),
+      `${relPath}: reviewRound must be documented as string (ISO 8601 review round id)`,
+    );
+    assert(
+      text.includes('express-exempt'),
+      `${relPath}: express verification exemption must be documented as express-exempt`,
+    );
+    assert(
+      text.includes('pass-only finding_add'),
+      `${relPath}: pass-only finding_add normalization must be documented`,
+    );
   }
 }
 
@@ -1638,6 +1783,7 @@ function assertCommandPolicyPhaseAlignment(policyEntries, configText) {
 
 function assertL4ProducerOrReplacement(registryEntries, policyByName, configText) {
   for (const entry of registryEntries.filter(item => item.level === 'L4')) {
+    if (entry.name.includes(':')) continue;
     const policy = policyByName.get(entry.name);
     assert(policy, `${commandPolicyPath}: L4 command ${entry.name} must have lifecycle policy`);
     if (!policy) continue;
@@ -1663,6 +1809,7 @@ function assertProcessFactRegistryContract(cliToolNames, policyEntries, configTe
   const registryCommandEntries = registryEntries.filter(isCommandRegistryEntry);
   const registryCommandByName = new Map(registryCommandEntries.map(entry => [entry.name, entry]));
   const policyByName = new Map(policyEntries.map(entry => [entry.name, entry]));
+  const levelRegistry = new Map(parseProcessFactLevelRegistry().map(entry => [entry.name, entry]));
 
   const duplicateRegistryNames = duplicateNames(registryEntries.map(entry => entry.name));
   assert(
@@ -1858,6 +2005,54 @@ function assertProcessFactRegistryContract(cliToolNames, policyEntries, configTe
     assert(entry.semantics.includes('artifact'), `${processFactRegistryPath}: artifact=${expected.name} missing artifact semantic`);
     assert(entry.consumerGate, `${processFactRegistryPath}: artifact=${expected.name} must name consumer gate`);
   }
+
+  const flowPolicies = parseFlowFactPolicies();
+  const flowPolicyNames = flowPolicies.map(entry => entry.name);
+  for (const expected of requiredFlowFactPolicies) {
+    const sourcePolicy = flowPolicies.find(entry => entry.name === expected.name);
+    assert(sourcePolicy, `${flowFactPolicyPath}: required flow fact policy missing: ${expected.name}`);
+    if (sourcePolicy) {
+      assert(sourcePolicy.policyId === expected.policyId, `${flowFactPolicyPath}: ${expected.name} policyId drifted`);
+      assert(sourcePolicy.level === 'L4', `${flowFactPolicyPath}: ${expected.name} must stay L4`);
+      assert(sourcePolicy.category === 'flow-policy', `${flowFactPolicyPath}: ${expected.name} must stay category flow-policy`);
+      assert(sourcePolicy.owner === 'core/flow-fact-policy', `${flowFactPolicyPath}: ${expected.name} owner drifted`);
+      assert(expected.consumerGatePattern.test(sourcePolicy.consumerGate), `${flowFactPolicyPath}: ${expected.name} consumerGate drifted (${sourcePolicy.consumerGate})`);
+      assert(sourcePolicy.disposition === expected.disposition, `${flowFactPolicyPath}: ${expected.name} disposition drifted`);
+      assert(
+        expected.semantics.every(semantic => sourcePolicy.semantics.includes(semantic)),
+        `${flowFactPolicyPath}: ${expected.name} missing semantics [${expected.semantics.join(', ')}]`,
+      );
+    }
+
+    const levelEntry = levelRegistry.get(expected.name);
+    assert(levelEntry, `${processFactLevelRegistryPath}: required flow fact policy missing from level registry: ${expected.name}`);
+    if (levelEntry) {
+      assert(levelEntry.level === 'L4', `${processFactLevelRegistryPath}: ${expected.name} must stay L4`);
+      assert(levelEntry.category === 'flow-policy', `${processFactLevelRegistryPath}: ${expected.name} category drifted`);
+      assert(levelEntry.owner === 'core/flow-fact-policy', `${processFactLevelRegistryPath}: ${expected.name} owner drifted`);
+      assert(expected.consumerGatePattern.test(levelEntry.gateConsumer || ''), `${processFactLevelRegistryPath}: ${expected.name} gateConsumer drifted`);
+    }
+
+    const registryEntry = registry.get(expected.name);
+    assert(registryEntry, `${processFactRegistryPath}: required flow fact policy missing from PROCESS_FACT_REGISTRY: ${expected.name}`);
+    if (!registryEntry) continue;
+    assert(registryEntry.kind === 'flow-policy', `${processFactRegistryPath}: ${expected.name} must have kind flow-policy`);
+    assert(registryEntry.level === 'L4', `${processFactRegistryPath}: ${expected.name} must stay L4`);
+    assert(expected.consumerGatePattern.test(registryEntry.consumerGate || ''), `${processFactRegistryPath}: ${expected.name} consumerGate drifted`);
+    assert(
+      expected.semantics.every(semantic => registryEntry.semantics.includes(semantic)),
+      `${processFactRegistryPath}: ${expected.name} missing required semantics [${expected.semantics.join(', ')}]`,
+    );
+    if (expected.artifactPath) {
+      assert(registryEntry.artifact?.path === expected.artifactPath, `${processFactRegistryPath}: ${expected.name} artifact path drifted`);
+    } else {
+      assert(!registryEntry.artifact, `${processFactRegistryPath}: ${expected.name} should not claim an artifact`);
+    }
+  }
+  assert(
+    duplicateNames(flowPolicyNames).length === 0,
+    `${flowFactPolicyPath}: duplicate flow fact policy names`,
+  );
 }
 
 function assertProcessFactCommandInventory() {
@@ -2025,6 +2220,19 @@ function printProcessFactLevelRegistrySummary() {
   console.log(`- entries: ${entries.length} (${cliCount} CLI, ${runtimeCount} runtime, ${laneCount} reviewer lanes, ${artifactCount} artifacts)`);
   console.log(`- levels: ${[...levelCounts.entries()].map(([level, count]) => `${level}=${count}`).join(', ')}`);
   console.log(`- kinds: ${[...kindCounts.entries()].sort().map(([kind, count]) => `${kind}=${count}`).join(', ')}`);
+  const flowPolicyMeta = new Map(parseFlowFactPolicies().map(policy => [policy.name, policy]));
+  const flowPolicyEntries = entries.filter(entry => entry.kind === 'flow-policy').sort((a, b) => a.name.localeCompare(b.name));
+  if (flowPolicyEntries.length > 0) {
+    console.log('- flow fact policies:');
+    for (const entry of flowPolicyEntries) {
+      const policyId = entry.name.replace(/^flow-policy:/, '');
+      const disposition = flowPolicyMeta.get(entry.name)?.disposition;
+      const dispositionSuffix = disposition ? ` -> ${disposition}` : '';
+      const artifactSuffix = entry.artifact?.path ? ` -> artifact ${entry.artifact.path}` : '';
+      const gateSuffix = entry.consumerGate ? ` -> gate ${entry.consumerGate}` : '';
+      console.log(`flow fact policy: ${policyId}${dispositionSuffix}${artifactSuffix}${gateSuffix}`);
+    }
+  }
   console.log('- registry entries:');
   for (const entry of [...entries].sort((a, b) => a.name.localeCompare(b.name))) {
     console.log(formatProcessFactRegistryEntry(entry));
@@ -2080,7 +2288,7 @@ const inventory = [
         relPath: 'packages/main/src/handlers/finding.ts',
         patterns: [
           'finding_add',
-          'isPassOnlyReviewRecord',
+          'isPassOnlyReviewFindingRecord',
           { label: 'recordFinding/current findings persistence', any: ['recordFinding', 'data.findings.push'] },
           'normalizeFindingCategory',
           'signFinding',
@@ -2090,6 +2298,26 @@ const inventory = [
       {
         relPath: 'packages/main/src/cli-engine.ts',
         patterns: ['finding_add', 'category: z.enum', "'cleanup'", "'doc-promise-undelivered'", "'doc-code-drift'", "'spec-boundary'"],
+      },
+    ],
+  },
+  {
+    name: 'flow fact policy',
+    files: [
+      {
+        relPath: 'packages/main/src/core/flow-fact-policy.ts',
+        patterns: [
+          'FLOW_FACT_POLICIES',
+          'PASS_ONLY_REVIEW_FINDING_POLICY',
+          'EXPRESS_VERIFICATION_EXEMPTION_MESSAGE',
+          'isPassOnlyReviewFindingRecord',
+          'express-exempt',
+          'review-round-iso-string',
+        ],
+      },
+      {
+        relPath: 'packages/main/src/core/process-fact-registry.ts',
+        patterns: ['PROCESS_FACT_FLOW_POLICIES', 'FLOW_FACT_POLICIES', 'flow-policy'],
       },
     ],
   },
@@ -2215,6 +2443,7 @@ for (const dir of promptDirs) {
 comparePromptSemantics(promptMap);
 assertSyntheticAdversarialChecks();
 assertActiveLifecycleDocGuidance();
+assertReviewRoundIsoDocs();
 assertProcessFactCommandInventory();
 printProcessFactLevelRegistrySummary();
 

@@ -1,0 +1,397 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Create a centralized flow fact policy registry for process facts",
+      "context": "Process facts that affect phase, review, test, DONE, finding/pass, evidence, branch/worktree, or cleanup must be represented in code as policy metadata rather than only prompt/docs text.",
+      "relatedDocs": [
+        "CLAUDE.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "done",
+      "startTime": "2026-05-12T21:14:48.794Z",
+      "endTime": "2026-05-12T21:25:20.864Z",
+      "userSees": "Terminal output includes: \"flow fact policy: review-pass -> artifact review-passes.json -> gate storyMachine.canPassReview\" and \"flow fact policy: express-verification-policy -> express-exempt\".",
+      "files": {
+        "modify": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Registry exposes explicit flow fact policy entries for review pass, finding, review round, and express verification exemption.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Registry contract test fails if an L4 gate fact lacks consumer gate, artifact, or required semantics.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No new parallel policy table is introduced that can drift from process-fact-registry.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && npm run test:flow-stability-smoke && npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Current HEAD build plus flow-stability and process-fact-contract prove registry exposes flow-policy review-pass, finding, pass-only-normalization, review-round-iso-string, and express-verification-policy entries.",
+          "headHash": "10a3584dddc3d06b7b438f834d9b1e9167769baa",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:42:25.213Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Process fact contract verifies L4 gate facts, artifacts, consumer gates, and required semantics; it would fail on missing gate/artifact/semantic drift.",
+          "headHash": "10a3584dddc3d06b7b438f834d9b1e9167769baa",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:42:25.213Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke asserts PROCESS_FACT_FLOW_POLICIES is built from the single FLOW_FACT_POLICIES table to prevent drift.",
+          "headHash": "8e138a84941c4c8a68698efd117df98197cc09ce",
+          "materialHash": "72b7beabd39761f58146c7ca6aeed285c260d5aeeb349767ac58cabf6fd21955",
+          "timestamp": "2026-05-12T21:25:20.954Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Enforce review fact schema and pass-only normalization in handlers",
+      "context": "reviewRound doc/runtime drift and pass-only finding records should be mechanically normalized or rejected at the handler/schema boundary, not left to reviewer prompt behavior.",
+      "relatedDocs": [
+        "CLAUDE.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-05-12T21:25:28.417Z",
+      "userSees": "Terminal output includes: \"Review pass B-xxxx:RP-001 recorded by koala-review-docs\"; `finding_list` returns \"findings: []\" for pass-only records; docs say \"reviewRound: string (ISO 8601 review round id)\".",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/core/types.ts",
+          "CLAUDE.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Pass-only finding_add records review pass evidence and does not persist an open finding.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "reviewRound schema is consistently treated as an ISO string in runtime types, docs, and smoke assertions.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Ambiguous text containing pass plus failure language remains a real finding instead of being normalized to pass.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Non-reviewer or non-low severity pass-like finding_add is not accepted as review pass evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "Fresh run after handler fix: pass-only finding_add records Review pass B-passonly:RP-* and finding_list stays empty for pass-only records.",
+          "headHash": "7a9d2536b6ebb38e7e286e3083fd67a1db23361b",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:35:24.327Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Fresh run after handler fix: flow smoke verifies reviewRound flow policy remains registered as schema-contract with ISO string semantics.",
+          "headHash": "7a9d2536b6ebb38e7e286e3083fd67a1db23361b",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:35:24.327Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "Fresh run after handler fix: ambiguous pass plus failure text creates a real open finding instead of review pass evidence.",
+          "headHash": "7a9d2536b6ebb38e7e286e3083fd67a1db23361b",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:35:24.327Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "Fresh run after handler fix: non-low/non-reviewer pass-like calls remain findings, and direct handler pass-only text with unknown category throws before review-pass normalization.",
+          "headHash": "7a9d2536b6ebb38e7e286e3083fd67a1db23361b",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:35:24.327Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Make express verification policy explicit and machine-readable",
+      "context": "Express stories intentionally bypass PLAN verificationIntent. That exemption should be a structured policy visible to validation/review outputs, not an implicit reviewer explanation.",
+      "relatedDocs": [
+        "CLAUDE.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-05-12T21:25:36.980Z",
+      "userSees": "Validation output includes: \"Verification policy: express-exempt (channel=express; PLAN verificationIntent intentionally skipped)\". Non-express output keeps \"Verification intent coverage: no explicit verificationIntent entries\".",
+      "files": {
+        "modify": [
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/core/workflow-policy.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/handlers/workflow.ts",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/outcome-semantics-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Express channel stories with zero verificationIntent render a structured express-exempt verification policy message.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Normal or fast channel stories with zero verificationIntent do not receive the express-exempt message.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A risky story with two checklist items is forced normal and cannot hide missing intent behind express exemption.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:outcome-semantics-smoke",
+          "result": "pass",
+          "note": "Outcome semantics smoke verifies express channel zero verificationIntent renders the structured express-exempt verification policy message.",
+          "headHash": "10a3584dddc3d06b7b438f834d9b1e9167769baa",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:42:25.213Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:outcome-semantics-smoke",
+          "result": "pass",
+          "note": "Outcome semantics smoke verifies fast and normal zero-intent stories do not render express-exempt and keep ordinary missing-intent output.",
+          "headHash": "10a3584dddc3d06b7b438f834d9b1e9167769baa",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:42:25.213Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:outcome-semantics-smoke",
+          "result": "pass",
+          "note": "Outcome semantics smoke verifies risky two-item stories are forced normal and cannot hide missing intent behind express exemption.",
+          "headHash": "10a3584dddc3d06b7b438f834d9b1e9167769baa",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:42:25.213Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add regression tests for flow fact policy enforcement",
+      "context": "Historical drift signals should be locked by smoke tests covering registry availability, reviewRound normalization, pass-only finding behavior, and express verification policy.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-05-12T21:25:43.937Z",
+      "userSees": "Smoke output ends with: \"flow fact policy smoke passed\" and field regression output still includes: \"field regression CLI smoke passed\".",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A dedicated smoke command passes and covers registry completeness, pass-only normalization, ISO reviewRound, and express-exempt output.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing field regression smoke and process fact contract script continue to pass with strengthened assertions.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Tests fail if express exemption is shown for non-express stories or if pass-only records appear as findings.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:flow-stability-smoke && npm run test:field-regression-cli-smoke && npm --prefix packages/main run test:outcome-semantics-smoke",
+          "result": "pass",
+          "note": "Fresh build plus smoke coverage passes for registry completeness, pass-only normalization, ISO reviewRound policy, unknown-category pass-only rejection, and express-exempt rendering.",
+          "headHash": "7a9d2536b6ebb38e7e286e3083fd67a1db23361b",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:35:24.327Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && npm run test:field-regression-cli-smoke && npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Fresh build plus existing field regression smoke and strengthened process fact contract both pass, including direct handler unknown category pass-only guard.",
+          "headHash": "7a9d2536b6ebb38e7e286e3083fd67a1db23361b",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:35:24.327Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/outcome-semantics-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:field-regression-cli-smoke && npm --prefix packages/main run test:outcome-semantics-smoke && git diff --check",
+          "result": "pass",
+          "note": "Fresh build plus adversarial tests fail if pass-only records appear in finding_list, if unknown pass-only category normalizes to review pass, or if non-express zero-intent stories render express-exempt; git diff --check passed.",
+          "headHash": "7a9d2536b6ebb38e7e286e3083fd67a1db23361b",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:35:24.327Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-05-12T21:25:20.864Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implemented centralized flow fact policy registry and contract coverage",
+      "agent": "koala-implementer"
+    },
+    {
+      "timestamp": "2026-05-12T21:25:28.417Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Centralized pass-only normalization and reviewRound ISO evidence",
+      "agent": "koala-implementer"
+    },
+    {
+      "timestamp": "2026-05-12T21:25:36.980Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Rendered express verification policy and guarded non-express zero-intent output",
+      "agent": "koala-implementer"
+    },
+    {
+      "timestamp": "2026-05-12T21:25:43.937Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Added regression coverage for flow fact policies and required commands",
+      "agent": "koala-implementer"
+    }
+  ]
+}
