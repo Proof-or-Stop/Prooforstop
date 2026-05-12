@@ -325,6 +325,8 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
     assert.equal(passes.length, 1);
     assert.equal(passes[0].agent, 'koala-review-docs');
     assert.match(passes[0].note, /文档一致性检查通过/);
+    const emptyFindingList = await runKoala(root, 'finding_list', { storyId });
+    assert.match(emptyFindingList, /"findings":\s*\[\]/, 'pass-only finding_add should not appear in finding_list');
 
     const noDriftOutput = await runKoala(root, 'finding_add', {
       storyId,
@@ -421,6 +423,26 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
     const docPromiseFindings = store.readFindings(storyId).findings;
     assert.equal(docPromiseFindings.length, 3);
     assert.equal(docPromiseFindings[2].category, 'missing');
+
+    const nonLowPassOutput = await runKoala(root, 'finding_add', {
+      storyId,
+      desc: 'PASS: docs consistency check PASSED with reviewer approval.',
+      severity: 'medium',
+      category: 'happy',
+      agent: 'koala-review-docs',
+    });
+    assert.match(nonLowPassOutput, /Finding B-passonly:F-004 created by koala-review-docs/);
+    assert.equal(store.readFindings(storyId).findings.length, 4, 'non-low pass-like finding_add should remain a finding');
+
+    const nonReviewerPassOutput = await runKoala(root, 'finding_add', {
+      storyId,
+      desc: 'No findings after checking process facts.',
+      severity: 'low',
+      category: 'happy',
+      agent: 'main',
+    });
+    assert.match(nonReviewerPassOutput, /Finding B-passonly:F-005 created by main/);
+    assert.equal(store.readFindings(storyId).findings.length, 5, 'non-reviewer pass-like finding_add should remain a finding');
 
     assert.throws(
       () => createFindingHandlers({ store, root, scanRoot: join(root, 'packages/main') }).finding_add({

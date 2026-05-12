@@ -9,6 +9,7 @@ import type { Finding } from '../core/types.js';
 import { signFinding, signReviewPass } from '../core/finding-verify.js';
 import { computeProcessMetrics } from '../core/process-metrics.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
+import { isPassOnlyReviewFindingRecord } from '../core/flow-fact-policy.js';
 
 const CANONICAL_FINDING_CATEGORIES = ['happy', 'edge', 'adversarial', 'missing'] as const;
 const LEGACY_FINDING_CATEGORIES = ['cleanup', 'doc-promise-undelivered', 'doc-code-drift', 'spec-boundary'] as const;
@@ -46,38 +47,8 @@ function withReviewPassLock<T>(ctx: HandlerContext, storyId: string, fn: () => T
   }
 }
 
-function isPassOnlyReviewRecord(finding: Pick<Finding, 'desc' | 'severity' | 'agent'>): boolean {
-  if (finding.severity !== 'low') return false;
-  if (!finding.agent || !finding.agent.startsWith('koala-review-')) return false;
-  const desc = finding.desc.trim();
-  const passOnlyPatterns = [
-    /\b(no blocking issues?|no blocking issue found|no blockers?|0 blocking)\b/i,
-    /\b(consistency check\s+passed|consistency check\s+pass|consistency passed)\b/i,
-    /\b(?:docs?|documentation)\s+(?:consistency\s+)?(?:check\s+)?passed\b/i,
-    /\b(?:test\s+coverage|coverage|concept|quality|channel)?\s*review\s+passed\b/i,
-    /\bno\s+findings?\b/i,
-    /\b(?:all\s+)?(?:checks?|scan|audit)\s+passed\b/i,
-    /\bPASS(?:ED)?\b/,
-    /\bno\s+concept\s+(?:changes?|removals?|deletions?|replacements?)\b/i,
-    /\bno\s+(?:(?:docs?|documentation)\s+)?(?:drift|inconsistenc(?:y|ies)|mismatch)(?:\s+found)?\b/i,
-    /(?:未发现|没有|无)(?:文档)?(?:不一致|漂移|错位|缺少|遗漏)/,
-    /(?:本次)?无概念(?:变更|删除|替换)/,
-    /文档一致性检查通过/,
-    /一致性检查通过/,
-    /检查通过/,
-    /(?:极速|快速)通道.*(?:主 agent 自写|main agent).*?(?:合规|允许|符合规则)/,
-    /退化模式.*(?:主 agent|main agent).*?(?:合规|允许|符合规则)/,
-  ];
-  const neutralizedDesc = desc
-    .replace(/(?:未发现|没有|无)(?:文档)?(?:不一致|漂移|错位|缺少|遗漏)/g, '')
-    .replace(/(?:本次)?无概念(?:变更|删除|替换)/g, '')
-    .replace(/\bno\s+(?:(?:docs?|documentation)\s+)?(?:drift|inconsistenc(?:y|ies)|mismatch)(?:\s+found)?\b/gi, '');
-  const ambiguityPattern = /\b(?:but|except|however|unless)\b|但|但是|不过|除外|仍|失败|未通过|不一致|缺少|遗漏|blocker found|issue found|problem found|failed/i;
-  return passOnlyPatterns.some(pattern => pattern.test(desc)) && !ambiguityPattern.test(neutralizedDesc);
-}
-
 function normalizeFindingForList(finding: Finding): Finding {
-  if (finding.status !== 'open' || !isPassOnlyReviewRecord(finding)) return finding;
+  if (finding.status !== 'open' || !isPassOnlyReviewFindingRecord(finding)) return finding;
   return {
     ...finding,
     status: 'resolved',
@@ -155,7 +126,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
       const missingAttribution = !args.agent && !process.env.KOALA_AGENT;
       const agent = args.agent || process.env.KOALA_AGENT || 'main';
 
-      if (isPassOnlyReviewRecord({ desc: args.desc, severity: args.severity as Finding['severity'], agent })) {
+      if (isPassOnlyReviewFindingRecord({ desc: args.desc, severity: args.severity, agent })) {
         return recordReviewPass(ctx, args.storyId, agent, `Converted pass-only finding_add record: ${args.desc}`);
       }
       const category = normalizeFindingCategory(args.category);
@@ -174,9 +145,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
         desc: args.desc,
         severity: args.severity as 'critical' | 'high' | 'medium' | 'low',
         category: category as Finding["category"],
-        status: isPassOnlyReviewRecord({ desc: args.desc, severity: args.severity as Finding['severity'], agent })
-          ? 'resolved' as const
-          : 'open' as const,
+        status: 'open',
         agent,
         createdAt: timestamp,
         reviewRound,

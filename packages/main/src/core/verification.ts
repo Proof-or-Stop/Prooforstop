@@ -9,6 +9,7 @@ import type {
   VerificationPriority,
 } from './types.js';
 import { formatVerificationEvidenceVerdict } from './types.js';
+import type { VerificationIntentPolicyResolution } from './workflow-policy.js';
 
 export const VERIFICATION_LANES: readonly VerificationLane[] = ['happy', 'edge', 'adversarial'];
 export type DeferredGateEvidenceMode = 'covered' | 'missing';
@@ -111,8 +112,11 @@ export function getBlockingVerificationEvidenceIssues(cl: ChecklistData, current
     .map(e => `${e.intentRef} [${e.status}] ${e.desc}`);
 }
 
-export function renderVerificationCoverage(report: VerificationCoverageReport): string {
-  if (report.total === 0) return 'Verification intent coverage: no explicit verificationIntent entries';
+export function renderVerificationCoverage(report: VerificationCoverageReport, policy?: VerificationIntentPolicyResolution): string {
+  if (report.total === 0) {
+    if (policy?.policy === 'express-exempt' && policy.message) return policy.message;
+    return 'Verification intent coverage: no explicit verificationIntent entries';
+  }
   const lines = [
     `Verification intent coverage: ${report.covered}/${report.total} covered (${report.missingRequired} required missing)`,
   ];

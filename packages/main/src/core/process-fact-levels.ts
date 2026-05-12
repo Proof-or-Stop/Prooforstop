@@ -131,6 +131,11 @@ export const PROCESS_FACT_LEVELS = [
   { name: 'runtime:phase_tools_malformed_policy_ceiling', level: 'L1', category: 'runtime-behavior', owner: 'core/config', rationale: 'Malformed phase tool configuration falls back to the lifecycle policy ceiling instead of widening rootOnly or legacy commands.' },
   { name: 'runtime:test_auto_recursive_skip', level: 'L2', category: 'runtime-behavior', owner: 'handlers/test-auto', rationale: 'Runtime guard skips recursive test_auto execution to avoid destructive reentry.' },
   { name: 'runtime:validate_fallback_discovery', level: 'L1', category: 'runtime-behavior', owner: 'handlers/verifier', rationale: 'Validation command discovery falls back when explicit config is missing.' },
+  { name: 'flow-policy:review-pass', level: 'L4', category: 'flow-policy', owner: 'core/flow-fact-policy', rationale: 'Review pass is a signed no-blocker fact consumed by REVIEW to TEST gates.', gateConsumer: 'storyMachine.canPassReview REVIEW to TEST gate' },
+  { name: 'flow-policy:finding', level: 'L4', category: 'flow-policy', owner: 'core/flow-fact-policy', rationale: 'Reviewer findings are signed blocker-state facts consumed by REVIEW gates.', gateConsumer: 'storyMachine.canPassReview REVIEW to TEST gate' },
+  { name: 'flow-policy:pass-only-normalization', level: 'L4', category: 'flow-policy', owner: 'core/flow-fact-policy', rationale: 'Pass-only low-severity reviewer findings normalize to signed review pass receipts instead of open findings.', gateConsumer: 'storyMachine.canPassReview REVIEW to TEST gate' },
+  { name: 'flow-policy:review-round-iso-string', level: 'L4', category: 'flow-policy', owner: 'core/flow-fact-policy', rationale: 'reviewRound is an ISO 8601 string in signed findings and review passes.', gateConsumer: 'review signatures and storyMachine.canPassReview REVIEW to TEST gate' },
+  { name: 'flow-policy:express-verification-policy', level: 'L4', category: 'flow-policy', owner: 'core/flow-fact-policy', rationale: 'Express channel stories may intentionally skip PLAN verificationIntent and must render that exemption explicitly.', gateConsumer: 'validate verification coverage and story_review PLAN fast-path advisory gate' },
 ] as const satisfies readonly ProcessFactLevelEntry[];
 
 export const PROCESS_FACT_LEVEL_BY_NAME: Record<string, ProcessFactLevelEntry> = Object.fromEntries(

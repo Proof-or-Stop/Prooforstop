@@ -9,7 +9,9 @@ import { fileURLToPath } from 'node:url';
 import { getAllowedPatterns, isCommandAllowed, resetConfigCache } from '../core/config.js';
 import { signFinding, signReviewPass } from '../core/finding-verify.js';
 import { getArtifactContractStatus } from '../core/artifact-contract.js';
+import { FLOW_FACT_POLICIES, isPassOnlyReviewFindingRecord } from '../core/flow-fact-policy.js';
 import { getGuardFailureReason } from '../core/machine.js';
+import { getProcessFactRegistryEntry, hasProcessFactSemantic, PROCESS_FACT_FLOW_POLICIES } from '../core/process-fact-registry.js';
 import { summarizeReviewerStatus } from '../core/reviewer-status.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, Finding, StoryInfo, TestEvidenceData } from '../core/types.js';
@@ -202,6 +204,76 @@ function assertSessionBriefGate(): void {
     isCommandAllowed('finding_cluster', 'DEV', { '*': ['status'], DEV: ['finding_add', 'finding_dispatch'] }),
     false,
     'custom phase tools should still be able to override DEV finding_cluster availability',
+  );
+}
+
+function assertFlowFactPolicyRegistry(): void {
+  const flowPolicyNames = FLOW_FACT_POLICIES.map(policy => policy.name).sort();
+  assert.deepEqual(
+    PROCESS_FACT_FLOW_POLICIES.map(policy => policy.name).sort(),
+    flowPolicyNames,
+    'process fact registry should be built from the centralized flow fact policy table',
+  );
+
+  const reviewPass = getProcessFactRegistryEntry('flow-policy:review-pass');
+  assert.equal(reviewPass?.kind, 'flow-policy');
+  assert.equal(reviewPass?.artifact?.path, 'review-passes.json');
+  assert.equal(reviewPass?.consumerGate, 'storyMachine.canPassReview REVIEW to TEST gate');
+  assert.equal(hasProcessFactSemantic('flow-policy:review-pass', 'review-pass'), true);
+
+  const finding = getProcessFactRegistryEntry('flow-policy:finding');
+  assert.equal(finding?.kind, 'flow-policy');
+  assert.equal(finding?.artifact?.path, 'findings.json');
+  assert.equal(hasProcessFactSemantic('flow-policy:finding', 'finding-state'), true);
+
+  const passOnly = getProcessFactRegistryEntry('flow-policy:pass-only-normalization');
+  assert.equal(passOnly?.kind, 'flow-policy');
+  assert.equal(passOnly?.artifact?.path, 'review-passes.json');
+  assert.equal(hasProcessFactSemantic('flow-policy:pass-only-normalization', 'normalization-policy'), true);
+
+  const reviewRound = getProcessFactRegistryEntry('flow-policy:review-round-iso-string');
+  assert.equal(reviewRound?.kind, 'flow-policy');
+  assert.equal(hasProcessFactSemantic('flow-policy:review-round-iso-string', 'schema-contract'), true);
+
+  const express = getProcessFactRegistryEntry('flow-policy:express-verification-policy');
+  assert.equal(express?.kind, 'flow-policy');
+  assert.equal(hasProcessFactSemantic('flow-policy:express-verification-policy', 'verification-policy'), true);
+
+  assert.equal(
+    isPassOnlyReviewFindingRecord({
+      desc: 'PASS: docs consistency check PASSED.',
+      severity: 'low',
+      agent: 'koala-review-docs',
+    }),
+    true,
+    'low-severity reviewer pass-only finding should normalize to review pass',
+  );
+  assert.equal(
+    isPassOnlyReviewFindingRecord({
+      desc: 'PASS but README command failed.',
+      severity: 'low',
+      agent: 'koala-review-docs',
+    }),
+    false,
+    'ambiguous pass plus failure text must remain a real finding',
+  );
+  assert.equal(
+    isPassOnlyReviewFindingRecord({
+      desc: 'PASS: docs consistency check PASSED.',
+      severity: 'medium',
+      agent: 'koala-review-docs',
+    }),
+    false,
+    'non-low pass-like finding must not normalize to review pass',
+  );
+  assert.equal(
+    isPassOnlyReviewFindingRecord({
+      desc: 'No findings after review.',
+      severity: 'low',
+      agent: 'main',
+    }),
+    false,
+    'non-reviewer pass-like finding must not normalize to review pass',
   );
 }
 
@@ -948,6 +1020,7 @@ function assertGlobalLinkRepair(): void {
 }
 
 assertSessionBriefGate();
+assertFlowFactPolicyRegistry();
 assertPhaseGatePolicyHints();
 assertPhaseToolsOverrideStillBlocks();
 assertReviewGateUsesOptIn();

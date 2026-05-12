@@ -611,7 +611,7 @@ Note: `waiverReason` 长度校验（≥ 30 字符）在 `delivery_check_set` han
   "docsPromises": [{ "docPath": "CLAUDE.md#section", "promise": "描述承诺", "verifiedBy": "diff/grep", "evidence": "具体证据", "waiverReason?": "≥30字符豁免理由" }],
   "realMachineTests": [{ "featureId": "CHK-001", "transcript": "测试记录", "waiverReason?": "≥30字符豁免理由" }],
   "closingSelfCheck": { "hasRealMachineTest": true, "hasEdgeCaseCoverage": true, "hasUnresolvedTodos": false, "summary": "一句话总结" },
-  "reviewRound": 1,
+  "reviewRound": "2026-05-12T21:00:00.000Z",
   "_hash": "sha256-..."
 }
 ```
@@ -712,6 +712,14 @@ checklist + plan.md 写完后必须 `story_review` 通过（issueCount=0）才�
 | `verificationIntent` | PLAN | 每个 item 的 happy / edge / adversarial 验证意图；normal/high-risk/strict story 三栏必填 |
 | `verificationEvidence` | DEV/REVIEW/TEST | 覆盖某条 intent 的证据，可为 logic_test/integration_test/browser_test/manual_transcript/docs_check/waiver；CLI 也接受 `logic`→`logic_test`、`cli`→`manual_transcript` aliases |
 
+Express channel（≤2 checklist items 且无 active riskSignals）允许 PLAN 阶段 intentionally skipped `verificationIntent`。这不是 reviewer 文案豁免，而是硬编码 flow fact policy：`flow-policy:express-verification-policy` / `express-exempt`。用户可见输出必须是：
+
+```text
+Verification policy: express-exempt (channel=express; PLAN verificationIntent intentionally skipped)
+```
+
+fast / normal channel 的 zero intent 只能显示普通缺失文案，不能显示 `express-exempt`。
+
 常用命令：
 
 ```bash
@@ -757,7 +765,9 @@ koala reviewer_list '{"storyId":"B-xxx","forceReviewer":"docs,behavior"}' # 手�
 
 `story_advance REVIEW` 会 echo 当前 reviewer 名单。gate（`canPassReview`）按 opt-in 实际名单校验，不再硬编码 5。
 
-**Finding 签名验证**：reviewer 的 finding 带签名（`_hash` + `reviewRound`），gate 验签，主 agent 无法伪造。`finding_add` 自动注入当前 review round 和签名。手动 `finding_add` 伪造 reviewer finding 绕过 gate 不允许。
+**Finding 签名验证**：reviewer 的 finding 带签名（`_hash` + `reviewRound`），gate 验签，主 agent 无法伪造。`reviewRound: string (ISO 8601 review round id)`，来自 `story.currentReviewRound`；`finding_add` 自动注入当前 review round 和签名。手动 `finding_add` 伪造 reviewer finding 绕过 gate 不允许。
+
+**pass-only finding_add 归一化**：low severity 且 agent 为 `koala-review-*` 的 pass-only `finding_add`（如 no findings / PASS / 检查通过）由 `core/flow-fact-policy.ts` 的 `flow-policy:pass-only-normalization` 机械转成 `review_pass_set`，写 `review-passes.json`，不写 open finding。含 pass 但同时含 failure / blocker / 缺少 / 失败 等矛盾语义的记录仍是真 finding；非 reviewer 或非 low severity 也不能当作 pass。
 
 ### Cluster 聚簇（finding 批量处理）
 
@@ -788,7 +798,7 @@ koala dispatch '{"storyId":"B-xxx","clusterId":"CL-001"}'  # 输出 implementer 
 ```ts
 {
   findings: Finding[],            // 每条 finding 追加 advisoryLabel: "[R2-ADVISORY]" | "[R3-ADVISORY]" | null
-  reviewRound: number,            // 当前 REVIEW 轮次（1 / 2 / 3+）
+  reviewRound: string,            // reviewRound: string (ISO 8601 review round id)
   blockingHeading: string,        // 例 "# Blocking (Round 2)"
   advisoryHeading: string,        // 例 "# Advisory (not blocking this round)"
   blocking: string[],             // status=open 且 advisoryLabel=null 的 finding.id 列表
@@ -802,11 +812,11 @@ koala dispatch '{"storyId":"B-xxx","clusterId":"CL-001"}'  # 输出 implementer 
 {
   clusters: Array<{
     clusterId, rootCause, findingCount, severity, files, findingIds,
-    reviewRound: number,          // F-035: 簇级 reviewRound
+    reviewRound: string,          // reviewRound: string (ISO 8601 review round id)
     advisoryLabel: string | null, // F-035: 簇内全员同 label 时升级为簇级，否则 null（混合态由成员 label 表达）
   }>,
   ungrouped: Finding[],
-  reviewRound: number,            // F-035: 顶层 reviewRound
+  reviewRound: string,            // reviewRound: string (ISO 8601 review round id)
 }
 ```
 

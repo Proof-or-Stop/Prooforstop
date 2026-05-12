@@ -1,0 +1,35 @@
+{
+  "task": "将 Koala 流程事实从 prompt 约束提升为代码 registry 与 handler/gate 校验",
+  "outcome": "用户在任意项目里运行 reviewer / finding / validate / workflow explain 相关命令时，会看到 pass-only finding 被记录为 Review pass 而不是 Finding；reviewRound 明确显示为 ISO review round id 而不是数字轮次；express story 的验证覆盖输出明确说明 express-exempt policy，而不是只显示 0/0 covered 让 reviewer 人肉解释。",
+  "facts": [
+    "已有 process-fact-registry.ts 和 process-fact-levels.ts，说明分级表骨架已经存在",
+    "finding_add 已有 pass-only 转 review_pass_set 的部分逻辑，但规则没有集中声明为 flow fact policy",
+    "Finding.reviewRound / ReviewPass.reviewRound 在 core/types.ts 中是 string，CLAUDE.md 示例仍写 number",
+    "computeChannel 会把 checklist items <=2 且无 riskSignals 判为 express",
+    "verification coverage total=0 当前只输出 no explicit verificationIntent entries，没有机器可读 express 豁免语义",
+    "validate/workflow output 都可以实时读取 story+checklist 并用 computeChannel 派生 express policy，因此不需要迁移旧 story 元数据"
+  ],
+  "constraints": [
+    "所有 story 操作必须通过 koala CLI，不直接改 story JSON",
+    "流程事实必须代码兜底，prompt 只能辅助",
+    "不扩大 finding category active 集合，legacy category 只兼容归一 missing",
+    "保持现有签名域兼容：reviewRound 字符串进入 finding/review pass hash",
+    "普通文案不做硬编码门禁，范围只覆盖 phase/review/test/DONE/evidence/finding/pass/channel policy"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/core/verification.ts",
+    "packages/main/src/core/workflow-policy.ts",
+    "packages/main/src/handlers/workflow.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/field-regression-cli-smoke.ts",
+    "CLAUDE.md",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "docs/requirements/decisions/testing-infra.md"
+  ],
+  "timestamp": "2026-05-12T21:07:20.872Z"
+}

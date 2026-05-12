@@ -12,6 +12,8 @@ import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo, StorySummaryData } from '../core/types.js';
 import { buildVerificationCoverage, renderVerificationCoverage } from '../core/verification.js';
+import { EXPRESS_VERIFICATION_EXEMPTION_MESSAGE } from '../core/flow-fact-policy.js';
+import { resolveVerificationIntentPolicy } from '../core/workflow-policy.js';
 import { createSessionHandlers } from '../handlers/session.js';
 import { createSummaryHandlers } from '../handlers/summary.js';
 
@@ -227,9 +229,51 @@ function assertVerificationEvidenceVerdict(): void {
   assert.match(renderVerificationCoverage(coverage), /verdict=blocked-classified/);
 }
 
+function assertExpressVerificationPolicyRendering(): void {
+  const expressStory = makeStory('B-express', 'PLAN');
+  const expressChecklist: ChecklistData = {
+    items: [{
+      id: 'CHK-001',
+      title: 'Express item',
+      status: 'pending',
+      startTime: null,
+      endTime: null,
+    }],
+  };
+  const expressPolicy = resolveVerificationIntentPolicy(expressStory, expressChecklist);
+  assert.equal(expressPolicy.policy, 'express-exempt');
+  assert.equal(expressPolicy.channel, 'express');
+  assert.equal(renderVerificationCoverage(buildVerificationCoverage(expressChecklist), expressPolicy), EXPRESS_VERIFICATION_EXEMPTION_MESSAGE);
+
+  const fastStory = makeStory('B-fast', 'PLAN');
+  const fastChecklist: ChecklistData = {
+    items: ['001', '002', '003'].map(suffix => ({
+      id: `CHK-${suffix}`,
+      title: `Fast item ${suffix}`,
+      status: 'pending' as const,
+      startTime: null,
+      endTime: null,
+    })),
+  };
+  const fastPolicy = resolveVerificationIntentPolicy(fastStory, fastChecklist);
+  assert.equal(fastPolicy.policy, 'missing-intent');
+  assert.equal(fastPolicy.channel, 'fast');
+  assert.doesNotMatch(renderVerificationCoverage(buildVerificationCoverage(fastChecklist), fastPolicy), /express-exempt/);
+
+  const riskyExpressSizedStory = {
+    ...makeStory('B-risky', 'PLAN'),
+    riskSignals: [{ category: 'gate', matched: 'machine.ts' }],
+  };
+  const riskyPolicy = resolveVerificationIntentPolicy(riskyExpressSizedStory, expressChecklist);
+  assert.equal(riskyPolicy.policy, 'missing-intent');
+  assert.equal(riskyPolicy.channel, 'normal');
+  assert.doesNotMatch(renderVerificationCoverage(buildVerificationCoverage(expressChecklist), riskyPolicy), /express-exempt/);
+}
+
 assertOutcomeDashboard();
 assertSessionDashboardAndAuthorityWording();
 assertSummaryOutcomeKind();
 assertVerificationEvidenceVerdict();
+assertExpressVerificationPolicyRendering();
 
 console.log('outcome semantics smoke passed');
