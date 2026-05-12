@@ -1,0 +1,41 @@
+{
+  "storyId": "B-5c5e",
+  "name": "command-policy-registry",
+  "title": "统一命令生命周期与 phase policy 硬编码兜底",
+  "description": "建立命令生命周期/phase policy 的统一硬编码事实源，识别 supported/rootOnly/retired/replacedBy/gateEvidence/maintenance 等状态，防止 process fact registry、phaseTools、handler runtime 和 docs/prompt 对命令可用性的理解漂移。重点覆盖 finding workflow 已修问题的同类风险，以及 test/fixture legacy command drift。",
+  "type": "chore",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "验证框架",
+      "matched": "test_auto"
+    }
+  ],
+  "createdAt": "2026-05-12T00:38:57.197Z",
+  "startedAt": "2026-05-12T00:38:57.197Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-05-12T00:38:57.197Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-05-12T00:44:50.923Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-5c5e",
+    "branch": "story/B-5c5e",
+    "createdAt": "2026-05-12T00:44:51.001Z"
+  }
+}
