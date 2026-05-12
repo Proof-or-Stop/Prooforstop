@@ -51,9 +51,9 @@
           "command": "npm --prefix packages/main run build && npm run test:worktree-authority-smoke",
           "result": "pass",
           "note": "DONE context now comes from git rev-parse --show-toplevel; focused build passed and nested-cwd smoke output rejects PVSC cleanup target.",
-          "headHash": "27c1a4149166e26726e29183eae5d655624ccdd5",
-          "materialHash": "bb0fa33a980ef42d933b827965c80e016cf5aa91c1d8d0687c1c44135331b5a0",
-          "timestamp": "2026-05-12T18:00:11.761Z"
+          "headHash": "c4ff7303ed53888530d9e8b25f821f7f844c085e",
+          "materialHash": "fdb176e8c4b34027dc25de2425002e803f03bc8d8139a9f90a5c160880779fae",
+          "timestamp": "2026-05-12T18:25:34.514Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -61,9 +61,9 @@
           "command": "npm run test:worktree-authority-smoke",
           "result": "pass",
           "note": "Temp repo DONE from PVSC/child verified main metadata became DONE with worktree cleared after root-based story metadata commit and merge.",
-          "headHash": "27c1a4149166e26726e29183eae5d655624ccdd5",
-          "materialHash": "bb0fa33a980ef42d933b827965c80e016cf5aa91c1d8d0687c1c44135331b5a0",
-          "timestamp": "2026-05-12T18:00:11.761Z"
+          "headHash": "c4ff7303ed53888530d9e8b25f821f7f844c085e",
+          "materialHash": "fdb176e8c4b34027dc25de2425002e803f03bc8d8139a9f90a5c160880779fae",
+          "timestamp": "2026-05-12T18:25:34.514Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -71,9 +71,9 @@
           "command": "npm run test:worktree-authority-smoke",
           "result": "pass",
           "note": "Smoke leaves runtime residue under PVSC/child and fails if output/removal target uses the nested cwd; residual rm guard only allows the registered canonical worktree root.",
-          "headHash": "27c1a4149166e26726e29183eae5d655624ccdd5",
-          "materialHash": "bb0fa33a980ef42d933b827965c80e016cf5aa91c1d8d0687c1c44135331b5a0",
-          "timestamp": "2026-05-12T18:00:11.761Z"
+          "headHash": "c4ff7303ed53888530d9e8b25f821f7f844c085e",
+          "materialHash": "fdb176e8c4b34027dc25de2425002e803f03bc8d8139a9f90a5c160880779fae",
+          "timestamp": "2026-05-12T18:25:34.514Z"
         }
       ]
     },
@@ -129,9 +129,9 @@
           "command": "npm run test:worktree-authority-smoke",
           "result": "pass",
           "note": "worktree-authority smoke now includes assertDoneFromNestedCwdUsesCanonicalWorktreeRoot and passes on the fixed path.",
-          "headHash": "27c1a4149166e26726e29183eae5d655624ccdd5",
-          "materialHash": "bb0fa33a980ef42d933b827965c80e016cf5aa91c1d8d0687c1c44135331b5a0",
-          "timestamp": "2026-05-12T18:00:11.761Z"
+          "headHash": "c4ff7303ed53888530d9e8b25f821f7f844c085e",
+          "materialHash": "fdb176e8c4b34027dc25de2425002e803f03bc8d8139a9f90a5c160880779fae",
+          "timestamp": "2026-05-12T18:25:34.514Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -139,9 +139,9 @@
           "command": "npm run test:worktree-authority-smoke",
           "result": "pass",
           "note": "Regression asserts story branch deletion, clean git worktree registry, removed canonical worktree directory, and DONE metadata cleared in main.",
-          "headHash": "27c1a4149166e26726e29183eae5d655624ccdd5",
-          "materialHash": "bb0fa33a980ef42d933b827965c80e016cf5aa91c1d8d0687c1c44135331b5a0",
-          "timestamp": "2026-05-12T18:00:11.761Z"
+          "headHash": "c4ff7303ed53888530d9e8b25f821f7f844c085e",
+          "materialHash": "fdb176e8c4b34027dc25de2425002e803f03bc8d8139a9f90a5c160880779fae",
+          "timestamp": "2026-05-12T18:25:34.514Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -149,9 +149,9 @@
           "command": "npm run test:worktree-authority-smoke",
           "result": "pass",
           "note": "Regression asserts DONE output does not contain PVSC or the child cwd path, so the old nested cleanup target fails this smoke.",
-          "headHash": "27c1a4149166e26726e29183eae5d655624ccdd5",
-          "materialHash": "bb0fa33a980ef42d933b827965c80e016cf5aa91c1d8d0687c1c44135331b5a0",
-          "timestamp": "2026-05-12T18:00:11.761Z"
+          "headHash": "c4ff7303ed53888530d9e8b25f821f7f844c085e",
+          "materialHash": "fdb176e8c4b34027dc25de2425002e803f03bc8d8139a9f90a5c160880779fae",
+          "timestamp": "2026-05-12T18:25:34.514Z"
         }
       ]
     }
