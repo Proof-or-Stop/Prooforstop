@@ -1,0 +1,65 @@
+{
+  "findings": [
+    {
+      "id": "B-5964:F-001",
+      "desc": "typed process fact contract still hard-checks only a subset of artifact facts. Docs/AGENTS say gate/reviewer/artifact drift must be mechanically covered, but verify-process-fact-contract only enforces requiredArtifactFacts and omits some gate-consumed artifacts such as review.json plus artifact refs hanging off commands like summary_set/verify_codex. This leaves a concept gap between documented contract scope and actual hard enforcement.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-05-12T13:22:13.416Z",
+      "reviewRound": "2026-05-12T13:17:24.587Z",
+      "_hash": "b72fef284186b05cf6fb0c13ed17b10070f93a497e0ef6d0a5367fc8978a0e3e",
+      "files": [
+        "packages/main/src/core/process-fact-registry.ts",
+        "scripts/verify-process-fact-contract.mjs",
+        "AGENTS.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ]
+    },
+    {
+      "id": "B-5964:F-002",
+      "desc": "scripts/verify-process-fact-contract.mjs still trusts compiled dist modules before source. parseProcessFactRegistry() reads packages/main/dist/core/process-fact-registry.js when it exists, and the same verifier also imports built command-policy/config modules, so npm run test:process-fact-contract can validate stale build output instead of the current src edits. This makes contract diagnostics non-deterministic for maintainers unless they rebuild first, which violates the goal of stable drift detection. Fix by making the verifier source-first for contract checks, or by rejecting stale dist via explicit freshness/hash checks before using compiled modules.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-12T13:22:59.792Z",
+      "reviewRound": "2026-05-12T13:17:24.587Z",
+      "_hash": "66e23c3c8a0a8d3ede097dfb13809c470d56f37b1cc9ce8a46056f119c8581de",
+      "files": [
+        "scripts/verify-process-fact-contract.mjs"
+      ]
+    },
+    {
+      "id": "B-5964:F-003",
+      "desc": "verify-process-fact-contract.mjs still does not provide stable source-of-truth diagnostics for the new registry. First, parseProcessFactRegistry() and the surrounding helpers trust compiled dist modules before current source, so npm run test:process-fact-contract can validate stale build output instead of current src edits unless maintainers rebuild first. Second, the source fallback path only token-checks process-fact-registry.ts and then reconstructs entries from helper exports instead of validating the final exported PROCESS_FACT_REGISTRY composition, so export-level drift like dropping PROCESS_FACT_ARTIFACTS or PROCESS_FACT_REVIEWER_LANES can evade fallback checks. Fix by making contract verification source-first (or rejecting stale dist with explicit freshness/hash checks) and by parsing/asserting the final PROCESS_FACT_REGISTRY export rather than synthesizing it from helpers in fallback mode.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-12T13:23:42.554Z",
+      "reviewRound": "2026-05-12T13:17:24.587Z",
+      "_hash": "87fcf54b2903d8181dcd6a8d98f4b62ea4db2f13669a697c245726bff44041eb",
+      "files": [
+        "scripts/verify-process-fact-contract.mjs",
+        "packages/main/src/core/process-fact-registry.ts"
+      ]
+    },
+    {
+      "id": "B-5964:F-004",
+      "desc": "verify-process-fact-contract is source-first now, but its source parser still synthesizes registry entries instead of validating the final exported registry shapes. parseProcessFactRegistry() rebuilds command facts from PROCESS_FACT_LEVELS plus COMMAND_POLICIES and hard-codes reviewer-lane kind/semantics/level from PROCESS_FACT_REVIEWER_LANE_DEFINITIONS, while only token-checking the final PROCESS_FACT_REGISTRY spread list. Because the verifier always runs in this fallback path, drift inside COMMAND_PROCESS_FACTS or PROCESS_FACT_REVIEWER_LANES/exported mapping logic can still pass without being checked against the actual exported PROCESS_FACT_REGISTRY objects. Make the verifier parse/assert the exported COMMAND_PROCESS_FACTS / PROCESS_FACT_REVIEWER_LANES / final PROCESS_FACT_REGISTRY values, or compare source-derived output against the built export with an explicit freshness guard.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-12T13:47:35.424Z",
+      "reviewRound": "2026-05-12T13:41:34.784Z",
+      "_hash": "23a10d99c8c477be28ce4d258fb72e85c2bb1bb8cdc7d87644eeb441fecc5862",
+      "files": [
+        "scripts/verify-process-fact-contract.mjs",
+        "packages/main/src/core/process-fact-registry.ts"
+      ]
+    }
+  ]
+}

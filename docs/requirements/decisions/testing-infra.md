@@ -39,6 +39,14 @@
 DEV 阶段通过后提示提交并进入 REVIEW；REVIEW 阶段通过后提示进入 TEST；
 TEST 阶段通过后提示查看 DONE pre-check，并按失败 row 的 hint 补 summary、delivery check、dirty tree、missing/stale `verificationEvidence` 等门禁项。
 
+验证相关的流程事实必须登记在 `packages/main/src/core/process-fact-registry.ts`：
+`validate` 代表 `validation-status`，`verification_evidence_*` 代表
+`verification-evidence` / `execution-evidence`，`test-evidence.json` 是 DONE
+gate 消费的验证结果 artifact。`scripts/verify-process-fact-contract.mjs`
+负责校验这些 registry 事实与 `COMMAND_POLICIES`、`PROCESS_FACT_LEVELS`、
+`DEFAULT_PHASE_TOOLS`、reviewer lane 和 signed artifact 一致；项目配置只能补
+本地验证命令或收窄可用命令，不能放宽 legacy/rootOnly/gateEvidence 语义。
+
 Legacy `test_auto` 是兼容 runner，不是统一入口。当前 handler 只负责执行 legacy fixture 并返回执行摘要；维护旧 fixture 时它的行为是：
 
 1. 扫描 `fixturesDir` 下所有 `.json` fixture 文件

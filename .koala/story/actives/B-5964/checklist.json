@@ -1,0 +1,338 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "维护者运行 process-fact contract 时不再遇到源码 fallback 崩溃",
+      "context": "当前 main 上 npm run test:process-fact-contract 会因为 extractPhaseToolEntries(configText, \"*\") 生成 /\\b*:/ 无效正则而失败。修复后，维护者即使在未先 build dist 的环境运行 contract，也会看到稳定的 pass 或具体 drift 诊断。需要加 synthetic regression，覆盖 DEFAULT_PHASE_TOOLS 的 * 和普通 phase。",
+      "relatedDocs": [
+        "AGENTS.md#流程事实双层契约",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "done",
+      "startTime": "2026-05-12T12:32:22.961Z",
+      "endTime": "2026-05-12T13:16:19.586Z",
+      "userSees": "运行 `npm run test:process-fact-contract` 时看到 \"Process fact contract verified\"，不会再看到 \"Invalid regular expression: /\\b*:/\"；若漂移则看到 \"Process fact contract failed:\" 后跟具体 command/phase 名。",
+      "files": {
+        "modify": [
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "在未依赖 dist 模块的源码 fallback 路径下运行 npm run test:process-fact-contract，不再因 DEFAULT_PHASE_TOOLS 的 * key 生成无效正则而崩溃。",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "源码 fallback 同时能解析 * 全局工具列表和 REVIEW/DEV 等普通 phase 工具列表，并保留现有 policy/default alignment 检查。",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "synthetic config 中包含 * key、注释和字符串时，phase tool parser 不把 * 当正则特殊字符，也不会误读注释里的命令。",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "process-fact contract passed and printed Process fact contract verified; source fallback parser handles DEFAULT_PHASE_TOOLS star key without invalid regex.",
+          "headHash": "64637e9243fa0793169d7b65445ef3886a036ac1",
+          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
+          "timestamp": "2026-05-12T13:58:26.424Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "contract synthetic parser checks cover star global tools and DEV/REVIEW phase tool parsing while preserving policy/default alignment checks.",
+          "headHash": "64637e9243fa0793169d7b65445ef3886a036ac1",
+          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
+          "timestamp": "2026-05-12T13:58:26.424Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "synthetic DEFAULT_PHASE_TOOLS fixture includes star key, ordinary phase keys, comments, and strings; commented commands are not parsed.",
+          "headHash": "64637e9243fa0793169d7b65445ef3886a036ac1",
+          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
+          "timestamp": "2026-05-12T13:58:26.424Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "维护者能从一个 typed registry 查看和维护流程事实",
+      "context": "建立代码内 typed process fact registry，集中描述命令名、lifecycle/status、level、allowedPhases/rootOnly、destructiveRisk、producer、consumerGate、artifact/signature、reviewer lane 等事实。第一版不要求删除旧表，但维护者应该能从 registry 明确看到一个流程事实的生产者、消费者和 gate 影响，而不是在 COMMAND_POLICIES、PROCESS_FACT_LEVELS、DEFAULT_PHASE_TOOLS、prompt 文档之间来回猜。",
+      "relatedDocs": [
+        "AGENTS.md#流程事实双层契约",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-05-12T13:16:31.364Z",
+      "userSees": "维护者打开 `packages/main/src/core/process-fact-registry.ts` 时能看到 `PROCESS_FACT_REGISTRY`、`kind`、`level`、`lifecycle`、`producer`、`consumerGate`、`artifact` 这些字段集中说明流程事实。",
+      "files": {
+        "modify": [
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts"
+        ],
+        "create": [
+          "packages/main/src/core/process-fact-registry.ts"
+        ],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "维护者打开 process-fact registry 时能看到 command lifecycle、process fact level、phase/rootOnly、producer、consumer gate、artifact/signature 等核心事实集中登记。",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "第一版 registry 与现有 COMMAND_POLICIES/PROCESS_FACT_LEVELS 能保持兼容，旧 runtime 行为不因 registry 引入而改变。",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "新增 MAIN_TOOLS 命令但未在 registry 登记时，contract verifier 明确失败并点名缺失命令。",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "command": "sed -n 1,220p packages/main/src/core/process-fact-registry.ts",
+          "result": "pass",
+          "note": "process-fact-registry.ts exposes PROCESS_FACT_REGISTRY plus kind, level, lifecycle, allowedPhases, rootOnly, destructiveRisk, producer, consumerGate, artifact, signature, and reviewerLane fields.",
+          "headHash": "64637e9243fa0793169d7b65445ef3886a036ac1",
+          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
+          "timestamp": "2026-05-12T13:58:26.424Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm run build && npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "registry is derived from COMMAND_POLICIES and PROCESS_FACT_LEVELS; build and contract pass without changing runtime command policy behavior.",
+          "headHash": "64637e9243fa0793169d7b65445ef3886a036ac1",
+          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
+          "timestamp": "2026-05-12T13:58:26.424Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "contract checks every MAIN_TOOLS command has a PROCESS_FACT_REGISTRY command fact and reports missing commands as MAIN_TOOLS command missing from PROCESS_FACT_REGISTRY.",
+          "headHash": "64637e9243fa0793169d7b65445ef3886a036ac1",
+          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
+          "timestamp": "2026-05-12T13:58:26.424Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "维护者看到 registry drift 时得到稳定可操作的诊断",
+      "context": "扩展 verify-process-fact-contract：所有 MAIN_TOOLS 命令、reviewer lane 名称、L4 gate evidence、signed artifact、DEFAULT_PHASE_TOOLS 允许阶段都必须能从 registry 找到一致事实。项目配置只能收窄的原则进入文档和静态验证。验收重点不是内部表存在，而是维护者引入漂移时 contract 能点名具体 command/lane/artifact/gate，而不会静默通过或只靠 prompt。",
+      "relatedDocs": [
+        "AGENTS.md#流程事实双层契约",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-05-12T13:16:41.586Z",
+      "userSees": "正常时 contract 输出 \"Process fact contract verified\"；漂移时输出 \"Process fact contract failed:\" 并点名 \"missing from PROCESS_FACT_REGISTRY\"、\"policy drift\"、\"artifact\" 或 \"reviewer lane\"。",
+      "files": {
+        "modify": [
+          "scripts/verify-process-fact-contract.mjs",
+          "AGENTS.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "process-fact contract 通过时输出 Process fact contract verified，并证明 registry、COMMAND_POLICIES、PROCESS_FACT_LEVELS、DEFAULT_PHASE_TOOLS、reviewer lane 和 signed artifacts 对齐。",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "项目 phaseTools 配置或 malformed config 不能放宽 legacy/rootOnly/gateEvidence，runtime probe 和 contract 都覆盖这一点。",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "人为制造 registry 与 phase/gate/artifact/reviewer lane 的不一致时，contract 输出具体 drift 信息而不是静默通过或崩溃。",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "contract printed Process fact contract verified and listed aligned registry entries for commands, policies, phase tools, reviewer lanes, and artifacts.",
+          "headHash": "64637e9243fa0793169d7b65445ef3886a036ac1",
+          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
+          "timestamp": "2026-05-12T13:58:26.424Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "contract includes runtime phaseTools config narrowing probe: legacy/rootOnly commands cannot be widened while policy-approved gate evidence remains allowed.",
+          "headHash": "64637e9243fa0793169d7b65445ef3886a036ac1",
+          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
+          "timestamp": "2026-05-12T13:58:26.424Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "contract now emits specific drift diagnostics such as missing from PROCESS_FACT_REGISTRY, required process fact missing, reviewer lane missing, artifact missing, policy drift, and DEFAULT_PHASE_TOOLS phase allowlist drift.",
+          "headHash": "64637e9243fa0793169d7b65445ef3886a036ac1",
+          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
+          "timestamp": "2026-05-12T13:58:26.424Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "维护者能在 registry 管理执行验证状态与 review pass 事实",
+      "context": "scope-check 指出 execution/validation status 和 review pass 虽在 understanding 中出现，但未作为 checklist/plan 的显式验收切片。新增本项覆盖 validate/test-evidence/verificationEvidence 这类执行验证状态，以及 review_pass_set/finding_add 这类 reviewer 结论事实，确保 registry 和 contract 不只覆盖 command/phase/gate，还覆盖执行结果、验证结果和 no-blocker reviewer evidence。",
+      "relatedDocs": [
+        "AGENTS.md#流程事实双层契约",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "userSees": "registry/contract 输出中能看到 `validate` 标成 `validation-status`、`verification_evidence_add` 标成 `execution-status`、`review_pass_set` 标成 `review-pass`、`finding_add` 标成 `finding`；删除任一项时看到 \"required process fact missing\"。",
+      "files": {
+        "modify": [
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/core/guard-utils.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/delivery-check.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "AGENTS.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "create": [
+          "packages/main/src/core/process-fact-registry.ts"
+        ],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "registry 明确登记 validate/test evidence/verificationEvidence 代表的执行验证状态，以及 review_pass_set/finding_add 代表的 reviewer 结论事实。",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "review_pass_set 作为 no-blocker evidence 被 registry 标记为 gate-consumed fact，pass-only finding_add 转换逻辑仍由 handler 硬兜底。",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "删除 review_pass_set 或 validate 的 registry fact 时，contract verifier 失败并点名缺失 review/validation fact。",
+            "type": "logic"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-05-12T13:16:52.598Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n validation-status|verification-evidence|review-pass|finding-state packages/main/src/core/process-fact-registry.ts",
+          "result": "pass",
+          "note": "registry declares validate validation-status, verification_evidence_* verification/execution evidence, review_pass_set review-pass/no-blocker evidence, and finding_* finding/blocker state semantics.",
+          "headHash": "64637e9243fa0793169d7b65445ef3886a036ac1",
+          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
+          "timestamp": "2026-05-12T13:58:26.424Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "review_pass_set is registered as review-pass no-blocker gate evidence, and existing contract still checks pass-only finding_add prompt/handler protocol.",
+          "headHash": "64637e9243fa0793169d7b65445ef3886a036ac1",
+          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
+          "timestamp": "2026-05-12T13:58:26.424Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "contract required semantic checks fail with required process fact missing or required semantic fact missing if review_pass_set, validate, or required evidence/finding facts are removed from registry.",
+          "headHash": "64637e9243fa0793169d7b65445ef3886a036ac1",
+          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
+          "timestamp": "2026-05-12T13:58:26.424Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-05-12T12:22:15.263Z",
+      "phase": "PLAN",
+      "itemId": "CHK-004",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "scope-check 发现 execution/validation status 和 review pass facts 未显式覆盖，追加 checklist 作为范围修正。",
+      "addedTitle": "维护者能在 registry 管理执行验证状态与 review pass 事实",
+      "addedContext": "scope-check 指出 execution/validation status 和 review pass 虽在 understanding 中出现，但未作为 checklist/plan 的显式验收切片。新增本项覆盖 validate/test-evidence/verificationEvidence 这类执行验证状态，以及 review_pass_set/finding_add 这类 reviewer 结论事实，确保 registry 和 contract 不只覆盖 command/phase/gate，还覆盖执行结果、验证结果和 no-blocker reviewer evidence。"
+    }
+  ]
+}

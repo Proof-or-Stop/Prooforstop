@@ -1,0 +1,21 @@
+{
+  "bugs": [
+    {
+      "id": "BUG-5964-001",
+      "title": "delivery gate still blocks on missing delivery-check.json and summary.json",
+      "status": "fixed",
+      "foundAt": "2026-05-12T14:09:54.046Z",
+      "fixedAt": "2026-05-12T14:13:57.064Z",
+      "evidence": {
+        "symptom": "DONE pre-check and session_brief showed a delivery gate blocker because delivery-check.json was missing, even though summary and transcript evidence were already committed.",
+        "reproSteps": [
+          "Run koala session_brief on B-5964 before the delivery reviewer signs the check.",
+          "Observe DONE pre-check failing on delivery-check and BUG-5964-001 remaining open."
+        ],
+        "rootCause": "delivery_check_set had not been run, so the required signed delivery-check.json artifact did not exist yet.",
+        "fixEvidence": "koala delivery_check_set saved a signed delivery-check.json for B-5964 with 3 verified docsPromises, 2 realMachineTests, and a passing closing self-check.",
+        "reproTest": "koala delivery_check_set --storyId=B-5964 ... and koala session_brief now report delivery-check PASS."
+      }
+    }
+  ]
+}

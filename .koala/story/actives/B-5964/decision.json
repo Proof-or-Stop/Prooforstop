@@ -1,0 +1,81 @@
+{
+  "principles": [
+    "流程事实只能由 typed code registry 和 handler/gate 硬校验决定",
+    "项目配置只能收窄或补项目本地验证入口，不能放宽核心 gate 语义",
+    "第一版 registry 以校验和派生边界为主，避免一次性大迁移破坏现有流程",
+    "维护者可见诊断优先于内部重构优雅度"
+  ],
+  "drivers": [
+    "当前 contract fallback 已在 main 上崩溃，必须先恢复 verifier 可用性",
+    "COMMAND_POLICIES、PROCESS_FACT_LEVELS、DEFAULT_PHASE_TOOLS 多表并行仍有漂移风险",
+    "reviewer lane、signed artifact、gate evidence 命名需要统一注册和静态校验",
+    "Koala 自身流程要求高风险 gate 改动有可追溯 decision 和 preMortem"
+  ],
+  "options": [
+    {
+      "name": "A: 代码内 typed registry 作为 source of truth，旧表先被校验再逐步派生",
+      "pros": [
+        "能立即硬化命名/phase/gate/artifact 对齐",
+        "兼容现有命令和 gate，不需要一次性大重构",
+        "适合 contract verifier 直接消费并输出 drift 诊断"
+      ],
+      "cons": [
+        "短期仍会有旧表存在，需要 contract 保证不漂移",
+        "registry 字段设计需要克制，避免过度抽象"
+      ]
+    },
+    {
+      "name": "B: 外部 JSON/YAML 配置表统一所有流程事实",
+      "pros": [
+        "表面上更像配置，非 TS 用户更容易查看",
+        "可以跨项目覆盖较多字段"
+      ],
+      "cons": [
+        "会让项目配置有机会放宽核心 gate，违背硬兜底原则",
+        "schema/type/refactor 安全性弱于 TS registry",
+        "需要额外防止配置和代码 handler 漂移"
+      ]
+    },
+    {
+      "name": "C: 只修 contract fallback 崩溃，维持现有多表结构",
+      "pros": [
+        "最小改动，风险最低",
+        "能快速恢复 test:process-fact-contract"
+      ],
+      "cons": [
+        "无法解决用户提出的统一注册和硬编码兜底问题",
+        "reviewer lane/artifact/gate evidence 仍会继续分散漂移",
+        "类似 B-5c5e 的补丁会持续变成点状修复"
+      ]
+    }
+  ],
+  "chosen": "A: 代码内 typed registry 作为 source of truth，旧表先被校验再逐步派生",
+  "rationale": "选择 A，因为它既满足用户要的统一 registry 和硬编码兜底，又能避免外部配置放宽核心 gate；第一版通过 contract 校验旧表对齐，风险比一次性迁移低。",
+  "preMortem": [
+    {
+      "scenario": "registry 变成第四张并行表，反而增加漂移",
+      "trigger": "只新增 registry 文件，但 COMMAND_POLICIES/PROCESS_FACT_LEVELS/DEFAULT_PHASE_TOOLS 不被 registry 校验",
+      "consequence": "维护者仍需改多处，contract 不能证明 source of truth",
+      "mitigation": "contract verifier 必须逐项比较 registry 与旧表，缺失/不一致直接 fail"
+    },
+    {
+      "scenario": "项目配置重新获得放宽 gate 的能力",
+      "trigger": "loadConfig 或 phaseTools merge 允许 config 添加 legacy/rootOnly/gateEvidence 命令到 active phase",
+      "consequence": "用户要求的硬编码兜底被配置绕过",
+      "mitigation": "保持 COMMAND_POLICIES/registry 作为 ceiling，并加 runtime probe/contract 检查 config 只能收窄"
+    },
+    {
+      "scenario": "contract verifier 依赖 dist 编译产物导致源码 fallback 未覆盖",
+      "trigger": "开发者只在 build 后运行 tests，未测试无 dist 或 stale dist 场景",
+      "consequence": "main 上再次出现 verifier 自身崩溃或 stale pass",
+      "mitigation": "加 synthetic/source parser regression，并在测试中覆盖 fallback 解析 * 和 phase key"
+    },
+    {
+      "scenario": "registry 字段过大导致实现卡住或误改 gate runtime",
+      "trigger": "试图一次性把所有旧表派生和删除",
+      "consequence": "风险超过 story scope，review blocker 增加",
+      "mitigation": "第一版只建 typed registry + verifier 校验 + 文档入口，旧 runtime 行为保持兼容"
+    }
+  ],
+  "timestamp": "2026-05-12T12:17:31.723Z"
+}
