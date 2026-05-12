@@ -225,11 +225,11 @@
           "kind": "logic_test",
           "file": "scripts/audit-silent-catches.mjs",
           "command": "temporarily add packages/main/src/__koala_silent_catch_regression_tmp.ts then npm run audit:silent-catches",
-          "result": "fail",
-          "note": "Negative test intentionally failed with status silent catch audit failed and newUncategorized=1 at packages/main/src/__koala_silent_catch_regression_tmp.ts:4:} catch {; temporary file was deleted afterward and audit passed again.",
-          "headHash": "0a6502684ba2ae2726620a06dc8b28b771a3b301",
+          "result": "pass",
+          "note": "Negative test verified the gate: npm run audit:silent-catches exited 1 with status silent catch audit failed, newUncategorized=1, and file/line/snippet packages/main/src/__koala_silent_catch_regression_tmp.ts:4:} catch {. The temporary file was deleted afterward and the audit passed again.",
+          "headHash": "938db57d1ae08a2b1a01db4812e28be99e32ee0a",
           "materialHash": "9ba2fd4a91b5f38e33f13dcf474d66d250672735d82316ce0d8d4edcbd0f3070",
-          "timestamp": "2026-05-12T23:29:32.566Z"
+          "timestamp": "2026-05-12T23:30:00.835Z"
         }
       ]
     },
