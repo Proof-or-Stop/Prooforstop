@@ -5,7 +5,7 @@
       "desc": "packages/main/src/handlers/story-advance.ts:944 and packages/main/src/handlers/story-advance.ts:1198 keep DONE cleanup on shell-interpolated git commands. The new pre-merge stray scan builds `git ls-files ... ${JSON.stringify(storyDir)}` instead of the argv-safe execFileSync form already used by cleanStrayWorktreeFiles, and the cleanup runner later interpolates branch/worktree paths into `git ${cmd}` for merge/worktree remove/branch delete. Because story prefixes, branch names, and repo/worktree paths are not mechanically constrained to shell-safe characters, command substitution or quoting characters can be interpreted by the shell in the destructive DONE cleanup path. Replace these calls with execFileSync/spawn argv arrays, and validate the detected branch equals the expected story branch before merge/delete.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "agent": "koala-review-quality",
       "createdAt": "2026-05-12T17:54:29.403Z",
       "reviewRound": "2026-05-12T17:48:22.269Z",
