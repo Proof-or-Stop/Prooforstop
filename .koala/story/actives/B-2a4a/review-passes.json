@@ -1,0 +1,28 @@
+{
+  "passes": [
+    {
+      "id": "B-2a4a:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept review checked story_review numeric PLAN round naming against signed artifact ISO reviewRound semantics; planReviewRound is explicit, legacy reviewRound is documented as numeric alias, and signed artifacts remain ISO-based with no blocker.",
+      "createdAt": "2026-05-12T22:23:13.158Z",
+      "reviewRound": "2026-05-12T22:22:13.602Z",
+      "_hash": "d00a035f0910567c76db48f65d237e1c69adf8478a598d6dd995fff743d32f2d"
+    },
+    {
+      "id": "B-2a4a:RP-002",
+      "agent": "koala-review-quality",
+      "note": "PASS: quality review found no blocker. Verified additive story_review.planReviewRound implementation preserves legacy numeric reviewRound alias while signed finding/review-pass reviewRound remains covered as ISO string. Commands run: koala session_brief; koala checklist_get; koala aux_doc_list; git diff main...HEAD; node scripts/verify-story-review-structured-output.mjs; npm run test:process-fact-contract; npm run build; npm run test:flow-stability-smoke; npm run test:field-regression-cli-smoke.",
+      "createdAt": "2026-05-12T22:23:51.609Z",
+      "reviewRound": "2026-05-12T22:22:13.602Z",
+      "_hash": "dfa46ba7a80fb117fe9fdf1ebf8e8ea1228f158b0e35e1fdc8b489ba2f304859"
+    },
+    {
+      "id": "B-2a4a:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Docs review pass: CLAUDE.md, story-lifecycle.md, and testing-infra.md explicitly distinguish story_review.planReviewRound numeric PLAN review count, legacy story_review.reviewRound numeric alias, and signed artifact reviewRound ISO string; npm run test:process-fact-contract and node scripts/verify-story-review-structured-output.mjs passed.",
+      "createdAt": "2026-05-12T22:24:09.277Z",
+      "reviewRound": "2026-05-12T22:22:13.602Z",
+      "_hash": "b4253dc52e0d779d93d07342efd9ee7bbb3672e11db4f74f53937645eb13726a"
+    }
+  ]
+}
