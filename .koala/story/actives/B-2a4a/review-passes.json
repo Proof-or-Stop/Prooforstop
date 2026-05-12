@@ -23,6 +23,38 @@
       "createdAt": "2026-05-12T22:24:09.277Z",
       "reviewRound": "2026-05-12T22:22:13.602Z",
       "_hash": "b4253dc52e0d779d93d07342efd9ee7bbb3672e11db4f74f53937645eb13726a"
+    },
+    {
+      "id": "B-2a4a:RP-004",
+      "agent": "koala-review-concept",
+      "note": "Concept review passed: current HEAD keeps story_review.planReviewRound as the explicit numeric PLAN review count, preserves story_review.reviewRound only as a legacy numeric PLAN alias, and keeps signed finding/review-pass reviewRound as story.currentReviewRound ISO string. Verified with node scripts/verify-story-review-structured-output.mjs, npm run test:process-fact-contract, and npm run test:field-regression-cli-smoke.",
+      "createdAt": "2026-05-12T22:27:25.530Z",
+      "reviewRound": "2026-05-12T22:26:13.761Z",
+      "_hash": "46ea01fd2c986dc9e4268ab794bb06137db3e7de4b74586c4479d77768ad5175"
+    },
+    {
+      "id": "B-2a4a:RP-005",
+      "agent": "koala-review-quality",
+      "note": "Quality review passed: story_review adds explicit numeric planReviewRound while preserving legacy numeric reviewRound alias; field-regression CLI smoke uses real CLI-created finding/review-pass/pass-only artifacts and asserts reviewRound equals story.currentReviewRound with ISO shape; build and relevant smoke/contract tests passed.",
+      "createdAt": "2026-05-12T22:27:39.763Z",
+      "reviewRound": "2026-05-12T22:26:13.761Z",
+      "_hash": "1c7887e28ececb38482db6093405480533621106c45508986d431d11a3f4d088"
+    },
+    {
+      "id": "B-2a4a:RP-006",
+      "agent": "koala-review-test-coverage",
+      "note": "F-001复审通过：field-regression CLI smoke 直接断言 CLI-created finding.reviewRound、review_pass_set reviewPass.reviewRound、pass-only converted reviewPass.reviewRound 均等于 synthetic story.currentReviewRound，并匹配 ISO 8601；CHK-002 evidence 对应命令与说明准确。复跑 npm run test:field-regression-cli-smoke、node scripts/verify-story-review-structured-output.mjs、npm run test:process-fact-contract 均通过。",
+      "createdAt": "2026-05-12T22:27:46.733Z",
+      "reviewRound": "2026-05-12T22:26:13.761Z",
+      "_hash": "91db9f6b9468797a626d39b9fa0325ec4ed164a850999772b156ceb43bc54a89"
+    },
+    {
+      "id": "B-2a4a:RP-007",
+      "agent": "koala-review-docs",
+      "note": "Docs review passed: CLAUDE.md, docs/requirements/decisions/story-lifecycle.md, and docs/requirements/decisions/testing-infra.md accurately distinguish story_review.planReviewRound as numeric PLAN review count, legacy story_review.reviewRound as numeric alias, and signed artifact reviewRound as ISO 8601 string. Verified with rg reviewRound and node scripts/verify-process-fact-contract.mjs plus node scripts/verify-story-review-structured-output.mjs.",
+      "createdAt": "2026-05-12T22:28:17.703Z",
+      "reviewRound": "2026-05-12T22:26:13.761Z",
+      "_hash": "4bbee8174f787e970511206257b36e6e3fda2b5b7fccaa234a4a4bdb6710e7a1"
     }
   ]
 }
