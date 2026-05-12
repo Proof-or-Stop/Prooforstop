@@ -62,6 +62,19 @@ function runKoalaExpectFail(root: string, command: string, args: Record<string, 
   assert.fail(`${command} should have failed`);
 }
 
+function runKoalaFromCwdExpectFail(cwd: string, command: string, args: Record<string, unknown>): string {
+  try {
+    runKoalaFromCwd(cwd, command, args);
+  } catch (e: any) {
+    return [
+      e?.stdout?.toString?.() ?? '',
+      e?.stderr?.toString?.() ?? '',
+      e?.message ?? '',
+    ].join('\n');
+  }
+  assert.fail(`${command} should have failed`);
+}
+
 function validBackground(): string {
   return [
     '## 触发事件',
@@ -361,10 +374,61 @@ function assertDoneFromNestedCwdUsesCanonicalWorktreeRoot(): void {
   }
 }
 
+function assertDoneRejectsMismatchedStoryBranchBeforeMutation(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-mismatched-done-branch-'));
+  try {
+    write(root, 'koala.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      storyDir: '.koala/story/actives',
+      requirementsDir: 'docs/requirements',
+      worktreeDir: '.worktrees',
+      workflow: { profile: 'light' },
+    }, null, 2));
+    write(root, 'README.md', 'mismatched done branch smoke\n');
+    git(root, ['init']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'base']);
+    resetConfigCache();
+
+    const storyId = 'B-expected';
+    const wrongBranch = 'story/B-other';
+    const worktreePath = join(root, '.worktrees', storyId);
+    const store = new StoryStore(root);
+    writeStory(store, storyId, 'TEST', {
+      path: `.worktrees/${storyId}`,
+      branch: `story/${storyId}`,
+      createdAt: '2026-05-08T10:00:00.000Z',
+    });
+    git(root, ['add', '.']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'story metadata']);
+    git(root, ['branch', wrongBranch]);
+    git(root, ['worktree', 'add', worktreePath, wrongBranch]);
+
+    resetConfigCache();
+    const worktreeStore = new StoryStore(worktreePath);
+    writeDoneGateEvidence(worktreeStore, worktreePath, storyId);
+    git(worktreePath, ['add', '.']);
+    git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'done gate evidence on wrong branch']);
+
+    const output = runKoalaFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    assert.match(output, /detected branch story\/B-other but expected story\/B-expected/);
+    assert.match(output, /merge\/delete aborted before mutating story state/);
+    assert.equal(new StoryStore(worktreePath).readStory(storyId).phase, 'TEST', 'wrong branch must not mark story DONE');
+    assert.notEqual(git(root, ['branch', '--list', wrongBranch]), '', 'wrong branch must not be deleted');
+    assert.match(git(root, ['worktree', 'list', '--porcelain']), new RegExp(wrongBranch), 'wrong worktree must remain registered');
+    assert.equal(existsSync(worktreePath), true, 'wrong worktree directory must not be removed');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 assertRecordedWorktreeRejectsMainCwd();
 assertInitCheckChecklistMutationRejectsMainCwd();
 assertTerminalStoriesDoNotRedirect();
 assertFromDraftCreatesWorktreeThroughCli();
 assertDoneFromNestedCwdUsesCanonicalWorktreeRoot();
+assertDoneRejectsMismatchedStoryBranchBeforeMutation();
 
 console.log('✓ worktree authority smoke passed');

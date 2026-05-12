@@ -139,6 +139,16 @@ function detectDoneStoryWorktreeContext(invocationCwd = process.cwd()): DoneWork
   }
 }
 
+function assertDoneStoryBranchMatches(storyId: string, branch: string): void {
+  const expectedBranch = `story/${storyId}`;
+  if (branch !== expectedBranch) {
+    throw new Error(
+      `refusing DONE cleanup: detected branch ${branch} but expected ${expectedBranch}; ` +
+      `merge/delete aborted before mutating story state.`,
+    );
+  }
+}
+
 function assertSafeResidualWorktreeRm(ctx: DoneWorktreeContext, target: string, wasRegisteredWorktree: boolean): void {
   if (!samePath(target, ctx.worktreeRoot)) {
     throw new Error(`refusing residual cleanup outside canonical worktree root: ${target}`);
@@ -933,6 +943,7 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
         try {
           const doneWorktree = detectDoneStoryWorktreeContext();
           if (doneWorktree) {
+            assertDoneStoryBranchMatches(args.storyId, doneWorktree.branch);
             // 仅 dry-run：用 git ls-files 读出未追踪文件，按白名单分类。
             // 发现 offender → throw（此时 story.phase 仍为 TEST）。无 offender
             // → 返回，不做任何删除，后续 Step 2.5 才会真的 rm whitelist 文件。
@@ -941,11 +952,12 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
             if (existsSync(join(mainRepoRoot, storyDir))) {
               let raw = '';
               try {
-                raw = execSync(
-                  `git ls-files --others --exclude-standard -- ${JSON.stringify(storyDir)}`,
-                  { cwd: mainRepoRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] },
-                ).toString();
-              } catch { /* 忽略，让 Step 2.5 兜底 */ }
+                raw = execFileSync('git', ['ls-files', '--others', '--exclude-standard', '--', storyDir], {
+                  cwd: mainRepoRoot,
+                  encoding: 'utf-8',
+                  stdio: ['pipe', 'pipe', 'pipe'],
+                }).toString();
+              } catch { /* PROBE: 忽略，让 Step 2.5 兜底 */ }
               const relPaths = raw.split('\n').map(l => l.trim()).filter(Boolean);
               const { STRAY_FILE_WHITELIST: WL } = await import('./stray-file-cleanup.js');
               const offenders = relPaths.filter(rel => !WL.includes(rel.split('/').pop() || rel));
@@ -1194,9 +1206,10 @@ ${agentLines}
         if (doneWorktree) {
           const mergeLines: string[] = [];
           const { branch, mainRepoRoot, worktreeRoot: wtPathAbs } = doneWorktree;
+          assertDoneStoryBranchMatches(args.storyId, branch);
           {
-            const runGit = (cmd: string, cwd: string): string =>
-              execSync(`git ${cmd}`, { cwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).toString().trim();
+            const runGitArgs = (args: string[], cwd: string): string =>
+              execFileSync('git', args, { cwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).toString().trim();
 
             // Step 1: 清 story.worktree 字段 + endedAt + writeStory，让 metadata 落盘
             story.worktree = undefined;
@@ -1206,11 +1219,11 @@ ${agentLines}
             // Step 2: commit 所有 story metadata（phase=DONE + worktree=undefined +
             // endedAt + reviewer/test 产物）。dev_merge:228 用的是同一招。
             try {
-              runGit(`add ${store.storyDirRel()}`, wtPathAbs);
-              const staged = runGit('diff --cached --name-only', wtPathAbs);
+              runGitArgs(['add', store.storyDirRel()], wtPathAbs);
+              const staged = runGitArgs(['diff', '--cached', '--name-only'], wtPathAbs);
               if (staged) {
-                runGit(
-                  `-c commit.gpgsign=false commit -m "koala: mark ${args.storyId} DONE + clear worktree"`,
+                runGitArgs(
+                  ['-c', 'commit.gpgsign=false', 'commit', '-m', `koala: mark ${args.storyId} DONE + clear worktree`],
                   wtPathAbs,
                 );
               }
@@ -1227,10 +1240,10 @@ ${agentLines}
             // Step 3: 从主仓库根目录 merge story 分支。merge 冲突直接 throw 给上层
             // 让 agent 看到详细的手动 cleanup 步骤——phase 已经是 DONE，不回滚，但
             // 必须让 user 知道还有手动收尾要做。
-            const mainBranch = runGit('rev-parse --abbrev-ref HEAD', mainRepoRoot);
+            const mainBranch = runGitArgs(['rev-parse', '--abbrev-ref', 'HEAD'], mainRepoRoot);
             try {
-              runGit(
-                `-c commit.gpgsign=false merge ${branch} --no-ff -m "merge: ${args.storyId} ${story.title}"`,
+              runGitArgs(
+                ['-c', 'commit.gpgsign=false', 'merge', branch, '--no-ff', '-m', `merge: ${args.storyId} ${story.title}`],
                 mainRepoRoot,
               );
               mergeLines.push(`✓ 分支 ${branch} 已合并到 ${mainBranch}`);
@@ -1273,12 +1286,12 @@ ${agentLines}
               if (repair.action === 'relinked') mergeLines.push(repair.message);
               let removeFailure: string | null = null;
               try {
-                runGit(`worktree remove "${wtPathAbs}"`, mainRepoRoot);
+                runGitArgs(['worktree', 'remove', wtPathAbs], mainRepoRoot);
                 mergeLines.push(`✓ Worktree ${wtPathAbs} 已清理`);
               } catch {
                 // worktree 内有 tmp/ llmlog 等运行时产物时 remove 会拒绝，用 --force
                 try {
-                  runGit(`worktree remove --force "${wtPathAbs}"`, mainRepoRoot);
+                  runGitArgs(['worktree', 'remove', '--force', wtPathAbs], mainRepoRoot);
                   mergeLines.push(`✓ Worktree ${wtPathAbs} 已强制清理`);
                 } catch (e: any) {
                   removeFailure = `git worktree remove failed: ${e.message}`;
@@ -1318,7 +1331,7 @@ ${agentLines}
 
             // Step 5: 删除分支
             try {
-              runGit(`branch -d ${branch}`, mainRepoRoot);
+              runGitArgs(['branch', '-d', branch], mainRepoRoot);
               mergeLines.push(`✓ 分支 ${branch} 已删除`);
             } catch {
               mergeLines.push(`⚠ 分支 ${branch} 未删除（可能有未合并的提交）`);
