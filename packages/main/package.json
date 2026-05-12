@@ -32,6 +32,7 @@
     "test:review-pass-discard-smoke": "node dist/tasks/review-pass-discard-smoke.js",
     "test:worktree-repair-smoke": "node dist/tasks/worktree-repair-smoke.js",
     "test:validation-protocol": "node dist/tasks/validation-protocol-smoke.js",
+    "test:runtime-fact-contract": "node ../../scripts/verify-runtime-fact-contract.mjs",
     "test:flow-stability-smoke": "node dist/tasks/flow-stability-smoke.js",
     "test:outcome-semantics-smoke": "node dist/tasks/outcome-semantics-smoke.js"
   },

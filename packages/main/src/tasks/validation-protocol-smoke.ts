@@ -244,6 +244,16 @@ try {
     getAllToolNames: () => new Set<string>(),
   }).doctor;
   const doctorJson = doctor({ format: 'json' }) as any;
+  assert.ok(doctorJson.runtime, 'doctor JSON should expose runtime section');
+  assert.equal(doctorJson.runtime.cliEntrypoint.id, 'cli-entrypoint');
+  assert.equal(doctorJson.runtime.globalCoreRealpath.id, 'global-core-realpath');
+  assert.equal(doctorJson.runtime.projectLocalBin.id, 'project-local-bin');
+  assert.equal(doctorJson.runtime.nodeVersion.id, 'node-version');
+  assert.equal(doctorJson.runtime.packageVersion.id, 'package-version');
+  assert.equal(doctorJson.runtime.validateSource.id, 'validate-source');
+  assert.equal(doctorJson.runtime.externalReferencePolicy.id, 'external-reference-policy');
+  assert.equal(doctorJson.runtime.externalReferencePolicy.connectivityChecked, false);
+  assert.equal(doctorJson.runtime.externalReferencePolicy.actual.policy, 'reference-only');
   assert.equal(doctorJson.validation.validateFile, null);
   assert.equal(doctorJson.validation.configuredCommands.length, 1);
   assert.equal(doctorJson.validation.configuredCommands[0].shell, true);
@@ -252,6 +262,9 @@ try {
   assert.equal(doctorJson.validation.noValidatorWarning, false);
 
   const doctorText = doctor() as string;
+  assert.match(doctorText, /Runtime scan:/);
+  assert.match(doctorText, /cli-entrypoint/);
+  assert.match(doctorText, /external-reference-policy/);
   assert.match(doctorText, /Validation scan:/);
   assert.match(doctorText, /configured validate\.command/);
   assert.match(doctorText, /shell=true/);

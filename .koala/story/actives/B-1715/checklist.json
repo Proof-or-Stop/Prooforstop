@@ -10,9 +10,9 @@
         "docs/requirements/decisions/testing-infra.md",
         "README.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
+      "status": "done",
+      "startTime": "2026-05-12T16:11:46.513Z",
+      "endTime": "2026-05-12T16:29:33.012Z",
       "userSees": "打开 `packages/main/src/core/runtime-fact-registry.ts` 时能看到 runtime fact IDs、severity、scope、checker、expected output key 和 drift message；运行 doctor JSON 时能看到同名 runtime facts 分区。",
       "files": {
         "modify": [
@@ -50,7 +50,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm run build && npm run test:runtime-fact-contract",
+          "result": "pass",
+          "note": "Build passed and runtime contract verified required registry facts, output keys, and typed metadata.",
+          "headHash": "adc6465a3569e05454703776d97b9f49703af409",
+          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
+          "timestamp": "2026-05-12T16:29:33.045Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Process fact contract passed with runtime environment facts kept out of process-fact-registry.",
+          "headHash": "adc6465a3569e05454703776d97b9f49703af409",
+          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
+          "timestamp": "2026-05-12T16:29:33.067Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm run test:runtime-fact-contract",
+          "result": "pass",
+          "note": "Runtime contract fails with Runtime fact contract failed and names missing required facts/output keys; normal run verified all required facts.",
+          "headHash": "adc6465a3569e05454703776d97b9f49703af409",
+          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
+          "timestamp": "2026-05-12T16:29:33.087Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -60,9 +92,9 @@
         "AGENTS.md#流程事实双层契约",
         "README.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-12T16:29:41.742Z",
       "userSees": "运行 `koala doctor --format=json` 时，输出 `runtime` 分区展示 `cliEntrypoint`、`globalCoreRealpath`、`projectLocalBin` 等 actual/expected/status；若项目本地 bin 覆盖或 global core 不匹配，会显示 warn/fail 和修复提示。",
       "files": {
         "modify": [
@@ -99,7 +131,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm run test:runtime-fact-contract",
+          "result": "pass",
+          "note": "Contract smoke exercised doctor JSON runtime output for cliEntrypoint/globalCoreRealpath/projectLocalBin and all required output keys.",
+          "headHash": "adc6465a3569e05454703776d97b9f49703af409",
+          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
+          "timestamp": "2026-05-12T16:29:41.763Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm run test:runtime-fact-contract",
+          "result": "pass",
+          "note": "Runtime checker reports project-local-bin as warn-level runtime drift and keeps it outside process gates.",
+          "headHash": "adc6465a3569e05454703776d97b9f49703af409",
+          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
+          "timestamp": "2026-05-12T16:29:41.785Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm run build",
+          "result": "pass",
+          "note": "Type-checked self/external severity split so self project realpath drift can fail while external projects remain warn/advisory.",
+          "headHash": "adc6465a3569e05454703776d97b9f49703af409",
+          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
+          "timestamp": "2026-05-12T16:29:41.806Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -109,9 +173,9 @@
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-12T16:29:54.520Z",
       "userSees": "koala doctor text/json 展示 validate-source runtime fact；external-reference-policy 只扫描 koala.config.json、AGENTS.md、CLAUDE.md、README.md、docs/requirements/**/*.md，排除 .koala/story、docs/story、tests/fixtures、node_modules、dist/build 和普通源码注释；localhost/127.0.0.1/::1 默认 internal example，不报外部漂移；非本地 URL/host:port 缺少 health check / health command 语义时输出 health-check-required/reference-only warning，不输出 connectivity pass。",
       "files": {
         "modify": [
@@ -158,7 +222,59 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Validation protocol smoke asserted doctor JSON runtime.validateSource exists and doctor text contains Runtime scan plus Validation scan.",
+          "headHash": "adc6465a3569e05454703776d97b9f49703af409",
+          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
+          "timestamp": "2026-05-12T16:29:54.548Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm run test:runtime-fact-contract",
+          "result": "pass",
+          "note": "Runtime checker bounded external-reference-policy to docs/config surfaces and reports connectivityChecked=false policy-only output.",
+          "headHash": "adc6465a3569e05454703776d97b9f49703af409",
+          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
+          "timestamp": "2026-05-12T16:29:54.569Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "command": "npm run test:runtime-fact-contract",
+          "result": "pass",
+          "note": "External references without health semantics stay reference-only warnings; localhost/internal examples are ignored by checker logic.",
+          "headHash": "adc6465a3569e05454703776d97b9f49703af409",
+          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
+          "timestamp": "2026-05-12T16:29:54.590Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm run build",
+          "result": "pass",
+          "note": "validate-source checker type-checked missing/fallback states as warnings with repair hint for validate.ts/js/mts or configured commands.",
+          "headHash": "adc6465a3569e05454703776d97b9f49703af409",
+          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
+          "timestamp": "2026-05-12T16:29:54.610Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "command": "npm run test:runtime-fact-contract",
+          "result": "pass",
+          "note": "Contract asserted external-reference-policy actual.policy is reference-only and connectivityChecked is false, preventing false connectivity pass.",
+          "headHash": "adc6465a3569e05454703776d97b9f49703af409",
+          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
+          "timestamp": "2026-05-12T16:29:54.630Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -168,9 +284,9 @@
         "AGENTS.md#流程事实双层契约",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-12T16:30:07.974Z",
       "userSees": "运行 `npm run test:runtime-fact-contract` 时，正常输出 `Runtime fact contract verified`；缺失 fact 或 checker output key 时输出 `Runtime fact contract failed:` 并点名缺失的 fact/output key。",
       "files": {
         "modify": [
@@ -208,7 +324,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "npm run test:runtime-fact-contract",
+          "result": "pass",
+          "note": "Runtime fact contract verified all required IDs and aligned runtime output keys.",
+          "headHash": "adc6465a3569e05454703776d97b9f49703af409",
+          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
+          "timestamp": "2026-05-12T16:30:08.005Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "npm run test:runtime-fact-contract && npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Contract and validation smoke asserted doctor JSON runtime section and text Runtime scan section.",
+          "headHash": "adc6465a3569e05454703776d97b9f49703af409",
+          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
+          "timestamp": "2026-05-12T16:30:08.027Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm run test:runtime-fact-contract",
+          "result": "pass",
+          "note": "Contract implementation emits Runtime fact contract failed and names missing runtime fact/output key when required registry/output coverage is removed.",
+          "headHash": "adc6465a3569e05454703776d97b9f49703af409",
+          "materialHash": "1bac1431f355e5a997dde6db0bf5f90f136346f50785d9373ba239b408169648",
+          "timestamp": "2026-05-12T16:30:08.088Z"
+        }
+      ]
     }
   ]
 }

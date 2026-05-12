@@ -18,6 +18,7 @@ import { readHealthIssues, summarizeHealthIssues, getHealthPath } from '../core/
 import { loadConfig } from '../core/config.js';
 import { renderCodexAdapterChecks, runCodexAdapterChecks } from '../core/codex-adapter-checks.js';
 import { formatValidationCommand } from '../core/validation-executor.js';
+import { renderRuntimeEnvironmentReport, runRuntimeEnvironmentChecks } from '../core/runtime-environment-checks.js';
 import { scanValidationSetup, type ValidationSetupScan } from './verifier.js';
 
 export function createDoctorHandlers(ctx: HandlerContext) {
@@ -33,6 +34,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
         registryNames: ctx.getAllToolNames?.(),
       });
       const validation = scanValidationSetup(root);
+      const runtime = runRuntimeEnvironmentChecks(root);
 
       // B-7241 follow-up: scan for orphan worktrees (directory exists but
       // `git worktree list` doesn't know about it). This typically happens
@@ -88,6 +90,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
           },
           codex,
           validation,
+          runtime,
         };
       }
 
@@ -166,6 +169,8 @@ export function createDoctorHandlers(ctx: HandlerContext) {
         }
       }
 
+      lines.push('');
+      lines.push(renderRuntimeEnvironmentReport(runtime));
       lines.push('');
       lines.push(renderValidationScan(validation));
       lines.push('');
