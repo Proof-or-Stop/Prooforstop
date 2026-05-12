@@ -4,7 +4,7 @@
   "title": "DONE cleanup uses canonical worktree root from subdirectories",
   "description": "SimCell B-e101 exposed a Koala DONE cleanup bug when story_advance DONE is run from a nested directory inside the story worktree. The framework used process.cwd() as the worktree root, so it targeted a child directory for git worktree remove and rm -rf, leaving the real worktree registered and dirty, failing to delete story/B-e101, and merging stale TEST metadata instead of committed DONE metadata. Fix this with hardcoded canonical worktree-root resolution and regression coverage so DONE cleanup is safe and quiet from nested project directories.",
   "type": "bug",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "high",
   "riskSignals": [
     {
@@ -36,6 +36,14 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-05-12T17:26:55.308Z",
+      "branch": "story/B-9e48",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-12T17:35:26.211Z",
       "branch": "story/B-9e48",
       "user": "Harmonygo",
       "agent": "main"
