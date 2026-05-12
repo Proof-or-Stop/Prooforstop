@@ -8,9 +8,9 @@
         "AGENTS.md#流程事实双层契约",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-12T00:15:24.961Z",
-      "endTime": null,
+      "endTime": "2026-05-12T00:17:15.318Z",
       "userSees": "In a DEV story with open reviewer findings, koala finding_cluster {\"storyId\":\"B-xxxx\"} is accepted by the phase gate and prints a normal cluster result instead of the DEV-stage unavailable-command error.",
       "files": {
         "modify": [
@@ -81,9 +81,9 @@
       "relatedDocs": [
         "AGENTS.md#流程事实双层契约"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-12T00:15:29.409Z",
-      "endTime": null,
+      "endTime": "2026-05-12T00:17:15.422Z",
       "userSees": "In a DEV story like SimCell B-cacf, running koala finding_cluster {\"storyId\":\"B-xxxx\"} no longer prints \"命令 finding_cluster 在 DEV 阶段不可用\"; it returns a cluster summary or a no-findings message, so the user can dispatch grouped fixes.",
       "files": {
         "modify": [
@@ -167,6 +167,24 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Add regression coverage for DEV finding_cluster phase-tools consistency."
+    },
+    {
+      "timestamp": "2026-05-12T00:17:15.318Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "DEV phaseTools now allow finding_cluster; build and local CLI evidence recorded."
+    },
+    {
+      "timestamp": "2026-05-12T00:17:15.422Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Flow stability smoke and process-fact contract cover SimCell DEV cluster regression and negative boundary."
     }
   ]
 }
