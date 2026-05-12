@@ -384,7 +384,7 @@ project/
 
 **cwd 门禁**：PLAN 起所有 `story_advance` 都校验 cwd 是 story 的 worktree。
 
-**DONE 门禁**：进入 DONE 前要求 story 分支已包含 main 的所有提交（`git merge-base --is-ancestor`）。有冲突在 worktree 里 `git merge main` 解决。
+**DONE 门禁**：进入 DONE 前要求 story 分支已包含 main 的所有提交（`git merge-base --is-ancestor`）。DONE 必须在期望的 `story/<storyId>` 分支对应 worktree 中执行；若 linked worktree 当前分支不匹配或不是 story 分支，CLI 会在写入 DONE 状态、merge、删除分支或清理 worktree 前拒绝。有冲突在 worktree 里 `git merge main` 解决。
 
 **Sub agent 工作目录约定**：sub agent（koala-implementer 等）在主 agent 的 worktree 中工作，通过 `koala validate` 验证后提交。
 
