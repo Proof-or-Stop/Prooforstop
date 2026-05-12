@@ -1,0 +1,56 @@
+{
+  "storyId": "B-8960",
+  "changes": "Added hard-coded runtime and process drift gates: runtime reviewer and main-branch runtime health now derive the CLI from the current checkout and scan scripts for both full hardcoded worktree CLI paths and split worktreeRoot+join regressions; process fact contract now fails prompt/template reviewRound:number drift; silent catch audit now uses a committed v2 line-stable baseline and hard-fails new uncategorized catches; prompts/docs now state fresh-worker and user-value evidence boundaries explicitly.",
+  "usage": "Run npm run test:runtime-reviewer-contract, node scripts/verify-main-branch-runtime-health.mjs, npm run test:process-fact-contract, npm run audit:silent-catches, and koala validate --story=B-8960. audit:silent-catches reports baseline version, debt count, newUncategorized, and lineStableBaselineKey.",
+  "expectedOutcome": "Maintainer commands verify Koala process facts mechanically: runtime path drift is caught, reviewRound numeric prompt drift is caught, silent-catch debt is baseline-gated, and prompt-only fresh-worker or user-value claims are not accepted as hard evidence.",
+  "actualTranscript": "runtime reviewer contract verified; main branch runtime health verified; Process fact contract verified; audit:silent-catches printed status silent catch audit passed with baseline version 2, newUncategorized 0, lineStableBaselineKey passed; negative temp catch produced silent catch audit failed with newUncategorized 1; npm test printed ALL PASS; koala validate reported Verification intent coverage 15/15 covered.",
+  "outcomeDiff": "No remaining product-visible gap. Worktree validation needed a local packages/main/node_modules symlink because npm ci cannot resolve unpublished @koala-agent/lab, but no tracked files were modified.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "True subagent context isolation and final subjective user approval cannot be fully mechanically proven; Koala now encodes the observable evidence boundaries and rejects prompt-only proof claims. Existing 501 uncategorized catches remain tracked baseline debt.",
+  "pitfalls": "Quality review found two important false-hardening risks: scanning only full CLI path literals missed split worktreeRoot+join regressions, and file:line:snippet baseline keys caused line-number false positives. Both are now covered by synthetic/source tests and v2 line-stable baseline keys.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 143821
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 5414
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 252272
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1115883
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 460383
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 50834
+    }
+  },
+  "totalDurationMs": 2028608,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-05-12T23:43:25.374Z",
+  "updatedAt": "2026-05-12T23:43:25.374Z"
+}
