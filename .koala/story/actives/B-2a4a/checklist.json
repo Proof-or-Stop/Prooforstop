@@ -1,0 +1,177 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Make story_review numeric round field explicit",
+      "context": "The handler response currently uses reviewRound: reviewData.reviews.length for PLAN review rounds, while signed finding/pass artifacts use reviewRound as story.currentReviewRound ISO string. Keep behavior compatible if needed, but add a clearly named numeric field such as planReviewRound/reviewRoundNumber and make the ambiguity visible in tests/docs.",
+      "relatedDocs": [
+        "CLAUDE.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-05-12T22:21:57.427Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After implementation, `koala story_review ... --json` exposes the PLAN review count through an explicitly numeric field such as `planReviewRound` or `reviewRoundNumber`, and that field equals the number of PLAN review rounds recorded for the story.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "For compatibility, any retained legacy `reviewRound` field in the story_review response is documented or aliased as the numeric PLAN review round only, while new code/tests prefer the explicit numeric name.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A maintainer comparing story_review output with signed finding/review-pass artifacts cannot reasonably infer that signed artifact `reviewRound` is numeric; the output/schema/docs distinguish PLAN round number from signed artifact ISO reviewRound.",
+            "type": "docs"
+          }
+        ]
+      },
+      "userSees": "Maintainer sees JSON containing \"planReviewRound\": 1 and \"reviewRound\": 1, then docs say \"story_review.reviewRound is a legacy numeric PLAN review alias; signed artifact reviewRound remains ISO string\".",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-review.ts",
+          "CLAUDE.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-story-review-structured-output.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-story-review-structured-output.mjs",
+          "result": "pass",
+          "note": "Structured-output smoke asserts story_review exposes numeric planReviewRound and keeps legacy reviewRound equal to that numeric PLAN round.",
+          "headHash": "4589a05d97a1441b774f2a1a9457b721cb069bf4",
+          "materialHash": "f12c424a96a13dc3aa73fd2cbe6f18dceb4d5d7e368ed3fa42a5159694f4eacd",
+          "timestamp": "2026-05-12T22:29:04.489Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Process fact contract requires docs to label story_review.reviewRound as legacy numeric PLAN review alias, distinct from signed artifact reviewRound.",
+          "headHash": "4589a05d97a1441b774f2a1a9457b721cb069bf4",
+          "materialHash": "f12c424a96a13dc3aa73fd2cbe6f18dceb4d5d7e368ed3fa42a5159694f4eacd",
+          "timestamp": "2026-05-12T22:29:04.490Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Contract fails if docs omit the distinction between story_review.planReviewRound number and signed artifact reviewRound ISO string.",
+          "headHash": "4589a05d97a1441b774f2a1a9457b721cb069bf4",
+          "materialHash": "f12c424a96a13dc3aa73fd2cbe6f18dceb4d5d7e368ed3fa42a5159694f4eacd",
+          "timestamp": "2026-05-12T22:29:04.490Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add regression coverage for reviewRound schema distinction",
+      "context": "Tests should prove signed finding/pass reviewRound remains ISO string and story_review numeric round is exposed under an unambiguous name, so future contract drift catches this class of confusion.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-05-12T22:22:04.986Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Regression coverage proves signed finding artifacts and review-pass artifacts still emit `reviewRound` as an ISO 8601 string sourced from `story.currentReviewRound`.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Regression coverage proves story_review structured output exposes the numeric PLAN review round under an unambiguous field name and does not require consumers to treat signed artifact `reviewRound` as a number.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Contract/docs verification fails if future changes collapse the two meanings again: story_review PLAN round number and signed artifact ISO `reviewRound` must be described and guarded as distinct process facts.",
+            "type": "docs"
+          }
+        ]
+      },
+      "userSees": "Maintainer sees \"story review structured output verified\" and \"Process fact contract verified\"; failures mention PLAN review round vs signed ISO reviewRound if the distinction regresses.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-review.ts",
+          "CLAUDE.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-story-review-structured-output.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "Field regression smoke now directly asserts CLI-created finding.reviewRound and reviewPass.reviewRound equal story.currentReviewRound and match ISO 8601 shape.",
+          "headHash": "100f6bb7ee3ab0f5e4f0fb8348282890af058748",
+          "materialHash": "f12c424a96a13dc3aa73fd2cbe6f18dceb4d5d7e368ed3fa42a5159694f4eacd",
+          "timestamp": "2026-05-12T22:26:05.853Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-story-review-structured-output.mjs",
+          "result": "pass",
+          "note": "Structured-output smoke asserts numeric planReviewRound is present and legacy story_review.reviewRound remains only a numeric PLAN alias.",
+          "headHash": "100f6bb7ee3ab0f5e4f0fb8348282890af058748",
+          "materialHash": "f12c424a96a13dc3aa73fd2cbe6f18dceb4d5d7e368ed3fa42a5159694f4eacd",
+          "timestamp": "2026-05-12T22:26:05.876Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Contract enforces docs for both signed reviewRound ISO string and story_review.planReviewRound numeric PLAN count, preventing collapsed semantics.",
+          "headHash": "100f6bb7ee3ab0f5e4f0fb8348282890af058748",
+          "materialHash": "f12c424a96a13dc3aa73fd2cbe6f18dceb4d5d7e368ed3fa42a5159694f4eacd",
+          "timestamp": "2026-05-12T22:26:05.897Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-05-12T22:21:57.427Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Code/docs/tests committed in a02d6126; CHK-001 verified."
+    },
+    {
+      "timestamp": "2026-05-12T22:22:04.986Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Code/docs/tests committed in a02d6126; CHK-002 verified."
+    }
+  ]
+}

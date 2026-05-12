@@ -1520,6 +1520,14 @@ function assertReviewRoundIsoDocs() {
       `${relPath}: reviewRound must be documented as string (ISO 8601 review round id)`,
     );
     assert(
+      text.includes('story_review.planReviewRound: number (PLAN review round count)'),
+      `${relPath}: story_review PLAN round must be documented as planReviewRound number`,
+    );
+    assert(
+      text.includes('legacy numeric PLAN review alias'),
+      `${relPath}: legacy story_review.reviewRound alias must be distinguished from signed reviewRound`,
+    );
+    assert(
       text.includes('express-exempt'),
       `${relPath}: express verification exemption must be documented as express-exempt`,
     );

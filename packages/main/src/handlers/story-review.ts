@@ -476,10 +476,15 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         console.warn(`[process-metrics] recompute failed for ${args.storyId}:`, (e as Error).message);
       }
 
+      const planReviewRound = reviewData.reviews.length;
+
       return {
         storyId: args.storyId,
         title: story.title,
-        reviewRound: reviewData.reviews.length,
+        planReviewRound,
+        // Legacy compatibility alias for story_review callers. This is the
+        // numeric PLAN review count, not the signed artifact ISO reviewRound.
+        reviewRound: planReviewRound,
         summary: {
           totalItems,
           issueCount: issues.length,
