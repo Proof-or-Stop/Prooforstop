@@ -1,0 +1,50 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Remove hardcoded runtime reviewer CLI path",
+      "context": "scripts/verify-runtime-reviewer-contract.mjs must derive the CLI under test from the current repo instead of a stale .worktrees/B-8f6a path, so the contract runs from any checkout and fails only on real runtime/reviewer regressions.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Block prompt/template reviewRound number drift",
+      "context": "scripts/verify-process-fact-contract.mjs must scan agent templates and mirrors for reviewRound:number schema snippets and fail unless the text explicitly refers to story_review.planReviewRound. Template/mirror docs should say signed reviewRound is ISO string.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Make silent catch audit a baseline gate",
+      "context": "scripts/audit-silent-catches.mjs should compare uncategorized catches against a committed baseline. Existing debt may remain in the baseline, but any new uncategorized catch must fail instead of just reporting.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Encode fresh-worker evidence boundary",
+      "context": "Koala cannot mechanically prove a spawned agent has no prior context, but it can hardcode the observable boundary: dispatch/process-event evidence must record worker assignment and current gates must not treat prompt-only claims as worker proof. Add or verify a contract that documents and tests the mechanical evidence boundary.",
+      "relatedDocs": [
+        ".koala/story/actives/B-8960/background.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Encode user-value delivery evidence boundary",
+      "context": "Product acceptance cannot be fully reduced to code, but DONE/delivery checks can require concrete transcript/evidence artifacts instead of accepting text-only claims. Add or verify hardcoded contract coverage for transcript/delivery evidence expectations and document the non-mechanical boundary.",
+      "relatedDocs": [
+        ".koala/story/actives/B-8960/background.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
