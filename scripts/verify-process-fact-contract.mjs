@@ -47,6 +47,24 @@ const activeLifecycleDocCurrentTerms = [
   'checklist_update',
 ];
 const legacyCommandDocContextPattern = /\blegacy\b|\bcompat\b|\bmaintenance\b|兼容|维护|旧|迁移|背景|destructive/i;
+const coverageReviewerLaneName = 'koala-review-test-coverage';
+const coverageReviewerLaneContextPattern = /reviewer|agent|lane|review\s+lane|coverage\s+reviewer|审查员|审查\s*lane|审查\s*通道|覆盖审查/i;
+const coverageReviewerCliCommandPatterns = [
+  { label: 'CLI invocation', pattern: /\bkoala\s+koala-review-test-coverage\b/i },
+  { label: 'tool table row', pattern: /^\s*\|\s*`?koala-review-test-coverage`?\s*\|/ },
+  { label: 'tool bullet', pattern: /^\s*[-*]\s*`?koala-review-test-coverage`?\s*(?:[:：-]|$)/ },
+];
+const legacyTestAutoProcessFactClaimPatterns = [
+  {
+    label: 'auto bug management',
+    pattern: /自动\s*bug\s*管理|fail\s*(?:创建|create[s]?)\s+bug|pass\s*(?:自动\s*)?(?:fix|fixed|修复|标记?|mark[s]?).{0,20}bug/i,
+  },
+  {
+    label: 'test-evidence writes',
+    pattern: /\btest_auto\b[^。.\n;；]{0,80}(?:写|write[s]?|record[s]?|生成|产出)[^。.\n;；]{0,40}(?:test-?evidence|test evidence|verificationEvidence|测试证据)|(?:test-?evidence|test evidence|verificationEvidence|测试证据)[^。.\n;；]{0,40}(?:由|by)\s*`?test_auto`?|^(?:\d+\.|-)\s*(?:写|write[s]?|record[s]?|生成|产出)[^。.\n;；]{0,40}(?:test-?evidence|test evidence|verificationEvidence|测试证据)/i,
+  },
+];
+const legacyTestAutoNegatedProcessFactPattern = /(?:不会|不写|不再|不能|并不|does\s+not|doesn't|do\s+not|not|never|without|no\s+longer).{0,90}(?:bug|test-?evidence|test evidence|verificationEvidence|测试证据)/i;
 const commandPolicyStatuses = new Set(['supported', 'rootOnly', 'legacy', 'retired', 'maintenance', 'gateEvidence']);
 const legacyCommandPolicyGuidance = {
   test_auto: {
@@ -332,6 +350,76 @@ function comparePromptSemantics(promptMap) {
   }
 }
 
+function paragraphBlocks(text) {
+  const lines = text.split(/\r?\n/);
+  const blocks = [];
+  let current = [];
+  let startLine = 1;
+
+  function flush() {
+    if (!current.length) return;
+    blocks.push({ block: current.join('\n'), lineNo: startLine });
+    current = [];
+  }
+
+  for (const [index, line] of lines.entries()) {
+    if (/^\s*$/.test(line)) {
+      flush();
+      continue;
+    }
+    if (!current.length) startLine = index + 1;
+    current.push(line);
+  }
+  flush();
+
+  return blocks;
+}
+
+function scanActiveLifecycleDocText(text, label) {
+  const issues = [];
+  const lines = text.split(/\r?\n/);
+
+  for (const { block, lineNo } of paragraphBlocks(text)) {
+    if (!/\btest_auto\b/.test(block)) continue;
+
+    const blockLines = block.split(/\r?\n/);
+    for (const [offset, rawLine] of blockLines.entries()) {
+      const line = rawLine.replace(/\s+/g, ' ').trim();
+      if (!line || legacyTestAutoNegatedProcessFactPattern.test(line)) continue;
+      const namesOtherLegacyCommand = legacyTestFixtureCommands
+        .filter(commandName => commandName !== 'test_auto')
+        .some(commandName => new RegExp(`\\b${commandName}\\b`).test(line));
+      if (namesOtherLegacyCommand && !/\btest_auto\b/.test(line)) continue;
+
+      for (const { label: claimLabel, pattern } of legacyTestAutoProcessFactClaimPatterns) {
+        if (pattern.test(line)) {
+          issues.push(`${label}:${lineNo + offset} active lifecycle doc must not claim legacy test_auto ${claimLabel}`);
+        }
+      }
+    }
+  }
+
+  for (const [index, line] of lines.entries()) {
+    if (!line.includes(coverageReviewerLaneName)) continue;
+
+    const lineNo = index + 1;
+    for (const { label: claimLabel, pattern } of coverageReviewerCliCommandPatterns) {
+      if (pattern.test(line)) {
+        issues.push(`${label}:${lineNo} ${coverageReviewerLaneName} must not be documented as a CLI/tool command (${claimLabel})`);
+      }
+    }
+
+    const context = lines
+      .slice(Math.max(0, index - 1), Math.min(lines.length, index + 2))
+      .join('\n');
+    if (!coverageReviewerLaneContextPattern.test(context)) {
+      issues.push(`${label}:${lineNo} ${coverageReviewerLaneName} must be described as a reviewer agent/lane`);
+    }
+  }
+
+  return issues;
+}
+
 function assertSyntheticAdversarialChecks() {
   const badPassOnlyLines = [
     'koala finding_add \'{"storyId":"B-x","desc":"文档一致性检查通过","severity":"low","category":"happy","agent":"koala-review-docs"}\'',
@@ -437,6 +525,51 @@ function assertSyntheticAdversarialChecks() {
       readStringProperty(syntheticBlock, 'replacement').includes('verificationEvidence') &&
       parseStringArrayProperty(syntheticBlock, 'allowedPhases').includes('REVIEW'),
     'synthetic command policy parser should tolerate typed exports, apostrophes, escaped quotes, and template strings',
+  );
+
+  const badTestAutoBugDoc = [
+    'Legacy `test_auto` 是兼容 runner。',
+    '6. 自动 bug 管理：fail 创建 bug，pass 自动 fix bug',
+  ].join('\n');
+  assert(
+    scanActiveLifecycleDocText(badTestAutoBugDoc, 'synthetic-test-auto-bug-doc').some(issue => issue.includes('auto bug management')),
+    'synthetic active lifecycle doc that gives test_auto automatic bug management should fail',
+  );
+
+  const badTestAutoEvidenceDoc = [
+    'Legacy `test_auto` 是兼容 runner。',
+    '6. writes test-evidence.json and records verificationEvidence',
+  ].join('\n');
+  assert(
+    scanActiveLifecycleDocText(badTestAutoEvidenceDoc, 'synthetic-test-auto-evidence-doc').some(issue => issue.includes('test-evidence writes')),
+    'synthetic active lifecycle doc that gives test_auto test-evidence writes should fail',
+  );
+
+  const goodTestAutoDoc = [
+    'Legacy `test_auto` 是兼容 runner。',
+    '它不会写 `bug.json`，也不会写 `test-evidence.json`。',
+  ].join('\n');
+  assert(
+    scanActiveLifecycleDocText(goodTestAutoDoc, 'synthetic-test-auto-good-doc').length === 0,
+    'synthetic active lifecycle doc may explicitly say test_auto does not write bug/test evidence',
+  );
+
+  const badCoverageToolDoc = '| `koala-review-test-coverage` | 检查 verificationIntent 覆盖 |';
+  assert(
+    scanActiveLifecycleDocText(badCoverageToolDoc, 'synthetic-coverage-tool-doc').some(issue => issue.includes('CLI/tool command')),
+    'synthetic coverage reviewer documented as a tool table row should fail',
+  );
+
+  const badCoverageBareDoc = '`koala-review-test-coverage` checks coverage.';
+  assert(
+    scanActiveLifecycleDocText(badCoverageBareDoc, 'synthetic-coverage-bare-doc').some(issue => issue.includes('reviewer agent/lane')),
+    'synthetic bare coverage reviewer name without reviewer/lane context should fail',
+  );
+
+  const goodCoverageLaneDoc = 'reviewer lane `koala-review-test-coverage` checks verificationIntent coverage and uses review_pass_set when no blocker exists.';
+  assert(
+    scanActiveLifecycleDocText(goodCoverageLaneDoc, 'synthetic-coverage-good-doc').length === 0,
+    'synthetic coverage reviewer lane wording should pass',
   );
 }
 
@@ -779,6 +912,7 @@ function assertActiveLifecycleDocGuidance() {
     for (const term of activeLifecycleDocCurrentTerms) {
       assert(text.includes(term), `${relPath}: active lifecycle docs must mention current flow term "${term}"`);
     }
+    for (const issue of scanActiveLifecycleDocText(text, relPath)) fail(issue);
 
     const lines = text.split(/\r?\n/);
     for (const [index, line] of lines.entries()) {

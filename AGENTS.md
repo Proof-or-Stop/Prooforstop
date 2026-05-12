@@ -6,8 +6,8 @@
 > Older references below to `TEST_CASE`, `TEST_CASE_REVIEW`, `testIntent`,
 > fixture-only validation, or `test_auto` are legacy background. The current
 > replacement is `verificationIntent` on checklist items, `verificationEvidence`
-> recorded during DEV/REVIEW/TEST, `koala-review-test-coverage` in REVIEW, and
-> `koala validate` in TEST.
+> recorded during DEV/REVIEW/TEST, reviewer lane `koala-review-test-coverage`
+> in REVIEW, and `koala validate` in TEST.
 
 ## 行为准则
 
@@ -78,7 +78,7 @@ INIT → INIT_CHECK → PLAN/快速跳过 → DEV → REVIEW → TEST → DONE
 | **INIT_CHECK** | CLI 自动 | `story_advance INIT_CHECK` 创建 `.worktrees/B-xxx/` worktree，提示 cd |
 | **PLAN** | 主 agent 拆 checklist item（title + context），verification-intent agent 补 `verificationIntent` | `story_review` 门禁通过后进 DEV |
 | **DEV** | 主 agent | 写代码实现，通过 `checklist_update` 标 status 并记录 `verificationEvidence`。**只有此阶段可改代码** |
-| **REVIEW** | reviewer / coverage gate | 审实现和 `verificationIntent` 覆盖；无问题写 review pass，有问题写 finding 并回 DEV |
+| **REVIEW** | reviewer / coverage reviewer lane | 审实现和 `verificationIntent` 覆盖；无问题通过 `review_pass_set` 写 review pass，有问题写 finding 并回 DEV |
 | **TEST** | CLI / 主 agent | 跑 `koala validate`，写 validation evidence / bug / stale evidence 结果 |
 | **DONE** | — | 完成（所有 bug 已 fixed，summary / delivery / evidence gate 通过），`story_advance --phase=DONE` 内部合并回 main 并清理 worktree |
 
@@ -134,7 +134,7 @@ Legacy 背景：`test_auto` / `test_story` / `test_fixture` 只作为旧 fixture
 
 - **主 agent**：写需求（checklist item）+ 写代码 + 补 `verificationEvidence` + 修 bug
 - **verification-intent agent**：写验收标准（`verificationIntent`），对抗姿态逼出 edge/adversarial
-- **reviewer / coverage gate**：审实现和验收覆盖，独立记录 finding / review pass / delivery check
+- **reviewer / coverage reviewer lane**：审实现和验收覆盖；`koala-review-test-coverage` 是 reviewer lane，不是 CLI 命令。无 blocker 时通过 `review_pass_set` 记录 pass，有问题时独立记录 finding / delivery check
 
 主 agent 和 sub agent 是**同事关系**，不是上下级。共同目标是高质量完成任务。主 agent 是与人沟通的入口和主要参与者，但不是掌控者。reviewer 和 test-intent agent 有各自的判定权，主 agent 不应该绕过他们。
 

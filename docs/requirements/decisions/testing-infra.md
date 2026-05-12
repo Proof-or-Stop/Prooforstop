@@ -6,7 +6,7 @@
 
 1. PLAN 阶段为每个 checklist item 记录 happy/edge/adversarial `verificationIntent`。
 2. DEV 阶段实现代码，并通过 `checklist_update` 记录 `verificationEvidence`（命令、摘要、intentRef、hash 等）。
-3. REVIEW 阶段由 reviewer 和 `koala-review-test-coverage` 检查实现与 evidence 覆盖。
+3. REVIEW 阶段由 reviewer agent/lane（包含 `koala-review-test-coverage` 覆盖审查 lane）检查实现与 evidence 覆盖。
 4. TEST 阶段运行 `koala validate`，写 validation evidence、bug、stale/missing evidence 结果。
 
 ### 项目原生验证
@@ -39,14 +39,16 @@
 DEV 阶段通过后提示提交并进入 REVIEW；REVIEW 阶段通过后提示进入 TEST；
 TEST 阶段通过后提示查看 DONE pre-check，并按失败 row 的 hint 补 summary、delivery check、dirty tree、missing/stale `verificationEvidence` 等门禁项。
 
-Legacy `test_auto` 是兼容 runner，不是统一入口。维护旧 fixture 时它的行为是：
+Legacy `test_auto` 是兼容 runner，不是统一入口。当前 handler 只负责执行 legacy fixture 并返回执行摘要；维护旧 fixture 时它的行为是：
 
 1. 扫描 `fixturesDir` 下所有 `.json` fixture 文件
 2. 校验 `fn` + `file` 字段是否指向真实源码
 3. 通过语言无关 executor registry 执行每个 case：优先 `executor` / `command`，兼容 legacy JS `execute`
 4. 验证结果（`expect` 精确/pattern 匹配，或 `throws` 错误匹配）
-5. 采集 V8 profiler trace，检测调用链变化
-6. 自动 bug 管理：fail 创建 bug，pass 自动 fix bug
+5. 采集 V8 profiler trace，检测调用链变化并输出 warnings
+6. 汇总 total / passed / failed / warnings / trace 快照等结果
+
+它不会写 `bug.json`，也不会写 `test-evidence.json` / `verificationEvidence`。bug 管理和 validation evidence 写入属于 `koala validate` / gate 或显式 bug/evidence 命令；真实 legacy 维护运行仍可能执行 workspace-destructive cleanup（`git restore . && git clean -fd`）。
 
 Outcome semantics 的 focused smoke 覆盖 dashboard/session wording、`summary_set.outcomeKind` schema、verification evidence verdict 渲染，以及 worktree authority wording：
 
@@ -86,14 +88,14 @@ npm --prefix packages/main run test:outcome-semantics-smoke
 ### 阶段行为差异
 
 - **DEV 阶段**：用项目原生命令验证，并通过 `checklist_update` 写 `verificationEvidence`；legacy `test_auto` 只在维护旧 fixture 时可用，且必须明确提示可能修改实际文件
-- **REVIEW 阶段**：reviewer 和 coverage gate 消费 `verificationIntent` / `verificationEvidence`
+- **REVIEW 阶段**：reviewer lane（包含 `koala-review-test-coverage`）消费 `verificationIntent` / `verificationEvidence`；无 blocker 时写 `review_pass_set`
 - **TEST 阶段**：`koala validate` 写 validation evidence；legacy `test_auto` 若被维护场景显式调用，仍会执行 `git restore . && git clean -fd`
 
 ## 测试流程
 
 - PLAN：用 `verificationIntent` 描述每个 checklist item 的 happy/edge/adversarial 验收。
 - DEV：实现后跑项目原生命令或浏览器流程，并用 `checklist_update` 写入 `verificationEvidence`。
-- REVIEW：`koala-review-test-coverage` 检查 `verificationIntent` 是否都有可追溯 evidence。
+- REVIEW：reviewer lane `koala-review-test-coverage` 检查 `verificationIntent` 是否都有可追溯 evidence；无 blocker 时通过 `review_pass_set` 记录 pass。内部 coverage validation 消费 `verificationIntent` / `verificationEvidence`，不是单独的 CLI 命令。
 - TEST：`koala validate` 执行项目级验证，记录 validation evidence；缺失或 stale evidence 时返回 `allPass:false`。
 - DONE：只接受 PASS、bug fixed、evidence fresh、summary/delivery gate 全部满足的结果。
 
@@ -109,7 +111,7 @@ npm --prefix packages/main run test:outcome-semantics-smoke
 | `test_fixture` | legacy/compat 单 fixture/链路 runner |
 | `fixture_batch_add` / `fixture_update` | legacy/compat fixture 维护入口 |
 | `test_add` | legacy/compat 测试证据写入；新流程用 `verificationEvidence` |
-| `task_coverage` | legacy/maintenance 覆盖辅助；当前 coverage gate 读取 `verificationEvidence` |
+| `task_coverage` | legacy/maintenance 覆盖辅助；当前 coverage reviewer lane / validation 读取 `verificationEvidence` |
 | `browser_test` | 单独跑浏览器测试，结果应转写为 `verificationEvidence` |
 | `test_list` | 查看测试证据 |
 | `bug_report` | 报告 bug（自动标关联 item in_progress + 回退 DEV） |
