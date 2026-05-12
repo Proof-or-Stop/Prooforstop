@@ -52,24 +52,22 @@
         {
           "intentRef": "CHK-001:happy:0",
           "kind": "logic_test",
-          "file": "scripts/verify-process-fact-contract.mjs",
-          "command": "npm run test:process-fact-contract",
+          "command": "npm --prefix packages/main run build && npm run test:flow-stability-smoke && npm run test:process-fact-contract",
           "result": "pass",
-          "note": "Contract output lists flow fact policy entries for review-pass, finding, pass-only-normalization, review-round-iso-string, and express-verification-policy.",
-          "headHash": "8e138a84941c4c8a68698efd117df98197cc09ce",
-          "materialHash": "72b7beabd39761f58146c7ca6aeed285c260d5aeeb349767ac58cabf6fd21955",
-          "timestamp": "2026-05-12T21:25:20.899Z"
+          "note": "Current HEAD build plus flow-stability and process-fact-contract prove registry exposes flow-policy review-pass, finding, pass-only-normalization, review-round-iso-string, and express-verification-policy entries.",
+          "headHash": "10a3584dddc3d06b7b438f834d9b1e9167769baa",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:42:25.213Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
-          "kind": "logic_test",
-          "file": "scripts/verify-process-fact-contract.mjs",
+          "kind": "integration_test",
           "command": "npm run test:process-fact-contract",
           "result": "pass",
-          "note": "Contract asserts every L4 process fact, including flow policies, has consumerGate and required semantics/artifact metadata.",
-          "headHash": "8e138a84941c4c8a68698efd117df98197cc09ce",
-          "materialHash": "72b7beabd39761f58146c7ca6aeed285c260d5aeeb349767ac58cabf6fd21955",
-          "timestamp": "2026-05-12T21:25:20.928Z"
+          "note": "Process fact contract verifies L4 gate facts, artifacts, consumer gates, and required semantics; it would fail on missing gate/artifact/semantic drift.",
+          "headHash": "10a3584dddc3d06b7b438f834d9b1e9167769baa",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:42:25.213Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -239,35 +237,32 @@
         {
           "intentRef": "CHK-003:happy:0",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/outcome-semantics-smoke.ts",
-          "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:outcome-semantics-smoke",
           "result": "pass",
-          "note": "Express channel zero verificationIntent renders Verification policy: express-exempt with channel and intentional skip reason.",
-          "headHash": "8e138a84941c4c8a68698efd117df98197cc09ce",
-          "materialHash": "72b7beabd39761f58146c7ca6aeed285c260d5aeeb349767ac58cabf6fd21955",
-          "timestamp": "2026-05-12T21:25:37.007Z"
+          "note": "Outcome semantics smoke verifies express channel zero verificationIntent renders the structured express-exempt verification policy message.",
+          "headHash": "10a3584dddc3d06b7b438f834d9b1e9167769baa",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:42:25.213Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/outcome-semantics-smoke.ts",
-          "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:outcome-semantics-smoke",
           "result": "pass",
-          "note": "Fast channel zero verificationIntent keeps ordinary no explicit verificationIntent coverage output and does not include express-exempt.",
-          "headHash": "8e138a84941c4c8a68698efd117df98197cc09ce",
-          "materialHash": "72b7beabd39761f58146c7ca6aeed285c260d5aeeb349767ac58cabf6fd21955",
-          "timestamp": "2026-05-12T21:25:37.034Z"
+          "note": "Outcome semantics smoke verifies fast and normal zero-intent stories do not render express-exempt and keep ordinary missing-intent output.",
+          "headHash": "10a3584dddc3d06b7b438f834d9b1e9167769baa",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:42:25.213Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/outcome-semantics-smoke.ts",
-          "command": "npm --prefix packages/main run test:outcome-semantics-smoke",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:outcome-semantics-smoke",
           "result": "pass",
-          "note": "Risky story with express-sized checklist is forced normal and cannot use the express exemption.",
-          "headHash": "8e138a84941c4c8a68698efd117df98197cc09ce",
-          "materialHash": "72b7beabd39761f58146c7ca6aeed285c260d5aeeb349767ac58cabf6fd21955",
-          "timestamp": "2026-05-12T21:25:37.062Z"
+          "note": "Outcome semantics smoke verifies risky two-item stories are forced normal and cannot hide missing intent behind express exemption.",
+          "headHash": "10a3584dddc3d06b7b438f834d9b1e9167769baa",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:42:25.213Z"
         }
       ]
     },

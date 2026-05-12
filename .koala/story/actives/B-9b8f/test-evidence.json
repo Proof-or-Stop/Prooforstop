@@ -1,0 +1,270 @@
+{
+  "command": "koala validate --story=B-9b8f --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.2 test\",\"  > npm run test:e2e\",\"  > koala@0.3.2 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 12/13 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/logic] covered via logic_test — Registry exposes explicit flow fact policy entries for review pass, finding, review round, and express verification exemption.\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via integration_test — Registry contract test fails if an L4 gate fact lacks consumer gate, artifact, or required semantics.\",\"  ✗ CHK-001:adversarial:0 [adversarial/should/logic] stale via logic_test (packages/main/src/tasks/flow-stability-smoke.ts) — No new parallel policy table is introduced that can drift from process-fact-registry.\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/tasks/field-regression-cli-smoke.ts) — Pass-only finding_add records review pass evidence and does not persist an open finding.\",\"  ✓ CHK-002:happy:1 [happy/must/logic] covered via logic_test (packages/main/src/tasks/flow-stability-smoke.ts) — reviewRound schema is consistently treated as an ISO string in runtime types, docs, and smoke assertions.\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via integration_test (packages/main/src/tasks/field-regression-cli-smoke.ts) — Ambiguous text containing pass plus failure language remains a real finding instead of being normalized to pass.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/field-regression-cli-smoke.ts) — Non-reviewer or non-low severity pass-like finding_add is not accepted as review pass evidence.\",\"  ✓ CHK-003:happy:0 [happy/must/logic] covered via logic_test — Express channel stories with zero verificationIntent render a structured express-exempt verification policy message.\",\"  ✓ CHK-003:edge:0 [edge/must/logic] covered via logic_test — Normal or fast channel stories with zero verificationIntent do not receive the express-exempt message.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test — A risky story with two checklist items is forced normal and cannot hide missing intent behind express exemption.\",\"  ✓ CHK-004:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/tasks/flow-stability-smoke.ts) — A dedicated smoke command passes and covers registry completeness, pass-only normalization, ISO reviewRound, and express-exempt output.\",\"  ✓ CHK-004:edge:0 [edge/must/cli] covered via integration_test (scripts/verify-process-fact-contract.mjs) — Existing field regression smoke and process fact contract script continue to pass with strengthened assertions.\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/outcome-semantics-smoke.ts) — Tests fail if express exemption is shown for non-express stories or if pass-only records appear as findings.\"],\"warnings\":[],\"timestamp\":\"2026-05-12T21:42:32.651Z\",\"headSha\":\"10a3584dddc3d06b7b438f834d9b1e9167769baa\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.2 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.2 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":835}],\"verificationCoverage\":{\"total\":13,\"required\":12,\"covered\":12,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Registry exposes explicit flow fact policy entries for review pass, finding, review round, and express verification exemption.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run build && npm run test:flow-stability-smoke && npm run test:process-fact-contract\",\"result\":\"pass\",\"note\":\"Current HEAD build plus flow-stability and process-fact-contract prove registry exposes flow-policy review-pass, finding, pass-only-normalization, review-round-iso-string, and express-verification-policy entries.\",\"headHash\":\"10a3584dddc3d06b7b438f834d9b1e9167769baa\",\"materialHash\":\"6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98\",\"timestamp\":\"2026-05-12T21:42:25.213Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Registry contract test fails if an L4 gate fact lacks consumer gate, artifact, or required semantics.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"integration_test\",\"command\":\"npm run test:process-fact-contract\",\"result\":\"pass\",\"note\":\"Process fact contract verifies L4 gate facts, artifacts, consumer gates, and required semantics; it would fail on missing gate/artifact/semantic drift.\",\"headHash\":\"10a3584dddc3d06b7b438f834d9b1e9167769baa\",\"materialHash\":\"6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98\",\"timestamp\":\"2026-05-12T21:42:25.213Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"No new parallel policy table is introduced that can drift from process-fact-registry.\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/flow-stability-smoke.ts\",\"command\":\"npm run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts PROCESS_FACT_FLOW_POLICIES is built from the single FLOW_FACT_POLICIES table to prevent drift.\",\"headHash\":\"8e138a84941c4c8a68698efd117df98197cc09ce\",\"materialHash\":\"72b7beabd39761f58146c7ca6aeed285c260d5aeeb349767ac58cabf6fd21955\",\"timestamp\":\"2026-05-12T21:25:20.954Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Pass-only finding_add records review pass evidence and does not persist an open finding.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/field-regression-cli-smoke.ts\",\"command\":\"npm --prefix packages/main run build && npm run test:field-regression-cli-smoke\",\"result\":\"pass\",\"note\":\"Fresh run after handler fix: pass-only finding_add records Review pass B-passonly:RP-* and finding_list stays empty for pass-only records.\",\"headHash\":\"7a9d2536b6ebb38e7e286e3083fd67a1db23361b\",\"materialHash\":\"6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98\",\"timestamp\":\"2026-05-12T21:35:24.327Z\"}},{\"intentRef\":\"CHK-002:happy:1\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"reviewRound schema is consistently treated as an ISO string in runtime types, docs, and smoke assertions.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:1\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/flow-stability-smoke.ts\",\"command\":\"npm --prefix packages/main run build && npm run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"Fresh run after handler fix: flow smoke verifies reviewRound flow policy remains registered as schema-contract with ISO string semantics.\",\"headHash\":\"7a9d2536b6ebb38e7e286e3083fd67a1db23361b\",\"materialHash\":\"6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98\",\"timestamp\":\"2026-05-12T21:35:24.327Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Ambiguous text containing pass plus failure language remains a real finding instead of being normalized to pass.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/field-regression-cli-smoke.ts\",\"command\":\"npm --prefix packages/main run build && npm run test:field-regression-cli-smoke\",\"result\":\"pass\",\"note\":\"Fresh run after handler fix: ambiguous pass plus failure text creates a real open finding instead of review pass evidence.\",\"headHash\":\"7a9d2536b6ebb38e7e286e3083fd67a1db23361b\",\"materialHash\":\"6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98\",\"timestamp\":\"2026-05-12T21:35:24.327Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Non-reviewer or non-low severity pass-like finding_add is not accepted as review pass evidence.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/field-regression-cli-smoke.ts\",\"command\":\"npm --prefix packages/main run build && npm run test:field-regression-cli-smoke\",\"result\":\"pass\",\"note\":\"Fresh run after handler fix: non-low/non-reviewer pass-like calls remain findings, and direct handler pass-only text with unknown category throws before review-pass normalization.\",\"headHash\":\"7a9d2536b6ebb38e7e286e3083fd67a1db23361b\",\"materialHash\":\"6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98\",\"timestamp\":\"2026-05-12T21:35:24.327Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Express channel stories with zero verificationIntent render a structured express-exempt verification policy message.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run build && npm --prefix packages/main run test:outcome-semantics-smoke\",\"result\":\"pass\",\"note\":\"Outcome semantics smoke verifies express channel zero verificationIntent renders the structured express-exempt verification policy message.\",\"headHash\":\"10a3584dddc3d06b7b438f834d9b1e9167769baa\",\"materialHash\":\"6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98\",\"timestamp\":\"2026-05-12T21:42:25.213Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Normal or fast channel stories with zero verificationIntent do not receive the express-exempt message.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run build && npm --prefix packages/main run test:outcome-semantics-smoke\",\"result\":\"pass\",\"note\":\"Outcome semantics smoke verifies fast and normal zero-intent stories do not render express-exempt and keep ordinary missing-intent output.\",\"headHash\":\"10a3584dddc3d06b7b438f834d9b1e9167769baa\",\"materialHash\":\"6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98\",\"timestamp\":\"2026-05-12T21:42:25.213Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"A risky story with two checklist items is forced normal and cannot hide missing intent behind express exemption.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run build && npm --prefix packages/main run test:outcome-semantics-smoke\",\"result\":\"pass\",\"note\":\"Outcome semantics smoke verifies risky two-item stories are forced normal and cannot hide missing intent behind express exemption.\",\"headHash\":\"10a3584dddc3d06b7b438f834d9b1e9167769baa\",\"materialHash\":\"6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98\",\"timestamp\":\"2026-05-12T21:42:25.213Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"A dedicated smoke command passes and covers registry completeness, pass-only normalization, ISO reviewRound, and express-exempt output.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/flow-stability-smoke.ts\",\"command\":\"npm --prefix packages/main run build && npm run test:flow-stability-smoke && npm run test:field-regression-cli-smoke && npm --prefix packages/main run test:outcome-semantics-smoke\",\"result\":\"pass\",\"note\":\"Fresh build plus smoke coverage passes for registry completeness, pass-only normalization, ISO reviewRound policy, unknown-category pass-only rejection, and express-exempt rendering.\",\"headHash\":\"7a9d2536b6ebb38e7e286e3083fd67a1db23361b\",\"materialHash\":\"6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98\",\"timestamp\":\"2026-05-12T21:35:24.327Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Existing field regression smoke and process fact contract script continue to pass with strengthened assertions.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"integration_test\",\"file\":\"scripts/verify-process-fact-contract.mjs\",\"command\":\"npm --prefix packages/main run build && npm run test:field-regression-cli-smoke && npm run test:process-fact-contract\",\"result\":\"pass\",\"note\":\"Fresh build plus existing field regression smoke and strengthened process fact contract both pass, including direct handler unknown category pass-only guard.\",\"headHash\":\"7a9d2536b6ebb38e7e286e3083fd67a1db23361b\",\"materialHash\":\"6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98\",\"timestamp\":\"2026-05-12T21:35:24.327Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Tests fail if express exemption is shown for non-express stories or if pass-only records appear as findings.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/outcome-semantics-smoke.ts\",\"command\":\"npm --prefix packages/main run build && npm run test:field-regression-cli-smoke && npm --prefix packages/main run test:outcome-semantics-smoke && git diff --check\",\"result\":\"pass\",\"note\":\"Fresh build plus adversarial tests fail if pass-only records appear in finding_list, if unknown pass-only category normalizes to review pass, or if non-express zero-intent stories render express-exempt; git diff --check passed.\",\"headHash\":\"7a9d2536b6ebb38e7e286e3083fd67a1db23361b\",\"materialHash\":\"6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98\",\"timestamp\":\"2026-05-12T21:35:24.327Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-05-12T21:42:32.849Z",
+  "headHash": "10a3584dddc3d06b7b438f834d9b1e9167769baa",
+  "verificationCoverage": {
+    "total": 13,
+    "required": 12,
+    "covered": 12,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Registry exposes explicit flow fact policy entries for review pass, finding, review round, and express verification exemption.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && npm run test:flow-stability-smoke && npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Current HEAD build plus flow-stability and process-fact-contract prove registry exposes flow-policy review-pass, finding, pass-only-normalization, review-round-iso-string, and express-verification-policy entries.",
+          "headHash": "10a3584dddc3d06b7b438f834d9b1e9167769baa",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:42:25.213Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Registry contract test fails if an L4 gate fact lacks consumer gate, artifact, or required semantics.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Process fact contract verifies L4 gate facts, artifacts, consumer gates, and required semantics; it would fail on missing gate/artifact/semantic drift.",
+          "headHash": "10a3584dddc3d06b7b438f834d9b1e9167769baa",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:42:25.213Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "No new parallel policy table is introduced that can drift from process-fact-registry.",
+        "type": "logic",
+        "priority": "should",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke asserts PROCESS_FACT_FLOW_POLICIES is built from the single FLOW_FACT_POLICIES table to prevent drift.",
+          "headHash": "8e138a84941c4c8a68698efd117df98197cc09ce",
+          "materialHash": "72b7beabd39761f58146c7ca6aeed285c260d5aeeb349767ac58cabf6fd21955",
+          "timestamp": "2026-05-12T21:25:20.954Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Pass-only finding_add records review pass evidence and does not persist an open finding.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "Fresh run after handler fix: pass-only finding_add records Review pass B-passonly:RP-* and finding_list stays empty for pass-only records.",
+          "headHash": "7a9d2536b6ebb38e7e286e3083fd67a1db23361b",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:35:24.327Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:1",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "reviewRound schema is consistently treated as an ISO string in runtime types, docs, and smoke assertions.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Fresh run after handler fix: flow smoke verifies reviewRound flow policy remains registered as schema-contract with ISO string semantics.",
+          "headHash": "7a9d2536b6ebb38e7e286e3083fd67a1db23361b",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:35:24.327Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Ambiguous text containing pass plus failure language remains a real finding instead of being normalized to pass.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "Fresh run after handler fix: ambiguous pass plus failure text creates a real open finding instead of review pass evidence.",
+          "headHash": "7a9d2536b6ebb38e7e286e3083fd67a1db23361b",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:35:24.327Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Non-reviewer or non-low severity pass-like finding_add is not accepted as review pass evidence.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "Fresh run after handler fix: non-low/non-reviewer pass-like calls remain findings, and direct handler pass-only text with unknown category throws before review-pass normalization.",
+          "headHash": "7a9d2536b6ebb38e7e286e3083fd67a1db23361b",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:35:24.327Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Express channel stories with zero verificationIntent render a structured express-exempt verification policy message.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:outcome-semantics-smoke",
+          "result": "pass",
+          "note": "Outcome semantics smoke verifies express channel zero verificationIntent renders the structured express-exempt verification policy message.",
+          "headHash": "10a3584dddc3d06b7b438f834d9b1e9167769baa",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:42:25.213Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Normal or fast channel stories with zero verificationIntent do not receive the express-exempt message.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:outcome-semantics-smoke",
+          "result": "pass",
+          "note": "Outcome semantics smoke verifies fast and normal zero-intent stories do not render express-exempt and keep ordinary missing-intent output.",
+          "headHash": "10a3584dddc3d06b7b438f834d9b1e9167769baa",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:42:25.213Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "A risky story with two checklist items is forced normal and cannot hide missing intent behind express exemption.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:outcome-semantics-smoke",
+          "result": "pass",
+          "note": "Outcome semantics smoke verifies risky two-item stories are forced normal and cannot hide missing intent behind express exemption.",
+          "headHash": "10a3584dddc3d06b7b438f834d9b1e9167769baa",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:42:25.213Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "A dedicated smoke command passes and covers registry completeness, pass-only normalization, ISO reviewRound, and express-exempt output.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:flow-stability-smoke && npm run test:field-regression-cli-smoke && npm --prefix packages/main run test:outcome-semantics-smoke",
+          "result": "pass",
+          "note": "Fresh build plus smoke coverage passes for registry completeness, pass-only normalization, ISO reviewRound policy, unknown-category pass-only rejection, and express-exempt rendering.",
+          "headHash": "7a9d2536b6ebb38e7e286e3083fd67a1db23361b",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:35:24.327Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "Existing field regression smoke and process fact contract script continue to pass with strengthened assertions.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && npm run test:field-regression-cli-smoke && npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Fresh build plus existing field regression smoke and strengthened process fact contract both pass, including direct handler unknown category pass-only guard.",
+          "headHash": "7a9d2536b6ebb38e7e286e3083fd67a1db23361b",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:35:24.327Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "Tests fail if express exemption is shown for non-express stories or if pass-only records appear as findings.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/outcome-semantics-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:field-regression-cli-smoke && npm --prefix packages/main run test:outcome-semantics-smoke && git diff --check",
+          "result": "pass",
+          "note": "Fresh build plus adversarial tests fail if pass-only records appear in finding_list, if unknown pass-only category normalizes to review pass, or if non-express zero-intent stories render express-exempt; git diff --check passed.",
+          "headHash": "7a9d2536b6ebb38e7e286e3083fd67a1db23361b",
+          "materialHash": "6f4956568a4e978e63d3792aeff756f3e9cf5a2252babb292ed1152198c24e98",
+          "timestamp": "2026-05-12T21:35:24.327Z"
+        }
+      }
+    ]
+  }
+}
