@@ -107,20 +107,20 @@ function samePath(a: string, b: string): boolean {
 
 function detectDoneStoryWorktreeContext(invocationCwd = process.cwd()): DoneWorktreeContext | null {
   try {
+    const resolvedInvocationCwd = resolve(invocationCwd);
     const branch = execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
-      cwd: invocationCwd,
+      cwd: resolvedInvocationCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
-    if (!branch.startsWith('story/')) return null;
 
     const worktreeRoot = execFileSync('git', ['rev-parse', '--show-toplevel'], {
-      cwd: invocationCwd,
+      cwd: resolvedInvocationCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
     const commonDirRaw = execFileSync('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'], {
-      cwd: invocationCwd,
+      cwd: resolvedInvocationCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
@@ -128,7 +128,7 @@ function detectDoneStoryWorktreeContext(invocationCwd = process.cwd()): DoneWork
     if (samePath(worktreeRoot, mainRepoRoot)) return null;
 
     return {
-      invocationCwd: resolve(invocationCwd),
+      invocationCwd: resolvedInvocationCwd,
       worktreeRoot: resolve(worktreeRoot),
       mainRepoRoot: resolve(mainRepoRoot),
       branch,
@@ -978,7 +978,11 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
         } catch (e: any) {
           // throw 的错误信息（含 stash / worktree remove 指引）直接冒给 caller，
           // 不吞。只有 git 探测本身的非 throw 失败被上面的 catch 吃掉。
-          if (e?.message?.startsWith(`Story ${args.storyId} DONE `) || e?.message?.startsWith('Cannot enter DONE:')) {
+          if (
+            e?.message?.startsWith(`Story ${args.storyId} DONE `)
+            || e?.message?.startsWith('Cannot enter DONE:')
+            || e?.message?.startsWith('refusing DONE cleanup:')
+          ) {
             throw e;
           }
           // 其他意外（如 import 失败 / unknown）转成可见错误

@@ -424,11 +424,63 @@ function assertDoneRejectsMismatchedStoryBranchBeforeMutation(): void {
   }
 }
 
+function assertDoneRejectsNonStoryLinkedWorktreeBeforeMutation(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-non-story-done-branch-'));
+  try {
+    write(root, 'koala.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      storyDir: '.koala/story/actives',
+      requirementsDir: 'docs/requirements',
+      worktreeDir: '.worktrees',
+      workflow: { profile: 'light' },
+    }, null, 2));
+    write(root, 'README.md', 'non-story done branch smoke\n');
+    git(root, ['init']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'base']);
+    resetConfigCache();
+
+    const storyId = 'B-non-story';
+    const wrongBranch = 'feature/not-story';
+    const worktreePath = join(root, '.worktrees', storyId);
+    const store = new StoryStore(root);
+    writeStory(store, storyId, 'TEST', {
+      path: `.worktrees/${storyId}`,
+      branch: `story/${storyId}`,
+      createdAt: '2026-05-08T10:00:00.000Z',
+    });
+    git(root, ['add', '.']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'story metadata']);
+    git(root, ['branch', wrongBranch]);
+    git(root, ['worktree', 'add', worktreePath, wrongBranch]);
+
+    resetConfigCache();
+    const worktreeStore = new StoryStore(worktreePath);
+    writeDoneGateEvidence(worktreeStore, worktreePath, storyId);
+    git(worktreePath, ['add', '.']);
+    git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'done gate evidence on non-story branch']);
+
+    const output = runKoalaFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    assert.match(output, /detected branch feature\/not-story but expected story\/B-non-story/);
+    assert.match(output, /merge\/delete aborted before mutating story state/);
+    assert.equal(new StoryStore(worktreePath).readStory(storyId).phase, 'TEST', 'non-story branch must not mark worktree story DONE');
+    assert.equal(new StoryStore(root).readStory(storyId).phase, 'TEST', 'non-story branch must not mutate main story metadata');
+    assert.notEqual(git(root, ['branch', '--list', wrongBranch]), '', 'non-story branch must not be deleted');
+    assert.match(git(root, ['worktree', 'list', '--porcelain']), new RegExp(wrongBranch), 'non-story worktree must remain registered');
+    assert.equal(existsSync(worktreePath), true, 'non-story worktree directory must not be removed');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 assertRecordedWorktreeRejectsMainCwd();
 assertInitCheckChecklistMutationRejectsMainCwd();
 assertTerminalStoriesDoNotRedirect();
 assertFromDraftCreatesWorktreeThroughCli();
 assertDoneFromNestedCwdUsesCanonicalWorktreeRoot();
 assertDoneRejectsMismatchedStoryBranchBeforeMutation();
+assertDoneRejectsNonStoryLinkedWorktreeBeforeMutation();
 
 console.log('✓ worktree authority smoke passed');
