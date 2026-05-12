@@ -23,6 +23,30 @@
       "createdAt": "2026-05-12T16:36:57.743Z",
       "reviewRound": "2026-05-12T16:32:54.565Z",
       "_hash": "1394c9367f3045423893a373e86b22c610ce842cc90a79a01fe7cabaad741768"
+    },
+    {
+      "id": "B-1715:RP-004",
+      "agent": "koala-review-test-coverage",
+      "note": "Verified HEAD coverage for runtime-fact regression surface. Fresh evidence: `npm run test:runtime-fact-contract` PASS covers project-local-bin absent/matching/mismatched realpath behavior, enforces runtime facts stay out of process-fact-registry, checks doctor JSON/text runtime output, and asserts external-reference-policy remains policy-only (reference-only, connectivityChecked=false). Fresh evidence: `npm run test:validation-protocol` PASS covers doctor runtime JSON/text exposure and validation scan output including external-reference-policy.",
+      "createdAt": "2026-05-12T16:49:20.062Z",
+      "reviewRound": "2026-05-12T16:43:53.724Z",
+      "_hash": "87df9a1d1a6749b7648bf844d4266a0905adc645bce3e5c75bf958bf56742ce7"
+    },
+    {
+      "id": "B-1715:RP-005",
+      "agent": "koala-review-concept",
+      "note": "Reviewed HEAD 27d64aa after fixes. Verified runtime facts remain separate from process facts via contract checks, doctor remains the single runtime entrypoint, no env_check drift references remain, external severities stay sane, project-local-bin only drifts on realpath mismatch, and external-reference-policy stays policy-only. Checked git diff HEAD^..HEAD, ran lsp_diagnostics on modified files, and verified node scripts/verify-runtime-fact-contract.mjs passes.",
+      "createdAt": "2026-05-12T16:49:56.347Z",
+      "reviewRound": "2026-05-12T16:43:53.724Z",
+      "_hash": "ae13050c9a6f453114296489621b2fe8e1a7ce52c4799f64651e332a3b8542e4"
+    },
+    {
+      "id": "B-1715:RP-006",
+      "agent": "koala-review-docs",
+      "note": "Docs review passed: checked AGENTS.md, README.md, testing-infra.md, and story-lifecycle.md against the runtime/process fact registry, doctor Runtime scan behavior, no env_check promise, bounded external-reference-policy wording, and prompt-as-auxiliary contract; no blocker found.",
+      "createdAt": "2026-05-12T16:50:22.854Z",
+      "reviewRound": "2026-05-12T16:43:53.724Z",
+      "_hash": "447cc9d2d21e0a80937c1809c3ad0d7af4e9208a0d0f7f6e4721eff650ca8001"
     }
   ]
 }
