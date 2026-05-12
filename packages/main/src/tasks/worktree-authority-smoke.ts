@@ -24,6 +24,15 @@ function git(cwd: string, args: string[]): string {
   }).trim();
 }
 
+function gitSucceeds(cwd: string, args: string[]): boolean {
+  try {
+    git(cwd, args);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function write(root: string, path: string, content: string): void {
   mkdirSync(dirname(join(root, path)), { recursive: true });
   writeFileSync(join(root, path), content);
@@ -405,6 +414,10 @@ function assertDoneRejectsMismatchedStoryBranchBeforeMutation(): void {
     git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'story metadata']);
     git(root, ['branch', wrongBranch]);
     git(root, ['worktree', 'add', worktreePath, wrongBranch]);
+    write(root, 'main-only-after-wrong-story-branch.txt', 'main commit that must not auto-merge before wrong-branch rejection\n');
+    git(root, ['add', 'main-only-after-wrong-story-branch.txt']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'main moves after wrong story branch checkout']);
+    const mainHeadAfterCheckout = git(root, ['rev-parse', 'main']);
 
     resetConfigCache();
     const worktreeStore = new StoryStore(worktreePath);
@@ -416,6 +429,8 @@ function assertDoneRejectsMismatchedStoryBranchBeforeMutation(): void {
     assert.match(output, /detected branch story\/B-other but expected story\/B-expected/);
     assert.match(output, /merge\/delete aborted before mutating story state/);
     assert.equal(new StoryStore(worktreePath).readStory(storyId).phase, 'TEST', 'wrong branch must not mark story DONE');
+    assert.equal(gitSucceeds(root, ['merge-base', '--is-ancestor', mainHeadAfterCheckout, wrongBranch]), false, 'wrong branch must not be auto-synced with main before rejection');
+    assert.equal(existsSync(join(worktreePath, 'main-only-after-wrong-story-branch.txt')), false, 'wrong branch worktree must not receive main-only files before rejection');
     assert.notEqual(git(root, ['branch', '--list', wrongBranch]), '', 'wrong branch must not be deleted');
     assert.match(git(root, ['worktree', 'list', '--porcelain']), new RegExp(wrongBranch), 'wrong worktree must remain registered');
     assert.equal(existsSync(worktreePath), true, 'wrong worktree directory must not be removed');
@@ -455,6 +470,10 @@ function assertDoneRejectsNonStoryLinkedWorktreeBeforeMutation(): void {
     git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'story metadata']);
     git(root, ['branch', wrongBranch]);
     git(root, ['worktree', 'add', worktreePath, wrongBranch]);
+    write(root, 'main-only-after-non-story-branch.txt', 'main commit that must not auto-merge before non-story rejection\n');
+    git(root, ['add', 'main-only-after-non-story-branch.txt']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'main moves after non-story branch checkout']);
+    const mainHeadAfterCheckout = git(root, ['rev-parse', 'main']);
 
     resetConfigCache();
     const worktreeStore = new StoryStore(worktreePath);
@@ -467,6 +486,8 @@ function assertDoneRejectsNonStoryLinkedWorktreeBeforeMutation(): void {
     assert.match(output, /merge\/delete aborted before mutating story state/);
     assert.equal(new StoryStore(worktreePath).readStory(storyId).phase, 'TEST', 'non-story branch must not mark worktree story DONE');
     assert.equal(new StoryStore(root).readStory(storyId).phase, 'TEST', 'non-story branch must not mutate main story metadata');
+    assert.equal(gitSucceeds(root, ['merge-base', '--is-ancestor', mainHeadAfterCheckout, wrongBranch]), false, 'non-story branch must not be auto-synced with main before rejection');
+    assert.equal(existsSync(join(worktreePath, 'main-only-after-non-story-branch.txt')), false, 'non-story worktree must not receive main-only files before rejection');
     assert.notEqual(git(root, ['branch', '--list', wrongBranch]), '', 'non-story branch must not be deleted');
     assert.match(git(root, ['worktree', 'list', '--porcelain']), new RegExp(wrongBranch), 'non-story worktree must remain registered');
     assert.equal(existsSync(worktreePath), true, 'non-story worktree directory must not be removed');

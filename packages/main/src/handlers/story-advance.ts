@@ -776,6 +776,10 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
       // B-c622 CL-006: auto-sync main BEFORE actor.can() to avoid TOCTOU —
       // guard evaluates post-merge state, not pre-merge state.
       if (args.phase === 'DONE') {
+        const doneWorktree = detectDoneStoryWorktreeContext();
+        if (doneWorktree) {
+          assertDoneStoryBranchMatches(args.storyId, doneWorktree.branch);
+        }
         const divergence = checkMainDivergence(ctx.root);
         if (divergence.needsSync) {
           ctx.log?.(`DONE pre-check: 当前分支落后 main ${divergence.behind} 个提交，自动同步...`);
