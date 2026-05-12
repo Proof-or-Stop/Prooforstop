@@ -72,6 +72,21 @@
       "files": [
         "packages/main/src/handlers/story-advance.ts"
       ]
+    },
+    {
+      "id": "B-9e48:F-006",
+      "desc": "packages/main/src/handlers/story-advance.ts:778 runs DONE autoSyncMain(ctx.root) before the branch/context guard at packages/main/src/handlers/story-advance.ts:944 and packages/main/src/handlers/story-advance.ts:1213. For a linked worktree checked out to story/B-other or feature/not-story that is behind main, story_advance DONE can still run git merge main --no-edit on the wrong branch before it later fails with refusing DONE cleanup. That violates the intended fail-before-mutation concept for wrong/non-story branches. Move detectDoneStoryWorktreeContext plus assertDoneStoryBranchMatches ahead of checkMainDivergence/autoSyncMain, or make autoSyncMain conditional on a verified story/<storyId> branch; extend the wrong/non-story smoke so the wrong branch is behind main before DONE.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-05-12T18:30:35.412Z",
+      "reviewRound": "2026-05-12T18:25:55.241Z",
+      "_hash": "e9e49610a3e7c3db3eaf8f45e692ebec9de912de7bec85f1062c8a34105932a7",
+      "files": [
+        "packages/main/src/handlers/story-advance.ts",
+        "packages/main/src/tasks/worktree-authority-smoke.ts"
+      ]
     }
   ]
 }
