@@ -1,0 +1,69 @@
+{
+  "principles": [
+    "Destructive cleanup must use canonical git worktree roots, never raw process.cwd().",
+    "DONE metadata must be committed from the story worktree root before merge.",
+    "Regression coverage must model the nested cwd that triggered SimCell B-e101."
+  ],
+  "drivers": [
+    "SimCell B-e101 left a dirty registered worktree and undeleted branch after a nominal DONE.",
+    "The current bug can delete a child project directory while leaving the actual worktree alive.",
+    "The fix touches DONE gate cleanup, so fail-closed safety matters more than cosmetic output."
+  ],
+  "options": [
+    {
+      "name": "A: Canonicalize worktree root in story_advance DONE",
+      "pros": [
+        "Small focused fix in the failing lifecycle path",
+        "Keeps existing automatic merge/cleanup behavior",
+        "Can be regression tested with nested cwd"
+      ],
+      "cons": [
+        "Still relies on shell git probes in story-advance.ts"
+      ]
+    },
+    {
+      "name": "B: Require DONE only from worktree root",
+      "pros": [
+        "Simpler mental model",
+        "Avoids nested cwd ambiguity entirely"
+      ],
+      "cons": [
+        "Regresses normal project workflows where agents work inside package subdirectories",
+        "Would turn a recoverable path issue into user friction"
+      ]
+    },
+    {
+      "name": "C: Only improve doctor repair cleanup",
+      "pros": [
+        "Could clean existing leftovers after the fact"
+      ],
+      "cons": [
+        "Does not prevent child directory rm or stale TEST metadata during DONE",
+        "Leaves scary fatal warnings in the success path"
+      ]
+    }
+  ],
+  "chosen": "A: Canonicalize worktree root in story_advance DONE",
+  "rationale": "Choose A because it fixes the actual dangerous target selection while preserving the useful ability to run Koala from nested project directories. DONE cleanup should be robust to cwd location inside the worktree.",
+  "preMortem": [
+    {
+      "scenario": "Canonicalization picks main root instead of story worktree root",
+      "trigger": "git rev-parse command run from main or detached context",
+      "consequence": "DONE auto-merge skipped or tries to clean the wrong root",
+      "mitigation": "Only auto-merge when detected branch starts with story/ and show-toplevel differs from mainRepoRoot; regression asserts target path equals .worktrees/B-xxx."
+    },
+    {
+      "scenario": "Regression test passes without exercising nested cwd",
+      "trigger": "Test runs story_advance DONE from worktree root only",
+      "consequence": "SimCell bug can recur unnoticed",
+      "mitigation": "Test must run the CLI/handler from a nested PVSC-like subdirectory and assert no removal target contains /PVSC."
+    },
+    {
+      "scenario": "Safety guard blocks valid cleanup after successful merge",
+      "trigger": "Registered worktree detection compares unnormalized paths",
+      "consequence": "DONE succeeds but leaves worktree/branch residue",
+      "mitigation": "Normalize paths with resolve/realpath-style slash normalization and assert git worktree list no longer contains the story path."
+    }
+  ],
+  "timestamp": "2026-05-12T17:27:29.255Z"
+}

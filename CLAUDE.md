@@ -380,11 +380,11 @@ project/
 4. `story_advance PLAN` → 正式进入开发流程
 5. PLAN / DEV / TEST 全部在 worktree 里完成
 6. `story_advance --phase=TEST` → 推进 TEST
-7. `story_advance --phase=DONE` → 合并回 main 并清理 worktree
+7. `story_advance --phase=DONE` → 合并回 main 并清理 worktree（可从 worktree 子目录触发，清理目标仍是 git 顶层 worktree）
 
 **cwd 门禁**：PLAN 起所有 `story_advance` 都校验 cwd 是 story 的 worktree。
 
-**DONE 门禁**：进入 DONE 前要求 story 分支已包含 main 的所有提交（`git merge-base --is-ancestor`）。有冲突在 worktree 里 `git merge main` 解决。
+**DONE 门禁**：进入 DONE 前要求 story 分支已包含 main 的所有提交（`git merge-base --is-ancestor`）。DONE 必须在期望的 `story/<storyId>` 分支对应 worktree 中执行；若 linked worktree 当前分支不匹配或不是 story 分支，CLI 会在写入 DONE 状态、merge、删除分支或清理 worktree 前拒绝。有冲突在 worktree 里 `git merge main` 解决。
 
 **Sub agent 工作目录约定**：sub agent（koala-implementer 等）在主 agent 的 worktree 中工作，通过 `koala validate` 验证后提交。
 

@@ -1,0 +1,65 @@
+{
+  "storyId": "B-9e48",
+  "checkedAt": "2026-05-12T17:34:34.852Z",
+  "features": [
+    {
+      "feature": "DONE nested-cwd cleanup resolves and uses canonical git worktree root",
+      "covered_by": "CHK-001; plan.md#CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding_get facts; plan_get CHK-001; checklist_get CHK-001; packages/main/src/handlers/story-advance.ts:877,912,920,990,1149,1199,1219,1246,1258"
+    },
+    {
+      "feature": "Destructive DONE cleanup guard prevents rm/git worktree remove from targeting nested child cwd",
+      "covered_by": "CHK-001 adversarial verificationIntent; plan.md#CHK-001 destructive-operation guard",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get CHK-001 adversarial; plan_get CHK-001; packages/main/src/handlers/story-advance.ts:1219-1258"
+    },
+    {
+      "feature": "Regression smoke covers story_advance DONE invoked from a PVSC-like nested worktree subdirectory",
+      "covered_by": "CHK-002; plan.md#CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get CHK-002; plan_get CHK-002; packages/main/src/tasks/worktree-authority-smoke.ts:73,194 currently lacks nested DONE regression and is the planned extension point"
+    },
+    {
+      "feature": "Worktree lifecycle docs mention nested DONE invocation resolves to git top-level worktree root",
+      "covered_by": "CHK-001 relatedDocs CLAUDE.md#Worktree 自动管理; plan.md#CHK-001 docs update",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get CHK-001 relatedDocs; CLAUDE.md:383-387 currently documents DONE cleanup but not nested-cwd root canonicalization"
+    },
+    {
+      "feature": "Express verificationIntent policy changes",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "user scope instruction; plan_get Non-goals",
+      "source": "plan_get Non-goals explicitly excludes express-channel verificationIntent semantics; docs/requirements/decisions/story-lifecycle.md:97,158 are background only"
+    },
+    {
+      "feature": "SimCell B-e101 manual state repair",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "user scope instruction; plan_get Non-goals; understanding_get constraints",
+      "source": "understanding_get constraints says SimCell B-e101 is not direct fixture/repair; plan_get Non-goals says do not repair SimCell B-e101 state"
+    },
+    {
+      "feature": "reviewRound schema documentation drift",
+      "covered_by": "",
+      "status": "drift",
+      "excluded_by": "user scope instruction; checklist audit deleted CHK-003; plan_get Non-goals",
+      "source": "checklist_get auditLog removed CHK-003 as separate story; CLAUDE.md:791-805 still says reviewRound:number while runtime may use string semantics"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 4,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 1
+  },
+  "reviewRound": "",
+  "_hash": "e456f80d4022463587e78c987477047f2766b25aba6c8d80c0a44afe09f7fc37"
+}

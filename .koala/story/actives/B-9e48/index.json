@@ -4,7 +4,7 @@
   "title": "DONE cleanup uses canonical worktree root from subdirectories",
   "description": "SimCell B-e101 exposed a Koala DONE cleanup bug when story_advance DONE is run from a nested directory inside the story worktree. The framework used process.cwd() as the worktree root, so it targeted a child directory for git worktree remove and rm -rf, leaving the real worktree registered and dirty, failing to delete story/B-e101, and merging stale TEST metadata instead of committed DONE metadata. Fix this with hardcoded canonical worktree-root resolution and regression coverage so DONE cleanup is safe and quiet from nested project directories.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-05-12T17:21:39.076Z",
   "startedAt": "2026-05-12T17:21:39.076Z",
-  "endedAt": null,
+  "endedAt": "2026-05-12T18:51:50.405Z",
   "events": [
     {
       "phase": "INIT",
@@ -31,11 +31,127 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-05-12T17:26:55.308Z",
+      "branch": "story/B-9e48",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-12T17:35:26.211Z",
+      "branch": "story/B-9e48",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-12T17:48:22.269Z",
+      "branch": "story/B-9e48",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-12T17:55:14.180Z",
+      "branch": "story/B-9e48",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-12T17:59:24.436Z",
+      "branch": "story/B-9e48",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-12T18:08:33.143Z",
+      "branch": "story/B-9e48",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-12T18:11:40.902Z",
+      "branch": "story/B-9e48",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-12T18:18:23.729Z",
+      "branch": "story/B-9e48",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-12T18:19:49.915Z",
+      "branch": "story/B-9e48",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-12T18:24:53.338Z",
+      "branch": "story/B-9e48",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-12T18:25:55.241Z",
+      "branch": "story/B-9e48",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-12T18:31:40.473Z",
+      "branch": "story/B-9e48",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-12T18:36:45.641Z",
+      "branch": "story/B-9e48",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-05-12T18:48:03.603Z",
+      "branch": "story/B-9e48",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-05-12T18:51:50.405Z",
+      "branch": "story/B-9e48",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-9e48",
-    "branch": "story/B-9e48",
-    "createdAt": "2026-05-12T17:26:45.014Z"
-  }
+  "currentReviewRound": "2026-05-12T18:36:45.641Z"
 }
