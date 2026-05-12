@@ -1,0 +1,61 @@
+{
+  "findings": [
+    {
+      "id": "B-5c5e:F-001",
+      "desc": "scripts/verify-process-fact-contract.mjs:591 WHY: CHK-003 promises the contract will catch L4 commands that lack a producer phase or replacement, but the new checks only verify policy presence/guidance and never prove COMMAND_POLICIES.allowedPhases stays aligned with DEFAULT_PHASE_TOOLS/isCommandAllowed. cli-engine.ts:1180 therefore prints lifecycle hints from a parallel table that can drift from the real gate semantics without the contract failing. severity: high",
+      "severity": "high",
+      "category": "missing",
+      "status": "dismissed",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-05-12T01:10:06.567Z",
+      "reviewRound": "2026-05-12T01:05:31.848Z",
+      "_hash": "1a9f00392b7bdcf0559cdf90d46bb326adacf24a779ac194a3c08f92259bdece",
+      "dismissReason": "Superseded by consolidated concept finding F-003 to avoid duplicate reviewer evidence.",
+      "dismissedAt": "2026-05-12T01:11:02.891Z"
+    },
+    {
+      "id": "B-5c5e:F-002",
+      "desc": "packages/main/src/core/config.ts:251 HIGH - phase gating still trusts phaseTools as the authority and even returns allow-all for malformed values, so the new COMMAND_POLICIES table is advisory only. Runtime probe: isCommandAllowed(\"test_auto\",\"REVIEW\",{REVIEW:[\"test_auto\"]}) === true and isCommandAllowed(\"bug_report\",\"DEV\",null) === true. This misses the story goal of a hard-coded lifecycle fallback. Fix: enforce COMMAND_POLICIES in isCommandAllowed/getAllowedPatterns and make config overrides only narrow, never widen, rootOnly/legacy restrictions.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-12T01:10:44.326Z",
+      "reviewRound": "2026-05-12T01:05:31.848Z",
+      "_hash": "1c9dd1da8cf4c900d589adaaea7d41dce803a56babf6989117b27f8bf3812abb"
+    },
+    {
+      "id": "B-5c5e:F-003",
+      "desc": "scripts/verify-process-fact-contract.mjs:591 WHY: the new contract only checks lifecycle policy presence/guidance and does not prove COMMAND_POLICIES.allowedPhases stays aligned with DEFAULT_PHASE_TOOLS/isCommandAllowed or that every L4 command has a producer phase or replacement, so cli-engine.ts:1180 can print lifecycle hints from a drifting parallel table without the contract failing. packages/main/src/core/command-policy.ts:57 WHY: understanding_get/decision_get are PLAN-only, and packages/main/src/core/config.ts:143 mirrors that in phaseTools, so REVIEW reviewers cannot inspect understanding/decision through the CLI even though concept review is supposed to judge implementation against those planning artifacts. severity: high",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-05-12T01:10:44.642Z",
+      "reviewRound": "2026-05-12T01:05:31.848Z",
+      "_hash": "58fe80c544ea9e26312cd23645783a25da4d99a7bdb39dc3e1616b8b5016b8e7"
+    },
+    {
+      "id": "B-5c5e:F-004",
+      "desc": "scripts/verify-process-fact-contract.mjs:483 MEDIUM - the command-policy verifier is source-text brittle: it only matches an exact `export const COMMAND_POLICIES = {` marker and single-quoted reason/replacement fields. A harmless typed export or an apostrophe in prose already demonstrates the problem (`indexOf(marker) === -1`, `/reason:/` captures only `Don`). Fix: parse the module with a JS/TS parser or broaden the extractor to tolerate typed exports and escaped quotes.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-12T01:10:50.298Z",
+      "reviewRound": "2026-05-12T01:05:31.848Z",
+      "_hash": "7024defab224bdf5518d1f42b97cc4bc025fe7102299df7f273973db79a9a578"
+    },
+    {
+      "id": "B-5c5e:F-005",
+      "desc": "packages/main/src/handlers/test-auto.ts:84 MEDIUM - the self-project guard still tells users to run `test_story`, but this branch reclassifies `test_story` as legacy and the new lifecycle guidance points to `koala validate` + verificationEvidence instead. Runtime probe from repo root still prints that stale recommendation. Fix: align the thrown hint with the new replacement policy so blocked users are sent to the supported flow, not another deprecated command.",
+      "severity": "medium",
+      "category": "happy",
+      "status": "open",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-12T01:10:55.927Z",
+      "reviewRound": "2026-05-12T01:05:31.848Z",
+      "_hash": "132a44590731c02706032a340cfd4aa885e2ea659424d40b2220f4bd2e7849de"
+    }
+  ]
+}
