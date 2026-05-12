@@ -1,0 +1,70 @@
+{
+  "principles": [
+    "Phase gates should block unsafe transitions, not prevent maintenance of already-created reviewer findings.",
+    "Flow facts need hard-coded CLI behavior plus prompt guidance, with tests covering the hard boundary.",
+    "Minimize command-surface expansion when touching phaseTools."
+  ],
+  "drivers": [
+    "SimCell B-cacf demonstrated a DEV workflow dead-end.",
+    "finding_cluster is L2 metadata maintenance rather than L4 gate evidence.",
+    "DEV already allows finding_add, finding_dispatch, and dispatch."
+  ],
+  "options": [
+    {
+      "name": "A: add finding_cluster only to DEV phaseTools",
+      "pros": [
+        "Smallest command-surface change",
+        "Directly fixes SimCell B-cacf failure mode",
+        "Keeps REVIEW/TEST behavior unchanged"
+      ],
+      "cons": [
+        "Still leaves process-fact registry and phaseTools as separate concepts"
+      ]
+    },
+    {
+      "name": "B: move finding_cluster to global all-phases tools",
+      "pros": [
+        "Makes cluster maintenance available across every phase",
+        "Simpler mental model for a read-mostly metadata tool"
+      ],
+      "cons": [
+        "Expands availability more than the observed bug requires",
+        "Allows clustering in INIT/PLAN where reviewer findings should normally not exist"
+      ]
+    },
+    {
+      "name": "C: derive phaseTools automatically from process-fact levels",
+      "pros": [
+        "Would reduce future registry/phase drift",
+        "Aligns with unified classification direction"
+      ],
+      "cons": [
+        "Larger state-machine change for a small hot bug",
+        "Requires a broader policy for every L1/L2/L3 command before safe rollout"
+      ]
+    }
+  ],
+  "chosen": "A: add finding_cluster only to DEV phaseTools",
+  "rationale": "Choose the minimal hard-coded fix: DEV already permits reviewer finding creation and fix dispatch, so it must also permit clustering those same findings. This fixes the user-visible failure while preserving unrelated phase restrictions.",
+  "preMortem": [
+    {
+      "scenario": "DEV becomes too permissive after the change",
+      "trigger": "A broad wildcard or unrelated command is added while fixing finding_cluster",
+      "consequence": "Agents can run mutation commands such as bug_report in DEV that should remain TEST/REVIEW only",
+      "mitigation": "Add negative assertions that bug_report remains blocked in DEV and custom phaseTools still override defaults."
+    },
+    {
+      "scenario": "Future refactor removes finding_cluster from DEV again",
+      "trigger": "Someone edits DEFAULT_PHASE_TOOLS without remembering the SimCell B-cacf workflow",
+      "consequence": "Users again see the DEV-stage unavailable-command error after reviewer findings exist",
+      "mitigation": "Add flow-stability and process-fact contract assertions for finding_add/finding_dispatch/finding_cluster consistency."
+    },
+    {
+      "scenario": "Users mistake clustering for resolving findings",
+      "trigger": "Prompt or docs imply cluster output is reviewer pass evidence",
+      "consequence": "Gate semantics weaken because grouped findings are treated as fixed without resolution evidence",
+      "mitigation": "Keep finding_cluster at L2 and assert it is not L4 gate evidence; do not change finding_resolve/review_pass_set semantics."
+    }
+  ],
+  "timestamp": "2026-05-12T00:12:24.084Z"
+}

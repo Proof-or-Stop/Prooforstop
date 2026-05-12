@@ -454,6 +454,7 @@ function findUninventoriedProcessFactCommands(cliText, inventory = processFactRe
 
 function assertProcessFactCommandInventory() {
   const cliText = read('packages/main/src/cli-engine.ts');
+  const configText = read('packages/main/src/core/config.ts');
   const cliToolNames = extractCliToolNames(cliText);
   const cliToolNameSet = new Set(cliToolNames);
   const registryEntries = parseProcessFactLevelRegistry();
@@ -559,6 +560,23 @@ function assertProcessFactCommandInventory() {
       `${processFactLevelRegistryPath}: ${expected.name} rationale must mention the mutation/repair condition`,
     );
   }
+
+  const findingClusterEntry = registry.get('finding_cluster');
+  const devPhaseToolsBlock = configText.match(/DEV:\s*\[([\s\S]*?)\],\s*REVIEW:/m)?.[1] || '';
+  assert(
+    findingClusterEntry?.level === 'L2',
+    `${processFactLevelRegistryPath}: finding_cluster must stay L2 metadata maintenance, not gate evidence`,
+  );
+  assert(
+    devPhaseToolsBlock.includes('finding_add') &&
+      devPhaseToolsBlock.includes('finding_dispatch') &&
+      devPhaseToolsBlock.includes('finding_cluster'),
+    'packages/main/src/core/config.ts: DEV phaseTools must keep finding_add/finding_dispatch/finding_cluster available together',
+  );
+  assert(
+    devPhaseToolsBlock.length > 0 && !devPhaseToolsBlock.includes('bug_report'),
+    'packages/main/src/core/config.ts: DEV finding_cluster fix must not allow unrelated bug_report',
+  );
 }
 
 function formatProcessFactLevelRegistryEntry(entry) {

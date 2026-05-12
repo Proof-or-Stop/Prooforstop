@@ -155,6 +155,7 @@ const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'story_advance',
     'story_dispatch', // B-45ed CHK-005: 主 agent 派发 implementer
     'finding_dispatch', // B-45ed CHK-010: 主 agent 派发 finding 修复（DEV 阶段可能提前出现 finding）
+    'finding_cluster',  // B-8bb5: DEV 中已有 finding 时，允许先聚簇再派发修复
   ],
   REVIEW: [
     'finding_add', 'finding_list', 'finding_resolve', 'finding_dismiss',
