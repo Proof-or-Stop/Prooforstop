@@ -44,12 +44,35 @@
         {
           "intentRef": "CHK-001:happy:0",
           "kind": "logic_test",
+          "file": "scripts/verify-runtime-reviewer-contract.mjs",
           "command": "npm run test:runtime-reviewer-contract",
           "result": "pass",
-          "note": "runtime reviewer contract now resolves a runnable repo dist CLI dynamically and no longer hardcodes stale .worktrees/B-8f6a; command passed.",
-          "headHash": "0f285e3eb87c66e63eb761bef2a44491656d4d25",
-          "materialHash": "484339adb80e9cd5076fc95bdb8f8b867527d8a403288c92db44e94b93aa1900",
-          "timestamp": "2026-05-12T23:23:38.691Z"
+          "note": "Runtime reviewer contract passed at HEAD 0a650268 using dynamic current-checkout CLI candidates and printed runtime reviewer contract verified.",
+          "headHash": "0a6502684ba2ae2726620a06dc8b28b771a3b301",
+          "materialHash": "9ba2fd4a91b5f38e33f13dcf474d66d250672735d82316ce0d8d4edcbd0f3070",
+          "timestamp": "2026-05-12T23:29:32.566Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-runtime-reviewer-contract.mjs",
+          "command": "rg Missing built Koala CLI scripts/verify-runtime-reviewer-contract.mjs scripts/verify-main-branch-runtime-health.mjs",
+          "result": "pass",
+          "note": "Both runtime verification scripts assert the local dist CLI exists and emit an actionable Run npm run build first message instead of silently relying on stale worktree paths.",
+          "headHash": "0a6502684ba2ae2726620a06dc8b28b771a3b301",
+          "materialHash": "9ba2fd4a91b5f38e33f13dcf474d66d250672735d82316ce0d8d4edcbd0f3070",
+          "timestamp": "2026-05-12T23:29:32.566Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-runtime-reviewer-contract.mjs",
+          "command": "rg hardcoded .worktrees/B-* packages/main/dist/cli.js scripts -g *.mjs",
+          "result": "pass",
+          "note": "No verification script contains a literal story worktree dist CLI path; runtime reviewer contract also scans scripts/*.mjs and fails if such a path returns.",
+          "headHash": "0a6502684ba2ae2726620a06dc8b28b771a3b301",
+          "materialHash": "9ba2fd4a91b5f38e33f13dcf474d66d250672735d82316ce0d8d4edcbd0f3070",
+          "timestamp": "2026-05-12T23:29:32.566Z"
         }
       ]
     },
@@ -100,32 +123,35 @@
         {
           "intentRef": "CHK-002:happy:0",
           "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
           "command": "npm run test:process-fact-contract",
           "result": "pass",
-          "note": "Process fact contract now scans prompt templates and mirrors for bare reviewRound:number, F-035 numeric reviewRound, and numeric reviewRound JSON examples; command passed.",
-          "headHash": "7c84bf0a214e628bd15b9364d58e191434a795df",
-          "materialHash": "f12c424a96a13dc3aa73fd2cbe6f18dceb4d5d7e368ed3fa42a5159694f4eacd",
-          "timestamp": "2026-05-12T23:20:39.656Z"
+          "note": "Process fact contract passed at HEAD 0a650268 and includes synthetic failures for bare reviewRound:number and numeric reviewRound JSON in prompt schemas.",
+          "headHash": "0a6502684ba2ae2726620a06dc8b28b771a3b301",
+          "materialHash": "9ba2fd4a91b5f38e33f13dcf474d66d250672735d82316ce0d8d4edcbd0f3070",
+          "timestamp": "2026-05-12T23:29:32.566Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
           "command": "npm run test:process-fact-contract",
           "result": "pass",
-          "note": "Synthetic story_review.planReviewRound:number case remains allowed while signed reviewRound:number snippets fail; command passed.",
-          "headHash": "7c84bf0a214e628bd15b9364d58e191434a795df",
-          "materialHash": "f12c424a96a13dc3aa73fd2cbe6f18dceb4d5d7e368ed3fa42a5159694f4eacd",
-          "timestamp": "2026-05-12T23:20:39.678Z"
+          "note": "Contract still allows explicit story_review.planReviewRound:number while rejecting signed finding/review pass reviewRound:number drift.",
+          "headHash": "0a6502684ba2ae2726620a06dc8b28b771a3b301",
+          "materialHash": "9ba2fd4a91b5f38e33f13dcf474d66d250672735d82316ce0d8d4edcbd0f3070",
+          "timestamp": "2026-05-12T23:29:32.566Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
-          "command": "rg reviewRound numeric prompt drift scan",
+          "file": "packages/main/templates/agents",
+          "command": "rg reviewRound numeric prompt drift scan across templates and mirrors",
           "result": "pass",
-          "note": "No prompt/template/mirror numeric reviewRound drift remains after updating templates and mirrors.",
-          "headHash": "7c84bf0a214e628bd15b9364d58e191434a795df",
-          "materialHash": "f12c424a96a13dc3aa73fd2cbe6f18dceb4d5d7e368ed3fa42a5159694f4eacd",
-          "timestamp": "2026-05-12T23:20:39.699Z"
+          "note": "Prompt/template/mirror scan returned no bare reviewRound:number or numeric reviewRound JSON outside the contract synthetic tests.",
+          "headHash": "0a6502684ba2ae2726620a06dc8b28b771a3b301",
+          "materialHash": "9ba2fd4a91b5f38e33f13dcf474d66d250672735d82316ce0d8d4edcbd0f3070",
+          "timestamp": "2026-05-12T23:29:32.566Z"
         }
       ]
     },
@@ -175,22 +201,35 @@
         {
           "intentRef": "CHK-003:happy:0",
           "kind": "logic_test",
+          "file": "scripts/audit-silent-catches.mjs",
           "command": "npm run audit:silent-catches",
           "result": "pass",
-          "note": "audit:silent-catches now loads committed baseline, reports 501 existing uncategorized catch debt, and passed with newUncategorized=0.",
-          "headHash": "0f285e3eb87c66e63eb761bef2a44491656d4d25",
-          "materialHash": "484339adb80e9cd5076fc95bdb8f8b867527d8a403288c92db44e94b93aa1900",
-          "timestamp": "2026-05-12T23:23:43.630Z"
+          "note": "Audit passed at HEAD 0a650268 with status silent catch audit passed, uncategorizedDebt=501, newUncategorized=0.",
+          "headHash": "0a6502684ba2ae2726620a06dc8b28b771a3b301",
+          "materialHash": "9ba2fd4a91b5f38e33f13dcf474d66d250672735d82316ce0d8d4edcbd0f3070",
+          "timestamp": "2026-05-12T23:29:32.566Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "logic_test",
-          "command": "node scripts/audit-silent-catches.mjs --update-baseline",
+          "file": "scripts/audit-silent-catches-baseline.json",
+          "command": "npm run audit:silent-catches",
           "result": "pass",
-          "note": "baseline update path regenerated scripts/audit-silent-catches-baseline.json and self-validated baseline schema/duplicates with newUncategorized=0.",
-          "headHash": "0f285e3eb87c66e63eb761bef2a44491656d4d25",
-          "materialHash": "484339adb80e9cd5076fc95bdb8f8b867527d8a403288c92db44e94b93aa1900",
-          "timestamp": "2026-05-12T23:23:43.651Z"
+          "note": "Audit output reports baseline path scripts/audit-silent-catches-baseline.json, version 1, uncategorizedDebt 501, and resolvedBaselineDebt 0 so existing debt is explicit.",
+          "headHash": "0a6502684ba2ae2726620a06dc8b28b771a3b301",
+          "materialHash": "9ba2fd4a91b5f38e33f13dcf474d66d250672735d82316ce0d8d4edcbd0f3070",
+          "timestamp": "2026-05-12T23:29:32.566Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "scripts/audit-silent-catches.mjs",
+          "command": "temporarily add packages/main/src/__koala_silent_catch_regression_tmp.ts then npm run audit:silent-catches",
+          "result": "fail",
+          "note": "Negative test intentionally failed with status silent catch audit failed and newUncategorized=1 at packages/main/src/__koala_silent_catch_regression_tmp.ts:4:} catch {; temporary file was deleted afterward and audit passed again.",
+          "headHash": "0a6502684ba2ae2726620a06dc8b28b771a3b301",
+          "materialHash": "9ba2fd4a91b5f38e33f13dcf474d66d250672735d82316ce0d8d4edcbd0f3070",
+          "timestamp": "2026-05-12T23:29:32.566Z"
         }
       ]
     },
@@ -243,32 +282,35 @@
         {
           "intentRef": "CHK-004:happy:0",
           "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
           "command": "npm run test:process-fact-contract",
           "result": "pass",
-          "note": "Process fact contract asserts fresh-worker guidance names dispatch/process-event/commit evidence and rejects prompt-only worker claims as mechanical evidence.",
-          "headHash": "7c84bf0a214e628bd15b9364d58e191434a795df",
-          "materialHash": "f12c424a96a13dc3aa73fd2cbe6f18dceb4d5d7e368ed3fa42a5159694f4eacd",
-          "timestamp": "2026-05-12T23:20:54.606Z"
+          "note": "Process fact contract passed and keeps fresh-worker guidance tied to dispatch/process-event/commit evidence rather than prompt-only claims.",
+          "headHash": "0a6502684ba2ae2726620a06dc8b28b771a3b301",
+          "materialHash": "9ba2fd4a91b5f38e33f13dcf474d66d250672735d82316ce0d8d4edcbd0f3070",
+          "timestamp": "2026-05-12T23:29:32.566Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "docs_check",
-          "command": "rg fresh-worker-boundary docs and prompts",
+          "file": "docs/requirements/decisions/testing-infra.md",
+          "command": "npm run test:process-fact-contract",
           "result": "pass",
-          "note": "CLAUDE.md, testing-infra.md, templates, and mirrors state Koala cannot mechanically prove true subagent context isolation, only observable assignment evidence.",
-          "headHash": "7c84bf0a214e628bd15b9364d58e191434a795df",
-          "materialHash": "f12c424a96a13dc3aa73fd2cbe6f18dceb4d5d7e368ed3fa42a5159694f4eacd",
-          "timestamp": "2026-05-12T23:20:54.629Z"
+          "note": "Contract and docs state Koala cannot mechanically prove true subagent context isolation, only observable assignment evidence.",
+          "headHash": "0a6502684ba2ae2726620a06dc8b28b771a3b301",
+          "materialHash": "9ba2fd4a91b5f38e33f13dcf474d66d250672735d82316ce0d8d4edcbd0f3070",
+          "timestamp": "2026-05-12T23:29:32.566Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
           "command": "npm run test:process-fact-contract",
           "result": "pass",
-          "note": "Contract checks prompt-only worker claims are not mechanical evidence in every prompt containing fresh worker guidance.",
-          "headHash": "7c84bf0a214e628bd15b9364d58e191434a795df",
-          "materialHash": "f12c424a96a13dc3aa73fd2cbe6f18dceb4d5d7e368ed3fa42a5159694f4eacd",
-          "timestamp": "2026-05-12T23:20:54.654Z"
+          "note": "Contract rejects prompt-only fresh-worker claims as mechanical proof and requires observable evidence wording in prompts/docs.",
+          "headHash": "0a6502684ba2ae2726620a06dc8b28b771a3b301",
+          "materialHash": "9ba2fd4a91b5f38e33f13dcf474d66d250672735d82316ce0d8d4edcbd0f3070",
+          "timestamp": "2026-05-12T23:29:32.566Z"
         }
       ]
     },
@@ -321,32 +363,35 @@
         {
           "intentRef": "CHK-005:happy:0",
           "kind": "docs_check",
-          "command": "rg transcript/delivery evidence boundary docs and prompts",
+          "file": "docs/requirements/decisions/testing-infra.md",
+          "command": "npm run test:process-fact-contract",
           "result": "pass",
-          "note": "CLAUDE.md, testing-infra.md, product-reviewer prompt, and delivery-aware agent prompts state transcript/delivery evidence is required and prompt-only user-value claims are not enough.",
-          "headHash": "7c84bf0a214e628bd15b9364d58e191434a795df",
-          "materialHash": "f12c424a96a13dc3aa73fd2cbe6f18dceb4d5d7e368ed3fa42a5159694f4eacd",
-          "timestamp": "2026-05-12T23:21:00.475Z"
+          "note": "Delivery/product guidance requires transcript, verificationEvidence, delivery-check/product-reviewer evidence, or waiver instead of plain completion claims.",
+          "headHash": "0a6502684ba2ae2726620a06dc8b28b771a3b301",
+          "materialHash": "9ba2fd4a91b5f38e33f13dcf474d66d250672735d82316ce0d8d4edcbd0f3070",
+          "timestamp": "2026-05-12T23:29:32.566Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
           "kind": "docs_check",
+          "file": "scripts/verify-process-fact-contract.mjs",
           "command": "npm run test:process-fact-contract",
           "result": "pass",
-          "note": "Process fact contract asserts non-mechanical user approval wording so docs distinguish subjective user approval from mechanical evidence artifacts.",
-          "headHash": "7c84bf0a214e628bd15b9364d58e191434a795df",
-          "materialHash": "f12c424a96a13dc3aa73fd2cbe6f18dceb4d5d7e368ed3fa42a5159694f4eacd",
-          "timestamp": "2026-05-12T23:21:00.499Z"
+          "note": "Contract distinguishes non-mechanical user approval from mechanical evidence artifacts to avoid fake fully automated product acceptance.",
+          "headHash": "0a6502684ba2ae2726620a06dc8b28b771a3b301",
+          "materialHash": "9ba2fd4a91b5f38e33f13dcf474d66d250672735d82316ce0d8d4edcbd0f3070",
+          "timestamp": "2026-05-12T23:29:32.566Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
           "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
           "command": "npm run test:process-fact-contract",
           "result": "pass",
-          "note": "Contract checks delivery/product guidance rejects prompt-only user-value claims and requires transcript, verificationEvidence, delivery-check/product-reviewer evidence, or waiver.",
-          "headHash": "7c84bf0a214e628bd15b9364d58e191434a795df",
-          "materialHash": "f12c424a96a13dc3aa73fd2cbe6f18dceb4d5d7e368ed3fa42a5159694f4eacd",
-          "timestamp": "2026-05-12T23:21:00.522Z"
+          "note": "Contract checks DONE/product guidance does not accept prompt-only user-value claims without transcript or delivery evidence support.",
+          "headHash": "0a6502684ba2ae2726620a06dc8b28b771a3b301",
+          "materialHash": "9ba2fd4a91b5f38e33f13dcf474d66d250672735d82316ce0d8d4edcbd0f3070",
+          "timestamp": "2026-05-12T23:29:32.566Z"
         }
       ]
     }
