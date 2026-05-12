@@ -9,9 +9,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-12T00:48:55.958Z",
-      "endTime": null,
+      "endTime": "2026-05-12T01:05:14.862Z",
       "userSees": "终端显示：\"❌ 命令 \\\"bug_report\\\" 在 DEV 阶段不可用\"、\"Lifecycle: supported\"、\"Allowed phases: REVIEW, TEST\"、\"Reason: 当前命令不是 DEV 阶段产物\"。",
       "files": {
         "modify": [
@@ -44,7 +44,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js bug_report",
+          "result": "pass",
+          "note": "Manual transcript shows blocked supported command now includes Lifecycle: supported, Requested phase, Allowed phases, Reason, Current phaseTools allow, and Policy source.",
+          "headHash": "2e5562a6d8848b7ee058a54a576e0171d90ee2ac",
+          "materialHash": "26d094cf2cdfb7846a0aa0df737132689efe7c11752e104fb1af2db66fccde91",
+          "timestamp": "2026-05-12T01:05:14.632Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "flow-stability-smoke asserts custom phaseTools override still blocks finding_add and reports policy context without bypassing isCommandAllowed semantics.",
+          "headHash": "2e5562a6d8848b7ee058a54a576e0171d90ee2ac",
+          "materialHash": "26d094cf2cdfb7846a0aa0df737132689efe7c11752e104fb1af2db66fccde91",
+          "timestamp": "2026-05-12T01:05:14.632Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "process-fact contract requires every MAIN_TOOLS command to have a lifecycle policy entry; missing policy fails statically rather than silently degrading.",
+          "headHash": "2e5562a6d8848b7ee058a54a576e0171d90ee2ac",
+          "materialHash": "26d094cf2cdfb7846a0aa0df737132689efe7c11752e104fb1af2db66fccde91",
+          "timestamp": "2026-05-12T01:05:14.632Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -55,9 +87,9 @@
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-12T01:05:15.071Z",
       "userSees": "终端显示：\"Lifecycle: legacy\"、\"Destructive risk: full fixture regression requires confirm\"、\"Current flow: use koala validate or verification_evidence_add/checklist_update verificationEvidence\"。",
       "files": {
         "modify": [
@@ -89,7 +121,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js test_auto",
+          "result": "pass",
+          "note": "Manual transcript shows legacy test_auto blocked in DEV with Replacement: koala validate --story=<storyId>, verificationEvidence guidance, and Destructive risk: workspace-destructive.",
+          "headHash": "2e5562a6d8848b7ee058a54a576e0171d90ee2ac",
+          "materialHash": "26d094cf2cdfb7846a0aa0df737132689efe7c11752e104fb1af2db66fccde91",
+          "timestamp": "2026-05-12T01:05:14.632Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "contract requires legacy L4 test_story/test_add policy to include replacement guidance instead of recommending phaseTools opening.",
+          "headHash": "2e5562a6d8848b7ee058a54a576e0171d90ee2ac",
+          "materialHash": "26d094cf2cdfb7846a0aa0df737132689efe7c11752e104fb1af2db66fccde91",
+          "timestamp": "2026-05-12T01:05:14.632Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm run build && node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "test_auto handler now requires confirm:true for real execution after dryRun path; build and smoke tests pass with the destructive guard intact.",
+          "headHash": "2e5562a6d8848b7ee058a54a576e0171d90ee2ac",
+          "materialHash": "26d094cf2cdfb7846a0aa0df737132689efe7c11752e104fb1af2db66fccde91",
+          "timestamp": "2026-05-12T01:05:14.632Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -100,9 +164,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-12T01:05:15.280Z",
       "userSees": "验证失败时输出：\"missing command lifecycle policy: <command>\"、\"L4 command has no producer phase or replacement: <command>\"、\"workflow family phase drift: finding_add/finding_cluster/...\"。",
       "files": {
         "modify": [
@@ -139,7 +203,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "contract verifies policy coverage for all 84 MAIN_TOOLS commands, legacy test/fixture replacement/destructive guidance, and active doc lifecycle terminology.",
+          "headHash": "2e5562a6d8848b7ee058a54a576e0171d90ee2ac",
+          "materialHash": "26d094cf2cdfb7846a0aa0df737132689efe7c11752e104fb1af2db66fccde91",
+          "timestamp": "2026-05-12T01:05:14.632Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "flow-stability-smoke verifies finding family completeness, blocked command policy hints, legacy test_auto guidance, and phaseTools override behavior.",
+          "headHash": "2e5562a6d8848b7ee058a54a576e0171d90ee2ac",
+          "materialHash": "26d094cf2cdfb7846a0aa0df737132689efe7c11752e104fb1af2db66fccde91",
+          "timestamp": "2026-05-12T01:05:14.632Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "static parser checks duplicate/missing policy entries, missing reason/destructiveRisk, legacy guidance drift, and doc mentions lacking legacy/compat/maintenance context.",
+          "headHash": "2e5562a6d8848b7ee058a54a576e0171d90ee2ac",
+          "materialHash": "26d094cf2cdfb7846a0aa0df737132689efe7c11752e104fb1af2db66fccde91",
+          "timestamp": "2026-05-12T01:05:14.632Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -151,6 +247,33 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "koala-implementer 开始实现通用 lifecycle policy 与 phase gate 报错骨架"
+    },
+    {
+      "timestamp": "2026-05-12T01:05:14.862Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "implementation committed and verification evidence recorded"
+    },
+    {
+      "timestamp": "2026-05-12T01:05:15.071Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "implementation committed and verification evidence recorded"
+    },
+    {
+      "timestamp": "2026-05-12T01:05:15.280Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "implementation committed and verification evidence recorded"
     }
   ]
 }
