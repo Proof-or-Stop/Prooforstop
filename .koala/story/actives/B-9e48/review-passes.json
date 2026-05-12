@@ -71,6 +71,22 @@
       "createdAt": "2026-05-12T18:42:31.479Z",
       "reviewRound": "2026-05-12T18:36:45.641Z",
       "_hash": "f8ccfd612741b35b499ae8fd62f98f92f67b64ace4e23880b13b84417e6b9e69"
+    },
+    {
+      "id": "B-9e48:RP-010",
+      "agent": "koala-review-quality",
+      "note": "Round 6 quality review: DONE destructive cleanup now derives the canonical git worktree root with git rev-parse --show-toplevel, uses execFileSync argv arrays for merge/worktree/branch commands, gates residual rmSync behind canonical-root and registered-worktree checks, and asserts story/B-9e48 branch before autoSyncMain and again before actor.send. No blocking quality or safety issues found.",
+      "createdAt": "2026-05-12T18:43:16.630Z",
+      "reviewRound": "2026-05-12T18:36:45.641Z",
+      "_hash": "9c4373abc7d6bb1f3ecbbb7dcb58f0319c1ef29f9db1f31b418b15b236cbdfc6"
+    },
+    {
+      "id": "B-9e48:RP-011",
+      "agent": "koala-review-docs",
+      "note": "Round 6 docs review: CLAUDE.md DONE worktree lifecycle text matches current story_advance runtime; no express semantics changed and no reviewRound semantics changed.",
+      "createdAt": "2026-05-12T18:43:26.187Z",
+      "reviewRound": "2026-05-12T18:36:45.641Z",
+      "_hash": "ad0fbaf7dc698cbd51701985e4a68d9061f22f53c7a840ec7267de7212b2bb52"
     }
   ]
 }
