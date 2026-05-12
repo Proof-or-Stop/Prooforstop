@@ -23,6 +23,38 @@
       "createdAt": "2026-05-12T01:23:20.931Z",
       "reviewRound": "2026-05-12T01:20:24.141Z",
       "_hash": "ef5f3aaed8f35bbc3679169ded395c30d0014d59943209bd4d06d220599fbe6f"
+    },
+    {
+      "id": "B-5c5e:RP-004",
+      "agent": "koala-review-docs",
+      "note": "testing-infra now frames test_auto as a legacy compat runner, not a bug/test-evidence manager; story-lifecycle and AGENTS define koala-review-test-coverage as a reviewer lane, not a CLI tool; dual-layer guardrails block prompt-only drift",
+      "createdAt": "2026-05-12T01:30:47.612Z",
+      "reviewRound": "2026-05-12T01:29:42.661Z",
+      "_hash": "5ee00980b7a82bc6c336c8721d36d2973159cbadac7ab986ea800de3741b9dfb"
+    },
+    {
+      "id": "B-5c5e:RP-005",
+      "agent": "koala-review-concept",
+      "note": "Re-reviewed lifecycle hardcoded policy: docs keep test-coverage as a reviewer lane, runtime REVIEW→TEST gate still consumes signed findings/review passes, and process-fact contract verification passed.",
+      "createdAt": "2026-05-12T01:31:27.522Z",
+      "reviewRound": "2026-05-12T01:29:42.661Z",
+      "_hash": "463fb4368be07f091ef97cf0c76e56e9031161bd903db0cc9d1019747e2e1634"
+    },
+    {
+      "id": "B-5c5e:RP-006",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: verified F-006/F-007 docs contract coverage. Active lifecycle docs now state legacy test_auto does not write bug/test-evidence, and koala-review-test-coverage is documented as a reviewer lane rather than a CLI/tool command. Verified with build + process-fact contract + flow stability smoke.",
+      "createdAt": "2026-05-12T01:31:43.180Z",
+      "reviewRound": "2026-05-12T01:29:42.661Z",
+      "_hash": "6f1553138d83a0ce2016ede5e02bec6cb1c010db77cc1893a894820dbd303f94"
+    },
+    {
+      "id": "B-5c5e:RP-007",
+      "agent": "koala-review-quality",
+      "note": "quality review passed: reviewed docs/contract changes in 91513f9 and metadata follow-up c0749c5, ran node scripts/verify-process-fact-contract.mjs, and checked lsp diagnostics for scripts/verify-process-fact-contract.mjs; no blocker found.",
+      "createdAt": "2026-05-12T01:32:00.549Z",
+      "reviewRound": "2026-05-12T01:29:42.661Z",
+      "_hash": "5986a054ad141e4d0ffe1e344bd048a40abf8cda941b04a8793ab3fb04d8780c"
     }
   ]
 }
