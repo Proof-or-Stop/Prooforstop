@@ -52,9 +52,9 @@
           "command": "node packages/main/dist/cli.js bug_report",
           "result": "pass",
           "note": "Manual transcript shows blocked supported command now includes Lifecycle: supported, Requested phase, Allowed phases, Reason, Current phaseTools allow, and Policy source.",
-          "headHash": "97964e3846158696e305ee10da8f3266a03c5b9a",
-          "materialHash": "c0ad398b45f97e216a911f79cda1ff95f4be3a197aff42904a992384b32e1fb1",
-          "timestamp": "2026-05-12T01:20:01.013Z"
+          "headHash": "91513f90117e32b2fd1c06aa13003324543c82b8",
+          "materialHash": "79ac44836b972706ff03fe46e5c26d9a939b26c93294b9529588f2d923210d5c",
+          "timestamp": "2026-05-12T01:29:24.838Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -62,9 +62,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "flow-stability-smoke asserts custom phaseTools override still blocks finding_add and reports policy context without bypassing isCommandAllowed semantics.",
-          "headHash": "97964e3846158696e305ee10da8f3266a03c5b9a",
-          "materialHash": "c0ad398b45f97e216a911f79cda1ff95f4be3a197aff42904a992384b32e1fb1",
-          "timestamp": "2026-05-12T01:20:01.013Z"
+          "headHash": "91513f90117e32b2fd1c06aa13003324543c82b8",
+          "materialHash": "79ac44836b972706ff03fe46e5c26d9a939b26c93294b9529588f2d923210d5c",
+          "timestamp": "2026-05-12T01:29:24.838Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -72,9 +72,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "process-fact contract requires every MAIN_TOOLS command to have a lifecycle policy entry; missing policy fails statically rather than silently degrading.",
-          "headHash": "97964e3846158696e305ee10da8f3266a03c5b9a",
-          "materialHash": "c0ad398b45f97e216a911f79cda1ff95f4be3a197aff42904a992384b32e1fb1",
-          "timestamp": "2026-05-12T01:20:01.013Z"
+          "headHash": "91513f90117e32b2fd1c06aa13003324543c82b8",
+          "materialHash": "79ac44836b972706ff03fe46e5c26d9a939b26c93294b9529588f2d923210d5c",
+          "timestamp": "2026-05-12T01:29:24.838Z"
         }
       ]
     },
@@ -129,9 +129,9 @@
           "command": "node packages/main/dist/cli.js test_auto",
           "result": "pass",
           "note": "Manual transcript shows legacy test_auto blocked in DEV with Replacement: koala validate --story=<storyId>, verificationEvidence guidance, and Destructive risk: workspace-destructive.",
-          "headHash": "97964e3846158696e305ee10da8f3266a03c5b9a",
-          "materialHash": "c0ad398b45f97e216a911f79cda1ff95f4be3a197aff42904a992384b32e1fb1",
-          "timestamp": "2026-05-12T01:20:01.013Z"
+          "headHash": "91513f90117e32b2fd1c06aa13003324543c82b8",
+          "materialHash": "79ac44836b972706ff03fe46e5c26d9a939b26c93294b9529588f2d923210d5c",
+          "timestamp": "2026-05-12T01:29:24.838Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -139,9 +139,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "contract requires legacy L4 test_story/test_add policy to include replacement guidance instead of recommending phaseTools opening.",
-          "headHash": "97964e3846158696e305ee10da8f3266a03c5b9a",
-          "materialHash": "c0ad398b45f97e216a911f79cda1ff95f4be3a197aff42904a992384b32e1fb1",
-          "timestamp": "2026-05-12T01:20:01.013Z"
+          "headHash": "91513f90117e32b2fd1c06aa13003324543c82b8",
+          "materialHash": "79ac44836b972706ff03fe46e5c26d9a939b26c93294b9529588f2d923210d5c",
+          "timestamp": "2026-05-12T01:29:24.838Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -149,9 +149,9 @@
           "command": "npm run build && node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "test_auto handler now requires confirm:true for real execution after dryRun path; build and smoke tests pass with the destructive guard intact.",
-          "headHash": "97964e3846158696e305ee10da8f3266a03c5b9a",
-          "materialHash": "c0ad398b45f97e216a911f79cda1ff95f4be3a197aff42904a992384b32e1fb1",
-          "timestamp": "2026-05-12T01:20:01.013Z"
+          "headHash": "91513f90117e32b2fd1c06aa13003324543c82b8",
+          "materialHash": "79ac44836b972706ff03fe46e5c26d9a939b26c93294b9529588f2d923210d5c",
+          "timestamp": "2026-05-12T01:29:24.838Z"
         }
       ]
     },
@@ -211,9 +211,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "contract verifies policy coverage for all 84 MAIN_TOOLS commands, legacy test/fixture replacement/destructive guidance, and active doc lifecycle terminology.",
-          "headHash": "97964e3846158696e305ee10da8f3266a03c5b9a",
-          "materialHash": "c0ad398b45f97e216a911f79cda1ff95f4be3a197aff42904a992384b32e1fb1",
-          "timestamp": "2026-05-12T01:20:01.013Z"
+          "headHash": "91513f90117e32b2fd1c06aa13003324543c82b8",
+          "materialHash": "79ac44836b972706ff03fe46e5c26d9a939b26c93294b9529588f2d923210d5c",
+          "timestamp": "2026-05-12T01:29:24.838Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -221,9 +221,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "flow-stability-smoke verifies finding family completeness, blocked command policy hints, legacy test_auto guidance, and phaseTools override behavior.",
-          "headHash": "97964e3846158696e305ee10da8f3266a03c5b9a",
-          "materialHash": "c0ad398b45f97e216a911f79cda1ff95f4be3a197aff42904a992384b32e1fb1",
-          "timestamp": "2026-05-12T01:20:01.013Z"
+          "headHash": "91513f90117e32b2fd1c06aa13003324543c82b8",
+          "materialHash": "79ac44836b972706ff03fe46e5c26d9a939b26c93294b9529588f2d923210d5c",
+          "timestamp": "2026-05-12T01:29:24.838Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -231,9 +231,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "static parser checks duplicate/missing policy entries, missing reason/destructiveRisk, legacy guidance drift, and doc mentions lacking legacy/compat/maintenance context.",
-          "headHash": "97964e3846158696e305ee10da8f3266a03c5b9a",
-          "materialHash": "c0ad398b45f97e216a911f79cda1ff95f4be3a197aff42904a992384b32e1fb1",
-          "timestamp": "2026-05-12T01:20:01.013Z"
+          "headHash": "91513f90117e32b2fd1c06aa13003324543c82b8",
+          "materialHash": "79ac44836b972706ff03fe46e5c26d9a939b26c93294b9529588f2d923210d5c",
+          "timestamp": "2026-05-12T01:29:24.838Z"
         }
       ]
     }

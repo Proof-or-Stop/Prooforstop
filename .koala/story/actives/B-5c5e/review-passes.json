@@ -1,0 +1,28 @@
+{
+  "passes": [
+    {
+      "id": "B-5c5e:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Runtime gate verified: dist config enforces COMMAND_POLICIES as a ceiling, REVIEW can read understanding/decision artifacts, and the process-fact contract now checks policy/default-phase drift plus L4 producer-or-replacement coverage.",
+      "createdAt": "2026-05-12T01:22:35.859Z",
+      "reviewRound": "2026-05-12T01:20:24.141Z",
+      "_hash": "27381f7be973751b526dd494121a01366e6e51f612ea0b2e0706a4b399d68ce1"
+    },
+    {
+      "id": "B-5c5e:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "Coverage review passed: packages/main build, verify-process-fact-contract, flow-stability-smoke, and validate --story=B-5c5e --json all passed; checks cover policy ceiling, malformed phaseTools fallback, legacy guidance, and REVIEW planning artifact access.",
+      "createdAt": "2026-05-12T01:23:05.834Z",
+      "reviewRound": "2026-05-12T01:20:24.141Z",
+      "_hash": "974da5d23f0c677c0793cf4650044e963e6dbac655e068db4d4cca8d451dff29"
+    },
+    {
+      "id": "B-5c5e:RP-003",
+      "agent": "koala-review-quality",
+      "note": "Reviewed packages/main/src/core/config.ts, command-policy.ts, cli-engine.ts, handlers/test-auto.ts, flow-stability-smoke.ts, and verify-process-fact-contract.mjs; runtime probes confirm policy-ceiling gating blocks legacy/root-only commands, REVIEW can inspect understanding/decision artifacts, and the process-fact contract now enforces policy/default-phase alignment and robust command-policy parsing.",
+      "createdAt": "2026-05-12T01:23:20.931Z",
+      "reviewRound": "2026-05-12T01:20:24.141Z",
+      "_hash": "ef5f3aaed8f35bbc3679169ded395c30d0014d59943209bd4d06d220599fbe6f"
+    }
+  ]
+}

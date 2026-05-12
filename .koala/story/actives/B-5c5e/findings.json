@@ -18,7 +18,7 @@
       "desc": "packages/main/src/core/config.ts:251 HIGH - phase gating still trusts phaseTools as the authority and even returns allow-all for malformed values, so the new COMMAND_POLICIES table is advisory only. Runtime probe: isCommandAllowed(\"test_auto\",\"REVIEW\",{REVIEW:[\"test_auto\"]}) === true and isCommandAllowed(\"bug_report\",\"DEV\",null) === true. This misses the story goal of a hard-coded lifecycle fallback. Fix: enforce COMMAND_POLICIES in isCommandAllowed/getAllowedPatterns and make config overrides only narrow, never widen, rootOnly/legacy restrictions.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "agent": "koala-review-quality",
       "createdAt": "2026-05-12T01:10:44.326Z",
       "reviewRound": "2026-05-12T01:05:31.848Z",
@@ -29,7 +29,7 @@
       "desc": "scripts/verify-process-fact-contract.mjs:591 WHY: the new contract only checks lifecycle policy presence/guidance and does not prove COMMAND_POLICIES.allowedPhases stays aligned with DEFAULT_PHASE_TOOLS/isCommandAllowed or that every L4 command has a producer phase or replacement, so cli-engine.ts:1180 can print lifecycle hints from a drifting parallel table without the contract failing. packages/main/src/core/command-policy.ts:57 WHY: understanding_get/decision_get are PLAN-only, and packages/main/src/core/config.ts:143 mirrors that in phaseTools, so REVIEW reviewers cannot inspect understanding/decision through the CLI even though concept review is supposed to judge implementation against those planning artifacts. severity: high",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "agent": "koala-review-concept",
       "createdAt": "2026-05-12T01:10:44.642Z",
       "reviewRound": "2026-05-12T01:05:31.848Z",
@@ -40,7 +40,7 @@
       "desc": "scripts/verify-process-fact-contract.mjs:483 MEDIUM - the command-policy verifier is source-text brittle: it only matches an exact `export const COMMAND_POLICIES = {` marker and single-quoted reason/replacement fields. A harmless typed export or an apostrophe in prose already demonstrates the problem (`indexOf(marker) === -1`, `/reason:/` captures only `Don`). Fix: parse the module with a JS/TS parser or broaden the extractor to tolerate typed exports and escaped quotes.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "agent": "koala-review-quality",
       "createdAt": "2026-05-12T01:10:50.298Z",
       "reviewRound": "2026-05-12T01:05:31.848Z",
@@ -51,11 +51,33 @@
       "desc": "packages/main/src/handlers/test-auto.ts:84 MEDIUM - the self-project guard still tells users to run `test_story`, but this branch reclassifies `test_story` as legacy and the new lifecycle guidance points to `koala validate` + verificationEvidence instead. Runtime probe from repo root still prints that stale recommendation. Fix: align the thrown hint with the new replacement policy so blocked users are sent to the supported flow, not another deprecated command.",
       "severity": "medium",
       "category": "happy",
-      "status": "open",
+      "status": "resolved",
       "agent": "koala-review-quality",
       "createdAt": "2026-05-12T01:10:55.927Z",
       "reviewRound": "2026-05-12T01:05:31.848Z",
       "_hash": "132a44590731c02706032a340cfd4aa885e2ea659424d40b2220f4bd2e7849de"
+    },
+    {
+      "id": "B-5c5e:F-006",
+      "desc": "docs/requirements/decisions/testing-infra.md:42-49 WHY: the legacy `test_auto` behavior is documented as automatically creating/fixing bugs, but the current handler explicitly says it no longer writes bug.json or test-evidence and only returns summary/warnings. The compat section overstates side effects and should be narrowed to the actual destructive cleanup + fixture execution behavior. severity: medium",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-05-12T01:22:55.290Z",
+      "reviewRound": "2026-05-12T01:20:24.141Z",
+      "_hash": "82ba0d392baec944a4885c7dc6aabe23e14beabd1245278d018b5859d4d5642a"
+    },
+    {
+      "id": "B-5c5e:F-007",
+      "desc": "AGENTS.md:8-10, docs/requirements/decisions/story-lifecycle.md:153, docs/requirements/decisions/testing-infra.md:9,96 WHY: the docs present \"koala-review-test-coverage\" as a REVIEW tool/gate, but `node packages/main/dist/cli.js koala-review-test-coverage --help` returns \"未知命令\". The actual no-blocker reviewer path is `review_pass_set` plus internal coverage gate logic, so this wording points maintainers at a nonexistent entrypoint. severity: medium",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-05-12T01:23:06.627Z",
+      "reviewRound": "2026-05-12T01:20:24.141Z",
+      "_hash": "f5fe3ad4456bc9747a498418cc3a19ebde9c4d8247078f180e4efa8035477ece"
     }
   ]
 }
