@@ -17,6 +17,7 @@ import { createMainRegistry, type Registry } from './registry.js';
 import type { HandlerContext } from './handlers/context.js';
 import { execSync } from 'child_process';
 import { loadConfig, isCommandAllowed, getAllowedPatterns } from './core/config.js';
+import { formatCommandLifecycleHint } from './core/command-policy.js';
 import { decorateResult, type ActiveStoryInfo } from './handlers/hints.js';
 import { reportHealthIssue } from './core/health.js';
 import { detectStaleState } from './core/stale-detector.js';
@@ -384,8 +385,8 @@ export const MAIN_TOOLS: ToolDef[] = [
     dryRun: z.boolean().optional().describe('只预览，不落盘'),
     validateExecute: z.boolean().optional().describe('追加前预执行 CLI case'),
   }},
-  { name: 'test_auto', description: '全量 fixture 回归（默认 dry-run，真实执行需 confirm）', schema: {
-    storyId: z.string().optional().describe('已废弃；story 级测试请用 test_story'),
+  { name: 'test_auto', description: 'legacy 全量 fixture 回归（真实执行需 confirm；dryRun 预览）', schema: {
+    storyId: z.string().optional().describe('已废弃；当前 story 验证请用 koala validate --story=<storyId> 并记录 verificationEvidence'),
     trace: z.boolean().optional().describe('收集 trace'),
     enableProfiler: z.boolean().optional().describe('启用 profiler'),
     dryRun: z.boolean().optional().describe('只输出执行计划'),
@@ -1180,6 +1181,7 @@ export async function runCli(opts?: {
       const allowed = getAllowedPatterns(activeStory.phase, config.phaseTools);
       console.error(`❌ 命令 "${cmd}" 在 ${activeStory.phase} 阶段不可用`);
       console.error(`   Story: ${activeStory.storyId}  Phase: ${activeStory.phase}`);
+      for (const line of formatCommandLifecycleHint(cmd, activeStory.phase, allowed)) console.error(line);
       console.error(`   当前阶段可用命令: ${allowed.join(', ')}`);
       process.exit(1);
     }

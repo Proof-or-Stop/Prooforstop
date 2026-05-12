@@ -2,6 +2,7 @@
 
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { basename, join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const root = process.cwd();
 const failures = [];
@@ -24,12 +25,83 @@ const reviewPassReviewerPrompts = new Set([
   'koala-review-test-coverage.md',
 ]);
 const processFactLevelRegistryPath = 'packages/main/src/core/process-fact-levels.ts';
+const commandPolicyPath = 'packages/main/src/core/command-policy.ts';
+const legacyTestFixtureCommands = [
+  'test_auto',
+  'test_story',
+  'test_fixture',
+  'fixture_batch_add',
+  'fixture_update',
+  'test_add',
+  'task_coverage',
+];
+const activeLifecycleDocPaths = [
+  'AGENTS.md',
+  'docs/requirements/decisions/story-lifecycle.md',
+  'docs/requirements/decisions/testing-infra.md',
+];
+const activeLifecycleDocCurrentTerms = [
+  'verificationIntent',
+  'verificationEvidence',
+  'koala validate',
+  'checklist_update',
+];
+const legacyCommandDocContextPattern = /\blegacy\b|\bcompat\b|\bmaintenance\b|兼容|维护|旧|迁移|背景|destructive/i;
+const coverageReviewerLaneName = 'koala-review-test-coverage';
+const coverageReviewerLaneContextPattern = /reviewer|agent|lane|review\s+lane|coverage\s+reviewer|审查员|审查\s*lane|审查\s*通道|覆盖审查/i;
+const coverageReviewerCliCommandPatterns = [
+  { label: 'CLI invocation', pattern: /\bkoala\s+koala-review-test-coverage\b/i },
+  { label: 'tool table row', pattern: /^\s*\|\s*`?koala-review-test-coverage`?\s*\|/ },
+  { label: 'tool bullet', pattern: /^\s*[-*]\s*`?koala-review-test-coverage`?\s*(?:[:：-]|$)/ },
+];
+const legacyTestAutoProcessFactClaimPatterns = [
+  {
+    label: 'auto bug management',
+    pattern: /自动\s*bug\s*管理|fail\s*(?:创建|create[s]?)\s+bug|pass\s*(?:自动\s*)?(?:fix|fixed|修复|标记?|mark[s]?).{0,20}bug/i,
+  },
+  {
+    label: 'test-evidence writes',
+    pattern: /\btest_auto\b[^。.\n;；]{0,80}(?:写|write[s]?|record[s]?|生成|产出)[^。.\n;；]{0,40}(?:test-?evidence|test evidence|verificationEvidence|测试证据)|(?:test-?evidence|test evidence|verificationEvidence|测试证据)[^。.\n;；]{0,40}(?:由|by)\s*`?test_auto`?|^(?:\d+\.|-)\s*(?:写|write[s]?|record[s]?|生成|产出)[^。.\n;；]{0,40}(?:test-?evidence|test evidence|verificationEvidence|测试证据)/i,
+  },
+];
+const legacyTestAutoNegatedProcessFactPattern = /(?:不会|不写|不再|不能|并不|does\s+not|doesn't|do\s+not|not|never|without|no\s+longer).{0,90}(?:bug|test-?evidence|test evidence|verificationEvidence|测试证据)/i;
+const commandPolicyStatuses = new Set(['supported', 'rootOnly', 'legacy', 'retired', 'maintenance', 'gateEvidence']);
+const legacyCommandPolicyGuidance = {
+  test_auto: {
+    destructiveRisk: 'workspace-destructive',
+    patterns: [/koala validate --story=<storyId>/, /verificationEvidence/, /dryRun/, /confirm/, /git restore\/git clean/],
+  },
+  test_story: {
+    destructiveRisk: 'fixture-write',
+    patterns: [/koala validate --story=<storyId>/, /verification_evidence_add|verificationEvidence/],
+  },
+  test_fixture: {
+    destructiveRisk: 'fixture-write',
+    patterns: [/project-native command|koala validate --story=<storyId>/, /verification_evidence_add|verificationEvidence/],
+  },
+  fixture_batch_add: {
+    destructiveRisk: 'fixture-write',
+    patterns: [/dryRun/, /validateExecute|verification_evidence_add|verificationEvidence/],
+  },
+  fixture_update: {
+    destructiveRisk: 'fixture-write',
+    patterns: [/fixture_batch_add/, /dryRun/, /project-native tests|verification_evidence_add|verificationEvidence/],
+  },
+  test_add: {
+    destructiveRisk: 'metadata-write',
+    patterns: [/verification_evidence_add|verificationEvidence/, /checklist_update/],
+  },
+  task_coverage: {
+    destructiveRisk: 'none',
+    patterns: [/validate|process-fact/, /verificationEvidence/],
+  },
+};
 const requiredRuntimeEntries = [
   {
-    name: 'runtime:phase_tools_malformed_allow_all',
+    name: 'runtime:phase_tools_malformed_policy_ceiling',
     level: 'L1',
     owner: 'core/config',
-    line: '- runtime:phase_tools_malformed_allow_all [L1] owner=core/config',
+    line: '- runtime:phase_tools_malformed_policy_ceiling [L1] owner=core/config',
   },
   {
     name: 'runtime:test_auto_recursive_skip',
@@ -82,6 +154,22 @@ const processFactCommandNamePatterns = [
   /^validate$/,
   /^checklist_update$/,
 ];
+
+const ALL_PHASES = ['INIT', 'INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE'];
+
+async function importBuiltModule(relPath) {
+  const absPath = join(root, relPath);
+  if (!existsSync(absPath)) return null;
+  try {
+    return await import(pathToFileURL(absPath).href);
+  } catch (error) {
+    warnings.push(`${relPath} could not be imported; falling back to source parsing (${error.message})`);
+    return null;
+  }
+}
+
+const builtCommandPolicyModule = await importBuiltModule('packages/main/dist/core/command-policy.js');
+const builtConfigModule = await importBuiltModule('packages/main/dist/core/config.js');
 
 const passOnlyFindingAddPatterns = [
   /文档一致性检查通过/,
@@ -262,6 +350,76 @@ function comparePromptSemantics(promptMap) {
   }
 }
 
+function paragraphBlocks(text) {
+  const lines = text.split(/\r?\n/);
+  const blocks = [];
+  let current = [];
+  let startLine = 1;
+
+  function flush() {
+    if (!current.length) return;
+    blocks.push({ block: current.join('\n'), lineNo: startLine });
+    current = [];
+  }
+
+  for (const [index, line] of lines.entries()) {
+    if (/^\s*$/.test(line)) {
+      flush();
+      continue;
+    }
+    if (!current.length) startLine = index + 1;
+    current.push(line);
+  }
+  flush();
+
+  return blocks;
+}
+
+function scanActiveLifecycleDocText(text, label) {
+  const issues = [];
+  const lines = text.split(/\r?\n/);
+
+  for (const { block, lineNo } of paragraphBlocks(text)) {
+    if (!/\btest_auto\b/.test(block)) continue;
+
+    const blockLines = block.split(/\r?\n/);
+    for (const [offset, rawLine] of blockLines.entries()) {
+      const line = rawLine.replace(/\s+/g, ' ').trim();
+      if (!line || legacyTestAutoNegatedProcessFactPattern.test(line)) continue;
+      const namesOtherLegacyCommand = legacyTestFixtureCommands
+        .filter(commandName => commandName !== 'test_auto')
+        .some(commandName => new RegExp(`\\b${commandName}\\b`).test(line));
+      if (namesOtherLegacyCommand && !/\btest_auto\b/.test(line)) continue;
+
+      for (const { label: claimLabel, pattern } of legacyTestAutoProcessFactClaimPatterns) {
+        if (pattern.test(line)) {
+          issues.push(`${label}:${lineNo + offset} active lifecycle doc must not claim legacy test_auto ${claimLabel}`);
+        }
+      }
+    }
+  }
+
+  for (const [index, line] of lines.entries()) {
+    if (!line.includes(coverageReviewerLaneName)) continue;
+
+    const lineNo = index + 1;
+    for (const { label: claimLabel, pattern } of coverageReviewerCliCommandPatterns) {
+      if (pattern.test(line)) {
+        issues.push(`${label}:${lineNo} ${coverageReviewerLaneName} must not be documented as a CLI/tool command (${claimLabel})`);
+      }
+    }
+
+    const context = lines
+      .slice(Math.max(0, index - 1), Math.min(lines.length, index + 2))
+      .join('\n');
+    if (!coverageReviewerLaneContextPattern.test(context)) {
+      issues.push(`${label}:${lineNo} ${coverageReviewerLaneName} must be described as a reviewer agent/lane`);
+    }
+  }
+
+  return issues;
+}
+
 function assertSyntheticAdversarialChecks() {
   const badPassOnlyLines = [
     'koala finding_add \'{"storyId":"B-x","desc":"文档一致性检查通过","severity":"low","category":"happy","agent":"koala-review-docs"}\'',
@@ -347,6 +505,72 @@ function assertSyntheticAdversarialChecks() {
     findUninventoriedProcessFactCommands(syntheticCli).includes('surprise_check_set'),
     'synthetic new process fact handler should fail until inventoried',
   );
+
+  const syntheticTypedPolicy = [
+    'export const COMMAND_POLICIES: Record<string, CommandPolicy> = {',
+    '  tricky_command: {',
+    '    status: "supported",',
+    '    allowedPhases: ["PLAN", "REVIEW"],',
+    '    destructiveRisk: "none",',
+    '    reason: "Reviewer\\\'s plan artifact with \\"quotes\\" stays parseable.",',
+    '    replacement: `Use koala validate --story=<storyId> and record verificationEvidence`,',
+    '  },',
+    '} as const satisfies Record<string, CommandPolicy>;',
+  ].join('\n');
+  const syntheticBody = extractExportedObjectBody(syntheticTypedPolicy, 'COMMAND_POLICIES', 'synthetic-command-policy.ts');
+  const syntheticOpen = syntheticBody.indexOf('{');
+  const syntheticBlock = extractBalancedBlock(syntheticBody, syntheticOpen, '{', '}', 'synthetic-command-policy.ts tricky_command');
+  assert(
+    readStringProperty(syntheticBlock, 'reason').includes('Reviewer\'s plan artifact') &&
+      readStringProperty(syntheticBlock, 'replacement').includes('verificationEvidence') &&
+      parseStringArrayProperty(syntheticBlock, 'allowedPhases').includes('REVIEW'),
+    'synthetic command policy parser should tolerate typed exports, apostrophes, escaped quotes, and template strings',
+  );
+
+  const badTestAutoBugDoc = [
+    'Legacy `test_auto` 是兼容 runner。',
+    '6. 自动 bug 管理：fail 创建 bug，pass 自动 fix bug',
+  ].join('\n');
+  assert(
+    scanActiveLifecycleDocText(badTestAutoBugDoc, 'synthetic-test-auto-bug-doc').some(issue => issue.includes('auto bug management')),
+    'synthetic active lifecycle doc that gives test_auto automatic bug management should fail',
+  );
+
+  const badTestAutoEvidenceDoc = [
+    'Legacy `test_auto` 是兼容 runner。',
+    '6. writes test-evidence.json and records verificationEvidence',
+  ].join('\n');
+  assert(
+    scanActiveLifecycleDocText(badTestAutoEvidenceDoc, 'synthetic-test-auto-evidence-doc').some(issue => issue.includes('test-evidence writes')),
+    'synthetic active lifecycle doc that gives test_auto test-evidence writes should fail',
+  );
+
+  const goodTestAutoDoc = [
+    'Legacy `test_auto` 是兼容 runner。',
+    '它不会写 `bug.json`，也不会写 `test-evidence.json`。',
+  ].join('\n');
+  assert(
+    scanActiveLifecycleDocText(goodTestAutoDoc, 'synthetic-test-auto-good-doc').length === 0,
+    'synthetic active lifecycle doc may explicitly say test_auto does not write bug/test evidence',
+  );
+
+  const badCoverageToolDoc = '| `koala-review-test-coverage` | 检查 verificationIntent 覆盖 |';
+  assert(
+    scanActiveLifecycleDocText(badCoverageToolDoc, 'synthetic-coverage-tool-doc').some(issue => issue.includes('CLI/tool command')),
+    'synthetic coverage reviewer documented as a tool table row should fail',
+  );
+
+  const badCoverageBareDoc = '`koala-review-test-coverage` checks coverage.';
+  assert(
+    scanActiveLifecycleDocText(badCoverageBareDoc, 'synthetic-coverage-bare-doc').some(issue => issue.includes('reviewer agent/lane')),
+    'synthetic bare coverage reviewer name without reviewer/lane context should fail',
+  );
+
+  const goodCoverageLaneDoc = 'reviewer lane `koala-review-test-coverage` checks verificationIntent coverage and uses review_pass_set when no blocker exists.';
+  assert(
+    scanActiveLifecycleDocText(goodCoverageLaneDoc, 'synthetic-coverage-good-doc').length === 0,
+    'synthetic coverage reviewer lane wording should pass',
+  );
 }
 
 function extractExportedArrayBody(text, exportName) {
@@ -391,6 +615,50 @@ function extractExportedArrayBody(text, exportName) {
   return '';
 }
 
+function extractBalancedBlock(text, openIndex, openChar, closeChar, label) {
+  let depth = 0;
+  let inString = false;
+  let quote = '';
+  let escaped = false;
+
+  for (let index = openIndex; index < text.length; index += 1) {
+    const char = text[index];
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+    if (inString) {
+      if (char === '\\') escaped = true;
+      else if (char === quote) inString = false;
+      continue;
+    }
+    if (char === '"' || char === "'" || char === '`') {
+      inString = true;
+      quote = char;
+      continue;
+    }
+    if (char === openChar) {
+      depth += 1;
+      continue;
+    }
+    if (char === closeChar) {
+      depth -= 1;
+      if (depth === 0) return text.slice(openIndex + 1, index);
+    }
+  }
+
+  fail(`${label} block should close`);
+  return '';
+}
+
+function extractExportedObjectBody(text, exportName, relPath) {
+  const match = new RegExp(`\\bexport\\s+const\\s+${exportName}\\b(?:\\s*:\\s*[^=]+)?\\s*=\\s*\\{`).exec(text);
+  assert(Boolean(match), `${relPath} should export ${exportName}`);
+  if (!match) return '';
+  const objectStart = match.index + match[0].lastIndexOf('{');
+  return extractBalancedBlock(text, objectStart, '{', '}', `${relPath} ${exportName}`);
+}
+
 let cachedProcessFactLevelEntries = null;
 
 function parseProcessFactLevelRegistry() {
@@ -419,6 +687,134 @@ function parseProcessFactLevelDefinitions() {
   const text = read(processFactLevelRegistryPath);
   const body = extractExportedArrayBody(text, 'PROCESS_FACT_LEVEL_DEFINITIONS');
   return [...body.matchAll(/level:\s*'(L[0-4])'/g)].map(match => match[1]);
+}
+
+let cachedCommandPolicyEntries = null;
+
+function readStringProperty(block, propertyName) {
+  const match = new RegExp(`\\b${propertyName}\\s*:\\s*(['"\`])`).exec(block);
+  if (!match) return '';
+
+  const quote = match[1];
+  let escaped = false;
+  let value = '';
+  for (let index = match.index + match[0].length; index < block.length; index += 1) {
+    const char = block[index];
+    if (escaped) {
+      value += char;
+      escaped = false;
+      continue;
+    }
+    if (char === '\\') {
+      escaped = true;
+      continue;
+    }
+    if (char === quote) return value;
+    value += char;
+  }
+  return '';
+}
+
+function parseStringArrayProperty(block, propertyName) {
+  const match = new RegExp(`\\b${propertyName}\\s*:\\s*\\[`).exec(block);
+  if (!match) return null;
+  const openIndex = match.index + match[0].lastIndexOf('[');
+  const body = extractBalancedBlock(block, openIndex, '[', ']', `${propertyName} array`);
+  const values = [];
+  let index = 0;
+  while (index < body.length) {
+    const quoteIndex = body.slice(index).search(/['"`]/);
+    if (quoteIndex === -1) break;
+    const absoluteQuoteIndex = index + quoteIndex;
+    const quote = body[absoluteQuoteIndex];
+    let escaped = false;
+    let value = '';
+    for (let cursor = absoluteQuoteIndex + 1; cursor < body.length; cursor += 1) {
+      const char = body[cursor];
+      if (escaped) {
+        value += char;
+        escaped = false;
+        continue;
+      }
+      if (char === '\\') {
+        escaped = true;
+        continue;
+      }
+      if (char === quote) {
+        values.push(value);
+        index = cursor + 1;
+        break;
+      }
+      value += char;
+    }
+    if (index <= absoluteQuoteIndex) break;
+  }
+  return values;
+}
+
+function allowedPhasesFromPolicy(policy) {
+  if (policy.allowedPhases === 'all') return [...ALL_PHASES];
+  if (Array.isArray(policy.allowedPhases)) return [...policy.allowedPhases];
+  return [];
+}
+
+function parseCommandPolicyEntries() {
+  if (cachedCommandPolicyEntries) return cachedCommandPolicyEntries;
+
+  if (builtCommandPolicyModule?.COMMAND_POLICIES) {
+    const policies = builtCommandPolicyModule.COMMAND_POLICIES;
+    const entries = Object.entries(policies).map(([name, policy]) => ({
+      name,
+      block: JSON.stringify(policy),
+      status: policy.status || '',
+      reason: policy.reason || '',
+      replacement: policy.replacement || '',
+      destructiveRisk: policy.destructiveRisk || '',
+      hasAllowedPhases: policy.allowedPhases === 'all' || Array.isArray(policy.allowedPhases),
+      allowedPhases: allowedPhasesFromPolicy(policy),
+      rootOnly: policy.rootOnly === true || policy.status === 'rootOnly',
+      gateEvidence: policy.gateEvidence === true || policy.status === 'gateEvidence',
+    }));
+    assert(entries.length > 0, `${commandPolicyPath}: compiled command policy should not be empty`);
+    cachedCommandPolicyEntries = entries;
+    return entries;
+  }
+
+  const text = read(commandPolicyPath);
+  const body = extractExportedObjectBody(text, 'COMMAND_POLICIES', commandPolicyPath);
+  const entries = [];
+  const keyPattern = /^\s*([a-z_][a-z0-9_]*):\s*\{/gm;
+  for (const match of body.matchAll(keyPattern)) {
+    const name = match[1];
+    const openIndex = match.index + match[0].lastIndexOf('{');
+    const block = extractBalancedBlock(body, openIndex, '{', '}', `${commandPolicyPath} ${name}`);
+    const status = readStringProperty(block, 'status');
+    const reason = readStringProperty(block, 'reason');
+    const replacement = readStringProperty(block, 'replacement');
+    const destructiveRisk = readStringProperty(block, 'destructiveRisk');
+    const allowedPhases = /\ballowedPhases\s*:\s*(['"`])all\1/.test(block)
+      ? [...ALL_PHASES]
+      : (parseStringArrayProperty(block, 'allowedPhases') || []);
+    entries.push({
+      name,
+      block,
+      status,
+      reason,
+      replacement,
+      destructiveRisk,
+      hasAllowedPhases: /\ballowedPhases\s*:/.test(block),
+      allowedPhases,
+      rootOnly: /\brootOnly:\s*true\b/.test(block) || status === 'rootOnly',
+      gateEvidence: /\bgateEvidence:\s*true\b/.test(block) || status === 'gateEvidence',
+    });
+  }
+
+  const declaredObjectCount = [...body.matchAll(/^\s*[a-z_][a-z0-9_]*:\s*\{/gm)].length;
+  assert(entries.length === declaredObjectCount, `${commandPolicyPath}: every policy entry must be parseable as commandName: { ... }`);
+  assert(entries.length > 0, `${commandPolicyPath}: command policy should not be empty`);
+
+  cachedCommandPolicyEntries = entries;
+  return entries;
 }
 
 function duplicateNames(values) {
@@ -450,6 +846,88 @@ function findUninventoriedProcessFactCommands(cliText, inventory = processFactRe
   return extractCliToolNames(cliText)
     .filter(isProcessFactCommandName)
     .filter(commandName => !inventory.has(commandName));
+}
+
+function assertCommandPolicyInventory(cliToolNames) {
+  const text = read(commandPolicyPath);
+  for (const helperName of ['getCommandLifecyclePolicy', 'formatCommandLifecycleHint', 'getCommandPolicyEntries']) {
+    assert(text.includes(helperName), `${commandPolicyPath}: missing helper ${helperName}`);
+  }
+
+  const policyEntries = parseCommandPolicyEntries();
+  const policyNames = policyEntries.map(entry => entry.name);
+  const policyByName = new Map(policyEntries.map(entry => [entry.name, entry]));
+  const cliToolNameSet = new Set(cliToolNames);
+
+  const duplicatePolicyNames = duplicateNames(policyNames);
+  assert(
+    duplicatePolicyNames.length === 0,
+    `${commandPolicyPath}: duplicate policy entries: ${duplicatePolicyNames.join(', ')}`,
+  );
+
+  const missingPolicyEntries = cliToolNames.filter(commandName => !policyByName.has(commandName));
+  assert(
+    missingPolicyEntries.length === 0,
+    `${commandPolicyPath}: MAIN_TOOLS command(s) missing lifecycle policy: ${missingPolicyEntries.join(', ')}`,
+  );
+
+  const unknownPolicyEntries = policyNames.filter(name => !cliToolNameSet.has(name));
+  assert(
+    unknownPolicyEntries.length === 0,
+    `${commandPolicyPath}: lifecycle policy entry not present in MAIN_TOOLS: ${unknownPolicyEntries.join(', ')}`,
+  );
+
+  for (const entry of policyEntries) {
+    assert(commandPolicyStatuses.has(entry.status), `${commandPolicyPath}: ${entry.name} has unknown status "${entry.status}"`);
+    assert(entry.reason.trim().length > 0, `${commandPolicyPath}: ${entry.name} must explain lifecycle reason`);
+    assert(entry.hasAllowedPhases || entry.rootOnly, `${commandPolicyPath}: ${entry.name} must declare allowedPhases or rootOnly`);
+    assert(entry.destructiveRisk !== '', `${commandPolicyPath}: ${entry.name} must declare destructiveRisk, even when none`);
+  }
+
+  for (const commandName of legacyTestFixtureCommands) {
+    const entry = policyByName.get(commandName);
+    assert(entry, `${commandPolicyPath}: legacy test/fixture command missing policy: ${commandName}`);
+    if (!entry) continue;
+
+    const guidance = legacyCommandPolicyGuidance[commandName];
+    assert(entry.status === 'legacy', `${commandPolicyPath}: ${commandName} must be classified as legacy`);
+    assert(entry.rootOnly, `${commandPolicyPath}: ${commandName} must stay rootOnly/phase-gated`);
+    assert(entry.replacement.trim().length > 0, `${commandPolicyPath}: ${commandName} must include replacement guidance`);
+    assert(
+      entry.destructiveRisk === guidance.destructiveRisk,
+      `${commandPolicyPath}: ${commandName} destructiveRisk drifted: expected ${guidance.destructiveRisk}, got ${entry.destructiveRisk || '<missing>'}`,
+    );
+    for (const pattern of guidance.patterns) {
+      assert(
+        pattern.test(entry.block),
+        `${commandPolicyPath}: ${commandName} replacement/destructive guidance missing ${pattern}`,
+      );
+    }
+  }
+}
+
+function assertActiveLifecycleDocGuidance() {
+  for (const relPath of activeLifecycleDocPaths) {
+    const text = read(relPath);
+    for (const term of activeLifecycleDocCurrentTerms) {
+      assert(text.includes(term), `${relPath}: active lifecycle docs must mention current flow term "${term}"`);
+    }
+    for (const issue of scanActiveLifecycleDocText(text, relPath)) fail(issue);
+
+    const lines = text.split(/\r?\n/);
+    for (const [index, line] of lines.entries()) {
+      const commandName = legacyTestFixtureCommands.find(command => new RegExp(`\\b${command}\\b`).test(line));
+      if (!commandName) continue;
+
+      const contextStart = Math.max(0, index - 2);
+      const contextEnd = Math.min(lines.length, index + 3);
+      const context = lines.slice(contextStart, contextEnd).join('\n');
+      assert(
+        legacyCommandDocContextPattern.test(context),
+        `${relPath}:${index + 1} ${commandName} mention must be labelled legacy/compat/maintenance or be in historical context`,
+      );
+    }
+  }
 }
 
 function stripTsComments(text) {
@@ -542,6 +1020,79 @@ function extractPhaseToolEntries(configText, phaseName) {
   return entries;
 }
 
+function patternMatchesCommand(pattern, commandName) {
+  if (pattern.endsWith('*')) return commandName.startsWith(pattern.slice(0, -1));
+  return pattern === commandName;
+}
+
+function getDefaultPhaseToolEntries(configText, phaseName) {
+  if (builtConfigModule?.DEFAULT_PHASE_TOOLS) {
+    return new Set([
+      ...(builtConfigModule.DEFAULT_PHASE_TOOLS['*'] || []),
+      ...(builtConfigModule.DEFAULT_PHASE_TOOLS[phaseName] || []),
+    ]);
+  }
+  return new Set([
+    ...extractPhaseToolEntries(configText, '*'),
+    ...extractPhaseToolEntries(configText, phaseName),
+  ]);
+}
+
+function commandAllowedByDefaultConfig(commandName, phaseName, configText) {
+  if (builtConfigModule?.isCommandAllowed) {
+    return builtConfigModule.isCommandAllowed(commandName, phaseName);
+  }
+  const patterns = getDefaultPhaseToolEntries(configText, phaseName);
+  return [...patterns].some(pattern => patternMatchesCommand(pattern, commandName));
+}
+
+function patternHasPolicyApprovedCommand(pattern, phaseName, policyEntries) {
+  return policyEntries.some(entry => (
+    patternMatchesCommand(pattern, entry.name) && entry.allowedPhases.includes(phaseName)
+  ));
+}
+
+function assertCommandPolicyPhaseAlignment(policyEntries, configText) {
+  for (const entry of policyEntries) {
+    for (const phaseName of ALL_PHASES) {
+      const policyAllows = entry.allowedPhases.includes(phaseName);
+      const defaultAllows = commandAllowedByDefaultConfig(entry.name, phaseName, configText);
+      assert(
+        defaultAllows === policyAllows,
+        `${commandPolicyPath} + packages/main/src/core/config.ts: ${entry.name} ${phaseName} policy/default phase drift (policy=${policyAllows}, isCommandAllowed=${defaultAllows})`,
+      );
+    }
+  }
+
+  for (const phaseName of ALL_PHASES) {
+    for (const pattern of getDefaultPhaseToolEntries(configText, phaseName)) {
+      assert(
+        patternHasPolicyApprovedCommand(pattern, phaseName, policyEntries),
+        `packages/main/src/core/config.ts: DEFAULT_PHASE_TOOLS ${phaseName} pattern "${pattern}" has no command allowed by COMMAND_POLICIES`,
+      );
+    }
+  }
+
+  assert(
+    commandAllowedByDefaultConfig('understanding_get', 'REVIEW', configText) &&
+      commandAllowedByDefaultConfig('decision_get', 'REVIEW', configText),
+    'packages/main/src/core/config.ts: REVIEW must allow understanding_get and decision_get for reviewer access to planning artifacts',
+  );
+}
+
+function assertL4ProducerOrReplacement(registryEntries, policyByName, configText) {
+  for (const entry of registryEntries.filter(item => item.level === 'L4')) {
+    const policy = policyByName.get(entry.name);
+    assert(policy, `${commandPolicyPath}: L4 command ${entry.name} must have lifecycle policy`);
+    if (!policy) continue;
+    const producerPhases = ALL_PHASES.filter(phaseName => commandAllowedByDefaultConfig(entry.name, phaseName, configText));
+    assert(
+      producerPhases.length > 0 || policy.replacement.trim().length > 0,
+      `${commandPolicyPath}: L4 command ${entry.name} must have a DEFAULT_PHASE_TOOLS producer phase or replacement guidance`,
+    );
+  }
+}
+
 function assertProcessFactCommandInventory() {
   const cliText = read('packages/main/src/cli-engine.ts');
   const configText = read('packages/main/src/core/config.ts');
@@ -549,6 +1100,10 @@ function assertProcessFactCommandInventory() {
   const cliToolNameSet = new Set(cliToolNames);
   const registryEntries = parseProcessFactLevelRegistry();
   const registry = new Map(registryEntries.map(entry => [entry.name, entry]));
+  const policyEntries = parseCommandPolicyEntries();
+  const policyByName = new Map(policyEntries.map(entry => [entry.name, entry]));
+  assertCommandPolicyInventory(cliToolNames);
+  assertCommandPolicyPhaseAlignment(policyEntries, configText);
 
   const definitionLevels = new Set(parseProcessFactLevelDefinitions());
   for (const level of ['L0', 'L1', 'L2', 'L3', 'L4']) {
@@ -604,6 +1159,7 @@ function assertProcessFactCommandInventory() {
     l4WithoutGate.length === 0,
     `${processFactLevelRegistryPath}: L4 entry must declare gateConsumer: ${l4WithoutGate.join(', ')}`,
   );
+  assertL4ProducerOrReplacement(registryEntries, policyByName, configText);
 
   const missingRuntimeEntries = requiredRuntimeEntries
     .map(entry => entry.name)
@@ -875,6 +1431,7 @@ for (const dir of promptDirs) {
 }
 comparePromptSemantics(promptMap);
 assertSyntheticAdversarialChecks();
+assertActiveLifecycleDocGuidance();
 assertProcessFactCommandInventory();
 printProcessFactLevelRegistrySummary();
 

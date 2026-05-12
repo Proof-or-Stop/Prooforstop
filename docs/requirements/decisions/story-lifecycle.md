@@ -4,7 +4,7 @@
 >
 > `INIT -> INIT_CHECK -> PLAN/快速跳过 -> DEV -> REVIEW -> TEST -> DONE`
 >
-> 旧 `TEST_CASE` / `TEST_CASE_REVIEW` / `testIntent` 只作为 legacy 兼容数据保留。当前活跃口径是 checklist item 上的 `verificationIntent`，DEV/REVIEW/TEST 阶段记录的 `verificationEvidence`，REVIEW 阶段的 coverage/reviewer gate，以及 TEST 阶段的 `koala validate`。
+> 旧 `TEST_CASE` / `TEST_CASE_REVIEW` / `testIntent` 只作为 legacy 兼容数据保留。当前活跃口径是 checklist item 上的 `verificationIntent`，DEV/REVIEW/TEST 阶段记录的 `verificationEvidence`，REVIEW 阶段的 reviewer agent/lane（包含 `koala-review-test-coverage` 覆盖审查 lane），以及 TEST 阶段的 `koala validate`。
 
 ## 阶段流转
 
@@ -28,7 +28,7 @@ Koala 给可执行主流程 phase 一个稳定编号，用于 `koala status` 展
 | 3/8 | INIT_CHECK | worktree bootstrap 检查/创建阶段 |
 | 4/8 | PLAN | 理解快照、checklist、verificationIntent、必要 decision |
 | 5/8 | DEV | 实现代码并记录 verificationEvidence |
-| 6/8 | REVIEW | reviewer 审实现，coverage gate 审 verificationIntent 覆盖 |
+| 6/8 | REVIEW | reviewer 审实现，coverage reviewer lane 审 verificationIntent 覆盖 |
 | 7/8 | TEST | `koala validate` 写 validation evidence / bug |
 | 8/8 | DONE | 完成、合并、清理 worktree |
 
@@ -58,14 +58,14 @@ Koala 给可执行主流程 phase 一个稳定编号，用于 `koala status` 展
 | INIT_CHECK | worktree bootstrap | init reviewers / draft gate 通过，git 可用 | `.worktrees/B-xxx`、`story/B-xxx` |
 | PLAN | 拆解和验收意图 | cwd 在 worktree；高风险 story 要 understanding + decision/preMortem | understanding、checklist、verificationIntent、decision |
 | DEV | 实现和记录证据 | PLAN/review gate 允许 | 代码、checklist status、verificationEvidence |
-| REVIEW | 独立审查 | DEV checklist 已完成、改动已提交 | reviewer findings、coverage result |
+| REVIEW | 独立审查 | DEV checklist 已完成、改动已提交 | reviewer findings、coverage reviewer result / review pass |
 | TEST | 自动验证 | REVIEW blocker 已解决，preflight gate 通过 | `koala validate` evidence、bug/test runs |
 | DONE | 收束 | validate PASS、bug fixed、evidence fresh、summary/delivery gate 通过、branch 包含 main | merge main、清理 worktree、summary |
 | DISCARDED | 已废弃 | `story_discard` | discard event、清理结果 |
 
 ## 自动回退
 
-- **REVIEW fail**：finding 或 coverage gate 发现问题时回 DEV。
+- **REVIEW fail**：finding 或 coverage reviewer lane 发现问题时回 DEV。
 - **TEST fail**：`koala validate` 失败后写 bug/evidence，修复路径回 DEV。
 - **DONE gate fail**：保留在 TEST，按 DONE checklist 的失败项补 evidence、summary、delivery check、main sync 或 git clean。
 
@@ -140,7 +140,7 @@ B-xxxx REVIEW (authority:worktree, mirror:INIT_CHECK)
 |---|---|
 | `checklist_add` | 必要时追加 item，并补 verificationIntent；PLAN 阶段必须提供 replan/scope audit reason |
 | `checklist_update` | 可改 status + verificationIntent + verificationEvidence |
-| `fixture_batch_add` / `fixture_update` | 可提前补兼容验证 |
+| `fixture_batch_add` / `fixture_update` | legacy/compat 维护入口，只用于旧 fixture 或迁移；新流程用 `checklist_update` 补 `verificationEvidence` |
 | `koala validate` | 可手动预检，正式 evidence 在 TEST gate 写入 |
 | `story_advance -> REVIEW` | checklist 完成且改动提交后推进 |
 
@@ -150,9 +150,10 @@ B-xxxx REVIEW (authority:worktree, mirror:INIT_CHECK)
 |---|---|
 | `finding_*` | reviewer 记录 findings |
 | `reviewer_list` | 查看需要哪些 reviewer |
-| `koala-review-test-coverage` | 检查 verificationIntent 覆盖 |
 | `story_advance -> TEST` | blocker 解决、preflight 通过后推进 |
 | `story_advance -> DEV` | 有问题时回实现 |
+
+`koala-review-test-coverage` 是 REVIEW 阶段的 reviewer agent/lane 名称，不是 `koala` CLI 命令或 phase tool。它检查 `verificationIntent` / `verificationEvidence` 覆盖；无 blocker 时通过 `review_pass_set` 写 review pass，内部 coverage validation 消费这些结构化 evidence。
 
 ### TEST
 
@@ -169,7 +170,7 @@ B-xxxx REVIEW (authority:worktree, mirror:INIT_CHECK)
 
 - `koala validate`：TEST gate 消费其结果作为 validation evidence。
 - `verification_evidence_refresh_stale`：只刷新已经 stale 且原 evidence 仍存在的 intentRef；它不会替你证明测试真的跑过，因此 dry-run 输出里的 command 应先重跑。
-- `fixture_*`：DEV 可提前写验证；REVIEW/TEST 主要读取证据，不应绕过 review 改行为。
+- `fixture_*`：legacy/compat 维护入口；DEV 如需迁移旧 fixture 可用，但新 story 不应把它当作标准验证流。REVIEW/TEST 主要读取 `verificationEvidence`，不应绕过 review 改行为。
 - `checklist_update`：PLAN 补 intent，DEV 补 status/evidence，其余阶段谨慎使用。
 - `summary_set`：不是形式总结，DONE gate 和最终用户交付都要消费。
 
@@ -177,7 +178,7 @@ B-xxxx REVIEW (authority:worktree, mirror:INIT_CHECK)
 
 - **主 agent**：写需求、拆 checklist、写代码、补 evidence、修 bug。
 - **test-intent / verification-intent agent**：写验收标准，逼出 edge/adversarial。
-- **reviewer**：审实现和覆盖，独立记录 finding / delivery check。
+- **reviewer**：审实现和覆盖；`koala-review-test-coverage` 是其中一个 reviewer lane。无 blocker 时写 `review_pass_set`，有 blocker 时独立记录 finding / delivery check。
 - **用户**：最终产品价值裁决者。
 
 主 agent 不是裁判。reviewer fail 了，正确反应是读懂反馈并修复，而不是解释到 pass。

@@ -3,6 +3,7 @@ import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import type { WorkflowProfile } from './types.js';
 import { resolveAuditConfig as _resolveAuditConfig, type AuditConfig } from './audit-config.js';
+import { getCommandLifecyclePolicy, getCommandPolicyEntries, policyAllowedPhaseLabels } from './command-policy.js';
 
 /**
  * audit-config 扩展点（B-9bd9 CHK-004）：
@@ -100,7 +101,7 @@ export interface KoalaConfig {
 }
 
 /** 默认各阶段可用命令白名单 */
-const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
+export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
   '*': [
     'session_brief', // read-only recovery entrypoint; must work in every phase
     'next',          // read-only single next action, shares session_brief authority rules
@@ -160,6 +161,7 @@ const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
   REVIEW: [
     'finding_add', 'finding_list', 'finding_resolve', 'finding_dismiss',
     'review_pass_set',
+    'understanding_get', 'decision_get',
     'finding_dispatch', // B-45ed CHK-010: 主 agent 派发 finding 修复
     'finding_cluster',  // B-9d95 CHK-005: auto/merge/split 聚簇
     'validate', 'status',
@@ -180,6 +182,39 @@ const ALWAYS_ALLOWED_READ_ONLY_COMMANDS = new Set([
   'session_brief',
   'next',
 ]);
+
+function isPhaseToolsRecord(value: unknown): value is Record<string, string[]> {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+function patternMatchesCommand(pattern: string, cmd: string): boolean {
+  if (pattern.endsWith('*')) return cmd.startsWith(pattern.slice(0, -1));
+  return cmd === pattern;
+}
+
+function commandAllowedByPatterns(cmd: string, phase: string, phaseTools: Record<string, string[]>): boolean {
+  const globalList = phaseTools['*'] || [];
+  const phaseList = phaseTools[phase] || [];
+  const all = [...globalList, ...phaseList].filter((p): p is string => typeof p === 'string');
+  return all.some(pattern => patternMatchesCommand(pattern, cmd));
+}
+
+function commandAllowedByLifecyclePolicy(cmd: string, phase: string): boolean {
+  const policy = getCommandLifecyclePolicy(cmd);
+  if (!policy) return true;
+
+  const allowedPhases = policyAllowedPhaseLabels(policy);
+  if (allowedPhases.length === 0) return false;
+  return allowedPhases.includes(phase);
+}
+
+function patternAllowedByLifecyclePolicy(pattern: string, phase: string): boolean {
+  if (!pattern.endsWith('*')) return commandAllowedByLifecyclePolicy(pattern, phase);
+
+  return getCommandPolicyEntries().some(([command]) => (
+    patternMatchesCommand(pattern, command) && commandAllowedByLifecyclePolicy(command, phase)
+  ));
+}
 
 const DEFAULT_CONFIG: KoalaConfig = {
   scanRoot: 'src',
@@ -248,23 +283,17 @@ export function resetConfigCache(): void {
  */
 export function isCommandAllowed(cmd: string, phase: string, phaseTools?: Record<string, string[]>): boolean {
   if (ALWAYS_ALLOWED_READ_ONLY_COMMANDS.has(cmd)) return true;
-  if (phaseTools !== undefined && (phaseTools === null || typeof phaseTools !== 'object' || Array.isArray(phaseTools))) return true; // 非对象降级全量放行
+  if (!commandAllowedByLifecyclePolicy(cmd, phase)) return false;
+  if (phaseTools !== undefined && !isPhaseToolsRecord(phaseTools)) return true; // malformed config falls back to policy ceiling only
   const pt = phaseTools || DEFAULT_PHASE_TOOLS;
-  const globalList = pt['*'] || [];
-  const phaseList = pt[phase] || [];
-  const all = [...globalList, ...phaseList].filter((p): p is string => typeof p === 'string');
-  return all.some(pattern => {
-    if (pattern.endsWith('*')) {
-      return cmd.startsWith(pattern.slice(0, -1));
-    }
-    return cmd === pattern;
-  });
+  return commandAllowedByPatterns(cmd, phase, pt);
 }
 
 /**
  * 获取指定阶段所有允许的命令模式列表。
  */
 export function getAllowedPatterns(phase: string, phaseTools?: Record<string, string[]>): string[] {
-  const pt = phaseTools || DEFAULT_PHASE_TOOLS;
-  return Array.from(new Set([...ALWAYS_ALLOWED_READ_ONLY_COMMANDS, ...(pt['*'] || []), ...(pt[phase] || [])]));
+  const pt = isPhaseToolsRecord(phaseTools) ? phaseTools : DEFAULT_PHASE_TOOLS;
+  return Array.from(new Set([...ALWAYS_ALLOWED_READ_ONLY_COMMANDS, ...(pt['*'] || []), ...(pt[phase] || [])]))
+    .filter(pattern => ALWAYS_ALLOWED_READ_ONLY_COMMANDS.has(pattern) || patternAllowedByLifecyclePolicy(pattern, phase));
 }

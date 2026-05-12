@@ -81,16 +81,20 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
         if (existsSync(pkgPath)) {
           const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
           if (pkg.name === '@koala-agent/core') {
-            throw new Error('koala 自身项目禁止 test_auto 全量测试（会自己测自己导致副作用污染）。请用 test_story 按 storyId 跑');
+            throw new Error('koala 自身项目禁止 test_auto 全量测试（会自己测自己导致副作用污染）。请运行 koala validate --story=<storyId>，并用 checklist_update 或 verification_evidence_add 记录 verificationEvidence');
           }
         }
       } catch (e: any) {
         if (e.message.includes('禁止 test_auto')) throw e;
       }
 
+      if (args.confirm !== true) {
+        throw new Error('test_auto 真实执行需要 confirm:true；请先用 dryRun:true 查看 git restore/git clean cleanup 范围');
+      }
+
       // CHK-004: storyId 已废弃
       if (args.storyId) {
-        warnings.push('⚠ storyId 已废弃，test_auto 现在始终执行全量回归。story 级测试请用 test_story');
+        warnings.push('⚠ storyId 已废弃，test_auto 现在始终执行全量回归。当前 story 验证请用 koala validate --story=<storyId> 并记录 verificationEvidence');
       }
       progress(`[DEBUG] root=${root}`);
       progress(`[DEBUG] config.fixturesDir=${config.fixturesDir}`);
@@ -257,7 +261,7 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
         }
       }
 
-      // CHK-004: test_auto 全量回归不写 bug/evidence（用 test_story 写）
+      // CHK-004: test_auto 全量回归不写 bug/evidence（当前流程用 koala validate + verificationEvidence）
       const totalCases = fixtureResults.reduce((sum, r) => sum + r.cases.length, 0);
       const passedCases = fixtureResults.reduce((sum, r) => sum + r.cases.filter(c => c.passed).length, 0);
       const browserAllPassed = browserResults.every(r => r.passed);

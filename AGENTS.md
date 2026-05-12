@@ -6,8 +6,8 @@
 > Older references below to `TEST_CASE`, `TEST_CASE_REVIEW`, `testIntent`,
 > fixture-only validation, or `test_auto` are legacy background. The current
 > replacement is `verificationIntent` on checklist items, `verificationEvidence`
-> recorded during DEV/REVIEW/TEST, `koala-review-test-coverage` in REVIEW, and
-> `koala validate` in TEST.
+> recorded during DEV/REVIEW/TEST, reviewer lane `koala-review-test-coverage`
+> in REVIEW, and `koala validate` in TEST.
 
 ## 行为准则
 
@@ -64,11 +64,11 @@
 ## Story 阶段流转
 
 ```
-INIT → INIT_CHECK → PLAN → DEV → TEST_CASE → TEST_CASE_REVIEW → TEST → DONE
+INIT → INIT_CHECK → PLAN/快速跳过 → DEV → REVIEW → TEST → DONE
        (创建 worktree)  ↑ cwd 门禁：必须在 worktree 里执行 koala 命令 ↑
 ```
 
-> 每次 `story_advance` 和 `testintent_check` 返回的 `hint` 会告诉你下一步做什么，不需要记忆状态跳转规则。
+> 每次 `story_advance`、`checklist_update`、`koala validate` 返回的 `hint` 会告诉你下一步做什么，不需要记忆状态跳转规则。
 
 ### 各阶段职责与 Agent 分工
 
@@ -76,19 +76,20 @@ INIT → INIT_CHECK → PLAN → DEV → TEST_CASE → TEST_CASE_REVIEW → TEST
 |---|---|---|
 | **INIT** | 主 agent | `story_create` 后停在这，story 文件在 main 分支上 |
 | **INIT_CHECK** | CLI 自动 | `story_advance INIT_CHECK` 创建 `.worktrees/B-xxx/` worktree，提示 cd |
-| **PLAN** | 主 agent 拆 checklist item（title + context），**test-intent agent** 写 testIntent + 标 type | story_review 门禁通过后进 DEV |
-| **DEV** | 主 agent | 写代码实现，不写测试。**只有此阶段可改代码** |
-| **TEST_CASE** | 主 agent | 根据 testIntent 编写 fixture case。**只改 fixture，不改代码** |
-| **TEST_CASE_REVIEW** | **test-case-reviewer agent** | 逐条审核 testIntent 是否有对应测试，调 CLI 记录结果。**不改代码也不改 case** |
-| **TEST** | CLI 自动 | `test_auto` 跑全部 fixture + e2e（含 V8 profiler trace） |
-| **DONE** | — | 完成（所有 bug 已 fixed），`story_advance --phase=DONE` 内部合并回 main 并清理 worktree |
+| **PLAN** | 主 agent 拆 checklist item（title + context），verification-intent agent 补 `verificationIntent` | `story_review` 门禁通过后进 DEV |
+| **DEV** | 主 agent | 写代码实现，通过 `checklist_update` 标 status 并记录 `verificationEvidence`。**只有此阶段可改代码** |
+| **REVIEW** | reviewer / coverage reviewer lane | 审实现和 `verificationIntent` 覆盖；无问题通过 `review_pass_set` 写 review pass，有问题写 finding 并回 DEV |
+| **TEST** | CLI / 主 agent | 跑 `koala validate`，写 validation evidence / bug / stale evidence 结果 |
+| **DONE** | — | 完成（所有 bug 已 fixed，summary / delivery / evidence gate 通过），`story_advance --phase=DONE` 内部合并回 main 并清理 worktree |
+
+`TEST_CASE` / `TEST_CASE_REVIEW` 是 legacy 兼容 phase，只用于旧 story 可读性、迁移或维护；新 story 不应主动进入。
 
 ### Git Clean 门禁
 
-进入 TEST_CASE / TEST_CASE_REVIEW / TEST 前，`story_advance` 会检查 `git status --porcelain`。
-有未 commit 的改动时拒绝推进，因为 `test_auto` 执行后会 `git restore . && git clean -fd`，**未 commit 的代码和 fixture 会全部丢失**。
+进入 REVIEW / TEST / DONE 前，`story_advance` 会按 phase gate 检查 `git status --porcelain`。
+有未 commit 的改动时先提交再推进；legacy `test_auto` 仍是 workspace-destructive 兼容命令，执行后可能 `git restore . && git clean -fd`，只能在维护旧 fixture 时谨慎使用。
 
-→ 每次写完代码或 fixture 后，先 `git add + git commit`，再 `story_advance`。
+→ 每次写完代码、文档或证据更新后，先 `git add + git commit`，再 `story_advance`。
 
 ### Worktree 自动管理
 
@@ -100,13 +101,13 @@ INIT → INIT_CHECK → PLAN → DEV → TEST_CASE → TEST_CASE_REVIEW → TEST
 2. `story_advance INIT_CHECK` → 自动创建 `.worktrees/B-xxx/`，分支 `story/B-xxx`
 3. **`cd .worktrees/B-xxx`**（必须切，否则下一步会被 cwd 门禁拒绝）
 4. `story_advance PLAN` → cwd 门禁通过，正式进入开发流程
-5. PLAN/DEV/TEST_CASE/TEST_CASE_REVIEW/TEST 全部在 worktree 里完成
-6. `story_advance --phase=TEST` → 推进 TEST，自动跑测试
+5. PLAN/DEV/REVIEW/TEST 全部在 worktree 里完成
+6. `story_advance --phase=TEST` → 进入 TEST，按 hint 运行 `koala validate`
 7. `story_advance --phase=DONE` → 内部自动合并回 main 并清理 worktree（dev_finish/dev_merge 是内部 handler，无独立 CLI 入口）
 
 **cwd 门禁**：PLAN 起所有 phase 的 `story_advance` 都会校验当前 cwd 是 story 的 worktree。不在 worktree 时报错并提示 cd。
 
-**Sub agent 工作目录约定**：sub agent（test-intent / test-case-reviewer）**不要**使用 Codex 的 `isolation: "worktree"`，否则它们的 koala CLI 调用会落到独立分支，主 agent 看不到 checklist/testIntent 的更新。sub agent 直接在主 agent 的 story worktree 里跑即可。
+**Sub agent 工作目录约定**：sub agent（verification-intent；旧名 test-intent / test-case-reviewer 只作兼容）**不要**使用 Codex 的 `isolation: "worktree"`，否则它们的 koala CLI 调用会落到独立分支，主 agent 看不到 checklist / `verificationIntent` 的更新。sub agent 直接在主 agent 的 story worktree 里跑即可。
 
 **配置**：worktree 路径默认 `.worktrees`，可在 `koala.config.json` 的 `worktreeDir` 字段自定义。`.worktrees/` 自动加入 `.gitignore`。
 
@@ -119,19 +120,21 @@ INIT → INIT_CHECK → PLAN → DEV → TEST_CASE → TEST_CASE_REVIEW → TEST
 ### TEST 阶段详细流程
 
 ```
-test_auto 执行
-  ├─ case PASS → 保存 trace 快照 → 若有关联 bug 则自动标 fixed
-  ├─ case FAIL → 自动 aux_diagnose（lastPass trace diff + git diff）→ 自动 bug_report
-  └─ trace 变化 → 输出 warning（调用链分叉/新增/消失）
-→ 全部 PASS + 所有 bug fixed → DONE
-→ 有 FAIL → hint 回退 DEV → 修复 → 重跑 test_auto
+koala validate 执行
+  ├─ validation PASS → 写 validation evidence（含 HEAD/material hash）
+  ├─ validation FAIL → 写 bug/evidence，hint 回 DEV 修复
+  └─ verification coverage missing/stale → allPass:false，提示补 `verificationEvidence`
+→ validate PASS + bug fixed + DONE pre-check 全绿 → DONE
+→ 有 FAIL / stale / missing evidence → 回 DEV 或补对应证据后重跑 `koala validate`
 ```
+
+Legacy 背景：`test_auto` / `test_story` / `test_fixture` 只作为旧 fixture 兼容或维护入口，不是新 story 的标准验证流。
 
 ### 三方制衡
 
-- **主 agent**：写需求（checklist item）+ 写代码 + 写测试
-- **test-intent agent**：写验收标准（testIntent），对抗姿态逼出 edge/adversarial
-- **test-case-reviewer agent**：审验收，独立验证测试覆盖和通过情况
+- **主 agent**：写需求（checklist item）+ 写代码 + 补 `verificationEvidence` + 修 bug
+- **verification-intent agent**：写验收标准（`verificationIntent`），对抗姿态逼出 edge/adversarial
+- **reviewer / coverage reviewer lane**：审实现和验收覆盖；`koala-review-test-coverage` 是 reviewer lane，不是 CLI 命令。无 blocker 时通过 `review_pass_set` 记录 pass，有问题时独立记录 finding / delivery check
 
 主 agent 和 sub agent 是**同事关系**，不是上下级。共同目标是高质量完成任务。主 agent 是与人沟通的入口和主要参与者，但不是掌控者。reviewer 和 test-intent agent 有各自的判定权，主 agent 不应该绕过他们。
 
@@ -144,7 +147,7 @@ subagent prompt 文件放在 `.Codex/agents/` 下（Codex 官方约定）；Koal
 ```markdown
 ---
 name: test-case-reviewer
-description: 审查 testIntent 覆盖和测试通过情况
+description: legacy reviewer；当前审查 verificationIntent 覆盖和验证证据
 model: sonnet
 tools: Read, Glob, Grep, Bash
 ---
@@ -167,7 +170,7 @@ koala --root /path/to/project ...   # 指定项目根目录
 ### 常用命令速查
 
 ```bash
-# 创建 Story（有 checklist 时停在 PLAN，checklist 只写 title+context，testIntent 由 test-intent agent 填）
+# 创建 Story（有 checklist 时停在 PLAN，checklist 只写 title+context，verificationIntent 由 intent/reviewer flow 填）
 koala story_create '{"name":"xxx","title":"...","description":"...","type":"feature","priority":"high","checklist":[{"title":"做什么","context":"根因/参考方案"}]}'
 
 # 对抗审查（PLAN 阶段必须通过才能进 DEV）
@@ -175,9 +178,6 @@ koala story_review '{"storyId":"B-xxx"}'
 
 # 推进阶段（PLAN→DEV 时自动创建 .worktrees/B-xxx/，需 cd 进去开发）
 koala story_advance '{"storyId":"B-xxx","phase":"DEV"}'
-
-# 批量添加 fixture case
-koala fixture_batch_add '{"fixturePath":"game-logic","cases":[{"name":"test1","run_type":"cli","file":"mcp/handlers/my","execute":"return $handlers.myTool({})","expect":true}]}'
 
 # PLAN 阶段产物：理解快照 + 结构化决策
 koala understanding_set '{"storyId":"B-xxx","task":"...","outcome":"...","facts":[...],"constraints":[...],"unknowns":[...],"touchpoints":[...]}'
@@ -191,15 +191,20 @@ koala testintent_resume '{"storyId":"B-xxx","itemId":"CHK-001","lane":"happy","i
 # checklist
 koala checklist_get '{"storyId":"B-xxx"}'
 koala checklist_update '{"storyId":"B-xxx","itemId":"CHK-001","status":"done"}'
+koala checklist_update '{"storyId":"B-xxx","itemId":"CHK-001","verificationEvidence":[{"kind":"logic_test","intentRef":"CHK-001:happy:0","command":"npm test -- --runInBand","result":"pass","note":"npm test passed and covers CHK-001:happy:0"}]}'
 
 # 文档列表（PLAN 阶段挑 relatedDocs 用，扫 docs/ + requirements/ + 根目录的 Codex/README/AGENTS）
 koala aux_doc_list                          # text 格式，按目录分组 + H1 标题 + 修改时间
 koala aux_doc_list '{"format":"json"}'      # json 格式
 
-# 测试
-koala test_auto                       # 全量回归：跑所有 fixture 所有 case（CI/发版前用）
-koala test_story '{"storyId":"B-xxx"}'  # story 级测试：只跑关联 case，写 bug/evidence
-koala test_fixture '{"fixtureId":"uuid"}'  # 单 case/单链测试：按 _id 定位
+# 验证
+koala validate --story=B-xxx          # 当前标准验证入口，写 validation evidence / bug / stale evidence 结果
+
+# Legacy fixture/test 兼容维护（旧 story、迁移、诊断旧 fixture 时才用；不是新流程默认入口）
+koala fixture_batch_add '{"fixturePath":"game-logic","cases":[{"name":"test1","run_type":"cli","file":"mcp/handlers/my","execute":"return $handlers.myTool({})","expect":true}]}'
+koala test_auto                       # legacy 全量 fixture runner，可能执行 git restore/clean
+koala test_story '{"storyId":"B-xxx"}'  # legacy story fixture runner
+koala test_fixture '{"fixtureId":"uuid"}'  # legacy 单 fixture/链路 runner
 
 # 自动诊断（case fail 时定位根因）
 koala aux_diagnose '{"caseName":"case名"}'  # lastPass trace diff + git diff → 根因 + 修复建议
@@ -228,7 +233,7 @@ koala aux_sync --direction=extract    # 从源码注释提取到 task.json
 
 - title 描述「做什么」，不描述「怎么做」
 - context 给执行 agent 提供决策上下文
-- **主 agent 只写 title + context + relatedDocs，不写 testIntent**
+- **主 agent 只写 title + context + relatedDocs，不写旧 testIntent；当前验收意图是 `verificationIntent`**
 - relatedDocs 是关联的文档路径数组（可带 `#锚点` 给人看，不参与机器匹配），用于三次提醒避免代码改了文档忘改
 
 ### relatedDocs 三次提醒
@@ -263,7 +268,7 @@ PLAN 阶段开拆 checklist 之前，主 agent 应该先调 `understanding_set` 
 - 安全/凭证（auth/password/token/credential）
 - 数据迁移/破坏性（migration/destructive/drop table）
 - 状态机/门禁（machine.ts/state machine/guard/gate）
-- test runner 框架（fixture runner/test_auto/cleanupFixtureDir）
+- test runner 框架（fixture runner / legacy test_auto / cleanupFixtureDir）
 - git 破坏性操作（git restore/reset/clean/push --force）
 - 生产环境/紧急（production/incident/hotfix/p0/p1）
 - 合规/隐私（PII/GDPR/compliance）
@@ -302,7 +307,9 @@ PLAN 阶段为非 trivial story 落 `decision_set`。schema：
 
 非高风险 story 的 decision 是可选的（`story_review` 只 advisory）。
 
-### testIntent（由 test-intent agent 填写）
+### Legacy testIntent（兼容背景）
+
+本节保留旧 story / 旧 fixture 兼容语义，不能作为新 story 的标准流程。当前流程使用 checklist item 上的 `verificationIntent`，DEV/REVIEW/TEST 用 `verificationEvidence` 证明，TEST 跑 `koala validate`。
 
 每条 testIntent 从纯字符串改为带类型的对象：
 
@@ -392,12 +399,14 @@ checklist 写完后必须跑 `story_review` 对抗审查，审查通过（issueC
 koala story_review '{"storyId":"B-xxx"}'
 ```
 
-story_review 检查：缺失/弱 testIntent、item 间交叉场景遗漏、真相源未覆盖的约束。
+story_review 检查：缺失/弱 `verificationIntent`、item 间交叉场景遗漏、真相源未覆盖的约束。
 审查结果自动写入 review.json，可追溯审了几轮、每轮发现什么。
 
-## Fixture 写法
+## Legacy Fixture 写法（兼容 / 维护）
 
-用 `fixture_batch_add` 一次提交所有 case。每条 case 必须包含：
+Fixture 命令族是 legacy 兼容层，保留给旧 story、迁移和维护场景。新流程默认用 checklist 上的 `verificationIntent` 描述验收，用 `checklist_update` 记录 `verificationEvidence`，在 TEST 阶段跑 `koala validate`。
+
+确实需要维护旧 fixture 时，用 legacy/compat `fixture_batch_add` 一次提交所有 case。每条 case 必须包含：
 
 ```json
 {
@@ -420,8 +429,8 @@ story_review 检查：缺失/弱 testIntent、item 间交叉场景遗漏、真�
 | `execute` | 是 | 函数体（agent 自己写 import + 调用逻辑） |
 | `expect` | 否 | 预期返回值（支持 `{pattern:"regex"}` 或精确匹配） |
 | `throws` | 否 | 预期抛出的错误（与 expect 互斥） |
-| `intentRef` | 否 | 关联 testIntent（如 `CHK-001:happy:0`） |
-| `_id` | 自动 | uuid，`fixture_batch_add` 自动生成，用于 bug 绑定和 `test_fixture` 定位 |
+| `intentRef` | 否 | 关联旧 testIntent / 当前 verificationIntent（如 `CHK-001:happy:0`） |
+| `_id` | 自动 | uuid，legacy `fixture_batch_add` 自动生成，用于 bug 绑定和 legacy `test_fixture` 定位 |
 | `prevCaseId` | 自动 | 指向前一个 case 的 `_id`，批��添加时自动建立链关系 |
 | `nextCaseId` | 自动 | 指向后一个 case 的 `_id`，runner 按链拓扑执行 |
 
@@ -434,7 +443,7 @@ story_review 检查：缺失/弱 testIntent、item 间交叉场景遗漏、真�
 
 ### 链式 case
 
-`fixture_batch_add` 批量添加时自动按顺序建立 `prevCaseId/nextCaseId` 链关系。
+Legacy `fixture_batch_add` 批量添加时自动按顺序建立 `prevCaseId/nextCaseId` 链关系。
 链式 case 共享 `$ctx`，按链拓扑顺序执行，链尾才触发 `git restore` 清理。
 独立 case（无链关系）跑完立即清��。
 
@@ -443,42 +452,43 @@ story_review 检查：缺失/弱 testIntent、item 间交叉场景遗漏、真�
 {"name":"查询 story", "execute":"...", "_id":"auto", "prevCaseId":"auto"}
 ```
 
-可用 `koala test_fixture '{"fixtureId":"<uuid>"}'` 按 `_id` 定位单个 case 或整条链测试。
+维护旧 fixture 时，可用 legacy `koala test_fixture '{"fixtureId":"<uuid>"}'` 按 `_id` 定位单个 case 或整条链测试。
 
 ### 常见错误
 
 1. **fixture 一次写对**：先想清楚所有 case 再 batch_add
 2. **checklist 逐项完成**：做完一项标一项 done
 3. **门禁失败时**：读错误信息里的 `→` 修复命令，直接执行
-4. **主 agent 不写 testIntent**：testIntent 由 test-intent agent 填写
+4. **主 agent 不写旧 testIntent**：旧 testIntent 只作兼容背景；当前流程补 `verificationIntent`
 
 ### 踩坑记录
 
-1. **写完必须 commit 再推进**：test_auto 会 `git restore . && git clean -fd`，未 commit 的代码和 fixture 会丢。已有 git clean 门禁拦截，但不要依赖门禁——养成写完就 commit 的习惯。
+1. **写完必须 commit 再推进**：legacy `test_auto` 会 `git restore . && git clean -fd`，未 commit 的代码和 fixture 会丢。已有 git clean 门禁拦截，但不要依赖门禁——养成写完就 commit 的习惯。
 
-2. **fixture 断言从 testIntent 反推，不从"怎么容易 pass"正推**：`return true`、宽泛 pattern（如 `"allPassed|totalCases"`）是无效断言。reviewer 会拒绝。execute 中应该直接调用被测函数、检查返回值的具体字段。
+2. **旧 fixture 断言从旧 testIntent / 当前 verificationIntent 反推，不从"怎么容易 pass"正推**：`return true`、宽泛 pattern（如 `"allPassed|totalCases"`）是无效断言。reviewer 会拒绝。execute 中应该直接调用被测函数、检查返回值的具体字段。
 
 3. **reviewer 说 fail 就去改，不要反复解释**：reviewer 说"不是框架限制"的时候，应该立刻回 DEV 改代码，不要在 fixture 层面打补丁或写 testintent_record 解释。来回对话超过 2 轮说明方向错了。
 
-4. **fixture 提交前先本地 `test_auto` 验证**：不要让 reviewer 替你发现运行时错误（ESM 兼容、JSON 转义、递归卡死）。
+4. **旧 fixture 提交前先本地维护验证**：维护 fixture 时才跑 legacy `test_auto`；新流程用项目原生命令产出 `verificationEvidence`，再跑 `koala validate`。
 
 5. **fixture 的 execute 在 ESM 环境运行**：用 `await import("fs")` 不用 `require("fs")`。Windows 路径用 `$root.split("\\").join("/")` 不用 regex（JSON 转义地狱）。
 
-6. **sub agent 的 prompt 也是代码**：写完要 review，不要等跑了 5 轮才发现 prompt 里让 reviewer 跑 test_auto。
+6. **sub agent 的 prompt 也是代码**：写完要 review，不要等跑了 5 轮才发现 prompt 里让 reviewer 跑 legacy `test_auto`。
 
 ### 主 agent 行为准则
 
 - **主 agent 不是上帝视角**：不要试图掌控一切。reviewer 有判定权，test-intent agent 有对抗权。主 agent 的角色是写代码和测试，不是裁判。
 - **reviewer 是信号不是障碍**：reviewer fail 了，正确反应是"他说得对，我去改"，不是"怎么解释让他 pass"。把 reviewer 当障碍绕，只会制造更多轮次。
 - **三方制衡是设计不是形式**：reviewer fail 了不要想着怎么说服他 pass，而是思考他看到了什么你没看到的。
-- **多揽责任少推卸**：发现问题时主动修，不要说"不在 scope 内"。story 里发现的相关问题、顺手能修的 bug、reviewer 指出的实现缺失，都应该在当前 story 里一并处理。checklist 和 testIntent 是指引不是边界——做好一件事自然会衍生出相关的改动。
+- **多揽责任少推卸**：发现问题时主动修，不要说"不在 scope 内"。story 里发现的相关问题、顺手能修的 bug、reviewer 指出的实现缺失，都应该在当前 story 里一并处理。checklist 和 `verificationIntent` 是指引不是边界——做好一件事自然会衍生出相关的改动。
 - **跨 story 全局意识**：主 agent 在 story 中把控开发节奏，但不应该只看当前 story 的 checklist。修一个 feature 可能发现基础设施的 bug（如 DONE gate 缺检查、fixture runner 递归卡死），这些都应该一起修，不要留给"下一个 story"。
 - **5 轮上限**：同一 story 的 reviewer 对话超过 5 轮，停下来等人类裁决。超过 5 轮说明主 agent 和 reviewer 对需求理解有根本分歧，需要人类介入。
 
 ## 规则
 
 - 所有 Story/fixture 操作通过 `koala` CLI 完成，禁止直接读写 JSON
-- 测试统一通过 `koala test_auto` 执行（CLI 黑盒 + Browser 黑盒）
+- 当前验证统一通过 `koala validate` 执行；DEV 阶段用 `checklist_update` 记录 `verificationEvidence`
+- `test_auto` / `test_story` / `test_fixture` / `fixture_batch_add` / `fixture_update` / `test_add` / `task_coverage` 是 legacy/compat/maintenance 入口，不作为新 story 的默认流程
 - 所有环境统一用 CLI
 
 ## Fail-fast policy（silent catch 分类约定）

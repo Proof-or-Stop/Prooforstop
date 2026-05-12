@@ -1,0 +1,52 @@
+{
+  "storyId": "B-5c5e",
+  "checkedAt": "2026-05-12T00:47:51.394Z",
+  "features": [
+    {
+      "feature": "Generic lifecycle policy plus phase gate rejection explanation for all blocked commands",
+      "covered_by": "CHK-001 + CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get CHK-001 context/userSees + CHK-002 legacy split for special-case replacement guidance"
+    },
+    {
+      "feature": "Legacy test/fixture runtime split for test_auto/test_story/test_fixture/fixture_batch_add/fixture_update/test_add/task_coverage",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get CHK-002 title/context and plan_get CHK-002 command list"
+    },
+    {
+      "feature": "Static consistency verification across CLI TOOLS, DEFAULT_PHASE_TOOLS, PROCESS_FACT_LEVELS, and command lifecycle policy",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get CHK-003 context and plan_get CHK-003 contract scope"
+    },
+    {
+      "feature": "Destructive guard preservation for test_auto and self-project full regression refusal",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get CHK-002 verificationIntent.adversarial and decision_get preMortem on destructive legacy commands"
+    },
+    {
+      "feature": "Project-level phaseTools override behavior remains unchanged",
+      "covered_by": "CHK-001 + CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get CHK-001 verificationIntent.edge, CHK-003 verificationIntent.edge, decision_get preMortem override scenario"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 5,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "e84c6ba0a0b61f6e591f2f8b1e7be04a2cc1eb111e111a062d647f3e7f4e5402",
+  "openQuestions": []
+}
