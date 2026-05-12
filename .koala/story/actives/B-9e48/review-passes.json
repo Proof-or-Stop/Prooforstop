@@ -1,0 +1,28 @@
+{
+  "passes": [
+    {
+      "id": "B-9e48:RP-001",
+      "agent": "koala-review-concept",
+      "note": "No concept blockers. The DONE path now derives a DoneWorktreeContext from git top-level (packages/main/src/handlers/story-advance.ts:108) and threads that canonical worktreeRoot through pre-merge checks, metadata commit, worktree remove, residual cleanup, and branch deletion (packages/main/src/handlers/story-advance.ts:1192). The residual rm guard only permits the canonical registered worktree root and explicitly rejects nested invocation cwd cleanup (packages/main/src/handlers/story-advance.ts:142). Scope stays limited to story-advance cleanup, the targeted smoke regression, package scripts, and one CLAUDE.md clarification.",
+      "createdAt": "2026-05-12T17:50:37.901Z",
+      "reviewRound": "2026-05-12T17:48:22.269Z",
+      "_hash": "64dcbaa12e90beee2ec7d0aeab9e064186f88799221541df7e9f8a2b3a0664fa"
+    },
+    {
+      "id": "B-9e48:RP-002",
+      "agent": "koala-review-docs",
+      "note": "Docs review passed: CLAUDE.md only clarifies that story_advance DONE may be invoked from a worktree subdirectory while cleanup targets the git top-level worktree. This matches detectDoneStoryWorktreeContext/story_advance cleanup behavior, and the docs diff does not introduce reviewRound or express scope changes.",
+      "createdAt": "2026-05-12T17:50:53.954Z",
+      "reviewRound": "2026-05-12T17:48:22.269Z",
+      "_hash": "e8578d08140624753e13e80c449c411101045682e68c6a679bdca79741921951"
+    },
+    {
+      "id": "B-9e48:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "Reviewed CHK-001/CHK-002 verificationIntent-to-verificationEvidence coverage and reran npm --prefix packages/main run build plus npm run test:worktree-authority-smoke. Evidence covers canonical worktree root from nested cwd, DONE metadata merge, branch deletion, worktree registry cleanup, and rejects PVSC child cleanup target. No blocking coverage issue.",
+      "createdAt": "2026-05-12T17:51:56.491Z",
+      "reviewRound": "2026-05-12T17:48:22.269Z",
+      "_hash": "52837b5567495dcc5a57a6c40ce33cfc63c8093bc4c044c2b65139b3c14cfa62"
+    }
+  ]
+}
