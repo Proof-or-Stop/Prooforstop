@@ -1,0 +1,52 @@
+{
+  "storyId": "B-7f28",
+  "checkedAt": "2026-05-13T14:21:29.392Z",
+  "features": [
+    {
+      "feature": "fromDraft metadata transaction",
+      "covered_by": "background generic fromDraft orchestration; CHK-001 generic transaction; decision A bounded main metadata commit after dev_start; plan CHK-001 path-scoped helper",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "background/checklist/decision/plan"
+    },
+    {
+      "feature": "clean main after bootstrap",
+      "covered_by": "understanding outcome says git status --porcelain has no output; CHK-002 requires clean main regression; plan CHK-002 asserts main git status empty after story_create --fromDraft",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding/checklist/plan"
+    },
+    {
+      "feature": "story branch contains main",
+      "covered_by": "understanding outcome requires branch can merge main; CHK-002 requires branch contains main; decision preMortem and plan CHK-002 assert merge-base --is-ancestor main story/<storyId>",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding/checklist/decision/plan"
+    },
+    {
+      "feature": "no hard-coded story/draft names",
+      "covered_by": "background rejects B-cb12/plasmid/draft hard-coding; understanding constraint forbids concrete story/draft names; CHK-001 forbids story-id-specific cleanup; plan resolves paths from storyId/fromDraft/configured conventions",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "background/understanding/checklist/plan"
+    },
+    {
+      "feature": "targeted verification",
+      "covered_by": "CHK-003 requires targeted smoke plus package checks and evidence; plan CHK-003 names worktree authority smoke, INIT_CHECK bootstrap regression, and TS/build checks as applicable; CHK-002 extends smoke for regression shape",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist/plan"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 5,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "a10e73d449b07500f6479877bf7fd0cd7818ccbdbf4ce19af44ffe7172c9d8e9",
+  "openQuestions": []
+}

@@ -250,6 +250,7 @@ function assertFromDraftCreatesWorktreeThroughCli(): void {
       worktreeDir: '.worktrees',
     }, null, 2));
     write(root, 'README.md', 'from draft smoke\n');
+    write(root, '.gitignore', '.worktrees/\n.koala/activity.jsonl\n');
     git(root, ['init']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
@@ -281,6 +282,153 @@ function assertFromDraftCreatesWorktreeThroughCli(): void {
     assert.ok(story.worktree?.path, 'fromDraft story should record worktree metadata');
     assert.match(output, /worktree/i, 'fromDraft output should include worktree bootstrap result');
     assert.match(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`story/${storyId}`));
+    assert.equal(git(root, ['status', '--porcelain']), '', 'fromDraft should leave main clean after bootstrap');
+    assert.equal(
+      gitSucceeds(root, ['merge-base', '--is-ancestor', 'main', `story/${storyId}`]),
+      true,
+      'fromDraft story branch should contain current main after bootstrap',
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertFromDraftCreatesWorktreeWithDirtyMainPreserved(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-from-draft-dirty-main-'));
+  const draftName = 'from-draft-dirty-main-smoke';
+  try {
+    write(root, 'koala.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      storyDir: '.koala/story/actives',
+      requirementsDir: 'docs/requirements',
+      worktreeDir: '.worktrees',
+    }, null, 2));
+    write(root, 'README.md', 'from draft dirty main smoke\n');
+    write(root, '.gitignore', '.worktrees/\n.koala/activity.jsonl\n');
+    write(root, 'unrelated-tracked.txt', 'tracked baseline\n');
+    git(root, ['init']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'base']);
+    resetConfigCache();
+
+    runKoala(root, 'story_draft', {
+      name: draftName,
+      title: 'From draft dirty main smoke story',
+      description: 'Synthetic from-draft story for dirty main preservation.',
+      type: 'chore',
+      priority: 'medium',
+      background: validBackground(),
+      checklist: [{
+        title: 'Create worktree from draft while main has unrelated edits',
+        context: 'The fromDraft CLI path must commit bounded metadata without consuming user changes.',
+      }],
+    });
+    runKoala(root, 'draft_check_set', {
+      draftName,
+      issues: [],
+      agentId: 'koala-review-story-init',
+    });
+    git(root, ['add', '--', `docs/story/drafts/${draftName}`]);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'draft metadata']);
+
+    write(root, 'unrelated-tracked.txt', 'tracked user edit that must remain dirty\n');
+    write(root, 'unrelated-untracked.txt', 'untracked user edit that must remain dirty\n');
+    const dirtyBefore = git(root, ['status', '--porcelain']);
+    assert.equal(git(root, ['diff', '--name-only', '--', 'unrelated-tracked.txt']), 'unrelated-tracked.txt');
+    assert.match(dirtyBefore, /\?\? unrelated-untracked\.txt/);
+
+    const output = runKoala(root, 'story_create', { fromDraft: draftName });
+    const storyId = output.match(/Story\s+(B-[a-f0-9]+)/)?.[1];
+    assert.ok(storyId, `story_create --from-draft should print story id, got: ${output}`);
+    const story = new StoryStore(root).readStory(storyId);
+    assert.equal(story.phase, 'INIT_CHECK');
+    assert.ok(story.worktree?.path, 'fromDraft story should record worktree metadata');
+    assert.match(output, /main merged into story\//, 'fromDraft output should confirm main was merged into the story branch');
+    assert.equal(
+      git(root, ['status', '--porcelain', '--', `.koala/story/actives/${storyId}`, `docs/story/drafts/${draftName}`]),
+      '',
+      'fromDraft should leave bounded story/draft metadata clean after committing',
+    );
+    const dirtyAfter = git(root, ['status', '--porcelain']);
+    assert.equal(
+      git(root, ['diff', '--name-only', '--', 'unrelated-tracked.txt']),
+      'unrelated-tracked.txt',
+      'tracked user edits should remain dirty',
+    );
+    assert.match(dirtyAfter, /\?\? unrelated-untracked\.txt/, 'untracked user edits should remain dirty');
+    assert.equal(
+      gitSucceeds(root, ['merge-base', '--is-ancestor', 'main', `story/${storyId}`]),
+      true,
+      'fromDraft story branch should contain current main after dirty-main bootstrap',
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertFromDraftRejectsStagedMainBeforeMutation(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-from-draft-staged-main-'));
+  const draftName = 'from-draft-staged-main-smoke';
+  try {
+    write(root, 'koala.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      storyDir: '.koala/story/actives',
+      requirementsDir: 'docs/requirements',
+      worktreeDir: '.worktrees',
+    }, null, 2));
+    write(root, 'README.md', 'from draft staged main smoke\n');
+    write(root, '.gitignore', '.worktrees/\n.koala/activity.jsonl\n');
+    write(root, 'unrelated-staged.txt', 'tracked baseline\n');
+    git(root, ['init']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'base']);
+    resetConfigCache();
+
+    runKoala(root, 'story_draft', {
+      name: draftName,
+      title: 'From draft staged main smoke story',
+      description: 'Synthetic from-draft story for staged main preflight.',
+      type: 'chore',
+      priority: 'medium',
+      background: validBackground(),
+      checklist: [{
+        title: 'Reject from draft while main has unrelated staged edits',
+        context: 'The fromDraft CLI path must reject staged user changes before mutating story, draft, or worktree state.',
+      }],
+    });
+    runKoala(root, 'draft_check_set', {
+      draftName,
+      issues: [],
+      agentId: 'koala-review-story-init',
+    });
+    git(root, ['add', '--', `docs/story/drafts/${draftName}`]);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'draft metadata']);
+
+    write(root, 'unrelated-staged.txt', 'staged user edit that must remain staged\n');
+    git(root, ['add', '--', 'unrelated-staged.txt']);
+    assert.equal(git(root, ['diff', '--cached', '--name-status', '--', 'unrelated-staged.txt']), 'M\tunrelated-staged.txt');
+
+    const output = runKoalaExpectFail(root, 'story_create', { fromDraft: draftName });
+    assert.match(output, /requires a clean git index before mutating story\/draft\/worktree metadata/);
+    assert.match(output, /unrelated-staged\.txt/);
+    const store = new StoryStore(root);
+    assert.deepEqual(store.listStoryIds(), [], 'fromDraft staged-main preflight must not create an active story');
+    assert.equal(existsSync(join(root, 'docs', 'story', 'drafts', draftName, 'index.json')), true, 'source draft should remain present');
+    assert.equal(
+      git(root, ['ls-files', '--error-unmatch', `docs/story/drafts/${draftName}/index.json`]),
+      `docs/story/drafts/${draftName}/index.json`,
+      'source draft should remain tracked',
+    );
+    assert.doesNotMatch(git(root, ['worktree', 'list', '--porcelain']), /story\/B-/, 'no story worktree should be registered');
+    assert.equal(
+      git(root, ['diff', '--cached', '--name-status', '--', 'unrelated-staged.txt']),
+      'M\tunrelated-staged.txt',
+      'unrelated staged change should remain staged',
+    );
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -500,6 +648,8 @@ assertRecordedWorktreeRejectsMainCwd();
 assertInitCheckChecklistMutationRejectsMainCwd();
 assertTerminalStoriesDoNotRedirect();
 assertFromDraftCreatesWorktreeThroughCli();
+assertFromDraftCreatesWorktreeWithDirtyMainPreserved();
+assertFromDraftRejectsStagedMainBeforeMutation();
 assertDoneFromNestedCwdUsesCanonicalWorktreeRoot();
 assertDoneRejectsMismatchedStoryBranchBeforeMutation();
 assertDoneRejectsNonStoryLinkedWorktreeBeforeMutation();
