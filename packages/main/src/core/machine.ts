@@ -4,8 +4,7 @@ import type { StoryStore } from './store.js';
 import { createHash } from 'crypto';
 import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
-import { verifyFinding, verifyReviewPass } from './finding-verify.js';
-import type { Finding, ReviewPass } from './types.js';
+import type { Finding } from './types.js';
 import { blockingInitCheckIssues, missingRequiredInitCheckAgents, recomputeInitCheckHash } from '../handlers/init-check.js';
 import { recomputeDeliveryCheckHash } from '../handlers/delivery-check.js';
 import { getBlockingVerificationEvidenceIssues } from './verification.js';
@@ -13,6 +12,7 @@ import { normalizeLegacyPhase } from './phase-flow.js';
 import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
 import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
 import { computeActiveReviewers } from '../handlers/reviewer-list.js';
+import { collectReviewerEvidenceState } from './review-run.js';
 
 /**
  * Resolve effective blocking severities with round decay.
@@ -42,22 +42,6 @@ function resolveEffectiveBlockingSeverities(
     effectiveBlockingSeverities = policy.review.blockingSeverities as string[];
   }
   return { effectiveBlockingSeverities, roundCount };
-}
-
-function reviewerEvidenceForRound(store: StoryStore, storyId: string, currentRound?: string): Array<{ agent?: string; kind: 'finding' | 'pass' }> {
-  const findings = store.readFindings(storyId);
-  const findingEvidence = (findings.findings || [])
-    .filter((f: Finding) => f.agent && f.agent !== 'main' && verifyFinding(storyId, f)
-      && (!currentRound || f.reviewRound === currentRound))
-    .map((f: Finding) => ({ agent: f.agent, kind: 'finding' as const }));
-
-  const passes = store.readReviewPasses(storyId);
-  const passEvidence = (passes.passes || [])
-    .filter((p: ReviewPass) => p.agent && p.agent !== 'main' && verifyReviewPass(storyId, p)
-      && (!currentRound || p.reviewRound === currentRound))
-    .map((p: ReviewPass) => ({ agent: p.agent, kind: 'pass' as const }));
-
-  return [...findingEvidence, ...passEvidence];
 }
 
 export interface StoryMachineContext {
@@ -155,11 +139,12 @@ export const storyMachine = setup({
         const findings = context.store.readFindings(context.storyId);
         const reviewPasses = context.store.readReviewPasses(context.storyId);
         if ((!findings.findings || findings.findings.length === 0) && (!reviewPasses.passes || reviewPasses.passes.length === 0)) return false;
+        const evidenceState = collectReviewerEvidenceState(context.store, context.storyId, context.projectRoot);
+        if (evidenceState.invalid.length > 0) return false;
 
         // Check for reviewer-produced finding if policy requires it
         if (policy.review.requireReviewerFinding) {
-          const currentRound = story.currentReviewRound;
-          const currentRoundReviewerEvidence = reviewerEvidenceForRound(context.store, context.storyId, currentRound);
+          const currentRoundReviewerEvidence = evidenceState.valid.map((e) => ({ agent: e.agent, kind: e.kind }));
 
           const { roundCount } = resolveEffectiveBlockingSeverities(context.store, context.storyId, policy);
           if (roundCount <= 1) {
@@ -185,8 +170,11 @@ export const storyMachine = setup({
         const { effectiveBlockingSeverities } = resolveEffectiveBlockingSeverities(context.store, context.storyId, policy);
 
         // Check blocking severities from policy (with round decay)
-        const blocking = findings.findings.filter(
-          f => effectiveBlockingSeverities.includes(f.severity) && f.status === 'open'
+        const blocking = evidenceState.valid
+          .map((e) => e.finding)
+          .filter((finding): finding is Finding => !!finding)
+          .filter(
+            (f) => effectiveBlockingSeverities.includes(f.severity) && f.status === 'open',
         );
         return blocking.length === 0;
       } catch {
@@ -441,9 +429,13 @@ export function getGuardFailureReason(
         if ((!findings.findings || findings.findings.length === 0) && (!reviewPasses.passes || reviewPasses.passes.length === 0)) {
           return `Cannot enter TEST: reviewer 未跑（无 findings 或 review pass）\n→ 按 opt-in 结果启动 reviewer（见 koala reviewer_list）；无问题时用 review_pass_set 记录通过`;
         }
+        const evidenceState = collectReviewerEvidenceState(store, storyId, projectRoot ?? process.cwd());
+        if (evidenceState.invalid.length > 0) {
+          return `Cannot enter TEST: reviewer evidence 存在无效/过期的 review run 绑定：\n${evidenceState.invalid.slice(0, 5).map(issue => `  - ${issue.message}`).join('\n')}`;
+        }
         if (policy.review.requireReviewerFinding) {
           const currentRound = story.currentReviewRound;
-          const currentRoundReviewerEvidence = reviewerEvidenceForRound(store, storyId, currentRound);
+          const currentRoundReviewerEvidence = evidenceState.valid.map((e) => ({ agent: e.agent, kind: e.kind }));
 
           const { roundCount: rc } = resolveEffectiveBlockingSeverities(store, storyId, policy);
           if (rc <= 1) {
@@ -475,9 +467,10 @@ export function getGuardFailureReason(
         }
         const { effectiveBlockingSeverities, roundCount } = resolveEffectiveBlockingSeverities(store, storyId, policy);
 
-        const blocking = findings.findings.filter(
-          f => effectiveBlockingSeverities.includes(f.severity) && f.status === 'open'
-        );
+        const blocking = evidenceState.valid
+          .map((e) => e.finding)
+          .filter((finding): finding is Finding => !!finding)
+          .filter((f) => effectiveBlockingSeverities.includes(f.severity) && f.status === 'open');
         if (blocking.length > 0) {
           return `Cannot enter TEST: ${blocking.length} blocking finding(s) open (Round ${roundCount}, blocking: ${effectiveBlockingSeverities.join('/')}):\n${blocking.map(f => `  - ${f.id} [${f.severity}] ${f.desc}`).join('\n')}\n→ 修复后 finding_resolve，或确认不修 finding_dismiss（需说明理由 ≥10 字符）`;
         }

@@ -10,6 +10,7 @@ import { signFinding, signReviewPass } from '../core/finding-verify.js';
 import { computeProcessMetrics } from '../core/process-metrics.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
 import { isPassOnlyReviewFindingRecord } from '../core/flow-fact-policy.js';
+import { assertCurrentReviewRunForEvidence, resolveReviewRunLane } from '../core/review-run.js';
 
 const CANONICAL_FINDING_CATEGORIES = ['happy', 'edge', 'adversarial', 'missing'] as const;
 const LEGACY_FINDING_CATEGORIES = ['cleanup', 'doc-promise-undelivered', 'doc-code-drift', 'spec-boundary'] as const;
@@ -69,9 +70,10 @@ function normalizeFindingCategory(category: string): Finding['category'] {
   return category as Finding['category'];
 }
 
-function recordReviewPass(ctx: HandlerContext, storyId: string, agent: string, note: string): string {
+function recordReviewPass(ctx: HandlerContext, storyId: string, agent: string, note: string, reviewRunId: string): string {
   return withReviewPassLock(ctx, storyId, () => {
     const story = ctx.store.readStory(storyId);
+    assertCurrentReviewRunForEvidence(ctx.store, story, ctx.root, agent, reviewRunId);
     const data = ctx.store.readReviewPasses(storyId);
     const nextNum = data.passes.reduce((max, pass) => {
       const m = pass.id.match(/:RP-(\d+)$/);
@@ -90,13 +92,14 @@ function recordReviewPass(ctx: HandlerContext, storyId: string, agent: string, n
       note: trimmedNote,
       createdAt,
       reviewRound,
-      _hash: signReviewPass(storyId, id, agent, trimmedNote, createdAt, reviewRound),
+      reviewRunId,
+      _hash: signReviewPass(storyId, id, agent, trimmedNote, createdAt, reviewRound, reviewRunId),
     };
     data.passes.push(pass);
     ctx.store.writeReviewPasses(storyId, data);
     const persisted = ctx.store.readReviewPasses(storyId);
     const persistedPass = persisted.passes.find(p => p.id === id);
-    if (!persistedPass || persistedPass._hash !== pass._hash || persistedPass.agent !== agent) {
+    if (!persistedPass || persistedPass._hash !== pass._hash || persistedPass.agent !== agent || persistedPass.reviewRunId !== reviewRunId) {
       throw new Error(`review_pass_set: ${id} was not durably persisted; refusing to report success`);
     }
     try {
@@ -119,16 +122,23 @@ function recordReviewPass(ctx: HandlerContext, storyId: string, agent: string, n
 export function createFindingHandlers(ctx: HandlerContext) {
   const { store } = ctx;
   return {
-    finding_add(args: { storyId: string; desc: string; severity: string; category: string; agent?: string; files?: string[] }): string {
+    finding_add(args: { storyId: string; desc: string; severity: string; category: string; agent?: string; files?: string[]; reviewRunId?: string }): string {
       assertCwdInWorktree(store, args.storyId);
 
       // 记录调用者身份（环境变量 KOALA_AGENT 由 subagent 设置）
       const missingAttribution = !args.agent && !process.env.KOALA_AGENT;
       const agent = args.agent || process.env.KOALA_AGENT || 'main';
       const category = normalizeFindingCategory(args.category);
+      const isReviewerAgent = agent.startsWith('koala-review-');
+      const reviewerLane = isReviewerAgent ? resolveReviewRunLane(agent) : undefined;
+
+      const story = store.readStory(args.storyId);
+      if (reviewerLane) {
+        assertCurrentReviewRunForEvidence(store, story, ctx.root, reviewerLane, args.reviewRunId);
+      }
 
       if (isPassOnlyReviewFindingRecord({ desc: args.desc, severity: args.severity, agent })) {
-        return recordReviewPass(ctx, args.storyId, agent, `Converted pass-only finding_add record: ${args.desc}`);
+        return recordReviewPass(ctx, args.storyId, reviewerLane || agent, `Converted pass-only finding_add record: ${args.desc}`, args.reviewRunId || '');
       }
 
       const data = store.readFindings(args.storyId);
@@ -137,7 +147,6 @@ export function createFindingHandlers(ctx: HandlerContext) {
       const timestamp = new Date().toISOString();
 
       // 自动注入当前 review round（reviewer 无需传参）
-      const story = store.readStory(args.storyId);
       const reviewRound = story.currentReviewRound || '';
 
       const finding: Finding = {
@@ -149,7 +158,8 @@ export function createFindingHandlers(ctx: HandlerContext) {
         agent,
         createdAt: timestamp,
         reviewRound,
-        _hash: signFinding(args.storyId, id, args.desc, args.severity, timestamp, reviewRound),
+        ...(args.reviewRunId ? { reviewRunId: args.reviewRunId } : {}),
+        _hash: signFinding(args.storyId, id, args.desc, args.severity, timestamp, reviewRound, args.reviewRunId || ''),
         ...(args.files && args.files.length > 0 ? { files: args.files } : {}),
       };
       data.findings.push(finding);
@@ -188,16 +198,13 @@ export function createFindingHandlers(ctx: HandlerContext) {
       return `Finding ${id} created by ${agent}: [${args.severity}/${category}] ${args.desc}${warning}`;
     },
 
-    review_pass_set(args: { storyId: string; agent?: string; note: string }): string {
+    review_pass_set(args: { storyId: string; agent?: string; note: string; reviewRunId?: string }): string {
       if (!args.note || args.note.trim().length < 10) {
         throw new Error('review_pass_set: note 必须 ≥ 10 字符，说明 reviewer 检查了什么以及为什么无 blocker');
       }
-      const agent = args.agent || process.env.KOALA_AGENT || 'main';
-      if (!agent.startsWith('koala-review-')) {
-        throw new Error('review_pass_set: agent 必须是 koala-review-* reviewer');
-      }
+      const agent = resolveReviewRunLane(args.agent || process.env.KOALA_AGENT || 'main');
       assertCwdInWorktree(store, args.storyId);
-      return recordReviewPass(ctx, args.storyId, agent, args.note);
+      return recordReviewPass(ctx, args.storyId, agent, args.note, args.reviewRunId || '');
     },
 
     finding_list(args: { storyId: string; cluster?: boolean }) {

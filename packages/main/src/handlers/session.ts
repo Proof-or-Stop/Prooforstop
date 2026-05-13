@@ -685,7 +685,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
           lines.push(`## Reviewer status (${rs.allPassed ? 'all passed' : `${rs.totalBlockers} blockers`})`);
           for (const entry of rs.entries) {
             const marker = entry.verdict === 'pass' ? 'PASS' : (entry.verdict === 'fail' ? 'FAIL' : 'pending');
-            lines.push(`  [${marker}] ${entry.name}${entry.blockerCount > 0 ? ` (${entry.blockerCount} blockers)` : ''}`);
+            lines.push(`  [${marker}] ${entry.name}${entry.blockerCount > 0 ? ` (${entry.blockerCount} blockers)` : ''}${entry.detail ? ` — ${entry.detail}` : ''}`);
           }
         } catch { /* probe: reviewer status unavailable */ }
       }

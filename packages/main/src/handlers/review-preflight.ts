@@ -46,7 +46,7 @@ import {
 } from './validate-lint.js';
 import type { Finding } from '../core/types.js';
 import { findingAgentMatchesReviewer } from '../core/reviewer-opt-in.js';
-import { verifyReviewPass } from '../core/finding-verify.js';
+import { collectReviewerEvidenceState } from '../core/review-run.js';
 import {
   runDocsDriftGate,
   type DocsDriftGateResult,
@@ -146,30 +146,28 @@ function detectFastChannel(store: StoryStore, storyId: string): boolean {
 function conceptReviewerHandledResiduals(
   store: StoryStore,
   storyId: string,
+  projectRoot: string,
 ): { handled: boolean; reason: string } {
   try {
     const story = store.readStory(storyId);
-    const currentRound = story.currentReviewRound;
-    const findings = store.readFindings(storyId);
-    const passes = store.readReviewPasses(storyId);
-    const conceptFindings = (findings?.findings ?? []).filter(
-      (f: Finding) => f.agent === 'koala-review-concept'
-        && (!currentRound || f.reviewRound === currentRound),
-    );
-    const conceptPasses = (passes?.passes ?? []).filter(p =>
-      findingAgentMatchesReviewer(p.agent, 'concept')
-      && verifyReviewPass(storyId, p)
-      && (!currentRound || p.reviewRound === currentRound),
-    );
+    const evidenceState = collectReviewerEvidenceState(store, storyId, projectRoot);
+    const conceptFindings = evidenceState.valid
+      .map((entry) => entry.finding)
+      .filter((finding): finding is Finding => !!finding && finding.agent === 'koala-review-concept');
+    const conceptPasses = evidenceState.valid
+      .map((entry) => entry.pass)
+      .filter((pass) => !!pass && findingAgentMatchesReviewer(pass.agent, 'concept'));
+    const conceptIssues = evidenceState.invalid.filter((issue) => findingAgentMatchesReviewer(issue.agent, 'concept'));
     if (conceptFindings.length === 0 && conceptPasses.length === 0) {
       return {
         handled: false,
-        reason: '当前 REVIEW round 未见 koala-review-concept 的 finding/review pass（reviewer 未跑或未 register 任何结果）',
+        reason: conceptIssues[0]?.message
+          ?? '当前 REVIEW round 未见 koala-review-concept 的 finding/review pass（reviewer 未跑或未 register 任何结果）',
       };
     }
     return {
       handled: true,
-      reason: `${conceptFindings.length} concept finding(s), ${conceptPasses.length} concept pass(es) registered in round ${currentRound ?? '(unknown)'} → reviewer ran`,
+      reason: `${conceptFindings.length} concept finding(s), ${conceptPasses.length} concept pass(es) registered in round ${story.currentReviewRound ?? '(unknown)'} → reviewer ran`,
     };
   } catch (e: any) {
     return { handled: false, reason: `读 findings 失败: ${String(e?.message ?? e)}` };
@@ -275,7 +273,7 @@ export function runReviewCliGates(
   } else if (concept.residuals.length >= 5) {
     // F-017: residuals ≥ 5 现在为 status='fail'（旧实现是 warn）。
     // 行为保持：要求 concept reviewer 跑过（reviewer 处理了 → 通过）。
-    const handled = conceptReviewerHandledResiduals(deps.store, storyId);
+      const handled = conceptReviewerHandledResiduals(deps.store, storyId, deps.projectRoot);
     conceptOk = handled.handled;
     conceptExtra = [
       `residuals=${concept.residuals.length} (≥5) → 需 concept reviewer 处理`,

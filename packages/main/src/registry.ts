@@ -49,6 +49,7 @@ import { createDeliveryCheckHandlers } from './handlers/delivery-check.js';
 import { createTestIntentHandoffHandlers } from './handlers/testintent-handoff.js';
 import { createAuxDocHandlers } from './handlers/aux-doc.js';
 import { createCodexAdapterHandlers } from './handlers/codex-adapter.js';
+import { createReviewRunHandlers } from './handlers/review-run.js';
 import { nextStoryId } from './handlers/context.js';
 
 export type HandlerFn = (...args: any[]) => any;
@@ -116,6 +117,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createTruthHandlers(ctx));
   registry.registerBatch(createGapHandlers(ctx));
   registry.registerBatch(createVerifierHandlers(ctx));
+  registry.registerBatch(createReviewRunHandlers(ctx));
   registry.registerBatch(createFindingHandlers(ctx));
   registry.registerBatch(createEvaluateHandlers(ctx));
   registry.registerBatch(createWorkflowHandlers(ctx));

@@ -53,6 +53,7 @@ export const COMMAND_POLICIES = {
   verification_evidence_batch_add: { status: 'gateEvidence', gateEvidence: true, allowedPhases: 'all', destructiveRisk: 'metadata-write', reason: 'Batch writes structured verification evidence consumed by gates.' },
   verification_evidence_refresh_stale: { status: 'gateEvidence', gateEvidence: true, allowedPhases: 'all', destructiveRisk: 'metadata-write', reason: 'Refreshes hashes on evidence used by stale-evidence gates.' },
   light_review: { status: 'supported', allowedPhases: ['DEV'], destructiveRisk: 'metadata-write', reason: 'Light review is a DEV coordination note, not REVIEW gate evidence.' },
+  review_run_start: { status: 'gateEvidence', gateEvidence: true, allowedPhases: ['REVIEW'], destructiveRisk: 'metadata-write', reason: 'Starts a signed current-round reviewer run required by REVIEW evidence.' },
   review_pass_set: { status: 'gateEvidence', gateEvidence: true, allowedPhases: ['DEV', 'REVIEW'], destructiveRisk: 'metadata-write', reason: 'Reviewer no-blocker receipt consumed by review gates.' },
   understanding_set: { status: 'supported', allowedPhases: ['PLAN'], destructiveRisk: 'metadata-write', reason: 'Planning context is captured before implementation.' },
   understanding_get: { status: 'supported', allowedPhases: ['PLAN', 'REVIEW'], destructiveRisk: 'none', reason: 'Read-only planning-context inspection; reviewers need planning artifacts during REVIEW.' },

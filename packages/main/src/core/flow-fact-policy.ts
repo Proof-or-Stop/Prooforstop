@@ -1,4 +1,5 @@
 export type FlowFactPolicyId =
+  | 'review-run-boundary'
   | 'review-pass'
   | 'finding'
   | 'pass-only-normalization'
@@ -22,6 +23,17 @@ export const EXPRESS_VERIFICATION_EXEMPTION_MESSAGE =
   'Verification policy: express-exempt (channel=express; PLAN verificationIntent intentionally skipped)';
 
 export const FLOW_FACT_POLICIES = [
+  {
+    name: 'flow-policy:review-run-boundary',
+    policyId: 'review-run-boundary',
+    level: 'L4',
+    category: 'flow-policy',
+    owner: 'core/flow-fact-policy',
+    consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
+    artifactCommand: 'review_run_start',
+    semantics: ['flow-policy', 'review-run', 'schema-contract', 'gate-evidence'],
+    rationale: 'Current REVIEW findings and passes only count when bound to the latest signed reviewer run for that lane.',
+  },
   {
     name: 'flow-policy:review-pass',
     policyId: 'review-pass',

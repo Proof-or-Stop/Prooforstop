@@ -5,7 +5,7 @@ import type {
   UnderstandingData, DecisionData, StorySummaryData,
   StoryTestRun, StoryTestRunsData, FindingData, EvalEvidenceData,
   StoryProcessMetrics, ProcessEvent, ScopeCheckData, InitCheckData, ReviewPassData,
-  DeliveryCheckData, ImplementationReviewResultData,
+  DeliveryCheckData, ImplementationReviewResultData, ReviewRunData,
 } from './types.js';
 import type { ClusterData } from './cluster-types.js';
 import { appendProcessEvent as appendProcessEventFn, readProcessEvents as readProcessEventsFn } from './process-events.js';
@@ -312,6 +312,18 @@ export class StoryStore {
 
   writeReviewPasses(storyId: string, data: ReviewPassData): void {
     this.writeJson(storyId, 'review-passes.json', data);
+  }
+
+  readReviewRuns(storyId: string): ReviewRunData {
+    try {
+      return this.readJson<ReviewRunData>(storyId, 'review-runs.json');
+    } catch {
+      return { runs: [] };
+    }
+  }
+
+  writeReviewRuns(storyId: string, data: ReviewRunData): void {
+    this.writeJson(storyId, 'review-runs.json', data);
   }
 
   // ── Clusters (B-e8c8 / B-9d95 CHK-005: finding 聚簇) ──

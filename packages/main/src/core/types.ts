@@ -422,6 +422,8 @@ export interface Finding {
   createdAt?: string;
   _hash?: string;
   reviewRound?: string;
+  /** Signed reviewer-run binding for current REVIEW evidence. */
+  reviewRunId?: string;
   dismissReason?: string;
   dismissedAt?: string;
   /** B-e8c8 / B-9d95 CHK-005: 关联文件路径（用于 cluster files-overlap 判定 + 兜底从 desc 抽取） */
@@ -455,11 +457,31 @@ export interface ReviewPass {
   note: string;
   createdAt: string;
   reviewRound?: string;
+  /** Signed reviewer-run binding for current REVIEW evidence. */
+  reviewRunId?: string;
   _hash?: string;
 }
 
 export interface ReviewPassData {
   passes: ReviewPass[];
+}
+
+/** Signed reviewer run receipt created before REVIEW findings/review-pass evidence. */
+export interface ReviewRun {
+  reviewRunId: string;
+  storyId: string;
+  agent: string;
+  lane: string;
+  reviewRound: string;
+  startedAt: string;
+  headHash: string;
+  materialHash: string;
+  promptHash: string;
+  _hash?: string;
+}
+
+export interface ReviewRunData {
+  runs: ReviewRun[];
 }
 
 /** Evaluator 打分证据（browser 项目 DONE gate 消费） */

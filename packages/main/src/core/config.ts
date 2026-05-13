@@ -159,6 +159,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'finding_cluster',  // B-8bb5: DEV 中已有 finding 时，允许先聚簇再派发修复
   ],
   REVIEW: [
+    'review_run_start',
     'finding_add', 'finding_list', 'finding_resolve', 'finding_dismiss',
     'review_pass_set',
     'understanding_get', 'decision_get',

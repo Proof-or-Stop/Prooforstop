@@ -106,6 +106,21 @@ async function runKoala(cwd: string, command: string, args: Record<string, unkno
   return result.stdout;
 }
 
+function extractReviewRunId(output: string): string {
+  const match = output.match(/B-[^:\s]+:RR-\d+/);
+  assert.ok(match?.[0], `expected review_run_start output to include a review run id, got: ${output}`);
+  return match![0];
+}
+
+async function startReviewRun(cwd: string, storyId: string, agent: string, extra: Record<string, unknown> = {}): Promise<string> {
+  const output = await runKoala(cwd, 'review_run_start', {
+    storyId,
+    agent,
+    ...extra,
+  });
+  return extractReviewRunId(output);
+}
+
 function now(): string {
   return '2026-05-08T10:00:00.000Z';
 }
@@ -256,12 +271,14 @@ async function assertDirectFindingAutoResolveCliSurface(): Promise<void> {
     const store = new StoryStore(root);
     writeReviewStory(store, storyId);
 
+    const qualityRunId = await startReviewRun(root, storyId, 'koala-review-quality');
     await runKoala(root, 'finding_add', {
       storyId,
       desc: 'direct finding should resolve from commit tag',
       severity: 'high',
       category: 'happy',
       agent: 'koala-review-quality',
+      reviewRunId: qualityRunId,
     });
     allowEmptyCommit(root, `resolve direct finding\n\nResolves: ${storyId}:F-001`);
 
@@ -269,12 +286,14 @@ async function assertDirectFindingAutoResolveCliSurface(): Promise<void> {
     assert.match(output, /"status":\s*"resolved"/);
     assert.match(output, /"resolvedBy":\s*"B-fsync:F-001@/);
 
+    const conceptRunId = await startReviewRun(root, storyId, 'koala-review-concept');
     await runKoala(root, 'finding_add', {
       storyId,
       desc: 'validate entry should also resolve direct finding',
       severity: 'medium',
       category: 'edge',
       agent: 'koala-review-concept',
+      reviewRunId: conceptRunId,
     });
     allowEmptyCommit(root, 'resolve short direct finding\n\nResolves: F-002');
     const validateOutput = await runKoala(root, 'validate', { story: storyId, json: true });
@@ -289,6 +308,74 @@ async function assertDirectFindingAutoResolveCliSurface(): Promise<void> {
   }
 }
 
+async function assertReviewRunStartCliSurface(): Promise<void> {
+  const root = initRepo('koala-field-review-run-');
+  try {
+    const storyId = 'B-runcli';
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+    const store = new StoryStore(root);
+    writeReviewStory(store, storyId);
+
+    const output = await runKoala(root, 'review_run_start', {
+      storyId,
+      agent: 'koala-review-quality',
+      prompt: 'Inspect current diff for REVIEW blockers.',
+    });
+    assert.match(output, /Review run B-runcli:RR-001 started for koala-review-quality/);
+    const runs = store.readReviewRuns(storyId).runs;
+    assert.equal(runs.length, 1);
+    assert.equal(runs[0].lane, 'koala-review-quality');
+    assert.equal(runs[0].agent, 'koala-review-quality');
+    assert.equal(runs[0].storyId, storyId);
+    assert.ok(runs[0].headHash);
+    assert.ok(runs[0].materialHash);
+    assert.ok(runs[0].promptHash);
+
+    write(root, 'packages/main/src/review-run-fresh.ts', 'export const reviewRunFresh = true;\n');
+    commit(root, 'change after review run', 'koala-implementer');
+    const stalePass = await runKoalaRaw(root, 'review_pass_set', {
+      storyId,
+      agent: 'koala-review-quality',
+      reviewRunId: runs[0].reviewRunId,
+      note: 'stale run should be rejected after material change.',
+    });
+    assert.notEqual(stalePass.code, 0);
+    assert.match(stalePass.stderr, /已 stale|stale/i);
+
+    const unsupported = await runKoalaRaw(root, 'review_run_start', {
+      storyId,
+      lane: 'koala-review-delivery',
+    });
+    assert.notEqual(unsupported.code, 0);
+    assert.match(unsupported.stderr, /Invalid enum value|不在受支持的 REVIEW reviewer lane/);
+
+    const mainStoryId = 'B-main';
+    store.writeStory(mainStoryId, {
+      storyId: mainStoryId,
+      name: 'review-run-dev-cli',
+      title: 'review run dev cli',
+      description: 'Synthetic REVIEW story without currentReviewRound.',
+      type: 'chore',
+      phase: 'REVIEW',
+      priority: 'medium',
+      createdAt: now(),
+      startedAt: now(),
+      endedAt: null,
+      events: [{ phase: 'REVIEW', action: 'advance', timestamp: now() }],
+    });
+    store.writeChecklist(mainStoryId, { items: [] });
+    git(root, ['checkout', '-b', `story/${mainStoryId}`]);
+    const missingRound = await runKoalaRaw(root, 'review_run_start', {
+      storyId: mainStoryId,
+      agent: 'koala-review-quality',
+    });
+    assert.notEqual(missingRound.code, 0);
+    assert.match(missingRound.stderr, /没有 currentReviewRound/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 async function assertReviewPassConcurrentCliSurface(): Promise<void> {
   const root = initRepo('koala-field-review-pass-');
   try {
@@ -297,9 +384,11 @@ async function assertReviewPassConcurrentCliSurface(): Promise<void> {
     writeReviewStory(store, storyId);
     const agents = ['concept', 'quality', 'test-coverage', 'docs', 'behavior']
       .map(name => `koala-review-${name}`);
+    const runIds = new Map(await Promise.all(agents.map(async (agent) => [agent, await startReviewRun(root, storyId, agent)] as const)));
     const outputs = await Promise.all(agents.map(agent => runKoala(root, 'review_pass_set', {
       storyId,
       agent,
+      reviewRunId: runIds.get(agent),
       note: `${agent} checked current round and found no blocking findings.`,
     })));
     const ids = outputs.map(out => out.match(/B-rpcli:RP-\d+/)?.[0]).filter(Boolean);
@@ -322,6 +411,11 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
     git(root, ['checkout', '-b', `story/${storyId}`]);
     const store = new StoryStore(root);
     writeReviewStory(store, storyId);
+    const docsRunId = await startReviewRun(root, storyId, 'koala-review-docs');
+    const conceptRunId = await startReviewRun(root, storyId, 'koala-review-concept');
+    const channelRunId = await startReviewRun(root, storyId, 'koala-review-channel');
+    const qualityRunId = await startReviewRun(root, storyId, 'koala-review-quality');
+    const behaviorRunId = await startReviewRun(root, storyId, 'koala-review-behavior');
 
     const passOutput = await runKoala(root, 'finding_add', {
       storyId,
@@ -329,6 +423,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
       severity: 'low',
       category: 'happy',
       agent: 'koala-review-docs',
+      reviewRunId: docsRunId,
     });
     assert.match(passOutput, /Review pass B-passonly:RP-001 recorded by koala-review-docs/);
     assert.equal(store.readFindings(storyId).findings.length, 0, 'pass-only finding_add should not write findings.json');
@@ -346,6 +441,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
       severity: 'low',
       category: 'happy',
       agent: 'koala-review-docs',
+      reviewRunId: docsRunId,
     });
     assert.match(noDriftOutput, /Review pass B-passonly:RP-002 recorded by koala-review-docs/);
     assert.equal(store.readFindings(storyId).findings.length, 0, 'negated no-drift wording should remain a review pass');
@@ -356,6 +452,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
       severity: 'low',
       category: 'happy',
       agent: 'koala-review-concept',
+      reviewRunId: conceptRunId,
     });
     assert.match(conceptPassOutput, /Review pass B-passonly:RP-003 recorded by koala-review-concept/);
     assert.equal(store.readFindings(storyId).findings.length, 0, 'concept pass-only finding_add should not write findings.json');
@@ -366,6 +463,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
       severity: 'low',
       category: 'happy',
       agent: 'koala-review-channel',
+      reviewRunId: channelRunId,
     });
     assert.match(channelPassOutput, /Review pass B-passonly:RP-004 recorded by koala-review-channel/);
     assert.equal(store.readFindings(storyId).findings.length, 0, 'channel pass-only finding_add should not write findings.json');
@@ -376,6 +474,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
       severity: 'low',
       category: 'happy',
       agent: 'koala-review-quality',
+      reviewRunId: qualityRunId,
     });
     assert.match(noFindingsOutput, /Review pass B-passonly:RP-005 recorded by koala-review-quality/);
     assert.equal(store.readFindings(storyId).findings.length, 0, 'no findings wording should convert to review pass');
@@ -386,6 +485,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
       severity: 'low',
       category: 'happy',
       agent: 'koala-review-behavior',
+      reviewRunId: behaviorRunId,
     });
     assert.match(genericPassOutput, /Review pass B-passonly:RP-006 recorded by koala-review-behavior/);
     assert.equal(store.readFindings(storyId).findings.length, 0, 'generic check-pass wording should convert to review pass');
@@ -396,6 +496,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
       severity: 'low',
       category: 'happy',
       agent: 'koala-review-docs',
+      reviewRunId: docsRunId,
     });
     assert.match(explicitPassOutput, /Review pass B-passonly:RP-007 recorded by koala-review-docs/);
     assert.equal(store.readFindings(storyId).findings.length, 0, 'explicit PASS wording should convert to review pass');
@@ -406,6 +507,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
       severity: 'low',
       category: 'edge',
       agent: 'koala-review-docs',
+      reviewRunId: docsRunId,
     });
     assert.match(findingOutput, /Finding B-passonly:F-001 created by koala-review-docs/);
     const findings = store.readFindings(storyId).findings;
@@ -418,6 +520,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
       severity: 'critical',
       category: 'cleanup',
       agent: 'koala-review-concept',
+      reviewRunId: conceptRunId,
     });
     assert.match(cleanupOutput, /Finding B-passonly:F-002 created by koala-review-concept: \[critical\/missing\]/);
     const cleanupFindings = store.readFindings(storyId).findings;
@@ -430,6 +533,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
       severity: 'critical',
       category: 'doc-promise-undelivered',
       agent: 'koala-review-quality',
+      reviewRunId: qualityRunId,
     });
     assert.match(docPromiseOutput, /Finding B-passonly:F-003 created by koala-review-quality: \[critical\/missing\]/);
     const docPromiseFindings = store.readFindings(storyId).findings;
@@ -442,6 +546,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
       severity: 'medium',
       category: 'happy',
       agent: 'koala-review-docs',
+      reviewRunId: docsRunId,
     });
     assert.match(nonLowPassOutput, /Finding B-passonly:F-004 created by koala-review-docs/);
     assert.equal(store.readFindings(storyId).findings.length, 4, 'non-low pass-like finding_add should remain a finding');
@@ -463,6 +568,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
         severity: 'medium',
         category: 'docs',
         agent: 'koala-review-quality',
+        reviewRunId: qualityRunId,
       }),
       /category must be one of happy\|edge\|adversarial\|missing/,
       'unknown finding category should be rejected even when bypassing CLI schema',
@@ -474,6 +580,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
         severity: 'low',
         category: 'docs',
         agent: 'koala-review-quality',
+        reviewRunId: qualityRunId,
       }),
       /category must be one of happy\|edge\|adversarial\|missing/,
       'unknown finding category must be rejected before pass-only review normalization',
@@ -830,6 +937,7 @@ async function assertStaleWarningCooldownCliSurface(): Promise<void> {
 await assertPlanRemoveIsHardBlocked();
 await assertClusterAutoResolveCliSurface();
 await assertDirectFindingAutoResolveCliSurface();
+await assertReviewRunStartCliSurface();
 await assertReviewPassConcurrentCliSurface();
 await assertPassOnlyFindingConvertsToReviewPassCliSurface();
 await assertChannelGateAcceptsSubagentResultCliSurface();

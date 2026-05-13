@@ -101,11 +101,12 @@ B-xxxx REVIEW (authority:worktree, mirror:INIT_CHECK)
 - **stale evidence 不能被“测试通过”覆盖**：`koala validate` 如果发现 verification coverage missing/stale，JSON 必须是 `allPass:false`，提示也必须指向补 evidence，而不是说“验证全绿”。可用 `verification_evidence_refresh_stale --storyId=B-xxx --dryRun` 查看需刷新项；重跑对应验证命令后去掉 dryRun 刷新 metadata。
 - **Gate oracle 与 renderer 分离**：DONE pre-check 等 gate 输出必须先形成稳定 row contract（`id/status/detail/hint/source/blocking`），`status` / `session_brief` / `next` 只渲染这些 row。展示层不能用 phase 或 label 文案复制一份 gate 规则。
 - **下一步提示必须 phase-aware**：`koala validate` 通过只代表验证命令通过，不代表可以跨过当前 phase。DEV 通过后提示 commit + REVIEW，REVIEW 通过后提示 TEST，TEST 通过后仍要渲染 DONE pre-check 的失败 row 和补救 hint。
-- **流程事实必须双层保护**：prompt 只负责指导 agent 调用正确命令；CLI / handler / gate 必须硬编码兜底，负责 schema、runtime 归一、签名、hash、evidence fresh check 和拒绝策略。该原则只覆盖流程事实：phase / state transition、pass / no-issue confirmation、finding category / role / severity、verification evidence、init / scope / delivery check、REVIEW / TEST / DONE gate artifact。普通解释性 prose 不应被当作流程证据。
+- **流程事实必须双层保护**：prompt 只负责指导 agent 调用正确命令；CLI / handler / gate 必须硬编码兜底，负责 schema、runtime 归一、签名、hash、evidence fresh check 和拒绝策略。该原则只覆盖流程事实：phase / state transition、pass / no-issue confirmation、review run / finding category / role / severity、verification evidence、init / scope / delivery check、REVIEW / TEST / DONE gate artifact。普通解释性 prose 不应被当作流程证据。
 - **流程事实需要 typed registry**：`packages/main/src/core/process-fact-registry.ts` 从 `COMMAND_POLICIES` 与 `PROCESS_FACT_LEVELS` 机械组装 command fact，并显式覆盖 reviewer lane、artifact、required semantic facts（如 validation-status、verification-evidence、review-pass、finding-state）。维护者新增 gate、reviewer lane 或 artifact 时，必须先让 registry 和 contract verifier 同步更新。
 - **运行环境事实单独登记**：CLI entrypoint、global core realpath、project-local bin、Node/package version、validate source、external-reference-policy 等 runtime/environment facts 不进入流程事实 registry。它们登记在 `packages/main/src/core/runtime-fact-registry.ts`，由 `doctor` 的 `Runtime scan:` 展示，并由 `scripts/verify-runtime-fact-contract.mjs` 验证 registry / checker / doctor 输出一致。外部项目对 Orchestrate-local realpath/symlink 期望只 warn/advisory；`external-reference-policy` 是 bounded policy scan，不做 connectivity pass。
 - **运行时文件事实单独登记**：`.koala/activity.jsonl`、legacy `docs/story/activity.jsonl`、`.koala/runtime/`、`.koala/traces/`、`.koala-serve.json`、debug/browser logs 等 runtime artifacts 登记在 `packages/main/src/core/runtime-artifact-registry.ts`。freshness、baseline risk、`story_sync_main`、`koala init` 和 `doctor` 必须消费这张表，避免 activity log 之类运行时文件被误当成 material change；`.koala/story/` 仍是流程证据，不属于 runtime artifact。
 - **Pass 结论不是 finding**：reviewer 没有 finding 时必须写 `review_pass_set`。为了兼容旧 prompt 或误用，pass-only `finding_add`（如 no findings、检查通过、PASS/PASSED）在 handler 里转成 review pass；含“但是/failed/issue found”等歧义失败语义时仍保留为 finding。
+- **REVIEW evidence 先绑 reviewer run**：`review_run_start` 写 signed `review-runs.json`，记录 `reviewRunId / lane / reviewRound / headHash / materialHash / promptHash`。当前 REVIEW round 的 `finding_add` / `review_pass_set` 必须携带 `reviewRunId`，gate 只接受 lane 匹配、reviewRound 匹配、签名有效、且仍 fresh 的最新 reviewer run。
 - **Finding category 不扩散**：当前 canonical category 是 `happy|edge|adversarial|missing`。已知 legacy category（`cleanup|doc-promise-undelivered|doc-code-drift|spec-boundary`）只作为兼容输入归一到 `missing`，不得作为 active reviewer prompt 示例或新流程语义继续传播。
 - **用户价值验收优先**：DONE 前必须能说清楚“用户看到什么变化、怎么使用、证据在哪里”。工程链路通过不等于任务真正完成。
 - **用户价值验收结构化**：`summary_set` 必须记录 `expectedOutcome`、`actualTranscript`、`outcomeDiff`、`acceptanceVerdict`，并可记录 `outcomeKind=success|blocked|audit_only`。DONE gate 消费这些字段，缺失时不能进入 DONE；缺 `outcomeKind` 的 legacy summary 按 success/default 展示。
@@ -156,7 +157,7 @@ B-xxxx REVIEW (authority:worktree, mirror:INIT_CHECK)
 | `story_advance -> TEST` | blocker 解决、preflight 通过后推进 |
 | `story_advance -> DEV` | 有问题时回实现 |
 
-`koala-review-test-coverage` 是 REVIEW 阶段的 reviewer agent/lane 名称，不是 `koala` CLI 命令或 phase tool。它检查 `verificationIntent` / `verificationEvidence` 覆盖；无 blocker 时通过 `review_pass_set` 写 review pass，内部 coverage validation 消费这些结构化 evidence。
+`koala-review-test-coverage` 是 REVIEW 阶段的 reviewer agent/lane 名称，不是 `koala` CLI 命令或 phase tool。它检查 `verificationIntent` / `verificationEvidence` 覆盖；先 `review_run_start` 拿当前 round 的 `reviewRunId`，无 blocker 时通过 `review_pass_set` + `reviewRunId` 写 review pass，内部 coverage validation 消费这些结构化 evidence。
 
 ### TEST
 
@@ -181,13 +182,14 @@ B-xxxx REVIEW (authority:worktree, mirror:INIT_CHECK)
 - `reviewRound: string (ISO 8601 review round id)`。review pass / finding / delivery check 的签名域消费这个字符串，不能退回 number round。
 - `story_review.planReviewRound: number (PLAN review round count)`。这是 PLAN 阶段 story review 轮次数字，来自 `review.json.reviews.length`；`story_review.reviewRound` 仅是 legacy numeric PLAN review alias，不能解释成 signed artifact `reviewRound`。
 - pass-only finding_add 归一化：low severity 且 agent 为 `koala-review-*` 的 pass-only `finding_add` 机械转成 `review_pass_set`；ambiguous pass+failure、非 reviewer、非 low severity 都是真 finding。
+- review run freshness：同一 reviewer lane 在当前 REVIEW round 可多次 `review_run_start`；只有该 lane 最新 signed run 仍是 current。代码/文档 material 改动后旧 run 会 stale，必须重跑 `review_run_start` 再提交 finding/pass。
 - Express exemption 是机器策略不是口头解释：express channel 且 zero `verificationIntent` 时输出 `Verification policy: express-exempt (channel=express; PLAN verificationIntent intentionally skipped)`；fast / normal zero intent 不显示 `express-exempt`。
 
 ## 三方制衡
 
 - **主 agent**：写需求、拆 checklist、写代码、补 evidence、修 bug。
 - **test-intent / verification-intent agent**：写验收标准，逼出 edge/adversarial。
-- **reviewer**：审实现和覆盖；`koala-review-test-coverage` 是其中一个 reviewer lane。无 blocker 时写 `review_pass_set`，有 blocker 时独立记录 finding / delivery check。
+- **reviewer**：审实现和覆盖；`koala-review-test-coverage` 是其中一个 reviewer lane。先 `review_run_start` 建当前 REVIEW round 的 reviewer run；无 blocker 时写 `review_pass_set` + `reviewRunId`，有 blocker 时独立记录 `finding_add` + `reviewRunId` / delivery check。
 - **用户**：最终产品价值裁决者。
 
 主 agent 不是裁判。reviewer fail 了，正确反应是读懂反馈并修复，而不是解释到 pass。

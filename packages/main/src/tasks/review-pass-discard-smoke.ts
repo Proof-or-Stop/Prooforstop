@@ -134,6 +134,16 @@ async function runKoala(root: string, command: string, args: Record<string, unkn
   });
 }
 
+function extractReviewRunId(output: string): string {
+  const match = output.match(/B-[^:\s]+:RR-\d+/);
+  assert.ok(match?.[0], `expected review run id in output: ${output}`);
+  return match![0];
+}
+
+async function startReviewRun(root: string, storyId: string, agent: string): Promise<string> {
+  return extractReviewRunId(await runKoala(root, 'review_run_start', { storyId, agent }));
+}
+
 async function runKoalaFromCwd(cwd: string, command: string, args: Record<string, unknown>): Promise<string> {
   return new Promise<string>((resolvePromise, reject) => {
     const env = { ...process.env };
@@ -161,9 +171,11 @@ async function assertReviewPassConcurrentWrites(): Promise<void> {
     const storyId = 'B-pass';
     writeReviewStory(root, storyId);
     const agents = ['concept', 'quality', 'test-coverage', 'docs'].map(name => `koala-review-${name}`);
+    const runIds = new Map(await Promise.all(agents.map(async (agent) => [agent, await startReviewRun(root, storyId, agent)] as const)));
     await Promise.all(agents.map(agent => runKoala(root, 'review_pass_set', {
       storyId,
       agent,
+      reviewRunId: runIds.get(agent),
       note: `${agent} checked its assigned review surface and found no blocker.`,
     })));
 
@@ -637,6 +649,7 @@ async function assertReviewerItemDispatchUsesReviewerPrompt(): Promise<void> {
     });
     assert.match(output, /作为 koala-review-quality 审查/, 'reviewer item dispatch should identify reviewer role');
     assert.match(output, /只审查/, 'reviewer item dispatch should constrain the role to review only');
+    assert.match(output, /review_run_start/, 'reviewer item dispatch should require review_run_start before REVIEW evidence');
     assert.match(output, /finding_add/, 'reviewer item dispatch should tell reviewers how to record findings');
     assert.match(output, /review_pass_set/, 'reviewer item dispatch should tell reviewers how to record pass evidence');
     assert.doesNotMatch(output, /作为 koala-implementer/, 'reviewer item dispatch must not generate implementer prompt');
