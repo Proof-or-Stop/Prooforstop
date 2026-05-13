@@ -1,0 +1,85 @@
+{
+  "findings": [
+    {
+      "id": "B-ad12:F-001",
+      "desc": "packages/main/src/handlers/story-dispatch.ts:383 WHY: reviewer dispatch now tells the lane to call review_run_start, but the very next finding_add/review_pass_set examples hard-code reviewRunId as B-xxx:RR-001 instead of using the returned id. Any rerun, stale-run restart, or preexisting run makes the shipped instructions produce gate-rejected REVIEW evidence, so the prompt contract is mechanically wrong. severity: high",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-05-13T14:47:18.551Z",
+      "reviewRound": "2026-05-13T14:42:26.343Z",
+      "reviewRunId": "B-ad12:RR-003",
+      "_hash": "32dc1a43ea910fe41a480fad35daad90c7a18ad7d2f48bf7a886d0733c65f0a9",
+      "files": [
+        "packages/main/src/handlers/story-dispatch.ts",
+        "packages/main/templates/agents/koala-review-concept.md",
+        ".claude/agents/koala-review-concept.md",
+        ".Codex/agents/koala-review-concept.md"
+      ]
+    },
+    {
+      "id": "B-ad12:F-002",
+      "desc": "scripts/verify-process-fact-contract.mjs:418 WHY: the new prompt-contract guard only checks that reviewer examples mention reviewRunId/review_run_start, not that they consume the returned value instead of hard-coding RR-001. That let the broken reviewer examples and dispatch prompt ship while the contract test still passed, so the registry/prompt hardening is incomplete. severity: medium",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-05-13T14:47:24.809Z",
+      "reviewRound": "2026-05-13T14:42:26.343Z",
+      "reviewRunId": "B-ad12:RR-003",
+      "_hash": "f7945d05e876874ed4b46a48fe7de008ba988515e22f367aa61265d58cde6942",
+      "files": [
+        "scripts/verify-process-fact-contract.mjs",
+        "packages/main/src/tasks/review-pass-discard-smoke.ts"
+      ]
+    },
+    {
+      "id": "B-ad12:F-003",
+      "desc": "packages/main/src/core/command-policy.ts:57 and packages/main/src/core/config.ts:154 [medium] `review_pass_set` is still allowed/advised in DEV, but `review_run_start` is REVIEW-only and `assertCurrentReviewRunForEvidence` rejects when `currentReviewRound` is absent. That means any DEV-time reviewer pass receipt now hard-fails despite phase policy and phaseTools advertising it as supported. Fix: either remove `review_pass_set` from DEV policy/phaseTools or add an intentional DEV-compatible run model instead of exposing an impossible command path.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-13T14:48:12.174Z",
+      "reviewRound": "2026-05-13T14:42:26.343Z",
+      "reviewRunId": "B-ad12:RR-002",
+      "_hash": "7b6c33eeb18c22825efeafee066f4308aff23d1e8fd45fd92d2f6c38927d6bb7",
+      "files": [
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/config.ts"
+      ]
+    },
+    {
+      "id": "B-ad12:F-004",
+      "desc": "packages/main/src/handlers/story-dispatch.ts:383-385 [medium] The reviewer dispatch prompt tells the reviewer to start `review_run_start`, but the follow-up `finding_add`/`review_pass_set` examples hard-code `reviewRunId` as `${storyId}:RR-001` instead of telling the reviewer to reuse the actual returned id. On any rerun or stale-run recovery path the copied commands are wrong and will fail the new latest-run/freshness checks. Fix: instruct reviewers to capture the returned `reviewRunId` and use a placeholder such as `<reviewRunId>` in the generated commands, not `RR-001`.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-13T14:48:20.677Z",
+      "reviewRound": "2026-05-13T14:42:26.343Z",
+      "reviewRunId": "B-ad12:RR-002",
+      "_hash": "5fa6222a8d5a07734920a8821c7d5660cf8a76003e6b40530d0364c25c638fb4",
+      "files": [
+        "packages/main/src/handlers/story-dispatch.ts"
+      ]
+    },
+    {
+      "id": "B-ad12:F-005",
+      "desc": "packages/main/src/core/reviewer-status.ts:117-143 [medium] Invalid reviewer evidence is only attached as `detail`, while `present` stays false, `verdict` stays `pending`, and blockerCount stays 0. In session output this can surface as `0 blockers` even when a reviewer already ran but the bound run is stale/tampered, which hides the actionable failure mode behind a generic pending state. Fix: when `invalid` evidence exists for a reviewer, mark that entry as failed (or otherwise blocker-bearing) instead of pending-only so REVIEW status matches the actual gate failure reason.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-13T14:48:29.977Z",
+      "reviewRound": "2026-05-13T14:42:26.343Z",
+      "reviewRunId": "B-ad12:RR-002",
+      "_hash": "5a76bf73a3121ee005e8ff0d2faacd0043c791736deb5124e14b9a15c460c069",
+      "files": [
+        "packages/main/src/core/reviewer-status.ts",
+        "packages/main/src/handlers/session.ts"
+      ]
+    }
+  ]
+}
