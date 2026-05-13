@@ -1,4 +1,5 @@
 import { execFileSync } from 'child_process';
+import { isVolatileRuntimeArtifactPath } from './runtime-artifact-registry.js';
 
 export interface BaselineRiskEntry {
   code: string;
@@ -34,15 +35,11 @@ function isUnder(path: string, parent: string): boolean {
   return p === base || p.startsWith(`${base}/`);
 }
 
-function isVolatilePath(path: string): boolean {
-  return path.startsWith('.koala/') || path === 'docs/story/activity.jsonl';
-}
-
 /**
  * Collect baseline risk from git status in a repo.
  *
  * Classifies each dirty/untracked path into:
- *   - volatile: runtime workspace directories (.koala/, activity.jsonl) -- auto-ignored
+ *   - volatile: runtime workspace artifacts (logs/cache/tmp) -- auto-ignored
  *   - acceptedLocal: user-configured paths to suppress -- demoted from material
  *   - material: real risk that should be reported
  */
@@ -72,7 +69,7 @@ export function collectBaselineRisk(
       return {
         code: line.slice(0, 2),
         path,
-        volatile: isVolatilePath(path),
+        volatile: isVolatileRuntimeArtifactPath(path),
         acceptedLocal: accepted.some((parent) => isUnder(path, parent)),
       };
     })

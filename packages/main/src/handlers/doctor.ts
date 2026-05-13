@@ -17,6 +17,7 @@ import type { HandlerContext } from './context.js';
 import { readHealthIssues, summarizeHealthIssues, getHealthPath } from '../core/health.js';
 import { loadConfig } from '../core/config.js';
 import { renderCodexAdapterChecks, runCodexAdapterChecks } from '../core/codex-adapter-checks.js';
+import { findRuntimeArtifactEntry, isRepairableTrackedRuntimeArtifactPath } from '../core/runtime-artifact-registry.js';
 import { formatValidationCommand } from '../core/validation-executor.js';
 import { renderRuntimeEnvironmentReport, runRuntimeEnvironmentChecks } from '../core/runtime-environment-checks.js';
 import { scanValidationSetup, type ValidationSetupScan } from './verifier.js';
@@ -35,6 +36,9 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       });
       const validation = scanValidationSetup(root);
       const runtime = runRuntimeEnvironmentChecks(root);
+      let trackedRuntimeArtifacts = scanTrackedRuntimeArtifacts(root);
+      const runtimeArtifactsRepaired: string[] = [];
+      const runtimeArtifactsRepairFailed: Array<{ path: string; error: string }> = [];
 
       // B-7241 follow-up: scan for orphan worktrees (directory exists but
       // `git worktree list` doesn't know about it). This typically happens
@@ -73,6 +77,22 @@ export function createDoctorHandlers(ctx: HandlerContext) {
         orphanScan = scanOrphanWorktrees(root, store);
         cleanupTargets = collectWorktreeCleanupTargets(orphanScan);
       }
+      if (args?.repair && trackedRuntimeArtifacts.some((artifact) => artifact.repairable)) {
+        for (const artifact of trackedRuntimeArtifacts) {
+          if (!artifact.repairable) continue;
+          try {
+            execFileSync('git', ['rm', '--cached', '--', artifact.path], {
+              cwd: root,
+              encoding: 'utf-8',
+              stdio: ['pipe', 'pipe', 'pipe'],
+            });
+            runtimeArtifactsRepaired.push(artifact.path);
+          } catch (e: any) {
+            runtimeArtifactsRepairFailed.push({ path: artifact.path, error: e.message || String(e) });
+          }
+        }
+        trackedRuntimeArtifacts = scanTrackedRuntimeArtifacts(root);
+      }
 
       if (args?.format === 'json') {
         return {
@@ -91,6 +111,13 @@ export function createDoctorHandlers(ctx: HandlerContext) {
           codex,
           validation,
           runtime,
+          runtimeArtifacts: {
+            tracked: trackedRuntimeArtifacts,
+            needsRepair: trackedRuntimeArtifacts.some((artifact) => artifact.repairable),
+            repaired: runtimeArtifactsRepaired,
+            repairFailed: runtimeArtifactsRepairFailed,
+            repairRequested: !!args?.repair,
+          },
         };
       }
 
@@ -102,10 +129,12 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       lines.push(`  shown : ${summary.recent.length} (${summary.recentWindow === '24h' ? 'last 24h' : 'most recent'})`);
       lines.push('');
 
-      if (summary.total === 0 && cleanupTargets.length === 0) {
+      if (summary.total === 0 && cleanupTargets.length === 0 && trackedRuntimeArtifacts.length === 0) {
         lines.push('✓ No health issues recorded. koala is healthy.');
-      } else if (summary.total === 0) {
+      } else if (summary.total === 0 && cleanupTargets.length > 0) {
         lines.push('⚠ No health issues recorded, but worktree cleanup issues were found.');
+      } else if (summary.total === 0) {
+        lines.push('⚠ No health issues recorded, but tracked runtime artifacts were found.');
       } else {
         lines.push('By category:');
         const sorted = Object.entries(summary.byCategory).sort((a, b) => b[1] - a[1]);
@@ -131,6 +160,30 @@ export function createDoctorHandlers(ctx: HandlerContext) {
         lines.push(`→ 如需清空：rm ${getHealthPath()}`);
         lines.push('');
       }
+
+      lines.push('Runtime artifacts:');
+      if (trackedRuntimeArtifacts.length === 0) {
+        lines.push('  ✓ no tracked runtime artifacts found');
+        if (args?.repair) {
+          for (const path of runtimeArtifactsRepaired) lines.push(`  ✓ untracked ${path}`);
+          for (const failed of runtimeArtifactsRepairFailed) lines.push(`  ✗ ${failed.path}: ${failed.error}`);
+        }
+      } else {
+        for (const artifact of trackedRuntimeArtifacts) {
+          lines.push(`  - ${artifact.path} [${artifact.entryId}]${artifact.repairable ? ` -> ${artifact.repairCommand}` : ' (manual review)'}`);
+        }
+        if (args?.repair) {
+          if (runtimeArtifactsRepaired.length > 0) {
+            for (const path of runtimeArtifactsRepaired) lines.push(`  ✓ untracked ${path}`);
+          }
+          for (const failed of runtimeArtifactsRepairFailed) {
+            lines.push(`  ✗ ${failed.path}: ${failed.error}`);
+          }
+        } else {
+          lines.push('→ Re-run: koala doctor --repair to untrack repairable runtime artifacts.');
+        }
+      }
+      lines.push('');
 
       // Worktree orphan section
       lines.push('Worktree scan:');
@@ -224,6 +277,53 @@ function renderValidationScan(scan: ValidationSetupScan): string {
   }
   lines.push('  note: fallback command discovery is advisory; configure validate.command(s) for an explicit project gate.');
   return lines.join('\n');
+}
+
+interface TrackedRuntimeArtifact {
+  path: string;
+  entryId: string;
+  ignorePatterns: string[];
+  materialHash: 'exclude' | 'include';
+  volatile: boolean;
+  repairable: boolean;
+  repairCommand: string;
+}
+
+function renderGitRmCachedCommand(path: string): string {
+  return `git rm --cached -- ${JSON.stringify(path)}`;
+}
+
+function scanTrackedRuntimeArtifacts(root: string): TrackedRuntimeArtifact[] {
+  let raw = '';
+  try {
+    raw = execFileSync('git', ['ls-files', '-z'], {
+      cwd: root,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+  } catch {
+    return [];
+  }
+  const seen = new Set<string>();
+  const tracked: TrackedRuntimeArtifact[] = [];
+  for (const path of raw.split('\0').filter(Boolean)) {
+    const artifact = findRuntimeArtifactEntry(path);
+    if (!artifact) continue;
+    const key = `${artifact.id}:${path}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    tracked.push({
+      path,
+      entryId: artifact.id,
+      ignorePatterns: artifact.ignorePatterns,
+      materialHash: artifact.materialHash,
+      volatile: artifact.volatile,
+      repairable: isRepairableTrackedRuntimeArtifactPath(path),
+      repairCommand: renderGitRmCachedCommand(path),
+    });
+  }
+  tracked.sort((a, b) => a.path.localeCompare(b.path));
+  return tracked;
 }
 
 /**

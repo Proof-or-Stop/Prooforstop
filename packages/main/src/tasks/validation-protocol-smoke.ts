@@ -235,6 +235,13 @@ try {
     scripts: { test: 'node -e "process.stdout.write(\\"fallback\\")"' },
   }));
   execFileSync('git', ['init'], { cwd: tmp, stdio: ['ignore', 'ignore', 'ignore'] });
+  execFileSync('git', ['config', 'user.name', 'Koala Smoke'], { cwd: tmp, stdio: ['ignore', 'ignore', 'ignore'] });
+  execFileSync('git', ['config', 'user.email', 'smoke@example.test'], { cwd: tmp, stdio: ['ignore', 'ignore', 'ignore'] });
+  mkdirSync(join(tmp, '.koala', 'story', 'actives', 'B-demo'), { recursive: true });
+  writeFileSync(join(tmp, '.koala', 'activity.jsonl'), '{}\n');
+  writeFileSync(join(tmp, '.koala', 'story', 'actives', 'B-demo', 'index.json'), '{}\n');
+  execFileSync('git', ['add', '.'], { cwd: tmp, stdio: ['ignore', 'ignore', 'ignore'] });
+  execFileSync('git', ['commit', '-m', 'seed doctor runtime artifact smoke'], { cwd: tmp, stdio: ['ignore', 'ignore', 'ignore'] });
   resetConfigCache();
   const doctor = createDoctorHandlers({
     root: tmp,
@@ -260,8 +267,15 @@ try {
   assert.equal(doctorJson.validation.configuredShellReceiptsIntentional, true);
   assert.deepEqual(doctorJson.validation.discoveredFallbackLabels, ['package.json test script']);
   assert.equal(doctorJson.validation.noValidatorWarning, false);
+  assert.equal(doctorJson.runtimeArtifacts.tracked.length, 1, 'doctor should report tracked runtime artifacts');
+  assert.equal(doctorJson.runtimeArtifacts.tracked[0].path, '.koala/activity.jsonl');
+  assert.equal(doctorJson.runtimeArtifacts.tracked[0].repairable, true);
+  assert.match(doctorJson.runtimeArtifacts.tracked[0].repairCommand, /git rm --cached/);
 
   const doctorText = doctor() as string;
+  assert.match(doctorText, /Runtime artifacts:/);
+  assert.match(doctorText, /\.koala\/activity\.jsonl/);
+  assert.match(doctorText, /git rm --cached -- "\.koala\/activity\.jsonl"/);
   assert.match(doctorText, /Runtime scan:/);
   assert.match(doctorText, /cli-entrypoint/);
   assert.match(doctorText, /external-reference-policy/);
@@ -271,6 +285,12 @@ try {
   assert.match(doctorText, /discovered fallback labels: package\.json test script/);
   assert.match(doctorText, /fallback command discovery is advisory/);
   assert.doesNotMatch(doctorText, /PVSC|B-2065|\b\d+\s+passed\b/);
+
+  const repairedDoctorJson = doctor({ format: 'json', repair: true }) as any;
+  assert.equal(repairedDoctorJson.runtimeArtifacts.tracked.length, 0, 'doctor --repair should untrack repairable runtime artifacts');
+  assert.deepEqual(repairedDoctorJson.runtimeArtifacts.repaired, ['.koala/activity.jsonl']);
+  assert.notEqual(execFileSync('git', ['ls-files', '--', '.koala/story/actives/B-demo/index.json'], { cwd: tmp, encoding: 'utf8' }).trim(), '', 'doctor --repair should not untrack story evidence');
+  assert.equal(execFileSync('git', ['ls-files', '--', '.koala/activity.jsonl'], { cwd: tmp, encoding: 'utf8' }).trim(), '', 'doctor --repair should untrack runtime artifacts');
 
   console.log('✓ validation protocol smoke passed');
 } finally {

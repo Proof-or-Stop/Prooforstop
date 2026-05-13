@@ -15,6 +15,11 @@ import {
 } from './init-assets.js';
 import type { InitProfile } from './init-assets.js';
 import { renderCodexAdapterChecks, runCodexAdapterChecks } from './core/codex-adapter-checks.js';
+import {
+  KOALA_RUNTIME_IGNORE_BLOCK_END,
+  KOALA_RUNTIME_IGNORE_BLOCK_START,
+  listRuntimeArtifactIgnorePatterns,
+} from './core/runtime-artifact-registry.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -36,9 +41,61 @@ const KOALA_SKILL_FALLBACK = `# /koala — 项目管理入口
 // 通过 koala init 调用时 argv[2]='init'，跳过；直接 npx koala-init 时 argv[2] 是目标目录
 const initArgs = process.argv[2] === 'init' ? process.argv.slice(3) : process.argv.slice(2);
 const INIT_DOC_SECTION_RE = /<!--\s*koala:start\s*-->[\s\S]*?<!--\s*koala:end\s*-->/;
+const GITIGNORE_RUNTIME_BLOCK_RE = new RegExp(
+  `${escapeRegExp(KOALA_RUNTIME_IGNORE_BLOCK_START)}[\\s\\S]*?${escapeRegExp(KOALA_RUNTIME_IGNORE_BLOCK_END)}`,
+);
 
 function isSupportedInitProfile(value: string): value is InitProfile {
   return SUPPORTED_INIT_PROFILES.includes(value as InitProfile);
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function normalizeGitignoreLine(line: string): string {
+  return line.trim();
+}
+
+function renderManagedRuntimeIgnoreBlock(lines: string[]): string {
+  return [
+    KOALA_RUNTIME_IGNORE_BLOCK_START,
+    ...lines,
+    KOALA_RUNTIME_IGNORE_BLOCK_END,
+  ].join('\n');
+}
+
+function mergeKoalaRuntimeIgnores(existingContent: string): { content: string; changed: boolean } {
+  const required = listRuntimeArtifactIgnorePatterns();
+  const blockMatch = existingContent.match(GITIGNORE_RUNTIME_BLOCK_RE);
+  const blockText = blockMatch?.[0] ?? null;
+  const contentWithoutBlock = blockText ? existingContent.replace(GITIGNORE_RUNTIME_BLOCK_RE, '').replace(/\n{3,}/g, '\n\n') : existingContent;
+  const presentOutsideBlock = new Set(
+    contentWithoutBlock
+      .split('\n')
+      .map(normalizeGitignoreLine)
+      .filter(Boolean),
+  );
+  const desiredBlockLines = required.filter(line => !presentOutsideBlock.has(line));
+  if (desiredBlockLines.length === 0) {
+    return { content: existingContent, changed: false };
+  }
+
+  const renderedBlock = renderManagedRuntimeIgnoreBlock(desiredBlockLines);
+  if (blockText) {
+    if (blockText === renderedBlock) return { content: existingContent, changed: false };
+    return {
+      content: existingContent.replace(GITIGNORE_RUNTIME_BLOCK_RE, renderedBlock),
+      changed: true,
+    };
+  }
+
+  const base = existingContent.replace(/\s+$/, '');
+  const separator = base.length === 0 ? '' : '\n\n';
+  return {
+    content: `${base}${separator}${renderedBlock}\n`,
+    changed: true,
+  };
 }
 
 function parseExplicitProfile(args: string[]): InitProfile | null {
@@ -451,12 +508,30 @@ if (!existsSync(giPath)) {
     cpSync(giSrc, giPath);
     console.log('  ✓ .gitignore (copied from koala)');
   } else {
+    const minimalGitignore = [
+      'node_modules',
+      'dist',
+      '__pycache__/',
+      '*.pyc',
+      '.worktrees/',
+      'tmp/*',
+      '!tmp/.gitkeep',
+      '',
+      renderManagedRuntimeIgnoreBlock(listRuntimeArtifactIgnorePatterns()),
+      '',
+    ].join('\n');
     // B-5010 CHK-005: tmp/ 要整个 ignore，避免 agent 写一次性 helper 脚本被 git add 收进去
-    writeFileSync(giPath, 'node_modules\ndist\n__pycache__/\n*.pyc\n.worktrees/\ntmp/*\n!tmp/.gitkeep\n');
+    writeFileSync(giPath, minimalGitignore);
     console.log('  ✓ .gitignore (created minimal)');
   }
 } else {
-  console.log('  - .gitignore (exists, skip)');
+  const mergeResult = mergeKoalaRuntimeIgnores(readFileSync(giPath, 'utf8'));
+  if (mergeResult.changed) {
+    writeFileSync(giPath, mergeResult.content);
+    console.log('  ✓ .gitignore (merged koala runtime ignores)');
+  } else {
+    console.log('  - .gitignore (runtime ignores already present)');
+  }
 }
 
 // 1.6 可选 starter 项目代码目录（src/core + src/shells）

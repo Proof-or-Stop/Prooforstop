@@ -8,6 +8,7 @@ import { StoryStore } from '../core/store.js';
 import { assertCwdInWorktree, collectContext } from './context.js';
 import { loadConfig } from '../core/config.js';
 import { formatProcessMetricsSummary } from '../core/process-metrics.js';
+import { isVolatileRuntimeArtifactPath } from '../core/runtime-artifact-registry.js';
 import {
   getRepoRoot,
   getStoryWorktreeRuntime,
@@ -774,7 +775,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
         return lines.join('\n');
       }
 
-      const dirty = gitPorcelainPaths(cwd).filter(path => path !== '.koala/activity.jsonl' && path !== 'docs/story/activity.jsonl');
+      const dirty = gitPorcelainPaths(cwd).filter(path => !isVolatileRuntimeArtifactPath(path));
       if (dirty.length > 0) {
         throw new Error(`Cannot sync main: working tree has uncommitted changes:\n${dirty.slice(0, 20).join('\n')}`);
       }

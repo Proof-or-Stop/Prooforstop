@@ -1,5 +1,6 @@
 import { execFileSync } from 'child_process';
 import { createHash } from 'crypto';
+import { isMaterialExcludedRuntimeArtifactPath } from './runtime-artifact-registry.js';
 
 export type EvidenceFreshness = {
   fresh: boolean;
@@ -20,6 +21,10 @@ export function isStoryMetadataPath(path: string): boolean {
     '.koala/story/',
     'docs/koala/framework-audit/',
   ].some(prefix => normalized.startsWith(prefix));
+}
+
+export function isMaterialExcludedPath(path: string): boolean {
+  return isStoryMetadataPath(path) || isMaterialExcludedRuntimeArtifactPath(path);
 }
 
 export function currentGitHead(projectRoot: string): string | undefined {
@@ -57,7 +62,7 @@ export function currentMaterialHash(projectRoot: string, ref = 'HEAD'): string |
       if (tab < 0) continue;
       const meta = entry.slice(0, tab);
       const filePath = entry.slice(tab + 1);
-      if (isStoryMetadataPath(filePath)) continue;
+      if (isMaterialExcludedPath(filePath)) continue;
       const objectId = meta.trim().split(/\s+/)[2];
       if (!objectId) continue;
       materialEntries.push(`${filePath}\0${objectId}`);
@@ -127,7 +132,7 @@ export function checkEvidenceFreshnessForGit(
 
   try {
     const changedFiles = changedFilesBetween(projectRoot, evidenceHash, 'HEAD');
-    const materialFiles = changedFiles.filter(f => !isStoryMetadataPath(f));
+    const materialFiles = changedFiles.filter(f => !isMaterialExcludedPath(f));
     if (materialFiles.length === 0) {
       return {
         fresh: true,

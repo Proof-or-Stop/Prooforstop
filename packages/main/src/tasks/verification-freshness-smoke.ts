@@ -5,7 +5,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { checkEvidenceFreshnessForGit, currentMaterialHash, isStoryMetadataPath } from '../core/evidence-freshness.js';
+import { checkEvidenceFreshnessForGit, currentMaterialHash, isMaterialExcludedPath } from '../core/evidence-freshness.js';
 import { buildVerificationCoverage } from '../core/verification.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
@@ -114,8 +114,12 @@ const metadataOnly = [
   'docs/koala/framework-audit/round.json',
 ];
 
-const material = [
+const runtimeMetadata = [
   '.koala/activity.jsonl',
+  'docs/story/activity.jsonl',
+];
+
+const material = [
   'packages/main/src/core/verification.ts',
   'packages/main/tests/fixtures/story.json',
   'packages/main/package.json',
@@ -125,14 +129,21 @@ const material = [
 ];
 
 for (const path of metadataOnly) {
-  assert.equal(isStoryMetadataPath(path), true, `${path} should be workflow metadata`);
+  assert.equal(isMaterialExcludedPath(path), true, `${path} should be workflow metadata`);
   assert.equal(freshAfterChanging(path), true, `${path} should keep evidence fresh`);
   assert.equal(materialFreshAfterChanging(path), true, `${path} should keep material-hash evidence fresh`);
   assert.equal(coverageStatusWithMaterialHash(path), 'covered', `${path} should keep coverage covered`);
 }
 
+for (const path of runtimeMetadata) {
+  assert.equal(isMaterialExcludedPath(path), true, `${path} should be runtime metadata`);
+  assert.equal(freshAfterChanging(path), true, `${path} should keep evidence fresh`);
+  assert.equal(materialFreshAfterChanging(path), true, `${path} should keep material-hash evidence fresh`);
+  assert.equal(coverageStatusWithMaterialHash(path), 'covered', `${path} should keep coverage covered even when tracked`);
+}
+
 for (const path of material) {
-  assert.equal(isStoryMetadataPath(path), false, `${path} should be material`);
+  assert.equal(isMaterialExcludedPath(path), false, `${path} should be material`);
   assert.equal(freshAfterChanging(path), false, `${path} should make evidence stale`);
   assert.equal(materialFreshAfterChanging(path), false, `${path} should make material-hash evidence stale`);
   assert.equal(coverageStatusWithMaterialHash(path), 'stale', `${path} should make coverage stale`);
