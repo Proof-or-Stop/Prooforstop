@@ -1187,8 +1187,6 @@ function commitFromDraftMetadataAndMergeMain(root: string, store: StoryStore, st
   const commitMessage = `koala: from-draft metadata ${storyId}`;
   gitCli(root, [
     '-c', 'commit.gpgsign=false',
-    '-c', 'user.email=koala@example.test',
-    '-c', 'user.name=Koala',
     'commit',
     '-m', commitMessage,
   ]);
@@ -1208,8 +1206,6 @@ function commitFromDraftMetadataAndMergeMain(root: string, store: StoryStore, st
   const worktreeAbs = isAbsolute(worktreePath) ? worktreePath : join(repoRoot, worktreePath);
   gitCli(worktreeAbs, [
     '-c', 'commit.gpgsign=false',
-    '-c', 'user.email=koala@example.test',
-    '-c', 'user.name=Koala',
     'merge',
     'main',
     '--no-edit',
