@@ -238,7 +238,10 @@ try {
   execFileSync('git', ['config', 'user.name', 'Koala Smoke'], { cwd: tmp, stdio: ['ignore', 'ignore', 'ignore'] });
   execFileSync('git', ['config', 'user.email', 'smoke@example.test'], { cwd: tmp, stdio: ['ignore', 'ignore', 'ignore'] });
   mkdirSync(join(tmp, '.koala', 'story', 'actives', 'B-demo'), { recursive: true });
+  mkdirSync(join(tmp, '.koala', 'runtime'), { recursive: true });
   writeFileSync(join(tmp, '.koala', 'activity.jsonl'), '{}\n');
+  const shellMetaArtifactPath = ".koala/runtime/$USER $(echo hi) `uname` 'artifact'.json";
+  writeFileSync(join(tmp, shellMetaArtifactPath), '{}\n');
   writeFileSync(join(tmp, '.koala', 'story', 'actives', 'B-demo', 'index.json'), '{}\n');
   execFileSync('git', ['add', '.'], { cwd: tmp, stdio: ['ignore', 'ignore', 'ignore'] });
   execFileSync('git', ['commit', '-m', 'seed doctor runtime artifact smoke'], { cwd: tmp, stdio: ['ignore', 'ignore', 'ignore'] });
@@ -267,15 +270,25 @@ try {
   assert.equal(doctorJson.validation.configuredShellReceiptsIntentional, true);
   assert.deepEqual(doctorJson.validation.discoveredFallbackLabels, ['package.json test script']);
   assert.equal(doctorJson.validation.noValidatorWarning, false);
-  assert.equal(doctorJson.runtimeArtifacts.tracked.length, 1, 'doctor should report tracked runtime artifacts');
-  assert.equal(doctorJson.runtimeArtifacts.tracked[0].path, '.koala/activity.jsonl');
-  assert.equal(doctorJson.runtimeArtifacts.tracked[0].repairable, true);
-  assert.match(doctorJson.runtimeArtifacts.tracked[0].repairCommand, /git rm --cached/);
+  assert.equal(doctorJson.runtimeArtifacts.tracked.length, 2, 'doctor should report tracked runtime artifacts');
+  const activityArtifact = doctorJson.runtimeArtifacts.tracked.find((artifact: any) => artifact.path === '.koala/activity.jsonl');
+  assert.ok(activityArtifact, 'doctor should include .koala/activity.jsonl');
+  assert.equal(activityArtifact.repairable, true);
+  assert.equal(activityArtifact.repairCommand, "git rm --cached -- '.koala/activity.jsonl'");
+  const shellMetaArtifact = doctorJson.runtimeArtifacts.tracked.find((artifact: any) => artifact.path === shellMetaArtifactPath);
+  assert.ok(shellMetaArtifact, 'doctor should include tracked runtime artifacts with shell metacharacters');
+  assert.equal(shellMetaArtifact.repairable, true);
+  assert.equal(
+    shellMetaArtifact.repairCommand,
+    "git rm --cached -- '.koala/runtime/$USER $(echo hi) `uname` '\"'\"'artifact'\"'\"'.json'",
+  );
 
   const doctorText = doctor() as string;
   assert.match(doctorText, /Runtime artifacts:/);
   assert.match(doctorText, /\.koala\/activity\.jsonl/);
-  assert.match(doctorText, /git rm --cached -- "\.koala\/activity\.jsonl"/);
+  assert.match(doctorText, /git rm --cached -- '\.koala\/activity\.jsonl'/);
+  assert.match(doctorText, /git rm --cached -- '\.koala\/runtime\/\$USER \$\(echo hi\) `uname` '"'"'artifact'"'"'\.json'/);
+  assert.doesNotMatch(doctorText, /git rm --cached -- ".*activity\.jsonl"/);
   assert.match(doctorText, /Runtime scan:/);
   assert.match(doctorText, /cli-entrypoint/);
   assert.match(doctorText, /external-reference-policy/);
@@ -288,9 +301,13 @@ try {
 
   const repairedDoctorJson = doctor({ format: 'json', repair: true }) as any;
   assert.equal(repairedDoctorJson.runtimeArtifacts.tracked.length, 0, 'doctor --repair should untrack repairable runtime artifacts');
-  assert.deepEqual(repairedDoctorJson.runtimeArtifacts.repaired, ['.koala/activity.jsonl']);
+  assert.deepEqual(
+    [...repairedDoctorJson.runtimeArtifacts.repaired].sort(),
+    ['.koala/activity.jsonl', shellMetaArtifactPath].sort(),
+  );
   assert.notEqual(execFileSync('git', ['ls-files', '--', '.koala/story/actives/B-demo/index.json'], { cwd: tmp, encoding: 'utf8' }).trim(), '', 'doctor --repair should not untrack story evidence');
   assert.equal(execFileSync('git', ['ls-files', '--', '.koala/activity.jsonl'], { cwd: tmp, encoding: 'utf8' }).trim(), '', 'doctor --repair should untrack runtime artifacts');
+  assert.equal(execFileSync('git', ['ls-files', '--', shellMetaArtifactPath], { cwd: tmp, encoding: 'utf8' }).trim(), '', 'doctor --repair should untrack metacharacter runtime artifacts');
 
   console.log('✓ validation protocol smoke passed');
 } finally {

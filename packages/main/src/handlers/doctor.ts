@@ -290,7 +290,11 @@ interface TrackedRuntimeArtifact {
 }
 
 function renderGitRmCachedCommand(path: string): string {
-  return `git rm --cached -- ${JSON.stringify(path)}`;
+  return `git rm --cached -- ${renderPosixShellArg(path)}`;
+}
+
+function renderPosixShellArg(value: string): string {
+  return `'${value.replace(/'/g, `'\"'\"'`)}'`;
 }
 
 function scanTrackedRuntimeArtifacts(root: string): TrackedRuntimeArtifact[] {
