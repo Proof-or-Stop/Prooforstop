@@ -5,7 +5,7 @@
       "desc": "packages/main/src/cli-init.ts only treats non-selected host assets as \"profile skip\" and never removes previously generated opposite-host adapter files. Re-running `koala init --profile=codex` on a directory that already has Koala-managed Claude assets leaves `CLAUDE.md` and `.claude/` behind; re-running `--profile=claude` similarly leaves `AGENTS.md` and `.Codex/` behind. I reproduced both cases with temporary dirs in this worktree. That violates the CHK-002/CHK-003 concept boundary that profile selection should produce a mechanical asset matrix with no wrong-host leakage. scripts/verify-entrypoints.mjs passes because it only covers fresh temp dirs and does not assert cleanup of pre-existing opposite-host assets.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "agent": "koala-review-concept",
       "createdAt": "2026-05-13T01:05:12.335Z",
       "reviewRound": "2026-05-13T01:02:56.921Z",
@@ -20,7 +20,7 @@
       "desc": "CHK-001/CHK-002/CHK-003 的 must-level verificationIntent 目前主要由 npm run test:entrypoints 与 node bin/koala-codex.js verify_codex 覆盖，但现有证据缺少当前材料状态的 build 证明。scripts/verify-entrypoints.mjs 直接执行 packages/main/dist/cli-init.js 与 packages/main/dist/cli.js，bin/bootstrap-runner.js / bin/koala-codex.js 也依赖已构建 dist；本 story 提交只改了 packages/main/src/cli-init.ts、packages/main/src/init-assets.ts、scripts/verify-entrypoints.mjs，未提供 npm run build evidence，因此无法证明这些 must intents 已在当前源码对应的构建产物上被验证。现有 headHash=4000f09b 的 evidence 因 metadata-only 变更可视为 freshness 未失效，但覆盖仍缺 build 这一层。",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-05-13T01:05:31.338Z",
       "reviewRound": "2026-05-13T01:02:56.921Z",
@@ -39,13 +39,29 @@
       "desc": "[HIGH] packages/main/src/cli-init.ts:571,577,649,695,761 - Explicit init profiles do not clean up previously generated opposite-host assets. Repro: init a temp dir with --profile=all, rerun with --profile=codex, and .claude/, CLAUDE.md, and other Claude-only assets still remain; codex->claude likewise leaves .Codex/, AGENTS.md, and bin/koala-codex.js behind. That violates the story contract that explicit --profile is the source of truth and leaks the wrong host entrypoints into the resulting project. Fix: when a profile is selected, remove stale Koala-managed assets for the non-selected host (managed docs with koala markers, .claude/.Codex trees, bin/koala-codex.js) while still preserving unmarked user-owned files.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "agent": "koala-review-quality",
       "createdAt": "2026-05-13T01:05:50.295Z",
       "reviewRound": "2026-05-13T01:02:56.921Z",
       "_hash": "84807cf00e88aa4a1a4104589305f85a553f40f848ec1c8651a371da2e7df1f8",
       "files": [
         "packages/main/src/cli-init.ts"
+      ]
+    },
+    {
+      "id": "B-cac9:F-004",
+      "desc": "复审 B-cac9:F-002：当前 checklist 已为 CHK-001/CHK-002/CHK-003 的全部 verificationIntent 填入 evidence，但 evidence 里的 headHash 仍全部停留在 1f650d97，未见绑定当前 HEAD b050f198 的新记录。当前分支自 1f650d97 之后只改了 .koala/story/actives/B-cac9/{checklist,index,process-events,process-metrics}，说明材料源码没有再变；不过按本轮复审要求，需要当前 HEAD 的 npm run build、npm run test:entrypoints、node bin/koala-codex.js verify_codex evidence。现状只能证明 current material coverage，不能证明 current HEAD evidence 已刷新，因此 F-002 仍未满足关闭条件。",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-05-13T01:16:51.331Z",
+      "reviewRound": "2026-05-13T01:15:07.926Z",
+      "_hash": "c349fcf1b0f10a7ee465aace0b1447ffda0f2d268fad1ebbf301b32d510f82f1",
+      "files": [
+        "package.json",
+        "scripts/verify-entrypoints.mjs",
+        "bin/koala-codex.js"
       ]
     }
   ]
