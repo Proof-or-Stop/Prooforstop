@@ -4,7 +4,7 @@
   "title": "Hard-code fresh reviewer run evidence for REVIEW gate",
   "description": "Reviewer freshness should be a verifiable process boundary, not a prompt-only trust statement. Add hard-coded review run evidence so reviewer passes/findings are tied to a current review run, lane, round, prompt hash, head/material hash, and cannot silently reuse stale or missing reviewer context.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "createdAt": "2026-05-13T13:44:01.452Z",
   "startedAt": "2026-05-13T13:44:01.452Z",
@@ -23,6 +23,14 @@
       "action": "advance",
       "timestamp": "2026-05-13T13:48:42.836Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-05-13T13:49:20.221Z",
+      "branch": "story/B-ad12",
       "user": "Harmonygo",
       "agent": "main"
     }

@@ -11,7 +11,45 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "`koala review_run_start` prints a reviewRunId, and REVIEW gate errors name missing/stale run-bound reviewer evidence instead of accepting prompt-only reviewer claims."
+      "userSees": "`koala review_run_start` prints a reviewRunId, and REVIEW gate errors name missing/stale run-bound reviewer evidence instead of accepting prompt-only reviewer claims.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "create": [
+          "packages/main/src/handlers/review-run.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "review_run_start writes a signed review-runs.json entry with reviewRunId, storyId, reviewer lane, current reviewRound, prompt hash, headHash, materialHash, and startedAt.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "review_run_start rejects non-reviewer lanes, missing story/worktree context, and attempts outside an active currentReviewRound.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A tampered review run signature or mismatched lane cannot be treated as valid reviewer run evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -23,7 +61,47 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "`koala session_brief` / REVIEW→TEST failures identify missing or stale run-bound evidence per reviewer lane, while valid `review_pass_set` and `finding_add` output includes the accepted reviewRunId linkage."
+      "userSees": "`koala session_brief` / REVIEW→TEST failures identify missing or stale run-bound evidence per reviewer lane, while valid `review_pass_set` and `finding_add` output includes the accepted reviewRunId linkage.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/guard-utils.ts",
+          "packages/main/src/core/reviewer-status.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/flow-fact-policy.ts",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "review_pass_set and finding_add accept reviewRunId, persist it in signed artifacts, and REVIEW status counts valid current run-bound pass/finding evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Legacy evidence remains readable for old stories without currentReviewRound, but current REVIEW rounds require run-bound evidence for required lanes.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "REVIEW→TEST rejects missing reviewRunId, stale run hash, wrong lane, wrong round, or evidence created before the active REVIEW round.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -38,7 +116,71 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Reviewer dispatch text shows `review_run_start` before pass/finding commands, and `verify-process-fact-contract` fails if the review-run gate artifact is not registered."
+      "userSees": "Reviewer dispatch text shows `review_run_start` before pass/finding commands, and `verify-process-fact-contract` fails if the review-run gate artifact is not registered.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/flow-fact-policy.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "packages/main/templates/agents/koala-review-concept.md",
+          "packages/main/templates/agents/koala-review-quality.md",
+          "packages/main/templates/agents/koala-review-test-coverage.md",
+          "packages/main/templates/agents/koala-review-docs.md",
+          "packages/main/templates/agents/koala-review-behavior.md",
+          "packages/main/templates/agents/koala-review-channel.md",
+          ".claude/agents/koala-review-concept.md",
+          ".claude/agents/koala-review-quality.md",
+          ".claude/agents/koala-review-test-coverage.md",
+          ".claude/agents/koala-review-docs.md",
+          ".claude/agents/koala-review-behavior.md",
+          ".claude/agents/koala-review-channel.md",
+          ".Codex/agents/koala-review-concept.md",
+          ".Codex/agents/koala-review-quality.md",
+          ".Codex/agents/koala-review-test-coverage.md",
+          ".Codex/agents/koala-review-docs.md",
+          ".Codex/agents/koala-review-behavior.md",
+          ".Codex/agents/koala-review-channel.md",
+          "AGENTS.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Reviewer dispatch and reviewer prompts tell reviewers to run review_run_start first and pass reviewRunId into review_pass_set/finding_add.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "process-fact-registry and verify-process-fact-contract register review_run_start and review-runs.json as signed gate evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Prompt examples for pass-only findings still use review_pass_set rather than finding_add and include reviewRunId.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Contract verification fails synthetic prompt/registry drift where review_run_start or reviewRunId is omitted from reviewer evidence flow.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
@@ -51,7 +193,44 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Regression smoke output shows stale/missing reviewRunId cases are rejected with actionable REVIEW→TEST messages, and valid current-run evidence still lets the reviewer gate pass."
+      "userSees": "Regression smoke output shows stale/missing reviewRunId cases are rejected with actionable REVIEW→TEST messages, and valid current-run evidence still lets the reviewer gate pass.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused smokes pass for valid run-bound reviewer passes/findings and show current-review evidence can advance REVIEW→TEST.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Regression coverage keeps old-story compatibility without currentReviewRound while enforcing reviewRunId for new REVIEW rounds.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Regression coverage asserts actionable gate failures for stale/missing/wrong-lane reviewRunId cases and pre-REVIEW evidence reuse.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
