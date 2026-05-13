@@ -8,9 +8,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "AGENTS.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-13T14:32:39.107Z",
       "userSees": "用户看到 \"Story B-xxxx created from draft ...\"、\"路径: .../.worktrees/B-xxxx\"，随后 \"git status --porcelain\" 没有任何输出。",
       "files": {
         "modify": [
@@ -40,7 +40,42 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "Targeted smoke creates an approved draft, runs story_create --fromDraft, sees worktree output, confirms story.worktree is recorded, and asserts main git status is empty.",
+          "headHash": "047006189dab6e4c8139b61ade509b35865c4991",
+          "materialHash": "2a4f85f5bdea51950f91b9e691775823ff1e3a0de27df453a4829a8903c445c0",
+          "timestamp": "2026-05-13T14:32:14.330Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/cli-engine.ts",
+          "command": "npm run build && npm run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "fromDraft CLI path now stages only the active story dir and source draft dir, commits that bounded metadata transaction on main, and merges main into the new story worktree.",
+          "headHash": "047006189dab6e4c8139b61ade509b35865c4991",
+          "materialHash": "2a4f85f5bdea51950f91b9e691775823ff1e3a0de27df453a4829a8903c445c0",
+          "timestamp": "2026-05-13T14:32:14.330Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "Smoke includes a hard clean-main assertion, so any tracked or untracked story/draft residue after fromDraft bootstrap fails the test.",
+          "headHash": "047006189dab6e4c8139b61ade509b35865c4991",
+          "materialHash": "2a4f85f5bdea51950f91b9e691775823ff1e3a0de27df453a4829a8903c445c0",
+          "timestamp": "2026-05-13T14:32:14.330Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -50,9 +85,9 @@
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-13T14:32:39.215Z",
       "userSees": "用户运行目标 smoke 后看到 \"✓ worktree authority smoke passed\"；如果 main 有 story/draft residue 或 story branch 不包含 main，命令直接失败。",
       "files": {
         "modify": [],
@@ -80,7 +115,42 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "Smoke now asserts worktree registration, empty main git status, and merge-base ancestry from main to story/B-* after story_create --fromDraft.",
+          "headHash": "047006189dab6e4c8139b61ade509b35865c4991",
+          "materialHash": "2a4f85f5bdea51950f91b9e691775823ff1e3a0de27df453a4829a8903c445c0",
+          "timestamp": "2026-05-13T14:32:14.330Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "The regression covers the field failure shape by checking main for active story or draft metadata residue immediately after INIT_CHECK/worktree bootstrap.",
+          "headHash": "047006189dab6e4c8139b61ade509b35865c4991",
+          "materialHash": "2a4f85f5bdea51950f91b9e691775823ff1e3a0de27df453a4829a8903c445c0",
+          "timestamp": "2026-05-13T14:32:14.330Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "The test fails if story/B-* does not contain current main or if main remains dirty after bootstrap, preventing a misleading success.",
+          "headHash": "047006189dab6e4c8139b61ade509b35865c4991",
+          "materialHash": "2a4f85f5bdea51950f91b9e691775823ff1e3a0de27df453a4829a8903c445c0",
+          "timestamp": "2026-05-13T14:32:14.330Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -89,9 +159,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-13T14:32:38.973Z",
       "userSees": "用户看到目标 smoke 和验证命令均通过，并且 Koala checklist evidence 记录覆盖 \"clean main\" 与 \"story branch contains main\"。",
       "files": {
         "modify": [],
@@ -123,7 +193,82 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "Targeted smoke passed in the story worktree and covers clean-main plus branch-ancestry intents.",
+          "headHash": "047006189dab6e4c8139b61ade509b35865c4991",
+          "materialHash": "2a4f85f5bdea51950f91b9e691775823ff1e3a0de27df453a4829a8903c445c0",
+          "timestamp": "2026-05-13T14:32:14.330Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/cli-engine.ts",
+          "command": "npm run build && npm run test:init-check-bootstrap",
+          "result": "pass",
+          "note": "TypeScript build passed and INIT_CHECK bootstrap regression still passes, showing ordinary branch isolation remains intact.",
+          "headHash": "047006189dab6e4c8139b61ade509b35865c4991",
+          "materialHash": "2a4f85f5bdea51950f91b9e691775823ff1e3a0de27df453a4829a8903c445c0",
+          "timestamp": "2026-05-13T14:32:14.330Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm run build && npm run test:worktree-authority-smoke && npm run test:init-check-bootstrap",
+          "result": "pass",
+          "note": "Evidence was recorded after implementation commits 04700618/d67c0fcc and fresh targeted validation commands passed.",
+          "headHash": "047006189dab6e4c8139b61ade509b35865c4991",
+          "materialHash": "2a4f85f5bdea51950f91b9e691775823ff1e3a0de27df453a4829a8903c445c0",
+          "timestamp": "2026-05-13T14:32:14.330Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm run build && npm run test:worktree-authority-smoke && npm run test:init-check-bootstrap",
+          "result": "pass",
+          "note": "The already-run build, targeted smoke, and INIT_CHECK bootstrap regression cover the adversarial case: clean-main and branch-ancestry assertions are explicit, so missing or failed targeted coverage cannot be mistaken for a passing implementation.",
+          "headHash": "047006189dab6e4c8139b61ade509b35865c4991",
+          "materialHash": "2a4f85f5bdea51950f91b9e691775823ff1e3a0de27df453a4829a8903c445c0",
+          "timestamp": "2026-05-13T14:32:30.970Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-05-13T14:32:38.973Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Ran build, targeted worktree authority smoke, and INIT_CHECK bootstrap regression; evidence recorded."
+    },
+    {
+      "timestamp": "2026-05-13T14:32:39.107Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented bounded fromDraft metadata transaction and verified with targeted smoke/build."
+    },
+    {
+      "timestamp": "2026-05-13T14:32:39.215Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Extended worktree authority smoke with clean-main and branch ancestry assertions."
     }
   ]
 }
