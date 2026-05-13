@@ -8,9 +8,9 @@
         "AGENTS.md#流程事实双层契约",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
+      "status": "done",
+      "startTime": "2026-05-13T00:40:07.707Z",
+      "endTime": "2026-05-13T00:52:24.865Z",
       "userSees": "Terminal prints `Init profile: codex (explicit --profile)` for explicit codex, `Init profile: claude (detected Claude Code markers)` for Claude-only markers, and `Init profile: all (compatibility fallback: no host markers detected)` for markerless projects.",
       "verificationIntent": {
         "happy": [
@@ -53,7 +53,59 @@
         "test": [
           "scripts/verify-entrypoints.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "18-entrypoint contract suite verifies explicit --profile=codex|claude|all|core selection and selected-profile output at current HEAD.",
+          "headHash": "4000f09b5412b52111345b92c94461e4206d5a74",
+          "materialHash": "e7c770c64f5267388014019a02e90b86aecbb1f94a2d2b7bd0045c16b8be4c82",
+          "timestamp": "2026-05-13T01:02:41.269Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "18-entrypoint contract suite verifies no-profile detection for Codex-only, Claude-only, both-marker, and no-marker compatibility fallback at current HEAD.",
+          "headHash": "4000f09b5412b52111345b92c94461e4206d5a74",
+          "materialHash": "e7c770c64f5267388014019a02e90b86aecbb1f94a2d2b7bd0045c16b8be4c82",
+          "timestamp": "2026-05-13T01:02:41.269Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "Explicit override test seeds a Codex marker, requests --profile claude, and asserts the explicit profile wins.",
+          "headHash": "4000f09b5412b52111345b92c94461e4206d5a74",
+          "materialHash": "e7c770c64f5267388014019a02e90b86aecbb1f94a2d2b7bd0045c16b8be4c82",
+          "timestamp": "2026-05-13T01:02:41.269Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "Profile detection tests include both Codex and Claude markers and assert the all profile is selected rather than silently preferring one host.",
+          "headHash": "4000f09b5412b52111345b92c94461e4206d5a74",
+          "materialHash": "e7c770c64f5267388014019a02e90b86aecbb1f94a2d2b7bd0045c16b8be4c82",
+          "timestamp": "2026-05-13T01:02:41.269Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "Default fallback test asserts markerless init prints the backward-compatibility all-profile note.",
+          "headHash": "4000f09b5412b52111345b92c94461e4206d5a74",
+          "materialHash": "e7c770c64f5267388014019a02e90b86aecbb1f94a2d2b7bd0045c16b8be4c82",
+          "timestamp": "2026-05-13T01:02:41.269Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -63,9 +115,9 @@
         "AGENTS.md#Subagent 定义",
         "README.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-13T00:52:38.941Z",
       "userSees": "For `--profile=codex`, `find` shows `KOALA.md`, `AGENTS.md`, `.Codex/README.md`, `.Codex/koala.json`, `.Codex/agents/*`, `bin/koala.js`, `bin/koala-codex.js`, and prints `Skipping Claude Code assets for Codex profile`; `CLAUDE.md` and `.claude/` are absent. Claude/all/core show their corresponding matrix text.",
       "verificationIntent": {
         "happy": [
@@ -114,7 +166,69 @@
         "test": [
           "scripts/verify-entrypoints.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "Profile matrix tests assert codex profile creates KOALA.md, AGENTS.md, .Codex assets, bin/koala.js, and bin/koala-codex.js while omitting Claude-only assets.",
+          "headHash": "4000f09b5412b52111345b92c94461e4206d5a74",
+          "materialHash": "e7c770c64f5267388014019a02e90b86aecbb1f94a2d2b7bd0045c16b8be4c82",
+          "timestamp": "2026-05-13T01:02:41.269Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "Profile matrix tests assert claude profile creates KOALA.md, CLAUDE.md, .claude assets, and bin/koala.js while omitting .Codex assets and bin/koala-codex.js.",
+          "headHash": "4000f09b5412b52111345b92c94461e4206d5a74",
+          "materialHash": "e7c770c64f5267388014019a02e90b86aecbb1f94a2d2b7bd0045c16b8be4c82",
+          "timestamp": "2026-05-13T01:02:41.269Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "Profile matrix tests assert all profile emits both adapters and core profile emits only neutral assets plus KOALA.md.",
+          "headHash": "4000f09b5412b52111345b92c94461e4206d5a74",
+          "materialHash": "e7c770c64f5267388014019a02e90b86aecbb1f94a2d2b7bd0045c16b8be4c82",
+          "timestamp": "2026-05-13T01:02:41.269Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "Managed marker-sync tests assert AGENTS.md, CLAUDE.md, and KOALA.md preserve user content around koala markers while replacing only the managed section.",
+          "headHash": "4000f09b5412b52111345b92c94461e4206d5a74",
+          "materialHash": "e7c770c64f5267388014019a02e90b86aecbb1f94a2d2b7bd0045c16b8be4c82",
+          "timestamp": "2026-05-13T01:02:41.269Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "Unmanaged-doc tests assert unmarked AGENTS.md, CLAUDE.md, and KOALA.md are preserved byte-for-byte and logged as skipped.",
+          "headHash": "4000f09b5412b52111345b92c94461e4206d5a74",
+          "materialHash": "e7c770c64f5267388014019a02e90b86aecbb1f94a2d2b7bd0045c16b8be4c82",
+          "timestamp": "2026-05-13T01:02:41.269Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "Wrong-profile leakage is covered by profile matrix absence assertions and unmarked-doc preservation assertions; the suite would fail if host-specific assets leaked into the opposite profile.",
+          "headHash": "4000f09b5412b52111345b92c94461e4206d5a74",
+          "materialHash": "e7c770c64f5267388014019a02e90b86aecbb1f94a2d2b7bd0045c16b8be4c82",
+          "timestamp": "2026-05-13T01:02:41.269Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -124,9 +238,9 @@
         "AGENTS.md#流程事实双层契约",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-13T00:52:47.270Z",
       "userSees": "`npm run test:entrypoints` prints `entrypoints verified`; `koala init --profile=core --verify-codex /tmp/app` prints `Codex verification skipped: init profile core does not generate Codex adapter assets` instead of a missing `.Codex` failure.",
       "verificationIntent": {
         "happy": [
@@ -171,7 +285,59 @@
         "test": [
           "scripts/verify-entrypoints.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "The hard-coded entrypoint contract suite passes at 18/18 and checks profile matrix, preservation, explicit override, and verification skip behavior.",
+          "headHash": "4000f09b5412b52111345b92c94461e4206d5a74",
+          "materialHash": "e7c770c64f5267388014019a02e90b86aecbb1f94a2d2b7bd0045c16b8be4c82",
+          "timestamp": "2026-05-13T01:02:41.269Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "Non-Codex profile tests assert claude/core profile contracts without running Codex adapter checks in normal matrix validation.",
+          "headHash": "4000f09b5412b52111345b92c94461e4206d5a74",
+          "materialHash": "e7c770c64f5267388014019a02e90b86aecbb1f94a2d2b7bd0045c16b8be4c82",
+          "timestamp": "2026-05-13T01:02:41.269Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "Explicit --verify-codex tests for claude/core assert the clear skip message instead of missing-.Codex drift failures.",
+          "headHash": "4000f09b5412b52111345b92c94461e4206d5a74",
+          "materialHash": "e7c770c64f5267388014019a02e90b86aecbb1f94a2d2b7bd0045c16b8be4c82",
+          "timestamp": "2026-05-13T01:02:41.269Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "Contract tests assert specific present/absent assets and marker semantics, so command success alone cannot hide wrong-profile generation.",
+          "headHash": "4000f09b5412b52111345b92c94461e4206d5a74",
+          "materialHash": "e7c770c64f5267388014019a02e90b86aecbb1f94a2d2b7bd0045c16b8be4c82",
+          "timestamp": "2026-05-13T01:02:41.269Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "node bin/koala-codex.js verify_codex",
+          "result": "pass",
+          "note": "Codex adapter verification passes at current HEAD for the Koala worktree; global fallback warning is advisory and expected.",
+          "headHash": "4000f09b5412b52111345b92c94461e4206d5a74",
+          "materialHash": "e7c770c64f5267388014019a02e90b86aecbb1f94a2d2b7bd0045c16b8be4c82",
+          "timestamp": "2026-05-13T01:02:41.269Z"
+        }
+      ]
     }
   ]
 }
