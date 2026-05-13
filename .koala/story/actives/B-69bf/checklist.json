@@ -54,9 +54,9 @@
           "command": "npm --prefix packages/main run test:verification-freshness-smoke",
           "result": "pass",
           "note": "verification freshness smoke asserts the runtime registry exports current and legacy activity paths as non-material metadata",
-          "headHash": "2821a93507f49794633116ba8395a0952d2f1391",
-          "materialHash": "d2fa4f4a91fa5a71d89ecaf22747d0f88eea3d79c4b1fb6de7fa0db69815853b",
-          "timestamp": "2026-05-13T10:07:58.149Z"
+          "headHash": "9605dd622274428e1295c99c594c9749c5189571",
+          "materialHash": "04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3",
+          "timestamp": "2026-05-13T10:15:56.175Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -64,9 +64,9 @@
           "command": "npm --prefix packages/main run test:verification-freshness-smoke",
           "result": "pass",
           "note": "verification freshness smoke keeps source, package, config, fixture, and requirements files material while excluding only registry runtime artifacts",
-          "headHash": "2821a93507f49794633116ba8395a0952d2f1391",
-          "materialHash": "d2fa4f4a91fa5a71d89ecaf22747d0f88eea3d79c4b1fb6de7fa0db69815853b",
-          "timestamp": "2026-05-13T10:07:58.176Z"
+          "headHash": "9605dd622274428e1295c99c594c9749c5189571",
+          "materialHash": "04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3",
+          "timestamp": "2026-05-13T10:15:56.175Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -74,9 +74,9 @@
           "command": "npm --prefix packages/main run test:verification-freshness-smoke",
           "result": "pass",
           "note": "smoke covers both .koala/activity.jsonl and docs/story/activity.jsonl so consumers cannot satisfy coverage by hardcoding only one runtime path",
-          "headHash": "2821a93507f49794633116ba8395a0952d2f1391",
-          "materialHash": "d2fa4f4a91fa5a71d89ecaf22747d0f88eea3d79c4b1fb6de7fa0db69815853b",
-          "timestamp": "2026-05-13T10:07:58.203Z"
+          "headHash": "9605dd622274428e1295c99c594c9749c5189571",
+          "materialHash": "04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3",
+          "timestamp": "2026-05-13T10:15:56.175Z"
         }
       ]
     },
@@ -138,9 +138,9 @@
           "command": "npm --prefix packages/main run test:verification-freshness-smoke",
           "result": "pass",
           "note": "materialHash-backed freshness stays covered when tracked .koala/activity.jsonl changes because currentMaterialHash excludes registry runtime artifacts",
-          "headHash": "2821a93507f49794633116ba8395a0952d2f1391",
-          "materialHash": "d2fa4f4a91fa5a71d89ecaf22747d0f88eea3d79c4b1fb6de7fa0db69815853b",
-          "timestamp": "2026-05-13T10:08:21.630Z"
+          "headHash": "9605dd622274428e1295c99c594c9749c5189571",
+          "materialHash": "04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3",
+          "timestamp": "2026-05-13T10:15:56.175Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -148,9 +148,9 @@
           "command": "node scripts/verify-worktree-baseline-risk.mjs",
           "result": "pass",
           "note": "baseline-risk smoke hides .omx runtime residue while still surfacing material user edits before INIT_CHECK",
-          "headHash": "2821a93507f49794633116ba8395a0952d2f1391",
-          "materialHash": "d2fa4f4a91fa5a71d89ecaf22747d0f88eea3d79c4b1fb6de7fa0db69815853b",
-          "timestamp": "2026-05-13T10:08:21.659Z"
+          "headHash": "9605dd622274428e1295c99c594c9749c5189571",
+          "materialHash": "04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3",
+          "timestamp": "2026-05-13T10:15:56.175Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -158,9 +158,9 @@
           "command": "npm --prefix packages/main run test:verification-freshness-smoke",
           "result": "pass",
           "note": "real source, package, config, fixture, and requirements files still stale evidence after material changes",
-          "headHash": "2821a93507f49794633116ba8395a0952d2f1391",
-          "materialHash": "d2fa4f4a91fa5a71d89ecaf22747d0f88eea3d79c4b1fb6de7fa0db69815853b",
-          "timestamp": "2026-05-13T10:08:21.687Z"
+          "headHash": "9605dd622274428e1295c99c594c9749c5189571",
+          "materialHash": "04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3",
+          "timestamp": "2026-05-13T10:15:56.175Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -168,9 +168,9 @@
           "command": "npm --prefix packages/main run test:verification-freshness-smoke",
           "result": "pass",
           "note": "tracked legacy docs/story/activity.jsonl also remains metadata-only for freshness and coverage reporting",
-          "headHash": "2821a93507f49794633116ba8395a0952d2f1391",
-          "materialHash": "d2fa4f4a91fa5a71d89ecaf22747d0f88eea3d79c4b1fb6de7fa0db69815853b",
-          "timestamp": "2026-05-13T10:08:21.716Z"
+          "headHash": "9605dd622274428e1295c99c594c9749c5189571",
+          "materialHash": "04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3",
+          "timestamp": "2026-05-13T10:15:56.175Z"
         }
       ]
     },
@@ -232,9 +232,9 @@
           "command": "npm run test:entrypoints",
           "result": "pass",
           "note": "entrypoints verification covers merging missing runtime ignore lines into an existing .gitignore under a managed block",
-          "headHash": "2821a93507f49794633116ba8395a0952d2f1391",
-          "materialHash": "d2fa4f4a91fa5a71d89ecaf22747d0f88eea3d79c4b1fb6de7fa0db69815853b",
-          "timestamp": "2026-05-13T10:08:22.166Z"
+          "headHash": "9605dd622274428e1295c99c594c9749c5189571",
+          "materialHash": "04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3",
+          "timestamp": "2026-05-13T10:15:56.175Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -242,9 +242,9 @@
           "command": "npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
           "note": "validation protocol smoke makes doctor report tracked .koala/activity.jsonl with a concrete git rm --cached repair command",
-          "headHash": "2821a93507f49794633116ba8395a0952d2f1391",
-          "materialHash": "d2fa4f4a91fa5a71d89ecaf22747d0f88eea3d79c4b1fb6de7fa0db69815853b",
-          "timestamp": "2026-05-13T10:08:22.198Z"
+          "headHash": "9605dd622274428e1295c99c594c9749c5189571",
+          "materialHash": "04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3",
+          "timestamp": "2026-05-13T10:15:56.175Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -252,9 +252,9 @@
           "command": "npm run test:entrypoints",
           "result": "pass",
           "note": "entrypoints verification keeps an existing .gitignore byte-for-byte unchanged when all required runtime ignores are already present",
-          "headHash": "2821a93507f49794633116ba8395a0952d2f1391",
-          "materialHash": "d2fa4f4a91fa5a71d89ecaf22747d0f88eea3d79c4b1fb6de7fa0db69815853b",
-          "timestamp": "2026-05-13T10:08:22.230Z"
+          "headHash": "9605dd622274428e1295c99c594c9749c5189571",
+          "materialHash": "04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3",
+          "timestamp": "2026-05-13T10:15:56.175Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -262,9 +262,9 @@
           "command": "npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
           "note": "doctor --repair untracks only registry-approved runtime artifacts and leaves .koala/story evidence tracked",
-          "headHash": "2821a93507f49794633116ba8395a0952d2f1391",
-          "materialHash": "d2fa4f4a91fa5a71d89ecaf22747d0f88eea3d79c4b1fb6de7fa0db69815853b",
-          "timestamp": "2026-05-13T10:08:22.257Z"
+          "headHash": "9605dd622274428e1295c99c594c9749c5189571",
+          "materialHash": "04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3",
+          "timestamp": "2026-05-13T10:15:56.175Z"
         }
       ]
     },
@@ -325,9 +325,9 @@
           "command": "npm --prefix packages/main run test:verification-freshness-smoke",
           "result": "pass",
           "note": "verification freshness smoke proves runtime artifacts do not stale materialHash-backed evidence even when the runtime file is tracked",
-          "headHash": "2821a93507f49794633116ba8395a0952d2f1391",
-          "materialHash": "d2fa4f4a91fa5a71d89ecaf22747d0f88eea3d79c4b1fb6de7fa0db69815853b",
-          "timestamp": "2026-05-13T10:08:21.884Z"
+          "headHash": "9605dd622274428e1295c99c594c9749c5189571",
+          "materialHash": "04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3",
+          "timestamp": "2026-05-13T10:15:56.175Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
@@ -335,9 +335,9 @@
           "command": "npm run test:entrypoints",
           "result": "pass",
           "note": "entrypoints verification covers existing-project .gitignore merge and no-churn behavior",
-          "headHash": "2821a93507f49794633116ba8395a0952d2f1391",
-          "materialHash": "d2fa4f4a91fa5a71d89ecaf22747d0f88eea3d79c4b1fb6de7fa0db69815853b",
-          "timestamp": "2026-05-13T10:08:21.913Z"
+          "headHash": "9605dd622274428e1295c99c594c9749c5189571",
+          "materialHash": "04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3",
+          "timestamp": "2026-05-13T10:15:56.175Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -345,9 +345,9 @@
           "command": "npm --prefix packages/main run test:verification-freshness-smoke",
           "result": "pass",
           "note": "the smoke still marks source, package, config, fixture, and requirements paths stale so the exclusion stays narrow",
-          "headHash": "2821a93507f49794633116ba8395a0952d2f1391",
-          "materialHash": "d2fa4f4a91fa5a71d89ecaf22747d0f88eea3d79c4b1fb6de7fa0db69815853b",
-          "timestamp": "2026-05-13T10:08:21.943Z"
+          "headHash": "9605dd622274428e1295c99c594c9749c5189571",
+          "materialHash": "04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3",
+          "timestamp": "2026-05-13T10:15:56.175Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -355,9 +355,9 @@
           "command": "npm --prefix packages/main run test:verification-freshness-smoke",
           "result": "pass",
           "note": "tracked runtime artifact coverage is explicit in the smoke, not just an ignored-untracked-file scenario",
-          "headHash": "2821a93507f49794633116ba8395a0952d2f1391",
-          "materialHash": "d2fa4f4a91fa5a71d89ecaf22747d0f88eea3d79c4b1fb6de7fa0db69815853b",
-          "timestamp": "2026-05-13T10:08:21.973Z"
+          "headHash": "9605dd622274428e1295c99c594c9749c5189571",
+          "materialHash": "04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3",
+          "timestamp": "2026-05-13T10:15:56.175Z"
         }
       ]
     }

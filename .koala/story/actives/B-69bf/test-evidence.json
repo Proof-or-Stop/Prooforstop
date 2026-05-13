@@ -1,0 +1,300 @@
+{
+  "command": "koala validate --story=B-69bf --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.2 test\",\"  > npm run test:e2e\",\"  > koala@0.3.2 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 15/15 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/logic] covered via logic_test — The runtime artifact registry exports explicit entries for current and legacy Koala runtime logs/cache paths, including their ignore patterns and repair behavior.\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test — The registry does not classify .koala/story artifacts, source files, requirements docs, package manifests, or koala.config.json as runtime artifacts.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test — A future consumer cannot satisfy tests by hardcoding only .koala/activity.jsonl while omitting legacy activity and runtime/cache paths from the registry.\",\"  ✓ CHK-002:happy:0 [happy/must/logic] covered via logic_test — currentMaterialHash and checkEvidenceFreshnessForGit ignore runtime artifacts from the registry, so tracked .koala/activity.jsonl changes keep evidence covered.\",\"  ✓ CHK-002:happy:1 [happy/must/logic] covered via manual_transcript — baseline risk uses the registry to classify runtime artifacts as volatile instead of material dirty paths.\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test — Material files such as packages/main/src/core/verification.ts, package-lock.json, koala.config.json, and docs/requirements remain material and still stale evidence when changed.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test — A tracked legacy docs/story/activity.jsonl change is also ignored for material freshness, preventing old storage migrations from reintroducing the stale loop.\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via manual_transcript — koala init merges missing runtime artifact ignore patterns into an existing .gitignore while preserving existing user content.\",\"  ✓ CHK-003:happy:1 [happy/must/cli] covered via manual_transcript — koala doctor reports tracked runtime artifacts with a concrete git rm --cached repair hint.\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via manual_transcript — If all required ignore patterns are already present, koala init leaves .gitignore unchanged except for normal init output.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via manual_transcript — doctor does not mutate git tracking without --repair, and doctor --repair only untracks registered runtime artifacts rather than broad .koala/story evidence.\",\"  ✓ CHK-004:happy:0 [happy/must/cli] covered via manual_transcript — npm run test:verification-freshness passes and explicitly proves runtime artifacts do not stale materialHash-backed evidence.\",\"  ✓ CHK-004:happy:1 [happy/must/cli] covered via manual_transcript — npm run test:entrypoints passes and covers init .gitignore merge behavior for existing projects.\",\"  ✓ CHK-004:edge:0 [edge/must/logic] covered via logic_test — The freshness smoke still proves real material paths are stale, so the runtime exclusion is not overly broad.\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/logic] covered via logic_test — A tracked runtime artifact scenario is tested, not just an ignored untracked file scenario.\"],\"warnings\":[],\"timestamp\":\"2026-05-13T10:15:57.469Z\",\"headSha\":\"9605dd622274428e1295c99c594c9749c5189571\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.2 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.2 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1010}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":15,\"reason\":\"verificationIntent entries present (15)\"},\"verificationCoverage\":{\"total\":15,\"required\":15,\"covered\":15,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"The runtime artifact registry exports explicit entries for current and legacy Koala runtime logs/cache paths, including their ignore patterns and repair behavior.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"verification freshness smoke asserts the runtime registry exports current and legacy activity paths as non-material metadata\",\"headHash\":\"9605dd622274428e1295c99c594c9749c5189571\",\"materialHash\":\"04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3\",\"timestamp\":\"2026-05-13T10:15:56.175Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"The registry does not classify .koala/story artifacts, source files, requirements docs, package manifests, or koala.config.json as runtime artifacts.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"verification freshness smoke keeps source, package, config, fixture, and requirements files material while excluding only registry runtime artifacts\",\"headHash\":\"9605dd622274428e1295c99c594c9749c5189571\",\"materialHash\":\"04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3\",\"timestamp\":\"2026-05-13T10:15:56.175Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"A future consumer cannot satisfy tests by hardcoding only .koala/activity.jsonl while omitting legacy activity and runtime/cache paths from the registry.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"smoke covers both .koala/activity.jsonl and docs/story/activity.jsonl so consumers cannot satisfy coverage by hardcoding only one runtime path\",\"headHash\":\"9605dd622274428e1295c99c594c9749c5189571\",\"materialHash\":\"04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3\",\"timestamp\":\"2026-05-13T10:15:56.175Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"currentMaterialHash and checkEvidenceFreshnessForGit ignore runtime artifacts from the registry, so tracked .koala/activity.jsonl changes keep evidence covered.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"materialHash-backed freshness stays covered when tracked .koala/activity.jsonl changes because currentMaterialHash excludes registry runtime artifacts\",\"headHash\":\"9605dd622274428e1295c99c594c9749c5189571\",\"materialHash\":\"04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3\",\"timestamp\":\"2026-05-13T10:15:56.175Z\"}},{\"intentRef\":\"CHK-002:happy:1\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"baseline risk uses the registry to classify runtime artifacts as volatile instead of material dirty paths.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node scripts/verify-worktree-baseline-risk.mjs\",\"result\":\"pass\",\"note\":\"baseline-risk smoke hides .omx runtime residue while still surfacing material user edits before INIT_CHECK\",\"headHash\":\"9605dd622274428e1295c99c594c9749c5189571\",\"materialHash\":\"04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3\",\"timestamp\":\"2026-05-13T10:15:56.175Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Material files such as packages/main/src/core/verification.ts, package-lock.json, koala.config.json, and docs/requirements remain material and still stale evidence when changed.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"real source, package, config, fixture, and requirements files still stale evidence after material changes\",\"headHash\":\"9605dd622274428e1295c99c594c9749c5189571\",\"materialHash\":\"04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3\",\"timestamp\":\"2026-05-13T10:15:56.175Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"A tracked legacy docs/story/activity.jsonl change is also ignored for material freshness, preventing old storage migrations from reintroducing the stale loop.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"tracked legacy docs/story/activity.jsonl also remains metadata-only for freshness and coverage reporting\",\"headHash\":\"9605dd622274428e1295c99c594c9749c5189571\",\"materialHash\":\"04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3\",\"timestamp\":\"2026-05-13T10:15:56.175Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"koala init merges missing runtime artifact ignore patterns into an existing .gitignore while preserving existing user content.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"npm run test:entrypoints\",\"result\":\"pass\",\"note\":\"entrypoints verification covers merging missing runtime ignore lines into an existing .gitignore under a managed block\",\"headHash\":\"9605dd622274428e1295c99c594c9749c5189571\",\"materialHash\":\"04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3\",\"timestamp\":\"2026-05-13T10:15:56.175Z\"}},{\"intentRef\":\"CHK-003:happy:1\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"koala doctor reports tracked runtime artifacts with a concrete git rm --cached repair hint.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run test:validation-protocol\",\"result\":\"pass\",\"note\":\"validation protocol smoke makes doctor report tracked .koala/activity.jsonl with a concrete git rm --cached repair command\",\"headHash\":\"9605dd622274428e1295c99c594c9749c5189571\",\"materialHash\":\"04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3\",\"timestamp\":\"2026-05-13T10:15:56.175Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"If all required ignore patterns are already present, koala init leaves .gitignore unchanged except for normal init output.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"npm run test:entrypoints\",\"result\":\"pass\",\"note\":\"entrypoints verification keeps an existing .gitignore byte-for-byte unchanged when all required runtime ignores are already present\",\"headHash\":\"9605dd622274428e1295c99c594c9749c5189571\",\"materialHash\":\"04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3\",\"timestamp\":\"2026-05-13T10:15:56.175Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"doctor does not mutate git tracking without --repair, and doctor --repair only untracks registered runtime artifacts rather than broad .koala/story evidence.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run test:validation-protocol\",\"result\":\"pass\",\"note\":\"doctor --repair untracks only registry-approved runtime artifacts and leaves .koala/story evidence tracked\",\"headHash\":\"9605dd622274428e1295c99c594c9749c5189571\",\"materialHash\":\"04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3\",\"timestamp\":\"2026-05-13T10:15:56.175Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"npm run test:verification-freshness passes and explicitly proves runtime artifacts do not stale materialHash-backed evidence.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"verification freshness smoke proves runtime artifacts do not stale materialHash-backed evidence even when the runtime file is tracked\",\"headHash\":\"9605dd622274428e1295c99c594c9749c5189571\",\"materialHash\":\"04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3\",\"timestamp\":\"2026-05-13T10:15:56.175Z\"}},{\"intentRef\":\"CHK-004:happy:1\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"npm run test:entrypoints passes and covers init .gitignore merge behavior for existing projects.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"npm run test:entrypoints\",\"result\":\"pass\",\"note\":\"entrypoints verification covers existing-project .gitignore merge and no-churn behavior\",\"headHash\":\"9605dd622274428e1295c99c594c9749c5189571\",\"materialHash\":\"04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3\",\"timestamp\":\"2026-05-13T10:15:56.175Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"The freshness smoke still proves real material paths are stale, so the runtime exclusion is not overly broad.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"the smoke still marks source, package, config, fixture, and requirements paths stale so the exclusion stays narrow\",\"headHash\":\"9605dd622274428e1295c99c594c9749c5189571\",\"materialHash\":\"04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3\",\"timestamp\":\"2026-05-13T10:15:56.175Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"A tracked runtime artifact scenario is tested, not just an ignored untracked file scenario.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"tracked runtime artifact coverage is explicit in the smoke, not just an ignored-untracked-file scenario\",\"headHash\":\"9605dd622274428e1295c99c594c9749c5189571\",\"materialHash\":\"04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3\",\"timestamp\":\"2026-05-13T10:15:56.175Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-05-13T10:15:57.499Z",
+  "headHash": "9605dd622274428e1295c99c594c9749c5189571",
+  "verificationCoverage": {
+    "total": 15,
+    "required": 15,
+    "covered": 15,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "The runtime artifact registry exports explicit entries for current and legacy Koala runtime logs/cache paths, including their ignore patterns and repair behavior.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "verification freshness smoke asserts the runtime registry exports current and legacy activity paths as non-material metadata",
+          "headHash": "9605dd622274428e1295c99c594c9749c5189571",
+          "materialHash": "04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3",
+          "timestamp": "2026-05-13T10:15:56.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "The registry does not classify .koala/story artifacts, source files, requirements docs, package manifests, or koala.config.json as runtime artifacts.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "verification freshness smoke keeps source, package, config, fixture, and requirements files material while excluding only registry runtime artifacts",
+          "headHash": "9605dd622274428e1295c99c594c9749c5189571",
+          "materialHash": "04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3",
+          "timestamp": "2026-05-13T10:15:56.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "A future consumer cannot satisfy tests by hardcoding only .koala/activity.jsonl while omitting legacy activity and runtime/cache paths from the registry.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "smoke covers both .koala/activity.jsonl and docs/story/activity.jsonl so consumers cannot satisfy coverage by hardcoding only one runtime path",
+          "headHash": "9605dd622274428e1295c99c594c9749c5189571",
+          "materialHash": "04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3",
+          "timestamp": "2026-05-13T10:15:56.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "currentMaterialHash and checkEvidenceFreshnessForGit ignore runtime artifacts from the registry, so tracked .koala/activity.jsonl changes keep evidence covered.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "materialHash-backed freshness stays covered when tracked .koala/activity.jsonl changes because currentMaterialHash excludes registry runtime artifacts",
+          "headHash": "9605dd622274428e1295c99c594c9749c5189571",
+          "materialHash": "04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3",
+          "timestamp": "2026-05-13T10:15:56.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:1",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "baseline risk uses the registry to classify runtime artifacts as volatile instead of material dirty paths.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-worktree-baseline-risk.mjs",
+          "result": "pass",
+          "note": "baseline-risk smoke hides .omx runtime residue while still surfacing material user edits before INIT_CHECK",
+          "headHash": "9605dd622274428e1295c99c594c9749c5189571",
+          "materialHash": "04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3",
+          "timestamp": "2026-05-13T10:15:56.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Material files such as packages/main/src/core/verification.ts, package-lock.json, koala.config.json, and docs/requirements remain material and still stale evidence when changed.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "real source, package, config, fixture, and requirements files still stale evidence after material changes",
+          "headHash": "9605dd622274428e1295c99c594c9749c5189571",
+          "materialHash": "04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3",
+          "timestamp": "2026-05-13T10:15:56.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "A tracked legacy docs/story/activity.jsonl change is also ignored for material freshness, preventing old storage migrations from reintroducing the stale loop.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "tracked legacy docs/story/activity.jsonl also remains metadata-only for freshness and coverage reporting",
+          "headHash": "9605dd622274428e1295c99c594c9749c5189571",
+          "materialHash": "04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3",
+          "timestamp": "2026-05-13T10:15:56.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "koala init merges missing runtime artifact ignore patterns into an existing .gitignore while preserving existing user content.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "entrypoints verification covers merging missing runtime ignore lines into an existing .gitignore under a managed block",
+          "headHash": "9605dd622274428e1295c99c594c9749c5189571",
+          "materialHash": "04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3",
+          "timestamp": "2026-05-13T10:15:56.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:1",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "koala doctor reports tracked runtime artifacts with a concrete git rm --cached repair hint.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "validation protocol smoke makes doctor report tracked .koala/activity.jsonl with a concrete git rm --cached repair command",
+          "headHash": "9605dd622274428e1295c99c594c9749c5189571",
+          "materialHash": "04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3",
+          "timestamp": "2026-05-13T10:15:56.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "If all required ignore patterns are already present, koala init leaves .gitignore unchanged except for normal init output.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "entrypoints verification keeps an existing .gitignore byte-for-byte unchanged when all required runtime ignores are already present",
+          "headHash": "9605dd622274428e1295c99c594c9749c5189571",
+          "materialHash": "04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3",
+          "timestamp": "2026-05-13T10:15:56.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "doctor does not mutate git tracking without --repair, and doctor --repair only untracks registered runtime artifacts rather than broad .koala/story evidence.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "doctor --repair untracks only registry-approved runtime artifacts and leaves .koala/story evidence tracked",
+          "headHash": "9605dd622274428e1295c99c594c9749c5189571",
+          "materialHash": "04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3",
+          "timestamp": "2026-05-13T10:15:56.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "npm run test:verification-freshness passes and explicitly proves runtime artifacts do not stale materialHash-backed evidence.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "verification freshness smoke proves runtime artifacts do not stale materialHash-backed evidence even when the runtime file is tracked",
+          "headHash": "9605dd622274428e1295c99c594c9749c5189571",
+          "materialHash": "04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3",
+          "timestamp": "2026-05-13T10:15:56.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:1",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "npm run test:entrypoints passes and covers init .gitignore merge behavior for existing projects.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "entrypoints verification covers existing-project .gitignore merge and no-churn behavior",
+          "headHash": "9605dd622274428e1295c99c594c9749c5189571",
+          "materialHash": "04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3",
+          "timestamp": "2026-05-13T10:15:56.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "The freshness smoke still proves real material paths are stale, so the runtime exclusion is not overly broad.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "the smoke still marks source, package, config, fixture, and requirements paths stale so the exclusion stays narrow",
+          "headHash": "9605dd622274428e1295c99c594c9749c5189571",
+          "materialHash": "04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3",
+          "timestamp": "2026-05-13T10:15:56.175Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "A tracked runtime artifact scenario is tested, not just an ignored untracked file scenario.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "tracked runtime artifact coverage is explicit in the smoke, not just an ignored-untracked-file scenario",
+          "headHash": "9605dd622274428e1295c99c594c9749c5189571",
+          "materialHash": "04caa9795e33f2bf30177b3db22b75c7db169a5e55b71960d8e46db475055de3",
+          "timestamp": "2026-05-13T10:15:56.175Z"
+        }
+      }
+    ]
+  }
+}
