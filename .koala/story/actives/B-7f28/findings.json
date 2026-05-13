@@ -1,0 +1,18 @@
+{
+  "findings": [
+    {
+      "id": "B-7f28:F-001",
+      "desc": "packages/main/src/cli-engine.ts:1193 checks full git status after the bounded metadata commit and throws before merging main into the story worktree. With any unrelated unstaged or untracked main-branch change, story_create --fromDraft commits the bounded metadata, then fails at this full-worktree cleanliness check, so the story/worktree have already been created but story/B-* does not receive the main metadata commit. This violates the bounded-staging/failure-behavior contract: either require a clean worktree before mutation, or only validate the bounded metadata paths and still merge main into the story branch while preserving unrelated user changes.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-13T14:37:14.608Z",
+      "reviewRound": "2026-05-13T14:33:12.029Z",
+      "_hash": "b2c2d2cbd5724854b5c7090d052fdcd90bed562043695e384ee51e211c22d3be",
+      "files": [
+        "packages/main/src/cli-engine.ts"
+      ]
+    }
+  ]
+}

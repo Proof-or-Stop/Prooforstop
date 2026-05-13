@@ -7,6 +7,14 @@
       "createdAt": "2026-05-13T14:35:19.939Z",
       "reviewRound": "2026-05-13T14:33:12.029Z",
       "_hash": "705d2163f0de57aa0590b4f7056185ef2e66db997e61c73c73b17ba4ed6ddb0e"
+    },
+    {
+      "id": "B-7f28:RP-002",
+      "agent": "koala-review-concept",
+      "note": "Concept review passed: fromDraft now closes the generic draft-to-active metadata transaction on main with bounded story/draft paths and merges that main commit into the created story branch. No story-id hard-coding found, and ordinary INIT_CHECK branch isolation remains on the existing dev_start scoped bootstrap path. Verified with npm run test:worktree-authority-smoke and npm run test:init-check-bootstrap.",
+      "createdAt": "2026-05-13T14:35:40.597Z",
+      "reviewRound": "2026-05-13T14:33:12.029Z",
+      "_hash": "479f0876a603d632e7778a9202eccf6082218c70918efffe0a9526e8501c9782"
     }
   ]
 }
