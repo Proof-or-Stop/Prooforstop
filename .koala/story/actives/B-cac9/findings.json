@@ -1,0 +1,52 @@
+{
+  "findings": [
+    {
+      "id": "B-cac9:F-001",
+      "desc": "packages/main/src/cli-init.ts only treats non-selected host assets as \"profile skip\" and never removes previously generated opposite-host adapter files. Re-running `koala init --profile=codex` on a directory that already has Koala-managed Claude assets leaves `CLAUDE.md` and `.claude/` behind; re-running `--profile=claude` similarly leaves `AGENTS.md` and `.Codex/` behind. I reproduced both cases with temporary dirs in this worktree. That violates the CHK-002/CHK-003 concept boundary that profile selection should produce a mechanical asset matrix with no wrong-host leakage. scripts/verify-entrypoints.mjs passes because it only covers fresh temp dirs and does not assert cleanup of pre-existing opposite-host assets.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-05-13T01:05:12.335Z",
+      "reviewRound": "2026-05-13T01:02:56.921Z",
+      "_hash": "aa0a52dabb0d02d478167ed1eb8e5be03b39df9f5fc9973b1c7a5540e17f0530",
+      "files": [
+        "packages/main/src/cli-init.ts",
+        "scripts/verify-entrypoints.mjs"
+      ]
+    },
+    {
+      "id": "B-cac9:F-002",
+      "desc": "CHK-001/CHK-002/CHK-003 的 must-level verificationIntent 目前主要由 npm run test:entrypoints 与 node bin/koala-codex.js verify_codex 覆盖，但现有证据缺少当前材料状态的 build 证明。scripts/verify-entrypoints.mjs 直接执行 packages/main/dist/cli-init.js 与 packages/main/dist/cli.js，bin/bootstrap-runner.js / bin/koala-codex.js 也依赖已构建 dist；本 story 提交只改了 packages/main/src/cli-init.ts、packages/main/src/init-assets.ts、scripts/verify-entrypoints.mjs，未提供 npm run build evidence，因此无法证明这些 must intents 已在当前源码对应的构建产物上被验证。现有 headHash=4000f09b 的 evidence 因 metadata-only 变更可视为 freshness 未失效，但覆盖仍缺 build 这一层。",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-05-13T01:05:31.338Z",
+      "reviewRound": "2026-05-13T01:02:56.921Z",
+      "_hash": "5deb3f79d29e17f7399856dafc3e4067b811758fe9ad7598ce3355102d8c58fa",
+      "files": [
+        "package.json",
+        "scripts/verify-entrypoints.mjs",
+        "bin/bootstrap-runner.js",
+        "bin/koala-codex.js",
+        "packages/main/src/cli-init.ts",
+        "packages/main/src/init-assets.ts"
+      ]
+    },
+    {
+      "id": "B-cac9:F-003",
+      "desc": "[HIGH] packages/main/src/cli-init.ts:571,577,649,695,761 - Explicit init profiles do not clean up previously generated opposite-host assets. Repro: init a temp dir with --profile=all, rerun with --profile=codex, and .claude/, CLAUDE.md, and other Claude-only assets still remain; codex->claude likewise leaves .Codex/, AGENTS.md, and bin/koala-codex.js behind. That violates the story contract that explicit --profile is the source of truth and leaks the wrong host entrypoints into the resulting project. Fix: when a profile is selected, remove stale Koala-managed assets for the non-selected host (managed docs with koala markers, .claude/.Codex trees, bin/koala-codex.js) while still preserving unmarked user-owned files.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-13T01:05:50.295Z",
+      "reviewRound": "2026-05-13T01:02:56.921Z",
+      "_hash": "84807cf00e88aa4a1a4104589305f85a553f40f848ec1c8651a371da2e7df1f8",
+      "files": [
+        "packages/main/src/cli-init.ts"
+      ]
+    }
+  ]
+}
