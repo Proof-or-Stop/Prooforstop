@@ -10,7 +10,37 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户看到 \"Story B-xxxx created from draft ...\"、\"路径: .../.worktrees/B-xxxx\"，随后 \"git status --porcelain\" 没有任何输出。",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Create a story from an approved draft in a temporary git repo; the command prints the story id plus worktree bootstrap/cd guidance, records worktree metadata, and leaves the main worktree with an empty git status.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When fromDraft deletes draft metadata and writes active story metadata in the same bootstrap flow, those main-side metadata changes are closed by a generic transaction before the story branch/worktree is created.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If fromDraft bootstraps a worktree but leaves any tracked or untracked story/draft metadata residue in main, the verification must fail with a direct clean-main assertion instead of relying on manual cleanup.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -22,7 +52,35 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户运行目标 smoke 后看到 \"✓ worktree authority smoke passed\"；如果 main 有 story/draft residue 或 story branch 不包含 main，命令直接失败。",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The targeted worktree-authority smoke runs the fromDraft path and asserts three concrete outcomes: worktree exists, main git status is empty, and story/B-* contains main via merge-base ancestry.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke covers the field shape where INIT_CHECK/worktree metadata exists but the bootstrap transaction would otherwise leave active story or draft metadata changes behind in the main checkout.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If the fromDraft branch is created from a stale base that does not contain current main, or if main has dirty metadata after bootstrap, the smoke must fail before reporting success.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -33,7 +91,39 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户看到目标 smoke 和验证命令均通过，并且 Koala checklist evidence 记录覆盖 \"clean main\" 与 \"story branch contains main\"。",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run the targeted worktree-authority smoke from the story worktree and record passing evidence tied to the fromDraft clean-main and branch-ancestry intents.",
+            "type": "cli"
+          },
+          {
+            "desc": "Run the affected package or Koala validation command set required for a worktree/gate orchestration change and record passing evidence through checklist_update.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Evidence is recorded against the current story HEAD/material hash so koala validate does not accept stale smoke results after implementation or test changes.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "koala validate must block TEST/DONE if the targeted smoke is missing, failed, or stale, especially for the clean-main and story-branch-contains-main assertions.",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
