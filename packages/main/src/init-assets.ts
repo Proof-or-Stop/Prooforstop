@@ -1,5 +1,8 @@
 import { readdirSync } from 'fs';
 
+export const SUPPORTED_INIT_PROFILES = ['codex', 'claude', 'all', 'core'] as const;
+export type InitProfile = typeof SUPPORTED_INIT_PROFILES[number];
+
 export function listAgentPromptFiles(agentDir: string): string[] {
   return readdirSync(agentDir)
     .filter(file => file.endsWith('.md'))
@@ -11,12 +14,30 @@ export const AGENTS_MD_TEMPLATE = `# AGENTS.md
 <!-- koala:start -->
 ## Koala
 
+- \`KOALA.md\` 是 host-neutral 的 Koala 指南；以下只保留 Codex / AGENTS 侧补充。
 - 新 session 或恢复中断工作时，先运行 \`koala session_brief\`。
 - 行动前运行 \`koala aux_doc_list\` 查看相关文档；若当前全局 core-only 环境没有 aux 命令，用本地 bootstrap 或 shell 搜索兜底。
 - Story / checklist / fixture / bug 操作优先通过 \`koala\` CLI，不直接改 story/fixture JSON。
 - Codex subagent prompts 位于 \`.Codex/agents\`；Claude subagent prompts 位于 \`.claude/agents\`。
 - 改动 Codex adapter / \`.Codex\` / \`bin/koala-codex.js\` 后运行 \`node bin/koala-codex.js verify_codex\`，让 REVIEW/DONE gate 能消费硬证据。
 - 诊断 Codex adapter 时运行 \`node bin/koala-codex.js doctor\`。
+
+<!-- koala:end -->
+`;
+
+export const KOALA_MD_TEMPLATE = `# KOALA.md
+
+<!-- koala:start -->
+## Koala
+
+\`KOALA.md\` 是 Koala 的 canonical、host-neutral 指南。所有 init profile 都会创建或同步这个文件。
+
+- 新 session 或恢复中断工作时，先运行 \`koala session_brief\`。
+- 行动前运行 \`koala aux_doc_list\` 查看相关文档；若当前全局 core-only 环境没有 aux 命令，用本地 bootstrap 或 shell 搜索兜底。
+- Story / checklist / fixture / bug 操作优先通过 \`koala\` CLI，不直接改 story/fixture JSON。
+- 默认本地入口是 \`node bin/koala.js\`；若 profile 生成了 Codex adapter，可额外使用 \`node bin/koala-codex.js\`。
+- Codex 专属说明放在 \`AGENTS.md\` 和 \`.Codex/README.md\`；Claude 专属说明放在 \`CLAUDE.md\` 和 \`.claude/\`。
+- 改动 Koala adapter 资产后先跑对应验证：项目验证用 \`koala validate\`，Codex adapter 额外跑 \`node bin/koala-codex.js verify_codex\`。
 
 <!-- koala:end -->
 `;
