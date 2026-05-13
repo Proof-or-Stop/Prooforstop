@@ -19,7 +19,7 @@
       "desc": "packages/main/src/cli-engine.ts:1563-1575 calls handlers.story_create() and handlers.dev_start() before commitFromDraftMetadataAndMergeMain(), while 1155-1169 only checks for a dirty git index after those mutations have already happened. Repro: with an unrelated staged main-branch edit, story_create --fromDraft aborts on \"requires a clean git index\" but leaves the draft deleted in the working tree, creates .koala/story/actives/B-*, and registers .worktrees/B-* on story/B-*. This still violates the draft-to-active transaction contract: unrelated user changes are preserved, but the command fails open instead of either rejecting staged dirt before any mutation or completing the bounded metadata commit + main merge generically.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "agent": "koala-review-concept",
       "createdAt": "2026-05-13T14:49:24.366Z",
       "reviewRound": "2026-05-13T14:46:07.950Z",

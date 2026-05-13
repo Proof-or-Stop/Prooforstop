@@ -31,6 +31,30 @@
       "createdAt": "2026-05-13T14:49:26.038Z",
       "reviewRound": "2026-05-13T14:46:07.950Z",
       "_hash": "9f914ec9025a834097470a948999502092966e5a84f5ed7ca2b194cb19ade8d1"
+    },
+    {
+      "id": "B-7f28:RP-005",
+      "agent": "koala-review-test-coverage",
+      "note": "Reviewed checklist/evidence coverage against the requested fromDraft bootstrap risks. packages/main/src/tasks/worktree-authority-smoke.ts explicitly asserts clean fromDraft bootstrap, committed draft deletion with bounded metadata cleanliness, preservation of unrelated unstaged/untracked dirty main edits, rejection of unrelated staged index edits before mutation, and story branch ancestry via merge-base. Fresh reviewer verification on current HEAD passed: npm run test:worktree-authority-smoke; npm run test:init-check-bootstrap.",
+      "createdAt": "2026-05-13T14:56:52.628Z",
+      "reviewRound": "2026-05-13T14:55:02.909Z",
+      "_hash": "da810f2cbd3f0c91090d5267652683ad48c6acac5fce49bd9522e4d118d4f0d1"
+    },
+    {
+      "id": "B-7f28:RP-006",
+      "agent": "koala-review-concept",
+      "note": "Revalidated F-001/F-002 at HEAD. story_create --fromDraft now preflights staged index before any story/draft/worktree mutation, preserves unrelated unstaged/untracked main dirt while committing only bounded story/draft metadata, merges current main into story/B-* after bootstrap, and uses runtime storyId/draftName inputs rather than hard-coded B-7f28 identifiers. Verified with npm --prefix packages/main run build and npm run test:worktree-authority-smoke.",
+      "createdAt": "2026-05-13T14:57:18.091Z",
+      "reviewRound": "2026-05-13T14:55:02.909Z",
+      "_hash": "c47c90ab04fbeeb5099533d249680957ce3f9656772c5ef42c9a58553e44746d"
+    },
+    {
+      "id": "B-7f28:RP-007",
+      "agent": "koala-review-quality",
+      "note": "Reviewed packages/main/src/cli-engine.ts and packages/main/src/tasks/worktree-authority-smoke.ts for fromDraft bootstrap quality/failure behavior. Verified staged-index preflight runs before story_create mutation, bounded story/draft metadata staging rejects out-of-bounds paths, unrelated dirty tracked/untracked files remain untouched, and the story worktree merges main after the metadata commit. Confirmed with tsc diagnostics and npm run test:worktree-authority-smoke.",
+      "createdAt": "2026-05-13T14:58:09.004Z",
+      "reviewRound": "2026-05-13T14:55:02.909Z",
+      "_hash": "16bd0e5ea885e91337f5ac2b98d045f172b1fec9d2df644f971facb89b145ebe"
     }
   ]
 }
