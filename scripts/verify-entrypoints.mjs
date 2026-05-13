@@ -129,12 +129,16 @@ function readActivityRecord(session, tool) {
   return entries.findLast(entry => entry.session === session && entry.tool === tool) || null;
 }
 
-function readProcessEvent(session, command) {
-  let storyId = '';
+function currentStoryId() {
   try {
     const branch = execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], { cwd: repoRoot, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
-    if (branch.startsWith('story/')) storyId = branch.slice('story/'.length);
+    if (branch.startsWith('story/')) return branch.slice('story/'.length);
   } catch {}
+  return '';
+}
+
+function readProcessEvent(session, command) {
+  const storyId = currentStoryId();
   if (!storyId) return null;
   const storyDir = join(repoRoot, '.koala', 'story', 'actives', storyId);
   const eventPath = join(storyDir, 'process-events.jsonl');
@@ -224,9 +228,11 @@ checks.push(() => {
 
 checks.push(() => {
   const marker = assertCodexWrapperSessionFrom('CODEX_SESSION_ID');
-  const event = readProcessEvent(marker, 'session_brief');
-  assert(event, 'bin/koala-codex.js should write codex_cli process-event in active story');
-  assert(event.source === 'codex' && event.entrypoint === 'local-wrapper', 'codex_cli event should include source and local wrapper entrypoint');
+  if (currentStoryId()) {
+    const event = readProcessEvent(marker, 'session_brief');
+    assert(event, 'bin/koala-codex.js should write codex_cli process-event in active story');
+    assert(event.source === 'codex' && event.entrypoint === 'local-wrapper', 'codex_cli event should include source and local wrapper entrypoint');
+  }
 });
 
 checks.push(() => {
