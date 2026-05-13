@@ -1191,9 +1191,12 @@ function commitFromDraftMetadataAndMergeMain(root: string, store: StoryStore, st
     '-m', commitMessage,
   ]);
   const mainHead = gitCli(root, ['rev-parse', '--short', 'HEAD']);
-  const mainStatus = gitCli(root, ['status', '--porcelain']);
-  if (mainStatus) {
-    throw new Error(`from-draft metadata committed, but main is still dirty:\n${mainStatus}`);
+  const boundedStatus = gitCli(root, ['status', '--porcelain', '--', ...boundedPaths]);
+  if (boundedStatus) {
+    throw new Error(
+      `from-draft metadata committed, but bounded metadata paths are still dirty ` +
+      `(${boundedPaths.join(', ')}):\n${boundedStatus}`,
+    );
   }
 
   const story = store.readStory(storyId);

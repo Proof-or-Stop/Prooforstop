@@ -293,6 +293,81 @@ function assertFromDraftCreatesWorktreeThroughCli(): void {
   }
 }
 
+function assertFromDraftCreatesWorktreeWithDirtyMainPreserved(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-from-draft-dirty-main-'));
+  const draftName = 'from-draft-dirty-main-smoke';
+  try {
+    write(root, 'koala.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      storyDir: '.koala/story/actives',
+      requirementsDir: 'docs/requirements',
+      worktreeDir: '.worktrees',
+    }, null, 2));
+    write(root, 'README.md', 'from draft dirty main smoke\n');
+    write(root, '.gitignore', '.worktrees/\n.koala/activity.jsonl\n');
+    write(root, 'unrelated-tracked.txt', 'tracked baseline\n');
+    git(root, ['init']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'base']);
+    resetConfigCache();
+
+    runKoala(root, 'story_draft', {
+      name: draftName,
+      title: 'From draft dirty main smoke story',
+      description: 'Synthetic from-draft story for dirty main preservation.',
+      type: 'chore',
+      priority: 'medium',
+      background: validBackground(),
+      checklist: [{
+        title: 'Create worktree from draft while main has unrelated edits',
+        context: 'The fromDraft CLI path must commit bounded metadata without consuming user changes.',
+      }],
+    });
+    runKoala(root, 'draft_check_set', {
+      draftName,
+      issues: [],
+      agentId: 'koala-review-story-init',
+    });
+    git(root, ['add', '--', `docs/story/drafts/${draftName}`]);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'draft metadata']);
+
+    write(root, 'unrelated-tracked.txt', 'tracked user edit that must remain dirty\n');
+    write(root, 'unrelated-untracked.txt', 'untracked user edit that must remain dirty\n');
+    const dirtyBefore = git(root, ['status', '--porcelain']);
+    assert.equal(git(root, ['diff', '--name-only', '--', 'unrelated-tracked.txt']), 'unrelated-tracked.txt');
+    assert.match(dirtyBefore, /\?\? unrelated-untracked\.txt/);
+
+    const output = runKoala(root, 'story_create', { fromDraft: draftName });
+    const storyId = output.match(/Story\s+(B-[a-f0-9]+)/)?.[1];
+    assert.ok(storyId, `story_create --from-draft should print story id, got: ${output}`);
+    const story = new StoryStore(root).readStory(storyId);
+    assert.equal(story.phase, 'INIT_CHECK');
+    assert.ok(story.worktree?.path, 'fromDraft story should record worktree metadata');
+    assert.match(output, /main merged into story\//, 'fromDraft output should confirm main was merged into the story branch');
+    assert.equal(
+      git(root, ['status', '--porcelain', '--', `.koala/story/actives/${storyId}`, `docs/story/drafts/${draftName}`]),
+      '',
+      'fromDraft should leave bounded story/draft metadata clean after committing',
+    );
+    const dirtyAfter = git(root, ['status', '--porcelain']);
+    assert.equal(
+      git(root, ['diff', '--name-only', '--', 'unrelated-tracked.txt']),
+      'unrelated-tracked.txt',
+      'tracked user edits should remain dirty',
+    );
+    assert.match(dirtyAfter, /\?\? unrelated-untracked\.txt/, 'untracked user edits should remain dirty');
+    assert.equal(
+      gitSucceeds(root, ['merge-base', '--is-ancestor', 'main', `story/${storyId}`]),
+      true,
+      'fromDraft story branch should contain current main after dirty-main bootstrap',
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string): void {
   const now = '2026-05-08T10:00:00.000Z';
   store.writeTestEvidence(storyId, {
@@ -507,6 +582,7 @@ assertRecordedWorktreeRejectsMainCwd();
 assertInitCheckChecklistMutationRejectsMainCwd();
 assertTerminalStoriesDoNotRedirect();
 assertFromDraftCreatesWorktreeThroughCli();
+assertFromDraftCreatesWorktreeWithDirtyMainPreserved();
 assertDoneFromNestedCwdUsesCanonicalWorktreeRoot();
 assertDoneRejectsMismatchedStoryBranchBeforeMutation();
 assertDoneRejectsNonStoryLinkedWorktreeBeforeMutation();
