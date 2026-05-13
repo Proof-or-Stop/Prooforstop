@@ -123,6 +123,55 @@
         "packages/main/src/handlers/finding.ts",
         "packages/main/src/handlers/story-dispatch.ts"
       ]
+    },
+    {
+      "id": "B-ad12:F-008",
+      "desc": "scripts/verify-anti-stall-guardrails.mjs:13 WHY REVIEW anti-stall coverage is not currently green: the guardrail script still asserts retry:/fix:/discard:, but packages/main/src/core/anti-stall.ts now renders [retry]/[fix]/[discard], so npm run test:anti-stall fails instead of protecting this contract.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-05-13T15:15:53.571Z",
+      "reviewRound": "2026-05-13T15:12:52.855Z",
+      "reviewRunId": "B-ad12:RR-010",
+      "_hash": "971a481b91959480d9bf83ea59c26617a1ac8c274f852ae4862a077bde2732b7",
+      "files": [
+        "scripts/verify-anti-stall-guardrails.mjs",
+        "packages/main/src/core/anti-stall.ts"
+      ]
+    },
+    {
+      "id": "B-ad12:F-009",
+      "desc": "packages/main/src/core/finding-verify.ts:24 and :52 still accept legacy signatures after a reviewRunId is added, and packages/main/src/core/review-run.ts:309 and :321 trust that result. A stale or forged legacy reviewer finding/review pass can be retrofitted with a fresh reviewRunId and still satisfy the REVIEW gate, which defeats the new signed run-binding boundary.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-13T15:20:24.084Z",
+      "reviewRound": "2026-05-13T15:12:52.855Z",
+      "reviewRunId": "B-ad12:RR-011",
+      "_hash": "50e15f099d4901cd082f42b3cdcbf201925446781a138ec8831017c86fd8736c",
+      "files": [
+        "packages/main/src/core/finding-verify.ts",
+        "packages/main/src/core/review-run.ts"
+      ]
+    },
+    {
+      "id": "B-ad12:F-010",
+      "desc": "packages/main/src/cli-engine.ts:286 and packages/main/src/core/review-run.ts:57 hard-code the allowed review_run_start lanes, but packages/main/src/handlers/reviewer-list.ts:109 still supports forcing arbitrary reviewer names. A story that uses forceReviewer for a non-builtin lane can become impossible to satisfy in REVIEW, because the gate will wait for that reviewer while review_run_start/review_pass_set reject its agent identity.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-13T15:20:46.928Z",
+      "reviewRound": "2026-05-13T15:12:52.855Z",
+      "reviewRunId": "B-ad12:RR-011",
+      "_hash": "fec0bd73f3a8e45c03b6db098ed04d1909a4c466fa3761715186a1bc0da037a4",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/handlers/reviewer-list.ts"
+      ]
     }
   ]
 }

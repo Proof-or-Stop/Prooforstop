@@ -35,6 +35,24 @@
       "reviewRound": "2026-05-13T14:56:27.110Z",
       "reviewRunId": "B-ad12:RR-005",
       "_hash": "d793e59644fab435137d7527b4845113fa1996fba1af4b85199052b294976bfe"
+    },
+    {
+      "id": "B-ad12:RP-005",
+      "agent": "koala-review-concept",
+      "note": "Reviewed review-run boundary, pass-only finding normalization, dispatch/prompt drift, and freshness semantics against the REVIEW gate; no blocking conceptual issue remains.",
+      "createdAt": "2026-05-13T15:16:45.827Z",
+      "reviewRound": "2026-05-13T15:12:52.855Z",
+      "reviewRunId": "B-ad12:RR-009",
+      "_hash": "57ccdb5d1ecedc4684958d637e0e189a37f3278ba8726b0646d7dbef1d5ba50a"
+    },
+    {
+      "id": "B-ad12:RP-006",
+      "agent": "koala-review-docs",
+      "note": "docs review passed: compared packages/main/templates/agents, .claude/agents, .Codex/agents, AGENTS.md, lifecycle/testing decisions, and verify-process-fact-contract coverage for review_run_start/review_pass_set/finding_add reviewRunId semantics; no blocker found.",
+      "createdAt": "2026-05-13T15:16:55.447Z",
+      "reviewRound": "2026-05-13T15:12:52.855Z",
+      "reviewRunId": "B-ad12:RR-012",
+      "_hash": "de9b7848641b8ff77b8bea1371d0e71b5f1e3cc947310e986a43a37102e79648"
     }
   ]
 }
