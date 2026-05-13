@@ -1152,22 +1152,26 @@ function stageBoundedMetadataPath(root: string, relPath: string): void {
   }
 }
 
-function commitFromDraftMetadataAndMergeMain(root: string, store: StoryStore, storyId: string, draftName: string): string {
+function preflightFromDraftMetadataBootstrap(root: string): void {
   const currentBranch = gitCli(root, ['rev-parse', '--abbrev-ref', 'HEAD']);
   if (currentBranch !== 'main') {
     throw new Error(`story_create --fromDraft must finalize metadata on main, but current branch is ${currentBranch}`);
   }
 
-  const storyRel = boundedMetadataPath(store.storyDirRel(), storyId, 'active story');
-  const draftRel = boundedMetadataPath('docs/story/drafts', draftName, 'source draft');
-  const boundedPaths = [storyRel, draftRel];
-
   const stagedBefore = gitCli(root, ['diff', '--cached', '--name-only']);
   if (stagedBefore) {
     throw new Error(
-      `from-draft metadata commit requires a clean git index before staging bounded paths:\n${stagedBefore}`,
+      `story_create --fromDraft requires a clean git index before mutating story/draft/worktree metadata:\n${stagedBefore}`,
     );
   }
+}
+
+function commitFromDraftMetadataAndMergeMain(root: string, store: StoryStore, storyId: string, draftName: string): string {
+  preflightFromDraftMetadataBootstrap(root);
+
+  const storyRel = boundedMetadataPath(store.storyDirRel(), storyId, 'active story');
+  const draftRel = boundedMetadataPath('docs/story/drafts', draftName, 'source draft');
+  const boundedPaths = [storyRel, draftRel];
 
   for (const path of boundedPaths) {
     stageBoundedMetadataPath(root, path);
@@ -1561,17 +1565,20 @@ export async function runCli(opts?: {
   // story_create: 停在 INIT 时追加下一步提示
   if (cmd === 'story_create') {
     await run(() => {
+      const fromDraftName = typeof (v.data as any).fromDraft === 'string' ? (v.data as any).fromDraft : '';
+      if (fromDraftName && gitReady) {
+        preflightFromDraftMetadataBootstrap(root);
+      }
       const result = handlers.story_create(v.data);
       if (result.includes('created from draft') && result.includes('(phase=INIT_CHECK)')) {
         const storyId = result.match(/Story\s+([\w-]+)/)?.[1];
         if (!storyId) return result;
-        const draftName = typeof (v.data as any).fromDraft === 'string' ? (v.data as any).fromDraft : '';
         if (!gitReady) {
           return `${result}\n⚠ 当前目录不是 git 仓库：story 已记录，但 from-draft worktree 不能自动创建。\n→ 先 git init + 首次 commit 后重试 story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'`;
         }
         try {
           const wtResult = handlers.dev_start({ storyId });
-          const syncResult = commitFromDraftMetadataAndMergeMain(root, store, storyId, draftName);
+          const syncResult = commitFromDraftMetadataAndMergeMain(root, store, storyId, fromDraftName);
           return `${result}\n\n${wtResult}\n\n${syncResult}\n\n→ 现在请 cd 到上述 worktree 路径，然后调 story_advance phase=PLAN 进入 PLAN`;
         } catch (e: any) {
           throw new Error(

@@ -368,6 +368,72 @@ function assertFromDraftCreatesWorktreeWithDirtyMainPreserved(): void {
   }
 }
 
+function assertFromDraftRejectsStagedMainBeforeMutation(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-from-draft-staged-main-'));
+  const draftName = 'from-draft-staged-main-smoke';
+  try {
+    write(root, 'koala.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      storyDir: '.koala/story/actives',
+      requirementsDir: 'docs/requirements',
+      worktreeDir: '.worktrees',
+    }, null, 2));
+    write(root, 'README.md', 'from draft staged main smoke\n');
+    write(root, '.gitignore', '.worktrees/\n.koala/activity.jsonl\n');
+    write(root, 'unrelated-staged.txt', 'tracked baseline\n');
+    git(root, ['init']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'base']);
+    resetConfigCache();
+
+    runKoala(root, 'story_draft', {
+      name: draftName,
+      title: 'From draft staged main smoke story',
+      description: 'Synthetic from-draft story for staged main preflight.',
+      type: 'chore',
+      priority: 'medium',
+      background: validBackground(),
+      checklist: [{
+        title: 'Reject from draft while main has unrelated staged edits',
+        context: 'The fromDraft CLI path must reject staged user changes before mutating story, draft, or worktree state.',
+      }],
+    });
+    runKoala(root, 'draft_check_set', {
+      draftName,
+      issues: [],
+      agentId: 'koala-review-story-init',
+    });
+    git(root, ['add', '--', `docs/story/drafts/${draftName}`]);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'draft metadata']);
+
+    write(root, 'unrelated-staged.txt', 'staged user edit that must remain staged\n');
+    git(root, ['add', '--', 'unrelated-staged.txt']);
+    assert.equal(git(root, ['diff', '--cached', '--name-status', '--', 'unrelated-staged.txt']), 'M\tunrelated-staged.txt');
+
+    const output = runKoalaExpectFail(root, 'story_create', { fromDraft: draftName });
+    assert.match(output, /requires a clean git index before mutating story\/draft\/worktree metadata/);
+    assert.match(output, /unrelated-staged\.txt/);
+    const store = new StoryStore(root);
+    assert.deepEqual(store.listStoryIds(), [], 'fromDraft staged-main preflight must not create an active story');
+    assert.equal(existsSync(join(root, 'docs', 'story', 'drafts', draftName, 'index.json')), true, 'source draft should remain present');
+    assert.equal(
+      git(root, ['ls-files', '--error-unmatch', `docs/story/drafts/${draftName}/index.json`]),
+      `docs/story/drafts/${draftName}/index.json`,
+      'source draft should remain tracked',
+    );
+    assert.doesNotMatch(git(root, ['worktree', 'list', '--porcelain']), /story\/B-/, 'no story worktree should be registered');
+    assert.equal(
+      git(root, ['diff', '--cached', '--name-status', '--', 'unrelated-staged.txt']),
+      'M\tunrelated-staged.txt',
+      'unrelated staged change should remain staged',
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string): void {
   const now = '2026-05-08T10:00:00.000Z';
   store.writeTestEvidence(storyId, {
@@ -583,6 +649,7 @@ assertInitCheckChecklistMutationRejectsMainCwd();
 assertTerminalStoriesDoNotRedirect();
 assertFromDraftCreatesWorktreeThroughCli();
 assertFromDraftCreatesWorktreeWithDirtyMainPreserved();
+assertFromDraftRejectsStagedMainBeforeMutation();
 assertDoneFromNestedCwdUsesCanonicalWorktreeRoot();
 assertDoneRejectsMismatchedStoryBranchBeforeMutation();
 assertDoneRejectsNonStoryLinkedWorktreeBeforeMutation();
