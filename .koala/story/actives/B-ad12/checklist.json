@@ -8,9 +8,9 @@
         "AGENTS.md#流程事实双层契约",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-13T14:42:03.179Z",
       "userSees": "`koala review_run_start` prints a reviewRunId, and REVIEW gate errors name missing/stale run-bound reviewer evidence instead of accepting prompt-only reviewer claims.",
       "files": {
         "modify": [
@@ -49,7 +49,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "assertReviewRunStartCliSurface verifies review_run_start persists signed review-runs.json fields including reviewRunId, lane, reviewRound, promptHash, headHash, materialHash, and startedAt.",
+          "headHash": "328f86b6f5f7ecac4fa246c59b331e6248fbbf3f",
+          "materialHash": "b10436650606ecd5c73e16ec71537df592c35fc4b5baa4d67871f1fe26a21fbd",
+          "timestamp": "2026-05-13T14:41:56.936Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "assertReviewRunStartCliSurface rejects unsupported reviewer lane and REVIEW stories without currentReviewRound, and stale run reuse after material changes.",
+          "headHash": "328f86b6f5f7ecac4fa246c59b331e6248fbbf3f",
+          "materialHash": "b10436650606ecd5c73e16ec71537df592c35fc4b5baa4d67871f1fe26a21fbd",
+          "timestamp": "2026-05-13T14:41:56.936Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "assertReviewRunBindingRejectsInvalidEvidence verifies tampered review-runs signatures and wrong-lane run bindings are rejected by the REVIEW gate.",
+          "headHash": "328f86b6f5f7ecac4fa246c59b331e6248fbbf3f",
+          "materialHash": "b10436650606ecd5c73e16ec71537df592c35fc4b5baa4d67871f1fe26a21fbd",
+          "timestamp": "2026-05-13T14:41:56.936Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -58,9 +93,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-13T14:42:03.445Z",
       "userSees": "`koala session_brief` / REVIEW→TEST failures identify missing or stale run-bound evidence per reviewer lane, while valid `review_pass_set` and `finding_add` output includes the accepted reviewRunId linkage.",
       "files": {
         "modify": [
@@ -101,7 +136,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "Valid current reviewRunId-bound findings and review passes are persisted, signed, counted by reviewer status, and allow REVIEW gate success.",
+          "headHash": "328f86b6f5f7ecac4fa246c59b331e6248fbbf3f",
+          "materialHash": "b10436650606ecd5c73e16ec71537df592c35fc4b5baa4d67871f1fe26a21fbd",
+          "timestamp": "2026-05-13T14:41:56.936Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "assertLegacyReviewEvidenceWithoutCurrentRoundStaysReadable proves old stories without currentReviewRound keep legacy signed review pass readability while new rounds require run-bound evidence.",
+          "headHash": "328f86b6f5f7ecac4fa246c59b331e6248fbbf3f",
+          "materialHash": "b10436650606ecd5c73e16ec71537df592c35fc4b5baa4d67871f1fe26a21fbd",
+          "timestamp": "2026-05-13T14:41:56.936Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "Tests assert REVIEW gate failures for missing reviewRunId, wrong lane, tampered signature, and stale material hash before accepting reviewer evidence.",
+          "headHash": "328f86b6f5f7ecac4fa246c59b331e6248fbbf3f",
+          "materialHash": "b10436650606ecd5c73e16ec71537df592c35fc4b5baa4d67871f1fe26a21fbd",
+          "timestamp": "2026-05-13T14:41:56.936Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -113,9 +183,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-13T14:42:03.722Z",
       "userSees": "Reviewer dispatch text shows `review_run_start` before pass/finding commands, and `verify-process-fact-contract` fails if the review-run gate artifact is not registered.",
       "files": {
         "modify": [
@@ -180,7 +250,53 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/handlers/story-dispatch.ts",
+          "command": "npm --prefix packages/main run test:review-pass-discard-smoke && node bin/koala-codex.js verify_codex",
+          "result": "pass",
+          "note": "Reviewer dispatch output now includes review_run_start before finding_add/review_pass_set, and Codex adapter verification confirms mirrored reviewer prompts are synchronized.",
+          "headHash": "328f86b6f5f7ecac4fa246c59b331e6248fbbf3f",
+          "materialHash": "b10436650606ecd5c73e16ec71537df592c35fc4b5baa4d67871f1fe26a21fbd",
+          "timestamp": "2026-05-13T14:41:56.936Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process fact contract verifies review_run_start, signed review-runs.json, review-run-boundary policy, registry levels, CLI schema, and gate semantics are registered.",
+          "headHash": "328f86b6f5f7ecac4fa246c59b331e6248fbbf3f",
+          "materialHash": "b10436650606ecd5c73e16ec71537df592c35fc4b5baa4d67871f1fe26a21fbd",
+          "timestamp": "2026-05-13T14:41:56.936Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "packages/main/templates/agents/koala-review-docs.md",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Prompt drift scan fails pass-only finding examples and reviewer evidence examples lacking reviewRunId; all active reviewer prompt/template copies passed.",
+          "headHash": "328f86b6f5f7ecac4fa246c59b331e6248fbbf3f",
+          "materialHash": "b10436650606ecd5c73e16ec71537df592c35fc4b5baa4d67871f1fe26a21fbd",
+          "timestamp": "2026-05-13T14:41:56.936Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Synthetic contract checks now require review_run_start and reviewRunId for reviewer evidence flow, preventing prompt-only drift from satisfying the contract.",
+          "headHash": "328f86b6f5f7ecac4fa246c59b331e6248fbbf3f",
+          "materialHash": "b10436650606ecd5c73e16ec71537df592c35fc4b5baa4d67871f1fe26a21fbd",
+          "timestamp": "2026-05-13T14:41:56.936Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -190,9 +306,9 @@
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-13T14:42:03.970Z",
       "userSees": "Regression smoke output shows stale/missing reviewRunId cases are rejected with actionable REVIEW→TEST messages, and valid current-run evidence still lets the reviewer gate pass.",
       "files": {
         "modify": [
@@ -230,7 +346,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:field-regression-cli-smoke && npm --prefix packages/main run test:review-pass-discard-smoke",
+          "result": "pass",
+          "note": "Focused smoke suite passes for valid run-bound reviewer evidence, prompt/dispatch guidance, and review pass/finding persistence.",
+          "headHash": "328f86b6f5f7ecac4fa246c59b331e6248fbbf3f",
+          "materialHash": "b10436650606ecd5c73e16ec71537df592c35fc4b5baa4d67871f1fe26a21fbd",
+          "timestamp": "2026-05-13T14:41:56.936Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Legacy no-currentReviewRound evidence remains readable while current REVIEW rounds enforce reviewRunId binding.",
+          "headHash": "328f86b6f5f7ecac4fa246c59b331e6248fbbf3f",
+          "materialHash": "b10436650606ecd5c73e16ec71537df592c35fc4b5baa4d67871f1fe26a21fbd",
+          "timestamp": "2026-05-13T14:41:56.936Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "Regression coverage asserts actionable failures for stale, missing, wrong-lane, and tampered reviewRunId cases.",
+          "headHash": "328f86b6f5f7ecac4fa246c59b331e6248fbbf3f",
+          "materialHash": "b10436650606ecd5c73e16ec71537df592c35fc4b5baa4d67871f1fe26a21fbd",
+          "timestamp": "2026-05-13T14:41:56.936Z"
+        }
+      ]
     }
   ]
 }
