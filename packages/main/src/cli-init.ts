@@ -5,6 +5,7 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import {
   AGENTS_MD_TEMPLATE,
+  CLAUDE_MD_TEMPLATE,
   CODEX_README_TEMPLATE,
   KOALA_MD_TEMPLATE,
   SUPPORTED_INIT_PROFILES,
@@ -567,17 +568,8 @@ write('koala.config.json', JSON.stringify(koalaConfig, null, 2) + '\n');
 console.log('\n[3/6] 配置 Koala / host 文档...');
 writeManagedMarkdown('KOALA.md', KOALA_MD_TEMPLATE, 'KOALA.md');
 
-const claudeMdSrc = join(packageRoot, '..', '..', 'CLAUDE.md');
-const claudeDocTemplate = existsSync(claudeMdSrc)
-  ? `${extractKoalaSection(readFileSync(claudeMdSrc, 'utf-8'))}\n`
-  : `# CLAUDE.md
-
-<!-- koala:start -->
-执行 \`/koala\` 即可了解项目全貌并开始工作；通用规则见 \`KOALA.md\`。
-<!-- koala:end -->
-`;
 if (wantsClaude) {
-  writeManagedMarkdown('CLAUDE.md', claudeDocTemplate, 'CLAUDE.md');
+  writeManagedMarkdown('CLAUDE.md', CLAUDE_MD_TEMPLATE, 'CLAUDE.md');
 } else {
   console.log('  - CLAUDE.md (profile skip)');
 }

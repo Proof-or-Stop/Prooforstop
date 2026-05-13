@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, existsSync, writeFileSync } from 'fs';
+import { chmodSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, existsSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { execFileSync } from 'child_process';
@@ -8,6 +8,7 @@ import { execFileSync } from 'child_process';
 const repoRoot = process.cwd();
 const GLOBAL_CODEX_FALLBACK = 'KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPOINT=global-fallback koala';
 const INIT_ENTRYPOINT = 'packages/main/dist/cli-init.js';
+const CORE_ENTRYPOINT = 'packages/main/dist/cli.js';
 
 function run(cmd, args, opts = {}) {
   return execFileSync(cmd, args, {
@@ -117,11 +118,141 @@ function assertProfileAssets(tempDir, profile, opts = {}) {
   }
 }
 
+function readActivityRecord(session, tool) {
+  const activityPath = join(repoRoot, '.koala', 'activity.jsonl');
+  const text = readFileSync(activityPath, 'utf8').trim();
+  if (!text) return null;
+  const entries = text
+    .split('\n')
+    .filter(Boolean)
+    .map(line => JSON.parse(line));
+  return entries.findLast(entry => entry.session === session && entry.tool === tool) || null;
+}
+
+function readProcessEvent(session, command) {
+  let storyId = '';
+  try {
+    const branch = execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], { cwd: repoRoot, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+    if (branch.startsWith('story/')) storyId = branch.slice('story/'.length);
+  } catch {}
+  if (!storyId) return null;
+  const storyDir = join(repoRoot, '.koala', 'story', 'actives', storyId);
+  const eventPath = join(storyDir, 'process-events.jsonl');
+  if (!existsSync(eventPath)) return null;
+  const entries = readFileSync(eventPath, 'utf8')
+    .trim()
+    .split('\n')
+    .filter(Boolean)
+    .map(line => JSON.parse(line));
+  return entries.findLast(entry => entry.session === session && entry.command === command) || null;
+}
+
+function assertCodexWrapperSessionFrom(envName) {
+  const marker = `verify-entrypoints-${envName.toLowerCase()}-${Date.now()}`;
+  const env = {
+    ...process.env,
+    KOALA_ACTIVITY_SOURCE: 'not-codex',
+    KOALA_ACTIVITY_SESSION: '',
+    CODEX_SESSION_ID: '',
+    OPENAI_SESSION_ID: '',
+    TERM_SESSION_ID: '',
+    [envName]: marker,
+  };
+  const out = run('node', ['bin/koala-codex.js', 'session_brief'], { env });
+  assertIncludes(out, '# koala session brief', `bin/koala-codex.js ${envName} session_brief`);
+
+  const record = readActivityRecord(marker, 'session_brief');
+  assert(record, `bin/koala-codex.js should derive session from ${envName}`);
+  assert(record.source === 'codex', 'bin/koala-codex.js should force activity source=codex');
+  assert(record.entrypoint === 'local-wrapper', 'bin/koala-codex.js should mark entrypoint=local-wrapper');
+  return marker;
+}
+
+function installTemporaryXstateStub() {
+  const stubDir = join(repoRoot, 'node_modules', 'xstate');
+  if (existsSync(stubDir)) return () => {};
+  mkdirSync(stubDir, { recursive: true });
+  writeFileSync(join(stubDir, 'package.json'), JSON.stringify({
+    name: 'xstate',
+    version: '0.0.0-test-stub',
+    type: 'module',
+    exports: './index.js',
+  }, null, 2) + '\n');
+  writeFileSync(join(stubDir, 'index.js'), `export function setup() {
+  return {
+    createMachine(config) {
+      return {
+        ...config,
+        resolveState(snapshot) {
+          return snapshot;
+        },
+      };
+    },
+  };
+}
+
+export function createActor(_machine, options = {}) {
+  const snapshot = options.snapshot || { value: undefined, context: options.input ?? {} };
+  return {
+    start() { return this; },
+    stop() {},
+    send() {},
+    can() { return true; },
+    getSnapshot() { return snapshot; },
+  };
+}
+`);
+  return () => {
+    rmSync(stubDir, { recursive: true, force: true });
+  };
+}
+
 const checks = [];
 
 checks.push(() => {
-  const help = run('node', [INIT_ENTRYPOINT, '--help']);
-  assertInitHelpDocumentsStarterAsOptional(help, 'repo-local init entrypoint --help');
+  const out = run('node', ['bin/koala.js', 'aux_doc_list', '--format=json']);
+  assertIncludes(out, '"docs"', 'bin/koala.js aux_doc_list');
+});
+
+checks.push(() => {
+  const coreHelp = run('node', [CORE_ENTRYPOINT, 'init', '--help']);
+  assertInitHelpDocumentsStarterAsOptional(coreHelp, 'repo-local core CLI init --help');
+
+  const localWrapperHelp = run('node', ['bin/koala.js', 'init', '--help']);
+  assertInitHelpDocumentsStarterAsOptional(localWrapperHelp, 'repo-local bin/koala.js init --help');
+});
+
+checks.push(() => {
+  const marker = assertCodexWrapperSessionFrom('CODEX_SESSION_ID');
+  const event = readProcessEvent(marker, 'session_brief');
+  assert(event, 'bin/koala-codex.js should write codex_cli process-event in active story');
+  assert(event.source === 'codex' && event.entrypoint === 'local-wrapper', 'codex_cli event should include source and local wrapper entrypoint');
+});
+
+checks.push(() => {
+  assertCodexWrapperSessionFrom('OPENAI_SESSION_ID');
+});
+
+checks.push(() => {
+  assertCodexWrapperSessionFrom('TERM_SESSION_ID');
+});
+
+checks.push(() => {
+  const marker = `verify-entrypoints-global-${Date.now()}`;
+  const out = run('node', [CORE_ENTRYPOINT, 'session_brief'], {
+    env: {
+      ...process.env,
+      KOALA_ACTIVITY_SOURCE: 'codex',
+      KOALA_ACTIVITY_RECORD_READONLY: '1',
+      KOALA_ACTIVITY_SESSION: marker,
+    },
+  });
+  assertIncludes(out, '# koala session brief', 'global Codex fallback core CLI session_brief');
+
+  const record = readActivityRecord(marker, 'session_brief');
+  assert(record, 'global Codex fallback should write a session_brief activity record');
+  assert(record.source === 'codex', 'global Codex fallback should write source=codex');
+  assert(record.entrypoint === 'global-fallback', 'global Codex fallback should mark entrypoint=global-fallback');
 });
 
 checks.push(() => {
@@ -155,6 +286,9 @@ checks.push(() => {
     assertPathMissing(tempDir, 'src/shells', 'default koala init src/shells');
     assertPathMissing(tempDir, 'tests', 'default koala init tests');
     assertManagedMarkerSync(readFileSync(join(tempDir, 'KOALA.md'), 'utf8'), 'canonical、host-neutral', null, 'KOALA.md');
+    const generatedClaude = readFileSync(join(tempDir, 'CLAUDE.md'), 'utf8');
+    assertIncludes(generatedClaude, 'KOALA.md', 'all profile CLAUDE.md should point to KOALA.md');
+    assertNotIncludes(generatedClaude, '正常通道：', 'all profile CLAUDE.md should not copy root lifecycle table');
 
     const codexReadme = readFileSync(join(tempDir, '.Codex', 'README.md'), 'utf8');
     assertIncludes(codexReadme, 'node bin/koala-codex.js session_brief', '.Codex/README.md');
@@ -208,6 +342,27 @@ checks.push(() => {
     assertIncludes(generatedBootstrap, "node_modules', '@koala-agent', 'core'", 'generated local bootstrap should search local @koala-agent/core');
     assertIncludes(generatedBootstrap, "typeof mod.runCli", 'generated local bootstrap should execute a local CLI engine');
     assertIncludes(generatedBootstrap, "!help.includes('aux_doc_list') || !help.includes('verify_codex')", 'generated local bootstrap should reject stale global fallback');
+
+    const verifyInitOut = run('node', [CORE_ENTRYPOINT, 'init', '--verify-codex', tempDir]);
+    assertIncludes(verifyInitOut, 'Codex verification:', 'koala init --verify-codex output');
+    assertIncludes(verifyInitOut, 'Codex adapter checks passed', 'koala init --verify-codex checks');
+    assertPathMissing(tempDir, 'src/core', 'koala init --verify-codex src/core');
+    assertPathMissing(tempDir, 'src/shells', 'koala init --verify-codex src/shells');
+    assertPathMissing(tempDir, 'tests', 'koala init --verify-codex tests');
+
+    const staleBin = join(tempDir, 'stale-bin');
+    mkdirSync(staleBin);
+    const staleKoala = join(staleBin, 'koala');
+    writeFileSync(staleKoala, '#!/bin/sh\necho "stale koala without Codex adapter commands"\nexit 0\n');
+    chmodSync(staleKoala, 0o755);
+    const minimalEnv = {
+      ...process.env,
+      PATH: `${staleBin}:/usr/bin:/bin`,
+      KOALA_ACTIVITY_SOURCE: 'not-codex',
+      KOALA_ACTIVITY_SESSION: `fresh-init-wrapper-${Date.now()}`,
+    };
+    const freshWrapperOut = run(process.execPath, [join(tempDir, 'bin', 'koala-codex.js'), 'session_brief'], { cwd: tempDir, env: minimalEnv });
+    assertIncludes(freshWrapperOut, '# koala session brief', 'fresh generated wrapper should run with stale global koala on PATH');
 
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
@@ -264,9 +419,39 @@ checks.push(() => {
       assertIncludes(initOut, `Selected init profile: ${profile}`, `${profile} init profile selection`);
       assertIncludes(initOut, `explicit --profile=${profile}`, `${profile} init explicit reason`);
       assertProfileAssets(tempDir, profile);
+      if (profile === 'codex') {
+        const agents = readFileSync(join(tempDir, 'AGENTS.md'), 'utf8');
+        assertIncludes(agents, 'KOALA.md', 'codex AGENTS should point to KOALA.md');
+        assertNotIncludes(agents, '.claude/agents', 'codex AGENTS should not claim .claude/agents exists');
+      }
+      if (profile === 'claude') {
+        const claude = readFileSync(join(tempDir, 'CLAUDE.md'), 'utf8');
+        assertIncludes(claude, 'KOALA.md', 'claude CLAUDE.md should point to KOALA.md');
+        assertIncludes(claude, '.claude/agents', 'claude CLAUDE.md should describe .claude/agents');
+        assertIncludes(claude, '.claude/hooks', 'claude CLAUDE.md should describe hooks');
+        assertNotIncludes(claude, '正常通道：', 'claude CLAUDE.md should not copy lifecycle flow table');
+        assertNotIncludes(claude, '流程事实双层契约', 'claude CLAUDE.md should not copy root long-form truth source');
+      }
     } finally {
       rmSync(tempDir, { recursive: true, force: true });
     }
+  }
+});
+
+checks.push(() => {
+  const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-codex-verify-'));
+  try {
+    const claudeSeedDir = join(tempDir, '.claude', 'agents');
+    mkdirSync(claudeSeedDir, { recursive: true });
+    for (const file of readdirSync(join(repoRoot, '.claude', 'agents'))) {
+      if (!file.endsWith('.md')) continue;
+      writeFileSync(join(claudeSeedDir, file), readFileSync(join(repoRoot, '.claude', 'agents', file), 'utf8'));
+    }
+    const out = run(process.execPath, [INIT_ENTRYPOINT, '--profile=codex', '--verify-codex', tempDir]);
+    assertIncludes(out, 'Codex verification:', 'codex profile verify-codex output');
+    assertIncludes(out, 'Codex adapter checks passed', 'codex profile verify-codex checks');
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
   }
 });
 
@@ -301,9 +486,11 @@ checks.push(() => {
     assertIncludes(agents, 'before-agents', 'AGENTS.md prefix preservation');
     assertIncludes(agents, 'after-agents', 'AGENTS.md suffix preservation');
     assertManagedMarkerSync(agents, 'Codex / AGENTS', 'old agents section', 'AGENTS.md managed sync');
+    assertNotIncludes(agents, '.claude/agents', 'AGENTS.md managed sync should not claim .claude/agents exists');
     assertIncludes(claude, 'before-claude', 'CLAUDE.md prefix preservation');
     assertIncludes(claude, 'after-claude', 'CLAUDE.md suffix preservation');
-    assertManagedMarkerSync(claude, 'session_brief', 'old claude section', 'CLAUDE.md managed sync');
+    assertManagedMarkerSync(claude, 'KOALA.md', 'old claude section', 'CLAUDE.md managed sync');
+    assertNotIncludes(claude, '正常通道：', 'CLAUDE.md managed sync should not copy root lifecycle table');
     assertIncludes(koala, 'before-koala', 'KOALA.md prefix preservation');
     assertIncludes(koala, 'after-koala', 'KOALA.md suffix preservation');
     assertManagedMarkerSync(koala, 'host-neutral', 'old koala section', 'KOALA.md managed sync');
@@ -364,9 +551,36 @@ checks.push(() => {
   }
 });
 
-for (const [index, check] of checks.entries()) {
-  check();
-  console.log(`ok ${index + 1}/${checks.length}`);
-}
+checks.push(() => {
+  const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-minpath-'));
+  const staleBin = join(tempDir, 'stale-bin');
+  try {
+    mkdirSync(staleBin);
+    const staleKoala = join(staleBin, 'koala');
+    writeFileSync(staleKoala, '#!/bin/sh\necho "stale koala without verify_codex"\nexit 0\n');
+    chmodSync(staleKoala, 0o755);
+    const out = run(process.execPath, [CORE_ENTRYPOINT, 'init', '--verify-codex', tempDir], {
+      env: {
+        ...process.env,
+        PATH: `${staleBin}:/usr/bin:/bin`,
+      },
+    });
+    assertIncludes(out, 'Codex verification:', 'fresh koala init --verify-codex minimal PATH output');
+    assertIncludes(out, 'Local wrapper heartbeat: source=codex', 'fresh koala init --verify-codex should execute generated wrapper heartbeat');
+    assertIncludes(out, 'Codex adapter checks passed', 'fresh koala init --verify-codex should pass via generated local bootstrap');
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+});
 
-console.log('entrypoints verified');
+const cleanupXstateStub = installTemporaryXstateStub();
+try {
+  for (const [index, check] of checks.entries()) {
+    check();
+    console.log(`ok ${index + 1}/${checks.length}`);
+  }
+
+  console.log('entrypoints verified');
+} finally {
+  cleanupXstateStub();
+}

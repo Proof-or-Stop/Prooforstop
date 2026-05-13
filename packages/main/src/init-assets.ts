@@ -18,7 +18,7 @@ export const AGENTS_MD_TEMPLATE = `# AGENTS.md
 - 新 session 或恢复中断工作时，先运行 \`koala session_brief\`。
 - 行动前运行 \`koala aux_doc_list\` 查看相关文档；若当前全局 core-only 环境没有 aux 命令，用本地 bootstrap 或 shell 搜索兜底。
 - Story / checklist / fixture / bug 操作优先通过 \`koala\` CLI，不直接改 story/fixture JSON。
-- Codex subagent prompts 位于 \`.Codex/agents\`；Claude subagent prompts 位于 \`.claude/agents\`。
+- Codex subagent prompts 位于 \`.Codex/agents\`；Claude Code 专属资产只会在启用 Claude profile 的仓库里生成。
 - 改动 Codex adapter / \`.Codex\` / \`bin/koala-codex.js\` 后运行 \`node bin/koala-codex.js verify_codex\`，让 REVIEW/DONE gate 能消费硬证据。
 - 诊断 Codex adapter 时运行 \`node bin/koala-codex.js doctor\`。
 
@@ -38,6 +38,21 @@ export const KOALA_MD_TEMPLATE = `# KOALA.md
 - 默认本地入口是 \`node bin/koala.js\`；若 profile 生成了 Codex adapter，可额外使用 \`node bin/koala-codex.js\`。
 - Codex 专属说明放在 \`AGENTS.md\` 和 \`.Codex/README.md\`；Claude 专属说明放在 \`CLAUDE.md\` 和 \`.claude/\`。
 - 改动 Koala adapter 资产后先跑对应验证：项目验证用 \`koala validate\`，Codex adapter 额外跑 \`node bin/koala-codex.js verify_codex\`。
+
+<!-- koala:end -->
+`;
+
+export const CLAUDE_MD_TEMPLATE = `# CLAUDE.md
+
+<!-- koala:start -->
+## Koala For Claude Code
+
+- \`KOALA.md\` 是 canonical、host-neutral 的 Koala 指南；Story 生命周期、流程事实和通用规则都以它为准。
+- Claude Code 入口先跑 \`koala session_brief\`，日常操作继续使用 \`koala\` CLI。
+- Claude Code subagents 位于 \`.claude/agents\`。
+- Claude Code hooks 位于 \`.claude/hooks\`，Claude settings 位于 \`.claude/settings.json\`。
+- Claude Code 的 \`/koala\` skill 位于 \`.claude/skills/koala\`。
+- 当仓库同时启用 Codex profile 时，Codex 资产会单独放在 \`.Codex/\`，不要把这里当成双端共享真相源。
 
 <!-- koala:end -->
 `;
