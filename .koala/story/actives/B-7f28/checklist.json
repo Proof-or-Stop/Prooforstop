@@ -48,10 +48,10 @@
           "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
           "command": "npm run test:worktree-authority-smoke",
           "result": "pass",
-          "note": "Targeted smoke creates an approved draft, runs story_create --fromDraft, sees worktree output, confirms story.worktree is recorded, and asserts main git status is empty.",
-          "headHash": "047006189dab6e4c8139b61ade509b35865c4991",
-          "materialHash": "2a4f85f5bdea51950f91b9e691775823ff1e3a0de27df453a4829a8903c445c0",
-          "timestamp": "2026-05-13T14:32:14.330Z"
+          "note": "Fresh smoke on HEAD 6876e122 creates an approved draft, runs story_create --fromDraft, sees worktree output, records story.worktree, and confirms the clean-main path leaves git status empty.",
+          "headHash": "6876e122c1ced1ccc811097e40cac69d29e9764e",
+          "materialHash": "41bc02d9c181ef64072187ba258da3a734f189d80dceba1a0b2af38ea90bb471",
+          "timestamp": "2026-05-13T14:45:25.074Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -59,10 +59,10 @@
           "file": "packages/main/src/cli-engine.ts",
           "command": "npm run build && npm run test:worktree-authority-smoke",
           "result": "pass",
-          "note": "fromDraft CLI path now stages only the active story dir and source draft dir, commits that bounded metadata transaction on main, and merges main into the new story worktree.",
-          "headHash": "047006189dab6e4c8139b61ade509b35865c4991",
-          "materialHash": "2a4f85f5bdea51950f91b9e691775823ff1e3a0de27df453a4829a8903c445c0",
-          "timestamp": "2026-05-13T14:32:14.330Z"
+          "note": "fromDraft now commits only bounded active-story/source-draft metadata paths, verifies only those paths are clean, and merges current main into the new story branch.",
+          "headHash": "6876e122c1ced1ccc811097e40cac69d29e9764e",
+          "materialHash": "41bc02d9c181ef64072187ba258da3a734f189d80dceba1a0b2af38ea90bb471",
+          "timestamp": "2026-05-13T14:45:25.098Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -70,10 +70,10 @@
           "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
           "command": "npm run test:worktree-authority-smoke",
           "result": "pass",
-          "note": "Smoke includes a hard clean-main assertion, so any tracked or untracked story/draft residue after fromDraft bootstrap fails the test.",
-          "headHash": "047006189dab6e4c8139b61ade509b35865c4991",
-          "materialHash": "2a4f85f5bdea51950f91b9e691775823ff1e3a0de27df453a4829a8903c445c0",
-          "timestamp": "2026-05-13T14:32:14.330Z"
+          "note": "Dirty-main regression keeps unrelated tracked and untracked user edits dirty while requiring story/draft metadata paths to be clean and main to be ancestor of story/B-* after bootstrap.",
+          "headHash": "6876e122c1ced1ccc811097e40cac69d29e9764e",
+          "materialHash": "41bc02d9c181ef64072187ba258da3a734f189d80dceba1a0b2af38ea90bb471",
+          "timestamp": "2026-05-13T14:45:25.120Z"
         }
       ]
     },
@@ -123,10 +123,10 @@
           "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
           "command": "npm run test:worktree-authority-smoke",
           "result": "pass",
-          "note": "Smoke now asserts worktree registration, empty main git status, and merge-base ancestry from main to story/B-* after story_create --fromDraft.",
-          "headHash": "047006189dab6e4c8139b61ade509b35865c4991",
-          "materialHash": "2a4f85f5bdea51950f91b9e691775823ff1e3a0de27df453a4829a8903c445c0",
-          "timestamp": "2026-05-13T14:32:14.330Z"
+          "note": "Fresh smoke asserts worktree registration, empty main git status in the clean case, and merge-base ancestry from main to story/B-* after story_create --fromDraft.",
+          "headHash": "6876e122c1ced1ccc811097e40cac69d29e9764e",
+          "materialHash": "41bc02d9c181ef64072187ba258da3a734f189d80dceba1a0b2af38ea90bb471",
+          "timestamp": "2026-05-13T14:45:34.019Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -134,10 +134,10 @@
           "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
           "command": "npm run test:worktree-authority-smoke",
           "result": "pass",
-          "note": "The regression covers the field failure shape by checking main for active story or draft metadata residue immediately after INIT_CHECK/worktree bootstrap.",
-          "headHash": "047006189dab6e4c8139b61ade509b35865c4991",
-          "materialHash": "2a4f85f5bdea51950f91b9e691775823ff1e3a0de27df453a4829a8903c445c0",
-          "timestamp": "2026-05-13T14:32:14.330Z"
+          "note": "Regression covers the field shape with committed draft metadata: story_create --fromDraft deletes the draft, writes active story metadata, commits that bounded transaction, and syncs it into the story branch.",
+          "headHash": "6876e122c1ced1ccc811097e40cac69d29e9764e",
+          "materialHash": "41bc02d9c181ef64072187ba258da3a734f189d80dceba1a0b2af38ea90bb471",
+          "timestamp": "2026-05-13T14:45:34.047Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -145,10 +145,10 @@
           "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
           "command": "npm run test:worktree-authority-smoke",
           "result": "pass",
-          "note": "The test fails if story/B-* does not contain current main or if main remains dirty after bootstrap, preventing a misleading success.",
-          "headHash": "047006189dab6e4c8139b61ade509b35865c4991",
-          "materialHash": "2a4f85f5bdea51950f91b9e691775823ff1e3a0de27df453a4829a8903c445c0",
-          "timestamp": "2026-05-13T14:32:14.330Z"
+          "note": "Additional dirty-main smoke fails if bounded metadata remains dirty or story/B-* misses current main, while preserving unrelated user dirty files outside Koala metadata.",
+          "headHash": "6876e122c1ced1ccc811097e40cac69d29e9764e",
+          "materialHash": "41bc02d9c181ef64072187ba258da3a734f189d80dceba1a0b2af38ea90bb471",
+          "timestamp": "2026-05-13T14:45:34.073Z"
         }
       ]
     },
@@ -201,10 +201,10 @@
           "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
           "command": "npm run test:worktree-authority-smoke",
           "result": "pass",
-          "note": "Targeted smoke passed in the story worktree and covers clean-main plus branch-ancestry intents.",
-          "headHash": "047006189dab6e4c8139b61ade509b35865c4991",
-          "materialHash": "2a4f85f5bdea51950f91b9e691775823ff1e3a0de27df453a4829a8903c445c0",
-          "timestamp": "2026-05-13T14:32:14.330Z"
+          "note": "Targeted smoke passed on HEAD 6876e122 and now covers clean-main, dirty-main preservation, bounded metadata cleanliness, and branch ancestry.",
+          "headHash": "6876e122c1ced1ccc811097e40cac69d29e9764e",
+          "materialHash": "41bc02d9c181ef64072187ba258da3a734f189d80dceba1a0b2af38ea90bb471",
+          "timestamp": "2026-05-13T14:45:42.232Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -212,10 +212,10 @@
           "file": "packages/main/src/cli-engine.ts",
           "command": "npm run build && npm run test:init-check-bootstrap",
           "result": "pass",
-          "note": "TypeScript build passed and INIT_CHECK bootstrap regression still passes, showing ordinary branch isolation remains intact.",
-          "headHash": "047006189dab6e4c8139b61ade509b35865c4991",
-          "materialHash": "2a4f85f5bdea51950f91b9e691775823ff1e3a0de27df453a4829a8903c445c0",
-          "timestamp": "2026-05-13T14:32:14.330Z"
+          "note": "TypeScript build passed and INIT_CHECK bootstrap regression still passes, showing ordinary branch isolation remains intact after the fromDraft sync fix.",
+          "headHash": "6876e122c1ced1ccc811097e40cac69d29e9764e",
+          "materialHash": "41bc02d9c181ef64072187ba258da3a734f189d80dceba1a0b2af38ea90bb471",
+          "timestamp": "2026-05-13T14:45:42.258Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -223,10 +223,10 @@
           "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
           "command": "npm run build && npm run test:worktree-authority-smoke && npm run test:init-check-bootstrap",
           "result": "pass",
-          "note": "Evidence was recorded after implementation commits 04700618/d67c0fcc and fresh targeted validation commands passed.",
-          "headHash": "047006189dab6e4c8139b61ade509b35865c4991",
-          "materialHash": "2a4f85f5bdea51950f91b9e691775823ff1e3a0de27df453a4829a8903c445c0",
-          "timestamp": "2026-05-13T14:32:14.330Z"
+          "note": "Evidence was refreshed after commit 6876e122, so Koala freshness checks see current code and test material rather than pre-finding results.",
+          "headHash": "6876e122c1ced1ccc811097e40cac69d29e9764e",
+          "materialHash": "41bc02d9c181ef64072187ba258da3a734f189d80dceba1a0b2af38ea90bb471",
+          "timestamp": "2026-05-13T14:45:42.283Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -234,10 +234,10 @@
           "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
           "command": "npm run build && npm run test:worktree-authority-smoke && npm run test:init-check-bootstrap",
           "result": "pass",
-          "note": "The already-run build, targeted smoke, and INIT_CHECK bootstrap regression cover the adversarial case: clean-main and branch-ancestry assertions are explicit, so missing or failed targeted coverage cannot be mistaken for a passing implementation.",
-          "headHash": "047006189dab6e4c8139b61ade509b35865c4991",
-          "materialHash": "2a4f85f5bdea51950f91b9e691775823ff1e3a0de27df453a4829a8903c445c0",
-          "timestamp": "2026-05-13T14:32:30.970Z"
+          "note": "The command set would fail if the targeted smoke were missing, stale, failed, or unable to catch dirty story/draft metadata and stale story branch ancestry.",
+          "headHash": "6876e122c1ced1ccc811097e40cac69d29e9764e",
+          "materialHash": "41bc02d9c181ef64072187ba258da3a734f189d80dceba1a0b2af38ea90bb471",
+          "timestamp": "2026-05-13T14:45:42.306Z"
         }
       ]
     }
