@@ -1,0 +1,20 @@
+{
+  "passes": [
+    {
+      "id": "B-69bf:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "Reviewed verificationIntent coverage and freshness. Fresh reruns passed for verification-freshness smoke, validation-protocol smoke, entrypoints gitignore merge/no-churn, and baseline-risk script. Evidence headHash predates current HEAD but only story metadata changed; materialHash freshness remains valid.",
+      "createdAt": "2026-05-13T10:18:37.261Z",
+      "reviewRound": "2026-05-13T10:16:18.526Z",
+      "_hash": "1f90fb7e01cc860cbf4f76299ea4940a727f9ce2073e163d48e694b5b26079be"
+    },
+    {
+      "id": "B-69bf:RP-002",
+      "agent": "koala-review-concept",
+      "note": "Concept review passed: runtime artifacts are modeled in a dedicated registry separate from process/runtime facts; material freshness only excludes story metadata plus registry-marked runtime artifacts; init/doctor/story_sync_main/baseline-risk all consume the registry; docs and smoke coverage align (verification-freshness, validation-protocol, verify-entrypoints, verify-worktree-baseline-risk).",
+      "createdAt": "2026-05-13T11:15:06.773Z",
+      "reviewRound": "2026-05-13T10:16:18.526Z",
+      "_hash": "a44d6b84763f492be821dd1b9c5df1399be941e0714efd384639484437522da9"
+    }
+  ]
+}

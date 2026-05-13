@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-69bf:F-001",
+      "desc": "[HIGH] packages/main/src/handlers/doctor.ts:292-323 renders doctor repairCommand with JSON.stringify(path), so the suggested `git rm --cached -- \"...\"` snippet is not shell-safe. Double-quoted shell snippets still expand `$VAR`, `$(...)`, and backticks; `zsh -lc 'printf \"%s\\\\n\" \".koala-tmp-$(printf injected)\"'` resolves to `.koala-tmp-injected`. That is reachable here because runtime-artifact-registry matches arbitrary `.koala-tmp-*` names (packages/main/src/core/runtime-artifact-registry.ts:83-86) and literal `$PROJECT_ROOT/` paths (119-122). The current smoke only asserts the simple `.koala/activity.jsonl` case (packages/main/src/tasks/validation-protocol-smoke.ts:275-293), so this regression is untested. Fix by rendering repair commands with POSIX-safe single-quote escaping (or by removing the pasteable shell snippet and pointing users to `koala doctor --repair`), and add a regression test covering metacharacters in tracked runtime-artifact paths.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-13T11:15:52.712Z",
+      "reviewRound": "2026-05-13T10:16:18.526Z",
+      "_hash": "1caa2d459cf66f15e28f93806f9b85f20b65c4145bc535bf3bbd875552ef700d",
+      "files": [
+        "packages/main/src/handlers/doctor.ts",
+        "packages/main/src/core/runtime-artifact-registry.ts",
+        "packages/main/src/tasks/validation-protocol-smoke.ts"
+      ]
+    }
+  ]
+}
