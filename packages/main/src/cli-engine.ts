@@ -11,11 +11,11 @@ import { z, ZodType, ZodOptional, ZodEnum, ZodArray, ZodUnion, ZodString, ZodBoo
 import { existsSync, readFileSync } from 'fs';
 import { appendActivityLog } from './core/activity-log.js';
 import { inferActivityRole } from './core/activity-role.js';
-import { join } from 'path';
+import { isAbsolute, join } from 'path';
 import { StoryStore } from './core/store.js';
 import { createMainRegistry, type Registry } from './registry.js';
 import type { HandlerContext } from './handlers/context.js';
-import { execSync } from 'child_process';
+import { execFileSync, execSync } from 'child_process';
 import { loadConfig, isCommandAllowed, getAllowedPatterns } from './core/config.js';
 import { formatCommandLifecycleHint } from './core/command-policy.js';
 import { decorateResult, type ActiveStoryInfo } from './handlers/hints.js';
@@ -1108,6 +1108,120 @@ export function shouldWriteActivityLog(cmdName: string, args: Record<string, unk
   return true;
 }
 
+function gitCli(cwd: string, args: string[]): string {
+  try {
+    return execFileSync('git', args, {
+      cwd,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+  } catch (e: any) {
+    const details = String(e?.stderr || e?.stdout || e?.message || e).trim();
+    throw new Error(`git ${args.join(' ')} failed${details ? `: ${details}` : ''}`);
+  }
+}
+
+function toGitRelPath(path: string): string {
+  return path.replace(/\\/g, '/').replace(/\/+$/, '');
+}
+
+function boundedMetadataPath(baseRel: string, child: string, label: string): string {
+  const childPath = toGitRelPath(child);
+  if (!childPath || isAbsolute(childPath) || childPath.split('/').includes('..')) {
+    throw new Error(`from-draft metadata path for ${label} is not bounded: ${child}`);
+  }
+  return `${toGitRelPath(baseRel)}/${childPath}`;
+}
+
+function isPathUnderAny(path: string, roots: string[]): boolean {
+  return roots.some((root) => path === root || path.startsWith(`${root}/`));
+}
+
+function stageBoundedMetadataPath(root: string, relPath: string): void {
+  if (existsSync(join(root, relPath))) {
+    gitCli(root, ['add', '-A', '--', relPath]);
+    return;
+  }
+
+  const deleted = gitCli(root, ['ls-files', '--deleted', '--', relPath])
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean);
+  if (deleted.length > 0) {
+    gitCli(root, ['add', '-A', '--', ...deleted]);
+  }
+}
+
+function commitFromDraftMetadataAndMergeMain(root: string, store: StoryStore, storyId: string, draftName: string): string {
+  const currentBranch = gitCli(root, ['rev-parse', '--abbrev-ref', 'HEAD']);
+  if (currentBranch !== 'main') {
+    throw new Error(`story_create --fromDraft must finalize metadata on main, but current branch is ${currentBranch}`);
+  }
+
+  const storyRel = boundedMetadataPath(store.storyDirRel(), storyId, 'active story');
+  const draftRel = boundedMetadataPath('docs/story/drafts', draftName, 'source draft');
+  const boundedPaths = [storyRel, draftRel];
+
+  const stagedBefore = gitCli(root, ['diff', '--cached', '--name-only']);
+  if (stagedBefore) {
+    throw new Error(
+      `from-draft metadata commit requires a clean git index before staging bounded paths:\n${stagedBefore}`,
+    );
+  }
+
+  for (const path of boundedPaths) {
+    stageBoundedMetadataPath(root, path);
+  }
+  const staged = gitCli(root, ['diff', '--cached', '--name-only']);
+  const stagedPaths = staged.split('\n').map((line) => line.trim()).filter(Boolean);
+  if (stagedPaths.length === 0) {
+    throw new Error(`from-draft metadata commit found no changes under ${boundedPaths.join(', ')}`);
+  }
+  const outOfBounds = stagedPaths.filter((path) => !isPathUnderAny(path, boundedPaths));
+  if (outOfBounds.length > 0) {
+    throw new Error(
+      `from-draft metadata commit refused out-of-bounds staged paths:\n${outOfBounds.join('\n')}`,
+    );
+  }
+
+  const commitMessage = `koala: from-draft metadata ${storyId}`;
+  gitCli(root, [
+    '-c', 'commit.gpgsign=false',
+    '-c', 'user.email=koala@example.test',
+    '-c', 'user.name=Koala',
+    'commit',
+    '-m', commitMessage,
+  ]);
+  const mainHead = gitCli(root, ['rev-parse', '--short', 'HEAD']);
+  const mainStatus = gitCli(root, ['status', '--porcelain']);
+  if (mainStatus) {
+    throw new Error(`from-draft metadata committed, but main is still dirty:\n${mainStatus}`);
+  }
+
+  const story = store.readStory(storyId);
+  const worktreePath = story.worktree?.path;
+  const storyBranch = story.worktree?.branch || `story/${storyId}`;
+  if (!worktreePath) {
+    throw new Error(`from-draft story ${storyId} has no recorded worktree path after dev_start`);
+  }
+  const repoRoot = gitCli(root, ['rev-parse', '--show-toplevel']);
+  const worktreeAbs = isAbsolute(worktreePath) ? worktreePath : join(repoRoot, worktreePath);
+  gitCli(worktreeAbs, [
+    '-c', 'commit.gpgsign=false',
+    '-c', 'user.email=koala@example.test',
+    '-c', 'user.name=Koala',
+    'merge',
+    'main',
+    '--no-edit',
+  ]);
+  gitCli(worktreeAbs, ['merge-base', '--is-ancestor', 'main', storyBranch]);
+
+  return [
+    `✓ from-draft metadata committed on main: ${mainHead} (${commitMessage})`,
+    `✓ main merged into ${storyBranch}`,
+  ].join('\n');
+}
+
 // ── Main ──
 
 /**
@@ -1452,14 +1566,19 @@ export async function runCli(opts?: {
       if (result.includes('created from draft') && result.includes('(phase=INIT_CHECK)')) {
         const storyId = result.match(/Story\s+([\w-]+)/)?.[1];
         if (!storyId) return result;
+        const draftName = typeof (v.data as any).fromDraft === 'string' ? (v.data as any).fromDraft : '';
         if (!gitReady) {
           return `${result}\n⚠ 当前目录不是 git 仓库：story 已记录，但 from-draft worktree 不能自动创建。\n→ 先 git init + 首次 commit 后重试 story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'`;
         }
         try {
           const wtResult = handlers.dev_start({ storyId });
-          return `${result}\n\n${wtResult}\n\n→ 现在请 cd 到上述 worktree 路径，然后调 story_advance phase=PLAN 进入 PLAN`;
+          const syncResult = commitFromDraftMetadataAndMergeMain(root, store, storyId, draftName);
+          return `${result}\n\n${wtResult}\n\n${syncResult}\n\n→ 现在请 cd 到上述 worktree 路径，然后调 story_advance phase=PLAN 进入 PLAN`;
         } catch (e: any) {
-          return `${result}\n⚠ worktree 创建失败: ${e.message}\n→ 排查后再次执行 story_advance --phase=INIT_CHECK 自动重试，或手动 dev_start '{"storyId":"${storyId}"}'`;
+          throw new Error(
+            `from-draft worktree bootstrap failed for ${storyId}: ${e.message}\n` +
+            `→ 排查后再次执行 story_advance --phase=INIT_CHECK 自动重试，或手动 dev_start '{"storyId":"${storyId}"}'`,
+          );
         }
       }
       if (!result.includes('(INIT)')) return result;

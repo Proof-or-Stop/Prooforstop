@@ -250,6 +250,7 @@ function assertFromDraftCreatesWorktreeThroughCli(): void {
       worktreeDir: '.worktrees',
     }, null, 2));
     write(root, 'README.md', 'from draft smoke\n');
+    write(root, '.gitignore', '.worktrees/\n.koala/activity.jsonl\n');
     git(root, ['init']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
@@ -281,6 +282,12 @@ function assertFromDraftCreatesWorktreeThroughCli(): void {
     assert.ok(story.worktree?.path, 'fromDraft story should record worktree metadata');
     assert.match(output, /worktree/i, 'fromDraft output should include worktree bootstrap result');
     assert.match(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`story/${storyId}`));
+    assert.equal(git(root, ['status', '--porcelain']), '', 'fromDraft should leave main clean after bootstrap');
+    assert.equal(
+      gitSucceeds(root, ['merge-base', '--is-ancestor', 'main', `story/${storyId}`]),
+      true,
+      'fromDraft story branch should contain current main after bootstrap',
+    );
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
