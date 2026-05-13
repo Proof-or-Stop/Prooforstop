@@ -1,0 +1,35 @@
+{
+  "storyId": "B-ad12",
+  "name": "fresh-review-run-contract",
+  "title": "Hard-code fresh reviewer run evidence for REVIEW gate",
+  "description": "Reviewer freshness should be a verifiable process boundary, not a prompt-only trust statement. Add hard-coded review run evidence so reviewer passes/findings are tied to a current review run, lane, round, prompt hash, head/material hash, and cannot silently reuse stale or missing reviewer context.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "createdAt": "2026-05-13T13:44:01.452Z",
+  "startedAt": "2026-05-13T13:44:01.452Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-05-13T13:44:01.452Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-05-13T13:48:42.836Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-ad12",
+    "branch": "story/B-ad12",
+    "createdAt": "2026-05-13T13:48:42.904Z"
+  }
+}
