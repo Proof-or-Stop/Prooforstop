@@ -58,9 +58,9 @@
           "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
           "result": "pass",
           "note": "assertReviewRunStartCliSurface verifies review_run_start persists signed review-runs.json fields including reviewRunId, lane, reviewRound, promptHash, headHash, materialHash, and startedAt.",
-          "headHash": "328f86b6f5f7ecac4fa246c59b331e6248fbbf3f",
-          "materialHash": "b10436650606ecd5c73e16ec71537df592c35fc4b5baa4d67871f1fe26a21fbd",
-          "timestamp": "2026-05-13T14:41:56.936Z"
+          "headHash": "5f8ab8cf45e4491bccbf0043bfe1c05a51a3b7e7",
+          "materialHash": "7c6fa5b17160f005d76fc1081b2aef2bee236dc47f6fcd134b93f74d61e24feb",
+          "timestamp": "2026-05-13T15:35:24.579Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -69,9 +69,9 @@
           "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
           "result": "pass",
           "note": "assertReviewRunStartCliSurface rejects unsupported reviewer lane and REVIEW stories without currentReviewRound, and stale run reuse after material changes.",
-          "headHash": "328f86b6f5f7ecac4fa246c59b331e6248fbbf3f",
-          "materialHash": "b10436650606ecd5c73e16ec71537df592c35fc4b5baa4d67871f1fe26a21fbd",
-          "timestamp": "2026-05-13T14:41:56.936Z"
+          "headHash": "5f8ab8cf45e4491bccbf0043bfe1c05a51a3b7e7",
+          "materialHash": "7c6fa5b17160f005d76fc1081b2aef2bee236dc47f6fcd134b93f74d61e24feb",
+          "timestamp": "2026-05-13T15:35:24.579Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -80,9 +80,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "assertReviewRunBindingRejectsInvalidEvidence verifies tampered review-runs signatures and wrong-lane run bindings are rejected by the REVIEW gate.",
-          "headHash": "328f86b6f5f7ecac4fa246c59b331e6248fbbf3f",
-          "materialHash": "b10436650606ecd5c73e16ec71537df592c35fc4b5baa4d67871f1fe26a21fbd",
-          "timestamp": "2026-05-13T14:41:56.936Z"
+          "headHash": "5f8ab8cf45e4491bccbf0043bfe1c05a51a3b7e7",
+          "materialHash": "7c6fa5b17160f005d76fc1081b2aef2bee236dc47f6fcd134b93f74d61e24feb",
+          "timestamp": "2026-05-13T15:35:24.579Z"
         }
       ]
     },
@@ -145,9 +145,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:field-regression-cli-smoke",
           "result": "pass",
           "note": "Valid current reviewRunId-bound findings and review passes are persisted, signed, counted by reviewer status, and allow REVIEW gate success.",
-          "headHash": "328f86b6f5f7ecac4fa246c59b331e6248fbbf3f",
-          "materialHash": "b10436650606ecd5c73e16ec71537df592c35fc4b5baa4d67871f1fe26a21fbd",
-          "timestamp": "2026-05-13T14:41:56.936Z"
+          "headHash": "5f8ab8cf45e4491bccbf0043bfe1c05a51a3b7e7",
+          "materialHash": "7c6fa5b17160f005d76fc1081b2aef2bee236dc47f6fcd134b93f74d61e24feb",
+          "timestamp": "2026-05-13T15:35:24.579Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -156,9 +156,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "assertLegacyReviewEvidenceWithoutCurrentRoundStaysReadable proves old stories without currentReviewRound keep legacy signed review pass readability while new rounds require run-bound evidence.",
-          "headHash": "328f86b6f5f7ecac4fa246c59b331e6248fbbf3f",
-          "materialHash": "b10436650606ecd5c73e16ec71537df592c35fc4b5baa4d67871f1fe26a21fbd",
-          "timestamp": "2026-05-13T14:41:56.936Z"
+          "headHash": "5f8ab8cf45e4491bccbf0043bfe1c05a51a3b7e7",
+          "materialHash": "7c6fa5b17160f005d76fc1081b2aef2bee236dc47f6fcd134b93f74d61e24feb",
+          "timestamp": "2026-05-13T15:35:24.579Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -167,9 +167,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:field-regression-cli-smoke",
           "result": "pass",
           "note": "Tests assert REVIEW gate failures for missing reviewRunId, wrong lane, tampered signature, and stale material hash before accepting reviewer evidence.",
-          "headHash": "328f86b6f5f7ecac4fa246c59b331e6248fbbf3f",
-          "materialHash": "b10436650606ecd5c73e16ec71537df592c35fc4b5baa4d67871f1fe26a21fbd",
-          "timestamp": "2026-05-13T14:41:56.936Z"
+          "headHash": "5f8ab8cf45e4491bccbf0043bfe1c05a51a3b7e7",
+          "materialHash": "7c6fa5b17160f005d76fc1081b2aef2bee236dc47f6fcd134b93f74d61e24feb",
+          "timestamp": "2026-05-13T15:35:24.579Z"
         }
       ]
     },
@@ -259,9 +259,9 @@
           "command": "npm --prefix packages/main run test:review-pass-discard-smoke && node bin/koala-codex.js verify_codex",
           "result": "pass",
           "note": "Reviewer dispatch output now includes review_run_start before finding_add/review_pass_set, and Codex adapter verification confirms mirrored reviewer prompts are synchronized.",
-          "headHash": "328f86b6f5f7ecac4fa246c59b331e6248fbbf3f",
-          "materialHash": "b10436650606ecd5c73e16ec71537df592c35fc4b5baa4d67871f1fe26a21fbd",
-          "timestamp": "2026-05-13T14:41:56.936Z"
+          "headHash": "5f8ab8cf45e4491bccbf0043bfe1c05a51a3b7e7",
+          "materialHash": "7c6fa5b17160f005d76fc1081b2aef2bee236dc47f6fcd134b93f74d61e24feb",
+          "timestamp": "2026-05-13T15:35:24.579Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -270,9 +270,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Process fact contract verifies review_run_start, signed review-runs.json, review-run-boundary policy, registry levels, CLI schema, and gate semantics are registered.",
-          "headHash": "328f86b6f5f7ecac4fa246c59b331e6248fbbf3f",
-          "materialHash": "b10436650606ecd5c73e16ec71537df592c35fc4b5baa4d67871f1fe26a21fbd",
-          "timestamp": "2026-05-13T14:41:56.936Z"
+          "headHash": "5f8ab8cf45e4491bccbf0043bfe1c05a51a3b7e7",
+          "materialHash": "7c6fa5b17160f005d76fc1081b2aef2bee236dc47f6fcd134b93f74d61e24feb",
+          "timestamp": "2026-05-13T15:35:24.579Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -281,9 +281,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Prompt drift scan fails pass-only finding examples and reviewer evidence examples lacking reviewRunId; all active reviewer prompt/template copies passed.",
-          "headHash": "328f86b6f5f7ecac4fa246c59b331e6248fbbf3f",
-          "materialHash": "b10436650606ecd5c73e16ec71537df592c35fc4b5baa4d67871f1fe26a21fbd",
-          "timestamp": "2026-05-13T14:41:56.936Z"
+          "headHash": "5f8ab8cf45e4491bccbf0043bfe1c05a51a3b7e7",
+          "materialHash": "7c6fa5b17160f005d76fc1081b2aef2bee236dc47f6fcd134b93f74d61e24feb",
+          "timestamp": "2026-05-13T15:35:24.579Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -292,9 +292,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Synthetic contract checks now require review_run_start and reviewRunId for reviewer evidence flow, preventing prompt-only drift from satisfying the contract.",
-          "headHash": "328f86b6f5f7ecac4fa246c59b331e6248fbbf3f",
-          "materialHash": "b10436650606ecd5c73e16ec71537df592c35fc4b5baa4d67871f1fe26a21fbd",
-          "timestamp": "2026-05-13T14:41:56.936Z"
+          "headHash": "5f8ab8cf45e4491bccbf0043bfe1c05a51a3b7e7",
+          "materialHash": "7c6fa5b17160f005d76fc1081b2aef2bee236dc47f6fcd134b93f74d61e24feb",
+          "timestamp": "2026-05-13T15:35:24.579Z"
         }
       ]
     },
@@ -355,9 +355,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:field-regression-cli-smoke && npm --prefix packages/main run test:review-pass-discard-smoke",
           "result": "pass",
           "note": "Focused smoke suite passes for valid run-bound reviewer evidence, prompt/dispatch guidance, and review pass/finding persistence.",
-          "headHash": "328f86b6f5f7ecac4fa246c59b331e6248fbbf3f",
-          "materialHash": "b10436650606ecd5c73e16ec71537df592c35fc4b5baa4d67871f1fe26a21fbd",
-          "timestamp": "2026-05-13T14:41:56.936Z"
+          "headHash": "5f8ab8cf45e4491bccbf0043bfe1c05a51a3b7e7",
+          "materialHash": "7c6fa5b17160f005d76fc1081b2aef2bee236dc47f6fcd134b93f74d61e24feb",
+          "timestamp": "2026-05-13T15:35:24.579Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -366,9 +366,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Legacy no-currentReviewRound evidence remains readable while current REVIEW rounds enforce reviewRunId binding.",
-          "headHash": "328f86b6f5f7ecac4fa246c59b331e6248fbbf3f",
-          "materialHash": "b10436650606ecd5c73e16ec71537df592c35fc4b5baa4d67871f1fe26a21fbd",
-          "timestamp": "2026-05-13T14:41:56.936Z"
+          "headHash": "5f8ab8cf45e4491bccbf0043bfe1c05a51a3b7e7",
+          "materialHash": "7c6fa5b17160f005d76fc1081b2aef2bee236dc47f6fcd134b93f74d61e24feb",
+          "timestamp": "2026-05-13T15:35:24.579Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -377,9 +377,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:field-regression-cli-smoke",
           "result": "pass",
           "note": "Regression coverage asserts actionable failures for stale, missing, wrong-lane, and tampered reviewRunId cases.",
-          "headHash": "328f86b6f5f7ecac4fa246c59b331e6248fbbf3f",
-          "materialHash": "b10436650606ecd5c73e16ec71537df592c35fc4b5baa4d67871f1fe26a21fbd",
-          "timestamp": "2026-05-13T14:41:56.936Z"
+          "headHash": "5f8ab8cf45e4491bccbf0043bfe1c05a51a3b7e7",
+          "materialHash": "7c6fa5b17160f005d76fc1081b2aef2bee236dc47f6fcd134b93f74d61e24feb",
+          "timestamp": "2026-05-13T15:35:24.579Z"
         }
       ]
     }
