@@ -341,6 +341,8 @@ async function assertReviewRunStartCliSurface(): Promise<void> {
     });
     assert.notEqual(stalePass.code, 0);
     assert.match(stalePass.stderr, /已 stale|stale/i);
+    assert.match(stalePass.stderr, /DEV.*REVIEW|DEV → REVIEW/);
+    assert.doesNotMatch(stalePass.stderr, /重新执行 koala review_run_start/);
 
     const unsupported = await runKoalaRaw(root, 'review_run_start', {
       storyId,
@@ -634,7 +636,7 @@ async function assertChannelGateAcceptsSubagentResultCliSurface(): Promise<void>
     store.writeStory(storyId, story);
     git(root, ['checkout', '-b', `story/${storyId}`]);
     write(root, 'packages/main/src/channel.ts', 'export const channel = true;\n');
-    commit(root, 'implement channel surface', 'koala-implementer');
+    commit(root, 'implement channel surface', 'main-agent');
     for (const suffix of ['001', '002', '003']) {
       store.appendProcessEvent(storyId, {
         type: 'subagent_result',

@@ -17,7 +17,7 @@ import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
 import { loadConfig } from '../core/config.js';
 import type { ValidationCommand } from '../core/validation-types.js';
-import { executeValidationPlan, runValidationCommand, stripAnsi } from '../core/validation-executor.js';
+import { executeValidationPlan, formatWorktreePollutionDetails, runValidationCommand, stripAnsi } from '../core/validation-executor.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -571,6 +571,26 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         args: ['tsx', ...tsArgs],
       }, projectRoot);
       const { code, output } = commandResult;
+      const pollutionDetails = formatWorktreePollutionDetails(commandResult);
+      if (pollutionDetails.length > 0) {
+        const polluted = externalResult({
+          status: 'fail',
+          summary: 'Validation command dirtied the worktree',
+          details: [
+            ...pollutionDetails,
+            ...(output.trim() ? output.trim().split('\n').filter(Boolean).map(line => `  output: ${line}`) : []),
+          ],
+          warnings: [
+            'Validation side effects are not auto-restored because tracked snapshots/docs may be legitimate review artifacts.',
+          ],
+          headSha: currentHead(projectRoot),
+          commands: [commandResult],
+        });
+        const decorated = args.story ? decorateStoryVerification(ctx, args.story, polluted) : polluted;
+        if (args.story) persistStoryValidationEvidence(ctx, args.story, decorated, `koala validate --story=${args.story} --json`);
+        if (args.json) return JSON.stringify(decorated);
+        return renderExternalResult(decorated);
+      }
 
       if (args.json) {
         // Try to extract JSON from output (validate.ts should print JSON when --json is passed)

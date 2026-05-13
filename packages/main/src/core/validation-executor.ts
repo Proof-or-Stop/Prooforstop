@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process';
+import { execSync, spawn } from 'node:child_process';
 import { isAbsolute, resolve } from 'node:path';
 import type {
   ValidationCommand,
@@ -29,9 +29,47 @@ function trimOutput(output: string): string {
   return output.slice(0, MAX_OUTPUT_CHARS) + `\n...[truncated ${omitted} chars]`;
 }
 
+function readGitStatus(projectRoot: string): string[] | null {
+  try {
+    const raw = execSync('git status --porcelain=v1 --untracked-files=all', {
+      cwd: projectRoot,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    return raw.split('\n').map(line => line.trimEnd()).filter(Boolean);
+  } catch {
+    // PROBE: validation side-effect guard is only available inside git worktrees.
+    return null;
+  }
+}
+
+function statusPath(line: string): string {
+  const path = line.slice(3).trim();
+  const renameArrow = ' -> ';
+  const renameIndex = path.lastIndexOf(renameArrow);
+  return renameIndex >= 0 ? path.slice(renameIndex + renameArrow.length).trim() : path;
+}
+
+function detectNewDirtyStatus(before: string[] | null, after: string[] | null): string[] {
+  if (!before || !after || after.length === 0) return [];
+  const beforePaths = new Set(before.map(statusPath));
+  return after.filter(line => !beforePaths.has(statusPath(line)));
+}
+
+export function formatWorktreePollutionDetails(result: ValidationCommandResult): string[] {
+  const pollution = result.worktreePollution;
+  if (!pollution || pollution.statusLines.length === 0) return [];
+  return [
+    `✗ validation command dirtied worktree: ${result.label}: ${formatValidationCommand(result)}`,
+    ...pollution.statusLines.map(line => `  ${line}`),
+    '  validation commands must be side-effect-free by default; gate report generation behind an env var or configure side-effect-free validate.command(s)',
+  ];
+}
+
 export function runValidationCommand(command: ValidationCommand, projectRoot: string): Promise<ValidationCommandResult> {
   const cwd = commandCwd(projectRoot, command.cwd);
   const started = Date.now();
+  const statusBefore = readGitStatus(projectRoot);
 
   return new Promise((resolveResult) => {
     let output = '';
@@ -44,6 +82,8 @@ export function runValidationCommand(command: ValidationCommand, projectRoot: st
       settled = true;
       if (timer) clearTimeout(timer);
       if (killTimer) clearTimeout(killTimer);
+      const statusAfter = readGitStatus(projectRoot);
+      const pollutionStatusLines = detectNewDirtyStatus(statusBefore, statusAfter);
       resolveResult({
         label: command.label,
         command: command.command,
@@ -55,6 +95,14 @@ export function runValidationCommand(command: ValidationCommand, projectRoot: st
         ...(command.optional ? { optional: true } : {}),
         ...(timedOut ? { timedOut: true } : {}),
         durationMs: Date.now() - started,
+        ...(pollutionStatusLines.length > 0
+          ? {
+              worktreePollution: {
+                statusLines: pollutionStatusLines,
+                paths: pollutionStatusLines.map(statusPath),
+              },
+            }
+          : {}),
       });
     };
 
@@ -103,6 +151,7 @@ export async function executeValidationPlan(
     if (result.output.trim()) {
       details.push(...result.output.trim().split('\n').filter(Boolean).map((line) => `  ${line}`));
     }
+    details.push(...formatWorktreePollutionDetails(result));
     if (failed && result.optional) {
       warnings.push(`optional validation failed: ${result.label}`);
     }
@@ -110,7 +159,8 @@ export async function executeValidationPlan(
 
   const requiredFailures = commands.filter((r) => !r.optional && (r.code !== 0 || r.timedOut));
   const optionalFailures = commands.filter((r) => r.optional && (r.code !== 0 || r.timedOut));
-  const allPass = requiredFailures.length === 0;
+  const pollutionFailures = commands.filter((r) => r.worktreePollution && r.worktreePollution.statusLines.length > 0);
+  const allPass = requiredFailures.length === 0 && pollutionFailures.length === 0;
   const status = allPass ? (optionalFailures.length > 0 || warnings.length > 0 ? 'warn' : 'pass') : 'fail';
 
   return {
@@ -121,6 +171,8 @@ export async function executeValidationPlan(
       ? optionalFailures.length > 0
         ? 'Required validation commands passed with optional failures'
         : 'Project validation commands passed'
+      : pollutionFailures.length > 0 && requiredFailures.length === 0
+        ? 'Project validation commands dirtied the worktree'
       : 'Project validation commands failed',
     details,
     warnings,

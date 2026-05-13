@@ -163,8 +163,21 @@ function currentRunForLane(runs: ReviewRun[], lane: string, reviewRound: string)
   return current.length > 0 ? current[current.length - 1] : null;
 }
 
-function rerunHint(storyId: string, lane: string): string {
-  return `→ 重新执行 koala review_run_start '{"storyId":"${storyId}","agent":"${lane}"}'，然后用新的 reviewRunId 重提 finding_add/review_pass_set`;
+function startRunHint(storyId: string, lane: string): string {
+  return `→ 当前 REVIEW round 缺少可用 reviewer run：执行 koala review_run_start '{"storyId":"${storyId}","agent":"${lane}"}'，然后用返回的 reviewRunId 重提 finding_add/review_pass_set`;
+}
+
+function latestRunHint(storyId: string, lane: string, latestRunId?: string): string {
+  const latest = latestRunId ? `（当前最新: ${latestRunId}）` : '';
+  return `→ 当前 lane 已有更新的 reviewer run${latest}：使用最新 reviewRunId 重提 finding_add/review_pass_set；不要复用旧 reviewRunId`;
+}
+
+function roundMismatchHint(storyId: string, lane: string): string {
+  return `→ 该 reviewRunId 不属于当前 REVIEW round：执行 koala review_run_start '{"storyId":"${storyId}","agent":"${lane}"}' 取得当前 round 的 reviewRunId，再重提 finding_add/review_pass_set`;
+}
+
+function staleMaterialHint(storyId: string, lane: string): string {
+  return `→ reviewRunId 的 HEAD/materialHash 已过期，不能在同一 REVIEW round 内靠重复 review_run_start 修复；先回 DEV 修复并提交，再执行 koala story_advance '{"storyId":"${storyId}","phase":"REVIEW"}' 进入新的 currentReviewRound，随后运行 koala review_run_start '{"storyId":"${storyId}","agent":"${lane}"}'`;
 }
 
 export function assertCurrentReviewRunForEvidence(
@@ -178,29 +191,29 @@ export function assertCurrentReviewRunForEvidence(
     throw new Error(`review_run_start: story ${story.storyId} 当前没有 currentReviewRound；先推进到 REVIEW 再启动 reviewer run`);
   }
   if (!reviewRunId || !reviewRunId.trim()) {
-    throw new Error(`review evidence for ${agent} 缺少 reviewRunId。 ${rerunHint(story.storyId, agent)}`);
+    throw new Error(`review evidence for ${agent} 缺少 reviewRunId。 ${startRunHint(story.storyId, agent)}`);
   }
   const runs = store.readReviewRuns(story.storyId).runs;
   const run = runs.find((candidate) => candidate.reviewRunId === reviewRunId);
   if (!run) {
-    throw new Error(`review evidence for ${agent} 引用了未知的 reviewRunId ${reviewRunId}。 ${rerunHint(story.storyId, agent)}`);
+    throw new Error(`review evidence for ${agent} 引用了未知的 reviewRunId ${reviewRunId}。 ${startRunHint(story.storyId, agent)}`);
   }
   if (!verifyReviewRun(run)) {
-    throw new Error(`review evidence for ${agent} 绑定的 reviewRunId ${reviewRunId} 签名无效。 ${rerunHint(story.storyId, agent)}`);
+    throw new Error(`review evidence for ${agent} 绑定的 reviewRunId ${reviewRunId} 签名无效。 ${startRunHint(story.storyId, agent)}`);
   }
   if (run.lane !== agent) {
-    throw new Error(`review evidence agent=${agent} 与 reviewRunId ${reviewRunId} 的 lane=${run.lane} 不匹配。 ${rerunHint(story.storyId, agent)}`);
+    throw new Error(`review evidence agent=${agent} 与 reviewRunId ${reviewRunId} 的 lane=${run.lane} 不匹配。 ${startRunHint(story.storyId, agent)}`);
   }
   if (run.reviewRound !== story.currentReviewRound) {
-    throw new Error(`review evidence for ${agent} 绑定的 reviewRunId ${reviewRunId} 属于 reviewRound ${run.reviewRound}，当前 round 是 ${story.currentReviewRound}。 ${rerunHint(story.storyId, agent)}`);
+    throw new Error(`review evidence for ${agent} 绑定的 reviewRunId ${reviewRunId} 属于 reviewRound ${run.reviewRound}，当前 round 是 ${story.currentReviewRound}。 ${roundMismatchHint(story.storyId, agent)}`);
   }
   const currentRun = currentRunForLane(runs, agent, story.currentReviewRound);
   if (currentRun && currentRun.reviewRunId !== reviewRunId) {
-    throw new Error(`review evidence for ${agent} 绑定的 reviewRunId ${reviewRunId} 不是当前最新 reviewer run（当前: ${currentRun.reviewRunId}）。 ${rerunHint(story.storyId, agent)}`);
+    throw new Error(`review evidence for ${agent} 绑定的 reviewRunId ${reviewRunId} 不是当前最新 reviewer run（当前: ${currentRun.reviewRunId}）。 ${latestRunHint(story.storyId, agent, currentRun.reviewRunId)}`);
   }
   const freshness = checkEvidenceFreshnessForGit(projectRoot, run.headHash, run.materialHash);
   if (!freshness.fresh) {
-    throw new Error(`review evidence for ${agent} 绑定的 reviewRunId ${reviewRunId} 已 stale：${freshness.reason}. ${rerunHint(story.storyId, agent)}`);
+    throw new Error(`review evidence for ${agent} 绑定的 reviewRunId ${reviewRunId} 已 stale：${freshness.reason}. ${staleMaterialHint(story.storyId, agent)}`);
   }
   return run;
 }
@@ -219,7 +232,7 @@ function validateEvidenceRunBinding(
       evidenceId: evidence.id,
       agent: evidence.agent,
       reviewRunId: evidence.reviewRunId,
-      message: `${evidence.kind} ${evidence.id} 属于 reviewRound ${evidence.reviewRound || '缺失'}，当前 round 是 ${story.currentReviewRound}。 ${rerunHint(story.storyId, evidence.agent)}`,
+      message: `${evidence.kind} ${evidence.id} 属于 reviewRound ${evidence.reviewRound || '缺失'}，当前 round 是 ${story.currentReviewRound}。 ${roundMismatchHint(story.storyId, evidence.agent)}`,
     };
   }
   if (evidence.signatureValid === false) {
@@ -229,7 +242,7 @@ function validateEvidenceRunBinding(
       evidenceId: evidence.id,
       agent: evidence.agent,
       reviewRunId: evidence.reviewRunId,
-      message: `${evidence.kind} ${evidence.id} 签名无效或记录被篡改；带 reviewRunId 的 REVIEW 证据必须使用包含 reviewRunId 的签名。 ${rerunHint(story.storyId, evidence.agent)}`,
+      message: `${evidence.kind} ${evidence.id} 签名无效或记录被篡改；带 reviewRunId 的 REVIEW 证据必须使用包含 reviewRunId 的签名。 ${startRunHint(story.storyId, evidence.agent)}`,
     };
   }
   if (!evidence.reviewRunId) {
@@ -238,7 +251,7 @@ function validateEvidenceRunBinding(
       kind: evidence.kind,
       evidenceId: evidence.id,
       agent: evidence.agent,
-      message: `${evidence.kind} ${evidence.id} 缺少 reviewRunId，当前 REVIEW 轮的 reviewer 证据必须绑定 review_run_start。 ${rerunHint(story.storyId, evidence.agent)}`,
+      message: `${evidence.kind} ${evidence.id} 缺少 reviewRunId，当前 REVIEW 轮的 reviewer 证据必须绑定 review_run_start。 ${startRunHint(story.storyId, evidence.agent)}`,
     };
   }
   const run = runs.find(candidate => candidate.reviewRunId === evidence.reviewRunId);
@@ -249,7 +262,7 @@ function validateEvidenceRunBinding(
       evidenceId: evidence.id,
       agent: evidence.agent,
       reviewRunId: evidence.reviewRunId,
-      message: `${evidence.kind} ${evidence.id} 引用了未知的 reviewRunId ${evidence.reviewRunId}。 ${rerunHint(story.storyId, evidence.agent)}`,
+      message: `${evidence.kind} ${evidence.id} 引用了未知的 reviewRunId ${evidence.reviewRunId}。 ${startRunHint(story.storyId, evidence.agent)}`,
     };
   }
   if (!verifyReviewRun(run)) {
@@ -259,7 +272,7 @@ function validateEvidenceRunBinding(
       evidenceId: evidence.id,
       agent: evidence.agent,
       reviewRunId: evidence.reviewRunId,
-      message: `${evidence.kind} ${evidence.id} 绑定的 reviewRunId ${evidence.reviewRunId} 签名无效或记录被篡改。 ${rerunHint(story.storyId, evidence.agent)}`,
+      message: `${evidence.kind} ${evidence.id} 绑定的 reviewRunId ${evidence.reviewRunId} 签名无效或记录被篡改。 ${startRunHint(story.storyId, evidence.agent)}`,
     };
   }
   if (run.lane !== evidence.agent) {
@@ -269,7 +282,7 @@ function validateEvidenceRunBinding(
       evidenceId: evidence.id,
       agent: evidence.agent,
       reviewRunId: evidence.reviewRunId,
-      message: `${evidence.kind} ${evidence.id} 的 agent=${evidence.agent}，但 reviewRunId ${evidence.reviewRunId} 属于 lane=${run.lane}。 ${rerunHint(story.storyId, evidence.agent)}`,
+      message: `${evidence.kind} ${evidence.id} 的 agent=${evidence.agent}，但 reviewRunId ${evidence.reviewRunId} 属于 lane=${run.lane}。 ${startRunHint(story.storyId, evidence.agent)}`,
     };
   }
   if (run.reviewRound !== story.currentReviewRound) {
@@ -279,7 +292,7 @@ function validateEvidenceRunBinding(
       evidenceId: evidence.id,
       agent: evidence.agent,
       reviewRunId: evidence.reviewRunId,
-      message: `${evidence.kind} ${evidence.id} 的 reviewRunId ${evidence.reviewRunId} 属于 reviewRound ${run.reviewRound}，当前 round 是 ${story.currentReviewRound}。 ${rerunHint(story.storyId, evidence.agent)}`,
+      message: `${evidence.kind} ${evidence.id} 的 reviewRunId ${evidence.reviewRunId} 属于 reviewRound ${run.reviewRound}，当前 round 是 ${story.currentReviewRound}。 ${roundMismatchHint(story.storyId, evidence.agent)}`,
     };
   }
   const currentRun = currentRunForLane(runs, evidence.agent, story.currentReviewRound);
@@ -290,7 +303,7 @@ function validateEvidenceRunBinding(
       evidenceId: evidence.id,
       agent: evidence.agent,
       reviewRunId: evidence.reviewRunId,
-      message: `${evidence.kind} ${evidence.id} 绑定的 reviewRunId ${evidence.reviewRunId} 不是当前 lane 最新 run（当前: ${currentRun.reviewRunId}）。 ${rerunHint(story.storyId, evidence.agent)}`,
+      message: `${evidence.kind} ${evidence.id} 绑定的 reviewRunId ${evidence.reviewRunId} 不是当前 lane 最新 run（当前: ${currentRun.reviewRunId}）。 ${latestRunHint(story.storyId, evidence.agent, currentRun.reviewRunId)}`,
     };
   }
   const freshness = checkEvidenceFreshnessForGit(projectRoot, run.headHash, run.materialHash);
@@ -301,7 +314,7 @@ function validateEvidenceRunBinding(
       evidenceId: evidence.id,
       agent: evidence.agent,
       reviewRunId: evidence.reviewRunId,
-      message: `${evidence.kind} ${evidence.id} 绑定的 reviewRunId ${evidence.reviewRunId} 已 stale：${freshness.reason}. ${rerunHint(story.storyId, evidence.agent)}`,
+      message: `${evidence.kind} ${evidence.id} 绑定的 reviewRunId ${evidence.reviewRunId} 已 stale：${freshness.reason}. ${staleMaterialHint(story.storyId, evidence.agent)}`,
     };
   }
   return null;

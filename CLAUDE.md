@@ -737,7 +737,7 @@ koala verification_evidence_add '{"storyId":"B-xxx","itemId":"CHK-001","intentRe
 
 | gate | 命令 | 职责 | 失败处理 |
 |---|---|---|---|
-| channel | `koala validate --channel --story=B-xxx` | 正常通道 commit author 必须含 `koala-implementer` 或 subject 以 `koala:` 开头 | fail → block REVIEW→TEST |
+| channel | `koala validate --channel --story=B-xxx` | 正常通道必须有 dispatch/subagent_result 结构化证据；commit author 仅作 legacy fallback | fail → block REVIEW→TEST |
 | concept | `koala validate --concept` | 扫 `git diff main...HEAD` 抽 deleted symbols + 全仓 grep 残留引用 | ≥ 5 残留 → 触发 concept reviewer；< 5 → skip |
 | lint | `koala validate --lint` | tsc / ruff / import-graph（shells 不得 import fn.ts） | fail → block；工具缺失 → skip |
 | docs-drift | `docs-drift` preflight | 校验 reviewer/流程文档引用的 koala 命令与 registry 对齐 | fail → block REVIEW→TEST |

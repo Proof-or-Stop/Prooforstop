@@ -990,6 +990,37 @@ function assertChannelGateRejectsKoalaSubjectForRealFiles(): void {
       'commit',
       '-m', 'koala: implement real code',
     ]);
+
+    const result = checkCommitAuthor(storyId, { store, projectRoot: root });
+    assert.equal(result.status, 'fail');
+    assert.match(result.summary, /缺 dispatch\/subagent_result 证据/);
+    assert.match(result.summary, /不能作为 author fallback/);
+    assert.match(result.details.join('\n'), /koala: implement real code/);
+    assert.match(result.details.join('\n'), /正常通道主证据必须是 dispatch\/subagent_result/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertChannelGateAcceptsStructuredEvidenceWithSharedGitAuthor(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-flow-channel-shared-author-'));
+  try {
+    const { store, storyId } = createReviewStore(root);
+    git(root, ['init']);
+    git(root, ['config', 'user.email', 'koala@example.test']);
+    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'base']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+    write(root, 'packages/main/src/real-code.ts', 'export const realCode = true;\n');
+    git(root, ['add', 'packages/main/src/real-code.ts']);
+    git(root, [
+      '-c', 'user.name=main-agent',
+      '-c', 'user.email=main@example.test',
+      'commit',
+      '-m', 'implement real code through dispatched worker',
+    ]);
     for (const suffix of ['001', '002', '003']) {
       store.appendProcessEvent(storyId, {
         type: 'subagent_result',
@@ -999,10 +1030,10 @@ function assertChannelGateRejectsKoalaSubjectForRealFiles(): void {
     }
 
     const result = checkCommitAuthor(storyId, { store, projectRoot: root });
-    assert.equal(result.status, 'fail');
-    assert.match(result.summary, /commit 不符合 author 要求/);
-    assert.match(result.details.join('\n'), /koala: implement real code/);
-    assert.match(result.details.join('\n'), /metadata-only/);
+    assert.equal(result.status, 'pass');
+    assert.equal(result.evidenceSource, 'subagent_result');
+    assert.match(result.summary, /结构化证据覆盖完整/);
+    assert.match(result.details.join('\n'), /commit author advisory/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -1245,6 +1276,7 @@ assertValidateHintsFollowStoryPhase();
 assertRealCliValidateHintFollowsActiveStoryPhase();
 assertBugUpdateTestHintUsesDonePrecheck();
 assertChannelGateRejectsKoalaSubjectForRealFiles();
+assertChannelGateAcceptsStructuredEvidenceWithSharedGitAuthor();
 assertChannelGateAcceptsSuccessfulSubagentResultEvidence();
 assertChannelGateAcceptsDispatchEvidence();
 assertChannelGateAcceptsImplementerAuthorWithoutDispatch();

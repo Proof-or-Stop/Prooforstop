@@ -189,6 +189,37 @@ try {
     rmSync(fallbackRoot, { recursive: true, force: true });
   }
 
+  const dirtyFallbackRoot = mkdtempSync(join(tmpdir(), 'koala-validation-dirty-fallback-'));
+  try {
+    writeFileSync(join(dirtyFallbackRoot, 'package.json'), JSON.stringify({
+      scripts: { test: 'node -e "require(\\"fs\\").writeFileSync(\\"report.md\\", \\"changed\\\\n\\")"' },
+    }));
+    writeFileSync(join(dirtyFallbackRoot, 'report.md'), 'baseline\n');
+    execFileSync('git', ['init'], { cwd: dirtyFallbackRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['config', 'user.name', 'Koala Smoke'], { cwd: dirtyFallbackRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['config', 'user.email', 'smoke@example.test'], { cwd: dirtyFallbackRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['add', '.'], { cwd: dirtyFallbackRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['commit', '-m', 'seed dirty fallback smoke'], { cwd: dirtyFallbackRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    resetConfigCache();
+    const dirtyJson = await createVerifierHandlers({
+      root: dirtyFallbackRoot,
+      scanRoot: dirtyFallbackRoot,
+      store: new StoryStore(dirtyFallbackRoot),
+      log: () => {},
+    }).validate({ json: true });
+    const dirtyResult = JSON.parse(dirtyJson);
+    assert.equal(dirtyResult.status, 'fail');
+    assert.equal(dirtyResult.allPass, false);
+    assert.match(dirtyResult.summary, /dirtied the worktree/);
+    assert.match(dirtyResult.details.join('\n'), /validation command dirtied worktree/);
+    assert.match(dirtyResult.details.join('\n'), /package\.json test script/);
+    assert.match(dirtyResult.details.join('\n'), /report\.md/);
+    assert.match(dirtyResult.details.join('\n'), /side-effect-free/);
+    assert.equal(dirtyResult.commands[0].worktreePollution.paths[0], 'report.md');
+  } finally {
+    rmSync(dirtyFallbackRoot, { recursive: true, force: true });
+  }
+
   const invalidArgCwd = mkdtempSync(join(tmpdir(), 'koala-validation-schema-'));
   const env = { ...process.env };
   delete env.KOALA_PROJECT_ROOT;

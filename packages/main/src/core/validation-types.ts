@@ -22,6 +22,10 @@ export interface ValidationCommandResult {
   optional?: boolean;
   timedOut?: boolean;
   durationMs: number;
+  worktreePollution?: {
+    statusLines: string[];
+    paths: string[];
+  };
 }
 
 export interface ValidationPlan {

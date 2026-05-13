@@ -5,17 +5,19 @@
   "uncategorizedCatchKeys": [
     "packages/main/src/cli-engine.ts:catch:0378309c48a6:1",
     "packages/main/src/cli-engine.ts:catch:560350b2af31:1",
-    "packages/main/src/cli-engine.ts:catch:6149ad6e1897:1",
     "packages/main/src/cli-engine.ts:catch:647e0ea21bae:1",
+    "packages/main/src/cli-engine.ts:catch:6b5bc642aff3:1",
     "packages/main/src/cli-engine.ts:catch:6d5a03cc7e6d:1",
     "packages/main/src/cli-engine.ts:catch:720d26732c12:1",
-    "packages/main/src/cli-engine.ts:catch:7eb20cb873cd:1",
+    "packages/main/src/cli-engine.ts:catch:8d129a0ae49f:1",
     "packages/main/src/cli-engine.ts:catch:94f7881d39df:1",
+    "packages/main/src/cli-engine.ts:catch:c0619bbba1c5:1",
     "packages/main/src/cli-engine.ts:catch:d4303482e6a1:1",
     "packages/main/src/cli-engine.ts:catch:d89fe2c24c75:1",
     "packages/main/src/cli-engine.ts:catch:f19411c718b5:1",
     "packages/main/src/cli-init.ts:catch:1f4449cbde1a:1",
     "packages/main/src/cli-init.ts:catch:371737537e34:1",
+    "packages/main/src/cli-init.ts:catch:5c5c65d0f3bb:1",
     "packages/main/src/cli-init.ts:catch:6cac413cf848:1",
     "packages/main/src/cli-init.ts:catch:8d0bb53c6d4c:1",
     "packages/main/src/cli-init.ts:catch:8db47632dbb7:1",
@@ -108,6 +110,7 @@
     "packages/main/src/core/stale-detector.ts:catch:b986beeaea01:1",
     "packages/main/src/core/stale-detector.ts:catch:bf109e542639:1",
     "packages/main/src/core/stale-detector.ts:catch:df31d92c9c92:1",
+    "packages/main/src/core/store.ts:catch:00f5c97a138b:1",
     "packages/main/src/core/store.ts:catch:0d799f62261a:1",
     "packages/main/src/core/store.ts:catch:140bd4488531:1",
     "packages/main/src/core/store.ts:catch:1d212bfb7e5c:1",
@@ -159,11 +162,13 @@
     "packages/main/src/handlers/doctor.ts:catch:2f92b2c8943a:1",
     "packages/main/src/handlers/doctor.ts:catch:74569166d725:1",
     "packages/main/src/handlers/doctor.ts:catch:7b81b6d0b4cb:1",
+    "packages/main/src/handlers/doctor.ts:catch:8f1c0bfd48e4:1",
     "packages/main/src/handlers/doctor.ts:catch:97c7166dffbb:1",
     "packages/main/src/handlers/doctor.ts:catch:a4597038cf47:1",
     "packages/main/src/handlers/doctor.ts:catch:b48819e3f00f:1",
     "packages/main/src/handlers/doctor.ts:catch:b93299a9da7d:1",
     "packages/main/src/handlers/doctor.ts:catch:cd2e1202ed13:1",
+    "packages/main/src/handlers/doctor.ts:catch:ce293201f829:1",
     "packages/main/src/handlers/draft-check.ts:catch:c4e9bd4a66c2:1",
     "packages/main/src/handlers/evaluate.ts:catch:08eecb661f2b:1",
     "packages/main/src/handlers/evaluate.ts:catch:13beed752f4d:1",
@@ -185,6 +190,7 @@
     "packages/main/src/handlers/init-check.ts:catch:eca12d756450:1",
     "packages/main/src/handlers/review-preflight.ts:catch:a734eb21d15a:1",
     "packages/main/src/handlers/review-preflight.ts:catch:d322ca37e7ff:1",
+    "packages/main/src/handlers/review-run.ts:catch:d9ec10199e8c:1",
     "packages/main/src/handlers/reviewer-list.ts:catch:0b76be29cc74:1",
     "packages/main/src/handlers/reviewer-list.ts:catch:6f9efbb3951a:1",
     "packages/main/src/handlers/scope-check.ts:catch:53cd3823459a:1",
@@ -509,7 +515,7 @@
     {
       "key": "packages/main/src/cli-engine.ts:catch:0378309c48a6:1",
       "file": "packages/main/src/cli-engine.ts",
-      "line": 700,
+      "line": 716,
       "snippet": "} catch {",
       "catchOrdinal": 1,
       "contextHash": "0378309c48a6",
@@ -518,34 +524,34 @@
     {
       "key": "packages/main/src/cli-engine.ts:catch:560350b2af31:1",
       "file": "packages/main/src/cli-engine.ts",
-      "line": 704,
+      "line": 720,
       "snippet": "} catch {",
       "catchOrdinal": 2,
       "contextHash": "560350b2af31",
       "contextOrdinal": 1
     },
     {
-      "key": "packages/main/src/cli-engine.ts:catch:6149ad6e1897:1",
+      "key": "packages/main/src/cli-engine.ts:catch:647e0ea21bae:1",
       "file": "packages/main/src/cli-engine.ts",
-      "line": 1428,
-      "snippet": "} catch (e: any) {",
-      "catchOrdinal": 10,
-      "contextHash": "6149ad6e1897",
+      "line": 1480,
+      "snippet": "try { phase = store.readStory(storyId).phase; } catch { phase = ''; }",
+      "catchOrdinal": 9,
+      "contextHash": "647e0ea21bae",
       "contextOrdinal": 1
     },
     {
-      "key": "packages/main/src/cli-engine.ts:catch:647e0ea21bae:1",
+      "key": "packages/main/src/cli-engine.ts:catch:6b5bc642aff3:1",
       "file": "packages/main/src/cli-engine.ts",
-      "line": 1347,
-      "snippet": "try { phase = store.readStory(storyId).phase; } catch { phase = ''; }",
-      "catchOrdinal": 8,
-      "contextHash": "647e0ea21bae",
+      "line": 1562,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 11,
+      "contextHash": "6b5bc642aff3",
       "contextOrdinal": 1
     },
     {
       "key": "packages/main/src/cli-engine.ts:catch:6d5a03cc7e6d:1",
       "file": "packages/main/src/cli-engine.ts",
-      "line": 983,
+      "line": 999,
       "snippet": "try { return JSON.parse(val); } catch { /* fall through */ }",
       "catchOrdinal": 3,
       "contextHash": "6d5a03cc7e6d",
@@ -554,117 +560,135 @@
     {
       "key": "packages/main/src/cli-engine.ts:catch:720d26732c12:1",
       "file": "packages/main/src/cli-engine.ts",
-      "line": 1248,
+      "line": 1381,
       "snippet": "} catch { /* never block */ }",
-      "catchOrdinal": 6,
+      "catchOrdinal": 7,
       "contextHash": "720d26732c12",
       "contextOrdinal": 1
     },
     {
-      "key": "packages/main/src/cli-engine.ts:catch:7eb20cb873cd:1",
+      "key": "packages/main/src/cli-engine.ts:catch:8d129a0ae49f:1",
       "file": "packages/main/src/cli-engine.ts",
-      "line": 1461,
+      "line": 1134,
       "snippet": "} catch (e: any) {",
-      "catchOrdinal": 11,
-      "contextHash": "7eb20cb873cd",
+      "catchOrdinal": 5,
+      "contextHash": "8d129a0ae49f",
       "contextOrdinal": 1
     },
     {
       "key": "packages/main/src/cli-engine.ts:catch:94f7881d39df:1",
       "file": "packages/main/src/cli-engine.ts",
-      "line": 1049,
+      "line": 1065,
       "snippet": "} catch {",
       "catchOrdinal": 4,
       "contextHash": "94f7881d39df",
       "contextOrdinal": 1
     },
     {
+      "key": "packages/main/src/cli-engine.ts:catch:c0619bbba1c5:1",
+      "file": "packages/main/src/cli-engine.ts",
+      "line": 1601,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 12,
+      "contextHash": "c0619bbba1c5",
+      "contextOrdinal": 1
+    },
+    {
       "key": "packages/main/src/cli-engine.ts:catch:d4303482e6a1:1",
       "file": "packages/main/src/cli-engine.ts",
-      "line": 1202,
+      "line": 1335,
       "snippet": "catch (e) {",
-      "catchOrdinal": 5,
+      "catchOrdinal": 6,
       "contextHash": "d4303482e6a1",
       "contextOrdinal": 1
     },
     {
       "key": "packages/main/src/cli-engine.ts:catch:d89fe2c24c75:1",
       "file": "packages/main/src/cli-engine.ts",
-      "line": 1514,
+      "line": 1657,
       "snippet": "} catch (e: any) {",
-      "catchOrdinal": 13,
+      "catchOrdinal": 14,
       "contextHash": "d89fe2c24c75",
       "contextOrdinal": 1
     },
     {
       "key": "packages/main/src/cli-engine.ts:catch:f19411c718b5:1",
       "file": "packages/main/src/cli-engine.ts",
-      "line": 1507,
+      "line": 1650,
       "snippet": "} catch {",
-      "catchOrdinal": 12,
+      "catchOrdinal": 13,
       "contextHash": "f19411c718b5",
       "contextOrdinal": 1
     },
     {
       "key": "packages/main/src/cli-init.ts:catch:1f4449cbde1a:1",
       "file": "packages/main/src/cli-init.ts",
-      "line": 549,
+      "line": 829,
       "snippet": "} catch {",
-      "catchOrdinal": 3,
+      "catchOrdinal": 4,
       "contextHash": "1f4449cbde1a",
       "contextOrdinal": 1
     },
     {
       "key": "packages/main/src/cli-init.ts:catch:371737537e34:1",
       "file": "packages/main/src/cli-init.ts",
-      "line": 437,
+      "line": 768,
       "snippet": "} catch { /* ignore */ }",
-      "catchOrdinal": 2,
+      "catchOrdinal": 3,
       "contextHash": "371737537e34",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/cli-init.ts:catch:5c5c65d0f3bb:1",
+      "file": "packages/main/src/cli-init.ts",
+      "line": 437,
+      "snippet": "} catch {",
+      "catchOrdinal": 1,
+      "contextHash": "5c5c65d0f3bb",
       "contextOrdinal": 1
     },
     {
       "key": "packages/main/src/cli-init.ts:catch:6cac413cf848:1",
       "file": "packages/main/src/cli-init.ts",
-      "line": 645,
+      "line": 926,
       "snippet": "} catch (e: any) {",
-      "catchOrdinal": 7,
+      "catchOrdinal": 8,
       "contextHash": "6cac413cf848",
       "contextOrdinal": 1
     },
     {
       "key": "packages/main/src/cli-init.ts:catch:8d0bb53c6d4c:1",
       "file": "packages/main/src/cli-init.ts",
-      "line": 340,
+      "line": 671,
       "snippet": "} catch {}",
-      "catchOrdinal": 1,
+      "catchOrdinal": 2,
       "contextHash": "8d0bb53c6d4c",
       "contextOrdinal": 1
     },
     {
       "key": "packages/main/src/cli-init.ts:catch:8db47632dbb7:1",
       "file": "packages/main/src/cli-init.ts",
-      "line": 589,
+      "line": 876,
       "snippet": "} catch {",
-      "catchOrdinal": 5,
+      "catchOrdinal": 6,
       "contextHash": "8db47632dbb7",
       "contextOrdinal": 1
     },
     {
       "key": "packages/main/src/cli-init.ts:catch:b03c86f3ebe1:1",
       "file": "packages/main/src/cli-init.ts",
-      "line": 551,
+      "line": 831,
       "snippet": "try { unlinkSync(dst); } catch {}",
-      "catchOrdinal": 4,
+      "catchOrdinal": 5,
       "contextHash": "b03c86f3ebe1",
       "contextOrdinal": 1
     },
     {
       "key": "packages/main/src/cli-init.ts:catch:f064860fde89:1",
       "file": "packages/main/src/cli-init.ts",
-      "line": 590,
+      "line": 877,
       "snippet": "try { unlinkSync(dst); } catch {}",
-      "catchOrdinal": 6,
+      "catchOrdinal": 7,
       "contextHash": "f064860fde89",
       "contextOrdinal": 1
     },
@@ -824,7 +848,7 @@
     {
       "key": "packages/main/src/core/audit-scan.ts:catch:0565fd23bfda:1",
       "file": "packages/main/src/core/audit-scan.ts",
-      "line": 246,
+      "line": 250,
       "snippet": "} catch {/* pass */}",
       "catchOrdinal": 2,
       "contextHash": "0565fd23bfda",
@@ -833,7 +857,7 @@
     {
       "key": "packages/main/src/core/audit-scan.ts:catch:32776ce0edc0:1",
       "file": "packages/main/src/core/audit-scan.ts",
-      "line": 302,
+      "line": 306,
       "snippet": "try { md = readFileSync(abs, 'utf-8'); } catch { continue; }",
       "catchOrdinal": 4,
       "contextHash": "32776ce0edc0",
@@ -842,7 +866,7 @@
     {
       "key": "packages/main/src/core/audit-scan.ts:catch:701dcc7c5039:1",
       "file": "packages/main/src/core/audit-scan.ts",
-      "line": 352,
+      "line": 355,
       "snippet": "} catch (e: unknown) {",
       "catchOrdinal": 6,
       "contextHash": "701dcc7c5039",
@@ -851,7 +875,7 @@
     {
       "key": "packages/main/src/core/audit-scan.ts:catch:7135102919e3:1",
       "file": "packages/main/src/core/audit-scan.ts",
-      "line": 252,
+      "line": 256,
       "snippet": "} catch (e: unknown) {",
       "catchOrdinal": 3,
       "contextHash": "7135102919e3",
@@ -860,7 +884,7 @@
     {
       "key": "packages/main/src/core/audit-scan.ts:catch:87d943af2149:1",
       "file": "packages/main/src/core/audit-scan.ts",
-      "line": 373,
+      "line": 376,
       "snippet": "} catch (e: unknown) {",
       "catchOrdinal": 7,
       "contextHash": "87d943af2149",
@@ -869,7 +893,7 @@
     {
       "key": "packages/main/src/core/audit-scan.ts:catch:9f017ea3aaec:1",
       "file": "packages/main/src/core/audit-scan.ts",
-      "line": 322,
+      "line": 325,
       "snippet": "try { return readFileSync(abs, 'utf-8'); } catch { return ''; }",
       "catchOrdinal": 5,
       "contextHash": "9f017ea3aaec",
@@ -878,7 +902,7 @@
     {
       "key": "packages/main/src/core/audit-scan.ts:catch:ae8207a85f86:1",
       "file": "packages/main/src/core/audit-scan.ts",
-      "line": 224,
+      "line": 228,
       "snippet": "try { return existsSync(abs); } catch { return false; }",
       "catchOrdinal": 1,
       "contextHash": "ae8207a85f86",
@@ -941,7 +965,7 @@
     {
       "key": "packages/main/src/core/baseline-risk.ts:catch:49af0b7a57a9:1",
       "file": "packages/main/src/core/baseline-risk.ts",
-      "line": 63,
+      "line": 60,
       "snippet": "} catch {",
       "catchOrdinal": 1,
       "contextHash": "49af0b7a57a9",
@@ -986,7 +1010,7 @@
     {
       "key": "packages/main/src/core/config.ts:catch:4fa1b614ba7b:1",
       "file": "packages/main/src/core/config.ts",
-      "line": 258,
+      "line": 259,
       "snippet": "} catch { /* ignore parse errors */ }",
       "catchOrdinal": 1,
       "contextHash": "4fa1b614ba7b",
@@ -995,7 +1019,7 @@
     {
       "key": "packages/main/src/core/evidence-freshness.ts:catch:631679825bd0:1",
       "file": "packages/main/src/core/evidence-freshness.ts",
-      "line": 147,
+      "line": 152,
       "snippet": "} catch {",
       "catchOrdinal": 3,
       "contextHash": "631679825bd0",
@@ -1004,7 +1028,7 @@
     {
       "key": "packages/main/src/core/evidence-freshness.ts:catch:c5e974fc82ba:1",
       "file": "packages/main/src/core/evidence-freshness.ts",
-      "line": 32,
+      "line": 37,
       "snippet": "} catch {",
       "catchOrdinal": 1,
       "contextHash": "c5e974fc82ba",
@@ -1013,7 +1037,7 @@
     {
       "key": "packages/main/src/core/evidence-freshness.ts:catch:f86e04828fc2:1",
       "file": "packages/main/src/core/evidence-freshness.ts",
-      "line": 67,
+      "line": 72,
       "snippet": "} catch {",
       "catchOrdinal": 2,
       "contextHash": "f86e04828fc2",
@@ -1175,7 +1199,7 @@
     {
       "key": "packages/main/src/core/machine.ts:catch:06c6372cf8e2:1",
       "file": "packages/main/src/core/machine.ts",
-      "line": 142,
+      "line": 126,
       "snippet": "} catch {",
       "catchOrdinal": 4,
       "contextHash": "06c6372cf8e2",
@@ -1184,7 +1208,7 @@
     {
       "key": "packages/main/src/core/machine.ts:catch:435b3f2a5738:1",
       "file": "packages/main/src/core/machine.ts",
-      "line": 412,
+      "line": 400,
       "snippet": "} catch {",
       "catchOrdinal": 11,
       "contextHash": "435b3f2a5738",
@@ -1193,7 +1217,7 @@
     {
       "key": "packages/main/src/core/machine.ts:catch:450cfd530ee1:1",
       "file": "packages/main/src/core/machine.ts",
-      "line": 405,
+      "line": 393,
       "snippet": "} catch {",
       "catchOrdinal": 10,
       "contextHash": "450cfd530ee1",
@@ -1211,7 +1235,7 @@
     {
       "key": "packages/main/src/core/machine.ts:catch:4d4933fe111f:1",
       "file": "packages/main/src/core/machine.ts",
-      "line": 170,
+      "line": 155,
       "snippet": "try { decision = context.store.readDecision(context.storyId); } catch {}",
       "catchOrdinal": 6,
       "contextHash": "4d4933fe111f",
@@ -1220,7 +1244,7 @@
     {
       "key": "packages/main/src/core/machine.ts:catch:6d9fc06f541c:1",
       "file": "packages/main/src/core/machine.ts",
-      "line": 192,
+      "line": 180,
       "snippet": "} catch {",
       "catchOrdinal": 7,
       "contextHash": "6d9fc06f541c",
@@ -1229,7 +1253,7 @@
     {
       "key": "packages/main/src/core/machine.ts:catch:702828a85d30:1",
       "file": "packages/main/src/core/machine.ts",
-      "line": 454,
+      "line": 446,
       "snippet": "try { decision = store.readDecision(storyId); } catch {}",
       "catchOrdinal": 13,
       "contextHash": "702828a85d30",
@@ -1238,7 +1262,7 @@
     {
       "key": "packages/main/src/core/machine.ts:catch:7665e4c53da8:1",
       "file": "packages/main/src/core/machine.ts",
-      "line": 369,
+      "line": 357,
       "snippet": "} catch {",
       "catchOrdinal": 8,
       "contextHash": "7665e4c53da8",
@@ -1247,7 +1271,7 @@
     {
       "key": "packages/main/src/core/machine.ts:catch:a3a65cb3abd2:1",
       "file": "packages/main/src/core/machine.ts",
-      "line": 128,
+      "line": 112,
       "snippet": "} catch {",
       "catchOrdinal": 3,
       "contextHash": "a3a65cb3abd2",
@@ -1256,7 +1280,7 @@
     {
       "key": "packages/main/src/core/machine.ts:catch:aa02a940f9a3:1",
       "file": "packages/main/src/core/machine.ts",
-      "line": 104,
+      "line": 88,
       "snippet": "} catch (err) {",
       "catchOrdinal": 2,
       "contextHash": "aa02a940f9a3",
@@ -1265,7 +1289,7 @@
     {
       "key": "packages/main/src/core/machine.ts:catch:bf9518728a79:1",
       "file": "packages/main/src/core/machine.ts",
-      "line": 484,
+      "line": 477,
       "snippet": "} catch {",
       "catchOrdinal": 14,
       "contextHash": "bf9518728a79",
@@ -1274,7 +1298,7 @@
     {
       "key": "packages/main/src/core/machine.ts:catch:c03dc5881c6d:1",
       "file": "packages/main/src/core/machine.ts",
-      "line": 452,
+      "line": 444,
       "snippet": "try { checklist = store.readChecklist(storyId); } catch {}",
       "catchOrdinal": 12,
       "contextHash": "c03dc5881c6d",
@@ -1283,7 +1307,7 @@
     {
       "key": "packages/main/src/core/machine.ts:catch:d1876411eba4:1",
       "file": "packages/main/src/core/machine.ts",
-      "line": 168,
+      "line": 153,
       "snippet": "try { checklist = context.store.readChecklist(context.storyId); } catch {}",
       "catchOrdinal": 5,
       "contextHash": "d1876411eba4",
@@ -1292,7 +1316,7 @@
     {
       "key": "packages/main/src/core/machine.ts:catch:f84c6dbc3cad:1",
       "file": "packages/main/src/core/machine.ts",
-      "line": 373,
+      "line": 361,
       "snippet": "} catch {",
       "catchOrdinal": 9,
       "contextHash": "f84c6dbc3cad",
@@ -1452,6 +1476,15 @@
       "contextOrdinal": 1
     },
     {
+      "key": "packages/main/src/core/store.ts:catch:00f5c97a138b:1",
+      "file": "packages/main/src/core/store.ts",
+      "line": 320,
+      "snippet": "} catch {",
+      "catchOrdinal": 13,
+      "contextHash": "00f5c97a138b",
+      "contextOrdinal": 1
+    },
+    {
       "key": "packages/main/src/core/store.ts:catch:0d799f62261a:1",
       "file": "packages/main/src/core/store.ts",
       "line": 85,
@@ -1463,9 +1496,9 @@
     {
       "key": "packages/main/src/core/store.ts:catch:140bd4488531:1",
       "file": "packages/main/src/core/store.ts",
-      "line": 353,
+      "line": 365,
       "snippet": "} catch {",
-      "catchOrdinal": 15,
+      "catchOrdinal": 16,
       "contextHash": "140bd4488531",
       "contextOrdinal": 1
     },
@@ -1481,9 +1514,9 @@
     {
       "key": "packages/main/src/core/store.ts:catch:3c211fb6fc5c:1",
       "file": "packages/main/src/core/store.ts",
-      "line": 382,
+      "line": 394,
       "snippet": "} catch {",
-      "catchOrdinal": 16,
+      "catchOrdinal": 17,
       "contextHash": "3c211fb6fc5c",
       "contextOrdinal": 1
     },
@@ -1499,27 +1532,27 @@
     {
       "key": "packages/main/src/core/store.ts:catch:50f9b2aa6a29:1",
       "file": "packages/main/src/core/store.ts",
-      "line": 411,
+      "line": 423,
       "snippet": "} catch {",
-      "catchOrdinal": 18,
+      "catchOrdinal": 19,
       "contextHash": "50f9b2aa6a29",
       "contextOrdinal": 1
     },
     {
       "key": "packages/main/src/core/store.ts:catch:5874fdd681a7:1",
       "file": "packages/main/src/core/store.ts",
-      "line": 325,
+      "line": 337,
       "snippet": "} catch {",
-      "catchOrdinal": 13,
+      "catchOrdinal": 14,
       "contextHash": "5874fdd681a7",
       "contextOrdinal": 1
     },
     {
       "key": "packages/main/src/core/store.ts:catch:6de4ea5615d8:1",
       "file": "packages/main/src/core/store.ts",
-      "line": 397,
+      "line": 409,
       "snippet": "} catch {",
-      "catchOrdinal": 17,
+      "catchOrdinal": 18,
       "contextHash": "6de4ea5615d8",
       "contextOrdinal": 1
     },
@@ -1598,9 +1631,9 @@
     {
       "key": "packages/main/src/core/store.ts:catch:e6ffb7f5b698:1",
       "file": "packages/main/src/core/store.ts",
-      "line": 339,
+      "line": 351,
       "snippet": "} catch {",
-      "catchOrdinal": 14,
+      "catchOrdinal": 15,
       "contextHash": "e6ffb7f5b698",
       "contextOrdinal": 1
     },
@@ -1868,16 +1901,16 @@
     {
       "key": "packages/main/src/handlers/doctor.ts:catch:15b2bd168d9c:1",
       "file": "packages/main/src/handlers/doctor.ts",
-      "line": 264,
+      "line": 368,
       "snippet": "} catch {",
-      "catchOrdinal": 4,
+      "catchOrdinal": 6,
       "contextHash": "15b2bd168d9c",
       "contextOrdinal": 1
     },
     {
       "key": "packages/main/src/handlers/doctor.ts:catch:213c1b4b72bc:1",
       "file": "packages/main/src/handlers/doctor.ts",
-      "line": 70,
+      "line": 74,
       "snippet": "} catch (e: any) {",
       "catchOrdinal": 2,
       "contextHash": "213c1b4b72bc",
@@ -1886,7 +1919,7 @@
     {
       "key": "packages/main/src/handlers/doctor.ts:catch:2f92b2c8943a:1",
       "file": "packages/main/src/handlers/doctor.ts",
-      "line": 59,
+      "line": 63,
       "snippet": "} catch (e: any) {",
       "catchOrdinal": 1,
       "contextHash": "2f92b2c8943a",
@@ -1895,64 +1928,82 @@
     {
       "key": "packages/main/src/handlers/doctor.ts:catch:74569166d725:1",
       "file": "packages/main/src/handlers/doctor.ts",
-      "line": 329,
+      "line": 433,
       "snippet": "} catch {",
-      "catchOrdinal": 7,
+      "catchOrdinal": 9,
       "contextHash": "74569166d725",
       "contextOrdinal": 1
     },
     {
       "key": "packages/main/src/handlers/doctor.ts:catch:7b81b6d0b4cb:1",
       "file": "packages/main/src/handlers/doctor.ts",
-      "line": 285,
+      "line": 389,
       "snippet": "} catch {",
-      "catchOrdinal": 6,
+      "catchOrdinal": 8,
       "contextHash": "7b81b6d0b4cb",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/doctor.ts:catch:8f1c0bfd48e4:1",
+      "file": "packages/main/src/handlers/doctor.ts",
+      "line": 90,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 3,
+      "contextHash": "8f1c0bfd48e4",
       "contextOrdinal": 1
     },
     {
       "key": "packages/main/src/handlers/doctor.ts:catch:97c7166dffbb:1",
       "file": "packages/main/src/handlers/doctor.ts",
-      "line": 372,
+      "line": 476,
       "snippet": "} catch {",
-      "catchOrdinal": 9,
+      "catchOrdinal": 11,
       "contextHash": "97c7166dffbb",
       "contextOrdinal": 1
     },
     {
       "key": "packages/main/src/handlers/doctor.ts:catch:a4597038cf47:1",
       "file": "packages/main/src/handlers/doctor.ts",
-      "line": 249,
+      "line": 353,
       "snippet": "} catch {",
-      "catchOrdinal": 3,
+      "catchOrdinal": 5,
       "contextHash": "a4597038cf47",
       "contextOrdinal": 1
     },
     {
       "key": "packages/main/src/handlers/doctor.ts:catch:b48819e3f00f:1",
       "file": "packages/main/src/handlers/doctor.ts",
-      "line": 273,
+      "line": 377,
       "snippet": "} catch {",
-      "catchOrdinal": 5,
+      "catchOrdinal": 7,
       "contextHash": "b48819e3f00f",
       "contextOrdinal": 1
     },
     {
       "key": "packages/main/src/handlers/doctor.ts:catch:b93299a9da7d:1",
       "file": "packages/main/src/handlers/doctor.ts",
-      "line": 379,
+      "line": 483,
       "snippet": "} catch {",
-      "catchOrdinal": 10,
+      "catchOrdinal": 12,
       "contextHash": "b93299a9da7d",
       "contextOrdinal": 1
     },
     {
       "key": "packages/main/src/handlers/doctor.ts:catch:cd2e1202ed13:1",
       "file": "packages/main/src/handlers/doctor.ts",
-      "line": 421,
+      "line": 525,
       "snippet": "} catch {",
-      "catchOrdinal": 15,
+      "catchOrdinal": 17,
       "contextHash": "cd2e1202ed13",
+      "contextOrdinal": 1
+    },
+    {
+      "key": "packages/main/src/handlers/doctor.ts:catch:ce293201f829:1",
+      "file": "packages/main/src/handlers/doctor.ts",
+      "line": 308,
+      "snippet": "} catch {",
+      "catchOrdinal": 4,
+      "contextHash": "ce293201f829",
       "contextOrdinal": 1
     },
     {
@@ -1994,7 +2045,7 @@
     {
       "key": "packages/main/src/handlers/finding.ts:catch:15ab0c55c1f4:1",
       "file": "packages/main/src/handlers/finding.ts",
-      "line": 173,
+      "line": 183,
       "snippet": "} catch (e) {",
       "catchOrdinal": 4,
       "contextHash": "15ab0c55c1f4",
@@ -2003,7 +2054,7 @@
     {
       "key": "packages/main/src/handlers/finding.ts:catch:85bd89fe82a1:1",
       "file": "packages/main/src/handlers/finding.ts",
-      "line": 112,
+      "line": 115,
       "snippet": "} catch (e) {",
       "catchOrdinal": 3,
       "contextHash": "85bd89fe82a1",
@@ -2012,7 +2063,7 @@
     {
       "key": "packages/main/src/handlers/finding.ts:catch:d9ec10199e8c:1",
       "file": "packages/main/src/handlers/finding.ts",
-      "line": 32,
+      "line": 33,
       "snippet": "} catch (e: any) {",
       "catchOrdinal": 1,
       "contextHash": "d9ec10199e8c",
@@ -2021,7 +2072,7 @@
     {
       "key": "packages/main/src/handlers/finding.ts:catch:fbf28dc2c347:1",
       "file": "packages/main/src/handlers/finding.ts",
-      "line": 181,
+      "line": 191,
       "snippet": "} catch (e) {",
       "catchOrdinal": 5,
       "contextHash": "fbf28dc2c347",
@@ -2030,7 +2081,7 @@
     {
       "key": "packages/main/src/handlers/finding.ts:catch:fbf28dc2c347:2",
       "file": "packages/main/src/handlers/finding.ts",
-      "line": 244,
+      "line": 251,
       "snippet": "} catch (e) {",
       "catchOrdinal": 6,
       "contextHash": "fbf28dc2c347",
@@ -2039,7 +2090,7 @@
     {
       "key": "packages/main/src/handlers/finding.ts:catch:fbf28dc2c347:3",
       "file": "packages/main/src/handlers/finding.ts",
-      "line": 276,
+      "line": 283,
       "snippet": "} catch (e) {",
       "catchOrdinal": 7,
       "contextHash": "fbf28dc2c347",
@@ -2138,16 +2189,25 @@
     {
       "key": "packages/main/src/handlers/review-preflight.ts:catch:d322ca37e7ff:1",
       "file": "packages/main/src/handlers/review-preflight.ts",
-      "line": 174,
+      "line": 172,
       "snippet": "} catch (e: any) {",
       "catchOrdinal": 2,
       "contextHash": "d322ca37e7ff",
       "contextOrdinal": 1
     },
     {
+      "key": "packages/main/src/handlers/review-run.ts:catch:d9ec10199e8c:1",
+      "file": "packages/main/src/handlers/review-run.ts",
+      "line": 23,
+      "snippet": "} catch (e: any) {",
+      "catchOrdinal": 1,
+      "contextHash": "d9ec10199e8c",
+      "contextOrdinal": 1
+    },
+    {
       "key": "packages/main/src/handlers/reviewer-list.ts:catch:0b76be29cc74:1",
       "file": "packages/main/src/handlers/reviewer-list.ts",
-      "line": 154,
+      "line": 185,
       "snippet": "} catch {",
       "catchOrdinal": 1,
       "contextHash": "0b76be29cc74",
@@ -2156,7 +2216,7 @@
     {
       "key": "packages/main/src/handlers/reviewer-list.ts:catch:6f9efbb3951a:1",
       "file": "packages/main/src/handlers/reviewer-list.ts",
-      "line": 164,
+      "line": 195,
       "snippet": "} catch {",
       "catchOrdinal": 2,
       "contextHash": "6f9efbb3951a",
@@ -2696,7 +2756,7 @@
     {
       "key": "packages/main/src/handlers/story-query.ts:catch:0259655ec5dd:1",
       "file": "packages/main/src/handlers/story-query.ts",
-      "line": 344,
+      "line": 345,
       "snippet": "try { return store.readReview(args.storyId); } catch { return null; }",
       "catchOrdinal": 9,
       "contextHash": "0259655ec5dd",
@@ -2723,7 +2783,7 @@
     {
       "key": "packages/main/src/handlers/story-query.ts:catch:62e9a9f51359:1",
       "file": "packages/main/src/handlers/story-query.ts",
-      "line": 275,
+      "line": 276,
       "snippet": "} catch {",
       "catchOrdinal": 6,
       "contextHash": "62e9a9f51359",
@@ -2732,7 +2792,7 @@
     {
       "key": "packages/main/src/handlers/story-query.ts:catch:6aa87e36bfef:1",
       "file": "packages/main/src/handlers/story-query.ts",
-      "line": 138,
+      "line": 139,
       "snippet": "} catch {",
       "catchOrdinal": 2,
       "contextHash": "6aa87e36bfef",
@@ -2741,7 +2801,7 @@
     {
       "key": "packages/main/src/handlers/story-query.ts:catch:79ab1fd0168a:1",
       "file": "packages/main/src/handlers/story-query.ts",
-      "line": 150,
+      "line": 151,
       "snippet": "} catch {",
       "catchOrdinal": 3,
       "contextHash": "79ab1fd0168a",
@@ -2759,7 +2819,7 @@
     {
       "key": "packages/main/src/handlers/story-query.ts:catch:96bf1f6fbfae:1",
       "file": "packages/main/src/handlers/story-query.ts",
-      "line": 340,
+      "line": 341,
       "snippet": "try { return store.readChecklist(args.storyId); } catch { return { items: [] }; }",
       "catchOrdinal": 8,
       "contextHash": "96bf1f6fbfae",
@@ -2768,7 +2828,7 @@
     {
       "key": "packages/main/src/handlers/story-query.ts:catch:9ef577e4d6dd:1",
       "file": "packages/main/src/handlers/story-query.ts",
-      "line": 264,
+      "line": 265,
       "snippet": "try { story = store.readStory(dirName); } catch { continue; }",
       "catchOrdinal": 5,
       "contextHash": "9ef577e4d6dd",
@@ -2777,7 +2837,7 @@
     {
       "key": "packages/main/src/handlers/story-query.ts:catch:aeaa01700c79:1",
       "file": "packages/main/src/handlers/story-query.ts",
-      "line": 106,
+      "line": 107,
       "snippet": "} catch { /* ignore corrupt fixture files while rendering story detail */ }",
       "catchOrdinal": 1,
       "contextHash": "aeaa01700c79",
@@ -2795,7 +2855,7 @@
     {
       "key": "packages/main/src/handlers/story-query.ts:catch:d10723181ee6:1",
       "file": "packages/main/src/handlers/story-query.ts",
-      "line": 550,
+      "line": 551,
       "snippet": "} catch {",
       "catchOrdinal": 12,
       "contextHash": "d10723181ee6",
@@ -2804,7 +2864,7 @@
     {
       "key": "packages/main/src/handlers/story-query.ts:catch:d3909d707a9b:1",
       "file": "packages/main/src/handlers/story-query.ts",
-      "line": 381,
+      "line": 382,
       "snippet": "try { return sourceStore.readChecklist(id); } catch { return { items: [] }; }",
       "catchOrdinal": 11,
       "contextHash": "d3909d707a9b",
@@ -2813,7 +2873,7 @@
     {
       "key": "packages/main/src/handlers/story-query.ts:catch:d3b66f1c89f4:1",
       "file": "packages/main/src/handlers/story-query.ts",
-      "line": 195,
+      "line": 196,
       "snippet": "try { story = store.readStory(id); } catch { continue; }",
       "catchOrdinal": 4,
       "contextHash": "d3b66f1c89f4",
@@ -2840,7 +2900,7 @@
     {
       "key": "packages/main/src/handlers/story-query.ts:catch:fd007857d8b6:1",
       "file": "packages/main/src/handlers/story-query.ts",
-      "line": 349,
+      "line": 350,
       "snippet": "try { result.index = store.readStory(args.storyId); } catch { result.index = null; }",
       "catchOrdinal": 10,
       "contextHash": "fd007857d8b6",
@@ -3164,7 +3224,7 @@
     {
       "key": "packages/main/src/handlers/validate-channel.ts:catch:0415636d7962:1",
       "file": "packages/main/src/handlers/validate-channel.ts",
-      "line": 389,
+      "line": 390,
       "snippet": "} catch (e: any) {",
       "catchOrdinal": 4,
       "contextHash": "0415636d7962",
@@ -3173,7 +3233,7 @@
     {
       "key": "packages/main/src/handlers/validate-channel.ts:catch:08fc52ee85eb:1",
       "file": "packages/main/src/handlers/validate-channel.ts",
-      "line": 195,
+      "line": 196,
       "snippet": "} catch {",
       "catchOrdinal": 3,
       "contextHash": "08fc52ee85eb",
@@ -3182,7 +3242,7 @@
     {
       "key": "packages/main/src/handlers/validate-channel.ts:catch:2f6404a61157:1",
       "file": "packages/main/src/handlers/validate-channel.ts",
-      "line": 436,
+      "line": 437,
       "snippet": "} catch (e: any) {",
       "catchOrdinal": 7,
       "contextHash": "2f6404a61157",
@@ -3191,7 +3251,7 @@
     {
       "key": "packages/main/src/handlers/validate-channel.ts:catch:41a3784a480b:1",
       "file": "packages/main/src/handlers/validate-channel.ts",
-      "line": 464,
+      "line": 465,
       "snippet": "} catch { events = []; }",
       "catchOrdinal": 9,
       "contextHash": "41a3784a480b",
@@ -3200,7 +3260,7 @@
     {
       "key": "packages/main/src/handlers/validate-channel.ts:catch:56fd87c71a1c:1",
       "file": "packages/main/src/handlers/validate-channel.ts",
-      "line": 74,
+      "line": 75,
       "snippet": "} catch {",
       "catchOrdinal": 1,
       "contextHash": "56fd87c71a1c",
@@ -3209,7 +3269,7 @@
     {
       "key": "packages/main/src/handlers/validate-channel.ts:catch:5a0b87363c09:1",
       "file": "packages/main/src/handlers/validate-channel.ts",
-      "line": 452,
+      "line": 453,
       "snippet": "} catch {",
       "catchOrdinal": 8,
       "contextHash": "5a0b87363c09",
@@ -3218,7 +3278,7 @@
     {
       "key": "packages/main/src/handlers/validate-channel.ts:catch:65a65ccb92d5:1",
       "file": "packages/main/src/handlers/validate-channel.ts",
-      "line": 83,
+      "line": 84,
       "snippet": "} catch {",
       "catchOrdinal": 2,
       "contextHash": "65a65ccb92d5",
@@ -3227,7 +3287,7 @@
     {
       "key": "packages/main/src/handlers/validate-channel.ts:catch:b7d4e428ecb8:1",
       "file": "packages/main/src/handlers/validate-channel.ts",
-      "line": 416,
+      "line": 417,
       "snippet": "} catch { decision = null; }",
       "catchOrdinal": 6,
       "contextHash": "b7d4e428ecb8",
@@ -3236,7 +3296,7 @@
     {
       "key": "packages/main/src/handlers/validate-channel.ts:catch:d639ce8312a5:1",
       "file": "packages/main/src/handlers/validate-channel.ts",
-      "line": 401,
+      "line": 402,
       "snippet": "} catch (e: any) {",
       "catchOrdinal": 5,
       "contextHash": "d639ce8312a5",
@@ -3344,7 +3404,7 @@
     {
       "key": "packages/main/src/handlers/verifier.ts:catch:3c3eeae85da7:1",
       "file": "packages/main/src/handlers/verifier.ts",
-      "line": 590,
+      "line": 610,
       "snippet": "} catch { /* not git */ }",
       "catchOrdinal": 8,
       "contextHash": "3c3eeae85da7",
@@ -3362,7 +3422,7 @@
     {
       "key": "packages/main/src/handlers/verifier.ts:catch:63851480c75f:1",
       "file": "packages/main/src/handlers/verifier.ts",
-      "line": 620,
+      "line": 640,
       "snippet": "} catch {",
       "catchOrdinal": 9,
       "contextHash": "63851480c75f",
@@ -3380,7 +3440,7 @@
     {
       "key": "packages/main/src/handlers/verifier.ts:catch:8e7f4429377f:1",
       "file": "packages/main/src/handlers/verifier.ts",
-      "line": 661,
+      "line": 681,
       "snippet": "} catch { /* serve not running, fall through */ }",
       "catchOrdinal": 11,
       "contextHash": "8e7f4429377f",
@@ -3425,7 +3485,7 @@
     {
       "key": "packages/main/src/handlers/verifier.ts:catch:c5808f2850cb:1",
       "file": "packages/main/src/handlers/verifier.ts",
-      "line": 644,
+      "line": 664,
       "snippet": "} catch { return ''; }",
       "catchOrdinal": 10,
       "contextHash": "c5808f2850cb",
@@ -4136,7 +4196,7 @@
     {
       "key": "packages/main/src/tasks/flow-stability-smoke.ts:catch:4db50128f446:1",
       "file": "packages/main/src/tasks/flow-stability-smoke.ts",
-      "line": 312,
+      "line": 378,
       "snippet": "} catch (error: any) {",
       "catchOrdinal": 1,
       "contextHash": "4db50128f446",
@@ -4163,7 +4223,7 @@
     {
       "key": "packages/main/src/tasks/review-pass-discard-smoke.ts:catch:2bb83f33b506:1",
       "file": "packages/main/src/tasks/review-pass-discard-smoke.ts",
-      "line": 364,
+      "line": 376,
       "snippet": "} catch (error) {",
       "catchOrdinal": 1,
       "contextHash": "2bb83f33b506",
@@ -4172,7 +4232,7 @@
     {
       "key": "packages/main/src/tasks/review-pass-discard-smoke.ts:catch:38feee194604:1",
       "file": "packages/main/src/tasks/review-pass-discard-smoke.ts",
-      "line": 465,
+      "line": 477,
       "snippet": "try { chmodSync(join(root, '.worktrees'), 0o700); } catch { /* best-effort cleanup */ }",
       "catchOrdinal": 3,
       "contextHash": "38feee194604",
@@ -4181,7 +4241,7 @@
     {
       "key": "packages/main/src/tasks/review-pass-discard-smoke.ts:catch:b4b6d04a4a92:1",
       "file": "packages/main/src/tasks/review-pass-discard-smoke.ts",
-      "line": 458,
+      "line": 470,
       "snippet": "} catch (error) {",
       "catchOrdinal": 2,
       "contextHash": "b4b6d04a4a92",
@@ -4190,7 +4250,7 @@
     {
       "key": "packages/main/src/tasks/review-pass-discard-smoke.ts:catch:d4866ab03715:1",
       "file": "packages/main/src/tasks/review-pass-discard-smoke.ts",
-      "line": 467,
+      "line": 479,
       "snippet": "try { chmodSync(join(root, '.git', 'worktrees'), 0o700); } catch { /* best-effort cleanup */ }",
       "catchOrdinal": 5,
       "contextHash": "d4866ab03715",
@@ -4199,7 +4259,7 @@
     {
       "key": "packages/main/src/tasks/review-pass-discard-smoke.ts:catch:d5c839117c40:1",
       "file": "packages/main/src/tasks/review-pass-discard-smoke.ts",
-      "line": 466,
+      "line": 478,
       "snippet": "try { chmodSync(join(root, '.worktrees', storyId), 0o700); } catch { /* best-effort cleanup */ }",
       "catchOrdinal": 4,
       "contextHash": "d5c839117c40",

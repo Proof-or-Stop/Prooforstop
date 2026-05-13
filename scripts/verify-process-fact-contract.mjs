@@ -182,6 +182,12 @@ const requiredRuntimeEntries = [
     owner: 'handlers/verifier',
     line: '- runtime:validate_fallback_discovery [L1] owner=handlers/verifier',
   },
+  {
+    name: 'runtime:validate_side_effect_guard',
+    level: 'L2',
+    owner: 'core/validation-executor',
+    line: '- runtime:validate_side_effect_guard [L2] owner=core/validation-executor',
+  },
 ];
 const requiredFlowFactPolicies = [
   {

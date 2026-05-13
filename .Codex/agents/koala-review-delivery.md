@@ -707,7 +707,7 @@ checklist + plan.md 写完后必须 `story_review` 通过（issueCount=0）才�
 
 | gate | 命令 | 职责 | 失败处理 |
 |---|---|---|---|
-| channel | `koala validate --channel --story=B-xxx` | 正常通道 commit author 必须含 `koala-implementer` 或 subject 以 `koala:` 开头 | fail → block REVIEW→TEST |
+| channel | `koala validate --channel --story=B-xxx` | 正常通道必须有 dispatch/subagent_result 结构化证据；commit author 仅作 legacy fallback | fail → block REVIEW→TEST |
 | concept | `koala validate --concept` | 扫 `git diff main...HEAD` 抽 deleted symbols + 全仓 grep 残留引用 | ≥ 5 残留 → 触发 concept reviewer；< 5 → skip |
 | lint | `koala validate --lint` | tsc / ruff / import-graph（shells 不得 import fn.ts） | fail → block；工具缺失 → skip |
 | docs-drift | `docs-drift` preflight | 校验 reviewer/流程文档引用的 koala 命令与 registry 对齐 | fail → block REVIEW→TEST |
@@ -738,7 +738,7 @@ koala reviewer_list '{"storyId":"B-xxx","forceReviewer":"docs,behavior"}' # 手�
 
 **Finding 签名验证**：reviewer 的 finding 带签名（`_hash` + `reviewRound`），gate 验签，主 agent 无法伪造。签名 `reviewRound` 是 ISO 8601 string，来自 `story.currentReviewRound`，不是数字轮次。`finding_add` 自动注入当前 review round 和签名。手动 `finding_add` 伪造 reviewer finding 绕过 gate 不允许。
 
-**Review run 边界**：gate 还会校验 `reviewRunId` 是否指向该 lane 当前最新、签名有效、reviewRound 匹配、且 head/material hash 仍 fresh 的 run。缺 `reviewRunId`、引用未知 run、lane/round 不匹配、或代码改动导致 stale 时，先重跑 `review_run_start` 再提交 finding/pass。
+**Review run 边界**：gate 还会校验 `reviewRunId` 是否指向该 lane 当前最新、签名有效、reviewRound 匹配、且 head/material hash 仍 fresh 的 run。缺 `reviewRunId`、引用未知 run 或签名无效时先跑 `review_run_start`；不是当前最新 run 时使用最新 `reviewRunId`；head/material hash stale 时必须先回 DEV 修复并提交，再 DEV→REVIEW 进入新的 `currentReviewRound`，随后重新启动 reviewer run。
 
 ### Cluster 聚簇（finding 批量处理）
 

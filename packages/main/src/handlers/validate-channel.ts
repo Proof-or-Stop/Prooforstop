@@ -1,11 +1,12 @@
 /**
- * validate-channel — CLI gate: commit author channel check
+ * validate-channel — CLI gate: structured normal-channel evidence check
  *
- * 校验 story 分支上所有 commit 的 author 是否符合通道要求：
+ * 校验正常通道是否有结构化执行证据：
  * - 快速通道（checklist ≤ 2 且 riskSignals 空）：跳过，返回 skipped
- * - 正常通道：每个 commit 要么 author == "koala-implementer"，要么 commit subject
- *   以 "koala:" 开头且只触及 story metadata（koala CLI 自身 metadata commit 豁免），
- *   否则返回 fail 并列出 offenders。
+ * - 正常通道：优先要求每个非 main-agent Owner 的 checklist item 有 dispatch 或
+ *   subagent_result process-event 证据。commit author 只作为 legacy fallback：
+ *   当缺少 process-event 且全部实现 commit 均为 author == "koala-implementer"
+ *   或 metadata-only koala commit 时才可通过。
  *
  * 输出结构：
  *   {
@@ -157,10 +158,10 @@ export function isNormalChannelWithStory(
 }
 
 /**
- * 判定单个 commit 是否 acceptable。
+ * 判定单个 commit 是否可作为 legacy fallback。
  * - author == "koala-implementer" 通过
  * - subject 以 "koala:" 前缀且只触及 story metadata 时通过
- * - 否则为 offender
+ * - 否则不能作为 fallback；但若 dispatch/subagent_result 结构化证据完整，author 不再硬阻塞
  */
 export function isStoryMetadataPath(file: string): boolean {
   return file.startsWith('.koala/story/') || file.startsWith('docs/story/actives/');
@@ -420,7 +421,7 @@ export function checkCommitAuthor(
     return {
       provider: 'koala-channel',
       status: 'skipped',
-      summary: '非正常通道不检查 commit author',
+      summary: '非正常通道不检查 normal-channel dispatch/subagent evidence',
       details: [
         `story=${storyId}`,
         `checklist items=${itemCount} & riskSignals=${riskSignalCount} → channel=express/fast`,
@@ -483,15 +484,16 @@ export function checkCommitAuthor(
 
   const itemIds = (checklist?.items ?? []).map(item => item.id).filter(Boolean);
   const allItemsOwnedByMain = itemIds.length > 0 && itemIds.every(id => ownedByMain.has(id));
-  const authorOk = offenders.length === 0 || allItemsOwnedByMain;
+  const authorFallbackOk = offenders.length === 0 || allItemsOwnedByMain;
   const hasImplementerCommit = commits.some(c => c.author === 'koala-implementer');
-  const authorEvidenceCoversMissing = authorOk
+  const structuredEvidenceOk = evidence.ok;
+  const authorEvidenceCoversMissing = authorFallbackOk
     && !evidence.ok
     && hasImplementerCommit
     && evidence.issues.length > 0
     && evidence.issues.every(issue => issue.reason === 'missing_evidence');
 
-  if (authorOk && (evidence.ok || authorEvidenceCoversMissing)) {
+  if (structuredEvidenceOk || authorEvidenceCoversMissing) {
     // F-003 (B-fdcf Round 1): 判定 evidenceSource 标签，供 renderChannelResult 嵌入
     // userSees 承诺的 "all CHK covered (via <source>)" 短语。扫 events 判断每个
     // evidencedItems 的证据来源：只看 dispatch → dispatch；只看 subagent_result → subagent_result；
@@ -514,16 +516,24 @@ export function checkCommitAuthor(
       else if (anySubagent) evidenceSource = 'subagent_result';
     }
     const summary = allItemsOwnedByMain && offenders.length > 0
-      ? `正常通道：${commits.length} 条 commit 由 plan.md Owner=main-agent 明确豁免；dispatch 证据覆盖完整`
+      ? `正常通道：${commits.length} 条 commit 由 plan.md Owner=main-agent 明确豁免；dispatch/subagent_result 证据覆盖完整`
       : authorEvidenceCoversMissing
         ? `正常通道：${commits.length} 条 commit 全部由 koala-implementer 或 metadata-only koala CLI 产出；commit author 作为直派执行证据`
-        : `正常通道：${commits.length} 条 commit 全部由 koala-implementer 或 metadata-only koala CLI 产出；dispatch 证据覆盖完整`;
+        : offenders.length > 0
+          ? `正常通道：dispatch/subagent_result 结构化证据覆盖完整；commit author 仅作辅助信号`
+          : `正常通道：${commits.length} 条 commit 全部由 koala-implementer 或 metadata-only koala CLI 产出；dispatch/subagent_result 证据覆盖完整`;
     return {
       provider: 'koala-channel',
       status: 'pass',
       summary,
       details: [
         ...commits.map((c) => `${c.sha.slice(0, 7)} ${c.author} — ${c.subject}`),
+        ...(structuredEvidenceOk && offenders.length > 0
+          ? [
+              `commit author advisory: ${offenders.length} 条非 koala-implementer commit 已由结构化 dispatch/subagent_result 证据覆盖`,
+              ...offenders.map((c) => `  advisory ${c.sha.slice(0, 7)} ${c.author} — ${c.subject}`),
+            ]
+          : []),
         ...(allItemsOwnedByMain && offenders.length > 0
           ? ['plan.md Owner=main-agent author 豁免: all checklist items']
           : []),
@@ -539,17 +549,18 @@ export function checkCommitAuthor(
   // 聚合失败信息
   const failDetails: string[] = [];
   const summaryParts: string[] = [];
-  if (!authorOk) {
-    summaryParts.push(`${offenders.length}/${commits.length} 条 commit 不符合 author 要求`);
-    failDetails.push(`期望 author="koala-implementer" 或 metadata-only subject="koala:*" commit`);
-    failDetails.push(`offenders:`);
-    for (const c of offenders) {
-      failDetails.push(`  ${c.sha.slice(0, 7)} ${c.author} — ${c.subject}`);
-    }
-  }
   if (!evidence.ok) {
     summaryParts.push(`${evidence.issues.length} 个 CHK 缺 dispatch/subagent_result 证据`);
     for (const d of evidence.details) failDetails.push(d);
+  }
+  if (!authorFallbackOk) {
+    summaryParts.push(`${offenders.length}/${commits.length} 条 commit 不能作为 author fallback`);
+    failDetails.push('commit author 只作为 legacy fallback；正常通道主证据必须是 dispatch/subagent_result process-event');
+    failDetails.push('author fallback 仅接受 author="koala-implementer" 或 metadata-only subject="koala:*" commit');
+    failDetails.push('offenders:');
+    for (const c of offenders) {
+      failDetails.push(`  ${c.sha.slice(0, 7)} ${c.author} — ${c.subject}`);
+    }
   }
 
   return {
@@ -557,7 +568,7 @@ export function checkCommitAuthor(
     status: 'fail',
     summary: `正常通道 gate 失败：${summaryParts.join('；')}`,
     details: failDetails,
-    offenders: authorOk ? undefined : offenders,
+    offenders: authorFallbackOk ? undefined : offenders,
   };
 }
 
