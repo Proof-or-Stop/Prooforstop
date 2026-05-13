@@ -1,0 +1,22 @@
+{
+  "storyId": "B-7f28",
+  "name": "from-draft-bootstrap-clean-main",
+  "title": "Fix from-draft worktree bootstrap metadata split",
+  "description": "story_create --fromDraft auto-bootstraps a story worktree but leaves main with untracked active story mirror and deleted draft files. The fix must make the generic from-draft bootstrap contract leave main clean and the story branch merge-ready without hard-coding a story id or draft name.",
+  "type": "bug",
+  "phase": "INIT",
+  "priority": "high",
+  "createdAt": "2026-05-13T14:09:37.933Z",
+  "startedAt": "2026-05-13T14:09:37.933Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-05-13T14:09:37.933Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Close the fromDraft bootstrap metadata transaction generically",
+      "context": "Root cause: story_create --fromDraft writes active story files and deletes draft files in main, then dev_start creates the story branch/worktree without committing the main mirror transaction. Fix the generic CLI/handler flow so no story-id-specific cleanup is needed.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "AGENTS.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add regression coverage for clean main after fromDraft worktree creation",
+      "context": "Existing worktree-authority smoke only checks worktree existence. Extend it to assert main git status is clean after story_create --fromDraft and that story branch contains main, reproducing the plasmid failure shape.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Verify fromDraft flow and affected Koala validation tasks",
+      "context": "Run the targeted smoke plus package checks needed for a worktree/gate orchestration change, then record verification evidence through Koala CLI.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
