@@ -758,7 +758,7 @@ koala dispatch '{"storyId":"B-xxx","clusterId":"CL-001"}'  # 输出 implementer 
 
 **commit 自动 resolve**：commit message 写 `Resolves: CL-001` → `koala validate` / `finding_list` 入口自动扫 `git log main..HEAD`，匹配后在 finding 加 `resolvedBy: "CL-001@<sha7>"` 审计字段。引用不存在的 clusterId 输出 warning 不阻塞。`koala validate --noSync` 跳过扫描。
 
-**finding_add 传 files**：`koala finding_add '{"storyId":"B-xxx","reviewRunId":"B-xxx:RR-001","files":["src/foo.ts"],...}'`。旧 finding 无 files 时 auto-cluster 用 desc 正则抽路径兜底。
+**finding_add 传 files**：`koala finding_add '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","files":["src/foo.ts"],...}'`。旧 finding 无 files 时 auto-cluster 用 desc 正则抽路径兜底。
 
 #### finding_list 返回值结构（F-014 文档化）
 
@@ -969,22 +969,22 @@ see story/B-5a28
 
 ```bash
 # 正常通道 + 所有 CHK 有 dispatch 证据
-koala review_pass_set '{"storyId":"B-xxx","reviewRunId":"B-xxx:RR-001","agent":"koala-review-channel","note":"正常通道 dispatch 覆盖全部 CHK；channel review passed。"}'
+koala review_pass_set '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","agent":"koala-review-channel","note":"正常通道 dispatch 覆盖全部 CHK；channel review passed。"}'
 
 # 正常通道 + 部分 CHK 缺 dispatch
-koala finding_add '{"storyId":"B-xxx","reviewRunId":"B-xxx:RR-001","desc":"正常通道 CHK-003/CHK-005/CHK-007 在 process-events.jsonl 中无 dispatch 事件，疑似主 agent 自写。应派 koala-implementer。","severity":"critical","category":"missing","agent":"koala-review-channel"}'
+koala finding_add '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","desc":"正常通道 CHK-003/CHK-005/CHK-007 在 process-events.jsonl 中无 dispatch 事件，疑似主 agent 自写。应派 koala-implementer。","severity":"critical","category":"missing","agent":"koala-review-channel"}'
 
 # 跨仓元工作流（files 含仓外绝对路径）
-koala finding_add '{"storyId":"B-xxx","reviewRunId":"B-xxx:RR-001","desc":"跨仓元工作流检测：10 个 CHK 中 9 个 files 指向仓外绝对路径（/Users/.../koala/...），dispatch 证据可能在外部仓；建议人工确认而非机械判违规。","severity":"medium","category":"edge","agent":"koala-review-channel"}'
+koala finding_add '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","desc":"跨仓元工作流检测：10 个 CHK 中 9 个 files 指向仓外绝对路径（/Users/.../koala/...），dispatch 证据可能在外部仓；建议人工确认而非机械判违规。","severity":"medium","category":"edge","agent":"koala-review-channel"}'
 
 # 极速通道
-koala review_pass_set '{"storyId":"B-xxx","reviewRunId":"B-xxx:RR-001","agent":"koala-review-channel","note":"极速通道（≤2 items，无 riskSignals），主 agent 自写合规。"}'
+koala review_pass_set '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","agent":"koala-review-channel","note":"极速通道（≤2 items，无 riskSignals），主 agent 自写合规。"}'
 
 # 快速通道
-koala review_pass_set '{"storyId":"B-xxx","reviewRunId":"B-xxx:RR-001","agent":"koala-review-channel","note":"快速通道（≤5 items，单一解，无 riskSignals），允许主 agent 自写。"}'
+koala review_pass_set '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","agent":"koala-review-channel","note":"快速通道（≤5 items，单一解，无 riskSignals），允许主 agent 自写。"}'
 
 # 退化模式
-koala review_pass_set '{"storyId":"B-xxx","reviewRunId":"B-xxx:RR-001","agent":"koala-review-channel","note":"退化模式（无 subagent fallback），主 agent 自己写代码符合规则。"}'
+koala review_pass_set '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","agent":"koala-review-channel","note":"退化模式（无 subagent fallback），主 agent 自己写代码符合规则。"}'
 ```
 
 ## 输入约束（fresh-context hygiene）

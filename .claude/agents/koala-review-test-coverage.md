@@ -42,7 +42,7 @@ koala validate '{"story":"<ID>","json":true}'
 4. 如果发现缺口，用 `koala finding_add` 写 finding：
 
 ```bash
-koala finding_add '{"storyId":"<ID>","reviewRunId":"<ID>:RR-001","severity":"high","category":"missing","agent":"koala-review-test-coverage","desc":"CHK-001:edge:0 缺少有效 verificationEvidence；当前 evidence 只覆盖 happy path","files":["validate.ts"]}'
+koala finding_add '{"storyId":"<ID>","reviewRunId":"<reviewRunId from review_run_start>","severity":"high","category":"missing","agent":"koala-review-test-coverage","desc":"CHK-001:edge:0 缺少有效 verificationEvidence；当前 evidence 只覆盖 happy path","files":["validate.ts"]}'
 ```
 
 ## 输出
@@ -51,4 +51,4 @@ koala finding_add '{"storyId":"<ID>","reviewRunId":"<ID>:RR-001","severity":"hig
 
 - 覆盖摘要：总 intent 数、must 缺口数、waiver 数。
 - 已写入的 finding id 列表。
-- 如无 finding，必须调用 `koala review_pass_set '{"storyId":"<ID>","reviewRunId":"<ID>:RR-001","agent":"koala-review-test-coverage","note":"test coverage review passed: 已检查 verificationIntent 与 verificationEvidence 覆盖关系，无 blocker。"}'`，然后明确说“test coverage review passed”。
+- 如无 finding，必须调用 `koala review_pass_set '{"storyId":"<ID>","reviewRunId":"<reviewRunId from review_run_start>","agent":"koala-review-test-coverage","note":"test coverage review passed: 已检查 verificationIntent 与 verificationEvidence 覆盖关系，无 blocker。"}'`，然后明确说“test coverage review passed”。

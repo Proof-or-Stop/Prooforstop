@@ -652,6 +652,8 @@ async function assertReviewerItemDispatchUsesReviewerPrompt(): Promise<void> {
     assert.match(output, /review_run_start/, 'reviewer item dispatch should require review_run_start before REVIEW evidence');
     assert.match(output, /finding_add/, 'reviewer item dispatch should tell reviewers how to record findings');
     assert.match(output, /review_pass_set/, 'reviewer item dispatch should tell reviewers how to record pass evidence');
+    assert.match(output, /<reviewRunId from review_run_start>/, 'reviewer item dispatch should use the fresh returned reviewRunId placeholder');
+    assert.doesNotMatch(output, /:RR-001/, 'reviewer item dispatch must not hard-code a synthetic reviewRunId');
     assert.doesNotMatch(output, /作为 koala-implementer/, 'reviewer item dispatch must not generate implementer prompt');
     assert.doesNotMatch(output, /git commit/, 'reviewer item dispatch must not ask reviewer to commit');
     assert.doesNotMatch(output, /checklist_update/, 'reviewer item dispatch must not ask reviewer to mark checklist done');

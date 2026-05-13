@@ -758,7 +758,7 @@ koala dispatch '{"storyId":"B-xxx","clusterId":"CL-001"}'  # 输出 implementer 
 
 **commit 自动 resolve**：commit message 写 `Resolves: CL-001` → `koala validate` / `finding_list` 入口自动扫 `git log main..HEAD`，匹配后在 finding 加 `resolvedBy: "CL-001@<sha7>"` 审计字段。引用不存在的 clusterId 输出 warning 不阻塞。`koala validate --noSync` 跳过扫描。
 
-**finding_add 传 files**：`koala finding_add '{"storyId":"B-xxx","reviewRunId":"B-xxx:RR-001","files":["src/foo.ts"],...}'`。旧 finding 无 files 时 auto-cluster 用 desc 正则抽路径兜底。
+**finding_add 传 files**：`koala finding_add '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","files":["src/foo.ts"],...}'`。旧 finding 无 files 时 auto-cluster 用 desc 正则抽路径兜底。
 
 #### finding_list 返回值结构（F-014 文档化）
 
@@ -1012,4 +1012,4 @@ grep -rn --include='README*.md' --include='CLAUDE.md' --include='docs/**/*.md' -
 - finding_add 必须传 files 参数，列出涉及的文档路径 + 对应源文件路径，便于 cluster
 - 审查结束后，如果发现不一致，确认所有问题都已通过 `koala finding_add` 注册，然后输出注册的 finding 数量作为最终摘要
 - 每个不一致提 1 条 finding
-- 没有不一致时禁止调用 `finding_add` 记录 pass-only / "文档一致性检查通过" / "consistency check PASSED"；必须调用 `koala review_pass_set '{"storyId":"B-xxx","reviewRunId":"B-xxx:RR-001","agent":"koala-review-docs","note":"..."}'`，note 写明 Step 1 抽出的符号数、Step 2 比对的段落数和无 blocker 原因
+- 没有不一致时禁止调用 `finding_add` 记录 pass-only / "文档一致性检查通过" / "consistency check PASSED"；必须调用 `koala review_pass_set '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","agent":"koala-review-docs","note":"..."}'`，note 写明 Step 1 抽出的符号数、Step 2 比对的段落数和无 blocker 原因

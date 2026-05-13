@@ -758,7 +758,7 @@ koala dispatch '{"storyId":"B-xxx","clusterId":"CL-001"}'  # 输出 implementer 
 
 **commit 自动 resolve**：commit message 写 `Resolves: CL-001` → `koala validate` / `finding_list` 入口自动扫 `git log main..HEAD`，匹配后在 finding 加 `resolvedBy: "CL-001@<sha7>"` 审计字段。引用不存在的 clusterId 输出 warning 不阻塞。`koala validate --noSync` 跳过扫描。
 
-**finding_add 传 files**：`koala finding_add '{"storyId":"B-xxx","reviewRunId":"B-xxx:RR-001","files":["src/foo.ts"],...}'`。旧 finding 无 files 时 auto-cluster 用 desc 正则抽路径兜底。
+**finding_add 传 files**：`koala finding_add '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","files":["src/foo.ts"],...}'`。旧 finding 无 files 时 auto-cluster 用 desc 正则抽路径兜底。
 
 #### finding_list 返回值结构（F-014 文档化）
 
@@ -949,7 +949,7 @@ see story/B-5a28
 ## 输出
 
 ```bash
-koala finding_add '{"storyId":"B-xxx","reviewRunId":"B-xxx:RR-001","desc":"quality-cleanup: file.ts:42 import 了 unused-module 但未使用","severity":"medium","category":"missing","agent":"koala-review-quality"}'
+koala finding_add '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","desc":"quality-cleanup: file.ts:42 import 了 unused-module 但未使用","severity":"medium","category":"missing","agent":"koala-review-quality"}'
 ```
 
 ## 输入约束（fresh-context hygiene）
@@ -975,7 +975,7 @@ koala finding_add '{"storyId":"B-xxx","reviewRunId":"B-xxx:RR-001","desc":"quali
 - 审查结束后，确认所有发现的问题都已通过 `koala finding_add` 注册，然后输出注册的 finding 数量作为最终摘要
 - 没有 finding 时禁止用 `finding_add` 刷通过；必须调用 `koala review_pass_set` 记录本 reviewer 已检查的范围和无 blocker 原因。
 - 当前 REVIEW round 开始审查时，先调 `koala review_run_start {"storyId":"B-xxx","agent":"<本 reviewer 名>"}`；记录返回的 `reviewRunId`，本轮所有 `finding_add` / `review_pass_set` 都要带这个字段。
-- 无 blocker 的 pass 记录示例：`koala review_pass_set {"storyId":"B-xxx","agent":"<本 reviewer 名>","reviewRunId":"B-xxx:RR-001","note":"..."}`。
+- 无 blocker 的 pass 记录示例：`koala review_pass_set {"storyId":"B-xxx","agent":"<本 reviewer 名>","reviewRunId":"<reviewRunId from review_run_start>","note":"..."}`。
 - 只审改动的文件，不审全仓库
 - 每条 finding 必须有文件路径 + 行号
 - 纯风格问题（缩进、命名偏好）不提，只关注影响正确性和可维护性的问题

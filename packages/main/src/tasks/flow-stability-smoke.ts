@@ -188,7 +188,7 @@ function assertSessionBriefGate(): void {
   }
 
   assert.equal(isCommandAllowed('finding_add', 'DEV'), true, 'DEV reviewers should be able to register findings');
-  assert.equal(isCommandAllowed('review_pass_set', 'DEV'), true, 'DEV reviewers should be able to register passes');
+  assert.equal(isCommandAllowed('review_pass_set', 'DEV'), false, 'DEV must not accept REVIEW no-blocker receipts');
   assert.equal(isCommandAllowed('review_run_start', 'REVIEW'), true, 'REVIEW reviewers should be able to start signed review runs');
   assert.equal(isCommandAllowed('review_run_start', 'DEV'), false, 'review_run_start should stay REVIEW-only');
   assert.equal(
@@ -479,6 +479,15 @@ function assertReviewRunBindingRejectsInvalidEvidence(): void {
     });
     const missingRun = getGuardFailureReason(storyId, store, 'TEST', root);
     assert.match(missingRun ?? '', /缺少 reviewRunId/, 'current REVIEW evidence without reviewRunId must be rejected');
+    const missingRunStatus = summarizeReviewerStatus(store, storyId, root);
+    const missingRunByName = new Map(missingRunStatus.entries.map(e => [e.name, e]));
+    const qualityStatus = missingRunByName.get('quality');
+    assert.equal(qualityStatus?.present, true, 'invalid reviewer evidence should count as present evidence');
+    assert.equal(qualityStatus?.verdict, 'fail', 'invalid reviewer evidence must not be shown as pending');
+    assert.equal(qualityStatus?.blockerCount, 1, 'invalid reviewer evidence should count as a blocking reviewer issue');
+    assert.match(qualityStatus?.detail ?? '', /缺少 reviewRunId/);
+    assert.equal(missingRunStatus.totalBlockers, 1, 'invalid reviewer evidence should surface in totalBlockers');
+    assert.equal(missingRunStatus.allPassed, false);
 
     store.writeReviewPasses(storyId, {
       passes: [

@@ -114,15 +114,16 @@ export function summarizeReviewerStatus(store: StoryStore, storyId: string, proj
   const reviewerEntries: ReviewerStatusEntry[] = reviewers.map(r => {
     const matched = validFindings.filter(f => findingAgentMatchesReviewer(f?.agent, r.name));
     const matchedPasses = validPasses.filter(p => findingAgentMatchesReviewer(p?.agent, r.name));
-    const present = matched.length > 0 || matchedPasses.length > 0;
     const invalid = evidenceState.invalid.filter(issue => findingAgentMatchesReviewer(issue.agent, r.name));
+    const present = matched.length > 0 || matchedPasses.length > 0 || invalid.length > 0;
 
     // Count open blockers (not advisory this round, not resolved/dismissed, valid signature)
-    const blockerCount = matched.filter(f =>
+    const openBlockers = matched.filter(f =>
       !!f
       && f.status === 'open'
       && !isAdvisoryThisRound(f.severity, round)
     ).length;
+    const blockerCount = openBlockers + invalid.length;
 
     let verdict: 'pass' | 'fail' | 'pending';
     if (!present) {

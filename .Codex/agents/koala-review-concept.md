@@ -758,7 +758,7 @@ koala dispatch '{"storyId":"B-xxx","clusterId":"CL-001"}'  # 输出 implementer 
 
 **commit 自动 resolve**：commit message 写 `Resolves: CL-001` → `koala validate` / `finding_list` 入口自动扫 `git log main..HEAD`，匹配后在 finding 加 `resolvedBy: "CL-001@<sha7>"` 审计字段。引用不存在的 clusterId 输出 warning 不阻塞。`koala validate --noSync` 跳过扫描。
 
-**finding_add 传 files**：`koala finding_add '{"storyId":"B-xxx","reviewRunId":"B-xxx:RR-001","files":["src/foo.ts"],...}'`。旧 finding 无 files 时 auto-cluster 用 desc 正则抽路径兜底。
+**finding_add 传 files**：`koala finding_add '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","files":["src/foo.ts"],...}'`。旧 finding 无 files 时 auto-cluster 用 desc 正则抽路径兜底。
 
 #### finding_list 返回值结构（F-014 文档化）
 
@@ -935,9 +935,9 @@ see story/B-5a28
    ```
 4. grep 结果 > 0 → 提 finding：
    ```bash
-   koala finding_add '{"storyId":"B-xxx","reviewRunId":"B-xxx:RR-001","desc":"concept-cleanup: 概念 X 删除不完整：Y 文件仍有 N 处引用","severity":"critical","category":"missing","agent":"koala-review-concept"}'
+   koala finding_add '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","desc":"concept-cleanup: 概念 X 删除不完整：Y 文件仍有 N 处引用","severity":"critical","category":"missing","agent":"koala-review-concept"}'
    ```
-5. 没有概念删除/替换 → 禁止用 `finding_add` 记录 pass-only；调用 `koala review_pass_set '{"storyId":"B-xxx","reviewRunId":"B-xxx:RR-001","agent":"koala-review-concept","note":"本次无概念删除/替换；已完成概念残留检查，无 blocker。"}'`
+5. 没有概念删除/替换 → 禁止用 `finding_add` 记录 pass-only；调用 `koala review_pass_set '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","agent":"koala-review-concept","note":"本次无概念删除/替换；已完成概念残留检查，无 blocker。"}'`
 
 ## 输入约束（fresh-context hygiene）
 
@@ -962,7 +962,7 @@ see story/B-5a28
 - 审查结束后，确认所有发现的问题都已通过 `koala finding_add` 注册，然后输出注册的 finding 数量作为最终摘要
 - 没有 finding 时禁止用 `finding_add` 刷通过；必须调用 `koala review_pass_set` 记录本 reviewer 已检查的范围和无 blocker 原因。
 - 当前 REVIEW round 开始审查时，先调 `koala review_run_start {"storyId":"B-xxx","agent":"<本 reviewer 名>"}`；记录返回的 `reviewRunId`，本轮所有 `finding_add` / `review_pass_set` 都要带这个字段。
-- 无 blocker 的 pass 记录示例：`koala review_pass_set {"storyId":"B-xxx","agent":"<本 reviewer 名>","reviewRunId":"B-xxx:RR-001","note":"..."}`。
+- 无 blocker 的 pass 记录示例：`koala review_pass_set {"storyId":"B-xxx","agent":"<本 reviewer 名>","reviewRunId":"<reviewRunId from review_run_start>","note":"..."}`。
 - @deprecated 标注的不算残留
 - 注释中的引用也算残留（注释会误导后续开发者）
 - backward compat 保留的（如 types.ts 里旧 phase 枚举值）不算，但必须确认有 backward compat 注释

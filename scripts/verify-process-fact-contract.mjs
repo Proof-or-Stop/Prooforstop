@@ -408,10 +408,17 @@ function requiresReviewPassProtocol(label) {
   return reviewPassReviewerPrompts.has(basename(label)) || label.startsWith('synthetic-');
 }
 
+function hasHardCodedReviewRunIdExample(block) {
+  return /\breviewRunId\b[\s\S]{0,160}\b(?:B-[A-Za-z0-9_-]+|<ID>|\$\{[^}]+\}):RR-001\b/.test(block);
+}
+
 function scanPromptText(text, label) {
   const issues = [];
   const findingBlocks = commandBlocks(text, 'finding_add');
   for (const { block, lineNo } of findingBlocks) {
+    if (requiresReviewPassProtocol(label) && hasHardCodedReviewRunIdExample(block)) {
+      issues.push(`${label}:${lineNo} active reviewer command example must use the reviewRunId returned by review_run_start, not a hard-coded RR-001`);
+    }
     if (passOnlyFindingAddPatterns.some(pattern => pattern.test(block))) {
       issues.push(`${label}:${lineNo} pass-only finding_add must use review_pass_set`);
     }
@@ -431,6 +438,9 @@ function scanPromptText(text, label) {
 
   const reviewPassBlocks = commandBlocks(text, 'review_pass_set');
   for (const { block, lineNo } of reviewPassBlocks) {
+    if (requiresReviewPassProtocol(label) && hasHardCodedReviewRunIdExample(block)) {
+      issues.push(`${label}:${lineNo} active reviewer command example must use the reviewRunId returned by review_run_start, not a hard-coded RR-001`);
+    }
     if (requiresReviewPassProtocol(label) && /\bkoala-review-/.test(block) && !/\breviewRunId\b/.test(block)) {
       issues.push(`${label}:${lineNo} reviewer review_pass_set example must include reviewRunId from review_run_start`);
     }
@@ -647,6 +657,11 @@ function assertSyntheticAdversarialChecks() {
     scanPromptText(unknownCategory, 'synthetic-unknown-category').some(issue => issue.includes('unknown category')),
     'synthetic unknown category should fail',
   );
+  const literalReviewRunId = 'koala finding_add \'{"storyId":"B-x","reviewRunId":"B-x:RR-001","desc":"real issue","severity":"medium","category":"missing","agent":"koala-review-quality"}\'';
+  assert(
+    scanPromptText(literalReviewRunId, 'synthetic-literal-review-run-id').some(issue => issue.includes('hard-coded RR-001')),
+    'synthetic literal RR-001 reviewer command should fail',
+  );
   assert(
     scanReviewRoundPromptSchema('reviewRound: number, // 当前 REVIEW 轮次（1 / 2 / 3+）', 'synthetic-review-round-number')
       .some(issue => issue.includes('bare reviewRound:number drift')),
@@ -682,8 +697,8 @@ function assertSyntheticAdversarialChecks() {
 
   const goodPrompt = [
     'koala review_run_start \'{"storyId":"B-x","agent":"koala-review-quality"}\'',
-    'koala finding_add \'{"storyId":"B-x","reviewRunId":"B-x:RR-001","desc":"real issue","severity":"medium","category":"missing","agent":"koala-review-quality"}\'',
-    'koala review_pass_set \'{"storyId":"B-x","agent":"koala-review-quality","reviewRunId":"B-x:RR-001","note":"quality review passed: checked changed files and found no blocker."}\'',
+    'koala finding_add \'{"storyId":"B-x","reviewRunId":"<reviewRunId from review_run_start>","desc":"real issue","severity":"medium","category":"missing","agent":"koala-review-quality"}\'',
+    'koala review_pass_set \'{"storyId":"B-x","agent":"koala-review-quality","reviewRunId":"<reviewRunId from review_run_start>","note":"quality review passed: checked changed files and found no blocker."}\'',
   ].join('\n');
   assert(scanPromptText(goodPrompt, 'synthetic-good').length === 0, 'synthetic good prompt should pass');
 
@@ -762,9 +777,9 @@ function assertSyntheticAdversarialChecks() {
   assert(
     !commandAllowedByConfiguredPhaseTools('test_auto', 'DEV', widenedPhaseTools) &&
       !commandAllowedByConfiguredPhaseTools('test_add', 'DEV', widenedPhaseTools) &&
-      commandAllowedByConfiguredPhaseTools('review_pass_set', 'DEV', widenedPhaseTools) &&
+      !commandAllowedByConfiguredPhaseTools('review_pass_set', 'DEV', widenedPhaseTools) &&
       commandAllowedByConfiguredPhaseTools('validate', 'DEV', widenedPhaseTools),
-    'runtime phaseTools config must narrow only: it cannot widen rootOnly/legacy commands, while policy-approved gate evidence stays allowed',
+    'runtime phaseTools config must narrow only: it cannot widen rootOnly/legacy commands or REVIEW-only gate evidence',
   );
 
   const badTestAutoBugDoc = [

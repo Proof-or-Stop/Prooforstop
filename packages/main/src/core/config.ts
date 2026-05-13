@@ -151,7 +151,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
   DEV: [
     'checklist_add', 'checklist_update', 'checklist_remove',
     'light_review',
-    'finding_add', 'review_pass_set',
+    'finding_add',
     'validate', 'status', 'serve',
     'story_advance',
     'story_dispatch', // B-45ed CHK-005: 主 agent 派发 implementer
