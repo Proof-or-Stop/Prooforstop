@@ -1,0 +1,29 @@
+{
+  "storyId": "B-69bf",
+  "name": "runtime-artifact-registry",
+  "title": "Add a runtime artifact registry to keep Koala logs out of material freshness",
+  "description": "Koala runtime artifacts such as .koala/activity.jsonl can be tracked in older projects, then every Koala command dirties the working tree and can stale verification evidence through materialHash. Add a hard-coded runtime artifact registry and wire freshness, init ignore rules, doctor repair, and tests to one source of truth.",
+  "type": "bug",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "runtime-artifact",
+    "materialHash",
+    "activity.jsonl",
+    "freshness",
+    "DONE-gate"
+  ],
+  "createdAt": "2026-05-13T09:43:12.818Z",
+  "startedAt": "2026-05-13T09:43:12.818Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-05-13T09:43:12.829Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}

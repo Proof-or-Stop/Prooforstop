@@ -1,0 +1,51 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Create a runtime artifact registry",
+      "context": "Define runtime/log/cache artifact paths and gitignore patterns in a single core registry instead of scattered string checks.",
+      "relatedDocs": [
+        "AGENTS.md#流程事实双层契约",
+        "README.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Wire freshness and dirty-risk checks to the registry",
+      "context": "currentMaterialHash and changed-file freshness must exclude runtime artifacts; baseline risk and DONE-related hints should classify tracked runtime logs as repairable runtime artifacts.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Make init and doctor repair runtime artifact drift",
+      "context": "koala init should merge required ignore patterns into existing .gitignore; doctor should detect tracked runtime artifacts and provide repair guidance or repair path.",
+      "relatedDocs": [
+        "README.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add hard-coded regression coverage",
+      "context": "Update freshness smoke and add contract coverage so .koala/activity.jsonl is runtime metadata, not material, and required ignore patterns cannot drift.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
