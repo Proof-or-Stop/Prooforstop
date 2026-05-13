@@ -10,7 +10,43 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`koala doctor` prints `Runtime artifacts: no tracked runtime artifacts found` on a clean repo, and registry tests list `.koala/activity.jsonl` as `materialHash: exclude`.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/baseline-risk.ts",
+          "packages/main/src/core/evidence-freshness.ts"
+        ],
+        "create": [
+          "packages/main/src/core/runtime-artifact-registry.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/verification-freshness-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The runtime artifact registry exports explicit entries for current and legacy Koala runtime logs/cache paths, including their ignore patterns and repair behavior.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The registry does not classify .koala/story artifacts, source files, requirements docs, package manifests, or koala.config.json as runtime artifacts.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A future consumer cannot satisfy tests by hardcoding only .koala/activity.jsonl while omitting legacy activity and runtime/cache paths from the registry.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -22,7 +58,47 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`npm run test:verification-freshness` prints `✓ verification freshness smoke passed`, including tracked `.koala/activity.jsonl` staying `covered` while source/config changes stay `stale`.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/baseline-risk.ts",
+          "packages/main/src/handlers/story-query.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/verification-freshness-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "currentMaterialHash and checkEvidenceFreshnessForGit ignore runtime artifacts from the registry, so tracked .koala/activity.jsonl changes keep evidence covered.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "baseline risk uses the registry to classify runtime artifacts as volatile instead of material dirty paths.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Material files such as packages/main/src/core/verification.ts, package-lock.json, koala.config.json, and docs/requirements remain material and still stale evidence when changed.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A tracked legacy docs/story/activity.jsonl change is also ignored for material freshness, preventing old storage migrations from reintroducing the stale loop.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -34,7 +110,47 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "In an existing project, `koala init --profile=core /tmp/app` prints `✓ .gitignore (merged koala runtime ignores)`, and `koala doctor` prints `Runtime artifacts: tracked .koala/activity.jsonl -> git rm --cached .koala/activity.jsonl`.",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/handlers/doctor.ts"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-entrypoints.mjs",
+          "packages/main/src/tasks/verification-freshness-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "koala init merges missing runtime artifact ignore patterns into an existing .gitignore while preserving existing user content.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "koala doctor reports tracked runtime artifacts with a concrete git rm --cached repair hint.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If all required ignore patterns are already present, koala init leaves .gitignore unchanged except for normal init output.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "doctor does not mutate git tracking without --repair, and doctor --repair only untracks registered runtime artifacts rather than broad .koala/story evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
@@ -45,7 +161,47 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`npm run test:entrypoints` prints `entrypoints verified`, and `npm run test:verification-freshness` prints `✓ verification freshness smoke passed` after the tracked-runtime-artifact regression case runs.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "scripts/verify-entrypoints.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "scripts/verify-entrypoints.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm run test:verification-freshness passes and explicitly proves runtime artifacts do not stale materialHash-backed evidence.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "npm run test:entrypoints passes and covers init .gitignore merge behavior for existing projects.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The freshness smoke still proves real material paths are stale, so the runtime exclusion is not overly broad.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A tracked runtime artifact scenario is tested, not just an ignored untracked file scenario.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
