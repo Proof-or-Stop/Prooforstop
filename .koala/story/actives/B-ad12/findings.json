@@ -80,6 +80,49 @@
         "packages/main/src/core/reviewer-status.ts",
         "packages/main/src/handlers/session.ts"
       ]
+    },
+    {
+      "id": "B-ad12:F-006",
+      "desc": "packages/main/src/handlers/session.ts:742 WHY: REVIEW anti-stall still tells reviewers to run review_pass_set without reviewRunId, but review_pass_set is now REVIEW-only evidence bound to review_run_start. A reviewer following session_brief will hit a preventable gate error instead of the intended flow, so the reviewer UX is still incomplete. severity: medium",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-13T15:00:28.530Z",
+      "reviewRound": "2026-05-13T14:56:27.110Z",
+      "reviewRunId": "B-ad12:RR-006",
+      "_hash": "f0bfe75b787501adca03a2beed44fd4e23be7b8c370c14846f9b2cee9c29d695",
+      "files": [
+        "packages/main/src/handlers/session.ts"
+      ]
+    },
+    {
+      "id": "B-ad12:F-007",
+      "desc": "packages/main/templates/agents/koala-review-story-init.md:764, packages/main/templates/agents/koala-review-delivery.md:758, packages/main/templates/agents/koala-review-scope-plan.md:758, and packages/main/templates/agents/koala-evaluator.md:745 (plus their .claude/.Codex mirrors) still show a reviewer-facing finding_add example without reviewRunId. Current REVIEW evidence requires the fresh reviewRunId returned by review_run_start for koala-review-* lanes (packages/main/src/handlers/finding.ts:137; packages/main/src/handlers/story-dispatch.ts:383-385), so these docs still describe a command shape that does not match code behavior.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-05-13T15:02:04.315Z",
+      "reviewRound": "2026-05-13T14:56:27.110Z",
+      "reviewRunId": "B-ad12:RR-008",
+      "_hash": "e0c38c62215a887c73b9f5cf9db99cdf40e660650c0e8326408939bbbf758d7d",
+      "files": [
+        "packages/main/templates/agents/koala-review-story-init.md",
+        ".claude/agents/koala-review-story-init.md",
+        ".Codex/agents/koala-review-story-init.md",
+        "packages/main/templates/agents/koala-review-delivery.md",
+        ".claude/agents/koala-review-delivery.md",
+        ".Codex/agents/koala-review-delivery.md",
+        "packages/main/templates/agents/koala-review-scope-plan.md",
+        ".claude/agents/koala-review-scope-plan.md",
+        ".Codex/agents/koala-review-scope-plan.md",
+        "packages/main/templates/agents/koala-evaluator.md",
+        ".claude/agents/koala-evaluator.md",
+        ".Codex/agents/koala-evaluator.md",
+        "packages/main/src/handlers/finding.ts",
+        "packages/main/src/handlers/story-dispatch.ts"
+      ]
     }
   ]
 }

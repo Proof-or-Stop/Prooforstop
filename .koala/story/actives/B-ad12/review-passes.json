@@ -17,6 +17,24 @@
       "reviewRound": "2026-05-13T14:42:26.343Z",
       "reviewRunId": "B-ad12:RR-004",
       "_hash": "fb04be592a0a16ef0586014985651ac5c3ff4621300b6e4f65184ea3ee089e33"
+    },
+    {
+      "id": "B-ad12:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "Re-reviewed targeted coverage after follow-up fixes: dispatch uses fresh reviewRunId placeholder, DEV still blocks review_pass_set, failed verification evidence remains failed, and legacy review evidence compatibility still passes.",
+      "createdAt": "2026-05-13T14:59:43.181Z",
+      "reviewRound": "2026-05-13T14:56:27.110Z",
+      "reviewRunId": "B-ad12:RR-007",
+      "_hash": "cabe56ebc05e47685543a6c36d23bb47512084d498ff21b64c799bb63b0311c7"
+    },
+    {
+      "id": "B-ad12:RP-004",
+      "agent": "koala-review-concept",
+      "note": "concept re-review passed: rechecked resolved F-001/F-002, confirmed active reviewer examples use the reviewRunId returned by review_run_start instead of hard-coded RR-001, and verified prompt-contract coverage plus smoke coverage for reviewer-run drift.",
+      "createdAt": "2026-05-13T15:03:01.940Z",
+      "reviewRound": "2026-05-13T14:56:27.110Z",
+      "reviewRunId": "B-ad12:RR-005",
+      "_hash": "d793e59644fab435137d7527b4845113fa1996fba1af4b85199052b294976bfe"
     }
   ]
 }
