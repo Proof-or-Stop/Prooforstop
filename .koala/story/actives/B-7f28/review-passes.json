@@ -15,6 +15,22 @@
       "createdAt": "2026-05-13T14:35:40.597Z",
       "reviewRound": "2026-05-13T14:33:12.029Z",
       "_hash": "479f0876a603d632e7778a9202eccf6082218c70918efffe0a9526e8501c9782"
+    },
+    {
+      "id": "B-7f28:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "verificationIntent and verificationEvidence cover clean fromDraft bootstrap, committed draft deletion, dirty-main preservation, bounded story/draft metadata cleanliness, and story branch ancestry after bootstrap. Verified against packages/main/src/tasks/worktree-authority-smoke.ts plus fresh npm run test:worktree-authority-smoke and npm run test:init-check-bootstrap on current REVIEW head.",
+      "createdAt": "2026-05-13T14:47:27.597Z",
+      "reviewRound": "2026-05-13T14:46:07.950Z",
+      "_hash": "ce5bb9018dce51961a355b43db535a2a50adb5bcf3737cfd93727e64c8f3a7df"
+    },
+    {
+      "id": "B-7f28:RP-004",
+      "agent": "koala-review-quality",
+      "note": "Reviewed packages/main/src/cli-engine.ts and packages/main/src/tasks/worktree-authority-smoke.ts. from-draft bootstrap now stages and post-commit checks only bounded story/draft metadata paths, preserves unrelated dirty tracked/untracked main changes, still merges main into story/B-* worktree, and surfaces bootstrap failure as a hard error. Verified with git diff main...HEAD, zero TypeScript diagnostics on both files, and a temp-compiled worktree-authority smoke run that passed.",
+      "createdAt": "2026-05-13T14:49:26.038Z",
+      "reviewRound": "2026-05-13T14:46:07.950Z",
+      "_hash": "9f914ec9025a834097470a948999502092966e5a84f5ed7ca2b194cb19ade8d1"
     }
   ]
 }
