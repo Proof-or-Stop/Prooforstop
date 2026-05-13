@@ -1,0 +1,23 @@
+{
+  "task": "Make koala init generate host-specific assets through explicit profiles and a neutral KOALA.md source.",
+  "outcome": "User runs `koala init --profile=codex /tmp/app` and the terminal prints `Init profile: codex` plus `Skipping Claude Code assets for Codex profile`; the created project contains `KOALA.md`, `AGENTS.md`, `.Codex/README.md`, `.Codex/koala.json`, `.Codex/agents`, `bin/koala.js`, and `bin/koala-codex.js`, but no `.claude` directory or `CLAUDE.md`. User runs `koala init --profile=claude /tmp/app2` and sees the mirrored Claude-only result with no `.Codex` assets. User says: 好了，这次入口文件不会串台了。",
+  "facts": [
+    "Current cli-init unconditionally creates both Claude and Codex adapter assets.",
+    "init-assets.ts currently holds AGENTS_MD_TEMPLATE, CODEX_README_TEMPLATE, CODEX_ADAPTER_MANIFEST, and Codex prompt rendering.",
+    "scripts/verify-entrypoints.mjs currently asserts the old all-assets behavior for default init.",
+    "Codex adapter checks are meaningful only when .Codex assets and bin/koala-codex.js are generated."
+  ],
+  "constraints": [
+    "Workflow facts need hard-coded CLI/test enforcement, prompt-only guidance is not sufficient.",
+    "Existing user-owned AGENTS.md/CLAUDE.md/KOALA.md without koala markers must not be overwritten.",
+    "Backward compatibility requires default init without profile to keep current all-assets behavior for now.",
+    "Codex verification should still pass for codex/all profiles and should clearly skip for claude/core profiles when explicitly requested."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/cli-init.ts",
+    "packages/main/src/init-assets.ts",
+    "scripts/verify-entrypoints.mjs"
+  ],
+  "timestamp": "2026-05-13T00:38:43.315Z"
+}

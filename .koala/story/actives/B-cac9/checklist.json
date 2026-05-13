@@ -11,7 +11,49 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Running koala init --profile=codex|claude|all|core prints the selected profile and detection reason; default init still works but explains the compatibility fallback."
+      "userSees": "Terminal prints `Init profile: codex (explicit --profile)` for explicit codex, `Init profile: claude (detected Claude Code markers)` for Claude-only markers, and `Init profile: all (compatibility fallback: no host markers detected)` for markerless projects.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Running koala init with --profile=codex|claude|all|core uses the explicit profile as source of truth and reports the selected profile without being changed by host markers or env hints.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Running koala init without --profile resolves the detection matrix as codex for Codex-only markers, claude for Claude-only markers, all for both markers, and all with an explicit compatibility note when no markers are present.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If both Codex and Claude markers are present, detection chooses all instead of preferring one host implicitly.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "If no host markers are present, init keeps the backward-compatible all profile and prints a note that detection fell back rather than silently pretending a host-specific choice was made.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Host marker or env detection must never override an explicit --profile request, even when the requested profile conflicts with detected markers.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/cli-init.ts"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-entrypoints.mjs"
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -24,7 +66,55 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Codex-only projects see KOALA.md plus AGENTS.md/.Codex assets and no .claude files; Claude-only projects see KOALA.md plus CLAUDE.md/.claude assets and no .Codex files; all/core profiles visibly follow their asset matrix."
+      "userSees": "For `--profile=codex`, `find` shows `KOALA.md`, `AGENTS.md`, `.Codex/README.md`, `.Codex/koala.json`, `.Codex/agents/*`, `bin/koala.js`, `bin/koala-codex.js`, and prints `Skipping Claude Code assets for Codex profile`; `CLAUDE.md` and `.claude/` are absent. Claude/all/core show their corresponding matrix text.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "codex profile generates KOALA.md, core docs/config assets, bin/koala.js, AGENTS.md, .Codex/README.md, .Codex/koala.json, .Codex/agents, and bin/koala-codex.js while skipping CLAUDE.md and .claude-only assets.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "claude profile generates KOALA.md, core docs/config assets, bin/koala.js, CLAUDE.md, .claude/agents, .claude/skills/koala, .claude/hooks, and .claude/settings.json while skipping .Codex assets and bin/koala-codex.js.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "all profile preserves dual-stack generation, and core profile generates only the neutral core assets plus KOALA.md without any host adapter files.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing AGENTS.md, CLAUDE.md, or KOALA.md files that contain koala markers sync only the managed koala section and leave user content outside the markers unchanged.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Existing user-owned AGENTS.md, CLAUDE.md, or KOALA.md files without koala markers are preserved and skipped instead of being overwritten.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The asset matrix is mechanical: a host-specific profile must not leak the other host adapter files or overwrite unmarked user-owned files in order to make init appear successful.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/init-assets.ts"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-entrypoints.mjs"
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -37,7 +127,51 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Verification fails on wrong-profile assets or user doc overwrite, passes for codex/all Codex adapter checks, and reports a clear non-Codex-profile skip when verify_codex is requested for claude/core."
+      "userSees": "`npm run test:entrypoints` prints `entrypoints verified`; `koala init --profile=core --verify-codex /tmp/app` prints `Codex verification skipped: init profile core does not generate Codex adapter assets` instead of a missing `.Codex` failure.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Hard-coded contract coverage passes for the init profile matrix and existing-file preservation, and fails if generated assets no longer match the selected profile rules.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "codex and all profiles that generate .Codex assets continue to require Codex adapter verification as part of their contract coverage.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "claude and core profiles do not call or require runCodexAdapterChecks during normal init validation when they generate no .Codex assets.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "When --verify-codex is explicitly requested for claude or core, the command explains that the selected profile has no Codex adapter assets instead of reporting missing .Codex files as adapter drift.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Coverage must catch wrong-profile asset generation or unmarked existing-file overwrite regressions rather than passing because the tests only assert successful command exit.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/init-assets.ts",
+          "scripts/verify-entrypoints.mjs"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-entrypoints.mjs"
+        ]
+      }
     }
   ]
 }
