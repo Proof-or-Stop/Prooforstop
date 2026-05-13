@@ -14,6 +14,10 @@
 import { execFileSync, execSync } from 'node:child_process';
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
+import {
+  checkDocsDrift,
+  DOCS_DRIFT_ALLOWLIST,
+} from '../handlers/validate-docs-drift.js';
 
 export interface DriftCandidate {
   sectionPath: string; // 例："CLAUDE.md#koala CLI 速查"
@@ -317,7 +321,6 @@ export function runMechanicalAudit(
 
   // B-805f CHK-003: docs-drift registry-based scan (advisory, dedup vs scanCommandDrift)
   if (opts.registryNames && mdPaths.length > 0) {
-    const { checkDocsDrift, DOCS_DRIFT_ALLOWLIST } = require('../handlers/validate-docs-drift.js') as typeof import('../handlers/validate-docs-drift.js');
     const allMd = mdPaths.map(abs => {
       try { return readFileSync(abs, 'utf-8'); } catch { return ''; }
     }).join('\n');

@@ -550,7 +550,6 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
             } catch {
               // worktree remove 失败时尝试直接删目录
               try {
-                const { rmSync } = require('fs');
                 rmSync(z.worktreePath, { recursive: true, force: true });
                 actions.push('worktree 目录已强制删除');
               } catch { actions.push('worktree 清理失败'); }

@@ -36,7 +36,8 @@
     "test:runtime-fact-contract": "node ../../scripts/verify-runtime-fact-contract.mjs",
     "test:flow-stability-smoke": "node dist/tasks/flow-stability-smoke.js",
     "test:field-regression-cli-smoke": "node dist/tasks/field-regression-cli-smoke.js",
-    "test:outcome-semantics-smoke": "node dist/tasks/outcome-semantics-smoke.js"
+    "test:outcome-semantics-smoke": "node dist/tasks/outcome-semantics-smoke.js",
+    "test:audit-esm-smoke": "node dist/tasks/audit-esm-smoke.js"
   },
   "dependencies": {
     "@koala-agent/lab": "0.3.1",
