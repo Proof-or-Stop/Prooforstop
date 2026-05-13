@@ -724,6 +724,8 @@ koala reviewer_list '{"storyId":"B-xxx","forceReviewer":"docs,behavior"}' # 手�
 
 **Finding 签名验证**：reviewer 的 finding 带签名（`_hash` + `reviewRound`），gate 验签，主 agent 无法伪造。签名 `reviewRound` 是 ISO 8601 string，来自 `story.currentReviewRound`，不是数字轮次。`finding_add` 自动注入当前 review round 和签名。手动 `finding_add` 伪造 reviewer finding 绕过 gate 不允许。
 
+**Review run 边界**：gate 还会校验 `reviewRunId` 是否指向该 lane 当前最新、签名有效、reviewRound 匹配、且 head/material hash 仍 fresh 的 run。缺 `reviewRunId`、引用未知 run、lane/round 不匹配、或代码改动导致 stale 时，先重跑 `review_run_start` 再提交 finding/pass。
+
 ### Cluster 聚簇（finding 批量处理）
 
 **一次改动能同时解决多条 finding 时合成一个 cluster**，派一个 implementer 处理整簇，commit 带 `Resolves: CL-xxx` 自动 resolve 簇内全部 finding，避免逐条 resolve。
@@ -742,7 +744,7 @@ koala dispatch '{"storyId":"B-xxx","clusterId":"CL-001"}'  # 输出 implementer 
 
 **commit 自动 resolve**：commit message 写 `Resolves: CL-001` → `koala validate` / `finding_list` 入口自动扫 `git log main..HEAD`，匹配后在 finding 加 `resolvedBy: "CL-001@<sha7>"` 审计字段。引用不存在的 clusterId 输出 warning 不阻塞。`koala validate --noSync` 跳过扫描。
 
-**finding_add 传 files**：`koala finding_add '{"storyId":"B-xxx","files":["src/foo.ts"],...}'`。旧 finding 无 files 时 auto-cluster 用 desc 正则抽路径兜底。
+**finding_add 传 files**：`koala finding_add '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","files":["src/foo.ts"],...}'`。旧 finding 无 files 时 auto-cluster 用 desc 正则抽路径兜底。
 
 #### finding_list 返回值结构（F-014 文档化）
 

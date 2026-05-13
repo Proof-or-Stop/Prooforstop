@@ -618,6 +618,11 @@ function assertReviewerStatusUsesMdFallback(): void {
       scanRoot: join(root, 'packages/main'),
     }).session_brief({ concise: true });
     assert.match(reviewBrief, /\[pending\] docs/i);
+    assert.match(reviewBrief, /review_run_start/, 'REVIEW anti-stall should tell reviewers to start a signed review run');
+    assert.match(reviewBrief, /reviewRunId/, 'REVIEW anti-stall should mention the returned reviewRunId');
+    assert.match(reviewBrief, /review_pass_set/, 'REVIEW anti-stall should still explain no-blocker pass evidence');
+    assert.match(reviewBrief, /<reviewRunId from review_run_start>/, 'REVIEW anti-stall should not imply a hard-coded reviewRunId');
+    assert.doesNotMatch(reviewBrief, /:RR-001/, 'REVIEW anti-stall must not hard-code a synthetic reviewRunId');
 
     const contract = getArtifactContractStatus(store, storyId, 'TEST', { projectRoot: root });
     const findingsClear = contract.entries.find(entry => entry.name === 'findings-clear');

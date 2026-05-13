@@ -17,12 +17,22 @@ const promptDirs = [
 const currentCategories = new Set(['happy', 'edge', 'adversarial', 'missing']);
 const legacyCategories = new Set(['cleanup', 'doc-promise-undelivered', 'doc-code-drift', 'spec-boundary']);
 const reviewPassReviewerPrompts = new Set([
+  'koala-evaluator.md',
   'koala-review-behavior.md',
   'koala-review-channel.md',
   'koala-review-concept.md',
+  'koala-review-delivery.md',
   'koala-review-docs.md',
   'koala-review-quality.md',
+  'koala-review-scope-plan.md',
+  'koala-review-story-init.md',
   'koala-review-test-coverage.md',
+]);
+const requiredReviewerRunIdPromptFiles = new Set([
+  'koala-evaluator.md',
+  'koala-review-delivery.md',
+  'koala-review-scope-plan.md',
+  'koala-review-story-init.md',
 ]);
 const processFactLevelRegistryPath = 'packages/main/src/core/process-fact-levels.ts';
 const commandPolicyPath = 'packages/main/src/core/command-policy.ts';
@@ -338,7 +348,7 @@ function listMarkdown(dir) {
 
 function isReviewerPrompt(relPath, text) {
   const name = basename(relPath);
-  return name.startsWith('koala-review-') || text.includes('review_pass_set');
+  return name.startsWith('koala-review-') || requiredReviewerRunIdPromptFiles.has(name) || text.includes('review_pass_set');
 }
 
 function scanBraceState(line, state) {
@@ -408,6 +418,10 @@ function requiresReviewPassProtocol(label) {
   return reviewPassReviewerPrompts.has(basename(label)) || label.startsWith('synthetic-');
 }
 
+function requiresNoFindingReviewPassProtocol(label) {
+  return basename(label) !== 'koala-evaluator.md' && requiresReviewPassProtocol(label);
+}
+
 function hasHardCodedReviewRunIdExample(block) {
   return /\breviewRunId\b[\s\S]{0,160}\b(?:B-[A-Za-z0-9_-]+|<ID>|\$\{[^}]+\}):RR-001\b/.test(block);
 }
@@ -422,7 +436,7 @@ function scanPromptText(text, label) {
     if (passOnlyFindingAddPatterns.some(pattern => pattern.test(block))) {
       issues.push(`${label}:${lineNo} pass-only finding_add must use review_pass_set`);
     }
-    if (requiresReviewPassProtocol(label) && /\bkoala-review-/.test(block) && !/\breviewRunId\b/.test(block)) {
+    if (requiresReviewPassProtocol(label) && block.includes('{') && !/\breviewRunId\b/.test(block)) {
       issues.push(`${label}:${lineNo} reviewer finding_add example must include reviewRunId from review_run_start`);
     }
     for (const match of block.matchAll(/["']?category["']?\s*:\s*["']([^"']+)["']/g)) {
@@ -441,7 +455,7 @@ function scanPromptText(text, label) {
     if (requiresReviewPassProtocol(label) && hasHardCodedReviewRunIdExample(block)) {
       issues.push(`${label}:${lineNo} active reviewer command example must use the reviewRunId returned by review_run_start, not a hard-coded RR-001`);
     }
-    if (requiresReviewPassProtocol(label) && /\bkoala-review-/.test(block) && !/\breviewRunId\b/.test(block)) {
+    if (requiresReviewPassProtocol(label) && block.includes('{') && !/\breviewRunId\b/.test(block)) {
       issues.push(`${label}:${lineNo} reviewer review_pass_set example must include reviewRunId from review_run_start`);
     }
   }
@@ -449,7 +463,7 @@ function scanPromptText(text, label) {
   const hasFindingProtocol = text.includes('finding_add');
   const hasReviewPassProtocol = text.includes('review_pass_set');
   const claimsNoFindings = /\bno\s+(?:blocking\s+)?findings?\b|\bno\s+blockers?\b|没有\s*findings?|没有\s*finding|无\s*blocker|无\s+blocking|无\s+finding|审查通过|review\s+passed/i.test(text);
-  if (requiresReviewPassProtocol(label) && hasFindingProtocol && claimsNoFindings && !text.includes('review_pass_set')) {
+  if (requiresNoFindingReviewPassProtocol(label) && hasFindingProtocol && claimsNoFindings && !text.includes('review_pass_set')) {
     issues.push(`${label}: reviewer prompt claims no findings or completion but never uses review_pass_set`);
   }
   if (requiresReviewPassProtocol(label) && (hasFindingProtocol || hasReviewPassProtocol)) {
@@ -661,6 +675,18 @@ function assertSyntheticAdversarialChecks() {
   assert(
     scanPromptText(literalReviewRunId, 'synthetic-literal-review-run-id').some(issue => issue.includes('hard-coded RR-001')),
     'synthetic literal RR-001 reviewer command should fail',
+  );
+  const missingFindingReviewRunId = 'koala finding_add \'{"storyId":"B-x","desc":"real issue","severity":"medium","category":"missing","agent":"koala-review-quality"}\'';
+  assert(
+    scanPromptText(missingFindingReviewRunId, 'packages/main/templates/agents/koala-review-story-init.md')
+      .some(issue => issue.includes('finding_add example must include reviewRunId')),
+    'synthetic reviewer finding_add JSON example without reviewRunId should fail',
+  );
+  const missingPassReviewRunId = 'koala review_pass_set \'{"storyId":"B-x","agent":"koala-review-quality","note":"quality review passed: checked changed files and found no blocker."}\'';
+  assert(
+    scanPromptText(missingPassReviewRunId, 'packages/main/templates/agents/koala-evaluator.md')
+      .some(issue => issue.includes('review_pass_set example must include reviewRunId')),
+    'synthetic reviewer review_pass_set JSON example without reviewRunId should fail',
   );
   assert(
     scanReviewRoundPromptSchema('reviewRound: number, // 当前 REVIEW 轮次（1 / 2 / 3+）', 'synthetic-review-round-number')
@@ -2594,6 +2620,14 @@ for (const dir of promptDirs) {
     if (!isReviewerPrompt(relPath, text)) continue;
     reviewerPromptCount += 1;
     for (const issue of scanPromptText(text, relPath)) fail(issue);
+  }
+}
+for (const dir of promptDirs) {
+  for (const fileName of requiredReviewerRunIdPromptFiles) {
+    assert(
+      promptMap.has(`${dir}/${fileName}`),
+      `${dir}/${fileName}: reviewer-facing prompt must be included in prompt drift scan`,
+    );
   }
 }
 comparePromptSemantics(promptMap);
