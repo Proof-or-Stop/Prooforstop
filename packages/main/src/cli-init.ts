@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { mkdirSync, writeFileSync, readFileSync, existsSync, cpSync, readdirSync, symlinkSync, lstatSync, readlinkSync, unlinkSync, chmodSync } from 'fs';
+import { mkdirSync, writeFileSync, readFileSync, existsSync, cpSync, readdirSync, symlinkSync, lstatSync, readlinkSync, unlinkSync, chmodSync, rmSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import {
@@ -19,6 +19,19 @@ import { renderCodexAdapterChecks, runCodexAdapterChecks } from './core/codex-ad
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const packageRoot = join(__dirname, '..'); // @koala/main 的根目录
+const agentTemplateDir = [
+  join(packageRoot, 'templates', 'agents'),
+  join(packageRoot, '..', '..', '.claude', 'agents'),
+].find(existsSync);
+const skillSrc = join(packageRoot, '..', '..', '.claude', 'skills', 'koala');
+const hookSrcDir = join(packageRoot, '..', '..', '.claude', 'hooks');
+const HOOK_FILES = ['log-tools.cjs', 'session-brief-reminder.cjs'] as const;
+const KOALA_SKILL_FALLBACK = `# /koala — 项目管理入口
+
+你是项目管理引擎。执行 /koala 了解项目全貌并开始工作。
+
+详细用法参考 @koala/main 文档。
+`;
 
 // 通过 koala init 调用时 argv[2]='init'，跳过；直接 npx koala-init 时 argv[2] 是目标目录
 const initArgs = process.argv[2] === 'init' ? process.argv.slice(3) : process.argv.slice(2);
@@ -188,10 +201,99 @@ function writeExecutable(relPath: string, content: string): boolean {
   return created;
 }
 
+function renderKoalaBootstrapScript(packageRootAbs: string): string {
+  return `#!/usr/bin/env node
+import { existsSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { spawnSync } from 'node:child_process';
+
+const binDir = dirname(fileURLToPath(import.meta.url));
+const projectRoot = dirname(binDir);
+const coreCliEngineCandidates = [
+  join(projectRoot, 'packages', 'main', 'dist', 'cli-engine.js'),
+  join(projectRoot, 'node_modules', '@koala-agent', 'core', 'dist', 'cli-engine.js'),
+  join(${jsString(packageRootAbs)}, 'dist', 'cli-engine.js'),
+];
+
+for (const candidate of coreCliEngineCandidates) {
+  if (!existsSync(candidate)) continue;
+  const mod = await import(pathToFileURL(candidate).href);
+  if (typeof mod.runCli !== 'function') {
+    console.error(\`koala local bootstrap candidate has no runCli export: \${candidate}\`);
+    process.exit(1);
+  }
+  await mod.runCli();
+  process.exit(0);
+}
+
+const probe = spawnSync('koala', ['help'], {
+  encoding: 'utf8',
+  stdio: ['pipe', 'pipe', 'pipe'],
+  env: process.env,
+});
+const help = String(probe.stdout || '') + String(probe.stderr || '');
+if (probe.status !== 0 || !help.includes('aux_doc_list') || !help.includes('verify_codex')) {
+  console.error('bin/koala.js could not find a local @koala-agent/core CLI engine or a capable global koala.');
+  console.error('');
+  console.error('Checked local candidates:');
+  for (const candidate of coreCliEngineCandidates) console.error(\`  - \${candidate}\`);
+  console.error('');
+  console.error('Recovery:');
+  console.error('  - Install or update @koala-agent/core, then rerun: npx koala-init --verify-codex');
+  console.error('  - In the Koala repository, run: npm run build');
+  process.exit(1);
+}
+
+const result = spawnSync('koala', process.argv.slice(2), {
+  stdio: 'inherit',
+  env: process.env,
+});
+process.exit(result.status ?? 1);
+`;
+}
+
+function renderCodexWrapperScript(): string {
+  return `#!/usr/bin/env node
+import { existsSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+
+process.env.KOALA_ACTIVITY_SOURCE = 'codex';
+process.env.KOALA_ACTIVITY_RECORD_READONLY = '1';
+process.env.KOALA_CODEX_ENTRYPOINT = 'local-wrapper';
+
+if (!process.env.KOALA_ACTIVITY_SESSION) {
+  process.env.KOALA_ACTIVITY_SESSION =
+    process.env.CODEX_SESSION_ID ||
+    process.env.OPENAI_SESSION_ID ||
+    process.env.TERM_SESSION_ID ||
+    '';
+}
+
+const binDir = dirname(fileURLToPath(import.meta.url));
+const localKoala = join(binDir, 'koala.js');
+if (existsSync(localKoala)) {
+  await import(pathToFileURL(localKoala).href);
+} else {
+  console.error('bin/koala-codex.js did not find a sibling bin/koala.js local bootstrap.');
+  console.error('');
+  console.error('Recovery:');
+  console.error('  - Rerun: npx koala-init --verify-codex');
+  console.error('  - If this is the Koala repository, run: npm run build');
+  process.exit(1);
+}
+`;
+}
+
 function extractKoalaSection(content: string): string {
   const match = content.match(INIT_DOC_SECTION_RE);
   if (!match) return content;
   return match[0].replace(/<!--\s*koala:internal:start\s*-->[\s\S]*?<!--\s*koala:internal:end\s*-->\n?/g, '');
+}
+
+function hasKoalaMarkers(content: string): boolean {
+  return INIT_DOC_SECTION_RE.test(content);
 }
 
 function writeManagedMarkdown(relPath: string, desiredContent: string, label: string) {
@@ -218,6 +320,111 @@ function writeManagedMarkdown(relPath: string, desiredContent: string, label: st
     console.log(`  - ${label} (koala section up to date)`);
   }
 }
+
+function hookCommand(hookFile: string): string {
+  return `node "$(git -C "$CLAUDE_PROJECT_DIR" rev-parse --show-toplevel 2>/dev/null || echo "$CLAUDE_PROJECT_DIR")/.claude/hooks/${hookFile}"`;
+}
+
+function getKoalaHooks() {
+  return {
+    UserPromptSubmit: [{ matcher: '', hooks: [{ type: 'command', command: hookCommand('session-brief-reminder.cjs') }] }],
+    PostToolUse: [{ matcher: '', hooks: [{ type: 'command', command: hookCommand('log-tools.cjs') }] }],
+    PostToolUseFailure: [{ matcher: '', hooks: [{ type: 'command', command: hookCommand('log-tools.cjs') }] }],
+  };
+}
+
+function hasHookCommand(entries: any, command: string): boolean {
+  return Array.isArray(entries) && entries.some((entry: any) =>
+    Array.isArray(entry?.hooks) && entry.hooks.some((hook: any) => hook?.type === 'command' && hook?.command === command));
+}
+
+function removeIfManagedDoc(relPath: string, label: string) {
+  const full = join(targetDir, relPath);
+  if (!existsSync(full)) return;
+  const content = readFileSync(full, 'utf-8');
+  if (!hasKoalaMarkers(content)) return;
+  unlinkSync(full);
+  console.log(`  ↻ ${label} (removed managed doc for profile cleanup)`);
+}
+
+function removePathIfExists(relPath: string, label: string) {
+  const full = join(targetDir, relPath);
+  if (!existsSync(full)) return;
+  rmSync(full, { recursive: true, force: true });
+  console.log(`  ↻ ${label} (removed for profile cleanup)`);
+}
+
+function cleanupEmptyDirChain(relDir: string) {
+  let current = relDir;
+  while (current && current !== '.') {
+    const abs = join(targetDir, current);
+    if (!existsSync(abs)) {
+      current = dirname(current);
+      continue;
+    }
+    if (readdirSync(abs).length > 0) break;
+    rmSync(abs, { recursive: true, force: true });
+    current = dirname(current);
+  }
+}
+
+function removeClaudeSettingsIfManaged() {
+  const settingsPath = join(targetDir, '.claude', 'settings.json');
+  if (!existsSync(settingsPath)) return;
+  try {
+    const parsed = JSON.parse(readFileSync(settingsPath, 'utf-8'));
+    if (JSON.stringify(parsed) !== JSON.stringify({ hooks: getKoalaHooks() })) return;
+    unlinkSync(settingsPath);
+    console.log('  ↻ .claude/settings.json (removed managed settings for profile cleanup)');
+    cleanupEmptyDirChain('.claude');
+  } catch {
+    // preserve user-owned or malformed settings
+  }
+}
+
+function removeCodexWrapperIfManaged() {
+  const wrapperPath = join(targetDir, 'bin', 'koala-codex.js');
+  if (!existsSync(wrapperPath)) return;
+  const actual = readFileSync(wrapperPath, 'utf-8');
+  if (actual !== renderCodexWrapperScript()) return;
+  unlinkSync(wrapperPath);
+  console.log('  ↻ bin/koala-codex.js (removed generated Codex wrapper for profile cleanup)');
+}
+
+function cleanupClaudeAssets() {
+  removeIfManagedDoc('CLAUDE.md', 'CLAUDE.md');
+  removePathIfExists('.claude/agents', '.claude/agents');
+  removePathIfExists('.claude/hooks', '.claude/hooks');
+  removePathIfExists('.claude/skills/koala', '.claude/skills/koala');
+  removeClaudeSettingsIfManaged();
+  cleanupEmptyDirChain('.claude/skills');
+  cleanupEmptyDirChain('.claude');
+}
+
+function cleanupCodexAssets() {
+  removeIfManagedDoc('AGENTS.md', 'AGENTS.md');
+  removePathIfExists('.Codex/agents', '.Codex/agents');
+  removePathIfExists('.Codex/README.md', '.Codex/README.md');
+  removePathIfExists('.Codex/koala.json', '.Codex/koala.json');
+  cleanupEmptyDirChain('.Codex');
+  removeCodexWrapperIfManaged();
+}
+
+function enforceProfileCleanup(profile: InitProfile) {
+  if (profile === 'all') return;
+  if (profile === 'codex') {
+    cleanupClaudeAssets();
+    return;
+  }
+  if (profile === 'claude') {
+    cleanupCodexAssets();
+    return;
+  }
+  cleanupClaudeAssets();
+  cleanupCodexAssets();
+}
+
+enforceProfileCleanup(selectedProfile);
 
 // 1. 目录
 console.log('[1/6] 创建目录...');
@@ -271,87 +478,10 @@ if (withStarter) {
 }
 
 const codexWrapperPath = join(targetDir, 'bin', 'koala-codex.js');
-writeExecutable('bin/koala.js', `#!/usr/bin/env node
-import { existsSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
-import { spawnSync } from 'node:child_process';
-
-const binDir = dirname(fileURLToPath(import.meta.url));
-const projectRoot = dirname(binDir);
-const coreCliEngineCandidates = [
-  join(projectRoot, 'packages', 'main', 'dist', 'cli-engine.js'),
-  join(projectRoot, 'node_modules', '@koala-agent', 'core', 'dist', 'cli-engine.js'),
-  join(${jsString(packageRoot)}, 'dist', 'cli-engine.js'),
-];
-
-for (const candidate of coreCliEngineCandidates) {
-  if (!existsSync(candidate)) continue;
-  const mod = await import(pathToFileURL(candidate).href);
-  if (typeof mod.runCli !== 'function') {
-    console.error(\`koala local bootstrap candidate has no runCli export: \${candidate}\`);
-    process.exit(1);
-  }
-  await mod.runCli();
-  process.exit(0);
-}
-
-const probe = spawnSync('koala', ['help'], {
-  encoding: 'utf8',
-  stdio: ['pipe', 'pipe', 'pipe'],
-  env: process.env,
-});
-const help = String(probe.stdout || '') + String(probe.stderr || '');
-if (probe.status !== 0 || !help.includes('aux_doc_list') || !help.includes('verify_codex')) {
-  console.error('bin/koala.js could not find a local @koala-agent/core CLI engine or a capable global koala.');
-  console.error('');
-  console.error('Checked local candidates:');
-  for (const candidate of coreCliEngineCandidates) console.error(\`  - \${candidate}\`);
-  console.error('');
-  console.error('Recovery:');
-  console.error('  - Install or update @koala-agent/core, then rerun: npx koala-init --verify-codex');
-  console.error('  - In the Koala repository, run: npm run build');
-  process.exit(1);
-}
-
-const result = spawnSync('koala', process.argv.slice(2), {
-  stdio: 'inherit',
-  env: process.env,
-});
-process.exit(result.status ?? 1);
-`);
+writeExecutable('bin/koala.js', renderKoalaBootstrapScript(packageRoot));
 
 if (wantsCodex && !existsSync(codexWrapperPath)) {
-  writeExecutable('bin/koala-codex.js', `#!/usr/bin/env node
-import { existsSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
-
-process.env.KOALA_ACTIVITY_SOURCE = 'codex';
-process.env.KOALA_ACTIVITY_RECORD_READONLY = '1';
-process.env.KOALA_CODEX_ENTRYPOINT = 'local-wrapper';
-
-if (!process.env.KOALA_ACTIVITY_SESSION) {
-  process.env.KOALA_ACTIVITY_SESSION =
-    process.env.CODEX_SESSION_ID ||
-    process.env.OPENAI_SESSION_ID ||
-    process.env.TERM_SESSION_ID ||
-    '';
-}
-
-const binDir = dirname(fileURLToPath(import.meta.url));
-const localKoala = join(binDir, 'koala.js');
-if (existsSync(localKoala)) {
-  await import(pathToFileURL(localKoala).href);
-} else {
-  console.error('bin/koala-codex.js did not find a sibling bin/koala.js local bootstrap.');
-  console.error('');
-  console.error('Recovery:');
-  console.error('  - Rerun: npx koala-init --verify-codex');
-  console.error('  - If this is the Koala repository, run: npm run build');
-  process.exit(1);
-}
-`);
+  writeExecutable('bin/koala-codex.js', renderCodexWrapperScript());
   console.log('  ✓ bin/koala-codex.js (Codex wrapper)');
 } else if (wantsCodex) {
   console.log('  - bin/koala-codex.js (exists, skip)');
@@ -582,7 +712,6 @@ if (wantsCodex) {
 
 // 4. 复制 skill
 console.log('\n[4/6] 复制 /koala skill...');
-const skillSrc = join(packageRoot, '..', '..', '.claude', 'skills', 'koala');
 const skillDst = join(targetDir, '.claude', 'skills', 'koala');
 if (wantsClaude && existsSync(skillSrc)) {
   const skillFile = join(skillSrc, 'skill.md');
@@ -596,22 +725,13 @@ if (wantsClaude && existsSync(skillSrc)) {
   }
 } else if (wantsClaude) {
   // 从模板生成最小 skill
-  write('.claude/skills/koala/skill.md', `# /koala — 项目管理入口
-
-你是项目管理引擎。执行 /koala 了解项目全貌并开始工作。
-
-详细用法参考 @koala/main 文档。
-`);
+  write('.claude/skills/koala/skill.md', KOALA_SKILL_FALLBACK);
 } else {
   console.log('  - .claude/skills/koala/skill.md (profile skip)');
 }
 
 // 5. agent 模板 → symlink/copy（发布包内置模板）
 console.log('\n[5/6] 同步 agent 模板...');
-const agentTemplateDir = [
-  join(packageRoot, 'templates', 'agents'),
-  join(packageRoot, '..', '..', '.claude', 'agents'),
-].find(existsSync);
 const agentDstDir = join(targetDir, '.claude', 'agents');
 if (wantsClaude && agentTemplateDir) {
   for (const file of readdirSync(agentTemplateDir)) {
@@ -693,8 +813,8 @@ if (wantsCodex && agentTemplateDir) {
 console.log('\n[6/6] 配置 hooks...');
 const hooksDir = join(targetDir, '.claude', 'hooks');
 if (wantsClaude) {
-  for (const hookFile of ['log-tools.cjs', 'session-brief-reminder.cjs']) {
-    const hookSrc = join(packageRoot, '..', '..', '.claude', 'hooks', hookFile);
+  for (const hookFile of HOOK_FILES) {
+    const hookSrc = join(hookSrcDir, hookFile);
     const hookDst = join(hooksDir, hookFile);
     if (existsSync(hookSrc) && !existsSync(hookDst)) {
       if (!existsSync(hooksDir)) mkdirSync(hooksDir, { recursive: true });
@@ -707,16 +827,7 @@ if (wantsClaude) {
   
   // 合并 settings.json（不覆盖已有配置）
   const settingsPath = join(targetDir, '.claude', 'settings.json');
-  const hookCommand = (hookFile: string) => `node "$(git -C "$CLAUDE_PROJECT_DIR" rev-parse --show-toplevel 2>/dev/null || echo "$CLAUDE_PROJECT_DIR")/.claude/hooks/${hookFile}"`;
-  const koalaHooks = {
-    UserPromptSubmit: [{ matcher: '', hooks: [{ type: 'command', command: hookCommand('session-brief-reminder.cjs') }] }],
-    PostToolUse: [{ matcher: '', hooks: [{ type: 'command', command: hookCommand('log-tools.cjs') }] }],
-    PostToolUseFailure: [{ matcher: '', hooks: [{ type: 'command', command: hookCommand('log-tools.cjs') }] }],
-  };
-  function hasHookCommand(entries: any, command: string): boolean {
-    return Array.isArray(entries) && entries.some((entry: any) =>
-      Array.isArray(entry?.hooks) && entry.hooks.some((hook: any) => hook?.type === 'command' && hook?.command === command));
-  }
+  const koalaHooks = getKoalaHooks();
   if (existsSync(settingsPath)) {
     try {
       const existing = JSON.parse(readFileSync(settingsPath, 'utf-8'));

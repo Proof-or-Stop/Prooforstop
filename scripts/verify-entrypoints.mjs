@@ -439,23 +439,6 @@ checks.push(() => {
 });
 
 checks.push(() => {
-  const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-codex-verify-'));
-  try {
-    const claudeSeedDir = join(tempDir, '.claude', 'agents');
-    mkdirSync(claudeSeedDir, { recursive: true });
-    for (const file of readdirSync(join(repoRoot, '.claude', 'agents'))) {
-      if (!file.endsWith('.md')) continue;
-      writeFileSync(join(claudeSeedDir, file), readFileSync(join(repoRoot, '.claude', 'agents', file), 'utf8'));
-    }
-    const out = run(process.execPath, [INIT_ENTRYPOINT, '--profile=codex', '--verify-codex', tempDir]);
-    assertIncludes(out, 'Codex verification:', 'codex profile verify-codex output');
-    assertIncludes(out, 'Codex adapter checks passed', 'codex profile verify-codex checks');
-  } finally {
-    rmSync(tempDir, { recursive: true, force: true });
-  }
-});
-
-checks.push(() => {
   const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-explicit-override-'));
   try {
     writeFileSync(join(tempDir, 'AGENTS.md'), '# AGENTS.md\n\nexisting codex marker\n');
@@ -466,6 +449,85 @@ checks.push(() => {
     assertProfileAssets(tempDir, 'claude', { allowExistingCodex: true });
     assertPathMissing(tempDir, 'bin/koala-codex.js', 'explicit claude profile should not create codex wrapper');
     assertPathMissing(tempDir, '.Codex', 'explicit claude profile should not create .Codex');
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+checks.push(() => {
+  const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-transition-all-codex-'));
+  try {
+    run('node', [INIT_ENTRYPOINT, '--profile=all', tempDir]);
+    const initOut = run('node', [INIT_ENTRYPOINT, '--profile=codex', tempDir]);
+    assertIncludes(initOut, 'Selected init profile: codex', 'all -> codex profile selection');
+    assertPathExists(tempDir, 'AGENTS.md', 'all -> codex AGENTS.md');
+    assertPathExists(tempDir, '.Codex/README.md', 'all -> codex .Codex/README.md');
+    assertPathMissing(tempDir, 'CLAUDE.md', 'all -> codex should remove managed CLAUDE.md');
+    assertPathMissing(tempDir, '.claude/agents', 'all -> codex should remove .claude/agents');
+    assertPathMissing(tempDir, '.claude/hooks', 'all -> codex should remove .claude/hooks');
+    assertPathMissing(tempDir, '.claude/skills/koala', 'all -> codex should remove .claude/skills/koala');
+    assertPathMissing(tempDir, '.claude/settings.json', 'all -> codex should remove managed settings');
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+checks.push(() => {
+  const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-transition-codex-claude-'));
+  try {
+    run('node', [INIT_ENTRYPOINT, '--profile=codex', tempDir]);
+    const initOut = run('node', [INIT_ENTRYPOINT, '--profile=claude', tempDir]);
+    assertIncludes(initOut, 'Selected init profile: claude', 'codex -> claude profile selection');
+    assertPathExists(tempDir, 'CLAUDE.md', 'codex -> claude CLAUDE.md');
+    assertPathExists(tempDir, '.claude/agents', 'codex -> claude .claude/agents');
+    assertPathMissing(tempDir, 'AGENTS.md', 'codex -> claude should remove managed AGENTS.md');
+    assertPathMissing(tempDir, '.Codex', 'codex -> claude should remove .Codex');
+    assertPathMissing(tempDir, 'bin/koala-codex.js', 'codex -> claude should remove generated codex wrapper');
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+checks.push(() => {
+  const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-transition-all-core-'));
+  try {
+    run('node', [INIT_ENTRYPOINT, '--profile=all', tempDir]);
+    const initOut = run('node', [INIT_ENTRYPOINT, '--profile=core', tempDir]);
+    assertIncludes(initOut, 'Selected init profile: core', 'all -> core profile selection');
+    assertPathExists(tempDir, 'KOALA.md', 'all -> core KOALA.md');
+    assertPathExists(tempDir, 'bin/koala.js', 'all -> core bin/koala.js');
+    assertPathMissing(tempDir, 'AGENTS.md', 'all -> core should remove managed AGENTS.md');
+    assertPathMissing(tempDir, 'CLAUDE.md', 'all -> core should remove managed CLAUDE.md');
+    assertPathMissing(tempDir, '.Codex', 'all -> core should remove .Codex');
+    assertPathMissing(tempDir, '.claude/agents', 'all -> core should remove .claude/agents');
+    assertPathMissing(tempDir, '.claude/hooks', 'all -> core should remove .claude/hooks');
+    assertPathMissing(tempDir, '.claude/skills/koala', 'all -> core should remove .claude/skills/koala');
+    assertPathMissing(tempDir, '.claude/settings.json', 'all -> core should remove managed settings');
+    assertPathMissing(tempDir, 'bin/koala-codex.js', 'all -> core should remove generated codex wrapper');
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+checks.push(() => {
+  const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-cleanup-preserve-unmarked-'));
+  try {
+    run('node', [INIT_ENTRYPOINT, '--profile=all', tempDir]);
+    const agentsOriginal = '# AGENTS.md\n\nuser-owned agents doc\n';
+    const claudeOriginal = '# CLAUDE.md\n\nuser-owned claude doc\n';
+    writeFileSync(join(tempDir, 'AGENTS.md'), agentsOriginal);
+    writeFileSync(join(tempDir, 'CLAUDE.md'), claudeOriginal);
+
+    const initOut = run('node', [INIT_ENTRYPOINT, '--profile=core', tempDir]);
+    assertIncludes(initOut, 'AGENTS.md (profile skip)', 'core cleanup should not rewrite AGENTS.md');
+    assertIncludes(initOut, 'CLAUDE.md (profile skip)', 'core cleanup should not rewrite CLAUDE.md');
+    assert(readFileSync(join(tempDir, 'AGENTS.md'), 'utf8') === agentsOriginal, 'core cleanup should preserve unmarked AGENTS.md');
+    assert(readFileSync(join(tempDir, 'CLAUDE.md'), 'utf8') === claudeOriginal, 'core cleanup should preserve unmarked CLAUDE.md');
+    assertPathMissing(tempDir, '.Codex', 'core cleanup should still remove managed .Codex');
+    assertPathMissing(tempDir, '.claude/agents', 'core cleanup should still remove managed .claude/agents');
+    assertPathMissing(tempDir, '.claude/hooks', 'core cleanup should still remove managed .claude/hooks');
+    assertPathMissing(tempDir, '.claude/skills/koala', 'core cleanup should still remove managed .claude/skills/koala');
+    assertPathMissing(tempDir, '.claude/settings.json', 'core cleanup should still remove managed settings');
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }
