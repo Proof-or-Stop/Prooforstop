@@ -4,7 +4,7 @@
   "title": "Make koala init profile-aware with canonical KOALA.md",
   "description": "koala init should hard-code host-specific asset generation profiles so Codex projects do not receive Claude-only assets by default, Claude Code projects do not receive Codex-only assets by default, and KOALA.md becomes the neutral workflow source used by host adapters.",
   "type": "chore",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "createdAt": "2026-05-13T00:24:22.140Z",
   "startedAt": "2026-05-13T00:24:22.140Z",
@@ -62,6 +62,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-05-13T01:15:07.926Z",
+      "branch": "story/B-cac9",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-05-13T01:21:21.369Z",
       "branch": "story/B-cac9",
       "user": "Harmonygo",
       "agent": "main"
