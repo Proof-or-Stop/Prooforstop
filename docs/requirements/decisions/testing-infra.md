@@ -109,6 +109,15 @@ truth/config scan：`koala.config.json`、`AGENTS.md`、`CLAUDE.md`、`README.md
 `node_modules`、`dist/build` 和普通源码注释。扫描到外部 URL / host:port 且没有 health command
 语义时只能输出 reference-only / health-check-required warning，不能声称 connectivity pass。
 
+Runtime artifacts 不属于 `Runtime scan` 的环境事实，而是由
+`packages/main/src/core/runtime-artifact-registry.ts` 单独登记的运行时文件事实。
+这张表为 `.koala/activity.jsonl`、legacy `docs/story/activity.jsonl`、`.koala/runtime/`、
+`.koala/traces/`、`.koala-serve.json`、debug/browser logs 等路径提供统一的
+gitignore、materialHash exclusion、volatile dirty-risk 和 tracked repair 语义。
+`currentMaterialHash` / verification freshness 必须排除 registry 标记的 runtime artifacts，
+但不能排除 source/config/requirements/package files；`.koala/story/` 是流程证据，
+不按 runtime artifact 处理。
+
 ### 阶段行为差异
 
 - **DEV 阶段**：用项目原生命令验证，并通过 `checklist_update` 写 `verificationEvidence`；legacy `test_auto` 只在维护旧 fixture 时可用，且必须明确提示可能修改实际文件
