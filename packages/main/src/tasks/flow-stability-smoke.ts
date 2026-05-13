@@ -8,7 +8,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { getAllowedPatterns, isCommandAllowed, resetConfigCache } from '../core/config.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
-import { signFinding, signReviewPass } from '../core/finding-verify.js';
+import { signFinding, signReviewPass, verifyFinding, verifyReviewPass } from '../core/finding-verify.js';
 import { getArtifactContractStatus } from '../core/artifact-contract.js';
 import { FLOW_FACT_POLICIES, isPassOnlyReviewFindingRecord } from '../core/flow-fact-policy.js';
 import { getGuardFailureReason } from '../core/machine.js';
@@ -53,6 +53,24 @@ function makeFinding(storyId: string, agent: string, reviewRound: string, idSuff
     reviewRound,
     reviewRunId,
     _hash: signFinding(storyId, id, desc, severity, createdAt, reviewRound, reviewRunId),
+  };
+}
+
+function makeLegacyFindingWithoutRun(storyId: string, agent: string, reviewRound: string, idSuffix: string): Finding {
+  const id = `${storyId}:F-${idSuffix}`;
+  const createdAt = `2026-04-27T12:05:${idSuffix}.000Z`;
+  const desc = `${agent} legacy finding without review run binding`;
+  const severity = 'low';
+  return {
+    id,
+    desc,
+    severity,
+    category: 'happy',
+    status: 'resolved',
+    agent,
+    createdAt,
+    reviewRound,
+    _hash: signFinding(storyId, id, desc, severity, createdAt, reviewRound),
   };
 }
 
@@ -469,6 +487,42 @@ function assertReviewRunBindingRejectsInvalidEvidence(): void {
       'koala-review-test-coverage',
     ];
     const runIds = seedReviewRuns(root, store, storyId, reviewRound, agents);
+
+    const retrofittedLegacyFinding = {
+      ...makeLegacyFindingWithoutRun(storyId, 'koala-review-quality', reviewRound, '045'),
+      reviewRunId: runIds.get('koala-review-quality')!,
+    };
+    const retrofittedLegacyPass = {
+      ...makeLegacyReviewPassWithoutRun(storyId, 'koala-review-quality', reviewRound, '046'),
+      reviewRunId: runIds.get('koala-review-quality')!,
+    };
+    assert.equal(
+      verifyFinding(storyId, retrofittedLegacyFinding),
+      false,
+      'retrofitting reviewRunId onto a legacy-signed finding must invalidate the signature',
+    );
+    assert.equal(
+      verifyReviewPass(storyId, retrofittedLegacyPass),
+      false,
+      'retrofitting reviewRunId onto a legacy-signed review pass must invalidate the signature',
+    );
+    store.writeFindings(storyId, { findings: [retrofittedLegacyFinding] });
+    store.writeReviewPasses(storyId, {
+      passes: [
+        makeReviewPass(storyId, 'koala-review-concept', reviewRound, '047', runIds.get('koala-review-concept')!),
+        retrofittedLegacyPass,
+        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '048', runIds.get('koala-review-test-coverage')!),
+      ],
+    });
+    const retrofitState = collectReviewerEvidenceState(store, storyId, root);
+    assert.equal(
+      retrofitState.invalid.some(issue => issue.code === 'invalid_evidence_signature' && issue.agent === 'koala-review-quality'),
+      true,
+      'review-run evidence collection must reject reviewRunId-retrofitted legacy signatures',
+    );
+    const retrofitFailure = getGuardFailureReason(storyId, store, 'TEST', root);
+    assert.match(retrofitFailure ?? '', /签名无效|reviewRunId/, 'review gate must fail retrofitted legacy signatures');
+    store.writeFindings(storyId, { findings: [] });
 
     store.writeReviewPasses(storyId, {
       passes: [

@@ -19,6 +19,7 @@ export type ReviewRunLane = typeof REVIEW_RUN_LANES[number];
 export type ReviewEvidenceKind = 'finding' | 'pass';
 export type ReviewRunIssueCode =
   | 'missing_review_run_id'
+  | 'invalid_evidence_signature'
   | 'unknown_run'
   | 'invalid_run_signature'
   | 'wrong_lane'
@@ -41,6 +42,7 @@ export interface ReviewerEvidenceRecord {
   agent: string;
   reviewRound?: string;
   reviewRunId?: string;
+  signatureValid?: boolean;
   finding?: Finding;
   pass?: ReviewPass;
 }
@@ -220,6 +222,16 @@ function validateEvidenceRunBinding(
       message: `${evidence.kind} ${evidence.id} 属于 reviewRound ${evidence.reviewRound || '缺失'}，当前 round 是 ${story.currentReviewRound}。 ${rerunHint(story.storyId, evidence.agent)}`,
     };
   }
+  if (evidence.signatureValid === false) {
+    return {
+      code: 'invalid_evidence_signature',
+      kind: evidence.kind,
+      evidenceId: evidence.id,
+      agent: evidence.agent,
+      reviewRunId: evidence.reviewRunId,
+      message: `${evidence.kind} ${evidence.id} 签名无效或记录被篡改；带 reviewRunId 的 REVIEW 证据必须使用包含 reviewRunId 的签名。 ${rerunHint(story.storyId, evidence.agent)}`,
+    };
+  }
   if (!evidence.reviewRunId) {
     return {
       code: 'missing_review_run_id',
@@ -307,7 +319,7 @@ export function collectReviewerEvidenceState(
   const passes = store.readReviewPasses(storyId).passes || [];
 
   const reviewerFindings = findings
-    .filter((finding) => finding.agent && finding.agent !== 'main' && verifyFinding(storyId, finding))
+    .filter((finding) => finding.agent && finding.agent !== 'main')
     .filter((finding) => !currentRound || finding.reviewRound === currentRound || !finding.reviewRound)
     .map((finding) => ({
       id: finding.id,
@@ -315,10 +327,11 @@ export function collectReviewerEvidenceState(
       agent: finding.agent!,
       reviewRound: finding.reviewRound,
       reviewRunId: finding.reviewRunId,
+      signatureValid: verifyFinding(storyId, finding),
       finding,
     }));
   const reviewerPasses = passes
-    .filter((pass) => pass.agent && pass.agent !== 'main' && verifyReviewPass(storyId, pass))
+    .filter((pass) => pass.agent && pass.agent !== 'main')
     .filter((pass) => !currentRound || pass.reviewRound === currentRound || !pass.reviewRound)
     .map((pass) => ({
       id: pass.id,
@@ -326,6 +339,7 @@ export function collectReviewerEvidenceState(
       agent: pass.agent,
       reviewRound: pass.reviewRound,
       reviewRunId: pass.reviewRunId,
+      signatureValid: verifyReviewPass(storyId, pass),
       pass,
     }));
 

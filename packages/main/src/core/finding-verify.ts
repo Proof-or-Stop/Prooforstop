@@ -26,9 +26,10 @@ export function verifyFinding(
   f: { id: string; desc: string; severity: string; createdAt?: string; _hash?: string; reviewRound?: string; reviewRunId?: string },
 ): boolean {
   if (!f._hash || !f.createdAt) return false;
-  // Try newest format first (with reviewRound + reviewRunId)
-  const currentExpected = signFinding(storyId, f.id, f.desc, f.severity, f.createdAt, f.reviewRound || '', f.reviewRunId || '');
-  if (f._hash === currentExpected) return true;
+  const reviewRunId = f.reviewRunId?.trim() || '';
+  if (reviewRunId) {
+    return f._hash === signFinding(storyId, f.id, f.desc, f.severity, f.createdAt, f.reviewRound || '', reviewRunId);
+  }
   // Fallback: legacy format with reviewRound but without reviewRunId
   const newExpected = signFinding(storyId, f.id, f.desc, f.severity, f.createdAt, f.reviewRound || '');
   if (f._hash === newExpected) return true;
@@ -54,8 +55,10 @@ export function verifyReviewPass(
   p: { id: string; agent?: string; note?: string; createdAt?: string; _hash?: string; reviewRound?: string; reviewRunId?: string },
 ): boolean {
   if (!p._hash || !p.createdAt || !p.agent || !p.note) return false;
-  const expected = signReviewPass(storyId, p.id, p.agent, p.note, p.createdAt, p.reviewRound || '', p.reviewRunId || '');
-  if (p._hash === expected) return true;
+  const reviewRunId = p.reviewRunId?.trim() || '';
+  if (reviewRunId) {
+    return p._hash === signReviewPass(storyId, p.id, p.agent, p.note, p.createdAt, p.reviewRound || '', reviewRunId);
+  }
   const previousExpected = signReviewPass(storyId, p.id, p.agent, p.note, p.createdAt, p.reviewRound || '');
   return p._hash === previousExpected;
 }

@@ -673,7 +673,7 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'reviewer_list', description: '列出当前 story 的 opt-in reviewer 名单（baseline concept/quality/test-coverage + 按信号挂载 behavior/docs；channel LLM 已退役）', schema: {
     storyId: z.string().describe('Story ID'),
     json: z.boolean().optional().describe('输出结构化 JSON（含 reviewers 数组）'),
-    forceReviewer: z.string().optional().describe('逗号分隔的 reviewer 名称，强制加挂；写入 story.events 审计（reviewer_forced）'),
+    forceReviewer: z.string().optional().describe('逗号分隔的内置 REVIEW reviewer lane 或短名，强制加挂；写入 story.events 审计（reviewer_forced）'),
   }},
 
   // Workflow profile

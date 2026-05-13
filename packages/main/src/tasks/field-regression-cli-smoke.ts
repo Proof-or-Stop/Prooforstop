@@ -376,6 +376,39 @@ async function assertReviewRunStartCliSurface(): Promise<void> {
   }
 }
 
+async function assertReviewerListForceReviewerLaneContract(): Promise<void> {
+  const root = initRepo('koala-field-force-reviewer-');
+  try {
+    const storyId = 'B-force';
+    const store = new StoryStore(root);
+    writeReviewStory(store, storyId);
+
+    const output = await runKoala(root, 'reviewer_list', {
+      storyId,
+      json: true,
+      forceReviewer: 'koala-review-docs, behavior, channel',
+    });
+    type ReviewerListEntry = { name: string; forced?: boolean };
+    const parsed = JSON.parse(output) as { reviewers: ReviewerListEntry[] };
+    const reviewers = new Map<string, ReviewerListEntry>(parsed.reviewers.map((entry) => [entry.name, entry]));
+    assert.equal(reviewers.get('docs')?.forced, true, 'full built-in lane should normalize to a forced short reviewer name');
+    assert.equal(reviewers.get('behavior')?.forced, true, 'built-in short reviewer name should remain supported');
+    assert.equal(reviewers.get('channel')?.forced, true, 'retired compatibility lane should remain forceable while review_run_start supports it');
+    assert.equal(reviewers.has('koala-review-docs'), false, 'forced reviewer output should not mix full lane names into opt-in names');
+
+    const invalid = await runKoalaRaw(root, 'reviewer_list', {
+      storyId,
+      json: true,
+      forceReviewer: 'koala-review-delivery',
+    });
+    assert.notEqual(invalid.code, 0);
+    assert.match(invalid.stderr, /not supported by review_run_start/);
+    assert.match(invalid.stderr, /koala-review-quality/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 async function assertReviewPassConcurrentCliSurface(): Promise<void> {
   const root = initRepo('koala-field-review-pass-');
   try {
@@ -938,6 +971,7 @@ await assertPlanRemoveIsHardBlocked();
 await assertClusterAutoResolveCliSurface();
 await assertDirectFindingAutoResolveCliSurface();
 await assertReviewRunStartCliSurface();
+await assertReviewerListForceReviewerLaneContract();
 await assertReviewPassConcurrentCliSurface();
 await assertPassOnlyFindingConvertsToReviewPassCliSurface();
 await assertChannelGateAcceptsSubagentResultCliSurface();
