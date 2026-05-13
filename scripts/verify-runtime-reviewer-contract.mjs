@@ -167,6 +167,12 @@ function parseJsonOutput(text) {
   return JSON.parse(text.slice(start));
 }
 
+function extractReviewRunId(output, storyId) {
+  const match = output.match(new RegExp(`${escapeRegExp(storyId)}:RR-\\d+`));
+  assert(match?.[0], `review_run_start output should include reviewRunId for ${storyId}\n--- output ---\n${output}`);
+  return match[0];
+}
+
 function git(cwd, args) {
   return execFileSync('git', args, {
     cwd,
@@ -208,6 +214,7 @@ try {
   const livePath = '.worktrees/B-test-live';
   const absLivePath = join(temp, livePath);
   const storyDir = join(temp, 'docs', 'story', 'actives', storyId);
+  const reviewTimestamp = new Date().toISOString();
   mkdirSync(storyDir, { recursive: true });
 
   writeJson(join(storyDir, 'index.json'), {
@@ -216,7 +223,7 @@ try {
     title: 'Runtime reviewer contract',
     description: 'tmp',
     type: 'feature',
-    phase: 'TEST_CASE_REVIEW',
+    phase: 'REVIEW',
     priority: 'high',
     lane: 'mainline',
     parallelSafe: 'no',
@@ -224,6 +231,7 @@ try {
     createdAt: new Date().toISOString(),
     startedAt: new Date().toISOString(),
     endedAt: null,
+    currentReviewRound: reviewTimestamp,
     worktree: {
       path: stalePath,
       branch,
@@ -248,7 +256,6 @@ try {
     ],
   });
 
-  const reviewTimestamp = new Date().toISOString();
   const blockerCount = 0;
   const issueCount = 0;
   const reviewSalt = 'koala-review-integrity-v1';
@@ -288,6 +295,19 @@ try {
   for (const reviewer of reviewerList.reviewers) {
     const name = String(reviewer.name || '');
     assert(name.length > 0, `reviewer_list returned reviewer without name\n--- reviewer ---\n${JSON.stringify(reviewer, null, 2)}`);
+    const agent = `koala-review-${name}`;
+    const runOutput = run(absLivePath, [
+      cli,
+      '--root',
+      temp,
+      'review_run_start',
+      JSON.stringify({
+        storyId,
+        agent,
+        prompt: `runtime reviewer contract synthetic review for ${name}`,
+      }),
+    ]);
+    const reviewRunId = extractReviewRunId(runOutput, storyId);
     run(absLivePath, [
       cli,
       '--root',
@@ -295,7 +315,8 @@ try {
       'review_pass_set',
       JSON.stringify({
         storyId,
-        agent: `koala-review-${name}`,
+        agent,
+        reviewRunId,
         note: `runtime reviewer contract synthetic pass for ${name} reviewer before implementation-review gate`,
       }),
     ]);

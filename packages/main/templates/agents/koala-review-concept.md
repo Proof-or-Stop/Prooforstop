@@ -639,6 +639,7 @@ checklist + plan.md 写完后必须 `story_review` 通过（issueCount=0）才�
 
 执行规则：
 - 无 finding / no blocker / 检查通过 这类 reviewer 结论必须用 `review_pass_set` 记录；如果 reviewer 误用 pass-only `finding_add`，handler 必须转换为 review pass。
+- 当前 REVIEW round 的 reviewer 证据先跑 `koala review_run_start {"storyId":"B-xxx","agent":"<本 reviewer 名>"}` 拿到 `reviewRunId`；之后该 reviewer 本轮的每条 `finding_add` / `review_pass_set` 都必须带这个 current `reviewRunId`。
 - `finding_add` 的 category 只接受当前 canonical `happy|edge|adversarial|missing`，已知 legacy `cleanup|doc-promise-undelivered|doc-code-drift|spec-boundary` 只作为兼容输入归一为 `missing`，不能作为 active prompt 示例继续传播。
 - Gate 消费结构化事实：签名、hash、verificationEvidence、review pass、init/scope/delivery check 和 validate evidence。不要让 gate 从普通文本“通过/无问题”推断流程事实。
 - 改 reviewer prompt、CLI schema、handler 或 gate 时，运行 `npm run test:process-fact-contract`，确认 prompt 没漂移且 process fact inventory 仍能证明硬兜底存在。
@@ -737,6 +738,8 @@ koala reviewer_list '{"storyId":"B-xxx","forceReviewer":"docs,behavior"}' # 手�
 
 **Finding 签名验证**：reviewer 的 finding 带签名（`_hash` + `reviewRound`），gate 验签，主 agent 无法伪造。签名 `reviewRound` 是 ISO 8601 string，来自 `story.currentReviewRound`，不是数字轮次。`finding_add` 自动注入当前 review round 和签名。手动 `finding_add` 伪造 reviewer finding 绕过 gate 不允许。
 
+**Review run 边界**：gate 还会校验 `reviewRunId` 是否指向该 lane 当前最新、签名有效、reviewRound 匹配、且 head/material hash 仍 fresh 的 run。缺 `reviewRunId`、引用未知 run、lane/round 不匹配、或代码改动导致 stale 时，先重跑 `review_run_start` 再提交 finding/pass。
+
 ### Cluster 聚簇（finding 批量处理）
 
 **一次改动能同时解决多条 finding 时合成一个 cluster**，派一个 implementer 处理整簇，commit 带 `Resolves: CL-xxx` 自动 resolve 簇内全部 finding，避免逐条 resolve。
@@ -755,7 +758,7 @@ koala dispatch '{"storyId":"B-xxx","clusterId":"CL-001"}'  # 输出 implementer 
 
 **commit 自动 resolve**：commit message 写 `Resolves: CL-001` → `koala validate` / `finding_list` 入口自动扫 `git log main..HEAD`，匹配后在 finding 加 `resolvedBy: "CL-001@<sha7>"` 审计字段。引用不存在的 clusterId 输出 warning 不阻塞。`koala validate --noSync` 跳过扫描。
 
-**finding_add 传 files**：`koala finding_add '{"storyId":"B-xxx","files":["src/foo.ts"],...}'`。旧 finding 无 files 时 auto-cluster 用 desc 正则抽路径兜底。
+**finding_add 传 files**：`koala finding_add '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","files":["src/foo.ts"],...}'`。旧 finding 无 files 时 auto-cluster 用 desc 正则抽路径兜底。
 
 #### finding_list 返回值结构（F-014 文档化）
 
@@ -932,9 +935,9 @@ see story/B-5a28
    ```
 4. grep 结果 > 0 → 提 finding：
    ```bash
-   koala finding_add '{"storyId":"B-xxx","desc":"concept-cleanup: 概念 X 删除不完整：Y 文件仍有 N 处引用","severity":"critical","category":"missing","agent":"koala-review-concept"}'
+   koala finding_add '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","desc":"concept-cleanup: 概念 X 删除不完整：Y 文件仍有 N 处引用","severity":"critical","category":"missing","agent":"koala-review-concept"}'
    ```
-5. 没有概念删除/替换 → 禁止用 `finding_add` 记录 pass-only；调用 `koala review_pass_set '{"storyId":"B-xxx","agent":"koala-review-concept","note":"本次无概念删除/替换；已完成概念残留检查，无 blocker。"}'`
+5. 没有概念删除/替换 → 禁止用 `finding_add` 记录 pass-only；调用 `koala review_pass_set '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","agent":"koala-review-concept","note":"本次无概念删除/替换；已完成概念残留检查，无 blocker。"}'`
 
 ## 输入约束（fresh-context hygiene）
 
@@ -955,8 +958,11 @@ see story/B-5a28
 - 只 grep，不改代码
 - **每个 finding 必须调 `koala finding_add` 注册，禁止只在文本中描述。未注册的 finding 等于没发现。**
 - finding_add 必须包含 agent 参数，值为本 reviewer 名称（如 "koala-review-concept"），确保 finding 归属正确。
+- 当前 REVIEW round 的 first action 是 `review_run_start`；如果代码或文档在审查期间继续变化，重新跑它拿新的 `reviewRunId`。
 - 审查结束后，确认所有发现的问题都已通过 `koala finding_add` 注册，然后输出注册的 finding 数量作为最终摘要
 - 没有 finding 时禁止用 `finding_add` 刷通过；必须调用 `koala review_pass_set` 记录本 reviewer 已检查的范围和无 blocker 原因。
+- 当前 REVIEW round 开始审查时，先调 `koala review_run_start {"storyId":"B-xxx","agent":"<本 reviewer 名>"}`；记录返回的 `reviewRunId`，本轮所有 `finding_add` / `review_pass_set` 都要带这个字段。
+- 无 blocker 的 pass 记录示例：`koala review_pass_set {"storyId":"B-xxx","agent":"<本 reviewer 名>","reviewRunId":"<reviewRunId from review_run_start>","note":"..."}`。
 - @deprecated 标注的不算残留
 - 注释中的引用也算残留（注释会误导后续开发者）
 - backward compat 保留的（如 types.ts 里旧 phase 枚举值）不算，但必须确认有 backward compat 注释

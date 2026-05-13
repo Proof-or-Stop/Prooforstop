@@ -283,9 +283,24 @@ export const MAIN_TOOLS: ToolDef[] = [
     checklistIds: z.array(z.string()).describe('本次 review 覆盖的 checklist item ID 列表'),
     note: z.string().optional().describe('review 备注'),
   }},
+  { name: 'review_run_start', description: '启动一次当前 REVIEW round 的 reviewer run，并写入 signed review-runs.json', schema: {
+    storyId: z.string().describe('Story ID'),
+    agent: z.string().optional().describe('reviewer agent id（如 koala-review-quality；默认 KOALA_AGENT）'),
+    lane: z.enum([
+      'koala-review-concept',
+      'koala-review-quality',
+      'koala-review-test-coverage',
+      'koala-review-behavior',
+      'koala-review-docs',
+      'koala-review-channel',
+    ]).optional().describe('显式 reviewer lane；与 agent 同义，传一个即可'),
+    prompt: z.string().optional().describe('reviewer 实际收到的 prompt 文本；若提供会自动计算 promptHash'),
+    promptHash: z.string().optional().describe('reviewer prompt 的 sha256；若同时传 prompt，必须与 prompt 实际哈希一致'),
+  }},
   { name: 'review_pass_set', description: '记录 reviewer 已审查且无 blocking finding 的通过凭证', schema: {
     storyId: z.string().describe('Story ID'),
     agent: z.string().optional().describe('reviewer agent id（如 koala-review-quality；默认 KOALA_AGENT）'),
+    reviewRunId: z.string().describe('当前 reviewer run id（先调用 review_run_start 获取）'),
     note: z.string().describe('审查范围与无 blocker 理由（≥10 字符）'),
   }},
 
@@ -492,6 +507,7 @@ export const MAIN_TOOLS: ToolDef[] = [
       'spec-boundary',
     ]).describe('分类（legacy category 会归一为 missing）'),
     agent: z.string().optional().describe('调用者身份（可选，默认从 KOALA_AGENT 环境变量读）'),
+    reviewRunId: z.string().optional().describe('koala-review-* reviewer 当前 run id（先调用 review_run_start 获取；main finding 可省略）'),
     files: z.array(z.string()).optional().describe('关联文件路径（用于 reviewer finding cluster 与溯源）'),
   }},
   { name: 'finding_list', description: '查看 story 的 findings', schema: {
@@ -657,7 +673,7 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'reviewer_list', description: '列出当前 story 的 opt-in reviewer 名单（baseline concept/quality/test-coverage + 按信号挂载 behavior/docs；channel LLM 已退役）', schema: {
     storyId: z.string().describe('Story ID'),
     json: z.boolean().optional().describe('输出结构化 JSON（含 reviewers 数组）'),
-    forceReviewer: z.string().optional().describe('逗号分隔的 reviewer 名称，强制加挂；写入 story.events 审计（reviewer_forced）'),
+    forceReviewer: z.string().optional().describe('逗号分隔的内置 REVIEW reviewer lane 或短名，强制加挂；写入 story.events 审计（reviewer_forced）'),
   }},
 
   // Workflow profile
@@ -1539,9 +1555,10 @@ export async function runCli(opts?: {
           KOALA_RESULT_JSON: truncateForEnv(resultText),
         }), config0, root);
       }
-      if (typeof result === 'string') console.log(result);
-      else console.log(JSON.stringify(result, null, 2));
-      process.exit(0);
+      const output = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
+      process.stdout.write(`${output}\n`);
+      process.exitCode = 0;
+      return;
     } catch (e: any) {
       clearInterval(watchdog);
       log(`${cmd} failed: ${e.message}`);
@@ -1557,8 +1574,9 @@ export async function runCli(opts?: {
       await runHooks('onError', cmd, buildHookEnvLocal('onError', {
         KOALA_ERROR: String(e?.message || e),
       }), config0, root);
-      console.error(`错误: ${e.message}`);
-      process.exit(1);
+      process.stderr.write(`错误: ${e.message}\n`);
+      process.exitCode = 1;
+      return;
     }
   }
 

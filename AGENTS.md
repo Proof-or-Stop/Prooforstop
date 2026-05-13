@@ -54,10 +54,11 @@
 
 流程事实必须同时有两层保护：prompt 负责指路和约束角色行为，CLI / handler / gate 负责硬编码判定与兜底。只改 prompt 不算完成；只要事实会影响 phase、review、test、done 或审计，就必须能在代码入口被机械验证。
 
-这个原则只覆盖流程事实，不覆盖普通解释性文案。流程事实包括：phase / state transition、pass / no-issue 确认、finding 的 category / severity / role / agent 归属、review pass、verificationEvidence、init / scope / delivery check、REVIEW / TEST / DONE gate 产物。普通设计说明、背景叙述、示例 prose 可以由 prompt / docs 表达，但不能被 gate 当作证据。
+这个原则只覆盖流程事实，不覆盖普通解释性文案。流程事实包括：phase / state transition、pass / no-issue 确认、finding 的 category / severity / role / agent 归属、review run / review pass、verificationEvidence、init / scope / delivery check、REVIEW / TEST / DONE gate 产物。普通设计说明、背景叙述、示例 prose 可以由 prompt / docs 表达，但不能被 gate 当作证据。
 
 典型落点：
 - reviewer 没有 finding 时，prompt 要求调用 `review_pass_set`；handler 仍要把 pass-only `finding_add` 转成 review pass，而不是写入 finding。
+- REVIEW reviewer 在提交 finding/pass 前，prompt 要求先调用 `review_run_start` 拿到 signed `reviewRunId`；handler/gate 必须验证 `reviewRunId` 指向当前 lane 最新、签名有效、reviewRound 匹配且 hash fresh 的 reviewer run。
 - finding category 的有效集合由 CLI schema + handler runtime 共同收窄；已知 legacy category 只做兼容归一到 `missing`，不能扩成新类别。
 - gate 只能消费签名、hash、evidence、check artifact 等结构化事实，不能靠“检查通过”之类文本当证据。
 - `packages/main/src/core/process-fact-registry.ts` 是流程事实 registry：它从 `COMMAND_POLICIES` + `PROCESS_FACT_LEVELS` 组装 command facts，并显式登记 reviewer lane、artifact、required semantics。新增/修改 gate evidence、review lane、signed artifact、validation/review-pass/finding 语义时，必须同时更新 registry 和 `scripts/verify-process-fact-contract.mjs`，不能只改 prompt 或文档。
@@ -81,7 +82,7 @@ INIT → INIT_CHECK → PLAN/快速跳过 → DEV → REVIEW → TEST → DONE
 | **INIT_CHECK** | CLI 自动 | `story_advance INIT_CHECK` 创建 `.worktrees/B-xxx/` worktree，提示 cd |
 | **PLAN** | 主 agent 拆 checklist item（title + context），verification-intent agent 补 `verificationIntent` | `story_review` 门禁通过后进 DEV |
 | **DEV** | 主 agent | 写代码实现，通过 `checklist_update` 标 status 并记录 `verificationEvidence`。**只有此阶段可改代码** |
-| **REVIEW** | reviewer / coverage reviewer lane | 审实现和 `verificationIntent` 覆盖；无问题通过 `review_pass_set` 写 review pass，有问题写 finding 并回 DEV |
+| **REVIEW** | reviewer / coverage reviewer lane | 先 `review_run_start` 建立当前 round reviewer run，再审实现和 `verificationIntent` 覆盖；无问题通过 `review_pass_set` 写 review pass，有问题写 finding 并回 DEV |
 | **TEST** | CLI / 主 agent | 跑 `koala validate`，写 validation evidence / bug / stale evidence 结果 |
 | **DONE** | — | 完成（所有 bug 已 fixed，summary / delivery / evidence gate 通过），`story_advance --phase=DONE` 内部合并回 main 并清理 worktree |
 
@@ -137,7 +138,7 @@ Legacy 背景：`test_auto` / `test_story` / `test_fixture` 只作为旧 fixture
 
 - **主 agent**：写需求（checklist item）+ 写代码 + 补 `verificationEvidence` + 修 bug
 - **verification-intent agent**：写验收标准（`verificationIntent`），对抗姿态逼出 edge/adversarial
-- **reviewer / coverage reviewer lane**：审实现和验收覆盖；`koala-review-test-coverage` 是 reviewer lane，不是 CLI 命令。无 blocker 时通过 `review_pass_set` 记录 pass，有问题时独立记录 finding / delivery check
+- **reviewer / coverage reviewer lane**：审实现和验收覆盖；`koala-review-test-coverage` 是 reviewer lane，不是 CLI 命令。先用 `review_run_start` 建当前 REVIEW round 的 signed run；无 blocker 时通过 `review_pass_set` + `reviewRunId` 记录 pass，有问题时用 `finding_add` + `reviewRunId` 独立记录 finding / delivery check
 
 主 agent 和 sub agent 是**同事关系**，不是上下级。共同目标是高质量完成任务。主 agent 是与人沟通的入口和主要参与者，但不是掌控者。reviewer 和 test-intent agent 有各自的判定权，主 agent 不应该绕过他们。
 

@@ -8,14 +8,29 @@ const FINDING_SALT = 'koala-finding-integrity-v1';
 const REVIEW_PASS_SALT = 'koala-review-pass-integrity-v1';
 
 /** Sign a single finding to prevent main agent from faking reviewer findings */
-export function signFinding(storyId: string, id: string, desc: string, severity: string, timestamp: string, reviewRound: string): string {
-  return createHash('sha256').update(`${storyId}:${id}:${desc}:${severity}:${timestamp}:${reviewRound}:${FINDING_SALT}`).digest('hex');
+export function signFinding(
+  storyId: string,
+  id: string,
+  desc: string,
+  severity: string,
+  timestamp: string,
+  reviewRound: string,
+  reviewRunId = '',
+): string {
+  return createHash('sha256').update(`${storyId}:${id}:${desc}:${severity}:${timestamp}:${reviewRound}:${reviewRunId}:${FINDING_SALT}`).digest('hex');
 }
 
 /** Verify finding signature (compatible with old and new formats) */
-export function verifyFinding(storyId: string, f: { id: string; desc: string; severity: string; createdAt?: string; _hash?: string; reviewRound?: string }): boolean {
+export function verifyFinding(
+  storyId: string,
+  f: { id: string; desc: string; severity: string; createdAt?: string; _hash?: string; reviewRound?: string; reviewRunId?: string },
+): boolean {
   if (!f._hash || !f.createdAt) return false;
-  // Try new format first (with reviewRound)
+  const reviewRunId = f.reviewRunId?.trim() || '';
+  if (reviewRunId) {
+    return f._hash === signFinding(storyId, f.id, f.desc, f.severity, f.createdAt, f.reviewRound || '', reviewRunId);
+  }
+  // Fallback: legacy format with reviewRound but without reviewRunId
   const newExpected = signFinding(storyId, f.id, f.desc, f.severity, f.createdAt, f.reviewRound || '');
   if (f._hash === newExpected) return true;
   // Fallback: try old format (without reviewRound) for backward compatibility
@@ -23,12 +38,27 @@ export function verifyFinding(storyId: string, f: { id: string; desc: string; se
   return f._hash === oldExpected;
 }
 
-export function signReviewPass(storyId: string, id: string, agent: string, note: string, timestamp: string, reviewRound: string): string {
-  return createHash('sha256').update(`${storyId}:${id}:${agent}:${note}:${timestamp}:${reviewRound}:${REVIEW_PASS_SALT}`).digest('hex');
+export function signReviewPass(
+  storyId: string,
+  id: string,
+  agent: string,
+  note: string,
+  timestamp: string,
+  reviewRound: string,
+  reviewRunId = '',
+): string {
+  return createHash('sha256').update(`${storyId}:${id}:${agent}:${note}:${timestamp}:${reviewRound}:${reviewRunId}:${REVIEW_PASS_SALT}`).digest('hex');
 }
 
-export function verifyReviewPass(storyId: string, p: { id: string; agent?: string; note?: string; createdAt?: string; _hash?: string; reviewRound?: string }): boolean {
+export function verifyReviewPass(
+  storyId: string,
+  p: { id: string; agent?: string; note?: string; createdAt?: string; _hash?: string; reviewRound?: string; reviewRunId?: string },
+): boolean {
   if (!p._hash || !p.createdAt || !p.agent || !p.note) return false;
-  const expected = signReviewPass(storyId, p.id, p.agent, p.note, p.createdAt, p.reviewRound || '');
-  return p._hash === expected;
+  const reviewRunId = p.reviewRunId?.trim() || '';
+  if (reviewRunId) {
+    return p._hash === signReviewPass(storyId, p.id, p.agent, p.note, p.createdAt, p.reviewRound || '', reviewRunId);
+  }
+  const previousExpected = signReviewPass(storyId, p.id, p.agent, p.note, p.createdAt, p.reviewRound || '');
+  return p._hash === previousExpected;
 }

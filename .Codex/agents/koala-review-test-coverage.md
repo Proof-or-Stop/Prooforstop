@@ -13,6 +13,7 @@ tools: Read, Glob, Grep, Bash
 
 执行规则：
 - 无 finding / no blocker / 检查通过 这类 reviewer 结论必须用 `review_pass_set` 记录；如果 reviewer 误用 pass-only `finding_add`，handler 必须转换为 review pass。
+- 当前 REVIEW round 的 reviewer 证据先跑 `koala review_run_start {"storyId":"B-xxx","agent":"<本 reviewer 名>"}` 拿到 `reviewRunId`；之后该 reviewer 本轮的每条 `finding_add` / `review_pass_set` 都必须带这个 current `reviewRunId`。
 - `finding_add` 的 category 只接受当前 canonical `happy|edge|adversarial|missing`，已知 legacy `cleanup|doc-promise-undelivered|doc-code-drift|spec-boundary` 只作为兼容输入归一为 `missing`，不能作为 active prompt 示例继续传播。
 - Gate 消费结构化事实：签名、hash、verificationEvidence、review pass、init/scope/delivery check 和 validate evidence。不要让 gate 从普通文本“通过/无问题”推断流程事实。
 - 改 reviewer prompt、CLI schema、handler 或 gate 时，运行 `npm run test:process-fact-contract`，确认 prompt 没漂移且 process fact inventory 仍能证明硬兜底存在。
@@ -41,7 +42,7 @@ koala validate '{"story":"<ID>","json":true}'
 4. 如果发现缺口，用 `koala finding_add` 写 finding：
 
 ```bash
-koala finding_add '{"storyId":"<ID>","severity":"high","category":"missing","agent":"koala-review-test-coverage","desc":"CHK-001:edge:0 缺少有效 verificationEvidence；当前 evidence 只覆盖 happy path","files":["validate.ts"]}'
+koala finding_add '{"storyId":"<ID>","reviewRunId":"<reviewRunId from review_run_start>","severity":"high","category":"missing","agent":"koala-review-test-coverage","desc":"CHK-001:edge:0 缺少有效 verificationEvidence；当前 evidence 只覆盖 happy path","files":["validate.ts"]}'
 ```
 
 ## 输出
@@ -50,4 +51,4 @@ koala finding_add '{"storyId":"<ID>","severity":"high","category":"missing","age
 
 - 覆盖摘要：总 intent 数、must 缺口数、waiver 数。
 - 已写入的 finding id 列表。
-- 如无 finding，必须调用 `koala review_pass_set '{"storyId":"<ID>","agent":"koala-review-test-coverage","note":"test coverage review passed: 已检查 verificationIntent 与 verificationEvidence 覆盖关系，无 blocker。"}'`，然后明确说“test coverage review passed”。
+- 如无 finding，必须调用 `koala review_pass_set '{"storyId":"<ID>","reviewRunId":"<reviewRunId from review_run_start>","agent":"koala-review-test-coverage","note":"test coverage review passed: 已检查 verificationIntent 与 verificationEvidence 覆盖关系，无 blocker。"}'`，然后明确说“test coverage review passed”。

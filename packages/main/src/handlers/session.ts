@@ -685,7 +685,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
           lines.push(`## Reviewer status (${rs.allPassed ? 'all passed' : `${rs.totalBlockers} blockers`})`);
           for (const entry of rs.entries) {
             const marker = entry.verdict === 'pass' ? 'PASS' : (entry.verdict === 'fail' ? 'FAIL' : 'pending');
-            lines.push(`  [${marker}] ${entry.name}${entry.blockerCount > 0 ? ` (${entry.blockerCount} blockers)` : ''}`);
+            lines.push(`  [${marker}] ${entry.name}${entry.blockerCount > 0 ? ` (${entry.blockerCount} blockers)` : ''}${entry.detail ? ` — ${entry.detail}` : ''}`);
           }
         } catch { /* probe: reviewer status unavailable */ }
       }
@@ -739,7 +739,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
               storyId,
               title: `REVIEW waiting for ${pending}`,
               retry: `reviewer_list '{"storyId":"${storyId}"}' then run the pending koala-review-* reviewers`,
-              fix: `review_pass_set '{"storyId":"${storyId}","agent":"koala-review-<name>","note":"..."}' when a reviewer found no blocker`,
+              fix: `review_run_start '{"storyId":"${storyId}","agent":"koala-review-<name>"}' first, then use the returned reviewRunId in review_pass_set '{"storyId":"${storyId}","reviewRunId":"<reviewRunId from review_run_start>","agent":"koala-review-<name>","note":"..."}' when a reviewer found no blocker`,
             });
           }
         } else {

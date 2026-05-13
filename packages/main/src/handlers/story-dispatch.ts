@@ -380,8 +380,9 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         lines.push(`Verify expectation: ${verifyText}`);
         lines.push('');
         lines.push('结论记录（必须二选一）:');
-        lines.push(`- 有问题: koala finding_add '{"storyId":"${args.storyId}","desc":"<file:line WHY + severity>","severity":"high|medium|low","category":"missing|edge|adversarial|happy","agent":"${displayAgent}"}'`);
-        lines.push(`- 无 blocker: koala review_pass_set '{"storyId":"${args.storyId}","agent":"${displayAgent}","note":"reviewed ${args.itemId}: checked implementation against the item context and found no blocker."}'`);
+        lines.push(`- 先启动本轮 reviewer run: koala review_run_start '{"storyId":"${args.storyId}","agent":"${displayAgent}"}'，复制输出里的 reviewRunId`);
+        lines.push(`- 有问题: koala finding_add '{"storyId":"${args.storyId}","reviewRunId":"<reviewRunId from review_run_start>","desc":"<file:line WHY + severity>","severity":"high|medium|low","category":"missing|edge|adversarial|happy","agent":"${displayAgent}"}'`);
+        lines.push(`- 无 blocker: koala review_pass_set '{"storyId":"${args.storyId}","agent":"${displayAgent}","reviewRunId":"<reviewRunId from review_run_start>","note":"reviewed ${args.itemId}: checked implementation against the item context and found no blocker."}'`);
 
         void story;
 

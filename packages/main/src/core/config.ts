@@ -151,7 +151,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
   DEV: [
     'checklist_add', 'checklist_update', 'checklist_remove',
     'light_review',
-    'finding_add', 'review_pass_set',
+    'finding_add',
     'validate', 'status', 'serve',
     'story_advance',
     'story_dispatch', // B-45ed CHK-005: 主 agent 派发 implementer
@@ -159,6 +159,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'finding_cluster',  // B-8bb5: DEV 中已有 finding 时，允许先聚簇再派发修复
   ],
   REVIEW: [
+    'review_run_start',
     'finding_add', 'finding_list', 'finding_resolve', 'finding_dismiss',
     'review_pass_set',
     'understanding_get', 'decision_get',

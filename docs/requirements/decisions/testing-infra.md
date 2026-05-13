@@ -121,7 +121,7 @@ gitignore、materialHash exclusion、volatile dirty-risk 和 tracked repair 语�
 ### 阶段行为差异
 
 - **DEV 阶段**：用项目原生命令验证，并通过 `checklist_update` 写 `verificationEvidence`；legacy `test_auto` 只在维护旧 fixture 时可用，且必须明确提示可能修改实际文件
-- **REVIEW 阶段**：reviewer lane（包含 `koala-review-test-coverage`）消费 `verificationIntent` / `verificationEvidence`；无 blocker 时写 `review_pass_set`
+- **REVIEW 阶段**：reviewer lane（包含 `koala-review-test-coverage`）先 `review_run_start` 建当前 round 的 signed reviewer run，再消费 `verificationIntent` / `verificationEvidence`；无 blocker 时写 `review_pass_set` + `reviewRunId`
 - **TEST 阶段**：`koala validate` 写 validation evidence；legacy `test_auto` 若被维护场景显式调用，仍会执行 `git restore . && git clean -fd`
 
 ## Flow Fact Policy
@@ -129,8 +129,10 @@ gitignore、materialHash exclusion、volatile dirty-risk 和 tracked repair 语�
 流程事实必须由代码 policy 和 gate 双层保护，不能只靠 prompt 或文档。`packages/main/src/core/flow-fact-policy.ts` 是 review/pass/finding/verification exemption 的集中表，并同步登记到 `process-fact-registry`、`process-fact-levels` 和 `scripts/verify-process-fact-contract.mjs`。
 
 - `reviewRound: string (ISO 8601 review round id)`，由 `story.currentReviewRound` 提供；签名事实消费字符串，不消费 number round。
+- `reviewRunId: string`，由 `review_run_start` 生成并写入 signed `review-runs.json`；当前 REVIEW round 的 `finding_add` / `review_pass_set` 必须带这个字段，gate 会校验 lane/current round/latest run/freshness。
 - `story_review.planReviewRound: number (PLAN review round count)` 是 PLAN review 输出数字计数；`story_review.reviewRound` 仅是 legacy numeric PLAN review alias，不能作为 finding / review pass / delivery check 的 signed artifact schema。
 - pass-only finding_add 归一化：low severity 且 agent 为 `koala-review-*` 的 pass-only finding 转为 `review_pass_set`；含 failure / blocker / 缺少 / 失败 等矛盾语义、非 reviewer、非 low severity 都必须保留为 finding。
+- review run freshness：`review_run_start` 记录 `headHash/materialHash`。如果代码或文档 material 变化导致 run stale，旧 `reviewRunId` 不再可用，reviewer 必须重跑 `review_run_start` 再提 finding/pass。
 - Express exemption：express channel 且 zero `verificationIntent` 输出 `Verification policy: express-exempt (channel=express; PLAN verificationIntent intentionally skipped)`；normal / fast zero intent 只显示普通 coverage 缺失文案，不显示 `express-exempt`。
 - Worker evidence boundary：prompt-only worker claims are not mechanical evidence。可审计 worker 事实只来自 `koala dispatch` / dispatch/process-event/commit evidence / commit author 等结构化记录；Koala cannot mechanically prove true subagent context isolation，只能证明可观察 assignment evidence。
 
@@ -138,7 +140,7 @@ gitignore、materialHash exclusion、volatile dirty-risk 和 tracked repair 语�
 
 - PLAN：用 `verificationIntent` 描述每个 checklist item 的 happy/edge/adversarial 验收。
 - DEV：实现后跑项目原生命令或浏览器流程，并用 `checklist_update` 写入 `verificationEvidence`。
-- REVIEW：reviewer lane `koala-review-test-coverage` 检查 `verificationIntent` 是否都有可追溯 evidence；无 blocker 时通过 `review_pass_set` 记录 pass。内部 coverage validation 消费 `verificationIntent` / `verificationEvidence`，不是单独的 CLI 命令。
+- REVIEW：reviewer lane `koala-review-test-coverage` 检查 `verificationIntent` 是否都有可追溯 evidence；先 `review_run_start` 拿 `reviewRunId`，无 blocker 时通过 `review_pass_set` + `reviewRunId` 记录 pass。内部 coverage validation 消费 `verificationIntent` / `verificationEvidence`，不是单独的 CLI 命令。
 - TEST：`koala validate` 执行项目级验证，记录 validation evidence；缺失或 stale evidence 时返回 `allPass:false`。
 - DONE：只接受 PASS、bug fixed、evidence fresh、summary/delivery gate 全部满足的结果。
 

@@ -15,6 +15,7 @@ export type ProcessFactKind =
   | 'gate-evidence'
   | 'execution-status'
   | 'validation-status'
+  | 'review-run'
   | 'review-pass'
   | 'finding'
   | 'flow-policy'
@@ -32,6 +33,7 @@ export type ProcessFactSemantic =
   | 'gate-evidence'
   | 'no-blocker-evidence'
   | 'normalization-policy'
+  | 'review-run'
   | 'review-pass'
   | 'reviewer-lane'
   | 'runtime-behavior'
@@ -78,6 +80,7 @@ export const PROCESS_FACT_KIND_BY_COMMAND: Record<string, ProcessFactKind> = {
   verification_evidence_add: 'execution-status',
   verification_evidence_batch_add: 'execution-status',
   verification_evidence_refresh_stale: 'execution-status',
+  review_run_start: 'review-run',
   review_pass_set: 'review-pass',
   finding_add: 'finding',
   finding_resolve: 'finding',
@@ -91,6 +94,7 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   verification_evidence_add: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   verification_evidence_batch_add: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   verification_evidence_refresh_stale: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
+  review_run_start: ['review-run', 'schema-contract', 'gate-evidence'],
   review_pass_set: ['review-pass', 'no-blocker-evidence', 'gate-evidence'],
   finding_add: ['finding-state', 'blocker-state', 'gate-evidence'],
   finding_resolve: ['finding-state', 'blocker-state', 'gate-evidence'],
@@ -141,11 +145,19 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     producerCommand: 'verification_evidence_refresh_stale',
     consumerGate: 'validate verification freshness gate',
   },
+  review_run_start: {
+    name: 'review-runs.json',
+    path: 'review-runs.json',
+    signed: true,
+    signature: 'signReviewRun/verifyReviewRun',
+    producerCommand: 'review_run_start',
+    consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
+  },
   review_pass_set: {
     name: 'review-passes.json',
     path: 'review-passes.json',
     signed: true,
-    signature: 'signReviewPass/verifyReviewPass',
+    signature: 'signReviewPass/verifyReviewPass; reviewRunId-inclusive records do not fall back to legacy signatures',
     producerCommand: 'review_pass_set',
     consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
   },
@@ -153,7 +165,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'findings.json',
     path: 'findings.json',
     signed: true,
-    signature: 'signFinding/verifyFinding',
+    signature: 'signFinding/verifyFinding; reviewRunId-inclusive records do not fall back to legacy signatures',
     producerCommand: 'finding_add',
     consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
   },
@@ -409,6 +421,7 @@ function commandFactSemantics(name: string, level: ProcessFactLevel): ProcessFac
 function artifactFactSemantics(artifact: ProcessFactArtifactRef): ProcessFactSemantic[] {
   const semantics: ProcessFactSemantic[] = ['artifact'];
   if (artifact.signed) semantics.push('signed-artifact');
+  if (artifact.path === 'review-runs.json') semantics.push('review-run', 'schema-contract');
   if (artifact.path === 'test-evidence.json') semantics.push('validation-result', 'test-evidence');
   if (artifact.path === 'eval-evidence.json') semantics.push('validation-result');
   return semantics;
@@ -523,6 +536,16 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'storyMachine.canFinish DONE gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.delivery_check_set,
     rationale: 'Delivery-check signature is consumed by DONE.',
+  },
+  {
+    name: 'artifact:review-runs.json',
+    kind: 'signed-artifact',
+    semantics: ['artifact', 'signed-artifact', 'gate-evidence', 'review-run', 'schema-contract'],
+    level: 'L4',
+    producer: 'handlers/review-run',
+    consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.review_run_start,
+    rationale: 'Signed reviewer runs bound current REVIEW findings and passes to a fresh lane-specific boundary.',
   },
   {
     name: 'artifact:findings.json',

@@ -13,9 +13,9 @@ import { createHash } from 'crypto';
 import type { StoryStore } from './store.js';
 import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
 import { isAdvisoryThisRound, resolveReviewRoundCount } from './advisory.js';
-import { verifyFinding, verifyReviewPass } from './finding-verify.js';
 import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
 import { computeActiveReviewers } from '../handlers/reviewer-list.js';
+import { collectReviewerEvidenceState } from './review-run.js';
 
 // ── Public types ──
 
@@ -25,6 +25,7 @@ export interface ReviewerStatusEntry {
   present: boolean;
   verdict: 'pass' | 'fail' | 'pending';
   blockerCount: number;
+  detail?: string;
 }
 
 export interface ReviewerStatusSummary {
@@ -102,30 +103,27 @@ export function summarizeReviewerStatus(store: StoryStore, storyId: string, proj
   const reviewers = computeActiveReviewers(story, checklist, decision, touchpoints);
   const round = resolveReviewRoundCount(store, storyId);
 
-  const findingData = store.readFindings(storyId);
-  const findings = findingData.findings ?? [];
-  const passData = store.readReviewPasses(storyId);
-  const passes = passData.passes ?? [];
+  const evidenceState = collectReviewerEvidenceState(store, storyId, projectRoot ?? process.cwd());
+  const validFindings = evidenceState.valid.map((entry) => entry.finding).filter(Boolean);
+  const validPasses = evidenceState.valid.map((entry) => entry.pass).filter(Boolean);
 
   // story-review entry (always required)
   const storyReviewEntry = summarizeStoryReview(store, storyId);
 
   // Build entries for each opted-in LLM reviewer
   const reviewerEntries: ReviewerStatusEntry[] = reviewers.map(r => {
-    const matched = findings.filter(f => findingAgentMatchesReviewer(f.agent, r.name));
-    const matchedPasses = passes.filter(p =>
-      findingAgentMatchesReviewer(p.agent, r.name)
-      && verifyReviewPass(storyId, p)
-      && (!story.currentReviewRound || p.reviewRound === story.currentReviewRound),
-    );
-    const present = matched.length > 0 || matchedPasses.length > 0;
+    const matched = validFindings.filter(f => findingAgentMatchesReviewer(f?.agent, r.name));
+    const matchedPasses = validPasses.filter(p => findingAgentMatchesReviewer(p?.agent, r.name));
+    const invalid = evidenceState.invalid.filter(issue => findingAgentMatchesReviewer(issue.agent, r.name));
+    const present = matched.length > 0 || matchedPasses.length > 0 || invalid.length > 0;
 
     // Count open blockers (not advisory this round, not resolved/dismissed, valid signature)
-    const blockerCount = matched.filter(f =>
-      f.status === 'open'
+    const openBlockers = matched.filter(f =>
+      !!f
+      && f.status === 'open'
       && !isAdvisoryThisRound(f.severity, round)
-      && verifyFinding(storyId, f),
     ).length;
+    const blockerCount = openBlockers + invalid.length;
 
     let verdict: 'pass' | 'fail' | 'pending';
     if (!present) {
@@ -142,6 +140,7 @@ export function summarizeReviewerStatus(store: StoryStore, storyId: string, proj
       present,
       verdict,
       blockerCount,
+      ...(invalid[0] ? { detail: invalid[0].message } : {}),
     };
   });
 

@@ -17,12 +17,22 @@ const promptDirs = [
 const currentCategories = new Set(['happy', 'edge', 'adversarial', 'missing']);
 const legacyCategories = new Set(['cleanup', 'doc-promise-undelivered', 'doc-code-drift', 'spec-boundary']);
 const reviewPassReviewerPrompts = new Set([
+  'koala-evaluator.md',
   'koala-review-behavior.md',
   'koala-review-channel.md',
   'koala-review-concept.md',
+  'koala-review-delivery.md',
   'koala-review-docs.md',
   'koala-review-quality.md',
+  'koala-review-scope-plan.md',
+  'koala-review-story-init.md',
   'koala-review-test-coverage.md',
+]);
+const requiredReviewerRunIdPromptFiles = new Set([
+  'koala-evaluator.md',
+  'koala-review-delivery.md',
+  'koala-review-scope-plan.md',
+  'koala-review-story-init.md',
 ]);
 const processFactLevelRegistryPath = 'packages/main/src/core/process-fact-levels.ts';
 const commandPolicyPath = 'packages/main/src/core/command-policy.ts';
@@ -74,6 +84,7 @@ const processFactRegistryKinds = new Set([
   'gate-evidence',
   'execution-status',
   'validation-status',
+  'review-run',
   'review-pass',
   'finding',
   'flow-policy',
@@ -88,6 +99,7 @@ const requiredProcessFactSemantics = {
   verification_evidence_add: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   verification_evidence_batch_add: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   verification_evidence_refresh_stale: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
+  review_run_start: ['review-run', 'schema-contract', 'gate-evidence'],
   review_pass_set: ['review-pass', 'no-blocker-evidence', 'gate-evidence'],
   finding_add: ['finding-state', 'blocker-state', 'gate-evidence'],
   finding_resolve: ['finding-state', 'blocker-state', 'gate-evidence'],
@@ -112,8 +124,9 @@ const requiredArtifactFacts = [
   { name: 'artifact:init-check.json', path: 'init-check.json', signed: true, signaturePattern: /signInitCheck\/recomputeInitCheckHash/ },
   { name: 'artifact:scope-check.json', path: 'scope-check.json', signed: true, signaturePattern: /signScopeCheck/ },
   { name: 'artifact:delivery-check.json', path: 'delivery-check.json', signed: true, signaturePattern: /signDeliveryCheck\/recomputeDeliveryCheckHash/ },
-  { name: 'artifact:findings.json', path: 'findings.json', signed: true, signaturePattern: /signFinding\/verifyFinding/ },
-  { name: 'artifact:review-passes.json', path: 'review-passes.json', signed: true, signaturePattern: /signReviewPass\/verifyReviewPass/ },
+  { name: 'artifact:review-runs.json', path: 'review-runs.json', signed: true, signaturePattern: /signReviewRun\/verifyReviewRun/ },
+  { name: 'artifact:findings.json', path: 'findings.json', signed: true, signaturePattern: /signFinding\/verifyFinding; reviewRunId-inclusive records do not fall back to legacy signatures/ },
+  { name: 'artifact:review-passes.json', path: 'review-passes.json', signed: true, signaturePattern: /signReviewPass\/verifyReviewPass; reviewRunId-inclusive records do not fall back to legacy signatures/ },
   { name: 'artifact:draft-check.json', path: 'draft-check.json', signed: true, signaturePattern: /computeDraftCheckHash/ },
   { name: 'artifact:summary.json', path: 'summary.json', signed: false },
   { name: 'artifact:test-evidence.json', path: 'test-evidence.json', signed: false },
@@ -171,6 +184,14 @@ const requiredRuntimeEntries = [
   },
 ];
 const requiredFlowFactPolicies = [
+  {
+    name: 'flow-policy:review-run-boundary',
+    policyId: 'review-run-boundary',
+    artifactPath: 'review-runs.json',
+    consumerGatePattern: /storyMachine\.canPassReview/,
+    semantics: ['flow-policy', 'review-run', 'schema-contract', 'gate-evidence'],
+    disposition: '',
+  },
   {
     name: 'flow-policy:review-pass',
     policyId: 'review-pass',
@@ -251,6 +272,7 @@ const requiredControlledMutationEntries = [
 const processFactCommandNamePatterns = [
   /^story_advance$/,
   /^story_review$/,
+  /^review_run_start$/,
   /^review_pass_set$/,
   /^finding_(add|resolve|dismiss|cluster)$/,
   /^verification_evidence_/,
@@ -326,7 +348,7 @@ function listMarkdown(dir) {
 
 function isReviewerPrompt(relPath, text) {
   const name = basename(relPath);
-  return name.startsWith('koala-review-') || text.includes('review_pass_set');
+  return name.startsWith('koala-review-') || requiredReviewerRunIdPromptFiles.has(name) || text.includes('review_pass_set');
 }
 
 function scanBraceState(line, state) {
@@ -396,12 +418,26 @@ function requiresReviewPassProtocol(label) {
   return reviewPassReviewerPrompts.has(basename(label)) || label.startsWith('synthetic-');
 }
 
+function requiresNoFindingReviewPassProtocol(label) {
+  return basename(label) !== 'koala-evaluator.md' && requiresReviewPassProtocol(label);
+}
+
+function hasHardCodedReviewRunIdExample(block) {
+  return /\breviewRunId\b[\s\S]{0,160}\b(?:B-[A-Za-z0-9_-]+|<ID>|\$\{[^}]+\}):RR-001\b/.test(block);
+}
+
 function scanPromptText(text, label) {
   const issues = [];
   const findingBlocks = commandBlocks(text, 'finding_add');
   for (const { block, lineNo } of findingBlocks) {
+    if (requiresReviewPassProtocol(label) && hasHardCodedReviewRunIdExample(block)) {
+      issues.push(`${label}:${lineNo} active reviewer command example must use the reviewRunId returned by review_run_start, not a hard-coded RR-001`);
+    }
     if (passOnlyFindingAddPatterns.some(pattern => pattern.test(block))) {
       issues.push(`${label}:${lineNo} pass-only finding_add must use review_pass_set`);
+    }
+    if (requiresReviewPassProtocol(label) && block.includes('{') && !/\breviewRunId\b/.test(block)) {
+      issues.push(`${label}:${lineNo} reviewer finding_add example must include reviewRunId from review_run_start`);
     }
     for (const match of block.matchAll(/["']?category["']?\s*:\s*["']([^"']+)["']/g)) {
       const category = match[1];
@@ -414,10 +450,29 @@ function scanPromptText(text, label) {
     }
   }
 
+  const reviewPassBlocks = commandBlocks(text, 'review_pass_set');
+  for (const { block, lineNo } of reviewPassBlocks) {
+    if (requiresReviewPassProtocol(label) && hasHardCodedReviewRunIdExample(block)) {
+      issues.push(`${label}:${lineNo} active reviewer command example must use the reviewRunId returned by review_run_start, not a hard-coded RR-001`);
+    }
+    if (requiresReviewPassProtocol(label) && block.includes('{') && !/\breviewRunId\b/.test(block)) {
+      issues.push(`${label}:${lineNo} reviewer review_pass_set example must include reviewRunId from review_run_start`);
+    }
+  }
+
   const hasFindingProtocol = text.includes('finding_add');
+  const hasReviewPassProtocol = text.includes('review_pass_set');
   const claimsNoFindings = /\bno\s+(?:blocking\s+)?findings?\b|\bno\s+blockers?\b|没有\s*findings?|没有\s*finding|无\s*blocker|无\s+blocking|无\s+finding|审查通过|review\s+passed/i.test(text);
-  if (requiresReviewPassProtocol(label) && hasFindingProtocol && claimsNoFindings && !text.includes('review_pass_set')) {
+  if (requiresNoFindingReviewPassProtocol(label) && hasFindingProtocol && claimsNoFindings && !text.includes('review_pass_set')) {
     issues.push(`${label}: reviewer prompt claims no findings or completion but never uses review_pass_set`);
+  }
+  if (requiresReviewPassProtocol(label) && (hasFindingProtocol || hasReviewPassProtocol)) {
+    if (!text.includes('review_run_start')) {
+      issues.push(`${label}: reviewer prompt emits REVIEW evidence but never starts review_run_start`);
+    }
+    if (!text.includes('reviewRunId')) {
+      issues.push(`${label}: reviewer prompt emits REVIEW evidence but never mentions reviewRunId`);
+    }
   }
   return issues;
 }
@@ -450,7 +505,7 @@ function promptSemanticTokens(text) {
   for (const match of text.matchAll(/(?:^|[\s`"'(])((?:\.koala|\.Codex|\.claude|docs|packages|bin)\/[A-Za-z0-9._/@:-]+(?:\/[A-Za-z0-9._/@:-]+)*)/g)) {
     tokens.add(`path:${match[1].replace(/[),.;:]+$/, '')}`);
   }
-  for (const name of ['finding_add', 'review_pass_set', 'init_check_set', 'scope_check_save', 'delivery_check_set', 'verification_evidence_add', 'verification_evidence_batch_add']) {
+  for (const name of ['review_run_start', 'finding_add', 'review_pass_set', 'init_check_set', 'scope_check_save', 'delivery_check_set', 'verification_evidence_add', 'verification_evidence_batch_add']) {
     if (text.includes(name)) tokens.add(`cmd:${name}`);
   }
   return [...tokens].sort();
@@ -616,6 +671,23 @@ function assertSyntheticAdversarialChecks() {
     scanPromptText(unknownCategory, 'synthetic-unknown-category').some(issue => issue.includes('unknown category')),
     'synthetic unknown category should fail',
   );
+  const literalReviewRunId = 'koala finding_add \'{"storyId":"B-x","reviewRunId":"B-x:RR-001","desc":"real issue","severity":"medium","category":"missing","agent":"koala-review-quality"}\'';
+  assert(
+    scanPromptText(literalReviewRunId, 'synthetic-literal-review-run-id').some(issue => issue.includes('hard-coded RR-001')),
+    'synthetic literal RR-001 reviewer command should fail',
+  );
+  const missingFindingReviewRunId = 'koala finding_add \'{"storyId":"B-x","desc":"real issue","severity":"medium","category":"missing","agent":"koala-review-quality"}\'';
+  assert(
+    scanPromptText(missingFindingReviewRunId, 'packages/main/templates/agents/koala-review-story-init.md')
+      .some(issue => issue.includes('finding_add example must include reviewRunId')),
+    'synthetic reviewer finding_add JSON example without reviewRunId should fail',
+  );
+  const missingPassReviewRunId = 'koala review_pass_set \'{"storyId":"B-x","agent":"koala-review-quality","note":"quality review passed: checked changed files and found no blocker."}\'';
+  assert(
+    scanPromptText(missingPassReviewRunId, 'packages/main/templates/agents/koala-evaluator.md')
+      .some(issue => issue.includes('review_pass_set example must include reviewRunId')),
+    'synthetic reviewer review_pass_set JSON example without reviewRunId should fail',
+  );
   assert(
     scanReviewRoundPromptSchema('reviewRound: number, // 当前 REVIEW 轮次（1 / 2 / 3+）', 'synthetic-review-round-number')
       .some(issue => issue.includes('bare reviewRound:number drift')),
@@ -650,8 +722,9 @@ function assertSyntheticAdversarialChecks() {
   );
 
   const goodPrompt = [
-    'koala finding_add \'{"storyId":"B-x","desc":"real issue","severity":"medium","category":"missing","agent":"koala-review-quality"}\'',
-    'koala review_pass_set \'{"storyId":"B-x","agent":"koala-review-quality","note":"quality review passed: checked changed files and found no blocker."}\'',
+    'koala review_run_start \'{"storyId":"B-x","agent":"koala-review-quality"}\'',
+    'koala finding_add \'{"storyId":"B-x","reviewRunId":"<reviewRunId from review_run_start>","desc":"real issue","severity":"medium","category":"missing","agent":"koala-review-quality"}\'',
+    'koala review_pass_set \'{"storyId":"B-x","agent":"koala-review-quality","reviewRunId":"<reviewRunId from review_run_start>","note":"quality review passed: checked changed files and found no blocker."}\'',
   ].join('\n');
   assert(scanPromptText(goodPrompt, 'synthetic-good').length === 0, 'synthetic good prompt should pass');
 
@@ -730,9 +803,9 @@ function assertSyntheticAdversarialChecks() {
   assert(
     !commandAllowedByConfiguredPhaseTools('test_auto', 'DEV', widenedPhaseTools) &&
       !commandAllowedByConfiguredPhaseTools('test_add', 'DEV', widenedPhaseTools) &&
-      commandAllowedByConfiguredPhaseTools('review_pass_set', 'DEV', widenedPhaseTools) &&
+      !commandAllowedByConfiguredPhaseTools('review_pass_set', 'DEV', widenedPhaseTools) &&
       commandAllowedByConfiguredPhaseTools('validate', 'DEV', widenedPhaseTools),
-    'runtime phaseTools config must narrow only: it cannot widen rootOnly/legacy commands, while policy-approved gate evidence stays allowed',
+    'runtime phaseTools config must narrow only: it cannot widen rootOnly/legacy commands or REVIEW-only gate evidence',
   );
 
   const badTestAutoBugDoc = [
@@ -2375,12 +2448,27 @@ const inventory = [
     ],
   },
   {
+    name: 'review_run_start',
+    files: [
+      {
+        relPath: 'packages/main/src/handlers/review-run.ts',
+        patterns: ['review_run_start', 'resolveReviewRunLane', 'captureReviewRunSnapshot', 'signReviewRun', 'writeReviewRuns', 'Review run'],
+      },
+      {
+        relPath: 'packages/main/src/cli-engine.ts',
+        patterns: ['review_run_start', 'promptHash: z.string()', 'lane: z.enum'],
+      },
+    ],
+  },
+  {
     name: 'finding_add',
     files: [
       {
         relPath: 'packages/main/src/handlers/finding.ts',
         patterns: [
           'finding_add',
+          'reviewRunId',
+          'assertCurrentReviewRunForEvidence',
           'isPassOnlyReviewFindingRecord',
           { label: 'recordFinding/current findings persistence', any: ['recordFinding', 'data.findings.push'] },
           'normalizeFindingCategory',
@@ -2419,11 +2507,11 @@ const inventory = [
     files: [
       {
         relPath: 'packages/main/src/handlers/finding.ts',
-        patterns: ['review_pass_set', 'signReviewPass', { label: 'persistReviewPass/current durable write-read', any: ['persistReviewPass', 'writeReviewPasses'] }, 'withReviewPassLock', 'Review pass'],
+        patterns: ['review_pass_set', 'reviewRunId', 'assertCurrentReviewRunForEvidence', 'signReviewPass', { label: 'persistReviewPass/current durable write-read', any: ['persistReviewPass', 'writeReviewPasses'] }, 'withReviewPassLock', 'Review pass'],
       },
       {
         relPath: 'packages/main/src/cli-engine.ts',
-        patterns: ['review_pass_set', 'note: z.string()'],
+        patterns: ['review_pass_set', 'reviewRunId: z.string()', 'note: z.string()'],
       },
     ],
   },
@@ -2505,11 +2593,11 @@ const inventory = [
     files: [
       {
         relPath: 'packages/main/src/cli-engine.ts',
-        patterns: ['MAIN_TOOLS', 'finding_add', 'review_pass_set', 'verification_evidence_add', 'init_check_set', 'scope_check_save', 'delivery_check_set'],
+        patterns: ['MAIN_TOOLS', 'review_run_start', 'finding_add', 'review_pass_set', 'verification_evidence_add', 'init_check_set', 'scope_check_save', 'delivery_check_set'],
       },
       {
         relPath: 'packages/main/src/core/config.ts',
-        patterns: ['DEFAULT_PHASE_TOOLS', 'isCommandAllowed', 'finding_add', 'review_pass_set', 'delivery_check_set'],
+        patterns: ['DEFAULT_PHASE_TOOLS', 'isCommandAllowed', 'review_run_start', 'finding_add', 'review_pass_set', 'delivery_check_set'],
       },
     ],
   },
@@ -2532,6 +2620,14 @@ for (const dir of promptDirs) {
     if (!isReviewerPrompt(relPath, text)) continue;
     reviewerPromptCount += 1;
     for (const issue of scanPromptText(text, relPath)) fail(issue);
+  }
+}
+for (const dir of promptDirs) {
+  for (const fileName of requiredReviewerRunIdPromptFiles) {
+    assert(
+      promptMap.has(`${dir}/${fileName}`),
+      `${dir}/${fileName}: reviewer-facing prompt must be included in prompt drift scan`,
+    );
   }
 }
 comparePromptSemantics(promptMap);

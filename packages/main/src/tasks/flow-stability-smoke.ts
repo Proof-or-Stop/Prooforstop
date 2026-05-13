@@ -7,14 +7,16 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { getAllowedPatterns, isCommandAllowed, resetConfigCache } from '../core/config.js';
-import { signFinding, signReviewPass } from '../core/finding-verify.js';
+import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
+import { signFinding, signReviewPass, verifyFinding, verifyReviewPass } from '../core/finding-verify.js';
 import { getArtifactContractStatus } from '../core/artifact-contract.js';
 import { FLOW_FACT_POLICIES, isPassOnlyReviewFindingRecord } from '../core/flow-fact-policy.js';
 import { getGuardFailureReason } from '../core/machine.js';
 import { getProcessFactRegistryEntry, hasProcessFactSemantic, PROCESS_FACT_FLOW_POLICIES } from '../core/process-fact-registry.js';
+import { collectReviewerEvidenceState, signReviewRun } from '../core/review-run.js';
 import { summarizeReviewerStatus } from '../core/reviewer-status.js';
 import { StoryStore } from '../core/store.js';
-import type { ChecklistData, Finding, StoryInfo, TestEvidenceData } from '../core/types.js';
+import type { ChecklistData, Finding, ReviewRun, StoryInfo, TestEvidenceData } from '../core/types.js';
 import { buildDoneChecklist } from '../handlers/story-advance.js';
 import { createStoryAdvanceHandlers } from '../handlers/story-advance.js';
 import { decorateResult } from '../handlers/hints.js';
@@ -35,10 +37,29 @@ function localCliPath(): string {
   return resolve(dirname(fileURLToPath(import.meta.url)), '..', 'cli.js');
 }
 
-function makeFinding(storyId: string, agent: string, reviewRound: string, idSuffix: string): Finding {
+function makeFinding(storyId: string, agent: string, reviewRound: string, idSuffix: string, reviewRunId: string): Finding {
   const id = `${storyId}:F-${idSuffix}`;
   const createdAt = `2026-04-27T12:00:${idSuffix}.000Z`;
   const desc = `${agent} clean finding`;
+  const severity = 'low';
+  return {
+    id,
+    desc,
+    severity,
+    category: 'happy',
+    status: 'resolved',
+    agent,
+    createdAt,
+    reviewRound,
+    reviewRunId,
+    _hash: signFinding(storyId, id, desc, severity, createdAt, reviewRound, reviewRunId),
+  };
+}
+
+function makeLegacyFindingWithoutRun(storyId: string, agent: string, reviewRound: string, idSuffix: string): Finding {
+  const id = `${storyId}:F-${idSuffix}`;
+  const createdAt = `2026-04-27T12:05:${idSuffix}.000Z`;
+  const desc = `${agent} legacy finding without review run binding`;
   const severity = 'low';
   return {
     id,
@@ -53,7 +74,7 @@ function makeFinding(storyId: string, agent: string, reviewRound: string, idSuff
   };
 }
 
-function makeReviewPass(storyId: string, agent: string, reviewRound: string, idSuffix: string) {
+function makeReviewPass(storyId: string, agent: string, reviewRound: string, idSuffix: string, reviewRunId: string) {
   const id = `${storyId}:RP-${idSuffix}`;
   const createdAt = `2026-04-27T12:10:${idSuffix}.000Z`;
   const note = `${agent} checked the story and found no blocking issue`;
@@ -63,8 +84,46 @@ function makeReviewPass(storyId: string, agent: string, reviewRound: string, idS
     note,
     createdAt,
     reviewRound,
+    reviewRunId,
+    _hash: signReviewPass(storyId, id, agent, note, createdAt, reviewRound, reviewRunId),
+  };
+}
+
+function makeLegacyReviewPassWithoutRun(storyId: string, agent: string, reviewRound: string, idSuffix: string) {
+  const id = `${storyId}:RP-${idSuffix}`;
+  const createdAt = `2026-04-27T12:20:${idSuffix}.000Z`;
+  const note = `${agent} legacy pass without review run binding`;
+  return {
+    id,
+    agent,
+    note,
+    createdAt,
+    reviewRound,
     _hash: signReviewPass(storyId, id, agent, note, createdAt, reviewRound),
   };
+}
+
+function seedReviewRuns(root: string, store: StoryStore, storyId: string, reviewRound: string, agents: string[]): Map<string, string> {
+  const headHash = currentGitHead(root) || `head-${reviewRound}`;
+  const materialHash = currentMaterialHash(root) || `material-${reviewRound}`;
+  const runs: ReviewRun[] = agents.map((agent, index) => {
+    const reviewRunId = `${storyId}:RR-${String(index + 1).padStart(3, '0')}`;
+    const startedAt = `2026-04-27T11:${String(index).padStart(2, '0')}:00.000Z`;
+    return {
+      reviewRunId,
+      storyId,
+      agent,
+      lane: agent,
+      reviewRound,
+      startedAt,
+      headHash,
+      materialHash,
+      promptHash: '',
+      _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, headHash, materialHash, ''),
+    };
+  });
+  store.writeReviewRuns(storyId, { runs });
+  return new Map(runs.map((run) => [run.agent, run.reviewRunId]));
 }
 
 function createReviewStore(root: string): { store: StoryStore; storyId: string; reviewRound: string } {
@@ -147,7 +206,9 @@ function assertSessionBriefGate(): void {
   }
 
   assert.equal(isCommandAllowed('finding_add', 'DEV'), true, 'DEV reviewers should be able to register findings');
-  assert.equal(isCommandAllowed('review_pass_set', 'DEV'), true, 'DEV reviewers should be able to register passes');
+  assert.equal(isCommandAllowed('review_pass_set', 'DEV'), false, 'DEV must not accept REVIEW no-blocker receipts');
+  assert.equal(isCommandAllowed('review_run_start', 'REVIEW'), true, 'REVIEW reviewers should be able to start signed review runs');
+  assert.equal(isCommandAllowed('review_run_start', 'DEV'), false, 'review_run_start should stay REVIEW-only');
   assert.equal(
     isCommandAllowed('finding_dispatch', 'DEV'),
     true,
@@ -220,6 +281,11 @@ function assertFlowFactPolicyRegistry(): void {
   assert.equal(reviewPass?.artifact?.path, 'review-passes.json');
   assert.equal(reviewPass?.consumerGate, 'storyMachine.canPassReview REVIEW to TEST gate');
   assert.equal(hasProcessFactSemantic('flow-policy:review-pass', 'review-pass'), true);
+
+  const reviewRunBoundary = getProcessFactRegistryEntry('flow-policy:review-run-boundary');
+  assert.equal(reviewRunBoundary?.kind, 'flow-policy');
+  assert.equal(reviewRunBoundary?.artifact?.path, 'review-runs.json');
+  assert.equal(hasProcessFactSemantic('flow-policy:review-run-boundary', 'review-run'), true);
 
   const finding = getProcessFactRegistryEntry('flow-policy:finding');
   assert.equal(finding?.kind, 'flow-policy');
@@ -368,11 +434,17 @@ function assertReviewGateUsesOptIn(): void {
   const root = mkdtempSync(join(tmpdir(), 'koala-flow-review-'));
   try {
     const { store, storyId, reviewRound } = createReviewStore(root);
+    const runIds = seedReviewRuns(root, store, storyId, reviewRound, [
+      'koala-review-concept',
+      'koala-review-quality',
+      'koala-review-docs',
+      'koala-review-test-coverage',
+    ]);
     store.writeFindings(storyId, {
       findings: [
-        makeFinding(storyId, 'koala-review-concept', reviewRound, '001'),
-        makeFinding(storyId, 'koala-review-quality', reviewRound, '002'),
-        makeFinding(storyId, 'koala-review-docs', reviewRound, '003'),
+        makeFinding(storyId, 'koala-review-concept', reviewRound, '001', runIds.get('koala-review-concept')!),
+        makeFinding(storyId, 'koala-review-quality', reviewRound, '002', runIds.get('koala-review-quality')!),
+        makeFinding(storyId, 'koala-review-docs', reviewRound, '003', runIds.get('koala-review-docs')!),
       ],
     });
 
@@ -384,22 +456,134 @@ function assertReviewGateUsesOptIn(): void {
 
     store.writeFindings(storyId, {
       findings: [
-        makeFinding(storyId, 'koala-review-concept', reviewRound, '004'),
-        makeFinding(storyId, 'koala-review-quality', reviewRound, '005'),
+        makeFinding(storyId, 'koala-review-concept', reviewRound, '004', runIds.get('koala-review-concept')!),
+        makeFinding(storyId, 'koala-review-quality', reviewRound, '005', runIds.get('koala-review-quality')!),
       ],
     });
     store.writeReviewPasses(storyId, {
       passes: [
-        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '006'),
+        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '006', runIds.get('koala-review-test-coverage')!),
       ],
     });
     const pass = getGuardFailureReason(storyId, store, 'TEST', root);
     assert.equal(pass, null);
 
-    const status = summarizeReviewerStatus(store, storyId);
+    const status = summarizeReviewerStatus(store, storyId, root);
     const byName = new Map(status.entries.map(e => [e.name, e]));
     assert.equal(byName.get('test-coverage')?.verdict, 'pass');
     assert.equal(byName.has('channel'), false);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertReviewRunBindingRejectsInvalidEvidence(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-flow-review-run-binding-'));
+  try {
+    const { store, storyId, reviewRound } = createReviewStore(root);
+    const agents = [
+      'koala-review-concept',
+      'koala-review-quality',
+      'koala-review-test-coverage',
+    ];
+    const runIds = seedReviewRuns(root, store, storyId, reviewRound, agents);
+
+    const retrofittedLegacyFinding = {
+      ...makeLegacyFindingWithoutRun(storyId, 'koala-review-quality', reviewRound, '045'),
+      reviewRunId: runIds.get('koala-review-quality')!,
+    };
+    const retrofittedLegacyPass = {
+      ...makeLegacyReviewPassWithoutRun(storyId, 'koala-review-quality', reviewRound, '046'),
+      reviewRunId: runIds.get('koala-review-quality')!,
+    };
+    assert.equal(
+      verifyFinding(storyId, retrofittedLegacyFinding),
+      false,
+      'retrofitting reviewRunId onto a legacy-signed finding must invalidate the signature',
+    );
+    assert.equal(
+      verifyReviewPass(storyId, retrofittedLegacyPass),
+      false,
+      'retrofitting reviewRunId onto a legacy-signed review pass must invalidate the signature',
+    );
+    store.writeFindings(storyId, { findings: [retrofittedLegacyFinding] });
+    store.writeReviewPasses(storyId, {
+      passes: [
+        makeReviewPass(storyId, 'koala-review-concept', reviewRound, '047', runIds.get('koala-review-concept')!),
+        retrofittedLegacyPass,
+        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '048', runIds.get('koala-review-test-coverage')!),
+      ],
+    });
+    const retrofitState = collectReviewerEvidenceState(store, storyId, root);
+    assert.equal(
+      retrofitState.invalid.some(issue => issue.code === 'invalid_evidence_signature' && issue.agent === 'koala-review-quality'),
+      true,
+      'review-run evidence collection must reject reviewRunId-retrofitted legacy signatures',
+    );
+    const retrofitFailure = getGuardFailureReason(storyId, store, 'TEST', root);
+    assert.match(retrofitFailure ?? '', /签名无效|reviewRunId/, 'review gate must fail retrofitted legacy signatures');
+    store.writeFindings(storyId, { findings: [] });
+
+    store.writeReviewPasses(storyId, {
+      passes: [
+        makeReviewPass(storyId, 'koala-review-concept', reviewRound, '050', runIds.get('koala-review-concept')!),
+        makeLegacyReviewPassWithoutRun(storyId, 'koala-review-quality', reviewRound, '051'),
+        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '052', runIds.get('koala-review-test-coverage')!),
+      ],
+    });
+    const missingRun = getGuardFailureReason(storyId, store, 'TEST', root);
+    assert.match(missingRun ?? '', /缺少 reviewRunId/, 'current REVIEW evidence without reviewRunId must be rejected');
+    const missingRunStatus = summarizeReviewerStatus(store, storyId, root);
+    const missingRunByName = new Map(missingRunStatus.entries.map(e => [e.name, e]));
+    const qualityStatus = missingRunByName.get('quality');
+    assert.equal(qualityStatus?.present, true, 'invalid reviewer evidence should count as present evidence');
+    assert.equal(qualityStatus?.verdict, 'fail', 'invalid reviewer evidence must not be shown as pending');
+    assert.equal(qualityStatus?.blockerCount, 1, 'invalid reviewer evidence should count as a blocking reviewer issue');
+    assert.match(qualityStatus?.detail ?? '', /缺少 reviewRunId/);
+    assert.equal(missingRunStatus.totalBlockers, 1, 'invalid reviewer evidence should surface in totalBlockers');
+    assert.equal(missingRunStatus.allPassed, false);
+
+    store.writeReviewPasses(storyId, {
+      passes: [
+        makeReviewPass(storyId, 'koala-review-concept', reviewRound, '053', runIds.get('koala-review-concept')!),
+        makeReviewPass(storyId, 'koala-review-quality', reviewRound, '054', runIds.get('koala-review-concept')!),
+        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '055', runIds.get('koala-review-test-coverage')!),
+      ],
+    });
+    const wrongLane = getGuardFailureReason(storyId, store, 'TEST', root);
+    assert.match(wrongLane ?? '', /lane=koala-review-concept/, 'evidence bound to a different reviewer lane must be rejected');
+
+    const runs = store.readReviewRuns(storyId);
+    runs.runs[1]._hash = 'tampered-review-run-signature';
+    store.writeReviewRuns(storyId, runs);
+    store.writeReviewPasses(storyId, {
+      passes: [
+        makeReviewPass(storyId, 'koala-review-concept', reviewRound, '056', runIds.get('koala-review-concept')!),
+        makeReviewPass(storyId, 'koala-review-quality', reviewRound, '057', runIds.get('koala-review-quality')!),
+        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '058', runIds.get('koala-review-test-coverage')!),
+      ],
+    });
+    const tamperedRun = getGuardFailureReason(storyId, store, 'TEST', root);
+    assert.match(tamperedRun ?? '', /签名无效|被篡改/, 'tampered review-runs.json signature must be rejected');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertLegacyReviewEvidenceWithoutCurrentRoundStaysReadable(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-flow-legacy-review-evidence-'));
+  try {
+    const { store, storyId, reviewRound } = createReviewStore(root);
+    const story = store.readStory(storyId);
+    delete story.currentReviewRound;
+    store.writeStory(storyId, story);
+    store.writeReviewPasses(storyId, {
+      passes: [makeLegacyReviewPassWithoutRun(storyId, 'koala-review-quality', reviewRound, '060')],
+    });
+
+    const evidenceState = collectReviewerEvidenceState(store, storyId, root);
+    assert.equal(evidenceState.invalid.length, 0, 'legacy story without currentReviewRound should not require reviewRunId');
+    assert.equal(evidenceState.valid.length, 1, 'legacy signed review pass should remain readable');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -409,7 +593,7 @@ async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(): Promise<void> 
   const root = mkdtempSync(join(tmpdir(), 'koala-flow-review-echo-'));
   const oldCwd = process.cwd();
   try {
-    const { store, storyId } = createReviewStore(root);
+    const { store, storyId, reviewRound } = createReviewStore(root);
     git(root, ['init']);
     git(root, ['config', 'user.email', 'koala@example.test']);
     git(root, ['config', 'user.name', 'Koala Smoke']);
@@ -460,16 +644,21 @@ function assertReviewerStatusUsesMdFallback(): void {
     write(root, 'docs/review-notes.md', '# Review notes\n\nDocs changed in story branch.\n');
     git(root, ['add', 'docs/review-notes.md']);
     git(root, ['commit', '-m', 'docs change']);
+    const runIds = seedReviewRuns(root, store, storyId, reviewRound, [
+      'koala-review-concept',
+      'koala-review-quality',
+      'koala-review-test-coverage',
+    ]);
 
     store.writeFindings(storyId, {
       findings: [
-        makeFinding(storyId, 'koala-review-concept', reviewRound, '010'),
-        makeFinding(storyId, 'koala-review-quality', reviewRound, '011'),
+        makeFinding(storyId, 'koala-review-concept', reviewRound, '010', runIds.get('koala-review-concept')!),
+        makeFinding(storyId, 'koala-review-quality', reviewRound, '011', runIds.get('koala-review-quality')!),
       ],
     });
     store.writeReviewPasses(storyId, {
       passes: [
-        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '012'),
+        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '012', runIds.get('koala-review-test-coverage')!),
       ],
     });
 
@@ -483,6 +672,11 @@ function assertReviewerStatusUsesMdFallback(): void {
       scanRoot: join(root, 'packages/main'),
     }).session_brief({ concise: true });
     assert.match(reviewBrief, /\[pending\] docs/i);
+    assert.match(reviewBrief, /review_run_start/, 'REVIEW anti-stall should tell reviewers to start a signed review run');
+    assert.match(reviewBrief, /reviewRunId/, 'REVIEW anti-stall should mention the returned reviewRunId');
+    assert.match(reviewBrief, /review_pass_set/, 'REVIEW anti-stall should still explain no-blocker pass evidence');
+    assert.match(reviewBrief, /<reviewRunId from review_run_start>/, 'REVIEW anti-stall should not imply a hard-coded reviewRunId');
+    assert.doesNotMatch(reviewBrief, /:RR-001/, 'REVIEW anti-stall must not hard-code a synthetic reviewRunId');
 
     const contract = getArtifactContractStatus(store, storyId, 'TEST', { projectRoot: root });
     const findingsClear = contract.entries.find(entry => entry.name === 'findings-clear');
@@ -503,6 +697,11 @@ function assertSessionBriefStatusHintsMatchGates(): void {
     git(reviewRoot, ['add', '.']);
     git(reviewRoot, ['commit', '-m', 'base']);
     git(reviewRoot, ['checkout', '-b', `story/${storyId}`]);
+    const runIds = seedReviewRuns(reviewRoot, store, storyId, reviewRound, [
+      'koala-review-concept',
+      'koala-review-quality',
+      'koala-review-test-coverage',
+    ]);
     store.writeReview(storyId, {
       reviews: [{
         timestamp: reviewRound,
@@ -513,9 +712,9 @@ function assertSessionBriefStatusHintsMatchGates(): void {
     });
     store.writeReviewPasses(storyId, {
       passes: [
-        makeReviewPass(storyId, 'koala-review-concept', reviewRound, '020'),
-        makeReviewPass(storyId, 'koala-review-quality', reviewRound, '021'),
-        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '022'),
+        makeReviewPass(storyId, 'koala-review-concept', reviewRound, '020', runIds.get('koala-review-concept')!),
+        makeReviewPass(storyId, 'koala-review-quality', reviewRound, '021', runIds.get('koala-review-quality')!),
+        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '022', runIds.get('koala-review-test-coverage')!),
       ],
     });
     const reviewBrief = createSessionHandlers({
@@ -579,6 +778,11 @@ function assertReviewNextUsesReviewerGateState(): void {
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
     git(root, ['checkout', '-b', `story/${storyId}`]);
+    const runIds = seedReviewRuns(root, store, storyId, reviewRound, [
+      'koala-review-concept',
+      'koala-review-quality',
+      'koala-review-test-coverage',
+    ]);
 
     const handlers = createSessionHandlers({
       store,
@@ -616,13 +820,14 @@ function assertReviewNextUsesReviewerGateState(): void {
         agent: 'koala-review-concept',
         createdAt,
         reviewRound,
-        _hash: signFinding(storyId, id, desc, severity, createdAt, reviewRound),
+        reviewRunId: runIds.get('koala-review-concept')!,
+        _hash: signFinding(storyId, id, desc, severity, createdAt, reviewRound, runIds.get('koala-review-concept')!),
       }],
     });
     store.writeReviewPasses(storyId, {
       passes: [
-        makeReviewPass(storyId, 'koala-review-quality', reviewRound, '041'),
-        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '042'),
+        makeReviewPass(storyId, 'koala-review-quality', reviewRound, '041', runIds.get('koala-review-quality')!),
+        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '042', runIds.get('koala-review-test-coverage')!),
       ],
     });
     const blockerNext = handlers.next({ concise: true });
@@ -918,6 +1123,11 @@ function assertDoneChecklistUsesStableOracleRows(): void {
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
     git(root, ['checkout', '-b', `story/${storyId}`]);
+    const runIds = seedReviewRuns(root, store, storyId, reviewRound, [
+      'koala-review-concept',
+      'koala-review-quality',
+      'koala-review-test-coverage',
+    ]);
 
     const testStory = store.readStory(storyId);
     testStory.phase = 'TEST';
@@ -932,9 +1142,9 @@ function assertDoneChecklistUsesStableOracleRows(): void {
     });
     store.writeReviewPasses(storyId, {
       passes: [
-        makeReviewPass(storyId, 'koala-review-concept', reviewRound, '030'),
-        makeReviewPass(storyId, 'koala-review-quality', reviewRound, '031'),
-        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '032'),
+        makeReviewPass(storyId, 'koala-review-concept', reviewRound, '030', runIds.get('koala-review-concept')!),
+        makeReviewPass(storyId, 'koala-review-quality', reviewRound, '031', runIds.get('koala-review-quality')!),
+        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '032', runIds.get('koala-review-test-coverage')!),
       ],
     });
     const evidence: TestEvidenceData = {
@@ -1024,6 +1234,8 @@ assertFlowFactPolicyRegistry();
 assertPhaseGatePolicyHints();
 assertPhaseToolsOverrideStillBlocks();
 assertReviewGateUsesOptIn();
+assertReviewRunBindingRejectsInvalidEvidence();
+assertLegacyReviewEvidenceWithoutCurrentRoundStaysReadable();
 await assertStoryAdvanceReviewEchoOmitsRetiredChannel();
 assertReviewerStatusUsesMdFallback();
 assertSessionBriefStatusHintsMatchGates();
