@@ -1,0 +1,43 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add explicit init profile selection and detection",
+      "context": "Support codex, claude, all, and core profiles. Explicit --profile is source of truth. When absent, detect host markers/env only as an initializer hint: Codex markers choose codex, Claude markers choose claude, both markers choose all, and no markers keep all for backwards compatibility with an explicit output note.",
+      "relatedDocs": [
+        "AGENTS.md#流程事实双层契约",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "Running koala init --profile=codex|claude|all|core prints the selected profile and detection reason; default init still works but explains the compatibility fallback."
+    },
+    {
+      "id": "CHK-002",
+      "title": "Generate canonical KOALA.md plus profile-specific adapter assets",
+      "context": "Implement a mechanical asset matrix. All profiles create core docs/config dirs, KOALA.md, and bin/koala.js. codex creates AGENTS.md, .Codex/README.md, .Codex/koala.json, .Codex/agents, and bin/koala-codex.js while skipping CLAUDE.md and .claude-only assets. claude creates CLAUDE.md, .claude/agents, .claude/skills/koala, .claude/hooks, .claude/settings.json while skipping .Codex assets and bin/koala-codex.js. all preserves current dual-stack behavior. core creates no host adapter files. Existing AGENTS.md/CLAUDE.md/KOALA.md with koala markers sync only the koala section; user-owned files without markers are preserved and skipped.",
+      "relatedDocs": [
+        "AGENTS.md#Subagent 定义",
+        "README.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "Codex-only projects see KOALA.md plus AGENTS.md/.Codex assets and no .claude files; Claude-only projects see KOALA.md plus CLAUDE.md/.claude assets and no .Codex files; all/core profiles visibly follow their asset matrix."
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add hard-coded init profile contract coverage",
+      "context": "Add hard-coded contract coverage for the init profile matrix and existing-file preservation. Codex adapter verification remains required only for codex/all profiles that generate .Codex assets; claude/core profiles must not call or require runCodexAdapterChecks unless --verify-codex is explicitly requested, in which case the command should explain that the selected profile has no Codex adapter assets instead of treating missing .Codex as drift.",
+      "relatedDocs": [
+        "AGENTS.md#流程事实双层契约",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "Verification fails on wrong-profile assets or user doc overwrite, passes for codex/all Codex adapter checks, and reports a clear non-Codex-profile skip when verify_codex is requested for claude/core."
+    }
+  ]
+}
