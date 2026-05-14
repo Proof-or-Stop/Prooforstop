@@ -412,6 +412,39 @@ checks.push(() => {
     assert(readJson(tempDir, '.Codex/koala.json').adapterOwner === 'koala', 'koala check --apply should restore Codex manifest');
     assertPathExists(tempDir, '.koala/managed-assets.json', 'koala check --apply manifest');
 
+    run('git', ['init'], { cwd: tempDir });
+    writeFileSync(join(tempDir, 'koala-user-note.txt'), 'uncommitted local work\n');
+    writeFileSync(join(tempDir, '.Codex', 'koala.json'), '{}\n');
+    const checkUpgrade = JSON.parse(run(process.execPath, [join(repoRoot, CORE_ENTRYPOINT), 'check', '--upgrade', '--json'], { cwd: tempDir }));
+    assert(checkUpgrade.ok === true, 'koala check --upgrade should repair safe managed drift');
+    assert(checkUpgrade.mode === 'upgrade', 'koala check --upgrade should report upgrade mode');
+    assert(checkUpgrade.applied.includes('.Codex/koala.json'), 'koala check --upgrade should report applied managed manifest');
+    assert(
+      checkUpgrade.warnings.some(warning => warning.includes('working tree already has')),
+      'koala check --upgrade should warn before syncing into a dirty worktree',
+    );
+
+    const originalClaude = readFileSync(join(tempDir, 'CLAUDE.md'), 'utf8');
+    writeFileSync(join(tempDir, 'CLAUDE.md'), [
+      '# CLAUDE.md',
+      '',
+      '<!-- koala:start -->',
+      '## Local Project Rule',
+      '',
+      'Preserve this locally edited Claude instruction.',
+      '<!-- koala:end -->',
+      '',
+    ].join('\n'));
+    const checkLocalReview = JSON.parse(run(process.execPath, [join(repoRoot, CORE_ENTRYPOINT), 'check', '--review-local-edits', '--json'], { cwd: tempDir }));
+    const claudeReview = checkLocalReview.localEditReviews.find(review => review.relPath === 'CLAUDE.md');
+    assert(checkLocalReview.ok === false, 'koala check --review-local-edits should preserve STALE_LOCAL_EDIT status');
+    assert(claudeReview, 'koala check --review-local-edits should report CLAUDE.md review data');
+    assert(
+      claudeReview.localOnlyHeadings.includes('Local Project Rule'),
+      'koala check --review-local-edits should surface local-only headings',
+    );
+    writeFileSync(join(tempDir, 'CLAUDE.md'), originalClaude);
+
     mkdirSync(join(tempDir, '.Codex', 'hooks'), { recursive: true });
     const checkExcludedDirectory = JSON.parse(run(process.execPath, [join(repoRoot, CORE_ENTRYPOINT), 'check', '--json'], { cwd: tempDir }));
     const excludedDirectoryItem = checkExcludedDirectory.items.find(item => item.relPath === '.Codex/hooks');

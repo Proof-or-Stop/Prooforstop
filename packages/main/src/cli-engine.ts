@@ -459,9 +459,11 @@ export const MAIN_TOOLS: ToolDef[] = [
     json: z.boolean().optional().describe('结构化 JSON 输出'),
     storyId: z.string().optional().describe('可选 Story ID；缺省从 story/* 分支推断并记录 process-event evidence'),
   }},
-  { name: 'check', description: '检查 Koala 管理资产/模板漂移；--apply 显式同步安全项', schema: {
+  { name: 'check', description: '检查 Koala 管理资产/模板漂移；--apply/--upgrade 显式同步安全项', schema: {
     json: z.boolean().optional().describe('结构化 JSON 输出'),
     apply: z.boolean().optional().describe('同步 MISSING/STALE_SAFE 管理资产；不会覆盖 STALE_LOCAL_EDIT/INCOMPATIBLE'),
+    upgrade: z.boolean().optional().describe('同步 MISSING/STALE_SAFE 管理资产到当前 Koala 模板；等价于 --apply'),
+    reviewLocalEdits: z.boolean().optional().describe('输出 STALE_LOCAL_EDIT 的结构化人工审查摘要'),
     profile: z.enum(['codex', 'claude', 'all', 'core']).optional().describe('覆盖自动检测的 init profile'),
   }},
 
@@ -961,6 +963,12 @@ export function parseFlagsTest(rawArgs: string[], schemaDesc: Record<string, str
   return parseFlags(rawArgs, schema);
 }
 
+function normalizeFlagKey(key: string, schema: Record<string, ZodType>): string {
+  if (schema[key]) return key;
+  const camelKey = key.replace(/-([a-z0-9])/g, (_match, ch: string) => ch.toUpperCase());
+  return schema[camelKey] ? camelKey : key;
+}
+
 export function parseFlags(rawArgs: string[], schema: Record<string, ZodType>): Record<string, unknown> {
   const result: Record<string, unknown> = {};
   const arrayKeys = new Set(
@@ -978,11 +986,11 @@ export function parseFlags(rawArgs: string[], schema: Record<string, ZodType>): 
       // --key=value or --key value or --flag (boolean)
       const eqIdx = arg.indexOf('=');
       if (eqIdx > 0) {
-        const key = arg.slice(2, eqIdx);
+        const key = normalizeFlagKey(arg.slice(2, eqIdx), schema);
         const val = arg.slice(eqIdx + 1);
         addValue(result, key, coerce(val, schema[key]), arrayKeys.has(key));
       } else {
-        const key = arg.slice(2);
+        const key = normalizeFlagKey(arg.slice(2), schema);
         // 下一个参数不是 flag → 当作 value
         if (i + 1 < rawArgs.length && !rawArgs[i + 1].startsWith('--')) {
           addValue(result, key, coerce(rawArgs[i + 1], schema[key]), arrayKeys.has(key));
@@ -995,7 +1003,7 @@ export function parseFlags(rawArgs: string[], schema: Record<string, ZodType>): 
     } else if (arg.includes('=') && !arg.startsWith('{')) {
       // key=value (无 -- 前缀，兼容旧格式)
       const eqIdx = arg.indexOf('=');
-      const key = arg.slice(0, eqIdx);
+      const key = normalizeFlagKey(arg.slice(0, eqIdx), schema);
       const val = arg.slice(eqIdx + 1);
       addValue(result, key, coerce(val, schema[key]), arrayKeys.has(key));
     }

@@ -9,6 +9,7 @@ import {
   unlinkSync,
   writeFileSync,
 } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -48,6 +49,8 @@ export type ManagedAssetKind =
 
 export interface ManagedAssetCheckOptions {
   apply?: boolean;
+  upgrade?: boolean;
+  reviewLocalEdits?: boolean;
   profile?: InitProfile;
 }
 
@@ -66,10 +69,26 @@ export interface ManagedAssetCheckItem {
 export interface ManagedAssetCheckResult {
   ok: boolean;
   profile: InitProfile;
+  mode: 'check' | 'apply' | 'upgrade';
   applied: string[];
+  warnings: string[];
   summary: Record<ManagedAssetStatus, number>;
   items: ManagedAssetCheckItem[];
+  localEditReviews?: ManagedAssetLocalEditReview[];
   manifestPath: string;
+}
+
+export interface ManagedAssetLocalEditReview {
+  relPath: string;
+  kind: ManagedAssetKind;
+  status: 'STALE_LOCAL_EDIT';
+  currentLines: number;
+  expectedLines: number;
+  currentHeadings: string[];
+  expectedHeadings: string[];
+  localOnlyHeadings: string[];
+  templateOnlyHeadings: string[];
+  recommendation: string;
 }
 
 interface ManagedAssetDefinition {
@@ -163,6 +182,44 @@ function hasManagedMarkers(content: string): boolean {
 
 function safeJsonParse(text: string): unknown {
   try { return JSON.parse(text); } catch { /* PROBE: malformed JSON means this asset cannot prove Koala ownership. */ return null; }
+}
+
+function gitLines(root: string, args: string[]): string[] {
+  try {
+    return execFileSync('git', args, {
+      cwd: root,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+  } catch {
+    // PROBE: non-git projects or unavailable git should not block managed asset checks.
+    return [];
+  }
+}
+
+function collectApplyWarnings(root: string): string[] {
+  const warnings: string[] = [];
+  const dirty = gitLines(root, ['status', '--porcelain=v1', '--untracked-files=normal']);
+  if (dirty.length > 0) {
+    const sample = dirty.slice(0, 5).map(line => line.replace(/\s+/g, ' ')).join('; ');
+    const suffix = dirty.length > 5 ? '; ...' : '';
+    warnings.push(`working tree already has ${dirty.length} dirty path(s); managed asset sync will be mixed into the existing diff (${sample}${suffix})`);
+  }
+
+  const branch = gitLines(root, ['rev-parse', '--abbrev-ref', 'HEAD'])[0] ?? '';
+  if (branch.startsWith('story/')) {
+    warnings.push(`current branch is ${branch}; prefer syncing managed assets in a dedicated maintenance commit before REVIEW/TEST/DONE gates`);
+  }
+
+  const worktreeLines = gitLines(root, ['worktree', 'list', '--porcelain']);
+  const storyBranches = worktreeLines
+    .filter(line => line.startsWith('branch refs/heads/story/'))
+    .map(line => line.slice('branch refs/heads/'.length));
+  if (storyBranches.length > 0) {
+    warnings.push(`registered active story worktree(s) detected: ${storyBranches.join(', ')}; new agents will see upgraded prompts after sync, already-running agents will not`);
+  }
+
+  return warnings;
 }
 
 function isKoalaPrompt(actual: string, file: string): boolean {
@@ -413,7 +470,7 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
 
   if (pathKind === 'directory' || pathKind === 'other') {
     const found = pathKind === 'directory' ? 'directory' : 'non-file path';
-    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', expectedHash, reason: `managed asset path is a ${found}, expected a file`, action: 'replace or remove the path manually before running koala check --apply' };
+    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', expectedHash, reason: `managed asset path is a ${found}, expected a file`, action: 'replace or remove the path manually before running koala check --apply/--upgrade' };
   }
 
   if (def.kind === 'gitignore-runtime') {
@@ -549,14 +606,74 @@ function summarize(items: ManagedAssetCheckItem[]): Record<ManagedAssetStatus, n
   return summary;
 }
 
+function countLines(text: string): number {
+  if (text.length === 0) return 0;
+  return text.replace(/\n$/, '').split(/\r?\n/).length;
+}
+
+function markdownHeadings(text: string): string[] {
+  return text
+    .split(/\r?\n/)
+    .map(line => line.match(/^\s{0,3}#{1,6}\s+(.+?)\s*$/)?.[1]?.trim())
+    .filter((heading): heading is string => Boolean(heading));
+}
+
+function stringDifference(left: string[], right: string[]): string[] {
+  const rightSet = new Set(right);
+  return left.filter(item => !rightSet.has(item));
+}
+
+function reviewLocalEdit(root: string, def: ManagedAssetDefinition): ManagedAssetLocalEditReview | null {
+  const actual = readText(root, def.relPath);
+  if (actual === null) return null;
+  const expected = normalizeContent(def.expectedContent ?? '');
+  const actualReviewText = def.kind === 'managed-block' ? extractKoalaSection(actual) : actual;
+  const expectedReviewText = def.kind === 'managed-block' ? extractKoalaSection(expected) : expected;
+  const currentHeadings = markdownHeadings(actualReviewText);
+  const expectedHeadings = markdownHeadings(expectedReviewText);
+  const localOnlyHeadings = stringDifference(currentHeadings, expectedHeadings);
+  const templateOnlyHeadings = stringDifference(expectedHeadings, currentHeadings);
+  const recommendation = localOnlyHeadings.length > 0
+    ? `manual review required: preserve or migrate local heading(s): ${localOnlyHeadings.join(', ')}`
+    : 'manual review required: no unique local headings detected, compare text/body edits before replacing';
+
+  return {
+    relPath: def.relPath,
+    kind: def.kind,
+    status: 'STALE_LOCAL_EDIT',
+    currentLines: countLines(actualReviewText),
+    expectedLines: countLines(expectedReviewText),
+    currentHeadings,
+    expectedHeadings,
+    localOnlyHeadings,
+    templateOnlyHeadings,
+    recommendation,
+  };
+}
+
+function collectLocalEditReviews(
+  root: string,
+  defs: ManagedAssetDefinition[],
+  items: ManagedAssetCheckItem[],
+): ManagedAssetLocalEditReview[] {
+  const staleLocalIds = new Set(items.filter(item => item.status === 'STALE_LOCAL_EDIT').map(item => item.id));
+  return defs
+    .filter(def => staleLocalIds.has(def.id))
+    .map(def => reviewLocalEdit(root, def))
+    .filter((review): review is ManagedAssetLocalEditReview => Boolean(review));
+}
+
 export function runManagedAssetCheck(root: string, options: ManagedAssetCheckOptions = {}): ManagedAssetCheckResult {
   const profile = options.profile ?? detectManagedAssetProfile(root);
+  const mode: ManagedAssetCheckResult['mode'] = options.upgrade ? 'upgrade' : options.apply ? 'apply' : 'check';
+  const shouldApply = mode === 'apply' || mode === 'upgrade';
+  const warnings = shouldApply ? collectApplyWarnings(root) : [];
   const defs = listManagedAssetDefinitions(profile, packageRoot(), root);
   const manifest = loadManifest(root);
   let items = defs.map(def => evaluateDefinition(root, def, manifest));
   const applied: string[] = [];
 
-  if (options.apply) {
+  if (shouldApply) {
     for (const def of defs) {
       const item = items.find(item => item.id === def.id);
       if (!item) continue;
@@ -571,12 +688,16 @@ export function runManagedAssetCheck(root: string, options: ManagedAssetCheckOpt
   }
 
   const summary = summarize(items);
+  const localEditReviews = options.reviewLocalEdits ? collectLocalEditReviews(root, defs, items) : undefined;
   return {
     ok: summary.MISSING === 0 && summary.STALE_SAFE === 0 && summary.STALE_LOCAL_EDIT === 0 && summary.INCOMPATIBLE === 0,
     profile,
+    mode,
     applied,
+    warnings,
     summary,
     items,
+    ...(localEditReviews ? { localEditReviews } : {}),
     manifestPath: MANIFEST_REL_PATH,
   };
 }
@@ -589,6 +710,12 @@ export function renderManagedAssetCheck(result: ManagedAssetCheckResult): string
   if (result.applied.length > 0) {
     lines.push(`Applied: ${result.applied.join(', ')}`);
   }
+  if (result.warnings.length > 0) {
+    lines.push('', 'Warnings:');
+    for (const warning of result.warnings) {
+      lines.push(`  - ${warning}`);
+    }
+  }
   const drift = result.items.filter(item => item.status !== 'OK');
   if (drift.length > 0) {
     lines.push('', 'Drift:');
@@ -596,7 +723,20 @@ export function renderManagedAssetCheck(result: ManagedAssetCheckResult): string
       lines.push(`  - ${item.status} ${item.relPath}: ${item.reason}`);
       lines.push(`    action: ${item.action}`);
     }
-    lines.push('', 'Run `koala check --apply` to sync MISSING/STALE_SAFE assets. STALE_LOCAL_EDIT/INCOMPATIBLE require manual review.');
+    if (result.localEditReviews?.length) {
+      lines.push('', 'Local edit review:');
+      for (const review of result.localEditReviews) {
+        lines.push(`  - ${review.relPath}: current ${review.currentLines} line(s), template ${review.expectedLines} line(s)`);
+        if (review.localOnlyHeadings.length > 0) {
+          lines.push(`    local-only headings: ${review.localOnlyHeadings.join(', ')}`);
+        }
+        if (review.templateOnlyHeadings.length > 0) {
+          lines.push(`    template-only headings: ${review.templateOnlyHeadings.join(', ')}`);
+        }
+        lines.push(`    recommendation: ${review.recommendation}`);
+      }
+    }
+    lines.push('', 'Run `koala check --apply` or `koala check --upgrade` to sync MISSING/STALE_SAFE assets. STALE_LOCAL_EDIT/INCOMPATIBLE require manual review.');
   } else {
     lines.push(`Manifest: ${result.manifestPath}`);
   }
