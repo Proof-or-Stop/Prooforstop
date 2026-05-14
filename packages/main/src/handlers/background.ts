@@ -11,17 +11,19 @@
  *
  * 设计约束：
  *   - 不读写 docs/story/actives/{storyId}/ 之外路径
- *   - append 的 section 白名单 = REQUIRED_SECTIONS（4 个）
+ *   - append 的 section 白名单 = BACKGROUND_SECTION_IDS（4 个）；legacy 中文段名在入口归一
  *   - background.md 不存在时 append / get 报错引导 `background_set`
  */
 
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import type { HandlerContext } from './context.js';
 import {
+  BACKGROUND_SECTION_IDS,
   REQUIRED_SECTIONS,
+  backgroundSectionTitle,
+  normalizeBackgroundSection,
   parseSections,
   validateBackground,
-  type RequiredSection,
 } from '../core/background-validator.js';
 
 function backgroundPath(ctx: HandlerContext, storyId: string): string {
@@ -73,12 +75,14 @@ export function createBackgroundHandlers(ctx: HandlerContext) {
         throw new Error('content is required (non-empty string)');
       }
 
-      if (!(REQUIRED_SECTIONS as readonly string[]).includes(args.section)) {
+      const targetSectionId = normalizeBackgroundSection(args.section);
+      if (!targetSectionId) {
         throw new Error(
-          `非法 section "${args.section}"；合法段头: ${REQUIRED_SECTIONS.map(s => `"${s}"`).join(' / ')}`
+          `非法 section "${args.section}"；合法 section id: ${BACKGROUND_SECTION_IDS.map(s => `"${s}"`).join(' / ')}；` +
+          `legacy 中文段名兼容: ${REQUIRED_SECTIONS.map(s => `"${s}"`).join(' / ')}`
         );
       }
-      const targetSection = args.section as RequiredSection;
+      const targetSection = backgroundSectionTitle(targetSectionId);
 
       const p = backgroundPath(ctx, args.storyId);
       if (!existsSync(p)) {
@@ -133,7 +137,7 @@ export function createBackgroundHandlers(ctx: HandlerContext) {
       writeFileSync(p, rebuilt, 'utf-8');
       return {
         path: p,
-        section: targetSection,
+        section: targetSectionId,
         appendedBytes: Buffer.byteLength(args.content, 'utf-8'),
       };
     },

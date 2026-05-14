@@ -639,7 +639,7 @@ checklist + plan.md 写完后必须 `story_review` 通过（issueCount=0）才�
 
 执行规则：
 - 无 finding / no blocker / 检查通过 这类 reviewer 结论必须用 `review_pass_set` 记录；如果 reviewer 误用 pass-only `finding_add`，handler 必须转换为 review pass。
-- 当前 REVIEW round 的 reviewer 证据先跑 `koala review_run_start {"storyId":"B-xxx","agent":"<本 reviewer 名>"}` 拿到 `reviewRunId`；之后该 reviewer 本轮的每条 `finding_add` / `review_pass_set` 都必须带这个 current `reviewRunId`。
+- 当前 REVIEW round 的 reviewer 证据先跑 `koala review_run_start {"storyId":"B-xxx","agent":"<reviewer-name>"}` 拿到 `reviewRunId`；之后该 reviewer 本轮的每条 `finding_add` / `review_pass_set` 都必须带这个 current `reviewRunId`。
 - `finding_add` 的 category 只接受当前 canonical `happy|edge|adversarial|missing`，已知 legacy `cleanup|doc-promise-undelivered|doc-code-drift|spec-boundary` 只作为兼容输入归一为 `missing`，不能作为 active prompt 示例继续传播。
 - Gate 消费结构化事实：签名、hash、verificationEvidence、review pass、init/scope/delivery check 和 validate evidence。不要让 gate 从普通文本“通过/无问题”推断流程事实。
 - 改 reviewer prompt、CLI schema、handler 或 gate 时，运行 `npm run test:process-fact-contract`，确认 prompt 没漂移且 process fact inventory 仍能证明硬兜底存在。
@@ -990,8 +990,8 @@ koala finding_add '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_ru
 - 当前 REVIEW round 的 first action 是 `review_run_start`；如果代码或文档在审查期间继续变化，当前 run 会 stale，必须回 DEV 修复并提交，再 DEV→REVIEW 进入新 round，不要在同一 REVIEW round 里重跑它当修复。
 - 审查结束后，确认所有发现的问题都已通过 `koala finding_add` 注册，然后输出注册的 finding 数量作为最终摘要
 - 没有 finding 时禁止用 `finding_add` 刷通过；必须调用 `koala review_pass_set` 记录本 reviewer 已检查的范围和无 blocker 原因。
-- 当前 REVIEW round 开始审查时，先调 `koala review_run_start {"storyId":"B-xxx","agent":"<本 reviewer 名>"}`；记录返回的 `reviewRunId`，本轮所有 `finding_add` / `review_pass_set` 都要带这个字段。
-- 无 blocker 的 pass 记录示例：`koala review_pass_set {"storyId":"B-xxx","agent":"<本 reviewer 名>","reviewRunId":"<reviewRunId from review_run_start>","note":"..."}`。
+- 当前 REVIEW round 开始审查时，先调 `koala review_run_start {"storyId":"B-xxx","agent":"<reviewer-name>"}`；记录返回的 `reviewRunId`，本轮所有 `finding_add` / `review_pass_set` 都要带这个字段。
+- 无 blocker 的 pass 记录示例：`koala review_pass_set {"storyId":"B-xxx","agent":"<reviewer-name>","reviewRunId":"<reviewRunId from review_run_start>","note":"..."}`。
 - userSees 为空的 item 提 medium finding 提醒补充
 - 每条 finding 带具体文件路径 + 行号 + 修复建议
 - 没有 userSees 匹配问题也要检查边界条件

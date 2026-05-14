@@ -21,6 +21,38 @@ export const REQUIRED_SECTIONS = [
 
 export type RequiredSection = typeof REQUIRED_SECTIONS[number];
 
+export const BACKGROUND_SECTION_IDS = [
+  'trigger_event',
+  'key_insight',
+  'tradeoff',
+  'conversation_texture',
+] as const;
+
+export type BackgroundSectionId = typeof BACKGROUND_SECTION_IDS[number];
+
+export const BACKGROUND_SECTION_TITLES: Record<BackgroundSectionId, RequiredSection> = {
+  trigger_event: '触发事件',
+  key_insight: '关键洞察',
+  tradeoff: '方案取舍',
+  conversation_texture: '对话纹理',
+};
+
+const BACKGROUND_SECTION_ID_BY_TITLE = new Map<string, BackgroundSectionId>(
+  Object.entries(BACKGROUND_SECTION_TITLES).map(([id, title]) => [title, id as BackgroundSectionId]),
+);
+
+export function normalizeBackgroundSection(value: string): BackgroundSectionId | null {
+  const trimmed = value.trim();
+  if ((BACKGROUND_SECTION_IDS as readonly string[]).includes(trimmed)) {
+    return trimmed as BackgroundSectionId;
+  }
+  return BACKGROUND_SECTION_ID_BY_TITLE.get(trimmed) ?? null;
+}
+
+export function backgroundSectionTitle(sectionId: BackgroundSectionId): RequiredSection {
+  return BACKGROUND_SECTION_TITLES[sectionId];
+}
+
 const TRIGGER_ID_PATTERNS: RegExp[] = [
   /B-[a-z0-9]{4}\b/,
   /F-\d+\b/,

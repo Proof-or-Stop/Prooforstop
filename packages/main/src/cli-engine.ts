@@ -24,6 +24,7 @@ import { detectStaleState } from './core/stale-detector.js';
 import { runHooks, truncateForEnv, buildHookEnv as buildSharedHookEnv, HOOK_TIMEOUT_MS } from './core/hooks.js';
 import { gitProbe, isGitRepository } from './core/git-probe.js';
 import { STORY_OUTCOME_KINDS, VERIFICATION_EVIDENCE_VERDICTS } from './core/types.js';
+import { BACKGROUND_SECTION_IDS, normalizeBackgroundSection } from './core/background-validator.js';
 import {
   STORY_CREATE_LONG, STORY_ADVANCE_LONG, CHECKLIST_UPDATE_LONG,
   STORY_REVIEW_LONG, BUG_REPORT_LONG, VALIDATE_LONG,
@@ -116,6 +117,11 @@ const verificationEvidenceSchema = z.object({
   materialHash: z.string().optional().describe('记录证据时的非 story-metadata 实体文件哈希'),
   timestamp: z.string().optional().describe('记录时间'),
 });
+
+const backgroundSectionSchema = z.preprocess((value) => {
+  if (typeof value !== 'string') return value;
+  return normalizeBackgroundSection(value) ?? value;
+}, z.enum(BACKGROUND_SECTION_IDS));
 
 const storyTypeSchema = z.preprocess((value) => {
   if (value === 'test') return 'chore';
@@ -660,7 +666,7 @@ export const MAIN_TOOLS: ToolDef[] = [
   }},
   { name: 'background_append', description: '追加内容到 background.md 指定段末尾，不影响其他段', schema: {
     storyId: z.string().describe('Story ID'),
-    section: z.enum(['触发事件', '关键洞察', '方案取舍', '对话纹理']).describe('目标段名（四段之一）'),
+    section: backgroundSectionSchema.describe('目标段 id：trigger_event / key_insight / tradeoff / conversation_texture；legacy 中文段名会归一'),
     content: z.string().describe('要追加的内容（通常是单行 bullet 或若干行）'),
   }},
   { name: 'background_get', description: '读取 background.md 全文', schema: {

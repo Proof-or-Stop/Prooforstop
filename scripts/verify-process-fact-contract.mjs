@@ -7,6 +7,8 @@ import { pathToFileURL } from 'node:url';
 const root = process.cwd();
 const failures = [];
 const warnings = [];
+const hanCharacterPattern = /[\u3400-\u9fff]/;
+const codeLikeCommandNamePattern = /^[a-z][a-z0-9_.-]*(?::[a-z][a-z0-9_.-]*)*$/;
 
 const promptDirs = [
   'packages/main/templates/agents',
@@ -432,10 +434,31 @@ function hasHardCodedReviewRunIdExample(block) {
   return /\breviewRunId\b[\s\S]{0,160}\b(?:B-[A-Za-z0-9_-]+|<ID>|\$\{[^}]+\}):RR-001\b/.test(block);
 }
 
+function lineNumberAt(text, index) {
+  return text.slice(0, index).split(/\r?\n/).length;
+}
+
+function scanAgentMachineValues(block, label, lineNo) {
+  const issues = [];
+  for (const match of block.matchAll(/["']?agent["']?\s*:\s*["']([^"']+)["']/g)) {
+    const value = match[1];
+    if (hanCharacterPattern.test(value)) {
+      issues.push(`${label}:${lineNo} machine field "agent" uses non-code value "${value}"; use an English/code-like reviewer id or placeholder`);
+    }
+  }
+  return issues;
+}
+
 function scanPromptText(text, label) {
   const issues = [];
+  const reviewRunBlocks = commandBlocks(text, 'review_run_start');
+  for (const { block, lineNo } of reviewRunBlocks) {
+    issues.push(...scanAgentMachineValues(block, label, lineNo));
+  }
+
   const findingBlocks = commandBlocks(text, 'finding_add');
   for (const { block, lineNo } of findingBlocks) {
+    issues.push(...scanAgentMachineValues(block, label, lineNo));
     if (requiresReviewPassProtocol(label) && hasHardCodedReviewRunIdExample(block)) {
       issues.push(`${label}:${lineNo} active reviewer command example must use the reviewRunId returned by review_run_start, not a hard-coded RR-001`);
     }
@@ -458,6 +481,7 @@ function scanPromptText(text, label) {
 
   const reviewPassBlocks = commandBlocks(text, 'review_pass_set');
   for (const { block, lineNo } of reviewPassBlocks) {
+    issues.push(...scanAgentMachineValues(block, label, lineNo));
     if (requiresReviewPassProtocol(label) && hasHardCodedReviewRunIdExample(block)) {
       issues.push(`${label}:${lineNo} active reviewer command example must use the reviewRunId returned by review_run_start, not a hard-coded RR-001`);
     }
@@ -478,6 +502,56 @@ function scanPromptText(text, label) {
     }
     if (!text.includes('reviewRunId')) {
       issues.push(`${label}: reviewer prompt emits REVIEW evidence but never mentions reviewRunId`);
+    }
+  }
+  return issues;
+}
+
+function scanCliMachineFactNames(text, label) {
+  const issues = [];
+  for (const match of text.matchAll(/\bname\s*:\s*['"]([^'"]+)['"]/g)) {
+    const name = match[1];
+    if (hanCharacterPattern.test(name) || !codeLikeCommandNamePattern.test(name)) {
+      issues.push(`${label}:${lineNumberAt(text, match.index)} CLI command/fact name "${name}" must stay English/code-like`);
+    }
+  }
+
+  for (const match of text.matchAll(/\b(status|level|category|kind|destructiveRisk|allowedPhases|disposition)\s*:\s*['"]([^'"]+)['"]/g)) {
+    const property = match[1];
+    const value = match[2];
+    if (hanCharacterPattern.test(value)) {
+      issues.push(`${label}:${lineNumberAt(text, match.index)} machine fact ${property} value "${value}" must stay English/code-like`);
+    }
+  }
+
+  for (const match of text.matchAll(/z\.enum\(\s*\[([\s\S]*?)\]\s*\)/g)) {
+    const enumBody = match[1];
+    const enumLine = lineNumberAt(text, match.index);
+    for (const valueMatch of enumBody.matchAll(/['"]([^'"]+)['"]/g)) {
+      const value = valueMatch[1];
+      if (hanCharacterPattern.test(value)) {
+        issues.push(`${label}:${enumLine} CLI schema enum value "${value}" must stay English/code-like`);
+      }
+    }
+  }
+
+  return issues;
+}
+
+function scanCodeLikeStringArrayConst(text, label, constName) {
+  const issues = [];
+  const pattern = new RegExp(`(?:export\\s+)?const\\s+${constName}\\s*=\\s*\\[([\\s\\S]*?)\\]\\s*as\\s+const`);
+  const match = text.match(pattern);
+  if (!match) {
+    issues.push(`${label}: missing code-like string array const ${constName}`);
+    return issues;
+  }
+
+  const body = match[1];
+  for (const valueMatch of body.matchAll(/['"]([^'"]+)['"]/g)) {
+    const value = valueMatch[1];
+    if (hanCharacterPattern.test(value) || !/^[a-z][a-z0-9_]*$/.test(value)) {
+      issues.push(`${label}: ${constName} value "${value}" must stay English/code-like`);
     }
   }
   return issues;
@@ -733,6 +807,34 @@ function assertSyntheticAdversarialChecks() {
     'koala review_pass_set \'{"storyId":"B-x","agent":"koala-review-quality","reviewRunId":"<reviewRunId from review_run_start>","note":"quality review passed: checked changed files and found no blocker."}\'',
   ].join('\n');
   assert(scanPromptText(goodPrompt, 'synthetic-good').length === 0, 'synthetic good prompt should pass');
+
+  const localizedAgentPlaceholder = 'koala review_run_start \'{"storyId":"B-x","agent":"<本 reviewer 名>"}\'';
+  assert(
+    scanPromptText(localizedAgentPlaceholder, 'synthetic-localized-agent-placeholder')
+      .some(issue => issue.includes('machine field "agent" uses non-code value')),
+    'synthetic localized agent placeholder should fail',
+  );
+
+  const localizedCliEnum = "  section: z.enum(['触发事件', '关键洞察']).describe('target'),";
+  assert(
+    scanCliMachineFactNames(localizedCliEnum, 'synthetic-localized-cli-enum')
+      .some(issue => issue.includes('CLI schema enum value')),
+    'synthetic localized CLI enum should fail',
+  );
+
+  const localizedCliName = "  { name: '状态_检查', description: 'bad', schema: {} },";
+  assert(
+    scanCliMachineFactNames(localizedCliName, 'synthetic-localized-cli-name')
+      .some(issue => issue.includes('CLI command/fact name')),
+    'synthetic localized CLI command name should fail',
+  );
+
+  const localizedConstArray = "export const BACKGROUND_SECTION_IDS = ['trigger_event', '触发事件'] as const;";
+  assert(
+    scanCodeLikeStringArrayConst(localizedConstArray, 'synthetic-localized-section-ids', 'BACKGROUND_SECTION_IDS')
+      .some(issue => issue.includes('BACKGROUND_SECTION_IDS value')),
+    'synthetic localized background section id const should fail',
+  );
 
   const syntheticCli = "  { name: 'surprise_check_set', description: '保存新的流程确认', schema: {} },";
   assert(
@@ -2638,6 +2740,20 @@ for (const dir of promptDirs) {
 }
 comparePromptSemantics(promptMap);
 assertSyntheticAdversarialChecks();
+for (const relPath of [
+  'packages/main/src/cli-engine.ts',
+  commandPolicyPath,
+  processFactLevelRegistryPath,
+  processFactRegistryPath,
+  flowFactPolicyPath,
+]) {
+  for (const issue of scanCliMachineFactNames(read(relPath), relPath)) fail(issue);
+}
+for (const issue of scanCodeLikeStringArrayConst(
+  read('packages/main/src/core/background-validator.ts'),
+  'packages/main/src/core/background-validator.ts',
+  'BACKGROUND_SECTION_IDS',
+)) fail(issue);
 assertActiveLifecycleDocGuidance();
 assertReviewRoundIsoDocs();
 assertEvidenceBoundaryDocs();
