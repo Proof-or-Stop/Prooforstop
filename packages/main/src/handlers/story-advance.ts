@@ -68,6 +68,34 @@ function autoSyncMain(projectRoot: string): { ok: boolean; message: string } {
   }
 }
 
+function readGitStatusLines(projectRoot: string): { ok: true; lines: string[] } | { ok: false; error: string } {
+  try {
+    const raw = execSync('git status --porcelain=v1 --untracked-files=all', {
+      cwd: projectRoot,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    return { ok: true, lines: raw.split('\n').map(line => line.trimEnd()).filter(Boolean) };
+  } catch (e: any) {
+    return { ok: false, error: e?.message || String(e) };
+  }
+}
+
+function summarizeGitStatusLines(lines: string[]): string {
+  const sample = lines.slice(0, 6).map(line => line.replace(/\s+/g, ' ')).join('; ');
+  const suffix = lines.length > 6 ? '; ...' : '';
+  return `${lines.length} dirty path(s): ${sample}${suffix}`;
+}
+
+function gitStatusDirtyHint(lines: string[]): string {
+  return [
+    '先处理这些 dirty path:',
+    ...lines.slice(0, 20).map(line => `  ${line}`),
+    ...(lines.length > 20 ? [`  ... ${lines.length - 20} more`] : []),
+    '如果这些文件来自 koala validate / npm test 的报告或 snapshot 副作用，请把项目验证改成默认无副作用，或用 env gate（例如 KOALA_WRITE_*_REPORT=1）显式开启写报告。',
+  ].join('\n');
+}
+
 function isRegisteredWorktree(repoRoot: string, worktreePath: string): boolean {
   try {
     const raw = execFileSync('git', ['worktree', 'list', '--porcelain'], {
@@ -389,23 +417,32 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   }
 
   // 3. git working tree clean
-  try {
-    execSync('git diff --quiet && git diff --cached --quiet', { cwd: root, stdio: 'pipe' });
+  const gitStatus = readGitStatusLines(root);
+  if (gitStatus.ok && gitStatus.lines.length === 0) {
     rows.push(doneCheckRow({
       id: 'git-working-tree',
       status: 'pass',
       label: 'git working tree',
       detail: 'clean',
-      source: 'git diff --quiet',
+      source: 'git status --porcelain',
     }));
-  } catch {
+  } else if (gitStatus.ok) {
     rows.push(doneCheckRow({
       id: 'git-working-tree',
       status: 'fail',
       label: 'git working tree',
-      detail: '有未提交的改动',
-      hint: '先 git add + git commit 提交所有改动',
-      source: 'git diff --quiet',
+      detail: summarizeGitStatusLines(gitStatus.lines),
+      hint: gitStatusDirtyHint(gitStatus.lines),
+      source: 'git status --porcelain',
+    }));
+  } else {
+    rows.push(doneCheckRow({
+      id: 'git-working-tree',
+      status: 'fail',
+      label: 'git working tree',
+      detail: `无法读取 git status: ${gitStatus.error}`,
+      hint: '确认当前目录是 git worktree，并修复 git status 后重跑 DONE gate',
+      source: 'git status --porcelain',
     }));
   }
 

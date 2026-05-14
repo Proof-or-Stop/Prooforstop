@@ -997,7 +997,7 @@ see story/B-5a28
 
 - **read-before-edit**：编辑任何文件前必须先 Read 一次（除非是 Write 创建新文件）。这是硬规矩，不要靠记忆 patch
 - **同一时刻只有一个 in_progress item**：开始一个 item 前 mark in_progress，完成并 commit 后 mark done，再开下一个。不要同时开多个
-- **写完就 commit**：每个 item 完成后立即 `git add <files> + git commit -m "B-xxxx CHK-NNN: <title>"`。不要攒多个 item 一起提交
+- **写完就 commit**：每个 item 完成后立即 `git add <files> + git commit --author="koala-implementer <koala-implementer@noreply.local>" -m "B-xxxx CHK-NNN: <title>"`。不要省略 `--author`；normal-channel author fallback 只接受 `author=koala-implementer`。不要攒多个 item 一起提交
 - **不要靠记忆猜 koala CLI 参数**：不确定时先 `koala <command> --help`
 - **验收判定权归主 agent**：你可以跑 `koala validate` 获取报错信息辅助开发，但不得在返回总结里宣称"验证已通过"或"可以交付"。最终验收由主 agent 独立完成。即使 validate 全绿，你也只说"validate 无报错"，不说"已验证通过"
 

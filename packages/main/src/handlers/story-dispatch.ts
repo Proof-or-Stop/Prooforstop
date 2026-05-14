@@ -48,6 +48,8 @@ const AGENT_TYPE_ALIASES: Record<string, string> = {
   'koala-review-scope': 'koala-review-scope-plan',
 };
 
+const IMPLEMENTER_COMMIT_AUTHOR = 'koala-implementer <koala-implementer@noreply.local>';
+
 /** 归一化 agentType：旧名 → 新名，若命中 alias 则 console.warn。未命中则原样返回。 */
 function normalizeAgentType(agentType: string | undefined): string | undefined {
   if (!agentType) return agentType;
@@ -69,6 +71,11 @@ function resolveBackgroundPolicy(agentType: string | undefined): BackgroundPolic
 
 function isReviewAgent(agentType: string | undefined): boolean {
   return !!agentType && agentType.startsWith('koala-review-');
+}
+
+function appendImplementerCommitSteps(lines: string[], message: string): void {
+  lines.push(`- git commit --author="${IMPLEMENTER_COMMIT_AUTHOR}" -m "${message.replace(/"/g, "'")}"`);
+  lines.push('- 不要省略 `--author`；normal-channel author fallback 只接受 author=koala-implementer。');
 }
 
 /**
@@ -280,7 +287,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push(`Description: ${fDesc}`);
       lines.push('');
       lines.push('完成后:');
-      lines.push('- git commit');
+      appendImplementerCommitSteps(lines, `${args.storyId} ${shortFid}: resolve finding`);
       lines.push(`- koala finding_resolve '{"storyId":"${args.storyId}","findingId":"${finding.id}","resolution":"<你的修复说明>"}'`);
 
       return { prompt: lines.join('\n') };
@@ -437,7 +444,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push(`Verify: ${verifyText}`);
       lines.push('');
       lines.push('完成后:');
-      lines.push('- git commit');
+      appendImplementerCommitSteps(lines, `${args.storyId} ${args.itemId}: ${item.title}`);
       lines.push(`- koala checklist_update '{"storyId":"${args.storyId}","itemId":"${args.itemId}","status":"done"}'`);
 
       // 使用 story.phase 消除未使用变量告警（同时便于 CHK-008 扩展时读取上下文）

@@ -15,7 +15,7 @@ import { StoryStore } from '../core/store.js';
 import { join, relative } from 'path';
 import { loadConfig } from '../core/config.js';
 import type { StoryPhase } from '../core/types.js';
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 
 /** 差距项 */
 export interface GapItem {
@@ -51,6 +51,17 @@ function taskKey(task: TaskAnnotation): string {
   return task.functionName
     ? `${task.sourceFile}:${task.functionName}`
     : `${task.sourceFile}:${task.sourceLine}:${task.task}`;
+}
+
+function taskSourceExists(projectRoot: string, scanRoot: string, rootDir: string | undefined, task: TaskAnnotation): boolean {
+  if (!task.sourceFile) return true;
+  const normalized = task.sourceFile.split(/[\\/]+/).filter(Boolean).join('/');
+  const candidates = [
+    join(scanRoot, normalized),
+    join(projectRoot, normalized),
+  ];
+  if (rootDir) candidates.push(join(scanRoot, rootDir, normalized));
+  return candidates.some((candidate) => existsSync(candidate));
 }
 
 function scanSourceAnnotations(scanRoot: string): TaskAnnotation[] {
@@ -91,9 +102,12 @@ function scanSourceAnnotations(scanRoot: string): TaskAnnotation[] {
   return tasks;
 }
 
-function scanCoverageTasks(scanRoot: string): TaskAnnotation[] {
+function scanCoverageTasks(scanRoot: string, projectRoot: string, rootDir: string | undefined): TaskAnnotation[] {
   const merged = new Map<string, TaskAnnotation>();
-  for (const task of scan(scanRoot)) merged.set(taskKey(task), task);
+  for (const task of scan(scanRoot)) {
+    if (!taskSourceExists(projectRoot, scanRoot, rootDir, task)) continue;
+    merged.set(taskKey(task), task);
+  }
   for (const task of scanSourceAnnotations(scanRoot)) {
     if (!merged.has(taskKey(task))) merged.set(taskKey(task), task);
   }
@@ -104,7 +118,7 @@ export function analyzeGap(projectRoot: string, store?: StoryStore): GapResult {
   const config = loadConfig(projectRoot);
   const scanRoot = join(projectRoot, config.scanRoot);
   const truth = scanTruth(projectRoot);
-  const tasks = scanCoverageTasks(scanRoot);
+  const tasks = scanCoverageTasks(scanRoot, projectRoot, config.rootDir);
   const chains = extractFlows(tasks);
   const validation = validate(scanRoot);
   const flowValidation = validateFlows(chains, tasks);
@@ -204,7 +218,7 @@ export function checkConvergence(projectRoot: string, store: StoryStore): Conver
   const config = loadConfig(projectRoot);
   const scanRoot = join(projectRoot, config.scanRoot);
   const gap = analyzeGap(projectRoot, store);
-  const tasks = scanCoverageTasks(scanRoot);
+  const tasks = scanCoverageTasks(scanRoot, projectRoot, config.rootDir);
   const chains = extractFlows(tasks);
   const flowValidation = validateFlows(chains, tasks);
   const codeValidation = validate(scanRoot);

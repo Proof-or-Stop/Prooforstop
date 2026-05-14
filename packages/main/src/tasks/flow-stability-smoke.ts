@@ -19,6 +19,7 @@ import { StoryStore } from '../core/store.js';
 import type { ChecklistData, Finding, ReviewRun, StoryInfo, TestEvidenceData } from '../core/types.js';
 import { buildDoneChecklist } from '../handlers/story-advance.js';
 import { createStoryAdvanceHandlers } from '../handlers/story-advance.js';
+import { createStoryDispatchHandlers } from '../handlers/story-dispatch.js';
 import { decorateResult } from '../handlers/hints.js';
 import { createSessionHandlers } from '../handlers/session.js';
 import { checkCommitAuthor } from '../handlers/validate-channel.js';
@@ -187,6 +188,32 @@ function createReviewStore(root: string): { store: StoryStore; storyId: string; 
     timestamp: now,
   });
   return { store, storyId, reviewRound };
+}
+
+function assertDispatchPromptsPinImplementerCommitAuthor(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-flow-dispatch-author-'));
+  try {
+    const { store, storyId, reviewRound } = createReviewStore(root);
+    const dispatch = createStoryDispatchHandlers({
+      store,
+      root,
+      scanRoot: join(root, 'packages/main'),
+    });
+    const expectedAuthor = /git commit --author="koala-implementer <koala-implementer@noreply\.local>"/;
+
+    const itemPrompt = dispatch.dispatch({ storyId, itemId: 'CHK-001' }).prompt;
+    assert.match(itemPrompt, expectedAuthor);
+    assert.match(itemPrompt, /normal-channel author fallback/);
+
+    store.writeFindings(storyId, {
+      findings: [makeFinding(storyId, 'koala-review-quality', reviewRound, '070', 'RR-smoke')],
+    });
+    const findingPrompt = dispatch.dispatch({ storyId, findingId: 'F-070' }).prompt;
+    assert.match(findingPrompt, expectedAuthor);
+    assert.match(findingPrompt, /normal-channel author fallback/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 }
 
 function assertSessionBriefGate(): void {
@@ -754,7 +781,8 @@ function assertSessionBriefStatusHintsMatchGates(): void {
     assert.match(testBrief, /\[FAIL\] delivery-check/);
     assert.match(testBrief, /\[FAIL\] Story summary/);
     assert.match(testBrief, /DONE pre-check 还有/);
-    assert.match(testBrief, /git add \+ git commit/);
+    assert.match(testBrief, /先处理这些 dirty path/);
+    assert.match(testBrief, /KOALA_WRITE_\*_REPORT|默认无副作用/);
     assert.match(testBrief, /delivery_check_set/);
     assert.match(testBrief, /summary_set/);
     assert.match(nextStep, /git-working-tree, delivery-check, story-summary/);
@@ -1195,8 +1223,11 @@ function assertDoneChecklistUsesStableOracleRows(): void {
       'delivery-check row should expose the stable oracle contract',
     );
     assert.equal(byId.get('git-working-tree')?.status, 'fail');
-    assert.equal(byId.get('git-working-tree')?.source, 'git diff --quiet');
+    assert.equal(byId.get('git-working-tree')?.source, 'git status --porcelain');
     assert.equal(byId.get('git-working-tree')?.blocking, true);
+    assert.match(byId.get('git-working-tree')?.detail ?? '', /dirty path/);
+    assert.match(byId.get('git-working-tree')?.hint ?? '', /packages\/main\/src\/core\/dirty\.ts/);
+    assert.match(byId.get('git-working-tree')?.hint ?? '', /默认无副作用|side-effect-free|KOALA_WRITE/);
     assert.match(byId.get('delivery-check')?.hint ?? '', /delivery_check_set/);
     assert.equal(byId.get('delivery-check')?.source, 'delivery-check.json');
     assert.equal(byId.get('story-summary')?.status, 'fail');
@@ -1264,6 +1295,7 @@ assertSessionBriefGate();
 assertFlowFactPolicyRegistry();
 assertPhaseGatePolicyHints();
 assertPhaseToolsOverrideStillBlocks();
+assertDispatchPromptsPinImplementerCommitAuthor();
 assertReviewGateUsesOptIn();
 assertReviewRunBindingRejectsInvalidEvidence();
 assertLegacyReviewEvidenceWithoutCurrentRoundStaysReadable();
