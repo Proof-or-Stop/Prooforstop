@@ -5,6 +5,7 @@ import {
   mkdirSync,
   readFileSync,
   readdirSync,
+  statSync,
   unlinkSync,
   writeFileSync,
 } from 'node:fs';
@@ -92,6 +93,8 @@ interface ManagedAssetManifest {
   }>;
 }
 
+type ManagedAssetPathKind = 'missing' | 'file' | 'directory' | 'other';
+
 const MANIFEST_REL_PATH = '.koala/managed-assets.json';
 const INIT_DOC_SECTION_RE = /<!--\s*koala:start\s*-->[\s\S]*?<!--\s*koala:end\s*-->/;
 const KOALA_INTERNAL_SECTION_RE = /<!--\s*koala:internal:start\s*-->[\s\S]*?<!--\s*koala:internal:end\s*-->\n?/g;
@@ -120,9 +123,24 @@ function sha256(content: string): string {
   return createHash('sha256').update(content).digest('hex');
 }
 
+function managedAssetPathKind(root: string, relPath: string): ManagedAssetPathKind {
+  const full = join(root, relPath);
+  if (!existsSync(full)) return 'missing';
+  try {
+    const entry = lstatSync(full);
+    const stats = entry.isSymbolicLink() ? statSync(full) : entry;
+    if (stats.isFile()) return 'file';
+    if (stats.isDirectory()) return 'directory';
+    return 'other';
+  } catch {
+    // PROBE: filesystem races should be reported as missing/other by the next check run.
+    return 'other';
+  }
+}
+
 function readText(root: string, relPath: string): string | null {
   const full = join(root, relPath);
-  if (!existsSync(full)) return null;
+  if (managedAssetPathKind(root, relPath) !== 'file') return null;
   return readFileSync(full, 'utf-8');
 }
 
@@ -367,6 +385,7 @@ export function listManagedAssetDefinitions(
 }
 
 function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest: ManagedAssetManifest | null): ManagedAssetCheckItem {
+  const pathKind = managedAssetPathKind(root, def.relPath);
   const actual = readText(root, def.relPath);
   const expected = def.expectedContent ? normalizeContent(def.expectedContent) : undefined;
   const expectedHash = expected ? sha256(expected) : undefined;
@@ -374,17 +393,27 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
   const manifestEntry = manifest?.assets?.[def.id];
 
   if (def.kind === 'excluded-path') {
-    if (!existsSync(join(root, def.relPath))) {
+    if (pathKind === 'missing') {
       return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', reason: 'excluded Codex runtime asset is absent', action: 'none' };
     }
-    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', actualHash, reason: 'Codex runtime must not use this Claude-only asset path', action: 'remove manually if it is not user-owned' };
+    const found = pathKind === 'file' ? 'file' : pathKind === 'directory' ? 'directory' : 'non-file path';
+    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', actualHash, reason: `Codex runtime must not use this Claude-only asset path (found ${found})`, action: 'remove manually if it is not user-owned' };
   }
 
   if (def.kind === 'remove-extra') {
-    if (!existsSync(join(root, def.relPath))) {
+    if (pathKind === 'missing') {
       return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', reason: 'extra generated prompt already absent', action: 'none' };
     }
+    if (pathKind !== 'file') {
+      const found = pathKind === 'directory' ? 'directory' : 'non-file path';
+      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', reason: `stale generated prompt path is a ${found}`, action: 'remove manually if it is Koala-owned' };
+    }
     return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'STALE_SAFE', actualHash, reason: 'Codex agent mirror contains a prompt no longer present in Koala templates', action: 'remove generated stale prompt' };
+  }
+
+  if (pathKind === 'directory' || pathKind === 'other') {
+    const found = pathKind === 'directory' ? 'directory' : 'non-file path';
+    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', expectedHash, reason: `managed asset path is a ${found}, expected a file`, action: 'replace or remove the path manually before running koala check --apply' };
   }
 
   if (def.kind === 'gitignore-runtime') {

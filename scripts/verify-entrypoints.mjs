@@ -412,6 +412,24 @@ checks.push(() => {
     assert(readJson(tempDir, '.Codex/koala.json').adapterOwner === 'koala', 'koala check --apply should restore Codex manifest');
     assertPathExists(tempDir, '.koala/managed-assets.json', 'koala check --apply manifest');
 
+    mkdirSync(join(tempDir, '.Codex', 'hooks'), { recursive: true });
+    const checkExcludedDirectory = JSON.parse(run(process.execPath, [join(repoRoot, CORE_ENTRYPOINT), 'check', '--json'], { cwd: tempDir }));
+    const excludedDirectoryItem = checkExcludedDirectory.items.find(item => item.relPath === '.Codex/hooks');
+    assert(checkExcludedDirectory.ok === false, 'koala check should report excluded directory drift');
+    assert(
+      excludedDirectoryItem?.status === 'INCOMPATIBLE' && excludedDirectoryItem.reason.includes('directory'),
+      'koala check should classify directory at excluded asset path without throwing EISDIR',
+    );
+
+    rmSync(join(tempDir, '.Codex', 'README.md'), { force: true });
+    mkdirSync(join(tempDir, '.Codex', 'README.md'));
+    const checkManagedFileDirectory = JSON.parse(run(process.execPath, [join(repoRoot, CORE_ENTRYPOINT), 'check', '--json'], { cwd: tempDir }));
+    const managedFileDirectoryItem = checkManagedFileDirectory.items.find(item => item.relPath === '.Codex/README.md');
+    assert(
+      managedFileDirectoryItem?.status === 'INCOMPATIBLE' && managedFileDirectoryItem.reason.includes('expected a file'),
+      'koala check should classify directory at managed file path without throwing EISDIR',
+    );
+
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }
