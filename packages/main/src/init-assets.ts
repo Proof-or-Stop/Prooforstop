@@ -21,6 +21,7 @@ export const AGENTS_MD_TEMPLATE = `# AGENTS.md
 - Codex subagent prompts 位于 \`.Codex/agents\`；Claude Code 专属资产只会在启用 Claude profile 的仓库里生成。
 - 改动 Codex adapter / \`.Codex\` / \`bin/koala-codex.js\` 后运行 \`node bin/koala-codex.js verify_codex\`，让 REVIEW/DONE gate 能消费硬证据。
 - 诊断 Codex adapter 时运行 \`node bin/koala-codex.js doctor\`。
+- 运行 \`koala check\` 检查 Koala 管理资产/模板漂移；确认后用 \`koala check --apply\` 同步安全项。
 
 <!-- koala:end -->
 `;
@@ -38,6 +39,7 @@ export const KOALA_MD_TEMPLATE = `# KOALA.md
 - 默认本地入口是 \`node bin/koala.js\`；若 profile 生成了 Codex adapter，可额外使用 \`node bin/koala-codex.js\`。
 - Codex 专属说明放在 \`AGENTS.md\` 和 \`.Codex/README.md\`；Claude 专属说明放在 \`CLAUDE.md\` 和 \`.claude/\`。
 - 改动 Koala adapter 资产后先跑对应验证：项目验证用 \`koala validate\`，Codex adapter 额外跑 \`node bin/koala-codex.js verify_codex\`。
+- \`koala check\` 会按硬编码 registry 检查 Koala 管理资产是否跟当前版本漂移；\`koala check --apply\` 只会同步 MISSING/STALE_SAFE，不会覆盖本地编辑或不兼容文件。
 
 <!-- koala:end -->
 `;
@@ -53,6 +55,7 @@ export const CLAUDE_MD_TEMPLATE = `# CLAUDE.md
 - Claude Code hooks 位于 \`.claude/hooks\`，Claude settings 位于 \`.claude/settings.json\`。
 - Claude Code 的 \`/koala\` skill 位于 \`.claude/skills/koala\`。
 - 当仓库同时启用 Codex profile 时，Codex 资产会单独放在 \`.Codex/\`，不要把这里当成双端共享真相源。
+- 运行 \`koala check\` 检查 Koala 管理资产/模板漂移；确认后用 \`koala check --apply\` 同步安全项。
 
 <!-- koala:end -->
 `;
@@ -136,6 +139,7 @@ fallback 说明：
 - 日常所有 story/checklist/fixture/bug 操作尽量保持同一入口
 - 在 Koala 仓库自身开发时，若完整 wrapper 暂不可用，用 \`node packages/main/dist/cli.js <command>\` 做当前 worktree 的 status/gate/validate 判断
 - 改动 Codex adapter 资产后运行 \`node bin/koala-codex.js verify_codex\`（或 \`node bin/koala.js verify_codex\`）；它会验证 manifest、agent mirror、wrapper heartbeat、global fallback heartbeat 和 runtime 排除项，并写入 gate 可消费的 process-event evidence
+- 运行 \`koala check\` 检查 Koala 管理资产/模板漂移；确认后用 \`koala check --apply\` 同步安全项
 - 初始化脚本可用 \`npx koala-init --verify-codex\` 做同源资产校验
 - 诊断 Codex adapter 时运行 \`node bin/koala-codex.js doctor\`，可同时查看共享检查、health 和 worktree 状态
 - 如果 \`aux_*\` 不可用，说明当前是 core-only koala：优先找本地 bootstrap 入口；没有的话，用 AGENTS.md 规定的 shell 搜索兜底
@@ -151,4 +155,105 @@ export function renderCodexAgentContent(content: string): string {
   return content
     .replace(/Claude Code/g, 'Codex')
     .replace(/\.claude\/agents\//g, '.Codex/agents/');
+}
+
+function jsString(value: string): string {
+  return JSON.stringify(value);
+}
+
+export function renderKoalaBootstrapScript(packageRootAbs: string): string {
+  return `#!/usr/bin/env node
+import { existsSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { spawnSync } from 'node:child_process';
+
+const binDir = dirname(fileURLToPath(import.meta.url));
+const projectRoot = dirname(binDir);
+const coreCliEngineCandidates = [
+  join(projectRoot, 'packages', 'main', 'dist', 'cli-engine.js'),
+  join(projectRoot, 'node_modules', '@koala-agent', 'core', 'dist', 'cli-engine.js'),
+  join(${jsString(packageRootAbs)}, 'dist', 'cli-engine.js'),
+];
+
+for (const candidate of coreCliEngineCandidates) {
+  if (!existsSync(candidate)) continue;
+  const mod = await import(pathToFileURL(candidate).href);
+  if (typeof mod.runCli !== 'function') {
+    console.error(\`koala local bootstrap candidate has no runCli export: \${candidate}\`);
+    process.exit(1);
+  }
+  await mod.runCli();
+  process.exit(0);
+}
+
+const probe = spawnSync('koala', ['help'], {
+  encoding: 'utf8',
+  stdio: ['pipe', 'pipe', 'pipe'],
+  env: process.env,
+});
+const help = String(probe.stdout || '') + String(probe.stderr || '');
+if (probe.status !== 0 || !help.includes('aux_doc_list') || !help.includes('verify_codex')) {
+  console.error('bin/koala.js could not find a local @koala-agent/core CLI engine or a capable global koala.');
+  console.error('');
+  console.error('Checked local candidates:');
+  for (const candidate of coreCliEngineCandidates) console.error(\`  - \${candidate}\`);
+  console.error('');
+  console.error('Recovery:');
+  console.error('  - Install or update @koala-agent/core, then rerun: npx koala-init --verify-codex');
+  console.error('  - In the Koala repository, run: npm run build');
+  process.exit(1);
+}
+
+const result = spawnSync('koala', process.argv.slice(2), {
+  stdio: 'inherit',
+  env: process.env,
+});
+process.exit(result.status ?? 1);
+`;
+}
+
+export function renderCodexWrapperScript(): string {
+  return `#!/usr/bin/env node
+import { existsSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+
+process.env.KOALA_ACTIVITY_SOURCE = 'codex';
+process.env.KOALA_ACTIVITY_RECORD_READONLY = '1';
+process.env.KOALA_CODEX_ENTRYPOINT = 'local-wrapper';
+
+if (!process.env.KOALA_ACTIVITY_SESSION) {
+  process.env.KOALA_ACTIVITY_SESSION =
+    process.env.CODEX_SESSION_ID ||
+    process.env.OPENAI_SESSION_ID ||
+    process.env.TERM_SESSION_ID ||
+    '';
+}
+
+const binDir = dirname(fileURLToPath(import.meta.url));
+const localKoala = join(binDir, 'koala.js');
+if (existsSync(localKoala)) {
+  await import(pathToFileURL(localKoala).href);
+} else {
+  console.error('bin/koala-codex.js did not find a sibling bin/koala.js local bootstrap.');
+  console.error('');
+  console.error('Recovery:');
+  console.error('  - Rerun: npx koala-init --verify-codex');
+  console.error('  - If this is the Koala repository, run: npm run build');
+  process.exit(1);
+}
+`;
+}
+
+export function hookCommand(hookFile: string): string {
+  return `node "$(git -C "$CLAUDE_PROJECT_DIR" rev-parse --show-toplevel 2>/dev/null || echo "$CLAUDE_PROJECT_DIR")/.claude/hooks/${hookFile}"`;
+}
+
+export function getKoalaHooks() {
+  return {
+    UserPromptSubmit: [{ matcher: '', hooks: [{ type: 'command', command: hookCommand('session-brief-reminder.cjs') }] }],
+    PostToolUse: [{ matcher: '', hooks: [{ type: 'command', command: hookCommand('log-tools.cjs') }] }],
+    PostToolUseFailure: [{ matcher: '', hooks: [{ type: 'command', command: hookCommand('log-tools.cjs') }] }],
+  };
 }

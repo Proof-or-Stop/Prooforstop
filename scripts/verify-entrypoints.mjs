@@ -394,6 +394,24 @@ checks.push(() => {
     const freshWrapperOut = run(process.execPath, [join(tempDir, 'bin', 'koala-codex.js'), 'session_brief'], { cwd: tempDir, env: minimalEnv });
     assertIncludes(freshWrapperOut, '# koala session brief', 'fresh generated wrapper should run with stale global koala on PATH');
 
+    const checkOk = JSON.parse(run(process.execPath, [join(repoRoot, CORE_ENTRYPOINT), 'check', '--json'], { cwd: tempDir }));
+    assert(checkOk.ok === true, 'koala check should pass immediately after init');
+    assert(checkOk.profile === 'all', 'koala check should detect all profile after all init');
+
+    writeFileSync(join(tempDir, '.Codex', 'koala.json'), '{}\n');
+    const checkDrift = JSON.parse(run(process.execPath, [join(repoRoot, CORE_ENTRYPOINT), 'check', '--json'], { cwd: tempDir }));
+    assert(checkDrift.ok === false, 'koala check should report drift after managed manifest edit');
+    assert(
+      checkDrift.items.some(item => item.relPath === '.Codex/koala.json' && item.status === 'STALE_SAFE'),
+      'koala check should classify generated Codex manifest drift as STALE_SAFE',
+    );
+
+    const checkApply = JSON.parse(run(process.execPath, [join(repoRoot, CORE_ENTRYPOINT), 'check', '--apply', '--json'], { cwd: tempDir }));
+    assert(checkApply.ok === true, 'koala check --apply should repair safe managed drift');
+    assert(checkApply.applied.includes('.Codex/koala.json'), 'koala check --apply should report applied managed manifest');
+    assert(readJson(tempDir, '.Codex/koala.json').adapterOwner === 'koala', 'koala check --apply should restore Codex manifest');
+    assertPathExists(tempDir, '.koala/managed-assets.json', 'koala check --apply manifest');
+
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }

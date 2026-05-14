@@ -86,6 +86,7 @@ export const COMMAND_POLICIES = {
   next: { status: 'supported', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Read-only next-action hint deliberately allowed in every phase.' },
   aux_doc_list: { status: 'supported', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Read-only documentation index used for planning and recovery.' },
   doctor: { status: 'maintenance', allowedPhases: 'all', destructiveRisk: 'metadata-write', reason: 'Health inspection and optional repair are explicit maintenance actions.' },
+  check: { status: 'maintenance', allowedPhases: 'all', destructiveRisk: 'metadata-write', reason: 'Checks Koala managed asset drift and only mutates templates when --apply is explicitly provided.' },
   verify_codex: { status: 'gateEvidence', gateEvidence: true, allowedPhases: 'all', destructiveRisk: 'metadata-write', reason: 'Writes Codex adapter verification evidence consumed by adapter gates.' },
   audit: { status: 'maintenance', allowedPhases: 'all', destructiveRisk: 'metadata-write', reason: 'Framework self-audit can write audit findings/reports under controlled policy.' },
   validate: { status: 'gateEvidence', gateEvidence: true, allowedPhases: ['DEV', 'REVIEW', 'TEST'], destructiveRisk: 'metadata-write', reason: 'Current verification runner and gate evidence producer.' },

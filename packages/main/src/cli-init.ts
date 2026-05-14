@@ -12,9 +12,13 @@ import {
   listAgentPromptFiles,
   renderCodexAdapterManifest,
   renderCodexAgentContent,
+  renderCodexWrapperScript,
+  renderKoalaBootstrapScript,
+  getKoalaHooks,
 } from './init-assets.js';
 import type { InitProfile } from './init-assets.js';
 import { renderCodexAdapterChecks, runCodexAdapterChecks } from './core/codex-adapter-checks.js';
+import { renderManagedAssetCheck, runManagedAssetCheck } from './core/managed-assets.js';
 import {
   KOALA_RUNTIME_IGNORE_BLOCK_END,
   KOALA_RUNTIME_IGNORE_BLOCK_START,
@@ -170,6 +174,7 @@ function detectInitProfile(root: string): { profile: InitProfile; reason: string
 }
 
 const verifyCodex = initArgs.includes('--verify-codex');
+const upgradeManagedAssets = initArgs.includes('--upgrade');
 const withStarter = initArgs.includes('--starter') || initArgs.includes('--with-template');
 const explicitProfile = parseExplicitProfile(initArgs);
 const arg = parseTargetDir(initArgs);
@@ -184,6 +189,7 @@ koala-init — 初始化 koala 开发框架
                                         选择 init profile: codex | claude | all | core
   npx koala-init --starter [目标目录]        额外生成旧版 starter 业务模板
   npx koala-init --with-template [目标目录]  --starter 的同义 alias
+  npx koala-init --upgrade [目标目录]        同步 Koala 管理资产到当前版本
   npx koala-init --verify-codex [目标目录]   初始化后校验 Codex adapter 资产
   npx koala-init --help                      显示帮助
 
@@ -248,99 +254,10 @@ function write(relPath: string, content: string) {
   return true;
 }
 
-function jsString(value: string): string {
-  return JSON.stringify(value);
-}
-
 function writeExecutable(relPath: string, content: string): boolean {
   const created = write(relPath, content);
   if (created) chmodSync(join(targetDir, relPath), 0o755);
   return created;
-}
-
-function renderKoalaBootstrapScript(packageRootAbs: string): string {
-  return `#!/usr/bin/env node
-import { existsSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
-import { spawnSync } from 'node:child_process';
-
-const binDir = dirname(fileURLToPath(import.meta.url));
-const projectRoot = dirname(binDir);
-const coreCliEngineCandidates = [
-  join(projectRoot, 'packages', 'main', 'dist', 'cli-engine.js'),
-  join(projectRoot, 'node_modules', '@koala-agent', 'core', 'dist', 'cli-engine.js'),
-  join(${jsString(packageRootAbs)}, 'dist', 'cli-engine.js'),
-];
-
-for (const candidate of coreCliEngineCandidates) {
-  if (!existsSync(candidate)) continue;
-  const mod = await import(pathToFileURL(candidate).href);
-  if (typeof mod.runCli !== 'function') {
-    console.error(\`koala local bootstrap candidate has no runCli export: \${candidate}\`);
-    process.exit(1);
-  }
-  await mod.runCli();
-  process.exit(0);
-}
-
-const probe = spawnSync('koala', ['help'], {
-  encoding: 'utf8',
-  stdio: ['pipe', 'pipe', 'pipe'],
-  env: process.env,
-});
-const help = String(probe.stdout || '') + String(probe.stderr || '');
-if (probe.status !== 0 || !help.includes('aux_doc_list') || !help.includes('verify_codex')) {
-  console.error('bin/koala.js could not find a local @koala-agent/core CLI engine or a capable global koala.');
-  console.error('');
-  console.error('Checked local candidates:');
-  for (const candidate of coreCliEngineCandidates) console.error(\`  - \${candidate}\`);
-  console.error('');
-  console.error('Recovery:');
-  console.error('  - Install or update @koala-agent/core, then rerun: npx koala-init --verify-codex');
-  console.error('  - In the Koala repository, run: npm run build');
-  process.exit(1);
-}
-
-const result = spawnSync('koala', process.argv.slice(2), {
-  stdio: 'inherit',
-  env: process.env,
-});
-process.exit(result.status ?? 1);
-`;
-}
-
-function renderCodexWrapperScript(): string {
-  return `#!/usr/bin/env node
-import { existsSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
-
-process.env.KOALA_ACTIVITY_SOURCE = 'codex';
-process.env.KOALA_ACTIVITY_RECORD_READONLY = '1';
-process.env.KOALA_CODEX_ENTRYPOINT = 'local-wrapper';
-
-if (!process.env.KOALA_ACTIVITY_SESSION) {
-  process.env.KOALA_ACTIVITY_SESSION =
-    process.env.CODEX_SESSION_ID ||
-    process.env.OPENAI_SESSION_ID ||
-    process.env.TERM_SESSION_ID ||
-    '';
-}
-
-const binDir = dirname(fileURLToPath(import.meta.url));
-const localKoala = join(binDir, 'koala.js');
-if (existsSync(localKoala)) {
-  await import(pathToFileURL(localKoala).href);
-} else {
-  console.error('bin/koala-codex.js did not find a sibling bin/koala.js local bootstrap.');
-  console.error('');
-  console.error('Recovery:');
-  console.error('  - Rerun: npx koala-init --verify-codex');
-  console.error('  - If this is the Koala repository, run: npm run build');
-  process.exit(1);
-}
-`;
 }
 
 function extractKoalaSection(content: string): string {
@@ -376,18 +293,6 @@ function writeManagedMarkdown(relPath: string, desiredContent: string, label: st
   } else {
     console.log(`  - ${label} (koala section up to date)`);
   }
-}
-
-function hookCommand(hookFile: string): string {
-  return `node "$(git -C "$CLAUDE_PROJECT_DIR" rev-parse --show-toplevel 2>/dev/null || echo "$CLAUDE_PROJECT_DIR")/.claude/hooks/${hookFile}"`;
-}
-
-function getKoalaHooks() {
-  return {
-    UserPromptSubmit: [{ matcher: '', hooks: [{ type: 'command', command: hookCommand('session-brief-reminder.cjs') }] }],
-    PostToolUse: [{ matcher: '', hooks: [{ type: 'command', command: hookCommand('log-tools.cjs') }] }],
-    PostToolUseFailure: [{ matcher: '', hooks: [{ type: 'command', command: hookCommand('log-tools.cjs') }] }],
-  };
 }
 
 function hasHookCommand(entries: any, command: string): boolean {
@@ -933,6 +838,13 @@ if (wantsClaude) {
 } else {
   console.log('  - .claude/hooks (profile skip)');
   console.log('  - .claude/settings.json (profile skip)');
+}
+
+if (upgradeManagedAssets) {
+  console.log('\n[upgrade] 同步 Koala 管理资产...');
+  const result = runManagedAssetCheck(targetDir, { apply: true, profile: selectedProfile });
+  console.log(renderManagedAssetCheck(result));
+  if (!result.ok) process.exit(1);
 }
 
 console.log(`

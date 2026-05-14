@@ -453,6 +453,11 @@ export const MAIN_TOOLS: ToolDef[] = [
     json: z.boolean().optional().describe('结构化 JSON 输出'),
     storyId: z.string().optional().describe('可选 Story ID；缺省从 story/* 分支推断并记录 process-event evidence'),
   }},
+  { name: 'check', description: '检查 Koala 管理资产/模板漂移；--apply 显式同步安全项', schema: {
+    json: z.boolean().optional().describe('结构化 JSON 输出'),
+    apply: z.boolean().optional().describe('同步 MISSING/STALE_SAFE 管理资产；不会覆盖 STALE_LOCAL_EDIT/INCOMPATIBLE'),
+    profile: z.enum(['codex', 'claude', 'all', 'core']).optional().describe('覆盖自动检测的 init profile'),
+  }},
 
   // Audit (framework self-audit — 跨 story 扫 CLAUDE.md 承诺 vs 实际 CLI 行为 drift)
   { name: 'audit', description: '框架自省 audit（机械扫 CLAUDE.md drift → 写 B-META-framework-audit finding + report.md）', schema: {
@@ -877,9 +882,10 @@ function printHelp(activeStory?: ActiveStory | null) {
     dashboard: 'Session',
     session: 'Session',
     audit: 'Audit',
+    check: 'Check',
   };
   // 已知分组的展示顺序；不在列表里的分组（来自 extras）按字母序追加
-  const KNOWN_ORDER = ['Story', 'Review', 'Checklist', 'Bug', 'Test', 'Validate', 'Evaluate', 'Workflow', 'Status', 'Serve', 'Session', 'Aux', 'Audit'];
+  const KNOWN_ORDER = ['Story', 'Review', 'Checklist', 'Bug', 'Test', 'Validate', 'Evaluate', 'Workflow', 'Status', 'Check', 'Serve', 'Session', 'Aux', 'Audit'];
 
   const groups: Record<string, ToolDef[]> = {};
   for (const t of TOOLS) {

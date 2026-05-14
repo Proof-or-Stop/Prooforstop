@@ -50,6 +50,7 @@ import { createTestIntentHandoffHandlers } from './handlers/testintent-handoff.j
 import { createAuxDocHandlers } from './handlers/aux-doc.js';
 import { createCodexAdapterHandlers } from './handlers/codex-adapter.js';
 import { createReviewRunHandlers } from './handlers/review-run.js';
+import { createCheckHandlers } from './handlers/check.js';
 import { nextStoryId } from './handlers/context.js';
 
 export type HandlerFn = (...args: any[]) => any;
@@ -152,6 +153,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createTestIntentHandoffHandlers(ctx));
   registry.registerBatch(createAuxDocHandlers(ctx));
   registry.registerBatch(createCodexAdapterHandlers(ctx));
+  registry.registerBatch(createCheckHandlers(ctx));
 
   // 内部辅助：返回下一个 story id（fixture/测试 runner 用）
   registry.register('_nextStoryId', (prefix?: string) => nextStoryId(ctx.store, prefix));
