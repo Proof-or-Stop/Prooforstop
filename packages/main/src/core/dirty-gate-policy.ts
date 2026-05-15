@@ -1,6 +1,5 @@
 /**
- * @task B-4b22
- * @title Single-source-of-truth dirty gate policy table + evaluator
+ * Task B-4b22: Single-source-of-truth dirty gate policy table + evaluator
  *
  * One pure-data table maps every `DIRTY_WORKTREE_CATEGORIES` entry (defined in
  * dirty-worktree.ts, B-6326) to a `{ blocking, auditReason }` decision.

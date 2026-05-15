@@ -279,7 +279,7 @@ function assertDirtyWorktreeClassifierGroupsOwnership(): void {
   }
 }
 
-// @task B-4b22 regression block — registry / blocking / passing / audit /
+// Task B-4b22 regression block — registry / blocking / passing / audit /
 // import-isolation invariants of the dirty-gate-policy module. Covers all
 // three preMortem anchors from the story's decision.json.
 function assertDirtyGatePolicyAcrossGates(): void {

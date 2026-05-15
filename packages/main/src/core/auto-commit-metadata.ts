@@ -1,6 +1,5 @@
 /**
- * @task B-3506
- * @title Shared auto-commit helper for Koala metadata writes
+ * Task B-3506: Shared auto-commit helper for Koala metadata writes
  *
  * Extracted from packages/main/src/handlers/story-advance.ts:autoCommitStoryMetadata
  * (B-6326 lifecycle). All koala CLI handlers that mutate files under

@@ -63,7 +63,7 @@ function detectNewDirtyStatus(before: string[] | null, after: string[] | null): 
   return after.filter(line => !beforePaths.has(statusPath(line)));
 }
 
-// @task B-6326 + B-4b22: validation side-effect details share DONE gate
+// Task B-6326 + B-4b22: validation side-effect details share DONE gate
 // dirty ownership vocabulary AND route through dirty-gate-policy. When every
 // polluted path classifies as a passing category (koala_metadata /
 // runtime_artifact / declared_artifact), the call:
@@ -224,7 +224,7 @@ export async function executeValidationPlan(
 
   const requiredFailures = commands.filter((r) => !r.optional && (r.code !== 0 || r.timedOut));
   const optionalFailures = commands.filter((r) => r.optional && (r.code !== 0 || r.timedOut));
-  // @task B-4b22: pollution only counts as failure if dirty-gate-policy
+  // Task B-4b22: pollution only counts as failure if dirty-gate-policy
   // marked it blocking. Passing-only category pollution (koala_metadata /
   // runtime_artifact / declared_artifact) is allowed and audited.
   const pollutionFailures = commands.filter((r) => {

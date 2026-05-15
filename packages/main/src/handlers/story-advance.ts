@@ -91,8 +91,8 @@ function readGitStatusLines(projectRoot: string): { ok: true; lines: string[] } 
   }
 }
 
-// @task B-6326: DONE gate dirty output uses the shared ownership classifier.
-// @task B-cf60: when a storyId/store is available, mix in declaredArtifactPaths from the
+// Task B-6326: DONE gate dirty output uses the shared ownership classifier.
+// Task B-cf60: when a storyId/store is available, mix in declaredArtifactPaths from the
 // per-story declared-artifacts.json so declared paths flip from unexpected → declared.
 function classifierOptionsForCheck(
   config: ReturnType<typeof loadConfig>,
@@ -105,7 +105,7 @@ function classifierOptionsForCheck(
   return dirtyWorktreeClassifierOptionsFromConfig(config);
 }
 
-// @task B-4b22: dirty git-working-tree row uses the shared dirty-gate-policy
+// Task B-4b22: dirty git-working-tree row uses the shared dirty-gate-policy
 // evaluator (single source of truth). Both summary (row.detail) and hint
 // (row.hint) derive from the same EvaluateDirtyGateResult so divergent wording
 // is impossible by construction (preMortem #3 anchor).
@@ -422,7 +422,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       source: 'git status --porcelain',
     }));
   } else if (gitStatus.ok) {
-    // @task B-4b22: evaluate via shared policy; status follows allPass.
+    // Task B-4b22: evaluate via shared policy; status follows allPass.
     // Both detail and hint derive from the same EvaluateDirtyGateResult so
     // wording stays consistent (preMortem #3 anchor — no inline category
     // check; consumer-side divergence is structurally impossible).

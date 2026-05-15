@@ -3,7 +3,7 @@ import { isStoryMetadataPath } from './evidence-freshness.js';
 import { findRuntimeArtifactEntry } from './runtime-artifact-registry.js';
 import type { StoryStore } from './store.js';
 
-// @task B-6326: central ownership classifier for dirty git porcelain rows.
+// Task B-6326: central ownership classifier for dirty git porcelain rows.
 export const DIRTY_WORKTREE_CATEGORIES = [
   'koala_metadata_changes',
   'runtime_artifact_changes',

@@ -587,7 +587,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         args: ['tsx', ...tsArgs],
       }, projectRoot);
       const { code, output } = commandResult;
-      // @task B-6326 + B-4b22: verifier surfaces categorized dirty ownership
+      // Task B-6326 + B-4b22: verifier surfaces categorized dirty ownership
       // details AND respects dirty-gate-policy. When every polluted path
       // classifies as a passing category the pollution.blocking flag is
       // flipped false and we keep status=pass.
