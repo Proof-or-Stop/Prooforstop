@@ -1,16 +1,13 @@
 {
   "storyId": "B-cf60",
-  "checkedAt": "2026-05-15T11:59:15.862Z",
+  "checkedAt": "2026-05-15T11:59:36.818Z",
   "reviewRound": "",
-  "agentId": "koala-review-story-init",
+  "agentId": "product-reviewer",
   "issues": [
     {
+      "id": "P-1",
       "severity": "medium",
-      "desc": "Checklist touches TEST/DONE dirty-file gate behavior and generated-artifact evidence, but the initial scope does not explicitly require PLAN decision/premortem or the process-fact double contract work (process-fact registry + verification script) needed for gate-affecting facts. Add this preparation to the relevant checklist context so implementation cannot become prompt-only or gate-local."
-    },
-    {
-      "severity": "low",
-      "desc": "CHK-004 is framed as adding regression coverage, which is a verification activity rather than a user-observable checklist outcome. Fold the BL21 lacZ viewer path into CHK-002/CHK-003 verificationIntent/evidence, or reframe the item as an observable classifier/validation behavior using that path."
+      "desc": "CHK-004 is framed as regression coverage rather than a user-visible outcome. Recast it as the observable BL21 lacZ viewer artifact behavior (undeclared remains unexpected; declared with evidence is reported separately), with the regression test as verification evidence rather than the checklist outcome itself."
     }
   ],
   "agentResults": [
@@ -25,6 +22,17 @@
         {
           "severity": "low",
           "desc": "CHK-004 is framed as adding regression coverage, which is a verification activity rather than a user-observable checklist outcome. Fold the BL21 lacZ viewer path into CHK-002/CHK-003 verificationIntent/evidence, or reframe the item as an observable classifier/validation behavior using that path."
+        }
+      ]
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-05-15T11:59:36.818Z",
+      "issues": [
+        {
+          "id": "P-1",
+          "severity": "medium",
+          "desc": "CHK-004 is framed as regression coverage rather than a user-visible outcome. Recast it as the observable BL21 lacZ viewer artifact behavior (undeclared remains unexpected; declared with evidence is reported separately), with the regression test as verification evidence rather than the checklist outcome itself."
         }
       ]
     }
