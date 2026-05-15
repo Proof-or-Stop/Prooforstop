@@ -26,6 +26,15 @@
       "reviewRound": "2026-05-15T23:48:14.898Z",
       "reviewRunId": "B-37e9:RR-001",
       "_hash": "74465d5daaa8883cb63929339f96bda6a46b7437c3679bf86e86099a0582a52a"
+    },
+    {
+      "id": "B-37e9:RP-004",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 已检查全部 9 条 verificationIntent 与 verificationEvidence 覆盖关系。所有 must priority intent (CHK-001:happy:0、CHK-001:edge:0、CHK-001:adversarial:0、CHK-002:happy:0、CHK-002:edge:0、CHK-002:adversarial:0、CHK-003:happy:0、CHK-003:edge:0、CHK-003:adversarial:0) 均有对应 result=pass 的 evidence，无 fail 或缺失。evidence 因 headHash 漂移标为 stale，已通过 verification_evidence_refresh_stale 刷新至当前 HEAD (52d594d)，validate 重跑确认 9/9 covered，无 blocker。",
+      "createdAt": "2026-05-15T23:54:21.783Z",
+      "reviewRound": "2026-05-15T23:53:31.705Z",
+      "reviewRunId": "B-37e9:RR-006",
+      "_hash": "dac2e04f9b4e63a62f57b3e0d9f2cf2180111708b4192e3976d9716294370407"
     }
   ]
 }
