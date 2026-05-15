@@ -4,7 +4,7 @@
   "title": "Fix declared-artifact gate bypass and uncommitted-artifact loss",
   "description": "Read-only implementation review of main after B-cf60 + B-4b22 merged found a CRITICAL gate bypass: dirty-worktree.ts classifyParsedRow checks isDeclaredArtifactPath before isMaterialSourcePath/isFixturePath, and dirty-gate-policy.ts marks declared_artifact_changes as blocking:false. An agent can koala artifact_declare a dirty source/fixture file to reclassify it from blocking material_source_changes to non-blocking declared_artifact_changes, bypassing the DONE dirty gate. A linked HIGH gap: declared_artifact_changes being non-blocking lets an uncommitted declared artifact pass the DONE gate, but git merge does not carry uncommitted files to main, so declared deliverables vanish silently. This hotfix closes both layers and adds a DONE committed-check. The MEDIUM evidence-sufficiency gap is intentionally out of scope.",
   "type": "bug",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "dirty-gate",
@@ -58,11 +58,20 @@
       "branch": "story/B-8db9",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-15T21:22:44.222Z",
+      "branch": "story/B-8db9",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-8db9",
     "branch": "story/B-8db9",
     "createdAt": "2026-05-15T21:03:42.160Z"
-  }
+  },
+  "currentReviewRound": "2026-05-15T21:22:44.222Z"
 }
