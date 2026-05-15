@@ -30,6 +30,11 @@
  */
 
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
+import { loadConfig } from '../core/config.js';
+import {
+  classifyDeclarablePath,
+  dirtyWorktreeClassifierOptionsFromConfig,
+} from '../core/dirty-worktree.js';
 import type { DeclaredArtifactEntry, DeclaredArtifactsData } from '../core/types.js';
 import type { HandlerContext } from './context.js';
 
@@ -75,6 +80,35 @@ function assertSafePath(rawPath: string): string {
     );
   }
   return path;
+}
+
+/**
+ * B-8db9 CHK-002 — declarability gate (fail-fast UX, layered on CHK-001's hard
+ * classifier reorder).
+ *
+ * Runs the already-shape-validated path through `classifyDeclarablePath`, which
+ * reuses the EXACT classifier vocabulary of dirty-worktree.ts
+ * (`isStoryMetadataPath` / `isFixturePath` / `isMaterialSourcePath`, with config
+ * files carried in `materialSourceFiles` by `dirtyWorktreeClassifierOptionsFromConfig`).
+ * A path that classifies as material_source / fixture / koala-metadata is
+ * rejected here so a bad declaration is caught at declare time instead of
+ * silently surfacing as a mis-classification much later. The classifier reorder
+ * remains the hard gate for hand-injected declared-artifacts.json entries.
+ *
+ * Runtime check at handler entry (Handler 编码约定) — internal callers that
+ * bypass Zod still hit this throw.
+ */
+function assertDeclarablePath(path: string, root: string): void {
+  const config = loadConfig(root);
+  const options = dirtyWorktreeClassifierOptionsFromConfig(config);
+  const category = classifyDeclarablePath(path, options);
+  if (category !== null) {
+    throw new Error(
+      `artifact_declare: path ${path} classifies as ${category} and cannot be ` +
+      `declared as a generated artifact (declare only generated output paths, ` +
+      `e.g. under tests/output/).`,
+    );
+  }
 }
 
 function assertSafeReason(rawReason: string): string {
@@ -127,6 +161,11 @@ export function createArtifactDeclareHandlers(ctx: HandlerContext): Record<strin
       const path = assertSafePath(args?.path);
       const reason = assertSafeReason(args?.reason);
       const relatedIntent = assertSafeRelatedIntent(args?.relatedIntent);
+
+      // 1b) Declarability gate (B-8db9 CHK-002): reject material/fixture/config/
+      //     koala-metadata paths fail-fast, reusing the dirty-worktree classifier
+      //     vocabulary so this layer cannot disagree with the CHK-001 hard gate.
+      assertDeclarablePath(path, root);
 
       // 2) Story existence — refuse to write a declared-artifact for a non-existent
       //    story id (otherwise the metadata file would orphan).
