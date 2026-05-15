@@ -9,7 +9,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Inspect verifier implementation after the change -> code near the no-validation-entry path explicitly back-links to docs/requirements/decisions/testing-infra.md:38 and states that missing validate.ts/js/mts, missing validate.command(s), and no fallback command returns warn/skip instead of failure; WHY: closes the requirement-to-code convergence gap mechanically.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run the validation protocol smoke after the implementation back-link -> no-entry runtime behavior remains provider koala-verifier-no-validation-entry with status warn and allPass true; WHY: annotation/back-link must not change verifier behavior.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Review the diff for CHK-001 -> the fix is limited to requirement binding/annotation and does not relax configured validate.command(s) hard-gate behavior or fallback discovery semantics; WHY: closing coverage must not weaken validation policy.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "用户运行 `koala gap_analyze` 后，不再看到 testing-infra.md:38 的 no-entry warn/skip high gap；代码注释能回链到 verifier no-entry policy。",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -20,7 +53,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run npm --prefix packages/main run test:validation-protocol -> the no-entry fixture asserts provider koala-verifier-no-validation-entry, status warn, allPass true, and guidance that strong gates require explicit validate.command(s); WHY: proves non-TS projects without validation entrypoints are skipped/warned rather than failed.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run the configured failing validation-command fixture -> configured validate.command(s) failure returns a hard validation failure with allPass false and does not fall back to discovered package scripts; WHY: explicit project gates must stay authoritative.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Exercise a project root with no validate file, no configured command, and no fallback command -> validate must not throw, must not mark the project failed, and must report warn/skip evidence; WHY: protects Python/Go/C++ or otherwise non-TS projects from false failure.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "用户运行 `npm --prefix packages/main run test:validation-protocol` 后看到 `✓ validation protocol smoke passed`，且 smoke 覆盖 no-entry warn/skip 与 configured hard-fail。",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ]
+      }
     }
   ]
 }
