@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-d339:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept review passed: lifecycle-registry.ts is read-only, existing behavior is preserved through phase-flow/context projections, and fail-open TEST infrastructure paths now fail closed without taking on the larger story_advance decomposition.",
+      "createdAt": "2026-05-15T02:20:38.730Z",
+      "reviewRound": "2026-05-15T02:08:34.847Z",
+      "reviewRunId": "B-d339:RR-003",
+      "_hash": "bf6070fd126a73a000d966c09d1fb9d47dc8509279c6f00f8c97f2f827ddf759"
+    },
+    {
+      "id": "B-d339:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Quality review passed: build, flow-stability smoke, process-fact contract, git diff --check, and local CLI check all pass; new catches are fail-fast with PERSIST health reporting for evidence write failure.",
+      "createdAt": "2026-05-15T02:20:46.943Z",
+      "reviewRound": "2026-05-15T02:08:34.847Z",
+      "reviewRunId": "B-d339:RR-004",
+      "_hash": "eb5322a05627ef561415b09905b288ab7c04e1423d9f5e81791a59ceb82a83e2"
+    },
+    {
+      "id": "B-d339:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "Test coverage review passed: all 12 verificationIntent refs have fresh evidence; smoke covers registry consistency, legacy rollback aliases, fail-closed TEST source contract, accepted managed docs, and true drift rejection.",
+      "createdAt": "2026-05-15T02:20:55.881Z",
+      "reviewRound": "2026-05-15T02:08:34.847Z",
+      "reviewRunId": "B-d339:RR-005",
+      "_hash": "96cd011fdf393920b6f1a82bfe0be97c40d488f8f72eaa4b9c382ece1c3a772d"
+    },
+    {
+      "id": "B-d339:RP-004",
+      "agent": "koala-review-docs",
+      "note": "Docs review passed: story-lifecycle documents lifecycle-registry.ts as phase/event/rollback/gate registry, testing-infra documents REVIEW->TEST fail-closed behavior, and README points maintainers to the registry-backed contract.",
+      "createdAt": "2026-05-15T02:21:04.590Z",
+      "reviewRound": "2026-05-15T02:08:34.847Z",
+      "reviewRunId": "B-d339:RR-006",
+      "_hash": "c1ed645d9130a5f8487326bd05b7bac77a34462f5a8d0fddb3b72f0f8b0e7ec2"
+    }
+  ]
+}

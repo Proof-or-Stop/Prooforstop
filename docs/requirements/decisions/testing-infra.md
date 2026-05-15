@@ -41,6 +41,8 @@
 DEV 阶段通过后提示提交并进入 REVIEW；REVIEW 阶段通过后提示进入 TEST；
 TEST 阶段通过后提示查看 DONE pre-check，并按失败 row 的 hint 补 summary、delivery check、dirty tree、missing/stale `verificationEvidence` 等门禁项。
 
+REVIEW→TEST 的验证入口必须 fail-closed。`review-preflight` import/runtime 异常、`koala validate` handler 执行异常或 JSON 解析异常都属于 gate infrastructure failure，必须阻止进入 TEST，并输出 `Cannot enter TEST` 加可复跑命令；不能把这些异常降级成 warning。找不到验证入口但由 validate policy 明确返回的 `warn/skip` 仍按 validate JSON 语义处理，区别于 runner 自身崩溃。
+
 验证相关的流程事实必须登记在 `packages/main/src/core/process-fact-registry.ts`：
 `validate` 代表 `validation-status`，`verification_evidence_*` 代表
 `verification-evidence` / `execution-evidence`，`test-evidence.json` 是 DONE
