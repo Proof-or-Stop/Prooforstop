@@ -44,6 +44,15 @@
       "reviewRound": "2026-05-15T23:16:27.518Z",
       "reviewRunId": "B-3740:RR-006",
       "_hash": "bca7441865b8846255414fc1ab5b3a0456c47d189d02de5e5efa0347ba0e7b47"
+    },
+    {
+      "id": "B-3740:RP-006",
+      "agent": "koala-review-quality",
+      "note": "R1 F-001 fix confirmed: LIFECYCLE_COMMAND_PHASES deleted entirely, COMMAND_LIFECYCLE_PHASES retyped satisfies readonly CommandPhase[] with single reference in lifecycleCommandsByPhase(). No duplicate constant remains. Two new low-severity issues found and registered (F-002 unused LifecycleArtifactRole export, F-003 unnecessary `as never` cast). No dead imports, no unsafe `as any`, no empty catch blocks, no I/O shell isolation violations in the diff. Core logic correct.",
+      "createdAt": "2026-05-15T23:19:19.080Z",
+      "reviewRound": "2026-05-15T23:16:27.518Z",
+      "reviewRunId": "B-3740:RR-005",
+      "_hash": "6bdc7d698c6300374f4163f028fd5f50092de571fbdc9b63eb841e703b185821"
     }
   ]
 }
