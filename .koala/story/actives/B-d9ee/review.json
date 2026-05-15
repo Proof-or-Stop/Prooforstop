@@ -1,0 +1,35 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-05-15T11:31:57.607Z",
+      "issueCount": 2,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 个 checklist item，请检查是否有组合场景遗漏（如：提供 grill session 的结构化 CLI 操作 + 在 PLAN 审查中以 advisory 方式消费 grill 状态 同时操作会怎样？）"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "未跑 scope check。请先启动 koala-review-scope-plan agent，agent 会自动调 scope_check_save 写入结果"
+        }
+      ],
+      "_hash": "ee133759cc08419ccf90ab85749c418af68cb10bb2c4a414b7c97513bdc7d9df"
+    },
+    {
+      "timestamp": "2026-05-15T11:34:58.724Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 个 checklist item，请检查是否有组合场景遗漏（如：提供 grill session 的结构化 CLI 操作 + 在 PLAN 审查中以 advisory 方式消费 grill 状态 同时操作会怎样？）"
+        }
+      ],
+      "_hash": "3e93730c9ab6c74e175dc0765d5f038069ef1f8407296498bf4f0fda5128d719"
+    }
+  ]
+}
