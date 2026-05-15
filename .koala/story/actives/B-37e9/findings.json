@@ -5,7 +5,7 @@
       "desc": "quality-cleanup: packages/main/src/core/done-oracle.ts:36 imports recomputeDeliveryCheckHash from ../handlers/delivery-check.js — a core module importing from the handlers layer. This violates Core/Shell layer separation (core must not depend on handlers). The smoke test circular-import guard (flow-stability-smoke.ts:2838) only checks for story-advance imports, missing this handlers/delivery-check path. recomputeDeliveryCheckHash only uses StoryStore + crypto (pure core dependencies) and should be extracted to a core/ module (e.g. core/delivery-check-hash.ts) to sever the upward dependency.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "agent": "koala-review-quality",
       "createdAt": "2026-05-15T23:49:39.877Z",
       "reviewRound": "2026-05-15T23:48:14.898Z",
