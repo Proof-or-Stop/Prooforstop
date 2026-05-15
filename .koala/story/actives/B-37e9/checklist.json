@@ -7,8 +7,8 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-05-15T23:37:02.789Z",
       "endTime": null,
       "userSees": "A framework maintainer opens packages/main/src/core/done-oracle.ts and finds buildDoneChecklist + DoneCheckRow + doneCheckRow plus every private DONE row-builder helper there. story-advance.ts no longer contains the buildDoneChecklist function body (line count drops ~569). `npm --prefix packages/main run build` is clean with no circular-import error.",
       "verificationIntent": {
