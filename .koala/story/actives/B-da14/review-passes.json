@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-da14:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 检查 CHK-001 的 5 条 verificationIntent（2 happy + 1 edge + 2 adversarial，全部 priority=must，type=docs）均有对应 verificationEvidence（kind=docs_check，result=pass）。已核查实际文档内容：story-lifecycle.md 第74行新增「合并态组合审查」节含完整5项枚举检查清单和B-8db9 incident引用；CLAUDE.md 第639行在对抗审查区有短摘要并有see-also指向story-lifecycle.md为canonical。koala validate 报告 5/5 covered，0 required missing。无 blocker。",
+      "createdAt": "2026-05-15T22:23:45.561Z",
+      "reviewRound": "2026-05-15T22:21:09.393Z",
+      "reviewRunId": "B-da14:RR-003",
+      "_hash": "a1a5be37e9e8ec38ce47708aac5ee905683a445c03f2c748dd18d5d4878577bc"
+    }
+  ]
+}
