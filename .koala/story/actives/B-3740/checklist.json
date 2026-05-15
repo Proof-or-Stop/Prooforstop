@@ -132,6 +132,17 @@
           "headHash": "5624702874680fefdcfd428ae8a33cdcaaff6e42",
           "materialHash": "5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b",
           "timestamp": "2026-05-15T23:07:52.227Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "command": "npm --prefix packages/main run test:lifecycle-registry-contract",
+          "result": "pass",
+          "note": "checkArtifactReferences 4a-4d asserts every LIFECYCLE_ORACLE_ARTIFACT_REFS value, every phase produces/consumes entry, and every transition oracleRows/gates artifact id resolves to a declared LifecycleArtifact",
+          "headHash": "65930e67e732af97c01418f42a5c1203fbbce4b2",
+          "materialHash": "5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b",
+          "timestamp": "2026-05-15T23:07:52.548Z"
         }
       ]
     },
