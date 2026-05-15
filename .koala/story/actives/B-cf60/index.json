@@ -1,0 +1,28 @@
+{
+  "storyId": "B-cf60",
+  "name": "generated-artifact-declaration",
+  "title": "Allow stories to declare expected generated product artifacts",
+  "description": "The B-c9f5 field report on 2026-05-15 showed that tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json was generated as a requested product output, but Koala dirty gates treated it as generic pollution. Add a story-level declaration path for generated delivery artifacts so lifecycle gates can distinguish expected product outputs from unexpected source, fixture, config, or test side effects. This depends on the dirty ownership oracle classification surface and should keep undeclared generated files blocking.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "dirty-gate",
+    "generated-artifact",
+    "worktree",
+    "validation"
+  ],
+  "createdAt": "2026-05-15T11:58:34.978Z",
+  "startedAt": "2026-05-15T11:58:34.978Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-05-15T11:58:34.981Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}
