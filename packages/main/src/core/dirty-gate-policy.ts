@@ -142,7 +142,6 @@ export interface EvaluateDirtyGateResult {
 }
 
 const BLOCKING_CATEGORY_NAMES = DIRTY_WORKTREE_CATEGORIES.filter((c) => DIRTY_GATE_POLICY[c].blocking);
-const PASSING_CATEGORY_NAMES = DIRTY_WORKTREE_CATEGORIES.filter((c) => !DIRTY_GATE_POLICY[c].blocking);
 
 function renderCategoryGroup(prefix: string, counts: Partial<Record<DirtyWorktreeCategory, number>>): string {
   const entries = DIRTY_WORKTREE_CATEGORIES

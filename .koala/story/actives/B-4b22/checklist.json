@@ -359,10 +359,10 @@
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
-          "note": "section (5) BL21 fixture — single declared_artifact_changes path with full BL21 viewer path → allPass=true, 1 audit event",
-          "headHash": "3ab94dc6efd94fd91c064135bf7479e24026059e",
+          "note": "section (5b) of assertDirtyGatePolicyAcrossGates — solo runtime_artifact_changes (.koala/activity.jsonl) fixture → allPass=true, exactly 1 audit event with category=runtime_artifact_changes, pathCount=1, summary contains passed=1 + runtime_artifact_changes=1, zero blocking counts. Distinct from section (5) BL21 declared_artifact_changes.",
+          "headHash": "648c3e8076e2165857e651dec2efb7109fa225ba",
           "materialHash": "4a699e3c6f337c2315be5c71bd5ef4701cecb157b0b395ef2fe075fe590750ca",
-          "timestamp": "2026-05-15T19:03:33.685Z"
+          "timestamp": "2026-05-15T19:08:51.436Z"
         },
         {
           "intentRef": "CHK-004:edge:1",

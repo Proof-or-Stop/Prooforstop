@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-4b22:RP-001",
+      "agent": "koala-review-concept",
+      "note": "审查 git diff main...HEAD 所有改动文件。本次改动引入的新概念（dirty-gate-policy.ts 全部 exports、dirty_gate_audit ProcessEventType、EvaluateDirtyGateResult、AuditEvent、AuditWriter、DirtyGateName、DirtyGatePolicyEntry、evaluateDirtyGate、assertPolicyCovers、defaultAuditWriter、DIRTY_GATE_POLICY、AUDIT_PATH_SAMPLE_LIMIT）在 dirty-gate-policy.ts、types.ts、validation-executor.ts、story-advance.ts、verifier.ts、flow-stability-smoke.ts、validation-protocol-smoke.ts 中完全自洽、无孤儿引用。删除的概念（summarizeGitStatusLines、gitStatusDirtyHint 为 story-advance.ts 私有函数，summarizeDirtyWorktreeClassification 从两个调用方 import 中移除）：私有函数零残留；summarizeDirtyWorktreeClassification 仍留在 dirty-worktree.ts export surface 但无 TS 代码调用（仅 B-6326 历史 delivery-check.json 文本引用），且 smoke 的 preMortem #3 import-isolation grep 会阻止两个 gate consumer 重新引入内联调用。该 export 缺少 @deprecated 注释属 advisory 级别，不构成概念残留 blocker。无 blocking finding。",
+      "createdAt": "2026-05-15T19:06:07.434Z",
+      "reviewRound": "2026-05-15T19:03:53.158Z",
+      "reviewRunId": "B-4b22:RR-001",
+      "_hash": "60cfb0a6a77beabef8747c2817116b24105f70c16a1714d3a072f7335bd9a48d"
+    }
+  ]
+}

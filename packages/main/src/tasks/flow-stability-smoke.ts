@@ -390,6 +390,30 @@ function assertDirtyGatePolicyAcrossGates(): void {
   assert.equal(bl21Result.auditEvents[0].category, 'declared_artifact_changes');
   assert.equal(bl21Result.auditEvents[0].paths[0], BL21);
 
+  // (5b) runtime_artifact_changes solo fixture — preMortem #1 anchor for the
+  // smallest non-blocking single-category passing path. Covers CHK-004:edge:0
+  // (verificationIntent: "single runtime_artifact_changes path → allPass=true
+  // with exactly one audit row, category=runtime_artifact_changes"). Distinct
+  // from (5) which covers declared_artifact_changes, and from (3) which mixes
+  // all three passing categories.
+  const runtimeOnlyPath = '.koala/activity.jsonl';
+  const runtimeOnlyResult = evaluateDirtyGate(
+    buildClassification([{ category: 'runtime_artifact_changes', path: runtimeOnlyPath }]),
+    { storyId: STORY, gate: 'done-gate', writer: null, now: fixedNow },
+  );
+  assert.equal(runtimeOnlyResult.allPass, true, 'solo runtime_artifact_changes must yield allPass=true');
+  assert.equal(runtimeOnlyResult.auditEvents.length, 1, 'solo runtime_artifact_changes must emit exactly one audit event');
+  assert.equal(runtimeOnlyResult.auditEvents[0].category, 'runtime_artifact_changes');
+  assert.equal(runtimeOnlyResult.auditEvents[0].paths[0], runtimeOnlyPath);
+  assert.equal(runtimeOnlyResult.auditEvents[0].pathCount, 1);
+  assert.match(runtimeOnlyResult.summary, /passed=1/);
+  assert.match(runtimeOnlyResult.summary, /runtime_artifact_changes=1/);
+  assert.equal(
+    Object.keys(runtimeOnlyResult.blockingCounts).length,
+    0,
+    'solo runtime_artifact_changes must produce zero blocking counts',
+  );
+
   // (6) audit-write-failure → AUDIT WRITE FAILED + allPass forced false.
   // preMortem #2 anchor.
   const failingWriter: AuditWriter = () => { throw new Error('ENOSPC: no space left'); };

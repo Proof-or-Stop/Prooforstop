@@ -440,12 +440,15 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       : (result.allPass
         ? 'all dirty paths matched passing categories; audit lines appended to process-events.jsonl'
         : '先处理这些 dirty path（按 ownership 分类；dirty 仍会阻塞 DONE）:');
-    const hint = [
+    const hintLines = [
       hintHeader,
       `  ${result.summary}`,
       ...renderDirtyWorktreeGroups(classification, { sampleLimit: 6, indent: '  ' }),
-      '如果这些文件来自 koala validate / npm test 的报告或 snapshot 副作用，请把项目验证改成默认无副作用，或用 env gate（例如 KOALA_WRITE_*_REPORT=1）显式开启写报告。',
-    ].join('\n');
+    ];
+    if (!result.allPass) {
+      hintLines.push('如果这些文件来自 koala validate / npm test 的报告或 snapshot 副作用，请把项目验证改成默认无副作用，或用 env gate（例如 KOALA_WRITE_*_REPORT=1）显式开启写报告。');
+    }
+    const hint = hintLines.join('\n');
     rows.push(doneCheckRow({
       id: 'git-working-tree',
       status: result.allPass ? 'pass' : 'fail',

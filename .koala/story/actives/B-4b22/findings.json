@@ -1,0 +1,49 @@
+{
+  "findings": [
+    {
+      "id": "B-4b22:F-001",
+      "desc": "quality-cleanup: dirty-gate-policy.ts:145 defines `const PASSING_CATEGORY_NAMES` but never references it anywhere in the file or codebase. Dead constant — should be removed or used.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-15T19:05:16.831Z",
+      "reviewRound": "2026-05-15T19:03:53.158Z",
+      "reviewRunId": "B-4b22:RR-002",
+      "_hash": "a7959c2f489fa92e57e7247e7aac3715c3b477f30a780d6fca0abb40f1aa7a4f",
+      "files": [
+        "packages/main/src/core/dirty-gate-policy.ts"
+      ]
+    },
+    {
+      "id": "B-4b22:F-002",
+      "desc": "quality-cleanup: story-advance.ts:447 always appends the advisory message \"如果这些文件来自 koala validate / npm test\" to the hint even when result.allPass=true. When all dirty paths are policy-allowed passing categories, this message is contradictory: the hint already says audit lines were appended, but then advises the user to make validation side-effect free — implying they did something wrong. Should be conditional on !result.allPass.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-15T19:05:22.491Z",
+      "reviewRound": "2026-05-15T19:03:53.158Z",
+      "reviewRunId": "B-4b22:RR-002",
+      "_hash": "c6f2768b088d320e707e05dea9173919ea9975a48c28885cf82f01141da8f4ac",
+      "files": [
+        "packages/main/src/handlers/story-advance.ts"
+      ]
+    },
+    {
+      "id": "B-4b22:F-003",
+      "desc": "CHK-004:edge:0 evidence mismatch: intent specifies \"worktree has only runtime_artifact_changes → evaluateDirtyGate allPass=true with 1 audit line\" (B-3506 auto-commit scenario), but verificationEvidence note points to section (5) which tests solo declared_artifact_changes (BL21 path). The runtime_artifact_changes solo scenario is only covered in the 3-category mix of section (3), not as a standalone case. Evidence note is misleading and the specific intent (sole runtime_artifact) is not directly tested.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-05-15T19:05:25.646Z",
+      "reviewRound": "2026-05-15T19:03:53.158Z",
+      "reviewRunId": "B-4b22:RR-003",
+      "_hash": "27cdc50cd8c57c49291f84ddb05beea043126fd70adb58d519a7897e819c6f29",
+      "files": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ]
+    }
+  ]
+}
