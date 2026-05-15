@@ -3,10 +3,12 @@ import { isAbsolute, resolve } from 'node:path';
 import { loadConfig } from './config.js';
 import {
   classifyGitStatusRows,
+  dirtyWorktreeClassifierOptionsForStory,
   dirtyWorktreeClassifierOptionsFromConfig,
   parseGitPorcelainRow,
   renderDirtyWorktreeGroups,
 } from './dirty-worktree.js';
+import { StoryStore } from './store.js';
 import { defaultAuditWriter, evaluateDirtyGate, type EvaluateDirtyGateResult } from './dirty-gate-policy.js';
 import type {
   ValidationCommand,
@@ -84,9 +86,18 @@ export function formatWorktreePollutionDetails(
   const pollution = result.worktreePollution;
   if (!pollution || pollution.statusLines.length === 0) return [];
   const config = projectRoot ? loadConfig(projectRoot) : undefined;
+  let classifierOptions = config ? dirtyWorktreeClassifierOptionsFromConfig(config) : {};
+  if (config && projectRoot && storyId) {
+    try {
+      const store = new StoryStore(projectRoot);
+      classifierOptions = dirtyWorktreeClassifierOptionsForStory(config, storyId, store);
+    } catch {
+      // PROBE: StoryStore init or declared-artifacts read failed → fall back to config-only options.
+    }
+  }
   const classification = classifyGitStatusRows(
     pollution.statusLines,
-    config ? dirtyWorktreeClassifierOptionsFromConfig(config) : {},
+    classifierOptions,
   );
   const writer = projectRoot && storyId && config
     ? defaultAuditWriter(projectRoot, config.storyDir, storyId)

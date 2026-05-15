@@ -504,6 +504,101 @@ try {
     rmSync(declaredPathRoot, { recursive: true, force: true });
   }
 
+  // B-4b22 F-004 regression: executeValidationPlan with storyId must route
+  // through dirtyWorktreeClassifierOptionsForStory so declared artifacts are
+  // classified as declared_artifact_changes (not unexpected_dirty_files).
+  const declaredE2eRoot = mkdtempSync(join(tmpdir(), 'koala-validation-declared-e2e-'));
+  try {
+    const BL21_E2E = 'packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json';
+    writeFileSync(join(declaredE2eRoot, 'koala.config.json'), JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      testsDir: 'packages/main/tests',
+      fixturesDir: 'packages/main/tests/fixtures',
+      storyDir: '.koala/story/actives',
+      requirementsDir: 'docs/requirements',
+    }));
+    execFileSync('git', ['init'], { cwd: declaredE2eRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['config', 'user.name', 'Koala Smoke'], { cwd: declaredE2eRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['config', 'user.email', 'smoke@example.test'], { cwd: declaredE2eRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['add', '.'], { cwd: declaredE2eRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['commit', '-m', 'seed declared e2e smoke'], { cwd: declaredE2eRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    resetConfigCache();
+
+    const e2eStore = new StoryStore(declaredE2eRoot);
+    const e2eStoryId = 'B-e2etest';
+    const e2eNow = '2026-05-15T19:00:00.000Z';
+    e2eStore.writeStory(e2eStoryId, {
+      storyId: e2eStoryId,
+      name: 'declared-e2e-smoke',
+      title: 'Declared E2E smoke',
+      description: 'F-004 regression: executeValidationPlan must use story-aware classifier.',
+      type: 'chore',
+      phase: 'DEV',
+      priority: 'medium',
+      createdAt: e2eNow,
+      startedAt: e2eNow,
+      endedAt: null,
+      currentReviewRound: e2eNow,
+      events: [],
+    });
+    e2eStore.writeChecklist(e2eStoryId, {
+      items: [{
+        id: 'CHK-001',
+        title: 'Regenerate BL21 viewer',
+        status: 'done',
+        startTime: e2eNow,
+        endTime: e2eNow,
+        verificationIntent: {
+          happy: [{ desc: 'viewer regenerated', type: 'cli', priority: 'must' }],
+          edge: [],
+          adversarial: [],
+        },
+      }],
+    });
+
+    const { createArtifactDeclareHandlers: makeE2eHandlers } = await import('../handlers/artifact-declare.js');
+    makeE2eHandlers({
+      store: e2eStore,
+      root: declaredE2eRoot,
+      scanRoot: join(declaredE2eRoot, 'packages/main'),
+    }).artifact_declare({
+      storyId: e2eStoryId,
+      path: BL21_E2E,
+      reason: 'BL21 lacZ minicell viewer regenerated (F-004 regression)',
+      relatedIntent: 'CHK-001:happy:0',
+    });
+
+    const declaredE2eResult = await executeValidationPlan({
+      provider: 'smoke-declared-e2e',
+      commands: [{
+        label: 'write declared BL21 artifact',
+        command: 'node',
+        args: ['-e', [
+          "const fs = require('fs');",
+          `const dir = '${dirname(BL21_E2E).replace(/'/g, "\\'")}';`,
+          "fs.mkdirSync(dir, { recursive: true });",
+          `fs.writeFileSync('${BL21_E2E.replace(/'/g, "\\'")}', '{}\\n');`,
+        ].join(' ')],
+      }],
+    }, declaredE2eRoot, undefined, e2eStoryId);
+
+    const e2eDetails = declaredE2eResult.details.join('\n');
+    assert.equal(declaredE2eResult.status, 'pass', 'F-004: declared artifact pollution must NOT fail executeValidationPlan when storyId is supplied');
+    assert.equal(declaredE2eResult.allPass, true, 'F-004: allPass must be true for declared artifact pollution');
+    assert.match(e2eDetails, /policy-allowed dirty paths/, 'F-004: details must show policy-allowed wording');
+    assert.match(e2eDetails, /declared_artifact_changes/, 'F-004: details must mention declared_artifact_changes');
+    assert.doesNotMatch(e2eDetails, /unexpected_dirty_files/, 'F-004: declared BL21 must NOT appear as unexpected_dirty_files');
+    // Audit trail must exist for the declared artifact pass.
+    const e2eAuditPath = join(declaredE2eRoot, '.koala', 'story', 'actives', e2eStoryId, 'process-events.jsonl');
+    assert.ok(existsSync(e2eAuditPath), 'F-004: audit log must be written for declared artifact pass');
+    const e2eAuditLines = readFileSync(e2eAuditPath, 'utf-8').trim().split('\n').filter(Boolean);
+    const declaredAudit = e2eAuditLines.find(l => JSON.parse(l).category === 'declared_artifact_changes');
+    assert.ok(declaredAudit, 'F-004: audit must include declared_artifact_changes entry');
+  } finally {
+    rmSync(declaredE2eRoot, { recursive: true, force: true });
+  }
+
   const invalidArgCwd = mkdtempSync(join(tmpdir(), 'koala-validation-schema-'));
   const env = { ...process.env };
   delete env.KOALA_PROJECT_ROOT;
