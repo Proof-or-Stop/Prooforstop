@@ -8,9 +8,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-15T18:50:13.361Z",
-      "endTime": null,
+      "endTime": "2026-05-15T19:02:06.184Z",
       "userSees": "User imports evaluateDirtyGate from packages/main/src/core/dirty-gate-policy.ts and sees a deterministic shape: { allPass: boolean; blockingCounts: { material_source_changes: N, fixture_changes: N, unexpected_dirty_files: N }; passingCounts: { koala_metadata_changes: N, runtime_artifact_changes: N, declared_artifact_changes: N }; auditEvents: AuditEvent[] }. DIRTY_GATE_POLICY table is a const object listing all 6 DIRTY_WORKTREE_CATEGORIES with explicit { blocking: boolean; auditReason: string } values; an exhaustive runtime guard throws if any future enum value is missing from the table.",
       "verificationIntent": {
         "happy": [
@@ -94,9 +94,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-15T18:52:29.099Z",
-      "endTime": null,
+      "endTime": "2026-05-15T19:02:06.413Z",
       "userSees": "User runs koala story_advance --phase=TEST --storyId=B-4b22 on a worktree where only .koala/story/actives/B-4b22/findings.json is dirty; DONE pre-check git-working-tree row reports: status=pass detail=pass: blocking=0 (material+fixture+unexpected); passed=1 (koala_metadata_changes=1). With packages/main/src/foo.ts modified (material_source_changes=1), same row reports: status=fail detail=fail: blocking=1 (material_source_changes=1); passed=0. Same evaluator output drives validation-executor side-effect guard wording.",
       "verificationIntent": {
         "happy": [
@@ -196,9 +196,9 @@
       "relatedDocs": [
         "CLAUDE.md#worktree-生命周期"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-15T18:55:33.629Z",
-      "endTime": null,
+      "endTime": "2026-05-15T19:02:06.636Z",
       "userSees": "After every gate decision that lets ≥1 path pass, .koala/story/actives/B-4b22/process-events.jsonl gains one line: {\"type\":\"dirty_gate_audit\",\"storyId\":\"B-4b22\",\"gate\":\"done-gate\"|\"test-pre-check\"|\"validate-side-effect\",\"category\":\"koala_metadata_changes\",\"pathCount\":N,\"paths\":[\"<=5 sample paths\"],\"reason\":\"<auditReason from policy>\",\"timestamp\":\"<ISO>\"}. One audit entry per allowed category per gate invocation. User runs koala session_brief and sees recent activity references dirty_gate_audit.",
       "verificationIntent": {
         "happy": [
@@ -283,9 +283,9 @@
         "docs/requirements/decisions/testing-completeness.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-15T18:55:39.210Z",
-      "endTime": null,
+      "endTime": "2026-05-15T19:02:06.861Z",
       "userSees": "npm --prefix packages/main run test:flow-stability-smoke and npm --prefix packages/main run test:validation-protocol output ✓ passed and include explicit assertions: (a) 3 blocking categories coexisting → fail with all named in hint; (b) only passing categories → pass + audit lines; (c) DIRTY_GATE_POLICY size matches DIRTY_WORKTREE_CATEGORIES length; (d) audit write fs failure → gate blocks with AUDIT WRITE FAILED.",
       "verificationIntent": {
         "happy": [
