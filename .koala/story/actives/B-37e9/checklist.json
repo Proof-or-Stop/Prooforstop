@@ -42,9 +42,9 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "core/done-oracle.ts created and exports buildDoneChecklist + DoneCheckRow + doneCheckRow; npm run build (tsc) is clean.",
-          "headHash": "0f0f21e728cb86cc00e49fb1d1138c208ac2607e",
-          "materialHash": "ca655619ccc0abe7c6bbb5faf69bd903d87dbe388b937bbfd814f552a92e6d2a",
-          "timestamp": "2026-05-15T23:46:35.682Z"
+          "headHash": "0ba1226edd636a677f60e30e03b61ee34afcc0c0",
+          "materialHash": "6a66eedee6f8207565ee1b820397dd7ae0e6abd9127271d2a6e70fa52237db21",
+          "timestamp": "2026-05-15T23:48:06.740Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -53,9 +53,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "assertDoneOracleSameSource asserts done-oracle.ts import lines contain no story-advance reference (circular-import guard); npm run build clean confirms no cycle. All private helpers (checkEvidenceFreshness/readGitStatusLines/classifierOptionsForCheck/evaluateDirtyGitStatus/gitRefExists/gitRefContainsMain/checkMainDivergence) moved.",
-          "headHash": "2f894a05ac5877cf45adae083155ec6629e766fd",
-          "materialHash": "ca655619ccc0abe7c6bbb5faf69bd903d87dbe388b937bbfd814f552a92e6d2a",
-          "timestamp": "2026-05-15T23:46:45.280Z"
+          "headHash": "0ba1226edd636a677f60e30e03b61ee34afcc0c0",
+          "materialHash": "6a66eedee6f8207565ee1b820397dd7ae0e6abd9127271d2a6e70fa52237db21",
+          "timestamp": "2026-05-15T23:48:06.740Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -64,9 +64,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Function body relocated byte-identical; assertDoneChecklistUsesStableOracleRows + assertDeclaredArtifactDoneCommittedRow (unchanged smoke) still pass, plus assertDoneOracleSameSource baseline asserts row id/status/blocking shape.",
-          "headHash": "3249135684313beb647f2fad3fee4c3c94c1966f",
-          "materialHash": "ca655619ccc0abe7c6bbb5faf69bd903d87dbe388b937bbfd814f552a92e6d2a",
-          "timestamp": "2026-05-15T23:46:45.544Z"
+          "headHash": "0ba1226edd636a677f60e30e03b61ee34afcc0c0",
+          "materialHash": "6a66eedee6f8207565ee1b820397dd7ae0e6abd9127271d2a6e70fa52237db21",
+          "timestamp": "2026-05-15T23:48:06.740Z"
         }
       ]
     },
@@ -112,9 +112,9 @@
           "command": "grep -n done-oracle src/handlers/story-advance.ts src/handlers/session.ts",
           "result": "pass",
           "note": "story-advance.ts DONE gate imports buildDoneChecklist/renderDoneChecklist from ../core/done-oracle.js; session.ts session_brief imports buildDoneChecklist+DoneCheckRow from ../core/done-oracle.js; flow-stability-smoke.ts also repointed.",
-          "headHash": "fdc2bda5ea5596269533a156b66294aff4637625",
-          "materialHash": "ca655619ccc0abe7c6bbb5faf69bd903d87dbe388b937bbfd814f552a92e6d2a",
-          "timestamp": "2026-05-15T23:46:55.280Z"
+          "headHash": "0ba1226edd636a677f60e30e03b61ee34afcc0c0",
+          "materialHash": "6a66eedee6f8207565ee1b820397dd7ae0e6abd9127271d2a6e70fa52237db21",
+          "timestamp": "2026-05-15T23:48:06.740Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -123,9 +123,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "assertDoneOracleSameSource baseline block asserts buildDoneChecklist row id/status/blocking for a TEST-phase fixture; preexisting assertDoneChecklistUsesStableOracleRows snapshot still byte-identical after the move.",
-          "headHash": "26ba244cd837dcd7f7216a5cc90b05193048cf05",
-          "materialHash": "ca655619ccc0abe7c6bbb5faf69bd903d87dbe388b937bbfd814f552a92e6d2a",
-          "timestamp": "2026-05-15T23:46:55.540Z"
+          "headHash": "0ba1226edd636a677f60e30e03b61ee34afcc0c0",
+          "materialHash": "6a66eedee6f8207565ee1b820397dd7ae0e6abd9127271d2a6e70fa52237db21",
+          "timestamp": "2026-05-15T23:48:06.740Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -134,9 +134,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "story-advance.ts keeps a thin re-export (export { buildDoneChecklist, type DoneCheckRow } from ../core/done-oracle.js); assertDoneOracleSameSource asserts story-advance.ts has NO export function buildDoneChecklist( implementation — exactly one impl in done-oracle.ts.",
-          "headHash": "cc6fbc919bba38fb74af9cbfd87905f3d1ad156e",
-          "materialHash": "ca655619ccc0abe7c6bbb5faf69bd903d87dbe388b937bbfd814f552a92e6d2a",
-          "timestamp": "2026-05-15T23:46:55.800Z"
+          "headHash": "0ba1226edd636a677f60e30e03b61ee34afcc0c0",
+          "materialHash": "6a66eedee6f8207565ee1b820397dd7ae0e6abd9127271d2a6e70fa52237db21",
+          "timestamp": "2026-05-15T23:48:06.740Z"
         }
       ]
     },
@@ -183,9 +183,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "assertDoneOracleSameSource drives the DONE gate path (buildDoneChecklist+renderDoneChecklist) and the real session_brief handler against one TEST-phase fixture and asserts identical rendered DONE rows.",
-          "headHash": "2fcc5447cf6f6793a3d691b4ca5e048a3ec8d14c",
-          "materialHash": "ca655619ccc0abe7c6bbb5faf69bd903d87dbe388b937bbfd814f552a92e6d2a",
-          "timestamp": "2026-05-15T23:47:05.423Z"
+          "headHash": "0ba1226edd636a677f60e30e03b61ee34afcc0c0",
+          "materialHash": "6a66eedee6f8207565ee1b820397dd7ae0e6abd9127271d2a6e70fa52237db21",
+          "timestamp": "2026-05-15T23:48:06.740Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -194,9 +194,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "assertDoneOracleSameSource includes static grep that both story-advance.ts and session.ts import buildDoneChecklist from ../core/done-oracle.js, plus a no-circular-import check on done-oracle.ts import lines (preMortem #2/#3).",
-          "headHash": "4c65ae945dfc3cfbc793c1232c44e4266bf6495b",
-          "materialHash": "ca655619ccc0abe7c6bbb5faf69bd903d87dbe388b937bbfd814f552a92e6d2a",
-          "timestamp": "2026-05-15T23:47:05.697Z"
+          "headHash": "0ba1226edd636a677f60e30e03b61ee34afcc0c0",
+          "materialHash": "6a66eedee6f8207565ee1b820397dd7ae0e6abd9127271d2a6e70fa52237db21",
+          "timestamp": "2026-05-15T23:48:06.740Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -205,9 +205,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Existing DONE checklist smoke assertDoneChecklistUsesStableOracleRows and assertDeclaredArtifactDoneCommittedRow were not modified and still pass; flow-stability-smoke prints ✓ passed.",
-          "headHash": "0b5d4d8417fd9aff552006b977fed0678dac4650",
-          "materialHash": "ca655619ccc0abe7c6bbb5faf69bd903d87dbe388b937bbfd814f552a92e6d2a",
-          "timestamp": "2026-05-15T23:47:05.990Z"
+          "headHash": "0ba1226edd636a677f60e30e03b61ee34afcc0c0",
+          "materialHash": "6a66eedee6f8207565ee1b820397dd7ae0e6abd9127271d2a6e70fa52237db21",
+          "timestamp": "2026-05-15T23:48:06.740Z"
         }
       ]
     }
