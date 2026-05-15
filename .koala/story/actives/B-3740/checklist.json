@@ -148,12 +148,12 @@
           "intentRef": "CHK-002:adversarial:0",
           "kind": "manual_transcript",
           "file": "packages/main/src/tasks/lifecycle-registry-contract.ts",
-          "command": "node -e inject rogue_command_xyz into DEFAULT_PHASE_TOOLS.REVIEW",
+          "command": "npm --prefix packages/main run test:lifecycle-registry-contract",
           "result": "pass",
-          "note": "adversarial injection: pushing rogue_command_xyz into DEFAULT_PHASE_TOOLS.REVIEW makes the resolved-set diff name [rogue_command_xyz] as a default-phase-tools divergence; contract exits non-zero naming the divergent command",
-          "headHash": "31dc83481a1628b1eeb2c7baf204c7962ced8b6e",
-          "materialHash": "5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b",
-          "timestamp": "2026-05-15T23:07:52.819Z"
+          "note": "adversarial injection: rogue_command_xyz added to DEFAULT_PHASE_TOOLS.REVIEW makes the contract FAIL at the default-phase-tools check naming rogue_command_xyz with non-zero exit",
+          "headHash": "0f086db1c26fc78334dbf8f73e1efa1474ead115",
+          "materialHash": "fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127",
+          "timestamp": "2026-05-15T23:10:04.868Z"
         }
       ]
     },
