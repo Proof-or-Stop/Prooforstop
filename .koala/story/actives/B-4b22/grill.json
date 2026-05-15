@@ -1,0 +1,26 @@
+{
+  "storyId": "B-4b22",
+  "updatedAt": "2026-05-15T17:57:41.843Z",
+  "sessions": [
+    {
+      "sessionId": "GRILL-001",
+      "topic": "declared artifact policy dependency on B-cf60",
+      "status": "closed",
+      "startedAt": "2026-05-15T17:57:30.836Z",
+      "questions": [
+        {
+          "id": "GQ-001",
+          "question": "CHK-004 mentions declared_artifact_changes passing after B-cf60, but B-cf60 is still active. Should B-4b22 wait for B-cf60 or define policy semantics now?",
+          "answer": "B-4b22 should define and consume the category-aware policy now, including declared_artifact_changes as a passing-with-audit category and regression tests using the classifier extension point/stub declaration data. Full story-level declaration parsing and the field BL21 lacZ artifact allowlist remain B-cf60 scope. This prevents gate policy duplication without blocking on generated artifact declaration UX.",
+          "status": "answered",
+          "recordedAt": "2026-05-15T17:57:37.364Z",
+          "resolvedAt": "2026-05-15T17:57:37.364Z",
+          "source": "main-agent"
+        }
+      ],
+      "closedAt": "2026-05-15T17:57:41.843Z",
+      "closedBy": "main-agent",
+      "closeNote": "Dependency boundary resolved: policy table includes declared_artifact_changes category now; B-cf60 owns declaration source/schema later."
+    }
+  ]
+}
