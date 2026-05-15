@@ -1,0 +1,56 @@
+{
+  "storyId": "B-3740",
+  "changes": "Lifecycle Registry V1：lifecycle-registry.ts 新增两个独立维度——LifecycleArtifact typed enum + isLifecycleArtifact runtime guard + lifecycleArtifactsByPhase/lifecycleArtifactsByTransition projection（phase/transition→artifact 文件），以及 LIFECYCLE_PHASE_COMMANDS + lifecycleCommandsByPhase/lifecycleResolvedCommandsForPhase projection（phase→commands）。两维度都是独立 export，不塞进 LIFECYCLE_TRANSITIONS（避免污染 phase-flow 派生值）。新建 tasks/lifecycle-registry-contract.ts consistency contract（package.json 加 test:lifecycle-registry-contract script），交叉校验 registry / command-policy.ts allowedPhases / config.ts DEFAULT_PHASE_TOOLS（含 * wildcard bucket 解析语义）/ process-fact lifecycle 四个真相源。flow-stability-smoke.ts 加 assertPhaseFlowDerivedValuesByteIdentical 回归块（getPhaseInfo + checkPhaseTransition 144 对 sha256 baseline）证明零行为变更。",
+  "usage": "框架维护者跑 npm --prefix packages/main run test:lifecycle-registry-contract 校验四个真相源与 lifecycle registry 一致；任何人给 DEFAULT_PHASE_TOOLS 或 command-policy 加命令而漏注册到 registry command 维度，contract test 失败并点名分歧命令。新 story 不需要改用法——registry 维度对现有 command-policy / DEFAULT_PHASE_TOOLS 是 authoritative-by-contract（contract 校验），Story 2/3/4 可消费 registry 的 commands/artifacts 维度。",
+  "expectedOutcome": "框架维护者跑 npm --prefix packages/main run test:lifecycle-registry-contract 看到 12 phases 0 divergences PASS；故意往 DEFAULT_PHASE_TOOLS.REVIEW 注入 rogue_command_xyz 时 contract 在 default-phase-tools check 点名 rogue_command_xyz 并 exit 非零；phase-flow.ts getPhaseInfo/checkPhaseTransition 对所有 phase 输出 byte-identical（144 对 sha256 baseline 不变）。",
+  "actualTranscript": "npm --prefix packages/main run build TypeScript 无错；test:lifecycle-registry-contract PASS（12 phases, 0 divergences，4 个 check：registry command projection 自洽 / DEFAULT_PHASE_TOOLS resolved ⊆ registry resolved 含 * wildcard 解析 / process-fact lifecycle 命令双向核对 / 所有 artifact ref resolve 到声明的 LifecycleArtifact）；对抗注入 rogue_command_xyz 触发 named divergence + 非零退出；test:flow-stability-smoke PASS 含 assertPhaseFlowDerivedValuesByteIdentical 回归；test:runtime-fact-contract verified；koala validate --story=B-3740 --json allPass=true，Verification intent coverage: 10/10 covered。",
+  "outcomeDiff": "实际符合预期。registry 升级为四源 consistency contract 校验的 V1 单一真相源；零行为变更（preMortem #2：新维度独立 export，phase-flow 144 对 sha256 baseline 不变）；contract 模拟 DEFAULT_PHASE_TOOLS * wildcard 解析语义避免误报（preMortem #1）；artifacts 是 typed enum（preMortem #3）。",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "本 story 只把 registry 升级为 authoritative-by-contract——command-policy.ts 和 DEFAULT_PHASE_TOOLS 物理上仍是独立文件，未改为 authoritative-by-derivation（从 registry 派生）。那个迁移风险高（85 条 command-policy + config.ts 重写，可能动 command 合法性 = public 行为），刻意留给后续专门 story。Story 2（DONE Oracle Extraction）/3/4 是生命周期治理的后续步骤。",
+  "pitfalls": "生命周期治理 4-story 计划的第 1 步。R1 quality 提 F-001（B-3740 新引入的 LIFECYCLE_COMMAND_PHASES 与已存在的 COMMAND_LIFECYCLE_PHASES 内容重复）——修复时发现两者 type 不同（readonly StoryPhase[] vs readonly CommandPhase[]），收敛方案是把 COMMAND_LIFECYCLE_PHASES retype 成更精确的 CommandPhase[] 并删掉重复常量。R2 又提 F-002（LifecycleArtifactRole dead export）/F-003（as never cast）两个 low——F-003 修复时发现 as never 不是纯多余，是掩盖了 union-width 失配，正解是显式标 Set<string>。每轮 fix 触发下一轮 reviewer evidence stale + DEV→REVIEW 回炉，共走 3 轮 REVIEW —— 这是 koala freshness 机制按设计工作，但 low finding 也触发整轮回炉确实有 churn 成本。",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 83445
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 6438
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 230760
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 662512
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 829297
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 234712
+    }
+  },
+  "totalDurationMs": 2047168,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-05-15T23:27:59.438Z",
+  "updatedAt": "2026-05-15T23:27:59.438Z"
+}
