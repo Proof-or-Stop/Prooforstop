@@ -1,0 +1,29 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Repair malformed @task annotation blocks reported by lint tasks",
+      "context": "npm run lint:tasks reports 64 errors across 11 locations. For each location, either convert explanatory @task text to non-structured prose or complete the structured annotation fields according to docs/requirements/decisions/annotation-system.md. Do not alter runtime behavior.",
+      "relatedDocs": [
+        "docs/requirements/decisions/annotation-system.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "npm run lint:tasks no longer lists the 64 missing-field annotation errors; the affected @task comments are either valid structured annotations or plain explanatory comments with no runtime behavior change."
+    },
+    {
+      "id": "CHK-002",
+      "title": "Verify annotation lint and convergence become clean",
+      "context": "After annotation cleanup, npm run lint:tasks should have 0 errors and koala convergence_check should no longer fail on code annotation compliance. Build must still pass; run focused smoke tests only if touched comments affect test-linked code paths.",
+      "relatedDocs": [
+        "docs/requirements/decisions/annotation-system.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "koala convergence_check reports code annotation compliance passing instead of 64 annotation errors, while npm run lint:tasks and npm --prefix packages/main run build pass."
+    }
+  ]
+}

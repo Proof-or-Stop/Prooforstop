@@ -1,0 +1,39 @@
+{
+  "storyId": "B-407e",
+  "checkedAt": "2026-05-15T20:18:20.783Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [
+    {
+      "severity": "medium",
+      "desc": "CHK-001 and CHK-002 both lack the userSees field required by CLAUDE.md checklist format. CHK-001 should specify the exact lint output the user will see (e.g. npm run lint:tasks reports 0 errors); CHK-002 should specify the exact convergence_check output (e.g. annotation compliance: pass). Without userSees, verification is ambiguous."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-05-15T20:18:13.846Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "Both CHK-001 and CHK-002 are missing the userSees field. CLAUDE.md requires userSees with precise expected output text (e.g. CHK-001: npm run lint:tasks shows 0 errors; CHK-002: koala convergence_check shows code annotation compliance: true). Without userSees, verification in TEST phase lacks a concrete observable target."
+        },
+        {
+          "severity": "low",
+          "desc": "riskSignal compliance was auto-detected from annotation format compliance context, not legal/regulatory compliance. This will route the story through normal channel with full PLAN + decision_set (≥3 preMortem). The overhead is disproportionate for a comment-only chore, but the framework handles this correctly — advisory only."
+        }
+      ]
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-05-15T20:18:20.783Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "CHK-001 and CHK-002 both lack the userSees field required by CLAUDE.md checklist format. CHK-001 should specify the exact lint output the user will see (e.g. npm run lint:tasks reports 0 errors); CHK-002 should specify the exact convergence_check output (e.g. annotation compliance: pass). Without userSees, verification is ambiguous."
+        }
+      ]
+    }
+  ],
+  "_hash": "41ca1e49a9ea0718dc2e129864d78bd0a49049071d00749dc3ce3f62b7efdfbb"
+}

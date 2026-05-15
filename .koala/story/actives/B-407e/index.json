@@ -1,0 +1,28 @@
+{
+  "storyId": "B-407e",
+  "name": "annotation-compliance-convergence-cleanup",
+  "title": "Fix annotation compliance blockers in convergence_check",
+  "description": "Resolve the 64 legacy @task annotation validation errors that make koala convergence_check report code annotation compliance as false, without changing business behavior.",
+  "type": "chore",
+  "phase": "INIT",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "合规/隐私",
+      "matched": "compliance"
+    }
+  ],
+  "createdAt": "2026-05-15T20:17:04.881Z",
+  "startedAt": "2026-05-15T20:17:04.881Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-05-15T20:17:04.881Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}
