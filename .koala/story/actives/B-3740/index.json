@@ -4,7 +4,7 @@
   "title": "Lifecycle Registry V1: single-source-of-truth for phase commands and artifacts",
   "description": "Lifecycle governance step 1. lifecycle-registry.ts (B-d339) is already a lifecycle fact registry — LIFECYCLE_TRANSITIONS carries gates/effects/oracleRows/rendererRow per transition, and phase-flow.ts/context.ts derive the phase graph from it. Two dimensions are still missing: phase-to-commands (which koala commands are legal per phase) and phase/transition-to-artifacts (which artifact files each phase produces/consumes). Today those facts live independently in command-policy.ts allowedPhases, config.ts DEFAULT_PHASE_TOOLS, and the process-fact registry, with no mechanical proof they stay consistent. This story upgrades the registry to V1 single-source-of-truth: add the commands and artifacts dimensions, and add a consistency contract test so command-policy, DEFAULT_PHASE_TOOLS, and process-fact lifecycle are all validated against the one registry. Explicitly out of scope: no public behavior change, no TEST semantics change, no legacy main-type change, no story_advance restructure (those are Story 2/3/4).",
   "type": "refactor",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "lifecycle-registry",
@@ -30,6 +30,19 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-05-15T22:55:15.719Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-3740",
+    "branch": "story/B-3740",
+    "createdAt": "2026-05-15T22:55:15.802Z"
+  }
 }
