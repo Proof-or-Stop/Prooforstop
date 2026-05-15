@@ -1,0 +1,122 @@
+{
+  "storyId": "B-37e9",
+  "checkedAt": "2026-05-15T23:34:30.233Z",
+  "features": [
+    {
+      "feature": "Create core/done-oracle.ts exporting buildDoneChecklist, DoneCheckRow type, doneCheckRow factory, and all private DONE row-builder helpers",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Mechanical relocation only — function body, row order, blocking semantics, gate logic stay byte-identical",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "No circular import: done-oracle.ts must not import from handlers/story-advance.js",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Build clean after extraction: npm --prefix packages/main run build has no circular-import error",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Rewire story-advance.ts (DONE gate, line 1127) to import buildDoneChecklist from core/done-oracle.ts",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Rewire session.ts (session_brief DONE pre-check, line 789) to import buildDoneChecklist from core/done-oracle.ts",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "If thin re-export kept in story-advance.ts for legacy callers, it forwards to done-oracle.ts — exactly one implementation, no copy",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Regression snapshot: buildDoneChecklist rows (id/status/blocking/label) byte-identical before vs after move for representative story states",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Contract test: drives both DONE gate path and session_brief path against same story fixture and asserts identical rendered rows",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Static check in contract test: both story-advance.ts and session.ts import from core/done-oracle.js (structural proof of same source)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Existing DONE checklist smoke (flow-stability, declared-artifacts-committed, coverage etc.) passes unchanged — no test had to be weakened",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Gate oracle and renderer separation: DONE pre-check gate forms stable row contract; display layer (status/session_brief/next) only renders rows, does not copy gate rules",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "DONE gate semantics change — explicitly out of scope",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly out of scope per story description: no DONE gate semantics change",
+      "source": "description"
+    },
+    {
+      "feature": "TEST semantics change — explicitly out of scope",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly out of scope per story description: no TEST semantics change",
+      "source": "description"
+    },
+    {
+      "feature": "Transition orchestrator split — explicitly out of scope (Story 3/4)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly out of scope per story description: transition orchestrator split deferred to Story 3/4",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 15,
+    "covered": 12,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "3c045593765fdcf27b4c6e5e69041b3ca486995e77310a19595500bfba7fedee",
+  "openQuestions": []
+}
