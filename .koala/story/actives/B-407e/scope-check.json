@@ -1,0 +1,41 @@
+{
+  "storyId": "B-407e",
+  "checkedAt": "2026-05-15T20:21:51.642Z",
+  "features": [
+    {
+      "feature": "Repair malformed @task annotation blocks at lint-reported locations",
+      "covered_by": "CHK-001 directly addresses repairing 64 malformed annotations across 11 locations per annotation-system.md spec",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "Preserve runtime behavior / comment-only scope",
+      "covered_by": "CHK-001 adversarial intent (only comment lines change) + CHK-002 edge (build passes) + decision chosen=A (behavior-preserving)",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "Verify lint:tasks and convergence_check pass after cleanup",
+      "covered_by": "CHK-002 happy intents require both lint:tasks exit 0 and convergence_check annotation compliance passing",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "Preserve unrelated workspace state (koala-project-overview.md)",
+      "covered_by": "CHK-002 adversarial[0] no unrelated dirty files + adversarial[1] koala-project-overview.md unchanged",
+      "status": "covered",
+      "excluded_by": ""
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 4,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "67e7a8de1edc3e297ce95d163a2093f1b04aacdd621737a5a93de530b41829f6",
+  "openQuestions": []
+}

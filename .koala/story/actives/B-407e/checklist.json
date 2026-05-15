@@ -11,7 +11,35 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "npm run lint:tasks no longer lists the 64 missing-field annotation errors; the affected @task comments are either valid structured annotations or plain explanatory comments with no runtime behavior change."
+      "userSees": "npm run lint:tasks no longer lists the 64 missing-field annotation errors; the affected @task comments are either valid structured annotations or plain explanatory comments with no runtime behavior change.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm run lint:tasks reports 0 missing-field annotation errors (was 64)",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "All 11 affected locations have valid structured @task annotations or plain prose comments",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Explanatory context originally in malformed annotations is preserved as prose comments, not deleted",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No executable code (non-comment lines) changed beyond annotation/comment edits — git diff shows only comment-line changes",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -23,7 +51,40 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "koala convergence_check reports code annotation compliance passing instead of 64 annotation errors, while npm run lint:tasks and npm --prefix packages/main run build pass."
+      "userSees": "koala convergence_check reports code annotation compliance passing instead of 64 annotation errors, while npm run lint:tasks and npm --prefix packages/main run build pass.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm run lint:tasks exits 0 with no errors",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "koala convergence_check code annotation compliance row passes",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "npm --prefix packages/main run build exits 0 (no build regression)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No unrelated dirty or untracked files introduced by the changes (git status clean except story metadata)",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "docs/koala/koala-project-overview.md is unchanged (git diff shows no edits)",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
