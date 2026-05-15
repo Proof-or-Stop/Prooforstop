@@ -21,7 +21,7 @@
       "desc": "quality-cleanup: packages/main/src/core/lifecycle-registry.ts:332 exports `LifecycleArtifactRole` type but it is not referenced anywhere in the codebase — the contract test (lifecycle-registry-contract.ts:177) uses an inline `[\"produces\", \"consumes\"] as const` literal instead. Dead export should be removed or actually imported.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "agent": "koala-review-quality",
       "createdAt": "2026-05-15T23:19:07.523Z",
       "reviewRound": "2026-05-15T23:16:27.518Z",
