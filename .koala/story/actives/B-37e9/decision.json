@@ -1,0 +1,70 @@
+{
+  "principles": [
+    "Mechanical relocation, zero semantic change — the function body, row order, and blocking decisions are byte-identical before and after",
+    "Single source of truth — DONE gate and session_brief consume one done-oracle module, proven by a contract test, not by convention",
+    "Minimal blast radius — this is the lowest-risk first cut of the story-advance.ts decomposition; defer all behavior changes to Story 3/4"
+  ],
+  "drivers": [
+    "story-advance.ts is a 1640-line handler; buildDoneChecklist is a third of it and blocks the Story 3 orchestrator split",
+    "DONE gate and session_brief already share buildDoneChecklist but it lives inside the transition handler — wrong home",
+    "Story 1 established the registry foundation; Story 2 is the safe extraction step the user explicitly sequenced before the riskier orchestrator/TEST-semantics work"
+  ],
+  "options": [
+    {
+      "name": "A: Move buildDoneChecklist + DoneCheckRow + doneCheckRow into core/done-oracle.ts, rewire both consumers, add same-source contract",
+      "pros": [
+        "Pure relocation — lowest risk, no behavior change",
+        "done-oracle.ts becomes the single home; story-advance.ts shrinks ~569 lines",
+        "Contract test mechanically proves DONE gate and session_brief stay same-source",
+        "Unblocks Story 3 orchestrator split"
+      ],
+      "cons": [
+        "buildDoneChecklist drags its dependency imports (config / policy / declared-artifact-gate / evidence-freshness / dirty-gate) into the new module — a moderately wide import surface to move cleanly"
+      ]
+    },
+    {
+      "name": "B: Leave buildDoneChecklist in story-advance.ts, only add the same-source contract test",
+      "pros": [
+        "Tiny diff"
+      ],
+      "cons": [
+        "Does not extract anything — story-advance.ts stays 1640 lines, Story 3 orchestrator split still blocked",
+        "Fails the stated Story 2 goal (new done-oracle.ts module)"
+      ]
+    },
+    {
+      "name": "C: Extract done-oracle.ts AND refactor the row builders into smaller per-row functions while moving",
+      "pros": [
+        "Cleaner internal structure in the new module"
+      ],
+      "cons": [
+        "Mixing relocation with internal refactor makes byte-identical behavior hard to prove",
+        "Violates the mechanical-relocation constraint; review cannot cleanly separate move from change",
+        "Higher regression risk for a foundation story"
+      ]
+    }
+  ],
+  "chosen": "A: Move buildDoneChecklist + DoneCheckRow + doneCheckRow into core/done-oracle.ts, rewire both consumers, add same-source contract",
+  "rationale": "Choose A because it is a pure mechanical relocation: the function body stays byte-identical so behavior compatibility is trivially provable, story-advance.ts shrinks by ~569 lines, and the same-source contract test mechanically locks the DONE gate and session_brief to one module. Reject B because it extracts nothing — story-advance.ts stays a 1640-line handler and the Story 3 orchestrator split remains blocked, failing the explicit Story 2 goal. Reject C because mixing relocation with an internal row-builder refactor destroys the ability to prove byte-identical behavior — the foundation story must keep move and change separate; internal cleanup belongs in a later story.",
+  "preMortem": [
+    {
+      "scenario": "The move silently changes DONE gate behavior because a dependency import resolves differently from core/ than from handlers/",
+      "trigger": "A relative import path or a module with side-effects-on-import behaves differently when buildDoneChecklist is relocated",
+      "consequence": "DONE gate rows or blocking decisions change — a no-behavior-change story breaks the gate",
+      "mitigation": "Add a regression test that snapshots buildDoneChecklist output (rows: id/status/blocking/label) for a set of representative story states before and after the move and asserts byte-identical. Run the existing flow-stability declared-artifacts-committed smoke unchanged."
+    },
+    {
+      "scenario": "A circular import appears: done-oracle.ts imports from story-advance.ts (or a module that imports story-advance.ts) while story-advance.ts imports done-oracle.ts",
+      "trigger": "buildDoneChecklist uses a helper still defined in story-advance.ts that is not moved",
+      "consequence": "Module load fails or tsc errors, or a partially-initialized import yields undefined at runtime",
+      "mitigation": "Move every private helper buildDoneChecklist depends on into done-oracle.ts (or into a shared lower module). After the move, grep done-oracle.ts imports — it must not import from handlers/story-advance.js. Build + smoke confirm no cycle."
+    },
+    {
+      "scenario": "DONE gate and session_brief drift apart later because the contract test only checks one call site",
+      "trigger": "The contract asserts buildDoneChecklist works but does not assert both consumers actually call the same module export",
+      "consequence": "A future edit could give session_brief its own copy and the test would still pass",
+      "mitigation": "The contract test must drive BOTH the DONE gate path and the session_brief path against the same story fixture and assert the rendered rows are identical — proving same-source by behavior, plus a static check that both files import from core/done-oracle.js."
+    }
+  ],
+  "timestamp": "2026-05-15T23:32:22.913Z"
+}

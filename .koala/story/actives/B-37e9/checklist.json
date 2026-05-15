@@ -9,7 +9,31 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "A framework maintainer opens packages/main/src/core/done-oracle.ts and finds buildDoneChecklist + DoneCheckRow + doneCheckRow plus every private DONE row-builder helper there. story-advance.ts no longer contains the buildDoneChecklist function body (line count drops ~569). `npm --prefix packages/main run build` is clean with no circular-import error.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "core/done-oracle.ts exists and exports buildDoneChecklist + DoneCheckRow + doneCheckRow; build is clean",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "every private helper buildDoneChecklist depends on is moved too — done-oracle.ts does NOT import from handlers/story-advance.js (no circular import, preMortem #2)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the relocated function body is byte-identical — row order, status, blocking, label logic unchanged (mechanical move only)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
