@@ -85,7 +85,31 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`npm --prefix packages/main run build` is clean and the existing flow-stability / phase-flow regression coverage stays green. A regression test snapshots phase-flow.ts getPhaseInfo / checkPhaseTransition output for every phase and asserts byte-identical before vs after the registry extension — proving zero public behavior change.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "phase-flow.ts getPhaseInfo / checkPhaseTransition output is byte-identical for every phase before and after the registry extension",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "context.ts still derives from the registry with no changed output",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "no TEST semantics change, no legacy main-type change, no story_advance restructure — git diff touches only registry projections + contract test + regression test",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
