@@ -143,6 +143,17 @@
           "headHash": "65930e67e732af97c01418f42a5c1203fbbce4b2",
           "materialHash": "5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b",
           "timestamp": "2026-05-15T23:07:52.548Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "command": "node -e inject rogue_command_xyz into DEFAULT_PHASE_TOOLS.REVIEW",
+          "result": "pass",
+          "note": "adversarial injection: pushing rogue_command_xyz into DEFAULT_PHASE_TOOLS.REVIEW makes the resolved-set diff name [rogue_command_xyz] as a default-phase-tools divergence; contract exits non-zero naming the divergent command",
+          "headHash": "31dc83481a1628b1eeb2c7baf204c7962ced8b6e",
+          "materialHash": "5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b",
+          "timestamp": "2026-05-15T23:07:52.819Z"
         }
       ]
     },
