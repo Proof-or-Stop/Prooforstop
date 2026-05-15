@@ -16,27 +16,21 @@
  *   - [CHK-001] Expose helpers for ranking, formatting, and transition health
  */
 import type { StoryPhase } from './types.js';
+import {
+  ACTIVE_LIFECYCLE_PHASES,
+  LIFECYCLE_PHASES,
+  TERMINAL_LIFECYCLE_PHASES,
+  lifecycleForwardTransitionsByPhase,
+  lifecycleRollbackTransitionKeys,
+  isLifecyclePhase,
+  normalizeLifecyclePhase,
+} from './lifecycle-registry.js';
 
-export const ACTIVE_PHASE_ORDER = [
-  'IDEA',
-  'INIT',
-  'INIT_CHECK',
-  'PLAN',
-  'DEV',
-  'REVIEW',
-  'TEST',
-  'DONE',
-] as const satisfies readonly StoryPhase[];
+export const ACTIVE_PHASE_ORDER = ACTIVE_LIFECYCLE_PHASES;
 
-export const TERMINAL_PHASES = ['DONE', 'DISCARDED'] as const satisfies readonly StoryPhase[];
+export const TERMINAL_PHASES = TERMINAL_LIFECYCLE_PHASES;
 
-export const PHASE_ORDER = [
-  ...ACTIVE_PHASE_ORDER,
-  'TEST_CASE',
-  'TEST_CASE_REVIEW',
-  'META',
-  'DISCARDED',
-] as const satisfies readonly StoryPhase[];
+export const PHASE_ORDER = LIFECYCLE_PHASES;
 
 export type PhaseTransitionKind = 'forward' | 'rollback' | 'terminal' | 'legacy';
 
@@ -60,40 +54,16 @@ export interface PhaseTransitionHealth {
 
 const ACTIVE_TOTAL = ACTIVE_PHASE_ORDER.length;
 
-const FORWARD_TRANSITIONS: Record<StoryPhase, StoryPhase[]> = {
-  IDEA: ['INIT', 'PLAN'],
-  INIT: ['INIT_CHECK'],
-  INIT_CHECK: ['PLAN', 'DEV'],
-  PLAN: ['DEV'],
-  DEV: ['REVIEW', 'PLAN'],
-  REVIEW: ['TEST', 'DEV'],
-  // Legacy phases remain readable for old data only.
-  TEST_CASE: ['TEST_CASE_REVIEW', 'DEV'],
-  TEST_CASE_REVIEW: ['TEST', 'DEV', 'TEST_CASE'],
-  TEST: ['DONE', 'DEV'],
-  DONE: [],
-  DISCARDED: [],
-  META: [],
-};
+const FORWARD_TRANSITIONS = lifecycleForwardTransitionsByPhase();
 
-const ROLLBACK_TRANSITIONS = new Set<string>([
-  'DEV->PLAN',
-  'REVIEW->DEV',
-  'TEST_CASE->DEV',
-  'TEST_CASE_REVIEW->DEV',
-  'TEST_CASE_REVIEW->TEST_CASE',
-  'TEST->DEV',
-]);
+const ROLLBACK_TRANSITIONS = lifecycleRollbackTransitionKeys();
 
 export function isStoryPhase(value: string): value is StoryPhase {
-  return (PHASE_ORDER as readonly string[]).includes(value);
+  return isLifecyclePhase(value);
 }
 
 export function normalizeLegacyPhase(phase: string): StoryPhase {
-  if (phase === 'TEST_CASE') return 'DEV';
-  if (phase === 'TEST_CASE_REVIEW') return 'REVIEW';
-  if (isStoryPhase(phase)) return phase;
-  return phase as StoryPhase;
+  return normalizeLifecyclePhase(phase);
 }
 
 export function phaseRank(phase: string): number {

@@ -358,8 +358,9 @@ function managedDoc(
   relPath: string,
   expectedContent: string,
   ownedWhen: (actual: string) => boolean,
+  okWhen?: (actual: string, root: string) => boolean,
 ): ManagedAssetDefinition {
-  return { id, relPath, kind: 'managed-block', expectedContent, ownedWhen };
+  return { id, relPath, kind: 'managed-block', expectedContent, ownedWhen, okWhen };
 }
 
 function wholeFile(
@@ -382,6 +383,33 @@ function isKoalaSelfRepoBootstrap(actual: string, root: string): boolean {
     && managedAssetPathKind(root, 'packages/main/src/core/managed-assets.ts') === 'file';
 }
 
+function isExpandedKoalaAgentsGuide(actual: string): boolean {
+  return actual.includes('# AGENTS.md')
+    && actual.includes('Current lifecycle override')
+    && actual.includes('koala session_brief')
+    && actual.includes('流程事实双层契约')
+    && actual.includes('Story 阶段流转')
+    && actual.includes('Fail-fast policy');
+}
+
+function isExpandedKoalaOverview(actual: string): boolean {
+  return actual.includes('# Koala 模块分类与流程')
+    && actual.includes('project execution and verification substrate')
+    && actual.includes('verificationIntent')
+    && actual.includes('verificationEvidence')
+    && actual.includes('Story 流程总表')
+    && actual.includes('完成定义');
+}
+
+function isExpandedKoalaClaudeGuide(actual: string): boolean {
+  return actual.includes('# CLAUDE.md')
+    && actual.includes('koala session_brief')
+    && actual.includes('REVIEW→TEST')
+    && actual.includes('Claude Prompt Hook')
+    && actual.includes('Reviewer opt-in')
+    && actual.includes('框架自省 audit 配置');
+}
+
 export function listManagedAssetDefinitions(
   profile: InitProfile,
   root = packageRoot(),
@@ -393,6 +421,7 @@ export function listManagedAssetDefinitions(
       'KOALA.md',
       KOALA_MD_TEMPLATE,
       actual => actual.includes('canonical、host-neutral') || actual.includes('所有 init profile 都会创建或同步这个文件'),
+      actual => isExpandedKoalaOverview(actual),
     ),
     wholeFile(
       'bin:koala.js',
@@ -416,6 +445,7 @@ export function listManagedAssetDefinitions(
         'AGENTS.md',
         AGENTS_MD_TEMPLATE,
         actual => actual.includes('Codex / AGENTS') || actual.includes('Codex subagent prompts 位于'),
+        actual => isExpandedKoalaAgentsGuide(actual),
       ),
       wholeFile(
         'bin:koala-codex.js',
@@ -450,6 +480,7 @@ export function listManagedAssetDefinitions(
         'CLAUDE.md',
         CLAUDE_MD_TEMPLATE,
         actual => actual.includes('Koala For Claude Code') || actual.includes('Claude Code subagents 位于'),
+        actual => isExpandedKoalaClaudeGuide(actual),
       ),
       { id: '.claude:settings.json', relPath: '.claude/settings.json', kind: 'claude-settings' },
     );
@@ -575,6 +606,9 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
     const actualSection = actual.match(INIT_DOC_SECTION_RE)?.[0] ?? '';
     if (sha256(actualSection) === sha256(desiredSection)) {
       return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', expectedHash: sha256(desiredSection), actualHash, reason: 'managed section matches Koala template', action: 'none' };
+    }
+    if (def.okWhen?.(actualSection, root)) {
+      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', expectedHash: sha256(desiredSection), actualHash, reason: 'managed section matches alternate Koala-owned contract', action: 'none' };
     }
     if (!manifestUnchanged && !def.ownedWhen?.(actualSection)) {
       return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'STALE_LOCAL_EDIT', expectedHash: sha256(desiredSection), actualHash, reason: 'managed section differs and is not recognized as the generated init block', action: 'review local doc edits before replacing the section' };

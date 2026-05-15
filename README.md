@@ -70,6 +70,8 @@ node packages/main/dist/cli.js doctor --format=json
 
 Koala runtime artifacts 是另一张表：`packages/main/src/core/runtime-artifact-registry.ts` 定义 `.koala/activity.jsonl`、legacy `docs/story/activity.jsonl`、`.koala/runtime/`、`.koala/traces/`、`.koala-serve.json`、debug/browser logs 等运行时文件的 ignore、materialHash 和 repair 语义。`koala init` 会把缺失的 runtime ignore 规则合并进已有 `.gitignore`；`koala doctor` 会报告已被 git 跟踪的 runtime artifacts，并在 `--repair` 时只对 registry 标记为 repairable 的路径执行 `git rm --cached`。这些文件不会让 materialHash-backed verification evidence stale；`.koala/story/` 仍是流程证据，不按 runtime artifact 处理。
 
+Lifecycle facts are also registry-backed. `packages/main/src/core/lifecycle-registry.ts` records the active phase order, legacy phase aliases, transition events, rollback edges, TEST/DONE gate ids, effects, and oracle row ids. `phase-flow.ts`, `handlers/context.ts`, and `test:flow-stability-smoke` must agree with it; inconsistent phase/event/policy edits should fail with a direct lifecycle registry mismatch.
+
 Dashboard 和 `session_brief` 会把 lifecycle progress 与 terminal outcome 分开显示：
 `Lifecycle DONE: N/M (...)` 只表示 story 进入 DONE；`DONE-success/default`、`DONE-blocked`、`DONE-audit-only` 来自 `summary_set.outcomeKind`，旧 summary 缺字段时归入 success/default 兼容桶。相关回归可运行：
 

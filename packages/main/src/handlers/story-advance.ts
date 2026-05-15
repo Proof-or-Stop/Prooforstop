@@ -881,8 +881,14 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
         } catch (e: any) {
           if (e?.message?.startsWith('Cannot enter TEST')) throw e;
           // 预检查本身失败（review-preflight.ts import 失败等）→ fail-closed
-          // 为 warning：不阻推进，只 log；全量 validate 下方仍会跑
-          ctx.log?.(`CLI gate preflight 自身错误（不阻塞推进）: ${e?.message ?? e}`);
+          actor.stop();
+          const message = e instanceof Error ? e.message : String(e);
+          throw new Error(
+            `Cannot enter TEST: CLI gate preflight 执行异常\n` +
+            `${message}\n\n` +
+            `→ 修复 review-preflight gate 后重跑 koala story_advance --phase=TEST\n` +
+            `→ 单独复跑: koala validate --channel --story=${args.storyId} / --concept / --lint；docs-drift 随 preflight 执行；Codex adapter 用 ${LOCAL_CODEX_VERIFY_COMMAND}`,
+          );
         }
       }
 
@@ -941,8 +947,28 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
           ctx.log?.('validate PASS, writing test-evidence.json');
         } catch (e: any) {
           if (e.message?.includes('Cannot enter TEST')) throw e;
-          // validate 运行失败（validate.ts 不存在等）不阻塞，只 warn
-          ctx.log?.(`validate 执行失败（不阻塞推进）: ${e.message}`);
+          actor.stop();
+          const message = e instanceof Error ? e.message : String(e);
+          try {
+            store.writeTestEvidence(args.storyId, {
+              command: `koala validate --story=${args.storyId} --json`,
+              output: `validate execution error: ${message}`,
+              result: 'FAIL',
+              timestamp: new Date().toISOString(),
+            });
+          } catch (persistError) {
+            reportHealthIssue('persist:testEvidence', persistError as Error, {
+              storyId: args.storyId,
+              phase: 'TEST',
+              gate: 'validate-execution-error',
+            });
+          }
+          throw new Error(
+            `Cannot enter TEST: koala validate 执行异常\n` +
+            `${message}\n\n` +
+            `→ 修复 validate runner 后重跑 koala validate --story=${args.storyId} --json\n` +
+            `→ 然后重跑 koala story_advance --phase=TEST`,
+          );
         }
       }
 

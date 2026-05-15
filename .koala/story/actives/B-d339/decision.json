@@ -1,0 +1,73 @@
+{
+  "principles": [
+    "Fail closed for lifecycle gates that affect phase advancement.",
+    "Keep one typed registry as the visible source for lifecycle facts before large refactors.",
+    "Preserve user-maintained guidance while syncing managed assets.",
+    "Make every behavior change observable through a focused smoke or contract test."
+  ],
+  "drivers": [
+    "Reduce risk of silent phase advancement with missing validation evidence.",
+    "Lower future lifecycle maintenance drift across phase graph, machine, command policy, and renderer hints.",
+    "Deliver V0/V1 without destabilizing the broader story_advance flow."
+  ],
+  "options": [
+    {
+      "name": "A: V0 fail-closed plus read-only lifecycle registry foundation",
+      "pros": [
+        "Closes the highest-risk fail-open behavior first.",
+        "Creates a single visible registry without forcing a risky full migration immediately.",
+        "Keeps external CLI behavior compatible except for formerly unsafe exceptions."
+      ],
+      "cons": [
+        "Some duplicate lifecycle sources remain until later V2 migration.",
+        "Registry initially detects drift rather than fully generating all consumers."
+      ]
+    },
+    {
+      "name": "B: Full lifecycle registry migration and story_advance decomposition now",
+      "pros": [
+        "Eliminates duplication faster.",
+        "Could make transition, gate, effects, and renderer all registry-driven in one story."
+      ],
+      "cons": [
+        "Much larger blast radius across phase advancement, DONE merge, hooks, and reviewer gates.",
+        "Harder to distinguish regressions from intended behavior changes.",
+        "Managed asset drift and validate fail-open would remain open longer while refactor is underway."
+      ]
+    },
+    {
+      "name": "C: Only patch validate and managed assets, defer registry",
+      "pros": [
+        "Fastest immediate bug fix.",
+        "Minimal code churn."
+      ],
+      "cons": [
+        "Does not address the root single-truth-source problem.",
+        "Future phase changes would still have no registry contract to catch drift."
+      ]
+    }
+  ],
+  "chosen": "A: V0 fail-closed plus read-only lifecycle registry foundation",
+  "rationale": "Option A fixes the current safety issues while creating a typed registry foothold and contract coverage. It keeps this high-risk framework story bounded and sets up the larger V2 decomposition without combining every risky migration into one change.",
+  "preMortem": [
+    {
+      "scenario": "Fail-closed change blocks valid TEST advancement due to no-validator warn path",
+      "trigger": "A project has no validate.ts and no configured command, but workflow policy still expects validation semantics.",
+      "consequence": "Express or light stories become unusable because skipped validation is treated as infrastructure failure rather than policy-controlled warning.",
+      "mitigation": "Only convert verifier execution/import/parse exceptions to hard failures; preserve structured validate JSON with allPass/status semantics for policy-controlled warn/fail decisions."
+    },
+    {
+      "scenario": "Managed asset sync erases local AGENTS.md or CLAUDE.md guidance",
+      "trigger": "Using koala check --apply on STALE_LOCAL_EDIT managed sections without manual preservation.",
+      "consequence": "Repository-specific workflow rules are lost and future agents follow incomplete guidance.",
+      "mitigation": "Handle CASE_MISMATCH manually and keep local docs intact; only adjust managed markers/templates when local content is preserved or moved explicitly."
+    },
+    {
+      "scenario": "Registry becomes a new duplicate source instead of reducing drift",
+      "trigger": "Adding lifecycle-registry.ts but leaving phase-flow/context/tests unconstrained.",
+      "consequence": "Maintainers now have one more lifecycle table to update with no mechanical benefit.",
+      "mitigation": "Add contract/smoke assertions comparing registry transitions, event mapping, legacy aliases, and command policy expectations in the same story."
+    }
+  ],
+  "timestamp": "2026-05-15T01:48:47.253Z"
+}

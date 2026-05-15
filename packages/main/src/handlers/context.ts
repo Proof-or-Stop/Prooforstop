@@ -7,6 +7,7 @@ import { join, isAbsolute } from 'path';
 import { randomBytes } from 'crypto';
 import { gitProbe } from '../core/git-probe.js';
 import { getStoryWorktreeRuntime, resolveLinkedWorktreePath } from '../core/worktree-runtime.js';
+import { CWD_GATED_LIFECYCLE_PHASES, PHASE_EVENT_BY_TARGET } from '../core/lifecycle-registry.js';
 
 export interface HandlerContext {
   store: StoryStore;
@@ -18,15 +19,7 @@ export interface HandlerContext {
   getAllToolNames?: () => Set<string>;
 }
 
-const PHASE_TO_EVENT: Record<string, string> = {
-  INIT: 'INIT',
-  INIT_CHECK: 'INIT_CHECK',
-  PLAN: 'PLAN',
-  DEV: 'START',
-  REVIEW: 'CODE_REVIEW',
-  TEST: 'REVIEW_PASS',
-  DONE: 'FINISH',
-};
+const PHASE_TO_EVENT: Record<string, string> = { ...PHASE_EVENT_BY_TARGET };
 
 export { PHASE_TO_EVENT };
 
@@ -48,7 +41,7 @@ export function collectContext(phase: StoryPhase, action: 'create' | 'advance' |
 }
 
 /** PLAN ~ TEST 阶段必须在 worktree 里执行 koala 命令 */
-export const CWD_GATED_PHASES: Set<StoryPhase> = new Set(['PLAN', 'DEV', 'REVIEW', 'TEST']);
+export const CWD_GATED_PHASES: Set<StoryPhase> = new Set(CWD_GATED_LIFECYCLE_PHASES);
 
 /**
  * 检查当前 cwd 是否在 story 的 worktree 中。

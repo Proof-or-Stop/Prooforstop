@@ -10,9 +10,45 @@
         "README.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "in_progress",
+      "startTime": "2026-05-15T01:55:33.570Z",
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Running `koala check` in the repo no longer reports managed asset drift for KOALA.md, AGENTS.md, or CLAUDE.md, so a maintainer can trust the health check output before starting story work.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If local guidance files contain approved project-specific additions around the managed section, the health path classifies them correctly instead of flagging them as stale edits, so maintainers are not told to overwrite valid local policy.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "When a managed asset truly drifts from the expected source, `koala check` still surfaces a clear actionable failure instead of silently treating all local edits as healthy.",
+            "type": "cli"
+          }
+        ]
+      },
+      "userSees": "Maintainer runs `koala check` and sees either `Koala managed asset check: OK` or a narrow, actionable drift report that does not tell them to overwrite local AGENTS.md / CLAUDE.md guidance.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/managed-assets.ts",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "README.md",
+          "Koala.md"
+        ],
+        "create": [
+          "KOALA.md"
+        ],
+        "test": [
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -22,9 +58,41 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "in_progress",
+      "startTime": "2026-05-15T01:57:57.955Z",
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "If REVIEW/TEST preflight or validate infrastructure is broken, attempting to advance the story into TEST stops with a clear `Cannot enter TEST` style failure and remediation hint instead of quietly continuing.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A transient import or runtime error in review-preflight is treated the same as an explicit gate failure, so maintainers do not get different behavior depending on where the exception was thrown.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A validate execution failure cannot be downgraded to a warning path that leaves the story looking advanced; the lifecycle stays fail-closed until the maintainer fixes the verification path.",
+            "type": "cli"
+          }
+        ]
+      },
+      "userSees": "Maintainer attempts to enter TEST with broken preflight/validate infrastructure and gets a blocking `Cannot enter TEST` message with the failing subsystem and next command to rerun.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-advance.ts",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -34,9 +102,43 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/framework.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "in_progress",
+      "startTime": "2026-05-15T01:57:57.741Z",
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A maintainer can inspect one typed lifecycle registry file and find the canonical list of active phases, legacy aliases, transition events, rollback targets, terminal phases, and gate/oracle row identifiers without chasing multiple scattered constants.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The registry is read-only in this story: existing CLI behavior stays unchanged except where other checklist items explicitly harden gates, so introducing the registry does not itself alter lifecycle execution.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If a future contributor updates phase facts in one lifecycle surface but forgets the registry, the mismatch is now detectable because the registry is intended as the single reviewable source for those facts.",
+            "type": "docs"
+          }
+        ]
+      },
+      "userSees": "Maintainer opens `packages/main/src/core/lifecycle-registry.ts` and sees the phase order, legacy aliases, transition events, rollback edges, and gate/oracle ids in one typed table.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/phase-flow.ts",
+          "packages/main/src/handlers/context.ts",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "create": [
+          "packages/main/src/core/lifecycle-registry.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-004",
@@ -46,9 +148,44 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "in_progress",
+      "startTime": "2026-05-15T01:57:57.835Z",
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Contract or smoke verification fails when lifecycle phase flow, event mapping, or command policy facts drift away from the registry, so maintainers get a direct regression signal before shipping lifecycle changes.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Legacy aliases and non-terminal rollback paths are covered by the contract checks, so drift is caught on compatibility edges rather than only on the primary happy-path phases.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A contributor cannot silently change PHASE_TO_EVENT or command policy tables without updating the registry and tests, because the consistency checks break on those uncoordinated edits.",
+            "type": "cli"
+          }
+        ]
+      },
+      "userSees": "Maintainer runs `npm --prefix packages/main run test:flow-stability-smoke` and either sees the lifecycle registry contract pass, or a concrete failure such as `Lifecycle registry mismatch: PHASE_TO_EVENT TEST expected REVIEW_PASS` when lifecycle facts drift.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      }
     }
   ]
 }

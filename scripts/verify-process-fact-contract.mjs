@@ -2547,6 +2547,8 @@ const inventory = [
           'runReviewCliGates',
           'koala validate --json',
           'writeTestEvidence',
+          'Cannot enter TEST: CLI gate preflight 执行异常',
+          'Cannot enter TEST: koala validate 执行异常',
         ],
       },
       {
@@ -2684,7 +2686,7 @@ const inventory = [
     files: [
       {
         relPath: 'packages/main/src/handlers/story-advance.ts',
-        patterns: ['runReviewCliGates', 'koala validate --json', 'buildDoneChecklist', 'writeTestEvidence'],
+        patterns: ['runReviewCliGates', 'koala validate --json', 'buildDoneChecklist', 'writeTestEvidence', 'Cannot enter TEST: CLI gate preflight 执行异常', 'Cannot enter TEST: koala validate 执行异常'],
       },
       {
         relPath: 'packages/main/src/handlers/review-preflight.ts',
@@ -2693,6 +2695,27 @@ const inventory = [
       {
         relPath: 'packages/main/src/core/machine.ts',
         patterns: ['canPassReview', 'canFinish', 'getGuardFailureReason'],
+      },
+    ],
+  },
+  {
+    name: 'lifecycle registry',
+    files: [
+      {
+        relPath: 'packages/main/src/core/lifecycle-registry.ts',
+        patterns: ['ACTIVE_LIFECYCLE_PHASES', 'LIFECYCLE_TRANSITIONS', 'PHASE_EVENT_BY_TARGET', 'CWD_GATED_LIFECYCLE_PHASES', 'LEGACY_LIFECYCLE_PHASE_ALIASES'],
+      },
+      {
+        relPath: 'packages/main/src/core/phase-flow.ts',
+        patterns: ['ACTIVE_LIFECYCLE_PHASES', 'lifecycleForwardTransitionsByPhase', 'normalizeLifecyclePhase'],
+      },
+      {
+        relPath: 'packages/main/src/handlers/context.ts',
+        patterns: ['PHASE_EVENT_BY_TARGET', 'CWD_GATED_LIFECYCLE_PHASES'],
+      },
+      {
+        relPath: 'packages/main/src/tasks/flow-stability-smoke.ts',
+        patterns: ['assertLifecycleRegistryConsistency', 'Lifecycle registry mismatch', 'assertStoryAdvanceTestGateFailClosedContracts'],
       },
     ],
   },

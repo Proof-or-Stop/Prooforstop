@@ -1,0 +1,34 @@
+{
+  "task": "Harden Koala lifecycle V0/V1 by closing fail-open gates, resolving managed asset drift, and introducing a typed lifecycle registry foundation.",
+  "outcome": "Maintainer runs `koala check` and sees no managed asset drift; a broken validate/preflight path now prints `Cannot enter TEST` instead of silently advancing; lifecycle facts can be inspected from `lifecycle-registry.ts` so future phase changes have one obvious source to update.",
+  "facts": [
+    "koala check currently reports CASE_MISMATCH for KOALA.md vs Koala.md and STALE_LOCAL_EDIT for AGENTS.md/CLAUDE.md managed sections.",
+    "story_advance currently logs review-preflight import/runtime exceptions and validate execution exceptions without blocking TEST advancement.",
+    "phase facts are split across core/types.ts, core/phase-flow.ts, core/machine.ts, handlers/context.ts, core/command-policy.ts, core/config.ts, and story-advance DONE oracle.",
+    "The first execution slice should keep external CLI behavior compatible except for fail-open paths becoming hard failures."
+  ],
+  "constraints": [
+    "Do not directly read/write docs/story or tests/fixtures JSON; use koala CLI for story evidence.",
+    "Preserve local AGENTS.md and CLAUDE.md guidance when resolving managed asset drift; do not overwrite long local docs with tiny templates.",
+    "For process facts affecting phase/gate/evidence semantics, code gates and contract tests must change alongside docs/prompts.",
+    "Keep V1 registry read-only first; avoid a full story_advance decomposition in this story."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/core/phase-flow.ts",
+    "packages/main/src/handlers/context.ts",
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "KOALA.md",
+    "README.md",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "docs/requirements/decisions/testing-infra.md"
+  ],
+  "timestamp": "2026-05-15T01:48:35.362Z"
+}

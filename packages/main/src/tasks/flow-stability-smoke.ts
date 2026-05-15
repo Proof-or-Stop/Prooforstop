@@ -2,21 +2,43 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, rmSync, mkdirSync, writeFileSync, existsSync, lstatSync, readlinkSync, symlinkSync } from 'node:fs';
+import { mkdtempSync, rmSync, mkdirSync, writeFileSync, existsSync, lstatSync, readlinkSync, symlinkSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { getAllowedPatterns, isCommandAllowed, resetConfigCache } from '../core/config.js';
+import { DEFAULT_PHASE_TOOLS, getAllowedPatterns, isCommandAllowed, resetConfigCache } from '../core/config.js';
+import { getCommandPolicyEntries, policyAllowedPhaseLabels } from '../core/command-policy.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { signFinding, signReviewPass, verifyFinding, verifyReviewPass } from '../core/finding-verify.js';
 import { getArtifactContractStatus } from '../core/artifact-contract.js';
 import { FLOW_FACT_POLICIES, isPassOnlyReviewFindingRecord } from '../core/flow-fact-policy.js';
+import { runManagedAssetCheck } from '../core/managed-assets.js';
+import {
+  ACTIVE_LIFECYCLE_PHASES,
+  COMMAND_LIFECYCLE_PHASES,
+  CWD_GATED_LIFECYCLE_PHASES,
+  LEGACY_LIFECYCLE_PHASE_ALIASES,
+  LIFECYCLE_PHASES,
+  LIFECYCLE_TRANSITIONS,
+  PHASE_EVENT_BY_TARGET,
+  TERMINAL_LIFECYCLE_PHASES,
+  findLifecycleTransition,
+  lifecycleForwardTransitionsByPhase,
+} from '../core/lifecycle-registry.js';
 import { getGuardFailureReason } from '../core/machine.js';
 import { getProcessFactRegistryEntry, hasProcessFactSemantic, PROCESS_FACT_FLOW_POLICIES } from '../core/process-fact-registry.js';
+import {
+  ACTIVE_PHASE_ORDER,
+  PHASE_ORDER,
+  TERMINAL_PHASES,
+  checkPhaseTransition,
+  normalizeLegacyPhase,
+} from '../core/phase-flow.js';
 import { collectReviewerEvidenceState, signReviewRun } from '../core/review-run.js';
 import { summarizeReviewerStatus } from '../core/reviewer-status.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, Finding, ReviewRun, StoryInfo, TestEvidenceData } from '../core/types.js';
+import { CWD_GATED_PHASES, PHASE_TO_EVENT } from '../handlers/context.js';
 import { buildDoneChecklist } from '../handlers/story-advance.js';
 import { createStoryAdvanceHandlers } from '../handlers/story-advance.js';
 import { createStoryDispatchHandlers } from '../handlers/story-dispatch.js';
@@ -454,6 +476,160 @@ function assertPhaseToolsOverrideStillBlocks(): void {
     assert.match(output, /Current phaseTools allow: session_brief, next, status/);
   } finally {
     rmSync(override.root, { recursive: true, force: true });
+  }
+}
+
+function patternMatchesCommand(pattern: string, command: string): boolean {
+  if (pattern.endsWith('*')) return command.startsWith(pattern.slice(0, -1));
+  return command === pattern;
+}
+
+function assertLifecycleRegistryConsistency(): void {
+  assert.deepEqual(
+    ACTIVE_PHASE_ORDER,
+    ACTIVE_LIFECYCLE_PHASES,
+    'Lifecycle registry mismatch: ACTIVE_PHASE_ORDER should mirror ACTIVE_LIFECYCLE_PHASES',
+  );
+  assert.deepEqual(
+    TERMINAL_PHASES,
+    TERMINAL_LIFECYCLE_PHASES,
+    'Lifecycle registry mismatch: TERMINAL_PHASES should mirror TERMINAL_LIFECYCLE_PHASES',
+  );
+  assert.deepEqual(
+    PHASE_ORDER,
+    LIFECYCLE_PHASES,
+    'Lifecycle registry mismatch: PHASE_ORDER should mirror LIFECYCLE_PHASES',
+  );
+  assert.deepEqual(
+    [...CWD_GATED_PHASES],
+    CWD_GATED_LIFECYCLE_PHASES,
+    'Lifecycle registry mismatch: CWD_GATED_PHASES should mirror CWD_GATED_LIFECYCLE_PHASES',
+  );
+  assert.deepEqual(
+    PHASE_TO_EVENT,
+    PHASE_EVENT_BY_TARGET,
+    'Lifecycle registry mismatch: PHASE_TO_EVENT should mirror PHASE_EVENT_BY_TARGET',
+  );
+
+  for (const [legacy, current] of Object.entries(LEGACY_LIFECYCLE_PHASE_ALIASES)) {
+    assert.equal(
+      normalizeLegacyPhase(legacy),
+      current,
+      `Lifecycle registry mismatch: legacy alias ${legacy} should normalize to ${current}`,
+    );
+  }
+
+  const transitionProjection = lifecycleForwardTransitionsByPhase();
+  for (const transition of LIFECYCLE_TRANSITIONS) {
+    const health = checkPhaseTransition(transition.from, transition.to);
+    assert.equal(
+      health.ok,
+      true,
+      `Lifecycle registry mismatch: transition ${transition.from}->${transition.to} must be allowed by phase-flow`,
+    );
+    assert.equal(
+      health.kind,
+      transition.kind,
+      `Lifecycle registry mismatch: transition ${transition.from}->${transition.to} kind expected ${transition.kind}`,
+    );
+    assert.ok(
+      findLifecycleTransition(transition.from, transition.to),
+      `Lifecycle registry mismatch: findLifecycleTransition should return ${transition.from}->${transition.to}`,
+    );
+    assert.ok(
+      transitionProjection[transition.from].includes(transition.to),
+      `Lifecycle registry mismatch: transition projection missing ${transition.from}->${transition.to}`,
+    );
+  }
+
+  const commandPhases = new Set(COMMAND_LIFECYCLE_PHASES);
+  for (const [command, policy] of getCommandPolicyEntries()) {
+    for (const phase of policyAllowedPhaseLabels(policy)) {
+      assert.ok(
+        commandPhases.has(phase as any),
+        `Lifecycle registry mismatch: COMMAND_POLICIES.${command} allows unknown phase ${phase}`,
+      );
+    }
+  }
+
+  const policyEntries = getCommandPolicyEntries();
+  const knownCommands = new Set(policyEntries.map(([command]) => command));
+  for (const [phase, patterns] of Object.entries(DEFAULT_PHASE_TOOLS)) {
+    assert.ok(
+      phase === '*' || commandPhases.has(phase as any),
+      `Lifecycle registry mismatch: DEFAULT_PHASE_TOOLS has unknown phase ${phase}`,
+    );
+    for (const pattern of patterns) {
+      const matchingCommands = pattern.endsWith('*')
+        ? policyEntries.map(([command]) => command).filter(command => patternMatchesCommand(pattern, command))
+        : (knownCommands.has(pattern as any) ? [pattern] : []);
+      assert.ok(
+        matchingCommands.length > 0,
+        `Lifecycle registry mismatch: DEFAULT_PHASE_TOOLS.${phase} pattern ${pattern} has no command policy entry`,
+      );
+      if (phase === '*') continue;
+      for (const command of matchingCommands) {
+        const policy = policyEntries.find(([name]) => name === command)?.[1];
+        assert.ok(policy, `Lifecycle registry mismatch: missing policy for ${command}`);
+        assert.ok(
+          policyAllowedPhaseLabels(policy).includes(phase),
+          `Lifecycle registry mismatch: DEFAULT_PHASE_TOOLS.${phase} allows ${command} but COMMAND_POLICIES does not`,
+        );
+      }
+    }
+  }
+}
+
+function assertStoryAdvanceTestGateFailClosedContracts(): void {
+  const root = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
+  const source = readFileSync(join(root, 'src', 'handlers', 'story-advance.ts'), 'utf-8');
+  assert.match(
+    source,
+    /Cannot enter TEST: CLI gate preflight 执行异常/,
+    'REVIEW->TEST preflight infrastructure errors must be fail-closed',
+  );
+  assert.match(
+    source,
+    /Cannot enter TEST: koala validate 执行异常/,
+    'validate execution errors must be fail-closed before entering TEST',
+  );
+  assert.doesNotMatch(
+    source,
+    /CLI gate preflight 自身错误（不阻塞推进）|validate 执行失败（不阻塞推进）/,
+    'TEST gate infrastructure errors must not use the old warn-and-advance path',
+  );
+}
+
+function assertManagedAssetExpandedDocsAndTrueDrift(): void {
+  const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
+  const repoRoot = resolve(packageRoot, '..', '..');
+  const current = runManagedAssetCheck(repoRoot, { profile: 'all' });
+  const currentById = new Map(current.items.map(item => [item.id, item]));
+  for (const id of ['doc:KOALA.md', 'doc:AGENTS.md', 'doc:CLAUDE.md']) {
+    assert.equal(
+      currentById.get(id)?.status,
+      'OK',
+      `managed asset drift check should accept expanded local guide ${id}`,
+    );
+  }
+
+  const badRoot = mkdtempSync(join(tmpdir(), 'koala-managed-drift-'));
+  try {
+    const badSection = '<!-- koala:start -->\n# Locally edited guide\nThis is not a Koala-owned alternate contract.\n<!-- koala:end -->\n';
+    write(badRoot, 'KOALA.md', badSection);
+    write(badRoot, 'AGENTS.md', badSection);
+    write(badRoot, 'CLAUDE.md', badSection);
+    const drift = runManagedAssetCheck(badRoot, { profile: 'all' });
+    const driftById = new Map(drift.items.map(item => [item.id, item]));
+    for (const id of ['doc:KOALA.md', 'doc:AGENTS.md', 'doc:CLAUDE.md']) {
+      assert.equal(
+        driftById.get(id)?.status,
+        'STALE_LOCAL_EDIT',
+        `managed asset drift check must still flag true local drift for ${id}`,
+      );
+    }
+  } finally {
+    rmSync(badRoot, { recursive: true, force: true });
   }
 }
 
@@ -1295,6 +1471,9 @@ assertSessionBriefGate();
 assertFlowFactPolicyRegistry();
 assertPhaseGatePolicyHints();
 assertPhaseToolsOverrideStillBlocks();
+assertLifecycleRegistryConsistency();
+assertStoryAdvanceTestGateFailClosedContracts();
+assertManagedAssetExpandedDocsAndTrueDrift();
 assertDispatchPromptsPinImplementerCommitAuthor();
 assertReviewGateUsesOptIn();
 assertReviewRunBindingRejectsInvalidEvidence();
