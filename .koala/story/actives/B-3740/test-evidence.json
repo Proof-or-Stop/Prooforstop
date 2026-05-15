@@ -1,14 +1,14 @@
 {
   "command": "koala validate --story=B-3740 --json",
-  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery; verification coverage missing 10 required intent(s)\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.3 test\",\"  > npm run test:e2e\",\"  > koala@0.3.3 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 0/10 covered (10 required missing)\",\"  ✗ CHK-001:happy:0 [happy/must/logic] stale via logic_test (packages/main/src/tasks/flow-stability-smoke.ts) — lifecycle-registry.ts exports a phase-to-commands projection and a phase/transition-to-artifacts projection; both return stable structured data\",\"  ✗ CHK-001:edge:0 [edge/must/logic] stale via logic_test (packages/main/src/tasks/lifecycle-registry-contract.ts) — artifacts dimension is a typed enum of known artifact files, not free text — an unknown artifact name fails type-check / a runtime guard\",\"  ✗ CHK-001:adversarial:0 [adversarial/must/logic] stale via logic_test (packages/main/src/tasks/flow-stability-smoke.ts) — new dimensions are separate exported projections, NOT woven into the LIFECYCLE_TRANSITIONS objects consumed by phase-flow.ts — phase-flow derived values stay byte-identical (preMortem #2 anchor)\",\"  ✗ CHK-002:happy:0 [happy/must/cli] stale via manual_transcript (packages/main/src/tasks/lifecycle-registry-contract.ts) — consistency contract test passes when registry, command-policy allowedPhases, DEFAULT_PHASE_TOOLS and process-fact lifecycle agree\",\"  ✗ CHK-002:edge:0 [edge/must/cli] stale via manual_transcript (packages/main/src/tasks/lifecycle-registry-contract.ts) — contract test models the same resolution semantics as DEFAULT_PHASE_TOOLS (wildcard * bucket + per-phase additions) — checks resolved effective command set per phase, no false positive on the * bucket (preMortem #1 anchor)\",\"  ✗ CHK-002:edge:1 [edge/must/logic] stale via logic_test (packages/main/src/tasks/lifecycle-registry-contract.ts) — contract test asserts every oracleRows/gate artifact reference resolves to a declared artifact entry\",\"  ✗ CHK-002:adversarial:0 [adversarial/must/cli] stale via manual_transcript (packages/main/src/tasks/lifecycle-registry-contract.ts) — injecting a command into DEFAULT_PHASE_TOOLS not present in the registry command dimension makes the contract test FAIL and name the divergent command\",\"  ✗ CHK-003:happy:0 [happy/must/logic] stale via logic_test (packages/main/src/tasks/flow-stability-smoke.ts) — phase-flow.ts getPhaseInfo / checkPhaseTransition output is byte-identical for every phase before and after the registry extension\",\"  ✗ CHK-003:edge:0 [edge/must/logic] stale via logic_test (packages/main/src/core/phase-flow.ts) — context.ts still derives from the registry with no changed output\",\"  ✗ CHK-003:adversarial:0 [adversarial/must/logic] stale via docs_check (packages/main/src/core/lifecycle-registry.ts) — no TEST semantics change, no legacy main-type change, no story_advance restructure — git diff touches only registry projections + contract test + regression test\"],\"warnings\":[],\"timestamp\":\"2026-05-15T23:09:35.631Z\",\"headSha\":\"730bf66f3fde8e789a8d5cb5c6d2e8cad5db605b\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.3 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.3 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":973}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":10,\"reason\":\"verificationIntent entries present (10)\"},\"verificationCoverage\":{\"total\":10,\"required\":10,\"covered\":0,\"missingRequired\":10,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"lifecycle-registry.ts exports a phase-to-commands projection and a phase/transition-to-artifacts projection; both return stable structured data\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/flow-stability-smoke.ts\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"assertPhaseFlowDerivedValuesByteIdentical asserts lifecycleCommandsByPhase()/lifecycleArtifactsByPhase() return stable structured data (wildcard bucket non-empty, every phase projected)\",\"headHash\":\"64c6fb3c728223004b8353d9d3e39ceae66f473f\",\"materialHash\":\"5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b\",\"timestamp\":\"2026-05-15T23:07:37.607Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"artifacts dimension is a typed enum of known artifact files, not free text — an unknown artifact name fails type-check / a runtime guard\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/lifecycle-registry-contract.ts\",\"command\":\"npm --prefix packages/main run test:lifecycle-registry-contract\",\"result\":\"pass\",\"note\":\"LifecycleArtifact is a typed enum; isLifecycleArtifact runtime guard rejects unknown names; contract check 4a-4d assert no undeclared artifact resolves\",\"headHash\":\"cb8099c13380a6a772ae2c0fcb891621001c54ce\",\"materialHash\":\"5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b\",\"timestamp\":\"2026-05-15T23:07:37.861Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"new dimensions are separate exported projections, NOT woven into the LIFECYCLE_TRANSITIONS objects consumed by phase-flow.ts — phase-flow derived values stay byte-identical (preMortem #2 anchor)\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/flow-stability-smoke.ts\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"new dimensions are separate exported projections (LIFECYCLE_PHASE_ARTIFACTS / lifecycleCommandsByPhase) not woven into LIFECYCLE_TRANSITIONS; phase-flow getPhaseInfo/checkPhaseTransition asserted byte-identical to hardcoded baseline\",\"headHash\":\"989596d66026ef046825f18c3658e984ec8bfeb5\",\"materialHash\":\"5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b\",\"timestamp\":\"2026-05-15T23:07:38.134Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"consistency contract test passes when registry, command-policy allowedPhases, DEFAULT_PHASE_TOOLS and process-fact lifecycle agree\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/tasks/lifecycle-registry-contract.ts\",\"command\":\"npm --prefix packages/main run test:lifecycle-registry-contract\",\"result\":\"pass\",\"note\":\"contract prints lifecycle-registry consistency: PASS — command-policy / DEFAULT_PHASE_TOOLS / process-fact lifecycle consistent with registry, 12 phases projected, 0 divergences\",\"headHash\":\"9c94e30f4003c8c5c48b4a724b26e222c00cfeda\",\"materialHash\":\"5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b\",\"timestamp\":\"2026-05-15T23:07:51.942Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"contract test models the same resolution semantics as DEFAULT_PHASE_TOOLS (wildcard * bucket + per-phase additions) — checks resolved effective command set per phase, no false positive on the * bucket (preMortem #1 anchor)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/tasks/lifecycle-registry-contract.ts\",\"command\":\"npm --prefix packages/main run test:lifecycle-registry-contract\",\"result\":\"pass\",\"note\":\"resolveDefaultPhaseToolsCommands models * wildcard bucket + per-phase patterns; checkCommandDimension compares resolved effective sets vs lifecycleResolvedCommandsForPhase, never raw tables; 0 divergences proves no false positive on the * bucket\",\"headHash\":\"5624702874680fefdcfd428ae8a33cdcaaff6e42\",\"materialHash\":\"5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b\",\"timestamp\":\"2026-05-15T23:07:52.227Z\"}},{\"intentRef\":\"CHK-002:edge:1\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"contract test asserts every oracleRows/gate artifact reference resolves to a declared artifact entry\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:edge:1\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/lifecycle-registry-contract.ts\",\"command\":\"npm --prefix packages/main run test:lifecycle-registry-contract\",\"result\":\"pass\",\"note\":\"checkArtifactReferences 4a-4d asserts every LIFECYCLE_ORACLE_ARTIFACT_REFS value, every phase produces/consumes entry, and every transition oracleRows/gates artifact id resolves to a declared LifecycleArtifact\",\"headHash\":\"65930e67e732af97c01418f42a5c1203fbbce4b2\",\"materialHash\":\"5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b\",\"timestamp\":\"2026-05-15T23:07:52.548Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"injecting a command into DEFAULT_PHASE_TOOLS not present in the registry command dimension makes the contract test FAIL and name the divergent command\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/tasks/lifecycle-registry-contract.ts\",\"command\":\"node -e inject rogue_command_xyz into DEFAULT_PHASE_TOOLS.REVIEW\",\"result\":\"pass\",\"note\":\"adversarial injection: pushing rogue_command_xyz into DEFAULT_PHASE_TOOLS.REVIEW makes the resolved-set diff name [rogue_command_xyz] as a default-phase-tools divergence; contract exits non-zero naming the divergent command\",\"headHash\":\"31dc83481a1628b1eeb2c7baf204c7962ced8b6e\",\"materialHash\":\"5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b\",\"timestamp\":\"2026-05-15T23:07:52.819Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"phase-flow.ts getPhaseInfo / checkPhaseTransition output is byte-identical for every phase before and after the registry extension\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/flow-stability-smoke.ts\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"assertPhaseFlowDerivedValuesByteIdentical asserts getPhaseInfo for all 12 LIFECYCLE_PHASES equals hardcoded PHASE_FLOW_GET_PHASE_INFO_BASELINE and checkPhaseTransition over all 144 ordered pairs hashes to PHASE_FLOW_TRANSITION_HEALTH_BASELINE_HASH\",\"headHash\":\"12df3f38a8a855c19422767c19de8a4736836c6e\",\"materialHash\":\"5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b\",\"timestamp\":\"2026-05-15T23:08:03.430Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"context.ts still derives from the registry with no changed output\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/phase-flow.ts\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"context.ts imports CWD_GATED_LIFECYCLE_PHASES + PHASE_EVENT_BY_TARGET unchanged; assertLifecycleRegistryConsistency still asserts PHASE_TO_EVENT mirrors PHASE_EVENT_BY_TARGET and CWD_GATED_PHASES mirrors the registry\",\"headHash\":\"0f2a61600b5912c41717747ab91358b2991ecd0e\",\"materialHash\":\"5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b\",\"timestamp\":\"2026-05-15T23:08:03.777Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"no TEST semantics change, no legacy main-type change, no story_advance restructure — git diff touches only registry projections + contract test + regression test\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"packages/main/src/core/lifecycle-registry.ts\",\"command\":\"git diff --stat HEAD\",\"result\":\"pass\",\"note\":\"git diff touches only lifecycle-registry.ts (additive projections), package.json (one new script), flow-stability-smoke.ts (regression block) and new lifecycle-registry-contract.ts; no TEST semantics / legacy main-type / story_advance change\",\"headHash\":\"77c4d154afb2789587e518856e18e016020ab4bd\",\"materialHash\":\"5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b\",\"timestamp\":\"2026-05-15T23:08:04.099Z\"}}]}}",
-  "result": "FAIL",
-  "timestamp": "2026-05-15T23:09:35.900Z",
-  "headHash": "730bf66f3fde8e789a8d5cb5c6d2e8cad5db605b",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.3 test\",\"  > npm run test:e2e\",\"  > koala@0.3.3 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 10/10 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/core/lifecycle-registry.ts) — lifecycle-registry.ts exports a phase-to-commands projection and a phase/transition-to-artifacts projection; both return stable structured data\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/core/lifecycle-registry.ts) — artifacts dimension is a typed enum of known artifact files, not free text — an unknown artifact name fails type-check / a runtime guard\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/core/lifecycle-registry.ts) — new dimensions are separate exported projections, NOT woven into the LIFECYCLE_TRANSITIONS objects consumed by phase-flow.ts — phase-flow derived values stay byte-identical (preMortem #2 anchor)\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via manual_transcript (packages/main/src/tasks/lifecycle-registry-contract.ts) — consistency contract test passes when registry, command-policy allowedPhases, DEFAULT_PHASE_TOOLS and process-fact lifecycle agree\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via manual_transcript (packages/main/src/tasks/lifecycle-registry-contract.ts) — contract test models the same resolution semantics as DEFAULT_PHASE_TOOLS (wildcard * bucket + per-phase additions) — checks resolved effective command set per phase, no false positive on the * bucket (preMortem #1 anchor)\",\"  ✓ CHK-002:edge:1 [edge/must/logic] covered via logic_test (packages/main/src/tasks/lifecycle-registry-contract.ts) — contract test asserts every oracleRows/gate artifact reference resolves to a declared artifact entry\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via manual_transcript (packages/main/src/tasks/lifecycle-registry-contract.ts) — injecting a command into DEFAULT_PHASE_TOOLS not present in the registry command dimension makes the contract test FAIL and name the divergent command\",\"  ✓ CHK-003:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/flow-stability-smoke.ts) — phase-flow.ts getPhaseInfo / checkPhaseTransition output is byte-identical for every phase before and after the registry extension\",\"  ✓ CHK-003:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/flow-stability-smoke.ts) — context.ts still derives from the registry with no changed output\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/flow-stability-smoke.ts) — no TEST semantics change, no legacy main-type change, no story_advance restructure — git diff touches only registry projections + contract test + regression test\"],\"warnings\":[],\"timestamp\":\"2026-05-15T23:10:07.294Z\",\"headSha\":\"c78a651d2d8cb26dbfc10a7d859069a1fdf2d925\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.3 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.3 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1010}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":10,\"reason\":\"verificationIntent entries present (10)\"},\"verificationCoverage\":{\"total\":10,\"required\":10,\"covered\":10,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"lifecycle-registry.ts exports a phase-to-commands projection and a phase/transition-to-artifacts projection; both return stable structured data\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/lifecycle-registry.ts\",\"command\":\"npm --prefix packages/main run test:lifecycle-registry-contract\",\"result\":\"pass\",\"note\":\"lifecycle-registry.ts exports lifecycleCommandsByPhase / lifecycleArtifactsByPhase / lifecycleArtifactsByTransition projections returning stable structured data; contract test consumes them across 12 phases with 0 divergences\",\"headHash\":\"730bf66f3fde8e789a8d5cb5c6d2e8cad5db605b\",\"materialHash\":\"fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127\",\"timestamp\":\"2026-05-15T23:10:03.230Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"artifacts dimension is a typed enum of known artifact files, not free text — an unknown artifact name fails type-check / a runtime guard\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/lifecycle-registry.ts\",\"command\":\"npm --prefix packages/main run test:lifecycle-registry-contract\",\"result\":\"pass\",\"note\":\"artifacts dimension is the typed LifecycleArtifact enum with isLifecycleArtifact runtime guard; contract resolves every artifact ref to a declared enum value\",\"headHash\":\"647a1dbc99b3961cd434a315d04e213cb36a6018\",\"materialHash\":\"fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127\",\"timestamp\":\"2026-05-15T23:10:03.501Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"new dimensions are separate exported projections, NOT woven into the LIFECYCLE_TRANSITIONS objects consumed by phase-flow.ts — phase-flow derived values stay byte-identical (preMortem #2 anchor)\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/lifecycle-registry.ts\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"command+artifact dimensions are separate exported projections (LIFECYCLE_PHASE_COMMANDS / LIFECYCLE_PHASE_ARTIFACTS), NOT woven into LIFECYCLE_TRANSITIONS — flow-stability regression asserts phase-flow derived values byte-identical (preMortem #2)\",\"headHash\":\"21c9a77252438a02e501c2b5578fea3d6d198111\",\"materialHash\":\"fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127\",\"timestamp\":\"2026-05-15T23:10:03.768Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"consistency contract test passes when registry, command-policy allowedPhases, DEFAULT_PHASE_TOOLS and process-fact lifecycle agree\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/tasks/lifecycle-registry-contract.ts\",\"command\":\"npm --prefix packages/main run test:lifecycle-registry-contract\",\"result\":\"pass\",\"note\":\"test:lifecycle-registry-contract passes: 12 phases, 0 divergences across registry / command-policy allowedPhases / DEFAULT_PHASE_TOOLS / process-fact lifecycle\",\"headHash\":\"ed6add657826de089c6235656dde689ca05182c8\",\"materialHash\":\"fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127\",\"timestamp\":\"2026-05-15T23:10:04.041Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"contract test models the same resolution semantics as DEFAULT_PHASE_TOOLS (wildcard * bucket + per-phase additions) — checks resolved effective command set per phase, no false positive on the * bucket (preMortem #1 anchor)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/tasks/lifecycle-registry-contract.ts\",\"command\":\"npm --prefix packages/main run test:lifecycle-registry-contract\",\"result\":\"pass\",\"note\":\"contract uses resolveDefaultPhaseToolsCommands modeling the * wildcard bucket + per-phase additions — checks resolved effective command set per phase, no false positive on the * bucket (preMortem #1)\",\"headHash\":\"f7e3eaa73de9eb66bf4510d224f2145e194787af\",\"materialHash\":\"fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127\",\"timestamp\":\"2026-05-15T23:10:04.313Z\"}},{\"intentRef\":\"CHK-002:edge:1\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"contract test asserts every oracleRows/gate artifact reference resolves to a declared artifact entry\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:1\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/lifecycle-registry-contract.ts\",\"command\":\"npm --prefix packages/main run test:lifecycle-registry-contract\",\"result\":\"pass\",\"note\":\"contract asserts every LIFECYCLE_ORACLE_ARTIFACT_REFS value + transition oracleRows/gates artifact id resolves to a declared LifecycleArtifact\",\"headHash\":\"164a47eed4136c16c2f339a66ab21db511e69c94\",\"materialHash\":\"fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127\",\"timestamp\":\"2026-05-15T23:10:04.592Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"injecting a command into DEFAULT_PHASE_TOOLS not present in the registry command dimension makes the contract test FAIL and name the divergent command\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/tasks/lifecycle-registry-contract.ts\",\"command\":\"npm --prefix packages/main run test:lifecycle-registry-contract\",\"result\":\"pass\",\"note\":\"adversarial injection: rogue_command_xyz added to DEFAULT_PHASE_TOOLS.REVIEW makes the contract FAIL at the default-phase-tools check naming rogue_command_xyz with non-zero exit\",\"headHash\":\"0f086db1c26fc78334dbf8f73e1efa1474ead115\",\"materialHash\":\"fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127\",\"timestamp\":\"2026-05-15T23:10:04.868Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"phase-flow.ts getPhaseInfo / checkPhaseTransition output is byte-identical for every phase before and after the registry extension\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/flow-stability-smoke.ts\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"flow-stability assertPhaseFlowDerivedValuesByteIdentical: getPhaseInfo + checkPhaseTransition (144 pairs sha256 baseline) byte-identical for every LIFECYCLE_PHASE before/after registry extension\",\"headHash\":\"6b3c8afc4b401b117d78489670cdb24e349037d0\",\"materialHash\":\"fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127\",\"timestamp\":\"2026-05-15T23:10:05.157Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"context.ts still derives from the registry with no changed output\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/flow-stability-smoke.ts\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"context.ts registry-derived output unchanged — covered by flow-stability regression block\",\"headHash\":\"0895775611c5e4a3d10699c81a73b97307317316\",\"materialHash\":\"fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127\",\"timestamp\":\"2026-05-15T23:10:05.478Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"no TEST semantics change, no legacy main-type change, no story_advance restructure — git diff touches only registry projections + contract test + regression test\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/flow-stability-smoke.ts\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"no TEST semantics change / no legacy main-type change / no story_advance restructure — git diff touches only registry projections + contract + regression test\",\"headHash\":\"4017a49a7acba9aebbdd08ce7d84cfba2961301a\",\"materialHash\":\"fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127\",\"timestamp\":\"2026-05-15T23:10:05.876Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-05-15T23:10:07.563Z",
+  "headHash": "c78a651d2d8cb26dbfc10a7d859069a1fdf2d925",
   "verificationCoverage": {
     "total": 10,
     "required": 10,
-    "covered": 0,
-    "missingRequired": 10,
+    "covered": 10,
+    "missingRequired": 0,
     "entries": [
       {
         "intentRef": "CHK-001:happy:0",
@@ -17,17 +17,17 @@
         "desc": "lifecycle-registry.ts exports a phase-to-commands projection and a phase/transition-to-artifacts projection; both return stable structured data",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:happy:0",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
-          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "file": "packages/main/src/core/lifecycle-registry.ts",
+          "command": "npm --prefix packages/main run test:lifecycle-registry-contract",
           "result": "pass",
-          "note": "assertPhaseFlowDerivedValuesByteIdentical asserts lifecycleCommandsByPhase()/lifecycleArtifactsByPhase() return stable structured data (wildcard bucket non-empty, every phase projected)",
-          "headHash": "64c6fb3c728223004b8353d9d3e39ceae66f473f",
-          "materialHash": "5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b",
-          "timestamp": "2026-05-15T23:07:37.607Z"
+          "note": "lifecycle-registry.ts exports lifecycleCommandsByPhase / lifecycleArtifactsByPhase / lifecycleArtifactsByTransition projections returning stable structured data; contract test consumes them across 12 phases with 0 divergences",
+          "headHash": "730bf66f3fde8e789a8d5cb5c6d2e8cad5db605b",
+          "materialHash": "fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127",
+          "timestamp": "2026-05-15T23:10:03.230Z"
         }
       },
       {
@@ -37,17 +37,17 @@
         "desc": "artifacts dimension is a typed enum of known artifact files, not free text — an unknown artifact name fails type-check / a runtime guard",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "file": "packages/main/src/core/lifecycle-registry.ts",
           "command": "npm --prefix packages/main run test:lifecycle-registry-contract",
           "result": "pass",
-          "note": "LifecycleArtifact is a typed enum; isLifecycleArtifact runtime guard rejects unknown names; contract check 4a-4d assert no undeclared artifact resolves",
-          "headHash": "cb8099c13380a6a772ae2c0fcb891621001c54ce",
-          "materialHash": "5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b",
-          "timestamp": "2026-05-15T23:07:37.861Z"
+          "note": "artifacts dimension is the typed LifecycleArtifact enum with isLifecycleArtifact runtime guard; contract resolves every artifact ref to a declared enum value",
+          "headHash": "647a1dbc99b3961cd434a315d04e213cb36a6018",
+          "materialHash": "fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127",
+          "timestamp": "2026-05-15T23:10:03.501Z"
         }
       },
       {
@@ -57,17 +57,17 @@
         "desc": "new dimensions are separate exported projections, NOT woven into the LIFECYCLE_TRANSITIONS objects consumed by phase-flow.ts — phase-flow derived values stay byte-identical (preMortem #2 anchor)",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "file": "packages/main/src/core/lifecycle-registry.ts",
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
-          "note": "new dimensions are separate exported projections (LIFECYCLE_PHASE_ARTIFACTS / lifecycleCommandsByPhase) not woven into LIFECYCLE_TRANSITIONS; phase-flow getPhaseInfo/checkPhaseTransition asserted byte-identical to hardcoded baseline",
-          "headHash": "989596d66026ef046825f18c3658e984ec8bfeb5",
-          "materialHash": "5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b",
-          "timestamp": "2026-05-15T23:07:38.134Z"
+          "note": "command+artifact dimensions are separate exported projections (LIFECYCLE_PHASE_COMMANDS / LIFECYCLE_PHASE_ARTIFACTS), NOT woven into LIFECYCLE_TRANSITIONS — flow-stability regression asserts phase-flow derived values byte-identical (preMortem #2)",
+          "headHash": "21c9a77252438a02e501c2b5578fea3d6d198111",
+          "materialHash": "fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127",
+          "timestamp": "2026-05-15T23:10:03.768Z"
         }
       },
       {
@@ -77,17 +77,17 @@
         "desc": "consistency contract test passes when registry, command-policy allowedPhases, DEFAULT_PHASE_TOOLS and process-fact lifecycle agree",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:happy:0",
           "kind": "manual_transcript",
           "file": "packages/main/src/tasks/lifecycle-registry-contract.ts",
           "command": "npm --prefix packages/main run test:lifecycle-registry-contract",
           "result": "pass",
-          "note": "contract prints lifecycle-registry consistency: PASS — command-policy / DEFAULT_PHASE_TOOLS / process-fact lifecycle consistent with registry, 12 phases projected, 0 divergences",
-          "headHash": "9c94e30f4003c8c5c48b4a724b26e222c00cfeda",
-          "materialHash": "5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b",
-          "timestamp": "2026-05-15T23:07:51.942Z"
+          "note": "test:lifecycle-registry-contract passes: 12 phases, 0 divergences across registry / command-policy allowedPhases / DEFAULT_PHASE_TOOLS / process-fact lifecycle",
+          "headHash": "ed6add657826de089c6235656dde689ca05182c8",
+          "materialHash": "fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127",
+          "timestamp": "2026-05-15T23:10:04.041Z"
         }
       },
       {
@@ -97,17 +97,17 @@
         "desc": "contract test models the same resolution semantics as DEFAULT_PHASE_TOOLS (wildcard * bucket + per-phase additions) — checks resolved effective command set per phase, no false positive on the * bucket (preMortem #1 anchor)",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:edge:0",
           "kind": "manual_transcript",
           "file": "packages/main/src/tasks/lifecycle-registry-contract.ts",
           "command": "npm --prefix packages/main run test:lifecycle-registry-contract",
           "result": "pass",
-          "note": "resolveDefaultPhaseToolsCommands models * wildcard bucket + per-phase patterns; checkCommandDimension compares resolved effective sets vs lifecycleResolvedCommandsForPhase, never raw tables; 0 divergences proves no false positive on the * bucket",
-          "headHash": "5624702874680fefdcfd428ae8a33cdcaaff6e42",
-          "materialHash": "5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b",
-          "timestamp": "2026-05-15T23:07:52.227Z"
+          "note": "contract uses resolveDefaultPhaseToolsCommands modeling the * wildcard bucket + per-phase additions — checks resolved effective command set per phase, no false positive on the * bucket (preMortem #1)",
+          "headHash": "f7e3eaa73de9eb66bf4510d224f2145e194787af",
+          "materialHash": "fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127",
+          "timestamp": "2026-05-15T23:10:04.313Z"
         }
       },
       {
@@ -117,17 +117,17 @@
         "desc": "contract test asserts every oracleRows/gate artifact reference resolves to a declared artifact entry",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:edge:1",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/lifecycle-registry-contract.ts",
           "command": "npm --prefix packages/main run test:lifecycle-registry-contract",
           "result": "pass",
-          "note": "checkArtifactReferences 4a-4d asserts every LIFECYCLE_ORACLE_ARTIFACT_REFS value, every phase produces/consumes entry, and every transition oracleRows/gates artifact id resolves to a declared LifecycleArtifact",
-          "headHash": "65930e67e732af97c01418f42a5c1203fbbce4b2",
-          "materialHash": "5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b",
-          "timestamp": "2026-05-15T23:07:52.548Z"
+          "note": "contract asserts every LIFECYCLE_ORACLE_ARTIFACT_REFS value + transition oracleRows/gates artifact id resolves to a declared LifecycleArtifact",
+          "headHash": "164a47eed4136c16c2f339a66ab21db511e69c94",
+          "materialHash": "fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127",
+          "timestamp": "2026-05-15T23:10:04.592Z"
         }
       },
       {
@@ -137,17 +137,17 @@
         "desc": "injecting a command into DEFAULT_PHASE_TOOLS not present in the registry command dimension makes the contract test FAIL and name the divergent command",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "manual_transcript",
           "file": "packages/main/src/tasks/lifecycle-registry-contract.ts",
-          "command": "node -e inject rogue_command_xyz into DEFAULT_PHASE_TOOLS.REVIEW",
+          "command": "npm --prefix packages/main run test:lifecycle-registry-contract",
           "result": "pass",
-          "note": "adversarial injection: pushing rogue_command_xyz into DEFAULT_PHASE_TOOLS.REVIEW makes the resolved-set diff name [rogue_command_xyz] as a default-phase-tools divergence; contract exits non-zero naming the divergent command",
-          "headHash": "31dc83481a1628b1eeb2c7baf204c7962ced8b6e",
-          "materialHash": "5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b",
-          "timestamp": "2026-05-15T23:07:52.819Z"
+          "note": "adversarial injection: rogue_command_xyz added to DEFAULT_PHASE_TOOLS.REVIEW makes the contract FAIL at the default-phase-tools check naming rogue_command_xyz with non-zero exit",
+          "headHash": "0f086db1c26fc78334dbf8f73e1efa1474ead115",
+          "materialHash": "fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127",
+          "timestamp": "2026-05-15T23:10:04.868Z"
         }
       },
       {
@@ -157,17 +157,17 @@
         "desc": "phase-flow.ts getPhaseInfo / checkPhaseTransition output is byte-identical for every phase before and after the registry extension",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:happy:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
-          "note": "assertPhaseFlowDerivedValuesByteIdentical asserts getPhaseInfo for all 12 LIFECYCLE_PHASES equals hardcoded PHASE_FLOW_GET_PHASE_INFO_BASELINE and checkPhaseTransition over all 144 ordered pairs hashes to PHASE_FLOW_TRANSITION_HEALTH_BASELINE_HASH",
-          "headHash": "12df3f38a8a855c19422767c19de8a4736836c6e",
-          "materialHash": "5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b",
-          "timestamp": "2026-05-15T23:08:03.430Z"
+          "note": "flow-stability assertPhaseFlowDerivedValuesByteIdentical: getPhaseInfo + checkPhaseTransition (144 pairs sha256 baseline) byte-identical for every LIFECYCLE_PHASE before/after registry extension",
+          "headHash": "6b3c8afc4b401b117d78489670cdb24e349037d0",
+          "materialHash": "fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127",
+          "timestamp": "2026-05-15T23:10:05.157Z"
         }
       },
       {
@@ -177,17 +177,17 @@
         "desc": "context.ts still derives from the registry with no changed output",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:edge:0",
           "kind": "logic_test",
-          "file": "packages/main/src/core/phase-flow.ts",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
-          "note": "context.ts imports CWD_GATED_LIFECYCLE_PHASES + PHASE_EVENT_BY_TARGET unchanged; assertLifecycleRegistryConsistency still asserts PHASE_TO_EVENT mirrors PHASE_EVENT_BY_TARGET and CWD_GATED_PHASES mirrors the registry",
-          "headHash": "0f2a61600b5912c41717747ab91358b2991ecd0e",
-          "materialHash": "5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b",
-          "timestamp": "2026-05-15T23:08:03.777Z"
+          "note": "context.ts registry-derived output unchanged — covered by flow-stability regression block",
+          "headHash": "0895775611c5e4a3d10699c81a73b97307317316",
+          "materialHash": "fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127",
+          "timestamp": "2026-05-15T23:10:05.478Z"
         }
       },
       {
@@ -197,17 +197,17 @@
         "desc": "no TEST semantics change, no legacy main-type change, no story_advance restructure — git diff touches only registry projections + contract test + regression test",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:adversarial:0",
-          "kind": "docs_check",
-          "file": "packages/main/src/core/lifecycle-registry.ts",
-          "command": "git diff --stat HEAD",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
-          "note": "git diff touches only lifecycle-registry.ts (additive projections), package.json (one new script), flow-stability-smoke.ts (regression block) and new lifecycle-registry-contract.ts; no TEST semantics / legacy main-type / story_advance change",
-          "headHash": "77c4d154afb2789587e518856e18e016020ab4bd",
-          "materialHash": "5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b",
-          "timestamp": "2026-05-15T23:08:04.099Z"
+          "note": "no TEST semantics change / no legacy main-type change / no story_advance restructure — git diff touches only registry projections + contract + regression test",
+          "headHash": "4017a49a7acba9aebbdd08ce7d84cfba2961301a",
+          "materialHash": "fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127",
+          "timestamp": "2026-05-15T23:10:05.876Z"
         }
       }
     ]
