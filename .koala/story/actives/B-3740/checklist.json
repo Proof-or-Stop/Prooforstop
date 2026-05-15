@@ -206,13 +206,13 @@
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "logic_test",
-          "file": "packages/main/src/core/phase-flow.ts",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
-          "note": "context.ts imports CWD_GATED_LIFECYCLE_PHASES + PHASE_EVENT_BY_TARGET unchanged; assertLifecycleRegistryConsistency still asserts PHASE_TO_EVENT mirrors PHASE_EVENT_BY_TARGET and CWD_GATED_PHASES mirrors the registry",
-          "headHash": "0f2a61600b5912c41717747ab91358b2991ecd0e",
-          "materialHash": "5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b",
-          "timestamp": "2026-05-15T23:08:03.777Z"
+          "note": "context.ts registry-derived output unchanged — covered by flow-stability regression block",
+          "headHash": "0895775611c5e4a3d10699c81a73b97307317316",
+          "materialHash": "fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127",
+          "timestamp": "2026-05-15T23:10:05.478Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
