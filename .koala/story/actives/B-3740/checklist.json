@@ -42,9 +42,9 @@
           "command": "npm --prefix packages/main run test:lifecycle-registry-contract",
           "result": "pass",
           "note": "lifecycle-registry.ts exports lifecycleCommandsByPhase / lifecycleArtifactsByPhase / lifecycleArtifactsByTransition projections returning stable structured data; contract test consumes them across 12 phases with 0 divergences",
-          "headHash": "730bf66f3fde8e789a8d5cb5c6d2e8cad5db605b",
-          "materialHash": "fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127",
-          "timestamp": "2026-05-15T23:10:03.230Z"
+          "headHash": "db725ae000fddc110cd94524eaa36d21e8c128cc",
+          "materialHash": "f8ea2e4c7eca4e39a6f727b402b0590c14935a2165a996c521df79832028b37c",
+          "timestamp": "2026-05-15T23:17:30.017Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -53,9 +53,9 @@
           "command": "npm --prefix packages/main run test:lifecycle-registry-contract",
           "result": "pass",
           "note": "artifacts dimension is the typed LifecycleArtifact enum with isLifecycleArtifact runtime guard; contract resolves every artifact ref to a declared enum value",
-          "headHash": "647a1dbc99b3961cd434a315d04e213cb36a6018",
-          "materialHash": "fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127",
-          "timestamp": "2026-05-15T23:10:03.501Z"
+          "headHash": "db725ae000fddc110cd94524eaa36d21e8c128cc",
+          "materialHash": "f8ea2e4c7eca4e39a6f727b402b0590c14935a2165a996c521df79832028b37c",
+          "timestamp": "2026-05-15T23:17:30.017Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -64,9 +64,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "command+artifact dimensions are separate exported projections (LIFECYCLE_PHASE_COMMANDS / LIFECYCLE_PHASE_ARTIFACTS), NOT woven into LIFECYCLE_TRANSITIONS — flow-stability regression asserts phase-flow derived values byte-identical (preMortem #2)",
-          "headHash": "21c9a77252438a02e501c2b5578fea3d6d198111",
-          "materialHash": "fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127",
-          "timestamp": "2026-05-15T23:10:03.768Z"
+          "headHash": "db725ae000fddc110cd94524eaa36d21e8c128cc",
+          "materialHash": "f8ea2e4c7eca4e39a6f727b402b0590c14935a2165a996c521df79832028b37c",
+          "timestamp": "2026-05-15T23:17:30.017Z"
         }
       ]
     },
@@ -118,9 +118,9 @@
           "command": "npm --prefix packages/main run test:lifecycle-registry-contract",
           "result": "pass",
           "note": "test:lifecycle-registry-contract passes: 12 phases, 0 divergences across registry / command-policy allowedPhases / DEFAULT_PHASE_TOOLS / process-fact lifecycle",
-          "headHash": "ed6add657826de089c6235656dde689ca05182c8",
-          "materialHash": "fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127",
-          "timestamp": "2026-05-15T23:10:04.041Z"
+          "headHash": "db725ae000fddc110cd94524eaa36d21e8c128cc",
+          "materialHash": "f8ea2e4c7eca4e39a6f727b402b0590c14935a2165a996c521df79832028b37c",
+          "timestamp": "2026-05-15T23:17:30.017Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -129,9 +129,9 @@
           "command": "npm --prefix packages/main run test:lifecycle-registry-contract",
           "result": "pass",
           "note": "contract uses resolveDefaultPhaseToolsCommands modeling the * wildcard bucket + per-phase additions — checks resolved effective command set per phase, no false positive on the * bucket (preMortem #1)",
-          "headHash": "f7e3eaa73de9eb66bf4510d224f2145e194787af",
-          "materialHash": "fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127",
-          "timestamp": "2026-05-15T23:10:04.313Z"
+          "headHash": "db725ae000fddc110cd94524eaa36d21e8c128cc",
+          "materialHash": "f8ea2e4c7eca4e39a6f727b402b0590c14935a2165a996c521df79832028b37c",
+          "timestamp": "2026-05-15T23:17:30.017Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -140,9 +140,9 @@
           "command": "npm --prefix packages/main run test:lifecycle-registry-contract",
           "result": "pass",
           "note": "contract asserts every LIFECYCLE_ORACLE_ARTIFACT_REFS value + transition oracleRows/gates artifact id resolves to a declared LifecycleArtifact",
-          "headHash": "164a47eed4136c16c2f339a66ab21db511e69c94",
-          "materialHash": "fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127",
-          "timestamp": "2026-05-15T23:10:04.592Z"
+          "headHash": "db725ae000fddc110cd94524eaa36d21e8c128cc",
+          "materialHash": "f8ea2e4c7eca4e39a6f727b402b0590c14935a2165a996c521df79832028b37c",
+          "timestamp": "2026-05-15T23:17:30.017Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -151,9 +151,9 @@
           "command": "npm --prefix packages/main run test:lifecycle-registry-contract",
           "result": "pass",
           "note": "adversarial injection: rogue_command_xyz added to DEFAULT_PHASE_TOOLS.REVIEW makes the contract FAIL at the default-phase-tools check naming rogue_command_xyz with non-zero exit",
-          "headHash": "0f086db1c26fc78334dbf8f73e1efa1474ead115",
-          "materialHash": "fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127",
-          "timestamp": "2026-05-15T23:10:04.868Z"
+          "headHash": "db725ae000fddc110cd94524eaa36d21e8c128cc",
+          "materialHash": "f8ea2e4c7eca4e39a6f727b402b0590c14935a2165a996c521df79832028b37c",
+          "timestamp": "2026-05-15T23:17:30.017Z"
         }
       ]
     },
@@ -199,9 +199,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "flow-stability assertPhaseFlowDerivedValuesByteIdentical: getPhaseInfo + checkPhaseTransition (144 pairs sha256 baseline) byte-identical for every LIFECYCLE_PHASE before/after registry extension",
-          "headHash": "6b3c8afc4b401b117d78489670cdb24e349037d0",
-          "materialHash": "fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127",
-          "timestamp": "2026-05-15T23:10:05.157Z"
+          "headHash": "db725ae000fddc110cd94524eaa36d21e8c128cc",
+          "materialHash": "f8ea2e4c7eca4e39a6f727b402b0590c14935a2165a996c521df79832028b37c",
+          "timestamp": "2026-05-15T23:17:30.017Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -210,9 +210,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "context.ts registry-derived output unchanged — covered by flow-stability regression block",
-          "headHash": "0895775611c5e4a3d10699c81a73b97307317316",
-          "materialHash": "fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127",
-          "timestamp": "2026-05-15T23:10:05.478Z"
+          "headHash": "db725ae000fddc110cd94524eaa36d21e8c128cc",
+          "materialHash": "f8ea2e4c7eca4e39a6f727b402b0590c14935a2165a996c521df79832028b37c",
+          "timestamp": "2026-05-15T23:17:30.017Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -221,9 +221,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "no TEST semantics change / no legacy main-type change / no story_advance restructure — git diff touches only registry projections + contract + regression test",
-          "headHash": "4017a49a7acba9aebbdd08ce7d84cfba2961301a",
-          "materialHash": "fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127",
-          "timestamp": "2026-05-15T23:10:05.876Z"
+          "headHash": "db725ae000fddc110cd94524eaa36d21e8c128cc",
+          "materialHash": "f8ea2e4c7eca4e39a6f727b402b0590c14935a2165a996c521df79832028b37c",
+          "timestamp": "2026-05-15T23:17:30.017Z"
         }
       ]
     }
