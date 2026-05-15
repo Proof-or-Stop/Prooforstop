@@ -128,10 +128,10 @@
           "file": "packages/main/src/tasks/lifecycle-registry-contract.ts",
           "command": "npm --prefix packages/main run test:lifecycle-registry-contract",
           "result": "pass",
-          "note": "resolveDefaultPhaseToolsCommands models * wildcard bucket + per-phase patterns; checkCommandDimension compares resolved effective sets vs lifecycleResolvedCommandsForPhase, never raw tables; 0 divergences proves no false positive on the * bucket",
-          "headHash": "5624702874680fefdcfd428ae8a33cdcaaff6e42",
-          "materialHash": "5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b",
-          "timestamp": "2026-05-15T23:07:52.227Z"
+          "note": "contract uses resolveDefaultPhaseToolsCommands modeling the * wildcard bucket + per-phase additions — checks resolved effective command set per phase, no false positive on the * bucket (preMortem #1)",
+          "headHash": "f7e3eaa73de9eb66bf4510d224f2145e194787af",
+          "materialHash": "fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127",
+          "timestamp": "2026-05-15T23:10:04.313Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
