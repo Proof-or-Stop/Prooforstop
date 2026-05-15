@@ -50,7 +50,7 @@
       "desc": "packages/main/src/core/validation-executor.ts:94 uses dirtyWorktreeClassifierOptionsFromConfig(config) even when storyId is supplied, so validate-side-effect does not load per-story declared-artifacts.json. Repro: executeValidationPlan(..., storyId) writing a declared BL21 artifact returns fail with unexpected_dirty_files=1 instead of policy-allowed declared_artifact_changes, contradicting CHK-002 validate-side-effect and CHK-004 declared artifact semantics.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "agent": "koala-review-concept",
       "createdAt": "2026-05-15T19:23:01.815Z",
       "reviewRound": "2026-05-15T19:20:16.116Z",
@@ -60,7 +60,8 @@
         "packages/main/src/core/validation-executor.ts",
         "packages/main/src/core/dirty-worktree.ts",
         "packages/main/src/tasks/validation-protocol-smoke.ts"
-      ]
+      ],
+      "resolvedBy": "F-004@9da9d1e"
     }
   ]
 }
