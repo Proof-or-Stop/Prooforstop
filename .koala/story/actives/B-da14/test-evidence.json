@@ -1,0 +1,115 @@
+{
+  "command": "koala validate --story=B-da14 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands failed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✗ package.json test script: npm test\",\"  > koala@0.3.3 test\",\"  > npm run test:e2e\",\"  > koala@0.3.3 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  node:internal/modules/cjs/loader:1247\",\"    throw err;\",\"    ^\",\"  Error: Cannot find module '/Users/jek/Documents/Work/Orchestrate/.worktrees/B-da14/packages/main/dist/tasks/cli-e2e.js'\",\"      at Function._resolveFilename (node:internal/modules/cjs/loader:1244:15)\",\"      at Function._load (node:internal/modules/cjs/loader:1070:27)\",\"      at TracingChannel.traceSync (node:diagnostics_channel:322:14)\",\"      at wrapModuleLoad (node:internal/modules/cjs/loader:217:24)\",\"      at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:170:5)\",\"      at node:internal/main/run_main_module:36:49 {\",\"    code: 'MODULE_NOT_FOUND',\",\"    requireStack: []\",\"  }\",\"  Node.js v22.13.0\",\"Verification intent coverage: 5/5 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/docs] covered via docs_check (docs/requirements/decisions/story-lifecycle.md) — docs/requirements/decisions/story-lifecycle.md contains the new combination-review section with the enumerated 5-item inspection checklist and the B-8db9 incident citation\",\"  ✓ CHK-001:happy:1 [happy/must/docs] covered via docs_check (CLAUDE.md) — CLAUDE.md contains a short combination-review summary near the REVIEW / 对抗审查 area with a see-also pointer to story-lifecycle.md\",\"  ✓ CHK-001:edge:0 [edge/must/docs] covered via docs_check (docs/requirements/decisions/story-lifecycle.md) — The rule text explicitly states ordinary business stories are out of scope — only process-framework stories trigger combination review\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/docs] covered via docs_check (CLAUDE.md) — The CLAUDE.md copy is the short summary and story-lifecycle.md is canonical — the see-also pointer prevents the two copies from being read as independent equals (preMortem #2 anchor)\",\"  ✓ CHK-001:adversarial:1 [adversarial/must/docs] covered via docs_check (docs/requirements/decisions/story-lifecycle.md) — The rule names a concrete enumerated checklist, not a vague directive sentence — a combination review cannot degrade to a rubber-stamp (preMortem #3 anchor)\"],\"warnings\":[],\"timestamp\":\"2026-05-15T22:21:08.823Z\",\"headSha\":\"f2b7d4982794c707ecd8c4df2cd57b87cc0d147d\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":1,\"output\":\"\\n> koala@0.3.3 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.3 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nnode:internal/modules/cjs/loader:1247\\n  throw err;\\n  ^\\n\\nError: Cannot find module '/Users/jek/Documents/Work/Orchestrate/.worktrees/B-da14/packages/main/dist/tasks/cli-e2e.js'\\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1244:15)\\n    at Function._load (node:internal/modules/cjs/loader:1070:27)\\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\\n    at wrapModuleLoad (node:internal/modules/cjs/loader:217:24)\\n    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:170:5)\\n    at node:internal/main/run_main_module:36:49 {\\n  code: 'MODULE_NOT_FOUND',\\n  requireStack: []\\n}\\n\\nNode.js v22.13.0\\n\",\"durationMs\":342}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":5,\"reason\":\"verificationIntent entries present (5)\"},\"verificationCoverage\":{\"total\":5,\"required\":5,\"covered\":5,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"docs/requirements/decisions/story-lifecycle.md contains the new combination-review section with the enumerated 5-item inspection checklist and the B-8db9 incident citation\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/story-lifecycle.md\",\"command\":\"grep -n 合并态组合审查 docs/requirements/decisions/story-lifecycle.md\",\"result\":\"pass\",\"note\":\"story-lifecycle.md has new section 合并态组合审查 with the enumerated 5-item inspection checklist (classification priority order / gate policy table / command entry rejection / auto-commit-dirty state / DONE merge semantics) and the B-8db9 originating incident citation\",\"headHash\":\"ae58f667128ec483a647b0431f599e8281a8992f\",\"materialHash\":\"73434ce0de6d1738d1c1117fcd913aeeed6d777f42bdb3f4c6cfefb26c5bdce0\",\"timestamp\":\"2026-05-15T22:21:00.183Z\"}},{\"intentRef\":\"CHK-001:happy:1\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"CLAUDE.md contains a short combination-review summary near the REVIEW / 对抗审查 area with a see-also pointer to story-lifecycle.md\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:1\",\"kind\":\"docs_check\",\"file\":\"CLAUDE.md\",\"command\":\"grep -n 合并态组合审查 CLAUDE.md\",\"result\":\"pass\",\"note\":\"CLAUDE.md has a short combination-review summary in the 对抗审查 area with a see-also pointer naming story-lifecycle.md as canonical\",\"headHash\":\"a8422d54ca838476fe6e95beab472fdc53520f1b\",\"materialHash\":\"73434ce0de6d1738d1c1117fcd913aeeed6d777f42bdb3f4c6cfefb26c5bdce0\",\"timestamp\":\"2026-05-15T22:21:00.530Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"The rule text explicitly states ordinary business stories are out of scope — only process-framework stories trigger combination review\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/story-lifecycle.md\",\"command\":\"grep -n 合并态组合审查 docs/requirements/decisions/story-lifecycle.md\",\"result\":\"pass\",\"note\":\"Rule text explicitly states ordinary business stories do NOT trigger combination review — scope limited to process-framework stories (classifier / gate policy / command entry guards / auto-commit / DONE merge semantics)\",\"headHash\":\"8c4e2c1d5f1dae6510fe62a272083f091ddf4e20\",\"materialHash\":\"73434ce0de6d1738d1c1117fcd913aeeed6d777f42bdb3f4c6cfefb26c5bdce0\",\"timestamp\":\"2026-05-15T22:21:00.841Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"The CLAUDE.md copy is the short summary and story-lifecycle.md is canonical — the see-also pointer prevents the two copies from being read as independent equals (preMortem #2 anchor)\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"CLAUDE.md\",\"command\":\"grep -n 合并态组合审查 CLAUDE.md\",\"result\":\"pass\",\"note\":\"CLAUDE.md copy is explicitly the short summary and story-lifecycle.md is canonical — see-also pointer prevents the two copies being read as independent equals (preMortem #2 anchor)\",\"headHash\":\"49334015fad14f728f60601fff387fd3023bd170\",\"materialHash\":\"73434ce0de6d1738d1c1117fcd913aeeed6d777f42bdb3f4c6cfefb26c5bdce0\",\"timestamp\":\"2026-05-15T22:21:01.141Z\"}},{\"intentRef\":\"CHK-001:adversarial:1\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"The rule names a concrete enumerated checklist, not a vague directive sentence — a combination review cannot degrade to a rubber-stamp (preMortem #3 anchor)\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:1\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/story-lifecycle.md\",\"command\":\"grep -n 合并态组合审查 docs/requirements/decisions/story-lifecycle.md\",\"result\":\"pass\",\"note\":\"Rule names a concrete enumerated 5-item inspection checklist, not a vague directive sentence — combination review cannot degrade to a rubber-stamp (preMortem #3 anchor)\",\"headHash\":\"be3fe9dcb56be98b52d26585aa1f33a1422897a4\",\"materialHash\":\"73434ce0de6d1738d1c1117fcd913aeeed6d777f42bdb3f4c6cfefb26c5bdce0\",\"timestamp\":\"2026-05-15T22:21:01.443Z\"}}]}}",
+  "result": "FAIL",
+  "timestamp": "2026-05-15T22:21:09.011Z",
+  "headHash": "f2b7d4982794c707ecd8c4df2cd57b87cc0d147d",
+  "verificationCoverage": {
+    "total": 5,
+    "required": 5,
+    "covered": 5,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "docs/requirements/decisions/story-lifecycle.md contains the new combination-review section with the enumerated 5-item inspection checklist and the B-8db9 incident citation",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/story-lifecycle.md",
+          "command": "grep -n 合并态组合审查 docs/requirements/decisions/story-lifecycle.md",
+          "result": "pass",
+          "note": "story-lifecycle.md has new section 合并态组合审查 with the enumerated 5-item inspection checklist (classification priority order / gate policy table / command entry rejection / auto-commit-dirty state / DONE merge semantics) and the B-8db9 originating incident citation",
+          "headHash": "ae58f667128ec483a647b0431f599e8281a8992f",
+          "materialHash": "73434ce0de6d1738d1c1117fcd913aeeed6d777f42bdb3f4c6cfefb26c5bdce0",
+          "timestamp": "2026-05-15T22:21:00.183Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:1",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "CLAUDE.md contains a short combination-review summary near the REVIEW / 对抗审查 area with a see-also pointer to story-lifecycle.md",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "docs_check",
+          "file": "CLAUDE.md",
+          "command": "grep -n 合并态组合审查 CLAUDE.md",
+          "result": "pass",
+          "note": "CLAUDE.md has a short combination-review summary in the 对抗审查 area with a see-also pointer naming story-lifecycle.md as canonical",
+          "headHash": "a8422d54ca838476fe6e95beab472fdc53520f1b",
+          "materialHash": "73434ce0de6d1738d1c1117fcd913aeeed6d777f42bdb3f4c6cfefb26c5bdce0",
+          "timestamp": "2026-05-15T22:21:00.530Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "The rule text explicitly states ordinary business stories are out of scope — only process-framework stories trigger combination review",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/story-lifecycle.md",
+          "command": "grep -n 合并态组合审查 docs/requirements/decisions/story-lifecycle.md",
+          "result": "pass",
+          "note": "Rule text explicitly states ordinary business stories do NOT trigger combination review — scope limited to process-framework stories (classifier / gate policy / command entry guards / auto-commit / DONE merge semantics)",
+          "headHash": "8c4e2c1d5f1dae6510fe62a272083f091ddf4e20",
+          "materialHash": "73434ce0de6d1738d1c1117fcd913aeeed6d777f42bdb3f4c6cfefb26c5bdce0",
+          "timestamp": "2026-05-15T22:21:00.841Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "The CLAUDE.md copy is the short summary and story-lifecycle.md is canonical — the see-also pointer prevents the two copies from being read as independent equals (preMortem #2 anchor)",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "CLAUDE.md",
+          "command": "grep -n 合并态组合审查 CLAUDE.md",
+          "result": "pass",
+          "note": "CLAUDE.md copy is explicitly the short summary and story-lifecycle.md is canonical — see-also pointer prevents the two copies being read as independent equals (preMortem #2 anchor)",
+          "headHash": "49334015fad14f728f60601fff387fd3023bd170",
+          "materialHash": "73434ce0de6d1738d1c1117fcd913aeeed6d777f42bdb3f4c6cfefb26c5bdce0",
+          "timestamp": "2026-05-15T22:21:01.141Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:1",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "The rule names a concrete enumerated checklist, not a vague directive sentence — a combination review cannot degrade to a rubber-stamp (preMortem #3 anchor)",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/story-lifecycle.md",
+          "command": "grep -n 合并态组合审查 docs/requirements/decisions/story-lifecycle.md",
+          "result": "pass",
+          "note": "Rule names a concrete enumerated 5-item inspection checklist, not a vague directive sentence — combination review cannot degrade to a rubber-stamp (preMortem #3 anchor)",
+          "headHash": "be3fe9dcb56be98b52d26585aa1f33a1422897a4",
+          "materialHash": "73434ce0de6d1738d1c1117fcd913aeeed6d777f42bdb3f4c6cfefb26c5bdce0",
+          "timestamp": "2026-05-15T22:21:01.443Z"
+        }
+      }
+    ]
+  }
+}
