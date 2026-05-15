@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-15T23:48:14.898Z",
       "reviewRunId": "B-37e9:RR-002",
       "_hash": "0c6cf411e929c35e429d21699fbbded4efce693a3b10484fe2595207e5a5fd4f"
+    },
+    {
+      "id": "B-37e9:RP-003",
+      "agent": "koala-review-concept",
+      "note": "Concept extraction verified clean. buildDoneChecklist, renderDoneChecklist, DoneCheckRow, doneCheckRow, checkMainDivergence all have exactly one implementation in core/done-oracle.ts. story-advance.ts re-exports buildDoneChecklist/DoneCheckRow as documented backward-compat thin wrappers (zero duplicate implementation). session.ts and flow-stability-smoke.ts import directly from core/done-oracle.js. No circular imports: done-oracle.ts imports delivery-check.ts but not story-advance.ts; the structural test in flow-stability-smoke.ts assertDoneOracleSameSource() enforces this via regex at runtime. No unexpected references found in tests/ or any other handler.",
+      "createdAt": "2026-05-15T23:50:17.526Z",
+      "reviewRound": "2026-05-15T23:48:14.898Z",
+      "reviewRunId": "B-37e9:RR-001",
+      "_hash": "74465d5daaa8883cb63929339f96bda6a46b7437c3679bf86e86099a0582a52a"
     }
   ]
 }
