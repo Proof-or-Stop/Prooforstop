@@ -10,9 +10,9 @@
         "README.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-15T01:55:33.570Z",
-      "endTime": null,
+      "endTime": "2026-05-15T02:08:13.059Z",
       "verificationIntent": {
         "happy": [
           {
@@ -48,7 +48,42 @@
         "test": [
           "packages/main/src/tasks/flow-stability-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/managed-assets.ts",
+          "command": "node packages/main/dist/cli.js check",
+          "result": "pass",
+          "note": "Built local CLI reports Koala managed asset check OK with CASE_MISMATCH=0, STALE_LOCAL_EDIT=0, INCOMPATIBLE=0 for KOALA.md, AGENTS.md, and CLAUDE.md.",
+          "headHash": "402cc53585c65070325ab1ec03b7b898f25e898c",
+          "materialHash": "f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4",
+          "timestamp": "2026-05-15T02:08:04.671Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "assertManagedAssetExpandedDocsAndTrueDrift verifies expanded local KOALA/AGENTS/CLAUDE guides are accepted as OK instead of stale local edits.",
+          "headHash": "402cc53585c65070325ab1ec03b7b898f25e898c",
+          "materialHash": "f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4",
+          "timestamp": "2026-05-15T02:08:04.671Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "The same smoke creates malformed managed sections and verifies doc:KOALA.md, doc:AGENTS.md, and doc:CLAUDE.md still report STALE_LOCAL_EDIT.",
+          "headHash": "402cc53585c65070325ab1ec03b7b898f25e898c",
+          "materialHash": "f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4",
+          "timestamp": "2026-05-15T02:08:04.671Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -58,9 +93,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-15T01:57:57.955Z",
-      "endTime": null,
+      "endTime": "2026-05-15T02:08:13.301Z",
       "verificationIntent": {
         "happy": [
           {
@@ -92,7 +127,42 @@
         "test": [
           "packages/main/src/tasks/flow-stability-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/handlers/story-advance.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke asserts story_advance has blocking Cannot enter TEST messages for review-preflight execution errors and validate execution errors.",
+          "headHash": "402cc53585c65070325ab1ec03b7b898f25e898c",
+          "materialHash": "f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4",
+          "timestamp": "2026-05-15T02:08:04.671Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/handlers/story-advance.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "REVIEW->TEST preflight catch now stops the actor and throws Cannot enter TEST: CLI gate preflight execution error for import/runtime exceptions.",
+          "headHash": "402cc53585c65070325ab1ec03b7b898f25e898c",
+          "materialHash": "f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4",
+          "timestamp": "2026-05-15T02:08:04.671Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/handlers/story-advance.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke rejects the old warn-and-advance strings, and validate execution exceptions now write FAIL evidence best-effort then throw Cannot enter TEST.",
+          "headHash": "402cc53585c65070325ab1ec03b7b898f25e898c",
+          "materialHash": "f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4",
+          "timestamp": "2026-05-15T02:08:04.671Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -102,9 +172,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/framework.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-15T01:57:57.741Z",
-      "endTime": null,
+      "endTime": "2026-05-15T02:08:12.965Z",
       "verificationIntent": {
         "happy": [
           {
@@ -138,7 +208,42 @@
         "test": [
           "packages/main/src/tasks/flow-stability-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/core/lifecycle-registry.ts",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "lifecycle-registry.ts compiles and contains active phases, terminal phases, legacy aliases, transitions/events, rollback edges, gates, effects, and oracle rows.",
+          "headHash": "402cc53585c65070325ab1ec03b7b898f25e898c",
+          "materialHash": "f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4",
+          "timestamp": "2026-05-15T02:08:04.671Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/phase-flow.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "phase-flow and handlers/context consume registry projections while smoke confirms normal phase order, transition kinds, PHASE_TO_EVENT, and cwd gate facts remain consistent.",
+          "headHash": "402cc53585c65070325ab1ec03b7b898f25e898c",
+          "materialHash": "f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4",
+          "timestamp": "2026-05-15T02:08:04.671Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process fact inventory now includes lifecycle registry surfaces so future registry/consumer drift is visible in contract verification.",
+          "headHash": "402cc53585c65070325ab1ec03b7b898f25e898c",
+          "materialHash": "f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4",
+          "timestamp": "2026-05-15T02:08:04.671Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -148,9 +253,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-15T01:57:57.835Z",
-      "endTime": null,
+      "endTime": "2026-05-15T02:08:13.184Z",
       "verificationIntent": {
         "happy": [
           {
@@ -185,7 +290,42 @@
           "packages/main/src/tasks/flow-stability-smoke.ts",
           "scripts/verify-process-fact-contract.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "assertLifecycleRegistryConsistency fails with Lifecycle registry mismatch if phase-flow, PHASE_TO_EVENT, command policy, or DEFAULT_PHASE_TOOLS drift from the registry.",
+          "headHash": "402cc53585c65070325ab1ec03b7b898f25e898c",
+          "materialHash": "f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4",
+          "timestamp": "2026-05-15T02:08:04.671Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke covers legacy phase aliases and every registered rollback/legacy transition from lifecycle-registry.ts against phase-flow.",
+          "headHash": "402cc53585c65070325ab1ec03b7b898f25e898c",
+          "materialHash": "f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4",
+          "timestamp": "2026-05-15T02:08:04.671Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Contract script asserts lifecycle registry, phase-flow, context, and smoke-test source patterns, preventing uncoordinated lifecycle fact edits from passing silently.",
+          "headHash": "402cc53585c65070325ab1ec03b7b898f25e898c",
+          "materialHash": "f64a1dd8a91c160c759371b8d819397d48f9b0bd3d3bd08c97d5bd7030daf2a4",
+          "timestamp": "2026-05-15T02:08:04.672Z"
+        }
+      ]
     }
   ]
 }
