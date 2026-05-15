@@ -461,7 +461,7 @@ export const MAIN_TOOLS: ToolDef[] = [
   }},
   { name: 'check', description: '检查 Koala 管理资产/模板漂移；--apply/--upgrade 显式同步安全项', schema: {
     json: z.boolean().optional().describe('结构化 JSON 输出'),
-    apply: z.boolean().optional().describe('同步 MISSING/STALE_SAFE 管理资产；不会覆盖 STALE_LOCAL_EDIT/INCOMPATIBLE'),
+    apply: z.boolean().optional().describe('同步 MISSING/STALE_SAFE 管理资产；不会覆盖 CASE_MISMATCH/STALE_LOCAL_EDIT/INCOMPATIBLE'),
     upgrade: z.boolean().optional().describe('同步 MISSING/STALE_SAFE 管理资产到当前 Koala 模板；等价于 --apply'),
     reviewLocalEdits: z.boolean().optional().describe('输出 STALE_LOCAL_EDIT 的结构化人工审查摘要'),
     profile: z.enum(['codex', 'claude', 'all', 'core']).optional().describe('覆盖自动检测的 init profile'),

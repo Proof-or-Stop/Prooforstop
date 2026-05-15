@@ -39,7 +39,7 @@ export const KOALA_MD_TEMPLATE = `# KOALA.md
 - 默认本地入口是 \`node bin/koala.js\`；若 profile 生成了 Codex adapter，可额外使用 \`node bin/koala-codex.js\`。
 - Codex 专属说明放在 \`AGENTS.md\` 和 \`.Codex/README.md\`；Claude 专属说明放在 \`CLAUDE.md\` 和 \`.claude/\`。
 - 改动 Koala adapter 资产后先跑对应验证：项目验证用 \`koala validate\`，Codex adapter 额外跑 \`node bin/koala-codex.js verify_codex\`。
-- \`koala check\` 会按硬编码 registry 检查 Koala 管理资产是否跟当前版本漂移；\`koala check --apply\` / \`koala check --upgrade\` 只会同步 MISSING/STALE_SAFE，不会覆盖本地编辑或不兼容文件。
+- \`koala check\` 会按硬编码 registry 检查 Koala 管理资产是否跟当前版本漂移；\`koala check --apply\` / \`koala check --upgrade\` 只会同步 MISSING/STALE_SAFE，不会覆盖 CASE_MISMATCH、本地编辑或不兼容文件。
 
 <!-- koala:end -->
 `;

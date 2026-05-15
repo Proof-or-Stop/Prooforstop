@@ -35,6 +35,7 @@ import {
 export type ManagedAssetStatus =
   | 'OK'
   | 'MISSING'
+  | 'CASE_MISMATCH'
   | 'STALE_SAFE'
   | 'STALE_LOCAL_EDIT'
   | 'INCOMPATIBLE';
@@ -61,6 +62,7 @@ export interface ManagedAssetCheckItem {
   status: ManagedAssetStatus;
   expectedHash?: string;
   actualHash?: string;
+  actualRelPath?: string;
   reason: string;
   action: string;
   applied?: boolean;
@@ -98,6 +100,7 @@ interface ManagedAssetDefinition {
   expectedContent?: string;
   executable?: boolean;
   ownedWhen?: (actual: string) => boolean;
+  okWhen?: (actual: string, root: string) => boolean;
 }
 
 interface ManagedAssetManifest {
@@ -112,7 +115,11 @@ interface ManagedAssetManifest {
   }>;
 }
 
-type ManagedAssetPathKind = 'missing' | 'file' | 'directory' | 'other';
+type ManagedAssetPathKind = 'missing' | 'file' | 'directory' | 'other' | 'case-mismatch';
+interface ManagedAssetPathInfo {
+  kind: ManagedAssetPathKind;
+  actualRelPath?: string;
+}
 
 const MANIFEST_REL_PATH = '.koala/managed-assets.json';
 const INIT_DOC_SECTION_RE = /<!--\s*koala:start\s*-->[\s\S]*?<!--\s*koala:end\s*-->/;
@@ -142,19 +149,50 @@ function sha256(content: string): string {
   return createHash('sha256').update(content).digest('hex');
 }
 
-function managedAssetPathKind(root: string, relPath: string): ManagedAssetPathKind {
+function findCaseVariant(root: string, relPath: string): string | null {
+  const parts = relPath.split(/[\\/]+/).filter(Boolean);
+  let current = root;
+  const actualParts: string[] = [];
+  for (let index = 0; index < parts.length; index += 1) {
+    const part = parts[index];
+    let entries: string[] = [];
+    try {
+      entries = readdirSync(current);
+    } catch {
+      // PROBE: missing or unreadable parent means there is no reliable case variant.
+      return null;
+    }
+    if (entries.includes(part)) {
+      actualParts.push(part);
+      current = join(current, part);
+      continue;
+    }
+    const variant = entries.find(entry => entry.toLowerCase() === part.toLowerCase());
+    if (!variant) return null;
+    return [...actualParts, variant, ...parts.slice(index + 1)].join('/');
+  }
+  return null;
+}
+
+function managedAssetPathInfo(root: string, relPath: string): ManagedAssetPathInfo {
+  const caseVariant = findCaseVariant(root, relPath);
+  if (caseVariant) return { kind: 'case-mismatch', actualRelPath: caseVariant };
   const full = join(root, relPath);
-  if (!existsSync(full)) return 'missing';
+  if (!existsSync(full)) return { kind: 'missing' };
   try {
     const entry = lstatSync(full);
     const stats = entry.isSymbolicLink() ? statSync(full) : entry;
-    if (stats.isFile()) return 'file';
-    if (stats.isDirectory()) return 'directory';
-    return 'other';
+    if (stats.isFile()) return { kind: 'file' };
+    if (stats.isDirectory()) return { kind: 'directory' };
+    return { kind: 'other' };
   } catch {
     // PROBE: filesystem races should be reported as missing/other by the next check run.
-    return 'other';
+    return { kind: 'other' };
   }
+}
+
+function managedAssetPathKind(root: string, relPath: string): ManagedAssetPathKind {
+  return managedAssetPathInfo(root, relPath).kind;
 }
 
 function readText(root: string, relPath: string): string | null {
@@ -330,8 +368,18 @@ function wholeFile(
   expectedContent: string,
   ownedWhen: (actual: string) => boolean,
   executable = false,
+  okWhen?: (actual: string, root: string) => boolean,
 ): ManagedAssetDefinition {
-  return { id, relPath, kind: 'whole-file', expectedContent, ownedWhen, executable };
+  return { id, relPath, kind: 'whole-file', expectedContent, ownedWhen, executable, okWhen };
+}
+
+function isKoalaSelfRepoBootstrap(actual: string, root: string): boolean {
+  if (!actual.includes("import { runLocalBootstrap } from './bootstrap-runner.js'")) return false;
+  if (!actual.includes('runLocalBootstrap();')) return false;
+  const bootstrap = readText(root, 'bin/bootstrap-runner.js');
+  if (!bootstrap?.includes('export async function runLocalBootstrap()')) return false;
+  return managedAssetPathKind(root, 'packages/main/src/init-assets.ts') === 'file'
+    && managedAssetPathKind(root, 'packages/main/src/core/managed-assets.ts') === 'file';
 }
 
 export function listManagedAssetDefinitions(
@@ -352,6 +400,7 @@ export function listManagedAssetDefinitions(
       renderKoalaBootstrapScript(root),
       actual => actual.includes('coreCliEngineCandidates') && actual.includes('runCli'),
       true,
+      isKoalaSelfRepoBootstrap,
     ),
     { id: 'gitignore:runtime-artifacts', relPath: '.gitignore', kind: 'gitignore-runtime' },
   ];
@@ -442,12 +491,26 @@ export function listManagedAssetDefinitions(
 }
 
 function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest: ManagedAssetManifest | null): ManagedAssetCheckItem {
-  const pathKind = managedAssetPathKind(root, def.relPath);
+  const pathInfo = managedAssetPathInfo(root, def.relPath);
+  const pathKind = pathInfo.kind;
   const actual = readText(root, def.relPath);
   const expected = def.expectedContent ? normalizeContent(def.expectedContent) : undefined;
   const expectedHash = expected ? sha256(expected) : undefined;
   const actualHash = actual === null ? undefined : sha256(actual);
   const manifestEntry = manifest?.assets?.[def.id];
+
+  if (pathKind === 'case-mismatch') {
+    return {
+      id: def.id,
+      relPath: def.relPath,
+      kind: def.kind,
+      status: 'CASE_MISMATCH',
+      expectedHash,
+      actualRelPath: pathInfo.actualRelPath,
+      reason: `managed asset path exists with different case (${pathInfo.actualRelPath}), expected exact path ${def.relPath}`,
+      action: 'rename the path with exact casing or merge it manually before running koala check --apply/--upgrade',
+    };
+  }
 
   if (def.kind === 'excluded-path') {
     if (pathKind === 'missing') {
@@ -521,6 +584,10 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
 
   if (expected && actual === expected) {
     return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', expectedHash, actualHash, reason: 'managed file matches Koala template', action: 'none' };
+  }
+
+  if (actual !== null && def.okWhen?.(actual, root)) {
+    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', expectedHash, actualHash, reason: 'managed file matches alternate Koala-owned contract', action: 'none' };
   }
 
   const unchangedSinceManifest = Boolean(manifestEntry?.contentHash && manifestEntry.contentHash === actualHash);
@@ -598,6 +665,7 @@ function summarize(items: ManagedAssetCheckItem[]): Record<ManagedAssetStatus, n
   const summary: Record<ManagedAssetStatus, number> = {
     OK: 0,
     MISSING: 0,
+    CASE_MISMATCH: 0,
     STALE_SAFE: 0,
     STALE_LOCAL_EDIT: 0,
     INCOMPATIBLE: 0,
@@ -690,7 +758,7 @@ export function runManagedAssetCheck(root: string, options: ManagedAssetCheckOpt
   const summary = summarize(items);
   const localEditReviews = options.reviewLocalEdits ? collectLocalEditReviews(root, defs, items) : undefined;
   return {
-    ok: summary.MISSING === 0 && summary.STALE_SAFE === 0 && summary.STALE_LOCAL_EDIT === 0 && summary.INCOMPATIBLE === 0,
+    ok: summary.MISSING === 0 && summary.CASE_MISMATCH === 0 && summary.STALE_SAFE === 0 && summary.STALE_LOCAL_EDIT === 0 && summary.INCOMPATIBLE === 0,
     profile,
     mode,
     applied,
@@ -705,7 +773,7 @@ export function runManagedAssetCheck(root: string, options: ManagedAssetCheckOpt
 export function renderManagedAssetCheck(result: ManagedAssetCheckResult): string {
   const lines = [
     `Koala managed asset check: ${result.ok ? 'OK' : 'DRIFT'} (profile=${result.profile})`,
-    `Summary: OK=${result.summary.OK}, MISSING=${result.summary.MISSING}, STALE_SAFE=${result.summary.STALE_SAFE}, STALE_LOCAL_EDIT=${result.summary.STALE_LOCAL_EDIT}, INCOMPATIBLE=${result.summary.INCOMPATIBLE}`,
+    `Summary: OK=${result.summary.OK}, MISSING=${result.summary.MISSING}, CASE_MISMATCH=${result.summary.CASE_MISMATCH}, STALE_SAFE=${result.summary.STALE_SAFE}, STALE_LOCAL_EDIT=${result.summary.STALE_LOCAL_EDIT}, INCOMPATIBLE=${result.summary.INCOMPATIBLE}`,
   ];
   if (result.applied.length > 0) {
     lines.push(`Applied: ${result.applied.join(', ')}`);
@@ -736,7 +804,7 @@ export function renderManagedAssetCheck(result: ManagedAssetCheckResult): string
         lines.push(`    recommendation: ${review.recommendation}`);
       }
     }
-    lines.push('', 'Run `koala check --apply` or `koala check --upgrade` to sync MISSING/STALE_SAFE assets. STALE_LOCAL_EDIT/INCOMPATIBLE require manual review.');
+    lines.push('', 'Run `koala check --apply` or `koala check --upgrade` to sync MISSING/STALE_SAFE assets. CASE_MISMATCH/STALE_LOCAL_EDIT/INCOMPATIBLE require manual review.');
   } else {
     lines.push(`Manifest: ${result.manifestPath}`);
   }

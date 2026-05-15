@@ -4,6 +4,7 @@ import { chmodSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, e
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { execFileSync } from 'child_process';
+import { runManagedAssetCheck } from '../packages/main/dist/core/managed-assets.js';
 
 const repoRoot = process.cwd();
 const GLOBAL_CODEX_FALLBACK = 'KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPOINT=global-fallback koala';
@@ -466,6 +467,29 @@ checks.push(() => {
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }
+});
+
+checks.push(() => {
+  const tempDir = mkdtempSync(join(tmpdir(), 'koala-entrypoints-case-mismatch-'));
+  try {
+    run('node', [INIT_ENTRYPOINT, '--profile=all', tempDir]);
+    rmSync(join(tempDir, 'KOALA.md'), { force: true });
+    writeFileSync(join(tempDir, 'Koala.md'), '# Koala.md\n\nlegacy mixed-case Koala guide\n');
+    const result = runManagedAssetCheck(tempDir, { profile: 'all' });
+    const item = result.items.find(asset => asset.relPath === 'KOALA.md');
+    assert(item?.status === 'CASE_MISMATCH', 'koala check should classify KOALA.md casing drift as CASE_MISMATCH');
+    assert(item.actualRelPath === 'Koala.md', 'koala check should report the mixed-case actual path');
+    assert(item.reason.includes('different case'), 'koala check should explain path casing drift');
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+checks.push(() => {
+  const result = runManagedAssetCheck(repoRoot, { profile: 'all' });
+  const item = result.items.find(asset => asset.relPath === 'bin/koala.js');
+  assert(item?.status === 'OK', 'self-repo bin/koala.js wrapper should be accepted as Koala-owned');
+  assert(item.reason.includes('alternate Koala-owned contract'), 'self-repo bin/koala.js should explain alternate contract');
 });
 
 checks.push(() => {
