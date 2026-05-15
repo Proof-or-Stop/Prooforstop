@@ -53,9 +53,9 @@
           "command": "grep -n 合并态组合审查 docs/requirements/decisions/story-lifecycle.md",
           "result": "pass",
           "note": "story-lifecycle.md has new section 合并态组合审查 with the enumerated 5-item inspection checklist (classification priority order / gate policy table / command entry rejection / auto-commit-dirty state / DONE merge semantics) and the B-8db9 originating incident citation",
-          "headHash": "813411194017c64edb472f68d754f26f1afafdf9",
-          "materialHash": "ee7f4f35ad44a3f55d95a8019fafd174a5917f89eff8c5272d1086a3911711a1",
-          "timestamp": "2026-05-15T22:27:33.140Z"
+          "headHash": "b555e4f247e0c31e125b51363deb5c484a61826c",
+          "materialHash": "5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b",
+          "timestamp": "2026-05-15T22:32:27.453Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -64,9 +64,9 @@
           "command": "grep -n 合并态组合审查 CLAUDE.md",
           "result": "pass",
           "note": "CLAUDE.md has a short combination-review summary in the 对抗审查 area with a see-also pointer naming story-lifecycle.md as canonical",
-          "headHash": "6746a016600f687fb5f93aab41bba7a2dad0ce9b",
-          "materialHash": "ee7f4f35ad44a3f55d95a8019fafd174a5917f89eff8c5272d1086a3911711a1",
-          "timestamp": "2026-05-15T22:27:33.443Z"
+          "headHash": "b555e4f247e0c31e125b51363deb5c484a61826c",
+          "materialHash": "5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b",
+          "timestamp": "2026-05-15T22:32:27.453Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -75,9 +75,9 @@
           "command": "grep -n 合并态组合审查 docs/requirements/decisions/story-lifecycle.md",
           "result": "pass",
           "note": "Rule text explicitly states ordinary business stories do NOT trigger combination review — scope limited to process-framework stories (classifier / gate policy / command entry guards / auto-commit / DONE merge semantics)",
-          "headHash": "6876c6c543cd112ab79bbe9d868bf28b357a79b9",
-          "materialHash": "ee7f4f35ad44a3f55d95a8019fafd174a5917f89eff8c5272d1086a3911711a1",
-          "timestamp": "2026-05-15T22:27:33.738Z"
+          "headHash": "b555e4f247e0c31e125b51363deb5c484a61826c",
+          "materialHash": "5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b",
+          "timestamp": "2026-05-15T22:32:27.453Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -86,9 +86,9 @@
           "command": "grep -n 合并态组合审查 CLAUDE.md",
           "result": "pass",
           "note": "CLAUDE.md copy is explicitly the short summary and story-lifecycle.md is canonical — see-also pointer prevents the two copies being read as independent equals (preMortem #2 anchor)",
-          "headHash": "0c436bf88144f7017d39c6912a1ffb35d4e9c803",
-          "materialHash": "ee7f4f35ad44a3f55d95a8019fafd174a5917f89eff8c5272d1086a3911711a1",
-          "timestamp": "2026-05-15T22:27:34.013Z"
+          "headHash": "b555e4f247e0c31e125b51363deb5c484a61826c",
+          "materialHash": "5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b",
+          "timestamp": "2026-05-15T22:32:27.453Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -97,9 +97,9 @@
           "command": "grep -n 合并态组合审查 docs/requirements/decisions/story-lifecycle.md",
           "result": "pass",
           "note": "Rule names a concrete enumerated 5-item inspection checklist, not a vague directive sentence — combination review cannot degrade to a rubber-stamp (preMortem #3 anchor)",
-          "headHash": "50193db2a0516f069ba2eeb452bc662824715a95",
-          "materialHash": "ee7f4f35ad44a3f55d95a8019fafd174a5917f89eff8c5272d1086a3911711a1",
-          "timestamp": "2026-05-15T22:27:34.294Z"
+          "headHash": "b555e4f247e0c31e125b51363deb5c484a61826c",
+          "materialHash": "5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b",
+          "timestamp": "2026-05-15T22:32:27.453Z"
         }
       ]
     }
