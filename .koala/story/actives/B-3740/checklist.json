@@ -45,7 +45,36 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Running the lifecycle registry consistency contract test prints `lifecycle-registry consistency: PASS — command-policy / DEFAULT_PHASE_TOOLS / process-fact lifecycle consistent with registry, 0 divergences`. If a maintainer adds a command to DEFAULT_PHASE_TOOLS without registering it in the registry command dimension, the test FAILS naming the divergent command.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "consistency contract test passes when registry, command-policy allowedPhases, DEFAULT_PHASE_TOOLS and process-fact lifecycle agree",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "contract test models the same resolution semantics as DEFAULT_PHASE_TOOLS (wildcard * bucket + per-phase additions) — checks resolved effective command set per phase, no false positive on the * bucket (preMortem #1 anchor)",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "contract test asserts every oracleRows/gate artifact reference resolves to a declared artifact entry",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "injecting a command into DEFAULT_PHASE_TOOLS not present in the registry command dimension makes the contract test FAIL and name the divergent command",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
