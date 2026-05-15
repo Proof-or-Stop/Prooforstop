@@ -5,7 +5,7 @@
       "desc": "quality-cleanup: recover-evidence.ts:164-186 validateOk defaults to true when validateOutput is not a string (line 170 `if (typeof validateOutput === \"string\")` has no else branch). If the validate handler ever returns a non-string (e.g., after a future refactor from JSON.stringify to returning an object), the function silently reports status=pass despite no result being parsed. The comment at line 183 covers only the JSON.parse inner-try path, not the outer non-string path. An explicit else-branch setting validateOk=false (or logging a warning) would make the failure mode visible rather than silently passing.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "agent": "koala-review-quality",
       "createdAt": "2026-05-15T16:53:24.300Z",
       "reviewRound": "2026-05-15T16:51:22.286Z",
