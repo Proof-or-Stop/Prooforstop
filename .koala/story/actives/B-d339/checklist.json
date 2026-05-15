@@ -1,0 +1,54 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "修复当前 managed asset drift 并明确健康路径",
+      "context": "koala check 当前失败：KOALA.md 大小写不一致，AGENTS.md/CLAUDE.md managed section 被本地扩展识别为 STALE_LOCAL_EDIT。需要手工保留本地内容，避免 --apply 覆盖长文。",
+      "relatedDocs": [
+        "AGENTS.md",
+        "CLAUDE.md",
+        "README.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "将 REVIEW/TEST validate 与 preflight 异常改为 fail-closed",
+      "context": "story_advance.ts 里 review-preflight import/runtime 异常和 validate 执行异常当前只 log 不阻塞。生命周期 gate 相关异常必须阻止进入 TEST，并给出明确修复 hint。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "新增 lifecycle-registry.ts 只读登记生命周期事实",
+      "context": "建立 typed registry，先登记 active phases、legacy aliases、transition/event、rollback、terminal、gate/effect/oracle row id 的基础事实，不在第一步改变 CLI 行为。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/framework.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "用 registry contract 覆盖 phase-flow、event mapping 与 command policy 一致性",
+      "context": "新增或扩展 smoke/contract，确保 phase-flow、PHASE_TO_EVENT、DEFAULT_PHASE_TOOLS/COMMAND_POLICIES 与 lifecycle registry 不再静默漂移。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
