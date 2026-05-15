@@ -1,0 +1,50 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add a current-story declaration surface for generated artifacts",
+      "context": "Extend the accepted checklist or verification evidence metadata so a story can declare generated delivery artifacts with path, reason, and related intent. Prefer a narrow story-local schema instead of global ignore rules.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Classify declared generated artifacts separately from unexpected dirty files",
+      "context": "Integrate declarations with the dirty ownership classifier so declared artifacts appear as declared_artifact_changes and undeclared outputs like tests/output/... remain unexpected. This story should build on B-6326 rather than duplicating classifier logic.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Require evidence or delivery coverage for declared artifacts",
+      "context": "DONE should not silently allow arbitrary generated files. Add validation that declared artifacts are referenced by verificationEvidence, delivery check, or summary so the generated output is tied to user-visible work.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-completeness.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add regression coverage for the BL21 lacZ viewer output path",
+      "context": "Use tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json as the field-derived example: undeclared it stays unexpected; declared with evidence it moves to declared artifact category.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
