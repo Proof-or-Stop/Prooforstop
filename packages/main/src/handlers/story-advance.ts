@@ -20,7 +20,8 @@ import { repairGlobalKoalaLinkBeforeWorktreeDelete } from './worktree.js';
 import { recomputeDeliveryCheckHash } from './delivery-check.js';
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
 import { collectBaselineRisk, renderBaselineRiskLines } from '../core/baseline-risk.js';
-import { checkEvidenceFreshnessForGit, currentMaterialHash } from '../core/evidence-freshness.js';
+import { checkEvidenceFreshnessForGit, currentMaterialHash, currentGitHead } from '../core/evidence-freshness.js';
+import { findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
 import { reportHealthIssue } from '../core/health.js';
 import type { OracleRow } from '../core/oracle-row.js';
 import {
@@ -1482,7 +1483,19 @@ ${agentLines}
         } catch { /* ignore */ }
       }
 
-      return `${doneChecklistPrefix}Story ${args.storyId} advanced to ${newState}${metadataCommitReport}${doneMergeReport}\n${nextSteps[newState] || ''}${docsHint}${depsWarning}${sessionWarning}${doneSummarySuffix}${initCheckAdvisory}${baselineRiskWarning}`;
+      // B-a2f1 CHK-001/002: surface stale verificationEvidence in REVIEW/TEST/DONE
+      // pre-check output so a main-merge that drifted materialHash does not
+      // produce an opaque pass without naming the recovery commands.
+      let staleEvidenceHint = '';
+      if (newState === 'REVIEW' || newState === 'TEST' || newState === 'DONE') {
+        try {
+          const stale = findStaleEvidence(ctx.root, args.storyId);
+          const hint = renderEvidenceStaleHint(args.storyId, stale, { currentHead: currentGitHead(ctx.root) });
+          if (hint) staleEvidenceHint = `\n\n${hint}`;
+        } catch { /* probe — never block phase advance on stale-hint failure */ }
+      }
+
+      return `${doneChecklistPrefix}Story ${args.storyId} advanced to ${newState}${metadataCommitReport}${doneMergeReport}\n${nextSteps[newState] || ''}${docsHint}${depsWarning}${sessionWarning}${doneSummarySuffix}${initCheckAdvisory}${baselineRiskWarning}${staleEvidenceHint}`;
     },
   };
 }
