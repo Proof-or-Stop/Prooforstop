@@ -27,6 +27,7 @@ import {
   type StoryTestRunsData,
 } from '../core/types.js';
 import { computeProcessMetrics, formatProcessMetricsSummary } from '../core/process-metrics.js';
+import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 
 /**
  * B-1522: Compute per-phase visit count + accumulated duration from story.events.
@@ -224,7 +225,8 @@ export function createSummaryHandlers(ctx: HandlerContext) {
         `  fixtures:    ${fixtureStats!.totalCases} bound, ${fixtureStats!.totalRuns} run(s), ${fixtureStats!.cumulativeCasesRun} cumulative executions`,
         `  bugs:        ${bugStats!.found} found / ${bugStats!.fixed} fixed / ${bugStats!.open} open`,
       ];
-      return lines.join('\n') + metricsLine;
+      const commitHint = autoCommitStoryMetadata(root, args.storyId, 'summary_set');
+      return lines.join('\n') + metricsLine + commitHint;
     },
 
     summary_get(args: { storyId: string }): StorySummaryData | { _empty: true } {

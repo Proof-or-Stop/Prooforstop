@@ -22,6 +22,7 @@ import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
 import { collectBaselineRisk, renderBaselineRiskLines } from '../core/baseline-risk.js';
 import { checkEvidenceFreshnessForGit, currentMaterialHash, currentGitHead } from '../core/evidence-freshness.js';
 import { findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
+import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { reportHealthIssue } from '../core/health.js';
 import type { OracleRow } from '../core/oracle-row.js';
 import {
@@ -235,51 +236,6 @@ function gitRefContainsMain(projectRoot: string, ref: string): boolean {
     stdio: ['pipe', 'pipe', 'pipe'],
   });
   return true;
-}
-
-function autoCommitStoryMetadata(projectRoot: string, storyId: string, storyDirRel: string, phase: StoryPhase): string {
-  try {
-    const branch = execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
-      cwd: projectRoot,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim();
-    if (!branch.startsWith('story/')) return '';
-
-    const storyRel = `${storyDirRel.replace(/\/$/, '')}/${storyId}`;
-    const before = execFileSync('git', ['status', '--porcelain', '--', storyRel], {
-      cwd: projectRoot,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim();
-    if (!before) return '';
-
-    execFileSync('git', ['add', storyRel], {
-      cwd: projectRoot,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-    const staged = execFileSync('git', ['diff', '--cached', '--name-only', '--', storyRel], {
-      cwd: projectRoot,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim();
-    if (!staged) return '';
-
-    execFileSync('git', ['-c', 'commit.gpgsign=false', 'commit', '-m', `koala: record ${storyId} ${phase} metadata`], {
-      cwd: projectRoot,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-    return `\n✓ story metadata 已自动提交: koala: record ${storyId} ${phase} metadata`;
-  } catch (e: any) {
-    reportHealthIssue('mutation:storyMetadataCommit', e instanceof Error ? e : new Error(String(e)), {
-      storyId,
-      phase,
-      projectRoot,
-    });
-    return `\n⚠ story metadata 自动提交失败: ${e?.message || e}`;
-  }
 }
 
 // B-9d95 CHK-003: re-export 供 DONE merge 前 stray 文件清理。主实现在独立
@@ -1136,7 +1092,7 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
 
       let metadataCommitReport = '';
       if (args.phase === 'REVIEW') {
-        metadataCommitReport = autoCommitStoryMetadata(ctx.root, args.storyId, store.storyDirRel(), args.phase);
+        metadataCommitReport = autoCommitStoryMetadata(ctx.root, args.storyId, args.phase);
       }
 
       // CHK-002: PLAN→DEV 时收集所有 relatedDocs 列出来作为开工提醒

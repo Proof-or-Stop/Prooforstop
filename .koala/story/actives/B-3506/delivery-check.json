@@ -1,0 +1,93 @@
+{
+  "storyId": "B-3506",
+  "checkedAt": "2026-05-15T17:54:35.306Z",
+  "reviewRound": "2026-05-15T17:47:51.777Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/src/core/auto-commit-metadata.ts (NEW)",
+      "promise": "autoCommitStoryMetadata(projectRoot, storyId, reason) exported; AUTO_COMMIT_METADATA_PREFIX exported; AUTO_COMMIT_STORY_DIR_PREFIX exported; STORY_ID_PATTERN internal guard; helper commits only .koala/story/actives/<id>/ paths on story/* branch",
+      "verifiedBy": "diff/read",
+      "evidence": "File created at packages/main/src/core/auto-commit-metadata.ts. Exports: AUTO_COMMIT_METADATA_PREFIX (line 47), AUTO_COMMIT_STORY_DIR_PREFIX (line 50), autoCommitStoryMetadata function (line 122). STORY_ID_PATTERN is internal const (line 62) used in assertStoryIdShape guard. Build passes (tsc clean)."
+    },
+    {
+      "docPath": "packages/main/src/handlers/story-advance.ts (MODIFIED)",
+      "promise": "Local 44-line autoCommitStoryMetadata copy removed; import from shared core/auto-commit-metadata.ts; call signature simplified",
+      "verifiedBy": "diff",
+      "evidence": "Diff confirms: local function definition removed (lines 238-282 old); import added line 25; call site at line 1095 updated from (ctx.root, args.storyId, store.storyDirRel(), args.phase) to (ctx.root, args.storyId, args.phase)."
+    },
+    {
+      "docPath": "packages/main/src/handlers/finding.ts (MODIFIED)",
+      "promise": "finding_add, finding_resolve, review_pass_set call autoCommitStoryMetadata and append hint to response",
+      "verifiedBy": "diff/grep",
+      "evidence": "3 call sites confirmed: lines 119 (review_pass_set), 200 (finding_add), 258 (finding_resolve). Import at line 14."
+    },
+    {
+      "docPath": "packages/main/src/handlers/checklist.ts (MODIFIED)",
+      "promise": "checklist_update, verification_evidence_add, verification_evidence_batch_add, verification_evidence_refresh_stale call autoCommitStoryMetadata",
+      "verifiedBy": "diff/grep",
+      "evidence": "4 call sites confirmed: lines 416, 522, 579, 640. Import at line 10."
+    },
+    {
+      "docPath": "packages/main/src/handlers/init-check.ts (MODIFIED)",
+      "promise": "init_check_set calls autoCommitStoryMetadata after writeInitCheck",
+      "verifiedBy": "diff/grep",
+      "evidence": "Call site at line 263. Import at line 25."
+    },
+    {
+      "docPath": "packages/main/src/handlers/scope-check.ts (MODIFIED)",
+      "promise": "scope_check_save calls autoCommitStoryMetadata",
+      "verifiedBy": "diff/grep",
+      "evidence": "Call site at line 84. Import at line 11."
+    },
+    {
+      "docPath": "packages/main/src/handlers/scope-question-resolve.ts (MODIFIED)",
+      "promise": "scope_question_resolve calls autoCommitStoryMetadata",
+      "verifiedBy": "diff/grep",
+      "evidence": "Call site at line 63. Import at line 16."
+    },
+    {
+      "docPath": "packages/main/src/handlers/delivery-check.ts (MODIFIED)",
+      "promise": "delivery_check_set and delivery_waiver_add call autoCommitStoryMetadata",
+      "verifiedBy": "diff/grep",
+      "evidence": "2 call sites: lines 124 (delivery_waiver_add), 199 (delivery_check_set). Import at line 20."
+    },
+    {
+      "docPath": "packages/main/src/handlers/summary.ts (MODIFIED)",
+      "promise": "summary_set calls autoCommitStoryMetadata",
+      "verifiedBy": "diff/grep",
+      "evidence": "Call site at line 228. Import at line 30."
+    },
+    {
+      "docPath": "packages/main/src/tasks/flow-stability-smoke.ts (MODIFIED)",
+      "promise": "assertAutoCommitMetadataAcrossHandlers added with 9 sub-tests covering happy path, coexisting-dirt tail-note, no-tail-note when clean, idempotency, main-branch silence, path-broadening rejection, prefix vocabulary byte-equality, 3+ handler reasons, classifier parity",
+      "verifiedBy": "diff + test run",
+      "evidence": "Function assertAutoCommitMetadataAcrossHandlers (9 tests) added and called at smoke bottom. npm --prefix packages/main run test:flow-stability-smoke => ✓ flow stability smoke passed."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm --prefix packages/main run test:flow-stability-smoke => ✓ flow stability smoke passed. Test1: on story/B-test1 branch, helper returns string starting with AUTO_COMMIT_METADATA_PREFIX, matching commit subject and sha7 regex, gitCommitCount +1. Test5: on main branch returns empty string, no commit. Test4: second consecutive call returns empty string, no second commit. Test6: 8 malformed storyId inputs all throw storyId must match. Test8: 3 different reasons (finding_add, checklist_update, summary_set) all produce canonical prefix + correct reason in commit subject."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm --prefix packages/main run test:flow-stability-smoke => ✓ flow stability smoke passed. Test2: metadata write + material foo.ts dirty → helper return matches /coexisting non-metadata dirt left untouched: [^)]*material_source_changes=1/, gitCommitCount +1, gitStatusPorcelain still contains foo.ts after commit. Test3: only metadata dirty → output does NOT contain untouched. Test9: classifyDirtyWorktree before and after auto-commit returns same material_source_changes.length and unexpected_dirty_files.length; koala_metadata_changes drains to 0."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "npm --prefix packages/main run test:flow-stability-smoke => ✓ flow stability smoke passed. Test7: out.slice(0, AUTO_COMMIT_METADATA_PREFIX.length) === AUTO_COMMIT_METADATA_PREFIX confirming byte-equal Chinese prefix. All 8 handler files wired and append helper return per grep of 13 call sites. Helper returning empty string results in no extra output line (concat of empty string)."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "npm --prefix packages/main run test:flow-stability-smoke => ✓ flow stability smoke passed. All 9 sub-tests across happy/edge/adversarial dimensions pass. npm --prefix packages/main run build (tsc) exits cleanly with no errors. npm --prefix packages/main run test:verification-freshness-smoke => ✓ verification freshness smoke passed confirming story-advance regression clean."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 4 checklist items delivered and verified: new auto-commit-metadata.ts core module with storyId validation and tail-note logic; story-advance.ts local copy removed and replaced with shared import; 13 call sites across 8 handlers confirmed by grep; 9-sub-test smoke suite passes covering happy path, coexist-dirt, idempotency, main-branch-silent, path-broadening-reject, prefix-vocab, multi-reason, and classifier-parity; build and regression smoke both clean."
+  },
+  "_hash": "b15cadbd0f27d0c1d9e9c1f5742fa062c16b9f2650d04d23ee15e23363788930"
+}
