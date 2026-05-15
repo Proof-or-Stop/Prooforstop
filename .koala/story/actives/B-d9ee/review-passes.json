@@ -1,0 +1,130 @@
+{
+  "passes": [
+    {
+      "id": "B-d9ee:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Pass: grill commands stay in PLAN/read-only planning context boundaries; story_review only surfaces grill state as advisory and no lifecycle gate or evidence path consumes grill.json.",
+      "createdAt": "2026-05-15T11:54:00.363Z",
+      "reviewRound": "2026-05-15T11:50:37.549Z",
+      "reviewRunId": "B-d9ee:RR-005",
+      "_hash": "30da3b3de7643a6c7514c690d7997aa98ee2083d6567f58ab833297f3bbbf162"
+    },
+    {
+      "id": "B-d9ee:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: checked 10 verificationIntent lanes, confirmed 0 must-gap / 0 waiver, verified grill smoke covers non-gate and non-evidence behavior, and validated current evidence on HEAD 4d9ab5c0.",
+      "createdAt": "2026-05-15T11:54:05.697Z",
+      "reviewRound": "2026-05-15T11:50:37.549Z",
+      "reviewRunId": "B-d9ee:RR-004",
+      "_hash": "28795cdadf1df0607fdaccaef152c439220bd3709b8f2a253e65decede705204"
+    },
+    {
+      "id": "B-d9ee:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Reviewed docs/requirements/decisions/story-lifecycle.md, docs/requirements/decisions/testing-infra.md, and docs/requirements/decisions/truth-source.md; grill_get is all-phase read-only and grill_start/grill_record/grill_close are PLAN-only with evidence boundaries intact.",
+      "createdAt": "2026-05-15T12:01:37.994Z",
+      "reviewRound": "2026-05-15T12:00:25.828Z",
+      "reviewRunId": "B-d9ee:RR-006",
+      "_hash": "fbcc796d90b2f040733aadf1a02d1c1a141ebad1fca6acfa414e8481dfa19845"
+    },
+    {
+      "id": "B-d9ee:RP-004",
+      "agent": "koala-review-concept",
+      "note": "Concept review pass: grill_* stays a planning-context artifact (`grill.json`), PLAN-only mutations remain non-gate L1 facts, `grill_get` is read-only L0 across phases, and story_review only emits advisory grill issues without increasing blockerCount or writing verification/validation evidence.",
+      "createdAt": "2026-05-15T12:02:16.909Z",
+      "reviewRound": "2026-05-15T12:00:25.828Z",
+      "reviewRunId": "B-d9ee:RR-008",
+      "_hash": "67b9f3a1cf3dbc2d625873d3c56ad670002937899de4bd77a091e6270f9b26ac"
+    },
+    {
+      "id": "B-d9ee:RP-005",
+      "agent": "koala-review-quality",
+      "note": "Verified F-002 is fixed: packages/main/src/core/store.ts now returns null only for missing grill artifacts, malformed existing grill.json surfaces through PLAN mutations, and test:grill-planning-artifact-smoke passed with no new blockers.",
+      "createdAt": "2026-05-15T12:02:28.681Z",
+      "reviewRound": "2026-05-15T12:00:25.828Z",
+      "reviewRunId": "B-d9ee:RR-007",
+      "_hash": "fd063936eed1ab27f6e8268db5c8678cf8bbdf03e5e68ac7686378ad0368e285"
+    },
+    {
+      "id": "B-d9ee:RP-006",
+      "agent": "koala-review-test-coverage",
+      "note": "Validation at f25d8c4 is PASS with 10/10 coverage; checklist evidence remains fresh by materialHash and top-level test evidence matches the current review head.",
+      "createdAt": "2026-05-15T12:04:02.304Z",
+      "reviewRound": "2026-05-15T12:00:25.828Z",
+      "reviewRunId": "B-d9ee:RR-011",
+      "_hash": "d41f2d6883073a3b4b0b2b6c386b6b6b3c6d2f913018b277537ec6ea534dd786"
+    },
+    {
+      "id": "B-d9ee:RP-007",
+      "agent": "koala-review-test-coverage",
+      "note": "Validated current HEAD d7eda8d with koala validate --story=B-d9ee --json: allPass=true and verificationCoverage 10/10 covered. Direct evidence-freshness check confirms all 10 verificationEvidence entries are fresh via materialHash despite older headHash values. packages/main/src/tasks/grill-planning-artifact-smoke.ts covers malformed grill.json fail-closed behavior and asserts grill artifacts do not write verificationEvidence; process-fact contract and command policy keep grill outside gate/validation evidence.",
+      "createdAt": "2026-05-15T12:06:48.302Z",
+      "reviewRound": "2026-05-15T12:05:49.640Z",
+      "reviewRunId": "B-d9ee:RR-012",
+      "_hash": "f12b4edec8843663129ddee4ec9000f1dcb517a079124d5d011101b13567ce0b"
+    },
+    {
+      "id": "B-d9ee:RP-008",
+      "agent": "koala-review-docs",
+      "note": "Docs keep grill planning commands PLAN-only, keep grill_get read-only and all-phase, and do not let grill replace verificationEvidence, review pass, delivery check, or validation evidence.",
+      "createdAt": "2026-05-15T12:07:06.254Z",
+      "reviewRound": "2026-05-15T12:05:49.640Z",
+      "reviewRunId": "B-d9ee:RR-015",
+      "_hash": "429371dad9b200ebf6dc4eb443ebecd0a5885d6fd30073dd887986c3011d6b83"
+    },
+    {
+      "id": "B-d9ee:RP-009",
+      "agent": "koala-review-concept",
+      "note": "Reviewed HEAD d7eda8d for grill planning artifact boundaries. grill_start/record/close remain PLAN-only metadata writes, grill_get is read-only, story_review only surfaces grill as advisory context, and .koala/story/** is excluded from materialHash so grill.json does not pollute verification or validation evidence freshness. No blocker.",
+      "createdAt": "2026-05-15T12:07:40.457Z",
+      "reviewRound": "2026-05-15T12:05:49.640Z",
+      "reviewRunId": "B-d9ee:RR-014",
+      "_hash": "838f9d1adb4ff9ed17dbd338b5fa014df60c5f17b9d002b75caffaa043f38993"
+    },
+    {
+      "id": "B-d9ee:RP-010",
+      "agent": "koala-review-quality",
+      "note": "Quality review pass on HEAD d7eda8d: verified prior F-002 remains fixed in store.readGrill, malformed existing grill.json fails closed and is not silently overwritten by PLAN mutations, grill commands remain non-gate planning context only, and lifecycle/evidence boundaries stay intact.",
+      "createdAt": "2026-05-15T12:08:30.377Z",
+      "reviewRound": "2026-05-15T12:05:49.640Z",
+      "reviewRunId": "B-d9ee:RR-013",
+      "_hash": "c18b69d0f7c5cdff2aa2a110a81a9ab32f11e441c6cfde64abde4b07d6dc5862"
+    },
+    {
+      "id": "B-d9ee:RP-011",
+      "agent": "koala-review-docs",
+      "note": "Docs are consistent: grill_start/grill_record/grill_close are PLAN-only mutators, grill_get is all-phase read-only, and grill planning context cannot replace verificationEvidence or koala validate validation evidence.",
+      "createdAt": "2026-05-15T12:14:52.727Z",
+      "reviewRound": "2026-05-15T12:14:01.784Z",
+      "reviewRunId": "B-d9ee:RR-017",
+      "_hash": "14c9524123538bc54aae7d020ea9249a609627b268480fd8f6fc8ac88ce02c3a"
+    },
+    {
+      "id": "B-d9ee:RP-012",
+      "agent": "koala-review-test-coverage",
+      "note": "Validation on HEAD 9e96ad3 passed with verification intent coverage 10/10 and no stale-evidence failure from the materialHash gate. Regression coverage is present for TEST-phase mutator rejection (grill_start/grill_record blocked in TEST) and all-phase read access via grill_get in command policy and grill-planning-artifact smoke.",
+      "createdAt": "2026-05-15T12:14:56.393Z",
+      "reviewRound": "2026-05-15T12:14:01.784Z",
+      "reviewRunId": "B-d9ee:RR-018",
+      "_hash": "36f71fbfd598e1165e5e3441b7d0232d4d06830737728cc519d4d0ffadd70743"
+    },
+    {
+      "id": "B-d9ee:RP-013",
+      "agent": "koala-review-quality",
+      "note": "Reviewed HEAD 9e96ad3 for quality lane. Verified grill_start/grill_record/grill_close are PLAN-only in command policy, phase config, and handler guard; grill_get remains read-only/all-phase; malformed grill.json still fails closed via StoryStore probe-only handling. TypeScript diagnostics clean on all modified TS files; npm run test:grill-planning-artifact-smoke passed; no blocking regression found in reviewed scope.",
+      "createdAt": "2026-05-15T12:16:01.358Z",
+      "reviewRound": "2026-05-15T12:14:01.784Z",
+      "reviewRunId": "B-d9ee:RR-019",
+      "_hash": "b37761b5f6fe9393d8ea363d4eb867eef90e9172815b2508eb31cb72faffd256"
+    },
+    {
+      "id": "B-d9ee:RP-014",
+      "agent": "koala-review-concept",
+      "note": "Reviewed grill artifact semantics and phase guards: grill remains advisory-only, mutators stay PLAN-only by target story phase, grill_get stays read-only, and lifecycle evidence boundaries remain intact.",
+      "createdAt": "2026-05-15T12:16:25.639Z",
+      "reviewRound": "2026-05-15T12:14:01.784Z",
+      "reviewRunId": "B-d9ee:RR-016",
+      "_hash": "6b0217e6d6f38dbf279f7cbb7f8bde90770cb37a7cba3bb0ededd59c3f82ce83"
+    }
+  ]
+}

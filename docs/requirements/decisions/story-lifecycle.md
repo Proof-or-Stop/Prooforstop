@@ -96,6 +96,7 @@ B-xxxx REVIEW (authority:worktree, mirror:INIT_CHECK)
 - **门禁不可跳过**：REVIEW/TEST/DONE 都必须由确定性 gate 判定。
 - **verificationIntent 前置**：PLAN 记录 happy/edge/adversarial 验收意图。
 - **verificationEvidence 跟随实现**：DEV/REVIEW/TEST 挂真实证据，不再把测试阶段拆成旧 `TEST_CASE` 流程。
+- **Grill 只澄清意图**：`grill_start` / `grill_record` / `grill_close` 写 PLAN 阶段的 `grill.json` planning artifact，`grill_get` 可全阶段读取。Grill clarifies intent; evidence proves behavior. Grill transcript 不能替代 `verificationEvidence`、review pass、delivery check 或 `koala validate` validation evidence。
 - **evidence kind 允许自然 aliases**：持久化 kind 仍是 `logic_test` / `manual_transcript` 等规范值；CLI 接受 `logic`→`logic_test`、`cli`→`manual_transcript`，避免 plan.md 和命令表面口径打架。
 - **DONE evidence 必须新鲜**：`koala validate --story` 写入测试运行时的 git HEAD/material hash。DONE gate 比对当前 story 分支，验证语义相关文件变化会让旧 evidence stale。
 - **stale evidence 不能被“测试通过”覆盖**：`koala validate` 如果发现 verification coverage missing/stale，JSON 必须是 `allPass:false`，提示也必须指向补 evidence，而不是说“验证全绿”。可用 `verification_evidence_refresh_stale --storyId=B-xxx --dryRun` 查看需刷新项；重跑对应验证命令后去掉 dryRun 刷新 metadata。
@@ -125,6 +126,7 @@ B-xxxx REVIEW (authority:worktree, mirror:INIT_CHECK)
 | `story_discard` | 任何阶段可废弃 |
 | `task_scan` / `task_detail` | 了解项目，只读 |
 | `checklist_get` | 只读查看 |
+| `grill_get` | 只读查看 PLAN 阶段写入的 grill planning context；不产生 gate evidence |
 | `truth_*` / `gap_*` / `arch_trace` | 分析参考，只读 |
 | `session_brief` / `status` / `next` | 恢复现场和下一步建议，不推进 phase |
 
@@ -134,6 +136,7 @@ B-xxxx REVIEW (authority:worktree, mirror:INIT_CHECK)
 |---|---|
 | `story_update` | 编辑 story |
 | `story_review` | 对抗审查 |
+| `grill_start` / `grill_record` / `grill_close` | PLAN-only mutating grill commands；记录非门禁 grill planning context；开放 session / unresolved question 只会在 `story_review` 中 advisory 提示 |
 | `story_advance -> DEV` | 通过 gate 后进入实现 |
 | `checklist_add` | 追加 item |
 | `checklist_update` | 补 verificationIntent / metadata，不应标 done |
@@ -178,6 +181,8 @@ B-xxxx REVIEW (authority:worktree, mirror:INIT_CHECK)
 - `fixture_*`：legacy/compat 维护入口；DEV 如需迁移旧 fixture 可用，但新 story 不应把它当作标准验证流。REVIEW/TEST 主要读取 `verificationEvidence`，不应绕过 review 改行为。
 - `checklist_update`：PLAN 补 intent，DEV 补 status/evidence，其余阶段谨慎使用。
 - `summary_set`：不是形式总结，DONE gate 和最终用户交付都要消费。
+- `grill_start` / `grill_record` / `grill_close`：PLAN-only mutating planning context。`story_review` 可展示 open session / unresolved question advisory，但 `blockerCount` 不因 grill 增加；`grill.json` 不进入 validation evidence，也不进入 checklist `verificationEvidence`。
+- `grill_get`：全阶段只读查看 grill planning context；读不存在的 artifact 返回 empty，读到损坏或不可读的既有 `grill.json` 必须 fail-fast 暴露问题，不能被当作缺失后覆盖。
 - `process-fact-registry` + `verify-process-fact-contract`：静态 contract 负责校验 MAIN_TOOLS、DEFAULT_PHASE_TOOLS、reviewer lanes、signed/gate artifacts、L4 gate evidence 与 required semantic facts 是否一致；fail 文案必须直接点名 `missing from PROCESS_FACT_REGISTRY` 或 `required process fact missing`，避免维护者只看到 prompt 漂移。
 - Flow fact policy 必须硬编码在 `packages/main/src/core/flow-fact-policy.ts` 并登记进 `process-fact-registry` / `process-fact-levels`。当前明确登记：`flow-policy:review-pass`、`flow-policy:finding`、`flow-policy:pass-only-normalization`、`flow-policy:review-round-iso-string`、`flow-policy:express-verification-policy`。
 - `reviewRound: string (ISO 8601 review round id)`。review pass / finding / delivery check 的签名域消费这个字符串，不能退回 number round。

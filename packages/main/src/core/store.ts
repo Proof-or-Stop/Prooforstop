@@ -5,7 +5,7 @@ import type {
   UnderstandingData, DecisionData, StorySummaryData,
   StoryTestRun, StoryTestRunsData, FindingData, EvalEvidenceData,
   StoryProcessMetrics, ProcessEvent, ScopeCheckData, InitCheckData, ReviewPassData,
-  DeliveryCheckData, ImplementationReviewResultData, ReviewRunData,
+  DeliveryCheckData, ImplementationReviewResultData, ReviewRunData, GrillData,
 } from './types.js';
 import type { ClusterData } from './cluster-types.js';
 import { appendProcessEvent as appendProcessEventFn, readProcessEvents as readProcessEventsFn } from './process-events.js';
@@ -16,6 +16,13 @@ type JsonCandidate<T> = {
   filePath: string;
   data: T;
 };
+
+class StoryArtifactMissingError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'StoryArtifactMissingError';
+  }
+}
 
 export class StoryStore {
   private baseDir: string;
@@ -67,7 +74,7 @@ export class StoryStore {
       }
     }
     if (candidates.length > 0) return this.chooseJsonCandidate(file, candidates).data;
-    throw new Error(`File not found: ${tried.join(' or ')}`);
+    throw new StoryArtifactMissingError(`File not found: ${tried.join(' or ')}`);
   }
 
   private writeJson<T>(storyId: string, file: string, data: T): void {
@@ -255,6 +262,22 @@ export class StoryStore {
 
   writeUnderstanding(storyId: string, data: UnderstandingData): void {
     this.writeJson(storyId, 'understanding.json', data);
+  }
+
+  // ── Grill planning artifact ──
+
+  readGrill(storyId: string): GrillData | null {
+    try {
+      return this.readJson<GrillData>(storyId, 'grill.json');
+    } catch (e) {
+      // PROBE: missing artifact means no grill context; corrupt existing JSON must surface.
+      if (e instanceof StoryArtifactMissingError) return null;
+      throw e;
+    }
+  }
+
+  writeGrill(storyId: string, data: GrillData): void {
+    this.writeJson(storyId, 'grill.json', data);
   }
 
   // ── Decision (RALPLAN-DR 结构化决策，OMX 风格) ──

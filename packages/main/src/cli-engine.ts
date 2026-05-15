@@ -345,6 +345,29 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'decision_get', description: '读取 decision snapshot', schema: {
     storyId: z.string().describe('Story ID'),
   }},
+  // Grill planning artifact (PLAN context only; not verification/validation evidence)
+  { name: 'grill_start', description: '启动 PLAN grill 澄清 session（写 grill.json，不写证据）', schema: {
+    storyId: z.string().describe('Story ID'),
+    topic: z.string().optional().describe('本轮 grill 的主题或焦点'),
+  }},
+  { name: 'grill_record', description: '记录 grill 问题和回答（无回答则 unresolved）', schema: {
+    storyId: z.string().describe('Story ID'),
+    sessionId: z.string().optional().describe('Grill session ID；缺省使用最新 open session'),
+    question: z.string().describe('澄清问题'),
+    answer: z.string().optional().describe('回答；缺省时记录为 unresolved'),
+    status: z.enum(['answered', 'unresolved']).optional().describe('问题状态；缺省由 answer 是否存在推断'),
+    source: z.string().optional().describe('可选来源，如 user / reviewer / implementer'),
+  }},
+  { name: 'grill_close', description: '关闭 grill session，并返回 remainingUnknowns', schema: {
+    storyId: z.string().describe('Story ID'),
+    sessionId: z.string().optional().describe('Grill session ID；缺省使用最新 open session'),
+    note: z.string().optional().describe('关闭备注'),
+    closedBy: z.string().optional().describe('关闭者标识'),
+  }},
+  { name: 'grill_get', description: '读取 grill planning artifact', schema: {
+    storyId: z.string().describe('Story ID'),
+    sessionId: z.string().optional().describe('只读取指定 grill session'),
+  }},
   // Summary (B-093b: DONE-gate forced completion summary)
   { name: 'summary_set', description: 'DONE 前必须落：story 完成总结（changes/usage/user acceptance/limitations/pitfalls + 自动扫真机覆盖骨架）', schema: {
     storyId: z.string().describe('Story ID'),
@@ -893,7 +916,7 @@ function printHelp(activeStory?: ActiveStory | null) {
     check: 'Check',
   };
   // 已知分组的展示顺序；不在列表里的分组（来自 extras）按字母序追加
-  const KNOWN_ORDER = ['Story', 'Review', 'Checklist', 'Bug', 'Test', 'Validate', 'Evaluate', 'Workflow', 'Status', 'Check', 'Serve', 'Session', 'Aux', 'Audit'];
+  const KNOWN_ORDER = ['Story', 'Review', 'Checklist', 'Grill', 'Bug', 'Test', 'Validate', 'Evaluate', 'Workflow', 'Status', 'Check', 'Serve', 'Session', 'Aux', 'Audit'];
 
   const groups: Record<string, ToolDef[]> = {};
   for (const t of TOOLS) {
@@ -1113,6 +1136,7 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'bug_list',
   'test_list',
   'aux_doc_list',
+  'grill_get',
   'reviewer_list',
   'workflow_explain',
   'help',

@@ -23,6 +23,7 @@ import { createTestFixtureHandlers } from './handlers/test-fixture.js';
 import { createWorktreeHandlers } from './handlers/worktree.js';
 import { createUnderstandingHandlers } from './handlers/understanding.js';
 import { createDecisionHandlers } from './handlers/decision.js';
+import { createGrillHandlers } from './handlers/grill.js';
 import { createSummaryHandlers } from './handlers/summary.js';
 import { createDoctorHandlers } from './handlers/doctor.js';
 import { createSessionHandlers } from './handlers/session.js';
@@ -110,6 +111,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createWorktreeHandlers(ctx));
   registry.registerBatch(createUnderstandingHandlers(ctx));
   registry.registerBatch(createDecisionHandlers(ctx));
+  registry.registerBatch(createGrillHandlers(ctx));
   registry.registerBatch(createSummaryHandlers(ctx));
   registry.registerBatch(createDoctorHandlers(ctx));
   registry.registerBatch(createSessionHandlers(ctx));

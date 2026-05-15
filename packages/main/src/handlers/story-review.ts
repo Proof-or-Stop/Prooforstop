@@ -260,6 +260,27 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         return true;
       })();
       const understanding = store.readUnderstanding(args.storyId);
+      const grill = store.readGrill(args.storyId);
+      if (grill) {
+        const openSessions = grill.sessions.filter(session => session.status === 'open');
+        for (const session of openSessions) {
+          issues.push({
+            type: 'grill_session_open',
+            severity: 'advisory',
+            message: `grill session ${session.sessionId} 仍 open${session.topic ? ` (${session.topic})` : ''}。Grill clarifies intent; evidence proves behavior.`,
+          });
+        }
+        for (const session of grill.sessions) {
+          const unresolved = session.questions.filter(question => question.status === 'unresolved');
+          if (unresolved.length > 0) {
+            issues.push({
+              type: 'grill_question_unresolved',
+              severity: 'advisory',
+              message: `grill session ${session.sessionId} 还有 ${unresolved.length} 个 unresolved question: ${unresolved.slice(0, 3).map(q => q.question).join('; ')}${unresolved.length > 3 ? '…' : ''}`,
+            });
+          }
+        }
+      }
       if (shouldCheckUnderstanding) {
         if (!understanding) {
           issues.push({
@@ -519,6 +540,16 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
                 ? `\npreMortem:\n${decision.preMortem.map((pm: any) => `  - ${pm.scenario} (trigger: ${pm.trigger}; consequence: ${pm.consequence}; mitigation: ${pm.mitigation})`).join('\n')}`
                 : '')
             : '\n---\nDecision: (not provided)';
+          const grillSection = grill
+            ? `\n---\nGrill Planning Context (advisory only):\n` +
+              `Grill clarifies intent; evidence proves behavior.\n` +
+              grill.sessions.map(session => {
+                const questionLines = session.questions.length > 0
+                  ? session.questions.map(q => `    - ${q.id} [${q.status}] ${q.question}${q.answer ? ` -> ${q.answer}` : ''}`).join('\n')
+                  : '    (no questions recorded)';
+                return `  - ${session.sessionId} [${session.status}]${session.topic ? ` ${session.topic}` : ''}\n${questionLines}`;
+              }).join('\n')
+            : '';
           const checklistSection = `\n---\nChecklist:\n${cl.items.map(i => {
             const vi = collectVerificationIntents(i);
             const intentLines = vi.length > 0
@@ -530,7 +561,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
             ? `\n---\nTruth Source (${truthDocs.length} 篇):\n${truthDocs.join('\n---\n')}`
             : '';
           // 没有 truth docs + 没有 understanding + 没有 decision 时，仍然要返回基础 prompt 而不是 undefined
-          if (truthDocs.length === 0 && !understanding && !decision) return undefined;
+          if (truthDocs.length === 0 && !understanding && !decision && !grill) return undefined;
           return `请审查以下 story 的 PLAN 阶段产物。重点检查:\n` +
             `  1. understanding 是否真切（unknowns 是否被 facts 自相矛盾，touchpoints 是否真实）\n` +
             `  2. decision 是否选择合理（为什么不选其他 option，rationale 是否呼应 drivers）\n` +
@@ -540,7 +571,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
             (story.riskSignals && story.riskSignals.length > 0
               ? ` (riskSignals: ${story.riskSignals.map((r: any) => r.category).join(', ')})`
               : '') +
-            understandingSection + decisionSection + checklistSection + truthSection;
+            understandingSection + decisionSection + grillSection + checklistSection + truthSection;
         })(),
       };
     },
