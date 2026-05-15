@@ -13,6 +13,10 @@ import { createChecklistHandlers } from '../handlers/checklist.js';
 import { EVIDENCE_STALE_MARKER, findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
 import { createSessionHandlers } from '../handlers/session.js';
 import { decorateResult } from '../handlers/hints.js';
+import {
+  createRecoverEvidenceHandlers,
+  RECOVER_EVIDENCE_ALLOWED_CATEGORIES,
+} from '../handlers/recover-evidence.js';
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -498,5 +502,200 @@ function extractStaleBlock(output: string): string {
 }
 
 assertStaleEvidenceHintCrossSurface();
+
+// ── B-a2f1 CHK-003: recover_evidence single-shot ──
+// Verifies:
+//   (1) Allowlist invariant — only 3 categories pass through (preMortem #1).
+//   (2) Happy path — stale fixture with no non-metadata dirt → refresh + validate.
+//   (3) Refuse path (material) — material_source_changes blocks recover.
+//   (4) Refuse path (unexpected) — unexpected_dirty_files blocks recover.
+async function assertRecoverEvidenceCommand(): Promise<void> {
+  // (1) Allowlist invariant — guard against future categories silently passing.
+  // Must be an allowlist (3 entries), not a blocklist (would grow with classifier).
+  assert.equal(
+    RECOVER_EVIDENCE_ALLOWED_CATEGORIES.size,
+    3,
+    `RECOVER_EVIDENCE_ALLOWED_CATEGORIES must contain exactly 3 entries; found ${RECOVER_EVIDENCE_ALLOWED_CATEGORIES.size} — adding new DIRTY_WORKTREE_CATEGORIES must NOT silently pass through recover_evidence (preMortem #1).`,
+  );
+  for (const expected of ['koala_metadata_changes', 'runtime_artifact_changes', 'declared_artifact_changes'] as const) {
+    assert.ok(
+      RECOVER_EVIDENCE_ALLOWED_CATEGORIES.has(expected),
+      `RECOVER_EVIDENCE_ALLOWED_CATEGORIES must contain ${expected}`,
+    );
+  }
+
+  // Shared fixture builder for cases (2) (3) (4): stale evidence + clean worktree.
+  function makeFixture(): { root: string; storyId: string; store: StoryStore; cleanup: () => void } {
+    const root = mkdtempRoot();
+    try {
+      git(root, ['init']);
+      git(root, ['config', 'user.email', 'smoke@example.test']);
+      git(root, ['config', 'user.name', 'Koala Smoke']);
+      write(root, 'koala.config.json', JSON.stringify({
+        scanRoot: 'packages/main',
+        rootDir: 'src',
+        storyDir: '.koala/story/actives',
+        requirementsDir: 'docs/requirements',
+      }, null, 2));
+      write(root, 'packages/main/src/base.ts', 'export const base = true;\n');
+      const baseSha = commit(root, 'base');
+      const baseMaterialHash = currentMaterialHash(root);
+      assert.ok(baseMaterialHash, 'base material hash should be available');
+
+      // Drift: change a material file in a new commit (simulates a main merge).
+      write(root, 'packages/main/src/base.ts', 'export const base = false;\n');
+      commit(root, 'material drift');
+
+      const storyId = 'B-recover';
+      const store = new StoryStore(root);
+      const now = '2026-05-15T10:00:00.000Z';
+      const story: StoryInfo = {
+        storyId,
+        name: 'recover-evidence-smoke',
+        title: 'recover_evidence smoke',
+        description: 'Smoke fixture for recover_evidence single-shot command.',
+        type: 'chore',
+        phase: 'TEST',
+        priority: 'medium',
+        createdAt: now,
+        startedAt: now,
+        endedAt: null,
+        events: [{ phase: 'TEST', action: 'advance', timestamp: now }],
+      };
+      const checklist: ChecklistData = {
+        items: [{
+          id: 'CHK-001',
+          title: 'Stale evidence item',
+          context: 'Stale evidence item',
+          status: 'done',
+          startTime: null,
+          endTime: null,
+          verificationIntent: {
+            happy: [{ desc: 'stale evidence', type: 'logic', priority: 'must' }],
+            edge: [],
+            adversarial: [],
+          },
+          verificationEvidence: [{
+            intentRef: 'CHK-001:happy:0',
+            kind: 'logic_test',
+            result: 'pass',
+            note: 'old evidence pinned to baseSha',
+            headHash: baseSha,
+            materialHash: baseMaterialHash,
+            command: 'npm test',
+          }],
+        }],
+      };
+      store.writeStory(storyId, story);
+      store.writeChecklist(storyId, checklist);
+      return { root, storyId, store, cleanup: () => rmSync(root, { recursive: true, force: true }) };
+    } catch (e) {
+      rmSync(root, { recursive: true, force: true });
+      throw e;
+    }
+  }
+
+  // Handler return type is intentionally loose at runtime (CLI returns object);
+  // the smoke test reads through the documented shape only.
+  type RecoverResult = {
+    status: 'pass' | 'fail' | 'refused';
+    refused?: { reason: string; categories: string[]; paths: string[] };
+    refreshTranscript?: string;
+    validateTranscript?: string;
+  };
+
+  // Handler is pure: always returns the structured result; CLI wrapper handles
+  // exit-code escalation in cli-engine.ts. Smoke asserts the in-process shape.
+  function runHandler(root: string, storyId: string, store: StoryStore): Promise<RecoverResult> {
+    const handlers = createRecoverEvidenceHandlers({ store, root, scanRoot: join(root, 'packages/main') });
+    return Promise.resolve(handlers.recover_evidence({ storyId })) as Promise<RecoverResult>;
+  }
+
+  // (2) Happy path — no non-metadata dirt; refresh + validate must run, status=pass.
+  {
+    const fx = makeFixture();
+    try {
+      const result = await runHandler(fx.root, fx.storyId, fx.store);
+      assert.equal(result.status, 'pass',
+        `recover_evidence happy path must return status=pass. Got: ${JSON.stringify(result)}`);
+      assert.ok(result.refreshTranscript && /Refreshed 1\/1 stale evidence/.test(result.refreshTranscript),
+        `refreshTranscript must contain "Refreshed 1/1 stale evidence". Got:\n${result.refreshTranscript}`);
+      assert.ok(result.validateTranscript && result.validateTranscript.length > 0,
+        `validateTranscript must be non-empty. Got:\n${result.validateTranscript}`);
+      // Refresh must come before validate in the result object (refresh first, validate second).
+      assert.ok(result.refreshTranscript && result.validateTranscript,
+        'both transcripts must be populated in happy path');
+    } finally {
+      fx.cleanup();
+    }
+  }
+
+  // (3) Refuse — material_source_changes blocks recover.
+  {
+    const fx = makeFixture();
+    try {
+      // Introduce a material-source untracked file (matches scanRoot + rootDir = packages/main/src/).
+      write(fx.root, 'packages/main/src/foo.ts', 'export const x = 1;\n');
+      const result = await runHandler(fx.root, fx.storyId, fx.store);
+      assert.equal(result.status, 'refused',
+        `recover_evidence with material_source_changes must refuse. Got: ${JSON.stringify(result)}`);
+      assert.ok(result.refused, 'refused field must be present');
+      assert.ok(result.refused!.reason.includes('material_source_changes'),
+        `refused.reason must include material_source_changes. Got: ${result.refused!.reason}`);
+      assert.ok(result.refused!.categories.includes('material_source_changes'),
+        `refused.categories must include material_source_changes. Got: ${JSON.stringify(result.refused!.categories)}`);
+      assert.ok(result.refused!.paths.some(p => p.includes('foo.ts')),
+        `refused.paths must include foo.ts. Got: ${JSON.stringify(result.refused!.paths)}`);
+      // Short-circuit: transcripts must be undefined on refuse.
+      assert.equal(result.refreshTranscript, undefined,
+        `refused path must NOT run refresh (refreshTranscript should be undefined). Got: ${result.refreshTranscript}`);
+      assert.equal(result.validateTranscript, undefined,
+        `refused path must NOT run validate (validateTranscript should be undefined). Got: ${result.validateTranscript}`);
+    } finally {
+      fx.cleanup();
+    }
+  }
+
+  // (4) Refuse — unexpected_dirty_files blocks recover.
+  {
+    const fx = makeFixture();
+    try {
+      // Path not in scanRoot, not fixtures, not metadata, not runtime artifact → unexpected.
+      write(fx.root, 'packages/main/tests/output/x.json', '{}\n');
+      const result = await runHandler(fx.root, fx.storyId, fx.store);
+      assert.equal(result.status, 'refused',
+        `recover_evidence with unexpected_dirty_files must refuse. Got: ${JSON.stringify(result)}`);
+      assert.ok(result.refused, 'refused field must be present');
+      assert.ok(result.refused!.reason.includes('unexpected_dirty_files'),
+        `refused.reason must include unexpected_dirty_files. Got: ${result.refused!.reason}`);
+      assert.ok(result.refused!.categories.includes('unexpected_dirty_files'),
+        `refused.categories must include unexpected_dirty_files. Got: ${JSON.stringify(result.refused!.categories)}`);
+    } finally {
+      fx.cleanup();
+    }
+  }
+
+  // (5) Runtime guard: missing / empty storyId must throw before any classification.
+  {
+    const fx = makeFixture();
+    try {
+      const handlers = createRecoverEvidenceHandlers({ store: fx.store, root: fx.root, scanRoot: join(fx.root, 'packages/main') });
+      await assert.rejects(
+        () => Promise.resolve(handlers.recover_evidence({ storyId: '' })),
+        /storyId is required/,
+        'empty storyId must reject',
+      );
+      await assert.rejects(
+        () => Promise.resolve(handlers.recover_evidence({ storyId: '   ' })),
+        /storyId is required/,
+        'whitespace storyId must reject (mirrors Zod min(1) at runtime)',
+      );
+    } finally {
+      fx.cleanup();
+    }
+  }
+}
+
+await assertRecoverEvidenceCommand();
 
 console.log('✓ verification freshness smoke passed');
