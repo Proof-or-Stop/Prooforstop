@@ -21,7 +21,7 @@
       "desc": "concept-cleanup: signDeliveryCheck imported from handlers/delivery-check.js (not core/delivery-check-hash.ts) in 2 task files — field-regression-cli-smoke.ts:14 and worktree-authority-smoke.ts:13 still import from the handler re-export path instead of the canonical core module created by this story. The fix that established core/delivery-check-hash.ts as single source of truth is incomplete: tasks should import signing primitives from the core layer directly.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "agent": "koala-review-concept",
       "createdAt": "2026-05-15T23:54:45.409Z",
       "reviewRound": "2026-05-15T23:53:31.705Z",
