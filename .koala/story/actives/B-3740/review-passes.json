@@ -71,6 +71,15 @@
       "reviewRound": "2026-05-15T23:22:08.158Z",
       "reviewRunId": "B-3740:RR-008",
       "_hash": "878a7a59e10f4f83798a1bd127fe2617d0178eb65d6cad417dc96aac25c86bb7"
+    },
+    {
+      "id": "B-3740:RP-009",
+      "agent": "koala-review-concept",
+      "note": "Round 3 concept re-review of F-002 and F-003 fixes. F-002: LifecycleArtifactRole is now imported and consumed as explicit type annotation (readonly LifecycleArtifactRole[]) in lifecycle-registry-contract.ts — no longer a dead export. F-003: as-never cast fully removed; knownCommands and processFactNames both typed as Set<string> allowing .has(string) without cast. Zero residual as-never in packages/main/src/. No new concept deletions or replacements introduced by the fix commit. as-any casts in flow-stability-smoke.ts are pre-existing and not in scope of F-003. No blocker.",
+      "createdAt": "2026-05-15T23:23:38.887Z",
+      "reviewRound": "2026-05-15T23:22:08.158Z",
+      "reviewRunId": "B-3740:RR-007",
+      "_hash": "9358c432e4e7e28d352391b2b0bac943c475dbc0a9dd160560a766536769cb23"
     }
   ]
 }
