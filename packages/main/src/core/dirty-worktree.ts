@@ -1,0 +1,254 @@
+import type { KoalaConfig } from './config.js';
+import { isStoryMetadataPath } from './evidence-freshness.js';
+import { findRuntimeArtifactEntry } from './runtime-artifact-registry.js';
+
+// @task B-6326: central ownership classifier for dirty git porcelain rows.
+export const DIRTY_WORKTREE_CATEGORIES = [
+  'koala_metadata_changes',
+  'runtime_artifact_changes',
+  'declared_artifact_changes',
+  'material_source_changes',
+  'fixture_changes',
+  'unexpected_dirty_files',
+] as const;
+
+export type DirtyWorktreeCategory = typeof DIRTY_WORKTREE_CATEGORIES[number];
+
+export interface DirtyWorktreeParsedRow {
+  raw: string;
+  statusCode: string;
+  rawPath: string;
+  path: string;
+  originalRawPath?: string;
+  originalPath?: string;
+}
+
+export interface DirtyWorktreeEntry extends DirtyWorktreeParsedRow {
+  category: DirtyWorktreeCategory;
+  runtimeArtifactId?: string;
+}
+
+export type DirtyDeclaredArtifactMatcher = (path: string, row: DirtyWorktreeParsedRow) => boolean;
+
+export interface DirtyWorktreeClassifierOptions {
+  fixtureDirs?: string[];
+  materialSourcePrefixes?: string[];
+  materialSourceFiles?: string[];
+  declaredArtifactPaths?: string[];
+  declaredArtifactMatcher?: DirtyDeclaredArtifactMatcher;
+}
+
+export type DirtyWorktreeGroups = Record<DirtyWorktreeCategory, DirtyWorktreeEntry[]>;
+
+export interface DirtyWorktreeClassification {
+  total: number;
+  entries: DirtyWorktreeEntry[];
+  groups: DirtyWorktreeGroups;
+}
+
+function normalizePath(path: string): string {
+  return path
+    .replace(/\\/g, '/')
+    .replace(/^\.\//, '')
+    .replace(/^\/+/, '')
+    .replace(/\/+$/, '');
+}
+
+function joinRelPath(...parts: Array<string | undefined>): string {
+  return normalizePath(parts.filter(Boolean).join('/'));
+}
+
+function unquoteGitPath(path: string): string {
+  const trimmed = path.trim();
+  if (trimmed.length < 2 || !trimmed.startsWith('"') || !trimmed.endsWith('"')) return trimmed;
+  try {
+    return JSON.parse(trimmed);
+  } catch {
+    return trimmed.slice(1, -1);
+  }
+}
+
+function splitRenamePath(path: string): { from: string; to: string } | undefined {
+  const arrow = ' -> ';
+  const index = path.lastIndexOf(arrow);
+  if (index < 0) return undefined;
+  return {
+    from: path.slice(0, index),
+    to: path.slice(index + arrow.length),
+  };
+}
+
+export function parseGitPorcelainRow(row: string): DirtyWorktreeParsedRow | undefined {
+  const raw = row.trimEnd();
+  if (!raw) return undefined;
+
+  const statusCode = raw.slice(0, 2).padEnd(2, ' ');
+  const rawPathPart = raw.length > 3 ? raw.slice(3) : '';
+  const rename = splitRenamePath(rawPathPart);
+  if (rename) {
+    const originalRawPath = unquoteGitPath(rename.from);
+    const rawPath = unquoteGitPath(rename.to);
+    return {
+      raw,
+      statusCode,
+      rawPath,
+      path: normalizePath(rawPath),
+      originalRawPath,
+      originalPath: normalizePath(originalRawPath),
+    };
+  }
+
+  const rawPath = unquoteGitPath(rawPathPart);
+  return {
+    raw,
+    statusCode,
+    rawPath,
+    path: normalizePath(rawPath),
+  };
+}
+
+function pathMatchesSpec(path: string, spec: string): boolean {
+  const normalized = normalizePath(spec);
+  if (!normalized) return false;
+  if (normalized.endsWith('/')) return path.startsWith(normalized);
+  return path === normalized || path.startsWith(`${normalized}/`);
+}
+
+function pathSet(row: DirtyWorktreeParsedRow): string[] {
+  return [row.path, row.originalPath].filter((path): path is string => Boolean(path));
+}
+
+function isFixturePath(path: string, options: DirtyWorktreeClassifierOptions): boolean {
+  return (options.fixtureDirs ?? []).some((dir) => pathMatchesSpec(path, dir));
+}
+
+function isDeclaredArtifactPath(row: DirtyWorktreeParsedRow, options: DirtyWorktreeClassifierOptions): boolean {
+  for (const path of pathSet(row)) {
+    if ((options.declaredArtifactPaths ?? []).some((spec) => pathMatchesSpec(path, spec))) return true;
+    if (options.declaredArtifactMatcher?.(path, row)) return true;
+  }
+  return false;
+}
+
+function isMaterialSourcePath(path: string, options: DirtyWorktreeClassifierOptions): boolean {
+  if ((options.materialSourceFiles ?? []).some((file) => normalizePath(file) === path)) return true;
+  return (options.materialSourcePrefixes ?? []).some((prefix) => pathMatchesSpec(path, prefix));
+}
+
+function classifyParsedRow(row: DirtyWorktreeParsedRow, options: DirtyWorktreeClassifierOptions): DirtyWorktreeEntry {
+  const paths = pathSet(row);
+  if (paths.some(isStoryMetadataPath)) {
+    return { ...row, category: 'koala_metadata_changes' };
+  }
+
+  const runtimeArtifact = paths.map((path) => findRuntimeArtifactEntry(path)).find(Boolean);
+  if (runtimeArtifact) {
+    return { ...row, category: 'runtime_artifact_changes', runtimeArtifactId: runtimeArtifact.id };
+  }
+
+  if (isDeclaredArtifactPath(row, options)) {
+    return { ...row, category: 'declared_artifact_changes' };
+  }
+
+  if (paths.some((path) => isFixturePath(path, options))) {
+    return { ...row, category: 'fixture_changes' };
+  }
+
+  if (paths.some((path) => isMaterialSourcePath(path, options))) {
+    return { ...row, category: 'material_source_changes' };
+  }
+
+  return { ...row, category: 'unexpected_dirty_files' };
+}
+
+export function emptyDirtyWorktreeGroups(): DirtyWorktreeGroups {
+  return DIRTY_WORKTREE_CATEGORIES.reduce((groups, category) => {
+    groups[category] = [];
+    return groups;
+  }, {} as DirtyWorktreeGroups);
+}
+
+export function classifyGitStatusRows(
+  rows: string[],
+  options: DirtyWorktreeClassifierOptions = {},
+): DirtyWorktreeClassification {
+  const groups = emptyDirtyWorktreeGroups();
+  const entries = rows
+    .map(parseGitPorcelainRow)
+    .filter((row): row is DirtyWorktreeParsedRow => Boolean(row))
+    .map((row) => classifyParsedRow(row, options));
+
+  for (const entry of entries) {
+    groups[entry.category].push(entry);
+  }
+
+  return {
+    total: entries.length,
+    entries,
+    groups,
+  };
+}
+
+export function dirtyWorktreeClassifierOptionsFromConfig(config: KoalaConfig): DirtyWorktreeClassifierOptions {
+  const sourceRoot = joinRelPath(config.scanRoot, config.rootDir || undefined);
+  const packageRoot = normalizePath(config.scanRoot);
+  const configFiles = [
+    'AGENTS.md',
+    'CLAUDE.md',
+    'README.md',
+    '.gitignore',
+    'koala.config.json',
+    'package.json',
+    'package-lock.json',
+    'npm-shrinkwrap.json',
+    'pnpm-lock.yaml',
+    'yarn.lock',
+    'bun.lockb',
+    'tsconfig.json',
+    joinRelPath(packageRoot, 'package.json'),
+    joinRelPath(packageRoot, 'package-lock.json'),
+    joinRelPath(packageRoot, 'tsconfig.json'),
+  ];
+
+  return {
+    fixtureDirs: [config.fixturesDir],
+    materialSourcePrefixes: [
+      sourceRoot,
+      config.requirementsDir,
+    ].filter(Boolean),
+    materialSourceFiles: Array.from(new Set(configFiles.map(normalizePath).filter(Boolean))),
+    declaredArtifactPaths: [],
+  };
+}
+
+export function summarizeDirtyWorktreeClassification(classification: DirtyWorktreeClassification): string {
+  const counts = DIRTY_WORKTREE_CATEGORIES
+    .map((category) => ({ category, count: classification.groups[category].length }))
+    .filter(({ count }) => count > 0)
+    .map(({ category, count }) => `${category}=${count}`)
+    .join(', ');
+  return `${classification.total} dirty path(s) by category: ${counts || 'none'}`;
+}
+
+export function renderDirtyWorktreeGroups(
+  classification: DirtyWorktreeClassification,
+  options: { sampleLimit?: number; indent?: string } = {},
+): string[] {
+  const sampleLimit = options.sampleLimit ?? 4;
+  const indent = options.indent ?? '';
+  const lines: string[] = [];
+
+  for (const category of DIRTY_WORKTREE_CATEGORIES) {
+    const entries = classification.groups[category];
+    if (entries.length === 0) continue;
+    lines.push(`${indent}${category} (${entries.length}):`);
+    for (const entry of entries.slice(0, sampleLimit)) {
+      lines.push(`${indent}  ${entry.raw}`);
+    }
+    if (entries.length > sampleLimit) {
+      lines.push(`${indent}  ... ${entries.length - sampleLimit} more`);
+    }
+  }
+
+  return lines;
+}

@@ -6,8 +6,13 @@ import { mkdtempSync, rmSync, mkdirSync, writeFileSync, existsSync, lstatSync, r
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DEFAULT_PHASE_TOOLS, getAllowedPatterns, isCommandAllowed, resetConfigCache } from '../core/config.js';
+import { DEFAULT_PHASE_TOOLS, getAllowedPatterns, isCommandAllowed, loadConfig, resetConfigCache } from '../core/config.js';
 import { getCommandPolicyEntries, policyAllowedPhaseLabels } from '../core/command-policy.js';
+import {
+  classifyGitStatusRows,
+  dirtyWorktreeClassifierOptionsFromConfig,
+  parseGitPorcelainRow,
+} from '../core/dirty-worktree.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { signFinding, signReviewPass, verifyFinding, verifyReviewPass } from '../core/finding-verify.js';
 import { getArtifactContractStatus } from '../core/artifact-contract.js';
@@ -153,6 +158,8 @@ function createReviewStore(root: string): { store: StoryStore; storyId: string; 
   write(root, 'koala.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
+    testsDir: 'packages/main/tests',
+    fixturesDir: 'packages/main/tests/fixtures',
     storyDir: '.koala/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'balanced' },
@@ -210,6 +217,51 @@ function createReviewStore(root: string): { store: StoryStore; storyId: string; 
     timestamp: now,
   });
   return { store, storyId, reviewRound };
+}
+
+function assertDirtyWorktreeClassifierGroupsOwnership(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-dirty-classifier-'));
+  try {
+    write(root, 'koala.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      testsDir: 'packages/main/tests',
+      fixturesDir: 'packages/main/tests/fixtures',
+      storyDir: '.koala/story/actives',
+      requirementsDir: 'docs/requirements',
+    }));
+    resetConfigCache();
+
+    const rename = parseGitPorcelainRow('R  packages/main/src/old.ts -> ./packages/main/src/new.ts');
+    assert.equal(rename?.statusCode, 'R ');
+    assert.equal(rename?.rawPath, './packages/main/src/new.ts');
+    assert.equal(rename?.path, 'packages/main/src/new.ts');
+    assert.equal(rename?.originalPath, 'packages/main/src/old.ts');
+
+    const classification = classifyGitStatusRows([
+      ' M .koala/story/actives/B-smoke/checklist.json',
+      '?? .koala/activity.jsonl',
+      ' M package.json',
+      ' D koala.config.json',
+      'R  packages/main/src/old.ts -> ./packages/main/src/new.ts',
+      '?? packages/main/tests/fixtures/dirty-owner.json',
+      '?? packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json',
+    ], dirtyWorktreeClassifierOptionsFromConfig(loadConfig(root)));
+
+    assert.equal(classification.total, 7);
+    assert.equal(classification.groups.koala_metadata_changes.length, 1);
+    assert.equal(classification.groups.runtime_artifact_changes.length, 1);
+    assert.equal(classification.groups.declared_artifact_changes.length, 0, 'undeclared artifact extension point should stay empty by default');
+    assert.equal(classification.groups.material_source_changes.length, 3);
+    assert.equal(classification.groups.fixture_changes.length, 1);
+    assert.equal(classification.groups.unexpected_dirty_files.length, 1);
+    assert.equal(classification.groups.unexpected_dirty_files[0].path, 'packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json');
+    assert.equal(classification.groups.runtime_artifact_changes[0].raw, '?? .koala/activity.jsonl');
+    assert.equal(classification.groups.runtime_artifact_changes[0].statusCode, '??');
+    assert.equal(classification.groups.runtime_artifact_changes[0].rawPath, '.koala/activity.jsonl');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 }
 
 function assertDispatchPromptsPinImplementerCommitAuthor(): void {
@@ -958,6 +1010,7 @@ function assertSessionBriefStatusHintsMatchGates(): void {
     assert.match(testBrief, /\[FAIL\] Story summary/);
     assert.match(testBrief, /DONE pre-check 还有/);
     assert.match(testBrief, /先处理这些 dirty path/);
+    assert.match(testBrief, /koala_metadata_changes/);
     assert.match(testBrief, /KOALA_WRITE_\*_REPORT|默认无副作用/);
     assert.match(testBrief, /delivery_check_set/);
     assert.match(testBrief, /summary_set/);
@@ -1390,6 +1443,10 @@ function assertDoneChecklistUsesStableOracleRows(): void {
     };
     store.writeTestEvidence(storyId, evidence);
     write(root, 'packages/main/src/core/dirty.ts', 'export const dirty = true;\n');
+    write(root, '.koala/activity.jsonl', '{"event":"runtime"}\n');
+    write(root, '.koala/story/actives/B-smoke/dirty-owner.json', '{}\n');
+    write(root, 'packages/main/tests/fixtures/dirty-owner.json', '{}\n');
+    write(root, 'packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json', '{}\n');
 
     const rows = buildDoneChecklist(storyId, store, root);
     const byId = new Map(rows.map(row => [row.id, row]));
@@ -1401,8 +1458,18 @@ function assertDoneChecklistUsesStableOracleRows(): void {
     assert.equal(byId.get('git-working-tree')?.status, 'fail');
     assert.equal(byId.get('git-working-tree')?.source, 'git status --porcelain');
     assert.equal(byId.get('git-working-tree')?.blocking, true);
-    assert.match(byId.get('git-working-tree')?.detail ?? '', /dirty path/);
+    assert.match(byId.get('git-working-tree')?.detail ?? '', /dirty path\(s\) by category/);
+    assert.match(byId.get('git-working-tree')?.detail ?? '', /koala_metadata_changes=/);
+    assert.match(byId.get('git-working-tree')?.detail ?? '', /runtime_artifact_changes=1/);
+    assert.match(byId.get('git-working-tree')?.detail ?? '', /fixture_changes=1/);
+    assert.match(byId.get('git-working-tree')?.detail ?? '', /unexpected_dirty_files=1/);
     assert.match(byId.get('git-working-tree')?.hint ?? '', /packages\/main\/src\/core\/dirty\.ts/);
+    assert.match(byId.get('git-working-tree')?.hint ?? '', /material_source_changes/);
+    assert.match(byId.get('git-working-tree')?.hint ?? '', /koala_metadata_changes/);
+    assert.match(byId.get('git-working-tree')?.hint ?? '', /runtime_artifact_changes/);
+    assert.match(byId.get('git-working-tree')?.hint ?? '', /fixture_changes/);
+    assert.match(byId.get('git-working-tree')?.hint ?? '', /unexpected_dirty_files/);
+    assert.match(byId.get('git-working-tree')?.hint ?? '', /packages\/main\/tests\/output\/bl21_lacz_ecoli_minicell\/prodenovo_viewer\.json/);
     assert.match(byId.get('git-working-tree')?.hint ?? '', /默认无副作用|side-effect-free|KOALA_WRITE/);
     assert.match(byId.get('delivery-check')?.hint ?? '', /delivery_check_set/);
     assert.equal(byId.get('delivery-check')?.source, 'delivery-check.json');
@@ -1468,6 +1535,7 @@ function assertGlobalLinkRepair(): void {
 }
 
 assertSessionBriefGate();
+assertDirtyWorktreeClassifierGroupsOwnership();
 assertFlowFactPolicyRegistry();
 assertPhaseGatePolicyHints();
 assertPhaseToolsOverrideStillBlocks();

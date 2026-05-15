@@ -1,5 +1,13 @@
 import { execSync, spawn } from 'node:child_process';
 import { isAbsolute, resolve } from 'node:path';
+import { loadConfig } from './config.js';
+import {
+  classifyGitStatusRows,
+  dirtyWorktreeClassifierOptionsFromConfig,
+  parseGitPorcelainRow,
+  renderDirtyWorktreeGroups,
+  summarizeDirtyWorktreeClassification,
+} from './dirty-worktree.js';
 import type {
   ValidationCommand,
   ValidationCommandResult,
@@ -44,10 +52,7 @@ function readGitStatus(projectRoot: string): string[] | null {
 }
 
 function statusPath(line: string): string {
-  const path = line.slice(3).trim();
-  const renameArrow = ' -> ';
-  const renameIndex = path.lastIndexOf(renameArrow);
-  return renameIndex >= 0 ? path.slice(renameIndex + renameArrow.length).trim() : path;
+  return parseGitPorcelainRow(line)?.path ?? line.slice(3).trim();
 }
 
 function detectNewDirtyStatus(before: string[] | null, after: string[] | null): string[] {
@@ -56,12 +61,19 @@ function detectNewDirtyStatus(before: string[] | null, after: string[] | null): 
   return after.filter(line => !beforePaths.has(statusPath(line)));
 }
 
-export function formatWorktreePollutionDetails(result: ValidationCommandResult): string[] {
+// @task B-6326: validation side-effect details share DONE gate dirty ownership vocabulary.
+export function formatWorktreePollutionDetails(result: ValidationCommandResult, projectRoot?: string): string[] {
   const pollution = result.worktreePollution;
   if (!pollution || pollution.statusLines.length === 0) return [];
+  const config = projectRoot ? loadConfig(projectRoot) : undefined;
+  const classification = classifyGitStatusRows(
+    pollution.statusLines,
+    config ? dirtyWorktreeClassifierOptionsFromConfig(config) : {},
+  );
   return [
     `✗ validation command dirtied worktree: ${result.label}: ${formatValidationCommand(result)}`,
-    ...pollution.statusLines.map(line => `  ${line}`),
+    `  ${summarizeDirtyWorktreeClassification(classification)}`,
+    ...renderDirtyWorktreeGroups(classification, { sampleLimit: 6, indent: '  ' }),
     '  validation commands must be side-effect-free by default; gate report generation behind an env var or configure side-effect-free validate.command(s)',
   ];
 }
@@ -151,7 +163,7 @@ export async function executeValidationPlan(
     if (result.output.trim()) {
       details.push(...result.output.trim().split('\n').filter(Boolean).map((line) => `  ${line}`));
     }
-    details.push(...formatWorktreePollutionDetails(result));
+    details.push(...formatWorktreePollutionDetails(result, projectRoot));
     if (failed && result.optional) {
       warnings.push(`optional validation failed: ${result.label}`);
     }
