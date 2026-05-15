@@ -1,0 +1,39 @@
+{
+  "storyId": "B-8db9",
+  "name": "dirty-gate-declared-artifact-hotfix",
+  "title": "Fix declared-artifact gate bypass and uncommitted-artifact loss",
+  "description": "Read-only implementation review of main after B-cf60 + B-4b22 merged found a CRITICAL gate bypass: dirty-worktree.ts classifyParsedRow checks isDeclaredArtifactPath before isMaterialSourcePath/isFixturePath, and dirty-gate-policy.ts marks declared_artifact_changes as blocking:false. An agent can koala artifact_declare a dirty source/fixture file to reclassify it from blocking material_source_changes to non-blocking declared_artifact_changes, bypassing the DONE dirty gate. A linked HIGH gap: declared_artifact_changes being non-blocking lets an uncommitted declared artifact pass the DONE gate, but git merge does not carry uncommitted files to main, so declared deliverables vanish silently. This hotfix closes both layers and adds a DONE committed-check. The MEDIUM evidence-sufficiency gap is intentionally out of scope.",
+  "type": "bug",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "dirty-gate",
+    "declared-artifact",
+    "gate-bypass",
+    "security",
+    "hotfix"
+  ],
+  "riskSignals": [
+    {
+      "category": "状态机/门禁",
+      "matched": "DONE gate"
+    },
+    {
+      "category": "生产环境/紧急",
+      "matched": "hotfix"
+    }
+  ],
+  "createdAt": "2026-05-15T21:02:26.692Z",
+  "startedAt": "2026-05-15T21:02:26.692Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-05-15T21:02:26.697Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}
