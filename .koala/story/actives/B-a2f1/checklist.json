@@ -103,9 +103,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-15T16:41:37.726Z",
       "userSees": "User runs `koala recover_evidence --storyId=B-a2f1`. The command prints first the refresh transcript (`✓ refreshed N verification evidence entries`) then the validate transcript (`koala validate --story=B-a2f1 --json` output). Exits 0 if validate passes after refresh. Exits non-zero with explicit message `recover_evidence refused: material_source_changes / fixture_changes / unexpected_dirty_files present, run git status to inspect` when classifier flags non-koala_metadata dirt.",
       "verificationIntent": {
         "happy": [
