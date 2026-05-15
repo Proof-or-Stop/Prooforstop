@@ -1,0 +1,56 @@
+{
+  "storyId": "B-8db9",
+  "changes": "安全 hotfix，修 main 上 B-cf60 + B-4b22 合并后的 CRITICAL gate 绕过 + HIGH 静默丢失。dirty-worktree.ts classifyParsedRow 把 isDeclaredArtifactPath 检查从 fixture/material 之前移到之后——declared artifact 只能 rescue 本来落 unexpected_dirty_files 的路径，不能再把 blocking 的 material_source_changes/fixture_changes 重分类成 non-blocking。artifact-declare.ts 新增 assertDeclarablePath 入口门禁，复用 classifyDeclarablePath（同一套 classifier 词汇）拒绝 material/fixture/config/koala-metadata/runtime-artifact 路径。新文件 declared-artifact-commit-check.ts 提供 evaluateDeclaredArtifactCommitState 纯 fn + gitDeclaredArtifactPathState I/O wrapper；story-advance.ts buildDoneChecklist 加 declared-artifacts-committed row，未提交的 declared artifact 在 DONE 阶段 block。process-fact-levels.ts 注册 runtime:declared_artifact_committed_check L4 gate row。flow-stability-smoke + validation-protocol-smoke 加完整攻击链回归。",
+  "usage": "用户跑 koala artifact_declare 声明一个 source/fixture/config/koala-metadata/runtime-artifact 路径会被入口拒绝并提示该路径的分类类别；即使绕过 CLI 手工注入 declared-artifacts.json，dirty classifier 仍把 source/fixture 路径分类成 blocking 的 material_source_changes/fixture_changes（hard gate）。声明的 generated artifact（tests/output/ 路径）若在 DONE 阶段处于未提交/untracked 状态，DONE pre-check 会 block 并提示 commit（交付物）或 remove（临时输出）。REVIEW/TEST 阶段 declared_artifact_changes 仍 non-blocking（dirty-gate-policy 表未改）。",
+  "expectedOutcome": "用户跑 koala artifact_declare --path=packages/main/src/core/store.ts 看到错误 'artifact_declare: path packages/main/src/core/store.ts classifies as material_source_changes and cannot be declared as a generated artifact'；手工注入 declared-artifacts.json 含 source 路径后跑 koala validate 分类仍显示 material_source_changes（blocking）；声明的 tests/output/ 文件 dirty 未提交时跑 story_advance --phase=DONE 看到 row '[✗] declared artifacts committed: 0/1 (uncommitted: tests/output/...)' + blocking error；committed-and-clean 时 row '[✓] declared artifacts committed: 1/1'。",
+  "actualTranscript": "npm --prefix packages/main run build TypeScript 无错；test:flow-stability-smoke 输出 '✓ flow stability smoke passed'（含 assertDeclaredArtifactGateHotfix + assertDeclaredArtifactDoneCommittedRow：source-dirty-stays-material / fixture-dirty-stays-fixture / hand-injected-json-source-stays-material / artifact_declare 拒 material/fixture/config/koala-metadata/runtime-artifact 路径 / DONE committed-check uncommitted/committed-clean/absent/git-ignored 四分支）；test:validation-protocol 输出 '✓ validation protocol smoke passed'（side-effect-guard context 攻击链回归）；test:runtime-fact-contract 通过（新 L4 gate row 注册）；koala validate --story=B-8db9 --json 返回 allPass=true，Verification intent coverage: 17/17 covered (0 required missing)。",
+  "outcomeDiff": "实际行为符合预期；CRITICAL 两层修复（classifier reorder hard gate + entry rejection fail-fast）+ HIGH committed-check 全部落地；R1 reviewer 提的 F-001（commit-state tracked-before-ignored）+ F-002（runtime artifact 入口拒绝）已修。",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "MEDIUM evidence-sufficiency gap（DONE gate 只验 relatedIntent 存在不验该 intent 有 pass evidence）按用户指示显式排除，是 declared-artifact-gate.ts 注释里 deliberate 的设计，另起 story。本 hotfix 不改 dirty-gate-policy.ts 的 DIRTY_GATE_POLICY 表——declared_artifact_changes 在 REVIEW/TEST 仍 non-blocking，committed-check 是 DONE-only 附加 row。global koala CLI 走 dist 版本，新行为 in-process smoke 已验证完整链路。",
+  "pitfalls": "本 hotfix 源于一次只读实现审查：B-cf60（declared artifact 声明）和 B-4b22（dirty-gate-policy 把 declared_artifact_changes 设 non-blocking）各自 DONE 时都没问题，但合并到 main 后两者叠加产生 CRITICAL gate 绕过——单 story review 看不到跨 story 交互的洞，必须在多 story 合并后做一次合并态审查。R1 reviewer F-001 揭示 commit-state 判定顺序 bug（ignored 早于 tracked → 已 committed 又被 .gitignore 匹配的文件误判 blocking），F-003 是改代码后 evidence stale 需 DEV→REVIEW round 2 重刷——与 B-a2f1/B-3506 同款 freshness 机制。",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 75380
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 7136
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 286011
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 849280
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 843740
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 198079
+    }
+  },
+  "totalDurationMs": 2259631,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-05-15T21:40:06.323Z",
+  "updatedAt": "2026-05-15T21:40:06.323Z"
+}

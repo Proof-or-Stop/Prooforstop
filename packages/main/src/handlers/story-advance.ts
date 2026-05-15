@@ -4,6 +4,11 @@ import { collectContext, PHASE_TO_EVENT, assertCwdInWorktree } from './context.j
 import { createStoryActor, getStateName, getGuardFailureReason } from '../core/machine.js';
 import type { ChecklistData, StoryPhase } from '../core/types.js';
 import { evaluateDeclaredArtifactReferences } from '../core/declared-artifact-gate.js';
+import {
+  evaluateDeclaredArtifactCommitState,
+  gitDeclaredArtifactPathState,
+  describeDeclaredArtifactCommitStatus,
+} from '../core/declared-artifact-commit-check.js';
 import type { StoryStore } from '../core/store.js';
 import { loadConfig } from '../core/config.js';
 import { resolveWorkflowPolicy, computeChannel, CHANNEL_LABELS } from '../core/workflow-policy.js';
@@ -670,6 +675,77 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
           status: 'pass',
           label: 'declared artifacts referenced',
           detail: `${refResult.total}/${refResult.total}`,
+          source: 'declared-artifacts.json',
+          blocking: false,
+        }));
+      }
+    }
+  }
+
+  // 6c. declared-artifacts committed (B-8db9 CHK-003): declared_artifact_changes
+  //     is blocking:false in dirty-gate-policy so an uncommitted declared
+  //     artifact passes the DONE dirty gate — but `git merge` does not carry
+  //     uncommitted files into main, so the declared deliverable vanishes
+  //     silently. This DONE-only row requires every declared path to be
+  //     committed-and-clean or absent. It does NOT touch dirty-gate-policy —
+  //     REVIEW/TEST keep treating declared_artifact_changes as non-blocking.
+  {
+    const declaredForCommit = store.readDeclaredArtifacts(storyId);
+    const declaredPaths = declaredForCommit.entries
+      .map((e) => (typeof e?.path === 'string' ? e.path.trim() : ''))
+      .filter((p) => p.length > 0);
+    if (declaredPaths.length === 0) {
+      rows.push(doneCheckRow({
+        id: 'declared-artifacts-committed',
+        status: 'pass',
+        label: 'declared artifacts committed',
+        detail: '0/0 (no declarations)',
+        source: 'declared-artifacts.json',
+        blocking: false,
+      }));
+    } else {
+      const commitResult = evaluateDeclaredArtifactCommitState(
+        declaredPaths,
+        (path) => gitDeclaredArtifactPathState(root, path),
+      );
+      if (commitResult.blockers.length > 0) {
+        const uncommitted = commitResult.blockers
+          .filter((b) => b.status !== 'git-ignored')
+          .map((b) => b.path);
+        const ignored = commitResult.blockers
+          .filter((b) => b.status === 'git-ignored')
+          .map((b) => b.path);
+        const hintLines: string[] = [];
+        if (uncommitted.length > 0) {
+          hintLines.push(
+            `[uncommitted_declared_artifact] 下列 declared artifact 未提交，git merge 不会带进 main：`,
+            ...uncommitted.map((p) => `  ${p}`),
+            '→ 如果它是交付物，请 commit；如果它是临时产出，请删除并移除该声明（artifact_declare 只声明真正要交付的生成物）。',
+          );
+        }
+        if (ignored.length > 0) {
+          hintLines.push(
+            `[gitignored_declared_artifact] 下列 declared artifact 被 .gitignore 忽略，永远无法提交：`,
+            ...ignored.map((p) => `  ${p}`),
+            '→ git-ignored 路径不能声明为交付物（git-ignored paths must not be declared as deliverable artifacts）；请改声明一个可提交的路径，或移除该声明。',
+          );
+        }
+        const detailParts = commitResult.blockers
+          .map((b) => `${b.path} [${describeDeclaredArtifactCommitStatus(b.status)}]`);
+        rows.push(doneCheckRow({
+          id: 'declared-artifacts-committed',
+          status: 'fail',
+          label: 'declared artifacts committed',
+          detail: `${commitResult.ok}/${commitResult.total} (uncommitted: ${detailParts.join(', ')})`,
+          hint: hintLines.join('\n'),
+          source: 'declared-artifacts.json',
+        }));
+      } else {
+        rows.push(doneCheckRow({
+          id: 'declared-artifacts-committed',
+          status: 'pass',
+          label: 'declared artifacts committed',
+          detail: `${commitResult.ok}/${commitResult.total}`,
           source: 'declared-artifacts.json',
           blocking: false,
         }));

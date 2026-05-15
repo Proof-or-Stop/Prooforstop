@@ -2403,10 +2403,297 @@ function assertDeclaredArtifactsChannel(): void {
   }
 }
 
+/**
+ * B-8db9 CHK-004: regression coverage for the declared-artifact gate-bypass
+ * attack chain (CRITICAL classifier reorder + entry rejection + HIGH DONE
+ * committed-check).
+ *
+ * Uses the literal attack path `packages/main/src/core/store.ts` and a
+ * `tests/output/` generated path so a future refactor cannot silence the
+ * regression without renaming the attack target.
+ */
+function assertDeclaredArtifactGateHotfix(): void {
+  const ATTACK_SOURCE = 'packages/main/src/core/store.ts';
+  const FIXTURE_PATH = 'packages/main/tests/fixtures/sample-fixture.json';
+  const GENERATED_OUTPUT = 'packages/main/tests/output/declared-generated.json';
+  const root = mkdtempSync(join(tmpdir(), 'koala-declared-gate-hotfix-'));
+  try {
+    write(root, 'koala.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      testsDir: 'packages/main/tests',
+      fixturesDir: 'packages/main/tests/fixtures',
+      storyDir: '.koala/story/actives',
+      requirementsDir: 'docs/requirements',
+    }));
+    resetConfigCache();
+    const store = new StoryStore(root);
+    const storyId = 'B-hotfix';
+    const now = '2026-05-15T21:00:00.000Z';
+    const story: StoryInfo = {
+      storyId,
+      name: 'declared-gate-hotfix-smoke',
+      title: 'Declared gate hotfix smoke',
+      description: 'Attack-chain regression for the declared-artifact gate bypass.',
+      type: 'chore',
+      phase: 'DEV',
+      priority: 'high',
+      createdAt: now,
+      startedAt: now,
+      endedAt: null,
+      currentReviewRound: now,
+      events: [],
+    };
+    store.writeStory(storyId, story);
+
+    const handlers = createArtifactDeclareHandlers({
+      store,
+      root,
+      scanRoot: join(root, 'packages/main'),
+    });
+    const config = loadConfig(root);
+
+    // === CHK-002: artifact_declare rejects material source path ===
+    assert.throws(
+      () => handlers.artifact_declare({
+        storyId,
+        path: ATTACK_SOURCE,
+        reason: 'attacker tries to declare a dirty source file',
+        relatedIntent: 'CHK-001:happy:0',
+      }),
+      /classifies as material_source_changes and cannot be declared/,
+      'artifact_declare must reject packages/main/src/core/store.ts',
+    );
+    // === CHK-002: artifact_declare rejects fixture path ===
+    assert.throws(
+      () => handlers.artifact_declare({
+        storyId,
+        path: FIXTURE_PATH,
+        reason: 'attacker tries to declare a fixture file',
+        relatedIntent: 'CHK-001:happy:0',
+      }),
+      /classifies as fixture_changes and cannot be declared/,
+      'artifact_declare must reject a fixture path',
+    );
+    // === CHK-002: artifact_declare rejects config / koala-metadata paths ===
+    assert.throws(
+      () => handlers.artifact_declare({
+        storyId,
+        path: 'CLAUDE.md',
+        reason: 'attacker tries to declare a config doc',
+        relatedIntent: 'CHK-001:happy:0',
+      }),
+      /classifies as material_source_changes and cannot be declared/,
+      'artifact_declare must reject a config path (materialSourceFiles)',
+    );
+    assert.throws(
+      () => handlers.artifact_declare({
+        storyId,
+        path: '.koala/story/actives/B-hotfix/index.json',
+        reason: 'attacker tries to declare koala metadata',
+        relatedIntent: 'CHK-001:happy:0',
+      }),
+      /classifies as koala_metadata_changes and cannot be declared/,
+      'artifact_declare must reject a koala-metadata path',
+    );
+    // === CHK-002 (B-8db9 F-002): artifact_declare rejects a runtime artifact path ===
+    assert.throws(
+      () => handlers.artifact_declare({
+        storyId,
+        path: '.koala/activity.jsonl',
+        reason: 'attacker tries to declare a runtime activity log',
+        relatedIntent: 'CHK-001:happy:0',
+      }),
+      /is a runtime artifact, already handled by runtime-artifact-registry/,
+      'artifact_declare must reject a runtime artifact path (.koala/activity.jsonl)',
+    );
+    assert.throws(
+      () => handlers.artifact_declare({
+        storyId,
+        path: '.koala-serve.json',
+        reason: 'attacker tries to declare the dev-server handshake file',
+        relatedIntent: 'CHK-001:happy:0',
+      }),
+      /is a runtime artifact, already handled by runtime-artifact-registry/,
+      'artifact_declare must reject a runtime artifact path (.koala-serve.json)',
+    );
+    // === CHK-002 happy: a tests/output/ generated path is declarable ===
+    handlers.artifact_declare({
+      storyId,
+      path: GENERATED_OUTPUT,
+      reason: 'legitimate generated output declared for verification',
+      relatedIntent: 'CHK-001:happy:0',
+    });
+    assert.equal(
+      store.readDeclaredArtifacts(storyId).entries.some(e => e.path === GENERATED_OUTPUT),
+      true,
+      'a tests/output/ generated path must be declarable',
+    );
+
+    // === CHK-001 hard gate: hand-inject a declared-artifacts.json with the
+    //     attack source path (NOT via artifact_declare) — the classifier must
+    //     still group the dirty source file as material_source_changes. ===
+    store.writeDeclaredArtifacts(storyId, {
+      entries: [
+        { path: GENERATED_OUTPUT, reason: 'generated output', relatedIntent: 'CHK-001:happy:0', declaredAt: now },
+        { path: ATTACK_SOURCE, reason: 'hand-injected source path bypassing artifact_declare', relatedIntent: 'CHK-001:happy:0', declaredAt: now },
+        { path: FIXTURE_PATH, reason: 'hand-injected fixture path bypassing artifact_declare', relatedIntent: 'CHK-001:happy:0', declaredAt: now },
+      ],
+    });
+    const optsForStory = dirtyWorktreeClassifierOptionsForStory(config, storyId, store);
+    const injected = classifyGitStatusRows(
+      [` M ${ATTACK_SOURCE}`, ` M ${FIXTURE_PATH}`, `?? ${GENERATED_OUTPUT}`],
+      optsForStory,
+    );
+    assert.equal(
+      injected.groups.material_source_changes.length, 1,
+      'dirty source file stays material_source_changes even when declared (classifier hard gate)',
+    );
+    assert.equal(injected.groups.material_source_changes[0].path, ATTACK_SOURCE);
+    assert.equal(
+      injected.groups.fixture_changes.length, 1,
+      'dirty fixture file stays fixture_changes even when declared (declared check runs after fixture)',
+    );
+    assert.equal(injected.groups.fixture_changes[0].path, FIXTURE_PATH);
+    assert.equal(
+      injected.groups.declared_artifact_changes.length, 1,
+      'only the genuine generated-output path stays declared_artifact_changes',
+    );
+    assert.equal(injected.groups.declared_artifact_changes[0].path, GENERATED_OUTPUT);
+
+    // === CHK-001/CHK-003 cross-check: the declared generated output is
+    //     non-blocking in a REVIEW/TEST gate context (dirty-gate-policy
+    //     untouched) — only its uncommitted state blocks DONE. ===
+    const reviewGate = evaluateDirtyGate(injected, {
+      storyId,
+      gate: 'test-pre-check',
+      writer: null,
+    });
+    assert.equal(
+      (reviewGate.passingCounts.declared_artifact_changes ?? 0), 1,
+      'declared generated output is a passing (non-blocking) category in REVIEW/TEST gate context',
+    );
+    assert.equal(
+      reviewGate.allPass, false,
+      'the dirty source + fixture rows still block REVIEW/TEST (classifier reorder works)',
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+    resetConfigCache();
+  }
+}
+
+/**
+ * B-8db9 CHK-004: DONE committed-check row coverage. Drives buildDoneChecklist
+ * against a real git repo so the uncommitted / committed-clean / git-ignored
+ * / absent branches of the declared-artifacts-committed row are all exercised.
+ */
+function assertDeclaredArtifactDoneCommittedRow(): void {
+  const GENERATED_OUTPUT = 'packages/main/tests/output/declared-generated.json';
+  const root = mkdtempSync(join(tmpdir(), 'koala-declared-committed-row-'));
+  try {
+    git(root, ['init']);
+    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['config', 'user.email', 'smoke@example.test']);
+    write(root, 'koala.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      testsDir: 'packages/main/tests',
+      fixturesDir: 'packages/main/tests/fixtures',
+      storyDir: '.koala/story/actives',
+      requirementsDir: 'docs/requirements',
+    }));
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'seed committed-row smoke']);
+    resetConfigCache();
+
+    const store = new StoryStore(root);
+    const storyId = 'B-committed';
+    const now = '2026-05-15T21:30:00.000Z';
+    store.writeStory(storyId, {
+      storyId,
+      name: 'declared-committed-row-smoke',
+      title: 'Declared committed row smoke',
+      description: 'DONE committed-check row regression.',
+      type: 'chore',
+      phase: 'TEST',
+      priority: 'high',
+      createdAt: now,
+      startedAt: now,
+      endedAt: null,
+      currentReviewRound: now,
+      events: [],
+    });
+
+    function committedRow(): { status: string; blocking: boolean; detail: string; hint?: string } {
+      const rows = buildDoneChecklist(storyId, store, root);
+      const row = rows.find(r => r.id === 'declared-artifacts-committed');
+      assert.ok(row, 'buildDoneChecklist must emit a declared-artifacts-committed row');
+      return row as { status: string; blocking: boolean; detail: string; hint?: string };
+    }
+
+    // === No declarations → pass non-blocking ===
+    store.writeDeclaredArtifacts(storyId, { entries: [] });
+    let row = committedRow();
+    assert.equal(row.status, 'pass', 'empty declarations → committed row passes');
+    assert.equal(row.blocking, false, 'empty declarations → committed row non-blocking');
+
+    // === Uncommitted (untracked) declared artifact → fail/blocking ===
+    store.writeDeclaredArtifacts(storyId, {
+      entries: [{ path: GENERATED_OUTPUT, reason: 'declared deliverable', relatedIntent: 'CHK-001:happy:0', declaredAt: now }],
+    });
+    write(root, GENERATED_OUTPUT, '{"generated":true}\n');
+    row = committedRow();
+    assert.equal(row.status, 'fail', 'untracked declared artifact → committed row fails');
+    assert.equal(row.blocking, true, 'untracked declared artifact → committed row blocking');
+    assert.match(row.detail, /uncommitted/, 'detail must name the uncommitted path');
+    assert.match(row.hint ?? '', /commit|删除/, 'hint must give commit/cleanup guidance');
+
+    // === committed-and-clean → pass ===
+    git(root, ['add', GENERATED_OUTPUT]);
+    git(root, ['commit', '-m', 'commit declared artifact']);
+    row = committedRow();
+    assert.equal(row.status, 'pass', 'committed-and-clean declared artifact → committed row passes');
+    assert.equal(row.blocking, false, 'committed-and-clean → non-blocking');
+    assert.match(row.detail, /1\/1/, 'detail shows 1/1 committed');
+
+    // === absent (cleaned up) declared artifact → pass ===
+    store.writeDeclaredArtifacts(storyId, {
+      entries: [{ path: 'packages/main/tests/output/never-existed.json', reason: 'temp output cleaned up', relatedIntent: 'CHK-001:happy:0', declaredAt: now }],
+    });
+    row = committedRow();
+    assert.equal(row.status, 'pass', 'absent declared artifact → committed row passes (cleaned up is acceptable)');
+    assert.equal(row.blocking, false, 'absent declared artifact → non-blocking');
+
+    // === git-ignored declared path → fail/blocking with explicit message ===
+    write(root, '.gitignore', 'packages/main/tests/output/ignored-output.json\n');
+    git(root, ['add', '.gitignore']);
+    git(root, ['commit', '-m', 'add gitignore']);
+    const IGNORED = 'packages/main/tests/output/ignored-output.json';
+    write(root, IGNORED, '{"ignored":true}\n');
+    store.writeDeclaredArtifacts(storyId, {
+      entries: [{ path: IGNORED, reason: 'mistakenly declared a git-ignored path', relatedIntent: 'CHK-001:happy:0', declaredAt: now }],
+    });
+    row = committedRow();
+    assert.equal(row.status, 'fail', 'git-ignored declared path → committed row fails');
+    assert.equal(row.blocking, true, 'git-ignored declared path → committed row blocking');
+    assert.match(row.detail, /git-ignored/, 'detail must name the git-ignored status');
+    assert.match(
+      row.hint ?? '', /git-ignored paths must not be declared as deliverable artifacts/,
+      'git-ignored declared path → explicit preMortem #2 message',
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+    resetConfigCache();
+  }
+}
+
 assertSessionBriefGate();
 assertDirtyWorktreeClassifierGroupsOwnership();
 assertDirtyGatePolicyAcrossGates();
 assertDeclaredArtifactsChannel();
+assertDeclaredArtifactGateHotfix();
+assertDeclaredArtifactDoneCommittedRow();
 assertFlowFactPolicyRegistry();
 assertPhaseGatePolicyHints();
 assertPhaseToolsOverrideStillBlocks();

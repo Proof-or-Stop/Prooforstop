@@ -599,6 +599,82 @@ try {
     rmSync(declaredE2eRoot, { recursive: true, force: true });
   }
 
+  // B-8db9 CHK-004: declared-artifact gate-bypass attack chain in the
+  // side-effect-guard context. A hand-injected declared-artifacts.json entry
+  // pointing at a material source path must NOT let executeValidationPlan
+  // pass — the classifier reorder keeps a dirty source file as
+  // material_source_changes (blocking) even when it is declared.
+  const attackChainRoot = mkdtempSync(join(tmpdir(), 'koala-validation-attack-chain-'));
+  try {
+    const ATTACK_SOURCE = 'packages/main/src/core/store.ts';
+    writeFileSync(join(attackChainRoot, 'koala.config.json'), JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      testsDir: 'packages/main/tests',
+      fixturesDir: 'packages/main/tests/fixtures',
+      storyDir: '.koala/story/actives',
+      requirementsDir: 'docs/requirements',
+    }));
+    mkdirSync(join(attackChainRoot, 'packages/main/src/core'), { recursive: true });
+    writeFileSync(join(attackChainRoot, ATTACK_SOURCE), 'export const seed = 1;\n');
+    execFileSync('git', ['init'], { cwd: attackChainRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['config', 'user.name', 'Koala Smoke'], { cwd: attackChainRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['config', 'user.email', 'smoke@example.test'], { cwd: attackChainRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['add', '.'], { cwd: attackChainRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['commit', '-m', 'seed attack-chain smoke'], { cwd: attackChainRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    resetConfigCache();
+
+    const attackStore = new StoryStore(attackChainRoot);
+    const attackStoryId = 'B-attack';
+    const attackNow = '2026-05-15T21:45:00.000Z';
+    attackStore.writeStory(attackStoryId, {
+      storyId: attackStoryId,
+      name: 'declared-attack-chain-smoke',
+      title: 'Declared attack chain smoke',
+      description: 'Hand-injected source declaration must not bypass the dirty gate.',
+      type: 'chore',
+      phase: 'DEV',
+      priority: 'high',
+      createdAt: attackNow,
+      startedAt: attackNow,
+      endedAt: null,
+      currentReviewRound: attackNow,
+      events: [],
+    });
+    // Hand-inject the source path WITHOUT going through artifact_declare —
+    // proving the classifier reorder is the hard gate independent of the
+    // artifact_declare entry rejection.
+    attackStore.writeDeclaredArtifacts(attackStoryId, {
+      entries: [{
+        path: ATTACK_SOURCE,
+        reason: 'attacker hand-injects a source path to bypass the dirty gate',
+        relatedIntent: 'CHK-001:happy:0',
+        declaredAt: attackNow,
+      }],
+    });
+
+    const attackResult = await executeValidationPlan({
+      provider: 'smoke-attack-chain',
+      commands: [{
+        label: 'dirty the declared source file',
+        command: 'node',
+        args: ['-e', [
+          "const fs = require('fs');",
+          `fs.appendFileSync('${ATTACK_SOURCE.replace(/'/g, "\\'")}', '// polluted\\n');`,
+        ].join(' ')],
+      }],
+    }, attackChainRoot, undefined, attackStoryId);
+
+    const attackDetails = attackResult.details.join('\n');
+    assert.notEqual(attackResult.status, 'pass', 'CHK-004: a declared dirty SOURCE file must NOT pass the side-effect guard');
+    assert.equal(attackResult.allPass, false, 'CHK-004: declared source pollution must keep allPass false');
+    assert.match(attackDetails, /material_source_changes/, 'CHK-004: dirty declared source must classify as material_source_changes');
+    assert.doesNotMatch(attackDetails, /declared_artifact_changes=1/, 'CHK-004: the source path must NOT be downgraded to declared_artifact_changes');
+  } finally {
+    rmSync(attackChainRoot, { recursive: true, force: true });
+    resetConfigCache();
+  }
+
   const invalidArgCwd = mkdtempSync(join(tmpdir(), 'koala-validation-schema-'));
   const env = { ...process.env };
   delete env.KOALA_PROJECT_ROOT;

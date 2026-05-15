@@ -147,10 +147,6 @@ function classifyParsedRow(row: DirtyWorktreeParsedRow, options: DirtyWorktreeCl
     return { ...row, category: 'runtime_artifact_changes', runtimeArtifactId: runtimeArtifact.id };
   }
 
-  if (isDeclaredArtifactPath(row, options)) {
-    return { ...row, category: 'declared_artifact_changes' };
-  }
-
   if (paths.some((path) => isFixturePath(path, options))) {
     return { ...row, category: 'fixture_changes' };
   }
@@ -159,7 +155,54 @@ function classifyParsedRow(row: DirtyWorktreeParsedRow, options: DirtyWorktreeCl
     return { ...row, category: 'material_source_changes' };
   }
 
+  // B-8db9 CRITICAL hard gate: the declared-artifact check runs AFTER fixture
+  // AND material so a declared path can only RESCUE rows that would otherwise
+  // fall through to unexpected_dirty_files. It must never reclassify a blocking
+  // material_source_changes / fixture_changes row — `koala artifact_declare`
+  // (or a hand-injected declared-artifacts.json) of a dirty source/fixture file
+  // can no longer downgrade it to non-blocking declared_artifact_changes.
+  if (isDeclaredArtifactPath(row, options)) {
+    return { ...row, category: 'declared_artifact_changes' };
+  }
+
   return { ...row, category: 'unexpected_dirty_files' };
+}
+
+/**
+ * B-8db9 CHK-002 — fail-fast entry gate for `artifact_declare`.
+ *
+ * Classifies a single relative path against the SAME classifier vocabulary
+ * used by `classifyParsedRow` (`isStoryMetadataPath` / `isFixturePath` /
+ * `isMaterialSourcePath`, with `materialSourceFiles` carrying config files via
+ * `dirtyWorktreeClassifierOptionsFromConfig`). Returns the non-declarable
+ * category a path belongs to, or `null` when the path is safe to declare as a
+ * generated output.
+ *
+ * The classifier reorder (CHK-001) is the hard gate that catches every path
+ * including hand-injected declared-artifacts.json entries; this fn is the
+ * fail-fast UX layer so a bad `artifact_declare` is rejected immediately. Both
+ * layers share this module's matchers so they cannot disagree (preMortem #3).
+ */
+export type NonDeclarableCategory =
+  | 'koala_metadata_changes'
+  | 'runtime_artifact_changes'
+  | 'fixture_changes'
+  | 'material_source_changes';
+
+export function classifyDeclarablePath(
+  rawPath: string,
+  options: DirtyWorktreeClassifierOptions,
+): NonDeclarableCategory | null {
+  const path = normalizePath(rawPath);
+  if (isStoryMetadataPath(path)) return 'koala_metadata_changes';
+  // B-8db9 F-002: a runtime artifact path (.koala/activity.jsonl, .koala-serve.json, …)
+  // is already routed to runtime_artifact_changes by `classifyParsedRow`, so declaring
+  // it as a product artifact is meaningless — reject it at declare time. Mirrors the
+  // `findRuntimeArtifactEntry` check `classifyParsedRow` runs before fixture/material.
+  if (findRuntimeArtifactEntry(path)) return 'runtime_artifact_changes';
+  if (isFixturePath(path, options)) return 'fixture_changes';
+  if (isMaterialSourcePath(path, options)) return 'material_source_changes';
+  return null;
 }
 
 export function emptyDirtyWorktreeGroups(): DirtyWorktreeGroups {

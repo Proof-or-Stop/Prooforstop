@@ -7,9 +7,84 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-15T21:11:45.354Z",
+      "endTime": "2026-05-15T21:18:55.419Z",
+      "userSees": "When a source file (e.g. packages/main/src/core/store.ts) is dirty and has been declared as an artifact, koala validate / koala session_brief classification output still groups it under `material_source_changes` (blocking) — NOT `declared_artifact_changes`. A declared path under tests/output/ that would otherwise be unexpected is still rescued to `declared_artifact_changes`.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After classifier reorder, a dirty path declared as artifact that lives under tests/output/ classifies as declared_artifact_changes (rescue from unexpected still works)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A dirty source file declared as artifact classifies as material_source_changes (declared check runs after material)",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A dirty fixture file declared as artifact classifies as fixture_changes (declared check runs after fixture)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A hand-injected declared-artifacts.json entry pointing at a source path does NOT bypass the gate — classifier still returns material_source_changes (hard gate independent of artifact_declare entry path)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke assertDeclaredArtifactGateHotfix: a dirty tests/output/ path declared as artifact still classifies as declared_artifact_changes (rescue from unexpected preserved after reorder)",
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:27.327Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke: dirty source file declared as artifact classifies as material_source_changes (declared check now runs after material)",
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:27.512Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke: dirty fixture file declared as artifact classifies as fixture_changes (declared check runs after fixture)",
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:27.748Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke: hand-injected declared-artifacts.json with a source path does NOT bypass — classifyParsedRow still returns material_source_changes (classifier hard gate independent of artifact_declare)",
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:27.933Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -19,9 +94,68 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-05-15T21:18:55.664Z",
+      "userSees": "User runs `koala artifact_declare --storyId=B-8db9 --path=packages/main/src/core/store.ts --reason=\"...\" --relatedIntent=CHK-001:happy:0` and sees an error: `artifact_declare: path packages/main/src/core/store.ts classifies as material_source_changes and cannot be declared as a generated artifact (declare only generated output paths, e.g. under tests/output/)`. Same rejection for fixture / config / koala-metadata paths.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "artifact_declare with a path under tests/output/ (a generated output) succeeds and writes declared-artifacts.json",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "artifact_declare rejects a material source path / fixture path / config path / koala-metadata path with an explicit classification-named error",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "artifact_declare entry rejection uses the SAME classifier vocabulary (isMaterialSourcePath/isFixturePath) as dirty-worktree.ts — the two layers agree for a sample of material/fixture/config/output paths",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke: artifact_declare with a tests/output/ generated path succeeds and writes declared-artifacts.json",
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:28.120Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke: artifact_declare rejects material source / fixture / config / koala-metadata paths with classification-named error via assertDeclarablePath",
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:28.312Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke: assertDeclarablePath reuses dirty-worktree.ts classifier vocabulary (classifyDeclarablePath) — entry-rejection and post-reorder classification agree for material/fixture/config/output path samples",
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:28.491Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -31,9 +165,100 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-05-15T21:18:55.899Z",
+      "userSees": "Running `koala story_advance --phase=DONE --storyId=B-8db9` while a declared artifact path is dirty/untracked shows DONE pre-check row `[✗] declared artifacts committed: 0/1 (uncommitted: tests/output/foo.json)` with blocking error and guidance: commit it if it is a deliverable, or remove it if it is a temp output. When the declared path is committed-and-clean the row reads `[✓] declared artifacts committed: 1/1`.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "DONE pre-check declared-artifacts-committed row passes when every declared path is committed-and-clean",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "DONE pre-check row fails (blocking) when a declared artifact path is dirty or untracked, with commit/cleanup guidance",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A declared artifact path that is absent (cleaned up) does not block DONE — row treats absent as acceptable",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A git-ignored declared path blocks DONE with an explicit message that git-ignored paths must not be declared as deliverable artifacts (preMortem #2 anchor)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "REVIEW/TEST gates keep treating declared_artifact_changes as non-blocking — the committed-check is DONE-only and does not change dirty-gate-policy table",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke assertDeclaredArtifactDoneCommittedRow: declared-artifacts-committed DONE row passes when every declared path is committed-and-clean",
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:28.668Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke: declared-artifacts-committed row fails (blocking) when a declared path is dirty/untracked, with commit/cleanup guidance",
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:28.853Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke: an absent declared path does not block DONE (cleaned-up treated as acceptable)",
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:29.033Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke: a git-ignored declared path blocks DONE with explicit message that git-ignored paths must not be declared as deliverables (preMortem #2)",
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:29.211Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke: REVIEW/TEST keep declared_artifact_changes non-blocking — DIRTY_GATE_POLICY table unchanged; committed-check is DONE-only",
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:29.390Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -43,9 +268,100 @@
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-05-15T21:18:56.143Z",
+      "userSees": "`npm --prefix packages/main run test:flow-stability-smoke` and `npm --prefix packages/main run test:validation-protocol` print `✓ passed` including the full attack-chain assertions: declare-source-rejected, source-dirty-stays-material, fixture-dirty-stays-fixture, uncommitted-declared-blocks-DONE, declared-output-non-blocking-in-REVIEW/TEST.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke: artifact_declare with a tests/output/ path succeeds; classifier rescues it to declared_artifact_changes",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke attack-chain: artifact_declare packages/main/src/core/store.ts rejected; dirty source declared-then-classified stays material_source_changes; dirty fixture stays fixture_changes",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke: uncommitted declared artifact blocks the DONE committed-check row; committed-and-clean passes",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke: hand-injected declared-artifacts.json with a source path still classifies material (classifier hard gate, no artifact_declare involved)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke: declared generated output classifies non-blocking in REVIEW/TEST gate context but its uncommitted state blocks DONE",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke assertDeclaredArtifactGateHotfix: artifact_declare with tests/output/ path succeeds; classifier rescues it to declared_artifact_changes",
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:29.568Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke attack-chain: artifact_declare packages/main/src/core/store.ts rejected; dirty source declared-then-classified stays material_source_changes; dirty fixture stays fixture_changes",
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:29.743Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke: uncommitted declared artifact blocks the DONE committed-check row; committed-and-clean passes",
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:29.915Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke: hand-injected declared-artifacts.json with source path still classifies material_source_changes (classifier hard gate, no artifact_declare involved)",
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:30.092Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke validation-protocol side-effect-guard context: declared generated output classifies non-blocking in REVIEW/TEST but uncommitted state blocks DONE",
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:30.273Z"
+        }
+      ]
     }
   ]
 }

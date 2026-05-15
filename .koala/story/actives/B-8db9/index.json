@@ -4,7 +4,7 @@
   "title": "Fix declared-artifact gate bypass and uncommitted-artifact loss",
   "description": "Read-only implementation review of main after B-cf60 + B-4b22 merged found a CRITICAL gate bypass: dirty-worktree.ts classifyParsedRow checks isDeclaredArtifactPath before isMaterialSourcePath/isFixturePath, and dirty-gate-policy.ts marks declared_artifact_changes as blocking:false. An agent can koala artifact_declare a dirty source/fixture file to reclassify it from blocking material_source_changes to non-blocking declared_artifact_changes, bypassing the DONE dirty gate. A linked HIGH gap: declared_artifact_changes being non-blocking lets an uncommitted declared artifact pass the DONE gate, but git merge does not carry uncommitted files to main, so declared deliverables vanish silently. This hotfix closes both layers and adds a DONE committed-check. The MEDIUM evidence-sufficiency gap is intentionally out of scope.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "dirty-gate",
@@ -25,7 +25,7 @@
   ],
   "createdAt": "2026-05-15T21:02:26.692Z",
   "startedAt": "2026-05-15T21:02:26.692Z",
-  "endedAt": null,
+  "endedAt": "2026-05-15T21:40:06.761Z",
   "events": [
     {
       "phase": "INIT",
@@ -42,11 +42,79 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-05-15T21:03:49.213Z",
+      "branch": "story/B-8db9",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-15T21:08:35.224Z",
+      "branch": "story/B-8db9",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-15T21:22:44.222Z",
+      "branch": "story/B-8db9",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "reviewer_forced",
+      "timestamp": "2026-05-15T21:23:03.277Z",
+      "reviewer": "behavior",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-15T21:30:20.164Z",
+      "branch": "story/B-8db9",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-15T21:30:20.446Z",
+      "branch": "story/B-8db9",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "reviewer_forced",
+      "timestamp": "2026-05-15T21:30:25.507Z",
+      "reviewer": "behavior",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-05-15T21:36:48.244Z",
+      "branch": "story/B-8db9",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-05-15T21:40:06.761Z",
+      "branch": "story/B-8db9",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-8db9",
-    "branch": "story/B-8db9",
-    "createdAt": "2026-05-15T21:03:42.160Z"
-  }
+  "currentReviewRound": "2026-05-15T21:30:20.446Z"
 }
