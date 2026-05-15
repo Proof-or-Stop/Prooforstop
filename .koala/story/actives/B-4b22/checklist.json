@@ -10,7 +10,36 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User imports evaluateDirtyGate from packages/main/src/core/dirty-gate-policy.ts and sees a deterministic shape: { allPass: boolean; blockingCounts: { material_source_changes: N, fixture_changes: N, unexpected_dirty_files: N }; passingCounts: { koala_metadata_changes: N, runtime_artifact_changes: N, declared_artifact_changes: N }; auditEvents: AuditEvent[] }. DIRTY_GATE_POLICY table is a const object listing all 6 DIRTY_WORKTREE_CATEGORIES with explicit { blocking: boolean; auditReason: string } values; an exhaustive runtime guard throws if any future enum value is missing from the table.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "evaluateDirtyGate({koala_metadata_changes:[entry],runtime_artifact_changes:[entry],declared_artifact_changes:[entry]}) returns allPass=true, passingCounts populated, auditEvents non-empty",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "evaluateDirtyGate(empty classification) returns allPass=true, blockingCounts/passingCounts all 0, auditEvents empty (no audit when nothing happened)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If a new category is added to DIRTY_WORKTREE_CATEGORIES but missing from DIRTY_GATE_POLICY table, evaluateDirtyGate throws with explicit message naming the missing category (preMortem #1 anchor)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "DIRTY_GATE_POLICY entries for material_source_changes, fixture_changes, unexpected_dirty_files have blocking:true; only koala_metadata_changes / runtime_artifact_changes / declared_artifact_changes have blocking:false",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -21,7 +50,41 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User runs koala story_advance --phase=TEST --storyId=B-4b22 on a worktree where only .koala/story/actives/B-4b22/findings.json is dirty; DONE pre-check git-working-tree row reports: status=pass detail=pass: blocking=0 (material+fixture+unexpected); passed=1 (koala_metadata_changes=1). With packages/main/src/foo.ts modified (material_source_changes=1), same row reports: status=fail detail=fail: blocking=1 (material_source_changes=1); passed=0. Same evaluator output drives validation-executor side-effect guard wording.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "buildDoneChecklist git-working-tree row pass when only koala_metadata / runtime_artifact / declared_artifact paths dirty",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "validation-executor side-effect guard reports allPass when only passing categories dirty; audit lines appended to result.details",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "git-working-tree row fail when even 1 material_source_changes / fixture_changes / unexpected_dirty_files path coexists with passing categories",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "detail text format follows pattern pass: blocking=N (categoryA=N1,...); passed=M (categoryX=M1,...) — easily grepped",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Both story-advance.ts buildDoneChecklist AND validation-executor.ts formatWorktreePollutionDetails import from same dirty-gate-policy.ts (no inline category check, preMortem #3 anchor)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -32,7 +95,36 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "After every gate decision that lets ≥1 path pass, .koala/story/actives/B-4b22/process-events.jsonl gains one line: {\"type\":\"dirty_gate_audit\",\"storyId\":\"B-4b22\",\"gate\":\"done-gate\"|\"test-pre-check\"|\"validate-side-effect\",\"category\":\"koala_metadata_changes\",\"pathCount\":N,\"paths\":[\"<=5 sample paths\"],\"reason\":\"<auditReason from policy>\",\"timestamp\":\"<ISO>\"}. One audit entry per allowed category per gate invocation. User runs koala session_brief and sees recent activity references dirty_gate_audit.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Each gate that lets a category pass writes one structured line per category to .koala/story/actives/<storyId>/process-events.jsonl with type=dirty_gate_audit",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When no category passes (all blocking or empty), no dirty_gate_audit line is written",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "paths field is truncated to 5 samples + pathCount stays accurate when category has >5 paths",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If process-events.jsonl append fails (fs error), gate falls back to BLOCKING and surfaces AUDIT WRITE FAILED in output — never silent pass (preMortem #2 anchor)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
@@ -44,7 +136,51 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "npm --prefix packages/main run test:flow-stability-smoke and npm --prefix packages/main run test:validation-protocol output ✓ passed and include explicit assertions: (a) 3 blocking categories coexisting → fail with all named in hint; (b) only passing categories → pass + audit lines; (c) DIRTY_GATE_POLICY size matches DIRTY_WORKTREE_CATEGORIES length; (d) audit write fs failure → gate blocks with AUDIT WRITE FAILED.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke assertDirtyGatePolicyBlocking: fixture with 1 material_source_changes + 1 fixture_changes + 1 unexpected_dirty_files → evaluateDirtyGate returns allPass=false; gate hint text names all 3 categories with counts",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke assertDirtyGatePolicyPassing: fixture with only koala_metadata_changes + declared_artifact_changes → evaluateDirtyGate returns allPass=true; audit events written to fixture process-events.jsonl",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke: B-3506 auto-commit scenario (post-commit, koala_metadata empty) + worktree has only runtime_artifact_changes → evaluateDirtyGate allPass=true with 1 audit line",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke: BL21 lacZ declared artifact dirty (from B-cf60) is sole dirt → evaluateDirtyGate allPass=true with declared_artifact_changes audit line",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke registry-vs-policy invariant: DIRTY_GATE_POLICY entry count === DIRTY_WORKTREE_CATEGORIES.length (preMortem #1 anchor; future enum addition forces table update or test fails)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke audit-write-failure: stub process-events writer to throw → gate evaluation returns allPass=false with AUDIT WRITE FAILED in hint (preMortem #2 anchor)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke import-isolation: grep packages/main/src/{handlers/story-advance.ts,core/validation-executor.ts} ensures category names only appear via imports from dirty-gate-policy.ts (preMortem #3 anchor — no inline divergent check)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
