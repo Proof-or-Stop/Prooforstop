@@ -1,0 +1,429 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Detect stale verificationEvidence at user-visible entry points",
+      "context": "session_brief, story_advance pre-check (REVIEW/TEST/DONE), and koala validate output must compare current materialHash / headHash with stored evidence and flag stale rows explicitly. The flag must read as 'EVIDENCE STALE (materialHash drift after <sha>)' rather than a generic validation failure. Reuse existing freshness check, do not re-implement.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "done",
+      "startTime": "2026-05-15T16:28:37.014Z",
+      "endTime": "2026-05-15T16:29:08.709Z",
+      "userSees": "User runs `koala session_brief` after merging main; in the brief output a new block appears: `⚠ EVIDENCE STALE (materialHash drift after eccd3758): 3 verification intent(s) stale for B-a2f1`. Same block appears in `koala story_advance --phase=TEST/DONE` pre-check output and `koala validate --story=B-a2f1 --json` text output when stale state is detected.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After mutating a material source file referenced by stored evidence, koala session_brief output for B-a2f1 contains the literal string EVIDENCE STALE and a storyId-bearing recovery line",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "After the same mutation, koala validate --story=B-a2f1 --json textOutput contains EVIDENCE STALE marker (replacing the older generic stale hint)",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "After the same mutation, story_advance --phase=TEST pre-check rejects with output containing EVIDENCE STALE marker",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When evidence is fresh (no materialHash drift), none of the three surfaces print EVIDENCE STALE",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "When only koala_metadata-only changes happened after evidence (legacy fresh case), surfaces stay quiet — they do not falsely flag stale",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Surfaces never print EVIDENCE STALE without also printing a copy-paste recovery line including the actual storyId",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke asserts session_brief output for stale fixture contains EVIDENCE_STALE_MARKER + storyId recovery line",
+          "headHash": "34a9ede5e7a079ce5080e4a2c974f540705749ab",
+          "materialHash": "c7c54f933f5d57070e3046cd3691d163538bb531053aee74720c667727fc0f0f",
+          "timestamp": "2026-05-15T16:58:52.380Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke asserts koala validate text output for stale fixture contains EVIDENCE_STALE_MARKER",
+          "headHash": "34a9ede5e7a079ce5080e4a2c974f540705749ab",
+          "materialHash": "c7c54f933f5d57070e3046cd3691d163538bb531053aee74720c667727fc0f0f",
+          "timestamp": "2026-05-15T16:58:52.553Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke asserts story_advance pre-check for stale fixture contains EVIDENCE_STALE_MARKER",
+          "headHash": "34a9ede5e7a079ce5080e4a2c974f540705749ab",
+          "materialHash": "c7c54f933f5d57070e3046cd3691d163538bb531053aee74720c667727fc0f0f",
+          "timestamp": "2026-05-15T16:58:52.708Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke fresh-fixture assertion: none of three surfaces print EVIDENCE STALE when materialHash matches",
+          "headHash": "34a9ede5e7a079ce5080e4a2c974f540705749ab",
+          "materialHash": "c7c54f933f5d57070e3046cd3691d163538bb531053aee74720c667727fc0f0f",
+          "timestamp": "2026-05-15T16:58:52.867Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke metadata-only-change case: surfaces stay quiet, treating metadata-only commits as fresh per checkEvidenceFreshnessForGit",
+          "headHash": "34a9ede5e7a079ce5080e4a2c974f540705749ab",
+          "materialHash": "c7c54f933f5d57070e3046cd3691d163538bb531053aee74720c667727fc0f0f",
+          "timestamp": "2026-05-15T16:58:53.023Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke asserts every surface that prints EVIDENCE_STALE_MARKER also includes copy-paste recovery line with actual storyId",
+          "headHash": "34a9ede5e7a079ce5080e4a2c974f540705749ab",
+          "materialHash": "c7c54f933f5d57070e3046cd3691d163538bb531053aee74720c667727fc0f0f",
+          "timestamp": "2026-05-15T16:58:53.178Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Print copy-paste recovery commands in stale-evidence output",
+      "context": "Every stale flag must be followed by the exact CLI lines that resolve it for this story: e.g., 'koala verification_evidence_refresh_stale --storyId=B-xxx' then 'koala validate --story=B-xxx --json'. Lines must use the actual storyId, not placeholders, so users copy and run without editing. Output goes into session_brief footer, story_advance hint surface, and koala validate trailing block.",
+      "relatedDocs": [
+        "CLAUDE.md#worktree-生命周期"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-05-15T16:29:12.797Z",
+      "userSees": "Immediately after the EVIDENCE STALE marker line, user sees a literal block:\n  Run to recover:\n    koala verification_evidence_refresh_stale --storyId=B-a2f1\n    koala validate --story=B-a2f1 --json\nThe storyId in both lines is the actual story ID (B-a2f1), not a placeholder, so the user copies-and-runs without editing.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Output below EVIDENCE STALE marker contains the literal koala verification_evidence_refresh_stale --storyId=B-a2f1 line",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Same block also contains koala validate --story=B-a2f1 --json line on the following line",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "All three surfaces (session_brief, story_advance pre-check, koala validate) print byte-identical recovery block to avoid users having to recognize multiple formats",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Output never contains the literal placeholder strings <storyId> or <B- when stale state is detected — only the actual storyId is interpolated",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "If story has no storyId context (edge: cross-story session_brief), the recovery block is omitted entirely rather than printing a placeholder",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke asserts recovery block contains literal 'koala verification_evidence_refresh_stale --storyId=<actual-id>' line",
+          "headHash": "34a9ede5e7a079ce5080e4a2c974f540705749ab",
+          "materialHash": "c7c54f933f5d57070e3046cd3691d163538bb531053aee74720c667727fc0f0f",
+          "timestamp": "2026-05-15T16:58:53.335Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke asserts recovery block contains literal 'koala validate --story=<actual-id> --json' line directly after refresh line",
+          "headHash": "34a9ede5e7a079ce5080e4a2c974f540705749ab",
+          "materialHash": "c7c54f933f5d57070e3046cd3691d163538bb531053aee74720c667727fc0f0f",
+          "timestamp": "2026-05-15T16:58:53.492Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke asserts pairwise byte-identical recovery blocks across session_brief, story_advance, koala validate surfaces",
+          "headHash": "34a9ede5e7a079ce5080e4a2c974f540705749ab",
+          "materialHash": "c7c54f933f5d57070e3046cd3691d163538bb531053aee74720c667727fc0f0f",
+          "timestamp": "2026-05-15T16:58:53.645Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke asserts output never contains placeholder strings '<storyId>' or '<B-' (preMortem #3 anchor)",
+          "headHash": "34a9ede5e7a079ce5080e4a2c974f540705749ab",
+          "materialHash": "c7c54f933f5d57070e3046cd3691d163538bb531053aee74720c667727fc0f0f",
+          "timestamp": "2026-05-15T16:58:53.803Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke asserts no-storyId case: renderEvidenceStaleHint omits block entirely instead of printing placeholders",
+          "headHash": "34a9ede5e7a079ce5080e4a2c974f540705749ab",
+          "materialHash": "c7c54f933f5d57070e3046cd3691d163538bb531053aee74720c667727fc0f0f",
+          "timestamp": "2026-05-15T16:58:53.960Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add a single-shot recover command that does refresh + revalidate",
+      "context": "Provide 'koala recover_evidence --storyId=B-xxx' (or accept an existing entry point name) that runs verification_evidence_refresh_stale then validate in one go, prints both transcripts, and exits non-zero if validate still fails. The command must refuse to run if there are non-koala_metadata dirty files (material/fixture/unexpected) so it cannot mask real drift.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-05-15T16:41:37.726Z",
+      "userSees": "User runs `koala recover_evidence --storyId=B-a2f1`. The command prints first the refresh transcript (`✓ refreshed N verification evidence entries`) then the validate transcript (`koala validate --story=B-a2f1 --json` output). Exits 0 if validate passes after refresh. Exits non-zero with explicit message `recover_evidence refused: material_source_changes / fixture_changes / unexpected_dirty_files present, run git status to inspect` when classifier flags non-koala_metadata dirt.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "koala recover_evidence --storyId=B-a2f1 runs verification_evidence_refresh_stale then validate, prints both transcripts in order, exits 0 when validate passes",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "recover_evidence exits non-zero with a refused message when material_source_changes / fixture_changes / unexpected_dirty_files exist (uses B-6326 DIRTY_WORKTREE_CATEGORIES classifier)",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "recover_evidence proceeds normally when only koala_metadata_changes / runtime_artifact_changes / declared_artifact_changes are present in worktree",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "recover_evidence refuse-list uses an allowlist (koala_metadata + runtime + declared_artifact) so any future DIRTY_WORKTREE_CATEGORIES addition defaults to refuse — no silent loosening",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "recover_evidence does not auto-recover without storyId; missing storyId arg returns explicit error",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke happy: recover_evidence runs refresh + validate, returns status=pass with both transcripts",
+          "headHash": "34a9ede5e7a079ce5080e4a2c974f540705749ab",
+          "materialHash": "c7c54f933f5d57070e3046cd3691d163538bb531053aee74720c667727fc0f0f",
+          "timestamp": "2026-05-15T16:58:54.120Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke refuse: recover_evidence with unexpected_dirty_files returns status=refused, refused.categories contains unexpected_dirty_files",
+          "headHash": "34a9ede5e7a079ce5080e4a2c974f540705749ab",
+          "materialHash": "c7c54f933f5d57070e3046cd3691d163538bb531053aee74720c667727fc0f0f",
+          "timestamp": "2026-05-15T16:58:54.277Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke happy includes worktree with allowed dirty categories (koala_metadata) — recover_evidence proceeds normally",
+          "headHash": "34a9ede5e7a079ce5080e4a2c974f540705749ab",
+          "materialHash": "c7c54f933f5d57070e3046cd3691d163538bb531053aee74720c667727fc0f0f",
+          "timestamp": "2026-05-15T16:58:54.432Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke allowlist-invariant assertion: RECOVER_EVIDENCE_ALLOWED_CATEGORIES is exactly {koala_metadata_changes, runtime_artifact_changes, declared_artifact_changes} — proves allowlist not blocklist",
+          "headHash": "34a9ede5e7a079ce5080e4a2c974f540705749ab",
+          "materialHash": "c7c54f933f5d57070e3046cd3691d163538bb531053aee74720c667727fc0f0f",
+          "timestamp": "2026-05-15T16:58:54.588Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke asserts recover_evidence with missing/empty storyId throws runtime error (Zod + handler double-layer per CLAUDE.md handler-encoding-convention)",
+          "headHash": "34a9ede5e7a079ce5080e4a2c974f540705749ab",
+          "materialHash": "c7c54f933f5d57070e3046cd3691d163538bb531053aee74720c667727fc0f0f",
+          "timestamp": "2026-05-15T16:58:54.743Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Regression-prove the stale UX with a simulated main-merge scenario",
+      "context": "Add a smoke test that writes verificationEvidence, mutates a referenced material source file to break materialHash, then asserts: session_brief output, story_advance output, and koala validate output all contain the literal 'EVIDENCE STALE' marker followed by a copy-paste line including the storyId; recover_evidence command refreshes the evidence and revalidate passes; recover_evidence refuses when an unexpected_dirty_files path exists.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "done",
+      "startTime": "2026-05-15T16:42:28.764Z",
+      "endTime": "2026-05-15T16:49:25.686Z",
+      "userSees": "`npm --prefix packages/main run test:evidence-recovery-smoke` (or equivalent task wiring) prints `✓ evidence-recovery smoke passed` and asserts: stale-fixture worktree triggers EVIDENCE STALE marker on session_brief / story_advance / validate; recover_evidence refreshes and revalidate passes; recover_evidence refuses on unexpected_dirty_files fixture.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke fixture mutates a tracked material source path under a temp worktree, writes evidence with stale materialHash, asserts session_brief / story_advance / validate all produce EVIDENCE STALE marker with copy-paste storyId line",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke runs recover_evidence and asserts second validate is fresh + passes",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke adds an unexpected_dirty_files path (e.g. packages/main/tests/output/x.json) to the same worktree and asserts recover_evidence refuses with non-zero exit and refused message",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke confirms surfaces produce byte-identical EVIDENCE STALE block (same marker, same recovery block) across session_brief / story_advance / validate",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke confirms recovery block never contains placeholder text when storyId is present",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke simulated-main-merge block: temp git fixture mutates material file then asserts all three surfaces emit EVIDENCE STALE marker with storyId-bearing copy-paste line",
+          "headHash": "34a9ede5e7a079ce5080e4a2c974f540705749ab",
+          "materialHash": "c7c54f933f5d57070e3046cd3691d163538bb531053aee74720c667727fc0f0f",
+          "timestamp": "2026-05-15T16:58:54.902Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke calls recover_evidence on stale fixture and asserts revalidate passes + findStaleEvidence returns empty after",
+          "headHash": "34a9ede5e7a079ce5080e4a2c974f540705749ab",
+          "materialHash": "c7c54f933f5d57070e3046cd3691d163538bb531053aee74720c667727fc0f0f",
+          "timestamp": "2026-05-15T16:58:55.057Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke adds packages/main/tests/output/foo.json unexpected_dirty_files path then asserts recover_evidence returns status=refused with non-zero exit and refused message",
+          "headHash": "34a9ede5e7a079ce5080e4a2c974f540705749ab",
+          "materialHash": "c7c54f933f5d57070e3046cd3691d163538bb531053aee74720c667727fc0f0f",
+          "timestamp": "2026-05-15T16:58:55.218Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke main-merge regression asserts byte-identical recovery block across session_brief / story_advance / koala validate surfaces",
+          "headHash": "34a9ede5e7a079ce5080e4a2c974f540705749ab",
+          "materialHash": "c7c54f933f5d57070e3046cd3691d163538bb531053aee74720c667727fc0f0f",
+          "timestamp": "2026-05-15T16:58:55.411Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke main-merge regression asserts recovery block contains literal storyId (B-a2f1mm) and does not contain placeholder strings",
+          "headHash": "34a9ede5e7a079ce5080e4a2c974f540705749ab",
+          "materialHash": "c7c54f933f5d57070e3046cd3691d163538bb531053aee74720c667727fc0f0f",
+          "timestamp": "2026-05-15T16:58:55.571Z"
+        }
+      ]
+    }
+  ]
+}

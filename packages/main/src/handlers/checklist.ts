@@ -7,6 +7,7 @@ import { execSync } from 'child_process';
 import { checkEvidenceFreshnessForGit, currentMaterialHash } from '../core/evidence-freshness.js';
 import type { ChecklistStatus, StoryInfo, VerificationEvidence, VerificationIntent } from '../core/types.js';
 import { buildVerificationCoverage, makeEvidence } from '../core/verification.js';
+import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 
 type VerificationEvidenceKindInput = VerificationEvidence['kind'] | 'cli' | 'logic';
 type VerificationEvidenceInput = Omit<VerificationEvidence, 'kind'> & { kind: VerificationEvidenceKindInput };
@@ -412,6 +413,8 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         }
       }
 
+      const commitHint = autoCommitStoryMetadata(root, args.storyId, 'checklist_update');
+
       // CHK-003: pending/in_progress → done 且 item 有 relatedDocs 时，hint 关联文档清单
       // B-45ed CHK-008: done hint 列表统一包含 background.md（若存在且不在 item.relatedDocs 内），保证下游同步对齐
       const transitionedToDone = args.status === 'done' && oldStatus !== 'done';
@@ -426,11 +429,11 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         }
         if (docsList.length > 0) {
           const lines = docsList.map(d => `  - ${d}`).join('\n');
-          return `Checklist ${args.itemId}: ${results.join(', ')}\n\n📄 关联文档（请检查代码改动是否影响这些文档，趁记忆热及时同步）：\n${lines}`;
+          return `Checklist ${args.itemId}: ${results.join(', ')}\n\n📄 关联文档（请检查代码改动是否影响这些文档，趁记忆热及时同步）：\n${lines}${commitHint}`;
         }
       }
 
-      return `Checklist ${args.itemId}: ${results.join(', ')}`;
+      return `Checklist ${args.itemId}: ${results.join(', ')}${commitHint}`;
       });
     },
 
@@ -516,7 +519,8 @@ export function createChecklistHandlers(ctx: HandlerContext) {
 
       store.writeChecklist(args.storyId, cl);
       const aliasNote = kind !== args.kind ? `, alias ${args.kind}` : '';
-      return `Verification evidence recorded for ${args.itemId} → ${args.intentRef} (${kind}${aliasNote})`;
+      const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_evidence_add');
+      return `Verification evidence recorded for ${args.itemId} → ${args.intentRef} (${kind}${aliasNote})${commitHint}`;
       });
     },
 
@@ -572,7 +576,8 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       }
 
       store.writeChecklist(args.storyId, cl);
-      return `Verification evidence batch recorded for ${args.storyId}: ${written} item intent(s)`;
+      const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_evidence_batch_add');
+      return `Verification evidence batch recorded for ${args.storyId}: ${written} item intent(s)${commitHint}`;
       });
     },
 
@@ -631,6 +636,10 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       lines.push(args.dryRun
         ? '→ 重跑上述 command 后去掉 dryRun 刷新 evidence metadata'
         : `Refreshed ${refreshed}/${stale.length} stale evidence item(s). Re-run koala validate --story=${args.storyId} --json`);
+      if (!args.dryRun) {
+        const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_evidence_refresh_stale');
+        if (commitHint) lines.push(commitHint.replace(/^\n/, ''));
+      }
       return lines.join('\n');
       });
     },

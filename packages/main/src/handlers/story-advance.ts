@@ -20,7 +20,9 @@ import { repairGlobalKoalaLinkBeforeWorktreeDelete } from './worktree.js';
 import { recomputeDeliveryCheckHash } from './delivery-check.js';
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
 import { collectBaselineRisk, renderBaselineRiskLines } from '../core/baseline-risk.js';
-import { checkEvidenceFreshnessForGit, currentMaterialHash } from '../core/evidence-freshness.js';
+import { checkEvidenceFreshnessForGit, currentMaterialHash, currentGitHead } from '../core/evidence-freshness.js';
+import { findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
+import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { reportHealthIssue } from '../core/health.js';
 import type { OracleRow } from '../core/oracle-row.js';
 import {
@@ -234,51 +236,6 @@ function gitRefContainsMain(projectRoot: string, ref: string): boolean {
     stdio: ['pipe', 'pipe', 'pipe'],
   });
   return true;
-}
-
-function autoCommitStoryMetadata(projectRoot: string, storyId: string, storyDirRel: string, phase: StoryPhase): string {
-  try {
-    const branch = execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
-      cwd: projectRoot,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim();
-    if (!branch.startsWith('story/')) return '';
-
-    const storyRel = `${storyDirRel.replace(/\/$/, '')}/${storyId}`;
-    const before = execFileSync('git', ['status', '--porcelain', '--', storyRel], {
-      cwd: projectRoot,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim();
-    if (!before) return '';
-
-    execFileSync('git', ['add', storyRel], {
-      cwd: projectRoot,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-    const staged = execFileSync('git', ['diff', '--cached', '--name-only', '--', storyRel], {
-      cwd: projectRoot,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim();
-    if (!staged) return '';
-
-    execFileSync('git', ['-c', 'commit.gpgsign=false', 'commit', '-m', `koala: record ${storyId} ${phase} metadata`], {
-      cwd: projectRoot,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-    return `\n✓ story metadata 已自动提交: koala: record ${storyId} ${phase} metadata`;
-  } catch (e: any) {
-    reportHealthIssue('mutation:storyMetadataCommit', e instanceof Error ? e : new Error(String(e)), {
-      storyId,
-      phase,
-      projectRoot,
-    });
-    return `\n⚠ story metadata 自动提交失败: ${e?.message || e}`;
-  }
 }
 
 // B-9d95 CHK-003: re-export 供 DONE merge 前 stray 文件清理。主实现在独立
@@ -1135,7 +1092,7 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
 
       let metadataCommitReport = '';
       if (args.phase === 'REVIEW') {
-        metadataCommitReport = autoCommitStoryMetadata(ctx.root, args.storyId, store.storyDirRel(), args.phase);
+        metadataCommitReport = autoCommitStoryMetadata(ctx.root, args.storyId, args.phase);
       }
 
       // CHK-002: PLAN→DEV 时收集所有 relatedDocs 列出来作为开工提醒
@@ -1482,7 +1439,19 @@ ${agentLines}
         } catch { /* ignore */ }
       }
 
-      return `${doneChecklistPrefix}Story ${args.storyId} advanced to ${newState}${metadataCommitReport}${doneMergeReport}\n${nextSteps[newState] || ''}${docsHint}${depsWarning}${sessionWarning}${doneSummarySuffix}${initCheckAdvisory}${baselineRiskWarning}`;
+      // B-a2f1 CHK-001/002: surface stale verificationEvidence in REVIEW/TEST/DONE
+      // pre-check output so a main-merge that drifted materialHash does not
+      // produce an opaque pass without naming the recovery commands.
+      let staleEvidenceHint = '';
+      if (newState === 'REVIEW' || newState === 'TEST' || newState === 'DONE') {
+        try {
+          const stale = findStaleEvidence(ctx.root, args.storyId);
+          const hint = renderEvidenceStaleHint(args.storyId, stale, { currentHead: currentGitHead(ctx.root) });
+          if (hint) staleEvidenceHint = `\n\n${hint}`;
+        } catch { /* probe — never block phase advance on stale-hint failure */ }
+      }
+
+      return `${doneChecklistPrefix}Story ${args.storyId} advanced to ${newState}${metadataCommitReport}${doneMergeReport}\n${nextSteps[newState] || ''}${docsHint}${depsWarning}${sessionWarning}${doneSummarySuffix}${initCheckAdvisory}${baselineRiskWarning}${staleEvidenceHint}`;
     },
   };
 }

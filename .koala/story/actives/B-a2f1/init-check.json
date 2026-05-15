@@ -1,0 +1,57 @@
+{
+  "storyId": "B-a2f1",
+  "checkedAt": "2026-05-15T13:04:55.076Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background 关键洞察 和 checklist CHK-001 同时使用 materialHash 和 headHash 两个术语，未说明二者区别。CHK-001 写 compare current materialHash / headHash with stored evidence，暗示是独立字段，但 background 只提到 materialHash binding to the head，新 reader 无法判断 headHash 是什么、与 materialHash 的关系，可能导致实现者产生分歧。"
+    },
+    {
+      "id": "INIT-002",
+      "severity": "low",
+      "desc": "background 触发事件引用 B-6326s pitfalls note records this exactly，未附一句话说明 B-6326 是什么 story、pitfalls note 在哪里。跨 story 引用首次出现应有上下文，新 reader 无法追溯来源。"
+    },
+    {
+      "id": "INIT-003",
+      "severity": "low",
+      "desc": "CHK-003 context 用括号列出 material/fixture/unexpected 三类 dirty-files 分类，视为已知术语但未定义。该分类是 recover_evidence 拒绝运行的判定依据，implementer 需要明确边界，建议在 context 中补一句说明各类含义或引用定义来源。"
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-05-15T13:04:40.987Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "Checklist items CHK-001 through CHK-004 lack the formal userSees field prescribed by CLAUDE.md (\"用户完成此 item 后看到的具体文本\"). The context fields contain equivalent specificity (e.g., CHK-001 quotes the exact EVIDENCE STALE marker, CHK-002 specifies copy-paste lines with actual storyId), so user-value intent is clear. Recommend adding explicit userSees to each item during PLAN for traceability, but this does not block INIT_CHECK."
+        }
+      ]
+    },
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-05-15T13:04:55.076Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background 关键洞察 和 checklist CHK-001 同时使用 materialHash 和 headHash 两个术语，未说明二者区别。CHK-001 写 compare current materialHash / headHash with stored evidence，暗示是独立字段，但 background 只提到 materialHash binding to the head，新 reader 无法判断 headHash 是什么、与 materialHash 的关系，可能导致实现者产生分歧。"
+        },
+        {
+          "id": "INIT-002",
+          "severity": "low",
+          "desc": "background 触发事件引用 B-6326s pitfalls note records this exactly，未附一句话说明 B-6326 是什么 story、pitfalls note 在哪里。跨 story 引用首次出现应有上下文，新 reader 无法追溯来源。"
+        },
+        {
+          "id": "INIT-003",
+          "severity": "low",
+          "desc": "CHK-003 context 用括号列出 material/fixture/unexpected 三类 dirty-files 分类，视为已知术语但未定义。该分类是 recover_evidence 拒绝运行的判定依据，implementer 需要明确边界，建议在 context 中补一句说明各类含义或引用定义来源。"
+        }
+      ]
+    }
+  ],
+  "_hash": "4cbe1f5acdb18851ce02def2a06f14be0a0d65d796bd0c51374fbf7f7e3aee61"
+}

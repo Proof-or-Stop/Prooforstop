@@ -22,6 +22,7 @@ import { existsSync, mkdirSync, readFileSync, rmSync, statSync } from 'fs';
 import { StoryStore } from '../core/store.js';
 import type { HandlerContext } from './context.js';
 import type { InitCheckData, InitCheckIssue } from '../core/types.js';
+import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 
 export const INIT_CHECK_SALT = 'koala-init-check-integrity-v1';
 export const REQUIRED_INIT_CHECK_AGENTS = ['koala-review-story-init', 'product-reviewer'] as const;
@@ -259,7 +260,8 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
         }
       }
       const missing = missingRequiredInitCheckAgents(data);
-      return `Init check saved for ${args.storyId}: ${issues.length} issues (${critical}/${high}/${medium}/${low}); recorded agents: ${agentResults.map(r => r.agentId || '<unknown>').join(', ')}${missing.length > 0 ? `; missing required agents: ${missing.join(', ')}` : ''}`;
+      const commitHint = autoCommitStoryMetadata(root, args.storyId, 'init_check_set');
+      return `Init check saved for ${args.storyId}: ${issues.length} issues (${critical}/${high}/${medium}/${low}); recorded agents: ${agentResults.map(r => r.agentId || '<unknown>').join(', ')}${missing.length > 0 ? `; missing required agents: ${missing.join(', ')}` : ''}${commitHint}`;
       });
     },
   };
