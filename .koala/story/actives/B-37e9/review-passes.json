@@ -35,6 +35,15 @@
       "reviewRound": "2026-05-15T23:53:31.705Z",
       "reviewRunId": "B-37e9:RR-006",
       "_hash": "dac2e04f9b4e63a62f57b3e0d9f2cf2180111708b4192e3976d9716294370407"
+    },
+    {
+      "id": "B-37e9:RP-005",
+      "agent": "koala-review-quality",
+      "note": "Round 2 quality review: F-001 (core→handlers layer violation) fix is correct and complete. recomputeDeliveryCheckHash + signDeliveryCheck + DELIVERY_CHECK_SALT extracted to core/delivery-check-hash.ts with full re-export from handlers/delivery-check.ts for backward compat. machine.ts now imports from core/delivery-check-hash.js (no upward dep). done-oracle.ts has zero handlers/ imports (all imports are ./sibling or child_process). assertDoneOracleSameSource adds both structural (import-grep) and behavioral (row-count + row-content identity) contract proofs. No dead code, no unnecessary any-casts, no empty error-swallowing catches (all pre-existing patterns moved verbatim). renderDoneChecklist was private before and is now public in core/done-oracle.ts — no regression. session.ts and flow-stability-smoke.ts import from core/done-oracle correctly. No new quality issues.",
+      "createdAt": "2026-05-15T23:56:35.191Z",
+      "reviewRound": "2026-05-15T23:53:31.705Z",
+      "reviewRunId": "B-37e9:RR-005",
+      "_hash": "bc19414611f350a3db4c8316a52535ff220111e5060714ce4e177570e79bf0e1"
     }
   ]
 }
