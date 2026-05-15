@@ -89,6 +89,42 @@
       "reviewRound": "2026-05-15T12:05:49.640Z",
       "reviewRunId": "B-d9ee:RR-013",
       "_hash": "c18b69d0f7c5cdff2aa2a110a81a9ab32f11e441c6cfde64abde4b07d6dc5862"
+    },
+    {
+      "id": "B-d9ee:RP-011",
+      "agent": "koala-review-docs",
+      "note": "Docs are consistent: grill_start/grill_record/grill_close are PLAN-only mutators, grill_get is all-phase read-only, and grill planning context cannot replace verificationEvidence or koala validate validation evidence.",
+      "createdAt": "2026-05-15T12:14:52.727Z",
+      "reviewRound": "2026-05-15T12:14:01.784Z",
+      "reviewRunId": "B-d9ee:RR-017",
+      "_hash": "14c9524123538bc54aae7d020ea9249a609627b268480fd8f6fc8ac88ce02c3a"
+    },
+    {
+      "id": "B-d9ee:RP-012",
+      "agent": "koala-review-test-coverage",
+      "note": "Validation on HEAD 9e96ad3 passed with verification intent coverage 10/10 and no stale-evidence failure from the materialHash gate. Regression coverage is present for TEST-phase mutator rejection (grill_start/grill_record blocked in TEST) and all-phase read access via grill_get in command policy and grill-planning-artifact smoke.",
+      "createdAt": "2026-05-15T12:14:56.393Z",
+      "reviewRound": "2026-05-15T12:14:01.784Z",
+      "reviewRunId": "B-d9ee:RR-018",
+      "_hash": "36f71fbfd598e1165e5e3441b7d0232d4d06830737728cc519d4d0ffadd70743"
+    },
+    {
+      "id": "B-d9ee:RP-013",
+      "agent": "koala-review-quality",
+      "note": "Reviewed HEAD 9e96ad3 for quality lane. Verified grill_start/grill_record/grill_close are PLAN-only in command policy, phase config, and handler guard; grill_get remains read-only/all-phase; malformed grill.json still fails closed via StoryStore probe-only handling. TypeScript diagnostics clean on all modified TS files; npm run test:grill-planning-artifact-smoke passed; no blocking regression found in reviewed scope.",
+      "createdAt": "2026-05-15T12:16:01.358Z",
+      "reviewRound": "2026-05-15T12:14:01.784Z",
+      "reviewRunId": "B-d9ee:RR-019",
+      "_hash": "b37761b5f6fe9393d8ea363d4eb867eef90e9172815b2508eb31cb72faffd256"
+    },
+    {
+      "id": "B-d9ee:RP-014",
+      "agent": "koala-review-concept",
+      "note": "Reviewed grill artifact semantics and phase guards: grill remains advisory-only, mutators stay PLAN-only by target story phase, grill_get stays read-only, and lifecycle evidence boundaries remain intact.",
+      "createdAt": "2026-05-15T12:16:25.639Z",
+      "reviewRound": "2026-05-15T12:14:01.784Z",
+      "reviewRunId": "B-d9ee:RR-016",
+      "_hash": "6b0217e6d6f38dbf279f7cbb7f8bde90770cb37a7cba3bb0ededd59c3f82ce83"
     }
   ]
 }
