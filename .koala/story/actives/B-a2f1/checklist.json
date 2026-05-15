@@ -49,7 +49,75 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke asserts session_brief output for stale fixture contains EVIDENCE_STALE_MARKER + storyId recovery line",
+          "headHash": "f38522400105161cb476bc6d59de2f0336a20b79",
+          "materialHash": "8a64de7614f6780f848ac5374c74b29ff867820de262a0989c83cbdc5e3e41a1",
+          "timestamp": "2026-05-15T16:51:08.651Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke asserts koala validate text output for stale fixture contains EVIDENCE_STALE_MARKER",
+          "headHash": "f38522400105161cb476bc6d59de2f0336a20b79",
+          "materialHash": "8a64de7614f6780f848ac5374c74b29ff867820de262a0989c83cbdc5e3e41a1",
+          "timestamp": "2026-05-15T16:51:08.810Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke asserts story_advance pre-check for stale fixture contains EVIDENCE_STALE_MARKER",
+          "headHash": "f38522400105161cb476bc6d59de2f0336a20b79",
+          "materialHash": "8a64de7614f6780f848ac5374c74b29ff867820de262a0989c83cbdc5e3e41a1",
+          "timestamp": "2026-05-15T16:51:08.966Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke fresh-fixture assertion: none of three surfaces print EVIDENCE STALE when materialHash matches",
+          "headHash": "f38522400105161cb476bc6d59de2f0336a20b79",
+          "materialHash": "8a64de7614f6780f848ac5374c74b29ff867820de262a0989c83cbdc5e3e41a1",
+          "timestamp": "2026-05-15T16:51:09.125Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke metadata-only-change case: surfaces stay quiet, treating metadata-only commits as fresh per checkEvidenceFreshnessForGit",
+          "headHash": "f38522400105161cb476bc6d59de2f0336a20b79",
+          "materialHash": "8a64de7614f6780f848ac5374c74b29ff867820de262a0989c83cbdc5e3e41a1",
+          "timestamp": "2026-05-15T16:51:09.282Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke asserts every surface that prints EVIDENCE_STALE_MARKER also includes copy-paste recovery line with actual storyId",
+          "headHash": "f38522400105161cb476bc6d59de2f0336a20b79",
+          "materialHash": "8a64de7614f6780f848ac5374c74b29ff867820de262a0989c83cbdc5e3e41a1",
+          "timestamp": "2026-05-15T16:51:09.436Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -94,7 +162,64 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke asserts recovery block contains literal 'koala verification_evidence_refresh_stale --storyId=<actual-id>' line",
+          "headHash": "f38522400105161cb476bc6d59de2f0336a20b79",
+          "materialHash": "8a64de7614f6780f848ac5374c74b29ff867820de262a0989c83cbdc5e3e41a1",
+          "timestamp": "2026-05-15T16:51:09.593Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke asserts recovery block contains literal 'koala validate --story=<actual-id> --json' line directly after refresh line",
+          "headHash": "f38522400105161cb476bc6d59de2f0336a20b79",
+          "materialHash": "8a64de7614f6780f848ac5374c74b29ff867820de262a0989c83cbdc5e3e41a1",
+          "timestamp": "2026-05-15T16:51:09.748Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke asserts pairwise byte-identical recovery blocks across session_brief, story_advance, koala validate surfaces",
+          "headHash": "f38522400105161cb476bc6d59de2f0336a20b79",
+          "materialHash": "8a64de7614f6780f848ac5374c74b29ff867820de262a0989c83cbdc5e3e41a1",
+          "timestamp": "2026-05-15T16:51:09.904Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke asserts output never contains placeholder strings '<storyId>' or '<B-' (preMortem #3 anchor)",
+          "headHash": "f38522400105161cb476bc6d59de2f0336a20b79",
+          "materialHash": "8a64de7614f6780f848ac5374c74b29ff867820de262a0989c83cbdc5e3e41a1",
+          "timestamp": "2026-05-15T16:51:10.057Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke asserts no-storyId case: renderEvidenceStaleHint omits block entirely instead of printing placeholders",
+          "headHash": "f38522400105161cb476bc6d59de2f0336a20b79",
+          "materialHash": "8a64de7614f6780f848ac5374c74b29ff867820de262a0989c83cbdc5e3e41a1",
+          "timestamp": "2026-05-15T16:51:10.210Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -139,7 +264,64 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke happy: recover_evidence runs refresh + validate, returns status=pass with both transcripts",
+          "headHash": "f38522400105161cb476bc6d59de2f0336a20b79",
+          "materialHash": "8a64de7614f6780f848ac5374c74b29ff867820de262a0989c83cbdc5e3e41a1",
+          "timestamp": "2026-05-15T16:51:10.363Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke refuse: recover_evidence with unexpected_dirty_files returns status=refused, refused.categories contains unexpected_dirty_files",
+          "headHash": "f38522400105161cb476bc6d59de2f0336a20b79",
+          "materialHash": "8a64de7614f6780f848ac5374c74b29ff867820de262a0989c83cbdc5e3e41a1",
+          "timestamp": "2026-05-15T16:51:10.518Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke happy includes worktree with allowed dirty categories (koala_metadata) — recover_evidence proceeds normally",
+          "headHash": "f38522400105161cb476bc6d59de2f0336a20b79",
+          "materialHash": "8a64de7614f6780f848ac5374c74b29ff867820de262a0989c83cbdc5e3e41a1",
+          "timestamp": "2026-05-15T16:51:10.677Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke allowlist-invariant assertion: RECOVER_EVIDENCE_ALLOWED_CATEGORIES is exactly {koala_metadata_changes, runtime_artifact_changes, declared_artifact_changes} — proves allowlist not blocklist",
+          "headHash": "f38522400105161cb476bc6d59de2f0336a20b79",
+          "materialHash": "8a64de7614f6780f848ac5374c74b29ff867820de262a0989c83cbdc5e3e41a1",
+          "timestamp": "2026-05-15T16:51:10.834Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke asserts recover_evidence with missing/empty storyId throws runtime error (Zod + handler double-layer per CLAUDE.md handler-encoding-convention)",
+          "headHash": "f38522400105161cb476bc6d59de2f0336a20b79",
+          "materialHash": "8a64de7614f6780f848ac5374c74b29ff867820de262a0989c83cbdc5e3e41a1",
+          "timestamp": "2026-05-15T16:51:10.989Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -184,7 +366,64 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke simulated-main-merge block: temp git fixture mutates material file then asserts all three surfaces emit EVIDENCE STALE marker with storyId-bearing copy-paste line",
+          "headHash": "f38522400105161cb476bc6d59de2f0336a20b79",
+          "materialHash": "8a64de7614f6780f848ac5374c74b29ff867820de262a0989c83cbdc5e3e41a1",
+          "timestamp": "2026-05-15T16:51:11.142Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke calls recover_evidence on stale fixture and asserts revalidate passes + findStaleEvidence returns empty after",
+          "headHash": "f38522400105161cb476bc6d59de2f0336a20b79",
+          "materialHash": "8a64de7614f6780f848ac5374c74b29ff867820de262a0989c83cbdc5e3e41a1",
+          "timestamp": "2026-05-15T16:51:11.296Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke adds packages/main/tests/output/foo.json unexpected_dirty_files path then asserts recover_evidence returns status=refused with non-zero exit and refused message",
+          "headHash": "f38522400105161cb476bc6d59de2f0336a20b79",
+          "materialHash": "8a64de7614f6780f848ac5374c74b29ff867820de262a0989c83cbdc5e3e41a1",
+          "timestamp": "2026-05-15T16:51:11.451Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke main-merge regression asserts byte-identical recovery block across session_brief / story_advance / koala validate surfaces",
+          "headHash": "f38522400105161cb476bc6d59de2f0336a20b79",
+          "materialHash": "8a64de7614f6780f848ac5374c74b29ff867820de262a0989c83cbdc5e3e41a1",
+          "timestamp": "2026-05-15T16:51:11.611Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Smoke main-merge regression asserts recovery block contains literal storyId (B-a2f1mm) and does not contain placeholder strings",
+          "headHash": "f38522400105161cb476bc6d59de2f0336a20b79",
+          "materialHash": "8a64de7614f6780f848ac5374c74b29ff867820de262a0989c83cbdc5e3e41a1",
+          "timestamp": "2026-05-15T16:51:11.763Z"
+        }
+      ]
     }
   ]
 }
