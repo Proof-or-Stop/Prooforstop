@@ -64,25 +64,33 @@ export interface DeclaredArtifactCommitResult {
 /**
  * Pure classification of one declared path from its observed git state.
  *
- * - git-ignored                      → block (preMortem #2: deliverables must
- *                                       live on a commit-able path).
  * - tracked + clean                  → ok (committed-and-clean).
  * - tracked + dirty                  → block (uncommitted change to a
  *                                       declared deliverable).
+ * - git-ignored (and NOT tracked)    → block (preMortem #2: deliverables must
+ *                                       live on a commit-able path).
  * - untracked (exists, not tracked)  → block (declared deliverable never
  *                                       committed).
  * - absent (does not exist)          → ok (declaration cleaned up — temp
  *                                       output that was removed is acceptable).
  */
 export function classifyDeclaredArtifactCommitState(state: GitPathState): DeclaredArtifactCommitStatus {
-  // Check ignored first: a git-ignored path can never be committed, so even if
-  // it is "absent" or "clean" by other measures it must be flagged so the
-  // operator removes the bad declaration.
+  // Check tracked FIRST: a file already committed into the index IS a
+  // committed deliverable regardless of what `.gitignore` later says. Git
+  // keeps honouring a tracked path even after a matching ignore rule is added,
+  // so a tracked file must classify by its dirty/clean state, never as
+  // `git-ignored`. (F-001: declared artifact committed, then .gitignore
+  // updated — the file is still committed-clean, not a blocking bad
+  // declaration.)
+  if (state.tracked) {
+    return state.dirty ? 'dirty' : 'committed-clean';
+  }
+  // Not tracked: a git-ignored path can never be committed, so flag it so the
+  // operator removes the bad declaration. The `ignored` classification only
+  // applies to UNTRACKED files.
   if (state.ignored) return 'git-ignored';
-  if (!state.exists && !state.tracked) return 'absent';
-  if (state.tracked && !state.dirty) return 'committed-clean';
-  if (state.tracked && state.dirty) return 'dirty';
-  // exists but not tracked → untracked.
+  if (!state.exists) return 'absent';
+  // exists but not tracked and not ignored → untracked.
   return 'untracked';
 }
 

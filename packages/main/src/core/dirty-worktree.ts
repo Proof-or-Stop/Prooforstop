@@ -183,7 +183,11 @@ function classifyParsedRow(row: DirtyWorktreeParsedRow, options: DirtyWorktreeCl
  * fail-fast UX layer so a bad `artifact_declare` is rejected immediately. Both
  * layers share this module's matchers so they cannot disagree (preMortem #3).
  */
-export type NonDeclarableCategory = 'koala_metadata_changes' | 'fixture_changes' | 'material_source_changes';
+export type NonDeclarableCategory =
+  | 'koala_metadata_changes'
+  | 'runtime_artifact_changes'
+  | 'fixture_changes'
+  | 'material_source_changes';
 
 export function classifyDeclarablePath(
   rawPath: string,
@@ -191,6 +195,11 @@ export function classifyDeclarablePath(
 ): NonDeclarableCategory | null {
   const path = normalizePath(rawPath);
   if (isStoryMetadataPath(path)) return 'koala_metadata_changes';
+  // B-8db9 F-002: a runtime artifact path (.koala/activity.jsonl, .koala-serve.json, …)
+  // is already routed to runtime_artifact_changes by `classifyParsedRow`, so declaring
+  // it as a product artifact is meaningless — reject it at declare time. Mirrors the
+  // `findRuntimeArtifactEntry` check `classifyParsedRow` runs before fixture/material.
+  if (findRuntimeArtifactEntry(path)) return 'runtime_artifact_changes';
   if (isFixturePath(path, options)) return 'fixture_changes';
   if (isMaterialSourcePath(path, options)) return 'material_source_changes';
   return null;

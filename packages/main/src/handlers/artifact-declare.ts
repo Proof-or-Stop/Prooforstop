@@ -102,13 +102,19 @@ function assertDeclarablePath(path: string, root: string): void {
   const config = loadConfig(root);
   const options = dirtyWorktreeClassifierOptionsFromConfig(config);
   const category = classifyDeclarablePath(path, options);
-  if (category !== null) {
+  if (category === null) return;
+  if (category === 'runtime_artifact_changes') {
     throw new Error(
-      `artifact_declare: path ${path} classifies as ${category} and cannot be ` +
-      `declared as a generated artifact (declare only generated output paths, ` +
-      `e.g. under tests/output/).`,
+      `artifact_declare: path ${path} is a runtime artifact, already handled by ` +
+      `runtime-artifact-registry; do not declare it (runtime artifacts are routed ` +
+      `to runtime_artifact_changes, not declared_artifact_changes).`,
     );
   }
+  throw new Error(
+    `artifact_declare: path ${path} classifies as ${category} and cannot be ` +
+    `declared as a generated artifact (declare only generated output paths, ` +
+    `e.g. under tests/output/).`,
+  );
 }
 
 function assertSafeReason(rawReason: string): string {

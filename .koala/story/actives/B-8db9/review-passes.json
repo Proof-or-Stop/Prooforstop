@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-8db9:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 已检查全部 17 条 verificationIntent 与 verificationEvidence 覆盖关系。CHK-001～CHK-004 均有 happy/edge/adversarial 三栏 must intent，每条 evidence 具体对应 flow-stability-smoke.ts 内的 assertDeclaredArtifactGateHotfix() 及 assertDeclaredArtifactDoneCommittedRow() assertion，result 全 pass，koala validate 报告 17/17 covered 0 missing。无 blocker。",
+      "createdAt": "2026-05-15T21:24:25.850Z",
+      "reviewRound": "2026-05-15T21:22:44.222Z",
+      "reviewRunId": "B-8db9:RR-004",
+      "_hash": "7acc3af39582db5e33e6eb44d77aa57900a0b8e71fe15b1fcc00055a011d84f7"
+    },
+    {
+      "id": "B-8db9:RP-002",
+      "agent": "koala-review-concept",
+      "note": "本次无概念删除/替换。唯一的代码删除是 isDeclaredArtifactPath 判定从 classifyParsedRow 中的旧位置移走（4行），同函数后段重新插回——该函数是 private，未被外部 import。所有新导出符号（classifyDeclarablePath, NonDeclarableCategory, declared-artifact-commit-check.ts 全部导出）仅被本 story 新增文件引用，main 分支无残留引用。已完成全仓 grep，无 blocker。",
+      "createdAt": "2026-05-15T21:25:05.623Z",
+      "reviewRound": "2026-05-15T21:22:44.222Z",
+      "reviewRunId": "B-8db9:RR-001",
+      "_hash": "a351828c3acddfb323df3c36793675631c7be5c58c7a9a34f309a40e94b2e1b9"
+    },
+    {
+      "id": "B-8db9:RP-003",
+      "agent": "koala-review-behavior",
+      "note": "CHK-001 classifier reorder: declared-artifact check now runs AFTER fixture and material — confirmed in dirty-worktree.ts:150-166. Hard gate intact: hand-injected declared-artifacts.json entries for source/fixture paths still classify as material_source_changes/fixture_changes. CHK-002 assertDeclarablePath: uses classifyDeclarablePath which shares exact same isStoryMetadataPath/isFixturePath/isMaterialSourcePath vocabulary — no disagreement possible. CHK-003 DONE gate: blocking=true for uncommitted/untracked/git-ignored statuses; absent treated as non-blocking; dirty-gate-policy.ts unchanged (declared_artifact_changes still blocking:false in REVIEW/TEST). All GitPathState branches verified: ignored checked first, absent covers missing+untracked-index, committed-clean covers tracked+clean, dirty covers tracked+modified, untracked covers exists-not-tracked. CHK-004 smoke coverage verified for all attack-chain assertions. One advisory UX observation (not a gate correctness issue): classifyDeclarablePath does not check runtime_artifact paths — a user can artifact_declare a path like .koala/activity.jsonl without getting a fail-fast error, but the CHK-001 hard gate still blocks it correctly as runtime_artifact_changes when dirty. No gate bypass found. No userSees mismatches found.",
+      "createdAt": "2026-05-15T21:26:40.659Z",
+      "reviewRound": "2026-05-15T21:22:44.222Z",
+      "reviewRunId": "B-8db9:RR-003",
+      "_hash": "1b36973fd04d499cf21a95da89303fe0292bde454f1277efbed29e09509c716b"
+    }
+  ]
+}

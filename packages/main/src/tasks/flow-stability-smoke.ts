@@ -2496,6 +2496,27 @@ function assertDeclaredArtifactGateHotfix(): void {
       /classifies as koala_metadata_changes and cannot be declared/,
       'artifact_declare must reject a koala-metadata path',
     );
+    // === CHK-002 (B-8db9 F-002): artifact_declare rejects a runtime artifact path ===
+    assert.throws(
+      () => handlers.artifact_declare({
+        storyId,
+        path: '.koala/activity.jsonl',
+        reason: 'attacker tries to declare a runtime activity log',
+        relatedIntent: 'CHK-001:happy:0',
+      }),
+      /is a runtime artifact, already handled by runtime-artifact-registry/,
+      'artifact_declare must reject a runtime artifact path (.koala/activity.jsonl)',
+    );
+    assert.throws(
+      () => handlers.artifact_declare({
+        storyId,
+        path: '.koala-serve.json',
+        reason: 'attacker tries to declare the dev-server handshake file',
+        relatedIntent: 'CHK-001:happy:0',
+      }),
+      /is a runtime artifact, already handled by runtime-artifact-registry/,
+      'artifact_declare must reject a runtime artifact path (.koala-serve.json)',
+    );
     // === CHK-002 happy: a tests/output/ generated path is declarable ===
     handlers.artifact_declare({
       storyId,

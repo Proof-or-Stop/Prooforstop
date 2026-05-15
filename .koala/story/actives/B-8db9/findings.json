@@ -1,0 +1,35 @@
+{
+  "findings": [
+    {
+      "id": "B-8db9:F-001",
+      "desc": "quality-cleanup: declared-artifact-commit-check.ts:78-87 classifyDeclaredArtifactCommitState checks `ignored` before `tracked`, which misclassifies a committed-but-gitignored file as `git-ignored` (blocking) instead of `committed-clean` (passing). In git a file committed before .gitignore was updated remains tracked; `tracked=true, ignored=true` is a valid real state. The comment at line 78 says `a git-ignored path can never be committed` which is incorrect. Fix: move the `tracked && !dirty` check before the `ignored` check so a committed clean file passes regardless of gitignore status.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-15T21:26:15.682Z",
+      "reviewRound": "2026-05-15T21:22:44.222Z",
+      "reviewRunId": "B-8db9:RR-002",
+      "_hash": "4be9149842799ff9f005cfa67d110dee40c18fba96791a7abc41341bc690ebee",
+      "files": [
+        "packages/main/src/core/declared-artifact-commit-check.ts"
+      ]
+    },
+    {
+      "id": "B-8db9:F-002",
+      "desc": "quality-cleanup: dirty-worktree.ts:188-197 classifyDeclarablePath does not check `findRuntimeArtifactEntry`, so `artifact_declare` accepts runtime artifact paths (e.g. `.koala-serve.json`) without error. At dirty-check time the classifier correctly classifies them as `runtime_artifact_changes` (not `declared_artifact_changes`), so the declaration is silently ineffective but not a security bypass. However the fail-fast UX contract (`assertDeclarablePath`) is violated: declaring a runtime artifact path succeeds but produces no useful effect. The `NonDeclarableCategory` type does not include `runtime_artifact_changes`, and the comment in the docstring says `classifyDeclarablePath` reuses the EXACT classifier vocabulary — but it skips the runtime artifact check. Low-severity correctness gap.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-15T21:26:24.163Z",
+      "reviewRound": "2026-05-15T21:22:44.222Z",
+      "reviewRunId": "B-8db9:RR-002",
+      "_hash": "70e4b54c1c282531ce48abf0e02452057de6b0987645c1cf544f3a3f0c2eb89c",
+      "files": [
+        "packages/main/src/core/dirty-worktree.ts",
+        "packages/main/src/handlers/artifact-declare.ts"
+      ]
+    }
+  ]
+}
