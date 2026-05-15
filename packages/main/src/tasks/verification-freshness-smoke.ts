@@ -5,11 +5,14 @@ import { execFileSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { checkEvidenceFreshnessForGit, currentMaterialHash, isMaterialExcludedPath } from '../core/evidence-freshness.js';
+import { checkEvidenceFreshnessForGit, currentMaterialHash, currentGitHead, isMaterialExcludedPath } from '../core/evidence-freshness.js';
 import { buildVerificationCoverage } from '../core/verification.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
 import { createChecklistHandlers } from '../handlers/checklist.js';
+import { EVIDENCE_STALE_MARKER, findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
+import { createSessionHandlers } from '../handlers/session.js';
+import { decorateResult } from '../handlers/hints.js';
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -315,5 +318,185 @@ function assertChecklistUpdateEvidenceGetsMaterialHash(): void {
 }
 
 assertChecklistUpdateEvidenceGetsMaterialHash();
+
+// ── B-a2f1 CHK-001/002: stale-evidence UX must surface byte-identical recovery
+// block across session_brief / story_advance pre-check / koala validate hint. ──
+function assertStaleEvidenceHintCrossSurface(): void {
+  const root = mkdtempRoot();
+  try {
+    git(root, ['init']);
+    git(root, ['config', 'user.email', 'smoke@example.test']);
+    git(root, ['config', 'user.name', 'Koala Smoke']);
+    write(root, 'koala.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      storyDir: '.koala/story/actives',
+      requirementsDir: 'docs/requirements',
+    }, null, 2));
+    write(root, 'packages/main/src/base.ts', 'export const base = true;\n');
+    const baseSha = commit(root, 'base');
+    const baseMaterialHash = currentMaterialHash(root);
+    assert.ok(baseMaterialHash, 'base material hash should be available');
+
+    // Simulate a main-merge that drifted materialHash: change a material file.
+    write(root, 'packages/main/src/base.ts', 'export const base = false;\n');
+    commit(root, 'simulated main merge introduces material change');
+    const driftHead = currentGitHead(root);
+    assert.ok(driftHead, 'drift head should be available');
+
+    const storyId = 'B-a2f1';
+    const store = new StoryStore(root);
+    const now = '2026-05-15T10:00:00.000Z';
+    const story: StoryInfo = {
+      storyId,
+      name: 'stale-evidence-ux',
+      title: 'Stale evidence UX smoke',
+      description: 'Cross-surface stale-evidence marker smoke',
+      type: 'chore',
+      phase: 'REVIEW',
+      priority: 'medium',
+      createdAt: now,
+      startedAt: now,
+      endedAt: null,
+      events: [{ phase: 'REVIEW', action: 'advance', timestamp: now }],
+    };
+    const checklist: ChecklistData = {
+      items: [{
+        id: 'CHK-001',
+        title: 'Stale evidence item',
+        context: 'Stale evidence item',
+        status: 'done',
+        startTime: null,
+        endTime: null,
+        verificationIntent: {
+          happy: [{ desc: 'stale evidence', type: 'logic', priority: 'must' }],
+          edge: [],
+          adversarial: [],
+        },
+        verificationEvidence: [{
+          intentRef: 'CHK-001:happy:0',
+          kind: 'logic_test',
+          result: 'pass',
+          note: 'evidence captured before material change',
+          headHash: baseSha,
+          materialHash: baseMaterialHash,
+        }],
+      }],
+    };
+    store.writeStory(storyId, story);
+    store.writeChecklist(storyId, checklist);
+
+    // (1) findStaleEvidence finds the drifted entry.
+    const stale = findStaleEvidence(root, storyId);
+    assert.equal(stale.length, 1, 'stale evidence should be detected after material drift');
+    assert.equal(stale[0].intentRef, 'CHK-001:happy:0');
+    assert.equal(stale[0].itemId, 'CHK-001');
+
+    // (2) renderEvidenceStaleHint produces the canonical recovery block.
+    const renderedBlock = renderEvidenceStaleHint(storyId, stale, { currentHead: driftHead });
+    assert.ok(renderedBlock.includes(EVIDENCE_STALE_MARKER), 'rendered block must include marker constant');
+    assert.ok(renderedBlock.includes(`koala verification_evidence_refresh_stale --storyId=${storyId}`),
+      'rendered block must include refresh_stale command with literal storyId');
+    assert.ok(renderedBlock.includes(`koala validate --story=${storyId} --json`),
+      'rendered block must include validate command with literal storyId');
+    assert.ok(renderedBlock.includes(storyId), 'rendered block must include literal storyId');
+    // preMortem #3 anti-placeholder anchors:
+    assert.ok(!renderedBlock.includes('<storyId>'), 'rendered block must not contain <storyId> placeholder');
+    assert.ok(!renderedBlock.includes('<B-'), 'rendered block must not contain <B-xxx> placeholder');
+
+    // (3) session_brief surface: must include marker + identical recovery block.
+    // session_brief detects active story from `git rev-parse --abbrev-ref HEAD`.
+    // Create a story branch so detection succeeds.
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+    const briefOutput = createSessionHandlers({
+      store,
+      root,
+      scanRoot: join(root, 'packages/main'),
+    }).session_brief({});
+    assert.ok(briefOutput.includes(EVIDENCE_STALE_MARKER),
+      `session_brief must include EVIDENCE STALE marker. Actual output:\n${briefOutput}`);
+    // Recovery block (the 4 lines after the marker line) must be byte-identical.
+    const briefBlock = extractStaleBlock(briefOutput);
+    assert.equal(briefBlock, renderedBlock,
+      `session_brief stale block must be byte-identical to renderer output.\nGot:\n${briefBlock}\nExpected:\n${renderedBlock}`);
+    assert.ok(!briefOutput.includes('<storyId>'), 'session_brief must not contain <storyId> placeholder');
+
+    // (4) validate-hint surface: feed synthetic validate JSON through decorateResult.
+    //     Use a fake result that mimics `koala validate --story=B-a2f1 --json` returning
+    //     allPass=false + verificationCoverage with stale entries.
+    const fakeValidateJson = JSON.stringify({
+      provider: 'koala-verifier',
+      allPass: false,
+      verificationCoverage: {
+        total: 1,
+        covered: 0,
+        missingRequired: 1,
+        entries: [{
+          intentRef: 'CHK-001:happy:0',
+          priority: 'must',
+          status: 'stale',
+          desc: 'stale evidence',
+        }],
+      },
+    });
+    const decorated = decorateResult({
+      cmd: 'validate',
+      args: { storyId, story: storyId, json: true },
+      result: fakeValidateJson,
+      store,
+      root,
+      activeStory: { storyId, phase: 'REVIEW' },
+    });
+    const decoratedText = typeof decorated === 'string' ? decorated : JSON.stringify(decorated);
+    assert.ok(decoratedText.includes(EVIDENCE_STALE_MARKER),
+      `validate hint must include EVIDENCE STALE marker. Actual:\n${decoratedText}`);
+    const validateBlock = extractStaleBlock(decoratedText);
+    assert.equal(validateBlock, renderedBlock,
+      `validate stale block must be byte-identical to renderer output.\nGot:\n${validateBlock}\nExpected:\n${renderedBlock}`);
+    assert.ok(!decoratedText.includes('<storyId>'), 'validate hint must not contain <storyId> placeholder');
+
+    // (5) Fresh case: no marker should leak when evidence matches current HEAD.
+    //     Update evidence to current head + materialHash; re-run findStaleEvidence and session_brief.
+    const freshMaterialHash = currentMaterialHash(root);
+    assert.ok(freshMaterialHash, 'fresh material hash should be available');
+    const freshChecklist: ChecklistData = JSON.parse(JSON.stringify(checklist));
+    freshChecklist.items[0].verificationEvidence![0].headHash = driftHead;
+    freshChecklist.items[0].verificationEvidence![0].materialHash = freshMaterialHash;
+    store.writeChecklist(storyId, freshChecklist);
+    const freshStale = findStaleEvidence(root, storyId);
+    assert.equal(freshStale.length, 0, 'fresh evidence should not be detected as stale');
+    const freshHint = renderEvidenceStaleHint(storyId, freshStale, { currentHead: driftHead });
+    assert.equal(freshHint, '', 'renderEvidenceStaleHint must return empty string when no stale entries');
+    const freshBrief = createSessionHandlers({
+      store,
+      root,
+      scanRoot: join(root, 'packages/main'),
+    }).session_brief({});
+    assert.ok(!freshBrief.includes(EVIDENCE_STALE_MARKER),
+      `fresh session_brief must NOT include EVIDENCE STALE marker. Actual:\n${freshBrief}`);
+
+    // (6) No-storyId guard: renderer must omit block entirely (anti-placeholder).
+    const noStoryHint = renderEvidenceStaleHint(undefined, stale, { currentHead: driftHead });
+    assert.equal(noStoryHint, '', 'renderEvidenceStaleHint without storyId must return empty string');
+    const emptyStoryIdHint = renderEvidenceStaleHint('', stale, { currentHead: driftHead });
+    assert.equal(emptyStoryIdHint, '', 'renderEvidenceStaleHint with empty storyId must return empty string');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+/** Extract the EVIDENCE STALE block (marker line + the following 3 indented
+ *  recovery lines) from a surface output, so we can assert byte-identity
+ *  against the renderer output without false negatives from surface-specific
+ *  preamble/trailing text. */
+function extractStaleBlock(output: string): string {
+  const lines = output.split('\n');
+  const markerIdx = lines.findIndex(l => l.startsWith(EVIDENCE_STALE_MARKER));
+  if (markerIdx < 0) return '';
+  // Renderer emits exactly 4 lines: marker / "  Run to recover:" / 2 command lines.
+  return lines.slice(markerIdx, markerIdx + 4).join('\n');
+}
+
+assertStaleEvidenceHintCrossSurface();
 
 console.log('✓ verification freshness smoke passed');

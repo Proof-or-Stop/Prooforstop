@@ -8,9 +8,48 @@
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "in_progress",
+      "startTime": "2026-05-15T16:28:37.014Z",
+      "endTime": null,
+      "userSees": "User runs `koala session_brief` after merging main; in the brief output a new block appears: `⚠ EVIDENCE STALE (materialHash drift after eccd3758): 3 verification intent(s) stale for B-a2f1`. Same block appears in `koala story_advance --phase=TEST/DONE` pre-check output and `koala validate --story=B-a2f1 --json` text output when stale state is detected.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After mutating a material source file referenced by stored evidence, koala session_brief output for B-a2f1 contains the literal string EVIDENCE STALE and a storyId-bearing recovery line",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "After the same mutation, koala validate --story=B-a2f1 --json textOutput contains EVIDENCE STALE marker (replacing the older generic stale hint)",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "After the same mutation, story_advance --phase=TEST pre-check rejects with output containing EVIDENCE STALE marker",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When evidence is fresh (no materialHash drift), none of the three surfaces print EVIDENCE STALE",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "When only koala_metadata-only changes happened after evidence (legacy fresh case), surfaces stay quiet — they do not falsely flag stale",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Surfaces never print EVIDENCE STALE without also printing a copy-paste recovery line including the actual storyId",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -21,7 +60,41 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Immediately after the EVIDENCE STALE marker line, user sees a literal block:\n  Run to recover:\n    koala verification_evidence_refresh_stale --storyId=B-a2f1\n    koala validate --story=B-a2f1 --json\nThe storyId in both lines is the actual story ID (B-a2f1), not a placeholder, so the user copies-and-runs without editing.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Output below EVIDENCE STALE marker contains the literal koala verification_evidence_refresh_stale --storyId=B-a2f1 line",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Same block also contains koala validate --story=B-a2f1 --json line on the following line",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "All three surfaces (session_brief, story_advance pre-check, koala validate) print byte-identical recovery block to avoid users having to recognize multiple formats",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Output never contains the literal placeholder strings <storyId> or <B- when stale state is detected — only the actual storyId is interpolated",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "If story has no storyId context (edge: cross-story session_brief), the recovery block is omitted entirely rather than printing a placeholder",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -32,7 +105,41 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User runs `koala recover_evidence --storyId=B-a2f1`. The command prints first the refresh transcript (`✓ refreshed N verification evidence entries`) then the validate transcript (`koala validate --story=B-a2f1 --json` output). Exits 0 if validate passes after refresh. Exits non-zero with explicit message `recover_evidence refused: material_source_changes / fixture_changes / unexpected_dirty_files present, run git status to inspect` when classifier flags non-koala_metadata dirt.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "koala recover_evidence --storyId=B-a2f1 runs verification_evidence_refresh_stale then validate, prints both transcripts in order, exits 0 when validate passes",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "recover_evidence exits non-zero with a refused message when material_source_changes / fixture_changes / unexpected_dirty_files exist (uses B-6326 DIRTY_WORKTREE_CATEGORIES classifier)",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "recover_evidence proceeds normally when only koala_metadata_changes / runtime_artifact_changes / declared_artifact_changes are present in worktree",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "recover_evidence refuse-list uses an allowlist (koala_metadata + runtime + declared_artifact) so any future DIRTY_WORKTREE_CATEGORIES addition defaults to refuse — no silent loosening",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "recover_evidence does not auto-recover without storyId; missing storyId arg returns explicit error",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
@@ -43,7 +150,41 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`npm --prefix packages/main run test:evidence-recovery-smoke` (or equivalent task wiring) prints `✓ evidence-recovery smoke passed` and asserts: stale-fixture worktree triggers EVIDENCE STALE marker on session_brief / story_advance / validate; recover_evidence refreshes and revalidate passes; recover_evidence refuses on unexpected_dirty_files fixture.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke fixture mutates a tracked material source path under a temp worktree, writes evidence with stale materialHash, asserts session_brief / story_advance / validate all produce EVIDENCE STALE marker with copy-paste storyId line",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke runs recover_evidence and asserts second validate is fresh + passes",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke adds an unexpected_dirty_files path (e.g. packages/main/tests/output/x.json) to the same worktree and asserts recover_evidence refuses with non-zero exit and refused message",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke confirms surfaces produce byte-identical EVIDENCE STALE block (same marker, same recovery block) across session_brief / story_advance / validate",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke confirms recovery block never contains placeholder text when storyId is present",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
