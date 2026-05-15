@@ -4,7 +4,7 @@
   "title": "Add non-gating grill planning artifact commands",
   "description": "Implement a Koala-native version of the grill protocol inspired by mattpocock skills. It must help PLAN clarify intent through structured grill sessions, but must not alter the core INIT/PLAN/DEV/REVIEW/TEST/DONE lifecycle or treat grill transcript as verification evidence.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "keywords": [
     "grill",
@@ -29,6 +29,14 @@
       "action": "advance",
       "timestamp": "2026-05-15T11:29:36.735Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-05-15T11:29:56.557Z",
+      "branch": "story/B-d9ee",
       "user": "Harmonygo",
       "agent": "main"
     }
