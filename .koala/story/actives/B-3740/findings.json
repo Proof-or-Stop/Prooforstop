@@ -15,6 +15,21 @@
         "packages/main/src/core/lifecycle-registry.ts",
         "packages/main/src/tasks/flow-stability-smoke.ts"
       ]
+    },
+    {
+      "id": "B-3740:F-002",
+      "desc": "quality-cleanup: packages/main/src/core/lifecycle-registry.ts:332 exports `LifecycleArtifactRole` type but it is not referenced anywhere in the codebase — the contract test (lifecycle-registry-contract.ts:177) uses an inline `[\"produces\", \"consumes\"] as const` literal instead. Dead export should be removed or actually imported.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-15T23:19:07.523Z",
+      "reviewRound": "2026-05-15T23:16:27.518Z",
+      "reviewRunId": "B-3740:RR-005",
+      "_hash": "1ccebce9e3c49b8baf0edbf542a053483ee0afc7f466c9baeab1ef748dbd7432",
+      "files": [
+        "packages/main/src/core/lifecycle-registry.ts"
+      ]
     }
   ]
 }
