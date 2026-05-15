@@ -4,7 +4,7 @@
   "title": "Make stale verificationEvidence recovery a one-step visible flow",
   "description": "B-c9f5 dirty gate loops included a hidden second failure: after main was merged into the story branch, existing verificationEvidence went stale via materialHash drift, but the user-facing output looked like a generic validation failure. The recovery is mechanical (verification_evidence_refresh_stale + revalidate), so the gap is pure UX. Detect stale state at session_brief / story_advance / koala validate boundaries, print the literal recovery commands as copy-paste lines including the current storyId, and add a single-shot recover_evidence command that runs refresh + revalidate and refuses when non-metadata dirt exists. The story does not auto-recover without user action — only makes the next step unambiguous.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "dirty-gate",
@@ -25,7 +25,7 @@
   ],
   "createdAt": "2026-05-15T13:03:26.346Z",
   "startedAt": "2026-05-15T13:03:26.346Z",
-  "endedAt": null,
+  "endedAt": "2026-05-15T17:02:43.032Z",
   "events": [
     {
       "phase": "INIT",
@@ -90,12 +90,15 @@
       "branch": "story/B-a2f1",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-05-15T17:02:43.032Z",
+      "branch": "story/B-a2f1",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-a2f1",
-    "branch": "story/B-a2f1",
-    "createdAt": "2026-05-15T13:05:58.910Z"
-  },
   "currentReviewRound": "2026-05-15T16:56:00.526Z"
 }
