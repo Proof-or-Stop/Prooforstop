@@ -2,7 +2,7 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -330,8 +330,74 @@ try {
     assert.match(details, /fixture_changes=1/);
     assert.match(details, /unexpected_dirty_files=1/);
     assert.match(details, /packages\/main\/tests\/output\/bl21_lacz_ecoli_minicell\/prodenovo_viewer\.json/);
+    // B-4b22: blocking pollution still surfaces "validation command dirtied
+    // worktree" header; passing-only pollution (next block) gets the "policy-
+    // allowed dirty paths" wording instead.
+    assert.match(details, /validation command dirtied worktree/);
+    assert.match(details, /fail: blocking=/);
   } finally {
     rmSync(categorizedPollutionRoot, { recursive: true, force: true });
+  }
+
+  // B-4b22: pollution that classifies entirely as passing categories
+  // (koala_metadata_changes + runtime_artifact_changes) must NOT trip
+  // executeValidationPlan; status stays 'pass', allPass=true, details swap
+  // to the policy-allowed wording and audit info appears.
+  const passingPollutionRoot = mkdtempSync(join(tmpdir(), 'koala-validation-passing-pollution-'));
+  try {
+    writeFileSync(join(passingPollutionRoot, 'koala.config.json'), JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      testsDir: 'packages/main/tests',
+      fixturesDir: 'packages/main/tests/fixtures',
+      storyDir: '.koala/story/actives',
+      requirementsDir: 'docs/requirements',
+    }));
+    execFileSync('git', ['init'], { cwd: passingPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['config', 'user.name', 'Koala Smoke'], { cwd: passingPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['config', 'user.email', 'smoke@example.test'], { cwd: passingPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    mkdirSync(join(passingPollutionRoot, '.koala', 'story', 'actives', 'B-pass'), { recursive: true });
+    writeFileSync(join(passingPollutionRoot, '.koala', 'story', 'actives', 'B-pass', 'seed.txt'), 'seed\n');
+    execFileSync('git', ['add', '.'], { cwd: passingPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['commit', '-m', 'seed passing pollution smoke'], { cwd: passingPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    resetConfigCache();
+
+    const passingPollution = await executeValidationPlan({
+      provider: 'smoke-passing-pollution',
+      commands: [{
+        label: 'passing pollution writer',
+        command: 'node',
+        args: ['-e', [
+          "const fs = require('fs');",
+          "fs.mkdirSync('.koala/story/actives/B-pass', { recursive: true });",
+          "fs.mkdirSync('.koala', { recursive: true });",
+          "fs.writeFileSync('.koala/story/actives/B-pass/checklist.json', '{}\\n');",
+          "fs.writeFileSync('.koala/activity.jsonl', '{}\\n');",
+        ].join(' ')],
+      }],
+    }, passingPollutionRoot, undefined, 'B-pass');
+
+    const details = passingPollution.details.join('\n');
+    assert.equal(passingPollution.status, 'pass', 'passing-only pollution must NOT trip allPass=false');
+    assert.equal(passingPollution.allPass, true);
+    assert.doesNotMatch(details, /✗ validation command dirtied worktree/, 'passing-only pollution must NOT emit the blocking failure header');
+    assert.match(details, /policy-allowed dirty paths/);
+    assert.match(details, /pass: blocking=0/);
+    assert.match(details, /koala_metadata_changes=1/);
+    assert.match(details, /runtime_artifact_changes=1/);
+    // Audit JSONL must be persisted in the per-story process-events file.
+    const auditPath = join(passingPollutionRoot, '.koala', 'story', 'actives', 'B-pass', 'process-events.jsonl');
+    assert.ok(existsSync(auditPath), 'audit log must be appended to per-story process-events.jsonl');
+    const auditLines = readFileSync(auditPath, 'utf-8').trim().split('\n').filter(Boolean);
+    assert.equal(auditLines.length, 2, 'one audit line per passing category (koala_metadata + runtime_artifact)');
+    for (const line of auditLines) {
+      const ev = JSON.parse(line);
+      assert.equal(ev.type, 'dirty_gate_audit');
+      assert.equal(ev.gate, 'validate-side-effect');
+      assert.equal(ev.storyId, 'B-pass');
+    }
+  } finally {
+    rmSync(passingPollutionRoot, { recursive: true, force: true });
   }
 
   // B-cf60: when the BL21 lacZ viewer path is declared for the active story,

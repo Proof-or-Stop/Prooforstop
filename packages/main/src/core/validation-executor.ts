@@ -6,8 +6,8 @@ import {
   dirtyWorktreeClassifierOptionsFromConfig,
   parseGitPorcelainRow,
   renderDirtyWorktreeGroups,
-  summarizeDirtyWorktreeClassification,
 } from './dirty-worktree.js';
+import { defaultAuditWriter, evaluateDirtyGate, type EvaluateDirtyGateResult } from './dirty-gate-policy.js';
 import type {
   ValidationCommand,
   ValidationCommandResult,
@@ -61,8 +61,26 @@ function detectNewDirtyStatus(before: string[] | null, after: string[] | null): 
   return after.filter(line => !beforePaths.has(statusPath(line)));
 }
 
-// @task B-6326: validation side-effect details share DONE gate dirty ownership vocabulary.
-export function formatWorktreePollutionDetails(result: ValidationCommandResult, projectRoot?: string): string[] {
+// @task B-6326 + B-4b22: validation side-effect details share DONE gate
+// dirty ownership vocabulary AND route through dirty-gate-policy. When every
+// polluted path classifies as a passing category (koala_metadata /
+// runtime_artifact / declared_artifact), the call:
+//   1. flips `result.worktreePollution.blocking` to false (executeValidationPlan
+//      then reads this to keep allPass = true),
+//   2. swaps the leading "✗ validation command dirtied worktree" line for a
+//      "✓ … (passed by dirty-gate-policy)" wording so downstream readers see
+//      that the loosening was intentional,
+//   3. emits audit lines into <projectRoot>/<storyDir>/<storyId>/process-events.jsonl
+//      when a storyId is supplied. Storyless callers pass null writer (no
+//      audit; gate degrades to blocking on failure path).
+//
+// Anti-divergence (preMortem #3): both story-advance.ts and this function
+// import evaluateDirtyGate from the same module. No inline category check.
+export function formatWorktreePollutionDetails(
+  result: ValidationCommandResult,
+  projectRoot?: string,
+  storyId?: string,
+): string[] {
   const pollution = result.worktreePollution;
   if (!pollution || pollution.statusLines.length === 0) return [];
   const config = projectRoot ? loadConfig(projectRoot) : undefined;
@@ -70,12 +88,35 @@ export function formatWorktreePollutionDetails(result: ValidationCommandResult, 
     pollution.statusLines,
     config ? dirtyWorktreeClassifierOptionsFromConfig(config) : {},
   );
-  return [
-    `✗ validation command dirtied worktree: ${result.label}: ${formatValidationCommand(result)}`,
-    `  ${summarizeDirtyWorktreeClassification(classification)}`,
+  const writer = projectRoot && storyId && config
+    ? defaultAuditWriter(projectRoot, config.storyDir, storyId)
+    : null;
+  const evaluation: EvaluateDirtyGateResult = evaluateDirtyGate(classification, {
+    storyId: storyId ?? 'anonymous',
+    gate: 'validate-side-effect',
+    writer,
+  });
+  // Propagate blocking decision back to executeValidationPlan via a typed flag.
+  pollution.blocking = !evaluation.allPass;
+
+  const mark = evaluation.allPass ? '✓' : '✗';
+  const header = evaluation.allPass
+    ? `${mark} validation command produced policy-allowed dirty paths: ${result.label}: ${formatValidationCommand(result)}`
+    : `${mark} validation command dirtied worktree: ${result.label}: ${formatValidationCommand(result)}`;
+  const lines = [
+    header,
+    `  ${evaluation.allPass ? 'pass' : 'fail'}: ${evaluation.summary}`,
     ...renderDirtyWorktreeGroups(classification, { sampleLimit: 6, indent: '  ' }),
-    '  validation commands must be side-effect-free by default; gate report generation behind an env var or configure side-effect-free validate.command(s)',
   ];
+  if (evaluation.auditFailure) {
+    lines.push(`  ${evaluation.auditFailure}`);
+  }
+  if (!evaluation.allPass) {
+    lines.push('  validation commands must be side-effect-free by default; gate report generation behind an env var or configure side-effect-free validate.command(s)');
+  } else {
+    lines.push('  audit lines appended to process-events.jsonl by dirty-gate-policy (B-4b22)');
+  }
+  return lines;
 }
 
 export function runValidationCommand(command: ValidationCommand, projectRoot: string): Promise<ValidationCommandResult> {
@@ -147,6 +188,7 @@ export async function executeValidationPlan(
   plan: ValidationPlan,
   projectRoot: string,
   headSha?: string,
+  storyId?: string,
 ): Promise<ValidationResult> {
   const commands: ValidationCommandResult[] = [];
   const details: string[] = [];
@@ -163,7 +205,7 @@ export async function executeValidationPlan(
     if (result.output.trim()) {
       details.push(...result.output.trim().split('\n').filter(Boolean).map((line) => `  ${line}`));
     }
-    details.push(...formatWorktreePollutionDetails(result, projectRoot));
+    details.push(...formatWorktreePollutionDetails(result, projectRoot, storyId));
     if (failed && result.optional) {
       warnings.push(`optional validation failed: ${result.label}`);
     }
@@ -171,7 +213,14 @@ export async function executeValidationPlan(
 
   const requiredFailures = commands.filter((r) => !r.optional && (r.code !== 0 || r.timedOut));
   const optionalFailures = commands.filter((r) => r.optional && (r.code !== 0 || r.timedOut));
-  const pollutionFailures = commands.filter((r) => r.worktreePollution && r.worktreePollution.statusLines.length > 0);
+  // @task B-4b22: pollution only counts as failure if dirty-gate-policy
+  // marked it blocking. Passing-only category pollution (koala_metadata /
+  // runtime_artifact / declared_artifact) is allowed and audited.
+  const pollutionFailures = commands.filter((r) => {
+    if (!r.worktreePollution || r.worktreePollution.statusLines.length === 0) return false;
+    // blocking undefined → legacy back-compat: treat as blocking.
+    return r.worktreePollution.blocking !== false;
+  });
   const allPass = requiredFailures.length === 0 && pollutionFailures.length === 0;
   const status = allPass ? (optionalFailures.length > 0 || warnings.length > 0 ? 'warn' : 'pass') : 'fail';
 

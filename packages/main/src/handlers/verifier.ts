@@ -525,7 +525,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           provider: usingConfigured ? 'koala-verifier-configured-commands' : 'koala-verifier-fallback-commands',
           commands,
           warnings: [],
-        }, projectRoot, currentHead(projectRoot));
+        }, projectRoot, currentHead(projectRoot), args.story);
         for (const cmd of commands) {
           ctx.log?.(`ran: ${cmd.command} ${cmd.args.join(' ')}`);
         }
@@ -587,19 +587,25 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         args: ['tsx', ...tsArgs],
       }, projectRoot);
       const { code, output } = commandResult;
-      // @task B-6326: verifier surfaces categorized dirty ownership details.
-      const pollutionDetails = formatWorktreePollutionDetails(commandResult, projectRoot);
+      // @task B-6326 + B-4b22: verifier surfaces categorized dirty ownership
+      // details AND respects dirty-gate-policy. When every polluted path
+      // classifies as a passing category the pollution.blocking flag is
+      // flipped false and we keep status=pass.
+      const pollutionDetails = formatWorktreePollutionDetails(commandResult, projectRoot, args.story);
       if (pollutionDetails.length > 0) {
+        const isBlocking = commandResult.worktreePollution?.blocking !== false;
         const polluted = externalResult({
-          status: 'fail',
-          summary: 'Validation command dirtied the worktree',
+          status: isBlocking ? 'fail' : 'pass',
+          summary: isBlocking
+            ? 'Validation command dirtied the worktree'
+            : 'Validation command produced policy-allowed dirty paths (audited)',
           details: [
             ...pollutionDetails,
             ...(output.trim() ? output.trim().split('\n').filter(Boolean).map(line => `  output: ${line}`) : []),
           ],
-          warnings: [
+          warnings: isBlocking ? [
             'Validation side effects are not auto-restored because tracked snapshots/docs may be legitimate review artifacts.',
-          ],
+          ] : [],
           headSha: currentHead(projectRoot),
           commands: [commandResult],
         });

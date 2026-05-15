@@ -8,8 +8,8 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-05-15T18:50:13.361Z",
       "endTime": null,
       "userSees": "User imports evaluateDirtyGate from packages/main/src/core/dirty-gate-policy.ts and sees a deterministic shape: { allPass: boolean; blockingCounts: { material_source_changes: N, fixture_changes: N, unexpected_dirty_files: N }; passingCounts: { koala_metadata_changes: N, runtime_artifact_changes: N, declared_artifact_changes: N }; auditEvents: AuditEvent[] }. DIRTY_GATE_POLICY table is a const object listing all 6 DIRTY_WORKTREE_CATEGORIES with explicit { blocking: boolean; auditReason: string } values; an exhaustive runtime guard throws if any future enum value is missing from the table.",
       "verificationIntent": {
@@ -39,7 +39,53 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "assertDirtyGatePolicyAcrossGates section (3) — passing-fixture evaluateDirtyGate returns allPass=true with 3 audit events",
+          "headHash": "93e44337faf01952701e4967c8d87a43d33562da",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T19:01:05.595Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "section (4) — empty classification → allPass=true, summary blocking=0; passed=0, zero audit events",
+          "headHash": "93e44337faf01952701e4967c8d87a43d33562da",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T19:01:05.750Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/dirty-gate-policy.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "assertPolicyCovers throws when category missing; smoke section (1) calls assertPolicyCovers via doesNotThrow assertion + length invariant",
+          "headHash": "93e44337faf01952701e4967c8d87a43d33562da",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T19:01:05.906Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "section (1) directly asserts each of the 6 DIRTY_GATE_POLICY blocking flags",
+          "headHash": "93e44337faf01952701e4967c8d87a43d33562da",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T19:01:06.063Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -48,8 +94,8 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-05-15T18:52:29.099Z",
       "endTime": null,
       "userSees": "User runs koala story_advance --phase=TEST --storyId=B-4b22 on a worktree where only .koala/story/actives/B-4b22/findings.json is dirty; DONE pre-check git-working-tree row reports: status=pass detail=pass: blocking=0 (material+fixture+unexpected); passed=1 (koala_metadata_changes=1). With packages/main/src/foo.ts modified (material_source_changes=1), same row reports: status=fail detail=fail: blocking=1 (material_source_changes=1); passed=0. Same evaluator output drives validation-executor side-effect guard wording.",
       "verificationIntent": {
@@ -84,7 +130,64 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/story-advance.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "assertDoneChecklistUsesStableOracleRows smoke verifies git-working-tree detail = fail: blocking=...; passing fixture (only koala_metadata) → status PASS in assertSessionBriefStatusHintsMatchGates",
+          "headHash": "93e44337faf01952701e4967c8d87a43d33562da",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T19:01:18.555Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/validation-executor.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "validation-protocol-smoke passingPollutionRoot fixture: status=pass + audit lines in process-events.jsonl",
+          "headHash": "93e44337faf01952701e4967c8d87a43d33562da",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T19:01:18.707Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/story-advance.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "assertDoneChecklistUsesStableOracleRows fixture has 1 material + 1 fixture + 1 unexpected + passing → row status=fail with all 3 blocking categories named",
+          "headHash": "93e44337faf01952701e4967c8d87a43d33562da",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T19:01:18.864Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "section (2)/(3) directly assert summary string format: blocking=N (categoryA=N1,...); passed=M (categoryX=M1,...)",
+          "headHash": "93e44337faf01952701e4967c8d87a43d33562da",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T19:01:19.052Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "assertDirtyGatePolicyAcrossGates section (7) — grep-based import-isolation: category literals appear only in import statements or comments in story-advance.ts and validation-executor.ts",
+          "headHash": "93e44337faf01952701e4967c8d87a43d33562da",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T19:01:19.209Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -93,8 +196,8 @@
       "relatedDocs": [
         "CLAUDE.md#worktree-生命周期"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-05-15T18:55:33.629Z",
       "endTime": null,
       "userSees": "After every gate decision that lets ≥1 path pass, .koala/story/actives/B-4b22/process-events.jsonl gains one line: {\"type\":\"dirty_gate_audit\",\"storyId\":\"B-4b22\",\"gate\":\"done-gate\"|\"test-pre-check\"|\"validate-side-effect\",\"category\":\"koala_metadata_changes\",\"pathCount\":N,\"paths\":[\"<=5 sample paths\"],\"reason\":\"<auditReason from policy>\",\"timestamp\":\"<ISO>\"}. One audit entry per allowed category per gate invocation. User runs koala session_brief and sees recent activity references dirty_gate_audit.",
       "verificationIntent": {
@@ -124,7 +227,53 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/dirty-gate-policy.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "validation-protocol-smoke passingPollutionRoot fixture asserts 2 audit lines (koala_metadata + runtime_artifact) in .koala/story/actives/B-pass/process-events.jsonl with type=dirty_gate_audit",
+          "headHash": "93e44337faf01952701e4967c8d87a43d33562da",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T19:01:30.941Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "section (4) — empty classification → auditEvents.length === 0 + section (2) blocking-only → auditEvents.length === 0",
+          "headHash": "93e44337faf01952701e4967c8d87a43d33562da",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T19:01:31.100Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "section (9) — 8 paths in koala_metadata → pathCount=8, paths.length===AUDIT_PATH_SAMPLE_LIMIT(5)",
+          "headHash": "93e44337faf01952701e4967c8d87a43d33562da",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T19:01:31.255Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "section (6) — failingWriter throws ENOSPC → result.allPass=false + auditFailure starts with AUDIT WRITE FAILED:",
+          "headHash": "93e44337faf01952701e4967c8d87a43d33562da",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T19:01:31.411Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -134,8 +283,8 @@
         "docs/requirements/decisions/testing-completeness.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-05-15T18:55:39.210Z",
       "endTime": null,
       "userSees": "npm --prefix packages/main run test:flow-stability-smoke and npm --prefix packages/main run test:validation-protocol output ✓ passed and include explicit assertions: (a) 3 blocking categories coexisting → fail with all named in hint; (b) only passing categories → pass + audit lines; (c) DIRTY_GATE_POLICY size matches DIRTY_WORKTREE_CATEGORIES length; (d) audit write fs failure → gate blocks with AUDIT WRITE FAILED.",
       "verificationIntent": {
@@ -180,7 +329,86 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "section (2) of assertDirtyGatePolicyAcrossGates — 3 blocking categories coexist → allPass=false + all 3 names + counts in summary",
+          "headHash": "93e44337faf01952701e4967c8d87a43d33562da",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T19:01:47.446Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "section (3) + section (8) — only passing categories → allPass=true with 3 audit events; section (8) writes them via defaultAuditWriter and verifies process-events.jsonl persistence",
+          "headHash": "93e44337faf01952701e4967c8d87a43d33562da",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T19:01:47.604Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "section (5) BL21 fixture — single declared_artifact_changes path with full BL21 viewer path → allPass=true, 1 audit event",
+          "headHash": "93e44337faf01952701e4967c8d87a43d33562da",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T19:01:47.757Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "section (5) — BL21 lacZ declared_artifact_changes path → allPass=true + audit event matches BL21 path",
+          "headHash": "93e44337faf01952701e4967c8d87a43d33562da",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T19:01:47.915Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "section (1) — Object.keys(DIRTY_GATE_POLICY).length === DIRTY_WORKTREE_CATEGORIES.length",
+          "headHash": "93e44337faf01952701e4967c8d87a43d33562da",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T19:01:48.070Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "section (6) — failingWriter stub → allPass=false + AUDIT WRITE FAILED prefix",
+          "headHash": "93e44337faf01952701e4967c8d87a43d33562da",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T19:01:48.224Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "section (7) — grep packages/main/src/handlers/story-advance.ts and core/validation-executor.ts; category literal appearances allowed only inside import statements or comments",
+          "headHash": "93e44337faf01952701e4967c8d87a43d33562da",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T19:01:48.376Z"
+        }
+      ]
     }
   ]
 }

@@ -13,7 +13,18 @@ import {
   dirtyWorktreeClassifierOptionsForStory,
   dirtyWorktreeClassifierOptionsFromConfig,
   parseGitPorcelainRow,
+  DIRTY_WORKTREE_CATEGORIES,
+  emptyDirtyWorktreeGroups,
 } from '../core/dirty-worktree.js';
+import {
+  DIRTY_GATE_POLICY,
+  assertPolicyCovers,
+  defaultAuditWriter,
+  evaluateDirtyGate,
+  AUDIT_PATH_SAMPLE_LIMIT,
+  type AuditEvent,
+  type AuditWriter,
+} from '../core/dirty-gate-policy.js';
 import { evaluateDeclaredArtifactReferences } from '../core/declared-artifact-gate.js';
 import { createArtifactDeclareHandlers } from '../handlers/artifact-declare.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
@@ -266,6 +277,219 @@ function assertDirtyWorktreeClassifierGroupsOwnership(): void {
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
+}
+
+// @task B-4b22 regression block — registry / blocking / passing / audit /
+// import-isolation invariants of the dirty-gate-policy module. Covers all
+// three preMortem anchors from the story's decision.json.
+function assertDirtyGatePolicyAcrossGates(): void {
+  const STORY = 'B-smoke-policy';
+  const fixedNow = () => '2026-05-15T18:00:00.000Z';
+
+  // Build a typed classification from a list of {category, path} pairs without
+  // running classifyGitStatusRows (so the test is independent of the
+  // classifier's heuristics). Status code "?? " keeps parseGitPorcelainRow
+  // happy if anyone later swaps in a real row.
+  function buildClassification(
+    entries: Array<{ category: string; path: string }>,
+  ): import('../core/dirty-worktree.js').DirtyWorktreeClassification {
+    const groups = emptyDirtyWorktreeGroups();
+    for (const { category, path } of entries) {
+      const cat = category as keyof typeof groups;
+      groups[cat].push({
+        raw: `?? ${path}`,
+        statusCode: '??',
+        rawPath: path,
+        path,
+        category: cat as any,
+      });
+    }
+    return {
+      total: entries.length,
+      entries: DIRTY_WORKTREE_CATEGORIES.flatMap((c) => groups[c]),
+      groups,
+    };
+  }
+
+  // (1) registry-vs-policy invariant — preMortem #1 anchor.
+  assert.equal(
+    Object.keys(DIRTY_GATE_POLICY).length,
+    DIRTY_WORKTREE_CATEGORIES.length,
+    'DIRTY_GATE_POLICY entry count must equal DIRTY_WORKTREE_CATEGORIES.length (B-4b22 preMortem #1)',
+  );
+  assert.doesNotThrow(() => assertPolicyCovers(), 'assertPolicyCovers() must not throw against current registry');
+  // Explicit blocking/passing partition is the safety contract.
+  assert.equal(DIRTY_GATE_POLICY.material_source_changes.blocking, true);
+  assert.equal(DIRTY_GATE_POLICY.fixture_changes.blocking, true);
+  assert.equal(DIRTY_GATE_POLICY.unexpected_dirty_files.blocking, true);
+  assert.equal(DIRTY_GATE_POLICY.koala_metadata_changes.blocking, false);
+  assert.equal(DIRTY_GATE_POLICY.runtime_artifact_changes.blocking, false);
+  assert.equal(DIRTY_GATE_POLICY.declared_artifact_changes.blocking, false);
+
+  // (2) blocking 3 类共存 → allPass=false with names + counts.
+  const blockingFixture = buildClassification([
+    { category: 'material_source_changes', path: 'packages/main/src/foo.ts' },
+    { category: 'fixture_changes', path: 'packages/main/tests/fixtures/x.json' },
+    { category: 'unexpected_dirty_files', path: 'random.tmp' },
+  ]);
+  const blockingResult = evaluateDirtyGate(blockingFixture, {
+    storyId: STORY,
+    gate: 'test-pre-check',
+    writer: null,
+    now: fixedNow,
+  });
+  assert.equal(blockingResult.allPass, false, '3 blocking categories must yield allPass=false');
+  assert.equal(blockingResult.blockingCounts.material_source_changes, 1);
+  assert.equal(blockingResult.blockingCounts.fixture_changes, 1);
+  assert.equal(blockingResult.blockingCounts.unexpected_dirty_files, 1);
+  assert.match(blockingResult.summary, /material_source_changes=1/);
+  assert.match(blockingResult.summary, /fixture_changes=1/);
+  assert.match(blockingResult.summary, /unexpected_dirty_files=1/);
+  assert.equal(blockingResult.auditEvents.length, 0, 'pure-blocking fixture must emit zero audit events');
+
+  // (3) passing 3 类共存 → allPass=true with 3 audit events.
+  const passingFixture = buildClassification([
+    { category: 'koala_metadata_changes', path: '.koala/story/actives/B-x/index.json' },
+    { category: 'runtime_artifact_changes', path: '.koala/activity.jsonl' },
+    { category: 'declared_artifact_changes', path: 'packages/main/tests/output/declared.json' },
+  ]);
+  const passingCapture: AuditEvent[] = [];
+  const passingResult = evaluateDirtyGate(passingFixture, {
+    storyId: STORY,
+    gate: 'done-gate',
+    writer: (ev) => { passingCapture.push(ev); },
+    now: fixedNow,
+  });
+  assert.equal(passingResult.allPass, true, 'passing-only fixture must yield allPass=true');
+  assert.equal(passingResult.auditEvents.length, 3, '3 passing categories must emit 3 audit events');
+  assert.equal(passingCapture.length, 3, 'writer must be invoked once per passing category');
+  assert.match(passingResult.summary, /passed=3/);
+  assert.match(passingResult.summary, /koala_metadata_changes=1/);
+  assert.match(passingResult.summary, /runtime_artifact_changes=1/);
+  assert.match(passingResult.summary, /declared_artifact_changes=1/);
+
+  // (4) B-3506 scenario — empty classification → allPass=true, no audit.
+  const emptyResult = evaluateDirtyGate(buildClassification([]), {
+    storyId: STORY,
+    gate: 'test-pre-check',
+    writer: null,
+    now: fixedNow,
+  });
+  assert.equal(emptyResult.allPass, true);
+  assert.equal(emptyResult.auditEvents.length, 0, 'empty classification must not write audit events');
+  assert.equal(emptyResult.summary, 'blocking=0; passed=0');
+
+  // (5) BL21 lacZ scenario — single declared_artifact_changes path passes.
+  const BL21 = 'packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json';
+  const bl21Result = evaluateDirtyGate(
+    buildClassification([{ category: 'declared_artifact_changes', path: BL21 }]),
+    { storyId: STORY, gate: 'done-gate', writer: null, now: fixedNow },
+  );
+  assert.equal(bl21Result.allPass, true);
+  assert.equal(bl21Result.auditEvents.length, 1);
+  assert.equal(bl21Result.auditEvents[0].category, 'declared_artifact_changes');
+  assert.equal(bl21Result.auditEvents[0].paths[0], BL21);
+
+  // (6) audit-write-failure → AUDIT WRITE FAILED + allPass forced false.
+  // preMortem #2 anchor.
+  const failingWriter: AuditWriter = () => { throw new Error('ENOSPC: no space left'); };
+  const auditFailResult = evaluateDirtyGate(passingFixture, {
+    storyId: STORY,
+    gate: 'done-gate',
+    writer: failingWriter,
+    now: fixedNow,
+  });
+  assert.equal(auditFailResult.allPass, false, 'writer throw must force allPass=false');
+  assert.ok(
+    auditFailResult.auditFailure && auditFailResult.auditFailure.startsWith('AUDIT WRITE FAILED:'),
+    'auditFailure must surface AUDIT WRITE FAILED prefix',
+  );
+  assert.match(auditFailResult.auditFailure!, /ENOSPC/);
+
+  // (7) import-isolation grep — preMortem #3 anchor. Category literals must
+  // only appear inside `from '../core/dirty-gate-policy.js'` or
+  // `from '../core/dirty-worktree.js'` import lines in the two gate consumers.
+  // At runtime this smoke runs from dist/tasks/; sources live under src/.
+  // Walk up from <pkg>/dist/tasks/ to <pkg>/, then into src/.
+  const distTasksDir = dirname(fileURLToPath(import.meta.url));
+  const pkgRoot = resolve(distTasksDir, '..', '..');
+  const srcRoot = join(pkgRoot, 'src');
+  for (const rel of ['handlers/story-advance.ts', 'core/validation-executor.ts']) {
+    const filePath = join(srcRoot, rel);
+    const src = readFileSync(filePath, 'utf-8');
+    for (const cat of DIRTY_WORKTREE_CATEGORIES) {
+      // Find all line numbers containing the literal.
+      const lines = src.split('\n');
+      const offending: string[] = [];
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (!line.includes(cat)) continue;
+        const trimmed = line.trim();
+        // Allow:
+        //   - Comments (// or block)
+        //   - import lines (single-line or part of a multi-line import block)
+        //   - lines referencing the literal inside a comment
+        if (trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('/*')) continue;
+        if (trimmed.startsWith('import ') || trimmed.includes(' from ')) continue;
+        // Inside multi-line import braces: heuristic — line is just a
+        // bare identifier (no method call, no string, no =)
+        if (/^[A-Za-z_][A-Za-z0-9_]*,?$/.test(trimmed)) continue;
+        offending.push(`${rel}:${i + 1}: ${line}`);
+      }
+      assert.equal(
+        offending.length,
+        0,
+        `inline literal "${cat}" found in ${rel} — must be imported from dirty-gate-policy.ts (B-4b22 preMortem #3)\n${offending.join('\n')}`,
+      );
+    }
+  }
+
+  // (8) defaultAuditWriter happy path — actually append to a tmp file.
+  const tmpRoot = mkdtempSync(join(tmpdir(), 'koala-dirty-audit-'));
+  try {
+    const storyDirRel = '.koala/story/actives';
+    mkdirSync(join(tmpRoot, storyDirRel, STORY), { recursive: true });
+    const writer = defaultAuditWriter(tmpRoot, storyDirRel, STORY);
+    const result = evaluateDirtyGate(passingFixture, {
+      storyId: STORY,
+      gate: 'validate-side-effect',
+      writer,
+      now: fixedNow,
+    });
+    assert.equal(result.allPass, true);
+    const jsonlPath = join(tmpRoot, storyDirRel, STORY, 'process-events.jsonl');
+    assert.ok(existsSync(jsonlPath), 'process-events.jsonl must be created by defaultAuditWriter');
+    const persisted = readFileSync(jsonlPath, 'utf-8').trim().split('\n').filter(Boolean);
+    assert.equal(persisted.length, 3, 'must write one JSONL row per passing category');
+    for (const line of persisted) {
+      const ev = JSON.parse(line);
+      assert.equal(ev.type, 'dirty_gate_audit');
+      assert.equal(ev.storyId, STORY);
+      assert.equal(ev.gate, 'validate-side-effect');
+      assert.equal(ev.timestamp, fixedNow());
+      assert.ok(typeof ev.reason === 'string' && ev.reason.length > 0);
+    }
+  } finally {
+    rmSync(tmpRoot, { recursive: true, force: true });
+  }
+
+  // (9) path truncation — >5 paths in a passing category truncate to 5 with
+  // pathCount preserved.
+  const manyPaths = Array.from({ length: 8 }, (_, i) => `.koala/story/actives/B-x/file-${i}.json`);
+  const manyFixture = buildClassification(
+    manyPaths.map((p) => ({ category: 'koala_metadata_changes', path: p })),
+  );
+  const truncResult = evaluateDirtyGate(manyFixture, {
+    storyId: STORY,
+    gate: 'done-gate',
+    writer: null,
+    now: fixedNow,
+  });
+  assert.equal(truncResult.allPass, true);
+  assert.equal(truncResult.auditEvents.length, 1);
+  assert.equal(truncResult.auditEvents[0].pathCount, 8);
+  assert.equal(truncResult.auditEvents[0].paths.length, AUDIT_PATH_SAMPLE_LIMIT, 'paths must be truncated to 5');
+  assert.equal(truncResult.auditEvents[0].paths.length, 5);
 }
 
 function assertDispatchPromptsPinImplementerCommitAuthor(): void {
@@ -1013,12 +1237,20 @@ function assertSessionBriefStatusHintsMatchGates(): void {
     assert.match(testBrief, /\[FAIL\] delivery-check/);
     assert.match(testBrief, /\[FAIL\] Story summary/);
     assert.match(testBrief, /DONE pre-check 还有/);
-    assert.match(testBrief, /先处理这些 dirty path/);
+    // B-4b22: koala_metadata_changes is a passing category, so the git-working-tree
+    // row now reports PASS with "pass: blocking=0 ...; passed=N (koala_metadata_changes=N)".
+    // The KOALA_WRITE side-effect hint only appears when the row fails, so it is
+    // no longer asserted here. session_brief still surfaces "Working tree dirty
+    // (N files)" because dirt exists even when policy allows it.
+    assert.match(testBrief, /\[PASS\] git working tree/);
+    assert.match(testBrief, /pass: blocking=0/);
     assert.match(testBrief, /koala_metadata_changes/);
-    assert.match(testBrief, /KOALA_WRITE_\*_REPORT|默认无副作用/);
+    assert.match(testBrief, /Working tree dirty/);
     assert.match(testBrief, /delivery_check_set/);
     assert.match(testBrief, /summary_set/);
-    assert.match(nextStep, /git-working-tree, delivery-check, story-summary/);
+    // B-4b22: koala_metadata-only pollution passes via dirty-gate-policy, so
+    // git-working-tree no longer appears in the blocked-row list.
+    assert.match(nextStep, /delivery-check, story-summary/);
     assert.match(nextStep, /全部通过后再 story_advance --phase=DONE/);
     assert.match(testBrief, /全部通过后再 story_advance --phase=DONE/);
     assert.doesNotMatch(testBrief, /下一步：story_advance --storyId=B-smoke --phase=DONE/);
@@ -1462,7 +1694,10 @@ function assertDoneChecklistUsesStableOracleRows(): void {
     assert.equal(byId.get('git-working-tree')?.status, 'fail');
     assert.equal(byId.get('git-working-tree')?.source, 'git status --porcelain');
     assert.equal(byId.get('git-working-tree')?.blocking, true);
-    assert.match(byId.get('git-working-tree')?.detail ?? '', /dirty path\(s\) by category/);
+    // B-4b22: detail now follows the policy summary format:
+    //   "fail: blocking=N (...); passed=M (...)"
+    assert.match(byId.get('git-working-tree')?.detail ?? '', /^fail: blocking=/);
+    assert.match(byId.get('git-working-tree')?.detail ?? '', /passed=/);
     assert.match(byId.get('git-working-tree')?.detail ?? '', /koala_metadata_changes=/);
     assert.match(byId.get('git-working-tree')?.detail ?? '', /runtime_artifact_changes=1/);
     assert.match(byId.get('git-working-tree')?.detail ?? '', /fixture_changes=1/);
@@ -2060,6 +2295,7 @@ function assertDeclaredArtifactsChannel(): void {
 
 assertSessionBriefGate();
 assertDirtyWorktreeClassifierGroupsOwnership();
+assertDirtyGatePolicyAcrossGates();
 assertDeclaredArtifactsChannel();
 assertFlowFactPolicyRegistry();
 assertPhaseGatePolicyHints();

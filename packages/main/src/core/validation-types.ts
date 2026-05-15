@@ -25,6 +25,15 @@ export interface ValidationCommandResult {
   worktreePollution?: {
     statusLines: string[];
     paths: string[];
+    /**
+     * @task B-4b22: when false, the dirty-gate-policy classified every
+     * polluted path into a passing category (koala_metadata / runtime_artifact
+     * / declared_artifact) and audit lines were written. The execute plan
+     * still records the pollution for visibility but does NOT flip allPass.
+     * Undefined for legacy callers — treated as `true` (blocking) by
+     * `executeValidationPlan` (back-compat).
+     */
+    blocking?: boolean;
   };
 }
 

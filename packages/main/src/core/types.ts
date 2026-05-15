@@ -729,7 +729,8 @@ export type ProcessEventType =
   | 'codex_cli'
   | 'codex_adapter_verification'
   | 'reviewer_finding'
-  | 'review_pass';
+  | 'review_pass'
+  | 'dirty_gate_audit';
 
 export type ProcessEvent = {
   type: ProcessEventType;

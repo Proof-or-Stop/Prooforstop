@@ -31,8 +31,8 @@ import {
   dirtyWorktreeClassifierOptionsForStory,
   dirtyWorktreeClassifierOptionsFromConfig,
   renderDirtyWorktreeGroups,
-  summarizeDirtyWorktreeClassification,
 } from '../core/dirty-worktree.js';
+import { defaultAuditWriter, evaluateDirtyGate, type DirtyGateName, type EvaluateDirtyGateResult } from '../core/dirty-gate-policy.js';
 import {
   LOCAL_CODEX_VERIFY_COMMAND,
   summarizeCodexEvidence,
@@ -105,29 +105,36 @@ function classifierOptionsForCheck(
   return dirtyWorktreeClassifierOptionsFromConfig(config);
 }
 
-function summarizeGitStatusLines(
+// @task B-4b22: dirty git-working-tree row uses the shared dirty-gate-policy
+// evaluator (single source of truth). Both summary (row.detail) and hint
+// (row.hint) derive from the same EvaluateDirtyGateResult so divergent wording
+// is impossible by construction (preMortem #3 anchor).
+function evaluateDirtyGitStatus(
   lines: string[],
   config: ReturnType<typeof loadConfig>,
-  storyId?: string,
-  store?: StoryStore,
-): string {
+  storyId: string | undefined,
+  store: StoryStore | undefined,
+  gate: DirtyGateName,
+  root: string,
+): { classification: ReturnType<typeof classifyGitStatusRows>; result: EvaluateDirtyGateResult } {
   const classification = classifyGitStatusRows(lines, classifierOptionsForCheck(config, storyId, store));
-  return summarizeDirtyWorktreeClassification(classification);
+  // Writer is wired only when storyId+store are available (so we know where to
+  // append). storyId-less paths (e.g. anonymous status snapshots) skip audit
+  // intentionally and pass null writer to the evaluator.
+  const writer = storyId
+    ? defaultAuditWriter(root, store ? store.storyDirRel() : config.storyDir, storyId)
+    : null;
+  const result = evaluateDirtyGate(classification, {
+    storyId: storyId ?? 'anonymous',
+    gate,
+    writer,
+  });
+  return { classification, result };
 }
 
-function gitStatusDirtyHint(
-  lines: string[],
-  config: ReturnType<typeof loadConfig>,
-  storyId?: string,
-  store?: StoryStore,
-): string {
-  const classification = classifyGitStatusRows(lines, classifierOptionsForCheck(config, storyId, store));
-  return [
-    '先处理这些 dirty path（按 ownership 分类；dirty 仍会阻塞 DONE）:',
-    ...renderDirtyWorktreeGroups(classification, { sampleLimit: 6, indent: '  ' }),
-    '如果这些文件来自 koala validate / npm test 的报告或 snapshot 副作用，请把项目验证改成默认无副作用，或用 env gate（例如 KOALA_WRITE_*_REPORT=1）显式开启写报告。',
-  ].join('\n');
-}
+// Legacy summarizeGitStatusLines / gitStatusDirtyHint helpers retired in
+// B-4b22 — the only call site is now inlined inside the git-working-tree row
+// (around buildDoneChecklist) and routes through evaluateDirtyGitStatus.
 
 function isRegisteredWorktree(repoRoot: string, worktreePath: string): boolean {
   try {
@@ -404,7 +411,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
     }));
   }
 
-  // 3. git working tree clean
+  // 3. git working tree clean (B-4b22: category-aware via dirty-gate-policy)
   const gitStatus = readGitStatusLines(root);
   if (gitStatus.ok && gitStatus.lines.length === 0) {
     rows.push(doneCheckRow({
@@ -415,12 +422,36 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       source: 'git status --porcelain',
     }));
   } else if (gitStatus.ok) {
+    // @task B-4b22: evaluate via shared policy; status follows allPass.
+    // Both detail and hint derive from the same EvaluateDirtyGateResult so
+    // wording stays consistent (preMortem #3 anchor — no inline category
+    // check; consumer-side divergence is structurally impossible).
+    const { classification, result } = evaluateDirtyGitStatus(
+      gitStatus.lines,
+      config,
+      storyId,
+      store,
+      'done-gate',
+      root,
+    );
+    const detail = result.allPass ? `pass: ${result.summary}` : `fail: ${result.summary}`;
+    const hintHeader = result.auditFailure
+      ? result.auditFailure
+      : (result.allPass
+        ? 'all dirty paths matched passing categories; audit lines appended to process-events.jsonl'
+        : '先处理这些 dirty path（按 ownership 分类；dirty 仍会阻塞 DONE）:');
+    const hint = [
+      hintHeader,
+      `  ${result.summary}`,
+      ...renderDirtyWorktreeGroups(classification, { sampleLimit: 6, indent: '  ' }),
+      '如果这些文件来自 koala validate / npm test 的报告或 snapshot 副作用，请把项目验证改成默认无副作用，或用 env gate（例如 KOALA_WRITE_*_REPORT=1）显式开启写报告。',
+    ].join('\n');
     rows.push(doneCheckRow({
       id: 'git-working-tree',
-      status: 'fail',
+      status: result.allPass ? 'pass' : 'fail',
       label: 'git working tree',
-      detail: summarizeGitStatusLines(gitStatus.lines, config, storyId, store),
-      hint: gitStatusDirtyHint(gitStatus.lines, config, storyId, store),
+      detail,
+      hint,
       source: 'git status --porcelain',
     }));
   } else {
