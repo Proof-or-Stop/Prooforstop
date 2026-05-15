@@ -1,0 +1,38 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add phase-commands and phase/transition-artifacts dimensions to the lifecycle registry",
+      "context": "lifecycle-registry.ts LIFECYCLE_TRANSITIONS already carries gates / effects / oracleRows / rendererRow per transition. Extend the registry with two missing dimensions: (1) which koala commands are legal in each phase, (2) which artifact files (init-check.json / scope-check.json / delivery-check.json / test-evidence.json / summary.json / declared-artifacts.json etc.) each phase or transition produces/consumes. Add read-only projection helpers mirroring the existing lifecycleForwardTransitionsByPhase pattern. Do NOT change public behavior — these are additive projections.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add a registry consistency contract test cross-checking command-policy, DEFAULT_PHASE_TOOLS and process-fact lifecycle",
+      "context": "command-policy.ts allowedPhases, config.ts DEFAULT_PHASE_TOOLS, and the process-fact lifecycle references are currently independent truth sources. Add a contract test that fails when any of them diverges from the lifecycle registry's command/phase dimension — proving phase graph, phase event, command policy, and renderer/oracle references are all validated against one registry. Reuse the existing contract-test pattern (flow-stability / process-fact-contract style).",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Verify phase-flow and context still derive from the registry with zero public behavior change",
+      "context": "phase-flow.ts and context.ts already derive phase order / transition graph from lifecycle-registry. Confirm the registry extension does not change any derived value, and add regression coverage proving phase ordinals, allowed transitions, and existing gate/renderer references are byte-identical before and after. No TEST semantics change, no legacy main-type change, no story_advance restructure — those are Story 2/3/4.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
