@@ -77,9 +77,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-15T23:47:20.432Z",
       "userSees": "story-advance.ts (DONE gate) and session.ts (session_brief DONE pre-check) both import buildDoneChecklist from core/done-oracle.js. Running koala validate / story_advance --phase=DONE / koala session_brief produces the exact same DONE checklist rows as before — same rows, same order, same blocking decisions.",
       "verificationIntent": {
         "happy": [
