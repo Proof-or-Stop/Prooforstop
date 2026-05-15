@@ -1,0 +1,15 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Analyze whether scope_check_save should stay PLAN-only or split into planning-scope vs later-phase acknowledgment",
+      "context": "command-policy.ts:111 sets scope_check_save allowedPhases:['PLAN']; config.ts:153 lists it only under PLAN phase tools. When a story rolls back TEST→DEV and adds checklist scope, scope-plan reviewer cannot write a signed scope-check.json (verbal pass only). Decide: keep PLAN-only, or split into a PLAN planning-scope write command + a later-phase evidence/scope acknowledgment command. This is analysis-only backlog — does not block main and does not affect the B-c9f5 dirty gate closure.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
