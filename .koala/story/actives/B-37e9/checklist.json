@@ -148,9 +148,9 @@
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-15T23:47:20.840Z",
       "userSees": "A contract test drives both the DONE gate path and the session_brief path against the same story fixture and asserts the rendered DONE rows are identical, plus a static check that both files import from core/done-oracle.js. The existing DONE checklist smoke (flow-stability declared-artifacts-committed coverage) passes unchanged. koala validate shows the new contract assertion pass.",
       "verificationIntent": {
         "happy": [
