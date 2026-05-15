@@ -9,7 +9,31 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "A framework maintainer opens lifecycle-registry.ts and finds two new read-only projections: a phase-to-commands map and a phase/transition-to-artifacts map (artifacts typed as a known-file enum: init-check.json / scope-check.json / delivery-check.json / test-evidence.json / summary.json / declared-artifacts.json / review-passes.json etc.). Importing lifecycleCommandsByPhase() / lifecycleArtifactsByPhase() returns stable structured data mirroring the existing lifecycleForwardTransitionsByPhase pattern.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lifecycle-registry.ts exports a phase-to-commands projection and a phase/transition-to-artifacts projection; both return stable structured data",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "artifacts dimension is a typed enum of known artifact files, not free text — an unknown artifact name fails type-check / a runtime guard",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "new dimensions are separate exported projections, NOT woven into the LIFECYCLE_TRANSITIONS objects consumed by phase-flow.ts — phase-flow derived values stay byte-identical (preMortem #2 anchor)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

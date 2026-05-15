@@ -1,0 +1,31 @@
+{
+  "task": "lifecycle-registry.ts LIFECYCLE_TRANSITIONS carries gates/effects/oracleRows/rendererRow per transition and phase-flow.ts/context.ts derive the phase graph from it, but the registry has no phase-to-commands or phase/transition-to-artifacts dimension. Command legality lives in command-policy.ts allowedPhases + config.ts DEFAULT_PHASE_TOOLS, artifact production lives implicitly across handlers, with no mechanical proof these stay consistent with the registry.",
+  "outcome": "A framework maintainer runs the lifecycle registry consistency contract test (e.g. npm --prefix packages/main run test:lifecycle-registry-contract or an extension of an existing contract test) and sees output like 'lifecycle-registry consistency: PASS — command-policy/DEFAULT_PHASE_TOOLS/process-fact lifecycle all consistent with registry, 0 divergences'. If a maintainer later adds a command to DEFAULT_PHASE_TOOLS without registering it in the registry command dimension, the contract test fails naming the divergent command. phase-flow.ts/context.ts derived values (phase ordinals, allowed transitions) are byte-identical before and after — no public behavior change.",
+  "facts": [
+    "lifecycle-registry.ts LIFECYCLE_TRANSITIONS has gates/effects/oracleRows/rendererRow per transition (B-d339)",
+    "phase-flow.ts and context.ts already derive phase order + transition graph from lifecycle-registry",
+    "command-policy.ts CommandPolicy.allowedPhases declares per-command phase legality (85 entries)",
+    "config.ts DEFAULT_PHASE_TOOLS is a phase-to-commands map with a * wildcard bucket",
+    "process-fact-levels.ts / process-fact-registry.ts hold process facts including lifecycle gate rows",
+    "contract-test pattern exists: test:runtime-fact-contract"
+  ],
+  "constraints": [
+    "Additive only — no public behavior change, no TEST semantics change, no legacy main-type change, no story_advance restructure (Story 2/3/4 scope)",
+    "New registry dimensions (commands, artifacts) are read-only projections mirroring the existing lifecycleForwardTransitionsByPhase pattern",
+    "The consistency contract must FAIL on divergence and name the divergent command/artifact — not just warn",
+    "phase-flow.ts and context.ts must keep deriving from the registry; derived values must be byte-identical before/after",
+    "Handler 编码约定 not directly relevant (no new handler) but registry projection helpers must be pure functions"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/core/phase-flow.ts",
+    "packages/main/src/handlers/context.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts"
+  ],
+  "timestamp": "2026-05-15T22:56:06.327Z"
+}
