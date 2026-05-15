@@ -7,8 +7,8 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-05-15T23:01:01.011Z",
       "endTime": null,
       "userSees": "A framework maintainer opens lifecycle-registry.ts and finds two new read-only projections: a phase-to-commands map and a phase/transition-to-artifacts map (artifacts typed as a known-file enum: init-check.json / scope-check.json / delivery-check.json / test-evidence.json / summary.json / declared-artifacts.json / review-passes.json etc.). Importing lifecycleCommandsByPhase() / lifecycleArtifactsByPhase() returns stable structured data mirroring the existing lifecycleForwardTransitionsByPhase pattern.",
       "verificationIntent": {
