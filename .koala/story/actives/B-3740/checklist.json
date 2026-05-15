@@ -83,8 +83,8 @@
       "relatedDocs": [
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-05-15T23:07:01.991Z",
       "endTime": null,
       "userSees": "`npm --prefix packages/main run build` is clean and the existing flow-stability / phase-flow regression coverage stays green. A regression test snapshots phase-flow.ts getPhaseInfo / checkPhaseTransition output for every phase and asserts byte-identical before vs after the registry extension — proving zero public behavior change.",
       "verificationIntent": {
