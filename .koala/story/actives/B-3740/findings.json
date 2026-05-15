@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-3740:F-001",
+      "desc": "quality-cleanup: lifecycle-registry.ts has two identically-valued constants for the same concept: pre-existing COMMAND_LIFECYCLE_PHASES (line 52) and newly-added LIFECYCLE_COMMAND_PHASES (line 440) — both list the same 7 phases in the same order. No assertion in flow-stability-smoke.ts checks they remain equal, so a future phase addition to one but not the other will silently produce inconsistent contract checks: assertLifecycleRegistryConsistency() (line 859) uses COMMAND_LIFECYCLE_PHASES while assertPhaseFlowDerivedValuesByteIdentical() (line 963) uses LIFECYCLE_COMMAND_PHASES.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-15T23:13:05.273Z",
+      "reviewRound": "2026-05-15T23:10:14.872Z",
+      "reviewRunId": "B-3740:RR-002",
+      "_hash": "472ac973b76253fc3c63708a9c2717af0ac7785cf2fa42b51829cb884421dfa0",
+      "files": [
+        "packages/main/src/core/lifecycle-registry.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ]
+    }
+  ]
+}
