@@ -1,0 +1,47 @@
+{
+  "storyId": "B-6326",
+  "name": "dirty-ownership-oracle",
+  "title": "Classify dirty worktree paths for TEST and DONE gates",
+  "description": "Field report B-c9f5 on 2026-05-15 showed a REVIEW/TEST loop where Koala validation evidence and generated product output were both reported as generic dirty worktree failure. The current DONE gate uses raw git status and cannot distinguish Koala-owned story metadata, runtime artifacts, declared delivery artifacts, source or fixture changes, and unexpected dirty files. Build a typed dirty ownership oracle first so later lifecycle gates can report and enforce the right category without scattering ad hoc path checks across story_advance, validate, and session output.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "dirty-gate",
+    "worktree",
+    "validation",
+    "lifecycle"
+  ],
+  "riskSignals": [
+    {
+      "category": "状态机/门禁",
+      "matched": "DONE gate"
+    }
+  ],
+  "createdAt": "2026-05-15T11:53:37.230Z",
+  "startedAt": "2026-05-15T11:53:37.230Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-05-15T11:53:37.235Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-05-15T11:59:11.998Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-6326",
+    "branch": "story/B-6326",
+    "createdAt": "2026-05-15T11:59:12.061Z"
+  }
+}

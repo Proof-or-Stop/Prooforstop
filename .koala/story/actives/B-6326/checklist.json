@@ -1,0 +1,39 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add a typed dirty ownership classifier for git status paths",
+      "context": "Create a core helper that accepts git status rows plus project/story context and returns stable categories: koala metadata, runtime artifacts, declared artifacts, material source or config changes, fixture changes, and unexpected dirty files. Reuse existing runtime artifact and story metadata knowledge instead of duplicating path heuristics.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Render categorized dirty output in lifecycle gate hints",
+      "context": "Replace raw dirty worktree messaging in TEST/DONE pre-check surfaces with category rows so users can tell self-written Koala evidence apart from product artifacts and material source drift. Do not loosen DONE blocking policy in this story except where classification is purely explanatory.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Cover Koala metadata and product output classification with smoke tests",
+      "context": "Add focused regression coverage showing current story metadata files classify as Koala metadata, runtime files classify via the runtime artifact registry, and tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json remains unexpected until a later story declares it.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
