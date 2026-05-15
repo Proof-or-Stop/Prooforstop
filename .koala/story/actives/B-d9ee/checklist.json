@@ -91,12 +91,12 @@
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
-          "command": "npm --prefix packages/main run test:grill-planning-artifact-smoke && node scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:grill-planning-artifact-smoke && node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
-          "note": "Smoke and process-fact contract passed: grill artifact has no verificationEvidence key, checklist/test evidence remain separate, and grill commands are non-gate L1/L0 facts.",
-          "headHash": "478fe90bbafffe2759e942f3b368da11026b6de9",
+          "note": "Regression passed after adding a handler-level PLAN phase guard: TEST-phase grill_start/grill_record reject with the current TEST phase and leave grill.json absent or unchanged, while grill_get remains readable.",
+          "headHash": "9aff4d9cf46202285d2388c7b1e0a816b61538a9",
           "materialHash": "e79ec3294399dd7f7cc9f7ed1402abf6f643753f7cb9ffa5bbbdbef07ee874f5",
-          "timestamp": "2026-05-15T12:00:07.581Z"
+          "timestamp": "2026-05-15T12:12:32.642Z"
         }
       ]
     },

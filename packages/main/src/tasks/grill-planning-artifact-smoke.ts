@@ -19,7 +19,7 @@ function write(root: string, path: string, content: string): void {
   writeFileSync(join(root, path), content);
 }
 
-function initStore(): { root: string; store: StoryStore; storyId: string } {
+function initStore(phase: StoryInfo['phase'] = 'PLAN'): { root: string; store: StoryStore; storyId: string } {
   const root = mkdtempSync(join(tmpdir(), 'koala-grill-smoke-'));
   write(root, 'koala.config.json', JSON.stringify({
     scanRoot: 'packages/main',
@@ -39,12 +39,12 @@ function initStore(): { root: string; store: StoryStore; storyId: string } {
     title: 'Grill planning artifact smoke',
     description: 'Synthetic story for grill planning artifact smoke coverage.',
     type: 'chore',
-    phase: 'PLAN',
+    phase,
     priority: 'medium',
     createdAt: now,
     startedAt: now,
     endedAt: null,
-    events: [{ phase: 'PLAN', action: 'advance', timestamp: now }],
+    events: [{ phase, action: 'advance', timestamp: now }],
   };
   const checklist: ChecklistData = {
     items: [{
@@ -152,6 +152,49 @@ function assertRecordNeedsSession(): void {
   }
 }
 
+function assertTestPhaseRejectsMutators(): void {
+  const empty = initStore('TEST');
+  try {
+    const grill = createGrillHandlers({ store: empty.store, root: empty.root, scanRoot: join(empty.root, 'packages/main') });
+    assert.throws(
+      () => grill.grill_start({ storyId: empty.storyId, topic: 'Late planning context must be blocked' }),
+      /grill_start can only mutate grill\.json in PLAN; current phase is TEST, expected PLAN/,
+    );
+    assert.equal(empty.store.readGrill(empty.storyId), null);
+    assert.deepEqual(grill.grill_get({ storyId: empty.storyId }), { _empty: true });
+  } finally {
+    rmSync(empty.root, { recursive: true, force: true });
+  }
+
+  const existing = initStore('TEST');
+  try {
+    const artifactPath = join(existing.root, '.koala/story/actives/B-grill/grill.json');
+    const original = {
+      storyId: existing.storyId,
+      updatedAt: '2026-05-15T10:01:00.000Z',
+      sessions: [{
+        sessionId: 'GRILL-001',
+        topic: 'Existing planning context',
+        status: 'open' as const,
+        startedAt: '2026-05-15T10:01:00.000Z',
+        questions: [],
+      }],
+    };
+    existing.store.writeGrill(existing.storyId, original);
+    const before = readFileSync(artifactPath, 'utf-8');
+    const grill = createGrillHandlers({ store: existing.store, root: existing.root, scanRoot: join(existing.root, 'packages/main') });
+
+    assert.throws(
+      () => grill.grill_record({ storyId: existing.storyId, question: 'Can TEST mutate existing grill context?' }),
+      /grill_record can only mutate grill\.json in PLAN; current phase is TEST, expected PLAN/,
+    );
+    assert.equal(readFileSync(artifactPath, 'utf-8'), before);
+    assert.deepEqual(grill.grill_get({ storyId: existing.storyId }), original);
+  } finally {
+    rmSync(existing.root, { recursive: true, force: true });
+  }
+}
+
 function assertMalformedArtifactFailsClosed(): void {
   const { root, store, storyId } = initStore();
   try {
@@ -216,6 +259,7 @@ function assertStoryReviewAdvisoryOnly(): void {
 assertCommandInventory();
 assertRegistryAndPersistence();
 assertRecordNeedsSession();
+assertTestPhaseRejectsMutators();
 assertMalformedArtifactFailsClosed();
 assertStoryReviewAdvisoryOnly();
 

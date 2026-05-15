@@ -42,13 +42,20 @@ function requireStoryId(storyId: string | undefined): string {
   return storyId.trim();
 }
 
+function requirePlanPhase(ctx: HandlerContext, storyId: string, command: string): void {
+  const story = ctx.store.readStory(storyId);
+  if (story.phase !== 'PLAN') {
+    throw new Error(`${command} can only mutate grill.json in PLAN; current phase is ${story.phase}, expected PLAN`);
+  }
+}
+
 export function createGrillHandlers(ctx: HandlerContext) {
   const { store } = ctx;
 
   return {
     grill_start(args: { storyId: string; topic?: string }): object {
       const storyId = requireStoryId(args.storyId);
-      store.readStory(storyId);
+      requirePlanPhase(ctx, storyId, 'grill_start');
 
       const data = store.readGrill(storyId) || emptyGrill(storyId);
       const session: GrillSession = {
@@ -83,7 +90,7 @@ export function createGrillHandlers(ctx: HandlerContext) {
       source?: string;
     }): object {
       const storyId = requireStoryId(args.storyId);
-      store.readStory(storyId);
+      requirePlanPhase(ctx, storyId, 'grill_record');
       const questionText = args.question?.trim();
       if (!questionText) throw new Error('question is required');
 
@@ -128,7 +135,7 @@ export function createGrillHandlers(ctx: HandlerContext) {
 
     grill_close(args: { storyId: string; sessionId?: string; note?: string; closedBy?: string }): object {
       const storyId = requireStoryId(args.storyId);
-      store.readStory(storyId);
+      requirePlanPhase(ctx, storyId, 'grill_close');
       const data = store.readGrill(storyId) || emptyGrill(storyId);
       const session = args.sessionId ? getSession(data, args.sessionId) : getActiveSession(data);
       if (!session) {
