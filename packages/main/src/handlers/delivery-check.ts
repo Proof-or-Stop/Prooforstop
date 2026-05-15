@@ -24,8 +24,8 @@ import {
 
 // Signature primitives live in core/delivery-check-hash.ts (single source of
 // truth) so core consumers can verify the hash without a core→handlers import.
-// Re-exported here for existing callers that import from this handler module.
-export { DELIVERY_CHECK_SALT, signDeliveryCheck, recomputeDeliveryCheckHash };
+// No re-export here: all callers (core/machine.ts, core/done-oracle.ts, tasks/*)
+// import directly from core/delivery-check-hash.js — keep that the only path.
 
 /**
  * delivery_check_set handler 工厂。

@@ -10,7 +10,7 @@ import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, ClosingSelfCheck, DocsPromise, RealMachineTest, StoryInfo } from '../core/types.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
-import { signDeliveryCheck } from '../handlers/delivery-check.js';
+import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 import { assertCwdInWorktree } from '../handlers/context.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');

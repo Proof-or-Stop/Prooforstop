@@ -11,7 +11,7 @@ import { currentMaterialHash } from '../core/evidence-freshness.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, DeliveryCheckData, StoryInfo, StorySummaryData, TestEvidenceData } from '../core/types.js';
 import { getRuntimeActivityLogPath } from '../core/activity-log.js';
-import { signDeliveryCheck } from '../handlers/delivery-check.js';
+import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 import { createFindingHandlers } from '../handlers/finding.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
