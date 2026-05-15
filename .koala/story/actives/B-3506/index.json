@@ -4,7 +4,7 @@
   "title": "Auto-commit Koala metadata writes so dirty gates stay clean",
   "description": "Field report B-c9f5 on 2026-05-15 surfaced two intertwined dirty gate failures. B-6326 (Dirty Ownership Oracle) classified them, but Koala-owned metadata writes still surface as koala_metadata_changes after every CLI invocation and block REVIEW/TEST/DONE flows. Add a scoped auto-commit step that stages and commits ONLY classifier-confirmed koala_metadata paths after Koala CLI mutations, so koala_metadata_changes trends to zero between commands. Skip auto-commit when material_source_changes, fixture_changes, or unexpected_dirty_files coexist so unrelated dirt is never bundled in. Surface what was auto-committed in session brief / story_advance output so users can audit.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "dirty-gate",
@@ -34,6 +34,19 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-05-15T13:05:43.791Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-3506",
+    "branch": "story/B-3506",
+    "createdAt": "2026-05-15T13:05:43.878Z"
+  }
 }
