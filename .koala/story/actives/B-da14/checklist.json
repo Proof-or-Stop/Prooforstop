@@ -89,6 +89,17 @@
           "headHash": "49334015fad14f728f60601fff387fd3023bd170",
           "materialHash": "73434ce0de6d1738d1c1117fcd913aeeed6d777f42bdb3f4c6cfefb26c5bdce0",
           "timestamp": "2026-05-15T22:21:01.141Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/story-lifecycle.md",
+          "command": "grep -n 合并态组合审查 docs/requirements/decisions/story-lifecycle.md",
+          "result": "pass",
+          "note": "Rule names a concrete enumerated 5-item inspection checklist, not a vague directive sentence — combination review cannot degrade to a rubber-stamp (preMortem #3 anchor)",
+          "headHash": "be3fe9dcb56be98b52d26585aa1f33a1422897a4",
+          "materialHash": "73434ce0de6d1738d1c1117fcd913aeeed6d777f42bdb3f4c6cfefb26c5bdce0",
+          "timestamp": "2026-05-15T22:21:01.443Z"
         }
       ]
     }
