@@ -2,7 +2,7 @@
  * @task B-9cec
  * @checklist CHK-001
  * @title validation no-entry warn/skip policy
- * @type bug
+ * @type bugfix
  * @priority high
  * @description
  *   Back-link docs/requirements/decisions/testing-infra.md:38 to the verifier
