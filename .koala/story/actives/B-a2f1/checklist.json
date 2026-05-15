@@ -1,0 +1,49 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Detect stale verificationEvidence at user-visible entry points",
+      "context": "session_brief, story_advance pre-check (REVIEW/TEST/DONE), and koala validate output must compare current materialHash / headHash with stored evidence and flag stale rows explicitly. The flag must read as 'EVIDENCE STALE (materialHash drift after <sha>)' rather than a generic validation failure. Reuse existing freshness check, do not re-implement.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Print copy-paste recovery commands in stale-evidence output",
+      "context": "Every stale flag must be followed by the exact CLI lines that resolve it for this story: e.g., 'koala verification_evidence_refresh_stale --storyId=B-xxx' then 'koala validate --story=B-xxx --json'. Lines must use the actual storyId, not placeholders, so users copy and run without editing. Output goes into session_brief footer, story_advance hint surface, and koala validate trailing block.",
+      "relatedDocs": [
+        "CLAUDE.md#worktree-生命周期"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add a single-shot recover command that does refresh + revalidate",
+      "context": "Provide 'koala recover_evidence --storyId=B-xxx' (or accept an existing entry point name) that runs verification_evidence_refresh_stale then validate in one go, prints both transcripts, and exits non-zero if validate still fails. The command must refuse to run if there are non-koala_metadata dirty files (material/fixture/unexpected) so it cannot mask real drift.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Regression-prove the stale UX with a simulated main-merge scenario",
+      "context": "Add a smoke test that writes verificationEvidence, mutates a referenced material source file to break materialHash, then asserts: session_brief output, story_advance output, and koala validate output all contain the literal 'EVIDENCE STALE' marker followed by a copy-paste line including the storyId; recover_evidence command refreshes the evidence and revalidate passes; recover_evidence refuses when an unexpected_dirty_files path exists.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

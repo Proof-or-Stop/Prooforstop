@@ -1,0 +1,50 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define a single material dirty gate policy table",
+      "context": "Create one source-of-truth policy mapping each DIRTY_WORKTREE_CATEGORIES entry to a blocking/passing decision and a human-readable audit reason. material_source_changes / fixture_changes / unexpected_dirty_files stay blocking. koala_metadata_changes / runtime_artifact_changes / declared_artifact_changes pass with audit notation. Surface the table in core, not duplicated per gate.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Consume the policy from TEST, DONE, and validate side-effect guard",
+      "context": "Replace inline 'any dirty blocks' checks in story-advance (TEST pre-check + DONE gate) and validation-executor (side-effect guard) with calls into the shared policy table. Output must list per-category counts with the audit reason so users see blocking=material+fixture+unexpected and pass=koala_metadata+runtime+declared. Do NOT relax any blocking that was previously blocked for non-passing categories.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add audit logging when a category is allowed to pass",
+      "context": "When the policy says a category passes (koala_metadata / runtime / declared), record an audit line into the story's process events / activity log: which category, which paths, which command. This is the regression evidence that proves the gate did not silently swallow a real problem.",
+      "relatedDocs": [
+        "CLAUDE.md#worktree-生命周期"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Regression-prove blocking semantics for material/fixture/unexpected stay intact",
+      "context": "Add smoke coverage where a worktree has 1 material_source_changes path + 1 fixture_changes path + 1 unexpected_dirty_files path simultaneously. TEST pre-check, DONE gate, and validate side-effect guard MUST still return blocking and produce hints naming all three categories. Separately assert that a worktree with only koala_metadata_changes (after Story 2 auto-commit) and declared_artifact_changes (after B-cf60 declaration) passes with audit lines.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-completeness.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
