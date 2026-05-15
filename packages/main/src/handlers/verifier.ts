@@ -1,4 +1,19 @@
 /**
+ * @task B-9cec
+ * @checklist CHK-001
+ * @title validation no-entry warn/skip policy
+ * @type bugfix
+ * @priority high
+ * @description
+ *   Back-link docs/requirements/decisions/testing-infra.md:38 to the verifier
+ *   implementation: when no validate.ts/js/mts exists, no configured
+ *   validate.command(s) exist, and no fallback command can be discovered, Koala
+ *   returns warn/skip instead of failure. Projects needing strong validation
+ *   gates must configure validate.command(s).
+ * @changes
+ *   - [CHK-001] Bind no-validator warn/skip requirement to verifier implementation
+ *   - [CHK-002] Cover no-entry warn/skip and configured-command hard-fail behavior
+ *
  * Verifier handlers — koala validate / status / serve
  *
  * These commands prefer the project's validate.ts file when present (D/M/F verifier
@@ -481,12 +496,13 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
 
         if (configuredCommands.length === 0 && fallbackCommands.length === 0) {
           const base = externalResult({
+            provider: 'koala-verifier-no-validation-entry',
             status: 'warn',
             summary: 'No project validator configured; skipped project-specific validation',
             details: [
               `当前目录: ${projectRoot}`,
-              '未找到 validate.ts/js，也未在 koala.config.json 配置 validate.command(s)',
-              '未自动发现 pytest/go test/cargo test/swift test/mvn test/gradle test/npm test 等标准入口',
+              '未找到 validate.ts/js/mts，也未在 koala.config.json 配置 validate.command(s)',
+              '未自动发现 pytest/go test/cargo test/swift test/mvn test/gradle test/npm test 等 fallback 标准入口',
             ],
             warnings: [
               '这是 skip/warn，不是代码失败。需要强门禁时请在 koala.config.json 配置 validate.command 或 validate.commands。',

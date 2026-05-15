@@ -7,9 +7,77 @@
       "relatedDocs": [
         "docs/requirements/decisions/testing-infra.md#测试执行"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-15T10:52:16.290Z",
+      "endTime": "2026-05-15T10:55:40.217Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Inspect verifier implementation after the change -> code near the no-validation-entry path explicitly back-links to docs/requirements/decisions/testing-infra.md:38 and states that missing validate.ts/js/mts, missing validate.command(s), and no fallback command returns warn/skip instead of failure; WHY: closes the requirement-to-code convergence gap mechanically.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run the validation protocol smoke after the implementation back-link -> no-entry runtime behavior remains provider koala-verifier-no-validation-entry with status warn and allPass true; WHY: annotation/back-link must not change verifier behavior.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Review the diff for CHK-001 -> the fix is limited to requirement binding/annotation and does not relax configured validate.command(s) hard-gate behavior or fallback discovery semantics; WHY: closing coverage must not weaken validation policy.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "用户运行 `koala gap_analyze` 后，不再看到 testing-infra.md:38 的 no-entry warn/skip high gap；代码注释能回链到 verifier no-entry policy。",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/handlers/verifier.ts",
+          "command": "rg -n \"@task B-9cec|docs/requirements/decisions/testing-infra.md:38|koala-verifier-no-validation-entry|validate\\.ts/js/mts|skip/warn|validate\\.command\" packages/main/src/handlers/verifier.ts packages/main/src/tasks/validation-protocol-smoke.ts",
+          "result": "pass",
+          "note": "verifier.ts file-level @task B-9cec annotation links docs/requirements/decisions/testing-infra.md:38 to the no-entry warn/skip policy without adding a function-level test gap.",
+          "headHash": "e87bfa0e783dc95e0bf80b470a4dd558b0f4b7e9",
+          "materialHash": "8bb2ca3cfabb200c629eba7f8e5ee44df693e507c972709bb99cd9a9ea42a0bd",
+          "timestamp": "2026-05-15T10:55:40.239Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "validation protocol smoke passed after the annotation and provider change, including the no-entry provider/status/allPass assertions.",
+          "headHash": "e87bfa0e783dc95e0bf80b470a4dd558b0f4b7e9",
+          "materialHash": "8bb2ca3cfabb200c629eba7f8e5ee44df693e507c972709bb99cd9a9ea42a0bd",
+          "timestamp": "2026-05-15T10:55:40.261Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:validation-protocol && node packages/main/dist/tasks/cli-validate.js && koala gap_analyze && koala convergence_check",
+          "result": "pass",
+          "note": "build, smoke, annotation validation, gap analysis, and convergence checks pass; configured validate.command(s) hard-gate behavior is covered separately and was not relaxed while closing the coverage gap.",
+          "headHash": "e87bfa0e783dc95e0bf80b470a4dd558b0f4b7e9",
+          "materialHash": "8bb2ca3cfabb200c629eba7f8e5ee44df693e507c972709bb99cd9a9ea42a0bd",
+          "timestamp": "2026-05-15T10:55:40.282Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -18,9 +86,77 @@
       "relatedDocs": [
         "docs/requirements/decisions/testing-infra.md#测试执行"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-15T10:54:01.324Z",
+      "endTime": "2026-05-15T10:55:48.205Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run npm --prefix packages/main run test:validation-protocol -> the no-entry fixture asserts provider koala-verifier-no-validation-entry, status warn, allPass true, and guidance that strong gates require explicit validate.command(s); WHY: proves non-TS projects without validation entrypoints are skipped/warned rather than failed.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run the configured failing validation-command fixture -> configured validate.command(s) failure returns a hard validation failure with allPass false and does not fall back to discovered package scripts; WHY: explicit project gates must stay authoritative.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Exercise a project root with no validate file, no configured command, and no fallback command -> validate must not throw, must not mark the project failed, and must report warn/skip evidence; WHY: protects Python/Go/C++ or otherwise non-TS projects from false failure.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "用户运行 `npm --prefix packages/main run test:validation-protocol` 后看到 `✓ validation protocol smoke passed`，且 smoke 覆盖 no-entry warn/skip 与 configured hard-fail。",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "validation protocol smoke passed; no-entry fixture asserts provider koala-verifier-no-validation-entry, status warn, allPass true, and validate.command guidance.",
+          "headHash": "e87bfa0e783dc95e0bf80b470a4dd558b0f4b7e9",
+          "materialHash": "8bb2ca3cfabb200c629eba7f8e5ee44df693e507c972709bb99cd9a9ea42a0bd",
+          "timestamp": "2026-05-15T10:55:48.226Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "configured failing validate command fixture asserts provider koala-verifier-configured-commands, status fail, allPass false, exit code 9, and no advisory fallback execution despite package.json test.",
+          "headHash": "e87bfa0e783dc95e0bf80b470a4dd558b0f4b7e9",
+          "materialHash": "8bb2ca3cfabb200c629eba7f8e5ee44df693e507c972709bb99cd9a9ea42a0bd",
+          "timestamp": "2026-05-15T10:55:48.248Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:validation-protocol && node packages/main/dist/tasks/cli-validate.js && koala gap_analyze && koala convergence_check",
+          "result": "pass",
+          "note": "build and smoke pass for the no-entry root with no validate file, no configured command, and no fallback command; validate reports warn/skip instead of throwing or failing, and convergence has no high-priority gap.",
+          "headHash": "e87bfa0e783dc95e0bf80b470a4dd558b0f4b7e9",
+          "materialHash": "8bb2ca3cfabb200c629eba7f8e5ee44df693e507c972709bb99cd9a9ea42a0bd",
+          "timestamp": "2026-05-15T10:55:48.270Z"
+        }
+      ]
     }
   ]
 }

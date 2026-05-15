@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-9cec:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept review pass: verifier no-entry path explicitly binds testing-infra.md:38 and preserves semantics: missing validate.ts/js/mts plus no configured validate.command(s) plus no discovered fallback returns provider koala-verifier-no-validation-entry with status warn/allPass true; configured validate.command(s) stay authoritative and hard-fail without fallback. Smoke validation, gap_analyze, and convergence_check confirm the high requirement gap is closed while remaining medium fixture gaps are out of scope.",
+      "createdAt": "2026-05-15T10:59:03.403Z",
+      "reviewRound": "2026-05-15T10:57:13.938Z",
+      "reviewRunId": "B-9cec:RR-004",
+      "_hash": "53239614cad278e9bcfe785d59677a1c061e0fc1c0712a64872ff41470c3cc13"
+    },
+    {
+      "id": "B-9cec:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "Test coverage review passed: every verificationIntent has fresh material evidence; reviewer reran build, validation-protocol smoke, cli annotation validation, gap_analyze, and convergence_check. Smoke asserts no-entry provider/status/allPass warn-skip behavior and configured failing validate.command remains hard fail without fallback execution.",
+      "createdAt": "2026-05-15T10:59:14.671Z",
+      "reviewRound": "2026-05-15T10:57:13.938Z",
+      "reviewRunId": "B-9cec:RR-005",
+      "_hash": "693efd248ca75e76592b142e5f7c912f10660c7bb3e2d8df31a484414e6cc57c"
+    },
+    {
+      "id": "B-9cec:RP-003",
+      "agent": "koala-review-quality",
+      "note": "Quality review passed: verifier no-entry provider/message change is minimal, smoke tests cover warn/skip and configured hard-fail behavior, build/test/gap checks pass, and no blocking code or story hygiene issue was found.",
+      "createdAt": "2026-05-15T10:59:32.475Z",
+      "reviewRound": "2026-05-15T10:57:13.938Z",
+      "reviewRunId": "B-9cec:RR-006",
+      "_hash": "255c873d9cfae090a4d5bbc298f71b121331993cb2d20a6cc50938699a656efe"
+    }
+  ]
+}

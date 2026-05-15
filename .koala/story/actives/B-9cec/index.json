@@ -4,7 +4,7 @@
   "title": "Close high gap for validation no-entry warn/skip policy",
   "description": "Resolve the high-priority convergence gap from docs/requirements/decisions/testing-infra.md:38 by binding the no-validation-entry warn/skip policy to verifier implementation and smoke coverage. Missing validate.ts/js/mts, missing validate.command(s), and no discovered fallback command must return warn/skip instead of failing non-TypeScript projects; projects that need hard gates must configure validation commands.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "source": "gap_analyze 2026-05-15",
   "keywords": [
@@ -21,7 +21,7 @@
   ],
   "createdAt": "2026-05-15T02:28:05.139Z",
   "startedAt": "2026-05-15T02:28:05.139Z",
-  "endedAt": null,
+  "endedAt": "2026-05-15T11:03:25.481Z",
   "events": [
     {
       "phase": "INIT",
@@ -38,11 +38,47 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-05-15T02:36:05.147Z",
+      "branch": "story/B-9cec",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-15T02:42:37.922Z",
+      "branch": "story/B-9cec",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-15T10:57:13.938Z",
+      "branch": "story/B-9cec",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-05-15T11:00:33.504Z",
+      "branch": "story/B-9cec",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-05-15T11:03:25.481Z",
+      "branch": "story/B-9cec",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-9cec",
-    "branch": "story/B-9cec",
-    "createdAt": "2026-05-15T02:35:44.336Z"
-  }
+  "currentReviewRound": "2026-05-15T10:57:13.938Z"
 }

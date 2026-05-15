@@ -126,6 +126,31 @@ try {
   assert.equal(shellDiscovered[0].command, 'cd sub && node -e "process.stdout.write(process.cwd())"');
   assert.deepEqual(shellDiscovered[0].args, []);
 
+  const noEntryRoot = mkdtempSync(join(tmpdir(), 'koala-validation-no-entry-'));
+  try {
+    resetConfigCache();
+    const logs: string[] = [];
+    const noEntryJson = await createVerifierHandlers({
+      root: noEntryRoot,
+      scanRoot: noEntryRoot,
+      store: new StoryStore(noEntryRoot),
+      log: (line) => logs.push(line),
+    }).validate({ json: true });
+    const noEntryResult = JSON.parse(noEntryJson);
+    assert.equal(noEntryResult.provider, 'koala-verifier-no-validation-entry');
+    assert.equal(noEntryResult.status, 'warn');
+    assert.equal(noEntryResult.allPass, true);
+    assert.equal(noEntryResult.commands.length, 0);
+    const noEntryRendered = `${noEntryResult.summary}\n${noEntryResult.details.join('\n')}\n${noEntryResult.warnings.join('\n')}\n${logs.join('\n')}`;
+    assert.match(noEntryRendered, /No project validator configured|skipped project-specific validation/);
+    assert.match(noEntryRendered, /validate\.ts\/js\/mts/);
+    assert.match(noEntryRendered, /fallback/);
+    assert.match(noEntryRendered, /skip\/warn/);
+    assert.match(noEntryRendered, /validate\.command/);
+  } finally {
+    rmSync(noEntryRoot, { recursive: true, force: true });
+  }
+
   const configuredOnlyRoot = mkdtempSync(join(tmpdir(), 'koala-validation-configured-'));
   try {
     writeFileSync(join(configuredOnlyRoot, 'koala.config.json'), JSON.stringify({
@@ -160,6 +185,46 @@ try {
     assert.doesNotMatch(`${configuredResult.summary}\n${configuredResult.details.join('\n')}\n${configuredResult.warnings.join('\n')}\n${logs.join('\n')}`, /discover|fallback|advisory|validate\.ts not found/i);
   } finally {
     rmSync(configuredOnlyRoot, { recursive: true, force: true });
+  }
+
+  const configuredFailRoot = mkdtempSync(join(tmpdir(), 'koala-validation-configured-fail-'));
+  try {
+    writeFileSync(join(configuredFailRoot, 'koala.config.json'), JSON.stringify({
+      validate: {
+        commands: [
+          {
+            label: 'configured failing gate',
+            command: 'node',
+            args: ['-e', 'process.exit(9)'],
+          },
+        ],
+      },
+    }));
+    writeFileSync(join(configuredFailRoot, 'package.json'), JSON.stringify({
+      scripts: { test: 'node -e "process.stdout.write(\\"fallback-should-not-run\\")"' },
+    }));
+    resetConfigCache();
+    const logs: string[] = [];
+    const configuredFailJson = await createVerifierHandlers({
+      root: configuredFailRoot,
+      scanRoot: configuredFailRoot,
+      store: new StoryStore(configuredFailRoot),
+      log: (line) => logs.push(line),
+    }).validate({ json: true });
+    const configuredFailResult = JSON.parse(configuredFailJson);
+    assert.equal(configuredFailResult.provider, 'koala-verifier-configured-commands');
+    assert.equal(configuredFailResult.status, 'fail');
+    assert.equal(configuredFailResult.allPass, false);
+    assert.equal(configuredFailResult.commands.length, 1);
+    assert.equal(configuredFailResult.commands[0].label, 'configured failing gate');
+    assert.equal(configuredFailResult.commands[0].command, 'node');
+    assert.equal(configuredFailResult.commands[0].code, 9);
+    const configuredFailRendered = `${configuredFailResult.summary}\n${configuredFailResult.details.join('\n')}\n${configuredFailResult.warnings.join('\n')}\n${logs.join('\n')}\n${configuredFailResult.commands[0].output || ''}`;
+    assert.doesNotMatch(configuredFailRendered, /fallback-should-not-run/);
+    assert.doesNotMatch(configuredFailRendered, /advisory fallback command discovery|running .* advisory fallback/i);
+    assert.match(configuredFailRendered, /configured validate\.command/);
+  } finally {
+    rmSync(configuredFailRoot, { recursive: true, force: true });
   }
 
   const fallbackRoot = mkdtempSync(join(tmpdir(), 'koala-validation-fallback-'));
