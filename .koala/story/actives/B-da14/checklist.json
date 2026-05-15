@@ -67,6 +67,17 @@
           "headHash": "a8422d54ca838476fe6e95beab472fdc53520f1b",
           "materialHash": "73434ce0de6d1738d1c1117fcd913aeeed6d777f42bdb3f4c6cfefb26c5bdce0",
           "timestamp": "2026-05-15T22:21:00.530Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/story-lifecycle.md",
+          "command": "grep -n 合并态组合审查 docs/requirements/decisions/story-lifecycle.md",
+          "result": "pass",
+          "note": "Rule text explicitly states ordinary business stories do NOT trigger combination review — scope limited to process-framework stories (classifier / gate policy / command entry guards / auto-commit / DONE merge semantics)",
+          "headHash": "8c4e2c1d5f1dae6510fe62a272083f091ddf4e20",
+          "materialHash": "73434ce0de6d1738d1c1117fcd913aeeed6d777f42bdb3f4c6cfefb26c5bdce0",
+          "timestamp": "2026-05-15T22:21:00.841Z"
         }
       ]
     }
