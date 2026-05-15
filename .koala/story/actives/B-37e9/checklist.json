@@ -44,7 +44,31 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "story-advance.ts (DONE gate) and session.ts (session_brief DONE pre-check) both import buildDoneChecklist from core/done-oracle.js. Running koala validate / story_advance --phase=DONE / koala session_brief produces the exact same DONE checklist rows as before — same rows, same order, same blocking decisions.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "story-advance.ts:1127 DONE gate and session.ts:789 session_brief both import buildDoneChecklist from core/done-oracle.js",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "a regression snapshot of buildDoneChecklist rows (id/status/blocking/label) for representative story states is byte-identical before vs after the move (preMortem #1)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "if a thin re-export is kept in story-advance.ts for legacy test imports, it forwards to done-oracle.ts — there is exactly one implementation, no copy",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
