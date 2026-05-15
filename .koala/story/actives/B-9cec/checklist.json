@@ -1,0 +1,26 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Bind no-validator warn/skip requirement to verifier implementation",
+      "context": "Close gap_analyze high gap for testing-infra.md:38. The verifier path must mechanically state that no validate file, no configured command, and no fallback command returns warn/skip rather than fail, while strong gates require explicit validate.command(s).",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md#测试执行"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Cover no-entry warn/skip and configured hard-gate behavior in smoke tests",
+      "context": "Validation protocol smoke should prove no-entry returns provider koala-verifier-no-validation-entry with status warn/allPass true, and configured command failure remains a hard validation failure instead of falling back.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md#测试执行"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
