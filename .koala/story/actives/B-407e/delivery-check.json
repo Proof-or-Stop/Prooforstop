@@ -1,0 +1,39 @@
+{
+  "storyId": "B-407e",
+  "checkedAt": "2026-05-15T20:33:56.298Z",
+  "reviewRound": "2026-05-15T20:31:51.421Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/annotation-system.md",
+      "promise": "Structured @task annotations must be machine-valid, and explanatory prose should not be parsed as malformed task metadata.",
+      "status": "verified",
+      "verifiedBy": "npm run lint:tasks; koala convergence_check",
+      "evidence": "npm run lint:tasks reports Errors: 0 and PASSED; koala convergence_check reports 代码注释合规 passed with 21 annotations compliant."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "TEST/DONE gates consume koala validate evidence and verificationIntent coverage before completion.",
+      "status": "verified",
+      "verifiedBy": "koala validate --story=B-407e",
+      "evidence": "koala validate passed with fallback npm test e2e green and Verification intent coverage: 9/9 covered."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "git diff main...HEAD -- packages/main/src shows only comment-prefix changes from @task/@title to Task prose; npm run lint:tasks reports Errors: 0 and PASSED."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "koala convergence_check reports code annotation compliance passed with 21 annotations compliant; npm --prefix packages/main run build and koala validate both pass when run with a temporary main-workspace node_modules symlink that is removed afterward."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review verified the original user-visible blocker is gone, validation evidence covers all intents, the environment workaround is documented, and no implementation-code behavior changed."
+  },
+  "_hash": "a5265e88bf67ccf66f0321658d3c3df30569b693f230ca7f056ae001662bc0ce"
+}

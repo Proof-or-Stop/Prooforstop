@@ -1,0 +1,56 @@
+{
+  "storyId": "B-407e",
+  "changes": "Converted malformed explanatory @task/@title comments in eight packages/main source files into plain Task prose comments, preserving context and leaving executable code unchanged.",
+  "usage": "Run npm run lint:tasks or koala convergence_check from the project/worktree; annotation compliance should now pass instead of reporting the previous 64 malformed annotation errors.",
+  "expectedOutcome": "The user should see npm run lint:tasks report zero annotation errors, and koala convergence_check should show code annotation compliance passing rather than blocking on 64 malformed comments.",
+  "actualTranscript": "npm run lint:tasks reports Errors: 0 and PASSED: All task annotations are valid. koala convergence_check reports 代码注释合规 passed with 21 annotations compliant. koala validate --story=B-407e passed with Verification intent coverage: 9/9 covered and npm test e2e green.",
+  "outcomeDiff": "Expected and actual match for the annotation blocker. During story execution, overall convergence remains false only until B-407e itself reaches DONE.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none - fully covered, except validation in this worktree requires temporarily symlinking packages/main/node_modules from the main workspace because npm ci cannot fetch private @koala-agent/lab from npmjs.",
+  "pitfalls": "The validation failure after implementation was environmental: the story worktree lacked packages/main/node_modules, so tsc/npm test could not resolve xstate. The safe workaround was a temporary symlink to the main workspace node_modules, removed after each command.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 107518
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 14134
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 193572
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 571316
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 75467
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 57594
+    }
+  },
+  "totalDurationMs": 1019601,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-05-15T20:34:04.482Z",
+  "updatedAt": "2026-05-15T20:34:04.482Z"
+}
