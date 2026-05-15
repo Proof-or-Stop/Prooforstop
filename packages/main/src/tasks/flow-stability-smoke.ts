@@ -68,7 +68,7 @@ import { summarizeReviewerStatus } from '../core/reviewer-status.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, Finding, ReviewRun, StoryInfo, TestEvidenceData } from '../core/types.js';
 import { CWD_GATED_PHASES, PHASE_TO_EVENT } from '../handlers/context.js';
-import { buildDoneChecklist } from '../handlers/story-advance.js';
+import { buildDoneChecklist, renderDoneChecklist } from '../core/done-oracle.js';
 import { createStoryAdvanceHandlers } from '../handlers/story-advance.js';
 import { createStoryDispatchHandlers } from '../handlers/story-dispatch.js';
 import { decorateResult } from '../handlers/hints.js';
@@ -2788,6 +2788,162 @@ function assertDeclaredArtifactDoneCommittedRow(): void {
   }
 }
 
+/**
+ * B-37e9 CHK-003: same-source contract for the DONE oracle.
+ *
+ * Proves both behaviorally and structurally that the DONE gate
+ * (handlers/story-advance.ts) and session_brief's DONE pre-check
+ * (handlers/session.ts) render the SAME rows from the SAME core/done-oracle.ts
+ * module — no divergent re-implementation (preMortem #3 anchor).
+ *
+ *  1. Behavioral: one TEST-phase story fixture drives the DONE gate path
+ *     (buildDoneChecklist + renderDoneChecklist) AND the real session_brief
+ *     handler; the DONE pre-check rows session_brief emits are byte-identical
+ *     to what buildDoneChecklist produces.
+ *  2. Structural: a static check confirms both story-advance.ts and session.ts
+ *     import buildDoneChecklist from core/done-oracle.js — a future edit cannot
+ *     give session_brief its own copy without failing this assertion.
+ *  3. Regression baseline (preMortem #1): the row id/status/blocking shape for
+ *     the fixture is asserted explicitly so a silent behavior change in the
+ *     relocated function body is caught.
+ */
+function assertDoneOracleSameSource(): void {
+  // --- 2. Structural same-source check (static import grep) ---
+  // At runtime this smoke runs from dist/tasks/; sources live under src/.
+  // Walk up from <pkg>/dist/tasks/ to <pkg>/, then into src/.
+  const srcRoot = join(resolve(dirname(fileURLToPath(import.meta.url)), '..', '..'), 'src');
+  const storyAdvanceSrc = readFileSync(join(srcRoot, 'handlers', 'story-advance.ts'), 'utf-8');
+  const sessionSrc = readFileSync(join(srcRoot, 'handlers', 'session.ts'), 'utf-8');
+  assert.match(
+    storyAdvanceSrc,
+    /buildDoneChecklist[\s\S]*?from '\.\.\/core\/done-oracle\.js'/,
+    'story-advance.ts must import buildDoneChecklist from core/done-oracle.js',
+  );
+  assert.match(
+    sessionSrc,
+    /buildDoneChecklist[\s\S]*?from '\.\.\/core\/done-oracle\.js'/,
+    'session.ts must import buildDoneChecklist from core/done-oracle.js',
+  );
+  // The DONE oracle implementation must NOT live in story-advance.ts anymore —
+  // only a thin re-export plus the gate call site are allowed.
+  assert.doesNotMatch(
+    storyAdvanceSrc,
+    /export function buildDoneChecklist\(/,
+    'buildDoneChecklist must have exactly one implementation (in core/done-oracle.ts), not story-advance.ts',
+  );
+  // done-oracle.ts must not import story-advance.ts (no circular import — preMortem #2).
+  const doneOracleSrc = readFileSync(join(srcRoot, 'core', 'done-oracle.ts'), 'utf-8');
+  assert.doesNotMatch(
+    doneOracleSrc.split('\n').filter(l => l.trimStart().startsWith('import')).join('\n'),
+    /story-advance/,
+    'core/done-oracle.ts must not import from handlers/story-advance.js (circular import guard)',
+  );
+
+  // --- 1 & 3. Behavioral same-source + regression baseline ---
+  const root = mkdtempSync(join(tmpdir(), 'koala-done-oracle-same-source-'));
+  try {
+    const { store, storyId, reviewRound } = createReviewStore(root);
+    git(root, ['init']);
+    git(root, ['config', 'user.email', 'koala@example.test']);
+    git(root, ['config', 'user.name', 'Koala Smoke']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'base']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+    seedReviewRuns(root, store, storyId, reviewRound, [
+      'koala-review-concept',
+      'koala-review-quality',
+      'koala-review-test-coverage',
+    ]);
+
+    const testStory = store.readStory(storyId);
+    testStory.phase = 'TEST';
+    store.writeStory(storyId, testStory);
+    const evidence: TestEvidenceData = {
+      command: 'koala validate --json',
+      output: JSON.stringify({ allPass: true }),
+      result: 'PASS',
+      timestamp: '2026-05-15T12:25:00.000Z',
+    };
+    store.writeTestEvidence(storyId, evidence);
+
+    // Path A: the DONE gate path (story-advance.ts imports these from done-oracle.ts).
+    const gateRows = buildDoneChecklist(storyId, store, root);
+    const gateRendered = renderDoneChecklist(storyId, gateRows);
+    assert.ok(gateRendered.startsWith(`DONE Gate Checklist (${storyId}):`), 'DONE gate rendering header stable');
+
+    // Path B: the real session_brief handler (session.ts imports the same module).
+    const brief = createSessionHandlers({
+      store,
+      root,
+      scanRoot: join(root, 'packages/main'),
+    }).session_brief({ concise: true });
+
+    // session_brief renders the DONE pre-check section as:
+    //   ## DONE pre-check
+    //     [PASS|FAIL|warn] <label>[: <detail>]
+    const briefLines = brief.split('\n');
+    const preCheckIdx = briefLines.findIndex(l => l.trim() === '## DONE pre-check');
+    assert.notEqual(preCheckIdx, -1, 'session_brief must emit a DONE pre-check section for a TEST-phase story');
+    const sessionRowLines: string[] = [];
+    for (let i = preCheckIdx + 1; i < briefLines.length; i++) {
+      const line = briefLines[i];
+      if (/^\s{2}\[(PASS|FAIL|warn)\]\s/.test(line)) {
+        sessionRowLines.push(line.trim());
+      } else if (line.trim().startsWith('## ')) {
+        break;
+      }
+    }
+
+    // The DONE gate and session_brief must emit the SAME number of rows in the
+    // SAME order — both consume buildDoneChecklist from core/done-oracle.ts.
+    assert.equal(
+      sessionRowLines.length,
+      gateRows.length,
+      `session_brief DONE pre-check row count (${sessionRowLines.length}) must match the DONE gate (${gateRows.length})`,
+    );
+    for (let i = 0; i < gateRows.length; i++) {
+      const row = gateRows[i];
+      const marker = row.status === 'pass' ? 'PASS' : (row.status === 'fail' ? 'FAIL' : 'warn');
+      // The git-working-tree row's detail embeds an audit-line counter that
+      // grows each call (buildDoneChecklist's audit writer appends to
+      // process-events.jsonl). That makes the *detail* call-order-sensitive
+      // regardless of same-source — so compare its stable id/label/status only.
+      if (row.id === 'git-working-tree') {
+        assert.match(
+          sessionRowLines[i],
+          new RegExp(`^\\[${marker}\\] ${row.label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`),
+          `DONE row ${i} (${row.id}) label/status must render identically in session_brief and the DONE gate`,
+        );
+        continue;
+      }
+      const expected = `[${marker}] ${row.label}${row.detail ? `: ${row.detail}` : ''}`;
+      assert.equal(
+        sessionRowLines[i],
+        expected,
+        `DONE row ${i} (${row.id}) must render identically in session_brief and the DONE gate`,
+      );
+    }
+
+    // --- 3. Regression baseline: explicit row shape for this fixture ---
+    // The fixture has PASS test-evidence but is missing delivery-check.json /
+    // summary.json — these stable ids/status/blocking values catch a silent
+    // behavior change in the relocated function body.
+    const byId = new Map(gateRows.map(r => [r.id, r]));
+    assert.equal(byId.get('test-evidence')?.status, 'pass', 'baseline: test-evidence passes');
+    assert.equal(byId.get('bugs-fixed')?.status, 'pass', 'baseline: no bugs → pass');
+    assert.equal(byId.get('delivery-check')?.status, 'fail', 'baseline: missing delivery-check → fail');
+    assert.equal(byId.get('delivery-check')?.blocking, true, 'baseline: missing delivery-check is blocking');
+    assert.equal(byId.get('story-summary')?.status, 'fail', 'baseline: missing summary → fail');
+    assert.equal(byId.get('story-summary')?.blocking, true, 'baseline: missing summary is blocking');
+    assert.equal(byId.get('declared-artifacts-referenced')?.status, 'pass', 'baseline: no declarations → pass');
+    assert.equal(byId.get('declared-artifacts-committed')?.status, 'pass', 'baseline: no declarations → pass');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+    resetConfigCache();
+  }
+}
+
 assertSessionBriefGate();
 assertDirtyWorktreeClassifierGroupsOwnership();
 assertDirtyGatePolicyAcrossGates();
@@ -2820,6 +2976,7 @@ assertChannelGateAcceptsSuccessfulSubagentResultEvidence();
 assertChannelGateAcceptsDispatchEvidence();
 assertChannelGateAcceptsImplementerAuthorWithoutDispatch();
 assertDoneChecklistUsesStableOracleRows();
+assertDoneOracleSameSource();
 assertGlobalLinkRepair();
 assertAutoCommitMetadataAcrossHandlers();
 

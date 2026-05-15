@@ -30,7 +30,7 @@ import { readActivityLogTail } from '../core/activity-log.js';
 import { summarizeReviewerStatus, type ReviewerStatusSummary } from '../core/reviewer-status.js';
 import { renderAntiStall, reviewAntiStall, testAntiStall } from '../core/anti-stall.js';
 import { isGitRepository } from '../core/git-probe.js';
-import { buildDoneChecklist, type DoneCheckRow } from './story-advance.js';
+import { buildDoneChecklist, type DoneCheckRow } from '../core/done-oracle.js';
 import { isBlockingOracleRow } from '../core/oracle-row.js';
 import { findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
 import { currentGitHead } from '../core/evidence-freshness.js';
