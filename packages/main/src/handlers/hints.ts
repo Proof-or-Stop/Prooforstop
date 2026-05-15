@@ -6,6 +6,8 @@
  */
 
 import type { StoryStore } from '../core/store.js';
+import { findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
+import { currentGitHead } from '../core/evidence-freshness.js';
 
 export interface ActiveStoryInfo {
   storyId: string;
@@ -196,12 +198,17 @@ const validateHint: HintFn = (ctx) => {
     const missing = parsed.verificationCoverage?.missingRequired;
     if (typeof missing === 'number' && missing > 0) {
       const storyId = getStoryId(ctx);
-      const stale = Array.isArray(parsed.verificationCoverage?.entries)
-        ? parsed.verificationCoverage.entries.filter((e: any) => e.status === 'stale').length
-        : 0;
-      return stale > 0 && storyId
-        ? `→ 验证命令通过，但 verification evidence 有 ${stale} 项 stale。下一步：verification_evidence_refresh_stale --storyId=${storyId}，然后重跑 koala validate --story=${storyId} --json`
-        : `→ 验证未通过：verification coverage 缺 ${missing} 项 required intent。补 evidence 后重跑 koala validate`;
+      // B-a2f1 CHK-001/002: stale-evidence advice is now produced by the
+      // shared renderEvidenceStaleHint helper so session_brief / story_advance
+      // / koala validate output use byte-identical marker + recovery block.
+      // Computed from on-disk checklist (not validate JSON) so we always see
+      // the actual storyId-bound evidence and reuse the same freshness logic.
+      const staleEntries = storyId ? safeRead(() => findStaleEvidence(ctx.root, storyId)) : null;
+      if (storyId && staleEntries && staleEntries.length > 0) {
+        const block = renderEvidenceStaleHint(storyId, staleEntries, { currentHead: currentGitHead(ctx.root) });
+        return `→ 验证命令通过，但 verification evidence 有 ${staleEntries.length} 项 stale。\n${block}`;
+      }
+      return `→ 验证未通过：verification coverage 缺 ${missing} 项 required intent。补 evidence 后重跑 koala validate`;
     }
     return `→ 验证未通过。按上方 details 修复后重跑 koala validate`;
   }

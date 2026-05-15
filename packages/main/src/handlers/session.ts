@@ -32,6 +32,8 @@ import { renderAntiStall, reviewAntiStall, testAntiStall } from '../core/anti-st
 import { isGitRepository } from '../core/git-probe.js';
 import { buildDoneChecklist, type DoneCheckRow } from './story-advance.js';
 import { isBlockingOracleRow } from '../core/oracle-row.js';
+import { findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
+import { currentGitHead } from '../core/evidence-freshness.js';
 
 interface ActiveStoryDetected {
   storyId: string;
@@ -863,6 +865,17 @@ export function createSessionHandlers(ctx: HandlerContext) {
       lines.push('');
       lines.push('## → Next step');
       lines.push(`  ${nextStep}`);
+
+      // B-a2f1 CHK-001/002: surface stale verificationEvidence at session_brief
+      // so users discovering "where am I?" immediately see the recovery path.
+      try {
+        const stale = findStaleEvidence(ctx.root, storyId);
+        const hint = renderEvidenceStaleHint(storyId, stale, { currentHead: currentGitHead(ctx.root) });
+        if (hint) {
+          lines.push('');
+          lines.push(hint);
+        }
+      } catch { /* probe — never block session_brief on stale-hint failure */ }
 
       return lines.join('\n');
     },
