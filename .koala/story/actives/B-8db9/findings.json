@@ -30,6 +30,24 @@
         "packages/main/src/core/dirty-worktree.ts",
         "packages/main/src/handlers/artifact-declare.ts"
       ]
+    },
+    {
+      "id": "B-8db9:F-003",
+      "desc": "all 17 verificationEvidence entries are stale (headHash=8ac0c8f3 vs current HEAD=abe599b4): the R1 fix commit ea9289b6 modified flow-stability-smoke.ts, declared-artifact-commit-check.ts, dirty-worktree.ts, and artifact-declare.ts, advancing HEAD past the recorded evidence headHash. koala validate --story=B-8db9 reports verification coverage 0/17 and status=fail, which will block the TEST→DONE gate. The smoke test at current HEAD passes and all intent descriptions remain accurate, so this is a hash-refresh gap, not a substantive coverage gap. Fix: run verification_evidence_refresh_stale --storyId=B-8db9 (re-executes the smoke test and re-records headHash at current HEAD), then re-run koala validate --story=B-8db9 --json and confirm coverage reports 17/17.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-05-15T21:32:41.436Z",
+      "reviewRound": "2026-05-15T21:30:20.446Z",
+      "reviewRunId": "B-8db9:RR-007",
+      "_hash": "b430907e5ff3fc9cadfc7618f4da9addf3af2994b9bb161c81f9c52b7daee87e",
+      "files": [
+        "packages/main/src/tasks/flow-stability-smoke.ts",
+        "packages/main/src/core/declared-artifact-commit-check.ts",
+        "packages/main/src/core/dirty-worktree.ts",
+        "packages/main/src/handlers/artifact-declare.ts"
+      ]
     }
   ]
 }

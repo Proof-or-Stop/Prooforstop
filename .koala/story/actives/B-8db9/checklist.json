@@ -47,9 +47,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke assertDeclaredArtifactGateHotfix: a dirty tests/output/ path declared as artifact still classifies as declared_artifact_changes (rescue from unexpected preserved after reorder)",
-          "headHash": "8ac0c8f3c14c3b29e489805a8c059f5fb4c0a465",
-          "materialHash": "afd5da463c5fdb375a07f5dba4e0e67ac6c9a973513bf724a4624885ce4e07be",
-          "timestamp": "2026-05-15T21:22:33.511Z"
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:27.327Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -58,9 +58,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke: dirty source file declared as artifact classifies as material_source_changes (declared check now runs after material)",
-          "headHash": "8ac0c8f3c14c3b29e489805a8c059f5fb4c0a465",
-          "materialHash": "afd5da463c5fdb375a07f5dba4e0e67ac6c9a973513bf724a4624885ce4e07be",
-          "timestamp": "2026-05-15T21:22:33.737Z"
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:27.512Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -69,9 +69,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke: dirty fixture file declared as artifact classifies as fixture_changes (declared check runs after fixture)",
-          "headHash": "8ac0c8f3c14c3b29e489805a8c059f5fb4c0a465",
-          "materialHash": "afd5da463c5fdb375a07f5dba4e0e67ac6c9a973513bf724a4624885ce4e07be",
-          "timestamp": "2026-05-15T21:22:33.929Z"
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:27.748Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -80,9 +80,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke: hand-injected declared-artifacts.json with a source path does NOT bypass — classifyParsedRow still returns material_source_changes (classifier hard gate independent of artifact_declare)",
-          "headHash": "8ac0c8f3c14c3b29e489805a8c059f5fb4c0a465",
-          "materialHash": "afd5da463c5fdb375a07f5dba4e0e67ac6c9a973513bf724a4624885ce4e07be",
-          "timestamp": "2026-05-15T21:22:34.124Z"
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:27.933Z"
         }
       ]
     },
@@ -129,9 +129,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke: artifact_declare with a tests/output/ generated path succeeds and writes declared-artifacts.json",
-          "headHash": "8ac0c8f3c14c3b29e489805a8c059f5fb4c0a465",
-          "materialHash": "afd5da463c5fdb375a07f5dba4e0e67ac6c9a973513bf724a4624885ce4e07be",
-          "timestamp": "2026-05-15T21:22:34.315Z"
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:28.120Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -140,9 +140,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke: artifact_declare rejects material source / fixture / config / koala-metadata paths with classification-named error via assertDeclarablePath",
-          "headHash": "8ac0c8f3c14c3b29e489805a8c059f5fb4c0a465",
-          "materialHash": "afd5da463c5fdb375a07f5dba4e0e67ac6c9a973513bf724a4624885ce4e07be",
-          "timestamp": "2026-05-15T21:22:34.500Z"
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:28.312Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -151,9 +151,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke: assertDeclarablePath reuses dirty-worktree.ts classifier vocabulary (classifyDeclarablePath) — entry-rejection and post-reorder classification agree for material/fixture/config/output path samples",
-          "headHash": "8ac0c8f3c14c3b29e489805a8c059f5fb4c0a465",
-          "materialHash": "afd5da463c5fdb375a07f5dba4e0e67ac6c9a973513bf724a4624885ce4e07be",
-          "timestamp": "2026-05-15T21:22:34.691Z"
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:28.491Z"
         }
       ]
     },
@@ -210,9 +210,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke assertDeclaredArtifactDoneCommittedRow: declared-artifacts-committed DONE row passes when every declared path is committed-and-clean",
-          "headHash": "8ac0c8f3c14c3b29e489805a8c059f5fb4c0a465",
-          "materialHash": "afd5da463c5fdb375a07f5dba4e0e67ac6c9a973513bf724a4624885ce4e07be",
-          "timestamp": "2026-05-15T21:22:34.878Z"
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:28.668Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -221,9 +221,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke: declared-artifacts-committed row fails (blocking) when a declared path is dirty/untracked, with commit/cleanup guidance",
-          "headHash": "8ac0c8f3c14c3b29e489805a8c059f5fb4c0a465",
-          "materialHash": "afd5da463c5fdb375a07f5dba4e0e67ac6c9a973513bf724a4624885ce4e07be",
-          "timestamp": "2026-05-15T21:22:35.068Z"
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:28.853Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -232,9 +232,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke: an absent declared path does not block DONE (cleaned-up treated as acceptable)",
-          "headHash": "8ac0c8f3c14c3b29e489805a8c059f5fb4c0a465",
-          "materialHash": "afd5da463c5fdb375a07f5dba4e0e67ac6c9a973513bf724a4624885ce4e07be",
-          "timestamp": "2026-05-15T21:22:35.313Z"
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:29.033Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -243,9 +243,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke: a git-ignored declared path blocks DONE with explicit message that git-ignored paths must not be declared as deliverables (preMortem #2)",
-          "headHash": "8ac0c8f3c14c3b29e489805a8c059f5fb4c0a465",
-          "materialHash": "afd5da463c5fdb375a07f5dba4e0e67ac6c9a973513bf724a4624885ce4e07be",
-          "timestamp": "2026-05-15T21:22:35.512Z"
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:29.211Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -254,9 +254,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke: REVIEW/TEST keep declared_artifact_changes non-blocking — DIRTY_GATE_POLICY table unchanged; committed-check is DONE-only",
-          "headHash": "8ac0c8f3c14c3b29e489805a8c059f5fb4c0a465",
-          "materialHash": "afd5da463c5fdb375a07f5dba4e0e67ac6c9a973513bf724a4624885ce4e07be",
-          "timestamp": "2026-05-15T21:22:35.700Z"
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:29.390Z"
         }
       ]
     },
@@ -313,9 +313,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke assertDeclaredArtifactGateHotfix: artifact_declare with tests/output/ path succeeds; classifier rescues it to declared_artifact_changes",
-          "headHash": "8ac0c8f3c14c3b29e489805a8c059f5fb4c0a465",
-          "materialHash": "afd5da463c5fdb375a07f5dba4e0e67ac6c9a973513bf724a4624885ce4e07be",
-          "timestamp": "2026-05-15T21:22:35.895Z"
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:29.568Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -324,9 +324,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke attack-chain: artifact_declare packages/main/src/core/store.ts rejected; dirty source declared-then-classified stays material_source_changes; dirty fixture stays fixture_changes",
-          "headHash": "8ac0c8f3c14c3b29e489805a8c059f5fb4c0a465",
-          "materialHash": "afd5da463c5fdb375a07f5dba4e0e67ac6c9a973513bf724a4624885ce4e07be",
-          "timestamp": "2026-05-15T21:22:36.096Z"
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:29.743Z"
         },
         {
           "intentRef": "CHK-004:edge:1",
@@ -335,9 +335,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke: uncommitted declared artifact blocks the DONE committed-check row; committed-and-clean passes",
-          "headHash": "8ac0c8f3c14c3b29e489805a8c059f5fb4c0a465",
-          "materialHash": "afd5da463c5fdb375a07f5dba4e0e67ac6c9a973513bf724a4624885ce4e07be",
-          "timestamp": "2026-05-15T21:22:36.283Z"
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:29.915Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -346,9 +346,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke: hand-injected declared-artifacts.json with source path still classifies material_source_changes (classifier hard gate, no artifact_declare involved)",
-          "headHash": "8ac0c8f3c14c3b29e489805a8c059f5fb4c0a465",
-          "materialHash": "afd5da463c5fdb375a07f5dba4e0e67ac6c9a973513bf724a4624885ce4e07be",
-          "timestamp": "2026-05-15T21:22:36.465Z"
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:30.092Z"
         },
         {
           "intentRef": "CHK-004:adversarial:1",
@@ -357,9 +357,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke validation-protocol side-effect-guard context: declared generated output classifies non-blocking in REVIEW/TEST but uncommitted state blocks DONE",
-          "headHash": "8ac0c8f3c14c3b29e489805a8c059f5fb4c0a465",
-          "materialHash": "afd5da463c5fdb375a07f5dba4e0e67ac6c9a973513bf724a4624885ce4e07be",
-          "timestamp": "2026-05-15T21:22:36.646Z"
+          "headHash": "abe599b486ff7e1438fbf6dc6c11e30d01c2f1e9",
+          "materialHash": "568ca8b7f402462f386a85de79abc1b7e0d8a3169ed9cd2dfc641650b5094a65",
+          "timestamp": "2026-05-15T21:36:30.273Z"
         }
       ]
     }
