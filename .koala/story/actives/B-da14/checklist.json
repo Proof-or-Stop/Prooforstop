@@ -78,6 +78,17 @@
           "headHash": "8c4e2c1d5f1dae6510fe62a272083f091ddf4e20",
           "materialHash": "73434ce0de6d1738d1c1117fcd913aeeed6d777f42bdb3f4c6cfefb26c5bdce0",
           "timestamp": "2026-05-15T22:21:00.841Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "CLAUDE.md",
+          "command": "grep -n 合并态组合审查 CLAUDE.md",
+          "result": "pass",
+          "note": "CLAUDE.md copy is explicitly the short summary and story-lifecycle.md is canonical — see-also pointer prevents the two copies being read as independent equals (preMortem #2 anchor)",
+          "headHash": "49334015fad14f728f60601fff387fd3023bd170",
+          "materialHash": "73434ce0de6d1738d1c1117fcd913aeeed6d777f42bdb3f4c6cfefb26c5bdce0",
+          "timestamp": "2026-05-15T22:21:01.141Z"
         }
       ]
     }
