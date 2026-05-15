@@ -7,9 +7,38 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-15T21:11:45.354Z",
+      "endTime": "2026-05-15T21:18:55.419Z",
+      "userSees": "When a source file (e.g. packages/main/src/core/store.ts) is dirty and has been declared as an artifact, koala validate / koala session_brief classification output still groups it under `material_source_changes` (blocking) — NOT `declared_artifact_changes`. A declared path under tests/output/ that would otherwise be unexpected is still rescued to `declared_artifact_changes`.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After classifier reorder, a dirty path declared as artifact that lives under tests/output/ classifies as declared_artifact_changes (rescue from unexpected still works)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A dirty source file declared as artifact classifies as material_source_changes (declared check runs after material)",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A dirty fixture file declared as artifact classifies as fixture_changes (declared check runs after fixture)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A hand-injected declared-artifacts.json entry pointing at a source path does NOT bypass the gate — classifier still returns material_source_changes (hard gate independent of artifact_declare entry path)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -19,9 +48,33 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-05-15T21:18:55.664Z",
+      "userSees": "User runs `koala artifact_declare --storyId=B-8db9 --path=packages/main/src/core/store.ts --reason=\"...\" --relatedIntent=CHK-001:happy:0` and sees an error: `artifact_declare: path packages/main/src/core/store.ts classifies as material_source_changes and cannot be declared as a generated artifact (declare only generated output paths, e.g. under tests/output/)`. Same rejection for fixture / config / koala-metadata paths.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "artifact_declare with a path under tests/output/ (a generated output) succeeds and writes declared-artifacts.json",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "artifact_declare rejects a material source path / fixture path / config path / koala-metadata path with an explicit classification-named error",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "artifact_declare entry rejection uses the SAME classifier vocabulary (isMaterialSourcePath/isFixturePath) as dirty-worktree.ts — the two layers agree for a sample of material/fixture/config/output paths",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -31,9 +84,43 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-05-15T21:18:55.899Z",
+      "userSees": "Running `koala story_advance --phase=DONE --storyId=B-8db9` while a declared artifact path is dirty/untracked shows DONE pre-check row `[✗] declared artifacts committed: 0/1 (uncommitted: tests/output/foo.json)` with blocking error and guidance: commit it if it is a deliverable, or remove it if it is a temp output. When the declared path is committed-and-clean the row reads `[✓] declared artifacts committed: 1/1`.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "DONE pre-check declared-artifacts-committed row passes when every declared path is committed-and-clean",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "DONE pre-check row fails (blocking) when a declared artifact path is dirty or untracked, with commit/cleanup guidance",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A declared artifact path that is absent (cleaned up) does not block DONE — row treats absent as acceptable",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A git-ignored declared path blocks DONE with an explicit message that git-ignored paths must not be declared as deliverable artifacts (preMortem #2 anchor)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "REVIEW/TEST gates keep treating declared_artifact_changes as non-blocking — the committed-check is DONE-only and does not change dirty-gate-policy table",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
@@ -43,9 +130,43 @@
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-05-15T21:18:56.143Z",
+      "userSees": "`npm --prefix packages/main run test:flow-stability-smoke` and `npm --prefix packages/main run test:validation-protocol` print `✓ passed` including the full attack-chain assertions: declare-source-rejected, source-dirty-stays-material, fixture-dirty-stays-fixture, uncommitted-declared-blocks-DONE, declared-output-non-blocking-in-REVIEW/TEST.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke: artifact_declare with a tests/output/ path succeeds; classifier rescues it to declared_artifact_changes",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke attack-chain: artifact_declare packages/main/src/core/store.ts rejected; dirty source declared-then-classified stays material_source_changes; dirty fixture stays fixture_changes",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke: uncommitted declared artifact blocks the DONE committed-check row; committed-and-clean passes",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke: hand-injected declared-artifacts.json with a source path still classifies material (classifier hard gate, no artifact_declare involved)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke: declared generated output classifies non-blocking in REVIEW/TEST gate context but its uncommitted state blocks DONE",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
