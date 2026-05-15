@@ -183,6 +183,9 @@ export function createRecoverEvidenceHandlers(ctx: HandlerContext): Record<strin
             // Non-JSON text output from validate (rare with json:true) → treat as pass.
             validateOk = true;
           }
+        } else {
+          validateOk = false;
+          validateTranscript = `koala validate returned unexpected non-string output (typeof=${typeof validateOutput}); treating as failure.`;
         }
       } catch (e: any) {
         validateTranscript = `koala validate failed: ${e?.message || String(e)}`;
