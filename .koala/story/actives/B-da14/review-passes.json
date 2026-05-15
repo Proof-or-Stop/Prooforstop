@@ -26,6 +26,15 @@
       "reviewRound": "2026-05-15T22:21:09.393Z",
       "reviewRunId": "B-da14:RR-007",
       "_hash": "96804327c349e7a262993ecea81599baa0d9c5c1c1d2c2bc0056879386e1c124"
+    },
+    {
+      "id": "B-da14:RP-004",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 已检查全部 5 条 verificationIntent（happy:0、happy:1、edge:0、adversarial:0、adversarial:1）与 verificationEvidence 的覆盖关系。所有 intent priority=must 均有对应 docs_check evidence，result=pass，内容与实际文档一致（story-lifecycle.md §74-113 合并态组合审查节存在枚举 5 项检查清单及 B-8db9 incident 引用；CLAUDE.md §851-855 有短摘要及 see-also 指针；普通业务 story out of scope 明确表述）。无 blocker。",
+      "createdAt": "2026-05-15T22:28:30.808Z",
+      "reviewRound": "2026-05-15T22:27:23.091Z",
+      "reviewRunId": "B-da14:RR-011",
+      "_hash": "6351199e43e2f19a21b2ab355043a82384d9d03b8fc61f82857c283f2927a6ca"
     }
   ]
 }
