@@ -80,7 +80,31 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "A contract test drives both the DONE gate path and the session_brief path against the same story fixture and asserts the rendered DONE rows are identical, plus a static check that both files import from core/done-oracle.js. The existing DONE checklist smoke (flow-stability declared-artifacts-committed coverage) passes unchanged. koala validate shows the new contract assertion pass.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "contract test drives DONE gate and session_brief against one story fixture and asserts identical rendered rows",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "contract includes a static check that both story-advance.ts and session.ts import from core/done-oracle.js — same-source proven structurally not just behaviorally (preMortem #3)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "existing DONE checklist smoke (flow-stability declared-artifacts-committed etc.) passes unchanged — no test had to be weakened to accommodate the move",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
