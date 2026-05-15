@@ -34,7 +34,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke assertDeclaredArtifactsChannel: artifact_declare writes .koala/story/actives/<id>/declared-artifacts.json with the entry, returns success line containing the path",
+          "headHash": "6e22a99c03206b8e6bd9acfebc66b0324c4191b3",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T18:25:00.123Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke: declaring same path twice updates entry (idempotent overwrite); output contains 'overwritten'",
+          "headHash": "6e22a99c03206b8e6bd9acfebc66b0324c4191b3",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T18:25:00.280Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke: 7 malicious paths (containing *, **, /, ..) all throw via handler runtime check (preMortem #1 anchor)",
+          "headHash": "6e22a99c03206b8e6bd9acfebc66b0324c4191b3",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T18:25:00.440Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -79,7 +114,64 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke: declared path routes to declared_artifact_changes via classifyDirtyWorktree using dirtyWorktreeClassifierOptionsForStory",
+          "headHash": "6e22a99c03206b8e6bd9acfebc66b0324c4191b3",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T18:25:00.597Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke: classifier options populated from per-story declared-artifacts.json via store.readDeclaredArtifacts(storyId)",
+          "headHash": "6e22a99c03206b8e6bd9acfebc66b0324c4191b3",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T18:25:00.756Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke: sibling undeclared path under tests/output/ stays in unexpected_dirty_files (exact match only)",
+          "headHash": "6e22a99c03206b8e6bd9acfebc66b0324c4191b3",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T18:25:00.912Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke: empty declared-artifacts.json → declared_artifact_changes group empty, paths land in unexpected_dirty_files (B-6326 conservative default preserved)",
+          "headHash": "6e22a99c03206b8e6bd9acfebc66b0324c4191b3",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T18:25:01.070Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke: declaration is presentation-only — materially changed file still appears in dirty groups (does NOT remove from material checks)",
+          "headHash": "6e22a99c03206b8e6bd9acfebc66b0324c4191b3",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T18:25:01.225Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -120,7 +212,53 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke evaluateDeclaredArtifactReferences: declared+verificationEvidence match → DONE gate row pass",
+          "headHash": "6e22a99c03206b8e6bd9acfebc66b0324c4191b3",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T18:25:01.383Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke: declared without matching evidence → DONE gate row fail with [unreferenced_declared_artifact] blocker",
+          "headHash": "6e22a99c03206b8e6bd9acfebc66b0324c4191b3",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T18:25:01.540Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke intentRefExistsInChecklist: bogus intentRef X-001:happy:0 → unreferenced (validates intentRef EXISTS in checklist, not just non-empty; preMortem #2 anchor)",
+          "headHash": "6e22a99c03206b8e6bd9acfebc66b0324c4191b3",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T18:25:01.695Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke: empty declared-artifacts.json (0 entries) → DONE gate row pass non-blocking, gate not triggered",
+          "headHash": "6e22a99c03206b8e6bd9acfebc66b0324c4191b3",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T18:25:01.853Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -170,7 +308,75 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke validation-protocol-smoke BL21 lacZ assertion: tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json declared+referenced → declared_artifact_changes",
+          "headHash": "6e22a99c03206b8e6bd9acfebc66b0324c4191b3",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T18:25:02.008Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke validation-protocol: BL21 lacZ undeclared → unexpected_dirty_files (B-6326 baseline preserved)",
+          "headHash": "6e22a99c03206b8e6bd9acfebc66b0324c4191b3",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T18:25:02.165Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke flow-stability declared+referenced + matching verificationEvidence → DONE gate declared-artifacts row pass",
+          "headHash": "6e22a99c03206b8e6bd9acfebc66b0324c4191b3",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T18:25:02.323Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke flow-stability declared+unreferenced → DONE gate row fail with [unreferenced_declared_artifact] blocker",
+          "headHash": "6e22a99c03206b8e6bd9acfebc66b0324c4191b3",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T18:25:02.478Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke 7 malicious paths (glob, leading /, ..) → artifact_declare handler throws (preMortem #1)",
+          "headHash": "6e22a99c03206b8e6bd9acfebc66b0324c4191b3",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T18:25:02.633Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Smoke: declared+unreferenced coexists with declared+referenced; DONE gate still fails (1 unreferenced is enough to block)",
+          "headHash": "6e22a99c03206b8e6bd9acfebc66b0324c4191b3",
+          "materialHash": "e828311e75b87d4d6b9c73bb4afd819aef3650bd7217b4fbbdf3b447cfecf54b",
+          "timestamp": "2026-05-15T18:25:02.787Z"
+        }
+      ]
     }
   ]
 }
