@@ -4,7 +4,7 @@
   "title": "Lifecycle gate V0/V1 hardening and registry foundation",
   "description": "先执行框架问题的 V0/V1：修 managed asset drift、把 REVIEW/TEST validate 异常改为 fail-closed，并建立 lifecycle-registry.ts 作为生命周期单一事实源雏形。暂不全量拆 story_advance，先保持 CLI 行为兼容并补 contract/smoke 覆盖。",
   "type": "refactor",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "lifecycle",
@@ -21,7 +21,7 @@
   ],
   "createdAt": "2026-05-15T01:46:22.047Z",
   "startedAt": "2026-05-15T01:46:22.047Z",
-  "endedAt": null,
+  "endedAt": "2026-05-15T02:22:41.429Z",
   "events": [
     {
       "phase": "INIT",
@@ -70,12 +70,15 @@
       "branch": "story/B-d339",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-05-15T02:22:41.429Z",
+      "branch": "story/B-d339",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-d339",
-    "branch": "story/B-d339",
-    "createdAt": "2026-05-15T01:48:10.058Z"
-  },
   "currentReviewRound": "2026-05-15T02:08:34.847Z"
 }
