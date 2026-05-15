@@ -121,6 +121,17 @@
           "headHash": "9c94e30f4003c8c5c48b4a724b26e222c00cfeda",
           "materialHash": "5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b",
           "timestamp": "2026-05-15T23:07:51.942Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "command": "npm --prefix packages/main run test:lifecycle-registry-contract",
+          "result": "pass",
+          "note": "resolveDefaultPhaseToolsCommands models * wildcard bucket + per-phase patterns; checkCommandDimension compares resolved effective sets vs lifecycleResolvedCommandsForPhase, never raw tables; 0 divergences proves no false positive on the * bucket",
+          "headHash": "5624702874680fefdcfd428ae8a33cdcaaff6e42",
+          "materialHash": "5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b",
+          "timestamp": "2026-05-15T23:07:52.227Z"
         }
       ]
     },
