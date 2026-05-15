@@ -1,0 +1,41 @@
+{
+  "storyId": "B-da14",
+  "checkedAt": "2026-05-15T22:14:22.831Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [
+    {
+      "severity": "medium",
+      "desc": "CHK-001 lacks a userSees field. For a doc-only story the userSees should describe what a reader sees when opening the target doc (e.g. a section heading and its key sentences). The intent is clear enough to execute but the checklist format does not meet CLAUDE.md checklist writing standards."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-05-15T22:14:22.249Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "low",
+          "desc": "background.md 对话纹理段提到 \"B-c9f5 dirty-gate 系列\" 但未解释 dirty-gate 系列指哪些 story 或该系列的含义，fresh reader 无法追溯上下文"
+        },
+        {
+          "id": "INIT-002",
+          "severity": "low",
+          "desc": "background.md 触发事件段使用了 \"declared artifact声明\" / \"dirty-gate-policy\" / \"declared_artifact_changes\" 等内部术语，首次出现无展开定义；核心教训（跨 story 叠加漏洞）可从上下文推断，但技术根因细节对全新 reader 不透明"
+        }
+      ]
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-05-15T22:14:22.831Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "CHK-001 lacks a userSees field. For a doc-only story the userSees should describe what a reader sees when opening the target doc (e.g. a section heading and its key sentences). The intent is clear enough to execute but the checklist format does not meet CLAUDE.md checklist writing standards."
+        }
+      ]
+    }
+  ],
+  "_hash": "c09c6a4423a0fe63452fd16094d696a4f4271e8194805d5c40e43f03bf938161"
+}
