@@ -1,0 +1,85 @@
+{
+  "passes": [
+    {
+      "id": "B-3740:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 已检查所有 10 条 verificationIntent 与 verificationEvidence 覆盖关系。3 个 checklist item 均覆盖 happy/edge/adversarial 三栏，全部 priority=must，全部有对应 logic_test 或 manual_transcript 证据且 result=pass，无 fail，无 waiver，0 must 缺口。koala validate 已确认 10/10 covered, 0 missingRequired。无 blocker。",
+      "createdAt": "2026-05-15T23:11:11.064Z",
+      "reviewRound": "2026-05-15T23:10:14.872Z",
+      "reviewRunId": "B-3740:RR-003",
+      "_hash": "7672d2bacf4797603dcf20a7f5f1f00fc331704ab4bc6eae2413cbe5885df812"
+    },
+    {
+      "id": "B-3740:RP-002",
+      "agent": "koala-review-concept",
+      "note": "B-3740 is purely additive — zero source lines deleted across all .ts files. No concepts were deleted or replaced. The new exports (LIFECYCLE_ARTIFACTS, LifecycleArtifact, LIFECYCLE_PHASE_ARTIFACTS, LIFECYCLE_ORACLE_ARTIFACT_REFS, lifecycleCommandsByPhase, lifecycleResolvedCommandsForPhase, lifecycleArtifactsByPhase, lifecycleArtifactsByTransition, LIFECYCLE_COMMAND_PHASES, isLifecycleArtifact) have no stale aliases. No residual concept references exist. No blocker.",
+      "createdAt": "2026-05-15T23:11:56.217Z",
+      "reviewRound": "2026-05-15T23:10:14.872Z",
+      "reviewRunId": "B-3740:RR-001",
+      "_hash": "7f407f18a830d730f23b47dd469cc70a0b3cbb129dab5eec7a6b88b879b52574"
+    },
+    {
+      "id": "B-3740:RP-003",
+      "agent": "koala-review-quality",
+      "note": "Reviewed all 4 changed source files (lifecycle-registry.ts, lifecycle-registry-contract.ts, flow-stability-smoke.ts, package.json). Dead code: none. Type safety: runtime isLifecycleArtifact guard present and correct. I/O shell isolation: not applicable (no bridge.ts/shells/). No unused imports found. One medium finding registered (F-001): duplicate command-phase constant LIFECYCLE_COMMAND_PHASES vs COMMAND_LIFECYCLE_PHASES with no equality assertion — creates a silent drift risk. Contract test output verified PASS at runtime.",
+      "createdAt": "2026-05-15T23:13:11.457Z",
+      "reviewRound": "2026-05-15T23:10:14.872Z",
+      "reviewRunId": "B-3740:RR-002",
+      "_hash": "692cda7c1ccbd34f3a2aa7150d6d09f3449a1fca4c118489ed011d7c612a0bdd"
+    },
+    {
+      "id": "B-3740:RP-004",
+      "agent": "koala-review-concept",
+      "note": "Round 2 concept sweep: F-001 fix (commit 0701076b) correctly removed the duplicate LIFECYCLE_COMMAND_PHASES constant from lifecycle-registry.ts. The replacement concept COMMAND_LIFECYCLE_PHASES appears in exactly 3 files (lifecycle-registry.ts definition, flow-stability-smoke.ts import+use, lifecycle-registry-contract.ts import+use) with zero residual references to the removed LIFECYCLE_COMMAND_PHASES name. All new B-3740 exported symbols (LIFECYCLE_ARTIFACTS, LifecycleArtifact, LIFECYCLE_PHASE_ARTIFACTS, LIFECYCLE_ORACLE_ARTIFACT_REFS, lifecycleCommandsByPhase, lifecycleResolvedCommandsForPhase, lifecycleArtifactsByPhase, lifecycleArtifactsByTransition, isLifecycleArtifact) have no stale aliases or orphaned references. No concept deletion or replacement issues found. No blocker.",
+      "createdAt": "2026-05-15T23:17:34.572Z",
+      "reviewRound": "2026-05-15T23:16:27.518Z",
+      "reviewRunId": "B-3740:RR-004",
+      "_hash": "6a2cdc5ee3ec7f5ec8c95d4cb0a90df05bd704306268cf8619d5f1a678e9647e"
+    },
+    {
+      "id": "B-3740:RP-005",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 已检查所有 10 条 verificationIntent 与 verificationEvidence 覆盖关系。R1 F-001 fix 后 materialHash 漂移已通过 verification_evidence_refresh_stale 更新；koala validate 10/10 全覆盖，无 blocker。",
+      "createdAt": "2026-05-15T23:17:44.907Z",
+      "reviewRound": "2026-05-15T23:16:27.518Z",
+      "reviewRunId": "B-3740:RR-006",
+      "_hash": "bca7441865b8846255414fc1ab5b3a0456c47d189d02de5e5efa0347ba0e7b47"
+    },
+    {
+      "id": "B-3740:RP-006",
+      "agent": "koala-review-quality",
+      "note": "R1 F-001 fix confirmed: LIFECYCLE_COMMAND_PHASES deleted entirely, COMMAND_LIFECYCLE_PHASES retyped satisfies readonly CommandPhase[] with single reference in lifecycleCommandsByPhase(). No duplicate constant remains. Two new low-severity issues found and registered (F-002 unused LifecycleArtifactRole export, F-003 unnecessary `as never` cast). No dead imports, no unsafe `as any`, no empty catch blocks, no I/O shell isolation violations in the diff. Core logic correct.",
+      "createdAt": "2026-05-15T23:19:19.080Z",
+      "reviewRound": "2026-05-15T23:16:27.518Z",
+      "reviewRunId": "B-3740:RR-005",
+      "_hash": "6bdc7d698c6300374f4163f028fd5f50092de571fbdc9b63eb841e703b185821"
+    },
+    {
+      "id": "B-3740:RP-007",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 已刷新 10 条 stale evidence（verification_evidence_refresh_stale），重新 validate 全部 10/10 覆盖。CHK-001 happy/edge/adversarial 均有 logic_test pass；CHK-002 happy/edge/adversarial 均有 manual_transcript/logic_test pass；CHK-003 happy/edge/adversarial 均有 logic_test pass。所有 must intent 均有有效 verificationEvidence，无缺口，无 blocker。",
+      "createdAt": "2026-05-15T23:22:53.321Z",
+      "reviewRound": "2026-05-15T23:22:08.158Z",
+      "reviewRunId": "B-3740:RR-009",
+      "_hash": "405ae53b427de710ae9ad0b284b977c3f1d4170cf5d6570e8e2988aeef751579"
+    },
+    {
+      "id": "B-3740:RP-008",
+      "agent": "koala-review-quality",
+      "note": "Round 3 quality re-check of F-002 and F-003 fixes. F-002: LifecycleArtifactRole is now imported and used as type annotation in lifecycle-registry-contract.ts line 177 (readonly LifecycleArtifactRole[] = [\"produces\", \"consumes\"]) — dead type resolved. F-003: knownCommands (line 139) and processFactNames (line 152) are explicit Set<string>, no as never cast remains in changed files. No new dead imports, type-safety anti-patterns (as any / empty catch), or shell isolation violations introduced in the Round 3 diff.",
+      "createdAt": "2026-05-15T23:23:33.047Z",
+      "reviewRound": "2026-05-15T23:22:08.158Z",
+      "reviewRunId": "B-3740:RR-008",
+      "_hash": "878a7a59e10f4f83798a1bd127fe2617d0178eb65d6cad417dc96aac25c86bb7"
+    },
+    {
+      "id": "B-3740:RP-009",
+      "agent": "koala-review-concept",
+      "note": "Round 3 concept re-review of F-002 and F-003 fixes. F-002: LifecycleArtifactRole is now imported and consumed as explicit type annotation (readonly LifecycleArtifactRole[]) in lifecycle-registry-contract.ts — no longer a dead export. F-003: as-never cast fully removed; knownCommands and processFactNames both typed as Set<string> allowing .has(string) without cast. Zero residual as-never in packages/main/src/. No new concept deletions or replacements introduced by the fix commit. as-any casts in flow-stability-smoke.ts are pre-existing and not in scope of F-003. No blocker.",
+      "createdAt": "2026-05-15T23:23:38.887Z",
+      "reviewRound": "2026-05-15T23:22:08.158Z",
+      "reviewRunId": "B-3740:RR-007",
+      "_hash": "9358c432e4e7e28d352391b2b0bac943c475dbc0a9dd160560a766536769cb23"
+    }
+  ]
+}
