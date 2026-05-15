@@ -117,10 +117,10 @@
           "file": "packages/main/src/tasks/lifecycle-registry-contract.ts",
           "command": "npm --prefix packages/main run test:lifecycle-registry-contract",
           "result": "pass",
-          "note": "contract prints lifecycle-registry consistency: PASS — command-policy / DEFAULT_PHASE_TOOLS / process-fact lifecycle consistent with registry, 12 phases projected, 0 divergences",
-          "headHash": "9c94e30f4003c8c5c48b4a724b26e222c00cfeda",
-          "materialHash": "5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b",
-          "timestamp": "2026-05-15T23:07:51.942Z"
+          "note": "test:lifecycle-registry-contract passes: 12 phases, 0 divergences across registry / command-policy allowedPhases / DEFAULT_PHASE_TOOLS / process-fact lifecycle",
+          "headHash": "ed6add657826de089c6235656dde689ca05182c8",
+          "materialHash": "fc5e05c1aa113f46e047f409fd3b3a4e6dd872575867b314c61dbd1850630127",
+          "timestamp": "2026-05-15T23:10:04.041Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
