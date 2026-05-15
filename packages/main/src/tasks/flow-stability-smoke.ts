@@ -2833,10 +2833,23 @@ function assertDoneOracleSameSource(): void {
   );
   // done-oracle.ts must not import story-advance.ts (no circular import — preMortem #2).
   const doneOracleSrc = readFileSync(join(srcRoot, 'core', 'done-oracle.ts'), 'utf-8');
+  const doneOracleImportLines = doneOracleSrc
+    .split('\n')
+    .filter(l => l.trimStart().startsWith('import'))
+    .join('\n');
   assert.doesNotMatch(
-    doneOracleSrc.split('\n').filter(l => l.trimStart().startsWith('import')).join('\n'),
+    doneOracleImportLines,
     /story-advance/,
     'core/done-oracle.ts must not import from handlers/story-advance.js (circular import guard)',
+  );
+  // B-37e9 F-001: core/ must not depend upward on handlers/. done-oracle.ts is a
+  // core module; any `from '../handlers/...'` import is a layer violation. The
+  // delivery-check hash primitives were extracted to core/delivery-check-hash.ts
+  // precisely so this assertion can stay clean.
+  assert.doesNotMatch(
+    doneOracleImportLines,
+    /from '\.\.\/handlers\//,
+    'core/done-oracle.ts must not import from any handlers/ module (core→handlers layer violation)',
   );
 
   // --- 1 & 3. Behavioral same-source + regression baseline ---

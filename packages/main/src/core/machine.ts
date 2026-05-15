@@ -6,7 +6,7 @@ import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
 import type { Finding } from './types.js';
 import { blockingInitCheckIssues, missingRequiredInitCheckAgents, recomputeInitCheckHash } from '../handlers/init-check.js';
-import { recomputeDeliveryCheckHash } from '../handlers/delivery-check.js';
+import { recomputeDeliveryCheckHash } from './delivery-check-hash.js';
 import { getBlockingVerificationEvidenceIssues } from './verification.js';
 import { normalizeLegacyPhase } from './phase-flow.js';
 import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';

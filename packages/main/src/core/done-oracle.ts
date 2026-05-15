@@ -33,7 +33,7 @@ import {
 } from './dirty-worktree.js';
 import { defaultAuditWriter, evaluateDirtyGate, type DirtyGateName, type EvaluateDirtyGateResult } from './dirty-gate-policy.js';
 import { checkEvidenceFreshnessForGit } from './evidence-freshness.js';
-import { recomputeDeliveryCheckHash } from '../handlers/delivery-check.js';
+import { recomputeDeliveryCheckHash } from './delivery-check-hash.js';
 import {
   summarizeCodexEvidence,
   storyRequiresCodexEvidence,
