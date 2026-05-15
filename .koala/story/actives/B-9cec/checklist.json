@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/testing-infra.md#测试执行"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
+      "status": "done",
+      "startTime": "2026-05-15T10:52:16.290Z",
+      "endTime": "2026-05-15T10:54:09.293Z",
       "verificationIntent": {
         "happy": [
           {
@@ -42,7 +42,42 @@
         "test": [
           "packages/main/src/tasks/validation-protocol-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/handlers/verifier.ts",
+          "command": "rg -n \"@task B-9cec|docs/requirements/decisions/testing-infra.md:38|koala-verifier-no-validation-entry|validate\\.ts/js/mts|skip/warn|validate\\.command\" packages/main/src/handlers/verifier.ts packages/main/src/tasks/validation-protocol-smoke.ts",
+          "result": "pass",
+          "note": "verifier.ts file-level @task B-9cec annotation links docs/requirements/decisions/testing-infra.md:38 to the no-entry warn/skip policy without adding a function-level test gap.",
+          "headHash": "98b3fe507b8e31310e50c8480f9fa9438e565b87",
+          "materialHash": "46303331a7f0daee99c818d28a0f822b98e6b64c6857f9abfac7d8f6538de333",
+          "timestamp": "2026-05-15T10:54:09.321Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "validation protocol smoke passed after the annotation and provider change, including the no-entry provider/status/allPass assertions.",
+          "headHash": "98b3fe507b8e31310e50c8480f9fa9438e565b87",
+          "materialHash": "46303331a7f0daee99c818d28a0f822b98e6b64c6857f9abfac7d8f6538de333",
+          "timestamp": "2026-05-15T10:54:09.343Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "build and smoke pass; configured validate.command(s) hard-gate behavior is covered separately and was not relaxed while closing the coverage gap.",
+          "headHash": "98b3fe507b8e31310e50c8480f9fa9438e565b87",
+          "materialHash": "46303331a7f0daee99c818d28a0f822b98e6b64c6857f9abfac7d8f6538de333",
+          "timestamp": "2026-05-15T10:54:09.364Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -51,9 +86,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/testing-infra.md#测试执行"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
+      "status": "done",
+      "startTime": "2026-05-15T10:54:01.324Z",
+      "endTime": "2026-05-15T10:54:17.007Z",
       "verificationIntent": {
         "happy": [
           {
@@ -86,7 +121,42 @@
         "test": [
           "packages/main/src/tasks/validation-protocol-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "validation protocol smoke passed; no-entry fixture asserts provider koala-verifier-no-validation-entry, status warn, allPass true, and validate.command guidance.",
+          "headHash": "98b3fe507b8e31310e50c8480f9fa9438e565b87",
+          "materialHash": "46303331a7f0daee99c818d28a0f822b98e6b64c6857f9abfac7d8f6538de333",
+          "timestamp": "2026-05-15T10:54:17.029Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "configured failing validate command fixture asserts provider koala-verifier-configured-commands, status fail, allPass false, exit code 9, and no advisory fallback execution despite package.json test.",
+          "headHash": "98b3fe507b8e31310e50c8480f9fa9438e565b87",
+          "materialHash": "46303331a7f0daee99c818d28a0f822b98e6b64c6857f9abfac7d8f6538de333",
+          "timestamp": "2026-05-15T10:54:17.050Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "build and smoke pass for the no-entry root with no validate file, no configured command, and no fallback command; validate reports warn/skip instead of throwing or failing.",
+          "headHash": "98b3fe507b8e31310e50c8480f9fa9438e565b87",
+          "materialHash": "46303331a7f0daee99c818d28a0f822b98e6b64c6857f9abfac7d8f6538de333",
+          "timestamp": "2026-05-15T10:54:17.072Z"
+        }
+      ]
     }
   ]
 }
