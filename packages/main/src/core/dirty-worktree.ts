@@ -1,6 +1,7 @@
 import type { KoalaConfig } from './config.js';
 import { isStoryMetadataPath } from './evidence-freshness.js';
 import { findRuntimeArtifactEntry } from './runtime-artifact-registry.js';
+import type { StoryStore } from './store.js';
 
 // @task B-6326: central ownership classifier for dirty git porcelain rows.
 export const DIRTY_WORKTREE_CATEGORIES = [
@@ -186,6 +187,41 @@ export function classifyGitStatusRows(
     total: entries.length,
     entries,
     groups,
+  };
+}
+
+/**
+ * B-cf60: Read per-story declared-artifacts.json and merge its `entries[*].path`
+ * into the classifier's `declaredArtifactPaths`. Story-less callers should keep
+ * using `dirtyWorktreeClassifierOptionsFromConfig` (returns the baseline empty
+ * list — the classifier then never groups anything as declared_artifact_changes).
+ *
+ * The classifier matches with `pathMatchesSpec` (exact match for non-trailing-slash
+ * specs), so the declared path is enforced as an exact relative path; sibling
+ * paths like `tests/output/other.json` remain `unexpected_dirty_files`.
+ */
+export function dirtyWorktreeClassifierOptionsForStory(
+  config: KoalaConfig,
+  storyId: string,
+  store: StoryStore,
+): DirtyWorktreeClassifierOptions {
+  const base = dirtyWorktreeClassifierOptionsFromConfig(config);
+  let declared: string[] = [];
+  try {
+    const data = store.readDeclaredArtifacts(storyId);
+    declared = (data.entries || [])
+      .map((e) => (typeof e?.path === 'string' ? e.path.trim() : ''))
+      .filter((p) => p.length > 0);
+  } catch {
+    // PROBE: declared-artifacts.json missing or unreadable → fall back to base.
+    declared = [];
+  }
+  return {
+    ...base,
+    declaredArtifactPaths: [
+      ...(base.declaredArtifactPaths ?? []),
+      ...declared,
+    ],
   };
 }
 

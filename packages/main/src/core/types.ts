@@ -918,6 +918,33 @@ export interface DeliveryCheckData {
 }
 
 /**
+ * B-cf60: Per-story declared product artifact.
+ *
+ * 记录一个 story 显式声明的生成物路径，让 dirty-worktree 分类器把它归到
+ * `declared_artifact_changes` 类别而不是 `unexpected_dirty_files`，
+ * 并要求 DONE gate 校验该路径有匹配的 verificationEvidence intentRef
+ * 或 delivery-check.docsPromises[*].docPath。
+ */
+export interface DeclaredArtifactEntry {
+  /** 相对仓库根的精确路径（无 glob/通配符；handler 已校验） */
+  path: string;
+  /** 为什么声明该文件作为本 story 的预期产出（≥10 字符） */
+  reason: string;
+  /**
+   * 关联引用：
+   * - `CHK-NNN:(happy|edge|adversarial):IDX` 形式 → 指向 checklist.items[*].verificationIntent
+   * - `promise:<docPath>` 形式 → 指向 delivery-check.docsPromises[*].docPath
+   */
+  relatedIntent: string;
+  /** 声明写入时刻（ISO） */
+  declaredAt: string;
+}
+
+export interface DeclaredArtifactsData {
+  entries: DeclaredArtifactEntry[];
+}
+
+/**
  * B-ed3e CHK-003: Open Question 条目。
  * - id: 如 "OQ-1" / "OQ-2"（reviewer 自己分配）
  * - q: 疑问文本

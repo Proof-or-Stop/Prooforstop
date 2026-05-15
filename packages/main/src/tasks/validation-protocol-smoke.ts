@@ -334,6 +334,110 @@ try {
     rmSync(categorizedPollutionRoot, { recursive: true, force: true });
   }
 
+  // B-cf60: when the BL21 lacZ viewer path is declared for the active story,
+  // dirtyWorktreeClassifierOptionsForStory must group it under
+  // declared_artifact_changes — the field-derived regression target stays
+  // mechanically pinned even though validation-protocol-smoke is end-to-end.
+  const declaredPathRoot = mkdtempSync(join(tmpdir(), 'koala-validation-declared-bl21-'));
+  try {
+    const BL21 = 'packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json';
+    writeFileSync(join(declaredPathRoot, 'koala.config.json'), JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      testsDir: 'packages/main/tests',
+      fixturesDir: 'packages/main/tests/fixtures',
+      storyDir: '.koala/story/actives',
+      requirementsDir: 'docs/requirements',
+    }));
+    resetConfigCache();
+
+    const declaredStore = new StoryStore(declaredPathRoot);
+    const storyId = 'B-cftest';
+    const now = '2026-05-15T18:30:00.000Z';
+    declaredStore.writeStory(storyId, {
+      storyId,
+      name: 'declared-bl21-smoke',
+      title: 'Declared BL21 smoke',
+      description: 'Verify per-story declared artifact reclassification of BL21 viewer path.',
+      type: 'chore',
+      phase: 'DEV',
+      priority: 'medium',
+      createdAt: now,
+      startedAt: now,
+      endedAt: null,
+      currentReviewRound: now,
+      events: [],
+    });
+    declaredStore.writeChecklist(storyId, {
+      items: [{
+        id: 'CHK-001',
+        title: 'Item with verificationIntent slot',
+        status: 'done',
+        startTime: now,
+        endTime: now,
+        verificationIntent: {
+          happy: [{ desc: 'cli regenerates viewer', type: 'cli', priority: 'must' }],
+          edge: [],
+          adversarial: [],
+        },
+      }],
+    });
+
+    const { classifyGitStatusRows: classifyRows } = await import('../core/dirty-worktree.js');
+    const { dirtyWorktreeClassifierOptionsForStory: optsForStory } = await import('../core/dirty-worktree.js');
+    const { loadConfig: loadCfg } = await import('../core/config.js');
+    const { createArtifactDeclareHandlers: makeHandlers } = await import('../handlers/artifact-declare.js');
+    const { evaluateDeclaredArtifactReferences: refEval } = await import('../core/declared-artifact-gate.js');
+
+    const handlers = makeHandlers({
+      store: declaredStore,
+      root: declaredPathRoot,
+      scanRoot: join(declaredPathRoot, 'packages/main'),
+    });
+    handlers.artifact_declare({
+      storyId,
+      path: BL21,
+      reason: 'BL21 lacZ minicell viewer regenerated for verification (validation-protocol smoke)',
+      relatedIntent: 'CHK-001:happy:0',
+    });
+
+    const dirtyRows = [`?? ${BL21}`];
+    const cfg = loadCfg(declaredPathRoot);
+    const declared = classifyRows(dirtyRows, optsForStory(cfg, storyId, declaredStore));
+    assert.equal(
+      declared.groups.declared_artifact_changes.length,
+      1,
+      'BL21 lacZ viewer path must reclassify as declared_artifact_changes after artifact_declare',
+    );
+    assert.equal(declared.groups.declared_artifact_changes[0].path, BL21);
+    assert.equal(
+      declared.groups.unexpected_dirty_files.length,
+      0,
+      'declared BL21 path must NOT remain in unexpected_dirty_files',
+    );
+
+    // DONE gate reference check: matching intentRef → no unreferenced
+    const checklistData = declaredStore.readChecklist(storyId);
+    const declaredEntries = declaredStore.readDeclaredArtifacts(storyId);
+    const passing = refEval(declaredEntries, checklistData, null);
+    assert.equal(passing.total, 1);
+    assert.equal(passing.unreferenced.length, 0, 'BL21 viewer with CHK-001:happy:0 must satisfy DONE reference check');
+
+    // Bogus intentRef → unreferenced surfaces (preMortem #2 anchor)
+    handlers.artifact_declare({
+      storyId,
+      path: 'packages/main/tests/output/bl21_lacz_ecoli_minicell/other_viewer.json',
+      reason: 'second viewer with bogus ref for adversarial smoke',
+      relatedIntent: 'CHK-999:happy:0',
+    });
+    const failing = refEval(declaredStore.readDeclaredArtifacts(storyId), checklistData, null);
+    assert.equal(failing.total, 2);
+    assert.equal(failing.unreferenced.length, 1, 'bogus intentRef must NOT pass DONE reference check');
+    assert.equal(failing.unreferenced[0].relatedIntent, 'CHK-999:happy:0');
+  } finally {
+    rmSync(declaredPathRoot, { recursive: true, force: true });
+  }
+
   const invalidArgCwd = mkdtempSync(join(tmpdir(), 'koala-validation-schema-'));
   const env = { ...process.env };
   delete env.KOALA_PROJECT_ROOT;

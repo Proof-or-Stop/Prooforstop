@@ -10,9 +10,12 @@ import { DEFAULT_PHASE_TOOLS, getAllowedPatterns, isCommandAllowed, loadConfig, 
 import { getCommandPolicyEntries, policyAllowedPhaseLabels } from '../core/command-policy.js';
 import {
   classifyGitStatusRows,
+  dirtyWorktreeClassifierOptionsForStory,
   dirtyWorktreeClassifierOptionsFromConfig,
   parseGitPorcelainRow,
 } from '../core/dirty-worktree.js';
+import { evaluateDeclaredArtifactReferences } from '../core/declared-artifact-gate.js';
+import { createArtifactDeclareHandlers } from '../handlers/artifact-declare.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { signFinding, signReviewPass, verifyFinding, verifyReviewPass } from '../core/finding-verify.js';
 import { autoCommitStoryMetadata, AUTO_COMMIT_METADATA_PREFIX } from '../core/auto-commit-metadata.js';
@@ -1810,8 +1813,254 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
   }
 }
 
+/**
+ * B-cf60 CHK-004: regression coverage for the per-story declared-artifact channel.
+ *
+ * Covers four scenarios (happy/edge/adversarial intents from the checklist):
+ *   1. happy: declare a path → classifier groups it as declared_artifact_changes
+ *   2. happy: same path WITHOUT declaration → classifier keeps it as unexpected_dirty_files
+ *   3. edge: declare malicious paths (`*`, `..`, leading `/`) → handler throws
+ *   4. adversarial: DONE gate fn evaluateDeclaredArtifactReferences with
+ *      matching / unreferenced / mixed inputs.
+ *
+ * Uses the BL21 lacZ minicell viewer path literal from the field report so a
+ * future refactor cannot accidentally silence the smoke without renaming the
+ * regression target.
+ */
+function assertDeclaredArtifactsChannel(): void {
+  const BL21 = 'packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json';
+  const root = mkdtempSync(join(tmpdir(), 'koala-declared-artifacts-'));
+  try {
+    write(root, 'koala.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      testsDir: 'packages/main/tests',
+      fixturesDir: 'packages/main/tests/fixtures',
+      storyDir: '.koala/story/actives',
+      requirementsDir: 'docs/requirements',
+    }));
+    resetConfigCache();
+    const store = new StoryStore(root);
+
+    // Seed a story so artifact_declare's storyExists check passes.
+    const storyId = 'B-cftest';
+    const now = '2026-05-15T18:00:00.000Z';
+    const story: StoryInfo = {
+      storyId,
+      name: 'declared-artifacts-smoke',
+      title: 'Declared artifacts smoke',
+      description: 'Per-story declared product artifact registration regression.',
+      type: 'chore',
+      phase: 'DEV',
+      priority: 'medium',
+      createdAt: now,
+      startedAt: now,
+      endedAt: null,
+      currentReviewRound: now,
+      events: [],
+    };
+    const checklist: ChecklistData = {
+      items: [{
+        id: 'CHK-001',
+        title: 'Declared item',
+        context: 'happy intent for the BL21 viewer.',
+        status: 'done',
+        startTime: now,
+        endTime: now,
+        verificationIntent: {
+          happy: [{ desc: 'cli regenerates viewer', type: 'cli', priority: 'must' }],
+          edge: [],
+          adversarial: [],
+        },
+      }],
+    };
+    store.writeStory(storyId, story);
+    store.writeChecklist(storyId, checklist);
+
+    const handlers = createArtifactDeclareHandlers({
+      store,
+      root,
+      scanRoot: join(root, 'packages/main'),
+    });
+
+    // === Scenario 1 (happy): declare → classifier groups as declared_artifact_changes ===
+    handlers.artifact_declare({
+      storyId,
+      path: BL21,
+      reason: 'BL21 lacZ minicell viewer regenerated for verification',
+      relatedIntent: 'CHK-001:happy:0',
+    });
+    const config = loadConfig(root);
+    const dirtyLines = [`?? ${BL21}`];
+    const declared = classifyGitStatusRows(
+      dirtyLines,
+      dirtyWorktreeClassifierOptionsForStory(config, storyId, store),
+    );
+    assert.equal(
+      declared.groups.declared_artifact_changes.length,
+      1,
+      'declared artifact must land in declared_artifact_changes when story declared it',
+    );
+    assert.equal(declared.groups.declared_artifact_changes[0].path, BL21);
+    assert.equal(
+      declared.groups.unexpected_dirty_files.length,
+      0,
+      'declared path must not leak into unexpected_dirty_files',
+    );
+
+    // === Scenario 2 (happy): same path WITHOUT declaration → unexpected_dirty_files ===
+    const undeclared = classifyGitStatusRows(
+      dirtyLines,
+      dirtyWorktreeClassifierOptionsFromConfig(config),
+    );
+    assert.equal(
+      undeclared.groups.declared_artifact_changes.length,
+      0,
+      'without per-story injection the declared_artifact_changes category must stay empty',
+    );
+    assert.equal(undeclared.groups.unexpected_dirty_files.length, 1, 'BL21 viewer falls through to unexpected by default');
+    assert.equal(undeclared.groups.unexpected_dirty_files[0].path, BL21);
+
+    // === Scenario 2b: a sibling undeclared path under same prefix STAYS unexpected ===
+    const sibling = `${BL21.replace('prodenovo_viewer.json', 'other_snapshot.json')}`;
+    const mixedDirty = [`?? ${BL21}`, `?? ${sibling}`];
+    const mixed = classifyGitStatusRows(
+      mixedDirty,
+      dirtyWorktreeClassifierOptionsForStory(config, storyId, store),
+    );
+    assert.equal(mixed.groups.declared_artifact_changes.length, 1, 'only the declared path flips category');
+    assert.equal(mixed.groups.declared_artifact_changes[0].path, BL21);
+    assert.equal(mixed.groups.unexpected_dirty_files.length, 1, 'sibling path stays in unexpected_dirty_files');
+    assert.equal(mixed.groups.unexpected_dirty_files[0].path, sibling);
+
+    // === Scenario 3 (edge/adversarial): malicious paths throw ===
+    const malicious: string[] = [
+      'tests/output/*',
+      'tests/output/**/*.json',
+      '../escape.json',
+      'tests/output/../escape.json',
+      '/abs/path.json',
+      'tests/output/foo?.json',
+      'tests/output/[abc].json',
+    ];
+    for (const evil of malicious) {
+      assert.throws(
+        () => handlers.artifact_declare({
+          storyId,
+          path: evil,
+          reason: 'should not be allowed in any case',
+          relatedIntent: 'CHK-001:happy:0',
+        }),
+        /artifact_declare: path /,
+        `path ${JSON.stringify(evil)} must be rejected`,
+      );
+    }
+
+    // === Scenario 3b: bad relatedIntent shape also throws ===
+    assert.throws(
+      () => handlers.artifact_declare({
+        storyId,
+        path: 'tests/output/some.json',
+        reason: 'reason text long enough',
+        relatedIntent: 'not-a-valid-ref',
+      }),
+      /relatedIntent must match/,
+      'malformed relatedIntent must be rejected at handler entry',
+    );
+
+    // === Scenario 4 (adversarial): DONE gate reference checker ===
+    // (a) matching → no unreferenced.
+    const checklistData = store.readChecklist(storyId);
+    const declaredEntries = store.readDeclaredArtifacts(storyId);
+    const matchedResult = evaluateDeclaredArtifactReferences(declaredEntries, checklistData, null);
+    assert.equal(matchedResult.total, 1);
+    assert.equal(matchedResult.unreferenced.length, 0, 'CHK-001:happy:0 matches the seeded verificationIntent slot');
+
+    // (b) bogus intentRef → unreferenced.
+    handlers.artifact_declare({
+      storyId,
+      path: 'tests/output/bogus.json',
+      reason: 'second declaration with bogus ref for gate adversarial test',
+      relatedIntent: 'CHK-999:happy:0',
+    });
+    const withBogus = store.readDeclaredArtifacts(storyId);
+    const bogusResult = evaluateDeclaredArtifactReferences(withBogus, checklistData, null);
+    assert.equal(bogusResult.total, 2);
+    assert.equal(bogusResult.unreferenced.length, 1, 'CHK-999:happy:0 has no matching checklist item');
+    assert.equal(bogusResult.unreferenced[0].relatedIntent, 'CHK-999:happy:0');
+
+    // (c) coexisting matching + unreferenced still reports the unreferenced (1 is enough to block).
+    const coexistResult = evaluateDeclaredArtifactReferences(withBogus, checklistData, null);
+    assert.ok(coexistResult.unreferenced.length >= 1, 'at least one unreferenced entry must surface');
+
+    // === Scenario 5: idempotency — re-declare same path overwrites entry.
+    //     Run BEFORE the promise: stub block since that block rewrites the file.
+    const beforeIdem = store.readDeclaredArtifacts(storyId);
+    const idemOut = handlers.artifact_declare({
+      storyId,
+      path: BL21,
+      reason: 'BL21 lacZ minicell viewer regenerated for verification (rewrite)',
+      relatedIntent: 'CHK-001:happy:0',
+    });
+    assert.match(idemOut, /overwritten/, 'second declaration of same path must mention overwrite');
+    const afterIdem = store.readDeclaredArtifacts(storyId);
+    assert.equal(afterIdem.entries.length, beforeIdem.entries.length, 're-declaring same path must not duplicate entries');
+
+    // (d) promise:<docPath> ref resolves when delivery-check.docsPromises contains the docPath.
+    //     Use a separate store rooted at a fresh temp dir so we don't trample
+    //     the previous-scenario fixtures.
+    const promiseRoot = mkdtempSync(join(tmpdir(), 'koala-declared-artifacts-promise-'));
+    try {
+      write(promiseRoot, 'koala.config.json', JSON.stringify({
+        scanRoot: 'packages/main',
+        rootDir: 'src',
+        testsDir: 'packages/main/tests',
+        fixturesDir: 'packages/main/tests/fixtures',
+        storyDir: '.koala/story/actives',
+        requirementsDir: 'docs/requirements',
+      }));
+      resetConfigCache();
+      const promiseStore = new StoryStore(promiseRoot);
+      promiseStore.writeStory(storyId, story);
+      promiseStore.writeChecklist(storyId, checklist);
+      promiseStore.writeDeclaredArtifacts(storyId, {
+        entries: [{
+          path: 'tests/output/with-promise.json',
+          reason: 'promise ref smoke entry',
+          relatedIntent: 'promise:CLAUDE.md#section-foo',
+          declaredAt: now,
+        }],
+      });
+      const declaredPromiseOnly = promiseStore.readDeclaredArtifacts(storyId);
+      const deliveryStub = {
+        storyId,
+        checkedAt: now,
+        reviewRound: now,
+        agentId: 'koala-review-delivery',
+        docsPromises: [{ docPath: 'CLAUDE.md#section-foo', promise: 'doc promise', verifiedBy: 'grep', evidence: 'observed' }],
+        realMachineTests: [],
+        closingSelfCheck: { hasRealMachineTest: true, hasEdgeCaseCoverage: true, hasUnresolvedTodos: false, summary: 'ok summary text' },
+        _hash: 'stub',
+      };
+      const promiseResult = evaluateDeclaredArtifactReferences(declaredPromiseOnly, null, deliveryStub);
+      assert.equal(promiseResult.unreferenced.length, 0, 'promise:<docPath> ref must resolve via delivery-check docsPromises');
+    } finally {
+      rmSync(promiseRoot, { recursive: true, force: true });
+      resetConfigCache();
+    }
+
+    // (e) empty entries → zero unreferenced, gate caller treats as informational.
+    const emptyResult = evaluateDeclaredArtifactReferences({ entries: [] }, checklistData, null);
+    assert.equal(emptyResult.total, 0);
+    assert.equal(emptyResult.unreferenced.length, 0, 'empty declared-artifacts must not synthesize blockers');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 assertSessionBriefGate();
 assertDirtyWorktreeClassifierGroupsOwnership();
+assertDeclaredArtifactsChannel();
 assertFlowFactPolicyRegistry();
 assertPhaseGatePolicyHints();
 assertPhaseToolsOverrideStillBlocks();
