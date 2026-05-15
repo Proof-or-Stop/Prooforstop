@@ -126,6 +126,17 @@
           "headHash": "26ba244cd837dcd7f7216a5cc90b05193048cf05",
           "materialHash": "ca655619ccc0abe7c6bbb5faf69bd903d87dbe388b937bbfd814f552a92e6d2a",
           "timestamp": "2026-05-15T23:46:55.540Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "story-advance.ts keeps a thin re-export (export { buildDoneChecklist, type DoneCheckRow } from ../core/done-oracle.js); assertDoneOracleSameSource asserts story-advance.ts has NO export function buildDoneChecklist( implementation — exactly one impl in done-oracle.ts.",
+          "headHash": "cc6fbc919bba38fb74af9cbfd87905f3d1ad156e",
+          "materialHash": "ca655619ccc0abe7c6bbb5faf69bd903d87dbe388b937bbfd814f552a92e6d2a",
+          "timestamp": "2026-05-15T23:46:55.800Z"
         }
       ]
     },
