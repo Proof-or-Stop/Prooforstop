@@ -45,6 +45,17 @@
           "headHash": "64c6fb3c728223004b8353d9d3e39ceae66f473f",
           "materialHash": "5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b",
           "timestamp": "2026-05-15T23:07:37.607Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "command": "npm --prefix packages/main run test:lifecycle-registry-contract",
+          "result": "pass",
+          "note": "LifecycleArtifact is a typed enum; isLifecycleArtifact runtime guard rejects unknown names; contract check 4a-4d assert no undeclared artifact resolves",
+          "headHash": "cb8099c13380a6a772ae2c0fcb891621001c54ce",
+          "materialHash": "5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b",
+          "timestamp": "2026-05-15T23:07:37.861Z"
         }
       ]
     },
