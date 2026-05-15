@@ -303,9 +303,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Focused flow stability smoke exercises concrete Koala metadata, registry runtime artifact, material source/config, fixture, and exact undeclared BL21 lacZ product output examples.",
-          "headHash": "035a79381fb080800429e7e725dfd6819969eb03",
+          "headHash": "6670d1ea0226cae98e10b6b25f68999585ede306",
           "materialHash": "004c50b73bdc07db7530bffd6268eb296141b9f51a3fa99af6e9cee5ed71b095",
-          "timestamp": "2026-05-15T12:20:30.209Z"
+          "timestamp": "2026-05-15T12:22:32.293Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -313,9 +313,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
           "note": "Smoke coverage spans the classifier, DONE lifecycle gate surface, and validation-executor pollution details, proving consumers use typed categories rather than raw-only grouping.",
-          "headHash": "035a79381fb080800429e7e725dfd6819969eb03",
+          "headHash": "6670d1ea0226cae98e10b6b25f68999585ede306",
           "materialHash": "004c50b73bdc07db7530bffd6268eb296141b9f51a3fa99af6e9cee5ed71b095",
-          "timestamp": "2026-05-15T12:20:30.230Z"
+          "timestamp": "2026-05-15T12:22:32.315Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -323,19 +323,19 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Classifier smoke includes modified, deleted, renamed, untracked, and nested path porcelain rows, with normalized rename destination and original path assertions.",
-          "headHash": "035a79381fb080800429e7e725dfd6819969eb03",
+          "headHash": "6670d1ea0226cae98e10b6b25f68999585ede306",
           "materialHash": "004c50b73bdc07db7530bffd6268eb296141b9f51a3fa99af6e9cee5ed71b095",
-          "timestamp": "2026-05-15T12:20:30.252Z"
+          "timestamp": "2026-05-15T12:22:32.342Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
           "kind": "logic_test",
-          "command": "npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:validation-protocol",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:validation-protocol && npm --prefix packages/main run test:verification-freshness-smoke",
           "result": "pass",
-          "note": "Runtime examples use registry-backed .koala/activity, while source/config and fixture examples remain separate and validation details keep the same vocabulary.",
-          "headHash": "035a79381fb080800429e7e725dfd6819969eb03",
+          "note": "Runtime examples use registry-backed .koala/activity, source/config and fixture examples remain separate, validation details keep the same vocabulary, and verification freshness still separates story metadata/runtime artifact exclusions from material source/config files.",
+          "headHash": "6670d1ea0226cae98e10b6b25f68999585ede306",
           "materialHash": "004c50b73bdc07db7530bffd6268eb296141b9f51a3fa99af6e9cee5ed71b095",
-          "timestamp": "2026-05-15T12:20:30.272Z"
+          "timestamp": "2026-05-15T12:22:32.371Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -343,9 +343,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
           "note": "Regression assertions fail if packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json leaves unexpected_dirty_files before an explicit declaration exists.",
-          "headHash": "035a79381fb080800429e7e725dfd6819969eb03",
+          "headHash": "6670d1ea0226cae98e10b6b25f68999585ede306",
           "materialHash": "004c50b73bdc07db7530bffd6268eb296141b9f51a3fa99af6e9cee5ed71b095",
-          "timestamp": "2026-05-15T12:20:30.293Z"
+          "timestamp": "2026-05-15T12:22:32.396Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -353,9 +353,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
           "note": "DONE gate remains blocking and validation side-effect guard remains fail/allPass false when categorized dirty output is present.",
-          "headHash": "035a79381fb080800429e7e725dfd6819969eb03",
+          "headHash": "6670d1ea0226cae98e10b6b25f68999585ede306",
           "materialHash": "004c50b73bdc07db7530bffd6268eb296141b9f51a3fa99af6e9cee5ed71b095",
-          "timestamp": "2026-05-15T12:20:30.313Z"
+          "timestamp": "2026-05-15T12:22:32.423Z"
         }
       ]
     }
