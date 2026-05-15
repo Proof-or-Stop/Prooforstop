@@ -1,0 +1,33 @@
+{
+  "storyId": "B-da14",
+  "checkedAt": "2026-05-15T22:30:56.400Z",
+  "reviewRound": "2026-05-15T22:27:23.091Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md#合并態組合審查",
+      "promise": "New canonical section with trigger scope, enumerated 5-item inspection checklist, B-8db9 incident citation, explicit out-of-scope sentence for ordinary business stories, and advisory-not-CLI-gate declaration",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff shows new section at lines 74-112. grep confirms: 合并態組合審查 at line 74, B-8db9 incident citation at line 84, all 5 enumerated checklist items at lines 104-108, Out of scope at line 110 with 普通业务 story 不触发 at line 112, advisory 流程纪律 不是 CLI gate at line 78"
+    },
+    {
+      "docPath": "CLAUDE.md#合并態組合審查",
+      "promise": "Short summary section placed after REVIEW section with see-also pointer naming story-lifecycle.md as canonical",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff shows new section at lines 851-855 in CLAUDE.md after REVIEW 轮次递减规则 blockquote. grep confirms: 合并態組合審查 at line 851, canonical 详细版 see-also pointer naming story-lifecycle.md at line 855, advisory 流程纪律 不是 CLI gate stated in body"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "docs_check via grep: story-lifecycle.md has new section with all 5 required elements (5-item enumerated checklist lines 104-108, B-8db9 citation line 84, out-of-scope lines 110-112, advisory-not-CLI-gate line 78). CLAUDE.md has short summary at lines 851-855 with correct see-also pointer to story-lifecycle.md. No TODO/FIXME in diff. Doc-only story."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Both docsPromises verified independently from source via grep. story-lifecycle.md has canonical section with all 5 required elements. CLAUDE.md has short summary after REVIEW area with correct see-also pointer to story-lifecycle.md as canonical. No TODO/FIXME in diff. Doc-only story with all verificationIntent items confirmed."
+  },
+  "_hash": "553ddacf7b182d86a96029f030e6bfc3bbb5ff8bf06db513ff6df176c669f9e5"
+}
