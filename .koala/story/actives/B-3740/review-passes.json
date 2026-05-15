@@ -62,6 +62,15 @@
       "reviewRound": "2026-05-15T23:22:08.158Z",
       "reviewRunId": "B-3740:RR-009",
       "_hash": "405ae53b427de710ae9ad0b284b977c3f1d4170cf5d6570e8e2988aeef751579"
+    },
+    {
+      "id": "B-3740:RP-008",
+      "agent": "koala-review-quality",
+      "note": "Round 3 quality re-check of F-002 and F-003 fixes. F-002: LifecycleArtifactRole is now imported and used as type annotation in lifecycle-registry-contract.ts line 177 (readonly LifecycleArtifactRole[] = [\"produces\", \"consumes\"]) — dead type resolved. F-003: knownCommands (line 139) and processFactNames (line 152) are explicit Set<string>, no as never cast remains in changed files. No new dead imports, type-safety anti-patterns (as any / empty catch), or shell isolation violations introduced in the Round 3 diff.",
+      "createdAt": "2026-05-15T23:23:33.047Z",
+      "reviewRound": "2026-05-15T23:22:08.158Z",
+      "reviewRunId": "B-3740:RR-008",
+      "_hash": "878a7a59e10f4f83798a1bd127fe2617d0178eb65d6cad417dc96aac25c86bb7"
     }
   ]
 }
