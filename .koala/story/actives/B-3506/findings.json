@@ -44,6 +44,22 @@
       "files": [
         "packages/main/src/core/auto-commit-metadata.ts"
       ]
+    },
+    {
+      "id": "B-3506:F-004",
+      "desc": "All 19 verificationEvidence entries are stale (headHash=ff92f21e, currentHead=8868c392): the R1 fix commit 4f5a950f changed packages/main/src/core/auto-commit-metadata.ts after evidence was recorded. The flow-stability-smoke still passes against the updated binary, but evidence has not been refreshed to reflect post-fix re-verification. Requires verification_evidence_refresh_stale or re-add to register that the smoke was rerun and passed against the current HEAD. All 19 must-priority intents (CHK-001 through CHK-004, happy/edge/adversarial) are currently unaccepted by the gate.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-05-15T17:49:44.866Z",
+      "reviewRound": "2026-05-15T17:47:51.777Z",
+      "reviewRunId": "B-3506:RR-006",
+      "_hash": "3f04bc603ccf74f3db69af8a0ca55ae5b8e7f6d017d306abcab8ad2b5f9e604c",
+      "files": [
+        "packages/main/src/core/auto-commit-metadata.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ]
     }
   ]
 }

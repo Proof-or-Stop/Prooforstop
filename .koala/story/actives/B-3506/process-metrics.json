@@ -1,13 +1,13 @@
 {
   "storyId": "B-3506",
-  "generatedAt": "2026-05-15T17:47:51.474Z",
+  "generatedAt": "2026-05-15T17:50:54.642Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
     "hasPlan": true,
     "checklistItems": 4,
     "reviewRounds": 1,
-    "findings": 3,
+    "findings": 4,
     "bugs": 0,
     "testRuns": 0,
     "hasEvalEvidence": false,
@@ -27,13 +27,12 @@
       },
       "metrics": {
         "findingCoverageRatio": {
-          "value": null,
+          "value": 1,
           "unit": "ratio",
-          "confidence": "unknown",
+          "confidence": "medium",
           "sources": [
             "findings.json"
-          ],
-          "note": "no data (0 denominator)"
+          ]
         },
         "bugFixWithReproEvidenceRatio": {
           "value": null,
@@ -100,7 +99,7 @@
           ]
         },
         "missingFindingCount": {
-          "value": 3,
+          "value": 4,
           "unit": "count",
           "confidence": "high",
           "sources": [
@@ -318,7 +317,7 @@
           ]
         },
         "formalFindingCount": {
-          "value": 3,
+          "value": 4,
           "unit": "count",
           "confidence": "high",
           "sources": [

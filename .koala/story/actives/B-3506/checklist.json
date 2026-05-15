@@ -53,9 +53,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke assertAutoCommitMetadataAcrossHandlers Test1 (happy): on story/B-test1 branch, helper(root,'B-test1','finding_add') returns line containing ✓ koala metadata 已自动提交 + (<sha7>); git log -1 shows koala: record B-test1 finding_add metadata",
-          "headHash": "ff92f21e3967d773be4c4e01c7c546de6919b7dd",
-          "materialHash": "9395505de83a1ecab588129013ff1b15e97c972f354d657bf55de5d2d2783f25",
-          "timestamp": "2026-05-15T17:41:24.580Z"
+          "headHash": "8868c39218f35f0f453a0b087423d2013c391569",
+          "materialHash": "af88b52e3a348c49beead43856e1f35aabbdaa66dffb52f1a942e82ed8e07d52",
+          "timestamp": "2026-05-15T17:50:42.716Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -64,9 +64,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke covers helper invoked from 3+ different handler reasons (finding_add, checklist_update, summary_set) — all produce auto-commit line; story-advance kept hint via shared helper (reason=<phase>)",
-          "headHash": "ff92f21e3967d773be4c4e01c7c546de6919b7dd",
-          "materialHash": "9395505de83a1ecab588129013ff1b15e97c972f354d657bf55de5d2d2783f25",
-          "timestamp": "2026-05-15T17:41:24.753Z"
+          "headHash": "8868c39218f35f0f453a0b087423d2013c391569",
+          "materialHash": "af88b52e3a348c49beead43856e1f35aabbdaa66dffb52f1a942e82ed8e07d52",
+          "timestamp": "2026-05-15T17:50:42.880Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -75,9 +75,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke Test5 (main-branch): on main branch, helper returns '' and no commit appears in git log",
-          "headHash": "ff92f21e3967d773be4c4e01c7c546de6919b7dd",
-          "materialHash": "9395505de83a1ecab588129013ff1b15e97c972f354d657bf55de5d2d2783f25",
-          "timestamp": "2026-05-15T17:41:24.914Z"
+          "headHash": "8868c39218f35f0f453a0b087423d2013c391569",
+          "materialHash": "af88b52e3a348c49beead43856e1f35aabbdaa66dffb52f1a942e82ed8e07d52",
+          "timestamp": "2026-05-15T17:50:43.043Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -86,9 +86,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke Test4 (idempotent): second helper call with nothing staged returns '' and git log commit count unchanged",
-          "headHash": "ff92f21e3967d773be4c4e01c7c546de6919b7dd",
-          "materialHash": "9395505de83a1ecab588129013ff1b15e97c972f354d657bf55de5d2d2783f25",
-          "timestamp": "2026-05-15T17:41:25.077Z"
+          "headHash": "8868c39218f35f0f453a0b087423d2013c391569",
+          "materialHash": "af88b52e3a348c49beead43856e1f35aabbdaa66dffb52f1a942e82ed8e07d52",
+          "timestamp": "2026-05-15T17:50:43.212Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -97,9 +97,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke Test6 (path-broaden): helper called with malformed storyId 'B-xx@injected' or non-canonical prefix throws (preMortem #1 anchor)",
-          "headHash": "ff92f21e3967d773be4c4e01c7c546de6919b7dd",
-          "materialHash": "9395505de83a1ecab588129013ff1b15e97c972f354d657bf55de5d2d2783f25",
-          "timestamp": "2026-05-15T17:41:25.235Z"
+          "headHash": "8868c39218f35f0f453a0b087423d2013c391569",
+          "materialHash": "af88b52e3a348c49beead43856e1f35aabbdaa66dffb52f1a942e82ed8e07d52",
+          "timestamp": "2026-05-15T17:50:43.372Z"
         }
       ]
     },
@@ -156,9 +156,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke Test2 (coexist): with metadata write + material file dirty (packages/main/src/foo.ts), helper return contains 'untouched' and category counts; git status confirms foo.ts still M",
-          "headHash": "ff92f21e3967d773be4c4e01c7c546de6919b7dd",
-          "materialHash": "9395505de83a1ecab588129013ff1b15e97c972f354d657bf55de5d2d2783f25",
-          "timestamp": "2026-05-15T17:41:25.389Z"
+          "headHash": "8868c39218f35f0f453a0b087423d2013c391569",
+          "materialHash": "af88b52e3a348c49beead43856e1f35aabbdaa66dffb52f1a942e82ed8e07d52",
+          "timestamp": "2026-05-15T17:50:43.535Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -167,9 +167,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke Test3 (no coexist): helper return does NOT contain 'untouched' tail-note when only metadata dirt exists",
-          "headHash": "ff92f21e3967d773be4c4e01c7c546de6919b7dd",
-          "materialHash": "9395505de83a1ecab588129013ff1b15e97c972f354d657bf55de5d2d2783f25",
-          "timestamp": "2026-05-15T17:41:25.549Z"
+          "headHash": "8868c39218f35f0f453a0b087423d2013c391569",
+          "materialHash": "af88b52e3a348c49beead43856e1f35aabbdaa66dffb52f1a942e82ed8e07d52",
+          "timestamp": "2026-05-15T17:50:43.694Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -178,9 +178,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke Test2 verifies path scope did not widen — material foo.ts still M after auto-commit; git diff --cached confirms only .koala paths committed",
-          "headHash": "ff92f21e3967d773be4c4e01c7c546de6919b7dd",
-          "materialHash": "9395505de83a1ecab588129013ff1b15e97c972f354d657bf55de5d2d2783f25",
-          "timestamp": "2026-05-15T17:41:25.710Z"
+          "headHash": "8868c39218f35f0f453a0b087423d2013c391569",
+          "materialHash": "af88b52e3a348c49beead43856e1f35aabbdaa66dffb52f1a942e82ed8e07d52",
+          "timestamp": "2026-05-15T17:50:43.860Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -189,9 +189,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke asserts tail-note contains literal 'untouched' — preMortem #3 anchor; smoke explicitly checks substring 'untouched' in helper return for coexist case",
-          "headHash": "ff92f21e3967d773be4c4e01c7c546de6919b7dd",
-          "materialHash": "9395505de83a1ecab588129013ff1b15e97c972f354d657bf55de5d2d2783f25",
-          "timestamp": "2026-05-15T17:41:25.907Z"
+          "headHash": "8868c39218f35f0f453a0b087423d2013c391569",
+          "materialHash": "af88b52e3a348c49beead43856e1f35aabbdaa66dffb52f1a942e82ed8e07d52",
+          "timestamp": "2026-05-15T17:50:44.021Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -200,9 +200,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke Test 'classifier vocabulary parity' confirms classifyDirtyWorktree returns same category counts before-vs-after auto-commit for non-metadata categories (auto-commit does not mask material/unexpected dirt)",
-          "headHash": "ff92f21e3967d773be4c4e01c7c546de6919b7dd",
-          "materialHash": "9395505de83a1ecab588129013ff1b15e97c972f354d657bf55de5d2d2783f25",
-          "timestamp": "2026-05-15T17:41:26.072Z"
+          "headHash": "8868c39218f35f0f453a0b087423d2013c391569",
+          "materialHash": "af88b52e3a348c49beead43856e1f35aabbdaa66dffb52f1a942e82ed8e07d52",
+          "timestamp": "2026-05-15T17:50:44.185Z"
         }
       ]
     },
@@ -248,9 +248,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "8 handler files wired (finding/checklist/init-check/scope-check/scope-question-resolve/delivery-check/summary/story-advance); each appends helper return to response when commit fired",
-          "headHash": "ff92f21e3967d773be4c4e01c7c546de6919b7dd",
-          "materialHash": "9395505de83a1ecab588129013ff1b15e97c972f354d657bf55de5d2d2783f25",
-          "timestamp": "2026-05-15T17:41:26.235Z"
+          "headHash": "8868c39218f35f0f453a0b087423d2013c391569",
+          "materialHash": "af88b52e3a348c49beead43856e1f35aabbdaa66dffb52f1a942e82ed8e07d52",
+          "timestamp": "2026-05-15T17:50:44.349Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -259,9 +259,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Helper returns '' when no-op (nothing staged or non-story/* branch); handlers concat '' = no extra line — no '(no commit)' filler",
-          "headHash": "ff92f21e3967d773be4c4e01c7c546de6919b7dd",
-          "materialHash": "9395505de83a1ecab588129013ff1b15e97c972f354d657bf55de5d2d2783f25",
-          "timestamp": "2026-05-15T17:41:26.386Z"
+          "headHash": "8868c39218f35f0f453a0b087423d2013c391569",
+          "materialHash": "af88b52e3a348c49beead43856e1f35aabbdaa66dffb52f1a942e82ed8e07d52",
+          "timestamp": "2026-05-15T17:50:44.511Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -270,9 +270,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke Test7 (prefix vocab): helper return startsWith literal '\\n✓ koala metadata 已自动提交:' — byte-equal AUTO_COMMIT_METADATA_PREFIX export shared with story-advance",
-          "headHash": "ff92f21e3967d773be4c4e01c7c546de6919b7dd",
-          "materialHash": "9395505de83a1ecab588129013ff1b15e97c972f354d657bf55de5d2d2783f25",
-          "timestamp": "2026-05-15T17:41:26.543Z"
+          "headHash": "8868c39218f35f0f453a0b087423d2013c391569",
+          "materialHash": "af88b52e3a348c49beead43856e1f35aabbdaa66dffb52f1a942e82ed8e07d52",
+          "timestamp": "2026-05-15T17:50:44.676Z"
         }
       ]
     },
@@ -334,9 +334,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "assertAutoCommitMetadataAcrossHandlers Test1 fixture: temp git repo on story/B-test1 branch with metadata write + material file → only metadata committed, material stays M",
-          "headHash": "ff92f21e3967d773be4c4e01c7c546de6919b7dd",
-          "materialHash": "9395505de83a1ecab588129013ff1b15e97c972f354d657bf55de5d2d2783f25",
-          "timestamp": "2026-05-15T17:41:26.711Z"
+          "headHash": "8868c39218f35f0f453a0b087423d2013c391569",
+          "materialHash": "af88b52e3a348c49beead43856e1f35aabbdaa66dffb52f1a942e82ed8e07d52",
+          "timestamp": "2026-05-15T17:50:44.839Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
@@ -345,9 +345,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke covers helper called with 3 different reasons (finding_add, checklist_update, summary_set) — all produce identical prefix + correct reason in commit subject",
-          "headHash": "ff92f21e3967d773be4c4e01c7c546de6919b7dd",
-          "materialHash": "9395505de83a1ecab588129013ff1b15e97c972f354d657bf55de5d2d2783f25",
-          "timestamp": "2026-05-15T17:41:26.878Z"
+          "headHash": "8868c39218f35f0f453a0b087423d2013c391569",
+          "materialHash": "af88b52e3a348c49beead43856e1f35aabbdaa66dffb52f1a942e82ed8e07d52",
+          "timestamp": "2026-05-15T17:50:44.998Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -356,9 +356,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke Test5: on main branch → helper returns '' and no commit",
-          "headHash": "ff92f21e3967d773be4c4e01c7c546de6919b7dd",
-          "materialHash": "9395505de83a1ecab588129013ff1b15e97c972f354d657bf55de5d2d2783f25",
-          "timestamp": "2026-05-15T17:41:27.050Z"
+          "headHash": "8868c39218f35f0f453a0b087423d2013c391569",
+          "materialHash": "af88b52e3a348c49beead43856e1f35aabbdaa66dffb52f1a942e82ed8e07d52",
+          "timestamp": "2026-05-15T17:50:45.161Z"
         },
         {
           "intentRef": "CHK-004:edge:1",
@@ -367,9 +367,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke Test4: idempotent re-call (nothing staged) → second call returns '' and no second commit",
-          "headHash": "ff92f21e3967d773be4c4e01c7c546de6919b7dd",
-          "materialHash": "9395505de83a1ecab588129013ff1b15e97c972f354d657bf55de5d2d2783f25",
-          "timestamp": "2026-05-15T17:41:27.261Z"
+          "headHash": "8868c39218f35f0f453a0b087423d2013c391569",
+          "materialHash": "af88b52e3a348c49beead43856e1f35aabbdaa66dffb52f1a942e82ed8e07d52",
+          "timestamp": "2026-05-15T17:50:45.323Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -378,9 +378,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke Test6: non-canonical storyDirRel / malformed storyId → helper throws (preMortem #1)",
-          "headHash": "ff92f21e3967d773be4c4e01c7c546de6919b7dd",
-          "materialHash": "9395505de83a1ecab588129013ff1b15e97c972f354d657bf55de5d2d2783f25",
-          "timestamp": "2026-05-15T17:41:27.443Z"
+          "headHash": "8868c39218f35f0f453a0b087423d2013c391569",
+          "materialHash": "af88b52e3a348c49beead43856e1f35aabbdaa66dffb52f1a942e82ed8e07d52",
+          "timestamp": "2026-05-15T17:50:45.486Z"
         },
         {
           "intentRef": "CHK-004:adversarial:1",
@@ -389,9 +389,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Smoke 'classifier vocabulary parity' assertion: classifyDirtyWorktree returns same non-metadata category counts whether helper called or not — auto-commit does not mask material/fixture/unexpected dirt",
-          "headHash": "ff92f21e3967d773be4c4e01c7c546de6919b7dd",
-          "materialHash": "9395505de83a1ecab588129013ff1b15e97c972f354d657bf55de5d2d2783f25",
-          "timestamp": "2026-05-15T17:41:27.610Z"
+          "headHash": "8868c39218f35f0f453a0b087423d2013c391569",
+          "materialHash": "af88b52e3a348c49beead43856e1f35aabbdaa66dffb52f1a942e82ed8e07d52",
+          "timestamp": "2026-05-15T17:50:45.650Z"
         }
       ]
     }
