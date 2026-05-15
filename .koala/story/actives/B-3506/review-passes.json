@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-3506:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 已检查所有 19 个 verificationIntent 与 verificationEvidence 覆盖关系。4 个 checklist item 全部含 happy/edge/adversarial 三栏（符合 normal/high-risk 通道要求）；所有 priority=must intent 均有 result=pass 的 integration_test 或 logic_test 覆盖；evidence 具体指向 flow-stability-smoke.ts 中对应的 Test 编号和断言；validate --json 独立确认 19/19 covered，0 missingRequired；无 blocker 缺口。",
+      "createdAt": "2026-05-15T17:42:53.463Z",
+      "reviewRound": "2026-05-15T17:41:39.332Z",
+      "reviewRunId": "B-3506:RR-003",
+      "_hash": "888ab436fb8105516ecf4f43cfd832114040edddae704c47ee3d31725d1d103e"
+    }
+  ]
+}

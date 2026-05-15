@@ -11,8 +11,8 @@
  *   - Path scope is hardcoded: the helper computes `.koala/story/actives/<storyId>/`
  *     from `storyId` itself (literal prefix). The caller cannot broaden the scope
  *     by passing a different path argument — there is no such argument.
- *   - storyId must match /^B-[a-f0-9]{4}$/. Anything else throws synchronously
- *     before any git invocation.
+ *   - storyId must match /^B-[A-Za-z0-9][A-Za-z0-9-]*$/. Anything else throws
+ *     synchronously before any git invocation.
  *   - The classifier (B-6326 classifyDirtyWorktree) is consulted ONLY for the
  *     tail-note about coexisting non-metadata dirt. It is NOT used to decide
  *     whether to stage paths — `git add` is always scoped to the story dir.
@@ -66,16 +66,6 @@ function assertStoryIdShape(storyId: string): void {
     throw new Error(
       `autoCommitStoryMetadata: storyId must match /^B-[A-Za-z0-9][A-Za-z0-9-]*$/ (got: ${JSON.stringify(storyId)}). ` +
       `Refusing to git-add — broadening the path scope is a preMortem #1 anchor violation.`,
-    );
-  }
-}
-
-function assertCanonicalStoryRel(storyRel: string, storyId: string): void {
-  const expected = `${AUTO_COMMIT_STORY_DIR_PREFIX}${storyId}`;
-  if (storyRel !== expected) {
-    throw new Error(
-      `autoCommitStoryMetadata: computed story rel "${storyRel}" diverges from canonical "${expected}". ` +
-      `Refusing to git-add — only the canonical .koala/story/actives/<storyId>/ scope is allowed.`,
     );
   }
 }
@@ -146,9 +136,8 @@ export function autoCommitStoryMetadata(
     }).trim();
     if (!branch.startsWith('story/')) return '';
 
-    // 3. canonical path computation + assertion
+    // 3. canonical path computation (scope hardcoded by storyId — see preMortem #1)
     const storyRel = `${AUTO_COMMIT_STORY_DIR_PREFIX}${storyId}`;
-    assertCanonicalStoryRel(storyRel, storyId);
 
     // 4. snapshot the FULL dirty classification BEFORE committing (so the
     //    tail-note describes coexisting non-metadata dirt as it stood at decision
