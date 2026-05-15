@@ -36,7 +36,7 @@
       "desc": "quality-cleanup: packages/main/src/tasks/lifecycle-registry-contract.ts:141 uses `entry.name as never` to call `knownCommands.has()`. `entry.name` is typed as `string` (from the ProcessFactLevelEntry interface) and `knownCommands` is `Set<string>`, so `Set<string>.has(string)` requires no cast. The `as never` is an unnecessary type escape that bypasses type checking rather than a proper type annotation.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "agent": "koala-review-quality",
       "createdAt": "2026-05-15T23:19:12.436Z",
       "reviewRound": "2026-05-15T23:16:27.518Z",
