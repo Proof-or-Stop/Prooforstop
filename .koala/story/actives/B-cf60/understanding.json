@@ -1,0 +1,33 @@
+{
+  "task": "B-6326 added a declared_artifact_changes category in DIRTY_WORKTREE_CATEGORIES and the classifier (dirty-worktree.ts:149) already routes paths to it via declaredArtifactPaths / declaredArtifactMatcher options, but the population is empty (dirtyWorktreeClassifierOptionsFromConfig sets declaredArtifactPaths: []). Stories cannot declare which generated outputs are expected products, so the B-c9f5 field report path tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json (and similar) keeps landing in unexpected_dirty_files.",
+  "outcome": "User runs 'koala artifact_declare {storyId:B-cf60, path:tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json, reason:BL21 lacZ minicell viewer regenerated for verification, relatedIntent:CHK-001:happy:0}' and sees '✓ artifact declared: 1 path registered for B-cf60' in stdout. Re-running 'koala session_brief' or 'koala validate --story=B-cf60' shows that exact path under declared_artifact_changes group instead of unexpected_dirty_files. Without explicit reference in verificationEvidence or delivery-check, DONE pre-check fails with [unreferenced_declared_artifact] blocker so generated outputs cannot silently pass.",
+  "facts": [
+    "dirty-worktree.ts:149 already routes paths to declared_artifact_changes via DirtyWorktreeClassifierOptions.declaredArtifactPaths / declaredArtifactMatcher",
+    "dirtyWorktreeClassifierOptionsFromConfig (line 192) currently sets declaredArtifactPaths: [] — no story-level injection",
+    "store.ts has writeFoo methods for story metadata; declaredArtifacts.json fits the same pattern",
+    "B-3506 auto-commit metadata helper auto-commits .koala/story/actives/<id>/ files including any new declared-artifacts.json",
+    "B-6326 summary explicitly listed BL21 lacZ viewer path as the field-derived undeclared example: packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json",
+    "Existing verificationEvidence / delivery-check / summary schemas reference checklist intentRefs (CHK-001:happy:0 etc) — declared artifact can use same reference scheme"
+  ],
+  "constraints": [
+    "Declaration scope is per-story only — do NOT add a global allowlist that would unrelate generated outputs from the story claiming them",
+    "Declared artifact must be linkable to either a verificationIntent intentRef or a delivery-check promiseId so DONE gate can prove the artifact was tied to user-visible work",
+    "Undeclared paths under tests/output/ MUST remain unexpected_dirty_files — the story must not loosen anything by accident",
+    "Reuse B-6326 classifier injection mechanism; do not add a separate classifier path for declared artifacts",
+    "DONE gate must reject when declared artifact has no evidence/delivery reference; this is the safety bound for the whole story",
+    "Handler 编码约定: path arg minLength 1 + storyId regex check at runtime in addition to Zod"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/dirty-worktree.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/handlers/artifact-declare.ts",
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/validation-protocol-smoke.ts"
+  ],
+  "timestamp": "2026-05-15T17:59:41.105Z"
+}
