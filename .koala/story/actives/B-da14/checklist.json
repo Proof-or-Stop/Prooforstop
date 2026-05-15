@@ -1,0 +1,16 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Document the merge-time combination-review rule for parallel process-framework stories",
+      "context": "Add an advisory process rule to CLAUDE.md (and/or docs/requirements/decisions/story-lifecycle.md) stating: when multiple process-framework stories (touching classifier / gate policy / command entry guards / auto-commit / DONE merge semantics) are merged to main in parallel, a read-only combination review must be run over the combined main state — checking classification priority order, gate policy, command entry rejection, auto-commit/dirty state, and DONE merge semantics for cross-story conflicts. Derived from the B-8db9 incident where B-cf60 + B-4b22 each passed single-story review but combined into a CRITICAL gate bypass. Rule applies only to process-framework stories, not ordinary business stories.",
+      "relatedDocs": [
+        "CLAUDE.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
