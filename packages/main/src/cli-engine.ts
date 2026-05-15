@@ -288,6 +288,16 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'recover_evidence', description: 'Single-shot recover：refresh stale evidence + revalidate（仅在 worktree 只剩 koala metadata / runtime / declared artifact 时放行）', schema: {
     storyId: z.string().min(1).describe('Story ID'),
   }},
+  // B-cf60: per-story declared product artifact — register a generated path so
+  // the dirty-worktree classifier groups it under declared_artifact_changes
+  // instead of unexpected_dirty_files. DONE gate then checks every declared
+  // path is referenced from verificationEvidence or delivery-check.docsPromises.
+  { name: 'artifact_declare', description: '把一个生成物路径声明为本 story 的预期产出，使 dirty classifier 归为 declared_artifact_changes，并要求 DONE gate 有匹配的 verificationEvidence/promise 引用', schema: {
+    storyId: z.string().min(1).describe('Story ID'),
+    path: z.string().min(1).describe('相对仓库根的精确路径（无 glob/通配符；无 leading slash；无 .. 段）'),
+    reason: z.string().min(10, 'reason ≥ 10 characters').describe('为什么把此文件声明为本 story 的预期产出'),
+    relatedIntent: z.string().min(1).describe('关联引用：CHK-NNN:(happy|edge|adversarial):IDX 或 promise:<docPath>'),
+  }},
   { name: 'light_review', description: '记录一次轻量 review（DEV 阶段每完成一批 item 后调用）', schema: {
     storyId: z.string().describe('Story ID'),
     checklistIds: z.array(z.string()).describe('本次 review 覆盖的 checklist item ID 列表'),

@@ -6,6 +6,7 @@ import type {
   StoryTestRun, StoryTestRunsData, FindingData, EvalEvidenceData,
   StoryProcessMetrics, ProcessEvent, ScopeCheckData, InitCheckData, ReviewPassData,
   DeliveryCheckData, ImplementationReviewResultData, ReviewRunData, GrillData,
+  DeclaredArtifactsData,
 } from './types.js';
 import type { ClusterData } from './cluster-types.js';
 import { appendProcessEvent as appendProcessEventFn, readProcessEvents as readProcessEventsFn } from './process-events.js';
@@ -450,6 +451,23 @@ export class StoryStore {
 
   writeDeliveryCheck(storyId: string, data: DeliveryCheckData): void {
     this.writeJson(storyId, 'delivery-check.json', data);
+  }
+
+  // ── Declared Artifacts (B-cf60: per-story declared product output paths) ──
+  //
+  // 存储位置：<storyDir>/<storyId>/declared-artifacts.json
+  // 读缺失时返回 { entries: [] }（与 findings/review 的 null-safe 风格一致）。
+
+  readDeclaredArtifacts(storyId: string): DeclaredArtifactsData {
+    try {
+      return this.readJson<DeclaredArtifactsData>(storyId, 'declared-artifacts.json');
+    } catch {
+      return { entries: [] };
+    }
+  }
+
+  writeDeclaredArtifacts(storyId: string, data: DeclaredArtifactsData): void {
+    this.writeJson(storyId, 'declared-artifacts.json', data);
   }
 
   // ── Process Events (B-aa48: Phase 3 append-only event log) ──
