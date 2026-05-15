@@ -1077,6 +1077,92 @@ function assertReviewRunBindingRejectsInvalidEvidence(): void {
   }
 }
 
+function assertSupersededReviewPassDoesNotBlockLatestReviewerRun(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-flow-review-pass-supersede-'));
+  try {
+    const { store, storyId, reviewRound } = createReviewStore(root);
+    const agents = [
+      'koala-review-concept',
+      'koala-review-quality',
+      'koala-review-test-coverage',
+    ];
+    const runIds = seedReviewRuns(root, store, storyId, reviewRound, agents);
+
+    const runsData = store.readReviewRuns(storyId);
+    const previousTestCoverageRun = runsData.runs.find(run => run.lane === 'koala-review-test-coverage');
+    assert.ok(previousTestCoverageRun, 'test-coverage run fixture should exist');
+    const latestTestCoverageRunId = `${storyId}:RR-004`;
+    const latestStartedAt = '2026-04-27T11:03:00.000Z';
+    runsData.runs.push({
+      ...previousTestCoverageRun,
+      reviewRunId: latestTestCoverageRunId,
+      startedAt: latestStartedAt,
+      _hash: signReviewRun(
+        storyId,
+        latestTestCoverageRunId,
+        previousTestCoverageRun.agent,
+        previousTestCoverageRun.lane,
+        reviewRound,
+        latestStartedAt,
+        previousTestCoverageRun.headHash,
+        previousTestCoverageRun.materialHash,
+        previousTestCoverageRun.promptHash,
+      ),
+    });
+    store.writeReviewRuns(storyId, runsData);
+
+    store.writeFindings(storyId, {
+      findings: [
+        makeFinding(storyId, 'koala-review-concept', reviewRound, '061', runIds.get('koala-review-concept')!),
+        makeFinding(storyId, 'koala-review-quality', reviewRound, '062', runIds.get('koala-review-quality')!),
+      ],
+    });
+    store.writeReviewPasses(storyId, {
+      passes: [
+        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '063', runIds.get('koala-review-test-coverage')!),
+        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '064', latestTestCoverageRunId),
+      ],
+    });
+
+    const supersededState = collectReviewerEvidenceState(store, storyId, root);
+    assert.equal(
+      supersededState.invalid.some(issue => issue.kind === 'pass' && issue.code === 'stale_run'),
+      false,
+      'older review pass should be superseded by a newer valid pass for the same lane',
+    );
+    assert.equal(getGuardFailureReason(storyId, store, 'TEST', root), null);
+    const status = summarizeReviewerStatus(store, storyId, root);
+    const byName = new Map(status.entries.map(e => [e.name, e]));
+    assert.equal(byName.get('test-coverage')?.verdict, 'pass');
+    assert.equal(status.totalBlockers, 0);
+
+    const staleFinding = {
+      ...makeFinding(storyId, 'koala-review-test-coverage', reviewRound, '065', runIds.get('koala-review-test-coverage')!),
+      status: 'open' as const,
+    };
+    store.writeFindings(storyId, {
+      findings: [
+        makeFinding(storyId, 'koala-review-concept', reviewRound, '066', runIds.get('koala-review-concept')!),
+        makeFinding(storyId, 'koala-review-quality', reviewRound, '067', runIds.get('koala-review-quality')!),
+        staleFinding,
+      ],
+    });
+    const staleFindingState = collectReviewerEvidenceState(store, storyId, root);
+    assert.equal(
+      staleFindingState.invalid.some(issue => issue.kind === 'finding' && issue.code === 'stale_run'),
+      true,
+      'older stale findings must not be hidden by a newer pass for the same lane',
+    );
+    assert.match(
+      getGuardFailureReason(storyId, store, 'TEST', root) ?? '',
+      /不是当前 lane 最新 run/,
+      'supersede logic applies only to stale passes, not stale findings',
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 function assertLegacyReviewEvidenceWithoutCurrentRoundStaysReadable(): void {
   const root = mkdtempSync(join(tmpdir(), 'koala-flow-legacy-review-evidence-'));
   try {
@@ -2330,6 +2416,7 @@ assertManagedAssetExpandedDocsAndTrueDrift();
 assertDispatchPromptsPinImplementerCommitAuthor();
 assertReviewGateUsesOptIn();
 assertReviewRunBindingRejectsInvalidEvidence();
+assertSupersededReviewPassDoesNotBlockLatestReviewerRun();
 assertLegacyReviewEvidenceWithoutCurrentRoundStaysReadable();
 await assertStoryAdvanceReviewEchoOmitsRetiredChannel();
 assertReviewerStatusUsesMdFallback();

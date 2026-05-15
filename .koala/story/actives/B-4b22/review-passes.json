@@ -44,6 +44,24 @@
       "reviewRound": "2026-05-15T19:10:42.812Z",
       "reviewRunId": "B-4b22:RR-007",
       "_hash": "1b3eb9c7977cb0f302203c7a3863821f7107afe6a52e58b397c55ef969230e26"
+    },
+    {
+      "id": "B-4b22:RP-006",
+      "agent": "koala-review-test-coverage",
+      "note": "Revalidated R2 after F-003 fix: CHK-004 edge runtime_artifact_changes standalone scenario is covered via flow-stability-smoke; koala validate passes with 20/20 verification intents covered.",
+      "createdAt": "2026-05-15T19:13:30.578Z",
+      "reviewRound": "2026-05-15T19:10:42.812Z",
+      "reviewRunId": "B-4b22:RR-010",
+      "_hash": "a4df92cfb615f6056509f8303204f8d647964ce85bbab7cf60ef9441ab0f260b"
+    },
+    {
+      "id": "B-4b22:RP-007",
+      "agent": "koala-review-test-coverage",
+      "note": "Re-run after stale reviewRunId race: verified latest R2 code/evidence; F-003 is resolved, CHK-004 runtime_artifact_changes standalone case is covered, and koala validate reports PASS with 20/20 intents.",
+      "createdAt": "2026-05-15T19:14:27.400Z",
+      "reviewRound": "2026-05-15T19:10:42.812Z",
+      "reviewRunId": "B-4b22:RR-011",
+      "_hash": "dc19ebe94509d12588a4adb03a874b99b2bd329c5e8445236e63b93df3089571"
     }
   ]
 }
