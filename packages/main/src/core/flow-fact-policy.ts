@@ -1,6 +1,7 @@
 export type FlowFactPolicyId =
   | 'review-run-boundary'
   | 'review-pass'
+  | 'review-pass-supersession'
   | 'finding'
   | 'pass-only-normalization'
   | 'review-round-iso-string'
@@ -44,6 +45,17 @@ export const FLOW_FACT_POLICIES = [
     artifactCommand: 'review_pass_set',
     semantics: ['flow-policy', 'review-pass', 'no-blocker-evidence', 'gate-evidence'],
     rationale: 'Review pass is a signed no-blocker fact consumed by REVIEW to TEST gates.',
+  },
+  {
+    name: 'flow-policy:review-pass-supersession',
+    policyId: 'review-pass-supersession',
+    level: 'L4',
+    category: 'flow-policy',
+    owner: 'core/flow-fact-policy',
+    consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
+    artifactCommand: 'review_pass_set',
+    semantics: ['flow-policy', 'review-pass', 'supersession-policy', 'gate-evidence'],
+    rationale: 'Older stale review pass receipts are ignored once the same lane records a newer valid pass; stale findings remain blocking.',
   },
   {
     name: 'flow-policy:finding',

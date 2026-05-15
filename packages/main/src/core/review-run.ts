@@ -357,16 +357,23 @@ export function collectReviewerEvidenceState(
     }));
 
   const valid: ReviewerEvidenceRecord[] = [];
-  const invalid: ReviewRunIssue[] = [];
+  const rawInvalid: ReviewRunIssue[] = [];
 
   for (const evidence of [...reviewerFindings, ...reviewerPasses]) {
     const issue = validateEvidenceRunBinding(story, projectRoot, runs, evidence);
     if (issue) {
-      invalid.push(issue);
+      rawInvalid.push(issue);
     } else {
       valid.push(evidence);
     }
   }
+
+  const agentsWithCurrentValidEvidence = new Set(valid.map((evidence) => evidence.agent));
+  const invalid = rawInvalid.filter((issue) => {
+    if (issue.kind !== 'pass') return true;
+    if (issue.code !== 'stale_run' && issue.code !== 'stale_run_hash') return true;
+    return !agentsWithCurrentValidEvidence.has(issue.agent);
+  });
 
   return { valid, invalid };
 }

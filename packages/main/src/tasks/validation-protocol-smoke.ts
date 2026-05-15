@@ -2,7 +2,7 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -330,8 +330,74 @@ try {
     assert.match(details, /fixture_changes=1/);
     assert.match(details, /unexpected_dirty_files=1/);
     assert.match(details, /packages\/main\/tests\/output\/bl21_lacz_ecoli_minicell\/prodenovo_viewer\.json/);
+    // B-4b22: blocking pollution still surfaces "validation command dirtied
+    // worktree" header; passing-only pollution (next block) gets the "policy-
+    // allowed dirty paths" wording instead.
+    assert.match(details, /validation command dirtied worktree/);
+    assert.match(details, /fail: blocking=/);
   } finally {
     rmSync(categorizedPollutionRoot, { recursive: true, force: true });
+  }
+
+  // B-4b22: pollution that classifies entirely as passing categories
+  // (koala_metadata_changes + runtime_artifact_changes) must NOT trip
+  // executeValidationPlan; status stays 'pass', allPass=true, details swap
+  // to the policy-allowed wording and audit info appears.
+  const passingPollutionRoot = mkdtempSync(join(tmpdir(), 'koala-validation-passing-pollution-'));
+  try {
+    writeFileSync(join(passingPollutionRoot, 'koala.config.json'), JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      testsDir: 'packages/main/tests',
+      fixturesDir: 'packages/main/tests/fixtures',
+      storyDir: '.koala/story/actives',
+      requirementsDir: 'docs/requirements',
+    }));
+    execFileSync('git', ['init'], { cwd: passingPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['config', 'user.name', 'Koala Smoke'], { cwd: passingPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['config', 'user.email', 'smoke@example.test'], { cwd: passingPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    mkdirSync(join(passingPollutionRoot, '.koala', 'story', 'actives', 'B-pass'), { recursive: true });
+    writeFileSync(join(passingPollutionRoot, '.koala', 'story', 'actives', 'B-pass', 'seed.txt'), 'seed\n');
+    execFileSync('git', ['add', '.'], { cwd: passingPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['commit', '-m', 'seed passing pollution smoke'], { cwd: passingPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    resetConfigCache();
+
+    const passingPollution = await executeValidationPlan({
+      provider: 'smoke-passing-pollution',
+      commands: [{
+        label: 'passing pollution writer',
+        command: 'node',
+        args: ['-e', [
+          "const fs = require('fs');",
+          "fs.mkdirSync('.koala/story/actives/B-pass', { recursive: true });",
+          "fs.mkdirSync('.koala', { recursive: true });",
+          "fs.writeFileSync('.koala/story/actives/B-pass/checklist.json', '{}\\n');",
+          "fs.writeFileSync('.koala/activity.jsonl', '{}\\n');",
+        ].join(' ')],
+      }],
+    }, passingPollutionRoot, undefined, 'B-pass');
+
+    const details = passingPollution.details.join('\n');
+    assert.equal(passingPollution.status, 'pass', 'passing-only pollution must NOT trip allPass=false');
+    assert.equal(passingPollution.allPass, true);
+    assert.doesNotMatch(details, /✗ validation command dirtied worktree/, 'passing-only pollution must NOT emit the blocking failure header');
+    assert.match(details, /policy-allowed dirty paths/);
+    assert.match(details, /pass: blocking=0/);
+    assert.match(details, /koala_metadata_changes=1/);
+    assert.match(details, /runtime_artifact_changes=1/);
+    // Audit JSONL must be persisted in the per-story process-events file.
+    const auditPath = join(passingPollutionRoot, '.koala', 'story', 'actives', 'B-pass', 'process-events.jsonl');
+    assert.ok(existsSync(auditPath), 'audit log must be appended to per-story process-events.jsonl');
+    const auditLines = readFileSync(auditPath, 'utf-8').trim().split('\n').filter(Boolean);
+    assert.equal(auditLines.length, 2, 'one audit line per passing category (koala_metadata + runtime_artifact)');
+    for (const line of auditLines) {
+      const ev = JSON.parse(line);
+      assert.equal(ev.type, 'dirty_gate_audit');
+      assert.equal(ev.gate, 'validate-side-effect');
+      assert.equal(ev.storyId, 'B-pass');
+    }
+  } finally {
+    rmSync(passingPollutionRoot, { recursive: true, force: true });
   }
 
   // B-cf60: when the BL21 lacZ viewer path is declared for the active story,
@@ -436,6 +502,101 @@ try {
     assert.equal(failing.unreferenced[0].relatedIntent, 'CHK-999:happy:0');
   } finally {
     rmSync(declaredPathRoot, { recursive: true, force: true });
+  }
+
+  // B-4b22 F-004 regression: executeValidationPlan with storyId must route
+  // through dirtyWorktreeClassifierOptionsForStory so declared artifacts are
+  // classified as declared_artifact_changes (not unexpected_dirty_files).
+  const declaredE2eRoot = mkdtempSync(join(tmpdir(), 'koala-validation-declared-e2e-'));
+  try {
+    const BL21_E2E = 'packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json';
+    writeFileSync(join(declaredE2eRoot, 'koala.config.json'), JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      testsDir: 'packages/main/tests',
+      fixturesDir: 'packages/main/tests/fixtures',
+      storyDir: '.koala/story/actives',
+      requirementsDir: 'docs/requirements',
+    }));
+    execFileSync('git', ['init'], { cwd: declaredE2eRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['config', 'user.name', 'Koala Smoke'], { cwd: declaredE2eRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['config', 'user.email', 'smoke@example.test'], { cwd: declaredE2eRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['add', '.'], { cwd: declaredE2eRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['commit', '-m', 'seed declared e2e smoke'], { cwd: declaredE2eRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    resetConfigCache();
+
+    const e2eStore = new StoryStore(declaredE2eRoot);
+    const e2eStoryId = 'B-e2etest';
+    const e2eNow = '2026-05-15T19:00:00.000Z';
+    e2eStore.writeStory(e2eStoryId, {
+      storyId: e2eStoryId,
+      name: 'declared-e2e-smoke',
+      title: 'Declared E2E smoke',
+      description: 'F-004 regression: executeValidationPlan must use story-aware classifier.',
+      type: 'chore',
+      phase: 'DEV',
+      priority: 'medium',
+      createdAt: e2eNow,
+      startedAt: e2eNow,
+      endedAt: null,
+      currentReviewRound: e2eNow,
+      events: [],
+    });
+    e2eStore.writeChecklist(e2eStoryId, {
+      items: [{
+        id: 'CHK-001',
+        title: 'Regenerate BL21 viewer',
+        status: 'done',
+        startTime: e2eNow,
+        endTime: e2eNow,
+        verificationIntent: {
+          happy: [{ desc: 'viewer regenerated', type: 'cli', priority: 'must' }],
+          edge: [],
+          adversarial: [],
+        },
+      }],
+    });
+
+    const { createArtifactDeclareHandlers: makeE2eHandlers } = await import('../handlers/artifact-declare.js');
+    makeE2eHandlers({
+      store: e2eStore,
+      root: declaredE2eRoot,
+      scanRoot: join(declaredE2eRoot, 'packages/main'),
+    }).artifact_declare({
+      storyId: e2eStoryId,
+      path: BL21_E2E,
+      reason: 'BL21 lacZ minicell viewer regenerated (F-004 regression)',
+      relatedIntent: 'CHK-001:happy:0',
+    });
+
+    const declaredE2eResult = await executeValidationPlan({
+      provider: 'smoke-declared-e2e',
+      commands: [{
+        label: 'write declared BL21 artifact',
+        command: 'node',
+        args: ['-e', [
+          "const fs = require('fs');",
+          `const dir = '${dirname(BL21_E2E).replace(/'/g, "\\'")}';`,
+          "fs.mkdirSync(dir, { recursive: true });",
+          `fs.writeFileSync('${BL21_E2E.replace(/'/g, "\\'")}', '{}\\n');`,
+        ].join(' ')],
+      }],
+    }, declaredE2eRoot, undefined, e2eStoryId);
+
+    const e2eDetails = declaredE2eResult.details.join('\n');
+    assert.equal(declaredE2eResult.status, 'pass', 'F-004: declared artifact pollution must NOT fail executeValidationPlan when storyId is supplied');
+    assert.equal(declaredE2eResult.allPass, true, 'F-004: allPass must be true for declared artifact pollution');
+    assert.match(e2eDetails, /policy-allowed dirty paths/, 'F-004: details must show policy-allowed wording');
+    assert.match(e2eDetails, /declared_artifact_changes/, 'F-004: details must mention declared_artifact_changes');
+    assert.doesNotMatch(e2eDetails, /unexpected_dirty_files/, 'F-004: declared BL21 must NOT appear as unexpected_dirty_files');
+    // Audit trail must exist for the declared artifact pass.
+    const e2eAuditPath = join(declaredE2eRoot, '.koala', 'story', 'actives', e2eStoryId, 'process-events.jsonl');
+    assert.ok(existsSync(e2eAuditPath), 'F-004: audit log must be written for declared artifact pass');
+    const e2eAuditLines = readFileSync(e2eAuditPath, 'utf-8').trim().split('\n').filter(Boolean);
+    const declaredAudit = e2eAuditLines.find(l => JSON.parse(l).category === 'declared_artifact_changes');
+    assert.ok(declaredAudit, 'F-004: audit must include declared_artifact_changes entry');
+  } finally {
+    rmSync(declaredE2eRoot, { recursive: true, force: true });
   }
 
   const invalidArgCwd = mkdtempSync(join(tmpdir(), 'koala-validation-schema-'));

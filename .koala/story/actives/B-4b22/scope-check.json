@@ -1,0 +1,108 @@
+{
+  "storyId": "B-4b22",
+  "checkedAt": "2026-05-15T18:45:37.680Z",
+  "features": [
+    {
+      "feature": "Category-aware dirty gate policy: material_source_changes / fixture_changes / unexpected_dirty_files are blocking",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Category-aware dirty gate policy: koala_metadata_changes / runtime_artifact_changes / declared_artifact_changes pass with audit notation",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Single shared policy table as source-of-truth (no divergence across gates)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "validate side-effect guard (validation-executor) consumes the shared policy table",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "TEST pre-check consumes the shared policy table",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "DONE gate consumes the shared policy table",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Audit notation / logging when a passing category is allowed through",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Regression proof that blocking semantics for material/fixture/unexpected remain intact",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Gate oracle / renderer separation: DONE pre-check git-working-tree row must follow stable id/status/detail/hint/source/blocking contract (story-lifecycle.md)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "Runtime artifact paths (.koala/activity.jsonl, .koala/runtime/, etc.) must be excluded from material-hash / treated as non-blocking even when dirty (runtime-artifact-registry semantic, testing-infra.md)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/testing-infra.md"
+    },
+    {
+      "feature": "Audit write failure must surface as gate block (fail-closed, not silent pass) per testing-infra fail-closed principle",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/testing-infra.md"
+    },
+    {
+      "feature": "Registry-vs-policy invariant: DIRTY_GATE_POLICY entry count must equal DIRTY_WORKTREE_CATEGORIES length (extensibility guard)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/testing-completeness.md"
+    },
+    {
+      "feature": "Import isolation: gate consumers must import from dirty-gate-policy.ts, no inline category checks in story-advance.ts or validation-executor.ts",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/testing-infra.md"
+    }
+  ],
+  "summary": {
+    "total": 13,
+    "covered": 13,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "8664601a103b8697aa0a1f8ee465695db4a54c83d9fd92328f84852b7bd73721",
+  "openQuestions": []
+}

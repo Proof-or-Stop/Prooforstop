@@ -209,6 +209,14 @@ const requiredFlowFactPolicies = [
     disposition: '',
   },
   {
+    name: 'flow-policy:review-pass-supersession',
+    policyId: 'review-pass-supersession',
+    artifactPath: 'review-passes.json',
+    consumerGatePattern: /storyMachine\.canPassReview/,
+    semantics: ['flow-policy', 'review-pass', 'supersession-policy', 'gate-evidence'],
+    disposition: '',
+  },
+  {
     name: 'flow-policy:finding',
     policyId: 'finding',
     artifactPath: 'findings.json',

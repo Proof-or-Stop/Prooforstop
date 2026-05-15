@@ -39,6 +39,7 @@ export type ProcessFactSemantic =
   | 'runtime-behavior'
   | 'schema-contract'
   | 'signed-artifact'
+  | 'supersession-policy'
   | 'test-evidence'
   | 'validation-result'
   | 'validation-status'
@@ -144,6 +145,20 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     signed: false,
     producerCommand: 'verification_evidence_refresh_stale',
     consumerGate: 'validate verification freshness gate',
+  },
+  recover_evidence: {
+    name: 'checklist.json',
+    path: 'checklist.json',
+    signed: false,
+    producerCommand: 'recover_evidence',
+    consumerGate: 'validate verification freshness gate',
+  },
+  artifact_declare: {
+    name: 'declared-artifacts.json',
+    path: 'declared-artifacts.json',
+    signed: false,
+    producerCommand: 'artifact_declare',
+    consumerGate: 'dirty-worktree classifier and DONE declared artifact gate',
   },
   review_run_start: {
     name: 'review-runs.json',
@@ -596,6 +611,16 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'storyMachine.canFinish DONE gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.validate,
     rationale: 'Validation status artifact is required before DONE.',
+  },
+  {
+    name: 'artifact:declared-artifacts.json',
+    kind: 'artifact',
+    semantics: ['artifact', 'gate-evidence'],
+    level: 'L4',
+    producer: 'handlers/artifact-declare',
+    consumerGate: 'dirty-worktree classifier and DONE declared artifact gate',
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.artifact_declare,
+    rationale: 'Declared product artifacts are consumed by dirty-worktree classification and DONE reference checks.',
   },
   {
     name: 'artifact:eval-evidence.json',
