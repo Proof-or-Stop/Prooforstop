@@ -213,6 +213,17 @@
           "headHash": "0f2a61600b5912c41717747ab91358b2991ecd0e",
           "materialHash": "5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b",
           "timestamp": "2026-05-15T23:08:03.777Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/core/lifecycle-registry.ts",
+          "command": "git diff --stat HEAD",
+          "result": "pass",
+          "note": "git diff touches only lifecycle-registry.ts (additive projections), package.json (one new script), flow-stability-smoke.ts (regression block) and new lifecycle-registry-contract.ts; no TEST semantics / legacy main-type / story_advance change",
+          "headHash": "77c4d154afb2789587e518856e18e016020ab4bd",
+          "materialHash": "5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b",
+          "timestamp": "2026-05-15T23:08:04.099Z"
         }
       ]
     }
