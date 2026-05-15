@@ -4,7 +4,7 @@
   "title": "Fix annotation compliance blockers in convergence_check",
   "description": "Resolve the 64 legacy @task annotation validation errors that make koala convergence_check report code annotation compliance as false, without changing business behavior.",
   "type": "chore",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "riskSignals": [
     {
@@ -47,11 +47,20 @@
       "branch": "story/B-407e",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-15T20:31:51.421Z",
+      "branch": "story/B-407e",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-407e",
     "branch": "story/B-407e",
     "createdAt": "2026-05-15T20:18:52.475Z"
-  }
+  },
+  "currentReviewRound": "2026-05-15T20:31:51.421Z"
 }
