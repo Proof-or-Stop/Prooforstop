@@ -1,0 +1,35 @@
+{
+  "storyId": "B-da5b",
+  "name": "post-done-heartbeat-orphan-worktree",
+  "title": "Prevent post-DONE activity heartbeat from recreating removed story worktree directories",
+  "description": "During the B-c9f5 dirty-gate series wrap-up on 2026-05-15, five DONE stories (B-3506/B-6326/B-a2f1/B-cf60/B-da14) left orphan directories under .worktrees/, each containing only docs/story/activity.jsonl. Root cause: story_advance DONE runs git worktree remove to clean the worktree, but the same process then writes an activity heartbeat using the old worktree path as cwd, recreating the directory as an empty shell. These are not git-registered worktrees (git worktree list does not list them) — it is a runtime activity-write path/timing issue. LOW severity: does not block main, koala doctor detects them, manual rm clears them. Tracked backlog item: not to be fixed now. Recorded as a separate story from B-4622 because B-4622 covers the unrelated scope_check_save PLAN-only gap.",
+  "type": "bug",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "worktree",
+    "activity-log",
+    "orphan-dir",
+    "done-cleanup",
+    "backlog"
+  ],
+  "riskSignals": [
+    {
+      "category": "状态机/门禁",
+      "matched": "story_advance"
+    }
+  ],
+  "createdAt": "2026-05-15T22:52:07.769Z",
+  "startedAt": "2026-05-15T22:52:07.769Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-05-15T22:52:07.773Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}

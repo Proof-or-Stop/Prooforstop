@@ -1,0 +1,15 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Prevent post-DONE activity heartbeat from recreating removed story worktree directories",
+      "context": "story_advance DONE runs git worktree remove, then the same process writes an activity heartbeat using the old (now-removed) worktree path as cwd, recreating an orphan directory containing only docs/story/activity.jsonl. Analyze and fix: either flush all activity heartbeat writes before git worktree remove, or detect a removed cwd worktree before the heartbeat write and redirect to the main repo path, or chdir back to the main repo at the start of DONE cleanup. Analysis-only backlog — does not block main; koala doctor detects the orphans and manual rm clears them.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
