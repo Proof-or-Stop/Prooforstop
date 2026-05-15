@@ -4,7 +4,7 @@
   "title": "Classify dirty worktree paths for TEST and DONE gates",
   "description": "Field report B-c9f5 on 2026-05-15 showed a REVIEW/TEST loop where Koala validation evidence and generated product output were both reported as generic dirty worktree failure. The current DONE gate uses raw git status and cannot distinguish Koala-owned story metadata, runtime artifacts, declared delivery artifacts, source or fixture changes, and unexpected dirty files. Build a typed dirty ownership oracle first so later lifecycle gates can report and enforce the right category without scattering ad hoc path checks across story_advance, validate, and session output.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "dirty-gate",
@@ -20,7 +20,7 @@
   ],
   "createdAt": "2026-05-15T11:53:37.230Z",
   "startedAt": "2026-05-15T11:53:37.230Z",
-  "endedAt": null,
+  "endedAt": "2026-05-15T12:59:04.133Z",
   "events": [
     {
       "phase": "INIT",
@@ -37,11 +37,47 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-05-15T11:59:25.700Z",
+      "branch": "story/B-6326",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-15T12:11:40.209Z",
+      "branch": "story/B-6326",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-15T12:22:54.931Z",
+      "branch": "story/B-6326",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-05-15T12:27:05.480Z",
+      "branch": "story/B-6326",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-05-15T12:59:04.133Z",
+      "branch": "story/B-6326",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-6326",
-    "branch": "story/B-6326",
-    "createdAt": "2026-05-15T11:59:12.061Z"
-  }
+  "currentReviewRound": "2026-05-15T12:22:54.931Z"
 }

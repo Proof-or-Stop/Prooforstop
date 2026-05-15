@@ -278,11 +278,60 @@ try {
     assert.match(dirtyResult.summary, /dirtied the worktree/);
     assert.match(dirtyResult.details.join('\n'), /validation command dirtied worktree/);
     assert.match(dirtyResult.details.join('\n'), /package\.json test script/);
+    assert.match(dirtyResult.details.join('\n'), /unexpected_dirty_files=1/);
+    assert.match(dirtyResult.details.join('\n'), /unexpected_dirty_files \(1\):/);
     assert.match(dirtyResult.details.join('\n'), /report\.md/);
     assert.match(dirtyResult.details.join('\n'), /side-effect-free/);
     assert.equal(dirtyResult.commands[0].worktreePollution.paths[0], 'report.md');
   } finally {
     rmSync(dirtyFallbackRoot, { recursive: true, force: true });
+  }
+
+  const categorizedPollutionRoot = mkdtempSync(join(tmpdir(), 'koala-validation-dirty-classified-'));
+  try {
+    writeFileSync(join(categorizedPollutionRoot, 'koala.config.json'), JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      testsDir: 'packages/main/tests',
+      fixturesDir: 'packages/main/tests/fixtures',
+      storyDir: '.koala/story/actives',
+      requirementsDir: 'docs/requirements',
+    }));
+    execFileSync('git', ['init'], { cwd: categorizedPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['config', 'user.name', 'Koala Smoke'], { cwd: categorizedPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['config', 'user.email', 'smoke@example.test'], { cwd: categorizedPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['add', '.'], { cwd: categorizedPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['commit', '-m', 'seed classified pollution smoke'], { cwd: categorizedPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    resetConfigCache();
+
+    const categorizedPollution = await executeValidationPlan({
+      provider: 'smoke-dirty-classified',
+      commands: [{
+        label: 'classified pollution writer',
+        command: 'node',
+        args: ['-e', [
+          "const fs = require('fs');",
+          "for (const dir of ['.koala/story/actives/B-smoke', '.koala', 'packages/main/src/core', 'packages/main/tests/fixtures', 'packages/main/tests/output/bl21_lacz_ecoli_minicell']) fs.mkdirSync(dir, { recursive: true });",
+          "fs.writeFileSync('.koala/story/actives/B-smoke/checklist.json', '{}\\n');",
+          "fs.writeFileSync('.koala/activity.jsonl', '{}\\n');",
+          "fs.writeFileSync('packages/main/src/core/dirty-product.ts', 'export const dirty = true;\\n');",
+          "fs.writeFileSync('packages/main/tests/fixtures/dirty-owner.json', '{}\\n');",
+          "fs.writeFileSync('packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json', '{}\\n');",
+        ].join(' ')],
+      }],
+    }, categorizedPollutionRoot);
+
+    const details = categorizedPollution.details.join('\n');
+    assert.equal(categorizedPollution.status, 'fail');
+    assert.equal(categorizedPollution.allPass, false);
+    assert.match(details, /koala_metadata_changes=1/);
+    assert.match(details, /runtime_artifact_changes=1/);
+    assert.match(details, /material_source_changes=1/);
+    assert.match(details, /fixture_changes=1/);
+    assert.match(details, /unexpected_dirty_files=1/);
+    assert.match(details, /packages\/main\/tests\/output\/bl21_lacz_ecoli_minicell\/prodenovo_viewer\.json/);
+  } finally {
+    rmSync(categorizedPollutionRoot, { recursive: true, force: true });
   }
 
   const invalidArgCwd = mkdtempSync(join(tmpdir(), 'koala-validation-schema-'));

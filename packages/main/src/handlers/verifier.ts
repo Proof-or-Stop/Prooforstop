@@ -587,7 +587,8 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         args: ['tsx', ...tsArgs],
       }, projectRoot);
       const { code, output } = commandResult;
-      const pollutionDetails = formatWorktreePollutionDetails(commandResult);
+      // @task B-6326: verifier surfaces categorized dirty ownership details.
+      const pollutionDetails = formatWorktreePollutionDetails(commandResult, projectRoot);
       if (pollutionDetails.length > 0) {
         const polluted = externalResult({
           status: 'fail',

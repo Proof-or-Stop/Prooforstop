@@ -24,6 +24,12 @@ import { checkEvidenceFreshnessForGit, currentMaterialHash } from '../core/evide
 import { reportHealthIssue } from '../core/health.js';
 import type { OracleRow } from '../core/oracle-row.js';
 import {
+  classifyGitStatusRows,
+  dirtyWorktreeClassifierOptionsFromConfig,
+  renderDirtyWorktreeGroups,
+  summarizeDirtyWorktreeClassification,
+} from '../core/dirty-worktree.js';
+import {
   LOCAL_CODEX_VERIFY_COMMAND,
   summarizeCodexEvidence,
   storyRequiresCodexEvidence,
@@ -81,17 +87,17 @@ function readGitStatusLines(projectRoot: string): { ok: true; lines: string[] } 
   }
 }
 
-function summarizeGitStatusLines(lines: string[]): string {
-  const sample = lines.slice(0, 6).map(line => line.replace(/\s+/g, ' ')).join('; ');
-  const suffix = lines.length > 6 ? '; ...' : '';
-  return `${lines.length} dirty path(s): ${sample}${suffix}`;
+// @task B-6326: DONE gate dirty output uses the shared ownership classifier.
+function summarizeGitStatusLines(lines: string[], config: ReturnType<typeof loadConfig>): string {
+  const classification = classifyGitStatusRows(lines, dirtyWorktreeClassifierOptionsFromConfig(config));
+  return summarizeDirtyWorktreeClassification(classification);
 }
 
-function gitStatusDirtyHint(lines: string[]): string {
+function gitStatusDirtyHint(lines: string[], config: ReturnType<typeof loadConfig>): string {
+  const classification = classifyGitStatusRows(lines, dirtyWorktreeClassifierOptionsFromConfig(config));
   return [
-    '先处理这些 dirty path:',
-    ...lines.slice(0, 20).map(line => `  ${line}`),
-    ...(lines.length > 20 ? [`  ... ${lines.length - 20} more`] : []),
+    '先处理这些 dirty path（按 ownership 分类；dirty 仍会阻塞 DONE）:',
+    ...renderDirtyWorktreeGroups(classification, { sampleLimit: 6, indent: '  ' }),
     '如果这些文件来自 koala validate / npm test 的报告或 snapshot 副作用，请把项目验证改成默认无副作用，或用 env gate（例如 KOALA_WRITE_*_REPORT=1）显式开启写报告。',
   ].join('\n');
 }
@@ -431,8 +437,8 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       id: 'git-working-tree',
       status: 'fail',
       label: 'git working tree',
-      detail: summarizeGitStatusLines(gitStatus.lines),
-      hint: gitStatusDirtyHint(gitStatus.lines),
+      detail: summarizeGitStatusLines(gitStatus.lines, config),
+      hint: gitStatusDirtyHint(gitStatus.lines, config),
       source: 'git status --porcelain',
     }));
   } else {
