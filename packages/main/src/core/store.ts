@@ -5,7 +5,7 @@ import type {
   UnderstandingData, DecisionData, StorySummaryData,
   StoryTestRun, StoryTestRunsData, FindingData, EvalEvidenceData,
   StoryProcessMetrics, ProcessEvent, ScopeCheckData, InitCheckData, ReviewPassData,
-  DeliveryCheckData, ImplementationReviewResultData, ReviewRunData,
+  DeliveryCheckData, ImplementationReviewResultData, ReviewRunData, GrillData,
 } from './types.js';
 import type { ClusterData } from './cluster-types.js';
 import { appendProcessEvent as appendProcessEventFn, readProcessEvents as readProcessEventsFn } from './process-events.js';
@@ -255,6 +255,20 @@ export class StoryStore {
 
   writeUnderstanding(storyId: string, data: UnderstandingData): void {
     this.writeJson(storyId, 'understanding.json', data);
+  }
+
+  // ── Grill planning artifact ──
+
+  readGrill(storyId: string): GrillData | null {
+    try {
+      return this.readJson<GrillData>(storyId, 'grill.json');
+    } catch {
+      return null;
+    }
+  }
+
+  writeGrill(storyId: string, data: GrillData): void {
+    this.writeJson(storyId, 'grill.json', data);
   }
 
   // ── Decision (RALPLAN-DR 结构化决策，OMX 风格) ──

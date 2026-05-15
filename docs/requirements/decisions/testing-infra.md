@@ -23,6 +23,10 @@
 
 用户价值验收只能逼近，不能伪装成全自动证明：transcript/delivery evidence is required; prompt-only user-value claims are not enough。用户最终认可属于 non-mechanical user approval，Koala gate 只能消费 transcript、verificationEvidence、delivery-check / product-reviewer evidence 或 waiver。
 
+### Grill planning artifact 边界
+
+`grill_start` / `grill_record` / `grill_close` 只写 `grill.json` 作为 PLAN 阶段澄清记录；`grill_get` 只读这个 planning artifact。Grill clarifies intent; evidence proves behavior. Grill 的问题、回答、open session 和 remainingUnknowns 可以帮助 `story_review` 给 advisory，但不能写入或替代 `verificationEvidence`、`test-evidence.json`、validation evidence、review pass 或 delivery evidence。
+
 ### Legacy fixture 兼容
 
 `test_auto` / `test_story` / `test_fixture` / `fixture_batch_add` / `fixture_update` / `test_add` / `task_coverage` 是旧 fixture/test 家族，保留给旧 story、迁移、诊断和维护。它们不是当前 story 的默认流程；新流程应优先使用 `verificationIntent`、`verificationEvidence` 和 `koala validate`。
@@ -152,6 +156,7 @@ gitignore、materialHash exclusion、volatile dirty-risk 和 tracked repair 语�
 |---|---|
 | `koala validate` | 当前标准项目级验证入口，写 validation evidence / bug / stale evidence 结果 |
 | `checklist_update` | DEV 阶段记录 checklist status、`verificationIntent`、`verificationEvidence` |
+| `grill_start` / `grill_record` / `grill_close` / `grill_get` | PLAN planning context；不属于 gateEvidence，不产生 validation evidence |
 | `verification_evidence_refresh_stale` | 在重跑真实验证后刷新 stale evidence 的 HEAD/material hash |
 | `test_auto` | legacy/compat 全量 fixture runner，维护旧 fixture 时才用 |
 | `test_story` | legacy/compat story fixture runner |

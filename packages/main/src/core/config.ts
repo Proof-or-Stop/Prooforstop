@@ -119,6 +119,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'audit',         // 全局：B-9bd9 框架自省 audit（advisory，任何阶段都可以跑）
     'verify_codex',  // Codex adapter 资产/heartbeat 硬证据验证（优先通过本地 wrapper 调用）
     'summary_get',   // 全局：读取 summary，任何阶段都可以查
+    'grill_get',     // 全局：读取 PLAN grill planning context；不会写证据
     'summary_set',   // 全局：DONE 前强制落总结，koala short-path story 也需要
     'verification_evidence_add', 'verification_evidence_batch_add', 'verification_evidence_refresh_stale', // verification evidence is metadata, allowed across phases for reviewer/test handoff
     'plan_get',
@@ -144,6 +145,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'checklist_add', 'checklist_update', 'checklist_remove',
     'understanding_set', 'understanding_get',
     'decision_set', 'decision_get',
+    'grill_start', 'grill_record', 'grill_close',
     'plan_set',
     'testintent_handoff',
     'scope_check_save',

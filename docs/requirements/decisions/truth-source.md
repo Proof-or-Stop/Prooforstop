@@ -12,6 +12,7 @@
 - 每次从 md 文件实时扫描提取，无中间缓存
 - 自动创建的 Story 不纳入真相，避免循环依赖
 - 创建 Story 时讨论要点自动沉淀到 `docs/requirements/decisions/B-xxx.md`
+- `grill.json` 是 story-local planning artifact，不是真相源。Grill clarifies intent; evidence proves behavior. Grill 记录可以提示还没消化的问题，但不能替代 decisions 文档、`verificationEvidence` 或 `koala validate` 的 validation evidence。
 
 ## 闭环流程
 

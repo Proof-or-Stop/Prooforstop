@@ -602,6 +602,38 @@ export interface UnderstandingData {
   timestamp: string;
 }
 
+// ── Grill Planning Artifact ──
+
+export type GrillSessionStatus = 'open' | 'closed';
+export type GrillQuestionStatus = 'answered' | 'unresolved';
+
+export interface GrillQuestion {
+  id: string;
+  question: string;
+  answer?: string;
+  status: GrillQuestionStatus;
+  recordedAt: string;
+  resolvedAt?: string;
+  source?: string;
+}
+
+export interface GrillSession {
+  sessionId: string;
+  topic?: string;
+  status: GrillSessionStatus;
+  startedAt: string;
+  closedAt?: string;
+  closedBy?: string;
+  closeNote?: string;
+  questions: GrillQuestion[];
+}
+
+export interface GrillData {
+  storyId: string;
+  updatedAt: string;
+  sessions: GrillSession[];
+}
+
 // ── Workflow Profile ──
 
 export type WorkflowProfile = 'light' | 'balanced' | 'strict';
