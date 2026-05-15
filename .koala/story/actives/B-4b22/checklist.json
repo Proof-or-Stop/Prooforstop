@@ -48,9 +48,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "assertDirtyGatePolicyAcrossGates section (3) — passing-fixture evaluateDirtyGate returns allPass=true with 3 audit events",
-          "headHash": "3ab94dc6efd94fd91c064135bf7479e24026059e",
-          "materialHash": "4a699e3c6f337c2315be5c71bd5ef4701cecb157b0b395ef2fe075fe590750ca",
-          "timestamp": "2026-05-15T19:03:33.684Z"
+          "headHash": "367bf02da064ac1f3b20ab7fcab1fa688bcf1e0c",
+          "materialHash": "3f9601bbd77ae4b817dd2e2de2a00a8eb2b18a42460628fc17183ed615596ccf",
+          "timestamp": "2026-05-15T19:10:21.034Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -59,9 +59,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "section (4) — empty classification → allPass=true, summary blocking=0; passed=0, zero audit events",
-          "headHash": "3ab94dc6efd94fd91c064135bf7479e24026059e",
-          "materialHash": "4a699e3c6f337c2315be5c71bd5ef4701cecb157b0b395ef2fe075fe590750ca",
-          "timestamp": "2026-05-15T19:03:33.684Z"
+          "headHash": "367bf02da064ac1f3b20ab7fcab1fa688bcf1e0c",
+          "materialHash": "3f9601bbd77ae4b817dd2e2de2a00a8eb2b18a42460628fc17183ed615596ccf",
+          "timestamp": "2026-05-15T19:10:21.034Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -70,9 +70,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "assertPolicyCovers throws when category missing; smoke section (1) calls assertPolicyCovers via doesNotThrow assertion + length invariant",
-          "headHash": "3ab94dc6efd94fd91c064135bf7479e24026059e",
-          "materialHash": "4a699e3c6f337c2315be5c71bd5ef4701cecb157b0b395ef2fe075fe590750ca",
-          "timestamp": "2026-05-15T19:03:33.684Z"
+          "headHash": "367bf02da064ac1f3b20ab7fcab1fa688bcf1e0c",
+          "materialHash": "3f9601bbd77ae4b817dd2e2de2a00a8eb2b18a42460628fc17183ed615596ccf",
+          "timestamp": "2026-05-15T19:10:21.034Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -81,9 +81,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "section (1) directly asserts each of the 6 DIRTY_GATE_POLICY blocking flags",
-          "headHash": "3ab94dc6efd94fd91c064135bf7479e24026059e",
-          "materialHash": "4a699e3c6f337c2315be5c71bd5ef4701cecb157b0b395ef2fe075fe590750ca",
-          "timestamp": "2026-05-15T19:03:33.684Z"
+          "headHash": "367bf02da064ac1f3b20ab7fcab1fa688bcf1e0c",
+          "materialHash": "3f9601bbd77ae4b817dd2e2de2a00a8eb2b18a42460628fc17183ed615596ccf",
+          "timestamp": "2026-05-15T19:10:21.034Z"
         }
       ]
     },
@@ -139,9 +139,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "assertDoneChecklistUsesStableOracleRows smoke verifies git-working-tree detail = fail: blocking=...; passing fixture (only koala_metadata) → status PASS in assertSessionBriefStatusHintsMatchGates",
-          "headHash": "3ab94dc6efd94fd91c064135bf7479e24026059e",
-          "materialHash": "4a699e3c6f337c2315be5c71bd5ef4701cecb157b0b395ef2fe075fe590750ca",
-          "timestamp": "2026-05-15T19:03:33.684Z"
+          "headHash": "367bf02da064ac1f3b20ab7fcab1fa688bcf1e0c",
+          "materialHash": "3f9601bbd77ae4b817dd2e2de2a00a8eb2b18a42460628fc17183ed615596ccf",
+          "timestamp": "2026-05-15T19:10:21.034Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -150,9 +150,9 @@
           "command": "npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
           "note": "validation-protocol-smoke passingPollutionRoot fixture: status=pass + audit lines in process-events.jsonl",
-          "headHash": "3ab94dc6efd94fd91c064135bf7479e24026059e",
-          "materialHash": "4a699e3c6f337c2315be5c71bd5ef4701cecb157b0b395ef2fe075fe590750ca",
-          "timestamp": "2026-05-15T19:03:33.684Z"
+          "headHash": "367bf02da064ac1f3b20ab7fcab1fa688bcf1e0c",
+          "materialHash": "3f9601bbd77ae4b817dd2e2de2a00a8eb2b18a42460628fc17183ed615596ccf",
+          "timestamp": "2026-05-15T19:10:21.034Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -161,9 +161,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "assertDoneChecklistUsesStableOracleRows fixture has 1 material + 1 fixture + 1 unexpected + passing → row status=fail with all 3 blocking categories named",
-          "headHash": "3ab94dc6efd94fd91c064135bf7479e24026059e",
-          "materialHash": "4a699e3c6f337c2315be5c71bd5ef4701cecb157b0b395ef2fe075fe590750ca",
-          "timestamp": "2026-05-15T19:03:33.684Z"
+          "headHash": "367bf02da064ac1f3b20ab7fcab1fa688bcf1e0c",
+          "materialHash": "3f9601bbd77ae4b817dd2e2de2a00a8eb2b18a42460628fc17183ed615596ccf",
+          "timestamp": "2026-05-15T19:10:21.034Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -172,9 +172,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "section (2)/(3) directly assert summary string format: blocking=N (categoryA=N1,...); passed=M (categoryX=M1,...)",
-          "headHash": "3ab94dc6efd94fd91c064135bf7479e24026059e",
-          "materialHash": "4a699e3c6f337c2315be5c71bd5ef4701cecb157b0b395ef2fe075fe590750ca",
-          "timestamp": "2026-05-15T19:03:33.684Z"
+          "headHash": "367bf02da064ac1f3b20ab7fcab1fa688bcf1e0c",
+          "materialHash": "3f9601bbd77ae4b817dd2e2de2a00a8eb2b18a42460628fc17183ed615596ccf",
+          "timestamp": "2026-05-15T19:10:21.034Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -183,9 +183,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "assertDirtyGatePolicyAcrossGates section (7) — grep-based import-isolation: category literals appear only in import statements or comments in story-advance.ts and validation-executor.ts",
-          "headHash": "3ab94dc6efd94fd91c064135bf7479e24026059e",
-          "materialHash": "4a699e3c6f337c2315be5c71bd5ef4701cecb157b0b395ef2fe075fe590750ca",
-          "timestamp": "2026-05-15T19:03:33.684Z"
+          "headHash": "367bf02da064ac1f3b20ab7fcab1fa688bcf1e0c",
+          "materialHash": "3f9601bbd77ae4b817dd2e2de2a00a8eb2b18a42460628fc17183ed615596ccf",
+          "timestamp": "2026-05-15T19:10:21.034Z"
         }
       ]
     },
@@ -236,9 +236,9 @@
           "command": "npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
           "note": "validation-protocol-smoke passingPollutionRoot fixture asserts 2 audit lines (koala_metadata + runtime_artifact) in .koala/story/actives/B-pass/process-events.jsonl with type=dirty_gate_audit",
-          "headHash": "3ab94dc6efd94fd91c064135bf7479e24026059e",
-          "materialHash": "4a699e3c6f337c2315be5c71bd5ef4701cecb157b0b395ef2fe075fe590750ca",
-          "timestamp": "2026-05-15T19:03:33.684Z"
+          "headHash": "367bf02da064ac1f3b20ab7fcab1fa688bcf1e0c",
+          "materialHash": "3f9601bbd77ae4b817dd2e2de2a00a8eb2b18a42460628fc17183ed615596ccf",
+          "timestamp": "2026-05-15T19:10:21.034Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -247,9 +247,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "section (4) — empty classification → auditEvents.length === 0 + section (2) blocking-only → auditEvents.length === 0",
-          "headHash": "3ab94dc6efd94fd91c064135bf7479e24026059e",
-          "materialHash": "4a699e3c6f337c2315be5c71bd5ef4701cecb157b0b395ef2fe075fe590750ca",
-          "timestamp": "2026-05-15T19:03:33.684Z"
+          "headHash": "367bf02da064ac1f3b20ab7fcab1fa688bcf1e0c",
+          "materialHash": "3f9601bbd77ae4b817dd2e2de2a00a8eb2b18a42460628fc17183ed615596ccf",
+          "timestamp": "2026-05-15T19:10:21.034Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -258,9 +258,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "section (9) — 8 paths in koala_metadata → pathCount=8, paths.length===AUDIT_PATH_SAMPLE_LIMIT(5)",
-          "headHash": "3ab94dc6efd94fd91c064135bf7479e24026059e",
-          "materialHash": "4a699e3c6f337c2315be5c71bd5ef4701cecb157b0b395ef2fe075fe590750ca",
-          "timestamp": "2026-05-15T19:03:33.684Z"
+          "headHash": "367bf02da064ac1f3b20ab7fcab1fa688bcf1e0c",
+          "materialHash": "3f9601bbd77ae4b817dd2e2de2a00a8eb2b18a42460628fc17183ed615596ccf",
+          "timestamp": "2026-05-15T19:10:21.034Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -269,9 +269,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "section (6) — failingWriter throws ENOSPC → result.allPass=false + auditFailure starts with AUDIT WRITE FAILED:",
-          "headHash": "3ab94dc6efd94fd91c064135bf7479e24026059e",
-          "materialHash": "4a699e3c6f337c2315be5c71bd5ef4701cecb157b0b395ef2fe075fe590750ca",
-          "timestamp": "2026-05-15T19:03:33.684Z"
+          "headHash": "367bf02da064ac1f3b20ab7fcab1fa688bcf1e0c",
+          "materialHash": "3f9601bbd77ae4b817dd2e2de2a00a8eb2b18a42460628fc17183ed615596ccf",
+          "timestamp": "2026-05-15T19:10:21.034Z"
         }
       ]
     },
@@ -338,9 +338,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "section (2) of assertDirtyGatePolicyAcrossGates — 3 blocking categories coexist → allPass=false + all 3 names + counts in summary",
-          "headHash": "3ab94dc6efd94fd91c064135bf7479e24026059e",
-          "materialHash": "4a699e3c6f337c2315be5c71bd5ef4701cecb157b0b395ef2fe075fe590750ca",
-          "timestamp": "2026-05-15T19:03:33.684Z"
+          "headHash": "367bf02da064ac1f3b20ab7fcab1fa688bcf1e0c",
+          "materialHash": "3f9601bbd77ae4b817dd2e2de2a00a8eb2b18a42460628fc17183ed615596ccf",
+          "timestamp": "2026-05-15T19:10:21.034Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
@@ -349,20 +349,20 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "section (3) + section (8) — only passing categories → allPass=true with 3 audit events; section (8) writes them via defaultAuditWriter and verifies process-events.jsonl persistence",
-          "headHash": "3ab94dc6efd94fd91c064135bf7479e24026059e",
-          "materialHash": "4a699e3c6f337c2315be5c71bd5ef4701cecb157b0b395ef2fe075fe590750ca",
-          "timestamp": "2026-05-15T19:03:33.684Z"
+          "headHash": "367bf02da064ac1f3b20ab7fcab1fa688bcf1e0c",
+          "materialHash": "3f9601bbd77ae4b817dd2e2de2a00a8eb2b18a42460628fc17183ed615596ccf",
+          "timestamp": "2026-05-15T19:10:21.034Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
-          "kind": "manual_transcript",
+          "kind": "integration_test",
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
-          "note": "section (5b) of assertDirtyGatePolicyAcrossGates — solo runtime_artifact_changes (.koala/activity.jsonl) fixture → allPass=true, exactly 1 audit event with category=runtime_artifact_changes, pathCount=1, summary contains passed=1 + runtime_artifact_changes=1, zero blocking counts. Distinct from section (5) BL21 declared_artifact_changes.",
-          "headHash": "648c3e8076e2165857e651dec2efb7109fa225ba",
-          "materialHash": "4a699e3c6f337c2315be5c71bd5ef4701cecb157b0b395ef2fe075fe590750ca",
-          "timestamp": "2026-05-15T19:08:51.436Z"
+          "note": "Smoke (5b) standalone runtime_artifact_changes: 1 runtime_artifact path only → evaluateDirtyGate returns allPass=true, auditEvents.length=1, category=runtime_artifact_changes, paths[0]=runtime path, pathCount=1, summary contains passed=1 + runtime_artifact_changes=1, blockingCounts empty",
+          "headHash": "367bf02da064ac1f3b20ab7fcab1fa688bcf1e0c",
+          "materialHash": "3f9601bbd77ae4b817dd2e2de2a00a8eb2b18a42460628fc17183ed615596ccf",
+          "timestamp": "2026-05-15T19:10:08.282Z"
         },
         {
           "intentRef": "CHK-004:edge:1",
@@ -371,9 +371,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "section (5) — BL21 lacZ declared_artifact_changes path → allPass=true + audit event matches BL21 path",
-          "headHash": "3ab94dc6efd94fd91c064135bf7479e24026059e",
-          "materialHash": "4a699e3c6f337c2315be5c71bd5ef4701cecb157b0b395ef2fe075fe590750ca",
-          "timestamp": "2026-05-15T19:03:33.685Z"
+          "headHash": "367bf02da064ac1f3b20ab7fcab1fa688bcf1e0c",
+          "materialHash": "3f9601bbd77ae4b817dd2e2de2a00a8eb2b18a42460628fc17183ed615596ccf",
+          "timestamp": "2026-05-15T19:10:21.034Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -382,9 +382,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "section (1) — Object.keys(DIRTY_GATE_POLICY).length === DIRTY_WORKTREE_CATEGORIES.length",
-          "headHash": "3ab94dc6efd94fd91c064135bf7479e24026059e",
-          "materialHash": "4a699e3c6f337c2315be5c71bd5ef4701cecb157b0b395ef2fe075fe590750ca",
-          "timestamp": "2026-05-15T19:03:33.685Z"
+          "headHash": "367bf02da064ac1f3b20ab7fcab1fa688bcf1e0c",
+          "materialHash": "3f9601bbd77ae4b817dd2e2de2a00a8eb2b18a42460628fc17183ed615596ccf",
+          "timestamp": "2026-05-15T19:10:21.034Z"
         },
         {
           "intentRef": "CHK-004:adversarial:1",
@@ -393,9 +393,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "section (6) — failingWriter stub → allPass=false + AUDIT WRITE FAILED prefix",
-          "headHash": "3ab94dc6efd94fd91c064135bf7479e24026059e",
-          "materialHash": "4a699e3c6f337c2315be5c71bd5ef4701cecb157b0b395ef2fe075fe590750ca",
-          "timestamp": "2026-05-15T19:03:33.685Z"
+          "headHash": "367bf02da064ac1f3b20ab7fcab1fa688bcf1e0c",
+          "materialHash": "3f9601bbd77ae4b817dd2e2de2a00a8eb2b18a42460628fc17183ed615596ccf",
+          "timestamp": "2026-05-15T19:10:21.034Z"
         },
         {
           "intentRef": "CHK-004:adversarial:2",
@@ -404,9 +404,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "section (7) — grep packages/main/src/handlers/story-advance.ts and core/validation-executor.ts; category literal appearances allowed only inside import statements or comments",
-          "headHash": "3ab94dc6efd94fd91c064135bf7479e24026059e",
-          "materialHash": "4a699e3c6f337c2315be5c71bd5ef4701cecb157b0b395ef2fe075fe590750ca",
-          "timestamp": "2026-05-15T19:03:33.685Z"
+          "headHash": "367bf02da064ac1f3b20ab7fcab1fa688bcf1e0c",
+          "materialHash": "3f9601bbd77ae4b817dd2e2de2a00a8eb2b18a42460628fc17183ed615596ccf",
+          "timestamp": "2026-05-15T19:10:21.034Z"
         }
       ]
     }
