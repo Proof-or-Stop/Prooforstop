@@ -56,6 +56,17 @@
           "headHash": "cb8099c13380a6a772ae2c0fcb891621001c54ce",
           "materialHash": "5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b",
           "timestamp": "2026-05-15T23:07:37.861Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "new dimensions are separate exported projections (LIFECYCLE_PHASE_ARTIFACTS / lifecycleCommandsByPhase) not woven into LIFECYCLE_TRANSITIONS; phase-flow getPhaseInfo/checkPhaseTransition asserted byte-identical to hardcoded baseline",
+          "headHash": "989596d66026ef046825f18c3658e984ec8bfeb5",
+          "materialHash": "5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b",
+          "timestamp": "2026-05-15T23:07:38.134Z"
         }
       ]
     },
