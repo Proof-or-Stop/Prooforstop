@@ -10,7 +10,41 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "A reader opening docs/requirements/decisions/story-lifecycle.md finds a new section (canonical, detailed) titled 「合并态组合审查（流程框架并行 story）」 with: the trigger scope (classifier / gate policy / command entry guards / auto-commit / DONE merge semantics), an enumerated inspection checklist (classification priority order, gate policy table, command entry rejection, auto-commit/dirty state, DONE merge semantics), the B-8db9 originating incident citation, and an explicit \"ordinary business stories are out of scope\" sentence. CLAUDE.md carries a short summary of the same rule near the 对抗审查 / REVIEW area with a see-also pointer to story-lifecycle.md as canonical.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "docs/requirements/decisions/story-lifecycle.md contains the new combination-review section with the enumerated 5-item inspection checklist and the B-8db9 incident citation",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "CLAUDE.md contains a short combination-review summary near the REVIEW / 对抗审查 area with a see-also pointer to story-lifecycle.md",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The rule text explicitly states ordinary business stories are out of scope — only process-framework stories trigger combination review",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The CLAUDE.md copy is the short summary and story-lifecycle.md is canonical — the see-also pointer prevents the two copies from being read as independent equals (preMortem #2 anchor)",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "The rule names a concrete enumerated checklist, not a vague directive sentence — a combination review cannot degrade to a rubber-stamp (preMortem #3 anchor)",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }

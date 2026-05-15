@@ -4,7 +4,7 @@
   "title": "Document merge-time combination-review rule for parallel framework stories",
   "description": "The B-8db9 hotfix on 2026-05-15 fixed a CRITICAL bypass that B-cf60 and B-4b22 formed only after both merged to main — each passed single-story review independently. Single-story review structurally cannot see cross-story interaction defects where two locally-correct stories combine into a global hole. Capture this as a durable process rule in the truth-source docs: when multiple process-framework stories (classifier / gate policy / command entry guards / auto-commit / DONE merge semantics) merge to main in parallel, run a read-only combination review over the combined state. This is advisory process discipline scoped to process-framework stories only — not a new CLI gate, not imposed on ordinary business stories. Doc-only change to CLAUDE.md and/or docs/requirements/decisions/story-lifecycle.md.",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "keywords": [
     "process-doc",
@@ -35,6 +35,14 @@
       "action": "advance",
       "timestamp": "2026-05-15T22:14:51.853Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-05-15T22:14:57.403Z",
+      "branch": "story/B-da14",
       "user": "Harmonygo",
       "agent": "main"
     }
