@@ -115,6 +115,17 @@
           "headHash": "fdc2bda5ea5596269533a156b66294aff4637625",
           "materialHash": "ca655619ccc0abe7c6bbb5faf69bd903d87dbe388b937bbfd814f552a92e6d2a",
           "timestamp": "2026-05-15T23:46:55.280Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "assertDoneOracleSameSource baseline block asserts buildDoneChecklist row id/status/blocking for a TEST-phase fixture; preexisting assertDoneChecklistUsesStableOracleRows snapshot still byte-identical after the move.",
+          "headHash": "26ba244cd837dcd7f7216a5cc90b05193048cf05",
+          "materialHash": "ca655619ccc0abe7c6bbb5faf69bd903d87dbe388b937bbfd814f552a92e6d2a",
+          "timestamp": "2026-05-15T23:46:55.540Z"
         }
       ]
     },
