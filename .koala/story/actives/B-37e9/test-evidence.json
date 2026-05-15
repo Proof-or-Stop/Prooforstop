@@ -1,0 +1,96 @@
+{
+  "command": "koala validate --story=B-37e9 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery; verification coverage missing 9 required intent(s)\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.3 test\",\"  > npm run test:e2e\",\"  > koala@0.3.3 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 0/9 covered (9 required missing)\",\"  ✗ CHK-001:happy:0 [happy/must/cli] missing — core/done-oracle.ts exists and exports buildDoneChecklist + DoneCheckRow + doneCheckRow; build is clean\",\"  ✗ CHK-001:edge:0 [edge/must/logic] missing — every private helper buildDoneChecklist depends on is moved too — done-oracle.ts does NOT import from handlers/story-advance.js (no circular import, preMortem #2)\",\"  ✗ CHK-001:adversarial:0 [adversarial/must/logic] missing — the relocated function body is byte-identical — row order, status, blocking, label logic unchanged (mechanical move only)\",\"  ✗ CHK-002:happy:0 [happy/must/cli] missing — story-advance.ts:1127 DONE gate and session.ts:789 session_brief both import buildDoneChecklist from core/done-oracle.js\",\"  ✗ CHK-002:edge:0 [edge/must/logic] missing — a regression snapshot of buildDoneChecklist rows (id/status/blocking/label) for representative story states is byte-identical before vs after the move (preMortem #1)\",\"  ✗ CHK-002:adversarial:0 [adversarial/must/logic] missing — if a thin re-export is kept in story-advance.ts for legacy test imports, it forwards to done-oracle.ts — there is exactly one implementation, no copy\",\"  ✗ CHK-003:happy:0 [happy/must/cli] missing — contract test drives DONE gate and session_brief against one story fixture and asserts identical rendered rows\",\"  ✗ CHK-003:edge:0 [edge/must/logic] missing — contract includes a static check that both story-advance.ts and session.ts import from core/done-oracle.js — same-source proven structurally not just behaviorally (preMortem #3)\",\"  ✗ CHK-003:adversarial:0 [adversarial/must/cli] missing — existing DONE checklist smoke (flow-stability declared-artifacts-committed etc.) passes unchanged — no test had to be weakened to accommodate the move\"],\"warnings\":[],\"timestamp\":\"2026-05-15T23:46:27.111Z\",\"headSha\":\"0f0f21e728cb86cc00e49fb1d1138c208ac2607e\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.3 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.3 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":971}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":9,\"reason\":\"verificationIntent entries present (9)\"},\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":0,\"missingRequired\":9,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"core/done-oracle.ts exists and exports buildDoneChecklist + DoneCheckRow + doneCheckRow; build is clean\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"every private helper buildDoneChecklist depends on is moved too — done-oracle.ts does NOT import from handlers/story-advance.js (no circular import, preMortem #2)\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"the relocated function body is byte-identical — row order, status, blocking, label logic unchanged (mechanical move only)\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"story-advance.ts:1127 DONE gate and session.ts:789 session_brief both import buildDoneChecklist from core/done-oracle.js\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"a regression snapshot of buildDoneChecklist rows (id/status/blocking/label) for representative story states is byte-identical before vs after the move (preMortem #1)\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"if a thin re-export is kept in story-advance.ts for legacy test imports, it forwards to done-oracle.ts — there is exactly one implementation, no copy\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"contract test drives DONE gate and session_brief against one story fixture and asserts identical rendered rows\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"contract includes a static check that both story-advance.ts and session.ts import from core/done-oracle.js — same-source proven structurally not just behaviorally (preMortem #3)\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"existing DONE checklist smoke (flow-stability declared-artifacts-committed etc.) passes unchanged — no test had to be weakened to accommodate the move\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"}]}}",
+  "result": "FAIL",
+  "timestamp": "2026-05-15T23:46:27.137Z",
+  "headHash": "0f0f21e728cb86cc00e49fb1d1138c208ac2607e",
+  "verificationCoverage": {
+    "total": 9,
+    "required": 9,
+    "covered": 0,
+    "missingRequired": 9,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "core/done-oracle.ts exists and exports buildDoneChecklist + DoneCheckRow + doneCheckRow; build is clean",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "every private helper buildDoneChecklist depends on is moved too — done-oracle.ts does NOT import from handlers/story-advance.js (no circular import, preMortem #2)",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "the relocated function body is byte-identical — row order, status, blocking, label logic unchanged (mechanical move only)",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "story-advance.ts:1127 DONE gate and session.ts:789 session_brief both import buildDoneChecklist from core/done-oracle.js",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "a regression snapshot of buildDoneChecklist rows (id/status/blocking/label) for representative story states is byte-identical before vs after the move (preMortem #1)",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "if a thin re-export is kept in story-advance.ts for legacy test imports, it forwards to done-oracle.ts — there is exactly one implementation, no copy",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "contract test drives DONE gate and session_brief against one story fixture and asserts identical rendered rows",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "contract includes a static check that both story-advance.ts and session.ts import from core/done-oracle.js — same-source proven structurally not just behaviorally (preMortem #3)",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "existing DONE checklist smoke (flow-stability declared-artifacts-committed etc.) passes unchanged — no test had to be weakened to accommodate the move",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      }
+    ]
+  }
+}
