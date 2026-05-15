@@ -4,7 +4,7 @@
   "title": "Re-shape TEST and DONE blocking around dirty ownership categories",
   "description": "B-c9f5 dirty gate loops happened because the lifecycle gates treated every dirty path as a blocker. B-6326 (classifier), Story 2 (B-3506 / Koala metadata auto-commit), and B-cf60 (declared artifact) reshape the dirty surface, but blocking policy is still 'any dirty row blocks'. Move all gates to a single category-aware policy: material_source_changes, fixture_changes, and unexpected_dirty_files stay blocking; koala_metadata_changes, runtime_artifact_changes, and declared_artifact_changes pass with audit notation. Validate side-effect guard, TEST pre-check, and DONE gate must consume the same policy table so divergence cannot reappear.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "dirty-gate",
@@ -21,7 +21,7 @@
   ],
   "createdAt": "2026-05-15T13:02:56.436Z",
   "startedAt": "2026-05-15T13:02:56.436Z",
-  "endedAt": null,
+  "endedAt": "2026-05-15T19:54:54.640Z",
   "events": [
     {
       "phase": "INIT",
@@ -134,12 +134,15 @@
       "branch": "story/B-4b22",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-05-15T19:54:54.640Z",
+      "branch": "story/B-4b22",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-4b22",
-    "branch": "story/B-4b22",
-    "createdAt": "2026-05-15T13:05:51.425Z"
-  },
   "currentReviewRound": "2026-05-15T19:52:37.489Z"
 }
