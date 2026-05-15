@@ -186,6 +186,17 @@
           "headHash": "2fcc5447cf6f6793a3d691b4ca5e048a3ec8d14c",
           "materialHash": "ca655619ccc0abe7c6bbb5faf69bd903d87dbe388b937bbfd814f552a92e6d2a",
           "timestamp": "2026-05-15T23:47:05.423Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "assertDoneOracleSameSource includes static grep that both story-advance.ts and session.ts import buildDoneChecklist from ../core/done-oracle.js, plus a no-circular-import check on done-oracle.ts import lines (preMortem #2/#3).",
+          "headHash": "4c65ae945dfc3cfbc793c1232c44e4266bf6495b",
+          "materialHash": "ca655619ccc0abe7c6bbb5faf69bd903d87dbe388b937bbfd814f552a92e6d2a",
+          "timestamp": "2026-05-15T23:47:05.697Z"
         }
       ]
     }
