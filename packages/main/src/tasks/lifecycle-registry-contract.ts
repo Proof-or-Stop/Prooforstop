@@ -21,7 +21,7 @@
  *   RESOLVED effective command set, never raw literal tables (preMortem #1).
  */
 import {
-  LIFECYCLE_COMMAND_PHASES,
+  COMMAND_LIFECYCLE_PHASES,
   LIFECYCLE_ORACLE_ARTIFACT_REFS,
   LIFECYCLE_PHASE_ARTIFACTS,
   LIFECYCLE_TRANSITIONS,
@@ -114,7 +114,7 @@ function checkCommandDimension(): void {
 
   // (2) DEFAULT_PHASE_TOOLS resolved effective set must be a subset of the
   // registry's resolved effective set (`*` bucket + per-phase) for each phase.
-  for (const phase of LIFECYCLE_COMMAND_PHASES) {
+  for (const phase of COMMAND_LIFECYCLE_PHASES) {
     const phaseToolsResolved = resolveDefaultPhaseToolsCommands(phase, allCommands);
     const registryResolved = new Set(lifecycleResolvedCommandsForPhase(phase));
     for (const command of phaseToolsResolved) {

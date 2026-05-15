@@ -49,6 +49,13 @@ export const ACTIVE_LIFECYCLE_PHASES = [
   'DONE',
 ] as const satisfies readonly StoryPhase[];
 
+/**
+ * The seven lifecycle phases in which koala commands are gated. Mirrors
+ * `CommandPhase` from command-policy.ts — these are the phases a command can
+ * declare as `allowedPhases`. This is the single source of truth: the command
+ * dimension (`lifecycleCommandsByPhase`) and the contract / smoke tasks all
+ * consume this one constant, so a future phase add cannot diverge silently.
+ */
 export const COMMAND_LIFECYCLE_PHASES = [
   'INIT',
   'INIT_CHECK',
@@ -57,7 +64,7 @@ export const COMMAND_LIFECYCLE_PHASES = [
   'REVIEW',
   'TEST',
   'DONE',
-] as const satisfies readonly StoryPhase[];
+] as const satisfies readonly CommandPhase[];
 
 export const LEGACY_LIFECYCLE_PHASES = [
   'TEST_CASE',
@@ -432,21 +439,6 @@ export function findLifecycleTransition(from: StoryPhase, to: StoryPhase): Lifec
   return LIFECYCLE_TRANSITIONS.find(transition => transition.from === from && transition.to === to);
 }
 
-/**
- * The seven lifecycle phases in which koala commands are gated. Mirrors
- * `CommandPhase` from command-policy.ts — these are the phases a command can
- * declare as `allowedPhases`.
- */
-export const LIFECYCLE_COMMAND_PHASES = [
-  'INIT',
-  'INIT_CHECK',
-  'PLAN',
-  'DEV',
-  'REVIEW',
-  'TEST',
-  'DONE',
-] as const satisfies readonly CommandPhase[];
-
 export interface LifecycleCommandsByPhase {
   /**
    * Commands legal in EVERY phase (`allowedPhases: 'all'`). Models the same
@@ -472,7 +464,7 @@ export interface LifecycleCommandsByPhase {
 export function lifecycleCommandsByPhase(): LifecycleCommandsByPhase {
   const wildcard: string[] = [];
   const byPhase = Object.fromEntries(
-    LIFECYCLE_COMMAND_PHASES.map(phase => [phase, [] as string[]]),
+    COMMAND_LIFECYCLE_PHASES.map(phase => [phase, [] as string[]]),
   ) as Record<CommandPhase, string[]>;
 
   for (const [command, policy] of getCommandPolicyEntries()) {

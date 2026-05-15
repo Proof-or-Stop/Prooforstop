@@ -57,7 +57,6 @@ import {
   normalizeLegacyPhase,
 } from '../core/phase-flow.js';
 import {
-  LIFECYCLE_COMMAND_PHASES,
   isLifecycleArtifact,
   lifecycleArtifactsByPhase,
   lifecycleArtifactsByTransition,
@@ -960,7 +959,7 @@ function assertPhaseFlowDerivedValuesByteIdentical(): void {
     Array.isArray(commandsByPhase.wildcard) && commandsByPhase.wildcard.length > 0,
     'B-3740 regression: lifecycleCommandsByPhase must expose a non-empty wildcard bucket',
   );
-  for (const phase of LIFECYCLE_COMMAND_PHASES) {
+  for (const phase of COMMAND_LIFECYCLE_PHASES) {
     const resolved = lifecycleResolvedCommandsForPhase(phase);
     for (const wildcardCommand of commandsByPhase.wildcard) {
       assert.ok(
