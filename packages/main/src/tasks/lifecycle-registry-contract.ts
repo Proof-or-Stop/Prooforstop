@@ -31,6 +31,7 @@ import {
   lifecycleCommandsByPhase,
   lifecycleResolvedCommandsForPhase,
   type CommandPhase,
+  type LifecycleArtifactRole,
 } from '../core/lifecycle-registry.js';
 import { getCommandPolicyEntries } from '../core/command-policy.js';
 import { DEFAULT_PHASE_TOOLS } from '../core/config.js';
@@ -135,10 +136,10 @@ function checkCommandDimension(): void {
  * command in the registry command dimension.
  */
 function checkProcessFactLifecycle(): void {
-  const knownCommands = new Set(getCommandPolicyEntries().map(([command]) => command));
+  const knownCommands = new Set<string>(getCommandPolicyEntries().map(([command]) => command));
   for (const entry of PROCESS_FACT_LEVELS) {
     if (entry.name.startsWith('runtime:') || entry.name.startsWith('flow-policy:')) continue;
-    if (!knownCommands.has(entry.name as never)) {
+    if (!knownCommands.has(entry.name)) {
       record(
         'process-fact-lifecycle',
         `process-fact lifecycle entry ${entry.name} (level ${entry.level}) has no command-policy entry — it is not in the registry command dimension`,
@@ -148,7 +149,7 @@ function checkProcessFactLifecycle(): void {
   // Reverse direction: every command in the registry command dimension must be
   // tracked by the process-fact lifecycle, so a new command cannot be added to
   // command-policy without a process-fact level classification.
-  const processFactNames = new Set(PROCESS_FACT_LEVELS.map((entry) => entry.name));
+  const processFactNames = new Set<string>(PROCESS_FACT_LEVELS.map((entry) => entry.name));
   for (const command of knownCommands) {
     if (!processFactNames.has(command)) {
       record(
@@ -173,8 +174,9 @@ function checkArtifactReferences(): void {
   }
 
   // 4b. Per-phase produces/consumes artifacts must all be declared artifacts.
+  const artifactRoles: readonly LifecycleArtifactRole[] = ['produces', 'consumes'];
   for (const [phase, phaseArtifacts] of Object.entries(LIFECYCLE_PHASE_ARTIFACTS)) {
-    for (const role of ['produces', 'consumes'] as const) {
+    for (const role of artifactRoles) {
       for (const artifact of phaseArtifacts[role]) {
         if (!isLifecycleArtifact(artifact)) {
           record('artifact-reference', `phase ${phase} ${role} undeclared artifact ${artifact}`);
