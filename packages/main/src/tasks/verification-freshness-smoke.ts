@@ -17,6 +17,8 @@ import {
   createRecoverEvidenceHandlers,
   RECOVER_EVIDENCE_ALLOWED_CATEGORIES,
 } from '../handlers/recover-evidence.js';
+import { createStoryAdvanceHandlers } from '../handlers/story-advance.js';
+import { resetConfigCache } from '../core/config.js';
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -697,5 +699,412 @@ async function assertRecoverEvidenceCommand(): Promise<void> {
 }
 
 await assertRecoverEvidenceCommand();
+
+// ── B-a2f1 CHK-004: end-to-end main-merge regression ──
+// Simulate the real B-c9f5 failure: a user finishes DEV with evidence pinned
+// at baseSha/baseMaterialHash, then merges main (which drifts materialHash),
+// then runs session_brief / story_advance --phase=REVIEW / koala validate.
+// All three surfaces must surface the EVIDENCE STALE marker with a
+// byte-identical recovery block that uses the real storyId (no placeholders),
+// and the recover_evidence single-shot must (a) succeed when only stale
+// evidence exists, (b) refuse when unexpected_dirty_files appear.
+//
+// Ties together CHK-001/002 (cross-surface marker) and CHK-003 (recover_evidence)
+// covering all three preMortem anti-regression anchors from decision.json:
+//   #1 allowlist invariant (recover_evidence refuses unknown categories)
+//   #2 marker no-drift across surfaces (byte-identical block)
+//   #3 no placeholder leakage (literal storyId, no <storyId> / <B-...>)
+async function assertSimulatedMainMergeRegression(): Promise<void> {
+  const root = mkdtempRoot();
+  const originalCwd = process.cwd();
+  try {
+    // ── 1. Build temp git fixture with a baseline materialHash ─────────────
+    git(root, ['init']);
+    git(root, ['config', 'user.email', 'smoke@example.test']);
+    git(root, ['config', 'user.name', 'Koala Smoke']);
+    write(root, 'koala.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      testsDir: 'packages/main/tests',
+      fixturesDir: 'packages/main/tests/fixtures',
+      storyDir: '.koala/story/actives',
+      requirementsDir: 'docs/requirements',
+      workflow: { profile: 'balanced' },
+    }, null, 2));
+    resetConfigCache();
+    write(root, 'packages/main/src/base.ts', 'export const base = true;\n');
+    git(root, ['checkout', '-B', 'main']);
+    const baseSha = commit(root, 'base');
+    const baseMaterialHash = currentMaterialHash(root);
+    assert.ok(baseMaterialHash, 'base material hash should be available');
+
+    // Create story branch BEFORE simulating the main merge — story_advance
+    // detects the story via the branch name and autoCommitStoryMetadata only
+    // commits on a story branch.
+    const storyId = 'B-a2f1mm';
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+
+    // ── 2. Set up a story in DEV with checklist all-done + pinned evidence ─
+    const store = new StoryStore(root);
+    const now = '2026-05-15T11:00:00.000Z';
+    const reviewRound = '2026-05-15T11:01:00.000Z';
+    const story: StoryInfo = {
+      storyId,
+      name: 'simulated-main-merge',
+      title: 'Simulated main-merge regression',
+      description: 'End-to-end stale evidence UX regression smoke.',
+      type: 'chore',
+      phase: 'DEV',
+      priority: 'medium',
+      createdAt: now,
+      startedAt: now,
+      endedAt: null,
+      // Important: do NOT set `worktree` — keeps CWD gating off in fixture.
+      currentReviewRound: reviewRound,
+      events: [{ phase: 'DEV', action: 'advance', timestamp: now }],
+    };
+    const checklist: ChecklistData = {
+      items: [{
+        id: 'CHK-001',
+        title: 'Stale evidence item',
+        context: 'Stale evidence item',
+        status: 'done',
+        startTime: now,
+        endTime: now,
+        verificationIntent: {
+          happy: [{ desc: 'evidence pinned at baseSha', type: 'logic', priority: 'must' }],
+          edge: [],
+          adversarial: [],
+        },
+        verificationEvidence: [{
+          intentRef: 'CHK-001:happy:0',
+          kind: 'logic_test',
+          result: 'pass',
+          note: 'evidence captured BEFORE main merge',
+          headHash: baseSha,
+          materialHash: baseMaterialHash,
+          command: 'npm test',
+        }],
+      }],
+    };
+    store.writeStory(storyId, story);
+    store.writeChecklist(storyId, checklist);
+    // PLAN-stage decision + understanding so DEV→REVIEW guard checklistAllDone
+    // is satisfied and downstream reviewer routing has data to read.
+    store.writeUnderstanding(storyId, {
+      task: 'Stale evidence regression smoke',
+      outcome: 'Cross-surface stale-evidence marker stays byte-identical',
+      facts: [],
+      constraints: [],
+      unknowns: [],
+      touchpoints: ['packages/main/src/base.ts'],
+      timestamp: now,
+    } as any);
+    store.writeDecision(storyId, {
+      principles: ['keep gates explicit', 'reuse stale-hint renderer', 'avoid placeholder leakage'],
+      drivers: ['main-merge UX regression coverage'],
+      options: [
+        { name: 'A: shared renderer', pros: ['byte-identical surfaces'], cons: ['needs storyId plumbing'] },
+        { name: 'B: per-surface strings', pros: ['simpler'], cons: ['marker drift risk'] },
+      ],
+      chosen: 'A: shared renderer',
+      rationale: 'three surfaces must use one source of truth',
+      timestamp: now,
+    } as any);
+
+    // ── 3. Simulate the main merge: change material file + commit ──────────
+    // (This drifts both headHash and materialHash relative to the pinned
+    //  evidence; freshness check should report stale.)
+    write(root, 'packages/main/src/base.ts', 'export const base = false;\n');
+    const driftHead = commit(root, 'simulated main merge drifts material');
+    assert.ok(driftHead, 'drift head should be available');
+
+    // chdir into root so autoCommitStoryMetadata + git-probe paths resolve.
+    process.chdir(root);
+
+    // ── Sanity: findStaleEvidence detects the drift ────────────────────────
+    {
+      const preStale = findStaleEvidence(root, storyId);
+      assert.equal(preStale.length, 1, 'main-merge drift should produce exactly 1 stale entry');
+      assert.equal(preStale[0].intentRef, 'CHK-001:happy:0');
+    }
+
+    // ── 4. Surface #1: story_advance DEV→REVIEW pre-check ──────────────────
+    // story_advance for DEV→REVIEW only requires checklistAllDone guard, which
+    // is satisfied by our fixture. The handler appends the stale hint when
+    // newState ∈ {REVIEW, TEST, DONE} (story-advance.ts:1486-1496).
+    //
+    // story_advance is called FIRST because autoCommitStoryMetadata creates a
+    // metadata commit (advancing HEAD by one), and we want all three surfaces
+    // to render against the SAME HEAD so byte-identicality is verifiable. If
+    // session_brief / decorateResult ran first they would see the pre-advance
+    // HEAD and produce a block that differs by 7 chars (the `(materialHash
+    // drift after <sha7>)` segment) — defeating preMortem #2 cross-surface
+    // byte-identity coverage. See driftHead vs post-advance currentGitHead.
+    const advanceOutput = await createStoryAdvanceHandlers({
+      store,
+      root,
+      scanRoot: join(root, 'packages/main'),
+    }).story_advance({ storyId, phase: 'REVIEW' });
+
+    // After story_advance, HEAD has advanced by one (autoCommitStoryMetadata).
+    // Compute the canonical block against post-advance HEAD — same input as
+    // the other surfaces will see for the rest of this fixture's lifetime.
+    const postAdvanceHead = currentGitHead(root);
+    assert.ok(postAdvanceHead, 'post-advance HEAD should be available');
+    const staleEntries = findStaleEvidence(root, storyId);
+    assert.equal(staleEntries.length, 1,
+      'stale entry should remain after story_advance (advance does not refresh evidence)');
+    const canonicalBlock = renderEvidenceStaleHint(storyId, staleEntries, { currentHead: postAdvanceHead });
+    assert.ok(canonicalBlock.includes(EVIDENCE_STALE_MARKER),
+      'canonical block must contain marker');
+    assert.ok(canonicalBlock.includes(storyId),
+      'canonical block must contain literal storyId');
+    assert.ok(!canonicalBlock.includes('<storyId>'),
+      'canonical block must not contain <storyId> placeholder (preMortem #3)');
+    assert.ok(!canonicalBlock.includes('<B-'),
+      'canonical block must not contain <B-...> placeholder (preMortem #3)');
+
+    assert.ok(advanceOutput.includes(EVIDENCE_STALE_MARKER),
+      `story_advance surface must include EVIDENCE STALE marker.\nActual:\n${advanceOutput}`);
+    const advanceBlock = extractStaleBlock(advanceOutput);
+    assert.equal(advanceBlock, canonicalBlock,
+      `story_advance block must be byte-identical to renderer (preMortem #2).\nGot:\n${advanceBlock}\nExpected:\n${canonicalBlock}`);
+    assert.ok(advanceOutput.includes(storyId),
+      'story_advance output must include literal storyId');
+    assert.ok(!advanceOutput.includes('<storyId>'),
+      'story_advance output must not leak <storyId> placeholder (preMortem #3)');
+    assert.ok(!advanceOutput.includes('<B-a2f1mm>'),
+      'story_advance output must not leak <B-a2f1mm> placeholder (preMortem #3)');
+
+    // ── 5. Surface #2: session_brief (post-advance HEAD) ───────────────────
+    // Phase is now REVIEW. session_brief on REVIEW reads the same stale
+    // evidence and uses the same currentGitHead, so its block must match
+    // the canonical block byte-for-byte.
+    const briefOutput = createSessionHandlers({
+      store,
+      root,
+      scanRoot: join(root, 'packages/main'),
+    }).session_brief({});
+    assert.ok(briefOutput.includes(EVIDENCE_STALE_MARKER),
+      `session_brief surface must include EVIDENCE STALE marker.\nActual:\n${briefOutput}`);
+    const briefBlock = extractStaleBlock(briefOutput);
+    assert.equal(briefBlock, canonicalBlock,
+      `session_brief block must be byte-identical to renderer (preMortem #2).\nGot:\n${briefBlock}\nExpected:\n${canonicalBlock}`);
+    assert.ok(briefOutput.includes(storyId),
+      'session_brief output must include literal storyId');
+    assert.ok(!briefOutput.includes('<storyId>'),
+      'session_brief output must not leak <storyId> placeholder (preMortem #3)');
+    assert.ok(!briefOutput.includes('<B-a2f1mm>'),
+      'session_brief output must not leak <B-a2f1mm> placeholder (preMortem #3)');
+
+    // Restore to DEV so the remaining surfaces and recover_evidence see a
+    // consistent in-progress phase (phase is irrelevant to stale detection,
+    // but keeps the fixture's narrative coherent).
+    const updatedStory = store.readStory(storyId);
+    updatedStory.phase = 'DEV';
+    store.writeStory(storyId, updatedStory);
+
+    // ── 6. Surface #3: koala validate (via decorateResult hint) ────────────
+    const fakeValidateJson = JSON.stringify({
+      provider: 'koala-verifier',
+      allPass: false,
+      verificationCoverage: {
+        total: 1,
+        covered: 0,
+        missingRequired: 1,
+        entries: [{
+          intentRef: 'CHK-001:happy:0',
+          priority: 'must',
+          status: 'stale',
+          desc: 'evidence pinned at baseSha',
+        }],
+      },
+    });
+    const decorated = decorateResult({
+      cmd: 'validate',
+      args: { storyId, story: storyId, json: true },
+      result: fakeValidateJson,
+      store,
+      root,
+      activeStory: { storyId, phase: 'DEV' },
+    });
+    const validateText = typeof decorated === 'string' ? decorated : JSON.stringify(decorated);
+    assert.ok(validateText.includes(EVIDENCE_STALE_MARKER),
+      `validate surface must include EVIDENCE STALE marker.\nActual:\n${validateText}`);
+    const validateBlock = extractStaleBlock(validateText);
+    assert.equal(validateBlock, canonicalBlock,
+      `validate block must be byte-identical to renderer (preMortem #2).\nGot:\n${validateBlock}\nExpected:\n${canonicalBlock}`);
+    assert.ok(validateText.includes(storyId),
+      'validate output must include literal storyId');
+    assert.ok(!validateText.includes('<storyId>'),
+      'validate output must not leak <storyId> placeholder (preMortem #3)');
+    assert.ok(!validateText.includes('<B-a2f1mm>'),
+      'validate output must not leak <B-a2f1mm> placeholder (preMortem #3)');
+
+    // ── 7. Three-way byte-identity proof (preMortem #2 anchor) ─────────────
+    // Already asserted each block == canonicalBlock above; double-check
+    // pairwise to make the regression intent explicit in the failure trace.
+    assert.equal(briefBlock, advanceBlock,
+      'session_brief and story_advance blocks must be byte-identical');
+    assert.equal(advanceBlock, validateBlock,
+      'story_advance and validate blocks must be byte-identical');
+    assert.equal(briefBlock, validateBlock,
+      'session_brief and validate blocks must be byte-identical');
+
+    // ── 8. End-to-end recover_evidence happy path ──────────────────────────
+    // No non-metadata dirt in worktree → recover must refresh + revalidate.
+    type RecoverResult = {
+      status: 'pass' | 'fail' | 'refused';
+      refused?: { reason: string; categories: string[]; paths: string[] };
+      refreshTranscript?: string;
+      validateTranscript?: string;
+    };
+    const recoverHandlers = createRecoverEvidenceHandlers({
+      store,
+      root,
+      scanRoot: join(root, 'packages/main'),
+    });
+    const recoverResult = (await Promise.resolve(
+      recoverHandlers.recover_evidence({ storyId }),
+    )) as RecoverResult;
+    assert.equal(recoverResult.status, 'pass',
+      `recover_evidence after main-merge must succeed. Got: ${JSON.stringify(recoverResult)}`);
+    assert.ok(recoverResult.refreshTranscript,
+      'recover_evidence happy path must populate refreshTranscript');
+    // Refresh transcript should reflect actually-refreshed evidence; case
+    // insensitive to absorb future copy tweaks but anchored on the canonical
+    // helper output `Refreshed 1/1 stale evidence`.
+    assert.match(recoverResult.refreshTranscript!, /[Rr]efresh/,
+      `refreshTranscript must mention refresh. Got:\n${recoverResult.refreshTranscript}`);
+    assert.match(recoverResult.refreshTranscript!, /1\/1/,
+      `refreshTranscript must report 1/1 refreshed. Got:\n${recoverResult.refreshTranscript}`);
+    assert.ok(recoverResult.validateTranscript && recoverResult.validateTranscript.length > 0,
+      'recover_evidence happy path must populate validateTranscript');
+    // After recover, evidence should be re-pinned to drift head — no longer stale.
+    const postRecoverStale = findStaleEvidence(root, storyId);
+    assert.equal(postRecoverStale.length, 0,
+      'after recover_evidence pass, findStaleEvidence must return empty (evidence refreshed)');
+  } finally {
+    process.chdir(originalCwd);
+    resetConfigCache();
+    rmSync(root, { recursive: true, force: true });
+  }
+
+  // ── 9. Separate fixture: unexpected_dirty_files refuse path ──────────────
+  // (preMortem #1 anchor: allowlist must refuse categories outside the 3
+  //  whitelisted ones — `packages/main/tests/output/` is unexpected.)
+  const root2 = mkdtempRoot();
+  const originalCwd2 = process.cwd();
+  try {
+    git(root2, ['init']);
+    git(root2, ['config', 'user.email', 'smoke@example.test']);
+    git(root2, ['config', 'user.name', 'Koala Smoke']);
+    write(root2, 'koala.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      testsDir: 'packages/main/tests',
+      fixturesDir: 'packages/main/tests/fixtures',
+      storyDir: '.koala/story/actives',
+      requirementsDir: 'docs/requirements',
+      workflow: { profile: 'balanced' },
+    }, null, 2));
+    resetConfigCache();
+    write(root2, 'packages/main/src/base.ts', 'export const base = true;\n');
+    const baseSha2 = commit(root2, 'base');
+    const baseMaterialHash2 = currentMaterialHash(root2);
+    assert.ok(baseMaterialHash2, 'base material hash should be available');
+
+    // Material drift commit (simulated main merge).
+    write(root2, 'packages/main/src/base.ts', 'export const base = false;\n');
+    commit(root2, 'simulated main merge drifts material');
+
+    const storyId2 = 'B-a2f1mm';
+    const store2 = new StoryStore(root2);
+    const now = '2026-05-15T11:00:00.000Z';
+    store2.writeStory(storyId2, {
+      storyId: storyId2,
+      name: 'simulated-main-merge-refused',
+      title: 'Simulated main-merge refuse smoke',
+      description: 'Refuse on unexpected_dirty_files.',
+      type: 'chore',
+      phase: 'TEST',
+      priority: 'medium',
+      createdAt: now,
+      startedAt: now,
+      endedAt: null,
+      events: [{ phase: 'TEST', action: 'advance', timestamp: now }],
+    });
+    store2.writeChecklist(storyId2, {
+      items: [{
+        id: 'CHK-001',
+        title: 'Stale evidence item',
+        context: 'Stale evidence item',
+        status: 'done',
+        startTime: now,
+        endTime: now,
+        verificationIntent: {
+          happy: [{ desc: 'evidence pinned', type: 'logic', priority: 'must' }],
+          edge: [],
+          adversarial: [],
+        },
+        verificationEvidence: [{
+          intentRef: 'CHK-001:happy:0',
+          kind: 'logic_test',
+          result: 'pass',
+          note: 'baseline evidence',
+          headHash: baseSha2,
+          materialHash: baseMaterialHash2,
+        }],
+      }],
+    });
+
+    // Inject the exact category called out by CHK-004: an untracked file
+    // under packages/main/tests/output/ (not a fixture, not metadata, not
+    // runtime artifact, not declared artifact → unexpected_dirty_files).
+    write(root2, 'packages/main/tests/output/foo.json', '{"unexpected":true}\n');
+    process.chdir(root2);
+
+    type RecoverResult = {
+      status: 'pass' | 'fail' | 'refused';
+      refused?: { reason: string; categories: string[]; paths: string[] };
+      refreshTranscript?: string;
+      validateTranscript?: string;
+    };
+    const recoverHandlers2 = createRecoverEvidenceHandlers({
+      store: store2,
+      root: root2,
+      scanRoot: join(root2, 'packages/main'),
+    });
+    const refusedResult = (await Promise.resolve(
+      recoverHandlers2.recover_evidence({ storyId: storyId2 }),
+    )) as RecoverResult;
+    assert.equal(refusedResult.status, 'refused',
+      `recover_evidence with packages/main/tests/output/foo.json must refuse. Got: ${JSON.stringify(refusedResult)}`);
+    assert.ok(refusedResult.refused, 'refused field must be present');
+    assert.ok(refusedResult.refused!.reason.includes('unexpected_dirty_files'),
+      `refused.reason must include "unexpected_dirty_files" (preMortem #1).\nGot: ${refusedResult.refused!.reason}`);
+    assert.ok(refusedResult.refused!.categories.includes('unexpected_dirty_files'),
+      `refused.categories must include "unexpected_dirty_files".\nGot: ${JSON.stringify(refusedResult.refused!.categories)}`);
+    assert.ok(refusedResult.refused!.paths.some(p => p.includes('foo.json')),
+      `refused.paths must include foo.json.\nGot: ${JSON.stringify(refusedResult.refused!.paths)}`);
+    // Short-circuit invariant: refused MUST NOT have run refresh / validate.
+    assert.equal(refusedResult.refreshTranscript, undefined,
+      `refused path must NOT run refresh.\nGot: ${refusedResult.refreshTranscript}`);
+    assert.equal(refusedResult.validateTranscript, undefined,
+      `refused path must NOT run validate.\nGot: ${refusedResult.validateTranscript}`);
+
+    // The stale evidence is still stale (recover refused → didn't refresh).
+    const stillStale = findStaleEvidence(root2, storyId2);
+    assert.equal(stillStale.length, 1,
+      'refuse path must leave stale evidence intact (no silent refresh)');
+  } finally {
+    process.chdir(originalCwd2);
+    resetConfigCache();
+    rmSync(root2, { recursive: true, force: true });
+  }
+}
+
+await assertSimulatedMainMergeRegression();
 
 console.log('✓ verification freshness smoke passed');

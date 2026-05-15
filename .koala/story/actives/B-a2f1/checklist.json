@@ -148,8 +148,8 @@
       "relatedDocs": [
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-05-15T16:42:28.764Z",
       "endTime": null,
       "userSees": "`npm --prefix packages/main run test:evidence-recovery-smoke` (or equivalent task wiring) prints `✓ evidence-recovery smoke passed` and asserts: stale-fixture worktree triggers EVIDENCE STALE marker on session_brief / story_advance / validate; recover_evidence refreshes and revalidate passes; recover_evidence refuses on unexpected_dirty_files fixture.",
       "verificationIntent": {
