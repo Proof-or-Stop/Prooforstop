@@ -1,0 +1,194 @@
+{
+  "command": "koala validate --story=B-407e --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands failed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✗ package.json test script: npm test\",\"  > koala@0.3.3 test\",\"  > npm run test:e2e\",\"  > koala@0.3.3 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  node:internal/modules/esm/resolve:857\",\"    throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);\",\"          ^\",\"  Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'xstate' imported from /Users/jek/Documents/Work/Orchestrate/.worktrees/B-407e/packages/main/dist/core/machine.js\",\"      at packageResolve (node:internal/modules/esm/resolve:857:9)\",\"      at moduleResolve (node:internal/modules/esm/resolve:926:18)\",\"      at defaultResolve (node:internal/modules/esm/resolve:1056:11)\",\"      at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:654:12)\",\"      at #cachedDefaultResolve (node:internal/modules/esm/loader:603:25)\",\"      at ModuleLoader.resolve (node:internal/modules/esm/loader:586:38)\",\"      at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:242:38)\",\"      at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {\",\"    code: 'ERR_MODULE_NOT_FOUND'\",\"  }\",\"  Node.js v22.13.0\",\"Verification intent coverage: 9/9 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via integration_test (packages/main/dist/tasks/cli-validate.js) — npm run lint:tasks reports 0 missing-field annotation errors (was 64)\",\"  ✓ CHK-001:happy:1 [happy/must/docs] covered via docs_check (packages/main/src/core/auto-commit-metadata.ts) — All 11 affected locations have valid structured @task annotations or plain prose comments\",\"  ✓ CHK-001:edge:0 [edge/must/docs] covered via docs_check (packages/main/src/core/auto-commit-metadata.ts) — Explanatory context originally in malformed annotations is preserved as prose comments, not deleted\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via manual_transcript (packages/main/src/core/auto-commit-metadata.ts) — No executable code (non-comment lines) changed beyond annotation/comment edits — git diff shows only comment-line changes\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via integration_test (packages/main/dist/tasks/cli-validate.js) — npm run lint:tasks exits 0 with no errors\",\"  ✓ CHK-002:happy:1 [happy/must/cli] covered via integration_test (packages/main/src/tasks/cli-validate.js) — koala convergence_check code annotation compliance row passes\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via manual_transcript (packages/main/tsconfig.json) — npm --prefix packages/main run build exits 0 (no build regression)\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via manual_transcript — No unrelated dirty or untracked files introduced by the changes (git status clean except story metadata)\",\"  ✓ CHK-002:adversarial:1 [adversarial/must/docs] covered via docs_check (docs/koala/koala-project-overview.md) — docs/koala/koala-project-overview.md is unchanged (git diff shows no edits)\"],\"warnings\":[],\"timestamp\":\"2026-05-15T20:27:04.206Z\",\"headSha\":\"81c21068d9f3ed00062ca86fd60871e515dc7053\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":1,\"output\":\"\\n> koala@0.3.3 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.3 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nnode:internal/modules/esm/resolve:857\\n  throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);\\n        ^\\n\\nError [ERR_MODULE_NOT_FOUND]: Cannot find package 'xstate' imported from /Users/jek/Documents/Work/Orchestrate/.worktrees/B-407e/packages/main/dist/core/machine.js\\n    at packageResolve (node:internal/modules/esm/resolve:857:9)\\n    at moduleResolve (node:internal/modules/esm/resolve:926:18)\\n    at defaultResolve (node:internal/modules/esm/resolve:1056:11)\\n    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:654:12)\\n    at #cachedDefaultResolve (node:internal/modules/esm/loader:603:25)\\n    at ModuleLoader.resolve (node:internal/modules/esm/loader:586:38)\\n    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:242:38)\\n    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {\\n  code: 'ERR_MODULE_NOT_FOUND'\\n}\\n\\nNode.js v22.13.0\\n\",\"durationMs\":270}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":9,\"reason\":\"verificationIntent entries present (9)\"},\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":9,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"npm run lint:tasks reports 0 missing-field annotation errors (was 64)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/dist/tasks/cli-validate.js\",\"command\":\"node packages/main/dist/tasks/cli-validate.js\",\"result\":\"pass\",\"note\":\"0 errors reported (was 64). Task Annotation Report shows Errors: 0.\",\"headHash\":\"4589296e8067188a21376cdde40c2b622057166c\",\"materialHash\":\"682f0b3d40553fcffff50169d462811ee464f72d0a06868a6ec2bb9350758471\",\"timestamp\":\"2026-05-15T20:25:03.540Z\"}},{\"intentRef\":\"CHK-001:happy:1\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"All 11 affected locations have valid structured @task annotations or plain prose comments\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:1\",\"kind\":\"docs_check\",\"file\":\"packages/main/src/core/auto-commit-metadata.ts\",\"command\":\"git diff main -- packages/main/src/\",\"result\":\"pass\",\"note\":\"All 11 @task locations converted to prose Task comments. 8 files changed, each converting @task to Task in comment lines only.\",\"headHash\":\"4589296e8067188a21376cdde40c2b622057166c\",\"materialHash\":\"682f0b3d40553fcffff50169d462811ee464f72d0a06868a6ec2bb9350758471\",\"timestamp\":\"2026-05-15T20:25:05.459Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Explanatory context originally in malformed annotations is preserved as prose comments, not deleted\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"docs_check\",\"file\":\"packages/main/src/core/auto-commit-metadata.ts\",\"command\":\"git diff main -- packages/main/src/\",\"result\":\"pass\",\"note\":\"All explanatory context preserved — only @task/@title prefixes changed to Task prose format. Full JSDoc blocks and inline comment bodies intact.\",\"headHash\":\"4589296e8067188a21376cdde40c2b622057166c\",\"materialHash\":\"682f0b3d40553fcffff50169d462811ee464f72d0a06868a6ec2bb9350758471\",\"timestamp\":\"2026-05-15T20:25:07.817Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"No executable code (non-comment lines) changed beyond annotation/comment edits — git diff shows only comment-line changes\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/core/auto-commit-metadata.ts\",\"command\":\"git diff main -- packages/main/src/\",\"result\":\"pass\",\"note\":\"git diff shows 8 files, 12 insertions, 14 deletions — all in comment lines (// or * prefixed). No non-comment executable code changed.\",\"headHash\":\"4589296e8067188a21376cdde40c2b622057166c\",\"materialHash\":\"682f0b3d40553fcffff50169d462811ee464f72d0a06868a6ec2bb9350758471\",\"timestamp\":\"2026-05-15T20:25:09.690Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"npm run lint:tasks exits 0 with no errors\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/dist/tasks/cli-validate.js\",\"command\":\"node packages/main/dist/tasks/cli-validate.js\",\"result\":\"pass\",\"note\":\"lint:tasks reports Errors: 0, Warnings: 2 (pre-existing @test warnings, not annotation errors).\",\"headHash\":\"4589296e8067188a21376cdde40c2b622057166c\",\"materialHash\":\"682f0b3d40553fcffff50169d462811ee464f72d0a06868a6ec2bb9350758471\",\"timestamp\":\"2026-05-15T20:25:11.579Z\"}},{\"intentRef\":\"CHK-002:happy:1\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"koala convergence_check code annotation compliance row passes\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:1\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/cli-validate.js\",\"command\":\"koala convergence_check\",\"result\":\"pass\",\"note\":\"convergence_check reports 代码注释合规 passed: true with 21 annotations compliant. Only failing row is Story B-407e itself (expected in DEV).\",\"headHash\":\"4589296e8067188a21376cdde40c2b622057166c\",\"materialHash\":\"682f0b3d40553fcffff50169d462811ee464f72d0a06868a6ec2bb9350758471\",\"timestamp\":\"2026-05-15T20:25:13.563Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"npm --prefix packages/main run build exits 0 (no build regression)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/tsconfig.json\",\"command\":\"ln -s /Users/jek/Documents/Work/Orchestrate/packages/main/node_modules packages/main/node_modules && npm --prefix packages/main run build && rm packages/main/node_modules\",\"result\":\"pass\",\"note\":\"Checker reran build in the story worktree using the main workspace node_modules symlink because npm ci cannot fetch private @koala-agent/lab from npmjs; tsc exited 0 and the temporary symlink was removed.\",\"headHash\":\"81c21068d9f3ed00062ca86fd60871e515dc7053\",\"materialHash\":\"682f0b3d40553fcffff50169d462811ee464f72d0a06868a6ec2bb9350758471\",\"timestamp\":\"2026-05-15T20:26:57.572Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"No unrelated dirty or untracked files introduced by the changes (git status clean except story metadata)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"git status --short\",\"result\":\"pass\",\"note\":\"Only koala story metadata files modified (checklist.json, index.json, process-events.jsonl, process-metrics.json). No unrelated dirt.\",\"headHash\":\"4589296e8067188a21376cdde40c2b622057166c\",\"materialHash\":\"682f0b3d40553fcffff50169d462811ee464f72d0a06868a6ec2bb9350758471\",\"timestamp\":\"2026-05-15T20:25:17.194Z\"}},{\"intentRef\":\"CHK-002:adversarial:1\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"docs/koala/koala-project-overview.md is unchanged (git diff shows no edits)\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:1\",\"kind\":\"docs_check\",\"file\":\"docs/koala/koala-project-overview.md\",\"command\":\"git diff main -- docs/koala/koala-project-overview.md\",\"result\":\"pass\",\"note\":\"git diff shows no changes to koala-project-overview.md. File remains untouched.\",\"headHash\":\"4589296e8067188a21376cdde40c2b622057166c\",\"materialHash\":\"682f0b3d40553fcffff50169d462811ee464f72d0a06868a6ec2bb9350758471\",\"timestamp\":\"2026-05-15T20:25:18.217Z\"}}]}}",
+  "result": "FAIL",
+  "timestamp": "2026-05-15T20:27:04.413Z",
+  "headHash": "81c21068d9f3ed00062ca86fd60871e515dc7053",
+  "verificationCoverage": {
+    "total": 9,
+    "required": 9,
+    "covered": 9,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "npm run lint:tasks reports 0 missing-field annotation errors (was 64)",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/dist/tasks/cli-validate.js",
+          "command": "node packages/main/dist/tasks/cli-validate.js",
+          "result": "pass",
+          "note": "0 errors reported (was 64). Task Annotation Report shows Errors: 0.",
+          "headHash": "4589296e8067188a21376cdde40c2b622057166c",
+          "materialHash": "682f0b3d40553fcffff50169d462811ee464f72d0a06868a6ec2bb9350758471",
+          "timestamp": "2026-05-15T20:25:03.540Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:1",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "All 11 affected locations have valid structured @task annotations or plain prose comments",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "docs_check",
+          "file": "packages/main/src/core/auto-commit-metadata.ts",
+          "command": "git diff main -- packages/main/src/",
+          "result": "pass",
+          "note": "All 11 @task locations converted to prose Task comments. 8 files changed, each converting @task to Task in comment lines only.",
+          "headHash": "4589296e8067188a21376cdde40c2b622057166c",
+          "materialHash": "682f0b3d40553fcffff50169d462811ee464f72d0a06868a6ec2bb9350758471",
+          "timestamp": "2026-05-15T20:25:05.459Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Explanatory context originally in malformed annotations is preserved as prose comments, not deleted",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/core/auto-commit-metadata.ts",
+          "command": "git diff main -- packages/main/src/",
+          "result": "pass",
+          "note": "All explanatory context preserved — only @task/@title prefixes changed to Task prose format. Full JSDoc blocks and inline comment bodies intact.",
+          "headHash": "4589296e8067188a21376cdde40c2b622057166c",
+          "materialHash": "682f0b3d40553fcffff50169d462811ee464f72d0a06868a6ec2bb9350758471",
+          "timestamp": "2026-05-15T20:25:07.817Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "No executable code (non-comment lines) changed beyond annotation/comment edits — git diff shows only comment-line changes",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/auto-commit-metadata.ts",
+          "command": "git diff main -- packages/main/src/",
+          "result": "pass",
+          "note": "git diff shows 8 files, 12 insertions, 14 deletions — all in comment lines (// or * prefixed). No non-comment executable code changed.",
+          "headHash": "4589296e8067188a21376cdde40c2b622057166c",
+          "materialHash": "682f0b3d40553fcffff50169d462811ee464f72d0a06868a6ec2bb9350758471",
+          "timestamp": "2026-05-15T20:25:09.690Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "npm run lint:tasks exits 0 with no errors",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/dist/tasks/cli-validate.js",
+          "command": "node packages/main/dist/tasks/cli-validate.js",
+          "result": "pass",
+          "note": "lint:tasks reports Errors: 0, Warnings: 2 (pre-existing @test warnings, not annotation errors).",
+          "headHash": "4589296e8067188a21376cdde40c2b622057166c",
+          "materialHash": "682f0b3d40553fcffff50169d462811ee464f72d0a06868a6ec2bb9350758471",
+          "timestamp": "2026-05-15T20:25:11.579Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:1",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "koala convergence_check code annotation compliance row passes",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/cli-validate.js",
+          "command": "koala convergence_check",
+          "result": "pass",
+          "note": "convergence_check reports 代码注释合规 passed: true with 21 annotations compliant. Only failing row is Story B-407e itself (expected in DEV).",
+          "headHash": "4589296e8067188a21376cdde40c2b622057166c",
+          "materialHash": "682f0b3d40553fcffff50169d462811ee464f72d0a06868a6ec2bb9350758471",
+          "timestamp": "2026-05-15T20:25:13.563Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "npm --prefix packages/main run build exits 0 (no build regression)",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/tsconfig.json",
+          "command": "ln -s /Users/jek/Documents/Work/Orchestrate/packages/main/node_modules packages/main/node_modules && npm --prefix packages/main run build && rm packages/main/node_modules",
+          "result": "pass",
+          "note": "Checker reran build in the story worktree using the main workspace node_modules symlink because npm ci cannot fetch private @koala-agent/lab from npmjs; tsc exited 0 and the temporary symlink was removed.",
+          "headHash": "81c21068d9f3ed00062ca86fd60871e515dc7053",
+          "materialHash": "682f0b3d40553fcffff50169d462811ee464f72d0a06868a6ec2bb9350758471",
+          "timestamp": "2026-05-15T20:26:57.572Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "No unrelated dirty or untracked files introduced by the changes (git status clean except story metadata)",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git status --short",
+          "result": "pass",
+          "note": "Only koala story metadata files modified (checklist.json, index.json, process-events.jsonl, process-metrics.json). No unrelated dirt.",
+          "headHash": "4589296e8067188a21376cdde40c2b622057166c",
+          "materialHash": "682f0b3d40553fcffff50169d462811ee464f72d0a06868a6ec2bb9350758471",
+          "timestamp": "2026-05-15T20:25:17.194Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:1",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "docs/koala/koala-project-overview.md is unchanged (git diff shows no edits)",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "docs_check",
+          "file": "docs/koala/koala-project-overview.md",
+          "command": "git diff main -- docs/koala/koala-project-overview.md",
+          "result": "pass",
+          "note": "git diff shows no changes to koala-project-overview.md. File remains untouched.",
+          "headHash": "4589296e8067188a21376cdde40c2b622057166c",
+          "materialHash": "682f0b3d40553fcffff50169d462811ee464f72d0a06868a6ec2bb9350758471",
+          "timestamp": "2026-05-15T20:25:18.217Z"
+        }
+      }
+    ]
+  }
+}

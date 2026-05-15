@@ -157,13 +157,13 @@
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "manual_transcript",
-          "file": "packages/main/src/core/machine.ts",
-          "command": "npm --prefix packages/main run build",
+          "file": "packages/main/tsconfig.json",
+          "command": "ln -s /Users/jek/Documents/Work/Orchestrate/packages/main/node_modules packages/main/node_modules && npm --prefix packages/main run build && rm packages/main/node_modules",
           "result": "pass",
-          "note": "tsc build errors in machine.ts are pre-existing (xstate dep missing) — git diff main shows zero changes to machine.ts. No build regression from annotation changes.",
-          "headHash": "4589296e8067188a21376cdde40c2b622057166c",
+          "note": "Checker reran build in the story worktree using the main workspace node_modules symlink because npm ci cannot fetch private @koala-agent/lab from npmjs; tsc exited 0 and the temporary symlink was removed.",
+          "headHash": "81c21068d9f3ed00062ca86fd60871e515dc7053",
           "materialHash": "682f0b3d40553fcffff50169d462811ee464f72d0a06868a6ec2bb9350758471",
-          "timestamp": "2026-05-15T20:25:15.418Z"
+          "timestamp": "2026-05-15T20:26:57.572Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -178,13 +178,13 @@
         {
           "intentRef": "CHK-002:adversarial:1",
           "kind": "docs_check",
-          "file": "docs/koala/koala-project-overview.md",
-          "command": "git diff main -- docs/koala/koala-project-overview.md",
+          "file": "koala-project-overview.md",
+          "command": "ls koala-project-overview.md; git status -- koala-project-overview.md",
           "result": "pass",
-          "note": "git diff shows no changes to koala-project-overview.md. File remains untouched.",
-          "headHash": "4589296e8067188a21376cdde40c2b622057166c",
+          "note": "Root-level koala-project-overview.md does not exist in story worktree. Main workspace /Users/jek/Documents/Work/Orchestrate/koala-project-overview.md is a pre-existing untracked file (not part of this story). docs/koala/koala-project-overview.md in-repo is unchanged per git diff main.",
+          "headHash": "81c21068d9f3ed00062ca86fd60871e515dc7053",
           "materialHash": "682f0b3d40553fcffff50169d462811ee464f72d0a06868a6ec2bb9350758471",
-          "timestamp": "2026-05-15T20:25:18.217Z"
+          "timestamp": "2026-05-15T20:29:57.528Z"
         }
       ]
     }
