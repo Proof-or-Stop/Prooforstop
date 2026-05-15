@@ -190,7 +190,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "assertPhaseFlowDerivedValuesByteIdentical asserts getPhaseInfo for all 12 LIFECYCLE_PHASES equals hardcoded PHASE_FLOW_GET_PHASE_INFO_BASELINE and checkPhaseTransition over all 144 ordered pairs hashes to PHASE_FLOW_TRANSITION_HEALTH_BASELINE_HASH",
+          "headHash": "12df3f38a8a855c19422767c19de8a4736836c6e",
+          "materialHash": "5f64e5b3fb5b080a892c54139f572503e61bee38fb62c4e60b10c3d2f51c5e1b",
+          "timestamp": "2026-05-15T23:08:03.430Z"
+        }
+      ]
     }
   ]
 }
