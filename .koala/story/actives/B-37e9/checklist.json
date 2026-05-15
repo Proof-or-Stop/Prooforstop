@@ -197,6 +197,17 @@
           "headHash": "4c65ae945dfc3cfbc793c1232c44e4266bf6495b",
           "materialHash": "ca655619ccc0abe7c6bbb5faf69bd903d87dbe388b937bbfd814f552a92e6d2a",
           "timestamp": "2026-05-15T23:47:05.697Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Existing DONE checklist smoke assertDoneChecklistUsesStableOracleRows and assertDeclaredArtifactDoneCommittedRow were not modified and still pass; flow-stability-smoke prints ✓ passed.",
+          "headHash": "0b5d4d8417fd9aff552006b977fed0678dac4650",
+          "materialHash": "ca655619ccc0abe7c6bbb5faf69bd903d87dbe388b937bbfd814f552a92e6d2a",
+          "timestamp": "2026-05-15T23:47:05.990Z"
         }
       ]
     }
