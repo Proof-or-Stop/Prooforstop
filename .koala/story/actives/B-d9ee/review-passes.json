@@ -17,6 +17,42 @@
       "reviewRound": "2026-05-15T11:50:37.549Z",
       "reviewRunId": "B-d9ee:RR-004",
       "_hash": "28795cdadf1df0607fdaccaef152c439220bd3709b8f2a253e65decede705204"
+    },
+    {
+      "id": "B-d9ee:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Reviewed docs/requirements/decisions/story-lifecycle.md, docs/requirements/decisions/testing-infra.md, and docs/requirements/decisions/truth-source.md; grill_get is all-phase read-only and grill_start/grill_record/grill_close are PLAN-only with evidence boundaries intact.",
+      "createdAt": "2026-05-15T12:01:37.994Z",
+      "reviewRound": "2026-05-15T12:00:25.828Z",
+      "reviewRunId": "B-d9ee:RR-006",
+      "_hash": "fbcc796d90b2f040733aadf1a02d1c1a141ebad1fca6acfa414e8481dfa19845"
+    },
+    {
+      "id": "B-d9ee:RP-004",
+      "agent": "koala-review-concept",
+      "note": "Concept review pass: grill_* stays a planning-context artifact (`grill.json`), PLAN-only mutations remain non-gate L1 facts, `grill_get` is read-only L0 across phases, and story_review only emits advisory grill issues without increasing blockerCount or writing verification/validation evidence.",
+      "createdAt": "2026-05-15T12:02:16.909Z",
+      "reviewRound": "2026-05-15T12:00:25.828Z",
+      "reviewRunId": "B-d9ee:RR-008",
+      "_hash": "67b9f3a1cf3dbc2d625873d3c56ad670002937899de4bd77a091e6270f9b26ac"
+    },
+    {
+      "id": "B-d9ee:RP-005",
+      "agent": "koala-review-quality",
+      "note": "Verified F-002 is fixed: packages/main/src/core/store.ts now returns null only for missing grill artifacts, malformed existing grill.json surfaces through PLAN mutations, and test:grill-planning-artifact-smoke passed with no new blockers.",
+      "createdAt": "2026-05-15T12:02:28.681Z",
+      "reviewRound": "2026-05-15T12:00:25.828Z",
+      "reviewRunId": "B-d9ee:RR-007",
+      "_hash": "fd063936eed1ab27f6e8268db5c8678cf8bbdf03e5e68ac7686378ad0368e285"
+    },
+    {
+      "id": "B-d9ee:RP-006",
+      "agent": "koala-review-test-coverage",
+      "note": "Validation at f25d8c4 is PASS with 10/10 coverage; checklist evidence remains fresh by materialHash and top-level test evidence matches the current review head.",
+      "createdAt": "2026-05-15T12:04:02.304Z",
+      "reviewRound": "2026-05-15T12:00:25.828Z",
+      "reviewRunId": "B-d9ee:RR-011",
+      "_hash": "d41f2d6883073a3b4b0b2b6c386b6b6b3c6d2f913018b277537ec6ea534dd786"
     }
   ]
 }
