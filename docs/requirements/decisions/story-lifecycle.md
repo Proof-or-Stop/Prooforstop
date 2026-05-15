@@ -71,6 +71,46 @@ Koala 给可执行主流程 phase 一个稳定编号，用于 `koala status` 展
 
 回退后主 agent 应先读失败证据，再决定改代码、补 evidence、补文档还是调整 checklist。不要用解释替代修复。
 
+## 合并态组合审查（流程框架并行 story）
+
+> 本节是该规则的 **canonical 详细版**。`CLAUDE.md` 只保留短摘要并 see-also 指向这里；两份不是独立等价副本。
+
+这是一条 **advisory 流程纪律**，不是 CLI gate，不会被状态机自动强制。它补的是单 story REVIEW 结构性看不到的盲区。
+
+### 为什么需要
+
+单 story REVIEW 永远只看一个 story 自己的 diff，看不到「两个各自局部正确的 story 叠加后形成全局漏洞」这类跨 story 交互缺陷。
+
+**起源 incident**：2026-05-15 的 hotfix B-8db9 修复了一个 CRITICAL gate 绕过——B-cf60（declared artifact 声明）与 B-4b22（把 `declared_artifact_changes` 设为 non-blocking 的 dirty-gate-policy）各自 DONE 时单 story REVIEW 都独立通过，但合并到 main 后两者叠加形成 DONE dirty gate 绕过：agent 可以声明脏 source 文件绕过 gate。这个漏洞完全靠一次事后的合并态只读审查才被发现。
+
+### 触发范围
+
+当**多个「流程框架类」story 并行开发并合并到 main** 时触发。流程框架类 story 指触及以下任一资产的 story：
+
+- dirty / 工作区状态 classifier（各类别如何被判定）
+- gate policy（某类改动是 blocking 还是 non-blocking）
+- 命令入口门禁（handler 入口的拒绝规则）
+- auto-commit（自动提交逻辑、与 dirty 状态的交互）
+- DONE merge 语义（合并回 main 时哪些东西会被带过去）
+
+### 规则
+
+合并后必须对 main 的**合并态**（即并行 story 全部合并进 main 之后的实际状态）做一次只读 combination review。这是只读审查，不改代码，目的是发现叠加缺陷，发现问题再走正常 story 流程修。
+
+### 枚举检查清单
+
+combination review 必须逐项过下面这张清单——这是为了防止 combination review 退化成橡皮图章：
+
+1. **分类优先级顺序**：classifier 各类别的判定先后是否仍自洽？某个 story 新增的类别有没有把另一个 story 依赖的判定顺序顶掉？
+2. **gate policy 表**：把所有受影响类别的 blocking / non-blocking 取值列出来，确认叠加后没有出现「本该 blocking 的类别被某个并行 story 改成了 non-blocking」。
+3. **命令入口门禁**：各 handler 入口的拒绝规则叠加后是否仍然完整？有没有某个 story 放宽的入口正好是另一个 story 假设会被拦住的路径？
+4. **auto-commit / dirty 状态交互**：auto-commit 行为与 dirty 状态分类叠加后，会不会让本该被 dirty gate 拦住的改动被自动提交掉、或被归类成无害？
+5. **DONE merge 语义**：声明物 / 未提交文件在 DONE merge 时是否会被带进 main？某个 story 新增的「声明即放行」语义叠加另一个 story 的 merge 行为，会不会让脏文件静默进 main？
+
+### Out of scope
+
+普通业务 story **不触发** combination review。本规则只针对流程框架类 story（上述触发范围列举的资产）。对普通业务 story 强加合并审查只会制造 review 疲劳，反而让规则被整体忽略。
+
 ## Worktree 隔离
 
 每个 story 在独立 worktree 中开发，分支名 `story/{storyId}`。多并发 session 互不干扰。

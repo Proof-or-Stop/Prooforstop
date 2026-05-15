@@ -4,7 +4,7 @@
   "title": "Document merge-time combination-review rule for parallel framework stories",
   "description": "The B-8db9 hotfix on 2026-05-15 fixed a CRITICAL bypass that B-cf60 and B-4b22 formed only after both merged to main — each passed single-story review independently. Single-story review structurally cannot see cross-story interaction defects where two locally-correct stories combine into a global hole. Capture this as a durable process rule in the truth-source docs: when multiple process-framework stories (classifier / gate policy / command entry guards / auto-commit / DONE merge semantics) merge to main in parallel, run a read-only combination review over the combined state. This is advisory process discipline scoped to process-framework stories only — not a new CLI gate, not imposed on ordinary business stories. Doc-only change to CLAUDE.md and/or docs/requirements/decisions/story-lifecycle.md.",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "process-doc",
@@ -20,7 +20,7 @@
   ],
   "createdAt": "2026-05-15T22:13:12.252Z",
   "startedAt": "2026-05-15T22:13:12.252Z",
-  "endedAt": null,
+  "endedAt": "2026-05-15T22:32:35.671Z",
   "events": [
     {
       "phase": "INIT",
@@ -37,11 +37,63 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-05-15T22:14:57.403Z",
+      "branch": "story/B-da14",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-15T22:17:37.611Z",
+      "branch": "story/B-da14",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-15T22:21:09.393Z",
+      "branch": "story/B-da14",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-15T22:27:22.798Z",
+      "branch": "story/B-da14",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-15T22:27:23.091Z",
+      "branch": "story/B-da14",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-05-15T22:29:26.861Z",
+      "branch": "story/B-da14",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-05-15T22:32:35.671Z",
+      "branch": "story/B-da14",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-da14",
-    "branch": "story/B-da14",
-    "createdAt": "2026-05-15T22:14:51.941Z"
-  }
+  "currentReviewRound": "2026-05-15T22:27:23.091Z"
 }
