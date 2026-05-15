@@ -1,0 +1,70 @@
+{
+  "principles": [
+    "Detect-and-prompt over auto-fix: stale state must surface explicitly with copy-paste recovery, never silently refresh",
+    "Single source of truth: reuse checkEvidenceFreshnessForGit and DIRTY_WORKTREE_CATEGORIES rather than duplicate freshness/category logic",
+    "Same vocabulary across all surfaces: session_brief, story_advance pre-check, and koala validate must use identical EVIDENCE STALE marker and command format"
+  ],
+  "drivers": [
+    "B-c9f5 field report showed extended REVIEW/TEST loops when users had no actionable next step after main merge",
+    "B-6326 pitfalls note recorded the exact 3-step recovery incantation, proving the gap is UX not mechanism",
+    "Multiple surfaces currently diverge: hints.ts:203 prints stale advice in validate path only; session_brief and story_advance are silent"
+  ],
+  "options": [
+    {
+      "name": "A: Surface stale state at every entry point + single-shot recover command",
+      "pros": [
+        "Users see the same EVIDENCE STALE marker no matter which command they ran",
+        "recover_evidence reduces 3 manual steps to 1 explicit command",
+        "Refuse condition (non-koala_metadata dirt present) prevents masking real drift",
+        "Reuses existing checkEvidenceFreshnessForGit and classifier — no new logic for detection"
+      ],
+      "cons": [
+        "Touches 3 handlers (session.ts, story-advance.ts, validate hint surface) and adds 1 new CLI handler — more files than a one-spot fix"
+      ]
+    },
+    {
+      "name": "B: Only fix the koala validate output (hints.ts:203 already has it)",
+      "pros": [
+        "Minimal diff; just normalize the existing hint to use EVIDENCE STALE marker"
+      ],
+      "cons": [
+        "Users who first run session_brief or story_advance still hit the silent failure case",
+        "Does not address the B-c9f5 pattern where users debug via session_brief first"
+      ]
+    },
+    {
+      "name": "C: Auto-recover on detect (silent refresh)",
+      "pros": [
+        "Zero user action required after main merge"
+      ],
+      "cons": [
+        "Silently passes materially-regressed evidence — exactly the contamination the freshness check exists to prevent",
+        "Violates B-6326 conservative-policy principle: classification explains but does not loosen blocking",
+        "Hides the merge-cost from users so they cannot reason about why the gate is green"
+      ]
+    }
+  ],
+  "chosen": "A: Surface stale state at every entry point + single-shot recover command",
+  "rationale": "Choose A because the reported failure is purely UX gap, not a mechanism gap. Detection exists (checkEvidenceFreshnessForGit), recovery command exists (verification_evidence_refresh_stale). The fix is wiring the existing pieces into every surface where users land, plus a one-command convenience wrapper. Reject B because session_brief is the canonical entry point per CLAUDE.md 0 and silent failure there forces users back into the validate path for diagnosis. Reject C because it violates the conservative classification principle from B-6326 — auto-refresh would mask real materialHash drift caused by genuine source regressions.",
+  "preMortem": [
+    {
+      "scenario": "recover_evidence runs but masks a real material regression because classifier missed a category",
+      "trigger": "DIRTY_WORKTREE_CATEGORIES gets a new category added without updating recover_evidence refuse-condition list",
+      "consequence": "User runs recover_evidence after merging main with a real broken file; refresh succeeds, validate re-runs and passes against new hash, user advances to DONE with regressed code",
+      "mitigation": "recover_evidence refuse-list must use the SAME DIRTY_WORKTREE_CATEGORIES enum (whitelist koala_metadata + runtime + declared_artifact); any new category added defaults to refuse. Cover with smoke that asserts an unknown future category does NOT pass through."
+    },
+    {
+      "scenario": "EVIDENCE STALE marker drifts between surfaces (session_brief uses STALE EVIDENCE, validate uses Evidence Stale)",
+      "trigger": "Implementer copies hint formatting from one surface to another without sharing a constant",
+      "consequence": "Users cannot grep/anchor on the marker; recovery automation breaks; B-c9f5 UX gap returns",
+      "mitigation": "Define a single exported constant EVIDENCE_STALE_MARKER and exported renderEvidenceStaleHint(storyId) function; all three surfaces call it. Smoke test asserts byte-identical output across surfaces."
+    },
+    {
+      "scenario": "Copy-paste command uses placeholder instead of actual storyId after a refactor",
+      "trigger": "Implementer extracts the hint into a generic helper without piping storyId through",
+      "consequence": "Users have to know to substitute the placeholder; many will not; B-c9f5 incident repeats",
+      "mitigation": "renderEvidenceStaleHint(storyId) accepts storyId as required arg; smoke asserts output contains B-a2f1 literally and does not contain placeholder strings."
+    }
+  ],
+  "timestamp": "2026-05-15T16:16:57.506Z"
+}

@@ -8,9 +8,9 @@
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-15T16:28:37.014Z",
-      "endTime": null,
+      "endTime": "2026-05-15T16:29:08.709Z",
       "userSees": "User runs `koala session_brief` after merging main; in the brief output a new block appears: `⚠ EVIDENCE STALE (materialHash drift after eccd3758): 3 verification intent(s) stale for B-a2f1`. Same block appears in `koala story_advance --phase=TEST/DONE` pre-check output and `koala validate --story=B-a2f1 --json` text output when stale state is detected.",
       "verificationIntent": {
         "happy": [
@@ -58,9 +58,9 @@
       "relatedDocs": [
         "CLAUDE.md#worktree-生命周期"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-15T16:29:12.797Z",
       "userSees": "Immediately after the EVIDENCE STALE marker line, user sees a literal block:\n  Run to recover:\n    koala verification_evidence_refresh_stale --storyId=B-a2f1\n    koala validate --story=B-a2f1 --json\nThe storyId in both lines is the actual story ID (B-a2f1), not a placeholder, so the user copies-and-runs without editing.",
       "verificationIntent": {
         "happy": [
