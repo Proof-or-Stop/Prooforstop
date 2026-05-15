@@ -1,0 +1,22 @@
+{
+  "passes": [
+    {
+      "id": "B-d9ee:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Pass: grill commands stay in PLAN/read-only planning context boundaries; story_review only surfaces grill state as advisory and no lifecycle gate or evidence path consumes grill.json.",
+      "createdAt": "2026-05-15T11:54:00.363Z",
+      "reviewRound": "2026-05-15T11:50:37.549Z",
+      "reviewRunId": "B-d9ee:RR-005",
+      "_hash": "30da3b3de7643a6c7514c690d7997aa98ee2083d6567f58ab833297f3bbbf162"
+    },
+    {
+      "id": "B-d9ee:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: checked 10 verificationIntent lanes, confirmed 0 must-gap / 0 waiver, verified grill smoke covers non-gate and non-evidence behavior, and validated current evidence on HEAD 4d9ab5c0.",
+      "createdAt": "2026-05-15T11:54:05.697Z",
+      "reviewRound": "2026-05-15T11:50:37.549Z",
+      "reviewRunId": "B-d9ee:RR-004",
+      "_hash": "28795cdadf1df0607fdaccaef152c439220bd3709b8f2a253e65decede705204"
+    }
+  ]
+}
