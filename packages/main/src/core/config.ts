@@ -122,6 +122,8 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'grill_get',     // 全局：读取 PLAN grill planning context；不会写证据
     'summary_set',   // 全局：DONE 前强制落总结，koala short-path story 也需要
     'verification_evidence_add', 'verification_evidence_batch_add', 'verification_evidence_refresh_stale', // verification evidence is metadata, allowed across phases for reviewer/test handoff
+    'recover_evidence', // B-a2f1 CHK-003: single-shot stale-evidence recovery, safe in any phase (refuses on non-metadata dirt)
+    'artifact_declare', // B-cf60: per-story declared product artifact registration, safe in any phase
     'plan_get',
     'workflow_*',    // 全局：profile 查看/设置/解释，任何阶段都可以
     'background_*',  // B-45ed CHK-007: background 是元数据，任何阶段可读写

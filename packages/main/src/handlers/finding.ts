@@ -11,6 +11,7 @@ import { computeProcessMetrics } from '../core/process-metrics.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
 import { isPassOnlyReviewFindingRecord } from '../core/flow-fact-policy.js';
 import { assertCurrentReviewRunForEvidence, resolveReviewRunLane } from '../core/review-run.js';
+import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 
 const CANONICAL_FINDING_CATEGORIES = ['happy', 'edge', 'adversarial', 'missing'] as const;
 const LEGACY_FINDING_CATEGORIES = ['cleanup', 'doc-promise-undelivered', 'doc-code-drift', 'spec-boundary'] as const;
@@ -115,7 +116,8 @@ function recordReviewPass(ctx: HandlerContext, storyId: string, agent: string, n
     } catch (e) {
       console.warn(`[process-events] append failed for ${storyId}:`, (e as Error).message);
     }
-    return `Review pass ${id} recorded by ${agent}`;
+    const commitHint = autoCommitStoryMetadata(ctx.root, storyId, 'review_pass_set');
+    return `Review pass ${id} recorded by ${agent}${commitHint}`;
   });
 }
 
@@ -195,7 +197,8 @@ export function createFindingHandlers(ctx: HandlerContext) {
       const warning = missingAttribution
         ? '\n⚠ finding_add 缺少 agent/KOALA_AGENT，已记录为 main；reviewer 必须传 agent="koala-review-*"，否则不会算 reviewer evidence。'
         : '';
-      return `Finding ${id} created by ${agent}: [${args.severity}/${category}] ${args.desc}${warning}`;
+      const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'finding_add');
+      return `Finding ${id} created by ${agent}: [${args.severity}/${category}] ${args.desc}${warning}${commitHint}`;
     },
 
     review_pass_set(args: { storyId: string; agent?: string; note: string; reviewRunId?: string }): string {
@@ -252,7 +255,8 @@ export function createFindingHandlers(ctx: HandlerContext) {
         console.warn(`[process-metrics] recompute failed for ${args.storyId}:`, (e as Error).message);
       }
 
-      return `Finding ${args.findingId} resolved`;
+      const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'finding_resolve');
+      return `Finding ${args.findingId} resolved${commitHint}`;
     },
 
     finding_dismiss(args: { storyId: string; findingId: string; reason: string }): string {

@@ -13,9 +13,10 @@
  */
 
 import type { HandlerContext } from './context.js';
+import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 
 export function createScopeQuestionResolveHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
-  const { store } = ctx;
+  const { store, root } = ctx;
   return {
     scope_question_resolve(args: {
       storyId: string;
@@ -59,7 +60,8 @@ export function createScopeQuestionResolveHandlers(ctx: HandlerContext): Record<
       const resolvedCount = oqs.filter((o) => typeof o.resolution === 'string' && o.resolution.trim().length >= 20).length;
       const total = oqs.length;
       const overwriteTag = overwritten ? ' (overwritten)' : '';
-      const msg = `${args.oqId} resolved for ${args.storyId} (${resolvedCount}/${total})${overwriteTag}\n→ OQ 已记录主 agent 的 resolution。reviewer 不会再验证，主 agent 对结论负责`;
+      const commitHint = autoCommitStoryMetadata(root, args.storyId, 'scope_question_resolve');
+      const msg = `${args.oqId} resolved for ${args.storyId} (${resolvedCount}/${total})${overwriteTag}\n→ OQ 已记录主 agent 的 resolution。reviewer 不会再验证，主 agent 对结论负责${commitHint}`;
       return msg;
     },
   };

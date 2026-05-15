@@ -10,11 +10,15 @@ import { DEFAULT_PHASE_TOOLS, getAllowedPatterns, isCommandAllowed, loadConfig, 
 import { getCommandPolicyEntries, policyAllowedPhaseLabels } from '../core/command-policy.js';
 import {
   classifyGitStatusRows,
+  dirtyWorktreeClassifierOptionsForStory,
   dirtyWorktreeClassifierOptionsFromConfig,
   parseGitPorcelainRow,
 } from '../core/dirty-worktree.js';
+import { evaluateDeclaredArtifactReferences } from '../core/declared-artifact-gate.js';
+import { createArtifactDeclareHandlers } from '../handlers/artifact-declare.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { signFinding, signReviewPass, verifyFinding, verifyReviewPass } from '../core/finding-verify.js';
+import { autoCommitStoryMetadata, AUTO_COMMIT_METADATA_PREFIX } from '../core/auto-commit-metadata.js';
 import { getArtifactContractStatus } from '../core/artifact-contract.js';
 import { FLOW_FACT_POLICIES, isPassOnlyReviewFindingRecord } from '../core/flow-fact-policy.js';
 import { runManagedAssetCheck } from '../core/managed-assets.js';
@@ -1534,8 +1538,529 @@ function assertGlobalLinkRepair(): void {
   }
 }
 
+function gitConfig(root: string, key: string, value: string): void {
+  execFileSync('git', ['config', key, value], { cwd: root, stdio: 'ignore' });
+}
+
+function gitCheckoutNewBranch(root: string, branch: string): void {
+  execFileSync('git', ['checkout', '-b', branch], { cwd: root, stdio: 'ignore' });
+}
+
+function gitCheckoutExistingBranch(root: string, branch: string): void {
+  execFileSync('git', ['checkout', branch], { cwd: root, stdio: 'ignore' });
+}
+
+function gitCurrentBranch(root: string): string {
+  return execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
+    cwd: root,
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+}
+
+function gitCommitCount(root: string): number {
+  return parseInt(execFileSync('git', ['rev-list', '--count', 'HEAD'], {
+    cwd: root,
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim(), 10);
+}
+
+function gitLastSubject(root: string): string {
+  return execFileSync('git', ['log', '-1', '--pretty=%s'], {
+    cwd: root,
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+}
+
+function gitStatusPorcelain(root: string): string {
+  return execFileSync('git', ['status', '--porcelain=v1', '--untracked-files=all'], {
+    cwd: root,
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+}
+
+function setupAutoCommitFixture(): { root: string; storyId: string } {
+  const root = mkdtempSync(join(tmpdir(), 'koala-auto-commit-'));
+  // Init git repo + initial commit on main so branch checkout works
+  execFileSync('git', ['init', '--initial-branch=main'], { cwd: root, stdio: 'ignore' });
+  gitConfig(root, 'user.email', 'smoke@koala.test');
+  gitConfig(root, 'user.name', 'smoke');
+  gitConfig(root, 'commit.gpgsign', 'false');
+  // koala.config.json so loadConfig picks our story dir
+  write(root, 'koala.config.json', JSON.stringify({
+    scanRoot: 'packages/main',
+    rootDir: 'src',
+    testsDir: 'packages/main/tests',
+    fixturesDir: 'packages/main/tests/fixtures',
+    storyDir: '.koala/story/actives',
+    requirementsDir: 'docs/requirements',
+  }));
+  resetConfigCache();
+  execFileSync('git', ['add', '.'], { cwd: root, stdio: 'ignore' });
+  execFileSync('git', ['commit', '-m', 'initial'], { cwd: root, stdio: 'ignore' });
+  return { root, storyId: 'B-test1' };
+}
+
+function writeFakeMetadata(root: string, storyId: string, content = '{"x":1}'): void {
+  write(root, `.koala/story/actives/${storyId}/findings.json`, content);
+}
+
+function writeMaterialFile(root: string, content = 'export const X = 1;\n'): void {
+  write(root, 'packages/main/src/foo.ts', content);
+}
+
+function assertAutoCommitMetadataAcrossHandlers(): void {
+  // Test 1 (happy): story/B-test1 branch, write fake metadata → helper commits
+  // it and the user-visible hint matches the canonical prefix + reason + sha7.
+  {
+    const { root, storyId } = setupAutoCommitFixture();
+    try {
+      gitCheckoutNewBranch(root, `story/${storyId}`);
+      writeFakeMetadata(root, storyId);
+      const commitsBefore = gitCommitCount(root);
+      const out = autoCommitStoryMetadata(root, storyId, 'finding_add');
+      assert.ok(out.startsWith(AUTO_COMMIT_METADATA_PREFIX), `auto-commit hint must start with the canonical prefix; got: ${JSON.stringify(out)}`);
+      assert.match(out, /koala: record B-test1 finding_add metadata/);
+      assert.match(out, /\([0-9a-f]{7}\)/, 'auto-commit hint must include short sha (7 hex chars)');
+      assert.equal(gitCommitCount(root), commitsBefore + 1);
+      assert.match(gitLastSubject(root), /^koala: record B-test1 finding_add metadata$/);
+      assert.ok(!out.includes('untouched'), `no coexisting non-metadata dirt → tail-note must be omitted; got: ${JSON.stringify(out)}`);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+
+  // Test 2 (coexist): material source change coexists → metadata committed,
+  // tail-note announces untouched non-metadata categories, material file
+  // stays dirty on disk + git status confirms still M / ??.
+  {
+    const { root, storyId } = setupAutoCommitFixture();
+    try {
+      gitCheckoutNewBranch(root, `story/${storyId}`);
+      writeFakeMetadata(root, storyId);
+      writeMaterialFile(root); // packages/main/src/foo.ts → material_source_changes
+      const commitsBefore = gitCommitCount(root);
+      const out = autoCommitStoryMetadata(root, storyId, 'review_pass_set');
+      assert.ok(out.startsWith(AUTO_COMMIT_METADATA_PREFIX), 'prefix must match');
+      assert.match(out, /koala: record B-test1 review_pass_set metadata/);
+      assert.match(out, /\(coexisting non-metadata dirt left untouched: [^)]*material_source_changes=1[^)]*\)/);
+      assert.equal(gitCommitCount(root), commitsBefore + 1);
+      // material file still dirty
+      const status = gitStatusPorcelain(root);
+      assert.ok(status.includes('packages/main/src/foo.ts'), `material file must remain dirty after helper; status: ${JSON.stringify(status)}`);
+      // Classifier vocabulary parity (preMortem #3 — same words user sees)
+      const classification = classifyGitStatusRows(
+        status.split('\n').map(line => line.trimEnd()).filter(Boolean),
+        dirtyWorktreeClassifierOptionsFromConfig(loadConfig(root)),
+      );
+      assert.equal(classification.groups.material_source_changes.length, 1);
+      assert.equal(classification.groups.koala_metadata_changes.length, 0, 'metadata category must be empty after auto-commit');
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+
+  // Test 3 (no coexist): nothing else dirty → output has NO `untouched`
+  // tail-note (CHK-002 edge — do not print empty parens / left-untouched: ).
+  {
+    const { root, storyId } = setupAutoCommitFixture();
+    try {
+      gitCheckoutNewBranch(root, `story/${storyId}`);
+      writeFakeMetadata(root, storyId);
+      const out = autoCommitStoryMetadata(root, storyId, 'summary_set');
+      assert.ok(out.startsWith(AUTO_COMMIT_METADATA_PREFIX));
+      assert.ok(!out.includes('untouched'), `no non-metadata dirt → tail-note must be omitted; got: ${JSON.stringify(out)}`);
+      assert.ok(!out.includes('left-untouched'));
+      assert.ok(!out.includes('()'));
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+
+  // Test 4 (idempotent): consecutive calls produce at most one commit.
+  // Second invocation with nothing staged returns '' and does not commit again.
+  {
+    const { root, storyId } = setupAutoCommitFixture();
+    try {
+      gitCheckoutNewBranch(root, `story/${storyId}`);
+      writeFakeMetadata(root, storyId);
+      const first = autoCommitStoryMetadata(root, storyId, 'checklist_update');
+      assert.ok(first.startsWith(AUTO_COMMIT_METADATA_PREFIX));
+      const commitsAfterFirst = gitCommitCount(root);
+      const second = autoCommitStoryMetadata(root, storyId, 'checklist_update');
+      assert.equal(second, '', `idempotent re-call must return empty; got: ${JSON.stringify(second)}`);
+      assert.equal(gitCommitCount(root), commitsAfterFirst, 'no second commit when nothing is staged');
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+
+  // Test 5 (main branch): on non-story/* branch helper returns '' silently
+  // and does NOT produce a commit.
+  {
+    const { root, storyId } = setupAutoCommitFixture();
+    try {
+      assert.equal(gitCurrentBranch(root), 'main');
+      writeFakeMetadata(root, storyId);
+      const commitsBefore = gitCommitCount(root);
+      const out = autoCommitStoryMetadata(root, storyId, 'finding_add');
+      assert.equal(out, '', `on main branch helper must be silent; got: ${JSON.stringify(out)}`);
+      assert.equal(gitCommitCount(root), commitsBefore, 'no commit on main branch');
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+
+  // Test 6 (path broaden): non-canonical storyId form throws synchronously
+  // BEFORE any git invocation (preMortem #1 anchor). We probe path-traversal
+  // (`../foo`), shell-metachar injection (`B-xx@injected`, `B-xx/yy`), and
+  // empty / wrong-prefix inputs.
+  {
+    const { root } = setupAutoCommitFixture();
+    try {
+      gitCheckoutNewBranch(root, 'story/B-test1');
+      for (const bad of ['B-xx@injected', '../foo', '', 'B-xx/yy', 'B-xx..yy', 'A-test1', 'B-', 'B- test', 'B-xx\\yy']) {
+        assert.throws(
+          () => autoCommitStoryMetadata(root, bad, 'finding_add'),
+          /storyId must match/,
+          `storyId=${JSON.stringify(bad)} should be rejected`,
+        );
+      }
+      // Also confirm helper does not write a commit for these failures
+      const startCommits = gitCommitCount(root);
+      try { autoCommitStoryMetadata(root, '../foo', 'finding_add'); } catch { /* expected */ }
+      assert.equal(gitCommitCount(root), startCommits, 'failed validation must not leave a commit behind');
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+
+  // Test 7 (prefix vocabulary parity with story-advance precedent — CHK-003
+  // adversarial: byte-equal prefix `\n✓ koala metadata 已自动提交:`).
+  {
+    const { root, storyId } = setupAutoCommitFixture();
+    try {
+      gitCheckoutNewBranch(root, `story/${storyId}`);
+      writeFakeMetadata(root, storyId);
+      const out = autoCommitStoryMetadata(root, storyId, 'init_check_set');
+      // Use indexOf instead of startsWith for crystal-clear failure message
+      assert.equal(
+        out.slice(0, AUTO_COMMIT_METADATA_PREFIX.length),
+        AUTO_COMMIT_METADATA_PREFIX,
+        'user-visible prefix must be byte-equal `\\n✓ koala metadata 已自动提交:`',
+      );
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+
+  // Test 8 (3+ handler reasons covered — CHK-004 happy): the same fixture +
+  // 3 different reasons all produce the canonical hint format. Verifies the
+  // helper is reason-agnostic, not hardcoded to a single phase like the old
+  // story-advance copy.
+  {
+    const reasons = ['finding_add', 'checklist_update', 'summary_set'] as const;
+    for (const reason of reasons) {
+      const { root, storyId } = setupAutoCommitFixture();
+      try {
+        gitCheckoutNewBranch(root, `story/${storyId}`);
+        writeFakeMetadata(root, storyId, `{"reason":"${reason}"}`);
+        const out = autoCommitStoryMetadata(root, storyId, reason);
+        assert.ok(out.startsWith(AUTO_COMMIT_METADATA_PREFIX), `reason=${reason} prefix mismatch`);
+        assert.match(out, new RegExp(`koala: record B-test1 ${reason} metadata`));
+        assert.match(gitLastSubject(root), new RegExp(`^koala: record B-test1 ${reason} metadata$`));
+      } finally {
+        rmSync(root, { recursive: true, force: true });
+      }
+    }
+  }
+
+  // Test 9 (classifier parity — CHK-004 adversarial): classifyDirtyWorktree
+  // returns the same category counts whether helper was called or not for
+  // non-metadata categories (auto-commit must not mask material/fixture/
+  // unexpected dirt).
+  {
+    const { root, storyId } = setupAutoCommitFixture();
+    try {
+      gitCheckoutNewBranch(root, `story/${storyId}`);
+      writeFakeMetadata(root, storyId);
+      writeMaterialFile(root);
+      // Add an unexpected file too (outside src/ and tests/fixtures/)
+      write(root, 'packages/main/tests/output/x', 'unexpected');
+
+      const before = classifyGitStatusRows(
+        gitStatusPorcelain(root).split('\n').map(line => line.trimEnd()).filter(Boolean),
+        dirtyWorktreeClassifierOptionsFromConfig(loadConfig(root)),
+      );
+      const materialBefore = before.groups.material_source_changes.length;
+      const unexpectedBefore = before.groups.unexpected_dirty_files.length;
+
+      autoCommitStoryMetadata(root, storyId, 'finding_add');
+
+      const after = classifyGitStatusRows(
+        gitStatusPorcelain(root).split('\n').map(line => line.trimEnd()).filter(Boolean),
+        dirtyWorktreeClassifierOptionsFromConfig(loadConfig(root)),
+      );
+      assert.equal(after.groups.material_source_changes.length, materialBefore, 'material dirt count unchanged by auto-commit');
+      assert.equal(after.groups.unexpected_dirty_files.length, unexpectedBefore, 'unexpected dirt count unchanged by auto-commit');
+      assert.equal(after.groups.koala_metadata_changes.length, 0, 'metadata category drains to zero after auto-commit');
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+}
+
+/**
+ * B-cf60 CHK-004: regression coverage for the per-story declared-artifact channel.
+ *
+ * Covers four scenarios (happy/edge/adversarial intents from the checklist):
+ *   1. happy: declare a path → classifier groups it as declared_artifact_changes
+ *   2. happy: same path WITHOUT declaration → classifier keeps it as unexpected_dirty_files
+ *   3. edge: declare malicious paths (`*`, `..`, leading `/`) → handler throws
+ *   4. adversarial: DONE gate fn evaluateDeclaredArtifactReferences with
+ *      matching / unreferenced / mixed inputs.
+ *
+ * Uses the BL21 lacZ minicell viewer path literal from the field report so a
+ * future refactor cannot accidentally silence the smoke without renaming the
+ * regression target.
+ */
+function assertDeclaredArtifactsChannel(): void {
+  const BL21 = 'packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json';
+  const root = mkdtempSync(join(tmpdir(), 'koala-declared-artifacts-'));
+  try {
+    write(root, 'koala.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      testsDir: 'packages/main/tests',
+      fixturesDir: 'packages/main/tests/fixtures',
+      storyDir: '.koala/story/actives',
+      requirementsDir: 'docs/requirements',
+    }));
+    resetConfigCache();
+    const store = new StoryStore(root);
+
+    // Seed a story so artifact_declare's storyExists check passes.
+    const storyId = 'B-cftest';
+    const now = '2026-05-15T18:00:00.000Z';
+    const story: StoryInfo = {
+      storyId,
+      name: 'declared-artifacts-smoke',
+      title: 'Declared artifacts smoke',
+      description: 'Per-story declared product artifact registration regression.',
+      type: 'chore',
+      phase: 'DEV',
+      priority: 'medium',
+      createdAt: now,
+      startedAt: now,
+      endedAt: null,
+      currentReviewRound: now,
+      events: [],
+    };
+    const checklist: ChecklistData = {
+      items: [{
+        id: 'CHK-001',
+        title: 'Declared item',
+        context: 'happy intent for the BL21 viewer.',
+        status: 'done',
+        startTime: now,
+        endTime: now,
+        verificationIntent: {
+          happy: [{ desc: 'cli regenerates viewer', type: 'cli', priority: 'must' }],
+          edge: [],
+          adversarial: [],
+        },
+      }],
+    };
+    store.writeStory(storyId, story);
+    store.writeChecklist(storyId, checklist);
+
+    const handlers = createArtifactDeclareHandlers({
+      store,
+      root,
+      scanRoot: join(root, 'packages/main'),
+    });
+
+    // === Scenario 1 (happy): declare → classifier groups as declared_artifact_changes ===
+    handlers.artifact_declare({
+      storyId,
+      path: BL21,
+      reason: 'BL21 lacZ minicell viewer regenerated for verification',
+      relatedIntent: 'CHK-001:happy:0',
+    });
+    const config = loadConfig(root);
+    const dirtyLines = [`?? ${BL21}`];
+    const declared = classifyGitStatusRows(
+      dirtyLines,
+      dirtyWorktreeClassifierOptionsForStory(config, storyId, store),
+    );
+    assert.equal(
+      declared.groups.declared_artifact_changes.length,
+      1,
+      'declared artifact must land in declared_artifact_changes when story declared it',
+    );
+    assert.equal(declared.groups.declared_artifact_changes[0].path, BL21);
+    assert.equal(
+      declared.groups.unexpected_dirty_files.length,
+      0,
+      'declared path must not leak into unexpected_dirty_files',
+    );
+
+    // === Scenario 2 (happy): same path WITHOUT declaration → unexpected_dirty_files ===
+    const undeclared = classifyGitStatusRows(
+      dirtyLines,
+      dirtyWorktreeClassifierOptionsFromConfig(config),
+    );
+    assert.equal(
+      undeclared.groups.declared_artifact_changes.length,
+      0,
+      'without per-story injection the declared_artifact_changes category must stay empty',
+    );
+    assert.equal(undeclared.groups.unexpected_dirty_files.length, 1, 'BL21 viewer falls through to unexpected by default');
+    assert.equal(undeclared.groups.unexpected_dirty_files[0].path, BL21);
+
+    // === Scenario 2b: a sibling undeclared path under same prefix STAYS unexpected ===
+    const sibling = `${BL21.replace('prodenovo_viewer.json', 'other_snapshot.json')}`;
+    const mixedDirty = [`?? ${BL21}`, `?? ${sibling}`];
+    const mixed = classifyGitStatusRows(
+      mixedDirty,
+      dirtyWorktreeClassifierOptionsForStory(config, storyId, store),
+    );
+    assert.equal(mixed.groups.declared_artifact_changes.length, 1, 'only the declared path flips category');
+    assert.equal(mixed.groups.declared_artifact_changes[0].path, BL21);
+    assert.equal(mixed.groups.unexpected_dirty_files.length, 1, 'sibling path stays in unexpected_dirty_files');
+    assert.equal(mixed.groups.unexpected_dirty_files[0].path, sibling);
+
+    // === Scenario 3 (edge/adversarial): malicious paths throw ===
+    const malicious: string[] = [
+      'tests/output/*',
+      'tests/output/**/*.json',
+      '../escape.json',
+      'tests/output/../escape.json',
+      '/abs/path.json',
+      'tests/output/foo?.json',
+      'tests/output/[abc].json',
+    ];
+    for (const evil of malicious) {
+      assert.throws(
+        () => handlers.artifact_declare({
+          storyId,
+          path: evil,
+          reason: 'should not be allowed in any case',
+          relatedIntent: 'CHK-001:happy:0',
+        }),
+        /artifact_declare: path /,
+        `path ${JSON.stringify(evil)} must be rejected`,
+      );
+    }
+
+    // === Scenario 3b: bad relatedIntent shape also throws ===
+    assert.throws(
+      () => handlers.artifact_declare({
+        storyId,
+        path: 'tests/output/some.json',
+        reason: 'reason text long enough',
+        relatedIntent: 'not-a-valid-ref',
+      }),
+      /relatedIntent must match/,
+      'malformed relatedIntent must be rejected at handler entry',
+    );
+
+    // === Scenario 4 (adversarial): DONE gate reference checker ===
+    // (a) matching → no unreferenced.
+    const checklistData = store.readChecklist(storyId);
+    const declaredEntries = store.readDeclaredArtifacts(storyId);
+    const matchedResult = evaluateDeclaredArtifactReferences(declaredEntries, checklistData, null);
+    assert.equal(matchedResult.total, 1);
+    assert.equal(matchedResult.unreferenced.length, 0, 'CHK-001:happy:0 matches the seeded verificationIntent slot');
+
+    // (b) bogus intentRef → unreferenced.
+    handlers.artifact_declare({
+      storyId,
+      path: 'tests/output/bogus.json',
+      reason: 'second declaration with bogus ref for gate adversarial test',
+      relatedIntent: 'CHK-999:happy:0',
+    });
+    const withBogus = store.readDeclaredArtifacts(storyId);
+    const bogusResult = evaluateDeclaredArtifactReferences(withBogus, checklistData, null);
+    assert.equal(bogusResult.total, 2);
+    assert.equal(bogusResult.unreferenced.length, 1, 'CHK-999:happy:0 has no matching checklist item');
+    assert.equal(bogusResult.unreferenced[0].relatedIntent, 'CHK-999:happy:0');
+
+    // (c) coexisting matching + unreferenced still reports the unreferenced (1 is enough to block).
+    const coexistResult = evaluateDeclaredArtifactReferences(withBogus, checklistData, null);
+    assert.ok(coexistResult.unreferenced.length >= 1, 'at least one unreferenced entry must surface');
+
+    // === Scenario 5: idempotency — re-declare same path overwrites entry.
+    //     Run BEFORE the promise: stub block since that block rewrites the file.
+    const beforeIdem = store.readDeclaredArtifacts(storyId);
+    const idemOut = handlers.artifact_declare({
+      storyId,
+      path: BL21,
+      reason: 'BL21 lacZ minicell viewer regenerated for verification (rewrite)',
+      relatedIntent: 'CHK-001:happy:0',
+    });
+    assert.match(idemOut, /overwritten/, 'second declaration of same path must mention overwrite');
+    const afterIdem = store.readDeclaredArtifacts(storyId);
+    assert.equal(afterIdem.entries.length, beforeIdem.entries.length, 're-declaring same path must not duplicate entries');
+
+    // (d) promise:<docPath> ref resolves when delivery-check.docsPromises contains the docPath.
+    //     Use a separate store rooted at a fresh temp dir so we don't trample
+    //     the previous-scenario fixtures.
+    const promiseRoot = mkdtempSync(join(tmpdir(), 'koala-declared-artifacts-promise-'));
+    try {
+      write(promiseRoot, 'koala.config.json', JSON.stringify({
+        scanRoot: 'packages/main',
+        rootDir: 'src',
+        testsDir: 'packages/main/tests',
+        fixturesDir: 'packages/main/tests/fixtures',
+        storyDir: '.koala/story/actives',
+        requirementsDir: 'docs/requirements',
+      }));
+      resetConfigCache();
+      const promiseStore = new StoryStore(promiseRoot);
+      promiseStore.writeStory(storyId, story);
+      promiseStore.writeChecklist(storyId, checklist);
+      promiseStore.writeDeclaredArtifacts(storyId, {
+        entries: [{
+          path: 'tests/output/with-promise.json',
+          reason: 'promise ref smoke entry',
+          relatedIntent: 'promise:CLAUDE.md#section-foo',
+          declaredAt: now,
+        }],
+      });
+      const declaredPromiseOnly = promiseStore.readDeclaredArtifacts(storyId);
+      const deliveryStub = {
+        storyId,
+        checkedAt: now,
+        reviewRound: now,
+        agentId: 'koala-review-delivery',
+        docsPromises: [{ docPath: 'CLAUDE.md#section-foo', promise: 'doc promise', verifiedBy: 'grep', evidence: 'observed' }],
+        realMachineTests: [],
+        closingSelfCheck: { hasRealMachineTest: true, hasEdgeCaseCoverage: true, hasUnresolvedTodos: false, summary: 'ok summary text' },
+        _hash: 'stub',
+      };
+      const promiseResult = evaluateDeclaredArtifactReferences(declaredPromiseOnly, null, deliveryStub);
+      assert.equal(promiseResult.unreferenced.length, 0, 'promise:<docPath> ref must resolve via delivery-check docsPromises');
+    } finally {
+      rmSync(promiseRoot, { recursive: true, force: true });
+      resetConfigCache();
+    }
+
+    // (e) empty entries → zero unreferenced, gate caller treats as informational.
+    const emptyResult = evaluateDeclaredArtifactReferences({ entries: [] }, checklistData, null);
+    assert.equal(emptyResult.total, 0);
+    assert.equal(emptyResult.unreferenced.length, 0, 'empty declared-artifacts must not synthesize blockers');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 assertSessionBriefGate();
 assertDirtyWorktreeClassifierGroupsOwnership();
+assertDeclaredArtifactsChannel();
 assertFlowFactPolicyRegistry();
 assertPhaseGatePolicyHints();
 assertPhaseToolsOverrideStillBlocks();
@@ -1561,5 +2086,6 @@ assertChannelGateAcceptsDispatchEvidence();
 assertChannelGateAcceptsImplementerAuthorWithoutDispatch();
 assertDoneChecklistUsesStableOracleRows();
 assertGlobalLinkRepair();
+assertAutoCommitMetadataAcrossHandlers();
 
 console.log('✓ flow stability smoke passed');

@@ -52,6 +52,8 @@ import { createAuxDocHandlers } from './handlers/aux-doc.js';
 import { createCodexAdapterHandlers } from './handlers/codex-adapter.js';
 import { createReviewRunHandlers } from './handlers/review-run.js';
 import { createCheckHandlers } from './handlers/check.js';
+import { createRecoverEvidenceHandlers } from './handlers/recover-evidence.js';
+import { createArtifactDeclareHandlers } from './handlers/artifact-declare.js';
 import { nextStoryId } from './handlers/context.js';
 
 export type HandlerFn = (...args: any[]) => any;
@@ -156,6 +158,15 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createAuxDocHandlers(ctx));
   registry.registerBatch(createCodexAdapterHandlers(ctx));
   registry.registerBatch(createCheckHandlers(ctx));
+
+  // B-a2f1 CHK-003: recover_evidence — single-shot stale-evidence recovery
+  // (refuse-on-non-metadata-dirt → verification_evidence_refresh_stale → koala validate).
+  registry.registerBatch(createRecoverEvidenceHandlers(ctx));
+
+  // B-cf60: artifact_declare — per-story declared product artifact registration.
+  // Populates declared-artifacts.json consumed by the dirty-worktree classifier
+  // and the DONE gate reference check.
+  registry.registerBatch(createArtifactDeclareHandlers(ctx));
 
   // 内部辅助：返回下一个 story id（fixture/测试 runner 用）
   registry.register('_nextStoryId', (prefix?: string) => nextStoryId(ctx.store, prefix));

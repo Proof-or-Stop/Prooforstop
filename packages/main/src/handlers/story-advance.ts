@@ -2,7 +2,8 @@
 import type { HandlerContext } from './context.js';
 import { collectContext, PHASE_TO_EVENT, assertCwdInWorktree } from './context.js';
 import { createStoryActor, getStateName, getGuardFailureReason } from '../core/machine.js';
-import type { StoryPhase } from '../core/types.js';
+import type { ChecklistData, StoryPhase } from '../core/types.js';
+import { evaluateDeclaredArtifactReferences } from '../core/declared-artifact-gate.js';
 import type { StoryStore } from '../core/store.js';
 import { loadConfig } from '../core/config.js';
 import { resolveWorkflowPolicy, computeChannel, CHANNEL_LABELS } from '../core/workflow-policy.js';
@@ -20,11 +21,14 @@ import { repairGlobalKoalaLinkBeforeWorktreeDelete } from './worktree.js';
 import { recomputeDeliveryCheckHash } from './delivery-check.js';
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
 import { collectBaselineRisk, renderBaselineRiskLines } from '../core/baseline-risk.js';
-import { checkEvidenceFreshnessForGit, currentMaterialHash } from '../core/evidence-freshness.js';
+import { checkEvidenceFreshnessForGit, currentMaterialHash, currentGitHead } from '../core/evidence-freshness.js';
+import { findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
+import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { reportHealthIssue } from '../core/health.js';
 import type { OracleRow } from '../core/oracle-row.js';
 import {
   classifyGitStatusRows,
+  dirtyWorktreeClassifierOptionsForStory,
   dirtyWorktreeClassifierOptionsFromConfig,
   renderDirtyWorktreeGroups,
   summarizeDirtyWorktreeClassification,
@@ -88,13 +92,36 @@ function readGitStatusLines(projectRoot: string): { ok: true; lines: string[] } 
 }
 
 // @task B-6326: DONE gate dirty output uses the shared ownership classifier.
-function summarizeGitStatusLines(lines: string[], config: ReturnType<typeof loadConfig>): string {
-  const classification = classifyGitStatusRows(lines, dirtyWorktreeClassifierOptionsFromConfig(config));
+// @task B-cf60: when a storyId/store is available, mix in declaredArtifactPaths from the
+// per-story declared-artifacts.json so declared paths flip from unexpected → declared.
+function classifierOptionsForCheck(
+  config: ReturnType<typeof loadConfig>,
+  storyId: string | undefined,
+  store: StoryStore | undefined,
+) {
+  if (storyId && store) {
+    return dirtyWorktreeClassifierOptionsForStory(config, storyId, store);
+  }
+  return dirtyWorktreeClassifierOptionsFromConfig(config);
+}
+
+function summarizeGitStatusLines(
+  lines: string[],
+  config: ReturnType<typeof loadConfig>,
+  storyId?: string,
+  store?: StoryStore,
+): string {
+  const classification = classifyGitStatusRows(lines, classifierOptionsForCheck(config, storyId, store));
   return summarizeDirtyWorktreeClassification(classification);
 }
 
-function gitStatusDirtyHint(lines: string[], config: ReturnType<typeof loadConfig>): string {
-  const classification = classifyGitStatusRows(lines, dirtyWorktreeClassifierOptionsFromConfig(config));
+function gitStatusDirtyHint(
+  lines: string[],
+  config: ReturnType<typeof loadConfig>,
+  storyId?: string,
+  store?: StoryStore,
+): string {
+  const classification = classifyGitStatusRows(lines, classifierOptionsForCheck(config, storyId, store));
   return [
     '先处理这些 dirty path（按 ownership 分类；dirty 仍会阻塞 DONE）:',
     ...renderDirtyWorktreeGroups(classification, { sampleLimit: 6, indent: '  ' }),
@@ -234,51 +261,6 @@ function gitRefContainsMain(projectRoot: string, ref: string): boolean {
     stdio: ['pipe', 'pipe', 'pipe'],
   });
   return true;
-}
-
-function autoCommitStoryMetadata(projectRoot: string, storyId: string, storyDirRel: string, phase: StoryPhase): string {
-  try {
-    const branch = execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
-      cwd: projectRoot,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim();
-    if (!branch.startsWith('story/')) return '';
-
-    const storyRel = `${storyDirRel.replace(/\/$/, '')}/${storyId}`;
-    const before = execFileSync('git', ['status', '--porcelain', '--', storyRel], {
-      cwd: projectRoot,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim();
-    if (!before) return '';
-
-    execFileSync('git', ['add', storyRel], {
-      cwd: projectRoot,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-    const staged = execFileSync('git', ['diff', '--cached', '--name-only', '--', storyRel], {
-      cwd: projectRoot,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim();
-    if (!staged) return '';
-
-    execFileSync('git', ['-c', 'commit.gpgsign=false', 'commit', '-m', `koala: record ${storyId} ${phase} metadata`], {
-      cwd: projectRoot,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-    return `\n✓ story metadata 已自动提交: koala: record ${storyId} ${phase} metadata`;
-  } catch (e: any) {
-    reportHealthIssue('mutation:storyMetadataCommit', e instanceof Error ? e : new Error(String(e)), {
-      storyId,
-      phase,
-      projectRoot,
-    });
-    return `\n⚠ story metadata 自动提交失败: ${e?.message || e}`;
-  }
 }
 
 // B-9d95 CHK-003: re-export 供 DONE merge 前 stray 文件清理。主实现在独立
@@ -437,8 +419,8 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       id: 'git-working-tree',
       status: 'fail',
       label: 'git working tree',
-      detail: summarizeGitStatusLines(gitStatus.lines, config),
-      hint: gitStatusDirtyHint(gitStatus.lines, config),
+      detail: summarizeGitStatusLines(gitStatus.lines, config, storyId, store),
+      hint: gitStatusDirtyHint(gitStatus.lines, config, storyId, store),
       source: 'git status --porcelain',
     }));
   } else {
@@ -608,6 +590,54 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
           label: 'delivery-check',
           detail: `${deliveryCheck.docsPromises.length} docsPromises checked`,
           source: 'delivery-check.json.docsPromises',
+        }));
+      }
+    }
+  }
+
+  // 6b. declared-artifacts referenced (B-cf60 CHK-003): every entry's
+  //     relatedIntent must resolve to a real verificationIntent slot or
+  //     delivery-check docsPromise. Bogus intentRefs (e.g. X-001:happy:0)
+  //     fail here — preMortem #2 anchor.
+  {
+    const declared = store.readDeclaredArtifacts(storyId);
+    if (declared.entries.length === 0) {
+      rows.push(doneCheckRow({
+        id: 'declared-artifacts-referenced',
+        status: 'pass',
+        label: 'declared artifacts referenced',
+        detail: '0/0 (no declarations)',
+        source: 'declared-artifacts.json',
+        blocking: false,
+      }));
+    } else {
+      let checklistData: ChecklistData | null = null;
+      try { checklistData = store.readChecklist(storyId); } catch { /* no checklist */ }
+      const refResult = evaluateDeclaredArtifactReferences(declared, checklistData, deliveryCheck);
+      const referenced = refResult.total - refResult.unreferenced.length;
+      if (refResult.unreferenced.length > 0) {
+        const unrefDetails = refResult.unreferenced
+          .map(u => `${u.path} (relatedIntent=${u.relatedIntent || '<empty>'})`)
+          .join('\n');
+        rows.push(doneCheckRow({
+          id: 'declared-artifacts-referenced',
+          status: 'fail',
+          label: 'declared artifacts referenced',
+          detail: `${referenced}/${refResult.total} (unreferenced: ${refResult.unreferenced.length})`,
+          hint:
+            '[unreferenced_declared_artifact] 下列 declared artifact 的 relatedIntent 不指向任何 verificationIntent 或 delivery-check docsPromise；' +
+            '请用 verification_evidence_add 补 evidence、把 relatedIntent 改成存在的 intentRef，或用 delivery_check_set / delivery_waiver_add 加 docsPromise：\n' +
+            unrefDetails,
+          source: 'declared-artifacts.json',
+        }));
+      } else {
+        rows.push(doneCheckRow({
+          id: 'declared-artifacts-referenced',
+          status: 'pass',
+          label: 'declared artifacts referenced',
+          detail: `${refResult.total}/${refResult.total}`,
+          source: 'declared-artifacts.json',
+          blocking: false,
         }));
       }
     }
@@ -1135,7 +1165,7 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
 
       let metadataCommitReport = '';
       if (args.phase === 'REVIEW') {
-        metadataCommitReport = autoCommitStoryMetadata(ctx.root, args.storyId, store.storyDirRel(), args.phase);
+        metadataCommitReport = autoCommitStoryMetadata(ctx.root, args.storyId, args.phase);
       }
 
       // CHK-002: PLAN→DEV 时收集所有 relatedDocs 列出来作为开工提醒
@@ -1482,7 +1512,19 @@ ${agentLines}
         } catch { /* ignore */ }
       }
 
-      return `${doneChecklistPrefix}Story ${args.storyId} advanced to ${newState}${metadataCommitReport}${doneMergeReport}\n${nextSteps[newState] || ''}${docsHint}${depsWarning}${sessionWarning}${doneSummarySuffix}${initCheckAdvisory}${baselineRiskWarning}`;
+      // B-a2f1 CHK-001/002: surface stale verificationEvidence in REVIEW/TEST/DONE
+      // pre-check output so a main-merge that drifted materialHash does not
+      // produce an opaque pass without naming the recovery commands.
+      let staleEvidenceHint = '';
+      if (newState === 'REVIEW' || newState === 'TEST' || newState === 'DONE') {
+        try {
+          const stale = findStaleEvidence(ctx.root, args.storyId);
+          const hint = renderEvidenceStaleHint(args.storyId, stale, { currentHead: currentGitHead(ctx.root) });
+          if (hint) staleEvidenceHint = `\n\n${hint}`;
+        } catch { /* probe — never block phase advance on stale-hint failure */ }
+      }
+
+      return `${doneChecklistPrefix}Story ${args.storyId} advanced to ${newState}${metadataCommitReport}${doneMergeReport}\n${nextSteps[newState] || ''}${docsHint}${depsWarning}${sessionWarning}${doneSummarySuffix}${initCheckAdvisory}${baselineRiskWarning}${staleEvidenceHint}`;
     },
   };
 }

@@ -8,6 +8,7 @@
 import { createHash } from 'crypto';
 import type { HandlerContext } from './context.js';
 import type { ScopeCheckData, OpenQuestion } from '../core/types.js';
+import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 
 export const SCOPE_CHECK_SALT = 'koala-scope-check-integrity-v1';
 
@@ -18,7 +19,7 @@ export function signScopeCheck(storyId: string, timestamp: string, gaps: number,
 }
 
 export function createScopeCheckHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
-  const { store } = ctx;
+  const { store, root } = ctx;
   return {
     scope_check_save(args: {
       storyId: string;
@@ -80,7 +81,8 @@ export function createScopeCheckHandlers(ctx: HandlerContext): Record<string, (.
       store.writeScopeCheck(args.storyId, data);
       const oqCount = args.openQuestions?.length ?? 0;
       const oqSuffix = oqCount > 0 ? `, open-questions=${oqCount}` : '';
-      return `Scope check saved for ${args.storyId}: ${args.summary.covered} covered, ${args.summary.excluded} excluded, ${args.summary.gaps} gaps, orphan-suspect=${orphanSuspect}, drift=${drift}${oqSuffix}`;
+      const commitHint = autoCommitStoryMetadata(root, args.storyId, 'scope_check_save');
+      return `Scope check saved for ${args.storyId}: ${args.summary.covered} covered, ${args.summary.excluded} excluded, ${args.summary.gaps} gaps, orphan-suspect=${orphanSuspect}, drift=${drift}${oqSuffix}${commitHint}`;
     },
   };
 }

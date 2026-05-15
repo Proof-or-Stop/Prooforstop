@@ -284,6 +284,20 @@ export const MAIN_TOOLS: ToolDef[] = [
     storyId: z.string().describe('Story ID'),
     dryRun: z.boolean().optional().describe('只报告将刷新的 stale evidence，不写入'),
   }},
+  // B-a2f1 CHK-003: single-shot recover — refresh stale evidence + revalidate.
+  { name: 'recover_evidence', description: 'Single-shot recover：refresh stale evidence + revalidate（仅在 worktree 只剩 koala metadata / runtime / declared artifact 时放行）', schema: {
+    storyId: z.string().min(1).describe('Story ID'),
+  }},
+  // B-cf60: per-story declared product artifact — register a generated path so
+  // the dirty-worktree classifier groups it under declared_artifact_changes
+  // instead of unexpected_dirty_files. DONE gate then checks every declared
+  // path is referenced from verificationEvidence or delivery-check.docsPromises.
+  { name: 'artifact_declare', description: '把一个生成物路径声明为本 story 的预期产出，使 dirty classifier 归为 declared_artifact_changes，并要求 DONE gate 有匹配的 verificationEvidence/promise 引用', schema: {
+    storyId: z.string().min(1).describe('Story ID'),
+    path: z.string().min(1).describe('相对仓库根的精确路径（无 glob/通配符；无 leading slash；无 .. 段）'),
+    reason: z.string().min(10, 'reason ≥ 10 characters').describe('为什么把此文件声明为本 story 的预期产出'),
+    relatedIntent: z.string().min(1).describe('关联引用：CHK-NNN:(happy|edge|adversarial):IDX 或 promise:<docPath>'),
+  }},
   { name: 'light_review', description: '记录一次轻量 review（DEV 阶段每完成一批 item 后调用）', schema: {
     storyId: z.string().describe('Story ID'),
     checklistIds: z.array(z.string()).describe('本次 review 覆盖的 checklist item ID 列表'),
@@ -1701,6 +1715,29 @@ export async function runCli(opts?: {
       } catch (e: any) {
         return `${advanceResult}\n⚠ worktree 创建失败: ${e.message}\n→ 排查后再次执行 story_advance --phase=INIT_CHECK 自动重试，或手动 dev_start '{"storyId":"${storyId}"}'`;
       }
+    });
+    return;
+  }
+
+  // B-a2f1 CHK-003: recover_evidence — handler always returns a structured result;
+  // CLI wrapper prints the result to stdout, then throws on non-pass so runCli's
+  // catch branch sets process.exitCode=1. The same pattern as the validate gate
+  // dispatcher (verifier.ts:482) — keeps the handler pure for in-process tests.
+  if (cmd === 'recover_evidence') {
+    const handler = handlers[cmd];
+    if (!handler) { console.error(`handler not found: ${cmd}`); process.exit(1); }
+    await run(async () => {
+      const r = await handler(v.data);
+      if (r && typeof r === 'object' && (r.status === 'refused' || r.status === 'fail')) {
+        // Print structured result first so the user sees the refused/fail diagnosis,
+        // then throw a one-line error message that runCli renders on stderr.
+        process.stdout.write(`${JSON.stringify(r, null, 2)}\n`);
+        const msg = r.status === 'refused'
+          ? (r.refused?.reason || 'recover_evidence refused')
+          : 'recover_evidence: validate failed after refresh; inspect validateTranscript for details';
+        throw new Error(msg);
+      }
+      return r;
     });
     return;
   }
