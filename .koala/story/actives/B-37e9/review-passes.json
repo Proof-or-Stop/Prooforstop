@@ -8,6 +8,15 @@
       "reviewRound": "2026-05-15T23:48:14.898Z",
       "reviewRunId": "B-37e9:RR-003",
       "_hash": "c7747812ff45048acd28603ba349f5322a322bf2f7d0abe4196021563d4a3540"
+    },
+    {
+      "id": "B-37e9:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Reviewed 4 changed source files: done-oracle.ts (new), session.ts (import update), story-advance.ts (extraction), flow-stability-smoke.ts (new test). Dead code: none — all imports in story-advance.ts are still consumed. Type safety: no unnecessary `as any`, no empty catch swallowing errors (all catches are intentional narrow handlers). I/O shell isolation: not applicable (no shells/ files changed). One medium finding registered (F-001): core/done-oracle.ts:36 imports recomputeDeliveryCheckHash from handlers/delivery-check.js violating core/handler layer separation; the smoke test circular-import guard covers only story-advance imports, missing this path. All other aspects are clean: the refactoring is mechanically identical to the original, the smoke test covers structural + behavioral + regression baselines.",
+      "createdAt": "2026-05-15T23:50:13.020Z",
+      "reviewRound": "2026-05-15T23:48:14.898Z",
+      "reviewRunId": "B-37e9:RR-002",
+      "_hash": "0c6cf411e929c35e429d21699fbbded4efce693a3b10484fe2595207e5a5fd4f"
     }
   ]
 }
