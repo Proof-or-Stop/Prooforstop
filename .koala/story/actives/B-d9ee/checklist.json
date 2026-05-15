@@ -64,9 +64,9 @@
           "command": "npm --prefix packages/main run test:grill-planning-artifact-smoke",
           "result": "pass",
           "note": "Smoke passed: start, record answered question, close, and get persisted one closed GRILL-001 session in grill.json.",
-          "headHash": "c34f3377dbcbd800e299226a180a9a6769f725a3",
-          "materialHash": "8bb2ca3cfabb200c629eba7f8e5ee44df693e507c972709bb99cd9a9ea42a0bd",
-          "timestamp": "2026-05-15T11:47:09.650Z"
+          "headHash": "c06f6e18f275ccf56b0056c0b49c287df8061bcd",
+          "materialHash": "66bfb720b3774b5d862bb517b77dcacd34885b290d99cfdd5745b5e95a66b693",
+          "timestamp": "2026-05-15T11:50:00.230Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -74,9 +74,9 @@
           "command": "npm --prefix packages/main run test:grill-planning-artifact-smoke",
           "result": "pass",
           "note": "Smoke passed: grill_record without an active session throws No active grill session and leaves grill/checklist evidence empty.",
-          "headHash": "c34f3377dbcbd800e299226a180a9a6769f725a3",
-          "materialHash": "8bb2ca3cfabb200c629eba7f8e5ee44df693e507c972709bb99cd9a9ea42a0bd",
-          "timestamp": "2026-05-15T11:47:09.673Z"
+          "headHash": "c06f6e18f275ccf56b0056c0b49c287df8061bcd",
+          "materialHash": "66bfb720b3774b5d862bb517b77dcacd34885b290d99cfdd5745b5e95a66b693",
+          "timestamp": "2026-05-15T11:50:00.230Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -84,9 +84,9 @@
           "command": "npm --prefix packages/main run test:grill-planning-artifact-smoke",
           "result": "pass",
           "note": "Smoke passed: grill_close returns remainingUnknowns for unresolved questions without treating them as evidence.",
-          "headHash": "c34f3377dbcbd800e299226a180a9a6769f725a3",
-          "materialHash": "8bb2ca3cfabb200c629eba7f8e5ee44df693e507c972709bb99cd9a9ea42a0bd",
-          "timestamp": "2026-05-15T11:47:09.696Z"
+          "headHash": "c06f6e18f275ccf56b0056c0b49c287df8061bcd",
+          "materialHash": "66bfb720b3774b5d862bb517b77dcacd34885b290d99cfdd5745b5e95a66b693",
+          "timestamp": "2026-05-15T11:50:00.230Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -94,9 +94,9 @@
           "command": "npm --prefix packages/main run test:grill-planning-artifact-smoke && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Smoke and process-fact contract passed: grill artifact has no verificationEvidence key, checklist/test evidence remain separate, and grill commands are non-gate L1/L0 facts.",
-          "headHash": "c34f3377dbcbd800e299226a180a9a6769f725a3",
-          "materialHash": "8bb2ca3cfabb200c629eba7f8e5ee44df693e507c972709bb99cd9a9ea42a0bd",
-          "timestamp": "2026-05-15T11:47:09.717Z"
+          "headHash": "c06f6e18f275ccf56b0056c0b49c287df8061bcd",
+          "materialHash": "66bfb720b3774b5d862bb517b77dcacd34885b290d99cfdd5745b5e95a66b693",
+          "timestamp": "2026-05-15T11:50:00.230Z"
         }
       ]
     },
@@ -154,9 +154,9 @@
           "command": "npm --prefix packages/main run test:grill-planning-artifact-smoke",
           "result": "pass",
           "note": "Smoke passed: story_review reads grill.json and emits grill_session_open plus grill_question_unresolved as advisory issues.",
-          "headHash": "c34f3377dbcbd800e299226a180a9a6769f725a3",
-          "materialHash": "8bb2ca3cfabb200c629eba7f8e5ee44df693e507c972709bb99cd9a9ea42a0bd",
-          "timestamp": "2026-05-15T11:47:16.504Z"
+          "headHash": "c06f6e18f275ccf56b0056c0b49c287df8061bcd",
+          "materialHash": "66bfb720b3774b5d862bb517b77dcacd34885b290d99cfdd5745b5e95a66b693",
+          "timestamp": "2026-05-15T11:50:00.230Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -164,9 +164,9 @@
           "command": "npm --prefix packages/main run test:grill-planning-artifact-smoke",
           "result": "pass",
           "note": "Smoke passed: story_review on a story with no grill artifact returns normally with zero grill issues and blockerCount 0.",
-          "headHash": "c34f3377dbcbd800e299226a180a9a6769f725a3",
-          "materialHash": "8bb2ca3cfabb200c629eba7f8e5ee44df693e507c972709bb99cd9a9ea42a0bd",
-          "timestamp": "2026-05-15T11:47:16.527Z"
+          "headHash": "c06f6e18f275ccf56b0056c0b49c287df8061bcd",
+          "materialHash": "66bfb720b3774b5d862bb517b77dcacd34885b290d99cfdd5745b5e95a66b693",
+          "timestamp": "2026-05-15T11:50:00.230Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -174,9 +174,9 @@
           "command": "npm --prefix packages/main run test:grill-planning-artifact-smoke",
           "result": "pass",
           "note": "Smoke passed: unresolved grill session leaves story_review summary.blockerCount at 0, so grill cannot become an implicit lifecycle gate.",
-          "headHash": "c34f3377dbcbd800e299226a180a9a6769f725a3",
-          "materialHash": "8bb2ca3cfabb200c629eba7f8e5ee44df693e507c972709bb99cd9a9ea42a0bd",
-          "timestamp": "2026-05-15T11:47:16.549Z"
+          "headHash": "c06f6e18f275ccf56b0056c0b49c287df8061bcd",
+          "materialHash": "66bfb720b3774b5d862bb517b77dcacd34885b290d99cfdd5745b5e95a66b693",
+          "timestamp": "2026-05-15T11:50:00.230Z"
         }
       ]
     },
@@ -239,9 +239,9 @@
           "command": "npm --prefix packages/main run test:grill-planning-artifact-smoke",
           "result": "pass",
           "note": "Smoke passed: grill_start/record/close/get persistence, registry wiring, command policy, and phase allowlist are covered.",
-          "headHash": "c34f3377dbcbd800e299226a180a9a6769f725a3",
-          "materialHash": "8bb2ca3cfabb200c629eba7f8e5ee44df693e507c972709bb99cd9a9ea42a0bd",
-          "timestamp": "2026-05-15T11:47:23.335Z"
+          "headHash": "c06f6e18f275ccf56b0056c0b49c287df8061bcd",
+          "materialHash": "66bfb720b3774b5d862bb517b77dcacd34885b290d99cfdd5745b5e95a66b693",
+          "timestamp": "2026-05-15T11:50:00.230Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -249,9 +249,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Process fact contract and flow stability smoke passed: grill commands are supported L1/L0 command facts, not gateEvidence or validation evidence.",
-          "headHash": "c34f3377dbcbd800e299226a180a9a6769f725a3",
-          "materialHash": "8bb2ca3cfabb200c629eba7f8e5ee44df693e507c972709bb99cd9a9ea42a0bd",
-          "timestamp": "2026-05-15T11:47:23.359Z"
+          "headHash": "c06f6e18f275ccf56b0056c0b49c287df8061bcd",
+          "materialHash": "66bfb720b3774b5d862bb517b77dcacd34885b290d99cfdd5745b5e95a66b693",
+          "timestamp": "2026-05-15T11:50:00.230Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -259,9 +259,9 @@
           "command": "rg -n \"Grill clarifies intent; evidence proves behavior|grill\\.json|gateEvidence|validation evidence\" docs/requirements/decisions/story-lifecycle.md docs/requirements/decisions/testing-infra.md docs/requirements/decisions/truth-source.md packages/main/src/tasks/grill-planning-artifact-smoke.ts",
           "result": "pass",
           "note": "Docs and smoke test contain the evidence boundary phrase and explicitly state grill.json cannot replace verificationEvidence or koala validate.",
-          "headHash": "c34f3377dbcbd800e299226a180a9a6769f725a3",
-          "materialHash": "8bb2ca3cfabb200c629eba7f8e5ee44df693e507c972709bb99cd9a9ea42a0bd",
-          "timestamp": "2026-05-15T11:47:23.383Z"
+          "headHash": "c06f6e18f275ccf56b0056c0b49c287df8061bcd",
+          "materialHash": "66bfb720b3774b5d862bb517b77dcacd34885b290d99cfdd5745b5e95a66b693",
+          "timestamp": "2026-05-15T11:50:00.230Z"
         }
       ]
     }
