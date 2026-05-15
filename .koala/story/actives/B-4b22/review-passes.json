@@ -62,6 +62,33 @@
       "reviewRound": "2026-05-15T19:10:42.812Z",
       "reviewRunId": "B-4b22:RR-011",
       "_hash": "dc19ebe94509d12588a4adb03a874b99b2bd329c5e8445236e63b93df3089571"
+    },
+    {
+      "id": "B-4b22:RP-008",
+      "agent": "koala-review-concept",
+      "note": "Concept review passed: F-004 declared artifact validation side-effect path now uses story-aware classifier; independent repro passes with declared_artifact_changes audit and no unexpected_dirty_files.",
+      "createdAt": "2026-05-15T19:52:59.228Z",
+      "reviewRound": "2026-05-15T19:52:37.489Z",
+      "reviewRunId": "B-4b22:RR-013",
+      "_hash": "099e24d7f5249cf22fb0162176683e4f639dfb8dd419b63e4b70085a07505250"
+    },
+    {
+      "id": "B-4b22:RP-009",
+      "agent": "koala-review-quality",
+      "note": "Quality review passed: fix is narrow, storyless fallback remains intact, new PROBE catch is classified, and build plus validation-protocol plus flow-stability smoke passed.",
+      "createdAt": "2026-05-15T19:53:08.424Z",
+      "reviewRound": "2026-05-15T19:52:37.489Z",
+      "reviewRunId": "B-4b22:RR-014",
+      "_hash": "cf0f14bb7b0a8ef0f759b3f87edc853e8c188e135784278961e9a0595e01ccf2"
+    },
+    {
+      "id": "B-4b22:RP-010",
+      "agent": "koala-review-test-coverage",
+      "note": "Test coverage review passed: validation-protocol smoke includes F-004 declared BL21 executeValidationPlan regression, checker repro passed, and 20/20 verification intents are fresh after validate.",
+      "createdAt": "2026-05-15T19:53:16.766Z",
+      "reviewRound": "2026-05-15T19:52:37.489Z",
+      "reviewRunId": "B-4b22:RR-015",
+      "_hash": "e9f85927cb4bf77c3a350271acabdfdf4a76fd88cdec22cdda8a016683e71948"
     }
   ]
 }
