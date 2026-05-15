@@ -17,6 +17,13 @@ type JsonCandidate<T> = {
   data: T;
 };
 
+class StoryArtifactMissingError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'StoryArtifactMissingError';
+  }
+}
+
 export class StoryStore {
   private baseDir: string;
   private legacyBaseDir: string;
@@ -67,7 +74,7 @@ export class StoryStore {
       }
     }
     if (candidates.length > 0) return this.chooseJsonCandidate(file, candidates).data;
-    throw new Error(`File not found: ${tried.join(' or ')}`);
+    throw new StoryArtifactMissingError(`File not found: ${tried.join(' or ')}`);
   }
 
   private writeJson<T>(storyId: string, file: string, data: T): void {
@@ -262,8 +269,10 @@ export class StoryStore {
   readGrill(storyId: string): GrillData | null {
     try {
       return this.readJson<GrillData>(storyId, 'grill.json');
-    } catch {
-      return null;
+    } catch (e) {
+      // PROBE: missing artifact means no grill context; corrupt existing JSON must surface.
+      if (e instanceof StoryArtifactMissingError) return null;
+      throw e;
     }
   }
 

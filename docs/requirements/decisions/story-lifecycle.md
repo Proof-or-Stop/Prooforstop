@@ -126,6 +126,7 @@ B-xxxx REVIEW (authority:worktree, mirror:INIT_CHECK)
 | `story_discard` | 任何阶段可废弃 |
 | `task_scan` / `task_detail` | 了解项目，只读 |
 | `checklist_get` | 只读查看 |
+| `grill_get` | 只读查看 PLAN 阶段写入的 grill planning context；不产生 gate evidence |
 | `truth_*` / `gap_*` / `arch_trace` | 分析参考，只读 |
 | `session_brief` / `status` / `next` | 恢复现场和下一步建议，不推进 phase |
 
@@ -135,7 +136,7 @@ B-xxxx REVIEW (authority:worktree, mirror:INIT_CHECK)
 |---|---|
 | `story_update` | 编辑 story |
 | `story_review` | 对抗审查 |
-| `grill_start` / `grill_record` / `grill_close` | 记录非门禁 grill planning context；开放 session / unresolved question 只会在 `story_review` 中 advisory 提示 |
+| `grill_start` / `grill_record` / `grill_close` | PLAN-only mutating grill commands；记录非门禁 grill planning context；开放 session / unresolved question 只会在 `story_review` 中 advisory 提示 |
 | `story_advance -> DEV` | 通过 gate 后进入实现 |
 | `checklist_add` | 追加 item |
 | `checklist_update` | 补 verificationIntent / metadata，不应标 done |
@@ -180,7 +181,8 @@ B-xxxx REVIEW (authority:worktree, mirror:INIT_CHECK)
 - `fixture_*`：legacy/compat 维护入口；DEV 如需迁移旧 fixture 可用，但新 story 不应把它当作标准验证流。REVIEW/TEST 主要读取 `verificationEvidence`，不应绕过 review 改行为。
 - `checklist_update`：PLAN 补 intent，DEV 补 status/evidence，其余阶段谨慎使用。
 - `summary_set`：不是形式总结，DONE gate 和最终用户交付都要消费。
-- `grill_*`：非门禁 planning context。`story_review` 可展示 open session / unresolved question advisory，但 `blockerCount` 不因 grill 增加；`grill.json` 不进入 validation evidence，也不进入 checklist `verificationEvidence`。
+- `grill_start` / `grill_record` / `grill_close`：PLAN-only mutating planning context。`story_review` 可展示 open session / unresolved question advisory，但 `blockerCount` 不因 grill 增加；`grill.json` 不进入 validation evidence，也不进入 checklist `verificationEvidence`。
+- `grill_get`：全阶段只读查看 grill planning context；读不存在的 artifact 返回 empty，读到损坏或不可读的既有 `grill.json` 必须 fail-fast 暴露问题，不能被当作缺失后覆盖。
 - `process-fact-registry` + `verify-process-fact-contract`：静态 contract 负责校验 MAIN_TOOLS、DEFAULT_PHASE_TOOLS、reviewer lanes、signed/gate artifacts、L4 gate evidence 与 required semantic facts 是否一致；fail 文案必须直接点名 `missing from PROCESS_FACT_REGISTRY` 或 `required process fact missing`，避免维护者只看到 prompt 漂移。
 - Flow fact policy 必须硬编码在 `packages/main/src/core/flow-fact-policy.ts` 并登记进 `process-fact-registry` / `process-fact-levels`。当前明确登记：`flow-policy:review-pass`、`flow-policy:finding`、`flow-policy:pass-only-normalization`、`flow-policy:review-round-iso-string`、`flow-policy:express-verification-policy`。
 - `reviewRound: string (ISO 8601 review round id)`。review pass / finding / delivery check 的签名域消费这个字符串，不能退回 number round。

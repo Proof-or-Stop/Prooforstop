@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { strict as assert } from 'node:assert';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { resetConfigCache, getAllowedPatterns, isCommandAllowed } from '../core/config.js';
@@ -152,6 +152,33 @@ function assertRecordNeedsSession(): void {
   }
 }
 
+function assertMalformedArtifactFailsClosed(): void {
+  const { root, store, storyId } = initStore();
+  try {
+    const malformed = '{ "storyId": "B-grill", "sessions": [';
+    write(root, '.koala/story/actives/B-grill/grill.json', malformed);
+    assert.throws(
+      () => store.readGrill(storyId),
+      SyntaxError,
+      'malformed grill.json must not be treated as an absent artifact',
+    );
+
+    const grill = createGrillHandlers({ store, root, scanRoot: join(root, 'packages/main') });
+    assert.throws(
+      () => grill.grill_start({ storyId, topic: 'This must not overwrite malformed state' }),
+      SyntaxError,
+      'PLAN mutations must surface malformed existing grill.json before writing',
+    );
+    assert.equal(
+      readFileSync(join(root, '.koala/story/actives/B-grill/grill.json'), 'utf-8'),
+      malformed,
+      'malformed grill.json should remain untouched after a failed mutation',
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 function assertStoryReviewAdvisoryOnly(): void {
   const missing = initStore();
   try {
@@ -189,6 +216,7 @@ function assertStoryReviewAdvisoryOnly(): void {
 assertCommandInventory();
 assertRegistryAndPersistence();
 assertRecordNeedsSession();
+assertMalformedArtifactFailsClosed();
 assertStoryReviewAdvisoryOnly();
 
 console.log('✓ grill planning artifact smoke passed');
