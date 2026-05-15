@@ -103,7 +103,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/story-advance.ts",
+          "command": "grep -n done-oracle src/handlers/story-advance.ts src/handlers/session.ts",
+          "result": "pass",
+          "note": "story-advance.ts DONE gate imports buildDoneChecklist/renderDoneChecklist from ../core/done-oracle.js; session.ts session_brief imports buildDoneChecklist+DoneCheckRow from ../core/done-oracle.js; flow-stability-smoke.ts also repointed.",
+          "headHash": "fdc2bda5ea5596269533a156b66294aff4637625",
+          "materialHash": "ca655619ccc0abe7c6bbb5faf69bd903d87dbe388b937bbfd814f552a92e6d2a",
+          "timestamp": "2026-05-15T23:46:55.280Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
