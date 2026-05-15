@@ -15,6 +15,7 @@ import {
 } from '../core/dirty-worktree.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { signFinding, signReviewPass, verifyFinding, verifyReviewPass } from '../core/finding-verify.js';
+import { autoCommitStoryMetadata, AUTO_COMMIT_METADATA_PREFIX } from '../core/auto-commit-metadata.js';
 import { getArtifactContractStatus } from '../core/artifact-contract.js';
 import { FLOW_FACT_POLICIES, isPassOnlyReviewFindingRecord } from '../core/flow-fact-policy.js';
 import { runManagedAssetCheck } from '../core/managed-assets.js';
@@ -1534,6 +1535,281 @@ function assertGlobalLinkRepair(): void {
   }
 }
 
+function gitConfig(root: string, key: string, value: string): void {
+  execFileSync('git', ['config', key, value], { cwd: root, stdio: 'ignore' });
+}
+
+function gitCheckoutNewBranch(root: string, branch: string): void {
+  execFileSync('git', ['checkout', '-b', branch], { cwd: root, stdio: 'ignore' });
+}
+
+function gitCheckoutExistingBranch(root: string, branch: string): void {
+  execFileSync('git', ['checkout', branch], { cwd: root, stdio: 'ignore' });
+}
+
+function gitCurrentBranch(root: string): string {
+  return execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
+    cwd: root,
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+}
+
+function gitCommitCount(root: string): number {
+  return parseInt(execFileSync('git', ['rev-list', '--count', 'HEAD'], {
+    cwd: root,
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim(), 10);
+}
+
+function gitLastSubject(root: string): string {
+  return execFileSync('git', ['log', '-1', '--pretty=%s'], {
+    cwd: root,
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+}
+
+function gitStatusPorcelain(root: string): string {
+  return execFileSync('git', ['status', '--porcelain=v1', '--untracked-files=all'], {
+    cwd: root,
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+}
+
+function setupAutoCommitFixture(): { root: string; storyId: string } {
+  const root = mkdtempSync(join(tmpdir(), 'koala-auto-commit-'));
+  // Init git repo + initial commit on main so branch checkout works
+  execFileSync('git', ['init', '--initial-branch=main'], { cwd: root, stdio: 'ignore' });
+  gitConfig(root, 'user.email', 'smoke@koala.test');
+  gitConfig(root, 'user.name', 'smoke');
+  gitConfig(root, 'commit.gpgsign', 'false');
+  // koala.config.json so loadConfig picks our story dir
+  write(root, 'koala.config.json', JSON.stringify({
+    scanRoot: 'packages/main',
+    rootDir: 'src',
+    testsDir: 'packages/main/tests',
+    fixturesDir: 'packages/main/tests/fixtures',
+    storyDir: '.koala/story/actives',
+    requirementsDir: 'docs/requirements',
+  }));
+  resetConfigCache();
+  execFileSync('git', ['add', '.'], { cwd: root, stdio: 'ignore' });
+  execFileSync('git', ['commit', '-m', 'initial'], { cwd: root, stdio: 'ignore' });
+  return { root, storyId: 'B-test1' };
+}
+
+function writeFakeMetadata(root: string, storyId: string, content = '{"x":1}'): void {
+  write(root, `.koala/story/actives/${storyId}/findings.json`, content);
+}
+
+function writeMaterialFile(root: string, content = 'export const X = 1;\n'): void {
+  write(root, 'packages/main/src/foo.ts', content);
+}
+
+function assertAutoCommitMetadataAcrossHandlers(): void {
+  // Test 1 (happy): story/B-test1 branch, write fake metadata → helper commits
+  // it and the user-visible hint matches the canonical prefix + reason + sha7.
+  {
+    const { root, storyId } = setupAutoCommitFixture();
+    try {
+      gitCheckoutNewBranch(root, `story/${storyId}`);
+      writeFakeMetadata(root, storyId);
+      const commitsBefore = gitCommitCount(root);
+      const out = autoCommitStoryMetadata(root, storyId, 'finding_add');
+      assert.ok(out.startsWith(AUTO_COMMIT_METADATA_PREFIX), `auto-commit hint must start with the canonical prefix; got: ${JSON.stringify(out)}`);
+      assert.match(out, /koala: record B-test1 finding_add metadata/);
+      assert.match(out, /\([0-9a-f]{7}\)/, 'auto-commit hint must include short sha (7 hex chars)');
+      assert.equal(gitCommitCount(root), commitsBefore + 1);
+      assert.match(gitLastSubject(root), /^koala: record B-test1 finding_add metadata$/);
+      assert.ok(!out.includes('untouched'), `no coexisting non-metadata dirt → tail-note must be omitted; got: ${JSON.stringify(out)}`);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+
+  // Test 2 (coexist): material source change coexists → metadata committed,
+  // tail-note announces untouched non-metadata categories, material file
+  // stays dirty on disk + git status confirms still M / ??.
+  {
+    const { root, storyId } = setupAutoCommitFixture();
+    try {
+      gitCheckoutNewBranch(root, `story/${storyId}`);
+      writeFakeMetadata(root, storyId);
+      writeMaterialFile(root); // packages/main/src/foo.ts → material_source_changes
+      const commitsBefore = gitCommitCount(root);
+      const out = autoCommitStoryMetadata(root, storyId, 'review_pass_set');
+      assert.ok(out.startsWith(AUTO_COMMIT_METADATA_PREFIX), 'prefix must match');
+      assert.match(out, /koala: record B-test1 review_pass_set metadata/);
+      assert.match(out, /\(coexisting non-metadata dirt left untouched: [^)]*material_source_changes=1[^)]*\)/);
+      assert.equal(gitCommitCount(root), commitsBefore + 1);
+      // material file still dirty
+      const status = gitStatusPorcelain(root);
+      assert.ok(status.includes('packages/main/src/foo.ts'), `material file must remain dirty after helper; status: ${JSON.stringify(status)}`);
+      // Classifier vocabulary parity (preMortem #3 — same words user sees)
+      const classification = classifyGitStatusRows(
+        status.split('\n').map(line => line.trimEnd()).filter(Boolean),
+        dirtyWorktreeClassifierOptionsFromConfig(loadConfig(root)),
+      );
+      assert.equal(classification.groups.material_source_changes.length, 1);
+      assert.equal(classification.groups.koala_metadata_changes.length, 0, 'metadata category must be empty after auto-commit');
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+
+  // Test 3 (no coexist): nothing else dirty → output has NO `untouched`
+  // tail-note (CHK-002 edge — do not print empty parens / left-untouched: ).
+  {
+    const { root, storyId } = setupAutoCommitFixture();
+    try {
+      gitCheckoutNewBranch(root, `story/${storyId}`);
+      writeFakeMetadata(root, storyId);
+      const out = autoCommitStoryMetadata(root, storyId, 'summary_set');
+      assert.ok(out.startsWith(AUTO_COMMIT_METADATA_PREFIX));
+      assert.ok(!out.includes('untouched'), `no non-metadata dirt → tail-note must be omitted; got: ${JSON.stringify(out)}`);
+      assert.ok(!out.includes('left-untouched'));
+      assert.ok(!out.includes('()'));
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+
+  // Test 4 (idempotent): consecutive calls produce at most one commit.
+  // Second invocation with nothing staged returns '' and does not commit again.
+  {
+    const { root, storyId } = setupAutoCommitFixture();
+    try {
+      gitCheckoutNewBranch(root, `story/${storyId}`);
+      writeFakeMetadata(root, storyId);
+      const first = autoCommitStoryMetadata(root, storyId, 'checklist_update');
+      assert.ok(first.startsWith(AUTO_COMMIT_METADATA_PREFIX));
+      const commitsAfterFirst = gitCommitCount(root);
+      const second = autoCommitStoryMetadata(root, storyId, 'checklist_update');
+      assert.equal(second, '', `idempotent re-call must return empty; got: ${JSON.stringify(second)}`);
+      assert.equal(gitCommitCount(root), commitsAfterFirst, 'no second commit when nothing is staged');
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+
+  // Test 5 (main branch): on non-story/* branch helper returns '' silently
+  // and does NOT produce a commit.
+  {
+    const { root, storyId } = setupAutoCommitFixture();
+    try {
+      assert.equal(gitCurrentBranch(root), 'main');
+      writeFakeMetadata(root, storyId);
+      const commitsBefore = gitCommitCount(root);
+      const out = autoCommitStoryMetadata(root, storyId, 'finding_add');
+      assert.equal(out, '', `on main branch helper must be silent; got: ${JSON.stringify(out)}`);
+      assert.equal(gitCommitCount(root), commitsBefore, 'no commit on main branch');
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+
+  // Test 6 (path broaden): non-canonical storyId form throws synchronously
+  // BEFORE any git invocation (preMortem #1 anchor). We probe path-traversal
+  // (`../foo`), shell-metachar injection (`B-xx@injected`, `B-xx/yy`), and
+  // empty / wrong-prefix inputs.
+  {
+    const { root } = setupAutoCommitFixture();
+    try {
+      gitCheckoutNewBranch(root, 'story/B-test1');
+      for (const bad of ['B-xx@injected', '../foo', '', 'B-xx/yy', 'B-xx..yy', 'A-test1', 'B-', 'B- test', 'B-xx\\yy']) {
+        assert.throws(
+          () => autoCommitStoryMetadata(root, bad, 'finding_add'),
+          /storyId must match/,
+          `storyId=${JSON.stringify(bad)} should be rejected`,
+        );
+      }
+      // Also confirm helper does not write a commit for these failures
+      const startCommits = gitCommitCount(root);
+      try { autoCommitStoryMetadata(root, '../foo', 'finding_add'); } catch { /* expected */ }
+      assert.equal(gitCommitCount(root), startCommits, 'failed validation must not leave a commit behind');
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+
+  // Test 7 (prefix vocabulary parity with story-advance precedent — CHK-003
+  // adversarial: byte-equal prefix `\n✓ koala metadata 已自动提交:`).
+  {
+    const { root, storyId } = setupAutoCommitFixture();
+    try {
+      gitCheckoutNewBranch(root, `story/${storyId}`);
+      writeFakeMetadata(root, storyId);
+      const out = autoCommitStoryMetadata(root, storyId, 'init_check_set');
+      // Use indexOf instead of startsWith for crystal-clear failure message
+      assert.equal(
+        out.slice(0, AUTO_COMMIT_METADATA_PREFIX.length),
+        AUTO_COMMIT_METADATA_PREFIX,
+        'user-visible prefix must be byte-equal `\\n✓ koala metadata 已自动提交:`',
+      );
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+
+  // Test 8 (3+ handler reasons covered — CHK-004 happy): the same fixture +
+  // 3 different reasons all produce the canonical hint format. Verifies the
+  // helper is reason-agnostic, not hardcoded to a single phase like the old
+  // story-advance copy.
+  {
+    const reasons = ['finding_add', 'checklist_update', 'summary_set'] as const;
+    for (const reason of reasons) {
+      const { root, storyId } = setupAutoCommitFixture();
+      try {
+        gitCheckoutNewBranch(root, `story/${storyId}`);
+        writeFakeMetadata(root, storyId, `{"reason":"${reason}"}`);
+        const out = autoCommitStoryMetadata(root, storyId, reason);
+        assert.ok(out.startsWith(AUTO_COMMIT_METADATA_PREFIX), `reason=${reason} prefix mismatch`);
+        assert.match(out, new RegExp(`koala: record B-test1 ${reason} metadata`));
+        assert.match(gitLastSubject(root), new RegExp(`^koala: record B-test1 ${reason} metadata$`));
+      } finally {
+        rmSync(root, { recursive: true, force: true });
+      }
+    }
+  }
+
+  // Test 9 (classifier parity — CHK-004 adversarial): classifyDirtyWorktree
+  // returns the same category counts whether helper was called or not for
+  // non-metadata categories (auto-commit must not mask material/fixture/
+  // unexpected dirt).
+  {
+    const { root, storyId } = setupAutoCommitFixture();
+    try {
+      gitCheckoutNewBranch(root, `story/${storyId}`);
+      writeFakeMetadata(root, storyId);
+      writeMaterialFile(root);
+      // Add an unexpected file too (outside src/ and tests/fixtures/)
+      write(root, 'packages/main/tests/output/x', 'unexpected');
+
+      const before = classifyGitStatusRows(
+        gitStatusPorcelain(root).split('\n').map(line => line.trimEnd()).filter(Boolean),
+        dirtyWorktreeClassifierOptionsFromConfig(loadConfig(root)),
+      );
+      const materialBefore = before.groups.material_source_changes.length;
+      const unexpectedBefore = before.groups.unexpected_dirty_files.length;
+
+      autoCommitStoryMetadata(root, storyId, 'finding_add');
+
+      const after = classifyGitStatusRows(
+        gitStatusPorcelain(root).split('\n').map(line => line.trimEnd()).filter(Boolean),
+        dirtyWorktreeClassifierOptionsFromConfig(loadConfig(root)),
+      );
+      assert.equal(after.groups.material_source_changes.length, materialBefore, 'material dirt count unchanged by auto-commit');
+      assert.equal(after.groups.unexpected_dirty_files.length, unexpectedBefore, 'unexpected dirt count unchanged by auto-commit');
+      assert.equal(after.groups.koala_metadata_changes.length, 0, 'metadata category drains to zero after auto-commit');
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+}
+
 assertSessionBriefGate();
 assertDirtyWorktreeClassifierGroupsOwnership();
 assertFlowFactPolicyRegistry();
@@ -1561,5 +1837,6 @@ assertChannelGateAcceptsDispatchEvidence();
 assertChannelGateAcceptsImplementerAuthorWithoutDispatch();
 assertDoneChecklistUsesStableOracleRows();
 assertGlobalLinkRepair();
+assertAutoCommitMetadataAcrossHandlers();
 
 console.log('✓ flow stability smoke passed');

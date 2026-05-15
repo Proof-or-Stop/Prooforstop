@@ -17,6 +17,7 @@ import { createHash } from 'crypto';
 import type { StoryStore } from '../core/store.js';
 import type { HandlerContext } from './context.js';
 import type { DeliveryCheckData, DocsPromise, RealMachineTest, ClosingSelfCheck } from '../core/types.js';
+import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 
 export const DELIVERY_CHECK_SALT = 'koala-delivery-check-integrity-v1';
 
@@ -68,7 +69,7 @@ export function recomputeDeliveryCheckHash(storyId: string, store: StoryStore): 
  * - closingSelfCheck.summary ≥ 10 字符
  */
 export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
-  const { store } = ctx;
+  const { store, root } = ctx;
   return {
     delivery_waiver_add(args: {
       storyId: string;
@@ -120,7 +121,8 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
       // 6) 写回
       store.writeDeliveryCheck(args.storyId, data);
 
-      return `Waiver added for "${args.promiseId}" in ${args.storyId}: "${args.waiverReason.trim().slice(0, 50)}..."`;
+      const commitHint = autoCommitStoryMetadata(root, args.storyId, 'delivery_waiver_add');
+      return `Waiver added for "${args.promiseId}" in ${args.storyId}: "${args.waiverReason.trim().slice(0, 50)}..."${commitHint}`;
     },
 
     delivery_check_set(args: {
@@ -194,7 +196,8 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
       // 5) 返回摘要
       const unverified = docsPromises.filter(p => !p.verifiedBy).length;
       const waived = realMachineTests.filter(t => !!t.waiverReason).length;
-      return `Delivery check saved for ${args.storyId}: ${docsPromises.length} docsPromises (${unverified} unverified), ${realMachineTests.length} realMachineTests (${waived} waived), selfCheck: ${closingSelfCheck.hasRealMachineTest ? 'hasRealMachine' : 'noRealMachine'}`;
+      const commitHint = autoCommitStoryMetadata(root, args.storyId, 'delivery_check_set');
+      return `Delivery check saved for ${args.storyId}: ${docsPromises.length} docsPromises (${unverified} unverified), ${realMachineTests.length} realMachineTests (${waived} waived), selfCheck: ${closingSelfCheck.hasRealMachineTest ? 'hasRealMachine' : 'noRealMachine'}${commitHint}`;
     },
   };
 }
