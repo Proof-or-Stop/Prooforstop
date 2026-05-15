@@ -12,6 +12,7 @@
  *   - [CHK-004] Expose registry projections for consistency contracts
  */
 import type { StoryPhase } from './types.js';
+import { getCommandPolicyEntries, type CommandPhase } from './command-policy.js';
 
 export type LifecycleTransitionKind = 'forward' | 'rollback' | 'terminal';
 
@@ -280,6 +281,116 @@ export const LIFECYCLE_TRANSITIONS = [
   },
 ] as const satisfies readonly LifecycleTransition[];
 
+/**
+ * Typed enum of known lifecycle artifact files (B-3740 CHK-001).
+ *
+ * Each value is a real artifact file path (relative to the story directory)
+ * produced or consumed somewhere in the lifecycle. Modeling artifacts as a
+ * typed enum — not free text — keeps the artifacts dimension mechanically
+ * checkable: a contract test can assert every oracle/gate reference that
+ * names an artifact resolves to one of these declared values (preMortem #3).
+ */
+export const LIFECYCLE_ARTIFACTS = [
+  'index.json',
+  'review.json',
+  'checklist.json',
+  'init-check.json',
+  'scope-check.json',
+  'delivery-check.json',
+  'review-runs.json',
+  'findings.json',
+  'review-passes.json',
+  'draft-check.json',
+  'summary.json',
+  'test-evidence.json',
+  'declared-artifacts.json',
+  'eval-evidence.json',
+  'process-events.jsonl',
+] as const;
+
+export type LifecycleArtifact = typeof LIFECYCLE_ARTIFACTS[number];
+
+const LIFECYCLE_ARTIFACT_SET: ReadonlySet<string> = new Set(LIFECYCLE_ARTIFACTS);
+
+/**
+ * Runtime guard for the artifacts enum. Used by the consistency contract and
+ * by any consumer that needs to validate an artifact name parsed from JSON or
+ * an internal fn-call path that bypasses the compile-time `LifecycleArtifact`
+ * type (Handler 编码约定: re-check enum constraints at runtime).
+ */
+export function isLifecycleArtifact(value: string): value is LifecycleArtifact {
+  return LIFECYCLE_ARTIFACT_SET.has(value);
+}
+
+export type LifecycleArtifactRole = 'produces' | 'consumes';
+
+export interface LifecyclePhaseArtifacts {
+  /** Artifacts written while the story is in this phase. */
+  readonly produces: readonly LifecycleArtifact[];
+  /** Artifacts read as evidence by gates entering/leaving this phase. */
+  readonly consumes: readonly LifecycleArtifact[];
+}
+
+/**
+ * Per-phase artifact dimension (B-3740 CHK-001).
+ *
+ * This is a SEPARATE registry data structure — deliberately NOT a new field on
+ * the `LIFECYCLE_TRANSITIONS` objects that phase-flow.ts consumes (preMortem
+ * #2). phase-flow.ts derives phase ordinals / transition graph purely from
+ * `LIFECYCLE_TRANSITIONS`; weaving artifacts into those objects would risk
+ * polluting derived values. Keeping artifacts here keeps phase-flow byte-stable.
+ */
+export const LIFECYCLE_PHASE_ARTIFACTS = {
+  IDEA: { produces: ['index.json'], consumes: [] },
+  INIT: { produces: ['index.json', 'init-check.json', 'draft-check.json'], consumes: [] },
+  INIT_CHECK: { produces: ['index.json'], consumes: ['init-check.json'] },
+  PLAN: {
+    produces: ['review.json', 'scope-check.json', 'checklist.json'],
+    consumes: ['init-check.json', 'review.json', 'scope-check.json'],
+  },
+  DEV: {
+    produces: ['checklist.json'],
+    consumes: ['review.json', 'scope-check.json', 'checklist.json'],
+  },
+  REVIEW: {
+    produces: ['review-runs.json', 'findings.json', 'review-passes.json', 'delivery-check.json', 'test-evidence.json'],
+    consumes: ['checklist.json', 'findings.json', 'review-passes.json', 'review-runs.json'],
+  },
+  TEST: {
+    produces: ['test-evidence.json', 'delivery-check.json', 'eval-evidence.json', 'summary.json'],
+    consumes: ['test-evidence.json', 'findings.json'],
+  },
+  DONE: {
+    produces: ['summary.json'],
+    consumes: ['test-evidence.json', 'delivery-check.json', 'summary.json', 'declared-artifacts.json', 'eval-evidence.json'],
+  },
+} as const satisfies Partial<Record<StoryPhase, LifecyclePhaseArtifacts>>;
+
+export interface LifecycleTransitionArtifacts {
+  readonly from: StoryPhase;
+  readonly to: StoryPhase;
+  readonly artifacts: readonly LifecycleArtifact[];
+}
+
+/**
+ * Mapping from a lifecycle transition's `oracleRows` / `gates` ids to the
+ * artifact files they reference (B-3740 CHK-001). Only ids that actually name
+ * an artifact file appear here; conceptual ids (e.g. `git-working-tree`,
+ * `bug-status`) are intentionally absent. The consistency contract uses this
+ * to assert each named-artifact reference resolves to a declared
+ * `LifecycleArtifact` value.
+ */
+export const LIFECYCLE_ORACLE_ARTIFACT_REFS = {
+  'init-check': 'init-check.json',
+  'plan-review': 'review.json',
+  'scope-check': 'scope-check.json',
+  'verification-coverage': 'checklist.json',
+  'reviewer-evidence': 'review-passes.json',
+  'validation-status': 'test-evidence.json',
+  'delivery-check': 'delivery-check.json',
+  'story-summary': 'summary.json',
+} as const satisfies Record<string, LifecycleArtifact>;
+
 export function lifecycleTransitionKey(from: StoryPhase, to: StoryPhase): string {
   return `${from}->${to}`;
 }
@@ -319,4 +430,116 @@ export function lifecycleRollbackTransitionKeys(): Set<string> {
 
 export function findLifecycleTransition(from: StoryPhase, to: StoryPhase): LifecycleTransition | undefined {
   return LIFECYCLE_TRANSITIONS.find(transition => transition.from === from && transition.to === to);
+}
+
+/**
+ * The seven lifecycle phases in which koala commands are gated. Mirrors
+ * `CommandPhase` from command-policy.ts — these are the phases a command can
+ * declare as `allowedPhases`.
+ */
+export const LIFECYCLE_COMMAND_PHASES = [
+  'INIT',
+  'INIT_CHECK',
+  'PLAN',
+  'DEV',
+  'REVIEW',
+  'TEST',
+  'DONE',
+] as const satisfies readonly CommandPhase[];
+
+export interface LifecycleCommandsByPhase {
+  /**
+   * Commands legal in EVERY phase (`allowedPhases: 'all'`). Models the same
+   * "wildcard bucket" resolution semantics DEFAULT_PHASE_TOOLS uses with its
+   * `*` key — a contract test must resolve `wildcard` ∪ per-phase, not compare
+   * raw tables (preMortem #1).
+   */
+  readonly wildcard: readonly string[];
+  /** Commands legal only in specific phases, keyed by phase name. */
+  readonly byPhase: Readonly<Record<CommandPhase, readonly string[]>>;
+}
+
+/**
+ * Phase→commands projection (B-3740 CHK-001).
+ *
+ * Read-only projection over `COMMAND_POLICIES` — command legality (`allowedPhases`)
+ * is the registry's command dimension. Returns a `wildcard` bucket (commands
+ * with `allowedPhases: 'all'`) plus a `byPhase` map (commands restricted to
+ * named phases). Commands with no `allowedPhases` (rootOnly / legacy without a
+ * phase list) appear in neither bucket — they are not legal in any active story
+ * phase. Mirrors the pure-function shape of `lifecycleForwardTransitionsByPhase`.
+ */
+export function lifecycleCommandsByPhase(): LifecycleCommandsByPhase {
+  const wildcard: string[] = [];
+  const byPhase = Object.fromEntries(
+    LIFECYCLE_COMMAND_PHASES.map(phase => [phase, [] as string[]]),
+  ) as Record<CommandPhase, string[]>;
+
+  for (const [command, policy] of getCommandPolicyEntries()) {
+    const allowed = policy.allowedPhases;
+    if (allowed === 'all') {
+      wildcard.push(command);
+      continue;
+    }
+    if (!allowed) continue;
+    for (const phase of allowed) {
+      byPhase[phase].push(command);
+    }
+  }
+
+  return { wildcard, byPhase };
+}
+
+/**
+ * Resolves the effective set of commands legal in a phase: the wildcard bucket
+ * plus that phase's specific commands. This is the registry-side equivalent of
+ * DEFAULT_PHASE_TOOLS' `*` + per-phase resolution — consistency contracts
+ * compare resolved effective sets, never raw tables (preMortem #1).
+ */
+export function lifecycleResolvedCommandsForPhase(phase: CommandPhase): readonly string[] {
+  const projection = lifecycleCommandsByPhase();
+  return [...new Set([...projection.wildcard, ...projection.byPhase[phase]])];
+}
+
+export type { CommandPhase } from './command-policy.js';
+
+/**
+ * Phase→artifacts projection (B-3740 CHK-001).
+ *
+ * Read-only projection over `LIFECYCLE_PHASE_ARTIFACTS`. Returns a stable map
+ * from every lifecycle phase to the artifacts it produces / consumes. Mirrors
+ * the pure-function shape of `lifecycleForwardTransitionsByPhase`. The returned
+ * object is a fresh copy so callers cannot mutate the registry data.
+ */
+export function lifecycleArtifactsByPhase(): Record<StoryPhase, LifecyclePhaseArtifacts> {
+  const out = Object.fromEntries(
+    LIFECYCLE_PHASES.map(phase => [phase, { produces: [], consumes: [] } as LifecyclePhaseArtifacts]),
+  ) as Record<StoryPhase, LifecyclePhaseArtifacts>;
+  for (const [phase, artifacts] of Object.entries(LIFECYCLE_PHASE_ARTIFACTS)) {
+    out[phase as StoryPhase] = {
+      produces: [...artifacts.produces],
+      consumes: [...artifacts.consumes],
+    };
+  }
+  return out;
+}
+
+/**
+ * Transition→artifacts projection (B-3740 CHK-001).
+ *
+ * For each lifecycle transition, resolves the artifacts named by its
+ * `oracleRows` / `gates` ids via `LIFECYCLE_ORACLE_ARTIFACT_REFS`. Conceptual
+ * oracle ids that do not name an artifact file are skipped. Returns one entry
+ * per transition, keyed in `LIFECYCLE_TRANSITIONS` order.
+ */
+export function lifecycleArtifactsByTransition(): LifecycleTransitionArtifacts[] {
+  return LIFECYCLE_TRANSITIONS.map(transition => {
+    const refs = [...transition.oracleRows, ...transition.gates];
+    const artifacts: LifecycleArtifact[] = [...new Set(
+      refs
+        .map(ref => LIFECYCLE_ORACLE_ARTIFACT_REFS[ref as keyof typeof LIFECYCLE_ORACLE_ARTIFACT_REFS])
+        .filter((artifact): artifact is NonNullable<typeof artifact> => artifact !== undefined),
+    )];
+    return { from: transition.from, to: transition.to, artifacts };
+  });
 }

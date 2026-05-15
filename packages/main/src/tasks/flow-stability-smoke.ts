@@ -2,6 +2,7 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { mkdtempSync, rmSync, mkdirSync, writeFileSync, existsSync, lstatSync, readlinkSync, symlinkSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -52,8 +53,17 @@ import {
   PHASE_ORDER,
   TERMINAL_PHASES,
   checkPhaseTransition,
+  getPhaseInfo,
   normalizeLegacyPhase,
 } from '../core/phase-flow.js';
+import {
+  LIFECYCLE_COMMAND_PHASES,
+  isLifecycleArtifact,
+  lifecycleArtifactsByPhase,
+  lifecycleArtifactsByTransition,
+  lifecycleCommandsByPhase,
+  lifecycleResolvedCommandsForPhase,
+} from '../core/lifecycle-registry.js';
 import { collectReviewerEvidenceState, signReviewRun } from '../core/review-run.js';
 import { summarizeReviewerStatus } from '../core/reviewer-status.js';
 import { StoryStore } from '../core/store.js';
@@ -880,6 +890,97 @@ function assertLifecycleRegistryConsistency(): void {
           `Lifecycle registry mismatch: DEFAULT_PHASE_TOOLS.${phase} allows ${command} but COMMAND_POLICIES does not`,
         );
       }
+    }
+  }
+}
+
+/**
+ * B-3740 CHK-003 regression: prove the lifecycle registry's new command +
+ * artifact dimensions did NOT change any value derived by phase-flow.ts.
+ *
+ * phase-flow.ts derives phase ordinals / transition graph purely from
+ * LIFECYCLE_TRANSITIONS + the phase lists. The B-3740 extension added the
+ * command/artifact dimensions as SEPARATE exported projections, never woven
+ * into LIFECYCLE_TRANSITIONS (preMortem #2). This baseline is the hardcoded
+ * snapshot of getPhaseInfo / checkPhaseTransition output captured before the
+ * extension — any accidental coupling that mutates a derived value fails here.
+ */
+const PHASE_FLOW_GET_PHASE_INFO_BASELINE: Record<string, ReturnType<typeof getPhaseInfo>> = {
+  IDEA: { phase: 'IDEA', ordinal: 1, total: 8, label: 'IDEA', terminal: false, allowedNext: ['INIT', 'PLAN'], allowedRollback: [] },
+  INIT: { phase: 'INIT', ordinal: 2, total: 8, label: 'INIT', terminal: false, allowedNext: ['INIT_CHECK'], allowedRollback: [] },
+  INIT_CHECK: { phase: 'INIT_CHECK', ordinal: 3, total: 8, label: 'INIT_CHECK', terminal: false, allowedNext: ['PLAN', 'DEV'], allowedRollback: [] },
+  PLAN: { phase: 'PLAN', ordinal: 4, total: 8, label: 'PLAN', terminal: false, allowedNext: ['DEV'], allowedRollback: [] },
+  DEV: { phase: 'DEV', ordinal: 5, total: 8, label: 'DEV', terminal: false, allowedNext: ['REVIEW'], allowedRollback: ['PLAN'] },
+  REVIEW: { phase: 'REVIEW', ordinal: 6, total: 8, label: 'REVIEW', terminal: false, allowedNext: ['TEST'], allowedRollback: ['DEV'] },
+  TEST: { phase: 'TEST', ordinal: 7, total: 8, label: 'TEST', terminal: false, allowedNext: ['DONE'], allowedRollback: ['DEV'] },
+  DONE: { phase: 'DONE', ordinal: 8, total: 8, label: 'DONE', terminal: true, allowedNext: [], allowedRollback: [] },
+  TEST_CASE: { phase: 'TEST_CASE', ordinal: 8, total: 8, label: 'TEST_CASE', terminal: false, allowedNext: ['TEST_CASE_REVIEW'], allowedRollback: ['DEV'] },
+  TEST_CASE_REVIEW: { phase: 'TEST_CASE_REVIEW', ordinal: 8, total: 8, label: 'TEST_CASE_REVIEW', terminal: false, allowedNext: ['TEST'], allowedRollback: ['DEV', 'TEST_CASE'] },
+  META: { phase: 'META', ordinal: 8, total: 8, label: 'META', terminal: false, allowedNext: [], allowedRollback: [] },
+  DISCARDED: { phase: 'DISCARDED', ordinal: 8, total: 8, label: 'DISCARDED', terminal: true, allowedNext: [], allowedRollback: [] },
+};
+
+/** sha256 of JSON.stringify(checkPhaseTransition for every ordered phase pair). */
+const PHASE_FLOW_TRANSITION_HEALTH_BASELINE_HASH =
+  '8cce761d508c5d013bc6962a3052312e89d9b50f69e300b8dd1a3fad3593769f';
+
+function assertPhaseFlowDerivedValuesByteIdentical(): void {
+  // getPhaseInfo for every lifecycle phase must equal the captured baseline.
+  for (const phase of LIFECYCLE_PHASES) {
+    assert.deepEqual(
+      getPhaseInfo(phase),
+      PHASE_FLOW_GET_PHASE_INFO_BASELINE[phase],
+      `B-3740 regression: getPhaseInfo(${phase}) changed after the lifecycle registry extension — phase-flow derived value is no longer byte-identical`,
+    );
+  }
+  assert.equal(
+    Object.keys(PHASE_FLOW_GET_PHASE_INFO_BASELINE).length,
+    LIFECYCLE_PHASES.length,
+    'B-3740 regression: getPhaseInfo baseline must cover every LIFECYCLE_PHASES entry',
+  );
+
+  // checkPhaseTransition for every ordered phase pair must hash to the baseline.
+  const health: Record<string, ReturnType<typeof checkPhaseTransition>> = {};
+  for (const from of LIFECYCLE_PHASES) {
+    for (const to of LIFECYCLE_PHASES) {
+      health[`${from}->${to}`] = checkPhaseTransition(from, to);
+    }
+  }
+  const healthHash = createHash('sha256').update(JSON.stringify(health)).digest('hex');
+  assert.equal(
+    healthHash,
+    PHASE_FLOW_TRANSITION_HEALTH_BASELINE_HASH,
+    'B-3740 regression: checkPhaseTransition output changed after the lifecycle registry extension — phase-flow transition health is no longer byte-identical',
+  );
+
+  // The new dimensions must be usable, separately-exported projections — proves
+  // they exist without being coupled to the phase-flow-consumed transitions.
+  const commandsByPhase = lifecycleCommandsByPhase();
+  assert.ok(
+    Array.isArray(commandsByPhase.wildcard) && commandsByPhase.wildcard.length > 0,
+    'B-3740 regression: lifecycleCommandsByPhase must expose a non-empty wildcard bucket',
+  );
+  for (const phase of LIFECYCLE_COMMAND_PHASES) {
+    const resolved = lifecycleResolvedCommandsForPhase(phase);
+    for (const wildcardCommand of commandsByPhase.wildcard) {
+      assert.ok(
+        resolved.includes(wildcardCommand),
+        `B-3740 regression: wildcard command ${wildcardCommand} must resolve as legal in phase ${phase}`,
+      );
+    }
+  }
+  const artifactsByPhase = lifecycleArtifactsByPhase();
+  assert.equal(
+    Object.keys(artifactsByPhase).length,
+    LIFECYCLE_PHASES.length,
+    'B-3740 regression: lifecycleArtifactsByPhase must project every lifecycle phase',
+  );
+  for (const transitionArtifacts of lifecycleArtifactsByTransition()) {
+    for (const artifact of transitionArtifacts.artifacts) {
+      assert.ok(
+        isLifecycleArtifact(artifact),
+        `B-3740 regression: transition ${transitionArtifacts.from}->${transitionArtifacts.to} surfaced undeclared artifact ${artifact}`,
+      );
     }
   }
 }
@@ -2698,6 +2799,7 @@ assertFlowFactPolicyRegistry();
 assertPhaseGatePolicyHints();
 assertPhaseToolsOverrideStillBlocks();
 assertLifecycleRegistryConsistency();
+assertPhaseFlowDerivedValuesByteIdentical();
 assertStoryAdvanceTestGateFailClosedContracts();
 assertManagedAssetExpandedDocsAndTrueDrift();
 assertDispatchPromptsPinImplementerCommitAuthor();
