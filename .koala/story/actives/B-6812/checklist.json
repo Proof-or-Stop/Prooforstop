@@ -161,6 +161,17 @@
           "headHash": "9402a3c4fb05098094fa5980c0922eac9ea2040b",
           "materialHash": "50b6c7cc0ba12cbb30e7be6b878fe82137d00230f37b33d29737d6cbf75b2779",
           "timestamp": "2026-05-16T12:49:38.258Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/story-create-concurrency-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-create-concurrency-smoke",
+          "result": "pass",
+          "note": "procsPerRound=10：每轮 10 个真子进程并发 story_create 同 name，断言只剩 1 个 story 目录 + 1 个 created，高并发压力下验证锁互斥性；已用 lock 关闭版本反向验证会产生 10!=1 失败",
+          "headHash": "c397a337d8a54e10775e912207719a9ab7f5dbb2",
+          "materialHash": "50b6c7cc0ba12cbb30e7be6b878fe82137d00230f37b33d29737d6cbf75b2779",
+          "timestamp": "2026-05-16T12:50:42.088Z"
         }
       ]
     },
