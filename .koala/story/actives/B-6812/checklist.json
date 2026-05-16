@@ -349,6 +349,18 @@
           "headHash": "1aaac18513a7c836b87f673c9ed6da3ef995b82f",
           "materialHash": "a10622b79a4f4196c884ce0c1375ac4d280b7012b9dbea4475d74695ac9294a4",
           "timestamp": "2026-05-16T13:00:26.502Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/story-dedup-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-dedup-smoke",
+          "result": "pass",
+          "note": "story-dedup-smoke 显式构造旧数据 name=\"\" 形态，断言两个空 normalizedName 不参与 dedup（normNew.length>0 才参与匹配），不被判为同一 story",
+          "headHash": "e26a3c09931a74c2d50ce5ac7f4a603ec3efb47a",
+          "materialHash": "a10622b79a4f4196c884ce0c1375ac4d280b7012b9dbea4475d74695ac9294a4",
+          "timestamp": "2026-05-16T13:00:26.761Z"
         }
       ]
     },
