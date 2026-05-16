@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-16T14:03:12.823Z",
       "reviewRunId": "B-6812:RR-007",
       "_hash": "017f598716889d96a835c178bafed6e7eb1061ad71563c5947b6c59687859ab0"
+    },
+    {
+      "id": "B-6812:RP-003",
+      "agent": "koala-review-quality",
+      "note": "Round 2 quality review of git diff main...HEAD. F-002 confirmed fixed: DEFAULT_DEADLINE_MS=30000 > DEFAULT_STALE_MS=10000; stale-reclaim branch is now reachable; default-config regression test added in mkdir-lock-smoke.ts. F-003 confirmed fixed: DuplicateStoryError typed class introduced; instanceof check replaces fragile string-prefix match; all keyword-block throws use the typed class. terminalKeywordOverlapNote reviewed: correct DONE/DISCARDED filter, consistent ratio===1 && shared>=2 threshold, silent error handling, no dead code or type safety issues. No new quality issues found.",
+      "createdAt": "2026-05-16T14:05:18.023Z",
+      "reviewRound": "2026-05-16T14:03:12.823Z",
+      "reviewRunId": "B-6812:RR-006",
+      "_hash": "ee820301237d0801341fbebe4d66a791c643e78d60eafbde468e8723d5660b40"
     }
   ]
 }
