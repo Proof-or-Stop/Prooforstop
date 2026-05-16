@@ -35,7 +35,7 @@
       "desc": "quality-cleanup: story-create.ts:275-283 catch 块用 string-prefix 匹配（e.message.startsWith(\"❌ 疑似重复 story\")）来区分「keyword-overlap block」和「read error」。这依赖消息文本稳定——message 文本一旦改动就会静默改变行为，且任何非读取错误（如 OOM、fs 权限异常）也会被 swallow。更健壮的方式是定义一个 DuplicateStoryError 类（extends Error）或在 throw 前设置 marker 属性，用 instanceof 或 marker 区分，而非字符串前缀匹配。",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "agent": "koala-review-quality",
       "createdAt": "2026-05-16T13:52:08.757Z",
       "reviewRound": "2026-05-16T13:49:25.681Z",
