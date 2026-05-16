@@ -197,6 +197,17 @@
           "headHash": "f074becee5e2c9092c04f5b857ec2c41d3133090",
           "materialHash": "50b6c7cc0ba12cbb30e7be6b878fe82137d00230f37b33d29737d6cbf75b2779",
           "timestamp": "2026-05-16T01:59:25.204Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/handlers/story-advance.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "no TEST semantics change / no legacy phase change / no workflow profile change / no DONE merge extraction — git diff scope limited to gate runner + non-DONE effects + tests",
+          "headHash": "9031567b047b94fbb7b1eabc8d3aae9ab8c07324",
+          "materialHash": "50b6c7cc0ba12cbb30e7be6b878fe82137d00230f37b33d29737d6cbf75b2779",
+          "timestamp": "2026-05-16T01:59:26.844Z"
         }
       ]
     }
