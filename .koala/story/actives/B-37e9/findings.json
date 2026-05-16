@@ -31,6 +31,21 @@
         "packages/main/src/tasks/field-regression-cli-smoke.ts",
         "packages/main/src/tasks/worktree-authority-smoke.ts"
       ]
+    },
+    {
+      "id": "B-37e9:F-003",
+      "desc": "quality-cleanup: packages/main/src/handlers/delivery-check.ts:20-22 imports DELIVERY_CHECK_SALT and recomputeDeliveryCheckHash from core/delivery-check-hash.js but neither symbol is used anywhere in the file body — only signDeliveryCheck is referenced (lines 64, 80, 142). These are dead imports left over from the refactor.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-16T00:01:11.023Z",
+      "reviewRound": "2026-05-15T23:59:40.685Z",
+      "reviewRunId": "B-37e9:RR-008",
+      "_hash": "e5cc6d46cdea2844c30b33ed6a645ae5b59a8536fd3ec073ae6ff0ab71cf6eff",
+      "files": [
+        "packages/main/src/handlers/delivery-check.ts"
+      ]
     }
   ]
 }
