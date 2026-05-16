@@ -5,7 +5,7 @@
     "nextStoryId（context.ts:117）生成随机 4-hex ID，再用 store.listStoryIds()（store.ts:163）排除已存在 ID；listStoryIds 用 readdirSync 扫 baseDir 与 legacyBaseDir 含未追踪目录，所以 ID 撞车不是真问题",
     "story-create.ts 当前 idempotency 只比较 other.name 与 args.name 完全相等（story-create.ts:172-188），keyword 重叠只产生 dupWarning 文本拼进返回值走 stdout",
     "story-create.ts 全程无锁；checklist.ts 的 withChecklistLock 用 mkdir 原子锁加 mtime 超 10s 的 stale 回收，可抽取为共享范式",
-    "仓库 storyDir 为 .koala/story/actives（koala.config.json）；store.baseDir 是写目标，legacyBaseDir 即 docs/story/actives 仅参与只读扫描",
+    "仓库 storyDir 为 .koala/story/actives（koala.config.json）；store.storyDirRel() 返回该相对路径，store.baseDir 是写目标，legacyBaseDir 即 docs/story/actives 仅参与只读扫描",
     "normal 通道的 DEPRECATED 警告已经走 process.stderr.write，stderr 输出范式已存在",
     "旧 story 数据里存在 name 为空串的记录"
   ],
@@ -22,12 +22,11 @@
   "touchpoints": [
     "packages/main/src/handlers/story-create.ts",
     "packages/main/src/handlers/checklist.ts",
-    "packages/main/src/core/store.ts",
     "packages/main/src/core/mkdir-lock.ts",
     "packages/main/src/core/story-dedup.ts",
     "packages/main/src/tasks/story-create-concurrency-smoke.ts",
     "AGENTS.md",
     "CLAUDE.md"
   ],
-  "timestamp": "2026-05-16T12:32:02.763Z"
+  "timestamp": "2026-05-16T12:40:47.793Z"
 }

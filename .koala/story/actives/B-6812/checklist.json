@@ -7,7 +7,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "用户并发跑两次 koala story_create 同 name 时只产生一个 story 目录；第二次命令返回 ⚠ Story already exists: B-xxxx，不产生第二份。串行创建不同 name 各得独立 storyId，行为不受影响。",
+      "userSees": "用户并发跑两次 `koala story_create` 同 name 时只产生一个 story 目录；第二次命令返回 `⚠ Story already exists: B-xxxx`，不产生第二份。串行创建不同 name 各得独立 storyId。",
       "files": {
         "modify": [
           "packages/main/src/handlers/story-create.ts",
