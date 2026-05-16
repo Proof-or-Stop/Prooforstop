@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-6812:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept review complete. Key deletions: (1) inline sleepSync + manual mkdir lock in checklist.ts replaced by withMkdirLock from core/mkdir-lock.ts — zero residual refs to old inline lock code in worktree; (2) old exact-name idempotency (other.name !== args.name) replaced by normalizeName comparison — no residual exact-name comparisons found; (3) dupWarning/riskHint removed from stdout return strings and moved to stderr via emitAdvisoryToStderr — no return statements splice advisory text. All new symbols (withMkdirLock, normalizeName, keywordOverlap, RECENT_CONCURRENT_WINDOW_MS, recentConcurrentStoriesNote) are consistently defined and referenced. New task files registered in package.json scripts. No orphan or stale concept references found.",
+      "createdAt": "2026-05-16T13:51:27.889Z",
+      "reviewRound": "2026-05-16T13:49:25.681Z",
+      "reviewRunId": "B-6812:RR-004",
+      "_hash": "e89c100297786ae89b5221cc34b69e2543f7ed4f9b1ffd4c6023bfba8164f2dc"
+    }
+  ]
+}
