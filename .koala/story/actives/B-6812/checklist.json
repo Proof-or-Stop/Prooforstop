@@ -198,10 +198,10 @@
           "file": "packages/main/src/tasks/mkdir-lock-smoke.ts",
           "command": "npm --prefix packages/main run test:mkdir-lock-smoke",
           "result": "pass",
-          "note": "用例 4：锁路径被普通文件占用——stale 文件被 rmSync 回收后 fn 正常执行，fresh 文件触发清晰 lock timeout 错误，无死循环无 crash",
-          "headHash": "6cd53c2aff18f6aa832c5722a46f9d832613df13",
-          "materialHash": "50b6c7cc0ba12cbb30e7be6b878fe82137d00230f37b33d29737d6cbf75b2779",
-          "timestamp": "2026-05-16T12:50:42.654Z"
+          "note": "mkdir-lock-smoke step 4: 锁路径被普通文件占用时不无限循环不崩溃，stale 文件回收 / fresh 文件清晰超时",
+          "headHash": "2fb3de40fbe16430a83ae6c7cfed13fc5aaefb7a",
+          "materialHash": "1d1ec2eb31669e115d502d254b45b4f3f075fdb3f9ad5b94217e561e88742c07",
+          "timestamp": "2026-05-16T14:00:16.608Z"
         },
         {
           "intentRef": "CHK-001:adversarial:3",
