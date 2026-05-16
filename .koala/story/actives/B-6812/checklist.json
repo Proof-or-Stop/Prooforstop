@@ -160,13 +160,14 @@
         {
           "intentRef": "CHK-001:edge:3",
           "kind": "logic_test",
+          "verdict": "success",
           "file": "packages/main/src/tasks/mkdir-lock-smoke.ts",
-          "command": "npm --prefix packages/main run test:mkdir-lock-smoke",
+          "command": "node dist/tasks/mkdir-lock-smoke.js",
           "result": "pass",
-          "note": "throwing 用例让 fn 抛错，断言异常向上抛出且 finally 仍将 lockDir 清理，锁不泄漏",
-          "headHash": "9402a3c4fb05098094fa5980c0922eac9ea2040b",
-          "materialHash": "50b6c7cc0ba12cbb30e7be6b878fe82137d00230f37b33d29737d6cbf75b2779",
-          "timestamp": "2026-05-16T12:49:38.258Z"
+          "note": "mkdir-lock-smoke：fn 抛异常时 finally 仍释放锁，异常正常上抛",
+          "headHash": "3757aeb7fea84efbcbe40fa26481254c24f74cb9",
+          "materialHash": "1d1ec2eb31669e115d502d254b45b4f3f075fdb3f9ad5b94217e561e88742c07",
+          "timestamp": "2026-05-16T13:09:22.651Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
