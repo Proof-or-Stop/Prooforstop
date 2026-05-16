@@ -35,6 +35,15 @@
       "reviewRound": "2026-05-16T14:03:12.823Z",
       "reviewRunId": "B-6812:RR-008",
       "_hash": "c83d28c07c7bc05e44da305cd05179775174d2ec6807ef520784d01df106d578"
+    },
+    {
+      "id": "B-6812:RP-005",
+      "agent": "koala-review-concept",
+      "note": "Round 2 concept review - all clear. Concepts introduced/replaced in round 1 (withMkdirLock extraction, normalizeName+keywordOverlap, DuplicateStoryError typed error, terminalKeywordOverlapNote, DEFAULT_DEADLINE_MS 5000→30000) are complete with zero residuals. (1) Deleted inline sleepSync+lock loop from checklist.ts - no residuals in worktree. (2) Old exact-name-only idempotency replaced by normalizeName comparison - no old comparison patterns remain. (3) message.startsWith() brittle catch replaced by instanceof DuplicateStoryError - only in comment (JSDoc rationale), no actual code usage. (4) dupWarning/riskHint removed from stdout return values - confirmed not in any return string. (5) terminalKeywordOverlapNote: defined and called correctly, no doc drift. (6) B-0af4 references in comments are audit trail only, not stale concept residuals. No concept deletions with incomplete cleanup found.",
+      "createdAt": "2026-05-16T14:06:45.341Z",
+      "reviewRound": "2026-05-16T14:03:12.823Z",
+      "reviewRunId": "B-6812:RR-005",
+      "_hash": "6c57ce1a36b022909aa1cceaa8aeb0b77a2e2b86816b0ae0303db14ea9d0c735"
     }
   ]
 }
