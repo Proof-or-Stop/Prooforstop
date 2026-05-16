@@ -20,6 +20,69 @@
           "packages/main/src/tasks/story-create-concurrency-smoke.ts",
           "packages/main/tests/mkdir-lock.test.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "两个并发 story_create(name=\"same-name\") 调用仅产生一个 story 目录，第二个返回 \"Story already exists: B-xxxx\"；WHY: 覆盖 G1 主路径——锁保证 idempotency 检查与写入原子化",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "串行两次 story_create(name=\"alpha\") 和 story_create(name=\"beta\") 各得独立 storyId，行为不受锁影响；WHY: 确认锁不会错误阻塞不同 name 的正常创建",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "withMkdirLock(lockDir, fn) 正常获锁 → 执行 fn → 释放锁 → lockDir 已被 rmSync 清除；WHY: 验证锁的基本生命周期",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "lockDir 已存在且 mtime 超过 10s（stale lock）→ withMkdirLock 自动回收旧锁并成功获取，不报超时错误；WHY: 崩溃进程遗留锁不会永久阻塞后续调用",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "lockDir 已存在但 mtime 不足 10s（新鲜锁）→ withMkdirLock 等待直到 deadline 到达后抛 lock timeout 错误，含可读信息；WHY: 防止错误回收正在使用的锁",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "koala.config.json 配置非默认 storyDir（如 custom/story/dir）→ 锁文件创建在 custom/story/dir/.create.lock 而非 docs/story/actives/.create.lock；WHY: preMortem 明确指出锁错目录是假安全风险",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "fn 内抛异常 → finally 仍然释放锁（lockDir 被清理），异常正常向上抛出；WHY: 保证异常路径不泄漏锁",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "10 个并发 story_create(name=\"race\") 同时启动 → 最终只有 1 个 story 目录存在，其余 9 个返回 already-exists；WHY: 高并发压力下验证锁的互斥性",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "进程在持锁期间被 SIGKILL（模拟 kill -9）→ 后续 story_create 在 10s 后成功获锁并正常创建；WHY: 验证 stale 回收在真实崩溃场景下生效",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "攻击者预先创建一个名为 .create.lock 的普通文件（非目录）→ withMkdirLock 能处理此异常而非无限循环或 crash；WHY: 锁路径被恶意占用时应有清晰错误",
+            "type": "logic",
+            "priority": "should"
+          },
+          {
+            "desc": "两个不同 storyDir 配置的 store 实例并发调 story_create → 各自独立获锁互不干扰，不产生跨 store 阻塞；WHY: 验证锁路径隔离性",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
       }
     },
     {
