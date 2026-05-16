@@ -56,6 +56,17 @@
           "headHash": "69f470d32fa57be68f0df99138b99c96e2ae0907",
           "materialHash": "50b6c7cc0ba12cbb30e7be6b878fe82137d00230f37b33d29737d6cbf75b2779",
           "timestamp": "2026-05-16T01:59:14.876Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "assertPhaseGatesAndEffectsExtraction: preflight gate-fail and validate-FAIL still block TEST (fail-closed); JSON-parse-fail path pinned by static assertion; fail-closed default moved verbatim (preMortem #1)",
+          "headHash": "f8bfcfc6264601d8b92588a246af83318a57ddac",
+          "materialHash": "50b6c7cc0ba12cbb30e7be6b878fe82137d00230f37b33d29737d6cbf75b2779",
+          "timestamp": "2026-05-16T01:59:15.989Z"
         }
       ]
     },
