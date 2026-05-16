@@ -25,7 +25,16 @@
       "userSees": "开发者跑 META hint 的 smoke，看到 `✓` 全过，断言确认 META 输出不含 `story_advance --phase=INIT_CHECK`、且含 audit/finding flow 引导。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/tasks/meta-story-next-hint-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/meta-story-next-hint-smoke.ts"
+        ]
+      }
     }
   ]
 }
