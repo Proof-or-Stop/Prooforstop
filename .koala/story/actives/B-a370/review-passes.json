@@ -8,6 +8,15 @@
       "reviewRound": "2026-05-16T22:41:50.038Z",
       "reviewRunId": "B-a370:RR-001",
       "_hash": "5ca7e5f260565584e12f23168c42d7e505707696c6585c3785f8da369a180ef3"
+    },
+    {
+      "id": "B-a370:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 15/18 intent covered, 0 required missing. All 13 must intents covered. 15 evidence notes verified against smoke test source — each references specific scenario (S1/S2/S3a/S3b/S4a/S4b) and assertion in meta-story-next-hint-smoke.ts. The 3 uncovered gaps (CHK-001:edge:3, CHK-001:adversarial:0, CHK-002:adversarial:1) are all should-priority with sound advisory rationale: defensive boundary for operationally impossible input, multi-META coexistence where OR-based classification independently handles each, and B-META worktree path excluded by layer ordering. No upgrade to blocker warranted.",
+      "createdAt": "2026-05-16T22:43:34.501Z",
+      "reviewRound": "2026-05-16T22:41:50.038Z",
+      "reviewRunId": "B-a370:RR-003",
+      "_hash": "445e9cd7e4049049df2826af28798a9d3bbd2dc99b605fdd232df763de85ceca"
     }
   ]
 }
