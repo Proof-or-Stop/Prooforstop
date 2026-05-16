@@ -104,6 +104,79 @@
         "test": [
           "packages/main/tests/story-dedup.test.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "story_create(name=\"Fix Login Bug\") 已有 active story name=\"fix-login-bug\" → 返回 \"Story already exists\" 并复用已有 storyId；WHY: 覆盖 normalizeName 归一化后的 idempotency 主路径",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "story_create(keywords=[\"auth\",\"login\",\"session\"]) 已有 active story keywords=[\"auth\",\"login\",\"session\"]（ratio=1, shared=3>=2）→ 抛错含 \"疑似重复\" + exit code 非 0；WHY: 覆盖 keyword 完全重叠 block 主路径",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "story_create(keywords=[\"auth\",\"login\",\"session\"], forceNew=true) 已有完全重叠 active story → 正常创建新 story 不报错；WHY: 确认 forceNew override 机制",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "normalizeName(\"Fix--Login___Bug\") === normalizeName(\"fix login bug\") → true；WHY: 验证分隔符归一化逻辑",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "旧数据 story name=\"\"（空串）与新 story name=\"\"（空串）→ 空 normalizedName 不参与 dedup，两者不会被判为同一个；WHY: constraints 明确要求空 name 不参与归一化比较",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "keyword 部分重叠（ratio=2/3<1, shared=[\"auth\",\"login\"], new=[\"auth\",\"login\",\"refactor\"]）→ 不触发 block，最多 warn；WHY: 保守阈值只在 ratio=1 时 block，部分重叠不误杀",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "keyword 完全重叠但 shared.length=1（ratio=1, shared=[\"auth\"], new=[\"auth\"]）→ 不触发 block；WHY: shared>=2 下限保护单关键词场景不误杀",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "DONE story keyword 与新 story 完全重叠 → 只 warn 不 block，创建成功；WHY: block 仅针对 non-terminal story",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "DISCARDED story keyword 与新 story 完全重叠 → 只 warn 不 block，创建成功；WHY: DISCARDED 同属 terminal，与 DONE 一致",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "name 全由特殊字符组成（如 \"---___...\"）归一化后为空串 → 不参与 dedup，不误 block；WHY: 边界输入不能让归一化产生空串后误判",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "已有 100 个 active story 各含不同 keyword 子集 → story_create 性能在 1s 内完成，不因遍历退化到 O(n^2) 超时；WHY: 保证大仓库场景下 dedup 不是瓶颈",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "恶意传入 keywords=[\"a\",\"a\",\"a\"]（重复 keyword）→ 去重后只有 1 个 keyword（shared=1<2），不触发 block；WHY: 重复 keyword 不能人为膨胀 shared count",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Unicode name（如 \"修复登录BUG\"）归一化后保持稳定 → 同 Unicode name 的两次调用被正确识别为同一个；WHY: 确保 normalizeName 对非 ASCII 输入不崩溃且行为一致",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
       }
     },
     {
