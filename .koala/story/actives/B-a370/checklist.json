@@ -7,7 +7,16 @@
       "userSees": "用户对 META 容器 story 跑 `koala next` 或 `koala session_brief` 时，看到的是 META 专用建议（指向 audit/finding flow），而不是 `story_advance --phase=INIT_CHECK` 这类对容器无效的 lifecycle 引导。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/session.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/meta-story-next-hint-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-002",

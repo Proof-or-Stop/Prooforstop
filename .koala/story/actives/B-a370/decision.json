@@ -1,0 +1,65 @@
+{
+  "principles": [
+    "最小侵入：只改 hint 渲染层，不碰状态机/gate（误报 risk signal 已 dismiss，但仍守住真实 scope 边界）",
+    "流程导航正确性：META 容器的 next/session_brief hint 是用户的流程导航，错误导航会让用户跑注定被拒的命令，渲染层必须硬编码识别 META",
+    "复用既有结构：在现有 hint 计算入口加 META 识别分支，不另造渲染路径"
+  ],
+  "drivers": [
+    "F-003：META 容器被引导去做注定被 audit-meta-store 拒绝的 story_advance",
+    "audit 机制（B-9bd9）产出的 meta-story 是常驻容器，用户会反复在 next/session_brief 遇到它"
+  ],
+  "options": [
+    {
+      "name": "A: 在 next/session_brief 的 hint 计算入口识别 phase=META / B-META- 前缀，输出 audit/finding flow 专用建议并把 META 排除出 lifecycle/worktree 排序",
+      "pros": [
+        "改动锁在 session.ts hint 渲染层，零侵入状态机",
+        "对齐 story 承诺的窄 scope",
+        "smoke 易覆盖"
+      ],
+      "cons": [
+        "META 识别条件要同时覆盖 phase 与 id 前缀两种判据，漏一个就有残留"
+      ]
+    },
+    {
+      "name": "B: 给 StoryPhase 联合类型正式加 META + computeNextStep 加 META case",
+      "pros": [
+        "类型层面更干净"
+      ],
+      "cons": [
+        "扩张 StoryPhase 类型、牵动 lifecycle-registry / phase-flow，超出 hint-fix scope，违反本 story dismiss 时承诺的不碰状态机边界"
+      ]
+    },
+    {
+      "name": "C: 在 audit-meta-store 给 meta-story 写一个假 phase 让 next 不报错",
+      "pros": [
+        "next 不再落 default"
+      ],
+      "cons": [
+        "治标不治本，且改了明确不碰的 audit-meta-store.ts"
+      ]
+    }
+  ],
+  "chosen": "A: 在 next/session_brief 的 hint 计算入口识别 phase=META / B-META- 前缀，输出 audit/finding flow 专用建议并把 META 排除出 lifecycle/worktree 排序",
+  "rationale": "选 A 因为它把改动锁在 session.ts hint 渲染层、零侵入状态机，对齐本 story dismiss 时承诺的窄 scope；B 要动 StoryPhase 类型和 lifecycle-registry，是另一性质的改动且违反 scope 边界；C 改了明确不碰的 audit-meta-store。A 最小且边界清晰。",
+  "preMortem": [
+    {
+      "scenario": "META 识别只认 phase=META 漏了 B-META- 前缀，或只认前缀漏了 phase",
+      "trigger": "某 meta-story 的 phase 字段不是 META 但 id 是 B-META-xxx（或反之）",
+      "consequence": "部分 meta-story 仍拿到无效 lifecycle hint",
+      "mitigation": "识别条件用 phase===META 或 storyId.startsWith(B-META-) 的并集，smoke 对两种判据分别构造用例覆盖"
+    },
+    {
+      "scenario": "改 computeNextStep 加 META 分支时误伤其它 phase 分支",
+      "trigger": "switch 结构编辑时改动到相邻 case",
+      "consequence": "普通 story 的 next hint 回归",
+      "mitigation": "只新增 META 分支不动其它 case；smoke 保留普通 active story 共存断言，验证普通 hint 不回归"
+    },
+    {
+      "scenario": "DEV 复现发现无效 hint 来自 session_brief 的无 worktree 检测排序而非 computeNextStep，且该排序耦合在生命周期判断里",
+      "trigger": "bad hint 实际由 lifecycle/worktree 排序逻辑产出",
+      "consequence": "修复可能被迫触碰排序/生命周期逻辑",
+      "mitigation": "按 dismiss 承诺，若必须改 lifecycle/gate 文件立即停止恢复 high-risk 全流程；否则在 session.ts 内于进入排序前就把 META 容器过滤掉，纯渲染层过滤不碰排序算法本身"
+    }
+  ],
+  "timestamp": "2026-05-16T21:12:46.164Z"
+}
