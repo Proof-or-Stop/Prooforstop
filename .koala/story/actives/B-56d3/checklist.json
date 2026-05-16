@@ -78,9 +78,9 @@
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-16T01:58:02.408Z",
       "userSees": "npm --prefix packages/main run build + test:flow-stability-smoke + test:validation-protocol all green. A regression block proves REVIEW->TEST preflight still fails closed on abnormal cases and koala validate throw / JSON-parse failure still blocks TEST. story-advance.ts line count drops from ~944 and it no longer contains the inline gate-runner or effect bodies.",
       "verificationIntent": {
         "happy": [
