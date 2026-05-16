@@ -304,8 +304,22 @@ function summarizeDonePrecheckActions(rows: DoneCheckRow[]): string {
   return `${unique.join('；')}；全部通过后再 story_advance --phase=DONE`;
 }
 
+/** B-a370: META container detection. Audit meta-stories (B-META-* / phase=META)
+ *  are permanent audit/finding containers — they never run the normal story
+ *  lifecycle, so next/session_brief must not hand them story_advance / worktree
+ *  hints. Both criteria are independently sufficient: phase=META is the canonical
+ *  marker, the B-META- id prefix is the structural guarantee from audit-meta-store. */
+function isMetaContainer(storyId: string, phase: string): boolean {
+  return phase === 'META' || storyId.startsWith('B-META-');
+}
+
+function metaContainerNextStep(storyId: string): string {
+  return `${storyId} 是 META 容器（audit/finding flow 的常驻容器），不走普通 story lifecycle，也不需要 worktree。用 \`koala audit\` 查看框架自省结果、\`koala finding_list\` 处理它的 finding；不要对它 story_advance 或创建 worktree。`;
+}
+
 function computeNextStep(c: NextStepCtx): string {
   const sid = c.storyId;
+  if (isMetaContainer(sid, c.phase)) return metaContainerNextStep(sid);
   const openBugs = c.bugs?.bugs.filter(b => b.status === 'open') ?? [];
 
   switch (c.phase) {
@@ -476,6 +490,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
           bugsOpen: number;
           hasBg: boolean;
         }> = [];
+        const metaContainerIds: string[] = [];
         let totalBugsOpen = 0;
         let totalStories = allStoryIds.length;
         let doneStories = 0;
@@ -501,6 +516,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
                 s.phase !== 'DONE' &&
                 s.phase !== 'DISCARDED' &&
                 s.phase !== 'IDEA' &&
+                !isMetaContainer(id, s.phase) &&
                 !zombieIds.has(id)
               ) {
                 let bugsOpen = 0;
@@ -519,6 +535,9 @@ export function createSessionHandlers(ctx: HandlerContext) {
                   bugsOpen,
                   hasBg,
                 });
+              }
+              if (isMetaContainer(id, s.phase) && s.phase !== 'DONE' && s.phase !== 'DISCARDED') {
+                metaContainerIds.push(id);
               }
             } catch { /* skip unreadable */ }
           }
@@ -562,6 +581,17 @@ export function createSessionHandlers(ctx: HandlerContext) {
           if (activeStories.length > limit) {
             lines.push(`  ... ${activeStories.length - limit} more`);
           }
+        }
+
+        // B-a370: META containers (audit/finding flow) — listed separately,
+        // never folded into the lifecycle/worktree suggestion ordering.
+        if (metaContainerIds.length > 0) {
+          lines.push('');
+          lines.push(`## META containers (${metaContainerIds.length})`);
+          for (const id of metaContainerIds) {
+            lines.push(`  ${id} — audit/finding flow 容器，不走 story lifecycle`);
+          }
+          lines.push('  → 用 `koala audit` / `koala finding_list` 处理，不要 story_advance 或建 worktree');
         }
 
         // Cross-story open bugs sample (concise mode skips this).
@@ -638,6 +668,8 @@ export function createSessionHandlers(ctx: HandlerContext) {
           lines.push('  All stories DONE. Archive old stories or `koala story_create` for new work.');
         } else if (zombiesForBrief.length > 0) {
           lines.push(`  No healthy active story. 先运行 koala story_reconcile '{"dryRun":true}' 查看 ${zombiesForBrief.length} 个僵尸 story，再确认是否 story_reconcile '{"dryRun":false}' 修复。`);
+        } else if (metaContainerIds.length > 0) {
+          lines.push(`  ${metaContainerNextStep(metaContainerIds[0])}`);
         } else {
           lines.push('  No active story. `koala story_create` to start one, or `koala story_list` to see all.');
         }
