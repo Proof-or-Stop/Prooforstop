@@ -363,12 +363,12 @@
           "kind": "logic_test",
           "verdict": "success",
           "file": "packages/main/src/tasks/story-dedup-smoke.ts",
-          "command": "npm --prefix packages/main run test:story-dedup-smoke",
+          "command": "node dist/tasks/story-dedup-smoke.js",
           "result": "pass",
-          "note": "story-dedup-smoke 显式构造旧数据 name=\"\" 形态，断言两个空 normalizedName 不参与 dedup（normNew.length>0 才参与匹配），不被判为同一 story",
-          "headHash": "e26a3c09931a74c2d50ce5ac7f4a603ec3efb47a",
-          "materialHash": "a10622b79a4f4196c884ce0c1375ac4d280b7012b9dbea4475d74695ac9294a4",
-          "timestamp": "2026-05-16T13:00:26.761Z"
+          "note": "story-dedup-smoke：空 normalizedName 不参与 dedup，两个空 name 不被判为同一",
+          "headHash": "453d26104b7db9626f4b370c8f93a2cddf844ad2",
+          "materialHash": "1d1ec2eb31669e115d502d254b45b4f3f075fdb3f9ad5b94217e561e88742c07",
+          "timestamp": "2026-05-16T13:09:43.998Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
