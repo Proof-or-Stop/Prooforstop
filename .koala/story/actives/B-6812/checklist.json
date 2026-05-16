@@ -136,13 +136,14 @@
         {
           "intentRef": "CHK-001:edge:1",
           "kind": "logic_test",
+          "verdict": "success",
           "file": "packages/main/src/tasks/mkdir-lock-smoke.ts",
-          "command": "npm --prefix packages/main run test:mkdir-lock-smoke",
+          "command": "node dist/tasks/mkdir-lock-smoke.js",
           "result": "pass",
-          "note": "contended 用例创建并保持 lockDir mtime 新鲜（staleMs 之内），断言 withMkdirLock 等到 deadline 后抛含 label 与 deadlineMs 的可读 lock timeout 错误",
-          "headHash": "b887945cd22dfaa0561f58f97e933b7eb58d3964",
-          "materialHash": "50b6c7cc0ba12cbb30e7be6b878fe82137d00230f37b33d29737d6cbf75b2779",
-          "timestamp": "2026-05-16T12:49:37.733Z"
+          "note": "mkdir-lock-smoke：新鲜锁（mtime<10s）等到 deadline 抛 lock timeout 且信息可读",
+          "headHash": "cdded1fdede551e4112f9d0bd61b1e7869b5b583",
+          "materialHash": "1d1ec2eb31669e115d502d254b45b4f3f075fdb3f9ad5b94217e561e88742c07",
+          "timestamp": "2026-05-16T13:09:22.127Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
