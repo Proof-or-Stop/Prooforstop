@@ -70,6 +70,8 @@ import type { ChecklistData, Finding, ReviewRun, StoryInfo, TestEvidenceData } f
 import { CWD_GATED_PHASES, PHASE_TO_EVENT } from '../handlers/context.js';
 import { buildDoneChecklist, renderDoneChecklist } from '../core/done-oracle.js';
 import { createStoryAdvanceHandlers } from '../handlers/story-advance.js';
+import { runReviewToTestPreflightGate, runValidateGate } from '../handlers/phase-gates.js';
+import { buildNextSteps, renderRelatedDocsHint } from '../handlers/transition-effects.js';
 import { createStoryDispatchHandlers } from '../handlers/story-dispatch.js';
 import { decorateResult } from '../handlers/hints.js';
 import { createSessionHandlers } from '../handlers/session.js';
@@ -986,22 +988,28 @@ function assertPhaseFlowDerivedValuesByteIdentical(): void {
 
 function assertStoryAdvanceTestGateFailClosedContracts(): void {
   const root = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
+  // B-56d3: the TEST gate runner was extracted into handlers/phase-gates.ts.
+  // The fail-closed error wording now lives there; the warn-and-advance regex
+  // negative-check still covers both files so a relapse anywhere is caught.
   const source = readFileSync(join(root, 'src', 'handlers', 'story-advance.ts'), 'utf-8');
+  const phaseGatesSource = readFileSync(join(root, 'src', 'handlers', 'phase-gates.ts'), 'utf-8');
   assert.match(
-    source,
+    phaseGatesSource,
     /Cannot enter TEST: CLI gate preflight 执行异常/,
     'REVIEW->TEST preflight infrastructure errors must be fail-closed',
   );
   assert.match(
-    source,
+    phaseGatesSource,
     /Cannot enter TEST: koala validate 执行异常/,
     'validate execution errors must be fail-closed before entering TEST',
   );
-  assert.doesNotMatch(
-    source,
-    /CLI gate preflight 自身错误（不阻塞推进）|validate 执行失败（不阻塞推进）/,
-    'TEST gate infrastructure errors must not use the old warn-and-advance path',
-  );
+  for (const src of [source, phaseGatesSource]) {
+    assert.doesNotMatch(
+      src,
+      /CLI gate preflight 自身错误（不阻塞推进）|validate 执行失败（不阻塞推进）/,
+      'TEST gate infrastructure errors must not use the old warn-and-advance path',
+    );
+  }
 }
 
 function assertManagedAssetExpandedDocsAndTrueDrift(): void {
@@ -2789,6 +2797,226 @@ function assertDeclaredArtifactDoneCommittedRow(): void {
 }
 
 /**
+ * B-56d3 CHK-003: phase-gates.ts + transition-effects.ts extraction contract.
+ *
+ * Proves the Lifecycle Phase 2 Story 3a extraction is behavior-preserving:
+ *
+ *  1. Static layering (preMortem #2): phase-gates.ts and transition-effects.ts
+ *     do NOT import handlers/story-advance.js (no circular import); and
+ *     story-advance.ts no longer contains the inline gate-runner / effect
+ *     bodies — it delegates.
+ *  2. Fail-closed gate behavior (preMortem #1): runValidateGate still blocks
+ *     TEST when koala validate fails (allPass=false) AND when validate output
+ *     is non-JSON (JSON-parse failure); runReviewToTestPreflightGate still
+ *     blocks TEST when a CLI gate fails.
+ *  3. Effect snapshot byte-identical (preMortem #3): buildNextSteps and
+ *     renderRelatedDocsHint produce the exact text the inline originals did.
+ */
+async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
+  const srcRoot = join(resolve(dirname(fileURLToPath(import.meta.url)), '..', '..'), 'src');
+
+  // --- 1. Static layering check ---
+  const phaseGatesSrc = readFileSync(join(srcRoot, 'handlers', 'phase-gates.ts'), 'utf-8');
+  const transitionEffectsSrc = readFileSync(join(srcRoot, 'handlers', 'transition-effects.ts'), 'utf-8');
+  const storyAdvanceSrc = readFileSync(join(srcRoot, 'handlers', 'story-advance.ts'), 'utf-8');
+
+  for (const [name, src] of [
+    ['phase-gates.ts', phaseGatesSrc],
+    ['transition-effects.ts', transitionEffectsSrc],
+  ] as const) {
+    const importLines = src
+      .split('\n')
+      .filter(l => l.trimStart().startsWith('import'))
+      .join('\n');
+    assert.doesNotMatch(
+      importLines,
+      /story-advance/,
+      `${name} must not import from handlers/story-advance.js (circular import guard — preMortem #2)`,
+    );
+  }
+  // story-advance.ts must delegate, not inline the gate/effect bodies.
+  assert.match(
+    storyAdvanceSrc,
+    /from '\.\/phase-gates\.js'/,
+    'story-advance.ts must delegate the gate runner to handlers/phase-gates.js',
+  );
+  assert.match(
+    storyAdvanceSrc,
+    /from '\.\/transition-effects\.js'/,
+    'story-advance.ts must delegate non-DONE effects to handlers/transition-effects.js',
+  );
+  // The inline gate body markers are gone — story-advance.ts no longer
+  // re-implements the preflight orchestration or the inline validate gate.
+  assert.doesNotMatch(
+    storyAdvanceSrc,
+    /const \{ runReviewCliGates, renderPreflight \} = await import/,
+    'the REVIEW->TEST preflight body must live in phase-gates.ts, not inline in story-advance.ts',
+  );
+  assert.doesNotMatch(
+    storyAdvanceSrc,
+    /const verifierHandlers = createVerifierHandlers\(ctx\)/,
+    'the koala validate gate body must live in phase-gates.ts, not inline in story-advance.ts',
+  );
+  // Fail-closed wording for the validate-throw / JSON-parse-failure catch must
+  // live in phase-gates.ts and be the fail-closed branch (preMortem #1). The
+  // verifier always returns valid JSON in practice, so the JSON-parse branch is
+  // defensive — its fail-closed shape is pinned statically here, while the
+  // validate-FAIL and preflight-FAIL paths below are exercised behaviorally.
+  assert.match(
+    phaseGatesSrc,
+    /if \(e\.message\?\.includes\('Cannot enter TEST'\)\) throw e;\s*\n\s*actor\.stop\(\);/,
+    'runValidateGate catch must rethrow gate errors then stop the actor (fail-closed) before the 执行异常 throw',
+  );
+  assert.match(
+    phaseGatesSrc,
+    /if \(e\?\.message\?\.startsWith\('Cannot enter TEST'\)\) throw e;\s*\n\s*\/\/[^\n]*\n\s*actor\.stop\(\);/,
+    'runReviewToTestPreflightGate catch must stop the actor on preflight infrastructure failure (fail-closed)',
+  );
+
+  // --- 2. Fail-closed gate behavior ---
+  // 2a. runValidateGate: validate FAIL → block TEST. The verifier judges the
+  //     configured validate command by exit code, so a non-zero exit is a real
+  //     validate failure (allPass=false) → first throw "未通过".
+  const failRoot = mkdtempSync(join(tmpdir(), 'koala-phase-gates-validate-fail-'));
+  try {
+    const store = new StoryStore(failRoot);
+    write(failRoot, 'koala.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      storyDir: '.koala/story/actives',
+      requirementsDir: 'docs/requirements',
+      validate: { commands: [{ label: 'failing gate', command: 'node', args: ['-e', 'process.exit(5)'] }] },
+      workflow: { profile: 'balanced' },
+    }));
+    resetConfigCache();
+    const storyId = 'B-failgate';
+    const now = '2026-05-16T02:00:00.000Z';
+    store.writeStory(storyId, {
+      storyId, name: 'phase-gate-fail', title: 'Phase gate fail',
+      description: 'validate FAIL must block TEST', type: 'chore', phase: 'TEST',
+      priority: 'medium', createdAt: now, startedAt: now, endedAt: null,
+      currentReviewRound: now, events: [],
+    });
+    let stopped = false;
+    const actor = { stop() { stopped = true; } };
+    await assert.rejects(
+      () => runValidateGate({ store, root: failRoot, scanRoot: join(failRoot, 'packages/main') }, storyId, actor),
+      /Cannot enter TEST: koala validate 未通过/,
+      'runValidateGate must block TEST when koala validate fails',
+    );
+    assert.equal(stopped, true, 'runValidateGate must stop the actor on gate failure (fail-closed)');
+    // The fail-closed path still persists a FAIL test-evidence record (the
+    // behavior-preserving side effect annotated in phase-gates.ts).
+    assert.equal(store.readTestEvidence(storyId)?.result, 'FAIL', 'validate FAIL must persist a FAIL test-evidence record');
+  } finally {
+    rmSync(failRoot, { recursive: true, force: true });
+    resetConfigCache();
+  }
+
+  // 2b. runReviewToTestPreflightGate: a failing CLI gate must block TEST.
+  //     A riskSignal forces the normal channel (review-preflight's
+  //     detectFastChannel routes ≤5-item, no-risk stories to the fast channel,
+  //     where all gates skip). A main-agent-authored commit with no implementer
+  //     evidence then trips the channel gate → preflight.ok=false → block.
+  const preflightRoot = mkdtempSync(join(tmpdir(), 'koala-phase-gates-preflight-'));
+  try {
+    const { store, storyId } = createReviewStore(preflightRoot);
+    // Promote to the normal channel so the CLI gates actually run.
+    const normalStory = store.readStory(storyId);
+    normalStory.riskSignals = [{ category: 'state machine', matched: 'gate' }];
+    store.writeStory(storyId, normalStory);
+    git(preflightRoot, ['init']);
+    git(preflightRoot, ['config', 'user.email', 'koala@example.test']);
+    git(preflightRoot, ['config', 'user.name', 'Koala Smoke']);
+    git(preflightRoot, ['checkout', '-B', 'main']);
+    git(preflightRoot, ['add', '.']);
+    git(preflightRoot, ['commit', '-m', 'base']);
+    git(preflightRoot, ['checkout', '-b', `story/${storyId}`]);
+    // Add a main-agent-authored commit so the channel gate has a real diff to
+    // judge — normal channel with no implementer evidence → channel gate fail.
+    write(preflightRoot, 'src/core/feature.ts', 'export const feature = 1;\n');
+    git(preflightRoot, ['add', '.']);
+    git(preflightRoot, ['commit', '-m', `${storyId}: main agent writes feature`]);
+    let stopped = false;
+    const actor = { stop() { stopped = true; } };
+    await assert.rejects(
+      () => runReviewToTestPreflightGate(
+        { store, root: preflightRoot, scanRoot: join(preflightRoot, 'packages/main') },
+        storyId,
+        actor,
+      ),
+      /Cannot enter TEST: CLI gate preflight/,
+      'runReviewToTestPreflightGate must block TEST when a CLI gate fails (fail-closed)',
+    );
+    assert.equal(stopped, true, 'runReviewToTestPreflightGate must stop the actor on gate failure (fail-closed)');
+  } finally {
+    rmSync(preflightRoot, { recursive: true, force: true });
+    resetConfigCache();
+  }
+
+  // --- 3. Effect snapshot byte-identical ---
+  const effectRoot = mkdtempSync(join(tmpdir(), 'koala-phase-gates-effects-'));
+  try {
+    const { store, storyId } = createReviewStore(effectRoot);
+
+    // 3a. buildNextSteps: PLAN / TEST / DONE entries are static strings —
+    //     pin them byte-for-byte against the inline originals.
+    const nextSteps = buildNextSteps(store, effectRoot, storyId);
+    assert.equal(
+      nextSteps.PLAN,
+      `→ 建议立即切到 Claude Code plan 模式（shift-tab 两次到 plan mode）——PLAN 阶段只拆 checklist / 写 understanding_set / decision_set，不应改代码。Edit/Write 被 plan mode 禁掉能防误触。
+→ 下一步: checklist_get(${storyId}) 查看待开发项，然后 story_advance(${storyId}, DEV) 开始开发
+⚠ 用户价值验收（强制）: understanding_set 的 outcome 字段必须写成一段具体的 user-facing transcript ——用户跑完这个 story 后会在终端/UI 看到的精确文字，不是 "事件 X 通了" 这种抽象描述。判定方法: outcome 读起来必须能让人想象出"用户什么时候说'好了搞定'"的那一刻。详见 CLAUDE.md「用户价值验收」段。`,
+      'buildNextSteps PLAN text must be byte-identical to the inline original',
+    );
+    assert.equal(
+      nextSteps.TEST_CASE,
+      `→ Legacy phase. 建议直接 story_advance(${storyId}, TEST) 进入验证`,
+      'buildNextSteps TEST_CASE text must be byte-identical to the inline original',
+    );
+    assert.equal(
+      nextSteps.DONE,
+      `→ 必须立即执行: 把下面的 Story 总结段落用你自己的话告诉用户（改了什么/怎么用/真机覆盖/限制/踩坑），然后 convergence_check 检查项目收敛状态
+⚠ DONE 自检 5 题（CLAUDE.md「用户价值验收」段）: (1) PLAN outcome 是具体 transcript 还是抽象? (2) 真机测试时读了用户视角输出还是只看事件日志? (3) 用户看到 actual transcript 最后一行会说"完成"还是"然后呢"? (4) 有没有工程 log 在用户眼里是噪音/重复? (5) 有没有一句人话总结任务结果? 任何一题答"没做到"就回 DEV，不要硬推 DONE。`,
+      'buildNextSteps DONE text must be byte-identical to the inline original',
+    );
+    // The REVIEW entry depends on opt-in routing; it must at least surface the
+    // reviewer Agent call lines and the liveness reminder unchanged.
+    assert.match(nextSteps.REVIEW, /并行启动上述 reviewer 审查代码/);
+    assert.match(nextSteps.REVIEW, /reviewer liveness：每个 reviewer 启动后应先输出 REVIEW_START/);
+
+    // 3b. renderRelatedDocsHint: with checklist relatedDocs, the DEV header +
+    //     line shape must be byte-identical to the inline original.
+    store.writeChecklist(storyId, {
+      items: [{
+        id: 'CHK-001',
+        title: 'Item with related docs',
+        context: 'snapshot fixture',
+        status: 'done',
+        startTime: '2026-04-27T12:00:00.000Z',
+        endTime: '2026-04-27T12:00:00.000Z',
+        relatedDocs: ['docs/requirements/decisions/story-lifecycle.md'],
+      }],
+    });
+    const devHint = renderRelatedDocsHint(store, effectRoot, storyId, 'DEV');
+    assert.equal(
+      devHint,
+      `\n\n📄 本 story 关联文档（改代码时注意同步）:\n  - docs/requirements/decisions/story-lifecycle.md  (CHK-001)`,
+      'renderRelatedDocsHint DEV output must be byte-identical to the inline original',
+    );
+    const doneHint = renderRelatedDocsHint(store, effectRoot, storyId, 'DONE');
+    assert.equal(
+      doneHint,
+      `\n\n📄 本 story 关联文档（DONE 收尾前核对是否已同步）:\n  - docs/requirements/decisions/story-lifecycle.md  (CHK-001)`,
+      'renderRelatedDocsHint DONE output must be byte-identical to the inline original',
+    );
+  } finally {
+    rmSync(effectRoot, { recursive: true, force: true });
+    resetConfigCache();
+  }
+}
+
+/**
  * B-37e9 CHK-003: same-source contract for the DONE oracle.
  *
  * Proves both behaviorally and structurally that the DONE gate
@@ -2990,6 +3218,7 @@ assertChannelGateAcceptsDispatchEvidence();
 assertChannelGateAcceptsImplementerAuthorWithoutDispatch();
 assertDoneChecklistUsesStableOracleRows();
 assertDoneOracleSameSource();
+await assertPhaseGatesAndEffectsExtraction();
 assertGlobalLinkRepair();
 assertAutoCommitMetadataAcrossHandlers();
 

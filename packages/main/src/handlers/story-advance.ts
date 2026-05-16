@@ -1,12 +1,8 @@
 
 import type { HandlerContext } from './context.js';
 import { collectContext, PHASE_TO_EVENT, assertCwdInWorktree } from './context.js';
-import { createStoryActor, getStateName, getGuardFailureReason } from '../core/machine.js';
+import { createStoryActor, getStateName } from '../core/machine.js';
 import type { StoryPhase } from '../core/types.js';
-import { loadConfig } from '../core/config.js';
-import { computeChannel, CHANNEL_LABELS } from '../core/workflow-policy.js';
-import { computeProcessMetrics } from '../core/process-metrics.js';
-import { runHooks, buildHookEnv } from '../core/hooks.js';
 import { checkMetaStoryAdvanceGuard } from '../core/audit-meta-store.js';
 import { maybeTriggerAudit } from '../core/audit-trigger.js';
 import { renderSummaryForHint } from './summary.js';
@@ -14,24 +10,35 @@ import { execFileSync, execSync } from 'child_process';
 import { dirname, join, resolve } from 'path';
 import { existsSync, rmSync } from 'fs';
 import { cleanStrayWorktreeFiles } from './stray-file-cleanup.js';
-import { computeActiveReviewers, renderActiveReviewersText } from './reviewer-list.js';
 import { repairGlobalKoalaLinkBeforeWorktreeDelete } from './worktree.js';
-import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
 import { collectBaselineRisk, renderBaselineRiskLines } from '../core/baseline-risk.js';
-import { currentMaterialHash, currentGitHead } from '../core/evidence-freshness.js';
+import { currentGitHead } from '../core/evidence-freshness.js';
 import { findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
-import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { reportHealthIssue } from '../core/health.js';
-import { LOCAL_CODEX_VERIFY_COMMAND } from '../core/codex-adapter-checks.js';
 // B-37e9: DONE oracle (buildDoneChecklist + DONE row assembly) extracted into
-// core/done-oracle.ts. The DONE gate below and session_brief consume the same
-// module — a same-source contract test (flow-stability-smoke.ts) proves it.
+// core/done-oracle.ts. The DONE gate (B-56d3: now via phase-gates.ts) and
+// session_brief consume the same module — a same-source contract test
+// (flow-stability-smoke.ts) proves it. checkMainDivergence stays imported here
+// for the DONE pre-check autoSyncMain TOCTOU fix.
+import { checkMainDivergence } from '../core/done-oracle.js';
+// B-56d3 (Lifecycle Phase 2, Story 3a): transition gate runner extracted into
+// handlers/phase-gates.ts and non-DONE transition effects into
+// handlers/transition-effects.ts. story_advance delegates to them inline at
+// the exact same call sites — gate decisions / fail-closed semantics / error
+// wording / effect order / output text are byte-identical (preMortem #1/#3).
 import {
-  buildDoneChecklist,
-  renderDoneChecklist,
-  checkMainDivergence,
-  type DoneCheckRow,
-} from '../core/done-oracle.js';
+  resolveGuardFailure,
+  runReviewToTestPreflightGate,
+  runValidateGate,
+  runDoneOracleGate,
+} from './phase-gates.js';
+import {
+  recomputeProcessMetrics,
+  runPhaseChangeHooks,
+  commitReviewMetadata,
+  renderRelatedDocsHint,
+  buildNextSteps,
+} from './transition-effects.js';
 
 // B-c622 CHK-004: DONE 阶段自动同步 main —— detect divergence + auto merge main.
 // checkMainDivergence moved into core/done-oracle.ts (B-37e9) and is imported
@@ -294,153 +301,39 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
 
       const canSend = actor.getSnapshot().can({ type: eventType } as any);
       if (!canSend) {
-        const reason = getGuardFailureReason(args.storyId, store, args.phase, ctx.root);
-        const currentState = getStateName(actor);
-        actor.stop();
-        throw new Error(
-          reason || `Cannot transition from ${currentState} to ${args.phase}`
-        );
+        // B-56d3: cwd/guard-failure adapter extracted into phase-gates.ts.
+        throw resolveGuardFailure(actor, args.storyId, store, args.phase, ctx.root);
       }
 
-      // F-019 (B-9d95 Round 1 review): REVIEW→TEST preflight 跑 CLI gates。
-      // runReviewCliGates 聚合 checkCommitAuthor / checkConcept / checkLint /
-      // docs-drift，并在 Codex adapter 触点存在时追加 codex-adapter gate。
-      // 任一 fail 即 block；快速通道走 runReviewCliGates 内部的 fastChannel
-      // 路径（常规 gate 统一 skip），与 F-015 修正后的 computeChannel 口径一致。
+      // B-56d3: REVIEW→TEST CLI preflight gate extracted into phase-gates.ts
+      // (runReviewToTestPreflightGate). Same call site, same fail-closed
+      // semantics, same error wording — F-019 (B-9d95 Round 1 review): aggregates
+      // checkCommitAuthor / checkConcept / checkLint / docs-drift (+ conditional
+      // codex-adapter); 任一 fail 即 block; 快速通道走内部 fastChannel 路径。
       if (args.phase === 'TEST' && story.phase === 'REVIEW') {
-        ctx.log?.('REVIEW→TEST preflight: running CLI gates (channel/concept/lint/docs-drift plus conditional codex-adapter)...');
-        try {
-          const { runReviewCliGates, renderPreflight } = await import('./review-preflight.js');
-          const preflight = runReviewCliGates(args.storyId, {
-            store,
-            projectRoot: ctx.root,
-            registryNames: ctx.getAllToolNames?.(),
-          });
-          if (!preflight.ok) {
-            actor.stop();
-            const rendered = renderPreflight(preflight);
-            const failedGates = preflight.gates.filter(g => !g.ok).map(g => g.name).join(', ');
-            throw new Error(
-              `Cannot enter TEST: CLI gate preflight 失败 (${failedGates})\n\n` +
-              rendered +
-              `\n\n→ 修复上述 gate 后重跑 koala story_advance --phase=TEST\n` +
-              `→ 单独复跑: koala validate --channel --story=${args.storyId} / --concept / --lint；docs-drift 随 preflight 执行；Codex adapter 用 ${LOCAL_CODEX_VERIFY_COMMAND}`,
-            );
-          }
-          ctx.log?.('CLI gate preflight: all pass');
-        } catch (e: any) {
-          if (e?.message?.startsWith('Cannot enter TEST')) throw e;
-          // 预检查本身失败（review-preflight.ts import 失败等）→ fail-closed
-          actor.stop();
-          const message = e instanceof Error ? e.message : String(e);
-          throw new Error(
-            `Cannot enter TEST: CLI gate preflight 执行异常\n` +
-            `${message}\n\n` +
-            `→ 修复 review-preflight gate 后重跑 koala story_advance --phase=TEST\n` +
-            `→ 单独复跑: koala validate --channel --story=${args.storyId} / --concept / --lint；docs-drift 随 preflight 执行；Codex adapter 用 ${LOCAL_CODEX_VERIFY_COMMAND}`,
-          );
-        }
+        await runReviewToTestPreflightGate(ctx, args.storyId, actor);
       }
 
-      // DEV→TEST 门禁：自动调 koala validate，写 test-evidence.json
+      // B-56d3: DEV→TEST koala validate gate extracted into phase-gates.ts
+      // (runValidateGate). Behavior-preserving side effect: this gate still
+      // writes test-evidence.json (annotated in phase-gates.ts) — evidence-write
+      // timing unchanged.
       if (args.phase === 'TEST') {
-        ctx.log?.('DEV→TEST gate: running koala validate --json...');
-        try {
-          const { createVerifierHandlers } = await import('./verifier.js');
-          const verifierHandlers = createVerifierHandlers(ctx);
-          const jsonResult = await verifierHandlers.validate({ json: true, story: args.storyId });
-          const parsed = JSON.parse(String(jsonResult));
-
-          // 写入 test-evidence.json（DONE gate 消费）
-          // B-c622 CHK-009: 记录 headHash 供 DONE gate evidence freshness 检查
-          let evidenceHeadHash = '';
-          try {
-            evidenceHeadHash = execSync('git rev-parse HEAD', { cwd: ctx.root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
-          } catch { /* 无法获取 HEAD，跳过 */ }
-          const evidenceMaterialHash = currentMaterialHash(ctx.root);
-          store.writeTestEvidence(args.storyId, {
-            command: `koala validate --story=${args.storyId} --json`,
-            output: String(jsonResult),
-            result: parsed.allPass ? 'PASS' : 'FAIL',
-            timestamp: new Date().toISOString(),
-            ...(evidenceHeadHash ? { headHash: evidenceHeadHash } : {}),
-            ...(evidenceMaterialHash ? { materialHash: evidenceMaterialHash } : {}),
-            ...(parsed.verificationCoverage ? { verificationCoverage: parsed.verificationCoverage } : {}),
-          });
-
-          if (!parsed.allPass) {
-            actor.stop();
-            const failedDetails = (parsed.details || []).filter((d: string) => d.startsWith('✗'));
-            const coverage = parsed.verificationCoverage;
-            const missingCoverage = coverage?.missingRequired ?? 0;
-            const coverageLines = Array.isArray(coverage?.entries)
-              ? coverage.entries
-                .filter((e: any) => e.priority === 'must' && !['covered', 'waived'].includes(e.status))
-                .map((e: any) => `  - ${e.intentRef} [${e.status}] ${e.desc}`)
-              : [];
-            const sections = [
-              failedDetails.length > 0 ? failedDetails.join('\n') : '',
-              missingCoverage > 0
-                ? `Verification coverage 不足: ${coverage.covered}/${coverage.total} covered, ${missingCoverage} required missing\n${coverageLines.join('\n')}`
-                : '',
-              parsed.summary ? `Summary: ${parsed.summary}` : '',
-            ].filter(Boolean);
-            throw new Error(
-              `Cannot enter TEST: koala validate 未通过` +
-              (failedDetails.length > 0 ? `（${failedDetails.length} 项命令失败）` : '') +
-              (missingCoverage > 0 ? `（verification coverage 缺 ${missingCoverage} 项）` : '') +
-              '\n' +
-              sections.join('\n') +
-              '\n\n→ 修复后重跑 koala validate，再 story_advance --phase=TEST'
-            );
-          }
-          ctx.log?.('validate PASS, writing test-evidence.json');
-        } catch (e: any) {
-          if (e.message?.includes('Cannot enter TEST')) throw e;
-          actor.stop();
-          const message = e instanceof Error ? e.message : String(e);
-          try {
-            store.writeTestEvidence(args.storyId, {
-              command: `koala validate --story=${args.storyId} --json`,
-              output: `validate execution error: ${message}`,
-              result: 'FAIL',
-              timestamp: new Date().toISOString(),
-            });
-          } catch (persistError) {
-            reportHealthIssue('persist:testEvidence', persistError as Error, {
-              storyId: args.storyId,
-              phase: 'TEST',
-              gate: 'validate-execution-error',
-            });
-          }
-          throw new Error(
-            `Cannot enter TEST: koala validate 执行异常\n` +
-            `${message}\n\n` +
-            `→ 修复 validate runner 后重跑 koala validate --story=${args.storyId} --json\n` +
-            `→ 然后重跑 koala story_advance --phase=TEST`,
-          );
-        }
+        await runValidateGate(ctx, args.storyId, actor);
       }
 
       // TEST→DONE 严格门禁：构建并渲染 DONE Final Checklist。
       // 无论 advance 成功失败都会输出这份 checklist，强制主 agent 读一遍多层验证状态。
       // 对应 OMX ralph 的 <Final_Checklist>。
+      // B-56d3: the done-oracle gate (buildDoneChecklist + renderDoneChecklist +
+      // fail-collection + throw) is extracted into phase-gates.ts
+      // (runDoneOracleGate). It returns the rendered checklist on pass; the
+      // throw-on-fail wording is byte-identical. The DONE merge / worktree
+      // cleanup below is NOT extracted — Story 3b owns it.
       if (args.phase === 'DONE') {
         // B-c622 CL-006: autoSyncMain moved before actor.can() to fix TOCTOU.
 
-        const checkRows = buildDoneChecklist(args.storyId, store, ctx.root);
-        const rendered = renderDoneChecklist(args.storyId, checkRows);
-        const failed = checkRows.filter(r => r.status === 'fail');
-
-        if (failed.length > 0) {
-          actor.stop();
-          const hints = failed.flatMap(r => r.hint ? [r.hint] : []);
-          throw new Error(
-            rendered + '\n\n' +
-            `Cannot enter DONE: ${failed.length} 项检查未通过` +
-            (hints.length > 0 ? '\n\n修复建议:\n' + hints.map(h => `→ ${h}`).join('\n') : '')
-          );
-        }
+        const rendered = runDoneOracleGate(args.storyId, store, ctx.root, actor);
 
         // 全部硬检查通过，把渲染好的 checklist 暂存，最终拼到 advance 成功消息里
         (globalThis as any).__koalaDoneChecklistRendered = rendered;
@@ -542,153 +435,33 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
       }
       store.writeStory(args.storyId, story);
 
+      // B-56d3: non-DONE transition effects extracted into transition-effects.ts.
+      // Each call site stays in the exact same order it ran inline — effect
+      // order, output text, and timing are byte-identical (preMortem #3).
+
       // B-abd8: auto-recompute process metrics on DEV/TEST/DONE transitions
       // DEV included so fast-channel stories get initial metrics
       if (args.phase === 'DEV' || args.phase === 'TEST' || args.phase === 'DONE') {
-        try {
-          const pm = computeProcessMetrics(args.storyId, store, ctx.root);
-          store.writeProcessMetrics(args.storyId, pm);
-        } catch (e) {
-          console.warn(`[process-metrics] recompute failed for ${args.storyId}:`, (e as Error).message);
-        }
+        recomputeProcessMetrics(args.storyId, store, ctx.root);
       }
 
       // onPhaseChange hook — fires after the new phase is persisted, so the
       // hook can read the up-to-date story state. Failures are non-blocking.
-      // Uses the shared buildHookEnv helper so KOALA_ARGS_JSON / KOALA_STORY_ID
-      // / KOALA_PHASE stay consistent with the cli-engine code path.
-      try {
-        const cfg = loadConfig(ctx.root);
-        const env = buildHookEnv({
-          stage: 'onPhaseChange',
-          command: 'story_advance',
-          // B-9d95 CHK-001 whitelist: hook 执行上下文——hook 子进程需继承调用方真实 cwd（用户 shell 的当前目录）
-          // 而非 ctx.root，否则 hook 脚本看不到调用方的 worktree。这是 hook 协议约定（详见 buildHookEnv docs）。
-          cwd: process.cwd(),
-          root: ctx.root,
-          argsJson: JSON.stringify(args),
-          storyId: args.storyId,
-          phase: newState,
-          extra: {
-            KOALA_OLD_PHASE: oldPhase,
-            KOALA_NEW_PHASE: newState,
-          },
-        });
-        await runHooks('onPhaseChange', `${oldPhase}->${newState}`, env, cfg, ctx.root);
-      } catch { /* runHooks itself never throws, but defensive */ }
+      await runPhaseChangeHooks(ctx.root, args.storyId, args, oldPhase, newState);
 
       let metadataCommitReport = '';
       if (args.phase === 'REVIEW') {
-        metadataCommitReport = autoCommitStoryMetadata(ctx.root, args.storyId, args.phase);
+        metadataCommitReport = commitReviewMetadata(ctx.root, args.storyId, args.phase);
       }
 
       // CHK-002: PLAN→DEV 时收集所有 relatedDocs 列出来作为开工提醒
       // B-45ed CHK-008: PLAN→DEV 和 DONE 的 docsHint 统一含 background.md
       let docsHint = '';
       if (args.phase === 'DEV' || args.phase === 'DONE') {
-        try {
-          const cl = store.readChecklist(args.storyId);
-          const docMap = new Map<string, string[]>(); // doc → [itemId]
-          for (const it of cl.items) {
-            const docs = it.relatedDocs;
-            if (Array.isArray(docs)) {
-              for (const d of docs) {
-                if (!docMap.has(d)) docMap.set(d, []);
-                docMap.get(d)!.push(it.id);
-              }
-            }
-          }
-          // B-45ed CHK-008: background.md 若存在且未出现 → 追加到 docMap（用 special 标签标记来源）
-          const bgRel = `${store.storyDirRel()}/${args.storyId}/background.md`;
-          const bgAbs = join(ctx.root, bgRel);
-          if (existsSync(bgAbs) && !docMap.has(bgRel)) {
-            docMap.set(bgRel, ['(story background)']);
-          }
-          if (docMap.size > 0) {
-            const lines: string[] = [];
-            for (const [d, items] of docMap.entries()) {
-              lines.push(`  - ${d}  (${items.join(', ')})`);
-            }
-            const header = args.phase === 'DEV'
-              ? '📄 本 story 关联文档（改代码时注意同步）:'
-              : '📄 本 story 关联文档（DONE 收尾前核对是否已同步）:';
-            docsHint = `\n\n${header}\n${lines.join('\n')}`;
-          }
-        } catch { /* ignore */ }
+        docsHint = renderRelatedDocsHint(store, ctx.root, args.storyId, args.phase);
       }
 
-      const nextSteps: Record<string, string> = {
-        PLAN: `→ 建议立即切到 Claude Code plan 模式（shift-tab 两次到 plan mode）——PLAN 阶段只拆 checklist / 写 understanding_set / decision_set，不应改代码。Edit/Write 被 plan mode 禁掉能防误触。
-→ 下一步: checklist_get(${args.storyId}) 查看待开发项，然后 story_advance(${args.storyId}, DEV) 开始开发
-⚠ 用户价值验收（强制）: understanding_set 的 outcome 字段必须写成一段具体的 user-facing transcript ——用户跑完这个 story 后会在终端/UI 看到的精确文字，不是 "事件 X 通了" 这种抽象描述。判定方法: outcome 读起来必须能让人想象出"用户什么时候说'好了搞定'"的那一刻。详见 CLAUDE.md「用户价值验收」段。`,
-        DEV: (() => {
-          // B-45ed CHK-004: 实时算三档通道（express/fast/normal）
-          let channel: 'express' | 'fast' | 'normal' = 'normal';
-          try {
-            const s = store.readStory(args.storyId);
-            const cl = store.readChecklist(args.storyId);
-            let decision = null;
-            try { decision = store.readDecision(args.storyId); } catch {}
-            channel = computeChannel(s, cl, decision);
-          } catch {}
-          if (channel === 'express') {
-            return `→ 极速通道（${CHANNEL_LABELS.express}，≤2 项，无 riskSignals）：主 agent 自己写代码 + 写测试，只需 checklist。
-→ 完成后 story_advance(${args.storyId}, REVIEW) 进入代码审查`;
-          }
-          if (channel === 'fast') {
-            return `→ 快速通道（${CHANNEL_LABELS.fast}，≤5 项，单一解，无 riskSignals）：主 agent 可自己写代码，省 decision + plan.md，保留 understanding。
-→ 完成后 story_advance(${args.storyId}, REVIEW) 进入代码审查`;
-          }
-          return `→ 正常通道（${CHANNEL_LABELS.normal}）：必须启动 koala-implementer subagent 写代码，主 agent 不要自己改业务代码。
-→ 用 Agent({ subagent_type: "koala-implementer", prompt: "..." }) 分配任务
-→ subagent 写完提交后，主 agent 验收合并，然后 story_advance(${args.storyId}, REVIEW)
-→ sub agent 不要使用 isolation:"worktree"，直接在主 agent 的 worktree 中跑
-⚠ REVIEW 阶段 koala-reviewer 会检查 commit author——正常通道如果全是主 agent 自己写的代码会被提 critical finding`;
-        })(),
-        REVIEW: (() => {
-          // B-fdcf CHK-002: 按 opt-in 名单动态 echo（channel LLM reviewer 退役后不再固定 5 个）。
-          let activeLine = 'Active reviewers: concept, quality (fallback: 无法解析 opt-in 名单，按 baseline)';
-          let agentLines = '';
-          try {
-            const story = store.readStory(args.storyId);
-            let checklistForReview: { items: unknown[] } = { items: [] };
-            try { checklistForReview = store.readChecklist(args.storyId); } catch { /* none */ }
-            let decisionForReview = null;
-            try { decisionForReview = store.readDecision(args.storyId); } catch { /* none */ }
-            const understandingForReview = store.readUnderstanding(args.storyId);
-            const touchpointsForReview = understandingForReview?.touchpoints
-              ?? detectMdTouchpointsFromGit(ctx.root);
-            const active = computeActiveReviewers(
-              story,
-              checklistForReview,
-              decisionForReview,
-              touchpointsForReview,
-            );
-            activeLine = renderActiveReviewersText(active);
-            agentLines = active.map(r =>
-              `  Agent({ subagent_type: "koala-review-${r.name}", prompt: "审查 story ${args.storyId} (${r.reason})" })`,
-            ).join('\n');
-          } catch {
-            agentLines = `  Agent({ subagent_type: "koala-review-concept", prompt: "审查 story ${args.storyId}" })
-  Agent({ subagent_type: "koala-review-quality", prompt: "审查 story ${args.storyId}" })`;
-          }
-          return `→ ${activeLine}
-→ 并行启动上述 reviewer 审查代码（在同一条消息里发出所有 Agent 调用）：
-${agentLines}
-→ reviewer liveness：每个 reviewer 启动后应先输出 REVIEW_START:<reviewer>；4 分钟无输出先问状态，10 分钟/600s 无结果视为 stalled，重启该 reviewer 并在 retry prompt 中注明前一次 stalled
-→ 全部回来后 koala finding_list 汇总
-→ critical/high 全 resolved 后：story_advance(${args.storyId}, TEST)
-→ 需要改代码：story_advance(${args.storyId}, DEV) 回 DEV
-⚠ reviewer 调 finding_add 时必须传 agent 参数（如 "agent":"koala-review-behavior"），否则 finding 会被标记为 main agent，TEST gate 会拒绝推进`;
-        })(),
-        TEST_CASE: `→ Legacy phase. 建议直接 story_advance(${args.storyId}, TEST) 进入验证`,
-        TEST_CASE_REVIEW: `→ Legacy phase. 建议直接 story_advance(${args.storyId}, TEST) 进入验证`,
-        TEST: `→ 必须立即执行: koala validate 跑验证，写 bug/evidence。fail 自动 aux_diagnose + bug_report，pass 自动标 bug fixed。
-⚠ 工程验证 ≠ 用户验收: 即使 validate 全 pass，也必须用用户视角真机跑一次（节奏: 把 PLAN outcome 当 expected → 跑 → 把实际输出当 actual → diff）。验证完把 actual transcript + 差异说明放到 ${store.storyDirRel()}/${args.storyId}/evidence/transcript-diff.md。CLAUDE.md「用户价值验收」段有完整 5 题自检清单。
-⚠ delivery-check 硬门槛: DONE 前必须 spawn koala-review-delivery reviewer 写 delivery-check.json 签名。reviewer 逆向扫 git diff 验证文档承诺落地 + 真机测试覆盖。未签名 → story_advance DONE 会卡 [missing_delivery_check]。`,
-        DONE: `→ 必须立即执行: 把下面的 Story 总结段落用你自己的话告诉用户（改了什么/怎么用/真机覆盖/限制/踩坑），然后 convergence_check 检查项目收敛状态
-⚠ DONE 自检 5 题（CLAUDE.md「用户价值验收」段）: (1) PLAN outcome 是具体 transcript 还是抽象? (2) 真机测试时读了用户视角输出还是只看事件日志? (3) 用户看到 actual transcript 最后一行会说"完成"还是"然后呢"? (4) 有没有工程 log 在用户眼里是噪音/重复? (5) 有没有一句人话总结任务结果? 任何一题答"没做到"就回 DEV，不要硬推 DONE。`,
-      };
+      const nextSteps: Record<string, string> = buildNextSteps(store, ctx.root, args.storyId);
       let doneChecklistPrefix = '';
       let doneSummarySuffix = '';
       let doneMergeReport = '';

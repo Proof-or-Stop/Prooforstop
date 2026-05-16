@@ -795,6 +795,46 @@ try {
   assert.equal(execFileSync('git', ['ls-files', '--', '.koala/activity.jsonl'], { cwd: tmp, encoding: 'utf8' }).trim(), '', 'doctor --repair should untrack runtime artifacts');
   assert.equal(execFileSync('git', ['ls-files', '--', shellMetaArtifactPath], { cwd: tmp, encoding: 'utf8' }).trim(), '', 'doctor --repair should untrack metacharacter runtime artifacts');
 
+  // B-56d3 CHK-003: validate-gate fail-closed regression.
+  // The DEV->TEST koala validate gate was extracted into handlers/phase-gates.ts
+  // (runValidateGate). It must still fail-closed: a failing validate run must
+  // throw "Cannot enter TEST", stop the actor, and persist a FAIL test-evidence
+  // record — never silently advance.
+  const { runValidateGate } = await import('../handlers/phase-gates.js');
+
+  const gateFailRoot = mkdtempSync(join(tmpdir(), 'koala-validate-gate-fail-'));
+  try {
+    writeFileSync(join(gateFailRoot, 'koala.config.json'), JSON.stringify({
+      validate: {
+        commands: [
+          { label: 'failing gate', command: 'node', args: ['-e', 'process.exit(5)'] },
+        ],
+      },
+    }));
+    resetConfigCache();
+    const store = new StoryStore(gateFailRoot);
+    const storyId = 'B-vgate-fail';
+    const now = '2026-05-16T03:00:00.000Z';
+    store.writeStory(storyId, {
+      storyId, name: 'validate-gate-fail', title: 'Validate gate fail',
+      description: 'validate FAIL must block TEST', type: 'chore', phase: 'TEST',
+      priority: 'medium', createdAt: now, startedAt: now, endedAt: null,
+      currentReviewRound: now, events: [],
+    });
+    let stopped = false;
+    const actor = { stop() { stopped = true; } };
+    await assert.rejects(
+      () => runValidateGate({ store, root: gateFailRoot, scanRoot: gateFailRoot }, storyId, actor),
+      /Cannot enter TEST: koala validate 未通过/,
+      'runValidateGate must block TEST when koala validate fails',
+    );
+    assert.equal(stopped, true, 'runValidateGate must stop the actor on validate failure (fail-closed)');
+    assert.equal(store.readTestEvidence(storyId)?.result, 'FAIL', 'validate FAIL must persist a FAIL test-evidence record');
+  } finally {
+    rmSync(gateFailRoot, { recursive: true, force: true });
+    resetConfigCache();
+  }
+
   console.log('✓ validation protocol smoke passed');
 } finally {
   rmSync(tmp, { recursive: true, force: true });
