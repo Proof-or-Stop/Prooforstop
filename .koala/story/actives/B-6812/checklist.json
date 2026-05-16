@@ -139,6 +139,17 @@
           "headHash": "b887945cd22dfaa0561f58f97e933b7eb58d3964",
           "materialHash": "50b6c7cc0ba12cbb30e7be6b878fe82137d00230f37b33d29737d6cbf75b2779",
           "timestamp": "2026-05-16T12:49:37.733Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/story-create-concurrency-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-create-concurrency-smoke",
+          "result": "pass",
+          "note": "custom-dir 场景把 koala.config.json storyDir 设为 custom/stories/here，断言 .create.lock 与 story 目录都落在该非默认 storyDir 下，证明锁路径从 store.storyDirRel() 解析无硬编码",
+          "headHash": "fb525e8006aa001efffaa7870d939674833bcc53",
+          "materialHash": "50b6c7cc0ba12cbb30e7be6b878fe82137d00230f37b33d29737d6cbf75b2779",
+          "timestamp": "2026-05-16T12:49:37.995Z"
         }
       ]
     },
