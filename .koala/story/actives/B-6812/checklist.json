@@ -194,6 +194,17 @@
           "headHash": "6cd53c2aff18f6aa832c5722a46f9d832613df13",
           "materialHash": "50b6c7cc0ba12cbb30e7be6b878fe82137d00230f37b33d29737d6cbf75b2779",
           "timestamp": "2026-05-16T12:50:42.654Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/story-create-concurrency-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-create-concurrency-smoke",
+          "result": "pass",
+          "note": "smoke 跑 default-dir 与 custom-dir 两个独立 storyDir 场景，各自锁路径 <storyDir>/.create.lock 互不重叠，每轮结束断言无 .create.lock 泄漏，证明锁路径隔离",
+          "headHash": "5e3c11114c75ae594389dfdd572931e2d3fe1122",
+          "materialHash": "50b6c7cc0ba12cbb30e7be6b878fe82137d00230f37b33d29737d6cbf75b2779",
+          "timestamp": "2026-05-16T12:50:42.941Z"
         }
       ]
     },
