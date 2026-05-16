@@ -312,15 +312,15 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-002:happy:0",
-          "kind": "manual_transcript",
+          "kind": "integration_test",
           "verdict": "success",
           "file": "packages/main/src/tasks/story-create-concurrency-smoke.ts",
-          "command": "npm --prefix packages/main run test:story-create-concurrency-smoke",
+          "command": "npm run test:story-create-concurrency-smoke",
           "result": "pass",
-          "note": "runDedupScenario 断言 story_create(name=\"Fix Login\") 后 story_create(name=\"fix-login\") 与 \"  FIX__LOGIN  \" 均返回 Story already exists 并复用同一 storyId，覆盖 normalizeName 归一化 idempotency 主路径",
-          "headHash": "89b6d40671a9fa5c5d1f21d5b209a35bf60fdc34",
-          "materialHash": "a10622b79a4f4196c884ce0c1375ac4d280b7012b9dbea4475d74695ac9294a4",
-          "timestamp": "2026-05-16T13:00:15.858Z"
+          "note": "runDedupScenario：归一化 name 命中（Fix Login / fix-login）返回已存在并复用 storyId",
+          "headHash": "1c75dbd567d53bc549f993bfcba242cd406fdfb7",
+          "materialHash": "1d1ec2eb31669e115d502d254b45b4f3f075fdb3f9ad5b94217e561e88742c07",
+          "timestamp": "2026-05-16T13:09:42.984Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
