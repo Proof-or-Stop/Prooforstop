@@ -33,7 +33,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/phase-gates.ts",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "phase-gates.ts created exposing the gate runner (REVIEW->TEST preflight orchestration, koala validate --json gate, TEST->DONE done-oracle gate adapter, cwd/guard-failure adapter); npm run build clean, no circular import",
+          "headHash": "db69b76b375aea1cd30d2c8a0818177e3cc6664c",
+          "materialHash": "50b6c7cc0ba12cbb30e7be6b878fe82137d00230f37b33d29737d6cbf75b2779",
+          "timestamp": "2026-05-16T01:59:13.619Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
