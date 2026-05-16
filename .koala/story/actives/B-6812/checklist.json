@@ -351,12 +351,12 @@
           "kind": "logic_test",
           "verdict": "success",
           "file": "packages/main/src/tasks/story-dedup-smoke.ts",
-          "command": "npm --prefix packages/main run test:story-dedup-smoke",
+          "command": "node dist/tasks/story-dedup-smoke.js",
           "result": "pass",
-          "note": "story-dedup-smoke 断言 normalizeName 把 Fix--Login___Bug 与 fix login bug 归一化为相等值，验证下划线/空格/连字符分隔符归一化逻辑",
-          "headHash": "1aaac18513a7c836b87f673c9ed6da3ef995b82f",
-          "materialHash": "a10622b79a4f4196c884ce0c1375ac4d280b7012b9dbea4475d74695ac9294a4",
-          "timestamp": "2026-05-16T13:00:26.502Z"
+          "note": "story-dedup-smoke：normalizeName 对分隔符变体归一化一致",
+          "headHash": "3e2c6d59dee0cab3db6262ccd899cfe163463baa",
+          "materialHash": "1d1ec2eb31669e115d502d254b45b4f3f075fdb3f9ad5b94217e561e88742c07",
+          "timestamp": "2026-05-16T13:09:43.746Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
