@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-16T01:58:01.736Z",
       "userSees": "A framework maintainer opens packages/main/src/core/phase-gates.ts and finds the transition gate runner: REVIEW->TEST CLI preflight, the koala validate --json gate, the TEST->DONE done-oracle gate adapter, and the cwd/guard-failure adapter. story-advance.ts no longer inlines those gate bodies — it calls phase-gates.ts. npm --prefix packages/main run build is clean with no circular-import error.",
       "verificationIntent": {
         "happy": [
