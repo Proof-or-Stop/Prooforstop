@@ -49,6 +49,9 @@
     "test:real-story-replay": "node scripts/verify-real-story-replay-benchmark.mjs",
     "test:flow-step-desc": "node scripts/verify-flow-step-desc.mjs",
     "test:worktree-authority-smoke": "npm --prefix packages/main run test:worktree-authority-smoke",
+    "test:mkdir-lock-smoke": "npm --prefix packages/main run test:mkdir-lock-smoke",
+    "test:story-dedup-smoke": "npm --prefix packages/main run test:story-dedup-smoke",
+    "test:story-create-concurrency-smoke": "npm --prefix packages/main run test:story-create-concurrency-smoke",
     "test:e2e": "node packages/main/dist/tasks/cli-e2e.js",
     "lint:tasks": "node packages/main/dist/tasks/cli-validate.js"
   },

@@ -280,6 +280,21 @@ PLAN 阶段开拆 checklist 之前，主 agent 应该先调 `understanding_set` 
 
 命中时 `story_review` 会强制要求 decision.json + ≥ 3 preMortem 场景（缺则 blocker）。
 
+### 重复 story 检测（dedup）
+
+`story_create` 在新建前对已有 story 做重复检测，防止跨 session / 多 agent 并发跑同一 backlog 时产生语义重复 story（B-6812 G2）：
+
+- **归一化 name idempotency**：用 `normalizeName(name)`（lowercase + trim + 下划线/空格/连续连字符归一为单连字符 + 去首尾连字符）比较，而非 exact-name。`"Fix Login"` / `"fix-login"` / `"  FIX__LOGIN  "` 视为同一 story → 返回已有 storyId 并复用，不新建。**仅当 `normalizeName(name)` 非空才参与匹配**——旧数据多 name 为空串/全分隔符，归一化后为 `""`，绝不会让两个空 normalized name 互相误判成同一个 story。
+- **keyword 完全重叠 block**：遍历 active non-terminal story（phase ∉ DONE/DISCARDED），算 keyword 重叠率；当新 story 的全部 keyword 都被某已有 story 覆盖（`ratio === 1`）且共同 keyword ≥ 2 个时，`story_create` 抛错 `❌ 疑似重复 story B-xxxx（keyword 完全重叠），确认要新建请加 forceNew:true` 并以非零 exit code 退出。DONE/DISCARDED story 的 keyword 完全重叠仅 warn（关键词查重段），不 block。
+- **`forceNew: true` override**：传 `forceNew:true` 整体绕过归一化 name idempotency 与 keyword 完全重叠 block，强制新建。确认确实要新建语义相近的 story 时使用。
+
+#### 重复 / 并发警告走 stderr（B-6812 G3/G4）
+
+`story_create` 的 advisory 文本（keyword 重叠 `dupWarning`、高风险 `riskHint`、最近并发 story 提示）全部走 `process.stderr.write`，**不**拼进 stdout 返回值。stdout 只保留创建结论（`Story B-xxxx created ...`）+ 非 advisory 引导（INIT reviewer 提示、non-git 提示）。原因：`koala story_create | tail` 这类管道只消费 stdout，advisory 拼进 stdout 会被 tail 静默吃掉；走 stderr 后即使被管道也仍然可见。
+
+- **最近并发 story 摊开（G4）**：每次成功创建后扫 `listStoryIds()`，筛 `createdAt` 在过去 30 分钟内且 phase ∉ DONE/DISCARDED 的**其它** story，写 stderr：`⚠ 最近 30 分钟内还创建了 N 个 story：B-xxxx [phase] title`。无并发 story 时不输出（不误报）。30 分钟为硬编码常量（`RECENT_CONCURRENT_WINDOW_MS`），非配置项。
+- 终态 story（DONE/DISCARDED）、`createdAt` 缺失或非法 ISO 的 story 都被跳过，不计入并发提示也不会让创建崩溃。
+
 ### 结构化决策（decision.json）
 
 PLAN 阶段为非 trivial story 落 `decision_set`。schema：

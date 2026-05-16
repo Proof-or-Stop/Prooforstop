@@ -9,6 +9,26 @@ import { createHash } from 'crypto';
 import { computeDraftCheckHash } from '../core/draft-check-hash.js';
 import { computeChecklistHash } from './init-check.js';
 import { isGitRepository } from '../core/git-probe.js';
+import { withMkdirLock } from '../core/mkdir-lock.js';
+import { normalizeName, keywordOverlap } from '../core/story-dedup.js';
+
+/**
+ * B-6812 F-003: typed error raised when a keyword-full-overlap duplicate of an
+ * ACTIVE non-terminal story is detected. The idempotency loop's catch block
+ * must distinguish "this is the duplicate-guard rejection, re-throw it" from
+ * "reading some unrelated story failed, swallow it" — a brittle
+ * `message.startsWith(...)` prefix check silently changes behavior the moment
+ * the message wording is edited and would also swallow genuine read failures
+ * (OOM / fs permission) that happen to start with the same text. An
+ * `instanceof` check on a dedicated class is wording-independent and only ever
+ * matches the intentional rejection.
+ */
+export class DuplicateStoryError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'DuplicateStoryError';
+  }
+}
 
 /**
  * 高风险关键词检测（OMX ralplan --deliberate 风格）。
@@ -39,6 +59,94 @@ function detectRiskSignals(text: string): Array<{ category: string; matched: str
   return hits;
 }
 
+/**
+ * B-6812 CHK-003 (G4): how far back the "recently created concurrent story"
+ * scan looks. Hardcoded constant on purpose — exposing it as a config option
+ * would add a knob nobody tunes (YAGNI). 30 minutes is long enough to surface
+ * a parallel agent racing the same backlog, short enough not to spam noise
+ * from unrelated earlier work in the same session.
+ */
+const RECENT_CONCURRENT_WINDOW_MS = 30 * 60 * 1000;
+
+/**
+ * B-6812 CHK-003 (G4): after a successful create, scan for OTHER stories
+ * created within the last 30 minutes that are still active (phase ∉
+ * DONE/DISCARDED). If any exist, the operator likely has a parallel agent
+ * working the same backlog — surface the list on stderr so it is visible even
+ * under a `koala story_create | tail` pipe. Returns '' when nothing matches so
+ * the caller never emits a false-positive line.
+ *
+ * `justCreatedId` is excluded so the freshly minted story does not list
+ * itself. Unreadable / malformed story index files are skipped silently — one
+ * corrupt index must not crash a successful create.
+ */
+function recentConcurrentStoriesNote(
+  store: HandlerContext['store'],
+  justCreatedId: string,
+  nowMs: number,
+): string {
+  const recent: Array<{ id: string; phase: string; title: string }> = [];
+  for (const sid of store.listStoryIds()) {
+    if (sid === justCreatedId) continue;
+    try {
+      const other = store.readStory(sid);
+      if (other.phase === 'DONE' || other.phase === 'DISCARDED') continue;
+      const createdMs = Date.parse(other.createdAt);
+      if (!Number.isFinite(createdMs)) continue;
+      // Strictly within the window: createdMs must be at or after the cutoff
+      // and not in the future relative to `nowMs`.
+      if (createdMs < nowMs - RECENT_CONCURRENT_WINDOW_MS || createdMs > nowMs) continue;
+      recent.push({ id: sid, phase: other.phase, title: other.title });
+    } catch {
+      /* ignore unreadable story */
+    }
+  }
+  if (recent.length === 0) return '';
+  const lines = [`⚠ 最近 30 分钟内还创建了 ${recent.length} 个 story：`];
+  for (const r of recent) {
+    lines.push(`  - ${r.id} [${r.phase}] ${r.title}`);
+  }
+  return lines.join('\n');
+}
+
+/**
+ * B-6812 F-004: scan for DONE / DISCARDED (terminal) stories whose keyword set
+ * FULLY overlaps the new story's keywords (ratio === 1 && shared >= 2). Active
+ * non-terminal full overlap hard-blocks the create; terminal full overlap is
+ * non-blocking but still worth surfacing — finishing a same-domain story is a
+ * useful FYI ("you may be redoing work that just shipped"). plan.md CHK-002
+ * and AGENTS.md both promise this warn, so the code must actually emit it
+ * (silently `continue`-ing a terminal story produced zero output → doc drift).
+ *
+ * Returns '' when nothing matches so the caller never prints a blank line.
+ * Unreadable / malformed story index files are skipped silently.
+ */
+function terminalKeywordOverlapNote(
+  store: HandlerContext['store'],
+  newKeywords: string[],
+): string {
+  if (newKeywords.length === 0) return '';
+  const hits: Array<{ id: string; phase: string; title: string; shared: string[] }> = [];
+  for (const sid of store.listStoryIds()) {
+    try {
+      const other = store.readStory(sid);
+      if (other.phase !== 'DONE' && other.phase !== 'DISCARDED') continue;
+      const overlap = keywordOverlap(newKeywords, other.keywords ?? []);
+      if (overlap.ratio === 1 && overlap.shared.length >= 2) {
+        hits.push({ id: sid, phase: other.phase, title: other.title, shared: overlap.shared });
+      }
+    } catch {
+      /* ignore unreadable story */
+    }
+  }
+  if (hits.length === 0) return '';
+  const lines = ['⚠ keyword 与已完成 story 完全重叠（仅提示，不阻止创建）:'];
+  for (const h of hits) {
+    lines.push(`  - ${h.id} [${h.phase}] ${h.title} (共同关键词: ${h.shared.join(', ')})`);
+  }
+  return lines.join('\n');
+}
+
 export function createStoryCreateHandlers(ctx: HandlerContext) {
   const { store } = ctx;
 
@@ -59,6 +167,14 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       background?: string; // B-45ed CHK-006: 必填四段式 background.md 内容
       fromDraft?: string; // B-9975 CHK-003: from-draft mode
     }): string {
+      // B-6812 CHK-001: serialize the whole story_create body (fromDraft branch
+      // + normal branch) under a directory lock so the idempotency scan →
+      // nextStoryId → writeStory → writeChecklist sequence is atomic against
+      // concurrent same-name story_create invocations (closes the G1 TOCTOU
+      // window). Lock path is resolved from the store's actual storyDir base,
+      // never hardcoded to docs/story or .koala/story.
+      const createLockDir = join(ctx.root, store.storyDirRel(), '.create.lock');
+      return withMkdirLock(createLockDir, () => {
       // === B-9975 CHK-003: FROM-DRAFT MODE ===
       // When fromDraft is provided, bypass normal creation path entirely.
       if (args.fromDraft) {
@@ -165,25 +281,65 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       // 只在"新建 story"路径上强校验；走 idempotency 复用分支不需要 background。
       // 我们先查 idempotency（见下），若复用已有 story 则 return，不触及 background。
       // 新建分支（通过 idempotency 之后）对 background 做硬校验 + 落盘。
-      // B-0af4 CHK-001: Idempotency check — 同 name 且存在未 DONE/DISCARDED 的
-      // story 时返回已有 storyId + 明确 warning，而不是静默新建 duplicate。
-      // LLM 跨轮 session 里容易忘记已经创建过，这个护栏防止重复污染。
-      // 严格 name 完全相等时触发；forceNew=true 绕过。
+      // B-0af4 CHK-001 / B-6812 CHK-002: Idempotency check — 存在未 DONE/DISCARDED
+      // 的语义重复 story 时返回已有 storyId（或对 keyword 完全重叠硬 block），
+      // 而不是静默新建 duplicate。LLM 跨轮 session / 多 agent 并发跑同一 backlog
+      // 时容易重复创建，这个护栏防止重复污染。forceNew=true 绕过整段检查。
+      //
+      // B-6812 CHK-002 把 G2 缺口（exact-name 漏过归一化差异 + keyword 重叠）补上：
+      //  - normalized-name 匹配：normalizeName(name) 相等即视为同一 story。
+      //    **仅当 normalizeName(args.name) 非空才参与匹配** —— 旧数据多 name 为
+      //    空串/全特殊字符，归一化后为 ""，绝不能让两个空 normalized name 互相
+      //    误判成同一个 story。
+      //  - keyword 完全重叠 block：对 active non-terminal story（phase ∉
+      //    DONE/DISCARDED）算 keywordOverlap；ratio === 1 且 shared.length >= 2
+      //    时抛错要求 forceNew:true。DONE/DISCARDED story 的完全重叠仅 warn（见
+      //    下方关键词查重段，CHK-003 统一改走 stderr）。
       if (!args.forceNew) {
+        const normNewName = normalizeName(args.name);
+        const newKeywords = args.keywords ?? [];
         for (const sid of store.listStoryIds()) {
           try {
             const other = store.readStory(sid);
             if (other.phase === 'DONE' || other.phase === 'DISCARDED') continue;
-            if (other.name !== args.name) continue;
-            // 找到同名未完成 story → 返回已有
-            return [
-              `⚠ Story already exists: ${sid} (name="${args.name}", phase=${other.phase})`,
-              `复用已有 storyId 而非新建。如需强制新建，传 forceNew:true。`,
-              `已有 story: ${sid} [${other.phase}] ${other.title}`,
-              `→ story_get '{"storyId":"${sid}"}' 查看详情`,
-              `→ story_advance '{"storyId":"${sid}","phase":"<next>"}' 继续推进`,
-            ].join('\n');
-          } catch { /* ignore unreadable */ }
+
+            // 1) normalized-name idempotency. Empty normalized name never
+            // participates: an empty new name OR an empty stored name is a
+            // fallback, not a match key.
+            const normOtherName = normalizeName(other.name);
+            if (normNewName.length > 0 && normNewName === normOtherName) {
+              // 找到同名（归一化后相等）未完成 story → 返回已有
+              return [
+                `⚠ Story already exists: ${sid} (name="${other.name}", phase=${other.phase})`,
+                `归一化 name "${normNewName}" 与已有 story 一致；复用已有 storyId 而非新建。如需强制新建，传 forceNew:true。`,
+                `已有 story: ${sid} [${other.phase}] ${other.title}`,
+                `→ story_get '{"storyId":"${sid}"}' 查看详情`,
+                `→ story_advance '{"storyId":"${sid}","phase":"<next>"}' 继续推进`,
+              ].join('\n');
+            }
+
+            // 2) keyword 完全重叠 → 对 active non-terminal story 硬 block。
+            // ratio === 1 表示新 story 的每个 keyword 都被已有 story 覆盖；
+            // shared.length >= 2 避免单 keyword 巧合命中误伤。
+            const overlap = keywordOverlap(newKeywords, other.keywords ?? []);
+            if (overlap.ratio === 1 && overlap.shared.length >= 2) {
+              throw new DuplicateStoryError(
+                `❌ 疑似重复 story ${sid}（keyword 完全重叠: ${overlap.shared.join(', ')}），` +
+                `确认要新建请加 forceNew:true`,
+              );
+            }
+          } catch (e: any) {
+            // B-6812 F-003: the duplicate-guard rejection must propagate; only
+            // genuine read errors on unrelated stories may be swallowed so one
+            // corrupt index.json cannot mask the guard. An `instanceof`
+            // check on a typed error is wording-independent and never
+            // mis-swallows a real failure (OOM / fs permission) that happens
+            // to start with the same text.
+            if (e instanceof DuplicateStoryError) {
+              throw e;
+            }
+            /* ignore unreadable story */
+          }
         }
       }
 
@@ -225,6 +381,15 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         const content = args.background!.endsWith('\n') ? args.background! : args.background! + '\n';
         writeFileSync(bgPath, content, 'utf-8');
       };
+
+      // B-6812 CHK-003 (G3): advisory text — riskHint, keyword-overlap
+      // dupWarning — is collected here but written to STDERR right before the
+      // create result is returned, never spliced into the stdout return value.
+      // Rationale: `koala story_create | tail` silently swallows stdout tail
+      // lines; the create conclusion (`Story B-xxxx created ...`) must stay on
+      // stdout as the command's return value, while duplicate / concurrency
+      // warnings must survive pipes by going to stderr (matches the existing
+      // normal-channel DEPRECATED warning above).
 
       // 高风险关键词检测：扫描 description + checklist titles
       const scanText = [
@@ -296,10 +461,36 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
           } catch { /* ignore */ }
         }
         if (overlaps.length > 0) {
-          dupWarning = '\n⚠ 疑似重复 story（关键词重叠）:\n' +
+          dupWarning = '⚠ 疑似重复 story（关键词重叠）:\n' +
             overlaps.map(o => `  - ${o.id} [${o.phase}] ${o.title} (共同关键词: ${o.common.join(', ')})`).join('\n');
         }
       }
+
+      /**
+       * B-6812 CHK-003 (G3 + G4) + F-004: emit all advisory text to STDERR
+       * right before returning the create conclusion. `riskHint` and
+       * `dupWarning` (G3) are collected earlier; the recent-concurrent-stories
+       * note (G4) and the terminal-keyword-overlap note (F-004) are computed
+       * here against the freshly written story so `justCreatedId` is already
+       * on disk and excluded from the scans. Each block is trimmed and skipped
+       * when empty so we never print blank stderr lines. The create conclusion
+       * stays on stdout via the return value.
+       */
+      const emitAdvisoryToStderr = (): void => {
+        const blocks: string[] = [];
+        if (riskHint.trim().length > 0) blocks.push(riskHint.trim());
+        if (dupWarning.trim().length > 0) blocks.push(dupWarning.trim());
+        const concurrentNote = recentConcurrentStoriesNote(store, storyId, Date.parse(now));
+        if (concurrentNote.length > 0) blocks.push(concurrentNote);
+        // B-6812 F-004: keyword full overlap with a DONE/DISCARDED story is
+        // non-blocking but still surfaced as a same-domain FYI on stderr —
+        // plan.md CHK-002 + AGENTS.md promise this warn, so it must be emitted.
+        const terminalNote = terminalKeywordOverlapNote(store, args.keywords ?? []);
+        if (terminalNote.length > 0) blocks.push(terminalNote);
+        if (blocks.length > 0) {
+          process.stderr.write(blocks.join('\n') + '\n');
+        }
+      };
 
       // 直接指定 phase（onboard 用：已完成模块直接标 DONE）
       if (args.phase) {
@@ -345,7 +536,10 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         const nonGitHint = !isGitRepository(ctx.root)
           ? `\n⚠ 当前目录不是 git 仓库：story 已记录，但 branch/worktree phase 还不可用。要继续 INIT_CHECK/DEV 正常流，先 git init + 首次 commit。`
           : '';
-        return `Story ${storyId} created (${args.phase})${hasChecklist ? ` with ${args.checklist!.length} checklist items` : ''}${dupWarning}${riskHint}${nonGitHint}`;
+        // B-6812 CHK-003 (G3): duplicate / concurrency warnings go to stderr;
+        // only the create conclusion + non-advisory guidance stays on stdout.
+        emitAdvisoryToStderr();
+        return `Story ${storyId} created (${args.phase})${hasChecklist ? ` with ${args.checklist!.length} checklist items` : ''}${nonGitHint}`;
       }
 
       // 正常模式：有 checklist → INIT（之后 story_advance INIT_CHECK 创建 worktree → PLAN）
@@ -404,10 +598,16 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         const nonGitHint = !isGitRepository(ctx.root)
           ? `\n⚠ 当前目录不是 git 仓库：story 已记录，但 INIT_CHECK/worktree 流程仍需先 git init + 首次 commit。`
           : '';
-        return `Story ${storyId} created (INIT) with ${checklist.items.length} checklist items${hint}${dupWarning}${riskHint}${initReviewHint}${nonGitHint}`;
+        // B-6812 CHK-003 (G3): duplicate / concurrency warnings go to stderr;
+        // the create conclusion + INIT-review guidance stays on stdout.
+        emitAdvisoryToStderr();
+        return `Story ${storyId} created (INIT) with ${checklist.items.length} checklist items${hint}${initReviewHint}${nonGitHint}`;
       }
 
-      return `Story ${storyId} created (IDEA)${dupWarning}${riskHint}`;
+      // B-6812 CHK-003 (G3): duplicate / concurrency warnings go to stderr.
+      emitAdvisoryToStderr();
+      return `Story ${storyId} created (IDEA)`;
+      });
     },
   };
 }

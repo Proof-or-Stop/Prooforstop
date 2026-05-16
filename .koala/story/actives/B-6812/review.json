@@ -1,0 +1,53 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-05-16T12:39:19.137Z",
+      "issueCount": 5,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 个 checklist item，请检查是否有组合场景遗漏（如：为 story_create 加目录锁让 idempotency 检查与写入原子化 + 把重复检测从 exact-name 加强为归一化 name 加 keyword 完全重叠 block 同时操作会怎样？）"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/core/store.ts 未被任何 checklist item 的 files 字段覆盖（请为相应 item 的 files.modify/create/test 加上此路径或用 excludes 显式排除）"
+        }
+      ],
+      "_hash": "8158d479369f066d0d871c9fd1c2a35a8a875678d003483a5671d0c8343f451e"
+    },
+    {
+      "timestamp": "2026-05-16T12:40:52.961Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 个 checklist item，请检查是否有组合场景遗漏（如：为 story_create 加目录锁让 idempotency 检查与写入原子化 + 把重复检测从 exact-name 加强为归一化 name 加 keyword 完全重叠 block 同时操作会怎样？）"
+        }
+      ],
+      "_hash": "db0cdee8c8a422573a7c1e55cea1d783b71dfe560f976baecfa4be8a193e36df"
+    }
+  ]
+}
