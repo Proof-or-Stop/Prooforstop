@@ -115,6 +115,17 @@
           "headHash": "1439b755f66e72564800482ea0b4074337b9a5c5",
           "materialHash": "50b6c7cc0ba12cbb30e7be6b878fe82137d00230f37b33d29737d6cbf75b2779",
           "timestamp": "2026-05-16T01:59:17.768Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/handlers/story-advance.ts",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "DONE merge/cleanup NOT moved into transition-effects.ts — it stays in story-advance.ts for Story 3b (verified by diff scope)",
+          "headHash": "c437dc1d63967c342cf06368fecde71162526816",
+          "materialHash": "50b6c7cc0ba12cbb30e7be6b878fe82137d00230f37b33d29737d6cbf75b2779",
+          "timestamp": "2026-05-16T01:59:20.046Z"
         }
       ]
     },
