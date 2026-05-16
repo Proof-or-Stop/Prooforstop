@@ -404,14 +404,13 @@
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
-          "verdict": "success",
           "file": "packages/main/src/tasks/story-dedup-smoke.ts",
           "command": "node dist/tasks/story-dedup-smoke.js",
           "result": "pass",
           "note": "story-dedup-smoke：全特殊字符 name 归一化为空串，不参与 dedup 不误 block",
-          "headHash": "dca7a6adc0c76d0c5d7e4bbfdb3f9f336b2ee6bd",
-          "materialHash": "1d1ec2eb31669e115d502d254b45b4f3f075fdb3f9ad5b94217e561e88742c07",
-          "timestamp": "2026-05-16T13:09:45.291Z"
+          "headHash": "e2829a88cfcf1caf82c7f85546a76193365d66f4",
+          "materialHash": "5c64680cda1d8574845b506a23519390dbae2102039cc27faf65b63cd3276eb8",
+          "timestamp": "2026-05-16T14:01:55.695Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
