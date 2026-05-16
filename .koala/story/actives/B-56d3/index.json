@@ -4,7 +4,7 @@
   "title": "Extract phase gates and non-DONE transition effects",
   "description": "Lifecycle Phase 2 step 1 of 3 (Phase 1 B-3740 + B-37e9 done). story_advance.ts is still a 944-line core handler with gate decisions, non-DONE side effects, and DONE merge cleanup tangled together. This story extracts the two lowest-risk, mutually-decoupled concerns: a phase-gates.ts gate runner (REVIEW->TEST preflight, koala validate gate, TEST->DONE done-oracle gate adapter, cwd/guard-failure adapter) and a transition-effects.ts module for non-DONE side effects (process metrics, onPhaseChange hooks, REVIEW metadata auto-commit, relatedDocs hint, next-step rendering). story_advance.ts still orchestrates inline but delegates to the new modules. Strictly behavior-preserving: gate decisions, fail-closed semantics, error wording, and evidence-write timing all unchanged. Explicitly out of scope: DONE merge/worktree cleanup (Story 3b), transition orchestrator coupling (Story 3c), and TEST semantics / legacy phase migration (Story 4). The story_advance responsibility map is PLAN-phase understanding, not a checklist deliverable.",
   "type": "refactor",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "story-advance",
@@ -62,11 +62,20 @@
       "branch": "story/B-56d3",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-16T01:59:42.672Z",
+      "branch": "story/B-56d3",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-56d3",
     "branch": "story/B-56d3",
     "createdAt": "2026-05-16T01:40:12.251Z"
-  }
+  },
+  "currentReviewRound": "2026-05-16T01:59:42.672Z"
 }
