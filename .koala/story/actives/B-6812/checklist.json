@@ -110,14 +110,13 @@
         {
           "intentRef": "CHK-001:happy:2",
           "kind": "logic_test",
-          "verdict": "success",
           "file": "packages/main/src/tasks/mkdir-lock-smoke.ts",
           "command": "node dist/tasks/mkdir-lock-smoke.js",
           "result": "pass",
           "note": "mkdir-lock-smoke：withMkdirLock 正常获锁→执行 fn→释放锁，lockDir 被清除",
-          "headHash": "211ba627060d75e3907404c4afed8c544cf79908",
-          "materialHash": "1d1ec2eb31669e115d502d254b45b4f3f075fdb3f9ad5b94217e561e88742c07",
-          "timestamp": "2026-05-16T13:09:21.608Z"
+          "headHash": "c9253fac923b57a4cb8ab62491b1fcc6548fab14",
+          "materialHash": "5c64680cda1d8574845b506a23519390dbae2102039cc27faf65b63cd3276eb8",
+          "timestamp": "2026-05-16T14:01:51.033Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
