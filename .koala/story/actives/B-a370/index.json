@@ -4,7 +4,7 @@
   "title": "Fix next and session_brief hints for META container stories",
   "description": "修复 F-003：koala next 与 session_brief 对 phase=META 的 meta-story 容器（B-META-framework-audit）给出普通 lifecycle 导航建议，引导用户做无效的 story_advance / INIT_CHECK。改 hint 渲染层让 META 走 audit/finding flow 专用提示。范围严格限于 hint 输出。",
   "type": "bug",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "meta-story",
@@ -52,6 +52,14 @@
       "branch": "story/B-a370",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-16T22:41:50.038Z",
+      "branch": "story/B-a370",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -65,5 +73,6 @@
       "reason": "False positive：riskSignal 命中是因为 story 文本里引用了错误 hint 字符串 story_advance --phase=INIT_CHECK（CHK-002 的 smoke 必须断言它不出现）。实际 scope 只改 packages/main/src/handlers/session.ts 的 META hint 渲染层与对应 smoke，不修改任何状态机/门禁代码。明确不触碰 core/machine.ts、handlers/story-advance.ts、core/command-policy.ts、core/lifecycle-registry.ts、audit-meta-store.ts 及任何 phase transition / gate 逻辑。约束：若实现中发现必须改上述生命周期/gate 文件，立即停止并把 story 恢复为 high-risk 全流程。",
       "at": "2026-05-16T21:10:37.715Z"
     }
-  ]
+  ],
+  "currentReviewRound": "2026-05-16T22:41:50.038Z"
 }
