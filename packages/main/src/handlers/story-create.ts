@@ -41,6 +41,56 @@ function detectRiskSignals(text: string): Array<{ category: string; matched: str
   return hits;
 }
 
+/**
+ * B-6812 CHK-003 (G4): how far back the "recently created concurrent story"
+ * scan looks. Hardcoded constant on purpose — exposing it as a config option
+ * would add a knob nobody tunes (YAGNI). 30 minutes is long enough to surface
+ * a parallel agent racing the same backlog, short enough not to spam noise
+ * from unrelated earlier work in the same session.
+ */
+const RECENT_CONCURRENT_WINDOW_MS = 30 * 60 * 1000;
+
+/**
+ * B-6812 CHK-003 (G4): after a successful create, scan for OTHER stories
+ * created within the last 30 minutes that are still active (phase ∉
+ * DONE/DISCARDED). If any exist, the operator likely has a parallel agent
+ * working the same backlog — surface the list on stderr so it is visible even
+ * under a `koala story_create | tail` pipe. Returns '' when nothing matches so
+ * the caller never emits a false-positive line.
+ *
+ * `justCreatedId` is excluded so the freshly minted story does not list
+ * itself. Unreadable / malformed story index files are skipped silently — one
+ * corrupt index must not crash a successful create.
+ */
+function recentConcurrentStoriesNote(
+  store: HandlerContext['store'],
+  justCreatedId: string,
+  nowMs: number,
+): string {
+  const recent: Array<{ id: string; phase: string; title: string }> = [];
+  for (const sid of store.listStoryIds()) {
+    if (sid === justCreatedId) continue;
+    try {
+      const other = store.readStory(sid);
+      if (other.phase === 'DONE' || other.phase === 'DISCARDED') continue;
+      const createdMs = Date.parse(other.createdAt);
+      if (!Number.isFinite(createdMs)) continue;
+      // Strictly within the window: createdMs must be at or after the cutoff
+      // and not in the future relative to `nowMs`.
+      if (createdMs < nowMs - RECENT_CONCURRENT_WINDOW_MS || createdMs > nowMs) continue;
+      recent.push({ id: sid, phase: other.phase, title: other.title });
+    } catch {
+      /* ignore unreadable story */
+    }
+  }
+  if (recent.length === 0) return '';
+  const lines = [`⚠ 最近 30 分钟内还创建了 ${recent.length} 个 story：`];
+  for (const r of recent) {
+    lines.push(`  - ${r.id} [${r.phase}] ${r.title}`);
+  }
+  return lines.join('\n');
+}
+
 export function createStoryCreateHandlers(ctx: HandlerContext) {
   const { store } = ctx;
 
@@ -273,6 +323,15 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         writeFileSync(bgPath, content, 'utf-8');
       };
 
+      // B-6812 CHK-003 (G3): advisory text — riskHint, keyword-overlap
+      // dupWarning — is collected here but written to STDERR right before the
+      // create result is returned, never spliced into the stdout return value.
+      // Rationale: `koala story_create | tail` silently swallows stdout tail
+      // lines; the create conclusion (`Story B-xxxx created ...`) must stay on
+      // stdout as the command's return value, while duplicate / concurrency
+      // warnings must survive pipes by going to stderr (matches the existing
+      // normal-channel DEPRECATED warning above).
+
       // 高风险关键词检测：扫描 description + checklist titles
       const scanText = [
         args.description,
@@ -343,10 +402,30 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
           } catch { /* ignore */ }
         }
         if (overlaps.length > 0) {
-          dupWarning = '\n⚠ 疑似重复 story（关键词重叠）:\n' +
+          dupWarning = '⚠ 疑似重复 story（关键词重叠）:\n' +
             overlaps.map(o => `  - ${o.id} [${o.phase}] ${o.title} (共同关键词: ${o.common.join(', ')})`).join('\n');
         }
       }
+
+      /**
+       * B-6812 CHK-003 (G3 + G4): emit all advisory text to STDERR right
+       * before returning the create conclusion. `riskHint` and `dupWarning`
+       * (G3) are collected earlier; the recent-concurrent-stories note (G4) is
+       * computed here against the freshly written story so `justCreatedId` is
+       * already on disk and excluded from the scan. Each block is trimmed and
+       * skipped when empty so we never print blank stderr lines. The create
+       * conclusion stays on stdout via the return value.
+       */
+      const emitAdvisoryToStderr = (): void => {
+        const blocks: string[] = [];
+        if (riskHint.trim().length > 0) blocks.push(riskHint.trim());
+        if (dupWarning.trim().length > 0) blocks.push(dupWarning.trim());
+        const concurrentNote = recentConcurrentStoriesNote(store, storyId, Date.parse(now));
+        if (concurrentNote.length > 0) blocks.push(concurrentNote);
+        if (blocks.length > 0) {
+          process.stderr.write(blocks.join('\n') + '\n');
+        }
+      };
 
       // 直接指定 phase（onboard 用：已完成模块直接标 DONE）
       if (args.phase) {
@@ -392,7 +471,10 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         const nonGitHint = !isGitRepository(ctx.root)
           ? `\n⚠ 当前目录不是 git 仓库：story 已记录，但 branch/worktree phase 还不可用。要继续 INIT_CHECK/DEV 正常流，先 git init + 首次 commit。`
           : '';
-        return `Story ${storyId} created (${args.phase})${hasChecklist ? ` with ${args.checklist!.length} checklist items` : ''}${dupWarning}${riskHint}${nonGitHint}`;
+        // B-6812 CHK-003 (G3): duplicate / concurrency warnings go to stderr;
+        // only the create conclusion + non-advisory guidance stays on stdout.
+        emitAdvisoryToStderr();
+        return `Story ${storyId} created (${args.phase})${hasChecklist ? ` with ${args.checklist!.length} checklist items` : ''}${nonGitHint}`;
       }
 
       // 正常模式：有 checklist → INIT（之后 story_advance INIT_CHECK 创建 worktree → PLAN）
@@ -451,10 +533,15 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         const nonGitHint = !isGitRepository(ctx.root)
           ? `\n⚠ 当前目录不是 git 仓库：story 已记录，但 INIT_CHECK/worktree 流程仍需先 git init + 首次 commit。`
           : '';
-        return `Story ${storyId} created (INIT) with ${checklist.items.length} checklist items${hint}${dupWarning}${riskHint}${initReviewHint}${nonGitHint}`;
+        // B-6812 CHK-003 (G3): duplicate / concurrency warnings go to stderr;
+        // the create conclusion + INIT-review guidance stays on stdout.
+        emitAdvisoryToStderr();
+        return `Story ${storyId} created (INIT) with ${checklist.items.length} checklist items${hint}${initReviewHint}${nonGitHint}`;
       }
 
-      return `Story ${storyId} created (IDEA)${dupWarning}${riskHint}`;
+      // B-6812 CHK-003 (G3): duplicate / concurrency warnings go to stderr.
+      emitAdvisoryToStderr();
+      return `Story ${storyId} created (IDEA)`;
       });
     },
   };
