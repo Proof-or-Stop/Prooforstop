@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "为 story_create 加目录锁让 idempotency 检查与写入原子化",
+      "context": "story-create.ts 全程无锁，并发 story_create 同 name 会穿过 idempotency 落两份 story（G1）。抽取 checklist.ts 的 withChecklistLock 的 mkdir 原子锁机制到共享模块 core/mkdir-lock.ts，导出 withMkdirLock(lockDir, fn)：mkdir 原子获取加 deadline 加 mtime 超过 10s 的 stale 回收加 finally 释放。checklist.ts 改为消费它且行为不变，story_create 整个 handler body 包进锁。锁路径必须用 store.storyDirRel 解析实际 story storage root，当前为 .koala/story/actives，锁文件等于 root 加 storyDir 加 .create.lock，绝不硬编码 docs/story/actives。测试须覆盖非默认 storyDir 配置。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "把重复检测从 exact-name 加强为归一化 name 加 keyword 完全重叠 block",
+      "context": "新增纯模块 core/story-dedup.ts：normalizeName 做 lowercase 加分隔符归一，keywordOverlap 返回 shared 与 ratio。idempotency 比较改用 normalizeName，但只有 normalizedName 长度大于 0 才参与，因为旧数据多 name 为空串，空名不能被误判成同一个。keyword 完全重叠时升级为 block：ratio 定义为 shared 除以 newStoryKeywords 长度，当 ratio 等于 1 且 shared 长度不小于 2 时抛错要求 forceNew true。比较对象仅限 active non-terminal story 即 phase 不属于 DONE 或 DISCARDED，对 DONE story 完全重叠最多 warn 不 block。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "重复与并发警告改走 stderr 并在创建时摊开最近并发 story",
+      "context": "keyword 警告与高风险 hint 当前全拼进返回字符串走 stdout，koala story_create 接 tail 管道会静默吃掉（G3）。统一改走 process.stderr.write，与现有 normal 通道 DEPRECATED 警告一致。story_create 成功后扫 listStoryIds，把 createdAt 在最近 30 分钟内且 phase 非终态的其它 story 写 stderr 提醒可能的并发撞车（G4）。30 分钟阈值硬编码不做配置项。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
