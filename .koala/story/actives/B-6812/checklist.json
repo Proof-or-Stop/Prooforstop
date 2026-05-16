@@ -460,9 +460,9 @@
       "id": "CHK-003",
       "title": "重复与并发警告改走 stderr 并在创建时摊开最近并发 story",
       "context": "keyword 警告与高风险 hint 当前全拼进返回字符串走 stdout，koala story_create 接 tail 管道会静默吃掉（G3）。统一改走 process.stderr.write，与现有 normal 通道 DEPRECATED 警告一致。story_create 成功后扫 listStoryIds，把 createdAt 在最近 30 分钟内且 phase 非终态的其它 story 写 stderr 提醒可能的并发撞车（G4）。30 分钟阈值硬编码不做配置项。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-16T13:09:55.377Z",
       "userSees": "用户跑 `koala story_create` 时重复警告与并发提示出现在 stderr；即使 `koala story_create ... | tail` 只看 stdout，重复警告仍在 stderr 可见。30 分钟内有其它新 story 时 stderr 显示 `⚠ 最近 30 分钟内还创建了 N 个 story`。",
       "files": {
         "modify": [
