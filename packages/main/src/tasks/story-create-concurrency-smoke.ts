@@ -30,8 +30,9 @@
  *  - keyword full overlap on an ACTIVE non-terminal story → hard block;
  *    forceNew:true overrides the block and creates a fresh story.
  *  - partial keyword overlap (ratio < 1) → no block, new story created.
- *  - keyword full overlap against a DONE story → no block (terminal stories
- *    only warn, never block).
+ *  - keyword full overlap against a DONE / DISCARDED story → no block, but a
+ *    non-blocking same-domain FYI warn is emitted (B-6812 F-004); a partial
+ *    overlap with a terminal story emits no warn (false-positive guard).
  *
  * B-6812 CHK-003 stderr-channel coverage (separate `runStderrChannelScenario`):
  *  - G3: keyword-overlap dupWarning + riskHint advisory text must land on
@@ -324,7 +325,10 @@ async function runDedupScenario(): Promise<void> {
     assert.equal(single.code, 0, `single shared keyword must not block\n${single.output}`);
     assert.match(single.output, /Story B-[a-f0-9]+ created/, 'single-keyword overlap still creates');
 
-    // 4) keyword full overlap against a TERMINAL story → NOT blocked.
+    // 4) keyword full overlap against a TERMINAL story → NOT blocked, but a
+    // non-blocking same-domain FYI warn IS emitted (B-6812 F-004). plan.md
+    // CHK-002 + AGENTS.md promise the warn; silently `continue`-ing produced
+    // no output (doc drift) before the F-004 fix.
     // Create terminal (DONE / DISCARDED) stories via the onboard phase path,
     // then a new active story with the identical keyword set: terminal stories
     // never block (the handler skips DONE and DISCARDED identically).
@@ -339,6 +343,10 @@ async function runDedupScenario(): Promise<void> {
       `full overlap with a DONE story must NOT block\n${againstDone.output}`);
     assert.match(againstDone.output, /Story B-[a-f0-9]+ created/,
       'DONE-story keyword overlap still creates');
+    assert.match(
+      againstDone.output, /keyword 与已完成 story 完全重叠（仅提示，不阻止创建）/,
+      'F-004: full overlap with a DONE story emits a non-blocking warn',
+    );
 
     // story_create cannot mint a DISCARDED story directly, so create a normal
     // story with the keyword set then `story_discard` it into the terminal
@@ -364,8 +372,24 @@ async function runDedupScenario(): Promise<void> {
       `full overlap with a DISCARDED story must NOT block\n${againstDiscarded.output}`);
     assert.match(againstDiscarded.output, /Story B-[a-f0-9]+ created/,
       'DISCARDED-story keyword overlap still creates');
+    assert.match(
+      againstDiscarded.output, /keyword 与已完成 story 完全重叠（仅提示，不阻止创建）/,
+      'F-004: full overlap with a DISCARDED story emits a non-blocking warn',
+    );
 
-    console.log('  ✓ dedup: normalized-name reuse, keyword block + forceNew override, partial/DONE/DISCARDED no-block');
+    // F-004 false-positive guard: a PARTIAL keyword overlap (ratio < 1) with a
+    // terminal story must NOT trigger the terminal-overlap warn.
+    const partialTerminal = createStorySync(root, {
+      name: 'kw-partial-terminal', keywords: ['archived', 'fresh-topic'],
+    });
+    assert.equal(partialTerminal.code, 0,
+      `partial overlap with a terminal story exit\n${partialTerminal.output}`);
+    assert.doesNotMatch(
+      partialTerminal.output, /keyword 与已完成 story 完全重叠/,
+      'F-004: partial overlap with a terminal story does NOT emit the warn',
+    );
+
+    console.log('  ✓ dedup: normalized-name reuse, keyword block + forceNew override, partial/DONE/DISCARDED no-block, F-004 terminal-overlap warn');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

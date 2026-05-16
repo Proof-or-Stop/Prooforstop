@@ -18,7 +18,15 @@ import { dirname } from 'path';
  */
 
 export interface MkdirLockOptions {
-  /** Total time budget (ms) to acquire the lock before throwing. Default 5000. */
+  /**
+   * Total time budget (ms) to acquire the lock before throwing. Default 30000.
+   *
+   * MUST be larger than `staleMs`: a waiter that gives up before a held lock
+   * crosses the stale threshold can never reach the stale-reclaim branch, so a
+   * crashed holder's lock would deadlock every subsequent caller. With
+   * deadline (30s) > stale (10s) a waiter is still polling when the lock turns
+   * stale and reclaims it.
+   */
   deadlineMs?: number;
   /** Age (ms) past which a held lock is treated as stale and reclaimed. Default 10000. */
   staleMs?: number;
@@ -28,7 +36,15 @@ export interface MkdirLockOptions {
   label?: string;
 }
 
-const DEFAULT_DEADLINE_MS = 5000;
+/**
+ * Default acquire deadline. Kept strictly above DEFAULT_STALE_MS so the
+ * stale-reclaim path is reachable for every caller using defaults: a waiter
+ * polls past the 10s stale threshold and reclaims a crashed holder's lock
+ * before its own 30s deadline expires. story_create / checklist_update both
+ * complete in well under 1s, so no legitimate holder ever lives long enough to
+ * be reclaimed.
+ */
+const DEFAULT_DEADLINE_MS = 30000;
 const DEFAULT_STALE_MS = 10000;
 const DEFAULT_POLL_MS = 50;
 

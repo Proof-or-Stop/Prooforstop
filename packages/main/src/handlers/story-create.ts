@@ -13,6 +13,24 @@ import { withMkdirLock } from '../core/mkdir-lock.js';
 import { normalizeName, keywordOverlap } from '../core/story-dedup.js';
 
 /**
+ * B-6812 F-003: typed error raised when a keyword-full-overlap duplicate of an
+ * ACTIVE non-terminal story is detected. The idempotency loop's catch block
+ * must distinguish "this is the duplicate-guard rejection, re-throw it" from
+ * "reading some unrelated story failed, swallow it" — a brittle
+ * `message.startsWith(...)` prefix check silently changes behavior the moment
+ * the message wording is edited and would also swallow genuine read failures
+ * (OOM / fs permission) that happen to start with the same text. An
+ * `instanceof` check on a dedicated class is wording-independent and only ever
+ * matches the intentional rejection.
+ */
+export class DuplicateStoryError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'DuplicateStoryError';
+  }
+}
+
+/**
  * 高风险关键词检测（OMX ralplan --deliberate 风格）。
  * 命中任一 pattern 时自动 elevate priority + 写 riskSignals。
  * story_review 看到 riskSignals 时强制要求 decision.json + ≥3 preMortem（决策 3 落地后生效）。
@@ -87,6 +105,44 @@ function recentConcurrentStoriesNote(
   const lines = [`⚠ 最近 30 分钟内还创建了 ${recent.length} 个 story：`];
   for (const r of recent) {
     lines.push(`  - ${r.id} [${r.phase}] ${r.title}`);
+  }
+  return lines.join('\n');
+}
+
+/**
+ * B-6812 F-004: scan for DONE / DISCARDED (terminal) stories whose keyword set
+ * FULLY overlaps the new story's keywords (ratio === 1 && shared >= 2). Active
+ * non-terminal full overlap hard-blocks the create; terminal full overlap is
+ * non-blocking but still worth surfacing — finishing a same-domain story is a
+ * useful FYI ("you may be redoing work that just shipped"). plan.md CHK-002
+ * and AGENTS.md both promise this warn, so the code must actually emit it
+ * (silently `continue`-ing a terminal story produced zero output → doc drift).
+ *
+ * Returns '' when nothing matches so the caller never prints a blank line.
+ * Unreadable / malformed story index files are skipped silently.
+ */
+function terminalKeywordOverlapNote(
+  store: HandlerContext['store'],
+  newKeywords: string[],
+): string {
+  if (newKeywords.length === 0) return '';
+  const hits: Array<{ id: string; phase: string; title: string; shared: string[] }> = [];
+  for (const sid of store.listStoryIds()) {
+    try {
+      const other = store.readStory(sid);
+      if (other.phase !== 'DONE' && other.phase !== 'DISCARDED') continue;
+      const overlap = keywordOverlap(newKeywords, other.keywords ?? []);
+      if (overlap.ratio === 1 && overlap.shared.length >= 2) {
+        hits.push({ id: sid, phase: other.phase, title: other.title, shared: overlap.shared });
+      }
+    } catch {
+      /* ignore unreadable story */
+    }
+  }
+  if (hits.length === 0) return '';
+  const lines = ['⚠ keyword 与已完成 story 完全重叠（仅提示，不阻止创建）:'];
+  for (const h of hits) {
+    lines.push(`  - ${h.id} [${h.phase}] ${h.title} (共同关键词: ${h.shared.join(', ')})`);
   }
   return lines.join('\n');
 }
@@ -267,16 +323,19 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
             // shared.length >= 2 避免单 keyword 巧合命中误伤。
             const overlap = keywordOverlap(newKeywords, other.keywords ?? []);
             if (overlap.ratio === 1 && overlap.shared.length >= 2) {
-              throw new Error(
+              throw new DuplicateStoryError(
                 `❌ 疑似重复 story ${sid}（keyword 完全重叠: ${overlap.shared.join(', ')}），` +
                 `确认要新建请加 forceNew:true`,
               );
             }
           } catch (e: any) {
-            // keyword-overlap block must propagate; only swallow read errors
-            // on unrelated stories so one corrupt index.json cannot mask the
-            // duplicate guard.
-            if (typeof e?.message === 'string' && e.message.startsWith('❌ 疑似重复 story')) {
+            // B-6812 F-003: the duplicate-guard rejection must propagate; only
+            // genuine read errors on unrelated stories may be swallowed so one
+            // corrupt index.json cannot mask the guard. An `instanceof`
+            // check on a typed error is wording-independent and never
+            // mis-swallows a real failure (OOM / fs permission) that happens
+            // to start with the same text.
+            if (e instanceof DuplicateStoryError) {
               throw e;
             }
             /* ignore unreadable story */
@@ -408,13 +467,14 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       }
 
       /**
-       * B-6812 CHK-003 (G3 + G4): emit all advisory text to STDERR right
-       * before returning the create conclusion. `riskHint` and `dupWarning`
-       * (G3) are collected earlier; the recent-concurrent-stories note (G4) is
-       * computed here against the freshly written story so `justCreatedId` is
-       * already on disk and excluded from the scan. Each block is trimmed and
-       * skipped when empty so we never print blank stderr lines. The create
-       * conclusion stays on stdout via the return value.
+       * B-6812 CHK-003 (G3 + G4) + F-004: emit all advisory text to STDERR
+       * right before returning the create conclusion. `riskHint` and
+       * `dupWarning` (G3) are collected earlier; the recent-concurrent-stories
+       * note (G4) and the terminal-keyword-overlap note (F-004) are computed
+       * here against the freshly written story so `justCreatedId` is already
+       * on disk and excluded from the scans. Each block is trimmed and skipped
+       * when empty so we never print blank stderr lines. The create conclusion
+       * stays on stdout via the return value.
        */
       const emitAdvisoryToStderr = (): void => {
         const blocks: string[] = [];
@@ -422,6 +482,11 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         if (dupWarning.trim().length > 0) blocks.push(dupWarning.trim());
         const concurrentNote = recentConcurrentStoriesNote(store, storyId, Date.parse(now));
         if (concurrentNote.length > 0) blocks.push(concurrentNote);
+        // B-6812 F-004: keyword full overlap with a DONE/DISCARDED story is
+        // non-blocking but still surfaced as a same-domain FYI on stderr —
+        // plan.md CHK-002 + AGENTS.md promise this warn, so it must be emitted.
+        const terminalNote = terminalKeywordOverlapNote(store, args.keywords ?? []);
+        if (terminalNote.length > 0) blocks.push(terminalNote);
         if (blocks.length > 0) {
           process.stderr.write(blocks.join('\n') + '\n');
         }

@@ -2,13 +2,17 @@
 /**
  * B-6812 CHK-001: unit smoke for core/mkdir-lock.ts `withMkdirLock`.
  *
- * Covers the three behaviors the decision preMortem named as load-bearing:
+ * Covers the behaviors the decision preMortem named as load-bearing:
  *  1. normal acquire/release — lock dir exists during fn, removed after.
  *  2. deadline timeout — a held lock makes a second acquire throw a clear error.
  *  3. stale reclaim — a held lock older than staleMs is force-reclaimed.
+ *  4. lock path occupied by a plain file — no hang / crash.
+ *  5. F-002 regression: stale reclaim is reachable with DEFAULT options
+ *     (DEFAULT_DEADLINE_MS must stay > DEFAULT_STALE_MS).
  *
- * Timing is driven via the MkdirLockOptions (deadlineMs/staleMs/pollMs) so the
- * test is fast and deterministic without spawning processes.
+ * Timing is driven via the MkdirLockOptions (deadlineMs/staleMs/pollMs) or via
+ * mtime backdating so the test is fast and deterministic without spawning
+ * processes or sleeping for the real stale window.
  */
 
 import assert from 'node:assert/strict';
@@ -135,7 +139,44 @@ try {
     rmSync(join(root, 'file-fresh'), { recursive: true, force: true });
   }
 
-  console.log('✓ mkdir-lock smoke passed (normal / timeout / stale-reclaim / file-occupied path)');
+  // ── 5. DEFAULT-config reachability: stale reclaim must fire WITHOUT any
+  // option overrides ───────────────────────────────────────────────────────
+  // F-002 regression guard. The bug: DEFAULT_DEADLINE_MS (was 5000) <
+  // DEFAULT_STALE_MS (10000) — a default-config waiter timed out at 5s, long
+  // before a held lock could cross the 10s stale threshold, so the
+  // stale-reclaim branch was dead code for every real caller (story_create /
+  // checklist_update both delegate with default options). The fix sets
+  // DEFAULT_DEADLINE_MS to 30000 so deadline > stale and the reclaim path is
+  // reachable. We backdate the lock dir's mtime past the stale window instead
+  // of really sleeping 10s, so the test stays fast and deterministic.
+  {
+    const lockDir = join(root, 'default-stale', '.lock');
+    mkdirSync(lockDir, { recursive: true });
+    // Backdate mtime to ~11s ago — just past the default 10s stale window.
+    const stalePast = (Date.now() - 11_000) / 1000;
+    utimesSync(lockDir, stalePast, stalePast);
+    assert.ok(
+      Date.now() - statSync(lockDir).mtimeMs > 10_000,
+      'lock dir mtime is past the default 10s stale window',
+    );
+
+    let ran = false;
+    const start = Date.now();
+    // NO options object: exercises DEFAULT_DEADLINE_MS / DEFAULT_STALE_MS.
+    const ret = withMkdirLock(lockDir, () => { ran = true; return 'default-reclaimed'; });
+    const elapsed = Date.now() - start;
+    assert.equal(ran, true,
+      'fn ran — default-config waiter reclaimed the stale lock instead of timing out');
+    assert.equal(ret, 'default-reclaimed',
+      'withMkdirLock returned fn result after default-config stale-reclaim');
+    assert.equal(existsSync(lockDir), false, 'lock released after default-config stale-reclaim');
+    // The reclaim happens on the first contention loop iteration, so this is
+    // near-instant and far below the 30s default deadline.
+    assert.ok(elapsed < 5_000,
+      `default-config stale reclaim completes promptly (elapsed=${elapsed}ms)`);
+  }
+
+  console.log('✓ mkdir-lock smoke passed (normal / timeout / stale-reclaim / file-occupied path / default-config reclaim)');
 } finally {
   rmSync(root, { recursive: true, force: true });
 }
