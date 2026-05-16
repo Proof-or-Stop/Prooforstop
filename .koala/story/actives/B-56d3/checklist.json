@@ -42,9 +42,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-16T01:58:02.067Z",
       "userSees": "A maintainer opens packages/main/src/core/transition-effects.ts and finds the non-DONE transition side effects: process metrics write, onPhaseChange hooks, REVIEW metadata auto-commit, relatedDocs reminder, next-step rendering. story-advance.ts delegates to it. Running story_advance for a transition emits byte-identical metrics / hook order / auto-commit report / hint text / next-step text as before.",
       "verificationIntent": {
         "happy": [
