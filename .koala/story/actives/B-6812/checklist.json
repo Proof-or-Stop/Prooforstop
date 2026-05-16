@@ -106,6 +106,17 @@
           "headHash": "fa75f6305c0aaca3a8c7e4a0411c97267eda6d73",
           "materialHash": "50b6c7cc0ba12cbb30e7be6b878fe82137d00230f37b33d29737d6cbf75b2779",
           "timestamp": "2026-05-16T12:49:25.980Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/mkdir-lock-smoke.ts",
+          "command": "npm --prefix packages/main run test:mkdir-lock-smoke",
+          "result": "pass",
+          "note": "normal 用例断言 withMkdirLock 持锁期间 lockDir 存在、fn 返回后 lockDir 被 rmSync 清除、返回值透传",
+          "headHash": "cf4d51cafa049202a26dc5d0c2bded6fa47eb960",
+          "materialHash": "50b6c7cc0ba12cbb30e7be6b878fe82137d00230f37b33d29737d6cbf75b2779",
+          "timestamp": "2026-05-16T12:49:26.241Z"
         }
       ]
     },
