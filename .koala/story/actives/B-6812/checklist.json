@@ -186,7 +186,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "用户跑 koala story_create 时重复警告与并发提示出现在 stderr；即使用 koala story_create ... | tail 只看 stdout，重复警告仍在 stderr 可见。30 分钟内有其它新 story 时 stderr 显示 ⚠ 最近 30 分钟内还创建了 N 个 story。",
+      "userSees": "用户跑 `koala story_create` 时重复警告与并发提示出现在 stderr；即使 `koala story_create ... | tail` 只看 stdout，重复警告仍在 stderr 可见。30 分钟内有其它新 story 时 stderr 显示 `⚠ 最近 30 分钟内还创建了 N 个 story`。",
       "files": {
         "modify": [
           "packages/main/src/handlers/story-create.ts",
