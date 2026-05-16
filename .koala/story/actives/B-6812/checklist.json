@@ -324,15 +324,15 @@
         },
         {
           "intentRef": "CHK-002:happy:1",
-          "kind": "manual_transcript",
+          "kind": "integration_test",
           "verdict": "success",
           "file": "packages/main/src/tasks/story-create-concurrency-smoke.ts",
-          "command": "npm --prefix packages/main run test:story-create-concurrency-smoke",
+          "command": "npm run test:story-create-concurrency-smoke",
           "result": "pass",
-          "note": "runDedupScenario 断言对 active non-terminal story 完全重叠 keyword 时 story_create exit≠0 且输出含 疑似重复 story + forceNew，覆盖 keyword 完全重叠 block 主路径",
-          "headHash": "25626cfb28f0b8e6f727d8b0105623711f3331e1",
-          "materialHash": "a10622b79a4f4196c884ce0c1375ac4d280b7012b9dbea4475d74695ac9294a4",
-          "timestamp": "2026-05-16T13:00:16.263Z"
+          "note": "runDedupScenario：active story keyword 完全重叠抛错含 疑似重复 且 exit code 非 0",
+          "headHash": "f895db25e8317db9b43754eb860894776ec72f5b",
+          "materialHash": "1d1ec2eb31669e115d502d254b45b4f3f075fdb3f9ad5b94217e561e88742c07",
+          "timestamp": "2026-05-16T13:09:43.237Z"
         },
         {
           "intentRef": "CHK-002:happy:2",
