@@ -4,7 +4,7 @@
   "title": "DONE Oracle Extraction: move buildDoneChecklist into core/done-oracle.ts",
   "description": "Lifecycle governance step 2 (Story 1 B-3740 Lifecycle Registry V1 is DONE). buildDoneChecklist (story-advance.ts:306, ~569 lines) plus DoneCheckRow type, the doneCheckRow factory, and all DONE row-builder logic are inlined in the 1640-line story-advance.ts handler. It is already consumed by two callers: the DONE gate (story-advance.ts:1127) and session_brief DONE pre-check (session.ts:789). Extract it into a new core/done-oracle.ts as a mechanical relocation — function body, row order, blocking semantics, and gate logic stay byte-identical. Rewire story-advance.ts and session.ts to import from done-oracle.ts, and add a contract test proving the DONE gate and session_brief render from the same done-oracle source. Explicitly out of scope: no DONE gate semantics change, no TEST semantics change, no transition orchestrator split (Story 3/4).",
   "type": "refactor",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "done-oracle",
@@ -21,7 +21,7 @@
   ],
   "createdAt": "2026-05-15T23:29:40.991Z",
   "startedAt": "2026-05-15T23:29:40.991Z",
-  "endedAt": null,
+  "endedAt": "2026-05-16T00:09:35.063Z",
   "events": [
     {
       "phase": "INIT",
@@ -118,12 +118,15 @@
       "branch": "story/B-37e9",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-05-16T00:09:35.063Z",
+      "branch": "story/B-37e9",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-37e9",
-    "branch": "story/B-37e9",
-    "createdAt": "2026-05-15T23:31:15.651Z"
-  },
   "currentReviewRound": "2026-05-16T00:03:57.631Z"
 }
