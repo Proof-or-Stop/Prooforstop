@@ -1,0 +1,56 @@
+{
+  "storyId": "B-37e9",
+  "changes": "DONE Oracle Extraction：新建 core/done-oracle.ts，机械搬入 buildDoneChecklist + DoneCheckRow + doneCheckRow + renderDoneChecklist + checkMainDivergence + 7 个私有 helper（checkEvidenceFreshness / readGitStatusLines / classifierOptionsForCheck / evaluateDirtyGitStatus / gitRefExists / gitRefContainsMain 等），函数体逐字节不变。story-advance.ts 从 1640 行减到 944 行（-696），保留 thin re-export 兜底 legacy import；session.ts / flow-stability-smoke.ts 重连到 core/done-oracle.js。flow-stability-smoke.ts 加 assertDoneOracleSameSource contract（行为：同 fixture 驱动 DONE gate 路径 + session_brief 路径断言 DONE rows 逐行一致；结构：grep 两消费方都 import core/done-oracle.js + done-oracle.ts 不 import handlers/）。修 layer violation 衍生：新建 core/delivery-check-hash.ts 把 signDeliveryCheck/recomputeDeliveryCheckHash/DELIVERY_CHECK_SALT 从 handlers 抽到 core。",
+  "usage": "框架维护者改 DONE gate 逻辑时只改 core/done-oracle.ts 一处；story_advance 的 DONE gate 和 session_brief 的 DONE pre-check 都从 done-oracle.ts 消费，assertDoneOracleSameSource contract 保证两者同源不漂移。done-oracle.ts 作为独立 core 模块为后续 Story 3（transition orchestrator 拆分）铺好地基——story-advance.ts 不再被 569 行的 buildDoneChecklist 撑大。",
+  "expectedOutcome": "框架维护者打开 packages/main/src/core/done-oracle.ts 看到 buildDoneChecklist + DoneCheckRow + doneCheckRow 单一来源；story-advance.ts 不再含函数体（减 696 行）；npm --prefix packages/main run build 干净无循环依赖；test:flow-stability-smoke 的 assertDoneOracleSameSource 断言 DONE gate 与 session_brief 渲染逐行一致 PASS；既有 DONE checklist smoke（declared-artifacts-committed 等）原样通过。",
+  "actualTranscript": "story-advance.ts 1640→944 行（-696）；core/done-oracle.ts 740 行 + core/delivery-check-hash.ts 新建；npm --prefix packages/main run build TypeScript 无错无循环依赖；test:flow-stability-smoke PASS 含新 assertDoneOracleSameSource（结构 grep + 行为逐行对比）+ 未改动的 assertDoneChecklistUsesStableOracleRows / assertDeclaredArtifactDoneCommittedRow；test:validation-protocol PASS；test:lifecycle-registry-contract（Story 1 回归）PASS；koala validate --story=B-37e9 --json allPass=true，Verification intent coverage: 9/9 covered。",
+  "outcomeDiff": "实际符合预期。机械搬家函数体逐字节不变（preMortem #1：row snapshot baseline 对比 byte-identical / preMortem #3：contract 同时做结构 + 行为同源证明）；done-oracle.ts 零 handlers/ import（preMortem #2：assertDoneOracleSameSource 加了 no-handlers-import 守卫）。",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "本 story 只做 DONE oracle 抽取，不改 DONE gate 任何判定语义、不改 TEST 语义、不拆 transition orchestrator——那是计划里的 Story 3/4。core/machine.ts:8 仍有一处 pre-existing 的 core→handlers layer violation（import handlers/init-check.js 的 blockingInitCheckIssues / recomputeInitCheckHash），与 F-001 同类，本 story scope 外未触，建议另开 backlog 用同样手法（抽 init-check 签名原语到 core）处理。",
+  "pitfalls": "生命周期治理 4-story 计划第 2 步。走了 4 轮 REVIEW：R1 quality F-001（core/done-oracle.ts import handlers/delivery-check.js = core→handlers layer violation，抽出过程暴露的）→ 修复抽 core/delivery-check-hash.ts；R2 concept F-002（2 个 task 文件仍走 handler re-export 间接 import）→ 修复改 canonical 路径 + 删 re-export；R3 quality F-003（删 re-export 后 delivery-check.ts 遗留 2 个 dead import）→ 删。每轮 fix 触发下一轮 evidence stale + DEV→REVIEW 回炉。F-001/F-002/F-003 是同一条 layer-violation 修复链的逐层余波——一次抽取动作牵出三轮收尾，说明 extraction refactor 的 reviewer 价值集中在 import 层级与残留清理，不只是函数体本身。",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 94571
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 788
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 206523
+    },
+    "DEV": {
+      "count": 4,
+      "durationMs": 814237
+    },
+    "REVIEW": {
+      "count": 4,
+      "durationMs": 1076826
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 199571
+    }
+  },
+  "totalDurationMs": 2392520,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-05-16T00:09:33.511Z",
+  "updatedAt": "2026-05-16T00:09:33.511Z"
+}
