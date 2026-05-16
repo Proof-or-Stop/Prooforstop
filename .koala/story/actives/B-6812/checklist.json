@@ -423,12 +423,12 @@
           "kind": "logic_test",
           "verdict": "success",
           "file": "packages/main/src/tasks/story-dedup-smoke.ts",
-          "command": "npm --prefix packages/main run test:story-dedup-smoke",
+          "command": "node dist/tasks/story-dedup-smoke.js",
           "result": "pass",
-          "note": "story-dedup-smoke 断言全分隔符 name（---、_ _ _、--__--）normalizeName 后为空串，且空 normalizedName 不参与 dedup——边界输入不会误 block",
-          "headHash": "c4a7d2823944ce6c5c97c793d63ff40000b13a86",
-          "materialHash": "a10622b79a4f4196c884ce0c1375ac4d280b7012b9dbea4475d74695ac9294a4",
-          "timestamp": "2026-05-16T13:00:46.126Z"
+          "note": "story-dedup-smoke：全特殊字符 name 归一化为空串，不参与 dedup 不误 block",
+          "headHash": "dca7a6adc0c76d0c5d7e4bbfdb3f9f336b2ee6bd",
+          "materialHash": "1d1ec2eb31669e115d502d254b45b4f3f075fdb3f9ad5b94217e561e88742c07",
+          "timestamp": "2026-05-16T13:09:45.291Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
