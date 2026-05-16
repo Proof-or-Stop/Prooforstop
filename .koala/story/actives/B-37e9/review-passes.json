@@ -71,6 +71,15 @@
       "reviewRound": "2026-05-15T23:59:40.685Z",
       "reviewRunId": "B-37e9:RR-008",
       "_hash": "6cf428b2c57d149d2e62c677b2e3668dcda9c4e7a49e536bf321d08a42800546"
+    },
+    {
+      "id": "B-37e9:RP-009",
+      "agent": "koala-review-concept",
+      "note": "Round 4 concept scan: F-003 fix verified. DELIVERY_CHECK_SALT and recomputeDeliveryCheckHash are no longer imported in handlers/delivery-check.ts. All live references to both symbols are exclusively in core/delivery-check-hash.ts (definitions) and core/machine.ts + core/done-oracle.ts (consumers) — correct core-level imports. References in findings.json and review-passes.json are historical audit trail prose, not code. process-fact-registry.ts references the symbol names as documentation strings, not imports. Zero concept residuals from the dead-import removal.",
+      "createdAt": "2026-05-16T00:04:45.276Z",
+      "reviewRound": "2026-05-16T00:03:57.631Z",
+      "reviewRunId": "B-37e9:RR-010",
+      "_hash": "97227c950662308c69b4f1a0b9f4b96da370bcde0cf565e882f9fd32d0c66f84"
     }
   ]
 }
