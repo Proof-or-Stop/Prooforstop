@@ -16,6 +16,64 @@
         "test": [
           "packages/main/src/tasks/meta-story-next-hint-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "computeNextStep 对 phase=META 的 story 返回 audit/finding flow 专用建议文本（含 koala audit 或 finding 关键词），不含 story_advance；WHY: 覆盖 F-003 根因主路径",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "session_brief 在 main 分支且 META 容器是唯一 active story 时，Next step 段不含 story_advance --phase=INIT_CHECK，而是给出 META 专用引导；WHY: 覆盖 session_brief 的 no-worktree 排序路径",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "koala next 对 META 容器 story 分支返回 audit/finding flow 引导，不含 story_advance；WHY: next 是 computeNextStep 的 extractNextStep 包装，同样需覆盖",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "storyId 以 B-META- 开头但 phase 字段不是 META（如被手工修改为 INIT）时仍被识别为 META 容器，输出 audit 专用建议不输出 lifecycle hint；WHY: preMortem#1 两种判据各自独立成立",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "phase 字段是 META 但 storyId 不以 B-META- 开头（理论上不存在但防御性）时仍走 META 分支；WHY: preMortem#1 另一半",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "META 容器与多个普通 active story 共存时，session_brief Active stories 列表正常渲染普通 story 的 phase/worktree，META 容器不出现在 lifecycle/worktree 排序且普通 story 的 Next step 建议不受干扰；WHY: preMortem#2 回归防护",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "META 容器存在但 phase 字段为空字符串或 undefined 时不抛异常，降级到 default 或 META 分支均可，不能 crash session_brief；WHY: 防御性边界",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "同时存在 B-META-framework-audit (phase=META) 和一个 storyId=B-META-custom (phase=DEV) 的非标 META 前缀 story 时，两者都被排除出 lifecycle 建议排序，不互相干扰；WHY: 多 META 前缀 story 并存对抗",
+            "type": "logic",
+            "priority": "should"
+          },
+          {
+            "desc": "恶意构造 story.phase=META 且 storyId=B-1234（非 B-META- 前缀）注入到 story list，computeNextStep 仍不给出 story_advance 建议（走 META 分支或安全 default），不引导用户执行对 xstate 不合法的推进；WHY: 防止通过 phase 字段伪造绕过",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "session_brief concise=true 模式下 META 容器同样被排除，不泄漏到 Active stories 列表或 Next step 段；WHY: concise 模式是独立渲染路径，需独立验证",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
       }
     },
     {
