@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-a370:RP-001",
+      "agent": "koala-review-concept",
+      "note": "本次无概念删除/替换。diff 仅新增 isMetaContainer / metaContainerNextStep 两个函数及 metaContainerIds 采集逻辑。新引入的 META container 术语与已有 audit-meta-store.ts / audit-trigger.ts 里 B-META- 前缀和 phase=META 定义完全一致，无孤儿引用，无残留废弃概念。已完成概念残留检查，无 blocker。",
+      "createdAt": "2026-05-16T22:43:03.720Z",
+      "reviewRound": "2026-05-16T22:41:50.038Z",
+      "reviewRunId": "B-a370:RR-001",
+      "_hash": "5ca7e5f260565584e12f23168c42d7e505707696c6585c3785f8da369a180ef3"
+    }
+  ]
+}
