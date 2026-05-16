@@ -336,15 +336,15 @@
         },
         {
           "intentRef": "CHK-002:happy:2",
-          "kind": "manual_transcript",
+          "kind": "integration_test",
           "verdict": "success",
           "file": "packages/main/src/tasks/story-create-concurrency-smoke.ts",
-          "command": "npm --prefix packages/main run test:story-create-concurrency-smoke",
+          "command": "npm run test:story-create-concurrency-smoke",
           "result": "pass",
-          "note": "runDedupScenario 断言 forceNew:true 对完全重叠 active story 仍正常创建并得到 distinct storyId，确认 forceNew override 机制",
-          "headHash": "25f76420067ee8065a0bafd6f00676c316b4f923",
-          "materialHash": "a10622b79a4f4196c884ce0c1375ac4d280b7012b9dbea4475d74695ac9294a4",
-          "timestamp": "2026-05-16T13:00:26.218Z"
+          "note": "runDedupScenario：forceNew:true override keyword 完全重叠 block，正常创建新 story",
+          "headHash": "e7c45fa8ce34710d783ffb88b82a8c4260124335",
+          "materialHash": "1d1ec2eb31669e115d502d254b45b4f3f075fdb3f9ad5b94217e561e88742c07",
+          "timestamp": "2026-05-16T13:09:43.488Z"
         },
         {
           "intentRef": "CHK-002:happy:3",
