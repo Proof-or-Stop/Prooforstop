@@ -582,14 +582,13 @@
         {
           "intentRef": "CHK-003:edge:2",
           "kind": "integration_test",
-          "verdict": "success",
           "file": "packages/main/src/tasks/story-create-concurrency-smoke.ts",
           "command": "npm run test:story-create-concurrency-smoke",
           "result": "pass",
           "note": "runStderrChannelScenario step 1: 全新仓库首个 story 无并发兄弟，断言并发提示行不出现（防误报）",
-          "headHash": "262b2cb9f9a407bc4b6db3e961d1eece208abdd1",
-          "materialHash": "1d1ec2eb31669e115d502d254b45b4f3f075fdb3f9ad5b94217e561e88742c07",
-          "timestamp": "2026-05-16T13:08:32.658Z"
+          "headHash": "42a651397ea68dfff161b33bbbf10ded068fb64a",
+          "materialHash": "5c64680cda1d8574845b506a23519390dbae2102039cc27faf65b63cd3276eb8",
+          "timestamp": "2026-05-16T14:01:57.748Z"
         },
         {
           "intentRef": "CHK-003:edge:3",
