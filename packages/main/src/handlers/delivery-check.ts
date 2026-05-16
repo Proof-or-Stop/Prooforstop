@@ -16,11 +16,7 @@
 import type { HandlerContext } from './context.js';
 import type { DeliveryCheckData, DocsPromise, RealMachineTest, ClosingSelfCheck } from '../core/types.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
-import {
-  DELIVERY_CHECK_SALT,
-  signDeliveryCheck,
-  recomputeDeliveryCheckHash,
-} from '../core/delivery-check-hash.js';
+import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 
 // Signature primitives live in core/delivery-check-hash.ts (single source of
 // truth) so core consumers can verify the hash without a core→handlers import.
