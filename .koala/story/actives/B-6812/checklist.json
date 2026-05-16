@@ -445,14 +445,13 @@
         {
           "intentRef": "CHK-002:adversarial:3",
           "kind": "logic_test",
-          "verdict": "success",
           "file": "packages/main/src/tasks/story-dedup-smoke.ts",
           "command": "npm --prefix packages/main run test:story-dedup-smoke",
           "result": "pass",
-          "note": "story-dedup-smoke 断言 normalizeName 对 Unicode 输入（日本語/Café/Über）只做 lowercase + 分隔符归一化、保留 Unicode 字母，行为稳定不崩溃",
-          "headHash": "19a7ea1ca2cc935adaeee16278e64ee8419b709b",
-          "materialHash": "a10622b79a4f4196c884ce0c1375ac4d280b7012b9dbea4475d74695ac9294a4",
-          "timestamp": "2026-05-16T13:00:46.669Z"
+          "note": "story-dedup-smoke: Unicode name normalizeName 稳定性，非 ASCII 输入不崩溃且行为一致",
+          "headHash": "3dc7884a3cf165f0fdb8e9a47d17cd05e68db9d3",
+          "materialHash": "1d1ec2eb31669e115d502d254b45b4f3f075fdb3f9ad5b94217e561e88742c07",
+          "timestamp": "2026-05-16T14:00:23.651Z"
         }
       ]
     },
