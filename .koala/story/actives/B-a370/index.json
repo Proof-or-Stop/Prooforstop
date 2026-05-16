@@ -4,7 +4,7 @@
   "title": "Fix next and session_brief hints for META container stories",
   "description": "修复 F-003：koala next 与 session_brief 对 phase=META 的 meta-story 容器（B-META-framework-audit）给出普通 lifecycle 导航建议，引导用户做无效的 story_advance / INIT_CHECK。改 hint 渲染层让 META 走 audit/finding flow 专用提示。范围严格限于 hint 输出。",
   "type": "bug",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "keywords": [
     "meta-story",
@@ -57,6 +57,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-05-16T22:41:50.038Z",
+      "branch": "story/B-a370",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-05-16T22:44:43.728Z",
       "branch": "story/B-a370",
       "user": "Harmonygo",
       "agent": "main"

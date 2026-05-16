@@ -1,0 +1,56 @@
+{
+  "storyId": "B-a370",
+  "changes": "packages/main/src/handlers/session.ts: 新增 isMetaContainer（phase==='META' || storyId 以 B-META- 开头）与 metaContainerNextStep 两个 helper；computeNextStep 对 META 容器早返回 audit/finding flow 引导；session_brief 主分支 activeStories 排除 META 容器、单独收集 metaContainerIds 并渲染 ## META containers 段；→ Next step else 链新增 META 分支。新增 packages/main/src/tasks/meta-story-next-hint-smoke.ts（4 场景真子进程 smoke）。package.json + packages/main/package.json 加 test:meta-story-next-hint-smoke 脚本。",
+  "usage": "用户照常跑 koala next / koala session_brief 即可，无需新参数。仓库里存在 META 容器（B-META-framework-audit，audit 机制的常驻 finding 容器）时，next/session_brief 不再把它当普通 story 引导用户去 story_advance / 建 worktree，而是单独进 ## META containers 段并提示用 koala audit / koala finding_list 处理。",
+  "expectedOutcome": "用户对 B-META-framework-audit 这种 phase=META 的 meta-story 跑 koala next 或 koala session_brief 时，终端看到的不再是 story_advance --phase=INIT_CHECK 或创建 worktree 这类对容器无效的 lifecycle 引导，而是 META 专用建议（指向 audit/finding flow）；META 容器也不出现在 session_brief 的 lifecycle/worktree 建议排序里。",
+  "actualTranscript": "真机临时项目验证（evidence/transcript-diff.md）：创建 B-META-framework-audit（phase=META）后跑 koala session_brief → 无 ## Active stories 段，META 进 ## META containers 段，→ Next step 给『B-META-framework-audit 是 META 容器...用 koala audit / koala finding_list 处理；不要对它 story_advance 或创建 worktree』；跑 koala next → 返回同一条 META 专用引导。全程无 story_advance --storyId=B-META 与 --phase=INIT_CHECK。",
+  "outcomeDiff": "无差异。expected 的四个维度（META 不进 lifecycle 排序 / 不输出无效 lifecycle hint / META 专用 audit-finding 建议 / next 同样修复）真机输出逐项一致。",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "3 个 should 级 verificationIntent 未写专门测试：CHK-001:edge:3（空/undefined phase 防御）、CHK-001:adversarial:0（多个 B-META- 前缀 story 并存）、CHK-002:adversarial:1（META 容器带 worktree 路径极端场景）。validate 报 0 required missing，test-coverage reviewer round 1 确认可接受为 advisory。改动严格限于 session.ts hint 渲染层，未触碰状态机/gate（risk signal 误报已 PLAN 阶段 story_review_dismiss 消解）。",
+  "pitfalls": "两个坑。一：story 文本里引用 story_advance 关键词触发『状态机/门禁』riskSignal 误报，priority 被自动 elevate medium→high；用 story_review_dismiss 书面消解（框架设计出口），但 dismiss 只降 advisory、不解除 missing_decision gate，仍要补完整 PLAN。二：fresh worktree 没有 node_modules，xstate 是 packages/main 的 workspace-local 依赖（未 hoist 到 root），worktree 里 npm install 也没正确装上 → tsc 解析不到 xstate 泛型 → machine.ts 报一堆 implicit-any（误以为 machine.ts pre-existing bug）；真因是 worktree 缺依赖，把 worktree 的 node_modules symlink 到主仓即解决。下个人在 fresh worktree build 失败先查 node_modules，别急着改代码。",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 805245
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 4938
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 499347
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 5023417
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 173690
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 85687
+    }
+  },
+  "totalDurationMs": 6592328,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-05-16T22:46:09.415Z",
+  "updatedAt": "2026-05-16T22:46:09.415Z"
+}
