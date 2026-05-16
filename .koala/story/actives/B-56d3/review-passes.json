@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-16T01:59:42.672Z",
       "reviewRunId": "B-56d3:RR-002",
       "_hash": "a9932ac33d96193398f81f7a41053c903e93726c7586db57cc36c81f029f59c0"
+    },
+    {
+      "id": "B-56d3:RP-003",
+      "agent": "koala-review-concept",
+      "note": "Concept extraction review complete. Verified: (1) No inline implementations remain in story-advance.ts for any of the 9 extracted functions (resolveGuardFailure, runReviewToTestPreflightGate, runValidateGate, runDoneOracleGate, recomputeProcessMetrics, runPhaseChangeHooks, commitReviewMetadata, renderRelatedDocsHint, buildNextSteps). (2) Each function has exactly one implementation — phase-gates.ts owns 4 gate functions, transition-effects.ts owns 5 effect functions, zero duplicates. (3) No circular imports: phase-gates.ts and transition-effects.ts import nothing from story-advance.js (verified via grep). (4) No new core→handlers violations introduced (pre-existing ones in machine.ts/guard-utils.ts/reviewer-status.ts are unchanged). (5) Stale comments referencing story-advance.ts:335 in machine.ts and guard-utils.ts are pre-existing (those files not modified in this diff). (6) Smoke test (flow-stability-smoke.ts CHK-003 block) and validation-protocol-smoke.ts both import from the new modules and assert fail-closed behavior, circular import absence, and delegation contract. (7) validate result was PASS before REVIEW stage entry. No blocker found.",
+      "createdAt": "2026-05-16T02:03:50.186Z",
+      "reviewRound": "2026-05-16T01:59:42.672Z",
+      "reviewRunId": "B-56d3:RR-001",
+      "_hash": "a1926b3ea75a88b5099d12b142407e08d8176e383b454f5d88f78e3ee9dc3efe"
     }
   ]
 }
