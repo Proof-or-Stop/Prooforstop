@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-16T22:41:50.038Z",
       "reviewRunId": "B-a370:RR-003",
       "_hash": "445e9cd7e4049049df2826af28798a9d3bbd2dc99b605fdd232df763de85ceca"
+    },
+    {
+      "id": "B-a370:RP-003",
+      "agent": "koala-review-quality",
+      "note": "审查 session.ts + meta-story-next-hint-smoke.ts。isMetaContainer 双判据（phase=META || storyId.startsWith(B-META-)）独立充分，无重复逻辑。metaContainerIds 收集在与 activeStories 完全对称的 else 分支，守卫条件（s.phase!==DONE/DISCARDED）正确。Next step else if 链序正确：activeStories > doneStories==total > zombies > metaContainerIds > default；META 容器不会被 doneStories===totalStories 误触发（META phase 不计入 doneStories 且不计入 activeStories）。extractNextStep 通过 session_brief(concise=true) 共享同一 metaContainerIds 路径，koala next 也受保护。smoke test 4 个场景覆盖 happy/edge/adversarial（单独、共存、两判据独立、branch checkout），advanceHintFor 断言针对可操作 hint 而非裸词，assertAuditGuidance 覆盖了 audit/finding 关键词。所有 import 已使用，无死代码，无 as any，无空 catch 吞错误（catch 块全为 probe/skip 语义并有注释），无 shell 层 fn.ts 违规。",
+      "createdAt": "2026-05-16T22:44:19.979Z",
+      "reviewRound": "2026-05-16T22:41:50.038Z",
+      "reviewRunId": "B-a370:RR-002",
+      "_hash": "4ff23231d98660544cc7ce28c692181f116b235aa45a70b629a177e01888a234"
     }
   ]
 }
