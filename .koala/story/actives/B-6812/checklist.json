@@ -375,12 +375,12 @@
           "kind": "logic_test",
           "verdict": "success",
           "file": "packages/main/src/tasks/story-dedup-smoke.ts",
-          "command": "npm --prefix packages/main run test:story-dedup-smoke",
+          "command": "node dist/tasks/story-dedup-smoke.js",
           "result": "pass",
-          "note": "story-dedup-smoke 断言 keywordOverlap(new=[auth,login,token], existing=[auth,session]) 得 ratio=1/3<1，部分重叠不触发 block",
-          "headHash": "6ce45f62a42b8ba40bd882a7ec468e20cc1138a6",
-          "materialHash": "a10622b79a4f4196c884ce0c1375ac4d280b7012b9dbea4475d74695ac9294a4",
-          "timestamp": "2026-05-16T13:00:27.026Z"
+          "note": "story-dedup-smoke：keyword 部分重叠（ratio<1）不触发 block",
+          "headHash": "dd8ad85066c3c465d2fb9344d552c0a4fb86d8c4",
+          "materialHash": "1d1ec2eb31669e115d502d254b45b4f3f075fdb3f9ad5b94217e561e88742c07",
+          "timestamp": "2026-05-16T13:09:44.252Z"
         },
         {
           "intentRef": "CHK-002:edge:2",
