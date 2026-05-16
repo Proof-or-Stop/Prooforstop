@@ -124,13 +124,14 @@
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
+          "verdict": "success",
           "file": "packages/main/src/tasks/mkdir-lock-smoke.ts",
-          "command": "npm --prefix packages/main run test:mkdir-lock-smoke",
+          "command": "node dist/tasks/mkdir-lock-smoke.js",
           "result": "pass",
-          "note": "stale 用例 utimesSync 把 lockDir mtime 回拨 60s 超过 staleMs=10s，断言 withMkdirLock 自动回收旧锁并成功执行 fn，不抛超时",
-          "headHash": "cfac5c7d802342c87f85a709924f25b03ca3ac5c",
-          "materialHash": "50b6c7cc0ba12cbb30e7be6b878fe82137d00230f37b33d29737d6cbf75b2779",
-          "timestamp": "2026-05-16T12:49:37.482Z"
+          "note": "mkdir-lock-smoke：stale lock（mtime>10s）被自动回收并成功获取",
+          "headHash": "175d345944f0e2d0647d59647d8509018c94adb6",
+          "materialHash": "1d1ec2eb31669e115d502d254b45b4f3f075fdb3f9ad5b94217e561e88742c07",
+          "timestamp": "2026-05-16T13:09:21.872Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
