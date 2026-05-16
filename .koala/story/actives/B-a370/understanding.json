@@ -1,0 +1,24 @@
+{
+  "task": "修复 F-003：koala next 与 session_brief 对 phase=META 的 meta-story 容器（B-META-framework-audit）输出无效的普通 lifecycle 导航建议，引导用户做被设计拒绝的 story_advance / INIT_CHECK。",
+  "outcome": "用户对 B-META-framework-audit 这种 meta-story 跑 koala next 或 koala session_brief 时，终端看到的不再是 story_advance --phase=INIT_CHECK 或创建 worktree 这类对容器无效的 lifecycle 引导，而是 META 专用建议，例如提示用 koala audit / finding flow 处理这个容器。同时 session_brief 的 lifecycle/worktree 建议排序里不再出现 META 容器。用户看到这条专用提示就知道 META 容器该怎么用，不会再去试一个注定被拒的 story_advance。",
+  "facts": [
+    "B-META-framework-audit 是 audit-meta-store.ts 创建的 phase=META 容器（META_STORY_ID 常量，phase 字段直接写 META，不在 StoryPhase 联合类型里）",
+    "B-META- 前缀 story 是容器，audit-meta-store.ts 对其任何 phase 推进都 throw 拒绝；audit-trigger.ts 对 B-META- 免触发",
+    "session.ts 的 computeNextStep switch 只枚举 IDEA INIT INIT_CHECK PLAN DEV REVIEW TEST DONE 等，无 META 分支，META 落进 default 返回 未知 phase",
+    "session_brief 的 Next step 段与 lifecycle/worktree 建议排序（如 in INIT 但无 worktree → story_advance INIT_CHECK）可能把 META 容器一起卷进去"
+  ],
+  "constraints": [
+    "只改 packages/main/src/handlers/session.ts 的 META hint 渲染逻辑，以及对应新增 smoke",
+    "明确不触碰 core/machine.ts、handlers/story-advance.ts、core/command-policy.ts、core/lifecycle-registry.ts、audit-meta-store.ts，以及任何 phase transition / gate 逻辑",
+    "如果实现中发现必须改上述生命周期/gate 文件，立即停止，把 story 恢复为 high-risk 全流程，不强行绕",
+    "priority 被 koala 因 story_advance 关键词误报 elevate 到 high，PLAN 阶段用 story_review_dismiss 书面消解该 false positive"
+  ],
+  "unknowns": [
+    "精确错误输出形态与代码路径：computeNextStep default 给 未知 phase，但 session_brief 的 next-step / 无 worktree 检测排序是否也单独把 META 容器卷进 story_advance INIT_CHECK 建议——DEV 阶段复现确认，CHK-001 需覆盖所有产出无效 hint 的路径"
+  ],
+  "touchpoints": [
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/tasks/meta-story-next-hint-smoke.ts"
+  ],
+  "timestamp": "2026-05-16T21:10:24.174Z"
+}

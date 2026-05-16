@@ -1,0 +1,185 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-05-16T21:11:01.135Z",
+      "issueCount": 13,
+      "blockerCount": 9,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 个 checklist item，请检查是否有组合场景遗漏（如：next 与 session_brief 对 META 容器输出 audit/finding 专用建议 + 增加 smoke 断言 META hint 走 audit/finding flow 不含 lifecycle 推进 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 个 risk signal 已被主 agent 驳回（理由见 story.riskSignalsDismissed）: 状态机/门禁"
+        },
+        {
+          "type": "missing_decision",
+          "severity": "blocker",
+          "message": "高风险 story 必须填 decision.json (principles/drivers/options/chosen/≥3 preMortem)。调用: koala decision_set '{...}'"
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-001",
+          "message": "CHK-001 缺少 verificationIntent.happy。第二套流程保留 happy/edge/adversarial 测试纪律：在 PLAN 写 intent，在 DEV/TEST 通过 verification_evidence_add 或 validate 覆盖。"
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-001",
+          "message": "CHK-001 缺少 verificationIntent.edge。第二套流程保留 happy/edge/adversarial 测试纪律：在 PLAN 写 intent，在 DEV/TEST 通过 verification_evidence_add 或 validate 覆盖。"
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-001",
+          "message": "CHK-001 缺少 verificationIntent.adversarial。第二套流程保留 happy/edge/adversarial 测试纪律：在 PLAN 写 intent，在 DEV/TEST 通过 verification_evidence_add 或 validate 覆盖。"
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-002",
+          "message": "CHK-002 缺少 verificationIntent.happy。第二套流程保留 happy/edge/adversarial 测试纪律：在 PLAN 写 intent，在 DEV/TEST 通过 verification_evidence_add 或 validate 覆盖。"
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-002",
+          "message": "CHK-002 缺少 verificationIntent.edge。第二套流程保留 happy/edge/adversarial 测试纪律：在 PLAN 写 intent，在 DEV/TEST 通过 verification_evidence_add 或 validate 覆盖。"
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-002",
+          "message": "CHK-002 缺少 verificationIntent.adversarial。第二套流程保留 happy/edge/adversarial 测试纪律：在 PLAN 写 intent，在 DEV/TEST 通过 verification_evidence_add 或 validate 覆盖。"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 1 个未消化的 unknowns: 精确错误输出形态与代码路径：computeNextStep default 给 未知 phase，但 session_brief 的 next-step / 无 worktree 检测排序是否也单独把 META 容器卷进 story_advance INIT_CHECK 建议——DEV 阶段复现确认，CHK-001 需覆盖所有产出无效 hint 的路径"
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "checklist 所有 item 均未填写 files 字段（旧 story 兼容模式），无法对 understanding.touchpoints 做覆盖校验。请为至少一个 item 的 files.modify/create/test 列出改动文件，以启用 touchpoint→files 强校验"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "blocker",
+          "message": "高风险 story 必须有 plan.md（执行计划）。按 CLAUDE.md plan.md 模板写，每个 CHK-xxx 一个章节"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "未跑 scope check。请先启动 koala-review-scope-plan agent，agent 会自动调 scope_check_save 写入结果"
+        }
+      ],
+      "_hash": "65598960ec9f1e7f17e54db8ca93ee0c27997384fd3a33a7cf87c37f5c6a5b12"
+    },
+    {
+      "timestamp": "2026-05-16T21:11:23.532Z",
+      "issueCount": 13,
+      "blockerCount": 9,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 个 checklist item，请检查是否有组合场景遗漏（如：next 与 session_brief 对 META 容器输出 audit/finding 专用建议 + 增加 smoke 断言 META hint 走 audit/finding flow 不含 lifecycle 推进 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 个 risk signal 已被主 agent 驳回（理由见 story.riskSignalsDismissed）: 状态机/门禁"
+        },
+        {
+          "type": "missing_decision",
+          "severity": "blocker",
+          "message": "高风险 story 必须填 decision.json (principles/drivers/options/chosen/≥3 preMortem)。调用: koala decision_set '{...}'"
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-001",
+          "message": "CHK-001 缺少 verificationIntent.happy。第二套流程保留 happy/edge/adversarial 测试纪律：在 PLAN 写 intent，在 DEV/TEST 通过 verification_evidence_add 或 validate 覆盖。"
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-001",
+          "message": "CHK-001 缺少 verificationIntent.edge。第二套流程保留 happy/edge/adversarial 测试纪律：在 PLAN 写 intent，在 DEV/TEST 通过 verification_evidence_add 或 validate 覆盖。"
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-001",
+          "message": "CHK-001 缺少 verificationIntent.adversarial。第二套流程保留 happy/edge/adversarial 测试纪律：在 PLAN 写 intent，在 DEV/TEST 通过 verification_evidence_add 或 validate 覆盖。"
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-002",
+          "message": "CHK-002 缺少 verificationIntent.happy。第二套流程保留 happy/edge/adversarial 测试纪律：在 PLAN 写 intent，在 DEV/TEST 通过 verification_evidence_add 或 validate 覆盖。"
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-002",
+          "message": "CHK-002 缺少 verificationIntent.edge。第二套流程保留 happy/edge/adversarial 测试纪律：在 PLAN 写 intent，在 DEV/TEST 通过 verification_evidence_add 或 validate 覆盖。"
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-002",
+          "message": "CHK-002 缺少 verificationIntent.adversarial。第二套流程保留 happy/edge/adversarial 测试纪律：在 PLAN 写 intent，在 DEV/TEST 通过 verification_evidence_add 或 validate 覆盖。"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 1 个未消化的 unknowns: 精确错误输出形态与代码路径：computeNextStep default 给 未知 phase，但 session_brief 的 next-step / 无 worktree 检测排序是否也单独把 META 容器卷进 story_advance INIT_CHECK 建议——DEV 阶段复现确认，CHK-001 需覆盖所有产出无效 hint 的路径"
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "checklist 所有 item 均未填写 files 字段（旧 story 兼容模式），无法对 understanding.touchpoints 做覆盖校验。请为至少一个 item 的 files.modify/create/test 列出改动文件，以启用 touchpoint→files 强校验"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "blocker",
+          "message": "高风险 story 必须有 plan.md（执行计划）。按 CLAUDE.md plan.md 模板写，每个 CHK-xxx 一个章节"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "未跑 scope check。请先启动 koala-review-scope-plan agent，agent 会自动调 scope_check_save 写入结果"
+        }
+      ],
+      "_hash": "3f2f33c1c1d21a5d9a4cfffde59484529524585b3102f55b57540d664ed9c087"
+    },
+    {
+      "timestamp": "2026-05-16T21:17:41.695Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 个 checklist item，请检查是否有组合场景遗漏（如：next 与 session_brief 对 META 容器输出 audit/finding 专用建议 + 增加 smoke 断言 META hint 走 audit/finding flow 不含 lifecycle 推进 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 个 risk signal 已被主 agent 驳回（理由见 story.riskSignalsDismissed）: 状态机/门禁"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 1 个未消化的 unknowns: 精确错误输出形态与代码路径：computeNextStep default 给 未知 phase，但 session_brief 的 next-step / 无 worktree 检测排序是否也单独把 META 容器卷进 story_advance INIT_CHECK 建议——DEV 阶段复现确认，CHK-001 需覆盖所有产出无效 hint 的路径"
+        }
+      ],
+      "_hash": "41408139865ab2751a35192e7e5caa84a1adffaa3d9019bb0ee8a8ce63066f85"
+    }
+  ]
+}
