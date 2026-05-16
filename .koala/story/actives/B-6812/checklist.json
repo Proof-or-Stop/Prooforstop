@@ -143,14 +143,13 @@
         {
           "intentRef": "CHK-001:edge:2",
           "kind": "integration_test",
-          "verdict": "success",
           "file": "packages/main/src/tasks/story-create-concurrency-smoke.ts",
           "command": "npm run test:story-create-concurrency-smoke",
           "result": "pass",
           "note": "runScenario custom-dir：非默认 storyDir 配置下锁文件落在 storyDir/.create.lock",
-          "headHash": "a85a2d7891b9006e66ed12424ee7db10fc78e940",
-          "materialHash": "1d1ec2eb31669e115d502d254b45b4f3f075fdb3f9ad5b94217e561e88742c07",
-          "timestamp": "2026-05-16T13:09:22.392Z"
+          "headHash": "1f790f132d69c5f3c1991fc8076987884921c044",
+          "materialHash": "5c64680cda1d8574845b506a23519390dbae2102039cc27faf65b63cd3276eb8",
+          "timestamp": "2026-05-16T14:01:51.794Z"
         },
         {
           "intentRef": "CHK-001:edge:3",
