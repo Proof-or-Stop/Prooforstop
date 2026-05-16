@@ -559,6 +559,18 @@
           "headHash": "a856af463614c95f0403cc03ea327418b6d0ee17",
           "materialHash": "1d1ec2eb31669e115d502d254b45b4f3f075fdb3f9ad5b94217e561e88742c07",
           "timestamp": "2026-05-16T13:08:21.436Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/story-create-concurrency-smoke.ts",
+          "command": "npm run test:story-create-concurrency-smoke",
+          "result": "pass",
+          "note": "runStderrChannelScenario step 4: 模拟 | tail 只读 stdout 视图，断言警告不在 stdout 但创建结论仍在",
+          "headHash": "5afb765708c4da728a88d60d4c7e9371ca3fc3e1",
+          "materialHash": "1d1ec2eb31669e115d502d254b45b4f3f075fdb3f9ad5b94217e561e88742c07",
+          "timestamp": "2026-05-16T13:08:21.701Z"
         }
       ]
     }
