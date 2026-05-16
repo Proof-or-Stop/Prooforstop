@@ -408,15 +408,15 @@
         },
         {
           "intentRef": "CHK-002:edge:4",
-          "kind": "manual_transcript",
+          "kind": "integration_test",
           "verdict": "success",
           "file": "packages/main/src/tasks/story-create-concurrency-smoke.ts",
-          "command": "npm --prefix packages/main run test:story-create-concurrency-smoke",
+          "command": "npm run test:story-create-concurrency-smoke",
           "result": "pass",
-          "note": "runDedupScenario 用 story_discard 把一个 story 推进 DISCARDED 后断言新 active story 完全重叠 keyword 仍正常创建——DISCARDED 与 DONE 同属 terminal，handler 同一 continue 分支跳过",
-          "headHash": "38282d2e8e770352b9f10eb54a4a02f9b4a04ae7",
-          "materialHash": "a10622b79a4f4196c884ce0c1375ac4d280b7012b9dbea4475d74695ac9294a4",
-          "timestamp": "2026-05-16T13:00:37.010Z"
+          "note": "runDedupScenario：DISCARDED story keyword 完全重叠仅 warn 不 block，创建成功",
+          "headHash": "41c842fd2a8d39988213afd5a95f29985e1f9d39",
+          "materialHash": "1d1ec2eb31669e115d502d254b45b4f3f075fdb3f9ad5b94217e561e88742c07",
+          "timestamp": "2026-05-16T13:09:45.023Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
