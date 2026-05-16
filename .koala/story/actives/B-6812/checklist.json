@@ -187,10 +187,10 @@
           "file": "packages/main/src/tasks/mkdir-lock-smoke.ts",
           "command": "npm --prefix packages/main run test:mkdir-lock-smoke",
           "result": "pass",
-          "note": "SIGKILL 持锁进程留下的就是无人释放的 lockDir；stale 用例正是模拟该遗留锁（mtime 回拨 60s），断言后续 withMkdirLock 在 staleMs 后回收并成功获锁",
-          "headHash": "0b271a9684438961214eb371a62499467e4481a2",
-          "materialHash": "50b6c7cc0ba12cbb30e7be6b878fe82137d00230f37b33d29737d6cbf75b2779",
-          "timestamp": "2026-05-16T12:50:42.381Z"
+          "note": "mkdir-lock-smoke step 3 + step 5: 持锁进程崩溃后遗留 stale 锁被后续调用回收（含 default-config 路径）",
+          "headHash": "6c1fc51da686ad3da870c72682c056153fb3eda2",
+          "materialHash": "1d1ec2eb31669e115d502d254b45b4f3f075fdb3f9ad5b94217e561e88742c07",
+          "timestamp": "2026-05-16T14:00:16.327Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
