@@ -197,6 +197,74 @@
         "test": [
           "packages/main/src/tasks/story-create-concurrency-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "story_create 触发 keyword 重复警告 → 警告文本出现在 stderr 而非 stdout；stdout 仅含创建结果/复用信息；WHY: G3 核心修复——警告不被管道吃掉",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "story_create 成功后 30 分钟内有 2 个其它非终态 story 存在 → stderr 显示 \"最近 30 分钟内还创建了 2 个 story\" 并列出 storyId；WHY: G4 核心修复——暴露并发信号",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "koala story_create ... | tail -1 只截取 stdout 最后一行（创建结论）→ stderr 上的警告不被截断仍然可见；WHY: 验证 pipe 隔离——tail 只消费 stdout，stderr 独立输出到终端",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "30 分钟窗口精确边界：一个 story createdAt 恰好 30 分钟 + 1 秒前 → 不出现在并发提示中；WHY: 验证窗口是严格 30 分钟而非 off-by-one",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "30 分钟窗口精确边界：一个 story createdAt 恰好 29 分钟 59 秒前 → 出现在并发提示中；WHY: 边界内 story 必须被捕获",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "无并发 story（30 分钟内无其他非终态 story）→ stderr 不输出任何并发提示行；WHY: 无误报",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "30 分钟内存在 story 但 phase=DONE → 不计入并发提示；WHY: terminal story 不应干扰",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "高风险 riskHint 也走 stderr（不在 stdout）→ koala story_create ... 2>/dev/null 后 stdout 仅含创建结论；WHY: 所有 advisory 信息统一 stderr",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "30 分钟内有 50 个并发 story → stderr 输出全部 50 个 storyId 且不截断不崩溃；WHY: 极端并发场景下输出健壮性",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "story 的 createdAt 字段缺失或非法 ISO 格式 → 跳过该 story 不崩溃，其余正常 story 仍被正确列出；WHY: 脏数据容错",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "系统时钟回拨（当前时间比某 story 的 createdAt 早）→ 不崩溃不报负数时差，该 story 跳过或正常处理；WHY: 时钟漂移不能导致 story_create 失败",
+            "type": "logic",
+            "priority": "should"
+          },
+          {
+            "desc": "stderr.write 在 EPIPE 场景（如 koala story_create 2>/dev/null 且 stderr fd 被关闭）→ 不因 write 失败阻塞创建流程；WHY: 输出通道断开不应影响核心功能",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
       }
     }
   ]
