@@ -1,0 +1,15 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Extract recomputeInitCheckHash / blockingInitCheckIssues / missingRequiredInitCheckAgents into a core module",
+      "context": "core/machine.ts:8 imports blockingInitCheckIssues / missingRequiredInitCheckAgents / recomputeInitCheckHash from ../handlers/init-check.js — a core->handlers upward layer violation, same type as the delivery-check hash issue fixed in B-37e9 F-001. These three init-check primitives only need StoryStore + crypto (pure core dependencies). Move them into core/init-check-hash.ts (or core/init-check-gate.ts); have handlers/init-check.ts and core/machine.ts both consume the core module, single implementation. Do not change INIT_CHECK phase semantics, do not change the reviewer flow. Analysis-and-relocation backlog — does not block main.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
