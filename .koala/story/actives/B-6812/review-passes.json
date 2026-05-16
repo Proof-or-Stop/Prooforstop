@@ -26,6 +26,15 @@
       "reviewRound": "2026-05-16T14:03:12.823Z",
       "reviewRunId": "B-6812:RR-006",
       "_hash": "ee820301237d0801341fbebe4d66a791c643e78d60eafbde468e8723d5660b40"
+    },
+    {
+      "id": "B-6812:RP-004",
+      "agent": "koala-review-docs",
+      "note": "Round 2 re-review. Step 1 extracted key symbols: terminalKeywordOverlapNote, emitAdvisoryToStderr, DuplicateStoryError, normalizeName, keywordOverlap, RECENT_CONCURRENT_WINDOW_MS. Step 2 matched 3 doc sections (AGENTS.md §重复story检测/§重复并发警告走stderr, CLAUDE.md §story_create重复/并发警告走stderr). Step 3 confirmed all doc claims match code: (1) F-004 fixed - terminalKeywordOverlapNote() emits DONE/DISCARDED warn to stderr on all 3 return paths, consistent with AGENTS.md; (2) normalizeName doc matches implementation (lowercase+trim+separator collapse); (3) keyword block threshold (ratio===1, shared>=2) matches both AGENTS.md and code; (4) emitAdvisoryToStderr routing matches CLAUDE.md description; (5) RECENT_CONCURRENT_WINDOW_MS=30min hardcoded matches both docs. No blocker found in round 2.",
+      "createdAt": "2026-05-16T14:05:35.657Z",
+      "reviewRound": "2026-05-16T14:03:12.823Z",
+      "reviewRunId": "B-6812:RR-008",
+      "_hash": "c83d28c07c7bc05e44da305cd05179775174d2ec6807ef520784d01df106d578"
     }
   ]
 }
