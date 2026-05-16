@@ -1,0 +1,22 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "next 与 session_brief 对 META 容器输出 audit/finding 专用建议",
+      "context": "koala next 与 session_brief 的 hint 计算（session.ts 的 computeNextStep 及相关 next-step 渲染）遇到 phase=META 或 storyId 以 B-META- 开头时，输出 META 专用建议——指向 audit finding flow（用 koala audit / finding 流程处理），绝不提示 story_advance、INIT_CHECK 或创建 worktree。同时把 META 容器排除出普通 lifecycle worktree 建议排序，不让它出现在 in INIT 但无 worktree 这类排序里。只改 hint 渲染层，不动 audit-meta-store 与 phase 推进拒绝逻辑。",
+      "userSees": "用户对 META 容器 story 跑 `koala next` 或 `koala session_brief` 时，看到的是 META 专用建议（指向 audit/finding flow），而不是 `story_advance --phase=INIT_CHECK` 这类对容器无效的 lifecycle 引导。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "增加 smoke 断言 META hint 走 audit/finding flow 不含 lifecycle 推进",
+      "context": "新增 smoke（沿用 packages/main/src/tasks/ 下 *-smoke.ts 范式）：构造一个 phase=META 的 meta-story，跑 next 与 session_brief，断言输出不含 story_advance --phase=INIT_CHECK 及其它 lifecycle 推进提示，且包含 audit finding flow 的引导文本。覆盖 meta-story 与普通 active story 共存时 META 不干扰普通建议排序。",
+      "userSees": "开发者跑 META hint 的 smoke，看到 `✓` 全过，断言确认 META 输出不含 `story_advance --phase=INIT_CHECK`、且含 audit/finding flow 引导。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
