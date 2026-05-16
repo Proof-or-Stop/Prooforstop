@@ -89,6 +89,15 @@
       "reviewRound": "2026-05-16T00:03:57.631Z",
       "reviewRunId": "B-37e9:RR-012",
       "_hash": "3a6e24407e34288cfd903acd7c3f12e7908e2257c5e3963fcfef43494112a048"
+    },
+    {
+      "id": "B-37e9:RP-011",
+      "agent": "koala-review-quality",
+      "note": "F-003 fix verified clean. delivery-check.ts now has exactly 4 imports (HandlerContext, DeliveryCheckData+3 types, autoCommitStoryMetadata, signDeliveryCheck) — zero dead imports. DELIVERY_CHECK_SALT / recomputeDeliveryCheckHash / createHash / StoryStore all absent. All consumers (machine.ts, done-oracle.ts, tasks/*) import from core/delivery-check-hash.js directly. No new dead code or type safety issues in the diff.",
+      "createdAt": "2026-05-16T00:05:12.453Z",
+      "reviewRound": "2026-05-16T00:03:57.631Z",
+      "reviewRunId": "B-37e9:RR-011",
+      "_hash": "619bf312ecc3fda9368c41d2f290241a58d4242075178fde147f03020f54e9d7"
     }
   ]
 }
