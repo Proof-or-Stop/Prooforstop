@@ -50,7 +50,7 @@
       "desc": "doc-code-drift: AGENTS.md 「重复 story 检测（dedup）」节声明 \"DONE/DISCARDED story 的 keyword 完全重叠仅 warn（关键词查重段），不 block\"，但代码 story-create.ts 第 396 行的 dupWarning 扫描对 DONE/DISCARDED story 执行 continue（跳过），不产生任何 warn 输出。实际行为是静默跳过，而非如文档所述的 advisory warn。",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "agent": "koala-review-docs",
       "createdAt": "2026-05-16T13:52:19.701Z",
       "reviewRound": "2026-05-16T13:49:25.681Z",
