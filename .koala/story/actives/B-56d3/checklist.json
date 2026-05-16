@@ -186,6 +186,17 @@
           "headHash": "5a4dd33878e16c5058a4f50a3b6f08a7cd399ebb",
           "materialHash": "50b6c7cc0ba12cbb30e7be6b878fe82137d00230f37b33d29737d6cbf75b2779",
           "timestamp": "2026-05-16T01:59:23.492Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "assertPhaseGatesAndEffectsExtraction static import-check: phase-gates.ts and transition-effects.ts do not import handlers/story-advance.js — no circular import (preMortem #2)",
+          "headHash": "f074becee5e2c9092c04f5b857ec2c41d3133090",
+          "materialHash": "50b6c7cc0ba12cbb30e7be6b878fe82137d00230f37b33d29737d6cbf75b2779",
+          "timestamp": "2026-05-16T01:59:25.204Z"
         }
       ]
     }
