@@ -37,7 +37,7 @@
       "desc": "quality-cleanup: packages/main/src/handlers/delivery-check.ts:20-22 imports DELIVERY_CHECK_SALT and recomputeDeliveryCheckHash from core/delivery-check-hash.js but neither symbol is used anywhere in the file body — only signDeliveryCheck is referenced (lines 64, 80, 142). These are dead imports left over from the refactor.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "agent": "koala-review-quality",
       "createdAt": "2026-05-16T00:01:11.023Z",
       "reviewRound": "2026-05-15T23:59:40.685Z",
