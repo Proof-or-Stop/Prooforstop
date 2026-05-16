@@ -1,0 +1,28 @@
+{
+  "task": "story-advance.ts (944 lines) inlines two decoupled concern groups: the transition gate runner (REVIEW->TEST CLI preflight ~305-340, the koala validate --json gate, the TEST->DONE done-oracle gate, cwd/guard-failure adapter, gate hint rendering ~437) and the non-DONE transition side effects (writeProcessMetrics ~550, onPhaseChange hooks ~556-577, autoCommitStoryMetadata ~580, relatedDocs reminders ~585, nextSteps rendering ~620). They are tangled into the handler body even though review-preflight.ts already exists as a partial gate helper.",
+  "outcome": "A framework maintainer opens packages/main/src/core/phase-gates.ts and finds the transition gate runner there, and packages/main/src/core/transition-effects.ts with the non-DONE side effects. story-advance.ts no longer contains the inline gate-runner or effect bodies — it delegates to the two modules. Running koala validate / story_advance for every transition produces byte-identical gate decisions, fail-closed behavior, error wording, metrics, hooks, auto-commit, and hint output as before. story-advance.ts line count drops noticeably. A regression test proves REVIEW->TEST preflight still fails closed and koala validate throw / JSON-parse failure still blocks TEST.",
+  "facts": [
+    "story-advance.ts is 944 lines; REVIEW->TEST preflight already partly delegates to review-preflight.ts via runReviewCliGates (~313)",
+    "The koala validate --json gate, TEST->DONE done-oracle gate, cwd/guard-failure adapter, and gate hint rendering are still inline in story-advance.ts",
+    "Non-DONE effects inline: writeProcessMetrics (~550), onPhaseChange runHooks (~556-577), autoCommitStoryMetadata (~580-582), relatedDocs reminder (~585-593), nextSteps map (~620)",
+    "DONE merge/cleanup (~886-936) is OUT of scope — Story 3b",
+    "done-oracle.ts (Phase 1 B-37e9) and lifecycle-registry.ts (Phase 1 B-3740) already exist as core modules to consume"
+  ],
+  "constraints": [
+    "Behavior-preserving: gate decisions, fail-closed semantics, error wording, evidence-write timing all byte-identical",
+    "The koala validate gate may keep writing test-evidence.json in this story — annotate explicitly as a behavior-preserving side effect, do not force pure here",
+    "No DONE merge/cleanup extraction (Story 3b), no orchestrator coupling (Story 3c), no TEST semantics / legacy / workflow profile change (Story 4)",
+    "New modules must keep core/handlers layering correct — no circular import; if a gate needs a handler-only dependency, keep that thin adapter in handlers/",
+    "story_advance responsibility map is PLAN understanding work, not a checklist deliverable"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/handlers/review-preflight.ts",
+    "packages/main/src/core/phase-gates.ts",
+    "packages/main/src/core/transition-effects.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/validation-protocol-smoke.ts"
+  ],
+  "timestamp": "2026-05-16T01:40:55.886Z"
+}
