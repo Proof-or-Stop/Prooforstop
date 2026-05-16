@@ -209,10 +209,10 @@
           "file": "packages/main/src/tasks/story-create-concurrency-smoke.ts",
           "command": "npm --prefix packages/main run test:story-create-concurrency-smoke",
           "result": "pass",
-          "note": "smoke 跑 default-dir 与 custom-dir 两个独立 storyDir 场景，各自锁路径 <storyDir>/.create.lock 互不重叠，每轮结束断言无 .create.lock 泄漏，证明锁路径隔离",
-          "headHash": "5e3c11114c75ae594389dfdd572931e2d3fe1122",
-          "materialHash": "50b6c7cc0ba12cbb30e7be6b878fe82137d00230f37b33d29737d6cbf75b2779",
-          "timestamp": "2026-05-16T12:50:42.941Z"
+          "note": "story-create-concurrency-smoke runScenario: default 与 custom storyDir 两套 round 各自独立获锁互不干扰",
+          "headHash": "9afdea25a908b6d8f771c525e489dbc1f81bbc02",
+          "materialHash": "1d1ec2eb31669e115d502d254b45b4f3f075fdb3f9ad5b94217e561e88742c07",
+          "timestamp": "2026-05-16T14:00:23.393Z"
         }
       ]
     },
