@@ -80,7 +80,31 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "npm --prefix packages/main run build + test:flow-stability-smoke + test:validation-protocol all green. A regression block proves REVIEW->TEST preflight still fails closed on abnormal cases and koala validate throw / JSON-parse failure still blocks TEST. story-advance.ts line count drops from ~944 and it no longer contains the inline gate-runner or effect bodies.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "build + flow-stability-smoke + validation-protocol green; story-advance.ts delegates to phase-gates.ts and transition-effects.ts with no inline gate/effect bodies",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "new core modules have no circular import — static import-check confirms phase-gates.ts / transition-effects.ts do not import handlers/story-advance.js (preMortem #2)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "no TEST semantics change, no legacy phase change, no workflow profile change, no DONE merge extraction — git diff scope limited to gate runner + non-DONE effects + tests",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
