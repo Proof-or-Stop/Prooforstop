@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "为 story_create 加目录锁让 idempotency 检查与写入原子化",
       "context": "story-create.ts 全程无锁，并发 story_create 同 name 会穿过 idempotency 落两份 story（G1）。抽取 checklist.ts 的 withChecklistLock 的 mkdir 原子锁机制到共享模块 core/mkdir-lock.ts，导出 withMkdirLock(lockDir, fn)：mkdir 原子获取加 deadline 加 mtime 超过 10s 的 stale 回收加 finally 释放。checklist.ts 改为消费它且行为不变，story_create 整个 handler body 包进锁。锁路径必须用 store.storyDirRel 解析实际 story storage root，当前为 .koala/story/actives，锁文件等于 root 加 storyDir 加 .create.lock，绝不硬编码 docs/story/actives。测试须覆盖非默认 storyDir 配置。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-16T12:52:13.936Z",
       "userSees": "用户并发跑两次 `koala story_create` 同 name 时只产生一个 story 目录；第二次命令返回 `⚠ Story already exists: B-xxxx`，不产生第二份。串行创建不同 name 各得独立 storyId。",
       "files": {
         "modify": [
