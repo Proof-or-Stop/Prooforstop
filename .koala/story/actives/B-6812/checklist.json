@@ -583,6 +583,18 @@
           "headHash": "b83b45b6dd706cbbb0aeb940223effa956856443",
           "materialHash": "1d1ec2eb31669e115d502d254b45b4f3f075fdb3f9ad5b94217e561e88742c07",
           "timestamp": "2026-05-16T13:08:32.132Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/story-create-concurrency-smoke.ts",
+          "command": "npm run test:story-create-concurrency-smoke",
+          "result": "pass",
+          "note": "runStderrChannelScenario step 6: backdate 29 分钟（窗口内）的 story 必须出现在并发提示中",
+          "headHash": "024d274649004b6e4981d80f1bcf67d3c9ea6ee0",
+          "materialHash": "1d1ec2eb31669e115d502d254b45b4f3f075fdb3f9ad5b94217e561e88742c07",
+          "timestamp": "2026-05-16T13:08:32.402Z"
         }
       ]
     }
