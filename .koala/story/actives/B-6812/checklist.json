@@ -212,9 +212,9 @@
       "id": "CHK-002",
       "title": "把重复检测从 exact-name 加强为归一化 name 加 keyword 完全重叠 block",
       "context": "新增纯模块 core/story-dedup.ts：normalizeName 做 lowercase 加分隔符归一，keywordOverlap 返回 shared 与 ratio。idempotency 比较改用 normalizeName，但只有 normalizedName 长度大于 0 才参与，因为旧数据多 name 为空串，空名不能被误判成同一个。keyword 完全重叠时升级为 block：ratio 定义为 shared 除以 newStoryKeywords 长度，当 ratio 等于 1 且 shared 长度不小于 2 时抛错要求 forceNew true。比较对象仅限 active non-terminal story 即 phase 不属于 DONE 或 DISCARDED，对 DONE story 完全重叠最多 warn 不 block。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-16T13:01:54.885Z",
       "userSees": "用户跑 `koala story_create` 创建一个 normalized name 与已有 active story 相同、或 keyword 集被某 active non-terminal story 完全覆盖的 story 时，stderr 显示 `❌ 疑似重复 story B-xxxx（keyword 完全重叠），确认要新建请加 forceNew:true`，exit code 非 0；加 `forceNew:true` 后正常创建。",
       "files": {
         "modify": [
