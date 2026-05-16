@@ -171,9 +171,9 @@
       "title": "增加 smoke 断言 META hint 走 audit/finding flow 不含 lifecycle 推进",
       "context": "新增 smoke（沿用 packages/main/src/tasks/ 下 *-smoke.ts 范式）：构造一个 phase=META 的 meta-story，跑 next 与 session_brief，断言输出不含 story_advance --phase=INIT_CHECK 及其它 lifecycle 推进提示，且包含 audit finding flow 的引导文本。覆盖 meta-story 与普通 active story 共存时 META 不干扰普通建议排序。",
       "userSees": "开发者跑 META hint 的 smoke，看到 `✓` 全过，断言确认 META 输出不含 `story_advance --phase=INIT_CHECK`、且含 audit/finding flow 引导。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-16T22:41:49.743Z",
       "files": {
         "modify": [],
         "create": [
