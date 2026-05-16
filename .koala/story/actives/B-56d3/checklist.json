@@ -44,7 +44,31 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "A maintainer opens packages/main/src/core/transition-effects.ts and finds the non-DONE transition side effects: process metrics write, onPhaseChange hooks, REVIEW metadata auto-commit, relatedDocs reminder, next-step rendering. story-advance.ts delegates to it. Running story_advance for a transition emits byte-identical metrics / hook order / auto-commit report / hint text / next-step text as before.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "core/transition-effects.ts exists with the non-DONE side effects (metrics / onPhaseChange hooks / auto-commit / relatedDocs hint / next-step rendering); story-advance.ts delegates to it",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "DONE merge/cleanup is NOT in transition-effects.ts — it stays in story-advance.ts for Story 3b",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "effect order and output text are byte-identical before vs after — a regression snapshot of metrics/hook-sequence/auto-commit/hint/next-step for representative transitions asserts no change (preMortem #3)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
