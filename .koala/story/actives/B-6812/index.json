@@ -4,7 +4,7 @@
   "title": "Harden story_create against concurrent duplicate creation",
   "description": "修复 koala story_create 的并发重复创建漏洞：加目录锁让 idempotency 与写入原子化、把重复检测从 exact-name 加强为归一化 name 加 keyword 完全重叠 block、重复与并发警告改走 stderr。根因见 2026-05-16 分析，两个 agent 并发创建产生 B-4092 与 B-0350 语义重复 story。",
   "type": "bug",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "keywords": [
     "story_create",
@@ -67,6 +67,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-05-16T14:03:12.823Z",
+      "branch": "story/B-6812",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-05-16T14:07:06.017Z",
       "branch": "story/B-6812",
       "user": "Harmonygo",
       "agent": "main"
