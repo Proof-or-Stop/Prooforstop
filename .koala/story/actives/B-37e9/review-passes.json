@@ -62,6 +62,15 @@
       "reviewRound": "2026-05-15T23:59:40.685Z",
       "reviewRunId": "B-37e9:RR-007",
       "_hash": "9699c65a2c9a0f55f553dd254c7f16f4e6a6695e687048e42b9a80c9dc6314e6"
+    },
+    {
+      "id": "B-37e9:RP-008",
+      "agent": "koala-review-quality",
+      "note": "Reviewed all 9 changed source files. The delivery-check-hash.ts extraction and done-oracle.ts relocation are clean refactors — no dead code, no unsafe any, no empty catch blocks that swallow errors, no layer violations (core→handlers). The story-advance.ts thin re-export is correct. One low finding registered: DELIVERY_CHECK_SALT and recomputeDeliveryCheckHash are imported but unused in delivery-check.ts (left over from the refactor, not used in the handler body). All other files are clean.",
+      "createdAt": "2026-05-16T00:01:28.004Z",
+      "reviewRound": "2026-05-15T23:59:40.685Z",
+      "reviewRunId": "B-37e9:RR-008",
+      "_hash": "6cf428b2c57d149d2e62c677b2e3668dcda9c4e7a49e536bf321d08a42800546"
     }
   ]
 }
