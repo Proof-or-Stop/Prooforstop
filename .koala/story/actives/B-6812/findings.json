@@ -14,6 +14,21 @@
       "files": [
         "packages/main/src/tasks/story-create-concurrency-smoke.ts"
       ]
+    },
+    {
+      "id": "B-6812:F-002",
+      "desc": "quality-cleanup: mkdir-lock.ts DEFAULT_DEADLINE_MS=5000 < DEFAULT_STALE_MS=10000 — 默认参数下 stale 回收路径 unreachable。锁必须持有 10s 才会被视为 stale，但调用方在 5s 时即超时抛错，stale reclaim 代码（第65行 rmSync）在实际使用中永远不会执行。story-create.ts 和 checklist.ts 都没有覆盖这两个选项，意味着 withMkdirLock 的 stale 回收功能对所有现有调用方均无效。应将 DEFAULT_STALE_MS 设为小于 DEFAULT_DEADLINE_MS 的值（如 2000ms），或在文档中明确说明调用方需自行传 staleMs < deadlineMs 才能启用 stale 回收。",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-16T13:52:01.887Z",
+      "reviewRound": "2026-05-16T13:49:25.681Z",
+      "reviewRunId": "B-6812:RR-002",
+      "_hash": "ec597f9c801d1d0e168ff8b987cf4143add0b0e200313a7922d75215c4c3eb47",
+      "files": [
+        "packages/main/src/core/mkdir-lock.ts"
+      ]
     }
   ]
 }
