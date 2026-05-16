@@ -1,0 +1,339 @@
+{
+  "command": "koala validate --story=B-6812 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery; verification coverage missing 27 required intent(s)\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.3 test\",\"  > npm run test:e2e\",\"  > koala@0.3.3 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 0/36 covered (27 required missing)\",\"  ✗ CHK-001:happy:0 [happy/must/cli] missing — 两个并发 story_create(name=\\\"same-name\\\") 调用仅产生一个 story 目录，第二个返回 \\\"Story already exists: B-xxxx\\\"；WHY: 覆盖 G1 主路径——锁保证 idempotency 检查与写入原子化\",\"  ✗ CHK-001:happy:1 [happy/must/cli] missing — 串行两次 story_create(name=\\\"alpha\\\") 和 story_create(name=\\\"beta\\\") 各得独立 storyId，行为不受锁影响；WHY: 确认锁不会错误阻塞不同 name 的正常创建\",\"  ✗ CHK-001:happy:2 [happy/must/logic] missing — withMkdirLock(lockDir, fn) 正常获锁 → 执行 fn → 释放锁 → lockDir 已被 rmSync 清除；WHY: 验证锁的基本生命周期\",\"  ✗ CHK-001:edge:0 [edge/must/logic] missing — lockDir 已存在且 mtime 超过 10s（stale lock）→ withMkdirLock 自动回收旧锁并成功获取，不报超时错误；WHY: 崩溃进程遗留锁不会永久阻塞后续调用\",\"  ✗ CHK-001:edge:1 [edge/must/logic] missing — lockDir 已存在但 mtime 不足 10s（新鲜锁）→ withMkdirLock 等待直到 deadline 到达后抛 lock timeout 错误，含可读信息；WHY: 防止错误回收正在使用的锁\",\"  ✗ CHK-001:edge:2 [edge/must/logic] missing — koala.config.json 配置非默认 storyDir（如 custom/story/dir）→ 锁文件创建在 custom/story/dir/.create.lock 而非 docs/story/actives/.create.lock；WHY: preMortem 明确指出锁错目录是假安全风险\",\"  ✗ CHK-001:edge:3 [edge/must/logic] missing — fn 内抛异常 → finally 仍然释放锁（lockDir 被清理），异常正常向上抛出；WHY: 保证异常路径不泄漏锁\",\"  ✗ CHK-001:adversarial:0 [adversarial/must/cli] missing — 10 个并发 story_create(name=\\\"race\\\") 同时启动 → 最终只有 1 个 story 目录存在，其余 9 个返回 already-exists；WHY: 高并发压力下验证锁的互斥性\",\"  ✗ CHK-001:adversarial:1 [adversarial/should/cli] missing — 进程在持锁期间被 SIGKILL（模拟 kill -9）→ 后续 story_create 在 10s 后成功获锁并正常创建；WHY: 验证 stale 回收在真实崩溃场景下生效\",\"  ✗ CHK-001:adversarial:2 [adversarial/should/logic] missing — 攻击者预先创建一个名为 .create.lock 的普通文件（非目录）→ withMkdirLock 能处理此异常而非无限循环或 crash；WHY: 锁路径被恶意占用时应有清晰错误\",\"  ✗ CHK-001:adversarial:3 [adversarial/should/logic] missing — 两个不同 storyDir 配置的 store 实例并发调 story_create → 各自独立获锁互不干扰，不产生跨 store 阻塞；WHY: 验证锁路径隔离性\",\"  ✗ CHK-002:happy:0 [happy/must/logic] missing — story_create(name=\\\"Fix Login Bug\\\") 已有 active story name=\\\"fix-login-bug\\\" → 返回 \\\"Story already exists\\\" 并复用已有 storyId；WHY: 覆盖 normalizeName 归一化后的 idempotency 主路径\",\"  ✗ CHK-002:happy:1 [happy/must/cli] missing — story_create(keywords=[\\\"auth\\\",\\\"login\\\",\\\"session\\\"]) 已有 active story keywords=[\\\"auth\\\",\\\"login\\\",\\\"session\\\"]（ratio=1, shared=3>=2）→ 抛错含 \\\"疑似重复\\\" + exit code 非 0；WHY: 覆盖 keyword 完全重叠 block 主路径\",\"  ✗ CHK-002:happy:2 [happy/must/cli] missing — story_create(keywords=[\\\"auth\\\",\\\"login\\\",\\\"session\\\"], forceNew=true) 已有完全重叠 active story → 正常创建新 story 不报错；WHY: 确认 forceNew override 机制\",\"  ✗ CHK-002:happy:3 [happy/must/logic] missing — normalizeName(\\\"Fix--Login___Bug\\\") === normalizeName(\\\"fix login bug\\\") → true；WHY: 验证分隔符归一化逻辑\",\"  ✗ CHK-002:edge:0 [edge/must/logic] missing — 旧数据 story name=\\\"\\\"（空串）与新 story name=\\\"\\\"（空串）→ 空 normalizedName 不参与 dedup，两者不会被判为同一个；WHY: constraints 明确要求空 name 不参与归一化比较\",\"  ✗ CHK-002:edge:1 [edge/must/logic] missing — keyword 部分重叠（ratio=2/3<1, shared=[\\\"auth\\\",\\\"login\\\"], new=[\\\"auth\\\",\\\"login\\\",\\\"refactor\\\"]）→ 不触发 block，最多 warn；WHY: 保守阈值只在 ratio=1 时 block，部分重叠不误杀\",\"  ✗ CHK-002:edge:2 [edge/must/logic] missing — keyword 完全重叠但 shared.length=1（ratio=1, shared=[\\\"auth\\\"], new=[\\\"auth\\\"]）→ 不触发 block；WHY: shared>=2 下限保护单关键词场景不误杀\",\"  ✗ CHK-002:edge:3 [edge/must/logic] missing — DONE story keyword 与新 story 完全重叠 → 只 warn 不 block，创建成功；WHY: block 仅针对 non-terminal story\",\"  ✗ CHK-002:edge:4 [edge/must/logic] missing — DISCARDED story keyword 与新 story 完全重叠 → 只 warn 不 block，创建成功；WHY: DISCARDED 同属 terminal，与 DONE 一致\",\"  ✗ CHK-002:adversarial:0 [adversarial/must/logic] missing — name 全由特殊字符组成（如 \\\"---___...\\\"）归一化后为空串 → 不参与 dedup，不误 block；WHY: 边界输入不能让归一化产生空串后误判\",\"  ✗ CHK-002:adversarial:1 [adversarial/should/cli] missing — 已有 100 个 active story 各含不同 keyword 子集 → story_create 性能在 1s 内完成，不因遍历退化到 O(n^2) 超时；WHY: 保证大仓库场景下 dedup 不是瓶颈\",\"  ✗ CHK-002:adversarial:2 [adversarial/must/logic] missing — 恶意传入 keywords=[\\\"a\\\",\\\"a\\\",\\\"a\\\"]（重复 keyword）→ 去重后只有 1 个 keyword（shared=1<2），不触发 block；WHY: 重复 keyword 不能人为膨胀 shared count\",\"  ✗ CHK-002:adversarial:3 [adversarial/should/logic] missing — Unicode name（如 \\\"修复登录BUG\\\"）归一化后保持稳定 → 同 Unicode name 的两次调用被正确识别为同一个；WHY: 确保 normalizeName 对非 ASCII 输入不崩溃且行为一致\",\"  ✗ CHK-003:happy:0 [happy/must/cli] missing — story_create 触发 keyword 重复警告 → 警告文本出现在 stderr 而非 stdout；stdout 仅含创建结果/复用信息；WHY: G3 核心修复——警告不被管道吃掉\",\"  ✗ CHK-003:happy:1 [happy/must/cli] missing — story_create 成功后 30 分钟内有 2 个其它非终态 story 存在 → stderr 显示 \\\"最近 30 分钟内还创建了 2 个 story\\\" 并列出 storyId；WHY: G4 核心修复——暴露并发信号\",\"  ✗ CHK-003:happy:2 [happy/must/cli] missing — koala story_create ... | tail -1 只截取 stdout 最后一行（创建结论）→ stderr 上的警告不被截断仍然可见；WHY: 验证 pipe 隔离——tail 只消费 stdout，stderr 独立输出到终端\",\"  ✗ CHK-003:edge:0 [edge/must/logic] missing — 30 分钟窗口精确边界：一个 story createdAt 恰好 30 分钟 + 1 秒前 → 不出现在并发提示中；WHY: 验证窗口是严格 30 分钟而非 off-by-one\",\"  ✗ CHK-003:edge:1 [edge/must/logic] missing — 30 分钟窗口精确边界：一个 story createdAt 恰好 29 分钟 59 秒前 → 出现在并发提示中；WHY: 边界内 story 必须被捕获\",\"  ✗ CHK-003:edge:2 [edge/must/cli] missing — 无并发 story（30 分钟内无其他非终态 story）→ stderr 不输出任何并发提示行；WHY: 无误报\",\"  ✗ CHK-003:edge:3 [edge/must/logic] missing — 30 分钟内存在 story 但 phase=DONE → 不计入并发提示；WHY: terminal story 不应干扰\",\"  ✗ CHK-003:edge:4 [edge/should/cli] missing — 高风险 riskHint 也走 stderr（不在 stdout）→ koala story_create ... 2>/dev/null 后 stdout 仅含创建结论；WHY: 所有 advisory 信息统一 stderr\",\"  ✗ CHK-003:adversarial:0 [adversarial/should/cli] missing — 30 分钟内有 50 个并发 story → stderr 输出全部 50 个 storyId 且不截断不崩溃；WHY: 极端并发场景下输出健壮性\",\"  ✗ CHK-003:adversarial:1 [adversarial/must/logic] missing — story 的 createdAt 字段缺失或非法 ISO 格式 → 跳过该 story 不崩溃，其余正常 story 仍被正确列出；WHY: 脏数据容错\",\"  ✗ CHK-003:adversarial:2 [adversarial/should/logic] missing — 系统时钟回拨（当前时间比某 story 的 createdAt 早）→ 不崩溃不报负数时差，该 story 跳过或正常处理；WHY: 时钟漂移不能导致 story_create 失败\",\"  ✗ CHK-003:adversarial:3 [adversarial/should/cli] missing — stderr.write 在 EPIPE 场景（如 koala story_create 2>/dev/null 且 stderr fd 被关闭）→ 不因 write 失败阻塞创建流程；WHY: 输出通道断开不应影响核心功能\"],\"warnings\":[],\"timestamp\":\"2026-05-16T12:49:05.277Z\",\"headSha\":\"9939f8f9a74b4bfeee4a0e3d865ad7dad2f3c658\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.3 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.3 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":937}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":36,\"reason\":\"verificationIntent entries present (36)\"},\"verificationCoverage\":{\"total\":36,\"required\":27,\"covered\":0,\"missingRequired\":27,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"两个并发 story_create(name=\\\"same-name\\\") 调用仅产生一个 story 目录，第二个返回 \\\"Story already exists: B-xxxx\\\"；WHY: 覆盖 G1 主路径——锁保证 idempotency 检查与写入原子化\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:happy:1\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"串行两次 story_create(name=\\\"alpha\\\") 和 story_create(name=\\\"beta\\\") 各得独立 storyId，行为不受锁影响；WHY: 确认锁不会错误阻塞不同 name 的正常创建\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:happy:2\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"withMkdirLock(lockDir, fn) 正常获锁 → 执行 fn → 释放锁 → lockDir 已被 rmSync 清除；WHY: 验证锁的基本生命周期\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"lockDir 已存在且 mtime 超过 10s（stale lock）→ withMkdirLock 自动回收旧锁并成功获取，不报超时错误；WHY: 崩溃进程遗留锁不会永久阻塞后续调用\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:edge:1\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"lockDir 已存在但 mtime 不足 10s（新鲜锁）→ withMkdirLock 等待直到 deadline 到达后抛 lock timeout 错误，含可读信息；WHY: 防止错误回收正在使用的锁\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:edge:2\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"koala.config.json 配置非默认 storyDir（如 custom/story/dir）→ 锁文件创建在 custom/story/dir/.create.lock 而非 docs/story/actives/.create.lock；WHY: preMortem 明确指出锁错目录是假安全风险\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:edge:3\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"fn 内抛异常 → finally 仍然释放锁（lockDir 被清理），异常正常向上抛出；WHY: 保证异常路径不泄漏锁\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"10 个并发 story_create(name=\\\"race\\\") 同时启动 → 最终只有 1 个 story 目录存在，其余 9 个返回 already-exists；WHY: 高并发压力下验证锁的互斥性\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:adversarial:1\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"进程在持锁期间被 SIGKILL（模拟 kill -9）→ 后续 story_create 在 10s 后成功获锁并正常创建；WHY: 验证 stale 回收在真实崩溃场景下生效\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:adversarial:2\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"攻击者预先创建一个名为 .create.lock 的普通文件（非目录）→ withMkdirLock 能处理此异常而非无限循环或 crash；WHY: 锁路径被恶意占用时应有清晰错误\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:adversarial:3\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"两个不同 storyDir 配置的 store 实例并发调 story_create → 各自独立获锁互不干扰，不产生跨 store 阻塞；WHY: 验证锁路径隔离性\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"story_create(name=\\\"Fix Login Bug\\\") 已有 active story name=\\\"fix-login-bug\\\" → 返回 \\\"Story already exists\\\" 并复用已有 storyId；WHY: 覆盖 normalizeName 归一化后的 idempotency 主路径\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:happy:1\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"story_create(keywords=[\\\"auth\\\",\\\"login\\\",\\\"session\\\"]) 已有 active story keywords=[\\\"auth\\\",\\\"login\\\",\\\"session\\\"]（ratio=1, shared=3>=2）→ 抛错含 \\\"疑似重复\\\" + exit code 非 0；WHY: 覆盖 keyword 完全重叠 block 主路径\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:happy:2\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"story_create(keywords=[\\\"auth\\\",\\\"login\\\",\\\"session\\\"], forceNew=true) 已有完全重叠 active story → 正常创建新 story 不报错；WHY: 确认 forceNew override 机制\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:happy:3\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"normalizeName(\\\"Fix--Login___Bug\\\") === normalizeName(\\\"fix login bug\\\") → true；WHY: 验证分隔符归一化逻辑\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"旧数据 story name=\\\"\\\"（空串）与新 story name=\\\"\\\"（空串）→ 空 normalizedName 不参与 dedup，两者不会被判为同一个；WHY: constraints 明确要求空 name 不参与归一化比较\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:edge:1\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"keyword 部分重叠（ratio=2/3<1, shared=[\\\"auth\\\",\\\"login\\\"], new=[\\\"auth\\\",\\\"login\\\",\\\"refactor\\\"]）→ 不触发 block，最多 warn；WHY: 保守阈值只在 ratio=1 时 block，部分重叠不误杀\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:edge:2\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"keyword 完全重叠但 shared.length=1（ratio=1, shared=[\\\"auth\\\"], new=[\\\"auth\\\"]）→ 不触发 block；WHY: shared>=2 下限保护单关键词场景不误杀\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:edge:3\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"DONE story keyword 与新 story 完全重叠 → 只 warn 不 block，创建成功；WHY: block 仅针对 non-terminal story\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:edge:4\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"DISCARDED story keyword 与新 story 完全重叠 → 只 warn 不 block，创建成功；WHY: DISCARDED 同属 terminal，与 DONE 一致\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"name 全由特殊字符组成（如 \\\"---___...\\\"）归一化后为空串 → 不参与 dedup，不误 block；WHY: 边界输入不能让归一化产生空串后误判\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:adversarial:1\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"已有 100 个 active story 各含不同 keyword 子集 → story_create 性能在 1s 内完成，不因遍历退化到 O(n^2) 超时；WHY: 保证大仓库场景下 dedup 不是瓶颈\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:adversarial:2\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"恶意传入 keywords=[\\\"a\\\",\\\"a\\\",\\\"a\\\"]（重复 keyword）→ 去重后只有 1 个 keyword（shared=1<2），不触发 block；WHY: 重复 keyword 不能人为膨胀 shared count\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:adversarial:3\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Unicode name（如 \\\"修复登录BUG\\\"）归一化后保持稳定 → 同 Unicode name 的两次调用被正确识别为同一个；WHY: 确保 normalizeName 对非 ASCII 输入不崩溃且行为一致\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"story_create 触发 keyword 重复警告 → 警告文本出现在 stderr 而非 stdout；stdout 仅含创建结果/复用信息；WHY: G3 核心修复——警告不被管道吃掉\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:happy:1\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"story_create 成功后 30 分钟内有 2 个其它非终态 story 存在 → stderr 显示 \\\"最近 30 分钟内还创建了 2 个 story\\\" 并列出 storyId；WHY: G4 核心修复——暴露并发信号\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:happy:2\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"koala story_create ... | tail -1 只截取 stdout 最后一行（创建结论）→ stderr 上的警告不被截断仍然可见；WHY: 验证 pipe 隔离——tail 只消费 stdout，stderr 独立输出到终端\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"30 分钟窗口精确边界：一个 story createdAt 恰好 30 分钟 + 1 秒前 → 不出现在并发提示中；WHY: 验证窗口是严格 30 分钟而非 off-by-one\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:edge:1\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"30 分钟窗口精确边界：一个 story createdAt 恰好 29 分钟 59 秒前 → 出现在并发提示中；WHY: 边界内 story 必须被捕获\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:edge:2\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"无并发 story（30 分钟内无其他非终态 story）→ stderr 不输出任何并发提示行；WHY: 无误报\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:edge:3\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"30 分钟内存在 story 但 phase=DONE → 不计入并发提示；WHY: terminal story 不应干扰\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:edge:4\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"高风险 riskHint 也走 stderr（不在 stdout）→ koala story_create ... 2>/dev/null 后 stdout 仅含创建结论；WHY: 所有 advisory 信息统一 stderr\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"30 分钟内有 50 个并发 story → stderr 输出全部 50 个 storyId 且不截断不崩溃；WHY: 极端并发场景下输出健壮性\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:adversarial:1\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"story 的 createdAt 字段缺失或非法 ISO 格式 → 跳过该 story 不崩溃，其余正常 story 仍被正确列出；WHY: 脏数据容错\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:adversarial:2\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"系统时钟回拨（当前时间比某 story 的 createdAt 早）→ 不崩溃不报负数时差，该 story 跳过或正常处理；WHY: 时钟漂移不能导致 story_create 失败\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:adversarial:3\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"stderr.write 在 EPIPE 场景（如 koala story_create 2>/dev/null 且 stderr fd 被关闭）→ 不因 write 失败阻塞创建流程；WHY: 输出通道断开不应影响核心功能\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"missing\"}]}}",
+  "result": "FAIL",
+  "timestamp": "2026-05-16T12:49:05.302Z",
+  "headHash": "9939f8f9a74b4bfeee4a0e3d865ad7dad2f3c658",
+  "verificationCoverage": {
+    "total": 36,
+    "required": 27,
+    "covered": 0,
+    "missingRequired": 27,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "两个并发 story_create(name=\"same-name\") 调用仅产生一个 story 目录，第二个返回 \"Story already exists: B-xxxx\"；WHY: 覆盖 G1 主路径——锁保证 idempotency 检查与写入原子化",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:happy:1",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "串行两次 story_create(name=\"alpha\") 和 story_create(name=\"beta\") 各得独立 storyId，行为不受锁影响；WHY: 确认锁不会错误阻塞不同 name 的正常创建",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:happy:2",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "withMkdirLock(lockDir, fn) 正常获锁 → 执行 fn → 释放锁 → lockDir 已被 rmSync 清除；WHY: 验证锁的基本生命周期",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "lockDir 已存在且 mtime 超过 10s（stale lock）→ withMkdirLock 自动回收旧锁并成功获取，不报超时错误；WHY: 崩溃进程遗留锁不会永久阻塞后续调用",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:edge:1",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "lockDir 已存在但 mtime 不足 10s（新鲜锁）→ withMkdirLock 等待直到 deadline 到达后抛 lock timeout 错误，含可读信息；WHY: 防止错误回收正在使用的锁",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:edge:2",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "koala.config.json 配置非默认 storyDir（如 custom/story/dir）→ 锁文件创建在 custom/story/dir/.create.lock 而非 docs/story/actives/.create.lock；WHY: preMortem 明确指出锁错目录是假安全风险",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:edge:3",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "fn 内抛异常 → finally 仍然释放锁（lockDir 被清理），异常正常向上抛出；WHY: 保证异常路径不泄漏锁",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "10 个并发 story_create(name=\"race\") 同时启动 → 最终只有 1 个 story 目录存在，其余 9 个返回 already-exists；WHY: 高并发压力下验证锁的互斥性",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:adversarial:1",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "进程在持锁期间被 SIGKILL（模拟 kill -9）→ 后续 story_create 在 10s 后成功获锁并正常创建；WHY: 验证 stale 回收在真实崩溃场景下生效",
+        "type": "cli",
+        "priority": "should",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:adversarial:2",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "攻击者预先创建一个名为 .create.lock 的普通文件（非目录）→ withMkdirLock 能处理此异常而非无限循环或 crash；WHY: 锁路径被恶意占用时应有清晰错误",
+        "type": "logic",
+        "priority": "should",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:adversarial:3",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "两个不同 storyDir 配置的 store 实例并发调 story_create → 各自独立获锁互不干扰，不产生跨 store 阻塞；WHY: 验证锁路径隔离性",
+        "type": "logic",
+        "priority": "should",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "story_create(name=\"Fix Login Bug\") 已有 active story name=\"fix-login-bug\" → 返回 \"Story already exists\" 并复用已有 storyId；WHY: 覆盖 normalizeName 归一化后的 idempotency 主路径",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:happy:1",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "story_create(keywords=[\"auth\",\"login\",\"session\"]) 已有 active story keywords=[\"auth\",\"login\",\"session\"]（ratio=1, shared=3>=2）→ 抛错含 \"疑似重复\" + exit code 非 0；WHY: 覆盖 keyword 完全重叠 block 主路径",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:happy:2",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "story_create(keywords=[\"auth\",\"login\",\"session\"], forceNew=true) 已有完全重叠 active story → 正常创建新 story 不报错；WHY: 确认 forceNew override 机制",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:happy:3",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "normalizeName(\"Fix--Login___Bug\") === normalizeName(\"fix login bug\") → true；WHY: 验证分隔符归一化逻辑",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "旧数据 story name=\"\"（空串）与新 story name=\"\"（空串）→ 空 normalizedName 不参与 dedup，两者不会被判为同一个；WHY: constraints 明确要求空 name 不参与归一化比较",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:edge:1",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "keyword 部分重叠（ratio=2/3<1, shared=[\"auth\",\"login\"], new=[\"auth\",\"login\",\"refactor\"]）→ 不触发 block，最多 warn；WHY: 保守阈值只在 ratio=1 时 block，部分重叠不误杀",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:edge:2",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "keyword 完全重叠但 shared.length=1（ratio=1, shared=[\"auth\"], new=[\"auth\"]）→ 不触发 block；WHY: shared>=2 下限保护单关键词场景不误杀",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:edge:3",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "DONE story keyword 与新 story 完全重叠 → 只 warn 不 block，创建成功；WHY: block 仅针对 non-terminal story",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:edge:4",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "DISCARDED story keyword 与新 story 完全重叠 → 只 warn 不 block，创建成功；WHY: DISCARDED 同属 terminal，与 DONE 一致",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "name 全由特殊字符组成（如 \"---___...\"）归一化后为空串 → 不参与 dedup，不误 block；WHY: 边界输入不能让归一化产生空串后误判",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:adversarial:1",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "已有 100 个 active story 各含不同 keyword 子集 → story_create 性能在 1s 内完成，不因遍历退化到 O(n^2) 超时；WHY: 保证大仓库场景下 dedup 不是瓶颈",
+        "type": "cli",
+        "priority": "should",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:adversarial:2",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "恶意传入 keywords=[\"a\",\"a\",\"a\"]（重复 keyword）→ 去重后只有 1 个 keyword（shared=1<2），不触发 block；WHY: 重复 keyword 不能人为膨胀 shared count",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:adversarial:3",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Unicode name（如 \"修复登录BUG\"）归一化后保持稳定 → 同 Unicode name 的两次调用被正确识别为同一个；WHY: 确保 normalizeName 对非 ASCII 输入不崩溃且行为一致",
+        "type": "logic",
+        "priority": "should",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "story_create 触发 keyword 重复警告 → 警告文本出现在 stderr 而非 stdout；stdout 仅含创建结果/复用信息；WHY: G3 核心修复——警告不被管道吃掉",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:happy:1",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "story_create 成功后 30 分钟内有 2 个其它非终态 story 存在 → stderr 显示 \"最近 30 分钟内还创建了 2 个 story\" 并列出 storyId；WHY: G4 核心修复——暴露并发信号",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:happy:2",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "koala story_create ... | tail -1 只截取 stdout 最后一行（创建结论）→ stderr 上的警告不被截断仍然可见；WHY: 验证 pipe 隔离——tail 只消费 stdout，stderr 独立输出到终端",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "30 分钟窗口精确边界：一个 story createdAt 恰好 30 分钟 + 1 秒前 → 不出现在并发提示中；WHY: 验证窗口是严格 30 分钟而非 off-by-one",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:edge:1",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "30 分钟窗口精确边界：一个 story createdAt 恰好 29 分钟 59 秒前 → 出现在并发提示中；WHY: 边界内 story 必须被捕获",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:edge:2",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "无并发 story（30 分钟内无其他非终态 story）→ stderr 不输出任何并发提示行；WHY: 无误报",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:edge:3",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "30 分钟内存在 story 但 phase=DONE → 不计入并发提示；WHY: terminal story 不应干扰",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:edge:4",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "高风险 riskHint 也走 stderr（不在 stdout）→ koala story_create ... 2>/dev/null 后 stdout 仅含创建结论；WHY: 所有 advisory 信息统一 stderr",
+        "type": "cli",
+        "priority": "should",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "30 分钟内有 50 个并发 story → stderr 输出全部 50 个 storyId 且不截断不崩溃；WHY: 极端并发场景下输出健壮性",
+        "type": "cli",
+        "priority": "should",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:adversarial:1",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "story 的 createdAt 字段缺失或非法 ISO 格式 → 跳过该 story 不崩溃，其余正常 story 仍被正确列出；WHY: 脏数据容错",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:adversarial:2",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "系统时钟回拨（当前时间比某 story 的 createdAt 早）→ 不崩溃不报负数时差，该 story 跳过或正常处理；WHY: 时钟漂移不能导致 story_create 失败",
+        "type": "logic",
+        "priority": "should",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:adversarial:3",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "stderr.write 在 EPIPE 场景（如 koala story_create 2>/dev/null 且 stderr fd 被关闭）→ 不因 write 失败阻塞创建流程；WHY: 输出通道断开不应影响核心功能",
+        "type": "cli",
+        "priority": "should",
+        "status": "missing"
+      }
+    ]
+  }
+}

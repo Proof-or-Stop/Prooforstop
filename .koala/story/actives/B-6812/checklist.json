@@ -83,7 +83,20 @@
             "priority": "should"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/story-create-concurrency-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-create-concurrency-smoke",
+          "result": "pass",
+          "note": "真子进程并发 6×story_create 同 name，断言只产生 1 个 story 目录且仅 1 个返回 created，其余返回 Story already exists；覆盖 G1 主路径",
+          "headHash": "9939f8f9a74b4bfeee4a0e3d865ad7dad2f3c658",
+          "materialHash": "50b6c7cc0ba12cbb30e7be6b878fe82137d00230f37b33d29737d6cbf75b2779",
+          "timestamp": "2026-05-16T12:49:25.707Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
