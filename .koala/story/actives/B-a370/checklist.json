@@ -74,7 +74,97 @@
             "priority": "should"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/meta-story-next-hint-smoke.ts",
+          "command": "npm --prefix packages/main run test:meta-story-next-hint-smoke",
+          "result": "pass",
+          "note": "S4a: checkout story/B-META-framework-audit 分支后 session_brief 经 computeNextStep META 早返回，输出 audit 引导、无 story_advance --storyId 与 INIT_CHECK，且不落 未知 phase 分支",
+          "headHash": "11a29324a4cb80c21ee5777f522bf9f2bff78000",
+          "materialHash": "b104a221d68a3fae81e70eb1953fecebc43b7fbed884ac796c2f84998b5abf18",
+          "timestamp": "2026-05-16T22:41:33.449Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/meta-story-next-hint-smoke.ts",
+          "command": "npm --prefix packages/main run test:meta-story-next-hint-smoke",
+          "result": "pass",
+          "note": "S1: META 容器为唯一 active story 时 session_brief Next step 给 META 专用引导，无 story_advance --storyId 与 --phase=INIT_CHECK",
+          "headHash": "11a29324a4cb80c21ee5777f522bf9f2bff78000",
+          "materialHash": "b104a221d68a3fae81e70eb1953fecebc43b7fbed884ac796c2f84998b5abf18",
+          "timestamp": "2026-05-16T22:41:33.449Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/meta-story-next-hint-smoke.ts",
+          "command": "npm --prefix packages/main run test:meta-story-next-hint-smoke",
+          "result": "pass",
+          "note": "S1: koala next 对 META-only repo 返回 audit/finding flow 引导，不含 story_advance --storyId 与 INIT_CHECK",
+          "headHash": "11a29324a4cb80c21ee5777f522bf9f2bff78000",
+          "materialHash": "b104a221d68a3fae81e70eb1953fecebc43b7fbed884ac796c2f84998b5abf18",
+          "timestamp": "2026-05-16T22:41:33.449Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/meta-story-next-hint-smoke.ts",
+          "command": "npm --prefix packages/main run test:meta-story-next-hint-smoke",
+          "result": "pass",
+          "note": "S3a: storyId 以 B-META- 开头但 phase=INIT 仍被识别为 META 容器，排除出 Active stories、无 lifecycle hint",
+          "headHash": "11a29324a4cb80c21ee5777f522bf9f2bff78000",
+          "materialHash": "b104a221d68a3fae81e70eb1953fecebc43b7fbed884ac796c2f84998b5abf18",
+          "timestamp": "2026-05-16T22:41:33.449Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/meta-story-next-hint-smoke.ts",
+          "command": "npm --prefix packages/main run test:meta-story-next-hint-smoke",
+          "result": "pass",
+          "note": "S3b: phase=META 但 storyId 非 B-META- 前缀仍走 META 分支，排除出 Active stories、无 lifecycle hint",
+          "headHash": "11a29324a4cb80c21ee5777f522bf9f2bff78000",
+          "materialHash": "b104a221d68a3fae81e70eb1953fecebc43b7fbed884ac796c2f84998b5abf18",
+          "timestamp": "2026-05-16T22:41:33.449Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/meta-story-next-hint-smoke.ts",
+          "command": "npm --prefix packages/main run test:meta-story-next-hint-smoke",
+          "result": "pass",
+          "note": "S2: META 容器与 2 个普通 INIT story 共存，Active stories(2) 正常渲染普通 story，META 排除出 lifecycle/worktree 排序，普通 story Next step 不受干扰",
+          "headHash": "11a29324a4cb80c21ee5777f522bf9f2bff78000",
+          "materialHash": "b104a221d68a3fae81e70eb1953fecebc43b7fbed884ac796c2f84998b5abf18",
+          "timestamp": "2026-05-16T22:41:33.449Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/meta-story-next-hint-smoke.ts",
+          "command": "npm --prefix packages/main run test:meta-story-next-hint-smoke",
+          "result": "pass",
+          "note": "S4b: 伪造 phase=META 且 storyId=B-1234（非 B-META- 前缀）checkout 到 story 分支，computeNextStep 仍不给 story_advance 建议，给 audit 引导",
+          "headHash": "11a29324a4cb80c21ee5777f522bf9f2bff78000",
+          "materialHash": "b104a221d68a3fae81e70eb1953fecebc43b7fbed884ac796c2f84998b5abf18",
+          "timestamp": "2026-05-16T22:41:33.449Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/meta-story-next-hint-smoke.ts",
+          "command": "npm --prefix packages/main run test:meta-story-next-hint-smoke",
+          "result": "pass",
+          "note": "S2: koala next 走 session_brief concise=true 渲染路径，断言 META 容器不泄漏到 next 输出，与非 concise 一致排除",
+          "headHash": "11a29324a4cb80c21ee5777f522bf9f2bff78000",
+          "materialHash": "b104a221d68a3fae81e70eb1953fecebc43b7fbed884ac796c2f84998b5abf18",
+          "timestamp": "2026-05-16T22:41:33.449Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -140,7 +230,86 @@
             "priority": "should"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/meta-story-next-hint-smoke.ts",
+          "command": "npm --prefix packages/main run test:meta-story-next-hint-smoke",
+          "result": "pass",
+          "note": "smoke 脚本 exit 0；S1 断言 META story 的 next/session_brief 输出不含 story_advance --storyId=<meta> 与 --phase=INIT_CHECK",
+          "headHash": "11a29324a4cb80c21ee5777f522bf9f2bff78000",
+          "materialHash": "b104a221d68a3fae81e70eb1953fecebc43b7fbed884ac796c2f84998b5abf18",
+          "timestamp": "2026-05-16T22:41:33.449Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/meta-story-next-hint-smoke.ts",
+          "command": "npm --prefix packages/main run test:meta-story-next-hint-smoke",
+          "result": "pass",
+          "note": "S1: assertAuditGuidance 断言 META 的 next/session_brief 输出含 audit 或 finding flow 引导关键词",
+          "headHash": "11a29324a4cb80c21ee5777f522bf9f2bff78000",
+          "materialHash": "b104a221d68a3fae81e70eb1953fecebc43b7fbed884ac796c2f84998b5abf18",
+          "timestamp": "2026-05-16T22:41:33.449Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/meta-story-next-hint-smoke.ts",
+          "command": "npm --prefix packages/main run test:meta-story-next-hint-smoke",
+          "result": "pass",
+          "note": "S2: 断言普通 INIT story 仍含 story_advance --storyId=B-normal1 --phase=INIT_CHECK，普通 story lifecycle hint 不回归",
+          "headHash": "11a29324a4cb80c21ee5777f522bf9f2bff78000",
+          "materialHash": "b104a221d68a3fae81e70eb1953fecebc43b7fbed884ac796c2f84998b5abf18",
+          "timestamp": "2026-05-16T22:41:33.449Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/meta-story-next-hint-smoke.ts",
+          "command": "npm --prefix packages/main run test:meta-story-next-hint-smoke",
+          "result": "pass",
+          "note": "S3a: smoke 对 storyId=B-META-prefix-only 且 phase=INIT 的构造 story 断言不输出 lifecycle 推进建议",
+          "headHash": "11a29324a4cb80c21ee5777f522bf9f2bff78000",
+          "materialHash": "b104a221d68a3fae81e70eb1953fecebc43b7fbed884ac796c2f84998b5abf18",
+          "timestamp": "2026-05-16T22:41:33.449Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/meta-story-next-hint-smoke.ts",
+          "command": "npm --prefix packages/main run test:meta-story-next-hint-smoke",
+          "result": "pass",
+          "note": "S3b: smoke 对 phase=META 且 storyId=B-phasemeta（非 B-META- 前缀）的构造 story 断言不输出 lifecycle 推进建议",
+          "headHash": "11a29324a4cb80c21ee5777f522bf9f2bff78000",
+          "materialHash": "b104a221d68a3fae81e70eb1953fecebc43b7fbed884ac796c2f84998b5abf18",
+          "timestamp": "2026-05-16T22:41:33.449Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/meta-story-next-hint-smoke.ts",
+          "command": "npm --prefix packages/main run test:meta-story-next-hint-smoke",
+          "result": "pass",
+          "note": "S1/S2: 断言 META 容器不出现在 session_brief 的 Active stories 排序中（S1 无 Active stories section、S2 count=2 仅普通 story）",
+          "headHash": "11a29324a4cb80c21ee5777f522bf9f2bff78000",
+          "materialHash": "b104a221d68a3fae81e70eb1953fecebc43b7fbed884ac796c2f84998b5abf18",
+          "timestamp": "2026-05-16T22:41:33.449Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/meta-story-next-hint-smoke.ts",
+          "command": "npm --prefix packages/main run test:meta-story-next-hint-smoke",
+          "result": "pass",
+          "note": "S1: 无任何普通 active story 只有 META 容器时，session_brief Next step 段给 audit 引导而非 story_advance",
+          "headHash": "11a29324a4cb80c21ee5777f522bf9f2bff78000",
+          "materialHash": "b104a221d68a3fae81e70eb1953fecebc43b7fbed884ac796c2f84998b5abf18",
+          "timestamp": "2026-05-16T22:41:33.449Z"
+        }
+      ]
     }
   ]
 }

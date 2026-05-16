@@ -157,6 +157,29 @@
         }
       ],
       "_hash": "3f2f33c1c1d21a5d9a4cfffde59484529524585b3102f55b57540d664ed9c087"
+    },
+    {
+      "timestamp": "2026-05-16T21:17:41.695Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 个 checklist item，请检查是否有组合场景遗漏（如：next 与 session_brief 对 META 容器输出 audit/finding 专用建议 + 增加 smoke 断言 META hint 走 audit/finding flow 不含 lifecycle 推进 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 个 risk signal 已被主 agent 驳回（理由见 story.riskSignalsDismissed）: 状态机/门禁"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 1 个未消化的 unknowns: 精确错误输出形态与代码路径：computeNextStep default 给 未知 phase，但 session_brief 的 next-step / 无 worktree 检测排序是否也单独把 META 容器卷进 story_advance INIT_CHECK 建议——DEV 阶段复现确认，CHK-001 需覆盖所有产出无效 hint 的路径"
+        }
+      ],
+      "_hash": "41408139865ab2751a35192e7e5caa84a1adffaa3d9019bb0ee8a8ce63066f85"
     }
   ]
 }
