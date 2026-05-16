@@ -619,6 +619,18 @@
           "headHash": "3f8cd369bb010bb4eebf57c886428baf21acc218",
           "materialHash": "1d1ec2eb31669e115d502d254b45b4f3f075fdb3f9ad5b94217e561e88742c07",
           "timestamp": "2026-05-16T13:08:32.924Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/story-create-concurrency-smoke.ts",
+          "command": "npm run test:story-create-concurrency-smoke",
+          "result": "pass",
+          "note": "runStderrChannelScenario step 8: createdAt 被改成非法 ISO 串的 story 被跳过，story_create 不崩溃且不列该 story",
+          "headHash": "b4e3532e6bf5cf3fd6cb34ba1835a0c5659dec59",
+          "materialHash": "1d1ec2eb31669e115d502d254b45b4f3f075fdb3f9ad5b94217e561e88742c07",
+          "timestamp": "2026-05-16T13:08:33.179Z"
         }
       ]
     }
