@@ -23,10 +23,19 @@
  *    lock path were hardcoded to docs/story or .koala/story, the lock dir and
  *    the actual write target would diverge and the race would reopen — this
  *    round would then produce duplicates and fail.
+ *
+ * B-6812 CHK-002 dedup coverage (separate `runDedupScenario`):
+ *  - normalized-name hit: "Fix Login" then "fix-login" → second reuses the
+ *    first story's id (G2: exact-name match used to miss this).
+ *  - keyword full overlap on an ACTIVE non-terminal story → hard block;
+ *    forceNew:true overrides the block and creates a fresh story.
+ *  - partial keyword overlap (ratio < 1) → no block, new story created.
+ *  - keyword full overlap against a DONE story → no block (terminal stories
+ *    only warn, never block).
  */
 
 import assert from 'node:assert/strict';
-import { execFileSync, spawn } from 'node:child_process';
+import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import {
   existsSync, mkdirSync, mkdtempSync, openSync, readdirSync, readFileSync, rmSync, writeFileSync,
 } from 'node:fs';
@@ -195,6 +204,159 @@ async function runScenario(cfg: RoundConfig): Promise<void> {
   }
 }
 
+/**
+ * Run one synchronous `koala story_create` child with arbitrary args; returns
+ * exit code + merged stdout/stderr. Used by the CHK-002 dedup scenario where
+ * we need control over name / keywords / phase / forceNew per call.
+ */
+function createStorySync(
+  root: string,
+  overrides: Record<string, unknown>,
+): { code: number; output: string } {
+  const args = JSON.stringify({
+    name: 'placeholder',
+    title: 'Dedup probe',
+    description: 'B-6812 CHK-002 dedup probe story.',
+    type: 'chore',
+    priority: 'medium',
+    background: VALID_BACKGROUND,
+    checklist: [{ title: 'probe item', context: 'probe context for dedup smoke' }],
+    ...overrides,
+  });
+  const res = spawnSync(
+    process.execPath,
+    [cliPath, '--root', root, 'story_create', args],
+    { cwd: root, encoding: 'utf8' },
+  );
+  return { code: res.status ?? -1, output: `${res.stdout ?? ''}${res.stderr ?? ''}` };
+}
+
+/** Extract the created/reused story id from story_create output. */
+function storyIdOf(output: string): string | undefined {
+  return (
+    output.match(/Story (B-[a-f0-9]+) created/)?.[1] ??
+    output.match(/Story already exists: (B-[a-f0-9]+)/)?.[1]
+  );
+}
+
+/**
+ * B-6812 CHK-002: dedup behavior — normalized-name idempotency + keyword
+ * full-overlap block. No concurrency needed here; these are sequential
+ * functional regressions on the dedup logic.
+ */
+async function runDedupScenario(): Promise<void> {
+  const root = mkdtempSync(join(tmpdir(), 'koala-story-dedup-'));
+  try {
+    git(root, ['init', '-b', 'main']);
+    git(root, ['config', 'user.email', 'smoke@example.test']);
+    git(root, ['config', 'user.name', 'Koala Smoke']);
+    writeFile(root, 'koala.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      storyDir: '.koala/story/actives',
+      requirementsDir: 'docs/requirements',
+      storyPrefix: 'B',
+    }, null, 2));
+    writeFile(root, 'README.md', 'dedup smoke\n');
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'init']);
+
+    // 1) normalized-name idempotency: "Fix Login" then "fix-login" must reuse.
+    const a = createStorySync(root, { name: 'Fix Login' });
+    assert.equal(a.code, 0, `normalized-name: first create exit\n${a.output}`);
+    assert.match(a.output, /Story B-[a-f0-9]+ created/, 'first create should materialize');
+    const idA = storyIdOf(a.output);
+    assert.ok(idA, 'first create returns an id');
+
+    const b = createStorySync(root, { name: 'fix-login' });
+    assert.equal(b.code, 0, `normalized-name: second create exit\n${b.output}`);
+    assert.match(b.output, /Story already exists/, 'normalized-name hit must reuse, not create');
+    assert.equal(storyIdOf(b.output), idA, 'normalized-name hit returns the SAME story id');
+
+    // raw exact-name "FIX__LOGIN " also normalizes to "fix-login" → reuse.
+    const c = createStorySync(root, { name: '  FIX__LOGIN  ' });
+    assert.equal(c.code, 0, `normalized-name: third spelling exit\n${c.output}`);
+    assert.match(c.output, /Story already exists/, 'separator/case variant must reuse');
+    assert.equal(storyIdOf(c.output), idA, 'separator/case variant returns the SAME story id');
+
+    // 2) keyword full overlap on an ACTIVE non-terminal story → hard block.
+    const k1 = createStorySync(root, { name: 'kw-base', keywords: ['auth', 'session'] });
+    assert.equal(k1.code, 0, `keyword base create exit\n${k1.output}`);
+    const idK1 = storyIdOf(k1.output);
+    assert.ok(idK1, 'keyword base create returns an id');
+
+    // Different name (so normalized-name does NOT match), same keyword set.
+    const blocked = createStorySync(root, { name: 'kw-dup', keywords: ['auth', 'session'] });
+    assert.notEqual(blocked.code, 0, 'keyword full overlap must FAIL the create');
+    assert.match(blocked.output, /疑似重复 story/, 'block message names the duplicate');
+    assert.match(blocked.output, /forceNew/, 'block message points at the forceNew override');
+
+    // forceNew:true overrides the block → a new story is created.
+    const forced = createStorySync(root, {
+      name: 'kw-dup', keywords: ['auth', 'session'], forceNew: true,
+    });
+    assert.equal(forced.code, 0, `forceNew override exit\n${forced.output}`);
+    assert.match(forced.output, /Story B-[a-f0-9]+ created/, 'forceNew:true creates despite overlap');
+    assert.notEqual(storyIdOf(forced.output), idK1, 'forceNew create gets a distinct id');
+
+    // 3) partial keyword overlap (ratio < 1) → NOT blocked.
+    // new keywords {auth, payment}; existing kw-base {auth, session} → shared {auth}, ratio 1/2.
+    const partial = createStorySync(root, { name: 'kw-partial', keywords: ['auth', 'payment'] });
+    assert.equal(partial.code, 0, `partial overlap must not block\n${partial.output}`);
+    assert.match(partial.output, /Story B-[a-f0-9]+ created/, 'partial overlap still creates');
+
+    // single shared keyword (shared.length < 2) → not blocked even if ratio 1.
+    const single = createStorySync(root, { name: 'kw-single', keywords: ['auth'] });
+    assert.equal(single.code, 0, `single shared keyword must not block\n${single.output}`);
+    assert.match(single.output, /Story B-[a-f0-9]+ created/, 'single-keyword overlap still creates');
+
+    // 4) keyword full overlap against a TERMINAL story → NOT blocked.
+    // Create terminal (DONE / DISCARDED) stories via the onboard phase path,
+    // then a new active story with the identical keyword set: terminal stories
+    // never block (the handler skips DONE and DISCARDED identically).
+    const done = createStorySync(root, {
+      name: 'kw-done-base', keywords: ['archived', 'legacy'], phase: 'DONE',
+    });
+    assert.equal(done.code, 0, `DONE-phase base create exit\n${done.output}`);
+    const againstDone = createStorySync(root, {
+      name: 'kw-against-done', keywords: ['archived', 'legacy'],
+    });
+    assert.equal(againstDone.code, 0,
+      `full overlap with a DONE story must NOT block\n${againstDone.output}`);
+    assert.match(againstDone.output, /Story B-[a-f0-9]+ created/,
+      'DONE-story keyword overlap still creates');
+
+    // story_create cannot mint a DISCARDED story directly, so create a normal
+    // story with the keyword set then `story_discard` it into the terminal
+    // DISCARDED phase.
+    const discardedBase = createStorySync(root, {
+      name: 'kw-discarded-base', keywords: ['retired', 'obsolete'],
+    });
+    assert.equal(discardedBase.code, 0, `DISCARDED base create exit\n${discardedBase.output}`);
+    const idDiscarded = storyIdOf(discardedBase.output);
+    assert.ok(idDiscarded, 'DISCARDED base create returns an id');
+    const discardRes = spawnSync(
+      process.execPath,
+      [cliPath, '--root', root, 'story_discard',
+        JSON.stringify({ storyId: idDiscarded, reason: 'dedup smoke terminal-phase fixture' })],
+      { cwd: root, encoding: 'utf8' },
+    );
+    assert.equal(discardRes.status, 0,
+      `story_discard exit\n${discardRes.stdout ?? ''}${discardRes.stderr ?? ''}`);
+    const againstDiscarded = createStorySync(root, {
+      name: 'kw-against-discarded', keywords: ['retired', 'obsolete'],
+    });
+    assert.equal(againstDiscarded.code, 0,
+      `full overlap with a DISCARDED story must NOT block\n${againstDiscarded.output}`);
+    assert.match(againstDiscarded.output, /Story B-[a-f0-9]+ created/,
+      'DISCARDED-story keyword overlap still creates');
+
+    console.log('  ✓ dedup: normalized-name reuse, keyword block + forceNew override, partial/DONE/DISCARDED no-block');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 (async () => {
   // Round set A: default storyDir.
   await runScenario({ label: 'default-dir', storyDir: '.koala/story/actives' });
@@ -202,7 +364,10 @@ async function runScenario(cfg: RoundConfig): Promise<void> {
   // store.storyDirRel() and not hardcoded.
   await runScenario({ label: 'custom-dir', storyDir: 'custom/stories/here' });
 
-  console.log('✓ story-create-concurrency smoke passed (default + non-default storyDir, real subprocess concurrency)');
+  // B-6812 CHK-002: dedup regressions (normalized name + keyword block).
+  await runDedupScenario();
+
+  console.log('✓ story-create-concurrency smoke passed (default + non-default storyDir, real subprocess concurrency, CHK-002 dedup)');
 })().catch((err) => {
   console.error(err);
   process.exit(1);

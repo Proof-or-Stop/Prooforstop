@@ -10,6 +10,7 @@ import { computeDraftCheckHash } from '../core/draft-check-hash.js';
 import { computeChecklistHash } from './init-check.js';
 import { isGitRepository } from '../core/git-probe.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
+import { normalizeName, keywordOverlap } from '../core/story-dedup.js';
 
 /**
  * 高风险关键词检测（OMX ralplan --deliberate 风格）。
@@ -174,25 +175,62 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       // 只在"新建 story"路径上强校验；走 idempotency 复用分支不需要 background。
       // 我们先查 idempotency（见下），若复用已有 story 则 return，不触及 background。
       // 新建分支（通过 idempotency 之后）对 background 做硬校验 + 落盘。
-      // B-0af4 CHK-001: Idempotency check — 同 name 且存在未 DONE/DISCARDED 的
-      // story 时返回已有 storyId + 明确 warning，而不是静默新建 duplicate。
-      // LLM 跨轮 session 里容易忘记已经创建过，这个护栏防止重复污染。
-      // 严格 name 完全相等时触发；forceNew=true 绕过。
+      // B-0af4 CHK-001 / B-6812 CHK-002: Idempotency check — 存在未 DONE/DISCARDED
+      // 的语义重复 story 时返回已有 storyId（或对 keyword 完全重叠硬 block），
+      // 而不是静默新建 duplicate。LLM 跨轮 session / 多 agent 并发跑同一 backlog
+      // 时容易重复创建，这个护栏防止重复污染。forceNew=true 绕过整段检查。
+      //
+      // B-6812 CHK-002 把 G2 缺口（exact-name 漏过归一化差异 + keyword 重叠）补上：
+      //  - normalized-name 匹配：normalizeName(name) 相等即视为同一 story。
+      //    **仅当 normalizeName(args.name) 非空才参与匹配** —— 旧数据多 name 为
+      //    空串/全特殊字符，归一化后为 ""，绝不能让两个空 normalized name 互相
+      //    误判成同一个 story。
+      //  - keyword 完全重叠 block：对 active non-terminal story（phase ∉
+      //    DONE/DISCARDED）算 keywordOverlap；ratio === 1 且 shared.length >= 2
+      //    时抛错要求 forceNew:true。DONE/DISCARDED story 的完全重叠仅 warn（见
+      //    下方关键词查重段，CHK-003 统一改走 stderr）。
       if (!args.forceNew) {
+        const normNewName = normalizeName(args.name);
+        const newKeywords = args.keywords ?? [];
         for (const sid of store.listStoryIds()) {
           try {
             const other = store.readStory(sid);
             if (other.phase === 'DONE' || other.phase === 'DISCARDED') continue;
-            if (other.name !== args.name) continue;
-            // 找到同名未完成 story → 返回已有
-            return [
-              `⚠ Story already exists: ${sid} (name="${args.name}", phase=${other.phase})`,
-              `复用已有 storyId 而非新建。如需强制新建，传 forceNew:true。`,
-              `已有 story: ${sid} [${other.phase}] ${other.title}`,
-              `→ story_get '{"storyId":"${sid}"}' 查看详情`,
-              `→ story_advance '{"storyId":"${sid}","phase":"<next>"}' 继续推进`,
-            ].join('\n');
-          } catch { /* ignore unreadable */ }
+
+            // 1) normalized-name idempotency. Empty normalized name never
+            // participates: an empty new name OR an empty stored name is a
+            // fallback, not a match key.
+            const normOtherName = normalizeName(other.name);
+            if (normNewName.length > 0 && normNewName === normOtherName) {
+              // 找到同名（归一化后相等）未完成 story → 返回已有
+              return [
+                `⚠ Story already exists: ${sid} (name="${other.name}", phase=${other.phase})`,
+                `归一化 name "${normNewName}" 与已有 story 一致；复用已有 storyId 而非新建。如需强制新建，传 forceNew:true。`,
+                `已有 story: ${sid} [${other.phase}] ${other.title}`,
+                `→ story_get '{"storyId":"${sid}"}' 查看详情`,
+                `→ story_advance '{"storyId":"${sid}","phase":"<next>"}' 继续推进`,
+              ].join('\n');
+            }
+
+            // 2) keyword 完全重叠 → 对 active non-terminal story 硬 block。
+            // ratio === 1 表示新 story 的每个 keyword 都被已有 story 覆盖；
+            // shared.length >= 2 避免单 keyword 巧合命中误伤。
+            const overlap = keywordOverlap(newKeywords, other.keywords ?? []);
+            if (overlap.ratio === 1 && overlap.shared.length >= 2) {
+              throw new Error(
+                `❌ 疑似重复 story ${sid}（keyword 完全重叠: ${overlap.shared.join(', ')}），` +
+                `确认要新建请加 forceNew:true`,
+              );
+            }
+          } catch (e: any) {
+            // keyword-overlap block must propagate; only swallow read errors
+            // on unrelated stories so one corrupt index.json cannot mask the
+            // duplicate guard.
+            if (typeof e?.message === 'string' && e.message.startsWith('❌ 疑似重复 story')) {
+              throw e;
+            }
+            /* ignore unreadable story */
+          }
         }
       }
 
