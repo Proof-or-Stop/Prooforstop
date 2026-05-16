@@ -80,6 +80,15 @@
       "reviewRound": "2026-05-16T00:03:57.631Z",
       "reviewRunId": "B-37e9:RR-010",
       "_hash": "97227c950662308c69b4f1a0b9f4b96da370bcde0cf565e882f9fd32d0c66f84"
+    },
+    {
+      "id": "B-37e9:RP-010",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 已检查所有 9 条 verificationIntent 与 verificationEvidence 覆盖关系。CHK-001/002/003 各三栏（happy/edge/adversarial）均为 must priority，均有有效 evidence（manual_transcript 或 integration_test，result=pass）。evidence 因 HEAD drift stale，已调用 verification_evidence_refresh_stale 刷新至 HEAD 4ef471e，validate 确认 9/9 covered，无 blocker。",
+      "createdAt": "2026-05-16T00:05:06.842Z",
+      "reviewRound": "2026-05-16T00:03:57.631Z",
+      "reviewRunId": "B-37e9:RR-012",
+      "_hash": "3a6e24407e34288cfd903acd7c3f12e7908e2257c5e3963fcfef43494112a048"
     }
   ]
 }
