@@ -100,13 +100,14 @@
         {
           "intentRef": "CHK-001:happy:1",
           "kind": "integration_test",
+          "verdict": "success",
           "file": "packages/main/src/tasks/story-create-concurrency-smoke.ts",
-          "command": "npm --prefix packages/main run test:story-create-concurrency-smoke",
+          "command": "npm run test:story-create-concurrency-smoke",
           "result": "pass",
-          "note": "smoke 末尾 distinct-a/distinct-b 两次串行 create 不同 name，断言各得独立 storyId，确认锁不阻塞不同 name 创建",
-          "headHash": "fa75f6305c0aaca3a8c7e4a0411c97267eda6d73",
-          "materialHash": "50b6c7cc0ba12cbb30e7be6b878fe82137d00230f37b33d29737d6cbf75b2779",
-          "timestamp": "2026-05-16T12:49:25.980Z"
+          "note": "runScenario distinct 段：不同 name 串行创建各得独立 storyId，锁不误阻塞",
+          "headHash": "5de9790a4d281a6b0d7963da7e244237d1fabba5",
+          "materialHash": "1d1ec2eb31669e115d502d254b45b4f3f075fdb3f9ad5b94217e561e88742c07",
+          "timestamp": "2026-05-16T13:09:21.350Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
