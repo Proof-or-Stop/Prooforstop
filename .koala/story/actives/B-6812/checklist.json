@@ -639,6 +639,17 @@
           "headHash": "b4e3532e6bf5cf3fd6cb34ba1835a0c5659dec59",
           "materialHash": "1d1ec2eb31669e115d502d254b45b4f3f075fdb3f9ad5b94217e561e88742c07",
           "timestamp": "2026-05-16T13:08:33.179Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:4",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/story-create-concurrency-smoke.ts",
+          "command": "npm run test:story-create-concurrency-smoke",
+          "result": "pass",
+          "note": "runStderrChannelScenario step 5: riskHint advisory 文本断言出现在 stderr 且不在 stdout（CHK-003:edge:4 高风险 riskHint 走 stderr）",
+          "headHash": "2ab1d5a00352fb13d8960ad5e34856e005154579",
+          "materialHash": "1d1ec2eb31669e115d502d254b45b4f3f075fdb3f9ad5b94217e561e88742c07",
+          "timestamp": "2026-05-16T14:00:08.439Z"
         }
       ]
     }
