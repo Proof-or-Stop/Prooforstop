@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "给 finding 加 suspected/verified/disproven 证据状态模型",
+      "context": "bug 通道有 repro 加 rootCause 加 reproTest 才能标 fixed 的硬纪律，finding 通道没有等价物。给 finding 加一个证据状态字段（suspected / verified / disproven），规则：未复现或无源码证据的 finding 只能是 suspected，不能呈现成 confirmed bug；disproven 时必须保留反证摘要。现有 finding 无该字段时视为 legacy 兼容处理。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "补框架 gap 的手动归档入口",
+      "context": "人工发现的框架 gap 目前只能滥用 reviewer 形状的 finding_add（要 reviewRunId、category enum、review round 语义）。需要一个不依赖 reviewer / review round / worktree 的手动归档入口，让框架 gap 能进 audit backlog 并带上 CHK-001 的证据状态。B-META 容器与该入口的关系、是否复用既有 audit-meta-store 在 PLAN 阶段定。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "更新 process fact registry 与 contract 校验脚本加文档",
+      "context": "证据状态若被任何门禁或 audit 消费就是流程事实，必须同步 process-fact-registry 与对应 contract 校验脚本（按 CLAUDE.md 流程事实双层契约要求）。文档说明证据状态模型与手动归档入口的用法。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
