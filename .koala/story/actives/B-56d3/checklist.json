@@ -103,7 +103,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/transition-effects.ts",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "transition-effects.ts created with non-DONE side effects: process metrics write, onPhaseChange hooks, REVIEW metadata auto-commit, relatedDocs reminder, next-step rendering; story-advance.ts delegates to it",
+          "headHash": "1439b755f66e72564800482ea0b4074337b9a5c5",
+          "materialHash": "50b6c7cc0ba12cbb30e7be6b878fe82137d00230f37b33d29737d6cbf75b2779",
+          "timestamp": "2026-05-16T01:59:17.768Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
