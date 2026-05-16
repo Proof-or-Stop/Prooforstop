@@ -92,7 +92,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "用户跑 koala story_create 创建一个 normalized name 与已有 active story 相同、或 keyword 集被某个 active non-terminal story 完全覆盖的 story 时，stderr 显示 ❌ 疑似重复 story B-xxxx，命令 exit code 非 0；加 forceNew:true 后正常创建。",
+      "userSees": "用户跑 `koala story_create` 创建一个 normalized name 与已有 active story 相同、或 keyword 集被某 active non-terminal story 完全覆盖的 story 时，stderr 显示 `❌ 疑似重复 story B-xxxx（keyword 完全重叠），确认要新建请加 forceNew:true`，exit code 非 0；加 `forceNew:true` 后正常创建。",
       "files": {
         "modify": [
           "packages/main/src/handlers/story-create.ts",
