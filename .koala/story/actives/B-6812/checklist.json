@@ -534,7 +534,21 @@
             "priority": "should"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/story-create-concurrency-smoke.ts",
+          "command": "npm run test:story-create-concurrency-smoke",
+          "result": "pass",
+          "note": "runStderrChannelScenario step 2: keyword 重叠 dupWarning 断言出现在 stderr 且不在 stdout",
+          "headHash": "79684bfa18fd7620dc0b15ed20c4ed7a195f1b3c",
+          "materialHash": "1d1ec2eb31669e115d502d254b45b4f3f075fdb3f9ad5b94217e561e88742c07",
+          "timestamp": "2026-05-16T13:08:21.168Z"
+        }
+      ]
     }
   ]
 }
