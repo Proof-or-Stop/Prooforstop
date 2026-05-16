@@ -40,7 +40,9 @@
     "test:outcome-semantics-smoke": "node dist/tasks/outcome-semantics-smoke.js",
     "test:audit-esm-smoke": "node dist/tasks/audit-esm-smoke.js",
     "test:grill-planning-artifact-smoke": "node dist/tasks/grill-planning-artifact-smoke.js",
-    "test:lifecycle-registry-contract": "node dist/tasks/lifecycle-registry-contract.js"
+    "test:lifecycle-registry-contract": "node dist/tasks/lifecycle-registry-contract.js",
+    "test:mkdir-lock-smoke": "node dist/tasks/mkdir-lock-smoke.js",
+    "test:story-create-concurrency-smoke": "node dist/tasks/story-create-concurrency-smoke.js"
   },
   "dependencies": {
     "@koala-agent/lab": "0.3.1",

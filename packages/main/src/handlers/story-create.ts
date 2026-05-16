@@ -9,6 +9,7 @@ import { createHash } from 'crypto';
 import { computeDraftCheckHash } from '../core/draft-check-hash.js';
 import { computeChecklistHash } from './init-check.js';
 import { isGitRepository } from '../core/git-probe.js';
+import { withMkdirLock } from '../core/mkdir-lock.js';
 
 /**
  * 高风险关键词检测（OMX ralplan --deliberate 风格）。
@@ -59,6 +60,14 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       background?: string; // B-45ed CHK-006: 必填四段式 background.md 内容
       fromDraft?: string; // B-9975 CHK-003: from-draft mode
     }): string {
+      // B-6812 CHK-001: serialize the whole story_create body (fromDraft branch
+      // + normal branch) under a directory lock so the idempotency scan →
+      // nextStoryId → writeStory → writeChecklist sequence is atomic against
+      // concurrent same-name story_create invocations (closes the G1 TOCTOU
+      // window). Lock path is resolved from the store's actual storyDir base,
+      // never hardcoded to docs/story or .koala/story.
+      const createLockDir = join(ctx.root, store.storyDirRel(), '.create.lock');
+      return withMkdirLock(createLockDir, () => {
       // === B-9975 CHK-003: FROM-DRAFT MODE ===
       // When fromDraft is provided, bypass normal creation path entirely.
       if (args.fromDraft) {
@@ -408,6 +417,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       }
 
       return `Story ${storyId} created (IDEA)${dupWarning}${riskHint}`;
+      });
     },
   };
 }

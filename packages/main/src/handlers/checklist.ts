@@ -1,5 +1,5 @@
 
-import { existsSync, mkdirSync, rmSync, statSync } from 'fs';
+import { existsSync } from 'fs';
 import { join } from 'path';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
@@ -8,37 +8,18 @@ import { checkEvidenceFreshnessForGit, currentMaterialHash } from '../core/evide
 import type { ChecklistStatus, StoryInfo, VerificationEvidence, VerificationIntent } from '../core/types.js';
 import { buildVerificationCoverage, makeEvidence } from '../core/verification.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
+import { withMkdirLock } from '../core/mkdir-lock.js';
 
 type VerificationEvidenceKindInput = VerificationEvidence['kind'] | 'cli' | 'logic';
 type VerificationEvidenceInput = Omit<VerificationEvidence, 'kind'> & { kind: VerificationEvidenceKindInput };
 
-function sleepSync(ms: number): void {
-  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
-}
-
+/**
+ * B-6812 CHK-001: delegates to the shared `withMkdirLock` primitive. Lock path
+ * stays `<story>/checklist.lock`; external behavior is unchanged.
+ */
 function withChecklistLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
   const lockDir = ctx.store.storyFilePath(storyId, 'checklist.lock');
-  const deadline = Date.now() + 5000;
-  while (true) {
-    try {
-      mkdirSync(lockDir);
-      break;
-    } catch (e: any) {
-      try {
-        const ageMs = Date.now() - statSync(lockDir).mtimeMs;
-        if (ageMs > 10000) rmSync(lockDir, { recursive: true, force: true });
-      } catch { /* PROBE: lock disappeared between mkdir attempts */ }
-      if (Date.now() > deadline) {
-        throw new Error(`checklist metadata lock timeout (${e?.message || e})`);
-      }
-      sleepSync(50);
-    }
-  }
-  try {
-    return fn();
-  } finally {
-    rmSync(lockDir, { recursive: true, force: true });
-  }
+  return withMkdirLock(lockDir, fn, { label: 'checklist metadata' });
 }
 
 /**
