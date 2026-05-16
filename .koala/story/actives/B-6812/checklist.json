@@ -361,6 +361,18 @@
           "headHash": "e26a3c09931a74c2d50ce5ac7f4a603ec3efb47a",
           "materialHash": "a10622b79a4f4196c884ce0c1375ac4d280b7012b9dbea4475d74695ac9294a4",
           "timestamp": "2026-05-16T13:00:26.761Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/story-dedup-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-dedup-smoke",
+          "result": "pass",
+          "note": "story-dedup-smoke 断言 keywordOverlap(new=[auth,login,token], existing=[auth,session]) 得 ratio=1/3<1，部分重叠不触发 block",
+          "headHash": "6ce45f62a42b8ba40bd882a7ec468e20cc1138a6",
+          "materialHash": "a10622b79a4f4196c884ce0c1375ac4d280b7012b9dbea4475d74695ac9294a4",
+          "timestamp": "2026-05-16T13:00:27.026Z"
         }
       ]
     },
