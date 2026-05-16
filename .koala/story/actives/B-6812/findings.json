@@ -5,7 +5,7 @@
       "desc": "CHK-003:edge:4 verificationEvidence 未注册：riskHint 走 stderr 的行为已在 story-create-concurrency-smoke.ts L491-500 以断言覆盖（`risky.stderr` 匹配 /检测到高风险信号/，`risky.stdout` 不含该串），但对应 intentRef 没有调用 verification_evidence_add 记录，validate --story 报 status=missing。实现与测试均正确，需补注册。",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-05-16T13:51:08.847Z",
       "reviewRound": "2026-05-16T13:49:25.681Z",
