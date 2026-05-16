@@ -396,15 +396,15 @@
         },
         {
           "intentRef": "CHK-002:edge:3",
-          "kind": "manual_transcript",
+          "kind": "integration_test",
           "verdict": "success",
           "file": "packages/main/src/tasks/story-create-concurrency-smoke.ts",
-          "command": "npm --prefix packages/main run test:story-create-concurrency-smoke",
+          "command": "npm run test:story-create-concurrency-smoke",
           "result": "pass",
-          "note": "runDedupScenario 用 phase:DONE onboard story 后断言新 active story 完全重叠 keyword 仍正常创建——block 仅针对 non-terminal story",
-          "headHash": "aa5032f3f9fa44bdf4d55cd6d2784957a514d52c",
-          "materialHash": "a10622b79a4f4196c884ce0c1375ac4d280b7012b9dbea4475d74695ac9294a4",
-          "timestamp": "2026-05-16T13:00:36.745Z"
+          "note": "runDedupScenario：DONE story keyword 完全重叠仅 warn 不 block，创建成功",
+          "headHash": "c46f73cd1772025a23adda8b613c647a52a5dce9",
+          "materialHash": "1d1ec2eb31669e115d502d254b45b4f3f075fdb3f9ad5b94217e561e88742c07",
+          "timestamp": "2026-05-16T13:09:44.772Z"
         },
         {
           "intentRef": "CHK-002:edge:4",
