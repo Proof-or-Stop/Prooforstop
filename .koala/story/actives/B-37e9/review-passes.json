@@ -53,6 +53,15 @@
       "reviewRound": "2026-05-15T23:59:40.685Z",
       "reviewRunId": "B-37e9:RR-009",
       "_hash": "1617e165eba4f8c6aef334d2dbd647d945bce15845cca8080949106bb56e9bd8"
+    },
+    {
+      "id": "B-37e9:RP-007",
+      "agent": "koala-review-concept",
+      "note": "Round 3 concept scan: F-002 fix verified. All three signature symbols (signDeliveryCheck, recomputeDeliveryCheckHash, DELIVERY_CHECK_SALT) are now exclusively imported from core/delivery-check-hash.js. The two previously offending task files (field-regression-cli-smoke.ts, worktree-authority-smoke.ts) confirmed on canonical path. handlers/delivery-check.ts imports from core (correct direction) with no re-export of these symbols. No residual references to the old handlers/delivery-check.js path for signature primitives. Zero concept residuals.",
+      "createdAt": "2026-05-16T00:00:48.743Z",
+      "reviewRound": "2026-05-15T23:59:40.685Z",
+      "reviewRunId": "B-37e9:RR-007",
+      "_hash": "9699c65a2c9a0f55f553dd254c7f16f4e6a6695e687048e42b9a80c9dc6314e6"
     }
   ]
 }
