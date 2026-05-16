@@ -6,7 +6,19 @@
       "context": "bug 通道有 repro 加 rootCause 加 reproTest 才能标 fixed 的硬纪律，finding 通道没有等价物。给 finding 加一个证据状态字段（suspected / verified / disproven），规则：未复现或无源码证据的 finding 只能是 suspected，不能呈现成 confirmed bug；disproven 时必须保留反证摘要。现有 finding 无该字段时视为 legacy 兼容处理。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户跑 `koala finding_list` 时每条 finding 显示 `evidenceState=suspected|verified|disproven`；一条 suspected 的 critical finding 进 review summary 的 advisory/attention 区而非 blocking 区，`story_advance --phase=TEST` 不被它挡；只有 evidenceState=verified 且 status=open 的 critical/high finding 才挡。",
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/core/guard-utils.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/evidence-state-gate-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-002",
