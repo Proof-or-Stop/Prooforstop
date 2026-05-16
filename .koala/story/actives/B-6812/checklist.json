@@ -385,6 +385,18 @@
           "headHash": "8855f96f07927ff751496ee80d7cfd60b70780bf",
           "materialHash": "a10622b79a4f4196c884ce0c1375ac4d280b7012b9dbea4475d74695ac9294a4",
           "timestamp": "2026-05-16T13:00:36.465Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/story-create-concurrency-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-create-concurrency-smoke",
+          "result": "pass",
+          "note": "runDedupScenario 用 phase:DONE onboard story 后断言新 active story 完全重叠 keyword 仍正常创建——block 仅针对 non-terminal story",
+          "headHash": "aa5032f3f9fa44bdf4d55cd6d2784957a514d52c",
+          "materialHash": "a10622b79a4f4196c884ce0c1375ac4d280b7012b9dbea4475d74695ac9294a4",
+          "timestamp": "2026-05-16T13:00:36.745Z"
         }
       ]
     },
