@@ -128,6 +128,17 @@
           "headHash": "cfac5c7d802342c87f85a709924f25b03ca3ac5c",
           "materialHash": "50b6c7cc0ba12cbb30e7be6b878fe82137d00230f37b33d29737d6cbf75b2779",
           "timestamp": "2026-05-16T12:49:37.482Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/mkdir-lock-smoke.ts",
+          "command": "npm --prefix packages/main run test:mkdir-lock-smoke",
+          "result": "pass",
+          "note": "contended 用例创建并保持 lockDir mtime 新鲜（staleMs 之内），断言 withMkdirLock 等到 deadline 后抛含 label 与 deadlineMs 的可读 lock timeout 错误",
+          "headHash": "b887945cd22dfaa0561f58f97e933b7eb58d3964",
+          "materialHash": "50b6c7cc0ba12cbb30e7be6b878fe82137d00230f37b33d29737d6cbf75b2779",
+          "timestamp": "2026-05-16T12:49:37.733Z"
         }
       ]
     },
