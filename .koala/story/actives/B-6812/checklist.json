@@ -393,14 +393,13 @@
         {
           "intentRef": "CHK-002:edge:4",
           "kind": "integration_test",
-          "verdict": "success",
           "file": "packages/main/src/tasks/story-create-concurrency-smoke.ts",
           "command": "npm run test:story-create-concurrency-smoke",
           "result": "pass",
           "note": "runDedupScenario：DISCARDED story keyword 完全重叠仅 warn 不 block，创建成功",
-          "headHash": "41c842fd2a8d39988213afd5a95f29985e1f9d39",
-          "materialHash": "1d1ec2eb31669e115d502d254b45b4f3f075fdb3f9ad5b94217e561e88742c07",
-          "timestamp": "2026-05-16T13:09:45.023Z"
+          "headHash": "f8fd2239666e9dcb4a3a1f56591721bef7444189",
+          "materialHash": "5c64680cda1d8574845b506a23519390dbae2102039cc27faf65b63cd3276eb8",
+          "timestamp": "2026-05-16T14:01:55.441Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
