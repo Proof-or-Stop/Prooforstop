@@ -1,0 +1,38 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Introduce transition-orchestrator.ts coordinating one transition",
+      "context": "Create packages/main/src/core/transition-orchestrator.ts that organizes a single transition: read the current story, determine the event, run the gate runner (phase-gates), apply state mutation, run transition effects (transition-effects / done-effects), and return a success/failure structure. It consumes the modules extracted in Story 3a and 3b plus the existing machine / registry / done-oracle. First version migrates the coordination logic only — gate decisions and transition results stay byte-identical.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Reduce story_advance.ts to a thin handler delegating to the orchestrator",
+      "context": "story_advance.ts becomes a thin handler: parse CLI args, call transition-orchestrator, shape the response. It must no longer contain inline transition coordination, gate-runner bodies, or merge implementation. A thin handler means real delegation, not just moved comments. story-advance.ts line count drops substantially again.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Regression-prove zero CLI/semantics change and no circular imports",
+      "context": "Extend smoke/contract coverage to prove: external CLI behavior (story_advance for every transition), TEST semantics, legacy phase handling, and workflow profile are all unchanged; the new modules have clear single responsibilities with no circular imports; StoryPhase / legacy phase types are untouched. Run build + flow-stability + validation-protocol + lifecycle-registry-contract + process-fact-contract + runtime-fact-contract + worktree-authority-smoke.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

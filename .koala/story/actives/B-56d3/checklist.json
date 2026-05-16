@@ -1,0 +1,38 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Extract phase-gates.ts gate runner from story_advance.ts",
+      "context": "Move the transition gate logic into a new packages/main/src/core/phase-gates.ts (or handlers/-adjacent location keeping core/handlers layering correct): REVIEW->TEST CLI preflight gate, the koala validate --json gate, the TEST->DONE done-oracle gate adapter, and the cwd / guard-failure adapter. Behavior-preserving — gate decisions, fail-closed semantics, and error wording stay byte-identical. The validate gate may still write test-evidence.json in this story; annotate it explicitly as a behavior-preserving side effect, do not force it pure here.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Extract transition-effects.ts non-DONE side effects from story_advance.ts",
+      "context": "Move the non-DONE transition side effects into a new packages/main/src/core/transition-effects.ts: process metrics writes, onPhaseChange hooks, REVIEW metadata auto-commit, relatedDocs hint emission, next-step rendering helper. story_advance.ts calls into it. DONE merge / worktree cleanup is explicitly NOT in this module — that is Story 3b. Behavior-preserving: same effects, same order, same output text.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Regression-prove fail-closed gate behavior and zero transition behavior change",
+      "context": "Extend smoke/contract coverage to prove: REVIEW->TEST preflight abnormal cases still fail-closed; koala validate throw / JSON-parse failure still blocks TEST; transition side effects (metrics/hooks/auto-commit/hint) produce identical output before vs after extraction. story_advance.ts no longer contains the inline gate-runner or effect bodies — it delegates to phase-gates.ts / transition-effects.ts.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

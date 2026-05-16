@@ -1,0 +1,39 @@
+{
+  "storyId": "B-6974",
+  "name": "transition-orchestrator-thin-handler",
+  "title": "Introduce transition orchestrator and thin story_advance handler",
+  "description": "Lifecycle Phase 2 step 3 of 3, the closing step. After Story 3a extracts phase-gates + transition-effects and Story 3b extracts done-effects, story_advance.ts holds only coordination logic — but still inlined, with no dedicated orchestrator layer. This story introduces transition-orchestrator.ts that organizes a single transition (read story, determine event, run gate runner, apply state mutation, run transition/done effects, return success/failure structure) consuming the already-extracted phase-gates / transition-effects / done-effects / machine / registry / done-oracle. story_advance.ts then degrades to a thin handler: parse CLI args, call the orchestrator, shape the response. First version migrates coordination logic only — gate decisions, CLI behavior, TEST semantics, legacy phase handling, and workflow profile all stay unchanged. The orchestrator depends on the Story 3a/3b modules being already extracted and stable, so 3a->3b->3c is strictly serial and this is last. Explicitly out of scope: TEST semantics / legacy phase migration and workflow profile unification (Story 4).",
+  "type": "refactor",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "story-advance",
+    "transition-orchestrator",
+    "thin-handler",
+    "refactor",
+    "lifecycle-phase-2"
+  ],
+  "riskSignals": [
+    {
+      "category": "数据迁移/破坏性",
+      "matched": "migration"
+    },
+    {
+      "category": "状态机/门禁",
+      "matched": "story_advance"
+    }
+  ],
+  "createdAt": "2026-05-16T01:38:25.430Z",
+  "startedAt": "2026-05-16T01:38:25.430Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-05-16T01:38:25.435Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Extract done-effects.ts DONE merge and worktree cleanup from story_advance.ts",
+      "context": "Move the full DONE merge/cleanup pipeline into a new packages/main/src/core/done-effects.ts (or layering-correct location): DONE worktree context detection, pre-merge stray file check, metadata commit, merge of the story branch into main, worktree removal, branch deletion, and failure-message shaping. Mechanical relocation — preserve the exact current step order and all failure semantics. story_advance.ts delegates to done-effects.ts.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "CORE ACCEPTANCE: phase=DONE is never written before merge and cleanup succeed",
+      "context": "This is the central acceptance criterion of the story. The DONE phase must NOT be persisted before the merge + pre-cleanup steps succeed. If merge or any pre-cleanup step fails, the story must remain in its pre-DONE state exactly as the current implementation does — the failure must surface, not be swallowed. Add a regression test that simulates a DONE pre-merge failure and asserts the story did NOT prematurely advance to DONE and the failure message is preserved.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Regression-prove DONE merge ordering and success path unchanged",
+      "context": "Extend smoke coverage (including worktree-authority-smoke) to prove: successful DONE still merges the story branch to main + removes worktree + deletes branch in the same order; DONE pre-merge failure leaves the story not-prematurely-DONE; failure messages are byte-identical. story_advance.ts no longer contains the inline DONE merge implementation.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
