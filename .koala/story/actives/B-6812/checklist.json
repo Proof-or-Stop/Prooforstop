@@ -88,14 +88,13 @@
         {
           "intentRef": "CHK-001:happy:0",
           "kind": "integration_test",
-          "verdict": "success",
           "file": "packages/main/src/tasks/story-create-concurrency-smoke.ts",
           "command": "npm run test:story-create-concurrency-smoke",
           "result": "pass",
           "note": "runScenario 并发轮：同 name 并发 story_create 仅产生一个 story 目录，其余返回已存在",
-          "headHash": "16ac1834c110fdedcaaad4175e8e4fe3143f6434",
-          "materialHash": "1d1ec2eb31669e115d502d254b45b4f3f075fdb3f9ad5b94217e561e88742c07",
-          "timestamp": "2026-05-16T13:09:21.070Z"
+          "headHash": "902cc78137650362b988908ad44f27737c107330",
+          "materialHash": "5c64680cda1d8574845b506a23519390dbae2102039cc27faf65b63cd3276eb8",
+          "timestamp": "2026-05-16T14:01:50.514Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
