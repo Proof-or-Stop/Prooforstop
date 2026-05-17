@@ -80,9 +80,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-17T03:43:24.892Z",
       "userSees": "User sees in `koala doctor`: \"Partial-DONE stories: B-xxxx branch=story/B-xxxx worktree=.worktrees/B-xxxx mainContainsBranch=false mergeTree=clean next=koala done_recover --storyId=B-xxxx\"",
       "files": {
         "modify": [
@@ -122,7 +122,29 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "doctor JSON reports branch-only partial-DONE stories with storyId branch worktree and mergeTree status",
+          "headHash": "81b9411e1aae0df846bf02fa5ed4e68338a8a092",
+          "materialHash": "4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891",
+          "timestamp": "2026-05-17T03:43:24.923Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "doctor text output includes Partial-DONE scan and done_recover command",
+          "headHash": "81b9411e1aae0df846bf02fa5ed4e68338a8a092",
+          "materialHash": "4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891",
+          "timestamp": "2026-05-17T03:43:24.953Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
