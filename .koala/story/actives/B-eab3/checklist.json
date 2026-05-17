@@ -43,9 +43,9 @@
           "command": "bash .githooks/pre-push origin URL </dev/null",
           "result": "pass",
           "note": "干净态:hook 构建 packages/main 后递归 tsc 5 个子包全 OK,打印 all 5 tsconfig project(s) passed,exit=0 放行",
-          "headHash": "54e6efff3cb3e2582dcd5fd1d012a0a3dd92c5c7",
-          "materialHash": "e86730edba430ba928a18deb8ad4567903dd4b9642ea1a7e755dc557ff5686c5",
-          "timestamp": "2026-05-17T03:06:37.813Z"
+          "headHash": "90931cd3c123636cf33a55016ab66135cdf1b381",
+          "materialHash": "a2d7be9276b707f8d34e69e75d4fd18730cdba57da0031d34a5323b985c6c865",
+          "timestamp": "2026-05-17T03:17:05.539Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -54,9 +54,9 @@
           "command": "git ls-files --stage -- .githooks/pre-push",
           "result": "pass",
           "note": "git ls-files --stage 第一列为 100755,hook 以可执行权限提交",
-          "headHash": "211c9276460fea87b0e08c323dbd1df3a877d989",
-          "materialHash": "e86730edba430ba928a18deb8ad4567903dd4b9642ea1a7e755dc557ff5686c5",
-          "timestamp": "2026-05-17T03:06:38.071Z"
+          "headHash": "90931cd3c123636cf33a55016ab66135cdf1b381",
+          "materialHash": "a2d7be9276b707f8d34e69e75d4fd18730cdba57da0031d34a5323b985c6c865",
+          "timestamp": "2026-05-17T03:17:05.539Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -65,9 +65,9 @@
           "command": "mktemp -d + git init + cp hook + bash ./pre-push",
           "result": "pass",
           "note": "非 koala 仓(无 packages/main/package.json):hook 立即 exit=0,stdout 为空,不影响 push",
-          "headHash": "001768bacd1a5b3370225c1a9da3a9285c6c8bc3",
-          "materialHash": "e86730edba430ba928a18deb8ad4567903dd4b9642ea1a7e755dc557ff5686c5",
-          "timestamp": "2026-05-17T03:06:38.316Z"
+          "headHash": "90931cd3c123636cf33a55016ab66135cdf1b381",
+          "materialHash": "a2d7be9276b707f8d34e69e75d4fd18730cdba57da0031d34a5323b985c6c865",
+          "timestamp": "2026-05-17T03:17:05.539Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -76,9 +76,9 @@
           "command": "注入 TS 类型错误到 packages/game 后 bash .githooks/pre-push",
           "result": "pass",
           "note": "注入类型错误后 hook 打印 FAIL: tsc errors in packages/game + error TS2322 + REJECTED,exit=1 拒绝 push;测后 git checkout 还原干净",
-          "headHash": "6bdfa24bf0865e6d8bff69501b36578a4f1cbe7e",
-          "materialHash": "e86730edba430ba928a18deb8ad4567903dd4b9642ea1a7e755dc557ff5686c5",
-          "timestamp": "2026-05-17T03:06:38.555Z"
+          "headHash": "90931cd3c123636cf33a55016ab66135cdf1b381",
+          "materialHash": "a2d7be9276b707f8d34e69e75d4fd18730cdba57da0031d34a5323b985c6c865",
+          "timestamp": "2026-05-17T03:17:05.539Z"
         }
       ]
     },
@@ -120,9 +120,9 @@
           "command": "sed -n 903,965p CLAUDE.md | grep packages/koala/packages/main; grep koala 自举开发注意",
           "result": "pass",
           "note": "CLAUDE.md pre-push 段无 packages/koala/packages/main 命中,无失效的「koala 自举开发注意」交叉引用",
-          "headHash": "59da73be1d16b2bf7318c9a55f4755a72a350c3c",
-          "materialHash": "e86730edba430ba928a18deb8ad4567903dd4b9642ea1a7e755dc557ff5686c5",
-          "timestamp": "2026-05-17T03:06:38.838Z"
+          "headHash": "90931cd3c123636cf33a55016ab66135cdf1b381",
+          "materialHash": "a2d7be9276b707f8d34e69e75d4fd18730cdba57da0031d34a5323b985c6c865",
+          "timestamp": "2026-05-17T03:17:05.539Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -131,9 +131,9 @@
           "command": "sed -n 139,143p koala-project-overview.md",
           "result": "pass",
           "note": "koala-project-overview.md 2.11 节描述与 CLAUDE.md 及实际 hook 一致:不调 koala、koala 检测、先 build main、递归 tsc、黑名单、启用命令",
-          "headHash": "e4796edebdcfc00d4633c6e9d2378ebd3d6b6868",
-          "materialHash": "e86730edba430ba928a18deb8ad4567903dd4b9642ea1a7e755dc557ff5686c5",
-          "timestamp": "2026-05-17T03:06:39.084Z"
+          "headHash": "90931cd3c123636cf33a55016ab66135cdf1b381",
+          "materialHash": "a2d7be9276b707f8d34e69e75d4fd18730cdba57da0031d34a5323b985c6c865",
+          "timestamp": "2026-05-17T03:17:05.540Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -142,9 +142,9 @@
           "command": "grep + 逐条比对 .githooks/pre-push",
           "result": "pass",
           "note": "两份文档 pre-push 段不再出现 packages/koala/packages/main;文档描述的检测/构建顺序/递归行为与落地 hook 逐条一致",
-          "headHash": "6213ab7483ea8ed73d6d7702182ead5b86090441",
-          "materialHash": "e86730edba430ba928a18deb8ad4567903dd4b9642ea1a7e755dc557ff5686c5",
-          "timestamp": "2026-05-17T03:06:39.324Z"
+          "headHash": "90931cd3c123636cf33a55016ab66135cdf1b381",
+          "materialHash": "a2d7be9276b707f8d34e69e75d4fd18730cdba57da0031d34a5323b985c6c865",
+          "timestamp": "2026-05-17T03:17:05.540Z"
         }
       ]
     }
