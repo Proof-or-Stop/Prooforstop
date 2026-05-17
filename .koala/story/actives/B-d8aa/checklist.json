@@ -128,7 +128,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gap-analyze.ts",
+          "command": "node packages/main/dist/cli.js convergence_check",
+          "result": "pass",
+          "note": "CLI output includes Parked backlog passed=true and lists parked story IDs as advisory.",
+          "headHash": "e2871b89e7e6a6be2597c108c9ca2febb2055934",
+          "materialHash": "7d2679ad7c13b2fc844688a39fe0e5130204bb8990a8f92167537b5b0d6a922a",
+          "timestamp": "2026-05-17T13:03:07.257Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
