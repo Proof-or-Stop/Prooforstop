@@ -89,6 +89,15 @@
       "reviewRound": "2026-05-17T04:03:17.500Z",
       "reviewRunId": "B-4c38:RR-017",
       "_hash": "99706cb242171a3408d635de39b4ea2f95ae2a429cf5adda28bc94d175537235"
+    },
+    {
+      "id": "B-4c38:RP-011",
+      "agent": "koala-review-quality",
+      "note": "Re-review after F-006 fix: verified detectPartialDoneStories reads phase from story branch before classifying partial-DONE, verified done_recover refuses non-partial/non-DONE stories and therefore cannot merge/delete a non-DONE story branch. Fresh checks: npx tsc --noEmit across all modified TS files via lsp_diagnostics; npm run test:worktree-authority-smoke; npm --prefix packages/main run test:worktree-repair-smoke.",
+      "createdAt": "2026-05-17T04:06:02.683Z",
+      "reviewRound": "2026-05-17T04:03:17.500Z",
+      "reviewRunId": "B-4c38:RR-014",
+      "_hash": "b14b27fa1e3fd49017c08454fa49c66b1d05044e90a36e94a2590f1514f333cc"
     }
   ]
 }
