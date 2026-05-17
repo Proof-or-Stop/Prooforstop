@@ -2,7 +2,7 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -487,6 +487,19 @@ function assertDoneFromNestedCwdUsesCanonicalWorktreeRoot(): void {
       workflow: { profile: 'light' },
     }, null, 2));
     write(root, 'README.md', 'nested done cleanup smoke\n');
+    // B-9027 CHK-003: PVSC/ holds simulated runtime residue written inside the
+    // nested invocation cwd. B-6326/B-4b22 dirty-gate hardening classifies any
+    // non-whitelisted untracked path under the worktree as unexpected_dirty_files
+    // and blocks DONE — that would short-circuit this test before it reaches the
+    // canonical-cleanup-root logic it exists to prove. Declaring PVSC/ in
+    // .gitignore makes `git status --porcelain --untracked-files=all` (the dirty
+    // gate's only source) stop reporting the residue, so the tree reads clean and
+    // the DONE merge/cleanup path runs. The fix is scoped to this test fixture:
+    // it does NOT touch the dirty gate, the runtime-artifact registry, or any
+    // allowlist. The test's original intent is preserved — the residue file is
+    // still written into the nested cwd and the assertions still prove DONE
+    // cleans the canonical worktree root, not the nested cwd.
+    write(root, '.gitignore', 'PVSC/\n');
     git(root, ['init']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
@@ -644,6 +657,358 @@ function assertDoneRejectsNonStoryLinkedWorktreeBeforeMutation(): void {
   }
 }
 
+// ---------------------------------------------------------------------------
+// B-9027 CHK-002 / CHK-003 regression coverage for the done-effects.ts
+// extraction (runDonePreMergeGate / applyDoneMergeEffects). These prove that
+// the behavior-preserving extraction kept two invariants intact:
+//   - pre-merge gate failures throw while the story is still TEST (phase=DONE
+//     is never written) — CHK-002 case ①
+//   - post-merge / cleanup failures throw AFTER phase=DONE is persisted, with
+//     the manual-recovery guidance, and never silently swallow the error —
+//     CHK-002 cases ②③
+// and that the success path (Step1 metadata commit → Step3 merge → Step4
+// worktree remove → Step5 branch delete) still produces byte-identical output
+// (CHK-003).
+// ---------------------------------------------------------------------------
+
+/**
+ * Build a TEST-phase story with a linked story worktree and (optionally) the
+ * DONE-gate evidence committed onto the story branch. Returns the paths the
+ * caller needs. The story branch always contains main (worktree is added from
+ * the story branch after the metadata commit), so DONE's merge-base ancestor
+ * check passes by construction.
+ *
+ * `opts.beforeEvidence` runs after the worktree is created but BEFORE the
+ * DONE-gate evidence is written/committed — callers that need extra commits on
+ * the story branch must mutate the worktree there so the recorded materialHash
+ * reflects the final tree (otherwise the evidence-freshness gate fails). It is
+ * not invoked when `withGateEvidence` is false.
+ */
+function buildDoneReadyStory(
+  root: string,
+  storyId: string,
+  opts?: { withGateEvidence?: boolean; beforeEvidence?: (worktreePath: string) => void },
+): { worktreePath: string; store: StoryStore } {
+  write(root, 'koala.config.json', JSON.stringify({
+    scanRoot: 'packages/main',
+    rootDir: 'src',
+    storyDir: '.koala/story/actives',
+    requirementsDir: 'docs/requirements',
+    worktreeDir: '.worktrees',
+    workflow: { profile: 'light' },
+  }, null, 2));
+  write(root, 'README.md', `done-effects regression smoke ${storyId}\n`);
+  git(root, ['init']);
+  git(root, ['checkout', '-B', 'main']);
+  git(root, ['add', '.']);
+  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'base']);
+  resetConfigCache();
+
+  const worktreePath = join(root, '.worktrees', storyId);
+  const store = new StoryStore(root);
+  writeStory(store, storyId, 'TEST', {
+    path: `.worktrees/${storyId}`,
+    branch: `story/${storyId}`,
+    createdAt: '2026-05-08T10:00:00.000Z',
+  });
+  git(root, ['add', '.']);
+  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'story metadata']);
+  git(root, ['branch', `story/${storyId}`]);
+  git(root, ['worktree', 'add', worktreePath, `story/${storyId}`]);
+
+  if (opts?.withGateEvidence !== false) {
+    // Extra branch commits must land BEFORE writeDoneGateEvidence so the
+    // materialHash recorded in the evidence matches the final worktree tree.
+    opts?.beforeEvidence?.(worktreePath);
+    resetConfigCache();
+    const worktreeStore = new StoryStore(worktreePath);
+    writeDoneGateEvidence(worktreeStore, worktreePath, storyId);
+    git(worktreePath, ['add', '.']);
+    git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'done gate evidence']);
+  }
+  return { worktreePath, store };
+}
+
+/**
+ * CHK-003 task 2 — success path is byte-identical after extraction.
+ * Drives a clean DONE through runDonePreMergeGate → writeStory(phase=DONE) →
+ * applyDoneMergeEffects and asserts the rendered DONE Gate Checklist, the
+ * advance line, and the merge-report lines in their exact Step1→Step3→Step4→
+ * Step5 order. Also a structural assertion that story-advance.ts no longer
+ * carries an inline DONE merge implementation (CHK-003 task 2 ④).
+ */
+function assertDoneSuccessPathOutputAndOrdering(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-done-success-path-'));
+  try {
+    const storyId = 'B-done-success';
+    const { worktreePath } = buildDoneReadyStory(root, storyId);
+
+    const output = runKoalaFromCwd(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+
+    // DONE Gate Checklist段 — the pre-merge gate's rendered checklist is
+    // prefixed onto the success message (via doneChecklistPrefix).
+    assert.match(output, new RegExp(`DONE Gate Checklist \\(${storyId}\\):`), 'DONE success output must include the rendered DONE Gate Checklist header');
+    assert.match(output, /\[✓\] Test evidence: PASS/, 'checklist must include the test-evidence row');
+    assert.match(output, /\[✓\] git working tree: clean/, 'checklist must include the clean git-working-tree row');
+    assert.match(output, /\[✓\] delivery-check: 0 docsPromises checked/, 'checklist must include the delivery-check row');
+
+    // advance line + merge-report lines, byte-identical. The worktree-cleanup
+    // line embeds the canonical (symlink-resolved) absolute worktree path, so
+    // it is matched structurally — the line is `✓ Worktree <abs>/<storyId> 已清理`.
+    const cleanupLine = new RegExp(`✓ Worktree [^\\n]*${storyId} 已清理`);
+    assert.ok(output.includes(`Story ${storyId} advanced to DONE`), 'DONE success output must include the advance line');
+    assert.ok(output.includes(`✓ 分支 story/${storyId} 已合并到 main`), 'DONE success output must include the merge confirmation');
+    assert.match(output, cleanupLine, 'DONE success output must include the worktree-cleanup confirmation naming the canonical worktree path');
+    assert.ok(output.includes(`✓ 分支 story/${storyId} 已删除`), 'DONE success output must include the branch-delete confirmation');
+
+    // Step ordering: metadata commit → merge → worktree remove → branch delete.
+    const mergeIdx = output.indexOf(`✓ 分支 story/${storyId} 已合并到 main`);
+    const cleanIdx = output.search(cleanupLine);
+    const deleteIdx = output.indexOf(`✓ 分支 story/${storyId} 已删除`);
+    assert.ok(mergeIdx >= 0 && cleanIdx > mergeIdx && deleteIdx > cleanIdx, 'merge → worktree remove → branch delete must appear in that order');
+
+    // Step1 (metadata commit) — the DONE commit landed on the merged branch.
+    const mergedLog = git(root, ['log', '--oneline', 'main']);
+    assert.match(mergedLog, new RegExp(`koala: mark ${storyId} DONE \\+ clear worktree`), 'Step2 metadata commit must be merged into main');
+    assert.match(mergedLog, new RegExp(`merge: ${storyId}`), 'Step3 --no-ff merge commit must be present on main');
+
+    // Terminal state: story DONE, worktree + branch gone.
+    const doneStory = new StoryStore(root).readStory(storyId);
+    assert.equal(doneStory.phase, 'DONE', 'story must be DONE on the success path');
+    assert.equal(doneStory.worktree, undefined, 'Step1 must clear story.worktree after DONE merge');
+    assert.equal(git(root, ['branch', '--list', `story/${storyId}`]), '', 'Step5 must delete the story branch');
+    assert.doesNotMatch(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`story/${storyId}`), 'Step4 must deregister the worktree');
+    assert.equal(existsSync(worktreePath), false, 'Step4 must remove the canonical worktree directory');
+
+    // CHK-003 ④ — structural assertion: story-advance.ts is a thin shell with
+    // no inline DONE merge implementation. The real `git merge` / `git worktree
+    // remove` calls live in done-effects.ts; story-advance.ts only delegates.
+    const storyAdvanceSrc = readFileSync(
+      resolve(packageRoot, '..', 'src', 'handlers', 'story-advance.ts'),
+      'utf-8',
+    );
+    assert.ok(
+      storyAdvanceSrc.includes('applyDoneMergeEffects') && storyAdvanceSrc.includes('runDonePreMergeGate'),
+      'story-advance.ts must delegate to done-effects.ts (runDonePreMergeGate / applyDoneMergeEffects)',
+    );
+    assert.doesNotMatch(
+      storyAdvanceSrc,
+      /'merge',\s*branch|"merge",\s*branch|\[\s*'worktree',\s*'remove'/,
+      'story-advance.ts must not carry an inline git merge / git worktree remove implementation',
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+/**
+ * CHK-002 case ① — done-oracle pre-merge gate failure keeps the story TEST.
+ * Omits the delivery-check evidence so runDoneOracleGate throws before
+ * phase=DONE is persisted.
+ */
+function assertDoneOracleGateFailureKeepsStoryTest(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-done-oracle-fail-'));
+  try {
+    const storyId = 'B-oracle-fail';
+    // withGateEvidence:false — no test-evidence / no delivery-check committed,
+    // so the done-oracle gate fails.
+    const { worktreePath } = buildDoneReadyStory(root, storyId, { withGateEvidence: false });
+
+    const output = runKoalaFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    assert.match(output, /Cannot enter DONE/, 'done-oracle gate failure must report Cannot enter DONE');
+
+    // phase=DONE never written — story stays TEST in BOTH stores.
+    assert.equal(new StoryStore(worktreePath).readStory(storyId).phase, 'TEST', 'done-oracle gate failure must not mark the worktree story DONE');
+    assert.equal(new StoryStore(root).readStory(storyId).phase, 'TEST', 'done-oracle gate failure must not mark the main story DONE');
+    // merge / cleanup never ran.
+    assert.notEqual(git(root, ['branch', '--list', `story/${storyId}`]), '', 'story branch must survive a pre-merge gate failure');
+    assert.match(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`story/${storyId}`), 'worktree must stay registered after a pre-merge gate failure');
+    assert.equal(existsSync(worktreePath), true, 'worktree directory must survive a pre-merge gate failure');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+/**
+ * CHK-002 case ① — stray-file offender pre-merge gate failure keeps the story
+ * TEST. Writes a non-whitelisted untracked file under the story dir so the
+ * F-020 stray-file dry-run in runDonePreMergeGate throws before phase=DONE.
+ */
+function assertStrayFileOffenderKeepsStoryTest(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-done-stray-fail-'));
+  try {
+    const storyId = 'B-stray-fail';
+    const { worktreePath } = buildDoneReadyStory(root, storyId);
+
+    // Non-whitelisted untracked file under the MAIN REPO's story dir → the
+    // F-020 stray-file dry-run in runDonePreMergeGate scans
+    // `git ls-files --others -- <storyDir>` from mainRepoRoot, detects an
+    // offender and throws while the story is still TEST.
+    const strayPath = join(root, '.koala', 'story', 'actives', storyId, 'stray-offender.txt');
+    mkdirSync(dirname(strayPath), { recursive: true });
+    writeFileSync(strayPath, 'non-whitelisted stray file that must block DONE pre-merge\n');
+
+    const output = runKoalaFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    assert.match(output, /stray-offender\.txt/, 'stray-file gate failure must name the offending file');
+
+    assert.equal(new StoryStore(worktreePath).readStory(storyId).phase, 'TEST', 'stray-file gate failure must not mark the worktree story DONE');
+    assert.equal(new StoryStore(root).readStory(storyId).phase, 'TEST', 'stray-file gate failure must not mark the main story DONE');
+    assert.notEqual(git(root, ['branch', '--list', `story/${storyId}`]), '', 'story branch must survive a stray-file gate failure');
+    assert.match(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`story/${storyId}`), 'worktree must stay registered after a stray-file gate failure');
+    assert.equal(existsSync(worktreePath), true, 'worktree directory must survive a stray-file gate failure');
+    // The offender file itself is untouched — the dry-run never deletes.
+    assert.equal(existsSync(strayPath), true, 'stray-file pre-merge dry-run must not delete the offender');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+/**
+ * CHK-002 case ① — a main/story-branch merge conflict trips the DONE
+ * pre-merge gate (block A in runDonePreMergeGate) and keeps the story TEST.
+ *
+ * main and the story branch edit the same line of conflict.txt. The DONE
+ * pre-check's autoSyncMain cannot fast-forward the conflict in, so the branch
+ * stays behind main and block A's done-oracle gate throws `Cannot enter DONE`
+ * before phase=DONE is persisted. This proves the merge-tree / branch-sync
+ * pre-merge gate is fail-closed: a branch that cannot cleanly merge into main
+ * never reaches the post-merge effects.
+ */
+function assertMergeConflictPreMergeGateKeepsStoryTest(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-done-merge-conflict-'));
+  try {
+    const storyId = 'B-conflict-fail';
+    // Story branch commits its version of conflict.txt BEFORE the gate
+    // evidence so the materialHash matches — this isolates the failing gate
+    // row to "branch behind main", not evidence-freshness drift.
+    const { worktreePath } = buildDoneReadyStory(root, storyId, {
+      beforeEvidence: (wt) => {
+        writeFileSync(join(wt, 'conflict.txt'), 'story branch version\n');
+        git(wt, ['add', 'conflict.txt']);
+        git(wt, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'story edits conflict.txt']);
+      },
+    });
+
+    // main commits a different version of the same line AFTER the worktree was
+    // branched → the branch falls behind main and cannot cleanly merge.
+    writeFileSync(join(root, 'conflict.txt'), 'main branch version\n');
+    git(root, ['add', 'conflict.txt']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'main edits conflict.txt']);
+
+    const output = runKoalaFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    assert.match(output, /Cannot enter DONE/, 'a merge conflict must trip a DONE pre-merge gate');
+    assert.match(output, new RegExp(`story/${storyId} 落后 main`), 'the gate must report the branch is behind main');
+
+    // phase=DONE never written — block A threw before actor.send.
+    assert.equal(new StoryStore(worktreePath).readStory(storyId).phase, 'TEST', 'a merge-conflict pre-merge gate failure must not mark the worktree story DONE');
+    assert.equal(new StoryStore(root).readStory(storyId).phase, 'TEST', 'a merge-conflict pre-merge gate failure must not mark the main story DONE');
+    assert.notEqual(git(root, ['branch', '--list', `story/${storyId}`]), '', 'story branch must survive a merge-conflict pre-merge gate failure');
+    assert.match(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`story/${storyId}`), 'worktree must stay registered after a merge-conflict pre-merge gate failure');
+    assert.equal(existsSync(worktreePath), true, 'worktree directory must survive a merge-conflict pre-merge gate failure');
+    // The branch never received the conflicting main commit (no silent auto-merge).
+    assert.equal(
+      gitSucceeds(root, ['merge-base', '--is-ancestor', 'main', `story/${storyId}`]),
+      false,
+      'a conflicting main commit must not be force-synced into the story branch',
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+/**
+ * CHK-002 case ② — a real `git merge` failure (post phase=DONE) leaves the
+ * story DONE but throws with the manual cd / git merge / git worktree remove /
+ * git branch -d recovery steps.
+ *
+ * The setup keeps every pre-merge gate green so block A passes and phase=DONE
+ * is persisted: the story branch only ADDS a new file (shared.txt), so it
+ * still contains all of main (branch-sync passes) and merge-tree dry-runs
+ * cleanly. The real merge then fails because the main repo has an UNTRACKED
+ * shared.txt that the merge would overwrite — `git merge` aborts. main's
+ * untracked file is invisible to the worktree's git-working-tree gate, so the
+ * failure surfaces only inside applyDoneMergeEffects' real merge step.
+ */
+function assertRealMergeFailureMarksDoneAndThrows(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-done-merge-fail-'));
+  try {
+    const storyId = 'B-merge-fail';
+    // Story branch ADDS shared.txt — committed BEFORE the gate evidence so the
+    // recorded materialHash matches the final tree. main has no competing
+    // commit, so the branch still contains all of main and every pre-merge
+    // gate stays green.
+    const { worktreePath } = buildDoneReadyStory(root, storyId, {
+      beforeEvidence: (wt) => {
+        writeFileSync(join(wt, 'shared.txt'), 'story branch content\n');
+        git(wt, ['add', 'shared.txt']);
+        git(wt, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'story adds shared.txt']);
+      },
+    });
+
+    // main repo carries an UNTRACKED shared.txt. merge-tree (trees only) merges
+    // cleanly, but the real `git merge` from the main repo refuses: the
+    // untracked file would be overwritten.
+    writeFileSync(join(root, 'shared.txt'), 'untracked main file that blocks merge\n');
+
+    const output = runKoalaFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    assert.match(output, new RegExp(`Story ${storyId} 已标记为 DONE 但自动合并失败`), 'real merge failure must announce the story is already DONE');
+    // Manual-recovery guidance — must not swallow the failure.
+    assert.match(output, /cd "/, 'merge failure guidance must include a cd step');
+    assert.match(output, /git merge story\//, 'merge failure guidance must include git merge');
+    assert.match(output, /git worktree remove --force/, 'merge failure guidance must include git worktree remove');
+    assert.match(output, /git branch -d story\//, 'merge failure guidance must include git branch -d');
+
+    // phase=DONE WAS persisted before the merge ran (block B runs after writeStory).
+    assert.equal(new StoryStore(worktreePath).readStory(storyId).phase, 'DONE', 'real merge failure must leave the story marked DONE');
+    // Merge did not land on main.
+    assert.doesNotMatch(git(root, ['log', '--oneline', 'main']), new RegExp(`merge: ${storyId}`), 'failed merge must not produce a merge commit on main');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+/**
+ * CHK-002 case ③ — a worktree cleanup failure (post-merge) leaves the story
+ * DONE and merged but throws the "已合并，但 worktree 清理未完成" error with the
+ * koala doctor recovery hint. The cleanup is forced to fail by making the
+ * .worktrees/ parent directory read-only so neither `git worktree remove` nor
+ * the residual `rm -rf` can rmdir the worktree.
+ *
+ * Skipped when running as root (uid 0 ignores POSIX permission bits, so the
+ * directory would still be removable and the failure path could not be
+ * exercised). On a normal uid the path is deterministic.
+ */
+function assertWorktreeCleanupFailureMarksDoneMergedAndThrows(): void {
+  if (typeof process.getuid === 'function' && process.getuid() === 0) {
+    console.log('  (skipped assertWorktreeCleanupFailureMarksDoneMergedAndThrows — running as root, permission bits are ignored)');
+    return;
+  }
+  const root = mkdtempSync(join(tmpdir(), 'koala-done-cleanup-fail-'));
+  const worktreesDir = join(root, '.worktrees');
+  try {
+    const storyId = 'B-cleanup-fail';
+    const { worktreePath } = buildDoneReadyStory(root, storyId);
+
+    // Make the .worktrees/ parent read-only: `git worktree remove` and the
+    // residual rmSync can clear the worktree contents but cannot rmdir the
+    // worktree directory itself → cleanupFailure is set → applyDoneMergeEffects
+    // throws after the merge succeeded.
+    chmodSync(worktreesDir, 0o500);
+
+    const output = runKoalaFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    assert.match(output, new RegExp(`Story ${storyId} 已合并，但 worktree 清理未完成`), 'cleanup failure must announce the story merged but cleanup is incomplete');
+    assert.match(output, /koala doctor/, 'cleanup failure must point at koala doctor for recovery');
+
+    // phase=DONE persisted and the merge DID land on main (cleanup failed AFTER merge).
+    assert.equal(new StoryStore(root).readStory(storyId).phase, 'DONE', 'cleanup failure must leave the story marked DONE');
+    assert.match(git(root, ['log', '--oneline', 'main']), new RegExp(`merge: ${storyId}`), 'cleanup failure must occur AFTER a successful merge into main');
+  } finally {
+    // Restore permissions so the temp-dir teardown can recurse into .worktrees/.
+    try { chmodSync(worktreesDir, 0o700); } catch { /* dir may already be gone */ }
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 assertRecordedWorktreeRejectsMainCwd();
 assertInitCheckChecklistMutationRejectsMainCwd();
 assertTerminalStoriesDoNotRedirect();
@@ -653,5 +1018,12 @@ assertFromDraftRejectsStagedMainBeforeMutation();
 assertDoneFromNestedCwdUsesCanonicalWorktreeRoot();
 assertDoneRejectsMismatchedStoryBranchBeforeMutation();
 assertDoneRejectsNonStoryLinkedWorktreeBeforeMutation();
+// B-9027 CHK-002 / CHK-003 regression coverage for the done-effects.ts extraction.
+assertDoneSuccessPathOutputAndOrdering();
+assertDoneOracleGateFailureKeepsStoryTest();
+assertStrayFileOffenderKeepsStoryTest();
+assertMergeConflictPreMergeGateKeepsStoryTest();
+assertRealMergeFailureMarksDoneAndThrows();
+assertWorktreeCleanupFailureMarksDoneMergedAndThrows();
 
 console.log('✓ worktree authority smoke passed');

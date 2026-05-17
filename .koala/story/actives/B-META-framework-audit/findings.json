@@ -48,6 +48,41 @@
       "files": [
         "packages/main/src/handlers/worktree.ts"
       ]
+    },
+    {
+      "id": "B-META-framework-audit:F-004",
+      "desc": "DONE merge lacks main-level serialization: concurrent DONE/main writes can leave a story in partial-DONE state where metadata is DONE but the story branch is not merged and worktree/branch cleanup remains manual.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-gap-log",
+      "createdAt": "2026-05-17T03:27:20.612Z",
+      "reviewRound": "",
+      "_hash": "6dd70ad34c29eec5d7f16e4f3dc32cc55793ad0c32fd3e593370843765bf9cb8",
+      "files": [
+        "packages/main/src/handlers/done-effects.ts:301",
+        "packages/main/src/handlers/story-advance.ts:300",
+        "B-9027 partial-DONE recovery 2026-05-17",
+        "packages/main/src/handlers/done-effects.ts",
+        "packages/main/src/handlers/doctor.ts"
+      ]
+    },
+    {
+      "id": "B-META-framework-audit:F-005",
+      "desc": "DONE merge lacks main-merge serialization; concurrent DONE can leave partial-DONE requiring manual recovery —— applyDoneMergeEffects 的 Step 3（从主仓 git merge story 分支回 main）没有针对并发 DONE 的串行化保护，两个 story 的 DONE 在同一时间窗口各自 merge 到 main 时可让其中一个 Step 3 失败：story 已写 phase=DONE 但分支未合并、worktree 未清理，即 partial-DONE，需手动收尾。",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "manually logged framework gap; not yet mechanically reproduced or confirmed",
+      "agent": "koala-gap-log",
+      "createdAt": "2026-05-17T03:27:27.108Z",
+      "reviewRound": "",
+      "_hash": "e11bee8d6f7f48a0e736ca82e2f2743c562edaa67a26b5a6f477955ce0aea811",
+      "files": [
+        "packages/main/src/handlers/done-effects.ts"
+      ]
     }
   ]
 }

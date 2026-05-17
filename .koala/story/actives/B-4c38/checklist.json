@@ -1,0 +1,47 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Serialize DONE main merge/cleanup with a global lock",
+      "context": "Add a global mkdir-style lock under .koala/runtime for the DONE main-merge critical section. The lock must prevent two story_advance --phase=DONE calls from concurrently mutating main. If the lock is held, fail before writing phase=DONE with a clear retry hint. Cover preflight through merge/worktree cleanup/branch delete, without touching unrelated story worktrees.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Detect and report partial-DONE stories",
+      "context": "Add a pure detector for phase=DONE stories whose story branch or worktree remains and whose branch is not fully merged/cleaned. Integrate it into doctor or a recovery-facing status path so users see the storyId, branch, worktree path, merge-tree status, and safe next action.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Provide a safe partial-DONE recovery command or doctor repair path",
+      "context": "Implement a mechanical recovery path that checks main clean except unrelated paths, verifies merge-base/merge-tree safety, merges the story branch, removes the worktree, deletes the branch, and refuses if any condition is unsafe. This should recover the exact B-9027 failure mode without requiring handwritten git commands.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Expose operator-visible proof for concurrent DONE and partial-DONE recovery",
+      "context": "Turn the regression work into an operator-visible capability: a maintainer can run the documented Koala command/smoke path and see that concurrent DONE contention fails before phase=DONE is written, and that a simulated partial-DONE story is detected with a recovery command that completes merge/worktree/branch cleanup without handwritten git rescue. The underlying tests belong in verificationIntent/evidence, but the checklist item is the visible proof that operators no longer have to manually reconstruct the recovery sequence.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "Operator can run the documented verification/recovery path and see clear output: concurrent DONE lock contention is refused before phase=DONE, partial-DONE is reported with storyId/branch/worktree/main status, and recovery completes merge + worktree removal + branch deletion."
+    }
+  ]
+}

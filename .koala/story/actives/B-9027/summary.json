@@ -1,0 +1,56 @@
+{
+  "storyId": "B-9027",
+  "changes": "新增 packages/main/src/handlers/done-effects.ts：把 story-advance.ts 的 DONE merge/worktree cleanup pipeline 整体抽出，导出 runDonePreMergeGate（块 A：done oracle gate + stray-file dry-run + merge-tree dry-run，显式 return rendered checklist）、applyDoneMergeEffects（块 B：Step1-5 metadata commit/merge/worktree remove/branch delete + non-blocking maybeTriggerAudit），以及 autoSyncMain/detectDoneStoryWorktreeContext/assertDoneStoryBranchMatches 等 DONE-only helper。story-advance.ts 改成瘦壳：早期 DONE pre-check + actor.send 前调 runDonePreMergeGate + writeStory(phase=DONE) 后调 applyDoneMergeEffects，不再含 inline merge/worktree-remove 实现。消除 globalThis.__koalaDoneChecklistRendered（改显式返回值/局部变量/参数链路）。worktree-authority-smoke.ts 加 6 个回归用例 + 修 stale nested-cwd fixture（测试临时 repo .gitignore 声明 PVSC/）。",
+  "usage": "纯内部重构，用户/agent 跑 koala story_advance --phase=DONE 的可见行为零变化，无需任何新操作。开发者改 DONE merge/cleanup 逻辑时改 handlers/done-effects.ts 而非 story-advance.ts。",
+  "expectedOutcome": "用户/agent 跑 koala story_advance --phase=DONE 看到的输出与重构前 byte-identical：DONE Gate Checklist 各 [✓] 行 + ✓ 分支已合并到 main + ✓ Worktree 已清理 + ✓ 分支已删除 + summary 段；pre-merge gate（done oracle / stray offender / merge-tree 冲突）失败时 story 保持 TEST；真实 merge 失败时 story 已 DONE + 抛 已标记为 DONE 但自动合并失败 + 手动 cd/git merge/worktree remove/branch -d 指引。",
+  "actualTranscript": "真机验证（evidence/transcript-diff.md）：worktree-authority-smoke.ts 用真子进程 spawn worktree 编译产物 dist/cli.js 跑真实 DONE 流程，15/15 用例全过（9 原有 + 6 B-9027 新增）。6 新增用例覆盖：成功 DONE 输出 byte-identical + Step1-5 顺序、三道 pre-merge gate 各失败 story 保持 TEST、真实 merge 失败 story 已 DONE+抛四行手动指引、worktree cleanup 失败 story 已 DONE+已合并+抛 koala doctor 指引。koala validate --story=B-9027 ✓ ALL PASS，0 required missing。",
+  "outcomeDiff": "无差异。这是 behavior-preserving extraction（Option A），expected 的全部维度（DONE 成功输出 byte-identical / Step1-5 顺序 / pre-merge gate 失败保持 TEST / post-merge 失败 DONE+抛错+手动指引 / pre-merge gate 在 phase 落盘前的时序）真机 smoke 逐项一致。behavior reviewer 独立核实时序与失败语义。",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "9 个 should 级 verificationIntent 未写专门测试（kill-9 原子性 / audit try-catch 源码位置 grep / diff call-site 行号 / branch-d 失败与 --force fallback 等），validate 报 0 required missing，test-coverage reviewer round 1 确认可接受为 advisory。明确不做：未改 DONE 时序（Option B 改时序属行为变更，decision 明确排除、应单独开 story）；未碰 dirty gate / runtime-artifact-registry / allowlist（stale fixture 只在测试临时 repo 加 .gitignore）。",
+  "pitfalls": "一：DONE 逻辑被 actor.send 切成两块（块 A pre-merge gates 在 phase 落盘前 / 块 B merge-cleanup 在后），抽取必须拆成两个导出函数分别在 actor.send 前后调用，调用时机逐行不变——否则 pre-merge gate 跑到 phase 落盘后会让 gate 失败时 story 已不可逆 DONE。二：发现 pre-existing 失败——worktree-authority-smoke 的 nested-cwd 用例造的 PVSC/child/runtime.txt 被 B-6326/B-4b22 dirty-gate hardening 后正确判为 unexpected_dirty_files 而挡 DONE；这是 stale 测试 fixture（不是 dirty gate bug），修法只在测试临时 repo 的 .gitignore 声明 PVSC/，严禁改 dirty gate/registry/allowlist。三：fresh worktree 又缺 node_modules（B-a370/B-3fad 同款），开 worktree 立即 symlink 到主仓。",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 88382541
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 6461
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 1070457
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 1849777
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 260267
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 111690
+    }
+  },
+  "totalDurationMs": 91681198,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-05-17T03:05:58.154Z",
+  "updatedAt": "2026-05-17T03:05:58.154Z"
+}
