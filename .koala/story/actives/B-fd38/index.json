@@ -4,7 +4,7 @@
   "title": "修正 AGENTS.md 把 .Codex/agents/ 误标为 Codex 官方约定",
   "description": "AGENTS.md:185 把 .Codex/agents/ 括注为「Codex 官方约定」,但查证显示该目录是 Koala adapter 约定:大写 C、Markdown 格式、由 Koala tooling 读取(.Codex/koala.json 明示 read by Koala tooling, not by the Codex runtime)。官方 Codex 自定义 agent 约定是小写 .codex/ + TOML。错误描述会误导用户以为官方 Codex CLI 消费该目录。本 story 仅修正文档措辞,不改任何运行行为。",
   "type": "bug",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "low",
   "keywords": [
     "codex",
@@ -39,11 +39,20 @@
       "branch": "story/B-fd38",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-17T02:25:03.650Z",
+      "branch": "story/B-fd38",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-fd38",
     "branch": "story/B-fd38",
     "createdAt": "2026-05-17T02:23:09.264Z"
-  }
+  },
+  "currentReviewRound": "2026-05-17T02:25:03.650Z"
 }
