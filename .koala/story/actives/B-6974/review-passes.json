@@ -26,6 +26,15 @@
       "reviewRound": "2026-05-17T14:54:29.189Z",
       "reviewRunId": "B-6974:RR-004",
       "_hash": "cc9fcd8f0695ff2007043f69e4adc5ee237cba27644dc47eb7d0f2190881cd0e"
+    },
+    {
+      "id": "B-6974:RP-004",
+      "agent": "koala-review-quality",
+      "note": "Round 2: reviewed done-effects.ts 5-comment correction (e3e7e6d5) — all changes are pure comment updates replacing story-advance.ts with transition-orchestrator.ts as caller; no logic introduced. Complete re-review of transition-orchestrator.ts (new 434-line file), story-advance.ts (thinned to 2-line delegation), phase-gates.ts (_actor renaming + actor.stop() removal), flow-stability-smoke.ts / validation-protocol-smoke.ts / worktree-authority-smoke.ts / verify-process-fact-contract.mjs (assertion updates). No dead code, no unnecessary as-any, no I/O layer violations, no naming issues. Actor lifecycle ownership is cleanly centralised in runStoryTransition finally block. DONE merge lock scope is correct. _actor parameter kept for signature stability is appropriate and documented. 0 findings.",
+      "createdAt": "2026-05-17T15:08:28.892Z",
+      "reviewRound": "2026-05-17T15:06:45.892Z",
+      "reviewRunId": "B-6974:RR-006",
+      "_hash": "8803493b227731aa4970f175f7c1acdff099af3240b1102cacd8aa54379b0ca8"
     }
   ]
 }
