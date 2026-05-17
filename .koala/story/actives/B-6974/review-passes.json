@@ -35,6 +35,15 @@
       "reviewRound": "2026-05-17T15:06:45.892Z",
       "reviewRunId": "B-6974:RR-006",
       "_hash": "8803493b227731aa4970f175f7c1acdff099af3240b1102cacd8aa54379b0ca8"
+    },
+    {
+      "id": "B-6974:RP-005",
+      "agent": "koala-review-behavior",
+      "note": "Round 2 re-audit: 4 hard acceptance criteria all verified. (1) Actor lifecycle: actor.stop() removed from phase-gates.ts resolveGuardFailure/runReviewToTestPreflightGate/runValidateGate/runDoneOracleGate and done-effects.ts stray-offender path; transition-orchestrator.ts finally block is sole owner. (2) DONE merge lock scope: doneMainMergeLock acquire at orchestrator line 841 through release in single finally at line 1051, spanning runDonePreMergeGate→actor.send→writeStory→applyDoneMergeEffects without gap. (3) Phase timing: runDonePreMergeGate before actor.send (story stays TEST on failure); actor.send then writeStory(phase=DONE) before applyDoneMergeEffects (post-merge failure → story already DONE + explicit throw). (4) Thin handler: story-advance.ts is parse→runStoryTransition→renderTransitionResult plus re-exports only, no inline actor/gate/merge. Round 2 commit e3e7e6d5 is purely 5 comment corrections in done-effects.ts (story-advance.ts references updated to transition-orchestrator.ts). Zero logic change. No new findings.",
+      "createdAt": "2026-05-17T15:08:48.540Z",
+      "reviewRound": "2026-05-17T15:06:45.892Z",
+      "reviewRunId": "B-6974:RR-008",
+      "_hash": "cb2797fd79074d0932df34a28c2a48cc5f82cd827be51581dbe6970532593cc0"
     }
   ]
 }
