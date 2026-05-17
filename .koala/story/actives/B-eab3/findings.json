@@ -71,7 +71,7 @@
       "desc": "concept-cleanup: hook 工具集描述在 CLAUDE.md 中已从「实现只用 npx tsc --noEmit」更新为「实现只用 git / find / node / npx tsc / npm run build」，但 packages/main/templates/agents/*.md（11 个文件）和 .claude/agents/*.md、.Codex/agents/*.md（各 10 个文件，共 31 处）仍保留旧描述。模板文件是 koala init / upgrade 的分发源，未同步会导致未来部署的 agent 提示中仍读到旧工具枚举，从而误导 agent 对 hook 行为的理解。",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-05-17T03:20:01.463Z",
@@ -85,7 +85,9 @@
         ".claude/agents/koala-review-concept.md",
         ".claude/agents/koala-implementer.md",
         ".Codex/agents/koala-review-concept.md"
-      ]
+      ],
+      "dismissReason": "agent 模板文件(packages/main/templates/agents/*.md 及生成的 .claude/.Codex/agents/*.md)各自内嵌一整份 CLAUDE.md 快照,pre-push 段只是其中一节。B-eab3 的 understanding.touchpoints 明确限定为 .githooks/pre-push + CLAUDE.md + koala-project-overview.md;这些内嵌副本相对 canonical CLAUDE.md 的漂移远不止 pre-push 一节,重新同步 30 份内嵌 CLAUDE.md 属于 agent-prompt 生成/镜像子系统,应作为独立 story 处理,不在本 story scope。Round 1 concept reviewer 已确认这些文件非本 diff 引入。",
+      "dismissedAt": "2026-05-17T03:23:04.185Z"
     }
   ]
 }
