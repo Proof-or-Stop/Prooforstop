@@ -4,7 +4,7 @@
   "title": "Introduce transition orchestrator and thin story_advance handler",
   "description": "Lifecycle Phase 2 step 3 of 3, the closing step. After Story 3a extracts phase-gates + transition-effects and Story 3b extracts done-effects, story_advance.ts holds only coordination logic — but still inlined, with no dedicated orchestrator layer. This story introduces transition-orchestrator.ts that organizes a single transition (read story, determine event, run gate runner, apply state mutation, run transition/done effects, return success/failure structure) consuming the already-extracted phase-gates / transition-effects / done-effects / machine / registry / done-oracle. story_advance.ts then degrades to a thin handler: parse CLI args, call the orchestrator, shape the response. First version migrates coordination logic only — gate decisions, CLI behavior, TEST semantics, legacy phase handling, and workflow profile all stay unchanged. The orchestrator depends on the Story 3a/3b modules being already extracted and stable, so 3a->3b->3c is strictly serial and this is last. Explicitly out of scope: TEST semantics / legacy phase migration and workflow profile unification (Story 4).",
   "type": "refactor",
-  "phase": "DEV",
+  "phase": "PLAN",
   "priority": "high",
   "keywords": [
     "story-advance",
@@ -55,6 +55,14 @@
       "phase": "DEV",
       "action": "advance",
       "timestamp": "2026-05-17T13:11:36.813Z",
+      "branch": "story/B-6974",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-05-17T14:35:27.539Z",
       "branch": "story/B-6974",
       "user": "Harmonygo",
       "agent": "main"
