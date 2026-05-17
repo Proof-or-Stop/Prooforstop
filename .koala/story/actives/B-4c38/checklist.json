@@ -102,7 +102,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-05-17T03:43:24.892Z",
+      "endTime": "2026-05-17T04:02:04.145Z",
       "userSees": "User sees in `koala doctor`: \"Partial-DONE stories: B-xxxx branch=story/B-xxxx worktree=.worktrees/B-xxxx mainContainsBranch=false mergeTree=clean next=koala done_recover --storyId=B-xxxx\"",
       "files": {
         "modify": [
@@ -145,44 +145,14 @@
       },
       "verificationEvidence": [
         {
-          "intentRef": "CHK-002:happy:0",
-          "kind": "logic_test",
-          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
-          "result": "pass",
-          "note": "doctor JSON reports branch-only partial-DONE stories with storyId branch worktree and mergeTree status",
-          "headHash": "9a5a8873e8aaef9d9d88283438e51261298a3367",
-          "materialHash": "38ecb8760046f257b63078e228a1e354999553871013bec6c69a03b0cc0d40e2",
-          "timestamp": "2026-05-17T03:55:24.928Z"
-        },
-        {
-          "intentRef": "CHK-002:happy:1",
-          "kind": "logic_test",
-          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
-          "result": "pass",
-          "note": "doctor text output includes Partial-DONE scan and done_recover command",
-          "headHash": "9a5a8873e8aaef9d9d88283438e51261298a3367",
-          "materialHash": "38ecb8760046f257b63078e228a1e354999553871013bec6c69a03b0cc0d40e2",
-          "timestamp": "2026-05-17T03:55:24.928Z"
-        },
-        {
-          "intentRef": "CHK-002:edge:0",
-          "kind": "logic_test",
-          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
-          "result": "pass",
-          "note": "terminal registered/orphan DONE residue is reported by worktree cleanup scan and partialDone.needsRecovery remains false",
-          "headHash": "9a5a8873e8aaef9d9d88283438e51261298a3367",
-          "materialHash": "38ecb8760046f257b63078e228a1e354999553871013bec6c69a03b0cc0d40e2",
-          "timestamp": "2026-05-17T03:55:24.928Z"
-        },
-        {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:worktree-repair-smoke",
           "result": "pass",
-          "note": "active DEV worktree residue in repair smoke does not appear in partialDone scan",
-          "headHash": "9a5a8873e8aaef9d9d88283438e51261298a3367",
-          "materialHash": "38ecb8760046f257b63078e228a1e354999553871013bec6c69a03b0cc0d40e2",
-          "timestamp": "2026-05-17T03:55:24.928Z"
+          "note": "F-006 regression: main DONE plus branch-local TEST is not classified as partial-DONE and done_recover refuses without deleting branch/worktree",
+          "headHash": "2596c2db8fca728ab58aad453763d3755e804b13",
+          "materialHash": "847cde7a35096bf76a550f578cc5c19a1ce3d35d783518dd7f276b0364338c39",
+          "timestamp": "2026-05-17T04:02:04.186Z"
         }
       ]
     },
