@@ -55,7 +55,7 @@
       "desc": "quality-cleanup: .githooks/pre-push:12-14 header comment says \"任一不满足立即 exit 0\" but this is no longer accurate after the F-002 fix — when node is missing (and packages/main/package.json exists), the hook exits with 1 (fail-closed), not 0. The comment also does not mention the node availability check (now the 3rd condition in sequence). A reader following only the header comment would incorrectly expect exit 0 when node is absent.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-05-17T03:19:02.298Z",
