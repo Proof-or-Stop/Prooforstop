@@ -131,6 +131,12 @@ B-xxxx REVIEW (authority:worktree, mirror:INIT_CHECK)
 
 这表示继续工作时以 worktree phase 为准；main phase 只是滞后索引，不应该触发重复推进。
 
+### Convergence 中的 parked backlog
+
+`koala convergence_check` 的硬性 `所有 Story 完成` 口径只统计正在执行或已进入 worktree 流程的非终态 story。`phase=INIT`、没有记录 `worktree.path`、且 `git worktree list` 中也没有 linked `story/<id>` 分支的 story 视为 parked backlog：它仍会在独立的 `Parked backlog` advisory 行展示，提醒用户后续完成、废弃或排期，但不会单独让 convergence 变红。
+
+一旦 story 有 recorded `worktree.path`、linked git worktree branch，或 phase 已推进到 `INIT_CHECK` / `PLAN` / `DEV` / `REVIEW` / `TEST` 等非终态执行阶段，它就是 active blocker，必须继续完成、回退修复或明确 discard。`META` audit 容器和 `DONE` / `DISCARDED` 终态 story 不进入这个 hard completion check。
+
 ## 设计决策
 
 - **Story 即 Feature**：Story 是最小可追踪单元。

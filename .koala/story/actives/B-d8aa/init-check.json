@@ -1,0 +1,30 @@
+{
+  "storyId": "B-d8aa",
+  "checkedAt": "2026-05-17T12:52:49.417Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [
+    {
+      "severity": "low",
+      "desc": "CHK-003 is a verification artifact rather than a user-facing outcome. It is acceptable because the user explicitly requested smoke coverage, but implementation should keep the product outcome centered on convergence_check semantics: parked backlog advisory, active worktree blocking."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-05-17T12:52:47.475Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-05-17T12:52:49.417Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "CHK-003 is a verification artifact rather than a user-facing outcome. It is acceptable because the user explicitly requested smoke coverage, but implementation should keep the product outcome centered on convergence_check semantics: parked backlog advisory, active worktree blocking."
+        }
+      ]
+    }
+  ],
+  "_hash": "fa1d45996c1603210efd9c04e5ecc4ac461213a04778fb11718df8c4b240ba41"
+}
