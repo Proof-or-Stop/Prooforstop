@@ -119,6 +119,17 @@
           "headHash": "479796fe9c36336589bfff0620306eba5326c90f",
           "materialHash": "d1a3fd2f6c2f65a4a29406c927b95a1f2784c9035d3b342d5d7b2465a33cb9ae",
           "timestamp": "2026-05-17T13:20:21.476Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/phase-gates.ts",
+          "command": "grep -n actor.stop packages/main/src/handlers/phase-gates.ts",
+          "result": "pass",
+          "note": "resolveGuardFailure no longer calls actor.stop(); zero actor.stop() in phase-gates.ts. The actor param is retained for signature stability (used by getStateName to render the fallback message).",
+          "headHash": "ee70ead1fd0096324f822406f78d01c5237881db",
+          "materialHash": "d1a3fd2f6c2f65a4a29406c927b95a1f2784c9035d3b342d5d7b2465a33cb9ae",
+          "timestamp": "2026-05-17T13:20:30.840Z"
         }
       ]
     },
