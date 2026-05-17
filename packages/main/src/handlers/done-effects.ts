@@ -349,7 +349,7 @@ export async function applyDoneMergeEffects(
 
   // B-7eed: DONE 成功后自动 git merge 回 main + 清 worktree + 删 branch。
   // CLAUDE.md 承诺"内部自动合并"但旧代码没实现，每次 DONE 都要手动 cleanup。
-  // 复用 dev_merge 的逻辑（worktree.ts:208）但从 story-advance 触发。
+  // 复用 dev_merge 的逻辑（worktree.ts:208）但走 story_advance 命令路径（经 transition-orchestrator 协调）触发。
   //
   // 关键的执行顺序（不能乱）：
   //   1. 清 story.worktree 字段 + writeStory（在 worktree fs 内）

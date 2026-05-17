@@ -9,7 +9,8 @@
  *   - forced list (e.g. --force-reviewer=docs,channel)                 → 强制加挂
  *
  * Pure function — no I/O. 消费方：machine.canPassReview、reviewer_list handler、
- * story_advance handler（进 REVIEW 时 echo 名单）。
+ * story_advance REVIEW 命令输出的 reviewer echo（B-6974 后由 transition-effects.ts
+ * buildNextSteps 渲染，经 transition-orchestrator 协调）。
  */
 
 import type { StoryInfo } from './types.js';
