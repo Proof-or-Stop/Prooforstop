@@ -44,6 +44,15 @@
       "reviewRound": "2026-05-17T23:25:45.324Z",
       "reviewRunId": "B-8596:RR-006",
       "_hash": "cb3d9cd07c23513919ece0e54d6f7a9c8dadb14982f9d64ce36222ab8b85a671"
+    },
+    {
+      "id": "B-8596:RP-006",
+      "agent": "koala-review-concept",
+      "note": "Round 2 re-review of commit a1e83609 (F-001 fix). The Storage runtime note cleanly resolves the lock-path inconsistency: correctly identifies .koala/runtime/done-main-merge.lock as the current implementation (matching story-lifecycle.md:120 and done-effects.ts:122), designates .koala/locks/main-write.lock/ as the preferred future path, and defers reconciliation to the implementation story. No rule changed, no new concept inconsistencies introduced. No residual findings from the fix.",
+      "createdAt": "2026-05-17T23:27:12.480Z",
+      "reviewRound": "2026-05-17T23:25:45.324Z",
+      "reviewRunId": "B-8596:RR-005",
+      "_hash": "5c5d3aef9fecf6cc3b56d67b52f7aa5be62b4f23f0e3ba152708233adb53d6c0"
     }
   ]
 }
