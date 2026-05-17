@@ -14,7 +14,8 @@ import type { TaskAnnotation, FlowChain } from './types.js';
 import { StoryStore } from '../core/store.js';
 import { join, relative } from 'path';
 import { loadConfig } from '../core/config.js';
-import type { StoryPhase } from '../core/types.js';
+import { isEvidenceStateBlocking } from '../core/advisory.js';
+import type { Finding, StoryPhase } from '../core/types.js';
 import { existsSync, readFileSync } from 'fs';
 
 /** 差距项 */
@@ -46,6 +47,9 @@ export interface ConvergenceResult {
     detail: string;
   }>;
 }
+
+const AUDIT_STORY_ID = 'B-META-framework-audit';
+const AUDIT_BLOCKING_SEVERITIES = new Set<Finding['severity']>(['critical', 'high']);
 
 function taskKey(task: TaskAnnotation): string {
   return task.functionName
@@ -112,6 +116,17 @@ function scanCoverageTasks(scanRoot: string, projectRoot: string, rootDir: strin
     if (!merged.has(taskKey(task))) merged.set(taskKey(task), task);
   }
   return Array.from(merged.values());
+}
+
+function isBlockingAuditFinding(finding: Finding): boolean {
+  return finding.status === 'open'
+    && AUDIT_BLOCKING_SEVERITIES.has(finding.severity)
+    && isEvidenceStateBlocking(finding.evidenceState);
+}
+
+function formatAuditFinding(finding: Finding): string {
+  const evidenceState = finding.evidenceState ?? 'verified(legacy)';
+  return `${finding.id} [${finding.severity}/${evidenceState}]`;
 }
 
 export function analyzeGap(projectRoot: string, store?: StoryStore): GapResult {
@@ -228,8 +243,11 @@ export function checkConvergence(projectRoot: string, store: StoryStore): Conver
   const storyIds = store.listStoryIds();
   const activeStories = storyIds.filter(id => {
     const story = store.readStory(id);
-    return !terminalPhases.has(story.phase);
+    return story.phase !== 'META' && !terminalPhases.has(story.phase);
   });
+  const auditFindings = store.readFindings(AUDIT_STORY_ID).findings.filter(f => f.status === 'open');
+  const blockingAuditFindings = auditFindings.filter(isBlockingAuditFinding);
+  const advisoryAuditFindings = auditFindings.filter(f => !isBlockingAuditFinding(f));
 
   const checks: ConvergenceResult['checks'] = [];
 
@@ -259,10 +277,24 @@ export function checkConvergence(projectRoot: string, store: StoryStore): Conver
   checks.push({
     name: '所有 Story 完成',
     passed: activeStories.length === 0,
-    detail: activeStories.length === 0 ? '全部 DONE' : `${activeStories.length} 个 Story 未完成: ${activeStories.join(', ')}`,
+    detail: activeStories.length === 0 ? '无未完成业务 Story' : `${activeStories.length} 个 Story 未完成: ${activeStories.join(', ')}`,
   });
 
-  // 5. Requirements coverage
+  // 5. Audit backlog
+  checks.push({
+    name: 'Audit backlog',
+    passed: blockingAuditFindings.length === 0,
+    detail: auditFindings.length === 0
+      ? '无 open audit findings'
+      : [
+        `${blockingAuditFindings.length} blocking`,
+        blockingAuditFindings.length > 0 ? blockingAuditFindings.map(formatAuditFinding).join(', ') : null,
+        `${advisoryAuditFindings.length} advisory`,
+        advisoryAuditFindings.length > 0 ? advisoryAuditFindings.map(formatAuditFinding).join(', ') : null,
+      ].filter(Boolean).join('; '),
+  });
+
+  // 6. Requirements coverage
   checks.push({
     name: '需求覆盖率',
     passed: gap.coveragePercent === 100,
