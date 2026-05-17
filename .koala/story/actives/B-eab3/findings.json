@@ -23,7 +23,7 @@
       "desc": ".githooks/pre-push:42 node 不在 PATH 时 PKG_NAME 为空字符串，与 @koala-agent/core 不等 → exit 0 静默放行 push（fail-open）。hook 的设计意图是检测 koala 自举仓并拦截类型错误，但 node 缺失时会无声绕过检测，使整个 gate 失效。应在 node 命令失败时输出警告或 exit 1，至少应 echo 一条 stderr 提示 node 缺失后 tsc gate 未运行。",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-05-17T03:09:09.194Z",
