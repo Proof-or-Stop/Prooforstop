@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "创建 .githooks/pre-push 外部 tsc gate hook",
       "context": "B-5a28 承诺但从未创建。hook 要求:跟仓库提交;只用 npx tsc --noEmit 不调用 koala(防全局 koala 版本错位);koala 自举仓检测路径必须匹配本仓 packages/main 扁平布局,不是 CLAUDE.md 写的 packages/koala/packages/main;非 koala 仓 exit 0 跳过;tsc 非零退出则拒绝 push。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-17T03:01:34.460Z",
       "verificationIntent": {
         "happy": [
           {
