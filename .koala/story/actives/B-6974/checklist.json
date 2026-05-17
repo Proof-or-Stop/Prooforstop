@@ -55,7 +55,17 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "开发者跑回归套件（build + flow-stability + validation-protocol + lifecycle-registry-contract + process-fact-contract + runtime-fact-contract + worktree-authority-smoke）看到 ✓ 全过——各 transition 外部行为 byte-identical、DONE phase 写入时机不变、无循环 import、无 global/shared hidden handoff。",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ]
+      }
     }
   ]
 }
