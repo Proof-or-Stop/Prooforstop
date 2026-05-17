@@ -141,6 +141,17 @@
           "headHash": "ad6a6bdec3be01f69c11447780d725a63da10065",
           "materialHash": "c385fa929ce8c0f71dff0ec08de1b43f033a31efdd9da51469e08702704a7b61",
           "timestamp": "2026-05-17T12:00:26.908Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/convergence-discarded-smoke.ts",
+          "command": "npm --prefix packages/main run test:convergence-false-blockers",
+          "result": "pass",
+          "note": "Same smoke proves convergence audit backlog does not silently ignore synthetic verified high/critical audit blockers.",
+          "headHash": "d2b9f684270e959dc98fa1a7ced8d69ddb83a342",
+          "materialHash": "c385fa929ce8c0f71dff0ec08de1b43f033a31efdd9da51469e08702704a7b61",
+          "timestamp": "2026-05-17T12:00:27.406Z"
         }
       ]
     }
