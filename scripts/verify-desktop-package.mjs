@@ -61,4 +61,4 @@ const utilsHelp = runBinary(['aux_doc_list', '--help'], 'utils command help');
 assertIncludes(utilsHelp, 'aux_doc_list', 'utils command help');
 assertIncludes(utilsHelp, '文档', 'utils command help');
 
-console.log(`desktop package verified: ${binary}`);
+console.log(`packaged executable smoke passed: ${binary}`);

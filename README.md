@@ -84,6 +84,14 @@ packaging for macOS, Linux, and Windows x64 targets is available with:
 npm run package:desktop:release
 ```
 
+Desktop releases can copy the matching `dist/desktop/koala-*` binary into the
+app bundle and invoke it directly; users do not need a separate Node.js install.
+Vercel `pkg` is an early distribution shortcut here, not the long-term final
+runtime strategy: the upstream Vercel project is archived, and `pkg` 5.8.1 was
+its last release. Future release hardening should revisit Node SEA or an
+actively maintained `pkg` fork before adding installer, signing, or auto-update
+workflows.
+
 全局 `koala` 只适合作为 source-tagged heartbeat fallback；它可能滞后于当前 worktree，不应作为当前 story 的 gate/status/next-step 证据。
 
 `validate --json` 的 `commands[]` 是验证 receipt：结构化命令默认记录 argv 形式；
