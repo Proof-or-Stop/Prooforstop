@@ -152,6 +152,17 @@
           "headHash": "1287d5115f20f17248adb05997cef0c4a51df1b4",
           "materialHash": "d1a3fd2f6c2f65a4a29406c927b95a1f2784c9035d3b342d5d7b2465a33cb9ae",
           "timestamp": "2026-05-17T13:20:31.726Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/phase-gates.ts",
+          "command": "rg actor.stop|actor.send|actor.start packages/main/src/handlers/phase-gates.ts packages/main/src/handlers/done-effects.ts",
+          "result": "pass",
+          "note": "phase-gates.ts and done-effects.ts have zero actor.stop()/actor.send()/actor.start() calls — only type-level ReturnType<typeof createStoryActor> signature references remain. The orchestrator genuinely owns the actor lifecycle (real takeover, not Option-B mechanical relocation).",
+          "headHash": "98c7b1dc6f11fd9a59e1b79c791f26a16f9a11d6",
+          "materialHash": "d1a3fd2f6c2f65a4a29406c927b95a1f2784c9035d3b342d5d7b2465a33cb9ae",
+          "timestamp": "2026-05-17T13:20:42.422Z"
         }
       ]
     },
