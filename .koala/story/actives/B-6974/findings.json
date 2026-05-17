@@ -5,7 +5,7 @@
       "desc": "concept-cleanup: done-effects.ts was modified by B-6974 but 5 comments still say story-advance.ts is the coordinator/caller (lines 8, 35-36, 53, 220, 315). After B-6974 transition-orchestrator.ts is the direct caller, not story-advance.ts. Specifically: (1) header: story-advance.ts now delegates to the two exported functions; (2) layering: shares the layer with story-advance.ts / story-advance imports done-effects; (3) line 53: checkMainDivergence stays imported in story-advance.ts; (4) runDonePreMergeGate JSDoc: story-advance.ts calls this; (5) applyDoneMergeEffects JSDoc: story-advance.ts calls this.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-05-17T15:02:15.205Z",
