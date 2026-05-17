@@ -44,6 +44,15 @@
       "reviewRound": "2026-05-17T23:55:27.801Z",
       "reviewRunId": "B-c600:RR-008",
       "_hash": "9337050d1f90de86ae75b0585b78feee5d1bfdcbc014d155b607d5f95e703c69"
+    },
+    {
+      "id": "B-c600:RP-006",
+      "agent": "koala-review-quality",
+      "note": "Quality review pass after F-002 fix. Reviewed package-desktop.mjs, verify-desktop-package.mjs, verify-codex-assets.mjs, and packaged-runtime handling in codex-adapter-checks.ts. Verified npm run package:desktop:host, npm run test:desktop-package, npm run test:codex-assets, git diff --check, and isolated packaged verify_codex with PATH=/usr/bin:/bin plus /tmp --root invocation. Existing F-001/F-002 are resolved; no new blocking quality findings.",
+      "createdAt": "2026-05-17T23:58:39.343Z",
+      "reviewRound": "2026-05-17T23:55:27.801Z",
+      "reviewRunId": "B-c600:RR-006",
+      "_hash": "ec47cad71a0fb6d175a4457fda3ff8bb1752c8d18424149035feeb5b4c8bc65f"
     }
   ]
 }
