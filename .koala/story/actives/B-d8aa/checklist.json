@@ -10,7 +10,41 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`koala convergence_check` 的 `所有 Story 完成` 不再列出 B-4622/B-d7af/B-da5b 这种 INIT 且无 worktree 的 parked backlog；B-6974 这种 linked worktree story 仍列为未完成。",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/gap-analyze.ts",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/convergence-discarded-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "当存在 INIT 且无 worktree 的 parked backlog 时，`所有 Story 完成` check 仍 passed，detail 不包含 parked story id。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "当存在带 worktree metadata 的非终态 story 时，`所有 Story 完成` check failed，并列出该 active story id。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "META、DONE、DISCARDED story 不会因为 parked backlog 分类重构而重新进入 hard Story completion check。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
