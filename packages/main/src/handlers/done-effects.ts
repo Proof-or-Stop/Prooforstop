@@ -47,6 +47,7 @@ import { cleanStrayWorktreeFiles } from './stray-file-cleanup.js';
 import { repairGlobalKoalaLinkBeforeWorktreeDelete } from './worktree.js';
 import { reportHealthIssue } from '../core/health.js';
 import { runDoneOracleGate } from './phase-gates.js';
+import { acquireMkdirLock, type AcquiredMkdirLock } from '../core/mkdir-lock.js';
 
 // B-c622 CHK-004: DONE 阶段自动同步 main —— detect divergence + auto merge main.
 // checkMainDivergence stays imported in story-advance.ts (it is a DONE
@@ -109,6 +110,30 @@ type DoneWorktreeContext = {
   mainRepoRoot: string;
   branch: string;
 };
+
+const DONE_MAIN_MERGE_LOCK_STALE_MS = 120000;
+
+export function doneMainMergeLockPath(projectRoot: string, invocationCwd = process.cwd()): string {
+  const doneWorktree = detectDoneStoryWorktreeContext(invocationCwd);
+  const mainRepoRoot = doneWorktree?.mainRepoRoot ?? projectRoot;
+  return join(mainRepoRoot, '.koala', 'runtime', 'done-main-merge.lock');
+}
+
+export function acquireDoneMainMergeLock(
+  storyId: string,
+  projectRoot: string,
+  invocationCwd = process.cwd(),
+): AcquiredMkdirLock {
+  const lockDir = doneMainMergeLockPath(projectRoot, invocationCwd);
+  return acquireMkdirLock(lockDir, {
+    label: 'DONE main merge',
+    staleMs: DONE_MAIN_MERGE_LOCK_STALE_MS,
+    failFastIfHeld: true,
+    heldMessage:
+      `DONE main merge lock is held by another Koala operation; story ${storyId} phase was not changed. ` +
+      `Retry after the active DONE merge finishes.`,
+  });
+}
 
 function samePath(a: string, b: string): boolean {
   return resolve(a).replace(/\\/g, '/') === resolve(b).replace(/\\/g, '/');

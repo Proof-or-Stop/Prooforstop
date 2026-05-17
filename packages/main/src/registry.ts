@@ -55,6 +55,7 @@ import { createCheckHandlers } from './handlers/check.js';
 import { createRecoverEvidenceHandlers } from './handlers/recover-evidence.js';
 import { createArtifactDeclareHandlers } from './handlers/artifact-declare.js';
 import { createGapLogHandlers } from './handlers/gap-log.js';
+import { createDoneRecoverHandlers } from './handlers/done-recover.js';
 import { nextStoryId } from './handlers/context.js';
 
 export type HandlerFn = (...args: any[]) => any;
@@ -173,6 +174,10 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // 写 B-META-framework-audit findings（不存在则 ensureMetaStory bootstrap）；
   // 不依赖 reviewer / review round / story worktree，不参与 lifecycle gate。
   registry.registerBatch(createGapLogHandlers(ctx));
+
+  // B-4c38 CHK-003: done_recover — explicit recovery for partial-DONE stories
+  // whose phase was persisted but whose branch did not merge back to main.
+  registry.registerBatch(createDoneRecoverHandlers(ctx));
 
   // 内部辅助：返回下一个 story id（fixture/测试 runner 用）
   registry.register('_nextStoryId', (prefix?: string) => nextStoryId(ctx.store, prefix));

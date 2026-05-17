@@ -21,6 +21,7 @@ import { findRuntimeArtifactEntry, isRepairableTrackedRuntimeArtifactPath } from
 import { formatValidationCommand } from '../core/validation-executor.js';
 import { renderRuntimeEnvironmentReport, runRuntimeEnvironmentChecks } from '../core/runtime-environment-checks.js';
 import { scanValidationSetup, type ValidationSetupScan } from './verifier.js';
+import { detectPartialDoneStories, renderPartialDoneSummary } from '../core/partial-done-recovery.js';
 
 export function createDoctorHandlers(ctx: HandlerContext) {
   const { root, store } = ctx;
@@ -46,6 +47,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       // runtime files kept file handles open during `git worktree remove`,
       // so git deregistered the worktree but left the dir behind.
       let orphanScan = scanOrphanWorktrees(root, store);
+      const partialDone = detectPartialDoneStories(root, store);
       const repaired: string[] = [];
       const repairFailed: Array<{ path: string; error: string }> = [];
       let cleanupTargets = collectWorktreeCleanupTargets(orphanScan);
@@ -108,6 +110,10 @@ export function createDoctorHandlers(ctx: HandlerContext) {
             repairFailed,
             repairRequested: !!args?.repair,
           },
+          partialDone: {
+            stories: partialDone,
+            needsRecovery: partialDone.length > 0,
+          },
           codex,
           validation,
           runtime,
@@ -129,10 +135,12 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       lines.push(`  shown : ${summary.recent.length} (${summary.recentWindow === '24h' ? 'last 24h' : 'most recent'})`);
       lines.push('');
 
-      if (summary.total === 0 && cleanupTargets.length === 0 && trackedRuntimeArtifacts.length === 0) {
+      if (summary.total === 0 && cleanupTargets.length === 0 && trackedRuntimeArtifacts.length === 0 && partialDone.length === 0) {
         lines.push('✓ No health issues recorded. koala is healthy.');
       } else if (summary.total === 0 && cleanupTargets.length > 0) {
         lines.push('⚠ No health issues recorded, but worktree cleanup issues were found.');
+      } else if (summary.total === 0 && partialDone.length > 0) {
+        lines.push('⚠ No health issues recorded, but partial-DONE recovery issues were found.');
       } else if (summary.total === 0) {
         lines.push('⚠ No health issues recorded, but tracked runtime artifacts were found.');
       } else {
@@ -220,6 +228,14 @@ export function createDoctorHandlers(ctx: HandlerContext) {
           lines.push(`→ terminal dirs = DONE/DISCARDED story 的 worktree 目录仍存在。`);
           lines.push(`→ 重跑: koala doctor --repair 清理这些残留。`);
         }
+      }
+
+      lines.push('');
+      lines.push('Partial-DONE scan:');
+      for (const line of renderPartialDoneSummary(partialDone)) lines.push(line);
+      if (partialDone.length > 0) {
+        lines.push('→ partial-DONE = story.phase is DONE but story branch is not merged into main.');
+        lines.push('→ Run the listed koala done_recover command after main is clean.');
       }
 
       lines.push('');

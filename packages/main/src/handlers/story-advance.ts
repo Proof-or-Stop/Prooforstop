@@ -44,6 +44,7 @@ import {
   autoSyncMain,
   detectDoneStoryWorktreeContext,
   assertDoneStoryBranchMatches,
+  acquireDoneMainMergeLock,
   runDonePreMergeGate,
   applyDoneMergeEffects,
 } from './done-effects.js';
@@ -87,6 +88,8 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
       phase: StoryPhase;
       checklist?: Array<{ id: string; title: string }>;
     }): Promise<string> {
+      let doneMainMergeLock: ReturnType<typeof acquireDoneMainMergeLock> | undefined;
+      try {
       // B-9bd9 CHK-002: meta-story 永不进 DONE（跨 story 长存容器，只挂 finding）
       const metaGuardErr = checkMetaStoryAdvanceGuard(args.storyId, args.phase);
       if (metaGuardErr) {
@@ -147,6 +150,12 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
       // B-c622 CL-006: auto-sync main BEFORE actor.can() to avoid TOCTOU —
       // guard evaluates post-merge state, not pre-merge state.
       if (args.phase === 'DONE') {
+        // B-4c38 CHK-001: serialize every main-affecting DONE operation before
+        // any DONE preflight can mutate the story branch or main. The lock spans
+        // checkMainDivergence/autoSyncMain, DONE gates, phase persistence, and
+        // the real merge/worktree cleanup. A live lock fails before phase=DONE
+        // can be written; a stale lock is reclaimed by the mkdir-lock primitive.
+        doneMainMergeLock = acquireDoneMainMergeLock(args.storyId, ctx.root);
         const doneWorktree = detectDoneStoryWorktreeContext();
         if (doneWorktree) {
           assertDoneStoryBranchMatches(args.storyId, doneWorktree.branch);
@@ -348,6 +357,9 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
       }
 
       return `${doneChecklistPrefix}Story ${args.storyId} advanced to ${newState}${metadataCommitReport}${doneMergeReport}\n${nextSteps[newState] || ''}${docsHint}${depsWarning}${sessionWarning}${doneSummarySuffix}${initCheckAdvisory}${baselineRiskWarning}${staleEvidenceHint}`;
+      } finally {
+        doneMainMergeLock?.release();
+      }
     },
   };
 }

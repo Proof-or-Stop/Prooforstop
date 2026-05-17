@@ -106,6 +106,7 @@ export const PROCESS_FACT_LEVELS = [
   { name: 'next', level: 'L0', category: 'status', owner: 'handlers/session', rationale: 'Reports the next step without mutation.' },
   { name: 'aux_doc_list', level: 'L0', category: 'docs-read', owner: 'handlers/aux-doc-list', rationale: 'Lists documentation paths for planning without mutation.' },
   { name: 'doctor', level: 'L2', category: 'health-maintenance', owner: 'handlers/doctor', rationale: 'Reports health state and, when repair is requested, removes terminal worktree residue through controlled mutation.' },
+  { name: 'done_recover', level: 'L2', category: 'story-maintenance', owner: 'handlers/done-recover', rationale: 'Repairs partial-DONE state through explicit main-safety checks, story branch merge, worktree cleanup, and branch deletion.' },
   { name: 'check', level: 'L2', category: 'managed-assets', owner: 'handlers/check', rationale: 'Detects Koala prompt/template/runtime asset drift and synchronizes only explicitly managed assets under --apply/--upgrade.' },
   { name: 'verify_codex', level: 'L4', category: 'adapter-evidence', owner: 'handlers/verify-codex', rationale: 'Writes Codex adapter verification evidence consumed by adapter gates.', gateConsumer: 'Codex adapter REVIEW and DONE evidence gate' },
   { name: 'audit', level: 'L2', category: 'audit', owner: 'handlers/audit', rationale: 'Performs framework self-audit and may write audit findings or reports.' },
