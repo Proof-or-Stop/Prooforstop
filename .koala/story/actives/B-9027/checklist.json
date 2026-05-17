@@ -289,7 +289,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "assertDoneSuccessPathOutputAndOrdering: 成功 DONE 输出按 merge→worktree remove→branch delete 顺序断言（indexOf 严格递增），git log main 含 koala mark DONE metadata commit 与 merge: commit，证明 Step1-5 顺序不变",
+          "headHash": "0e1d0747133861f209451ed1df178f22c24f0259",
+          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
+          "timestamp": "2026-05-17T02:54:21.918Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
