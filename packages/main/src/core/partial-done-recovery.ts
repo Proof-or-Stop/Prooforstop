@@ -100,16 +100,12 @@ export function detectPartialDoneStories(root: string, store: StoryStore): Parti
   const branchStoryIds = listStoryBranches(mainRepoRoot).map(branch => branch.slice('story/'.length));
   const storyIds = [...new Set([...store.listStoryIds(), ...branchStoryIds])].sort();
   for (const storyId of storyIds) {
-    let mainStory: StoryInfo | null = null;
-    try {
-      mainStory = store.readStory(storyId);
-    } catch { /* PROBE: story may exist only on the story branch */ }
     const branch = `story/${storyId}`;
     const branchExists = gitSucceeds(mainRepoRoot, ['show-ref', '--verify', '--quiet', `refs/heads/${branch}`]);
     if (!branchExists) continue;
     const branchStory = readStoryFromBranch(mainRepoRoot, store.storyDirRel(), branch, storyId);
-    const doneStory = branchStory?.phase === 'DONE' ? branchStory : mainStory?.phase === 'DONE' ? mainStory : null;
-    if (!doneStory) continue;
+    if (branchStory?.phase !== 'DONE') continue;
+    const doneStory = branchStory;
     const branchMergedToMain = gitSucceeds(mainRepoRoot, ['merge-base', '--is-ancestor', branch, 'main']);
     if (branchMergedToMain) continue;
     const worktreePath = findStoryWorktreePath(mainRepoRoot, storyId, branch);

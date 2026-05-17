@@ -340,6 +340,35 @@ async function assertDoneRecoverRefusesMissingBranchWithoutDeletingUnrelated(): 
   }
 }
 
+async function assertDoneRecoverRequiresBranchDoneState(): Promise<void> {
+  const root = initRepo('koala-partial-done-branch-not-done-');
+  try {
+    const storyId = 'B-branch-test';
+    const store = new StoryStore(root);
+    store.writeStory(storyId, story(storyId, 'DONE'));
+    commitStories(root);
+    addStoryWorktree(root, storyId);
+
+    const worktreePath = join(root, '.worktrees', storyId);
+    const worktreeStore = new StoryStore(worktreePath);
+    worktreeStore.writeStory(storyId, story(storyId, 'TEST'));
+    writeFileSync(join(worktreePath, 'story-only.txt'), 'branch-local work that is not DONE\n');
+    git(worktreePath, ['add', '.']);
+    git(worktreePath, ['commit', '-m', `story branch remains TEST`]);
+
+    const before = JSON.parse(await runKoala(root, 'doctor', { format: 'json' }));
+    assert.equal(before.partialDone.needsRecovery, false);
+    assert.deepEqual(before.partialDone.stories, []);
+
+    const output = await runKoalaExpectFail(root, 'done_recover', { storyId });
+    assert.match(output, /not a recoverable partial-DONE story/);
+    assert.notEqual(git(root, ['branch', '--list', `story/${storyId}`]), '', 'non-DONE story branch must not be deleted');
+    assert.match(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`story/${storyId}`));
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 await assertDoctorRepairCleansAndProtects();
 await assertStoryDiscardRepairsMissingRegistry();
 await assertDoctorDetectsPartialDoneAndRecoverRepairs();
@@ -348,5 +377,6 @@ await assertDoneRecoverUsesDoneMainMergeLock();
 await assertDoneRecoverRefusesDirtyStoryWorktree();
 await assertDoneRecoverRefusesMergeTreeConflict();
 await assertDoneRecoverRefusesMissingBranchWithoutDeletingUnrelated();
+await assertDoneRecoverRequiresBranchDoneState();
 
 console.log('✓ worktree repair smoke passed');
