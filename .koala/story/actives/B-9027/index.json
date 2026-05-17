@@ -4,7 +4,7 @@
   "title": "Extract DONE merge and worktree cleanup effects",
   "description": "Lifecycle Phase 2 step 2 of 3. After Story 3a extracts phase-gates + transition-effects, story_advance.ts still inlines the entire DONE merge / worktree cleanup implementation — the most order-sensitive, highest-risk segment of the handler. The risk is not code complexity but ordering semantics: DONE worktree context detection -> pre-merge stray file check -> metadata commit -> merge story branch to main -> remove worktree -> delete branch -> failure-message shaping. If phase=DONE is written before a merge or pre-cleanup failure is discovered, the story state is corrupted. This story extracts done-effects.ts as a mechanical relocation preserving the exact order and failure semantics, and is deliberately isolated so review focuses entirely on the invariant: phase=DONE is never persisted before merge+cleanup succeed, and merge/cleanup failures are never swallowed. Explicitly out of scope: transition orchestrator coupling (Story 3c), TEST semantics / legacy migration (Story 4).",
   "type": "refactor",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "high",
   "keywords": [
     "story-advance",
@@ -47,6 +47,14 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-05-17T02:11:05.963Z",
+      "branch": "story/B-9027",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-17T02:28:56.420Z",
       "branch": "story/B-9027",
       "user": "Harmonygo",
       "agent": "main"
