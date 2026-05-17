@@ -26,6 +26,15 @@
       "reviewRound": "2026-05-17T23:34:36.041Z",
       "reviewRunId": "B-c600:RR-005",
       "_hash": "654bcf8c3a790537888347dbfd5b5943d9dc6d1dce30b463fee51cae9066fe2a"
+    },
+    {
+      "id": "B-c600:RP-004",
+      "agent": "koala-review-test-coverage",
+      "note": "Coverage pass: CHK-001..CHK-003 each have verificationEvidence for happy/edge/adversarial intents. CHK-002 evidence includes isolated PATH packaged executable smoke via npm run test:desktop-package and direct packaged verify_codex; reviewer reran npm run test:desktop-package and env -i HOME=$HOME TMPDIR=/tmp PATH=/usr/bin:/bin dist/desktop/koala-macos-arm64 verify_codex successfully. No coverage findings.",
+      "createdAt": "2026-05-17T23:57:00.188Z",
+      "reviewRound": "2026-05-17T23:55:27.801Z",
+      "reviewRunId": "B-c600:RR-007",
+      "_hash": "0f7aa005a8162a0ee674c17ca18542eb2d69a5fd335d46d7572347b6e35cdfab"
     }
   ]
 }
