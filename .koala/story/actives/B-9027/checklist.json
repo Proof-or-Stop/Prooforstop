@@ -76,6 +76,17 @@
           "headHash": "cbb3d48ebfc5de62eb64eb2aa702ea41df0796c5",
           "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
           "timestamp": "2026-05-17T02:54:46.168Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/done-effects.ts",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "done-effects.ts 位于 packages/main/src/handlers/，export runDonePreMergeGate + applyDoneMergeEffects + autoSyncMain + detectDoneStoryWorktreeContext + assertDoneStoryBranchMatches 共 5 个函数（grep -c ^export = 5）；npm run build (tsc) exit 0",
+          "headHash": "40cd9f6a3b9ff94e56aed9992393c7f934c4f584",
+          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
+          "timestamp": "2026-05-17T02:54:46.385Z"
         }
       ]
     },
