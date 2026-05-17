@@ -323,6 +323,17 @@
           "headHash": "0c23d72c48be76878204ad42b5fef88cdb8bcf14",
           "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
           "timestamp": "2026-05-17T02:54:22.347Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "assertDoneSuccessPathOutputAndOrdering 用 indexOf 强制 merge<cleanup<delete 严格顺序——若 done-effects.ts 交换 Step3 merge 与 Step4 worktree remove，顺序断言立即 FAIL；对抗 preMortem #1 步骤重排",
+          "headHash": "b7a4d1672776dd7dca721879efd26831d230f2fd",
+          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
+          "timestamp": "2026-05-17T02:54:22.561Z"
         }
       ]
     },
