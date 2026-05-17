@@ -671,7 +671,119 @@
             "priority": "should"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "contract verifier exits 0 after CHK-001+CHK-002+CHK-003 landed; output ends with \"Process fact contract verified\" and lists gap_log + runtime:finding_evidence_state_review_gate registry entries",
+          "headHash": "de9abe7f2ee0d083bfe536be00ff6c58bdbe00fb",
+          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
+          "timestamp": "2026-05-17T00:38:35.778Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "evidenceState gate fact registered as runtime:finding_evidence_state_review_gate (L4, gate-consumed via storyMachine.canPassReview); contract summary line printed and verified",
+          "headHash": "de9abe7f2ee0d083bfe536be00ff6c58bdbe00fb",
+          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
+          "timestamp": "2026-05-17T00:38:35.778Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "gap_log command fact registered (level/command, producer=handlers/gap-log); contract verifier prints \"- gap_log [L2/command]\" and passes the MAIN_TOOLS->registry cross-check",
+          "headHash": "de9abe7f2ee0d083bfe536be00ff6c58bdbe00fb",
+          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
+          "timestamp": "2026-05-17T00:38:35.778Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:3",
+          "kind": "docs_check",
+          "file": "AGENTS.md",
+          "result": "pass",
+          "note": "AGENTS.md \"Finding evidenceState 证据状态模型\" section contains the default table with reviewer finding_add=verified / gap_log=suspected / legacy missing-field=verified compat rows",
+          "headHash": "de9abe7f2ee0d083bfe536be00ff6c58bdbe00fb",
+          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
+          "timestamp": "2026-05-17T00:38:35.778Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:4",
+          "kind": "docs_check",
+          "file": "AGENTS.md",
+          "result": "pass",
+          "note": "AGENTS.md documents gap_log usage: required fields (category/severity/evidence/source), example invocation in CLI quick-ref and in the evidenceState section",
+          "headHash": "de9abe7f2ee0d083bfe536be00ff6c58bdbe00fb",
+          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
+          "timestamp": "2026-05-17T00:38:35.778Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "grep -v runtime:finding_evidence_state_review_gate process-fact-levels.ts then node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "removing the evidenceState entry from process-fact-levels.ts makes the contract verifier exit non-zero (verified: exit 1) — regression detected",
+          "headHash": "de9abe7f2ee0d083bfe536be00ff6c58bdbe00fb",
+          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
+          "timestamp": "2026-05-17T00:38:35.778Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "command": "grep -v gap_log process-fact-levels.ts then node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "removing the gap_log entry from process-fact-levels.ts makes the contract verifier exit non-zero (verified: exit 1) — regression detected",
+          "headHash": "de9abe7f2ee0d083bfe536be00ff6c58bdbe00fb",
+          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
+          "timestamp": "2026-05-17T00:38:35.778Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "docs_check",
+          "file": "AGENTS.md",
+          "result": "pass",
+          "note": "AGENTS.md evidenceState section documents the Gate predicate formula: status===open AND severity in critical/high AND isEvidenceStateBlocking (verified or null) AND not advisory-this-round",
+          "headHash": "de9abe7f2ee0d083bfe536be00ff6c58bdbe00fb",
+          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
+          "timestamp": "2026-05-17T00:38:35.778Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "sed isEvidenceStateBlocking->renamed in advisory.ts then node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "removing the hardcoded fallback symbol (isEvidenceStateBlocking) from advisory.ts while keeping the registry entry makes the contract fail (verified: exit 1) via the new \"finding evidenceState gate dimension\" inventory entry — dual-layer contract enforced",
+          "headHash": "de9abe7f2ee0d083bfe536be00ff6c58bdbe00fb",
+          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
+          "timestamp": "2026-05-17T00:38:35.778Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "registry semantic accuracy: runtime:finding_evidence_state_review_gate is L4 with gateConsumer; contract verifier asserts every L4 entry declares a consumer gate (l4WithoutGate check) and runtime entries get runtime-behavior kind — a wrong semantic/missing-gate would fail the contract",
+          "headHash": "de9abe7f2ee0d083bfe536be00ff6c58bdbe00fb",
+          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
+          "timestamp": "2026-05-17T00:38:35.778Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "docs_check",
+          "file": "AGENTS.md",
+          "result": "pass",
+          "note": "docs drift boundary: the contract verifier validates the registry (process-fact-levels/registry), not AGENTS.md prose; AGENTS.md gap_log required-fields list was written to match the handler (category/severity/evidence/source) and is caught by manual review, not the script — boundary documented as intended",
+          "headHash": "de9abe7f2ee0d083bfe536be00ff6c58bdbe00fb",
+          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
+          "timestamp": "2026-05-17T00:38:35.778Z"
+        }
+      ]
     }
   ]
 }
