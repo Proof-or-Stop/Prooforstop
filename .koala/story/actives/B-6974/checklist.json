@@ -33,7 +33,17 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "开发者 grep story-advance.ts 找不到 inline git merge / git worktree remove / actor 生命周期编排 / gate 串接；story-advance.ts 只剩参数入口 + runStoryTransition(...) 调用 + 返回文本格式化 + 必要 re-export。",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-advance.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-003",
