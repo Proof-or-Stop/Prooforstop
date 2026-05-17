@@ -46,6 +46,17 @@
           "headHash": "54e6efff3cb3e2582dcd5fd1d012a0a3dd92c5c7",
           "materialHash": "e86730edba430ba928a18deb8ad4567903dd4b9642ea1a7e755dc557ff5686c5",
           "timestamp": "2026-05-17T03:06:37.813Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "file": ".githooks/pre-push",
+          "command": "git ls-files --stage -- .githooks/pre-push",
+          "result": "pass",
+          "note": "git ls-files --stage 第一列为 100755,hook 以可执行权限提交",
+          "headHash": "211c9276460fea87b0e08c323dbd1df3a877d989",
+          "materialHash": "e86730edba430ba928a18deb8ad4567903dd4b9642ea1a7e755dc557ff5686c5",
+          "timestamp": "2026-05-17T03:06:38.071Z"
         }
       ]
     },
