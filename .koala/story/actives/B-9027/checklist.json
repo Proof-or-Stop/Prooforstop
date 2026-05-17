@@ -21,6 +21,49 @@
         "test": [
           "packages/main/src/tasks/worktree-authority-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "抽取完成后 story-advance.ts 中 grep \"git merge\" / \"worktree remove\" / \"branch -d\" 返回 0 行匹配（inline DONE merge 代码已清除）→ 确认 DONE merge 实现不再 inline; WHY: 验证搬迁彻底性",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "done-effects.ts 存在于 packages/main/src/handlers/ 且 export 至少两个函数（pre-merge gate 函数 + merge-cleanup 函数）→ tsc --noEmit 编译通过; WHY: 验证新文件结构正确且可编译",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "对一个 DONE gate 全满足的 TEST story 执行 koala story_advance --phase=DONE → 成功输出含 DONE Gate Checklist 段 + 合并/worktree清理/分支删除三行 → story phase=DONE; WHY: 验证抽取后端到端行为不变",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "done-effects.ts 中 maybeTriggerAudit 调用包裹在 try/catch 内且位于 merge+cleanup 成功之后（grep 验证调用位置）→ audit 仍是 post-merge non-blocking effect; WHY: 验证 audit effect 搬迁位置正确",
+            "type": "logic",
+            "priority": "should"
+          },
+          {
+            "desc": "cleanStrayWorktreeFiles 和 STRAY_FILE_WHITELIST 在 story-advance.ts 的 re-export 仍存在（grep 验证 import + re-export）→ 现有 logicTest 不因 import 路径改变而报错; WHY: 保护下游依赖不断裂",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "将 done-effects.ts 的 pre-merge gate 函数调用从 actor.send 前移到 actor.send 后（模拟搬迁时序错位）→ 测试必须检测到 pre-merge gate 失败时 story 已落盘 DONE（CHK-002 的 smoke 能捕获此错误）; WHY: 对抗 preMortem #2 跨边界时序错位",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "抽取后 story-advance.ts 仍 import done-effects 并在精确位置（actor.send 前/后）分别调用两个函数——diff 对比调用点行号与原始块 A/块 B 位置一致; WHY: 防止搬迁时代码重排导致语义漂移",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
       }
     },
     {
