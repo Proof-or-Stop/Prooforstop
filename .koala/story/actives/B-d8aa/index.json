@@ -4,7 +4,7 @@
   "title": "Parked backlog should not block convergence",
   "description": "Clarify convergence_check semantics for parked backlog stories: active worktree stories still block, but parked main-authority INIT backlog without an active worktree should be reported separately as advisory instead of preventing convergence. Do not touch B-6974 or change active worktree story semantics.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "createdAt": "2026-05-17T12:32:17.680Z",
   "startedAt": "2026-05-17T12:32:17.680Z",
@@ -62,6 +62,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-05-17T13:12:31.799Z",
+      "branch": "story/B-d8aa",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-05-17T13:20:37.662Z",
       "branch": "story/B-d8aa",
       "user": "Harmonygo",
       "agent": "main"
