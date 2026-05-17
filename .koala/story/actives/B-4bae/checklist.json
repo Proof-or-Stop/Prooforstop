@@ -53,7 +53,7 @@
       "relatedDocs": [
         "docs/koala/framework-audit/2026-05-17/report.md"
       ],
-      "userSees": "finding_list for B-META-framework-audit shows F-004 resolved, while unrelated findings remain unchanged.",
+      "userSees": "User runs `koala finding_list {\"storyId\":\"B-META-framework-audit\"}` and sees `B-META-framework-audit:F-004` with `status: \"resolved\"` and a B-4c38 / 7350e9df resolution reason.",
       "verificationIntent": {
         "happy": [
           {
@@ -79,7 +79,14 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          ".koala/story/actives/B-META-framework-audit/findings.json"
+        ],
+        "create": [],
+        "test": []
+      }
     }
   ]
 }
