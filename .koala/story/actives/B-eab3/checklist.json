@@ -111,7 +111,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "CLAUDE.md",
+          "command": "sed -n 903,965p CLAUDE.md | grep packages/koala/packages/main; grep koala 自举开发注意",
+          "result": "pass",
+          "note": "CLAUDE.md pre-push 段无 packages/koala/packages/main 命中,无失效的「koala 自举开发注意」交叉引用",
+          "headHash": "59da73be1d16b2bf7318c9a55f4755a72a350c3c",
+          "materialHash": "e86730edba430ba928a18deb8ad4567903dd4b9642ea1a7e755dc557ff5686c5",
+          "timestamp": "2026-05-17T03:06:38.838Z"
+        }
+      ]
     }
   ]
 }
