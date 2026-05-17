@@ -3,7 +3,7 @@
  * @task B-3740
  * @checklist CHK-002
  * @title lifecycle registry consistency contract
- * @type test
+ * @type chore
  * @priority high
  * @description
  *   Cross-checks the lifecycle registry's command + artifact dimensions
@@ -19,6 +19,8 @@
  *   generic message. Models the same resolution semantics DEFAULT_PHASE_TOOLS
  *   uses — `*` wildcard bucket + per-phase additions — and compares the
  *   RESOLVED effective command set, never raw literal tables (preMortem #1).
+ * @changes
+ *   - [CHK-002] Add lifecycle registry consistency contract
  */
 import {
   COMMAND_LIFECYCLE_PHASES,
