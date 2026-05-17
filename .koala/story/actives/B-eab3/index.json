@@ -4,7 +4,7 @@
   "title": "补齐缺失的 .githooks/pre-push 外部 gate 并修正路径与文档",
   "description": "git config core.hooksPath 已设为 .githooks,但 .githooks/ 目录在工作树和全 git 历史中都不存在,导致所有 git hook 静默失效。B-5a28 承诺的两条防线只落地第一条(koala validate --lint),第二条 .githooks/pre-push(独立于 koala 自身的外部 tsc gate)从未创建。CLAUDE.md:903-918 却把它描述成已随仓库提交存在,且其路径判断 packages/koala/packages/main 与本仓扁平布局 packages/main 不符,还引用了本仓不存在的「koala 自举开发注意」段。本 story 补齐 hook 文件、修正路径、对齐文档。",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "keywords": [
     "githooks",
@@ -36,6 +36,14 @@
       "action": "advance",
       "timestamp": "2026-05-17T02:49:34.320Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-05-17T02:49:38.268Z",
+      "branch": "story/B-eab3",
       "user": "Harmonygo",
       "agent": "main"
     }

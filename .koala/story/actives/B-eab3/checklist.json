@@ -6,7 +6,35 @@
       "context": "B-5a28 承诺但从未创建。hook 要求:跟仓库提交;只用 npx tsc --noEmit 不调用 koala(防全局 koala 版本错位);koala 自举仓检测路径必须匹配本仓 packages/main 扁平布局,不是 CLAUDE.md 写的 packages/koala/packages/main;非 koala 仓 exit 0 跳过;tsc 非零退出则拒绝 push。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "git push 时 packages 全部干净编译,hook 打印 tsc 通过并放行 push",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": ".githooks/pre-push 以 mode 100755 提交(git ls-files --stage 确认可执行位)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "在非 koala 仓(无 @koala-agent/core 标记)git push 时 hook 立即 exit 0、无输出、不影响 push",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "某子包注入 TS 类型错误后 git push,hook 打印 tsc 报错并拒绝 push、远端无更新",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
