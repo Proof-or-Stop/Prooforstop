@@ -1,0 +1,75 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Separate META audit containers from unfinished story completion in convergence_check",
+      "context": "Update packages/main/src/tasks/gap-analyze.ts: checkConvergence should exclude phase=META from the 所有 Story 完成 active story list. Add a separate audit backlog check for B-META-framework-audit open findings; only evidenceState=verified with severity high or critical should make convergence fail. suspected and low/medium findings should be advisory/detail-only.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/truth-source.md"
+      ],
+      "userSees": "convergence_check no longer lists B-META-framework-audit under unfinished stories; it reports audit backlog separately and only blocks on verified high/critical audit findings.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run koala convergence_check with current repo: 所有 Story 完成 lists only real active INIT stories, not B-META-framework-audit; audit backlog appears as a separate check",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke fixture with DONE, DISCARDED, META, INIT proves META is excluded while INIT remains unfinished",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke fixture proves only verified high/critical audit findings block convergence; suspected and low/medium audit findings do not block",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Resolve B-META-framework-audit F-004 with B-4c38 evidence",
+      "context": "B-META-framework-audit:F-004 is open verified but the fix has already merged in commit 7350e9df (B-4c38 Serialize DONE main merges and add partial-DONE recovery). Resolve that finding with a clear reason/evidence, without touching other open findings or INIT backlog stories.",
+      "relatedDocs": [
+        "docs/koala/framework-audit/2026-05-17/report.md"
+      ],
+      "userSees": "finding_list for B-META-framework-audit shows F-004 resolved, while unrelated findings remain unchanged.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run koala finding_list for B-META-framework-audit and verify F-004 status is resolved with B-4c38/7350e9df rationale",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Confirm F-005 remains dismissed duplicate and F-001/F-002/F-003/F-006 are not modified by this story",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Confirm convergence audit backlog behavior does not silently ignore a synthetic verified high/critical finding in smoke coverage",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
