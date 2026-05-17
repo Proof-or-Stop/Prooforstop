@@ -239,7 +239,7 @@
         ],
         "adversarial": [
           {
-            "desc": "手动构造 transition-orchestrator.ts import story-advance.ts 或 story-advance.ts import transition-orchestrator.ts 再 import story-advance.ts 的循环路径 -> tsc 或运行时报错; WHY: 对抗搬迁引入隐式循环 import",
+            "desc": "静态 import graph 检查：story-advance.ts → transition-orchestrator.ts → {phase-gates, transition-effects, done-effects} 单向依赖成立；被协调的这些模块无任何反向 import transition-orchestrator.ts 或 story-advance.ts；全图无循环依赖。WHY: 对抗搬迁引入隐式循环 import——用静态 import-graph 断言，不靠手动构造坏代码",
             "type": "cli",
             "priority": "must"
           },
