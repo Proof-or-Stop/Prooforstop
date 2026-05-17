@@ -9,7 +9,20 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "DEV 后全仓 `rg \"actor\\.stop\"` 只在 transition-orchestrator.ts 命中；phase-gates.ts / done-effects.ts 不再调 actor.stop()。orchestrator 是 actor 生命周期与 DONE merge lock 的唯一 owner。",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/done-effects.ts"
+        ],
+        "create": [
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-002",

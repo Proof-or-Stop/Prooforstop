@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "behavior-preserving：外部 CLI/phase 时机/DONE 语义零变化，任何用户可见行为变动都是 bug",
+    "显式所有权优于隐式耦合：orchestrator 显式持有 actor 生命周期/lock scope/调用顺序，不把隐式耦合原样搬运",
+    "layering 正确：orchestrator 与被协调的 gate/effect 模块同在 handlers/，core 不依赖 handlers"
+  ],
+  "drivers": [
+    "3a/3b 只抽了 gate/effect/done-effect 的实现体，story-advance.ts 仍是 transition 协调中枢，难维护难单测",
+    "现存 4 处隐式跨模块耦合：actor.stop 散落三处、story 对象跨模块 mutate、done-merge lock 隐式前置、pre/post 调用顺序无结构兜底"
+  ],
+  "options": [
+    {
+      "name": "A: behavior-preserving explicit orchestrator —— handlers/transition-orchestrator.ts，显式接管 actor 生命周期/lock scope/state-mutation 与 writeStory 顺序/pre-post gate 顺序/effect 调用，外部语义零变化",
+      "pros": [
+        "真正消除 4 处隐式耦合，orchestrator 成为单一协调真相源",
+        "story-advance.ts 变真正的 thin handler",
+        "外部行为 byte-identical，验收清晰"
+      ],
+      "cons": [
+        "不是纯机械搬迁，actor.stop/lock scope 的显式收拢需小心保持时序",
+        "回归证明成本高（要逐 transition 证 byte-identical）"
+      ]
+    },
+    {
+      "name": "B: 纯机械搬迁 —— 把 story-advance.ts 的 inline 协调原样挪进 orchestrator",
+      "pros": [
+        "改动风险最低"
+      ],
+      "cons": [
+        "4 处隐式耦合原封不动搬进新文件，没真正解决问题；用户已明确否决『只搬不接管』"
+      ]
+    },
+    {
+      "name": "C: orchestrator 放 core/transition-orchestrator.ts",
+      "pros": [
+        "跟随 checklist 初版字面"
+      ],
+      "cons": [
+        "orchestrator 要 import handlers 层的 phase-gates/transition-effects/done-effects，core→handlers 是 Core/Shell 分层倒挂"
+      ]
+    }
+  ],
+  "chosen": "A: behavior-preserving explicit orchestrator —— handlers/transition-orchestrator.ts，显式接管 actor 生命周期/lock scope/state-mutation 与 writeStory 顺序/pre-post gate 顺序/effect 调用，外部语义零变化",
+  "rationale": "选 A：B-6974 的目标是把 story-advance.ts 从协调中枢变 thin handler，A 在 handlers/ 建 orchestrator 显式接管 4 处隐式耦合（actor 生命周期、DONE lock scope、state-mutation/writeStory 顺序、pre/post gate 顺序），外部 CLI/phase 时机/DONE 语义 byte-identical。B 纯搬迁把隐式耦合原样带进新文件、用户已明确否决；C 放 core/ 造成 core→handlers 分层倒挂。A 唯一代价是显式收拢 actor.stop/lock scope 需保持时序，由 CHK-003 逐 transition 回归兜底。不碰 StoryPhase/legacy/TEST/profile（Story 4）。",
+  "preMortem": [
+    {
+      "scenario": "显式接管 actor 生命周期时 stop() 时机变化",
+      "trigger": "把散落在 phase-gates（resolveGuardFailure）/ done-effects 里的 actor.stop() 收归 orchestrator 时，漏 stop 或提前 stop",
+      "consequence": "actor 泄漏或提前停止，transition 行为变化",
+      "mitigation": "orchestrator 显式 own actor 全生命周期（create/start/send/stop）；被调 gate 函数不再自行 stop，由 orchestrator 在所有路径（成功/guard 失败/gate 失败）统一 stop；CHK-003 逐 transition 回归"
+    },
+    {
+      "scenario": "DONE merge lock scope 收进 orchestrator 时范围错位",
+      "trigger": "lock scope 没覆盖 runDonePreMergeGate 加 actor.send 加 writeStory 加 applyDoneMergeEffects 全程，或 release 时机错",
+      "consequence": "并发 DONE 又出 partial-DONE（B-4c38 刚修的问题回归）",
+      "mitigation": "orchestrator 的 lock scope 必须与现 story-advance.ts 的 try/finally 等价、全程覆盖；CHK-003 回归并发 DONE 串行化"
+    },
+    {
+      "scenario": "state mutation 与 writeStory 顺序错位",
+      "trigger": "orchestrator 重排 pre-merge gate / actor.send / writeStory(phase=DONE) / post effects 的顺序",
+      "consequence": "phase 写入时机变化，DONE pre-merge gate 失败时 story 已 DONE（B-9027 CHK-002 核心验收破坏）",
+      "mitigation": "orchestrator 显式保持『pre-merge gate → actor.send → writeStory → post effects』顺序逐行不变；CHK-003 断言 pre-merge gate 失败 story 仍 TEST"
+    },
+    {
+      "scenario": "orchestrator 抽取引入循环 import",
+      "trigger": "orchestrator 与 story-advance.ts 或 done-effects.ts 互相 import",
+      "consequence": "模块循环依赖，构建/测试不稳定",
+      "mitigation": "单向依赖：story-advance.ts → orchestrator → {phase-gates, transition-effects, done-effects}；CHK-003 验无循环 import"
+    },
+    {
+      "scenario": "4 段 inline advisory（deps/session/baseline-risk/init-check）归属处理不一致",
+      "trigger": "这些 advisory 文本计算介于 transition effect 与 handler 表现层之间，抽取时归属不清",
+      "consequence": "advisory 文本顺序/内容变化，用户可见输出漂移",
+      "mitigation": "PLAN 决定归属（建议作为 orchestrator 返回结构的字段、由 thin handler 拼装），无论归属如何 behavior-preserving 要求最终返回文本 byte-identical；CHK-003 断言各 advisory 段不变"
+    }
+  ],
+  "timestamp": "2026-05-17T12:10:13.042Z"
+}
