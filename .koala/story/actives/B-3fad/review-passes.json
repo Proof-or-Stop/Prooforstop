@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-3fad:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 已检查 verificationIntent 与 verificationEvidence 覆盖关系，无 blocker。所有 44 条 intent 均有对应 evidence（result=pass），smoke 测试直接运行全绿（evidence-state-gate-smoke 9 函数 / gap-log-smoke 11 函数）。evidence stale 状态为 materialHash drift（REVIEW 阶段推进后多了 1 个 metadata commit），不影响测试实质覆盖。",
+      "createdAt": "2026-05-17T00:41:40.399Z",
+      "reviewRound": "2026-05-17T00:39:52.477Z",
+      "reviewRunId": "B-3fad:RR-004",
+      "_hash": "ff205dfb07d88a4b6a9bbfec7a72d264d5346ee3ff995a3e31cb2faa8d470aa9"
+    }
+  ]
+}
