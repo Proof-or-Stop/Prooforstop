@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-6974:RP-001",
+      "agent": "koala-review-quality",
+      "note": "Reviewed transition-orchestrator.ts (new), story-advance.ts (refactored), done-effects.ts (actor stop removal), phase-gates.ts (actor stop removal + _actor rename), flow-stability-smoke.ts, validation-protocol-smoke.ts, worktree-authority-smoke.ts, verify-process-fact-contract.mjs. No dead code, no type-safety issues, no I/O isolation violations. The three _actor parameters in phase-gates.ts are intentionally unused (TypeScript _ prefix convention), kept for signature stability to allow test assertions about the lifecycle ownership transfer. console.error at orchestrator line 202 is a behavior-preserving move from the original story-advance.ts. Layering is correct: story-advance.ts imports only transition-orchestrator; orchestrator imports gates/effects but not vice versa; no circular dependencies. Single finally block pattern for actor lifecycle is clean.",
+      "createdAt": "2026-05-17T14:57:20.917Z",
+      "reviewRound": "2026-05-17T14:54:29.189Z",
+      "reviewRunId": "B-6974:RR-002",
+      "_hash": "43cbf8760fc0d73e3021507024baea48ef612d065ed3a7e7c3099331fe520fe4"
+    }
+  ]
+}
