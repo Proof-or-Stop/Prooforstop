@@ -23,6 +23,30 @@
         }
       ],
       "_hash": "8e5a47bf232d0f32930371c3814ad52663acdf604a9df994489c945685fa7b81"
+    },
+    {
+      "timestamp": "2026-05-17T14:40:10.956Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 个 checklist item，请检查是否有组合场景遗漏（如：Introduce transition-orchestrator.ts coordinating one transition + Reduce story_advance.ts to a thin handler delegating to the orchestrator 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 2 个高风险信号: 数据迁移/破坏性, 状态机/门禁。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）"
+        }
+      ],
+      "_hash": "e33559e10fb48957581a7d13ec1e46a6d4fd7f79762e68ce75fcd0f809d1d225"
     }
   ]
 }

@@ -461,7 +461,163 @@
             "priority": "should"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run build; npm --prefix packages/main run test:flow-stability-smoke; npm --prefix packages/main run test:validation-protocol; npm --prefix packages/main run test:lifecycle-registry-contract; npm run test:process-fact-contract; npm run test:runtime-fact-contract; npm --prefix packages/main run test:worktree-authority-smoke; koala validate --story=B-6974",
+          "result": "pass",
+          "note": "Build, flow-stability, validation-protocol, lifecycle-registry-contract, process-fact-contract, runtime-fact-contract, and worktree-authority-smoke all passed after the refactor. koala validate is rerun after this evidence write so the final validation artifact confirms allPass true with this coverage present.",
+          "headHash": "44647ba464de76352714e9a72d28f805828a1f25",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:40:43.898Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "worktree-authority-smoke passed, including assertDoneSuccessPathOutputAndOrdering. That assertion covers the DONE checklist segment, advance line, merge-report lines, and merge -> worktree remove -> branch delete ordering.",
+          "headHash": "44647ba464de76352714e9a72d28f805828a1f25",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:40:43.898Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "worktree-authority-smoke passed, including assertDoneOracleGateFailureKeepsStoryTest. Pre-merge DONE oracle failure keeps the story in TEST and does not persist phase DONE.",
+          "headHash": "44647ba464de76352714e9a72d28f805828a1f25",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:40:43.898Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:3",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "flow-stability-smoke passed after adding the B-6974 static layering checks: story-advance -> transition-orchestrator -> phase-gates/transition-effects/done-effects is one-directional, with no reverse import of story-advance.",
+          "headHash": "44647ba464de76352714e9a72d28f805828a1f25",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:40:43.898Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:4",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/story-advance.ts",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed after moving the process-fact owner assertions and validation smoke expectations to the transition-orchestrator boundary.",
+          "headHash": "44647ba464de76352714e9a72d28f805828a1f25",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:40:43.898Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "worktree-authority-smoke passed, including assertStrayFileOffenderKeepsStoryTest. F-020 stray-file pre-merge failure still keeps the story in TEST under orchestrator ownership.",
+          "headHash": "44647ba464de76352714e9a72d28f805828a1f25",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:40:43.899Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "worktree-authority-smoke passed, including assertMergeConflictPreMergeGateKeepsStoryTest. Merge conflict pre-merge gate still keeps story TEST and avoids force-syncing the branch.",
+          "headHash": "44647ba464de76352714e9a72d28f805828a1f25",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:40:43.899Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "worktree-authority-smoke passed, including assertRealMergeFailureMarksDoneAndThrows and assertWorktreeCleanupFailureMarksDoneMergedAndThrows. Post-merge failure semantics remain phase DONE with recovery guidance.",
+          "headHash": "44647ba464de76352714e9a72d28f805828a1f25",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:40:43.899Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:3",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "worktree-authority-smoke passed, including live lock, pre-autosync lock, and stale lock reclaim assertions. DONE main merge serialization semantics are unchanged.",
+          "headHash": "44647ba464de76352714e9a72d28f805828a1f25",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:40:43.899Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:4",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "flow-stability-smoke passed. Existing external story_advance behavior, legacy/profile semantics, and non-DONE advisory text order remain covered while the new structural assertions pin the orchestrator boundary.",
+          "headHash": "44647ba464de76352714e9a72d28f805828a1f25",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:40:43.899Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke; npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "flow-stability-smoke and process-fact-contract passed with the import graph moved to transition-orchestrator.ts. The assertions require story-advance to delegate, transition-orchestrator to own phase-gates/effects imports, and no reverse imports from coordinated modules.",
+          "headHash": "44647ba464de76352714e9a72d28f805828a1f25",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:40:43.899Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/transition-orchestrator.ts",
+          "command": "rg -n \"globalThis|__koalaDoneChecklistRendered\" packages/main/src/handlers/transition-orchestrator.ts || true",
+          "result": "pass",
+          "note": "Zero hits. transition-orchestrator.ts passes doneRenderedChecklist as a local variable from runDonePreMergeGate into applyDoneMergeEffects; no global/shared hidden handoff is introduced.",
+          "headHash": "44647ba464de76352714e9a72d28f805828a1f25",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:40:43.904Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "worktree-authority-smoke passed. assertDoneSuccessPathOutputAndOrdering includes the structural assertion that story-advance.ts delegates to runStoryTransition and contains no inline git merge or git worktree remove implementation.",
+          "headHash": "44647ba464de76352714e9a72d28f805828a1f25",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:40:43.904Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:3",
+          "kind": "logic_test",
+          "file": "packages/main/src/handlers/story-advance.ts",
+          "command": "static dependency review plus npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "story-advance.ts imports runStoryTransition/renderTransitionResult directly from transition-orchestrator.js and has no fallback branch. Removing transition-orchestrator.ts would break that import at compile time; the passing build proves the live dependency is used.",
+          "headHash": "44647ba464de76352714e9a72d28f805828a1f25",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:40:43.904Z"
+        }
+      ]
     }
   ]
 }
