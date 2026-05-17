@@ -26,6 +26,15 @@
       "reviewRound": "2026-05-17T02:25:03.650Z",
       "reviewRunId": "B-fd38:RR-001",
       "_hash": "98571d6e7da8f4f625248ff368c18cf604f90fdc9f321f0fd77660ebf830b21a"
+    },
+    {
+      "id": "B-fd38:RP-004",
+      "agent": "koala-review-docs",
+      "note": "Step 1: 纯文档 diff，exported symbol 集为空（Fallback 1）。Step 2/3: 直接比对 AGENTS.md:185 新文本与磁盘客观事实。验证 4 项主要声明：(1) .Codex/agents/ 是 Koala adapter 约定 — 与 .Codex/koala.json notes[0] 一致；(2) 大写 .Codex 目录 — ls 确认；(3) Markdown + YAML frontmatter 格式 — .Codex/agents/*.md 全部以 --- 开头；(4) 引用 .Codex/koala.json 文本 \"read by Koala tooling, not by the Codex runtime\" — 与 koala.json:32 原文匹配（省略 \"This file is\" 前缀，属可接受的摘录写法）。官方 Codex 约定（~/.codex/agents/ + TOML）是外部产品声明，仓库内无反驳证据。无 blocker，文档内容与代码/配置事实完全一致。",
+      "createdAt": "2026-05-17T02:26:42.257Z",
+      "reviewRound": "2026-05-17T02:25:03.650Z",
+      "reviewRunId": "B-fd38:RR-003",
+      "_hash": "6f9a26b8e83bd30b1ce937405b910d3ad7480f5d422038bbb500f36e0fc33d2c"
     }
   ]
 }
