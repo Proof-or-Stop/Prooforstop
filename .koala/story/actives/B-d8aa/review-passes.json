@@ -8,6 +8,15 @@
       "reviewRound": "2026-05-17T13:08:08.088Z",
       "reviewRunId": "B-d8aa:RR-001",
       "_hash": "e777a6775ec048179f832007f86418a5fe243f87b20684b702e94b54aad35fdd"
+    },
+    {
+      "id": "B-d8aa:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Quality review pass: gap-analyze cleanly separates parked INIT/no-worktree backlog from active non-terminal stories, keeps META/DONE/DISCARDED out of hard completion, preserves active worktree blocking via recorded worktree metadata and git worktree branch detection, and adds Parked backlog as an always-passing advisory. Smoke covers parked-only convergence, active PLAN/INIT worktree blockers, runtime linked worktree detection, META/terminal exclusions, and audit backlog severity/evidenceState blocking. Verified with build, convergence smoke, convergence_check, and git diff --check.",
+      "createdAt": "2026-05-17T13:09:45.897Z",
+      "reviewRound": "2026-05-17T13:08:08.088Z",
+      "reviewRunId": "B-d8aa:RR-002",
+      "_hash": "620ad376f4afceaa55436df14447eca05c26d097b1de6f19ef97d210e2d435e3"
     }
   ]
 }
