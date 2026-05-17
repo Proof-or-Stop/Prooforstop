@@ -35,6 +35,15 @@
       "reviewRound": "2026-05-17T00:51:26.668Z",
       "reviewRunId": "B-3fad:RR-007",
       "_hash": "f24a08acb7b0de13a2f361fbd56435251fbbf8349adaf300015b30ac19e1deaa"
+    },
+    {
+      "id": "B-3fad:RP-005",
+      "agent": "koala-review-concept",
+      "note": "Round 2 概念完整性审查通过。F-001 修复已确认：reviewer-status.ts 改用 isFindingBlocking（advisory.ts），effectiveBlockingSeverities 经 resolveEffectiveBlockingSeverities（guard-utils.ts）解析，与 gate 同源，无残留旧 predicate，无循环依赖。本次 diff 无其他概念删除/替换，无新 blocker。",
+      "createdAt": "2026-05-17T00:52:48.387Z",
+      "reviewRound": "2026-05-17T00:51:26.668Z",
+      "reviewRunId": "B-3fad:RR-010",
+      "_hash": "7b402384cd4bbb7fa45695baeb42150833ef478d695aa5fc130be70f4d6bb7b0"
     }
   ]
 }
