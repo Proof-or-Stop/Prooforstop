@@ -49,12 +49,12 @@
         {
           "intentRef": "CHK-001:happy:0",
           "kind": "integration_test",
-          "command": "npm --prefix packages/main run build",
+          "command": "node packages/main/dist/cli.js convergence_check",
           "result": "pass",
-          "note": "Build passed after restoring the missing public xstate package in local node_modules; verifies the convergence implementation compiles.",
-          "headHash": "94a2c65b71fe2611a9ecd5f7fd27a39eb81b533c",
+          "note": "Worktree CLI convergence output excludes B-META-framework-audit from 所有 Story 完成, lists real active stories B-4622/B-4bae/B-6974/B-d7af/B-da5b, and renders separate Audit backlog with 0 blocking / 4 advisory.",
+          "headHash": "dd6351970f31bab6c7b364cef231a452536984f3",
           "materialHash": "c385fa929ce8c0f71dff0ec08de1b43f033a31efdd9da51469e08702704a7b61",
-          "timestamp": "2026-05-17T11:57:34.046Z"
+          "timestamp": "2026-05-17T12:00:24.845Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
