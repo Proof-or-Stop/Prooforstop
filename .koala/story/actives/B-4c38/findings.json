@@ -68,6 +68,24 @@
         "packages/main/src/handlers/done-recover.ts",
         "packages/main/src/handlers/done-effects.ts"
       ]
+    },
+    {
+      "id": "B-4c38:F-005",
+      "desc": "docs/requirements/decisions/story-lifecycle.md still describes done_recover as requiring only main clean, branch existence, and merge-tree clean; hardened code now also requires the DONE main merge lock and a clean story worktree before recovery proceeds.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-05-17T03:52:53.105Z",
+      "reviewRound": "2026-05-17T03:51:16.697Z",
+      "reviewRunId": "B-4c38:RR-005",
+      "_hash": "6dca39132f325a1861af7e2a15bafcaa64e75db166c0d5dcfa6dd2fad826429a",
+      "files": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "packages/main/src/handlers/done-recover.ts",
+        "packages/main/src/core/partial-done-recovery.ts"
+      ]
     }
   ]
 }
