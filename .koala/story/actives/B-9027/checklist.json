@@ -152,6 +152,17 @@
           "headHash": "5e8f77570ebaeb8c71ad9d41f4e4a37ccea0cd07",
           "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
           "timestamp": "2026-05-17T02:54:02.811Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "assertStrayFileOffenderKeepsStoryTest: 主仓 story dir 写非白名单未追踪文件，F-020 dry-run 抛错命名 offender，story 仍 TEST 且 offender 未被删",
+          "headHash": "59e35ecf1d08de30d1c2b7775faea0da2fe5be2b",
+          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
+          "timestamp": "2026-05-17T02:54:03.041Z"
         }
       ]
     },
