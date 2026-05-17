@@ -231,9 +231,9 @@
       "id": "CHK-004",
       "title": "Expose operator-visible proof for concurrent DONE and partial-DONE recovery",
       "context": "Turn the regression work into an operator-visible capability: a maintainer can run the documented Koala command/smoke path and see that concurrent DONE contention fails before phase=DONE is written, and that a simulated partial-DONE story is detected with a recovery command that completes merge/worktree/branch cleanup without handwritten git rescue. The underlying tests belong in verificationIntent/evidence, but the checklist item is the visible proof that operators no longer have to manually reconstruct the recovery sequence.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-17T03:43:25.735Z",
       "userSees": "User sees the smoke transcript lines: \"lock contention refused before DONE\", \"partial-DONE detected\", \"done_recover completed merge/worktree/branch cleanup\", and \"no terminal/orphan worktree residue\".",
       "files": {
         "modify": [
@@ -279,7 +279,29 @@
             "priority": "should"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke && npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "smoke transcript proves lock contention refusal and partial-DONE recovery without handwritten git",
+          "headHash": "f09df7fa572b1ef2a2a7780fdf9af0ceaf691060",
+          "materialHash": "4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891",
+          "timestamp": "2026-05-17T03:43:25.764Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "logic_test",
+          "command": "rg -n \"done_recover|Partial-DONE|done-main-merge.lock\" docs/requirements/decisions/story-lifecycle.md",
+          "result": "pass",
+          "note": "story-lifecycle.md documents DONE lock, doctor partial-DONE detection, and done_recover recovery path",
+          "headHash": "f09df7fa572b1ef2a2a7780fdf9af0ceaf691060",
+          "materialHash": "4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891",
+          "timestamp": "2026-05-17T03:43:25.791Z"
+        }
+      ]
     }
   ]
 }
