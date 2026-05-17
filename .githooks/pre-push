@@ -1,0 +1,123 @@
+#!/usr/bin/env bash
+#
+# .githooks/pre-push — koala 自举仓的外部 tsc gate（B-eab3 / B-5a28 设计）
+#
+# 这是 `koala validate --lint` 的外部兜底防线。快速通道 REVIEW→TEST 会 skip
+# lint gate，pre-push 是类型错误进 main 前的唯一兜底。
+#
+# 核心约束：本 hook **不调用 `koala` 命令**。它要防御的就是「全局 koala 可执行
+# 文件版本错位」情形——若 hook 自己依赖 koala，koala 翻车时 hook 会一起翻
+# （B-9bd9 假 DONE 根因之一）。实现只用 git / find / node / npx tsc / npm run build。
+#
+# koala 自举仓检测分三步，每步的处置不同（不是「任一不满足一律 exit 0」）：
+#   1. `$REPO_ROOT/packages/main/package.json` 不存在 → 确实非 koala 自举仓
+#      → exit 0（对非 koala 仓零摩擦放行）。
+#   2. package.json 存在但 `node` 不在 PATH → 无法解析 name、也无法跑递归 tsc
+#      gate → **fail-closed**：向 stderr 打印明确警告并 exit 1 拒绝 push。
+#      这里 **不能 fail-open**——静默 exit 0 会让 tsc gate 被无声绕过（F-002）。
+#   3. `node` 可用，但 package.json 的 `name` 字段 ≠ `@koala-agent/core`
+#      → 确实非 koala 自举仓 → exit 0 放行。
+# 注意：本仓是扁平布局 `packages/main`，不是 `packages/koala/packages/main`。
+#
+# 递归 tsc：find REPO_ROOT 下所有 tsconfig.json（排除黑名单目录），对每个所在
+# 目录跑 `npx tsc --noEmit -p <dir>`。覆盖面与 `validate --lint` 递归扫子包对齐，
+# 消除 B-9bd9 的单根 tsconfig 子包盲区。任一 tsc 非零 → hook 非零退出拒绝 push。
+#
+# 构建顺序约束：`packages/utils` 的源码 import `packages/main/dist` 的编译产物。
+# 若 `packages/main/dist` 不存在，递归 tsc 跑到 `packages/utils` 时会因找不到
+# 模块而 FAIL。所以本 hook 在递归 tsc 前先 `npm run build`（即 tsc，非 koala
+# 命令，符合约束）构建 `packages/main`，让 `packages/utils` 能解析依赖。
+#
+set -u
+
+# --- 临时文件管理：mktemp 唯一临时目录 + trap EXIT 清理 ---
+# 用唯一临时目录而非固定 /tmp 路径，避免并发 push 同名互覆盖、且在 /tmp 累积。
+TMPDIR_PREPUSH="$(mktemp -d "${TMPDIR:-/tmp}/pre-push.XXXXXX" 2>/dev/null)"
+if [ -z "$TMPDIR_PREPUSH" ] || [ ! -d "$TMPDIR_PREPUSH" ]; then
+  echo "[pre-push] FAIL: could not create temp directory via mktemp" >&2
+  exit 1
+fi
+cleanup() { rm -rf "$TMPDIR_PREPUSH"; }
+trap cleanup EXIT
+
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+if [ -z "$REPO_ROOT" ]; then
+  # 不在 git 仓库内（理论上 hook 不会被这样调用），放行
+  exit 0
+fi
+
+MAIN_PKG="$REPO_ROOT/packages/main/package.json"
+
+# --- koala 自举仓检测 ---
+if [ ! -f "$MAIN_PKG" ]; then
+  # 非 koala 自举仓：无 packages/main/package.json，立即放行
+  exit 0
+fi
+
+# node 用于解析 package.json 的 name 字段。若 node 不在 PATH，无法判断本仓是否
+# koala 自举仓——此时 **不能 fail-open**：静默 exit 0 会让 tsc gate 被无声绕过
+# （F-002）。改为 fail-closed：打印明确警告并 exit 1 拒绝 push。
+if ! command -v node >/dev/null 2>&1; then
+  echo "[pre-push] FAIL: 'node' not found in PATH — cannot determine if this is the koala self-host repo." >&2
+  echo "[pre-push] Refusing push (fail-closed): the recursive tsc gate cannot run without node." >&2
+  echo "[pre-push] Install node and retry, or bypass intentionally with 'git push --no-verify'." >&2
+  exit 1
+fi
+
+PKG_NAME="$(node -e "try{process.stdout.write(String(JSON.parse(require('fs').readFileSync(process.argv[1],'utf-8')).name||''))}catch(e){process.stdout.write('')}" "$MAIN_PKG" 2>/dev/null)"
+if [ "$PKG_NAME" != "@koala-agent/core" ]; then
+  # packages/main 不是 koala 自身：立即放行
+  exit 0
+fi
+
+echo "[pre-push] koala self-host repo detected — running recursive tsc gate"
+
+# --- 构建顺序约束：先确保 packages/main 已构建（packages/utils 依赖其 dist） ---
+echo "[pre-push] building packages/main (packages/utils imports its dist output)..."
+BUILD_LOG="$TMPDIR_PREPUSH/main-build.log"
+if ! npm --prefix "$REPO_ROOT/packages/main" run build >"$BUILD_LOG" 2>&1; then
+  echo "[pre-push] FAIL: packages/main build failed" >&2
+  cat "$BUILD_LOG" >&2
+  exit 1
+fi
+echo "[pre-push] packages/main build OK"
+
+# --- 递归收集 tsconfig.json（排除黑名单目录） ---
+# 黑名单：node_modules / dist / build / .worktrees / .git
+TSCONFIGS="$(find "$REPO_ROOT" \
+  \( -path '*/node_modules' -o -path '*/dist' -o -path '*/build' -o -path '*/.worktrees' -o -path '*/.git' \) -prune \
+  -o -name tsconfig.json -type f -print)"
+
+if [ -z "$TSCONFIGS" ]; then
+  echo "[pre-push] no tsconfig.json found — nothing to check, push allowed"
+  exit 0
+fi
+
+# --- 逐个 tsc --noEmit ---
+FAILED=0
+COUNT=0
+while IFS= read -r tsconfig; do
+  [ -z "$tsconfig" ] && continue
+  COUNT=$((COUNT + 1))
+  dir="$(dirname "$tsconfig")"
+  rel="${dir#"$REPO_ROOT"/}"
+  echo "[pre-push] ($COUNT) tsc --noEmit -p $rel ..."
+  TSC_LOG="$TMPDIR_PREPUSH/tsc-$COUNT.log"
+  if ! npx tsc --noEmit -p "$dir" >"$TSC_LOG" 2>&1; then
+    echo "[pre-push] FAIL: tsc errors in $rel" >&2
+    cat "$TSC_LOG" >&2
+    FAILED=1
+  else
+    echo "[pre-push]     OK: $rel"
+  fi
+done <<EOF
+$TSCONFIGS
+EOF
+
+if [ "$FAILED" -ne 0 ]; then
+  echo "[pre-push] REJECTED: tsc gate failed — fix type errors before pushing" >&2
+  exit 1
+fi
+
+echo "[pre-push] all $COUNT tsconfig project(s) passed tsc --noEmit — push allowed"
+exit 0
