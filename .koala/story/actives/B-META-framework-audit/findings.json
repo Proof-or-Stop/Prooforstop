@@ -73,7 +73,7 @@
       "desc": "DONE merge lacks main-merge serialization; concurrent DONE can leave partial-DONE requiring manual recovery —— applyDoneMergeEffects 的 Step 3（从主仓 git merge story 分支回 main）没有针对并发 DONE 的串行化保护，两个 story 的 DONE 在同一时间窗口各自 merge 到 main 时可让其中一个 Step 3 失败：story 已写 phase=DONE 但分支未合并、worktree 未清理，即 partial-DONE，需手动收尾。",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "suspected",
       "uncertaintyReason": "manually logged framework gap; not yet mechanically reproduced or confirmed",
       "agent": "koala-gap-log",
@@ -82,6 +82,24 @@
       "_hash": "e11bee8d6f7f48a0e736ca82e2f2743c562edaa67a26b5a6f477955ce0aea811",
       "files": [
         "packages/main/src/handlers/done-effects.ts"
+      ],
+      "dismissReason": "Duplicate of B-META-framework-audit:F-004（同一 DONE-merge-serialization gap，F-004 早 7 秒由并发 session 记录且为 verified）。保留 F-004 为 canonical，本条作弱重复消解。",
+      "dismissedAt": "2026-05-17T11:39:21.256Z"
+    },
+    {
+      "id": "B-META-framework-audit:F-006",
+      "desc": "gap_log / B-META finding 写入入口缺并发去重与 idempotency：gap_log 不对相似 desc/source/category 做去重，两个并发 session 在数秒内 log 同一个观察到的 gap 会产生重复 finding；B-META 也没有 finding 的 duplicate-of lifecycle 支持。",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-gap-log",
+      "createdAt": "2026-05-17T11:39:52.217Z",
+      "reviewRound": "",
+      "_hash": "664c68a72f006fcfb11e103b5e4fb08e83531cb07bb9d0ee6899d4f60a8b4990",
+      "files": [
+        "packages/main/src/handlers/gap-log.ts",
+        "packages/main/src/core/audit-meta-store.ts"
       ]
     }
   ]
