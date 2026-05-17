@@ -399,7 +399,196 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/gap-log-smoke.ts",
+          "command": "npm --prefix packages/main run test:gap-log-smoke",
+          "result": "pass",
+          "note": "gap-log-2/4 run gap_log via CLI with all required fields and assert the Gap logged: B-META-framework-audit:F-NNN (evidenceState=...) output line.",
+          "headHash": "b675013d125c61a53a4ece19c1227491f13da8d3",
+          "materialHash": "e8c9f492bbb7b8c06c5c766bd78d5937ff56517ed2e54fb748da8fe054138abb",
+          "timestamp": "2026-05-17T00:30:19.768Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/gap-log-smoke.ts",
+          "command": "npm --prefix packages/main run test:gap-log-smoke",
+          "result": "pass",
+          "note": "gap-log-6 asserts the B-META container is absent before the first gap_log, then auto ensureMetaStory bootstrapped and the finding written.",
+          "headHash": "b675013d125c61a53a4ece19c1227491f13da8d3",
+          "materialHash": "e8c9f492bbb7b8c06c5c766bd78d5937ff56517ed2e54fb748da8fe054138abb",
+          "timestamp": "2026-05-17T00:30:19.768Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/gap-log-smoke.ts",
+          "command": "npm --prefix packages/main run test:gap-log-smoke",
+          "result": "pass",
+          "note": "gap-log-7 runs gap_log from a plain main project with no story worktree and asserts it succeeds (no assertCwdInWorktree).",
+          "headHash": "b675013d125c61a53a4ece19c1227491f13da8d3",
+          "materialHash": "e8c9f492bbb7b8c06c5c766bd78d5937ff56517ed2e54fb748da8fe054138abb",
+          "timestamp": "2026-05-17T00:30:19.768Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:3",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/gap-log-smoke.ts",
+          "command": "npm --prefix packages/main run test:gap-log-smoke",
+          "result": "pass",
+          "note": "gap-log-2 asserts default gap_log (no evidenceState arg) persists evidenceState=suspected.",
+          "headHash": "b675013d125c61a53a4ece19c1227491f13da8d3",
+          "materialHash": "e8c9f492bbb7b8c06c5c766bd78d5937ff56517ed2e54fb748da8fe054138abb",
+          "timestamp": "2026-05-17T00:30:19.768Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:4",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/gap-log-smoke.ts",
+          "command": "npm --prefix packages/main run test:gap-log-smoke",
+          "result": "pass",
+          "note": "gap-log-4 calls gap_log with sourceRefs + reproCommand + observedOutput and evidenceState=verified, asserts the finding is stored verified.",
+          "headHash": "b675013d125c61a53a4ece19c1227491f13da8d3",
+          "materialHash": "e8c9f492bbb7b8c06c5c766bd78d5937ff56517ed2e54fb748da8fe054138abb",
+          "timestamp": "2026-05-17T00:30:19.768Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/gap-log-smoke.ts",
+          "command": "npm --prefix packages/main run test:gap-log-smoke",
+          "result": "pass",
+          "note": "gap-log-1 asserts missing category is rejected by both CLI Zod and handler runtime, no finding written.",
+          "headHash": "b675013d125c61a53a4ece19c1227491f13da8d3",
+          "materialHash": "e8c9f492bbb7b8c06c5c766bd78d5937ff56517ed2e54fb748da8fe054138abb",
+          "timestamp": "2026-05-17T00:30:19.768Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/gap-log-smoke.ts",
+          "command": "npm --prefix packages/main run test:gap-log-smoke",
+          "result": "pass",
+          "note": "gap-log-1 asserts missing severity is rejected by both CLI Zod and handler runtime, no finding written.",
+          "headHash": "b675013d125c61a53a4ece19c1227491f13da8d3",
+          "materialHash": "e8c9f492bbb7b8c06c5c766bd78d5937ff56517ed2e54fb748da8fe054138abb",
+          "timestamp": "2026-05-17T00:30:19.768Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/gap-log-smoke.ts",
+          "command": "npm --prefix packages/main run test:gap-log-smoke",
+          "result": "pass",
+          "note": "gap-log-1 asserts missing evidence is rejected by both CLI Zod and handler runtime, no finding written.",
+          "headHash": "b675013d125c61a53a4ece19c1227491f13da8d3",
+          "materialHash": "e8c9f492bbb7b8c06c5c766bd78d5937ff56517ed2e54fb748da8fe054138abb",
+          "timestamp": "2026-05-17T00:30:19.768Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/gap-log-smoke.ts",
+          "command": "npm --prefix packages/main run test:gap-log-smoke",
+          "result": "pass",
+          "note": "gap-log-1 asserts missing source (no sourceRefs/reproCommand/observedOutput/analysisNote) is rejected by the handler runtime with 'source 必填', no finding written.",
+          "headHash": "b675013d125c61a53a4ece19c1227491f13da8d3",
+          "materialHash": "e8c9f492bbb7b8c06c5c766bd78d5937ff56517ed2e54fb748da8fe054138abb",
+          "timestamp": "2026-05-17T00:30:19.768Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:4",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/gap-log-smoke.ts",
+          "command": "npm --prefix packages/main run test:gap-log-smoke",
+          "result": "pass",
+          "note": "gap-log-8 calls gap_log twice with identical content and asserts two separate findings (not deduplicated, unlike audit drift upsert).",
+          "headHash": "b675013d125c61a53a4ece19c1227491f13da8d3",
+          "materialHash": "e8c9f492bbb7b8c06c5c766bd78d5937ff56517ed2e54fb748da8fe054138abb",
+          "timestamp": "2026-05-17T00:30:19.768Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:5",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/gap-log-smoke.ts",
+          "command": "npm --prefix packages/main run test:gap-log-smoke",
+          "result": "pass",
+          "note": "gap-log-1 (b) asserts an out-of-enum severity value (urgent) is rejected by the handler runtime enum guard; CLI Zod also enforces the enum.",
+          "headHash": "b675013d125c61a53a4ece19c1227491f13da8d3",
+          "materialHash": "e8c9f492bbb7b8c06c5c766bd78d5937ff56517ed2e54fb748da8fe054138abb",
+          "timestamp": "2026-05-17T00:30:19.768Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:6",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/gap-log-smoke.ts",
+          "command": "npm --prefix packages/main run test:gap-log-smoke",
+          "result": "pass",
+          "note": "gap-log-6 second call appends into an already-bootstrapped B-META container and asserts prior findings untouched (additive, no parallel store).",
+          "headHash": "b675013d125c61a53a4ece19c1227491f13da8d3",
+          "materialHash": "e8c9f492bbb7b8c06c5c766bd78d5937ff56517ed2e54fb748da8fe054138abb",
+          "timestamp": "2026-05-17T00:30:19.768Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/gap-log-smoke.ts",
+          "command": "npm --prefix packages/main run test:gap-log-smoke",
+          "result": "pass",
+          "note": "gap-log-3 asserts a verified request with no structured evidence can never produce a verified finding (the mandatory source gate makes verified-without-evidence structurally impossible; the handler keeps an independent downgrade guard).",
+          "headHash": "b675013d125c61a53a4ece19c1227491f13da8d3",
+          "materialHash": "e8c9f492bbb7b8c06c5c766bd78d5937ff56517ed2e54fb748da8fe054138abb",
+          "timestamp": "2026-05-17T00:30:19.768Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/gap-log-smoke.ts",
+          "command": "npm --prefix packages/main run test:gap-log-smoke",
+          "result": "pass",
+          "note": "gap-log-9 asserts evidenceState=disproven is rejected by both CLI Zod (enum suspected/verified only) and handler runtime ('disproven 反证请走 finding 流程').",
+          "headHash": "b675013d125c61a53a4ece19c1227491f13da8d3",
+          "materialHash": "e8c9f492bbb7b8c06c5c766bd78d5937ff56517ed2e54fb748da8fe054138abb",
+          "timestamp": "2026-05-17T00:30:19.768Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/gap-log-smoke.ts",
+          "command": "npm --prefix packages/main run test:gap-log-smoke",
+          "result": "pass",
+          "note": "gap-log-5 asserts empty-string and whitespace-only evidence are rejected (handler trims), no garbage finding written to B-META.",
+          "headHash": "b675013d125c61a53a4ece19c1227491f13da8d3",
+          "materialHash": "e8c9f492bbb7b8c06c5c766bd78d5937ff56517ed2e54fb748da8fe054138abb",
+          "timestamp": "2026-05-17T00:30:19.768Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:3",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/gap-log-smoke.ts",
+          "command": "npm --prefix packages/main run test:gap-log-smoke",
+          "result": "pass",
+          "note": "gap-log-10 runs 5 gap_log calls in rapid succession with distinct content and asserts all 5 findings persisted with unique ids (no findings.json write race).",
+          "headHash": "b675013d125c61a53a4ece19c1227491f13da8d3",
+          "materialHash": "e8c9f492bbb7b8c06c5c766bd78d5937ff56517ed2e54fb748da8fe054138abb",
+          "timestamp": "2026-05-17T00:30:19.768Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:4",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/gap-log-smoke.ts",
+          "command": "npm --prefix packages/main run test:gap-log-smoke",
+          "result": "pass",
+          "note": "gap-log-11 asserts gap_log is registered (registry.ts + cli-engine schema + command-policy) and discoverable via koala gap_log --help showing the category/severity params.",
+          "headHash": "b675013d125c61a53a4ece19c1227491f13da8d3",
+          "materialHash": "e8c9f492bbb7b8c06c5c766bd78d5937ff56517ed2e54fb748da8fe054138abb",
+          "timestamp": "2026-05-17T00:30:19.768Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
