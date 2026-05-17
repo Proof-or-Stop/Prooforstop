@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-17T14:54:29.189Z",
       "reviewRunId": "B-6974:RR-003",
       "_hash": "3f9db7bde020b20f7ac3a888ab3f6797f5f384107e479d1bc62ca6757ddf6703"
+    },
+    {
+      "id": "B-6974:RP-003",
+      "agent": "koala-review-behavior",
+      "note": "All 4 hard acceptance criteria verified. (1) actor.stop uniquely at transition-orchestrator.ts:428 in finally; zero in phase-gates.ts/done-effects.ts/story-advance.ts. (2) DONE merge lock acquire (line 222) and release (line 432) in single try/finally spanning entire runStoryTransition. (3) Phase timing byte-identical: runDonePreMergeGate(284) -> actor.send(289) -> store.writeStory(321) -> applyDoneMergeEffects(363). (4) story-advance.ts is 34 lines — re-exports + 2-line delegation only. All exit paths (success/guard-fail/gate-fail/effect-fail) reach the finally because actor is declared as |undefined before try and actor?.stop() uses optional chaining. No lock scope holes: there is no break/return escaping the try before the finally. DEV->TEST gate functions keep _actor signature parameter for stability but do not call stop. No spec boundary issues; smoke test covers all phase timing cases including assertDoneOracleGateFailureKeepsStoryTest/assertRealMergeFailureMarksDoneAndThrows/assertWorktreeCleanupFailureMarksDoneMergedAndThrows. Checked: no circular imports (phase-gates/done-effects/transition-effects do not import transition-orchestrator).",
+      "createdAt": "2026-05-17T14:58:33.393Z",
+      "reviewRound": "2026-05-17T14:54:29.189Z",
+      "reviewRunId": "B-6974:RR-004",
+      "_hash": "cc9fcd8f0695ff2007043f69e4adc5ee237cba27644dc47eb7d0f2190881cd0e"
     }
   ]
 }
