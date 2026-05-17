@@ -54,9 +54,9 @@
           "command": "npm --prefix packages/main run test:convergence-false-blockers",
           "result": "pass",
           "note": "Smoke asserts parked INIT without worktree is excluded from 所有 Story 完成 and parked-only convergence remains true.",
-          "headHash": "8ab0b32bb39a66f9b5a8bb6f9afddad222fcf791",
-          "materialHash": "7d2679ad7c13b2fc844688a39fe0e5130204bb8990a8f92167537b5b0d6a922a",
-          "timestamp": "2026-05-17T13:03:05.529Z"
+          "headHash": "87e07dabe031f119bf35aea1d4f152a2334c43b9",
+          "materialHash": "4f168d2ed46e4ec7747bad256fa6eede39cdfd7a366ad0c788688c981fcbda3f",
+          "timestamp": "2026-05-17T13:07:19.308Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -66,9 +66,9 @@
           "command": "npm --prefix packages/main run test:convergence-false-blockers",
           "result": "pass",
           "note": "Smoke asserts active worktree stories remain hard blockers in 所有 Story 完成.",
-          "headHash": "50f1ef7a17823f4d1f5739998170c64ad7820754",
-          "materialHash": "7d2679ad7c13b2fc844688a39fe0e5130204bb8990a8f92167537b5b0d6a922a",
-          "timestamp": "2026-05-17T13:03:06.143Z"
+          "headHash": "87e07dabe031f119bf35aea1d4f152a2334c43b9",
+          "materialHash": "4f168d2ed46e4ec7747bad256fa6eede39cdfd7a366ad0c788688c981fcbda3f",
+          "timestamp": "2026-05-17T13:07:19.308Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -78,9 +78,9 @@
           "command": "npm --prefix packages/main run test:convergence-false-blockers",
           "result": "pass",
           "note": "Smoke asserts DONE, DISCARDED, and META stay excluded from hard Story completion.",
-          "headHash": "98bbeaf93274057a7e54642d930afb63be0b1e94",
-          "materialHash": "7d2679ad7c13b2fc844688a39fe0e5130204bb8990a8f92167537b5b0d6a922a",
-          "timestamp": "2026-05-17T13:03:06.745Z"
+          "headHash": "87e07dabe031f119bf35aea1d4f152a2334c43b9",
+          "materialHash": "4f168d2ed46e4ec7747bad256fa6eede39cdfd7a366ad0c788688c981fcbda3f",
+          "timestamp": "2026-05-17T13:07:19.308Z"
         }
       ]
     },
@@ -138,9 +138,9 @@
           "command": "node packages/main/dist/cli.js convergence_check",
           "result": "pass",
           "note": "CLI output includes Parked backlog passed=true and lists parked story IDs as advisory.",
-          "headHash": "e2871b89e7e6a6be2597c108c9ca2febb2055934",
-          "materialHash": "7d2679ad7c13b2fc844688a39fe0e5130204bb8990a8f92167537b5b0d6a922a",
-          "timestamp": "2026-05-17T13:03:07.257Z"
+          "headHash": "87e07dabe031f119bf35aea1d4f152a2334c43b9",
+          "materialHash": "4f168d2ed46e4ec7747bad256fa6eede39cdfd7a366ad0c788688c981fcbda3f",
+          "timestamp": "2026-05-17T13:07:19.308Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -150,9 +150,9 @@
           "command": "npm --prefix packages/main run test:convergence-false-blockers",
           "result": "pass",
           "note": "Smoke asserts an empty parked backlog still renders Parked backlog passed=true with no parked backlog detail.",
-          "headHash": "c3e07cd4f3676653e07af6b21b478fa68027921e",
-          "materialHash": "7d2679ad7c13b2fc844688a39fe0e5130204bb8990a8f92167537b5b0d6a922a",
-          "timestamp": "2026-05-17T13:03:07.797Z"
+          "headHash": "87e07dabe031f119bf35aea1d4f152a2334c43b9",
+          "materialHash": "4f168d2ed46e4ec7747bad256fa6eede39cdfd7a366ad0c788688c981fcbda3f",
+          "timestamp": "2026-05-17T13:07:19.308Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -162,9 +162,9 @@
           "command": "npm --prefix packages/main run test:convergence-false-blockers",
           "result": "pass",
           "note": "Smoke asserts parked-only backlog does not make result.converged false.",
-          "headHash": "e98b27e80b7661b79355d1989916b830f0170499",
-          "materialHash": "7d2679ad7c13b2fc844688a39fe0e5130204bb8990a8f92167537b5b0d6a922a",
-          "timestamp": "2026-05-17T13:03:08.363Z"
+          "headHash": "87e07dabe031f119bf35aea1d4f152a2334c43b9",
+          "materialHash": "4f168d2ed46e4ec7747bad256fa6eede39cdfd7a366ad0c788688c981fcbda3f",
+          "timestamp": "2026-05-17T13:07:19.308Z"
         }
       ]
     },
@@ -219,9 +219,9 @@
           "command": "npm --prefix packages/main run test:convergence-false-blockers",
           "result": "pass",
           "note": "Smoke passed and covers parked INIT advisory behavior.",
-          "headHash": "d6b346691600d75a1bd132a5d046355965e01573",
-          "materialHash": "7d2679ad7c13b2fc844688a39fe0e5130204bb8990a8f92167537b5b0d6a922a",
-          "timestamp": "2026-05-17T13:03:08.942Z"
+          "headHash": "87e07dabe031f119bf35aea1d4f152a2334c43b9",
+          "materialHash": "4f168d2ed46e4ec7747bad256fa6eede39cdfd7a366ad0c788688c981fcbda3f",
+          "timestamp": "2026-05-17T13:07:19.308Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -231,9 +231,9 @@
           "command": "npm --prefix packages/main run test:convergence-false-blockers",
           "result": "pass",
           "note": "Smoke passed and covers active worktree story remaining blocking.",
-          "headHash": "323bc9cb3e099167dc84822d5e61dd111bb28c43",
-          "materialHash": "7d2679ad7c13b2fc844688a39fe0e5130204bb8990a8f92167537b5b0d6a922a",
-          "timestamp": "2026-05-17T13:03:09.496Z"
+          "headHash": "87e07dabe031f119bf35aea1d4f152a2334c43b9",
+          "materialHash": "4f168d2ed46e4ec7747bad256fa6eede39cdfd7a366ad0c788688c981fcbda3f",
+          "timestamp": "2026-05-17T13:07:19.308Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -243,9 +243,9 @@
           "command": "npm --prefix packages/main run test:convergence-false-blockers",
           "result": "pass",
           "note": "Smoke passed and covers DONE, DISCARDED, and META exclusion regression.",
-          "headHash": "315301bc4960cf75c1119a7a7cfaaa48a8411a75",
-          "materialHash": "7d2679ad7c13b2fc844688a39fe0e5130204bb8990a8f92167537b5b0d6a922a",
-          "timestamp": "2026-05-17T13:03:10.098Z"
+          "headHash": "87e07dabe031f119bf35aea1d4f152a2334c43b9",
+          "materialHash": "4f168d2ed46e4ec7747bad256fa6eede39cdfd7a366ad0c788688c981fcbda3f",
+          "timestamp": "2026-05-17T13:07:19.308Z"
         }
       ]
     }
