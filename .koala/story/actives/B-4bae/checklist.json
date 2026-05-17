@@ -66,6 +66,17 @@
           "headHash": "4cc6474166ab4c91d1a870d82a051655b4a72dcc",
           "materialHash": "c385fa929ce8c0f71dff0ec08de1b43f033a31efdd9da51469e08702704a7b61",
           "timestamp": "2026-05-17T12:00:25.384Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/convergence-discarded-smoke.ts",
+          "command": "npm --prefix packages/main run test:convergence-false-blockers",
+          "result": "pass",
+          "note": "Smoke asserts suspected and low/medium verified audit findings do not block, while verified high/critical and legacy missing evidenceState high findings do block.",
+          "headHash": "651ed324658fea62443d2b3790ba611766614240",
+          "materialHash": "c385fa929ce8c0f71dff0ec08de1b43f033a31efdd9da51469e08702704a7b61",
+          "timestamp": "2026-05-17T12:00:25.892Z"
         }
       ]
     },
