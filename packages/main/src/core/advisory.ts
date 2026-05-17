@@ -12,9 +12,53 @@
  * （canPassReview gate 判断是否跳过 blocker 计算）共用，避免两处各写一份硬编码。
  */
 import type { StoryStore } from './store.js';
-import type { StoryEvent } from './types.js';
+import type { Finding, FindingEvidenceState, StoryEvent } from './types.js';
 
 export type FindingSeverity = 'critical' | 'high' | 'medium' | 'low';
+
+/**
+ * B-3fad CHK-001: 合法 evidenceState 取值集合。
+ * handler runtime / gate 消费点都要按此集合校验（不只靠 Zod，见 CLAUDE.md「Handler 编码约定」）。
+ */
+export const FINDING_EVIDENCE_STATES: readonly FindingEvidenceState[] = ['suspected', 'verified', 'disproven'] as const;
+
+/** B-3fad CHK-001: runtime narrow，拒非法 evidenceState 字符串。 */
+export function isFindingEvidenceState(value: unknown): value is FindingEvidenceState {
+  return typeof value === 'string' && (FINDING_EVIDENCE_STATES as readonly string[]).includes(value);
+}
+
+/**
+ * B-3fad CHK-001: REVIEW→TEST gate blocking 判定的 evidenceState 维度。
+ *
+ * 一条 finding 只有 evidenceState 为 'verified'（或字段缺失 = legacy 兼容视同 verified）
+ * 才可能阻塞 REVIEW→TEST。'suspected' / 'disproven' 一律不阻塞（suspected 只 advisory，
+ * disproven 已被反证）。非法字符串保守视同非 verified（不阻塞，避免污染 gate）。
+ *
+ * 完整 gate predicate（machine.ts canPassReview / guard-utils.ts）：
+ *   status === 'open'
+ *   && severity ∈ {critical,high}（来自 effectiveBlockingSeverities）
+ *   && isEvidenceStateBlocking(evidenceState)
+ *   && !isAdvisoryThisRound(severity, round)
+ */
+export function isEvidenceStateBlocking(evidenceState: FindingEvidenceState | string | undefined | null): boolean {
+  if (evidenceState == null) return true; // legacy finding 缺字段 → 视同 verified
+  return evidenceState === 'verified';
+}
+
+/**
+ * B-3fad CHK-001: 完整的「这条 finding 是否阻塞 REVIEW→TEST」判定。
+ * effectiveBlockingSeverities 由调用方按 round decay 解析后传入。
+ */
+export function isFindingBlocking(
+  finding: Pick<Finding, 'status' | 'severity' | 'evidenceState'>,
+  effectiveBlockingSeverities: readonly string[],
+  round: number,
+): boolean {
+  return finding.status === 'open'
+    && effectiveBlockingSeverities.includes(finding.severity)
+    && isEvidenceStateBlocking(finding.evidenceState)
+    && !isAdvisoryThisRound(finding.severity, round);
+}
 
 /**
  * 判断某个 severity 的 finding 在当前 round 是否为 advisory（不 blocking）。

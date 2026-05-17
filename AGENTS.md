@@ -144,6 +144,42 @@ Legacy 背景：`test_auto` / `test_story` / `test_fixture` 只作为旧 fixture
 
 **人的角色**：人是最终决策者。当 agent 之间有根本分歧（超过 5 轮）时，由人裁决。人也可以随时介入调整方向。
 
+### Finding evidenceState 证据状态模型（B-3fad）
+
+bug 通道有硬证据纪律（repro + rootCause + reproTest 齐了才能标 fixed），但 finding 通道原本可以直接 `finding_add` 一个未经复现的怀疑结论——一个只是怀疑的 finding 会表现得像 confirmed bug。B-3fad 给 `Finding` 加了 `evidenceState` 证据状态轴，让 finding 通道继承同样的纪律。
+
+`Finding.evidenceState` 取值：`suspected`（怀疑，未复现 / 缺源码证据）/ `verified`（已确认）/ `disproven`（已被反证，配套 `disprovenEvidence` 反证摘要 + 命令 + 源码引用）。
+
+**默认表（写死语义，不靠 prompt）**：
+
+| 来源 | 默认 evidenceState | Gate 行为 |
+|---|---|---|
+| reviewer `finding_add`（REVIEW 阶段） | `verified` | open critical/high 继续阻塞 REVIEW→TEST，行为不回归 |
+| reviewer 显式传 `evidenceState=suspected` | `suspected` | 不阻塞，只 advisory；**必须带 `uncertaintyReason`**，缺则报错 |
+| `gap_log` | `suspected` | 不阻塞任何 lifecycle gate（写的是长存 audit 容器） |
+| legacy finding 缺 `evidenceState` 字段 | gate 视同 `verified` | 兼容旧数据，不回归 |
+
+**Gate predicate（REVIEW→TEST blocking 判定，`core/advisory.ts` 的 `isFindingBlocking`）**：一条 finding 阻塞 REVIEW→TEST 当且仅当
+
+```
+status === 'open'
+&& (severity === 'critical' || severity === 'high')
+&& isEvidenceStateBlocking(evidenceState)   // evidenceState === 'verified' || evidenceState == null
+&& !isAdvisoryThisRound(severity, round)
+```
+
+即 `suspected` / `disproven` 的 finding 不进 blocking 区，只进 advisory；`verified` 或缺字段（legacy）的 open critical/high 才阻塞。该判定被 `storyMachine.canPassReview` 的 guard 和 `getGuardFailureReason` 文案两处共同消费——evidenceState 因此是 gate-consumed 流程事实，已登记进 `process-fact-levels.ts`（`runtime:finding_evidence_state_review_gate`，L4，gateConsumer=`storyMachine.canPassReview REVIEW to TEST gate`）。
+
+**`gap_log` 用法**：把人工发现的框架 gap 归档进 `B-META-framework-audit` 容器（不存在则自动 bootstrap），不需要 story worktree / reviewer / review round。
+
+```bash
+koala gap_log '{"category":"missing","severity":"medium","evidence":"<gap 描述>","sourceRefs":["packages/main/src/foo.ts:42"]}'
+```
+
+- 必填：`category`（`happy|edge|adversarial|missing`）/ `severity`（`critical|high|medium|low`）/ `evidence`（gap 描述）/ source（`sourceRefs` / `reproCommand` / `observedOutput` / `analysisNote` 至少一个）——缺任一报明确错误，不写（防 B-META 变垃圾桶）。
+- 默认 `evidenceState=suspected`；只有同时提供结构化 evidence 字段才允许 `verified`，否则即使传 `verified` 也强制降回 `suspected`（不能直接造一个 confirmed 结论）。
+- `gap_log` 不接受 `disproven`（反证应走 finding 流程）。
+
 ### Subagent 定义
 
 subagent prompt 文件放在 `.Codex/agents/` 下（Codex 官方约定）；Koala init 会从 `.claude/agents/` 全量受控生成 Codex prompt，并写入 Koala 自己读取的 `.Codex/koala.json` adapter manifest。`.claude/hooks`、`.claude/settings.json`、`.claude/skills` 仍是 Claude Code 专属资产；不要创建会误导用户的 `.Codex/hooks` 或 `.Codex/settings.json`。prompt 格式为 Markdown + YAML frontmatter：
@@ -203,6 +239,9 @@ koala aux_doc_list '{"format":"json"}'      # json 格式
 
 # 验证
 koala validate --story=B-xxx          # 当前标准验证入口，写 validation evidence / bug / stale evidence 结果
+
+# 框架 gap 手动归档（不需要 worktree / reviewer / review round，任意目录可跑）
+koala gap_log '{"category":"missing","severity":"medium","evidence":"<框架 gap 描述>","sourceRefs":["packages/main/src/...:行号"]}'
 
 # Legacy fixture/test 兼容维护（旧 story、迁移、诊断旧 fixture 时才用；不是新流程默认入口）
 koala fixture_batch_add '{"fixturePath":"game-logic","cases":[{"name":"test1","run_type":"cli","file":"mcp/handlers/my","execute":"return $handlers.myTool({})","expect":true}]}'

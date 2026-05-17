@@ -54,6 +54,7 @@ import { createReviewRunHandlers } from './handlers/review-run.js';
 import { createCheckHandlers } from './handlers/check.js';
 import { createRecoverEvidenceHandlers } from './handlers/recover-evidence.js';
 import { createArtifactDeclareHandlers } from './handlers/artifact-declare.js';
+import { createGapLogHandlers } from './handlers/gap-log.js';
 import { nextStoryId } from './handlers/context.js';
 
 export type HandlerFn = (...args: any[]) => any;
@@ -167,6 +168,11 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // Populates declared-artifacts.json consumed by the dirty-worktree classifier
   // and the DONE gate reference check.
   registry.registerBatch(createArtifactDeclareHandlers(ctx));
+
+  // B-3fad CHK-002: gap_log — 框架 gap 手动归档入口。
+  // 写 B-META-framework-audit findings（不存在则 ensureMetaStory bootstrap）；
+  // 不依赖 reviewer / review round / story worktree，不参与 lifecycle gate。
+  registry.registerBatch(createGapLogHandlers(ctx));
 
   // 内部辅助：返回下一个 story id（fixture/测试 runner 用）
   registry.register('_nextStoryId', (prefix?: string) => nextStoryId(ctx.store, prefix));

@@ -1,0 +1,76 @@
+{
+  "passes": [
+    {
+      "id": "B-3fad:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 已检查 verificationIntent 与 verificationEvidence 覆盖关系，无 blocker。所有 44 条 intent 均有对应 evidence（result=pass），smoke 测试直接运行全绿（evidence-state-gate-smoke 9 函数 / gap-log-smoke 11 函数）。evidence stale 状态为 materialHash drift（REVIEW 阶段推进后多了 1 个 metadata commit），不影响测试实质覆盖。",
+      "createdAt": "2026-05-17T00:41:40.399Z",
+      "reviewRound": "2026-05-17T00:39:52.477Z",
+      "reviewRunId": "B-3fad:RR-004",
+      "_hash": "ff205dfb07d88a4b6a9bbfec7a72d264d5346ee3ff995a3e31cb2faa8d470aa9"
+    },
+    {
+      "id": "B-3fad:RP-002",
+      "agent": "koala-review-docs",
+      "note": "Step 1: 7 exported symbols from diff (FindingEvidenceState, isFindingEvidenceState, isEvidenceStateBlocking, isFindingBlocking, resolveEvidenceState, gap_log handler, process-fact-levels entry). Step 2: AGENTS.md grep hit the new section (lines ~147-183) and CLI speed reference (lines ~240-242). Step 3 comparison: (1) Default table row 1 - reviewer finding_add defaults verified: code confirmed in finding.ts resolveEvidenceState returns {evidenceState:verified} when no arg. (2) Row 2 - suspected requires uncertaintyReason >=10 chars, error if missing: confirmed at finding.ts:103-111. (3) Row 3 - gap_log defaults suspected, not blocking any lifecycle gate: confirmed in gap-log.ts + command-policy.ts allowedPhases=all. (4) Row 4 - legacy null field treated as verified: confirmed isEvidenceStateBlocking returns true for null. (5) Gate predicate formula: doc shows (severity===critical||high) && !isAdvisoryThisRound - this is mathematically equivalent to the code using pre-computed effectiveBlockingSeverities. (6) gap_log auto-fill of uncertaintyReason not documented but not a promise violation - the handler silently fills it. (7) process-fact-levels entry runtime:finding_evidence_state_review_gate matches exactly. No blocker found.",
+      "createdAt": "2026-05-17T00:42:34.079Z",
+      "reviewRound": "2026-05-17T00:39:52.477Z",
+      "reviewRunId": "B-3fad:RR-003",
+      "_hash": "3752ba75c593644987abfdc693ab784ea36aba3d0ef3a215026ebd65e3a0f528"
+    },
+    {
+      "id": "B-3fad:RP-003",
+      "agent": "koala-review-behavior",
+      "note": "Gate consistency verified: all 3 consumer points (machine.ts canPassReview, machine.ts getGuardFailureReason, guard-utils.ts TEST gate) uniformly call isFindingBlocking from advisory.ts. Happy path: legacy null evidenceState still blocks (backward compat). verified open still blocks. Edge: suspected open does not block, appears in attention.suspected. disproven open does not block, appears in attention.disproven. resolved/dismissed verified finding does not block. Adversarial: partial suspected does not mask co-existing verified blocker. suspected without uncertaintyReason rejected by handler. disproven without summary rejected by handler. Invalid evidenceState string rejected by handler. Critical-always-blocks constraint preserved across all rounds. smoke test matrix-1 through matrix-7 + adversarial cases all pass.",
+      "createdAt": "2026-05-17T00:46:18.560Z",
+      "reviewRound": "2026-05-17T00:39:52.477Z",
+      "reviewRunId": "B-3fad:RR-002",
+      "_hash": "ff56531b604a19d5456df8447b51c8c42d83813976a20ae4ab58048c4a82d6da"
+    },
+    {
+      "id": "B-3fad:RP-004",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed (round 2): 44/44 verificationIntent covered, 0 required missing. Round 2 DEV fixes verified: (1) assertReviewerStatusAgreesWithGate added to evidence-state-gate-smoke.ts confirms F-001 fix — isFindingBlocking predicate now used consistently so suspected open critical no longer appears as blocker in reviewer-status display; (2) gap-log-12 in gap-log-smoke.ts confirms F-003 fix — sourceRefs+files merge/dedup. All evidence non-stale at headHash 956be7d7. No blocker gaps found.",
+      "createdAt": "2026-05-17T00:52:40.047Z",
+      "reviewRound": "2026-05-17T00:51:26.668Z",
+      "reviewRunId": "B-3fad:RR-007",
+      "_hash": "f24a08acb7b0de13a2f361fbd56435251fbbf8349adaf300015b30ac19e1deaa"
+    },
+    {
+      "id": "B-3fad:RP-005",
+      "agent": "koala-review-concept",
+      "note": "Round 2 概念完整性审查通过。F-001 修复已确认：reviewer-status.ts 改用 isFindingBlocking（advisory.ts），effectiveBlockingSeverities 经 resolveEffectiveBlockingSeverities（guard-utils.ts）解析，与 gate 同源，无残留旧 predicate，无循环依赖。本次 diff 无其他概念删除/替换，无新 blocker。",
+      "createdAt": "2026-05-17T00:52:48.387Z",
+      "reviewRound": "2026-05-17T00:51:26.668Z",
+      "reviewRunId": "B-3fad:RR-010",
+      "_hash": "7b402384cd4bbb7fa45695baeb42150833ef478d695aa5fc130be70f4d6bb7b0"
+    },
+    {
+      "id": "B-3fad:RP-006",
+      "agent": "koala-review-quality",
+      "note": "Round 2 quality review passed. F-002 fix verified: gap-log.ts handler does not reference DisprovenEvidence at all in its body - the type only appears in GapFindingInput interface in audit-meta-store.ts where it is legitimately used. Dead code is fully removed. F-003 fix verified: mergedFiles uses Array.from(new Set([...ev.sourceRefs, ...argFiles])) correctly merging and deduplicating both sources; gap-log-12 test assertSourceRefsAndFilesMerged exercises all three assertions (sourceRefs survive, argFiles survive, shared path deduped to count=1). No new quality issues found: all imports in changed files are actively used (DisprovenEvidence, FindingEvidenceState, StoryEvent, StoryInfo in audit-meta-store.ts; Finding, FindingEvidenceState, StoryEvent in advisory.ts; all new imports in reviewer-status.ts used at lines 113-115). No dead code, no unnecessary any casts, no empty catch blocks. I/O isolation is not applicable (no shells/ files changed).",
+      "createdAt": "2026-05-17T00:53:31.711Z",
+      "reviewRound": "2026-05-17T00:51:26.668Z",
+      "reviewRunId": "B-3fad:RR-009",
+      "_hash": "a3ec1a0d53d702825afa13817ab2fa7c7a412dde9949901ce97fe13de9ca7914"
+    },
+    {
+      "id": "B-3fad:RP-007",
+      "agent": "koala-review-behavior",
+      "note": "Round 2 gate consistency re-audit: F-001 fix confirmed. (1) reviewer-status.ts openBlockers now calls isFindingBlocking from advisory.ts at line 134, identical predicate to machine.ts canPassReview (line 179) and guard-utils.ts getGuardFailureReason (line 227) — all four consumption points now share the same source. (2) Both severity-decay paths use resolveEffectiveBlockingSeverities with identical logic (machine.ts has a local copy, guard-utils.ts has the exported version — bodies are textually identical, same round bucketing: round>=3→[critical], round>=2→[critical,high], else policy severities). (3) No circular dependency introduced: advisory.ts imports only store/types, reviewer-status.ts imports advisory.ts and guard-utils.ts, guard-utils.ts imports advisory.ts — all acyclic. (4) Smoke test assertReviewerStatusAgreesWithGate covers both Case A (suspected open critical → gate null, reviewer-status blockerCount=0 verdict=pass) and Case B (verified open critical → gate blocks, reviewer-status blockerCount=1 verdict=fail). All evidence-state-gate-smoke tests pass including F-001 assertion.",
+      "createdAt": "2026-05-17T00:53:43.573Z",
+      "reviewRound": "2026-05-17T00:51:26.668Z",
+      "reviewRunId": "B-3fad:RR-006",
+      "_hash": "98444511c2aaf0f6dd0177d6d0081b4e6a7b5b1ec45912b1b41fc1613924d831"
+    },
+    {
+      "id": "B-3fad:RP-008",
+      "agent": "koala-review-docs",
+      "note": "Step 1: round 2 diff (956be7d7) exports isFindingBlocking, isEvidenceStateBlocking, createGapLogHandlers — 3 symbols; Step 2: grep AGENTS.md found 2 referenced (isFindingBlocking, isEvidenceStateBlocking) in gate predicate paragraph. Step 3: Verified (a) reviewer-status.ts now uses isFindingBlocking from advisory.ts — consistent with AGENTS.md gate predicate attribution; (b) gap-log.ts F-003 merges sourceRefs+argFiles into mergedFiles — AGENTS.md does not claim old split behavior, no contradiction; (c) gap_log still defaults to suspected per code and doc; (d) AGENTS.md was not modified in 956be7d7 (only CHK-003 wrote it). No doc-code drift introduced by round 2.",
+      "createdAt": "2026-05-17T00:54:33.042Z",
+      "reviewRound": "2026-05-17T00:51:26.668Z",
+      "reviewRunId": "B-3fad:RR-008",
+      "_hash": "9f4593d604cd84bccf5e7ffe47a1bce12ea4716367e679c3dd60b744e037469f"
+    }
+  ]
+}

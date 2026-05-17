@@ -44,7 +44,9 @@
     "test:mkdir-lock-smoke": "node dist/tasks/mkdir-lock-smoke.js",
     "test:story-dedup-smoke": "node dist/tasks/story-dedup-smoke.js",
     "test:story-create-concurrency-smoke": "node dist/tasks/story-create-concurrency-smoke.js",
-    "test:meta-story-next-hint-smoke": "node dist/tasks/meta-story-next-hint-smoke.js"
+    "test:meta-story-next-hint-smoke": "node dist/tasks/meta-story-next-hint-smoke.js",
+    "test:evidence-state-gate-smoke": "node dist/tasks/evidence-state-gate-smoke.js",
+    "test:gap-log-smoke": "node dist/tasks/gap-log-smoke.js"
   },
   "dependencies": {
     "@koala-agent/lab": "0.3.1",
