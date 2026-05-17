@@ -103,7 +103,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "开发者运行 convergence smoke 时能看到测试通过；该 smoke 明确覆盖 parked INIT、active worktree、DONE、DISCARDED、META 的分类边界。",
+      "userSees": "运行 `npm --prefix packages/main run test:convergence-false-blockers` 后，终端输出包含 `✓ convergence discarded smoke passed`，证明 parked INIT、active worktree、DONE、DISCARDED、META 分类边界未回归。",
       "files": {
         "modify": [],
         "create": [],
