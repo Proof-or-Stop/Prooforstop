@@ -102,7 +102,38 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "开发者运行 convergence smoke 时能看到测试通过；该 smoke 明确覆盖 parked INIT、active worktree、DONE、DISCARDED、META 的分类边界。",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/convergence-discarded-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "smoke 能证明 parked INIT 进入 advisory 而不阻塞 convergence。",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "smoke 能证明 active worktree story 仍阻塞 `所有 Story 完成`。",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "smoke 能同时防止 DONE、DISCARDED、META 回归到 hard Story completion check。",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
