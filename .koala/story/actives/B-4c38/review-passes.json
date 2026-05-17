@@ -80,6 +80,15 @@
       "reviewRound": "2026-05-17T04:03:17.500Z",
       "reviewRunId": "B-4c38:RR-018",
       "_hash": "67c8a50ede24c7b365c690d37cb275d8564bf2c6bf5bfa6f5ec8f5773741bc25"
+    },
+    {
+      "id": "B-4c38:RP-010",
+      "agent": "koala-review-concept",
+      "note": "Concept review after F-006: partial-DONE recovery is now keyed to the story branch’s persisted phase=DONE only (packages/main/src/core/partial-done-recovery.ts:103-110), so main-only DONE no longer authorizes done_recover. done_recover and story_advance DONE both acquire the same acquireDoneMainMergeLock() serialization path (packages/main/src/handlers/done-recover.ts:40 and packages/main/src/handlers/story-advance.ts:152-159 via packages/main/src/handlers/done-effects.ts:122-135). Verified by targeted smoke: npm --prefix packages/main run test:worktree-repair-smoke, including assertDoneRecoverRequiresBranchDoneState and assertDoneRecoverUsesDoneMainMergeLock.",
+      "createdAt": "2026-05-17T04:05:06.818Z",
+      "reviewRound": "2026-05-17T04:03:17.500Z",
+      "reviewRunId": "B-4c38:RR-017",
+      "_hash": "99706cb242171a3408d635de39b4ea2f95ae2a429cf5adda28bc94d175537235"
     }
   ]
 }
