@@ -4,7 +4,7 @@
   "title": "Package Koala CLI as standalone desktop executable",
   "description": "Use Vercel pkg to package the current Koala CLI into standalone executables for desktop distribution so users can run Koala without installing Node.js first. The packaging path should build the CLI, include runtime assets/templates needed by the bootstrap entrypoint, and provide a verification command that proves the packaged executable can run core commands.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "keywords": [
     "pkg",
@@ -30,6 +30,14 @@
       "action": "advance",
       "timestamp": "2026-05-17T22:57:53.035Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-05-17T22:58:00.929Z",
+      "branch": "story/B-c600",
       "user": "Harmonygo",
       "agent": "main"
     }
