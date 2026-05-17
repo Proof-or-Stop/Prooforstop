@@ -166,7 +166,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-05-17T03:43:25.316Z",
+      "endTime": "2026-05-17T04:02:08.556Z",
       "userSees": "User sees: \"✓ preflight passed\", \"✓ merged story/B-xxxx into main\", \"✓ worktree removed\", \"✓ branch story/B-xxxx deleted\". Unsafe states print \"refusing done_recover: <reason>\" before mutation.",
       "files": {
         "modify": [
@@ -216,54 +216,14 @@
       },
       "verificationEvidence": [
         {
-          "intentRef": "CHK-003:happy:0",
-          "kind": "logic_test",
-          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
-          "result": "pass",
-          "note": "safe partial-DONE fixture recovers by merging story branch into main removing worktree and deleting branch",
-          "headHash": "9a5a8873e8aaef9d9d88283438e51261298a3367",
-          "materialHash": "38ecb8760046f257b63078e228a1e354999553871013bec6c69a03b0cc0d40e2",
-          "timestamp": "2026-05-17T03:55:24.928Z"
-        },
-        {
-          "intentRef": "CHK-003:edge:0",
-          "kind": "logic_test",
-          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
-          "result": "pass",
-          "note": "done_recover refuses dirty main before mutation and leaves partial-DONE state untouched",
-          "headHash": "9a5a8873e8aaef9d9d88283438e51261298a3367",
-          "materialHash": "38ecb8760046f257b63078e228a1e354999553871013bec6c69a03b0cc0d40e2",
-          "timestamp": "2026-05-17T03:55:24.928Z"
-        },
-        {
-          "intentRef": "CHK-003:happy:1",
-          "kind": "logic_test",
-          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
-          "result": "pass",
-          "note": "after done_recover smoke asserts no story worktree in git worktree list and no story branch remains",
-          "headHash": "9a5a8873e8aaef9d9d88283438e51261298a3367",
-          "materialHash": "38ecb8760046f257b63078e228a1e354999553871013bec6c69a03b0cc0d40e2",
-          "timestamp": "2026-05-17T03:55:24.928Z"
-        },
-        {
-          "intentRef": "CHK-003:edge:1",
-          "kind": "logic_test",
-          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
-          "result": "pass",
-          "note": "merge-tree conflict fixture reports mergeTreeClean=false and done_recover refuses before mutation",
-          "headHash": "9a5a8873e8aaef9d9d88283438e51261298a3367",
-          "materialHash": "38ecb8760046f257b63078e228a1e354999553871013bec6c69a03b0cc0d40e2",
-          "timestamp": "2026-05-17T03:55:24.928Z"
-        },
-        {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:worktree-repair-smoke",
           "result": "pass",
-          "note": "missing story branch recovery refuses and leaves unrelated story branch intact",
-          "headHash": "9a5a8873e8aaef9d9d88283438e51261298a3367",
-          "materialHash": "38ecb8760046f257b63078e228a1e354999553871013bec6c69a03b0cc0d40e2",
-          "timestamp": "2026-05-17T03:55:24.928Z"
+          "note": "F-006 regression: done_recover refuses when the story branch metadata is not DONE, preserving the non-DONE branch and worktree",
+          "headHash": "50800e12ab3f1df26b2f7345b46bfd83b73f26f1",
+          "materialHash": "847cde7a35096bf76a550f578cc5c19a1ce3d35d783518dd7f276b0364338c39",
+          "timestamp": "2026-05-17T04:02:08.587Z"
         }
       ]
     },
