@@ -1,0 +1,101 @@
+{
+  "storyId": "B-4c38",
+  "checkedAt": "2026-05-17T03:33:31.674Z",
+  "features": [
+    {
+      "feature": "Serialize the entire DONE main-merge critical section, including preflight, phase write, metadata commit, main merge, worktree cleanup, and branch delete",
+      "covered_by": "CHK-001 partially covers, but lock placement must include the earlier autoSyncMain/checkMainDivergence DONE block",
+      "status": "gap",
+      "excluded_by": "",
+      "source": ".koala/story/actives/B-4c38/background.md; .koala/story/actives/B-4c38/plan.md#CHK-001; packages/main/src/handlers/story-advance.ts:149"
+    },
+    {
+      "feature": "Held DONE lock fails before phase=DONE with a clear retry hint and no story state mutation",
+      "covered_by": "CHK-001 verificationIntent happy:0",
+      "status": "covered",
+      "excluded_by": "",
+      "source": ".koala/story/actives/B-4c38/plan.md#CHK-001"
+    },
+    {
+      "feature": "Uncontended and stale-lock DONE paths release/reclaim the global lock without touching unrelated worktrees",
+      "covered_by": "CHK-001 verificationIntent happy:1; CHK-001 verificationIntent edge:0; CHK-004 verificationIntent edge:0",
+      "status": "covered",
+      "excluded_by": "",
+      "source": ".koala/story/actives/B-4c38/plan.md#CHK-001"
+    },
+    {
+      "feature": "Detect phase=DONE stories with unmerged story branch/worktree residue and expose storyId, branch, worktree, mainContainsBranch, merge-tree status, and safe next action in doctor JSON/text",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": ".koala/story/actives/B-4c38/plan.md#CHK-002"
+    },
+    {
+      "feature": "Keep already-merged terminal worktree cleanup separate from partial-DONE recovery",
+      "covered_by": "CHK-002 verificationIntent edge:0",
+      "status": "covered",
+      "excluded_by": "",
+      "source": ".koala/story/actives/B-4c38/plan.md#CHK-002; docs/requirements/decisions/story-lifecycle.md#Worktree-隔离"
+    },
+    {
+      "feature": "Provide explicit done_recover command that fail-closes on dirty main, merge-tree conflict, branch/worktree mismatch, missing branch/worktree, or unsafe path before mutation",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": ".koala/story/actives/B-4c38/plan.md#CHK-003"
+    },
+    {
+      "feature": "Register done_recover as a CLI command, handler, registry entry, and explicit maintenance mutation policy",
+      "covered_by": "CHK-003 files.modify",
+      "status": "covered",
+      "excluded_by": "",
+      "source": ".koala/story/actives/B-4c38/plan.md#CHK-003; packages/main/src/cli-engine.ts; packages/main/src/registry.ts; packages/main/src/core/command-policy.ts"
+    },
+    {
+      "feature": "Operator-visible smoke proof for lock contention, partial-DONE detection, recovery merge, worktree removal, branch deletion, and no residue",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": ".koala/story/actives/B-4c38/plan.md#CHK-004"
+    },
+    {
+      "feature": "Update or explicitly exclude lifecycle documentation for new partial-DONE doctor output and done_recover operator command",
+      "covered_by": "",
+      "status": "gap",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/story-lifecycle.md; checklist relatedDocs for CHK-001..CHK-003"
+    }
+  ],
+  "summary": {
+    "total": 9,
+    "covered": 7,
+    "excluded": 0,
+    "gaps": 2,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "bac76e85042a41640fea56e333601d6c74f35ef086822e0ff17f8c289b2c8baa",
+  "openQuestions": [
+    {
+      "id": "OQ-001",
+      "q": "Should the global DONE lock be acquired before the existing autoSyncMain/checkMainDivergence block in story_advance, rather than only before runDonePreMergeGate? The background says DONE preflight through cleanup is the shared main critical section, but plan.md only names runDonePreMergeGate, while current code mutates/syncs before that call.",
+      "evidence": "story-advance currently runs checkMainDivergence/autoSyncMain for args.phase=DONE before actor creation and before runDonePreMergeGate; two DONE calls could both reach that main sync path if the lock is placed only around runDonePreMergeGate/applyDoneMergeEffects.",
+      "sourcePointers": [
+        "packages/main/src/handlers/story-advance.ts:149",
+        ".koala/story/actives/B-4c38/background.md",
+        ".koala/story/actives/B-4c38/plan.md#CHK-001"
+      ]
+    },
+    {
+      "id": "OQ-002",
+      "q": "Should docs/requirements/decisions/story-lifecycle.md be updated for partial-DONE detection and done_recover, or should the story explicitly exclude documentation changes? The command is operator-visible lifecycle behavior and CHK-001..CHK-003 already cite this doc as relatedDocs, but no checklist file touchpoint covers doc modification.",
+      "evidence": "The lifecycle truth source currently documents DONE auto merge/cleanup and doctor/reconcile style recovery, but not the planned partial-DONE doctor payload or done_recover command.",
+      "sourcePointers": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        ".koala/story/actives/B-4c38/plan.md#CHK-002",
+        ".koala/story/actives/B-4c38/plan.md#CHK-003"
+      ]
+    }
+  ]
+}
