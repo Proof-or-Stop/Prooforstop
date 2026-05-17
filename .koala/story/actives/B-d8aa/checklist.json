@@ -56,7 +56,41 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "`koala convergence_check` 新增 `Parked backlog` 行，显示 parked story 数量和 ID；这行永远是 advisory，不会单独让 converged=false。",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/gap-analyze.ts",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/convergence-discarded-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "存在 parked backlog 时，结果包含 `Parked backlog` check，passed=true，detail 列出 parked story IDs。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "不存在 parked backlog 时，`Parked backlog` check 仍 passed，并显示无 parked backlog。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "即使只有 parked backlog 存在，`converged` 不会因为 advisory check 变成 false。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
