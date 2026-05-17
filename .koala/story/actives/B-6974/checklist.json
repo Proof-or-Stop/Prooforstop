@@ -190,12 +190,12 @@
           "intentRef": "CHK-001:happy:1",
           "kind": "manual_transcript",
           "file": "packages/main/src/handlers/transition-orchestrator.ts",
-          "command": "rg -n \"actor\\??\\.stop\\(\" packages/main/src/handlers/story-advance.ts packages/main/src/handlers/phase-gates.ts packages/main/src/handlers/done-effects.ts packages/main/src/handlers/transition-orchestrator.ts || true",
+          "command": "rg \"actor\\??\\.stop\" packages/main/src/handlers/{transition-orchestrator,phase-gates,done-effects,story-advance}.ts",
           "result": "pass",
-          "note": "Scoped story_advance orchestration grep has exactly one actor stop operation: transition-orchestrator.ts:428 actor?.stop(). story-advance.ts, phase-gates.ts, and done-effects.ts have no stop call. Legacy worktree.ts dev_finish/dev_merge actor.stop calls are outside B-6974 story_advance scope.",
-          "headHash": "005cc33b194e487c99fc8ae723108d26310644ab",
+          "note": "在 story_advance orchestration path 四文件内 rg \"actor\\??\\.stop\" 只命中 transition-orchestrator.ts:428 `actor?.stop()`——orchestrator finally 块内唯一 actor 停止点（用 optional-chaining 因 actor 声明为 |undefined，createStoryActor 抛错时 actor 仍 undefined）。phase-gates.ts / done-effects.ts / story-advance.ts 零命中。worktree.ts 的 legacy dev_finish/dev_merge path 显式 out-of-scope（见 plan.md「Scope 边界」段），不在本断言范围。硬验收 #1 成立。",
+          "headHash": "eb198e802ba0e3ec30ba546ec2239cb200e205dd",
           "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
-          "timestamp": "2026-05-17T14:41:51.383Z"
+          "timestamp": "2026-05-17T14:45:12.854Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
