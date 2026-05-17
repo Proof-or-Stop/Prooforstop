@@ -154,9 +154,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-17T03:43:25.316Z",
       "userSees": "User sees: \"✓ preflight passed\", \"✓ merged story/B-xxxx into main\", \"✓ worktree removed\", \"✓ branch story/B-xxxx deleted\". Unsafe states print \"refusing done_recover: <reason>\" before mutation.",
       "files": {
         "modify": [
@@ -203,7 +203,29 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "safe partial-DONE fixture recovers by merging story branch into main removing worktree and deleting branch",
+          "headHash": "2270d40b7d14d0633f06187581d546ba84481c2c",
+          "materialHash": "4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891",
+          "timestamp": "2026-05-17T03:43:25.345Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "done_recover refuses dirty main before mutation and leaves partial-DONE state untouched",
+          "headHash": "2270d40b7d14d0633f06187581d546ba84481c2c",
+          "materialHash": "4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891",
+          "timestamp": "2026-05-17T03:43:25.374Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
