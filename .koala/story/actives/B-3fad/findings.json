@@ -20,7 +20,7 @@
       "desc": "quality-cleanup: gap-log.ts:163-164 dead code — `const disprovenEvidence: DisprovenEvidence | undefined = undefined` is always undefined, the spread `...(disprovenEvidence ? ...)` at line 174 is always falsy and never executes. The `DisprovenEvidence` type import is only used for this const annotation. All three (import type, const, spread) are no-ops and can be removed.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "agent": "koala-review-quality",
       "createdAt": "2026-05-17T00:43:31.455Z",
       "reviewRound": "2026-05-17T00:39:52.477Z",
