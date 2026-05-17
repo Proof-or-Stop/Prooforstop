@@ -23,7 +23,7 @@
       "desc": "Packaged verify_codex is still not standalone for users without a global koala/Node install. Repro: env -i HOME=/Users/jek TMPDIR=/tmp PATH=/usr/bin:/bin /Users/jek/Documents/Work/Orchestrate/.worktrees/B-c600/dist/desktop/koala-macos-arm64 verify_codex. It fails with Global fallback heartbeat: spawnSync koala ENOENT. Source: packages/main/src/core/codex-adapter-checks.ts:393 runs a hard global fallback heartbeat through command koala after npm lookup fails; scripts/verify-desktop-package.mjs:40 inherits the developer PATH, so the smoke test misses the no-global-koala distribution scenario.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-05-17T23:38:51.977Z",
