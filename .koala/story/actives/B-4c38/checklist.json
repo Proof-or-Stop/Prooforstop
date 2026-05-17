@@ -10,11 +10,12 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "When another DONE merge is active, koala story_advance --phase=DONE prints that the DONE main merge lock is held and the story remains pre-DONE; retry after the other merge completes.",
+      "userSees": "User sees: \"DONE main merge lock is held by another Koala operation; story phase was not changed. Retry after the active DONE merge finishes.\" The story remains TEST/pre-DONE.",
       "files": {
         "modify": [
           "packages/main/src/handlers/story-advance.ts",
-          "packages/main/src/handlers/done-effects.ts"
+          "packages/main/src/handlers/done-effects.ts",
+          "packages/main/src/core/mkdir-lock.ts"
         ],
         "create": [],
         "test": [
