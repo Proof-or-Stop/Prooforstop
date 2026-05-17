@@ -44,7 +44,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/convergence-discarded-smoke.ts",
+          "command": "npm --prefix packages/main run test:convergence-false-blockers",
+          "result": "pass",
+          "note": "Smoke asserts parked INIT without worktree is excluded from 所有 Story 完成 and parked-only convergence remains true.",
+          "headHash": "8ab0b32bb39a66f9b5a8bb6f9afddad222fcf791",
+          "materialHash": "7d2679ad7c13b2fc844688a39fe0e5130204bb8990a8f92167537b5b0d6a922a",
+          "timestamp": "2026-05-17T13:03:05.529Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
