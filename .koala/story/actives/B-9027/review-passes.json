@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-9027:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 审查 32 条 verificationIntent 与 verificationEvidence 覆盖关系。23/32 covered，0 required (must) missing，9 missing 全为 should 优先级可接受为 advisory。6 个新增 smoke 用例（assertDoneSuccessPathOutputAndOrdering / assertDoneOracleGateFailureKeepsStoryTest / assertStrayFileOffenderKeepsStoryTest / assertMergeConflictPreMergeGateKeepsStoryTest / assertRealMergeFailureMarksDoneAndThrows / assertWorktreeCleanupFailureMarksDoneMergedAndThrows）的断言与对应 intent 描述一一匹配，evidence 具体有效，不含宽泛描述。无 blocker。",
+      "createdAt": "2026-05-17T03:01:30.154Z",
+      "reviewRound": "2026-05-17T02:59:46.197Z",
+      "reviewRunId": "B-9027:RR-002",
+      "_hash": "d7131481a86e4ec34036ea963b92e8ad6429d58d2682e171bec6c797ff20b0bb"
+    }
+  ]
+}
