@@ -98,6 +98,17 @@
           "headHash": "50f8306198670ba6377f2e1178374f1e76a53a0e",
           "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
           "timestamp": "2026-05-17T02:54:46.602Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/story-advance.ts",
+          "command": "grep -n \"cleanStrayWorktreeFiles, STRAY_FILE_WHITELIST\" packages/main/src/handlers/story-advance.ts",
+          "result": "pass",
+          "note": "story-advance.ts:70 仍 export { cleanStrayWorktreeFiles, STRAY_FILE_WHITELIST } from ./stray-file-cleanup.js，下游 logicTest 的 import 路径不断裂；npm run build tsc 全绿确认无 import 报错",
+          "headHash": "779ec431cfaf5d6f1c4f6ccb415ada0787a9618b",
+          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
+          "timestamp": "2026-05-17T02:54:46.821Z"
         }
       ]
     },
