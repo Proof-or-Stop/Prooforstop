@@ -104,6 +104,25 @@
         }
       ],
       "_hash": "81f10cf2b954888d0fef3c5c5e6ffd9e07ed551e82c20c49a5139ee405b88152"
+    },
+    {
+      "timestamp": "2026-05-17T23:02:46.382Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 个 checklist item，请检查是否有组合场景遗漏（如：Add a pkg-based desktop CLI packaging pipeline + Verify packaged executable behavior from the release artifact 同时操作会怎样？）"
+        }
+      ],
+      "_hash": "2e09f45fd2d65a8b4b51de141301a9144dfe0547c4f506aa99f4d705ff0c7215"
     }
   ]
 }
