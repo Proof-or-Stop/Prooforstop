@@ -111,7 +111,54 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Running koala done_recover --storyId=B-xxxx on a safe partial-DONE story prints preflight checks, merge completed, worktree removed, branch deleted; unsafe states fail with explicit reasons and no mutation.",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/command-policy.ts"
+        ],
+        "create": [
+          "packages/main/src/handlers/done-recover.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/worktree-repair-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Safe partial-DONE fixture -> koala done_recover --storyId=<id> merges branch into main, removes worktree, deletes branch, and reports each step",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "After done_recover, git worktree list has no story worktree and git branch --list story/<id> is empty",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "main has unrelated dirty files -> done_recover refuses before mutation with dirty-main message",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "merge-tree conflict -> done_recover refuses before mutation with merge-tree/conflict message",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "storyId branch mismatch or missing branch/worktree -> done_recover refuses and does not delete unrelated branch/worktree",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
