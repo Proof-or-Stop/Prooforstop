@@ -53,6 +53,15 @@
       "reviewRound": "2026-05-17T03:55:23.642Z",
       "reviewRunId": "B-4c38:RR-010",
       "_hash": "ee414551d3128c847f5319e401b4f4dd6567e83e3c85ab18fba721e876ae7a91"
+    },
+    {
+      "id": "B-4c38:RP-007",
+      "agent": "koala-review-concept",
+      "note": "Concept review passed: story_advance DONE and done_recover both acquire the shared done-main-merge lock before any main-affecting mutation, done_recover holds it through merge/worktree cleanup/branch delete with dirty-main/worktree and merge-tree fail-closed checks, and story-lifecycle docs now describe the same recovery contract.",
+      "createdAt": "2026-05-17T03:58:22.961Z",
+      "reviewRound": "2026-05-17T03:55:23.642Z",
+      "reviewRunId": "B-4c38:RR-009",
+      "_hash": "11d27a7b90fbc80bbe539a3a0edd89b4bd6ee45061d72d416ba45f46ee6c0342"
     }
   ]
 }
