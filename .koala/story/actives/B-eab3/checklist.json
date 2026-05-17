@@ -68,6 +68,17 @@
           "headHash": "001768bacd1a5b3370225c1a9da3a9285c6c8bc3",
           "materialHash": "e86730edba430ba928a18deb8ad4567903dd4b9642ea1a7e755dc557ff5686c5",
           "timestamp": "2026-05-17T03:06:38.316Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": ".githooks/pre-push",
+          "command": "注入 TS 类型错误到 packages/game 后 bash .githooks/pre-push",
+          "result": "pass",
+          "note": "注入类型错误后 hook 打印 FAIL: tsc errors in packages/game + error TS2322 + REJECTED,exit=1 拒绝 push;测后 git checkout 还原干净",
+          "headHash": "6bdfa24bf0865e6d8bff69501b36578a4f1cbe7e",
+          "materialHash": "e86730edba430ba928a18deb8ad4567903dd4b9642ea1a7e755dc557ff5686c5",
+          "timestamp": "2026-05-17T03:06:38.555Z"
         }
       ]
     },
