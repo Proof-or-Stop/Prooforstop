@@ -290,9 +290,9 @@
       "id": "CHK-002",
       "title": "补框架 gap 的手动归档入口",
       "context": "人工发现的框架 gap 目前只能滥用 reviewer 形状的 finding_add（要 reviewRunId、category enum、review round 语义）。需要一个不依赖 reviewer / review round / worktree 的手动归档入口，让框架 gap 能进 audit backlog 并带上 CHK-001 的证据状态。B-META 容器与该入口的关系、是否复用既有 audit-meta-store 在 PLAN 阶段定。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-17T00:30:59.333Z",
       "userSees": "agent 跑 `koala gap_log` 看到 `Gap logged: B-META-framework-audit:F-00X (evidenceState=suspected, severity=...)`；缺 category/severity/evidence/source 任一字段时报明确错误；B-META 容器不存在时自动 bootstrap，无需 story worktree。",
       "files": {
         "modify": [
