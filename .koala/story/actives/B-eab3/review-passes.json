@@ -80,6 +80,15 @@
       "reviewRound": "2026-05-17T03:24:32.542Z",
       "reviewRunId": "B-eab3:RR-011",
       "_hash": "c933a9c4f680fdf743ff13a4ec1481ce5e069e7cf4c4c8c2d484485f3ad30b80"
+    },
+    {
+      "id": "B-eab3:RP-010",
+      "agent": "koala-review-concept",
+      "note": "Round 3 概念残留检查完成。唯一改动 e4987fe6 仅修改 .githooks/pre-push 头注释（无可执行逻辑变化）。被删除的短语「任一不满足立即 exit 0」全仓零残留。旧 hook 描述（packages/koala/packages/main 路径）仅存于 packages/main/templates/agents/*.md 及其 .claude/.Codex 部署副本中，已被 Round 2 F-005 识别并以 out-of-scope 理由 dismiss（该内容属 agent-prompt 生成子系统的全量 CLAUDE.md 快照漂移，非本 story diff 引入）。Round 3 无新概念删除/替换，无新 blocker。",
+      "createdAt": "2026-05-17T03:28:04.894Z",
+      "reviewRound": "2026-05-17T03:24:32.542Z",
+      "reviewRunId": "B-eab3:RR-009",
+      "_hash": "5b7f9cbbcda022ff238c8a7ea65aeb068f8f4f16c8128bd9f9a5c1422bdf7d8b"
     }
   ]
 }
