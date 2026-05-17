@@ -1,0 +1,28 @@
+{
+  "storyId": "B-6974",
+  "checkedAt": "2026-05-17T15:57:35.074Z",
+  "reviewRound": "2026-05-17T15:46:48.338Z",
+  "agentId": "",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "transition-orchestrator.ts exists and exports runStoryTransition/renderTransitionResult. actor.stop() only in orchestrator finally block (line 428). phase-gates.ts and done-effects.ts have zero actor.stop() calls — verified by grep. actor.start() only in orchestrator (line 243). flow-stability-smoke.ts at line 2895-2901 asserts phase-gates.ts must not stop actor directly and orchestrator stops it in a single finally. worktree-authority-smoke.ts has 201 assertion lines covering DONE success/failure paths."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "story-advance.ts is 34 lines: import, 3 re-exports, one handler function that calls runStoryTransition + renderTransitionResult. Zero inline actor.send/start/stop, zero git merge, zero git worktree remove — verified by grep returning no matches. Thin handler constraint holds mechanically."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "flow-stability-smoke.ts (566 assertion lines) covers: byte-identical output per transition including INIT_CHECK/PLAN/DEV/REVIEW/TEST/DONE (lines 934, 954, 2998-3039); actor.stop unique-owner assertion lines 2895-2901; circular import guard (no story-advance.ts import in done-oracle.ts, phase-gates.ts etc.) lines 2837, 3091-3100; worktree-authority-smoke.ts covers DONE pre-merge gate failure (story stays TEST), post-merge failure (story already DONE + throws), DONE success path with merge-report byte-identical. validation-protocol-smoke.ts and process-fact-contract also pass per validate output. Real machine transcript in .koala/story/actives/B-6974/evidence/transcript-diff.md confirms guard-failure path / success path / worktree-create effect / advisory segments / fast-channel judgment all byte-identical in live koala built from this branch."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Behavior-preserving refactor: no project docs changed so docsPromises is empty (correct for this story type). All 3 CHK items have real tests with assertions covering happy paths, DONE pre/post-merge failure edges, actor lifecycle ownership assertions, circular import guards, and byte-identical output regression. 201 assertions in worktree-authority-smoke, 566 in flow-stability-smoke. Zero new TODO/FIXME added in diff. Known out-of-scope item (assertDirtyGateSameSource test #7 mis-aim) is pre-existing debt explicitly user-deferred to B-META-framework-audit:F-007, not introduced by this story."
+  },
+  "_hash": "2e53df74cb0b4afbc8b661f11d7edf447655e8356328a0f145829e30f495aa12"
+}
