@@ -86,9 +86,9 @@
       "relatedDocs": [
         "README.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-17T23:20:32.621Z",
       "userSees": "发布维护者运行 `npm run test:desktop-package` 后看到 `packaged executable smoke passed`，并能看到 smoke 直接调用了生成出来的二进制。",
       "files": {
         "modify": [
@@ -120,7 +120,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm run test:desktop-package",
+          "result": "pass",
+          "note": "Verifier executed dist/desktop/koala-macos-arm64 directly and printed packaged executable smoke passed after checking core help and aux_doc_list help.",
+          "headHash": "129c85d330264909efa9ec3cb6c7e31649538e89",
+          "materialHash": "d7373c0c921130ce9818332e6ddd6053ca2d033f4f51787e4d4456b15aa4f33a",
+          "timestamp": "2026-05-17T23:20:32.666Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-desktop-package.mjs /tmp/koala-missing-binary-does-not-exist",
+          "result": "pass",
+          "note": "Negative smoke intentionally exited non-zero with Desktop Koala binary is missing and the recovery hint to run npm run package:desktop:host.",
+          "headHash": "129c85d330264909efa9ec3cb6c7e31649538e89",
+          "materialHash": "d7373c0c921130ce9818332e6ddd6053ca2d033f4f51787e4d4456b15aa4f33a",
+          "timestamp": "2026-05-17T23:20:32.710Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm run test:desktop-package",
+          "result": "pass",
+          "note": "Verifier fails on binary startup errors and asserts aux_doc_list help output; the direct artifact smoke passed without bootstrap/module loading errors.",
+          "headHash": "129c85d330264909efa9ec3cb6c7e31649538e89",
+          "materialHash": "d7373c0c921130ce9818332e6ddd6053ca2d033f4f51787e4d4456b15aa4f33a",
+          "timestamp": "2026-05-17T23:20:32.752Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
