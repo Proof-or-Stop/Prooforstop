@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-17T23:34:36.041Z",
       "reviewRunId": "B-c600:RR-003",
       "_hash": "4118e3727f9cbccd14a1ec0afd2bde719770ef3be0400e2886a5e2d7def6b451"
+    },
+    {
+      "id": "B-c600:RP-003",
+      "agent": "koala-review-concept",
+      "note": "Concept review pass after B-c600:F-001 fix. The pkg desktop packaging concept remains coherent: generated pkg entrypoint stages full bootstrap assets into a temp runtime, package scripts separate host/release builds, packaged smoke now exercises help, aux_doc_list, and verify_codex, and README frames pkg as an early distribution shortcut with signing/installer/auto-update out of scope. Verified current HEAD with npm run test:desktop-package and node bin/koala-codex.js verify_codex; no concept-level blockers found.",
+      "createdAt": "2026-05-17T23:38:44.789Z",
+      "reviewRound": "2026-05-17T23:34:36.041Z",
+      "reviewRunId": "B-c600:RR-005",
+      "_hash": "654bcf8c3a790537888347dbfd5b5943d9dc6d1dce30b463fee51cae9066fe2a"
     }
   ]
 }
