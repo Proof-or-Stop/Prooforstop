@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "B-3fad:F-001",
+      "desc": "concept-residual: reviewer-status.ts openBlockers filter (line 121-125) still uses isAdvisoryThisRound without evidenceState dimension; suspected open finding would show verdict=fail in reviewer-status even though machine.ts/guard-utils.ts gate correctly exempts it via isFindingBlocking. New isFindingBlocking concept not propagated to reviewer-status.ts.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-05-17T00:42:32.120Z",
+      "reviewRound": "2026-05-17T00:39:52.477Z",
+      "reviewRunId": "B-3fad:RR-005",
+      "_hash": "d3a6880c273f4531214338412b12da6cca983e045fb41c28e3f7236474f98a7a",
+      "files": [
+        "packages/main/src/core/reviewer-status.ts"
+      ]
+    }
+  ]
+}
