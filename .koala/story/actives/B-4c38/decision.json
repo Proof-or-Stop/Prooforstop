@@ -1,0 +1,76 @@
+{
+  "principles": [
+    "fail-closed before phase mutation: lock contention must stop before phase=DONE is written",
+    "explicit operator recovery: merging a partial-DONE branch back to main is too important to hide inside generic doctor --repair",
+    "single critical section: DONE preflight through merge/worktree cleanup must be serialized by one shared lock",
+    "reuse existing primitives: build on withMkdirLock and existing worktree cleanup helpers instead of inventing a second lock system"
+  ],
+  "drivers": [
+    "B-9027 produced a real partial-DONE after concurrent main merge activity",
+    "cross-story/team usage makes main a shared mutable resource",
+    "operators need a safe command that replaces handwritten git merge/worktree/branch cleanup"
+  ],
+  "options": [
+    {
+      "name": "A: done-main-merge lock + doctor detection + explicit done_recover command",
+      "pros": [
+        "prevents future concurrent DONE races before phase mutation",
+        "doctor can surface partial-DONE status without mutating main",
+        "done_recover provides an explicit, auditable recovery action with safety checks"
+      ],
+      "cons": [
+        "adds a new command/policy/registry surface",
+        "requires smoke coverage for both lock and recovery"
+      ]
+    },
+    {
+      "name": "B: only add lock, no recovery command",
+      "pros": [
+        "smaller change and directly prevents future races"
+      ],
+      "cons": [
+        "does not help already partial-DONE stories like B-9027",
+        "operators still need handwritten git commands when recovery is needed"
+      ]
+    },
+    {
+      "name": "C: extend doctor --repair to merge partial-DONE automatically",
+      "pros": [
+        "single existing maintenance command"
+      ],
+      "cons": [
+        "doctor --repair currently cleans residual worktrees; automatically merging branches into main is a larger mutation and too implicit",
+        "harder for users to see exactly which story will merge"
+      ]
+    }
+  ],
+  "chosen": "A: done-main-merge lock + doctor detection + explicit done_recover command",
+  "rationale": "Choose A. The lock closes the actual race before phase=DONE is written, doctor detection makes partial-DONE visible, and an explicit done_recover command gives operators a deliberate, auditable way to complete merge/worktree/branch cleanup. B is incomplete because it leaves current partial-DONE states manual. C hides a high-risk main merge behind generic doctor --repair, which is too implicit for a shared repository.",
+  "preMortem": [
+    {
+      "scenario": "Lock is acquired too late, after phase=DONE is already persisted",
+      "trigger": "Developer wraps only applyDoneMergeEffects instead of the whole DONE preflight-to-merge critical section",
+      "consequence": "A contending DONE can still write phase=DONE before failing, recreating partial-DONE",
+      "mitigation": "Call the lock before runDonePreMergeGate / actor.send / writeStory; smoke holds lock and asserts phase remains TEST on contention"
+    },
+    {
+      "scenario": "Stale lock blocks all future DONE forever",
+      "trigger": "Process crashes while holding .koala/runtime/done-main-merge.lock",
+      "consequence": "Every subsequent DONE is refused and operators are stuck",
+      "mitigation": "Use withMkdirLock stale reclaim semantics and include holder metadata/retry text; smoke creates stale lock and asserts reclaim"
+    },
+    {
+      "scenario": "done_recover merges unsafe branch into dirty main",
+      "trigger": "Recovery ignores main dirty state or merge-tree conflicts",
+      "consequence": "Operator loses unrelated work or creates bad merge",
+      "mitigation": "Fail closed unless main is safe for affected paths, branch exists, merge-base/merge-tree checks pass, and worktree/branch match storyId"
+    },
+    {
+      "scenario": "doctor reports partial-DONE false positives for ordinary DONE cleanup leftovers",
+      "trigger": "Detector treats any terminal worktree residue as partial-DONE even when branch already merged",
+      "consequence": "Operator sees noisy recovery warnings and loses trust",
+      "mitigation": "Detector separates terminal worktree residue from partial-DONE: partial-DONE requires phase DONE plus branch/worktree residue plus main not containing branch or cleanup incomplete"
+    }
+  ],
+  "timestamp": "2026-05-17T03:30:15.799Z"
+}

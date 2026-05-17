@@ -9,7 +9,46 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "When another DONE merge is active, koala story_advance --phase=DONE prints that the DONE main merge lock is held and the story remains pre-DONE; retry after the other merge completes.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-advance.ts",
+          "packages/main/src/handlers/done-effects.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Hold .koala/runtime/done-main-merge.lock and run story_advance DONE for a TEST story -> command fails before phase=DONE; story remains TEST; output includes retry hint",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Normal uncontended DONE still succeeds and removes lock after merge/worktree/branch cleanup",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Stale done-main-merge lock older than stale threshold is reclaimed and DONE can proceed",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If lock is acquired only inside applyDoneMergeEffects after writeStory, contention test must fail because story becomes DONE; smoke catches this regression",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
