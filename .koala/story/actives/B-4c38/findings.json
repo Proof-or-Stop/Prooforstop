@@ -40,7 +40,7 @@
       "desc": "[HIGH] packages/main/src/core/partial-done-recovery.ts:179-199 force-removes the story worktree whenever plain git worktree remove fails, then recursively deletes any residue, but this recovery path never proves that the target worktree is clean. That differs from the normal DONE cleanup contract documented in packages/main/src/handlers/done-effects.ts:429-432, where forced deletion is only considered safe after the DONE gate has already verified a clean worktree and a merged branch. In partial-DONE recovery this can erase unrelated uncommitted edits or drafts left in .worktrees/B-xxx. Fix by checking the target worktree status first and refusing recovery until the operator commits, stashes, or inspects non-runtime changes, or restrict forced deletion to explicitly whitelisted runtime residue only.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-05-17T03:49:03.756Z",
