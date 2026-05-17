@@ -4,7 +4,7 @@
   "title": "Adopt session-ownership-and-write-leases.md as a process truth source",
   "description": "Docs-only story. The session ownership / write-lease design doc (docs/requirements/decisions/session-ownership-and-write-leases.md) currently exists only as an untracked working-tree file. This story commits it into the repo and integrates it into Koala's decision/truth-source corpus so agents and scope-plan reviewers treat it as authoritative — WITHOUT implementing any of the described runtime behavior (owner lease, main write lock, takeover UX). Implementation is tracked as a separate later story. No core behavior change; only documentation is committed and cross-referenced.",
   "type": "chore",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "medium",
   "createdAt": "2026-05-17T23:00:57.416Z",
   "startedAt": "2026-05-17T23:00:57.416Z",
@@ -33,11 +33,20 @@
       "branch": "story/B-8596",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-17T23:13:28.165Z",
+      "branch": "story/B-8596",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-8596",
     "branch": "story/B-8596",
     "createdAt": "2026-05-17T23:09:41.269Z"
-  }
+  },
+  "currentReviewRound": "2026-05-17T23:13:28.165Z"
 }
