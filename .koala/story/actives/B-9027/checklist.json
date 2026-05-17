@@ -33,7 +33,18 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "pre-merge gate 失败时用户看到 `Cannot enter DONE: ...`，`koala story_get` 显示 story 仍是 TEST；post-merge 真实 merge 失败时看到 `Story B-xxx 已标记为 DONE 但自动合并失败` + 手动 cd/git merge/git worktree remove/git branch -d 指引。",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-advance.ts",
+          "packages/main/src/handlers/done-effects.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-003",
