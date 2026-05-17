@@ -241,6 +241,69 @@
         "test": [
           "scripts/verify-process-fact-contract.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node scripts/verify-process-fact-contract.mjs exits 0 after CHK-001+CHK-002 landed -> evidenceState and gap_log are registered as process facts; WHY: contract script must pass",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "process-fact-registry.ts contains evidenceState entry with gate-consumed semantic marker; WHY: evidenceState is consumed by REVIEW->TEST gate",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "process-fact-registry.ts contains gap_log command entry; WHY: new command must be registered",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "AGENTS.md contains evidenceState default table (reviewer=verified, gap_log=suspected, legacy=verified compat); WHY: documentation requirement from userSees",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "AGENTS.md contains gap_log usage instructions (required fields, example invocation); WHY: documentation requirement",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "verify-process-fact-contract.mjs fails if evidenceState entry is removed from registry -> non-zero exit; WHY: contract script must detect regressions",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "verify-process-fact-contract.mjs fails if gap_log entry is removed from registry -> non-zero exit; WHY: contract script must detect regressions",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "AGENTS.md documents gate predicate formula (status=open AND severity in critical/high AND evidenceState=verified or null); WHY: gate behavior must be documented precisely",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "remove evidenceState from guard-utils.ts blocking filter but keep registry entry -> contract script detects mismatch (hardcoded fallback missing) and fails; WHY: dual-layer contract requires both prompt guidance AND code fallback",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "add evidenceState to registry but with wrong semantic type (e.g. informational instead of gate-consumed) -> contract script detects semantic mismatch; WHY: registry accuracy matters for audit",
+            "type": "logic",
+            "priority": "should"
+          },
+          {
+            "desc": "AGENTS.md mentions gap_log but with wrong required fields list -> manual review catch (contract script validates registry not docs prose); WHY: docs drift detection boundary",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
       }
     }
   ]
