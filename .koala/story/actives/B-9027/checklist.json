@@ -507,6 +507,17 @@
           "headHash": "d95bd499420ff076ded66252f6d04f99e87856a9",
           "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
           "timestamp": "2026-05-17T02:54:59.317Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/done-effects.ts",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "runDonePreMergeGate 签名 Promise<string> 显式 return rendered checklist；story-advance.ts 用局部变量 doneRenderedChecklist 接收并传入 applyDoneMergeEffects；npm run build (tsc --noEmit) exit 0 确认数据流类型安全",
+          "headHash": "b2affdde07114afbf15f411b18836689113fe51f",
+          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
+          "timestamp": "2026-05-17T02:54:59.548Z"
         }
       ]
     }
