@@ -97,6 +97,17 @@
           "headHash": "fa6eb107285398d2f909cbc00c1593c5009db0e5",
           "materialHash": "d1a3fd2f6c2f65a4a29406c927b95a1f2784c9035d3b342d5d7b2465a33cb9ae",
           "timestamp": "2026-05-17T13:20:12.927Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/transition-orchestrator.ts",
+          "command": "grep acquireDoneMainMergeLock packages/main/src/handlers/transition-orchestrator.ts",
+          "result": "pass",
+          "note": "acquireDoneMainMergeLock is called once in runStoryTransition; doneMainMergeLock.release() is in the single try/finally. The try opens before the DONE pre-check and the finally spans runDonePreMergeGate -> actor.send -> writeStory -> applyDoneMergeEffects. story-advance.ts no longer references acquireDoneMainMergeLock.",
+          "headHash": "0fc50123b1bc7f94534b39996c57b55095e4532f",
+          "materialHash": "d1a3fd2f6c2f65a4a29406c927b95a1f2784c9035d3b342d5d7b2465a33cb9ae",
+          "timestamp": "2026-05-17T13:20:20.952Z"
         }
       ]
     },
