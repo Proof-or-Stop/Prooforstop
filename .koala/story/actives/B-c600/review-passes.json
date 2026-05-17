@@ -35,6 +35,15 @@
       "reviewRound": "2026-05-17T23:55:27.801Z",
       "reviewRunId": "B-c600:RR-007",
       "_hash": "0f7aa005a8162a0ee674c17ca18542eb2d69a5fd335d46d7572347b6e35cdfab"
+    },
+    {
+      "id": "B-c600:RP-005",
+      "agent": "koala-review-docs",
+      "note": "README Desktop binary packaging docs cover host build, host smoke, release packaging command, artifact location, matching binary copy into desktop app, no separate Node install, and pkg caveats. Verified release targets in scripts/package-desktop.mjs are macOS x64/arm64, Linux x64, and Windows x64; npm registry reports pkg latest 5.8.1 and GitHub vercel/pkg is archived. Re-ran npm run test:desktop-package successfully against the packaged executable under isolated PATH. No docs blocker found.",
+      "createdAt": "2026-05-17T23:57:55.692Z",
+      "reviewRound": "2026-05-17T23:55:27.801Z",
+      "reviewRunId": "B-c600:RR-008",
+      "_hash": "9337050d1f90de86ae75b0585b78feee5d1bfdcbc014d155b607d5f95e703c69"
     }
   ]
 }
