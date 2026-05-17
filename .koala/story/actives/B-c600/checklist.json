@@ -161,9 +161,9 @@
       "relatedDocs": [
         "README.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-17T23:20:42.448Z",
       "userSees": "发布维护者在 README 看到标题 `Desktop binary packaging`，并能复制 `npm run package:desktop:host`、`npm run test:desktop-package`、`npm run package:desktop:release` 三条命令。",
       "files": {
         "modify": [
@@ -193,7 +193,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Desktop binary packaging|package:desktop:host|test:desktop-package|package:desktop:release|dist/desktop/koala\" README.md",
+          "result": "pass",
+          "note": "README contains the desktop packaging section, host package command, host smoke command, release command, and artifact path.",
+          "headHash": "619e75456a0570753bfb05c2b0a077d41dd558f0",
+          "materialHash": "d7373c0c921130ce9818332e6ddd6053ca2d033f4f51787e4d4456b15aa4f33a",
+          "timestamp": "2026-05-17T23:20:42.493Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"host binary|Release packaging for macOS, Linux, and Windows x64 targets\" README.md",
+          "result": "pass",
+          "note": "README distinguishes the host binary path from the multi-target release command so local environment limits are not confused with code failure.",
+          "headHash": "619e75456a0570753bfb05c2b0a077d41dd558f0",
+          "materialHash": "d7373c0c921130ce9818332e6ddd6053ca2d033f4f51787e4d4456b15aa4f33a",
+          "timestamp": "2026-05-17T23:20:42.538Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"upstream Vercel project is archived|pkg 5\\.8\\.1|Node SEA|actively maintained `pkg` fork\" README.md",
+          "result": "pass",
+          "note": "README explicitly labels Vercel pkg as an early distribution shortcut, states the project is archived and 5.8.1 was its last release, and points to future migration options.",
+          "headHash": "619e75456a0570753bfb05c2b0a077d41dd558f0",
+          "materialHash": "d7373c0c921130ce9818332e6ddd6053ca2d033f4f51787e4d4456b15aa4f33a",
+          "timestamp": "2026-05-17T23:20:42.580Z"
+        }
+      ]
     }
   ]
 }
