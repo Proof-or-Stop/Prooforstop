@@ -8,6 +8,15 @@
       "reviewRound": "2026-05-17T02:59:46.197Z",
       "reviewRunId": "B-9027:RR-002",
       "_hash": "d7131481a86e4ec34036ea963b92e8ad6429d58d2682e171bec6c797ff20b0bb"
+    },
+    {
+      "id": "B-9027:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Reviewed done-effects.ts (new), story-advance.ts (delta), phase-gates.ts (comment-only delta), worktree-authority-smoke.ts (new smoke tests). No dead code, no unnecessary as-any, no empty-swallow catches, no I/O isolation violations, no circular imports. Dynamic import of STRAY_FILE_WHITELIST at done-effects.ts:245 is a minor style inconsistency (static import already at line 46) but it is preserved behavior from the inline original and has zero runtime cost due to module caching. Behavior-preserving extraction is clean — step order, return values, and failure semantics are byte-identical.",
+      "createdAt": "2026-05-17T03:02:01.973Z",
+      "reviewRound": "2026-05-17T02:59:46.197Z",
+      "reviewRunId": "B-9027:RR-003",
+      "_hash": "bb8c298832c93e6517b46dbdac91aca7b6b659a69c36e124ff985c1797975e61"
     }
   ]
 }
