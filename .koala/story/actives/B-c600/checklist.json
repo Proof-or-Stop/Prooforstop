@@ -53,9 +53,9 @@
           "command": "npm run package:desktop:host && npm run package:desktop:release",
           "result": "pass",
           "note": "After the B-c600:F-001 fix, host packaging rebuilt dist/desktop/koala-macos-arm64 and release packaging rebuilt macos-x64, macos-arm64, linux-x64, and win-x64 executables.",
-          "headHash": "b5e02ca46a0fcf645961892a7c43d6075a9f7423",
-          "materialHash": "fd79441128b9196ed3579848078ec11eb651e89c851edbf1813e865701652891",
-          "timestamp": "2026-05-17T23:34:00.320Z"
+          "headHash": "e7b867ed7d83c12a8f6e75058bb15396b4685ba9",
+          "materialHash": "9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075",
+          "timestamp": "2026-05-17T23:55:41.150Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -63,9 +63,9 @@
           "command": "npm run package:desktop:host",
           "result": "pass",
           "note": "Reran host packaging with existing dist/desktop artifacts present; command rebuilt packages and overwrote the host binary without failing.",
-          "headHash": "b5e02ca46a0fcf645961892a7c43d6075a9f7423",
-          "materialHash": "fd79441128b9196ed3579848078ec11eb651e89c851edbf1813e865701652891",
-          "timestamp": "2026-05-17T23:34:00.369Z"
+          "headHash": "e7b867ed7d83c12a8f6e75058bb15396b4685ba9",
+          "materialHash": "9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075",
+          "timestamp": "2026-05-17T23:55:41.150Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -73,9 +73,9 @@
           "command": "npm run test:desktop-package",
           "result": "pass",
           "note": "The packaged binary was executed directly; smoke checked core help, aux_doc_list help, and packaged verify_codex, proving the artifact uses the full bootstrap rather than core-only packages/main/dist/cli.js.",
-          "headHash": "b5e02ca46a0fcf645961892a7c43d6075a9f7423",
-          "materialHash": "fd79441128b9196ed3579848078ec11eb651e89c851edbf1813e865701652891",
-          "timestamp": "2026-05-17T23:34:00.416Z"
+          "headHash": "e7b867ed7d83c12a8f6e75058bb15396b4685ba9",
+          "materialHash": "9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075",
+          "timestamp": "2026-05-17T23:55:41.150Z"
         }
       ]
     },
@@ -201,9 +201,9 @@
           "command": "rg -n \"Desktop binary packaging|package:desktop:host|test:desktop-package|package:desktop:release|dist/desktop/koala\" README.md",
           "result": "pass",
           "note": "README contains the desktop packaging section, host package command, host smoke command, release command, and artifact path.",
-          "headHash": "4bde854372fde8314f59118cdff7b46c4b76de86",
-          "materialHash": "fd79441128b9196ed3579848078ec11eb651e89c851edbf1813e865701652891",
-          "timestamp": "2026-05-17T23:34:21.950Z"
+          "headHash": "e7b867ed7d83c12a8f6e75058bb15396b4685ba9",
+          "materialHash": "9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075",
+          "timestamp": "2026-05-17T23:55:41.150Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -211,9 +211,9 @@
           "command": "rg -n \"host binary|Release packaging for macOS, Linux, and Windows x64 targets\" README.md",
           "result": "pass",
           "note": "README distinguishes the host binary path from the multi-target release command so local environment limits are not confused with code failure.",
-          "headHash": "4bde854372fde8314f59118cdff7b46c4b76de86",
-          "materialHash": "fd79441128b9196ed3579848078ec11eb651e89c851edbf1813e865701652891",
-          "timestamp": "2026-05-17T23:34:22.006Z"
+          "headHash": "e7b867ed7d83c12a8f6e75058bb15396b4685ba9",
+          "materialHash": "9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075",
+          "timestamp": "2026-05-17T23:55:41.150Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -221,9 +221,9 @@
           "command": "rg -n \"upstream Vercel project is archived|pkg 5\\.8\\.1|Node SEA|actively maintained `pkg` fork\" README.md",
           "result": "pass",
           "note": "README explicitly labels Vercel pkg as an early distribution shortcut, states the project is archived and 5.8.1 was its last release, and points to future migration options.",
-          "headHash": "4bde854372fde8314f59118cdff7b46c4b76de86",
-          "materialHash": "fd79441128b9196ed3579848078ec11eb651e89c851edbf1813e865701652891",
-          "timestamp": "2026-05-17T23:34:22.070Z"
+          "headHash": "e7b867ed7d83c12a8f6e75058bb15396b4685ba9",
+          "materialHash": "9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075",
+          "timestamp": "2026-05-17T23:55:41.150Z"
         }
       ]
     }
