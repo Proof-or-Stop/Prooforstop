@@ -44,6 +44,15 @@
       "reviewRound": "2026-05-17T00:51:26.668Z",
       "reviewRunId": "B-3fad:RR-010",
       "_hash": "7b402384cd4bbb7fa45695baeb42150833ef478d695aa5fc130be70f4d6bb7b0"
+    },
+    {
+      "id": "B-3fad:RP-006",
+      "agent": "koala-review-quality",
+      "note": "Round 2 quality review passed. F-002 fix verified: gap-log.ts handler does not reference DisprovenEvidence at all in its body - the type only appears in GapFindingInput interface in audit-meta-store.ts where it is legitimately used. Dead code is fully removed. F-003 fix verified: mergedFiles uses Array.from(new Set([...ev.sourceRefs, ...argFiles])) correctly merging and deduplicating both sources; gap-log-12 test assertSourceRefsAndFilesMerged exercises all three assertions (sourceRefs survive, argFiles survive, shared path deduped to count=1). No new quality issues found: all imports in changed files are actively used (DisprovenEvidence, FindingEvidenceState, StoryEvent, StoryInfo in audit-meta-store.ts; Finding, FindingEvidenceState, StoryEvent in advisory.ts; all new imports in reviewer-status.ts used at lines 113-115). No dead code, no unnecessary any casts, no empty catch blocks. I/O isolation is not applicable (no shells/ files changed).",
+      "createdAt": "2026-05-17T00:53:31.711Z",
+      "reviewRound": "2026-05-17T00:51:26.668Z",
+      "reviewRunId": "B-3fad:RR-009",
+      "_hash": "a3ec1a0d53d702825afa13817ab2fa7c7a412dde9949901ce97fe13de9ca7914"
     }
   ]
 }
