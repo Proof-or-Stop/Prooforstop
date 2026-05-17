@@ -181,6 +181,84 @@
         "test": [
           "packages/main/src/tasks/worktree-authority-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "koala validate 全绿（build + flow-stability + validation-protocol + lifecycle-registry-contract + process-fact-contract + runtime-fact-contract + worktree-authority-smoke）-> 输出 allPass:true; WHY: 证明重构没有破坏任何现有 contract/smoke",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "worktree-authority-smoke 中 assertDoneSuccessPathOutputAndOrdering 通过 -> DONE 成功路径的 checklist 段 + advance line + merge-report lines + step ordering (merge -> worktree remove -> branch delete) 全部 byte-identical; WHY: 证明 DONE 路径外部输出零变化（硬验收 #3 的成功路径）",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "worktree-authority-smoke 中 assertDoneOracleGateFailureKeepsStoryTest 通过 -> pre-merge gate 失败时 story 仍 TEST，phase=DONE 从未写入; WHY: 证明 DONE phase timing 不变——pre-merge gate 失败语义保持（硬验收 #3 的失败路径）",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "worktree-authority-smoke 中新增或已有的循环 import 检测断言通过 -> transition-orchestrator.ts 与 phase-gates.ts / transition-effects.ts / done-effects.ts / story-advance.ts 之间无循环 import; WHY: 证明模块依赖是 DAG 而非循环",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "tsc --noEmit 全仓编译通过 -> 重构未引入类型错误; WHY: 编译级证明代码完整性",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "worktree-authority-smoke 中 assertStrayFileOffenderKeepsStoryTest 通过 -> stray-file pre-merge gate 失败时 story 仍 TEST; WHY: 确认 DONE 的第二条 pre-merge gate（F-020 stray-file）的失败语义在 orchestrator 接管后不变",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "worktree-authority-smoke 中 assertMergeConflictPreMergeGateKeepsStoryTest 通过 -> merge conflict 时 story 仍 TEST 且 branch 未被 force-sync; WHY: 确认 merge conflict 这一 edge case 在 orchestrator 接管后行为不变",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "worktree-authority-smoke 中 assertRealMergeFailureMarksDoneAndThrows + assertWorktreeCleanupFailureMarksDoneMergedAndThrows 通过 -> post-merge 失败时 story 已 DONE 且 throw 含手动恢复指引; WHY: 确认 DONE post-merge 语义（phase 已写但后续失败的处理）在 orchestrator 接管后不变",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "worktree-authority-smoke 中 assertDoneMainMergeLiveLockFailsBeforeMutation + assertDoneMainMergeLockBlocksBeforeAutoSyncMain + assertDoneMainMergeStaleLockIsReclaimed 通过 -> DONE merge lock 的 live/stale 行为在 orchestrator 接管后不变; WHY: 确认并发 DONE 串行化语义保持",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "各 transition（INIT_CHECK / PLAN / DEV / REVIEW / TEST / DONE + REPLAN 回退）的 story_advance 外部 CLI 输出与重构前 byte-identical -> 4 段 inline advisory（deps/session/baseline-risk/init-check）文本顺序和内容不变; WHY: 覆盖非 DONE 路径的行为保持",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "手动构造 transition-orchestrator.ts import story-advance.ts 或 story-advance.ts import transition-orchestrator.ts 再 import story-advance.ts 的循环路径 -> tsc 或运行时报错; WHY: 对抗搬迁引入隐式循环 import",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "检查 transition-orchestrator.ts 不使用 globalThis 或模块级 mutable state 传递跨函数数据 -> 无 global/shared hidden handoff（对比 B-9027 消除的 __koalaDoneChecklistRendered）; WHY: 对抗用新的 global 变量替代旧的隐式耦合",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "story-advance.ts 的结构化断言：不含 git merge / git worktree remove 的 inline 实现（已有 assertDoneSuccessPathOutputAndOrdering CHK-003 task 2 第四项）-> regex 断言在 smoke 中通过; WHY: 对抗 thin handler 名义委托但实际保留 inline git 操作的回归",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "删除 transition-orchestrator.ts 后 tsc --noEmit 报错且 story_advance CLI 不可用 -> 证明 story-advance.ts 真正依赖 orchestrator 而非 fallback 到 inline 实现; WHY: 对抗存在 fallback 分支让 orchestrator 成为死代码的假委托",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
       }
     }
   ]
