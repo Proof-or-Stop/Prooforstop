@@ -134,6 +134,17 @@
           "headHash": "e4796edebdcfc00d4633c6e9d2378ebd3d6b6868",
           "materialHash": "e86730edba430ba928a18deb8ad4567903dd4b9642ea1a7e755dc557ff5686c5",
           "timestamp": "2026-05-17T03:06:39.084Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "CLAUDE.md",
+          "command": "grep + 逐条比对 .githooks/pre-push",
+          "result": "pass",
+          "note": "两份文档 pre-push 段不再出现 packages/koala/packages/main;文档描述的检测/构建顺序/递归行为与落地 hook 逐条一致",
+          "headHash": "6213ab7483ea8ed73d6d7702182ead5b86090441",
+          "materialHash": "e86730edba430ba928a18deb8ad4567903dd4b9642ea1a7e755dc557ff5686c5",
+          "timestamp": "2026-05-17T03:06:39.324Z"
         }
       ]
     }
