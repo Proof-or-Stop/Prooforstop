@@ -57,6 +57,17 @@
           "headHash": "211c9276460fea87b0e08c323dbd1df3a877d989",
           "materialHash": "e86730edba430ba928a18deb8ad4567903dd4b9642ea1a7e755dc557ff5686c5",
           "timestamp": "2026-05-17T03:06:38.071Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "file": ".githooks/pre-push",
+          "command": "mktemp -d + git init + cp hook + bash ./pre-push",
+          "result": "pass",
+          "note": "非 koala 仓(无 packages/main/package.json):hook 立即 exit=0,stdout 为空,不影响 push",
+          "headHash": "001768bacd1a5b3370225c1a9da3a9285c6c8bc3",
+          "materialHash": "e86730edba430ba928a18deb8ad4567903dd4b9642ea1a7e755dc557ff5686c5",
+          "timestamp": "2026-05-17T03:06:38.316Z"
         }
       ]
     },
