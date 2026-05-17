@@ -26,6 +26,15 @@
       "reviewRound": "2026-05-17T02:59:46.197Z",
       "reviewRunId": "B-9027:RR-001",
       "_hash": "ea1e309cc2ccacb4139d67dbdf8a85a6af805977e974afe7cab4ca7aaee3bab6"
+    },
+    {
+      "id": "B-9027:RP-004",
+      "agent": "koala-review-concept",
+      "note": "Concept review complete. Key findings: (1) __koalaDoneChecklistRendered — zero source code residuals in packages/main/src/; references in .koala/story/actives/B-9027/ are legitimate context docs (checklist, plan, understanding, decision, test-evidence), not code. The variable is fully eliminated from story-advance.ts and done-effects.ts. (2) Inline DONE merge/cleanup code — completely removed from story-advance.ts; all helpers (autoSyncMain, detectDoneStoryWorktreeContext, assertDoneStoryBranchMatches, assertSafeResidualWorktreeRm, assertDoneMergeCanApplyBeforeStateMutation, isRegisteredWorktree, pruneWorktreeRegistry) now live in done-effects.ts. (3) Import chain — story-advance.ts correctly imports autoSyncMain/detectDoneStoryWorktreeContext/assertDoneStoryBranchMatches/runDonePreMergeGate/applyDoneMergeEffects from done-effects.js; done-effects.ts correctly imports runDoneOracleGate from phase-gates.js. (4) phase-gates.ts comment updated to reflect no-globalThis architecture. (5) globalThis references in story-advance.ts are comment-only (explaining old vs new design), no live usage. (6) cleanStrayWorktreeFiles/STRAY_FILE_WHITELIST re-export in story-advance.ts preserved; review-pass-discard-smoke.ts imports directly from stray-file-cleanup.ts (correct). No residual concept blocker found.",
+      "createdAt": "2026-05-17T03:03:40.235Z",
+      "reviewRound": "2026-05-17T02:59:46.197Z",
+      "reviewRunId": "B-9027:RR-004",
+      "_hash": "bd79c4f1ff2e6efcfe427525323ad27e22f83db6c356acf396bd18713a78e186"
     }
   ]
 }
