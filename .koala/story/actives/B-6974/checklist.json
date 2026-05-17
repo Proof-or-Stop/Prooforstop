@@ -260,7 +260,108 @@
             "priority": "should"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/story-advance.ts",
+          "command": "rg -n \"git merge|git worktree remove|createStoryActor|actor\\.start\\(|actor\\.send\\(|actor\\.stop\\(|runReviewToTestPreflightGate|runValidateGate|runDonePreMergeGate|applyDoneMergeEffects|acquireDoneMainMergeLock|\\btry\\b|\\bfinally\\b|args\\.phase\\s*={2,3}\\s*['\\\"]DONE|phase\\s*={2,3}\\s*['\\\"]DONE\" packages/main/src/handlers/story-advance.ts || true",
+          "result": "pass",
+          "note": "The thin-handler negative grep returned zero lines. story-advance.ts contains no inline git merge, worktree remove, actor lifecycle operation, gate chaining, DONE lock, try/finally, or DONE branch logic.",
+          "headHash": "5e654097cf405977ce46f3e659577aba0c7b2391",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:39:17.457Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/story-advance.ts",
+          "command": "wc -l packages/main/src/handlers/story-advance.ts && nl -ba packages/main/src/handlers/story-advance.ts | sed -n 22,34p",
+          "result": "pass",
+          "note": "story-advance.ts is 34 lines. createStoryAdvanceHandlers.story_advance only accepts args, calls runStoryTransition(ctx,args), and returns renderTransitionResult(result).",
+          "headHash": "5e654097cf405977ce46f3e659577aba0c7b2391",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:39:17.457Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/story-advance.ts",
+          "command": "rg -n \"^import|^export\" packages/main/src/handlers/story-advance.ts",
+          "result": "pass",
+          "note": "The file keeps only HandlerContext/StoryPhase imports, runStoryTransition/renderTransitionResult import, createStoryAdvanceHandlers export, and required legacy re-exports for cleanStrayWorktreeFiles, STRAY_FILE_WHITELIST, buildDoneChecklist, and DoneCheckRow.",
+          "headHash": "5e654097cf405977ce46f3e659577aba0c7b2391",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:39:17.458Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/story-advance.ts",
+          "command": "rg -n \"createStoryActor|getStateName|PHASE_TO_EVENT\" packages/main/src/handlers/story-advance.ts || true",
+          "result": "pass",
+          "note": "Zero hits. story-advance.ts no longer imports or owns transition-internal actor or state-machine symbols.",
+          "headHash": "5e654097cf405977ce46f3e659577aba0c7b2391",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:39:17.458Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/story-advance.ts",
+          "command": "rg -n \"acquireDoneMainMergeLock|detectDoneStoryWorktreeContext|assertDoneStoryBranchMatches|autoSyncMain|checkMainDivergence\" packages/main/src/handlers/story-advance.ts || true",
+          "result": "pass",
+          "note": "Zero hits. DONE-specific merge lock, worktree assertion, divergence, and auto-sync coordination are delegated to transition-orchestrator.ts.",
+          "headHash": "5e654097cf405977ce46f3e659577aba0c7b2391",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:39:17.458Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/story-advance.ts",
+          "command": "rg -n \"depsWarning|sessionWarning|baselineRiskWarning|initCheckAdvisory\" packages/main/src/handlers/story-advance.ts || true",
+          "result": "pass",
+          "note": "Zero hits. The four inline advisory calculations are no longer implemented in story-advance.ts; the handler receives formatted transition results from the orchestrator.",
+          "headHash": "5e654097cf405977ce46f3e659577aba0c7b2391",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:39:17.458Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/story-advance.ts",
+          "command": "rg -n \"\\btry\\b|\\bfinally\\b\" packages/main/src/handlers/story-advance.ts || true",
+          "result": "pass",
+          "note": "Zero hits. story-advance.ts has no try/finally and therefore cannot be secretly managing actor or DONE lock lifecycle.",
+          "headHash": "5e654097cf405977ce46f3e659577aba0c7b2391",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:39:17.458Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/story-advance.ts",
+          "command": "rg -n \"args\\.phase\\s*={2,3}\\s*['\\\"]DONE|phase\\s*={2,3}\\s*['\\\"]DONE\" packages/main/src/handlers/story-advance.ts || true",
+          "result": "pass",
+          "note": "Zero hits. story-advance.ts has no DONE-specific branch; all phase branches live in transition-orchestrator.ts.",
+          "headHash": "5e654097cf405977ce46f3e659577aba0c7b2391",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:39:17.458Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/story-advance.ts",
+          "command": "rg -n \"from ['\\\"].*(story-advance|transition-orchestrator)|import\\(.*(story-advance|transition-orchestrator)\" packages/main/src/handlers packages/main/src/tasks scripts",
+          "result": "pass",
+          "note": "Only createStoryAdvanceHandlers imports from story-advance.js in registry/story smoke entrypoints, plus story-advance.ts importing transition-orchestrator. No external module imports story-advance internal implementation symbols beyond the public handler factory and legacy re-exports.",
+          "headHash": "5e654097cf405977ce46f3e659577aba0c7b2391",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:39:17.458Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",

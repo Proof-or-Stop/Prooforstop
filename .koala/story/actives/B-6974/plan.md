@@ -12,10 +12,18 @@ Option A — **behavior-preserving explicit orchestrator**。新建 `packages/ma
 
 ## 4 个硬验收（用户点名，DEV 必须满足）
 
-1. **actor 生命周期唯一 owner**：DEV 后 `rg "actor\.stop" packages/main/src/` 只在 `transition-orchestrator.ts` 命中；`phase-gates.ts` / `done-effects.ts` 不再有 `actor.stop()`。create/start/send/stop 全归 orchestrator。
+1. **actor 生命周期唯一 owner**（限 story_advance orchestration path）：DEV 后在 story_advance orchestration path 的四个文件（`transition-orchestrator.ts` / `phase-gates.ts` / `done-effects.ts` / `story-advance.ts`）中 `rg "actor\.stop"` 只在 `transition-orchestrator.ts` 命中；`phase-gates.ts` / `done-effects.ts` / `story-advance.ts` 不再有 `actor.stop()`。actor create/start/send/stop 四操作在该 path 内全归 orchestrator。**不含** `worktree.ts` 的 legacy `dev_finish` / `dev_merge`——见下方「Scope 边界」。
 2. **DONE merge lock scope 结构化**：`acquireDoneMainMergeLock` / release 在 orchestrator **一个 try/finally** 内；scope 全程覆盖 `runDonePreMergeGate → actor.send → writeStory → applyDoneMergeEffects`。
 3. **phase timing 不变**（尤其 DONE）：pre-merge gate 失败 → story 仍 TEST；pre-merge gate 通过后 → 仍「先写 phase=DONE，再做真实 merge/cleanup」；post-merge failure → story 已 DONE、错误显式抛出。
 4. **thin handler 可机械检查**：`story-advance.ts` 不再出现 inline git merge / git worktree remove / actor transition 编排 / gate 串接；只允许 re-export 与 response formatting。
+
+## Scope 边界（B-6974 不做什么）
+
+`worktree.ts` 的 `dev_finish` / `dev_merge` 是独立于 `story_advance` 的 **legacy worktree command path**（各自驱动 `CODE_REVIEW` / `FINISH` 事件，自带 `actor.start/send/stop`）。它们不经过 `story_advance` transition orchestrator，也不在本 story 的重构范围内。
+
+> `worktree.ts` `dev_finish`/`dev_merge` actor lifecycle is explicitly out of scope for B-6974; it should be handled by a separate legacy command cleanup story if still needed.
+
+因此「actor 生命周期唯一 owner」（硬验收 #1）只断言 story_advance orchestration path（transition-orchestrator.ts / phase-gates.ts / done-effects.ts / story-advance.ts）内的收拢，不要求把 `worktree.ts` 的 actor 操作搬进 orchestrator，也不改 `dev_finish` / `dev_merge`。
 
 ## CHK-001: Introduce transition-orchestrator.ts coordinating one transition
 
@@ -37,7 +45,7 @@ Option A — **behavior-preserving explicit orchestrator**。新建 `packages/ma
 **Verify**：
 - `koala validate --story=B-6974` 全绿
 - `worktree-authority-smoke` 全过
-- 硬验收①：`rg "actor\.stop" packages/main/src/` 只命中 transition-orchestrator.ts
+- 硬验收①：在 story_advance orchestration path 四文件内 `rg "actor\.stop"` 只命中 transition-orchestrator.ts（`worktree.ts` legacy path 见「Scope 边界」，不在断言范围）
 - 硬验收②：lock acquire/release 在 orchestrator 单一 try/finally，scope 覆盖 4 段全程
 
 **DoneWhen**：
