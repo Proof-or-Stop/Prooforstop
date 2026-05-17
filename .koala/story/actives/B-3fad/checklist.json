@@ -129,6 +129,17 @@
           "headHash": "affa797e142d7927acda805869012c582c007d5c",
           "materialHash": "b104a221d68a3fae81e70eb1953fecebc43b7fbed884ac796c2f84998b5abf18",
           "timestamp": "2026-05-17T00:16:52.132Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/evidence-state-gate-smoke.ts",
+          "command": "npm run test:evidence-state-gate-smoke",
+          "result": "pass",
+          "note": "evidence-state-gate-smoke covers CHK-001:happy:2: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases",
+          "headHash": "717587a2c3e969a919b9833b48b40332336bcd4e",
+          "materialHash": "b104a221d68a3fae81e70eb1953fecebc43b7fbed884ac796c2f84998b5abf18",
+          "timestamp": "2026-05-17T00:16:52.345Z"
         }
       ]
     },
