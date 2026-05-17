@@ -167,7 +167,46 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Operator can run the documented verification/recovery path and see clear output: concurrent DONE lock contention is refused before phase=DONE, partial-DONE is reported with storyId/branch/worktree/main status, and recovery completes merge + worktree removal + branch deletion."
+      "userSees": "Operator can run the documented verification/recovery path and see clear output: concurrent DONE lock contention is refused before phase=DONE, partial-DONE is reported with storyId/branch/worktree/main status, and recovery completes merge + worktree removal + branch deletion.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "packages/main/src/tasks/worktree-repair-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "packages/main/src/tasks/worktree-repair-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Documented smoke command shows concurrent DONE lock contention refused before phase=DONE and partial-DONE recovery completed without handwritten git commands",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Operator-visible outputs include lock held/retry, partial-DONE detected, recovery merge completed, worktree removed, branch deleted",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Recovery smoke leaves no terminal/orphan worktree residue after repair",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If tests only assert internals without checking operator output, coverage reviewer should flag missing user-visible evidence",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      }
     }
   ]
 }
