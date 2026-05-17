@@ -109,6 +109,17 @@
           "headHash": "779ec431cfaf5d6f1c4f6ccb415ada0787a9618b",
           "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
           "timestamp": "2026-05-17T02:54:46.821Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "CHK-002 三个 pre-merge gate 失败用例（assertDoneOracleGateFailureKeepsStoryTest/assertStrayFileOffenderKeepsStoryTest/assertMergeConflictPreMergeGateKeepsStoryTest）断言 phase=TEST 未落盘——若 gate 调用错位到 actor.send 后，story 会落盘 DONE，断言立即 FAIL，捕获时序错位",
+          "headHash": "c7178f7becd09529222d7563bf4ac8e40dfc4398",
+          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
+          "timestamp": "2026-05-17T02:54:47.044Z"
         }
       ]
     },
