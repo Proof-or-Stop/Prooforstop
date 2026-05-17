@@ -232,6 +232,54 @@
         "test": [
           "packages/main/src/tasks/worktree-authority-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep -r __koalaDoneChecklistRendered 全仓（排除 node_modules/.git）→ 0 行匹配; WHY: 验证 globalThis 技术债彻底清除",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "DONE 成功输出仍含完整 DONE Gate Checklist 段（每个 checklist item 一行 [✓]）→ 显式传参链路未丢失渲染文本; WHY: 验证替代机制（显式返回值/参数）功能等价",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "pre-merge gate 函数签名显式 return string（rendered checklist）→ story-advance.ts 接收返回值并传给块 B 的返回段拼接 → tsc 类型检查通过; WHY: 验证数据流链路类型安全",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "pre-merge gate 函数在 gate 失败（throw）时不返回 rendered checklist → 调用方不会读到 undefined 并拼接 undefined 字符串到输出; WHY: 验证 throw 路径不产生脏数据",
+            "type": "logic",
+            "priority": "should"
+          },
+          {
+            "desc": "grep globalThis 全仓（不限 __koalaDoneChecklistRendered）确认 done-effects.ts 和 story-advance.ts 中无任何新增 globalThis 用法; WHY: 防止用另一个 globalThis 替代",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "删除 pre-merge gate 函数的 return rendered 行（模拟搬迁时漏接返回值）→ DONE 成功输出缺少 checklist 段 → smoke 断言检测到缺失; WHY: 对抗 preMortem #3 渲染文本丢失",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "在 story-advance.ts 中接收 pre-merge gate 返回值后用错误变量名传给块 B（如 typo doneChecklistPrfix）→ tsc 编译失败; WHY: 类型系统作为搬迁正确性的静态防线",
+            "type": "logic",
+            "priority": "should"
+          },
+          {
+            "desc": "并发两个 DONE advance（模拟 race）→ 无 globalThis 后两次调用互不干扰（各自拿到独立的 rendered 字符串、不存在竞态覆盖）; WHY: 验证消除 global state 后的并发安全性提升",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
       }
     }
   ]
