@@ -22,6 +22,69 @@
         "test": [
           "packages/main/src/tasks/worktree-authority-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "transition-orchestrator.ts 存在于 packages/main/src/handlers/ 且 export runStoryTransition 函数 -> tsc --noEmit 编译通过，模块可被 story-advance.ts import; WHY: 证明 orchestrator 文件落地且编译正确",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "全仓 rg \"actor\\.stop\" 只在 transition-orchestrator.ts 命中 -> phase-gates.ts / done-effects.ts / story-advance.ts 零命中; WHY: 证明 actor 生命周期唯一 owner 收拢完成（硬验收 #1）",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "全仓 rg \"createStoryActor|actor\\.start\\(|actor\\.send\\(\" 除 machine.ts 定义外只在 transition-orchestrator.ts 命中 -> story-advance.ts / phase-gates.ts / done-effects.ts 不再直接创建或操作 actor; WHY: 完整的 actor 生命周期 create/start/send/stop 四操作均由 orchestrator 独占",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "acquireDoneMainMergeLock + release 调用点全仓 grep 只在 transition-orchestrator.ts 的一个 try/finally 块内 -> lock scope 覆盖 runDonePreMergeGate + actor.send + writeStory + applyDoneMergeEffects 全程; WHY: 证明 DONE merge lock scope 结构化（硬验收 #2）",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "orchestrator 内 DONE 路径按 runDonePreMergeGate -> actor.send -> writeStory(phase=DONE) -> applyDoneMergeEffects 顺序调用 -> 代码逐行检查确认该顺序; WHY: 证明 pre/post gate 顺序显式化，runDonePreMergeGate 在 actor.send 前（gate 形），applyDoneMergeEffects 在 writeStory 后（effect 形）",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "phase-gates.ts resolveGuardFailure 不再调 actor.stop() -> 函数签名移除 actor 参数或移除 stop 调用; WHY: 确认 guard 失败路径的 actor 生命周期也由 orchestrator 统一管理",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "done-effects.ts runDonePreMergeGate 的 stray-file 分支不再调 actor.stop() -> 该代码路径改为 throw 后由 orchestrator finally 清理; WHY: 确认异常路径的 actor 也被 orchestrator 兜底",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "transition-orchestrator.ts 的 finally 块在所有退出路径（正常返回 / guard 失败 throw / gate 失败 throw / effect 失败 throw）都执行 actor.stop() -> 代码分析确认无遗漏路径; WHY: 防止 actor 泄漏",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "在 phase-gates.ts / done-effects.ts 中搜索 actor.stop / actor.send / createStoryActor 等 actor 操作符号 -> 确认零命中，排除纯搬迁假接管（Option B）; WHY: 对抗「把 inline 协调原样搬进 orchestrator 但被调模块仍保留 actor 操作」的假接管",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "检查 transition-orchestrator.ts 的 import 图：它 import phase-gates / transition-effects / done-effects -> 反向检查这三个文件不 import transition-orchestrator.ts -> 无循环 import; WHY: 对抗搬迁引入循环依赖",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "orchestrator DONE lock 的 try/finally scope 从 acquireDoneMainMergeLock 开始到 finally release 结束 -> 中间不存在任何 return / break / 跳出 try 的控制流 -> lock scope 无空洞; WHY: 对抗 lock scope 结构化表面通过但实际有提前 return 绕过 finally 的漏洞",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
       }
     },
     {
