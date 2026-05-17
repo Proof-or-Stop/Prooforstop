@@ -58,13 +58,14 @@
         },
         {
           "intentRef": "CHK-001:edge:0",
-          "kind": "integration_test",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/convergence-discarded-smoke.ts",
           "command": "npm --prefix packages/main run test:convergence-false-blockers",
           "result": "pass",
-          "note": "Smoke covers DONE/DISCARDED terminal behavior, META exclusion, INIT unfinished behavior, advisory audit visibility, verified high/critical audit blockers, and legacy missing evidenceState as verified.",
-          "headHash": "94a2c65b71fe2611a9ecd5f7fd27a39eb81b533c",
+          "note": "Smoke constructs DONE, DISCARDED, META, and INIT stories; asserts META is excluded from unfinished stories while INIT remains listed.",
+          "headHash": "4cc6474166ab4c91d1a870d82a051655b4a72dcc",
           "materialHash": "c385fa929ce8c0f71dff0ec08de1b43f033a31efdd9da51469e08702704a7b61",
-          "timestamp": "2026-05-17T11:57:34.097Z"
+          "timestamp": "2026-05-17T12:00:25.384Z"
         }
       ]
     },
