@@ -99,7 +99,37 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "发布维护者阅读 README 的 Desktop binary packaging 小节时，能复制 host smoke 和三平台 release 命令，并看到 pkg 已废弃及后续迁移 caveat。",
+      "files": {
+        "modify": [
+          "README.md"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-desktop-package.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "README 记录 host 打包、host smoke、三平台 release 输出路径和桌面端携带方式。",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "README 明确 host smoke 与 cross-platform release targets 的区别，避免把环境限制误认为代码失败。",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "README 必须说明 Vercel pkg 5.8.1 已废弃，不把它包装成长期最终方案。",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
