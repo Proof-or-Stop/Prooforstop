@@ -18,6 +18,94 @@
         "test": [
           "packages/main/src/tasks/evidence-state-gate-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "legacy finding (critical, open, no evidenceState field) -> gate blocks REVIEW->TEST; WHY: backward compat guarantee that missing evidenceState is treated as verified",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "reviewer finding_add with critical severity (no explicit evidenceState) -> defaults to verified -> gate blocks REVIEW->TEST; WHY: confirm new findings keep existing gate behavior",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "reviewer finding_add with critical severity + explicit evidenceState=suspected + uncertaintyReason provided -> gate does NOT block REVIEW->TEST, finding_list shows it in advisory/attention section; WHY: core value proposition of the story",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "finding with evidenceState=verified + severity=critical + status=resolved -> gate does NOT block; WHY: resolved findings regardless of evidenceState must not block",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "finding with evidenceState=disproven + severity=critical + status=open -> gate does NOT block; WHY: disproven findings must never block even when still open",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "finding_list output includes evidenceState field for every finding (verified/suspected/disproven/absent shows as legacy); WHY: observability requirement from userSees",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "finding_add with explicit evidenceState=suspected but missing uncertaintyReason -> handler throws clear error, finding not written; WHY: prevent abusing suspected as gate-bypass button without justification",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "finding with evidenceState=verified + severity=high + status=dismissed -> gate does NOT block; WHY: dismissed overrides severity regardless of evidenceState",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "finding with evidenceState=suspected + severity=medium + status=open -> gate does NOT block even in Round 1; WHY: suspected medium is doubly non-blocking (suspected + not critical/high)",
+            "type": "logic",
+            "priority": "should"
+          },
+          {
+            "desc": "finding_add with evidenceState=disproven but missing disprovenEvidence summary -> handler rejects; WHY: constraint requires disproven must carry counter-evidence",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "mix of legacy findings (no evidenceState) + new findings (with evidenceState) in same story -> gate correctly evaluates each independently; WHY: migration coexistence",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "finding_add with invalid evidenceState value (e.g. confirmed) -> Zod rejects + handler runtime rejects; WHY: enum hardening per Handler coding convention",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "agent sets all critical findings to suspected with minimal 1-char uncertaintyReason to bypass gate -> handler enforces uncertaintyReason minimum length (>=10 chars); WHY: prevent trivial reason as gate bypass",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "agent directly edits findings.json to remove evidenceState from a verified finding -> gate re-reads from disk treats missing field as verified (legacy compat), still blocks; WHY: file tampering must not open escape hatch",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "agent calls finding_add with evidenceState=suspected on a finding that was previously verified (downgrade attack) -> handler rejects downgrade without structured justification; WHY: prevent weaponizing state transitions",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "concurrent finding_add: two findings same story, one verified critical + one suspected critical -> gate blocks on the verified one only; WHY: partial suspected must not mask real blockers",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
