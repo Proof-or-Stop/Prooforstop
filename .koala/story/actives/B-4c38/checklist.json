@@ -7,9 +7,91 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-05-17T03:43:24.440Z",
+      "userSees": "User sees: \"DONE main merge lock is held by another Koala operation; story phase was not changed. Retry after the active DONE merge finishes.\" The story remains TEST/pre-DONE.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-advance.ts",
+          "packages/main/src/handlers/done-effects.ts",
+          "packages/main/src/core/mkdir-lock.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Hold .koala/runtime/done-main-merge.lock and run story_advance DONE for a TEST story -> command fails before checkMainDivergence/autoSyncMain and before phase=DONE; story remains TEST; output includes retry hint",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Normal uncontended DONE still succeeds and removes lock after merge/worktree/branch cleanup",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Stale done-main-merge lock older than stale threshold is reclaimed and DONE can proceed",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If lock is acquired only after checkMainDivergence/autoSyncMain or inside applyDoneMergeEffects, contention test must fail because main/phase can mutate; smoke catches this regression",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "fresh run after F-006 fix: live DONE main merge lock refusal occurs before phase=DONE and story remains TEST",
+          "headHash": "4c4d190e2bb725c2603ebd407002b11e7a3219ff",
+          "materialHash": "9f547495753308495ba4c0555acb0611f4a0820601ec27ead93bc0e8c16107db",
+          "timestamp": "2026-05-17T04:10:16.167Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "fresh run after F-006 fix: stale done-main-merge.lock is reclaimed and DONE can proceed",
+          "headHash": "4c4d190e2bb725c2603ebd407002b11e7a3219ff",
+          "materialHash": "9f547495753308495ba4c0555acb0611f4a0820601ec27ead93bc0e8c16107db",
+          "timestamp": "2026-05-17T04:10:16.167Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "fresh run after F-006 fix: normal uncontended DONE path succeeds and releases lock after merge cleanup branch delete",
+          "headHash": "4c4d190e2bb725c2603ebd407002b11e7a3219ff",
+          "materialHash": "9f547495753308495ba4c0555acb0611f4a0820601ec27ead93bc0e8c16107db",
+          "timestamp": "2026-05-17T04:10:16.167Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "fresh run after F-006 fix: smoke proves lock acquisition precedes main divergence autoSync and phase mutation",
+          "headHash": "4c4d190e2bb725c2603ebd407002b11e7a3219ff",
+          "materialHash": "9f547495753308495ba4c0555acb0611f4a0820601ec27ead93bc0e8c16107db",
+          "timestamp": "2026-05-17T04:10:16.167Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -18,9 +100,91 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-05-17T04:02:04.145Z",
+      "userSees": "User sees in `koala doctor`: \"Partial-DONE stories: B-xxxx branch=story/B-xxxx worktree=.worktrees/B-xxxx mainContainsBranch=false mergeTree=clean next=koala done_recover --storyId=B-xxxx\"",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/doctor.ts"
+        ],
+        "create": [
+          "packages/main/src/core/partial-done-recovery.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/worktree-repair-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Create a synthetic phase=DONE story with story branch not merged and worktree still present -> koala doctor --format=json reports it under partialDone with storyId/branch/worktree/mergeTree status",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "koala doctor text output for the same state includes done_recover --storyId=<id>",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "DONE story whose branch is already merged but worktree directory remains is reported as terminal worktree cleanup issue, not partial-DONE",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Non-DONE active story with branch/worktree residue is not reported as partial-DONE",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "F-006 regression: main DONE plus branch-local TEST is not classified as partial-DONE and done_recover refuses without deleting branch/worktree",
+          "headHash": "4c4d190e2bb725c2603ebd407002b11e7a3219ff",
+          "materialHash": "9f547495753308495ba4c0555acb0611f4a0820601ec27ead93bc0e8c16107db",
+          "timestamp": "2026-05-17T04:10:16.167Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "fresh run after F-006 fix: doctor JSON reports branch-local DONE partial-DONE with storyId branch worktree and mergeTree status",
+          "headHash": "4c4d190e2bb725c2603ebd407002b11e7a3219ff",
+          "materialHash": "9f547495753308495ba4c0555acb0611f4a0820601ec27ead93bc0e8c16107db",
+          "timestamp": "2026-05-17T04:10:16.167Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "fresh run after F-006 fix: doctor text output includes Partial-DONE scan and done_recover command",
+          "headHash": "4c4d190e2bb725c2603ebd407002b11e7a3219ff",
+          "materialHash": "9f547495753308495ba4c0555acb0611f4a0820601ec27ead93bc0e8c16107db",
+          "timestamp": "2026-05-17T04:10:16.167Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "fresh run after F-006 fix: terminal DONE residue remains a worktree cleanup issue and not partial-DONE",
+          "headHash": "4c4d190e2bb725c2603ebd407002b11e7a3219ff",
+          "materialHash": "9f547495753308495ba4c0555acb0611f4a0820601ec27ead93bc0e8c16107db",
+          "timestamp": "2026-05-17T04:10:16.167Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -30,18 +194,204 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-05-17T04:02:08.556Z",
+      "userSees": "User sees: \"✓ preflight passed\", \"✓ merged story/B-xxxx into main\", \"✓ worktree removed\", \"✓ branch story/B-xxxx deleted\". Unsafe states print \"refusing done_recover: <reason>\" before mutation.",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/command-policy.ts"
+        ],
+        "create": [
+          "packages/main/src/handlers/done-recover.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/worktree-repair-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Safe partial-DONE fixture -> koala done_recover --storyId=<id> merges branch into main, removes worktree, deletes branch, and reports each step",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "After done_recover, git worktree list has no story worktree and git branch --list story/<id> is empty",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "main has unrelated dirty files -> done_recover refuses before mutation with dirty-main message",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "merge-tree conflict -> done_recover refuses before mutation with merge-tree/conflict message",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "storyId branch mismatch or missing branch/worktree -> done_recover refuses and does not delete unrelated branch/worktree",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "F-006 regression: done_recover refuses when story branch metadata is not DONE, preserving the non-DONE branch and worktree",
+          "headHash": "4c4d190e2bb725c2603ebd407002b11e7a3219ff",
+          "materialHash": "9f547495753308495ba4c0555acb0611f4a0820601ec27ead93bc0e8c16107db",
+          "timestamp": "2026-05-17T04:10:16.167Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "fresh run after F-006 fix: safe partial-DONE fixture recovers by merging story branch into main removing worktree and deleting branch",
+          "headHash": "4c4d190e2bb725c2603ebd407002b11e7a3219ff",
+          "materialHash": "9f547495753308495ba4c0555acb0611f4a0820601ec27ead93bc0e8c16107db",
+          "timestamp": "2026-05-17T04:10:16.167Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "fresh run after F-006 fix: after done_recover no story worktree appears in git worktree list and story branch is gone",
+          "headHash": "4c4d190e2bb725c2603ebd407002b11e7a3219ff",
+          "materialHash": "9f547495753308495ba4c0555acb0611f4a0820601ec27ead93bc0e8c16107db",
+          "timestamp": "2026-05-17T04:10:16.167Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "fresh run after F-006 fix: done_recover refuses dirty main before mutation and leaves partial-DONE state untouched",
+          "headHash": "4c4d190e2bb725c2603ebd407002b11e7a3219ff",
+          "materialHash": "9f547495753308495ba4c0555acb0611f4a0820601ec27ead93bc0e8c16107db",
+          "timestamp": "2026-05-17T04:10:16.167Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "fresh run after F-006 fix: merge-tree conflict fixture reports mergeTreeClean=false and done_recover refuses before mutation",
+          "headHash": "4c4d190e2bb725c2603ebd407002b11e7a3219ff",
+          "materialHash": "9f547495753308495ba4c0555acb0611f4a0820601ec27ead93bc0e8c16107db",
+          "timestamp": "2026-05-17T04:10:16.167Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Expose operator-visible proof for concurrent DONE and partial-DONE recovery",
       "context": "Turn the regression work into an operator-visible capability: a maintainer can run the documented Koala command/smoke path and see that concurrent DONE contention fails before phase=DONE is written, and that a simulated partial-DONE story is detected with a recovery command that completes merge/worktree/branch cleanup without handwritten git rescue. The underlying tests belong in verificationIntent/evidence, but the checklist item is the visible proof that operators no longer have to manually reconstruct the recovery sequence.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
-      "userSees": "Operator can run the documented verification/recovery path and see clear output: concurrent DONE lock contention is refused before phase=DONE, partial-DONE is reported with storyId/branch/worktree/main status, and recovery completes merge + worktree removal + branch deletion."
+      "endTime": "2026-05-17T03:43:25.735Z",
+      "userSees": "User sees the smoke transcript lines: \"lock contention refused before DONE\", \"partial-DONE detected\", \"done_recover completed merge/worktree/branch cleanup\", and \"no terminal/orphan worktree residue\".",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "packages/main/src/tasks/worktree-repair-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Documented smoke command shows concurrent DONE lock contention refused before phase=DONE and partial-DONE recovery completed without handwritten git commands",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Operator-visible outputs include lock held/retry, partial-DONE detected, recovery merge completed, worktree removed, branch deleted",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "story-lifecycle.md documents doctor partial-DONE detection and koala done_recover as the preferred recovery path",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Recovery smoke leaves no terminal/orphan worktree residue after repair",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If tests only assert internals without checking operator output, coverage reviewer should flag missing user-visible evidence",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke && npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "fresh run after F-006 fix: smoke transcript proves lock contention refusal and partial-DONE recovery without handwritten git",
+          "headHash": "4c4d190e2bb725c2603ebd407002b11e7a3219ff",
+          "materialHash": "9f547495753308495ba4c0555acb0611f4a0820601ec27ead93bc0e8c16107db",
+          "timestamp": "2026-05-17T04:10:16.167Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "docs_check",
+          "command": "rg -n \"done_recover|Partial-DONE|done-main-merge.lock|clean story worktree\" docs/requirements/decisions/story-lifecycle.md",
+          "result": "pass",
+          "note": "story-lifecycle.md documents DONE lock, partial-DONE detection, done_recover using the same lock, and clean story worktree requirement",
+          "headHash": "4c4d190e2bb725c2603ebd407002b11e7a3219ff",
+          "materialHash": "9f547495753308495ba4c0555acb0611f4a0820601ec27ead93bc0e8c16107db",
+          "timestamp": "2026-05-17T04:10:16.167Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke && npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "fresh run after F-006 fix: operator-visible outputs include lock held retry partial-DONE detected recovery merge worktree removal and branch deletion assertions",
+          "headHash": "4c4d190e2bb725c2603ebd407002b11e7a3219ff",
+          "materialHash": "9f547495753308495ba4c0555acb0611f4a0820601ec27ead93bc0e8c16107db",
+          "timestamp": "2026-05-17T04:10:16.167Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "fresh run after F-006 fix: after done_recover doctor JSON reports partialDone.needsRecovery=false and worktrees.needsRepair=false",
+          "headHash": "4c4d190e2bb725c2603ebd407002b11e7a3219ff",
+          "materialHash": "9f547495753308495ba4c0555acb0611f4a0820601ec27ead93bc0e8c16107db",
+          "timestamp": "2026-05-17T04:10:16.167Z"
+        }
+      ]
     }
   ]
 }

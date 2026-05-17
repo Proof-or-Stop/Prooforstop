@@ -4,7 +4,7 @@
   "title": "Serialize DONE main merges and add partial-DONE recovery",
   "description": "Fix the Koala lifecycle framework bug observed during B-9027: concurrent DONE operations can race while merging story branches into main, leaving a partial-DONE state where story metadata is DONE but the branch/worktree cleanup remains incomplete. Add a main-merge lock around the DONE critical section and provide a mechanical recovery path for partial-DONE stories.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "done-merge",
@@ -22,7 +22,7 @@
   ],
   "createdAt": "2026-05-17T03:27:44.541Z",
   "startedAt": "2026-05-17T03:27:44.541Z",
-  "endedAt": null,
+  "endedAt": "2026-05-17T04:10:32.600Z",
   "events": [
     {
       "phase": "INIT",
@@ -39,11 +39,95 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-05-17T03:29:41.178Z",
+      "branch": "story/B-4c38",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-17T03:37:02.198Z",
+      "branch": "story/B-4c38",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-17T03:45:37.301Z",
+      "branch": "story/B-4c38",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-17T03:49:28.471Z",
+      "branch": "story/B-4c38",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-17T03:51:16.697Z",
+      "branch": "story/B-4c38",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-17T03:54:59.297Z",
+      "branch": "story/B-4c38",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-17T03:55:23.642Z",
+      "branch": "story/B-4c38",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-17T04:00:39.350Z",
+      "branch": "story/B-4c38",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-17T04:03:17.500Z",
+      "branch": "story/B-4c38",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-05-17T04:06:32.601Z",
+      "branch": "story/B-4c38",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-05-17T04:10:32.600Z",
+      "branch": "story/B-4c38",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-4c38",
-    "branch": "story/B-4c38",
-    "createdAt": "2026-05-17T03:29:20.202Z"
-  }
+  "currentReviewRound": "2026-05-17T04:03:17.500Z"
 }

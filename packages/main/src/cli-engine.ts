@@ -492,6 +492,9 @@ export const MAIN_TOOLS: ToolDef[] = [
     limit: z.number().optional().describe('最多读取条数（默认 1000）'),
     repair: z.boolean().optional().describe('清理 DONE/DISCARDED terminal worktree 注册项、孤儿目录与 prunable 元数据'),
   }},
+  { name: 'done_recover', description: '恢复 phase 已 DONE 但 story 分支尚未合并 main 的 partial-DONE story', schema: {
+    storyId: z.string().describe('要恢复的 Story ID'),
+  }},
   { name: 'verify_codex', description: '验证 Codex adapter 资产、入口 heartbeat 与硬证据', schema: {
     json: z.boolean().optional().describe('结构化 JSON 输出'),
     storyId: z.string().optional().describe('可选 Story ID；缺省从 story/* 分支推断并记录 process-event evidence'),

@@ -112,6 +112,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'story_advance', // 任何阶段都可以推进（cwd 门禁负责保护）
     'status',        // 全局：项目全貌（story 进度 + 代码验证）
     'doctor',        // 全局：health 巡检，任何阶段都可以查
+    'done_recover',  // 全局：显式恢复 partial-DONE（先检查 main clean / merge-tree）
     'check',         // 全局：Koala 管理资产/模板漂移检查；--apply/--upgrade 显式同步安全项
     'test_list',     // 全局：读取测试证据快照，TEST/DEV 排障都需要
     'bug_list',      // 全局：读取 bug 状态，便于复核 dashboard

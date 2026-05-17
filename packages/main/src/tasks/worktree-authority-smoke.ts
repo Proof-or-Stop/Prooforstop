@@ -2,7 +2,7 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -1009,6 +1009,84 @@ function assertWorktreeCleanupFailureMarksDoneMergedAndThrows(): void {
   }
 }
 
+/**
+ * B-4c38 CHK-001 — a live DONE main-merge lock blocks before any phase=DONE
+ * mutation. This is the regression for the B-9027 partial-DONE incident:
+ * contention must be surfaced to the operator while the story is still TEST.
+ */
+function assertDoneMainMergeLiveLockFailsBeforeMutation(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-done-main-lock-live-'));
+  try {
+    const storyId = 'B-lock-live';
+    const { worktreePath } = buildDoneReadyStory(root, storyId);
+    const lockDir = join(root, '.koala', 'runtime', 'done-main-merge.lock');
+    mkdirSync(lockDir, { recursive: true });
+
+    const output = runKoalaFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    assert.match(output, /DONE main merge lock is held/, 'live DONE lock must produce an operator-visible lock message');
+    assert.equal(new StoryStore(worktreePath).readStory(storyId).phase, 'TEST', 'live DONE lock must leave worktree story TEST');
+    assert.equal(new StoryStore(root).readStory(storyId).phase, 'TEST', 'live DONE lock must leave main story TEST');
+    assert.notEqual(git(root, ['branch', '--list', `story/${storyId}`]), '', 'live DONE lock must not delete the story branch');
+    assert.match(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`story/${storyId}`), 'live DONE lock must not clean the worktree');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertDoneMainMergeLockBlocksBeforeAutoSyncMain(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-done-main-lock-before-sync-'));
+  try {
+    const storyId = 'B-lock-before-sync';
+    const { worktreePath } = buildDoneReadyStory(root, storyId);
+    writeFileSync(join(root, 'main-only-after-story-branch.txt'), 'main commit that lock must not auto-sync\n');
+    git(root, ['add', 'main-only-after-story-branch.txt']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'main moves after story branch']);
+    const mainHeadAfterBranch = git(root, ['rev-parse', 'main']);
+    const lockDir = join(root, '.koala', 'runtime', 'done-main-merge.lock');
+    mkdirSync(lockDir, { recursive: true });
+
+    const output = runKoalaFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    assert.match(output, /DONE main merge lock is held/, 'live DONE lock must fail before autoSyncMain');
+    assert.equal(new StoryStore(worktreePath).readStory(storyId).phase, 'TEST', 'lock-before-sync failure must leave story TEST');
+    assert.equal(
+      gitSucceeds(root, ['merge-base', '--is-ancestor', mainHeadAfterBranch, `story/${storyId}`]),
+      false,
+      'DONE lock must be acquired before autoSyncMain can merge main into the story branch',
+    );
+    assert.equal(
+      existsSync(join(worktreePath, 'main-only-after-story-branch.txt')),
+      false,
+      'DONE lock must fail before autoSyncMain can materialize main-only files in the worktree',
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+/**
+ * B-4c38 CHK-001 — stale DONE locks are reclaimed rather than deadlocking all
+ * future DONE transitions. The stale timestamp is older than the production
+ * stale threshold, so story_advance should reclaim it and complete normally.
+ */
+function assertDoneMainMergeStaleLockIsReclaimed(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-done-main-lock-stale-'));
+  try {
+    const storyId = 'B-lock-stale';
+    const { worktreePath } = buildDoneReadyStory(root, storyId);
+    const lockDir = join(root, '.koala', 'runtime', 'done-main-merge.lock');
+    mkdirSync(lockDir, { recursive: true });
+    const old = new Date(Date.now() - 5 * 60 * 1000);
+    utimesSync(lockDir, old, old);
+
+    const output = runKoalaFromCwd(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    assert.match(output, new RegExp(`Story ${storyId} advanced to DONE`), 'stale DONE lock should be reclaimed and allow DONE');
+    assert.equal(new StoryStore(root).readStory(storyId).phase, 'DONE', 'stale lock recovery should still complete DONE');
+    assert.equal(existsSync(lockDir), false, 'DONE lock directory should be released after successful DONE');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 assertRecordedWorktreeRejectsMainCwd();
 assertInitCheckChecklistMutationRejectsMainCwd();
 assertTerminalStoriesDoNotRedirect();
@@ -1025,5 +1103,8 @@ assertStrayFileOffenderKeepsStoryTest();
 assertMergeConflictPreMergeGateKeepsStoryTest();
 assertRealMergeFailureMarksDoneAndThrows();
 assertWorktreeCleanupFailureMarksDoneMergedAndThrows();
+assertDoneMainMergeLiveLockFailsBeforeMutation();
+assertDoneMainMergeLockBlocksBeforeAutoSyncMain();
+assertDoneMainMergeStaleLockIsReclaimed();
 
 console.log('✓ worktree authority smoke passed');
