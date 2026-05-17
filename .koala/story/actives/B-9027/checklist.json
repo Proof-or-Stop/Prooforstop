@@ -140,7 +140,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "assertDoneOracleGateFailureKeepsStoryTest: 缺 delivery-check evidence 时 runDoneOracleGate 抛 Cannot enter DONE，断言两 store 中 story 仍 TEST、分支/worktree 未动",
+          "headHash": "5e8f77570ebaeb8c71ad9d41f4e4a37ccea0cd07",
+          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
+          "timestamp": "2026-05-17T02:54:02.811Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
