@@ -1,0 +1,186 @@
+{
+  "command": "koala validate --story=B-c600 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.3 test\",\"  > npm run test:e2e\",\"  > koala@0.3.3 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 9/9 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via manual_transcript — 在已构建源码后运行 host 打包命令会生成当前平台单文件 Koala 可执行程序。\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via manual_transcript — dist/desktop 目录可重复生成，旧产物或缺目录不会导致命令失败。\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via manual_transcript — 打包入口必须是完整 bootstrap，不能退化成 packages/main/dist/cli.js 的 core-only CLI。\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via manual_transcript — smoke 脚本会直接运行生成的二进制并验证 `status --help` 成功输出 Koala 帮助。\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via manual_transcript — 当二进制尚未生成时，smoke 脚本给出明确的先运行 package 命令提示，而不是误报通过。\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via manual_transcript — 若二进制启动失败、缺少 aux_doc_list 或输出 bootstrap 错误，smoke 脚本必须非零退出。\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via docs_check — README 记录 host 打包、host smoke、三平台 release 输出路径和桌面端携带方式。\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via docs_check — README 明确 host smoke 与 cross-platform release targets 的区别，避免把环境限制误认为代码失败。\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via docs_check — README 必须说明 Vercel pkg 5.8.1 已废弃，不把它包装成长期最终方案。\"],\"warnings\":[],\"timestamp\":\"2026-05-17T23:59:29.331Z\",\"headSha\":\"e7cd2d6b37f4e9d347e89b851c8bedd41a12e640\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.3 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.3 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":3021}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":9,\"reason\":\"verificationIntent entries present (9)\"},\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":9,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"在已构建源码后运行 host 打包命令会生成当前平台单文件 Koala 可执行程序。\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"npm run package:desktop:host && npm run package:desktop:release\",\"result\":\"pass\",\"note\":\"After the B-c600:F-001 fix, host packaging rebuilt dist/desktop/koala-macos-arm64 and release packaging rebuilt macos-x64, macos-arm64, linux-x64, and win-x64 executables.\",\"headHash\":\"e7b867ed7d83c12a8f6e75058bb15396b4685ba9\",\"materialHash\":\"9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075\",\"timestamp\":\"2026-05-17T23:55:41.150Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"dist/desktop 目录可重复生成，旧产物或缺目录不会导致命令失败。\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"npm run package:desktop:host\",\"result\":\"pass\",\"note\":\"Reran host packaging with existing dist/desktop artifacts present; command rebuilt packages and overwrote the host binary without failing.\",\"headHash\":\"e7b867ed7d83c12a8f6e75058bb15396b4685ba9\",\"materialHash\":\"9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075\",\"timestamp\":\"2026-05-17T23:55:41.150Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"打包入口必须是完整 bootstrap，不能退化成 packages/main/dist/cli.js 的 core-only CLI。\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"npm run test:desktop-package\",\"result\":\"pass\",\"note\":\"The packaged binary was executed directly; smoke checked core help, aux_doc_list help, and packaged verify_codex, proving the artifact uses the full bootstrap rather than core-only packages/main/dist/cli.js.\",\"headHash\":\"e7b867ed7d83c12a8f6e75058bb15396b4685ba9\",\"materialHash\":\"9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075\",\"timestamp\":\"2026-05-17T23:55:41.150Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"smoke 脚本会直接运行生成的二进制并验证 `status --help` 成功输出 Koala 帮助。\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"npm run test:desktop-package\",\"result\":\"pass\",\"note\":\"Verifier now executes the packaged binary under an isolated PATH; it checked core help, aux_doc_list help, packaged verify_codex, and printed packaged executable smoke passed.\",\"headHash\":\"1ff8a70b1b244801b367c0c4cc22e8e1a3065fdc\",\"materialHash\":\"9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075\",\"timestamp\":\"2026-05-17T23:55:12.068Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"当二进制尚未生成时，smoke 脚本给出明确的先运行 package 命令提示，而不是误报通过。\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node scripts/verify-desktop-package.mjs /tmp/koala-missing-binary-does-not-exist\",\"result\":\"pass\",\"note\":\"Negative smoke intentionally exits non-zero with Desktop Koala binary is missing and the recovery hint to run npm run package:desktop:host.\",\"headHash\":\"1ff8a70b1b244801b367c0c4cc22e8e1a3065fdc\",\"materialHash\":\"9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075\",\"timestamp\":\"2026-05-17T23:55:12.124Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"若二进制启动失败、缺少 aux_doc_list 或输出 bootstrap 错误，smoke 脚本必须非零退出。\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"env -i HOME=$HOME TMPDIR=/tmp PATH=/usr/bin:/bin dist/desktop/koala-macos-arm64 verify_codex && npm run test:codex-assets\",\"result\":\"pass\",\"note\":\"Packaged verify_codex passes without global koala or Node shims in PATH; global fallback heartbeat is a non-hard packaged-runtime warning and codex asset regression coverage passes.\",\"headHash\":\"1ff8a70b1b244801b367c0c4cc22e8e1a3065fdc\",\"materialHash\":\"9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075\",\"timestamp\":\"2026-05-17T23:55:12.177Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"README 记录 host 打包、host smoke、三平台 release 输出路径和桌面端携带方式。\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"docs_check\",\"command\":\"rg -n \\\"Desktop binary packaging|package:desktop:host|test:desktop-package|package:desktop:release|dist/desktop/koala\\\" README.md\",\"result\":\"pass\",\"note\":\"README contains the desktop packaging section, host package command, host smoke command, release command, and artifact path.\",\"headHash\":\"e7b867ed7d83c12a8f6e75058bb15396b4685ba9\",\"materialHash\":\"9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075\",\"timestamp\":\"2026-05-17T23:55:41.150Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"README 明确 host smoke 与 cross-platform release targets 的区别，避免把环境限制误认为代码失败。\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"docs_check\",\"command\":\"rg -n \\\"host binary|Release packaging for macOS, Linux, and Windows x64 targets\\\" README.md\",\"result\":\"pass\",\"note\":\"README distinguishes the host binary path from the multi-target release command so local environment limits are not confused with code failure.\",\"headHash\":\"e7b867ed7d83c12a8f6e75058bb15396b4685ba9\",\"materialHash\":\"9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075\",\"timestamp\":\"2026-05-17T23:55:41.150Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"README 必须说明 Vercel pkg 5.8.1 已废弃，不把它包装成长期最终方案。\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"docs_check\",\"command\":\"rg -n \\\"upstream Vercel project is archived|pkg 5\\\\.8\\\\.1|Node SEA|actively maintained `pkg` fork\\\" README.md\",\"result\":\"pass\",\"note\":\"README explicitly labels Vercel pkg as an early distribution shortcut, states the project is archived and 5.8.1 was its last release, and points to future migration options.\",\"headHash\":\"e7b867ed7d83c12a8f6e75058bb15396b4685ba9\",\"materialHash\":\"9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075\",\"timestamp\":\"2026-05-17T23:55:41.150Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-05-17T23:59:29.860Z",
+  "headHash": "e7cd2d6b37f4e9d347e89b851c8bedd41a12e640",
+  "verificationCoverage": {
+    "total": 9,
+    "required": 9,
+    "covered": 9,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "在已构建源码后运行 host 打包命令会生成当前平台单文件 Koala 可执行程序。",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm run package:desktop:host && npm run package:desktop:release",
+          "result": "pass",
+          "note": "After the B-c600:F-001 fix, host packaging rebuilt dist/desktop/koala-macos-arm64 and release packaging rebuilt macos-x64, macos-arm64, linux-x64, and win-x64 executables.",
+          "headHash": "e7b867ed7d83c12a8f6e75058bb15396b4685ba9",
+          "materialHash": "9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075",
+          "timestamp": "2026-05-17T23:55:41.150Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "dist/desktop 目录可重复生成，旧产物或缺目录不会导致命令失败。",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm run package:desktop:host",
+          "result": "pass",
+          "note": "Reran host packaging with existing dist/desktop artifacts present; command rebuilt packages and overwrote the host binary without failing.",
+          "headHash": "e7b867ed7d83c12a8f6e75058bb15396b4685ba9",
+          "materialHash": "9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075",
+          "timestamp": "2026-05-17T23:55:41.150Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "打包入口必须是完整 bootstrap，不能退化成 packages/main/dist/cli.js 的 core-only CLI。",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm run test:desktop-package",
+          "result": "pass",
+          "note": "The packaged binary was executed directly; smoke checked core help, aux_doc_list help, and packaged verify_codex, proving the artifact uses the full bootstrap rather than core-only packages/main/dist/cli.js.",
+          "headHash": "e7b867ed7d83c12a8f6e75058bb15396b4685ba9",
+          "materialHash": "9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075",
+          "timestamp": "2026-05-17T23:55:41.150Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "smoke 脚本会直接运行生成的二进制并验证 `status --help` 成功输出 Koala 帮助。",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm run test:desktop-package",
+          "result": "pass",
+          "note": "Verifier now executes the packaged binary under an isolated PATH; it checked core help, aux_doc_list help, packaged verify_codex, and printed packaged executable smoke passed.",
+          "headHash": "1ff8a70b1b244801b367c0c4cc22e8e1a3065fdc",
+          "materialHash": "9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075",
+          "timestamp": "2026-05-17T23:55:12.068Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "当二进制尚未生成时，smoke 脚本给出明确的先运行 package 命令提示，而不是误报通过。",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-desktop-package.mjs /tmp/koala-missing-binary-does-not-exist",
+          "result": "pass",
+          "note": "Negative smoke intentionally exits non-zero with Desktop Koala binary is missing and the recovery hint to run npm run package:desktop:host.",
+          "headHash": "1ff8a70b1b244801b367c0c4cc22e8e1a3065fdc",
+          "materialHash": "9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075",
+          "timestamp": "2026-05-17T23:55:12.124Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "若二进制启动失败、缺少 aux_doc_list 或输出 bootstrap 错误，smoke 脚本必须非零退出。",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "env -i HOME=$HOME TMPDIR=/tmp PATH=/usr/bin:/bin dist/desktop/koala-macos-arm64 verify_codex && npm run test:codex-assets",
+          "result": "pass",
+          "note": "Packaged verify_codex passes without global koala or Node shims in PATH; global fallback heartbeat is a non-hard packaged-runtime warning and codex asset regression coverage passes.",
+          "headHash": "1ff8a70b1b244801b367c0c4cc22e8e1a3065fdc",
+          "materialHash": "9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075",
+          "timestamp": "2026-05-17T23:55:12.177Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "README 记录 host 打包、host smoke、三平台 release 输出路径和桌面端携带方式。",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Desktop binary packaging|package:desktop:host|test:desktop-package|package:desktop:release|dist/desktop/koala\" README.md",
+          "result": "pass",
+          "note": "README contains the desktop packaging section, host package command, host smoke command, release command, and artifact path.",
+          "headHash": "e7b867ed7d83c12a8f6e75058bb15396b4685ba9",
+          "materialHash": "9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075",
+          "timestamp": "2026-05-17T23:55:41.150Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "README 明确 host smoke 与 cross-platform release targets 的区别，避免把环境限制误认为代码失败。",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"host binary|Release packaging for macOS, Linux, and Windows x64 targets\" README.md",
+          "result": "pass",
+          "note": "README distinguishes the host binary path from the multi-target release command so local environment limits are not confused with code failure.",
+          "headHash": "e7b867ed7d83c12a8f6e75058bb15396b4685ba9",
+          "materialHash": "9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075",
+          "timestamp": "2026-05-17T23:55:41.150Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "README 必须说明 Vercel pkg 5.8.1 已废弃，不把它包装成长期最终方案。",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"upstream Vercel project is archived|pkg 5\\.8\\.1|Node SEA|actively maintained `pkg` fork\" README.md",
+          "result": "pass",
+          "note": "README explicitly labels Vercel pkg as an early distribution shortcut, states the project is archived and 5.8.1 was its last release, and points to future migration options.",
+          "headHash": "e7b867ed7d83c12a8f6e75058bb15396b4685ba9",
+          "materialHash": "9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075",
+          "timestamp": "2026-05-17T23:55:41.150Z"
+        }
+      }
+    ]
+  }
+}
