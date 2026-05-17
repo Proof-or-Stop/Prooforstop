@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-17T13:19:28.920Z",
-      "endTime": null,
+      "endTime": "2026-05-17T13:21:54.464Z",
       "userSees": "DEV 后全仓 `rg \"actor\\.stop\"` 只在 transition-orchestrator.ts 命中；phase-gates.ts / done-effects.ts 不再调 actor.stop()。orchestrator 是 actor 生命周期与 DONE merge lock 的唯一 owner。",
       "files": {
         "modify": [
