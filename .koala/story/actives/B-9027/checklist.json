@@ -207,6 +207,17 @@
           "headHash": "4a34c735a8bb1d462d2fed4eabccfa773b5a0617",
           "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
           "timestamp": "2026-05-17T02:54:03.905Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "assertRealMergeFailureMarksDoneAndThrows 逐条断言 post-merge 失败消息含 cd \"/git merge story//git worktree remove --force/git branch -d story/ 四行手动收尾指引，文案与 done-effects.ts 模板一致",
+          "headHash": "dac1349deeceb98e8a322ac5576f5d05461ad687",
+          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
+          "timestamp": "2026-05-17T02:54:04.121Z"
         }
       ]
     },
