@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-17T02:25:03.650Z",
       "reviewRunId": "B-fd38:RR-002",
       "_hash": "20fc6a1c560c34f6441082e99ac1efd256094c73e03384d1c88c955287ea0bd2"
+    },
+    {
+      "id": "B-fd38:RP-003",
+      "agent": "koala-review-concept",
+      "note": "本次改动删除了 AGENTS.md:185 的「Codex 官方约定」误述，替换为「Koala adapter 约定」+「不是 Codex 官方约定」的准确描述。已 grep 全仓库（.ts/.md/.json）确认：（1）旧误述「（Codex 官方约定）」已从 AGENTS.md 消除；（2）仓库内其他文件无残留该错误表述；（3）B-fd38 story metadata 中的引用均是描述本次修正内容的正当叙述，不是错误概念的残留。无 blocker。",
+      "createdAt": "2026-05-17T02:26:05.461Z",
+      "reviewRound": "2026-05-17T02:25:03.650Z",
+      "reviewRunId": "B-fd38:RR-001",
+      "_hash": "98571d6e7da8f4f625248ff368c18cf604f90fdc9f321f0fd77660ebf830b21a"
     }
   ]
 }
