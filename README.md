@@ -61,6 +61,29 @@ node packages/main/dist/cli.js validate --json
 node packages/main/dist/cli.js doctor --format=json
 ```
 
+## Desktop binary packaging
+
+Koala can be packaged as a single desktop executable with Vercel `pkg`. The
+desktop build uses a small pkg-specific entrypoint that loads the same full
+local bootstrap as `bin/koala.js`, so packaged binaries include core commands
+and utils commands such as `aux_doc_list`.
+The entrypoint exists because pkg's Node 18 snapshot loader does not reliably
+run this repo's ESM bootstrap directly from the snapshot; it stages the bundled
+bootstrap assets into a temp runtime directory first.
+
+```bash
+npm install
+npm run package:desktop:host
+npm run test:desktop-package
+```
+
+The host binary is written to `dist/desktop/koala-<platform>-<arch>`. Release
+packaging for macOS, Linux, and Windows x64 targets is available with:
+
+```bash
+npm run package:desktop:release
+```
+
 全局 `koala` 只适合作为 source-tagged heartbeat fallback；它可能滞后于当前 worktree，不应作为当前 story 的 gate/status/next-step 证据。
 
 `validate --json` 的 `commands[]` 是验证 receipt：结构化命令默认记录 argv 形式；

@@ -10,7 +10,10 @@
     "audit:silent-catches": "node scripts/audit-silent-catches.mjs",
     "build": "cd packages/main && npm run build",
     "build:lab": "npm --prefix packages/lab run build",
+    "package:desktop:host": "node scripts/package-desktop.mjs host",
+    "package:desktop:release": "node scripts/package-desktop.mjs release",
     "test": "npm run test:e2e",
+    "test:desktop-package": "node scripts/verify-desktop-package.mjs",
     "test:codex-assets": "node scripts/verify-codex-assets.mjs",
     "test:entrypoints": "node scripts/verify-entrypoints.mjs",
     "test:fail-fast-health": "node scripts/verify-fail-fast-health.mjs",
@@ -71,6 +74,13 @@
   },
   "homepage": "https://github.com/koala-agent/koala#readme",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.29.0"
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "xstate": "^5.31.1",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.19",
+    "pkg": "^5.8.1",
+    "typescript": "^5.9.3"
   }
 }
