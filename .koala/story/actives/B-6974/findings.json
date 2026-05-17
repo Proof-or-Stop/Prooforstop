@@ -15,6 +15,24 @@
       "files": [
         "packages/main/src/handlers/done-effects.ts"
       ]
+    },
+    {
+      "id": "B-6974:F-002",
+      "desc": "concept-cleanup: story-advance.ts-as-direct-coordinator 概念在 transition-effects.ts / summary.ts / flow-stability-smoke.ts 中有 7 处残留注释。F-001 fix 更新了 done-effects.ts 和 phase-gates.ts，但 (1) transition-effects.ts 行 6/8/19/25 仍称 story-advance.ts 为直接调用方（\"story-advance.ts now delegates to these functions\" / \"story-advance imports transition-effects\"），应改为 transition-orchestrator.ts；(2) summary.ts 行 242 注释 \"Used by story-advance.ts after successful DONE transition\" 应改为 transition-orchestrator.ts；(3) flow-stability-smoke.ts 行 3051/3139 注释仍称 story-advance.ts 是 DONE gate 的调用方。这 3 个文件不在 B-6974 diff 内，B-6974 漏更新。",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-05-17T15:10:33.538Z",
+      "reviewRound": "2026-05-17T15:06:45.892Z",
+      "reviewRunId": "B-6974:RR-005",
+      "_hash": "fa3c106ed39c5d53a1393502c69f652c02fabab99f3f7f27cd583dc493987feb",
+      "files": [
+        "packages/main/src/handlers/transition-effects.ts",
+        "packages/main/src/handlers/summary.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ]
     }
   ]
 }
