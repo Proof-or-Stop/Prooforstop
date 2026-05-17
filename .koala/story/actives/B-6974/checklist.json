@@ -106,6 +106,59 @@
         "test": [
           "packages/main/src/tasks/worktree-authority-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "story-advance.ts 不再包含 inline git merge / git worktree remove / actor 生命周期编排 / gate 串接代码 -> rg 搜索 git merge|git worktree remove|createStoryActor|actor\\.start|actor\\.send|actor\\.stop|runReviewToTestPreflightGate|runValidateGate|runDonePreMergeGate|applyDoneMergeEffects 的调用体（非 import/re-export）在 story-advance.ts 零命中; WHY: 证明 thin handler 不再包含 inline 协调（硬验收 #4）",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "story-advance.ts 的 story_advance 函数体只包含：参数解析 + runStoryTransition(...) 单一调用 + 返回文本格式化 -> 函数体行数显著下降（对比 365 行基线）; WHY: 证明 thin handler 是真正委托而非移注释",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "story-advance.ts 保留必要 re-export（cleanStrayWorktreeFiles / STRAY_FILE_WHITELIST / buildDoneChecklist / DoneCheckRow）-> 现有外部 import 不 break; WHY: 保持向后兼容",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "story-advance.ts 不再 import createStoryActor / getStateName / PHASE_TO_EVENT 等 transition 内部符号（这些只在 orchestrator 内部使用）-> import 语句检查确认; WHY: thin handler 不应持有它不使用的 import",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "story-advance.ts 不再 import acquireDoneMainMergeLock / detectDoneStoryWorktreeContext / assertDoneStoryBranchMatches / autoSyncMain / checkMainDivergence 等 DONE 专属符号 -> 这些全由 orchestrator 间接使用; WHY: 确认 DONE 路径的所有协调已完全委托",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "story-advance.ts 不再包含 4 段 inline advisory 计算（depsWarning / sessionWarning / baselineRiskWarning / initCheckAdvisory）的实现体 -> 这些逻辑已移入 orchestrator 或作为 orchestrator 返回结构的字段; WHY: thin handler 不应持有 advisory 计算逻辑",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "story-advance.ts 中搜索 try.*finally 块 -> 只允许 orchestrator 调用外层的必要 error handling，不允许存在 inline try/finally 管理 actor 或 lock; WHY: 对抗表面委托但实际 story-advance.ts 仍 inline 管理生命周期的假 thin",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "story-advance.ts 中搜索 if.*args.phase.*===.*DONE / if.*phase.*DONE 等 DONE 路径分支 -> 零命中（所有 phase 分支逻辑在 orchestrator 内部）; WHY: 对抗部分委托——DONE 路径仍留在 story-advance.ts 的假 thin",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "全仓 rg story-advance.ts 的所有 import 路径确认无外部模块直接引用 story-advance.ts 的内部实现符号（除 re-export 的）-> 排除隐式依赖链阻止重构; WHY: 对抗外部模块绕过 orchestrator 直接依赖 story-advance.ts 内部实现",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
       }
     },
     {
