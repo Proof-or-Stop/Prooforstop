@@ -127,6 +127,13 @@ Preferred storage:
 - main write lock: `.koala/locks/main-write.lock/`
 - command event trail: existing process-events/activity stream
 
+> Current runtime note: the existing DONE-specific merge serialization lock is
+> `.koala/runtime/done-main-merge.lock`, as documented in `story-lifecycle.md`.
+> The `.koala/locks/main-write.lock/` path above is the preferred storage for the
+> future generalized main/shared write lock. The implementation story must either
+> migrate/alias the existing DONE lock into that model or document a compatibility
+> decision and keep both decision docs synchronized.
+
 The lease file is process metadata, not product evidence. It should be visible in `session_brief` but should not count as verification evidence.
 
 ## Error UX
