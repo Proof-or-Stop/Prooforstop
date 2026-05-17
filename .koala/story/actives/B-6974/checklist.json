@@ -3,7 +3,7 @@
     {
       "id": "CHK-001",
       "title": "Introduce transition-orchestrator.ts coordinating one transition",
-      "context": "Create packages/main/src/core/transition-orchestrator.ts that organizes a single transition: read the current story, determine the event, run the gate runner (phase-gates), apply state mutation, run transition effects (transition-effects / done-effects), and return a success/failure structure. It consumes the modules extracted in Story 3a and 3b plus the existing machine / registry / done-oracle. First version migrates the coordination logic only — gate decisions and transition results stay byte-identical.",
+      "context": "Create packages/main/src/handlers/transition-orchestrator.ts, not core/, because it coordinates handler-layer gate/effect modules (phase-gates.ts / transition-effects.ts / done-effects.ts) and a core/ file importing handlers/ would invert Core/Shell layering. It owns one transition's actor lifecycle, DONE merge lock scope, state mutation/writeStory ordering, pre/post gate ordering, and effect invocation. External CLI behavior and lifecycle semantics must remain unchanged (behavior-preserving explicit orchestrator). Note runDonePreMergeGate is gate-shaped (before actor.send) while applyDoneMergeEffects is effect-shaped (after writeStory phase=DONE) — the orchestrator must respect this straddling of the actor.send boundary.",
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
@@ -25,7 +25,7 @@
     {
       "id": "CHK-003",
       "title": "Regression-prove zero CLI/semantics change and no circular imports",
-      "context": "Extend smoke/contract coverage to prove: external CLI behavior (story_advance for every transition), TEST semantics, legacy phase handling, and workflow profile are all unchanged; the new modules have clear single responsibilities with no circular imports; StoryPhase / legacy phase types are untouched. Run build + flow-stability + validation-protocol + lifecycle-registry-contract + process-fact-contract + runtime-fact-contract + worktree-authority-smoke.",
+      "context": "Extend smoke/contract coverage to prove: external CLI behavior (story_advance for every transition), TEST semantics, legacy phase handling, and workflow profile are all unchanged; the new modules have clear single responsibilities with no circular imports; StoryPhase / legacy phase types are untouched. Run build + flow-stability + validation-protocol + lifecycle-registry-contract + process-fact-contract + runtime-fact-contract + worktree-authority-smoke. Regression must prove behavior preservation while allowing internal ownership cleanup: no phase timing changes, no TEST/legacy/profile semantics changes, no circular imports, no global/shared hidden handoff.",
       "relatedDocs": [
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/testing-completeness.md"
