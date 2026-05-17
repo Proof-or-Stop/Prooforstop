@@ -64,7 +64,20 @@
             "priority": "should"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/story-advance.ts",
+          "command": "grep -nE \"'merge', branch|['worktree', 'remove']\" packages/main/src/handlers/story-advance.ts | wc -l",
+          "result": "pass",
+          "note": "story-advance.ts inline DONE merge grep 返回 0 行；assertDoneSuccessPathOutputAndOrdering 另用结构断言确认 story-advance.ts 不含 inline git merge / worktree remove 实现，只 delegate runDonePreMergeGate/applyDoneMergeEffects",
+          "headHash": "cbb3d48ebfc5de62eb64eb2aa702ea41df0796c5",
+          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
+          "timestamp": "2026-05-17T02:54:46.168Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
