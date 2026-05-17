@@ -172,7 +172,8 @@
       "files": {
         "modify": [
           "packages/main/src/tasks/worktree-authority-smoke.ts",
-          "packages/main/src/tasks/worktree-repair-smoke.ts"
+          "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "docs/requirements/decisions/story-lifecycle.md"
         ],
         "create": [],
         "test": [
@@ -190,6 +191,11 @@
           {
             "desc": "Operator-visible outputs include lock held/retry, partial-DONE detected, recovery merge completed, worktree removed, branch deleted",
             "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "story-lifecycle.md documents doctor partial-DONE detection and koala done_recover as the preferred recovery path",
+            "type": "docs",
             "priority": "must"
           }
         ],
