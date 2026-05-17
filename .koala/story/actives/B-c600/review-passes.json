@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-c600:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept pass: pkg packaging stays within the agreed early desktop binary boundary. scripts/package-desktop.mjs generates host/release pkg artifacts from a generated entrypoint that delegates to the full bin/koala.js bootstrap path, scripts/verify-desktop-package.mjs smoke-tests the produced binary and aux_doc_list bootstrap coverage, and README.md documents host vs release packaging plus pkg deprecation/future hardening caveats. No installer, signing, notarization, or auto-update scope was added. Verified with npm run test:desktop-package.",
+      "createdAt": "2026-05-17T23:23:13.659Z",
+      "reviewRound": "2026-05-17T23:20:58.140Z",
+      "reviewRunId": "B-c600:RR-002",
+      "_hash": "0f2ba398f71d7e7eeaba2f18e958c014dedee9523bea7bb7735e8e39f3df613b"
+    }
+  ]
+}
