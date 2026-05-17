@@ -12,9 +12,9 @@ import { checkConvergence } from './gap-analyze.js';
 const tmp = mkdtempSync(join(tmpdir(), 'koala-convergence-discarded-'));
 const auditStoryId = 'B-META-framework-audit';
 
-function story(storyId: string, phase: StoryPhase): StoryInfo {
+function story(storyId: string, phase: StoryPhase, options: { withWorktree?: boolean } = {}): StoryInfo {
   const now = new Date().toISOString();
-  return {
+  const info: StoryInfo = {
     storyId,
     name: storyId.toLowerCase(),
     title: `${storyId} smoke`,
@@ -27,6 +27,14 @@ function story(storyId: string, phase: StoryPhase): StoryInfo {
     endedAt: phase === 'DONE' || phase === 'DISCARDED' ? now : null,
     events: [{ phase, action: phase === 'DONE' || phase === 'DISCARDED' ? 'advance' : 'create', timestamp: now }],
   };
+  if (options.withWorktree) {
+    info.worktree = {
+      path: `.worktrees/${storyId}`,
+      branch: `story/${storyId}`,
+      createdAt: now,
+    };
+  }
+  return info;
 }
 
 function finding(id: string, severity: Finding['severity'], evidenceState?: Finding['evidenceState']): Finding {
@@ -66,15 +74,43 @@ try {
   const terminalStoryCheck = checkByName(terminalOnly, '所有 Story 完成');
   assert.equal(terminalStoryCheck?.passed, true);
   assert.doesNotMatch(terminalStoryCheck.detail, new RegExp(auditStoryId));
+  const emptyParkedBacklogCheck = checkByName(terminalOnly, 'Parked backlog');
+  assert.equal(emptyParkedBacklogCheck.passed, true);
+  assert.match(emptyParkedBacklogCheck.detail, /无 parked backlog/);
+  assert.equal(terminalOnly.converged, true);
 
-  store.writeStory('B-init', story('B-init', 'INIT'));
+  store.writeStory('B-parked', story('B-parked', 'INIT'));
 
-  const withInit = checkConvergence(tmp, store);
-  const initStoryCheck = checkByName(withInit, '所有 Story 完成');
-  assert.equal(initStoryCheck.passed, false);
-  assert.match(initStoryCheck.detail, /B-init/);
-  assert.doesNotMatch(initStoryCheck.detail, /B-discarded/);
-  assert.doesNotMatch(initStoryCheck.detail, new RegExp(auditStoryId));
+  const withParked = checkConvergence(tmp, store);
+  const parkedStoryCheck = checkByName(withParked, '所有 Story 完成');
+  assert.equal(parkedStoryCheck.passed, true);
+  assert.doesNotMatch(parkedStoryCheck.detail, /B-parked/);
+  assert.doesNotMatch(parkedStoryCheck.detail, /B-discarded/);
+  assert.doesNotMatch(parkedStoryCheck.detail, new RegExp(auditStoryId));
+  const parkedBacklogCheck = checkByName(withParked, 'Parked backlog');
+  assert.equal(parkedBacklogCheck.passed, true);
+  assert.match(parkedBacklogCheck.detail, /B-parked/);
+  assert.equal(withParked.converged, true);
+
+  store.writeStory('B-active-worktree', story('B-active-worktree', 'PLAN', { withWorktree: true }));
+
+  const withActiveWorktree = checkConvergence(tmp, store);
+  const activeStoryCheck = checkByName(withActiveWorktree, '所有 Story 完成');
+  assert.equal(activeStoryCheck.passed, false);
+  assert.match(activeStoryCheck.detail, /B-active-worktree/);
+  assert.doesNotMatch(activeStoryCheck.detail, /B-parked/);
+  const activeParkedBacklogCheck = checkByName(withActiveWorktree, 'Parked backlog');
+  assert.equal(activeParkedBacklogCheck.passed, true);
+  assert.match(activeParkedBacklogCheck.detail, /B-parked/);
+
+  store.writeStory('B-init-worktree', story('B-init-worktree', 'INIT', { withWorktree: true }));
+
+  const withInitWorktree = checkConvergence(tmp, store);
+  const initWorktreeStoryCheck = checkByName(withInitWorktree, '所有 Story 完成');
+  assert.equal(initWorktreeStoryCheck.passed, false);
+  assert.match(initWorktreeStoryCheck.detail, /B-active-worktree/);
+  assert.match(initWorktreeStoryCheck.detail, /B-init-worktree/);
+  assert.doesNotMatch(initWorktreeStoryCheck.detail, /B-parked/);
 
   store.writeFindings(auditStoryId, {
     findings: [

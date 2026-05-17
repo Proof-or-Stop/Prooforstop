@@ -15,7 +15,7 @@ import { StoryStore } from '../core/store.js';
 import { join, relative } from 'path';
 import { loadConfig } from '../core/config.js';
 import { isEvidenceStateBlocking } from '../core/advisory.js';
-import type { Finding, StoryPhase } from '../core/types.js';
+import type { Finding, StoryInfo, StoryPhase } from '../core/types.js';
 import { existsSync, readFileSync } from 'fs';
 
 /** 差距项 */
@@ -127,6 +127,14 @@ function isBlockingAuditFinding(finding: Finding): boolean {
 function formatAuditFinding(finding: Finding): string {
   const evidenceState = finding.evidenceState ?? 'verified(legacy)';
   return `${finding.id} [${finding.severity}/${evidenceState}]`;
+}
+
+function hasRecordedWorktreePath(story: StoryInfo): boolean {
+  return Boolean(story.worktree?.path?.trim());
+}
+
+function isParkedBacklogStory(story: StoryInfo): boolean {
+  return story.phase === 'INIT' && !hasRecordedWorktreePath(story);
 }
 
 export function analyzeGap(projectRoot: string, store?: StoryStore): GapResult {
@@ -241,10 +249,15 @@ export function checkConvergence(projectRoot: string, store: StoryStore): Conver
   // Check all stories
   const terminalPhases = new Set<StoryPhase>(['DONE', 'DISCARDED']);
   const storyIds = store.listStoryIds();
-  const activeStories = storyIds.filter(id => {
-    const story = store.readStory(id);
-    return story.phase !== 'META' && !terminalPhases.has(story.phase);
-  });
+  const businessNonTerminalStories = storyIds
+    .map(id => ({ id, story: store.readStory(id) }))
+    .filter(({ story }) => story.phase !== 'META' && !terminalPhases.has(story.phase));
+  const parkedBacklogStories = businessNonTerminalStories
+    .filter(({ story }) => isParkedBacklogStory(story))
+    .map(({ id }) => id);
+  const activeStories = businessNonTerminalStories
+    .filter(({ story }) => !isParkedBacklogStory(story))
+    .map(({ id }) => id);
   const auditFindings = store.readFindings(AUDIT_STORY_ID).findings.filter(f => f.status === 'open');
   const blockingAuditFindings = auditFindings.filter(isBlockingAuditFinding);
   const advisoryAuditFindings = auditFindings.filter(f => !isBlockingAuditFinding(f));
@@ -280,7 +293,16 @@ export function checkConvergence(projectRoot: string, store: StoryStore): Conver
     detail: activeStories.length === 0 ? '无未完成业务 Story' : `${activeStories.length} 个 Story 未完成: ${activeStories.join(', ')}`,
   });
 
-  // 5. Audit backlog
+  // 5. Parked backlog advisory
+  checks.push({
+    name: 'Parked backlog',
+    passed: true,
+    detail: parkedBacklogStories.length === 0
+      ? '无 parked backlog'
+      : `${parkedBacklogStories.length} 个 parked backlog advisory: ${parkedBacklogStories.join(', ')}`,
+  });
+
+  // 6. Audit backlog
   checks.push({
     name: 'Audit backlog',
     passed: blockingAuditFindings.length === 0,
@@ -294,7 +316,7 @@ export function checkConvergence(projectRoot: string, store: StoryStore): Conver
       ].filter(Boolean).join('; '),
   });
 
-  // 6. Requirements coverage
+  // 7. Requirements coverage
   checks.push({
     name: '需求覆盖率',
     passed: gap.coveragePercent === 100,
