@@ -73,9 +73,9 @@
           "command": "grep -nE \"'merge', branch|['worktree', 'remove']\" packages/main/src/handlers/story-advance.ts | wc -l",
           "result": "pass",
           "note": "story-advance.ts inline DONE merge grep 返回 0 行；assertDoneSuccessPathOutputAndOrdering 另用结构断言确认 story-advance.ts 不含 inline git merge / worktree remove 实现，只 delegate runDonePreMergeGate/applyDoneMergeEffects",
-          "headHash": "cbb3d48ebfc5de62eb64eb2aa702ea41df0796c5",
-          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
-          "timestamp": "2026-05-17T02:54:46.168Z"
+          "headHash": "17002ec206b9eaea02498d41a20668ff4a8b8809",
+          "materialHash": "fa9c04a6b487dd2d90d8ba18c432b218bc629e4049d884c20f2d87cdbfc59ae6",
+          "timestamp": "2026-05-17T02:59:30.769Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -84,9 +84,9 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "done-effects.ts 位于 packages/main/src/handlers/，export runDonePreMergeGate + applyDoneMergeEffects + autoSyncMain + detectDoneStoryWorktreeContext + assertDoneStoryBranchMatches 共 5 个函数（grep -c ^export = 5）；npm run build (tsc) exit 0",
-          "headHash": "40cd9f6a3b9ff94e56aed9992393c7f934c4f584",
-          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
-          "timestamp": "2026-05-17T02:54:46.385Z"
+          "headHash": "17002ec206b9eaea02498d41a20668ff4a8b8809",
+          "materialHash": "fa9c04a6b487dd2d90d8ba18c432b218bc629e4049d884c20f2d87cdbfc59ae6",
+          "timestamp": "2026-05-17T02:59:30.769Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
@@ -95,9 +95,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "assertDoneSuccessPathOutputAndOrdering: DONE gate 全满足的 TEST story 执行 story_advance DONE，输出含 DONE Gate Checklist 段 + 合并/worktree清理/分支删除三行，story phase=DONE，worktree+branch 已清",
-          "headHash": "50f8306198670ba6377f2e1178374f1e76a53a0e",
-          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
-          "timestamp": "2026-05-17T02:54:46.602Z"
+          "headHash": "17002ec206b9eaea02498d41a20668ff4a8b8809",
+          "materialHash": "fa9c04a6b487dd2d90d8ba18c432b218bc629e4049d884c20f2d87cdbfc59ae6",
+          "timestamp": "2026-05-17T02:59:30.769Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -106,9 +106,9 @@
           "command": "grep -n \"cleanStrayWorktreeFiles, STRAY_FILE_WHITELIST\" packages/main/src/handlers/story-advance.ts",
           "result": "pass",
           "note": "story-advance.ts:70 仍 export { cleanStrayWorktreeFiles, STRAY_FILE_WHITELIST } from ./stray-file-cleanup.js，下游 logicTest 的 import 路径不断裂；npm run build tsc 全绿确认无 import 报错",
-          "headHash": "779ec431cfaf5d6f1c4f6ccb415ada0787a9618b",
-          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
-          "timestamp": "2026-05-17T02:54:46.821Z"
+          "headHash": "17002ec206b9eaea02498d41a20668ff4a8b8809",
+          "materialHash": "fa9c04a6b487dd2d90d8ba18c432b218bc629e4049d884c20f2d87cdbfc59ae6",
+          "timestamp": "2026-05-17T02:59:30.769Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -117,9 +117,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "CHK-002 三个 pre-merge gate 失败用例（assertDoneOracleGateFailureKeepsStoryTest/assertStrayFileOffenderKeepsStoryTest/assertMergeConflictPreMergeGateKeepsStoryTest）断言 phase=TEST 未落盘——若 gate 调用错位到 actor.send 后，story 会落盘 DONE，断言立即 FAIL，捕获时序错位",
-          "headHash": "c7178f7becd09529222d7563bf4ac8e40dfc4398",
-          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
-          "timestamp": "2026-05-17T02:54:47.044Z"
+          "headHash": "17002ec206b9eaea02498d41a20668ff4a8b8809",
+          "materialHash": "fa9c04a6b487dd2d90d8ba18c432b218bc629e4049d884c20f2d87cdbfc59ae6",
+          "timestamp": "2026-05-17T02:59:30.769Z"
         }
       ]
     },
@@ -206,9 +206,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "assertDoneOracleGateFailureKeepsStoryTest: 缺 delivery-check evidence 时 runDoneOracleGate 抛 Cannot enter DONE，断言两 store 中 story 仍 TEST、分支/worktree 未动",
-          "headHash": "5e8f77570ebaeb8c71ad9d41f4e4a37ccea0cd07",
-          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
-          "timestamp": "2026-05-17T02:54:02.811Z"
+          "headHash": "17002ec206b9eaea02498d41a20668ff4a8b8809",
+          "materialHash": "fa9c04a6b487dd2d90d8ba18c432b218bc629e4049d884c20f2d87cdbfc59ae6",
+          "timestamp": "2026-05-17T02:59:30.769Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -217,9 +217,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "assertStrayFileOffenderKeepsStoryTest: 主仓 story dir 写非白名单未追踪文件，F-020 dry-run 抛错命名 offender，story 仍 TEST 且 offender 未被删",
-          "headHash": "59e35ecf1d08de30d1c2b7775faea0da2fe5be2b",
-          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
-          "timestamp": "2026-05-17T02:54:03.041Z"
+          "headHash": "17002ec206b9eaea02498d41a20668ff4a8b8809",
+          "materialHash": "fa9c04a6b487dd2d90d8ba18c432b218bc629e4049d884c20f2d87cdbfc59ae6",
+          "timestamp": "2026-05-17T02:59:30.769Z"
         },
         {
           "intentRef": "CHK-002:happy:2",
@@ -228,9 +228,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "assertMergeConflictPreMergeGateKeepsStoryTest: main/分支冲突使 block A pre-merge gate 抛 Cannot enter DONE（落后 main），story 两 store 仍 TEST，冲突 main commit 未被强行 sync 进分支",
-          "headHash": "d93cf39b48c3382e6228aa4ac459d8bb3a57f0e3",
-          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
-          "timestamp": "2026-05-17T02:54:03.256Z"
+          "headHash": "17002ec206b9eaea02498d41a20668ff4a8b8809",
+          "materialHash": "fa9c04a6b487dd2d90d8ba18c432b218bc629e4049d884c20f2d87cdbfc59ae6",
+          "timestamp": "2026-05-17T02:59:30.769Z"
         },
         {
           "intentRef": "CHK-002:happy:3",
@@ -239,9 +239,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "assertRealMergeFailureMarksDoneAndThrows: pre-merge gate 全过后真实 git merge 因主仓未追踪文件失败，抛错含已标记 DONE+cd/git merge/git worktree remove --force/git branch -d 四行指引，story phase=DONE，无 merge commit",
-          "headHash": "6878f7649bb3053f5ff08f38bb39399cc8dae5dd",
-          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
-          "timestamp": "2026-05-17T02:54:03.471Z"
+          "headHash": "17002ec206b9eaea02498d41a20668ff4a8b8809",
+          "materialHash": "fa9c04a6b487dd2d90d8ba18c432b218bc629e4049d884c20f2d87cdbfc59ae6",
+          "timestamp": "2026-05-17T02:59:30.769Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -250,9 +250,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "三道 pre-merge gate 短路语义被 oracle/stray/conflict 三个独立用例覆盖；done-oracle gate 失败时输出只含 Cannot enter DONE 而无 stray/merge-tree 后续 gate 消息（assertDoneOracleGateFailureKeepsStoryTest）",
-          "headHash": "116ed291aef929ad483e826acefb64d86fc8946d",
-          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
-          "timestamp": "2026-05-17T02:54:03.692Z"
+          "headHash": "17002ec206b9eaea02498d41a20668ff4a8b8809",
+          "materialHash": "fa9c04a6b487dd2d90d8ba18c432b218bc629e4049d884c20f2d87cdbfc59ae6",
+          "timestamp": "2026-05-17T02:59:30.769Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -261,9 +261,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "三个 pre-merge gate 失败用例都断言 phase=DONE 未落盘（new StoryStore(...).readStory().phase === TEST），若搬迁把 gate 调用错位到 writeStory 之后这些断言会立即 FAIL —— 即对抗 preMortem #2 的时序错位检测",
-          "headHash": "4a34c735a8bb1d462d2fed4eabccfa773b5a0617",
-          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
-          "timestamp": "2026-05-17T02:54:03.905Z"
+          "headHash": "17002ec206b9eaea02498d41a20668ff4a8b8809",
+          "materialHash": "fa9c04a6b487dd2d90d8ba18c432b218bc629e4049d884c20f2d87cdbfc59ae6",
+          "timestamp": "2026-05-17T02:59:30.769Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
@@ -272,9 +272,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "assertRealMergeFailureMarksDoneAndThrows 逐条断言 post-merge 失败消息含 cd \"/git merge story//git worktree remove --force/git branch -d story/ 四行手动收尾指引，文案与 done-effects.ts 模板一致",
-          "headHash": "dac1349deeceb98e8a322ac5576f5d05461ad687",
-          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
-          "timestamp": "2026-05-17T02:54:04.121Z"
+          "headHash": "17002ec206b9eaea02498d41a20668ff4a8b8809",
+          "materialHash": "fa9c04a6b487dd2d90d8ba18c432b218bc629e4049d884c20f2d87cdbfc59ae6",
+          "timestamp": "2026-05-17T02:59:30.769Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -283,9 +283,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "assertWorktreeCleanupFailureMarksDoneMergedAndThrows: chmod .worktrees/ 为只读使 git worktree remove + rm -rf 都无法 rmdir worktree 目录 → applyDoneMergeEffects 在 merge 成功后抛错含 已合并，但 worktree 清理未完成 + koala doctor，story phase=DONE 且 main 已有 merge: commit；root uid 时跳过（权限位被忽略）",
-          "headHash": "96cfbc7a31180b9c6ef5728c56a443e747e27f6c",
-          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
-          "timestamp": "2026-05-17T02:55:18.338Z"
+          "headHash": "17002ec206b9eaea02498d41a20668ff4a8b8809",
+          "materialHash": "fa9c04a6b487dd2d90d8ba18c432b218bc629e4049d884c20f2d87cdbfc59ae6",
+          "timestamp": "2026-05-17T02:59:30.769Z"
         }
       ]
     },
@@ -366,9 +366,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "assertDoneSuccessPathOutputAndOrdering: 成功 DONE 输出按 merge→worktree remove→branch delete 顺序断言（indexOf 严格递增），git log main 含 koala mark DONE metadata commit 与 merge: commit，证明 Step1-5 顺序不变",
-          "headHash": "0e1d0747133861f209451ed1df178f22c24f0259",
-          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
-          "timestamp": "2026-05-17T02:54:21.918Z"
+          "headHash": "17002ec206b9eaea02498d41a20668ff4a8b8809",
+          "materialHash": "fa9c04a6b487dd2d90d8ba18c432b218bc629e4049d884c20f2d87cdbfc59ae6",
+          "timestamp": "2026-05-17T02:59:30.769Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -377,9 +377,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "assertDoneSuccessPathOutputAndOrdering 断言 byte-identical 文本：DONE Gate Checklist 头+各 [✓] 行、Story B-xxx advanced to DONE、✓ 分支 story/B-xxx 已合并到 main、✓ Worktree <canonical> 已清理、✓ 分支 story/B-xxx 已删除",
-          "headHash": "1a71bab5854c0d66e6d1d4beca945cc35cb538dd",
-          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
-          "timestamp": "2026-05-17T02:54:22.135Z"
+          "headHash": "17002ec206b9eaea02498d41a20668ff4a8b8809",
+          "materialHash": "fa9c04a6b487dd2d90d8ba18c432b218bc629e4049d884c20f2d87cdbfc59ae6",
+          "timestamp": "2026-05-17T02:59:30.769Z"
         },
         {
           "intentRef": "CHK-003:happy:2",
@@ -388,9 +388,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "npm --prefix packages/main run test:worktree-authority-smoke 全 15 用例 pass（9 原有 + 6 新增 DONE ordering/failure 回归），输出 ✓ worktree authority smoke passed exit 0",
-          "headHash": "0c23d72c48be76878204ad42b5fef88cdb8bcf14",
-          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
-          "timestamp": "2026-05-17T02:54:22.347Z"
+          "headHash": "17002ec206b9eaea02498d41a20668ff4a8b8809",
+          "materialHash": "fa9c04a6b487dd2d90d8ba18c432b218bc629e4049d884c20f2d87cdbfc59ae6",
+          "timestamp": "2026-05-17T02:59:30.769Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -399,9 +399,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "assertDoneSuccessPathOutputAndOrdering 用 indexOf 强制 merge<cleanup<delete 严格顺序——若 done-effects.ts 交换 Step3 merge 与 Step4 worktree remove，顺序断言立即 FAIL；对抗 preMortem #1 步骤重排",
-          "headHash": "b7a4d1672776dd7dca721879efd26831d230f2fd",
-          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
-          "timestamp": "2026-05-17T02:54:22.561Z"
+          "headHash": "17002ec206b9eaea02498d41a20668ff4a8b8809",
+          "materialHash": "fa9c04a6b487dd2d90d8ba18c432b218bc629e4049d884c20f2d87cdbfc59ae6",
+          "timestamp": "2026-05-17T02:59:30.770Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -410,9 +410,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "assertDoneSuccessPathOutputAndOrdering 断言 git log --oneline main 含 koala: mark B-xxx DONE + clear worktree commit——若 Step2 metadata commit 错位到 Step3 merge 之后，merge 后 main 缺该 commit，断言 FAIL",
-          "headHash": "f87cc0bf35cf78d34e156a5a8fbc84f80228b911",
-          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
-          "timestamp": "2026-05-17T02:54:22.778Z"
+          "headHash": "17002ec206b9eaea02498d41a20668ff4a8b8809",
+          "materialHash": "fa9c04a6b487dd2d90d8ba18c432b218bc629e4049d884c20f2d87cdbfc59ae6",
+          "timestamp": "2026-05-17T02:59:30.770Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
@@ -421,9 +421,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "pre-merge gate 失败用例（oracle/stray/conflict）均断言输出含 Cannot enter DONE 前缀及具体 blocker 文案；assertMergeConflictPreMergeGateKeepsStoryTest 断言 落后 main blocker 描述，证明失败消息搬迁后文案不变",
-          "headHash": "07897b4dab6aea1f779399be828815b1c9dc3f73",
-          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
-          "timestamp": "2026-05-17T02:54:22.997Z"
+          "headHash": "17002ec206b9eaea02498d41a20668ff4a8b8809",
+          "materialHash": "fa9c04a6b487dd2d90d8ba18c432b218bc629e4049d884c20f2d87cdbfc59ae6",
+          "timestamp": "2026-05-17T02:59:30.770Z"
         }
       ]
     },
@@ -504,9 +504,9 @@
           "command": "grep -rn __koalaDoneChecklistRendered packages/main/src/ | wc -l",
           "result": "pass",
           "note": "grep -rn __koalaDoneChecklistRendered packages/main/src/ 返回 0 行匹配——globalThis 跨 actor.send stash 已彻底清除，改为 runDonePreMergeGate 显式 return rendered checklist",
-          "headHash": "cf3178c5ddef1f307498a73cc5b673a43f6ad467",
-          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
-          "timestamp": "2026-05-17T02:54:59.074Z"
+          "headHash": "17002ec206b9eaea02498d41a20668ff4a8b8809",
+          "materialHash": "fa9c04a6b487dd2d90d8ba18c432b218bc629e4049d884c20f2d87cdbfc59ae6",
+          "timestamp": "2026-05-17T02:59:30.770Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
@@ -515,9 +515,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "assertDoneSuccessPathOutputAndOrdering 断言 DONE 成功输出含完整 DONE Gate Checklist 段（DONE Gate Checklist 头 + [✓] Test evidence/git working tree/delivery-check 等行）——证明显式返回值/参数链路未丢失渲染文本",
-          "headHash": "d95bd499420ff076ded66252f6d04f99e87856a9",
-          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
-          "timestamp": "2026-05-17T02:54:59.317Z"
+          "headHash": "17002ec206b9eaea02498d41a20668ff4a8b8809",
+          "materialHash": "fa9c04a6b487dd2d90d8ba18c432b218bc629e4049d884c20f2d87cdbfc59ae6",
+          "timestamp": "2026-05-17T02:59:30.770Z"
         },
         {
           "intentRef": "CHK-004:happy:2",
@@ -526,9 +526,9 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "runDonePreMergeGate 签名 Promise<string> 显式 return rendered checklist；story-advance.ts 用局部变量 doneRenderedChecklist 接收并传入 applyDoneMergeEffects；npm run build (tsc --noEmit) exit 0 确认数据流类型安全",
-          "headHash": "b2affdde07114afbf15f411b18836689113fe51f",
-          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
-          "timestamp": "2026-05-17T02:54:59.548Z"
+          "headHash": "17002ec206b9eaea02498d41a20668ff4a8b8809",
+          "materialHash": "fa9c04a6b487dd2d90d8ba18c432b218bc629e4049d884c20f2d87cdbfc59ae6",
+          "timestamp": "2026-05-17T02:59:30.770Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -537,9 +537,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "assertDoneSuccessPathOutputAndOrdering 断言 output 含 DONE Gate Checklist 头与 [✓] 行——若 runDonePreMergeGate 漏 return rendered（或 story-advance 漏拼 doneChecklistPrefix），checklist 段缺失，断言立即 FAIL，捕获 preMortem #3 渲染文本丢失",
-          "headHash": "25dbaa53174f52b1510f5aca9e5fa726efe62264",
-          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
-          "timestamp": "2026-05-17T02:54:59.791Z"
+          "headHash": "17002ec206b9eaea02498d41a20668ff4a8b8809",
+          "materialHash": "fa9c04a6b487dd2d90d8ba18c432b218bc629e4049d884c20f2d87cdbfc59ae6",
+          "timestamp": "2026-05-17T02:59:30.770Z"
         }
       ]
     }
