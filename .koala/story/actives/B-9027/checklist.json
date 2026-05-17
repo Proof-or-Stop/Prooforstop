@@ -518,6 +518,17 @@
           "headHash": "b2affdde07114afbf15f411b18836689113fe51f",
           "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
           "timestamp": "2026-05-17T02:54:59.548Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "assertDoneSuccessPathOutputAndOrdering 断言 output 含 DONE Gate Checklist 头与 [✓] 行——若 runDonePreMergeGate 漏 return rendered（或 story-advance 漏拼 doneChecklistPrefix），checklist 段缺失，断言立即 FAIL，捕获 preMortem #3 渲染文本丢失",
+          "headHash": "25dbaa53174f52b1510f5aca9e5fa726efe62264",
+          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
+          "timestamp": "2026-05-17T02:54:59.791Z"
         }
       ]
     }
