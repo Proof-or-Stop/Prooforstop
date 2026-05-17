@@ -138,7 +138,7 @@
 
 ### 2.11 Pre-push 外部防线（自举开发）
 
-`.githooks/pre-push` 完全不调用 `koala` 命令，只用 `npx tsc --noEmit`，防止"全局 koala 可执行文件版本错位"翻车（B-9bd9 事故根因）。递归扫所有子包 tsconfig，黑名单：`node_modules/dist/build/.worktrees/.git`。
+`.githooks/pre-push` 完全不调用 `koala` 命令，只用 `git` / `find` / `node` / `npx tsc` / `npm run build`，防止"全局 koala 可执行文件版本错位"翻车（B-9bd9 事故根因）。koala 自举仓检测：`packages/main/package.json` 存在（不存在则非 koala 仓，立即 `exit 0`）且其 `name` 字段（用 `node` 解析）为 `@koala-agent/core`。`node` 缺失时 **fail-closed**——无法判断是否 koala 仓，向 stderr 打印警告并 `exit 1` 拒绝 push（不静默放行，避免 tsc gate 被无声绕过）。先 `npm --prefix packages/main run build` 构建 `packages/main`（`packages/utils` 源码 import 其 `dist` 产物，构建顺序约束），再递归扫所有子包 tsconfig 逐个 `tsc --noEmit`，黑名单：`node_modules/dist/build/.worktrees/.git`。临时文件用 `mktemp` 唯一临时目录 + `trap EXIT` 清理。启用：`git config core.hooksPath .githooks`。
 
 ---
 

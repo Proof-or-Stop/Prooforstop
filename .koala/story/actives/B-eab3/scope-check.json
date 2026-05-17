@@ -1,0 +1,80 @@
+{
+  "storyId": "B-eab3",
+  "checkedAt": "2026-05-17T02:55:56.248Z",
+  "features": [
+    {
+      "feature": "创建 .githooks/pre-push hook 文件（补齐从未落地的 B-5a28 承诺）",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "hook 只用 npx tsc --noEmit、不调用 koala 命令（防全局 koala 版本错位）",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "hook 检测路径使用本仓扁平布局 packages/main（非 packages/koala/packages/main）",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "非 koala 仓时 hook 立即 exit 0、不影响 push",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "tsc 编译非零退出时 hook 拒绝 push",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "修正 CLAUDE.md 中 hook 路径（packages/koala/packages/main → packages/main）",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "移除 CLAUDE.md 中指向不存在段「koala 自举开发注意」的失效交叉引用",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "修正 CLAUDE.md 把 hook 描述成已提交存在的错误描述",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "对齐 koala-project-overview.md 对 pre-push hook 的描述与 CLAUDE.md 收敛一致",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 9,
+    "covered": 9,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "376f8d0e485607bada1bb1c8cd9747530d96b6fa1cede83864172f5e40fd2f59",
+  "openQuestions": []
+}
