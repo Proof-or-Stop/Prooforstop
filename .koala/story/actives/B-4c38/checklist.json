@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-17T03:43:24.440Z",
       "userSees": "User sees: \"DONE main merge lock is held by another Koala operation; story phase was not changed. Retry after the active DONE merge finishes.\" The story remains TEST/pre-DONE.",
       "files": {
         "modify": [
@@ -49,7 +49,29 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "worktree-authority-smoke covers live DONE main merge lock refusal before phase=DONE and story remains TEST",
+          "headHash": "d252507944961990ff2ff418f861e248bcca70fc",
+          "materialHash": "4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891",
+          "timestamp": "2026-05-17T03:43:24.477Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "stale done-main-merge.lock is reclaimed and successful DONE releases the lock",
+          "headHash": "d252507944961990ff2ff418f861e248bcca70fc",
+          "materialHash": "4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891",
+          "timestamp": "2026-05-17T03:43:24.507Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
