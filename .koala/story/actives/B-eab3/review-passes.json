@@ -71,6 +71,15 @@
       "reviewRound": "2026-05-17T03:24:32.542Z",
       "reviewRunId": "B-eab3:RR-010",
       "_hash": "7767f1f5cc0f7bca62857a241c4a80d7da18be9c2d89d2fffc7bf428326ccee6"
+    },
+    {
+      "id": "B-eab3:RP-009",
+      "agent": "koala-review-docs",
+      "note": "Step 1: diff 无 TS exported symbols（纯 bash script + md 改动），走 Fallback 1 全文扫描。Step 2: 对 pre-push 相关 3 个源头逐条比对：.githooks/pre-push 头注释（lines 1-30）/ CLAUDE.md lines 903-968 / koala-project-overview.md line 141 section 2.11。Step 3: 检查 9 项关键声明（fail-closed 三步检测顺序、mktemp+trap、node 缺失行为、构建顺序约束、递归 tsc 黑名单、不调用 koala、packages/main 扁平布局、任一 tsc 失败 exit 1），三者完全一致，无 blocker。F-004 修复（hook 头注释改写为 fail-closed）已正确反映在 hook 可执行逻辑（lines 60-65）中，与 CLAUDE.md + koala-project-overview.md 描述一致。用户指定 scope 外项（packages/koala/ 路径 3 处、agent 模板快照 F-005）已排除。",
+      "createdAt": "2026-05-17T03:26:46.501Z",
+      "reviewRound": "2026-05-17T03:24:32.542Z",
+      "reviewRunId": "B-eab3:RR-011",
+      "_hash": "c933a9c4f680fdf743ff13a4ec1481ce5e069e7cf4c4c8c2d484485f3ad30b80"
     }
   ]
 }
