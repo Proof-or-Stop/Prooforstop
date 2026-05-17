@@ -71,6 +71,15 @@
       "reviewRound": "2026-05-17T15:36:54.880Z",
       "reviewRunId": "B-6974:RR-010",
       "_hash": "e347313ddf1ddffa59cd373713d324b20a1b8c92053895425d709f170062e4a2"
+    },
+    {
+      "id": "B-6974:RP-009",
+      "agent": "koala-review-behavior",
+      "note": "Round 3 behavior re-audit: all 4 hardcoded assertions confirmed pass. (1) actor.stop only in orchestrator finally, zero stop calls in phase-gates/done-effects/transition-effects on orchestration path. (2) DONE merge lock scope spans runDonePreMergeGate→actor.send→writeStory→applyDoneMergeEffects in single try/finally. (3) Phase timing correct: pre-merge gate fail keeps story TEST; post-merge failure throws after phase=DONE persisted. (4) story-advance.ts is 34 lines with only delegation and re-exports. Commit 576ede76 is purely comment corrections, zero logic delta.",
+      "createdAt": "2026-05-17T15:39:17.291Z",
+      "reviewRound": "2026-05-17T15:36:54.880Z",
+      "reviewRunId": "B-6974:RR-012",
+      "_hash": "2c6d22e80f5a608d3b0a06305b4f71c32eebafd0156d48a2d7f97f538dc7692e"
     }
   ]
 }
