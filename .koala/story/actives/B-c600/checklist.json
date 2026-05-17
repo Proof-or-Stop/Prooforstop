@@ -1,0 +1,38 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add a pkg-based desktop CLI packaging pipeline",
+      "context": "The desktop release needs a repeatable command that builds Koala and emits single-file executables for macOS, Windows, and Linux using the existing full bootstrap entrypoint rather than requiring users to install Node.js.",
+      "relatedDocs": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Verify packaged executable behavior from the release artifact",
+      "context": "The artifact must be smoke-tested directly so packaging gaps in dynamic imports, templates, or bundled assets are caught before desktop distribution.",
+      "relatedDocs": [
+        "README.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Document the desktop binary packaging workflow",
+      "context": "Release maintainers need the exact commands, outputs, and caveats for Vercel pkg-based distribution, including the fact that pkg is a deprecated but useful early deployment path.",
+      "relatedDocs": [
+        "README.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
