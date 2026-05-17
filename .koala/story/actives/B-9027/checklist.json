@@ -56,7 +56,17 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "开发者跑 `npm --prefix packages/main run test:worktree-authority-smoke` 看到 `✓` 全过——成功 DONE 仍按 metadata commit→merge→worktree remove→branch delete 顺序执行，失败消息 byte-identical。",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-004",
