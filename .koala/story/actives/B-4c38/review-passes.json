@@ -26,6 +26,15 @@
       "reviewRound": "2026-05-17T03:51:16.697Z",
       "reviewRunId": "B-4c38:RR-007",
       "_hash": "d435f57584dd9bbd89ff2dea08afc2d8dd683ed89ea72fbc14f4fe93178bb694"
+    },
+    {
+      "id": "B-4c38:RP-004",
+      "agent": "koala-review-quality",
+      "note": "Re-review of resolved F-002/F-003: done_recover now acquires the shared DONE main merge lock before any main checks or mutations (packages/main/src/handlers/done-recover.ts:38-47; packages/main/src/handlers/done-effects.ts:122-135), recovery refuses dirty story worktrees before cleanup (packages/main/src/core/partial-done-recovery.ts:167-175), and cleanup remains scoped to the canonical story worktree with unrelated branch preservation covered by smoke tests (packages/main/src/core/partial-done-recovery.ts:190-207; packages/main/src/tasks/worktree-repair-smoke.ts:260-337). Targeted smoke tests and TypeScript diagnostics passed.",
+      "createdAt": "2026-05-17T03:54:27.585Z",
+      "reviewRound": "2026-05-17T03:51:16.697Z",
+      "reviewRunId": "B-4c38:RR-008",
+      "_hash": "922d5f687f8359461fd4eb452a6d602474dc80745d9cf9f81f68b7bb4bf78ba3"
     }
   ]
 }
