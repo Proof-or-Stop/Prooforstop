@@ -190,6 +190,17 @@ const requiredRuntimeEntries = [
     owner: 'core/validation-executor',
     line: '- runtime:validate_side_effect_guard [L2] owner=core/validation-executor',
   },
+  {
+    // B-3fad CHK-003: Finding.evidenceState is a gate-consumed semantic fact —
+    // the REVIEW→TEST canPassReview gate blocks only on verified (or legacy
+    // missing-field) open critical/high findings. This required-entry assertion
+    // is the hardcoded fallback proving the evidenceState gate dimension stays
+    // registered as an L4 process fact.
+    name: 'runtime:finding_evidence_state_review_gate',
+    level: 'L4',
+    owner: 'core/advisory',
+    line: '- runtime:finding_evidence_state_review_gate [L4] owner=core/advisory gate=storyMachine.canPassReview REVIEW to TEST gate',
+  },
 ];
 const requiredFlowFactPolicies = [
   {
@@ -2546,11 +2557,23 @@ const inventory = [
     name: 'phase advance',
     files: [
       {
+        // B-3fad CHK-003: B-56d3 (commit f736789a) extracted phase-gate symbols
+        // (getGuardFailureReason / runReviewCliGates / writeTestEvidence / the
+        // `koala validate --json` gate / the two `Cannot enter TEST` failure
+        // strings) out of story-advance.ts into handlers/phase-gates.ts. The
+        // story-advance.ts entry below keeps only the symbols that still live
+        // there (the handler factory + cwd/actor preflight wiring).
         relPath: 'packages/main/src/handlers/story-advance.ts',
         patterns: [
           { label: 'storyAdvanceHandler/current createStoryAdvanceHandlers', any: ['storyAdvanceHandler', 'createStoryAdvanceHandlers'] },
           'assertCwdInWorktree',
           'actor.can()',
+        ],
+      },
+      {
+        // B-3fad CHK-003: phase-gate symbols relocated by B-56d3.
+        relPath: 'packages/main/src/handlers/phase-gates.ts',
+        patterns: [
           'getGuardFailureReason',
           'runReviewCliGates',
           'koala validate --json',
@@ -2617,6 +2640,51 @@ const inventory = [
       {
         relPath: 'packages/main/src/core/process-fact-registry.ts',
         patterns: ['PROCESS_FACT_FLOW_POLICIES', 'FLOW_FACT_POLICIES', 'flow-policy'],
+      },
+    ],
+  },
+  {
+    // B-3fad CHK-003: prove the Finding.evidenceState REVIEW→TEST gate
+    // dimension has a hardcoded fallback. evidenceState is a gate-consumed
+    // semantic fact: the canPassReview guard and its getGuardFailureReason
+    // mirror both filter blocking findings through isFindingBlocking, which
+    // applies isEvidenceStateBlocking (verified or legacy missing-field blocks;
+    // suspected/disproven are advisory).
+    name: 'finding evidenceState gate dimension',
+    files: [
+      {
+        relPath: 'packages/main/src/core/advisory.ts',
+        patterns: ['isEvidenceStateBlocking', 'isFindingBlocking', 'FINDING_EVIDENCE_STATES', 'isFindingEvidenceState'],
+      },
+      {
+        relPath: 'packages/main/src/core/machine.ts',
+        patterns: ['isFindingBlocking', 'evidenceState'],
+      },
+      {
+        relPath: 'packages/main/src/core/types.ts',
+        patterns: ['evidenceState', 'FindingEvidenceState', 'uncertaintyReason', 'disprovenEvidence'],
+      },
+    ],
+  },
+  {
+    // B-3fad CHK-003: prove the gap_log manual archival entry has a hardcoded
+    // fallback. gap_log archives a framework gap into B-META-framework-audit as
+    // a suspected finding; runtime category/severity narrowing, the required
+    // source/evidence gate, the verified guardrail, and ensureMetaStory
+    // bootstrap are all enforced in the handler, not just Zod.
+    name: 'gap_log',
+    files: [
+      {
+        relPath: 'packages/main/src/handlers/gap-log.ts',
+        patterns: ['gap_log', 'createGapLogHandlers', 'isGapLogCategory', 'isGapLogSeverity', 'ensureMetaStory', 'appendGapFinding', 'evidenceState'],
+      },
+      {
+        relPath: 'packages/main/src/core/audit-meta-store.ts',
+        patterns: ['ensureMetaStory', 'appendGapFinding', 'META_STORY_ID'],
+      },
+      {
+        relPath: 'packages/main/src/registry.ts',
+        patterns: ['createGapLogHandlers'],
       },
     ],
   },
@@ -2693,7 +2761,15 @@ const inventory = [
     name: 'REVIEW/TEST/DONE gates',
     files: [
       {
+        // B-3fad CHK-003: B-56d3 moved the REVIEW→TEST gate machinery
+        // (runReviewCliGates / writeTestEvidence / the `koala validate --json`
+        // gate / the two `Cannot enter TEST` strings) into phase-gates.ts.
+        // story-advance.ts keeps buildDoneChecklist (DONE checklist assembly).
         relPath: 'packages/main/src/handlers/story-advance.ts',
+        patterns: ['buildDoneChecklist'],
+      },
+      {
+        relPath: 'packages/main/src/handlers/phase-gates.ts',
         patterns: ['runReviewCliGates', 'koala validate --json', 'buildDoneChecklist', 'writeTestEvidence', 'Cannot enter TEST: CLI gate preflight 执行异常', 'Cannot enter TEST: koala validate 执行异常'],
       },
       {
