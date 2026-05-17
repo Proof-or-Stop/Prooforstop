@@ -59,7 +59,47 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "koala doctor reports partial-DONE stories with storyId, branch, worktree path, whether main contains the branch, merge-tree status, and the exact done_recover command to run.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/doctor.ts"
+        ],
+        "create": [
+          "packages/main/src/core/partial-done-recovery.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/worktree-repair-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Create a synthetic phase=DONE story with story branch not merged and worktree still present -> koala doctor --format=json reports it under partialDone with storyId/branch/worktree/mergeTree status",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "koala doctor text output for the same state includes done_recover --storyId=<id>",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "DONE story whose branch is already merged but worktree directory remains is reported as terminal worktree cleanup issue, not partial-DONE",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Non-DONE active story with branch/worktree residue is not reported as partial-DONE",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
