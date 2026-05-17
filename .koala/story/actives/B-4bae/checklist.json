@@ -8,7 +8,7 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/truth-source.md"
       ],
-      "userSees": "convergence_check no longer lists B-META-framework-audit under unfinished stories; it reports audit backlog separately and only blocks on verified high/critical audit findings.",
+      "userSees": "User sees `\"代码注释合规\": passed=true`, `\"所有 Story 完成\": false` with detail listing `B-4622, B-6974, B-d7af, B-da5b` but not `B-META-framework-audit`, plus a separate `Audit backlog` check.",
       "verificationIntent": {
         "happy": [
           {
@@ -34,7 +34,17 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/gap-analyze.ts",
+          "packages/main/src/tasks/convergence-discarded-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/convergence-discarded-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-002",

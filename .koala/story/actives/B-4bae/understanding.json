@@ -1,0 +1,24 @@
+{
+  "task": "Fix convergence_check so META audit containers are not counted as unfinished lifecycle stories while preserving INIT backlog blocking semantics.",
+  "outcome": "User runs `koala convergence_check` and sees `代码注释合规` still green, `所有 Story 完成` no longer mentions `B-META-framework-audit`, a separate audit backlog check reports current audit findings, and convergence remains false only because real INIT stories such as B-4622/B-6974/B-d7af/B-da5b are still active.",
+  "facts": [
+    "checkConvergence currently treats every phase except DONE and DISCARDED as active story work.",
+    "B-META-framework-audit has phase=META and is an audit/finding container, not a story_advance lifecycle story.",
+    "session_brief renders B-META-framework-audit separately under META containers and explicitly says not to story_advance it.",
+    "B-META-framework-audit:F-004 was fixed by B-4c38 merged at commit 7350e9df."
+  ],
+  "constraints": [
+    "Do not change semantics for INIT backlog stories B-4622, B-6974, B-d7af, or B-da5b.",
+    "Only verified high/critical audit findings should block convergence; suspected and low/medium findings are advisory.",
+    "Do not directly edit docs/story or tests/fixtures JSON; use Koala CLI for story/finding metadata.",
+    "Add smoke coverage for DONE, DISCARDED, META, INIT and audit finding severity/evidenceState combinations."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/tasks/gap-analyze.ts",
+    "packages/main/src/tasks/convergence-discarded-smoke.ts",
+    "packages/main/package.json",
+    "B-META-framework-audit findings via koala finding_resolve"
+  ],
+  "timestamp": "2026-05-17T11:50:36.439Z"
+}
