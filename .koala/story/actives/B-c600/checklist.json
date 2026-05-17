@@ -88,7 +88,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-05-17T23:34:11.827Z",
+      "endTime": "2026-05-17T23:55:12.013Z",
       "userSees": "发布维护者运行 `npm run test:desktop-package` 后看到 `packaged executable smoke passed`，并能看到 smoke 直接调用了生成出来的二进制。",
       "files": {
         "modify": [
@@ -127,30 +127,30 @@
           "kind": "manual_transcript",
           "command": "npm run test:desktop-package",
           "result": "pass",
-          "note": "Verifier executed dist/desktop/koala-macos-arm64 directly and printed packaged executable smoke passed after checking core help, aux_doc_list help, and packaged verify_codex.",
-          "headHash": "2c5c8a776bed3f88ad3556f36688aed528a1ff37",
-          "materialHash": "fd79441128b9196ed3579848078ec11eb651e89c851edbf1813e865701652891",
-          "timestamp": "2026-05-17T23:34:11.888Z"
+          "note": "Verifier now executes the packaged binary under an isolated PATH; it checked core help, aux_doc_list help, packaged verify_codex, and printed packaged executable smoke passed.",
+          "headHash": "1ff8a70b1b244801b367c0c4cc22e8e1a3065fdc",
+          "materialHash": "9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075",
+          "timestamp": "2026-05-17T23:55:12.068Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "manual_transcript",
           "command": "node scripts/verify-desktop-package.mjs /tmp/koala-missing-binary-does-not-exist",
           "result": "pass",
-          "note": "Negative smoke intentionally exited non-zero with Desktop Koala binary is missing and the recovery hint to run npm run package:desktop:host.",
-          "headHash": "2c5c8a776bed3f88ad3556f36688aed528a1ff37",
-          "materialHash": "fd79441128b9196ed3579848078ec11eb651e89c851edbf1813e865701652891",
-          "timestamp": "2026-05-17T23:34:11.936Z"
+          "note": "Negative smoke intentionally exits non-zero with Desktop Koala binary is missing and the recovery hint to run npm run package:desktop:host.",
+          "headHash": "1ff8a70b1b244801b367c0c4cc22e8e1a3065fdc",
+          "materialHash": "9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075",
+          "timestamp": "2026-05-17T23:55:12.124Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "manual_transcript",
-          "command": "dist/desktop/koala-macos-arm64 verify_codex && node bin/koala-codex.js verify_codex && npm run test:codex-assets",
+          "command": "env -i HOME=$HOME TMPDIR=/tmp PATH=/usr/bin:/bin dist/desktop/koala-macos-arm64 verify_codex && npm run test:codex-assets",
           "result": "pass",
-          "note": "The packaged binary now runs verify_codex successfully without external Node; the normal Node wrapper verify_codex and codex asset checks still pass.",
-          "headHash": "2c5c8a776bed3f88ad3556f36688aed528a1ff37",
-          "materialHash": "fd79441128b9196ed3579848078ec11eb651e89c851edbf1813e865701652891",
-          "timestamp": "2026-05-17T23:34:11.987Z"
+          "note": "Packaged verify_codex passes without global koala or Node shims in PATH; global fallback heartbeat is a non-hard packaged-runtime warning and codex asset regression coverage passes.",
+          "headHash": "1ff8a70b1b244801b367c0c4cc22e8e1a3065fdc",
+          "materialHash": "9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075",
+          "timestamp": "2026-05-17T23:55:12.177Z"
         }
       ]
     },
