@@ -17,6 +17,7 @@ import { loadConfig } from '../core/config.js';
 import { isEvidenceStateBlocking } from '../core/advisory.js';
 import type { Finding, StoryInfo, StoryPhase } from '../core/types.js';
 import { existsSync, readFileSync } from 'fs';
+import { execFileSync } from 'child_process';
 
 /** 差距项 */
 export interface GapItem {
@@ -133,8 +134,28 @@ function hasRecordedWorktreePath(story: StoryInfo): boolean {
   return Boolean(story.worktree?.path?.trim());
 }
 
-function isParkedBacklogStory(story: StoryInfo): boolean {
-  return story.phase === 'INIT' && !hasRecordedWorktreePath(story);
+function readLinkedStoryWorktreeIds(projectRoot: string): Set<string> {
+  try {
+    const raw = execFileSync('git', ['worktree', 'list', '--porcelain'], {
+      cwd: projectRoot,
+      encoding: 'utf-8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+    const linked = new Set<string>();
+    for (const line of raw.split(/\r?\n/)) {
+      const match = line.match(/^branch refs\/heads\/story\/(.+)$/);
+      if (match?.[1]) linked.add(match[1]);
+    }
+    return linked;
+  } catch {
+    return new Set();
+  }
+}
+
+function isParkedBacklogStory(storyId: string, story: StoryInfo, linkedStoryWorktreeIds: Set<string>): boolean {
+  return story.phase === 'INIT'
+    && !hasRecordedWorktreePath(story)
+    && !linkedStoryWorktreeIds.has(storyId);
 }
 
 export function analyzeGap(projectRoot: string, store?: StoryStore): GapResult {
@@ -249,14 +270,15 @@ export function checkConvergence(projectRoot: string, store: StoryStore): Conver
   // Check all stories
   const terminalPhases = new Set<StoryPhase>(['DONE', 'DISCARDED']);
   const storyIds = store.listStoryIds();
+  const linkedStoryWorktreeIds = readLinkedStoryWorktreeIds(projectRoot);
   const businessNonTerminalStories = storyIds
     .map(id => ({ id, story: store.readStory(id) }))
     .filter(({ story }) => story.phase !== 'META' && !terminalPhases.has(story.phase));
   const parkedBacklogStories = businessNonTerminalStories
-    .filter(({ story }) => isParkedBacklogStory(story))
+    .filter(({ id, story }) => isParkedBacklogStory(id, story, linkedStoryWorktreeIds))
     .map(({ id }) => id);
   const activeStories = businessNonTerminalStories
-    .filter(({ story }) => !isParkedBacklogStory(story))
+    .filter(({ id, story }) => !isParkedBacklogStory(id, story, linkedStoryWorktreeIds))
     .map(({ id }) => id);
   const auditFindings = store.readFindings(AUDIT_STORY_ID).findings.filter(f => f.status === 'open');
   const blockingAuditFindings = auditFindings.filter(isBlockingAuditFinding);

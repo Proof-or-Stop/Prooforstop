@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { strict as assert } from 'node:assert';
+import { execFileSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -54,6 +55,13 @@ function checkByName(result: ReturnType<typeof checkConvergence>, name: string) 
   return check;
 }
 
+function git(args: string[]): void {
+  execFileSync('git', args, {
+    cwd: tmp,
+    stdio: 'ignore',
+  });
+}
+
 try {
   mkdirSync(join(tmp, 'packages/main/src'), { recursive: true });
   writeFileSync(join(tmp, 'packages/main/src/empty.ts'), 'export const noop = true;\n');
@@ -64,6 +72,11 @@ try {
     requirementsDir: 'docs/requirements',
   }));
   resetConfigCache();
+  git(['init']);
+  git(['config', 'user.email', 'koala-smoke@example.invalid']);
+  git(['config', 'user.name', 'Koala Smoke']);
+  git(['add', 'koala.config.json', 'packages/main/src/empty.ts']);
+  git(['commit', '-m', 'initial smoke project']);
 
   const store = new StoryStore(tmp);
   store.writeStory('B-done', story('B-done', 'DONE'));
@@ -111,6 +124,20 @@ try {
   assert.match(initWorktreeStoryCheck.detail, /B-active-worktree/);
   assert.match(initWorktreeStoryCheck.detail, /B-init-worktree/);
   assert.doesNotMatch(initWorktreeStoryCheck.detail, /B-parked/);
+
+  const runtimeWorktreeStoryId = 'B-runtime-worktree';
+  mkdirSync(join(tmp, '.worktrees'), { recursive: true });
+  git(['worktree', 'add', '-b', `story/${runtimeWorktreeStoryId}`, join(tmp, '.worktrees', runtimeWorktreeStoryId)]);
+  store.writeStory(runtimeWorktreeStoryId, story(runtimeWorktreeStoryId, 'INIT'));
+
+  const withRuntimeWorktree = checkConvergence(tmp, store);
+  const runtimeWorktreeStoryCheck = checkByName(withRuntimeWorktree, '所有 Story 完成');
+  assert.equal(runtimeWorktreeStoryCheck.passed, false);
+  assert.match(runtimeWorktreeStoryCheck.detail, new RegExp(runtimeWorktreeStoryId));
+  const runtimeParkedBacklogCheck = checkByName(withRuntimeWorktree, 'Parked backlog');
+  assert.equal(runtimeParkedBacklogCheck.passed, true);
+  assert.doesNotMatch(runtimeParkedBacklogCheck.detail, new RegExp(runtimeWorktreeStoryId));
+  assert.match(runtimeParkedBacklogCheck.detail, /B-parked/);
 
   store.writeFindings(auditStoryId, {
     findings: [
