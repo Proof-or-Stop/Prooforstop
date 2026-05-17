@@ -26,6 +26,15 @@
       "reviewRound": "2026-05-17T03:06:50.495Z",
       "reviewRunId": "B-eab3:RR-001",
       "_hash": "f8d8fc6e08085002d7c628c33151f4439c25d7a747388fbd6b0e7c0d44a93543"
+    },
+    {
+      "id": "B-eab3:RP-004",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: Round 2 复审确认 7/7 must intent 全有有效 verificationEvidence。CHK-001 四条 intent（happy:0 clean-compile/exit-0, happy:1 mode-100755, edge:0 非koala仓exit-0, adversarial:0 TS错误拒绝push）均为 manual_transcript/pass，证据具体含命令+期望输出+exit码。CHK-002 三条 intent（happy:0 路径正确无失效引用, edge:0 overview.md一致, adversarial:0 两份文档无旧路径）均为 docs_check/pass，证据含具体grep命令。三条 F-001/F-002/F-003 修复（fail-closed node检测、mktemp临时目录、路径对齐）已体现在 hook 实现与 materialHash 刷新中。validate 输出 0 required missing。无 blocker。",
+      "createdAt": "2026-05-17T03:18:53.899Z",
+      "reviewRound": "2026-05-17T03:16:26.070Z",
+      "reviewRunId": "B-eab3:RR-008",
+      "_hash": "2b6df0cabb3bd6b9b199bb77607c7b6e625ae60161ce959d4174ef9d4bab5ce1"
     }
   ]
 }
