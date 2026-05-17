@@ -34,7 +34,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": ".githooks/pre-push",
+          "command": "bash .githooks/pre-push origin URL </dev/null",
+          "result": "pass",
+          "note": "干净态:hook 构建 packages/main 后递归 tsc 5 个子包全 OK,打印 all 5 tsconfig project(s) passed,exit=0 放行",
+          "headHash": "54e6efff3cb3e2582dcd5fd1d012a0a3dd92c5c7",
+          "materialHash": "e86730edba430ba928a18deb8ad4567903dd4b9642ea1a7e755dc557ff5686c5",
+          "timestamp": "2026-05-17T03:06:37.813Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
