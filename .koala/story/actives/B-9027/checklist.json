@@ -3,7 +3,7 @@
     {
       "id": "CHK-001",
       "title": "Extract done-effects.ts DONE merge and worktree cleanup from story_advance.ts",
-      "context": "Move the full DONE merge/cleanup pipeline into a new packages/main/src/core/done-effects.ts (or layering-correct location): DONE worktree context detection, pre-merge stray file check, metadata commit, merge of the story branch into main, worktree removal, branch deletion, and failure-message shaping. Mechanical relocation — preserve the exact current step order and all failure semantics. story_advance.ts delegates to done-effects.ts.",
+      "context": "把完整 DONE merge/cleanup pipeline 抽到新文件 packages/main/src/handlers/done-effects.ts（放 handlers/ 或 layering-correct 位置，不强行放 core/）：DONE worktree context 探测、pre-merge stray-file 检查、metadata commit、story 分支 merge 回 main、worktree 移除、branch 删除、失败消息成形，以及 merge 后的 maybeTriggerAudit（作为 DONE post-merge effect 一起抽出，保持 non-blocking）。纯机械搬迁（Option A behavior-preserving）：保持当前精确步骤顺序与全部 failure semantics，不改 DONE 时序。注意 DONE 逻辑当前被 actor.send 切成两块（块 A pre-merge gates 在 phase 落盘前 / 块 B merge+cleanup 在落盘后），抽取须跨这个边界。story-advance.ts 抽完后不再含 inline DONE merge 实现。",
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
@@ -13,8 +13,8 @@
     },
     {
       "id": "CHK-002",
-      "title": "CORE ACCEPTANCE: phase=DONE is never written before merge and cleanup succeed",
-      "context": "This is the central acceptance criterion of the story. The DONE phase must NOT be persisted before the merge + pre-cleanup steps succeed. If merge or any pre-cleanup step fails, the story must remain in its pre-DONE state exactly as the current implementation does — the failure must surface, not be swallowed. Add a regression test that simulates a DONE pre-merge failure and asserts the story did NOT prematurely advance to DONE and the failure message is preserved.",
+      "title": "CORE ACCEPTANCE: pre-merge gate 失败不写 phase=DONE；post-merge 失败保持现有语义",
+      "context": "B-9027 是 behavior-preserving extraction（Option A），不改 DONE 事务时序。验收标准三条：(1) DONE 的三道 pre-merge gate——done oracle gate、stray-file dry-run offender 检查、assertDoneMergeCanApplyBeforeStateMutation 的 git merge-tree dry-run——任一失败时 phase=DONE 绝不写入，story 保持 pre-DONE（TEST）状态。(2) pre-merge gate 全过后当前实现先写 phase=DONE 再执行真实 merge/cleanup，此时序保持不变。(3) 真实 merge / worktree cleanup 失败时保持现有语义：story 此时已是 DONE，但错误必须显式抛出并附手动收尾指引（cd main / git merge / git worktree remove / git branch -d），不得吞错。回归测试：模拟 pre-merge gate 失败断言 story 未进 DONE；模拟 post-merge 失败断言 story 已 DONE 且抛出含手动指引的错误。",
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-completeness.md"
