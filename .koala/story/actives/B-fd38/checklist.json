@@ -1,0 +1,13 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "修正 AGENTS.md 中 .Codex/agents/ 的约定归属描述",
+      "context": "AGENTS.md:185 括号写「Codex 官方约定」。实际:.Codex/agents/ 是 Koala adapter 约定(大写 C、Markdown、Koala 读取,见 .Codex/koala.json);官方 Codex 约定是小写 .codex/ + TOML。改为准确描述,明确区分 Koala adapter 层与 Codex 官方层。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "读者在 AGENTS.md「Subagent 定义」节看到 .Codex/agents/ 被准确描述为 Koala adapter 约定(由 Koala tooling 读取),并与官方 Codex 约定(小写 .codex/ + TOML)明确区分,不再出现「Codex 官方约定」误述"
+    }
+  ]
+}
