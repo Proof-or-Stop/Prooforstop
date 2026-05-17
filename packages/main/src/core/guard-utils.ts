@@ -20,7 +20,7 @@ import { verifyFinding } from './finding-verify.js';
 import type { Finding } from './types.js';
 import { storyMachine, type StoryMachineContext } from './machine.js';
 import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
-import { isAdvisoryThisRound } from './advisory.js';
+import { isFindingBlocking } from './advisory.js';
 import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
 import { computeActiveReviewers } from '../handlers/reviewer-list.js';
 
@@ -222,10 +222,9 @@ export function getGuardFailureReason(
         const { effectiveBlockingSeverities, roundCount } = resolveEffectiveBlockingSeverities(store, storyId, policy);
 
         // B-e8c8 CHK-007: advisory findings 不算 blocker（与 canPassReview 同源）。
+        // B-3fad CHK-001: 同源加 evidenceState 维度 — 只有 verified（或 legacy 缺字段）阻塞。
         const blocking = findings.findings.filter(
-          f => effectiveBlockingSeverities.includes(f.severity)
-            && f.status === 'open'
-            && !isAdvisoryThisRound(f.severity, roundCount),
+          f => isFindingBlocking(f, effectiveBlockingSeverities, roundCount),
         );
         if (blocking.length > 0) {
           return `Cannot enter TEST: ${blocking.length} blocking finding(s) open (Round ${roundCount}, blocking: ${effectiveBlockingSeverities.join('/')}):\n${blocking.map(f => `  - ${f.id} [${f.severity}] ${f.desc}`).join('\n')}\n→ 修复后 finding_resolve，或确认不修 finding_dismiss（需说明理由 ≥10 字符）`;

@@ -13,6 +13,7 @@ import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
 import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
 import { computeActiveReviewers } from '../handlers/reviewer-list.js';
 import { collectReviewerEvidenceState } from './review-run.js';
+import { isFindingBlocking } from './advisory.js';
 
 /**
  * Resolve effective blocking severities with round decay.
@@ -167,15 +168,15 @@ export const storyMachine = setup({
           }
         }
 
-        const { effectiveBlockingSeverities } = resolveEffectiveBlockingSeverities(context.store, context.storyId, policy);
+        const { effectiveBlockingSeverities, roundCount } = resolveEffectiveBlockingSeverities(context.store, context.storyId, policy);
 
-        // Check blocking severities from policy (with round decay)
+        // Check blocking severities from policy (with round decay).
+        // B-3fad CHK-001: evidenceState 维度 — 只有 verified（或 legacy 缺字段）的 open finding 阻塞；
+        // suspected / disproven 不阻塞 REVIEW→TEST。
         const blocking = evidenceState.valid
           .map((e) => e.finding)
           .filter((finding): finding is Finding => !!finding)
-          .filter(
-            (f) => effectiveBlockingSeverities.includes(f.severity) && f.status === 'open',
-        );
+          .filter((f) => isFindingBlocking(f, effectiveBlockingSeverities, roundCount));
         return blocking.length === 0;
       } catch {
         return false;
@@ -467,10 +468,11 @@ export function getGuardFailureReason(
         }
         const { effectiveBlockingSeverities, roundCount } = resolveEffectiveBlockingSeverities(store, storyId, policy);
 
+        // B-3fad CHK-001: evidenceState 维度 — 只有 verified（或 legacy 缺字段）的 open finding 阻塞。
         const blocking = evidenceState.valid
           .map((e) => e.finding)
           .filter((finding): finding is Finding => !!finding)
-          .filter((f) => effectiveBlockingSeverities.includes(f.severity) && f.status === 'open');
+          .filter((f) => isFindingBlocking(f, effectiveBlockingSeverities, roundCount));
         if (blocking.length > 0) {
           return `Cannot enter TEST: ${blocking.length} blocking finding(s) open (Round ${roundCount}, blocking: ${effectiveBlockingSeverities.join('/')}):\n${blocking.map(f => `  - ${f.id} [${f.severity}] ${f.desc}`).join('\n')}\n→ 修复后 finding_resolve，或确认不修 finding_dismiss（需说明理由 ≥10 字符）`;
         }

@@ -411,6 +411,28 @@ export interface StoryTestRunsData {
   runs: StoryTestRun[];
 }
 
+/**
+ * B-3fad CHK-001: Finding 证据状态轴。与 status（open/resolved/dismissed）正交。
+ * - suspected: 只是怀疑，未复现 / 无源码证据，不能呈现为 confirmed。REVIEW→TEST gate 不阻塞，只 advisory。
+ * - verified: 有结构化证据支撑（reviewer REVIEW 阶段 finding_add 默认值，保持现有 gate 行为）。
+ * - disproven: 已被反证（带 disprovenEvidence 反证摘要 + 命令 + 源码引用），不阻塞 gate。
+ * legacy finding 缺该字段时 gate 视同 verified（不回归）。
+ */
+export type FindingEvidenceState = 'suspected' | 'verified' | 'disproven';
+
+/**
+ * B-3fad CHK-001: disproven finding 的反证证据。
+ * evidenceState=disproven 时必填，能存反证摘要 + 复现命令 + 源码引用。
+ */
+export interface DisprovenEvidence {
+  /** 反证结论摘要：为什么这条 finding 不成立 */
+  summary: string;
+  /** 反证引用的源码 / 文档位置（如 src/foo.ts:42） */
+  sourceRefs?: string[];
+  /** 反证用到的复现 / 验证命令 */
+  reproCommand?: string;
+}
+
 /** Finding: koala-reviewer 提出的发现项（替代 testIntent） */
 export interface Finding {
   id: string;            // 格式 B-xxx:F-001
@@ -418,6 +440,19 @@ export interface Finding {
   severity: 'critical' | 'high' | 'medium' | 'low';
   category: 'happy' | 'edge' | 'adversarial' | 'missing';
   status: 'open' | 'resolved' | 'dismissed';
+  /**
+   * B-3fad CHK-001: 证据状态轴（与 status 正交）。缺失时 gate 视同 verified（legacy 兼容）。
+   */
+  evidenceState?: FindingEvidenceState;
+  /**
+   * B-3fad CHK-001: evidenceState=suspected 时必填，说明为什么只是怀疑（未复现 / 缺源码证据）。
+   * 防止把 suspected 当成绕 gate 的按钮。
+   */
+  uncertaintyReason?: string;
+  /**
+   * B-3fad CHK-001: evidenceState=disproven 时必填，反证摘要 + 命令 + 源码引用。
+   */
+  disprovenEvidence?: DisprovenEvidence;
   agent?: string;
   createdAt?: string;
   _hash?: string;

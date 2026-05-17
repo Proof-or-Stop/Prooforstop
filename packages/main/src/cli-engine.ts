@@ -559,6 +559,17 @@ export const MAIN_TOOLS: ToolDef[] = [
     agent: z.string().optional().describe('调用者身份（可选，默认从 KOALA_AGENT 环境变量读）'),
     reviewRunId: z.string().optional().describe('koala-review-* reviewer 当前 run id（先调用 review_run_start 获取；main finding 可省略）'),
     files: z.array(z.string()).optional().describe('关联文件路径（用于 reviewer finding cluster 与溯源）'),
+    // B-3fad CHK-001: 证据状态轴。省略时默认 verified（REVIEW 阶段 reviewer finding，保持现有 gate 行为）。
+    // suspected 必须带 uncertaintyReason；disproven 必须带 disprovenEvidence.summary（runtime 同标准校验）。
+    evidenceState: z.enum(['suspected', 'verified', 'disproven']).optional()
+      .describe('证据状态：suspected（怀疑，不阻塞 gate）/ verified（默认，有证据，阻塞）/ disproven（已反证，不阻塞）'),
+    uncertaintyReason: z.string().optional()
+      .describe('evidenceState=suspected 时必填（≥10 字符）：为什么只是怀疑'),
+    disprovenEvidence: z.object({
+      summary: z.string().describe('反证摘要：为什么这条 finding 不成立'),
+      sourceRefs: z.array(z.string()).optional().describe('反证引用的源码/文档位置'),
+      reproCommand: z.string().optional().describe('反证用到的复现/验证命令'),
+    }).optional().describe('evidenceState=disproven 时必填：反证摘要 + 命令 + 源码引用'),
   }},
   { name: 'finding_list', description: '查看 story 的 findings', schema: {
     storyId: z.string().describe('Story ID'),
