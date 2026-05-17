@@ -57,9 +57,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "worktree-authority-smoke covers live DONE main merge lock refusal before phase=DONE and story remains TEST",
-          "headHash": "fd508652ac359f5dfcafb0bc1b145db34085ec0b",
-          "materialHash": "0a7e7d92a5f45d6e59281d42b66d5741e3db92b4e610afb4f367b2afe39d351e",
-          "timestamp": "2026-05-17T03:45:45.991Z"
+          "headHash": "6d0c310b8003d49bd8693bd2ce12aa8608dfa4df",
+          "materialHash": "2682d4d41e278c69c0702e7d12c05dfa777da35340a89af7143ea6aa9aab9996",
+          "timestamp": "2026-05-17T03:51:30.021Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -67,9 +67,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "stale done-main-merge.lock is reclaimed and successful DONE releases the lock",
-          "headHash": "fd508652ac359f5dfcafb0bc1b145db34085ec0b",
-          "materialHash": "0a7e7d92a5f45d6e59281d42b66d5741e3db92b4e610afb4f367b2afe39d351e",
-          "timestamp": "2026-05-17T03:45:45.991Z"
+          "headHash": "6d0c310b8003d49bd8693bd2ce12aa8608dfa4df",
+          "materialHash": "2682d4d41e278c69c0702e7d12c05dfa777da35340a89af7143ea6aa9aab9996",
+          "timestamp": "2026-05-17T03:51:30.021Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -77,9 +77,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "assertDoneMainMergeStaleLockIsReclaimed and success path prove normal DONE succeeds and releases lock after merge cleanup branch delete",
-          "headHash": "1bc0fbcd7ed5e502ada667b608da29767ea0f1f9",
-          "materialHash": "0a7e7d92a5f45d6e59281d42b66d5741e3db92b4e610afb4f367b2afe39d351e",
-          "timestamp": "2026-05-17T03:45:29.658Z"
+          "headHash": "6d0c310b8003d49bd8693bd2ce12aa8608dfa4df",
+          "materialHash": "2682d4d41e278c69c0702e7d12c05dfa777da35340a89af7143ea6aa9aab9996",
+          "timestamp": "2026-05-17T03:51:30.021Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -87,9 +87,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "assertDoneMainMergeLockBlocksBeforeAutoSyncMain proves lock acquisition precedes checkMainDivergence autoSyncMain and phase mutation",
-          "headHash": "1bc0fbcd7ed5e502ada667b608da29767ea0f1f9",
-          "materialHash": "0a7e7d92a5f45d6e59281d42b66d5741e3db92b4e610afb4f367b2afe39d351e",
-          "timestamp": "2026-05-17T03:45:29.658Z"
+          "headHash": "6d0c310b8003d49bd8693bd2ce12aa8608dfa4df",
+          "materialHash": "2682d4d41e278c69c0702e7d12c05dfa777da35340a89af7143ea6aa9aab9996",
+          "timestamp": "2026-05-17T03:51:30.021Z"
         }
       ]
     },
@@ -150,9 +150,9 @@
           "command": "npm --prefix packages/main run test:worktree-repair-smoke",
           "result": "pass",
           "note": "doctor JSON reports branch-only partial-DONE stories with storyId branch worktree and mergeTree status",
-          "headHash": "fd508652ac359f5dfcafb0bc1b145db34085ec0b",
-          "materialHash": "0a7e7d92a5f45d6e59281d42b66d5741e3db92b4e610afb4f367b2afe39d351e",
-          "timestamp": "2026-05-17T03:45:45.991Z"
+          "headHash": "6d0c310b8003d49bd8693bd2ce12aa8608dfa4df",
+          "materialHash": "2682d4d41e278c69c0702e7d12c05dfa777da35340a89af7143ea6aa9aab9996",
+          "timestamp": "2026-05-17T03:51:30.021Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -160,9 +160,9 @@
           "command": "npm --prefix packages/main run test:worktree-repair-smoke",
           "result": "pass",
           "note": "doctor text output includes Partial-DONE scan and done_recover command",
-          "headHash": "fd508652ac359f5dfcafb0bc1b145db34085ec0b",
-          "materialHash": "0a7e7d92a5f45d6e59281d42b66d5741e3db92b4e610afb4f367b2afe39d351e",
-          "timestamp": "2026-05-17T03:45:45.991Z"
+          "headHash": "6d0c310b8003d49bd8693bd2ce12aa8608dfa4df",
+          "materialHash": "2682d4d41e278c69c0702e7d12c05dfa777da35340a89af7143ea6aa9aab9996",
+          "timestamp": "2026-05-17T03:51:30.021Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -170,9 +170,9 @@
           "command": "npm --prefix packages/main run test:worktree-repair-smoke",
           "result": "pass",
           "note": "terminal registered/orphan DONE residue is reported by worktree cleanup scan and partialDone.needsRecovery remains false",
-          "headHash": "1bc0fbcd7ed5e502ada667b608da29767ea0f1f9",
-          "materialHash": "0a7e7d92a5f45d6e59281d42b66d5741e3db92b4e610afb4f367b2afe39d351e",
-          "timestamp": "2026-05-17T03:45:29.658Z"
+          "headHash": "6d0c310b8003d49bd8693bd2ce12aa8608dfa4df",
+          "materialHash": "2682d4d41e278c69c0702e7d12c05dfa777da35340a89af7143ea6aa9aab9996",
+          "timestamp": "2026-05-17T03:51:30.021Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -180,9 +180,9 @@
           "command": "npm --prefix packages/main run test:worktree-repair-smoke",
           "result": "pass",
           "note": "active DEV worktree residue in repair smoke does not appear in partialDone scan",
-          "headHash": "1bc0fbcd7ed5e502ada667b608da29767ea0f1f9",
-          "materialHash": "0a7e7d92a5f45d6e59281d42b66d5741e3db92b4e610afb4f367b2afe39d351e",
-          "timestamp": "2026-05-17T03:45:29.658Z"
+          "headHash": "6d0c310b8003d49bd8693bd2ce12aa8608dfa4df",
+          "materialHash": "2682d4d41e278c69c0702e7d12c05dfa777da35340a89af7143ea6aa9aab9996",
+          "timestamp": "2026-05-17T03:51:30.021Z"
         }
       ]
     },
@@ -251,9 +251,9 @@
           "command": "npm --prefix packages/main run test:worktree-repair-smoke",
           "result": "pass",
           "note": "safe partial-DONE fixture recovers by merging story branch into main removing worktree and deleting branch",
-          "headHash": "fd508652ac359f5dfcafb0bc1b145db34085ec0b",
-          "materialHash": "0a7e7d92a5f45d6e59281d42b66d5741e3db92b4e610afb4f367b2afe39d351e",
-          "timestamp": "2026-05-17T03:45:45.991Z"
+          "headHash": "6d0c310b8003d49bd8693bd2ce12aa8608dfa4df",
+          "materialHash": "2682d4d41e278c69c0702e7d12c05dfa777da35340a89af7143ea6aa9aab9996",
+          "timestamp": "2026-05-17T03:51:30.021Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -261,9 +261,9 @@
           "command": "npm --prefix packages/main run test:worktree-repair-smoke",
           "result": "pass",
           "note": "done_recover refuses dirty main before mutation and leaves partial-DONE state untouched",
-          "headHash": "fd508652ac359f5dfcafb0bc1b145db34085ec0b",
-          "materialHash": "0a7e7d92a5f45d6e59281d42b66d5741e3db92b4e610afb4f367b2afe39d351e",
-          "timestamp": "2026-05-17T03:45:45.991Z"
+          "headHash": "6d0c310b8003d49bd8693bd2ce12aa8608dfa4df",
+          "materialHash": "2682d4d41e278c69c0702e7d12c05dfa777da35340a89af7143ea6aa9aab9996",
+          "timestamp": "2026-05-17T03:51:30.021Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -271,9 +271,9 @@
           "command": "npm --prefix packages/main run test:worktree-repair-smoke",
           "result": "pass",
           "note": "after done_recover smoke asserts no story worktree in git worktree list and no story branch remains",
-          "headHash": "1bc0fbcd7ed5e502ada667b608da29767ea0f1f9",
-          "materialHash": "0a7e7d92a5f45d6e59281d42b66d5741e3db92b4e610afb4f367b2afe39d351e",
-          "timestamp": "2026-05-17T03:45:29.658Z"
+          "headHash": "6d0c310b8003d49bd8693bd2ce12aa8608dfa4df",
+          "materialHash": "2682d4d41e278c69c0702e7d12c05dfa777da35340a89af7143ea6aa9aab9996",
+          "timestamp": "2026-05-17T03:51:30.021Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -281,9 +281,9 @@
           "command": "npm --prefix packages/main run test:worktree-repair-smoke",
           "result": "pass",
           "note": "merge-tree conflict fixture reports mergeTreeClean=false and done_recover refuses before mutation",
-          "headHash": "1bc0fbcd7ed5e502ada667b608da29767ea0f1f9",
-          "materialHash": "0a7e7d92a5f45d6e59281d42b66d5741e3db92b4e610afb4f367b2afe39d351e",
-          "timestamp": "2026-05-17T03:45:29.658Z"
+          "headHash": "6d0c310b8003d49bd8693bd2ce12aa8608dfa4df",
+          "materialHash": "2682d4d41e278c69c0702e7d12c05dfa777da35340a89af7143ea6aa9aab9996",
+          "timestamp": "2026-05-17T03:51:30.021Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -291,9 +291,9 @@
           "command": "npm --prefix packages/main run test:worktree-repair-smoke",
           "result": "pass",
           "note": "missing story branch recovery refuses and leaves unrelated story branch intact",
-          "headHash": "1bc0fbcd7ed5e502ada667b608da29767ea0f1f9",
-          "materialHash": "0a7e7d92a5f45d6e59281d42b66d5741e3db92b4e610afb4f367b2afe39d351e",
-          "timestamp": "2026-05-17T03:45:29.658Z"
+          "headHash": "6d0c310b8003d49bd8693bd2ce12aa8608dfa4df",
+          "materialHash": "2682d4d41e278c69c0702e7d12c05dfa777da35340a89af7143ea6aa9aab9996",
+          "timestamp": "2026-05-17T03:51:30.021Z"
         }
       ]
     },
@@ -357,9 +357,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke && npm --prefix packages/main run test:worktree-repair-smoke",
           "result": "pass",
           "note": "smoke transcript proves lock contention refusal and partial-DONE recovery without handwritten git",
-          "headHash": "fd508652ac359f5dfcafb0bc1b145db34085ec0b",
-          "materialHash": "0a7e7d92a5f45d6e59281d42b66d5741e3db92b4e610afb4f367b2afe39d351e",
-          "timestamp": "2026-05-17T03:45:45.991Z"
+          "headHash": "6d0c310b8003d49bd8693bd2ce12aa8608dfa4df",
+          "materialHash": "2682d4d41e278c69c0702e7d12c05dfa777da35340a89af7143ea6aa9aab9996",
+          "timestamp": "2026-05-17T03:51:30.021Z"
         },
         {
           "intentRef": "CHK-004:happy:2",
@@ -367,9 +367,9 @@
           "command": "rg -n \"done_recover|Partial-DONE|done-main-merge.lock\" docs/requirements/decisions/story-lifecycle.md",
           "result": "pass",
           "note": "story-lifecycle.md documents DONE lock, doctor partial-DONE detection, and done_recover recovery path",
-          "headHash": "fd508652ac359f5dfcafb0bc1b145db34085ec0b",
-          "materialHash": "0a7e7d92a5f45d6e59281d42b66d5741e3db92b4e610afb4f367b2afe39d351e",
-          "timestamp": "2026-05-17T03:45:45.991Z"
+          "headHash": "6d0c310b8003d49bd8693bd2ce12aa8608dfa4df",
+          "materialHash": "2682d4d41e278c69c0702e7d12c05dfa777da35340a89af7143ea6aa9aab9996",
+          "timestamp": "2026-05-17T03:51:30.021Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
@@ -377,9 +377,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke && npm --prefix packages/main run test:worktree-repair-smoke",
           "result": "pass",
           "note": "operator-visible outputs include lock held retry partial-DONE detected recovery merge worktree removal and branch deletion assertions",
-          "headHash": "1bc0fbcd7ed5e502ada667b608da29767ea0f1f9",
-          "materialHash": "0a7e7d92a5f45d6e59281d42b66d5741e3db92b4e610afb4f367b2afe39d351e",
-          "timestamp": "2026-05-17T03:45:29.658Z"
+          "headHash": "6d0c310b8003d49bd8693bd2ce12aa8608dfa4df",
+          "materialHash": "2682d4d41e278c69c0702e7d12c05dfa777da35340a89af7143ea6aa9aab9996",
+          "timestamp": "2026-05-17T03:51:30.021Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -387,9 +387,9 @@
           "command": "npm --prefix packages/main run test:worktree-repair-smoke",
           "result": "pass",
           "note": "after done_recover doctor JSON reports partialDone.needsRecovery=false and worktrees.needsRepair=false",
-          "headHash": "1bc0fbcd7ed5e502ada667b608da29767ea0f1f9",
-          "materialHash": "0a7e7d92a5f45d6e59281d42b66d5741e3db92b4e610afb4f367b2afe39d351e",
-          "timestamp": "2026-05-17T03:45:29.658Z"
+          "headHash": "6d0c310b8003d49bd8693bd2ce12aa8608dfa4df",
+          "materialHash": "2682d4d41e278c69c0702e7d12c05dfa777da35340a89af7143ea6aa9aab9996",
+          "timestamp": "2026-05-17T03:51:30.021Z"
         }
       ]
     }
