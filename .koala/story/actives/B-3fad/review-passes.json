@@ -53,6 +53,15 @@
       "reviewRound": "2026-05-17T00:51:26.668Z",
       "reviewRunId": "B-3fad:RR-009",
       "_hash": "a3ec1a0d53d702825afa13817ab2fa7c7a412dde9949901ce97fe13de9ca7914"
+    },
+    {
+      "id": "B-3fad:RP-007",
+      "agent": "koala-review-behavior",
+      "note": "Round 2 gate consistency re-audit: F-001 fix confirmed. (1) reviewer-status.ts openBlockers now calls isFindingBlocking from advisory.ts at line 134, identical predicate to machine.ts canPassReview (line 179) and guard-utils.ts getGuardFailureReason (line 227) — all four consumption points now share the same source. (2) Both severity-decay paths use resolveEffectiveBlockingSeverities with identical logic (machine.ts has a local copy, guard-utils.ts has the exported version — bodies are textually identical, same round bucketing: round>=3→[critical], round>=2→[critical,high], else policy severities). (3) No circular dependency introduced: advisory.ts imports only store/types, reviewer-status.ts imports advisory.ts and guard-utils.ts, guard-utils.ts imports advisory.ts — all acyclic. (4) Smoke test assertReviewerStatusAgreesWithGate covers both Case A (suspected open critical → gate null, reviewer-status blockerCount=0 verdict=pass) and Case B (verified open critical → gate blocks, reviewer-status blockerCount=1 verdict=fail). All evidence-state-gate-smoke tests pass including F-001 assertion.",
+      "createdAt": "2026-05-17T00:53:43.573Z",
+      "reviewRound": "2026-05-17T00:51:26.668Z",
+      "reviewRunId": "B-3fad:RR-006",
+      "_hash": "98444511c2aaf0f6dd0177d6d0081b4e6a7b5b1ec45912b1b41fc1613924d831"
     }
   ]
 }
