@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-eab3:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 已检查 7/7 verificationIntent → verificationEvidence 覆盖关系，无 blocker。CHK-001 4 条 must intent 均由 manual_transcript 覆盖（happy path x2、edge 非 koala 仓 exit 0、adversarial 注入 TS 错误被拒）；CHK-002 3 条 must intent 均由 docs_check 覆盖（CLAUDE.md 路径修正、koala-project-overview.md 收敛、双文档 grep 验证）。所有 evidence result=pass，与对应 intent 具体绑定，无宽泛描述，无缺口，无需 waiver。",
+      "createdAt": "2026-05-17T03:07:59.628Z",
+      "reviewRound": "2026-05-17T03:06:50.495Z",
+      "reviewRunId": "B-eab3:RR-004",
+      "_hash": "8e545845a44097c22fa019e0a0a535bee442470991980cbd5394d4911535b2b3"
+    }
+  ]
+}
