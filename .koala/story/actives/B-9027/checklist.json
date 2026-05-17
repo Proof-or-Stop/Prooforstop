@@ -9,7 +9,19 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户跑 `koala story_advance --phase=DONE` 行为完全不变；story-advance.ts 不再含 inline DONE merge 实现，DONE merge/cleanup 全在 handlers/done-effects.ts。开发者 grep story-advance.ts 找不到 inline merge/worktree-remove 代码。",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-advance.ts"
+        ],
+        "create": [
+          "packages/main/src/handlers/done-effects.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-002",
