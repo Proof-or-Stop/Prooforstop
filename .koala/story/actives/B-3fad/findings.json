@@ -5,7 +5,7 @@
       "desc": "concept-residual: reviewer-status.ts openBlockers filter (line 121-125) still uses isAdvisoryThisRound without evidenceState dimension; suspected open finding would show verdict=fail in reviewer-status even though machine.ts/guard-utils.ts gate correctly exempts it via isFindingBlocking. New isFindingBlocking concept not propagated to reviewer-status.ts.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "agent": "koala-review-concept",
       "createdAt": "2026-05-17T00:42:32.120Z",
       "reviewRound": "2026-05-17T00:39:52.477Z",
