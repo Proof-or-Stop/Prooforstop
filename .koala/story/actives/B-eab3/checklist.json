@@ -42,7 +42,30 @@
       "context": "CLAUDE.md:903-918 把 hook 描述成已提交存在(实际缺失)、路径 packages/koala/packages/main(实际 packages/main)、引用不存在的「koala 自举开发注意」段。修正这三处,使文档与 CHK-001 落地的 hook 一致。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CLAUDE.md pre-push 段路径为 packages/main、描述递归扫子包、无指向不存在段的失效交叉引用",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "koala-project-overview.md 对 hook 的描述与 CLAUDE.md 收敛一致",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "grep 两份文档的 pre-push 相关段落不再出现 packages/koala/packages/main,且文档描述的 hook 行为与落地的 .githooks/pre-push 一致",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
