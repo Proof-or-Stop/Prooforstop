@@ -141,6 +141,17 @@
           "headHash": "81492e2921e33d068d38692c13e64975919624d8",
           "materialHash": "d1a3fd2f6c2f65a4a29406c927b95a1f2784c9035d3b342d5d7b2465a33cb9ae",
           "timestamp": "2026-05-17T13:20:31.287Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/transition-orchestrator.ts",
+          "command": "code review of runStoryTransition finally block",
+          "result": "pass",
+          "note": "runStoryTransition wraps the whole transition in one try; the finally calls actor?.stop() unconditionally. Actor is assigned after early guards; on every exit path after assignment (normal return, guard-failure throw, gate-failure throw, effect-failure throw) the finally runs stop(). actor?. optional-chain handles the pre-assignment early-throw case.",
+          "headHash": "1287d5115f20f17248adb05997cef0c4a51df1b4",
+          "materialHash": "d1a3fd2f6c2f65a4a29406c927b95a1f2784c9035d3b342d5d7b2465a33cb9ae",
+          "timestamp": "2026-05-17T13:20:31.726Z"
         }
       ]
     },
