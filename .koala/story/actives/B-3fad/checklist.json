@@ -128,6 +128,99 @@
         "test": [
           "packages/main/src/tasks/gap-log-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "koala gap_log with all required fields (category, severity, evidence, source) -> output Gap logged: B-META-framework-audit:F-00X (evidenceState=suspected, severity=<val>); WHY: primary command happy path",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "B-META-framework-audit container does not exist before first gap_log call -> gap_log auto-bootstraps via ensureMetaStory, finding written successfully; WHY: zero-setup requirement",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "gap_log called from main branch (no story worktree) -> succeeds; WHY: worktree-independence requirement",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "gap_log default evidenceState is suspected when no structured evidence fields provided; WHY: constraint that gap_log defaults suspected",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "gap_log with structured evidence fields (sourceRefs + reproCommand) + explicit evidenceState=verified -> accepted and stored as verified; WHY: verified path requires structured evidence",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "gap_log missing category field -> clear error message, no finding written; WHY: field completeness gate",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "gap_log missing severity field -> clear error message, no finding written; WHY: field completeness gate",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "gap_log missing evidence field -> clear error message, no finding written; WHY: field completeness gate",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "gap_log missing source field -> clear error message, no finding written; WHY: field completeness gate",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "gap_log called twice with identical content -> second call creates separate finding (not deduplicated, unlike audit drift upsert); WHY: manual archival is intentionally non-deduped",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "gap_log with severity value outside canonical enum (e.g. urgent) -> Zod + handler runtime reject; WHY: enum hardening",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "B-META-framework-audit already exists with prior findings -> gap_log appends new finding, prior findings untouched; WHY: idempotent container, additive writes",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "gap_log with evidenceState=verified but NO structured evidence fields (no sourceRefs, no reproCommand, no observedOutput, no analysisNote) -> handler forces evidenceState back to suspected; WHY: constraint that verified requires structured evidence",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "gap_log with evidenceState=disproven -> rejected (gap_log is for archiving suspected gaps, not for recording disproof); WHY: disproven semantic does not apply to manual gap archival entry point",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "gap_log with empty-string evidence field (whitespace only) -> handler rejects, treats as missing; WHY: prevent garbage entries in B-META",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "gap_log called in rapid succession (5 calls <1s) with different content -> all 5 findings written, no race condition on findings.json; WHY: concurrent write safety",
+            "type": "logic",
+            "priority": "should"
+          },
+          {
+            "desc": "gap_log command registered in registry.ts and command-policy.ts with correct allowedPhases policy -> koala help shows gap_log; WHY: command discoverability",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
