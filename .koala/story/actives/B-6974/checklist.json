@@ -85,7 +85,20 @@
             "priority": "should"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/transition-orchestrator.ts",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "transition-orchestrator.ts created in packages/main/src/handlers/; exports runStoryTransition + renderTransitionResult; tsc build passes and story-advance.ts imports it.",
+          "headHash": "fa6eb107285398d2f909cbc00c1593c5009db0e5",
+          "materialHash": "d1a3fd2f6c2f65a4a29406c927b95a1f2784c9035d3b342d5d7b2465a33cb9ae",
+          "timestamp": "2026-05-17T13:20:12.927Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
