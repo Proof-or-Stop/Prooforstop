@@ -107,6 +107,15 @@
       "reviewRound": "2026-05-17T15:46:48.338Z",
       "reviewRunId": "B-6974:RR-013",
       "_hash": "eeb2045b7f1c8f47c48ff59a4797a74968c6844643d36d2ae9ddd91ea89a12e3"
+    },
+    {
+      "id": "B-6974:RP-013",
+      "agent": "koala-review-behavior",
+      "note": "Round 4 re-audit: 4 hard validations all pass. (1) actor lifecycle: createStoryActor/start/send/stop exclusively in transition-orchestrator.ts lines 155/242-243/289/428. phase-gates.ts runReviewToTestPreflightGate/runValidateGate/runDoneOracleGate and done-effects.ts stray-offender path have zero .stop() calls — all removed in this story. (2) DONE merge lock scope: acquireDoneMainMergeLock at line 222 inside the single try{} (line 156), doneMainMergeLock.release() in finally at line 432 — spans runDonePreMergeGate→actor.send→writeStory→applyDoneMergeEffects. (3) Phase timing: runDonePreMergeGate line 284 BEFORE actor.send line 289; writeStory line 321 BEFORE applyDoneMergeEffects line 363 — order byte-identical to pre-refactor. (4) Thin handler: story-advance.ts is 34 lines, contains zero inline git/actor/gate logic — purely delegates to runStoryTransition + renderTransitionResult. Commit 125ebacd (sole change since R3) is 5-line pure comment correction across 4 files with zero logic change.",
+      "createdAt": "2026-05-17T15:49:14.087Z",
+      "reviewRound": "2026-05-17T15:46:48.338Z",
+      "reviewRunId": "B-6974:RR-016",
+      "_hash": "9483ee739cce1ab99c6720403862413b903b0d4d85326b81a468141f328dc278"
     }
   ]
 }
