@@ -35,6 +35,15 @@
       "reviewRound": "2026-05-17T03:51:16.697Z",
       "reviewRunId": "B-4c38:RR-008",
       "_hash": "922d5f687f8359461fd4eb452a6d602474dc80745d9cf9f81f68b7bb4bf78ba3"
+    },
+    {
+      "id": "B-4c38:RP-005",
+      "agent": "koala-review-docs",
+      "note": "docs/requirements/decisions/story-lifecycle.md now states DONE merge is serialized by .koala/runtime/done-main-merge.lock, done_recover uses the same lock, recovery requires clean main and clean story worktree, and the partial-DONE/manual recovery guidance is consistent with that behavior; no blocker found.",
+      "createdAt": "2026-05-17T03:57:34.860Z",
+      "reviewRound": "2026-05-17T03:55:23.642Z",
+      "reviewRunId": "B-4c38:RR-012",
+      "_hash": "cb661277fe3b5d08e5490c41440d227ae09ec55890997cc2b2b96f04b9e9f10e"
     }
   ]
 }
