@@ -31,12 +31,12 @@
             "priority": "must"
           },
           {
-            "desc": "在 story_advance orchestration path（transition-orchestrator.ts / phase-gates.ts / done-effects.ts / story-advance.ts）内 rg \"actor\\.stop\" 只命中 transition-orchestrator.ts -> phase-gates.ts / done-effects.ts / story-advance.ts 零命中；明确排除 packages/main/src/handlers/worktree.ts 的 legacy dev_finish/dev_merge path——那是 out-of-scope 的 legacy command path，不属于 B-6974 scope; WHY: 证明 actor 生命周期在 story_advance orchestration path 内唯一 owner 收拢完成（硬验收 #1）",
+            "desc": "在 story_advance orchestration path（transition-orchestrator.ts / phase-gates.ts / done-effects.ts / story-advance.ts）内 rg \"actor\\??\\.stop\"（同时匹配 actor.stop() 与 orchestrator 防御性写的 optional-chaining actor?.stop()）只命中 transition-orchestrator.ts -> phase-gates.ts / done-effects.ts / story-advance.ts 零命中；明确排除 packages/main/src/handlers/worktree.ts 的 legacy dev_finish/dev_merge path——那是 out-of-scope 的 legacy command path，不属于 B-6974 scope; WHY: 证明 actor 停止在 story_advance orchestration path 内唯一 owner 收拢完成（硬验收 #1）",
             "type": "cli",
             "priority": "must"
           },
           {
-            "desc": "在 story_advance orchestration path（story-advance.ts / phase-gates.ts / done-effects.ts / transition-orchestrator.ts）内 rg \"createStoryActor|actor\\.start\\(|actor\\.send\\(\" 除 machine.ts 定义外只命中 transition-orchestrator.ts -> story-advance.ts / phase-gates.ts / done-effects.ts 不再直接创建或操作 actor；明确排除 packages/main/src/handlers/worktree.ts 的 legacy dev_finish/dev_merge path——那是 out-of-scope 的 legacy command path; WHY: actor 生命周期 create/start/send/stop 四操作在 story_advance orchestration path 内均由 orchestrator 独占",
+            "desc": "在 story_advance orchestration path（story-advance.ts / phase-gates.ts / done-effects.ts / transition-orchestrator.ts）内 rg \"createStoryActor\\(|actor\\.start\\(|actor\\.send\\(\"（调用形，排除纯类型引用）只命中 transition-orchestrator.ts -> phase-gates.ts / done-effects.ts 仅以 ReturnType<typeof createStoryActor> 形式在函数签名引用该符号作为 actor 参数类型标注（不创建、不驱动 actor），story-advance.ts 完全不引用；明确排除 packages/main/src/handlers/worktree.ts 的 legacy dev_finish/dev_merge path——out-of-scope legacy command path; WHY: actor 生命周期 create/start/send/stop 四操作在 story_advance orchestration path 内均由 orchestrator 独占",
             "type": "cli",
             "priority": "must"
           },
