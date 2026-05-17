@@ -88,6 +88,8 @@ function prepareRuntime() {
   return runtimeRoot;
 }
 
+process.env.KOALA_DESKTOP_PACKAGED_RUNTIME = '1';
+
 async function main() {
   const runtimeRoot = prepareRuntime();
   const bootstrapPath = join(runtimeRoot, 'bin', 'bootstrap-runner.js');

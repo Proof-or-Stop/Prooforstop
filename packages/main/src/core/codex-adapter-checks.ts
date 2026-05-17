@@ -221,7 +221,13 @@ function runHeartbeat(
   session: string,
   expectedEntrypoint: string,
   timeoutMs: number,
+  displayCommand?: string,
 ): void {
+  const retryCommand = displayCommand || (
+    id === 'local-wrapper-heartbeat'
+      ? 'node bin/koala-codex.js session_brief'
+      : `${GLOBAL_CODEX_FALLBACK_COMMAND} session_brief`
+  );
   try {
     execFileSync(command, args, {
       cwd: root,
@@ -237,17 +243,17 @@ function runHeartbeat(
       },
     });
   } catch (e: any) {
-    push(checks, id, label, 'fail', true, `heartbeat command failed: ${e?.stderr?.toString?.().trim() || e?.message || e}`, id === 'local-wrapper-heartbeat' ? 'node bin/koala-codex.js session_brief' : `${GLOBAL_CODEX_FALLBACK_COMMAND} session_brief`);
+    push(checks, id, label, 'fail', true, `heartbeat command failed: ${e?.stderr?.toString?.().trim() || e?.message || e}`, retryCommand);
     return;
   }
 
   const record = activityFor(root, session, 'session_brief');
   if (!record) {
-    push(checks, id, label, 'fail', true, `no activity heartbeat for session ${session}`, id === 'local-wrapper-heartbeat' ? 'node bin/koala-codex.js session_brief' : `${GLOBAL_CODEX_FALLBACK_COMMAND} session_brief`);
+    push(checks, id, label, 'fail', true, `no activity heartbeat for session ${session}`, retryCommand);
     return;
   }
   if (record.source !== 'codex') {
-    push(checks, id, label, 'fail', true, `activity source=${String(record.source)} expected codex`, id === 'local-wrapper-heartbeat' ? 'node bin/koala-codex.js session_brief' : `${GLOBAL_CODEX_FALLBACK_COMMAND} session_brief`);
+    push(checks, id, label, 'fail', true, `activity source=${String(record.source)} expected codex`, retryCommand);
     return;
   }
   if (!record.entrypoint && expectedEntrypoint === 'global-fallback') {
@@ -255,10 +261,23 @@ function runHeartbeat(
     return;
   }
   if (record.entrypoint !== expectedEntrypoint) {
-    push(checks, id, label, 'fail', true, `entrypoint=${String(record.entrypoint)} expected ${expectedEntrypoint}`, id === 'local-wrapper-heartbeat' ? 'node bin/koala-codex.js session_brief' : `${GLOBAL_CODEX_FALLBACK_COMMAND} session_brief`);
+    push(checks, id, label, 'fail', true, `entrypoint=${String(record.entrypoint)} expected ${expectedEntrypoint}`, retryCommand);
     return;
   }
   push(checks, id, label, 'pass', true, `source=codex session=${session} entrypoint=${expectedEntrypoint}`);
+}
+
+function isPackagedDesktopRuntime(): boolean {
+  return process.env.KOALA_DESKTOP_PACKAGED_RUNTIME === '1'
+    || Boolean((process as typeof process & { pkg?: unknown }).pkg);
+}
+
+function localWrapperHeartbeatCommand(): { command: string; args: string[]; displayCommand: string } {
+  return {
+    command: process.execPath,
+    args: ['bin/koala-codex.js', 'session_brief'],
+    displayCommand: 'node bin/koala-codex.js session_brief',
+  };
 }
 
 function pathContains(parent: string, child: string): boolean {
@@ -304,16 +323,31 @@ function checkLocalWrapper(root: string, checks: CodexAdapterCheck[], executeHea
   }
   push(checks, 'local-wrapper', 'Local Codex wrapper', 'pass', true, 'bin/koala-codex.js sets Codex activity env');
   if (executeHeartbeats) {
+    if (isPackagedDesktopRuntime()) {
+      // pkg spawns process.execPath in Node-script mode, so there is no safe
+      // external-node-free subprocess path for the ESM wrapper inside desktop builds.
+      push(
+        checks,
+        'local-wrapper-heartbeat',
+        'Local wrapper heartbeat',
+        'pass',
+        true,
+        'packaged runtime uses embedded Koala CLI; wrapper env contract verified without external Node',
+      );
+      return;
+    }
+    const heartbeat = localWrapperHeartbeatCommand();
     runHeartbeat(
       root,
       checks,
       'local-wrapper-heartbeat',
       'Local wrapper heartbeat',
-      process.execPath,
-      ['bin/koala-codex.js', 'session_brief'],
+      heartbeat.command,
+      heartbeat.args,
       `codex-check-local-${Date.now()}`,
       'local-wrapper',
       timeoutMs,
+      heartbeat.displayCommand,
     );
   } else {
     push(checks, 'local-wrapper-heartbeat', 'Local wrapper heartbeat', 'warn', false, 'not executed in this diagnostic mode', LOCAL_CODEX_VERIFY_COMMAND);

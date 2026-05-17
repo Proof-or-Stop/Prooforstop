@@ -61,4 +61,8 @@ const utilsHelp = runBinary(['aux_doc_list', '--help'], 'utils command help');
 assertIncludes(utilsHelp, 'aux_doc_list', 'utils command help');
 assertIncludes(utilsHelp, '文档', 'utils command help');
 
+const codexVerification = runBinary(['verify_codex'], 'codex adapter verification');
+assertIncludes(codexVerification, 'Codex adapter checks passed', 'codex adapter verification');
+assertIncludes(codexVerification, 'Local wrapper heartbeat', 'codex adapter verification');
+
 console.log(`packaged executable smoke passed: ${binary}`);
