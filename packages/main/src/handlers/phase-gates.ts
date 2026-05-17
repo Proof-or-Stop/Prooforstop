@@ -232,11 +232,10 @@ export async function runValidateGate(
  * <Final_Checklist>。
  *
  * On gate failure this stops `actor` and throws; on success it returns the
- * rendered checklist string so the caller can splice it into the final
- * advance success message (this is the `__koalaDoneChecklistRendered` handoff
- * the inline original used a globalThis stash for — returning it directly is
- * behavior-equivalent and the caller still stashes it on globalThis for the
- * downstream DONE merge block to pick up).
+ * rendered checklist string. B-9027 (Story 3b): runDonePreMergeGate in
+ * done-effects.ts wraps this call and returns the rendered checklist as an
+ * explicit value; story_advance holds it in a local variable and passes it to
+ * applyDoneMergeEffects for the downstream DONE merge block — no global stash.
  */
 export function runDoneOracleGate(
   storyId: string,
