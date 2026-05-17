@@ -1,0 +1,56 @@
+{
+  "findings": [
+    {
+      "id": "B-6974:F-001",
+      "desc": "concept-cleanup: done-effects.ts was modified by B-6974 but 5 comments still say story-advance.ts is the coordinator/caller (lines 8, 35-36, 53, 220, 315). After B-6974 transition-orchestrator.ts is the direct caller, not story-advance.ts. Specifically: (1) header: story-advance.ts now delegates to the two exported functions; (2) layering: shares the layer with story-advance.ts / story-advance imports done-effects; (3) line 53: checkMainDivergence stays imported in story-advance.ts; (4) runDonePreMergeGate JSDoc: story-advance.ts calls this; (5) applyDoneMergeEffects JSDoc: story-advance.ts calls this.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-05-17T15:02:15.205Z",
+      "reviewRound": "2026-05-17T14:54:29.189Z",
+      "reviewRunId": "B-6974:RR-001",
+      "_hash": "5825c40804abc464122d4bdaa20794fe741d9ed02d056006ef74639c90ee2eda",
+      "files": [
+        "packages/main/src/handlers/done-effects.ts"
+      ]
+    },
+    {
+      "id": "B-6974:F-002",
+      "desc": "concept-cleanup: story-advance.ts-as-direct-coordinator 概念在 transition-effects.ts / summary.ts / flow-stability-smoke.ts 中有 7 处残留注释。F-001 fix 更新了 done-effects.ts 和 phase-gates.ts，但 (1) transition-effects.ts 行 6/8/19/25 仍称 story-advance.ts 为直接调用方（\"story-advance.ts now delegates to these functions\" / \"story-advance imports transition-effects\"），应改为 transition-orchestrator.ts；(2) summary.ts 行 242 注释 \"Used by story-advance.ts after successful DONE transition\" 应改为 transition-orchestrator.ts；(3) flow-stability-smoke.ts 行 3051/3139 注释仍称 story-advance.ts 是 DONE gate 的调用方。这 3 个文件不在 B-6974 diff 内，B-6974 漏更新。",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-05-17T15:10:33.538Z",
+      "reviewRound": "2026-05-17T15:06:45.892Z",
+      "reviewRunId": "B-6974:RR-005",
+      "_hash": "fa3c106ed39c5d53a1393502c69f652c02fabab99f3f7f27cd583dc493987feb",
+      "files": [
+        "packages/main/src/handlers/transition-effects.ts",
+        "packages/main/src/handlers/summary.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ]
+    },
+    {
+      "id": "B-6974:F-003",
+      "desc": "concept-cleanup: 576ede76 corrected 18 stale story-advance-as-coordinator comments but missed 3 residuals: (1) done-effects.ts:352 says [but triggered from story-advance] should say transition-orchestrator; (2) reviewer-list.ts:11 says [story-advance REVIEW echo] but REVIEW echo now lives in transition-effects.ts:buildNextSteps; (3) cli-engine.ts:1594 says [story-advance can call it the same way for onPhaseChange] but onPhaseChange is now handled by transition-orchestrator via runPhaseChangeHooks, not cli-engine buildHookEnvLocal",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-05-17T15:40:43.974Z",
+      "reviewRound": "2026-05-17T15:36:54.880Z",
+      "reviewRunId": "B-6974:RR-009",
+      "_hash": "bec76c89a0a6bd47fb4bdce7a06169551b97de5c2eccba885cc4726929a0d93a",
+      "files": [
+        "packages/main/src/handlers/done-effects.ts",
+        "packages/main/src/handlers/reviewer-list.ts",
+        "packages/main/src/cli-engine.ts"
+      ]
+    }
+  ]
+}

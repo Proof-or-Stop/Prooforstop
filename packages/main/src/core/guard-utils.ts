@@ -3,7 +3,7 @@
  * config object, zero function definitions" rule (CLAUDE.md §代码范式).
  *
  * These helpers back the xstate guards in machine.ts as well as the handler-
- * layer preflight logic in handlers/story-advance.ts. They perform I/O
+ * layer preflight logic in handlers/phase-gates.ts. They perform I/O
  * (store.readStory / store.readReview / store.readFindings / store.readChecklist
  * / store.readTestEvidence / store.readBugs / loadConfig) and so deliberately
  * do NOT live in machine.ts.
@@ -88,7 +88,7 @@ export function getGuardFailureReason(
 ): string | null {
   // B-e71f F-006/F-012: INIT_CHECK 分支已迁出此文件。
   // 历史现状：guard-utils.ts 整个文件未被任何 source import（grep `from.*guard-utils` 仅命中 CLAUDE.md 路径文档），
-  // INIT_CHECK 真相源是 machine.ts 的 getGuardFailureReason（被 story-advance.ts:335 调用渲染失败消息）+
+  // INIT_CHECK 真相源是 machine.ts 的 getGuardFailureReason（被 phase-gates.ts 的 resolveGuardFailure 调用渲染失败消息）+
   // canEnterInitCheck guard（actor.can() 决定 transition）。删除此处死分支以消除 DRY 违背。
   // 其余分支（DEV/REVIEW/TEST/DONE）暂保留——它们也是死代码但属于 B-e71f scope 外历史遗留。
 

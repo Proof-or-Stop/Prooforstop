@@ -96,9 +96,9 @@ export function advisoryLabelFor(severity: FindingSeverity | string, round: numb
  *   roundCount = events 中 phase==='REVIEW' && action==='advance' 的条目数，
  *   无匹配时默认 1（避免除零 / 首轮边界）。
  *
- * 依据：handlers/story-advance.ts 在 DEV→REVIEW（以及 REVIEW 回退后再推进）时
+ * 依据：handlers/transition-orchestrator.ts 在 DEV→REVIEW（以及 REVIEW 回退后再推进）时
  * 调用 collectContext('REVIEW', 'advance') 写入 events（见 handlers/context.ts
- * 的 collectContext 签名 `action: 'create' | 'advance' | 'discard'` + story-advance
+ * 的 collectContext 签名 `action: 'create' | 'advance' | 'discard'` + transition-orchestrator
  * 里 story.events.push(collectContext(args.phase, 'advance'))）。因此
  * phase==='REVIEW' && action==='advance' 恰好匹配每次进入 REVIEW 的那次事件。
  */

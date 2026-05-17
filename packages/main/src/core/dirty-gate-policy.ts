@@ -5,8 +5,8 @@
  * dirty-worktree.ts, B-6326) to a `{ blocking, auditReason }` decision.
  * `evaluateDirtyGate` consumes a typed classification + gate context and emits
  * an aggregate result (counts, audit events, single-line summary) consumed by
- * BOTH `story-advance.ts` (TEST pre-check + DONE gate `git-working-tree` row)
- * AND `validation-executor.ts` (side-effect guard wording).
+ * BOTH `core/done-oracle.ts` (the TEST pre-check + DONE gate `git-working-tree`
+ * row) AND `validation-executor.ts` (side-effect guard wording).
  *
  * Safety contract (preMortem anchors from B-4b22 decision):
  *

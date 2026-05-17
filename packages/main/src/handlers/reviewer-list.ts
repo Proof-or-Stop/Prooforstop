@@ -8,7 +8,7 @@
  *   - channel LLM reviewer 已退役；normal-channel 由 validate --channel CLI gate 接管
  *
  * 设计说明（decision.json A1）：
- *   - 纯函数 computeActiveReviewers 供 canPassReview (CHK-002) / story-advance REVIEW echo 共用
+ *   - 纯函数 computeActiveReviewers 供 canPassReview (CHK-002) / story_advance REVIEW 命令输出的 reviewer echo 共用
  *   - 多条 riskSignal 命中 behavior 触发集时，reason 扁平化为单字符串
  *     （"riskSignal: gate, guard" 而不是多条 entry）
  *   - forceReviewer 走逗号分隔字符串，限定为 review_run_start 支持的 lane；写 StoryEvent.action='reviewer_forced' 审计

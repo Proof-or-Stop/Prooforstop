@@ -1591,7 +1591,7 @@ export async function runCli(opts?: {
   }
 
   // Hook env factory — delegates to the shared helper in core/hooks.ts so
-  // story-advance can call it the same way for onPhaseChange.
+  // transition-orchestrator can call it the same way for onPhaseChange.
   function buildHookEnvLocal(stage: 'preCommand' | 'postCommand' | 'onError', extra: Record<string, string> = {}): Record<string, string> {
     return buildSharedHookEnv({
       stage,

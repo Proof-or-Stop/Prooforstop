@@ -2557,17 +2557,30 @@ const inventory = [
     name: 'phase advance',
     files: [
       {
-        // B-3fad CHK-003: B-56d3 (commit f736789a) extracted phase-gate symbols
-        // (getGuardFailureReason / runReviewCliGates / writeTestEvidence / the
-        // `koala validate --json` gate / the two `Cannot enter TEST` failure
-        // strings) out of story-advance.ts into handlers/phase-gates.ts. The
-        // story-advance.ts entry below keeps only the symbols that still live
-        // there (the handler factory + cwd/actor preflight wiring).
+        // B-6974 CHK-002: story-advance.ts is a thin public command shell. It
+        // delegates the transition to handlers/transition-orchestrator.ts, which
+        // owns cwd/actor preflight wiring and phase persistence.
         relPath: 'packages/main/src/handlers/story-advance.ts',
         patterns: [
           { label: 'storyAdvanceHandler/current createStoryAdvanceHandlers', any: ['storyAdvanceHandler', 'createStoryAdvanceHandlers'] },
+          'runStoryTransition',
+          'renderTransitionResult',
+        ],
+      },
+      {
+        // B-6974 CHK-003: transition-orchestrator.ts is now the process-fact
+        // owner for story_advance guard wiring, actor lifecycle, phase timing,
+        // and DONE pre/post merge sequencing.
+        relPath: 'packages/main/src/handlers/transition-orchestrator.ts',
+        patterns: [
           'assertCwdInWorktree',
-          'actor.can()',
+          'actor.getSnapshot().can',
+          'runReviewToTestPreflightGate',
+          'runValidateGate',
+          'runDonePreMergeGate',
+          'store.writeStory',
+          'applyDoneMergeEffects',
+          'actor?.stop()',
         ],
       },
       {

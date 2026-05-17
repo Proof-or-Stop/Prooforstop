@@ -2,9 +2,10 @@
  * B-37e9 DONE Oracle Extraction: buildDoneChecklist + DONE row assembly.
  *
  * This module is the single source of truth for the DONE gate checklist.
- * Both the DONE gate (handlers/story-advance.ts) and the session_brief DONE
- * pre-check (handlers/session.ts) consume buildDoneChecklist from here — a
- * same-source contract test (tasks/flow-stability-smoke.ts) proves they render
+ * Both the DONE gate (handlers/phase-gates.ts, reached via
+ * handlers/transition-orchestrator.ts) and the session_brief DONE pre-check
+ * (handlers/session.ts) consume buildDoneChecklist from here — a same-source
+ * contract test (tasks/flow-stability-smoke.ts) proves they render
  * byte-identical rows for the same story state.
  *
  * The function bodies were mechanically relocated from story-advance.ts with

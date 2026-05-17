@@ -76,8 +76,9 @@ function detectNewDirtyStatus(before: string[] | null, after: string[] | null): 
 //      when a storyId is supplied. Storyless callers pass null writer (no
 //      audit; gate degrades to blocking on failure path).
 //
-// Anti-divergence (preMortem #3): both story-advance.ts and this function
-// import evaluateDirtyGate from the same module. No inline category check.
+// Anti-divergence (preMortem #3): both core/done-oracle.ts (the DONE gate
+// checklist) and this function import evaluateDirtyGate from the same module.
+// No inline category check.
 export function formatWorktreePollutionDetails(
   result: ValidationCommandResult,
   projectRoot?: string,

@@ -5,8 +5,10 @@
  * The DONE pipeline was mechanically relocated here from
  * handlers/story-advance.ts with ZERO semantic change — step order, output
  * text, and failure semantics are byte-identical before and after the move
- * (Option A behavior-preserving extraction). story-advance.ts now delegates to
- * the two exported functions at the exact same call sites it ran them inline.
+ * (Option A behavior-preserving extraction). After the B-6974 refactor,
+ * handlers/transition-orchestrator.ts is the direct caller: its
+ * runStoryTransition invokes the two exported functions at the exact same
+ * call sites the DONE pipeline used to run them inline.
  *
  * The DONE pipeline straddles the actor.send boundary, so it is split into two
  * exported functions called at the same timing as the inline originals:
@@ -32,9 +34,9 @@
  *
  * Layering: this module lives in handlers/ (NOT core/) on purpose. It depends
  * on handler-only modules (phase-gates.ts, stray-file-cleanup.ts,
- * worktree.ts) and shares the layer with story-advance.ts. It must NOT import
- * handlers/story-advance.js (no circular import); story-advance imports
- * done-effects, never the reverse.
+ * worktree.ts) and shares the layer with transition-orchestrator.ts. It must
+ * NOT import handlers/transition-orchestrator.js (no circular import);
+ * transition-orchestrator imports done-effects, never the reverse.
  */
 
 import type { StoryStore } from '../core/store.js';
@@ -50,9 +52,10 @@ import { runDoneOracleGate } from './phase-gates.js';
 import { acquireMkdirLock, type AcquiredMkdirLock } from '../core/mkdir-lock.js';
 
 // B-c622 CHK-004: DONE 阶段自动同步 main —— detect divergence + auto merge main.
-// checkMainDivergence stays imported in story-advance.ts (it is a DONE
-// pre-check that runs before actor.can() / before this module's gate);
-// autoSyncMain lives here as a DONE-only helper.
+// checkMainDivergence is defined in core/done-oracle.ts and imported by
+// handlers/transition-orchestrator.ts (it is a DONE pre-check that runs before
+// actor.can() / before this module's gate); autoSyncMain lives here as a
+// DONE-only helper.
 
 /** Auto-sync main into the current branch. Returns success/failure + message. */
 export function autoSyncMain(projectRoot: string): { ok: boolean; message: string } {
@@ -217,14 +220,20 @@ function assertDoneMergeCanApplyBeforeStateMutation(storyId: string, worktreePat
 /**
  * Block A — DONE pre-merge gate.
  *
- * Runs BEFORE phase=DONE is persisted (story-advance.ts calls this just before
- * actor.send). Runs the done-oracle gate, the F-020 stray-file dry-run, and
- * the merge-tree dry-run. Any pre-merge gate failure throws while the story is
- * still TEST — phase=DONE is never written on failure.
+ * Runs BEFORE phase=DONE is persisted (transition-orchestrator.ts calls this
+ * just before actor.send). Runs the done-oracle gate, the F-020 stray-file
+ * dry-run, and the merge-tree dry-run. Any pre-merge gate failure throws while
+ * the story is still TEST — phase=DONE is never written on failure.
  *
  * Returns the rendered DONE checklist string so the caller can hold it in a
  * local variable and pass it to applyDoneMergeEffects (replaces the old
  * cross-actor.send global stash).
+ *
+ * B-6974: this gate NO LONGER stops the actor on failure — actor lifecycle is
+ * owned solely by transition-orchestrator.ts, which stops it in a single
+ * finally on every exit path. The `actor` parameter is kept for signature
+ * stability and is forwarded to runDoneOracleGate (which also no longer stops
+ * it).
  */
 export async function runDonePreMergeGate(
   storyId: string,
@@ -272,7 +281,10 @@ export async function runDonePreMergeGate(
         if (offenders.length > 0) {
           // 复用 cleanStrayWorktreeFiles 的 throw 消息（单一真相源），
           // 传入 worktreePath 让消息含 git worktree remove / branch -d 指引。
-          actor.stop();
+          // B-6974: the actor-stop call this path used to make was removed —
+          // actor lifecycle is owned solely by transition-orchestrator.ts,
+          // which stops it in a single finally on every exit path (including
+          // this thrown-error path).
           cleanStrayWorktreeFiles(mainRepoRoot, storyId, worktreeRoot);
           // cleanStrayWorktreeFiles 在有 offender 时必然 throw；能到这行
           // 说明逻辑偏离，fallback：主动抛错避免 phase 默认落盘。
@@ -303,9 +315,9 @@ export async function runDonePreMergeGate(
 /**
  * Block B — DONE merge / worktree cleanup effects.
  *
- * Runs AFTER writeStory(phase=DONE) (story-advance.ts calls this in the DONE
- * return segment). Performs the real git merge / worktree cleanup in the exact
- * step order of the inline original:
+ * Runs AFTER writeStory(phase=DONE) (transition-orchestrator.ts calls this in
+ * the DONE return segment). Performs the real git merge / worktree cleanup in
+ * the exact step order of the inline original:
  *   Step1 clear story.worktree + writeStory
  *   Step2 commit story metadata
  *   Step2.5 cleanStrayWorktreeFiles (whitelist rm)
@@ -337,7 +349,7 @@ export async function applyDoneMergeEffects(
 
   // B-7eed: DONE 成功后自动 git merge 回 main + 清 worktree + 删 branch。
   // CLAUDE.md 承诺"内部自动合并"但旧代码没实现，每次 DONE 都要手动 cleanup。
-  // 复用 dev_merge 的逻辑（worktree.ts:208）但从 story-advance 触发。
+  // 复用 dev_merge 的逻辑（worktree.ts:208）但走 story_advance 命令路径（经 transition-orchestrator 协调）触发。
   //
   // 关键的执行顺序（不能乱）：
   //   1. 清 story.worktree 字段 + writeStory（在 worktree fs 内）

@@ -105,7 +105,7 @@ export function cleanStrayWorktreeFiles(
       .map(rel => `  git stash push -- "${rel}"`)
       .join('\n');
     // F-014 / F-020: cleanStrayWorktreeFiles 在 merge 前调用。如果 throw 这里，
-    // caller 应保证此时 story.phase 尚未落盘为 DONE（见 story-advance.ts），
+    // caller 应保证此时 story.phase 尚未落盘为 DONE（见 done-effects.ts），
     // 所以下次 `story_advance --phase=DONE` 仍可以重跑完整流程。但如果 caller
     // 先落盘了 phase=DONE（历史 bug），用户需要手动清理 worktree + branch，
     // 这段 hint 始终显示以便兜底。
