@@ -914,16 +914,18 @@ git config core.hooksPath .githooks
 
 ### 外部防线原则
 
-pre-push hook 的核心设计约束：**不调用 `koala` 命令**。原因：hook 要防御的就是「全局 koala 可执行文件版本错位」情形——若 hook 自己依赖 koala，它就会跟着翻车（B-9bd9 假 DONE 的根因之一）。实现只用 `git` / `find` / `npx tsc` / `npm run build`，完全绕开 koala 自身版本。
+pre-push hook 的核心设计约束：**不调用 `koala` 命令**。原因：hook 要防御的就是「全局 koala 可执行文件版本错位」情形——若 hook 自己依赖 koala，它就会跟着翻车（B-9bd9 假 DONE 的根因之一）。实现只用 `git` / `find` / `node` / `npx tsc` / `npm run build`，完全绕开 koala 自身版本（`node` 仅用于解析 `package.json` 的 `name` 字段做自举仓检测，不调 koala）。
 
 ### hook 行为与容错
 
 `.githooks/pre-push`（跟仓库一起提交，便于跨 clone 复用）逐步行为：
 
+- 临时文件用 `mktemp -d` 创建唯一临时目录，`trap '... cleanup' EXIT` 在 hook 退出时清理（避免并发 push 同名互覆盖、`/tmp` 累积）。`mktemp` 失败 → push 被拒
 - 先 `git rev-parse --show-toplevel` 拿 REPO_ROOT
-- **koala 自举仓检测**（任一不满足立即 `exit 0`，对非 koala 仓零摩擦）：
-  1. `$REPO_ROOT/packages/main/package.json` 文件存在
-  2. 该 package.json 的 `name` 字段为 `@koala-agent/core`
+- **koala 自举仓检测**：
+  1. `$REPO_ROOT/packages/main/package.json` 文件存在——不存在则非 koala 仓，立即 `exit 0`（对非 koala 仓零摩擦）
+  2. **`node` 可用性检测**：用 `command -v node` 探测。`node` 缺失时 **fail-closed**——无法判断本仓是否 koala 自举仓，向 stderr 打印明确警告并 `exit 1` 拒绝 push（不静默 `exit 0`，否则 tsc gate 会被无声绕过）
+  3. 用 `node` 解析 package.json 的 `name` 字段，为 `@koala-agent/core` 才继续；否则非 koala 自身，立即 `exit 0`
   注意本仓是扁平布局 `packages/main`，不是嵌套布局
 - **先构建 `packages/main`**：`npm --prefix packages/main run build`。原因是 `packages/utils` 的源码 import `packages/main/dist` 的编译产物，若 `dist` 不存在，递归 tsc 跑到 `packages/utils` 会因找不到模块而 FAIL。`npm run build` 即 tsc（非 koala 命令，符合约束）。构建失败 → push 被拒
 - **递归 tsc**：`find` REPO_ROOT 下所有 `tsconfig.json`（排除黑名单目录 `node_modules / dist / build / .worktrees / .git`），对每个所在目录跑 `npx tsc --noEmit -p <dir>`。覆盖面与 `validate --lint` 递归扫子包对齐，消除 B-9bd9 的单根 tsconfig 子包盲区

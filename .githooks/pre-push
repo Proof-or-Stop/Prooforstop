@@ -7,7 +7,7 @@
 #
 # 核心约束：本 hook **不调用 `koala` 命令**。它要防御的就是「全局 koala 可执行
 # 文件版本错位」情形——若 hook 自己依赖 koala，koala 翻车时 hook 会一起翻
-# （B-9bd9 假 DONE 根因之一）。实现只用 git / find / npx tsc / npm run build。
+# （B-9bd9 假 DONE 根因之一）。实现只用 git / find / node / npx tsc / npm run build。
 #
 # koala 自举仓检测条件（任一不满足立即 exit 0，对非 koala 仓零摩擦）：
 #   1. `$REPO_ROOT/packages/main/package.json` 文件存在
@@ -25,6 +25,16 @@
 #
 set -u
 
+# --- 临时文件管理：mktemp 唯一临时目录 + trap EXIT 清理 ---
+# 用唯一临时目录而非固定 /tmp 路径，避免并发 push 同名互覆盖、且在 /tmp 累积。
+TMPDIR_PREPUSH="$(mktemp -d "${TMPDIR:-/tmp}/pre-push.XXXXXX" 2>/dev/null)"
+if [ -z "$TMPDIR_PREPUSH" ] || [ ! -d "$TMPDIR_PREPUSH" ]; then
+  echo "[pre-push] FAIL: could not create temp directory via mktemp" >&2
+  exit 1
+fi
+cleanup() { rm -rf "$TMPDIR_PREPUSH"; }
+trap cleanup EXIT
+
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
 if [ -z "$REPO_ROOT" ]; then
   # 不在 git 仓库内（理论上 hook 不会被这样调用），放行
@@ -39,6 +49,16 @@ if [ ! -f "$MAIN_PKG" ]; then
   exit 0
 fi
 
+# node 用于解析 package.json 的 name 字段。若 node 不在 PATH，无法判断本仓是否
+# koala 自举仓——此时 **不能 fail-open**：静默 exit 0 会让 tsc gate 被无声绕过
+# （F-002）。改为 fail-closed：打印明确警告并 exit 1 拒绝 push。
+if ! command -v node >/dev/null 2>&1; then
+  echo "[pre-push] FAIL: 'node' not found in PATH — cannot determine if this is the koala self-host repo." >&2
+  echo "[pre-push] Refusing push (fail-closed): the recursive tsc gate cannot run without node." >&2
+  echo "[pre-push] Install node and retry, or bypass intentionally with 'git push --no-verify'." >&2
+  exit 1
+fi
+
 PKG_NAME="$(node -e "try{process.stdout.write(String(JSON.parse(require('fs').readFileSync(process.argv[1],'utf-8')).name||''))}catch(e){process.stdout.write('')}" "$MAIN_PKG" 2>/dev/null)"
 if [ "$PKG_NAME" != "@koala-agent/core" ]; then
   # packages/main 不是 koala 自身：立即放行
@@ -49,9 +69,10 @@ echo "[pre-push] koala self-host repo detected — running recursive tsc gate"
 
 # --- 构建顺序约束：先确保 packages/main 已构建（packages/utils 依赖其 dist） ---
 echo "[pre-push] building packages/main (packages/utils imports its dist output)..."
-if ! npm --prefix "$REPO_ROOT/packages/main" run build >/tmp/pre-push-main-build.log 2>&1; then
+BUILD_LOG="$TMPDIR_PREPUSH/main-build.log"
+if ! npm --prefix "$REPO_ROOT/packages/main" run build >"$BUILD_LOG" 2>&1; then
   echo "[pre-push] FAIL: packages/main build failed" >&2
-  cat /tmp/pre-push-main-build.log >&2
+  cat "$BUILD_LOG" >&2
   exit 1
 fi
 echo "[pre-push] packages/main build OK"
@@ -76,9 +97,10 @@ while IFS= read -r tsconfig; do
   dir="$(dirname "$tsconfig")"
   rel="${dir#"$REPO_ROOT"/}"
   echo "[pre-push] ($COUNT) tsc --noEmit -p $rel ..."
-  if ! npx tsc --noEmit -p "$dir" >/tmp/pre-push-tsc-$COUNT.log 2>&1; then
+  TSC_LOG="$TMPDIR_PREPUSH/tsc-$COUNT.log"
+  if ! npx tsc --noEmit -p "$dir" >"$TSC_LOG" 2>&1; then
     echo "[pre-push] FAIL: tsc errors in $rel" >&2
-    cat /tmp/pre-push-tsc-$COUNT.log >&2
+    cat "$TSC_LOG" >&2
     FAILED=1
   else
     echo "[pre-push]     OK: $rel"
