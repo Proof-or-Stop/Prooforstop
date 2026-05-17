@@ -39,6 +39,52 @@
         }
       ],
       "_hash": "4ef65074d5023ae46880a89cbbcb48d42165aeceaad98921f2545f2d77f6ed0d"
+    },
+    {
+      "timestamp": "2026-05-17T11:52:58.591Z",
+      "issueCount": 4,
+      "blockerCount": 2,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 个 checklist item，请检查是否有组合场景遗漏（如：Separate META audit containers from unfinished story completion in convergence_check + Resolve B-META-framework-audit F-004 with B-4c38 evidence 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 1 个高风险信号: 状态机/门禁。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/package.json 未被任何 checklist item 的 files 字段覆盖（请为相应 item 的 files.modify/create/test 加上此路径或用 excludes 显式排除）"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: B-META-framework-audit findings via koala finding_resolve 未被任何 checklist item 的 files 字段覆盖（请为相应 item 的 files.modify/create/test 加上此路径或用 excludes 显式排除）"
+        }
+      ],
+      "_hash": "5efffeed1f3a120961a092d427a7e47fc148f8ebd4c2eb533a711304587aa0f2"
+    },
+    {
+      "timestamp": "2026-05-17T11:53:19.350Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 个 checklist item，请检查是否有组合场景遗漏（如：Separate META audit containers from unfinished story completion in convergence_check + Resolve B-META-framework-audit F-004 with B-4c38 evidence 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 1 个高风险信号: 状态机/门禁。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）"
+        }
+      ],
+      "_hash": "4a1c9f11eaf15b3e89f45a1fcf67246819fbbef5ccf3f3d477c221756fb56bf3"
     }
   ]
 }

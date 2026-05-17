@@ -4,7 +4,7 @@
   "title": "Fix convergence_check META audit container handling",
   "description": "convergence_check currently treats the B-META-framework-audit META container as an unfinished lifecycle story because only DONE and DISCARDED are terminal in the story-completion check. This conflicts with session_brief, where META is an audit/finding container that does not run story_advance. Adjust convergence_check so META is not counted as unfinished story work, and add a separate audit backlog check that only blocks on verified high or critical audit findings. Also resolve the already-fixed B-META-framework-audit:F-004 finding with the B-4c38 merge evidence.",
   "type": "bug",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "high",
   "keywords": [
     "convergence",
@@ -41,6 +41,14 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-05-17T11:50:18.282Z",
+      "branch": "story/B-4bae",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-17T11:53:36.722Z",
       "branch": "story/B-4bae",
       "user": "Harmonygo",
       "agent": "main"
