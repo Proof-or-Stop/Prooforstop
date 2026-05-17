@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Exclude parked main-authority backlog from the hard Story completion check",
+      "context": "B-4622, B-d7af, and B-da5b are INIT authority=main backlog with no worktree. They should not make convergence_check red when no one is actively executing them. Active worktree stories such as B-6974 must remain blocking.",
+      "relatedDocs": [
+        "AGENTS.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Expose parked backlog as an advisory convergence check",
+      "context": "convergence_check should still show parked backlog explicitly so users can decide whether to complete, discard, or schedule it later, but this advisory should not set converged=false.",
+      "relatedDocs": [
+        "AGENTS.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add smoke coverage for parked INIT, active worktree, DONE, DISCARDED, and META semantics",
+      "context": "The smoke should prove parked INIT no longer blocks, active worktree remains blocking, META remains excluded from Story completion, and terminal stories remain ignored.",
+      "relatedDocs": [
+        "AGENTS.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
