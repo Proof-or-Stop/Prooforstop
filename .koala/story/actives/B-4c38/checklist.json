@@ -56,40 +56,40 @@
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
-          "note": "worktree-authority-smoke covers live DONE main merge lock refusal before phase=DONE and story remains TEST",
-          "headHash": "9a5a8873e8aaef9d9d88283438e51261298a3367",
-          "materialHash": "38ecb8760046f257b63078e228a1e354999553871013bec6c69a03b0cc0d40e2",
-          "timestamp": "2026-05-17T03:55:24.928Z"
+          "note": "fresh run after F-006 fix: live DONE main merge lock refusal occurs before phase=DONE and story remains TEST",
+          "headHash": "75bee7b5cd2bc8d6992c00f62071ca3d777ce157",
+          "materialHash": "847cde7a35096bf76a550f578cc5c19a1ce3d35d783518dd7f276b0364338c39",
+          "timestamp": "2026-05-17T04:02:52.223Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
-          "note": "stale done-main-merge.lock is reclaimed and successful DONE releases the lock",
-          "headHash": "9a5a8873e8aaef9d9d88283438e51261298a3367",
-          "materialHash": "38ecb8760046f257b63078e228a1e354999553871013bec6c69a03b0cc0d40e2",
-          "timestamp": "2026-05-17T03:55:24.928Z"
+          "note": "fresh run after F-006 fix: stale done-main-merge.lock is reclaimed and DONE can proceed",
+          "headHash": "75bee7b5cd2bc8d6992c00f62071ca3d777ce157",
+          "materialHash": "847cde7a35096bf76a550f578cc5c19a1ce3d35d783518dd7f276b0364338c39",
+          "timestamp": "2026-05-17T04:02:52.223Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
-          "note": "assertDoneMainMergeStaleLockIsReclaimed and success path prove normal DONE succeeds and releases lock after merge cleanup branch delete",
-          "headHash": "9a5a8873e8aaef9d9d88283438e51261298a3367",
-          "materialHash": "38ecb8760046f257b63078e228a1e354999553871013bec6c69a03b0cc0d40e2",
-          "timestamp": "2026-05-17T03:55:24.928Z"
+          "note": "fresh run after F-006 fix: normal uncontended DONE path succeeds and releases lock after merge cleanup branch delete",
+          "headHash": "75bee7b5cd2bc8d6992c00f62071ca3d777ce157",
+          "materialHash": "847cde7a35096bf76a550f578cc5c19a1ce3d35d783518dd7f276b0364338c39",
+          "timestamp": "2026-05-17T04:02:52.223Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
-          "note": "assertDoneMainMergeLockBlocksBeforeAutoSyncMain proves lock acquisition precedes checkMainDivergence autoSyncMain and phase mutation",
-          "headHash": "9a5a8873e8aaef9d9d88283438e51261298a3367",
-          "materialHash": "38ecb8760046f257b63078e228a1e354999553871013bec6c69a03b0cc0d40e2",
-          "timestamp": "2026-05-17T03:55:24.928Z"
+          "note": "fresh run after F-006 fix: smoke proves lock acquisition precedes main divergence autoSync and phase mutation",
+          "headHash": "75bee7b5cd2bc8d6992c00f62071ca3d777ce157",
+          "materialHash": "847cde7a35096bf76a550f578cc5c19a1ce3d35d783518dd7f276b0364338c39",
+          "timestamp": "2026-05-17T04:02:52.223Z"
         }
       ]
     },
@@ -150,9 +150,39 @@
           "command": "npm --prefix packages/main run test:worktree-repair-smoke",
           "result": "pass",
           "note": "F-006 regression: main DONE plus branch-local TEST is not classified as partial-DONE and done_recover refuses without deleting branch/worktree",
-          "headHash": "2596c2db8fca728ab58aad453763d3755e804b13",
+          "headHash": "75bee7b5cd2bc8d6992c00f62071ca3d777ce157",
           "materialHash": "847cde7a35096bf76a550f578cc5c19a1ce3d35d783518dd7f276b0364338c39",
-          "timestamp": "2026-05-17T04:02:04.186Z"
+          "timestamp": "2026-05-17T04:02:52.223Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "fresh run after F-006 fix: doctor JSON reports branch-local DONE partial-DONE with storyId branch worktree and mergeTree status",
+          "headHash": "75bee7b5cd2bc8d6992c00f62071ca3d777ce157",
+          "materialHash": "847cde7a35096bf76a550f578cc5c19a1ce3d35d783518dd7f276b0364338c39",
+          "timestamp": "2026-05-17T04:02:52.223Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "fresh run after F-006 fix: doctor text output includes Partial-DONE scan and done_recover command",
+          "headHash": "75bee7b5cd2bc8d6992c00f62071ca3d777ce157",
+          "materialHash": "847cde7a35096bf76a550f578cc5c19a1ce3d35d783518dd7f276b0364338c39",
+          "timestamp": "2026-05-17T04:02:52.223Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "fresh run after F-006 fix: terminal DONE residue remains a worktree cleanup issue and not partial-DONE",
+          "headHash": "75bee7b5cd2bc8d6992c00f62071ca3d777ce157",
+          "materialHash": "847cde7a35096bf76a550f578cc5c19a1ce3d35d783518dd7f276b0364338c39",
+          "timestamp": "2026-05-17T04:02:52.223Z"
         }
       ]
     },
@@ -220,10 +250,50 @@
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:worktree-repair-smoke",
           "result": "pass",
-          "note": "F-006 regression: done_recover refuses when the story branch metadata is not DONE, preserving the non-DONE branch and worktree",
-          "headHash": "50800e12ab3f1df26b2f7345b46bfd83b73f26f1",
+          "note": "F-006 regression: done_recover refuses when story branch metadata is not DONE, preserving the non-DONE branch and worktree",
+          "headHash": "75bee7b5cd2bc8d6992c00f62071ca3d777ce157",
           "materialHash": "847cde7a35096bf76a550f578cc5c19a1ce3d35d783518dd7f276b0364338c39",
-          "timestamp": "2026-05-17T04:02:08.587Z"
+          "timestamp": "2026-05-17T04:02:52.223Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "fresh run after F-006 fix: safe partial-DONE fixture recovers by merging story branch into main removing worktree and deleting branch",
+          "headHash": "75bee7b5cd2bc8d6992c00f62071ca3d777ce157",
+          "materialHash": "847cde7a35096bf76a550f578cc5c19a1ce3d35d783518dd7f276b0364338c39",
+          "timestamp": "2026-05-17T04:02:52.223Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "fresh run after F-006 fix: after done_recover no story worktree appears in git worktree list and story branch is gone",
+          "headHash": "75bee7b5cd2bc8d6992c00f62071ca3d777ce157",
+          "materialHash": "847cde7a35096bf76a550f578cc5c19a1ce3d35d783518dd7f276b0364338c39",
+          "timestamp": "2026-05-17T04:02:52.223Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "fresh run after F-006 fix: done_recover refuses dirty main before mutation and leaves partial-DONE state untouched",
+          "headHash": "75bee7b5cd2bc8d6992c00f62071ca3d777ce157",
+          "materialHash": "847cde7a35096bf76a550f578cc5c19a1ce3d35d783518dd7f276b0364338c39",
+          "timestamp": "2026-05-17T04:02:52.223Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:worktree-repair-smoke",
+          "result": "pass",
+          "note": "fresh run after F-006 fix: merge-tree conflict fixture reports mergeTreeClean=false and done_recover refuses before mutation",
+          "headHash": "75bee7b5cd2bc8d6992c00f62071ca3d777ce157",
+          "materialHash": "847cde7a35096bf76a550f578cc5c19a1ce3d35d783518dd7f276b0364338c39",
+          "timestamp": "2026-05-17T04:02:52.223Z"
         }
       ]
     },
@@ -286,40 +356,40 @@
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:worktree-authority-smoke && npm --prefix packages/main run test:worktree-repair-smoke",
           "result": "pass",
-          "note": "smoke transcript proves lock contention refusal and partial-DONE recovery without handwritten git",
-          "headHash": "9a5a8873e8aaef9d9d88283438e51261298a3367",
-          "materialHash": "38ecb8760046f257b63078e228a1e354999553871013bec6c69a03b0cc0d40e2",
-          "timestamp": "2026-05-17T03:55:24.928Z"
+          "note": "fresh run after F-006 fix: smoke transcript proves lock contention refusal and partial-DONE recovery without handwritten git",
+          "headHash": "75bee7b5cd2bc8d6992c00f62071ca3d777ce157",
+          "materialHash": "847cde7a35096bf76a550f578cc5c19a1ce3d35d783518dd7f276b0364338c39",
+          "timestamp": "2026-05-17T04:02:52.223Z"
         },
         {
           "intentRef": "CHK-004:happy:2",
-          "kind": "logic_test",
-          "command": "rg -n \"done_recover|Partial-DONE|done-main-merge.lock\" docs/requirements/decisions/story-lifecycle.md",
+          "kind": "docs_check",
+          "command": "rg -n \"done_recover|Partial-DONE|done-main-merge.lock|clean story worktree\" docs/requirements/decisions/story-lifecycle.md",
           "result": "pass",
-          "note": "story-lifecycle.md documents DONE lock, doctor partial-DONE detection, and done_recover recovery path",
-          "headHash": "9a5a8873e8aaef9d9d88283438e51261298a3367",
-          "materialHash": "38ecb8760046f257b63078e228a1e354999553871013bec6c69a03b0cc0d40e2",
-          "timestamp": "2026-05-17T03:55:24.928Z"
+          "note": "story-lifecycle.md documents DONE lock, partial-DONE detection, done_recover using the same lock, and clean story worktree requirement",
+          "headHash": "75bee7b5cd2bc8d6992c00f62071ca3d777ce157",
+          "materialHash": "847cde7a35096bf76a550f578cc5c19a1ce3d35d783518dd7f276b0364338c39",
+          "timestamp": "2026-05-17T04:02:52.223Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:worktree-authority-smoke && npm --prefix packages/main run test:worktree-repair-smoke",
           "result": "pass",
-          "note": "operator-visible outputs include lock held retry partial-DONE detected recovery merge worktree removal and branch deletion assertions",
-          "headHash": "9a5a8873e8aaef9d9d88283438e51261298a3367",
-          "materialHash": "38ecb8760046f257b63078e228a1e354999553871013bec6c69a03b0cc0d40e2",
-          "timestamp": "2026-05-17T03:55:24.928Z"
+          "note": "fresh run after F-006 fix: operator-visible outputs include lock held retry partial-DONE detected recovery merge worktree removal and branch deletion assertions",
+          "headHash": "75bee7b5cd2bc8d6992c00f62071ca3d777ce157",
+          "materialHash": "847cde7a35096bf76a550f578cc5c19a1ce3d35d783518dd7f276b0364338c39",
+          "timestamp": "2026-05-17T04:02:52.223Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:worktree-repair-smoke",
           "result": "pass",
-          "note": "after done_recover doctor JSON reports partialDone.needsRecovery=false and worktrees.needsRepair=false",
-          "headHash": "9a5a8873e8aaef9d9d88283438e51261298a3367",
-          "materialHash": "38ecb8760046f257b63078e228a1e354999553871013bec6c69a03b0cc0d40e2",
-          "timestamp": "2026-05-17T03:55:24.928Z"
+          "note": "fresh run after F-006 fix: after done_recover doctor JSON reports partialDone.needsRecovery=false and worktrees.needsRepair=false",
+          "headHash": "75bee7b5cd2bc8d6992c00f62071ca3d777ce157",
+          "materialHash": "847cde7a35096bf76a550f578cc5c19a1ce3d35d783518dd7f276b0364338c39",
+          "timestamp": "2026-05-17T04:02:52.223Z"
         }
       ]
     }
