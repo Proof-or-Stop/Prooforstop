@@ -9,9 +9,14 @@
 # 文件版本错位」情形——若 hook 自己依赖 koala，koala 翻车时 hook 会一起翻
 # （B-9bd9 假 DONE 根因之一）。实现只用 git / find / node / npx tsc / npm run build。
 #
-# koala 自举仓检测条件（任一不满足立即 exit 0，对非 koala 仓零摩擦）：
-#   1. `$REPO_ROOT/packages/main/package.json` 文件存在
-#   2. 该 package.json 的 `name` 字段为 `@koala-agent/core`
+# koala 自举仓检测分三步，每步的处置不同（不是「任一不满足一律 exit 0」）：
+#   1. `$REPO_ROOT/packages/main/package.json` 不存在 → 确实非 koala 自举仓
+#      → exit 0（对非 koala 仓零摩擦放行）。
+#   2. package.json 存在但 `node` 不在 PATH → 无法解析 name、也无法跑递归 tsc
+#      gate → **fail-closed**：向 stderr 打印明确警告并 exit 1 拒绝 push。
+#      这里 **不能 fail-open**——静默 exit 0 会让 tsc gate 被无声绕过（F-002）。
+#   3. `node` 可用，但 package.json 的 `name` 字段 ≠ `@koala-agent/core`
+#      → 确实非 koala 自举仓 → exit 0 放行。
 # 注意：本仓是扁平布局 `packages/main`，不是 `packages/koala/packages/main`。
 #
 # 递归 tsc：find REPO_ROOT 下所有 tsconfig.json（排除黑名单目录），对每个所在
