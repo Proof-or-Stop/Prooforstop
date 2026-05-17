@@ -496,6 +496,17 @@
           "headHash": "cf3178c5ddef1f307498a73cc5b673a43f6ad467",
           "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
           "timestamp": "2026-05-17T02:54:59.074Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "assertDoneSuccessPathOutputAndOrdering 断言 DONE 成功输出含完整 DONE Gate Checklist 段（DONE Gate Checklist 头 + [✓] Test evidence/git working tree/delivery-check 等行）——证明显式返回值/参数链路未丢失渲染文本",
+          "headHash": "d95bd499420ff076ded66252f6d04f99e87856a9",
+          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
+          "timestamp": "2026-05-17T02:54:59.317Z"
         }
       ]
     }
