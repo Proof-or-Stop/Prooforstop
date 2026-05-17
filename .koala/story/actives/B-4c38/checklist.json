@@ -168,7 +168,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Operator can run the documented verification/recovery path and see clear output: concurrent DONE lock contention is refused before phase=DONE, partial-DONE is reported with storyId/branch/worktree/main status, and recovery completes merge + worktree removal + branch deletion.",
+      "userSees": "User sees the smoke transcript lines: \"lock contention refused before DONE\", \"partial-DONE detected\", \"done_recover completed merge/worktree/branch cleanup\", and \"no terminal/orphan worktree residue\".",
       "files": {
         "modify": [
           "packages/main/src/tasks/worktree-authority-smoke.ts",
