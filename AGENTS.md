@@ -121,6 +121,10 @@ INIT → INIT_CHECK → PLAN/快速跳过 → DEV → REVIEW → TEST → DONE
 
 **DONE 门禁**：进入 DONE 前要求 story 分支已包含 main 的所有提交（`git merge-base --is-ancestor main story/B-xxx`），避免遗漏 main 的更新。如有冲突，在 worktree 里 `git merge main` 解决。
 
+### 多 session 写协调（设计真相源）
+
+Koala 支持多 worktree 并行，但写权限的跨 session 协调——story owner lease、main write lock、命令读写分类、takeover UX、idempotency——目前是**已采纳的设计、运行时尚未实现**。设计真相源：`docs/requirements/decisions/session-ownership-and-write-leases.md`。涉及并行开发、写协调或 DONE / main / B-META 写入语义时以该文档为准；实现由后续 story 跟进。
+
 ### TEST 阶段详细流程
 
 ```

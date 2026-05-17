@@ -388,6 +388,10 @@ project/
 
 **Sub agent 工作目录约定**：sub agent（koala-implementer 等）在主 agent 的 worktree 中工作，通过 `koala validate` 验证后提交。
 
+### 多 session 写协调（设计真相源）
+
+Koala 支持多 worktree 并行，但写权限的跨 session 协调——story owner lease、main write lock、命令读写分类、takeover UX、idempotency——目前是**已采纳的设计、运行时尚未实现**。设计真相源：`docs/requirements/decisions/session-ownership-and-write-leases.md`。涉及并行开发、写协调或 DONE / main / B-META 写入语义时以该文档为准；实现由后续 story 跟进。
+
 ## Checklist 写法
 
 ```json
