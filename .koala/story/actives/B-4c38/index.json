@@ -4,7 +4,7 @@
   "title": "Serialize DONE main merges and add partial-DONE recovery",
   "description": "Fix the Koala lifecycle framework bug observed during B-9027: concurrent DONE operations can race while merging story branches into main, leaving a partial-DONE state where story metadata is DONE but the branch/worktree cleanup remains incomplete. Add a main-merge lock around the DONE critical section and provide a mechanical recovery path for partial-DONE stories.",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "done-merge",
@@ -22,7 +22,7 @@
   ],
   "createdAt": "2026-05-17T03:27:44.541Z",
   "startedAt": "2026-05-17T03:27:44.541Z",
-  "endedAt": null,
+  "endedAt": "2026-05-17T04:10:32.600Z",
   "events": [
     {
       "phase": "INIT",
@@ -119,12 +119,15 @@
       "branch": "story/B-4c38",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-05-17T04:10:32.600Z",
+      "branch": "story/B-4c38",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-4c38",
-    "branch": "story/B-4c38",
-    "createdAt": "2026-05-17T03:29:20.202Z"
-  },
   "currentReviewRound": "2026-05-17T04:03:17.500Z"
 }
