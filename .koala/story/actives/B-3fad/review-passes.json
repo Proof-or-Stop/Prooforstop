@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-17T00:39:52.477Z",
       "reviewRunId": "B-3fad:RR-003",
       "_hash": "3752ba75c593644987abfdc693ab784ea36aba3d0ef3a215026ebd65e3a0f528"
+    },
+    {
+      "id": "B-3fad:RP-003",
+      "agent": "koala-review-behavior",
+      "note": "Gate consistency verified: all 3 consumer points (machine.ts canPassReview, machine.ts getGuardFailureReason, guard-utils.ts TEST gate) uniformly call isFindingBlocking from advisory.ts. Happy path: legacy null evidenceState still blocks (backward compat). verified open still blocks. Edge: suspected open does not block, appears in attention.suspected. disproven open does not block, appears in attention.disproven. resolved/dismissed verified finding does not block. Adversarial: partial suspected does not mask co-existing verified blocker. suspected without uncertaintyReason rejected by handler. disproven without summary rejected by handler. Invalid evidenceState string rejected by handler. Critical-always-blocks constraint preserved across all rounds. smoke test matrix-1 through matrix-7 + adversarial cases all pass.",
+      "createdAt": "2026-05-17T00:46:18.560Z",
+      "reviewRound": "2026-05-17T00:39:52.477Z",
+      "reviewRunId": "B-3fad:RR-002",
+      "_hash": "ff56531b604a19d5456df8447b51c8c42d83813976a20ae4ab58048c4a82d6da"
     }
   ]
 }
