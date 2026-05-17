@@ -301,6 +301,17 @@
           "headHash": "0e1d0747133861f209451ed1df178f22c24f0259",
           "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
           "timestamp": "2026-05-17T02:54:21.918Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "assertDoneSuccessPathOutputAndOrdering 断言 byte-identical 文本：DONE Gate Checklist 头+各 [✓] 行、Story B-xxx advanced to DONE、✓ 分支 story/B-xxx 已合并到 main、✓ Worktree <canonical> 已清理、✓ 分支 story/B-xxx 已删除",
+          "headHash": "1a71bab5854c0d66e6d1d4beca945cc35cb538dd",
+          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
+          "timestamp": "2026-05-17T02:54:22.135Z"
         }
       ]
     },
