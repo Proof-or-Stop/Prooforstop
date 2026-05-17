@@ -1,14 +1,14 @@
 {
   "command": "koala validate --story=B-3fad --json",
-  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery; verification coverage missing 33 required intent(s)\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.3 test\",\"  > npm run test:e2e\",\"  > koala@0.3.3 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 0/44 covered (33 required missing)\",\"  ✗ CHK-001:happy:0 [happy/must/cli] stale via logic_test (packages/main/src/tasks/evidence-state-gate-smoke.ts) — legacy finding (critical, open, no evidenceState field) -> gate blocks REVIEW->TEST; WHY: backward compat guarantee that missing evidenceState is treated as verified\",\"  ✗ CHK-001:happy:1 [happy/must/cli] stale via logic_test (packages/main/src/tasks/evidence-state-gate-smoke.ts) — reviewer finding_add with critical severity (no explicit evidenceState) -> defaults to verified -> gate blocks REVIEW->TEST; WHY: confirm new findings keep existing gate behavior\",\"  ✗ CHK-001:happy:2 [happy/must/cli] stale via logic_test (packages/main/src/tasks/evidence-state-gate-smoke.ts) — reviewer finding_add with critical severity + explicit evidenceState=suspected + uncertaintyReason provided -> gate does NOT block REVIEW->TEST, finding_list shows it in advisory/attention section; WHY: core value proposition of the story\",\"  ✗ CHK-001:happy:3 [happy/must/cli] stale via logic_test (packages/main/src/tasks/evidence-state-gate-smoke.ts) — finding with evidenceState=verified + severity=critical + status=resolved -> gate does NOT block; WHY: resolved findings regardless of evidenceState must not block\",\"  ✗ CHK-001:happy:4 [happy/must/cli] stale via logic_test (packages/main/src/tasks/evidence-state-gate-smoke.ts) — finding with evidenceState=disproven + severity=critical + status=open -> gate does NOT block; WHY: disproven findings must never block even when still open\",\"  ✗ CHK-001:happy:5 [happy/must/cli] stale via logic_test (packages/main/src/tasks/evidence-state-gate-smoke.ts) — finding_list output includes evidenceState field for every finding (verified/suspected/disproven/absent shows as legacy); WHY: observability requirement from userSees\",\"  ✗ CHK-001:happy:6 [happy/must/cli] stale via logic_test (packages/main/src/tasks/evidence-state-gate-smoke.ts) — finding_add with explicit evidenceState=suspected but missing uncertaintyReason -> handler throws clear error, finding not written; WHY: prevent abusing suspected as gate-bypass button without justification\",\"  ✗ CHK-001:edge:0 [edge/must/cli] stale via logic_test (packages/main/src/tasks/evidence-state-gate-smoke.ts) — finding with evidenceState=verified + severity=high + status=dismissed -> gate does NOT block; WHY: dismissed overrides severity regardless of evidenceState\",\"  ✗ CHK-001:edge:1 [edge/should/logic] stale via logic_test (packages/main/src/tasks/evidence-state-gate-smoke.ts) — finding with evidenceState=suspected + severity=medium + status=open -> gate does NOT block even in Round 1; WHY: suspected medium is doubly non-blocking (suspected + not critical/high)\",\"  ✗ CHK-001:edge:2 [edge/must/cli] stale via logic_test (packages/main/src/tasks/evidence-state-gate-smoke.ts) — finding_add with evidenceState=disproven but missing disprovenEvidence summary -> handler rejects; WHY: constraint requires disproven must carry counter-evidence\",\"  ✗ CHK-001:edge:3 [edge/should/cli] stale via logic_test (packages/main/src/tasks/evidence-state-gate-smoke.ts) — mix of legacy findings (no evidenceState) + new findings (with evidenceState) in same story -> gate correctly evaluates each independently; WHY: migration coexistence\",\"  ✗ CHK-001:edge:4 [edge/should/cli] stale via logic_test (packages/main/src/tasks/evidence-state-gate-smoke.ts) — finding_add with invalid evidenceState value (e.g. confirmed) -> Zod rejects + handler runtime rejects; WHY: enum hardening per Handler coding convention\",\"  ✗ CHK-001:adversarial:0 [adversarial/must/cli] stale via logic_test (packages/main/src/tasks/evidence-state-gate-smoke.ts) — agent sets all critical findings to suspected with minimal 1-char uncertaintyReason to bypass gate -> handler enforces uncertaintyReason minimum length (>=10 chars); WHY: prevent trivial reason as gate bypass\",\"  ✗ CHK-001:adversarial:1 [adversarial/must/logic] stale via logic_test (packages/main/src/tasks/evidence-state-gate-smoke.ts) — agent directly edits findings.json to remove evidenceState from a verified finding -> gate re-reads from disk treats missing field as verified (legacy compat), still blocks; WHY: file tampering must not open escape hatch\",\"  ✗ CHK-001:adversarial:2 [adversarial/should/cli] stale via logic_test (packages/main/src/tasks/evidence-state-gate-smoke.ts) — agent calls finding_add with evidenceState=suspected on a finding that was previously verified (downgrade attack) -> handler rejects downgrade without structured justification; WHY: prevent weaponizing state transitions\",\"  ✗ CHK-001:adversarial:3 [adversarial/must/logic] stale via logic_test (packages/main/src/tasks/evidence-state-gate-smoke.ts) — concurrent finding_add: two findings same story, one verified critical + one suspected critical -> gate blocks on the verified one only; WHY: partial suspected must not mask real blockers\",\"  ✗ CHK-002:happy:0 [happy/must/cli] stale via integration_test (packages/main/src/tasks/gap-log-smoke.ts) — koala gap_log with all required fields (category, severity, evidence, source) -> output Gap logged: B-META-framework-audit:F-00X (evidenceState=suspected, severity=<val>); WHY: primary command happy path\",\"  ✗ CHK-002:happy:1 [happy/must/cli] stale via integration_test (packages/main/src/tasks/gap-log-smoke.ts) — B-META-framework-audit container does not exist before first gap_log call -> gap_log auto-bootstraps via ensureMetaStory, finding written successfully; WHY: zero-setup requirement\",\"  ✗ CHK-002:happy:2 [happy/must/cli] stale via integration_test (packages/main/src/tasks/gap-log-smoke.ts) — gap_log called from main branch (no story worktree) -> succeeds; WHY: worktree-independence requirement\",\"  ✗ CHK-002:happy:3 [happy/must/cli] stale via integration_test (packages/main/src/tasks/gap-log-smoke.ts) — gap_log default evidenceState is suspected when no structured evidence fields provided; WHY: constraint that gap_log defaults suspected\",\"  ✗ CHK-002:happy:4 [happy/must/cli] stale via integration_test (packages/main/src/tasks/gap-log-smoke.ts) — gap_log with structured evidence fields (sourceRefs + reproCommand) + explicit evidenceState=verified -> accepted and stored as verified; WHY: verified path requires structured evidence\",\"  ✗ CHK-002:edge:0 [edge/must/cli] stale via integration_test (packages/main/src/tasks/gap-log-smoke.ts) — gap_log missing category field -> clear error message, no finding written; WHY: field completeness gate\",\"  ✗ CHK-002:edge:1 [edge/must/cli] stale via integration_test (packages/main/src/tasks/gap-log-smoke.ts) — gap_log missing severity field -> clear error message, no finding written; WHY: field completeness gate\",\"  ✗ CHK-002:edge:2 [edge/must/cli] stale via integration_test (packages/main/src/tasks/gap-log-smoke.ts) — gap_log missing evidence field -> clear error message, no finding written; WHY: field completeness gate\",\"  ✗ CHK-002:edge:3 [edge/must/cli] stale via integration_test (packages/main/src/tasks/gap-log-smoke.ts) — gap_log missing source field -> clear error message, no finding written; WHY: field completeness gate\",\"  ✗ CHK-002:edge:4 [edge/should/cli] stale via integration_test (packages/main/src/tasks/gap-log-smoke.ts) — gap_log called twice with identical content -> second call creates separate finding (not deduplicated, unlike audit drift upsert); WHY: manual archival is intentionally non-deduped\",\"  ✗ CHK-002:edge:5 [edge/should/cli] stale via integration_test (packages/main/src/tasks/gap-log-smoke.ts) — gap_log with severity value outside canonical enum (e.g. urgent) -> Zod + handler runtime reject; WHY: enum hardening\",\"  ✗ CHK-002:edge:6 [edge/must/cli] stale via integration_test (packages/main/src/tasks/gap-log-smoke.ts) — B-META-framework-audit already exists with prior findings -> gap_log appends new finding, prior findings untouched; WHY: idempotent container, additive writes\",\"  ✗ CHK-002:adversarial:0 [adversarial/must/cli] stale via integration_test (packages/main/src/tasks/gap-log-smoke.ts) — gap_log with evidenceState=verified but NO structured evidence fields (no sourceRefs, no reproCommand, no observedOutput, no analysisNote) -> handler forces evidenceState back to suspected; WHY: constraint that verified requires structured evidence\",\"  ✗ CHK-002:adversarial:1 [adversarial/should/cli] stale via integration_test (packages/main/src/tasks/gap-log-smoke.ts) — gap_log with evidenceState=disproven -> rejected (gap_log is for archiving suspected gaps, not for recording disproof); WHY: disproven semantic does not apply to manual gap archival entry point\",\"  ✗ CHK-002:adversarial:2 [adversarial/must/cli] stale via integration_test (packages/main/src/tasks/gap-log-smoke.ts) — gap_log with empty-string evidence field (whitespace only) -> handler rejects, treats as missing; WHY: prevent garbage entries in B-META\",\"  ✗ CHK-002:adversarial:3 [adversarial/should/logic] stale via logic_test (packages/main/src/tasks/gap-log-smoke.ts) — gap_log called in rapid succession (5 calls <1s) with different content -> all 5 findings written, no race condition on findings.json; WHY: concurrent write safety\",\"  ✗ CHK-002:adversarial:4 [adversarial/must/cli] stale via integration_test (packages/main/src/tasks/gap-log-smoke.ts) — gap_log command registered in registry.ts and command-policy.ts with correct allowedPhases policy -> koala help shows gap_log; WHY: command discoverability\",\"  ✗ CHK-003:happy:0 [happy/must/cli] stale via manual_transcript — node scripts/verify-process-fact-contract.mjs exits 0 after CHK-001+CHK-002 landed -> evidenceState and gap_log are registered as process facts; WHY: contract script must pass\",\"  ✗ CHK-003:happy:1 [happy/must/cli] stale via manual_transcript — process-fact-registry.ts contains evidenceState entry with gate-consumed semantic marker; WHY: evidenceState is consumed by REVIEW->TEST gate\",\"  ✗ CHK-003:happy:2 [happy/must/cli] stale via manual_transcript — process-fact-registry.ts contains gap_log command entry; WHY: new command must be registered\",\"  ✗ CHK-003:happy:3 [happy/must/cli] stale via docs_check (AGENTS.md) — AGENTS.md contains evidenceState default table (reviewer=verified, gap_log=suspected, legacy=verified compat); WHY: documentation requirement from userSees\",\"  ✗ CHK-003:happy:4 [happy/must/cli] stale via docs_check (AGENTS.md) — AGENTS.md contains gap_log usage instructions (required fields, example invocation); WHY: documentation requirement\",\"  ✗ CHK-003:edge:0 [edge/must/cli] stale via manual_transcript — verify-process-fact-contract.mjs fails if evidenceState entry is removed from registry -> non-zero exit; WHY: contract script must detect regressions\",\"  ✗ CHK-003:edge:1 [edge/must/cli] stale via manual_transcript — verify-process-fact-contract.mjs fails if gap_log entry is removed from registry -> non-zero exit; WHY: contract script must detect regressions\",\"  ✗ CHK-003:edge:2 [edge/should/cli] stale via docs_check (AGENTS.md) — AGENTS.md documents gate predicate formula (status=open AND severity in critical/high AND evidenceState=verified or null); WHY: gate behavior must be documented precisely\",\"  ✗ CHK-003:adversarial:0 [adversarial/must/cli] stale via manual_transcript — remove evidenceState from guard-utils.ts blocking filter but keep registry entry -> contract script detects mismatch (hardcoded fallback missing) and fails; WHY: dual-layer contract requires both prompt guidance AND code fallback\",\"  ✗ CHK-003:adversarial:1 [adversarial/should/logic] stale via logic_test (scripts/verify-process-fact-contract.mjs) — add evidenceState to registry but with wrong semantic type (e.g. informational instead of gate-consumed) -> contract script detects semantic mismatch; WHY: registry accuracy matters for audit\",\"  ✗ CHK-003:adversarial:2 [adversarial/should/cli] stale via docs_check (AGENTS.md) — AGENTS.md mentions gap_log but with wrong required fields list -> manual review catch (contract script validates registry not docs prose); WHY: docs drift detection boundary\"],\"warnings\":[],\"timestamp\":\"2026-05-17T00:50:16.720Z\",\"headSha\":\"9624d9904723b3f92338a0cb7ec3245c28b9281c\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.3 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.3 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":825}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"fast\",\"intentCount\":44,\"reason\":\"verificationIntent entries present (44)\"},\"verificationCoverage\":{\"total\":44,\"required\":33,\"covered\":0,\"missingRequired\":33,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"legacy finding (critical, open, no evidenceState field) -> gate blocks REVIEW->TEST; WHY: backward compat guarantee that missing evidenceState is treated as verified\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-state-gate-smoke.ts\",\"command\":\"npm run test:evidence-state-gate-smoke\",\"result\":\"pass\",\"note\":\"evidence-state-gate-smoke covers CHK-001:happy:0: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases\",\"headHash\":\"419b0f237063ae071a3377a76762cea69beb9d57\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:11.045Z\"}},{\"intentRef\":\"CHK-001:happy:1\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"reviewer finding_add with critical severity (no explicit evidenceState) -> defaults to verified -> gate blocks REVIEW->TEST; WHY: confirm new findings keep existing gate behavior\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:happy:1\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-state-gate-smoke.ts\",\"command\":\"npm run test:evidence-state-gate-smoke\",\"result\":\"pass\",\"note\":\"evidence-state-gate-smoke covers CHK-001:happy:1: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases\",\"headHash\":\"419b0f237063ae071a3377a76762cea69beb9d57\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:11.045Z\"}},{\"intentRef\":\"CHK-001:happy:2\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"reviewer finding_add with critical severity + explicit evidenceState=suspected + uncertaintyReason provided -> gate does NOT block REVIEW->TEST, finding_list shows it in advisory/attention section; WHY: core value proposition of the story\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:happy:2\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-state-gate-smoke.ts\",\"command\":\"npm run test:evidence-state-gate-smoke\",\"result\":\"pass\",\"note\":\"evidence-state-gate-smoke covers CHK-001:happy:2: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases\",\"headHash\":\"419b0f237063ae071a3377a76762cea69beb9d57\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:11.045Z\"}},{\"intentRef\":\"CHK-001:happy:3\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"finding with evidenceState=verified + severity=critical + status=resolved -> gate does NOT block; WHY: resolved findings regardless of evidenceState must not block\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:happy:3\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-state-gate-smoke.ts\",\"command\":\"npm run test:evidence-state-gate-smoke\",\"result\":\"pass\",\"note\":\"evidence-state-gate-smoke covers CHK-001:happy:3: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases\",\"headHash\":\"419b0f237063ae071a3377a76762cea69beb9d57\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:11.045Z\"}},{\"intentRef\":\"CHK-001:happy:4\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"finding with evidenceState=disproven + severity=critical + status=open -> gate does NOT block; WHY: disproven findings must never block even when still open\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:happy:4\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-state-gate-smoke.ts\",\"command\":\"npm run test:evidence-state-gate-smoke\",\"result\":\"pass\",\"note\":\"evidence-state-gate-smoke covers CHK-001:happy:4: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases\",\"headHash\":\"419b0f237063ae071a3377a76762cea69beb9d57\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:11.045Z\"}},{\"intentRef\":\"CHK-001:happy:5\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"finding_list output includes evidenceState field for every finding (verified/suspected/disproven/absent shows as legacy); WHY: observability requirement from userSees\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:happy:5\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-state-gate-smoke.ts\",\"command\":\"npm run test:evidence-state-gate-smoke\",\"result\":\"pass\",\"note\":\"evidence-state-gate-smoke covers CHK-001:happy:5: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases\",\"headHash\":\"419b0f237063ae071a3377a76762cea69beb9d57\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:11.045Z\"}},{\"intentRef\":\"CHK-001:happy:6\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"finding_add with explicit evidenceState=suspected but missing uncertaintyReason -> handler throws clear error, finding not written; WHY: prevent abusing suspected as gate-bypass button without justification\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:happy:6\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-state-gate-smoke.ts\",\"command\":\"npm run test:evidence-state-gate-smoke\",\"result\":\"pass\",\"note\":\"evidence-state-gate-smoke covers CHK-001:happy:6: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases\",\"headHash\":\"419b0f237063ae071a3377a76762cea69beb9d57\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:11.045Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"finding with evidenceState=verified + severity=high + status=dismissed -> gate does NOT block; WHY: dismissed overrides severity regardless of evidenceState\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-state-gate-smoke.ts\",\"command\":\"npm run test:evidence-state-gate-smoke\",\"result\":\"pass\",\"note\":\"evidence-state-gate-smoke covers CHK-001:edge:0: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases\",\"headHash\":\"419b0f237063ae071a3377a76762cea69beb9d57\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:11.045Z\"}},{\"intentRef\":\"CHK-001:edge:1\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"finding with evidenceState=suspected + severity=medium + status=open -> gate does NOT block even in Round 1; WHY: suspected medium is doubly non-blocking (suspected + not critical/high)\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:edge:1\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-state-gate-smoke.ts\",\"command\":\"npm run test:evidence-state-gate-smoke\",\"result\":\"pass\",\"note\":\"evidence-state-gate-smoke covers CHK-001:edge:1: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases\",\"headHash\":\"419b0f237063ae071a3377a76762cea69beb9d57\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:11.045Z\"}},{\"intentRef\":\"CHK-001:edge:2\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"finding_add with evidenceState=disproven but missing disprovenEvidence summary -> handler rejects; WHY: constraint requires disproven must carry counter-evidence\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:edge:2\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-state-gate-smoke.ts\",\"command\":\"npm run test:evidence-state-gate-smoke\",\"result\":\"pass\",\"note\":\"evidence-state-gate-smoke covers CHK-001:edge:2: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases\",\"headHash\":\"419b0f237063ae071a3377a76762cea69beb9d57\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:11.045Z\"}},{\"intentRef\":\"CHK-001:edge:3\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"mix of legacy findings (no evidenceState) + new findings (with evidenceState) in same story -> gate correctly evaluates each independently; WHY: migration coexistence\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:edge:3\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-state-gate-smoke.ts\",\"command\":\"npm run test:evidence-state-gate-smoke\",\"result\":\"pass\",\"note\":\"evidence-state-gate-smoke covers CHK-001:edge:3: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases\",\"headHash\":\"419b0f237063ae071a3377a76762cea69beb9d57\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:11.045Z\"}},{\"intentRef\":\"CHK-001:edge:4\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"finding_add with invalid evidenceState value (e.g. confirmed) -> Zod rejects + handler runtime rejects; WHY: enum hardening per Handler coding convention\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:edge:4\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-state-gate-smoke.ts\",\"command\":\"npm run test:evidence-state-gate-smoke\",\"result\":\"pass\",\"note\":\"evidence-state-gate-smoke covers CHK-001:edge:4: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases\",\"headHash\":\"419b0f237063ae071a3377a76762cea69beb9d57\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:11.045Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"agent sets all critical findings to suspected with minimal 1-char uncertaintyReason to bypass gate -> handler enforces uncertaintyReason minimum length (>=10 chars); WHY: prevent trivial reason as gate bypass\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-state-gate-smoke.ts\",\"command\":\"npm run test:evidence-state-gate-smoke\",\"result\":\"pass\",\"note\":\"evidence-state-gate-smoke covers CHK-001:adversarial:0: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases\",\"headHash\":\"419b0f237063ae071a3377a76762cea69beb9d57\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:11.045Z\"}},{\"intentRef\":\"CHK-001:adversarial:1\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"agent directly edits findings.json to remove evidenceState from a verified finding -> gate re-reads from disk treats missing field as verified (legacy compat), still blocks; WHY: file tampering must not open escape hatch\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:1\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-state-gate-smoke.ts\",\"command\":\"npm run test:evidence-state-gate-smoke\",\"result\":\"pass\",\"note\":\"evidence-state-gate-smoke covers CHK-001:adversarial:1: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases\",\"headHash\":\"419b0f237063ae071a3377a76762cea69beb9d57\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:11.045Z\"}},{\"intentRef\":\"CHK-001:adversarial:2\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"agent calls finding_add with evidenceState=suspected on a finding that was previously verified (downgrade attack) -> handler rejects downgrade without structured justification; WHY: prevent weaponizing state transitions\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:2\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-state-gate-smoke.ts\",\"command\":\"npm run test:evidence-state-gate-smoke\",\"result\":\"pass\",\"note\":\"evidence-state-gate-smoke covers CHK-001:adversarial:2: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases\",\"headHash\":\"419b0f237063ae071a3377a76762cea69beb9d57\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:11.045Z\"}},{\"intentRef\":\"CHK-001:adversarial:3\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"concurrent finding_add: two findings same story, one verified critical + one suspected critical -> gate blocks on the verified one only; WHY: partial suspected must not mask real blockers\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:3\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-state-gate-smoke.ts\",\"command\":\"npm run test:evidence-state-gate-smoke\",\"result\":\"pass\",\"note\":\"evidence-state-gate-smoke covers CHK-001:adversarial:3: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases\",\"headHash\":\"419b0f237063ae071a3377a76762cea69beb9d57\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:11.045Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"koala gap_log with all required fields (category, severity, evidence, source) -> output Gap logged: B-META-framework-audit:F-00X (evidenceState=suspected, severity=<val>); WHY: primary command happy path\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-2/4 run gap_log via CLI with all required fields and assert the Gap logged: B-META-framework-audit:F-NNN (evidenceState=...) output line.\",\"headHash\":\"419b0f237063ae071a3377a76762cea69beb9d57\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:11.046Z\"}},{\"intentRef\":\"CHK-002:happy:1\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"B-META-framework-audit container does not exist before first gap_log call -> gap_log auto-bootstraps via ensureMetaStory, finding written successfully; WHY: zero-setup requirement\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:happy:1\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-6 asserts the B-META container is absent before the first gap_log, then auto ensureMetaStory bootstrapped and the finding written.\",\"headHash\":\"419b0f237063ae071a3377a76762cea69beb9d57\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:11.046Z\"}},{\"intentRef\":\"CHK-002:happy:2\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"gap_log called from main branch (no story worktree) -> succeeds; WHY: worktree-independence requirement\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:happy:2\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-7 runs gap_log from a plain main project with no story worktree and asserts it succeeds (no assertCwdInWorktree).\",\"headHash\":\"419b0f237063ae071a3377a76762cea69beb9d57\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:11.046Z\"}},{\"intentRef\":\"CHK-002:happy:3\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"gap_log default evidenceState is suspected when no structured evidence fields provided; WHY: constraint that gap_log defaults suspected\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:happy:3\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-2 asserts default gap_log (no evidenceState arg) persists evidenceState=suspected.\",\"headHash\":\"419b0f237063ae071a3377a76762cea69beb9d57\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:11.046Z\"}},{\"intentRef\":\"CHK-002:happy:4\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"gap_log with structured evidence fields (sourceRefs + reproCommand) + explicit evidenceState=verified -> accepted and stored as verified; WHY: verified path requires structured evidence\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:happy:4\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-4 calls gap_log with sourceRefs + reproCommand + observedOutput and evidenceState=verified, asserts the finding is stored verified.\",\"headHash\":\"419b0f237063ae071a3377a76762cea69beb9d57\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:11.046Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"gap_log missing category field -> clear error message, no finding written; WHY: field completeness gate\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-1 asserts missing category is rejected by both CLI Zod and handler runtime, no finding written.\",\"headHash\":\"419b0f237063ae071a3377a76762cea69beb9d57\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:11.046Z\"}},{\"intentRef\":\"CHK-002:edge:1\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"gap_log missing severity field -> clear error message, no finding written; WHY: field completeness gate\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:edge:1\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-1 asserts missing severity is rejected by both CLI Zod and handler runtime, no finding written.\",\"headHash\":\"419b0f237063ae071a3377a76762cea69beb9d57\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:11.046Z\"}},{\"intentRef\":\"CHK-002:edge:2\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"gap_log missing evidence field -> clear error message, no finding written; WHY: field completeness gate\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:edge:2\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-1 asserts missing evidence is rejected by both CLI Zod and handler runtime, no finding written.\",\"headHash\":\"419b0f237063ae071a3377a76762cea69beb9d57\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:11.046Z\"}},{\"intentRef\":\"CHK-002:edge:3\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"gap_log missing source field -> clear error message, no finding written; WHY: field completeness gate\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:edge:3\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-1 asserts missing source (no sourceRefs/reproCommand/observedOutput/analysisNote) is rejected by the handler runtime with 'source 必填', no finding written.\",\"headHash\":\"419b0f237063ae071a3377a76762cea69beb9d57\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:11.046Z\"}},{\"intentRef\":\"CHK-002:edge:4\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"gap_log called twice with identical content -> second call creates separate finding (not deduplicated, unlike audit drift upsert); WHY: manual archival is intentionally non-deduped\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:edge:4\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-8 calls gap_log twice with identical content and asserts two separate findings (not deduplicated, unlike audit drift upsert).\",\"headHash\":\"419b0f237063ae071a3377a76762cea69beb9d57\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:11.046Z\"}},{\"intentRef\":\"CHK-002:edge:5\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"gap_log with severity value outside canonical enum (e.g. urgent) -> Zod + handler runtime reject; WHY: enum hardening\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:edge:5\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-1 (b) asserts an out-of-enum severity value (urgent) is rejected by the handler runtime enum guard; CLI Zod also enforces the enum.\",\"headHash\":\"419b0f237063ae071a3377a76762cea69beb9d57\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:11.046Z\"}},{\"intentRef\":\"CHK-002:edge:6\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"B-META-framework-audit already exists with prior findings -> gap_log appends new finding, prior findings untouched; WHY: idempotent container, additive writes\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:edge:6\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-6 second call appends into an already-bootstrapped B-META container and asserts prior findings untouched (additive, no parallel store).\",\"headHash\":\"419b0f237063ae071a3377a76762cea69beb9d57\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:11.046Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"gap_log with evidenceState=verified but NO structured evidence fields (no sourceRefs, no reproCommand, no observedOutput, no analysisNote) -> handler forces evidenceState back to suspected; WHY: constraint that verified requires structured evidence\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-3 asserts a verified request with no structured evidence can never produce a verified finding (the mandatory source gate makes verified-without-evidence structurally impossible; the handler keeps an independent downgrade guard).\",\"headHash\":\"419b0f237063ae071a3377a76762cea69beb9d57\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:11.046Z\"}},{\"intentRef\":\"CHK-002:adversarial:1\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"gap_log with evidenceState=disproven -> rejected (gap_log is for archiving suspected gaps, not for recording disproof); WHY: disproven semantic does not apply to manual gap archival entry point\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:1\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-9 asserts evidenceState=disproven is rejected by both CLI Zod (enum suspected/verified only) and handler runtime ('disproven 反证请走 finding 流程').\",\"headHash\":\"419b0f237063ae071a3377a76762cea69beb9d57\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:11.046Z\"}},{\"intentRef\":\"CHK-002:adversarial:2\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"gap_log with empty-string evidence field (whitespace only) -> handler rejects, treats as missing; WHY: prevent garbage entries in B-META\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:2\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-5 asserts empty-string and whitespace-only evidence are rejected (handler trims), no garbage finding written to B-META.\",\"headHash\":\"419b0f237063ae071a3377a76762cea69beb9d57\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:11.046Z\"}},{\"intentRef\":\"CHK-002:adversarial:3\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"gap_log called in rapid succession (5 calls <1s) with different content -> all 5 findings written, no race condition on findings.json; WHY: concurrent write safety\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:3\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-10 runs 5 gap_log calls in rapid succession with distinct content and asserts all 5 findings persisted with unique ids (no findings.json write race).\",\"headHash\":\"419b0f237063ae071a3377a76762cea69beb9d57\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:11.046Z\"}},{\"intentRef\":\"CHK-002:adversarial:4\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"gap_log command registered in registry.ts and command-policy.ts with correct allowedPhases policy -> koala help shows gap_log; WHY: command discoverability\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:4\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-11 asserts gap_log is registered (registry.ts + cli-engine schema + command-policy) and discoverable via koala gap_log --help showing the category/severity params.\",\"headHash\":\"419b0f237063ae071a3377a76762cea69beb9d57\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:11.046Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"node scripts/verify-process-fact-contract.mjs exits 0 after CHK-001+CHK-002 landed -> evidenceState and gap_log are registered as process facts; WHY: contract script must pass\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"contract verifier exits 0 after CHK-001+CHK-002+CHK-003 landed; output ends with \\\"Process fact contract verified\\\" and lists gap_log + runtime:finding_evidence_state_review_gate registry entries\",\"headHash\":\"de9abe7f2ee0d083bfe536be00ff6c58bdbe00fb\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:35.778Z\"}},{\"intentRef\":\"CHK-003:happy:1\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"process-fact-registry.ts contains evidenceState entry with gate-consumed semantic marker; WHY: evidenceState is consumed by REVIEW->TEST gate\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"evidenceState gate fact registered as runtime:finding_evidence_state_review_gate (L4, gate-consumed via storyMachine.canPassReview); contract summary line printed and verified\",\"headHash\":\"de9abe7f2ee0d083bfe536be00ff6c58bdbe00fb\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:35.778Z\"}},{\"intentRef\":\"CHK-003:happy:2\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"process-fact-registry.ts contains gap_log command entry; WHY: new command must be registered\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:happy:2\",\"kind\":\"manual_transcript\",\"command\":\"node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"gap_log command fact registered (level/command, producer=handlers/gap-log); contract verifier prints \\\"- gap_log [L2/command]\\\" and passes the MAIN_TOOLS->registry cross-check\",\"headHash\":\"de9abe7f2ee0d083bfe536be00ff6c58bdbe00fb\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:35.778Z\"}},{\"intentRef\":\"CHK-003:happy:3\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"AGENTS.md contains evidenceState default table (reviewer=verified, gap_log=suspected, legacy=verified compat); WHY: documentation requirement from userSees\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:happy:3\",\"kind\":\"docs_check\",\"file\":\"AGENTS.md\",\"result\":\"pass\",\"note\":\"AGENTS.md \\\"Finding evidenceState 证据状态模型\\\" section contains the default table with reviewer finding_add=verified / gap_log=suspected / legacy missing-field=verified compat rows\",\"headHash\":\"de9abe7f2ee0d083bfe536be00ff6c58bdbe00fb\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:35.778Z\"}},{\"intentRef\":\"CHK-003:happy:4\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"AGENTS.md contains gap_log usage instructions (required fields, example invocation); WHY: documentation requirement\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:happy:4\",\"kind\":\"docs_check\",\"file\":\"AGENTS.md\",\"result\":\"pass\",\"note\":\"AGENTS.md documents gap_log usage: required fields (category/severity/evidence/source), example invocation in CLI quick-ref and in the evidenceState section\",\"headHash\":\"de9abe7f2ee0d083bfe536be00ff6c58bdbe00fb\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:35.778Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"verify-process-fact-contract.mjs fails if evidenceState entry is removed from registry -> non-zero exit; WHY: contract script must detect regressions\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"grep -v runtime:finding_evidence_state_review_gate process-fact-levels.ts then node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"removing the evidenceState entry from process-fact-levels.ts makes the contract verifier exit non-zero (verified: exit 1) — regression detected\",\"headHash\":\"de9abe7f2ee0d083bfe536be00ff6c58bdbe00fb\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:35.778Z\"}},{\"intentRef\":\"CHK-003:edge:1\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"verify-process-fact-contract.mjs fails if gap_log entry is removed from registry -> non-zero exit; WHY: contract script must detect regressions\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"grep -v gap_log process-fact-levels.ts then node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"removing the gap_log entry from process-fact-levels.ts makes the contract verifier exit non-zero (verified: exit 1) — regression detected\",\"headHash\":\"de9abe7f2ee0d083bfe536be00ff6c58bdbe00fb\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:35.778Z\"}},{\"intentRef\":\"CHK-003:edge:2\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"AGENTS.md documents gate predicate formula (status=open AND severity in critical/high AND evidenceState=verified or null); WHY: gate behavior must be documented precisely\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:edge:2\",\"kind\":\"docs_check\",\"file\":\"AGENTS.md\",\"result\":\"pass\",\"note\":\"AGENTS.md evidenceState section documents the Gate predicate formula: status===open AND severity in critical/high AND isEvidenceStateBlocking (verified or null) AND not advisory-this-round\",\"headHash\":\"de9abe7f2ee0d083bfe536be00ff6c58bdbe00fb\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:35.778Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"remove evidenceState from guard-utils.ts blocking filter but keep registry entry -> contract script detects mismatch (hardcoded fallback missing) and fails; WHY: dual-layer contract requires both prompt guidance AND code fallback\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"sed isEvidenceStateBlocking->renamed in advisory.ts then node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"removing the hardcoded fallback symbol (isEvidenceStateBlocking) from advisory.ts while keeping the registry entry makes the contract fail (verified: exit 1) via the new \\\"finding evidenceState gate dimension\\\" inventory entry — dual-layer contract enforced\",\"headHash\":\"de9abe7f2ee0d083bfe536be00ff6c58bdbe00fb\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:35.778Z\"}},{\"intentRef\":\"CHK-003:adversarial:1\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"add evidenceState to registry but with wrong semantic type (e.g. informational instead of gate-consumed) -> contract script detects semantic mismatch; WHY: registry accuracy matters for audit\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:1\",\"kind\":\"logic_test\",\"file\":\"scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"registry semantic accuracy: runtime:finding_evidence_state_review_gate is L4 with gateConsumer; contract verifier asserts every L4 entry declares a consumer gate (l4WithoutGate check) and runtime entries get runtime-behavior kind — a wrong semantic/missing-gate would fail the contract\",\"headHash\":\"de9abe7f2ee0d083bfe536be00ff6c58bdbe00fb\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:35.778Z\"}},{\"intentRef\":\"CHK-003:adversarial:2\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"AGENTS.md mentions gap_log but with wrong required fields list -> manual review catch (contract script validates registry not docs prose); WHY: docs drift detection boundary\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:2\",\"kind\":\"docs_check\",\"file\":\"AGENTS.md\",\"result\":\"pass\",\"note\":\"docs drift boundary: the contract verifier validates the registry (process-fact-levels/registry), not AGENTS.md prose; AGENTS.md gap_log required-fields list was written to match the handler (category/severity/evidence/source) and is caught by manual review, not the script — boundary documented as intended\",\"headHash\":\"de9abe7f2ee0d083bfe536be00ff6c58bdbe00fb\",\"materialHash\":\"978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973\",\"timestamp\":\"2026-05-17T00:38:35.778Z\"}}]}}",
-  "result": "FAIL",
-  "timestamp": "2026-05-17T00:50:17.574Z",
-  "headHash": "9624d9904723b3f92338a0cb7ec3245c28b9281c",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.3 test\",\"  > npm run test:e2e\",\"  > koala@0.3.3 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 44/44 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via logic_test (packages/main/src/tasks/evidence-state-gate-smoke.ts) — legacy finding (critical, open, no evidenceState field) -> gate blocks REVIEW->TEST; WHY: backward compat guarantee that missing evidenceState is treated as verified\",\"  ✓ CHK-001:happy:1 [happy/must/cli] covered via logic_test (packages/main/src/tasks/evidence-state-gate-smoke.ts) — reviewer finding_add with critical severity (no explicit evidenceState) -> defaults to verified -> gate blocks REVIEW->TEST; WHY: confirm new findings keep existing gate behavior\",\"  ✓ CHK-001:happy:2 [happy/must/cli] covered via logic_test (packages/main/src/tasks/evidence-state-gate-smoke.ts) — reviewer finding_add with critical severity + explicit evidenceState=suspected + uncertaintyReason provided -> gate does NOT block REVIEW->TEST, finding_list shows it in advisory/attention section; WHY: core value proposition of the story\",\"  ✓ CHK-001:happy:3 [happy/must/cli] covered via logic_test (packages/main/src/tasks/evidence-state-gate-smoke.ts) — finding with evidenceState=verified + severity=critical + status=resolved -> gate does NOT block; WHY: resolved findings regardless of evidenceState must not block\",\"  ✓ CHK-001:happy:4 [happy/must/cli] covered via logic_test (packages/main/src/tasks/evidence-state-gate-smoke.ts) — finding with evidenceState=disproven + severity=critical + status=open -> gate does NOT block; WHY: disproven findings must never block even when still open\",\"  ✓ CHK-001:happy:5 [happy/must/cli] covered via logic_test (packages/main/src/tasks/evidence-state-gate-smoke.ts) — finding_list output includes evidenceState field for every finding (verified/suspected/disproven/absent shows as legacy); WHY: observability requirement from userSees\",\"  ✓ CHK-001:happy:6 [happy/must/cli] covered via logic_test (packages/main/src/tasks/evidence-state-gate-smoke.ts) — finding_add with explicit evidenceState=suspected but missing uncertaintyReason -> handler throws clear error, finding not written; WHY: prevent abusing suspected as gate-bypass button without justification\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via logic_test (packages/main/src/tasks/evidence-state-gate-smoke.ts) — finding with evidenceState=verified + severity=high + status=dismissed -> gate does NOT block; WHY: dismissed overrides severity regardless of evidenceState\",\"  ✓ CHK-001:edge:1 [edge/should/logic] covered via logic_test (packages/main/src/tasks/evidence-state-gate-smoke.ts) — finding with evidenceState=suspected + severity=medium + status=open -> gate does NOT block even in Round 1; WHY: suspected medium is doubly non-blocking (suspected + not critical/high)\",\"  ✓ CHK-001:edge:2 [edge/must/cli] covered via logic_test (packages/main/src/tasks/evidence-state-gate-smoke.ts) — finding_add with evidenceState=disproven but missing disprovenEvidence summary -> handler rejects; WHY: constraint requires disproven must carry counter-evidence\",\"  ✓ CHK-001:edge:3 [edge/should/cli] covered via logic_test (packages/main/src/tasks/evidence-state-gate-smoke.ts) — mix of legacy findings (no evidenceState) + new findings (with evidenceState) in same story -> gate correctly evaluates each independently; WHY: migration coexistence\",\"  ✓ CHK-001:edge:4 [edge/should/cli] covered via logic_test (packages/main/src/tasks/evidence-state-gate-smoke.ts) — finding_add with invalid evidenceState value (e.g. confirmed) -> Zod rejects + handler runtime rejects; WHY: enum hardening per Handler coding convention\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via logic_test (packages/main/src/tasks/evidence-state-gate-smoke.ts) — agent sets all critical findings to suspected with minimal 1-char uncertaintyReason to bypass gate -> handler enforces uncertaintyReason minimum length (>=10 chars); WHY: prevent trivial reason as gate bypass\",\"  ✓ CHK-001:adversarial:1 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/evidence-state-gate-smoke.ts) — agent directly edits findings.json to remove evidenceState from a verified finding -> gate re-reads from disk treats missing field as verified (legacy compat), still blocks; WHY: file tampering must not open escape hatch\",\"  ✓ CHK-001:adversarial:2 [adversarial/should/cli] covered via logic_test (packages/main/src/tasks/evidence-state-gate-smoke.ts) — agent calls finding_add with evidenceState=suspected on a finding that was previously verified (downgrade attack) -> handler rejects downgrade without structured justification; WHY: prevent weaponizing state transitions\",\"  ✓ CHK-001:adversarial:3 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/evidence-state-gate-smoke.ts) — concurrent finding_add: two findings same story, one verified critical + one suspected critical -> gate blocks on the verified one only; WHY: partial suspected must not mask real blockers\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/tasks/gap-log-smoke.ts) — koala gap_log with all required fields (category, severity, evidence, source) -> output Gap logged: B-META-framework-audit:F-00X (evidenceState=suspected, severity=<val>); WHY: primary command happy path\",\"  ✓ CHK-002:happy:1 [happy/must/cli] covered via integration_test (packages/main/src/tasks/gap-log-smoke.ts) — B-META-framework-audit container does not exist before first gap_log call -> gap_log auto-bootstraps via ensureMetaStory, finding written successfully; WHY: zero-setup requirement\",\"  ✓ CHK-002:happy:2 [happy/must/cli] covered via integration_test (packages/main/src/tasks/gap-log-smoke.ts) — gap_log called from main branch (no story worktree) -> succeeds; WHY: worktree-independence requirement\",\"  ✓ CHK-002:happy:3 [happy/must/cli] covered via integration_test (packages/main/src/tasks/gap-log-smoke.ts) — gap_log default evidenceState is suspected when no structured evidence fields provided; WHY: constraint that gap_log defaults suspected\",\"  ✓ CHK-002:happy:4 [happy/must/cli] covered via integration_test (packages/main/src/tasks/gap-log-smoke.ts) — gap_log with structured evidence fields (sourceRefs + reproCommand) + explicit evidenceState=verified -> accepted and stored as verified; WHY: verified path requires structured evidence\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via integration_test (packages/main/src/tasks/gap-log-smoke.ts) — gap_log missing category field -> clear error message, no finding written; WHY: field completeness gate\",\"  ✓ CHK-002:edge:1 [edge/must/cli] covered via integration_test (packages/main/src/tasks/gap-log-smoke.ts) — gap_log missing severity field -> clear error message, no finding written; WHY: field completeness gate\",\"  ✓ CHK-002:edge:2 [edge/must/cli] covered via integration_test (packages/main/src/tasks/gap-log-smoke.ts) — gap_log missing evidence field -> clear error message, no finding written; WHY: field completeness gate\",\"  ✓ CHK-002:edge:3 [edge/must/cli] covered via integration_test (packages/main/src/tasks/gap-log-smoke.ts) — gap_log missing source field -> clear error message, no finding written; WHY: field completeness gate\",\"  ✓ CHK-002:edge:4 [edge/should/cli] covered via integration_test (packages/main/src/tasks/gap-log-smoke.ts) — gap_log called twice with identical content -> second call creates separate finding (not deduplicated, unlike audit drift upsert); WHY: manual archival is intentionally non-deduped\",\"  ✓ CHK-002:edge:5 [edge/should/cli] covered via integration_test (packages/main/src/tasks/gap-log-smoke.ts) — gap_log with severity value outside canonical enum (e.g. urgent) -> Zod + handler runtime reject; WHY: enum hardening\",\"  ✓ CHK-002:edge:6 [edge/must/cli] covered via integration_test (packages/main/src/tasks/gap-log-smoke.ts) — B-META-framework-audit already exists with prior findings -> gap_log appends new finding, prior findings untouched; WHY: idempotent container, additive writes\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via integration_test (packages/main/src/tasks/gap-log-smoke.ts) — gap_log with evidenceState=verified but NO structured evidence fields (no sourceRefs, no reproCommand, no observedOutput, no analysisNote) -> handler forces evidenceState back to suspected; WHY: constraint that verified requires structured evidence\",\"  ✓ CHK-002:adversarial:1 [adversarial/should/cli] covered via integration_test (packages/main/src/tasks/gap-log-smoke.ts) — gap_log with evidenceState=disproven -> rejected (gap_log is for archiving suspected gaps, not for recording disproof); WHY: disproven semantic does not apply to manual gap archival entry point\",\"  ✓ CHK-002:adversarial:2 [adversarial/must/cli] covered via integration_test (packages/main/src/tasks/gap-log-smoke.ts) — gap_log with empty-string evidence field (whitespace only) -> handler rejects, treats as missing; WHY: prevent garbage entries in B-META\",\"  ✓ CHK-002:adversarial:3 [adversarial/should/logic] covered via logic_test (packages/main/src/tasks/gap-log-smoke.ts) — gap_log called in rapid succession (5 calls <1s) with different content -> all 5 findings written, no race condition on findings.json; WHY: concurrent write safety\",\"  ✓ CHK-002:adversarial:4 [adversarial/must/cli] covered via integration_test (packages/main/src/tasks/gap-log-smoke.ts) — gap_log command registered in registry.ts and command-policy.ts with correct allowedPhases policy -> koala help shows gap_log; WHY: command discoverability\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via manual_transcript — node scripts/verify-process-fact-contract.mjs exits 0 after CHK-001+CHK-002 landed -> evidenceState and gap_log are registered as process facts; WHY: contract script must pass\",\"  ✓ CHK-003:happy:1 [happy/must/cli] covered via manual_transcript — process-fact-registry.ts contains evidenceState entry with gate-consumed semantic marker; WHY: evidenceState is consumed by REVIEW->TEST gate\",\"  ✓ CHK-003:happy:2 [happy/must/cli] covered via manual_transcript — process-fact-registry.ts contains gap_log command entry; WHY: new command must be registered\",\"  ✓ CHK-003:happy:3 [happy/must/cli] covered via docs_check (AGENTS.md) — AGENTS.md contains evidenceState default table (reviewer=verified, gap_log=suspected, legacy=verified compat); WHY: documentation requirement from userSees\",\"  ✓ CHK-003:happy:4 [happy/must/cli] covered via docs_check (AGENTS.md) — AGENTS.md contains gap_log usage instructions (required fields, example invocation); WHY: documentation requirement\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via manual_transcript — verify-process-fact-contract.mjs fails if evidenceState entry is removed from registry -> non-zero exit; WHY: contract script must detect regressions\",\"  ✓ CHK-003:edge:1 [edge/must/cli] covered via manual_transcript — verify-process-fact-contract.mjs fails if gap_log entry is removed from registry -> non-zero exit; WHY: contract script must detect regressions\",\"  ✓ CHK-003:edge:2 [edge/should/cli] covered via docs_check (AGENTS.md) — AGENTS.md documents gate predicate formula (status=open AND severity in critical/high AND evidenceState=verified or null); WHY: gate behavior must be documented precisely\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via manual_transcript — remove evidenceState from guard-utils.ts blocking filter but keep registry entry -> contract script detects mismatch (hardcoded fallback missing) and fails; WHY: dual-layer contract requires both prompt guidance AND code fallback\",\"  ✓ CHK-003:adversarial:1 [adversarial/should/logic] covered via logic_test (scripts/verify-process-fact-contract.mjs) — add evidenceState to registry but with wrong semantic type (e.g. informational instead of gate-consumed) -> contract script detects semantic mismatch; WHY: registry accuracy matters for audit\",\"  ✓ CHK-003:adversarial:2 [adversarial/should/cli] covered via docs_check (AGENTS.md) — AGENTS.md mentions gap_log but with wrong required fields list -> manual review catch (contract script validates registry not docs prose); WHY: docs drift detection boundary\"],\"warnings\":[],\"timestamp\":\"2026-05-17T00:50:43.802Z\",\"headSha\":\"b663860fe46318640ee31b2f35e5e33e9eda4f3e\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.3 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.3 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":873}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"fast\",\"intentCount\":44,\"reason\":\"verificationIntent entries present (44)\"},\"verificationCoverage\":{\"total\":44,\"required\":33,\"covered\":44,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"legacy finding (critical, open, no evidenceState field) -> gate blocks REVIEW->TEST; WHY: backward compat guarantee that missing evidenceState is treated as verified\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-state-gate-smoke.ts\",\"command\":\"npm run test:evidence-state-gate-smoke\",\"result\":\"pass\",\"note\":\"evidence-state-gate-smoke covers CHK-001:happy:0: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-001:happy:1\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"reviewer finding_add with critical severity (no explicit evidenceState) -> defaults to verified -> gate blocks REVIEW->TEST; WHY: confirm new findings keep existing gate behavior\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:1\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-state-gate-smoke.ts\",\"command\":\"npm run test:evidence-state-gate-smoke\",\"result\":\"pass\",\"note\":\"evidence-state-gate-smoke covers CHK-001:happy:1: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-001:happy:2\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"reviewer finding_add with critical severity + explicit evidenceState=suspected + uncertaintyReason provided -> gate does NOT block REVIEW->TEST, finding_list shows it in advisory/attention section; WHY: core value proposition of the story\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:2\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-state-gate-smoke.ts\",\"command\":\"npm run test:evidence-state-gate-smoke\",\"result\":\"pass\",\"note\":\"evidence-state-gate-smoke covers CHK-001:happy:2: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-001:happy:3\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"finding with evidenceState=verified + severity=critical + status=resolved -> gate does NOT block; WHY: resolved findings regardless of evidenceState must not block\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:3\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-state-gate-smoke.ts\",\"command\":\"npm run test:evidence-state-gate-smoke\",\"result\":\"pass\",\"note\":\"evidence-state-gate-smoke covers CHK-001:happy:3: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-001:happy:4\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"finding with evidenceState=disproven + severity=critical + status=open -> gate does NOT block; WHY: disproven findings must never block even when still open\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:4\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-state-gate-smoke.ts\",\"command\":\"npm run test:evidence-state-gate-smoke\",\"result\":\"pass\",\"note\":\"evidence-state-gate-smoke covers CHK-001:happy:4: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-001:happy:5\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"finding_list output includes evidenceState field for every finding (verified/suspected/disproven/absent shows as legacy); WHY: observability requirement from userSees\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:5\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-state-gate-smoke.ts\",\"command\":\"npm run test:evidence-state-gate-smoke\",\"result\":\"pass\",\"note\":\"evidence-state-gate-smoke covers CHK-001:happy:5: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-001:happy:6\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"finding_add with explicit evidenceState=suspected but missing uncertaintyReason -> handler throws clear error, finding not written; WHY: prevent abusing suspected as gate-bypass button without justification\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:6\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-state-gate-smoke.ts\",\"command\":\"npm run test:evidence-state-gate-smoke\",\"result\":\"pass\",\"note\":\"evidence-state-gate-smoke covers CHK-001:happy:6: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"finding with evidenceState=verified + severity=high + status=dismissed -> gate does NOT block; WHY: dismissed overrides severity regardless of evidenceState\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-state-gate-smoke.ts\",\"command\":\"npm run test:evidence-state-gate-smoke\",\"result\":\"pass\",\"note\":\"evidence-state-gate-smoke covers CHK-001:edge:0: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-001:edge:1\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"finding with evidenceState=suspected + severity=medium + status=open -> gate does NOT block even in Round 1; WHY: suspected medium is doubly non-blocking (suspected + not critical/high)\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:1\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-state-gate-smoke.ts\",\"command\":\"npm run test:evidence-state-gate-smoke\",\"result\":\"pass\",\"note\":\"evidence-state-gate-smoke covers CHK-001:edge:1: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-001:edge:2\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"finding_add with evidenceState=disproven but missing disprovenEvidence summary -> handler rejects; WHY: constraint requires disproven must carry counter-evidence\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:2\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-state-gate-smoke.ts\",\"command\":\"npm run test:evidence-state-gate-smoke\",\"result\":\"pass\",\"note\":\"evidence-state-gate-smoke covers CHK-001:edge:2: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-001:edge:3\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"mix of legacy findings (no evidenceState) + new findings (with evidenceState) in same story -> gate correctly evaluates each independently; WHY: migration coexistence\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:3\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-state-gate-smoke.ts\",\"command\":\"npm run test:evidence-state-gate-smoke\",\"result\":\"pass\",\"note\":\"evidence-state-gate-smoke covers CHK-001:edge:3: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-001:edge:4\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"finding_add with invalid evidenceState value (e.g. confirmed) -> Zod rejects + handler runtime rejects; WHY: enum hardening per Handler coding convention\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:4\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-state-gate-smoke.ts\",\"command\":\"npm run test:evidence-state-gate-smoke\",\"result\":\"pass\",\"note\":\"evidence-state-gate-smoke covers CHK-001:edge:4: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"agent sets all critical findings to suspected with minimal 1-char uncertaintyReason to bypass gate -> handler enforces uncertaintyReason minimum length (>=10 chars); WHY: prevent trivial reason as gate bypass\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-state-gate-smoke.ts\",\"command\":\"npm run test:evidence-state-gate-smoke\",\"result\":\"pass\",\"note\":\"evidence-state-gate-smoke covers CHK-001:adversarial:0: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-001:adversarial:1\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"agent directly edits findings.json to remove evidenceState from a verified finding -> gate re-reads from disk treats missing field as verified (legacy compat), still blocks; WHY: file tampering must not open escape hatch\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:1\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-state-gate-smoke.ts\",\"command\":\"npm run test:evidence-state-gate-smoke\",\"result\":\"pass\",\"note\":\"evidence-state-gate-smoke covers CHK-001:adversarial:1: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-001:adversarial:2\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"agent calls finding_add with evidenceState=suspected on a finding that was previously verified (downgrade attack) -> handler rejects downgrade without structured justification; WHY: prevent weaponizing state transitions\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:2\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-state-gate-smoke.ts\",\"command\":\"npm run test:evidence-state-gate-smoke\",\"result\":\"pass\",\"note\":\"evidence-state-gate-smoke covers CHK-001:adversarial:2: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-001:adversarial:3\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"concurrent finding_add: two findings same story, one verified critical + one suspected critical -> gate blocks on the verified one only; WHY: partial suspected must not mask real blockers\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:3\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-state-gate-smoke.ts\",\"command\":\"npm run test:evidence-state-gate-smoke\",\"result\":\"pass\",\"note\":\"evidence-state-gate-smoke covers CHK-001:adversarial:3: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"koala gap_log with all required fields (category, severity, evidence, source) -> output Gap logged: B-META-framework-audit:F-00X (evidenceState=suspected, severity=<val>); WHY: primary command happy path\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-2/4 run gap_log via CLI with all required fields and assert the Gap logged: B-META-framework-audit:F-NNN (evidenceState=...) output line.\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-002:happy:1\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"B-META-framework-audit container does not exist before first gap_log call -> gap_log auto-bootstraps via ensureMetaStory, finding written successfully; WHY: zero-setup requirement\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:1\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-6 asserts the B-META container is absent before the first gap_log, then auto ensureMetaStory bootstrapped and the finding written.\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-002:happy:2\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"gap_log called from main branch (no story worktree) -> succeeds; WHY: worktree-independence requirement\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:2\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-7 runs gap_log from a plain main project with no story worktree and asserts it succeeds (no assertCwdInWorktree).\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-002:happy:3\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"gap_log default evidenceState is suspected when no structured evidence fields provided; WHY: constraint that gap_log defaults suspected\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:3\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-2 asserts default gap_log (no evidenceState arg) persists evidenceState=suspected.\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-002:happy:4\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"gap_log with structured evidence fields (sourceRefs + reproCommand) + explicit evidenceState=verified -> accepted and stored as verified; WHY: verified path requires structured evidence\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:4\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-4 calls gap_log with sourceRefs + reproCommand + observedOutput and evidenceState=verified, asserts the finding is stored verified.\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"gap_log missing category field -> clear error message, no finding written; WHY: field completeness gate\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-1 asserts missing category is rejected by both CLI Zod and handler runtime, no finding written.\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-002:edge:1\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"gap_log missing severity field -> clear error message, no finding written; WHY: field completeness gate\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:1\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-1 asserts missing severity is rejected by both CLI Zod and handler runtime, no finding written.\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-002:edge:2\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"gap_log missing evidence field -> clear error message, no finding written; WHY: field completeness gate\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:2\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-1 asserts missing evidence is rejected by both CLI Zod and handler runtime, no finding written.\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-002:edge:3\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"gap_log missing source field -> clear error message, no finding written; WHY: field completeness gate\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:3\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-1 asserts missing source (no sourceRefs/reproCommand/observedOutput/analysisNote) is rejected by the handler runtime with 'source 必填', no finding written.\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-002:edge:4\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"gap_log called twice with identical content -> second call creates separate finding (not deduplicated, unlike audit drift upsert); WHY: manual archival is intentionally non-deduped\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:4\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-8 calls gap_log twice with identical content and asserts two separate findings (not deduplicated, unlike audit drift upsert).\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-002:edge:5\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"gap_log with severity value outside canonical enum (e.g. urgent) -> Zod + handler runtime reject; WHY: enum hardening\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:5\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-1 (b) asserts an out-of-enum severity value (urgent) is rejected by the handler runtime enum guard; CLI Zod also enforces the enum.\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-002:edge:6\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"B-META-framework-audit already exists with prior findings -> gap_log appends new finding, prior findings untouched; WHY: idempotent container, additive writes\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:6\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-6 second call appends into an already-bootstrapped B-META container and asserts prior findings untouched (additive, no parallel store).\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"gap_log with evidenceState=verified but NO structured evidence fields (no sourceRefs, no reproCommand, no observedOutput, no analysisNote) -> handler forces evidenceState back to suspected; WHY: constraint that verified requires structured evidence\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-3 asserts a verified request with no structured evidence can never produce a verified finding (the mandatory source gate makes verified-without-evidence structurally impossible; the handler keeps an independent downgrade guard).\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-002:adversarial:1\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"gap_log with evidenceState=disproven -> rejected (gap_log is for archiving suspected gaps, not for recording disproof); WHY: disproven semantic does not apply to manual gap archival entry point\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:1\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-9 asserts evidenceState=disproven is rejected by both CLI Zod (enum suspected/verified only) and handler runtime ('disproven 反证请走 finding 流程').\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-002:adversarial:2\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"gap_log with empty-string evidence field (whitespace only) -> handler rejects, treats as missing; WHY: prevent garbage entries in B-META\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:2\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-5 asserts empty-string and whitespace-only evidence are rejected (handler trims), no garbage finding written to B-META.\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-002:adversarial:3\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"gap_log called in rapid succession (5 calls <1s) with different content -> all 5 findings written, no race condition on findings.json; WHY: concurrent write safety\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:3\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-10 runs 5 gap_log calls in rapid succession with distinct content and asserts all 5 findings persisted with unique ids (no findings.json write race).\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-002:adversarial:4\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"gap_log command registered in registry.ts and command-policy.ts with correct allowedPhases policy -> koala help shows gap_log; WHY: command discoverability\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:4\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/gap-log-smoke.ts\",\"command\":\"npm --prefix packages/main run test:gap-log-smoke\",\"result\":\"pass\",\"note\":\"gap-log-11 asserts gap_log is registered (registry.ts + cli-engine schema + command-policy) and discoverable via koala gap_log --help showing the category/severity params.\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"node scripts/verify-process-fact-contract.mjs exits 0 after CHK-001+CHK-002 landed -> evidenceState and gap_log are registered as process facts; WHY: contract script must pass\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"contract verifier exits 0 after CHK-001+CHK-002+CHK-003 landed; output ends with \\\"Process fact contract verified\\\" and lists gap_log + runtime:finding_evidence_state_review_gate registry entries\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-003:happy:1\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"process-fact-registry.ts contains evidenceState entry with gate-consumed semantic marker; WHY: evidenceState is consumed by REVIEW->TEST gate\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"evidenceState gate fact registered as runtime:finding_evidence_state_review_gate (L4, gate-consumed via storyMachine.canPassReview); contract summary line printed and verified\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-003:happy:2\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"process-fact-registry.ts contains gap_log command entry; WHY: new command must be registered\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:2\",\"kind\":\"manual_transcript\",\"command\":\"node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"gap_log command fact registered (level/command, producer=handlers/gap-log); contract verifier prints \\\"- gap_log [L2/command]\\\" and passes the MAIN_TOOLS->registry cross-check\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-003:happy:3\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"AGENTS.md contains evidenceState default table (reviewer=verified, gap_log=suspected, legacy=verified compat); WHY: documentation requirement from userSees\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:3\",\"kind\":\"docs_check\",\"file\":\"AGENTS.md\",\"result\":\"pass\",\"note\":\"AGENTS.md \\\"Finding evidenceState 证据状态模型\\\" section contains the default table with reviewer finding_add=verified / gap_log=suspected / legacy missing-field=verified compat rows\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-003:happy:4\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"AGENTS.md contains gap_log usage instructions (required fields, example invocation); WHY: documentation requirement\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:4\",\"kind\":\"docs_check\",\"file\":\"AGENTS.md\",\"result\":\"pass\",\"note\":\"AGENTS.md documents gap_log usage: required fields (category/severity/evidence/source), example invocation in CLI quick-ref and in the evidenceState section\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"verify-process-fact-contract.mjs fails if evidenceState entry is removed from registry -> non-zero exit; WHY: contract script must detect regressions\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"grep -v runtime:finding_evidence_state_review_gate process-fact-levels.ts then node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"removing the evidenceState entry from process-fact-levels.ts makes the contract verifier exit non-zero (verified: exit 1) — regression detected\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-003:edge:1\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"verify-process-fact-contract.mjs fails if gap_log entry is removed from registry -> non-zero exit; WHY: contract script must detect regressions\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"grep -v gap_log process-fact-levels.ts then node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"removing the gap_log entry from process-fact-levels.ts makes the contract verifier exit non-zero (verified: exit 1) — regression detected\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-003:edge:2\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"AGENTS.md documents gate predicate formula (status=open AND severity in critical/high AND evidenceState=verified or null); WHY: gate behavior must be documented precisely\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:2\",\"kind\":\"docs_check\",\"file\":\"AGENTS.md\",\"result\":\"pass\",\"note\":\"AGENTS.md evidenceState section documents the Gate predicate formula: status===open AND severity in critical/high AND isEvidenceStateBlocking (verified or null) AND not advisory-this-round\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"remove evidenceState from guard-utils.ts blocking filter but keep registry entry -> contract script detects mismatch (hardcoded fallback missing) and fails; WHY: dual-layer contract requires both prompt guidance AND code fallback\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"sed isEvidenceStateBlocking->renamed in advisory.ts then node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"removing the hardcoded fallback symbol (isEvidenceStateBlocking) from advisory.ts while keeping the registry entry makes the contract fail (verified: exit 1) via the new \\\"finding evidenceState gate dimension\\\" inventory entry — dual-layer contract enforced\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-003:adversarial:1\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"add evidenceState to registry but with wrong semantic type (e.g. informational instead of gate-consumed) -> contract script detects semantic mismatch; WHY: registry accuracy matters for audit\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:1\",\"kind\":\"logic_test\",\"file\":\"scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"registry semantic accuracy: runtime:finding_evidence_state_review_gate is L4 with gateConsumer; contract verifier asserts every L4 entry declares a consumer gate (l4WithoutGate check) and runtime entries get runtime-behavior kind — a wrong semantic/missing-gate would fail the contract\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}},{\"intentRef\":\"CHK-003:adversarial:2\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"AGENTS.md mentions gap_log but with wrong required fields list -> manual review catch (contract script validates registry not docs prose); WHY: docs drift detection boundary\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:2\",\"kind\":\"docs_check\",\"file\":\"AGENTS.md\",\"result\":\"pass\",\"note\":\"docs drift boundary: the contract verifier validates the registry (process-fact-levels/registry), not AGENTS.md prose; AGENTS.md gap_log required-fields list was written to match the handler (category/severity/evidence/source) and is caught by manual review, not the script — boundary documented as intended\",\"headHash\":\"956be7d7b2e18cb51765094912d8ae7ff8523d6a\",\"materialHash\":\"2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55\",\"timestamp\":\"2026-05-17T00:50:39.161Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-05-17T00:50:44.659Z",
+  "headHash": "b663860fe46318640ee31b2f35e5e33e9eda4f3e",
   "verificationCoverage": {
     "total": 44,
     "required": 33,
-    "covered": 0,
-    "missingRequired": 33,
+    "covered": 44,
+    "missingRequired": 0,
     "entries": [
       {
         "intentRef": "CHK-001:happy:0",
@@ -17,7 +17,7 @@
         "desc": "legacy finding (critical, open, no evidenceState field) -> gate blocks REVIEW->TEST; WHY: backward compat guarantee that missing evidenceState is treated as verified",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:happy:0",
           "kind": "logic_test",
@@ -25,9 +25,9 @@
           "command": "npm run test:evidence-state-gate-smoke",
           "result": "pass",
           "note": "evidence-state-gate-smoke covers CHK-001:happy:0: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases",
-          "headHash": "419b0f237063ae071a3377a76762cea69beb9d57",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:11.045Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -37,7 +37,7 @@
         "desc": "reviewer finding_add with critical severity (no explicit evidenceState) -> defaults to verified -> gate blocks REVIEW->TEST; WHY: confirm new findings keep existing gate behavior",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:happy:1",
           "kind": "logic_test",
@@ -45,9 +45,9 @@
           "command": "npm run test:evidence-state-gate-smoke",
           "result": "pass",
           "note": "evidence-state-gate-smoke covers CHK-001:happy:1: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases",
-          "headHash": "419b0f237063ae071a3377a76762cea69beb9d57",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:11.045Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -57,7 +57,7 @@
         "desc": "reviewer finding_add with critical severity + explicit evidenceState=suspected + uncertaintyReason provided -> gate does NOT block REVIEW->TEST, finding_list shows it in advisory/attention section; WHY: core value proposition of the story",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:happy:2",
           "kind": "logic_test",
@@ -65,9 +65,9 @@
           "command": "npm run test:evidence-state-gate-smoke",
           "result": "pass",
           "note": "evidence-state-gate-smoke covers CHK-001:happy:2: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases",
-          "headHash": "419b0f237063ae071a3377a76762cea69beb9d57",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:11.045Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -77,7 +77,7 @@
         "desc": "finding with evidenceState=verified + severity=critical + status=resolved -> gate does NOT block; WHY: resolved findings regardless of evidenceState must not block",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:happy:3",
           "kind": "logic_test",
@@ -85,9 +85,9 @@
           "command": "npm run test:evidence-state-gate-smoke",
           "result": "pass",
           "note": "evidence-state-gate-smoke covers CHK-001:happy:3: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases",
-          "headHash": "419b0f237063ae071a3377a76762cea69beb9d57",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:11.045Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -97,7 +97,7 @@
         "desc": "finding with evidenceState=disproven + severity=critical + status=open -> gate does NOT block; WHY: disproven findings must never block even when still open",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:happy:4",
           "kind": "logic_test",
@@ -105,9 +105,9 @@
           "command": "npm run test:evidence-state-gate-smoke",
           "result": "pass",
           "note": "evidence-state-gate-smoke covers CHK-001:happy:4: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases",
-          "headHash": "419b0f237063ae071a3377a76762cea69beb9d57",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:11.045Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -117,7 +117,7 @@
         "desc": "finding_list output includes evidenceState field for every finding (verified/suspected/disproven/absent shows as legacy); WHY: observability requirement from userSees",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:happy:5",
           "kind": "logic_test",
@@ -125,9 +125,9 @@
           "command": "npm run test:evidence-state-gate-smoke",
           "result": "pass",
           "note": "evidence-state-gate-smoke covers CHK-001:happy:5: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases",
-          "headHash": "419b0f237063ae071a3377a76762cea69beb9d57",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:11.045Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -137,7 +137,7 @@
         "desc": "finding_add with explicit evidenceState=suspected but missing uncertaintyReason -> handler throws clear error, finding not written; WHY: prevent abusing suspected as gate-bypass button without justification",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:happy:6",
           "kind": "logic_test",
@@ -145,9 +145,9 @@
           "command": "npm run test:evidence-state-gate-smoke",
           "result": "pass",
           "note": "evidence-state-gate-smoke covers CHK-001:happy:6: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases",
-          "headHash": "419b0f237063ae071a3377a76762cea69beb9d57",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:11.045Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -157,7 +157,7 @@
         "desc": "finding with evidenceState=verified + severity=high + status=dismissed -> gate does NOT block; WHY: dismissed overrides severity regardless of evidenceState",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
@@ -165,9 +165,9 @@
           "command": "npm run test:evidence-state-gate-smoke",
           "result": "pass",
           "note": "evidence-state-gate-smoke covers CHK-001:edge:0: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases",
-          "headHash": "419b0f237063ae071a3377a76762cea69beb9d57",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:11.045Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -177,7 +177,7 @@
         "desc": "finding with evidenceState=suspected + severity=medium + status=open -> gate does NOT block even in Round 1; WHY: suspected medium is doubly non-blocking (suspected + not critical/high)",
         "type": "logic",
         "priority": "should",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:edge:1",
           "kind": "logic_test",
@@ -185,9 +185,9 @@
           "command": "npm run test:evidence-state-gate-smoke",
           "result": "pass",
           "note": "evidence-state-gate-smoke covers CHK-001:edge:1: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases",
-          "headHash": "419b0f237063ae071a3377a76762cea69beb9d57",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:11.045Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -197,7 +197,7 @@
         "desc": "finding_add with evidenceState=disproven but missing disprovenEvidence summary -> handler rejects; WHY: constraint requires disproven must carry counter-evidence",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:edge:2",
           "kind": "logic_test",
@@ -205,9 +205,9 @@
           "command": "npm run test:evidence-state-gate-smoke",
           "result": "pass",
           "note": "evidence-state-gate-smoke covers CHK-001:edge:2: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases",
-          "headHash": "419b0f237063ae071a3377a76762cea69beb9d57",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:11.045Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -217,7 +217,7 @@
         "desc": "mix of legacy findings (no evidenceState) + new findings (with evidenceState) in same story -> gate correctly evaluates each independently; WHY: migration coexistence",
         "type": "cli",
         "priority": "should",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:edge:3",
           "kind": "logic_test",
@@ -225,9 +225,9 @@
           "command": "npm run test:evidence-state-gate-smoke",
           "result": "pass",
           "note": "evidence-state-gate-smoke covers CHK-001:edge:3: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases",
-          "headHash": "419b0f237063ae071a3377a76762cea69beb9d57",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:11.045Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -237,7 +237,7 @@
         "desc": "finding_add with invalid evidenceState value (e.g. confirmed) -> Zod rejects + handler runtime rejects; WHY: enum hardening per Handler coding convention",
         "type": "cli",
         "priority": "should",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:edge:4",
           "kind": "logic_test",
@@ -245,9 +245,9 @@
           "command": "npm run test:evidence-state-gate-smoke",
           "result": "pass",
           "note": "evidence-state-gate-smoke covers CHK-001:edge:4: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases",
-          "headHash": "419b0f237063ae071a3377a76762cea69beb9d57",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:11.045Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -257,7 +257,7 @@
         "desc": "agent sets all critical findings to suspected with minimal 1-char uncertaintyReason to bypass gate -> handler enforces uncertaintyReason minimum length (>=10 chars); WHY: prevent trivial reason as gate bypass",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
@@ -265,9 +265,9 @@
           "command": "npm run test:evidence-state-gate-smoke",
           "result": "pass",
           "note": "evidence-state-gate-smoke covers CHK-001:adversarial:0: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases",
-          "headHash": "419b0f237063ae071a3377a76762cea69beb9d57",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:11.045Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -277,7 +277,7 @@
         "desc": "agent directly edits findings.json to remove evidenceState from a verified finding -> gate re-reads from disk treats missing field as verified (legacy compat), still blocks; WHY: file tampering must not open escape hatch",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:adversarial:1",
           "kind": "logic_test",
@@ -285,9 +285,9 @@
           "command": "npm run test:evidence-state-gate-smoke",
           "result": "pass",
           "note": "evidence-state-gate-smoke covers CHK-001:adversarial:1: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases",
-          "headHash": "419b0f237063ae071a3377a76762cea69beb9d57",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:11.045Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -297,7 +297,7 @@
         "desc": "agent calls finding_add with evidenceState=suspected on a finding that was previously verified (downgrade attack) -> handler rejects downgrade without structured justification; WHY: prevent weaponizing state transitions",
         "type": "cli",
         "priority": "should",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:adversarial:2",
           "kind": "logic_test",
@@ -305,9 +305,9 @@
           "command": "npm run test:evidence-state-gate-smoke",
           "result": "pass",
           "note": "evidence-state-gate-smoke covers CHK-001:adversarial:2: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases",
-          "headHash": "419b0f237063ae071a3377a76762cea69beb9d57",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:11.045Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -317,7 +317,7 @@
         "desc": "concurrent finding_add: two findings same story, one verified critical + one suspected critical -> gate blocks on the verified one only; WHY: partial suspected must not mask real blockers",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:adversarial:3",
           "kind": "logic_test",
@@ -325,9 +325,9 @@
           "command": "npm run test:evidence-state-gate-smoke",
           "result": "pass",
           "note": "evidence-state-gate-smoke covers CHK-001:adversarial:3: evidenceState gate predicate / handler validation asserted in the 7-item matrix plus edge/adversarial hardening cases",
-          "headHash": "419b0f237063ae071a3377a76762cea69beb9d57",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:11.045Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -337,7 +337,7 @@
         "desc": "koala gap_log with all required fields (category, severity, evidence, source) -> output Gap logged: B-META-framework-audit:F-00X (evidenceState=suspected, severity=<val>); WHY: primary command happy path",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:happy:0",
           "kind": "integration_test",
@@ -345,9 +345,9 @@
           "command": "npm --prefix packages/main run test:gap-log-smoke",
           "result": "pass",
           "note": "gap-log-2/4 run gap_log via CLI with all required fields and assert the Gap logged: B-META-framework-audit:F-NNN (evidenceState=...) output line.",
-          "headHash": "419b0f237063ae071a3377a76762cea69beb9d57",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:11.046Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -357,7 +357,7 @@
         "desc": "B-META-framework-audit container does not exist before first gap_log call -> gap_log auto-bootstraps via ensureMetaStory, finding written successfully; WHY: zero-setup requirement",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:happy:1",
           "kind": "integration_test",
@@ -365,9 +365,9 @@
           "command": "npm --prefix packages/main run test:gap-log-smoke",
           "result": "pass",
           "note": "gap-log-6 asserts the B-META container is absent before the first gap_log, then auto ensureMetaStory bootstrapped and the finding written.",
-          "headHash": "419b0f237063ae071a3377a76762cea69beb9d57",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:11.046Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -377,7 +377,7 @@
         "desc": "gap_log called from main branch (no story worktree) -> succeeds; WHY: worktree-independence requirement",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:happy:2",
           "kind": "integration_test",
@@ -385,9 +385,9 @@
           "command": "npm --prefix packages/main run test:gap-log-smoke",
           "result": "pass",
           "note": "gap-log-7 runs gap_log from a plain main project with no story worktree and asserts it succeeds (no assertCwdInWorktree).",
-          "headHash": "419b0f237063ae071a3377a76762cea69beb9d57",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:11.046Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -397,7 +397,7 @@
         "desc": "gap_log default evidenceState is suspected when no structured evidence fields provided; WHY: constraint that gap_log defaults suspected",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:happy:3",
           "kind": "integration_test",
@@ -405,9 +405,9 @@
           "command": "npm --prefix packages/main run test:gap-log-smoke",
           "result": "pass",
           "note": "gap-log-2 asserts default gap_log (no evidenceState arg) persists evidenceState=suspected.",
-          "headHash": "419b0f237063ae071a3377a76762cea69beb9d57",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:11.046Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -417,7 +417,7 @@
         "desc": "gap_log with structured evidence fields (sourceRefs + reproCommand) + explicit evidenceState=verified -> accepted and stored as verified; WHY: verified path requires structured evidence",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:happy:4",
           "kind": "integration_test",
@@ -425,9 +425,9 @@
           "command": "npm --prefix packages/main run test:gap-log-smoke",
           "result": "pass",
           "note": "gap-log-4 calls gap_log with sourceRefs + reproCommand + observedOutput and evidenceState=verified, asserts the finding is stored verified.",
-          "headHash": "419b0f237063ae071a3377a76762cea69beb9d57",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:11.046Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -437,7 +437,7 @@
         "desc": "gap_log missing category field -> clear error message, no finding written; WHY: field completeness gate",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:edge:0",
           "kind": "integration_test",
@@ -445,9 +445,9 @@
           "command": "npm --prefix packages/main run test:gap-log-smoke",
           "result": "pass",
           "note": "gap-log-1 asserts missing category is rejected by both CLI Zod and handler runtime, no finding written.",
-          "headHash": "419b0f237063ae071a3377a76762cea69beb9d57",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:11.046Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -457,7 +457,7 @@
         "desc": "gap_log missing severity field -> clear error message, no finding written; WHY: field completeness gate",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:edge:1",
           "kind": "integration_test",
@@ -465,9 +465,9 @@
           "command": "npm --prefix packages/main run test:gap-log-smoke",
           "result": "pass",
           "note": "gap-log-1 asserts missing severity is rejected by both CLI Zod and handler runtime, no finding written.",
-          "headHash": "419b0f237063ae071a3377a76762cea69beb9d57",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:11.046Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -477,7 +477,7 @@
         "desc": "gap_log missing evidence field -> clear error message, no finding written; WHY: field completeness gate",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:edge:2",
           "kind": "integration_test",
@@ -485,9 +485,9 @@
           "command": "npm --prefix packages/main run test:gap-log-smoke",
           "result": "pass",
           "note": "gap-log-1 asserts missing evidence is rejected by both CLI Zod and handler runtime, no finding written.",
-          "headHash": "419b0f237063ae071a3377a76762cea69beb9d57",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:11.046Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -497,7 +497,7 @@
         "desc": "gap_log missing source field -> clear error message, no finding written; WHY: field completeness gate",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:edge:3",
           "kind": "integration_test",
@@ -505,9 +505,9 @@
           "command": "npm --prefix packages/main run test:gap-log-smoke",
           "result": "pass",
           "note": "gap-log-1 asserts missing source (no sourceRefs/reproCommand/observedOutput/analysisNote) is rejected by the handler runtime with 'source 必填', no finding written.",
-          "headHash": "419b0f237063ae071a3377a76762cea69beb9d57",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:11.046Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -517,7 +517,7 @@
         "desc": "gap_log called twice with identical content -> second call creates separate finding (not deduplicated, unlike audit drift upsert); WHY: manual archival is intentionally non-deduped",
         "type": "cli",
         "priority": "should",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:edge:4",
           "kind": "integration_test",
@@ -525,9 +525,9 @@
           "command": "npm --prefix packages/main run test:gap-log-smoke",
           "result": "pass",
           "note": "gap-log-8 calls gap_log twice with identical content and asserts two separate findings (not deduplicated, unlike audit drift upsert).",
-          "headHash": "419b0f237063ae071a3377a76762cea69beb9d57",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:11.046Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -537,7 +537,7 @@
         "desc": "gap_log with severity value outside canonical enum (e.g. urgent) -> Zod + handler runtime reject; WHY: enum hardening",
         "type": "cli",
         "priority": "should",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:edge:5",
           "kind": "integration_test",
@@ -545,9 +545,9 @@
           "command": "npm --prefix packages/main run test:gap-log-smoke",
           "result": "pass",
           "note": "gap-log-1 (b) asserts an out-of-enum severity value (urgent) is rejected by the handler runtime enum guard; CLI Zod also enforces the enum.",
-          "headHash": "419b0f237063ae071a3377a76762cea69beb9d57",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:11.046Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -557,7 +557,7 @@
         "desc": "B-META-framework-audit already exists with prior findings -> gap_log appends new finding, prior findings untouched; WHY: idempotent container, additive writes",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:edge:6",
           "kind": "integration_test",
@@ -565,9 +565,9 @@
           "command": "npm --prefix packages/main run test:gap-log-smoke",
           "result": "pass",
           "note": "gap-log-6 second call appends into an already-bootstrapped B-META container and asserts prior findings untouched (additive, no parallel store).",
-          "headHash": "419b0f237063ae071a3377a76762cea69beb9d57",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:11.046Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -577,7 +577,7 @@
         "desc": "gap_log with evidenceState=verified but NO structured evidence fields (no sourceRefs, no reproCommand, no observedOutput, no analysisNote) -> handler forces evidenceState back to suspected; WHY: constraint that verified requires structured evidence",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "integration_test",
@@ -585,9 +585,9 @@
           "command": "npm --prefix packages/main run test:gap-log-smoke",
           "result": "pass",
           "note": "gap-log-3 asserts a verified request with no structured evidence can never produce a verified finding (the mandatory source gate makes verified-without-evidence structurally impossible; the handler keeps an independent downgrade guard).",
-          "headHash": "419b0f237063ae071a3377a76762cea69beb9d57",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:11.046Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -597,7 +597,7 @@
         "desc": "gap_log with evidenceState=disproven -> rejected (gap_log is for archiving suspected gaps, not for recording disproof); WHY: disproven semantic does not apply to manual gap archival entry point",
         "type": "cli",
         "priority": "should",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:adversarial:1",
           "kind": "integration_test",
@@ -605,9 +605,9 @@
           "command": "npm --prefix packages/main run test:gap-log-smoke",
           "result": "pass",
           "note": "gap-log-9 asserts evidenceState=disproven is rejected by both CLI Zod (enum suspected/verified only) and handler runtime ('disproven 反证请走 finding 流程').",
-          "headHash": "419b0f237063ae071a3377a76762cea69beb9d57",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:11.046Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -617,7 +617,7 @@
         "desc": "gap_log with empty-string evidence field (whitespace only) -> handler rejects, treats as missing; WHY: prevent garbage entries in B-META",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:adversarial:2",
           "kind": "integration_test",
@@ -625,9 +625,9 @@
           "command": "npm --prefix packages/main run test:gap-log-smoke",
           "result": "pass",
           "note": "gap-log-5 asserts empty-string and whitespace-only evidence are rejected (handler trims), no garbage finding written to B-META.",
-          "headHash": "419b0f237063ae071a3377a76762cea69beb9d57",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:11.046Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -637,7 +637,7 @@
         "desc": "gap_log called in rapid succession (5 calls <1s) with different content -> all 5 findings written, no race condition on findings.json; WHY: concurrent write safety",
         "type": "logic",
         "priority": "should",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:adversarial:3",
           "kind": "logic_test",
@@ -645,9 +645,9 @@
           "command": "npm --prefix packages/main run test:gap-log-smoke",
           "result": "pass",
           "note": "gap-log-10 runs 5 gap_log calls in rapid succession with distinct content and asserts all 5 findings persisted with unique ids (no findings.json write race).",
-          "headHash": "419b0f237063ae071a3377a76762cea69beb9d57",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:11.046Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -657,7 +657,7 @@
         "desc": "gap_log command registered in registry.ts and command-policy.ts with correct allowedPhases policy -> koala help shows gap_log; WHY: command discoverability",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:adversarial:4",
           "kind": "integration_test",
@@ -665,9 +665,9 @@
           "command": "npm --prefix packages/main run test:gap-log-smoke",
           "result": "pass",
           "note": "gap-log-11 asserts gap_log is registered (registry.ts + cli-engine schema + command-policy) and discoverable via koala gap_log --help showing the category/severity params.",
-          "headHash": "419b0f237063ae071a3377a76762cea69beb9d57",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:11.046Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -677,16 +677,16 @@
         "desc": "node scripts/verify-process-fact-contract.mjs exits 0 after CHK-001+CHK-002 landed -> evidenceState and gap_log are registered as process facts; WHY: contract script must pass",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:happy:0",
           "kind": "manual_transcript",
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "contract verifier exits 0 after CHK-001+CHK-002+CHK-003 landed; output ends with \"Process fact contract verified\" and lists gap_log + runtime:finding_evidence_state_review_gate registry entries",
-          "headHash": "de9abe7f2ee0d083bfe536be00ff6c58bdbe00fb",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:35.778Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -696,16 +696,16 @@
         "desc": "process-fact-registry.ts contains evidenceState entry with gate-consumed semantic marker; WHY: evidenceState is consumed by REVIEW->TEST gate",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:happy:1",
           "kind": "manual_transcript",
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "evidenceState gate fact registered as runtime:finding_evidence_state_review_gate (L4, gate-consumed via storyMachine.canPassReview); contract summary line printed and verified",
-          "headHash": "de9abe7f2ee0d083bfe536be00ff6c58bdbe00fb",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:35.778Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -715,16 +715,16 @@
         "desc": "process-fact-registry.ts contains gap_log command entry; WHY: new command must be registered",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:happy:2",
           "kind": "manual_transcript",
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "gap_log command fact registered (level/command, producer=handlers/gap-log); contract verifier prints \"- gap_log [L2/command]\" and passes the MAIN_TOOLS->registry cross-check",
-          "headHash": "de9abe7f2ee0d083bfe536be00ff6c58bdbe00fb",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:35.778Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -734,16 +734,16 @@
         "desc": "AGENTS.md contains evidenceState default table (reviewer=verified, gap_log=suspected, legacy=verified compat); WHY: documentation requirement from userSees",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:happy:3",
           "kind": "docs_check",
           "file": "AGENTS.md",
           "result": "pass",
           "note": "AGENTS.md \"Finding evidenceState 证据状态模型\" section contains the default table with reviewer finding_add=verified / gap_log=suspected / legacy missing-field=verified compat rows",
-          "headHash": "de9abe7f2ee0d083bfe536be00ff6c58bdbe00fb",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:35.778Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -753,16 +753,16 @@
         "desc": "AGENTS.md contains gap_log usage instructions (required fields, example invocation); WHY: documentation requirement",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:happy:4",
           "kind": "docs_check",
           "file": "AGENTS.md",
           "result": "pass",
           "note": "AGENTS.md documents gap_log usage: required fields (category/severity/evidence/source), example invocation in CLI quick-ref and in the evidenceState section",
-          "headHash": "de9abe7f2ee0d083bfe536be00ff6c58bdbe00fb",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:35.778Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -772,16 +772,16 @@
         "desc": "verify-process-fact-contract.mjs fails if evidenceState entry is removed from registry -> non-zero exit; WHY: contract script must detect regressions",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:edge:0",
           "kind": "manual_transcript",
           "command": "grep -v runtime:finding_evidence_state_review_gate process-fact-levels.ts then node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "removing the evidenceState entry from process-fact-levels.ts makes the contract verifier exit non-zero (verified: exit 1) — regression detected",
-          "headHash": "de9abe7f2ee0d083bfe536be00ff6c58bdbe00fb",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:35.778Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -791,16 +791,16 @@
         "desc": "verify-process-fact-contract.mjs fails if gap_log entry is removed from registry -> non-zero exit; WHY: contract script must detect regressions",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:edge:1",
           "kind": "manual_transcript",
           "command": "grep -v gap_log process-fact-levels.ts then node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "removing the gap_log entry from process-fact-levels.ts makes the contract verifier exit non-zero (verified: exit 1) — regression detected",
-          "headHash": "de9abe7f2ee0d083bfe536be00ff6c58bdbe00fb",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:35.778Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -810,16 +810,16 @@
         "desc": "AGENTS.md documents gate predicate formula (status=open AND severity in critical/high AND evidenceState=verified or null); WHY: gate behavior must be documented precisely",
         "type": "cli",
         "priority": "should",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:edge:2",
           "kind": "docs_check",
           "file": "AGENTS.md",
           "result": "pass",
           "note": "AGENTS.md evidenceState section documents the Gate predicate formula: status===open AND severity in critical/high AND isEvidenceStateBlocking (verified or null) AND not advisory-this-round",
-          "headHash": "de9abe7f2ee0d083bfe536be00ff6c58bdbe00fb",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:35.778Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -829,16 +829,16 @@
         "desc": "remove evidenceState from guard-utils.ts blocking filter but keep registry entry -> contract script detects mismatch (hardcoded fallback missing) and fails; WHY: dual-layer contract requires both prompt guidance AND code fallback",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "manual_transcript",
           "command": "sed isEvidenceStateBlocking->renamed in advisory.ts then node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "removing the hardcoded fallback symbol (isEvidenceStateBlocking) from advisory.ts while keeping the registry entry makes the contract fail (verified: exit 1) via the new \"finding evidenceState gate dimension\" inventory entry — dual-layer contract enforced",
-          "headHash": "de9abe7f2ee0d083bfe536be00ff6c58bdbe00fb",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:35.778Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -848,16 +848,16 @@
         "desc": "add evidenceState to registry but with wrong semantic type (e.g. informational instead of gate-consumed) -> contract script detects semantic mismatch; WHY: registry accuracy matters for audit",
         "type": "logic",
         "priority": "should",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:adversarial:1",
           "kind": "logic_test",
           "file": "scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "registry semantic accuracy: runtime:finding_evidence_state_review_gate is L4 with gateConsumer; contract verifier asserts every L4 entry declares a consumer gate (l4WithoutGate check) and runtime entries get runtime-behavior kind — a wrong semantic/missing-gate would fail the contract",
-          "headHash": "de9abe7f2ee0d083bfe536be00ff6c58bdbe00fb",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:35.778Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       },
       {
@@ -867,16 +867,16 @@
         "desc": "AGENTS.md mentions gap_log but with wrong required fields list -> manual review catch (contract script validates registry not docs prose); WHY: docs drift detection boundary",
         "type": "cli",
         "priority": "should",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:adversarial:2",
           "kind": "docs_check",
           "file": "AGENTS.md",
           "result": "pass",
           "note": "docs drift boundary: the contract verifier validates the registry (process-fact-levels/registry), not AGENTS.md prose; AGENTS.md gap_log required-fields list was written to match the handler (category/severity/evidence/source) and is caught by manual review, not the script — boundary documented as intended",
-          "headHash": "de9abe7f2ee0d083bfe536be00ff6c58bdbe00fb",
-          "materialHash": "978d27692615a5dd1162d86d161d4467a5981f77501cf052c1f382e960681973",
-          "timestamp": "2026-05-17T00:38:35.778Z"
+          "headHash": "956be7d7b2e18cb51765094912d8ae7ff8523d6a",
+          "materialHash": "2561ac4186830dc867192b696752df99baa4fe6a65848c63492cac7be26f9d55",
+          "timestamp": "2026-05-17T00:50:39.161Z"
         }
       }
     ]
