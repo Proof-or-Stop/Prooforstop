@@ -275,6 +275,17 @@
           "headHash": "dac1349deeceb98e8a322ac5576f5d05461ad687",
           "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
           "timestamp": "2026-05-17T02:54:04.121Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "assertWorktreeCleanupFailureMarksDoneMergedAndThrows: chmod .worktrees/ 为只读使 git worktree remove + rm -rf 都无法 rmdir worktree 目录 → applyDoneMergeEffects 在 merge 成功后抛错含 已合并，但 worktree 清理未完成 + koala doctor，story phase=DONE 且 main 已有 merge: commit；root uid 时跳过（权限位被忽略）",
+          "headHash": "96cfbc7a31180b9c6ef5728c56a443e747e27f6c",
+          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
+          "timestamp": "2026-05-17T02:55:18.338Z"
         }
       ]
     },
