@@ -113,7 +113,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Running koala done_recover --storyId=B-xxxx on a safe partial-DONE story prints preflight checks, merge completed, worktree removed, branch deleted; unsafe states fail with explicit reasons and no mutation.",
+      "userSees": "User sees: \"✓ preflight passed\", \"✓ merged story/B-xxxx into main\", \"✓ worktree removed\", \"✓ branch story/B-xxxx deleted\". Unsafe states print \"refusing done_recover: <reason>\" before mutation.",
       "files": {
         "modify": [
           "packages/main/src/cli-engine.ts",
