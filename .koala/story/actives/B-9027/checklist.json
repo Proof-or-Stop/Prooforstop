@@ -87,6 +87,17 @@
           "headHash": "40cd9f6a3b9ff94e56aed9992393c7f934c4f584",
           "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
           "timestamp": "2026-05-17T02:54:46.385Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "assertDoneSuccessPathOutputAndOrdering: DONE gate 全满足的 TEST story 执行 story_advance DONE，输出含 DONE Gate Checklist 段 + 合并/worktree清理/分支删除三行，story phase=DONE，worktree+branch 已清",
+          "headHash": "50f8306198670ba6377f2e1178374f1e76a53a0e",
+          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
+          "timestamp": "2026-05-17T02:54:46.602Z"
         }
       ]
     },
