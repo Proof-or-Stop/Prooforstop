@@ -32,9 +32,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-17T11:53:48.967Z",
-      "endTime": null,
+      "endTime": "2026-05-17T11:57:33.978Z",
       "files": {
         "modify": [
           "packages/main/src/tasks/gap-analyze.ts",
@@ -44,7 +44,29 @@
         "test": [
           "packages/main/src/tasks/convergence-discarded-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Build passed after restoring the missing public xstate package in local node_modules; verifies the convergence implementation compiles.",
+          "headHash": "94a2c65b71fe2611a9ecd5f7fd27a39eb81b533c",
+          "materialHash": "c385fa929ce8c0f71dff0ec08de1b43f033a31efdd9da51469e08702704a7b61",
+          "timestamp": "2026-05-17T11:57:34.046Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:convergence-false-blockers",
+          "result": "pass",
+          "note": "Smoke covers DONE/DISCARDED terminal behavior, META exclusion, INIT unfinished behavior, advisory audit visibility, verified high/critical audit blockers, and legacy missing evidenceState as verified.",
+          "headHash": "94a2c65b71fe2611a9ecd5f7fd27a39eb81b533c",
+          "materialHash": "c385fa929ce8c0f71dff0ec08de1b43f033a31efdd9da51469e08702704a7b61",
+          "timestamp": "2026-05-17T11:57:34.097Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
