@@ -8,6 +8,15 @@
       "reviewRound": "2026-05-17T00:39:52.477Z",
       "reviewRunId": "B-3fad:RR-004",
       "_hash": "ff205dfb07d88a4b6a9bbfec7a72d264d5346ee3ff995a3e31cb2faa8d470aa9"
+    },
+    {
+      "id": "B-3fad:RP-002",
+      "agent": "koala-review-docs",
+      "note": "Step 1: 7 exported symbols from diff (FindingEvidenceState, isFindingEvidenceState, isEvidenceStateBlocking, isFindingBlocking, resolveEvidenceState, gap_log handler, process-fact-levels entry). Step 2: AGENTS.md grep hit the new section (lines ~147-183) and CLI speed reference (lines ~240-242). Step 3 comparison: (1) Default table row 1 - reviewer finding_add defaults verified: code confirmed in finding.ts resolveEvidenceState returns {evidenceState:verified} when no arg. (2) Row 2 - suspected requires uncertaintyReason >=10 chars, error if missing: confirmed at finding.ts:103-111. (3) Row 3 - gap_log defaults suspected, not blocking any lifecycle gate: confirmed in gap-log.ts + command-policy.ts allowedPhases=all. (4) Row 4 - legacy null field treated as verified: confirmed isEvidenceStateBlocking returns true for null. (5) Gate predicate formula: doc shows (severity===critical||high) && !isAdvisoryThisRound - this is mathematically equivalent to the code using pre-computed effectiveBlockingSeverities. (6) gap_log auto-fill of uncertaintyReason not documented but not a promise violation - the handler silently fills it. (7) process-fact-levels entry runtime:finding_evidence_state_review_gate matches exactly. No blocker found.",
+      "createdAt": "2026-05-17T00:42:34.079Z",
+      "reviewRound": "2026-05-17T00:39:52.477Z",
+      "reviewRunId": "B-3fad:RR-003",
+      "_hash": "3752ba75c593644987abfdc693ab784ea36aba3d0ef3a215026ebd65e3a0f528"
     }
   ]
 }
