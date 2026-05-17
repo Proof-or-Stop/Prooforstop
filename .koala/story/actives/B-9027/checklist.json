@@ -196,6 +196,17 @@
           "headHash": "116ed291aef929ad483e826acefb64d86fc8946d",
           "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
           "timestamp": "2026-05-17T02:54:03.692Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "三个 pre-merge gate 失败用例都断言 phase=DONE 未落盘（new StoryStore(...).readStory().phase === TEST），若搬迁把 gate 调用错位到 writeStory 之后这些断言会立即 FAIL —— 即对抗 preMortem #2 的时序错位检测",
+          "headHash": "4a34c735a8bb1d462d2fed4eabccfa773b5a0617",
+          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
+          "timestamp": "2026-05-17T02:54:03.905Z"
         }
       ]
     },
