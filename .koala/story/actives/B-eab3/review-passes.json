@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-17T03:06:50.495Z",
       "reviewRunId": "B-eab3:RR-002",
       "_hash": "7daff1544ec8e11f9a20e29109bb48887047c909bdddef080ace96306fd1f998"
+    },
+    {
+      "id": "B-eab3:RP-003",
+      "agent": "koala-review-concept",
+      "note": "概念残留检查完成，无 blocker。\n\n检查范围：\n1. CLAUDE.md pre-push 段：旧检测路径 packages/koala/packages/main 和旧命令 cd packages/koala/packages/main && npx tsc --noEmit 已从「hook 行为与容错」节完全移除，替换为 package.json name 检测 + 递归 tsc + build-first 的正确描述。\n2. koala-project-overview.md：对应段落已更新，无旧路径残留。\n3. 死亡交叉引用「koala 自举开发注意」段：已从 CLAUDE.md 移除，无残留。\n4. templates/agents/*.md 和 .claude/.Codex/agents/*.md：仍含旧 hook 描述，但这是此 diff 引入前的既有状态（git log 确认这些文件本 diff 未触及），B-eab3 plan.md 明确标注该修复不在本 scope。不属于本 story 引入的新残留。\n5. CLAUDE.md 中 packages/koala/packages/main/src/handlers/init-check.ts 等 3 处：为指向源码文件的合法超链接，plan.md 明确排除在 scope 外。\n\n结论：本 diff 未引入新的概念残留，无 blocker。",
+      "createdAt": "2026-05-17T03:10:49.903Z",
+      "reviewRound": "2026-05-17T03:06:50.495Z",
+      "reviewRunId": "B-eab3:RR-001",
+      "_hash": "f8d8fc6e08085002d7c628c33151f4439c25d7a747388fbd6b0e7c0d44a93543"
     }
   ]
 }
