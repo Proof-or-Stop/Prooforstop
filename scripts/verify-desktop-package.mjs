@@ -31,16 +31,35 @@ function assertIncludes(text, needle, label) {
   assert(text.includes(needle), `${label} missing "${needle}"\n--- output ---\n${text}`);
 }
 
+function isolatedBinaryEnv() {
+  if (process.platform === 'win32') {
+    const systemRoot = process.env.SystemRoot || process.env.WINDIR || 'C:\\Windows';
+    const temp = process.env.TEMP || process.env.TMP || repoRoot;
+    return {
+      SystemRoot: systemRoot,
+      WINDIR: systemRoot,
+      COMSPEC: process.env.COMSPEC || join(systemRoot, 'System32', 'cmd.exe'),
+      TEMP: temp,
+      TMP: temp,
+      PATH: `${join(systemRoot, 'System32')};${systemRoot}`,
+      KOALA_ACTIVITY_RECORD_READONLY: '1',
+    };
+  }
+  return {
+    HOME: process.env.HOME || repoRoot,
+    TMPDIR: process.env.TMPDIR || '/tmp',
+    PATH: '/usr/bin:/bin',
+    KOALA_ACTIVITY_RECORD_READONLY: '1',
+  };
+}
+
 function runBinary(args, label) {
   try {
     return execFileSync(binary, args, {
       cwd: repoRoot,
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
-      env: {
-        ...process.env,
-        KOALA_ACTIVITY_RECORD_READONLY: '1',
-      },
+      env: isolatedBinaryEnv(),
     });
   } catch (error) {
     const stdout = error.stdout ? String(error.stdout) : '';

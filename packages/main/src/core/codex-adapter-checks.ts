@@ -359,6 +359,18 @@ function checkGlobalFallback(root: string, checks: CodexAdapterCheck[], executeH
     push(checks, 'global-fallback-heartbeat', 'Global fallback heartbeat', 'warn', false, 'not executed in this diagnostic mode', `${GLOBAL_CODEX_FALLBACK_COMMAND} session_brief`);
     return;
   }
+  if (isPackagedDesktopRuntime()) {
+    push(
+      checks,
+      'global-fallback-heartbeat',
+      'Global fallback heartbeat',
+      'warn',
+      false,
+      'skipped in packaged desktop runtime; standalone binaries do not require a global koala command',
+      `${GLOBAL_CODEX_FALLBACK_COMMAND} session_brief`,
+    );
+    return;
+  }
   const currentCore = join(root, 'packages', 'main');
   try {
     const globalRoot = execFileSync('npm', ['root', '-g'], {
