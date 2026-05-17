@@ -120,7 +120,19 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "koala finding_list {\"storyId\":\"B-META-framework-audit\"}",
+          "result": "pass",
+          "note": "finding_list shows B-META-framework-audit:F-004 status resolved; resolution was applied with official koala finding_resolve after confirming B-4c38 merged at commit 7350e9df / main commit 0c4f9eac.",
+          "headHash": "717ca09898267dd9256aa690a07b33b48efe1873",
+          "materialHash": "c385fa929ce8c0f71dff0ec08de1b43f033a31efdd9da51469e08702704a7b61",
+          "timestamp": "2026-05-17T12:00:26.410Z"
+        }
+      ]
     }
   ]
 }
