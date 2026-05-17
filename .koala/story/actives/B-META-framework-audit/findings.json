@@ -117,6 +117,21 @@
         "packages/main/src/tasks/flow-stability-smoke.ts",
         "packages/main/src/core/done-oracle.ts"
       ]
+    },
+    {
+      "id": "B-META-framework-audit:F-008",
+      "desc": "DONE flow self-blocks by writing stale main-mirror story metadata before merge.\n\n`story_advance DONE` 在合并前的 main-sync 步骤会把过时的 story metadata（main 仓库工作区里的 `.koala/story/actives/<id>/index.json`，INIT_CHECK 期版本，只含 worktree 创建信息）写脏 main 工作区；紧接着 DONE flow 自己执行的 `git merge story/<id>` 因 git 安全检查 `error: Your local changes to the following files would be overwritten by merge: .koala/story/actives/<id>/index.json` 而 abort。结果：story 已在 story branch 标记 phase=DONE，但分支未合并回 main——partial-DONE，需要人工 stash + merge + worktree remove + branch delete 收尾。\n\n两次复现：\n- B-6974（2026-05-17）：DONE gate 全过、story branch index.json 已 phase=DONE，但 auto-merge abort；main 工作区 `.koala/story/actives/B-6974/index.json` 是 INIT_CHECK 期 stale mirror，且其 mtime 与本次 DONE 运行时刻一致（17:41），证明是 DONE flow 本次主动写入的、不是历史遗留。\n- B-ad12：`git stash list` 中存在 `stash@{1}: On main: koala B-ad12 stale main init copy`——同一故障模式在更早的 story 上已发生过一次。",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-gap-log",
+      "createdAt": "2026-05-17T22:47:53.078Z",
+      "reviewRound": "",
+      "_hash": "08ecd98cf2e7a08a7713559e736c46afad61c9d74884694a6571ce4db320cb34",
+      "files": [
+        "packages/main/src/handlers/done-effects.ts"
+      ]
     }
   ]
 }
