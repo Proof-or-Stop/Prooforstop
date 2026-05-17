@@ -8,6 +8,15 @@
       "reviewRound": "2026-05-17T23:20:58.140Z",
       "reviewRunId": "B-c600:RR-002",
       "_hash": "0f2ba398f71d7e7eeaba2f18e958c014dedee9523bea7bb7735e8e39f3df613b"
+    },
+    {
+      "id": "B-c600:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "Pass: verificationIntent coverage is complete for CHK-001..CHK-003. Checklist evidence covers host/release pkg packaging, repeat host rebuild, full-bootstrap packaged smoke, missing-binary negative case, README workflow docs, and pkg deprecation caveat. Confirmed direct packaged executable smoke via npm run test:desktop-package, and confirmed packaged verify_codex directly with ./dist/desktop/koala-macos-arm64 verify_codex; both passed after the B-c600:F-001 fix. No coverage findings.",
+      "createdAt": "2026-05-17T23:36:33.965Z",
+      "reviewRound": "2026-05-17T23:34:36.041Z",
+      "reviewRunId": "B-c600:RR-003",
+      "_hash": "4118e3727f9cbccd14a1ec0afd2bde719770ef3be0400e2886a5e2d7def6b451"
     }
   ]
 }
