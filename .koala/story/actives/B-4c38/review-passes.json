@@ -8,6 +8,15 @@
       "reviewRound": "2026-05-17T03:45:37.301Z",
       "reviewRunId": "B-4c38:RR-004",
       "_hash": "37b735af12e6e41c8601cc77bc23b1f30172a576fae68185927cdf20f52efe5f"
+    },
+    {
+      "id": "B-4c38:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "Re-reviewed resolved F-001 and focused smoke coverage on head cc7aaed. Verified packages/main/src/tasks/worktree-repair-smoke.ts asserts operator-visible done_recover transcript lines for worktree removal and branch deletion, plus dirty-main, dirty-story-worktree, and done-main-merge lock refusals. Fresh reruns passed: npm --prefix packages/main run test:worktree-repair-smoke and npm --prefix packages/main run test:worktree-authority-smoke.",
+      "createdAt": "2026-05-17T03:52:58.580Z",
+      "reviewRound": "2026-05-17T03:51:16.697Z",
+      "reviewRunId": "B-4c38:RR-006",
+      "_hash": "f71f14d619db6e3a8a91af95edd17e0438d0d02606abfac689adf19c55240214"
     }
   ]
 }
