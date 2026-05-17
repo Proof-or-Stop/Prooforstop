@@ -34,6 +34,17 @@
       "status": "pending",
       "startTime": null,
       "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Eliminate globalThis.__koalaDoneChecklistRendered — pass DONE-gate rendered checklist explicitly into done-effects",
+      "context": "Story 3a (B-56d3) left a tech debt: the DONE-gate rendered checklist is stashed on globalThis.__koalaDoneChecklistRendered (set in story-advance.ts ~line 336, read in the DONE return segment). Behavior is equivalent but it is a global-state coupling. Since Story 3b extracts done-effects, the rendered checklist must flow into done-effects as an explicit parameter or return value — remove the globalThis stash entirely. Verify no globalThis.__koalaDoneChecklistRendered reference remains anywhere after extraction.",
+      "relatedDocs": [
+        ".koala/story/actives/B-9027/background.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
     }
   ]
 }
