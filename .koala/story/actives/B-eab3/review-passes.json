@@ -35,6 +35,15 @@
       "reviewRound": "2026-05-17T03:16:26.070Z",
       "reviewRunId": "B-eab3:RR-008",
       "_hash": "2b6df0cabb3bd6b9b199bb77607c7b6e625ae60161ce959d4174ef9d4bab5ce1"
+    },
+    {
+      "id": "B-eab3:RP-005",
+      "agent": "koala-review-docs",
+      "note": "Step 1: symbol set empty (shell+docs diff). Step 2/3 fallback: compared all pre-push hook behavior claims in CLAUDE.md#hook-行为与容错 and koala-project-overview.md#2.11 against .githooks/pre-push implementation. Checked 10 claim groups: tool enumeration (git/find/node/npx tsc/npm run build), node fail-closed (exit 1 on missing), mktemp+trap (failure→exit 1), packages/main/package.json detection, @koala-agent/core name check, npm --prefix build step, recursive tsc blacklist (node_modules/dist/build/.worktrees/.git), tsc --noEmit -p <dir> command, enable instruction, and execution order. All match exactly. No doc-code drift found. 0 blocking findings.",
+      "createdAt": "2026-05-17T03:19:10.228Z",
+      "reviewRound": "2026-05-17T03:16:26.070Z",
+      "reviewRunId": "B-eab3:RR-007",
+      "_hash": "e836da8b25541f6dbd037f30df9f392a919896c295ab6948af47b70085a60007"
     }
   ]
 }
