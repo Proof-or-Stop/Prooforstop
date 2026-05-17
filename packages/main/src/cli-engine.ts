@@ -510,6 +510,25 @@ export const MAIN_TOOLS: ToolDef[] = [
     mode: z.enum(['semi-auto', 'full-auto', 'off']).optional().describe('覆盖配置默认模式；off = 直接退出不跑'),
   }},
 
+  // Gap Log (B-3fad CHK-002: 框架 gap 手动归档入口)
+  // 写 B-META-framework-audit findings（不存在则 ensureMetaStory bootstrap）；不依赖 reviewer /
+  // review round / story worktree，不参与 lifecycle gate。默认 evidenceState=suspected；
+  // verified 需配套结构化 evidence（runtime 同标准校验，见 CLAUDE.md「Handler 编码约定」）。
+  { name: 'gap_log', description: '手动归档一个框架 gap 进 B-META-framework-audit backlog', schema: {
+    category: z.enum(['happy', 'edge', 'adversarial', 'missing']).describe('finding 分类'),
+    severity: z.enum(['critical', 'high', 'medium', 'low']).describe('严重度'),
+    evidence: z.string().min(1, 'evidence 必填且 ≥ 1 字符').describe('gap 描述（即 finding 的 evidence note）'),
+    sourceRefs: z.array(z.string()).optional().describe('来源溯源：源码/文档位置（如 src/foo.ts:42）'),
+    reproCommand: z.string().optional().describe('来源溯源：复现/观察命令'),
+    observedOutput: z.string().optional().describe('来源溯源：观察到的实际输出'),
+    analysisNote: z.string().optional().describe('来源溯源：分析说明'),
+    evidenceState: z.enum(['suspected', 'verified']).optional()
+      .describe('证据状态：默认 suspected；verified 仅当提供结构化 evidence，否则强制降回 suspected'),
+    uncertaintyReason: z.string().optional().describe('suspected 时的怀疑理由（可选，缺省自动兜底）'),
+    files: z.array(z.string()).optional().describe('关联文件路径'),
+    agent: z.string().optional().describe('调用者身份（审计字段，默认从 KOALA_AGENT 读）'),
+  }},
+
   // Verifier (koala 内建代码验证)
   { name: 'validate', description: '运行项目验证（静态 + 逻辑 + 集成测试）', longHelp: VALIDATE_LONG, schema: {
     full: z.union([z.string(), z.boolean()]).optional().describe('含真机测试（--full 或 --full=PvE 按名称过滤）'),

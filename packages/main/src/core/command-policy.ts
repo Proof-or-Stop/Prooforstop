@@ -95,6 +95,7 @@ export const COMMAND_POLICIES = {
   check: { status: 'maintenance', allowedPhases: 'all', destructiveRisk: 'metadata-write', reason: 'Checks Koala managed asset drift and only mutates templates when --apply/--upgrade is explicitly provided.' },
   verify_codex: { status: 'gateEvidence', gateEvidence: true, allowedPhases: 'all', destructiveRisk: 'metadata-write', reason: 'Writes Codex adapter verification evidence consumed by adapter gates.' },
   audit: { status: 'maintenance', allowedPhases: 'all', destructiveRisk: 'metadata-write', reason: 'Framework self-audit can write audit findings/reports under controlled policy.' },
+  gap_log: { status: 'supported', allowedPhases: 'all', destructiveRisk: 'metadata-write', reason: 'Manually archives a framework gap into the B-META-framework-audit container; needs no story worktree and is not part of any lifecycle gate, so it is allowed in every phase.' },
   validate: { status: 'gateEvidence', gateEvidence: true, allowedPhases: ['DEV', 'REVIEW', 'TEST'], destructiveRisk: 'metadata-write', reason: 'Current verification runner and gate evidence producer.' },
   status: { status: 'supported', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Read-only project status report.' },
   serve: { status: 'supported', allowedPhases: ['DEV'], destructiveRisk: 'none', reason: 'Debug server support is limited to active development.' },

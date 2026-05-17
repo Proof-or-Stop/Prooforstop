@@ -109,6 +109,7 @@ export const PROCESS_FACT_LEVELS = [
   { name: 'check', level: 'L2', category: 'managed-assets', owner: 'handlers/check', rationale: 'Detects Koala prompt/template/runtime asset drift and synchronizes only explicitly managed assets under --apply/--upgrade.' },
   { name: 'verify_codex', level: 'L4', category: 'adapter-evidence', owner: 'handlers/verify-codex', rationale: 'Writes Codex adapter verification evidence consumed by adapter gates.', gateConsumer: 'Codex adapter REVIEW and DONE evidence gate' },
   { name: 'audit', level: 'L2', category: 'audit', owner: 'handlers/audit', rationale: 'Performs framework self-audit and may write audit findings or reports.' },
+  { name: 'gap_log', level: 'L2', category: 'audit', owner: 'handlers/gap-log', rationale: 'Manually archives a framework gap into the B-META-framework-audit container as a suspected finding; writes audit metadata but is not lifecycle gate evidence.' },
   { name: 'validate', level: 'L4', category: 'validation', owner: 'handlers/verifier', rationale: 'Runs validation and writes verifier evidence consumed by TEST and DONE flows.', gateConsumer: 'story_advance TEST and DONE validation gate' },
   { name: 'status', level: 'L0', category: 'status', owner: 'handlers/status', rationale: 'Reports project status without persisting process facts.' },
   { name: 'serve', level: 'L1', category: 'runtime-service', owner: 'handlers/serve', rationale: 'Starts a debug service that supports validation but does not itself write gate evidence.' },

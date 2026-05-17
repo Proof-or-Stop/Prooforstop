@@ -15,7 +15,7 @@
 
 import { createHash } from 'crypto';
 import type { StoryStore } from './store.js';
-import type { Finding, StoryInfo, StoryEvent } from './types.js';
+import type { DisprovenEvidence, Finding, FindingEvidenceState, StoryInfo, StoryEvent } from './types.js';
 import { signFinding } from './finding-verify.js';
 
 /** Meta-story 的固定 ID（全仓唯一容器） */
@@ -226,4 +226,71 @@ export function autoResolveMissing(
     store.writeFindings(storyId, data);
   }
   return resolved;
+}
+
+/**
+ * B-3fad CHK-002: 人工框架 gap 归档入口（gap_log handler 调用）。
+ *
+ * 与 upsertDrift（机械 audit scan 写入）平行的「人工补录」路径：
+ *   - upsertDrift: 机械 scan 确定 drift，可 verified，按 driftHash 幂等去重；
+ *   - appendGapFinding: 人工发现的框架 gap，默认 suspected（未经机械确认），无 driftHash。
+ *
+ * 复用 audit-meta-store 的存储路径（B-META findings.json），不造平行存储。
+ * 调用方负责先做 ensureMetaStory(store) bootstrap 容器（gap_log handler 已做）。
+ *
+ * evidenceState 护栏：默认 suspected；只有调用方已校验存在结构化 evidence 字段
+ * 才允许传 verified —— 本函数原样信任入参的 evidenceState（runtime 降级校验在
+ * gap-log.ts handler 入口完成，与 CLAUDE.md「Handler 编码约定」一致）。
+ */
+export interface GapFindingInput {
+  /** finding 分类（happy/edge/adversarial/missing） */
+  category: Finding['category'];
+  /** 严重度 */
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  /** gap 描述（已 trim 非空，由 handler 校验） */
+  desc: string;
+  /** 证据状态：默认 suspected；verified 仅当 handler 已校验结构化 evidence */
+  evidenceState: FindingEvidenceState;
+  /** suspected 时填：为什么只是怀疑 */
+  uncertaintyReason?: string;
+  /** disproven 时填：反证摘要 + 命令 + 源码引用 */
+  disprovenEvidence?: DisprovenEvidence;
+  /** 关联文件路径（来源溯源用） */
+  files?: string[];
+  /** 记录调用者身份（审计字段，不入签名） */
+  agent?: string;
+}
+
+export interface GapFindingResult {
+  findingId: string;
+  evidenceState: FindingEvidenceState;
+}
+
+export function appendGapFinding(
+  store: StoryStore,
+  gap: GapFindingInput,
+  storyId: string = META_STORY_ID,
+): GapFindingResult {
+  const data = store.readFindings(storyId);
+  const now = new Date().toISOString();
+  const nextNum = data.findings.length + 1;
+  const id = `${storyId}:F-${String(nextNum).padStart(3, '0')}`;
+  const finding: Finding = {
+    id,
+    desc: gap.desc,
+    severity: gap.severity,
+    category: gap.category,
+    status: 'open',
+    evidenceState: gap.evidenceState,
+    ...(gap.uncertaintyReason ? { uncertaintyReason: gap.uncertaintyReason } : {}),
+    ...(gap.disprovenEvidence ? { disprovenEvidence: gap.disprovenEvidence } : {}),
+    agent: gap.agent || 'koala-gap-log',
+    createdAt: now,
+    reviewRound: '',
+    _hash: signFinding(storyId, id, gap.desc, gap.severity, now, ''),
+    ...(gap.files && gap.files.length > 0 ? { files: gap.files } : {}),
+  };
+  data.findings.push(finding);
+  store.writeFindings(storyId, data);
+  return { findingId: id, evidenceState: gap.evidenceState };
 }
