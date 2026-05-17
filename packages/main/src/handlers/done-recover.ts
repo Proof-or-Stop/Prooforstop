@@ -3,10 +3,12 @@ import type { HandlerContext } from './context.js';
 import { StoryStore } from '../core/store.js';
 import {
   assertMainWorktreeClean,
+  assertStoryWorktreeClean,
   detectPartialDoneStories,
   removeStoryWorktree,
   resolveMainRepoRoot,
 } from '../core/partial-done-recovery.js';
+import { acquireDoneMainMergeLock } from './done-effects.js';
 
 function git(root: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -35,6 +37,8 @@ export function createDoneRecoverHandlers(ctx: HandlerContext) {
 
       const mainRepoRoot = resolveMainRepoRoot(root);
       const store = mainRepoRoot === root ? ctx.store : new StoryStore(mainRepoRoot);
+      const lock = acquireDoneMainMergeLock(storyId, mainRepoRoot);
+      try {
 
       const currentBranch = git(mainRepoRoot, ['rev-parse', '--abbrev-ref', 'HEAD']);
       if (currentBranch !== 'main') {
@@ -59,6 +63,7 @@ export function createDoneRecoverHandlers(ctx: HandlerContext) {
           `→ Resolve conflicts manually, then rerun done_recover.`,
         );
       }
+      assertStoryWorktreeClean(partial.worktreePath);
 
       const lines: string[] = [];
       git(mainRepoRoot, ['merge-tree', '--write-tree', 'main', partial.branch]);
@@ -83,6 +88,9 @@ export function createDoneRecoverHandlers(ctx: HandlerContext) {
       }
 
       return [`✓ partial-DONE recovered: ${storyId}`, ...lines].join('\n');
+      } finally {
+        lock.release();
+      }
     },
   };
 }

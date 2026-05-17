@@ -164,6 +164,17 @@ export function assertMainWorktreeClean(root: string): void {
   }
 }
 
+export function assertStoryWorktreeClean(worktreePath: string | null): void {
+  if (!worktreePath || !existsSync(worktreePath)) return;
+  const status = git(worktreePath, ['status', '--porcelain', '--untracked-files=all']);
+  if (status.trim()) {
+    throw new Error(
+      `done_recover refused: story worktree is not clean.\n${status}\n` +
+      `→ Preserve or remove these files before retrying; done_recover will not delete local worktree edits.`,
+    );
+  }
+}
+
 export function renderPartialDoneSummary(partial: PartialDoneStory[]): string[] {
   if (partial.length === 0) return ['  ✓ no partial-DONE stories found'];
   const lines = ['  Partial-DONE stories:'];

@@ -225,6 +225,8 @@ async function assertDoctorDetectsPartialDoneAndRecoverRepairs(): Promise<void> 
     const recovered = await runKoala(root, 'done_recover', { storyId });
     assert.match(recovered, new RegExp(`partial-DONE recovered: ${storyId}`));
     assert.match(recovered, new RegExp(`story/${storyId} merged into main`));
+    assert.match(recovered, new RegExp(`Worktree .*${storyId}.*removed`), 'operator transcript must report worktree removal');
+    assert.match(recovered, new RegExp(`story/${storyId} deleted`), 'operator transcript must report branch deletion');
 
     const after = JSON.parse(await runKoala(root, 'doctor', { format: 'json' }));
     assert.equal(after.partialDone.needsRecovery, false);
@@ -250,6 +252,39 @@ async function assertDoneRecoverRefusesDirtyMain(): Promise<void> {
     assert.notEqual(git(root, ['branch', '--list', `story/${storyId}`]), '');
     const stillPartial = JSON.parse(await runKoala(root, 'doctor', { format: 'json' }));
     assert.equal(stillPartial.partialDone.needsRecovery, true);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+async function assertDoneRecoverUsesDoneMainMergeLock(): Promise<void> {
+  const root = initRepo('koala-partial-done-live-lock-');
+  try {
+    const storyId = 'B-partial-lock';
+    buildPartialDone(root, storyId);
+    mkdirSync(join(root, '.koala', 'runtime', 'done-main-merge.lock'), { recursive: true });
+
+    const output = await runKoalaExpectFail(root, 'done_recover', { storyId });
+    assert.match(output, /DONE main merge lock is held/, 'done_recover must use the same DONE main merge lock');
+    assert.notEqual(git(root, ['branch', '--list', `story/${storyId}`]), '');
+    const stillPartial = JSON.parse(await runKoala(root, 'doctor', { format: 'json' }));
+    assert.equal(stillPartial.partialDone.needsRecovery, true);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+async function assertDoneRecoverRefusesDirtyStoryWorktree(): Promise<void> {
+  const root = initRepo('koala-partial-done-dirty-worktree-');
+  try {
+    const storyId = 'B-partial-worktree-dirty';
+    const worktreePath = buildPartialDone(root, storyId);
+    writeFileSync(join(worktreePath, 'local-draft.txt'), 'draft that recovery must not delete\n');
+
+    const output = await runKoalaExpectFail(root, 'done_recover', { storyId });
+    assert.match(output, /story worktree is not clean/);
+    assert.equal(existsSync(join(worktreePath, 'local-draft.txt')), true, 'dirty worktree file must survive refused recovery');
+    assert.notEqual(git(root, ['branch', '--list', `story/${storyId}`]), '');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -309,6 +344,8 @@ await assertDoctorRepairCleansAndProtects();
 await assertStoryDiscardRepairsMissingRegistry();
 await assertDoctorDetectsPartialDoneAndRecoverRepairs();
 await assertDoneRecoverRefusesDirtyMain();
+await assertDoneRecoverUsesDoneMainMergeLock();
+await assertDoneRecoverRefusesDirtyStoryWorktree();
 await assertDoneRecoverRefusesMergeTreeConflict();
 await assertDoneRecoverRefusesMissingBranchWithoutDeletingUnrelated();
 
