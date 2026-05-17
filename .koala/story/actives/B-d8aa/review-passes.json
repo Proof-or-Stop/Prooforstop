@@ -53,6 +53,15 @@
       "reviewRound": "2026-05-17T13:12:31.799Z",
       "reviewRunId": "B-d8aa:RR-007",
       "_hash": "9750e2238e093c8836f48000f9825d0280da231827e7deaed5beac10f71dc511"
+    },
+    {
+      "id": "B-d8aa:RP-007",
+      "agent": "koala-review-docs",
+      "note": "PASS: B-d8aa:F-001 is fixed. docs/requirements/decisions/story-lifecycle.md now defines parked backlog as phase=INIT plus no recorded worktree.path plus no linked git worktree branch, matching gap-analyze.ts active blocker logic and convergence-discarded-smoke.ts coverage for recorded worktree, linked git worktree, parked INIT, META, DONE/DISCARDED, and audit backlog behavior. Targeted smoke passed and convergence_check shows B-4622/B-d7af/B-da5b only under Parked backlog advisory while B-6974 remains a hard active blocker.",
+      "createdAt": "2026-05-17T13:19:48.389Z",
+      "reviewRound": "2026-05-17T13:12:31.799Z",
+      "reviewRunId": "B-d8aa:RR-008",
+      "_hash": "ad8ac3f49ec32a7b86b93e41ab9755fa7c09e46ae3e6fa756b877ad33c27710f"
     }
   ]
 }
