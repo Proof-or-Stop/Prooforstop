@@ -162,6 +162,54 @@
         "test": [
           "packages/main/src/tasks/worktree-authority-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "成功 DONE 路径 smoke：对满足全部 gate 的 TEST story 执行 DONE → 输出按顺序包含 Step1 清 worktree 字段 / Step2 metadata commit / Step2.5 stray cleanup / Step3 merge 成功行 / Step4 worktree remove 成功行 / Step5 branch delete 成功行 → 步骤顺序与源码注释 Step1-5 完全一致; WHY: 回归证明执行顺序不变",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "DONE 成功输出 byte-identical：输出含 DONE Gate Checklist 段（每项 [✓] 行）→ 接着「✓ 分支 story/B-xxx 已合并到 main」→「✓ Worktree ... 已清理」→「✓ 分支 story/B-xxx 已删除」→ summary 段; WHY: 验证用户可见文本不变",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "npm --prefix packages/main run test:worktree-authority-smoke 全 pass（含新增的 DONE ordering 断言）; WHY: 机械化回归门槛",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "DONE 成功但 branch -d 失败（分支有未合并 commit 模拟）→ 输出含「⚠ 分支 ... 未删除」但不 throw、story 仍 DONE、merge 已完成; WHY: Step5 branch delete 失败是 non-fatal 的行为保持",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "worktree remove 需 --force（gitignored 文件残留模拟）→ 输出含「已强制清理」而非「已清理」但不 throw; WHY: 两步 cleanup 的 fallback 行为保持",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "在 done-effects.ts 中交换 Step3 merge 和 Step4 worktree remove 的顺序（故意错排）→ smoke 断言失败：worktree remove 在未 merge 时应失败或产生不同输出; WHY: 对抗 preMortem #1 步骤重排",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "在 done-effects.ts 中把 Step2 metadata commit 移到 Step3 merge 之后（metadata 未提交就 merge）→ merge 后 main 分支缺少 phase=DONE commit → smoke 检查 git log main 确认 DONE metadata commit 在 merge commit 的 parent 链中; WHY: 对抗 commit 顺序错位导致 merge 后 metadata 丢失",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "pre-merge gate 失败时输出 byte-identical：模拟 done oracle 失败 → 比较错误消息与基线字符串（含 Cannot enter DONE: 前缀 + 具体 blocker 描述）完全一致; WHY: 验证失败消息搬迁后文案零变化",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
