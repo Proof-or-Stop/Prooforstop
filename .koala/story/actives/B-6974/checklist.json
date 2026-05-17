@@ -93,98 +93,120 @@
           "file": "packages/main/src/handlers/transition-orchestrator.ts",
           "command": "npm --prefix packages/main run build",
           "result": "pass",
-          "note": "transition-orchestrator.ts created in packages/main/src/handlers/; exports runStoryTransition + renderTransitionResult; tsc build passes and story-advance.ts imports it.",
-          "headHash": "fa6eb107285398d2f909cbc00c1593c5009db0e5",
-          "materialHash": "d1a3fd2f6c2f65a4a29406c927b95a1f2784c9035d3b342d5d7b2465a33cb9ae",
-          "timestamp": "2026-05-17T13:20:12.927Z"
+          "note": "transition-orchestrator.ts remains in packages/main/src/handlers, exports runStoryTransition/renderTransitionResult, and the current TypeScript build passes with story-advance.ts importing it.",
+          "headHash": "005cc33b194e487c99fc8ae723108d26310644ab",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:41:51.382Z"
         },
         {
           "intentRef": "CHK-001:happy:3",
           "kind": "manual_transcript",
           "file": "packages/main/src/handlers/transition-orchestrator.ts",
-          "command": "grep acquireDoneMainMergeLock packages/main/src/handlers/transition-orchestrator.ts",
+          "command": "rg -n \"acquireDoneMainMergeLock|doneMainMergeLock\\?\\.release\" packages/main/src/handlers/story-advance.ts packages/main/src/handlers/transition-orchestrator.ts",
           "result": "pass",
-          "note": "acquireDoneMainMergeLock is called once in runStoryTransition; doneMainMergeLock.release() is in the single try/finally. The try opens before the DONE pre-check and the finally spans runDonePreMergeGate -> actor.send -> writeStory -> applyDoneMergeEffects. story-advance.ts no longer references acquireDoneMainMergeLock.",
-          "headHash": "0fc50123b1bc7f94534b39996c57b55095e4532f",
-          "materialHash": "d1a3fd2f6c2f65a4a29406c927b95a1f2784c9035d3b342d5d7b2465a33cb9ae",
-          "timestamp": "2026-05-17T13:20:20.952Z"
+          "note": "acquireDoneMainMergeLock is called in transition-orchestrator.ts and release is in the same runStoryTransition finally. story-advance.ts has no DONE lock reference; the lock scope spans DONE pre-check, actor.send, writeStory, and applyDoneMergeEffects.",
+          "headHash": "005cc33b194e487c99fc8ae723108d26310644ab",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:41:51.383Z"
         },
         {
           "intentRef": "CHK-001:happy:4",
-          "kind": "manual_transcript",
+          "kind": "logic_test",
           "file": "packages/main/src/handlers/transition-orchestrator.ts",
-          "command": "code review of runStoryTransition DONE path",
+          "command": "nl -ba packages/main/src/handlers/transition-orchestrator.ts | sed -n 275,365p",
           "result": "pass",
-          "note": "DONE path in runStoryTransition: runDonePreMergeGate (before actor.send) -> actor.send -> writeStory(phase=DONE) -> applyDoneMergeEffects (after writeStory). Order is line-for-line identical to the pre-refactor story-advance.ts inline flow.",
-          "headHash": "479796fe9c36336589bfff0620306eba5326c90f",
-          "materialHash": "d1a3fd2f6c2f65a4a29406c927b95a1f2784c9035d3b342d5d7b2465a33cb9ae",
-          "timestamp": "2026-05-17T13:20:21.476Z"
+          "note": "DONE order is still runDonePreMergeGate at lines 283-284, actor.send at 289, store.writeStory at 321, then applyDoneMergeEffects at 363. This preserves gate-before-send and effect-after-write timing.",
+          "headHash": "005cc33b194e487c99fc8ae723108d26310644ab",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:41:51.383Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "manual_transcript",
           "file": "packages/main/src/handlers/phase-gates.ts",
-          "command": "grep -n actor.stop packages/main/src/handlers/phase-gates.ts",
+          "command": "rg -n \"actor\\??\\.stop\\(\" packages/main/src/handlers/phase-gates.ts || true",
           "result": "pass",
-          "note": "resolveGuardFailure no longer calls actor.stop(); zero actor.stop() in phase-gates.ts. The actor param is retained for signature stability (used by getStateName to render the fallback message).",
-          "headHash": "ee70ead1fd0096324f822406f78d01c5237881db",
-          "materialHash": "d1a3fd2f6c2f65a4a29406c927b95a1f2784c9035d3b342d5d7b2465a33cb9ae",
-          "timestamp": "2026-05-17T13:20:30.840Z"
+          "note": "Zero hits. resolveGuardFailure and the TEST gates no longer stop the actor; transition-orchestrator.ts owns stop in finally.",
+          "headHash": "005cc33b194e487c99fc8ae723108d26310644ab",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:41:51.383Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
           "kind": "manual_transcript",
           "file": "packages/main/src/handlers/done-effects.ts",
-          "command": "grep -n actor.stop packages/main/src/handlers/done-effects.ts",
+          "command": "rg -n \"actor\\??\\.stop\\(\" packages/main/src/handlers/done-effects.ts || true",
           "result": "pass",
-          "note": "runDonePreMergeGate stray-file offender branch no longer calls actor.stop() — it throws via cleanStrayWorktreeFiles and the orchestrator finally cleans up the actor. Zero actor.stop() calls in done-effects.ts.",
-          "headHash": "81492e2921e33d068d38692c13e64975919624d8",
-          "materialHash": "d1a3fd2f6c2f65a4a29406c927b95a1f2784c9035d3b342d5d7b2465a33cb9ae",
-          "timestamp": "2026-05-17T13:20:31.287Z"
+          "note": "Zero hits. runDonePreMergeGate stray-file failure throws and relies on transition-orchestrator.ts finally to stop the actor.",
+          "headHash": "005cc33b194e487c99fc8ae723108d26310644ab",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:41:51.383Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
-          "kind": "manual_transcript",
+          "kind": "logic_test",
           "file": "packages/main/src/handlers/transition-orchestrator.ts",
-          "command": "code review of runStoryTransition finally block",
+          "command": "code review of runStoryTransition try/finally",
           "result": "pass",
-          "note": "runStoryTransition wraps the whole transition in one try; the finally calls actor?.stop() unconditionally. Actor is assigned after early guards; on every exit path after assignment (normal return, guard-failure throw, gate-failure throw, effect-failure throw) the finally runs stop(). actor?. optional-chain handles the pre-assignment early-throw case.",
-          "headHash": "1287d5115f20f17248adb05997cef0c4a51df1b4",
-          "materialHash": "d1a3fd2f6c2f65a4a29406c927b95a1f2784c9035d3b342d5d7b2465a33cb9ae",
-          "timestamp": "2026-05-17T13:20:31.726Z"
+          "note": "runStoryTransition assigns the actor inside a single try and calls actor?.stop() in the matching finally. Normal return, guard failure, gate failure, and effect failure all exit through that finally; early pre-actor throws are safe through optional chaining.",
+          "headHash": "005cc33b194e487c99fc8ae723108d26310644ab",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:41:51.383Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "manual_transcript",
           "file": "packages/main/src/handlers/phase-gates.ts",
-          "command": "rg actor.stop|actor.send|actor.start packages/main/src/handlers/phase-gates.ts packages/main/src/handlers/done-effects.ts",
+          "command": "rg -n \"actor\\??\\.stop\\(|actor\\.send\\(|actor\\.start\\(|createStoryActor\" packages/main/src/handlers/phase-gates.ts packages/main/src/handlers/done-effects.ts || true",
           "result": "pass",
-          "note": "phase-gates.ts and done-effects.ts have zero actor.stop()/actor.send()/actor.start() calls — only type-level ReturnType<typeof createStoryActor> signature references remain. The orchestrator genuinely owns the actor lifecycle (real takeover, not Option-B mechanical relocation).",
-          "headHash": "98c7b1dc6f11fd9a59e1b79c791f26a16f9a11d6",
-          "materialHash": "d1a3fd2f6c2f65a4a29406c927b95a1f2784c9035d3b342d5d7b2465a33cb9ae",
-          "timestamp": "2026-05-17T13:20:42.422Z"
+          "note": "phase-gates.ts and done-effects.ts have no actor stop/send/start calls. The only hits are type-level createStoryActor references in function signatures, so actor lifecycle operation ownership is not split.",
+          "headHash": "005cc33b194e487c99fc8ae723108d26310644ab",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:41:51.383Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
           "kind": "manual_transcript",
           "file": "packages/main/src/handlers/transition-orchestrator.ts",
-          "command": "grep -nE \"^import .*transition-orchestrator\" packages/main/src/handlers/{phase-gates,transition-effects,done-effects}.ts",
+          "command": "rg -n \"from ['\"].*transition-orchestrator|transition-orchestrator\" packages/main/src/handlers/phase-gates.ts packages/main/src/handlers/transition-effects.ts packages/main/src/handlers/done-effects.ts || true",
           "result": "pass",
-          "note": "transition-orchestrator.ts imports phase-gates / transition-effects / done-effects; the reverse grep finds zero import statements of transition-orchestrator in those three files. Dependency graph is a one-directional DAG; tsc build passes (no circular import).",
-          "headHash": "6a14fbaa6cbc7d6dfee203da93918f94a9737360",
-          "materialHash": "d1a3fd2f6c2f65a4a29406c927b95a1f2784c9035d3b342d5d7b2465a33cb9ae",
-          "timestamp": "2026-05-17T13:20:42.911Z"
+          "note": "No coordinated module imports transition-orchestrator. The hits are prose comments only, while transition-orchestrator imports phase-gates, transition-effects, and done-effects one way.",
+          "headHash": "005cc33b194e487c99fc8ae723108d26310644ab",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:41:51.383Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/handlers/transition-orchestrator.ts",
+          "command": "code review of acquireDoneMainMergeLock try/finally scope",
+          "result": "pass",
+          "note": "The DONE merge lock is acquired in the runStoryTransition try and released in its finally. There is no break/continue and the only return is still inside the try, so JavaScript finally semantics release the lock on success and every thrown path.",
+          "headHash": "005cc33b194e487c99fc8ae723108d26310644ab",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:41:51.383Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
           "kind": "manual_transcript",
           "file": "packages/main/src/handlers/transition-orchestrator.ts",
-          "command": "code review of runStoryTransition lock try/finally",
+          "command": "rg -n \"actor\\??\\.stop\\(\" packages/main/src/handlers/story-advance.ts packages/main/src/handlers/phase-gates.ts packages/main/src/handlers/done-effects.ts packages/main/src/handlers/transition-orchestrator.ts || true",
           "result": "pass",
-          "note": "The DONE lock try opens right after doneMainMergeLock is declared; the matching finally calls doneMainMergeLock?.release(). The single return inside the try is the success-path return — finally still runs on it (JS semantics). No break/continue. lock scope has no hole: every path from acquire to function exit passes through the finally.",
-          "headHash": "98ebf1db78d634b449ca252a468e5cdf9786a564",
-          "materialHash": "d1a3fd2f6c2f65a4a29406c927b95a1f2784c9035d3b342d5d7b2465a33cb9ae",
-          "timestamp": "2026-05-17T13:20:43.427Z"
+          "note": "Scoped story_advance orchestration grep has exactly one actor stop operation: transition-orchestrator.ts:428 actor?.stop(). story-advance.ts, phase-gates.ts, and done-effects.ts have no stop call. Legacy worktree.ts dev_finish/dev_merge actor.stop calls are outside B-6974 story_advance scope.",
+          "headHash": "005cc33b194e487c99fc8ae723108d26310644ab",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:41:51.383Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/transition-orchestrator.ts",
+          "command": "rg -n \"createStoryActor|actor\\.start\\(|actor\\.send\\(\" packages/main/src/handlers/story-advance.ts packages/main/src/handlers/phase-gates.ts packages/main/src/handlers/done-effects.ts packages/main/src/handlers/transition-orchestrator.ts || true",
+          "result": "pass",
+          "note": "Concrete lifecycle operations are owned by transition-orchestrator.ts: createStoryActor import/assignment, actor.start(), and actor.send(). phase-gates.ts and done-effects.ts only retain type-level createStoryActor references for signatures; story-advance.ts has zero hits.",
+          "headHash": "005cc33b194e487c99fc8ae723108d26310644ab",
+          "materialHash": "6128bc112070f41027317970d333a08518a3eef5aa87508ab79f4b43da56bed9",
+          "timestamp": "2026-05-17T14:41:51.383Z"
         }
       ]
     },
