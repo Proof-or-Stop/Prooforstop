@@ -51,6 +51,23 @@
         "packages/main/src/core/partial-done-recovery.ts",
         "packages/main/src/handlers/done-effects.ts"
       ]
+    },
+    {
+      "id": "B-4c38:F-004",
+      "desc": "packages/main/src/handlers/done-recover.ts:39-80 performs main safety checks, merge into main, worktree cleanup, and branch deletion without acquiring the new done-main-merge global lock. That bypasses the serialized DONE critical section introduced in this story, so koala done_recover can race a concurrent story_advance --phase=DONE and recreate the same main-mutation / partial-DONE hazard the fix is meant to prevent. Fix by acquiring the same DONE main-merge lock before re-reading partial-DONE state and holding it through merge, worktree cleanup, and branch deletion; add a contention smoke that proves done_recover vs DONE cannot run concurrently.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-05-17T03:49:09.385Z",
+      "reviewRound": "2026-05-17T03:45:37.301Z",
+      "reviewRunId": "B-4c38:RR-002",
+      "_hash": "b6c2d5e293f33dc6e29d735f10217ce775d827b60e53ec30f2feb9c83aeb417b",
+      "files": [
+        "packages/main/src/handlers/done-recover.ts",
+        "packages/main/src/handlers/done-effects.ts"
+      ]
     }
   ]
 }
