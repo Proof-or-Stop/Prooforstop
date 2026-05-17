@@ -26,7 +26,7 @@
  */
 
 import type { HandlerContext } from './context.js';
-import type { DisprovenEvidence, Finding, FindingEvidenceState } from '../core/types.js';
+import type { Finding, FindingEvidenceState } from '../core/types.js';
 import { ensureMetaStory, appendGapFinding, META_STORY_ID } from '../core/audit-meta-store.js';
 
 const GAP_LOG_CATEGORIES = ['happy', 'edge', 'adversarial', 'missing'] as const;
@@ -160,8 +160,13 @@ export function createGapLogHandlers(ctx: HandlerContext): Record<string, (...ar
           : 'manually logged framework gap; not yet mechanically reproduced or confirmed';
       }
 
-      // 7) 组装 disprovenEvidence 不适用（gap_log 不收 disproven）。
-      const disprovenEvidence: DisprovenEvidence | undefined = undefined;
+      // 7) 合并 finding.files：sourceRefs（结构化 evidence 引用）与显式 files 参数都保留。
+      //    F-003：旧实现两个 spread 同写 `files` 键，后者静默覆盖前者 → sourceRefs 丢失。
+      //    改为合并去重，让 stored finding 同时携带两个来源的路径。
+      const argFiles = Array.isArray(args.files)
+        ? args.files.map(f => String(f ?? '').trim()).filter(f => f.length > 0)
+        : [];
+      const mergedFiles = Array.from(new Set([...ev.sourceRefs, ...argFiles]));
 
       // 8) ensureMetaStory bootstrap 容器（不存在则建），写入 B-META findings。
       const { created } = ensureMetaStory(store);
@@ -171,9 +176,7 @@ export function createGapLogHandlers(ctx: HandlerContext): Record<string, (...ar
         desc,
         evidenceState,
         ...(uncertaintyReason ? { uncertaintyReason } : {}),
-        ...(disprovenEvidence ? { disprovenEvidence } : {}),
-        ...(ev.sourceRefs.length > 0 ? { files: ev.sourceRefs } : {}),
-        ...(Array.isArray(args.files) && args.files.length > 0 ? { files: args.files } : {}),
+        ...(mergedFiles.length > 0 ? { files: mergedFiles } : {}),
         agent: args.agent || process.env.KOALA_AGENT || 'koala-gap-log',
       });
 

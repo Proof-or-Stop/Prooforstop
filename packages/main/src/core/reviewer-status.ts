@@ -12,9 +12,12 @@
 import { createHash } from 'crypto';
 import type { StoryStore } from './store.js';
 import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
-import { isAdvisoryThisRound, resolveReviewRoundCount } from './advisory.js';
+import { isFindingBlocking } from './advisory.js';
 import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
 import { computeActiveReviewers } from '../handlers/reviewer-list.js';
+import { resolveEffectiveBlockingSeverities } from './guard-utils.js';
+import { resolveWorkflowPolicy } from './workflow-policy.js';
+import { loadConfig } from './config.js';
 import { collectReviewerEvidenceState } from './review-run.js';
 
 // ── Public types ──
@@ -101,7 +104,15 @@ export function summarizeReviewerStatus(store: StoryStore, storyId: string, proj
   const decision = store.readDecision(storyId);
   const touchpoints = resolveReviewerTouchpoints(store, storyId, projectRoot);
   const reviewers = computeActiveReviewers(story, checklist, decision, touchpoints);
-  const round = resolveReviewRoundCount(store, storyId);
+
+  // F-001: align the reviewer-status display path with the REVIEW->TEST gate.
+  // The gate (machine.ts canPassReview / guard-utils.ts) uses isFindingBlocking,
+  // which carries the evidenceState dimension (suspected/disproven never block).
+  // Resolve effective blocking severities + round the same way the gate does so a
+  // suspected open critical/high finding is not counted as a blocker here.
+  const config = loadConfig(projectRoot);
+  const policy = resolveWorkflowPolicy(config, story);
+  const { effectiveBlockingSeverities, roundCount } = resolveEffectiveBlockingSeverities(store, storyId, policy);
 
   const evidenceState = collectReviewerEvidenceState(store, storyId, projectRoot ?? process.cwd());
   const validFindings = evidenceState.valid.map((entry) => entry.finding).filter(Boolean);
@@ -117,11 +128,10 @@ export function summarizeReviewerStatus(store: StoryStore, storyId: string, proj
     const invalid = evidenceState.invalid.filter(issue => findingAgentMatchesReviewer(issue.agent, r.name));
     const present = matched.length > 0 || matchedPasses.length > 0 || invalid.length > 0;
 
-    // Count open blockers (not advisory this round, not resolved/dismissed, valid signature)
+    // Count open blockers using the same predicate as the REVIEW->TEST gate
+    // (status open + blocking severity + verified evidenceState + not advisory this round).
     const openBlockers = matched.filter(f =>
-      !!f
-      && f.status === 'open'
-      && !isAdvisoryThisRound(f.severity, round)
+      !!f && isFindingBlocking(f, effectiveBlockingSeverities, roundCount)
     ).length;
     const blockerCount = openBlockers + invalid.length;
 

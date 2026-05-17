@@ -361,6 +361,37 @@ function assertRapidSuccessionAllWritten(): void {
   } finally { rmSync(root, { recursive: true, force: true }); }
 }
 
+// ── 12: F-003 — sourceRefs + files both passed -> finding.files keeps both (no silent loss) ──
+function assertSourceRefsAndFilesMerged(): void {
+  const root = createMainProject('koala-gaplog-merge-files-');
+  try {
+    const out = runGapLog(root, {
+      category: 'missing',
+      severity: 'medium',
+      evidence: 'gap whose evidence source and impacted files are distinct paths',
+      sourceRefs: ['packages/main/src/core/risk-signals.ts:42', 'packages/main/src/core/advisory.ts:60'],
+      files: ['packages/main/src/handlers/gap-log.ts', 'packages/main/src/core/advisory.ts:60'],
+    });
+    assert.match(out, /Gap logged: B-META-framework-audit:F-/, 'gap_log with sourceRefs+files must succeed');
+    const findings = readMetaFindings(root).findings;
+    assert.equal(findings.length, 1, 'gap_log must write exactly one finding');
+    const storedFiles = findings[0].files ?? [];
+    // both sourceRefs entries are kept (not overwritten by args.files)
+    assert.ok(storedFiles.includes('packages/main/src/core/risk-signals.ts:42'),
+      'sourceRefs entry must survive — args.files must not silently overwrite it');
+    assert.ok(storedFiles.includes('packages/main/src/core/advisory.ts:60'),
+      'sourceRefs entry must be present');
+    // args.files-only entry is also kept
+    assert.ok(storedFiles.includes('packages/main/src/handlers/gap-log.ts'),
+      'args.files entry must be present');
+    // the path shared by sourceRefs and files appears exactly once (dedup)
+    const dupCount = storedFiles.filter(f => f === 'packages/main/src/core/advisory.ts:60').length;
+    assert.equal(dupCount, 1, 'a path shared by sourceRefs and files must be deduplicated');
+    assert.equal(storedFiles.length, 3, 'merged files = 2 unique sourceRefs + 1 unique files entry');
+    console.log('✓ gap-log-12: sourceRefs + files both passed are merged & deduped, no silent loss');
+  } finally { rmSync(root, { recursive: true, force: true }); }
+}
+
 // ── 11: gap_log is discoverable -> koala help / koala gap_log --help shows it ──
 function assertCommandDiscoverable(): void {
   const root = createMainProject('koala-gaplog-discover-');
@@ -385,6 +416,7 @@ assertNoWorktreeRequired();
 assertNotDeduplicated();
 assertDisprovenRejected();
 assertRapidSuccessionAllWritten();
+assertSourceRefsAndFilesMerged();
 assertCommandDiscoverable();
 
 console.log('✓ gap-log smoke passed');

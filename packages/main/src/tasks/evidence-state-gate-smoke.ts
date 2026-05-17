@@ -33,6 +33,7 @@ import { getGuardFailureReason } from '../core/machine.js';
 import { signFinding } from '../core/finding-verify.js';
 import { signReviewRun } from '../core/review-run.js';
 import { isFindingBlocking, isEvidenceStateBlocking } from '../core/advisory.js';
+import { summarizeReviewerStatus } from '../core/reviewer-status.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import type { ChecklistData, Finding, FindingEvidenceState, ReviewRun, StoryInfo } from '../core/types.js';
 
@@ -527,6 +528,62 @@ function assertPartialSuspectedDoesNotMaskRealBlocker(): void {
   }
 }
 
+// ── F-001 — reviewer-status display path agrees with the REVIEW->TEST gate ──
+// reviewer-status.ts summarizeReviewerStatus must use the shared isFindingBlocking
+// predicate (with the evidenceState dimension), not the old advisory-only filter.
+// A suspected open critical finding does NOT block the gate, so it must NOT be
+// counted as a blocker (verdict=fail) in the reviewer-status summary either.
+function assertReviewerStatusAgreesWithGate(): void {
+  // Case A: suspected open critical -> gate passes, reviewer-status must show pass.
+  {
+    const { root, store, runIds } = createReviewRepo();
+    try {
+      const suspected = makeFinding({
+        idSuffix: '301', agent: 'koala-review-concept', reviewRunId: runIds.get('koala-review-concept')!,
+        severity: 'critical', status: 'open', evidenceState: 'suspected',
+        uncertaintyReason: 'static read only, no mechanical repro of the suspected gap yet',
+      });
+      seedWithSubject(store, runIds, suspected);
+      // gate side
+      const reason = getGuardFailureReason(STORY_ID, store, 'TEST', root);
+      assert.equal(reason, null, 'suspected critical open finding must NOT block the gate');
+      // display side must agree
+      const summary = summarizeReviewerStatus(store, STORY_ID, root);
+      const conceptEntry = summary.entries.find(e => e.name === 'concept');
+      assert.ok(conceptEntry, 'reviewer-status must include the concept reviewer');
+      assert.equal(conceptEntry!.blockerCount, 0,
+        'suspected open critical must NOT be counted as a blocker in reviewer-status');
+      assert.equal(conceptEntry!.verdict, 'pass',
+        'reviewer-status verdict must be pass when only a suspected finding is open');
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+  // Case B: verified open critical -> gate blocks, reviewer-status must show fail (no false-pass).
+  {
+    const { root, store, runIds } = createReviewRepo();
+    try {
+      const verified = makeFinding({
+        idSuffix: '302', agent: 'koala-review-concept', reviewRunId: runIds.get('koala-review-concept')!,
+        severity: 'critical', status: 'open', evidenceState: 'verified',
+      });
+      seedWithSubject(store, runIds, verified);
+      const reason = getGuardFailureReason(STORY_ID, store, 'TEST', root);
+      assert.ok(reason, 'verified critical open finding must block the gate');
+      const summary = summarizeReviewerStatus(store, STORY_ID, root);
+      const conceptEntry = summary.entries.find(e => e.name === 'concept');
+      assert.ok(conceptEntry, 'reviewer-status must include the concept reviewer');
+      assert.equal(conceptEntry!.blockerCount, 1,
+        'verified open critical must still count as a blocker in reviewer-status');
+      assert.equal(conceptEntry!.verdict, 'fail',
+        'reviewer-status verdict must be fail when a verified blocker is open');
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+  console.log('✓ F-001: reviewer-status display path agrees with the REVIEW->TEST gate (evidenceState dimension)');
+}
+
 assertLegacyMissingEvidenceStateStillBlocks();
 assertVerifiedOpenStillBlocks();
 assertSuspectedDoesNotBlockAndIsAdvisory();
@@ -536,5 +593,6 @@ assertFindingListRendersEvidenceState();
 assertSuspectedWithoutReasonRejected();
 assertHandlerRejectionCases();
 assertPartialSuspectedDoesNotMaskRealBlocker();
+assertReviewerStatusAgreesWithGate();
 
 console.log('✓ evidence-state gate smoke passed');
