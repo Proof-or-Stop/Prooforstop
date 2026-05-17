@@ -153,6 +153,18 @@
           "headHash": "c3e07cd4f3676653e07af6b21b478fa68027921e",
           "materialHash": "7d2679ad7c13b2fc844688a39fe0e5130204bb8990a8f92167537b5b0d6a922a",
           "timestamp": "2026-05-17T13:03:07.797Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/convergence-discarded-smoke.ts",
+          "command": "npm --prefix packages/main run test:convergence-false-blockers",
+          "result": "pass",
+          "note": "Smoke asserts parked-only backlog does not make result.converged false.",
+          "headHash": "e98b27e80b7661b79355d1989916b830f0170499",
+          "materialHash": "7d2679ad7c13b2fc844688a39fe0e5130204bb8990a8f92167537b5b0d6a922a",
+          "timestamp": "2026-05-17T13:03:08.363Z"
         }
       ]
     },
