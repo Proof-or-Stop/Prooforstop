@@ -123,6 +123,17 @@
           "headHash": "59da73be1d16b2bf7318c9a55f4755a72a350c3c",
           "materialHash": "e86730edba430ba928a18deb8ad4567903dd4b9642ea1a7e755dc557ff5686c5",
           "timestamp": "2026-05-17T03:06:38.838Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "koala-project-overview.md",
+          "command": "sed -n 139,143p koala-project-overview.md",
+          "result": "pass",
+          "note": "koala-project-overview.md 2.11 节描述与 CLAUDE.md 及实际 hook 一致:不调 koala、koala 检测、先 build main、递归 tsc、黑名单、启用命令",
+          "headHash": "e4796edebdcfc00d4633c6e9d2378ebd3d6b6868",
+          "materialHash": "e86730edba430ba928a18deb8ad4567903dd4b9642ea1a7e755dc557ff5686c5",
+          "timestamp": "2026-05-17T03:06:39.084Z"
         }
       ]
     }
