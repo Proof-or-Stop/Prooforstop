@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-17T13:08:08.088Z",
       "reviewRunId": "B-d8aa:RR-002",
       "_hash": "620ad376f4afceaa55436df14447eca05c26d097b1de6f19ef97d210e2d435e3"
+    },
+    {
+      "id": "B-d8aa:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: all 9 verificationIntent entries have concrete verificationEvidence and verification_evidence_refresh_stale reports no stale evidence. Smoke coverage in packages/main/src/tasks/convergence-discarded-smoke.ts covers parked INIT advisory behavior, active story.worktree metadata, active git worktree detection via git worktree list, DONE/DISCARDED/META exclusion, Parked backlog advisory, and Audit backlog blocking/advisory behavior. Re-ran npm --prefix packages/main run test:convergence-false-blockers and node packages/main/dist/cli.js convergence_check successfully.",
+      "createdAt": "2026-05-17T13:09:53.308Z",
+      "reviewRound": "2026-05-17T13:08:08.088Z",
+      "reviewRunId": "B-d8aa:RR-004",
+      "_hash": "14ffc22664c1de4753158e3c71dafc4392e5edaf12a129f32262a31bbbef94a4"
     }
   ]
 }
