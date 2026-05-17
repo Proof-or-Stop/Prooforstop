@@ -44,10 +44,13 @@ import {
  * cwd/guard-failure adapter.
  *
  * When the xstate actor refuses the requested transition event, resolve the
- * human-readable guard failure reason and stop the actor. Mirrors the inline
- * `if (!canSend) { ... }` block previously in story-advance.ts verbatim — the
- * caller decides whether canSend is false; this function only shapes the error
- * message and stops the actor.
+ * human-readable guard failure reason. The caller decides whether canSend is
+ * false; this function only shapes the error message.
+ *
+ * B-6974: this adapter NO LONGER stops the actor — actor lifecycle is owned
+ * solely by transition-orchestrator.ts, which stops it in a single finally on
+ * every exit path. `actor` is still read here (getStateName) to render the
+ * fallback "Cannot transition from <state> to <phase>" message.
  */
 export function resolveGuardFailure(
   actor: ReturnType<typeof import('../core/machine.js').createStoryActor>,
@@ -58,7 +61,6 @@ export function resolveGuardFailure(
 ): Error {
   const reason = getGuardFailureReason(storyId, store, phase, root);
   const currentState = getStateName(actor);
-  actor.stop();
   return new Error(
     reason || `Cannot transition from ${currentState} to ${phase}`,
   );
@@ -77,13 +79,18 @@ export function resolveGuardFailure(
  * — a preflight infrastructure failure (e.g. review-preflight.ts import
  * failure) still throws "Cannot enter TEST", never silently advances.
  *
- * On gate failure / infrastructure failure this stops `actor` and throws; on
- * success it returns normally.
+ * On gate failure / infrastructure failure this throws; on success it returns
+ * normally.
+ *
+ * B-6974: this gate NO LONGER stops the actor on failure — actor lifecycle is
+ * owned solely by transition-orchestrator.ts, which stops it in a single
+ * finally on every exit path (including the thrown-error path here). The
+ * `actor` parameter is kept for signature stability but is no longer used.
  */
 export async function runReviewToTestPreflightGate(
   ctx: HandlerContext,
   storyId: string,
-  actor: { stop(): void },
+  _actor: { stop(): void },
 ): Promise<void> {
   const { store } = ctx;
   ctx.log?.('REVIEW→TEST preflight: running CLI gates (channel/concept/lint/docs-drift plus conditional codex-adapter)...');
@@ -95,7 +102,6 @@ export async function runReviewToTestPreflightGate(
       registryNames: ctx.getAllToolNames?.(),
     });
     if (!preflight.ok) {
-      actor.stop();
       const rendered = renderPreflight(preflight);
       const failedGates = preflight.gates.filter(g => !g.ok).map(g => g.name).join(', ');
       throw new Error(
@@ -109,7 +115,6 @@ export async function runReviewToTestPreflightGate(
   } catch (e: any) {
     if (e?.message?.startsWith('Cannot enter TEST')) throw e;
     // 预检查本身失败（review-preflight.ts import 失败等）→ fail-closed
-    actor.stop();
     const message = e instanceof Error ? e.message : String(e);
     throw new Error(
       `Cannot enter TEST: CLI gate preflight 执行异常\n` +
@@ -136,13 +141,18 @@ export async function runReviewToTestPreflightGate(
  * Fail-closed (preMortem #1): validate throw / JSON-parse failure each still
  * block TEST — the catch rethrows "Cannot enter TEST" and never advances.
  *
- * On gate failure / execution failure this stops `actor` and throws; on
- * success it returns normally.
+ * On gate failure / execution failure this throws; on success it returns
+ * normally.
+ *
+ * B-6974: this gate NO LONGER stops the actor on failure — actor lifecycle is
+ * owned solely by transition-orchestrator.ts, which stops it in a single
+ * finally on every exit path (including the thrown-error path here). The
+ * `actor` parameter is kept for signature stability but is no longer used.
  */
 export async function runValidateGate(
   ctx: HandlerContext,
   storyId: string,
-  actor: { stop(): void },
+  _actor: { stop(): void },
 ): Promise<void> {
   const { store } = ctx;
   ctx.log?.('DEV→TEST gate: running koala validate --json...');
@@ -170,7 +180,6 @@ export async function runValidateGate(
     });
 
     if (!parsed.allPass) {
-      actor.stop();
       const failedDetails = (parsed.details || []).filter((d: string) => d.startsWith('✗'));
       const coverage = parsed.verificationCoverage;
       const missingCoverage = coverage?.missingRequired ?? 0;
@@ -198,7 +207,6 @@ export async function runValidateGate(
     ctx.log?.('validate PASS, writing test-evidence.json');
   } catch (e: any) {
     if (e.message?.includes('Cannot enter TEST')) throw e;
-    actor.stop();
     const message = e instanceof Error ? e.message : String(e);
     try {
       store.writeTestEvidence(storyId, {
@@ -231,24 +239,28 @@ export async function runValidateGate(
  * 这份 checklist，强制主 agent 读一遍多层验证状态。对应 OMX ralph 的
  * <Final_Checklist>。
  *
- * On gate failure this stops `actor` and throws; on success it returns the
- * rendered checklist string. B-9027 (Story 3b): runDonePreMergeGate in
- * done-effects.ts wraps this call and returns the rendered checklist as an
- * explicit value; story_advance holds it in a local variable and passes it to
+ * On gate failure this throws; on success it returns the rendered checklist
+ * string. B-9027 (Story 3b): runDonePreMergeGate in done-effects.ts wraps this
+ * call and returns the rendered checklist as an explicit value; the
+ * orchestrator holds it in a local variable and passes it to
  * applyDoneMergeEffects for the downstream DONE merge block — no global stash.
+ *
+ * B-6974: this gate NO LONGER stops the actor on failure — actor lifecycle is
+ * owned solely by transition-orchestrator.ts, which stops it in a single
+ * finally on every exit path (including the thrown-error path here). The
+ * `actor` parameter is kept for signature stability but is no longer used.
  */
 export function runDoneOracleGate(
   storyId: string,
   store: StoryStore,
   root: string,
-  actor: { stop(): void },
+  _actor: { stop(): void },
 ): string {
   const checkRows: DoneCheckRow[] = buildDoneChecklist(storyId, store, root);
   const rendered = renderDoneChecklist(storyId, checkRows);
   const failed = checkRows.filter(r => r.status === 'fail');
 
   if (failed.length > 0) {
-    actor.stop();
     const hints = failed.flatMap(r => r.hint ? [r.hint] : []);
     throw new Error(
       rendered + '\n\n' +

@@ -781,20 +781,35 @@ function assertDoneSuccessPathOutputAndOrdering(): void {
     assert.equal(existsSync(worktreePath), false, 'Step4 must remove the canonical worktree directory');
 
     // CHK-003 ④ — structural assertion: story-advance.ts is a thin shell with
-    // no inline DONE merge implementation. The real `git merge` / `git worktree
-    // remove` calls live in done-effects.ts; story-advance.ts only delegates.
-    const storyAdvanceSrc = readFileSync(
-      resolve(packageRoot, '..', 'src', 'handlers', 'story-advance.ts'),
-      'utf-8',
+    // no inline DONE merge implementation. B-6974 (Story 3c): story-advance.ts
+    // no longer references done-effects directly — it delegates one whole
+    // transition to transition-orchestrator.runStoryTransition, which owns the
+    // DONE pre/post-merge call sites (runDonePreMergeGate / applyDoneMergeEffects).
+    // The structural assertion follows the indirection: story-advance.ts must
+    // delegate to the orchestrator, and the orchestrator must own the DONE
+    // merge call sites. Neither file may carry an inline git merge / git
+    // worktree remove implementation (that lives only in done-effects.ts).
+    const handlersDir = resolve(packageRoot, '..', 'src', 'handlers');
+    const storyAdvanceSrc = readFileSync(join(handlersDir, 'story-advance.ts'), 'utf-8');
+    const orchestratorSrc = readFileSync(join(handlersDir, 'transition-orchestrator.ts'), 'utf-8');
+    assert.ok(
+      storyAdvanceSrc.includes('runStoryTransition') && storyAdvanceSrc.includes('renderTransitionResult'),
+      'story-advance.ts must delegate to transition-orchestrator.ts (runStoryTransition / renderTransitionResult)',
     );
     assert.ok(
-      storyAdvanceSrc.includes('applyDoneMergeEffects') && storyAdvanceSrc.includes('runDonePreMergeGate'),
-      'story-advance.ts must delegate to done-effects.ts (runDonePreMergeGate / applyDoneMergeEffects)',
+      orchestratorSrc.includes('applyDoneMergeEffects') && orchestratorSrc.includes('runDonePreMergeGate'),
+      'transition-orchestrator.ts must own the DONE pre/post-merge call sites (runDonePreMergeGate / applyDoneMergeEffects)',
     );
+    const inlineMergeImpl = /'merge',\s*branch|"merge",\s*branch|\[\s*'worktree',\s*'remove'/;
     assert.doesNotMatch(
       storyAdvanceSrc,
-      /'merge',\s*branch|"merge",\s*branch|\[\s*'worktree',\s*'remove'/,
+      inlineMergeImpl,
       'story-advance.ts must not carry an inline git merge / git worktree remove implementation',
+    );
+    assert.doesNotMatch(
+      orchestratorSrc,
+      inlineMergeImpl,
+      'transition-orchestrator.ts must not carry an inline git merge / git worktree remove implementation',
     );
   } finally {
     rmSync(root, { recursive: true, force: true });

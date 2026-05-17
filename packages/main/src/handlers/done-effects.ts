@@ -225,6 +225,12 @@ function assertDoneMergeCanApplyBeforeStateMutation(storyId: string, worktreePat
  * Returns the rendered DONE checklist string so the caller can hold it in a
  * local variable and pass it to applyDoneMergeEffects (replaces the old
  * cross-actor.send global stash).
+ *
+ * B-6974: this gate NO LONGER stops the actor on failure — actor lifecycle is
+ * owned solely by transition-orchestrator.ts, which stops it in a single
+ * finally on every exit path. The `actor` parameter is kept for signature
+ * stability and is forwarded to runDoneOracleGate (which also no longer stops
+ * it).
  */
 export async function runDonePreMergeGate(
   storyId: string,
@@ -272,7 +278,10 @@ export async function runDonePreMergeGate(
         if (offenders.length > 0) {
           // 复用 cleanStrayWorktreeFiles 的 throw 消息（单一真相源），
           // 传入 worktreePath 让消息含 git worktree remove / branch -d 指引。
-          actor.stop();
+          // B-6974: the actor-stop call this path used to make was removed —
+          // actor lifecycle is owned solely by transition-orchestrator.ts,
+          // which stops it in a single finally on every exit path (including
+          // this thrown-error path).
           cleanStrayWorktreeFiles(mainRepoRoot, storyId, worktreeRoot);
           // cleanStrayWorktreeFiles 在有 offender 时必然 throw；能到这行
           // 说明逻辑偏离，fallback：主动抛错避免 phase 默认落盘。
