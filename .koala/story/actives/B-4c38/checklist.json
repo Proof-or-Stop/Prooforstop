@@ -25,7 +25,7 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "Hold .koala/runtime/done-main-merge.lock and run story_advance DONE for a TEST story -> command fails before phase=DONE; story remains TEST; output includes retry hint",
+            "desc": "Hold .koala/runtime/done-main-merge.lock and run story_advance DONE for a TEST story -> command fails before checkMainDivergence/autoSyncMain and before phase=DONE; story remains TEST; output includes retry hint",
             "type": "cli",
             "priority": "must"
           },
@@ -44,7 +44,7 @@
         ],
         "adversarial": [
           {
-            "desc": "If lock is acquired only inside applyDoneMergeEffects after writeStory, contention test must fail because story becomes DONE; smoke catches this regression",
+            "desc": "If lock is acquired only after checkMainDivergence/autoSyncMain or inside applyDoneMergeEffects, contention test must fail because main/phase can mutate; smoke catches this regression",
             "type": "logic",
             "priority": "must"
           }

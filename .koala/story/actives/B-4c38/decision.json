@@ -3,7 +3,7 @@
     "fail-closed before phase mutation: lock contention must stop before phase=DONE is written",
     "explicit operator recovery: merging a partial-DONE branch back to main is too important to hide inside generic doctor --repair",
     "single critical section: DONE preflight through merge/worktree cleanup must be serialized by one shared lock",
-    "reuse existing primitives: build on withMkdirLock and existing worktree cleanup helpers instead of inventing a second lock system"
+    "truth-source sync: new operator-facing lifecycle commands must update story-lifecycle docs"
   ],
   "drivers": [
     "B-9027 produced a real partial-DONE after concurrent main merge activity",
@@ -48,10 +48,10 @@
   "rationale": "Choose A. The lock closes the actual race before phase=DONE is written, doctor detection makes partial-DONE visible, and an explicit done_recover command gives operators a deliberate, auditable way to complete merge/worktree/branch cleanup. B is incomplete because it leaves current partial-DONE states manual. C hides a high-risk main merge behind generic doctor --repair, which is too implicit for a shared repository.",
   "preMortem": [
     {
-      "scenario": "Lock is acquired too late, after phase=DONE is already persisted",
-      "trigger": "Developer wraps only applyDoneMergeEffects instead of the whole DONE preflight-to-merge critical section",
-      "consequence": "A contending DONE can still write phase=DONE before failing, recreating partial-DONE",
-      "mitigation": "Call the lock before runDonePreMergeGate / actor.send / writeStory; smoke holds lock and asserts phase remains TEST on contention"
+      "scenario": "Lock is acquired too late, after autoSyncMain or phase=DONE has already mutated state",
+      "trigger": "Developer wraps only runDonePreMergeGate/applyDoneMergeEffects but leaves checkMainDivergence/autoSyncMain outside the lock",
+      "consequence": "Two DONE operations can still race while syncing/merging main, recreating partial-DONE or branch drift",
+      "mitigation": "Acquire lock before the existing DONE divergence check at story-advance.ts line ~149; smoke holds lock and asserts no autoSync/phase mutation occurs"
     },
     {
       "scenario": "Stale lock blocks all future DONE forever",
@@ -70,7 +70,13 @@
       "trigger": "Detector treats any terminal worktree residue as partial-DONE even when branch already merged",
       "consequence": "Operator sees noisy recovery warnings and loses trust",
       "mitigation": "Detector separates terminal worktree residue from partial-DONE: partial-DONE requires phase DONE plus branch/worktree residue plus main not containing branch or cleanup incomplete"
+    },
+    {
+      "scenario": "new done_recover behavior ships without lifecycle documentation",
+      "trigger": "Code adds operator-facing recovery command but story-lifecycle.md still tells users to do manual git recovery",
+      "consequence": "Agents keep using handwritten recovery steps and miss the new safe path",
+      "mitigation": "Update docs/requirements/decisions/story-lifecycle.md in CHK-004 and verify docs mention doctor partial-DONE output plus done_recover"
     }
   ],
-  "timestamp": "2026-05-17T03:30:15.799Z"
+  "timestamp": "2026-05-17T03:34:24.387Z"
 }
