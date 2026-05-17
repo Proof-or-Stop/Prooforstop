@@ -33,6 +33,22 @@
       "files": [
         ".githooks/pre-push"
       ]
+    },
+    {
+      "id": "B-eab3:F-003",
+      "desc": ".githooks/pre-push:52,79 /tmp/pre-push-main-build.log 和 /tmp/pre-push-tsc-$COUNT.log 在 hook 完成后未清理。(1) 并发 push 场景（多个 worktree 同时 push）会产生 /tmp/pre-push-tsc-1.log 等同名文件互相覆盖，可能导致错误日志被截断或混淆。(2) 历次 push 在 /tmp 积累日志文件（每次 push 生成 1+N 个文件，N = tsconfig 数量）。建议用 mktemp 生成唯一临时文件，或在 trap EXIT 里清理。",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-17T03:09:17.328Z",
+      "reviewRound": "2026-05-17T03:06:50.495Z",
+      "reviewRunId": "B-eab3:RR-002",
+      "_hash": "73a25f94b1b0ac461d3dfe73f2944e2039125aa7d23ee3c703affb8214539bdf",
+      "files": [
+        ".githooks/pre-push"
+      ]
     }
   ]
 }
