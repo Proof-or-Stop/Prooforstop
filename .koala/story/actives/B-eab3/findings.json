@@ -5,7 +5,7 @@
       "desc": "doc-code-drift: CLAUDE.md（行 917）和 koala-project-overview.md（行 141）均声明 hook「实现只用 `git` / `find` / `npx tsc` / `npm run build`」，但实际 .githooks/pre-push 第 42 行还使用了 `node -e` 解析 package.json name 字段（koala 自举仓检测步骤）。`node` 未出现在文档的工具枚举中，导致文档对「不调用 koala 以外的工具」承诺的描述不完整。",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-docs",
       "createdAt": "2026-05-17T03:08:37.216Z",
