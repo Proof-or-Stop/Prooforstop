@@ -797,9 +797,11 @@ try {
 
   // B-56d3 CHK-003: validate-gate fail-closed regression.
   // The DEV->TEST koala validate gate was extracted into handlers/phase-gates.ts
-  // (runValidateGate). It must still fail-closed: a failing validate run must
-  // throw "Cannot enter TEST", stop the actor, and persist a FAIL test-evidence
-  // record — never silently advance.
+  // (runValidateGate), and B-6974 moved actor lifecycle ownership up to
+  // transition-orchestrator.ts. The gate must still fail-closed: a failing
+  // validate run must throw "Cannot enter TEST" and persist a FAIL
+  // test-evidence record — never silently advance. Direct gate calls must not
+  // stop the actor themselves.
   const { runValidateGate } = await import('../handlers/phase-gates.js');
 
   const gateFailRoot = mkdtempSync(join(tmpdir(), 'koala-validate-gate-fail-'));
@@ -828,7 +830,7 @@ try {
       /Cannot enter TEST: koala validate 未通过/,
       'runValidateGate must block TEST when koala validate fails',
     );
-    assert.equal(stopped, true, 'runValidateGate must stop the actor on validate failure (fail-closed)');
+    assert.equal(stopped, false, 'runValidateGate must leave actor stop to transition-orchestrator');
     assert.equal(store.readTestEvidence(storyId)?.result, 'FAIL', 'validate FAIL must persist a FAIL test-evidence record');
   } finally {
     rmSync(gateFailRoot, { recursive: true, force: true });

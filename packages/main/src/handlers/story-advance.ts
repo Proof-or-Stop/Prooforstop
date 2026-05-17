@@ -1,13 +1,9 @@
 
 import type { HandlerContext } from './context.js';
 import type { StoryPhase } from '../core/types.js';
-// B-6974 (Lifecycle Phase 2, Story 3c): transition coordination extracted into
-// handlers/transition-orchestrator.ts. story_advance now delegates one whole
-// transition to runStoryTransition and only formats the structured result via
-// renderTransitionResult — external CLI behavior / phase-write timing / DONE
-// pre/post-merge semantics are byte-identical. The orchestrator owns the actor
-// lifecycle (create/start/send/stop) and the DONE merge lock scope; the actor
-// is stopped exactly once in the orchestrator's finally on every exit path.
+// B-6974: thin story_advance handler. Transition coordination lives in
+// handlers/transition-orchestrator.ts; this file keeps only the public command
+// entrypoint and legacy exports.
 import { runStoryTransition, renderTransitionResult } from './transition-orchestrator.js';
 
 // B-9d95 CHK-003: re-export 供 DONE merge 前 stray 文件清理。主实现在独立
@@ -25,12 +21,7 @@ export { buildDoneChecklist, type DoneCheckRow } from '../core/done-oracle.js';
 
 export function createStoryAdvanceHandlers(ctx: HandlerContext) {
   return {
-    // B-6974 (Story 3c): thin handler — parse args, delegate the whole
-    // transition to runStoryTransition (which owns actor lifecycle + DONE
-    // merge lock scope + pre/post gate ordering), then format the structured
-    // result. The transition-coordination body that previously lived inline
-    // here moved verbatim (behavior-preserving) into
-    // handlers/transition-orchestrator.ts.
+    // B-6974: parse args, delegate, format.
     async story_advance(args: {
       storyId: string;
       phase: StoryPhase;

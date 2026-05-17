@@ -2797,14 +2797,15 @@ function assertDeclaredArtifactDoneCommittedRow(): void {
 }
 
 /**
- * B-56d3 CHK-003: phase-gates.ts + transition-effects.ts extraction contract.
+ * B-56d3/B-6974 CHK-003: phase-gates.ts + transition-effects.ts +
+ * transition-orchestrator.ts extraction contract.
  *
  * Proves the Lifecycle Phase 2 Story 3a extraction is behavior-preserving:
  *
- *  1. Static layering (preMortem #2): phase-gates.ts and transition-effects.ts
- *     do NOT import handlers/story-advance.js (no circular import); and
- *     story-advance.ts no longer contains the inline gate-runner / effect
- *     bodies — it delegates.
+ *  1. Static layering (preMortem #2): phase-gates.ts, transition-effects.ts,
+ *     and transition-orchestrator.ts do NOT import handlers/story-advance.js
+ *     (no circular import); story-advance.ts is only the public command shell,
+ *     and transition-orchestrator.ts owns the transition sequence.
  *  2. Fail-closed gate behavior (preMortem #1): runValidateGate still blocks
  *     TEST when koala validate fails (allPass=false) AND when validate output
  *     is non-JSON (JSON-parse failure); runReviewToTestPreflightGate still
@@ -2818,11 +2819,13 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
   // --- 1. Static layering check ---
   const phaseGatesSrc = readFileSync(join(srcRoot, 'handlers', 'phase-gates.ts'), 'utf-8');
   const transitionEffectsSrc = readFileSync(join(srcRoot, 'handlers', 'transition-effects.ts'), 'utf-8');
+  const transitionOrchestratorSrc = readFileSync(join(srcRoot, 'handlers', 'transition-orchestrator.ts'), 'utf-8');
   const storyAdvanceSrc = readFileSync(join(srcRoot, 'handlers', 'story-advance.ts'), 'utf-8');
 
   for (const [name, src] of [
     ['phase-gates.ts', phaseGatesSrc],
     ['transition-effects.ts', transitionEffectsSrc],
+    ['transition-orchestrator.ts', transitionOrchestratorSrc],
   ] as const) {
     const importLines = src
       .split('\n')
@@ -2834,16 +2837,31 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
       `${name} must not import from handlers/story-advance.js (circular import guard — preMortem #2)`,
     );
   }
-  // story-advance.ts must delegate, not inline the gate/effect bodies.
+  // story-advance.ts must delegate, not import or inline the gate/effect bodies.
   assert.match(
     storyAdvanceSrc,
-    /from '\.\/phase-gates\.js'/,
-    'story-advance.ts must delegate the gate runner to handlers/phase-gates.js',
+    /runStoryTransition/,
+    'story-advance.ts must delegate the transition to handlers/transition-orchestrator.js',
   );
   assert.match(
     storyAdvanceSrc,
+    /renderTransitionResult/,
+    'story-advance.ts must format transition-orchestrator results',
+  );
+  assert.doesNotMatch(
+    storyAdvanceSrc,
+    /from '\.\/(?:phase-gates|transition-effects|done-effects)\.js'/,
+    'story-advance.ts must not import gate/effect modules directly',
+  );
+  assert.match(
+    transitionOrchestratorSrc,
+    /from '\.\/phase-gates\.js'/,
+    'transition-orchestrator.ts must own the phase-gates dependency',
+  );
+  assert.match(
+    transitionOrchestratorSrc,
     /from '\.\/transition-effects\.js'/,
-    'story-advance.ts must delegate non-DONE effects to handlers/transition-effects.js',
+    'transition-orchestrator.ts must own the transition-effects dependency',
   );
   // The inline gate body markers are gone — story-advance.ts no longer
   // re-implements the preflight orchestration or the inline validate gate.
@@ -2864,13 +2882,23 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
   // validate-FAIL and preflight-FAIL paths below are exercised behaviorally.
   assert.match(
     phaseGatesSrc,
-    /if \(e\.message\?\.includes\('Cannot enter TEST'\)\) throw e;\s*\n\s*actor\.stop\(\);/,
-    'runValidateGate catch must rethrow gate errors then stop the actor (fail-closed) before the 执行异常 throw',
+    /if \(e\.message\?\.includes\('Cannot enter TEST'\)\) throw e;/,
+    'runValidateGate catch must rethrow gate errors before the 执行异常 throw',
   );
   assert.match(
     phaseGatesSrc,
-    /if \(e\?\.message\?\.startsWith\('Cannot enter TEST'\)\) throw e;\s*\n\s*\/\/[^\n]*\n\s*actor\.stop\(\);/,
-    'runReviewToTestPreflightGate catch must stop the actor on preflight infrastructure failure (fail-closed)',
+    /if \(e\?\.message\?\.startsWith\('Cannot enter TEST'\)\) throw e;/,
+    'runReviewToTestPreflightGate catch must rethrow gate errors before the 执行异常 throw',
+  );
+  assert.doesNotMatch(
+    phaseGatesSrc,
+    /actor\.stop\(\)/,
+    'phase-gates.ts must not stop the actor directly; transition-orchestrator owns the lifecycle',
+  );
+  assert.match(
+    transitionOrchestratorSrc,
+    /finally \{\s*\/\/[^\n]*\n\s*\/\/[^\n]*\n\s*\/\/[^\n]*\n\s*actor\?\.stop\(\);/s,
+    'transition-orchestrator.ts must stop the actor in a single finally',
   );
 
   // --- 2. Fail-closed gate behavior ---
@@ -2904,7 +2932,7 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
       /Cannot enter TEST: koala validate 未通过/,
       'runValidateGate must block TEST when koala validate fails',
     );
-    assert.equal(stopped, true, 'runValidateGate must stop the actor on gate failure (fail-closed)');
+    assert.equal(stopped, false, 'runValidateGate must leave actor stop to transition-orchestrator');
     // The fail-closed path still persists a FAIL test-evidence record (the
     // behavior-preserving side effect annotated in phase-gates.ts).
     assert.equal(store.readTestEvidence(storyId)?.result, 'FAIL', 'validate FAIL must persist a FAIL test-evidence record');
@@ -2948,7 +2976,7 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
       /Cannot enter TEST: CLI gate preflight/,
       'runReviewToTestPreflightGate must block TEST when a CLI gate fails (fail-closed)',
     );
-    assert.equal(stopped, true, 'runReviewToTestPreflightGate must stop the actor on gate failure (fail-closed)');
+    assert.equal(stopped, false, 'runReviewToTestPreflightGate must leave actor stop to transition-orchestrator');
   } finally {
     rmSync(preflightRoot, { recursive: true, force: true });
     resetConfigCache();
