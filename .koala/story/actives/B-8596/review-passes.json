@@ -53,6 +53,15 @@
       "reviewRound": "2026-05-17T23:25:45.324Z",
       "reviewRunId": "B-8596:RR-005",
       "_hash": "5c5d3aef9fecf6cc3b56d67b52f7aa5be62b4f23f0e3ba152708233adb53d6c0"
+    },
+    {
+      "id": "B-8596:RP-007",
+      "agent": "koala-review-docs",
+      "note": "Round 2 docs review: Step 1 extracted 0 new exported symbols (docs-only diff). Focused on commit a1e83609 runtime note in Storage section. (1) Factual accuracy confirmed: .koala/runtime/done-main-merge.lock verified as current runtime path in done-effects.ts:122 and story-lifecycle.md:120. (2) Contradiction eliminated: note explicitly cross-references story-lifecycle.md, explains .koala/locks/main-write.lock/ is preferred storage for future generalized lock, delegates reconciliation to implementation story — reader can now distinguish current vs future paths without confusion. (3) Scope contained: commit diff shows only 7-line blockquote inserted in Storage section between bullet list and lease-file sentence; no rules, other sections, or wording changed. No blockers found.",
+      "createdAt": "2026-05-17T23:27:26.708Z",
+      "reviewRound": "2026-05-17T23:25:45.324Z",
+      "reviewRunId": "B-8596:RR-008",
+      "_hash": "163c42781f41efbc0f8da6b431f043c1e20768ed3abc0c7823fbe25a5b7c5765"
     }
   ]
 }
