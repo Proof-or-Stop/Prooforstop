@@ -61,7 +61,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "koala doctor reports partial-DONE stories with storyId, branch, worktree path, whether main contains the branch, merge-tree status, and the exact done_recover command to run.",
+      "userSees": "User sees in `koala doctor`: \"Partial-DONE stories: B-xxxx branch=story/B-xxxx worktree=.worktrees/B-xxxx mainContainsBranch=false mergeTree=clean next=koala done_recover --storyId=B-xxxx\"",
       "files": {
         "modify": [
           "packages/main/src/handlers/doctor.ts"
