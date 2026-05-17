@@ -594,9 +594,9 @@
       "id": "CHK-003",
       "title": "更新 process fact registry 与 contract 校验脚本加文档",
       "context": "证据状态若被任何门禁或 audit 消费就是流程事实，必须同步 process-fact-registry 与对应 contract 校验脚本（按 CLAUDE.md 流程事实双层契约要求）。文档说明证据状态模型与手动归档入口的用法。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-17T00:39:19.133Z",
       "userSees": "`node scripts/verify-process-fact-contract.mjs` 通过，evidenceState 流程事实与 gap_log 命令已登记进 process-fact-registry；AGENTS.md 有 evidenceState 模型与 gap_log 用法说明。",
       "files": {
         "modify": [
