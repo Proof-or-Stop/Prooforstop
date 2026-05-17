@@ -44,6 +44,15 @@
       "reviewRound": "2026-05-17T13:12:31.799Z",
       "reviewRunId": "B-d8aa:RR-005",
       "_hash": "d6e152210d29e4412dea3dd5d7287809f468ce586b2af4bd20b5607c47a5c668"
+    },
+    {
+      "id": "B-d8aa:RP-006",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: all 9 verificationIntent entries have fresh verificationEvidence after the docs fix; smoke covers parked INIT advisory behavior, recorded active worktree blocking, linked git worktree blocking, DONE/DISCARDED terminal exclusion, META audit container exclusion, Parked backlog advisory, and Audit backlog blocking/advisory severity/evidenceState behavior. Verified with koala verification_evidence_refresh_stale dryRun, npm --prefix packages/main run test:convergence-false-blockers, node packages/main/dist/cli.js convergence_check, and git diff --check.",
+      "createdAt": "2026-05-17T13:19:44.847Z",
+      "reviewRound": "2026-05-17T13:12:31.799Z",
+      "reviewRunId": "B-d8aa:RR-007",
+      "_hash": "9750e2238e093c8836f48000f9825d0280da231827e7deaed5beac10f71dc511"
     }
   ]
 }
