@@ -35,7 +35,7 @@
       "desc": "quality-cleanup: gap-log.ts:175-176 silent data loss — when both `sourceRefs` and `files` args are provided, line 175 sets `files: ev.sourceRefs`, then line 176 immediately overwrites with `files: args.files`, silently dropping the sourceRefs from the stored finding. Fix: merge arrays: `files: [...ev.sourceRefs, ...(args.files ?? [])]` (deduplicate if needed). Current behavior contradicts the CLI schema description that sourceRefs are \"来源溯源\" pointers intended to be stored.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "agent": "koala-review-quality",
       "createdAt": "2026-05-17T00:43:36.876Z",
       "reviewRound": "2026-05-17T00:39:52.477Z",
