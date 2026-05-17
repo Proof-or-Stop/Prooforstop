@@ -8,6 +8,15 @@
       "reviewRound": "2026-05-17T03:06:50.495Z",
       "reviewRunId": "B-eab3:RR-004",
       "_hash": "8e545845a44097c22fa019e0a0a535bee442470991980cbd5394d4911535b2b3"
+    },
+    {
+      "id": "B-eab3:RP-002",
+      "agent": "koala-review-quality",
+      "note": "审查范围：.githooks/pre-push（新增）、CLAUDE.md（hook 行为与容错段）、koala-project-overview.md（2.11段）。无死代码；类型安全不适用（bash 脚本）；I/O 壳隔离不适用（无 bridge.ts）。已注册 2 条 finding（F-002 medium / F-003 low），无 critical / high 级别阻塞项。文档更新与脚本行为一致，koala 自举仓检测条件、黑名单、构建顺序约束均有据可查。",
+      "createdAt": "2026-05-17T03:09:27.569Z",
+      "reviewRound": "2026-05-17T03:06:50.495Z",
+      "reviewRunId": "B-eab3:RR-002",
+      "_hash": "7daff1544ec8e11f9a20e29109bb48887047c909bdddef080ace96306fd1f998"
     }
   ]
 }
