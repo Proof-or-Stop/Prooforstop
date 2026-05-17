@@ -1,122 +1,101 @@
 {
   "storyId": "B-6974",
-  "checkedAt": "2026-05-17T12:22:56.109Z",
+  "checkedAt": "2026-05-17T14:39:45.710Z",
   "features": [
     {
-      "feature": "story_advance CLI 外部行为零变化（behavior-preserving，用户可见输出 byte-identical）",
-      "covered_by": "CHK-003",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:story-lifecycle.md"
-    },
-    {
-      "feature": "DONE pre-merge gate 失败时 story 仍 TEST（phase timing 不变）",
-      "covered_by": "CHK-003",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:story-lifecycle.md"
-    },
-    {
-      "feature": "DONE merge lock scope 覆盖 runDonePreMergeGate + actor.send + writeStory + applyDoneMergeEffects 全程",
+      "feature": "Create transition-orchestrator.ts in handlers/ that owns one transition actor lifecycle (create/start/send/stop)",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": "decisions:story-lifecycle.md"
+      "source": "decisions:decisions/story-lifecycle.md"
     },
     {
-      "feature": "DONE post-merge 失败 → story 已写 DONE 且显式抛出手动恢复指引",
-      "covered_by": "CHK-003",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:story-lifecycle.md"
-    },
-    {
-      "feature": "Core/Shell 分层：orchestrator 放 handlers/ 不放 core/（core import handlers 是分层倒挂）",
+      "feature": "Transition orchestrator owns DONE merge lock scope (acquireDoneMainMergeLock/release in single try/finally)",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": "decisions:stack-layering.md"
+      "source": "decisions:decisions/story-lifecycle.md"
     },
     {
-      "feature": "新建 handlers/transition-orchestrator.ts 导出 runStoryTransition",
+      "feature": "Transition orchestrator enforces runDonePreMergeGate -> actor.send -> writeStory(phase=DONE) -> applyDoneMergeEffects ordering",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": "description"
+      "source": "decisions:decisions/story-lifecycle.md"
     },
     {
-      "feature": "Actor 生命周期（create/start/send/stop）统一由 orchestrator 独占，phase-gates.ts / done-effects.ts 移除 actor.stop()",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "DONE merge lock 在 orchestrator 单一 try/finally 内结构化",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "story-advance.ts 缩减为 thin handler（参数入口 + runStoryTransition 调用 + 返回格式化 + re-export）",
+      "feature": "story_advance.ts reduced to thin handler: only arg parsing + runStoryTransition call + response formatting",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": "description"
+      "source": "decisions:decisions/story-lifecycle.md"
     },
     {
-      "feature": "pre/post gate 调用顺序显式：runDonePreMergeGate → actor.send → writeStory(phase=DONE) → applyDoneMergeEffects",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "无循环 import（orchestrator 单向 import gate/effect 模块）",
+      "feature": "Behavior-preserving refactor: all story_advance external CLI outputs byte-identical after orchestrator introduction",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": "description"
+      "source": "decisions:decisions/story-lifecycle.md"
     },
     {
-      "feature": "无 global/shared hidden handoff（不用 globalThis 传递跨函数状态）",
+      "feature": "No circular imports between transition-orchestrator.ts and coordinated modules (phase-gates / transition-effects / done-effects)",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": "description"
+      "source": "decisions:decisions/story-lifecycle.md"
     },
     {
-      "feature": "koala validate 全绿（build + flow-stability + validation-protocol + lifecycle-registry-contract + process-fact-contract + runtime-fact-contract + worktree-authority-smoke）",
+      "feature": "DONE phase timing unchanged: pre-merge gate fail keeps story in TEST, phase=DONE only written after actor.send",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": "decisions:testing-infra.md"
+      "source": "decisions:decisions/story-lifecycle.md"
     },
     {
-      "feature": "4 段 inline advisory（deps/session/baseline-risk/init-check）文本顺序与内容不变",
+      "feature": "DONE merge lock live/stale behavior preserved after orchestrator takeover",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": "description"
+      "source": "decisions:decisions/story-lifecycle.md"
     },
     {
-      "feature": "StoryPhase / legacy phase / TEST 语义 / workflow profile 不碰（属 Story 4，B-6974 明确排除）",
+      "feature": "worktree.ts dev_finish/dev_merge legacy actor lifecycle (actor.start/send/stop in those handlers)",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "understanding.constraints 明确：不碰 StoryPhase / legacy phase 类型 / TEST 语义 / workflow profile——这些属于 Story 4，不混进 B-6974",
-      "source": "description"
+      "excluded_by": "Explicitly out of scope per plan.md Scope Boundary section: worktree.ts dev_finish/dev_merge actor lifecycle is a legacy command cleanup concern separate from story_advance orchestration path; to be handled in a future story if needed",
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "Regression suite (build + flow-stability + validation-protocol + lifecycle-registry-contract + process-fact-contract + runtime-fact-contract + worktree-authority-smoke) all pass",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/testing-infra.md"
+    },
+    {
+      "feature": "No global/shared mutable state (globalThis or module-level mutable) in transition-orchestrator.ts",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "story-advance.ts does not contain inline git merge / git worktree remove / gate-runner bodies after refactor",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
     }
   ],
   "summary": {
-    "total": 15,
-    "covered": 14,
+    "total": 12,
+    "covered": 11,
     "excluded": 1,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "6981e169f6253386fe11704147951a0e467e7f2a60eb3e310b512c0d0a565fed",
+  "_hash": "74a6478ad9f2e959249a27f74d4f882e252f781fde858069d62c7600653b90fa",
   "openQuestions": []
 }
