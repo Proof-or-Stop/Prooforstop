@@ -87,6 +87,59 @@
         "test": [
           "packages/main/src/tasks/worktree-authority-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "runDoneOracleGate 返回 Cannot enter DONE（如缺 delivery-check）→ story_advance DONE 抛错含 Cannot enter DONE + story_get 显示 phase=TEST（未落盘 DONE）; WHY: 验证 done oracle gate 失败阻止 phase 写入",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "stray-file dry-run 检测到非白名单未追踪文件 → story_advance DONE 抛错含 DONE pre-merge stray + story 仍为 TEST; WHY: 验证 F-020 stray offender 拦截在 phase 落盘前",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "assertDoneMergeCanApplyBeforeStateMutation 检测到 merge-tree 冲突 → story_advance DONE 抛错含 Cannot enter DONE 或 refusing DONE cleanup + story 仍为 TEST; WHY: 验证 merge-tree dry-run gate 阻止 phase 写入",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "pre-merge gate 全过后真实 git merge 失败（如人为制造冲突）→ 抛错含「已标记为 DONE 但自动合并失败」+ 手动 cd/git merge/git worktree remove/git branch -d 四行指引 + story_get 显示 phase=DONE; WHY: 验证 post-merge 失败时 story 已 DONE 且不吞错",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "worktree cleanup 失败（git worktree remove 和 rm -rf 都失败，如权限问题模拟）→ 抛错含「已合并，但 worktree 清理未完成」+ story 已 DONE + 已成功 merge; WHY: 验证 cleanup 失败时 merge 结果保留、story 不回滚",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "三道 pre-merge gate 按顺序执行：oracle gate 先于 stray dry-run 先于 merge-tree dry-run（任一失败立即 throw 不继续后续 gate）→ 日志中只出现第一个失败的 gate 消息; WHY: 验证 gate 短路语义",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "模拟搬迁 bug：将 pre-merge gate 调用移到 store.writeStory 之后（时序错位）→ oracle gate 失败时 story_get 显示 phase=DONE（不应该）→ 此测试必须 FAIL 以证明正确实现中 gate 在落盘前; WHY: 对抗 preMortem #2 核心风险——gate 调用时机错位导致 phase 落盘不可逆",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "在 pre-merge gate 全过但 actor.send 前的时间窗口中断进程（kill -9 模拟）→ story metadata 文件中 phase 仍为 TEST（未落盘）; WHY: 对抗原子性：gate pass 到 phase 写入之间无中间态落盘",
+            "type": "logic",
+            "priority": "should"
+          },
+          {
+            "desc": "post-merge 失败的错误消息 byte-identical 对比：新 done-effects.ts 生成的错误字符串与旧 inline 实现的模板完全一致（含 cd 路径、git merge、worktree remove --force、branch -d 四条）; WHY: 验证搬迁未改错误消息文案",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
