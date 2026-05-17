@@ -831,8 +831,9 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
 
     // ── 4. Surface #1: story_advance DEV→REVIEW pre-check ──────────────────
     // story_advance for DEV→REVIEW only requires checklistAllDone guard, which
-    // is satisfied by our fixture. The handler appends the stale hint when
-    // newState ∈ {REVIEW, TEST, DONE} (story-advance.ts:1486-1496).
+    // is satisfied by our fixture. transition-orchestrator.ts appends the stale
+    // hint (via transition-effects.ts renderRelatedDocsHint) when
+    // newState ∈ {REVIEW, TEST, DONE}.
     //
     // story_advance is called FIRST because autoCommitStoryMetadata creates a
     // metadata commit (advancing HEAD by one), and we want all three surfaces

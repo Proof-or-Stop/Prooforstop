@@ -80,7 +80,7 @@ export function resolveOptInReviewers(
 
 /**
  * 实时计算当前 story 的 channel（通道）。
- * 与 story-advance handler 里 DEV nextSteps 的判定保持一致：
+ * 与 transition-effects.ts 的 buildNextSteps 里 DEV nextSteps 的判定保持一致：
  *   - checklist.items.length ≤ 2 且无 riskSignals → quick
  *   - 否则                                         → normal
  */

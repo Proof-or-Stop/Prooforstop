@@ -22,8 +22,8 @@
  * on handler-only modules (review-preflight.ts, verifier.ts, HandlerContext).
  * A core/ module importing those would be a core→handlers layer violation, so
  * phase-gates.ts is placed alongside them in handlers/. It must NOT import
- * handlers/story-advance.js (no circular import — preMortem #2); story-advance
- * imports phase-gates, never the reverse.
+ * handlers/story-advance.js (no circular import — preMortem #2);
+ * transition-orchestrator imports phase-gates, never the reverse.
  */
 
 import type { HandlerContext } from './context.js';

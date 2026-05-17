@@ -23,10 +23,10 @@ export const META_STORY_ID = 'B-META-framework-audit';
 
 /**
  * Guard: meta-story 能否进 target phase。
- * 返回 null 表示允许；返回 string 是拒绝理由（供 story-advance 抛错消息使用）。
+ * 返回 null 表示允许；返回 string 是拒绝理由（供 transition-orchestrator 抛错消息使用）。
  *
  * 规则：B-META-* 前缀的 story 是容器，**任何 phase 推进都被拒**——它们不走 INIT/PLAN/DEV/
- * REVIEW/TEST/DONE 常规流程，只通过 audit round 累积 finding。若不在此处拦截，story-advance
+ * REVIEW/TEST/DONE 常规流程，只通过 audit round 累积 finding。若不在此处拦截，transition-orchestrator
  * 后续 `createStoryActor(..., 'META', ...)` 会在 xstate machine 中找不到 META 状态节点，
  * 抛出令人困惑的通用错误 `Cannot transition from META to X`。这里给出明确错误文案。
  */
@@ -72,7 +72,7 @@ export function driftHash(sectionPath: string, symbol: string, driftType: string
 
 /**
  * 幂等创建 meta-story：已存在则跳过，否则按标准 StoryInfo 写入。
- * phase=META 是特殊值（types.ts 里已加），永不进 DONE；由 story-advance 的 guard 拦截。
+ * phase=META 是特殊值（types.ts 里已加），永不进 DONE；由 transition-orchestrator 的 guard 拦截。
  */
 export function ensureMetaStory(store: StoryStore): { created: boolean; storyId: string } {
   if (store.storyExists(META_STORY_ID)) {

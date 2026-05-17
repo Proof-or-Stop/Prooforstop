@@ -3048,9 +3048,10 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
  * B-37e9 CHK-003: same-source contract for the DONE oracle.
  *
  * Proves both behaviorally and structurally that the DONE gate
- * (handlers/story-advance.ts) and session_brief's DONE pre-check
- * (handlers/session.ts) render the SAME rows from the SAME core/done-oracle.ts
- * module — no divergent re-implementation (preMortem #3 anchor).
+ * (handlers/phase-gates.ts, driven by handlers/transition-orchestrator.ts) and
+ * session_brief's DONE pre-check (handlers/session.ts) render the SAME rows
+ * from the SAME core/done-oracle.ts module — no divergent re-implementation
+ * (preMortem #3 anchor).
  *
  *  1. Behavioral: one TEST-phase story fixture drives the DONE gate path
  *     (buildDoneChecklist + renderDoneChecklist) AND the real session_brief
@@ -3136,7 +3137,7 @@ function assertDoneOracleSameSource(): void {
     };
     store.writeTestEvidence(storyId, evidence);
 
-    // Path A: the DONE gate path (story-advance.ts imports these from done-oracle.ts).
+    // Path A: the DONE gate path (phase-gates.ts imports these from done-oracle.ts).
     const gateRows = buildDoneChecklist(storyId, store, root);
     const gateRendered = renderDoneChecklist(storyId, gateRows);
     assert.ok(gateRendered.startsWith(`DONE Gate Checklist (${storyId}):`), 'DONE gate rendering header stable');

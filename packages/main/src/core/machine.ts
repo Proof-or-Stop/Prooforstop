@@ -72,7 +72,7 @@ export const storyMachine = setup({
       return getBlockingVerificationEvidenceIssues(cl).length === 0;
     },
     // B-e71f CHK-006: INIT→INIT_CHECK 硬门槛 xstate 端兜底。
-    // getGuardFailureReason 在 story-advance.ts:335 仅当 actor.can() 返回 false 时才被调用，
+    // getGuardFailureReason 在 phase-gates.ts 的 resolveGuardFailure 里仅当 actor.can() 返回 false 时才被调用，
     // 因此必须在这里给 INIT→INIT_CHECK 转换挂 guard，否则 can() 始终 true，gate 永不触发。
     // guard 与 getGuardFailureReason 共享同一判定逻辑：缺 init-check.json → false；
     // _hash 失配 → false；通过 → true。失败原因由 getGuardFailureReason 渲染人类可读消息。
@@ -219,7 +219,7 @@ export const storyMachine = setup({
     INIT: {
       on: {
         // B-e71f CHK-006: 必须挂 guard，否则 actor.can() 始终 true，
-        // story-advance.ts 的 getGuardFailureReason 失败消息渲染永不触发。
+        // phase-gates.ts 的 getGuardFailureReason 失败消息渲染永不触发。
         INIT_CHECK: { target: 'INIT_CHECK', guard: 'canEnterInitCheck' },
       },
     },

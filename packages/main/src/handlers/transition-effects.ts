@@ -5,8 +5,9 @@
  * The effect bodies were mechanically relocated here from
  * handlers/story-advance.ts with ZERO semantic change — effect order, output
  * text, and timing are byte-identical before and after the move (preMortem
- * #3). story-advance.ts now delegates to these functions in the exact same
- * order it ran them inline.
+ * #3). After the B-6974 refactor, handlers/transition-orchestrator.ts is the
+ * direct caller: its runStoryTransition delegates to these functions in the
+ * exact same order story-advance.ts ran them inline.
  *
  * What lives here:
  *   - recomputeProcessMetrics — process metrics write (writeProcessMetrics)
@@ -15,15 +16,15 @@
  *   - renderRelatedDocsHint   — relatedDocs reminder hint emission
  *   - buildNextSteps          — next-step rendering map
  *
- * NOT here: DONE merge / worktree cleanup — that stays inline in
- * story-advance.ts for Story 3b. This module only owns the non-DONE effects.
+ * NOT here: DONE merge / worktree cleanup — that lives in done-effects.ts
+ * (Story 3b). This module only owns the non-DONE effects.
  *
  * Layering: this module lives in handlers/ (NOT core/) on purpose. It depends
  * on handler-only modules (reviewer-list.ts). A core/ module importing those
  * would be a core→handlers layer violation, so transition-effects.ts is placed
  * alongside them in handlers/. It must NOT import handlers/story-advance.js
- * (no circular import — preMortem #2); story-advance imports transition-effects,
- * never the reverse.
+ * (no circular import — preMortem #2); transition-orchestrator imports
+ * transition-effects, never the reverse.
  */
 
 import type { StoryStore } from '../core/store.js';
@@ -152,8 +153,8 @@ export function renderRelatedDocsHint(
  *
  * Builds the per-phase next-step guidance map keyed by the new machine state.
  * The DEV and REVIEW entries are computed lazily (channel detection / opt-in
- * reviewer list) exactly as the inline IIFEs did. story-advance.ts indexes the
- * returned record with `nextSteps[newState]`.
+ * reviewer list) exactly as the inline IIFEs did. transition-orchestrator.ts
+ * indexes the returned record with `nextSteps[newState]`.
  */
 export function buildNextSteps(
   store: StoryStore,

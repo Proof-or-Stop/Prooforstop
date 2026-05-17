@@ -239,8 +239,9 @@ export function createSummaryHandlers(ctx: HandlerContext) {
 
 /**
  * Format a loaded summary into a markdown-ish block for DONE-advance hint
- * output. Used by story-advance.ts after successful DONE transition so the
- * agent has all the material to speak the summary back to the user in chat.
+ * output. Used by transition-orchestrator.ts after a successful DONE transition
+ * so the agent has all the material to speak the summary back to the user in
+ * chat.
  */
 export function renderSummaryForHint(summary: StorySummaryData): string {
   const lines: string[] = [];
