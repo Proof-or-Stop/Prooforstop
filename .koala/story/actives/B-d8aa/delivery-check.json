@@ -1,0 +1,36 @@
+{
+  "storyId": "B-d8aa",
+  "checkedAt": "2026-05-17T13:22:52.571Z",
+  "reviewRound": "2026-05-17T13:12:31.799Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "convergence_check hard 所有 Story 完成 只统计正在执行或已进入 worktree 流程的非终态 story；INIT 且没有 recorded worktree.path 且没有 linked story/<id> git worktree branch 的 story 是 Parked backlog advisory；META/DONE/DISCARDED 不进入 hard completion check。",
+      "status": "verified",
+      "verifiedBy": "sed docs段落 + git diff + node packages/main/dist/cli.js convergence_check",
+      "evidence": "story-lifecycle.md Convergence 中的 parked backlog 段落与 gap-analyze.ts active/parked 判定一致；convergence_check 输出 hard blockers: B-6974, B-d8aa，Parked backlog advisory: B-4622, B-d7af, B-da5b。"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/cli.js convergence_check -> 所有 Story 完成: 2 个 Story 未完成: B-6974, B-d8aa；Parked backlog: 3 个 parked backlog advisory: B-4622, B-d7af, B-da5b。B-d8aa 为当前 story，B-6974 仍 hard blocking。"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/dist/cli.js convergence_check -> Parked backlog check passed=true, detail lists B-4622, B-d7af, B-da5b as advisory; Audit backlog passed=true with 0 blocking and 4 advisory."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "npm --prefix packages/main run build -> PASS; npm --prefix packages/main run test:convergence-false-blockers -> ✓ convergence discarded smoke passed; koala validate --json -> allPass true via npm test; verification coverage 9/9; git diff --check passed."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review verified final diff, summary, transcript artifact, validation evidence, docs promise, and no B-6974 diff. Only expected hard blockers are B-6974 and current in-flight B-d8aa; parked backlog remains advisory."
+  },
+  "_hash": "f679cea0587a4f3b99a6843454563433b29b70f1bf9f21ff0e30db9f46adc1e9"
+}
