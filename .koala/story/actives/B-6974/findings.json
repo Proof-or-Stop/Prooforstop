@@ -33,6 +33,24 @@
         "packages/main/src/handlers/summary.ts",
         "packages/main/src/tasks/flow-stability-smoke.ts"
       ]
+    },
+    {
+      "id": "B-6974:F-003",
+      "desc": "concept-cleanup: 576ede76 corrected 18 stale story-advance-as-coordinator comments but missed 3 residuals: (1) done-effects.ts:352 says [but triggered from story-advance] should say transition-orchestrator; (2) reviewer-list.ts:11 says [story-advance REVIEW echo] but REVIEW echo now lives in transition-effects.ts:buildNextSteps; (3) cli-engine.ts:1594 says [story-advance can call it the same way for onPhaseChange] but onPhaseChange is now handled by transition-orchestrator via runPhaseChangeHooks, not cli-engine buildHookEnvLocal",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-05-17T15:40:43.974Z",
+      "reviewRound": "2026-05-17T15:36:54.880Z",
+      "reviewRunId": "B-6974:RR-009",
+      "_hash": "bec76c89a0a6bd47fb4bdce7a06169551b97de5c2eccba885cc4726929a0d93a",
+      "files": [
+        "packages/main/src/handlers/done-effects.ts",
+        "packages/main/src/handlers/reviewer-list.ts",
+        "packages/main/src/cli-engine.ts"
+      ]
     }
   ]
 }
