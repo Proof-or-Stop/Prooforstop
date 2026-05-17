@@ -163,6 +163,17 @@
           "headHash": "98c7b1dc6f11fd9a59e1b79c791f26a16f9a11d6",
           "materialHash": "d1a3fd2f6c2f65a4a29406c927b95a1f2784c9035d3b342d5d7b2465a33cb9ae",
           "timestamp": "2026-05-17T13:20:42.422Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/transition-orchestrator.ts",
+          "command": "grep -nE \"^import .*transition-orchestrator\" packages/main/src/handlers/{phase-gates,transition-effects,done-effects}.ts",
+          "result": "pass",
+          "note": "transition-orchestrator.ts imports phase-gates / transition-effects / done-effects; the reverse grep finds zero import statements of transition-orchestrator in those three files. Dependency graph is a one-directional DAG; tsc build passes (no circular import).",
+          "headHash": "6a14fbaa6cbc7d6dfee203da93918f94a9737360",
+          "materialHash": "d1a3fd2f6c2f65a4a29406c927b95a1f2784c9035d3b342d5d7b2465a33cb9ae",
+          "timestamp": "2026-05-17T13:20:42.911Z"
         }
       ]
     },
