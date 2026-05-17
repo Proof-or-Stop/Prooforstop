@@ -77,7 +77,18 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "开发者 grep `__koalaDoneChecklistRendered` 全仓 0 命中；DONE 成功输出仍含完整 DONE Gate Checklist 段（通过显式返回值/参数传递而非 globalThis）。",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-advance.ts",
+          "packages/main/src/handlers/done-effects.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ]
+      }
     }
   ]
 }
