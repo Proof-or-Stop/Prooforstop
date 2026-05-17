@@ -26,6 +26,15 @@
       "reviewRound": "2026-05-17T00:39:52.477Z",
       "reviewRunId": "B-3fad:RR-002",
       "_hash": "ff56531b604a19d5456df8447b51c8c42d83813976a20ae4ab58048c4a82d6da"
+    },
+    {
+      "id": "B-3fad:RP-004",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed (round 2): 44/44 verificationIntent covered, 0 required missing. Round 2 DEV fixes verified: (1) assertReviewerStatusAgreesWithGate added to evidence-state-gate-smoke.ts confirms F-001 fix — isFindingBlocking predicate now used consistently so suspected open critical no longer appears as blocker in reviewer-status display; (2) gap-log-12 in gap-log-smoke.ts confirms F-003 fix — sourceRefs+files merge/dedup. All evidence non-stale at headHash 956be7d7. No blocker gaps found.",
+      "createdAt": "2026-05-17T00:52:40.047Z",
+      "reviewRound": "2026-05-17T00:51:26.668Z",
+      "reviewRunId": "B-3fad:RR-007",
+      "_hash": "f24a08acb7b0de13a2f361fbd56435251fbbf8349adaf300015b30ac19e1deaa"
     }
   ]
 }
