@@ -131,9 +131,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-17T02:55:46.766Z",
       "userSees": "pre-merge gate 失败时用户看到 `Cannot enter DONE: ...`，`koala story_get` 显示 story 仍是 TEST；post-merge 真实 merge 失败时看到 `Story B-xxx 已标记为 DONE 但自动合并失败` + 手动 cd/git merge/git worktree remove/git branch -d 指引。",
       "files": {
         "modify": [
