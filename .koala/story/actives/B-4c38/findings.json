@@ -17,6 +17,23 @@
         "packages/main/src/handlers/done-recover.ts",
         "packages/main/src/core/partial-done-recovery.ts"
       ]
+    },
+    {
+      "id": "B-4c38:F-002",
+      "desc": "[HIGH] packages/main/src/handlers/done-recover.ts:32-85 runs a main-affecting recovery path without acquiring the DONE main-merge lock introduced in packages/main/src/handlers/done-effects.ts:122-135 and used by story_advance at packages/main/src/handlers/story-advance.ts:152-159. done_recover merges into main, removes the worktree, and deletes the story branch after only a point-in-time main cleanliness check, so a concurrent story_advance --phase=DONE or second done_recover can interleave and mutate the same repo state. Fix by taking the same done-main-merge lock for the full done_recover critical section before merge/worktree cleanup begins.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-17T03:48:57.241Z",
+      "reviewRound": "2026-05-17T03:45:37.301Z",
+      "reviewRunId": "B-4c38:RR-003",
+      "_hash": "6bf0357a1698043653448bcad60da4dfecd912657c273b21f0ce71e39cb7aebb",
+      "files": [
+        "packages/main/src/handlers/done-recover.ts",
+        "packages/main/src/handlers/done-effects.ts"
+      ]
     }
   ]
 }
