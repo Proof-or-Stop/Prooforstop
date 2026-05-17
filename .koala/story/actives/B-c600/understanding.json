@@ -5,7 +5,8 @@
     "Koala 仓库已有完整 bootstrap 入口 bin/koala.js，它加载 packages/main、packages/utils，并在 packages/lab dist 存在时注册 lab。",
     "packages/main 的 npm bin 只指向 dist/cli.js，是 core-only CLI；桌面端分发应优先覆盖完整 bootstrap。",
     "Vercel pkg 官方仓库已归档且 5.8.1 为最后版本，但仍支持把 Node CLI 与运行时打包为无需预装 Node 的可执行文件。",
-    "pkg 需要对动态 import、非 JS 资产和模板目录做显式 scripts/assets 声明，否则运行时 snapshot 里可能缺文件。"
+    "pkg 需要对动态 import、非 JS 资产和模板目录做显式 scripts/assets 声明，否则运行时 snapshot 里可能缺文件。",
+    "ESM/snapshot 兼容性和跨平台 target 限制会用两级脚本处理：host smoke 证明当前产物真实可运行，release targets 负责生成桌面端要携带的多平台二进制。"
   ],
   "constraints": [
     "遵守 Koala story 流程：PLAN 阶段只记录理解和决策，代码改动进入 DEV 后进行。",
@@ -13,18 +14,15 @@
     "实现必须可在本机 smoke 验证产物本身，而不是只验证 build 命令退出码。",
     "方案要简单直接，适合初期桌面端发布，不一次性引入完整 installer 或签名流水线。"
   ],
-  "unknowns": [
-    "pkg 对当前 ESM bootstrap 的动态 import 支持是否足够，需要在 DEV 中用实际产物 smoke 测试确认。",
-    "跨平台全部目标是否能在当前 macOS 主机构建成功，可能需要提供 host smoke 与 release targets 两级脚本。"
-  ],
+  "unknowns": [],
   "touchpoints": [
     "package.json",
     "package-lock.json",
-    "bin/koala.js",
     "bin/bootstrap-runner.js",
-    "scripts/",
+    "scripts/package-desktop.mjs",
+    "scripts/verify-desktop-package.mjs",
     "README.md",
     ".gitignore"
   ],
-  "timestamp": "2026-05-17T22:58:28.369Z"
+  "timestamp": "2026-05-17T23:00:10.623Z"
 }
