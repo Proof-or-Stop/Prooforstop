@@ -53,6 +53,15 @@
       "reviewRound": "2026-05-17T03:16:26.070Z",
       "reviewRunId": "B-eab3:RR-006",
       "_hash": "9abc54758247aa9e5b5205752352e46591348f0a469e4153c9e84054d6acf7ff"
+    },
+    {
+      "id": "B-eab3:RP-007",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 已检查全部 7 条 verificationIntent(CHK-001 happy×2 + edge×1 + adversarial×1; CHK-002 happy×1 + edge×1 + adversarial×1)与 verificationEvidence 覆盖关系。所有 must intent 均有 result=pass 的有效 evidence；materialHash 已在 Round 3 刷新(338fc2c4 / 7edd7142)；commit e4987fe6 仅改 pre-push 头注释、无逻辑变动，证据仍对应当前代码。无 blocker。",
+      "createdAt": "2026-05-17T03:25:40.302Z",
+      "reviewRound": "2026-05-17T03:24:32.542Z",
+      "reviewRunId": "B-eab3:RR-012",
+      "_hash": "9c9eff7bb073384d395d0304a14e76ee26808b45226147df3452546f14e5d89c"
     }
   ]
 }
