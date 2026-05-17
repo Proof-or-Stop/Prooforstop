@@ -69,6 +69,18 @@
           "headHash": "50f1ef7a17823f4d1f5739998170c64ad7820754",
           "materialHash": "7d2679ad7c13b2fc844688a39fe0e5130204bb8990a8f92167537b5b0d6a922a",
           "timestamp": "2026-05-17T13:03:06.143Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/convergence-discarded-smoke.ts",
+          "command": "npm --prefix packages/main run test:convergence-false-blockers",
+          "result": "pass",
+          "note": "Smoke asserts DONE, DISCARDED, and META stay excluded from hard Story completion.",
+          "headHash": "98bbeaf93274057a7e54642d930afb63be0b1e94",
+          "materialHash": "7d2679ad7c13b2fc844688a39fe0e5130204bb8990a8f92167537b5b0d6a922a",
+          "timestamp": "2026-05-17T13:03:06.745Z"
         }
       ]
     },
