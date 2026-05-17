@@ -4,7 +4,7 @@
   "title": "Audit/finding channel evidence-state discipline and manual archival entry",
   "description": "让 koala 的 audit/finding 通道继承 bug 通道的证据纪律：给 finding 加 suspected / verified / disproven 证据状态模型，未复现或无源码证据的 finding 不能呈现成 confirmed bug；并补一个不依赖 reviewer / review round 的手动归档入口，让人工发现的框架 gap 能干净进 audit backlog。",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "medium",
   "keywords": [
     "audit-finding",
@@ -85,6 +85,14 @@
       "timestamp": "2026-05-17T00:51:27.770Z",
       "reviewer": "behavior",
       "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-05-17T00:55:00.972Z",
+      "branch": "story/B-3fad",
+      "user": "Harmonygo",
       "agent": "main"
     }
   ],
