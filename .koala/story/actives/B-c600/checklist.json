@@ -8,9 +8,9 @@
         "README.md",
         "AGENTS.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-17T23:03:11.092Z",
-      "endTime": null,
+      "endTime": "2026-05-17T23:20:21.191Z",
       "userSees": "发布维护者运行 `npm run package:desktop:host` 时看到 pkg build 输出，并在 `dist/desktop/` 下生成当前平台的 `koala-<platform>-<arch>` 可执行文件。",
       "files": {
         "modify": [
@@ -45,7 +45,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm run package:desktop:host && npm run package:desktop:release",
+          "result": "pass",
+          "note": "Host packaging created dist/desktop/koala-macos-arm64 and release packaging created macos-x64, macos-arm64, linux-x64, and win-x64 executables.",
+          "headHash": "016d284c81a2037d47a7749807cb70c608ae00c8",
+          "materialHash": "d7373c0c921130ce9818332e6ddd6053ca2d033f4f51787e4d4456b15aa4f33a",
+          "timestamp": "2026-05-17T23:20:21.253Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm run package:desktop:host",
+          "result": "pass",
+          "note": "Reran host packaging with existing dist/desktop artifacts present; command rebuilt packages and overwrote the host binary without failing.",
+          "headHash": "016d284c81a2037d47a7749807cb70c608ae00c8",
+          "materialHash": "d7373c0c921130ce9818332e6ddd6053ca2d033f4f51787e4d4456b15aa4f33a",
+          "timestamp": "2026-05-17T23:20:21.298Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm run test:desktop-package",
+          "result": "pass",
+          "note": "The packaged binary was executed directly and aux_doc_list --help succeeded, proving the artifact uses the full bootstrap rather than core-only packages/main/dist/cli.js.",
+          "headHash": "016d284c81a2037d47a7749807cb70c608ae00c8",
+          "materialHash": "d7373c0c921130ce9818332e6ddd6053ca2d033f4f51787e4d4456b15aa4f33a",
+          "timestamp": "2026-05-17T23:20:21.346Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
