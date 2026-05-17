@@ -484,7 +484,20 @@
             "priority": "should"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/done-effects.ts",
+          "command": "grep -rn __koalaDoneChecklistRendered packages/main/src/ | wc -l",
+          "result": "pass",
+          "note": "grep -rn __koalaDoneChecklistRendered packages/main/src/ 返回 0 行匹配——globalThis 跨 actor.send stash 已彻底清除，改为 runDonePreMergeGate 显式 return rendered checklist",
+          "headHash": "cf3178c5ddef1f307498a73cc5b673a43f6ad467",
+          "materialHash": "3290635829f124d6b4717a75c203a1a8870a7441759df1742e865f83e3e7d3ad",
+          "timestamp": "2026-05-17T02:54:59.074Z"
+        }
+      ]
     }
   ]
 }
