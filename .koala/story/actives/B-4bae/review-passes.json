@@ -8,6 +8,15 @@
       "reviewRound": "2026-05-17T12:01:05.480Z",
       "reviewRunId": "B-4bae:RR-002",
       "_hash": "b1d6edb50f324d20f53dbafbd0a3e393a014034558cb446b9ac2026973e0f783"
+    },
+    {
+      "id": "B-4bae:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "Coverage pass: CHK-001 happy/edge/adversarial are covered by current convergence_check output and convergence-discarded smoke; CHK-002 happy/edge are covered by finding_list transcript and adversarial reuses the smoke for verified high/critical blockers. Re-ran node packages/main/dist/cli.js convergence_check, npm --prefix packages/main run test:convergence-false-blockers, koala finding_list, and dry-run verification_evidence_refresh_stale; all pass/no stale evidence.",
+      "createdAt": "2026-05-17T12:03:41.823Z",
+      "reviewRound": "2026-05-17T12:01:05.480Z",
+      "reviewRunId": "B-4bae:RR-003",
+      "_hash": "21cbfa52fbfcbc32a1b77814f1aa0862666852e12c9472dc46c03f3b4bcfdc1c"
     }
   ]
 }
