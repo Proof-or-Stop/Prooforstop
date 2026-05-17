@@ -140,6 +140,7 @@ async function assertDoctorRepairCleansAndProtects(): Promise<void> {
 
     const before = JSON.parse(await runKoala(root, 'doctor', { format: 'json' }));
     assert.equal(before.worktrees.needsRepair, true);
+    assert.equal(before.partialDone.needsRecovery, false, 'terminal/active worktree residue is not partial-DONE');
     assert(before.worktrees.terminalRegistered.some((p: string) => p.includes('B-termreg')));
     assert(before.worktrees.orphanDirs.some((p: string) => p.includes('B-orphan')));
 
@@ -227,6 +228,7 @@ async function assertDoctorDetectsPartialDoneAndRecoverRepairs(): Promise<void> 
 
     const after = JSON.parse(await runKoala(root, 'doctor', { format: 'json' }));
     assert.equal(after.partialDone.needsRecovery, false);
+    assert.equal(after.worktrees.needsRepair, false);
     assert.equal(new StoryStore(root).readStory(storyId).phase, 'DONE');
     assert.equal(git(root, ['branch', '--list', `story/${storyId}`]), '');
     assert.doesNotMatch(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`story/${storyId}`));
@@ -253,9 +255,61 @@ async function assertDoneRecoverRefusesDirtyMain(): Promise<void> {
   }
 }
 
+async function assertDoneRecoverRefusesMergeTreeConflict(): Promise<void> {
+  const root = initRepo('koala-partial-done-conflict-');
+  try {
+    const storyId = 'B-partial-conflict';
+    const store = new StoryStore(root);
+    store.writeStory(storyId, story(storyId, 'INIT_CHECK', true));
+    write(root, 'conflict.txt', 'base\n');
+    commitStories(root);
+    addStoryWorktree(root, storyId);
+    const worktreePath = join(root, '.worktrees', storyId);
+    writeFileSync(join(worktreePath, 'conflict.txt'), 'story branch version\n');
+    const worktreeStore = new StoryStore(worktreePath);
+    worktreeStore.writeStory(storyId, story(storyId, 'DONE'));
+    git(worktreePath, ['add', '.']);
+    git(worktreePath, ['commit', '-m', `koala: mark ${storyId} DONE with conflict`]);
+
+    writeFileSync(join(root, 'conflict.txt'), 'main branch version\n');
+    git(root, ['add', 'conflict.txt']);
+    git(root, ['commit', '-m', 'main edits conflict']);
+
+    const before = JSON.parse(await runKoala(root, 'doctor', { format: 'json' }));
+    assert.equal(before.partialDone.needsRecovery, true);
+    assert.equal(before.partialDone.stories[0].mergeTreeClean, false);
+
+    const output = await runKoalaExpectFail(root, 'done_recover', { storyId });
+    assert.match(output, /cannot merge cleanly into main/);
+    assert.notEqual(git(root, ['branch', '--list', `story/${storyId}`]), '');
+    assert.match(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`story/${storyId}`));
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+async function assertDoneRecoverRefusesMissingBranchWithoutDeletingUnrelated(): Promise<void> {
+  const root = initRepo('koala-partial-done-missing-branch-');
+  try {
+    const storyId = 'B-missing-branch';
+    const store = new StoryStore(root);
+    store.writeStory(storyId, story(storyId, 'DONE'));
+    commitStories(root);
+    git(root, ['branch', 'story/B-unrelated']);
+
+    const output = await runKoalaExpectFail(root, 'done_recover', { storyId });
+    assert.match(output, /not a recoverable partial-DONE story/);
+    assert.notEqual(git(root, ['branch', '--list', 'story/B-unrelated']), '', 'unrelated story branch must not be deleted');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 await assertDoctorRepairCleansAndProtects();
 await assertStoryDiscardRepairsMissingRegistry();
 await assertDoctorDetectsPartialDoneAndRecoverRepairs();
 await assertDoneRecoverRefusesDirtyMain();
+await assertDoneRecoverRefusesMergeTreeConflict();
+await assertDoneRecoverRefusesMissingBranchWithoutDeletingUnrelated();
 
 console.log('✓ worktree repair smoke passed');

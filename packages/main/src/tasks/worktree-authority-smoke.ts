@@ -1033,6 +1033,36 @@ function assertDoneMainMergeLiveLockFailsBeforeMutation(): void {
   }
 }
 
+function assertDoneMainMergeLockBlocksBeforeAutoSyncMain(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-done-main-lock-before-sync-'));
+  try {
+    const storyId = 'B-lock-before-sync';
+    const { worktreePath } = buildDoneReadyStory(root, storyId);
+    writeFileSync(join(root, 'main-only-after-story-branch.txt'), 'main commit that lock must not auto-sync\n');
+    git(root, ['add', 'main-only-after-story-branch.txt']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'main moves after story branch']);
+    const mainHeadAfterBranch = git(root, ['rev-parse', 'main']);
+    const lockDir = join(root, '.koala', 'runtime', 'done-main-merge.lock');
+    mkdirSync(lockDir, { recursive: true });
+
+    const output = runKoalaFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
+    assert.match(output, /DONE main merge lock is held/, 'live DONE lock must fail before autoSyncMain');
+    assert.equal(new StoryStore(worktreePath).readStory(storyId).phase, 'TEST', 'lock-before-sync failure must leave story TEST');
+    assert.equal(
+      gitSucceeds(root, ['merge-base', '--is-ancestor', mainHeadAfterBranch, `story/${storyId}`]),
+      false,
+      'DONE lock must be acquired before autoSyncMain can merge main into the story branch',
+    );
+    assert.equal(
+      existsSync(join(worktreePath, 'main-only-after-story-branch.txt')),
+      false,
+      'DONE lock must fail before autoSyncMain can materialize main-only files in the worktree',
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 /**
  * B-4c38 CHK-001 — stale DONE locks are reclaimed rather than deadlocking all
  * future DONE transitions. The stale timestamp is older than the production
@@ -1074,6 +1104,7 @@ assertMergeConflictPreMergeGateKeepsStoryTest();
 assertRealMergeFailureMarksDoneAndThrows();
 assertWorktreeCleanupFailureMarksDoneMergedAndThrows();
 assertDoneMainMergeLiveLockFailsBeforeMutation();
+assertDoneMainMergeLockBlocksBeforeAutoSyncMain();
 assertDoneMainMergeStaleLockIsReclaimed();
 
 console.log('✓ worktree authority smoke passed');
