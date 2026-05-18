@@ -505,7 +505,20 @@
         "test": [
           "packages/main/src/tasks/main-write-lock-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "node dist/tasks/worktree-authority-smoke.js",
+          "result": "pass",
+          "note": "assertConcurrentDoneSerializesWithoutPartialDone spawns two real concurrent story_advance DONE OS processes on the same DONE-ready story; asserts exactly one wins (story=DONE, branch merged into main) and exactly one fails, with no two-winner and no partial-DONE.",
+          "headHash": "2b9f4e055f52c357fc38be817d59da298c3cc245",
+          "materialHash": "cd71fb9bbdf4c4f35d797ea9f1473f9865d94c5be3a13742d9cd15cddd2d45fb",
+          "timestamp": "2026-05-18T12:57:58.582Z"
+        }
+      ]
     }
   ]
 }
