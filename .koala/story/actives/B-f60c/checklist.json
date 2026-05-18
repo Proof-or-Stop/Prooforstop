@@ -423,6 +423,17 @@
           "headHash": "33ce445f18325a54f9a9edeceed81caf2a4f37ba",
           "materialHash": "e27e5f5d5c9a97083032aad259df8cbd70ef35cc9056b1ff7572f8c1ed1b1e57",
           "timestamp": "2026-05-18T12:49:37.663Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-doctor-smoke.ts",
+          "command": "node packages/main/dist/tasks/main-write-lock-doctor-smoke.js",
+          "result": "pass",
+          "note": "smoke section 4 backdates a held main write lock dir mtime past the 120s stale window and asserts scanMainWriteLock classifies it state=stuck and renderMainWriteLockScan emits a ⚠ STUCK report naming the holder; doctor.ts wires this scan into both text and json output.",
+          "headHash": "c630362ff794c1d6aa5a295b2e01d536603c7473",
+          "materialHash": "e27e5f5d5c9a97083032aad259df8cbd70ef35cc9056b1ff7572f8c1ed1b1e57",
+          "timestamp": "2026-05-18T12:49:43.590Z"
         }
       ]
     },
