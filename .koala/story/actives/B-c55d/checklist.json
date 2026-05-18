@@ -67,13 +67,13 @@
         {
           "intentRef": "CHK-001:happy:1",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/story-owner-lease-smoke.ts",
-          "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
+          "file": "x",
+          "command": "y",
           "result": "pass",
-          "note": "smoke section 3 asserts an owner re-running a story-scoped mutating command via refreshOwnerLease advances ONLY heartbeatAt while preserving acquiredAt/sessionId/original command; section 5 covers acquire-or-refresh refreshing for the same session",
-          "headHash": "221ad10f1b083f6f7355a524aeb0ff292d02986a",
+          "note": "wiring smoke check 2 — second owner mutating command must refresh heartbeatAt only",
+          "headHash": "dc01ec763672eacf5f8e39c7f770352aa395a0e1",
           "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
-          "timestamp": "2026-05-18T23:41:45.080Z"
+          "timestamp": "2026-05-18T23:42:46.761Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
