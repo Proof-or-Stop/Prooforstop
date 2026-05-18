@@ -342,6 +342,17 @@
           "headHash": "4e29cc8825049347777856cf1a514ca81343ab7f",
           "materialHash": "c9852706994ff3ce8512e519e775c2dacd760a2944e7d4cedc8410c4fde04048",
           "timestamp": "2026-05-18T12:38:21.355Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-smoke.ts",
+          "command": "node packages/main/dist/tasks/main-write-lock-smoke.js",
+          "result": "pass",
+          "note": "lock smoke test 2+4：live 锁被持有时第二个 acquire fail-fast 抛 blocking 错误，恰好一个 acquirer 成功，无双重持锁/静默覆盖。长临界区(DONE/audit)用默认 fail-fast；test 8 另证 wait 模式仍 stale-reclaim。",
+          "headHash": "af2bf3d91efa6754ac9ebca535fdaff803e68b7b",
+          "materialHash": "c9852706994ff3ce8512e519e775c2dacd760a2944e7d4cedc8410c4fde04048",
+          "timestamp": "2026-05-18T12:38:31.740Z"
         }
       ]
     },
