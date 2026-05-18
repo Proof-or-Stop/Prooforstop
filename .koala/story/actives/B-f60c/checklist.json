@@ -68,9 +68,9 @@
           "command": "node dist/tasks/main-write-lock-smoke.js",
           "result": "pass",
           "note": "smoke section 1/1b acquires acquireMainWriteLock at .koala/locks/main-write.lock, asserts lock dir exists while held and removed after release; section 5 asserts canonical path constant",
-          "headHash": "c9f8efb8b1c47f886808ffefd624b932c45cd64b",
-          "materialHash": "4ce106c8da84500515209dbf3e3f23acc21c6db9ef6003887a8a8f5c68bc56c7",
-          "timestamp": "2026-05-18T12:14:19.971Z"
+          "headHash": "da2a4089e0640343ad138fbfc1137280fe467167",
+          "materialHash": "cd71fb9bbdf4c4f35d797ea9f1473f9865d94c5be3a13742d9cd15cddd2d45fb",
+          "timestamp": "2026-05-18T12:50:31.224Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -79,9 +79,9 @@
           "command": "rg \"runtime/done-main-merge.lock\" packages/main/src/",
           "result": "pass",
           "note": "rg shows zero functional references to the old path in packages/main/src/; remaining matches are only explanatory comments documenting the retirement. done-effects.ts and done-recover.ts now route through acquireMainWriteLock at the new path",
-          "headHash": "7b49daa9f17c198638e3553275b45cc2b479ba87",
-          "materialHash": "4ce106c8da84500515209dbf3e3f23acc21c6db9ef6003887a8a8f5c68bc56c7",
-          "timestamp": "2026-05-18T12:14:24.955Z"
+          "headHash": "da2a4089e0640343ad138fbfc1137280fe467167",
+          "materialHash": "cd71fb9bbdf4c4f35d797ea9f1473f9865d94c5be3a13742d9cd15cddd2d45fb",
+          "timestamp": "2026-05-18T12:50:31.224Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -90,9 +90,9 @@
           "command": "node dist/tasks/main-write-lock-smoke.js",
           "result": "pass",
           "note": "smoke section 3 backdates lock mtime past staleMs and asserts acquireMainWriteLock force-reclaims the stale lock; section 3b asserts a fresh held lock is NOT reclaimed and still blocks",
-          "headHash": "c197c040ed31a6fb99d59cd927769cdc23d642f9",
-          "materialHash": "4ce106c8da84500515209dbf3e3f23acc21c6db9ef6003887a8a8f5c68bc56c7",
-          "timestamp": "2026-05-18T12:14:31.073Z"
+          "headHash": "da2a4089e0640343ad138fbfc1137280fe467167",
+          "materialHash": "cd71fb9bbdf4c4f35d797ea9f1473f9865d94c5be3a13742d9cd15cddd2d45fb",
+          "timestamp": "2026-05-18T12:50:31.224Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -101,9 +101,9 @@
           "command": "node dist/tasks/main-write-lock-smoke.js",
           "result": "pass",
           "note": "smoke section 2+4 asserts a live held lock makes the second acquire throw a blocking error (failFastIfHeld) instead of optimistically proceeding",
-          "headHash": "ee7fdf8f419aff71629343c59e5cacf810b51253",
-          "materialHash": "4ce106c8da84500515209dbf3e3f23acc21c6db9ef6003887a8a8f5c68bc56c7",
-          "timestamp": "2026-05-18T12:14:36.586Z"
+          "headHash": "da2a4089e0640343ad138fbfc1137280fe467167",
+          "materialHash": "cd71fb9bbdf4c4f35d797ea9f1473f9865d94c5be3a13742d9cd15cddd2d45fb",
+          "timestamp": "2026-05-18T12:50:31.224Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -112,9 +112,9 @@
           "command": "node dist/tasks/main-write-lock-smoke.js",
           "result": "pass",
           "note": "smoke section 2+4 asserts exactly one of two concurrent acquirers wins (secondAcquired stays false), no double-hold; the lock is re-acquirable only after the holder releases",
-          "headHash": "28d0d0596203c535af32732233ce164a4000101f",
-          "materialHash": "4ce106c8da84500515209dbf3e3f23acc21c6db9ef6003887a8a8f5c68bc56c7",
-          "timestamp": "2026-05-18T12:14:43.186Z"
+          "headHash": "da2a4089e0640343ad138fbfc1137280fe467167",
+          "materialHash": "cd71fb9bbdf4c4f35d797ea9f1473f9865d94c5be3a13742d9cd15cddd2d45fb",
+          "timestamp": "2026-05-18T12:50:31.224Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -123,9 +123,9 @@
           "command": "rg \"main-write.lock\" docs/requirements/decisions/",
           "result": "pass",
           "note": "story-lifecycle.md and session-ownership-and-write-leases.md both name .koala/locks/main-write.lock/ as the single canonical path; story-lifecycle.md cross-references session-ownership Storage node; the old conflicting runtime note in session-ownership was rewritten to state the retirement, removing the two-truth-source conflict",
-          "headHash": "30a4072f9c8ca6d4888315ed3f9ac514afd3350a",
-          "materialHash": "4ce106c8da84500515209dbf3e3f23acc21c6db9ef6003887a8a8f5c68bc56c7",
-          "timestamp": "2026-05-18T12:14:48.617Z"
+          "headHash": "da2a4089e0640343ad138fbfc1137280fe467167",
+          "materialHash": "cd71fb9bbdf4c4f35d797ea9f1473f9865d94c5be3a13742d9cd15cddd2d45fb",
+          "timestamp": "2026-05-18T12:50:31.224Z"
         }
       ]
     },
@@ -194,9 +194,9 @@
           "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
           "result": "pass",
           "note": "DONE lock spans pre-merge gate→merge→worktree cleanup: acquired at transition-orchestrator.ts:222 inside the single try, released in the finally at :432 after applyDoneMergeEffects. assertDoneMainMergeLiveLockFailsBeforeMutation / assertDoneMainMergeLockBlocksBeforeAutoSyncMain prove the lock is held before any DONE mutation.",
-          "headHash": "dc6caf7b5b1ca2c5155906f45ea7e85f6be7f549",
-          "materialHash": "2b0687b59c51418326cdb67e1f782a2af56e56594afc2138cfb98068081074fe",
-          "timestamp": "2026-05-18T12:22:17.326Z"
+          "headHash": "da2a4089e0640343ad138fbfc1137280fe467167",
+          "materialHash": "cd71fb9bbdf4c4f35d797ea9f1473f9865d94c5be3a13742d9cd15cddd2d45fb",
+          "timestamp": "2026-05-18T12:50:31.224Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -205,9 +205,9 @@
           "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
           "result": "pass",
           "note": "assertDoneSuccessPathOutputAndOrdering asserts the single-session DONE success path output (DONE Gate Checklist, advance line, merge/cleanup/branch-delete lines and Step ordering) is byte-identical; the F-008 fix only adds an INIT_CHECK commit, the DONE path is unchanged.",
-          "headHash": "9ff8f908c517534b1c5dcde365bf8d7feac9867e",
-          "materialHash": "2b0687b59c51418326cdb67e1f782a2af56e56594afc2138cfb98068081074fe",
-          "timestamp": "2026-05-18T12:22:17.794Z"
+          "headHash": "da2a4089e0640343ad138fbfc1137280fe467167",
+          "materialHash": "cd71fb9bbdf4c4f35d797ea9f1473f9865d94c5be3a13742d9cd15cddd2d45fb",
+          "timestamp": "2026-05-18T12:50:31.224Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -216,9 +216,9 @@
           "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
           "result": "pass",
           "note": "assertInitCheckLeavesNoUncommittedMainMirrorForDone replays the exact DONE Step-3 op (git merge story/<id> from main repo root) after the real INIT_CHECK CLI path; pre-fix this aborted on the untracked story-metadata mirror, post-fix it merges cleanly with no partial-DONE.",
-          "headHash": "d17186fe7264aa3c16ec3967bef3a1dd3b1c03b7",
-          "materialHash": "2b0687b59c51418326cdb67e1f782a2af56e56594afc2138cfb98068081074fe",
-          "timestamp": "2026-05-18T12:22:18.261Z"
+          "headHash": "da2a4089e0640343ad138fbfc1137280fe467167",
+          "materialHash": "cd71fb9bbdf4c4f35d797ea9f1473f9865d94c5be3a13742d9cd15cddd2d45fb",
+          "timestamp": "2026-05-18T12:50:31.224Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -227,9 +227,9 @@
           "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
           "result": "pass",
           "note": "assertInitCheckLeavesNoUncommittedMainMirrorForDone asserts git status --porcelain for the story dir is empty after story_advance INIT_CHECK and the index.json is git-tracked — INIT_CHECK no longer leaves an uncommitted main-side mirror.",
-          "headHash": "e1cc15f0b5431be7d0e399f38ad79599b595778c",
-          "materialHash": "2b0687b59c51418326cdb67e1f782a2af56e56594afc2138cfb98068081074fe",
-          "timestamp": "2026-05-18T12:22:18.730Z"
+          "headHash": "da2a4089e0640343ad138fbfc1137280fe467167",
+          "materialHash": "cd71fb9bbdf4c4f35d797ea9f1473f9865d94c5be3a13742d9cd15cddd2d45fb",
+          "timestamp": "2026-05-18T12:50:31.224Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -238,9 +238,9 @@
           "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
           "result": "pass",
           "note": "assertDoneMainMergeLiveLockFailsBeforeMutation: a live main-write lock makes a second concurrent story_advance DONE fail before phase=DONE is written (story stays TEST, branch/worktree untouched) — the lock serializes DONE, preventing a partial-DONE race.",
-          "headHash": "d2ad5ff8e7215c0e84c24c15615f2a98a644b4e0",
-          "materialHash": "2b0687b59c51418326cdb67e1f782a2af56e56594afc2138cfb98068081074fe",
-          "timestamp": "2026-05-18T12:22:19.222Z"
+          "headHash": "da2a4089e0640343ad138fbfc1137280fe467167",
+          "materialHash": "cd71fb9bbdf4c4f35d797ea9f1473f9865d94c5be3a13742d9cd15cddd2d45fb",
+          "timestamp": "2026-05-18T12:50:31.224Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -249,9 +249,9 @@
           "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
           "result": "pass",
           "note": "assertRealMergeFailureMarksDoneAndThrows / assertWorktreeCleanupFailureMarksDoneMergedAndThrows: a post-writeStory merge or cleanup failure leaves the story DONE and throws with explicit manual-recovery guidance (cd/git merge/git worktree remove/git branch -d, or koala doctor) — post-merge failure semantics preserved.",
-          "headHash": "1c2cb8af6fffbc12678e3490b3b6a639d0793e1e",
-          "materialHash": "2b0687b59c51418326cdb67e1f782a2af56e56594afc2138cfb98068081074fe",
-          "timestamp": "2026-05-18T12:22:19.782Z"
+          "headHash": "da2a4089e0640343ad138fbfc1137280fe467167",
+          "materialHash": "cd71fb9bbdf4c4f35d797ea9f1473f9865d94c5be3a13742d9cd15cddd2d45fb",
+          "timestamp": "2026-05-18T12:50:31.224Z"
         }
       ]
     },
@@ -317,9 +317,9 @@
           "command": "node packages/main/dist/tasks/main-write-lock-smoke.js",
           "result": "pass",
           "note": "gap_log/story_create/audit/B-META finding 写均改用 withReentrantMainWriteLock 包临界区；done_recover 经 acquireDoneMainMergeLock(→acquireMainWriteLockRegistered) 持锁。lock smoke test 7/7c 覆盖 reentrant + registered acquire。",
-          "headHash": "03570c7ece9b7e82727e5a14b7036cb57ae03c8f",
-          "materialHash": "c9852706994ff3ce8512e519e775c2dacd760a2944e7d4cedc8410c4fde04048",
-          "timestamp": "2026-05-18T12:38:20.400Z"
+          "headHash": "da2a4089e0640343ad138fbfc1137280fe467167",
+          "materialHash": "cd71fb9bbdf4c4f35d797ea9f1473f9865d94c5be3a13742d9cd15cddd2d45fb",
+          "timestamp": "2026-05-18T12:50:31.224Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -328,9 +328,9 @@
           "command": "node packages/main/dist/tasks/gap-log-smoke.js",
           "result": "pass",
           "note": "gap-log-8 + 8d：相同 gap 串行/并发(6 个真实子进程)登记都只产出一条 canonical finding，按 normalized desc+category+severity+evidence fingerprint dedup。",
-          "headHash": "e7a89c82b8b9782727f105fbdc0be29b84349da1",
-          "materialHash": "c9852706994ff3ce8512e519e775c2dacd760a2944e7d4cedc8410c4fde04048",
-          "timestamp": "2026-05-18T12:38:20.877Z"
+          "headHash": "da2a4089e0640343ad138fbfc1137280fe467167",
+          "materialHash": "cd71fb9bbdf4c4f35d797ea9f1473f9865d94c5be3a13742d9cd15cddd2d45fb",
+          "timestamp": "2026-05-18T12:50:31.224Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -339,9 +339,9 @@
           "command": "node packages/main/dist/tasks/gap-log-smoke.js",
           "result": "pass",
           "note": "gap-log-8b + 8d：8 个仅在单一身份通道(desc/category/severity/sourceRefs/reproCommand/observedOutput/analysisNote)不同的 gap 各得唯一 fingerprint，不被误并；并发 4 个不同 gap 全部保留。",
-          "headHash": "4e29cc8825049347777856cf1a514ca81343ab7f",
-          "materialHash": "c9852706994ff3ce8512e519e775c2dacd760a2944e7d4cedc8410c4fde04048",
-          "timestamp": "2026-05-18T12:38:21.355Z"
+          "headHash": "da2a4089e0640343ad138fbfc1137280fe467167",
+          "materialHash": "cd71fb9bbdf4c4f35d797ea9f1473f9865d94c5be3a13742d9cd15cddd2d45fb",
+          "timestamp": "2026-05-18T12:50:31.224Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -350,9 +350,9 @@
           "command": "node packages/main/dist/tasks/main-write-lock-smoke.js",
           "result": "pass",
           "note": "lock smoke test 2+4：live 锁被持有时第二个 acquire fail-fast 抛 blocking 错误，恰好一个 acquirer 成功，无双重持锁/静默覆盖。长临界区(DONE/audit)用默认 fail-fast；test 8 另证 wait 模式仍 stale-reclaim。",
-          "headHash": "af2bf3d91efa6754ac9ebca535fdaff803e68b7b",
-          "materialHash": "c9852706994ff3ce8512e519e775c2dacd760a2944e7d4cedc8410c4fde04048",
-          "timestamp": "2026-05-18T12:38:31.740Z"
+          "headHash": "da2a4089e0640343ad138fbfc1137280fe467167",
+          "materialHash": "cd71fb9bbdf4c4f35d797ea9f1473f9865d94c5be3a13742d9cd15cddd2d45fb",
+          "timestamp": "2026-05-18T12:50:31.224Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -361,9 +361,9 @@
           "command": "node packages/main/dist/tasks/main-write-lock-smoke.js",
           "result": "pass",
           "note": "lock smoke test 7/7b/7c：嵌套 withReentrantMainWriteLock(同进程同 root)走 pass-through 不再 acquire，深度 3 不自死锁；DONE 持锁内调 audit(也持锁)经 reentrancy registry 透传，throw 后 registry 清空。",
-          "headHash": "e52cefa0d3dbafe1605e7881aa03b8c495b4a89e",
-          "materialHash": "c9852706994ff3ce8512e519e775c2dacd760a2944e7d4cedc8410c4fde04048",
-          "timestamp": "2026-05-18T12:38:32.406Z"
+          "headHash": "da2a4089e0640343ad138fbfc1137280fe467167",
+          "materialHash": "cd71fb9bbdf4c4f35d797ea9f1473f9865d94c5be3a13742d9cd15cddd2d45fb",
+          "timestamp": "2026-05-18T12:50:31.224Z"
         }
       ]
     },
@@ -420,9 +420,9 @@
           "command": "node packages/main/dist/tasks/main-write-lock-doctor-smoke.js",
           "result": "pass",
           "note": "smoke section 2/3b asserts a fail-fast acquire against a live main write lock throws a holder-aware blocking error naming holder command, pid, hostname, heartbeat age, and a retry instruction; also asserts no fabricated sessionId token.",
-          "headHash": "33ce445f18325a54f9a9edeceed81caf2a4f37ba",
-          "materialHash": "e27e5f5d5c9a97083032aad259df8cbd70ef35cc9056b1ff7572f8c1ed1b1e57",
-          "timestamp": "2026-05-18T12:49:37.663Z"
+          "headHash": "da2a4089e0640343ad138fbfc1137280fe467167",
+          "materialHash": "cd71fb9bbdf4c4f35d797ea9f1473f9865d94c5be3a13742d9cd15cddd2d45fb",
+          "timestamp": "2026-05-18T12:50:31.224Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -431,9 +431,9 @@
           "command": "node packages/main/dist/tasks/main-write-lock-doctor-smoke.js",
           "result": "pass",
           "note": "smoke section 4 backdates a held main write lock dir mtime past the 120s stale window and asserts scanMainWriteLock classifies it state=stuck and renderMainWriteLockScan emits a ⚠ STUCK report naming the holder; doctor.ts wires this scan into both text and json output.",
-          "headHash": "c630362ff794c1d6aa5a295b2e01d536603c7473",
-          "materialHash": "e27e5f5d5c9a97083032aad259df8cbd70ef35cc9056b1ff7572f8c1ed1b1e57",
-          "timestamp": "2026-05-18T12:49:43.590Z"
+          "headHash": "da2a4089e0640343ad138fbfc1137280fe467167",
+          "materialHash": "cd71fb9bbdf4c4f35d797ea9f1473f9865d94c5be3a13742d9cd15cddd2d45fb",
+          "timestamp": "2026-05-18T12:50:31.224Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -442,9 +442,9 @@
           "command": "node packages/main/dist/tasks/main-write-lock-doctor-smoke.js",
           "result": "pass",
           "note": "smoke sections 5/5b assert a freshly-acquired lock and a 60s-old lock (both inside the 120s stale window) classify state=active and render an explicit \"active operation, not stuck\" report — doctor never misreports a live in-flight holder as stuck. Classification reuses the lock primitive MAIN_WRITE_LOCK_STALE_MS threshold.",
-          "headHash": "daf5b36b5faf5b361d25a3713f1612ae7191e739",
-          "materialHash": "e27e5f5d5c9a97083032aad259df8cbd70ef35cc9056b1ff7572f8c1ed1b1e57",
-          "timestamp": "2026-05-18T12:49:50.446Z"
+          "headHash": "da2a4089e0640343ad138fbfc1137280fe467167",
+          "materialHash": "cd71fb9bbdf4c4f35d797ea9f1473f9865d94c5be3a13742d9cd15cddd2d45fb",
+          "timestamp": "2026-05-18T12:50:31.224Z"
         },
         {
           "intentRef": "CHK-004:adversarial:1",
@@ -453,9 +453,9 @@
           "command": "rg -n \"sessionId|ownership rendering\" packages/main/src/core/main-write-lock.ts packages/main/src/core/mkdir-lock.ts packages/main/src/core/main-write-lock-doctor.ts packages/main/src/handlers/doctor.ts",
           "result": "pass",
           "note": "CHK-004 diff touches only mkdir-lock.ts / main-write-lock.ts / main-write-lock-doctor.ts / doctor.ts / package.json + smoke; no session_brief handler is modified. The only sessionId mentions are doc comments that explicitly state sessionId is deliberately OUT of scope (owner-lease story). The contention message and holder.json record only mechanically observable pid/hostname/command/acquiredAt — no fabricated session identity and no session_brief ownership rendering introduced.",
-          "headHash": "16c79f47373110a73498d7e680a7b693e0e3e8d6",
-          "materialHash": "e27e5f5d5c9a97083032aad259df8cbd70ef35cc9056b1ff7572f8c1ed1b1e57",
-          "timestamp": "2026-05-18T12:50:11.911Z"
+          "headHash": "da2a4089e0640343ad138fbfc1137280fe467167",
+          "materialHash": "cd71fb9bbdf4c4f35d797ea9f1473f9865d94c5be3a13742d9cd15cddd2d45fb",
+          "timestamp": "2026-05-18T12:50:31.224Z"
         }
       ]
     },
