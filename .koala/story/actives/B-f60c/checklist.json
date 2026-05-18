@@ -411,7 +411,20 @@
         "test": [
           "packages/main/src/tasks/worktree-authority-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-doctor-smoke.ts",
+          "command": "node packages/main/dist/tasks/main-write-lock-doctor-smoke.js",
+          "result": "pass",
+          "note": "smoke section 2/3b asserts a fail-fast acquire against a live main write lock throws a holder-aware blocking error naming holder command, pid, hostname, heartbeat age, and a retry instruction; also asserts no fabricated sessionId token.",
+          "headHash": "33ce445f18325a54f9a9edeceed81caf2a4f37ba",
+          "materialHash": "e27e5f5d5c9a97083032aad259df8cbd70ef35cc9056b1ff7572f8c1ed1b1e57",
+          "timestamp": "2026-05-18T12:49:37.663Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
