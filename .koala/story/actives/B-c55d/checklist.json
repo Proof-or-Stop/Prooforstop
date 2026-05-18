@@ -59,7 +59,67 @@
       "context": "Build the rejection gate STRICTLY from the command-classification table that PLAN produces first (every command classified read-only / story-scoped mutating / main-shared mutating / dangerous — hard boundary 2: no missing commands, no wrongly-blocked read-only commands). Non-owner story-scoped mutating commands fail closed with owner guidance. Read-only commands (story_get / checklist_get / finding_list / session_brief / ...) never require a lease (hard boundary 3). CRITICAL reviewer-writes fork: reviewer writes (finding_add / review_pass_set) must NOT be gated by the main-agent owner lease — they take an actor/lane-scoped exception or their own current-review-run gate so three-way balance is preserved; the exact mechanism is decided in the PLAN decision. Reviewer writes still record actor/session.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "非 owner session 跑 checklist_update 等 story-scoped mutating 命令时看到 fail-closed 的 owner-guidance 错误；read-only 命令照常返回；command-ownership contract test 全绿。",
+      "files": {
+        "modify": [
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/delivery-check.ts",
+          "packages/main/src/handlers/validate.ts",
+          "packages/main/src/core/main-write-lock.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/command-ownership-contract.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/command-ownership-contract.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "每个已注册 command 在 CommandPolicy 都有 ownershipClass（readOnly/storyScopedMutating/reviewerWrite/mainSharedMutating/dangerousMutating）——contract test 枚举真实 registry 断言全覆盖、缺一即 fail",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "非 owner session 跑 story-scoped mutating 命令（如 checklist_update）被 fail-closed 拒绝，附 owner guidance",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "read-only 命令在任何 session 永不被 owner lease 拦",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "finding_resolve/finding_dismiss owner-gated；但 B-META finding 的 resolve/dismiss 归 mainSharedMutating、走 B-f60c main write lock 不走 owner lease",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "validate --story=B-xxx owner-gated；不带 --story 的纯诊断型 validate 不要求 story owner lease",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "reviewer-write 豁免窄：main agent 不能借 delivery_check_set 绕过 owner lease——delivery_check_set 仅在 actor/lane=delivery reviewer 时算 reviewerWrite，否则按 storyScopedMutating 或拒绝",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "未分类（缺 ownershipClass）的命令 gate fail-closed，不默认放行",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
