@@ -104,6 +104,17 @@
           "headHash": "ee7fdf8f419aff71629343c59e5cacf810b51253",
           "materialHash": "4ce106c8da84500515209dbf3e3f23acc21c6db9ef6003887a8a8f5c68bc56c7",
           "timestamp": "2026-05-18T12:14:36.586Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-smoke.ts",
+          "command": "node dist/tasks/main-write-lock-smoke.js",
+          "result": "pass",
+          "note": "smoke section 2+4 asserts exactly one of two concurrent acquirers wins (secondAcquired stays false), no double-hold; the lock is re-acquirable only after the holder releases",
+          "headHash": "28d0d0596203c535af32732233ce164a4000101f",
+          "materialHash": "4ce106c8da84500515209dbf3e3f23acc21c6db9ef6003887a8a8f5c68bc56c7",
+          "timestamp": "2026-05-18T12:14:43.186Z"
         }
       ]
     },
