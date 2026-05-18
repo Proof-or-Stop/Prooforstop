@@ -107,6 +107,15 @@
       "reviewRound": "2026-05-18T17:34:56.935Z",
       "reviewRunId": "B-f60c:RR-017",
       "_hash": "7318b102f0ca04c2f8df4167fa8e97bcd4a4d4a2776dcbc7495943ef572ba33e"
+    },
+    {
+      "id": "B-f60c:RP-013",
+      "agent": "koala-review-behavior",
+      "note": "Round 3 behavioral review. The only change since Round 2 is commit f0726dd4: AGENTS.md documentation update (pure text, no source code or behavior change). All behavioral primitives reviewed in Round 1/2 remain unchanged: (1) F-008 write-side fix in commitInitCheckMetadataAndMergeMain — idempotent, INIT_CHECK commits the main-side story-metadata mirror and merges main into the story branch; (2) DONE full critical-section lock via acquireMainWriteLockRegistered — reentrancy registry prevents DONE→audit self-deadlock; (3) gap_log / audit / story_create / B-META finding writes all under withReentrantMainWriteLock; (4) in-lock idempotency dedup in appendGapFinding keyed by gapFingerprint; (5) doctor stuck-lock classification uses MAIN_WRITE_LOCK_STALE_MS (120s) threshold — active locks never misreported as stuck; (6) concurrency / reentrancy registry cleared in finally — lock never leaked on throw. AGENTS.md change accurately reflects the implementation state. No behavioral findings found in Round 3.",
+      "createdAt": "2026-05-18T17:43:02.512Z",
+      "reviewRound": "2026-05-18T17:34:56.935Z",
+      "reviewRunId": "B-f60c:RR-015",
+      "_hash": "afec0f716a8dc58b86bd596f7ae4bd4d82eaa5007f49bcc2c71f4a6aa01bed54"
     }
   ]
 }
