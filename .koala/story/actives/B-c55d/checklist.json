@@ -85,6 +85,17 @@
           "headHash": "76e0d87468d062fc76daf4f342fbbc4efe9a2460",
           "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
           "timestamp": "2026-05-18T23:41:45.341Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/story-owner-lease.ts",
+          "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
+          "result": "pass",
+          "note": "owner-lease.json is process metadata only: the CHK-001 lease module (story-owner-lease.ts) writes nothing into the verificationEvidence pipeline and is registered in runtime-artifact-registry as materialHash:exclude — it is excluded from material hashing and never enters gate evidence; smoke section 7 asserts the material-excluded classification. session_brief rendering of the lease is CHK-004 scope",
+          "headHash": "efe6684c43998742c0b1ffdead75ca2cba53d40e",
+          "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
+          "timestamp": "2026-05-18T23:41:55.894Z"
         }
       ]
     },
