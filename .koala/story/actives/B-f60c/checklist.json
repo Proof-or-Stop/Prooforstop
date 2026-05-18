@@ -445,6 +445,17 @@
           "headHash": "daf5b36b5faf5b361d25a3713f1612ae7191e739",
           "materialHash": "e27e5f5d5c9a97083032aad259df8cbd70ef35cc9056b1ff7572f8c1ed1b1e57",
           "timestamp": "2026-05-18T12:49:50.446Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "docs_check",
+          "file": "packages/main/src/handlers/doctor.ts",
+          "command": "rg -n \"sessionId|ownership rendering\" packages/main/src/core/main-write-lock.ts packages/main/src/core/mkdir-lock.ts packages/main/src/core/main-write-lock-doctor.ts packages/main/src/handlers/doctor.ts",
+          "result": "pass",
+          "note": "CHK-004 diff touches only mkdir-lock.ts / main-write-lock.ts / main-write-lock-doctor.ts / doctor.ts / package.json + smoke; no session_brief handler is modified. The only sessionId mentions are doc comments that explicitly state sessionId is deliberately OUT of scope (owner-lease story). The contention message and holder.json record only mechanically observable pid/hostname/command/acquiredAt — no fabricated session identity and no session_brief ownership rendering introduced.",
+          "headHash": "16c79f47373110a73498d7e680a7b693e0e3e8d6",
+          "materialHash": "e27e5f5d5c9a97083032aad259df8cbd70ef35cc9056b1ff7572f8c1ed1b1e57",
+          "timestamp": "2026-05-18T12:50:11.911Z"
         }
       ]
     },
