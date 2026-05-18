@@ -174,7 +174,47 @@
       "context": "Non-owner mutation error message per the doc's Error UX: which story is owned, owner sessionId / cwd / last-heartbeat age, whether the lease is stale, the allowed next action. session_brief ownership rendering: owner session, owner cwd, last heartbeat age, stale/active status, whether the current session is the owner, and recommended action (proceed / read-only only / takeover available / wait). For B-META, session_brief shows shared audit state separately and must not suggest story_advance.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "非 owner 跑 mutating 命令看到 \"B-xxxx is owned by session <id>, heartbeat <n>m ago. Use read-only commands, wait for the owner, or rerun with --takeover after the lease is stale.\"；koala session_brief 一屏显示 owner/cwd/heartbeat/stale|active/是否本 session/推荐动作。",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/session-brief.ts",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/story-owner-lease-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "非 owner mutation 错误消息含：哪个 story 被 own、owner sessionId/cwd/last-heartbeat、是否 stale、允许的下一步动作",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "session_brief 渲染 owner session / owner cwd / heartbeat age / stale|active / 当前 session 是否 owner / 推荐动作（proceed|read-only|takeover available|wait）",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "B-META 在 session_brief 单独显示 shared audit state，且不建议 story_advance",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "owner lease 不阻断 reviewer read-only flow——story_get/checklist_get/finding_list/session_brief 在非 owner session 仍放行",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
