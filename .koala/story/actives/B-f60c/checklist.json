@@ -105,6 +105,18 @@
             "priority": "should"
           }
         ]
+      },
+      "userSees": "F-008 复现场景下 story_advance DONE 输出 '✓ 分支已合并 / ✓ Worktree 已清理 / ✓ 分支已删除'，而不是 'Story B-xxx 已标记为 DONE 但自动合并失败'。",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/done-effects.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ]
       }
     },
     {
