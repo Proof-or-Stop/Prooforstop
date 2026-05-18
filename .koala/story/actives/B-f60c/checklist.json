@@ -517,6 +517,17 @@
           "headHash": "2b9f4e055f52c357fc38be817d59da298c3cc245",
           "materialHash": "cd71fb9bbdf4c4f35d797ea9f1473f9865d94c5be3a13742d9cd15cddd2d45fb",
           "timestamp": "2026-05-18T12:57:58.582Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/gap-log-smoke.ts",
+          "command": "node dist/tasks/gap-log-smoke.js",
+          "result": "pass",
+          "note": "Concurrent gap_log dedup is covered by gap-log-smoke 8d (assertConcurrentSameGapDeduped: 6 real concurrent gap_log processes -> exactly one canonical B-META finding; 4 distinct concurrent gaps -> all kept). Stale-lock reclaim is covered by main-write-lock-smoke stale-reclaim case and worktree-authority-smoke assertDoneMainMergeStaleLockIsReclaimed. CHK-005 confirms these multi-session edge behaviors without duplicating the assertions.",
+          "headHash": "5dff0768db634434e4c704f9722c0adbdb8b0fbb",
+          "materialHash": "cd71fb9bbdf4c4f35d797ea9f1473f9865d94c5be3a13742d9cd15cddd2d45fb",
+          "timestamp": "2026-05-18T12:58:05.372Z"
         }
       ]
     }
