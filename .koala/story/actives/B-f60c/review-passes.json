@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-f60c:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept residual check complete. The retired concept `done-main-merge.lock` (and its constant `DONE_MAIN_MERGE_LOCK_STALE_MS`) has been fully replaced by the unified main write lock primitive. Functional source references: all 3 smoke-test usages updated to `.koala/locks/main-write.lock` (worktree-authority-smoke.ts x3, worktree-repair-smoke.ts x1). The `DONE_MAIN_MERGE_LOCK_STALE_MS` constant is deleted. `acquireMkdirLock` in done-effects.ts replaced by `acquireMainWriteLockRegistered`. Remaining `done-main-merge.lock` occurrences are: (a) comments in main-write-lock.ts and done-effects.ts documenting the migration, (b) done-effects.ts JSDoc noting the retired path, (c) story-lifecycle.md and session-ownership-and-write-leases.md changelog annotations — none are functional references. No orphan concept residuals found.",
+      "createdAt": "2026-05-18T16:45:12.363Z",
+      "reviewRound": "2026-05-18T12:59:38.521Z",
+      "reviewRunId": "B-f60c:RR-005",
+      "_hash": "6ccc33aaa933206b1ead7d8ead5c37eaf011ee5901ea2e2bbb6e4651b66f2a78"
+    }
+  ]
+}
