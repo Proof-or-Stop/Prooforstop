@@ -93,6 +93,17 @@
           "headHash": "c197c040ed31a6fb99d59cd927769cdc23d642f9",
           "materialHash": "4ce106c8da84500515209dbf3e3f23acc21c6db9ef6003887a8a8f5c68bc56c7",
           "timestamp": "2026-05-18T12:14:31.073Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-smoke.ts",
+          "command": "node dist/tasks/main-write-lock-smoke.js",
+          "result": "pass",
+          "note": "smoke section 2+4 asserts a live held lock makes the second acquire throw a blocking error (failFastIfHeld) instead of optimistically proceeding",
+          "headHash": "ee7fdf8f419aff71629343c59e5cacf810b51253",
+          "materialHash": "4ce106c8da84500515209dbf3e3f23acc21c6db9ef6003887a8a8f5c68bc56c7",
+          "timestamp": "2026-05-18T12:14:36.586Z"
         }
       ]
     },
