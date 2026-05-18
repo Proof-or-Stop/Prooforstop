@@ -320,6 +320,17 @@
           "headHash": "03570c7ece9b7e82727e5a14b7036cb57ae03c8f",
           "materialHash": "c9852706994ff3ce8512e519e775c2dacd760a2944e7d4cedc8410c4fde04048",
           "timestamp": "2026-05-18T12:38:20.400Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/gap-log-smoke.ts",
+          "command": "node packages/main/dist/tasks/gap-log-smoke.js",
+          "result": "pass",
+          "note": "gap-log-8 + 8d：相同 gap 串行/并发(6 个真实子进程)登记都只产出一条 canonical finding，按 normalized desc+category+severity+evidence fingerprint dedup。",
+          "headHash": "e7a89c82b8b9782727f105fbdc0be29b84349da1",
+          "materialHash": "c9852706994ff3ce8512e519e775c2dacd760a2944e7d4cedc8410c4fde04048",
+          "timestamp": "2026-05-18T12:38:20.877Z"
         }
       ]
     },
