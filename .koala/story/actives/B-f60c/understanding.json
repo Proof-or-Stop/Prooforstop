@@ -1,0 +1,43 @@
+{
+  "task": "为 DONE / done_recover / gap_log / audit --framework / story_create / B-META finding 写等共享 main 写入口引入统一 main write lock 串行化，并修复 F-008——INIT_CHECK 把 story.worktree+phase 写进 main 仓库的 index.json 却不提交，该未提交镜像在 DONE 的 git merge 时阻塞自己、产生 partial-DONE。",
+  "outcome": "两个 session 同时跑 story_advance DONE 时，第二个 session 看到 \"main write lock is held by session <id> running story_advance DONE for B-xxxx, heartbeat <n>s ago. Retry after it completes.\"——而不是像 B-6974 那样产生 partial-DONE 需人工 stash+merge 收尾。并发 gap_log 同一框架 gap 只产生一条 canonical finding。koala doctor 在锁卡死/过期时报出 stuck main write lock。F-008 复现场景（DONE 时 main 工作区残留 INIT_CHECK 期未提交 index.json 镜像）下，DONE 不再因 merge 自阻塞而中止。",
+  "facts": [
+    "现有 DONE 锁 acquireDoneMainMergeLock 在 done-effects.ts:125-139，mkdir-style，路径 .koala/runtime/done-main-merge.lock，120s stale-reclaim；由 transition-orchestrator.ts 单一 try/finally（acquire :222、release finally）包住整个 DONE transition；done-recover.ts:40 也用同一把锁。",
+    "可复用 mkdir-lock primitive 在 core/mkdir-lock.ts（atomic mkdirSync acquire、按 mtime 判 stale 后 force-rm、rmSync release）；story_create / review-passes 锁也用它。",
+    "gap_log(gap-log.ts) / audit --framework(audit.ts) / B-META finding 写(finding.ts) 当前都不取 main 锁，均写 .koala/story/actives/B-META-framework-audit/findings.json；story_create 只有 story 级锁、无 main 串行化。",
+    "gap_log 当前刻意不 dedup（gap-log-smoke.ts:316 断言相同内容写两条 finding）；audit drift 用 driftHash upsert dedup（audit-meta-store.ts:150-191）。",
+    "F-008 根因已坐实：done-effects.ts:356-362 注释明示 INIT_CHECK 把 story.worktree 字段写进 main 仓库的 index.json；该写入不提交，DONE 在 main 仓 git merge story/<id> 时被这份未提交/未跟踪 index.json 阻塞——B-6974、B-ad12 真机复现，已记 B-META-framework-audit:F-008 (medium/verified)。",
+    ".koala/locks/ 命名空间当前未使用；.koala/runtime/ 下有 done-main-merge.lock 与 framework-audit/state.json。"
+  ],
+  "constraints": [
+    "用户裁定：canonical 锁路径 = .koala/locks/main-write.lock/；DONE / done_recover / gap_log / audit --framework / story_create / B-META finding 写全部 acquire 这一把通用锁。",
+    "旧 .koala/runtime/done-main-merge.lock 不保留 alias——除非测试证明有现存 runtime cleanup / doctor 依赖必须兼容。",
+    "同步更新 docs/requirements/decisions/story-lifecycle.md，使其与 session-ownership-and-write-leases.md 的锁路径一致。",
+    "迁移范围窄：只改锁路径 + 串行化覆盖 + F-008 修复 + 锁内 idempotency；不实现 story owner lease / takeover / session_brief ownership UX（第二个 story）。",
+    "F-008 必须修：光串行化不够，必须从根因消除「INIT_CHECK 留下未提交 main-side index.json 镜像」——锁内 idempotency + stale-mirror handling 不可省。",
+    "非并发路径行为保持：锁对单 session 透明，外部 CLI 行为 byte-identical。",
+    "设计真相源：docs/requirements/decisions/session-ownership-and-write-leases.md（Main Write Lock Rules 1-6 + Idempotency Requirements + Error UX）。"
+  ],
+  "unknowns": [
+    "INIT_CHECK 写 main-side index.json 的确切代码点，以及 F-008 修复手法的最终选型（不写 main 镜像 / 写后即提交 / DONE 锁内 reconcile）——根因方向已明（done-effects.ts:356-362 注释），确切落点与手法由 CHK-002 在 DEV 按 Debugging Contract 坐实。"
+  ],
+  "touchpoints": [
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/done-recover.ts",
+    "packages/main/src/handlers/gap-log.ts",
+    "packages/main/src/handlers/audit.ts",
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/core/mkdir-lock.ts",
+    "packages/main/src/core/audit-meta-store.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/tasks/ (smoke)",
+    "packages/main/src/handlers/doctor (stuck-lock check)",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "docs/requirements/decisions/session-ownership-and-write-leases.md",
+    "packages/main/src/tasks/gap-log-smoke.ts"
+  ],
+  "timestamp": "2026-05-18T11:19:50.643Z"
+}

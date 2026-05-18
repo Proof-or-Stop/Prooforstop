@@ -6,7 +6,45 @@
       "context": "Per session-ownership-and-write-leases.md Main Write Lock Rules 1-3 & 6: a global, atomic (mkdir-style), stale-reclaimable lock; lock scope covers the whole critical section; acquisition failure is blocking (no optimistic proceed). Reconcile storage with the existing .koala/runtime/done-main-merge.lock — decide and document migrate vs alias vs compatibility (the F-001 open decision), keeping story-lifecycle.md and session-ownership-and-write-leases.md synchronized.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "main write lock 在 .koala/locks/main-write.lock/ 成功 acquire+release，mkdir-style 原子",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "全仓 rg 旧 .koala/runtime/done-main-merge.lock 路径 0 残留引用（除非测试证明的兼容 alias）",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "stale 锁（mtime 超时）被正确 reclaim",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "锁被持有时 acquire 失败返回 blocking 错误、不乐观放行",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "两个并发 acquire 恰好一个成功，无双重持锁",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "story-lifecycle.md 与 session-ownership 文档锁路径一致，无两份真相源矛盾",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
