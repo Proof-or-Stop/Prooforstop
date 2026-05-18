@@ -44,6 +44,15 @@
       "reviewRound": "2026-05-18T17:03:36.429Z",
       "reviewRunId": "B-f60c:RR-009",
       "_hash": "83e2f583f61d2e3182ac1eab05838bd7f45c6738fa26e2f94bc3bc6fa45ceed0"
+    },
+    {
+      "id": "B-f60c:RP-006",
+      "agent": "koala-review-behavior",
+      "note": "Round 2 behavior review: sole change since Round 1 is f76f5a49 (doc-only: CLAUDE.md + session-ownership-and-write-leases.md updated to reflect main write lock implemented). No source code changed. All Round 1 behavioral checks still hold: (1) F-008 root-cause fix confirmed — commitInitCheckMetadataAndMergeMain at cli-engine.ts:1844 commits the stale main mirror at INIT_CHECK, idempotent on retry. (2) DONE holds the lock from acquireDoneMainMergeLock (acquireMainWriteLockRegistered) at transition-orchestrator.ts:222 through the finally at line 432 — spanning preflight, actor.send, writeStory, and applyDoneMergeEffects. (3) Reentrancy registry in heldLockPaths is symmetric: acquireMainWriteLockRegistered adds lockKey, withReentrantMainWriteLock checks it for nested audit/gap_log/finding/story_create calls — no self-deadlock. (4) Doctor scanMainWriteLock uses the exact same MAIN_WRITE_LOCK_STALE_MS threshold — active locks are not misreported as stuck. (5) Non-concurrent path step order in applyDoneMergeEffects (Step1-5) is byte-identical to prior behavior. No findings.",
+      "createdAt": "2026-05-18T17:22:49.057Z",
+      "reviewRound": "2026-05-18T17:03:36.429Z",
+      "reviewRunId": "B-f60c:RR-011",
+      "_hash": "66da6c29882b4b5594cda4b8028b9561b6af079a2d998bcef3a786f1a5df491e"
     }
   ]
 }
