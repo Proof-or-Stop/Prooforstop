@@ -208,6 +208,17 @@
           "headHash": "9ff8f908c517534b1c5dcde365bf8d7feac9867e",
           "materialHash": "2b0687b59c51418326cdb67e1f782a2af56e56594afc2138cfb98068081074fe",
           "timestamp": "2026-05-18T12:22:17.794Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
+          "result": "pass",
+          "note": "assertInitCheckLeavesNoUncommittedMainMirrorForDone replays the exact DONE Step-3 op (git merge story/<id> from main repo root) after the real INIT_CHECK CLI path; pre-fix this aborted on the untracked story-metadata mirror, post-fix it merges cleanly with no partial-DONE.",
+          "headHash": "d17186fe7264aa3c16ec3967bef3a1dd3b1c03b7",
+          "materialHash": "2b0687b59c51418326cdb67e1f782a2af56e56594afc2138cfb98068081074fe",
+          "timestamp": "2026-05-18T12:22:18.261Z"
         }
       ]
     },
