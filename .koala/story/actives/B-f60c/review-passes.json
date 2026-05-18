@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-18T12:59:38.521Z",
       "reviewRunId": "B-f60c:RR-004",
       "_hash": "a2c92a4b1bc92a81b37f9d9cda366fa5736b71bf0b9de725fae3e3b4ac12f1d7"
+    },
+    {
+      "id": "B-f60c:RP-003",
+      "agent": "koala-review-quality",
+      "note": "Reviewed main-write-lock.ts, mkdir-lock.ts, main-write-lock-doctor.ts, runtime-artifact-registry.ts, audit-meta-store.ts, types.ts, done-effects.ts, doctor.ts, audit.ts, gap-log.ts, story-create.ts, finding.ts, and all smoke tests. No dead code, no unnecessary as-any, no I/O layer violations. Lock primitive + reentrancy registry design is clear and correct. Error handling is consistent with codebase patterns. Idempotency fingerprint design is narrow and correct. Smoke tests comprehensively cover all lock semantics including reentrancy, wait-mode, stale-reclaim, and holder metadata.",
+      "createdAt": "2026-05-18T16:53:15.436Z",
+      "reviewRound": "2026-05-18T12:59:38.521Z",
+      "reviewRunId": "B-f60c:RR-007",
+      "_hash": "126c78bfba8d0de624af47456121c1c5e4bdc3633e6f1868b99c0661fb85b020"
     }
   ]
 }
