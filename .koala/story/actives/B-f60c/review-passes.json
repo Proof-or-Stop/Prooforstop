@@ -62,6 +62,15 @@
       "reviewRound": "2026-05-18T17:03:36.429Z",
       "reviewRunId": "B-f60c:RR-010",
       "_hash": "f04e235dcc9885dc95c85da3551788dece565a401ac11bbcd364066ce96dbbb3"
+    },
+    {
+      "id": "B-f60c:RP-008",
+      "agent": "koala-review-docs",
+      "note": "Round 2 복사. Step 1: 2 symbols extracted (commitInitCheckMetadataAndMergeMain — internal, no doc ref; currentBranch — local var, not exported). Step 2: compared 3 doc segments from f76f5a49 diff (CLAUDE.md 多session段, session-ownership Status节, story-lifecycle.md DONE lock行) against code. Findings: (1) lock path .koala/locks/main-write.lock/ consistent across both decision docs and code (MAIN_WRITE_LOCK_REL); (2) done_recover uses acquireDoneMainMergeLock→acquireMainWriteLockRegistered→canonical path, doc claim accurate; (3) handler coverage (DONE/done_recover/gap_log/audit/story_create/B-META finding) verified against imports; (4) pending steps (owner lease/takeover/session_brief) correctly marked as not yet implemented in both docs. No blocker found. 0 findings registered.",
+      "createdAt": "2026-05-18T17:29:54.744Z",
+      "reviewRound": "2026-05-18T17:03:36.429Z",
+      "reviewRunId": "B-f60c:RR-012",
+      "_hash": "edded348444b788411e7ac10f8a8905f7968bbdbaf307d794d02f0940036ed84"
     }
   ]
 }
