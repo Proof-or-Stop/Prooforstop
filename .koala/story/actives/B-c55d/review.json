@@ -79,6 +79,41 @@
         }
       ],
       "_hash": "12ceaaa86893fceeaf8b7553465f7c8b409e3ae13bc1049bf513793923448251"
+    },
+    {
+      "timestamp": "2026-05-18T22:10:01.936Z",
+      "issueCount": 5,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 个 checklist item，请检查是否有组合场景遗漏（如：Implement sessionId and the owner-lease.json core + Non-owner story-scoped mutating command rejection gate 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 2 个高风险信号: 状态机/门禁, 验证框架。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 1 个未消化的 unknowns: delivery_check_set 判定「actor/lane 是否 delivery reviewer」的确切机制（依据 review run / lane 记录还是签名），以及非 owner 拒绝 gate 的单一 choke-point 落点（cli-engine dispatch 前 vs HandlerContext 中间件）——根因方向已明，确切实现由 DEV 在 CHK-002 坐实。"
+        }
+      ],
+      "_hash": "3ee6d4c1a68175b54306426a2e7baf381dc62e23b160b8881c7de15da4385c9f"
     }
   ]
 }
