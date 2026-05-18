@@ -371,9 +371,9 @@
       "id": "CHK-004",
       "title": "doctor stuck-lock check and lock-contention error UX",
       "context": "doctor detects stale/stuck main write locks and reports them. Lock-contention produces a clear blocking error message per the doc's Error UX 'main lock contention' example (holder session, running command, heartbeat age, retry guidance). Do NOT implement session_brief ownership rendering — that belongs to the owner-lease story.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-18T12:50:51.372Z",
       "verificationIntent": {
         "happy": [
           {
