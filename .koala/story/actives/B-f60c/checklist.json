@@ -233,14 +233,14 @@
         },
         {
           "intentRef": "CHK-002:adversarial:0",
-          "kind": "logic_test",
+          "kind": "manual_transcript",
           "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
-          "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
-          "note": "assertDoneMainMergeLiveLockFailsBeforeMutation: a live main-write lock makes a second concurrent story_advance DONE fail before phase=DONE is written (story stays TEST, branch/worktree untouched) — the lock serializes DONE, preventing a partial-DONE race.",
-          "headHash": "ff8fed3d8a3813bd0579bdc5b8495b128e732a35",
+          "note": "CHK-005 的 assertConcurrentDoneSerializesWithoutPartialDone 直接覆盖本 intent：它用 spawnStoryAdvance 同时 spawn 两个真实 story_advance DONE OS 子进程抢同一 DONE-ready story，断言恰好一个 exit 0 winner（输出含 'advanced to DONE'）、恰好一个 exit 非 0 loser（输出说明锁竞争/已 advance），终态 story=DONE、worktree 已清理、main log 含 merge commit、story 分支已删、story 元数据路径无未提交残留。这是真实双进程并发竞争，被 main write lock 串行化、无 partial-DONE race——正是 CHK-002:adversarial:0 的意图。（先前指向的 assertDoneMainMergeLiveLockFailsBeforeMutation 只用预植 lock dir 模拟持锁，较弱；本条以 CHK-005 的真并发测试为准。）",
+          "headHash": "952e4f92be25595da4df0e4a440d418b56652d59",
           "materialHash": "dcbe2e6188e9e5a72bea4b720b2e7bfad1fe132e83e0d65e29b324850fb92b03",
-          "timestamp": "2026-05-18T12:59:34.767Z"
+          "timestamp": "2026-05-18T17:00:26.497Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
