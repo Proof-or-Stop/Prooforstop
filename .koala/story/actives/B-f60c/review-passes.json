@@ -89,6 +89,15 @@
       "reviewRound": "2026-05-18T17:34:56.935Z",
       "reviewRunId": "B-f60c:RR-014",
       "_hash": "1a6e190bab63abb181c487847e975eea8864ff6034d32e93e4c286aafce2681b"
+    },
+    {
+      "id": "B-f60c:RP-011",
+      "agent": "koala-review-concept",
+      "note": "Round 3 concept review: F-003 fix (commit f0726dd4) is clean. AGENTS.md line 126 now matches CLAUDE.md verbatim — both reflect main write lock (rollout step 3) as implemented, remaining steps (owner lease, takeover UX, session_brief rendering) as still pending. Checked all concept residues: (1) old stale phrase \"运行时尚未实现\" zero hits across .ts/.md outside .koala/; (2) old retired lock path done-main-merge.lock has one migration-comment reference in main-write-lock.ts that explicitly says retired, no code usage; (3) DONE_MAIN_MERGE_LOCK_STALE_MS constant zero hits; (4) session-ownership-and-write-leases.md and story-lifecycle.md both updated to canonical .koala/locks/main-write.lock/ path; (5) no deleted exported symbols found. No blocker.",
+      "createdAt": "2026-05-18T17:37:08.391Z",
+      "reviewRound": "2026-05-18T17:34:56.935Z",
+      "reviewRunId": "B-f60c:RR-013",
+      "_hash": "999586d6e16f511fc14850e72c5de928bdd74cf4213a34275c9264eac823c35b"
     }
   ]
 }
