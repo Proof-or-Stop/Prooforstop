@@ -353,6 +353,17 @@
           "headHash": "af2bf3d91efa6754ac9ebca535fdaff803e68b7b",
           "materialHash": "c9852706994ff3ce8512e519e775c2dacd760a2944e7d4cedc8410c4fde04048",
           "timestamp": "2026-05-18T12:38:31.740Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-smoke.ts",
+          "command": "node packages/main/dist/tasks/main-write-lock-smoke.js",
+          "result": "pass",
+          "note": "lock smoke test 7/7b/7c：嵌套 withReentrantMainWriteLock(同进程同 root)走 pass-through 不再 acquire，深度 3 不自死锁；DONE 持锁内调 audit(也持锁)经 reentrancy registry 透传，throw 后 registry 清空。",
+          "headHash": "e52cefa0d3dbafe1605e7881aa03b8c495b4a89e",
+          "materialHash": "c9852706994ff3ce8512e519e775c2dacd760a2944e7d4cedc8410c4fde04048",
+          "timestamp": "2026-05-18T12:38:32.406Z"
         }
       ]
     },
