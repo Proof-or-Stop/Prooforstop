@@ -203,6 +203,18 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "koala validate 输出含新增 multi-session lock smoke 全部 PASS，含 F-008 回归断言（partial-DONE 不再由 stale main-mirror 自阻塞产生）。",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/main-write-lock-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/main-write-lock-smoke.ts"
+        ]
       }
     }
   ]
