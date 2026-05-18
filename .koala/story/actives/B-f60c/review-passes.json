@@ -8,6 +8,15 @@
       "reviewRound": "2026-05-18T12:59:38.521Z",
       "reviewRunId": "B-f60c:RR-005",
       "_hash": "6ccc33aaa933206b1ead7d8ead5c37eaf011ee5901ea2e2bbb6e4651b66f2a78"
+    },
+    {
+      "id": "B-f60c:RP-002",
+      "agent": "koala-review-docs",
+      "note": "Step 1 抽出符号 14 个（commitInitCheckMetadataAndMergeMain / MAIN_WRITE_LOCK_REL 等），Step 2 在 session-ownership-and-write-leases.md + story-lifecycle.md 中比对 10 段落。lock 路径统一为 .koala/locks/main-write.lock/ 在两份文档和代码中一致；runtime note 正确改为退役声明；旧路径仅见于退役注释无活跃使用；gap_log/done-effects 均已获取新锁。注册 1 条 medium finding F-002（Status 节及 CLAUDE.md 仍称 main write lock 未实现，与代码不符）。",
+      "createdAt": "2026-05-18T16:46:16.967Z",
+      "reviewRound": "2026-05-18T12:59:38.521Z",
+      "reviewRunId": "B-f60c:RR-004",
+      "_hash": "a2c92a4b1bc92a81b37f9d9cda366fa5736b71bf0b9de725fae3e3b4ac12f1d7"
     }
   ]
 }
