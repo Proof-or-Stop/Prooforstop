@@ -21,7 +21,7 @@
       "desc": "doc-code-drift: session-ownership-and-write-leases.md の Status 节（行 7-8）称 \"main write lock... is not yet implemented\"，但 B-f60c 已实现 main write lock（main-write-lock.ts + done-effects.ts 均已使用 .koala/locks/main-write.lock/）。此外 CLAUDE.md 第 393 行同样写 \"main write lock... 目前是已采纳的设计、运行时尚未实现\"，B-f60c 未更新这两处。两处应分别改为说明 main write lock（Rollout step 3）已实现、其余功能（story owner lease、takeover UX 等）仍 pending。",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-docs",
       "createdAt": "2026-05-18T16:44:47.890Z",
