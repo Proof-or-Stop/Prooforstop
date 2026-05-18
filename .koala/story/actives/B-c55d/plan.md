@@ -83,6 +83,10 @@ authority/attestation）；非并发路径外部 CLI 行为 byte-identical；不
 - contract test：枚举真实 command registry，断言每命令都有 ownershipClass，缺一即 fail；未分类命令 gate fail-closed。
 - 遵守 CLAUDE.md「Handler 编码约定」。
 
+**实现边界（DEV 前 PLAN clarification）**:
+- **owner gate single choke-point**：owner-lease 判定只在 **CLI dispatch / command-policy ownership gate** 一处统一做（按 `CommandPolicy.ownershipClass` 判），**不散落进各 handler**。handler 不得各自硬编码 owner 检查；gate 是唯一判定点。
+- **delivery_check_set 的 reviewerWrite 判定机制**：`delivery_check_set` **只有**在 `agentId` / `KOALA_AGENT` 解析为 `koala-review-delivery`、**且**满足现有 delivery evidence 的签名 / phase 规则时，才算 `reviewerWrite`（豁免 owner lease）；否则按 `storyScopedMutating` 处理（需 owner lease）或拒绝。不得让 main agent 借 `delivery_check_set` 绕过 owner lease。
+
 **Verify**: `koala validate --story=B-c55d` 全绿；command-ownership contract 全命令覆盖通过；非 owner story-scoped mutating 被拒、read-only 放行的 smoke 通过。
 
 **DoneWhen**: 全命令有 ownershipClass + contract test 强制；gate 按 ownershipClass 与边界规则判；reviewer-write 豁免窄且仍受 lane/run/hash 约束；未分类 fail-closed。
