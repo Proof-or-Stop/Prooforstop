@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Implement the core main write lock primitive",
+      "context": "Per session-ownership-and-write-leases.md Main Write Lock Rules 1-3 & 6: a global, atomic (mkdir-style), stale-reclaimable lock; lock scope covers the whole critical section; acquisition failure is blocking (no optimistic proceed). Reconcile storage with the existing .koala/runtime/done-main-merge.lock — decide and document migrate vs alias vs compatibility (the F-001 open decision), keeping story-lifecycle.md and session-ownership-and-write-leases.md synchronized.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Hold the lock across the DONE critical section and fix F-008",
+      "context": "DONE must hold the main write lock from the pre-merge final check through merge and worktree cleanup (rule 4). Fix B-META-framework-audit:F-008: the DONE flow currently writes a stale INIT_CHECK-era main-mirror story index.json before merge, then its own git merge aborts (partial-DONE). The fix must handle the stale main-mirror inside the lock — do not emit a stale mirror, or commit/reconcile it before merge — because serialization alone does not close F-008.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Apply the lock + in-lock idempotency to shared-write commands",
+      "context": "Apply the main write lock to gap_log / B-META finding writes / audit --framework / story_create / done_recover / main-mirror metadata writes (rule 5). Inside the lock, perform the doc's Idempotency Requirements: gap_log dedup by normalized title/category/source/evidence fingerprint; story_create dedup; finding mutations reject duplicate active findings; DONE recovery detects already-merged branches / already-removed worktrees.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "doctor stuck-lock check and lock-contention error UX",
+      "context": "doctor detects stale/stuck main write locks and reports them. Lock-contention produces a clear blocking error message per the doc's Error UX 'main lock contention' example (holder session, running command, heartbeat age, retry guidance). Do NOT implement session_brief ownership rendering — that belongs to the owner-lease story.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Multi-session regression smoke proving F-008 is closed",
+      "context": "Smoke tests for multi-session lock behavior: two concurrent DONE operations serialize with no partial-DONE race; concurrent gap_log of the same issue dedups to one canonical finding; a stale lock is reclaimed. Critically, a regression assertion proving partial-DONE no longer arises from a stale main-mirror self-block (the exact F-008 scenario).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
