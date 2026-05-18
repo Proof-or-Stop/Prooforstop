@@ -53,6 +53,15 @@
       "reviewRound": "2026-05-18T17:03:36.429Z",
       "reviewRunId": "B-f60c:RR-011",
       "_hash": "66da6c29882b4b5594cda4b8028b9561b6af079a2d998bcef3a786f1a5df491e"
+    },
+    {
+      "id": "B-f60c:RP-007",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed (Round 2): CHK-002:adversarial:0 now has accurate evidence pointing to assertConcurrentDoneSerializesWithoutPartialDone (two real concurrent OS processes, winner/loser assertions, terminal state checks) — directly matching the intent. All 25 verificationIntents have valid, non-fail evidence with specific assertion notes. No must-priority coverage gaps. validate confirms 25/25 covered, 0 required missing.",
+      "createdAt": "2026-05-18T17:29:23.592Z",
+      "reviewRound": "2026-05-18T17:03:36.429Z",
+      "reviewRunId": "B-f60c:RR-010",
+      "_hash": "f04e235dcc9885dc95c85da3551788dece565a401ac11bbcd364066ce96dbbb3"
     }
   ]
 }
