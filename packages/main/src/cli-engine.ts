@@ -1332,6 +1332,97 @@ function commitFromDraftMetadataAndMergeMain(root: string, store: StoryStore, st
   ].join('\n');
 }
 
+/**
+ * B-f60c CHK-002 — close F-008 partial-DONE at the INIT_CHECK write side.
+ *
+ * Root cause (verified, B-6974 / B-ad12 real-machine repros): `story_advance
+ * INIT_CHECK` runs `story_advance` (writes phase) then `dev_start` (writes
+ * `story.worktree` into the MAIN repo's `.koala/story/actives/<id>/index.json`).
+ * `dev_start.createScopedStoryBootstrapCommit` commits the story dir onto the
+ * `story/<id>` branch via a TEMPORARY git index — it never touches the main
+ * repo's working tree or index. So the main checkout is left with an
+ * UNCOMMITTED story-metadata mirror (the story dir is untracked, since
+ * `story_create` only wrote files without committing them).
+ *
+ * At DONE, `applyDoneMergeEffects` Step 3 runs `git merge story/<id>` from the
+ * main repo root. The story branch carries a committed
+ * `.koala/story/actives/<id>/index.json`; the main working tree has the SAME
+ * path untracked → git aborts the merge ("untracked working tree files would
+ * be overwritten by merge") → partial-DONE (story marked DONE, branch never
+ * merged).
+ *
+ * Fix: commit that mirror on the current (main) branch right after `dev_start`,
+ * exactly mirroring what `commitFromDraftMetadataAndMergeMain` already does for
+ * the from-draft path, then merge the base branch into the story worktree so
+ * the story branch still contains all of main. After this the DONE merge has
+ * nothing uncommitted to collide with. Just serializing the DONE critical
+ * section (CHK-001's lock) cannot close F-008 — the stale mirror must be
+ * removed from the main working tree at its INIT_CHECK source.
+ *
+ * Idempotent: a retry where the story dir is already committed stages nothing
+ * and returns '' (no-op) instead of throwing.
+ */
+function commitInitCheckMetadataAndMergeMain(root: string, store: StoryStore, storyId: string): string {
+  const currentBranch = gitCli(root, ['rev-parse', '--abbrev-ref', 'HEAD']);
+  if (currentBranch.startsWith('story/')) {
+    // INIT_CHECK is the standard worktree-creation entry and must run from the
+    // main checkout. If we are already on a story branch, dev_start would not
+    // have created a main-side mirror to reconcile — leave it untouched.
+    return '';
+  }
+
+  const storyRel = boundedMetadataPath(store.storyDirRel(), storyId, 'active story');
+  stageBoundedMetadataPath(root, storyRel);
+  const staged = gitCli(root, ['diff', '--cached', '--name-only']);
+  const stagedPaths = staged.split('\n').map((line) => line.trim()).filter(Boolean);
+  if (stagedPaths.length === 0) {
+    // Story metadata already committed (retry / already-tracked) — nothing to
+    // reconcile, the DONE merge will not collide.
+    return '';
+  }
+  const outOfBounds = stagedPaths.filter((path) => !isPathUnderAny(path, [storyRel]));
+  if (outOfBounds.length > 0) {
+    throw new Error(
+      `INIT_CHECK metadata commit refused out-of-bounds staged paths:\n${outOfBounds.join('\n')}`,
+    );
+  }
+
+  const commitMessage = `koala: INIT_CHECK metadata ${storyId}`;
+  gitCli(root, [
+    '-c', 'commit.gpgsign=false',
+    'commit',
+    '-m', commitMessage,
+  ]);
+  const mainHead = gitCli(root, ['rev-parse', '--short', 'HEAD']);
+  const boundedStatus = gitCli(root, ['status', '--porcelain', '--', storyRel]);
+  if (boundedStatus) {
+    throw new Error(
+      `INIT_CHECK metadata committed, but bounded story path is still dirty (${storyRel}):\n${boundedStatus}`,
+    );
+  }
+
+  const story = store.readStory(storyId);
+  const worktreePath = story.worktree?.path;
+  const storyBranch = story.worktree?.branch || `story/${storyId}`;
+  if (!worktreePath) {
+    throw new Error(`INIT_CHECK story ${storyId} has no recorded worktree path after dev_start`);
+  }
+  const repoRoot = gitCli(root, ['rev-parse', '--show-toplevel']);
+  const worktreeAbs = isAbsolute(worktreePath) ? worktreePath : join(repoRoot, worktreePath);
+  gitCli(worktreeAbs, [
+    '-c', 'commit.gpgsign=false',
+    'merge',
+    currentBranch,
+    '--no-edit',
+  ]);
+  gitCli(worktreeAbs, ['merge-base', '--is-ancestor', currentBranch, storyBranch]);
+
+  return [
+    `✓ INIT_CHECK metadata committed on ${currentBranch}: ${mainHead} (${commitMessage})`,
+    `✓ ${currentBranch} merged into ${storyBranch}`,
+  ].join('\n');
+}
+
 // ── Main ──
 
 /**
@@ -1744,7 +1835,16 @@ export async function runCli(opts?: {
       }
       try {
         const wtResult = handlers.dev_start({ storyId });
-        return `${advanceResult}\n\n${wtResult}\n\n→ 现在请 cd 到上述 worktree 路径，然后调 story_advance phase=PLAN 进入 PLAN`;
+        // B-f60c CHK-002: close F-008. dev_start leaves an uncommitted
+        // story-metadata mirror in the main checkout that blocks the DONE
+        // `git merge story/<id>`. Commit it on the base branch (mirroring the
+        // from-draft path) so DONE has nothing uncommitted to collide with.
+        let syncResult = '';
+        if (gitReady) {
+          syncResult = commitInitCheckMetadataAndMergeMain(root, store, storyId);
+        }
+        const syncSegment = syncResult ? `\n\n${syncResult}` : '';
+        return `${advanceResult}\n\n${wtResult}${syncSegment}\n\n→ 现在请 cd 到上述 worktree 路径，然后调 story_advance phase=PLAN 进入 PLAN`;
       } catch (e: any) {
         return `${advanceResult}\n⚠ worktree 创建失败: ${e.message}\n→ 排查后再次执行 story_advance --phase=INIT_CHECK 自动重试，或手动 dev_start '{"storyId":"${storyId}"}'`;
       }

@@ -1102,6 +1102,115 @@ function assertDoneMainMergeStaleLockIsReclaimed(): void {
   }
 }
 
+/**
+ * B-f60c CHK-002 — F-008 regression: `story_advance INIT_CHECK` must not leave
+ * an uncommitted story-metadata mirror in the main checkout that later
+ * self-blocks the DONE `git merge story/<id>` (partial-DONE).
+ *
+ * F-008 (verified, B-6974 / B-ad12 real-machine repros): `dev_start` writes
+ * `story.worktree` into the MAIN repo's `.koala/story/actives/<id>/index.json`
+ * but commits the story dir onto the `story/<id>` branch via a temporary git
+ * index — the main working tree is left with an UNTRACKED story-metadata
+ * mirror (story_create only wrote files, never committed them). At DONE,
+ * `applyDoneMergeEffects` runs `git merge story/<id>` from the main repo root;
+ * the story branch has that path committed, the main working tree has it
+ * untracked → git aborts ("untracked working tree files would be overwritten
+ * by merge") → partial-DONE.
+ *
+ * This test drives the real `story_advance INIT_CHECK` CLI path end-to-end and
+ * then performs the exact DONE Step-3 operation (`git merge story/<id>` from
+ * the main repo root). Post-fix the INIT_CHECK path commits the metadata
+ * mirror on the base branch and merges the base branch into the story branch,
+ * so the DONE merge has nothing uncommitted to collide with and completes.
+ */
+function assertInitCheckLeavesNoUncommittedMainMirrorForDone(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-init-check-f008-'));
+  try {
+    git(root, ['init', '-b', 'main']);
+    git(root, ['config', 'user.email', 'smoke@example.test']);
+    git(root, ['config', 'user.name', 'Koala Smoke']);
+    write(root, 'koala.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      storyDir: '.koala/story/actives',
+      requirementsDir: 'docs/requirements',
+      worktreeDir: '.worktrees',
+      storyPrefix: 'B',
+    }, null, 2));
+    write(root, 'README.md', 'F-008 init-check mirror smoke\n');
+    write(root, '.gitignore', '.worktrees/\n.koala/activity.jsonl\n');
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'base']);
+    resetConfigCache();
+
+    const created = runKoala(root, 'story_create', {
+      name: 'init-check-f008',
+      title: 'Init check F-008 regression',
+      description: 'Verify INIT_CHECK commits its main-side story metadata mirror so DONE does not self-block.',
+      type: 'chore',
+      priority: 'medium',
+      background: [
+        '## 触发事件',
+        '2026-05-18 B-f60c F-008 smoke reproduces the partial-DONE incident where INIT_CHECK left an uncommitted story metadata mirror in the main checkout.',
+        '## 关键洞察',
+        'The DONE merge runs from the main repo root and aborts when the story dir is untracked there while committed on the story branch.',
+        '## 方案取舍',
+        'The smoke drives the real INIT_CHECK CLI path and replays the DONE Step-3 merge instead of importing private helpers, because the bug lived in CLI orchestration.',
+        '## 对话纹理',
+        'A maintainer expects story_advance DONE to merge the branch cleanly rather than mark the story DONE while leaving the branch unmerged.',
+      ].join('\n\n'),
+      checklist: [{ title: 'Verify INIT_CHECK metadata mirror is committed', context: 'INIT_CHECK must not leave an uncommitted main-side mirror.' }],
+    });
+    const storyId = created.match(/B-[a-f0-9]+/)?.[0];
+    assert.ok(storyId, `story_create should return story id, got: ${created}`);
+
+    runKoala(root, 'init_check_set', { storyId, issues: [], agentId: 'koala-review-story-init' });
+    runKoala(root, 'init_check_set', { storyId, issues: [], agentId: 'product-reviewer', agent: 'product-reviewer' });
+
+    const advanced = runKoala(root, 'story_advance', { storyId, phase: 'INIT_CHECK' });
+    assert.match(advanced, /advanced to INIT_CHECK/, 'INIT_CHECK advance should succeed');
+    assert.match(advanced, /INIT_CHECK metadata committed/, 'INIT_CHECK output should report the metadata mirror was committed');
+
+    const storyRel = `.koala/story/actives/${storyId}`;
+    // The F-008 stale mirror is gone: the main working tree has no uncommitted
+    // (untracked or modified) story metadata.
+    assert.equal(
+      git(root, ['status', '--porcelain', '--', storyRel]),
+      '',
+      'INIT_CHECK must leave no uncommitted story-metadata mirror in the main checkout',
+    );
+    // The story metadata is tracked on the base branch.
+    assert.equal(
+      git(root, ['ls-files', '--', `${storyRel}/index.json`]),
+      `${storyRel}/index.json`,
+      'INIT_CHECK must commit the story index.json onto the base branch',
+    );
+    // The story branch contains the base branch (so a later DONE merge-base
+    // ancestor check passes).
+    assert.equal(
+      gitSucceeds(root, ['merge-base', '--is-ancestor', 'main', `story/${storyId}`]),
+      true,
+      'INIT_CHECK must merge the base branch into the story branch',
+    );
+
+    // Core F-008 assertion: replay the exact DONE Step-3 operation —
+    // `git merge story/<id>` from the main repo root. Pre-fix this aborted on
+    // the untracked story-metadata mirror; post-fix it completes cleanly.
+    const mergeOk = gitSucceeds(root, [
+      '-c', 'commit.gpgsign=false',
+      'merge', `story/${storyId}`, '--no-ff', '-m', `merge: ${storyId} init-check f008 regression`,
+    ]);
+    assert.equal(mergeOk, true, 'DONE-equivalent merge of the story branch must not self-block on a stale main mirror');
+    assert.match(
+      git(root, ['log', '--oneline', 'main']),
+      new RegExp(`merge: ${storyId}`),
+      'the story branch must be merged into main without a partial-DONE',
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 assertRecordedWorktreeRejectsMainCwd();
 assertInitCheckChecklistMutationRejectsMainCwd();
 assertTerminalStoriesDoNotRedirect();
@@ -1121,5 +1230,8 @@ assertWorktreeCleanupFailureMarksDoneMergedAndThrows();
 assertDoneMainMergeLiveLockFailsBeforeMutation();
 assertDoneMainMergeLockBlocksBeforeAutoSyncMain();
 assertDoneMainMergeStaleLockIsReclaimed();
+// B-f60c CHK-002 — F-008 regression: INIT_CHECK must not leave an uncommitted
+// main-side story metadata mirror that self-blocks the DONE merge.
+assertInitCheckLeavesNoUncommittedMainMirrorForDone();
 
 console.log('✓ worktree authority smoke passed');
