@@ -22,6 +22,7 @@
     "INIT_CHECK 写 main-side index.json 的确切代码点，以及 F-008 修复手法的最终选型（不写 main 镜像 / 写后即提交 / DONE 锁内 reconcile）——根因方向已明（done-effects.ts:356-362 注释），确切落点与手法由 CHK-002 在 DEV 按 Debugging Contract 坐实。"
   ],
   "touchpoints": [
+    "packages/main/src/core/mkdir-lock.ts",
     "packages/main/src/handlers/done-effects.ts",
     "packages/main/src/handlers/transition-orchestrator.ts",
     "packages/main/src/handlers/done-recover.ts",
@@ -30,14 +31,14 @@
     "packages/main/src/handlers/story-create.ts",
     "packages/main/src/handlers/finding.ts",
     "packages/main/src/handlers/worktree.ts",
-    "packages/main/src/core/mkdir-lock.ts",
+    "packages/main/src/handlers/doctor.ts",
     "packages/main/src/core/audit-meta-store.ts",
     "packages/main/src/core/runtime-artifact-registry.ts",
-    "packages/main/src/tasks/ (smoke)",
-    "packages/main/src/handlers/doctor (stuck-lock check)",
+    "packages/main/src/tasks/worktree-authority-smoke.ts",
+    "packages/main/src/tasks/gap-log-smoke.ts",
+    "packages/main/src/tasks/main-write-lock-smoke.ts",
     "docs/requirements/decisions/story-lifecycle.md",
-    "docs/requirements/decisions/session-ownership-and-write-leases.md",
-    "packages/main/src/tasks/gap-log-smoke.ts"
+    "docs/requirements/decisions/session-ownership-and-write-leases.md"
   ],
-  "timestamp": "2026-05-18T11:19:50.643Z"
+  "timestamp": "2026-05-18T11:30:39.487Z"
 }

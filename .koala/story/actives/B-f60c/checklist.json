@@ -44,6 +44,21 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "用户跑 koala validate 看到 main write lock 在 .koala/locks/main-write.lock/ 正常 acquire/release；rg 旧 .koala/runtime/done-main-merge.lock 路径 0 残留引用。",
+      "files": {
+        "modify": [
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/handlers/done-effects.ts",
+          "packages/main/src/handlers/done-recover.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ]
       }
     },
     {
