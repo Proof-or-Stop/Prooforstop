@@ -26,6 +26,15 @@
       "reviewRound": "2026-05-18T12:59:38.521Z",
       "reviewRunId": "B-f60c:RR-007",
       "_hash": "126c78bfba8d0de624af47456121c1c5e4bdc3633e6f1868b99c0661fb85b020"
+    },
+    {
+      "id": "B-f60c:RP-004",
+      "agent": "koala-review-behavior",
+      "note": "Reviewed all 5 checklist items (CHK-001 through CHK-005). F-008 root cause is correctly fixed at the INIT_CHECK write-side via commitInitCheckMetadataAndMergeMain. DONE critical section holds the lock from checkMainDivergence/autoSyncMain through applyDoneMergeEffects/worktree-cleanup (lines 222-432 in transition-orchestrator.ts). Reentrancy registry is correctly keyed on mainWriteLockPath(mainRepoRoot) — both DONE (via resolveDoneLockMainRepoRoot) and audit/gap_log/finding/story_create (via resolveMainRepoRoot) resolve to the same main repo root so all sessions contend on one directory. Registry is correctly cleaned on exception (try/finally). No double-release possible (released flag + no-op handle). Old .koala/runtime/done-main-merge.lock path has zero functional references remaining. Doctor uses same MAIN_WRITE_LOCK_STALE_MS threshold as the lock primitive — no false stuck misreport. gap_log dedup fingerprint is narrow and correct. CHK-004 sessionId omission is intentionally out of scope per story spec. No blocking edge cases found.",
+      "createdAt": "2026-05-18T16:57:16.978Z",
+      "reviewRound": "2026-05-18T12:59:38.521Z",
+      "reviewRunId": "B-f60c:RR-006",
+      "_hash": "3d463619c5bcfdbc9f5f21bc7fdc03c5315e604c1553dbb9c085b5bd375ec361"
     }
   ]
 }
