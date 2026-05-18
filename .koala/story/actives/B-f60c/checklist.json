@@ -259,9 +259,9 @@
       "id": "CHK-003",
       "title": "Apply the lock + in-lock idempotency to shared-write commands",
       "context": "Apply the main write lock to gap_log / B-META finding writes / audit --framework / story_create / done_recover / main-mirror metadata writes (rule 5). Inside the lock, perform the doc's Idempotency Requirements: gap_log dedup by normalized title/category/source/evidence fingerprint; story_create dedup; finding mutations reject duplicate active findings; DONE recovery detects already-merged branches / already-removed worktrees.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-18T12:37:37.747Z",
-      "endTime": null,
+      "endTime": "2026-05-18T12:40:03.274Z",
       "verificationIntent": {
         "happy": [
           {
