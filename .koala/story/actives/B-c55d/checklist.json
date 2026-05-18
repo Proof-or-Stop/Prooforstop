@@ -96,6 +96,17 @@
           "headHash": "efe6684c43998742c0b1ffdead75ca2cba53d40e",
           "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
           "timestamp": "2026-05-18T23:41:55.894Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-owner-lease-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
+          "result": "pass",
+          "note": "smoke section 7 asserts the F-008-class dirty-write prevention: owner-lease.json is a registered runtime artifact (runtime-story-owner-lease entry — volatile + materialHash:exclude) and the runtime ignore patterns include the glob-star owner-lease.json pattern; .gitignore also carries it, so the lease is never tracked and never produces an uncommitted dirty write that could block the DONE git merge",
+          "headHash": "3761535eff9e4de7b3303f7fb6bd93941298c10b",
+          "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
+          "timestamp": "2026-05-18T23:41:56.149Z"
         }
       ]
     },
