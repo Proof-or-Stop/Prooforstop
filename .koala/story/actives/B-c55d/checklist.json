@@ -74,6 +74,17 @@
           "headHash": "221ad10f1b083f6f7355a524aeb0ff292d02986a",
           "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
           "timestamp": "2026-05-18T23:41:45.080Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-owner-lease-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
+          "result": "pass",
+          "note": "smoke section 4 asserts releaseOwnerLease removes owner-lease.json (the terminal-state DONE/DISCARDED cleanup release path) and is idempotent — releasing an absent lease is a no-op false",
+          "headHash": "76e0d87468d062fc76daf4f342fbbc4efe9a2460",
+          "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
+          "timestamp": "2026-05-18T23:41:45.341Z"
         }
       ]
     },
