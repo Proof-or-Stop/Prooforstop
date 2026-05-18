@@ -98,6 +98,15 @@
       "reviewRound": "2026-05-18T17:34:56.935Z",
       "reviewRunId": "B-f60c:RR-013",
       "_hash": "999586d6e16f511fc14850e72c5de928bdd74cf4213a34275c9264eac823c35b"
+    },
+    {
+      "id": "B-f60c:RP-012",
+      "agent": "koala-review-docs",
+      "note": "Round 3 docs review: Step 1 extracted 0 exported symbols (pure docs diff). Fallback 1 applied — reviewed all 4 touched .md files against git diff main...HEAD. Verified: (1) CLAUDE.md and AGENTS.md session-write-coordination paragraphs are byte-identical; (2) both claim main write lock implemented (B-f60c), owner-lease/takeover/session_brief still pending — consistent with code; (3) lock canonical path .koala/locks/main-write.lock/ confirmed in MAIN_WRITE_LOCK_REL constant; (4) all claimed handlers (DONE/done_recover/gap_log/audit/story_create/B-META finding) verified to call withReentrantMainWriteLock or acquireMainWriteLockRegistered; (5) old path .koala/runtime/done-main-merge.lock absent from all docs, present only in code comments as historical reference; (6) session-ownership-and-write-leases.md status updated to rollout-in-progress, Storage section consistent; (7) story-lifecycle.md updated to canonical lock path with correct retirement note. No doc-code-drift found.",
+      "createdAt": "2026-05-18T17:40:05.526Z",
+      "reviewRound": "2026-05-18T17:34:56.935Z",
+      "reviewRunId": "B-f60c:RR-017",
+      "_hash": "7318b102f0ca04c2f8df4167fa8e97bcd4a4d4a2776dcbc7495943ef572ba33e"
     }
   ]
 }
