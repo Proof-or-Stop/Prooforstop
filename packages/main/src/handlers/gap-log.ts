@@ -28,6 +28,8 @@
 import type { HandlerContext } from './context.js';
 import type { Finding, FindingEvidenceState } from '../core/types.js';
 import { ensureMetaStory, appendGapFinding, META_STORY_ID } from '../core/audit-meta-store.js';
+import { withReentrantMainWriteLock } from '../core/main-write-lock.js';
+import { resolveMainRepoRoot } from '../core/partial-done-recovery.js';
 
 const GAP_LOG_CATEGORIES = ['happy', 'edge', 'adversarial', 'missing'] as const;
 const GAP_LOG_SEVERITIES = ['critical', 'high', 'medium', 'low'] as const;
@@ -103,6 +105,11 @@ export function createGapLogHandlers(ctx: HandlerContext): Record<string, (...ar
           `gap_log: severity 必填且必须是 ${GAP_LOG_SEVERITIES.join('|')} 之一`,
         );
       }
+      // Capture the runtime-narrowed values into local consts: the type guards
+      // above narrow `args.category` / `args.severity` here, but TS widens a
+      // captured *mutable property* back to `string` inside the closure below.
+      const category: Finding['category'] = args.category;
+      const severity: Finding['severity'] = args.severity;
       // 3) evidence note（desc）必填，trim 后非空（空串 / 纯空白拒绝）
       const desc = (args.evidence ?? '').trim();
       if (desc.length < 1) {
@@ -168,16 +175,40 @@ export function createGapLogHandlers(ctx: HandlerContext): Record<string, (...ar
         : [];
       const mergedFiles = Array.from(new Set([...ev.sourceRefs, ...argFiles]));
 
-      // 8) ensureMetaStory bootstrap 容器（不存在则建），写入 B-META findings。
-      const { created } = ensureMetaStory(store);
-      const result = appendGapFinding(store, {
-        category: args.category,
-        severity: args.severity,
-        desc,
-        evidenceState,
-        ...(uncertaintyReason ? { uncertaintyReason } : {}),
-        ...(mergedFiles.length > 0 ? { files: mergedFiles } : {}),
-        agent: args.agent || process.env.KOALA_AGENT || 'koala-gap-log',
+      // 8) ensureMetaStory bootstrap 容器（不存在则建）+ 写入 B-META findings。
+      //    B-f60c CHK-003: gap_log 写共享 main / B-META 状态，必须在 main write
+      //    lock 内串行化（session-ownership-and-write-leases.md Rule 5）。
+      //    临界区 = ensureMetaStory（bootstrap 容器）+ appendGapFinding（去重 +
+      //    append）—— 二者都写 B-META，必须原子。
+      //    用 *reentrant* 变体：gap_log 当前不会嵌套在另一个持锁命令里，但若将来
+      //    某条持锁命令内部调 gap_log（如 audit 归档自身发现的 gap），reentrant
+      //    保证不自死锁。同进程已持锁 → pass-through 直接跑临界区。
+      //    锁路径解析到 main repo root（gap_log 通常从项目根跑，但 resolveMainRepoRoot
+      //    对 worktree 子目录也能正确回退到主仓根）。
+      const mainRepoRoot = resolveMainRepoRoot(ctx.root);
+      const { created, result } = withReentrantMainWriteLock(mainRepoRoot, () => {
+        const ensured = ensureMetaStory(store);
+        const appended = appendGapFinding(store, {
+          category,
+          severity,
+          desc,
+          evidenceState,
+          ...(uncertaintyReason ? { uncertaintyReason } : {}),
+          ...(mergedFiles.length > 0 ? { files: mergedFiles } : {}),
+          ...(ev.reproCommand ? { reproCommand: ev.reproCommand } : {}),
+          ...(ev.observedOutput ? { observedOutput: ev.observedOutput } : {}),
+          ...(ev.analysisNote ? { analysisNote: ev.analysisNote } : {}),
+          agent: args.agent || process.env.KOALA_AGENT || 'koala-gap-log',
+        });
+        return { created: ensured.created, result: appended };
+      }, {
+        // gap_log is a sub-second critical section. Concurrent callers must
+        // SERIALIZE-AND-WAIT so a racing duplicate is caught by the in-lock
+        // idempotency dedup (→ one canonical finding) instead of fail-fasting
+        // with a contention error. Waiting still honors Rule 6 — the caller
+        // never proceeds without the lock.
+        label: 'gap_log',
+        onContention: 'wait',
       });
 
       const bootstrapHint = created
@@ -186,16 +217,23 @@ export function createGapLogHandlers(ctx: HandlerContext): Record<string, (...ar
       const downgradeHint = downgraded
         ? '\n⚠ 请求 verified 但未提供结构化 evidence，已强制降回 suspected。'
         : '';
+      // B-f60c CHK-003: when the gap fingerprint matched an existing OPEN
+      // finding, no new finding was written — surface the dedup so the operator
+      // knows the canonical finding was reused, not duplicated.
+      const dedupHint = result.deduped
+        ? `\n→ 相同 gap 已存在（fingerprint 命中），复用 canonical finding ${result.findingId}，未新建。`
+        : '';
       const srcParts: string[] = [];
       if (ev.sourceRefs.length > 0) srcParts.push(`sourceRefs=${ev.sourceRefs.length}`);
       if (ev.reproCommand) srcParts.push('reproCommand');
       if (ev.observedOutput) srcParts.push('observedOutput');
       if (ev.analysisNote) srcParts.push('analysisNote');
+      const verb = result.deduped ? 'Gap deduped' : 'Gap logged';
       return (
-        `Gap logged: ${result.findingId} ` +
+        `${verb}: ${result.findingId} ` +
         `(evidenceState=${result.evidenceState}, severity=${args.severity}, category=${args.category}; ` +
         `source: ${srcParts.join(', ')})` +
-        bootstrapHint + downgradeHint
+        bootstrapHint + downgradeHint + dedupHint
       );
     },
   };

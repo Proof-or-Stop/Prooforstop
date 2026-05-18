@@ -13,6 +13,8 @@ import { syncClusterResolves } from '../core/cluster-sync.js';
 import { isPassOnlyReviewFindingRecord } from '../core/flow-fact-policy.js';
 import { assertCurrentReviewRunForEvidence, resolveReviewRunLane } from '../core/review-run.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
+import { withReentrantMainWriteLock } from '../core/main-write-lock.js';
+import { resolveMainRepoRoot } from '../core/partial-done-recovery.js';
 
 const CANONICAL_FINDING_CATEGORIES = ['happy', 'edge', 'adversarial', 'missing'] as const;
 const LEGACY_FINDING_CATEGORIES = ['cleanup', 'doc-promise-undelivered', 'doc-code-drift', 'spec-boundary'] as const;
@@ -48,6 +50,32 @@ function withReviewPassLock<T>(ctx: HandlerContext, storyId: string, fn: () => T
   } finally {
     rmSync(lockDir, { recursive: true, force: true });
   }
+}
+
+/**
+ * B-f60c CHK-003: a finding mutation on the shared `B-META-framework-audit`
+ * container writes shared main / B-META state, so per
+ * session-ownership-and-write-leases.md Rule 5 it must serialize on the unified
+ * main write lock. A mutation on a NORMAL story writes story-scoped metadata
+ * (the story owner lease's territory, NOT the main write lock) and is run
+ * unchanged.
+ *
+ * The lock is reentrant: a B-META finding mutation can be reached from inside
+ * another shared-write critical section (e.g. `audit` upserts B-META findings
+ * while already holding the lock), and a non-reentrant acquire would self-
+ * deadlock. The reentrant wrapper makes the nested call a pass-through.
+ */
+function withMetaFindingLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
+  if (!storyId.startsWith('B-META-')) {
+    return fn();
+  }
+  const mainRepoRoot = resolveMainRepoRoot(ctx.root);
+  // A B-META finding write is a sub-second critical section — serialize-and-wait
+  // on contention so a concurrent write completes rather than fail-fasting.
+  return withReentrantMainWriteLock(mainRepoRoot, fn, {
+    label: `finding write (${storyId})`,
+    onContention: 'wait',
+  });
 }
 
 function normalizeFindingForList(finding: Finding): Finding {
@@ -218,32 +246,37 @@ export function createFindingHandlers(ctx: HandlerContext) {
         return recordReviewPass(ctx, args.storyId, reviewerLane || agent, `Converted pass-only finding_add record: ${args.desc}`, args.reviewRunId || '');
       }
 
-      const data = store.readFindings(args.storyId);
-      const nextNum = data.findings.length + 1;
-      const id = `${args.storyId}:F-${String(nextNum).padStart(3, '0')}`;
-      const timestamp = new Date().toISOString();
-
       // 自动注入当前 review round（reviewer 无需传参）
       const reviewRound = story.currentReviewRound || '';
 
-      const finding: Finding = {
-        id,
-        desc: args.desc,
-        severity: args.severity as 'critical' | 'high' | 'medium' | 'low',
-        category: category as Finding["category"],
-        status: 'open',
-        evidenceState: evidence.evidenceState,
-        ...(evidence.uncertaintyReason ? { uncertaintyReason: evidence.uncertaintyReason } : {}),
-        ...(evidence.disprovenEvidence ? { disprovenEvidence: evidence.disprovenEvidence } : {}),
-        agent,
-        createdAt: timestamp,
-        reviewRound,
-        ...(args.reviewRunId ? { reviewRunId: args.reviewRunId } : {}),
-        _hash: signFinding(args.storyId, id, args.desc, args.severity, timestamp, reviewRound, args.reviewRunId || ''),
-        ...(args.files && args.files.length > 0 ? { files: args.files } : {}),
-      };
-      data.findings.push(finding);
-      store.writeFindings(args.storyId, data);
+      // B-f60c CHK-003: the readFindings → push → writeFindings critical section
+      // for a B-META story is serialized under the main write lock; a normal
+      // story runs it unchanged (withMetaFindingLock is a pass-through there).
+      const id = withMetaFindingLock(ctx, args.storyId, () => {
+        const data = store.readFindings(args.storyId);
+        const nextNum = data.findings.length + 1;
+        const fid = `${args.storyId}:F-${String(nextNum).padStart(3, '0')}`;
+        const timestamp = new Date().toISOString();
+        const finding: Finding = {
+          id: fid,
+          desc: args.desc,
+          severity: args.severity as 'critical' | 'high' | 'medium' | 'low',
+          category: category as Finding["category"],
+          status: 'open',
+          evidenceState: evidence.evidenceState,
+          ...(evidence.uncertaintyReason ? { uncertaintyReason: evidence.uncertaintyReason } : {}),
+          ...(evidence.disprovenEvidence ? { disprovenEvidence: evidence.disprovenEvidence } : {}),
+          agent,
+          createdAt: timestamp,
+          reviewRound,
+          ...(args.reviewRunId ? { reviewRunId: args.reviewRunId } : {}),
+          _hash: signFinding(args.storyId, fid, args.desc, args.severity, timestamp, reviewRound, args.reviewRunId || ''),
+          ...(args.files && args.files.length > 0 ? { files: args.files } : {}),
+        };
+        data.findings.push(finding);
+        store.writeFindings(args.storyId, data);
+        return fid;
+      });
 
       try {
         store.appendProcessEvent(args.storyId, {
@@ -344,11 +377,15 @@ export function createFindingHandlers(ctx: HandlerContext) {
 
     finding_resolve(args: { storyId: string; findingId: string }): string {
       assertCwdInWorktree(store, args.storyId);
-      const data = store.readFindings(args.storyId);
-      const f = data.findings.find(f => f.id === args.findingId);
-      if (!f) throw new Error(`Finding ${args.findingId} not found`);
-      f.status = 'resolved';
-      store.writeFindings(args.storyId, data);
+      // B-f60c CHK-003: a B-META finding mutation is serialized under the main
+      // write lock; a normal story runs unchanged (pass-through).
+      withMetaFindingLock(ctx, args.storyId, () => {
+        const data = store.readFindings(args.storyId);
+        const f = data.findings.find(f => f.id === args.findingId);
+        if (!f) throw new Error(`Finding ${args.findingId} not found`);
+        f.status = 'resolved';
+        store.writeFindings(args.storyId, data);
+      });
 
       // B-abd8: auto-recompute process metrics
       try {
@@ -367,21 +404,30 @@ export function createFindingHandlers(ctx: HandlerContext) {
       if (!args.reason || args.reason.trim().length < 10) {
         throw new Error('finding_dismiss: reason 必须 ≥ 10 字符，说清楚为什么不修');
       }
-      const data = store.readFindings(args.storyId);
-      const f = data.findings.find(f => f.id === args.findingId);
-      if (!f) throw new Error(`Finding ${args.findingId} not found`);
+      // B-f60c CHK-003: a B-META finding mutation is serialized under the main
+      // write lock; a normal story runs unchanged (pass-through). `alreadyResolved`
+      // carries the "already resolved, no-op dismiss" branch out of the lock.
+      const alreadyResolved = withMetaFindingLock(ctx, args.storyId, () => {
+        const data = store.readFindings(args.storyId);
+        const f = data.findings.find(f => f.id === args.findingId);
+        if (!f) throw new Error(`Finding ${args.findingId} not found`);
 
-      if (f.status === 'resolved') {
+        if (f.status === 'resolved') {
+          return true;
+        }
+        // B-0f47: critical finding 不允许 dismiss（放在 resolved 检查之后）
+        if (f.severity === 'critical') {
+          throw new Error(`critical finding 不允许 dismiss，任何轮次都必须修复。Finding: ${args.findingId}`);
+        }
+        f.status = 'dismissed';
+        f.dismissReason = args.reason.trim();
+        f.dismissedAt = new Date().toISOString();
+        store.writeFindings(args.storyId, data);
+        return false;
+      });
+      if (alreadyResolved) {
         return `Finding ${args.findingId} 已经 resolved，不需要 dismiss`;
       }
-      // B-0f47: critical finding 不允许 dismiss（放在 resolved 检查之后）
-      if (f.severity === 'critical') {
-        throw new Error(`critical finding 不允许 dismiss，任何轮次都必须修复。Finding: ${args.findingId}`);
-      }
-      f.status = 'dismissed';
-      f.dismissReason = args.reason.trim();
-      f.dismissedAt = new Date().toISOString();
-      store.writeFindings(args.storyId, data);
 
       // B-abd8: auto-recompute process metrics
       try {

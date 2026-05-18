@@ -476,6 +476,15 @@ export interface Finding {
   driftHash?: string;
   lastSeenAt?: string;
   firstSeenRound?: number;
+  /**
+   * B-f60c CHK-003: gap_log idempotency fingerprint. Stable sha256 over the
+   * normalized gap description + category + severity + structured evidence
+   * source. Two gap_log calls with the same fingerprint dedupe into one
+   * canonical B-META finding (inside the main write lock); genuinely different
+   * gaps get different fingerprints and are never merged. Absent on non-gap
+   * findings (audit drift / reviewer findings).
+   */
+  gapFingerprint?: string;
   /** auto-resolve 时留证据链，区别于普通 finding_resolve */
   resolvedReason?: string;
   resolvedAt?: string;

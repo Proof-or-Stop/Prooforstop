@@ -16,7 +16,7 @@
  */
 
 import { strict as assert } from 'node:assert';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import { existsSync, mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -306,17 +306,88 @@ function assertNoWorktreeRequired(): void {
   } finally { rmSync(root, { recursive: true, force: true }); }
 }
 
-// ── 8: identical content twice -> two separate findings (manual archival is non-deduped) ──
-function assertNotDeduplicated(): void {
-  const root = createMainProject('koala-gaplog-no-dedup-');
+// ── 8: identical gap twice -> one canonical finding (B-f60c CHK-003 in-lock dedup) ──
+// B-f60c CHK-003 REVERSES the former non-dedup behavior. session-ownership-and-
+// write-leases.md "Idempotency Requirements" mandates gap_log dedupe by
+// normalized desc + category + severity + evidence fingerprint, inside the main
+// write lock. Logging the SAME gap twice must collapse into ONE canonical
+// finding so concurrent agents archiving the same framework gap do not pollute
+// B-META with duplicates.
+function assertIdenticalGapDeduped(): void {
+  const root = createMainProject('koala-gaplog-dedup-');
+  try {
+    const out1 = runGapLog(root, VALID);
+    assert.match(out1, /Gap logged: B-META-framework-audit:F-/, 'first gap_log writes a finding');
+    const out2 = runGapLog(root, VALID); // exact same content
+    // second identical call must report dedup, not a fresh write
+    assert.match(out2, /Gap deduped: B-META-framework-audit:F-/,
+      'second identical gap_log must report dedup, not a new finding');
+    assert.match(out2, /相同 gap 已存在/, 'dedup hint explains the canonical finding was reused');
+    const findings = readMetaFindings(root).findings;
+    assert.equal(findings.length, 1,
+      'identical gap logged twice must collapse into ONE canonical finding (B-f60c CHK-003 in-lock dedup)');
+    assert.ok(findings[0].gapFingerprint, 'gap finding carries an idempotency fingerprint');
+    assert.equal(findings.every(f => !f.driftHash), true, 'manual gap findings carry no driftHash');
+    console.log('✓ gap-log-8: identical gap logged twice dedupes into one canonical finding');
+  } finally { rmSync(root, { recursive: true, force: true }); }
+}
+
+// ── 8b: different gaps are NEVER merged by the fingerprint (no false dedup) ──
+// The fingerprint must be NARROW: two genuinely different gaps must always get
+// distinct fingerprints so a real gap is never lost to a too-wide hash. This
+// asserts every distinguishing channel (desc / category / severity / sourceRefs
+// / reproCommand / observedOutput / analysisNote) keeps gaps separate.
+function assertDifferentGapsNotFalselyMerged(): void {
+  const root = createMainProject('koala-gaplog-no-false-merge-');
+  try {
+    // base gap
+    runGapLog(root, VALID);
+    // differs ONLY in desc -> distinct gap
+    runGapLog(root, { ...VALID, evidence: 'a completely different framework gap with its own description' });
+    // differs ONLY in category -> distinct gap
+    runGapLog(root, { ...VALID, category: 'edge' });
+    // differs ONLY in severity -> distinct gap
+    runGapLog(root, { ...VALID, severity: 'high' });
+    // differs ONLY in sourceRefs -> distinct gap
+    runGapLog(root, { ...VALID, sourceRefs: ['packages/main/src/core/other-file.ts:99'] });
+    // differs ONLY in reproCommand -> distinct gap
+    runGapLog(root, { ...VALID, reproCommand: 'koala validate --story=B-xxxx' });
+    // differs ONLY in observedOutput -> distinct gap
+    runGapLog(root, { ...VALID, observedOutput: 'gate unexpectedly passed' });
+    // differs ONLY in analysisNote -> distinct gap
+    runGapLog(root, { ...VALID, analysisNote: 'root cause is a missing runtime guard' });
+
+    const findings = readMetaFindings(root).findings;
+    assert.equal(findings.length, 8,
+      'eight genuinely different gaps must each get their own finding — fingerprint must not falsely merge them');
+    const fingerprints = new Set(findings.map(f => f.gapFingerprint));
+    assert.equal(fingerprints.size, 8,
+      'each distinct gap must have a UNIQUE fingerprint (narrow fingerprint, no collisions)');
+    console.log('✓ gap-log-8b: gaps differing in any identity channel get distinct fingerprints, never merged');
+  } finally { rmSync(root, { recursive: true, force: true }); }
+}
+
+// ── 8c: a resolved gap can be re-logged (dedup only blocks OPEN duplicates) ──
+// Dedup keys on an OPEN finding. A gap that was closed and is then observed
+// again is a legitimately new occurrence — re-logging it after the original is
+// resolved must create a fresh finding, not silently no-op.
+function assertResolvedGapCanBeReLogged(): void {
+  const root = createMainProject('koala-gaplog-relog-');
   try {
     runGapLog(root, VALID);
-    runGapLog(root, VALID); // exact same content
-    const findings = readMetaFindings(root).findings;
-    assert.equal(findings.length, 2, 'gap_log must not dedupe identical content (unlike audit drift upsert)');
-    assert.notEqual(findings[0].id, findings[1].id, 'each gap_log call gets a fresh finding id');
-    assert.equal(findings.every(f => !f.driftHash), true, 'manual gap findings carry no driftHash');
-    console.log('✓ gap-log-8: identical content twice writes two separate findings (non-deduped)');
+    // resolve the first finding directly in the store (simulates the gap being closed)
+    const store = new StoryStore(root);
+    const data = store.readFindings(META_STORY_ID);
+    assert.equal(data.findings.length, 1, 'first gap_log writes one finding');
+    data.findings[0].status = 'resolved';
+    store.writeFindings(META_STORY_ID, data);
+    // re-log the identical gap — the prior finding is resolved, so this is a new occurrence
+    const out = runGapLog(root, VALID);
+    assert.match(out, /Gap logged: B-META-framework-audit:F-/,
+      're-logging a gap whose prior finding is resolved must create a fresh finding');
+    const after = readMetaFindings(root).findings;
+    assert.equal(after.length, 2, 'a resolved gap re-logged produces a second finding (new occurrence)');
+    console.log('✓ gap-log-8c: a gap can be re-logged after its prior finding is resolved');
   } finally { rmSync(root, { recursive: true, force: true }); }
 }
 
@@ -392,6 +463,78 @@ function assertSourceRefsAndFilesMerged(): void {
   } finally { rmSync(root, { recursive: true, force: true }); }
 }
 
+/** Spawn one real `koala gap_log` child process; resolves with exit info. */
+function spawnGapLog(root: string, args: Record<string, unknown>): Promise<{ code: number; output: string }> {
+  return new Promise((resolveP) => {
+    const child = spawn(process.execPath, [cliPath, 'gap_log', JSON.stringify(args)], {
+      cwd: root,
+      env: { ...process.env, KOALA_PROJECT_ROOT: root },
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    let out = '';
+    child.stdout?.on('data', (d) => { out += d; });
+    child.stderr?.on('data', (d) => { out += d; });
+    child.on('close', (code) => resolveP({ code: code ?? -1, output: out }));
+  });
+}
+
+// ── 8d: concurrent same-gap gap_log under the main write lock -> one finding ──
+// B-f60c CHK-003: gap_log writes shared B-META state under the unified main
+// write lock. REAL OS child processes are spawned (their only shared state is
+// the filesystem — exactly the production race; an in-process Promise.all would
+// serialize on one event loop and prove nothing). gap_log acquires the lock in
+// `onContention: 'wait'` mode (sub-second critical section), so every racer
+// serializes-and-waits: the winner writes the finding, every later racer hits
+// the in-lock idempotency dedup. The invariant: the same gap logged
+// concurrently produces EXACTLY ONE canonical B-META finding, all racers exit 0.
+async function assertConcurrentSameGapDeduped(): Promise<void> {
+  const root = createMainProject('koala-gaplog-concurrent-same-');
+  try {
+    const racers = 6;
+    const pending: Array<Promise<{ code: number; output: string }>> = [];
+    for (let i = 0; i < racers; i++) {
+      pending.push(spawnGapLog(root, VALID)); // identical gap content
+    }
+    const results = await Promise.all(pending);
+    // Every racer waits for the lock and completes — none fail-fast.
+    for (let i = 0; i < results.length; i++) {
+      assert.equal(results[i].code, 0,
+        `concurrent same-gap racer ${i} must exit 0 (wait-mode lock), got ${results[i].code}\n${results[i].output}`);
+    }
+    const findings = readMetaFindings(root).findings;
+    assert.equal(findings.length, 1,
+      `concurrent same-gap gap_log must yield exactly ONE finding, got ${findings.length}: ` +
+      results.map((r, i) => `proc${i}(exit=${r.code})`).join(' '));
+    // exactly one racer reports a fresh write; the rest report dedup
+    const written = results.filter(r => /Gap logged: /.test(r.output)).length;
+    const deduped = results.filter(r => /Gap deduped: /.test(r.output)).length;
+    assert.equal(written, 1, 'exactly one concurrent racer writes the canonical finding');
+    assert.equal(written + deduped, racers, 'every other racer reports an in-lock dedup');
+
+    // concurrent DIFFERENT gaps -> each gets its own finding (lock serializes,
+    // dedup does not falsely merge distinct gaps).
+    const root2 = createMainProject('koala-gaplog-concurrent-diff-');
+    try {
+      const diffPending: Array<Promise<{ code: number; output: string }>> = [];
+      for (let i = 0; i < 4; i++) {
+        diffPending.push(spawnGapLog(root2, { ...VALID, evidence: `distinct concurrent framework gap number ${i}` }));
+      }
+      const diffResults = await Promise.all(diffPending);
+      for (let i = 0; i < diffResults.length; i++) {
+        assert.equal(diffResults[i].code, 0,
+          `distinct concurrent racer ${i} must exit 0\n${diffResults[i].output}`);
+      }
+      const diffFindings = readMetaFindings(root2).findings;
+      assert.equal(diffFindings.length, 4,
+        'four distinct concurrent gaps must each get their own finding (no false merge)');
+      const fps = new Set(diffFindings.map(f => f.gapFingerprint));
+      assert.equal(fps.size, 4, 'four distinct concurrent gaps must have four distinct fingerprints');
+    } finally { rmSync(root2, { recursive: true, force: true }); }
+
+    console.log('✓ gap-log-8d: concurrent same gap -> one canonical finding; concurrent distinct gaps -> all kept');
+  } finally { rmSync(root, { recursive: true, force: true }); }
+}
+
 // ── 11: gap_log is discoverable -> koala help / koala gap_log --help shows it ──
 function assertCommandDiscoverable(): void {
   const root = createMainProject('koala-gaplog-discover-');
@@ -406,17 +549,25 @@ function assertCommandDiscoverable(): void {
   } finally { rmSync(root, { recursive: true, force: true }); }
 }
 
-assertMissingRequiredFieldsRejected();
-assertDefaultWriteIsSuspected();
-assertVerifiedWithoutEvidenceCannotBeVerified();
-assertVerifiedWithEvidenceAllowed();
-assertBlankEvidenceRejected();
-assertContainerBootstrap();
-assertNoWorktreeRequired();
-assertNotDeduplicated();
-assertDisprovenRejected();
-assertRapidSuccessionAllWritten();
-assertSourceRefsAndFilesMerged();
-assertCommandDiscoverable();
+(async () => {
+  assertMissingRequiredFieldsRejected();
+  assertDefaultWriteIsSuspected();
+  assertVerifiedWithoutEvidenceCannotBeVerified();
+  assertVerifiedWithEvidenceAllowed();
+  assertBlankEvidenceRejected();
+  assertContainerBootstrap();
+  assertNoWorktreeRequired();
+  assertIdenticalGapDeduped();
+  assertDifferentGapsNotFalselyMerged();
+  assertResolvedGapCanBeReLogged();
+  await assertConcurrentSameGapDeduped();
+  assertDisprovenRejected();
+  assertRapidSuccessionAllWritten();
+  assertSourceRefsAndFilesMerged();
+  assertCommandDiscoverable();
 
-console.log('✓ gap-log smoke passed');
+  console.log('✓ gap-log smoke passed');
+})().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

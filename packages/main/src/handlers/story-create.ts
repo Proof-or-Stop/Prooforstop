@@ -9,7 +9,8 @@ import { createHash } from 'crypto';
 import { computeDraftCheckHash } from '../core/draft-check-hash.js';
 import { computeChecklistHash } from './init-check.js';
 import { isGitRepository } from '../core/git-probe.js';
-import { withMkdirLock } from '../core/mkdir-lock.js';
+import { withReentrantMainWriteLock } from '../core/main-write-lock.js';
+import { resolveMainRepoRoot } from '../core/partial-done-recovery.js';
 import { normalizeName, keywordOverlap } from '../core/story-dedup.js';
 
 /**
@@ -167,14 +168,22 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       background?: string; // B-45ed CHK-006: 必填四段式 background.md 内容
       fromDraft?: string; // B-9975 CHK-003: from-draft mode
     }): string {
-      // B-6812 CHK-001: serialize the whole story_create body (fromDraft branch
-      // + normal branch) under a directory lock so the idempotency scan →
+      // B-6812 CHK-001 / B-f60c CHK-003: serialize the whole story_create body
+      // (fromDraft branch + normal branch) so the idempotency scan →
       // nextStoryId → writeStory → writeChecklist sequence is atomic against
-      // concurrent same-name story_create invocations (closes the G1 TOCTOU
-      // window). Lock path is resolved from the store's actual storyDir base,
-      // never hardcoded to docs/story or .koala/story.
-      const createLockDir = join(ctx.root, store.storyDirRel(), '.create.lock');
-      return withMkdirLock(createLockDir, () => {
+      // concurrent story_create invocations (closes the G1 TOCTOU window).
+      //
+      // B-f60c CHK-003: story_create writes shared main metadata, so per
+      // session-ownership-and-write-leases.md it must serialize on the unified
+      // MAIN WRITE LOCK (Rule 5) — not the former story-dir-scoped
+      // `.create.lock`. The unified lock subsumes the old lock's job: every
+      // concurrent story_create still contends on one directory, the dedup
+      // scan still runs strictly inside the lock. The lock is reentrant so a
+      // future shared-write command that nests story_create cannot self-
+      // deadlock. Lock path resolves to the main repo root via
+      // resolveMainRepoRoot (a worktree subdir falls back to the main root).
+      const createLockMainRepoRoot = resolveMainRepoRoot(ctx.root);
+      return withReentrantMainWriteLock(createLockMainRepoRoot, () => {
       // === B-9975 CHK-003: FROM-DRAFT MODE ===
       // When fromDraft is provided, bypass normal creation path entirely.
       if (args.fromDraft) {
@@ -607,7 +616,12 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       // B-6812 CHK-003 (G3): duplicate / concurrency warnings go to stderr.
       emitAdvisoryToStderr();
       return `Story ${storyId} created (IDEA)`;
-      });
+      // story_create is a sub-second critical section: concurrent callers must
+      // SERIALIZE-AND-WAIT (every invocation completes, the loser then hits the
+      // idempotency reuse branch) — never fail-fast. This preserves the
+      // pre-B-f60c "winner creates, the rest reuse, all exit 0" contract that
+      // story-create-concurrency-smoke asserts.
+      }, { label: 'story_create', onContention: 'wait' });
     },
   };
 }

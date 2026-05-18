@@ -43,6 +43,19 @@ export const MAIN_WRITE_LOCK_REL = '.koala/locks/main-write.lock';
 export const MAIN_WRITE_LOCK_STALE_MS = 120000;
 
 /**
+ * Default acquire deadline (ms) for `onContention: 'wait'` callers.
+ *
+ * MUST exceed `MAIN_WRITE_LOCK_STALE_MS`: a waiter that gives up BEFORE a held
+ * lock crosses the 120s stale threshold can never reach the stale-reclaim
+ * branch, so a crashed holder's lock would deadlock every waiting caller. With
+ * a 150s deadline a waiter is still polling when a crashed holder's lock turns
+ * stale at 120s and reclaims it. Legitimate `wait`-mode holders (`story_create`
+ * / `gap_log`) complete in well under 1s, so this deadline is only ever reached
+ * by a genuine crash.
+ */
+export const MAIN_WRITE_LOCK_WAIT_DEADLINE_MS = 150000;
+
+/**
  * Resolve the canonical main write lock directory for `mainRepoRoot`.
  *
  * `mainRepoRoot` MUST be the main repository root (not a story worktree path):
@@ -72,17 +85,38 @@ export interface MainWriteLockOptions {
    * (120s). Overridable only for tests; production callers use the default.
    */
   staleMs?: number;
+  /**
+   * Contention behavior when the lock is held by a LIVE (non-stale) holder:
+   *
+   *  - `'fail-fast'` (default) — throw immediately. Correct for long critical
+   *    sections (DONE merge ~120s): a waiter blocking that long is worse than a
+   *    clear "retry later" error. This is the Rule-6 "do not proceed
+   *    optimistically" behavior — failing IS blocking.
+   *  - `'wait'` — poll until the lock frees (or `waitDeadlineMs` elapses, then
+   *    throw a timeout). Correct for SHORT critical sections (`story_create`,
+   *    `gap_log` — sub-second): concurrent callers should serialize-and-wait so
+   *    every invocation still completes instead of erroring out. Waiting does
+   *    NOT violate Rule 6 — the caller still never proceeds without the lock.
+   */
+  onContention?: 'fail-fast' | 'wait';
+  /**
+   * Acquire deadline (ms) when `onContention: 'wait'`. After this long still
+   * waiting → throw a timeout. Ignored for `'fail-fast'`. Default
+   * `MAIN_WRITE_LOCK_WAIT_DEADLINE_MS` (150s) — kept above the 120s stale
+   * window so a crashed holder's lock is stale-reclaimed, never a deadlock.
+   */
+  waitDeadlineMs?: number;
 }
 
 /**
  * Acquire the unified main write lock.
  *
- * Atomic mkdir acquire at `.koala/locks/main-write.lock/`. A live (non-stale)
- * lock fails fast (`failFastIfHeld`) with a blocking error — the caller MUST
- * NOT proceed optimistically. A stale lock (mtime older than `staleMs`) is
- * force-reclaimed first. The returned handle's `release()` removes the lock
- * dir; callers MUST release in a `finally` so a throwing critical section
- * cannot leak the lock.
+ * Atomic mkdir acquire at `.koala/locks/main-write.lock/`. A stale lock (mtime
+ * older than `staleMs`) is force-reclaimed first. A live (non-stale) lock is
+ * handled per `options.onContention`: `'fail-fast'` (default) throws
+ * immediately; `'wait'` polls until the lock frees or `waitDeadlineMs` elapses.
+ * The returned handle's `release()` removes the lock dir; callers MUST release
+ * in a `finally` so a throwing critical section cannot leak the lock.
  */
 export function acquireMainWriteLock(
   mainRepoRoot: string,
@@ -100,11 +134,22 @@ export function acquireMainWriteLock(
   const label = options.label?.trim() || 'main write';
   const staleMs = options.staleMs ?? MAIN_WRITE_LOCK_STALE_MS;
   const lockDir = mainWriteLockPath(root);
+  // Default contention mode is fail-fast (long DONE-class critical sections).
+  // Runtime guard: an out-of-enum value falls back to 'fail-fast' rather than
+  // silently behaving as 'wait' (mirrors the "Handler 编码约定" enum re-check).
+  const onContention: 'fail-fast' | 'wait' =
+    options.onContention === 'wait' ? 'wait' : 'fail-fast';
 
   return acquireMkdirLock(lockDir, {
     label,
     staleMs,
-    failFastIfHeld: true,
+    failFastIfHeld: onContention === 'fail-fast',
+    // For 'wait' mode the acquire deadline MUST stay above `staleMs` so a
+    // crashed holder's lock is stale-reclaimed rather than deadlocking every
+    // waiter. 'fail-fast' mode never polls, so the deadline is irrelevant there.
+    ...(onContention === 'wait'
+      ? { deadlineMs: options.waitDeadlineMs ?? MAIN_WRITE_LOCK_WAIT_DEADLINE_MS }
+      : {}),
     heldMessage:
       options.heldMessage ??
       `${label} is blocked: the main write lock is held by another Koala operation. ` +
@@ -115,6 +160,11 @@ export function acquireMainWriteLock(
 /**
  * Acquire the main write lock, run `fn`, then release it (release always runs,
  * even when `fn` throws).
+ *
+ * NOTE: this is the NON-reentrant primitive. A second call against the same
+ * `mainRepoRoot` while the lock is still held — even from the same process —
+ * fails fast. Shared-write commands that can nest (`audit` triggered from the
+ * DONE flow, etc.) MUST use `withReentrantMainWriteLock` instead.
  */
 export function withMainWriteLock<T>(
   mainRepoRoot: string,
@@ -127,4 +177,122 @@ export function withMainWriteLock<T>(
   } finally {
     lock.release();
   }
+}
+
+/**
+ * Process-level set of `mainRepoRoot` paths whose main write lock is currently
+ * held by THIS process inside a `withReentrantMainWriteLock` critical section.
+ *
+ * The on-disk mkdir lock is a cross-PROCESS mutex. Within a single Node process
+ * JS is single-threaded, so two critical sections can only interleave by direct
+ * function nesting (e.g. the DONE merge holds the lock and then runs `audit`
+ * in-process, which also wants the lock). Re-acquiring the same mkdir dir in
+ * that case throws `failFastIfHeld` — a self-deadlock. This set lets the
+ * OUTERMOST `withReentrantMainWriteLock` own the real on-disk lock while every
+ * NESTED same-process call becomes a pass-through that just runs `fn`.
+ *
+ * Keyed by the resolved canonical lock path so a story worktree and the main
+ * checkout (which resolve to the same `mainWriteLockPath`) share one key.
+ */
+const heldLockPaths = new Set<string>();
+
+/**
+ * Reentrant variant of `withMainWriteLock`.
+ *
+ * - First (outermost) call for a given `mainRepoRoot` acquires the real on-disk
+ *   mkdir lock, records the path in `heldLockPaths`, runs `fn`, then releases
+ *   the lock and clears the record (release + clear always run, even on throw).
+ * - A NESTED call for the SAME `mainRepoRoot` from the same process sees the
+ *   path already in `heldLockPaths` and runs `fn` directly WITHOUT re-acquiring
+ *   — no self-deadlock. In-process serialization is already guaranteed by JS's
+ *   single thread, so the nested section needs no separate mutex.
+ * - A call from ANOTHER process still contends on the on-disk mkdir lock and
+ *   fails fast if it is held (cross-process mutual exclusion is unchanged).
+ *
+ * Use this for every shared-main / B-META write entrypoint that could nest
+ * (`gap_log`, `audit`, `story_create`, B-META `finding_*`, `done_recover`).
+ */
+export function withReentrantMainWriteLock<T>(
+  mainRepoRoot: string,
+  fn: () => T,
+  options: MainWriteLockOptions = {},
+): T {
+  // Re-validate the same invariant `acquireMainWriteLock` enforces so the
+  // reentrancy key is never an empty string (which would alias every empty
+  // root into one bogus shared key).
+  const root = String(mainRepoRoot ?? '').trim();
+  if (!root) {
+    throw new Error('withReentrantMainWriteLock: mainRepoRoot is required');
+  }
+  const lockKey = mainWriteLockPath(root);
+
+  // Nested same-process call: the outer frame already owns the on-disk lock.
+  if (heldLockPaths.has(lockKey)) {
+    return fn();
+  }
+
+  const lock = acquireMainWriteLock(root, options);
+  heldLockPaths.add(lockKey);
+  try {
+    return fn();
+  } finally {
+    heldLockPaths.delete(lockKey);
+    lock.release();
+  }
+}
+
+/**
+ * Test-only: report whether THIS process currently holds the reentrant main
+ * write lock for `mainRepoRoot`. Used by smoke tests to assert the outermost /
+ * nested bookkeeping; not part of the production control flow.
+ */
+export function isMainWriteLockHeldInProcess(mainRepoRoot: string): boolean {
+  const root = String(mainRepoRoot ?? '').trim();
+  if (!root) return false;
+  return heldLockPaths.has(mainWriteLockPath(root));
+}
+
+/**
+ * Acquire the main write lock AND register it in the in-process reentrancy
+ * registry, so a NESTED `withReentrantMainWriteLock` for the same
+ * `mainRepoRoot` (e.g. `audit` triggered in-process by the DONE flow) becomes a
+ * pass-through instead of self-deadlocking on the on-disk lock.
+ *
+ * This is for callers that need the raw `acquire` / `release` shape (an
+ * explicit lock object held across an `actor.send` boundary) rather than the
+ * `withReentrantMainWriteLock` callback form — the DONE merge critical section
+ * in `transition-orchestrator.ts` is the canonical such caller.
+ *
+ * The returned handle's `release()` clears the registry entry FIRST, then
+ * removes the on-disk lock dir. Both run even if the caller's critical section
+ * threw. If the path is already registered (a reentrant acquire), `release()`
+ * is a no-op — the outer frame still owns the real lock.
+ */
+export function acquireMainWriteLockRegistered(
+  mainRepoRoot: string,
+  options: MainWriteLockOptions = {},
+): AcquiredMkdirLock {
+  const root = String(mainRepoRoot ?? '').trim();
+  if (!root) {
+    throw new Error('acquireMainWriteLockRegistered: mainRepoRoot is required');
+  }
+  const lockKey = mainWriteLockPath(root);
+
+  // Already held by an outer frame in this process — hand back a no-op handle.
+  if (heldLockPaths.has(lockKey)) {
+    return { lockDir: lockKey, release() { /* outer frame owns the lock */ } };
+  }
+
+  const lock = acquireMainWriteLock(root, options);
+  heldLockPaths.add(lockKey);
+  let released = false;
+  return {
+    lockDir: lock.lockDir,
+    release() {
+      if (released) return;
+      released = true;
+      heldLockPaths.delete(lockKey);
+      lock.release();
+    },
+  };
 }

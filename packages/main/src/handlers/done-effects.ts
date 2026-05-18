@@ -50,7 +50,7 @@ import { repairGlobalKoalaLinkBeforeWorktreeDelete } from './worktree.js';
 import { reportHealthIssue } from '../core/health.js';
 import { runDoneOracleGate } from './phase-gates.js';
 import type { AcquiredMkdirLock } from '../core/mkdir-lock.js';
-import { acquireMainWriteLock, mainWriteLockPath } from '../core/main-write-lock.js';
+import { acquireMainWriteLockRegistered, mainWriteLockPath } from '../core/main-write-lock.js';
 
 // B-c622 CHK-004: DONE 阶段自动同步 main —— detect divergence + auto merge main.
 // checkMainDivergence is defined in core/done-oracle.ts and imported by
@@ -139,9 +139,18 @@ export function doneMainMergeLockPath(projectRoot: string, invocationCwd = proce
 
 /**
  * Acquire the unified main write lock for the DONE merge / worktree cleanup
- * critical section. Behavior-preserving wrapper over `acquireMainWriteLock`:
- * the operator-facing held message keeps the legacy "DONE main merge lock is
- * held" wording so external CLI output is byte-identical.
+ * critical section. Behavior-preserving wrapper over
+ * `acquireMainWriteLockRegistered`: the operator-facing held message keeps the
+ * legacy "DONE main merge lock is held" wording so external CLI output is
+ * byte-identical.
+ *
+ * B-f60c CHK-003: uses the *registered* acquire so the in-process reentrancy
+ * registry knows the DONE flow holds the lock. The DONE pipeline runs
+ * `audit` in-process (`applyDoneMergeEffects` → `maybeTriggerAudit` →
+ * full-auto `runAuditInProcess`); now that `audit` also takes the main write
+ * lock, that nested call would self-deadlock on the on-disk mkdir lock. With
+ * the registry, the nested `audit`'s `withReentrantMainWriteLock` sees the
+ * DONE-held path and becomes a pass-through.
  */
 export function acquireDoneMainMergeLock(
   storyId: string,
@@ -149,7 +158,7 @@ export function acquireDoneMainMergeLock(
   invocationCwd = process.cwd(),
 ): AcquiredMkdirLock {
   const mainRepoRoot = resolveDoneLockMainRepoRoot(projectRoot, invocationCwd);
-  return acquireMainWriteLock(mainRepoRoot, {
+  return acquireMainWriteLockRegistered(mainRepoRoot, {
     label: 'DONE main merge',
     heldMessage:
       `DONE main merge lock is held by another Koala operation; story ${storyId} phase was not changed. ` +
