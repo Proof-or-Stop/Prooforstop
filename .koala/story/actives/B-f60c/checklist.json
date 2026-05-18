@@ -219,6 +219,17 @@
           "headHash": "d17186fe7264aa3c16ec3967bef3a1dd3b1c03b7",
           "materialHash": "2b0687b59c51418326cdb67e1f782a2af56e56594afc2138cfb98068081074fe",
           "timestamp": "2026-05-18T12:22:18.261Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
+          "result": "pass",
+          "note": "assertInitCheckLeavesNoUncommittedMainMirrorForDone asserts git status --porcelain for the story dir is empty after story_advance INIT_CHECK and the index.json is git-tracked — INIT_CHECK no longer leaves an uncommitted main-side mirror.",
+          "headHash": "e1cc15f0b5431be7d0e399f38ad79599b595778c",
+          "materialHash": "2b0687b59c51418326cdb67e1f782a2af56e56594afc2138cfb98068081074fe",
+          "timestamp": "2026-05-18T12:22:18.730Z"
         }
       ]
     },
