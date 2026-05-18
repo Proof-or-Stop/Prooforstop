@@ -208,6 +208,16 @@
             "priority": "should"
           }
         ]
+      },
+      "userSees": "koala doctor 输出含 stale/stuck main write lock 报告行；锁竞争错误显示 'main write lock is held by session <id> running <command>, heartbeat <n>s ago. Retry after it completes.'",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/doctor.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ]
       }
     },
     {
