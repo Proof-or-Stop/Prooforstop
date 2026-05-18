@@ -35,6 +35,8 @@ import {
 } from '../core/audit-meta-store.js';
 import { runMechanicalAudit, type DriftCandidate, type SkippedEntry } from '../core/audit-scan.js';
 import { stateFilePath } from '../core/audit-trigger.js';
+import { withReentrantMainWriteLock } from '../core/main-write-lock.js';
+import { resolveMainRepoRoot } from '../core/partial-done-recovery.js';
 
 export interface AuditArgs {
   framework?: boolean;
@@ -106,67 +108,87 @@ export function createAuditHandlers(ctx: HandlerContext): AuditHandlers {
         return 'audit: no CLAUDE.md entries found, nothing to audit';
       }
 
-      // 2. meta-story + round
-      ensureMetaStory(store);
-      const round = beginRound(store);
-
       // 3. scanner (B-805f CHK-003: pass registryNames for docs-drift advisory scan)
+      //    Read-only mechanical scan — kept OUTSIDE the main write lock so the
+      //    lock only spans the actual B-META / state mutations below.
       const report = runMechanicalAudit(mdEntries, root, {
         registryNames: ctx.getAllToolNames?.(),
       });
 
-      // 4. upsertDrift
-      const seenHashes = new Set<string>();
-      let newCount = 0;
-      let stillDriftingCount = 0;
-      const rowsNew: AuditRowEntry[] = [];
-      const rowsStill: AuditRowEntry[] = [];
+      // B-f60c CHK-003: every B-META mutation below (ensureMetaStory, beginRound
+      // round bookkeeping, upsertDrift, autoResolveMissing, recordRound) plus
+      // the report.md / state.json writes mutate shared main / B-META state, so
+      // they must be serialized under the main write lock
+      // (session-ownership-and-write-leases.md Rule 5).
+      //
+      // The lock MUST be reentrant: `audit` runs in-process inside the DONE
+      // critical section (applyDoneMergeEffects → maybeTriggerAudit →
+      // full-auto runAuditInProcess → this handler), and the DONE flow already
+      // holds the lock. A non-reentrant acquire would self-deadlock / fail-fast
+      // there. `withReentrantMainWriteLock` makes the nested call a pass-through.
+      const mainRepoRoot = resolveMainRepoRoot(root);
+      const auditOutcome = withReentrantMainWriteLock(mainRepoRoot, () => {
+        // 2. meta-story + round
+        ensureMetaStory(store);
+        const round = beginRound(store);
 
-      for (const d of report.drifts) {
-        const h = driftHash(d.sectionPath, d.symbol, d.driftType);
-        seenHashes.add(h);
-        const r = upsertDrift(store, round, {
-          sectionPath: d.sectionPath,
-          symbol: d.symbol,
-          driftType: d.driftType,
-          desc: d.desc,
-          severity: d.severity,
+        // 4. upsertDrift
+        const seenHashes = new Set<string>();
+        let newCount = 0;
+        let stillDriftingCount = 0;
+        const rowsNew: AuditRowEntry[] = [];
+        const rowsStill: AuditRowEntry[] = [];
+
+        for (const d of report.drifts) {
+          const h = driftHash(d.sectionPath, d.symbol, d.driftType);
+          seenHashes.add(h);
+          const r = upsertDrift(store, round, {
+            sectionPath: d.sectionPath,
+            symbol: d.symbol,
+            driftType: d.driftType,
+            desc: d.desc,
+            severity: d.severity,
+          });
+          // 读回 finding 拿 firstSeenRound / lastSeenAt（audit-meta-store 已写入）
+          const data = store.readFindings(META_STORY_ID);
+          const f = data.findings.find(x => x.id === r.findingId);
+          const row = {
+            ...d,
+            status: r.state,
+            firstSeenRound: f?.firstSeenRound ?? round,
+            lastSeenAt: f?.lastSeenAt ?? new Date().toISOString(),
+            findingId: r.findingId,
+          };
+          if (r.state === 'new') { newCount++; rowsNew.push(row); }
+          else { stillDriftingCount++; rowsStill.push(row); }
+        }
+
+        // 5. autoResolveMissing
+        const resolvedIds = autoResolveMissing(store, round, seenHashes);
+        const resolvedCount = resolvedIds.length;
+
+        // 记录本轮 round 到 meta-story.events（便于 beginRound 下次递增）
+        try { recordRound(store, round); } catch {/* advisory */}
+
+        // 6. report.md
+        const reportPath = writeReport({
+          root,
+          round,
+          rowsNew,
+          rowsStill,
+          resolvedIds,
+          skipped: report.skipped,
         });
-        // 读回 finding 拿 firstSeenRound / lastSeenAt（audit-meta-store 已写入）
-        const data = store.readFindings(META_STORY_ID);
-        const f = data.findings.find(x => x.id === r.findingId);
-        const row = {
-          ...d,
-          status: r.state,
-          firstSeenRound: f?.firstSeenRound ?? round,
-          lastSeenAt: f?.lastSeenAt ?? new Date().toISOString(),
-          findingId: r.findingId,
-        };
-        if (r.state === 'new') { newCount++; rowsNew.push(row); }
-        else { stillDriftingCount++; rowsStill.push(row); }
-      }
 
-      // 5. autoResolveMissing
-      const resolvedIds = autoResolveMissing(store, round, seenHashes);
-      const resolvedCount = resolvedIds.length;
+        // 7. state.json lastAuditAt
+        try {
+          touchAuditState(root, { lastAuditAt: new Date().toISOString() });
+        } catch { /* advisory */ }
 
-      // 记录本轮 round 到 meta-story.events（便于 beginRound 下次递增）
-      try { recordRound(store, round); } catch {/* advisory */}
+        return { round, newCount, stillDriftingCount, resolvedCount, reportPath };
+      }, { label: 'audit --framework' });
 
-      // 6. report.md
-      const reportPath = writeReport({
-        root,
-        round,
-        rowsNew,
-        rowsStill,
-        resolvedIds,
-        skipped: report.skipped,
-      });
-
-      // 7. state.json lastAuditAt
-      try {
-        touchAuditState(root, { lastAuditAt: new Date().toISOString() });
-      } catch { /* advisory */ }
+      const { round, newCount, stillDriftingCount, resolvedCount, reportPath } = auditOutcome;
 
       // 8. summary line
       const line = `✓ Framework audit round ${round} complete: ${newCount} new drift / ${stillDriftingCount} still-drifting / ${resolvedCount} resolved-by-nature`;

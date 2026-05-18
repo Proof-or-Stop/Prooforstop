@@ -4,7 +4,7 @@
   "title": "Implement the main write lock for DONE / B-META / shared-main writes",
   "description": "Implement the main write lock — session-ownership-and-write-leases.md rollout step 3. Serialize all shared-main mutating command entry points (story_advance DONE merge/cleanup, gap_log + B-META finding writes, audit --framework writes, story_create, done_recover, main-mirror metadata updates) behind one global, atomic, stale-reclaimable lock. Critically this story must fix B-META-framework-audit:F-008 — the DONE flow self-blocks its own merge by writing stale main-mirror story metadata — so the fix requires in-lock idempotency and stale-main-mirror handling, not merely serialization. Add doctor + multi-session smoke coverage proving partial-DONE no longer arises from a stale main-mirror self-block. Reconcile lock storage with the existing .koala/runtime/done-main-merge.lock (migrate/alias/compat). Explicitly out of scope: story owner lease, takeover, and session_brief ownership UX — those are the second implementation story.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-05-18T02:02:22.138Z",
   "startedAt": "2026-05-18T02:02:22.138Z",
-  "endedAt": null,
+  "endedAt": "2026-05-18T19:16:36.920Z",
   "events": [
     {
       "phase": "INIT_CHECK",
@@ -23,11 +23,103 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-05-18T02:03:02.966Z",
+      "branch": "story/B-f60c",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-18T12:07:45.895Z",
+      "branch": "story/B-f60c",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-18T12:59:38.521Z",
+      "branch": "story/B-f60c",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "reviewer_forced",
+      "timestamp": "2026-05-18T12:59:51.916Z",
+      "reviewer": "behavior",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-18T17:03:35.553Z",
+      "branch": "story/B-f60c",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-18T17:03:36.429Z",
+      "branch": "story/B-f60c",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "reviewer_forced",
+      "timestamp": "2026-05-18T17:03:40.501Z",
+      "reviewer": "behavior",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-18T17:34:56.710Z",
+      "branch": "story/B-f60c",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-18T17:34:56.936Z",
+      "branch": "story/B-f60c",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "reviewer_forced",
+      "timestamp": "2026-05-18T17:34:58.402Z",
+      "reviewer": "behavior",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-05-18T17:44:22.303Z",
+      "branch": "story/B-f60c",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-05-18T19:16:36.920Z",
+      "branch": "story/B-f60c",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-f60c",
-    "branch": "story/B-f60c",
-    "createdAt": "2026-05-18T02:02:22.179Z"
-  }
+  "currentReviewRound": "2026-05-18T17:34:56.935Z"
 }

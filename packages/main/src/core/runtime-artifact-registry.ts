@@ -71,6 +71,15 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
     repairableTrackedArtifact: true,
   },
   {
+    id: 'runtime-locks',
+    description: 'Main write lock and other mkdir-style coordination locks under .koala/locks/.',
+    matchers: [{ kind: 'prefix', value: '.koala/locks/' }],
+    ignorePatterns: ['.koala/locks/'],
+    materialHash: 'exclude',
+    volatile: true,
+    repairableTrackedArtifact: true,
+  },
+  {
     id: 'serve-metadata',
     description: 'Transient dev-server handshake file.',
     matchers: [{ kind: 'exact', value: '.koala-serve.json' }],

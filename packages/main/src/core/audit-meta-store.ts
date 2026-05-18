@@ -241,6 +241,9 @@ export function autoResolveMissing(
  * evidenceState 护栏：默认 suspected；只有调用方已校验存在结构化 evidence 字段
  * 才允许传 verified —— 本函数原样信任入参的 evidenceState（runtime 降级校验在
  * gap-log.ts handler 入口完成，与 CLAUDE.md「Handler 编码约定」一致）。
+ *
+ * B-f60c CHK-003: gap_log 现在在 main write lock 内做 idempotency 去重
+ * （session-ownership-and-write-leases.md "Idempotency Requirements"）。
  */
 export interface GapFindingInput {
   /** finding 分类（happy/edge/adversarial/missing） */
@@ -259,11 +262,73 @@ export interface GapFindingInput {
   files?: string[];
   /** 记录调用者身份（审计字段，不入签名） */
   agent?: string;
+  /**
+   * B-f60c CHK-003: structured evidence source fields that feed the
+   * idempotency fingerprint. `sourceRefs` is already covered by `files`, but
+   * the other three are not — they must be threaded through so two gap_log
+   * calls that differ ONLY in repro command / observed output / analysis note
+   * stay distinct gaps and are not wrongly merged.
+   */
+  reproCommand?: string;
+  observedOutput?: string;
+  analysisNote?: string;
 }
 
 export interface GapFindingResult {
   findingId: string;
   evidenceState: FindingEvidenceState;
+  /** B-f60c CHK-003: true when an existing finding with the same fingerprint was reused. */
+  deduped: boolean;
+}
+
+/**
+ * B-f60c CHK-003: compute the gap_log idempotency fingerprint.
+ *
+ * Stable sha256 over the *meaningful identity* of a manually-logged framework
+ * gap: normalized description + category + severity + the structured evidence
+ * source (sourceRefs/files, reproCommand, observedOutput, analysisNote).
+ *
+ * Deliberately NARROW so it never wrongly merges two genuinely different gaps:
+ *  - `desc` (the gap's evidence note) is the primary identity — different gaps
+ *    describe different problems, so different `desc` → different fingerprint.
+ *  - category + severity are included so re-classifying a gap is treated as a
+ *    distinct record (not silently absorbed into the old one).
+ *  - all four structured evidence channels are folded in so two gaps with the
+ *    same prose but different repro / output / analysis stay separate.
+ *
+ * Normalization on `desc` only collapses whitespace + lowercases — enough to
+ * absorb trivial reformatting of the SAME gap, not enough to collide DISTINCT
+ * gaps. `agent` / timestamps are intentionally excluded (they are audit
+ * metadata, not gap identity).
+ */
+export function gapFingerprint(input: {
+  desc: string;
+  category: string;
+  severity: string;
+  files?: string[];
+  reproCommand?: string;
+  observedOutput?: string;
+  analysisNote?: string;
+}): string {
+  const normDesc = String(input.desc ?? '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, ' ');
+  // Sorted so source ref ordering does not change identity.
+  const sortedFiles = (Array.isArray(input.files) ? input.files : [])
+    .map(f => String(f ?? '').trim())
+    .filter(f => f.length > 0)
+    .sort();
+  const parts = [
+    normDesc,
+    String(input.category ?? ''),
+    String(input.severity ?? ''),
+    sortedFiles.join(','),
+    String(input.reproCommand ?? '').trim(),
+    String(input.observedOutput ?? '').trim(),
+    String(input.analysisNote ?? '').trim(),
+  ];
+  return createHash('sha256').update(parts.join(' ')).digest('hex');
 }
 
 export function appendGapFinding(
@@ -272,6 +337,32 @@ export function appendGapFinding(
   storyId: string = META_STORY_ID,
 ): GapFindingResult {
   const data = store.readFindings(storyId);
+
+  // B-f60c CHK-003: idempotency — a gap with an identical fingerprint that is
+  // still an OPEN finding is treated as the same canonical gap; re-logging it
+  // returns the existing finding instead of appending a duplicate. A
+  // resolved/dismissed finding does NOT block re-logging: a gap that was
+  // closed and then observed again is a legitimately new occurrence.
+  const fingerprint = gapFingerprint({
+    desc: gap.desc,
+    category: gap.category,
+    severity: gap.severity,
+    files: gap.files,
+    reproCommand: gap.reproCommand,
+    observedOutput: gap.observedOutput,
+    analysisNote: gap.analysisNote,
+  });
+  const existing = data.findings.find(
+    f => f.gapFingerprint === fingerprint && f.status === 'open',
+  );
+  if (existing) {
+    return {
+      findingId: existing.id,
+      evidenceState: existing.evidenceState ?? gap.evidenceState,
+      deduped: true,
+    };
+  }
+
   const now = new Date().toISOString();
   const nextNum = data.findings.length + 1;
   const id = `${storyId}:F-${String(nextNum).padStart(3, '0')}`;
@@ -288,9 +379,10 @@ export function appendGapFinding(
     createdAt: now,
     reviewRound: '',
     _hash: signFinding(storyId, id, gap.desc, gap.severity, now, ''),
+    gapFingerprint: fingerprint,
     ...(gap.files && gap.files.length > 0 ? { files: gap.files } : {}),
   };
   data.findings.push(finding);
   store.writeFindings(storyId, data);
-  return { findingId: id, evidenceState: gap.evidenceState };
+  return { findingId: id, evidenceState: gap.evidenceState, deduped: false };
 }

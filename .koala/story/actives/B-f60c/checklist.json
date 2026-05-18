@@ -4,41 +4,554 @@
       "id": "CHK-001",
       "title": "Implement the core main write lock primitive",
       "context": "Per session-ownership-and-write-leases.md Main Write Lock Rules 1-3 & 6: a global, atomic (mkdir-style), stale-reclaimable lock; lock scope covers the whole critical section; acquisition failure is blocking (no optimistic proceed). Reconcile storage with the existing .koala/runtime/done-main-merge.lock — decide and document migrate vs alias vs compatibility (the F-001 open decision), keeping story-lifecycle.md and session-ownership-and-write-leases.md synchronized.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-05-18T12:15:19.445Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "main write lock 在 .koala/locks/main-write.lock/ 成功 acquire+release，mkdir-style 原子",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "全仓 rg 旧 .koala/runtime/done-main-merge.lock 路径 0 残留引用（除非测试证明的兼容 alias）",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "stale 锁（mtime 超时）被正确 reclaim",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "锁被持有时 acquire 失败返回 blocking 错误、不乐观放行",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "两个并发 acquire 恰好一个成功，无双重持锁",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "story-lifecycle.md 与 session-ownership 文档锁路径一致，无两份真相源矛盾",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "用户跑 koala validate 看到 main write lock 在 .koala/locks/main-write.lock/ 正常 acquire/release；rg 旧 .koala/runtime/done-main-merge.lock 路径 0 残留引用。",
+      "files": {
+        "modify": [
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/handlers/done-effects.ts",
+          "packages/main/src/handlers/done-recover.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-smoke.ts",
+          "command": "node dist/tasks/main-write-lock-smoke.js",
+          "result": "pass",
+          "note": "smoke section 1/1b acquires acquireMainWriteLock at .koala/locks/main-write.lock, asserts lock dir exists while held and removed after release; section 5 asserts canonical path constant",
+          "headHash": "6987acbd8c73d377f9b25372f26ac8ed81652569",
+          "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
+          "timestamp": "2026-05-18T17:34:58.184Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "docs_check",
+          "file": "packages/main/src/handlers/done-effects.ts",
+          "command": "rg \"runtime/done-main-merge.lock\" packages/main/src/",
+          "result": "pass",
+          "note": "rg shows zero functional references to the old path in packages/main/src/; remaining matches are only explanatory comments documenting the retirement. done-effects.ts and done-recover.ts now route through acquireMainWriteLock at the new path",
+          "headHash": "6987acbd8c73d377f9b25372f26ac8ed81652569",
+          "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
+          "timestamp": "2026-05-18T17:34:58.184Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-smoke.ts",
+          "command": "node dist/tasks/main-write-lock-smoke.js",
+          "result": "pass",
+          "note": "smoke section 3 backdates lock mtime past staleMs and asserts acquireMainWriteLock force-reclaims the stale lock; section 3b asserts a fresh held lock is NOT reclaimed and still blocks",
+          "headHash": "6987acbd8c73d377f9b25372f26ac8ed81652569",
+          "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
+          "timestamp": "2026-05-18T17:34:58.184Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-smoke.ts",
+          "command": "node dist/tasks/main-write-lock-smoke.js",
+          "result": "pass",
+          "note": "smoke section 2+4 asserts a live held lock makes the second acquire throw a blocking error (failFastIfHeld) instead of optimistically proceeding",
+          "headHash": "6987acbd8c73d377f9b25372f26ac8ed81652569",
+          "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
+          "timestamp": "2026-05-18T17:34:58.184Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-smoke.ts",
+          "command": "node dist/tasks/main-write-lock-smoke.js",
+          "result": "pass",
+          "note": "smoke section 2+4 asserts exactly one of two concurrent acquirers wins (secondAcquired stays false), no double-hold; the lock is re-acquirable only after the holder releases",
+          "headHash": "6987acbd8c73d377f9b25372f26ac8ed81652569",
+          "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
+          "timestamp": "2026-05-18T17:34:58.184Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/story-lifecycle.md",
+          "command": "rg \"main-write.lock\" docs/requirements/decisions/",
+          "result": "pass",
+          "note": "story-lifecycle.md and session-ownership-and-write-leases.md both name .koala/locks/main-write.lock/ as the single canonical path; story-lifecycle.md cross-references session-ownership Storage node; the old conflicting runtime note in session-ownership was rewritten to state the retirement, removing the two-truth-source conflict",
+          "headHash": "6987acbd8c73d377f9b25372f26ac8ed81652569",
+          "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
+          "timestamp": "2026-05-18T17:34:58.184Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Hold the lock across the DONE critical section and fix F-008",
       "context": "DONE must hold the main write lock from the pre-merge final check through merge and worktree cleanup (rule 4). Fix B-META-framework-audit:F-008: the DONE flow currently writes a stale INIT_CHECK-era main-mirror story index.json before merge, then its own git merge aborts (partial-DONE). The fix must handle the stale main-mirror inside the lock — do not emit a stale mirror, or commit/reconcile it before merge — because serialization alone does not close F-008.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-05-18T12:22:44.451Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "DONE 全程持 main write lock（pre-merge gate→merge→worktree cleanup 都在锁内）",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "正常单 session DONE 成功路径外部行为不变",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "F-008 复现场景：DONE 前 main 工作区有 INIT_CHECK 期未提交 index.json 镜像 → DONE 不再自阻塞、正常合并",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "INIT_CHECK 不再留下未提交的 main-side index.json 镜像",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "两个并发 story_advance DONE 被锁串行化，无 partial-DONE race",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "post-merge 失败语义保持：story 已 DONE + 显式抛错",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      },
+      "userSees": "F-008 复现场景下 story_advance DONE 输出 '✓ 分支已合并 / ✓ Worktree 已清理 / ✓ 分支已删除'，而不是 'Story B-xxx 已标记为 DONE 但自动合并失败'。",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/done-effects.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
+          "result": "pass",
+          "note": "DONE lock spans pre-merge gate→merge→worktree cleanup: acquired at transition-orchestrator.ts:222 inside the single try, released in the finally at :432 after applyDoneMergeEffects. assertDoneMainMergeLiveLockFailsBeforeMutation / assertDoneMainMergeLockBlocksBeforeAutoSyncMain prove the lock is held before any DONE mutation.",
+          "headHash": "6987acbd8c73d377f9b25372f26ac8ed81652569",
+          "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
+          "timestamp": "2026-05-18T17:34:58.184Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
+          "result": "pass",
+          "note": "assertDoneSuccessPathOutputAndOrdering asserts the single-session DONE success path output (DONE Gate Checklist, advance line, merge/cleanup/branch-delete lines and Step ordering) is byte-identical; the F-008 fix only adds an INIT_CHECK commit, the DONE path is unchanged.",
+          "headHash": "6987acbd8c73d377f9b25372f26ac8ed81652569",
+          "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
+          "timestamp": "2026-05-18T17:34:58.184Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
+          "result": "pass",
+          "note": "assertInitCheckLeavesNoUncommittedMainMirrorForDone replays the exact DONE Step-3 op (git merge story/<id> from main repo root) after the real INIT_CHECK CLI path; pre-fix this aborted on the untracked story-metadata mirror, post-fix it merges cleanly with no partial-DONE.",
+          "headHash": "6987acbd8c73d377f9b25372f26ac8ed81652569",
+          "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
+          "timestamp": "2026-05-18T17:34:58.184Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
+          "result": "pass",
+          "note": "assertInitCheckLeavesNoUncommittedMainMirrorForDone asserts git status --porcelain for the story dir is empty after story_advance INIT_CHECK and the index.json is git-tracked — INIT_CHECK no longer leaves an uncommitted main-side mirror.",
+          "headHash": "6987acbd8c73d377f9b25372f26ac8ed81652569",
+          "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
+          "timestamp": "2026-05-18T17:34:58.184Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "CHK-005 的 assertConcurrentDoneSerializesWithoutPartialDone 直接覆盖本 intent：它用 spawnStoryAdvance 同时 spawn 两个真实 story_advance DONE OS 子进程抢同一 DONE-ready story，断言恰好一个 exit 0 winner（输出含 'advanced to DONE'）、恰好一个 exit 非 0 loser（输出说明锁竞争/已 advance），终态 story=DONE、worktree 已清理、main log 含 merge commit、story 分支已删、story 元数据路径无未提交残留。这是真实双进程并发竞争，被 main write lock 串行化、无 partial-DONE race——正是 CHK-002:adversarial:0 的意图。（先前指向的 assertDoneMainMergeLiveLockFailsBeforeMutation 只用预植 lock dir 模拟持锁，较弱；本条以 CHK-005 的真并发测试为准。）",
+          "headHash": "6987acbd8c73d377f9b25372f26ac8ed81652569",
+          "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
+          "timestamp": "2026-05-18T17:34:58.184Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
+          "result": "pass",
+          "note": "assertRealMergeFailureMarksDoneAndThrows / assertWorktreeCleanupFailureMarksDoneMergedAndThrows: a post-writeStory merge or cleanup failure leaves the story DONE and throws with explicit manual-recovery guidance (cd/git merge/git worktree remove/git branch -d, or koala doctor) — post-merge failure semantics preserved.",
+          "headHash": "6987acbd8c73d377f9b25372f26ac8ed81652569",
+          "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
+          "timestamp": "2026-05-18T17:34:58.184Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Apply the lock + in-lock idempotency to shared-write commands",
       "context": "Apply the main write lock to gap_log / B-META finding writes / audit --framework / story_create / done_recover / main-mirror metadata writes (rule 5). Inside the lock, perform the doc's Idempotency Requirements: gap_log dedup by normalized title/category/source/evidence fingerprint; story_create dedup; finding mutations reject duplicate active findings; DONE recovery detects already-merged branches / already-removed worktrees.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-18T12:37:37.747Z",
+      "endTime": "2026-05-18T12:40:03.274Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "gap_log / audit --framework / story_create / done_recover / B-META finding 写都在 main write lock 内",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "并发 gap_log 同一 gap → 一条 canonical finding（dedup 生效）",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "并发 gap_log 不同 gap → 两条都保留，不被 fingerprint 误并",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "锁竞争时第二个 shared-write 命令 blocking 失败，无静默覆盖",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "嵌套的 main-write 命令调用不自死锁",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      },
+      "userSees": "并发 gap_log 同一框架 gap 后 finding_list 只列出一条 canonical finding；锁竞争时第二条 shared-write 命令看到 'main write lock is held by ...' 的 blocking 错误。",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/gap-log.ts",
+          "packages/main/src/handlers/audit.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/core/audit-meta-store.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/gap-log-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-smoke.ts",
+          "command": "node packages/main/dist/tasks/main-write-lock-smoke.js",
+          "result": "pass",
+          "note": "gap_log/story_create/audit/B-META finding 写均改用 withReentrantMainWriteLock 包临界区；done_recover 经 acquireDoneMainMergeLock(→acquireMainWriteLockRegistered) 持锁。lock smoke test 7/7c 覆盖 reentrant + registered acquire。",
+          "headHash": "6987acbd8c73d377f9b25372f26ac8ed81652569",
+          "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
+          "timestamp": "2026-05-18T17:34:58.184Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/gap-log-smoke.ts",
+          "command": "node packages/main/dist/tasks/gap-log-smoke.js",
+          "result": "pass",
+          "note": "gap-log-8 + 8d：相同 gap 串行/并发(6 个真实子进程)登记都只产出一条 canonical finding，按 normalized desc+category+severity+evidence fingerprint dedup。",
+          "headHash": "6987acbd8c73d377f9b25372f26ac8ed81652569",
+          "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
+          "timestamp": "2026-05-18T17:34:58.184Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/gap-log-smoke.ts",
+          "command": "node packages/main/dist/tasks/gap-log-smoke.js",
+          "result": "pass",
+          "note": "gap-log-8b + 8d：8 个仅在单一身份通道(desc/category/severity/sourceRefs/reproCommand/observedOutput/analysisNote)不同的 gap 各得唯一 fingerprint，不被误并；并发 4 个不同 gap 全部保留。",
+          "headHash": "6987acbd8c73d377f9b25372f26ac8ed81652569",
+          "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
+          "timestamp": "2026-05-18T17:34:58.184Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-smoke.ts",
+          "command": "node packages/main/dist/tasks/main-write-lock-smoke.js",
+          "result": "pass",
+          "note": "lock smoke test 2+4：live 锁被持有时第二个 acquire fail-fast 抛 blocking 错误，恰好一个 acquirer 成功，无双重持锁/静默覆盖。长临界区(DONE/audit)用默认 fail-fast；test 8 另证 wait 模式仍 stale-reclaim。",
+          "headHash": "6987acbd8c73d377f9b25372f26ac8ed81652569",
+          "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
+          "timestamp": "2026-05-18T17:34:58.184Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-smoke.ts",
+          "command": "node packages/main/dist/tasks/main-write-lock-smoke.js",
+          "result": "pass",
+          "note": "lock smoke test 7/7b/7c：嵌套 withReentrantMainWriteLock(同进程同 root)走 pass-through 不再 acquire，深度 3 不自死锁；DONE 持锁内调 audit(也持锁)经 reentrancy registry 透传，throw 后 registry 清空。",
+          "headHash": "6987acbd8c73d377f9b25372f26ac8ed81652569",
+          "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
+          "timestamp": "2026-05-18T17:34:58.184Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "doctor stuck-lock check and lock-contention error UX",
       "context": "doctor detects stale/stuck main write locks and reports them. Lock-contention produces a clear blocking error message per the doc's Error UX 'main lock contention' example (holder session, running command, heartbeat age, retry guidance). Do NOT implement session_brief ownership rendering — that belongs to the owner-lease story.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-05-18T12:50:51.372Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lock-contention 错误消息含 holder session / 命令 / heartbeat age / 重试指引",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "doctor 检出 stale/stuck main write lock 并在输出中报告",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "doctor 不把正常持有中的活跃锁误报为 stuck",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "本 story 不引入 session_brief ownership rendering（范围约束，机械可查）",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      },
+      "userSees": "koala doctor 输出含 stale/stuck main write lock 报告行；锁竞争错误显示 'main write lock is held by session <id> running <command>, heartbeat <n>s ago. Retry after it completes.'",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/doctor.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-doctor-smoke.ts",
+          "command": "node packages/main/dist/tasks/main-write-lock-doctor-smoke.js",
+          "result": "pass",
+          "note": "smoke section 2/3b asserts a fail-fast acquire against a live main write lock throws a holder-aware blocking error naming holder command, pid, hostname, heartbeat age, and a retry instruction; also asserts no fabricated sessionId token.",
+          "headHash": "6987acbd8c73d377f9b25372f26ac8ed81652569",
+          "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
+          "timestamp": "2026-05-18T17:34:58.184Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-doctor-smoke.ts",
+          "command": "node packages/main/dist/tasks/main-write-lock-doctor-smoke.js",
+          "result": "pass",
+          "note": "smoke section 4 backdates a held main write lock dir mtime past the 120s stale window and asserts scanMainWriteLock classifies it state=stuck and renderMainWriteLockScan emits a ⚠ STUCK report naming the holder; doctor.ts wires this scan into both text and json output.",
+          "headHash": "6987acbd8c73d377f9b25372f26ac8ed81652569",
+          "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
+          "timestamp": "2026-05-18T17:34:58.184Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-doctor-smoke.ts",
+          "command": "node packages/main/dist/tasks/main-write-lock-doctor-smoke.js",
+          "result": "pass",
+          "note": "smoke sections 5/5b assert a freshly-acquired lock and a 60s-old lock (both inside the 120s stale window) classify state=active and render an explicit \"active operation, not stuck\" report — doctor never misreports a live in-flight holder as stuck. Classification reuses the lock primitive MAIN_WRITE_LOCK_STALE_MS threshold.",
+          "headHash": "6987acbd8c73d377f9b25372f26ac8ed81652569",
+          "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
+          "timestamp": "2026-05-18T17:34:58.184Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "docs_check",
+          "file": "packages/main/src/handlers/doctor.ts",
+          "command": "rg -n \"sessionId|ownership rendering\" packages/main/src/core/main-write-lock.ts packages/main/src/core/mkdir-lock.ts packages/main/src/core/main-write-lock-doctor.ts packages/main/src/handlers/doctor.ts",
+          "result": "pass",
+          "note": "CHK-004 diff touches only mkdir-lock.ts / main-write-lock.ts / main-write-lock-doctor.ts / doctor.ts / package.json + smoke; no session_brief handler is modified. The only sessionId mentions are doc comments that explicitly state sessionId is deliberately OUT of scope (owner-lease story). The contention message and holder.json record only mechanically observable pid/hostname/command/acquiredAt — no fabricated session identity and no session_brief ownership rendering introduced.",
+          "headHash": "6987acbd8c73d377f9b25372f26ac8ed81652569",
+          "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
+          "timestamp": "2026-05-18T17:34:58.184Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
       "title": "Multi-session regression smoke proving F-008 is closed",
       "context": "Smoke tests for multi-session lock behavior: two concurrent DONE operations serialize with no partial-DONE race; concurrent gap_log of the same issue dedups to one canonical finding; a stale lock is reclaimed. Critically, a regression assertion proving partial-DONE no longer arises from a stale main-mirror self-block (the exact F-008 scenario).",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-18T12:53:23.463Z",
+      "endTime": "2026-05-18T12:58:32.990Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "smoke 覆盖两个并发 DONE 串行化、无 partial-DONE",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "smoke 覆盖并发 gap_log dedup 与 stale-lock reclaim",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "F-008 回归断言：stale main-mirror 场景下 DONE 不自阻塞、正常完成",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "koala validate 全绿（含新增 multi-session smoke）",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "koala validate 输出含新增 multi-session lock smoke 全部 PASS，含 F-008 回归断言（partial-DONE 不再由 stale main-mirror 自阻塞产生）。",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/main-write-lock-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/main-write-lock-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "node dist/tasks/worktree-authority-smoke.js",
+          "result": "pass",
+          "note": "assertConcurrentDoneSerializesWithoutPartialDone spawns two real concurrent story_advance DONE OS processes on the same DONE-ready story; asserts exactly one wins (story=DONE, branch merged into main) and exactly one fails, with no two-winner and no partial-DONE.",
+          "headHash": "6987acbd8c73d377f9b25372f26ac8ed81652569",
+          "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
+          "timestamp": "2026-05-18T17:34:58.184Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/gap-log-smoke.ts",
+          "command": "node dist/tasks/gap-log-smoke.js",
+          "result": "pass",
+          "note": "Concurrent gap_log dedup is covered by gap-log-smoke 8d (assertConcurrentSameGapDeduped: 6 real concurrent gap_log processes -> exactly one canonical B-META finding; 4 distinct concurrent gaps -> all kept). Stale-lock reclaim is covered by main-write-lock-smoke stale-reclaim case and worktree-authority-smoke assertDoneMainMergeStaleLockIsReclaimed. CHK-005 confirms these multi-session edge behaviors without duplicating the assertions.",
+          "headHash": "6987acbd8c73d377f9b25372f26ac8ed81652569",
+          "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
+          "timestamp": "2026-05-18T17:34:58.184Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "node dist/tasks/worktree-authority-smoke.js",
+          "result": "pass",
+          "note": "F-008 regression: assertInitCheckLeavesNoUncommittedMainMirrorForDone (CHK-002) drives the real INIT_CHECK CLI path then replays the exact DONE Step-3 git merge, asserting it does not self-block on a stale main-mirror. assertConcurrentDoneSerializesWithoutPartialDone additionally asserts the concurrent DONE leaves no uncommitted story-metadata mirror under .koala/story/actives/<id> (the exact F-008 self-block precondition).",
+          "headHash": "6987acbd8c73d377f9b25372f26ac8ed81652569",
+          "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
+          "timestamp": "2026-05-18T17:34:58.184Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/validate.ts",
+          "command": "koala validate --story=B-f60c",
+          "result": "pass",
+          "note": "koala validate --story=B-f60c runs the full suite including the extended worktree-authority-smoke with the new multi-session concurrent-DONE regression; all tests ALL PASS.",
+          "headHash": "6987acbd8c73d377f9b25372f26ac8ed81652569",
+          "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
+          "timestamp": "2026-05-18T17:34:58.184Z"
+        }
+      ]
     }
   ]
 }
