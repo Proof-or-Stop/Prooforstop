@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Commit the session-ownership design doc as a tracked decision record",
+      "context": "docs/requirements/decisions/session-ownership-and-write-leases.md is currently untracked. Commit it; update its Status line so it reads as an adopted design truth source with runtime implementation still pending (point at the future implementation story). Do not change the doc's substantive rules.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-05-17T23:12:12.807Z"
+    },
+    {
+      "id": "CHK-002",
+      "title": "Cross-reference the session-ownership doc from CLAUDE.md and AGENTS.md",
+      "context": "Add a short pointer from the canonical behavioral truth sources (CLAUDE.md, AGENTS.md) so agents and the scope-plan reviewer discover and honor the doc. Reference it — do not restate its content. No runtime/behavior code changes.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-05-17T23:13:15.155Z"
+    }
+  ]
+}
