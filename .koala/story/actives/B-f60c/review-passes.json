@@ -35,6 +35,15 @@
       "reviewRound": "2026-05-18T12:59:38.521Z",
       "reviewRunId": "B-f60c:RR-006",
       "_hash": "3d463619c5bcfdbc9f5f21bc7fdc03c5315e604c1553dbb9c085b5bd375ec361"
+    },
+    {
+      "id": "B-f60c:RP-005",
+      "agent": "koala-review-quality",
+      "note": "Round 2 quality review: no findings. CHK-001..005 + f76f5a49 doc-only commit reviewed. (1) No unused imports or dead code — withMainWriteLock non-reentrant is exported as a documented primitive and used in smoke test. (2) Type safety solid: runtime re-validation at every entry point per Handler coding convention, empty-catch blocks are all labeled PROBE comments with clear justification. (3) No shell/fn.ts isolation issues (this is a CLI-only koala package, no shells). (4) Lock design is correct: heldLockPaths module-level Set is intentional for same-process reentrancy; acquireMainWriteLockRegistered no-op handle pattern is clean. (5) gapFingerprint field properly added to Finding type as optional. (6) checklist.ts continues to use story-scoped withMkdirLock (not main write lock), which is correct for per-story metadata. f76f5a49 is docs-only, no code change.",
+      "createdAt": "2026-05-18T17:20:10.416Z",
+      "reviewRound": "2026-05-18T17:03:36.429Z",
+      "reviewRunId": "B-f60c:RR-009",
+      "_hash": "83e2f583f61d2e3182ac1eab05838bd7f45c6738fa26e2f94bc3bc6fa45ceed0"
     }
   ]
 }
