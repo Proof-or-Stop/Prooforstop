@@ -22,8 +22,13 @@
  * by the literal `done-main-merge.lock` name).
  */
 
+import { hostname } from 'os';
 import { join } from 'path';
-import { acquireMkdirLock, type AcquiredMkdirLock } from './mkdir-lock.js';
+import {
+  acquireMkdirLock,
+  type AcquiredMkdirLock,
+  type MkdirLockHolderInfo,
+} from './mkdir-lock.js';
 
 /**
  * Canonical main write lock directory, relative to the main repo root.
@@ -54,6 +59,63 @@ export const MAIN_WRITE_LOCK_STALE_MS = 120000;
  * by a genuine crash.
  */
 export const MAIN_WRITE_LOCK_WAIT_DEADLINE_MS = 150000;
+
+/**
+ * Format a heartbeat age (ms) as a compact human string: `30s`, `8m`, `2h`.
+ *
+ * The lock has no separate heartbeat ping; the lock dir's mtime IS the
+ * heartbeat (it is set at acquire time and not refreshed afterwards), so
+ * `ageMs` is "how long ago the lock was acquired". Used by both the contention
+ * error message and `doctor`'s stuck-lock report so the two read consistently.
+ */
+export function formatLockAge(ageMs: number): string {
+  const safe = Number.isFinite(ageMs) && ageMs >= 0 ? ageMs : 0;
+  const seconds = Math.floor(safe / 1000);
+  if (seconds < 60) return `${seconds}s`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m`;
+  const hours = Math.floor(minutes / 60);
+  return `${hours}h`;
+}
+
+/**
+ * Build the operator-facing "main lock contention" error message.
+ *
+ * Shape follows the session-ownership-and-write-leases.md Error UX example for
+ * main lock contention, with one deliberate divergence: the doc example shows a
+ * `session abc123` token, but `sessionId` is an owner-lease concept owned by a
+ * SEPARATE story. This message only renders what the lock can MECHANICALLY
+ * observe — holder pid / hostname / running command / heartbeat (lock) age —
+ * and never fabricates a sessionId. The complete session identity is delivered
+ * by the follow-up owner-lease story.
+ *
+ * @param label       label of the BLOCKED operation (the caller being denied).
+ * @param holder      holder metadata read from the live lock (null = unknown).
+ * @param holderAgeMs age of the held lock (ms); used for the heartbeat line.
+ */
+export function buildMainWriteLockContentionMessage(
+  label: string,
+  holder: MkdirLockHolderInfo | null,
+  holderAgeMs: number,
+): string {
+  const heartbeat = `heartbeat ${formatLockAge(holderAgeMs)} ago`;
+  const retry = 'Retry after the active operation completes, or run `koala doctor` if it appears stuck.';
+  if (holder) {
+    // Holder metadata available — name pid / hostname / running command.
+    return (
+      `${label} is blocked: the main write lock is held by ` +
+      `${holder.command} (pid ${holder.pid} on ${holder.hostname}), ${heartbeat}. ` +
+      retry
+    );
+  }
+  // No holder.json — a lock from older code or a stale leftover. Still emit a
+  // clear blocking message; only the holder identity is unavailable.
+  return (
+    `${label} is blocked: the main write lock is held by another Koala operation ` +
+    `(holder details unavailable), ${heartbeat}. ` +
+    retry
+  );
+}
 
 /**
  * Resolve the canonical main write lock directory for `mainRepoRoot`.
@@ -150,10 +212,21 @@ export function acquireMainWriteLock(
     ...(onContention === 'wait'
       ? { deadlineMs: options.waitDeadlineMs ?? MAIN_WRITE_LOCK_WAIT_DEADLINE_MS }
       : {}),
-    heldMessage:
+    // Record who holds the lock so a later blocked caller can name the holder.
+    // `command` is the operation label of THIS acquirer — a contending caller
+    // reads it back from the live lock's holder.json.
+    holderInfo: {
+      pid: process.pid,
+      hostname: hostname(),
+      command: label,
+      acquiredAt: new Date().toISOString(),
+    },
+    // On a live-lock fail-fast, build the holder-aware contention message
+    // (doc Error UX 'main lock contention'). An explicit `heldMessage` still
+    // wins so callers like the DONE flow can keep legacy wording.
+    onContentionHeld: (holder, holderAgeMs) =>
       options.heldMessage ??
-      `${label} is blocked: the main write lock is held by another Koala operation. ` +
-        `Retry after the active operation finishes.`,
+      buildMainWriteLockContentionMessage(label, holder, holderAgeMs),
   });
 }
 

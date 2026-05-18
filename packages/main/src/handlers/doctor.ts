@@ -22,6 +22,7 @@ import { formatValidationCommand } from '../core/validation-executor.js';
 import { renderRuntimeEnvironmentReport, runRuntimeEnvironmentChecks } from '../core/runtime-environment-checks.js';
 import { scanValidationSetup, type ValidationSetupScan } from './verifier.js';
 import { detectPartialDoneStories, renderPartialDoneSummary } from '../core/partial-done-recovery.js';
+import { renderMainWriteLockScan, scanMainWriteLock } from '../core/main-write-lock-doctor.js';
 
 export function createDoctorHandlers(ctx: HandlerContext) {
   const { root, store } = ctx;
@@ -48,6 +49,10 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       // so git deregistered the worktree but left the dir behind.
       let orphanScan = scanOrphanWorktrees(root, store);
       const partialDone = detectPartialDoneStories(root, store);
+      // B-f60c CHK-004: scan the unified main write lock for a stuck/stale
+      // leftover (a crashed holder's lock). An active in-flight lock (within
+      // the stale window) is reported as healthy, never misflagged as stuck.
+      const mainWriteLock = scanMainWriteLock(root);
       const repaired: string[] = [];
       const repairFailed: Array<{ path: string; error: string }> = [];
       let cleanupTargets = collectWorktreeCleanupTargets(orphanScan);
@@ -113,6 +118,15 @@ export function createDoctorHandlers(ctx: HandlerContext) {
           partialDone: {
             stories: partialDone,
             needsRecovery: partialDone.length > 0,
+          },
+          mainWriteLock: {
+            lockPath: mainWriteLock.lockPath,
+            state: mainWriteLock.state,
+            ageMs: mainWriteLock.ageMs,
+            ageLabel: mainWriteLock.ageLabel,
+            staleMs: mainWriteLock.staleMs,
+            holder: mainWriteLock.holder,
+            stuck: mainWriteLock.state === 'stuck',
           },
           codex,
           validation,
@@ -237,6 +251,9 @@ export function createDoctorHandlers(ctx: HandlerContext) {
         lines.push('→ partial-DONE = story.phase is DONE but story branch is not merged into main.');
         lines.push('→ Run the listed koala done_recover command after main is clean.');
       }
+
+      lines.push('');
+      for (const line of renderMainWriteLockScan(mainWriteLock)) lines.push(line);
 
       lines.push('');
       lines.push(renderRuntimeEnvironmentReport(runtime));
