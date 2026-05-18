@@ -52,7 +52,45 @@
       "context": "DONE must hold the main write lock from the pre-merge final check through merge and worktree cleanup (rule 4). Fix B-META-framework-audit:F-008: the DONE flow currently writes a stale INIT_CHECK-era main-mirror story index.json before merge, then its own git merge aborts (partial-DONE). The fix must handle the stale main-mirror inside the lock — do not emit a stale mirror, or commit/reconcile it before merge — because serialization alone does not close F-008.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "DONE 全程持 main write lock（pre-merge gate→merge→worktree cleanup 都在锁内）",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "正常单 session DONE 成功路径外部行为不变",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "F-008 复现场景：DONE 前 main 工作区有 INIT_CHECK 期未提交 index.json 镜像 → DONE 不再自阻塞、正常合并",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "INIT_CHECK 不再留下未提交的 main-side index.json 镜像",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "两个并发 story_advance DONE 被锁串行化，无 partial-DONE race",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "post-merge 失败语义保持：story 已 DONE + 显式抛错",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
