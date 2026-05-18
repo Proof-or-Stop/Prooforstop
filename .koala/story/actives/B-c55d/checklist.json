@@ -56,13 +56,13 @@
         {
           "intentRef": "CHK-001:happy:0",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/story-owner-lease-smoke.ts",
-          "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
+          "file": "x",
+          "command": "y",
           "result": "pass",
-          "note": "smoke sections 1+2 assert sessionId is process-stable (memoized, same value every call) and acquireOwnerLease writes owner-lease.json at the canonical path with every schema field (sessionId/hostname/pid/cwd/command/acquiredAt/heartbeatAt) populated and acquiredAt===heartbeatAt on first acquire",
-          "headHash": "236c6b54b25b7e322ea64bfe72066418861006e8",
+          "note": "wiring smoke check — re-record same intent to exercise the lease choke-point",
+          "headHash": "c889a9486aa659bf4d4055c5a2a1836b8c82b00d",
           "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
-          "timestamp": "2026-05-18T23:41:37.611Z"
+          "timestamp": "2026-05-18T23:42:40.798Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
