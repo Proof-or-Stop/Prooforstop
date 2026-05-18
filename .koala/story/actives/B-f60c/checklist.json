@@ -528,6 +528,17 @@
           "headHash": "5dff0768db634434e4c704f9722c0adbdb8b0fbb",
           "materialHash": "cd71fb9bbdf4c4f35d797ea9f1473f9865d94c5be3a13742d9cd15cddd2d45fb",
           "timestamp": "2026-05-18T12:58:05.372Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "node dist/tasks/worktree-authority-smoke.js",
+          "result": "pass",
+          "note": "F-008 regression: assertInitCheckLeavesNoUncommittedMainMirrorForDone (CHK-002) drives the real INIT_CHECK CLI path then replays the exact DONE Step-3 git merge, asserting it does not self-block on a stale main-mirror. assertConcurrentDoneSerializesWithoutPartialDone additionally asserts the concurrent DONE leaves no uncommitted story-metadata mirror under .koala/story/actives/<id> (the exact F-008 self-block precondition).",
+          "headHash": "cffd7242f3015728a28558c4573af7335c509623",
+          "materialHash": "cd71fb9bbdf4c4f35d797ea9f1473f9865d94c5be3a13742d9cd15cddd2d45fb",
+          "timestamp": "2026-05-18T12:58:13.374Z"
         }
       ]
     }
