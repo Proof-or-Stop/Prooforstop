@@ -390,7 +390,7 @@ project/
 
 ### 多 session 写协调（设计真相源）
 
-Koala 支持多 worktree 并行，但写权限的跨 session 协调——story owner lease、main write lock、命令读写分类、takeover UX、idempotency——目前是**已采纳的设计、运行时尚未实现**。设计真相源：`docs/requirements/decisions/session-ownership-and-write-leases.md`。涉及并行开发、写协调或 DONE / main / B-META 写入语义时以该文档为准；实现由后续 story 跟进。
+Koala 支持多 worktree 并行，写权限的跨 session 协调按 rollout 分步落地。**main write lock（rollout step 3）已实现（B-f60c）**：`core/main-write-lock.ts` 统一锁，canonical 路径 `.koala/locks/main-write.lock/`，DONE / done_recover / gap_log / audit / story_create / B-META finding 写均持锁，锁内强制 idempotency，doctor 有 stuck-lock 检查。其余步骤——story owner lease（step 2）、takeover UX、session_brief ownership rendering——**仍是已采纳的设计、运行时尚未实现**。设计真相源：`docs/requirements/decisions/session-ownership-and-write-leases.md`。涉及并行开发、写协调或 DONE / main / B-META 写入语义时以该文档为准；未实现步骤由后续 story 跟进。
 
 ## Checklist 写法
 

@@ -2,11 +2,15 @@
 
 ## Status
 
-Adopted design; implementation pending. This document is the canonical, adopted design for
+Adopted design; rollout in progress. This document is the canonical, adopted design for
 Koala's multi-session coordination rules and is treated as a process truth source — agents
-and the scope-plan reviewer should honor it. The runtime behavior it describes (story owner
-lease, main write lock, takeover UX, idempotency rules) is not yet implemented;
-implementation is tracked as a separate follow-up story.
+and the scope-plan reviewer should honor it. The main write lock (rollout step 3) is now
+implemented (B-f60c): a unified lock in `core/main-write-lock.ts` over the canonical
+`.koala/locks/main-write.lock/` path, held by DONE / done_recover / gap_log / audit /
+story_create / B-META finding writes, with idempotency enforced inside the lock and a
+doctor stuck-lock check. The remaining rollout steps it describes — story owner lease
+(step 2), takeover UX, and session_brief ownership rendering — are not yet implemented;
+that work is tracked as separate follow-up stories.
 
 ## Problem
 
