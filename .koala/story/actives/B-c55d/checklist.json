@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Implement sessionId and the owner-lease.json core",
+      "context": "Stable per-session `sessionId` — a LOCAL process-coordination id only (NOT cryptographic identity; no keys / server authority / attestation — hard boundary 1). `.koala/story/actives/<storyId>/owner-lease.json` records sessionId / hostname / pid / cwd / command / acquiredAt / heartbeatAt / optional human label. The first story-scoped mutating command for a story acquires the owner lease; owner commands refresh heartbeatAt; the lease is released when the story reaches DONE/DISCARDED and cleanup succeeds. The lease file is process metadata, not product evidence — visible in session_brief but never counted as verification evidence.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Non-owner story-scoped mutating command rejection gate",
+      "context": "Build the rejection gate STRICTLY from the command-classification table that PLAN produces first (every command classified read-only / story-scoped mutating / main-shared mutating / dangerous — hard boundary 2: no missing commands, no wrongly-blocked read-only commands). Non-owner story-scoped mutating commands fail closed with owner guidance. Read-only commands (story_get / checklist_get / finding_list / session_brief / ...) never require a lease (hard boundary 3). CRITICAL reviewer-writes fork: reviewer writes (finding_add / review_pass_set) must NOT be gated by the main-agent owner lease — they take an actor/lane-scoped exception or their own current-review-run gate so three-way balance is preserved; the exact mechanism is decided in the PLAN decision. Reviewer writes still record actor/session.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Stale lease detection and takeover",
+      "context": "A lease is stale after 30 minutes without a heartbeat. `--takeover` transfers a STALE lease to the current session and records an event. A non-stale lease requires explicit `--forceTakeover` (treated as human-approved). Takeover is dangerous-mutating-command discipline — explicit intent required, event recorded.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Ownership-aware error UX and session_brief rendering",
+      "context": "Non-owner mutation error message per the doc's Error UX: which story is owned, owner sessionId / cwd / last-heartbeat age, whether the lease is stale, the allowed next action. session_brief ownership rendering: owner session, owner cwd, last heartbeat age, stale/active status, whether the current session is the owner, and recommended action (proceed / read-only only / takeover available / wait). For B-META, session_brief shows shared audit state separately and must not suggest story_advance.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "doctor stale-lease check and multi-session regression smoke",
+      "context": "doctor detects stale story owner leases and reports them. Multi-session regression smoke per the doc's Acceptance Criteria: two sessions mutating the same story -> second rejected with owner guidance; two sessions on different stories -> both proceed; stale-lease takeover allowed only with explicit takeover + event record; active-lease takeover rejected unless forceTakeover; session_brief tells a non-owner session to wait or stay read-only; existing read-only reviewer workflows still work; reviewer writes still succeed via the lane-scoped exception.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
