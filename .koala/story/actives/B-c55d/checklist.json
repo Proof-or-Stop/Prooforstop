@@ -222,7 +222,57 @@
       "context": "doctor detects stale story owner leases and reports them. Multi-session regression smoke per the doc's Acceptance Criteria: two sessions mutating the same story -> second rejected with owner guidance; two sessions on different stories -> both proceed; stale-lease takeover allowed only with explicit takeover + event record; active-lease takeover rejected unless forceTakeover; session_brief tells a non-owner session to wait or stay read-only; existing read-only reviewer workflows still work; reviewer writes still succeed via the lane-scoped exception.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "koala validate 输出含新增 story-owner-lease smoke 与 command-ownership contract 全部 PASS；doctor 输出含 stale owner lease 报告行。",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/doctor.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/story-owner-lease-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/story-owner-lease-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "koala doctor 检出并报告 stale story owner lease",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "smoke：两 session 对同一 story 跑 mutating → 第二个被拒并附 owner guidance；两 session 对不同 story → 都正常推进",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "smoke：stale-lease takeover 仅在显式 --takeover + event 记录下允许；active-lease takeover 被拒（除非 --forceTakeover）",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "smoke：非 owner session 下 reviewer read-only flow 与 reviewer-write（合法 reviewer run 下）仍成功",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "smoke：owner-lease.json 在 DONE 前后无未提交脏写（F-008 同类回归断言）",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "koala validate 全绿（含新增 story-owner-lease smoke 与 command-ownership contract）",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
