@@ -308,7 +308,20 @@
         "test": [
           "packages/main/src/tasks/gap-log-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-smoke.ts",
+          "command": "node packages/main/dist/tasks/main-write-lock-smoke.js",
+          "result": "pass",
+          "note": "gap_log/story_create/audit/B-META finding 写均改用 withReentrantMainWriteLock 包临界区；done_recover 经 acquireDoneMainMergeLock(→acquireMainWriteLockRegistered) 持锁。lock smoke test 7/7c 覆盖 reentrant + registered acquire。",
+          "headHash": "03570c7ece9b7e82727e5a14b7036cb57ae03c8f",
+          "materialHash": "c9852706994ff3ce8512e519e775c2dacd760a2944e7d4cedc8410c4fde04048",
+          "timestamp": "2026-05-18T12:38:20.400Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
