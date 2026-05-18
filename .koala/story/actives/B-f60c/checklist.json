@@ -463,8 +463,8 @@
       "id": "CHK-005",
       "title": "Multi-session regression smoke proving F-008 is closed",
       "context": "Smoke tests for multi-session lock behavior: two concurrent DONE operations serialize with no partial-DONE race; concurrent gap_log of the same issue dedups to one canonical finding; a stale lock is reclaimed. Critically, a regression assertion proving partial-DONE no longer arises from a stale main-mirror self-block (the exact F-008 scenario).",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-05-18T12:53:23.463Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
