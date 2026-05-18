@@ -98,7 +98,40 @@
       "context": "Apply the main write lock to gap_log / B-META finding writes / audit --framework / story_create / done_recover / main-mirror metadata writes (rule 5). Inside the lock, perform the doc's Idempotency Requirements: gap_log dedup by normalized title/category/source/evidence fingerprint; story_create dedup; finding mutations reject duplicate active findings; DONE recovery detects already-merged branches / already-removed worktrees.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "gap_log / audit --framework / story_create / done_recover / B-META finding 写都在 main write lock 内",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "并发 gap_log 同一 gap → 一条 canonical finding（dedup 生效）",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "并发 gap_log 不同 gap → 两条都保留，不被 fingerprint 误并",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "锁竞争时第二个 shared-write 命令 blocking 失败，无静默覆盖",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "嵌套的 main-write 命令调用不自死锁",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
