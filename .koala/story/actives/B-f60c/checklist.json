@@ -241,6 +241,17 @@
           "headHash": "d2ad5ff8e7215c0e84c24c15615f2a98a644b4e0",
           "materialHash": "2b0687b59c51418326cdb67e1f782a2af56e56594afc2138cfb98068081074fe",
           "timestamp": "2026-05-18T12:22:19.222Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
+          "result": "pass",
+          "note": "assertRealMergeFailureMarksDoneAndThrows / assertWorktreeCleanupFailureMarksDoneMergedAndThrows: a post-writeStory merge or cleanup failure leaves the story DONE and throws with explicit manual-recovery guidance (cd/git merge/git worktree remove/git branch -d, or koala doctor) — post-merge failure semantics preserved.",
+          "headHash": "1c2cb8af6fffbc12678e3490b3b6a639d0793e1e",
+          "materialHash": "2b0687b59c51418326cdb67e1f782a2af56e56594afc2138cfb98068081074fe",
+          "timestamp": "2026-05-18T12:22:19.782Z"
         }
       ]
     },
