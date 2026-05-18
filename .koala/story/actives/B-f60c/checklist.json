@@ -185,7 +185,20 @@
         "test": [
           "packages/main/src/tasks/worktree-authority-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
+          "result": "pass",
+          "note": "DONE lock spans pre-merge gate→merge→worktree cleanup: acquired at transition-orchestrator.ts:222 inside the single try, released in the finally at :432 after applyDoneMergeEffects. assertDoneMainMergeLiveLockFailsBeforeMutation / assertDoneMainMergeLockBlocksBeforeAutoSyncMain prove the lock is held before any DONE mutation.",
+          "headHash": "dc6caf7b5b1ca2c5155906f45ea7e85f6be7f549",
+          "materialHash": "2b0687b59c51418326cdb67e1f782a2af56e56594afc2138cfb98068081074fe",
+          "timestamp": "2026-05-18T12:22:17.326Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
