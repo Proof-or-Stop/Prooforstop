@@ -197,6 +197,17 @@
           "headHash": "dc6caf7b5b1ca2c5155906f45ea7e85f6be7f549",
           "materialHash": "2b0687b59c51418326cdb67e1f782a2af56e56594afc2138cfb98068081074fe",
           "timestamp": "2026-05-18T12:22:17.326Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
+          "result": "pass",
+          "note": "assertDoneSuccessPathOutputAndOrdering asserts the single-session DONE success path output (DONE Gate Checklist, advance line, merge/cleanup/branch-delete lines and Step ordering) is byte-identical; the F-008 fix only adds an INIT_CHECK commit, the DONE path is unchanged.",
+          "headHash": "9ff8f908c517534b1c5dcde365bf8d7feac9867e",
+          "materialHash": "2b0687b59c51418326cdb67e1f782a2af56e56594afc2138cfb98068081074fe",
+          "timestamp": "2026-05-18T12:22:17.794Z"
         }
       ]
     },
