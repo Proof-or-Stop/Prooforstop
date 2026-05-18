@@ -32,6 +32,22 @@
         "docs/requirements/decisions/session-ownership-and-write-leases.md",
         "CLAUDE.md"
       ]
+    },
+    {
+      "id": "B-f60c:F-003",
+      "desc": "doc-promise-undelivered: AGENTS.md 「多 session 写协调（设计真相源）」段（line 126）仍称 main write lock「目前是已采纳的设计、运行时尚未实现」，但 B-f60c 已实现该功能。f76f5a49 只更新了 CLAUDE.md，未同步 AGENTS.md 的平行段落。Codex agent 读取 AGENTS.md 时会收到错误的实现状态指导。修复：将 AGENTS.md line 126 与 CLAUDE.md line 393 的「rollout 分步落地」段落对齐。",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-05-18T17:32:22.174Z",
+      "reviewRound": "2026-05-18T17:03:36.429Z",
+      "reviewRunId": "B-f60c:RR-008",
+      "_hash": "eb4c6454e1d1bcb0a443d4bace7bbdfa1d43c709a4fc8e944b319054db05ed73",
+      "files": [
+        "AGENTS.md"
+      ]
     }
   ]
 }
