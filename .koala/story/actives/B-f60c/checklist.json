@@ -71,6 +71,17 @@
           "headHash": "c9f8efb8b1c47f886808ffefd624b932c45cd64b",
           "materialHash": "4ce106c8da84500515209dbf3e3f23acc21c6db9ef6003887a8a8f5c68bc56c7",
           "timestamp": "2026-05-18T12:14:19.971Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "docs_check",
+          "file": "packages/main/src/handlers/done-effects.ts",
+          "command": "rg \"runtime/done-main-merge.lock\" packages/main/src/",
+          "result": "pass",
+          "note": "rg shows zero functional references to the old path in packages/main/src/; remaining matches are only explanatory comments documenting the retirement. done-effects.ts and done-recover.ts now route through acquireMainWriteLock at the new path",
+          "headHash": "7b49daa9f17c198638e3553275b45cc2b479ba87",
+          "materialHash": "4ce106c8da84500515209dbf3e3f23acc21c6db9ef6003887a8a8f5c68bc56c7",
+          "timestamp": "2026-05-18T12:14:24.955Z"
         }
       ]
     },
