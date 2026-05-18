@@ -168,6 +168,33 @@ assertCheckFails(
   }
 }
 
+{
+  const dir = copyCodexAssetsToTemp();
+  const previousPackaged = process.env.KOALA_DESKTOP_PACKAGED_RUNTIME;
+  const previousPath = process.env.PATH;
+  try {
+    process.env.KOALA_DESKTOP_PACKAGED_RUNTIME = '1';
+    process.env.PATH = '/definitely-no-global-koala';
+    const checkResult = runCodexAdapterChecks(dir, {
+      executeLocalHeartbeat: false,
+      executeGlobalHeartbeat: true,
+      timeoutMs: 1_000,
+    });
+    const globalCheck = checkResult.checks.find(check => check.id === 'global-fallback-heartbeat');
+    assert(globalCheck, 'packaged global fallback check should be present');
+    assert(globalCheck.status === 'warn', `packaged global fallback should warn, got ${globalCheck.status}`);
+    assert(globalCheck.hard === false, 'packaged global fallback should not be hard');
+    assertIncludes(globalCheck.detail || '', 'skipped in packaged desktop runtime', 'packaged global fallback detail');
+    assert(checkResult.ok, 'packaged global fallback warning should not be a hard failure');
+  } finally {
+    if (previousPackaged === undefined) delete process.env.KOALA_DESKTOP_PACKAGED_RUNTIME;
+    else process.env.KOALA_DESKTOP_PACKAGED_RUNTIME = previousPackaged;
+    if (previousPath === undefined) delete process.env.PATH;
+    else process.env.PATH = previousPath;
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
 function shellQuote(value) {
   return `'${value.replace(/'/g, `'\\''`)}'`;
 }
