@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { strict as assert } from 'node:assert';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -82,6 +82,29 @@ function runKoalaFromCwdExpectFail(cwd: string, command: string, args: Record<st
     ].join('\n');
   }
   assert.fail(`${command} should have failed`);
+}
+
+/**
+ * Spawn one real `koala story_advance` OS child process from `cwd`; resolves
+ * with its exit code + combined stdout/stderr. Real child processes (not an
+ * in-process `Promise.all`) are required for a genuine multi-session race: an
+ * in-process call would serialize on a single event loop and the unified main
+ * write lock — a cross-process filesystem lock — would never be exercised.
+ */
+function spawnStoryAdvance(cwd: string, args: Record<string, unknown>): Promise<{ code: number; output: string }> {
+  return new Promise((resolveP) => {
+    const env = { ...process.env };
+    delete env.KOALA_PROJECT_ROOT;
+    const child = spawn(process.execPath, [cliPath, 'story_advance', JSON.stringify(args)], {
+      cwd,
+      env,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    let out = '';
+    child.stdout?.on('data', (d) => { out += d; });
+    child.stderr?.on('data', (d) => { out += d; });
+    child.on('close', (code) => resolveP({ code: code ?? -1, output: out }));
+  });
 }
 
 function validBackground(): string {
@@ -1211,6 +1234,95 @@ function assertInitCheckLeavesNoUncommittedMainMirrorForDone(): void {
   }
 }
 
+/**
+ * B-f60c CHK-005 — multi-session regression: two concurrent `story_advance
+ * DONE` OS processes racing the SAME DONE-ready story must serialize through
+ * the unified main write lock with NO partial-DONE.
+ *
+ * This is the multi-session counterpart to CHK-002's
+ * `assertInitCheckLeavesNoUncommittedMainMirrorForDone` (single-process F-008
+ * repro) and CHK-001's `main-write-lock-smoke` (in-process lock primitive).
+ * Neither of those drives two REAL concurrent `story_advance DONE` processes
+ * end-to-end; CHK-002's lock-contention cases pre-plant a static lock dir
+ * rather than running a genuine DONE↔DONE race. This closes that gap.
+ *
+ * F-008 root cause (verified, B-6974 / B-ad12): the DONE flow writes a stale
+ * main-mirror and then self-blocks its own `git merge`. The unified main write
+ * lock + in-lock idempotency must guarantee that, however the two processes
+ * interleave, exactly ONE DONE completes (story=DONE, branch merged into main,
+ * worktree + branch cleaned) and the other exits non-zero WITHOUT leaving a
+ * partial-DONE — i.e. it must never be the case that the story is marked DONE
+ * while `story/<id>` is still unmerged, nor that main is mutated twice.
+ */
+async function assertConcurrentDoneSerializesWithoutPartialDone(): Promise<void> {
+  const root = mkdtempSync(join(tmpdir(), 'koala-concurrent-done-'));
+  try {
+    const storyId = 'B-concurrent-done';
+    const { worktreePath } = buildDoneReadyStory(root, storyId);
+
+    // Two REAL `story_advance DONE` child processes race the same story.
+    const [a, b] = await Promise.all([
+      spawnStoryAdvance(worktreePath, { storyId, phase: 'DONE' }),
+      spawnStoryAdvance(worktreePath, { storyId, phase: 'DONE' }),
+    ]);
+    const results = [a, b];
+
+    // Exactly one DONE wins; the other fails (lock-contention fail-fast, or it
+    // loses the lock race after the winner already finished and finds the
+    // story no longer TEST / the worktree gone). Either way: not two winners.
+    const winners = results.filter(r => r.code === 0
+      && new RegExp(`Story ${storyId} advanced to DONE`).test(r.output));
+    const losers = results.filter(r => r.code !== 0);
+    assert.equal(winners.length, 1,
+      `exactly one concurrent story_advance DONE must succeed, got ${winners.length}: ` +
+      results.map((r, i) => `proc${i}(exit=${r.code})`).join(' ') + '\n' +
+      results.map((r, i) => `--- proc${i} ---\n${r.output}`).join('\n'));
+    assert.equal(losers.length, 1,
+      `exactly one concurrent story_advance DONE must fail (serialized), got ${losers.length}`);
+
+    // The losing process must surface a benign reason — never a partial-DONE.
+    // Acceptable: the live main-write-lock contention message, or a guard
+    // refusal because the story is already past TEST / the worktree is gone.
+    const loserOut = losers[0].output;
+    assert.ok(
+      /DONE main merge lock is held/.test(loserOut)
+      || /main write lock is held/.test(loserOut)
+      || /DONE/.test(loserOut),
+      `the losing DONE racer must explain itself (lock contention or already-advanced), got:\n${loserOut}`,
+    );
+
+    // Terminal state on main is a clean, complete DONE — NOT partial-DONE.
+    const doneStory = new StoryStore(root).readStory(storyId);
+    assert.equal(doneStory.phase, 'DONE', 'the winning race must leave the story DONE on main');
+    assert.equal(doneStory.worktree, undefined, 'a complete DONE must clear story.worktree');
+    // The story branch is merged into main (the F-008 self-block is gone) ...
+    assert.match(
+      git(root, ['log', '--oneline', 'main']),
+      new RegExp(`merge: ${storyId}`),
+      'the story branch must be merged into main — a partial-DONE would leave it unmerged',
+    );
+    // ... and the branch + worktree are cleaned exactly once.
+    assert.equal(git(root, ['branch', '--list', `story/${storyId}`]), '',
+      'a complete DONE must delete the story branch (no partial-DONE leftover)');
+    assert.doesNotMatch(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`story/${storyId}`),
+      'a complete DONE must deregister the worktree');
+    assert.equal(existsSync(worktreePath), false, 'a complete DONE must remove the worktree directory');
+
+    // No uncommitted story-metadata mirror was left behind by the racing
+    // processes — that uncommitted mirror is the exact F-008 self-block
+    // precondition. Scoped to the story dir (not the whole tree) so koala's own
+    // gitignored runtime artifacts — .koala/activity.jsonl, .koala/runtime/ —
+    // do not masquerade as partial-DONE residue.
+    assert.equal(
+      git(root, ['status', '--porcelain', '--', `.koala/story/actives/${storyId}`]),
+      '',
+      'concurrent DONE must leave no uncommitted story-metadata mirror (the F-008 self-block precondition)',
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 assertRecordedWorktreeRejectsMainCwd();
 assertInitCheckChecklistMutationRejectsMainCwd();
 assertTerminalStoriesDoNotRedirect();
@@ -1234,4 +1346,12 @@ assertDoneMainMergeStaleLockIsReclaimed();
 // main-side story metadata mirror that self-blocks the DONE merge.
 assertInitCheckLeavesNoUncommittedMainMirrorForDone();
 
-console.log('✓ worktree authority smoke passed');
+// B-f60c CHK-005 — multi-session regression: two concurrent story_advance DONE
+// processes serialize through the unified main write lock with no partial-DONE.
+(async () => {
+  await assertConcurrentDoneSerializesWithoutPartialDone();
+  console.log('✓ worktree authority smoke passed');
+})().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
