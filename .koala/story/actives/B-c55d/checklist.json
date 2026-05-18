@@ -63,6 +63,17 @@
           "headHash": "236c6b54b25b7e322ea64bfe72066418861006e8",
           "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
           "timestamp": "2026-05-18T23:41:37.611Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-owner-lease-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
+          "result": "pass",
+          "note": "smoke section 3 asserts an owner re-running a story-scoped mutating command via refreshOwnerLease advances ONLY heartbeatAt while preserving acquiredAt/sessionId/original command; section 5 covers acquire-or-refresh refreshing for the same session",
+          "headHash": "221ad10f1b083f6f7355a524aeb0ff292d02986a",
+          "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
+          "timestamp": "2026-05-18T23:41:45.080Z"
         }
       ]
     },
