@@ -1,0 +1,249 @@
+{
+  "command": "koala validate --story=B-c55d --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery; verification coverage missing 26 required intent(s)\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.3 test\",\"  > npm run test:e2e\",\"  > koala@0.3.3 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 0/26 covered (26 required missing)\",\"  ✗ CHK-001:happy:0 [happy/must/logic] missing — sessionId 稳定生成（同一 session 内一致）；第一条 story-scoped mutating 命令为 story 写出 owner-lease.json，含 sessionId/hostname/pid/cwd/command/acquiredAt/heartbeatAt\",\"  ✗ CHK-001:happy:1 [happy/must/logic] missing — owner 后续 story-scoped mutating 命令刷新 owner-lease.json 的 heartbeatAt\",\"  ✗ CHK-001:edge:0 [edge/must/logic] missing — story 到 DONE/DISCARDED 且 cleanup 成功后 owner lease 释放\",\"  ✗ CHK-001:edge:1 [edge/must/logic] missing — owner-lease.json 是进程元数据——在 session_brief 可见、但不计入 verification evidence\",\"  ✗ CHK-001:adversarial:0 [adversarial/must/logic] missing — owner-lease.json 不在 DONE 前留未提交脏写（防 F-008 同类 partial-DONE）\",\"  ✗ CHK-002:happy:0 [happy/must/cli] missing — 每个已注册 command 在 CommandPolicy 都有 ownershipClass（readOnly/storyScopedMutating/reviewerWrite/mainSharedMutating/dangerousMutating）——contract test 枚举真实 registry 断言全覆盖、缺一即 fail\",\"  ✗ CHK-002:happy:1 [happy/must/cli] missing — 非 owner session 跑 story-scoped mutating 命令（如 checklist_update）被 fail-closed 拒绝，附 owner guidance\",\"  ✗ CHK-002:edge:0 [edge/must/cli] missing — read-only 命令在任何 session 永不被 owner lease 拦\",\"  ✗ CHK-002:edge:1 [edge/must/logic] missing — finding_resolve/finding_dismiss owner-gated；但 B-META finding 的 resolve/dismiss 归 mainSharedMutating、走 B-f60c main write lock 不走 owner lease\",\"  ✗ CHK-002:edge:2 [edge/must/logic] missing — validate --story=B-xxx owner-gated；不带 --story 的纯诊断型 validate 不要求 story owner lease\",\"  ✗ CHK-002:adversarial:0 [adversarial/must/logic] missing — reviewer-write 豁免窄：main agent 不能借 delivery_check_set 绕过 owner lease——delivery_check_set 仅在 actor/lane=delivery reviewer 时算 reviewerWrite，否则按 storyScopedMutating 或拒绝\",\"  ✗ CHK-002:adversarial:1 [adversarial/must/logic] missing — 未分类（缺 ownershipClass）的命令 gate fail-closed，不默认放行\",\"  ✗ CHK-003:happy:0 [happy/must/logic] missing — owner lease heartbeatAt 超过 30 分钟无刷新 → 判 stale\",\"  ✗ CHK-003:happy:1 [happy/must/logic] missing — --takeover 把 stale lease 转移给当前 session 并记录一条 takeover event\",\"  ✗ CHK-003:edge:0 [edge/must/logic] missing — 非 stale（活跃）lease 不能被 --takeover，需显式 --forceTakeover（视为人工批准）\",\"  ✗ CHK-003:adversarial:0 [adversarial/must/logic] missing — 无 --takeover/--forceTakeover 时不转移任何 lease；takeover 走 dangerous-mutating 纪律、记录 event\",\"  ✗ CHK-004:happy:0 [happy/must/cli] missing — 非 owner mutation 错误消息含：哪个 story 被 own、owner sessionId/cwd/last-heartbeat、是否 stale、允许的下一步动作\",\"  ✗ CHK-004:happy:1 [happy/must/cli] missing — session_brief 渲染 owner session / owner cwd / heartbeat age / stale|active / 当前 session 是否 owner / 推荐动作（proceed|read-only|takeover available|wait）\",\"  ✗ CHK-004:edge:0 [edge/must/cli] missing — B-META 在 session_brief 单独显示 shared audit state，且不建议 story_advance\",\"  ✗ CHK-004:adversarial:0 [adversarial/must/logic] missing — owner lease 不阻断 reviewer read-only flow——story_get/checklist_get/finding_list/session_brief 在非 owner session 仍放行\",\"  ✗ CHK-005:happy:0 [happy/must/cli] missing — koala doctor 检出并报告 stale story owner lease\",\"  ✗ CHK-005:happy:1 [happy/must/cli] missing — smoke：两 session 对同一 story 跑 mutating → 第二个被拒并附 owner guidance；两 session 对不同 story → 都正常推进\",\"  ✗ CHK-005:edge:0 [edge/must/cli] missing — smoke：stale-lease takeover 仅在显式 --takeover + event 记录下允许；active-lease takeover 被拒（除非 --forceTakeover）\",\"  ✗ CHK-005:edge:1 [edge/must/cli] missing — smoke：非 owner session 下 reviewer read-only flow 与 reviewer-write（合法 reviewer run 下）仍成功\",\"  ✗ CHK-005:adversarial:0 [adversarial/must/cli] missing — smoke：owner-lease.json 在 DONE 前后无未提交脏写（F-008 同类回归断言）\",\"  ✗ CHK-005:adversarial:1 [adversarial/must/cli] missing — koala validate 全绿（含新增 story-owner-lease smoke 与 command-ownership contract）\"],\"warnings\":[],\"timestamp\":\"2026-05-18T23:41:23.234Z\",\"headSha\":\"236c6b54b25b7e322ea64bfe72066418861006e8\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.3 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.3 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":879}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":26,\"reason\":\"verificationIntent entries present (26)\"},\"verificationCoverage\":{\"total\":26,\"required\":26,\"covered\":0,\"missingRequired\":26,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"sessionId 稳定生成（同一 session 内一致）；第一条 story-scoped mutating 命令为 story 写出 owner-lease.json，含 sessionId/hostname/pid/cwd/command/acquiredAt/heartbeatAt\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:happy:1\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"owner 后续 story-scoped mutating 命令刷新 owner-lease.json 的 heartbeatAt\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"story 到 DONE/DISCARDED 且 cleanup 成功后 owner lease 释放\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:edge:1\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"owner-lease.json 是进程元数据——在 session_brief 可见、但不计入 verification evidence\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"owner-lease.json 不在 DONE 前留未提交脏写（防 F-008 同类 partial-DONE）\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"每个已注册 command 在 CommandPolicy 都有 ownershipClass（readOnly/storyScopedMutating/reviewerWrite/mainSharedMutating/dangerousMutating）——contract test 枚举真实 registry 断言全覆盖、缺一即 fail\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:happy:1\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"非 owner session 跑 story-scoped mutating 命令（如 checklist_update）被 fail-closed 拒绝，附 owner guidance\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"read-only 命令在任何 session 永不被 owner lease 拦\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:edge:1\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"finding_resolve/finding_dismiss owner-gated；但 B-META finding 的 resolve/dismiss 归 mainSharedMutating、走 B-f60c main write lock 不走 owner lease\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:edge:2\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"validate --story=B-xxx owner-gated；不带 --story 的纯诊断型 validate 不要求 story owner lease\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"reviewer-write 豁免窄：main agent 不能借 delivery_check_set 绕过 owner lease——delivery_check_set 仅在 actor/lane=delivery reviewer 时算 reviewerWrite，否则按 storyScopedMutating 或拒绝\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:adversarial:1\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"未分类（缺 ownershipClass）的命令 gate fail-closed，不默认放行\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"owner lease heartbeatAt 超过 30 分钟无刷新 → 判 stale\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:happy:1\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"--takeover 把 stale lease 转移给当前 session 并记录一条 takeover event\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"非 stale（活跃）lease 不能被 --takeover，需显式 --forceTakeover（视为人工批准）\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"无 --takeover/--forceTakeover 时不转移任何 lease；takeover 走 dangerous-mutating 纪律、记录 event\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"非 owner mutation 错误消息含：哪个 story 被 own、owner sessionId/cwd/last-heartbeat、是否 stale、允许的下一步动作\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:happy:1\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"session_brief 渲染 owner session / owner cwd / heartbeat age / stale|active / 当前 session 是否 owner / 推荐动作（proceed|read-only|takeover available|wait）\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"B-META 在 session_brief 单独显示 shared audit state，且不建议 story_advance\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"owner lease 不阻断 reviewer read-only flow——story_get/checklist_get/finding_list/session_brief 在非 owner session 仍放行\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"koala doctor 检出并报告 stale story owner lease\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-005:happy:1\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"smoke：两 session 对同一 story 跑 mutating → 第二个被拒并附 owner guidance；两 session 对不同 story → 都正常推进\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"smoke：stale-lease takeover 仅在显式 --takeover + event 记录下允许；active-lease takeover 被拒（除非 --forceTakeover）\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-005:edge:1\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"smoke：非 owner session 下 reviewer read-only flow 与 reviewer-write（合法 reviewer run 下）仍成功\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"smoke：owner-lease.json 在 DONE 前后无未提交脏写（F-008 同类回归断言）\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-005:adversarial:1\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"koala validate 全绿（含新增 story-owner-lease smoke 与 command-ownership contract）\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"}]}}",
+  "result": "FAIL",
+  "timestamp": "2026-05-18T23:41:23.258Z",
+  "headHash": "236c6b54b25b7e322ea64bfe72066418861006e8",
+  "verificationCoverage": {
+    "total": 26,
+    "required": 26,
+    "covered": 0,
+    "missingRequired": 26,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "sessionId 稳定生成（同一 session 内一致）；第一条 story-scoped mutating 命令为 story 写出 owner-lease.json，含 sessionId/hostname/pid/cwd/command/acquiredAt/heartbeatAt",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:happy:1",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "owner 后续 story-scoped mutating 命令刷新 owner-lease.json 的 heartbeatAt",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "story 到 DONE/DISCARDED 且 cleanup 成功后 owner lease 释放",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:edge:1",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "owner-lease.json 是进程元数据——在 session_brief 可见、但不计入 verification evidence",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "owner-lease.json 不在 DONE 前留未提交脏写（防 F-008 同类 partial-DONE）",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "每个已注册 command 在 CommandPolicy 都有 ownershipClass（readOnly/storyScopedMutating/reviewerWrite/mainSharedMutating/dangerousMutating）——contract test 枚举真实 registry 断言全覆盖、缺一即 fail",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:happy:1",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "非 owner session 跑 story-scoped mutating 命令（如 checklist_update）被 fail-closed 拒绝，附 owner guidance",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "read-only 命令在任何 session 永不被 owner lease 拦",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:edge:1",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "finding_resolve/finding_dismiss owner-gated；但 B-META finding 的 resolve/dismiss 归 mainSharedMutating、走 B-f60c main write lock 不走 owner lease",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:edge:2",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "validate --story=B-xxx owner-gated；不带 --story 的纯诊断型 validate 不要求 story owner lease",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "reviewer-write 豁免窄：main agent 不能借 delivery_check_set 绕过 owner lease——delivery_check_set 仅在 actor/lane=delivery reviewer 时算 reviewerWrite，否则按 storyScopedMutating 或拒绝",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:adversarial:1",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "未分类（缺 ownershipClass）的命令 gate fail-closed，不默认放行",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "owner lease heartbeatAt 超过 30 分钟无刷新 → 判 stale",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:happy:1",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "--takeover 把 stale lease 转移给当前 session 并记录一条 takeover event",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "非 stale（活跃）lease 不能被 --takeover，需显式 --forceTakeover（视为人工批准）",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "无 --takeover/--forceTakeover 时不转移任何 lease；takeover 走 dangerous-mutating 纪律、记录 event",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "非 owner mutation 错误消息含：哪个 story 被 own、owner sessionId/cwd/last-heartbeat、是否 stale、允许的下一步动作",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-004:happy:1",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "session_brief 渲染 owner session / owner cwd / heartbeat age / stale|active / 当前 session 是否 owner / 推荐动作（proceed|read-only|takeover available|wait）",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "B-META 在 session_brief 单独显示 shared audit state，且不建议 story_advance",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "owner lease 不阻断 reviewer read-only flow——story_get/checklist_get/finding_list/session_brief 在非 owner session 仍放行",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-005:happy:0",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "koala doctor 检出并报告 stale story owner lease",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-005:happy:1",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "smoke：两 session 对同一 story 跑 mutating → 第二个被拒并附 owner guidance；两 session 对不同 story → 都正常推进",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-005:edge:0",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "smoke：stale-lease takeover 仅在显式 --takeover + event 记录下允许；active-lease takeover 被拒（除非 --forceTakeover）",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-005:edge:1",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "smoke：非 owner session 下 reviewer read-only flow 与 reviewer-write（合法 reviewer run 下）仍成功",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-005:adversarial:0",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "smoke：owner-lease.json 在 DONE 前后无未提交脏写（F-008 同类回归断言）",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-005:adversarial:1",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "koala validate 全绿（含新增 story-owner-lease smoke 与 command-ownership contract）",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      }
+    ]
+  }
+}
