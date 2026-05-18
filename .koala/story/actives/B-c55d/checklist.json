@@ -6,7 +6,52 @@
       "context": "Stable per-session `sessionId` — a LOCAL process-coordination id only (NOT cryptographic identity; no keys / server authority / attestation — hard boundary 1). `.koala/story/actives/<storyId>/owner-lease.json` records sessionId / hostname / pid / cwd / command / acquiredAt / heartbeatAt / optional human label. The first story-scoped mutating command for a story acquires the owner lease; owner commands refresh heartbeatAt; the lease is released when the story reaches DONE/DISCARDED and cleanup succeeds. The lease file is process metadata, not product evidence — visible in session_brief but never counted as verification evidence.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户/agent 在 story dir 看到 .koala/story/actives/<storyId>/owner-lease.json，含 sessionId/hostname/pid/cwd/command/acquiredAt/heartbeatAt；同一 session 再跑命令时 heartbeatAt 被刷新。",
+      "files": {
+        "modify": [
+          "packages/main/src/registry.ts"
+        ],
+        "create": [
+          "packages/main/src/core/story-owner-lease.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/story-owner-lease-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "sessionId 稳定生成（同一 session 内一致）；第一条 story-scoped mutating 命令为 story 写出 owner-lease.json，含 sessionId/hostname/pid/cwd/command/acquiredAt/heartbeatAt",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "owner 后续 story-scoped mutating 命令刷新 owner-lease.json 的 heartbeatAt",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "story 到 DONE/DISCARDED 且 cleanup 成功后 owner lease 释放",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "owner-lease.json 是进程元数据——在 session_brief 可见、但不计入 verification evidence",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "owner-lease.json 不在 DONE 前留未提交脏写（防 F-008 同类 partial-DONE）",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

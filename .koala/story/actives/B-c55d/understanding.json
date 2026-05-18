@@ -1,0 +1,43 @@
+{
+  "task": "实现 story owner lease——本地 Koala session 所有权协调：稳定的 sessionId + .koala/story/actives/<storyId>/owner-lease.json + heartbeat 刷新 + 30 分钟无 heartbeat 判 stale + --takeover/--forceTakeover + 非 owner 对 story-scoped mutating 命令的 fail-closed 拒绝 + ownership-aware 错误 UX 与 session_brief 渲染。配套把命令分类（5 类 ownershipClass）落进 CommandPolicy，并加全命令覆盖 contract test。这是 session-ownership-and-write-leases.md rollout 的 story owner lease 部分（main write lock 部分已由 B-f60c 完成）。",
+  "outcome": "两个 session 同时对同一 story 跑 story-scoped mutating 命令（如 checklist_update）时，非 owner 的 session 看到 \"B-xxxx is owned by session <id>, heartbeat <n>m ago. Use read-only commands, wait for the owner, or rerun with --takeover after the lease is stale.\" 而不是静默互相覆盖 metadata；两个 session 各自开不同 story 则都能正常推进；reviewer 仍能 story_get/checklist_get/finding_list/session_brief 只读，也仍能在合法 reviewer run 下 finding_add/review_pass_set 写评审证据（不被 owner lease 拦）；koala session_brief 显示 owner session / cwd / heartbeat age / stale|active / 当前 session 是否 owner / 推荐动作；koala doctor 报出 stale owner lease。",
+  "facts": [
+    "command-policy.ts 已有 per-command CommandPolicy 接口（status / reason / allowedPhases / rootOnly / replacement / destructiveRisk / gateEvidence / retiredReason）；ownershipClass 字段应加在此处作为 gate 权威来源。",
+    "koala 注册命令数以真实 command registry contract 为准（registry.ts / cli-engine command schema / command-policy 三处计数不完全一致，约 90+），不手写会漂移的命令表。",
+    "B-f60c 已落地 main write lock（core/main-write-lock.ts，.koala/locks/main-write.lock/）串行化 story_create / gap_log / audit / done_recover / B-META finding 写——owner lease 与它正交，不重构它，只在必要处复用。",
+    "reviewer-write 命令（finding_add / review_pass_set / review_run_start / init_check_set / draft_check_set / draft_issue_resolve / scope_check_save / scope_question_resolve / delivery_check_set）写 story-scoped 评审证据，但由 reviewer lane 发起；它们已受 phase / reviewer run / _hash / signature / lane 约束。",
+    "StoryInfo 已有 story.owner 字段（旧的轻量 owner 概念）；本 story 的 owner-lease.json 是更完整的 session 级 lease。",
+    "F-008（B-f60c 已修）的教训：写在 main 工作区却不提交的 story metadata 镜像会在 DONE merge 时自阻塞——owner-lease.json 作为 story-dir 进程元数据，须随 story 提交节奏处理、不得在 DONE 前留未提交脏写。"
+  ],
+  "constraints": [
+    "硬边界 1：只做本地 session 协调，不做强身份安全——sessionId 是本地流程协调 ID，不是 cryptographic identity；无 public/private key、无 server authority、无 reviewer attestation。",
+    "硬边界 2：命令分类先落表——5 类 ownershipClass（readOnly / storyScopedMutating / reviewerWrite / mainSharedMutating / dangerousMutating）写进 CommandPolicy；gate 严格按 ownershipClass 接；加 contract test 强制每个已注册 command 都有 ownershipClass，不允许漏分类、无默认兜底。",
+    "硬边界 3：owner lease 不阻断 reviewer——read-only 命令永远放行；reviewer-write 命令豁免 owner lease，但豁免不等于自由写，仍须受 phase / reviewer run / _hash / signature / lane 约束并记录 sessionId/actor（reviewer 仍要证明自己是当前 lane 的合法 reviewer）。",
+    "硬边界 4：不重构 B-f60c 的 main write lock，只在必要时复用。",
+    "用户裁定 finding_resolve / finding_dismiss = storyScopedMutating（owner-gated）——它们改 blocker 状态、影响 REVIEW gate，应由 story owner 负责；例外：B-META finding 的 resolve/dismiss = mainSharedMutating，走 B-f60c main write lock，不走 story owner lease。",
+    "用户裁定 validate --story=B-xxx = storyScopedMutating（owner-gated）——它经 persistStoryValidationEvidence 写 TEST/DONE gate 消费的 story evidence、并同步 cluster resolve；例外：不带 --story 的纯诊断型 validate 不要求 story owner lease。",
+    "delivery_check_set 仅在 actor/lane 为 delivery reviewer 语义下算 reviewerWrite；否则视为 storyScopedMutating 或拒绝——不得让 main agent 借 delivery_check_set 绕过 owner lease。",
+    "owner lease 保护的是 story authoring / lifecycle mutation ownership，不取消 reviewer/verifier 的独立写入权（写进 decision 的核心原则）。",
+    "设计真相源：docs/requirements/decisions/session-ownership-and-write-leases.md（Story Owner Lease Rules / Error UX / session_brief Requirements）。"
+  ],
+  "unknowns": [
+    "delivery_check_set 判定「actor/lane 是否 delivery reviewer」的确切机制（依据 review run / lane 记录还是签名），以及非 owner 拒绝 gate 的单一 choke-point 落点（cli-engine dispatch 前 vs HandlerContext 中间件）——根因方向已明，确切实现由 DEV 在 CHK-002 坐实。"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/handlers/delivery-check.ts",
+    "packages/main/src/core/main-write-lock.ts",
+    "packages/main/src/core/story-owner-lease.ts",
+    "packages/main/src/handlers/session-brief.ts",
+    "packages/main/src/handlers/doctor.ts",
+    "packages/main/src/handlers/validate.ts",
+    "packages/main/src/tasks/story-owner-lease-smoke.ts",
+    "packages/main/src/tasks/command-ownership-contract.ts",
+    "docs/requirements/decisions/session-ownership-and-write-leases.md",
+    "docs/requirements/decisions/story-lifecycle.md"
+  ],
+  "timestamp": "2026-05-18T22:01:11.120Z"
+}
