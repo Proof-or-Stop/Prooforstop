@@ -230,6 +230,17 @@
           "headHash": "e1cc15f0b5431be7d0e399f38ad79599b595778c",
           "materialHash": "2b0687b59c51418326cdb67e1f782a2af56e56594afc2138cfb98068081074fe",
           "timestamp": "2026-05-18T12:22:18.730Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "node packages/main/dist/tasks/worktree-authority-smoke.js",
+          "result": "pass",
+          "note": "assertDoneMainMergeLiveLockFailsBeforeMutation: a live main-write lock makes a second concurrent story_advance DONE fail before phase=DONE is written (story stays TEST, branch/worktree untouched) — the lock serializes DONE, preventing a partial-DONE race.",
+          "headHash": "d2ad5ff8e7215c0e84c24c15615f2a98a644b4e0",
+          "materialHash": "2b0687b59c51418326cdb67e1f782a2af56e56594afc2138cfb98068081074fe",
+          "timestamp": "2026-05-18T12:22:19.222Z"
         }
       ]
     },
