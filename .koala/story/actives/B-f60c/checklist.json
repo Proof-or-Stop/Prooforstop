@@ -139,7 +139,35 @@
       "context": "doctor detects stale/stuck main write locks and reports them. Lock-contention produces a clear blocking error message per the doc's Error UX 'main lock contention' example (holder session, running command, heartbeat age, retry guidance). Do NOT implement session_brief ownership rendering — that belongs to the owner-lease story.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lock-contention 错误消息含 holder session / 命令 / heartbeat age / 重试指引",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "doctor 检出 stale/stuck main write lock 并在输出中报告",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "doctor 不把正常持有中的活跃锁误报为 stuck",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "本 story 不引入 session_brief ownership rendering（范围约束，机械可查）",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
