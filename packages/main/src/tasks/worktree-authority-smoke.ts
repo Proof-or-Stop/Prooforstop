@@ -1034,7 +1034,7 @@ function assertDoneMainMergeLiveLockFailsBeforeMutation(): void {
   try {
     const storyId = 'B-lock-live';
     const { worktreePath } = buildDoneReadyStory(root, storyId);
-    const lockDir = join(root, '.koala', 'runtime', 'done-main-merge.lock');
+    const lockDir = join(root, '.koala', 'locks', 'main-write.lock');
     mkdirSync(lockDir, { recursive: true });
 
     const output = runKoalaFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
@@ -1057,7 +1057,7 @@ function assertDoneMainMergeLockBlocksBeforeAutoSyncMain(): void {
     git(root, ['add', 'main-only-after-story-branch.txt']);
     git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'main moves after story branch']);
     const mainHeadAfterBranch = git(root, ['rev-parse', 'main']);
-    const lockDir = join(root, '.koala', 'runtime', 'done-main-merge.lock');
+    const lockDir = join(root, '.koala', 'locks', 'main-write.lock');
     mkdirSync(lockDir, { recursive: true });
 
     const output = runKoalaFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
@@ -1088,7 +1088,7 @@ function assertDoneMainMergeStaleLockIsReclaimed(): void {
   try {
     const storyId = 'B-lock-stale';
     const { worktreePath } = buildDoneReadyStory(root, storyId);
-    const lockDir = join(root, '.koala', 'runtime', 'done-main-merge.lock');
+    const lockDir = join(root, '.koala', 'locks', 'main-write.lock');
     mkdirSync(lockDir, { recursive: true });
     const old = new Date(Date.now() - 5 * 60 * 1000);
     utimesSync(lockDir, old, old);

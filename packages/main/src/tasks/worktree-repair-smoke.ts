@@ -262,7 +262,7 @@ async function assertDoneRecoverUsesDoneMainMergeLock(): Promise<void> {
   try {
     const storyId = 'B-partial-lock';
     buildPartialDone(root, storyId);
-    mkdirSync(join(root, '.koala', 'runtime', 'done-main-merge.lock'), { recursive: true });
+    mkdirSync(join(root, '.koala', 'locks', 'main-write.lock'), { recursive: true });
 
     const output = await runKoalaExpectFail(root, 'done_recover', { storyId });
     assert.match(output, /DONE main merge lock is held/, 'done_recover must use the same DONE main merge lock');

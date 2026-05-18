@@ -49,7 +49,8 @@ import { cleanStrayWorktreeFiles } from './stray-file-cleanup.js';
 import { repairGlobalKoalaLinkBeforeWorktreeDelete } from './worktree.js';
 import { reportHealthIssue } from '../core/health.js';
 import { runDoneOracleGate } from './phase-gates.js';
-import { acquireMkdirLock, type AcquiredMkdirLock } from '../core/mkdir-lock.js';
+import type { AcquiredMkdirLock } from '../core/mkdir-lock.js';
+import { acquireMainWriteLock, mainWriteLockPath } from '../core/main-write-lock.js';
 
 // B-c622 CHK-004: DONE 阶段自动同步 main —— detect divergence + auto merge main.
 // checkMainDivergence is defined in core/done-oracle.ts and imported by
@@ -114,24 +115,42 @@ type DoneWorktreeContext = {
   branch: string;
 };
 
-const DONE_MAIN_MERGE_LOCK_STALE_MS = 120000;
-
-export function doneMainMergeLockPath(projectRoot: string, invocationCwd = process.cwd()): string {
+/**
+ * Resolve the main repo root the DONE main write lock contends on. DONE may be
+ * invoked from inside a story worktree (or a nested subdir of it); the lock
+ * must always live at the *main* repo root so the worktree and the main
+ * checkout serialize on one directory.
+ */
+function resolveDoneLockMainRepoRoot(projectRoot: string, invocationCwd = process.cwd()): string {
   const doneWorktree = detectDoneStoryWorktreeContext(invocationCwd);
-  const mainRepoRoot = doneWorktree?.mainRepoRoot ?? projectRoot;
-  return join(mainRepoRoot, '.koala', 'runtime', 'done-main-merge.lock');
+  return doneWorktree?.mainRepoRoot ?? projectRoot;
 }
 
+/**
+ * Canonical DONE main write lock directory.
+ *
+ * B-f60c CHK-001: this now resolves to the unified main write lock path
+ * (`.koala/locks/main-write.lock/`). The former DONE-specific
+ * `.koala/runtime/done-main-merge.lock` path is retired with no alias.
+ */
+export function doneMainMergeLockPath(projectRoot: string, invocationCwd = process.cwd()): string {
+  return mainWriteLockPath(resolveDoneLockMainRepoRoot(projectRoot, invocationCwd));
+}
+
+/**
+ * Acquire the unified main write lock for the DONE merge / worktree cleanup
+ * critical section. Behavior-preserving wrapper over `acquireMainWriteLock`:
+ * the operator-facing held message keeps the legacy "DONE main merge lock is
+ * held" wording so external CLI output is byte-identical.
+ */
 export function acquireDoneMainMergeLock(
   storyId: string,
   projectRoot: string,
   invocationCwd = process.cwd(),
 ): AcquiredMkdirLock {
-  const lockDir = doneMainMergeLockPath(projectRoot, invocationCwd);
-  return acquireMkdirLock(lockDir, {
+  const mainRepoRoot = resolveDoneLockMainRepoRoot(projectRoot, invocationCwd);
+  return acquireMainWriteLock(mainRepoRoot, {
     label: 'DONE main merge',
-    staleMs: DONE_MAIN_MERGE_LOCK_STALE_MS,
-    failFastIfHeld: true,
     heldMessage:
       `DONE main merge lock is held by another Koala operation; story ${storyId} phase was not changed. ` +
       `Retry after the active DONE merge finishes.`,
