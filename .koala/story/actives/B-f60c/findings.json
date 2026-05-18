@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-f60c:F-001",
+      "desc": "CHK-002:adversarial:0 的 evidence 函数 assertDoneMainMergeLiveLockFailsBeforeMutation 通过预植 lock dir 来模拟「锁已被持有」状态，而非真正 spawn 两个并发 DONE 进程。intent 描述是「两个并发 story_advance DONE 被锁串行化，无 partial-DONE race」，evidence 证明的是「锁持有时第二个 DONE 被拒」这一机制，但没有直接覆盖「真实双进程并发竞争」场景。真实并发竞争由 CHK-005:happy:0 / assertConcurrentDoneSerializesWithoutPartialDone 覆盖，但 CHK-002:adversarial:0 本身的 evidence 与 intent 文字存在缺口。Advisory 建议：将 evidence note 中的「两个并发 story_advance DONE」措辞改为更准确的「live lock pre-planted to prove second DONE is blocked before mutation；real concurrent race covered at CHK-005」，或换引 assertConcurrentDoneSerializesWithoutPartialDone 为 co-evidence。",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-05-18T16:44:23.564Z",
+      "reviewRound": "2026-05-18T12:59:38.521Z",
+      "reviewRunId": "B-f60c:RR-002",
+      "_hash": "dcdfdff4ee74787bee2438e9789bcfd85b65e5a2a0d43c80928e58d6408db7b6",
+      "files": [
+        "packages/main/src/tasks/worktree-authority-smoke.ts"
+      ]
+    }
+  ]
+}
