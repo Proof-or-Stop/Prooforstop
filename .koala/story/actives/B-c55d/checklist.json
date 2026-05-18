@@ -127,7 +127,46 @@
       "context": "A lease is stale after 30 minutes without a heartbeat. `--takeover` transfers a STALE lease to the current session and records an event. A non-stale lease requires explicit `--forceTakeover` (treated as human-approved). Takeover is dangerous-mutating-command discipline — explicit intent required, event recorded.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "owner 离线 30 分钟后，新 session 跑 koala <cmd> --takeover 看到 lease 转移成功提示并记录 takeover event；对活跃 lease 跑 --takeover 被拒、提示需 --forceTakeover。",
+      "files": {
+        "modify": [
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/story-owner-lease-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "owner lease heartbeatAt 超过 30 分钟无刷新 → 判 stale",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "--takeover 把 stale lease 转移给当前 session 并记录一条 takeover event",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "非 stale（活跃）lease 不能被 --takeover，需显式 --forceTakeover（视为人工批准）",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "无 --takeover/--forceTakeover 时不转移任何 lease；takeover 走 dangerous-mutating 纪律、记录 event",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
