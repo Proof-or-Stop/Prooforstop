@@ -23,6 +23,8 @@ import { reportHealthIssue } from './core/health.js';
 import { detectStaleState } from './core/stale-detector.js';
 import { runHooks, truncateForEnv, buildHookEnv as buildSharedHookEnv, HOOK_TIMEOUT_MS } from './core/hooks.js';
 import { gitProbe, isGitRepository } from './core/git-probe.js';
+import { acquireOrRefreshOwnerLease } from './core/story-owner-lease.js';
+import { getCommandPolicy } from './core/command-policy.js';
 import { STORY_OUTCOME_KINDS, VERIFICATION_EVIDENCE_VERDICTS } from './core/types.js';
 import { BACKGROUND_SECTION_IDS, normalizeBackgroundSection } from './core/background-validator.js';
 import {
@@ -1204,6 +1206,53 @@ function storyIdFromArgs(args: Record<string, unknown>, activeStory?: ActiveStor
 }
 
 /**
+ * B-c55d CHK-001: acquire-or-refresh the story owner lease for a story-scoped
+ * mutating command.
+ *
+ * Called from the `run()` choke-point in `runCli`, so the lease side-effect is
+ * registered exactly once for every command instead of being scattered into
+ * individual handlers.
+ *
+ * CHK-001 scope is the lease MECHANISM only — the non-owner rejection gate and
+ * the full `ownershipClass` command classification are CHK-002. So this helper
+ * uses a deliberately conservative interim heuristic to decide what counts as
+ * a "story-scoped mutating command":
+ *   - skip read-only commands (`READ_ONLY_COMMANDS`);
+ *   - require a resolvable `storyId` (no story → nothing to own);
+ *   - require the command's lifecycle policy to declare
+ *     `destructiveRisk: 'metadata-write'` (the mutating commands).
+ *
+ * It is wrapped end-to-end in try/catch and NEVER throws: a lease write failure
+ * must not break a command in CHK-001 (enforcement arrives with the CHK-002
+ * gate). The story directory is resolved via `store.storyDirPath`, the same
+ * path the story metadata already lives under.
+ */
+function maybeAcquireOrRefreshOwnerLease(
+  cmd: string,
+  args: Record<string, unknown>,
+  store: StoryStore,
+  activeStory: ActiveStory | null,
+): void {
+  try {
+    if (READ_ONLY_COMMANDS.has(cmd)) return;
+    const policy = getCommandPolicy(cmd);
+    // Only story-scoped mutating commands take a lease. `metadata-write` is the
+    // interim signal until CHK-002 introduces `ownershipClass`; commands with
+    // `none` / `fixture-write` / `workspace-destructive` risk are not
+    // single-story authoring mutations and are skipped here.
+    if (!policy || policy.destructiveRisk !== 'metadata-write') return;
+    const storyId = storyIdFromArgs(args, activeStory);
+    if (!storyId) return;
+    const storyDir = store.storyDirPath(storyId);
+    if (!existsSync(storyDir)) return;
+    acquireOrRefreshOwnerLease(storyDir, { command: cmd, cwd: process.cwd() });
+  } catch {
+    // CHK-001 is mechanism-only — never let a lease write failure block a
+    // command. The CHK-002 gate is where ownership is enforced.
+  }
+}
+
+/**
  * Decide whether a CLI invocation should be recorded in activity.jsonl.
  * Returns false for read-only commands and dry-run invocations.
  */
@@ -1706,6 +1755,15 @@ export async function runCli(opts?: {
     if (!READ_ONLY_COMMANDS.has(cmd)) {
       await runHooks('preCommand', cmd, buildHookEnvLocal('preCommand'), config0, root);
     }
+    // B-c55d CHK-001: story owner lease acquire / heartbeat. This `run()`
+    // wrapper is the single CLI choke-point every command flows through, so the
+    // lease side-effect lives here — NOT scattered across handlers. A
+    // story-scoped mutating command for a story with no lease acquires it
+    // (current session becomes owner); an owner re-running such a command
+    // refreshes the heartbeat. A non-owner is left untouched (no silent steal).
+    // CHK-001 only performs the lease mechanism; the non-owner REJECTION gate
+    // is CHK-002, so any failure here is swallowed and never blocks a command.
+    maybeAcquireOrRefreshOwnerLease(cmd, parsed, store, activeStory);
     try {
       let result = fn();
       if (result && typeof (result as any).then === 'function') result = await result;
