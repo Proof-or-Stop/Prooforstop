@@ -158,6 +158,20 @@
             "priority": "should"
           }
         ]
+      },
+      "userSees": "并发 gap_log 同一框架 gap 后 finding_list 只列出一条 canonical finding；锁竞争时第二条 shared-write 命令看到 'main write lock is held by ...' 的 blocking 错误。",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/gap-log.ts",
+          "packages/main/src/handlers/audit.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/core/audit-meta-store.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/gap-log-smoke.ts"
+        ]
       }
     },
     {
