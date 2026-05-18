@@ -59,7 +59,20 @@
         "test": [
           "packages/main/src/tasks/worktree-authority-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-smoke.ts",
+          "command": "node dist/tasks/main-write-lock-smoke.js",
+          "result": "pass",
+          "note": "smoke section 1/1b acquires acquireMainWriteLock at .koala/locks/main-write.lock, asserts lock dir exists while held and removed after release; section 5 asserts canonical path constant",
+          "headHash": "c9f8efb8b1c47f886808ffefd624b932c45cd64b",
+          "materialHash": "4ce106c8da84500515209dbf3e3f23acc21c6db9ef6003887a8a8f5c68bc56c7",
+          "timestamp": "2026-05-18T12:14:19.971Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",

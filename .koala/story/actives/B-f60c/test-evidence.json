@@ -1,0 +1,240 @@
+{
+  "command": "koala validate --story=B-f60c --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery; verification coverage missing 22 required intent(s)\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.3 test\",\"  > npm run test:e2e\",\"  > koala@0.3.3 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 0/25 covered (22 required missing)\",\"  ✗ CHK-001:happy:0 [happy/must/cli] missing — main write lock 在 .koala/locks/main-write.lock/ 成功 acquire+release，mkdir-style 原子\",\"  ✗ CHK-001:happy:1 [happy/must/cli] missing — 全仓 rg 旧 .koala/runtime/done-main-merge.lock 路径 0 残留引用（除非测试证明的兼容 alias）\",\"  ✗ CHK-001:edge:0 [edge/must/logic] missing — stale 锁（mtime 超时）被正确 reclaim\",\"  ✗ CHK-001:edge:1 [edge/must/logic] missing — 锁被持有时 acquire 失败返回 blocking 错误、不乐观放行\",\"  ✗ CHK-001:adversarial:0 [adversarial/must/logic] missing — 两个并发 acquire 恰好一个成功，无双重持锁\",\"  ✗ CHK-001:adversarial:1 [adversarial/must/cli] missing — story-lifecycle.md 与 session-ownership 文档锁路径一致，无两份真相源矛盾\",\"  ✗ CHK-002:happy:0 [happy/must/cli] missing — DONE 全程持 main write lock（pre-merge gate→merge→worktree cleanup 都在锁内）\",\"  ✗ CHK-002:happy:1 [happy/must/cli] missing — 正常单 session DONE 成功路径外部行为不变\",\"  ✗ CHK-002:edge:0 [edge/must/logic] missing — F-008 复现场景：DONE 前 main 工作区有 INIT_CHECK 期未提交 index.json 镜像 → DONE 不再自阻塞、正常合并\",\"  ✗ CHK-002:edge:1 [edge/must/cli] missing — INIT_CHECK 不再留下未提交的 main-side index.json 镜像\",\"  ✗ CHK-002:adversarial:0 [adversarial/must/logic] missing — 两个并发 story_advance DONE 被锁串行化，无 partial-DONE race\",\"  ✗ CHK-002:adversarial:1 [adversarial/should/logic] missing — post-merge 失败语义保持：story 已 DONE + 显式抛错\",\"  ✗ CHK-003:happy:0 [happy/must/cli] missing — gap_log / audit --framework / story_create / done_recover / B-META finding 写都在 main write lock 内\",\"  ✗ CHK-003:edge:0 [edge/must/logic] missing — 并发 gap_log 同一 gap → 一条 canonical finding（dedup 生效）\",\"  ✗ CHK-003:edge:1 [edge/must/logic] missing — 并发 gap_log 不同 gap → 两条都保留，不被 fingerprint 误并\",\"  ✗ CHK-003:adversarial:0 [adversarial/must/logic] missing — 锁竞争时第二个 shared-write 命令 blocking 失败，无静默覆盖\",\"  ✗ CHK-003:adversarial:1 [adversarial/should/logic] missing — 嵌套的 main-write 命令调用不自死锁\",\"  ✗ CHK-004:happy:0 [happy/must/cli] missing — lock-contention 错误消息含 holder session / 命令 / heartbeat age / 重试指引\",\"  ✗ CHK-004:edge:0 [edge/must/cli] missing — doctor 检出 stale/stuck main write lock 并在输出中报告\",\"  ✗ CHK-004:adversarial:0 [adversarial/must/logic] missing — doctor 不把正常持有中的活跃锁误报为 stuck\",\"  ✗ CHK-004:adversarial:1 [adversarial/should/cli] missing — 本 story 不引入 session_brief ownership rendering（范围约束，机械可查）\",\"  ✗ CHK-005:happy:0 [happy/must/cli] missing — smoke 覆盖两个并发 DONE 串行化、无 partial-DONE\",\"  ✗ CHK-005:edge:0 [edge/must/cli] missing — smoke 覆盖并发 gap_log dedup 与 stale-lock reclaim\",\"  ✗ CHK-005:adversarial:0 [adversarial/must/cli] missing — F-008 回归断言：stale main-mirror 场景下 DONE 不自阻塞、正常完成\",\"  ✗ CHK-005:adversarial:1 [adversarial/must/cli] missing — koala validate 全绿（含新增 multi-session smoke）\"],\"warnings\":[],\"timestamp\":\"2026-05-18T12:13:48.362Z\",\"headSha\":\"c9f8efb8b1c47f886808ffefd624b932c45cd64b\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.3 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.3 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1738}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":25,\"reason\":\"verificationIntent entries present (25)\"},\"verificationCoverage\":{\"total\":25,\"required\":22,\"covered\":0,\"missingRequired\":22,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"main write lock 在 .koala/locks/main-write.lock/ 成功 acquire+release，mkdir-style 原子\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:happy:1\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"全仓 rg 旧 .koala/runtime/done-main-merge.lock 路径 0 残留引用（除非测试证明的兼容 alias）\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"stale 锁（mtime 超时）被正确 reclaim\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:edge:1\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"锁被持有时 acquire 失败返回 blocking 错误、不乐观放行\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"两个并发 acquire 恰好一个成功，无双重持锁\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:adversarial:1\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"story-lifecycle.md 与 session-ownership 文档锁路径一致，无两份真相源矛盾\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"DONE 全程持 main write lock（pre-merge gate→merge→worktree cleanup 都在锁内）\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:happy:1\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"正常单 session DONE 成功路径外部行为不变\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"F-008 复现场景：DONE 前 main 工作区有 INIT_CHECK 期未提交 index.json 镜像 → DONE 不再自阻塞、正常合并\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:edge:1\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"INIT_CHECK 不再留下未提交的 main-side index.json 镜像\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"两个并发 story_advance DONE 被锁串行化，无 partial-DONE race\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:adversarial:1\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"post-merge 失败语义保持：story 已 DONE + 显式抛错\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"gap_log / audit --framework / story_create / done_recover / B-META finding 写都在 main write lock 内\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"并发 gap_log 同一 gap → 一条 canonical finding（dedup 生效）\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:edge:1\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"并发 gap_log 不同 gap → 两条都保留，不被 fingerprint 误并\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"锁竞争时第二个 shared-write 命令 blocking 失败，无静默覆盖\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:adversarial:1\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"嵌套的 main-write 命令调用不自死锁\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"lock-contention 错误消息含 holder session / 命令 / heartbeat age / 重试指引\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"doctor 检出 stale/stuck main write lock 并在输出中报告\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"doctor 不把正常持有中的活跃锁误报为 stuck\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:adversarial:1\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"本 story 不引入 session_brief ownership rendering（范围约束，机械可查）\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"missing\"},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"smoke 覆盖两个并发 DONE 串行化、无 partial-DONE\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"smoke 覆盖并发 gap_log dedup 与 stale-lock reclaim\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"F-008 回归断言：stale main-mirror 场景下 DONE 不自阻塞、正常完成\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-005:adversarial:1\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"koala validate 全绿（含新增 multi-session smoke）\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"}]}}",
+  "result": "FAIL",
+  "timestamp": "2026-05-18T12:13:48.411Z",
+  "headHash": "c9f8efb8b1c47f886808ffefd624b932c45cd64b",
+  "verificationCoverage": {
+    "total": 25,
+    "required": 22,
+    "covered": 0,
+    "missingRequired": 22,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "main write lock 在 .koala/locks/main-write.lock/ 成功 acquire+release，mkdir-style 原子",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:happy:1",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "全仓 rg 旧 .koala/runtime/done-main-merge.lock 路径 0 残留引用（除非测试证明的兼容 alias）",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "stale 锁（mtime 超时）被正确 reclaim",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:edge:1",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "锁被持有时 acquire 失败返回 blocking 错误、不乐观放行",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "两个并发 acquire 恰好一个成功，无双重持锁",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:adversarial:1",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "story-lifecycle.md 与 session-ownership 文档锁路径一致，无两份真相源矛盾",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "DONE 全程持 main write lock（pre-merge gate→merge→worktree cleanup 都在锁内）",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:happy:1",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "正常单 session DONE 成功路径外部行为不变",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "F-008 复现场景：DONE 前 main 工作区有 INIT_CHECK 期未提交 index.json 镜像 → DONE 不再自阻塞、正常合并",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:edge:1",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "INIT_CHECK 不再留下未提交的 main-side index.json 镜像",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "两个并发 story_advance DONE 被锁串行化，无 partial-DONE race",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:adversarial:1",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "post-merge 失败语义保持：story 已 DONE + 显式抛错",
+        "type": "logic",
+        "priority": "should",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "gap_log / audit --framework / story_create / done_recover / B-META finding 写都在 main write lock 内",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "并发 gap_log 同一 gap → 一条 canonical finding（dedup 生效）",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:edge:1",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "并发 gap_log 不同 gap → 两条都保留，不被 fingerprint 误并",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "锁竞争时第二个 shared-write 命令 blocking 失败，无静默覆盖",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:adversarial:1",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "嵌套的 main-write 命令调用不自死锁",
+        "type": "logic",
+        "priority": "should",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "lock-contention 错误消息含 holder session / 命令 / heartbeat age / 重试指引",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "doctor 检出 stale/stuck main write lock 并在输出中报告",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "doctor 不把正常持有中的活跃锁误报为 stuck",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-004:adversarial:1",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "本 story 不引入 session_brief ownership rendering（范围约束，机械可查）",
+        "type": "cli",
+        "priority": "should",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-005:happy:0",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "smoke 覆盖两个并发 DONE 串行化、无 partial-DONE",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-005:edge:0",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "smoke 覆盖并发 gap_log dedup 与 stale-lock reclaim",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-005:adversarial:0",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "F-008 回归断言：stale main-mirror 场景下 DONE 不自阻塞、正常完成",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-005:adversarial:1",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "koala validate 全绿（含新增 multi-session smoke）",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      }
+    ]
+  }
+}
