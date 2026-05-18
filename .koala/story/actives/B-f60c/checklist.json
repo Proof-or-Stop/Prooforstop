@@ -331,6 +331,17 @@
           "headHash": "e7a89c82b8b9782727f105fbdc0be29b84349da1",
           "materialHash": "c9852706994ff3ce8512e519e775c2dacd760a2944e7d4cedc8410c4fde04048",
           "timestamp": "2026-05-18T12:38:20.877Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/gap-log-smoke.ts",
+          "command": "node packages/main/dist/tasks/gap-log-smoke.js",
+          "result": "pass",
+          "note": "gap-log-8b + 8d：8 个仅在单一身份通道(desc/category/severity/sourceRefs/reproCommand/observedOutput/analysisNote)不同的 gap 各得唯一 fingerprint，不被误并；并发 4 个不同 gap 全部保留。",
+          "headHash": "4e29cc8825049347777856cf1a514ca81343ab7f",
+          "materialHash": "c9852706994ff3ce8512e519e775c2dacd760a2944e7d4cedc8410c4fde04048",
+          "timestamp": "2026-05-18T12:38:21.355Z"
         }
       ]
     },
