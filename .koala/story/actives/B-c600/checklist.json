@@ -53,9 +53,9 @@
           "command": "npm run package:desktop:host && npm run package:desktop:release",
           "result": "pass",
           "note": "After the B-c600:F-001 fix, host packaging rebuilt dist/desktop/koala-macos-arm64 and release packaging rebuilt macos-x64, macos-arm64, linux-x64, and win-x64 executables.",
-          "headHash": "e7b867ed7d83c12a8f6e75058bb15396b4685ba9",
-          "materialHash": "9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075",
-          "timestamp": "2026-05-17T23:55:41.150Z"
+          "headHash": "a3ec6c319dfd337d38220941d9a04eb45b74e882",
+          "materialHash": "4ce106c8da84500515209dbf3e3f23acc21c6db9ef6003887a8a8f5c68bc56c7",
+          "timestamp": "2026-05-18T00:03:52.155Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -63,9 +63,9 @@
           "command": "npm run package:desktop:host",
           "result": "pass",
           "note": "Reran host packaging with existing dist/desktop artifacts present; command rebuilt packages and overwrote the host binary without failing.",
-          "headHash": "e7b867ed7d83c12a8f6e75058bb15396b4685ba9",
-          "materialHash": "9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075",
-          "timestamp": "2026-05-17T23:55:41.150Z"
+          "headHash": "a3ec6c319dfd337d38220941d9a04eb45b74e882",
+          "materialHash": "4ce106c8da84500515209dbf3e3f23acc21c6db9ef6003887a8a8f5c68bc56c7",
+          "timestamp": "2026-05-18T00:03:52.155Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -73,9 +73,9 @@
           "command": "npm run test:desktop-package",
           "result": "pass",
           "note": "The packaged binary was executed directly; smoke checked core help, aux_doc_list help, and packaged verify_codex, proving the artifact uses the full bootstrap rather than core-only packages/main/dist/cli.js.",
-          "headHash": "e7b867ed7d83c12a8f6e75058bb15396b4685ba9",
-          "materialHash": "9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075",
-          "timestamp": "2026-05-17T23:55:41.150Z"
+          "headHash": "a3ec6c319dfd337d38220941d9a04eb45b74e882",
+          "materialHash": "4ce106c8da84500515209dbf3e3f23acc21c6db9ef6003887a8a8f5c68bc56c7",
+          "timestamp": "2026-05-18T00:03:52.155Z"
         }
       ]
     },
@@ -128,9 +128,9 @@
           "command": "npm run test:desktop-package",
           "result": "pass",
           "note": "Verifier now executes the packaged binary under an isolated PATH; it checked core help, aux_doc_list help, packaged verify_codex, and printed packaged executable smoke passed.",
-          "headHash": "1ff8a70b1b244801b367c0c4cc22e8e1a3065fdc",
-          "materialHash": "9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075",
-          "timestamp": "2026-05-17T23:55:12.068Z"
+          "headHash": "a3ec6c319dfd337d38220941d9a04eb45b74e882",
+          "materialHash": "4ce106c8da84500515209dbf3e3f23acc21c6db9ef6003887a8a8f5c68bc56c7",
+          "timestamp": "2026-05-18T00:03:52.155Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -138,9 +138,9 @@
           "command": "node scripts/verify-desktop-package.mjs /tmp/koala-missing-binary-does-not-exist",
           "result": "pass",
           "note": "Negative smoke intentionally exits non-zero with Desktop Koala binary is missing and the recovery hint to run npm run package:desktop:host.",
-          "headHash": "1ff8a70b1b244801b367c0c4cc22e8e1a3065fdc",
-          "materialHash": "9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075",
-          "timestamp": "2026-05-17T23:55:12.124Z"
+          "headHash": "a3ec6c319dfd337d38220941d9a04eb45b74e882",
+          "materialHash": "4ce106c8da84500515209dbf3e3f23acc21c6db9ef6003887a8a8f5c68bc56c7",
+          "timestamp": "2026-05-18T00:03:52.155Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -148,9 +148,9 @@
           "command": "env -i HOME=$HOME TMPDIR=/tmp PATH=/usr/bin:/bin dist/desktop/koala-macos-arm64 verify_codex && npm run test:codex-assets",
           "result": "pass",
           "note": "Packaged verify_codex passes without global koala or Node shims in PATH; global fallback heartbeat is a non-hard packaged-runtime warning and codex asset regression coverage passes.",
-          "headHash": "1ff8a70b1b244801b367c0c4cc22e8e1a3065fdc",
-          "materialHash": "9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075",
-          "timestamp": "2026-05-17T23:55:12.177Z"
+          "headHash": "a3ec6c319dfd337d38220941d9a04eb45b74e882",
+          "materialHash": "4ce106c8da84500515209dbf3e3f23acc21c6db9ef6003887a8a8f5c68bc56c7",
+          "timestamp": "2026-05-18T00:03:52.155Z"
         }
       ]
     },
@@ -201,9 +201,9 @@
           "command": "rg -n \"Desktop binary packaging|package:desktop:host|test:desktop-package|package:desktop:release|dist/desktop/koala\" README.md",
           "result": "pass",
           "note": "README contains the desktop packaging section, host package command, host smoke command, release command, and artifact path.",
-          "headHash": "e7b867ed7d83c12a8f6e75058bb15396b4685ba9",
-          "materialHash": "9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075",
-          "timestamp": "2026-05-17T23:55:41.150Z"
+          "headHash": "a3ec6c319dfd337d38220941d9a04eb45b74e882",
+          "materialHash": "4ce106c8da84500515209dbf3e3f23acc21c6db9ef6003887a8a8f5c68bc56c7",
+          "timestamp": "2026-05-18T00:03:52.155Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -211,9 +211,9 @@
           "command": "rg -n \"host binary|Release packaging for macOS, Linux, and Windows x64 targets\" README.md",
           "result": "pass",
           "note": "README distinguishes the host binary path from the multi-target release command so local environment limits are not confused with code failure.",
-          "headHash": "e7b867ed7d83c12a8f6e75058bb15396b4685ba9",
-          "materialHash": "9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075",
-          "timestamp": "2026-05-17T23:55:41.150Z"
+          "headHash": "a3ec6c319dfd337d38220941d9a04eb45b74e882",
+          "materialHash": "4ce106c8da84500515209dbf3e3f23acc21c6db9ef6003887a8a8f5c68bc56c7",
+          "timestamp": "2026-05-18T00:03:52.155Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -221,9 +221,9 @@
           "command": "rg -n \"upstream Vercel project is archived|pkg 5\\.8\\.1|Node SEA|actively maintained `pkg` fork\" README.md",
           "result": "pass",
           "note": "README explicitly labels Vercel pkg as an early distribution shortcut, states the project is archived and 5.8.1 was its last release, and points to future migration options.",
-          "headHash": "e7b867ed7d83c12a8f6e75058bb15396b4685ba9",
-          "materialHash": "9b3eba37f6571284ed1f5671f0f128b581719474799bebf8de6581185e707075",
-          "timestamp": "2026-05-17T23:55:41.150Z"
+          "headHash": "a3ec6c319dfd337d38220941d9a04eb45b74e882",
+          "materialHash": "4ce106c8da84500515209dbf3e3f23acc21c6db9ef6003887a8a8f5c68bc56c7",
+          "timestamp": "2026-05-18T00:03:52.155Z"
         }
       ]
     }
