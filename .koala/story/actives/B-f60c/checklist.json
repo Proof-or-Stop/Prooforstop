@@ -82,6 +82,17 @@
           "headHash": "7b49daa9f17c198638e3553275b45cc2b479ba87",
           "materialHash": "4ce106c8da84500515209dbf3e3f23acc21c6db9ef6003887a8a8f5c68bc56c7",
           "timestamp": "2026-05-18T12:14:24.955Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-smoke.ts",
+          "command": "node dist/tasks/main-write-lock-smoke.js",
+          "result": "pass",
+          "note": "smoke section 3 backdates lock mtime past staleMs and asserts acquireMainWriteLock force-reclaims the stale lock; section 3b asserts a fresh held lock is NOT reclaimed and still blocks",
+          "headHash": "c197c040ed31a6fb99d59cd927769cdc23d642f9",
+          "materialHash": "4ce106c8da84500515209dbf3e3f23acc21c6db9ef6003887a8a8f5c68bc56c7",
+          "timestamp": "2026-05-18T12:14:31.073Z"
         }
       ]
     },
