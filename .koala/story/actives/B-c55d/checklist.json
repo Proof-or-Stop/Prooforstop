@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Implement sessionId and the owner-lease.json core",
       "context": "Stable per-session `sessionId` — a LOCAL process-coordination id only (NOT cryptographic identity; no keys / server authority / attestation — hard boundary 1). `.koala/story/actives/<storyId>/owner-lease.json` records sessionId / hostname / pid / cwd / command / acquiredAt / heartbeatAt / optional human label. The first story-scoped mutating command for a story acquires the owner lease; owner commands refresh heartbeatAt; the lease is released when the story reaches DONE/DISCARDED and cleanup succeeds. The lease file is process metadata, not product evidence — visible in session_brief but never counted as verification evidence.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-18T23:44:40.555Z",
       "userSees": "用户/agent 在 story dir 看到 .koala/story/actives/<storyId>/owner-lease.json，含 sessionId/hostname/pid/cwd/command/acquiredAt/heartbeatAt；同一 session 再跑命令时 heartbeatAt 被刷新。",
       "files": {
         "modify": [
