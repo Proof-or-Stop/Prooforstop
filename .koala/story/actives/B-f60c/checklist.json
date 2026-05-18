@@ -539,6 +539,17 @@
           "headHash": "cffd7242f3015728a28558c4573af7335c509623",
           "materialHash": "cd71fb9bbdf4c4f35d797ea9f1473f9865d94c5be3a13742d9cd15cddd2d45fb",
           "timestamp": "2026-05-18T12:58:13.374Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/validate.ts",
+          "command": "koala validate --story=B-f60c",
+          "result": "pass",
+          "note": "koala validate --story=B-f60c runs the full suite including the extended worktree-authority-smoke with the new multi-session concurrent-DONE regression; all tests ALL PASS.",
+          "headHash": "b1bfeab8ee8bf4730c87d1df32fa72172d125ec0",
+          "materialHash": "cd71fb9bbdf4c4f35d797ea9f1473f9865d94c5be3a13742d9cd15cddd2d45fb",
+          "timestamp": "2026-05-18T12:58:18.194Z"
         }
       ]
     }
