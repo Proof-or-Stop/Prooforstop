@@ -434,6 +434,17 @@
           "headHash": "c630362ff794c1d6aa5a295b2e01d536603c7473",
           "materialHash": "e27e5f5d5c9a97083032aad259df8cbd70ef35cc9056b1ff7572f8c1ed1b1e57",
           "timestamp": "2026-05-18T12:49:43.590Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/main-write-lock-doctor-smoke.ts",
+          "command": "node packages/main/dist/tasks/main-write-lock-doctor-smoke.js",
+          "result": "pass",
+          "note": "smoke sections 5/5b assert a freshly-acquired lock and a 60s-old lock (both inside the 120s stale window) classify state=active and render an explicit \"active operation, not stuck\" report — doctor never misreports a live in-flight holder as stuck. Classification reuses the lock primitive MAIN_WRITE_LOCK_STALE_MS threshold.",
+          "headHash": "daf5b36b5faf5b361d25a3713f1612ae7191e739",
+          "materialHash": "e27e5f5d5c9a97083032aad259df8cbd70ef35cc9056b1ff7572f8c1ed1b1e57",
+          "timestamp": "2026-05-18T12:49:50.446Z"
         }
       ]
     },
