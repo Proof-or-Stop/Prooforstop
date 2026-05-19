@@ -35,6 +35,15 @@
       "reviewRound": "2026-05-19T03:45:59.468Z",
       "reviewRunId": "B-c55d:RR-001",
       "_hash": "cd87bc117199832872adcaeeec429790e4526a7b4522f19320c68752fc6c9d83"
+    },
+    {
+      "id": "B-c55d:RP-005",
+      "agent": "koala-review-behavior",
+      "note": "All 5 CHK items verified: userSees match code behavior; stale 30min boundary correct (>= operator, exactly 30min is stale); null lease is not-stale, unparseable heartbeat is conservative-stale; all 4 takeover combinations correct (stale+takeover=transfer, active+takeover=refused with reason:lease-active, active+forceTakeover=transfer, no-flag=never-transfer); gate fail-closed for unclassified commands (null ownershipClass → error with no-valid-ownershipClass message); B-META special case correct (finding_resolve/dismiss on B-META-* reclassified to mainSharedMutating, session_brief renders with renderMetaAuditBlock and forbids story_advance); sessionId 3-source chain correct (KOALA_SESSION_ID > CLAUDE_CODE_SESSION_ID > deriveLocalSessionId, trimToNull treats empty/whitespace as absent); story_draft storyScopedMutating with gate no-op because storyIdFromArgs returns null for draft commands; delivery_check_set boundary rule 3 correct; dev_start/dev_finish are NOT in MAIN_TOOLS and are genuinely CLI-unreachable (only called internally as handlers.dev_start() from story_advance handler code) — implementer exclusion from contract test is justified; F-008 dirty-write prevention confirmed: owner-lease.json is gitignored and registered in runtime-artifact-registry as volatile+materialHash:excluded.",
+      "createdAt": "2026-05-19T03:52:09.548Z",
+      "reviewRound": "2026-05-19T03:45:59.468Z",
+      "reviewRunId": "B-c55d:RR-004",
+      "_hash": "9450c2e84999c60c9368b7d009ce5fb833aa4704a9ac1ce4a47e9bb2d35030ec"
     }
   ]
 }
