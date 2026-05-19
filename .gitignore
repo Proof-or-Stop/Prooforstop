@@ -34,4 +34,8 @@ Thumbs.db
 .koala/*
 !.koala/story/
 !.koala/story/**
+# B-c55d: per-story owner lease is runtime process metadata, never tracked.
+# MUST come after the !.koala/story/** un-ignore above — last matching gitignore
+# pattern wins, so this re-ignores owner-lease.json under the story subtree.
+.koala/story/actives/*/owner-lease.json
 packages/koala-observer-cli/

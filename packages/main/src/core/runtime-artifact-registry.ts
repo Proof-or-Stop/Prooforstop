@@ -44,6 +44,22 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
     repairableTrackedArtifact: true,
   },
   {
+    // B-c55d CHK-001: the per-story owner lease (`owner-lease.json`) is process
+    // metadata, not story evidence. It lives under the git-tracked
+    // `.koala/story/actives/<id>/` subtree, so it MUST be ignored — an
+    // un-ignored lease file would surface as a dirty write and could block the
+    // DONE `git merge story/<id>` (the F-008 failure mode). The `**/` ignore
+    // pattern mirrors `runtime-activity-log` above, which ignores the equally
+    // story-scoped `activity.jsonl`.
+    id: 'runtime-story-owner-lease',
+    description: 'Per-story owner lease (local session ownership) written under .koala/story/actives/<id>/.',
+    matchers: [{ kind: 'regexp', value: rx(String.raw`(?:^|/)owner-lease\.json$`) }],
+    ignorePatterns: ['**/owner-lease.json'],
+    materialHash: 'exclude',
+    volatile: true,
+    repairableTrackedArtifact: true,
+  },
+  {
     id: 'legacy-activity-log',
     description: 'Legacy top-level activity log retained for compatibility reads.',
     matchers: [{ kind: 'exact', value: 'docs/story/activity.jsonl' }],

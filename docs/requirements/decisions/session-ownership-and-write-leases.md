@@ -2,15 +2,27 @@
 
 ## Status
 
-Adopted design; rollout in progress. This document is the canonical, adopted design for
-Koala's multi-session coordination rules and is treated as a process truth source — agents
-and the scope-plan reviewer should honor it. The main write lock (rollout step 3) is now
-implemented (B-f60c): a unified lock in `core/main-write-lock.ts` over the canonical
-`.koala/locks/main-write.lock/` path, held by DONE / done_recover / gap_log / audit /
-story_create / B-META finding writes, with idempotency enforced inside the lock and a
-doctor stuck-lock check. The remaining rollout steps it describes — story owner lease
-(step 2), takeover UX, and session_brief ownership rendering — are not yet implemented;
-that work is tracked as separate follow-up stories.
+Adopted design; rollout fully implemented. This document is the canonical, adopted
+design for Koala's multi-session coordination rules and is treated as a process truth
+source — agents and the scope-plan reviewer should honor it.
+
+- **Main write lock (rollout step 3) — implemented (B-f60c)**: a unified lock in
+  `core/main-write-lock.ts` over the canonical `.koala/locks/main-write.lock/` path, held by
+  DONE / done_recover / gap_log / audit / story_create / B-META finding writes, with
+  idempotency enforced inside the lock and a doctor stuck-lock check.
+- **Story owner lease (rollout step 2) — implemented (B-c55d)**: the per-story owner lease
+  in `core/story-owner-lease.ts`, the single CLI choke-point gate
+  (`enforceStoryOwnerLeaseGate` in `cli-engine.ts`) classified by
+  `CommandPolicy.ownershipClass`, stale-lease detection + `--takeover` / `--forceTakeover`,
+  ownership-aware rejection errors, and `session_brief` ownership rendering.
+
+`sessionId` is resolved by a 3-source priority chain: `KOALA_SESSION_ID`
+(`sessionSource: koala-env`) → `CLAUDE_CODE_SESSION_ID` (`sessionSource: claude-code-env`) →
+`deriveLocalSessionId(hostname, worktree-root, ppid)` (`sessionSource: derived-ppid`). It is
+a local process-coordination id, never a cryptographic identity; ppid is only the
+last-resort fallback because each Claude Code Bash call spawns a fresh shell. The doctor
+stale story-owner-lease check (step 5) and the multi-session convergence/regression smoke
+(step 6) were both delivered by B-c55d (CHK-005); the rollout is now fully implemented.
 
 ## Problem
 
@@ -149,11 +161,28 @@ A non-owner mutation must say:
 - whether the lease is stale
 - allowed next action
 
-Example:
+Implemented behavior (B-c55d): the non-owner rejection message is built by the single pure
+formatter `formatNonOwnerError` in `core/story-owner-lease.ts`, which the CLI choke-point
+gate calls. It always carries all four facts, and its allowed-next-action text branches on
+the stale verdict — a stale lease points at `--takeover`, an active lease points at
+read-only / wait / `--forceTakeover`.
+
+Example (active foreign lease):
 
 ```text
-B-6974 is owned by session abc123, heartbeat 8m ago. This command mutates story state.
-Use read-only commands, wait for the owner, or rerun with --takeover after the lease is stale.
+B-6974 is owned by Koala session abc123, heartbeat 8m ago (owner cwd: /repo/.worktrees/B-6974).
+"checklist_update" is an owner-gated storyScopedMutating command, so this session (def456)
+cannot run it. The owner lease is still ACTIVE. Use read-only commands, wait for the owner,
+or rerun with --forceTakeover to seize the active lease (a deliberate human override).
+```
+
+Example (stale foreign lease):
+
+```text
+B-6974 is owned by Koala session abc123, heartbeat 45m ago (owner cwd: /repo/.worktrees/B-6974).
+"checklist_update" is an owner-gated storyScopedMutating command, so this session (def456)
+cannot run it. The owner lease is STALE (no heartbeat for 30+ minutes). Use read-only
+commands, wait for the owner, or rerun with --takeover to transfer the stale lease.
 ```
 
 Main lock contention must say:
@@ -174,7 +203,20 @@ Retry after it completes.
 - whether current session is owner
 - recommended action: proceed, read-only only, takeover available, or wait
 
-For B-META, `session_brief` must show shared audit state separately and must not suggest `story_advance`.
+Implemented behavior (B-c55d): the active-story branch of `session_brief` renders a
+`## Story ownership` block built from the pure `summarizeOwnerLease` view in
+`core/story-owner-lease.ts`. The block shows the owner session (with its resolved
+`sessionSource`), owner cwd, last-heartbeat age, stale/active status, whether the current
+session is the owner, and a recommended action — `proceed` when this session owns the
+story, `read-only only` for a foreign active lease, or `takeover available` for a foreign
+stale lease. A story with no lease on disk renders no ownership block (the next mutating
+command will acquire one).
+
+For B-META, `session_brief` must show shared audit state separately and must not suggest
+`story_advance`. Implemented behavior (B-c55d): a B-META container renders a
+`## Shared audit state (B-META)` block instead of an owner-lease block — it states the
+container carries no per-story owner lease (concurrent writes are serialized by the main
+write lock) and explicitly tells the agent not to `story_advance` it.
 
 ## Idempotency Requirements
 
@@ -210,9 +252,11 @@ Those require a stronger trust model and should be separate work.
 
 ## Rollout Plan
 
-1. Add this document and command classification table.
-2. Implement story owner lease for story-scoped mutations.
-3. Implement main write lock for DONE, B-META, audit, `story_create`, and recovery commands.
-4. Add `session_brief` ownership rendering and ownership-aware errors.
-5. Add doctor checks for stale leases and stuck locks.
-6. Add convergence/session smoke tests for multi-session behavior.
+1. Add this document and command classification table. — done.
+2. Implement story owner lease for story-scoped mutations. — done (B-c55d).
+3. Implement main write lock for DONE, B-META, audit, `story_create`, and recovery
+   commands. — done (B-f60c).
+4. Add `session_brief` ownership rendering and ownership-aware errors. — done (B-c55d).
+5. Add doctor checks for stale leases and stuck locks. — stuck-lock check done (B-f60c);
+   stale story-owner-lease check done (B-c55d).
+6. Add convergence/session smoke tests for multi-session behavior. — done (B-c55d).

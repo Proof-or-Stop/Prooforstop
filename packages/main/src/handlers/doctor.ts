@@ -23,6 +23,7 @@ import { renderRuntimeEnvironmentReport, runRuntimeEnvironmentChecks } from '../
 import { scanValidationSetup, type ValidationSetupScan } from './verifier.js';
 import { detectPartialDoneStories, renderPartialDoneSummary } from '../core/partial-done-recovery.js';
 import { renderMainWriteLockScan, scanMainWriteLock } from '../core/main-write-lock-doctor.js';
+import { renderStoryOwnerLeaseScan, scanStoryOwnerLeases } from '../core/story-owner-lease-doctor.js';
 
 export function createDoctorHandlers(ctx: HandlerContext) {
   const { root, store } = ctx;
@@ -53,6 +54,10 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       // leftover (a crashed holder's lock). An active in-flight lock (within
       // the stale window) is reported as healthy, never misflagged as stuck.
       const mainWriteLock = scanMainWriteLock(root);
+      // B-c55d CHK-005: scan every active story's owner-lease.json for a STALE
+      // lease (heartbeat older than the 30-minute threshold). An active lease
+      // within the window is reported as healthy, never misflagged.
+      const storyOwnerLeases = scanStoryOwnerLeases(store);
       const repaired: string[] = [];
       const repairFailed: Array<{ path: string; error: string }> = [];
       let cleanupTargets = collectWorktreeCleanupTargets(orphanScan);
@@ -127,6 +132,11 @@ export function createDoctorHandlers(ctx: HandlerContext) {
             staleMs: mainWriteLock.staleMs,
             holder: mainWriteLock.holder,
             stuck: mainWriteLock.state === 'stuck',
+          },
+          storyOwnerLeases: {
+            leases: storyOwnerLeases.leases,
+            stale: storyOwnerLeases.stale,
+            hasStale: storyOwnerLeases.stale.length > 0,
           },
           codex,
           validation,
@@ -254,6 +264,9 @@ export function createDoctorHandlers(ctx: HandlerContext) {
 
       lines.push('');
       for (const line of renderMainWriteLockScan(mainWriteLock)) lines.push(line);
+
+      lines.push('');
+      for (const line of renderStoryOwnerLeaseScan(storyOwnerLeases)) lines.push(line);
 
       lines.push('');
       lines.push(renderRuntimeEnvironmentReport(runtime));
