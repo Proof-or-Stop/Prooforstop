@@ -271,7 +271,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-owner-lease-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
+          "result": "pass",
+          "note": "smoke section 13 asserts formatNonOwnerError carries the full Error UX field set: owned storyId / owner sessionId / owner cwd / heartbeat age (<n>m ago) / stale verdict / rejected command + ownershipClass / current session id / allowed next action — with the stale variant pointing at --takeover and the active variant at read-only+--forceTakeover; cli-engine.ts non-owner rejection calls this single formatter",
+          "headHash": "99e840cc9f26a60117504d42e0fb0a81caae2f0f",
+          "materialHash": "94af3fc151e8a25ed1617897d59706930cd30fe3f9084ca3007fb346402badaa",
+          "timestamp": "2026-05-19T03:31:26.835Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
