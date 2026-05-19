@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Retarget flow-stability test #7 import-isolation scan from story-advance.ts to done-oracle.ts",
       "context": "In packages/main/src/tasks/flow-stability-smoke.ts, the import-isolation grep (section (7), ~line 444-477, inside assertDirtyGatePolicyAcrossGates; B-4b22 preMortem #3 anchor) iterates the hardcoded list ['handlers/story-advance.ts', 'core/validation-executor.ts'] and asserts no inline DIRTY_WORKTREE_CATEGORIES literals. handlers/story-advance.ts is now a thin handler (post transition-orchestrator refactor) that no longer imports/consumes dirty-gate category literals, so the guard empty-scans it. The real evaluateDirtyGate consumers are core/done-oracle.ts and core/validation-executor.ts. Replace 'handlers/story-advance.ts' with 'core/done-oracle.ts' so the guard actually covers the real consumer. done-oracle.ts currently imports the categories correctly (no inline literal), so the guard must still pass after the retarget. Keep validation-executor.ts in the list. Do not restructure the guard or touch other tests.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-05-19T10:11:15.717Z"
     }
   ]
 }
