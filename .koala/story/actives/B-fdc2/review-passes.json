@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-fdc2:RP-001",
+      "agent": "koala-review-concept",
+      "note": "本次改动无符号删除/重命名。唯一变更是 flow-stability-smoke.ts 第449行将 import-isolation 扫描列表从 handlers/story-advance.ts 换为 core/done-oracle.ts。handlers/story-advance.ts 仍作为 thin handler 存在，其余引用均为合法的结构性断言或注释，非残留。core/done-oracle.ts 存在且通过 import 引用 dirty-gate-policy.js（无内联字面量），新扫描目标有效。无概念删除/替换残留，无失效 import，改动自洽。",
+      "createdAt": "2026-05-19T10:12:25.426Z",
+      "reviewRound": "2026-05-19T10:11:20.465Z",
+      "reviewRunId": "B-fdc2:RR-001",
+      "_hash": "c63c0ca45db81d8d609406ebbbe2e9c2f762f631303defe2a9aef8540b99fd5a"
+    }
+  ]
+}
