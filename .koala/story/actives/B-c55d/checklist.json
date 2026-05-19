@@ -114,9 +114,9 @@
       "id": "CHK-002",
       "title": "Non-owner story-scoped mutating command rejection gate",
       "context": "Build the rejection gate STRICTLY from the command-classification table that PLAN produces first (every command classified read-only / story-scoped mutating / main-shared mutating / dangerous — hard boundary 2: no missing commands, no wrongly-blocked read-only commands). Non-owner story-scoped mutating commands fail closed with owner guidance. Read-only commands (story_get / checklist_get / finding_list / session_brief / ...) never require a lease (hard boundary 3). CRITICAL reviewer-writes fork: reviewer writes (finding_add / review_pass_set) must NOT be gated by the main-agent owner lease — they take an actor/lane-scoped exception or their own current-review-run gate so three-way balance is preserved; the exact mechanism is decided in the PLAN decision. Reviewer writes still record actor/session.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-19T02:38:18.759Z",
       "userSees": "非 owner session 跑 checklist_update 等 story-scoped mutating 命令时看到 fail-closed 的 owner-guidance 错误；read-only 命令照常返回；command-ownership contract test 全绿。",
       "files": {
         "modify": [
