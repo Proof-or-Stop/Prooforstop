@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-19T10:11:20.465Z",
       "reviewRunId": "B-fdc2:RR-002",
       "_hash": "09440a63ee0412533947ba53b499f00709472c9db5fda56f08d353359c433430"
+    },
+    {
+      "id": "B-fdc2:RP-003",
+      "agent": "koala-review-quality",
+      "note": "Single-line retarget verified: (1) core/done-oracle.ts exists and imports evaluateDirtyGate from dirty-gate-policy.js and classifyGitStatusRows from dirty-worktree.js — correct consumer. (2) done-oracle.ts has no inline DIRTY_WORKTREE_CATEGORIES literal values in code lines; two appearances of declared_artifact_changes are pure // comments, filtered by the guard heuristic. (3) handlers/story-advance.ts (the removed target) has zero references to dirty gate categories — confirming it was empty-scanning. (4) Guard logic in flow-stability-smoke.ts section (7) is unchanged; only the scanned file list changed. No dead code, no type safety issues, no I/O isolation violations introduced.",
+      "createdAt": "2026-05-19T10:12:52.370Z",
+      "reviewRound": "2026-05-19T10:11:20.465Z",
+      "reviewRunId": "B-fdc2:RR-003",
+      "_hash": "b2d1c24031bee48847bfe3e5ab935077d41bd70ef103671104aa763ae8102e0b"
     }
   ]
 }
