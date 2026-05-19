@@ -60,9 +60,9 @@
           "command": "y",
           "result": "pass",
           "note": "amendment wiring check — first mutating command acquires the owner lease with the derive()-based sessionId",
-          "headHash": "df3e387834d5ca8d9bbb338dfff20670338dbced",
-          "materialHash": "d651bb5a450d53da91df80fd1488bfdc41568612cdc1a33c7a3f9bc8aa56c315",
-          "timestamp": "2026-05-19T02:17:30.958Z"
+          "headHash": "4bcda18d1357f2e9658c85c01bf5cc12335b8569",
+          "materialHash": "08a9e51f2d711ac5b640cb54819130828f4c68c9e895d2f51d2747be61e74046",
+          "timestamp": "2026-05-19T02:37:06.759Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -71,9 +71,9 @@
           "command": "y",
           "result": "pass",
           "note": "amendment wiring check — second owner command refreshes heartbeatAt under the same derived sessionId",
-          "headHash": "f78c4ac050f041ee313a8049151b4583cf7cfb0e",
-          "materialHash": "d651bb5a450d53da91df80fd1488bfdc41568612cdc1a33c7a3f9bc8aa56c315",
-          "timestamp": "2026-05-19T02:17:32.676Z"
+          "headHash": "4bcda18d1357f2e9658c85c01bf5cc12335b8569",
+          "materialHash": "08a9e51f2d711ac5b640cb54819130828f4c68c9e895d2f51d2747be61e74046",
+          "timestamp": "2026-05-19T02:37:06.759Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -82,9 +82,9 @@
           "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
           "result": "pass",
           "note": "smoke section 4 asserts releaseOwnerLease removes owner-lease.json (the terminal-state DONE/DISCARDED cleanup release path) and is idempotent — releasing an absent lease is a no-op false",
-          "headHash": "76e0d87468d062fc76daf4f342fbbc4efe9a2460",
-          "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
-          "timestamp": "2026-05-18T23:41:45.341Z"
+          "headHash": "4bcda18d1357f2e9658c85c01bf5cc12335b8569",
+          "materialHash": "08a9e51f2d711ac5b640cb54819130828f4c68c9e895d2f51d2747be61e74046",
+          "timestamp": "2026-05-19T02:37:06.759Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -93,9 +93,9 @@
           "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
           "result": "pass",
           "note": "owner-lease.json is process metadata only: the CHK-001 lease module (story-owner-lease.ts) writes nothing into the verificationEvidence pipeline and is registered in runtime-artifact-registry as materialHash:exclude — it is excluded from material hashing and never enters gate evidence; smoke section 7 asserts the material-excluded classification. session_brief rendering of the lease is CHK-004 scope",
-          "headHash": "efe6684c43998742c0b1ffdead75ca2cba53d40e",
-          "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
-          "timestamp": "2026-05-18T23:41:55.894Z"
+          "headHash": "4bcda18d1357f2e9658c85c01bf5cc12335b8569",
+          "materialHash": "08a9e51f2d711ac5b640cb54819130828f4c68c9e895d2f51d2747be61e74046",
+          "timestamp": "2026-05-19T02:37:06.759Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -104,9 +104,9 @@
           "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
           "result": "pass",
           "note": "smoke section 7 asserts the F-008-class dirty-write prevention: owner-lease.json is a registered runtime artifact (runtime-story-owner-lease entry — volatile + materialHash:exclude) and the runtime ignore patterns include the glob-star owner-lease.json pattern; .gitignore also carries it, so the lease is never tracked and never produces an uncommitted dirty write that could block the DONE git merge",
-          "headHash": "3761535eff9e4de7b3303f7fb6bd93941298c10b",
-          "materialHash": "a60babbbd448516c9667a26cfdb23dedce26501f7df99707d6b8ba4a5c462ca0",
-          "timestamp": "2026-05-18T23:41:56.149Z"
+          "headHash": "4bcda18d1357f2e9658c85c01bf5cc12335b8569",
+          "materialHash": "08a9e51f2d711ac5b640cb54819130828f4c68c9e895d2f51d2747be61e74046",
+          "timestamp": "2026-05-19T02:37:06.759Z"
         }
       ]
     },
