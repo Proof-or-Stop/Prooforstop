@@ -294,6 +294,17 @@
           "headHash": "82e0a5cd9738f4b91545eae31d5a0d87dbefd2fa",
           "materialHash": "94af3fc151e8a25ed1617897d59706930cd30fe3f9084ca3007fb346402badaa",
           "timestamp": "2026-05-19T03:31:33.758Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-owner-lease-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
+          "result": "pass",
+          "note": "smoke section 16 asserts renderMetaAuditBlock renders a B-META container as a separate ## Shared audit state (B-META) block — stating it carries no per-story owner lease (writes serialized by the main write lock) and explicitly telling the agent not to story_advance it (story_advance appears exactly once, only in the Do-not prohibition); session.ts session_brief active-story branch routes isMetaContainer storyIds to this block instead of the owner-lease block",
+          "headHash": "28f7353a9ad8cd1c20a003ce707b907872544e17",
+          "materialHash": "94af3fc151e8a25ed1617897d59706930cd30fe3f9084ca3007fb346402badaa",
+          "timestamp": "2026-05-19T03:31:43.202Z"
         }
       ]
     },
