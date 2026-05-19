@@ -27,12 +27,13 @@
 
 import assert from 'node:assert/strict';
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { hostname, tmpdir } from 'node:os';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   OWNER_LEASE_FILE,
   acquireOrRefreshOwnerLease,
   acquireOwnerLease,
+  deriveSessionId,
   getSessionId,
   isOwnedByCurrentSession,
   ownerLeasePath,
@@ -52,43 +53,51 @@ const root = join(tmpdir(), `koala-story-owner-lease-smoke-${process.pid}-${Date
 mkdirSync(root, { recursive: true });
 
 try {
-  // ── 1. sessionId — stable, process-local, env-resolved ───────────────────
+  // ── 1. sessionId — derive() stability / uniqueness + KOALA_SESSION_ID ─────
   {
-    process.env.KOALA_SESSION_ID = 'sess-alpha';
-    resetSessionIdForTest();
-    const first = getSessionId();
-    const second = getSessionId();
-    assert.equal(first, 'sess-alpha', 'sessionId resolves from KOALA_SESSION_ID');
-    assert.equal(first, second, 'sessionId is memoized — identical on every call');
-    // A changed env var does NOT change the memoized id within the process.
-    process.env.KOALA_SESSION_ID = 'sess-changed';
-    assert.equal(getSessionId(), 'sess-alpha', 'sessionId stays stable for the process lifetime');
-    // Fallback id (no session env var) must be stable across simulated koala
-    // invocations: it is anchored on the PARENT pid (process.ppid — the agent
-    // shell, stable across every short-lived `koala <cmd>` process), NOT
-    // process.pid. A pid-anchored fallback would change every invocation and
-    // make a session unable to ever refresh its own lease.
+    // 1a. deriveSessionId STABILITY — multiple CLI-style derivations under the
+    // SAME (hostname, worktreeRoot, ppid) inputs yield an IDENTICAL sessionId.
+    // This is the property that lets a short-lived `koala <cmd>` process
+    // recognise its own lease across invocations.
+    const idA1 = deriveSessionId('host-1', '/repo/.worktrees/B-c55d', 4242);
+    const idA2 = deriveSessionId('host-1', '/repo/.worktrees/B-c55d', 4242);
+    const idA3 = deriveSessionId('host-1', '/repo/.worktrees/B-c55d', 4242);
+    assert.equal(idA1, idA2, 'deriveSessionId is stable: identical inputs → identical id (call 2)');
+    assert.equal(idA1, idA3, 'deriveSessionId is stable: identical inputs → identical id (call 3)');
+    assert.equal(idA1.startsWith('sess-'), true, 'derived id carries the sess- prefix');
+
+    // 1b. deriveSessionId UNIQUENESS — a different parent shell (ppid) OR a
+    // different worktree root produces a DIFFERENT sessionId, so two parallel
+    // sessions never collide on one id.
+    const idDiffPpid = deriveSessionId('host-1', '/repo/.worktrees/B-c55d', 9999);
+    assert.notEqual(idA1, idDiffPpid, 'a different parent shell (ppid) → a different sessionId');
+    const idDiffRoot = deriveSessionId('host-1', '/repo/.worktrees/B-other', 4242);
+    assert.notEqual(idA1, idDiffRoot, 'a different worktree root → a different sessionId');
+    const idDiffHost = deriveSessionId('host-2', '/repo/.worktrees/B-c55d', 4242);
+    assert.notEqual(idA1, idDiffHost, 'a different hostname → a different sessionId');
+
+    // 1c. KOALA_SESSION_ID OVERRIDE — when the env var is set (non-empty) it is
+    // used verbatim, overriding the derived value (the adapter/server hook).
     const savedSession = process.env.KOALA_SESSION_ID;
-    const savedTerm = process.env.TERM_SESSION_ID;
-    delete process.env.KOALA_SESSION_ID;
-    delete process.env.CLAUDE_SESSION_ID;
-    delete process.env.KOALA_ACTIVITY_SESSION;
-    delete process.env.TERM_SESSION_ID;
+    process.env.KOALA_SESSION_ID = 'injected-session-xyz';
     resetSessionIdForTest();
-    const fallback = getSessionId();
-    assert.equal(
-      fallback, `local-${hostname()}-${process.ppid}`,
-      'fallback sessionId is anchored on the parent pid, not the per-invocation pid',
-    );
-    if (savedTerm !== undefined) process.env.TERM_SESSION_ID = savedTerm;
+    assert.equal(getSessionId(), 'injected-session-xyz', 'KOALA_SESSION_ID is used verbatim, overriding derive()');
+    // Memoized — a later env change does not move it within the process.
+    process.env.KOALA_SESSION_ID = 'changed-after';
+    assert.equal(getSessionId(), 'injected-session-xyz', 'sessionId stays memoized for the process lifetime');
+
+    // Without the env var, getSessionId() falls through to deriveSessionId.
+    delete process.env.KOALA_SESSION_ID;
+    resetSessionIdForTest();
+    const derived = getSessionId();
+    assert.equal(derived.startsWith('sess-'), true, 'getSessionId() falls through to deriveSessionId when KOALA_SESSION_ID is unset');
+    assert.equal(getSessionId(), derived, 'derived sessionId is memoized within the process');
 
     // Restore the canonical owner session for the rest of the smoke.
-    process.env.KOALA_SESSION_ID = savedSession ?? 'sess-alpha';
-    resetSessionIdForTest();
-    assert.equal(getSessionId(), process.env.KOALA_SESSION_ID, 'sessionId re-resolves after a test reset');
     process.env.KOALA_SESSION_ID = 'sess-alpha';
     resetSessionIdForTest();
     assert.equal(getSessionId(), 'sess-alpha', 'sessionId re-resolves to the canonical owner');
+    void savedSession; // env is reset wholesale in the finally block
   }
 
   // ── 2. acquire — schema-complete lease at the canonical path ─────────────
@@ -254,7 +263,8 @@ try {
   }
 
   console.log(
-    '✓ story-owner-lease smoke passed (sessionId stable / acquire schema / heartbeat refresh / ' +
+    '✓ story-owner-lease smoke passed (deriveSessionId stability+uniqueness / ' +
+    'KOALA_SESSION_ID verbatim override / acquire schema / heartbeat refresh / ' +
     'release idempotent / acquire-or-refresh acquired+refreshed+foreign / malformed → null / ' +
     'runtime-artifact dirty-write prevention)',
   );
