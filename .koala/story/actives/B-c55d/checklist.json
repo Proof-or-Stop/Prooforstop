@@ -188,6 +188,17 @@
           "headHash": "9c1e8854711edb1018d8630492911f2a0b8b0782",
           "materialHash": "7f8524e30835e5cf3ca216c8fd4fbabdb27338ef2459143bf41778c3b8310fa5",
           "timestamp": "2026-05-19T03:44:59.435Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/command-ownership-contract.ts",
+          "command": "npm --prefix packages/main run test:command-ownership-contract",
+          "result": "pass",
+          "note": "command-ownership-contract case 5a drives enforceStoryOwnerLeaseGate: a storyScopedMutating command (checklist_update) from a non-owner session on a foreign-owned story is rejected fail-closed (assert.throws) with owner guidance.",
+          "headHash": "91269d20b8e8ee6ffbe0b99d53e66bbe5d6a3f5e",
+          "materialHash": "7f8524e30835e5cf3ca216c8fd4fbabdb27338ef2459143bf41778c3b8310fa5",
+          "timestamp": "2026-05-19T03:45:00.918Z"
         }
       ]
     },
