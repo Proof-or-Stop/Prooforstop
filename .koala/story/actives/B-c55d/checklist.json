@@ -305,6 +305,17 @@
           "headHash": "28f7353a9ad8cd1c20a003ce707b907872544e17",
           "materialHash": "94af3fc151e8a25ed1617897d59706930cd30fe3f9084ca3007fb346402badaa",
           "timestamp": "2026-05-19T03:31:43.202Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/command-ownership-contract.ts",
+          "command": "npm --prefix packages/main run test:command-ownership-contract",
+          "result": "pass",
+          "note": "command-ownership-contract case 5b asserts the owner lease never blocks the reviewer read-only flow: with a foreign session owning the story, enforceStoryOwnerLeaseGate does NOT throw for story_get / checklist_get / finding_list / session_brief (all classified readOnly so the gate returns early); story-owner-lease-smoke section 17 additionally asserts a non-owner reviewer session can readOwnerLease / summarizeOwnerLease a foreign-owned story with NO lease write",
+          "headHash": "4f90593b48cb850198597218ae659d45b98d16a1",
+          "materialHash": "94af3fc151e8a25ed1617897d59706930cd30fe3f9084ca3007fb346402badaa",
+          "timestamp": "2026-05-19T03:31:49.491Z"
         }
       ]
     },
