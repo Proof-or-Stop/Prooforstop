@@ -53,6 +53,15 @@
       "reviewRound": "2026-05-19T03:56:16.526Z",
       "reviewRunId": "B-c55d:RR-008",
       "_hash": "4b0fcc90ebbfa672b47a6656406036dfb67fd9a0cbcbc41ed432c04b3962fdb7"
+    },
+    {
+      "id": "B-c55d:RP-007",
+      "agent": "koala-review-concept",
+      "note": "Round 2 concept cleanup verified clean. (1) formatAge deleted from story-owner-lease-doctor.ts: confirmed zero residual references in the story-lease module. The only formatAge occurrences in the codebase are in aux-doc.ts (packages/utils and packages/main) — independent private helpers for document age in days, pre-existing and untouched by this story. (2) formatLeaseAge is properly exported from story-owner-lease.ts (confirmed via python3 binary-safe grep) and correctly imported + used in story-owner-lease-doctor.ts. No stale import paths. (3) deriveSessionId old name: round 1 pass confirmed clean; no new references introduced by the round 2 fix. No concept residuals detected.",
+      "createdAt": "2026-05-19T03:59:51.023Z",
+      "reviewRound": "2026-05-19T03:56:16.526Z",
+      "reviewRunId": "B-c55d:RR-006",
+      "_hash": "1bf0eb14c89ad68b133f9f04b6fa84233f847606d8d5d55a4f756cb6374374a7"
     }
   ]
 }
