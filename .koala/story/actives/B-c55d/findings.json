@@ -5,7 +5,7 @@
       "desc": "quality-cleanup: story-owner-lease-doctor.ts:59 defines a private `formatAge` function that is an exact duplicate of the exported `formatLeaseAge` in story-owner-lease.ts. The comment at line 55 claims the reason is \"so the doctor module does not depend on a non-exported internal\" — but `formatLeaseAge` IS exported (story-owner-lease.ts:722 `export function formatLeaseAge`). The duplication means a future divergence in formatting logic (e.g. adding day-level display) must be patched in two places. Should import `formatLeaseAge` from story-owner-lease.ts and delete the private copy.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-05-19T03:49:57.701Z",
