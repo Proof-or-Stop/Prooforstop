@@ -34,6 +34,23 @@
         "packages/main/src/handlers/session.ts",
         "packages/main/src/cli-engine.ts"
       ]
+    },
+    {
+      "id": "B-c55d:F-003",
+      "desc": "doc-code-drift: session-ownership-and-write-leases.md Rollout Plan steps 5 and 6 still say pending/in-progress, but CHK-005 (status: done) delivers both the doctor stale-lease check (step 5) and the multi-session regression smoke (step 6). Additionally, the Status section lines 23-25 also still describe steps 5+6 as \"tracked as separate follow-up checklist items\", which is outdated. CLAUDE.md says \"多 session 收敛 smoke（step 6）——由后续 story 跟进\" but the smoke task covers the multi-session acceptance criteria. All three locations need updating to reflect CHK-005 completion.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-05-19T04:02:04.864Z",
+      "reviewRound": "2026-05-19T03:56:16.526Z",
+      "reviewRunId": "B-c55d:RR-009",
+      "_hash": "cde7a7431c1a0c069054db7ffa37702175483e8d33ff5a9a51da1537d1bfd50f",
+      "files": [
+        "docs/requirements/decisions/session-ownership-and-write-leases.md",
+        "CLAUDE.md"
+      ]
     }
   ]
 }
