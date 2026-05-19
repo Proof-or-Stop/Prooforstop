@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 /**
- * B-c55d CHK-001 / CHK-003 / CHK-004: unit smoke for core/story-owner-lease.ts
- * (plus the CHK-004 session_brief ownership renderers in handlers/session.ts).
+ * B-c55d CHK-001 / CHK-003 / CHK-004 / CHK-005: unit smoke for
+ * core/story-owner-lease.ts (plus the CHK-004 session_brief ownership renderers
+ * in handlers/session.ts, the CHK-005 doctor stale-lease scanner in
+ * core/story-owner-lease-doctor.ts, and the CHK-005 multi-session regression
+ * group exercised through the real `enforceStoryOwnerLeaseGate` choke-point).
  *
  * Covers the load-bearing semantics of the story owner lease primitive
  * (session-ownership-and-write-leases.md rollout step 2b — "story owner
@@ -21,6 +24,20 @@
  *      runtime artifact (volatile + material-excluded + a glob-star
  *      owner-lease.json ignore pattern), so it never produces a tracked/dirty
  *      write before DONE.
+ *
+ * CHK-005 adds (cases 18-25):
+ *   - the doctor stale-lease scanner (`scanStoryOwnerLeases` /
+ *     `renderStoryOwnerLeaseScan`): a >30min lease is detected + reported, an
+ *     active lease is never misflagged, an absent lease is never a false
+ *     positive;
+ *   - the multi-session regression group driven through the real
+ *     `enforceStoryOwnerLeaseGate` choke-point — two sessions on the same story
+ *     (2nd rejected), on different stories (both proceed), stale takeover (only
+ *     with `--takeover` + event), active takeover (rejected unless
+ *     `--forceTakeover`), `session_brief` guidance for a non-owner session, and
+ *     the reviewer read-only + `reviewerWrite` exemption;
+ *   - the F-008-class regression: `owner-lease.json` is verified gitignored in
+ *     the live repo tree, so it never becomes an uncommitted dirty write.
  *
  * Clock injection (`now`) keeps timestamp ordering deterministic without
  * sleeping; the smoke runs in milliseconds.
@@ -59,6 +76,16 @@ import {
   isVolatileRuntimeArtifactPath,
   listRuntimeArtifactIgnorePatterns,
 } from '../core/runtime-artifact-registry.js';
+import {
+  renderStoryOwnerLeaseScan,
+  scanStoryOwnerLeases,
+} from '../core/story-owner-lease-doctor.js';
+import { StoryStore } from '../core/store.js';
+import {
+  enforceStoryOwnerLeaseGate,
+  resolveEffectiveOwnershipClass,
+} from '../cli-engine.js';
+import { execFileSync } from 'node:child_process';
 
 const root = join(tmpdir(), `koala-story-owner-lease-smoke-${process.pid}-${Date.now()}`);
 mkdirSync(root, { recursive: true });
@@ -756,6 +783,424 @@ try {
     resetSessionIdForTest();
   }
 
+  // ── 18. CHK-005: doctor stale-lease scan — detects + reports a stale lease ─
+  {
+    // The doctor scan is driven through a real StoryStore over a tmp project
+    // root; each "story" is just an actives/<id> dir with an index.json + an
+    // owner-lease.json so `listStoryIds` / `storyDirPath` resolve it.
+    const doctorRoot = join(root, 'doctor-scan');
+    mkdirSync(doctorRoot, { recursive: true });
+    const doctorStore = new StoryStore(doctorRoot);
+
+    // Helper: materialise a story dir with a minimal index.json.
+    const makeStory = (id: string): string => {
+      const dir = doctorStore.storyDirPath(id);
+      mkdirSync(dir, { recursive: true });
+      writeFileSync(join(dir, 'index.json'), JSON.stringify({ id, phase: 'DEV' }), 'utf-8');
+      return dir;
+    };
+
+    // 18a. NO leases anywhere → scan reports nothing stale, no false positive.
+    makeStory('B-no-lease-a');
+    makeStory('B-no-lease-b');
+    const cleanScan = scanStoryOwnerLeases(doctorStore, Date.parse('2026-05-19T12:00:00.000Z'));
+    assert.equal(cleanScan.leases.length, 0, 'a story with no owner-lease.json contributes no lease entry');
+    assert.equal(cleanScan.stale.length, 0, 'no leases on disk → no stale leases reported');
+    assert.ok(
+      renderStoryOwnerLeaseScan(cleanScan).some((l) => l.includes('No stale story owner leases')),
+      'the clean scan renders the healthy "No stale story owner leases" line',
+    );
+
+    // 18b. One ACTIVE lease (fresh heartbeat) + one STALE lease (>30min old).
+    process.env.KOALA_SESSION_ID = 'sess-active-owner';
+    resetSessionIdForTest();
+    const activeDir = makeStory('B-active-lease');
+    acquireOwnerLease(activeDir, {
+      command: 'checklist_update',
+      cwd: '/tmp/active-wt',
+      now: () => '2026-05-19T11:55:00.000Z', // 5min before the reference clock
+    });
+
+    process.env.KOALA_SESSION_ID = 'sess-dead-owner';
+    resetSessionIdForTest();
+    const staleDir = makeStory('B-stale-lease');
+    acquireOwnerLease(staleDir, {
+      command: 'story_advance',
+      cwd: '/tmp/stale-wt',
+      now: () => '2026-05-19T11:15:00.000Z', // 45min before the reference clock → stale
+    });
+
+    const referenceNow = Date.parse('2026-05-19T12:00:00.000Z');
+    const scan = scanStoryOwnerLeases(doctorStore, referenceNow);
+    assert.equal(scan.leases.length, 2, 'the scan finds exactly the two stories that have a lease');
+    assert.equal(scan.stale.length, 1, 'exactly one of the two leases is stale');
+    const staleItem = scan.stale[0];
+    assert.equal(staleItem.storyId, 'B-stale-lease', 'the stale entry names the stale story');
+    assert.equal(staleItem.state, 'stale', 'the stale entry is classified state=stale');
+    assert.equal(staleItem.ownerSessionId, 'sess-dead-owner', 'the stale entry names the owning session');
+    assert.equal(staleItem.ownerCwd, '/tmp/stale-wt', 'the stale entry names the owner cwd');
+    assert.equal(staleItem.heartbeatAgeLabel, '45m', 'the stale entry reports the heartbeat age (45m)');
+    // The active lease is NOT misflagged as stale.
+    const activeItem = scan.leases.find((l) => l.storyId === 'B-active-lease');
+    assert.notEqual(activeItem, undefined, 'the active lease appears in the leases list');
+    assert.equal(activeItem!.state, 'active', 'a 5m-old lease is classified active, not stale');
+
+    // 18c. The doctor text report names the stale story + owner + heartbeat age.
+    const reportLines = renderStoryOwnerLeaseScan(scan);
+    const report = reportLines.join('\n');
+    assert.ok(report.includes('Story owner leases:'), 'the report has a Story owner leases section');
+    assert.ok(report.includes('stale leases : 1'), 'the report counts the stale lease');
+    assert.ok(report.includes('⚠ STALE owner lease for B-stale-lease'), 'the report flags the stale story by id');
+    assert.ok(report.includes('sess-dead-owner'), 'the report names the stale lease owner session');
+    assert.ok(report.includes('45m ago'), 'the report shows the stale heartbeat age');
+    assert.ok(report.includes('--takeover'), 'the report points the operator at --takeover recovery');
+
+    process.env.KOALA_SESSION_ID = 'sess-alpha';
+    resetSessionIdForTest();
+  }
+
+  // ── 19. CHK-005: two sessions, SAME story → second is fail-closed rejected ─
+  {
+    // Acceptance Criteria 1: two sessions mutating the same story — the second
+    // session is rejected with owner guidance.
+    const gateRoot = join(root, 'multi-same-story');
+    mkdirSync(gateRoot, { recursive: true });
+    const gateStore = new StoryStore(gateRoot);
+    const storyId = 'B-shared';
+    const storyDir = gateStore.storyDirPath(storyId);
+    mkdirSync(storyDir, { recursive: true });
+
+    // Session A acquires the lease by running an owner-gated command.
+    process.env.KOALA_SESSION_ID = 'sess-A';
+    resetSessionIdForTest();
+    assert.doesNotThrow(
+      () => enforceStoryOwnerLeaseGate('checklist_update', { storyId }, gateStore, null, gateRoot),
+      'session A acquires the owner lease and proceeds on the shared story',
+    );
+    const leaseAfterA = readFileSync(ownerLeasePath(storyDir), 'utf-8');
+
+    // Session B running a mutating command on the SAME story is rejected.
+    process.env.KOALA_SESSION_ID = 'sess-B';
+    resetSessionIdForTest();
+    assert.throws(
+      () => enforceStoryOwnerLeaseGate('checklist_update', { storyId }, gateStore, null, gateRoot),
+      (err: Error) =>
+        err.message.includes(storyId) &&
+        err.message.includes('sess-A') &&
+        err.message.includes('owner-gated'),
+      'session B on the same story is fail-closed rejected with owner guidance naming session A',
+    );
+    // The rejection performed NO lease write (no silent steal by B).
+    assert.equal(
+      readFileSync(ownerLeasePath(storyDir), 'utf-8'),
+      leaseAfterA,
+      'a rejected non-owner command leaves the owner lease untouched',
+    );
+
+    process.env.KOALA_SESSION_ID = 'sess-alpha';
+    resetSessionIdForTest();
+  }
+
+  // ── 20. CHK-005: two sessions, DIFFERENT stories → both proceed ──────────
+  {
+    // Acceptance Criteria 2: two sessions working different stories both
+    // proceed — the owner lease is per-story, so they never contend.
+    const gateRoot = join(root, 'multi-diff-story');
+    mkdirSync(gateRoot, { recursive: true });
+    const gateStore = new StoryStore(gateRoot);
+    const storyX = 'B-story-x';
+    const storyY = 'B-story-y';
+    mkdirSync(gateStore.storyDirPath(storyX), { recursive: true });
+    mkdirSync(gateStore.storyDirPath(storyY), { recursive: true });
+
+    // Session A owns story X.
+    process.env.KOALA_SESSION_ID = 'sess-A';
+    resetSessionIdForTest();
+    assert.doesNotThrow(
+      () => enforceStoryOwnerLeaseGate('checklist_update', { storyId: storyX }, gateStore, null, gateRoot),
+      'session A acquires story X',
+    );
+
+    // Session B owns story Y — a DIFFERENT story → no contention, B proceeds.
+    process.env.KOALA_SESSION_ID = 'sess-B';
+    resetSessionIdForTest();
+    assert.doesNotThrow(
+      () => enforceStoryOwnerLeaseGate('checklist_update', { storyId: storyY }, gateStore, null, gateRoot),
+      'session B acquires a DIFFERENT story Y — per-story leases never cross-contend',
+    );
+    // Session A can still re-run an owner-gated command on its own story X.
+    process.env.KOALA_SESSION_ID = 'sess-A';
+    resetSessionIdForTest();
+    assert.doesNotThrow(
+      () => enforceStoryOwnerLeaseGate('understanding_set', { storyId: storyX }, gateStore, null, gateRoot),
+      'session A keeps running owner-gated commands on story X while B works story Y',
+    );
+    // Each story has its own lease naming its own owner.
+    const leaseX = JSON.parse(readFileSync(ownerLeasePath(gateStore.storyDirPath(storyX)), 'utf-8'));
+    const leaseY = JSON.parse(readFileSync(ownerLeasePath(gateStore.storyDirPath(storyY)), 'utf-8'));
+    assert.equal(leaseX.sessionId, 'sess-A', 'story X is owned by session A');
+    assert.equal(leaseY.sessionId, 'sess-B', 'story Y is owned by session B');
+
+    process.env.KOALA_SESSION_ID = 'sess-alpha';
+    resetSessionIdForTest();
+  }
+
+  // ── 21. CHK-005: stale-lease takeover allowed ONLY with --takeover + event ─
+  {
+    // Acceptance Criteria 5: a stale lease takeover is allowed only with an
+    // explicit takeover flag, and it records an event.
+    const gateRoot = join(root, 'multi-stale-takeover');
+    mkdirSync(gateRoot, { recursive: true });
+    const gateStore = new StoryStore(gateRoot);
+    const storyId = 'B-stale-takeover';
+    const storyDir = gateStore.storyDirPath(storyId);
+    mkdirSync(storyDir, { recursive: true });
+
+    // Session A owns the story with an OLD (stale) heartbeat.
+    process.env.KOALA_SESSION_ID = 'sess-A';
+    resetSessionIdForTest();
+    acquireOwnerLease(storyDir, {
+      command: 'checklist_update',
+      cwd: '/tmp/A-wt',
+      now: () => new Date(Date.now() - STALE_LEASE_THRESHOLD_MS - 60_000).toISOString(),
+    });
+
+    // Session B WITHOUT a flag is rejected even though the lease is stale.
+    process.env.KOALA_SESSION_ID = 'sess-B';
+    resetSessionIdForTest();
+    assert.throws(
+      () => enforceStoryOwnerLeaseGate('story_advance', { storyId }, gateStore, null, gateRoot),
+      /owner-gated/,
+      'session B without --takeover is rejected even on a STALE lease (no flag → no transfer)',
+    );
+
+    // Session B WITH --takeover seizes the stale lease and an event is logged.
+    assert.doesNotThrow(
+      () => enforceStoryOwnerLeaseGate('story_advance', { storyId, takeover: true }, gateStore, null, gateRoot),
+      'session B with --takeover transfers the STALE lease',
+    );
+    const leaseAfter = JSON.parse(readFileSync(ownerLeasePath(storyDir), 'utf-8'));
+    assert.equal(leaseAfter.sessionId, 'sess-B', 'the stale lease now names the taker session B');
+    const takeoverEvents = readActivityLogTail(gateRoot, 50)
+      .filter((e) => e.tool === 'story-owner-lease-takeover' && e.kind === 'takeover');
+    assert.equal(takeoverEvents.length >= 1, true, 'a story-owner-lease-takeover event was recorded for the stale takeover');
+
+    process.env.KOALA_SESSION_ID = 'sess-alpha';
+    resetSessionIdForTest();
+  }
+
+  // ── 22. CHK-005: active-lease takeover rejected unless --forceTakeover ────
+  {
+    // Acceptance Criteria 6: an active (non-stale) lease takeover is rejected
+    // unless --forceTakeover is supplied.
+    const gateRoot = join(root, 'multi-active-takeover');
+    mkdirSync(gateRoot, { recursive: true });
+    const gateStore = new StoryStore(gateRoot);
+    const storyId = 'B-active-takeover';
+    const storyDir = gateStore.storyDirPath(storyId);
+    mkdirSync(storyDir, { recursive: true });
+
+    // Session A owns the story with a FRESH heartbeat (active, not stale).
+    process.env.KOALA_SESSION_ID = 'sess-A';
+    resetSessionIdForTest();
+    enforceStoryOwnerLeaseGate('checklist_update', { storyId }, gateStore, null, gateRoot);
+    const leaseBefore = readFileSync(ownerLeasePath(storyDir), 'utf-8');
+
+    // Session B with plain --takeover is REJECTED — the lease is active.
+    process.env.KOALA_SESSION_ID = 'sess-B';
+    resetSessionIdForTest();
+    assert.throws(
+      () => enforceStoryOwnerLeaseGate('story_advance', { storyId, takeover: true }, gateStore, null, gateRoot),
+      /owner-gated|--forceTakeover/,
+      'session B with plain --takeover is rejected on an ACTIVE lease',
+    );
+    assert.equal(
+      readFileSync(ownerLeasePath(storyDir), 'utf-8'),
+      leaseBefore,
+      'a refused --takeover on an active lease performs no write',
+    );
+
+    // Session B with --forceTakeover succeeds (deliberate human override).
+    assert.doesNotThrow(
+      () => enforceStoryOwnerLeaseGate('story_advance', { storyId, forceTakeover: true }, gateStore, null, gateRoot),
+      'session B with --forceTakeover seizes the ACTIVE lease (human override)',
+    );
+    const leaseAfter = JSON.parse(readFileSync(ownerLeasePath(storyDir), 'utf-8'));
+    assert.equal(leaseAfter.sessionId, 'sess-B', 'the active lease now names the force-taker session B');
+    const forceEvents = readActivityLogTail(gateRoot, 50)
+      .filter((e) => e.tool === 'story-owner-lease-takeover' && e.kind === 'forceTakeover');
+    assert.equal(forceEvents.length >= 1, true, 'a forceTakeover event was recorded for the active takeover');
+
+    process.env.KOALA_SESSION_ID = 'sess-alpha';
+    resetSessionIdForTest();
+  }
+
+  // ── 23. CHK-005: session_brief guides a non-owner session (wait/read-only) ─
+  {
+    // Acceptance Criteria 7: session_brief clearly tells a non-owner session to
+    // wait or stay read-only — exercised through the ownership block renderer
+    // over a foreign-owned story.
+    const briefRoot = join(root, 'multi-brief-guidance');
+    mkdirSync(briefRoot, { recursive: true });
+    const storyDir = join(briefRoot, 'B-foreign');
+    mkdirSync(storyDir, { recursive: true });
+
+    // Session "sess-owner" owns the story with an ACTIVE heartbeat.
+    process.env.KOALA_SESSION_ID = 'sess-owner';
+    resetSessionIdForTest();
+    acquireOwnerLease(storyDir, { command: 'checklist_update', cwd: '/tmp/owner-wt' });
+
+    // A non-owner session inspecting the story sees a read-only recommendation.
+    process.env.KOALA_SESSION_ID = 'sess-bystander';
+    resetSessionIdForTest();
+    const foreignView = summarizeOwnerLease(storyDir, getSessionId());
+    assert.equal(foreignView.isCurrentSessionOwner, false, 'the bystander session is correctly NOT the owner');
+    assert.equal(foreignView.recommendation, 'read-only', 'a foreign ACTIVE lease → recommendation:read-only (wait / stay read-only)');
+    const briefLines = renderOwnershipBlock(foreignView).join('\n');
+    assert.ok(briefLines.includes('NOT owner'), 'session_brief ownership block marks the bystander NOT owner');
+    assert.ok(briefLines.includes('read-only only'), 'session_brief ownership block tells the bystander read-only only');
+
+    process.env.KOALA_SESSION_ID = 'sess-alpha';
+    resetSessionIdForTest();
+  }
+
+  // ── 24. CHK-005: reviewer read-only flow + reviewerWrite NOT lease-blocked ─
+  {
+    // Acceptance Criteria 8: existing read-only reviewer workflows still work;
+    // and a legitimate reviewer-lane WRITE (reviewerWrite class) is exempt from
+    // the owner lease so the three-way review balance is never locked.
+    const revRoot = join(root, 'multi-reviewer-flow');
+    mkdirSync(revRoot, { recursive: true });
+    const revStore = new StoryStore(revRoot);
+    const storyId = 'B-reviewed';
+    const storyDir = revStore.storyDirPath(storyId);
+    mkdirSync(storyDir, { recursive: true });
+
+    // The main agent (sess-author) owns the story.
+    process.env.KOALA_SESSION_ID = 'sess-author';
+    resetSessionIdForTest();
+    enforceStoryOwnerLeaseGate('checklist_update', { storyId }, revStore, null, revRoot);
+    const leaseBefore = readFileSync(ownerLeasePath(storyDir), 'utf-8');
+
+    // A reviewer runs as a DIFFERENT, non-owner session.
+    process.env.KOALA_SESSION_ID = 'sess-reviewer';
+    resetSessionIdForTest();
+
+    // 24a. Reviewer read-only commands on the foreign-owned story all pass.
+    for (const roCmd of ['story_get', 'checklist_get', 'finding_list', 'session_brief']) {
+      assert.equal(
+        resolveEffectiveOwnershipClass(roCmd, { storyId }, storyId),
+        'readOnly',
+        `${roCmd} is classified readOnly`,
+      );
+      assert.doesNotThrow(
+        () => enforceStoryOwnerLeaseGate(roCmd, { storyId }, revStore, null, revRoot),
+        `${roCmd} (reviewer read-only flow) on a foreign-owned story is never lease-blocked`,
+      );
+    }
+
+    // 24b. A reviewerWrite-class command (review_pass_set) is owner-lease exempt.
+    assert.equal(
+      resolveEffectiveOwnershipClass('review_pass_set', { storyId }, storyId),
+      'reviewerWrite',
+      'review_pass_set is classified reviewerWrite',
+    );
+    assert.doesNotThrow(
+      () => enforceStoryOwnerLeaseGate('review_pass_set', { storyId }, revStore, null, revRoot),
+      'review_pass_set (reviewerWrite) on a foreign-owned story is owner-lease exempt — the reviewer lane keeps its independent write right',
+    );
+    // None of the reviewer commands mutated the author's owner lease.
+    assert.equal(
+      readFileSync(ownerLeasePath(storyDir), 'utf-8'),
+      leaseBefore,
+      'reviewer read-only + reviewerWrite commands never rewrite the author owner lease',
+    );
+
+    process.env.KOALA_SESSION_ID = 'sess-alpha';
+    resetSessionIdForTest();
+  }
+
+  // ── 25. CHK-005: F-008-class regression — owner-lease.json never dirty ───
+  {
+    // F-008-class assertion: owner-lease.json is a runtime artifact (registered
+    // in the runtime-artifact registry + a `**/owner-lease.json` .gitignore
+    // glob). It must NEVER show up as an uncommitted change, so it cannot
+    // produce a partial-DONE dirty write or block the DONE `git merge`.
+    //
+    // The check is run against the REAL repo working tree: a freshly written
+    // owner-lease.json under a real story actives dir must be ignored by git.
+    let repoRoot = '';
+    try {
+      repoRoot = execFileSync('git', ['rev-parse', '--show-toplevel'], {
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      }).trim();
+    } catch {
+      repoRoot = '';
+    }
+    assert.notEqual(repoRoot, '', 'the smoke runs inside a git repo (needed for the F-008 check)');
+
+    // git check-ignore must report owner-lease.json as ignored at a story path.
+    const sampleLeaseRel = '.koala/story/actives/B-c55d/owner-lease.json';
+    let checkIgnoreCode = 1;
+    try {
+      execFileSync('git', ['check-ignore', '-q', sampleLeaseRel], {
+        cwd: repoRoot,
+        stdio: ['pipe', 'pipe', 'pipe'],
+      });
+      checkIgnoreCode = 0; // exit 0 → the path IS ignored
+    } catch (e: unknown) {
+      const status = (e as { status?: number }).status;
+      checkIgnoreCode = typeof status === 'number' ? status : 1;
+    }
+    assert.equal(
+      checkIgnoreCode,
+      0,
+      'git check-ignore confirms .koala/story/actives/<id>/owner-lease.json is gitignored — it never produces a dirty write before DONE (F-008-class prevention)',
+    );
+
+    // The runtime-artifact registry carries the matching glob — the .gitignore
+    // pattern and the registry entry are the SAME source of truth.
+    assert.equal(
+      listRuntimeArtifactIgnorePatterns().includes('**/owner-lease.json'),
+      true,
+      'the runtime-artifact registry includes the **/owner-lease.json ignore pattern',
+    );
+
+    // A real owner-lease.json written into the live tree does NOT appear in
+    // `git status --porcelain` (it is ignored, so it is invisible to status).
+    const liveStoryDir = join(repoRoot, '.koala', 'story', 'actives', 'B-c55d');
+    if (existsSync(liveStoryDir)) {
+      const leaseFile = join(liveStoryDir, OWNER_LEASE_FILE);
+      const preExisted = existsSync(leaseFile);
+      const savedContent = preExisted ? readFileSync(leaseFile, 'utf-8') : null;
+      try {
+        process.env.KOALA_SESSION_ID = 'sess-f008-probe';
+        resetSessionIdForTest();
+        acquireOwnerLease(liveStoryDir, { command: 'checklist_update', cwd: liveStoryDir });
+        const porcelain = execFileSync('git', ['status', '--porcelain'], {
+          cwd: repoRoot,
+          encoding: 'utf-8',
+          stdio: ['pipe', 'pipe', 'pipe'],
+        });
+        assert.equal(
+          porcelain.split('\n').some((l) => l.includes('owner-lease.json')),
+          false,
+          'a freshly written owner-lease.json never appears in git status --porcelain (gitignored runtime artifact)',
+        );
+      } finally {
+        // Restore the tree: remove our probe lease, or put back the original.
+        if (preExisted && savedContent !== null) {
+          writeFileSync(leaseFile, savedContent, 'utf-8');
+        } else if (existsSync(leaseFile)) {
+          rmSync(leaseFile, { force: true });
+        }
+        process.env.KOALA_SESSION_ID = 'sess-alpha';
+        resetSessionIdForTest();
+      }
+    }
+  }
+
   console.log(
     '✓ story-owner-lease smoke passed (3-source sessionId chain: ppid-bricking regression ' +
     'guard / distinct CLAUDE_CODE ids / KOALA_SESSION_ID wins / derive fallback + sessionSource / ' +
@@ -766,7 +1211,12 @@ try {
     'transfers active + logs event / no-flag no-transfer + no-lease/already-owned guards + ' +
     'invalid-kind rejection / CHK-004 formatNonOwnerError full Error UX field set (stale+active) / ' +
     'summarizeOwnerLease ownership view / renderOwnershipBlock session_brief lines / ' +
-    'renderMetaAuditBlock B-META shared audit state / reviewer read-only flow not lease-blocked)',
+    'renderMetaAuditBlock B-META shared audit state / reviewer read-only flow not lease-blocked / ' +
+    'CHK-005 doctor stale-lease scan detects+reports stale (no false positive on active) / ' +
+    'multi-session: same-story 2nd rejected / different-story both proceed / stale takeover only ' +
+    'with --takeover+event / active takeover rejected unless --forceTakeover / session_brief guides ' +
+    'non-owner read-only / reviewer read-only + reviewerWrite not lease-blocked / F-008-class ' +
+    'owner-lease.json gitignored — never a dirty write)',
   );
 } finally {
   rmSync(root, { recursive: true, force: true });
