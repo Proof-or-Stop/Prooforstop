@@ -8,6 +8,15 @@
       "reviewRound": "2026-05-19T10:11:20.465Z",
       "reviewRunId": "B-fdc2:RR-001",
       "_hash": "c63c0ca45db81d8d609406ebbbe2e9c2f762f631303defe2a9aef8540b99fd5a"
+    },
+    {
+      "id": "B-fdc2:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: express-exempt channel (1 item, no riskSignals), verificationIntent skipped per flow-policy:express-verification-policy. Core finding F-007 verified: flow-stability-smoke.ts section (7) import-isolation guard at line 452 now iterates [core/done-oracle.ts, core/validation-executor.ts] — done-oracle.ts is the real evaluateDirtyGate consumer and has zero inline DIRTY_WORKTREE_CATEGORIES literals (only import lines), so guard passes post-retarget. story-advance.ts correctly absent from scan list (empty-scan confirmed). koala validate --story=B-fdc2 all-pass.",
+      "createdAt": "2026-05-19T10:12:45.729Z",
+      "reviewRound": "2026-05-19T10:11:20.465Z",
+      "reviewRunId": "B-fdc2:RR-002",
+      "_hash": "09440a63ee0412533947ba53b499f00709472c9db5fda56f08d353359c433430"
     }
   ]
 }
