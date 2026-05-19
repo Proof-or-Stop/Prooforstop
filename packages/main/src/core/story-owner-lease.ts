@@ -675,6 +675,198 @@ export interface TakeoverEvent {
  * the `{takeover, forceTakeover}` enum here, not trusted from an upstream
  * schema; an invalid `kind` throws.
  */
+/* ─────────────────────────────────────────────────────────────────────────
+ * B-c55d CHK-004: ownership-aware error UX.
+ *
+ * The CHK-002/003 gate (`enforceStoryOwnerLeaseGate` in `cli-engine.ts`) is the
+ * sole rejection point for a non-owner story-scoped / dangerous mutation. The
+ * MESSAGE it produces is the operator's only window into "why am I blocked and
+ * what do I do next". `session-ownership-and-write-leases.md` § Error UX
+ * mandates four facts in every non-owner rejection:
+ *   - which story is owned
+ *   - the owner `sessionId`, `cwd`, and last-heartbeat age
+ *   - whether the lease is stale
+ *   - the allowed next action
+ *
+ * `formatNonOwnerError` is the single pure formatter for that message. Keeping
+ * it here (not inline in the gate) means: (1) the gate stays a thin choke-point;
+ * (2) the smoke can assert the exact field set without spawning the CLI; (3)
+ * the stale-vs-active recovery text is computed in ONE place from `isLeaseStale`
+ * so the gate can never drift from the message.
+ * ───────────────────────────────────────────────────────────────────────── */
+
+/** Inputs `formatNonOwnerError` needs beyond the foreign lease itself. */
+export interface NonOwnerErrorContext {
+  /** The story whose lease is owned by another session. */
+  storyId: string;
+  /** The koala command that was rejected (audit / message context). */
+  command: string;
+  /** The owner-gated ownership class of `command` (`storyScopedMutating` / `dangerousMutating`). */
+  ownershipClass: string;
+  /** The CURRENT (rejected) session's id — so the operator sees both sides. */
+  currentSessionId: string;
+  /**
+   * Clock injection for deterministic tests. Defaults to `Date.now()`.
+   * Used only to compute the heartbeat age and the stale verdict.
+   */
+  now?: number;
+}
+
+/**
+ * Format an age in ms as a compact human string (`30s`, `8m`, `2h`).
+ *
+ * Exported so the CLI gate and `session_brief` render heartbeat ages with the
+ * IDENTICAL format instead of each re-implementing it (the message and the
+ * brief must agree on "8m ago").
+ */
+export function formatLeaseAge(ageMs: number): string {
+  const safe = Number.isFinite(ageMs) && ageMs >= 0 ? ageMs : 0;
+  const seconds = Math.floor(safe / 1000);
+  if (seconds < 60) return `${seconds}s`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m`;
+  return `${Math.floor(minutes / 60)}h`;
+}
+
+/**
+ * Build the complete non-owner mutation rejection message.
+ *
+ * Pure and unit-testable: every input (the foreign `lease`, the story / command
+ * / class / current session, the clock) is supplied explicitly. The returned
+ * string ALWAYS contains the four `session-ownership-and-write-leases.md`
+ * § Error UX facts:
+ *   1. the owned story id;
+ *   2. the owner `sessionId` + `cwd` + last-heartbeat age (`<n>m ago`);
+ *   3. whether the lease is stale;
+ *   4. the allowed next action — stale leases point at `--takeover`, active
+ *      leases point at read-only / wait / `--forceTakeover`.
+ *
+ * The wording follows the doc example and the CHK-004 userSees target so an
+ * operator (or the smoke) sees a clear, non-mysterious recovery path.
+ */
+export function formatNonOwnerError(
+  lease: StoryOwnerLease,
+  ctx: NonOwnerErrorContext,
+): string {
+  const nowMs = Number.isFinite(ctx.now) ? (ctx.now as number) : Date.now();
+  const heartbeatMs = Date.parse(lease.heartbeatAt);
+  const ageStr = Number.isFinite(heartbeatMs)
+    ? `${formatLeaseAge(nowMs - heartbeatMs)} ago`
+    : 'unknown';
+  const stale = isLeaseStale(lease, nowMs);
+  const staleStr = stale
+    ? 'The owner lease is STALE (no heartbeat for 30+ minutes).'
+    : 'The owner lease is still ACTIVE.';
+  const nextAction = stale
+    ? `Use read-only commands, wait for the owner, or rerun with --takeover to transfer the stale lease.`
+    : `Use read-only commands, wait for the owner, or rerun with --forceTakeover to seize the active lease (a deliberate human override).`;
+  return (
+    `${ctx.storyId} is owned by Koala session ${lease.sessionId}, heartbeat ${ageStr} ` +
+    `(owner cwd: ${lease.cwd}). "${ctx.command}" is an owner-gated ${ctx.ownershipClass} command, ` +
+    `so this session (${ctx.currentSessionId}) cannot run it. ${staleStr} ${nextAction}`
+  );
+}
+
+/**
+ * The recommended next action for a session inspecting a story's owner lease.
+ *
+ *  - `proceed`            → the current session owns the lease (or there is no
+ *    lease — it will acquire one on the next mutating command).
+ *  - `read-only`          → a foreign ACTIVE lease holds the story; this session
+ *    may only run read-only commands or wait.
+ *  - `takeover-available` → a foreign STALE lease holds the story; this session
+ *    may rerun a mutating command with `--takeover`.
+ */
+export type OwnershipRecommendation = 'proceed' | 'read-only' | 'takeover-available';
+
+/**
+ * Structured ownership view for `session_brief` rendering — the testable core of
+ * the ownership section.
+ *
+ * Pure: `lease` and the current `sessionId` / clock are supplied explicitly so
+ * the smoke can assert every rendered field without touching real process state.
+ * Surfaces exactly the `session-ownership-and-write-leases.md` § session_brief
+ * Requirements fields: owner session (+ source), owner cwd, last-heartbeat age,
+ * stale/active status, whether the current session is owner, recommended action.
+ */
+export interface OwnerLeaseView {
+  /** `true` when a valid lease exists on disk. */
+  hasLease: boolean;
+  /** Owner `sessionId`, or `null` when there is no lease. */
+  ownerSessionId: string | null;
+  /** How the owner session was identified, or `null` (absent on legacy leases). */
+  ownerSessionSource: SessionSource | null;
+  /** Owner `cwd`, or `null` when there is no lease. */
+  ownerCwd: string | null;
+  /** Compact last-heartbeat age (`8m ago`), or `null` when there is no lease. */
+  heartbeatAge: string | null;
+  /** `true` when the lease is stale, `false` when active; `false` when no lease. */
+  stale: boolean;
+  /** `true` when the inspecting session owns the lease. */
+  isCurrentSessionOwner: boolean;
+  /** The recommended next action for the inspecting session. */
+  recommendation: OwnershipRecommendation;
+  /**
+   * The inspecting session's own id — carried so renderers stay pure (they can
+   * show "this session (<id>)" without re-reading process state).
+   */
+  currentSessionId: string;
+}
+
+/**
+ * Build the `OwnerLeaseView` for a story directory — used by `session_brief`.
+ *
+ * `currentSessionId` is the inspecting session; `now` is injectable for tests.
+ * No lease → `{ hasLease:false, recommendation:'proceed' }` (the next mutating
+ * command will acquire one). A foreign STALE lease → `takeover-available`; a
+ * foreign ACTIVE lease → `read-only`; an owned lease → `proceed`.
+ */
+export function summarizeOwnerLease(
+  storyDir: string,
+  currentSessionId: string,
+  now: number = Date.now(),
+): OwnerLeaseView {
+  const lease = readOwnerLease(storyDir);
+  if (lease === null) {
+    return {
+      hasLease: false,
+      ownerSessionId: null,
+      ownerSessionSource: null,
+      ownerCwd: null,
+      heartbeatAge: null,
+      stale: false,
+      isCurrentSessionOwner: false,
+      recommendation: 'proceed',
+      currentSessionId,
+    };
+  }
+  const isOwner = lease.sessionId === currentSessionId;
+  const stale = isLeaseStale(lease, now);
+  const heartbeatMs = Date.parse(lease.heartbeatAt);
+  const heartbeatAge = Number.isFinite(heartbeatMs)
+    ? `${formatLeaseAge(now - heartbeatMs)} ago`
+    : 'unknown';
+  // Owner → proceed. Foreign stale → takeover available. Foreign active → read-only.
+  const recommendation: OwnershipRecommendation = isOwner
+    ? 'proceed'
+    : stale
+      ? 'takeover-available'
+      : 'read-only';
+  return {
+    hasLease: true,
+    ownerSessionId: lease.sessionId,
+    ownerSessionSource: lease.sessionSource ?? null,
+    ownerCwd: lease.cwd,
+    heartbeatAge,
+    stale,
+    isCurrentSessionOwner: isOwner,
+    recommendation,
+    currentSessionId,
+  };
+}
+
+/* ───────────────────────────────────────────────────────────────────────── */
+
 export function takeOverOwnerLease(
   storyDir: string,
   options: TakeoverOptions,

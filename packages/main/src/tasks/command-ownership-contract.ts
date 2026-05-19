@@ -256,19 +256,16 @@ try {
         'a rejected non-owner command performs no lease write (no silent steal)',
       );
 
-      // 5b. A read-only command on the SAME foreign-owned story is ALLOWED.
-      assert.doesNotThrow(
-        () => enforceStoryOwnerLeaseGate('checklist_get', { storyId }, store, null, root),
-        'a read-only command on a foreign-owned story is never gated',
-      );
-      assert.doesNotThrow(
-        () => enforceStoryOwnerLeaseGate('finding_list', { storyId }, store, null, root),
-        'finding_list (read-only) on a foreign-owned story is never gated',
-      );
-      assert.doesNotThrow(
-        () => enforceStoryOwnerLeaseGate('session_brief', { storyId }, store, null, root),
-        'session_brief (read-only) on a foreign-owned story is never gated',
-      );
+      // 5b. The reviewer read-only flow on the SAME foreign-owned story is
+      // ALWAYS ALLOWED — B-c55d CHK-004 confirms the owner lease never blocks a
+      // reviewer's inspection commands (story_get / checklist_get / finding_list
+      // / session_brief are classified readOnly, so the gate returns early).
+      for (const roCmd of ['story_get', 'checklist_get', 'finding_list', 'session_brief']) {
+        assert.doesNotThrow(
+          () => enforceStoryOwnerLeaseGate(roCmd, { storyId }, store, null, root),
+          `${roCmd} (read-only reviewer flow) on a foreign-owned story is never gated`,
+        );
+      }
 
       // 5c. A reviewerWrite command on the SAME foreign-owned story is ALLOWED
       // (the owner lease exempts reviewer-lane writes).

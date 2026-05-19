@@ -25,8 +25,9 @@ import { runHooks, truncateForEnv, buildHookEnv as buildSharedHookEnv, HOOK_TIME
 import { gitProbe, isGitRepository } from './core/git-probe.js';
 import {
   acquireOrRefreshOwnerLease,
+  formatLeaseAge,
+  formatNonOwnerError,
   getSessionId,
-  isLeaseStale,
   takeOverOwnerLease,
 } from './core/story-owner-lease.js';
 import { getCommandPolicy, isOwnershipClass, type OwnershipClass } from './core/command-policy.js';
@@ -1320,15 +1321,6 @@ export function resolveTakeoverIntent(args: Record<string, unknown>): TakeoverIn
   return 'none';
 }
 
-/** Format an age in ms as a compact human string (`30s`, `8m`, `2h`). */
-function formatHeartbeatAge(ageMs: number): string {
-  const safe = Number.isFinite(ageMs) && ageMs >= 0 ? ageMs : 0;
-  const seconds = Math.floor(safe / 1000);
-  if (seconds < 60) return `${seconds}s`;
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}m`;
-  return `${Math.floor(minutes / 60)}h`;
-}
 
 /**
  * B-c55d CHK-002: the single CLI choke-point story owner lease GATE.
@@ -1424,7 +1416,7 @@ export function enforceStoryOwnerLeaseGate(
     // operator the active lease needs the explicit `--forceTakeover` override.
     if (result.reason === 'lease-active') {
       const activeAgeMs = Date.now() - Date.parse(lease.heartbeatAt);
-      const activeAge = Number.isFinite(activeAgeMs) ? formatHeartbeatAge(activeAgeMs) : 'unknown';
+      const activeAge = Number.isFinite(activeAgeMs) ? formatLeaseAge(activeAgeMs) : 'unknown';
       throw new Error(
         `${storyId} is owned by another Koala session (${lease.sessionId}) whose owner lease is ` +
         `still ACTIVE (heartbeat ${activeAge} ago). --takeover only transfers a STALE lease ` +
@@ -1438,18 +1430,17 @@ export function enforceStoryOwnerLeaseGate(
 
   // No takeover flag (or a takeover that did not transfer): reject fail-closed
   // with owner guidance. The lease primitive performed NO write (no silent
-  // steal).
-  const ageMs = Date.now() - Date.parse(lease.heartbeatAt);
-  const age = Number.isFinite(ageMs) ? formatHeartbeatAge(ageMs) : 'unknown';
-  const stale = isLeaseStale(lease);
-  const recovery = stale
-    ? `The owner lease is STALE (no heartbeat for 30+ minutes) — rerun with --takeover to transfer it.`
-    : `The owner lease is still ACTIVE — wait for the owner session to finish, or rerun with ` +
-      `--forceTakeover to seize it (a deliberate human override).`;
+  // steal). The full multi-field rejection message — story / owner sessionId /
+  // owner cwd / heartbeat age / stale verdict / allowed next action — is built
+  // by the single `formatNonOwnerError` pure formatter so the message can never
+  // drift from the `session-ownership-and-write-leases.md` § Error UX contract.
   throw new Error(
-    `${storyId} is owned by another Koala session (${lease.sessionId}), heartbeat ${age} ago ` +
-    `(owner cwd: ${lease.cwd}). "${cmd}" is an owner-gated ${cls} command, so this session ` +
-    `(${getSessionId()}) cannot run it. Use read-only commands. ${recovery}`,
+    formatNonOwnerError(lease, {
+      storyId,
+      command: cmd,
+      ownershipClass: cls,
+      currentSessionId: getSessionId(),
+    }),
   );
 }
 

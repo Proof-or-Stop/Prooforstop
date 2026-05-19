@@ -34,6 +34,7 @@ import { buildDoneChecklist, type DoneCheckRow } from '../core/done-oracle.js';
 import { isBlockingOracleRow } from '../core/oracle-row.js';
 import { findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
 import { currentGitHead } from '../core/evidence-freshness.js';
+import { getSessionId, summarizeOwnerLease, type OwnerLeaseView } from '../core/story-owner-lease.js';
 
 interface ActiveStoryDetected {
   storyId: string;
@@ -315,6 +316,75 @@ function isMetaContainer(storyId: string, phase: string): boolean {
 
 function metaContainerNextStep(storyId: string): string {
   return `${storyId} 是 META 容器（audit/finding flow 的常驻容器），不走普通 story lifecycle，也不需要 worktree。用 \`koala audit\` 查看框架自省结果、\`koala finding_list\` 处理它的 finding；不要对它 story_advance 或创建 worktree。`;
+}
+
+/**
+ * B-c55d CHK-004: render the `session_brief` story-owner-lease ownership block.
+ *
+ * Surfaces exactly the `session-ownership-and-write-leases.md` § session_brief
+ * Requirements fields: owner session (+ how it was identified), owner cwd,
+ * last-heartbeat age, stale/active status, whether the current session is the
+ * owner, and the recommended next action (proceed / read-only only / takeover
+ * available). The view itself is computed by the pure `summarizeOwnerLease`
+ * core so this function is a thin formatter.
+ *
+ * Returns an empty array when there is no lease on disk (no owner yet) — a
+ * story nobody has mutated needs no ownership block; the next mutating command
+ * will acquire the lease.
+ *
+ * Exported so the B-c55d smoke can assert the rendered field set directly as a
+ * pure function (the view carries `currentSessionId`, so no process state is
+ * read here).
+ */
+export function renderOwnershipBlock(view: OwnerLeaseView): string[] {
+  if (!view.hasLease) return [];
+  const lines: string[] = [];
+  const statusStr = view.stale ? 'STALE' : 'active';
+  lines.push('');
+  lines.push(`## Story ownership (${statusStr})`);
+  const sourceStr = view.ownerSessionSource ? ` [${view.ownerSessionSource}]` : '';
+  lines.push(`  owner session: ${view.ownerSessionId}${sourceStr}`);
+  lines.push(`  owner cwd: ${view.ownerCwd}`);
+  lines.push(`  last heartbeat: ${view.heartbeatAge}`);
+  if (view.isCurrentSessionOwner) {
+    lines.push(`  this session: OWNER — you may run story-scoped mutating commands.`);
+  } else {
+    lines.push(`  this session: NOT owner (${view.currentSessionId}).`);
+  }
+  // Recommended next action — proceed / read-only / takeover available.
+  let rec: string;
+  if (view.recommendation === 'proceed') {
+    rec = view.isCurrentSessionOwner
+      ? 'proceed — you own this story.'
+      : 'proceed — no foreign owner.';
+  } else if (view.recommendation === 'takeover-available') {
+    rec = 'takeover available — the owner lease is stale; rerun a mutating command with --takeover to transfer it, or stay read-only / wait.';
+  } else {
+    rec = 'read-only only — the owner lease is active; run read-only commands or wait for the owner (rerun with --forceTakeover only as a deliberate human override).';
+  }
+  lines.push(`  recommended: ${rec}`);
+  return lines;
+}
+
+/**
+ * B-c55d CHK-004: render the B-META shared-audit-state block.
+ *
+ * B-META containers are NOT normal story-owner-lease subjects — they are the
+ * permanent audit/finding container shared across sessions. `session_brief`
+ * must show them as shared audit state and must NOT suggest `story_advance`
+ * (per § session_brief Requirements). The B-f60c main write lock — not the
+ * per-story owner lease — serializes concurrent writes to B-META.
+ *
+ * Exported so the B-c55d smoke can assert the B-META special-casing directly.
+ */
+export function renderMetaAuditBlock(storyId: string): string[] {
+  return [
+    '',
+    '## Shared audit state (B-META)',
+    `  ${storyId} is the shared framework-audit / finding container, not a normal story.`,
+    `  It carries NO per-story owner lease; concurrent writes are serialized by the main write lock.`,
+    `  Do not story_advance it — use \`koala audit\` / \`koala finding_list\` instead.`,
+  ];
 }
 
 function computeNextStep(c: NextStepCtx): string {
@@ -707,6 +777,22 @@ export function createSessionHandlers(ctx: HandlerContext) {
           const next = checklistSummary.pending[0];
           lines.push(`  next pending: ${next.id} ${next.title} (+${checklistSummary.pending.length - 1} more)`);
         }
+      }
+
+      // B-c55d CHK-004: story owner lease ownership block. B-META containers
+      // are shown as shared audit state (no per-story lease, no story_advance);
+      // every other active story shows owner session / cwd / heartbeat age /
+      // stale|active / whether this session is owner / recommended action.
+      if (isMetaContainer(storyId, story.phase)) {
+        for (const l of renderMetaAuditBlock(storyId)) lines.push(l);
+      } else {
+        try {
+          const view = summarizeOwnerLease(
+            ctx.store.storyDirPath(storyId),
+            getSessionId(),
+          );
+          for (const l of renderOwnershipBlock(view)) lines.push(l);
+        } catch { /* probe — never block session_brief on ownership-render failure */ }
       }
 
       // B-5fa4 CHK-001: reviewer-status integration for REVIEW phase

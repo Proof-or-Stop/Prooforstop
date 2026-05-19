@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * B-c55d CHK-001: unit smoke for core/story-owner-lease.ts.
+ * B-c55d CHK-001 / CHK-003 / CHK-004: unit smoke for core/story-owner-lease.ts
+ * (plus the CHK-004 session_brief ownership renderers in handlers/session.ts).
  *
  * Covers the load-bearing semantics of the story owner lease primitive
  * (session-ownership-and-write-leases.md rollout step 2b — "story owner
@@ -35,6 +36,8 @@ import {
   acquireOrRefreshOwnerLease,
   acquireOwnerLease,
   deriveLocalSessionId,
+  formatLeaseAge,
+  formatNonOwnerError,
   getSessionId,
   getSessionIdentity,
   isLeaseStale,
@@ -45,8 +48,10 @@ import {
   releaseOwnerLease,
   resetSessionIdForTest,
   resolveSessionIdentity,
+  summarizeOwnerLease,
   takeOverOwnerLease,
 } from '../core/story-owner-lease.js';
+import { renderMetaAuditBlock, renderOwnershipBlock } from '../handlers/session.js';
 import { readActivityLogTail } from '../core/activity-log.js';
 import {
   findRuntimeArtifactEntry,
@@ -539,6 +544,218 @@ try {
     resetSessionIdForTest();
   }
 
+  // ── 13. CHK-004: formatNonOwnerError — complete Error UX field set ───────
+  {
+    // formatLeaseAge is the shared compact age formatter.
+    assert.equal(formatLeaseAge(30 * 1000), '30s', 'formatLeaseAge: sub-minute → Ns');
+    assert.equal(formatLeaseAge(8 * 60 * 1000), '8m', 'formatLeaseAge: sub-hour → Nm');
+    assert.equal(formatLeaseAge(2 * 60 * 60 * 1000), '2h', 'formatLeaseAge: hours → Nh');
+    assert.equal(formatLeaseAge(-1), '0s', 'formatLeaseAge: a negative age is clamped to 0s');
+
+    const heartbeat = '2026-05-19T12:00:00.000Z';
+    const baseMs = Date.parse(heartbeat);
+    const foreignLease = acquireOwnerLease(join(root, 'fmt-err'), {
+      command: 'checklist_update',
+      cwd: '/tmp/owner-wt',
+      now: () => heartbeat,
+    });
+
+    // 13a. ACTIVE foreign lease (8m old) → message names story / owner session /
+    // owner cwd / heartbeat age / ACTIVE verdict / --forceTakeover next action.
+    const activeMsg = formatNonOwnerError(foreignLease, {
+      storyId: 'B-6974',
+      command: 'checklist_update',
+      ownershipClass: 'storyScopedMutating',
+      currentSessionId: 'sess-intruder',
+      now: baseMs + 8 * 60 * 1000,
+    });
+    assert.ok(activeMsg.includes('B-6974'), 'error names the owned story id');
+    assert.ok(activeMsg.includes(foreignLease.sessionId), 'error names the owner sessionId');
+    assert.ok(activeMsg.includes('/tmp/owner-wt'), 'error names the owner cwd');
+    assert.ok(activeMsg.includes('8m ago'), 'error shows the last-heartbeat age (<n>m ago)');
+    assert.ok(activeMsg.includes('ACTIVE'), 'error states the lease is ACTIVE');
+    assert.ok(activeMsg.includes('checklist_update'), 'error names the rejected command');
+    assert.ok(activeMsg.includes('storyScopedMutating'), 'error names the owner-gated class');
+    assert.ok(activeMsg.includes('sess-intruder'), 'error names the current (rejected) session');
+    assert.ok(activeMsg.includes('read-only'), 'active error suggests read-only commands');
+    assert.ok(activeMsg.includes('--forceTakeover'), 'active error suggests --forceTakeover (the active-lease next action)');
+    assert.ok(!activeMsg.includes('--takeover '), 'active error does NOT suggest plain --takeover for an active lease');
+
+    // 13b. STALE foreign lease (>30min old) → STALE verdict + --takeover action.
+    const staleMsg = formatNonOwnerError(foreignLease, {
+      storyId: 'B-6974',
+      command: 'story_advance',
+      ownershipClass: 'storyScopedMutating',
+      currentSessionId: 'sess-intruder',
+      now: baseMs + STALE_LEASE_THRESHOLD_MS + 60_000,
+    });
+    assert.ok(staleMsg.includes('STALE'), 'stale error states the lease is STALE');
+    assert.ok(staleMsg.includes('--takeover'), 'stale error suggests --takeover');
+    assert.ok(staleMsg.includes('read-only'), 'stale error still suggests read-only / wait');
+
+    // 13c. An unparseable heartbeat → age renders as "unknown", verdict STALE
+    // (an unparseable heartbeat is conservatively stale per isLeaseStale).
+    const badMsg = formatNonOwnerError(
+      { ...foreignLease, heartbeatAt: 'not-a-timestamp' },
+      {
+        storyId: 'B-6974',
+        command: 'checklist_update',
+        ownershipClass: 'storyScopedMutating',
+        currentSessionId: 'sess-intruder',
+        now: baseMs,
+      },
+    );
+    assert.ok(badMsg.includes('unknown'), 'an unparseable heartbeat renders the age as "unknown"');
+    assert.ok(badMsg.includes('STALE'), 'an unparseable heartbeat is conservatively treated as STALE');
+  }
+
+  // ── 14. CHK-004: summarizeOwnerLease — session_brief ownership view ──────
+  {
+    const heartbeat = '2026-05-19T12:00:00.000Z';
+    const baseMs = Date.parse(heartbeat);
+
+    // 14a. No lease on disk → hasLease:false, recommendation:proceed.
+    const emptyDir = join(root, 'view-empty');
+    mkdirSync(emptyDir, { recursive: true });
+    const noneView = summarizeOwnerLease(emptyDir, 'sess-me', baseMs);
+    assert.equal(noneView.hasLease, false, 'no lease → hasLease:false');
+    assert.equal(noneView.recommendation, 'proceed', 'no lease → recommendation:proceed');
+    assert.equal(noneView.ownerSessionId, null, 'no lease → ownerSessionId:null');
+
+    // 14b. Lease owned by the CURRENT session, ACTIVE → isOwner:true, proceed.
+    const ownDir = join(root, 'view-own');
+    mkdirSync(ownDir, { recursive: true });
+    process.env.KOALA_SESSION_ID = 'sess-me';
+    resetSessionIdForTest();
+    acquireOwnerLease(ownDir, { command: 'checklist_update', cwd: '/tmp/my-wt', now: () => heartbeat });
+    const ownView = summarizeOwnerLease(ownDir, 'sess-me', baseMs + 5 * 60 * 1000);
+    assert.equal(ownView.hasLease, true, 'owned lease → hasLease:true');
+    assert.equal(ownView.isCurrentSessionOwner, true, 'owned lease → isCurrentSessionOwner:true');
+    assert.equal(ownView.ownerSessionId, 'sess-me', 'view reports the owner sessionId');
+    assert.equal(ownView.ownerSessionSource, 'koala-env', 'view reports the owner sessionSource');
+    assert.equal(ownView.ownerCwd, '/tmp/my-wt', 'view reports the owner cwd');
+    assert.equal(ownView.heartbeatAge, '5m ago', 'view reports the last-heartbeat age');
+    assert.equal(ownView.stale, false, 'a 5m-old lease is active, not stale');
+    assert.equal(ownView.recommendation, 'proceed', 'an owned active lease → recommendation:proceed');
+    assert.equal(ownView.currentSessionId, 'sess-me', 'view carries the inspecting session id');
+
+    // 14c. Foreign ACTIVE lease → isOwner:false, recommendation:read-only.
+    const foreignActiveView = summarizeOwnerLease(ownDir, 'sess-other', baseMs + 5 * 60 * 1000);
+    assert.equal(foreignActiveView.isCurrentSessionOwner, false, 'foreign lease → isCurrentSessionOwner:false');
+    assert.equal(foreignActiveView.stale, false, 'foreign 5m-old lease is active');
+    assert.equal(foreignActiveView.recommendation, 'read-only', 'a foreign active lease → recommendation:read-only');
+
+    // 14d. Foreign STALE lease → recommendation:takeover-available.
+    const foreignStaleView = summarizeOwnerLease(
+      ownDir,
+      'sess-other',
+      baseMs + STALE_LEASE_THRESHOLD_MS + 60_000,
+    );
+    assert.equal(foreignStaleView.stale, true, 'a >30min-old foreign lease is stale');
+    assert.equal(foreignStaleView.recommendation, 'takeover-available', 'a foreign stale lease → recommendation:takeover-available');
+
+    process.env.KOALA_SESSION_ID = 'sess-alpha';
+    resetSessionIdForTest();
+  }
+
+  // ── 15. CHK-004: renderOwnershipBlock — session_brief ownership lines ────
+  {
+    // 15a. No lease → empty block (a story nobody mutated needs no section).
+    assert.deepEqual(
+      renderOwnershipBlock({
+        hasLease: false, ownerSessionId: null, ownerSessionSource: null, ownerCwd: null,
+        heartbeatAge: null, stale: false, isCurrentSessionOwner: false,
+        recommendation: 'proceed', currentSessionId: 'sess-me',
+      }),
+      [],
+      'renderOwnershipBlock returns no lines when there is no lease',
+    );
+
+    // 15b. Owned active lease → block shows owner/cwd/heartbeat/OWNER/proceed.
+    const ownerLines = renderOwnershipBlock({
+      hasLease: true, ownerSessionId: 'sess-me', ownerSessionSource: 'koala-env',
+      ownerCwd: '/tmp/my-wt', heartbeatAge: '3m ago', stale: false,
+      isCurrentSessionOwner: true, recommendation: 'proceed', currentSessionId: 'sess-me',
+    }).join('\n');
+    assert.ok(ownerLines.includes('## Story ownership (active)'), 'owned block heading shows active status');
+    assert.ok(ownerLines.includes('owner session: sess-me [koala-env]'), 'owned block shows owner session + source');
+    assert.ok(ownerLines.includes('owner cwd: /tmp/my-wt'), 'owned block shows owner cwd');
+    assert.ok(ownerLines.includes('last heartbeat: 3m ago'), 'owned block shows heartbeat age');
+    assert.ok(ownerLines.includes('OWNER'), 'owned block marks this session OWNER');
+    assert.ok(ownerLines.includes('recommended: proceed'), 'owned block recommends proceed');
+
+    // 15c. Foreign STALE lease → block marks NOT owner + takeover available.
+    const staleLines = renderOwnershipBlock({
+      hasLease: true, ownerSessionId: 'sess-owner', ownerSessionSource: 'claude-code-env',
+      ownerCwd: '/tmp/owner-wt', heartbeatAge: '45m ago', stale: true,
+      isCurrentSessionOwner: false, recommendation: 'takeover-available', currentSessionId: 'sess-me',
+    }).join('\n');
+    assert.ok(staleLines.includes('## Story ownership (STALE)'), 'stale block heading shows STALE status');
+    assert.ok(staleLines.includes('NOT owner (sess-me)'), 'stale block marks this session NOT owner + names it');
+    assert.ok(staleLines.includes('takeover available'), 'stale block recommends takeover available');
+    assert.ok(staleLines.includes('--takeover'), 'stale block mentions --takeover');
+
+    // 15d. Foreign ACTIVE lease → block recommends read-only only.
+    const activeForeignLines = renderOwnershipBlock({
+      hasLease: true, ownerSessionId: 'sess-owner', ownerSessionSource: 'koala-env',
+      ownerCwd: '/tmp/owner-wt', heartbeatAge: '2m ago', stale: false,
+      isCurrentSessionOwner: false, recommendation: 'read-only', currentSessionId: 'sess-me',
+    }).join('\n');
+    assert.ok(activeForeignLines.includes('read-only only'), 'foreign active block recommends read-only only');
+    assert.ok(activeForeignLines.includes('--forceTakeover'), 'foreign active block mentions --forceTakeover as the override');
+  }
+
+  // ── 16. CHK-004: renderMetaAuditBlock — B-META shared audit state ────────
+  {
+    const metaLines = renderMetaAuditBlock('B-META-framework-audit').join('\n');
+    assert.ok(metaLines.includes('## Shared audit state (B-META)'), 'B-META block is rendered as shared audit state');
+    assert.ok(metaLines.includes('B-META-framework-audit'), 'B-META block names the container');
+    assert.ok(metaLines.includes('NO per-story owner lease'), 'B-META block states it carries no owner lease');
+    assert.ok(metaLines.includes('main write lock'), 'B-META block notes the main write lock serializes its writes');
+    // The only `story_advance` mention is the explicit "Do not story_advance"
+    // negative — the block never recommends advancing a B-META container.
+    assert.ok(metaLines.includes('Do not story_advance'), 'B-META block explicitly tells the agent not to story_advance');
+    assert.equal(
+      (metaLines.match(/story_advance/g) ?? []).length, 1,
+      'B-META block mentions story_advance exactly once — only in the "Do not story_advance" prohibition',
+    );
+  }
+
+  // ── 17. CHK-004: reviewer read-only flow is NOT blocked by an owner lease ─
+  {
+    // Confirm the lease primitive itself never refuses a non-owner observation:
+    // a foreign-owned story still reads cleanly (readOwnerLease / isOwnedBy /
+    // summarizeOwnerLease) — these back the readOnly commands story_get /
+    // checklist_get / finding_list / session_brief, which the CHK-002 gate
+    // classifies readOnly and never gates. (The gate-level assertion that all
+    // four commands pass on a foreign-owned story lives in
+    // command-ownership-contract.ts case 5b.)
+    const reviewerDir = join(root, 'reviewer-readonly');
+    mkdirSync(reviewerDir, { recursive: true });
+    process.env.KOALA_SESSION_ID = 'sess-owner';
+    resetSessionIdForTest();
+    acquireOwnerLease(reviewerDir, { command: 'checklist_update', cwd: '/tmp/owner-wt' });
+
+    // Act as a reviewer session (a DIFFERENT, non-owner session).
+    process.env.KOALA_SESSION_ID = 'sess-reviewer';
+    resetSessionIdForTest();
+    // A non-owner observation never throws and never mutates the lease.
+    const leaseBefore = readFileSync(ownerLeasePath(reviewerDir), 'utf-8');
+    assert.notEqual(readOwnerLease(reviewerDir), null, 'a reviewer session can still read a foreign-owned lease');
+    assert.equal(isOwnedByCurrentSession(reviewerDir), false, 'the reviewer session is correctly seen as non-owner');
+    const reviewerView = summarizeOwnerLease(reviewerDir, getSessionId());
+    assert.equal(reviewerView.isCurrentSessionOwner, false, 'the reviewer ownership view reports non-owner');
+    assert.equal(reviewerView.recommendation !== 'proceed', true, 'the reviewer view recommends read-only / takeover, never silently proceed');
+    assert.equal(
+      readFileSync(ownerLeasePath(reviewerDir), 'utf-8'),
+      leaseBefore,
+      'a reviewer read-only inspection performs NO lease write',
+    );
+
+    process.env.KOALA_SESSION_ID = 'sess-alpha';
+    resetSessionIdForTest();
+  }
+
   console.log(
     '✓ story-owner-lease smoke passed (3-source sessionId chain: ppid-bricking regression ' +
     'guard / distinct CLAUDE_CODE ids / KOALA_SESSION_ID wins / derive fallback + sessionSource / ' +
@@ -547,7 +764,9 @@ try {
     'runtime-artifact dirty-write prevention / CHK-003 stale 30min detection + boundary / ' +
     '--takeover transfers stale + logs event / --takeover refuses active / --forceTakeover ' +
     'transfers active + logs event / no-flag no-transfer + no-lease/already-owned guards + ' +
-    'invalid-kind rejection)',
+    'invalid-kind rejection / CHK-004 formatNonOwnerError full Error UX field set (stale+active) / ' +
+    'summarizeOwnerLease ownership view / renderOwnershipBlock session_brief lines / ' +
+    'renderMetaAuditBlock B-META shared audit state / reviewer read-only flow not lease-blocked)',
   );
 } finally {
   rmSync(root, { recursive: true, force: true });
