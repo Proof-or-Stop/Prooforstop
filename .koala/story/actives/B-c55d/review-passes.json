@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-19T03:45:59.468Z",
       "reviewRunId": "B-c55d:RR-002",
       "_hash": "2de8835d047024eed23a3d2b173b3cbe5f1ef46e13d66bfbc67d2f5aa6922f80"
+    },
+    {
+      "id": "B-c55d:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Step 1 extracted symbols: OWNER_LEASE_FILE, StoryOwnerLease, SessionSource, resolveSessionIdentity, deriveLocalSessionId, getSessionIdentity, getSessionId, acquireOwnerLease, refreshOwnerLease, acquireOrRefreshOwnerLease, releaseOwnerLease, isOwnedByCurrentSession, isLeaseStale, takeOverOwnerLease, formatNonOwnerError, formatLeaseAge, summarizeOwnerLease, renderOwnershipBlock (via session.ts), enforceStoryOwnerLeaseGate, resolveEffectiveOwnershipClass, OwnershipClass, OWNERSHIP_CLASSES, OwnerLeaseState, StoryOwnerLeaseScanItem. Step 2 compared against session-ownership-and-write-leases.md and story-lifecycle.md paragraphs: all 24 symbols found consistent EXCEPT the CLAUDE.md#多-session-写协調 section which still says owner lease/takeover UX/session_brief rendering are unimplemented (registered as F-002 high). The 2 updated docs are internally consistent with the code: 3-source sessionId chain matches resolveSessionIdentity, stale threshold 30 min matches STALE_LEASE_THRESHOLD_MS=30*60*1000, formatNonOwnerError output matches doc examples, renderOwnershipBlock fields match session_brief Requirements, B-META block matches renderMetaAuditBlock. 1 finding registered (F-002).",
+      "createdAt": "2026-05-19T03:51:06.869Z",
+      "reviewRound": "2026-05-19T03:45:59.468Z",
+      "reviewRunId": "B-c55d:RR-005",
+      "_hash": "8b4cc21a7e309496afba7a6c543e95b0affd0760f8ddc8b6f9675da8cd9e6487"
     }
   ]
 }
