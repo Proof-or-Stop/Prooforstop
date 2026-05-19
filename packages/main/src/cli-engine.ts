@@ -23,7 +23,12 @@ import { reportHealthIssue } from './core/health.js';
 import { detectStaleState } from './core/stale-detector.js';
 import { runHooks, truncateForEnv, buildHookEnv as buildSharedHookEnv, HOOK_TIMEOUT_MS } from './core/hooks.js';
 import { gitProbe, isGitRepository } from './core/git-probe.js';
-import { acquireOrRefreshOwnerLease, getSessionId } from './core/story-owner-lease.js';
+import {
+  acquireOrRefreshOwnerLease,
+  getSessionId,
+  isLeaseStale,
+  takeOverOwnerLease,
+} from './core/story-owner-lease.js';
 import { getCommandPolicy, isOwnershipClass, type OwnershipClass } from './core/command-policy.js';
 import { STORY_OUTCOME_KINDS, VERIFICATION_EVIDENCE_VERDICTS } from './core/types.js';
 import { BACKGROUND_SECTION_IDS, normalizeBackgroundSection } from './core/background-validator.js';
@@ -1287,6 +1292,34 @@ export function isDeliveryReviewerActor(args: Record<string, unknown>): boolean 
   return actor === 'koala-review-delivery';
 }
 
+/**
+ * B-c55d CHK-003: the takeover intent of a single CLI invocation.
+ *
+ *  - `none`          → no takeover flag; a foreign lease stays rejected.
+ *  - `takeover`      → `--takeover`; transfers a STALE foreign lease only.
+ *  - `forceTakeover` → `--forceTakeover`; transfers an ACTIVE foreign lease too
+ *    (deliberate human override). Implies `--takeover` semantics for a stale
+ *    lease as well, so `--forceTakeover` always wins when both are present.
+ */
+export type TakeoverIntent = 'none' | 'takeover' | 'forceTakeover';
+
+/**
+ * Resolve the takeover intent from parsed CLI args.
+ *
+ * `parseFlags` records a bare `--takeover` / `--forceTakeover` as boolean
+ * `true`; an `=value` form may also yield a string. Runtime re-validation (per
+ * "Handler 编码约定"): the flag counts as set ONLY for a real boolean `true` or
+ * the literal string `"true"` — any other value (a typo'd `--takeover=maybe`)
+ * is treated as NOT set, so a malformed flag can never silently authorize a
+ * dangerous lease transfer. `--forceTakeover` outranks `--takeover`.
+ */
+export function resolveTakeoverIntent(args: Record<string, unknown>): TakeoverIntent {
+  const isSet = (v: unknown): boolean => v === true || v === 'true';
+  if (isSet(args.forceTakeover)) return 'forceTakeover';
+  if (isSet(args.takeover)) return 'takeover';
+  return 'none';
+}
+
 /** Format an age in ms as a compact human string (`30s`, `8m`, `2h`). */
 function formatHeartbeatAge(ageMs: number): string {
   const safe = Number.isFinite(ageMs) && ageMs >= 0 ? ageMs : 0;
@@ -1313,9 +1346,13 @@ function formatHeartbeatAge(ageMs: number): string {
  *    resolvable story:
  *      · no lease on disk            → this session acquires it (becomes owner);
  *      · lease owned by this session → heartbeat is refreshed;
- *      · lease owned by ANOTHER session (`foreign`) → the command is REJECTED
- *        fail-closed with an owner-guidance error (CHK-002 produces a clear,
- *        non-mysterious message; the full multi-field Error UX is CHK-004).
+ *      · lease owned by ANOTHER session (`foreign`) → CHK-003: if the
+ *        invocation carries an explicit takeover flag the lease may be
+ *        transferred (`--takeover` for a STALE lease, `--forceTakeover` for an
+ *        ACTIVE one) — the transfer rewrites the lease and records a
+ *        `story-owner-lease-takeover` audit event, then the command proceeds.
+ *        Without a flag (or a `--takeover` on a still-active lease) the command
+ *        is REJECTED fail-closed with owner guidance.
  *  - unclassified (no policy / invalid `ownershipClass`) → REJECTED fail-closed.
  *    An unclassified command is never default-allowed.
  *
@@ -1328,6 +1365,7 @@ export function enforceStoryOwnerLeaseGate(
   args: Record<string, unknown>,
   store: StoryStore,
   activeStory: ActiveStory | null,
+  projectRoot: string,
 ): void {
   const storyId = storyIdFromArgs(args, activeStory);
   const cls = resolveEffectiveOwnershipClass(cmd, args, storyId);
@@ -1362,15 +1400,56 @@ export function enforceStoryOwnerLeaseGate(
   // `acquired` / `refreshed` → the current session owns the lease; proceed.
   if (action !== 'foreign') return;
 
-  // `foreign` → another session owns this story. Reject fail-closed with owner
-  // guidance. The lease primitive performed NO write (no silent steal).
+  // `foreign` → another session owns this story.
+  //
+  // B-c55d CHK-003: before the fail-closed rejection, check for an explicit
+  // takeover flag. A takeover is a `dangerousMutating` action — it requires
+  // explicit operator intent (`--takeover` / `--forceTakeover`) and always
+  // records an audit event. Without a flag, NOTHING is transferred and the
+  // CHK-002 fail-closed rejection stands.
+  const intent = resolveTakeoverIntent(args);
+  if (intent !== 'none') {
+    const result = takeOverOwnerLease(storyDir, {
+      kind: intent,
+      command: cmd,
+      cwd: process.cwd(),
+      projectRoot,
+    });
+    if (result.transferred) {
+      // The lease now belongs to this session — the takeover event was logged.
+      // Proceed: the owner-gated command runs as the new owner.
+      return;
+    }
+    // `--takeover` on an ACTIVE (non-stale) lease → refuse, and tell the
+    // operator the active lease needs the explicit `--forceTakeover` override.
+    if (result.reason === 'lease-active') {
+      const activeAgeMs = Date.now() - Date.parse(lease.heartbeatAt);
+      const activeAge = Number.isFinite(activeAgeMs) ? formatHeartbeatAge(activeAgeMs) : 'unknown';
+      throw new Error(
+        `${storyId} is owned by another Koala session (${lease.sessionId}) whose owner lease is ` +
+        `still ACTIVE (heartbeat ${activeAge} ago). --takeover only transfers a STALE lease ` +
+        `(no heartbeat for 30+ minutes). To seize an active session's lock, rerun with ` +
+        `--forceTakeover — a deliberate human override.`,
+      );
+    }
+    // `no-lease` / `already-owned` are not expected here (a foreign lease was
+    // just observed); fall through to the standard rejection for safety.
+  }
+
+  // No takeover flag (or a takeover that did not transfer): reject fail-closed
+  // with owner guidance. The lease primitive performed NO write (no silent
+  // steal).
   const ageMs = Date.now() - Date.parse(lease.heartbeatAt);
   const age = Number.isFinite(ageMs) ? formatHeartbeatAge(ageMs) : 'unknown';
+  const stale = isLeaseStale(lease);
+  const recovery = stale
+    ? `The owner lease is STALE (no heartbeat for 30+ minutes) — rerun with --takeover to transfer it.`
+    : `The owner lease is still ACTIVE — wait for the owner session to finish, or rerun with ` +
+      `--forceTakeover to seize it (a deliberate human override).`;
   throw new Error(
     `${storyId} is owned by another Koala session (${lease.sessionId}), heartbeat ${age} ago ` +
     `(owner cwd: ${lease.cwd}). "${cmd}" is an owner-gated ${cls} command, so this session ` +
-    `(${getSessionId()}) cannot run it. Use read-only commands, wait for the owner session to finish, ` +
-    `or rerun with --takeover once the owner lease is stale.`,
+    `(${getSessionId()}) cannot run it. Use read-only commands. ${recovery}`,
   );
 }
 
@@ -1888,7 +1967,7 @@ export async function runCli(opts?: {
       // rejected fail-closed with owner guidance; an unclassified command is
       // also rejected fail-closed. The gate runs inside this `try` so a
       // rejection surfaces through the `catch` below as the command failure.
-      enforceStoryOwnerLeaseGate(cmd, parsed, store, activeStory);
+      enforceStoryOwnerLeaseGate(cmd, parsed, store, activeStory, root);
       let result = fn();
       if (result && typeof (result as any).then === 'function') result = await result;
       clearInterval(watchdog);

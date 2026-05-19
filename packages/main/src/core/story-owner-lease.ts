@@ -46,6 +46,7 @@ import {
   writeFileSync,
 } from 'fs';
 import { gitProbe } from './git-probe.js';
+import { appendActivityLog } from './activity-log.js';
 
 /**
  * Filename of the per-story owner lease, written under the story directory
@@ -541,4 +542,218 @@ export function releaseOwnerLease(storyDir: string): boolean {
 export function isOwnedByCurrentSession(storyDir: string): boolean {
   const lease = readOwnerLease(storyDir);
   return lease !== null && lease.sessionId === getSessionId();
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * B-c55d CHK-003: stale lease detection + takeover.
+ *
+ * In the ppid-fallback derivation path a dead parent shell's pid can be reused
+ * by an unrelated later shell — two genuine sessions then collide on one
+ * derived id, or a session simply dies and leaves an orphan lease nobody can
+ * recognise as their own. CHK-003 recovers from that: a lease whose
+ * `heartbeatAt` has not advanced for STALE_LEASE_THRESHOLD_MS is judged STALE
+ * and may be taken over.
+ *
+ * Two takeover paths, both DANGEROUS (explicit-intent + audit-event discipline):
+ *  - `--takeover` transfers a STALE foreign lease to the current session.
+ *  - `--forceTakeover` transfers an ACTIVE (non-stale) foreign lease — treated
+ *    as a deliberate human override (the operator KNOWS they are seizing a live
+ *    session's lock).
+ * Neither path ever transfers a lease silently: every takeover writes a
+ * `story-owner-lease-takeover` record to the project activity log.
+ * ───────────────────────────────────────────────────────────────────────── */
+
+/**
+ * Staleness threshold for an owner lease, in milliseconds (30 minutes).
+ *
+ * A lease whose `heartbeatAt` is older than this is considered stale and is
+ * eligible for plain `--takeover`. Kept as an exported constant so the gate,
+ * doctor checks, and tests all reference the SAME literal — per "Handler 编码
+ * 约定" the 30-minute rule is re-checked at every consumer, never re-typed.
+ */
+export const STALE_LEASE_THRESHOLD_MS = 30 * 60 * 1000;
+
+/**
+ * Whether `lease` is stale: its `heartbeatAt` has not advanced for at least
+ * `STALE_LEASE_THRESHOLD_MS` (30 minutes).
+ *
+ * Pure and unit-testable — `now` is injectable (defaults to `Date.now()`).
+ *
+ * Runtime re-validation (per "Handler 编码约定"): a lease whose `heartbeatAt`
+ * is not a parseable ISO 8601 timestamp has NO trustworthy age, so it is
+ * conservatively treated as stale (`true`) — an unparseable heartbeat must
+ * never masquerade as a fresh, protected lease. A `null` lease is NOT stale
+ * (there is nothing to take over): callers acquire a fresh lease instead.
+ */
+export function isLeaseStale(lease: StoryOwnerLease | null, now: number = Date.now()): boolean {
+  if (lease === null) return false;
+  const heartbeatMs = Date.parse(lease.heartbeatAt);
+  if (!Number.isFinite(heartbeatMs)) return true;
+  const reference = Number.isFinite(now) ? now : Date.now();
+  return reference - heartbeatMs >= STALE_LEASE_THRESHOLD_MS;
+}
+
+/** Which takeover flag authorized a lease transfer. */
+export type TakeoverKind = 'takeover' | 'forceTakeover';
+
+/** Why a `takeOverOwnerLease` call refused to transfer the lease. */
+export type TakeoverRefusalReason =
+  /** No lease on disk — there is nothing to take over (caller should acquire). */
+  | 'no-lease'
+  /** The current session already owns the lease — takeover is unnecessary. */
+  | 'already-owned'
+  /** `--takeover` was used on an ACTIVE (non-stale) lease; needs `--forceTakeover`. */
+  | 'lease-active';
+
+/** Outcome of a `takeOverOwnerLease` attempt. */
+export type TakeoverResult =
+  /** The lease was transferred to the current session; `event` was logged. */
+  | { transferred: true; lease: StoryOwnerLease; previous: StoryOwnerLease; kind: TakeoverKind }
+  /** No transfer happened; `reason` explains why. `previous` is the foreign lease if any. */
+  | { transferred: false; reason: TakeoverRefusalReason; previous: StoryOwnerLease | null };
+
+/** Options for `takeOverOwnerLease`. */
+export interface TakeoverOptions extends OwnerLeaseWriteOptions {
+  /**
+   * `takeover` → only a STALE foreign lease may be transferred.
+   * `forceTakeover` → an ACTIVE foreign lease may also be transferred (human override).
+   */
+  kind: TakeoverKind;
+  /**
+   * Project root used to locate the activity log the takeover event is
+   * appended to (`<projectRoot>/.koala/activity.jsonl`). When omitted, the
+   * takeover still transfers the lease but skips the audit record — callers
+   * that need the event MUST supply this.
+   */
+  projectRoot?: string;
+}
+
+/** The shape of the audit record a takeover appends to the activity log. */
+export interface TakeoverEvent {
+  /** Discriminator for activity-log readers. */
+  tool: 'story-owner-lease-takeover';
+  /** Same value as `tool` — `activity-log` consumers key on `detail` too. */
+  detail: 'story-owner-lease-takeover';
+  /** ISO 8601 time the takeover happened. */
+  timestamp: string;
+  /** Which flag authorized the transfer. */
+  kind: TakeoverKind;
+  /** Story directory whose lease was transferred. */
+  storyDir: string;
+  /** Session id that NOW owns the lease (the taker). */
+  toSessionId: string;
+  /** Session id the lease was taken FROM. */
+  fromSessionId: string;
+  /** The taken-over lease's last `heartbeatAt` before transfer (audit context). */
+  fromHeartbeatAt: string;
+  /** Whether the taken-over lease was stale at transfer time. */
+  fromWasStale: boolean;
+  /** The koala command that triggered the takeover. */
+  command: string;
+}
+
+/**
+ * Take over a foreign owner lease, transferring it to the CURRENT session.
+ *
+ * Behavior by `kind` (the authorizing flag):
+ *  - no lease on disk            → refuse `{ transferred:false, reason:'no-lease' }`
+ *    (takeover never CREATES a lease — the caller should acquire instead).
+ *  - lease owned by this session → refuse `{ reason:'already-owned' }` (no-op).
+ *  - foreign lease, STALE        → transferred for BOTH `takeover` and
+ *    `forceTakeover`.
+ *  - foreign lease, ACTIVE       → transferred ONLY for `forceTakeover`;
+ *    `takeover` refuses `{ reason:'lease-active' }` (the gate then tells the
+ *    operator to rerun with `--forceTakeover`).
+ *
+ * A successful transfer rewrites `owner-lease.json` naming the current session
+ * (fresh `acquiredAt`/`heartbeatAt`) and — when `projectRoot` is supplied —
+ * appends a `story-owner-lease-takeover` record to the activity log so the
+ * transfer is never silent: who took it from whom, when, the previous
+ * `heartbeatAt`, and whether it was stale.
+ *
+ * Runtime re-validation (per "Handler 编码约定"): `kind` is re-checked against
+ * the `{takeover, forceTakeover}` enum here, not trusted from an upstream
+ * schema; an invalid `kind` throws.
+ */
+export function takeOverOwnerLease(
+  storyDir: string,
+  options: TakeoverOptions,
+): TakeoverResult {
+  // Runtime enum re-validation — never trust an upstream schema for `kind`.
+  if (options.kind !== 'takeover' && options.kind !== 'forceTakeover') {
+    throw new Error(
+      `takeOverOwnerLease: kind must be "takeover" or "forceTakeover", got "${String(options.kind)}"`,
+    );
+  }
+  const command = nonEmptyString(options.command);
+  if (command === null) {
+    throw new Error('takeOverOwnerLease: command is required');
+  }
+
+  const existing = readOwnerLease(storyDir);
+  // No lease (or corrupt → null): nothing to take over; the caller acquires.
+  if (existing === null) {
+    return { transferred: false, reason: 'no-lease', previous: null };
+  }
+  // Already ours: takeover is a no-op — refresh, do not "take over".
+  if (existing.sessionId === getSessionId()) {
+    return { transferred: false, reason: 'already-owned', previous: existing };
+  }
+
+  const nowFn = options.now ?? (() => new Date().toISOString());
+  const stamp = nowFn();
+  const wasStale = isLeaseStale(existing, Date.parse(stamp));
+
+  // Plain `--takeover` may only transfer a STALE lease. An ACTIVE foreign lease
+  // needs the explicit `--forceTakeover` human override.
+  if (options.kind === 'takeover' && !wasStale) {
+    return { transferred: false, reason: 'lease-active', previous: existing };
+  }
+
+  // Transfer: rewrite the lease naming the current session.
+  const identity = getSessionIdentity();
+  const transferred: StoryOwnerLease = {
+    sessionId: identity.sessionId,
+    sessionSource: identity.sessionSource,
+    hostname: hostname(),
+    pid: process.pid,
+    cwd: nonEmptyString(options.cwd) ?? process.cwd(),
+    command,
+    acquiredAt: stamp,
+    heartbeatAt: stamp,
+  };
+  const label = nonEmptyString(options.label);
+  if (label !== null) transferred.label = label;
+  writeLease(storyDir, transferred);
+
+  // Audit: append the takeover event so a transfer is NEVER silent.
+  const projectRoot = nonEmptyString(options.projectRoot);
+  if (projectRoot !== null) {
+    const event: TakeoverEvent = {
+      tool: 'story-owner-lease-takeover',
+      detail: 'story-owner-lease-takeover',
+      timestamp: stamp,
+      kind: options.kind,
+      storyDir,
+      toSessionId: identity.sessionId,
+      fromSessionId: existing.sessionId,
+      fromHeartbeatAt: existing.heartbeatAt,
+      fromWasStale: wasStale,
+      command,
+    };
+    try {
+      appendActivityLog(projectRoot, event as unknown as Record<string, unknown>);
+    } catch {
+      // A failed audit append must not strand the (already-written) lease in an
+      // inconsistent half-transferred state. The transfer itself succeeded; the
+      // missing audit line is reported by callers, not re-thrown here.
+    }
+  }
+
+  return {
+    transferred: true,
+    lease: transferred,
+    previous: existing,
+    kind: options.kind,
+  };
 }

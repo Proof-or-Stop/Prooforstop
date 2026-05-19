@@ -31,11 +31,13 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   OWNER_LEASE_FILE,
+  STALE_LEASE_THRESHOLD_MS,
   acquireOrRefreshOwnerLease,
   acquireOwnerLease,
   deriveLocalSessionId,
   getSessionId,
   getSessionIdentity,
+  isLeaseStale,
   isOwnedByCurrentSession,
   ownerLeasePath,
   readOwnerLease,
@@ -43,7 +45,9 @@ import {
   releaseOwnerLease,
   resetSessionIdForTest,
   resolveSessionIdentity,
+  takeOverOwnerLease,
 } from '../core/story-owner-lease.js';
+import { readActivityLogTail } from '../core/activity-log.js';
 import {
   findRuntimeArtifactEntry,
   isMaterialExcludedRuntimeArtifactPath,
@@ -309,12 +313,241 @@ try {
     );
   }
 
+  // ── 8. CHK-003: stale lease detection (30-minute threshold) ──────────────
+  {
+    // The threshold constant is exactly 30 minutes.
+    assert.equal(STALE_LEASE_THRESHOLD_MS, 30 * 60 * 1000, 'stale threshold is 30 minutes');
+
+    const storyDir = join(root, 'stale-detect');
+    mkdirSync(storyDir, { recursive: true });
+    // A lease last refreshed at a fixed reference time.
+    const heartbeat = '2026-05-19T12:00:00.000Z';
+    const lease = acquireOwnerLease(storyDir, {
+      command: 'checklist_update',
+      now: () => heartbeat,
+    });
+    const baseMs = Date.parse(heartbeat);
+
+    // 8a. A heartbeat OLDER than 30 minutes → stale.
+    assert.equal(
+      isLeaseStale(lease, baseMs + STALE_LEASE_THRESHOLD_MS + 1),
+      true,
+      'a lease with no heartbeat for >30min is stale',
+    );
+    // 8b. A heartbeat NEWER than 30 minutes → not stale.
+    assert.equal(
+      isLeaseStale(lease, baseMs + STALE_LEASE_THRESHOLD_MS - 1),
+      false,
+      'a lease refreshed <30min ago is not stale',
+    );
+    // 8c. EXACTLY at the threshold → stale (>= boundary).
+    assert.equal(
+      isLeaseStale(lease, baseMs + STALE_LEASE_THRESHOLD_MS),
+      true,
+      'a lease exactly 30min old is stale (>= boundary)',
+    );
+    // 8d. A null lease is never stale (nothing to take over).
+    assert.equal(isLeaseStale(null, baseMs), false, 'a null lease is not stale');
+    // 8e. An unparseable heartbeat is conservatively treated as stale.
+    assert.equal(
+      isLeaseStale({ ...lease, heartbeatAt: 'not-a-timestamp' }, baseMs),
+      true,
+      'a lease with an unparseable heartbeat is conservatively stale',
+    );
+  }
+
+  // ── 9. CHK-003: --takeover transfers a STALE lease + logs the event ──────
+  {
+    const storyDir = join(root, 'takeover-stale');
+    mkdirSync(storyDir, { recursive: true });
+
+    // Owner = sess-alpha; acquire a lease with an OLD heartbeat (stale).
+    const staleHeartbeat = '2026-05-19T10:00:00.000Z';
+    acquireOwnerLease(storyDir, {
+      command: 'checklist_update',
+      cwd: '/tmp/owner-worktree',
+      now: () => staleHeartbeat,
+    });
+
+    // Act as a DIFFERENT session and take over.
+    process.env.KOALA_SESSION_ID = 'sess-takeover';
+    resetSessionIdForTest();
+    // The takeover stamp is >30min after the stale heartbeat.
+    const takeoverStamp = '2026-05-19T11:00:00.000Z';
+    const result = takeOverOwnerLease(storyDir, {
+      kind: 'takeover',
+      command: 'story_advance',
+      cwd: '/tmp/taker-worktree',
+      projectRoot: root,
+      now: () => takeoverStamp,
+    });
+    assert.equal(result.transferred, true, '--takeover transfers a stale lease');
+    if (result.transferred) {
+      assert.equal(result.lease.sessionId, 'sess-takeover', 'the lease now names the taker session');
+      assert.equal(result.previous.sessionId, 'sess-alpha', 'the previous owner is recorded');
+      assert.equal(result.lease.heartbeatAt, takeoverStamp, 'the transferred lease is freshly stamped');
+      assert.equal(result.kind, 'takeover', 'the takeover kind is recorded');
+    }
+    // The lease on disk is now owned by the taker.
+    assert.equal(isOwnedByCurrentSession(storyDir), true, 'the taker session owns the lease after takeover');
+
+    // A takeover EVENT was appended to the activity log.
+    const events = readActivityLogTail(root, 50)
+      .filter((e) => e.tool === 'story-owner-lease-takeover');
+    assert.equal(events.length >= 1, true, 'a story-owner-lease-takeover event was logged');
+    const ev = events[0];
+    assert.equal(ev.kind, 'takeover', 'the logged event records kind=takeover');
+    assert.equal(ev.fromSessionId, 'sess-alpha', 'the event records who the lease was taken from');
+    assert.equal(ev.toSessionId, 'sess-takeover', 'the event records who took the lease');
+    assert.equal(ev.fromHeartbeatAt, staleHeartbeat, 'the event records the previous heartbeat');
+    assert.equal(ev.fromWasStale, true, 'the event records the lease was stale at takeover');
+
+    process.env.KOALA_SESSION_ID = 'sess-alpha';
+    resetSessionIdForTest();
+  }
+
+  // ── 10. CHK-003: --takeover on an ACTIVE lease is REFUSED ────────────────
+  {
+    const storyDir = join(root, 'takeover-active-refused');
+    mkdirSync(storyDir, { recursive: true });
+
+    // Owner = sess-alpha with a FRESH heartbeat (active, not stale).
+    const freshHeartbeat = '2026-05-19T12:00:00.000Z';
+    acquireOwnerLease(storyDir, {
+      command: 'checklist_update',
+      now: () => freshHeartbeat,
+    });
+    const leaseBefore = readFileSync(ownerLeasePath(storyDir), 'utf-8');
+
+    process.env.KOALA_SESSION_ID = 'sess-takeover';
+    resetSessionIdForTest();
+    // The takeover attempt is only 5 minutes after the fresh heartbeat → active.
+    const result = takeOverOwnerLease(storyDir, {
+      kind: 'takeover',
+      command: 'story_advance',
+      projectRoot: root,
+      now: () => '2026-05-19T12:05:00.000Z',
+    });
+    assert.equal(result.transferred, false, '--takeover refuses an active (non-stale) lease');
+    if (!result.transferred) {
+      assert.equal(result.reason, 'lease-active', 'the refusal reason is lease-active (needs --forceTakeover)');
+    }
+    // The active lease was NOT modified.
+    assert.equal(
+      readFileSync(ownerLeasePath(storyDir), 'utf-8'),
+      leaseBefore,
+      'a refused --takeover performs no lease write (the active lease is untouched)',
+    );
+
+    process.env.KOALA_SESSION_ID = 'sess-alpha';
+    resetSessionIdForTest();
+  }
+
+  // ── 11. CHK-003: --forceTakeover transfers an ACTIVE lease + logs event ──
+  {
+    const storyDir = join(root, 'forcetakeover-active');
+    mkdirSync(storyDir, { recursive: true });
+
+    // Owner = sess-alpha with a FRESH heartbeat (active).
+    const freshHeartbeat = '2026-05-19T12:00:00.000Z';
+    acquireOwnerLease(storyDir, { command: 'checklist_update', now: () => freshHeartbeat });
+
+    process.env.KOALA_SESSION_ID = 'sess-takeover';
+    resetSessionIdForTest();
+    const forceStamp = '2026-05-19T12:05:00.000Z'; // only 5min later — still active
+    const result = takeOverOwnerLease(storyDir, {
+      kind: 'forceTakeover',
+      command: 'story_advance',
+      projectRoot: root,
+      now: () => forceStamp,
+    });
+    assert.equal(result.transferred, true, '--forceTakeover transfers an active lease (human override)');
+    if (result.transferred) {
+      assert.equal(result.lease.sessionId, 'sess-takeover', 'the lease now names the taker session');
+      assert.equal(result.kind, 'forceTakeover', 'the takeover kind is recorded as forceTakeover');
+    }
+    // A forceTakeover EVENT records the active lease was NOT stale.
+    const events = readActivityLogTail(root, 50)
+      .filter((e) => e.tool === 'story-owner-lease-takeover' && e.kind === 'forceTakeover');
+    assert.equal(events.length >= 1, true, 'a forceTakeover event was logged');
+    assert.equal(events[0].fromWasStale, false, 'the forceTakeover event records the lease was active (not stale)');
+
+    process.env.KOALA_SESSION_ID = 'sess-alpha';
+    resetSessionIdForTest();
+  }
+
+  // ── 12. CHK-003: no flag → no transfer; takeover guards no-lease/own ─────
+  {
+    // 12a. No-lease story → takeover refuses (it never CREATES a lease).
+    const emptyDir = join(root, 'takeover-no-lease');
+    mkdirSync(emptyDir, { recursive: true });
+    const noLease = takeOverOwnerLease(emptyDir, {
+      kind: 'takeover',
+      command: 'story_advance',
+      projectRoot: root,
+    });
+    assert.equal(noLease.transferred, false, 'takeover on a story with no lease does not transfer');
+    if (!noLease.transferred) {
+      assert.equal(noLease.reason, 'no-lease', 'the refusal reason is no-lease');
+    }
+    assert.equal(existsSync(ownerLeasePath(emptyDir)), false, 'takeover never creates a lease file');
+
+    // 12b. Taking over a lease THIS session already owns → already-owned no-op.
+    const ownDir = join(root, 'takeover-already-owned');
+    mkdirSync(ownDir, { recursive: true });
+    acquireOwnerLease(ownDir, { command: 'checklist_update', now: () => '2026-05-19T09:00:00.000Z' });
+    const ownResult = takeOverOwnerLease(ownDir, {
+      kind: 'forceTakeover',
+      command: 'story_advance',
+      projectRoot: root,
+      now: () => '2026-05-19T12:00:00.000Z',
+    });
+    assert.equal(ownResult.transferred, false, 'takeover of an own lease is a no-op');
+    if (!ownResult.transferred) {
+      assert.equal(ownResult.reason, 'already-owned', 'the refusal reason is already-owned');
+    }
+
+    // 12c. WITHOUT any takeover flag a foreign STALE lease is observed but
+    // NEVER transferred — acquireOrRefreshOwnerLease returns `foreign` and
+    // writes nothing (the no-flag path keeps the CHK-002 fail-closed reject).
+    const foreignDir = join(root, 'no-flag-no-transfer');
+    mkdirSync(foreignDir, { recursive: true });
+    acquireOwnerLease(foreignDir, {
+      command: 'checklist_update',
+      now: () => '2026-05-19T08:00:00.000Z', // very old → stale
+    });
+    process.env.KOALA_SESSION_ID = 'sess-other';
+    resetSessionIdForTest();
+    const leaseBefore = readFileSync(ownerLeasePath(foreignDir), 'utf-8');
+    const observed = acquireOrRefreshOwnerLease(foreignDir, { command: 'story_advance' });
+    assert.equal(observed.action, 'foreign', 'without a takeover flag a foreign lease stays foreign');
+    assert.equal(observed.lease.sessionId, 'sess-alpha', 'the foreign lease still names the original owner');
+    assert.equal(
+      readFileSync(ownerLeasePath(foreignDir), 'utf-8'),
+      leaseBefore,
+      'no takeover flag → the (even stale) foreign lease is NOT transferred (no write)',
+    );
+
+    // 12d. Runtime enum re-validation: an invalid `kind` throws.
+    assert.throws(
+      () => takeOverOwnerLease(foreignDir, { kind: 'bogus' as never, command: 'story_advance' }),
+      /kind must be/,
+      'takeOverOwnerLease rejects an invalid kind (runtime enum re-validation)',
+    );
+
+    process.env.KOALA_SESSION_ID = 'sess-alpha';
+    resetSessionIdForTest();
+  }
+
   console.log(
     '✓ story-owner-lease smoke passed (3-source sessionId chain: ppid-bricking regression ' +
     'guard / distinct CLAUDE_CODE ids / KOALA_SESSION_ID wins / derive fallback + sessionSource / ' +
     'acquire schema incl. sessionSource / heartbeat refresh / release idempotent / ' +
     'acquire-or-refresh acquired+refreshed+foreign / malformed → null + legacy-lease compat / ' +
-    'runtime-artifact dirty-write prevention)',
+    'runtime-artifact dirty-write prevention / CHK-003 stale 30min detection + boundary / ' +
+    '--takeover transfers stale + logs event / --takeover refuses active / --forceTakeover ' +
+    'transfers active + logs event / no-flag no-transfer + no-lease/already-owned guards + ' +
+    'invalid-kind rejection)',
   );
 } finally {
   rmSync(root, { recursive: true, force: true });

@@ -242,7 +242,7 @@ try {
 
       // 5a. An owner-gated storyScopedMutating command is REJECTED fail-closed.
       assert.throws(
-        () => enforceStoryOwnerLeaseGate('checklist_update', { storyId }, store, null),
+        () => enforceStoryOwnerLeaseGate('checklist_update', { storyId }, store, null, root),
         (err: Error) =>
           err.message.includes(storyId) &&
           err.message.includes('sess-owner') &&
@@ -258,34 +258,34 @@ try {
 
       // 5b. A read-only command on the SAME foreign-owned story is ALLOWED.
       assert.doesNotThrow(
-        () => enforceStoryOwnerLeaseGate('checklist_get', { storyId }, store, null),
+        () => enforceStoryOwnerLeaseGate('checklist_get', { storyId }, store, null, root),
         'a read-only command on a foreign-owned story is never gated',
       );
       assert.doesNotThrow(
-        () => enforceStoryOwnerLeaseGate('finding_list', { storyId }, store, null),
+        () => enforceStoryOwnerLeaseGate('finding_list', { storyId }, store, null, root),
         'finding_list (read-only) on a foreign-owned story is never gated',
       );
       assert.doesNotThrow(
-        () => enforceStoryOwnerLeaseGate('session_brief', { storyId }, store, null),
+        () => enforceStoryOwnerLeaseGate('session_brief', { storyId }, store, null, root),
         'session_brief (read-only) on a foreign-owned story is never gated',
       );
 
       // 5c. A reviewerWrite command on the SAME foreign-owned story is ALLOWED
       // (the owner lease exempts reviewer-lane writes).
       assert.doesNotThrow(
-        () => enforceStoryOwnerLeaseGate('review_pass_set', { storyId }, store, null),
+        () => enforceStoryOwnerLeaseGate('review_pass_set', { storyId }, store, null, root),
         'review_pass_set (reviewerWrite) on a foreign-owned story is owner-lease exempt',
       );
 
       // 5d. A diagnostic validate without --story is readOnly → allowed even on
       // a foreign-owned active story.
       assert.doesNotThrow(
-        () => enforceStoryOwnerLeaseGate('validate', {}, store, { storyId, phase: 'DEV' }),
+        () => enforceStoryOwnerLeaseGate('validate', {}, store, { storyId, phase: 'DEV' }, root),
         'a diagnostic validate without --story is readOnly and is not gated',
       );
       // But validate --story on a foreign-owned story IS rejected.
       assert.throws(
-        () => enforceStoryOwnerLeaseGate('validate', { story: storyId }, store, null),
+        () => enforceStoryOwnerLeaseGate('validate', { story: storyId }, store, null, root),
         (err: Error) => err.message.includes(storyId) && err.message.includes('owner-gated'),
         'validate --story on a foreign-owned story is rejected fail-closed',
       );
@@ -296,7 +296,7 @@ try {
       const ownStoryDir = store.storyDirPath(ownStoryId);
       mkdirSync(ownStoryDir, { recursive: true });
       assert.doesNotThrow(
-        () => enforceStoryOwnerLeaseGate('checklist_update', { storyId: ownStoryId }, store, null),
+        () => enforceStoryOwnerLeaseGate('checklist_update', { storyId: ownStoryId }, store, null, root),
         'an owner-gated command on a story with no prior lease acquires it and is allowed',
       );
       assert.equal(
@@ -305,13 +305,13 @@ try {
         'the owner-gated command acquired the lease for the previously unowned story',
       );
       assert.doesNotThrow(
-        () => enforceStoryOwnerLeaseGate('checklist_update', { storyId: ownStoryId }, store, null),
+        () => enforceStoryOwnerLeaseGate('checklist_update', { storyId: ownStoryId }, store, null, root),
         'the owning session re-running an owner-gated command refreshes the lease and is allowed',
       );
 
       // 5f. An unclassified command is rejected fail-closed by the gate.
       assert.throws(
-        () => enforceStoryOwnerLeaseGate('no_such_command_xyz', { storyId }, store, null),
+        () => enforceStoryOwnerLeaseGate('no_such_command_xyz', { storyId }, store, null, root),
         (err: Error) => err.message.includes('no valid ownershipClass') && err.message.includes('fail-closed'),
         'an unclassified command is rejected fail-closed by the gate, never default-allowed',
       );
