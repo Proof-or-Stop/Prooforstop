@@ -69,11 +69,15 @@ authority/attestation）；非并发路径外部 CLI 行为 byte-identical；不
 
 **实现说明（DEV 中追加，用户裁定 2026-05-19）**:
 - **choke-point 文件修正**：plan.md 原写 `Modify registry.ts`，实际单一 choke-point 是 `cli-engine.ts` 的 `run()` wrapper（registry.ts 仅是 handler 注册表）。owner-lease acquire/refresh 注入 cli-engine.ts run()，不散落进各 handler。
-- **sessionId anchor**：`sessionId = KOALA_SESSION_ID ?? derive(hostname, projectRoot/worktreeRoot, process.ppid)`。
-  - 不能用 `process.pid`：koala CLI 每次调用是新进程，pid 锚定会让每条命令 sessionId 都变、owner 永远无法 refresh 自己的 lease。
-  - `process.ppid`（agent 持久 shell）跨 CLI 调用稳定，是正确的本地协调锚点。
-  - `KOALA_SESSION_ID` 仅作为未来 adapter/server 注入入口；**本 story 不做额外 env plumbing**。
-  - ppid 复用 / 父 shell 死亡的退化由 stale-lease 判定 + takeover（CHK-003）兜底——硬边界 1（本地协调、非强身份安全）下属可接受退化。
+- **sessionId anchor（3 源优先级链，用户裁定 2026-05-19，实测修正）**：
+  `sessionId = KOALA_SESSION_ID ?? CLAUDE_CODE_SESSION_ID ?? deriveLocalSessionId(hostname, projectRoot/worktreeRoot, process.ppid)`。
+  - **实测反证 ppid 不稳定**：Claude Code 环境每次 Bash tool 调用都是新 shell（新 ppid）。验证连续 4 次调用 ppid 89439→89466→89513→89529 全不同。故 `process.ppid` 只能做**最后 fallback**，不能做主 anchor——否则 agent 第 2 条 storyScopedMutating 命令会被自己上一条的 lease 当 foreign 拒绝，gate 上 main 后 brick agent 工作流。
+  - 不能用 `process.pid`：koala CLI 每次调用是新进程，pid 锚定让每条命令 sessionId 都变。
+  - **优先级 1** `KOALA_SESSION_ID`（sessionSource=`koala-env`）：Koala 自己未来 adapter/server 注入的 canonical override，最高优先级。
+  - **优先级 2** `CLAUDE_CODE_SESSION_ID`（sessionSource=`claude-code-env`）：已存在、实测稳定的 per-Claude-Code-session UUID，无需新 plumbing。Claude Code env 是已知 adapter env，**不是 Koala 强身份认证**。
+  - **fallback** `deriveLocalSessionId(hostname, root, ppid)`（sessionSource=`derived-ppid`）：服务普通 terminal / CI / 非 Claude 环境（shell 持久、ppid 稳定）。
+  - lease 记录 `sessionSource`（`koala-env` / `claude-code-env` / `derived-ppid`）供 session_brief 与 debug。
+  - 这不是强身份、不防伪，只是本地 session 协调（硬边界 1）。fallback 下 ppid 复用 / shell 死亡的退化由 stale-lease 判定 + takeover（CHK-003）兜底。
 
 ## CHK-002: ownershipClass classification + non-owner rejection gate
 
