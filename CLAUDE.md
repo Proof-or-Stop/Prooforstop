@@ -390,7 +390,7 @@ project/
 
 ### 多 session 写协调（设计真相源）
 
-Koala 支持多 worktree 并行，写权限的跨 session 协调按 rollout 分步落地。**main write lock（rollout step 3）已实现（B-f60c）**：`core/main-write-lock.ts` 统一锁，canonical 路径 `.koala/locks/main-write.lock/`，DONE / done_recover / gap_log / audit / story_create / B-META finding 写均持锁，锁内强制 idempotency，doctor 有 stuck-lock 检查。其余步骤——story owner lease（step 2）、takeover UX、session_brief ownership rendering——**仍是已采纳的设计、运行时尚未实现**。设计真相源：`docs/requirements/decisions/session-ownership-and-write-leases.md`。涉及并行开发、写协调或 DONE / main / B-META 写入语义时以该文档为准；未实现步骤由后续 story 跟进。
+Koala 支持多 worktree 并行，写权限的跨 session 协调按 rollout 分步落地。**main write lock（rollout step 3）已实现（B-f60c）**：`core/main-write-lock.ts` 统一锁，canonical 路径 `.koala/locks/main-write.lock/`，DONE / done_recover / gap_log / audit / story_create / B-META finding 写均持锁，锁内强制 idempotency，doctor 有 stuck-lock 检查。**story owner lease（rollout step 2）已实现（B-c55d）**：`core/story-owner-lease.ts` 的 per-story owner lease + `cli-engine.ts` 的单一 choke-point gate `enforceStoryOwnerLeaseGate`（按 `CommandPolicy.ownershipClass` 分类，非 owner 的 story-scoped / dangerous 变更命令被拒绝）、stale-lease 检测 + `--takeover` / `--forceTakeover`、ownership-aware 拒绝错误、`session_brief` ownership 渲染（`renderOwnershipBlock`），以及 `koala doctor` 的 stale story-owner-lease 检查。其余 rollout 工作——多 session 收敛 smoke（step 6）——由后续 story 跟进。设计真相源：`docs/requirements/decisions/session-ownership-and-write-leases.md`。涉及并行开发、写协调或 DONE / main / B-META 写入语义时以该文档为准。
 
 ## Checklist 写法
 

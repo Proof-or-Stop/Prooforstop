@@ -17,7 +17,12 @@
  * only reads `owner-lease.json` via `readOwnerLease` and classifies it.
  */
 
-import { isLeaseStale, ownerLeasePath, readOwnerLease } from './story-owner-lease.js';
+import {
+  formatLeaseAge,
+  isLeaseStale,
+  ownerLeasePath,
+  readOwnerLease,
+} from './story-owner-lease.js';
 import type { StoryStore } from './store.js';
 
 /** Classification of one story's owner-lease state. */
@@ -47,22 +52,6 @@ export interface StoryOwnerLeaseScan {
   leases: StoryOwnerLeaseScanItem[];
   /** Just the subset whose `state` is `stale` — the ones the operator must act on. */
   stale: StoryOwnerLeaseScanItem[];
-}
-
-/**
- * Format an age in ms as a compact human string (`30s`, `8m`, `2h`).
- *
- * Mirrors `formatLeaseAge` in `story-owner-lease.ts` — kept as a private local
- * helper so the doctor module does not depend on a non-exported internal, while
- * still producing the IDENTICAL `<n>m` style the gate / `session_brief` use.
- */
-function formatAge(ageMs: number): string {
-  const safe = Number.isFinite(ageMs) && ageMs >= 0 ? ageMs : 0;
-  const seconds = Math.floor(safe / 1000);
-  if (seconds < 60) return `${seconds}s`;
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}m`;
-  return `${Math.floor(minutes / 60)}h`;
 }
 
 /**
@@ -119,7 +108,7 @@ export function scanStoryOwnerLeases(
       ownerSessionId: lease.sessionId,
       ownerCwd: lease.cwd,
       heartbeatAgeMs,
-      heartbeatAgeLabel: Number.isFinite(heartbeatMs) ? formatAge(heartbeatAgeMs) : 'unknown',
+      heartbeatAgeLabel: Number.isFinite(heartbeatMs) ? formatLeaseAge(heartbeatAgeMs) : 'unknown',
     });
   }
 
