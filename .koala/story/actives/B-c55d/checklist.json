@@ -182,9 +182,9 @@
       "id": "CHK-003",
       "title": "Stale lease detection and takeover",
       "context": "A lease is stale after 30 minutes without a heartbeat. `--takeover` transfers a STALE lease to the current session and records an event. A non-stale lease requires explicit `--forceTakeover` (treated as human-approved). Takeover is dangerous-mutating-command discipline — explicit intent required, event recorded.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-19T03:21:00.205Z",
       "userSees": "owner 离线 30 分钟后，新 session 跑 koala <cmd> --takeover 看到 lease 转移成功提示并记录 takeover event；对活跃 lease 跑 --takeover 被拒、提示需 --forceTakeover。",
       "files": {
         "modify": [
