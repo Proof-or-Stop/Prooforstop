@@ -323,9 +323,9 @@
       "id": "CHK-005",
       "title": "doctor stale-lease check and multi-session regression smoke",
       "context": "doctor detects stale story owner leases and reports them. Multi-session regression smoke per the doc's Acceptance Criteria: two sessions mutating the same story -> second rejected with owner guidance; two sessions on different stories -> both proceed; stale-lease takeover allowed only with explicit takeover + event record; active-lease takeover rejected unless forceTakeover; session_brief tells a non-owner session to wait or stay read-only; existing read-only reviewer workflows still work; reviewer writes still succeed via the lane-scoped exception.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-19T03:40:49.825Z",
       "userSees": "koala validate 输出含新增 story-owner-lease smoke 与 command-ownership contract 全部 PASS；doctor 输出含 stale owner lease 报告行。",
       "files": {
         "modify": [
