@@ -534,6 +534,17 @@
           "headHash": "639bb597d118b283c63f36003f8006cdd2c2e637",
           "materialHash": "7f8524e30835e5cf3ca216c8fd4fbabdb27338ef2459143bf41778c3b8310fa5",
           "timestamp": "2026-05-19T03:45:19.124Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/story-owner-lease-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
+          "result": "pass",
+          "note": "smoke section 24: on a foreign-owned story a non-owner session's reviewer read-only commands and a reviewerWrite command (review_pass_set) both pass the gate — the owner lease does not block reviewer read-only flow or the lane-scoped reviewer-write exception.",
+          "headHash": "59ae6cfdc321d15ae8441a4d77a5805a32b26050",
+          "materialHash": "7f8524e30835e5cf3ca216c8fd4fbabdb27338ef2459143bf41778c3b8310fa5",
+          "timestamp": "2026-05-19T03:45:20.928Z"
         }
       ]
     }
