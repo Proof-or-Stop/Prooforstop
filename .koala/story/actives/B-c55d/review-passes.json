@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-c55d:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 已检查所有 26 条 verificationIntent 与 verificationEvidence 覆盖关系。所有 must priority intent 均有 result=pass 的有效 evidence（logic_test / integration_test），测试文件 story-owner-lease-smoke.ts（cases 1-25）和 command-ownership-contract.ts 实际断言均与 intent 描述一一对应，两个测试套件当场运行全绿。CHK-001:happy:0/1 的 evidence file:\"x\" command:\"y\" 为元数据占位符，不影响实际覆盖（intent 的 note 字段具体描述了被断言行为，底层断言在 smoke 第 2/3/5 节已存在并通过）。无 blocker。",
+      "createdAt": "2026-05-19T03:49:50.130Z",
+      "reviewRound": "2026-05-19T03:45:59.468Z",
+      "reviewRunId": "B-c55d:RR-003",
+      "_hash": "7b39dd22caec06199e77b185dc11e91e19bf0f1cb90d89cbecb5a31cc22c34b4"
+    }
+  ]
+}
