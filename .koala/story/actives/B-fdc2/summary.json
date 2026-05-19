@@ -1,0 +1,48 @@
+{
+  "storyId": "B-fdc2",
+  "changes": "packages/main/src/tasks/flow-stability-smoke.ts: section (7) import-isolation grep（B-4b22 preMortem #3 anchor）的硬编码扫描列表从 ['handlers/story-advance.ts','core/validation-executor.ts'] 改为 ['core/done-oracle.ts','core/validation-executor.ts']。单行改动，无其他文件、无运行时行为变化。",
+  "usage": "无需手动调用：flow-stability-smoke 测试（koala validate / npm --prefix packages/main run test:flow-stability-smoke 自动跑）的 section (7) import-isolation guard 现在扫描真实 evaluateDirtyGate 消费方 core/done-oracle.ts，断言 DIRTY_WORKTREE_CATEGORIES 字面量只能从 dirty-gate-policy.js import、不能内联。",
+  "expectedOutcome": "koala validate 全绿；flow-stability-smoke section (7) import-isolation guard 扫描 core/done-oracle.ts + core/validation-executor.ts（story-advance.ts 不再在列表）并 PASS——done-oracle.ts 无内联 DIRTY_WORKTREE_CATEGORIES 字面量。",
+  "actualTranscript": "flow-stability-smoke.ts:452 现为 ['core/done-oracle.ts','core/validation-executor.ts']；done-oracle.ts 含 declared_artifact_changes 类别词（535/541 行注释，guard 注释过滤正确跳过）证明 guard 真实处理 done-oracle.ts 内容、非空扫；npm --prefix packages/main run test:flow-stability-smoke → ✓ flow stability smoke passed；koala validate --story=B-fdc2 → ✓ ALL PASS（express-exempt）。详见 .koala/story/actives/B-fdc2/evidence/transcript-diff.md。",
+  "outcomeDiff": "无差异——实际与 expected 逐条一致。F-007（import-isolation guard 空扫 story-advance.ts、漏覆盖真实消费方 done-oracle.ts）的 verified-low 覆盖缺口已闭合。",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered。本 story 是 test-target retarget only：不改运行时行为、不改 dirty-gate policy、不改 lifecycle 语义、不动 done-oracle.ts/story-advance.ts/orchestrator/registry。当前 done-oracle.ts 无字面量漂移，retarget 后测试仍 green。",
+  "pitfalls": "(1) audit finding F-007 描述里的函数名 assertDirtyGateSameSource 已过时、grep 不到——真实代码是 flow-stability-smoke.ts 的 assertDirtyGatePolicyAcrossGates 内 section (7)；定位测试要按文件内标号/行号而非 finding 旧符号名。(2) flow-stability-smoke 测试运行时从 dist/ 跑但 import-isolation grep 读 src/ 源文件——改 .ts 源后必须先 npm run build 再跑测试，否则测的是旧 dist。(3) story_create --fromDraft 没有触发高风险关键词 elevation（draft description 含 gate/guard 但仍判 priority=low、无 riskSignals）→ 走 express channel。",
+  "phaseStats": {
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 61717
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 691026
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 113415
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 118345
+    }
+  },
+  "totalDurationMs": 984504,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-05-19T10:15:12.225Z",
+  "updatedAt": "2026-05-19T10:15:12.225Z"
+}
