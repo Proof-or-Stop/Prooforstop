@@ -60,9 +60,9 @@
           "command": "y",
           "result": "pass",
           "note": "amendment wiring check — first mutating command acquires owner lease; verify sessionSource recorded",
-          "headHash": "742a84aefe63b09661f6cf379cfd6fc363036452",
-          "materialHash": "7f8524e30835e5cf3ca216c8fd4fbabdb27338ef2459143bf41778c3b8310fa5",
-          "timestamp": "2026-05-19T03:44:08.824Z"
+          "headHash": "b67e22329f3ed497ad14a903f5a86794013be7e2",
+          "materialHash": "5d38a39611a61696667b2cff5315ce1025c78a040eb7fb047df75a2254002019",
+          "timestamp": "2026-05-19T03:56:35.691Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -71,9 +71,9 @@
           "command": "y",
           "result": "pass",
           "note": "amendment wiring check 2 — second mutating command from a fresh shell must refresh, not self-reject as foreign",
-          "headHash": "742a84aefe63b09661f6cf379cfd6fc363036452",
-          "materialHash": "7f8524e30835e5cf3ca216c8fd4fbabdb27338ef2459143bf41778c3b8310fa5",
-          "timestamp": "2026-05-19T03:44:08.824Z"
+          "headHash": "b67e22329f3ed497ad14a903f5a86794013be7e2",
+          "materialHash": "5d38a39611a61696667b2cff5315ce1025c78a040eb7fb047df75a2254002019",
+          "timestamp": "2026-05-19T03:56:35.691Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -82,9 +82,9 @@
           "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
           "result": "pass",
           "note": "smoke section 4 asserts releaseOwnerLease removes owner-lease.json (the terminal-state DONE/DISCARDED cleanup release path) and is idempotent — releasing an absent lease is a no-op false",
-          "headHash": "742a84aefe63b09661f6cf379cfd6fc363036452",
-          "materialHash": "7f8524e30835e5cf3ca216c8fd4fbabdb27338ef2459143bf41778c3b8310fa5",
-          "timestamp": "2026-05-19T03:44:08.824Z"
+          "headHash": "b67e22329f3ed497ad14a903f5a86794013be7e2",
+          "materialHash": "5d38a39611a61696667b2cff5315ce1025c78a040eb7fb047df75a2254002019",
+          "timestamp": "2026-05-19T03:56:35.691Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -93,9 +93,9 @@
           "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
           "result": "pass",
           "note": "owner-lease.json is process metadata only: the CHK-001 lease module (story-owner-lease.ts) writes nothing into the verificationEvidence pipeline and is registered in runtime-artifact-registry as materialHash:exclude — it is excluded from material hashing and never enters gate evidence; smoke section 7 asserts the material-excluded classification. session_brief rendering of the lease is CHK-004 scope",
-          "headHash": "742a84aefe63b09661f6cf379cfd6fc363036452",
-          "materialHash": "7f8524e30835e5cf3ca216c8fd4fbabdb27338ef2459143bf41778c3b8310fa5",
-          "timestamp": "2026-05-19T03:44:08.824Z"
+          "headHash": "b67e22329f3ed497ad14a903f5a86794013be7e2",
+          "materialHash": "5d38a39611a61696667b2cff5315ce1025c78a040eb7fb047df75a2254002019",
+          "timestamp": "2026-05-19T03:56:35.691Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -104,9 +104,9 @@
           "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
           "result": "pass",
           "note": "smoke section 7 asserts the F-008-class dirty-write prevention: owner-lease.json is a registered runtime artifact (runtime-story-owner-lease entry — volatile + materialHash:exclude) and the runtime ignore patterns include the glob-star owner-lease.json pattern; .gitignore also carries it, so the lease is never tracked and never produces an uncommitted dirty write that could block the DONE git merge",
-          "headHash": "742a84aefe63b09661f6cf379cfd6fc363036452",
-          "materialHash": "7f8524e30835e5cf3ca216c8fd4fbabdb27338ef2459143bf41778c3b8310fa5",
-          "timestamp": "2026-05-19T03:44:08.824Z"
+          "headHash": "b67e22329f3ed497ad14a903f5a86794013be7e2",
+          "materialHash": "5d38a39611a61696667b2cff5315ce1025c78a040eb7fb047df75a2254002019",
+          "timestamp": "2026-05-19T03:56:35.691Z"
         }
       ]
     },
@@ -185,9 +185,9 @@
           "command": "npm --prefix packages/main run test:command-ownership-contract",
           "result": "pass",
           "note": "command-ownership-contract case 1 (COVERAGE) enumerates the real MAIN_TOOLS registry (94 commands) and asserts every CLI command has a CommandPolicy entry with a valid OwnershipClass enum value — a missing entry or invalid ownershipClass fails the contract.",
-          "headHash": "9c1e8854711edb1018d8630492911f2a0b8b0782",
-          "materialHash": "7f8524e30835e5cf3ca216c8fd4fbabdb27338ef2459143bf41778c3b8310fa5",
-          "timestamp": "2026-05-19T03:44:59.435Z"
+          "headHash": "b67e22329f3ed497ad14a903f5a86794013be7e2",
+          "materialHash": "5d38a39611a61696667b2cff5315ce1025c78a040eb7fb047df75a2254002019",
+          "timestamp": "2026-05-19T03:56:35.691Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -196,9 +196,9 @@
           "command": "npm --prefix packages/main run test:command-ownership-contract",
           "result": "pass",
           "note": "command-ownership-contract case 5a drives enforceStoryOwnerLeaseGate: a storyScopedMutating command (checklist_update) from a non-owner session on a foreign-owned story is rejected fail-closed (assert.throws) with owner guidance.",
-          "headHash": "91269d20b8e8ee6ffbe0b99d53e66bbe5d6a3f5e",
-          "materialHash": "7f8524e30835e5cf3ca216c8fd4fbabdb27338ef2459143bf41778c3b8310fa5",
-          "timestamp": "2026-05-19T03:45:00.918Z"
+          "headHash": "b67e22329f3ed497ad14a903f5a86794013be7e2",
+          "materialHash": "5d38a39611a61696667b2cff5315ce1025c78a040eb7fb047df75a2254002019",
+          "timestamp": "2026-05-19T03:56:35.691Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -207,9 +207,9 @@
           "command": "npm --prefix packages/main run test:command-ownership-contract",
           "result": "pass",
           "note": "command-ownership-contract case 5b asserts the four read-only commands (story_get/checklist_get/finding_list/session_brief) pass enforceStoryOwnerLeaseGate on a foreign-owned story (assert.doesNotThrow) — readOnly is never lease-blocked.",
-          "headHash": "952ff0e37ed25fdc80969f3ee5c5fc7a1c3c4f71",
-          "materialHash": "7f8524e30835e5cf3ca216c8fd4fbabdb27338ef2459143bf41778c3b8310fa5",
-          "timestamp": "2026-05-19T03:45:02.357Z"
+          "headHash": "b67e22329f3ed497ad14a903f5a86794013be7e2",
+          "materialHash": "5d38a39611a61696667b2cff5315ce1025c78a040eb7fb047df75a2254002019",
+          "timestamp": "2026-05-19T03:56:35.691Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -218,9 +218,9 @@
           "command": "npm --prefix packages/main run test:command-ownership-contract",
           "result": "pass",
           "note": "command-ownership-contract case 4 rule 1: resolveEffectiveOwnershipClass classifies finding_resolve/finding_dismiss on a normal story as storyScopedMutating (owner-gated) and on a B-META-* story downgrades to mainSharedMutating (serialized by the B-f60c main write lock, not the owner lease).",
-          "headHash": "3a771b3a0343bd1cc33c37f68ae277ed7f88844f",
-          "materialHash": "7f8524e30835e5cf3ca216c8fd4fbabdb27338ef2459143bf41778c3b8310fa5",
-          "timestamp": "2026-05-19T03:45:03.806Z"
+          "headHash": "b67e22329f3ed497ad14a903f5a86794013be7e2",
+          "materialHash": "5d38a39611a61696667b2cff5315ce1025c78a040eb7fb047df75a2254002019",
+          "timestamp": "2026-05-19T03:56:35.691Z"
         },
         {
           "intentRef": "CHK-002:edge:2",
@@ -229,9 +229,9 @@
           "command": "npm --prefix packages/main run test:command-ownership-contract",
           "result": "pass",
           "note": "command-ownership-contract case 4 rule 2 + cases 5d/5e: validate with --story resolves to storyScopedMutating and is rejected fail-closed for a non-owner (5d); diagnostic validate without --story resolves to readOnly and is allowed (5e).",
-          "headHash": "429c25d93844880612790e41d949f4113e9f72b1",
-          "materialHash": "7f8524e30835e5cf3ca216c8fd4fbabdb27338ef2459143bf41778c3b8310fa5",
-          "timestamp": "2026-05-19T03:45:04.941Z"
+          "headHash": "b67e22329f3ed497ad14a903f5a86794013be7e2",
+          "materialHash": "5d38a39611a61696667b2cff5315ce1025c78a040eb7fb047df75a2254002019",
+          "timestamp": "2026-05-19T03:56:35.691Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -240,9 +240,9 @@
           "command": "npm --prefix packages/main run test:command-ownership-contract",
           "result": "pass",
           "note": "command-ownership-contract case 4 rule 3: delivery_check_set is reviewerWrite only when agentId/KOALA_AGENT resolves to koala-review-delivery; for a main/non-delivery actor it stays owner-gated storyScopedMutating — a main agent cannot borrow delivery_check_set to bypass the owner lease.",
-          "headHash": "353b941ae8bef60cc2d1b850095dd362e1cb7238",
-          "materialHash": "7f8524e30835e5cf3ca216c8fd4fbabdb27338ef2459143bf41778c3b8310fa5",
-          "timestamp": "2026-05-19T03:45:08.258Z"
+          "headHash": "b67e22329f3ed497ad14a903f5a86794013be7e2",
+          "materialHash": "5d38a39611a61696667b2cff5315ce1025c78a040eb7fb047df75a2254002019",
+          "timestamp": "2026-05-19T03:56:35.691Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -251,9 +251,9 @@
           "command": "npm --prefix packages/main run test:command-ownership-contract",
           "result": "pass",
           "note": "command-ownership-contract case 3 + case 5f: an unclassified command resolves to null (resolveEffectiveOwnershipClass) and enforceStoryOwnerLeaseGate rejects it fail-closed ('no valid ownershipClass'), never default-allowing.",
-          "headHash": "e12d8d290d8bc43695ec9874d095283aebd7fdba",
-          "materialHash": "7f8524e30835e5cf3ca216c8fd4fbabdb27338ef2459143bf41778c3b8310fa5",
-          "timestamp": "2026-05-19T03:45:09.967Z"
+          "headHash": "b67e22329f3ed497ad14a903f5a86794013be7e2",
+          "materialHash": "5d38a39611a61696667b2cff5315ce1025c78a040eb7fb047df75a2254002019",
+          "timestamp": "2026-05-19T03:56:35.691Z"
         }
       ]
     },
@@ -311,9 +311,9 @@
           "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
           "result": "pass",
           "note": "smoke section 8 exercises isLeaseStale against the 30-minute STALE_LEASE_THRESHOLD_MS: a heartbeatAt older than 30min is stale, newer is active, with exact-boundary, null-lease and unparseable-heartbeat cases.",
-          "headHash": "203eaad4ea24f1220177bc916d5e0d590bef0d05",
-          "materialHash": "7f8524e30835e5cf3ca216c8fd4fbabdb27338ef2459143bf41778c3b8310fa5",
-          "timestamp": "2026-05-19T03:45:11.207Z"
+          "headHash": "b67e22329f3ed497ad14a903f5a86794013be7e2",
+          "materialHash": "5d38a39611a61696667b2cff5315ce1025c78a040eb7fb047df75a2254002019",
+          "timestamp": "2026-05-19T03:56:35.691Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -322,9 +322,9 @@
           "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
           "result": "pass",
           "note": "smoke section 9: --takeover transfers a STALE foreign lease to the current session via takeOverOwnerLease and appends a story-owner-lease-takeover event to .koala/activity.jsonl (the test filters the activity log for that event).",
-          "headHash": "b0c576869ef372f6cac46543569d42814b7f1915",
-          "materialHash": "7f8524e30835e5cf3ca216c8fd4fbabdb27338ef2459143bf41778c3b8310fa5",
-          "timestamp": "2026-05-19T03:45:12.486Z"
+          "headHash": "b67e22329f3ed497ad14a903f5a86794013be7e2",
+          "materialHash": "5d38a39611a61696667b2cff5315ce1025c78a040eb7fb047df75a2254002019",
+          "timestamp": "2026-05-19T03:56:35.691Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -333,9 +333,9 @@
           "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
           "result": "pass",
           "note": "smoke section 10 asserts --takeover on an ACTIVE (non-stale) lease is refused (reason lease-active, lease unchanged); section 11 asserts --forceTakeover transfers the active lease and logs a forceTakeover event.",
-          "headHash": "6e72136ec58b9546c7340339cd81c19bdcc265bf",
-          "materialHash": "7f8524e30835e5cf3ca216c8fd4fbabdb27338ef2459143bf41778c3b8310fa5",
-          "timestamp": "2026-05-19T03:45:13.794Z"
+          "headHash": "b67e22329f3ed497ad14a903f5a86794013be7e2",
+          "materialHash": "5d38a39611a61696667b2cff5315ce1025c78a040eb7fb047df75a2254002019",
+          "timestamp": "2026-05-19T03:56:35.691Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -344,9 +344,9 @@
           "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
           "result": "pass",
           "note": "smoke section 12: with no --takeover/--forceTakeover flag a foreign lease is not transferred (acquireOrRefreshOwnerLease returns foreign, zero writes — the CHK-002 fail-closed reject holds); also covers takeover guards for no-lease / already-owned / invalid kind.",
-          "headHash": "507b354d30c8a6894b05a6890dbb3237b5c8e542",
-          "materialHash": "7f8524e30835e5cf3ca216c8fd4fbabdb27338ef2459143bf41778c3b8310fa5",
-          "timestamp": "2026-05-19T03:45:15.076Z"
+          "headHash": "b67e22329f3ed497ad14a903f5a86794013be7e2",
+          "materialHash": "5d38a39611a61696667b2cff5315ce1025c78a040eb7fb047df75a2254002019",
+          "timestamp": "2026-05-19T03:56:35.691Z"
         }
       ]
     },
@@ -405,9 +405,9 @@
           "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
           "result": "pass",
           "note": "smoke section 13 asserts formatNonOwnerError carries the full Error UX field set: owned storyId / owner sessionId / owner cwd / heartbeat age (<n>m ago) / stale verdict / rejected command + ownershipClass / current session id / allowed next action — with the stale variant pointing at --takeover and the active variant at read-only+--forceTakeover; cli-engine.ts non-owner rejection calls this single formatter",
-          "headHash": "742a84aefe63b09661f6cf379cfd6fc363036452",
-          "materialHash": "7f8524e30835e5cf3ca216c8fd4fbabdb27338ef2459143bf41778c3b8310fa5",
-          "timestamp": "2026-05-19T03:44:08.824Z"
+          "headHash": "b67e22329f3ed497ad14a903f5a86794013be7e2",
+          "materialHash": "5d38a39611a61696667b2cff5315ce1025c78a040eb7fb047df75a2254002019",
+          "timestamp": "2026-05-19T03:56:35.691Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
@@ -416,9 +416,9 @@
           "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
           "result": "pass",
           "note": "smoke sections 14+15 assert the session_brief ownership rendering: summarizeOwnerLease produces the structured view (owner session+source / owner cwd / heartbeat age / stale|active / isCurrentSessionOwner / recommendation), and renderOwnershipBlock emits the ## Story ownership lines covering owner session/cwd/heartbeat/OWNER-or-NOT/recommended action for owned-active, foreign-stale (takeover available) and foreign-active (read-only only) cases",
-          "headHash": "742a84aefe63b09661f6cf379cfd6fc363036452",
-          "materialHash": "7f8524e30835e5cf3ca216c8fd4fbabdb27338ef2459143bf41778c3b8310fa5",
-          "timestamp": "2026-05-19T03:44:08.824Z"
+          "headHash": "b67e22329f3ed497ad14a903f5a86794013be7e2",
+          "materialHash": "5d38a39611a61696667b2cff5315ce1025c78a040eb7fb047df75a2254002019",
+          "timestamp": "2026-05-19T03:56:35.691Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -427,9 +427,9 @@
           "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
           "result": "pass",
           "note": "smoke section 16 asserts renderMetaAuditBlock renders a B-META container as a separate ## Shared audit state (B-META) block — stating it carries no per-story owner lease (writes serialized by the main write lock) and explicitly telling the agent not to story_advance it (story_advance appears exactly once, only in the Do-not prohibition); session.ts session_brief active-story branch routes isMetaContainer storyIds to this block instead of the owner-lease block",
-          "headHash": "742a84aefe63b09661f6cf379cfd6fc363036452",
-          "materialHash": "7f8524e30835e5cf3ca216c8fd4fbabdb27338ef2459143bf41778c3b8310fa5",
-          "timestamp": "2026-05-19T03:44:08.824Z"
+          "headHash": "b67e22329f3ed497ad14a903f5a86794013be7e2",
+          "materialHash": "5d38a39611a61696667b2cff5315ce1025c78a040eb7fb047df75a2254002019",
+          "timestamp": "2026-05-19T03:56:35.692Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -438,9 +438,9 @@
           "command": "npm --prefix packages/main run test:command-ownership-contract",
           "result": "pass",
           "note": "command-ownership-contract case 5b asserts the owner lease never blocks the reviewer read-only flow: with a foreign session owning the story, enforceStoryOwnerLeaseGate does NOT throw for story_get / checklist_get / finding_list / session_brief (all classified readOnly so the gate returns early); story-owner-lease-smoke section 17 additionally asserts a non-owner reviewer session can readOwnerLease / summarizeOwnerLease a foreign-owned story with NO lease write",
-          "headHash": "742a84aefe63b09661f6cf379cfd6fc363036452",
-          "materialHash": "7f8524e30835e5cf3ca216c8fd4fbabdb27338ef2459143bf41778c3b8310fa5",
-          "timestamp": "2026-05-19T03:44:08.824Z"
+          "headHash": "b67e22329f3ed497ad14a903f5a86794013be7e2",
+          "materialHash": "5d38a39611a61696667b2cff5315ce1025c78a040eb7fb047df75a2254002019",
+          "timestamp": "2026-05-19T03:56:35.692Z"
         }
       ]
     },
@@ -509,9 +509,9 @@
           "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
           "result": "pass",
           "note": "smoke section 18: the doctor stale-lease scanner (scanStoryOwnerLeases / renderStoryOwnerLeaseScan in core/story-owner-lease-doctor.ts, wired into koala doctor) detects and reports a stale owner lease with a STALE line; active and absent leases are not false-positived.",
-          "headHash": "40bba80e69860666138744f7a54ae62be58cbedf",
-          "materialHash": "7f8524e30835e5cf3ca216c8fd4fbabdb27338ef2459143bf41778c3b8310fa5",
-          "timestamp": "2026-05-19T03:45:16.350Z"
+          "headHash": "b67e22329f3ed497ad14a903f5a86794013be7e2",
+          "materialHash": "5d38a39611a61696667b2cff5315ce1025c78a040eb7fb047df75a2254002019",
+          "timestamp": "2026-05-19T03:56:35.692Z"
         },
         {
           "intentRef": "CHK-005:happy:1",
@@ -520,9 +520,9 @@
           "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
           "result": "pass",
           "note": "smoke section 19: two sessions mutating the SAME story -> the second is fail-closed rejected with owner guidance via enforceStoryOwnerLeaseGate; section 20: two sessions on DIFFERENT stories -> both proceed (per-story leases never cross-contend).",
-          "headHash": "0a9fe113074ce08ac241bf75c5580f9a063fb85a",
-          "materialHash": "7f8524e30835e5cf3ca216c8fd4fbabdb27338ef2459143bf41778c3b8310fa5",
-          "timestamp": "2026-05-19T03:45:17.835Z"
+          "headHash": "b67e22329f3ed497ad14a903f5a86794013be7e2",
+          "materialHash": "5d38a39611a61696667b2cff5315ce1025c78a040eb7fb047df75a2254002019",
+          "timestamp": "2026-05-19T03:56:35.692Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -531,9 +531,9 @@
           "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
           "result": "pass",
           "note": "smoke section 21: stale-lease takeover is rejected without a flag and allowed only with --takeover + a logged takeover event; section 22: active-lease takeover is rejected with plain --takeover and allowed only with --forceTakeover + event.",
-          "headHash": "639bb597d118b283c63f36003f8006cdd2c2e637",
-          "materialHash": "7f8524e30835e5cf3ca216c8fd4fbabdb27338ef2459143bf41778c3b8310fa5",
-          "timestamp": "2026-05-19T03:45:19.124Z"
+          "headHash": "b67e22329f3ed497ad14a903f5a86794013be7e2",
+          "materialHash": "5d38a39611a61696667b2cff5315ce1025c78a040eb7fb047df75a2254002019",
+          "timestamp": "2026-05-19T03:56:35.692Z"
         },
         {
           "intentRef": "CHK-005:edge:1",
@@ -542,9 +542,9 @@
           "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
           "result": "pass",
           "note": "smoke section 24: on a foreign-owned story a non-owner session's reviewer read-only commands and a reviewerWrite command (review_pass_set) both pass the gate — the owner lease does not block reviewer read-only flow or the lane-scoped reviewer-write exception.",
-          "headHash": "59ae6cfdc321d15ae8441a4d77a5805a32b26050",
-          "materialHash": "7f8524e30835e5cf3ca216c8fd4fbabdb27338ef2459143bf41778c3b8310fa5",
-          "timestamp": "2026-05-19T03:45:20.928Z"
+          "headHash": "b67e22329f3ed497ad14a903f5a86794013be7e2",
+          "materialHash": "5d38a39611a61696667b2cff5315ce1025c78a040eb7fb047df75a2254002019",
+          "timestamp": "2026-05-19T03:56:35.692Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -553,9 +553,9 @@
           "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
           "result": "pass",
           "note": "smoke section 25 (F-008-class regression): git check-ignore confirms **/owner-lease.json is ignored, and after acquiring a real lease into .koala/story/actives/B-c55d/ the file does NOT appear in git status --porcelain — the lease never produces an uncommitted dirty write that could block a DONE merge.",
-          "headHash": "2377f1fc61e8bc42229c0aff9c12a972d81a8080",
-          "materialHash": "7f8524e30835e5cf3ca216c8fd4fbabdb27338ef2459143bf41778c3b8310fa5",
-          "timestamp": "2026-05-19T03:45:23.276Z"
+          "headHash": "b67e22329f3ed497ad14a903f5a86794013be7e2",
+          "materialHash": "5d38a39611a61696667b2cff5315ce1025c78a040eb7fb047df75a2254002019",
+          "timestamp": "2026-05-19T03:56:35.692Z"
         },
         {
           "intentRef": "CHK-005:adversarial:1",
@@ -564,9 +564,9 @@
           "command": "koala validate --story=B-c55d",
           "result": "pass",
           "note": "koala validate --story=B-c55d runs the full suite: the story-owner-lease-smoke (cases 1-25) and command-ownership-contract (94 commands) tasks both report ALL PASS alongside the lint and process-fact-contract gates — validation commands pass.",
-          "headHash": "8000bdb8846fc8364ca7954ac42e66b729bfe496",
-          "materialHash": "7f8524e30835e5cf3ca216c8fd4fbabdb27338ef2459143bf41778c3b8310fa5",
-          "timestamp": "2026-05-19T03:45:23.872Z"
+          "headHash": "b67e22329f3ed497ad14a903f5a86794013be7e2",
+          "materialHash": "5d38a39611a61696667b2cff5315ce1025c78a040eb7fb047df75a2254002019",
+          "timestamp": "2026-05-19T03:56:35.692Z"
         }
       ]
     }
