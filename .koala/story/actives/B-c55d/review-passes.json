@@ -98,6 +98,15 @@
       "reviewRound": "2026-05-19T04:07:05.201Z",
       "reviewRunId": "B-c55d:RR-010",
       "_hash": "c620ee30c452cd62123787cd8509ad1ddfabdad8e7ed6126ba60e197ea8d0ef5"
+    },
+    {
+      "id": "B-c55d:RP-012",
+      "agent": "koala-review-docs",
+      "note": "Step 1 抽出符号：scanStoryOwnerLeases / OwnerLeaseState / StoryOwnerLeaseScan / TakeoverIntent / enforceStoryOwnerLeaseGate / resolveEffectiveOwnershipClass / STALE_LEASE_THRESHOLD_MS / isLeaseStale 等共 25 个。Step 2 grep 命中文档段落：CLAUDE.md#多session写协调、session-ownership-and-write-leases.md#Status+RolloutPlan、story-lifecycle.md#新增bullet。Step 3 对比结论：commit 91fad497 三处订正均准确——(1) story-owner-lease-doctor.ts 存在且实现 stale-lease 扫描(step 5)，(2) story-owner-lease-smoke.ts cases 18-25 存在且覆盖多 session 收敛回归(step 6)，(3) STALE_LEASE_THRESHOLD_MS=30*60*1000 与文档「30分钟」一致，(4) enforceStoryOwnerLeaseGate/renderOwnershipBlock 均在 cli-engine.ts/handlers/session.ts 导出。无 blocker。",
+      "createdAt": "2026-05-19T04:12:38.257Z",
+      "reviewRound": "2026-05-19T04:07:05.201Z",
+      "reviewRunId": "B-c55d:RR-013",
+      "_hash": "ac678617a569234a26163f74319868c299ba38ead04c5c0b1ffbecbd8e40902b"
     }
   ]
 }
