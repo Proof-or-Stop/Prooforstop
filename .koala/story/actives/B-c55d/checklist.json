@@ -556,6 +556,17 @@
           "headHash": "2377f1fc61e8bc42229c0aff9c12a972d81a8080",
           "materialHash": "7f8524e30835e5cf3ca216c8fd4fbabdb27338ef2459143bf41778c3b8310fa5",
           "timestamp": "2026-05-19T03:45:23.276Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/story-owner-lease-smoke.ts",
+          "command": "koala validate --story=B-c55d",
+          "result": "pass",
+          "note": "koala validate --story=B-c55d runs the full suite: the story-owner-lease-smoke (cases 1-25) and command-ownership-contract (94 commands) tasks both report ALL PASS alongside the lint and process-fact-contract gates — validation commands pass.",
+          "headHash": "8000bdb8846fc8364ca7954ac42e66b729bfe496",
+          "materialHash": "7f8524e30835e5cf3ca216c8fd4fbabdb27338ef2459143bf41778c3b8310fa5",
+          "timestamp": "2026-05-19T03:45:23.872Z"
         }
       ]
     }
