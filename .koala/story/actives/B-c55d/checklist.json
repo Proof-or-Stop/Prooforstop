@@ -283,6 +283,17 @@
           "headHash": "99e840cc9f26a60117504d42e0fb0a81caae2f0f",
           "materialHash": "94af3fc151e8a25ed1617897d59706930cd30fe3f9084ca3007fb346402badaa",
           "timestamp": "2026-05-19T03:31:26.835Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-owner-lease-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
+          "result": "pass",
+          "note": "smoke sections 14+15 assert the session_brief ownership rendering: summarizeOwnerLease produces the structured view (owner session+source / owner cwd / heartbeat age / stale|active / isCurrentSessionOwner / recommendation), and renderOwnershipBlock emits the ## Story ownership lines covering owner session/cwd/heartbeat/OWNER-or-NOT/recommended action for owned-active, foreign-stale (takeover available) and foreign-active (read-only only) cases",
+          "headHash": "82e0a5cd9738f4b91545eae31d5a0d87dbefd2fa",
+          "materialHash": "94af3fc151e8a25ed1617897d59706930cd30fe3f9084ca3007fb346402badaa",
+          "timestamp": "2026-05-19T03:31:33.758Z"
         }
       ]
     },
