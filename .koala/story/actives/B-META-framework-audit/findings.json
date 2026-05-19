@@ -107,7 +107,7 @@
       "desc": "flow-stability-smoke.ts 的 assertDirtyGateSameSource（test #7，B-4b22 preMortem #3 import-isolation guard）的扫描列表写死 ['handlers/story-advance.ts', 'core/validation-executor.ts']。但 story-advance.ts 在 transition 协调被抽出后已是 34 行 thin handler，不再 import 或消费 dirty-gate 类别字面量。真实的 evaluateDirtyGate 消费方是 core/done-oracle.ts（done-oracle.ts:104）与 core/validation-executor.ts（validation-executor.ts:106）。结果：该 guard 空扫 story-advance.ts，core/done-oracle.ts 未被 import-isolation 检查覆盖——若未来 done-oracle.ts 内联 DIRTY_WORKTREE_CATEGORIES 字面量造成漂移，preMortem #3 anchor 不会拦住。当前无实际字面量漂移（done-oracle.ts 正确地从 dirty-worktree.js / dirty-gate-policy.js import），测试仍 green。",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-gap-log",
       "createdAt": "2026-05-17T15:36:32.454Z",
