@@ -229,9 +229,9 @@
       "id": "CHK-004",
       "title": "Ownership-aware error UX and session_brief rendering",
       "context": "Non-owner mutation error message per the doc's Error UX: which story is owned, owner sessionId / cwd / last-heartbeat age, whether the lease is stale, the allowed next action. session_brief ownership rendering: owner session, owner cwd, last heartbeat age, stale/active status, whether the current session is the owner, and recommended action (proceed / read-only only / takeover available / wait). For B-META, session_brief shows shared audit state separately and must not suggest story_advance.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-19T03:31:06.108Z",
-      "endTime": null,
+      "endTime": "2026-05-19T03:32:12.811Z",
       "userSees": "非 owner 跑 mutating 命令看到 \"B-xxxx is owned by session <id>, heartbeat <n>m ago. Use read-only commands, wait for the owner, or rerun with --takeover after the lease is stale.\"；koala session_brief 一屏显示 owner/cwd/heartbeat/stale|active/是否本 session/推荐动作。",
       "files": {
         "modify": [
