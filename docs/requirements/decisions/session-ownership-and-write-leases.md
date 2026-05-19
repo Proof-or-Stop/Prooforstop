@@ -2,7 +2,7 @@
 
 ## Status
 
-Adopted design; rollout substantially implemented. This document is the canonical, adopted
+Adopted design; rollout fully implemented. This document is the canonical, adopted
 design for Koala's multi-session coordination rules and is treated as a process truth
 source — agents and the scope-plan reviewer should honor it.
 
@@ -20,9 +20,9 @@ source — agents and the scope-plan reviewer should honor it.
 (`sessionSource: koala-env`) → `CLAUDE_CODE_SESSION_ID` (`sessionSource: claude-code-env`) →
 `deriveLocalSessionId(hostname, worktree-root, ppid)` (`sessionSource: derived-ppid`). It is
 a local process-coordination id, never a cryptographic identity; ppid is only the
-last-resort fallback because each Claude Code Bash call spawns a fresh shell. The remaining
-rollout work — doctor stale-lease checks (step 5) and the multi-session convergence smoke
-(step 6) — is tracked as separate follow-up checklist items.
+last-resort fallback because each Claude Code Bash call spawns a fresh shell. The doctor
+stale story-owner-lease check (step 5) and the multi-session convergence/regression smoke
+(step 6) were both delivered by B-c55d (CHK-005); the rollout is now fully implemented.
 
 ## Problem
 
@@ -258,5 +258,5 @@ Those require a stronger trust model and should be separate work.
    commands. — done (B-f60c).
 4. Add `session_brief` ownership rendering and ownership-aware errors. — done (B-c55d).
 5. Add doctor checks for stale leases and stuck locks. — stuck-lock check done (B-f60c);
-   stale story-owner-lease check tracked as a B-c55d follow-up checklist item.
-6. Add convergence/session smoke tests for multi-session behavior. — in progress (B-c55d).
+   stale story-owner-lease check done (B-c55d).
+6. Add convergence/session smoke tests for multi-session behavior. — done (B-c55d).
