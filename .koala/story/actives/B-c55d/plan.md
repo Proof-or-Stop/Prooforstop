@@ -67,6 +67,14 @@ authority/attestation）；非并发路径外部 CLI 行为 byte-identical；不
 
 **DoneWhen**: owner-lease.json 按 schema 落盘；首命令 acquire、owner 命令刷新 heartbeat、终态释放；无 DONE 前脏写。
 
+**实现说明（DEV 中追加，用户裁定 2026-05-19）**:
+- **choke-point 文件修正**：plan.md 原写 `Modify registry.ts`，实际单一 choke-point 是 `cli-engine.ts` 的 `run()` wrapper（registry.ts 仅是 handler 注册表）。owner-lease acquire/refresh 注入 cli-engine.ts run()，不散落进各 handler。
+- **sessionId anchor**：`sessionId = KOALA_SESSION_ID ?? derive(hostname, projectRoot/worktreeRoot, process.ppid)`。
+  - 不能用 `process.pid`：koala CLI 每次调用是新进程，pid 锚定会让每条命令 sessionId 都变、owner 永远无法 refresh 自己的 lease。
+  - `process.ppid`（agent 持久 shell）跨 CLI 调用稳定，是正确的本地协调锚点。
+  - `KOALA_SESSION_ID` 仅作为未来 adapter/server 注入入口；**本 story 不做额外 env plumbing**。
+  - ppid 复用 / 父 shell 死亡的退化由 stale-lease 判定 + takeover（CHK-003）兜底——硬边界 1（本地协调、非强身份安全）下属可接受退化。
+
 ## CHK-002: ownershipClass classification + non-owner rejection gate
 
 **Owner**: koala-implementer
