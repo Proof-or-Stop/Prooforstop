@@ -4,7 +4,7 @@
   "title": "Implement the story owner lease (local session ownership)",
   "description": "Implement the story owner lease — session-ownership-and-write-leases.md rollout step 2b (the second half of the implementation; main write lock = step 2a = B-f60c, done). LOCAL Koala session ownership only: a stable per-session `sessionId` is a process-coordination id, NOT cryptographic identity — no public/private keys, no server authority, no reviewer attestation. The owner lease protects story authoring / lifecycle mutation ownership; it must NOT cancel reviewer/verifier independent write rights — reviewer read-only flows are always allowed, and reviewer writes (finding_add / review_pass_set) get an actor/lane-scoped exception (their own current-review-run gate), NOT the main-agent owner lease, so three-way balance is preserved. The non-owner rejection gate is built strictly from a command-classification table that PLAN must produce first (read-only / story-scoped mutating / main-shared mutating / dangerous). This story does NOT refactor the main write lock (B-f60c) — it only calls the existing lock where needed. Out of scope: reviewer identity / attestation, cryptographic identity, server authority, cross-clone locking.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "riskSignals": [
     {
@@ -88,6 +88,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-05-19T04:07:05.201Z",
+      "branch": "story/B-c55d",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-05-19T04:13:04.089Z",
       "branch": "story/B-c55d",
       "user": "Harmonygo",
       "agent": "main"
