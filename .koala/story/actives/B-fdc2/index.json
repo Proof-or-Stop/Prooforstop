@@ -4,11 +4,11 @@
   "title": "Retarget flow-stability test #7 import-isolation scan to done-oracle.ts",
   "description": "Retarget the flow-stability-smoke.ts import-isolation guard (section (7), the B-4b22 preMortem #3 anchor) so it scans the real dirty-gate-policy consumer. The guard greps a hardcoded file list — currently ['handlers/story-advance.ts', 'core/validation-executor.ts'] — asserting DIRTY_WORKTREE_CATEGORIES literals only ever arrive via import from dirty-gate-policy.js, never inlined. After the transition-orchestrator refactor, handlers/story-advance.ts is a thin handler that no longer imports or consumes those category literals, so the guard empty-scans it; the actual evaluateDirtyGate consumer core/done-oracle.ts is left unscanned. Fix: replace 'handlers/story-advance.ts' in the scan list with 'core/done-oracle.ts'. There is no current literal drift (done-oracle.ts correctly imports from dirty-gate-policy.js / dirty-worktree.js), so the test stays green after the retarget — this is a verified-low test-aim correction, not a bug fix. Out of scope: restructuring the guard, touching the dirty-gate-policy module, or any other flow-stability test.",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "low",
   "createdAt": "2026-05-19T09:58:47.721Z",
   "startedAt": "2026-05-19T09:58:47.721Z",
-  "endedAt": null,
+  "endedAt": "2026-05-19T10:16:48.838Z",
   "events": [
     {
       "phase": "INIT_CHECK",
@@ -17,11 +17,39 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-19T09:59:49.439Z",
+      "branch": "story/B-fdc2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-19T10:11:20.465Z",
+      "branch": "story/B-fdc2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-05-19T10:13:13.880Z",
+      "branch": "story/B-fdc2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-05-19T10:16:48.838Z",
+      "branch": "story/B-fdc2",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-fdc2",
-    "branch": "story/B-fdc2",
-    "createdAt": "2026-05-19T09:58:47.816Z"
-  }
+  "currentReviewRound": "2026-05-19T10:11:20.465Z"
 }

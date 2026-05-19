@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-fdc2:RP-001",
+      "agent": "koala-review-concept",
+      "note": "本次改动无符号删除/重命名。唯一变更是 flow-stability-smoke.ts 第449行将 import-isolation 扫描列表从 handlers/story-advance.ts 换为 core/done-oracle.ts。handlers/story-advance.ts 仍作为 thin handler 存在，其余引用均为合法的结构性断言或注释，非残留。core/done-oracle.ts 存在且通过 import 引用 dirty-gate-policy.js（无内联字面量），新扫描目标有效。无概念删除/替换残留，无失效 import，改动自洽。",
+      "createdAt": "2026-05-19T10:12:25.426Z",
+      "reviewRound": "2026-05-19T10:11:20.465Z",
+      "reviewRunId": "B-fdc2:RR-001",
+      "_hash": "c63c0ca45db81d8d609406ebbbe2e9c2f762f631303defe2a9aef8540b99fd5a"
+    },
+    {
+      "id": "B-fdc2:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: express-exempt channel (1 item, no riskSignals), verificationIntent skipped per flow-policy:express-verification-policy. Core finding F-007 verified: flow-stability-smoke.ts section (7) import-isolation guard at line 452 now iterates [core/done-oracle.ts, core/validation-executor.ts] — done-oracle.ts is the real evaluateDirtyGate consumer and has zero inline DIRTY_WORKTREE_CATEGORIES literals (only import lines), so guard passes post-retarget. story-advance.ts correctly absent from scan list (empty-scan confirmed). koala validate --story=B-fdc2 all-pass.",
+      "createdAt": "2026-05-19T10:12:45.729Z",
+      "reviewRound": "2026-05-19T10:11:20.465Z",
+      "reviewRunId": "B-fdc2:RR-002",
+      "_hash": "09440a63ee0412533947ba53b499f00709472c9db5fda56f08d353359c433430"
+    },
+    {
+      "id": "B-fdc2:RP-003",
+      "agent": "koala-review-quality",
+      "note": "Single-line retarget verified: (1) core/done-oracle.ts exists and imports evaluateDirtyGate from dirty-gate-policy.js and classifyGitStatusRows from dirty-worktree.js — correct consumer. (2) done-oracle.ts has no inline DIRTY_WORKTREE_CATEGORIES literal values in code lines; two appearances of declared_artifact_changes are pure // comments, filtered by the guard heuristic. (3) handlers/story-advance.ts (the removed target) has zero references to dirty gate categories — confirming it was empty-scanning. (4) Guard logic in flow-stability-smoke.ts section (7) is unchanged; only the scanned file list changed. No dead code, no type safety issues, no I/O isolation violations introduced.",
+      "createdAt": "2026-05-19T10:12:52.370Z",
+      "reviewRound": "2026-05-19T10:11:20.465Z",
+      "reviewRunId": "B-fdc2:RR-003",
+      "_hash": "b2d1c24031bee48847bfe3e5ab935077d41bd70ef103671104aa763ae8102e0b"
+    }
+  ]
+}

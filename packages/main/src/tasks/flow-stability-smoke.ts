@@ -449,7 +449,7 @@ function assertDirtyGatePolicyAcrossGates(): void {
   const distTasksDir = dirname(fileURLToPath(import.meta.url));
   const pkgRoot = resolve(distTasksDir, '..', '..');
   const srcRoot = join(pkgRoot, 'src');
-  for (const rel of ['handlers/story-advance.ts', 'core/validation-executor.ts']) {
+  for (const rel of ['core/done-oracle.ts', 'core/validation-executor.ts']) {
     const filePath = join(srcRoot, rel);
     const src = readFileSync(filePath, 'utf-8');
     for (const cat of DIRTY_WORKTREE_CATEGORIES) {

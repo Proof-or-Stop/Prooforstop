@@ -1,0 +1,15 @@
+{
+  "command": "koala validate --story=B-fdc2 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.3 test\",\"  > npm run test:e2e\",\"  > koala@0.3.3 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification policy: express-exempt (channel=express; PLAN verificationIntent intentionally skipped)\"],\"warnings\":[],\"timestamp\":\"2026-05-19T10:13:13.659Z\",\"headSha\":\"577a29051141eede949886c9f92e8be170179323\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.3 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.3 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1679}],\"verificationPolicy\":{\"policy\":\"express-exempt\",\"channel\":\"express\",\"intentCount\":0,\"message\":\"Verification policy: express-exempt (channel=express; PLAN verificationIntent intentionally skipped)\",\"reason\":\"express channel has no riskSignals and at most two checklist items\"},\"verificationCoverage\":{\"total\":0,\"required\":0,\"covered\":0,\"missingRequired\":0,\"entries\":[]}}",
+  "result": "PASS",
+  "timestamp": "2026-05-19T10:13:13.743Z",
+  "headHash": "577a29051141eede949886c9f92e8be170179323",
+  "materialHash": "60225590e9e6175b4c50cd493b9ffedb589f8ba10671dfac12b12eed76623190",
+  "verificationCoverage": {
+    "total": 0,
+    "required": 0,
+    "covered": 0,
+    "missingRequired": 0,
+    "entries": []
+  }
+}
