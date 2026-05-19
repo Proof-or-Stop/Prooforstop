@@ -23,8 +23,8 @@ import { reportHealthIssue } from './core/health.js';
 import { detectStaleState } from './core/stale-detector.js';
 import { runHooks, truncateForEnv, buildHookEnv as buildSharedHookEnv, HOOK_TIMEOUT_MS } from './core/hooks.js';
 import { gitProbe, isGitRepository } from './core/git-probe.js';
-import { acquireOrRefreshOwnerLease } from './core/story-owner-lease.js';
-import { getCommandPolicy } from './core/command-policy.js';
+import { acquireOrRefreshOwnerLease, getSessionId } from './core/story-owner-lease.js';
+import { getCommandPolicy, isOwnershipClass, type OwnershipClass } from './core/command-policy.js';
 import { STORY_OUTCOME_KINDS, VERIFICATION_EVIDENCE_VERDICTS } from './core/types.js';
 import { BACKGROUND_SECTION_IDS, normalizeBackgroundSection } from './core/background-validator.js';
 import {
@@ -1206,50 +1206,172 @@ function storyIdFromArgs(args: Record<string, unknown>, activeStory?: ActiveStor
 }
 
 /**
- * B-c55d CHK-001: acquire-or-refresh the story owner lease for a story-scoped
- * mutating command.
+ * B-c55d CHK-002: resolve the EFFECTIVE ownership class of a single command
+ * invocation.
  *
- * Called from the `run()` choke-point in `runCli`, so the lease side-effect is
- * registered exactly once for every command instead of being scattered into
- * individual handlers.
+ * The static `CommandPolicy.ownershipClass` is the base classification; this
+ * function applies the three dynamic boundary rules from
+ * session-ownership-and-write-leases.md (and the story plan) that depend on the
+ * actual invocation arguments:
  *
- * CHK-001 scope is the lease MECHANISM only — the non-owner rejection gate and
- * the full `ownershipClass` command classification are CHK-002. So this helper
- * uses a deliberately conservative interim heuristic to decide what counts as
- * a "story-scoped mutating command":
- *   - skip read-only commands (`READ_ONLY_COMMANDS`);
- *   - require a resolvable `storyId` (no story → nothing to own);
- *   - require the command's lifecycle policy to declare
- *     `destructiveRisk: 'metadata-write'` (the mutating commands).
+ *  1. `finding_resolve` / `finding_dismiss` — `storyScopedMutating` for a normal
+ *     story, but `mainSharedMutating` when the target is a B-META story (the
+ *     B-f60c main write lock serializes those; `finding.ts` already routes the
+ *     write through `withMetaFindingLock`). So a B-META finding mutation must
+ *     NOT be owner-lease-gated.
+ *  2. `validate` — `storyScopedMutating` only when `--story` is supplied (it
+ *     then writes story TEST/DONE gate evidence). A diagnostic `validate` with
+ *     no `--story` mutates no story state → downgraded to `readOnly`.
+ *  3. `delivery_check_set` — `reviewerWrite` only when the resolved actor is
+ *     `koala-review-delivery`; any other caller is treated as
+ *     `storyScopedMutating` so a main agent cannot borrow it to bypass the
+ *     owner lease.
  *
- * It is wrapped end-to-end in try/catch and NEVER throws: a lease write failure
- * must not break a command in CHK-001 (enforcement arrives with the CHK-002
- * gate). The story directory is resolved via `store.storyDirPath`, the same
- * path the story metadata already lives under.
+ * Returns `null` when the command has no policy entry OR its `ownershipClass`
+ * is not a valid enum value — the gate treats `null` as FAIL-CLOSED (an
+ * unclassified command is rejected, never default-allowed).
  */
-function maybeAcquireOrRefreshOwnerLease(
+export function resolveEffectiveOwnershipClass(
+  cmd: string,
+  args: Record<string, unknown>,
+  storyId: string | null,
+): OwnershipClass | null {
+  const policy = getCommandPolicy(cmd);
+  // Runtime enum re-validation (CLAUDE.md「Handler 编码约定」): a missing policy
+  // OR a policy whose `ownershipClass` is not a valid enum value is fail-closed.
+  if (!policy || !isOwnershipClass(policy.ownershipClass)) return null;
+  let cls: OwnershipClass = policy.ownershipClass;
+
+  // Boundary rule 1: a B-META finding mutation is mainSharedMutating.
+  if ((cmd === 'finding_resolve' || cmd === 'finding_dismiss') && storyId && storyId.startsWith('B-META-')) {
+    cls = 'mainSharedMutating';
+  }
+
+  // Boundary rule 2: a diagnostic `validate` without --story is readOnly.
+  if (cmd === 'validate') {
+    const hasStory =
+      (typeof args.story === 'string' && args.story.trim().length > 0) ||
+      (typeof args.storyId === 'string' && args.storyId.trim().length > 0);
+    cls = hasStory ? 'storyScopedMutating' : 'readOnly';
+  }
+
+  // Boundary rule 3: delivery_check_set is reviewerWrite ONLY for the delivery
+  // reviewer actor; any other caller is owner-gated as storyScopedMutating.
+  if (cmd === 'delivery_check_set') {
+    cls = isDeliveryReviewerActor(args) ? 'reviewerWrite' : 'storyScopedMutating';
+  }
+
+  return cls;
+}
+
+/**
+ * B-c55d CHK-002: whether a `delivery_check_set` invocation is acting AS the
+ * delivery reviewer (`koala-review-delivery`).
+ *
+ * The actor is resolved from the explicit `agentId` argument first, then the
+ * `KOALA_AGENT` environment variable — the same precedence the
+ * `delivery_check_set` handler records into `delivery-check.json`. Only the
+ * exact `koala-review-delivery` lane qualifies for the reviewerWrite exemption;
+ * a main agent (or any other agent id) does NOT, so it cannot borrow
+ * `delivery_check_set` to bypass the owner lease.
+ *
+ * NOTE: this only decides the owner-lease exemption. The delivery evidence's
+ * own signature / phase rules are still enforced inside `delivery_check_set`
+ * and by the TEST→DONE delivery-check gate — the exemption is never a free
+ * pass to write.
+ */
+export function isDeliveryReviewerActor(args: Record<string, unknown>): boolean {
+  const explicit = typeof args.agentId === 'string' ? args.agentId.trim() : '';
+  const env = typeof process.env.KOALA_AGENT === 'string' ? process.env.KOALA_AGENT.trim() : '';
+  const actor = explicit || env;
+  return actor === 'koala-review-delivery';
+}
+
+/** Format an age in ms as a compact human string (`30s`, `8m`, `2h`). */
+function formatHeartbeatAge(ageMs: number): string {
+  const safe = Number.isFinite(ageMs) && ageMs >= 0 ? ageMs : 0;
+  const seconds = Math.floor(safe / 1000);
+  if (seconds < 60) return `${seconds}s`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m`;
+  return `${Math.floor(minutes / 60)}h`;
+}
+
+/**
+ * B-c55d CHK-002: the single CLI choke-point story owner lease GATE.
+ *
+ * Runs once in the `run()` wrapper for every command — ownership is NEVER
+ * checked inside individual handlers. Behavior by effective ownership class
+ * (see `resolveEffectiveOwnershipClass`):
+ *
+ *  - `readOnly` / `reviewerWrite` / `mainSharedMutating` → not owner-gated. The
+ *    function returns without acquiring or rejecting. (`reviewerWrite` is
+ *    exempt from the owner lease but still bound by its own reviewer-run /
+ *    signature gates inside the handler; `mainSharedMutating` is serialized by
+ *    the B-f60c main write lock.)
+ *  - `storyScopedMutating` / `dangerousMutating` → owner-gated. With a
+ *    resolvable story:
+ *      · no lease on disk            → this session acquires it (becomes owner);
+ *      · lease owned by this session → heartbeat is refreshed;
+ *      · lease owned by ANOTHER session (`foreign`) → the command is REJECTED
+ *        fail-closed with an owner-guidance error (CHK-002 produces a clear,
+ *        non-mysterious message; the full multi-field Error UX is CHK-004).
+ *  - unclassified (no policy / invalid `ownershipClass`) → REJECTED fail-closed.
+ *    An unclassified command is never default-allowed.
+ *
+ * Throws an `Error` on rejection; the `run()` catch block surfaces it as the
+ * command failure. A non-owner session performs NO write (the lease primitive
+ * observes a foreign lease without stealing it).
+ */
+export function enforceStoryOwnerLeaseGate(
   cmd: string,
   args: Record<string, unknown>,
   store: StoryStore,
   activeStory: ActiveStory | null,
 ): void {
-  try {
-    if (READ_ONLY_COMMANDS.has(cmd)) return;
-    const policy = getCommandPolicy(cmd);
-    // Only story-scoped mutating commands take a lease. `metadata-write` is the
-    // interim signal until CHK-002 introduces `ownershipClass`; commands with
-    // `none` / `fixture-write` / `workspace-destructive` risk are not
-    // single-story authoring mutations and are skipped here.
-    if (!policy || policy.destructiveRisk !== 'metadata-write') return;
-    const storyId = storyIdFromArgs(args, activeStory);
-    if (!storyId) return;
-    const storyDir = store.storyDirPath(storyId);
-    if (!existsSync(storyDir)) return;
-    acquireOrRefreshOwnerLease(storyDir, { command: cmd, cwd: process.cwd() });
-  } catch {
-    // CHK-001 is mechanism-only — never let a lease write failure block a
-    // command. The CHK-002 gate is where ownership is enforced.
+  const storyId = storyIdFromArgs(args, activeStory);
+  const cls = resolveEffectiveOwnershipClass(cmd, args, storyId);
+
+  // Fail-closed: an unclassified command (no policy entry, or a policy with an
+  // invalid `ownershipClass`) is rejected, never default-allowed.
+  if (cls === null) {
+    throw new Error(
+      `Command "${cmd}" has no valid ownershipClass in command-policy.ts and is rejected fail-closed. ` +
+      `Every registered command must declare a CommandPolicy.ownershipClass (readOnly / storyScopedMutating / ` +
+      `reviewerWrite / mainSharedMutating / dangerousMutating). Add a classified policy entry and rerun.`,
+    );
   }
+
+  // Not owner-gated: readOnly (no story state mutated), reviewerWrite (exempt —
+  // bound by its own reviewer-run/signature gates), mainSharedMutating
+  // (serialized by the B-f60c main write lock, not the owner lease).
+  if (cls === 'readOnly' || cls === 'reviewerWrite' || cls === 'mainSharedMutating') {
+    return;
+  }
+
+  // Owner-gated: storyScopedMutating / dangerousMutating.
+  if (!storyId) return; // no story resolves → nothing to own (e.g. a draft).
+  const storyDir = store.storyDirPath(storyId);
+  if (!existsSync(storyDir)) return; // story dir absent → command will fail on its own.
+
+  const { lease, action } = acquireOrRefreshOwnerLease(storyDir, {
+    command: cmd,
+    cwd: process.cwd(),
+  });
+
+  // `acquired` / `refreshed` → the current session owns the lease; proceed.
+  if (action !== 'foreign') return;
+
+  // `foreign` → another session owns this story. Reject fail-closed with owner
+  // guidance. The lease primitive performed NO write (no silent steal).
+  const ageMs = Date.now() - Date.parse(lease.heartbeatAt);
+  const age = Number.isFinite(ageMs) ? formatHeartbeatAge(ageMs) : 'unknown';
+  throw new Error(
+    `${storyId} is owned by another Koala session (${lease.sessionId}), heartbeat ${age} ago ` +
+    `(owner cwd: ${lease.cwd}). "${cmd}" is an owner-gated ${cls} command, so this session ` +
+    `(${getSessionId()}) cannot run it. Use read-only commands, wait for the owner session to finish, ` +
+    `or rerun with --takeover once the owner lease is stale.`,
+  );
 }
 
 /**
@@ -1755,16 +1877,18 @@ export async function runCli(opts?: {
     if (!READ_ONLY_COMMANDS.has(cmd)) {
       await runHooks('preCommand', cmd, buildHookEnvLocal('preCommand'), config0, root);
     }
-    // B-c55d CHK-001: story owner lease acquire / heartbeat. This `run()`
-    // wrapper is the single CLI choke-point every command flows through, so the
-    // lease side-effect lives here — NOT scattered across handlers. A
-    // story-scoped mutating command for a story with no lease acquires it
-    // (current session becomes owner); an owner re-running such a command
-    // refreshes the heartbeat. A non-owner is left untouched (no silent steal).
-    // CHK-001 only performs the lease mechanism; the non-owner REJECTION gate
-    // is CHK-002, so any failure here is swallowed and never blocks a command.
-    maybeAcquireOrRefreshOwnerLease(cmd, parsed, store, activeStory);
     try {
+      // B-c55d CHK-002: story owner lease GATE. This `run()` wrapper is the
+      // single CLI choke-point every command flows through, so ownership is
+      // decided here — NOT scattered across handlers. By effective
+      // ownershipClass: readOnly / reviewerWrite / mainSharedMutating are never
+      // owner-gated; an owner-gated storyScopedMutating / dangerousMutating
+      // command for a story owned by THIS session acquires-or-refreshes the
+      // lease, while a command targeting a story owned by ANOTHER session is
+      // rejected fail-closed with owner guidance; an unclassified command is
+      // also rejected fail-closed. The gate runs inside this `try` so a
+      // rejection surfaces through the `catch` below as the command failure.
+      enforceStoryOwnerLeaseGate(cmd, parsed, store, activeStory);
       let result = fn();
       if (result && typeof (result as any).then === 'function') result = await result;
       clearInterval(watchdog);
