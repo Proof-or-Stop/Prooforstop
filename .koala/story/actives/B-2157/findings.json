@@ -218,7 +218,7 @@
       "desc": "parseGitDiffHunks duplicates every non-final hunk in a multi-file or multi-hunk diff. In packages/main/src/core/verification-context-pack.ts:133-140 flush() appends the current hunk but never clears current, while the parser calls flush() again on the next diff/header boundary at :145 and :170. Minimal repro against the built module: two 1-line file edits produced changedHunks=[alpha.ts:1, alpha.ts:1, beta.ts:1], with the duplicate alpha entry carrying a second empty-patch hash. That corrupts pack.changedHunks, requiredRefs, digest, summary counts, and source-snippet/token accounting for ordinary multi-file stories. Fix by clearing current after flush (or otherwise making flush idempotent) and add a smoke that asserts one hunk per edited file across a multi-file diff.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-05-20T22:54:02.582Z",
