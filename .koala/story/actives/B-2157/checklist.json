@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/verification-context-pack.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-20T22:11:38.801Z",
-      "endTime": null,
+      "endTime": "2026-05-20T22:18:20.426Z",
       "userSees": "用户看到 \"verification_context_pack_create 返回 packDigest=... summary.changedFiles=2 summary.changedHunks>=1 truncated=false\"，且新建未跟踪文件出现在 pack.changedFiles。",
       "files": {
         "modify": [
@@ -44,7 +44,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/verification-context-pack-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-context-pack",
+          "result": "pass",
+          "note": "Smoke asserts verification_context_pack_create returns a stable digest and includes tracked alpha.ts plus untracked beta.ts in changedFiles with source snippets.",
+          "headHash": "2a03e704cb9e33d67e5a7a7d833e9508d51ca7ca",
+          "materialHash": "f4b03836fd6169eb0b872d30498de233074388155ab2c0fb1be7d136099f5550",
+          "timestamp": "2026-05-20T22:18:20.919Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/verification-context-pack-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-context-pack",
+          "result": "pass",
+          "note": "Smoke calls createVerificationContextPack with tokenBudget=1 and asserts pack.truncated=true plus the token budget limitation.",
+          "headHash": "2a03e704cb9e33d67e5a7a7d833e9508d51ca7ca",
+          "materialHash": "f4b03836fd6169eb0b872d30498de233074388155ab2c0fb1be7d136099f5550",
+          "timestamp": "2026-05-20T22:18:21.217Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/verification-context-pack-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-context-pack",
+          "result": "pass",
+          "note": "Regression proves the generator uses git ls-files --others --exclude-standard by asserting untracked beta.ts appears as file and hunk refs.",
+          "headHash": "2a03e704cb9e33d67e5a7a7d833e9508d51ca7ca",
+          "materialHash": "f4b03836fd6169eb0b872d30498de233074388155ab2c0fb1be7d136099f5550",
+          "timestamp": "2026-05-20T22:18:21.354Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
