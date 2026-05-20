@@ -123,6 +123,19 @@
         }
       ],
       "_hash": "29c25ca0134564205042bdf64ee727ed380dd3c87a868466a5fdbb43be284763"
+    },
+    {
+      "timestamp": "2026-05-20T22:10:36.141Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 个 checklist item，请检查是否有组合场景遗漏（如：生成可审计的 context pack 与稳定 digest + 支持扩展包与 evidence envelope 绑定 同时操作会怎样？）"
+        }
+      ],
+      "_hash": "c11b9b3f938d3a3eebdd0c962fb81a64e31fddac1ec27be530c11481cbf0e0ee"
     }
   ]
 }
