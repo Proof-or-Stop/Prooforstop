@@ -166,7 +166,7 @@
       "desc": "parseGitDiffHunks 没处理 deleted-file diff。它只在 `+++ b/<file>` 时更新 currentFile（`packages/main/src/core/verification-context-pack.ts` 138-150），所以删除文件的 diff（`+++ /dev/null`）会产出 `file=\"\"`、`hunkRef=\":0\"`；我用最小复现验证过这一点。这样一旦 story 含删除改动，pack.changedHunks/requiredRefs/digest 都会失真，verifier 无法可靠覆盖删除的 hunk。修复建议：同时解析 `--- a/<file>`/deleted-file 头，给删除 hunk 生成稳定 file/hunkRef，并补一个 deletion smoke。",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-05-20T22:30:41.183Z",
