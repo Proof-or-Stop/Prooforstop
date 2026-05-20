@@ -56,7 +56,42 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "verification_context_pack_expand 返回 parentPackDigest；evidence envelope 含 verificationContextPackId、verificationContextPackDigest、inspectedPackRefs。"
+      "userSees": "用户看到 \"verification_context_pack_expand 返回 parentPackDigest=...\"，并且 evidence JSON 含 verificationContextPackId、verificationContextPackDigest、inspectedPackRefs。",
+      "files": {
+        "modify": [
+          "packages/main/src/core/authority-contracts.ts",
+          "packages/main/src/core/evidence-collector.ts"
+        ],
+        "create": [
+          "packages/main/src/handlers/verification-context-pack.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/verification-context-pack-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "基于 parent pack 创建扩展包，返回 parentPackDigest，并保留 parent-linked pack chain。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "expansionReason 少于 10 字符时拒绝扩展包创建。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Evidence envelope 不能只带自然语言 note，必须绑定 pack id、digest、coveredRefs 和 inspectedPackRefs。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
