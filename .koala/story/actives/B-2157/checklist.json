@@ -146,7 +146,48 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户看到 \"verification context pack smoke passed\" 和 \"command-ownership contract passed\"，且 npm build 没有 TypeScript 错误。",
+      "files": {
+        "modify": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/index.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/verification-context-pack-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/verification-context-pack-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm build、verification-context-pack smoke 和 command-ownership contract 全部通过。",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "新增命令必须在 MAIN_TOOLS、registry、DEFAULT_PHASE_TOOLS 和 command policy 中可发现。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "新增命令不能成为 command ownership contract 中未分类/不可 dispatch 的命令。",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
