@@ -1,0 +1,48 @@
+{
+  "storyId": "B-8a1b",
+  "changes": "scripts/verify-entrypoints.mjs 的 REQUIRED_RUNTIME_IGNORE_LINES 数组加 2 行：'**/owner-lease.json'（在 '**/activity.jsonl' 后）+ '.koala/locks/'（在 '.koala/traces/' 后），与 runtime-artifact-registry.ts 的 listRuntimeArtifactIgnorePatterns() canonical 14 项输出对齐。无其他文件改动。",
+  "usage": "无需手动调用：npm run test:entrypoints 在没改 cli-init.ts 输出口径下自然恢复为 25/25 ok。后续任何对 RUNTIME_ARTIFACT_REGISTRY 加 ignorePatterns 的 story 都要同步更新 verify-entrypoints.mjs 的 REQUIRED_RUNTIME_IGNORE_LINES（这是硬编码列表，不会自动跟进；未来若想消除手动同步，可单独开 story 把测试改为动态从 dist 读 listRuntimeArtifactIgnorePatterns）。",
+  "expectedOutcome": "npm run test:entrypoints 25/25 ok 'entrypoints verified'；npm test ALL PASS；koala validate --story=B-8a1b 全绿、verification policy express-exempt。",
+  "actualTranscript": "在 worktree 跑 npm --prefix packages/main run build && npm --prefix packages/utils run build 后：(1) npm run test:entrypoints → 'ok 25/25 / entrypoints verified'；(2) npm test → '✓ ALL PASS'（story-lifecycle + gap-convergence 5+4 steps 全绿）；(3) koala validate --story=B-8a1b → '✓ ALL PASS'，'Verification policy: express-exempt'。live registry probe 确认 listRuntimeArtifactIgnorePatterns() 14 项与 verify-entrypoints.mjs 数组逐行对齐。详见 .koala/story/actives/B-8a1b/evidence/transcript-diff.md。",
+  "outcomeDiff": "无差异——3 条 expected 全部一致。修法等同直接闭合断言：mergeKoalaRuntimeIgnores 在 seeded .gitignore 上返回 changed=false → cli-init 走 'runtime ignores already present' 分支 → 测试 assertion 通过。",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered。tiny chore scope：只修这一个测试断言、只改 1 个文件、加 2 行数组 entry。不动 cli-init.ts / runtime-artifact-registry.ts / 任何其他测试 / stash@{0} 的 19 个 WIP 文件。",
+  "pitfalls": "(1) fresh worktree 没 dist/——跑 npm test / test:entrypoints 前必须先 npm --prefix packages/main run build && npm --prefix packages/utils run build，否则会报 ERR_MODULE_NOT_FOUND（packages/utils/dist/index.js missing）；test:entrypoints 的错误信息有明确 Recovery 提示。(2) REQUIRED_RUNTIME_IGNORE_LINES 是硬编码、不会自动跟进 RUNTIME_ARTIFACT_REGISTRY 加新 ignorePatterns——本 story 已经吃了 2 轮漂移（B-f60c .koala/locks/、B-c55d **/owner-lease.json 都没同步测试 seed），未来加新 runtime artifact 时要记得同步更新（或单独开 story 改为动态读 registry）。",
+  "phaseStats": {
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 9891
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 110969
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 103911
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 63296
+    }
+  },
+  "totalDurationMs": 288068,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-05-20T22:03:59.286Z",
+  "updatedAt": "2026-05-20T22:03:59.286Z"
+}
