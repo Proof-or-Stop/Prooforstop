@@ -124,6 +124,42 @@
         "packages/main/src/handlers/verification-context-pack.ts",
         "packages/main/src/core/authority-contracts.ts"
       ]
+    },
+    {
+      "id": "B-2157:F-008",
+      "desc": "createVerificationContextPackExpansion 追加 sourceSnippets/impactedSymbols 后不会重算 `estimatedTokens` 或 `truncated`（`packages/main/src/core/verification-context-pack.ts` 309-320 只是复制 parent 并拼接数组）。我用最小复现验证过：parent `estimatedTokens=1`，扩展再加 100-token snippet 后结果仍然是 `estimatedTokens=1`、`truncated=false`。requirements 文档明确说 expansion 要受 `maxContextPackEstimatedTokens` 约束；当前实现会让服务端拿到失真的 token 元数据。修复建议：扩展时按新 snippet 集合重算 token 统计/截断状态，或禁止在不重算的情况下追加 snippet 内容，并补 expansion token accounting 测试。",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-20T22:30:18.881Z",
+      "reviewRound": "2026-05-20T22:21:31.958Z",
+      "reviewRunId": "B-2157:RR-001",
+      "_hash": "8f3191e4a8060d37b1a140a92eb531b531a26654c468ad405ccb07ce55559df1",
+      "files": [
+        "docs/requirements/decisions/verification-context-pack.md",
+        "packages/main/src/core/verification-context-pack.ts"
+      ]
+    },
+    {
+      "id": "B-2157:F-009",
+      "desc": "verification_context_pack_create 的 CLI/schema 没有暴露 requiredCommands：requirements 文档把 required commands 列为 pack 必备字段和 gate coverage 输入，但 `packages/main/src/cli-engine.ts` 295-309 只接受 checklist/testIntent/oracle/tokenBudget 等字段，`runCli` 在 1794-1795 用 `z.object(tool.schema)` 校验时会丢弃未知 key，所以调用方无法通过 CLI 传入 requiredCommands，最终 pack 在 authority gate 下缺少该覆盖维度。修复建议：在 CLI schema 与 handler args 中补上 requiredCommands，并加一个 smoke 覆盖 CLI 输入能落到 pack.requiredCommands。",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-20T22:30:18.898Z",
+      "reviewRound": "2026-05-20T22:21:31.958Z",
+      "reviewRunId": "B-2157:RR-001",
+      "_hash": "d5220a0049246b1bacdf3808c4deeb6b2d49e43ca256b37880ae6ce5884aaf90",
+      "files": [
+        "docs/requirements/decisions/verification-context-pack.md",
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/handlers/verification-context-pack.ts",
+        "packages/main/src/core/verification-context-pack.ts"
+      ]
     }
   ]
 }
