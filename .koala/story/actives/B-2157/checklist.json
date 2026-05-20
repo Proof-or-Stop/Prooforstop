@@ -1,0 +1,50 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "生成可审计的 context pack 与稳定 digest",
+      "context": "用户或 Runner 调用 verification_context_pack_create 后，应看到包含 changed files、changed hunks、source snippets、risk tags、token/truncation 状态和稳定 packDigest 的结构化结果；新增未跟踪文件也必须进入 pack。",
+      "relatedDocs": [
+        "docs/requirements/decisions/verification-context-pack.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "verification_context_pack_create 返回 pack、packDigest、summary.changedFiles/changedHunks/sourceSnippets/estimatedTokens/truncated。"
+    },
+    {
+      "id": "CHK-002",
+      "title": "支持扩展包与 evidence envelope 绑定",
+      "context": "用户或 Runner 可以基于 parent pack 创建带 expansionReason/parentPackDigest 的扩展包；EvidenceCollector/buildTargetBoundEvidenceEnvelope 必须把 pack id、digest、coveredRefs 和 inspectedPackRefs 绑定到 evidence。",
+      "relatedDocs": [
+        "docs/requirements/decisions/verification-context-pack.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "verification_context_pack_expand 返回 parentPackDigest；evidence envelope 含 verificationContextPackId、verificationContextPackDigest、inspectedPackRefs。"
+    },
+    {
+      "id": "CHK-003",
+      "title": "补充项目真相源文档",
+      "context": "在 Orchestrate docs/requirements/decisions 中记录 CLI 与 Python authority server 的协议边界、维护规则和测试命令，并更新 NAV。",
+      "relatedDocs": [
+        "docs/requirements/decisions/verification-context-pack.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "补充 smoke 和命令所有权验证",
+      "context": "新增 verification-context-pack smoke，覆盖 pack 生成、扩展、digest、evidence binding、handler 和 CLI command policy；同时跑 command ownership contract。",
+      "relatedDocs": [
+        "docs/requirements/decisions/verification-context-pack.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
