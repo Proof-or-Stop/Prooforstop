@@ -1,0 +1,76 @@
+{
+  "principles": [
+    "Context Pack 是 verifier 的结构化阅读边界，不是自然语言建议。",
+    "CLI 生成证据材料，Python authority server 做签发和 gate。",
+    "所有新增命令必须进入 Koala 的命令所有权和 phase policy。"
+  ],
+  "drivers": [
+    "降低事实伪造和弱证据过关风险。",
+    "让后续 Agent 能通过 Story、truth source 和 tests 理解跨仓库协议。",
+    "避免 direct-root edits 成为无 provenance 外来物。"
+  ],
+  "options": [
+    {
+      "name": "docs-only-backfill",
+      "pros": [
+        "改动少",
+        "能解释背景"
+      ],
+      "cons": [
+        "不能提供 CLI 能力",
+        "无法通过真实 smoke 验证 evidence binding"
+      ]
+    },
+    {
+      "name": "restore-full-authority-wip",
+      "pros": [
+        "覆盖更多旧 WIP 范围"
+      ],
+      "cons": [
+        "混入 authority evidence submission 旧 blocker",
+        "Story 范围过大且难以审查"
+      ]
+    },
+    {
+      "name": "context-pack-cli-slice",
+      "pros": [
+        "边界清晰",
+        "能用 smoke 覆盖 pack/digest/handler/evidence binding",
+        "后续 authority submission 可另开 Story"
+      ],
+      "cons": [
+        "不一次性恢复 authority-client smoke",
+        "仍需与 Python server contract 保持同步"
+      ]
+    }
+  ],
+  "chosen": "context-pack-cli-slice",
+  "rationale": "本 Story 只交付 Verification Context Pack CLI 侧闭环，范围可审、可测，并能避免旧 authority evidence submission blocker 混入。",
+  "preMortem": [
+    {
+      "scenario": "新文件没有进入 context pack",
+      "trigger": "generator 只使用 git diff --name-only",
+      "consequence": "verifier 收到的 pack 漏掉本次新增文件，事实覆盖不完整",
+      "mitigation": "在 generator 中合并 git ls-files --others --exclude-standard，并在 smoke 中断言 untracked new file 被纳入"
+    },
+    {
+      "scenario": "新增 CLI 命令绕过 Koala gate",
+      "trigger": "MAIN_TOOLS 增加命令但 command policy 或 ownership contract 未同步",
+      "consequence": "后续 Agent 或 owner lease gate 把命令视为未分类漂移",
+      "mitigation": "同步 command-policy/config/registry，并运行 command-ownership-contract"
+    },
+    {
+      "scenario": "文档缺失导致后续 Agent 不理解协议",
+      "trigger": "只改代码不写 docs/requirements decision",
+      "consequence": "后续维护者无法判断 CLI 与 Python server 字段关系",
+      "mitigation": "新增 verification-context-pack decision 文档并关联 checklist relatedDocs"
+    },
+    {
+      "scenario": "evidence 仍退化成自然语言结论",
+      "trigger": "Evidence envelope 只带 packDigest，不带 inspectedPackRefs/coveredRefs",
+      "consequence": "Gate 无法判断 verifier 是否覆盖 pack 关键 refs",
+      "mitigation": "EvidenceCollector 默认填充 coveredRefs 与 inspectedPackRefs，并在 smoke 中断言"
+    }
+  ],
+  "timestamp": "2026-05-20T22:05:04.909Z"
+}

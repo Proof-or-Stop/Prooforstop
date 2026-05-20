@@ -10,7 +10,41 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "verification_context_pack_create 返回 pack、packDigest、summary.changedFiles/changedHunks/sourceSnippets/estimatedTokens/truncated。"
+      "userSees": "用户看到 \"verification_context_pack_create 返回 packDigest=... summary.changedFiles=2 summary.changedHunks>=1 truncated=false\"，且新建未跟踪文件出现在 pack.changedFiles。",
+      "files": {
+        "modify": [
+          "packages/main/src/core/verification-context-pack.ts"
+        ],
+        "create": [
+          "packages/main/src/core/authority-contracts.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/verification-context-pack-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "生成包含 tracked 修改和 untracked 新文件的 context pack，并返回稳定 packDigest 与 summary。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "tokenBudget 太小时 source snippets 被截断，pack.truncated=true 且 limitations 说明原因。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "不能只依赖 git diff --name-only 导致 untracked 新文件缺席 pack.changedFiles。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
