@@ -91,9 +91,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/verification-context-pack.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-20T22:16:08.977Z",
-      "endTime": null,
+      "endTime": "2026-05-20T22:18:36.435Z",
       "userSees": "用户看到 \"verification_context_pack_expand 返回 parentPackDigest=...\"，并且 evidence JSON 含 verificationContextPackId、verificationContextPackDigest、inspectedPackRefs。",
       "files": {
         "modify": [
@@ -129,7 +129,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/verification-context-pack-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-context-pack",
+          "result": "pass",
+          "note": "Smoke creates a parent-linked expansion and asserts parentPackDigest equals the original pack digest while impactedFiles carry forward.",
+          "headHash": "2a03e704cb9e33d67e5a7a7d833e9508d51ca7ca",
+          "materialHash": "f4b03836fd6169eb0b872d30498de233074388155ab2c0fb1be7d136099f5550",
+          "timestamp": "2026-05-20T22:18:36.537Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/verification-context-pack-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-context-pack",
+          "result": "pass",
+          "note": "Smoke asserts createVerificationContextPackExpansion rejects expansionReason shorter than 10 characters.",
+          "headHash": "2a03e704cb9e33d67e5a7a7d833e9508d51ca7ca",
+          "materialHash": "f4b03836fd6169eb0b872d30498de233074388155ab2c0fb1be7d136099f5550",
+          "timestamp": "2026-05-20T22:18:36.693Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/verification-context-pack-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-context-pack",
+          "result": "pass",
+          "note": "Smoke builds target-bound evidence and asserts verificationContextPackId, verificationContextPackDigest and inspectedPackRefs are populated from the pack.",
+          "headHash": "2a03e704cb9e33d67e5a7a7d833e9508d51ca7ca",
+          "materialHash": "f4b03836fd6169eb0b872d30498de233074388155ab2c0fb1be7d136099f5550",
+          "timestamp": "2026-05-20T22:18:36.809Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
