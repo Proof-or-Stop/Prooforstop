@@ -1,0 +1,61 @@
+{
+  "storyId": "B-2157",
+  "checkedAt": "2026-05-20T23:24:36.779Z",
+  "reviewRound": "2026-05-20T23:01:14.631Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/verification-context-pack.md",
+      "promise": "CLI generates an auditable pack/digest/summary and carries requiredCommands into coverage refs.",
+      "status": "verified",
+      "verifiedBy": "smoke + real CLI transcript",
+      "evidence": "Schema/handler expose verification_context_pack_create with requiredCommands and summary fields; required refs include command digests; smoke asserts stable digest plus required command coverage; real temp-repo transcript preserved requiredCommands and summary counts. Refs: packages/main/src/cli-engine.ts:302-329; packages/main/src/handlers/verification-context-pack.ts:10-40; packages/main/src/core/authority-contracts.ts:363-376; packages/main/src/tasks/verification-context-pack-smoke.ts:59-79,165-179; .koala/story/actives/B-2157/evidence/transcript-diff.md:19-55."
+    },
+    {
+      "docPath": "docs/requirements/decisions/verification-context-pack.md",
+      "promise": "Controlled expansion supports impactedSymbols, sourceSnippets, and dependencyEdges.",
+      "status": "verified",
+      "verifiedBy": "schema + handler + smoke",
+      "evidence": "CLI schema and contract schema admit impactedSymbols/sourceSnippets/dependencyEdges; expansion logic merges them under parentPackDigest; smoke covers schema parse, handler expansion, token-budget truncation, and malformed parent rejection. Refs: packages/main/src/cli-engine.ts:318-328; packages/main/src/core/authority-contracts.ts:244-274; packages/main/src/core/verification-context-pack.ts:495-534; packages/main/src/tasks/verification-context-pack-smoke.ts:123-145,181-239."
+    },
+    {
+      "docPath": "docs/requirements/decisions/verification-context-pack.md",
+      "promise": "Deleted files get readable diff-derived source context.",
+      "status": "verified",
+      "verifiedBy": "smoke + real CLI transcript",
+      "evidence": "Snippet generation falls back to deleted diff seeds and marks deleted hunk context from diff; smoke asserts deleted gamma.ts snippet content is readable; real transcript shows gamma.ts snippet reason deleted hunk context from diff. Refs: packages/main/src/core/verification-context-pack.ts:341-365; packages/main/src/tasks/verification-context-pack-smoke.ts:261-282; .koala/story/actives/B-2157/evidence/transcript-diff.md:31-55."
+    },
+    {
+      "docPath": "docs/requirements/NAV.md",
+      "promise": "Requirements docs navigation is synced with the Verification Context Pack decision.",
+      "status": "verified",
+      "verifiedBy": "koala truth_nav + docs review",
+      "evidence": "docs/requirements/NAV.md lists Verification Context Pack and koala truth_nav returns the same entry in decisions. Refs: docs/requirements/NAV.md:1-20; docs/requirements/decisions/verification-context-pack.md:1-70; koala truth_nav output on 2026-05-21 in this worktree."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Real temp-repo user flow: node packages/main/dist/cli.js verification_context_pack_create --producerRunId=run-user-acceptance --storyId=B-2157 --requiredCommands=[npm run test:verification-context-pack] --tokenBudget=2000. Observed changedFiles alpha.ts,beta.ts,gamma.ts; changedHunks 3; sourceSnippets 3; requiredCommands preserved; summary estimatedTokens=23 truncated=false. Evidence: .koala/story/actives/B-2157/evidence/transcript-diff.md:19-55."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Command-level expansion verification: npm --prefix packages/main run test:verification-context-pack. Smoke proves parentPackDigest is returned and controlled expansion carries impactedSymbols, dependencyEdges, sourceSnippets, requiredRefs, and token-budget truncation semantics. Evidence: packages/main/src/tasks/verification-context-pack-smoke.ts:123-145,181-239."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Docs navigation verification on the real worktree: koala truth_nav and direct review of docs/requirements/NAV.md show Verification Context Pack listed in decisions and linked to the new decision doc. Evidence: docs/requirements/NAV.md:1-20 and truth_nav output from this session."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Build and ownership verification: npm --prefix packages/main run build; npm --prefix packages/main run test:verification-context-pack; npm --prefix packages/main run test:command-ownership-contract; npm run test:process-fact-contract; koala validate. Accepted evidence states all commands passed and ownership/process-fact registration stayed dispatchable for verification_context_pack_create and verification_context_pack_expand."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review confirmed a real temp-repo CLI transcript for modified/new/deleted file flow, smoke coverage for expansion and deleted-file edge cases, synced NAV/docs promises, and no unresolved TODOs in the reviewed diff. DONE is still blocked separately by stale verification evidence freshness until the recorded hashes are refreshed."
+  },
+  "_hash": "11efcd4881a98e5cb76cc59c7173e3befcede46d549b0fbb99bd4561718aae26"
+}
