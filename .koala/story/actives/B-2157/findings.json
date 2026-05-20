@@ -195,6 +195,23 @@
         "packages/main/src/handlers/verification-context-pack.ts",
         "packages/main/src/core/verification-context-pack.ts"
       ]
+    },
+    {
+      "id": "B-2157:F-012",
+      "desc": "Deleted-file packs still drop source context. packages/main/src/core/verification-context-pack.ts:221-223 only builds snippets from files that still exist on disk, so after the F-010 hunkRef fix a deletion diff now yields changedHunks for gamma.ts but sourceSnippets=[] with no limitation marker. I reproduced this with the built module by committing gamma.ts, deleting it, and calling createVerificationContextPack(); the resulting pack had one changed hunk and zero snippets. Because the pack does not carry raw patch text, a verifier cannot inspect the removed code from the default context boundary. Fix by deriving deleted-file snippets from the diff text (or embedding deleted patch content in another structured field) and extend the deletion smoke to assert deleted changes still surface readable source context.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-20T22:53:29.586Z",
+      "reviewRound": "2026-05-20T22:40:09.642Z",
+      "reviewRunId": "B-2157:RR-008",
+      "_hash": "54af78d40ce85b84d0f48b51683fccafdeea77b9de81639abdaa6b01d57fba8d",
+      "files": [
+        "packages/main/src/core/verification-context-pack.ts",
+        "packages/main/src/tasks/verification-context-pack-smoke.ts"
+      ]
     }
   ]
 }
