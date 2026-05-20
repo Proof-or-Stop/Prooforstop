@@ -5,7 +5,7 @@
       "desc": "docs/requirements/decisions/verification-context-pack.md:13,22,29 requires requiredCommands to be part of the pack and its default covered refs, but verification_context_pack_create never accepts requiredCommands (packages/main/src/cli-engine.ts:295-308, packages/main/src/handlers/verification-context-pack.ts:10-23) and allContextPackRequiredRefs ignores pack.requiredCommands entirely (packages/main/src/core/authority-contracts.ts:257-269). In this state the CLI slice cannot express or mechanically enforce required-command coverage, so the authority protocol is still incomplete.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-05-20T22:25:48.318Z",
