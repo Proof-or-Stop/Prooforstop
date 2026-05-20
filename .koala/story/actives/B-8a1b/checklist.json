@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Add the two missing runtime-artifact ignore patterns to REQUIRED_RUNTIME_IGNORE_LINES in canonical order",
       "context": "Edit only `scripts/verify-entrypoints.mjs` line 15 area's `REQUIRED_RUNTIME_IGNORE_LINES` array. Two insertions, in canonical registry order:\n  1. `'**/owner-lease.json',` immediately after `'**/activity.jsonl',`\n  2. `'.koala/locks/',` immediately after `'.koala/traces/',`\nResulting list = 14 items, byte-equal to `listRuntimeArtifactIgnorePatterns()` output (verified live: `node -e \"import('./packages/main/dist/core/runtime-artifact-registry.js').then(m => console.log(m.listRuntimeArtifactIgnorePatterns()))\"`). Do NOT change other lines, do NOT restructure, do NOT touch any other file. After the edit, the assertion at verify-entrypoints.mjs:555 (the no-churn `koala init` test) and the byte-equality assertion at :557 both pass.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-05-20T22:01:07.112Z"
     }
   ]
 }

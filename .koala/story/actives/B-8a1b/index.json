@@ -4,7 +4,7 @@
   "title": "Fix koala init gitignore no-churn entrypoint drift",
   "description": "Fix the lone red light on a clean main: `npm run test:entrypoints` fails the `koala init` no-churn .gitignore assertion (\"runtime ignores already present\" missing). Root cause: `scripts/verify-entrypoints.mjs` hardcodes a 12-line REQUIRED_RUNTIME_IGNORE_LINES that diverged from `listRuntimeArtifactIgnorePatterns()` after two prior stories added runtime artifacts to the registry — `.koala/locks/` (B-f60c main write lock) and `**/owner-lease.json` (B-c55d story owner lease) — without updating the test seed. `mergeKoalaRuntimeIgnores` now returns `changed=true` on the test's seeded .gitignore, so cli-init prints \"merged\" instead of the expected \"already present\" branch. Fix: add the two missing patterns to REQUIRED_RUNTIME_IGNORE_LINES in their canonical registry positions. Out of scope: dynamic import from dist (would add a build dependency to the test script), new contract test to auto-detect future drift (separate structural story), any of the stash@{0} authority / verification-context-pack WIP, any other failing test. One file changed: `scripts/verify-entrypoints.mjs`.",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "DEV",
   "priority": "low",
   "createdAt": "2026-05-20T21:59:11.218Z",
   "startedAt": "2026-05-20T21:59:11.218Z",
@@ -15,6 +15,14 @@
       "action": "create",
       "timestamp": "2026-05-20T21:59:11.219Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-20T21:59:21.110Z",
+      "branch": "story/B-8a1b",
       "user": "Harmonygo",
       "agent": "main"
     }
