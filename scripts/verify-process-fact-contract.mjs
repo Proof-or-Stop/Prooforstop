@@ -314,6 +314,7 @@ const processFactCommandNamePatterns = [
   /^test_story$/,
   /^validate$/,
   /^checklist_update$/,
+  /^verification_context_pack_/,
 ];
 
 const ALL_PHASES = ['INIT', 'INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE'];

@@ -1,6 +1,6 @@
 # 真相源导航
 
-> 9 个文件
+> 10 个文件
 
 ## decisions
 
@@ -13,3 +13,4 @@
 - [测试完整性决策](decisions\testing-completeness.md)
 - [测试基础设施](decisions\testing-infra.md)
 - [真相源管理](decisions\truth-source.md)
+- [Verification Context Pack](decisions\verification-context-pack.md)

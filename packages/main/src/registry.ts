@@ -56,6 +56,7 @@ import { createRecoverEvidenceHandlers } from './handlers/recover-evidence.js';
 import { createArtifactDeclareHandlers } from './handlers/artifact-declare.js';
 import { createGapLogHandlers } from './handlers/gap-log.js';
 import { createDoneRecoverHandlers } from './handlers/done-recover.js';
+import { createVerificationContextPackHandlers } from './handlers/verification-context-pack.js';
 import { nextStoryId } from './handlers/context.js';
 
 export type HandlerFn = (...args: any[]) => any;
@@ -178,6 +179,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // B-4c38 CHK-003: done_recover — explicit recovery for partial-DONE stories
   // whose phase was persisted but whose branch did not merge back to main.
   registry.registerBatch(createDoneRecoverHandlers(ctx));
+  registry.registerBatch(createVerificationContextPackHandlers(ctx));
 
   // 内部辅助：返回下一个 story id（fixture/测试 runner 用）
   registry.register('_nextStoryId', (prefix?: string) => nextStoryId(ctx.store, prefix));
