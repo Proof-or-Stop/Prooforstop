@@ -17,6 +17,7 @@ export function createVerificationContextPackHandlers(ctx: HandlerContext) {
       testIntentRefs?: string[];
       acceptanceCriteria?: string[];
       requiredRefs?: string[];
+      requiredCommands?: VerificationContextPackContract['requiredCommands'];
       oracleRefs?: string[];
       tokenBudget?: number;
       excludedPaths?: string[];
@@ -44,6 +45,9 @@ export function createVerificationContextPackHandlers(ctx: HandlerContext) {
       packId?: string;
       expansionReason: string;
       impactedFiles?: string[];
+      impactedSymbols?: VerificationContextPackContract['impactedSymbols'];
+      dependencyEdges?: VerificationContextPackContract['dependencyEdges'];
+      sourceSnippets?: VerificationContextPackContract['sourceSnippets'];
       requiredRefs?: string[];
       tokenBudget?: number;
       metadata?: Record<string, unknown>;

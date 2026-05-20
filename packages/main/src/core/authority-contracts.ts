@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { z } from 'zod';
 
 export interface RepoSnapshotContract {
   headHash?: string;
@@ -181,6 +182,97 @@ export interface TargetBoundEvidenceInput {
   createdAt: string;
 }
 
+export const VerificationCommandContractSchema = z.object({
+  command: z.union([z.string(), z.array(z.string())]),
+  commandDigest: z.string().optional(),
+  commandClass: z.string().optional(),
+  required: z.boolean().optional(),
+}).passthrough();
+
+export const RepoSnapshotContractSchema = z.object({
+  headHash: z.string().optional(),
+  dirty: z.boolean().optional(),
+  materialHash: z.string().optional(),
+}).passthrough();
+
+export const ContextPackHunkContractSchema = z.object({
+  hunkRef: z.string(),
+  file: z.string(),
+  oldStart: z.number().int().optional(),
+  oldLines: z.number().int().optional(),
+  newStart: z.number().int().optional(),
+  newLines: z.number().int().optional(),
+  header: z.string().optional(),
+  patchHash: z.string().optional(),
+  riskTags: z.array(z.string()).optional(),
+  required: z.boolean().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+}).passthrough();
+
+export const ContextPackSnippetContractSchema = z.object({
+  snippetRef: z.string(),
+  file: z.string(),
+  startLine: z.number().int(),
+  endLine: z.number().int(),
+  contentHash: z.string(),
+  content: z.string().optional(),
+  hunkRefs: z.array(z.string()).optional(),
+  tokenEstimate: z.number().int().optional(),
+  reason: z.string().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+}).passthrough();
+
+export const ContextPackSymbolContractSchema = z.object({
+  symbolRef: z.string(),
+  file: z.string(),
+  symbolName: z.string(),
+  kind: z.string().optional(),
+  line: z.number().int().optional(),
+  hunkRefs: z.array(z.string()).optional(),
+  riskTags: z.array(z.string()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+}).passthrough();
+
+export const ContextPackDependencyEdgeContractSchema = z.object({
+  sourceRef: z.string(),
+  targetRef: z.string(),
+  edgeType: z.string(),
+  confidence: z.string().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+}).passthrough();
+
+export const VerificationContextPackContractSchema = z.object({
+  packId: z.string(),
+  producerRunId: z.string(),
+  storyId: z.string().optional(),
+  baseRef: z.string().optional(),
+  headRef: z.string().optional(),
+  repo: RepoSnapshotContractSchema.optional(),
+  diffHash: z.string().optional(),
+  changedFiles: z.array(z.string()).optional(),
+  changedHunks: z.array(ContextPackHunkContractSchema).optional(),
+  changedSymbols: z.array(ContextPackSymbolContractSchema).optional(),
+  impactedFiles: z.array(z.string()).optional(),
+  impactedSymbols: z.array(ContextPackSymbolContractSchema).optional(),
+  dependencyEdges: z.array(ContextPackDependencyEdgeContractSchema).optional(),
+  sourceSnippets: z.array(ContextPackSnippetContractSchema).optional(),
+  checklistItemIds: z.array(z.string()).optional(),
+  testIntentRefs: z.array(z.string()).optional(),
+  acceptanceCriteria: z.array(z.string()).optional(),
+  requiredCommands: z.array(VerificationCommandContractSchema).optional(),
+  oracleRefs: z.array(z.string()).optional(),
+  riskTags: z.array(z.string()).optional(),
+  requiredRefs: z.array(z.string()).optional(),
+  excludedPaths: z.array(z.string()).optional(),
+  limitations: z.array(z.string()).optional(),
+  tokenBudget: z.number().int().nonnegative().optional(),
+  estimatedTokens: z.number().int().nonnegative().optional(),
+  truncated: z.boolean().optional(),
+  parentPackDigest: z.string().optional(),
+  expansionReason: z.string().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+}).passthrough();
+
 type JsonValue = null | boolean | number | string | JsonValue[] | { [key: string]: JsonValue };
 
 function normalizeJson(value: unknown): JsonValue | undefined {
@@ -209,6 +301,20 @@ export function digestCanonical(value: unknown): string {
 
 export function digestCommand(command: string | string[]): string {
   return digestCanonical({ command });
+}
+
+export function parseVerificationContextPackContract(
+  value: unknown,
+  label = 'verification context pack',
+): VerificationContextPackContract {
+  const parsed = VerificationContextPackContractSchema.safeParse(value);
+  if (!parsed.success) {
+    const issues = parsed.error.issues
+      .map(issue => `${issue.path.join('.') || '<root>'}: ${issue.message}`)
+      .join('; ');
+    throw new Error(`${label} is invalid: ${issues}`);
+  }
+  return parsed.data;
 }
 
 export function normalizeVerificationContextPack(
@@ -262,6 +368,7 @@ export function allContextPackRequiredRefs(pack: VerificationContextPackContract
     ...(normalized.impactedFiles ?? []).map(path => `file:${path}`),
     ...(normalized.changedHunks ?? []).map(hunk => `hunk:${hunk.hunkRef}`),
     ...(normalized.sourceSnippets ?? []).map(snippet => `snippet:${snippet.snippetRef}`),
+    ...(normalized.requiredCommands ?? []).map(command => `command:${command.commandDigest ?? digestCommand(command.command)}`),
     ...(normalized.checklistItemIds ?? []).map(id => `checklist:${id}`),
     ...(normalized.testIntentRefs ?? []).map(ref => `intent:${ref}`),
     ...(normalized.oracleRefs ?? []).map(ref => `oracle:${ref}`),

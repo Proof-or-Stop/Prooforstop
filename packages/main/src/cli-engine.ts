@@ -34,6 +34,13 @@ import { getCommandPolicy, isOwnershipClass, type OwnershipClass } from './core/
 import { STORY_OUTCOME_KINDS, VERIFICATION_EVIDENCE_VERDICTS } from './core/types.js';
 import { BACKGROUND_SECTION_IDS, normalizeBackgroundSection } from './core/background-validator.js';
 import {
+  ContextPackDependencyEdgeContractSchema,
+  ContextPackSnippetContractSchema,
+  ContextPackSymbolContractSchema,
+  VerificationCommandContractSchema,
+  VerificationContextPackContractSchema,
+} from './core/authority-contracts.js';
+import {
   STORY_CREATE_LONG, STORY_ADVANCE_LONG, CHECKLIST_UPDATE_LONG,
   STORY_REVIEW_LONG, BUG_REPORT_LONG, VALIDATE_LONG,
   SESSION_BRIEF_FOOTER,
@@ -302,16 +309,20 @@ export const MAIN_TOOLS: ToolDef[] = [
     testIntentRefs: z.array(z.string()).optional().describe('该 pack 必须覆盖的 verificationIntent refs'),
     acceptanceCriteria: z.array(z.string()).optional().describe('验收标准摘要'),
     requiredRefs: z.array(z.string()).optional().describe('额外 required refs'),
+    requiredCommands: z.array(VerificationCommandContractSchema).optional().describe('verifier 必须执行/覆盖的命令约束'),
     oracleRefs: z.array(z.string()).optional().describe('oracle refs'),
     tokenBudget: z.number().int().nonnegative().optional().describe('source snippets token budget'),
     excludedPaths: z.array(z.string()).optional().describe('被排除路径，进入 pack 供审计'),
     metadata: z.record(z.string(), z.unknown()).optional().describe('附加 metadata'),
   }},
   { name: 'verification_context_pack_expand', description: '基于 parent pack 生成受控扩展包（必须说明扩展原因）', schema: {
-    parentPack: z.record(z.string(), z.unknown()).describe('上一个 Verification Context Pack'),
+    parentPack: VerificationContextPackContractSchema.describe('上一个 Verification Context Pack'),
     packId: z.string().optional().describe('新 pack id'),
     expansionReason: z.string().min(10).describe('扩展原因（≥10 字符）'),
     impactedFiles: z.array(z.string()).optional().describe('新增 impacted files'),
+    impactedSymbols: z.array(ContextPackSymbolContractSchema).optional().describe('新增 impacted symbols'),
+    sourceSnippets: z.array(ContextPackSnippetContractSchema).optional().describe('新增 source snippets'),
+    dependencyEdges: z.array(ContextPackDependencyEdgeContractSchema).optional().describe('新增 dependency edges'),
     requiredRefs: z.array(z.string()).optional().describe('新增 required refs'),
     tokenBudget: z.number().int().nonnegative().optional().describe('新 token budget'),
     metadata: z.record(z.string(), z.unknown()).optional().describe('附加 metadata'),

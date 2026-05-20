@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import {
   digestCanonical,
   digestVerificationContextPack,
+  parseVerificationContextPackContract,
   type ContextPackHunkContract,
   type ContextPackSnippetContract,
   type ContextPackSymbolContract,
@@ -46,6 +47,8 @@ export interface VerificationContextPackExpansionInput {
   tokenBudget?: number;
   metadata?: Record<string, unknown>;
 }
+
+const TOKEN_BUDGET_LIMITATION = 'token budget truncated source snippets';
 
 function git(root: string, args: string[]): string {
   return execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trimEnd();
@@ -122,7 +125,8 @@ function appendUntrackedDiffs(root: string, diffText: string, untrackedFiles: st
 
 export function parseGitDiffHunks(diffText: string): ContextPackHunkContract[] {
   const hunks: ContextPackHunkContract[] = [];
-  let currentFile = '';
+  let currentOldFile = '';
+  let currentNewFile = '';
   let patchLines: string[] = [];
   let current: Omit<ContextPackHunkContract, 'patchHash'> | undefined;
 
@@ -136,8 +140,31 @@ export function parseGitDiffHunks(diffText: string): ContextPackHunkContract[] {
   }
 
   for (const line of diffText.split('\n')) {
-    const fileMatch = line.match(/^\+\+\+ b\/(.+)$/);
-    if (fileMatch) currentFile = fileMatch[1];
+    const diffMatch = line.match(/^diff --git a\/(.+) b\/(.+)$/);
+    if (diffMatch) {
+      flush();
+      currentOldFile = diffMatch[1];
+      currentNewFile = diffMatch[2];
+      continue;
+    }
+    const oldFileMatch = line.match(/^--- a\/(.+)$/);
+    if (oldFileMatch) {
+      currentOldFile = oldFileMatch[1];
+      continue;
+    }
+    if (line === '--- /dev/null') {
+      currentOldFile = '';
+      continue;
+    }
+    const newFileMatch = line.match(/^\+\+\+ b\/(.+)$/);
+    if (newFileMatch) {
+      currentNewFile = newFileMatch[1];
+      continue;
+    }
+    if (line === '+++ /dev/null') {
+      currentNewFile = '';
+      continue;
+    }
     const hunkMatch = line.match(/^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@(.*)$/);
     if (hunkMatch) {
       flush();
@@ -145,16 +172,23 @@ export function parseGitDiffHunks(diffText: string): ContextPackHunkContract[] {
       const oldLines = Number(hunkMatch[2] ?? '1');
       const newStart = Number(hunkMatch[3]);
       const newLines = Number(hunkMatch[4] ?? '1');
+      const file = currentNewFile || currentOldFile;
+      if (!file) {
+        current = undefined;
+        patchLines = [];
+        continue;
+      }
+      const hunkAnchor = newStart > 0 ? newStart : oldStart;
       const header = line;
       current = {
-        hunkRef: `${currentFile}:${newStart}`,
-        file: currentFile,
+        hunkRef: `${file}:${hunkAnchor}`,
+        file,
         oldStart,
         oldLines,
         newStart,
         newLines,
         header,
-        riskTags: riskTagsForFile(currentFile),
+        riskTags: riskTagsForFile(file),
         required: true,
         metadata: {},
       };
@@ -212,6 +246,46 @@ function snippetsForHunks(root: string, hunks: ContextPackHunkContract[], tokenB
   }
 
   return { snippets, estimatedTokens, truncated };
+}
+
+function estimateSnippetTokens(snippet: ContextPackSnippetContract): number {
+  if (snippet.tokenEstimate !== undefined) return snippet.tokenEstimate;
+  if (snippet.content !== undefined) return countTokensApprox(snippet.content);
+  return countTokensApprox(`${snippet.file}:${snippet.startLine}-${snippet.endLine}`);
+}
+
+function rebalanceSourceSnippets(
+  snippets: ContextPackSnippetContract[],
+  tokenBudget?: number,
+): {
+  snippets: ContextPackSnippetContract[];
+  estimatedTokens: number;
+  truncated: boolean;
+  limitations: string[];
+} {
+  const kept: ContextPackSnippetContract[] = [];
+  let estimatedTokens = 0;
+  let truncated = false;
+
+  for (const snippet of snippets) {
+    const tokenEstimate = estimateSnippetTokens(snippet);
+    if (tokenBudget !== undefined && estimatedTokens + tokenEstimate > tokenBudget) {
+      truncated = true;
+      continue;
+    }
+    estimatedTokens += tokenEstimate;
+    kept.push({
+      ...snippet,
+      tokenEstimate,
+    });
+  }
+
+  return {
+    snippets: kept,
+    estimatedTokens,
+    truncated,
+    limitations: truncated ? [TOKEN_BUDGET_LIMITATION] : [],
+  };
 }
 
 function symbolsForHunks(root: string, hunks: ContextPackHunkContract[]): ContextPackSymbolContract[] {
@@ -283,7 +357,7 @@ export function createVerificationContextPack(input: VerificationContextPackInpu
     riskTags,
     requiredRefs: input.requiredRefs ?? [],
     excludedPaths: input.excludedPaths ?? [],
-    limitations: snippetResult.truncated ? ['token budget truncated source snippets'] : [],
+    limitations: snippetResult.truncated ? [TOKEN_BUDGET_LIMITATION] : [],
     tokenBudget: input.tokenBudget,
     estimatedTokens: snippetResult.estimatedTokens,
     truncated: snippetResult.truncated,
@@ -301,23 +375,36 @@ export function createVerificationContextPackExpansion(
   parent: VerificationContextPackContract,
   input: VerificationContextPackExpansionInput,
 ): { pack: VerificationContextPackContract; packDigest: string; parentPackDigest: string } {
+  const normalizedParent = parseVerificationContextPackContract(parent, 'verification_context_pack_expand: parentPack');
   const expansionReason = input.expansionReason.trim();
   if (expansionReason.length < 10) {
     throw new Error('verification_context_pack_expand: expansionReason must explain the expansion (>= 10 chars)');
   }
-  const parentPackDigest = digestVerificationContextPack(parent);
+  const tokenBudget = input.tokenBudget ?? normalizedParent.tokenBudget;
+  const snippetResult = rebalanceSourceSnippets(
+    [...(normalizedParent.sourceSnippets ?? []), ...(input.sourceSnippets ?? [])],
+    tokenBudget,
+  );
+  const limitations = [
+    ...(normalizedParent.limitations ?? []).filter(limitation => limitation !== TOKEN_BUDGET_LIMITATION),
+    ...snippetResult.limitations,
+  ];
+  const parentPackDigest = digestVerificationContextPack(normalizedParent);
   const pack: VerificationContextPackContract = {
-    ...parent,
-    packId: input.packId || `${parent.packId}-expansion-${sha256(expansionReason).slice(0, 8)}`,
-    impactedFiles: [...new Set([...(parent.impactedFiles ?? []), ...(input.impactedFiles ?? [])])].sort(),
-    impactedSymbols: [...(parent.impactedSymbols ?? []), ...(input.impactedSymbols ?? [])],
-    dependencyEdges: [...(parent.dependencyEdges ?? []), ...(input.dependencyEdges ?? [])],
-    sourceSnippets: [...(parent.sourceSnippets ?? []), ...(input.sourceSnippets ?? [])],
-    requiredRefs: [...new Set([...(parent.requiredRefs ?? []), ...(input.requiredRefs ?? [])])].sort(),
-    tokenBudget: input.tokenBudget ?? parent.tokenBudget,
+    ...normalizedParent,
+    packId: input.packId || `${normalizedParent.packId}-expansion-${sha256(expansionReason).slice(0, 8)}`,
+    impactedFiles: [...new Set([...(normalizedParent.impactedFiles ?? []), ...(input.impactedFiles ?? [])])].sort(),
+    impactedSymbols: [...(normalizedParent.impactedSymbols ?? []), ...(input.impactedSymbols ?? [])],
+    dependencyEdges: [...(normalizedParent.dependencyEdges ?? []), ...(input.dependencyEdges ?? [])],
+    sourceSnippets: snippetResult.snippets,
+    requiredRefs: [...new Set([...(normalizedParent.requiredRefs ?? []), ...(input.requiredRefs ?? [])])].sort(),
+    tokenBudget,
+    estimatedTokens: snippetResult.estimatedTokens,
+    truncated: snippetResult.truncated,
+    limitations,
     parentPackDigest,
     expansionReason,
-    metadata: { ...(parent.metadata ?? {}), ...(input.metadata ?? {}) },
+    metadata: { ...(normalizedParent.metadata ?? {}), ...(input.metadata ?? {}) },
   };
   return {
     pack,
