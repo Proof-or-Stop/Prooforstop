@@ -26,6 +26,15 @@
       "reviewRound": "2026-05-20T22:40:09.642Z",
       "reviewRunId": "B-2157:RR-006",
       "_hash": "33b117f0d533e25dcb9d3be9a9cc1d876b2eee5712d23c2076454fd2fb6c296e"
+    },
+    {
+      "id": "B-2157:RP-004",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: re-ran npm --prefix packages/main run test:verification-context-pack on head f9cea7ae and inspected the second-round smoke/core changes. F-013 is covered by the multi-file regression smoke asserting changedHunks=[alpha.ts:1,beta.ts:1] with non-empty patchHash for each hunk, matching the flush() reset fix in parseGitDiffHunks. F-012 is covered by the deleted-file smoke asserting gamma.ts keeps changedHunks plus readable sourceSnippets content derived from diff text, matching deletedSnippetSeedsForDiff/snippetsForHunks. No additional coverage blocker found for the second-round fixes.",
+      "createdAt": "2026-05-20T23:07:55.175Z",
+      "reviewRound": "2026-05-20T23:01:14.631Z",
+      "reviewRunId": "B-2157:RR-012",
+      "_hash": "0df9ca4cf52ee6fe809d3838397850c3d978e7a777827ba3a2b47cd40cb274b2"
     }
   ]
 }
