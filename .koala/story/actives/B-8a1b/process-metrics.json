@@ -1,6 +1,6 @@
 {
   "storyId": "B-8a1b",
-  "generatedAt": "2026-05-20T21:59:21.173Z",
+  "generatedAt": "2026-05-20T22:02:56.036Z",
   "sourceSnapshot": {
     "hasUnderstanding": false,
     "hasDecision": false,
@@ -117,16 +117,14 @@
           ]
         },
         "postDevChecklistChurn": {
-          "value": null,
+          "value": 0,
           "unit": "count",
-          "confidence": "unknown",
-          "sources": [],
-          "note": "requires process-events.jsonl (Phase 3)"
+          "confidence": "medium",
+          "sources": [
+            "process-events.jsonl"
+          ]
         }
-      },
-      "gaps": [
-        "checklist churn tracking requires process-events.jsonl"
-      ]
+      }
     },
     "debugging": {
       "effective": {
@@ -176,16 +174,14 @@
           "note": "no data (0 denominator)"
         },
         "reopenCount": {
-          "value": null,
+          "value": 0,
           "unit": "count",
-          "confidence": "unknown",
-          "sources": [],
-          "note": "requires process-events.jsonl (Phase 3)"
+          "confidence": "low",
+          "sources": [
+            "process-events.jsonl"
+          ]
         }
-      },
-      "gaps": [
-        "bug reopen tracking requires process-events.jsonl"
-      ]
+      }
     },
     "planning": {
       "effective": {
@@ -233,16 +229,15 @@
           ]
         },
         "blockedTaskCount": {
-          "value": null,
+          "value": 0,
           "unit": "count",
-          "confidence": "unknown",
-          "sources": [],
-          "note": "requires process-events.jsonl (Phase 3)"
+          "confidence": "medium",
+          "sources": [
+            "process-events.jsonl"
+          ],
+          "note": "no dispatch events"
         }
-      },
-      "gaps": [
-        "blocked task tracking requires process-events.jsonl"
-      ]
+      }
     },
     "subagentCollaboration": {
       "effective": {
@@ -284,24 +279,25 @@
           "note": "express channel — main agent 允许自写代码 — no violation possible"
         },
         "parallelBatchCount": {
-          "value": null,
+          "value": 0,
           "unit": "count",
-          "confidence": "unknown",
-          "sources": [],
-          "note": "requires process-events.jsonl (Phase 3)"
+          "confidence": "medium",
+          "sources": [
+            "process-events.jsonl"
+          ],
+          "note": "no dispatch events"
         },
         "blockedReturnCount": {
-          "value": null,
+          "value": 0,
           "unit": "count",
-          "confidence": "unknown",
-          "sources": [],
-          "note": "requires process-events.jsonl (Phase 3)"
+          "confidence": "medium",
+          "sources": [
+            "process-events.jsonl"
+          ]
         }
       },
       "gaps": [
-        "accurate subagent detection requires git commit author data or process-events.jsonl",
-        "parallel batch tracking requires process-events.jsonl",
-        "blocked return tracking requires process-events.jsonl"
+        "accurate subagent detection requires git commit author data or process-events.jsonl"
       ]
     },
     "reviewDiscipline": {
@@ -350,25 +346,18 @@
           "note": "no reviews"
         },
         "reviewAfterEachBatch": {
-          "value": null,
-          "unit": "count",
-          "confidence": "unknown",
-          "sources": [],
-          "note": "requires process-events.jsonl (Phase 3)"
+          "value": "n/a",
+          "unit": "text",
+          "confidence": "medium",
+          "sources": [
+            "process-events.jsonl"
+          ],
+          "note": "no dispatch events"
         }
-      },
-      "gaps": [
-        "review-after-batch tracking requires process-events.jsonl"
-      ]
+      }
     }
   },
   "overallGaps": [
-    "checklist churn tracking requires process-events.jsonl",
-    "bug reopen tracking requires process-events.jsonl",
-    "blocked task tracking requires process-events.jsonl",
-    "accurate subagent detection requires git commit author data or process-events.jsonl",
-    "parallel batch tracking requires process-events.jsonl",
-    "blocked return tracking requires process-events.jsonl",
-    "review-after-batch tracking requires process-events.jsonl"
+    "accurate subagent detection requires git commit author data or process-events.jsonl"
   ]
 }
