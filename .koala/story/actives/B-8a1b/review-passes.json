@@ -8,6 +8,15 @@
       "reviewRound": "2026-05-20T22:01:12.079Z",
       "reviewRunId": "B-8a1b:RR-001",
       "_hash": "888ef6cc5c9f4294eea7c45a1ecffaba08b1140d68d9e0f308651d83db4bca0b"
+    },
+    {
+      "id": "B-8a1b:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Reviewed scripts/verify-entrypoints.mjs only. Two insertions (`**/owner-lease.json` after `**/activity.jsonl`; `.koala/locks/` after `.koala/traces/`) match canonical order from listRuntimeArtifactIgnorePatterns() (verified live). No dead code, no type safety issues, no unrelated changes, no I/O shell isolation violations.",
+      "createdAt": "2026-05-20T22:02:02.156Z",
+      "reviewRound": "2026-05-20T22:01:12.079Z",
+      "reviewRunId": "B-8a1b:RR-002",
+      "_hash": "cd801098fbb4ccbb6b6fc428d5bd0533b60301ee6a6c43a7fa4b89ee5e6af48a"
     }
   ]
 }
