@@ -70,6 +70,41 @@
       "files": [
         "docs/requirements/decisions/verification-context-pack.md"
       ]
+    },
+    {
+      "id": "B-2157:F-005",
+      "desc": "CHK-001/CHK-004 only partially cover the create command contract: the smoke invokes verification_context_pack_create but asserts only packDigest. The handler’s user-visible summary fields (changedFiles, changedHunks, sourceSnippets, estimatedTokens, truncated) are never checked, so a regression in the structured summary promised by userSees can ship green.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-05-20T22:26:18.510Z",
+      "reviewRound": "2026-05-20T22:21:31.958Z",
+      "reviewRunId": "B-2157:RR-003",
+      "_hash": "ce0214d40bea78be80e3081e67ab5e5a11d52138eb423f0e9309188dc20dce7b",
+      "files": [
+        "packages/main/src/tasks/verification-context-pack-smoke.ts",
+        "packages/main/src/handlers/verification-context-pack.ts"
+      ]
+    },
+    {
+      "id": "B-2157:F-006",
+      "desc": "CHK-002 verification coverage is incomplete: the smoke only exercises createVerificationContextPackExpansion() and buildTargetBoundEvidenceEnvelope() directly, but never calls the user-facing verification_context_pack_expand handler nor EvidenceCollector.collect. A regression in handler return shape (parentPackDigest/pack) or collector auto-binding of pack refs into coveredRefs/inspectedPackRefs would still pass the claimed CHK-002 happy/adversarial evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-05-20T22:26:18.584Z",
+      "reviewRound": "2026-05-20T22:21:31.958Z",
+      "reviewRunId": "B-2157:RR-003",
+      "_hash": "8837e5b9e8642cb1d465565224fd11eb825a45d7074a5c831efc5f051712f347",
+      "files": [
+        "packages/main/src/tasks/verification-context-pack-smoke.ts",
+        "packages/main/src/handlers/verification-context-pack.ts",
+        "packages/main/src/core/evidence-collector.ts"
+      ]
     }
   ]
 }
