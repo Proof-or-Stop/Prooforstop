@@ -105,6 +105,25 @@
         "packages/main/src/handlers/verification-context-pack.ts",
         "packages/main/src/core/evidence-collector.ts"
       ]
+    },
+    {
+      "id": "B-2157:F-007",
+      "desc": "docs/requirements/decisions/verification-context-pack.md:22 and :29 describe required-command coverage as part of the context-pack/evidence contract, but the current CLI slice cannot express that contract. verification_context_pack_create does not accept requiredCommands at all (packages/main/src/cli-engine.ts:295-308, packages/main/src/handlers/verification-context-pack.ts:10-23), and allContextPackRequiredRefs still omits pack.requiredCommands when synthesizing coveredRefs/inspectedPackRefs (packages/main/src/core/authority-contracts.ts:257-269). If future Python/Runner work follows this truth source as written, it will expect mechanical coverage data the CLI never emits.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-05-20T22:26:43.332Z",
+      "reviewRound": "2026-05-20T22:21:31.958Z",
+      "reviewRunId": "B-2157:RR-004",
+      "_hash": "ec94a1d0788a3f920a31f08de35b06bd46b312ab9180135e9df73600fc871cb0",
+      "files": [
+        "docs/requirements/decisions/verification-context-pack.md",
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/handlers/verification-context-pack.ts",
+        "packages/main/src/core/authority-contracts.ts"
+      ]
     }
   ]
 }
