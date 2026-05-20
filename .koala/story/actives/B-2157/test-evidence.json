@@ -1,0 +1,267 @@
+{
+  "command": "koala validate --story=B-2157 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.3 test\",\"  > npm run test:e2e\",\"  > koala@0.3.3 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 12/12 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/logic] covered via logic_test verdict=success (packages/main/src/tasks/verification-context-pack-smoke.ts) — 生成包含 tracked 修改和 untracked 新文件的 context pack，并返回稳定 packDigest 与 summary。\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test verdict=success (packages/main/src/tasks/verification-context-pack-smoke.ts) — tokenBudget 太小时 source snippets 被截断，pack.truncated=true 且 limitations 说明原因。\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test verdict=success (packages/main/src/tasks/verification-context-pack-smoke.ts) — 不能只依赖 git diff --name-only 导致 untracked 新文件缺席 pack.changedFiles。\",\"  ✓ CHK-002:happy:0 [happy/must/logic] covered via logic_test verdict=success (packages/main/src/tasks/verification-context-pack-smoke.ts) — 基于 parent pack 创建扩展包，返回 parentPackDigest，并保留 parent-linked pack chain。\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test verdict=success (packages/main/src/tasks/verification-context-pack-smoke.ts) — expansionReason 少于 10 字符时拒绝扩展包创建。\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test verdict=success (packages/main/src/tasks/verification-context-pack-smoke.ts) — Evidence envelope 不能只带自然语言 note，必须绑定 pack id、digest、coveredRefs 和 inspectedPackRefs。\",\"  ✓ CHK-003:happy:0 [happy/must/docs] covered via docs_check verdict=success (docs/requirements/decisions/verification-context-pack.md) — truth source 文档存在，并说明 CLI 责任、server 配合、验证命令和后续维护规则。\",\"  ✓ CHK-003:edge:0 [edge/must/docs] covered via docs_check verdict=success (docs/requirements/NAV.md) — NAV 文档索引同步包含 Verification Context Pack 条目。\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/docs] covered via docs_check verdict=success (docs/requirements/decisions/verification-context-pack.md) — 文档不能声称当前 Story 交付 authority-client/evidence submission 旧 WIP 范围。\",\"  ✓ CHK-004:happy:0 [happy/must/cli] covered via manual_transcript verdict=success (packages/main/src/tasks/verification-context-pack-smoke.ts) — npm build、verification-context-pack smoke 和 command-ownership contract 全部通过。\",\"  ✓ CHK-004:edge:0 [edge/must/logic] covered via logic_test verdict=success (packages/main/src/tasks/command-ownership-contract.ts) — 新增命令必须在 MAIN_TOOLS、registry、DEFAULT_PHASE_TOOLS 和 command policy 中可发现。\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/cli] covered via manual_transcript verdict=success (packages/main/src/tasks/command-ownership-contract.ts) — 新增命令不能成为 command ownership contract 中未分类/不可 dispatch 的命令。\"],\"warnings\":[],\"timestamp\":\"2026-05-20T23:02:03.703Z\",\"headSha\":\"53a25f81189ed94ba3341b020814140c14f12579\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.3 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.3 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":10577}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":12,\"reason\":\"verificationIntent entries present (12)\"},\"verificationCoverage\":{\"total\":12,\"required\":12,\"covered\":12,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"生成包含 tracked 修改和 untracked 新文件的 context pack，并返回稳定 packDigest 与 summary。\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/verification-context-pack-smoke.ts\",\"command\":\"npm --prefix packages/main run test:verification-context-pack\",\"result\":\"pass\",\"note\":\"Smoke asserts verification_context_pack_create returns a stable digest and includes tracked alpha.ts plus untracked beta.ts in changedFiles with source snippets.\",\"headHash\":\"2497e8aa9a42d0a884f4070b62973142af8aca1e\",\"materialHash\":\"89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5\",\"timestamp\":\"2026-05-20T23:01:28.967Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"tokenBudget 太小时 source snippets 被截断，pack.truncated=true 且 limitations 说明原因。\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/verification-context-pack-smoke.ts\",\"command\":\"npm --prefix packages/main run test:verification-context-pack\",\"result\":\"pass\",\"note\":\"Smoke calls createVerificationContextPack with tokenBudget=1 and asserts pack.truncated=true plus the token budget limitation.\",\"headHash\":\"2497e8aa9a42d0a884f4070b62973142af8aca1e\",\"materialHash\":\"89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5\",\"timestamp\":\"2026-05-20T23:01:28.967Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"不能只依赖 git diff --name-only 导致 untracked 新文件缺席 pack.changedFiles。\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/verification-context-pack-smoke.ts\",\"command\":\"npm --prefix packages/main run test:verification-context-pack\",\"result\":\"pass\",\"note\":\"Regression proves the generator uses git ls-files --others --exclude-standard by asserting untracked beta.ts appears as file and hunk refs.\",\"headHash\":\"2497e8aa9a42d0a884f4070b62973142af8aca1e\",\"materialHash\":\"89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5\",\"timestamp\":\"2026-05-20T23:01:28.967Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"基于 parent pack 创建扩展包，返回 parentPackDigest，并保留 parent-linked pack chain。\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/verification-context-pack-smoke.ts\",\"command\":\"npm --prefix packages/main run test:verification-context-pack\",\"result\":\"pass\",\"note\":\"Smoke creates a parent-linked expansion and asserts parentPackDigest equals the original pack digest while impactedFiles carry forward.\",\"headHash\":\"2497e8aa9a42d0a884f4070b62973142af8aca1e\",\"materialHash\":\"89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5\",\"timestamp\":\"2026-05-20T23:01:28.967Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"expansionReason 少于 10 字符时拒绝扩展包创建。\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/verification-context-pack-smoke.ts\",\"command\":\"npm --prefix packages/main run test:verification-context-pack\",\"result\":\"pass\",\"note\":\"Smoke asserts createVerificationContextPackExpansion rejects expansionReason shorter than 10 characters.\",\"headHash\":\"2497e8aa9a42d0a884f4070b62973142af8aca1e\",\"materialHash\":\"89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5\",\"timestamp\":\"2026-05-20T23:01:28.967Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Evidence envelope 不能只带自然语言 note，必须绑定 pack id、digest、coveredRefs 和 inspectedPackRefs。\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/verification-context-pack-smoke.ts\",\"command\":\"npm --prefix packages/main run test:verification-context-pack\",\"result\":\"pass\",\"note\":\"Smoke builds target-bound evidence and asserts verificationContextPackId, verificationContextPackDigest and inspectedPackRefs are populated from the pack.\",\"headHash\":\"2497e8aa9a42d0a884f4070b62973142af8aca1e\",\"materialHash\":\"89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5\",\"timestamp\":\"2026-05-20T23:01:28.967Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"truth source 文档存在，并说明 CLI 责任、server 配合、验证命令和后续维护规则。\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/requirements/decisions/verification-context-pack.md\",\"command\":\"rg -n \\\"Verification Context Pack|verification_context_pack_create|verification_context_pack_expand|buildTargetBoundEvidenceEnvelope|Python authority server\\\" docs/requirements/NAV.md docs/requirements/decisions/verification-context-pack.md\",\"result\":\"pass\",\"note\":\"Read-only docs check confirmed the decision doc describes CLI responsibility, server coordination, validation commands and maintenance rules.\",\"headHash\":\"2497e8aa9a42d0a884f4070b62973142af8aca1e\",\"materialHash\":\"89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5\",\"timestamp\":\"2026-05-20T23:01:28.967Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"NAV 文档索引同步包含 Verification Context Pack 条目。\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/requirements/NAV.md\",\"command\":\"rg -n \\\"Verification Context Pack\\\" docs/requirements/NAV.md\",\"result\":\"pass\",\"note\":\"NAV includes the Verification Context Pack decision link.\",\"headHash\":\"2497e8aa9a42d0a884f4070b62973142af8aca1e\",\"materialHash\":\"89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5\",\"timestamp\":\"2026-05-20T23:01:28.967Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"文档不能声称当前 Story 交付 authority-client/evidence submission 旧 WIP 范围。\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/requirements/decisions/verification-context-pack.md\",\"command\":\"rg -n \\\"authority-client|evidence submission|verification_context_pack_create\\\" docs/requirements/decisions/verification-context-pack.md\",\"result\":\"pass\",\"note\":\"Document scope is the context pack CLI/server protocol and does not claim delivery of the old authority-client/evidence-submission WIP.\",\"headHash\":\"2497e8aa9a42d0a884f4070b62973142af8aca1e\",\"materialHash\":\"89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5\",\"timestamp\":\"2026-05-20T23:01:28.967Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"npm build、verification-context-pack smoke 和 command-ownership contract 全部通过。\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/verification-context-pack-smoke.ts\",\"command\":\"npm --prefix packages/main run build; npm --prefix packages/main run test:verification-context-pack; npm --prefix packages/main run test:command-ownership-contract\",\"result\":\"pass\",\"note\":\"Final verification ran build, VCP smoke, and command ownership contract successfully.\",\"headHash\":\"2497e8aa9a42d0a884f4070b62973142af8aca1e\",\"materialHash\":\"89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5\",\"timestamp\":\"2026-05-20T23:01:28.967Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"新增命令必须在 MAIN_TOOLS、registry、DEFAULT_PHASE_TOOLS 和 command policy 中可发现。\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/command-ownership-contract.ts\",\"command\":\"npm --prefix packages/main run test:command-ownership-contract; npm run test:process-fact-contract\",\"result\":\"pass\",\"note\":\"Contracts prove the new commands are in MAIN_TOOLS, createMainRegistry, DEFAULT_PHASE_TOOLS, command policy, and PROCESS_FACT_LEVELS.\",\"headHash\":\"2497e8aa9a42d0a884f4070b62973142af8aca1e\",\"materialHash\":\"89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5\",\"timestamp\":\"2026-05-20T23:01:28.967Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"新增命令不能成为 command ownership contract 中未分类/不可 dispatch 的命令。\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/command-ownership-contract.ts\",\"command\":\"npm --prefix packages/main run test:command-ownership-contract\",\"result\":\"pass\",\"note\":\"Command ownership contract reports all 96 CLI commands have valid ownershipClass and dispatchable handlers, so VCP commands are not unclassified.\",\"headHash\":\"2497e8aa9a42d0a884f4070b62973142af8aca1e\",\"materialHash\":\"89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5\",\"timestamp\":\"2026-05-20T23:01:28.967Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-05-20T23:02:09.136Z",
+  "headHash": "53a25f81189ed94ba3341b020814140c14f12579",
+  "verificationCoverage": {
+    "total": 12,
+    "required": 12,
+    "covered": 12,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "生成包含 tracked 修改和 untracked 新文件的 context pack，并返回稳定 packDigest 与 summary。",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/verification-context-pack-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-context-pack",
+          "result": "pass",
+          "note": "Smoke asserts verification_context_pack_create returns a stable digest and includes tracked alpha.ts plus untracked beta.ts in changedFiles with source snippets.",
+          "headHash": "2497e8aa9a42d0a884f4070b62973142af8aca1e",
+          "materialHash": "89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5",
+          "timestamp": "2026-05-20T23:01:28.967Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "tokenBudget 太小时 source snippets 被截断，pack.truncated=true 且 limitations 说明原因。",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/verification-context-pack-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-context-pack",
+          "result": "pass",
+          "note": "Smoke calls createVerificationContextPack with tokenBudget=1 and asserts pack.truncated=true plus the token budget limitation.",
+          "headHash": "2497e8aa9a42d0a884f4070b62973142af8aca1e",
+          "materialHash": "89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5",
+          "timestamp": "2026-05-20T23:01:28.967Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "不能只依赖 git diff --name-only 导致 untracked 新文件缺席 pack.changedFiles。",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/verification-context-pack-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-context-pack",
+          "result": "pass",
+          "note": "Regression proves the generator uses git ls-files --others --exclude-standard by asserting untracked beta.ts appears as file and hunk refs.",
+          "headHash": "2497e8aa9a42d0a884f4070b62973142af8aca1e",
+          "materialHash": "89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5",
+          "timestamp": "2026-05-20T23:01:28.967Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "基于 parent pack 创建扩展包，返回 parentPackDigest，并保留 parent-linked pack chain。",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/verification-context-pack-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-context-pack",
+          "result": "pass",
+          "note": "Smoke creates a parent-linked expansion and asserts parentPackDigest equals the original pack digest while impactedFiles carry forward.",
+          "headHash": "2497e8aa9a42d0a884f4070b62973142af8aca1e",
+          "materialHash": "89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5",
+          "timestamp": "2026-05-20T23:01:28.967Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "expansionReason 少于 10 字符时拒绝扩展包创建。",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/verification-context-pack-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-context-pack",
+          "result": "pass",
+          "note": "Smoke asserts createVerificationContextPackExpansion rejects expansionReason shorter than 10 characters.",
+          "headHash": "2497e8aa9a42d0a884f4070b62973142af8aca1e",
+          "materialHash": "89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5",
+          "timestamp": "2026-05-20T23:01:28.967Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Evidence envelope 不能只带自然语言 note，必须绑定 pack id、digest、coveredRefs 和 inspectedPackRefs。",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/verification-context-pack-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-context-pack",
+          "result": "pass",
+          "note": "Smoke builds target-bound evidence and asserts verificationContextPackId, verificationContextPackDigest and inspectedPackRefs are populated from the pack.",
+          "headHash": "2497e8aa9a42d0a884f4070b62973142af8aca1e",
+          "materialHash": "89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5",
+          "timestamp": "2026-05-20T23:01:28.967Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "truth source 文档存在，并说明 CLI 责任、server 配合、验证命令和后续维护规则。",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/verification-context-pack.md",
+          "command": "rg -n \"Verification Context Pack|verification_context_pack_create|verification_context_pack_expand|buildTargetBoundEvidenceEnvelope|Python authority server\" docs/requirements/NAV.md docs/requirements/decisions/verification-context-pack.md",
+          "result": "pass",
+          "note": "Read-only docs check confirmed the decision doc describes CLI responsibility, server coordination, validation commands and maintenance rules.",
+          "headHash": "2497e8aa9a42d0a884f4070b62973142af8aca1e",
+          "materialHash": "89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5",
+          "timestamp": "2026-05-20T23:01:28.967Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "NAV 文档索引同步包含 Verification Context Pack 条目。",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/NAV.md",
+          "command": "rg -n \"Verification Context Pack\" docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "NAV includes the Verification Context Pack decision link.",
+          "headHash": "2497e8aa9a42d0a884f4070b62973142af8aca1e",
+          "materialHash": "89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5",
+          "timestamp": "2026-05-20T23:01:28.967Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "文档不能声称当前 Story 交付 authority-client/evidence submission 旧 WIP 范围。",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/verification-context-pack.md",
+          "command": "rg -n \"authority-client|evidence submission|verification_context_pack_create\" docs/requirements/decisions/verification-context-pack.md",
+          "result": "pass",
+          "note": "Document scope is the context pack CLI/server protocol and does not claim delivery of the old authority-client/evidence-submission WIP.",
+          "headHash": "2497e8aa9a42d0a884f4070b62973142af8aca1e",
+          "materialHash": "89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5",
+          "timestamp": "2026-05-20T23:01:28.967Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "npm build、verification-context-pack smoke 和 command-ownership contract 全部通过。",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/verification-context-pack-smoke.ts",
+          "command": "npm --prefix packages/main run build; npm --prefix packages/main run test:verification-context-pack; npm --prefix packages/main run test:command-ownership-contract",
+          "result": "pass",
+          "note": "Final verification ran build, VCP smoke, and command ownership contract successfully.",
+          "headHash": "2497e8aa9a42d0a884f4070b62973142af8aca1e",
+          "materialHash": "89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5",
+          "timestamp": "2026-05-20T23:01:28.967Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "新增命令必须在 MAIN_TOOLS、registry、DEFAULT_PHASE_TOOLS 和 command policy 中可发现。",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/command-ownership-contract.ts",
+          "command": "npm --prefix packages/main run test:command-ownership-contract; npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Contracts prove the new commands are in MAIN_TOOLS, createMainRegistry, DEFAULT_PHASE_TOOLS, command policy, and PROCESS_FACT_LEVELS.",
+          "headHash": "2497e8aa9a42d0a884f4070b62973142af8aca1e",
+          "materialHash": "89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5",
+          "timestamp": "2026-05-20T23:01:28.967Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "新增命令不能成为 command ownership contract 中未分类/不可 dispatch 的命令。",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/command-ownership-contract.ts",
+          "command": "npm --prefix packages/main run test:command-ownership-contract",
+          "result": "pass",
+          "note": "Command ownership contract reports all 96 CLI commands have valid ownershipClass and dispatchable handlers, so VCP commands are not unclassified.",
+          "headHash": "2497e8aa9a42d0a884f4070b62973142af8aca1e",
+          "materialHash": "89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5",
+          "timestamp": "2026-05-20T23:01:28.967Z"
+        }
+      }
+    ]
+  }
+}
