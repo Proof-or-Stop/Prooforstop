@@ -177,6 +177,24 @@
         "packages/main/src/core/verification-context-pack.ts",
         "packages/main/src/tasks/verification-context-pack-smoke.ts"
       ]
+    },
+    {
+      "id": "B-2157:F-011",
+      "desc": "verification_context_pack_expand 对 parentPack 基本不做结构校验。CLI schema 把它定义成 `z.record(z.string(), z.unknown())`（`packages/main/src/cli-engine.ts` 310-317），handler 直接当成 `VerificationContextPackContract` 传入 core（`packages/main/src/handlers/verification-context-pack.ts` 42-57）。我实测传 `{}` 也能成功返回 `packId=undefined-expansion-...`、缺失 producerRunId 的 pack。这会让 parent-linked chain 失去类型安全，生成看似合法但实际上不满足 contract 的包。修复建议：为 parentPack 建立最小结构 schema（至少 packId/producerRunId/changedFiles 等必需字段），在 handler/CLI 层 fail closed，并补 malformed-parent 负例测试。",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-20T22:30:52.709Z",
+      "reviewRound": "2026-05-20T22:21:31.958Z",
+      "reviewRunId": "B-2157:RR-001",
+      "_hash": "c169d5588993f79b106f79125875b603d4cbd2fe7a1f1b04beedca60581a0d6e",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/handlers/verification-context-pack.ts",
+        "packages/main/src/core/verification-context-pack.ts"
+      ]
     }
   ]
 }
