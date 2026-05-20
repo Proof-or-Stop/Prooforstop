@@ -54,9 +54,9 @@
           "command": "npm --prefix packages/main run test:verification-context-pack",
           "result": "pass",
           "note": "Smoke asserts verification_context_pack_create returns a stable digest and includes tracked alpha.ts plus untracked beta.ts in changedFiles with source snippets.",
-          "headHash": "6bc695e7027d1895a87b5c2d2797985420f3935d",
-          "materialHash": "29fd2d3a19e9529255d84e5e6677bf20494e430d2e2d59740d64391c00e75d23",
-          "timestamp": "2026-05-20T22:41:21.685Z"
+          "headHash": "2497e8aa9a42d0a884f4070b62973142af8aca1e",
+          "materialHash": "89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5",
+          "timestamp": "2026-05-20T23:01:28.967Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -66,9 +66,9 @@
           "command": "npm --prefix packages/main run test:verification-context-pack",
           "result": "pass",
           "note": "Smoke calls createVerificationContextPack with tokenBudget=1 and asserts pack.truncated=true plus the token budget limitation.",
-          "headHash": "6bc695e7027d1895a87b5c2d2797985420f3935d",
-          "materialHash": "29fd2d3a19e9529255d84e5e6677bf20494e430d2e2d59740d64391c00e75d23",
-          "timestamp": "2026-05-20T22:41:21.685Z"
+          "headHash": "2497e8aa9a42d0a884f4070b62973142af8aca1e",
+          "materialHash": "89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5",
+          "timestamp": "2026-05-20T23:01:28.967Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -78,9 +78,9 @@
           "command": "npm --prefix packages/main run test:verification-context-pack",
           "result": "pass",
           "note": "Regression proves the generator uses git ls-files --others --exclude-standard by asserting untracked beta.ts appears as file and hunk refs.",
-          "headHash": "6bc695e7027d1895a87b5c2d2797985420f3935d",
-          "materialHash": "29fd2d3a19e9529255d84e5e6677bf20494e430d2e2d59740d64391c00e75d23",
-          "timestamp": "2026-05-20T22:41:21.685Z"
+          "headHash": "2497e8aa9a42d0a884f4070b62973142af8aca1e",
+          "materialHash": "89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5",
+          "timestamp": "2026-05-20T23:01:28.967Z"
         }
       ]
     },
@@ -139,9 +139,9 @@
           "command": "npm --prefix packages/main run test:verification-context-pack",
           "result": "pass",
           "note": "Smoke creates a parent-linked expansion and asserts parentPackDigest equals the original pack digest while impactedFiles carry forward.",
-          "headHash": "6bc695e7027d1895a87b5c2d2797985420f3935d",
-          "materialHash": "29fd2d3a19e9529255d84e5e6677bf20494e430d2e2d59740d64391c00e75d23",
-          "timestamp": "2026-05-20T22:41:21.685Z"
+          "headHash": "2497e8aa9a42d0a884f4070b62973142af8aca1e",
+          "materialHash": "89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5",
+          "timestamp": "2026-05-20T23:01:28.967Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -151,9 +151,9 @@
           "command": "npm --prefix packages/main run test:verification-context-pack",
           "result": "pass",
           "note": "Smoke asserts createVerificationContextPackExpansion rejects expansionReason shorter than 10 characters.",
-          "headHash": "6bc695e7027d1895a87b5c2d2797985420f3935d",
-          "materialHash": "29fd2d3a19e9529255d84e5e6677bf20494e430d2e2d59740d64391c00e75d23",
-          "timestamp": "2026-05-20T22:41:21.686Z"
+          "headHash": "2497e8aa9a42d0a884f4070b62973142af8aca1e",
+          "materialHash": "89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5",
+          "timestamp": "2026-05-20T23:01:28.967Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -163,9 +163,9 @@
           "command": "npm --prefix packages/main run test:verification-context-pack",
           "result": "pass",
           "note": "Smoke builds target-bound evidence and asserts verificationContextPackId, verificationContextPackDigest and inspectedPackRefs are populated from the pack.",
-          "headHash": "6bc695e7027d1895a87b5c2d2797985420f3935d",
-          "materialHash": "29fd2d3a19e9529255d84e5e6677bf20494e430d2e2d59740d64391c00e75d23",
-          "timestamp": "2026-05-20T22:41:21.686Z"
+          "headHash": "2497e8aa9a42d0a884f4070b62973142af8aca1e",
+          "materialHash": "89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5",
+          "timestamp": "2026-05-20T23:01:28.967Z"
         }
       ]
     },
@@ -221,9 +221,9 @@
           "command": "rg -n \"Verification Context Pack|verification_context_pack_create|verification_context_pack_expand|buildTargetBoundEvidenceEnvelope|Python authority server\" docs/requirements/NAV.md docs/requirements/decisions/verification-context-pack.md",
           "result": "pass",
           "note": "Read-only docs check confirmed the decision doc describes CLI responsibility, server coordination, validation commands and maintenance rules.",
-          "headHash": "6bc695e7027d1895a87b5c2d2797985420f3935d",
-          "materialHash": "29fd2d3a19e9529255d84e5e6677bf20494e430d2e2d59740d64391c00e75d23",
-          "timestamp": "2026-05-20T22:41:21.686Z"
+          "headHash": "2497e8aa9a42d0a884f4070b62973142af8aca1e",
+          "materialHash": "89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5",
+          "timestamp": "2026-05-20T23:01:28.967Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -233,9 +233,9 @@
           "command": "rg -n \"Verification Context Pack\" docs/requirements/NAV.md",
           "result": "pass",
           "note": "NAV includes the Verification Context Pack decision link.",
-          "headHash": "6bc695e7027d1895a87b5c2d2797985420f3935d",
-          "materialHash": "29fd2d3a19e9529255d84e5e6677bf20494e430d2e2d59740d64391c00e75d23",
-          "timestamp": "2026-05-20T22:41:21.686Z"
+          "headHash": "2497e8aa9a42d0a884f4070b62973142af8aca1e",
+          "materialHash": "89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5",
+          "timestamp": "2026-05-20T23:01:28.967Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -245,9 +245,9 @@
           "command": "rg -n \"authority-client|evidence submission|verification_context_pack_create\" docs/requirements/decisions/verification-context-pack.md",
           "result": "pass",
           "note": "Document scope is the context pack CLI/server protocol and does not claim delivery of the old authority-client/evidence-submission WIP.",
-          "headHash": "6bc695e7027d1895a87b5c2d2797985420f3935d",
-          "materialHash": "29fd2d3a19e9529255d84e5e6677bf20494e430d2e2d59740d64391c00e75d23",
-          "timestamp": "2026-05-20T22:41:21.686Z"
+          "headHash": "2497e8aa9a42d0a884f4070b62973142af8aca1e",
+          "materialHash": "89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5",
+          "timestamp": "2026-05-20T23:01:28.967Z"
         }
       ]
     },
@@ -311,9 +311,9 @@
           "command": "npm --prefix packages/main run build; npm --prefix packages/main run test:verification-context-pack; npm --prefix packages/main run test:command-ownership-contract",
           "result": "pass",
           "note": "Final verification ran build, VCP smoke, and command ownership contract successfully.",
-          "headHash": "6bc695e7027d1895a87b5c2d2797985420f3935d",
-          "materialHash": "29fd2d3a19e9529255d84e5e6677bf20494e430d2e2d59740d64391c00e75d23",
-          "timestamp": "2026-05-20T22:41:21.686Z"
+          "headHash": "2497e8aa9a42d0a884f4070b62973142af8aca1e",
+          "materialHash": "89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5",
+          "timestamp": "2026-05-20T23:01:28.967Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -323,9 +323,9 @@
           "command": "npm --prefix packages/main run test:command-ownership-contract; npm run test:process-fact-contract",
           "result": "pass",
           "note": "Contracts prove the new commands are in MAIN_TOOLS, createMainRegistry, DEFAULT_PHASE_TOOLS, command policy, and PROCESS_FACT_LEVELS.",
-          "headHash": "6bc695e7027d1895a87b5c2d2797985420f3935d",
-          "materialHash": "29fd2d3a19e9529255d84e5e6677bf20494e430d2e2d59740d64391c00e75d23",
-          "timestamp": "2026-05-20T22:41:21.686Z"
+          "headHash": "2497e8aa9a42d0a884f4070b62973142af8aca1e",
+          "materialHash": "89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5",
+          "timestamp": "2026-05-20T23:01:28.967Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -335,9 +335,9 @@
           "command": "npm --prefix packages/main run test:command-ownership-contract",
           "result": "pass",
           "note": "Command ownership contract reports all 96 CLI commands have valid ownershipClass and dispatchable handlers, so VCP commands are not unclassified.",
-          "headHash": "6bc695e7027d1895a87b5c2d2797985420f3935d",
-          "materialHash": "29fd2d3a19e9529255d84e5e6677bf20494e430d2e2d59740d64391c00e75d23",
-          "timestamp": "2026-05-20T22:41:21.686Z"
+          "headHash": "2497e8aa9a42d0a884f4070b62973142af8aca1e",
+          "materialHash": "89d2d34dc82b7a5a31c70308bae0f5f08fd6746c0a4f10e00df22b10921c8ee5",
+          "timestamp": "2026-05-20T23:01:28.967Z"
         }
       ]
     }
