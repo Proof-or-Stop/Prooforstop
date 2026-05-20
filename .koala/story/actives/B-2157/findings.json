@@ -130,7 +130,7 @@
       "desc": "createVerificationContextPackExpansion 追加 sourceSnippets/impactedSymbols 后不会重算 `estimatedTokens` 或 `truncated`（`packages/main/src/core/verification-context-pack.ts` 309-320 只是复制 parent 并拼接数组）。我用最小复现验证过：parent `estimatedTokens=1`，扩展再加 100-token snippet 后结果仍然是 `estimatedTokens=1`、`truncated=false`。requirements 文档明确说 expansion 要受 `maxContextPackEstimatedTokens` 约束；当前实现会让服务端拿到失真的 token 元数据。修复建议：扩展时按新 snippet 集合重算 token 统计/截断状态，或禁止在不重算的情况下追加 snippet 内容，并补 expansion token accounting 测试。",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-05-20T22:30:18.881Z",
