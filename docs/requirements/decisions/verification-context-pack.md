@@ -11,6 +11,7 @@
 Koala CLI 负责机械生成 Verification Context Pack。外部 Python authority server 负责签发 verifier job、校验 evidence envelope、执行 gate adequacy。两边的字段、digest 规则和默认覆盖语义应保持一致；但 Python 侧 preset、limit、gate 细节只有在本仓出现显式代码/文档引用时，才能被视为 Orchestrate 本地已落地事实。
 
 Context Pack 是 verifier 的默认阅读边界，不是自然语言建议。它应包含 changed files、changed hunks、changed symbols、source snippets、checklist item ids、test intent refs、oracle refs、required commands、risk tags、limitations、token budget、truncated 标记，以及扩展包的 parent digest。
+当 diff 含删除文件时，默认 source snippets 仍应提供可读的删除上下文；若源码已不在 worktree，CLI 需从 diff/removed lines 派生 snippet 内容，而不是留空。
 
 Verifier 可以请求扩展 context，但扩展必须带 `expansionReason`。如果外部 authority server 另有 `maxContextPackExpansionDepth`、`maxContextPackEstimatedTokens` 或 preset 级限制，那是 authority 侧预期/待对齐约束，不应在本仓文档中写成本地已落地事实。扩展不是绕过上下文包，而是形成 parent-linked pack chain。
 

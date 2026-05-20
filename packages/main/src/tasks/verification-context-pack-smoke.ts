@@ -89,6 +89,32 @@ assert.ok(truncatedResult.pack.limitations?.includes('token budget truncated sou
 
 const parsed = parseGitDiffHunks(result.diffText);
 assert.deepEqual(parsed.map(h => h.hunkRef), (result.pack.changedHunks ?? []).map(h => h.hunkRef));
+assert.ok((result.pack.changedHunks ?? []).every(hunk => Boolean(hunk.patchHash && hunk.patchHash.length > 0)));
+
+const multiTrackedRoot = mkdtempSync(join(tmpdir(), 'koala-vcp-multi-'));
+git(multiTrackedRoot, ['init']);
+git(multiTrackedRoot, ['config', 'user.email', 'koala@example.test']);
+git(multiTrackedRoot, ['config', 'user.name', 'Koala Smoke']);
+writeFileSync(join(multiTrackedRoot, 'alpha.ts'), 'export const alpha = 1;\n');
+writeFileSync(join(multiTrackedRoot, 'beta.ts'), 'export const beta = 1;\n');
+git(multiTrackedRoot, ['add', 'alpha.ts', 'beta.ts']);
+git(multiTrackedRoot, ['commit', '-m', 'initial']);
+writeFileSync(join(multiTrackedRoot, 'alpha.ts'), 'export const alpha = 2;\n');
+writeFileSync(join(multiTrackedRoot, 'beta.ts'), 'export const beta = 2;\n');
+
+const multiTrackedPack = createVerificationContextPack({
+  root: multiTrackedRoot,
+  producerRunId: 'run-producer-multi',
+  storyId: 'B-vcp-multi',
+});
+assert.deepEqual(
+  (multiTrackedPack.pack.changedHunks ?? []).map(hunk => hunk.hunkRef),
+  ['alpha.ts:1', 'beta.ts:1'],
+);
+assert.ok(
+  (multiTrackedPack.pack.changedHunks ?? []).every(hunk => Boolean(hunk.patchHash && hunk.patchHash.length > 0)),
+  'multi-file diff should not emit empty patch hashes',
+);
 
 assert.equal(schemaFor('verification_context_pack_create').safeParse({
   producerRunId: 'run-producer-1',
@@ -250,6 +276,9 @@ assert.deepEqual(deletionPack.pack.changedFiles, ['gamma.ts']);
 assert.ok((deletionPack.pack.changedHunks ?? []).length >= 1);
 assert.ok((deletionPack.pack.changedHunks ?? []).every(hunk => hunk.file === 'gamma.ts'));
 assert.ok((deletionPack.pack.changedHunks ?? []).every(hunk => !hunk.hunkRef.endsWith(':0')));
+assert.ok((deletionPack.pack.changedHunks ?? []).every(hunk => Boolean(hunk.patchHash && hunk.patchHash.length > 0)));
 assert.ok(parseGitDiffHunks(deletionPack.diffText).every(hunk => hunk.file === 'gamma.ts' && !hunk.hunkRef.endsWith(':0')));
+assert.ok((deletionPack.pack.sourceSnippets ?? []).some(snippet => snippet.file === 'gamma.ts'));
+assert.ok((deletionPack.pack.sourceSnippets ?? []).some(snippet => snippet.content?.includes('export const gamma = 1;')));
 
 console.log('verification context pack smoke passed');

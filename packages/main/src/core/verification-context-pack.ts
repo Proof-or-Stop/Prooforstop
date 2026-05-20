@@ -123,6 +123,12 @@ function appendUntrackedDiffs(root: string, diffText: string, untrackedFiles: st
   return [diffText, ...untrackedDiffs].filter(Boolean).join('\n');
 }
 
+interface DeletedSnippetSeed {
+  content: string;
+  startLine: number;
+  endLine: number;
+}
+
 export function parseGitDiffHunks(diffText: string): ContextPackHunkContract[] {
   const hunks: ContextPackHunkContract[] = [];
   let currentOldFile = '';
@@ -136,6 +142,7 @@ export function parseGitDiffHunks(diffText: string): ContextPackHunkContract[] {
       ...current,
       patchHash: sha256(patchLines.join('\n')),
     });
+    current = undefined;
     patchLines = [];
   }
 
@@ -201,6 +208,102 @@ export function parseGitDiffHunks(diffText: string): ContextPackHunkContract[] {
   return hunks;
 }
 
+function deletedSnippetSeedsForDiff(diffText: string): Map<string, DeletedSnippetSeed> {
+  const seeds = new Map<string, DeletedSnippetSeed>();
+  let currentOldFile = '';
+  let currentNewFile = '';
+  let currentPatchLines: string[] = [];
+  let currentHunk:
+    | {
+        file: string;
+        hunkRef: string;
+        oldStart: number;
+        oldLines: number;
+        newStart: number;
+      }
+    | undefined;
+
+  function flush() {
+    if (!currentHunk || currentNewFile) {
+      currentHunk = undefined;
+      currentPatchLines = [];
+      return;
+    }
+    const oldSideLines = currentPatchLines.flatMap(line => {
+      if ((line.startsWith('-') && !line.startsWith('---')) || line.startsWith(' ')) {
+        return [line.slice(1)];
+      }
+      return [];
+    });
+    if (oldSideLines.length === 0) {
+      currentHunk = undefined;
+      currentPatchLines = [];
+      return;
+    }
+    const startLine = currentHunk.oldStart;
+    const endLine = startLine + Math.max(oldSideLines.length, currentHunk.oldLines) - 1;
+    const content = oldSideLines.join('\n');
+    seeds.set(currentHunk.hunkRef, {
+      content,
+      startLine,
+      endLine,
+    });
+    currentHunk = undefined;
+    currentPatchLines = [];
+  }
+
+  for (const line of diffText.split('\n')) {
+    const diffMatch = line.match(/^diff --git a\/(.+) b\/(.+)$/);
+    if (diffMatch) {
+      flush();
+      currentOldFile = diffMatch[1];
+      currentNewFile = diffMatch[2];
+      continue;
+    }
+    const oldFileMatch = line.match(/^--- a\/(.+)$/);
+    if (oldFileMatch) {
+      currentOldFile = oldFileMatch[1];
+      continue;
+    }
+    if (line === '--- /dev/null') {
+      currentOldFile = '';
+      continue;
+    }
+    const newFileMatch = line.match(/^\+\+\+ b\/(.+)$/);
+    if (newFileMatch) {
+      currentNewFile = newFileMatch[1];
+      continue;
+    }
+    if (line === '+++ /dev/null') {
+      currentNewFile = '';
+      continue;
+    }
+    const hunkMatch = line.match(/^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@/);
+    if (hunkMatch) {
+      flush();
+      const oldStart = Number(hunkMatch[1]);
+      const oldLines = Number(hunkMatch[2] ?? '1');
+      const newStart = Number(hunkMatch[3]);
+      const file = currentNewFile || currentOldFile;
+      if (!file) continue;
+      const hunkAnchor = newStart > 0 ? newStart : oldStart;
+      currentHunk = {
+        file,
+        hunkRef: `${file}:${hunkAnchor}`,
+        oldStart,
+        oldLines,
+        newStart,
+      };
+      currentPatchLines = [];
+      continue;
+    }
+    if (currentHunk) currentPatchLines.push(line);
+  }
+
+  flush();
+  return seeds;
+}
+
 function riskTagsForFile(file: string): string[] {
   const tags = new Set<string>();
   if (/auth|security|signature|evidence|authority|gate|policy/i.test(file)) tags.add('security');
@@ -209,7 +312,12 @@ function riskTagsForFile(file: string): string[] {
   return [...tags].sort();
 }
 
-function snippetsForHunks(root: string, hunks: ContextPackHunkContract[], tokenBudget?: number): {
+function snippetsForHunks(
+  root: string,
+  diffText: string,
+  hunks: ContextPackHunkContract[],
+  tokenBudget?: number,
+): {
   snippets: ContextPackSnippetContract[];
   estimatedTokens: number;
   truncated: boolean;
@@ -217,14 +325,27 @@ function snippetsForHunks(root: string, hunks: ContextPackHunkContract[], tokenB
   const snippets: ContextPackSnippetContract[] = [];
   let estimatedTokens = 0;
   let truncated = false;
+  const deletedSnippetSeeds = deletedSnippetSeedsForDiff(diffText);
 
   for (const hunk of hunks) {
     const full = join(root, hunk.file);
-    if (!existsSync(full)) continue;
-    const lines = readFileSync(full, 'utf8').split('\n');
-    const startLine = Math.max(1, (hunk.newStart ?? 1) - 3);
-    const endLine = Math.min(lines.length, (hunk.newStart ?? 1) + (hunk.newLines ?? 1) + 3);
-    const content = lines.slice(startLine - 1, endLine).join('\n');
+    let startLine: number;
+    let endLine: number;
+    let content: string;
+
+    if (existsSync(full)) {
+      const lines = readFileSync(full, 'utf8').split('\n');
+      startLine = Math.max(1, (hunk.newStart ?? 1) - 3);
+      endLine = Math.min(lines.length, (hunk.newStart ?? 1) + (hunk.newLines ?? 1) + 3);
+      content = lines.slice(startLine - 1, endLine).join('\n');
+    } else {
+      const deletedSeed = deletedSnippetSeeds.get(hunk.hunkRef);
+      if (!deletedSeed) continue;
+      startLine = deletedSeed.startLine;
+      endLine = deletedSeed.endLine;
+      content = deletedSeed.content;
+    }
+
     const tokenEstimate = countTokensApprox(content);
     if (tokenBudget !== undefined && estimatedTokens + tokenEstimate > tokenBudget) {
       truncated = true;
@@ -240,7 +361,7 @@ function snippetsForHunks(root: string, hunks: ContextPackHunkContract[], tokenB
       content,
       hunkRefs: [hunk.hunkRef],
       tokenEstimate,
-      reason: 'changed hunk context',
+      reason: existsSync(full) ? 'changed hunk context' : 'deleted hunk context from diff',
       metadata: {},
     });
   }
@@ -328,7 +449,7 @@ export function createVerificationContextPack(input: VerificationContextPackInpu
   const diffText = appendUntrackedDiffs(input.root, trackedDiffText, untrackedFiles);
   const changedFiles = uniqueSorted([...listChangedFiles(input.root, baseRef, headRef), ...untrackedFiles]);
   const changedHunks = parseGitDiffHunks(diffText);
-  const snippetResult = snippetsForHunks(input.root, changedHunks, input.tokenBudget);
+  const snippetResult = snippetsForHunks(input.root, diffText, changedHunks, input.tokenBudget);
   const changedSymbols = symbolsForHunks(input.root, changedHunks);
   const repoHead = git(input.root, ['rev-parse', 'HEAD']);
   const dirty = git(input.root, ['status', '--porcelain']).length > 0;
