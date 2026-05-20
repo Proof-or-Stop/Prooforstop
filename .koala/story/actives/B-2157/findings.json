@@ -37,6 +37,39 @@
         "packages/main/src/cli-engine.ts",
         "packages/main/src/handlers/verification-context-pack.ts"
       ]
+    },
+    {
+      "id": "B-2157:F-003",
+      "desc": "docs/requirements/NAV.md:3-16 is still inaccurate after this update. The generator contract in packages/main/src/tasks/truth.ts writes NAV from all docs/requirements/**/*.md files and uses repo-relative forward-slash links, but the checked-in file claims only 10 files, omits multiple existing decision docs (for example cc-learnings, role-separation, session-ownership-and-write-leases, stack-layering), and keeps backslash links. That leaves the touchpoint users were told to trust out of sync with the actual truth-source set.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-05-20T22:25:57.768Z",
+      "reviewRound": "2026-05-20T22:21:31.958Z",
+      "reviewRunId": "B-2157:RR-004",
+      "_hash": "a6ddf29dbcd9916a6acfbbf98e96383cacf68a6cf613b871ce751140f01cc773",
+      "files": [
+        "docs/requirements/NAV.md",
+        "packages/main/src/tasks/truth.ts"
+      ]
+    },
+    {
+      "id": "B-2157:F-004",
+      "desc": "docs/requirements/decisions/verification-context-pack.md:15 and :31 present Python-side limits/presets as settled contract (maxContextPackExpansionDepth, maxContextPackEstimatedTokens, anti-hallucination, strict-ci), but those identifiers do not exist anywhere else in this repo. For a truth-source document whose job is to guide future CLI/Runner/Python sync, these need either a cited upstream authority or wording that clearly marks them as proposed external expectations rather than established current behavior.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-05-20T22:25:57.837Z",
+      "reviewRound": "2026-05-20T22:21:31.958Z",
+      "reviewRunId": "B-2157:RR-004",
+      "_hash": "ff5513d0a80639a16e00cecb333f0e77fe1ee8b6bb3ad4a547fa0753dc89ac7e",
+      "files": [
+        "docs/requirements/decisions/verification-context-pack.md"
+      ]
     }
   ]
 }
