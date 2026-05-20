@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-20T22:40:09.642Z",
       "reviewRunId": "B-2157:RR-007",
       "_hash": "65447ae5238816b73e8013f11c7563f2d0ac6110fd9c61f0ec10ac7dfb275807"
+    },
+    {
+      "id": "B-2157:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Re-reviewed latest HEAD for docs lane. F-003 confirmed fixed: docs/requirements/NAV.md now matches the 14 non-NAV markdown truth-source files under docs/requirements and uses forward-slash relative links, consistent with the checked-in file set and truth_nav output shape. F-004 confirmed fixed: docs/requirements/decisions/verification-context-pack.md now clearly scopes Python authority limits/presets as external expectations rather than established local facts. F-007 confirmed fixed: requiredCommands is documented in the context-pack contract and implemented through CLI schema, handler/core pack creation, required-ref synthesis, EvidenceCollector coverage plumbing, and local CLI/smoke verification. Supporting evidence: npm --prefix packages/main run build, npm --prefix packages/main run test:verification-context-pack, npm run test:process-fact-contract, plus direct local CLI invocation via node packages/main/dist/cli.js verification_context_pack_create showing requiredCommands preserved in pack output. No docs blocker found.",
+      "createdAt": "2026-05-20T22:53:31.096Z",
+      "reviewRound": "2026-05-20T22:40:09.642Z",
+      "reviewRunId": "B-2157:RR-006",
+      "_hash": "33b117f0d533e25dcb9d3be9a9cc1d876b2eee5712d23c2076454fd2fb6c296e"
     }
   ]
 }
