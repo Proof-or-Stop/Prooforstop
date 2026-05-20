@@ -93,7 +93,7 @@
       "desc": "CHK-002 verification coverage is incomplete: the smoke only exercises createVerificationContextPackExpansion() and buildTargetBoundEvidenceEnvelope() directly, but never calls the user-facing verification_context_pack_expand handler nor EvidenceCollector.collect. A regression in handler return shape (parentPackDigest/pack) or collector auto-binding of pack refs into coveredRefs/inspectedPackRefs would still pass the claimed CHK-002 happy/adversarial evidence.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-05-20T22:26:18.584Z",
