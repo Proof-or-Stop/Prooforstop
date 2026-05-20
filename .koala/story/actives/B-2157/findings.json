@@ -147,7 +147,7 @@
       "desc": "verification_context_pack_create 的 CLI/schema 没有暴露 requiredCommands：requirements 文档把 required commands 列为 pack 必备字段和 gate coverage 输入，但 `packages/main/src/cli-engine.ts` 295-309 只接受 checklist/testIntent/oracle/tokenBudget 等字段，`runCli` 在 1794-1795 用 `z.object(tool.schema)` 校验时会丢弃未知 key，所以调用方无法通过 CLI 传入 requiredCommands，最终 pack 在 authority gate 下缺少该覆盖维度。修复建议：在 CLI schema 与 handler args 中补上 requiredCommands，并加一个 smoke 覆盖 CLI 输入能落到 pack.requiredCommands。",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-05-20T22:30:18.898Z",
