@@ -1,0 +1,136 @@
+{
+  "storyId": "B-2157",
+  "checkedAt": "2026-05-20T22:10:14.799Z",
+  "features": [
+    {
+      "feature": "Implement the CLI-side Verification Context Pack protocol for the authority/evidence flow",
+      "covered_by": "CHK-001, CHK-002, CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Expose command entrypoints for verification_context_pack_create and verification_context_pack_expand",
+      "covered_by": "CHK-001, CHK-002, CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Bind verification context pack identifiers and refs into evidence envelopes",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add regression coverage for pack generation, expansion, digest, evidence binding, handler wiring, and command ownership",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "verification_context_pack_create mechanically generates a pack from git diff without writing story metadata, including tracked changes and untracked new files",
+      "covered_by": "CHK-001, CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/verification-context-pack.md"
+    },
+    {
+      "feature": "digestVerificationContextPack provides stable canonical digest parity with the Python VerificationContextPack digest",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/verification-context-pack.md"
+    },
+    {
+      "feature": "Context pack contains auditable refs and boundaries: changed files, hunks, symbols, snippets, checklist/test/oracle/required-command refs, risk tags, limitations, token budget, truncated flag, and parent digest when applicable",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/verification-context-pack.md"
+    },
+    {
+      "feature": "verification_context_pack_expand requires expansionReason and forms a parent-linked pack chain with parentPackDigest",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/verification-context-pack.md"
+    },
+    {
+      "feature": "buildTargetBoundEvidenceEnvelope and EvidenceCollector populate coveredRefs, inspectedPackRefs, verificationContextPackId, and verificationContextPackDigest",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/verification-context-pack.md"
+    },
+    {
+      "feature": "New context-pack commands are command-policy safe: read-only, all phases, and non-destructive",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/verification-context-pack.md"
+    },
+    {
+      "feature": "CLI-side verification commands include build, test:verification-context-pack, and test:command-ownership-contract",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/verification-context-pack.md"
+    },
+    {
+      "feature": "Truth source documentation records CLI/server responsibilities, test commands, maintenance rules, and NAV discoverability",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/verification-context-pack.md"
+    },
+    {
+      "feature": "Authority/context-pack changes stay under the current Koala story flow, worktree, verificationIntent, verificationEvidence, and koala validate discipline",
+      "covered_by": "CHK-003, CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "Python authority server signs verifier jobs and validates server-issued pack id, digest, producerRunId, and diffHash",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "decision context-pack-cli-slice keeps Python server signing and gate validation out of this CLI Story",
+      "source": "decisions:decisions/verification-context-pack.md"
+    },
+    {
+      "feature": "Gate adequacy enforcement inside Python authority server covers files, hunks, oracle refs, test intent refs, and required commands",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "decision separates CLI evidence material generation from Python authority server gate enforcement",
+      "source": "decisions:decisions/verification-context-pack.md"
+    },
+    {
+      "feature": "Production presets anti-hallucination and strict-ci require verifier jobs to carry context packs",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "server preset enforcement is outside the chosen CLI slice",
+      "source": "decisions:decisions/verification-context-pack.md"
+    },
+    {
+      "feature": "Restore the older authority-client or evidence-submission WIP beyond context-pack CLI support",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "decision and plan explicitly defer old authority-client/evidence-submission WIP to a later Story",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 17,
+    "covered": 13,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "d36b90b51e0ff3e176ae4b1fa74ba6980b4bbd5d8b6f5b9f8df4c3f078180127",
+  "openQuestions": []
+}
