@@ -24,7 +24,7 @@
       "desc": "docs/requirements/decisions/verification-context-pack.md:15 says verifiers can request controlled context-pack expansions, and the core expansion type supports impactedSymbols/dependencyEdges/sourceSnippets (packages/main/src/core/verification-context-pack.ts:38-47,300-320). But the public CLI command and handler only expose impactedFiles/requiredRefs/tokenBudget/metadata (packages/main/src/cli-engine.ts:310-317, packages/main/src/handlers/verification-context-pack.ts:42-49). That means expansion requests cannot actually carry the additional symbol/snippet/dependency context the design calls for, so the user-facing expansion flow is only partially implemented.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-05-20T22:25:48.333Z",
