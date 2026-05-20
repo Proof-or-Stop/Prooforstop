@@ -53,6 +53,15 @@
       "reviewRound": "2026-05-20T23:01:14.631Z",
       "reviewRunId": "B-2157:RR-011",
       "_hash": "53375d4922dc3c135e293c0c4d2c497f6a3df3f99c6a768b9f0d35c8bb35bea9"
+    },
+    {
+      "id": "B-2157:RP-007",
+      "agent": "koala-review-quality",
+      "note": "Round 2 quality review: F-013 is fixed in parseGitDiffHunks because flush() now clears current/patchLines after each emitted hunk (packages/main/src/core/verification-context-pack.ts:139-147); verified by the committed multi-file smoke at packages/main/src/tasks/verification-context-pack-smoke.ts:94-117 and a fresh same-file multi-hunk repro that returned exactly [alpha.ts:1, alpha.ts:15] with unique patch hashes. F-012 is fixed because deleted-file snippets are now derived from diff text via deletedSnippetSeedsForDiff + snippetsForHunks fallback (packages/main/src/core/verification-context-pack.ts:211-305, 315-369); verified by the committed deletion smoke at packages/main/src/tasks/verification-context-pack-smoke.ts:261-282, which now asserts readable gamma.ts snippet content. Rechecked F-008~F-011 with no regression: expansion token accounting is rebalanced in rebalanceSourceSnippets/createVerificationContextPackExpansion (verification-context-pack.ts:378-409,495-520); requiredCommands are present in local CLI create output and coveredRefs via authority-contracts.ts:363-419 plus verification-context-pack-smoke.ts:119-180,241-259; deleted-file hunk refs stay stable/non-:0 via parseGitDiffHunks (verification-context-pack.ts:157-188) and smoke lines 275-280; malformed parent packs fail closed via parseVerificationContextPackContract (authority-contracts.ts:306-317) and smoke lines 231-239. npm --prefix packages/main run build and npm --prefix packages/main run test:verification-context-pack both pass; lsp_diagnostics reported 0 errors on every modified source file.",
+      "createdAt": "2026-05-20T23:15:32.466Z",
+      "reviewRound": "2026-05-20T23:01:14.631Z",
+      "reviewRunId": "B-2157:RR-009",
+      "_hash": "ee56610b88e8d1aeb29371444f0c096560f6d87cf52edd1f9d3cea0bb965009d"
     }
   ]
 }
