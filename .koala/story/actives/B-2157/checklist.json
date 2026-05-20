@@ -102,7 +102,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户看到 \"docs/requirements/NAV.md 包含 Verification Context Pack\"，并能打开 docs/requirements/decisions/verification-context-pack.md 阅读 CLI/server 协议。",
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/verification-context-pack.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "truth source 文档存在，并说明 CLI 责任、server 配合、验证命令和后续维护规则。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "NAV 文档索引同步包含 Verification Context Pack 条目。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "文档不能声称当前 Story 交付 authority-client/evidence submission 旧 WIP 范围。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
