@@ -220,9 +220,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/verification-context-pack.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-20T22:16:09.532Z",
-      "endTime": null,
+      "endTime": "2026-05-20T22:18:47.219Z",
       "userSees": "用户看到 \"verification context pack smoke passed\" 和 \"command-ownership contract passed\"，且 npm build 没有 TypeScript 错误。",
       "files": {
         "modify": [
@@ -263,7 +263,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/verification-context-pack-smoke.ts",
+          "command": "npm --prefix packages/main run build; npm --prefix packages/main run test:verification-context-pack; npm --prefix packages/main run test:command-ownership-contract",
+          "result": "pass",
+          "note": "Final verification ran build, VCP smoke, and command ownership contract successfully.",
+          "headHash": "2a03e704cb9e33d67e5a7a7d833e9508d51ca7ca",
+          "materialHash": "f4b03836fd6169eb0b872d30498de233074388155ab2c0fb1be7d136099f5550",
+          "timestamp": "2026-05-20T22:18:47.272Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/command-ownership-contract.ts",
+          "command": "npm --prefix packages/main run test:command-ownership-contract; npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Contracts prove the new commands are in MAIN_TOOLS, createMainRegistry, DEFAULT_PHASE_TOOLS, command policy, and PROCESS_FACT_LEVELS.",
+          "headHash": "2a03e704cb9e33d67e5a7a7d833e9508d51ca7ca",
+          "materialHash": "f4b03836fd6169eb0b872d30498de233074388155ab2c0fb1be7d136099f5550",
+          "timestamp": "2026-05-20T22:18:47.325Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/command-ownership-contract.ts",
+          "command": "npm --prefix packages/main run test:command-ownership-contract",
+          "result": "pass",
+          "note": "Command ownership contract reports all 96 CLI commands have valid ownershipClass and dispatchable handlers, so VCP commands are not unclassified.",
+          "headHash": "2a03e704cb9e33d67e5a7a7d833e9508d51ca7ca",
+          "materialHash": "f4b03836fd6169eb0b872d30498de233074388155ab2c0fb1be7d136099f5550",
+          "timestamp": "2026-05-20T22:18:47.376Z"
+        }
+      ]
     }
   ]
 }
