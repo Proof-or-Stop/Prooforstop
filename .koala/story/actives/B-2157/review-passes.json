@@ -8,6 +8,15 @@
       "reviewRound": "2026-05-20T22:40:09.642Z",
       "reviewRunId": "B-2157:RR-005",
       "_hash": "2863cb1dd0ea49e5178efd6eff111be7004782c3a4e314f20962cd139a564d6b"
+    },
+    {
+      "id": "B-2157:RP-002",
+      "agent": "koala-review-concept",
+      "note": "Round 2 concept review passed. Re-checked resolved concept/design gaps F-001/F-002/F-007/F-009 on HEAD 70bb6a8: verification_context_pack_create now exposes requiredCommands in MAIN_TOOLS/CLI schema and handler, VerificationContextPackContract carries requiredCommands, allContextPackRequiredRefs maps them into command:<digest> refs, and EvidenceCollector/buildTargetBoundEvidenceEnvelope propagate those refs into coveredRefs/inspectedPackRefs. verification_context_pack_expand now exposes impactedSymbols/sourceSnippets/dependencyEdges through the public CLI/handler path while preserving the chosen boundary: this story remains a CLI context-pack slice only, with Python authority signing/gate/preset enforcement explicitly marked as external/out-of-scope in docs and scope-check. command-policy/config/process-fact wiring classifies both commands as read-only/all-phases/non-destructive; test:verification-context-pack and test:command-ownership-contract both passed during review. No blocker found.",
+      "createdAt": "2026-05-20T22:52:03.944Z",
+      "reviewRound": "2026-05-20T22:40:09.642Z",
+      "reviewRunId": "B-2157:RR-007",
+      "_hash": "65447ae5238816b73e8013f11c7563f2d0ac6110fd9c61f0ec10ac7dfb275807"
     }
   ]
 }
