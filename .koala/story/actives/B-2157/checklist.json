@@ -176,9 +176,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/verification-context-pack.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-20T22:18:57.871Z",
-      "endTime": null,
+      "endTime": "2026-05-20T22:19:11.733Z",
       "userSees": "用户看到 \"docs/requirements/NAV.md 包含 Verification Context Pack\"，并能打开 docs/requirements/decisions/verification-context-pack.md 阅读 CLI/server 协议。",
       "files": {
         "modify": [
@@ -211,7 +211,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/verification-context-pack.md",
+          "command": "rg -n \"Verification Context Pack|verification_context_pack_create|verification_context_pack_expand|buildTargetBoundEvidenceEnvelope|Python authority server\" docs/requirements/NAV.md docs/requirements/decisions/verification-context-pack.md",
+          "result": "pass",
+          "note": "Read-only docs check confirmed the decision doc describes CLI responsibility, server coordination, validation commands and maintenance rules.",
+          "headHash": "2a03e704cb9e33d67e5a7a7d833e9508d51ca7ca",
+          "materialHash": "f4b03836fd6169eb0b872d30498de233074388155ab2c0fb1be7d136099f5550",
+          "timestamp": "2026-05-20T22:19:11.792Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/NAV.md",
+          "command": "rg -n \"Verification Context Pack\" docs/requirements/NAV.md",
+          "result": "pass",
+          "note": "NAV includes the Verification Context Pack decision link.",
+          "headHash": "2a03e704cb9e33d67e5a7a7d833e9508d51ca7ca",
+          "materialHash": "f4b03836fd6169eb0b872d30498de233074388155ab2c0fb1be7d136099f5550",
+          "timestamp": "2026-05-20T22:19:11.844Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/verification-context-pack.md",
+          "command": "rg -n \"authority-client|evidence submission|verification_context_pack_create\" docs/requirements/decisions/verification-context-pack.md",
+          "result": "pass",
+          "note": "Document scope is the context pack CLI/server protocol and does not claim delivery of the old authority-client/evidence-submission WIP.",
+          "headHash": "2a03e704cb9e33d67e5a7a7d833e9508d51ca7ca",
+          "materialHash": "f4b03836fd6169eb0b872d30498de233074388155ab2c0fb1be7d136099f5550",
+          "timestamp": "2026-05-20T22:19:11.896Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
