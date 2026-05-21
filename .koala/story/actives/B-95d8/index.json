@@ -4,7 +4,7 @@
   "title": "INIT_CHECK no-subagent fallback/repair + checklist_update post-write reload hints",
   "description": "两个相关的可用性缺口：(1) INIT_CHECK 硬门槛要求 koala-review-story-init subagent 调 init_check_set 写 init-check.json，但在无法 spawn subagent 的环境（如 Codex CLI / 纯 CLI 会话）里没有任何途径产出该文件，INIT→INIT_CHECK 永久卡死，需要一条不绕过签名完整性的 fallback/repair 路径。(2) checklist_update 写入后只返回结论文本，没有提示调用方写后重新加载 story 状态，长会话里 agent 容易拿着写前的陈旧快照继续操作。两项都属于流程入口的可用性与状态一致性问题。",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "init-check",
@@ -16,7 +16,7 @@
   ],
   "createdAt": "2026-05-21T22:10:03.150Z",
   "startedAt": "2026-05-21T22:10:03.150Z",
-  "endedAt": null,
+  "endedAt": "2026-05-21T23:23:36.361Z",
   "events": [
     {
       "phase": "INIT",
@@ -66,12 +66,16 @@
       "user": "Harmonygo",
       "sessionId": "claude-b95d8-review",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-05-21T23:23:36.361Z",
+      "branch": "story/B-95d8",
+      "user": "Harmonygo",
+      "sessionId": "claude-b95d8-review",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-95d8",
-    "branch": "story/B-95d8",
-    "createdAt": "2026-05-21T22:11:24.089Z"
-  },
   "currentReviewRound": "2026-05-21T22:49:24.107Z"
 }
