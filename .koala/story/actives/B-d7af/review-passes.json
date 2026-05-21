@@ -26,6 +26,15 @@
       "reviewRound": "2026-05-21T18:57:58.925Z",
       "reviewRunId": "B-d7af:RR-005",
       "_hash": "17a9f7a14c70982c0106e939e6e7e1509955c38c8a2b8781b7a2148197d4ea75"
+    },
+    {
+      "id": "B-d7af:RP-004",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: CHK-001 happy/edge/adversarial all have must-priority integration_test evidence with result=pass. happy:0 covers npm run build + rg no-core-import; edge:0 runs init-check-required-agents-smoke covering required reviewer and high-issue blockers; adversarial:0 runs the same smoke plus rg guard, and the smoke source includes assert.match(tampered, /init_check_tampered/) at line 112. No coverage gaps found.",
+      "createdAt": "2026-05-21T19:10:14.898Z",
+      "reviewRound": "2026-05-21T18:57:58.925Z",
+      "reviewRunId": "B-d7af:RR-007",
+      "_hash": "c702ebbbfb98fe22ed3b1e84b43dce51b65e07d7ffefbf4dd3a197391a866d51"
     }
   ]
 }
