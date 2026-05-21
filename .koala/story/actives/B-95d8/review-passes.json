@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-21T22:49:24.107Z",
       "reviewRunId": "B-95d8:RR-003",
       "_hash": "57712f59e507c76dcf1036b6ae71013d1aaff835604709771104eb622549ffdd"
+    },
+    {
+      "id": "B-95d8:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Step 1 extracted symbols: INIT_CHECK_FALLBACK_REASON_MIN, init_check_repair, initCheckAttestationMode, INIT_CHECK_FALLBACK_AGENT_SUFFIX. Step 2 compared 4 doc paragraphs in CLAUDE.md and story-lifecycle.md. All 6 doc claims verified consistent: (1) acknowledge+fallbackReason<30 guard at lines 223-234 of init-check.ts matches doc; (2) signInitCheck reused identically with same domain at line 275; (3) agentResults recorded as <required>@fallback at line 282, initCheckAgentMatches prefix logic at init-check-gate.ts:67-69; (4) fallback block (mode/reason/evidenceRefs/actor/session/attestedAt/headHash/materialHash) written in data at lines 311-321 of init-check.ts, type defined in types.ts:923-939; (5) story_get exposes initCheckAttestation and initCheckFallback at story-query.ts:353-358; (6) story-lifecycle.md phase table updated accurately to describe gate. No doc-code drift found.",
+      "createdAt": "2026-05-21T23:14:51.344Z",
+      "reviewRound": "2026-05-21T22:49:24.107Z",
+      "reviewRunId": "B-95d8:RR-004",
+      "_hash": "df35e578d4d82448e465e67cd83847f5de11090fe9c1cab058ee75a57bca3741"
     }
   ]
 }
