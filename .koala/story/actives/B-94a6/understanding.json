@@ -1,0 +1,45 @@
+{
+  "task": "Add authority evidence submission to verification_evidence_add and verification_evidence_batch_add — local validation first inside the checklist lock, then authority POST; with off/shadow/enforce mode semantics; without violating any B-2157-shipped VCP behavior.",
+  "outcome": "User runs `koala verification_evidence_add '{\"storyId\":\"B-xxxx\",\"itemId\":\"CHK-001\",\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"integration_test\",\"file\":\"smoke.ts\",\"command\":\"npm test\",\"result\":\"pass\",\"note\":\"covered by smoke\"}'` in three modes:\n(off, default) — behavior identical to post-B-2157 main: local evidence written, exit 0, zero network traffic.\n(KOALA_AUTHORITY_MODE=shadow) — local evidence written, exit 0; if authority server is reachable, evidence is also POSTed; if the authority server returns 5xx / times out / refuses connection, a single line `[warning] authority POST failed: ...` appears on stderr — stdout, exit code, and local evidence file are unchanged.\n(KOALA_AUTHORITY_MODE=enforce) with a failing authority server — command exits non-zero with a clear error referencing the authority failure; follow-up `koala checklist_get` shows the evidence entry is NOT present locally (matching the PLAN-chosen ordering).\nUser runs `koala verification_evidence_batch_add` with one entry containing a non-existent itemId — in every mode, the command exits non-zero locally and the authority server's POST counter is exactly 0 (no partial-batch leak).\n`npm run test:authority-evidence-flow` exits 0 including the explicit 0-POST-on-local-failure regression. `npm run test:verification-context-pack-smoke` still exits 0 (VCP behavior byte-identical to B-2157). `npm run test:process-fact-contract` exits 0.",
+  "facts": [
+    "B-2157 (merged af22307e) shipped VCP to main: verification-context-pack.ts + handler + smoke + decisions/verification-context-pack.md; and the envelope-side of authority-contracts.ts (443 lines) and a minimal evidence-collector.ts (47 lines).",
+    "Main authority-contracts.ts currently exports VerificationContextPack* / EvidenceEnvelopeContract* schemas, canonicalJson, digestCanonical, digestCommand, digestVerificationContextPack, normalizeVerificationContextPack, buildTargetBoundEvidenceEnvelope, prepareEvidenceEnvelopeForSigning, parseVerificationContextPackContract. grep 'submit|POST|send' returns 0 hits — no submission protocol on main.",
+    "Main evidence-collector.ts exports EvidenceMaterial interface and EvidenceCollector class only (47 lines). No submission helpers.",
+    "Main packages/main/src/handlers/checklist.ts: verification_evidence_add at line 457 and verification_evidence_batch_add at line 508 are both clean lock-first — all validation and write inside withChecklistLock(); zero authority calls. grep 'authority' on checklist.ts: 0 hits.",
+    "Main has no packages/main/src/core/authority-client.ts, no authority-mode.ts, no tasks/authority-client-smoke.ts, no tasks/authority-evidence-flow-smoke.ts, no tasks/verification-evidence-authority-handler-smoke.ts. package.json / packages/main/package.json have no test:authority* scripts.",
+    "stash@{3} contains the broken WIP — submitChecklistAuthorityEvidence at checklist.ts:551 / :605 BEFORE withChecklistLock. User 2026-05-20 probe confirmed: invalid itemId -> authority POST counter = 1 (POST already sent) before local fail. This is the exact bug Story 2 rules out."
+  ],
+  "constraints": [
+    "Additive-only on B-2157-shipped files: add NEW submission protocol types + helpers to authority-contracts.ts / evidence-collector.ts; do not modify or remove any existing export, do not change any existing behavior. (User 2026-05-21.)",
+    "B-2157 VCP digest / normalization / pack behavior must be byte-identical post-Story-2 — protected names include digestCanonical, digestCommand, digestVerificationContextPack, normalizeVerificationContextPack, buildTargetBoundEvidenceEnvelope, prepareEvidenceEnvelopeForSigning, parseVerificationContextPackContract, canonicalJson, all VerificationContextPack* and EvidenceEnvelopeContract* schemas, existing EvidenceMaterial / EvidenceCollector behavior.",
+    "ANY failure of test:verification-context-pack-smoke or test:process-fact-contract is a hard blocker — blocks REVIEW->TEST, must roll back to DEV to fix. (User 2026-05-21.)",
+    "Blocker 1: verification_evidence_add and verification_evidence_batch_add must NOT POST authority before local validation passes.",
+    "Blocker 2: when any local validation fails (storyId / itemId / intentRef / note < 5 chars / waiverType-kind mismatch / checklist item missing / etc.), the authority server must receive EXACTLY 0 POSTs. Batch is atomic per-batch (one entry's local failure -> 0 POSTs for the whole batch).",
+    "Blocker 3: shadow mode is warning-only. Any authority outcome under shadow mode must NOT influence local evidence state. The only observable side effect of an authority failure is a stderr [warning] line; stdout, exit code, and local file are unchanged.",
+    "Blocker 4: enforce mode failure must not produce local/remote fact divergence. At the moment the command returns, local and authority states must agree (either both have the entry or neither does).",
+    "checklist.ts authority wiring is REWRITTEN per these invariants; do NOT cherry-pick stash@{3}'s checklist.ts changes (they implement Blocker 1's anti-pattern).",
+    "Out of scope: VCP files, stash@{2} koala-vcp-flow-migration (superseded), stash@{0}/{1} (parallel-session leftovers, user-handled), any change to existing post-B-2157 behavior when KOALA_AUTHORITY_MODE is unset or 'off'."
+  ],
+  "unknowns": [
+    "Blocker 4 resolution architecture: option (a) pre-commit verification — authority POST happens before the local evidence write commits, so authority failure short-circuits with no local write; option (b) compensating rollback — both writes happen, then authority failure triggers a deterministic local rollback before non-zero exit. Both satisfy Blocker 4; PLAN decision picks one.",
+    "Submission protocol shape: what exact request / response types must be added to authority-contracts.ts. Source materials = stash@{3}'s authority-contracts.ts (~851 lines, super-set) and authority-client.ts; reading both to extract minimum-viable submission types is part of PLAN before locking decision.json.",
+    "Authority server URL / auth config source: env var (KOALA_AUTHORITY_URL?) vs config file vs both with precedence. PLAN must pick.",
+    "Whether authority submission emits any koala command of its own (e.g. a status / probe command) or stays purely as side-effect of verification_evidence_add/batch_add. Determines whether PROCESS_FACT_REGISTRY and command-policy need new entries."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/core/authority-mode.ts",
+    "packages/main/src/core/authority-contracts.ts",
+    "packages/main/src/core/evidence-collector.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/tasks/authority-client-smoke.ts",
+    "packages/main/src/tasks/authority-evidence-flow-smoke.ts",
+    "packages/main/src/tasks/verification-evidence-authority-handler-smoke.ts",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli-engine.ts"
+  ],
+  "timestamp": "2026-05-21T00:31:36.262Z"
+}

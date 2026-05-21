@@ -6,7 +6,41 @@
       "context": "Add NEW files `packages/main/src/core/authority-client.ts` and `packages/main/src/core/authority-mode.ts` (off | shadow | enforce). Add NEW smoke tests `tasks/authority-client-smoke.ts`, `tasks/authority-evidence-flow-smoke.ts`, `tasks/verification-evidence-authority-handler-smoke.ts`. Add `test:authority-client` / `test:authority-evidence-flow` / `test:verification-evidence-authority-handler` scripts to package.json + packages/main/package.json. If new koala commands are exposed, register them via registry.ts + give each a `CommandPolicy.ownershipClass` per B-c55d 5-class + add to `PROCESS_FACT_REGISTRY` (CLAUDE.md two-layer contract). authority-contracts.ts and evidence-collector.ts already exist on main (B-2157, 443 / 47 lines); if the client needs submission request/response types or collector submission helpers, add them **additively** as NEW exports — must not touch existing VCP-side exports (digestCanonical / digestCommand / digestVerificationContextPack / normalizeVerificationContextPack / buildTargetBoundEvidenceEnvelope / prepareEvidenceEnvelopeForSigning / parseVerificationContextPackContract / canonicalJson / all VerificationContextPack* / EvidenceEnvelopeContract* schemas / EvidenceMaterial / EvidenceCollector existing behavior — byte-identical). checklist.ts is NOT touched in this item. After this item: `npm --prefix packages/main run build` exits 0, recursive tsc green, `test:command-ownership-contract` + `test:process-fact-contract` + `test:verification-context-pack-smoke` all green (the last two are hard blockers per user 2026-05-21 — VCP regression must not occur even from additive extension).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "npm --prefix packages/main run build exits 0; npm run test:authority-client exits 0; npm run test:authority-evidence-flow exits 0; npm run test:verification-evidence-authority-handler exits 0; npm run test:command-ownership-contract exits 0; npm run test:process-fact-contract exits 0; npm run test:verification-context-pack-smoke exits 0.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "authority-client.ts + authority-mode.ts 新建，build 绿，3 个 authority smoke (authority-client / authority-evidence-flow / verification-evidence-authority-handler) 独立通过",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "authority-mode.ts 把 KOALA_AUTHORITY_MODE 解析为 off|shadow|enforce；未设/空/非法值 → off（runtime 复校，非仅 Zod）",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "对 authority-contracts.ts / evidence-collector.ts 的扩展只新增 submission 协议类型 + helpers；既有 VCP exports 字节不变",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "test:verification-context-pack-smoke + test:process-fact-contract 通过——additive 扩展未造成 VCP digest/normalization/pack 回归（hard blocker）",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "若新增 koala 命令则每条有 ownershipClass 且进 PROCESS_FACT_REGISTRY；command-ownership-contract 通过（无未分类命令）",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
