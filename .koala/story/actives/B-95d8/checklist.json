@@ -149,6 +149,17 @@
           "headHash": "6efb28d7029118404221e0693fd132438cea3770",
           "materialHash": "3a64610c3e4916c07cae685c111b66e5e05e53f1b546066b24965aa52f13bdab",
           "timestamp": "2026-05-21T22:36:15.313Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/checklist-reload-hint-smoke.ts",
+          "command": "npm --prefix packages/main run test:checklist-reload-hint-smoke",
+          "result": "pass",
+          "note": "Test 2: persisted checklist.json diffed before/after — only status (+volatile startTime/endTime) changed; title/context/userSees/all other fields byte-identical. Write semantics unchanged.",
+          "headHash": "572ab0729ab64d8205cfa855afaf4c07a9ab7a24",
+          "materialHash": "3a64610c3e4916c07cae685c111b66e5e05e53f1b546066b24965aa52f13bdab",
+          "timestamp": "2026-05-21T22:36:15.824Z"
         }
       ]
     }
