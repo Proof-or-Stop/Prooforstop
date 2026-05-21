@@ -25,6 +25,23 @@
       "reviewRound": "2026-05-21T04:25:22.430Z",
       "reviewRunId": "B-df6f:RR-001",
       "_hash": "2ca4c33930b80925ed4dc3af8310c60d04cd72a756ce74258fde258ceabedabd"
+    },
+    {
+      "id": "B-df6f:F-003",
+      "desc": "packages/main/src/tasks/field-regression-cli-smoke.ts:789 removes the hotfix priority wording assertions even though packages/main/src/handlers/story-create.ts:426-428 still emits that user-visible contract; this story is about Docs/story evidence freshness, so weakening an unrelated CLI-surface regression smoke expands scope and drops existing design coverage.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-05-21T04:28:21.816Z",
+      "reviewRound": "2026-05-21T04:25:22.430Z",
+      "reviewRunId": "B-df6f:RR-003",
+      "_hash": "3fdeae9d07a07d2b442d6d8db93fa0a2eaaed52aa1fdc4f08dac94cb161ce168",
+      "files": [
+        "packages/main/src/tasks/field-regression-cli-smoke.ts",
+        "packages/main/src/handlers/story-create.ts"
+      ]
     }
   ]
 }
