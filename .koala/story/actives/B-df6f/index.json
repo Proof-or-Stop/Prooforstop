@@ -4,7 +4,7 @@
   "title": "Treat story evidence metadata as non-material regardless of Docs casing",
   "description": "Evidence freshness currently treats uppercase Docs/story paths from host projects as material code changes after committing Koala story evidence. This creates a stale-evidence loop for external repos such as the Mac app. Normalize story metadata path matching so Docs/story and docs/story are excluded from material hash/freshness decisions, and add regression tests.",
   "type": "bug",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "high",
   "createdAt": "2026-05-21T04:13:21.931Z",
   "startedAt": "2026-05-21T04:13:21.931Z",
@@ -30,6 +30,14 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-05-21T04:17:16.642Z",
+      "branch": "story/B-df6f",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-21T04:21:40.759Z",
       "branch": "story/B-df6f",
       "user": "Harmonygo",
       "agent": "main"
