@@ -54,9 +54,9 @@
           "command": "npm --prefix packages/main run test:verification-freshness-smoke",
           "result": "pass",
           "note": "Freshness smoke includes uppercase Docs/story/actives/B-smoke/checklist.json, process-events.jsonl, and test-evidence.json in metadataOnly and proves head-diff freshness, materialHash freshness, and coverage remain fresh.",
-          "headHash": "e6db481b7da526be0c510e1f749d21c5bc1834ca",
-          "materialHash": "121f92217f966327d4695f36ba8c086dc34fd3ab96675140b38b164c73c3af9f",
-          "timestamp": "2026-05-21T04:31:40.039Z"
+          "headHash": "801d046190af7342c5d89432d1e6c6a32c8a4db7",
+          "materialHash": "83d5a81d8011baef952b5200f37f948a65b9fdad5b26ccab1817fa5f7868600d",
+          "timestamp": "2026-05-21T04:40:50.759Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -65,9 +65,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Dirty worktree classifier smoke includes Docs/story/actives/B-smoke/test-evidence.json and expects koala_metadata_changes count 2, proving uppercase story evidence is not unexpected_dirty_files.",
-          "headHash": "e6db481b7da526be0c510e1f749d21c5bc1834ca",
-          "materialHash": "121f92217f966327d4695f36ba8c086dc34fd3ab96675140b38b164c73c3af9f",
-          "timestamp": "2026-05-21T04:31:40.039Z"
+          "headHash": "801d046190af7342c5d89432d1e6c6a32c8a4db7",
+          "materialHash": "83d5a81d8011baef952b5200f37f948a65b9fdad5b26ccab1817fa5f7868600d",
+          "timestamp": "2026-05-21T04:40:50.759Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -76,9 +76,9 @@
           "command": "npm --prefix packages/main run test:verification-freshness-smoke",
           "result": "pass",
           "note": "Existing material path assertions still require packages/main source, fixtures, package files, koala.config.json, and docs/requirements files to stale evidence.",
-          "headHash": "e6db481b7da526be0c510e1f749d21c5bc1834ca",
-          "materialHash": "121f92217f966327d4695f36ba8c086dc34fd3ab96675140b38b164c73c3af9f",
-          "timestamp": "2026-05-21T04:31:40.039Z"
+          "headHash": "801d046190af7342c5d89432d1e6c6a32c8a4db7",
+          "materialHash": "83d5a81d8011baef952b5200f37f948a65b9fdad5b26ccab1817fa5f7868600d",
+          "timestamp": "2026-05-21T04:40:50.759Z"
         }
       ]
     },
@@ -134,9 +134,9 @@
           "command": "npm --prefix packages/main run test:verification-freshness-smoke",
           "result": "pass",
           "note": "The smoke covers isMaterialExcludedPath plus freshAfterChanging, materialFreshAfterChanging, and coverageStatusWithMaterialHash for uppercase Docs/story metadata.",
-          "headHash": "e6db481b7da526be0c510e1f749d21c5bc1834ca",
-          "materialHash": "121f92217f966327d4695f36ba8c086dc34fd3ab96675140b38b164c73c3af9f",
-          "timestamp": "2026-05-21T04:31:40.039Z"
+          "headHash": "801d046190af7342c5d89432d1e6c6a32c8a4db7",
+          "materialHash": "83d5a81d8011baef952b5200f37f948a65b9fdad5b26ccab1817fa5f7868600d",
+          "timestamp": "2026-05-21T04:40:50.759Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -145,9 +145,9 @@
           "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
           "result": "pass",
           "note": "Field regression CLI smoke now configures storyDir as Docs/story/actives, writes the synthetic story there, commits that metadata-only evidence, and validates it remains covered rather than stale.",
-          "headHash": "e6db481b7da526be0c510e1f749d21c5bc1834ca",
-          "materialHash": "121f92217f966327d4695f36ba8c086dc34fd3ab96675140b38b164c73c3af9f",
-          "timestamp": "2026-05-21T04:31:40.039Z"
+          "headHash": "801d046190af7342c5d89432d1e6c6a32c8a4db7",
+          "materialHash": "83d5a81d8011baef952b5200f37f948a65b9fdad5b26ccab1817fa5f7868600d",
+          "timestamp": "2026-05-21T04:40:50.759Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -156,9 +156,9 @@
           "command": "npm --prefix packages/main run test:verification-freshness-smoke",
           "result": "pass",
           "note": "The same smoke keeps real material paths stale, so the Docs/story exemption does not allow stale evidence after real source/package/config/requirements changes.",
-          "headHash": "e6db481b7da526be0c510e1f749d21c5bc1834ca",
-          "materialHash": "121f92217f966327d4695f36ba8c086dc34fd3ab96675140b38b164c73c3af9f",
-          "timestamp": "2026-05-21T04:31:40.039Z"
+          "headHash": "801d046190af7342c5d89432d1e6c6a32c8a4db7",
+          "materialHash": "83d5a81d8011baef952b5200f37f948a65b9fdad5b26ccab1817fa5f7868600d",
+          "timestamp": "2026-05-21T04:40:50.759Z"
         }
       ]
     }
