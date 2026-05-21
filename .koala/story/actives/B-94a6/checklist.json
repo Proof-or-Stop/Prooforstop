@@ -81,6 +81,17 @@
           "headHash": "fe7191d71d5dade20a5fc79ba909d47922023f2a",
           "materialHash": "fab7371f512bac4006554e23fd396e7d715160a95de15f4428b3997577f7ba61",
           "timestamp": "2026-05-21T01:52:11.697Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/core/authority-contracts.ts",
+          "command": "git diff main -- packages/main/src/core/authority-contracts.ts packages/main/src/core/evidence-collector.ts",
+          "result": "pass",
+          "note": "contracts 扩展只新增 submission 类型/schema/helper（git diff 0 条删除行）；evidence-collector.ts 零 diff——受保护 VCP exports 字节不变",
+          "headHash": "e101a62127cc4b61284f8fc6fe231e7cbe92fae3",
+          "materialHash": "fab7371f512bac4006554e23fd396e7d715160a95de15f4428b3997577f7ba61",
+          "timestamp": "2026-05-21T01:52:12.002Z"
         }
       ]
     },
