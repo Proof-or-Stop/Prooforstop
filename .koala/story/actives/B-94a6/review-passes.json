@@ -44,6 +44,15 @@
       "reviewRound": "2026-05-21T02:19:48.589Z",
       "reviewRunId": "B-94a6:RR-008",
       "_hash": "26b8004690331559ee1bb0bb5cf6b68e3604c406e3cd77451f29ddbc3f7aa264"
+    },
+    {
+      "id": "B-94a6:RP-006",
+      "agent": "koala-review-quality",
+      "note": "Round 2 quality review: F-001 fix verified. (1) All 3 submission-result schemas now consumed: AuthorityEvidenceSubmissionResultSchema passed to submitEvidence, AuthorityEvidenceBatchSubmissionResultSchema passed to submitEvidenceBatch, AuthorityEvidenceEntryResultSchema consumed transitively via z.array(AuthorityEvidenceEntryResultSchema) in batch schema. (2) Malformed 2xx body (missing accepted, wrong-type accepted, malformed batch entry result) correctly maps to kind:error / ok:false — verified by smoke tests lines 221-257. (3) Valid {accepted:false} stays kind:success at client level — schema passes, mode logic gates on flag, not client. (4) authority-contracts.ts is additive-only (0 deletions from main). (5) No new dead code, no as-any casts, no empty catches introduced. No findings.",
+      "createdAt": "2026-05-21T02:21:41.895Z",
+      "reviewRound": "2026-05-21T02:19:48.589Z",
+      "reviewRunId": "B-94a6:RR-005",
+      "_hash": "8cd09f12f73d8fd3c187f1c96e9ee1e99e7a4f7133da526a2f565a2afd88f13e"
     }
   ]
 }
