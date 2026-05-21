@@ -1,31 +1,53 @@
 /**
- * Init Check handler — koala init_check_set (CHK-003 will register; CHK-001 only ships sign + helpers)
+ * Init Check handler — koala init_check_set command shell + metadata lock.
  *
- * INIT → INIT_CHECK 硬门槛产物 init-check.json 的签名工具函数。
+ * The signature/gate primitives (INIT_CHECK_SALT, REQUIRED_INIT_CHECK_AGENTS,
+ * normalize/match/results helpers, missingRequiredInitCheckAgents,
+ * blockingInitCheckIssues, computeBackgroundHash, computeChecklistHash,
+ * signInitCheck, recomputeInitCheckHash) live in core/init-check-gate.ts so that
+ * core consumers (machine.ts) can verify the hash and evaluate the INIT_CHECK
+ * gate without an upward core→handlers import (B-37e9 F-001 layering fix). This
+ * file imports them and re-exports them for backward-compatible callers while
+ * keeping the init_check_set handler factory and the metadata-write lock here.
  *
- * 签名结构抄 scope-check.ts 的 signScopeCheck 套路（B-d4d1 / B-ed3e 已落地架构），
- * 区别在于签名域：scope-check 用 `storyId:timestamp:gaps:covered:reviewRound:salt`，
- * init-check 用 `storyId:backgroundHash:title:description:checklistHash:reviewRound:salt`，
- * 把"主 agent 立 story 时的真相源（background + 元数据 + 初版 checklist）"全部纳入签名。
- *
- * 主 agent 改 background.md / title / description / checklist.items[*].{title,context}
- * 任何一处 → recomputeInitCheckHash 重算 → 与 init-check.json._hash 失配 →
- * story_advance INIT_CHECK 报 init_check_tampered blocker（CHK-005 / CHK-006）。
- *
- * agentId 字段不参与签名（EXP-001 已证伪 agentId 机械可校验性，详见
- * docs/story/actives/B-e71f/experiments/exp-001.md），仅作审计追溯。
- * issues 字段不参与签名（reviewer 主观判断，advisory 模式，允许后续修）。
+ * INIT → INIT_CHECK 硬门槛产物 init-check.json 的签名结构与 gate 语义详见
+ * core/init-check-gate.ts 模块注释。
  */
 
-import { createHash } from 'crypto';
-import { existsSync, mkdirSync, readFileSync, rmSync, statSync } from 'fs';
+import { mkdirSync, rmSync, statSync } from 'fs';
 import { StoryStore } from '../core/store.js';
 import type { HandlerContext } from './context.js';
 import type { InitCheckData, InitCheckIssue } from '../core/types.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
+import {
+  INIT_CHECK_SALT,
+  REQUIRED_INIT_CHECK_AGENTS,
+  normalizeAgentId,
+  initCheckAgentMatches,
+  initCheckAgentResults,
+  missingRequiredInitCheckAgents,
+  blockingInitCheckIssues,
+  computeBackgroundHash,
+  computeChecklistHash,
+  signInitCheck,
+  recomputeInitCheckHash,
+} from '../core/init-check-gate.js';
 
-export const INIT_CHECK_SALT = 'koala-init-check-integrity-v1';
-export const REQUIRED_INIT_CHECK_AGENTS = ['koala-review-story-init', 'product-reviewer'] as const;
+// Backward-compatible re-exports: existing importers (core/machine.ts now reads
+// from core directly; story-create.ts / draft-check.ts still import from here).
+export {
+  INIT_CHECK_SALT,
+  REQUIRED_INIT_CHECK_AGENTS,
+  normalizeAgentId,
+  initCheckAgentMatches,
+  initCheckAgentResults,
+  missingRequiredInitCheckAgents,
+  blockingInitCheckIssues,
+  computeBackgroundHash,
+  computeChecklistHash,
+  signInitCheck,
+  recomputeInitCheckHash,
+};
 
 function sleepSync(ms: number): void {
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
@@ -56,120 +78,8 @@ function withInitCheckLock<T>(store: StoryStore, storyId: string, fn: () => T): 
   }
 }
 
-function normalizeAgentId(agentId: string | undefined): string {
-  return (agentId || '').trim();
-}
-
-export function initCheckAgentMatches(agentId: string | undefined, required: string): boolean {
-  const normalized = normalizeAgentId(agentId);
-  return normalized === required || normalized.startsWith(`${required}@`);
-}
-
-export function initCheckAgentResults(data: InitCheckData): NonNullable<InitCheckData['agentResults']> {
-  if (Array.isArray(data.agentResults) && data.agentResults.length > 0) return data.agentResults;
-  return [{
-    agentId: normalizeAgentId(data.agentId),
-    checkedAt: data.checkedAt,
-    issues: Array.isArray(data.issues) ? data.issues : [],
-  }];
-}
-
-export function missingRequiredInitCheckAgents(data: InitCheckData): string[] {
-  const results = initCheckAgentResults(data);
-  return REQUIRED_INIT_CHECK_AGENTS.filter(required =>
-    !results.some(result => initCheckAgentMatches(result.agentId, required)),
-  );
-}
-
-export function blockingInitCheckIssues(data: InitCheckData): Array<{ agentId: string; issue: InitCheckIssue }> {
-  const blockers: Array<{ agentId: string; issue: InitCheckIssue }> = [];
-  for (const result of initCheckAgentResults(data)) {
-    for (const issue of result.issues || []) {
-      if (issue?.severity === 'critical' || issue?.severity === 'high') {
-        blockers.push({ agentId: result.agentId || '<unknown>', issue });
-      }
-    }
-  }
-  return blockers;
-}
-
 /**
- * 计算 background.md 全文的 sha256。文件不存在时返回固定字符串 "missing"，
- * 这样 sign 出的 hash 也是确定的（避免抛错让 sign 函数变成可能 throw）。
- * gate 端会在调用 sign 前用 store.readStory / 文件存在校验做前置检查。
- */
-export function computeBackgroundHash(root: string, storyId: string): string {
-  const store = new StoryStore(root);
-  const p = store.storyFilePath(storyId, 'background.md');
-  if (!existsSync(p)) return 'missing';
-  const content = readFileSync(p, 'utf-8');
-  return createHash('sha256').update(content).digest('hex');
-}
-
-/**
- * 计算 checklist 初版的 sha256：仅取每个 item 的 title / context（其他字段如 status / startTime /
- * id 是运行时变化的，不应入签名域，否则正常 DEV 推进会反复触发 _hash 失配）。
- *
- * 输入是 ChecklistItem[]（或 Pick），输出确定性 hex。空数组也合法（hash 固定值）。
- */
-export function computeChecklistHash(
-  items: ReadonlyArray<{ title: string; context?: string }>,
-): string {
-  // 显式抽 title / context，并把 undefined 归一化成 ''，保证 JSON.stringify 输出稳定。
-  const normalized = items.map(i => ({ title: i.title, context: i.context ?? '' }));
-  return createHash('sha256').update(JSON.stringify(normalized)).digest('hex');
-}
-
-/**
- * init-check.json 的签名函数。确定性（同输入同输出）。
- *
- * 签名域：storyId / backgroundHash / title / description / checklistHash / reviewRound + salt
- *
- * 不入签名域：agentId / issues / checkedAt（避免 reviewer 重跑同输入仍产生不同 _hash）。
- */
-export function signInitCheck(
-  storyId: string,
-  backgroundHash: string,
-  title: string,
-  description: string,
-  checklistHash: string,
-  reviewRound: string,
-): string {
-  return createHash('sha256')
-    .update(`${storyId}:${backgroundHash}:${title}:${description}:${checklistHash}:${reviewRound}:${INIT_CHECK_SALT}`)
-    .digest('hex');
-}
-
-/**
- * gate 端复用的重算入口（CHK-005 / CHK-006 消费）：读当前 story.title / story.description /
- * background.md / checklist 初版 → 调 signInitCheck → 返回当前 _hash 期望值。
- *
- * checklist 不存在时按空数组算（理论上 INIT 阶段已存在，但兜底防 fs 边界）。
- */
-export function recomputeInitCheckHash(storyId: string, store: StoryStore, projectRoot: string): string {
-  const story = store.readStory(storyId);
-  const backgroundHash = computeBackgroundHash(projectRoot, storyId);
-  let items: Array<{ title: string; context?: string }> = [];
-  try {
-    const checklist = store.readChecklist(storyId);
-    items = checklist.items.map(i => ({ title: i.title, context: i.context }));
-  } catch {
-    // checklist.json 不存在 → 用空数组算 hash，gate 端语义上等同"未初始化 checklist"。
-  }
-  const checklistHash = computeChecklistHash(items);
-  const reviewRound = story.currentReviewRound || '';
-  return signInitCheck(
-    storyId,
-    backgroundHash,
-    story.title,
-    story.description,
-    checklistHash,
-    reviewRound,
-  );
-}
-
-/**
- * CHK-003: init_check_set handler 工厂。
+ * init_check_set handler 工厂。
  *
  * 由 koala-review-story-init subagent 调用（CHK-002 模板），写入 init-check.json。
  * 不校验调用方 agentId（EXP-001 已证伪 subagent 与主 agent 在 CLI 视角下机械可区分性）；
