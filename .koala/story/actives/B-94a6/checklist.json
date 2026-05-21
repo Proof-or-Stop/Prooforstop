@@ -369,6 +369,17 @@
           "headHash": "91c7483b37a53ebed605d8d624cc6a66ff62db76",
           "materialHash": "33e84b70b39ae8c127abcde1188122dce846e9eaa8c83ad05f2116b85d5d08a4",
           "timestamp": "2026-05-21T02:05:59.611Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/authority-evidence-flow-smoke.ts",
+          "command": "npm run test:authority-evidence-flow",
+          "result": "pass",
+          "note": "no-divergence-window: enforce failure cases re-read the on-disk checklist via store.readChecklist and assert hasEvidence==false — the local write never ran (pre-POST ordering), so there is no compensating rollback and no kill-9 two-phase window; client THROW case also degraded to controlled gating error with zero local write",
+          "headHash": "201a1af4e672e32e12f4c46172781d6c5289983a",
+          "materialHash": "33e84b70b39ae8c127abcde1188122dce846e9eaa8c83ad05f2116b85d5d08a4",
+          "timestamp": "2026-05-21T02:06:04.028Z"
         }
       ]
     }
