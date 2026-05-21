@@ -1,0 +1,135 @@
+{
+  "command": "koala validate --story=B-95d8 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.3 test\",\"  > npm run test:e2e\",\"  > koala@0.3.3 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 6/6 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/tasks/init-check-fallback-smoke.ts) — 受控条件下 repair 产出合法签名 init-check.json，随后 story_advance INIT_CHECK 通过、创建 worktree\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via integration_test (packages/main/src/tasks/init-check-fallback-smoke.ts) — 缺 opt-in/受控条件时 repair 拒绝并给清晰错误，不产出任何文件、不改变 phase\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via integration_test (packages/main/src/tasks/init-check-fallback-smoke.ts) — repair 不绕过签名：产物经 guard 重算 _hash 与 signInitCheck 一致并通过 canEnterInitCheck；篡改 background/title/description/checklist 任一后旧 init-check 仍被判 init_check_tampered\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/tasks/checklist-reload-hint-smoke.ts) — checklist_update 写入成功后，输出中结论文本之后出现 reload 软提醒行\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via integration_test (packages/main/src/tasks/checklist-reload-hint-smoke.ts) — reload 提示不污染 stdout（走 stderr 或与结论明确分隔），管道只取 stdout 结论仍正确解析\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via integration_test (packages/main/src/tasks/checklist-reload-hint-smoke.ts) — reload 提示纯附加：同一 update 的写入结果（status/字段持久化）与无提示版本逐字段一致，写语义不变\"],\"warnings\":[],\"timestamp\":\"2026-05-21T23:17:50.760Z\",\"headSha\":\"ff84894aaa02ead021f787a2115b2a8befd3a1cd\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.3 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.3 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1977}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"express\",\"intentCount\":6,\"reason\":\"verificationIntent entries present (6)\"},\"verificationCoverage\":{\"total\":6,\"required\":6,\"covered\":6,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"受控条件下 repair 产出合法签名 init-check.json，随后 story_advance INIT_CHECK 通过、创建 worktree\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/init-check-fallback-smoke.ts\",\"command\":\"npm --prefix packages/main run test:init-check-fallback-smoke\",\"result\":\"pass\",\"note\":\"Test 2: init_check_repair (acknowledge+reason) writes signed init-check.json reusing signInitCheck; subsequent story_advance INIT_CHECK advances. Test 4 also confirms fallback attestation surfaced.\",\"headHash\":\"2c169b9628c8ca603203b46a05afb24c14588e8b\",\"materialHash\":\"c03ee42ea03212391ff72172e5519171bfacaf2930c2243161735b2b9e3aa691\",\"timestamp\":\"2026-05-21T22:48:35.384Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"缺 opt-in/受控条件时 repair 拒绝并给清晰错误，不产出任何文件、不改变 phase\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/init-check-fallback-smoke.ts\",\"command\":\"npm --prefix packages/main run test:init-check-fallback-smoke\",\"result\":\"pass\",\"note\":\"Test 1: init_check_repair refuses without acknowledge=true and with reason <30 chars; asserts NO init-check.json written and phase stays missing_init_check blocked.\",\"headHash\":\"2c169b9628c8ca603203b46a05afb24c14588e8b\",\"materialHash\":\"c03ee42ea03212391ff72172e5519171bfacaf2930c2243161735b2b9e3aa691\",\"timestamp\":\"2026-05-21T22:48:35.384Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"repair 不绕过签名：产物经 guard 重算 _hash 与 signInitCheck 一致并通过 canEnterInitCheck；篡改 background/title/description/checklist 任一后旧 init-check 仍被判 init_check_tampered\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/init-check-fallback-smoke.ts\",\"command\":\"npm --prefix packages/main run test:init-check-fallback-smoke\",\"result\":\"pass\",\"note\":\"Test 3: editing signed story title after fallback triggers init_check_tampered; Extra: operator-attested high issue still hits init_check_blocking_issues. Signature not bypassed.\",\"headHash\":\"2c169b9628c8ca603203b46a05afb24c14588e8b\",\"materialHash\":\"c03ee42ea03212391ff72172e5519171bfacaf2930c2243161735b2b9e3aa691\",\"timestamp\":\"2026-05-21T22:48:35.384Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"checklist_update 写入成功后，输出中结论文本之后出现 reload 软提醒行\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/checklist-reload-hint-smoke.ts\",\"command\":\"npm --prefix packages/main run test:checklist-reload-hint-smoke\",\"result\":\"pass\",\"note\":\"Test 1: after a successful checklist_update write, stderr carries the ↻ reload reminder naming the final persisted status (read-after-write).\",\"headHash\":\"2c169b9628c8ca603203b46a05afb24c14588e8b\",\"materialHash\":\"c03ee42ea03212391ff72172e5519171bfacaf2930c2243161735b2b9e3aa691\",\"timestamp\":\"2026-05-21T22:48:35.384Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"reload 提示不污染 stdout（走 stderr 或与结论明确分隔），管道只取 stdout 结论仍正确解析\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/checklist-reload-hint-smoke.ts\",\"command\":\"npm --prefix packages/main run test:checklist-reload-hint-smoke\",\"result\":\"pass\",\"note\":\"Test 3: reminder goes to stderr only; stdout has pure conclusion; piping stdout through tail yields the conclusion and no ↻ marker (pipeline-safe, B-6812 precedent).\",\"headHash\":\"2c169b9628c8ca603203b46a05afb24c14588e8b\",\"materialHash\":\"c03ee42ea03212391ff72172e5519171bfacaf2930c2243161735b2b9e3aa691\",\"timestamp\":\"2026-05-21T22:48:35.384Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"reload 提示纯附加：同一 update 的写入结果（status/字段持久化）与无提示版本逐字段一致，写语义不变\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/checklist-reload-hint-smoke.ts\",\"command\":\"npm --prefix packages/main run test:checklist-reload-hint-smoke\",\"result\":\"pass\",\"note\":\"Test 2: persisted checklist.json diffed before/after — only status (+volatile startTime/endTime) changed; title/context/userSees/all other fields byte-identical. Write semantics unchanged.\",\"headHash\":\"2c169b9628c8ca603203b46a05afb24c14588e8b\",\"materialHash\":\"c03ee42ea03212391ff72172e5519171bfacaf2930c2243161735b2b9e3aa691\",\"timestamp\":\"2026-05-21T22:48:35.384Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-05-21T23:17:51.099Z",
+  "headHash": "ff84894aaa02ead021f787a2115b2a8befd3a1cd",
+  "verificationCoverage": {
+    "total": 6,
+    "required": 6,
+    "covered": 6,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "受控条件下 repair 产出合法签名 init-check.json，随后 story_advance INIT_CHECK 通过、创建 worktree",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/init-check-fallback-smoke.ts",
+          "command": "npm --prefix packages/main run test:init-check-fallback-smoke",
+          "result": "pass",
+          "note": "Test 2: init_check_repair (acknowledge+reason) writes signed init-check.json reusing signInitCheck; subsequent story_advance INIT_CHECK advances. Test 4 also confirms fallback attestation surfaced.",
+          "headHash": "2c169b9628c8ca603203b46a05afb24c14588e8b",
+          "materialHash": "c03ee42ea03212391ff72172e5519171bfacaf2930c2243161735b2b9e3aa691",
+          "timestamp": "2026-05-21T22:48:35.384Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "缺 opt-in/受控条件时 repair 拒绝并给清晰错误，不产出任何文件、不改变 phase",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/init-check-fallback-smoke.ts",
+          "command": "npm --prefix packages/main run test:init-check-fallback-smoke",
+          "result": "pass",
+          "note": "Test 1: init_check_repair refuses without acknowledge=true and with reason <30 chars; asserts NO init-check.json written and phase stays missing_init_check blocked.",
+          "headHash": "2c169b9628c8ca603203b46a05afb24c14588e8b",
+          "materialHash": "c03ee42ea03212391ff72172e5519171bfacaf2930c2243161735b2b9e3aa691",
+          "timestamp": "2026-05-21T22:48:35.384Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "repair 不绕过签名：产物经 guard 重算 _hash 与 signInitCheck 一致并通过 canEnterInitCheck；篡改 background/title/description/checklist 任一后旧 init-check 仍被判 init_check_tampered",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/init-check-fallback-smoke.ts",
+          "command": "npm --prefix packages/main run test:init-check-fallback-smoke",
+          "result": "pass",
+          "note": "Test 3: editing signed story title after fallback triggers init_check_tampered; Extra: operator-attested high issue still hits init_check_blocking_issues. Signature not bypassed.",
+          "headHash": "2c169b9628c8ca603203b46a05afb24c14588e8b",
+          "materialHash": "c03ee42ea03212391ff72172e5519171bfacaf2930c2243161735b2b9e3aa691",
+          "timestamp": "2026-05-21T22:48:35.384Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "checklist_update 写入成功后，输出中结论文本之后出现 reload 软提醒行",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/checklist-reload-hint-smoke.ts",
+          "command": "npm --prefix packages/main run test:checklist-reload-hint-smoke",
+          "result": "pass",
+          "note": "Test 1: after a successful checklist_update write, stderr carries the ↻ reload reminder naming the final persisted status (read-after-write).",
+          "headHash": "2c169b9628c8ca603203b46a05afb24c14588e8b",
+          "materialHash": "c03ee42ea03212391ff72172e5519171bfacaf2930c2243161735b2b9e3aa691",
+          "timestamp": "2026-05-21T22:48:35.384Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "reload 提示不污染 stdout（走 stderr 或与结论明确分隔），管道只取 stdout 结论仍正确解析",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/checklist-reload-hint-smoke.ts",
+          "command": "npm --prefix packages/main run test:checklist-reload-hint-smoke",
+          "result": "pass",
+          "note": "Test 3: reminder goes to stderr only; stdout has pure conclusion; piping stdout through tail yields the conclusion and no ↻ marker (pipeline-safe, B-6812 precedent).",
+          "headHash": "2c169b9628c8ca603203b46a05afb24c14588e8b",
+          "materialHash": "c03ee42ea03212391ff72172e5519171bfacaf2930c2243161735b2b9e3aa691",
+          "timestamp": "2026-05-21T22:48:35.384Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "reload 提示纯附加：同一 update 的写入结果（status/字段持久化）与无提示版本逐字段一致，写语义不变",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/checklist-reload-hint-smoke.ts",
+          "command": "npm --prefix packages/main run test:checklist-reload-hint-smoke",
+          "result": "pass",
+          "note": "Test 2: persisted checklist.json diffed before/after — only status (+volatile startTime/endTime) changed; title/context/userSees/all other fields byte-identical. Write semantics unchanged.",
+          "headHash": "2c169b9628c8ca603203b46a05afb24c14588e8b",
+          "materialHash": "c03ee42ea03212391ff72172e5519171bfacaf2930c2243161735b2b9e3aa691",
+          "timestamp": "2026-05-21T22:48:35.384Z"
+        }
+      }
+    ]
+  }
+}

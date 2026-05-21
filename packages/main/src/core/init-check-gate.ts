@@ -31,6 +31,34 @@ import type { InitCheckData, InitCheckIssue } from './types.js';
 export const INIT_CHECK_SALT = 'koala-init-check-integrity-v1';
 export const REQUIRED_INIT_CHECK_AGENTS = ['koala-review-story-init', 'product-reviewer'] as const;
 
+/**
+ * B-95d8 CHK-001: suffix appended to required-agent ids when init-check.json is
+ * produced by the manual `init_check_repair` fallback rather than an independent
+ * reviewer run. `<required>@fallback` still satisfies missingRequiredInitCheckAgents
+ * (initCheckAgentMatches matches the `<required>@` prefix), so the fallback passes
+ * the gate WITHOUT weakening it, while remaining mechanically distinguishable from
+ * a real reviewer record (which is the bare `<required>` id).
+ */
+export const INIT_CHECK_FALLBACK_AGENT_SUFFIX = 'fallback';
+
+/**
+ * Classify how an init-check.json was attested:
+ *  - `'fallback'`  → produced by the manual `init_check_repair` command
+ *    (`data.fallback` block present, or any agent id carries the `@fallback` suffix).
+ *  - `'independent'` → produced by independent reviewer runs via `init_check_set`.
+ *
+ * Pure derivation over persisted data; used by story_get / dashboard / report to
+ * surface "this gate was passed by a human fallback, not a reviewer".
+ */
+export function initCheckAttestationMode(data: InitCheckData): 'independent' | 'fallback' {
+  if (data.fallback) return 'fallback';
+  const suffix = `@${INIT_CHECK_FALLBACK_AGENT_SUFFIX}`;
+  for (const result of initCheckAgentResults(data)) {
+    if (normalizeAgentId(result.agentId).endsWith(suffix)) return 'fallback';
+  }
+  return 'independent';
+}
+
 export function normalizeAgentId(agentId: string | undefined): string {
   return (agentId || '').trim();
 }

@@ -774,7 +774,8 @@ export type ProcessEventType =
   | 'codex_adapter_verification'
   | 'reviewer_finding'
   | 'review_pass'
-  | 'dirty_gate_audit';
+  | 'dirty_gate_audit'
+  | 'init_check_fallback';
 
 export type ProcessEvent = {
   type: ProcessEventType;
@@ -908,9 +909,39 @@ export interface InitCheckData {
     issues: InitCheckIssue[];
   }>;
   /**
+   * B-95d8 CHK-001: manual fallback / repair attestation.
+   *
+   * Present ONLY when init-check.json was produced by the explicit
+   * `init_check_repair` command (environments that cannot spawn the init
+   * reviewer subagent), NOT by an independent reviewer run via `init_check_set`.
+   * 是审计/surface 字段，**不参与签名 / 不参与 gate 校验**——签名仍由 signInitCheck
+   * 基于 background/title/description/checklist 计算，gate 仍按 missingRequiredInitCheckAgents
+   * + blockingInitCheckIssues 校验（fallback 通过把 agentResults 标记为 `<required>@fallback`
+   * 满足必需 reviewer 校验，而非放宽 gate）。story_get / dashboard 用此字段把 fallback/manual
+   * attestation 与独立 reviewer 区分开。
+   */
+  fallback?: {
+    /** repair（修复缺失出口）/ fallback（无 subagent 环境一次性顶替）。语义等价，仅用于审计分类。 */
+    mode: 'repair' | 'fallback';
+    /** 人工 attestation 理由（runtime 校验 trim().length >= 30）。 */
+    reason: string;
+    /** 可选：人工核查所依据的证据引用（文件/URL/transcript 摘要等）。 */
+    evidenceRefs?: string[];
+    /** 操作者标识（git user.name 或显式传入），仅审计追溯。 */
+    actor?: string;
+    /** 会话标识（KOALA_SESSION_ID / 派生 session id），仅审计追溯。 */
+    session?: string;
+    /** ISO 8601 attestation 时刻。 */
+    attestedAt: string;
+    /** 写入时的 git HEAD（短/全 sha），把 attestation 钉在当时源码状态上。 */
+    headHash?: string;
+    /** 写入时的 material hash（source freshness），与 verificationEvidence 同口径。 */
+    materialHash?: string;
+  };
+  /**
    * 签名：sha256(`${storyId}:${backgroundHash}:${title}:${description}:${checklistHash}:${reviewRound}:${INIT_CHECK_SALT}`)
-   * 由 signInitCheck 计算。issues / agentId 不入签名域（issues 是 reviewer 主观判断，allow 后续修；
-   * agentId 是 reviewer 自报易伪造，靠 reviewer 模板 fence 兜底）。
+   * 由 signInitCheck 计算。issues / agentId / fallback 不入签名域（issues 是 reviewer 主观判断，allow 后续修；
+   * agentId 是 reviewer 自报易伪造，靠 reviewer 模板 fence 兜底；fallback 是 surface/审计元数据）。
    */
   _hash: string;
 }

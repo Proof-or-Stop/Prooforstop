@@ -5,7 +5,7 @@ import { createHash } from 'crypto';
 import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
 import type { Finding } from './types.js';
-import { blockingInitCheckIssues, missingRequiredInitCheckAgents, recomputeInitCheckHash } from './init-check-gate.js';
+import { REQUIRED_INIT_CHECK_AGENTS, blockingInitCheckIssues, missingRequiredInitCheckAgents, recomputeInitCheckHash } from './init-check-gate.js';
 import { recomputeDeliveryCheckHash } from './delivery-check-hash.js';
 import { getBlockingVerificationEvidenceIssues } from './verification.js';
 import { normalizeLegacyPhase } from './phase-flow.js';
@@ -315,7 +315,13 @@ export function getGuardFailureReason(
     if (story.phase !== 'INIT') return null;
     const initCheck = store.readInitCheck(storyId);
     if (!initCheck) {
-      return `Cannot enter INIT_CHECK: 未跑 koala-review-story-init agent（缺 init-check.json）。 [missing_init_check]\n→ Agent({ subagent_type: "koala-review-story-init", prompt: \`koala dispatch '{"storyId":"${storyId}","agentType":"koala-review-story-init"}'\` })\n→ 若 reviewer 4 分钟无输出，重新运行 dispatch 并重启 reviewer。`;
+      return `Cannot enter INIT_CHECK: 缺 init-check.json。 [missing_init_check]\n` +
+        `缺少必需 reviewer 记录: ${REQUIRED_INIT_CHECK_AGENTS.join(', ')}\n` +
+        `→ 首选：spawn 独立 reviewer\n` +
+        `   Agent({ subagent_type: "koala-review-story-init", prompt: \`koala dispatch '{"storyId":"${storyId}","agentType":"koala-review-story-init"}'\` })\n` +
+        `   并让 product-reviewer 同样调用 init_check_set；若 reviewer 4 分钟无输出，重新 dispatch 并重启 reviewer。\n` +
+        `→ Fallback（仅当无法 spawn subagent 时，受控且会留审计）：\n` +
+        `   koala init_check_repair '{"storyId":"${storyId}","acknowledge":true,"fallbackReason":"<为何 reviewer 无法运行 + 你人工核查了什么，≥30 字符>"}'`;
     }
     const expected = recomputeInitCheckHash(storyId, store, projectRoot ?? process.cwd());
     if (initCheck._hash !== expected) {
@@ -323,7 +329,10 @@ export function getGuardFailureReason(
     }
     const missingAgents = missingRequiredInitCheckAgents(initCheck);
     if (missingAgents.length > 0) {
-      return `Cannot enter INIT_CHECK: init-check.json 缺少必需 reviewer 记录: ${missingAgents.join(', ')}。 [missing_init_check_agent]\n→ 分别运行 koala dispatch '{"storyId":"${storyId}","agentType":"koala-review-story-init"}' 和 product-reviewer；每个 reviewer 无论 pass/fail 都必须调用 init_check_set。`;
+      return `Cannot enter INIT_CHECK: init-check.json 缺少必需 reviewer 记录: ${missingAgents.join(', ')}。 [missing_init_check_agent]\n` +
+        `→ 首选：分别运行 koala dispatch '{"storyId":"${storyId}","agentType":"koala-review-story-init"}' 和 product-reviewer；每个 reviewer 无论 pass/fail 都必须调用 init_check_set。\n` +
+        `→ Fallback（仅当无法 spawn subagent 时，受控且会留审计）：\n` +
+        `   koala init_check_repair '{"storyId":"${storyId}","acknowledge":true,"fallbackReason":"<为何 reviewer 无法运行 + 你人工核查了什么，≥30 字符>"}'`;
     }
     const blockers = blockingInitCheckIssues(initCheck);
     if (blockers.length > 0) {

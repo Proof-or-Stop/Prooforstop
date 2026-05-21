@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-95d8:RP-001",
+      "agent": "koala-review-concept",
+      "note": "CLI gate validate --concept: no deleted exports in main...HEAD, < 5 residuals → skip concept LLM reviewer. Zero deleted symbols, no residual references to remove. Concept lane satisfied by CLI gate.",
+      "createdAt": "2026-05-21T23:12:27.085Z",
+      "reviewRound": "2026-05-21T22:49:24.107Z",
+      "reviewRunId": "B-95d8:RR-001",
+      "_hash": "e2ff721b9f5be08111df10039f65a982fdc8752884d5098264354262ab60ab1b"
+    },
+    {
+      "id": "B-95d8:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: CHK-001 happy/edge/adversarial all covered by init-check-fallback-smoke.ts Tests 1-5+Extra (running, not waivers); CHK-002 happy/edge/adversarial all covered by checklist-reload-hint-smoke.ts Tests 1-3; both smoke tests confirmed passing; evidence is specific and individually verifiable; no must-priority intent without non-waived evidence; no blocker found.",
+      "createdAt": "2026-05-21T23:14:20.370Z",
+      "reviewRound": "2026-05-21T22:49:24.107Z",
+      "reviewRunId": "B-95d8:RR-003",
+      "_hash": "57712f59e507c76dcf1036b6ae71013d1aaff835604709771104eb622549ffdd"
+    },
+    {
+      "id": "B-95d8:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Step 1 extracted symbols: INIT_CHECK_FALLBACK_REASON_MIN, init_check_repair, initCheckAttestationMode, INIT_CHECK_FALLBACK_AGENT_SUFFIX. Step 2 compared 4 doc paragraphs in CLAUDE.md and story-lifecycle.md. All 6 doc claims verified consistent: (1) acknowledge+fallbackReason<30 guard at lines 223-234 of init-check.ts matches doc; (2) signInitCheck reused identically with same domain at line 275; (3) agentResults recorded as <required>@fallback at line 282, initCheckAgentMatches prefix logic at init-check-gate.ts:67-69; (4) fallback block (mode/reason/evidenceRefs/actor/session/attestedAt/headHash/materialHash) written in data at lines 311-321 of init-check.ts, type defined in types.ts:923-939; (5) story_get exposes initCheckAttestation and initCheckFallback at story-query.ts:353-358; (6) story-lifecycle.md phase table updated accurately to describe gate. No doc-code drift found.",
+      "createdAt": "2026-05-21T23:14:51.344Z",
+      "reviewRound": "2026-05-21T22:49:24.107Z",
+      "reviewRunId": "B-95d8:RR-004",
+      "_hash": "df35e578d4d82448e465e67cd83847f5de11090fe9c1cab058ee75a57bca3741"
+    },
+    {
+      "id": "B-95d8:RP-004",
+      "agent": "koala-review-quality",
+      "note": "Quality review of init_check_repair handler and checklist_update reload hint. Checked: dead code (none found; re-exports are intentional backward-compat), type safety (no as any, catches typed), I/O isolation (handlers/ doing I/O is correct paradigm), PROBE pattern usage (appropriate for optional git/session reads), error handling (all preflight guards fire before first read/write — zero file written on refusal), Handler encoding convention (Zod min(30) mirrored by runtime reason.length < INIT_CHECK_FALLBACK_REASON_MIN check at line 230, mode enum mirrored at line 237), checklist reload hint try/catch (advisory only — write failure propagates normally, reminder failure only warns, stdout unaffected). One low-severity structural fragility noted: idx===0 in agentResults.map implicitly assumes REQUIRED_INIT_CHECK_AGENTS[0] is the issue-bearing agent, creating silent coupling to array order; this is low-severity because the array is 'as const' and the design is stable. No blocking issues found.",
+      "createdAt": "2026-05-21T23:15:45.099Z",
+      "reviewRound": "2026-05-21T22:49:24.107Z",
+      "reviewRunId": "B-95d8:RR-005",
+      "_hash": "c92f407ecd097ff3686b2a49949478301b7709c3549095adb723cd90f96e72b4"
+    }
+  ]
+}
