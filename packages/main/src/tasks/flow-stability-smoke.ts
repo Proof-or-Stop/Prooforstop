@@ -266,6 +266,7 @@ function assertDirtyWorktreeClassifierGroupsOwnership(): void {
 
     const classification = classifyGitStatusRows([
       ' M .koala/story/actives/B-smoke/checklist.json',
+      ' M Docs/story/actives/B-smoke/test-evidence.json',
       '?? .koala/activity.jsonl',
       ' M package.json',
       ' D koala.config.json',
@@ -274,8 +275,8 @@ function assertDirtyWorktreeClassifierGroupsOwnership(): void {
       '?? packages/main/tests/output/bl21_lacz_ecoli_minicell/prodenovo_viewer.json',
     ], dirtyWorktreeClassifierOptionsFromConfig(loadConfig(root)));
 
-    assert.equal(classification.total, 7);
-    assert.equal(classification.groups.koala_metadata_changes.length, 1);
+    assert.equal(classification.total, 8);
+    assert.equal(classification.groups.koala_metadata_changes.length, 2);
     assert.equal(classification.groups.runtime_artifact_changes.length, 1);
     assert.equal(classification.groups.declared_artifact_changes.length, 0, 'undeclared artifact extension point should stay empty by default');
     assert.equal(classification.groups.material_source_changes.length, 3);

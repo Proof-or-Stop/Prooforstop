@@ -27,6 +27,7 @@ import type { StoryStore } from '../core/store.js';
 import { DEFAULT_BASE } from './validate-shared.js';
 import { computeChannel } from '../core/workflow-policy.js';
 import { loadConfig } from '../core/config.js';
+import { isStoryMetadataPath as isSharedStoryMetadataPath } from '../core/evidence-freshness.js';
 import type { StoryInfo, ChecklistData, DecisionData, ProcessEvent } from '../core/types.js';
 
 export interface ChannelOffender {
@@ -164,7 +165,7 @@ export function isNormalChannelWithStory(
  * - 否则不能作为 fallback；但若 dispatch/subagent_result 结构化证据完整，author 不再硬阻塞
  */
 export function isStoryMetadataPath(file: string): boolean {
-  return file.startsWith('.koala/story/') || file.startsWith('docs/story/actives/');
+  return isSharedStoryMetadataPath(file);
 }
 
 export function isMetadataOnlyKoalaCommit(c: Pick<ChannelOffender, 'subject' | 'files'>): boolean {

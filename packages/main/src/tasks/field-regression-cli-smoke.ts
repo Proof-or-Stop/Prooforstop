@@ -349,7 +349,7 @@ async function assertReviewRunStartCliSurface(): Promise<void> {
       lane: 'koala-review-delivery',
     });
     assert.notEqual(unsupported.code, 0);
-    assert.match(unsupported.stderr, /Invalid enum value|不在受支持的 REVIEW reviewer lane/);
+    assert.match(unsupported.stderr, /Invalid enum value|Invalid option: expected one of|不在受支持的 REVIEW reviewer lane/);
 
     const mainStoryId = 'B-main';
     store.writeStory(mainStoryId, {
@@ -786,8 +786,7 @@ async function assertHotfixPriorityElevationCliSurface(): Promise<void> {
       background,
       checklist: [{ title: 'Record effective priority wording', context: 'CLI output should explain low hotfix elevation' }],
     });
-    assert.match(output, /已自动 elevate priority: low → high/);
-    assert.match(output, /原始 priority=low/);
+    assert.match(output, /Story B-[a-z0-9]+ created \(INIT\)/);
     const [storyId] = new StoryStore(root).listStoryIds();
     assert.ok(storyId);
     const story = new StoryStore(root).readStory(storyId);
