@@ -55,6 +55,19 @@
       "reviewRound": "2026-05-21T04:31:00.534Z",
       "reviewRunId": "B-df6f:RR-004",
       "_hash": "d18afab1bea2836a43559598a7397bc0e52a8a3f9d839ee97ef6320d3515c21f"
+    },
+    {
+      "id": "B-df6f:F-005",
+      "desc": "packages/main/src/tasks/field-regression-cli-smoke.ts:657 and packages/main/src/tasks/story-create-concurrency-smoke.ts:346 have fresh passing smoke coverage for the Docs/story/actives and F-004 warn regressions, but story-level verification evidence was never refreshed after head 651c35e; `koala validate --story=B-df6f --json --noSync` reports Verification intent coverage 0/6 covered with all six intents stale, so REVIEW still lacks blocking test-coverage evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-05-21T04:39:02.614Z",
+      "reviewRound": "2026-05-21T04:36:47.679Z",
+      "reviewRunId": "B-df6f:RR-008",
+      "_hash": "6bfbd5259e2c8967d7732dd0db3f60144cfcb31bbe903e5559f71b9f95d2b480"
     }
   ]
 }
