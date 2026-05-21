@@ -8,6 +8,15 @@
       "reviewRound": "2026-05-21T02:07:40.534Z",
       "reviewRunId": "B-94a6:RR-004",
       "_hash": "70f85a1b9434fb0f29941e8413e9525429c5d588a84e90664ac57fec9f2e2573"
+    },
+    {
+      "id": "B-94a6:RP-002",
+      "agent": "koala-review-behavior",
+      "note": "CHK-002 POST-before-write专项确认：verification_evidence_add (lines 539→554) and verification_evidence_batch_add (lines 656→673) both strictly follow submitSingle/submitBatch THEN writeLocal/writeLocalBatch; the frozen CHK-002 context obsolete sentence (write-local-first) is explicitly superseded in authority-submit.ts:23-29 and never implemented. Blocker 1+2: local preflight (note<5/waiverType-kind/itemId existence) all throw before submitSingle/submitBatch is reached, asserting server.calls===0 in smoke. Blocker 3: shadow degrades any outcome (success/5xx/timeout/ECONNREFUSED/client-throw) to proceed=true+stderr-warning, never blocks writeLocal, via degradeThrow catch-all. Blocker 4: enforce gates writeLocal on decision.proceed===true; any failure (5xx/timeout/ECONNREFUSED/authority-rejected/client-throw/partial-accept) → proceed=false → throw → zero local write, no compensating rollback needed (pre-POST means nothing to roll back). off mode: authorityModeEnabled short-circuits before any submitter call. Authority mode default: normalizeAuthorityMode returns off for unset/empty/whitespace/non-canonical values (runtime re-validated, not Zod-only). All cases covered by authority-evidence-flow-smoke.ts with POST-counting fake AuthorityClient. No behavior correctness findings.",
+      "createdAt": "2026-05-21T02:10:21.244Z",
+      "reviewRound": "2026-05-21T02:07:40.534Z",
+      "reviewRunId": "B-94a6:RR-003",
+      "_hash": "72a5b3a205994a31d842d52513313fad8042c608ea82490cd99a66d096e186c5"
     }
   ]
 }
