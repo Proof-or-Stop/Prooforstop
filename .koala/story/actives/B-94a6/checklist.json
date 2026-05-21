@@ -265,7 +265,20 @@
         "test": [
           "packages/main/src/tasks/authority-evidence-flow-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/authority-evidence-flow-smoke.ts",
+          "command": "npm run test:authority-evidence-flow",
+          "result": "pass",
+          "note": "shadow + healthy server case: handler POSTs once (server.calls===1) and writes local evidence, returns success message, exit 0, no stderr warning",
+          "headHash": "34ab9fcc164e9f5bae749b6a2db4980e4c3077d5",
+          "materialHash": "42af73823f9d8baf047fa0d481a058a283135ec7b6c2e8641300c2ebe872eb62",
+          "timestamp": "2026-05-21T02:02:41.164Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
