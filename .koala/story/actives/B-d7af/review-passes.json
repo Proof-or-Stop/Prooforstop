@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-d7af:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept review complete. The story is a pure layering fix: (1) core/init-check-gate.ts created with identical function bodies, (2) core/machine.ts import path changed from ../handlers/init-check.js to ./init-check-gate.js — the upward core→handlers violation is gone, (3) handlers/init-check.ts imports from core and re-exports all moved symbols for backward compat. Verified: no core→handlers init-check import remains (grep returned empty), all consumers of handlers/init-check.ts (draft-check.ts, story-create.ts, registry.ts) still work via re-exports, INIT_CHECK gate logic in machine.ts is unchanged (only import path differs), normalizeAgentId is now exported from core but no external consumer uses that export, worktree-authority-smoke.ts assertion relaxation is correct (DONE gate git-working-tree row can be clean or pass: blocking=0 — both are valid pass states per done-oracle.ts). No concepts deleted without re-exports. No INIT_CHECK semantic or reviewer flow change. Zero blockers.",
+      "createdAt": "2026-05-21T16:05:56.136Z",
+      "reviewRound": "2026-05-21T16:02:21.672Z",
+      "reviewRunId": "B-d7af:RR-001",
+      "_hash": "37c94f2937b22692c345f999c58cccb7a74f81df25a578962869dc0b514d84fc"
+    }
+  ]
+}
