@@ -398,6 +398,25 @@ export function createChecklistHandlers(ctx: HandlerContext) {
 
       const commitHint = autoCommitStoryMetadata(root, args.storyId, 'checklist_update');
 
+      // B-95d8 CHK-002: post-write reload reminder.
+      // Re-read the FINAL persisted state (read-after-write) so a long session does
+      // not keep trusting a stale pre-write snapshot (e.g. "still in_progress" when
+      // the write already flipped it to done). The reminder goes to STDERR, never
+      // stdout, following the B-6812 advisory-to-stderr precedent: stdout stays the
+      // pure conclusion so `koala checklist_update | tail` pipelines are unaffected.
+      try {
+        const persisted = store.readChecklist(args.storyId).items.find(i => i.id === args.itemId);
+        const persistedStatus = persisted ? persisted.status : '<unknown>';
+        process.stderr.write(
+          `↻ 已写入并确认持久化：${args.itemId} 当前 status=${persistedStatus}。` +
+          `长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\n`,
+        );
+      } catch (e) {
+        // Reminder is advisory only — a read-back failure must never change the
+        // write result or the stdout conclusion.
+        console.warn(`[checklist_update] post-write reload reminder skipped for ${args.storyId}: ${(e as Error).message}`);
+      }
+
       // CHK-003: pending/in_progress → done 且 item 有 relatedDocs 时，hint 关联文档清单
       // B-45ed CHK-008: done hint 列表统一包含 background.md（若存在且不在 item.relatedDocs 内），保证下游同步对齐
       const transitionedToDone = args.status === 'done' && oldStatus !== 'done';

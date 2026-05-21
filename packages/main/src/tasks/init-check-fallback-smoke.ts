@@ -1,0 +1,185 @@
+#!/usr/bin/env node
+
+/**
+ * B-95d8 CHK-001 smoke: explicit, auditable INIT_CHECK fallback/repair command.
+ *
+ * Covers:
+ *  1. init_check_repair refuses when disabled (no acknowledge) or missing/short reason.
+ *  2. a successful repair writes a SIGNED init-check.json that story_advance accepts.
+ *  3. tampering signed story content after repair still triggers init_check_tampered.
+ *  4. story_get distinguishes fallback/manual attestation from an independent reviewer.
+ *  5. the missing-init-check diagnostic names required reviewer(s), fallback availability,
+ *     and the exact next command shape.
+ */
+
+import { strict as assert } from 'node:assert';
+import { execFileSync } from 'node:child_process';
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const cliPath = join(packageRoot, 'cli.js');
+
+function git(cwd: string, args: string[]): string {
+  return execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+}
+
+function write(root: string, path: string, content: string): void {
+  mkdirSync(dirname(join(root, path)), { recursive: true });
+  writeFileSync(join(root, path), content);
+}
+
+function run(root: string, command: string, args: Record<string, unknown>, allowFailure = false): string {
+  try {
+    return execFileSync(process.execPath, [cliPath, '--root', root, command, JSON.stringify(args)], {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+  } catch (error: any) {
+    const text = String(error.stdout || '') + String(error.stderr || '') + String(error.message || '');
+    if (allowFailure) return text;
+    throw new Error(text);
+  }
+}
+
+const background = [
+  '## 触发事件',
+  '2026-05-21 B-0000 smoke needs enough trigger detail to satisfy background validation for the init-check fallback path.',
+  '## 关键洞察',
+  'Environments without a spawnable init reviewer still need an explicit, auditable exit that does not weaken the signature gate.',
+  '## 方案取舍',
+  'The fallback reuses signInitCheck and marks reviewer records as fallback rather than faking an independent reviewer run.',
+  '## 对话纹理',
+  'A maintainer sees a clear blocker that names the missing reviewers and offers the controlled init_check_repair fallback command.',
+].join('\n\n');
+
+function createStory(root: string, name: string, title: string): string {
+  const created = run(root, 'story_create', {
+    name,
+    title,
+    description: 'Verify the controlled INIT_CHECK fallback/repair command.',
+    type: 'chore',
+    priority: 'medium',
+    background,
+    checklist: [{ title: 'Verify fallback exit', context: 'INIT_CHECK must have a controlled, auditable fallback.' }],
+  });
+  const storyId = created.match(/B-[a-f0-9]+/)?.[0];
+  assert.ok(storyId, 'story_create should return story id');
+  return storyId!;
+}
+
+function initCheckPath(root: string, storyId: string): string {
+  return join(root, '.koala/story/actives', storyId, 'init-check.json');
+}
+
+const root = mkdtempSync(join(tmpdir(), 'koala-init-fallback-'));
+try {
+  git(root, ['init', '-b', 'main']);
+  git(root, ['config', 'user.email', 'smoke@example.test']);
+  git(root, ['config', 'user.name', 'Koala Smoke']);
+  write(root, 'koala.config.json', JSON.stringify({
+    scanRoot: 'packages/main',
+    rootDir: 'src',
+    storyDir: '.koala/story/actives',
+    requirementsDir: 'docs/requirements',
+    storyPrefix: 'B',
+  }, null, 2));
+  write(root, 'README.md', 'smoke\n');
+  git(root, ['add', '.']);
+  git(root, ['commit', '-m', 'init']);
+
+  // ── Test 5 (run first on a virgin story): missing-init-check diagnostic ──────
+  const diagStory = createStory(root, 'fallback-diagnostic', 'Fallback diagnostic story');
+  const missingDiag = run(root, 'story_advance', { storyId: diagStory, phase: 'INIT_CHECK' }, true);
+  assert.match(missingDiag, /missing_init_check/, 'diagnostic should carry the missing_init_check tag');
+  assert.match(missingDiag, /koala-review-story-init/, 'diagnostic should name the required story-init reviewer');
+  assert.match(missingDiag, /product-reviewer/, 'diagnostic should name the required product-reviewer');
+  assert.match(missingDiag, /init_check_repair/, 'diagnostic should mention the fallback command');
+  assert.match(missingDiag, /acknowledge/, 'diagnostic should show the acknowledge flag in the command shape');
+  assert.match(missingDiag, /fallbackReason/, 'diagnostic should show the fallbackReason argument');
+
+  // ── Test 1: refuse when disabled (no acknowledge) or with a too-short reason ─
+  const refuseNoAck = run(root, 'init_check_repair', {
+    storyId: diagStory,
+    fallbackReason: 'No init reviewer is available in this CI sandbox; I manually verified background + checklist.',
+  }, true);
+  assert.match(refuseNoAck, /refused|acknowledge/i, 'repair without acknowledge must be refused');
+  assert.ok(!existsSync(initCheckPath(root, diagStory)), 'refused repair must NOT write init-check.json');
+
+  const refuseShortReason = run(root, 'init_check_repair', {
+    storyId: diagStory,
+    acknowledge: true,
+    fallbackReason: 'too short',
+  }, true);
+  assert.match(refuseShortReason, /fallbackReason/, 'short reason must be refused with a fallbackReason error');
+  assert.ok(!existsSync(initCheckPath(root, diagStory)), 'refused repair (short reason) must NOT write init-check.json');
+
+  // phase must be unchanged (still blocked) after refusals
+  const stillBlocked = run(root, 'story_advance', { storyId: diagStory, phase: 'INIT_CHECK' }, true);
+  assert.match(stillBlocked, /missing_init_check/, 'phase must stay blocked after refused repairs');
+
+  // ── Test 2: a successful repair writes a signed init-check that the gate accepts ─
+  const repaired = run(root, 'init_check_repair', {
+    storyId: diagStory,
+    acknowledge: true,
+    fallbackReason: 'No init reviewer subagent can be spawned here; I manually reviewed background, checklist and product value.',
+    evidenceRefs: ['manual-review-2026-05-21'],
+  });
+  assert.match(repaired, /init-check\.json 已生成/, 'repair should report init-check.json generated');
+  assert.match(repaired, /审计事件/, 'repair should report an audit event was recorded');
+  assert.ok(existsSync(initCheckPath(root, diagStory)), 'successful repair must write init-check.json');
+
+  const advanced = run(root, 'story_advance', { storyId: diagStory, phase: 'INIT_CHECK' });
+  assert.match(advanced, /advanced to INIT_CHECK/, 'story_advance must accept the signed fallback init-check');
+
+  // ── Test 4: story_get distinguishes fallback attestation from independent reviewer ─
+  const fallbackView = JSON.parse(run(root, 'story_get', { storyId: diagStory }));
+  assert.equal(fallbackView.initCheckAttestation, 'fallback', 'fallback story_get must report attestation=fallback');
+  assert.ok(fallbackView.initCheckFallback, 'fallback story_get must expose the fallback attestation block');
+  assert.equal(fallbackView.initCheckFallback.mode, 'repair', 'fallback block records mode=repair by default');
+  assert.ok(
+    typeof fallbackView.initCheckFallback.reason === 'string' && fallbackView.initCheckFallback.reason.length >= 30,
+    'fallback block records the >=30 char reason',
+  );
+  assert.ok(fallbackView.initCheckFallback.attestedAt, 'fallback block records attestedAt timestamp');
+
+  // independent reviewer path for contrast
+  const indepStory = createStory(root, 'independent-review', 'Independent reviewer story');
+  run(root, 'init_check_set', { storyId: indepStory, issues: [], agentId: 'koala-review-story-init' });
+  run(root, 'init_check_set', { storyId: indepStory, issues: [], agent: 'product-reviewer' });
+  const indepView = JSON.parse(run(root, 'story_get', { storyId: indepStory }));
+  assert.equal(indepView.initCheckAttestation, 'independent', 'independent reviewer story_get must report attestation=independent');
+  assert.ok(!indepView.initCheckFallback, 'independent path must NOT carry a fallback block');
+  const indepAdvanced = run(root, 'story_advance', { storyId: indepStory, phase: 'INIT_CHECK' });
+  assert.match(indepAdvanced, /advanced to INIT_CHECK/, 'independent reviewer path still advances normally');
+
+  // ── Test 3: tampering signed story content after repair still triggers tamper ─
+  const tamperStory = createStory(root, 'fallback-tamper', 'Fallback tamper story');
+  run(root, 'init_check_repair', {
+    storyId: tamperStory,
+    acknowledge: true,
+    fallbackReason: 'No reviewer subagent available; manual attestation performed after reading the whole story envelope.',
+  });
+  run(root, 'story_update', { storyId: tamperStory, title: 'Fallback tamper story changed after attestation' });
+  const tampered = run(root, 'story_advance', { storyId: tamperStory, phase: 'INIT_CHECK' }, true);
+  assert.match(tampered, /init_check_tampered/, 'editing signed content after a fallback must trigger init_check_tampered');
+
+  // ── Extra: operator-attested blocking issue still blocks the gate ────────────
+  const blockStory = createStory(root, 'fallback-blocking', 'Fallback blocking story');
+  const blockRepair = run(root, 'init_check_repair', {
+    storyId: blockStory,
+    acknowledge: true,
+    fallbackReason: 'No reviewer subagent; manual review found a high-severity gap that must be fixed before INIT_CHECK.',
+    issues: [{ severity: 'high', desc: 'Manual review found an unresolved high-severity scope gap.' }],
+  });
+  assert.match(blockRepair, /仍会阻塞|high/, 'repair attesting a high issue should warn the gate still blocks');
+  const blockedByIssue = run(root, 'story_advance', { storyId: blockStory, phase: 'INIT_CHECK' }, true);
+  assert.match(blockedByIssue, /init_check_blocking_issues/, 'a fallback that attests a high issue must NOT pass the gate');
+} finally {
+  rmSync(root, { recursive: true, force: true });
+}
+
+console.log('✓ init check fallback/repair smoke passed');

@@ -677,6 +677,24 @@ export const MAIN_TOOLS: ToolDef[] = [
     agentId: z.string().optional().describe('Reviewer 自报 agent id；product-reviewer 必须传 product-reviewer，不能传 koala-review-story-init'),
   }},
 
+  // Init Check fallback/repair (B-95d8 CHK-001: explicit, auditable INIT_CHECK exit
+  // for environments that cannot spawn the init reviewer subagent).
+  // Default-disabled: refuses without BOTH acknowledge=true AND fallbackReason (>=30).
+  // Reuses signInitCheck — does NOT weaken the gate or add agentId identity checks.
+  { name: 'init_check_repair', description: '受控 fallback：无法 spawn INIT reviewer 时显式、可审计地生成签名 init-check.json（默认禁用，需 acknowledge + fallbackReason）', schema: {
+    storyId: z.string().describe('Story ID'),
+    fallbackReason: z.string().min(30, 'fallbackReason 必须 ≥ 30 字符').describe('为什么 INIT reviewer 无法运行 + 你人工核查了什么（durable 审计 attestation）'),
+    acknowledge: z.boolean().describe('必须显式传 true：确认你在刻意顶替独立 INIT reviewer 做 attestation'),
+    mode: z.enum(['repair', 'fallback']).optional().describe("审计分类：repair（修复缺失出口）/ fallback（无 subagent 环境顶替），默认 repair"),
+    evidenceRefs: z.array(z.string()).optional().describe('可选：人工核查依据的证据引用（文件/URL/transcript 摘要）'),
+    issues: z.array(z.object({
+      id: z.string().optional().describe('自分配 id，可选'),
+      severity: z.enum(['critical', 'high', 'medium', 'low']).describe('issue 严重度'),
+      desc: z.string().min(1, 'desc 必填且 ≥ 1 字符').describe('issue 具体描述'),
+    })).optional().describe('可选：人工 attestation 提出的 issue；high/critical 仍会阻塞 INIT_CHECK'),
+    actor: z.string().optional().describe('可选：操作者标识；缺省取 git user.name'),
+  }},
+
   // Delivery Check (B-35ed: koala-review-delivery reviewer writes signed delivery-check.json)
   // TEST→DONE 硬门槛产物。签名域：storyId + docsPromises + realMachineTests + closingSelfCheck + reviewRound。
   { name: 'delivery_check_set', description: '保存 delivery check 结果（由 koala-review-delivery reviewer 调用）', schema: {

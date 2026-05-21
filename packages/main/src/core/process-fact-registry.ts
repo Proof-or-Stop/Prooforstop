@@ -209,6 +209,14 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     consumerGate: 'storyMachine.canEnterInitCheck INIT to INIT_CHECK gate',
     reviewerLane: 'koala-review-story-init',
   },
+  init_check_repair: {
+    name: 'init-check.json',
+    path: 'init-check.json',
+    signed: true,
+    signature: 'signInitCheck/recomputeInitCheckHash',
+    producerCommand: 'init_check_repair',
+    consumerGate: 'storyMachine.canEnterInitCheck INIT to INIT_CHECK gate',
+  },
   delivery_check_set: {
     name: 'delivery-check.json',
     path: 'delivery-check.json',

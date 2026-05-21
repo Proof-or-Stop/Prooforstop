@@ -528,6 +528,31 @@ koala init_check_set '{"storyId":"B-xxx","agentId":"reviewer-self-id","issues":[
 # Agent({ subagent_type: "koala-review-story-init", prompt: "storyId: B-xxx，请审查 background + checklist 初版" })
 ```
 
+**无 subagent 环境的受控 fallback（B-95d8 CHK-001）**：
+
+某些环境（CI sandbox、无 subagent 能力的 runner）根本无法 spawn INIT reviewer，此前没有合法出口、story 永久卡在 `[missing_init_check]`。`koala init_check_repair` 提供一条**显式、可审计、不削弱签名**的 fallback：
+
+```bash
+koala init_check_repair '{
+  "storyId":"B-xxx",
+  "acknowledge":true,
+  "fallbackReason":"为何 INIT reviewer 无法运行 + 你人工核查了什么（≥30 字符，作为 durable 审计 attestation）",
+  "mode":"repair",            // 可选，默认 repair；fallback/repair 语义等价仅审计分类
+  "evidenceRefs":["..."],     // 可选，人工核查依据
+  "issues":[]                 // 可选，人工 attestation 提的 issue；high/critical 仍阻塞 INIT_CHECK
+}'
+```
+
+设计约束（与上面反自豁免架构一致）：
+
+- **默认禁用**：缺 `acknowledge:true` 或 `fallbackReason` < 30 字符 → 拒绝、不产出文件、不改 phase。
+- **不绕过签名**：复用同一 `signInitCheck`，签名域不变（background/title/description/checklist）。事后改任一签名内容仍触发 `[init_check_tampered]`。
+- **不放宽 gate**：必需 reviewer 覆盖靠把 agentResults 记成 `<required>@fallback`（`initCheckAgentMatches` 认 `<required>@` 前缀），既满足校验又与独立 reviewer **机械可区分**；人工 attest 的 high/critical issue 仍走 `blockingInitCheckIssues` 自我阻塞。
+- **不引入 agentId 校验**：EXP-001 已证伪调用方机械可区分性。
+- **可审计**：写 `init-check.json.fallback` 块（mode/reason/evidenceRefs/actor/session/attestedAt/headHash/materialHash）+ `init_check_fallback` process event。`koala story_get` 返回 `initCheckAttestation: "fallback" | "independent"` 与 `initCheckFallback` 块，dashboard/report 据此把人工 fallback 与独立 reviewer 区分开。
+
+`[missing_init_check]` / `[missing_init_check_agent]` 诊断信息会同时列出缺失的必需 reviewer、fallback 是否可用、以及 `init_check_repair` 的精确命令形态。
+
 ### story_create 前置 draft gate
 
 B-9975 引入 `story_draft` + `story_create --from-draft` 两阶段创建流程。与 B-e71f `init-check.json` 架构同构（同签名结构 + reviewer subagent + 反自豁免设计），区别在 gate 点更前——物化动作本身。

@@ -17,6 +17,7 @@ import {
   resolveWorktreePath,
 } from '../core/worktree-runtime.js';
 import { getLegacyActivityLogPath, getRuntimeActivityLogPath } from '../core/activity-log.js';
+import { initCheckAttestationMode } from '../core/init-check-gate.js';
 
 /** B-45ed CHK-008: 若 story 的 background.md 文件存在则返回 true。 */
 function hasBackground(store: StoryStore, storyId: string): boolean {
@@ -346,6 +347,16 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
       })();
 
       const result: Record<string, unknown> = { checklist: cl, review };
+
+      // B-95d8 CHK-001: surface the INIT_CHECK attestation so callers / dashboard can
+      // distinguish an independent reviewer run from a manual fallback/repair.
+      const initCheck = store.readInitCheck(args.storyId);
+      if (initCheck) {
+        result.initCheck = initCheck;
+        result.initCheckAttestation = initCheckAttestationMode(initCheck);
+        if (initCheck.fallback) result.initCheckFallback = initCheck.fallback;
+      }
+
       if (args.detail) {
         try { result.index = store.readStory(args.storyId); } catch { result.index = null; }
       }

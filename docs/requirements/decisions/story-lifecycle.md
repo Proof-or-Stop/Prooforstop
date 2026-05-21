@@ -55,13 +55,27 @@ Koala 给可执行主流程 phase 一个稳定编号，用于 `koala status` 展
 | Phase | 含义 | 进入门禁 | 产物 |
 |---|---|---|---|
 | INIT | story 已创建 | `story_create` 成功 | story metadata、background |
-| INIT_CHECK | worktree bootstrap | init reviewers / draft gate 通过，git 可用 | `.worktrees/B-xxx`、`story/B-xxx` |
+| INIT_CHECK | worktree bootstrap | init reviewers / draft gate 通过（或受控 `init_check_repair` fallback），git 可用 | `.worktrees/B-xxx`、`story/B-xxx` |
 | PLAN | 拆解和验收意图 | cwd 在 worktree；高风险 story 要 understanding + decision/preMortem | understanding、checklist、verificationIntent、decision |
 | DEV | 实现和记录证据 | PLAN/review gate 允许 | 代码、checklist status、verificationEvidence |
 | REVIEW | 独立审查 | DEV checklist 已完成、改动已提交 | reviewer findings、coverage reviewer result / review pass |
 | TEST | 自动验证 | REVIEW blocker 已解决，preflight gate 通过 | `koala validate` evidence、bug/test runs |
 | DONE | 收束 | validate PASS、bug fixed、evidence fresh、summary/delivery gate 通过、branch 包含 main | merge main、清理 worktree、summary |
 | DISCARDED | 已废弃 | `story_discard` | discard event、清理结果 |
+
+### INIT_CHECK 无 subagent 受控 fallback（B-95d8）
+
+正常路径下 `INIT → INIT_CHECK` 要求独立 INIT reviewer（`koala-review-story-init` + `product-reviewer`）通过 `init_check_set` 写签名 `init-check.json`。无法 spawn subagent 的环境（CI sandbox / 无 subagent runner）此前没有合法出口，story 永久卡在 `[missing_init_check]`。
+
+`koala init_check_repair` 提供**显式、可审计、不削弱签名**的 fallback（INIT 阶段，`ownershipClass: storyScopedMutating`，owner-gated 的人工 override，不是 reviewer-lane write）：
+
+- **默认禁用**：缺 `acknowledge:true` 或 `fallbackReason` < 30 字符即拒绝，不产出文件、不改 phase。
+- **复用 `signInitCheck`**：签名域不变；事后改 background/title/description/checklist 任一仍触发 `[init_check_tampered]`。
+- **不放宽 gate**：必需 reviewer 覆盖记成 `<required>@fallback`（`initCheckAgentMatches` 认前缀），既满足校验又与独立 reviewer 机械可区分；人工 attest 的 high/critical issue 仍走 `blockingInitCheckIssues` 自我阻塞。
+- **审计**：写 `init-check.json.fallback`（mode/reason/evidenceRefs/actor/session/attestedAt/headHash/materialHash）+ `init_check_fallback` process event；`story_get` 暴露 `initCheckAttestation`（`fallback`/`independent`）+ `initCheckFallback` 块供 dashboard/report 区分。
+- 不引入 agentId 机械校验（EXP-001 已证伪调用方机械可区分性）。
+
+canonical 命令模板与设计约束详见 CLAUDE.md「INIT→INIT_CHECK 硬门槛」段。
 
 ## 自动回退
 
