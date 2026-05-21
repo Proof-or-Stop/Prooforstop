@@ -1,14 +1,14 @@
 {
   "command": "koala validate --story=B-df6f --json",
-  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery; verification coverage missing 6 required intent(s)\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.3 test\",\"  > npm run test:e2e\",\"  > koala@0.3.3 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 0/6 covered (6 required missing)\",\"  ✗ CHK-001:happy:0 [happy/must/logic] stale via logic_test (packages/main/src/tasks/verification-freshness-smoke.ts) — Changing uppercase Docs/story/actives/B-smoke/checklist.json after recording evidence remains metadata-only and checkEvidenceFreshnessForGit stays fresh.\",\"  ✗ CHK-001:edge:0 [edge/must/logic] stale via logic_test (packages/main/src/tasks/flow-stability-smoke.ts) — Dirty worktree classification categorizes uppercase Docs/story/actives/... files as koala_metadata_changes, not unexpected_dirty_files.\",\"  ✗ CHK-001:adversarial:0 [adversarial/must/logic] stale via logic_test (packages/main/src/tasks/verification-freshness-smoke.ts) — Non-story docs such as docs/requirements/decisions/ADR-001.md and source files still count as material and stale old evidence.\",\"  ✗ CHK-002:happy:0 [happy/must/logic] stale via logic_test (packages/main/src/tasks/verification-freshness-smoke.ts) — verification-freshness smoke covers uppercase Docs/story metadata for isMaterialExcludedPath, head-diff freshness, materialHash freshness, and coverage status.\",\"  ✗ CHK-002:edge:0 [edge/must/cli] stale via integration_test (packages/main/src/tasks/field-regression-cli-smoke.ts) — field regression validate CLI surface passes for metadata-only story evidence commits so a committed evidence update remains covered instead of stale.\",\"  ✗ CHK-002:adversarial:0 [adversarial/must/logic] stale via logic_test (packages/main/src/tasks/verification-freshness-smoke.ts) — The same smoke keeps real material paths stale, proving the Docs/story exemption does not allow weak evidence to pass after source/package/config changes.\"],\"warnings\":[],\"timestamp\":\"2026-05-21T04:38:23.350Z\",\"headSha\":\"651c35efe525c0966aa8c3eb5a396740a51d1ed8\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.3 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.3 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1193}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"express\",\"intentCount\":6,\"reason\":\"verificationIntent entries present (6)\"},\"verificationCoverage\":{\"total\":6,\"required\":6,\"covered\":0,\"missingRequired\":6,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Changing uppercase Docs/story/actives/B-smoke/checklist.json after recording evidence remains metadata-only and checkEvidenceFreshnessForGit stays fresh.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/verification-freshness-smoke.ts\",\"command\":\"npm --prefix packages/main run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"Freshness smoke includes uppercase Docs/story/actives/B-smoke/checklist.json, process-events.jsonl, and test-evidence.json in metadataOnly and proves head-diff freshness, materialHash freshness, and coverage remain fresh.\",\"headHash\":\"e6db481b7da526be0c510e1f749d21c5bc1834ca\",\"materialHash\":\"121f92217f966327d4695f36ba8c086dc34fd3ab96675140b38b164c73c3af9f\",\"timestamp\":\"2026-05-21T04:31:40.039Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Dirty worktree classification categorizes uppercase Docs/story/actives/... files as koala_metadata_changes, not unexpected_dirty_files.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/flow-stability-smoke.ts\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"Dirty worktree classifier smoke includes Docs/story/actives/B-smoke/test-evidence.json and expects koala_metadata_changes count 2, proving uppercase story evidence is not unexpected_dirty_files.\",\"headHash\":\"e6db481b7da526be0c510e1f749d21c5bc1834ca\",\"materialHash\":\"121f92217f966327d4695f36ba8c086dc34fd3ab96675140b38b164c73c3af9f\",\"timestamp\":\"2026-05-21T04:31:40.039Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Non-story docs such as docs/requirements/decisions/ADR-001.md and source files still count as material and stale old evidence.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/verification-freshness-smoke.ts\",\"command\":\"npm --prefix packages/main run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"Existing material path assertions still require packages/main source, fixtures, package files, koala.config.json, and docs/requirements files to stale evidence.\",\"headHash\":\"e6db481b7da526be0c510e1f749d21c5bc1834ca\",\"materialHash\":\"121f92217f966327d4695f36ba8c086dc34fd3ab96675140b38b164c73c3af9f\",\"timestamp\":\"2026-05-21T04:31:40.039Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"verification-freshness smoke covers uppercase Docs/story metadata for isMaterialExcludedPath, head-diff freshness, materialHash freshness, and coverage status.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/verification-freshness-smoke.ts\",\"command\":\"npm --prefix packages/main run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"The smoke covers isMaterialExcludedPath plus freshAfterChanging, materialFreshAfterChanging, and coverageStatusWithMaterialHash for uppercase Docs/story metadata.\",\"headHash\":\"e6db481b7da526be0c510e1f749d21c5bc1834ca\",\"materialHash\":\"121f92217f966327d4695f36ba8c086dc34fd3ab96675140b38b164c73c3af9f\",\"timestamp\":\"2026-05-21T04:31:40.039Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"field regression validate CLI surface passes for metadata-only story evidence commits so a committed evidence update remains covered instead of stale.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/field-regression-cli-smoke.ts\",\"command\":\"npm --prefix packages/main run test:field-regression-cli-smoke\",\"result\":\"pass\",\"note\":\"Field regression CLI smoke now configures storyDir as Docs/story/actives, writes the synthetic story there, commits that metadata-only evidence, and validates it remains covered rather than stale.\",\"headHash\":\"e6db481b7da526be0c510e1f749d21c5bc1834ca\",\"materialHash\":\"121f92217f966327d4695f36ba8c086dc34fd3ab96675140b38b164c73c3af9f\",\"timestamp\":\"2026-05-21T04:31:40.039Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"The same smoke keeps real material paths stale, proving the Docs/story exemption does not allow weak evidence to pass after source/package/config changes.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/verification-freshness-smoke.ts\",\"command\":\"npm --prefix packages/main run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"The same smoke keeps real material paths stale, so the Docs/story exemption does not allow stale evidence after real source/package/config/requirements changes.\",\"headHash\":\"e6db481b7da526be0c510e1f749d21c5bc1834ca\",\"materialHash\":\"121f92217f966327d4695f36ba8c086dc34fd3ab96675140b38b164c73c3af9f\",\"timestamp\":\"2026-05-21T04:31:40.039Z\"}}]}}",
-  "result": "FAIL",
-  "timestamp": "2026-05-21T04:38:23.551Z",
-  "headHash": "651c35efe525c0966aa8c3eb5a396740a51d1ed8",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.3 test\",\"  > npm run test:e2e\",\"  > koala@0.3.3 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 6/6 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/verification-freshness-smoke.ts) — Changing uppercase Docs/story/actives/B-smoke/checklist.json after recording evidence remains metadata-only and checkEvidenceFreshnessForGit stays fresh.\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/flow-stability-smoke.ts) — Dirty worktree classification categorizes uppercase Docs/story/actives/... files as koala_metadata_changes, not unexpected_dirty_files.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/verification-freshness-smoke.ts) — Non-story docs such as docs/requirements/decisions/ADR-001.md and source files still count as material and stale old evidence.\",\"  ✓ CHK-002:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/verification-freshness-smoke.ts) — verification-freshness smoke covers uppercase Docs/story metadata for isMaterialExcludedPath, head-diff freshness, materialHash freshness, and coverage status.\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via integration_test (packages/main/src/tasks/field-regression-cli-smoke.ts) — field regression validate CLI surface passes for metadata-only story evidence commits so a committed evidence update remains covered instead of stale.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/verification-freshness-smoke.ts) — The same smoke keeps real material paths stale, proving the Docs/story exemption does not allow weak evidence to pass after source/package/config changes.\"],\"warnings\":[],\"timestamp\":\"2026-05-21T04:40:52.395Z\",\"headSha\":\"e86e79600f9ff0b7d358b3b2e9224323117ce198\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.3 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.3 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1135}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"express\",\"intentCount\":6,\"reason\":\"verificationIntent entries present (6)\"},\"verificationCoverage\":{\"total\":6,\"required\":6,\"covered\":6,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Changing uppercase Docs/story/actives/B-smoke/checklist.json after recording evidence remains metadata-only and checkEvidenceFreshnessForGit stays fresh.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/verification-freshness-smoke.ts\",\"command\":\"npm --prefix packages/main run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"Freshness smoke includes uppercase Docs/story/actives/B-smoke/checklist.json, process-events.jsonl, and test-evidence.json in metadataOnly and proves head-diff freshness, materialHash freshness, and coverage remain fresh.\",\"headHash\":\"801d046190af7342c5d89432d1e6c6a32c8a4db7\",\"materialHash\":\"83d5a81d8011baef952b5200f37f948a65b9fdad5b26ccab1817fa5f7868600d\",\"timestamp\":\"2026-05-21T04:40:50.759Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Dirty worktree classification categorizes uppercase Docs/story/actives/... files as koala_metadata_changes, not unexpected_dirty_files.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/flow-stability-smoke.ts\",\"command\":\"npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"Dirty worktree classifier smoke includes Docs/story/actives/B-smoke/test-evidence.json and expects koala_metadata_changes count 2, proving uppercase story evidence is not unexpected_dirty_files.\",\"headHash\":\"801d046190af7342c5d89432d1e6c6a32c8a4db7\",\"materialHash\":\"83d5a81d8011baef952b5200f37f948a65b9fdad5b26ccab1817fa5f7868600d\",\"timestamp\":\"2026-05-21T04:40:50.759Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Non-story docs such as docs/requirements/decisions/ADR-001.md and source files still count as material and stale old evidence.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/verification-freshness-smoke.ts\",\"command\":\"npm --prefix packages/main run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"Existing material path assertions still require packages/main source, fixtures, package files, koala.config.json, and docs/requirements files to stale evidence.\",\"headHash\":\"801d046190af7342c5d89432d1e6c6a32c8a4db7\",\"materialHash\":\"83d5a81d8011baef952b5200f37f948a65b9fdad5b26ccab1817fa5f7868600d\",\"timestamp\":\"2026-05-21T04:40:50.759Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"verification-freshness smoke covers uppercase Docs/story metadata for isMaterialExcludedPath, head-diff freshness, materialHash freshness, and coverage status.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/verification-freshness-smoke.ts\",\"command\":\"npm --prefix packages/main run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"The smoke covers isMaterialExcludedPath plus freshAfterChanging, materialFreshAfterChanging, and coverageStatusWithMaterialHash for uppercase Docs/story metadata.\",\"headHash\":\"801d046190af7342c5d89432d1e6c6a32c8a4db7\",\"materialHash\":\"83d5a81d8011baef952b5200f37f948a65b9fdad5b26ccab1817fa5f7868600d\",\"timestamp\":\"2026-05-21T04:40:50.759Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"field regression validate CLI surface passes for metadata-only story evidence commits so a committed evidence update remains covered instead of stale.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/field-regression-cli-smoke.ts\",\"command\":\"npm --prefix packages/main run test:field-regression-cli-smoke\",\"result\":\"pass\",\"note\":\"Field regression CLI smoke now configures storyDir as Docs/story/actives, writes the synthetic story there, commits that metadata-only evidence, and validates it remains covered rather than stale.\",\"headHash\":\"801d046190af7342c5d89432d1e6c6a32c8a4db7\",\"materialHash\":\"83d5a81d8011baef952b5200f37f948a65b9fdad5b26ccab1817fa5f7868600d\",\"timestamp\":\"2026-05-21T04:40:50.759Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"The same smoke keeps real material paths stale, proving the Docs/story exemption does not allow weak evidence to pass after source/package/config changes.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/verification-freshness-smoke.ts\",\"command\":\"npm --prefix packages/main run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"The same smoke keeps real material paths stale, so the Docs/story exemption does not allow stale evidence after real source/package/config/requirements changes.\",\"headHash\":\"801d046190af7342c5d89432d1e6c6a32c8a4db7\",\"materialHash\":\"83d5a81d8011baef952b5200f37f948a65b9fdad5b26ccab1817fa5f7868600d\",\"timestamp\":\"2026-05-21T04:40:50.759Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-05-21T04:40:52.585Z",
+  "headHash": "e86e79600f9ff0b7d358b3b2e9224323117ce198",
   "verificationCoverage": {
     "total": 6,
     "required": 6,
-    "covered": 0,
-    "missingRequired": 6,
+    "covered": 6,
+    "missingRequired": 0,
     "entries": [
       {
         "intentRef": "CHK-001:happy:0",
@@ -17,7 +17,7 @@
         "desc": "Changing uppercase Docs/story/actives/B-smoke/checklist.json after recording evidence remains metadata-only and checkEvidenceFreshnessForGit stays fresh.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:happy:0",
           "kind": "logic_test",
@@ -25,9 +25,9 @@
           "command": "npm --prefix packages/main run test:verification-freshness-smoke",
           "result": "pass",
           "note": "Freshness smoke includes uppercase Docs/story/actives/B-smoke/checklist.json, process-events.jsonl, and test-evidence.json in metadataOnly and proves head-diff freshness, materialHash freshness, and coverage remain fresh.",
-          "headHash": "e6db481b7da526be0c510e1f749d21c5bc1834ca",
-          "materialHash": "121f92217f966327d4695f36ba8c086dc34fd3ab96675140b38b164c73c3af9f",
-          "timestamp": "2026-05-21T04:31:40.039Z"
+          "headHash": "801d046190af7342c5d89432d1e6c6a32c8a4db7",
+          "materialHash": "83d5a81d8011baef952b5200f37f948a65b9fdad5b26ccab1817fa5f7868600d",
+          "timestamp": "2026-05-21T04:40:50.759Z"
         }
       },
       {
@@ -37,7 +37,7 @@
         "desc": "Dirty worktree classification categorizes uppercase Docs/story/actives/... files as koala_metadata_changes, not unexpected_dirty_files.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
@@ -45,9 +45,9 @@
           "command": "npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Dirty worktree classifier smoke includes Docs/story/actives/B-smoke/test-evidence.json and expects koala_metadata_changes count 2, proving uppercase story evidence is not unexpected_dirty_files.",
-          "headHash": "e6db481b7da526be0c510e1f749d21c5bc1834ca",
-          "materialHash": "121f92217f966327d4695f36ba8c086dc34fd3ab96675140b38b164c73c3af9f",
-          "timestamp": "2026-05-21T04:31:40.039Z"
+          "headHash": "801d046190af7342c5d89432d1e6c6a32c8a4db7",
+          "materialHash": "83d5a81d8011baef952b5200f37f948a65b9fdad5b26ccab1817fa5f7868600d",
+          "timestamp": "2026-05-21T04:40:50.759Z"
         }
       },
       {
@@ -57,7 +57,7 @@
         "desc": "Non-story docs such as docs/requirements/decisions/ADR-001.md and source files still count as material and stale old evidence.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
@@ -65,9 +65,9 @@
           "command": "npm --prefix packages/main run test:verification-freshness-smoke",
           "result": "pass",
           "note": "Existing material path assertions still require packages/main source, fixtures, package files, koala.config.json, and docs/requirements files to stale evidence.",
-          "headHash": "e6db481b7da526be0c510e1f749d21c5bc1834ca",
-          "materialHash": "121f92217f966327d4695f36ba8c086dc34fd3ab96675140b38b164c73c3af9f",
-          "timestamp": "2026-05-21T04:31:40.039Z"
+          "headHash": "801d046190af7342c5d89432d1e6c6a32c8a4db7",
+          "materialHash": "83d5a81d8011baef952b5200f37f948a65b9fdad5b26ccab1817fa5f7868600d",
+          "timestamp": "2026-05-21T04:40:50.759Z"
         }
       },
       {
@@ -77,7 +77,7 @@
         "desc": "verification-freshness smoke covers uppercase Docs/story metadata for isMaterialExcludedPath, head-diff freshness, materialHash freshness, and coverage status.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:happy:0",
           "kind": "logic_test",
@@ -85,9 +85,9 @@
           "command": "npm --prefix packages/main run test:verification-freshness-smoke",
           "result": "pass",
           "note": "The smoke covers isMaterialExcludedPath plus freshAfterChanging, materialFreshAfterChanging, and coverageStatusWithMaterialHash for uppercase Docs/story metadata.",
-          "headHash": "e6db481b7da526be0c510e1f749d21c5bc1834ca",
-          "materialHash": "121f92217f966327d4695f36ba8c086dc34fd3ab96675140b38b164c73c3af9f",
-          "timestamp": "2026-05-21T04:31:40.039Z"
+          "headHash": "801d046190af7342c5d89432d1e6c6a32c8a4db7",
+          "materialHash": "83d5a81d8011baef952b5200f37f948a65b9fdad5b26ccab1817fa5f7868600d",
+          "timestamp": "2026-05-21T04:40:50.759Z"
         }
       },
       {
@@ -97,7 +97,7 @@
         "desc": "field regression validate CLI surface passes for metadata-only story evidence commits so a committed evidence update remains covered instead of stale.",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:edge:0",
           "kind": "integration_test",
@@ -105,9 +105,9 @@
           "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
           "result": "pass",
           "note": "Field regression CLI smoke now configures storyDir as Docs/story/actives, writes the synthetic story there, commits that metadata-only evidence, and validates it remains covered rather than stale.",
-          "headHash": "e6db481b7da526be0c510e1f749d21c5bc1834ca",
-          "materialHash": "121f92217f966327d4695f36ba8c086dc34fd3ab96675140b38b164c73c3af9f",
-          "timestamp": "2026-05-21T04:31:40.039Z"
+          "headHash": "801d046190af7342c5d89432d1e6c6a32c8a4db7",
+          "materialHash": "83d5a81d8011baef952b5200f37f948a65b9fdad5b26ccab1817fa5f7868600d",
+          "timestamp": "2026-05-21T04:40:50.759Z"
         }
       },
       {
@@ -117,7 +117,7 @@
         "desc": "The same smoke keeps real material paths stale, proving the Docs/story exemption does not allow weak evidence to pass after source/package/config changes.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
@@ -125,9 +125,9 @@
           "command": "npm --prefix packages/main run test:verification-freshness-smoke",
           "result": "pass",
           "note": "The same smoke keeps real material paths stale, so the Docs/story exemption does not allow stale evidence after real source/package/config/requirements changes.",
-          "headHash": "e6db481b7da526be0c510e1f749d21c5bc1834ca",
-          "materialHash": "121f92217f966327d4695f36ba8c086dc34fd3ab96675140b38b164c73c3af9f",
-          "timestamp": "2026-05-21T04:31:40.039Z"
+          "headHash": "801d046190af7342c5d89432d1e6c6a32c8a4db7",
+          "materialHash": "83d5a81d8011baef952b5200f37f948a65b9fdad5b26ccab1817fa5f7868600d",
+          "timestamp": "2026-05-21T04:40:50.759Z"
         }
       }
     ]
