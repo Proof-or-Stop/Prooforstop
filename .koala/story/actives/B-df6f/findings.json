@@ -12,6 +12,19 @@
       "reviewRound": "2026-05-21T04:25:22.430Z",
       "reviewRunId": "B-df6f:RR-002",
       "_hash": "546576ff7e1a814d65ca14bd7ac0d1d9f09a900b41e2e2c3e3df76553d63675e"
+    },
+    {
+      "id": "B-df6f:F-002",
+      "desc": "quality-cleanup: packages/main/src/tasks/field-regression-cli-smoke.ts:789 removed the hotfix priority wording assertions and now only checks story creation, even though story-create still promises explicit elevation output; this weakens unrelated CLI regression coverage.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-21T04:28:20.183Z",
+      "reviewRound": "2026-05-21T04:25:22.430Z",
+      "reviewRunId": "B-df6f:RR-001",
+      "_hash": "2ca4c33930b80925ed4dc3af8310c60d04cd72a756ce74258fde258ceabedabd"
     }
   ]
 }
