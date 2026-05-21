@@ -15,13 +15,15 @@
       "files": {
         "modify": [
           "packages/main/src/handlers/init-check.ts",
-          "packages/main/src/core/machine.ts"
+          "packages/main/src/core/machine.ts",
+          "scripts/verify-process-fact-contract.mjs"
         ],
         "create": [
           "packages/main/src/core/init-check-gate.ts"
         ],
         "test": [
           "scripts/verify-init-check-bootstrap.mjs",
+          "scripts/verify-process-fact-contract.mjs",
           "packages/main/src/tasks/init-check-required-agents-smoke.ts",
           "packages/main/src/tasks/worktree-authority-smoke.ts"
         ]
