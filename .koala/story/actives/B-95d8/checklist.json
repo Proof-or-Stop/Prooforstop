@@ -1,0 +1,27 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "为无 subagent 环境提供 INIT_CHECK fallback/repair 路径",
+      "context": "当前 INIT→INIT_CHECK 依赖 koala-review-story-init subagent 调 init_check_set（init-check.ts signInitCheck + guard-utils.ts missing_init_check blocker）。无法 spawn subagent 的环境没有合法出口。需在不削弱签名/反自豁免完整性的前提下补一条可审计的 fallback/repair 通道。",
+      "relatedDocs": [
+        "CLAUDE.md#initinit_check-硬门槛b-e71f",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "checklist_update 写入后输出 post-write reload 提示",
+      "context": "checklist.ts 的 update 分支写后只返回结论文本，长会话里 agent 易用写前陈旧快照。需在写后追加软提醒（返回文本/stderr），引导重新加载 story 状态，且不改变写语义。",
+      "relatedDocs": [
+        "CLAUDE.md#checklist-写法"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
