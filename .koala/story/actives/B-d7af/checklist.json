@@ -11,7 +11,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "After completion, core/machine.ts imports init-check primitives from core, grep shows no core import from handlers/init-check, and init-check bootstrap/worktree authority validation still passes.",
+      "userSees": "Expected verification transcript includes exact lines: npm run build -> exit 0; npm run test:init-check-bootstrap -> exit 0; npm run test:worktree-authority-smoke -> exit 0; rg \"from \\x27..\\/handlers\\/init-check|from \\\"..\\/handlers\\/init-check\" packages/main/src/core -> no matches.",
       "files": {
         "modify": [
           "packages/main/src/handlers/init-check.ts",
@@ -22,6 +22,7 @@
         ],
         "test": [
           "scripts/verify-init-check-bootstrap.mjs",
+          "packages/main/src/tasks/init-check-required-agents-smoke.ts",
           "packages/main/src/tasks/worktree-authority-smoke.ts"
         ]
       },
