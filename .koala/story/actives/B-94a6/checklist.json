@@ -67,9 +67,9 @@
           "command": "npm run test:authority-client && npm run test:authority-evidence-flow && npm run test:verification-evidence-authority-handler",
           "result": "pass",
           "note": "authority-client.ts + authority-mode.ts 新建，npm --prefix packages/main run build 绿，3 个 authority smoke 全部独立通过（exit 0）",
-          "headHash": "afce7f0cd917c182720c41e0e33fee61f5179bbf",
-          "materialHash": "fab7371f512bac4006554e23fd396e7d715160a95de15f4428b3997577f7ba61",
-          "timestamp": "2026-05-21T01:52:11.379Z"
+          "headHash": "92a3a36f8fadea4ccdad921d9c4dc1a95c2890a6",
+          "materialHash": "33e84b70b39ae8c127abcde1188122dce846e9eaa8c83ad05f2116b85d5d08a4",
+          "timestamp": "2026-05-21T02:03:06.341Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -78,9 +78,9 @@
           "command": "npm run test:authority-client",
           "result": "pass",
           "note": "smoke 断言 normalizeAuthorityMode 把 off/shadow/enforce 正常解析，undefined/空/空白/ENFORCE/local/bogus/数字/null 全部 → off（runtime 复校，非仅 Zod）",
-          "headHash": "fe7191d71d5dade20a5fc79ba909d47922023f2a",
-          "materialHash": "fab7371f512bac4006554e23fd396e7d715160a95de15f4428b3997577f7ba61",
-          "timestamp": "2026-05-21T01:52:11.697Z"
+          "headHash": "92a3a36f8fadea4ccdad921d9c4dc1a95c2890a6",
+          "materialHash": "33e84b70b39ae8c127abcde1188122dce846e9eaa8c83ad05f2116b85d5d08a4",
+          "timestamp": "2026-05-21T02:03:06.341Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -89,9 +89,9 @@
           "command": "git diff main -- packages/main/src/core/authority-contracts.ts packages/main/src/core/evidence-collector.ts",
           "result": "pass",
           "note": "contracts 扩展只新增 submission 类型/schema/helper（git diff 0 条删除行）；evidence-collector.ts 零 diff——受保护 VCP exports 字节不变",
-          "headHash": "e101a62127cc4b61284f8fc6fe231e7cbe92fae3",
-          "materialHash": "fab7371f512bac4006554e23fd396e7d715160a95de15f4428b3997577f7ba61",
-          "timestamp": "2026-05-21T01:52:12.002Z"
+          "headHash": "92a3a36f8fadea4ccdad921d9c4dc1a95c2890a6",
+          "materialHash": "33e84b70b39ae8c127abcde1188122dce846e9eaa8c83ad05f2116b85d5d08a4",
+          "timestamp": "2026-05-21T02:03:06.341Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -100,9 +100,9 @@
           "command": "npm run test:verification-context-pack && npm run test:process-fact-contract",
           "result": "pass",
           "note": "hard blocker：VCP smoke + process-fact-contract 均 exit 0——additive 扩展未造成 VCP digest/normalization/pack 回归",
-          "headHash": "560ff66dc01f37316e80c55e2d8969dc10952d70",
-          "materialHash": "fab7371f512bac4006554e23fd396e7d715160a95de15f4428b3997577f7ba61",
-          "timestamp": "2026-05-21T01:52:12.307Z"
+          "headHash": "92a3a36f8fadea4ccdad921d9c4dc1a95c2890a6",
+          "materialHash": "33e84b70b39ae8c127abcde1188122dce846e9eaa8c83ad05f2116b85d5d08a4",
+          "timestamp": "2026-05-21T02:03:06.341Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -111,9 +111,9 @@
           "command": "npm run test:command-ownership-contract",
           "result": "pass",
           "note": "未新增 koala 命令（authority 走既有 verification_evidence_add/batch_add 参数）；command-ownership-contract 通过——96 命令全部分类，无未分类命令",
-          "headHash": "11e1acf0af75ae71f76f7685cd6d710555406f0a",
-          "materialHash": "fab7371f512bac4006554e23fd396e7d715160a95de15f4428b3997577f7ba61",
-          "timestamp": "2026-05-21T01:52:12.607Z"
+          "headHash": "92a3a36f8fadea4ccdad921d9c4dc1a95c2890a6",
+          "materialHash": "33e84b70b39ae8c127abcde1188122dce846e9eaa8c83ad05f2116b85d5d08a4",
+          "timestamp": "2026-05-21T02:03:06.341Z"
         }
       ]
     },
@@ -175,9 +175,9 @@
           "command": "npm run test:authority-evidence-flow",
           "result": "pass",
           "note": "off-mode happy case: off short-circuits authorityModeEnabled, returns synchronous string, asserts offServer.calls==0 and local evidence written",
-          "headHash": "8caf03ea118bc69c16d1b1ee44770b9e69be06af",
-          "materialHash": "51592ca78e9e2a39d09737ff25593c2657af9e36829954f28727d0496ed35d57",
-          "timestamp": "2026-05-21T01:59:04.040Z"
+          "headHash": "92a3a36f8fadea4ccdad921d9c4dc1a95c2890a6",
+          "materialHash": "33e84b70b39ae8c127abcde1188122dce846e9eaa8c83ad05f2116b85d5d08a4",
+          "timestamp": "2026-05-21T02:03:06.341Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -186,9 +186,9 @@
           "command": "npm run test:authority-evidence-flow",
           "result": "pass",
           "note": "A-prepost ordering骨架: shadow/enforce run local preflight first, then POST, then writeLocal only on accepted POST; success-path building block + enforce submitter wiring exercised in flow smoke",
-          "headHash": "8caf03ea118bc69c16d1b1ee44770b9e69be06af",
-          "materialHash": "51592ca78e9e2a39d09737ff25593c2657af9e36829954f28727d0496ed35d57",
-          "timestamp": "2026-05-21T01:59:04.040Z"
+          "headHash": "92a3a36f8fadea4ccdad921d9c4dc1a95c2890a6",
+          "materialHash": "33e84b70b39ae8c127abcde1188122dce846e9eaa8c83ad05f2116b85d5d08a4",
+          "timestamp": "2026-05-21T02:03:06.341Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -197,9 +197,9 @@
           "command": "npm run test:authority-evidence-flow",
           "result": "pass",
           "note": "batch_add all-or-nothing success side: single writeLocalBatch after one batch submitBatch call; off-mode batch writes both items in handler smoke",
-          "headHash": "8caf03ea118bc69c16d1b1ee44770b9e69be06af",
-          "materialHash": "51592ca78e9e2a39d09737ff25593c2657af9e36829954f28727d0496ed35d57",
-          "timestamp": "2026-05-21T01:59:04.040Z"
+          "headHash": "92a3a36f8fadea4ccdad921d9c4dc1a95c2890a6",
+          "materialHash": "33e84b70b39ae8c127abcde1188122dce846e9eaa8c83ad05f2116b85d5d08a4",
+          "timestamp": "2026-05-21T02:03:06.341Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -208,9 +208,9 @@
           "command": "npm run test:authority-evidence-flow",
           "result": "pass",
           "note": "Blockers 1+2: illegal itemId / note<5 / waiverType-kind mismatch each assert server.calls==0 and zero local write via POST-counting fake AuthorityClient under enforce",
-          "headHash": "8caf03ea118bc69c16d1b1ee44770b9e69be06af",
-          "materialHash": "51592ca78e9e2a39d09737ff25593c2657af9e36829954f28727d0496ed35d57",
-          "timestamp": "2026-05-21T01:59:04.040Z"
+          "headHash": "92a3a36f8fadea4ccdad921d9c4dc1a95c2890a6",
+          "materialHash": "33e84b70b39ae8c127abcde1188122dce846e9eaa8c83ad05f2116b85d5d08a4",
+          "timestamp": "2026-05-21T02:03:06.341Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -219,9 +219,9 @@
           "command": "npm run test:authority-evidence-flow",
           "result": "pass",
           "note": "batch all-or-nothing failure side: any illegal entry (unknown item / short note) -> whole batch server.calls==0 and zero local write, no partial tail",
-          "headHash": "8caf03ea118bc69c16d1b1ee44770b9e69be06af",
-          "materialHash": "51592ca78e9e2a39d09737ff25593c2657af9e36829954f28727d0496ed35d57",
-          "timestamp": "2026-05-21T01:59:04.040Z"
+          "headHash": "92a3a36f8fadea4ccdad921d9c4dc1a95c2890a6",
+          "materialHash": "33e84b70b39ae8c127abcde1188122dce846e9eaa8c83ad05f2116b85d5d08a4",
+          "timestamp": "2026-05-21T02:03:06.341Z"
         }
       ]
     },
@@ -274,9 +274,9 @@
           "command": "npm run test:authority-evidence-flow",
           "result": "pass",
           "note": "shadow + healthy server case: handler POSTs once (server.calls===1) and writes local evidence, returns success message, exit 0, no stderr warning",
-          "headHash": "34ab9fcc164e9f5bae749b6a2db4980e4c3077d5",
-          "materialHash": "42af73823f9d8baf047fa0d481a058a283135ec7b6c2e8641300c2ebe872eb62",
-          "timestamp": "2026-05-21T02:02:41.164Z"
+          "headHash": "92a3a36f8fadea4ccdad921d9c4dc1a95c2890a6",
+          "materialHash": "33e84b70b39ae8c127abcde1188122dce846e9eaa8c83ad05f2116b85d5d08a4",
+          "timestamp": "2026-05-21T02:03:06.341Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -285,9 +285,9 @@
           "command": "npm run test:authority-evidence-flow",
           "result": "pass",
           "note": "shadow + failing server cases (5xx http_error / timeout AbortError / connection-refused ECONNREFUSED): each keeps local evidence write, handler does not throw (exit 0), emits exactly one stderr [warning] authority POST failed line, warning never on stdout",
-          "headHash": "9bfeee0f51bbabb9ce080d07a831db1d8ebdba01",
-          "materialHash": "42af73823f9d8baf047fa0d481a058a283135ec7b6c2e8641300c2ebe872eb62",
-          "timestamp": "2026-05-21T02:02:47.037Z"
+          "headHash": "92a3a36f8fadea4ccdad921d9c4dc1a95c2890a6",
+          "materialHash": "33e84b70b39ae8c127abcde1188122dce846e9eaa8c83ad05f2116b85d5d08a4",
+          "timestamp": "2026-05-21T02:03:06.341Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -296,9 +296,9 @@
           "command": "npm run test:authority-evidence-flow",
           "result": "pass",
           "note": "shadow + client THROW (non-HTTP TypeError escaping classify, preMortem #2): submitter degradeThrow catch-all degrades to proceed=true + warning, command does not crash, local evidence still written; shadow batch failure writes ALL entries — proves any authority result (incl thrown exception) never blocks/mutates local evidence (Blocker 3)",
-          "headHash": "b680d705ac2bb33826c73ef1f7a09368c3148e7c",
-          "materialHash": "42af73823f9d8baf047fa0d481a058a283135ec7b6c2e8641300c2ebe872eb62",
-          "timestamp": "2026-05-21T02:02:47.452Z"
+          "headHash": "92a3a36f8fadea4ccdad921d9c4dc1a95c2890a6",
+          "materialHash": "33e84b70b39ae8c127abcde1188122dce846e9eaa8c83ad05f2116b85d5d08a4",
+          "timestamp": "2026-05-21T02:03:06.341Z"
         }
       ]
     },
