@@ -48,7 +48,7 @@
       "desc": "[high] packages/main/src/handlers/story-create.ts:551 and :613 append riskHint back into the story_create return string, which contradicts the stderr-only advisory contract promised by the surrounding comments and packages/main/src/tasks/story-create-concurrency-smoke.ts:515-524. The current branch reproduces this as a real regression: npm --prefix packages/main run test:story-create-concurrency-smoke fails with \"riskHint must NOT leak into STDOUT\". Restoring the hotfix wording by duplicating riskHint onto stdout creates a new cross-test contract conflict, so this should be resolved before approving the concept.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-05-21T04:35:14.583Z",
