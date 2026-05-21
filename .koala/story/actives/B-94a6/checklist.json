@@ -229,8 +229,8 @@
       "id": "CHK-003",
       "title": "Implement shadow mode: warning-only, zero impact on local evidence (Blocker 3)",
       "context": "`authority-mode.ts` defines mode `off | shadow | enforce`. In shadow mode: authority POST is attempted AFTER local validation passes (per CHK-002), but ANY authority outcome — 5xx, timeout, network error, even success — must NOT influence the local evidence state. Local write commits regardless. The only observable side effect of a failed authority interaction in shadow mode is a stderr warning line; not stdout, not a non-zero exit code, not a rollback. Smoke test injects an authority server that returns 5xx / hangs / closes the connection in shadow mode and asserts: local evidence is written, command exits 0, a `[warning] authority POST failed: ...` line appears on stderr.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-05-21T02:01:10.197Z",
       "endTime": null,
       "userSees": "shadow-mode smoke in authority-evidence-flow-smoke.ts: with KOALA_AUTHORITY_MODE=shadow and a deliberately failing authority server, verification_evidence_add exits 0, the local evidence file shows the new entry, a '[warning] authority POST failed: ...' line is on stderr.",
       "verificationIntent": {
