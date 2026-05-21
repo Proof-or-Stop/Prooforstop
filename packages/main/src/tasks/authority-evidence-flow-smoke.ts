@@ -531,6 +531,16 @@ const shadowFailureCases: Array<{
       return { calls: () => server.calls, client: new AuthorityClient(url, server.fetch) };
     },
   },
+  {
+    // F-001: HTTP 200 but the body fails the submission-result schema (no `accepted`
+    // boolean). A malformed/unconfirmed 2xx response must NOT be accepted as success;
+    // in shadow it degrades to a warning while the local write is kept.
+    label: 'malformed 2xx body',
+    makeClient: (url) => {
+      const server = countingFetch(200, JSON.stringify({ garbage: true, evidenceId: 'EV-x' }));
+      return { calls: () => server.calls, client: new AuthorityClient(url, server.fetch) };
+    },
+  },
 ];
 
 for (const { label, makeClient } of shadowFailureCases) {
@@ -749,6 +759,16 @@ const enforceFailureCases: Array<{
     makeClient: (url) => {
       // HTTP 200 but the authority explicitly refuses the evidence.
       const server = countingFetch(200, JSON.stringify({ accepted: false, reason: 'unverifiable' }));
+      return { calls: () => server.calls, client: new AuthorityClient(url, server.fetch) };
+    },
+  },
+  {
+    // F-001: HTTP 200 but the body fails the submission-result schema (no `accepted`
+    // boolean). A malformed/unconfirmed 2xx response must NOT be accepted as success;
+    // in enforce it gates the write -> handler throws + ZERO local write.
+    label: 'malformed 2xx body',
+    makeClient: (url) => {
+      const server = countingFetch(200, JSON.stringify({ garbage: true, evidenceId: 'EV-x' }));
       return { calls: () => server.calls, client: new AuthorityClient(url, server.fetch) };
     },
   },

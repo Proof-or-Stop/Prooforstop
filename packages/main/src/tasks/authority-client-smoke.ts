@@ -218,6 +218,44 @@ for (const code of ['ECONNREFUSED', 'ENOTFOUND', 'ECONNRESET']) {
   assert.equal(out.kind, 'error');
 }
 
+// --- F-001: 2xx but malformed body fails the submission-result schema ----------
+// A parseable-but-wrong-shape body must NOT be reported as success; it maps to
+// `error` (ok:false) so enforce gates the write and shadow degrades to a warning.
+{
+  // Missing the required `accepted` boolean.
+  const client = new AuthorityClient('https://a.test', fetchReturning(200, JSON.stringify({ evidenceId: 'EV-1' })));
+  const out = await client.submitEvidence(envelope());
+  assert.equal(out.kind, 'error', 'single: malformed 2xx body -> error');
+  assert.equal(out.ok, false);
+  assert.equal(out.status, 200);
+  assert.ok(out.message?.includes('schema validation'), 'single: schema-validation message');
+}
+{
+  // `accepted` present but wrong type.
+  const client = new AuthorityClient('https://a.test', fetchReturning(200, JSON.stringify({ accepted: 'yes' })));
+  const out = await client.submitEvidence(envelope());
+  assert.equal(out.kind, 'error', 'single: wrong-typed accepted -> error');
+  assert.equal(out.ok, false);
+}
+{
+  // A valid {accepted:false} body is still a SUCCESS outcome (schema passes); the
+  // mode logic — not the client — decides rejection from the accepted flag.
+  const client = new AuthorityClient('https://a.test', fetchReturning(200, JSON.stringify({ accepted: false, reason: 'no' })));
+  const out = await client.submitEvidence(envelope());
+  assert.equal(out.kind, 'success', 'single: valid {accepted:false} stays success at client level');
+  assert.equal(out.data?.accepted, false);
+}
+{
+  // Batch: malformed entry result (accepted not a boolean) -> error.
+  const client = new AuthorityClient(
+    'https://a.test',
+    fetchReturning(200, JSON.stringify({ accepted: true, results: [{ accepted: 'maybe' }] })),
+  );
+  const out = await client.submitEvidenceBatch([envelope('EV-a')]);
+  assert.equal(out.kind, 'error', 'batch: malformed entry result -> error');
+  assert.equal(out.ok, false);
+}
+
 // --- batch submission outcomes ------------------------------------------------
 {
   const client = new AuthorityClient(
