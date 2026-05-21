@@ -70,6 +70,17 @@
           "headHash": "afce7f0cd917c182720c41e0e33fee61f5179bbf",
           "materialHash": "fab7371f512bac4006554e23fd396e7d715160a95de15f4428b3997577f7ba61",
           "timestamp": "2026-05-21T01:52:11.379Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-client-smoke.ts",
+          "command": "npm run test:authority-client",
+          "result": "pass",
+          "note": "smoke 断言 normalizeAuthorityMode 把 off/shadow/enforce 正常解析，undefined/空/空白/ENFORCE/local/bogus/数字/null 全部 → off（runtime 复校，非仅 Zod）",
+          "headHash": "fe7191d71d5dade20a5fc79ba909d47922023f2a",
+          "materialHash": "fab7371f512bac4006554e23fd396e7d715160a95de15f4428b3997577f7ba61",
+          "timestamp": "2026-05-21T01:52:11.697Z"
         }
       ]
     },
