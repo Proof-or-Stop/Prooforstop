@@ -91,9 +91,9 @@
       "relatedDocs": [
         "CLAUDE.md#checklist-写法"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-21T22:35:09.163Z",
-      "endTime": null,
+      "endTime": "2026-05-21T22:37:54.137Z",
       "userSees": "每次 checklist_update 写入后，结论文本之后看到一行 reload 软提醒：\n  ✓ CHK-xxx status → done\n  ↻ 提示：已写入 story 状态，长会话请重新加载（koala checklist_get / session_brief）后再依赖快照\n该提醒不改变写结果；koala checklist_update | tail 等管道只消费结论，提示不污染 stdout。",
       "verificationIntent": {
         "happy": [
@@ -193,6 +193,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Implement checklist_update post-write reload hint (stderr, stdout-safe)",
+      "agent": "koala-implementer"
+    },
+    {
+      "timestamp": "2026-05-21T22:37:54.137Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "checklist_update post-write reload reminder (read-after-write, stderr-only, stdout pipeline-safe) implemented; checklist-reload-hint-smoke passes (reminder+semantics+pipeline); 10 existing checklist_update smokes regression-green",
       "agent": "koala-implementer"
     }
   ]
