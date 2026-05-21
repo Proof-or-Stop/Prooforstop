@@ -56,9 +56,9 @@
           "command": "npm --prefix packages/main run test:init-check-fallback-smoke",
           "result": "pass",
           "note": "Test 2: init_check_repair (acknowledge+reason) writes signed init-check.json reusing signInitCheck; subsequent story_advance INIT_CHECK advances. Test 4 also confirms fallback attestation surfaced.",
-          "headHash": "0713dd9a81279c2f248f6ea6153bf2e9f272375c",
-          "materialHash": "5fc59f0f62f20df6cd8a8b41abf6ae973c94afe3b6373544cc9406e78a5395fc",
-          "timestamp": "2026-05-21T22:46:24.850Z"
+          "headHash": "2c169b9628c8ca603203b46a05afb24c14588e8b",
+          "materialHash": "c03ee42ea03212391ff72172e5519171bfacaf2930c2243161735b2b9e3aa691",
+          "timestamp": "2026-05-21T22:48:35.384Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -67,9 +67,9 @@
           "command": "npm --prefix packages/main run test:init-check-fallback-smoke",
           "result": "pass",
           "note": "Test 1: init_check_repair refuses without acknowledge=true and with reason <30 chars; asserts NO init-check.json written and phase stays missing_init_check blocked.",
-          "headHash": "0713dd9a81279c2f248f6ea6153bf2e9f272375c",
-          "materialHash": "5fc59f0f62f20df6cd8a8b41abf6ae973c94afe3b6373544cc9406e78a5395fc",
-          "timestamp": "2026-05-21T22:46:24.850Z"
+          "headHash": "2c169b9628c8ca603203b46a05afb24c14588e8b",
+          "materialHash": "c03ee42ea03212391ff72172e5519171bfacaf2930c2243161735b2b9e3aa691",
+          "timestamp": "2026-05-21T22:48:35.384Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -78,9 +78,9 @@
           "command": "npm --prefix packages/main run test:init-check-fallback-smoke",
           "result": "pass",
           "note": "Test 3: editing signed story title after fallback triggers init_check_tampered; Extra: operator-attested high issue still hits init_check_blocking_issues. Signature not bypassed.",
-          "headHash": "0713dd9a81279c2f248f6ea6153bf2e9f272375c",
-          "materialHash": "5fc59f0f62f20df6cd8a8b41abf6ae973c94afe3b6373544cc9406e78a5395fc",
-          "timestamp": "2026-05-21T22:46:24.850Z"
+          "headHash": "2c169b9628c8ca603203b46a05afb24c14588e8b",
+          "materialHash": "c03ee42ea03212391ff72172e5519171bfacaf2930c2243161735b2b9e3aa691",
+          "timestamp": "2026-05-21T22:48:35.384Z"
         }
       ]
     },
@@ -135,9 +135,9 @@
           "command": "npm --prefix packages/main run test:checklist-reload-hint-smoke",
           "result": "pass",
           "note": "Test 1: after a successful checklist_update write, stderr carries the ↻ reload reminder naming the final persisted status (read-after-write).",
-          "headHash": "0713dd9a81279c2f248f6ea6153bf2e9f272375c",
-          "materialHash": "5fc59f0f62f20df6cd8a8b41abf6ae973c94afe3b6373544cc9406e78a5395fc",
-          "timestamp": "2026-05-21T22:46:24.850Z"
+          "headHash": "2c169b9628c8ca603203b46a05afb24c14588e8b",
+          "materialHash": "c03ee42ea03212391ff72172e5519171bfacaf2930c2243161735b2b9e3aa691",
+          "timestamp": "2026-05-21T22:48:35.384Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -146,9 +146,9 @@
           "command": "npm --prefix packages/main run test:checklist-reload-hint-smoke",
           "result": "pass",
           "note": "Test 3: reminder goes to stderr only; stdout has pure conclusion; piping stdout through tail yields the conclusion and no ↻ marker (pipeline-safe, B-6812 precedent).",
-          "headHash": "0713dd9a81279c2f248f6ea6153bf2e9f272375c",
-          "materialHash": "5fc59f0f62f20df6cd8a8b41abf6ae973c94afe3b6373544cc9406e78a5395fc",
-          "timestamp": "2026-05-21T22:46:24.850Z"
+          "headHash": "2c169b9628c8ca603203b46a05afb24c14588e8b",
+          "materialHash": "c03ee42ea03212391ff72172e5519171bfacaf2930c2243161735b2b9e3aa691",
+          "timestamp": "2026-05-21T22:48:35.384Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -157,9 +157,9 @@
           "command": "npm --prefix packages/main run test:checklist-reload-hint-smoke",
           "result": "pass",
           "note": "Test 2: persisted checklist.json diffed before/after — only status (+volatile startTime/endTime) changed; title/context/userSees/all other fields byte-identical. Write semantics unchanged.",
-          "headHash": "0713dd9a81279c2f248f6ea6153bf2e9f272375c",
-          "materialHash": "5fc59f0f62f20df6cd8a8b41abf6ae973c94afe3b6373544cc9406e78a5395fc",
-          "timestamp": "2026-05-21T22:46:24.850Z"
+          "headHash": "2c169b9628c8ca603203b46a05afb24c14588e8b",
+          "materialHash": "c03ee42ea03212391ff72172e5519171bfacaf2930c2243161735b2b9e3aa691",
+          "timestamp": "2026-05-21T22:48:35.384Z"
         }
       ]
     }
