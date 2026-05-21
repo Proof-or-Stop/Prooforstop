@@ -306,9 +306,9 @@
       "id": "CHK-004",
       "title": "Implement enforce mode: no local/remote fact divergence on failure (Blocker 4)",
       "context": "In enforce mode a successful authority POST is required for the command to succeed. If authority POST fails AFTER local validation passed, the command MUST NOT leave local evidence committed while authority has no record (or vice versa). Two acceptable resolutions, decided in PLAN: (a) authority POST happens BEFORE the local commit, so authority failure → no local write either (pre-commit verification); or (b) both happen, then authority failure triggers a deterministic local rollback before the command returns non-zero (compensating transaction). Either way: at the moment the command exits, local and authority states agree. Smoke test injects authority failure under enforce mode and asserts: command exits non-zero, AND a follow-up `koala checklist_get` shows the failed evidence entry is NOT present locally (or, if pre-POST ordering chosen, was never persisted).",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-21T02:04:40.295Z",
-      "endTime": null,
+      "endTime": "2026-05-21T02:06:34.282Z",
       "userSees": "enforce-mode smoke in authority-evidence-flow-smoke.ts: with KOALA_AUTHORITY_MODE=enforce and a failing authority server, verification_evidence_add exits non-zero; a follow-up checklist_get confirms the failed evidence entry is NOT present locally.",
       "verificationIntent": {
         "happy": [
