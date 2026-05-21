@@ -1,0 +1,70 @@
+{
+  "principles": [
+    "Keep story metadata classification centralized so freshness and dirty gate stay aligned.",
+    "Normalize path casing only for Koala metadata prefixes; keep material source detection strict.",
+    "Regression tests must cover the user-visible stale-loop path and the safety boundary.",
+    "Prefer small targeted changes over new policy machinery."
+  ],
+  "drivers": [
+    "Cord Team Mac is blocked from clean DONE by uppercase Docs/story metadata commits.",
+    "Koala CLI must not treat real source/package/config changes as metadata-only.",
+    "Existing smoke tests already exercise freshness and dirty gate behavior."
+  ],
+  "options": [
+    {
+      "name": "case-normalize central metadata classifier",
+      "pros": [
+        "Fixes evidence freshness and dirty worktree consumers through one shared function",
+        "Keeps policy small and auditable",
+        "Works for Docs/story and docs/story without duplicating prefixes"
+      ],
+      "cons": [
+        "Needs regression tests to prove it does not over-exempt unrelated docs paths"
+      ]
+    },
+    {
+      "name": "add uppercase prefixes beside lowercase prefixes",
+      "pros": [
+        "Very small code diff",
+        "Easy to reason about for the immediate Mac path"
+      ],
+      "cons": [
+        "Duplicates policy entries and misses mixed-case variants",
+        "Risks another host-specific fix later"
+      ]
+    },
+    {
+      "name": "special-case Mac repo storyDir from config",
+      "pros": [
+        "Could follow configured storyDir exactly"
+      ],
+      "cons": [
+        "Freshness currently classifies git paths without always loading external host config",
+        "More invasive for a simple metadata prefix bug"
+      ]
+    }
+  ],
+  "chosen": "case-normalize central metadata classifier",
+  "rationale": "A central lowercase normalization fixes the immediate Docs/story stale loop while preserving one policy source for freshness and dirty gate classification.",
+  "preMortem": [
+    {
+      "scenario": "Over-exemption hides real documentation/source changes",
+      "trigger": "The classifier lowercases and matches a prefix that is too broad",
+      "consequence": "Evidence stays fresh after a real material change",
+      "mitigation": "Keep prefixes specific to story metadata and assert docs/requirements remains material in freshness smoke"
+    },
+    {
+      "scenario": "Dirty gate still blocks uppercase Docs/story files",
+      "trigger": "Only currentMaterialHash is fixed but dirty worktree classifier uses a separate path function",
+      "consequence": "DONE still fails on unexpected_dirty_files after validate writes story evidence",
+      "mitigation": "Reuse the central isStoryMetadataPath and add/adjust dirty classifier smoke for Docs/story"
+    },
+    {
+      "scenario": "Validation channel fallback still treats uppercase metadata commit as unacceptable",
+      "trigger": "validate-channel has its own story metadata helper",
+      "consequence": "Normal-channel legacy fallback may flag Koala metadata commits even after freshness passes",
+      "mitigation": "Normalize validate-channel metadata helper or delegate to the shared classifier and cover with a small assertion if needed"
+    }
+  ],
+  "timestamp": "2026-05-21T04:18:00.839Z"
+}

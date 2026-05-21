@@ -120,6 +120,9 @@ function mkdtempRoot(): string {
 const metadataOnly = [
   '.koala/story/actives/B-smoke/checklist.json',
   'docs/story/actives/B-smoke/findings.json',
+  'Docs/story/actives/B-smoke/checklist.json',
+  'Docs/story/actives/B-smoke/process-events.jsonl',
+  'Docs/story/actives/B-smoke/test-evidence.json',
   'docs/koala/framework-audit/round.json',
 ];
 

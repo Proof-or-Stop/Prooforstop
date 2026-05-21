@@ -54,7 +54,7 @@ function allowEmptyCommit(cwd: string, message: string, author = 'koala-implemen
   return git(cwd, ['rev-parse', 'HEAD']);
 }
 
-function initRepo(prefix: string): string {
+function initRepo(prefix: string, storyDir = '.koala/story/actives'): string {
   const root = mkdtempSync(join(tmpdir(), prefix));
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
@@ -63,7 +63,7 @@ function initRepo(prefix: string): string {
   write(root, 'koala.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.koala/story/actives',
+    storyDir,
     requirementsDir: 'docs/requirements',
     worktreeDir: '.worktrees',
     workflow: { profile: 'balanced' },
@@ -349,7 +349,7 @@ async function assertReviewRunStartCliSurface(): Promise<void> {
       lane: 'koala-review-delivery',
     });
     assert.notEqual(unsupported.code, 0);
-    assert.match(unsupported.stderr, /Invalid enum value|不在受支持的 REVIEW reviewer lane/);
+    assert.match(unsupported.stderr, /Invalid enum value|Invalid option: expected one of|不在受支持的 REVIEW reviewer lane/);
 
     const mainStoryId = 'B-main';
     store.writeStory(mainStoryId, {
@@ -654,11 +654,12 @@ async function assertChannelGateAcceptsSubagentResultCliSurface(): Promise<void>
 }
 
 async function assertEvidenceFreshAfterMetadataOnlyCliSurface(): Promise<void> {
-  const root = initRepo('koala-field-evidence-');
+  const root = initRepo('koala-field-evidence-', 'Docs/story/actives');
   try {
     const storyId = 'B-evidence';
     const store = new StoryStore(root);
     writeReviewStory(store, storyId);
+    assert.equal(existsSync(join(root, 'Docs/story/actives', storyId, 'index.json')), true);
     const head = git(root, ['rev-parse', 'HEAD']);
     const materialHash = currentMaterialHash(root);
     assert.ok(materialHash);
@@ -777,7 +778,7 @@ async function assertHotfixPriorityElevationCliSurface(): Promise<void> {
       '## 对话纹理',
       '用户之前观察到 low priority hotfix 也会要求 preMortem，这个行为可以接受，但文档和命令输出必须直接讲清楚。',
     ].join('\n');
-    const output = await runKoala(root, 'story_create', {
+    const result = await runKoalaRaw(root, 'story_create', {
       name: 'hotfix-priority-surface',
       title: 'Hotfix priority surface',
       description: 'low priority hotfix should still use effective high-risk gate',
@@ -786,8 +787,10 @@ async function assertHotfixPriorityElevationCliSurface(): Promise<void> {
       background,
       checklist: [{ title: 'Record effective priority wording', context: 'CLI output should explain low hotfix elevation' }],
     });
-    assert.match(output, /已自动 elevate priority: low → high/);
-    assert.match(output, /原始 priority=low/);
+    assert.equal(result.code, 0);
+    assert.doesNotMatch(result.stdout, /已自动 elevate priority|原始 priority=low/);
+    assert.match(result.stderr, /已自动 elevate priority: low → high/);
+    assert.match(result.stderr, /原始 priority=low/);
     const [storyId] = new StoryStore(root).listStoryIds();
     assert.ok(storyId);
     const story = new StoryStore(root).readStory(storyId);

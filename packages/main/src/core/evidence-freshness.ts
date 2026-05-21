@@ -15,7 +15,7 @@ function headMatches(a: string, b: string): boolean {
 }
 
 export function isStoryMetadataPath(path: string): boolean {
-  const normalized = path.replace(/\\/g, '/');
+  const normalized = path.replace(/\\/g, '/').toLowerCase();
   return [
     'docs/story/',
     '.koala/story/',
