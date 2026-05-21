@@ -8,9 +8,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/stack-layering.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-21T15:56:30.614Z",
-      "endTime": null,
+      "endTime": "2026-05-21T16:01:47.884Z",
       "userSees": "Expected verification transcript includes exact lines: npm run build -> exit 0; npm run test:init-check-bootstrap -> exit 0; npm run test:worktree-authority-smoke -> exit 0; rg \"from \\x27..\\/handlers\\/init-check|from \\\"..\\/handlers\\/init-check\" packages/main/src/core -> no matches.",
       "files": {
         "modify": [
@@ -96,6 +96,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Claude Code implementation started in DEV worktree",
+      "agent": "koala-implementer"
+    },
+    {
+      "timestamp": "2026-05-21T16:01:47.884Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementation committed and verification evidence recorded",
       "agent": "koala-implementer"
     }
   ]
