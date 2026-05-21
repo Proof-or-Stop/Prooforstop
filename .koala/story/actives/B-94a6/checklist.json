@@ -122,7 +122,36 @@
       "context": "In enforce mode a successful authority POST is required for the command to succeed. If authority POST fails AFTER local validation passed, the command MUST NOT leave local evidence committed while authority has no record (or vice versa). Two acceptable resolutions, decided in PLAN: (a) authority POST happens BEFORE the local commit, so authority failure → no local write either (pre-commit verification); or (b) both happen, then authority failure triggers a deterministic local rollback before the command returns non-zero (compensating transaction). Either way: at the moment the command exits, local and authority states agree. Smoke test injects authority failure under enforce mode and asserts: command exits non-zero, AND a follow-up `koala checklist_get` shows the failed evidence entry is NOT present locally (or, if pre-POST ordering chosen, was never persisted).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "enforce-mode smoke in authority-evidence-flow-smoke.ts: with KOALA_AUTHORITY_MODE=enforce and a failing authority server, verification_evidence_add exits non-zero; a follow-up checklist_get confirms the failed evidence entry is NOT present locally.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "enforce + 健康 server：完整本地 preflight → authority POST 成功 → 才写本地 evidence → exit 0",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "enforce + 失败 server：authority POST 失败 → 0 本地写入、exit 非零（pre-POST 顺序，不为离线可用性削弱 enforce）",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "无分叉窗口：enforce 下 authority 失败时本地始终无该 entry（pre-POST，不做 compensating rollback，无 kill-9 二阶段窗口）",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "enforce batch_add：authority 拒整批或部分拒 → 0 本地写入（partial-accept 映射为整批失败）",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
