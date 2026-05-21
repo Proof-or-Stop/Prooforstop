@@ -39,6 +39,86 @@
         }
       ],
       "_hash": "268f43a369211e837bb9ca283451bad48b306dc892bf08b631971b1512627b64"
+    },
+    {
+      "timestamp": "2026-05-21T01:03:48.423Z",
+      "issueCount": 8,
+      "blockerCount": 3,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 个 checklist item，请检查是否有组合场景遗漏（如：Add authority-client.ts + authority-mode.ts + smoke tests + package scripts + CLI wiring (no checklist.ts logic change) + Wire authority POST into verification_evidence_add and batch_add with local-validation-first invariant (Blockers 1+2) 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 1 个高风险信号: 数据迁移/破坏性。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 4 个未消化的 unknowns: Blocker 4 resolution architecture: option (a) pre-commit verification — authority POST happens before the local evidence write commits, so authority failure short-circuits with no local write; option (b) compensating rollback — both writes happen, then authority failure triggers a deterministic local rollback before non-zero exit. Both satisfy Blocker 4; PLAN decision picks one.; Submission protocol shape: what exact request / response types must be added to authority-contracts.ts. Source materials = stash@{3}'s authority-contracts.ts (~851 lines, super-set) and authority-client.ts; reading both to extract minimum-viable submission types is part of PLAN before locking decision.json.; Authority server URL / auth config source: env var (KOALA_AUTHORITY_URL?) vs config file vs both with precedence. PLAN must pick.…"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/core/command-policy.ts 未被任何 checklist item 的 files 字段覆盖（请为相应 item 的 files.modify/create/test 加上此路径或用 excludes 显式排除）"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/registry.ts 未被任何 checklist item 的 files 字段覆盖（请为相应 item 的 files.modify/create/test 加上此路径或用 excludes 显式排除）"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/cli-engine.ts 未被任何 checklist item 的 files 字段覆盖（请为相应 item 的 files.modify/create/test 加上此路径或用 excludes 显式排除）"
+        }
+      ],
+      "_hash": "af33fb3aae9c5446a2664139432efddc1213643d8550fefe03071ae5ce0435eb"
+    },
+    {
+      "timestamp": "2026-05-21T01:04:43.088Z",
+      "issueCount": 4,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 个 checklist item，请检查是否有组合场景遗漏（如：Add authority-client.ts + authority-mode.ts + smoke tests + package scripts + CLI wiring (no checklist.ts logic change) + Wire authority POST into verification_evidence_add and batch_add with local-validation-first invariant (Blockers 1+2) 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 1 个高风险信号: 数据迁移/破坏性。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）"
+        }
+      ],
+      "_hash": "adf69d087ac0f7d123aee3bd52d029d17f4d823766b2629c19f379b409ea5466"
     }
   ]
 }

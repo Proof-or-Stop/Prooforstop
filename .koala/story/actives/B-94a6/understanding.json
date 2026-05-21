@@ -20,12 +20,7 @@
     "checklist.ts authority wiring is REWRITTEN per these invariants; do NOT cherry-pick stash@{3}'s checklist.ts changes (they implement Blocker 1's anti-pattern).",
     "Out of scope: VCP files, stash@{2} koala-vcp-flow-migration (superseded), stash@{0}/{1} (parallel-session leftovers, user-handled), any change to existing post-B-2157 behavior when KOALA_AUTHORITY_MODE is unset or 'off'."
   ],
-  "unknowns": [
-    "Blocker 4 resolution architecture: option (a) pre-commit verification — authority POST happens before the local evidence write commits, so authority failure short-circuits with no local write; option (b) compensating rollback — both writes happen, then authority failure triggers a deterministic local rollback before non-zero exit. Both satisfy Blocker 4; PLAN decision picks one.",
-    "Submission protocol shape: what exact request / response types must be added to authority-contracts.ts. Source materials = stash@{3}'s authority-contracts.ts (~851 lines, super-set) and authority-client.ts; reading both to extract minimum-viable submission types is part of PLAN before locking decision.json.",
-    "Authority server URL / auth config source: env var (KOALA_AUTHORITY_URL?) vs config file vs both with precedence. PLAN must pick.",
-    "Whether authority submission emits any koala command of its own (e.g. a status / probe command) or stays purely as side-effect of verification_evidence_add/batch_add. Determines whether PROCESS_FACT_REGISTRY and command-policy need new entries."
-  ],
+  "unknowns": [],
   "touchpoints": [
     "packages/main/src/core/authority-client.ts",
     "packages/main/src/core/authority-mode.ts",
@@ -36,10 +31,7 @@
     "packages/main/src/tasks/authority-evidence-flow-smoke.ts",
     "packages/main/src/tasks/verification-evidence-authority-handler-smoke.ts",
     "package.json",
-    "packages/main/package.json",
-    "packages/main/src/core/command-policy.ts",
-    "packages/main/src/registry.ts",
-    "packages/main/src/cli-engine.ts"
+    "packages/main/package.json"
   ],
-  "timestamp": "2026-05-21T00:31:36.262Z"
+  "timestamp": "2026-05-21T01:04:42.002Z"
 }
