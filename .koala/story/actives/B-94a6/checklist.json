@@ -92,6 +92,17 @@
           "headHash": "e101a62127cc4b61284f8fc6fe231e7cbe92fae3",
           "materialHash": "fab7371f512bac4006554e23fd396e7d715160a95de15f4428b3997577f7ba61",
           "timestamp": "2026-05-21T01:52:12.002Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/verification-context-pack-smoke.ts",
+          "command": "npm run test:verification-context-pack && npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "hard blocker：VCP smoke + process-fact-contract 均 exit 0——additive 扩展未造成 VCP digest/normalization/pack 回归",
+          "headHash": "560ff66dc01f37316e80c55e2d8969dc10952d70",
+          "materialHash": "fab7371f512bac4006554e23fd396e7d715160a95de15f4428b3997577f7ba61",
+          "timestamp": "2026-05-21T01:52:12.307Z"
         }
       ]
     },
