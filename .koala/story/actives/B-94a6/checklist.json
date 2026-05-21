@@ -380,6 +380,17 @@
           "headHash": "201a1af4e672e32e12f4c46172781d6c5289983a",
           "materialHash": "33e84b70b39ae8c127abcde1188122dce846e9eaa8c83ad05f2116b85d5d08a4",
           "timestamp": "2026-05-21T02:06:04.028Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/authority-evidence-flow-smoke.ts",
+          "command": "npm run test:authority-evidence-flow",
+          "result": "pass",
+          "note": "enforce batch all-or-nothing: whole-batch rejection (accepted:false) AND partial-accept (results:[{accepted:true},{accepted:false}]) both map via isAuthorityBatchFullyAccepted to whole-batch failure -> handler throws, single batch POST, re-read checklist shows evidence.length==0 — the accepted subset is NOT written",
+          "headHash": "40f2f15df47380999226e67bb6950ce184501d30",
+          "materialHash": "33e84b70b39ae8c127abcde1188122dce846e9eaa8c83ad05f2116b85d5d08a4",
+          "timestamp": "2026-05-21T02:06:08.885Z"
         }
       ]
     }
