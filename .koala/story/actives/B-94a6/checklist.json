@@ -40,6 +40,24 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/authority-contracts.ts",
+          "packages/main/src/core/evidence-collector.ts",
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/core/authority-client.ts",
+          "packages/main/src/core/authority-mode.ts",
+          "packages/main/src/tasks/authority-client-smoke.ts",
+          "packages/main/src/tasks/authority-evidence-flow-smoke.ts",
+          "packages/main/src/tasks/verification-evidence-authority-handler-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/authority-client-smoke.ts"
+        ]
       }
     },
     {
