@@ -188,6 +188,15 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-evidence-flow-smoke.ts"
+        ]
       }
     }
   ]
