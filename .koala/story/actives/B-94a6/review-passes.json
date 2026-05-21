@@ -53,6 +53,15 @@
       "reviewRound": "2026-05-21T02:19:48.589Z",
       "reviewRunId": "B-94a6:RR-005",
       "_hash": "8cd09f12f73d8fd3c187f1c96e9ee1e99e7a4f7133da526a2f565a2afd88f13e"
+    },
+    {
+      "id": "B-94a6:RP-007",
+      "agent": "koala-review-concept",
+      "note": "Round-2 delta (commit 5c9e712b) concept check complete. The -5 deleted lines are: 2 JSDoc comment lines, the old post<T> signature (replaced not removed), the old JSON.parse+as-T inline, and the old return statement — zero symbol names deleted. The post method still exists with an extended signature. Both new schema imports (AuthorityEvidenceSubmissionResultSchema, AuthorityEvidenceBatchSubmissionResultSchema) are defined in authority-contracts.ts and consumed at their call sites — no orphaned references. authority-contracts.ts has zero deletions vs main (additive-only confirmed). No other core files have deletions. No concept cleanup needed.",
+      "createdAt": "2026-05-21T02:21:57.027Z",
+      "reviewRound": "2026-05-21T02:19:48.589Z",
+      "reviewRunId": "B-94a6:RR-007",
+      "_hash": "0879b1eb531489f2e185f5ef5686dcc73c274e8877ee2ca2f30d3e637e4abcb2"
     }
   ]
 }
