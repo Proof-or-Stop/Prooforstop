@@ -277,6 +277,17 @@
           "headHash": "34ab9fcc164e9f5bae749b6a2db4980e4c3077d5",
           "materialHash": "42af73823f9d8baf047fa0d481a058a283135ec7b6c2e8641300c2ebe872eb62",
           "timestamp": "2026-05-21T02:02:41.164Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/authority-evidence-flow-smoke.ts",
+          "command": "npm run test:authority-evidence-flow",
+          "result": "pass",
+          "note": "shadow + failing server cases (5xx http_error / timeout AbortError / connection-refused ECONNREFUSED): each keeps local evidence write, handler does not throw (exit 0), emits exactly one stderr [warning] authority POST failed line, warning never on stdout",
+          "headHash": "9bfeee0f51bbabb9ce080d07a831db1d8ebdba01",
+          "materialHash": "42af73823f9d8baf047fa0d481a058a283135ec7b6c2e8641300c2ebe872eb62",
+          "timestamp": "2026-05-21T02:02:47.037Z"
         }
       ]
     },
