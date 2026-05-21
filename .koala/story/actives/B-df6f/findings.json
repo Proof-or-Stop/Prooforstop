@@ -1,0 +1,17 @@
+{
+  "findings": [
+    {
+      "id": "B-df6f:F-001",
+      "desc": "packages/main/src/tasks/field-regression-cli-smoke.ts:57 and packages/main/src/tasks/field-regression-cli-smoke.ts:656 CHK-002 edge evidence says validate CLI covers metadata-only host story evidence commits, but this smoke hardcodes storyDir=.koala/story/actives and only commits default .koala story metadata. The uppercase Docs/story CLI path promised by the story remains untested, so verificationEvidence overstates edge coverage. severity: medium",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-05-21T04:27:29.898Z",
+      "reviewRound": "2026-05-21T04:25:22.430Z",
+      "reviewRunId": "B-df6f:RR-002",
+      "_hash": "546576ff7e1a814d65ca14bd7ac0d1d9f09a900b41e2e2c3e3df76553d63675e"
+    }
+  ]
+}
