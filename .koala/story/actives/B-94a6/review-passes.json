@@ -62,6 +62,15 @@
       "reviewRound": "2026-05-21T02:19:48.589Z",
       "reviewRunId": "B-94a6:RR-007",
       "_hash": "0879b1eb531489f2e185f5ef5686dcc73c274e8877ee2ca2f30d3e637e4abcb2"
+    },
+    {
+      "id": "B-94a6:RP-008",
+      "agent": "koala-review-behavior",
+      "note": "Round-2 delta (F-001: 2xx malformed body -> kind:error) correctly integrated into all modes. enforce+single: decideFromSingle checks outcome.ok&&data.accepted===true; malformed body yields ok:false -> accepted=false -> proceed:false -> handler throws + 0 local write. Tested by enforceFailureCases loop (authority-evidence-flow-smoke.ts:777-808, malformed 2xx body case). shadow+single: proceed:true + warning on stderr, local write kept; tested by shadowFailureCases loop (lines 546-582). valid {accepted:false} body stays kind:success at client level; mode logic rejects in enforce via accepted=false path; tested by authority-rejected case in enforceFailureCases and by client-smoke line 241-247. A-prepost ordering unchanged (checklist.ts off-mode short-circuit at !authorityModeEnabled; shadow/enforce POST precedes writeLocal). Batch malformed-2xx path: decideFromBatch uses same outcome.ok discriminator; malformed body -> ok:false -> !fullyAccepted -> enforce rejects, shadow warns. Not exercised at batch+enforce level in flow smoke (batch only tests connection-refused in shadow and top-level rejection in enforce), but code path is structurally identical and correct by inspection. All round-1 conclusions remain intact.",
+      "createdAt": "2026-05-21T02:24:24.230Z",
+      "reviewRound": "2026-05-21T02:19:48.589Z",
+      "reviewRunId": "B-94a6:RR-006",
+      "_hash": "fcc51ac07ea0b97495ee26cc224474b8b29d0281ebf598dc1369fa985d3b3ad8"
     }
   ]
 }
