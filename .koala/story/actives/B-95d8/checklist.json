@@ -59,6 +59,17 @@
           "headHash": "9d35b72a6dfb5687db84d1a5e287df3eb67e65e6",
           "materialHash": "3a64610c3e4916c07cae685c111b66e5e05e53f1b546066b24965aa52f13bdab",
           "timestamp": "2026-05-21T22:30:41.181Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/init-check-fallback-smoke.ts",
+          "command": "npm --prefix packages/main run test:init-check-fallback-smoke",
+          "result": "pass",
+          "note": "Test 1: init_check_repair refuses without acknowledge=true and with reason <30 chars; asserts NO init-check.json written and phase stays missing_init_check blocked.",
+          "headHash": "45e55af363ce7eaea069df6d6a154d6d7a5801d8",
+          "materialHash": "3a64610c3e4916c07cae685c111b66e5e05e53f1b546066b24965aa52f13bdab",
+          "timestamp": "2026-05-21T22:30:46.517Z"
         }
       ]
     },
