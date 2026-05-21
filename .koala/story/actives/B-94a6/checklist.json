@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add authority-client.ts + authority-mode.ts + smoke tests + package scripts + CLI wiring (no checklist.ts logic change)",
+      "context": "Add NEW files `packages/main/src/core/authority-client.ts` and `packages/main/src/core/authority-mode.ts` (off | shadow | enforce). Add NEW smoke tests `tasks/authority-client-smoke.ts`, `tasks/authority-evidence-flow-smoke.ts`, `tasks/verification-evidence-authority-handler-smoke.ts`. Add `test:authority-client` / `test:authority-evidence-flow` / `test:verification-evidence-authority-handler` scripts to package.json + packages/main/package.json. If new koala commands are exposed, register them via registry.ts + give each a `CommandPolicy.ownershipClass` per B-c55d 5-class + add to `PROCESS_FACT_REGISTRY` (CLAUDE.md two-layer contract). authority-contracts.ts and evidence-collector.ts already exist on main (B-2157, 443 / 47 lines); if the client needs submission request/response types or collector submission helpers, add them **additively** as NEW exports — must not touch existing VCP-side exports (digestCanonical / digestCommand / digestVerificationContextPack / normalizeVerificationContextPack / buildTargetBoundEvidenceEnvelope / prepareEvidenceEnvelopeForSigning / parseVerificationContextPackContract / canonicalJson / all VerificationContextPack* / EvidenceEnvelopeContract* schemas / EvidenceMaterial / EvidenceCollector existing behavior — byte-identical). checklist.ts is NOT touched in this item. After this item: `npm --prefix packages/main run build` exits 0, recursive tsc green, `test:command-ownership-contract` + `test:process-fact-contract` + `test:verification-context-pack-smoke` all green (the last two are hard blockers per user 2026-05-21 — VCP regression must not occur even from additive extension).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Wire authority POST into verification_evidence_add and batch_add with local-validation-first invariant (Blockers 1+2)",
+      "context": "In `packages/main/src/handlers/checklist.ts` `verification_evidence_add` (~line 457) and `verification_evidence_batch_add` (~line 508): all existing local validation (storyId / itemId / intentRef / note ≥ 5 chars / waiverType-kind constraints / checklist item must exist / etc.) stays INSIDE `withChecklistLock` and runs FIRST. Only AFTER local validation passes AND the local evidence write commits may the authority client be invoked. Hard invariant: a regression test constructs a deliberate local failure (itemId='CHK-MISSING' / trimmed note < 5 chars / kind='waiver' with no waiverType) and asserts the authority server receives EXACTLY 0 POSTs — Blockers 1 + 2. For batch_add the same applies per-entry: a single entry's local failure must not leak a partial-POST tail; either all entries pass local validation and authority sees a coherent batch, or 0 POSTs are made. Do NOT submit authority outside the lock; do NOT submit before local checks; do NOT cherry-pick stash@{3}'s checklist.ts (it has submitChecklistAuthorityEvidence at line 551 / 605 BEFORE withChecklistLock — that's exactly the bug this story rules out).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Implement shadow mode: warning-only, zero impact on local evidence (Blocker 3)",
+      "context": "`authority-mode.ts` defines mode `off | shadow | enforce`. In shadow mode: authority POST is attempted AFTER local validation passes (per CHK-002), but ANY authority outcome — 5xx, timeout, network error, even success — must NOT influence the local evidence state. Local write commits regardless. The only observable side effect of a failed authority interaction in shadow mode is a stderr warning line; not stdout, not a non-zero exit code, not a rollback. Smoke test injects an authority server that returns 5xx / hangs / closes the connection in shadow mode and asserts: local evidence is written, command exits 0, a `[warning] authority POST failed: ...` line appears on stderr.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Implement enforce mode: no local/remote fact divergence on failure (Blocker 4)",
+      "context": "In enforce mode a successful authority POST is required for the command to succeed. If authority POST fails AFTER local validation passed, the command MUST NOT leave local evidence committed while authority has no record (or vice versa). Two acceptable resolutions, decided in PLAN: (a) authority POST happens BEFORE the local commit, so authority failure → no local write either (pre-commit verification); or (b) both happen, then authority failure triggers a deterministic local rollback before the command returns non-zero (compensating transaction). Either way: at the moment the command exits, local and authority states agree. Smoke test injects authority failure under enforce mode and asserts: command exits non-zero, AND a follow-up `koala checklist_get` shows the failed evidence entry is NOT present locally (or, if pre-POST ordering chosen, was never persisted).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
