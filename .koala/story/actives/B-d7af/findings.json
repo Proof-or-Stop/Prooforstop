@@ -18,6 +18,23 @@
         "packages/main/src/tasks/init-check-required-agents-smoke.ts",
         "packages/main/src/core/init-check-gate.ts"
       ]
+    },
+    {
+      "id": "B-d7af:F-002",
+      "desc": "CHK-001:happy:0 verificationEvidence 仅覆盖 intent 的一半：证据是 rg 命令的 manual_transcript（结果=pass，证明 core 不再 import ../handlers/init-check），但 intent 同时要求 \"npm run build passes\"。构建通过只能从 edge:0 的 integration_test（运行编译产物）隐性推断，未见专门的构建输出 transcript 作为 happy:0 证据。",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-05-21T16:06:18.542Z",
+      "reviewRound": "2026-05-21T16:02:21.672Z",
+      "reviewRunId": "B-d7af:RR-003",
+      "_hash": "c4902b90112330fc9a838c9afb3456f424cbe1f4a4ac47dc7b342bbf50381024",
+      "files": [
+        "packages/main/src/core/init-check-gate.ts",
+        "packages/main/src/core/machine.ts"
+      ]
     }
   ]
 }
