@@ -58,7 +58,20 @@
         "test": [
           "packages/main/src/tasks/authority-client-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/authority-client-smoke.ts",
+          "command": "npm run test:authority-client && npm run test:authority-evidence-flow && npm run test:verification-evidence-authority-handler",
+          "result": "pass",
+          "note": "authority-client.ts + authority-mode.ts 新建，npm --prefix packages/main run build 绿，3 个 authority smoke 全部独立通过（exit 0）",
+          "headHash": "afce7f0cd917c182720c41e0e33fee61f5179bbf",
+          "materialHash": "fab7371f512bac4006554e23fd396e7d715160a95de15f4428b3997577f7ba61",
+          "timestamp": "2026-05-21T01:52:11.379Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
