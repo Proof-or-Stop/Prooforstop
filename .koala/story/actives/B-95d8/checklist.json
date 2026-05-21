@@ -8,8 +8,8 @@
         "CLAUDE.md#initinit_check-硬门槛b-e71f",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-05-21T22:27:08.325Z",
       "endTime": null,
       "userSees": "在受控条件下运行 fallback/repair 命令后终端看到：\n  ✓ init-check.json 已生成（fallback 通道，签名域不变）\n  ⚠ fallback 已记入审计事件（actor/mode），未绕过签名校验\n  → 现在可运行 koala story_advance --storyId=B-95d8 --phase=INIT_CHECK\n随后 story_advance INIT_CHECK 不再报 [missing_init_check]，正常创建 worktree；若缺 opt-in/受控条件则命令拒绝并打印清晰错误、不产出文件。",
       "verificationIntent": {
@@ -92,6 +92,18 @@
           "packages/main/tests/checklist.test.ts"
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-05-21T22:27:08.325Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Milestone 3 implementation start: INIT_CHECK fallback/repair command",
+      "agent": "koala-implementer"
     }
   ]
 }
