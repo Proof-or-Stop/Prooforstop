@@ -288,6 +288,17 @@
           "headHash": "9bfeee0f51bbabb9ce080d07a831db1d8ebdba01",
           "materialHash": "42af73823f9d8baf047fa0d481a058a283135ec7b6c2e8641300c2ebe872eb62",
           "timestamp": "2026-05-21T02:02:47.037Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/authority-evidence-flow-smoke.ts",
+          "command": "npm run test:authority-evidence-flow",
+          "result": "pass",
+          "note": "shadow + client THROW (non-HTTP TypeError escaping classify, preMortem #2): submitter degradeThrow catch-all degrades to proceed=true + warning, command does not crash, local evidence still written; shadow batch failure writes ALL entries — proves any authority result (incl thrown exception) never blocks/mutates local evidence (Blocker 3)",
+          "headHash": "b680d705ac2bb33826c73ef1f7a09368c3148e7c",
+          "materialHash": "42af73823f9d8baf047fa0d481a058a283135ec7b6c2e8641300c2ebe872eb62",
+          "timestamp": "2026-05-21T02:02:47.452Z"
         }
       ]
     },
