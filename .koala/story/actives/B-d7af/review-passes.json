@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-21T18:57:58.925Z",
       "reviewRunId": "B-d7af:RR-004",
       "_hash": "66f9dde52dea7858ad66b5eccf2c083dcd26f347589fb6a724988ec0a64b2220"
+    },
+    {
+      "id": "B-d7af:RP-003",
+      "agent": "koala-review-concept",
+      "note": "Concept residue check clean. All moved symbols (signInitCheck, recomputeInitCheckHash, blockingInitCheckIssues, missingRequiredInitCheckAgents, computeBackgroundHash, computeChecklistHash, INIT_CHECK_SALT, REQUIRED_INIT_CHECK_AGENTS, normalizeAgentId, initCheckAgentMatches, initCheckAgentResults) are fully re-exported from handlers/init-check.ts for backward compat; core/machine.ts import updated to core/init-check-gate.ts (layering fix); zero core/ files still import from handlers/init-check; process-fact-contract.mjs updated to reflect new canonical locations; F-001 tamper blocker test present in init-check-required-agents-smoke.ts. No stale residue found.",
+      "createdAt": "2026-05-21T19:04:09.468Z",
+      "reviewRound": "2026-05-21T18:57:58.925Z",
+      "reviewRunId": "B-d7af:RR-005",
+      "_hash": "17a9f7a14c70982c0106e939e6e7e1509955c38c8a2b8781b7a2148197d4ea75"
     }
   ]
 }
