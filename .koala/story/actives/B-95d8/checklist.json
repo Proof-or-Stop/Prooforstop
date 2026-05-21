@@ -82,6 +82,15 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/checklist.test.ts"
+        ]
       }
     }
   ]
