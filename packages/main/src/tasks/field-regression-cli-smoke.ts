@@ -778,7 +778,7 @@ async function assertHotfixPriorityElevationCliSurface(): Promise<void> {
       '## 对话纹理',
       '用户之前观察到 low priority hotfix 也会要求 preMortem，这个行为可以接受，但文档和命令输出必须直接讲清楚。',
     ].join('\n');
-    const output = await runKoala(root, 'story_create', {
+    const result = await runKoalaRaw(root, 'story_create', {
       name: 'hotfix-priority-surface',
       title: 'Hotfix priority surface',
       description: 'low priority hotfix should still use effective high-risk gate',
@@ -787,8 +787,10 @@ async function assertHotfixPriorityElevationCliSurface(): Promise<void> {
       background,
       checklist: [{ title: 'Record effective priority wording', context: 'CLI output should explain low hotfix elevation' }],
     });
-    assert.match(output, /已自动 elevate priority: low → high/);
-    assert.match(output, /原始 priority=low/);
+    assert.equal(result.code, 0);
+    assert.doesNotMatch(result.stdout, /已自动 elevate priority|原始 priority=low/);
+    assert.match(result.stderr, /已自动 elevate priority: low → high/);
+    assert.match(result.stderr, /原始 priority=low/);
     const [storyId] = new StoryStore(root).listStoryIds();
     assert.ok(storyId);
     const story = new StoryStore(root).readStory(storyId);

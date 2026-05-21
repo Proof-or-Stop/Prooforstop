@@ -548,7 +548,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         // B-6812 CHK-003 (G3): duplicate / concurrency warnings go to stderr;
         // only the create conclusion + non-advisory guidance stays on stdout.
         emitAdvisoryToStderr();
-        return `Story ${storyId} created (${args.phase})${hasChecklist ? ` with ${args.checklist!.length} checklist items` : ''}${riskHint}${nonGitHint}`;
+        return `Story ${storyId} created (${args.phase})${hasChecklist ? ` with ${args.checklist!.length} checklist items` : ''}${nonGitHint}`;
       }
 
       // 正常模式：有 checklist → INIT（之后 story_advance INIT_CHECK 创建 worktree → PLAN）
@@ -610,7 +610,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         // B-6812 CHK-003 (G3): duplicate / concurrency warnings go to stderr;
         // the create conclusion + INIT-review guidance stays on stdout.
         emitAdvisoryToStderr();
-        return `Story ${storyId} created (INIT) with ${checklist.items.length} checklist items${hint}${riskHint}${initReviewHint}${nonGitHint}`;
+        return `Story ${storyId} created (INIT) with ${checklist.items.length} checklist items${hint}${initReviewHint}${nonGitHint}`;
       }
 
       // B-6812 CHK-003 (G3): duplicate / concurrency warnings go to stderr.
