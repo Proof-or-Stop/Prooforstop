@@ -5,7 +5,7 @@
       "desc": "quality-cleanup: authority-contracts.ts:492-510 exports three Zod schemas (AuthorityEvidenceEntryResultSchema, AuthorityEvidenceSubmissionResultSchema, AuthorityEvidenceBatchSubmissionResultSchema) that are never imported or used outside the file. The authority-client.ts uses JSON.parse(text) as T without validating against these schemas. CLAUDE.md Handler 编码约定 requires Zod schemas to be used for validation at consumption points, not just declared. Either use these schemas to validate parsed response bodies in authority-client.ts post, or remove them if the contract-doc intent is fulfilled by the TypeScript interfaces alone.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-05-21T02:11:56.542Z",
