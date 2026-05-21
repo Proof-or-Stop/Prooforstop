@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-21T02:07:40.534Z",
       "reviewRunId": "B-94a6:RR-003",
       "_hash": "72a5b3a205994a31d842d52513313fad8042c608ea82490cd99a66d096e186c5"
+    },
+    {
+      "id": "B-94a6:RP-003",
+      "agent": "koala-review-concept",
+      "note": "概念完整性检查通过。\n\n1. authority-contracts.ts：纯 additive（+95/-0），B-2157 全部 VCP exports 完整保留：digestCanonical/digestCommand/digestVerificationContextPack/normalizeVerificationContextPack/buildTargetBoundEvidenceEnvelope/prepareEvidenceEnvelopeForSigning/parseVerificationContextPackContract/canonicalJson/VerificationContextPackContract/EvidenceEnvelopeContract 均在位，无改名无删除。\n\n2. evidence-collector.ts（EvidenceMaterial/EvidenceCollector）：本次 diff 未触及，仍在 evidence-collector.ts 并从 index.ts 正常 re-export。\n\n3. checklist.ts 的 -56 行：全部为函数内部局部变量（cl/item/hashes/evidence/existing/idx/written 等），均已原样迁移到 writeLocal()/writeLocalBatch() 闭包中继续使用，无孤立引用，无死代码。withChecklistLock/evidenceHashes/makeEvidence 三个共享工具函数仍被 checklist.ts 广泛调用。\n\n4. context.ts：纯 additive（+8/-0），新增 authoritySettings/authoritySubmitter 两个可选 DI 字段，无删除。\n\n5. 新增的 authority-client.ts/authority-mode.ts/authority-submit.ts 三个文件的所有 imports 均能在仓库内解析，无悬挂引用。\n\n无概念删除/替换残留问题。",
+      "createdAt": "2026-05-21T02:11:23.711Z",
+      "reviewRound": "2026-05-21T02:07:40.534Z",
+      "reviewRunId": "B-94a6:RR-001",
+      "_hash": "67de7938309281514e37f5bf4e04ad17293c579163c196f84de1d9218fc2f2ec"
     }
   ]
 }
