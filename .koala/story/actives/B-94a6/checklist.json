@@ -346,7 +346,20 @@
         "test": [
           "packages/main/src/tasks/authority-evidence-flow-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/authority-evidence-flow-smoke.ts",
+          "command": "npm run test:authority-evidence-flow",
+          "result": "pass",
+          "note": "enforce + healthy server case: asserts no local evidence before POST, then exactly one POST (server.calls==1), then local evidence written, success message, exit 0 — proves A-prepost POST-before-write ordering",
+          "headHash": "c8d31969b83b1ad44bf7073a973db60da1312afd",
+          "materialHash": "33e84b70b39ae8c127abcde1188122dce846e9eaa8c83ad05f2116b85d5d08a4",
+          "timestamp": "2026-05-21T02:05:55.327Z"
+        }
+      ]
     }
   ]
 }
