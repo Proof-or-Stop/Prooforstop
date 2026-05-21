@@ -8,6 +8,15 @@
       "reviewRound": "2026-05-21T16:02:21.672Z",
       "reviewRunId": "B-d7af:RR-001",
       "_hash": "37c94f2937b22692c345f999c58cccb7a74f81df25a578962869dc0b514d84fc"
+    },
+    {
+      "id": "B-d7af:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Layering fix correct: machine.ts (core/) now imports init-check gate primitives from core/init-check-gate.ts instead of handlers/init-check.ts — no upward dependency. Re-export pattern in handlers/init-check.ts is clean; only createInitCheckHandlers (the I/O shell) remains in handlers. Types fully used, no dead imports, no as-any, no shell importing fn.ts. Tamper smoke uses story_update CLI path (not direct JSON edit) to verify init_check_tampered blocker. verify-process-fact-contract.mjs inventory updated to match new file layout.",
+      "createdAt": "2026-05-21T19:01:24.472Z",
+      "reviewRound": "2026-05-21T18:57:58.925Z",
+      "reviewRunId": "B-d7af:RR-004",
+      "_hash": "66f9dde52dea7858ad66b5eccf2c083dcd26f347589fb6a724988ec0a64b2220"
     }
   ]
 }
