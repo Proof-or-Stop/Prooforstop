@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-94a6:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 已检查全部 17/17 verificationIntent → verificationEvidence 覆盖关系。CHK-002 adversarial (Blockers 1+2)：smoke 真有 countingFetch POST 计数器，5 个 local-preflight-fail case 均断言 server.calls===0 + hasEvidence===false（on-disk re-read via store.readChecklist）。CHK-003 adversarial (Blocker 3)：shadow 5xx/timeout/ECONNREFUSED/client-THROW 各 case 均断言 threw===false + hasEvidence===true + stderr [warning] + 无 stdout 污染；shadow batch failure 断言 evidence.length===2（全写入）。CHK-004 adversarial (Blocker 4)：enforce failure loop (5xx/timeout/refused/authority-rejected) 各 case 断言 threw===true + on-disk hasEvidence===false；enforce + client THROW 同；enforce batch partial-accept ({accepted:true},{accepted:false}) 断言 evidence.length===0 — 确认 accepted subset 未写入。无 blocker。",
+      "createdAt": "2026-05-21T02:09:21.963Z",
+      "reviewRound": "2026-05-21T02:07:40.534Z",
+      "reviewRunId": "B-94a6:RR-004",
+      "_hash": "70f85a1b9434fb0f29941e8413e9525429c5d588a84e90664ac57fec9f2e2573"
+    }
+  ]
+}
