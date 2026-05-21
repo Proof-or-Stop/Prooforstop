@@ -1,0 +1,30 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Host repos can commit Docs/story evidence without stale-looping DONE",
+      "context": "When a host project such as Cord Team Mac stores Koala story evidence under uppercase Docs/story/..., committing checklist/test-evidence/process-events after a green validation must remain metadata-only: DONE pre-check should report evidence fresh instead of forcing another stale-evidence cycle.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/truth-source.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "After validation evidence is committed in a repo using Docs/story/..., session_brief/DONE pre-check reports Evidence freshness PASS rather than another stale loop."
+    },
+    {
+      "id": "CHK-002",
+      "title": "Material source changes still stale evidence while Docs/story metadata is exempt",
+      "context": "The regression must prove both sides of the safety boundary: uppercase Docs/story metadata remains excluded from material freshness, and real source/package/config files still change materialHash and make old evidence stale.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "Koala no longer falsely blocks story evidence commits, while real code changes still require fresh verification before DONE."
+    }
+  ]
+}
