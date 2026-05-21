@@ -138,6 +138,17 @@
           "headHash": "7b126f2f6d627cf91fc6915dea92dbaab932ee63",
           "materialHash": "3a64610c3e4916c07cae685c111b66e5e05e53f1b546066b24965aa52f13bdab",
           "timestamp": "2026-05-21T22:36:14.777Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/checklist-reload-hint-smoke.ts",
+          "command": "npm --prefix packages/main run test:checklist-reload-hint-smoke",
+          "result": "pass",
+          "note": "Test 3: reminder goes to stderr only; stdout has pure conclusion; piping stdout through tail yields the conclusion and no ↻ marker (pipeline-safe, B-6812 precedent).",
+          "headHash": "6efb28d7029118404221e0693fd132438cea3770",
+          "materialHash": "3a64610c3e4916c07cae685c111b66e5e05e53f1b546066b24965aa52f13bdab",
+          "timestamp": "2026-05-21T22:36:15.313Z"
         }
       ]
     }
