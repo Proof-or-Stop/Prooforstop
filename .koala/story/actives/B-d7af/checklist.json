@@ -54,13 +54,13 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-001:happy:0",
-          "kind": "manual_transcript",
-          "command": "if rg \"../handlers/init-check\" packages/main/src/core; then exit 1; else echo \"no core import from ../handlers/init-check\"; fi",
+          "kind": "integration_test",
+          "command": "npm run build && if rg \"../handlers/init-check\" packages/main/src/core; then exit 1; else echo \"no core import from ../handlers/init-check\"; fi",
           "result": "pass",
-          "note": "Grep transcript proves core no longer imports the handler init-check module.",
-          "headHash": "1201943ed44ee466998edafe3eb3f018c964c308",
-          "materialHash": "c062d391ca1323f3df12630256d096894d2017f67bbf95fc4adc3345ee0e1306",
-          "timestamp": "2026-05-21T16:01:39.915Z"
+          "note": "Covers both happy requirements: TypeScript build passes after the extraction and core has no upward init-check handler import.",
+          "headHash": "3979aafca77154f22f4db784a67579db242306f7",
+          "materialHash": "3a64610c3e4916c07cae685c111b66e5e05e53f1b546066b24965aa52f13bdab",
+          "timestamp": "2026-05-21T18:57:06.966Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -68,21 +68,21 @@
           "file": "packages/main/src/tasks/init-check-required-agents-smoke.ts",
           "command": "node packages/main/dist/tasks/init-check-required-agents-smoke.js",
           "result": "pass",
-          "note": "Required-reviewer and agent fallback/prefix behavior still passes after moving helpers into core.",
-          "headHash": "1201943ed44ee466998edafe3eb3f018c964c308",
-          "materialHash": "c062d391ca1323f3df12630256d096894d2017f67bbf95fc4adc3345ee0e1306",
-          "timestamp": "2026-05-21T16:01:39.915Z"
+          "note": "Required-reviewer, missing product-reviewer, high issue blocker, product-reviewer agent fallback, and medium advisory pass behavior are covered by this smoke.",
+          "headHash": "3979aafca77154f22f4db784a67579db242306f7",
+          "materialHash": "3a64610c3e4916c07cae685c111b66e5e05e53f1b546066b24965aa52f13bdab",
+          "timestamp": "2026-05-21T18:57:06.966Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "integration_test",
-          "file": "scripts/verify-process-fact-contract.mjs",
-          "command": "npm run test:process-fact-contract",
+          "file": "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+          "command": "node packages/main/dist/tasks/init-check-required-agents-smoke.js && if rg \"../handlers/init-check\" packages/main/src/core; then exit 1; else echo \"no core import from ../handlers/init-check\"; fi",
           "result": "pass",
-          "note": "Process-fact contract now inventories the extracted core init-check gate module as the signed artifact implementation surface.",
-          "headHash": "1201943ed44ee466998edafe3eb3f018c964c308",
-          "materialHash": "c062d391ca1323f3df12630256d096894d2017f67bbf95fc4adc3345ee0e1306",
-          "timestamp": "2026-05-21T16:01:39.915Z"
+          "note": "Covers stale init-check hash rejection through init_check_tampered, missing/high init reviewer blockers, and the post-refactor core import guard.",
+          "headHash": "3979aafca77154f22f4db784a67579db242306f7",
+          "materialHash": "3a64610c3e4916c07cae685c111b66e5e05e53f1b546066b24965aa52f13bdab",
+          "timestamp": "2026-05-21T18:57:06.966Z"
         }
       ]
     }
