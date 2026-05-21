@@ -54,7 +54,7 @@ function allowEmptyCommit(cwd: string, message: string, author = 'koala-implemen
   return git(cwd, ['rev-parse', 'HEAD']);
 }
 
-function initRepo(prefix: string): string {
+function initRepo(prefix: string, storyDir = '.koala/story/actives'): string {
   const root = mkdtempSync(join(tmpdir(), prefix));
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
@@ -63,7 +63,7 @@ function initRepo(prefix: string): string {
   write(root, 'koala.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.koala/story/actives',
+    storyDir,
     requirementsDir: 'docs/requirements',
     worktreeDir: '.worktrees',
     workflow: { profile: 'balanced' },
@@ -654,11 +654,12 @@ async function assertChannelGateAcceptsSubagentResultCliSurface(): Promise<void>
 }
 
 async function assertEvidenceFreshAfterMetadataOnlyCliSurface(): Promise<void> {
-  const root = initRepo('koala-field-evidence-');
+  const root = initRepo('koala-field-evidence-', 'Docs/story/actives');
   try {
     const storyId = 'B-evidence';
     const store = new StoryStore(root);
     writeReviewStory(store, storyId);
+    assert.equal(existsSync(join(root, 'Docs/story/actives', storyId, 'index.json')), true);
     const head = git(root, ['rev-parse', 'HEAD']);
     const materialHash = currentMaterialHash(root);
     assert.ok(materialHash);
@@ -786,7 +787,8 @@ async function assertHotfixPriorityElevationCliSurface(): Promise<void> {
       background,
       checklist: [{ title: 'Record effective priority wording', context: 'CLI output should explain low hotfix elevation' }],
     });
-    assert.match(output, /Story B-[a-z0-9]+ created \(INIT\)/);
+    assert.match(output, /已自动 elevate priority: low → high/);
+    assert.match(output, /原始 priority=low/);
     const [storyId] = new StoryStore(root).listStoryIds();
     assert.ok(storyId);
     const story = new StoryStore(root).readStory(storyId);
