@@ -166,7 +166,64 @@
         "test": [
           "packages/main/src/tasks/authority-evidence-flow-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/authority-evidence-flow-smoke.ts",
+          "command": "npm run test:authority-evidence-flow",
+          "result": "pass",
+          "note": "off-mode happy case: off short-circuits authorityModeEnabled, returns synchronous string, asserts offServer.calls==0 and local evidence written",
+          "headHash": "8caf03ea118bc69c16d1b1ee44770b9e69be06af",
+          "materialHash": "51592ca78e9e2a39d09737ff25593c2657af9e36829954f28727d0496ed35d57",
+          "timestamp": "2026-05-21T01:59:04.040Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/handlers/checklist.ts",
+          "command": "npm run test:authority-evidence-flow",
+          "result": "pass",
+          "note": "A-prepost ordering骨架: shadow/enforce run local preflight first, then POST, then writeLocal only on accepted POST; success-path building block + enforce submitter wiring exercised in flow smoke",
+          "headHash": "8caf03ea118bc69c16d1b1ee44770b9e69be06af",
+          "materialHash": "51592ca78e9e2a39d09737ff25593c2657af9e36829954f28727d0496ed35d57",
+          "timestamp": "2026-05-21T01:59:04.040Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/handlers/checklist.ts",
+          "command": "npm run test:authority-evidence-flow",
+          "result": "pass",
+          "note": "batch_add all-or-nothing success side: single writeLocalBatch after one batch submitBatch call; off-mode batch writes both items in handler smoke",
+          "headHash": "8caf03ea118bc69c16d1b1ee44770b9e69be06af",
+          "materialHash": "51592ca78e9e2a39d09737ff25593c2657af9e36829954f28727d0496ed35d57",
+          "timestamp": "2026-05-21T01:59:04.040Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/authority-evidence-flow-smoke.ts",
+          "command": "npm run test:authority-evidence-flow",
+          "result": "pass",
+          "note": "Blockers 1+2: illegal itemId / note<5 / waiverType-kind mismatch each assert server.calls==0 and zero local write via POST-counting fake AuthorityClient under enforce",
+          "headHash": "8caf03ea118bc69c16d1b1ee44770b9e69be06af",
+          "materialHash": "51592ca78e9e2a39d09737ff25593c2657af9e36829954f28727d0496ed35d57",
+          "timestamp": "2026-05-21T01:59:04.040Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/authority-evidence-flow-smoke.ts",
+          "command": "npm run test:authority-evidence-flow",
+          "result": "pass",
+          "note": "batch all-or-nothing failure side: any illegal entry (unknown item / short note) -> whole batch server.calls==0 and zero local write, no partial tail",
+          "headHash": "8caf03ea118bc69c16d1b1ee44770b9e69be06af",
+          "materialHash": "51592ca78e9e2a39d09737ff25593c2657af9e36829954f28727d0496ed35d57",
+          "timestamp": "2026-05-21T01:59:04.040Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
