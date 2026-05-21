@@ -29,6 +29,13 @@ function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, { cwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
 }
 
+// off mode handlers return a plain string synchronously (no authority interaction).
+// This narrows the `string | Promise<string>` union for the off-mode assertions.
+function expectString(value: string | Promise<string>): string {
+  assert.equal(typeof value, 'string', 'off-mode handler must return a synchronous string');
+  return value as string;
+}
+
 const STORY_ID = 'B-authh';
 const now = '2026-05-21T00:00:00.000Z';
 
@@ -112,7 +119,7 @@ function createStoryRepo(): { root: string; store: StoryStore } {
   const { root, store } = createStoryRepo();
   try {
     const handlers = createChecklistHandlers({ root, store } as any);
-    const msg = handlers.verification_evidence_add({
+    const msg = expectString(handlers.verification_evidence_add({
       storyId: STORY_ID,
       itemId: 'CHK-001',
       intentRef: 'CHK-001:happy:0',
@@ -121,7 +128,7 @@ function createStoryRepo(): { root: string; store: StoryStore } {
       command: 'koala validate --story=B-authh',
       result: 'pass',
       note: 'integration test covers the happy path',
-    });
+    }));
     assert.match(msg, /Verification evidence recorded for CHK-001/);
     const cl = store.readChecklist(STORY_ID);
     const item = cl.items.find(i => i.id === 'CHK-001');
@@ -137,13 +144,13 @@ function createStoryRepo(): { root: string; store: StoryStore } {
   const { root, store } = createStoryRepo();
   try {
     const handlers = createChecklistHandlers({ root, store } as any);
-    const msg = handlers.verification_evidence_batch_add({
+    const msg = expectString(handlers.verification_evidence_batch_add({
       storyId: STORY_ID,
       evidences: [
         { itemId: 'CHK-001', intentRef: 'CHK-001:happy:0', kind: 'integration_test', note: 'covers first happy' },
         { itemId: 'CHK-002', intentRef: 'CHK-002:happy:0', kind: 'integration_test', note: 'covers second happy' },
       ],
-    });
+    }));
     assert.match(msg, /batch recorded for B-authh: 2/);
     const cl = store.readChecklist(STORY_ID);
     assert.ok(cl.items.find(i => i.id === 'CHK-001')?.verificationEvidence?.length);

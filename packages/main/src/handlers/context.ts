@@ -17,6 +17,14 @@ export interface HandlerContext {
   log?: (msg: string) => void;
   /** 延迟获取所有已注册工具名（由 tools.ts 注入，避免循环依赖） */
   getAllToolNames?: () => Set<string>;
+  /**
+   * B-94a6: authority submission injection point. Production leaves these unset and
+   * the verification evidence handlers resolve settings from env (off by default,
+   * zero network). Tests inject `authoritySettings` + `authoritySubmitter` to drive
+   * shadow / enforce / failure paths without a real network.
+   */
+  authoritySettings?: import('../core/authority-mode.js').AuthoritySettings;
+  authoritySubmitter?: import('../core/authority-submit.js').AuthoritySubmitter;
 }
 
 const PHASE_TO_EVENT: Record<string, string> = { ...PHASE_EVENT_BY_TARGET };
