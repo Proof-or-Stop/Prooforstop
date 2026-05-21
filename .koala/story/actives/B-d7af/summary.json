@@ -1,0 +1,56 @@
+{
+  "storyId": "B-d7af",
+  "changes": "Moved init-check hash/gate primitives into packages/main/src/core/init-check-gate.ts, rewired core/machine.ts to import from core, kept handlers/init-check.ts as the command shell with compatibility re-exports, updated process fact inventory, and strengthened init-check smoke coverage for init_check_tampered.",
+  "usage": "Maintainers continue using koala init_check_set and story_advance normally; the change is internal layering cleanup. Verification commands are npm run build, node packages/main/dist/tasks/init-check-required-agents-smoke.js, npm run test:worktree-authority-smoke, npm run test:process-fact-contract, and koala validate --story=B-d7af --json.",
+  "expectedOutcome": "Expected transcript: npm run build exits 0; init-check required-agents smoke passes; core grep finds no ../handlers/init-check import; koala validate reports 3/3 verification intent coverage.",
+  "actualTranscript": "Actual transcript matched: build passed, init check required agents smoke passed, worktree authority smoke passed, process fact contract verified, grep printed no core import from ../handlers/init-check, and koala validate returned allPass true with 3/3 covered.",
+  "outcomeDiff": "No functional difference from expected; review added one stronger tamper test before acceptance.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered",
+  "pitfalls": "Do not run metadata-writing Koala commands in parallel; parallel finding_resolve caused an index.lock race. Also test evidence with duplicate intentRef is upserted, so combine command coverage when one intent needs build plus grep.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 484427810
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 9769
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 441215
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 10781237
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 1218157
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 103018
+    }
+  },
+  "totalDurationMs": 496981210,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-05-21T19:12:50.727Z",
+  "updatedAt": "2026-05-21T19:12:50.727Z"
+}
