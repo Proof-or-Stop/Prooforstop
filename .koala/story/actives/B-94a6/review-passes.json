@@ -35,6 +35,15 @@
       "reviewRound": "2026-05-21T02:07:40.534Z",
       "reviewRunId": "B-94a6:RR-002",
       "_hash": "2833fc8a5853999b43e68fa7becbb6f3a868bfaabe9728506b3a87c27b46a656"
+    },
+    {
+      "id": "B-94a6:RP-005",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed (round 2): 17/17 verificationIntent covered, 0 missing, 0 stale. F-001 delta verified: malformed-2xx cases added to both authority-client-smoke.ts (4 client-level assertions) and authority-evidence-flow-smoke.ts (shadow + enforce loops). Shadow case asserts: threw=false, calls=1, hasEvidence=true, stderr [warning] present, warning not on stdout. Enforce case asserts: threw=true, calls=1, hasEvidence=false (zero local write). Existing 17 intent evidence mappings all intact, headHash alignment confirmed (metadata-only commits between evidence timestamp and HEAD).",
+      "createdAt": "2026-05-21T02:21:33.402Z",
+      "reviewRound": "2026-05-21T02:19:48.589Z",
+      "reviewRunId": "B-94a6:RR-008",
+      "_hash": "26b8004690331559ee1bb0bb5cf6b68e3604c406e3cd77451f29ddbc3f7aa264"
     }
   ]
 }
