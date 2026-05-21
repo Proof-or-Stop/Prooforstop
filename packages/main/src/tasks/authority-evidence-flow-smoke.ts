@@ -34,6 +34,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import {
   AuthorityClient,
+  type AuthorityClientOutcome,
   type AuthorityFetch,
 } from '../core/authority-client.js';
 import {
@@ -141,6 +142,41 @@ function createFlowStoryRepo(): { root: string; store: StoryStore } {
 // AuthorityClient would POST — but the assertion is that it never does on local fail.
 function enforceSettings(): AuthoritySettings {
   return { mode: 'enforce', baseURL: 'https://authority.test', timeoutMS: 1000 };
+}
+
+// shadow settings pointing at the fake server. In shadow ANY authority outcome must
+// keep the local write and exit 0 (Blocker 3).
+function shadowSettings(): AuthoritySettings {
+  return { mode: 'shadow', baseURL: 'https://authority.test', timeoutMS: 1000 };
+}
+
+// A fetch impl that always throws — exercises the AuthorityClient's classifyThrown
+// path (connection_refused / timeout / error) so shadow can degrade it.
+function fetchThrowing(error: Error): { calls: number; fetch: AuthorityFetch } {
+  const state = { calls: 0 } as { calls: number; fetch: AuthorityFetch };
+  state.fetch = async () => {
+    state.calls += 1;
+    throw error;
+  };
+  return state;
+}
+
+// Capture everything written to process.stderr during `fn`, restoring the original
+// writer afterward. Lets shadow cases assert the single [warning] line is emitted to
+// stderr and NOT to stdout.
+async function captureStderr(fn: () => Promise<void>): Promise<string> {
+  const original = process.stderr.write.bind(process.stderr);
+  let captured = '';
+  (process.stderr.write as unknown) = (chunk: string | Uint8Array): boolean => {
+    captured += typeof chunk === 'string' ? chunk : chunk.toString();
+    return true;
+  };
+  try {
+    await fn();
+  } finally {
+    (process.stderr.write as unknown) = original;
+  }
+  return captured;
 }
 
 function hasEvidence(store: StoryStore, itemId: string): boolean {
@@ -417,4 +453,209 @@ for (const [status, body] of [[500, 'down'], [503, 'unavailable'], [422, 'reject
   }
 }
 
-console.log('authority evidence flow smoke passed (CHK-001 scaffolding + CHK-002 Blockers 1+2)');
+// ===========================================================================
+// CHK-003 cases (Blocker 3): shadow mode is warning-only — ANY authority result
+// (success / 5xx / timeout / connection-refused / client throw) keeps the local
+// write and exits 0. Driven through the REAL handler with a shadow-mode submitter.
+//   Asserted invariants per case:
+//     - handler RESOLVES (no throw)            -> command exit 0
+//     - local evidence written                 -> write NOT blocked by authority
+//     - failures emit exactly one stderr [warning] line
+//     - the returned message (stdout) is the success message, never a warning
+// ===========================================================================
+
+// --- CHK-003 / shadow + healthy server: local write + POST + exit 0 -----------
+{
+  const { root, store } = createFlowStoryRepo();
+  try {
+    const settings = shadowSettings();
+    const server = countingFetch(200, JSON.stringify({ accepted: true, evidenceId: 'EV-shadow-ok' }));
+    const client = new AuthorityClient(settings.baseURL!, server.fetch);
+    const submitter = createAuthoritySubmitter(settings, client);
+    const handlers = createChecklistHandlers({
+      root, store, authoritySettings: settings, authoritySubmitter: submitter,
+    } as any);
+
+    let message = '';
+    const stderr = await captureStderr(async () => {
+      message = (await handlers.verification_evidence_add({
+        storyId: HANDLER_STORY_ID,
+        itemId: 'CHK-001',
+        intentRef: 'CHK-001:happy:0',
+        kind: 'integration_test',
+        note: 'shadow healthy server keeps local write and POSTs',
+      })) as string;
+    });
+
+    assert.equal(server.calls, 1, 'shadow healthy: POST happens');
+    assert.equal(hasEvidence(store, 'CHK-001'), true, 'shadow healthy: local evidence written');
+    assert.match(message, /Verification evidence recorded for CHK-001/, 'shadow healthy: success message on stdout');
+    assert.equal(stderr, '', 'shadow healthy: no warning when authority accepts');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// --- CHK-003 / shadow + failures keep local write + exit 0 + stderr [warning] --
+// Covers 5xx (http_error), timeout (AbortError), connection-refused (ECONNREFUSED).
+const shadowFailureCases: Array<{
+  label: string;
+  makeClient: (url: string) => { calls: () => number; client: AuthorityClient };
+}> = [
+  {
+    label: '5xx http_error',
+    makeClient: (url) => {
+      const server = countingFetch(503, 'service unavailable');
+      return { calls: () => server.calls, client: new AuthorityClient(url, server.fetch) };
+    },
+  },
+  {
+    label: 'timeout',
+    makeClient: (url) => {
+      const abort = Object.assign(new Error('aborted'), { name: 'AbortError' });
+      const server = fetchThrowing(abort);
+      return { calls: () => server.calls, client: new AuthorityClient(url, server.fetch) };
+    },
+  },
+  {
+    label: 'connection-refused',
+    makeClient: (url) => {
+      const refused = Object.assign(new Error('connect ECONNREFUSED'), { code: 'ECONNREFUSED' });
+      const server = fetchThrowing(refused);
+      return { calls: () => server.calls, client: new AuthorityClient(url, server.fetch) };
+    },
+  },
+];
+
+for (const { label, makeClient } of shadowFailureCases) {
+  const { root, store } = createFlowStoryRepo();
+  try {
+    const settings = shadowSettings();
+    const { calls, client } = makeClient(settings.baseURL!);
+    const submitter = createAuthoritySubmitter(settings, client);
+    const handlers = createChecklistHandlers({
+      root, store, authoritySettings: settings, authoritySubmitter: submitter,
+    } as any);
+
+    let message = '';
+    let threw = false;
+    const stderr = await captureStderr(async () => {
+      try {
+        message = (await handlers.verification_evidence_add({
+          storyId: HANDLER_STORY_ID,
+          itemId: 'CHK-001',
+          intentRef: 'CHK-001:happy:0',
+          kind: 'integration_test',
+          note: `shadow ${label} must keep local write`,
+        })) as string;
+      } catch {
+        threw = true;
+      }
+    });
+
+    assert.equal(threw, false, `shadow ${label}: handler must NOT throw (exit 0)`);
+    assert.equal(calls(), 1, `shadow ${label}: POST attempted`);
+    assert.equal(hasEvidence(store, 'CHK-001'), true, `shadow ${label}: local evidence written (not blocked)`);
+    assert.match(message, /Verification evidence recorded for CHK-001/, `shadow ${label}: success message on stdout`);
+    assert.match(stderr, /^\[warning\] authority POST failed \(shadow, local write kept\)/m, `shadow ${label}: one stderr warning`);
+    // The warning must NOT leak into the returned (stdout) message.
+    assert.doesNotMatch(message, /\[warning\]/, `shadow ${label}: warning not on stdout`);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// --- CHK-003 / shadow + client THROW (non-HTTP exception escaping classify) ----
+// The defining Blocker-3 case (preMortem #2): the authority client itself throws an
+// exception that is NOT an outcome (e.g. a bug / serialization error). The submitter
+// catch-all must degrade it to a warning with proceed=true so the command does not
+// crash and the local write still happens.
+{
+  const { root, store } = createFlowStoryRepo();
+  try {
+    const settings = shadowSettings();
+    // Fake AuthorityClient whose submitEvidence throws OUTSIDE the client's own
+    // try/catch (simulating a non-classified throw escaping into the submitter).
+    const throwingClient = {
+      baseURL: settings.baseURL!,
+      submitEvidence(): Promise<AuthorityClientOutcome<unknown>> {
+        throw new TypeError('boom: non-HTTP exception escaping the client');
+      },
+      submitEvidenceBatch(): Promise<AuthorityClientOutcome<unknown>> {
+        throw new TypeError('boom: non-HTTP exception escaping the client');
+      },
+    } as unknown as AuthorityClient;
+    const submitter = createAuthoritySubmitter(settings, throwingClient);
+    const handlers = createChecklistHandlers({
+      root, store, authoritySettings: settings, authoritySubmitter: submitter,
+    } as any);
+
+    let message = '';
+    let threw = false;
+    const stderr = await captureStderr(async () => {
+      try {
+        message = (await handlers.verification_evidence_add({
+          storyId: HANDLER_STORY_ID,
+          itemId: 'CHK-001',
+          intentRef: 'CHK-001:happy:0',
+          kind: 'integration_test',
+          note: 'shadow client throw must be degraded, not crash the command',
+        })) as string;
+      } catch {
+        threw = true;
+      }
+    });
+
+    assert.equal(threw, false, 'shadow client throw: handler must NOT crash (Blocker 3)');
+    assert.equal(hasEvidence(store, 'CHK-001'), true, 'shadow client throw: local evidence written (not blocked)');
+    assert.match(message, /Verification evidence recorded for CHK-001/, 'shadow client throw: success message on stdout');
+    assert.match(stderr, /^\[warning\] authority POST failed \(shadow, local write kept\): boom/m, 'shadow client throw: degraded to one stderr warning');
+    assert.doesNotMatch(message, /\[warning\]/, 'shadow client throw: warning not on stdout');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// --- CHK-003 / shadow batch + failure keeps ALL local writes + exit 0 ----------
+{
+  const { root, store } = createFlowStoryRepo();
+  try {
+    const settings = shadowSettings();
+    const refused = Object.assign(new Error('connect ECONNREFUSED'), { code: 'ECONNREFUSED' });
+    const server = fetchThrowing(refused);
+    const client = new AuthorityClient(settings.baseURL!, server.fetch);
+    const submitter = createAuthoritySubmitter(settings, client);
+    const handlers = createChecklistHandlers({
+      root, store, authoritySettings: settings, authoritySubmitter: submitter,
+    } as any);
+
+    let message = '';
+    let threw = false;
+    const stderr = await captureStderr(async () => {
+      try {
+        message = (await handlers.verification_evidence_batch_add({
+          storyId: HANDLER_STORY_ID,
+          evidences: [
+            { itemId: 'CHK-001', intentRef: 'CHK-001:happy:0', kind: 'integration_test', note: 'shadow batch entry one' },
+            { itemId: 'CHK-001', intentRef: 'CHK-001:edge:0', kind: 'integration_test', note: 'shadow batch entry two' },
+          ],
+        })) as string;
+      } catch {
+        threw = true;
+      }
+    });
+
+    assert.equal(threw, false, 'shadow batch failure: handler must NOT throw (exit 0)');
+    assert.equal(server.calls, 1, 'shadow batch failure: single batch POST attempted');
+    const cl = store.readChecklist(HANDLER_STORY_ID);
+    const evidence = cl.items.find(i => i.id === 'CHK-001')?.verificationEvidence ?? [];
+    assert.equal(evidence.length, 2, 'shadow batch failure: ALL local entries written (not blocked)');
+    assert.match(message, /Verification evidence batch recorded/, 'shadow batch failure: success message on stdout');
+    assert.match(stderr, /^\[warning\] authority batch POST failed \(shadow, local writes kept\)/m, 'shadow batch failure: one stderr warning');
+    assert.doesNotMatch(message, /\[warning\]/, 'shadow batch failure: warning not on stdout');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+console.log('authority evidence flow smoke passed (CHK-001 scaffolding + CHK-002 Blockers 1+2 + CHK-003 shadow Blocker 3)');

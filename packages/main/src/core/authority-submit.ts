@@ -194,18 +194,47 @@ export function createAuthoritySubmitter(
     return { proceed: false, error: err };
   }
 
+  /**
+   * Catch-all shadow degradation (Blocker 3 / preMortem #2). The AuthorityClient
+   * already classifies transport / HTTP failures into an outcome, but a NON-outcome
+   * throw can still escape: a bug in buildEnvelope, a fake client whose method throws,
+   * a synchronous fetch impl error, a JSON/serialization error, etc. In shadow mode
+   * NONE of these may crash the command or block the local write — they degrade to a
+   * single stderr [warning] with proceed=true. In enforce mode the throw is converted
+   * into a gating error (proceed=false) so it still blocks the local write, but as a
+   * controlled decision rather than an uncaught exception bubbling out of the handler.
+   */
+  function degradeThrow(err: unknown): AuthoritySubmitDecision {
+    const reason = err instanceof Error ? err.message : String(err);
+    if (mode === 'shadow') {
+      return { proceed: true, warning: `[warning] authority POST failed (shadow, local write kept): ${reason}` };
+    }
+    return {
+      proceed: false,
+      error: err instanceof Error ? err : new Error(`authority POST failed (enforce, no local write): ${reason}`),
+    };
+  }
+
   return {
     async submitSingle(material) {
-      const { client: c, missingURLError } = resolveClient();
-      if (!c) return handleMissingURL(missingURLError!);
-      const outcome = await c.submitEvidence(buildEnvelope(material));
-      return decideFromSingle(mode, outcome);
+      try {
+        const { client: c, missingURLError } = resolveClient();
+        if (!c) return handleMissingURL(missingURLError!);
+        const outcome = await c.submitEvidence(buildEnvelope(material));
+        return decideFromSingle(mode, outcome);
+      } catch (err) {
+        return degradeThrow(err);
+      }
     },
     async submitBatch(materials) {
-      const { client: c, missingURLError } = resolveClient();
-      if (!c) return handleMissingURL(missingURLError!);
-      const outcome = await c.submitEvidenceBatch(materials.map(buildEnvelope));
-      return decideFromBatch(mode, outcome);
+      try {
+        const { client: c, missingURLError } = resolveClient();
+        if (!c) return handleMissingURL(missingURLError!);
+        const outcome = await c.submitEvidenceBatch(materials.map(buildEnvelope));
+        return decideFromBatch(mode, outcome);
+      } catch (err) {
+        return degradeThrow(err);
+      }
     },
   };
 }
