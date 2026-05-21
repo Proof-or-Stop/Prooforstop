@@ -126,7 +126,20 @@
         "test": [
           "packages/main/tests/checklist.test.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/checklist-reload-hint-smoke.ts",
+          "command": "npm --prefix packages/main run test:checklist-reload-hint-smoke",
+          "result": "pass",
+          "note": "Test 1: after a successful checklist_update write, stderr carries the ↻ reload reminder naming the final persisted status (read-after-write).",
+          "headHash": "7b126f2f6d627cf91fc6915dea92dbaab932ee63",
+          "materialHash": "3a64610c3e4916c07cae685c111b66e5e05e53f1b546066b24965aa52f13bdab",
+          "timestamp": "2026-05-21T22:36:14.777Z"
+        }
+      ]
     }
   ],
   "auditLog": [
