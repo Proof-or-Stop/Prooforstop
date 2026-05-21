@@ -5,11 +5,49 @@
       "title": "Extract recomputeInitCheckHash / blockingInitCheckIssues / missingRequiredInitCheckAgents into a core module",
       "context": "core/machine.ts:8 imports blockingInitCheckIssues / missingRequiredInitCheckAgents / recomputeInitCheckHash from ../handlers/init-check.js — a core->handlers upward layer violation, same type as the delivery-check hash issue fixed in B-37e9 F-001. These three init-check primitives only need StoryStore + crypto (pure core dependencies). Move them into core/init-check-hash.ts (or core/init-check-gate.ts); have handlers/init-check.ts and core/machine.ts both consume the core module, single implementation. Do not change INIT_CHECK phase semantics, do not change the reviewer flow. Analysis-and-relocation backlog — does not block main.",
       "relatedDocs": [
-        "docs/requirements/decisions/story-lifecycle.md"
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/stack-layering.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "After completion, core/machine.ts imports init-check primitives from core, grep shows no core import from handlers/init-check, and init-check bootstrap/worktree authority validation still passes.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/init-check.ts",
+          "packages/main/src/core/machine.ts"
+        ],
+        "create": [
+          "packages/main/src/core/init-check-gate.ts"
+        ],
+        "test": [
+          "scripts/verify-init-check-bootstrap.mjs",
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Extract init-check hash/gate primitives into core and rewire handler plus machine to consume that module; npm run build passes.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing init_check_set records from both required reviewers still satisfy INIT_CHECK, including agentId fallback and reviewer prefix matching.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Missing required reviewer, high/critical issue, or stale hash still blocks INIT_CHECK; no core source imports handlers/init-check after refactor.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
