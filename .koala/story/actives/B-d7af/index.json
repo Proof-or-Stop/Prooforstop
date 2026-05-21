@@ -4,7 +4,7 @@
   "title": "Extract init-check gate/hash primitives out of handlers for core machine",
   "description": "Backlog item recorded during B-37e9 (DONE Oracle Extraction) wrap-up on 2026-05-16. B-37e9 F-001 fixed a core/done-oracle.ts -> handlers/delivery-check.js layer violation by extracting delivery-check hash primitives into core/delivery-check-hash.ts. The same review surfaced an identical pre-existing violation: core/machine.ts:8 imports blockingInitCheckIssues / missingRequiredInitCheckAgents / recomputeInitCheckHash from ../handlers/init-check.js. core/ must not depend upward on handlers/ — and machine.ts (the xstate state machine config) carrying a reverse dependency on a handler shell is especially wrong. The three init-check primitives only need StoryStore + crypto, so the same extraction pattern applies: move them into a core module, have both handlers/init-check.ts and core/machine.ts consume core. Tracked backlog: not to be fixed now, does not block main. Out of scope: no INIT_CHECK semantics change, no reviewer flow change. Recorded as a separate story from B-4622 (scope_check_save gap) and B-da5b (heartbeat orphan) because the subject differs.",
   "type": "refactor",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "layer-violation",
@@ -70,6 +70,14 @@
       "branch": "story/B-d7af",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-21T18:57:58.925Z",
+      "branch": "story/B-d7af",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -77,5 +85,5 @@
     "branch": "story/B-d7af",
     "createdAt": "2026-05-21T15:43:37.597Z"
   },
-  "currentReviewRound": "2026-05-21T16:02:21.672Z"
+  "currentReviewRound": "2026-05-21T18:57:58.925Z"
 }
