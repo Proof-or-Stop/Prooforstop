@@ -103,6 +103,17 @@
           "headHash": "560ff66dc01f37316e80c55e2d8969dc10952d70",
           "materialHash": "fab7371f512bac4006554e23fd396e7d715160a95de15f4428b3997577f7ba61",
           "timestamp": "2026-05-21T01:52:12.307Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/command-ownership-contract.ts",
+          "command": "npm run test:command-ownership-contract",
+          "result": "pass",
+          "note": "未新增 koala 命令（authority 走既有 verification_evidence_add/batch_add 参数）；command-ownership-contract 通过——96 命令全部分类，无未分类命令",
+          "headHash": "11e1acf0af75ae71f76f7685cd6d710555406f0a",
+          "materialHash": "fab7371f512bac4006554e23fd396e7d715160a95de15f4428b3997577f7ba61",
+          "timestamp": "2026-05-21T01:52:12.607Z"
         }
       ]
     },
