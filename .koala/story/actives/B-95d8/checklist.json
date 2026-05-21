@@ -45,7 +45,31 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "每次 checklist_update 写入后，结论文本之后看到一行 reload 软提醒：\n  ✓ CHK-xxx status → done\n  ↻ 提示：已写入 story 状态，长会话请重新加载（koala checklist_get / session_brief）后再依赖快照\n该提醒不改变写结果；koala checklist_update | tail 等管道只消费结论，提示不污染 stdout。",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "checklist_update 写入成功后，输出中结论文本之后出现 reload 软提醒行",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "reload 提示不污染 stdout（走 stderr 或与结论明确分隔），管道只取 stdout 结论仍正确解析",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "reload 提示纯附加：同一 update 的写入结果（status/字段持久化）与无提示版本逐字段一致，写语义不变",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
