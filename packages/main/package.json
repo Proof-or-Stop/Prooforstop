@@ -51,7 +51,10 @@
     "test:meta-story-next-hint-smoke": "node dist/tasks/meta-story-next-hint-smoke.js",
     "test:evidence-state-gate-smoke": "node dist/tasks/evidence-state-gate-smoke.js",
     "test:gap-log-smoke": "node dist/tasks/gap-log-smoke.js",
-    "test:verification-context-pack": "node dist/tasks/verification-context-pack-smoke.js"
+    "test:verification-context-pack": "node dist/tasks/verification-context-pack-smoke.js",
+    "test:authority-client": "node dist/tasks/authority-client-smoke.js",
+    "test:authority-evidence-flow": "node dist/tasks/authority-evidence-flow-smoke.js",
+    "test:verification-evidence-authority-handler": "node dist/tasks/verification-evidence-authority-handler-smoke.js"
   },
   "dependencies": {
     "@koala-agent/lab": "0.3.1",

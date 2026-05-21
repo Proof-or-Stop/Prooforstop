@@ -441,3 +441,98 @@ export function prepareEvidenceEnvelopeForSigning(
     inspectedPackRefs: unsigned.inspectedPackRefs ?? [],
   };
 }
+
+// ===========================================================================
+// Authority submission protocol (B-94a6, additive)
+//
+// NEW exports only. None of the B-2157 VCP exports above are modified — these
+// describe the request/response shapes for POSTing an EvidenceEnvelopeContract
+// to the cross-repo Python authority server (verification-context-pack.md is the
+// shared truth source). Kept intentionally minimal: only the single + batch
+// evidence submission shapes that authority-client.ts needs.
+// ===========================================================================
+
+/** Single-evidence submission request body sent to the authority server. */
+export interface AuthorityEvidenceSubmission {
+  evidence: EvidenceEnvelopeContract;
+}
+
+/** Batch-evidence submission request body — all-or-nothing on the server side. */
+export interface AuthorityEvidenceBatchSubmission {
+  evidences: EvidenceEnvelopeContract[];
+}
+
+/**
+ * Per-entry acceptance status the authority server may return for a batch.
+ * `accepted: false` on ANY entry maps to a whole-batch failure in the client
+ * (preMortem #3: partial acceptance must not produce a partial local write).
+ */
+export interface AuthorityEvidenceEntryResult {
+  accepted: boolean;
+  evidenceId?: string;
+  reason?: string;
+}
+
+/** Authority server response to a single-evidence submission. */
+export interface AuthorityEvidenceSubmissionResult {
+  accepted: boolean;
+  evidenceId?: string;
+  reason?: string;
+  record?: unknown;
+  receipt?: unknown;
+}
+
+/** Authority server response to a batch-evidence submission. */
+export interface AuthorityEvidenceBatchSubmissionResult {
+  accepted: boolean;
+  results?: AuthorityEvidenceEntryResult[];
+  reason?: string;
+}
+
+export const AuthorityEvidenceEntryResultSchema = z.object({
+  accepted: z.boolean(),
+  evidenceId: z.string().optional(),
+  reason: z.string().optional(),
+}).passthrough();
+
+export const AuthorityEvidenceSubmissionResultSchema = z.object({
+  accepted: z.boolean(),
+  evidenceId: z.string().optional(),
+  reason: z.string().optional(),
+  record: z.unknown().optional(),
+  receipt: z.unknown().optional(),
+}).passthrough();
+
+export const AuthorityEvidenceBatchSubmissionResultSchema = z.object({
+  accepted: z.boolean(),
+  results: z.array(AuthorityEvidenceEntryResultSchema).optional(),
+  reason: z.string().optional(),
+}).passthrough();
+
+/** Build the request body for a single-evidence submission. */
+export function buildAuthorityEvidenceSubmission(
+  evidence: EvidenceEnvelopeContract,
+): AuthorityEvidenceSubmission {
+  return { evidence };
+}
+
+/** Build the request body for a batch-evidence submission. */
+export function buildAuthorityEvidenceBatchSubmission(
+  evidences: EvidenceEnvelopeContract[],
+): AuthorityEvidenceBatchSubmission {
+  return { evidences: [...evidences] };
+}
+
+/**
+ * Determine whether a batch result represents whole-batch acceptance.
+ * Returns false if the top-level `accepted` is false OR any per-entry result is
+ * not accepted — enforcing all-or-nothing so a partial accept never yields a
+ * partial local write (preMortem #3).
+ */
+export function isAuthorityBatchFullyAccepted(
+  result: AuthorityEvidenceBatchSubmissionResult,
+): boolean {
+  if (!result.accepted) return false;
+  if (result.results && result.results.some(entry => !entry.accepted)) return false;
+  return true;
+}
