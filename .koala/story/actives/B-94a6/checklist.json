@@ -121,9 +121,9 @@
       "id": "CHK-002",
       "title": "Wire authority POST into verification_evidence_add and batch_add with local-validation-first invariant (Blockers 1+2)",
       "context": "In `packages/main/src/handlers/checklist.ts` `verification_evidence_add` (~line 457) and `verification_evidence_batch_add` (~line 508): all existing local validation (storyId / itemId / intentRef / note ≥ 5 chars / waiverType-kind constraints / checklist item must exist / etc.) stays INSIDE `withChecklistLock` and runs FIRST. Only AFTER local validation passes AND the local evidence write commits may the authority client be invoked. Hard invariant: a regression test constructs a deliberate local failure (itemId='CHK-MISSING' / trimmed note < 5 chars / kind='waiver' with no waiverType) and asserts the authority server receives EXACTLY 0 POSTs — Blockers 1 + 2. For batch_add the same applies per-entry: a single entry's local failure must not leak a partial-POST tail; either all entries pass local validation and authority sees a coherent batch, or 0 POSTs are made. Do NOT submit authority outside the lock; do NOT submit before local checks; do NOT cherry-pick stash@{3}'s checklist.ts (it has submitChecklistAuthorityEvidence at line 551 / 605 BEFORE withChecklistLock — that's exactly the bug this story rules out).",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-21T01:54:30.386Z",
-      "endTime": null,
+      "endTime": "2026-05-21T01:59:36.135Z",
       "userSees": "npm run test:authority-evidence-flow exits 0 including the explicit regression: invalid itemId → command exits non-zero locally, authority server POST counter = 0. Same for batch: any entry locally invalid → 0 POSTs across the whole batch.",
       "verificationIntent": {
         "happy": [
