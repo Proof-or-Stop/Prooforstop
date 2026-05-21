@@ -58,7 +58,39 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Koala no longer falsely blocks story evidence commits, while real code changes still require fresh verification before DONE."
+      "userSees": "Koala no longer falsely blocks story evidence commits, while real code changes still require fresh verification before DONE.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "verification-freshness smoke covers uppercase Docs/story metadata for isMaterialExcludedPath, head-diff freshness, materialHash freshness, and coverage status.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "field regression validate CLI surface passes for metadata-only story evidence commits so a committed evidence update remains covered instead of stale.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The same smoke keeps real material paths stale, proving the Docs/story exemption does not allow weak evidence to pass after source/package/config changes.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
