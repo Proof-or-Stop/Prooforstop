@@ -10,7 +10,31 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "在受控条件下运行 fallback/repair 命令后终端看到：\n  ✓ init-check.json 已生成（fallback 通道，签名域不变）\n  ⚠ fallback 已记入审计事件（actor/mode），未绕过签名校验\n  → 现在可运行 koala story_advance --storyId=B-95d8 --phase=INIT_CHECK\n随后 story_advance INIT_CHECK 不再报 [missing_init_check]，正常创建 worktree；若缺 opt-in/受控条件则命令拒绝并打印清晰错误、不产出文件。",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "受控条件下 repair 产出合法签名 init-check.json，随后 story_advance INIT_CHECK 通过、创建 worktree",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "缺 opt-in/受控条件时 repair 拒绝并给清晰错误，不产出任何文件、不改变 phase",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "repair 不绕过签名：产物经 guard 重算 _hash 与 signInitCheck 一致并通过 canEnterInitCheck；篡改 background/title/description/checklist 任一后旧 init-check 仍被判 init_check_tampered",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
