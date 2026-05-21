@@ -358,6 +358,17 @@
           "headHash": "c8d31969b83b1ad44bf7073a973db60da1312afd",
           "materialHash": "33e84b70b39ae8c127abcde1188122dce846e9eaa8c83ad05f2116b85d5d08a4",
           "timestamp": "2026-05-21T02:05:55.327Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/authority-evidence-flow-smoke.ts",
+          "command": "npm run test:authority-evidence-flow",
+          "result": "pass",
+          "note": "enforce + failing server cases (5xx http_error / timeout AbortError / connection-refused ECONNREFUSED / authority-rejected 200+accepted:false): each handler throws a controlled gating error, exactly one POST attempted, re-read on-disk checklist shows ZERO local write — exit non-zero with no divergence",
+          "headHash": "91c7483b37a53ebed605d8d624cc6a66ff62db76",
+          "materialHash": "33e84b70b39ae8c127abcde1188122dce846e9eaa8c83ad05f2116b85d5d08a4",
+          "timestamp": "2026-05-21T02:05:59.611Z"
         }
       ]
     }
