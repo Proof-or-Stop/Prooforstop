@@ -11,7 +11,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "After validation evidence is committed in a repo using Docs/story/..., session_brief/DONE pre-check reports Evidence freshness PASS rather than another stale loop.",
+      "userSees": "DONE pre-check prints \"[PASS] Evidence freshness\" after committing Docs/story/actives/.../test-evidence.json instead of \"EVIDENCE STALE\" naming Docs/story paths.",
       "files": {
         "modify": [
           "packages/main/src/core/evidence-freshness.ts",
