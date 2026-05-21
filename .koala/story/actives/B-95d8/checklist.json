@@ -34,6 +34,19 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/init-check.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/guard-utils.ts",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "CLAUDE.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/init-check.test.ts"
+        ]
       }
     },
     {
