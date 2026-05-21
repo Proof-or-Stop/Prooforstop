@@ -2737,7 +2737,11 @@ const inventory = [
     files: [
       {
         relPath: 'packages/main/src/handlers/init-check.ts',
-        patterns: ['init_check_set', 'signInitCheck', { label: 'validateInitCheck/current recompute gate helpers', any: ['validateInitCheck', 'recomputeInitCheckHash'] }],
+        patterns: ['init_check_set', 'computeBackgroundHash', 'computeChecklistHash'],
+      },
+      {
+        relPath: 'packages/main/src/core/init-check-gate.ts',
+        patterns: ['INIT_CHECK_SALT', 'signInitCheck', 'recomputeInitCheckHash', 'missingRequiredInitCheckAgents', 'blockingInitCheckIssues'],
       },
       {
         relPath: 'packages/main/src/core/machine.ts',

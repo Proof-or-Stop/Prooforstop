@@ -83,6 +83,33 @@ try {
   run(root, 'init_check_set', { storyId, issues: [{ severity: 'medium', desc: 'Product wording could be clearer but is not blocking.' }], agent: 'product-reviewer' });
   const advanced = run(root, 'story_advance', { storyId, phase: 'INIT_CHECK' });
   assert.match(advanced, /advanced to INIT_CHECK/);
+
+  const tamperCreated = run(root, 'story_create', {
+    name: 'init-check-tamper',
+    title: 'Init tamper gate',
+    description: 'Verify INIT_CHECK rejects stale init-check signatures.',
+    type: 'chore',
+    priority: 'medium',
+    background: [
+      '## 触发事件',
+      '2026-05-01 B-0000 smoke needs a stale signature case so init_check_tampered cannot regress silently.',
+      '## 关键洞察',
+      'The signature binds story title, description, background, checklist and review round; changing one after init_check_set must block.',
+      '## 方案取舍',
+      'The smoke uses story_update to mutate signed story metadata instead of editing JSON directly, preserving the public CLI path.',
+      '## 对话纹理',
+      'A maintainer sees init_check_tampered when a reviewer pass was recorded against an older story snapshot.',
+    ].join('\n\n'),
+    checklist: [{ title: 'Verify tamper blocker', context: 'Stale init-check hash must prevent INIT_CHECK.' }],
+  });
+  const tamperStoryId = tamperCreated.match(/B-[a-f0-9]+/)?.[0];
+  assert.ok(tamperStoryId, 'story_create should return tamper story id');
+
+  run(root, 'init_check_set', { storyId: tamperStoryId, issues: [], agentId: 'koala-review-story-init' });
+  run(root, 'init_check_set', { storyId: tamperStoryId, issues: [], agentId: 'product-reviewer' });
+  run(root, 'story_update', { storyId: tamperStoryId, title: 'Init tamper gate changed after review' });
+  const tampered = run(root, 'story_advance', { storyId: tamperStoryId, phase: 'INIT_CHECK' }, true);
+  assert.match(tampered, /init_check_tampered/);
 } finally {
   rmSync(root, { recursive: true, force: true });
 }

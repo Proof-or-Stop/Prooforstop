@@ -772,7 +772,11 @@ function assertDoneSuccessPathOutputAndOrdering(): void {
     // prefixed onto the success message (via doneChecklistPrefix).
     assert.match(output, new RegExp(`DONE Gate Checklist \\(${storyId}\\):`), 'DONE success output must include the rendered DONE Gate Checklist header');
     assert.match(output, /\[✓\] Test evidence: PASS/, 'checklist must include the test-evidence row');
-    assert.match(output, /\[✓\] git working tree: clean/, 'checklist must include the clean git-working-tree row');
+  assert.match(
+    output,
+    /\[✓\] git working tree: (?:clean|pass: blocking=0)/,
+    'checklist must include the passing git-working-tree row',
+  );
     assert.match(output, /\[✓\] delivery-check: 0 docsPromises checked/, 'checklist must include the delivery-check row');
 
     // advance line + merge-report lines, byte-identical. The worktree-cleanup

@@ -1,0 +1,46 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-05-21T15:47:25.143Z",
+      "issueCount": 4,
+      "blockerCount": 2,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 1 个高风险信号: 状态机/门禁。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/tasks/init-check-required-agents-smoke.ts 未被任何 checklist item 的 files 字段覆盖（请为相应 item 的 files.modify/create/test 加上此路径或用 excludes 显式排除）"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "未跑 scope check。请先启动 koala-review-scope-plan agent，agent 会自动调 scope_check_save 写入结果"
+        }
+      ],
+      "_hash": "f2d17c78ecbb492cfbf6d0f77c2b9a2d3aadccc530968179ba9472d76d5b06d3"
+    },
+    {
+      "timestamp": "2026-05-21T15:50:42.073Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 1 个高风险信号: 状态机/门禁。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）"
+        }
+      ],
+      "_hash": "f20b5edab092013baba25c0bd6a9a03d1b74b807a1a0087fc98a38870aac6151"
+    }
+  ]
+}

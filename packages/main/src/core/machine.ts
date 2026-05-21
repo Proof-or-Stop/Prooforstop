@@ -5,7 +5,7 @@ import { createHash } from 'crypto';
 import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
 import type { Finding } from './types.js';
-import { blockingInitCheckIssues, missingRequiredInitCheckAgents, recomputeInitCheckHash } from '../handlers/init-check.js';
+import { blockingInitCheckIssues, missingRequiredInitCheckAgents, recomputeInitCheckHash } from './init-check-gate.js';
 import { recomputeDeliveryCheckHash } from './delivery-check-hash.js';
 import { getBlockingVerificationEvidenceIssues } from './verification.js';
 import { normalizeLegacyPhase } from './phase-flow.js';

@@ -5,11 +5,108 @@
       "title": "Extract recomputeInitCheckHash / blockingInitCheckIssues / missingRequiredInitCheckAgents into a core module",
       "context": "core/machine.ts:8 imports blockingInitCheckIssues / missingRequiredInitCheckAgents / recomputeInitCheckHash from ../handlers/init-check.js — a core->handlers upward layer violation, same type as the delivery-check hash issue fixed in B-37e9 F-001. These three init-check primitives only need StoryStore + crypto (pure core dependencies). Move them into core/init-check-hash.ts (or core/init-check-gate.ts); have handlers/init-check.ts and core/machine.ts both consume the core module, single implementation. Do not change INIT_CHECK phase semantics, do not change the reviewer flow. Analysis-and-relocation backlog — does not block main.",
       "relatedDocs": [
-        "docs/requirements/decisions/story-lifecycle.md"
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/stack-layering.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-21T15:56:30.614Z",
+      "endTime": "2026-05-21T16:01:47.884Z",
+      "userSees": "Expected verification transcript includes exact lines: npm run build -> exit 0; npm run test:init-check-bootstrap -> exit 0; npm run test:worktree-authority-smoke -> exit 0; rg \"from \\x27..\\/handlers\\/init-check|from \\\"..\\/handlers\\/init-check\" packages/main/src/core -> no matches.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/init-check.ts",
+          "packages/main/src/core/machine.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [
+          "packages/main/src/core/init-check-gate.ts"
+        ],
+        "test": [
+          "scripts/verify-init-check-bootstrap.mjs",
+          "scripts/verify-process-fact-contract.mjs",
+          "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Extract init-check hash/gate primitives into core and rewire handler plus machine to consume that module; npm run build passes.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing init_check_set records from both required reviewers still satisfy INIT_CHECK, including agentId fallback and reviewer prefix matching.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Missing required reviewer, high/critical issue, or stale hash still blocks INIT_CHECK; no core source imports handlers/init-check after refactor.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "command": "npm run build && if rg \"../handlers/init-check\" packages/main/src/core; then exit 1; else echo \"no core import from ../handlers/init-check\"; fi",
+          "result": "pass",
+          "note": "Covers both happy requirements: TypeScript build passes after the extraction and core has no upward init-check handler import.",
+          "headHash": "3979aafca77154f22f4db784a67579db242306f7",
+          "materialHash": "3a64610c3e4916c07cae685c111b66e5e05e53f1b546066b24965aa52f13bdab",
+          "timestamp": "2026-05-21T18:57:06.966Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+          "command": "node packages/main/dist/tasks/init-check-required-agents-smoke.js",
+          "result": "pass",
+          "note": "Required-reviewer, missing product-reviewer, high issue blocker, product-reviewer agent fallback, and medium advisory pass behavior are covered by this smoke.",
+          "headHash": "3979aafca77154f22f4db784a67579db242306f7",
+          "materialHash": "3a64610c3e4916c07cae685c111b66e5e05e53f1b546066b24965aa52f13bdab",
+          "timestamp": "2026-05-21T18:57:06.966Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+          "command": "node packages/main/dist/tasks/init-check-required-agents-smoke.js && if rg \"../handlers/init-check\" packages/main/src/core; then exit 1; else echo \"no core import from ../handlers/init-check\"; fi",
+          "result": "pass",
+          "note": "Covers stale init-check hash rejection through init_check_tampered, missing/high init reviewer blockers, and the post-refactor core import guard.",
+          "headHash": "3979aafca77154f22f4db784a67579db242306f7",
+          "materialHash": "3a64610c3e4916c07cae685c111b66e5e05e53f1b546066b24965aa52f13bdab",
+          "timestamp": "2026-05-21T18:57:06.966Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-05-21T15:56:30.614Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Claude Code implementation started in DEV worktree",
+      "agent": "koala-implementer"
+    },
+    {
+      "timestamp": "2026-05-21T16:01:47.884Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementation committed and verification evidence recorded",
+      "agent": "koala-implementer"
     }
   ]
 }
