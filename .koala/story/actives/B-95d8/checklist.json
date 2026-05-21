@@ -70,6 +70,17 @@
           "headHash": "45e55af363ce7eaea069df6d6a154d6d7a5801d8",
           "materialHash": "3a64610c3e4916c07cae685c111b66e5e05e53f1b546066b24965aa52f13bdab",
           "timestamp": "2026-05-21T22:30:46.517Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/init-check-fallback-smoke.ts",
+          "command": "npm --prefix packages/main run test:init-check-fallback-smoke",
+          "result": "pass",
+          "note": "Test 3: editing signed story title after fallback triggers init_check_tampered; Extra: operator-attested high issue still hits init_check_blocking_issues. Signature not bypassed.",
+          "headHash": "04052b01e2056b2b3e98278b0e79c4ebf2e1ffc2",
+          "materialHash": "3a64610c3e4916c07cae685c111b66e5e05e53f1b546066b24965aa52f13bdab",
+          "timestamp": "2026-05-21T22:30:47.088Z"
         }
       ]
     },
