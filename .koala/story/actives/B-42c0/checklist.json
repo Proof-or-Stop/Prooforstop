@@ -467,9 +467,44 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-22T01:03:51.209Z",
-      "endTime": null
+      "endTime": "2026-05-22T01:07:25.686Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run build && npm run test:story-capsule-smoke",
+          "result": "pass",
+          "note": "Smoke adds more run/import/process-event references than the retention limits and verifies capsule keeps bounded current refs while preserving older run/import artifacts.",
+          "headHash": "3335732b6318d7293e833d1519f3efd778e17369",
+          "materialHash": "d59be909543712d06c1267969d12c36dc3a745c60cdf373f18edc1433508e62e",
+          "timestamp": "2026-05-22T01:07:25.724Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run build && npm run test:story-capsule-smoke",
+          "result": "pass",
+          "note": "Smoke writes oversized summary and nextAction through capsule_update and verifies stored fields are bounded by CAPSULE_LIMITS.",
+          "headHash": "3335732b6318d7293e833d1519f3efd778e17369",
+          "materialHash": "d59be909543712d06c1267969d12c36dc3a745c60cdf373f18edc1433508e62e",
+          "timestamp": "2026-05-22T01:07:25.752Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run test:story-capsule-smoke && npm run test:process-fact-contract && npm --prefix packages/main run test:command-ownership-contract && npm --prefix packages/main run test:lifecycle-registry-contract && npm run test:session-brief",
+          "result": "pass",
+          "note": "Smoke forges oversized and authoritative capsule/import references and verifies capsule_show --strict rejects them; contract tests confirm command policy/session behavior stays valid.",
+          "headHash": "3335732b6318d7293e833d1519f3efd778e17369",
+          "materialHash": "d59be909543712d06c1267969d12c36dc3a745c60cdf373f18edc1433508e62e",
+          "timestamp": "2026-05-22T01:07:25.780Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -544,6 +579,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Starting bounded handoff retention and anti-duplication boundary implementation."
+    },
+    {
+      "timestamp": "2026-05-22T01:07:25.686Z",
+      "phase": "DEV",
+      "itemId": "CHK-007",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Capsule retention and anti-duplication boundary implemented and verified."
     }
   ]
 }
