@@ -339,9 +339,9 @@
         "docs/requirements/decisions/verification-context-pack.md",
         "docs/requirements/decisions/truth-source.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-05-22T01:21:50.758Z",
       "userSees": "A forged capsule/session-brief.md saying all done still produces a capsule validation warning/error for missing evidence refs, and story_advance DONE remains blocked by the normal evidence gates.",
       "files": {
         "modify": [
@@ -376,7 +376,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run build && npm run test:story-capsule-smoke",
+          "result": "pass",
+          "note": "Smoke asserts valid evidenceRef+processEventRef shows Ref health: ok after capsule_update with matching checklist intentRef and correct process-event line/type.",
+          "headHash": "02372683f4069fdc53a7ed780cf0d5ca6186051e",
+          "materialHash": "9d218c408211c3845f75bba1ad8e35ec370a28556236e872ca99ef12e41a0177",
+          "timestamp": "2026-05-22T01:21:50.791Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run test:story-capsule-smoke",
+          "result": "pass",
+          "note": "Smoke asserts non-strict capsule_show with a missing evidence path shows the error text in output without crashing.",
+          "headHash": "02372683f4069fdc53a7ed780cf0d5ca6186051e",
+          "materialHash": "9d218c408211c3845f75bba1ad8e35ec370a28556236e872ca99ef12e41a0177",
+          "timestamp": "2026-05-22T01:21:50.817Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run test:story-capsule-smoke",
+          "result": "pass",
+          "note": "Smoke forges session-brief.md with all-done prose then asserts strict capsule_show still reports capsule refs invalid because validation reads capsule.json not session-brief.md.",
+          "headHash": "02372683f4069fdc53a7ed780cf0d5ca6186051e",
+          "materialHash": "9d218c408211c3845f75bba1ad8e35ec370a28556236e872ca99ef12e41a0177",
+          "timestamp": "2026-05-22T01:21:50.843Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
