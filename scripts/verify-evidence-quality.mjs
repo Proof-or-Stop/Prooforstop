@@ -152,6 +152,7 @@ check(typeof ver.getBlockingVerificationEvidenceIssues === 'function', 'getBlock
   // strict: getBlockingVerificationEvidenceIssues returns blocking issues for weak evidence
   const strictIssues = ver.getBlockingVerificationEvidenceIssues(cl, undefined, 'strict');
   check(strictIssues.length > 0, `strict profile must block weak evidence through getBlockingVerificationEvidenceIssues, got 0 issues`);
+  check(strictIssues.length === 1, `strict profile must emit exactly one issue per weak entry (no duplicate generic + detail), got ${strictIssues.length}`);
   check(strictIssues.some(i => i.includes('CHK-001:happy:0')), `strict issues must reference intent ref`);
 
   // balanced: no missingRequired, but qualityIssues populated

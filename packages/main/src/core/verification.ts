@@ -125,8 +125,11 @@ export function getBlockingVerificationEvidenceIssues(cl: ChecklistData, current
   const nonCoveredStatuses = evidenceQualityProfile === 'strict'
     ? (s: string) => !['covered', 'waived', 'deferred'].includes(s)  // 'weak' is blocking in strict
     : (s: string) => !['covered', 'waived', 'deferred', 'weak'].includes(s);
+  // When qualityIssues provides detail for a weak entry, skip the generic entry to avoid duplicates
+  const qualityIssueRefs = new Set(coverage.qualityIssues?.filter(qi => qi.blocking).map(qi => qi.intentRef) ?? []);
   const issues = coverage.entries
     .filter(e => e.priority === 'must' && nonCoveredStatuses(e.status))
+    .filter(e => e.status !== 'weak' || !qualityIssueRefs.has(e.intentRef))
     .map(e => `${e.intentRef} [${e.status}] ${e.desc}`);
   // Include quality issue details for weak entries in strict mode
   if (coverage.qualityIssues) {

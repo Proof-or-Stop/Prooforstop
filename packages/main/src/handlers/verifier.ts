@@ -653,11 +653,13 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         try {
           const cl = ctx.store.readChecklist(args.story);
           const head = currentHead(projectRoot);
+          const story = ctx.store.readStory(args.story);
+          const effectivePolicy = resolveWorkflowPolicy(loadConfig(ctx.root), story);
           const coverage = buildVerificationCoverage(
             cl,
             head,
             (headHash, evidence) => checkEvidenceFreshnessForGit(projectRoot, headHash, evidence?.materialHash).fresh,
-            { deferredGateEvidence: 'missing' },
+            { deferredGateEvidence: 'missing', evidenceQualityProfile: effectivePolicy.profile },
           );
           const verificationPolicy = resolveStoryVerificationPolicy(ctx, args.story);
           return output + '\n' + renderVerificationCoverage(coverage, verificationPolicy) + (code !== 0 || coverage.missingRequired > 0 ? `\n(exit code: ${code || 1})` : '');

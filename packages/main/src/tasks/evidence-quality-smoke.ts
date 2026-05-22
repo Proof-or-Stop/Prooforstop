@@ -193,6 +193,7 @@ const weakCl: ChecklistData = {
 {
   const issues = getBlockingVerificationEvidenceIssues(weakCl, undefined, 'strict');
   assert.ok(issues.length > 0, 'strict: blocking issues should be returned for weak evidence');
+  assert.equal(issues.length, 1, 'strict: should emit exactly one issue per weak entry (no duplicate generic + detail)');
   assert.ok(issues.some(i => i.includes('CHK-001:happy:0')), 'issue should reference intent ref');
 }
 {
