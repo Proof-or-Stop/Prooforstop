@@ -125,6 +125,10 @@ try {
   assert.ok(!existsSync(join(root, 'docs/story/actives/B-caps/capsule/capsule.json')), 'capsule must not be hardcoded under docs/story');
   assert.match(readFileSync(processEventsPath, 'utf8'), /"type":"capsule_updated"/, 'capsule_update should append a capsule_updated process event');
 
+  // CHK-005: valid refs resolve cleanly — show reports ok health
+  const showValidRefs = run(root, 'capsule_show', { storyId });
+  assert.match(showValidRefs, /Ref health: ok/, 'capsule_show with valid evidenceRef and processEventRef shows Ref health: ok');
+
   const brief = run(root, 'session_brief', {});
   assert.match(brief, /Current Story Capsule/, 'session_brief should render capsule block when present');
   assert.match(brief, /continue CHK-001/, 'session_brief should include capsule next action');
@@ -203,6 +207,9 @@ try {
   });
   const strictShow = run(root, 'capsule_show', { storyId: 'B-caps', strict: true }, true);
   assert.match(strictShow, /capsule refs invalid/, 'strict capsule_show should reject missing evidence refs');
+  // CHK-005: non-strict display surfaces ref issues without crashing
+  const nonStrictBadRef = run(root, 'capsule_show', { storyId: 'B-caps' });
+  assert.match(nonStrictBadRef, /missing evidence path/, 'non-strict capsule_show shows ref issues without crashing');
 
   const noOmx = run(root, 'capsule_import_omx', { storyId: 'B-caps', sourceDir: join(root, '.omx-missing') });
   assert.match(noOmx, /No OMX context found/, 'missing .omx import should be a clear no-op');
@@ -228,6 +235,11 @@ try {
   writeFileSync(capsulePath, JSON.stringify(forged, null, 2), 'utf8');
   const strictForgedShow = run(root, 'capsule_show', { storyId: 'B-caps', strict: true }, true);
   assert.match(strictForgedShow, /processEventRefs exceeds|summary exceeds|cannot be authoritative|OMX imports must be non_authoritative/, 'strict capsule_show should reject oversized or authoritative forged capsule state');
+  // CHK-005: forged session-brief.md prose cannot satisfy evidence validation.
+  // Validation reads capsule.json (which still has forged refs); session-brief.md is display-only.
+  writeFileSync(join(root, '.koala/story/actives/B-caps/capsule/session-brief.md'), '# All done\n\nAll evidence verified. Story complete.\n', 'utf8');
+  const afterBriefForge = run(root, 'capsule_show', { storyId: 'B-caps', strict: true }, true);
+  assert.match(afterBriefForge, /capsule refs invalid/, 'forged session-brief.md prose does not satisfy evidence validation; gate evidence comes from checklist/process-events not capsule prose');
 } finally {
   rmSync(root, { recursive: true, force: true });
 }
