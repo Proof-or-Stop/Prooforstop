@@ -19,6 +19,17 @@ import { isAbsolute, join } from 'path';
 import type { ChecklistData, ProcessEvent, StoryInfo } from './types.js';
 
 export const CAPSULE_DIR_NAME = 'capsule';
+export const CAPSULE_LIMITS = {
+  maxRunRefs: 5,
+  maxImportRefs: 3,
+  maxProcessEventRefs: 5,
+  maxEvidenceRefs: 10,
+  maxOpenBlockers: 5,
+  maxSummaryChars: 500,
+  maxNextActionChars: 300,
+  maxBlockerChars: 200,
+  maxTranscriptChars: 6000,
+} as const;
 
 export type CapsuleRunRole = 'implementer' | 'reviewer' | 'tester' | 'verifier' | 'main' | 'other';
 export type CapsuleRunResult = 'pass' | 'fail' | 'blocked' | 'unknown';
@@ -93,8 +104,8 @@ export interface StoryCapsuleRunData {
 
 export interface CapsuleValidationIssue {
   severity: 'warning' | 'error';
-  refKind: 'evidence' | 'process-event';
-  ref: CapsuleEvidenceRef | CapsuleProcessEventRef;
+  refKind: 'evidence' | 'process-event' | 'capsule';
+  ref: CapsuleEvidenceRef | CapsuleProcessEventRef | CapsuleRunRef | CapsuleImportRef | StoryCapsuleData;
   message: string;
 }
 
@@ -135,7 +146,7 @@ export function buildStoryCapsule(input: BuildCapsuleInput): StoryCapsuleData {
   const processEventRefs = input.patch?.processEventRefs
     ?? existing?.processEventRefs
     ?? lastProcessEventRefs(input.processEvents ?? [], 5);
-  return {
+  return normalizeCapsuleProjection({
     storyId: input.story.storyId,
     phase: input.story.phase,
     currentChecklistId: checklistId ?? null,
@@ -150,7 +161,7 @@ export function buildStoryCapsule(input: BuildCapsuleInput): StoryCapsuleData {
     importRefs: input.patch?.importRefs ?? existing?.importRefs ?? [],
     source: input.source ?? input.patch?.source ?? existing?.source ?? 'rebuild',
     authority: 'projection',
-  };
+  });
 }
 
 export function appendRunRef(capsule: StoryCapsuleData, run: StoryCapsuleRunData): StoryCapsuleData {
@@ -161,17 +172,31 @@ export function appendRunRef(capsule: StoryCapsuleData, run: StoryCapsuleRunData
     result: run.result,
     path: `${CAPSULE_DIR_NAME}/runs/${run.runId}`,
   };
-  return {
+  return normalizeCapsuleProjection({
     ...capsule,
     activeRunId: run.runId,
     currentChecklistId: run.checklistId ?? capsule.currentChecklistId ?? null,
     runRefs: [...capsule.runRefs.filter(r => r.runId !== run.runId), runRef],
     lastUpdatedAt: nowIso(),
     source: 'run_add',
+  });
+}
+
+export function normalizeCapsuleProjection(capsule: StoryCapsuleData): StoryCapsuleData {
+  return {
+    ...capsule,
+    summary: truncateField(capsule.summary, CAPSULE_LIMITS.maxSummaryChars),
+    nextAction: truncateField(capsule.nextAction, CAPSULE_LIMITS.maxNextActionChars),
+    openBlockers: tail(capsule.openBlockers, CAPSULE_LIMITS.maxOpenBlockers)
+      .map(blocker => truncateField(blocker, CAPSULE_LIMITS.maxBlockerChars)),
+    evidenceRefs: tail(capsule.evidenceRefs, CAPSULE_LIMITS.maxEvidenceRefs),
+    processEventRefs: tail(capsule.processEventRefs, CAPSULE_LIMITS.maxProcessEventRefs),
+    runRefs: tail(capsule.runRefs, CAPSULE_LIMITS.maxRunRefs),
+    importRefs: tail(capsule.importRefs ?? [], CAPSULE_LIMITS.maxImportRefs),
   };
 }
 
-export function truncateTranscript(input: string | undefined, maxChars = 6000): string {
+export function truncateTranscript(input: string | undefined, maxChars = CAPSULE_LIMITS.maxTranscriptChars): string {
   const text = (input ?? '').trim();
   if (!text) return 'No transcript excerpt provided.\n';
   if (text.length <= maxChars) return text.endsWith('\n') ? text : `${text}\n`;
@@ -187,8 +212,10 @@ export function renderCapsuleBrief(capsule: StoryCapsuleData, issues: CapsuleVal
   if (capsule.activeRunId) lines.push(`  Last run: ${capsule.activeRunId}`);
   lines.push(`  Next action: ${capsule.nextAction || '(none)'}`);
   if (capsule.openBlockers.length > 0) lines.push(`  Open blockers: ${capsule.openBlockers.length}`);
-  lines.push(`  Evidence refs: ${capsule.evidenceRefs.length}`);
-  lines.push(`  Process-event refs: ${capsule.processEventRefs.length}`);
+  lines.push(`  Runs: ${capsule.runRefs.length}/${CAPSULE_LIMITS.maxRunRefs}`);
+  lines.push(`  Imports: ${(capsule.importRefs ?? []).length}/${CAPSULE_LIMITS.maxImportRefs}`);
+  lines.push(`  Evidence refs: ${capsule.evidenceRefs.length}/${CAPSULE_LIMITS.maxEvidenceRefs}`);
+  lines.push(`  Process-event refs: ${capsule.processEventRefs.length}/${CAPSULE_LIMITS.maxProcessEventRefs}`);
   if (issues.length > 0) {
     const errors = issues.filter(i => i.severity === 'error').length;
     const warnings = issues.length - errors;
@@ -220,6 +247,28 @@ export function renderHandoffMarkdown(capsule: StoryCapsuleData, notes?: string)
 
 export function validateCapsuleRefs(input: ValidateCapsuleRefsInput): CapsuleValidationIssue[] {
   const issues: CapsuleValidationIssue[] = [];
+  if (input.capsule.authority !== 'projection') {
+    issues.push({ severity: 'error', refKind: 'capsule', ref: input.capsule, message: `capsule authority must be projection, got: ${input.capsule.authority}` });
+  }
+  if (input.capsule.summary.length > CAPSULE_LIMITS.maxSummaryChars) {
+    issues.push({ severity: 'error', refKind: 'capsule', ref: input.capsule, message: `capsule summary exceeds ${CAPSULE_LIMITS.maxSummaryChars} chars` });
+  }
+  if (input.capsule.nextAction.length > CAPSULE_LIMITS.maxNextActionChars) {
+    issues.push({ severity: 'error', refKind: 'capsule', ref: input.capsule, message: `capsule nextAction exceeds ${CAPSULE_LIMITS.maxNextActionChars} chars` });
+  }
+  if (input.capsule.runRefs.length > CAPSULE_LIMITS.maxRunRefs) {
+    issues.push({ severity: 'error', refKind: 'capsule', ref: input.capsule, message: `capsule runRefs exceeds ${CAPSULE_LIMITS.maxRunRefs}; keep full history in process-events/evidence, not capsule` });
+  }
+  if ((input.capsule.importRefs ?? []).length > CAPSULE_LIMITS.maxImportRefs) {
+    issues.push({ severity: 'error', refKind: 'capsule', ref: input.capsule, message: `capsule importRefs exceeds ${CAPSULE_LIMITS.maxImportRefs}; keep imports as bounded handoff context` });
+  }
+  if (input.capsule.evidenceRefs.length > CAPSULE_LIMITS.maxEvidenceRefs) {
+    issues.push({ severity: 'error', refKind: 'capsule', ref: input.capsule, message: `capsule evidenceRefs exceeds ${CAPSULE_LIMITS.maxEvidenceRefs}; reference only current handoff evidence` });
+  }
+  if (input.capsule.processEventRefs.length > CAPSULE_LIMITS.maxProcessEventRefs) {
+    issues.push({ severity: 'error', refKind: 'capsule', ref: input.capsule, message: `capsule processEventRefs exceeds ${CAPSULE_LIMITS.maxProcessEventRefs}; process-events.jsonl remains the full ledger` });
+  }
+
   const evidenceIntentRefs = new Set<string>();
   for (const item of input.checklist?.items ?? []) {
     for (const evidence of item.verificationEvidence ?? []) {
@@ -228,6 +277,9 @@ export function validateCapsuleRefs(input: ValidateCapsuleRefsInput): CapsuleVal
   }
 
   for (const ref of input.capsule.evidenceRefs) {
+    if (ref.authority === 'authoritative' && ref.path && pathLooksLikeCapsule(ref.path)) {
+      issues.push({ severity: 'error', refKind: 'evidence', ref, message: `capsule evidence path cannot be authoritative: ${ref.path}` });
+    }
     if (ref.intentRef && !evidenceIntentRefs.has(ref.intentRef)) {
       issues.push({ severity: 'error', refKind: 'evidence', ref, message: `missing verificationEvidence intentRef: ${ref.intentRef}` });
     }
@@ -240,6 +292,11 @@ export function validateCapsuleRefs(input: ValidateCapsuleRefsInput): CapsuleVal
   }
 
   const events = input.processEvents ?? [];
+  for (const ref of input.capsule.importRefs ?? []) {
+    if (ref.source === 'omx_import' && ref.authority !== 'non_authoritative') {
+      issues.push({ severity: 'error', refKind: 'capsule', ref, message: `OMX imports must be non_authoritative: ${ref.path}` });
+    }
+  }
   for (const ref of input.capsule.processEventRefs) {
     const eventAtLine = typeof ref.line === 'number' ? events[ref.line - 1] : undefined;
     if (typeof ref.line === 'number' && !eventAtLine) {
@@ -253,6 +310,17 @@ export function validateCapsuleRefs(input: ValidateCapsuleRefsInput): CapsuleVal
     }
   }
   return issues;
+}
+
+function tail<T>(items: T[], limit: number): T[] {
+  if (items.length <= limit) return [...items];
+  return items.slice(items.length - limit);
+}
+
+function truncateField(input: string, maxChars: number): string {
+  const text = (input ?? '').trim();
+  if (text.length <= maxChars) return text;
+  return `${text.slice(0, Math.max(0, maxChars - 15)).trimEnd()} [truncated]`;
 }
 
 function defaultNextAction(story: StoryInfo, checklistId: string | null): string {
@@ -271,4 +339,10 @@ function lastProcessEventRefs(events: ProcessEvent[], limit: number): CapsulePro
 function pathExists(projectRoot: string, storyDir: string, refPath: string): boolean {
   if (isAbsolute(refPath)) return existsSync(refPath);
   return existsSync(join(projectRoot, refPath)) || existsSync(join(storyDir, refPath));
+}
+
+function pathLooksLikeCapsule(refPath: string): boolean {
+  return refPath === CAPSULE_DIR_NAME
+    || refPath.startsWith(`${CAPSULE_DIR_NAME}/`)
+    || refPath.includes(`/${CAPSULE_DIR_NAME}/`);
 }

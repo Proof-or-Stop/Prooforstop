@@ -89,7 +89,7 @@ function defaultRunId(): string {
 }
 
 function safeStamp(): string {
-  return new Date().toISOString().replace(/[:.]/g, '-');
+  return `${new Date().toISOString().replace(/[:.]/g, '-')}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
 export function createCapsuleHandlers(ctx: HandlerContext) {
@@ -228,6 +228,7 @@ export function createCapsuleHandlers(ctx: HandlerContext) {
         processEvents: input.events,
         source: 'rebuild',
       });
+      const beforeRunRefCount = [...base.runRefs.filter(r => r.runId !== run.runId), { runId: run.runId }].length;
       const capsule = appendRunRef(base, run);
       writeCapsuleProjection(ctx, storyId, capsule, 'run_added', { runId: run.runId, checklistId: args.checklistId ?? null });
       ctx.store.appendProcessEvent(storyId, {
@@ -236,7 +237,16 @@ export function createCapsuleHandlers(ctx: HandlerContext) {
         runId: run.runId,
         checklistId: args.checklistId ?? null,
       });
-      return { storyId, runId: run.runId, runPath: ctx.store.capsuleRunDirPath(storyId, run.runId), capsule };
+      return {
+        storyId,
+        runId: run.runId,
+        runPath: ctx.store.capsuleRunDirPath(storyId, run.runId),
+        retention: {
+          runRefsKept: capsule.runRefs.length,
+          runRefsPruned: Math.max(0, beforeRunRefCount - capsule.runRefs.length),
+        },
+        capsule,
+      };
     },
 
     capsule_import_omx(args: StoryArg & { sourceDir?: string }) {
@@ -264,6 +274,7 @@ export function createCapsuleHandlers(ctx: HandlerContext) {
       }
       writeFileSync(outPath, lines.join('\n'), 'utf-8');
       const input = readInputs(ctx, storyId);
+      const importRefsBefore = input.capsule?.importRefs ?? [];
       const capsule = buildStoryCapsule({
         story: input.story,
         checklist: input.checklist,
@@ -278,7 +289,16 @@ export function createCapsuleHandlers(ctx: HandlerContext) {
         source: 'omx_import',
       });
       writeCapsuleProjection(ctx, storyId, capsule, 'omx_imported', { sourceDir, authority: 'non_authoritative' });
-      return { storyId, imported: true, authority: 'non_authoritative', path: outPath };
+      return {
+        storyId,
+        imported: true,
+        authority: 'non_authoritative',
+        path: outPath,
+        retention: {
+          importRefsKept: capsule.importRefs?.length ?? 0,
+          importRefsPruned: Math.max(0, importRefsBefore.length + 1 - (capsule.importRefs?.length ?? 0)),
+        },
+      };
     },
   };
 }

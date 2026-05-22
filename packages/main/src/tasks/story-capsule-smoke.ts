@@ -15,6 +15,7 @@
  *   - [CHK-003] Verify rebuild recreates capsule.json and appends process events
  *   - [CHK-005] Verify forged/missing evidence refs are rejected in strict mode
  *   - [CHK-006] Verify OMX import is optional and non-authoritative
+ *   - [CHK-007] Verify capsule projection stays bounded instead of duplicating story history
  */
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
@@ -23,6 +24,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
+import { CAPSULE_LIMITS } from '../core/story-capsule.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -141,6 +143,7 @@ try {
   const runRoot = join(root, '.koala/story/actives/B-caps/capsule/runs');
   const runDirs = existsSync(runRoot) ? readdirSyncCompat(runRoot) : [];
   assert.equal(runDirs.length, 1, 'capsule_run_add should create exactly one run dir');
+  const firstRunId = runDirs[0];
   assert.ok(existsSync(join(runRoot, runDirs[0], 'run.json')), 'run.json should exist');
   const transcriptPath = join(runRoot, runDirs[0], 'transcript.md');
   assert.ok(existsSync(transcriptPath), 'transcript.md should exist');
@@ -154,10 +157,37 @@ try {
   const badRun = run(root, 'capsule_run_add', { storyId: 'B-caps', checklistId: 'CHK-missing' }, true);
   assert.match(badRun, /unknown checklistId/, 'invalid checklistId should be refused');
 
+  for (let i = 0; i < CAPSULE_LIMITS.maxRunRefs + 2; i += 1) {
+    run(root, 'capsule_run_add', {
+      storyId,
+      runId: `run-retention-${i}`,
+      checklistId: 'CHK-001',
+      role: 'tester',
+      result: 'pass',
+      transcript: `retention ${i}`,
+    });
+  }
+  let capsule = readJson<any>(capsulePath);
+  assert.equal(capsule.runRefs.length, CAPSULE_LIMITS.maxRunRefs, 'capsule runRefs should be bounded');
+  assert.ok(capsule.runRefs.some((r: any) => r.runId === `run-retention-${CAPSULE_LIMITS.maxRunRefs + 1}`), 'latest run ref should be retained');
+  assert.ok(!capsule.runRefs.some((r: any) => r.runId === firstRunId), 'old run ref should be pruned from current projection');
+  assert.ok(existsSync(join(runRoot, firstRunId, 'run.json')), 'pruning runRefs must not delete old run artifacts');
+
   rmSync(join(root, '.koala/story/actives/B-caps/capsule/capsule.json'), { force: true });
   run(root, 'capsule_update', { storyId: 'B-caps', rebuild: true });
   assert.ok(existsSync(join(root, '.koala/story/actives/B-caps/capsule/capsule.json')), 'rebuild should recreate capsule.json');
   assert.equal(readFileSync(processEventsPath, 'utf8').split('\n')[0], firstProcessEvent, 'rebuild must not rewrite existing process-event ledger lines');
+
+  run(root, 'capsule_update', {
+    storyId: 'B-caps',
+    summary: 'summary '.repeat(200),
+    nextAction: 'next action '.repeat(100),
+    processEventRefs: Array.from({ length: CAPSULE_LIMITS.maxProcessEventRefs + 3 }, () => ({ line: 1, type: 'dispatch' })),
+  });
+  capsule = readJson<any>(capsulePath);
+  assert.equal(capsule.processEventRefs.length, CAPSULE_LIMITS.maxProcessEventRefs, 'capsule processEventRefs should be bounded');
+  assert.equal(capsule.summary.length <= CAPSULE_LIMITS.maxSummaryChars, true, 'capsule summary should be bounded');
+  assert.equal(capsule.nextAction.length <= CAPSULE_LIMITS.maxNextActionChars, true, 'capsule nextAction should be bounded');
 
   run(root, 'capsule_update', {
     storyId: 'B-caps',
@@ -180,8 +210,24 @@ try {
   write(root, '.omx/metrics.json', '{"tokens":10}\n');
   const imported = run(root, 'capsule_import_omx', { storyId: 'B-caps' });
   assert.match(imported, /non_authoritative/, 'OMX import must be non-authoritative');
-  const capsule = readJson<any>(join(root, '.koala/story/actives/B-caps/capsule/capsule.json'));
+  for (let i = 0; i < CAPSULE_LIMITS.maxImportRefs + 1; i += 1) {
+    run(root, 'capsule_import_omx', { storyId: 'B-caps' });
+  }
+  capsule = readJson<any>(join(root, '.koala/story/actives/B-caps/capsule/capsule.json'));
   assert.equal(capsule.importRefs.at(-1).authority, 'non_authoritative', 'import ref must remain non-authoritative');
+  assert.equal(capsule.importRefs.length, CAPSULE_LIMITS.maxImportRefs, 'capsule importRefs should be bounded');
+  assert.equal(readdirSync(join(root, '.koala/story/actives/B-caps/capsule/imports')).length > CAPSULE_LIMITS.maxImportRefs, true, 'pruning importRefs must not delete old import artifacts');
+
+  const forged = {
+    ...capsule,
+    summary: 'forged summary '.repeat(100),
+    processEventRefs: Array.from({ length: CAPSULE_LIMITS.maxProcessEventRefs + 1 }, () => ({ line: 1, type: 'dispatch' })),
+    evidenceRefs: [{ path: capsule.importRefs.at(-1).path, authority: 'authoritative' }],
+    importRefs: [{ ...capsule.importRefs.at(-1), authority: 'authoritative' }],
+  };
+  writeFileSync(capsulePath, JSON.stringify(forged, null, 2), 'utf8');
+  const strictForgedShow = run(root, 'capsule_show', { storyId: 'B-caps', strict: true }, true);
+  assert.match(strictForgedShow, /processEventRefs exceeds|summary exceeds|cannot be authoritative|OMX imports must be non_authoritative/, 'strict capsule_show should reject oversized or authoritative forged capsule state');
 } finally {
   rmSync(root, { recursive: true, force: true });
 }
