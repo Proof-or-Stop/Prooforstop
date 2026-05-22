@@ -103,6 +103,8 @@ try {
   store.writeStory(storyId, story);
   store.writeChecklist(storyId, checklist);
   store.appendProcessEvent(storyId, { type: 'dispatch', storyId, checklistId: 'CHK-001' });
+  const processEventsPath = join(root, '.koala/story/actives/B-caps/process-events.jsonl');
+  const firstProcessEvent = readFileSync(processEventsPath, 'utf8').split('\n')[0];
 
   const noCapsule = run(root, 'capsule_show', { storyId });
   assert.match(noCapsule, /No story capsule yet/, 'no-capsule read should degrade gracefully');
@@ -119,6 +121,7 @@ try {
   assert.ok(existsSync(capsulePath), 'capsule.json must live under configured storyDir=.koala/story/actives');
   assert.equal(readJson<any>(capsulePath).authority, 'projection', 'capsule is projection authority only');
   assert.ok(!existsSync(join(root, 'docs/story/actives/B-caps/capsule/capsule.json')), 'capsule must not be hardcoded under docs/story');
+  assert.match(readFileSync(processEventsPath, 'utf8'), /"type":"capsule_updated"/, 'capsule_update should append a capsule_updated process event');
 
   const brief = run(root, 'session_brief', {});
   assert.match(brief, /Current Story Capsule/, 'session_brief should render capsule block when present');
@@ -142,6 +145,11 @@ try {
   const transcriptPath = join(runRoot, runDirs[0], 'transcript.md');
   assert.ok(existsSync(transcriptPath), 'transcript.md should exist');
   assert.match(readFileSync(transcriptPath, 'utf8'), /\[truncated:/, 'long transcript should be truncated by default');
+  assert.match(readFileSync(processEventsPath, 'utf8'), /"type":"run_metrics_recorded"/, 'capsule_run_add should append run_metrics_recorded');
+
+  run(root, 'capsule_handoff', { storyId, nextAction: 'handoff next action', notes: 'handoff smoke' });
+  assert.ok(existsSync(join(root, '.koala/story/actives/B-caps/capsule/handoff.md')), 'capsule_handoff should write handoff.md');
+  assert.match(readFileSync(processEventsPath, 'utf8'), /"type":"handoff_written"/, 'capsule_handoff should append handoff_written');
 
   const badRun = run(root, 'capsule_run_add', { storyId: 'B-caps', checklistId: 'CHK-missing' }, true);
   assert.match(badRun, /unknown checklistId/, 'invalid checklistId should be refused');
@@ -149,6 +157,7 @@ try {
   rmSync(join(root, '.koala/story/actives/B-caps/capsule/capsule.json'), { force: true });
   run(root, 'capsule_update', { storyId: 'B-caps', rebuild: true });
   assert.ok(existsSync(join(root, '.koala/story/actives/B-caps/capsule/capsule.json')), 'rebuild should recreate capsule.json');
+  assert.equal(readFileSync(processEventsPath, 'utf8').split('\n')[0], firstProcessEvent, 'rebuild must not rewrite existing process-event ledger lines');
 
   run(root, 'capsule_update', {
     storyId: 'B-caps',
