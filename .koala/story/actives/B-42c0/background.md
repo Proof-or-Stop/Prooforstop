@@ -6,6 +6,7 @@ Koala 已有 Story、Checklist、Evidence、Gate、process-events 和 Verificati
 
 ## 方案取舍
 采用 story-scoped capsule 目录和 CLI 命令，但路径遵循当前仓库配置的 storyDir，默认是 docs/story/actives，不使用大写 Docs。capsule 摘要不能让 DONE 通过，只能引用 checklist evidence、review pass、test command、receipt 或 process-event。OMX 只能作为 non_authoritative import，不能成为 Koala gate 依据。
+- 2026-05-22 user scope change: delete the .omx capsule import application instead of shipping capsule_import_omx. Capsule must remain a bounded story handoff projection and must not depend on or import .omx runtime artifacts.
 
 ## 对话纹理
 用户特别担心 Agent 编造流程、编造事实，以及跨项目修改后没有 story 证据。这个 story 应把建议中的六个 milestone 变成 Koala 原生流程，并配套测试证明伪造 session-brief 或缺失 evidence ref 不能骗过 gate 或健康检查。

@@ -420,8 +420,8 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-05-22T01:35:53.495Z",
       "endTime": null,
       "userSees": "koala capsule_import_omx reports source=omx_import authority=non_authoritative when .omx exists, and reports no OMX context found without failing when .omx is absent.",
       "files": {
@@ -623,6 +623,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Capsule retention and anti-duplication boundary implemented and verified."
+    },
+    {
+      "timestamp": "2026-05-22T01:35:53.495Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "User scope change replaces OMX import with removal of the .omx capsule application."
     }
   ]
 }
