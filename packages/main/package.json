@@ -62,7 +62,8 @@
     "test:evidence-quality-contract": "node ../../scripts/verify-evidence-quality.mjs",
     "test:reviewer-quorum-smoke": "node dist/tasks/reviewer-quorum-smoke.js",
     "test:attestation-smoke": "node dist/tasks/attestation-smoke.js",
-    "test:actor-trust-smoke": "node dist/tasks/actor-trust-smoke.js"
+    "test:actor-trust-smoke": "node dist/tasks/actor-trust-smoke.js",
+    "test:fact-provenance-smoke": "node dist/tasks/fact-provenance-smoke.js"
   },
   "dependencies": {
     "@koala-agent/lab": "0.3.1",

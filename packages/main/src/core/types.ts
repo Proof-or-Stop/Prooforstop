@@ -143,6 +143,29 @@ export interface ActorTrustMetadata {
   trustStatus?: 'trusted' | 'revoked';
 }
 
+export interface FactProvenanceMetadata {
+  /** Classifies whether the evidence refers to external, local, or internal facts. */
+  kind?: 'external_fact' | 'local' | 'internal';
+  /** Source reliability tier. */
+  sourceClass?: 'primary' | 'secondary' | 'tertiary' | 'internal';
+  /** URL of the external source. */
+  sourceUrl?: string;
+  /** Stable reference (DOI, RFC number, commit SHA, etc.) */
+  sourceRef?: string;
+  /** Human-readable title of the source. */
+  sourceTitle?: string;
+  /** ISO timestamp when the external fact was fetched. */
+  fetchedAt?: string;
+  /** ISO timestamp after which the fact should be re-verified. */
+  expiresAt?: string;
+  /** Content digest (hash) of the fetched source for integrity binding. */
+  digest?: string;
+  /** Specific claims that were checked against the source. */
+  checkedClaims?: string[];
+  /** Other sources that contradict this fact. Non-empty triggers a warning/block. */
+  conflictingSources?: string[];
+}
+
 export interface VerificationEvidence {
   /** Reference like CHK-001:happy:0 or a custom VerificationIntentItem.id. */
   intentRef: string;
@@ -164,6 +187,8 @@ export interface VerificationEvidence {
   attestation?: AttestationMetadata;
   /** Actor trust metadata for producer/verifier identity and revocation checks. All fields optional. */
   actorTrust?: ActorTrustMetadata;
+  /** External fact provenance metadata. All fields optional for legacy compatibility. */
+  factProvenance?: FactProvenanceMetadata;
 }
 
 export interface ChecklistItem {
@@ -648,6 +673,8 @@ export interface VerificationCoverageReport {
   attestationIssues?: import('./attestation.js').AttestationIssue[];
   /** Present when actor trust issues were found on covered/weak evidence */
   actorTrustIssues?: import('./actor-trust.js').ActorTrustIssue[];
+  /** Present when fact provenance issues were found on covered/weak evidence */
+  factProvenanceIssues?: import('./fact-provenance.js').FactProvenanceIssue[];
 }
 
 /**

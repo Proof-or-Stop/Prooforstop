@@ -489,6 +489,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       note: string;
       attestation?: VerificationEvidence['attestation'];
       actorTrust?: VerificationEvidence['actorTrust'];
+      factProvenance?: VerificationEvidence['factProvenance'];
     }): string | Promise<string> {
       // --- LOCAL PREFLIGHT (must run BEFORE any authority POST; A-prepost) -------
       // These guards are duplicated here at the handler entry (not Zod-only) per
@@ -529,6 +530,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
             note: args.note.trim(),
             ...(args.attestation ? { attestation: args.attestation } : {}),
             ...(args.actorTrust ? { actorTrust: args.actorTrust } : {}),
+            ...(args.factProvenance ? { factProvenance: args.factProvenance } : {}),
             ...hashes,
           });
 
@@ -593,6 +595,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         note: string;
         attestation?: VerificationEvidence['attestation'];
         actorTrust?: VerificationEvidence['actorTrust'];
+        factProvenance?: VerificationEvidence['factProvenance'];
       }>;
     }): string | Promise<string> {
       if (!Array.isArray(args.evidences) || args.evidences.length === 0) {
@@ -641,6 +644,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
               note: entry.note.trim(),
               ...(entry.attestation ? { attestation: entry.attestation } : {}),
               ...(entry.actorTrust ? { actorTrust: entry.actorTrust } : {}),
+              ...(entry.factProvenance ? { factProvenance: entry.factProvenance } : {}),
               ...hashes,
             });
             const existing = item.verificationEvidence || [];
