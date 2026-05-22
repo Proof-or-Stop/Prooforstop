@@ -5,6 +5,7 @@
 
 import { evaluateReviewerQuorum } from '../core/reviewer-quorum.js';
 import type { ReviewerEvidenceEntry } from '../core/reviewer-quorum.js';
+import { computeActiveReviewers } from '../handlers/reviewer-list.js';
 
 let passed = 0;
 let failed = 0;
@@ -139,6 +140,25 @@ console.log('\nTest 5: lane mapping — concept/quality/test-coverage short name
     profile: 'strict',
   });
   assert('short agent name covers full lane', result2.ok, JSON.stringify(result2.blocking));
+}
+
+console.log('\nTest 5b: active reviewer source — computeActiveReviewers feeds quorum lanes');
+{
+  const active = computeActiveReviewers(
+    { riskSignals: [] },
+    { items: [{ id: 'CHK-001' }] },
+    null,
+    [],
+  ).map(r => r.name);
+  assert('computeActiveReviewers includes baseline concept', active.includes('concept'));
+  assert('computeActiveReviewers includes baseline quality', active.includes('quality'));
+  assert('computeActiveReviewers includes baseline test-coverage', active.includes('test-coverage'));
+  const result = evaluateReviewerQuorum({
+    activeReviewers: active,
+    evidence: active.map(name => passEntry(`koala-review-${name}`)),
+    profile: 'strict',
+  });
+  assert('computed active reviewers satisfy quorum with matching lane evidence', result.ok, JSON.stringify(result.blocking));
 }
 
 // ── Test 6: light profile — no blocking even for missing lanes ────────────────

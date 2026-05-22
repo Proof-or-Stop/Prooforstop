@@ -14,6 +14,8 @@ import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
 import { computeActiveReviewers } from '../handlers/reviewer-list.js';
 import { collectReviewerEvidenceState } from './review-run.js';
 import { isFindingBlocking } from './advisory.js';
+import { evaluateReviewerQuorum } from './reviewer-quorum.js';
+import type { ReviewerEvidenceEntry } from './reviewer-quorum.js';
 
 /**
  * Resolve effective blocking severities with round decay.
@@ -43,6 +45,19 @@ function resolveEffectiveBlockingSeverities(
     effectiveBlockingSeverities = policy.review.blockingSeverities as string[];
   }
   return { effectiveBlockingSeverities, roundCount };
+}
+
+function buildQuorumEvidence(
+  evidenceRecords: { agent: string; kind: string; signatureValid?: boolean }[],
+): ReviewerEvidenceEntry[] {
+  return evidenceRecords.map(e => ({
+    lane: e.agent,
+    agent: e.agent,
+    // Production finding severity/round-decay remains owned by the existing
+    // isFindingBlocking section; quorum only needs lane coverage here.
+    kind: 'pass',
+    signatureValid: e.signatureValid,
+  }));
 }
 
 export interface StoryMachineContext {
@@ -164,6 +179,14 @@ export const storyMachine = setup({
               e => findingAgentMatchesReviewer(e.agent, reviewer.name),
             ));
             if (missing.length > 0) return false;
+
+            // B-1fca CHK-002: quorum gate for round 1
+            const quorum = evaluateReviewerQuorum({
+              activeReviewers: optIn.map(r => r.name),
+              evidence: buildQuorumEvidence(evidenceState.valid),
+              profile: policy.profile as 'light' | 'balanced' | 'strict',
+            });
+            if (!quorum.ok) return false;
           } else {
             // Round 2+: require at least 1 reviewer finding or pass receipt
             if (currentRoundReviewerEvidence.length === 0) return false;
@@ -470,6 +493,16 @@ export function getGuardFailureReason(
               const missingNames = missing.map(r => r.name).join(',');
               const presentAgents = Array.from(new Set(currentRoundReviewerEvidence.map(e => e.agent))).join(', ') || '无';
               return `Cannot enter TEST: Round 1 期望 ${optIn.length} 个 reviewer（opt-in: ${names}）当前 ${currentRoundReviewerEvidence.length} 个 reviewer 证据覆盖 ${optIn.length - missing.length} 个 reviewer（缺: ${missingNames}；已见 agent: ${presentAgents}）\n→ 并行启动缺失的 koala-review-* agent；无问题时用 review_pass_set`;
+            }
+
+            // B-1fca CHK-002: quorum diagnostics for round 1 disputes/missing lanes
+            const quorumR1 = evaluateReviewerQuorum({
+              activeReviewers: optIn.map(r => r.name),
+              evidence: buildQuorumEvidence(currentRoundReviewerEvidence),
+              profile: policy.profile as 'light' | 'balanced' | 'strict',
+            });
+            if (!quorumR1.ok) {
+              return `Cannot enter TEST: Reviewer quorum not met (Round 1):\n${quorumR1.blocking.map(m => `  - ${m}`).join('\n')}\n→ 修复 reviewer dispute 后重新运行对应 reviewer；无问题时用 review_pass_set`;
             }
           } else {
             if (currentRoundReviewerEvidence.length === 0) {
