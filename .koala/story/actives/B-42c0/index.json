@@ -4,7 +4,7 @@
   "title": "Add Story Capsule for recoverable auditable handoff",
   "description": "Add a story-scoped session capsule projection that lets a new agent resume a story from structured handoff state while keeping process-events and evidence as the only authoritative gate facts. The capsule must support run summaries, rebuild from process-events, CLI display, evidence reference validation, and non-authoritative OMX import.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "story-capsule",
@@ -16,7 +16,7 @@
   ],
   "createdAt": "2026-05-21T23:58:11.490Z",
   "startedAt": "2026-05-21T23:58:11.490Z",
-  "endedAt": null,
+  "endedAt": "2026-05-22T12:05:23.791Z",
   "events": [
     {
       "phase": "INIT",
@@ -65,12 +65,15 @@
       "branch": "story/B-42c0",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-05-22T12:05:23.791Z",
+      "branch": "story/B-42c0",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-42c0",
-    "branch": "story/B-42c0",
-    "createdAt": "2026-05-22T00:01:55.407Z"
-  },
   "currentReviewRound": "2026-05-22T01:41:25.867Z"
 }
