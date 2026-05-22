@@ -90,8 +90,8 @@
       "relatedDocs": [
         "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-05-22T00:49:18.476Z",
       "endTime": null,
       "userSees": "koala capsule_run_add records a run and koala capsule_show shows Last run: implementer/pass with command, role, provider, evidence refs, and metrics summary.",
       "files": {
@@ -330,6 +330,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Story Capsule contract and storage APIs implemented and committed in 38d34f05."
+    },
+    {
+      "timestamp": "2026-05-22T00:49:18.476Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting run summary and metrics verification after implementation commit."
     }
   ]
 }
