@@ -55,9 +55,9 @@
           "command": "npm run test:story-capsule-smoke",
           "result": "pass",
           "note": "Smoke creates and reads capsule.json under configured storyDir and renders a capsule summary.",
-          "headHash": "38d34f059e579afb8e4e376a1c89f9b9667f7c2f",
-          "materialHash": "0a03cc0aa1629f94359f38a47fa0f45d7e9aa0abd5365c9c769ba14d997244ce",
-          "timestamp": "2026-05-22T00:48:08.409Z"
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.473Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -66,9 +66,9 @@
           "command": "npm run test:story-capsule-smoke",
           "result": "pass",
           "note": "Smoke verifies capsule_show returns a graceful no-capsule message before capsule creation.",
-          "headHash": "38d34f059e579afb8e4e376a1c89f9b9667f7c2f",
-          "materialHash": "0a03cc0aa1629f94359f38a47fa0f45d7e9aa0abd5365c9c769ba14d997244ce",
-          "timestamp": "2026-05-22T00:48:08.440Z"
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.473Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -77,9 +77,9 @@
           "command": "npm run test:story-capsule-smoke",
           "result": "pass",
           "note": "Smoke uses storyDir=.koala/story/actives and asserts no hardcoded docs/story capsule path is created.",
-          "headHash": "38d34f059e579afb8e4e376a1c89f9b9667f7c2f",
-          "materialHash": "0a03cc0aa1629f94359f38a47fa0f45d7e9aa0abd5365c9c769ba14d997244ce",
-          "timestamp": "2026-05-22T00:48:08.468Z"
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.473Z"
         }
       ]
     },
@@ -135,9 +135,9 @@
           "command": "npm run test:story-capsule-smoke",
           "result": "pass",
           "note": "Smoke verifies capsule_run_add persists run.json, transcript.md, metrics.json, and artifacts.json for a valid checklist run.",
-          "headHash": "78a172627254a7e1337390648fbdf34d794bffd1",
-          "materialHash": "45feb8194c5f553b7d267e7ebf47fabf4b234d713b349dfebcdacf0d37f3713b",
-          "timestamp": "2026-05-22T00:49:18.940Z"
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.473Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -146,9 +146,9 @@
           "command": "npm run test:story-capsule-smoke",
           "result": "pass",
           "note": "Smoke feeds a long transcript and asserts transcript.md contains a truncation marker rather than the full input.",
-          "headHash": "78a172627254a7e1337390648fbdf34d794bffd1",
-          "materialHash": "45feb8194c5f553b7d267e7ebf47fabf4b234d713b349dfebcdacf0d37f3713b",
-          "timestamp": "2026-05-22T00:49:18.967Z"
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.473Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -157,9 +157,9 @@
           "command": "npm run test:story-capsule-smoke",
           "result": "pass",
           "note": "Smoke verifies invalid checklistId is rejected by capsule_run_add.",
-          "headHash": "78a172627254a7e1337390648fbdf34d794bffd1",
-          "materialHash": "45feb8194c5f553b7d267e7ebf47fabf4b234d713b349dfebcdacf0d37f3713b",
-          "timestamp": "2026-05-22T00:49:18.995Z"
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.473Z"
         }
       ]
     },
@@ -216,9 +216,9 @@
           "command": "npm run test:story-capsule-smoke",
           "result": "pass",
           "note": "Smoke asserts capsule_updated, handoff_written, and run_metrics_recorded are appended to process-events.jsonl.",
-          "headHash": "736c5cb3d0c149ec7b7d911e0682ae4df86d540c",
-          "materialHash": "9768e7f556eefc96b67e7868b7b7f6531fabd13c01b08886a67802abb5bfa2a3",
-          "timestamp": "2026-05-22T00:50:00.945Z"
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.473Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -227,9 +227,9 @@
           "command": "npm run test:story-capsule-smoke",
           "result": "pass",
           "note": "Smoke deletes capsule.json and verifies capsule_update rebuild recreates the projection from story/checklist/process-events.",
-          "headHash": "736c5cb3d0c149ec7b7d911e0682ae4df86d540c",
-          "materialHash": "9768e7f556eefc96b67e7868b7b7f6531fabd13c01b08886a67802abb5bfa2a3",
-          "timestamp": "2026-05-22T00:50:00.991Z"
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.473Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -238,9 +238,9 @@
           "command": "npm run test:story-capsule-smoke",
           "result": "pass",
           "note": "Smoke captures the first process-events ledger line and verifies rebuild does not rewrite it.",
-          "headHash": "736c5cb3d0c149ec7b7d911e0682ae4df86d540c",
-          "materialHash": "9768e7f556eefc96b67e7868b7b7f6531fabd13c01b08886a67802abb5bfa2a3",
-          "timestamp": "2026-05-22T00:50:01.025Z"
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.473Z"
         }
       ]
     },
@@ -303,9 +303,9 @@
           "command": "npm --prefix packages/main run test:command-ownership-contract && npm --prefix packages/main run test:lifecycle-registry-contract && npm run test:process-fact-contract",
           "result": "pass",
           "note": "Contract tests verify new capsule commands have handlers, ownership policy, phase availability, and process-fact levels.",
-          "headHash": "1ba57114cda51de94cd5fcc25a57234ab8c1c71f",
-          "materialHash": "9768e7f556eefc96b67e7868b7b7f6531fabd13c01b08886a67802abb5bfa2a3",
-          "timestamp": "2026-05-22T00:50:16.292Z"
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.473Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -314,9 +314,9 @@
           "command": "npm run test:story-capsule-smoke && npm run test:session-brief",
           "result": "pass",
           "note": "Smoke verifies session_brief renders capsule block when present and graceful no-capsule reads stay concise; session brief command-center test still passes.",
-          "headHash": "1ba57114cda51de94cd5fcc25a57234ab8c1c71f",
-          "materialHash": "9768e7f556eefc96b67e7868b7b7f6531fabd13c01b08886a67802abb5bfa2a3",
-          "timestamp": "2026-05-22T00:50:16.319Z"
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.473Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -325,9 +325,9 @@
           "command": "npm --prefix packages/main run test:command-ownership-contract && npm run test:process-fact-contract",
           "result": "pass",
           "note": "Contract tests fail closed for unclassified commands and verify capsule_* are registered in process facts.",
-          "headHash": "1ba57114cda51de94cd5fcc25a57234ab8c1c71f",
-          "materialHash": "9768e7f556eefc96b67e7868b7b7f6531fabd13c01b08886a67802abb5bfa2a3",
-          "timestamp": "2026-05-22T00:50:16.345Z"
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.473Z"
         }
       ]
     },
@@ -385,9 +385,9 @@
           "command": "npm run build && npm run test:story-capsule-smoke",
           "result": "pass",
           "note": "Smoke asserts valid evidenceRef+processEventRef shows Ref health: ok after capsule_update with matching checklist intentRef and correct process-event line/type.",
-          "headHash": "02372683f4069fdc53a7ed780cf0d5ca6186051e",
-          "materialHash": "9d218c408211c3845f75bba1ad8e35ec370a28556236e872ca99ef12e41a0177",
-          "timestamp": "2026-05-22T01:21:50.791Z"
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.473Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -396,9 +396,9 @@
           "command": "npm run test:story-capsule-smoke",
           "result": "pass",
           "note": "Smoke asserts non-strict capsule_show with a missing evidence path shows the error text in output without crashing.",
-          "headHash": "02372683f4069fdc53a7ed780cf0d5ca6186051e",
-          "materialHash": "9d218c408211c3845f75bba1ad8e35ec370a28556236e872ca99ef12e41a0177",
-          "timestamp": "2026-05-22T01:21:50.817Z"
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.473Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -407,9 +407,9 @@
           "command": "npm run test:story-capsule-smoke",
           "result": "pass",
           "note": "Smoke forges session-brief.md with all-done prose then asserts strict capsule_show still reports capsule refs invalid because validation reads capsule.json not session-brief.md.",
-          "headHash": "02372683f4069fdc53a7ed780cf0d5ca6186051e",
-          "materialHash": "9d218c408211c3845f75bba1ad8e35ec370a28556236e872ca99ef12e41a0177",
-          "timestamp": "2026-05-22T01:21:50.843Z"
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.473Z"
         }
       ]
     },
@@ -552,9 +552,9 @@
           "command": "npm run build && npm run test:story-capsule-smoke",
           "result": "pass",
           "note": "Smoke adds more run/import/process-event references than the retention limits and verifies capsule keeps bounded current refs while preserving older run/import artifacts.",
-          "headHash": "3335732b6318d7293e833d1519f3efd778e17369",
-          "materialHash": "d59be909543712d06c1267969d12c36dc3a745c60cdf373f18edc1433508e62e",
-          "timestamp": "2026-05-22T01:07:25.724Z"
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.473Z"
         },
         {
           "intentRef": "CHK-007:edge:0",
@@ -563,9 +563,9 @@
           "command": "npm run build && npm run test:story-capsule-smoke",
           "result": "pass",
           "note": "Smoke writes oversized summary and nextAction through capsule_update and verifies stored fields are bounded by CAPSULE_LIMITS.",
-          "headHash": "3335732b6318d7293e833d1519f3efd778e17369",
-          "materialHash": "d59be909543712d06c1267969d12c36dc3a745c60cdf373f18edc1433508e62e",
-          "timestamp": "2026-05-22T01:07:25.752Z"
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.474Z"
         },
         {
           "intentRef": "CHK-007:adversarial:0",
@@ -574,9 +574,9 @@
           "command": "npm run test:story-capsule-smoke && npm run test:process-fact-contract && npm --prefix packages/main run test:command-ownership-contract && npm --prefix packages/main run test:lifecycle-registry-contract && npm run test:session-brief",
           "result": "pass",
           "note": "Smoke forges oversized and authoritative capsule/import references and verifies capsule_show --strict rejects them; contract tests confirm command policy/session behavior stays valid.",
-          "headHash": "3335732b6318d7293e833d1519f3efd778e17369",
-          "materialHash": "d59be909543712d06c1267969d12c36dc3a745c60cdf373f18edc1433508e62e",
-          "timestamp": "2026-05-22T01:07:25.780Z"
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.474Z"
         }
       ]
     }
