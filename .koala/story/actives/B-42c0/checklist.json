@@ -170,8 +170,8 @@
       "relatedDocs": [
         "docs/requirements/decisions/truth-source.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-05-22T00:50:00.041Z",
       "endTime": null,
       "userSees": "After deleting capsule/capsule.json, koala capsule_update --rebuild restores a baseline capsule and process-events.jsonl contains capsule_updated or handoff_written audit lines.",
       "files": {
@@ -383,6 +383,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Run summary and metrics records implemented and smoke verified."
+    },
+    {
+      "timestamp": "2026-05-22T00:50:00.041Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting process-event projection and rebuild evidence after smoke expansion."
     }
   ]
 }
