@@ -1,0 +1,70 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add evidence quality scoring and weak-test gate",
+      "context": "Milestone 2: koala validate should classify weak verification evidence such as echo/version/help-only/compile-only evidence, require meaningful commands or artifacts for high-risk claims, and block weak evidence in strict or anti-hallucination style policies while warning in balanced mode.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/test-intent-review.md"
+      ],
+      "userSees": "Weak evidence is reported with quality diagnostics; strict validation blocks weak evidence instead of letting a checklist pass on shallow commands.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add reviewer quorum and differentiated verifier policy",
+      "context": "Milestone 3: high-risk stories should be able to require multiple reviewer lanes and distinguish producer/reviewer actors/providers, with conflict/dispute handling when reviewers disagree.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "userSees": "Koala reports reviewer quorum status and blocks TEST/DONE when required independent reviewer evidence is missing or conflicting.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add structured CI and human attestation checks",
+      "context": "Milestone 4: CI/human evidence must be structured, current-head bound, and checklist/claim bound; empty human looks-good and stale CI artifacts should not satisfy strict gates.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/truth-source.md"
+      ],
+      "userSees": "CI/human review evidence includes commit, command/artifact hashes, checked claims, and fails clearly when stale or empty.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add actor trust registry, revocation, and suspicious evidence signals",
+      "context": "Milestone 5: evidence receipts should be checked against actor identity/trust metadata; revoked actors, same-actor producer/verifier, and suspicious pass patterns should warn or block according to policy.",
+      "relatedDocs": [
+        "docs/requirements/decisions/session-ownership-and-write-leases.md",
+        "docs/requirements/decisions/truth-source.md"
+      ],
+      "userSees": "Koala can reject revoked actor evidence and surface suspicious producer/verifier or always-pass reviewer patterns.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Add external fact provenance and freshness policy",
+      "context": "Milestone 6: external factual claims need provenance metadata, source class, fetchedAt/hash/freshness, and conflict/expiry diagnostics so stale or unsupported external facts cannot pass strict gates.",
+      "relatedDocs": [
+        "docs/requirements/decisions/truth-source.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "userSees": "External fact evidence must cite source/provenance and strict validation flags missing, stale, secondary-only, or conflicting sources.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
