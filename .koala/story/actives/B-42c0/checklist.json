@@ -8,9 +8,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/truth-source.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-22T00:11:37.945Z",
-      "endTime": null,
+      "endTime": "2026-05-22T00:48:08.373Z",
       "userSees": "koala capsule_show --story B-42c0 prints a JSON/markdown capsule summary from .koala/story/actives/B-42c0/capsule, while a story with no capsule prints a clear no capsule yet message.",
       "files": {
         "modify": [
@@ -46,7 +46,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run test:story-capsule-smoke",
+          "result": "pass",
+          "note": "Smoke creates and reads capsule.json under configured storyDir and renders a capsule summary.",
+          "headHash": "38d34f059e579afb8e4e376a1c89f9b9667f7c2f",
+          "materialHash": "0a03cc0aa1629f94359f38a47fa0f45d7e9aa0abd5365c9c769ba14d997244ce",
+          "timestamp": "2026-05-22T00:48:08.409Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run test:story-capsule-smoke",
+          "result": "pass",
+          "note": "Smoke verifies capsule_show returns a graceful no-capsule message before capsule creation.",
+          "headHash": "38d34f059e579afb8e4e376a1c89f9b9667f7c2f",
+          "materialHash": "0a03cc0aa1629f94359f38a47fa0f45d7e9aa0abd5365c9c769ba14d997244ce",
+          "timestamp": "2026-05-22T00:48:08.440Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run test:story-capsule-smoke",
+          "result": "pass",
+          "note": "Smoke uses storyDir=.koala/story/actives and asserts no hardcoded docs/story capsule path is created.",
+          "headHash": "38d34f059e579afb8e4e376a1c89f9b9667f7c2f",
+          "materialHash": "0a03cc0aa1629f94359f38a47fa0f45d7e9aa0abd5365c9c769ba14d997244ce",
+          "timestamp": "2026-05-22T00:48:08.468Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -284,6 +319,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-05-22T00:48:08.373Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Story Capsule contract and storage APIs implemented and committed in 38d34f05."
     }
   ]
 }
