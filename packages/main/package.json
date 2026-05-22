@@ -57,7 +57,9 @@
     "test:verification-evidence-authority-handler": "node dist/tasks/verification-evidence-authority-handler-smoke.js",
     "test:init-check-fallback-smoke": "node dist/tasks/init-check-fallback-smoke.js",
     "test:checklist-reload-hint-smoke": "node dist/tasks/checklist-reload-hint-smoke.js",
-    "test:story-capsule-smoke": "node dist/tasks/story-capsule-smoke.js"
+    "test:story-capsule-smoke": "node dist/tasks/story-capsule-smoke.js",
+    "test:evidence-quality-smoke": "node dist/tasks/evidence-quality-smoke.js",
+    "test:evidence-quality-contract": "node ../../scripts/verify-evidence-quality.mjs"
   },
   "dependencies": {
     "@koala-agent/lab": "0.3.1",

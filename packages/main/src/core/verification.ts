@@ -10,6 +10,7 @@ import type {
 } from './types.js';
 import { formatVerificationEvidenceVerdict } from './types.js';
 import type { VerificationIntentPolicyResolution } from './workflow-policy.js';
+import { type EvidenceQualityProfile, getEvidenceQualityIssues, type EvidenceQualityIssue } from './evidence-quality.js';
 
 export const VERIFICATION_LANES: readonly VerificationLane[] = ['happy', 'edge', 'adversarial'];
 export type DeferredGateEvidenceMode = 'covered' | 'missing';
@@ -61,9 +62,11 @@ export function buildVerificationCoverage(
   cl: ChecklistData,
   currentHead?: string,
   isEvidenceFresh?: (headHash: string, evidence?: VerificationEvidence) => boolean,
-  options: { deferredGateEvidence?: DeferredGateEvidenceMode } = {},
+  options: { deferredGateEvidence?: DeferredGateEvidenceMode; evidenceQualityProfile?: EvidenceQualityProfile } = {},
 ): VerificationCoverageReport {
+  const qualityProfile = options.evidenceQualityProfile ?? 'light';
   const entries: VerificationCoverageEntry[] = [];
+  const qualityIssues: EvidenceQualityIssue[] = [];
   for (const item of cl.items) {
     for (const collected of collectVerificationIntents(item)) {
       const priority = collected.intent.priority || 'must';
@@ -80,6 +83,15 @@ export function buildVerificationCoverage(
           !(isEvidenceFresh?.(evidence.headHash, evidence) ?? false)
         ) status = 'stale';
         else status = 'covered';
+
+        // Evidence quality classification (balanced: warning, strict: blocking)
+        if (status === 'covered' && qualityProfile !== 'light') {
+          const issue = getEvidenceQualityIssues(collected.ref, item.id, evidence, qualityProfile);
+          if (issue) {
+            qualityIssues.push(issue);
+            status = 'weak'; // both balanced (warning) and strict (blocking) mark as weak
+          }
+        }
       }
       entries.push({
         intentRef: collected.ref,
@@ -96,20 +108,33 @@ export function buildVerificationCoverage(
   const requiredEntries = entries.filter(e => isRequired(e.priority));
   const coveredStatuses = new Set(['covered', 'waived']);
   if (options.deferredGateEvidence !== 'missing') coveredStatuses.add('deferred');
+  // 'weak' entries: covered in balanced (warning), not covered in strict
+  if (qualityProfile !== 'strict') coveredStatuses.add('weak');
   return {
     total: entries.length,
     required: requiredEntries.length,
     covered: entries.filter(e => coveredStatuses.has(e.status)).length,
     missingRequired: requiredEntries.filter(e => !coveredStatuses.has(e.status)).length,
     entries,
+    ...(qualityIssues.length > 0 ? { qualityIssues } : {}),
   };
 }
 
-export function getBlockingVerificationEvidenceIssues(cl: ChecklistData, currentHead?: string): string[] {
-  const coverage = buildVerificationCoverage(cl, currentHead);
-  return coverage.entries
-    .filter(e => e.priority === 'must' && !['covered', 'waived', 'deferred'].includes(e.status))
+export function getBlockingVerificationEvidenceIssues(cl: ChecklistData, currentHead?: string, evidenceQualityProfile?: EvidenceQualityProfile): string[] {
+  const coverage = buildVerificationCoverage(cl, currentHead, undefined, { evidenceQualityProfile });
+  const nonCoveredStatuses = evidenceQualityProfile === 'strict'
+    ? (s: string) => !['covered', 'waived', 'deferred'].includes(s)  // 'weak' is blocking in strict
+    : (s: string) => !['covered', 'waived', 'deferred', 'weak'].includes(s);
+  const issues = coverage.entries
+    .filter(e => e.priority === 'must' && nonCoveredStatuses(e.status))
     .map(e => `${e.intentRef} [${e.status}] ${e.desc}`);
+  // Include quality issue details for weak entries in strict mode
+  if (coverage.qualityIssues) {
+    for (const qi of coverage.qualityIssues) {
+      if (qi.blocking) issues.push(`${qi.intentRef} [weak] ${qi.detail}`);
+    }
+  }
+  return issues;
 }
 
 export function renderVerificationCoverage(report: VerificationCoverageReport, policy?: VerificationIntentPolicyResolution): string {
@@ -125,11 +150,21 @@ export function renderVerificationCoverage(report: VerificationCoverageReport, p
       ? '✓'
       : e.status === 'deferred'
         ? '~'
-        : '✗';
+        : e.status === 'weak'
+          ? '⚠'
+          : '✗';
     const ev = e.evidence
       ? ` via ${e.evidence.kind}${e.evidence.verdict ? ` verdict=${formatVerificationEvidenceVerdict(e.evidence.verdict)}` : ''}${e.evidence.file ? ` (${e.evidence.file})` : ''}`
       : '';
     lines.push(`  ${marker} ${e.intentRef} [${e.lane}/${e.priority}/${e.type}] ${e.status}${ev} — ${e.desc}`);
+  }
+  if (report.qualityIssues && report.qualityIssues.length > 0) {
+    lines.push('');
+    lines.push('Evidence quality warnings:');
+    for (const issue of report.qualityIssues) {
+      const prefix = issue.blocking ? '  [BLOCKING]' : '  [WARNING]';
+      lines.push(`${prefix} ${issue.intentRef}: ${issue.detail} (${issue.weaknessReason})`);
+    }
   }
   return lines.join('\n');
 }

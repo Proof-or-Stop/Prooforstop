@@ -576,7 +576,7 @@ export interface VerificationCoverageEntry {
   desc: string;
   type: VerificationIntentType;
   priority: VerificationPriority;
-  status: 'covered' | 'missing' | 'failed' | 'waived' | 'deferred' | 'stale';
+  status: 'covered' | 'missing' | 'failed' | 'waived' | 'deferred' | 'stale' | 'weak';
   evidence?: VerificationEvidence;
 }
 
@@ -586,6 +586,8 @@ export interface VerificationCoverageReport {
   covered: number;
   missingRequired: number;
   entries: VerificationCoverageEntry[];
+  /** Present when evidenceQualityProfile is balanced or strict and weak evidence was found */
+  qualityIssues?: import('./evidence-quality.js').EvidenceQualityIssue[];
 }
 
 /**
