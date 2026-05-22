@@ -66,7 +66,53 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/evidence-quality-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:evidence-quality-smoke && npm --prefix packages/main run test:evidence-quality-contract",
+          "result": "pass",
+          "note": "Strict profile accepts meaningful smoke/contract evidence and the build/test suite passed at commit cda88b6a.",
+          "headHash": "cda88b6ab2a4c417c7d1478ce6dd4b2c16efbdcd",
+          "materialHash": "adb246b4c68bf8d07890789932aab063d2027b98ac0bbd91511e31b5a37ecbd4",
+          "timestamp": "2026-05-22T13:14:53.614Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/evidence-quality-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-quality-smoke",
+          "result": "pass",
+          "note": "Balanced profile keeps weak evidence non-blocking while recording qualityIssues and rendering weakness diagnostics.",
+          "headHash": "cda88b6ab2a4c417c7d1478ce6dd4b2c16efbdcd",
+          "materialHash": "adb246b4c68bf8d07890789932aab063d2027b98ac0bbd91511e31b5a37ecbd4",
+          "timestamp": "2026-05-22T13:14:53.614Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "scripts/verify-evidence-quality.mjs",
+          "command": "npm --prefix packages/main run test:evidence-quality-contract",
+          "result": "pass",
+          "note": "Default/light and legacy no-options coverage remain readable and do not crash or introduce qualityIssues.",
+          "headHash": "cda88b6ab2a4c417c7d1478ce6dd4b2c16efbdcd",
+          "materialHash": "adb246b4c68bf8d07890789932aab063d2027b98ac0bbd91511e31b5a37ecbd4",
+          "timestamp": "2026-05-22T13:14:53.614Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/evidence-quality-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-quality-smoke",
+          "result": "pass",
+          "note": "Strict profile rejects fake echo/version/help/build-only evidence as weak and getBlockingVerificationEvidenceIssues emits one detailed blocker.",
+          "headHash": "cda88b6ab2a4c417c7d1478ce6dd4b2c16efbdcd",
+          "materialHash": "adb246b4c68bf8d07890789932aab063d2027b98ac0bbd91511e31b5a37ecbd4",
+          "timestamp": "2026-05-22T13:14:53.614Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
