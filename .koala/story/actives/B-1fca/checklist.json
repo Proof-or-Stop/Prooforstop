@@ -341,8 +341,8 @@
         "docs/requirements/decisions/truth-source.md"
       ],
       "userSees": "Koala can reject revoked actor evidence and surface suspicious producer/verifier or always-pass reviewer patterns.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-05-22T13:56:09.765Z",
       "endTime": null,
       "files": {
         "modify": [
@@ -515,6 +515,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "CHK-003 implementation committed by Claude Code CLI and independently verified by Codex supervisor: build, attestation smoke, evidence-quality smoke, and verification-freshness smoke passed.",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-22T13:56:09.765Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting Claude Code CLI implementation for CHK-004 actor trust registry, revocation, and suspicious evidence signals",
       "agent": "codex-supervisor"
     }
   ]
