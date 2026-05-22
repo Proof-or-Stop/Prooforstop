@@ -124,6 +124,7 @@ try {
   assert.match(brief, /Current Story Capsule/, 'session_brief should render capsule block when present');
   assert.match(brief, /continue CHK-001/, 'session_brief should include capsule next action');
 
+  const longTranscript = 'transcript-line\n'.repeat(600);
   run(root, 'capsule_run_add', {
     storyId,
     checklistId: 'CHK-001',
@@ -131,14 +132,16 @@ try {
     role: 'implementer',
     result: 'pass',
     commands: ['npm --prefix packages/main run test:story-capsule-smoke'],
-    transcript: 'short transcript',
+    transcript: longTranscript,
     metrics: { durationMs: 123, failures: 0 },
   });
   const runRoot = join(root, '.koala/story/actives/B-caps/capsule/runs');
   const runDirs = existsSync(runRoot) ? readdirSyncCompat(runRoot) : [];
   assert.equal(runDirs.length, 1, 'capsule_run_add should create exactly one run dir');
   assert.ok(existsSync(join(runRoot, runDirs[0], 'run.json')), 'run.json should exist');
-  assert.ok(existsSync(join(runRoot, runDirs[0], 'transcript.md')), 'transcript.md should exist');
+  const transcriptPath = join(runRoot, runDirs[0], 'transcript.md');
+  assert.ok(existsSync(transcriptPath), 'transcript.md should exist');
+  assert.match(readFileSync(transcriptPath, 'utf8'), /\[truncated:/, 'long transcript should be truncated by default');
 
   const badRun = run(root, 'capsule_run_add', { storyId: 'B-caps', checklistId: 'CHK-missing' }, true);
   assert.match(badRun, /unknown checklistId/, 'invalid checklistId should be refused');
