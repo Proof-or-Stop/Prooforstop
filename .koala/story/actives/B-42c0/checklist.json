@@ -148,7 +148,48 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "koala help lists capsule_show/capsule_update/capsule_handoff/capsule_run_add/capsule_import_omx, and koala session_brief displays a compact Current Story Capsule block for the active story.",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts"
+        ],
+        "create": [
+          "packages/main/src/handlers/capsule.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/story-capsule-smoke.ts",
+          "packages/main/src/tasks/command-ownership-contract.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "New capsule commands are registered, have command policies, handlers, and process-fact levels.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "session_brief remains concise and does not show noisy capsule blocks when no capsule exists.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Command ownership and process fact contract tests fail if any new command is unclassified.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
