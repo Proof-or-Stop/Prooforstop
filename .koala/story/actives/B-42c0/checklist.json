@@ -251,8 +251,8 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-05-22T00:50:15.900Z",
       "endTime": null,
       "userSees": "koala help lists capsule_show/capsule_update/capsule_handoff/capsule_run_add/capsule_import_omx, and koala session_brief displays a compact Current Story Capsule block for the active story.",
       "files": {
@@ -436,6 +436,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Capsule process-events and rebuild behavior implemented and smoke verified."
+    },
+    {
+      "timestamp": "2026-05-22T00:50:15.900Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting CLI registration and session_brief evidence recording."
     }
   ]
 }
