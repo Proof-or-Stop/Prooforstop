@@ -75,9 +75,9 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:evidence-quality-smoke && npm --prefix packages/main run test:evidence-quality-contract",
           "result": "pass",
           "note": "Strict profile accepts meaningful smoke/contract evidence and the build/test suite passed at commit cda88b6a.",
-          "headHash": "cda88b6ab2a4c417c7d1478ce6dd4b2c16efbdcd",
-          "materialHash": "adb246b4c68bf8d07890789932aab063d2027b98ac0bbd91511e31b5a37ecbd4",
-          "timestamp": "2026-05-22T13:14:53.614Z"
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -86,9 +86,9 @@
           "command": "npm --prefix packages/main run test:evidence-quality-smoke",
           "result": "pass",
           "note": "Balanced profile keeps weak evidence non-blocking while recording qualityIssues and rendering weakness diagnostics.",
-          "headHash": "cda88b6ab2a4c417c7d1478ce6dd4b2c16efbdcd",
-          "materialHash": "adb246b4c68bf8d07890789932aab063d2027b98ac0bbd91511e31b5a37ecbd4",
-          "timestamp": "2026-05-22T13:14:53.614Z"
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -97,9 +97,9 @@
           "command": "npm --prefix packages/main run test:evidence-quality-contract",
           "result": "pass",
           "note": "Default/light and legacy no-options coverage remain readable and do not crash or introduce qualityIssues.",
-          "headHash": "cda88b6ab2a4c417c7d1478ce6dd4b2c16efbdcd",
-          "materialHash": "adb246b4c68bf8d07890789932aab063d2027b98ac0bbd91511e31b5a37ecbd4",
-          "timestamp": "2026-05-22T13:14:53.614Z"
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -108,9 +108,9 @@
           "command": "npm --prefix packages/main run test:evidence-quality-smoke",
           "result": "pass",
           "note": "Strict profile rejects fake echo/version/help/build-only evidence as weak and getBlockingVerificationEvidenceIssues emits one detailed blocker.",
-          "headHash": "cda88b6ab2a4c417c7d1478ce6dd4b2c16efbdcd",
-          "materialHash": "adb246b4c68bf8d07890789932aab063d2027b98ac0bbd91511e31b5a37ecbd4",
-          "timestamp": "2026-05-22T13:14:53.614Z"
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
         }
       ]
     },
@@ -184,9 +184,9 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:reviewer-quorum-smoke && npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Strict quorum accepts required independent reviewer lanes and build/quorum/flow tests passed at commit 534e515b.",
-          "headHash": "534e515b4e3e42615d2a67501fc8b1f75790c7b6",
-          "materialHash": "ad2648c178f3d329281573f76481cc92d46adfda4b87b3d65b3efd45ce1b2d97",
-          "timestamp": "2026-05-22T13:45:29.830Z"
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -195,9 +195,9 @@
           "command": "npm --prefix packages/main run test:reviewer-quorum-smoke",
           "result": "pass",
           "note": "Balanced profile reports missing verifier metadata as warning while keeping quorum ok; covered by reviewer-quorum smoke Test 3.",
-          "headHash": "534e515b4e3e42615d2a67501fc8b1f75790c7b6",
-          "materialHash": "ad2648c178f3d329281573f76481cc92d46adfda4b87b3d65b3efd45ce1b2d97",
-          "timestamp": "2026-05-22T13:45:29.830Z"
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -206,9 +206,9 @@
           "command": "npm --prefix packages/main run test:reviewer-quorum-smoke",
           "result": "pass",
           "note": "Reviewer lane source is aligned with computeActiveReviewers; smoke Test 5b imports computeActiveReviewers and feeds its output into quorum evaluation.",
-          "headHash": "534e515b4e3e42615d2a67501fc8b1f75790c7b6",
-          "materialHash": "ad2648c178f3d329281573f76481cc92d46adfda4b87b3d65b3efd45ce1b2d97",
-          "timestamp": "2026-05-22T13:45:29.830Z"
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -217,9 +217,9 @@
           "command": "npm --prefix packages/main run test:reviewer-quorum-smoke",
           "result": "pass",
           "note": "Strict same producer/verifier actor/provider and missing lanes are rejected by quorum diagnostics; covered by reviewer-quorum smoke Tests 2 and 4.",
-          "headHash": "534e515b4e3e42615d2a67501fc8b1f75790c7b6",
-          "materialHash": "ad2648c178f3d329281573f76481cc92d46adfda4b87b3d65b3efd45ce1b2d97",
-          "timestamp": "2026-05-22T13:45:29.830Z"
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
         }
       ]
     },
@@ -293,9 +293,9 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:attestation-smoke",
           "result": "pass",
           "note": "Current-head CI/human attestations with checkedClaims and command/artifact binding pass strict attestation checks; build and smoke passed at commit ee95302c.",
-          "headHash": "ee95302ce3a0f85270ae1bfaa2bba8eb8931ed3f",
-          "materialHash": "e091c7177ed17579439d17b476530867c7b0f66b88f86c44cda755c67ef06ac9",
-          "timestamp": "2026-05-22T13:55:37.134Z"
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -304,9 +304,9 @@
           "command": "npm --prefix packages/main run test:attestation-smoke && npm --prefix packages/main run test:verification-freshness-smoke",
           "result": "pass",
           "note": "MaterialHash freshness callback keeps attestation fresh across metadata-only changes; attestation smoke and verification-freshness smoke passed.",
-          "headHash": "ee95302ce3a0f85270ae1bfaa2bba8eb8931ed3f",
-          "materialHash": "e091c7177ed17579439d17b476530867c7b0f66b88f86c44cda755c67ef06ac9",
-          "timestamp": "2026-05-22T13:55:37.134Z"
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -315,9 +315,9 @@
           "command": "npm --prefix packages/main run test:attestation-smoke",
           "result": "pass",
           "note": "Legacy evidence without attestation metadata remains compatible and does not produce attestationIssues.",
-          "headHash": "ee95302ce3a0f85270ae1bfaa2bba8eb8931ed3f",
-          "materialHash": "e091c7177ed17579439d17b476530867c7b0f66b88f86c44cda755c67ef06ac9",
-          "timestamp": "2026-05-22T13:55:37.134Z"
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -326,9 +326,9 @@
           "command": "npm --prefix packages/main run test:attestation-smoke",
           "result": "pass",
           "note": "Strict validation rejects empty human looks-good attestations, empty checkedClaims, unbound CI attestations, and stale CI attestations with detailed attestation diagnostics.",
-          "headHash": "ee95302ce3a0f85270ae1bfaa2bba8eb8931ed3f",
-          "materialHash": "e091c7177ed17579439d17b476530867c7b0f66b88f86c44cda755c67ef06ac9",
-          "timestamp": "2026-05-22T13:55:37.134Z"
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
         }
       ]
     },
@@ -400,9 +400,9 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:actor-trust-smoke",
           "result": "pass",
           "note": "Trusted independent producer/verifier actors and differentiated providers are accepted in strict actor trust checks; build and actor-trust smoke passed at commit feaa0f07.",
-          "headHash": "feaa0f076c0ecdd101f162a5693109684d48a186",
-          "materialHash": "fc40a3db49b22c57faab2f02d8a54193e7d0399ae18e15e206eb47bb9dbad6ba",
-          "timestamp": "2026-05-22T14:03:43.827Z"
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -411,9 +411,9 @@
           "command": "npm --prefix packages/main run test:actor-trust-smoke",
           "result": "pass",
           "note": "Missing actorTrust metadata remains compatible in light and warns in balanced when requireActorMetadata is enabled.",
-          "headHash": "feaa0f076c0ecdd101f162a5693109684d48a186",
-          "materialHash": "fc40a3db49b22c57faab2f02d8a54193e7d0399ae18e15e206eb47bb9dbad6ba",
-          "timestamp": "2026-05-22T14:03:43.827Z"
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
         },
         {
           "intentRef": "CHK-004:edge:1",
@@ -422,9 +422,9 @@
           "command": "npm --prefix packages/main run test:actor-trust-smoke",
           "result": "pass",
           "note": "Suspicious always-pass actor patterns warn in balanced and block in strict when actorStats indicate repeated 100 percent pass behavior.",
-          "headHash": "feaa0f076c0ecdd101f162a5693109684d48a186",
-          "materialHash": "fc40a3db49b22c57faab2f02d8a54193e7d0399ae18e15e206eb47bb9dbad6ba",
-          "timestamp": "2026-05-22T14:03:43.827Z"
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -433,9 +433,9 @@
           "command": "npm --prefix packages/main run test:actor-trust-smoke",
           "result": "pass",
           "note": "Strict mode rejects revoked actors, same producer/verifier actor, same run id, and same producer/verifier provider with detailed actor trust diagnostics.",
-          "headHash": "feaa0f076c0ecdd101f162a5693109684d48a186",
-          "materialHash": "fc40a3db49b22c57faab2f02d8a54193e7d0399ae18e15e206eb47bb9dbad6ba",
-          "timestamp": "2026-05-22T14:03:43.827Z"
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
         }
       ]
     },
