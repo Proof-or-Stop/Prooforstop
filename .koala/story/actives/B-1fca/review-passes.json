@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-22T14:17:37.268Z",
       "reviewRunId": "B-1fca:RR-001",
       "_hash": "548ab52815743a557ab728bc6a83b1a0436f9940051799567131dc36a0188e47"
+    },
+    {
+      "id": "B-1fca:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Docs review passed at medium severity threshold. New evidence-quality, actor-trust, attestation, fact-provenance, and reviewer-quorum modules are implemented correctly in code. The checklist listed testing-infra.md, story-lifecycle.md, and CLAUDE.md as files.modify but none were updated with documentation of the new evidenceQualityProfile gate behavior or weak-evidence patterns. This is a medium doc drift gap (truth-source docs omit the new quality gating concepts), not a blocking inconsistency since docs don't falsely claim contrary behavior. No critical/high blocker found.",
+      "createdAt": "2026-05-22T14:20:47.873Z",
+      "reviewRound": "2026-05-22T14:17:37.268Z",
+      "reviewRunId": "B-1fca:RR-002",
+      "_hash": "08e3bdca1ab2883bc8bf73d555e70ea547bb8ae7865845533e5ef5a6c4fe6839"
     }
   ]
 }
