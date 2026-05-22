@@ -10,9 +10,9 @@
         "docs/requirements/decisions/test-intent-review.md"
       ],
       "userSees": "Weak evidence is reported with quality diagnostics; strict validation blocks weak evidence instead of letting a checklist pass on shallow commands.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-22T12:47:55.235Z",
-      "endTime": null,
+      "endTime": "2026-05-22T13:14:59.810Z",
       "files": {
         "modify": [
           "packages/main/src/core/verification.ts",
@@ -373,6 +373,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Starting Claude Code CLI implementation for CHK-001 / Milestone 2 evidence-quality gate",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-22T13:14:59.810Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "CHK-001 implementation committed by Claude Code CLI and independently verified by Codex supervisor: build, evidence-quality smoke, and evidence-quality contract passed; strict weak evidence blocks and balanced warns.",
       "agent": "codex-supervisor"
     }
   ]
