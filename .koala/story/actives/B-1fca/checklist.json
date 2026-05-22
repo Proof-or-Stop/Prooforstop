@@ -448,8 +448,8 @@
         "docs/requirements/decisions/testing-infra.md"
       ],
       "userSees": "External fact evidence must cite source/provenance and strict validation flags missing, stale, secondary-only, or conflicting sources.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-05-22T14:04:28.261Z",
       "endTime": null,
       "files": {
         "modify": [
@@ -581,6 +581,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "CHK-004 implementation committed by Claude Code CLI and independently verified by Codex supervisor: build, actor-trust smoke, and attestation smoke passed.",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-22T14:04:28.261Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting Claude Code CLI implementation for CHK-005 external fact provenance and freshness policy",
       "agent": "codex-supervisor"
     }
   ]
