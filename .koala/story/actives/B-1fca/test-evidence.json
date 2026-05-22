@@ -1,14 +1,14 @@
 {
   "command": "koala validate --story=B-1fca --json",
-  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery; verification coverage missing 13 required intent(s)\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.3 test\",\"  > npm run test:e2e\",\"  > koala@0.3.3 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 4/20 covered (13 required missing)\",\"  ✗ CHK-001:happy:0 [happy/must/logic] stale via logic_test (packages/main/src/tasks/evidence-quality-smoke.ts) — Strict validation accepts a checklist evidence item that has a meaningful project test command, assertion-bearing test file/artifact, current head/material metadata, and a pass result.\",\"  ✗ CHK-001:edge:0 [edge/must/logic] stale via logic_test (packages/main/src/tasks/evidence-quality-smoke.ts) — Balanced profile does not block legacy or weak evidence, but emits a clear quality warning tied to the checklist item and weakness reason.\",\"  ✗ CHK-001:edge:1 [edge/should/logic] stale via logic_test (scripts/verify-evidence-quality.mjs) — Old evidence lacking newly introduced optional quality fields remains readable and does not crash validate.\",\"  ✗ CHK-001:adversarial:0 [adversarial/must/logic] stale via logic_test (packages/main/src/tasks/evidence-quality-smoke.ts) — A fake verifier attempts to satisfy strict evidence using only echo pass/version/help-only/compile-only output; validate rejects it with a weak_evidence diagnostic.\",\"  ✗ CHK-002:happy:0 [happy/must/logic] stale via logic_test (packages/main/src/tasks/reviewer-quorum-smoke.ts) — High-risk story review evidence with required independent reviewer lanes and no disputes satisfies quorum diagnostics.\",\"  ✗ CHK-002:edge:0 [edge/must/logic] stale via logic_test (packages/main/src/tasks/reviewer-quorum-smoke.ts) — Balanced profile reports missing differentiated verifier metadata as warning instead of blocking existing flows.\",\"  ✗ CHK-002:edge:1 [edge/must/logic] stale via logic_test (packages/main/src/tasks/reviewer-quorum-smoke.ts) — Reviewer lane source stays aligned with existing active reviewer computation.\",\"  ✗ CHK-002:adversarial:0 [adversarial/must/logic] stale via logic_test (packages/main/src/tasks/reviewer-quorum-smoke.ts) — The same actor/provider tries to act as producer and verifier; strict review/validate blocks or reports differentiated-verifier failure.\",\"  ✗ CHK-003:happy:0 [happy/must/logic] stale via logic_test (packages/main/src/tasks/attestation-smoke.ts) — Current-head CI/human attestation with checked claims, command/artifact reference, actor, timestamp, and pass result satisfies strict checks.\",\"  ✗ CHK-003:edge:0 [edge/must/logic] stale via logic_test (packages/main/src/tasks/attestation-smoke.ts) — Story metadata-only changes do not stale a material CI/human attestation.\",\"  ✗ CHK-003:edge:1 [edge/should/logic] stale via logic_test (packages/main/src/tasks/attestation-smoke.ts) — Legacy evidence without attestation metadata is treated as ordinary evidence unless it explicitly claims CI/human authority.\",\"  ✗ CHK-003:adversarial:0 [adversarial/must/logic] stale via logic_test (packages/main/src/tasks/attestation-smoke.ts) — A human reviewer submits only looks-good without checkedClaims or artifact binding; strict validation rejects it as empty attestation.\",\"  ✗ CHK-004:happy:0 [happy/must/logic] stale via logic_test (packages/main/src/tasks/actor-trust-smoke.ts) — Trusted independent actor/verifier metadata is accepted and rendered as healthy trust diagnostics.\",\"  ✗ CHK-004:edge:0 [edge/must/logic] stale via logic_test (packages/main/src/tasks/actor-trust-smoke.ts) — Missing actor metadata on low-risk/light flows remains compatible, while balanced surfaces a warning.\",\"  ✗ CHK-004:edge:1 [edge/should/logic] stale via logic_test (packages/main/src/tasks/actor-trust-smoke.ts) — Suspicious pass patterns are advisory unless the effective profile requires stricter enforcement.\",\"  ✗ CHK-004:adversarial:0 [adversarial/must/logic] stale via logic_test (packages/main/src/tasks/actor-trust-smoke.ts) — Evidence signed by a revoked actor or by the same actor as producer and verifier is rejected in strict mode.\",\"  ✓ CHK-005:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/fact-provenance-smoke.ts) — Explicit external_fact evidence with primary-source provenance, fetchedAt, digest/hash, and fresh timestamp passes strict provenance checks.\",\"  ✓ CHK-005:edge:0 [edge/should/logic] covered via logic_test (packages/main/src/tasks/fact-provenance-smoke.ts) — Non-external verification evidence is not forced to carry source provenance.\",\"  ✓ CHK-005:edge:1 [edge/must/logic] covered via logic_test (packages/main/src/tasks/fact-provenance-smoke.ts) — Balanced profile warns on secondary-only or soon-expiring provenance without blocking legacy local flows.\",\"  ✓ CHK-005:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/fact-provenance-smoke.ts) — An agent asserts an external fact with no source, stale source, secondary-only source, or conflicting source set; strict validation rejects it.\"],\"warnings\":[],\"timestamp\":\"2026-05-22T14:16:47.964Z\",\"headSha\":\"02045f466e94c36957d52b546acff80fe727b337\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.3 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.3 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1206}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":20,\"reason\":\"verificationIntent entries present (20)\"},\"verificationCoverage\":{\"total\":20,\"required\":16,\"covered\":4,\"missingRequired\":13,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Strict validation accepts a checklist evidence item that has a meaningful project test command, assertion-bearing test file/artifact, current head/material metadata, and a pass result.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-quality-smoke.ts\",\"command\":\"npm --prefix packages/main run build && npm --prefix packages/main run test:evidence-quality-smoke && npm --prefix packages/main run test:evidence-quality-contract\",\"result\":\"pass\",\"note\":\"Strict profile accepts meaningful smoke/contract evidence and the build/test suite passed at commit cda88b6a.\",\"headHash\":\"cda88b6ab2a4c417c7d1478ce6dd4b2c16efbdcd\",\"materialHash\":\"adb246b4c68bf8d07890789932aab063d2027b98ac0bbd91511e31b5a37ecbd4\",\"timestamp\":\"2026-05-22T13:14:53.614Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Balanced profile does not block legacy or weak evidence, but emits a clear quality warning tied to the checklist item and weakness reason.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-quality-smoke.ts\",\"command\":\"npm --prefix packages/main run test:evidence-quality-smoke\",\"result\":\"pass\",\"note\":\"Balanced profile keeps weak evidence non-blocking while recording qualityIssues and rendering weakness diagnostics.\",\"headHash\":\"cda88b6ab2a4c417c7d1478ce6dd4b2c16efbdcd\",\"materialHash\":\"adb246b4c68bf8d07890789932aab063d2027b98ac0bbd91511e31b5a37ecbd4\",\"timestamp\":\"2026-05-22T13:14:53.614Z\"}},{\"intentRef\":\"CHK-001:edge:1\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Old evidence lacking newly introduced optional quality fields remains readable and does not crash validate.\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:edge:1\",\"kind\":\"logic_test\",\"file\":\"scripts/verify-evidence-quality.mjs\",\"command\":\"npm --prefix packages/main run test:evidence-quality-contract\",\"result\":\"pass\",\"note\":\"Default/light and legacy no-options coverage remain readable and do not crash or introduce qualityIssues.\",\"headHash\":\"cda88b6ab2a4c417c7d1478ce6dd4b2c16efbdcd\",\"materialHash\":\"adb246b4c68bf8d07890789932aab063d2027b98ac0bbd91511e31b5a37ecbd4\",\"timestamp\":\"2026-05-22T13:14:53.614Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"A fake verifier attempts to satisfy strict evidence using only echo pass/version/help-only/compile-only output; validate rejects it with a weak_evidence diagnostic.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-quality-smoke.ts\",\"command\":\"npm --prefix packages/main run test:evidence-quality-smoke\",\"result\":\"pass\",\"note\":\"Strict profile rejects fake echo/version/help/build-only evidence as weak and getBlockingVerificationEvidenceIssues emits one detailed blocker.\",\"headHash\":\"cda88b6ab2a4c417c7d1478ce6dd4b2c16efbdcd\",\"materialHash\":\"adb246b4c68bf8d07890789932aab063d2027b98ac0bbd91511e31b5a37ecbd4\",\"timestamp\":\"2026-05-22T13:14:53.614Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"High-risk story review evidence with required independent reviewer lanes and no disputes satisfies quorum diagnostics.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/reviewer-quorum-smoke.ts\",\"command\":\"npm --prefix packages/main run build && npm --prefix packages/main run test:reviewer-quorum-smoke && npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"Strict quorum accepts required independent reviewer lanes and build/quorum/flow tests passed at commit 534e515b.\",\"headHash\":\"534e515b4e3e42615d2a67501fc8b1f75790c7b6\",\"materialHash\":\"ad2648c178f3d329281573f76481cc92d46adfda4b87b3d65b3efd45ce1b2d97\",\"timestamp\":\"2026-05-22T13:45:29.830Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Balanced profile reports missing differentiated verifier metadata as warning instead of blocking existing flows.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/reviewer-quorum-smoke.ts\",\"command\":\"npm --prefix packages/main run test:reviewer-quorum-smoke\",\"result\":\"pass\",\"note\":\"Balanced profile reports missing verifier metadata as warning while keeping quorum ok; covered by reviewer-quorum smoke Test 3.\",\"headHash\":\"534e515b4e3e42615d2a67501fc8b1f75790c7b6\",\"materialHash\":\"ad2648c178f3d329281573f76481cc92d46adfda4b87b3d65b3efd45ce1b2d97\",\"timestamp\":\"2026-05-22T13:45:29.830Z\"}},{\"intentRef\":\"CHK-002:edge:1\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Reviewer lane source stays aligned with existing active reviewer computation.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:edge:1\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/reviewer-quorum-smoke.ts\",\"command\":\"npm --prefix packages/main run test:reviewer-quorum-smoke\",\"result\":\"pass\",\"note\":\"Reviewer lane source is aligned with computeActiveReviewers; smoke Test 5b imports computeActiveReviewers and feeds its output into quorum evaluation.\",\"headHash\":\"534e515b4e3e42615d2a67501fc8b1f75790c7b6\",\"materialHash\":\"ad2648c178f3d329281573f76481cc92d46adfda4b87b3d65b3efd45ce1b2d97\",\"timestamp\":\"2026-05-22T13:45:29.830Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"The same actor/provider tries to act as producer and verifier; strict review/validate blocks or reports differentiated-verifier failure.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/reviewer-quorum-smoke.ts\",\"command\":\"npm --prefix packages/main run test:reviewer-quorum-smoke\",\"result\":\"pass\",\"note\":\"Strict same producer/verifier actor/provider and missing lanes are rejected by quorum diagnostics; covered by reviewer-quorum smoke Tests 2 and 4.\",\"headHash\":\"534e515b4e3e42615d2a67501fc8b1f75790c7b6\",\"materialHash\":\"ad2648c178f3d329281573f76481cc92d46adfda4b87b3d65b3efd45ce1b2d97\",\"timestamp\":\"2026-05-22T13:45:29.830Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Current-head CI/human attestation with checked claims, command/artifact reference, actor, timestamp, and pass result satisfies strict checks.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/attestation-smoke.ts\",\"command\":\"npm --prefix packages/main run build && npm --prefix packages/main run test:attestation-smoke\",\"result\":\"pass\",\"note\":\"Current-head CI/human attestations with checkedClaims and command/artifact binding pass strict attestation checks; build and smoke passed at commit ee95302c.\",\"headHash\":\"ee95302ce3a0f85270ae1bfaa2bba8eb8931ed3f\",\"materialHash\":\"e091c7177ed17579439d17b476530867c7b0f66b88f86c44cda755c67ef06ac9\",\"timestamp\":\"2026-05-22T13:55:37.134Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Story metadata-only changes do not stale a material CI/human attestation.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/attestation-smoke.ts\",\"command\":\"npm --prefix packages/main run test:attestation-smoke && npm --prefix packages/main run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"MaterialHash freshness callback keeps attestation fresh across metadata-only changes; attestation smoke and verification-freshness smoke passed.\",\"headHash\":\"ee95302ce3a0f85270ae1bfaa2bba8eb8931ed3f\",\"materialHash\":\"e091c7177ed17579439d17b476530867c7b0f66b88f86c44cda755c67ef06ac9\",\"timestamp\":\"2026-05-22T13:55:37.134Z\"}},{\"intentRef\":\"CHK-003:edge:1\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Legacy evidence without attestation metadata is treated as ordinary evidence unless it explicitly claims CI/human authority.\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:edge:1\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/attestation-smoke.ts\",\"command\":\"npm --prefix packages/main run test:attestation-smoke\",\"result\":\"pass\",\"note\":\"Legacy evidence without attestation metadata remains compatible and does not produce attestationIssues.\",\"headHash\":\"ee95302ce3a0f85270ae1bfaa2bba8eb8931ed3f\",\"materialHash\":\"e091c7177ed17579439d17b476530867c7b0f66b88f86c44cda755c67ef06ac9\",\"timestamp\":\"2026-05-22T13:55:37.134Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"A human reviewer submits only looks-good without checkedClaims or artifact binding; strict validation rejects it as empty attestation.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/attestation-smoke.ts\",\"command\":\"npm --prefix packages/main run test:attestation-smoke\",\"result\":\"pass\",\"note\":\"Strict validation rejects empty human looks-good attestations, empty checkedClaims, unbound CI attestations, and stale CI attestations with detailed attestation diagnostics.\",\"headHash\":\"ee95302ce3a0f85270ae1bfaa2bba8eb8931ed3f\",\"materialHash\":\"e091c7177ed17579439d17b476530867c7b0f66b88f86c44cda755c67ef06ac9\",\"timestamp\":\"2026-05-22T13:55:37.134Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Trusted independent actor/verifier metadata is accepted and rendered as healthy trust diagnostics.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/actor-trust-smoke.ts\",\"command\":\"npm --prefix packages/main run build && npm --prefix packages/main run test:actor-trust-smoke\",\"result\":\"pass\",\"note\":\"Trusted independent producer/verifier actors and differentiated providers are accepted in strict actor trust checks; build and actor-trust smoke passed at commit feaa0f07.\",\"headHash\":\"feaa0f076c0ecdd101f162a5693109684d48a186\",\"materialHash\":\"fc40a3db49b22c57faab2f02d8a54193e7d0399ae18e15e206eb47bb9dbad6ba\",\"timestamp\":\"2026-05-22T14:03:43.827Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Missing actor metadata on low-risk/light flows remains compatible, while balanced surfaces a warning.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/actor-trust-smoke.ts\",\"command\":\"npm --prefix packages/main run test:actor-trust-smoke\",\"result\":\"pass\",\"note\":\"Missing actorTrust metadata remains compatible in light and warns in balanced when requireActorMetadata is enabled.\",\"headHash\":\"feaa0f076c0ecdd101f162a5693109684d48a186\",\"materialHash\":\"fc40a3db49b22c57faab2f02d8a54193e7d0399ae18e15e206eb47bb9dbad6ba\",\"timestamp\":\"2026-05-22T14:03:43.827Z\"}},{\"intentRef\":\"CHK-004:edge:1\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Suspicious pass patterns are advisory unless the effective profile requires stricter enforcement.\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-004:edge:1\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/actor-trust-smoke.ts\",\"command\":\"npm --prefix packages/main run test:actor-trust-smoke\",\"result\":\"pass\",\"note\":\"Suspicious always-pass actor patterns warn in balanced and block in strict when actorStats indicate repeated 100 percent pass behavior.\",\"headHash\":\"feaa0f076c0ecdd101f162a5693109684d48a186\",\"materialHash\":\"fc40a3db49b22c57faab2f02d8a54193e7d0399ae18e15e206eb47bb9dbad6ba\",\"timestamp\":\"2026-05-22T14:03:43.827Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Evidence signed by a revoked actor or by the same actor as producer and verifier is rejected in strict mode.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/actor-trust-smoke.ts\",\"command\":\"npm --prefix packages/main run test:actor-trust-smoke\",\"result\":\"pass\",\"note\":\"Strict mode rejects revoked actors, same producer/verifier actor, same run id, and same producer/verifier provider with detailed actor trust diagnostics.\",\"headHash\":\"feaa0f076c0ecdd101f162a5693109684d48a186\",\"materialHash\":\"fc40a3db49b22c57faab2f02d8a54193e7d0399ae18e15e206eb47bb9dbad6ba\",\"timestamp\":\"2026-05-22T14:03:43.827Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"Explicit external_fact evidence with primary-source provenance, fetchedAt, digest/hash, and fresh timestamp passes strict provenance checks.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/fact-provenance-smoke.ts\",\"command\":\"npm --prefix packages/main run build && npm --prefix packages/main run test:fact-provenance-smoke\",\"result\":\"pass\",\"note\":\"Strict fact provenance accepts fresh primary-source evidence with sourceUrl/sourceRef, digest, fetchedAt, and checkedClaims; build and fact-provenance smoke passed at commit 967fcced.\",\"headHash\":\"967fcced894c434bf45acd0d3deebfced1d4f6d1\",\"materialHash\":\"d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4\",\"timestamp\":\"2026-05-22T14:16:34.707Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"Non-external verification evidence is not forced to carry source provenance.\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/fact-provenance-smoke.ts\",\"command\":\"npm --prefix packages/main run test:fact-provenance-smoke\",\"result\":\"pass\",\"note\":\"Non-external and local verification evidence remains compatible without forcing source provenance, covered by fact-provenance smoke cases 2 and 3.\",\"headHash\":\"967fcced894c434bf45acd0d3deebfced1d4f6d1\",\"materialHash\":\"d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4\",\"timestamp\":\"2026-05-22T14:16:34.707Z\"}},{\"intentRef\":\"CHK-005:edge:1\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"Balanced profile warns on secondary-only or soon-expiring provenance without blocking legacy local flows.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:1\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/fact-provenance-smoke.ts\",\"command\":\"npm --prefix packages/main run test:fact-provenance-smoke && npm --prefix packages/main run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"Balanced provenance warnings cover secondary-only, stale, expired, soon-expiring, and refresh metadata preservation without blocking legacy/local flows.\",\"headHash\":\"967fcced894c434bf45acd0d3deebfced1d4f6d1\",\"materialHash\":\"d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4\",\"timestamp\":\"2026-05-22T14:16:34.707Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"An agent asserts an external fact with no source, stale source, secondary-only source, or conflicting source set; strict validation rejects it.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/fact-provenance-smoke.ts\",\"command\":\"npm --prefix packages/main run test:fact-provenance-smoke\",\"result\":\"pass\",\"note\":\"Strict mode rejects unsupported external facts with missing or whitespace source/digest/claims, stale or invalid dates, secondary-only source, and conflicting non-empty sources.\",\"headHash\":\"967fcced894c434bf45acd0d3deebfced1d4f6d1\",\"materialHash\":\"d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4\",\"timestamp\":\"2026-05-22T14:16:34.707Z\"}}]}}",
-  "result": "FAIL",
-  "timestamp": "2026-05-22T14:16:48.532Z",
-  "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.3 test\",\"  > npm run test:e2e\",\"  > koala@0.3.3 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 20/20 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/evidence-quality-smoke.ts) — Strict validation accepts a checklist evidence item that has a meaningful project test command, assertion-bearing test file/artifact, current head/material metadata, and a pass result.\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/evidence-quality-smoke.ts) — Balanced profile does not block legacy or weak evidence, but emits a clear quality warning tied to the checklist item and weakness reason.\",\"  ✓ CHK-001:edge:1 [edge/should/logic] covered via logic_test (scripts/verify-evidence-quality.mjs) — Old evidence lacking newly introduced optional quality fields remains readable and does not crash validate.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/evidence-quality-smoke.ts) — A fake verifier attempts to satisfy strict evidence using only echo pass/version/help-only/compile-only output; validate rejects it with a weak_evidence diagnostic.\",\"  ✓ CHK-002:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/reviewer-quorum-smoke.ts) — High-risk story review evidence with required independent reviewer lanes and no disputes satisfies quorum diagnostics.\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/reviewer-quorum-smoke.ts) — Balanced profile reports missing differentiated verifier metadata as warning instead of blocking existing flows.\",\"  ✓ CHK-002:edge:1 [edge/must/logic] covered via logic_test (packages/main/src/tasks/reviewer-quorum-smoke.ts) — Reviewer lane source stays aligned with existing active reviewer computation.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/reviewer-quorum-smoke.ts) — The same actor/provider tries to act as producer and verifier; strict review/validate blocks or reports differentiated-verifier failure.\",\"  ✓ CHK-003:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/attestation-smoke.ts) — Current-head CI/human attestation with checked claims, command/artifact reference, actor, timestamp, and pass result satisfies strict checks.\",\"  ✓ CHK-003:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/attestation-smoke.ts) — Story metadata-only changes do not stale a material CI/human attestation.\",\"  ✓ CHK-003:edge:1 [edge/should/logic] covered via logic_test (packages/main/src/tasks/attestation-smoke.ts) — Legacy evidence without attestation metadata is treated as ordinary evidence unless it explicitly claims CI/human authority.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/attestation-smoke.ts) — A human reviewer submits only looks-good without checkedClaims or artifact binding; strict validation rejects it as empty attestation.\",\"  ✓ CHK-004:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/actor-trust-smoke.ts) — Trusted independent actor/verifier metadata is accepted and rendered as healthy trust diagnostics.\",\"  ✓ CHK-004:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/actor-trust-smoke.ts) — Missing actor metadata on low-risk/light flows remains compatible, while balanced surfaces a warning.\",\"  ✓ CHK-004:edge:1 [edge/should/logic] covered via logic_test (packages/main/src/tasks/actor-trust-smoke.ts) — Suspicious pass patterns are advisory unless the effective profile requires stricter enforcement.\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/actor-trust-smoke.ts) — Evidence signed by a revoked actor or by the same actor as producer and verifier is rejected in strict mode.\",\"  ✓ CHK-005:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/fact-provenance-smoke.ts) — Explicit external_fact evidence with primary-source provenance, fetchedAt, digest/hash, and fresh timestamp passes strict provenance checks.\",\"  ✓ CHK-005:edge:0 [edge/should/logic] covered via logic_test (packages/main/src/tasks/fact-provenance-smoke.ts) — Non-external verification evidence is not forced to carry source provenance.\",\"  ✓ CHK-005:edge:1 [edge/must/logic] covered via logic_test (packages/main/src/tasks/fact-provenance-smoke.ts) — Balanced profile warns on secondary-only or soon-expiring provenance without blocking legacy local flows.\",\"  ✓ CHK-005:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/fact-provenance-smoke.ts) — An agent asserts an external fact with no source, stale source, secondary-only source, or conflicting source set; strict validation rejects it.\"],\"warnings\":[],\"timestamp\":\"2026-05-22T14:17:08.149Z\",\"headSha\":\"eee13996a9cda93351b3c90d2c022d11ca72fc1a\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.3 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.3 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":2250}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":20,\"reason\":\"verificationIntent entries present (20)\"},\"verificationCoverage\":{\"total\":20,\"required\":16,\"covered\":20,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Strict validation accepts a checklist evidence item that has a meaningful project test command, assertion-bearing test file/artifact, current head/material metadata, and a pass result.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-quality-smoke.ts\",\"command\":\"npm --prefix packages/main run build && npm --prefix packages/main run test:evidence-quality-smoke && npm --prefix packages/main run test:evidence-quality-contract\",\"result\":\"pass\",\"note\":\"Strict profile accepts meaningful smoke/contract evidence and the build/test suite passed at commit cda88b6a.\",\"headHash\":\"02045f466e94c36957d52b546acff80fe727b337\",\"materialHash\":\"d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4\",\"timestamp\":\"2026-05-22T14:16:59.403Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Balanced profile does not block legacy or weak evidence, but emits a clear quality warning tied to the checklist item and weakness reason.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-quality-smoke.ts\",\"command\":\"npm --prefix packages/main run test:evidence-quality-smoke\",\"result\":\"pass\",\"note\":\"Balanced profile keeps weak evidence non-blocking while recording qualityIssues and rendering weakness diagnostics.\",\"headHash\":\"02045f466e94c36957d52b546acff80fe727b337\",\"materialHash\":\"d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4\",\"timestamp\":\"2026-05-22T14:16:59.403Z\"}},{\"intentRef\":\"CHK-001:edge:1\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Old evidence lacking newly introduced optional quality fields remains readable and does not crash validate.\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:1\",\"kind\":\"logic_test\",\"file\":\"scripts/verify-evidence-quality.mjs\",\"command\":\"npm --prefix packages/main run test:evidence-quality-contract\",\"result\":\"pass\",\"note\":\"Default/light and legacy no-options coverage remain readable and do not crash or introduce qualityIssues.\",\"headHash\":\"02045f466e94c36957d52b546acff80fe727b337\",\"materialHash\":\"d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4\",\"timestamp\":\"2026-05-22T14:16:59.403Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"A fake verifier attempts to satisfy strict evidence using only echo pass/version/help-only/compile-only output; validate rejects it with a weak_evidence diagnostic.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/evidence-quality-smoke.ts\",\"command\":\"npm --prefix packages/main run test:evidence-quality-smoke\",\"result\":\"pass\",\"note\":\"Strict profile rejects fake echo/version/help/build-only evidence as weak and getBlockingVerificationEvidenceIssues emits one detailed blocker.\",\"headHash\":\"02045f466e94c36957d52b546acff80fe727b337\",\"materialHash\":\"d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4\",\"timestamp\":\"2026-05-22T14:16:59.403Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"High-risk story review evidence with required independent reviewer lanes and no disputes satisfies quorum diagnostics.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/reviewer-quorum-smoke.ts\",\"command\":\"npm --prefix packages/main run build && npm --prefix packages/main run test:reviewer-quorum-smoke && npm --prefix packages/main run test:flow-stability-smoke\",\"result\":\"pass\",\"note\":\"Strict quorum accepts required independent reviewer lanes and build/quorum/flow tests passed at commit 534e515b.\",\"headHash\":\"02045f466e94c36957d52b546acff80fe727b337\",\"materialHash\":\"d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4\",\"timestamp\":\"2026-05-22T14:16:59.403Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Balanced profile reports missing differentiated verifier metadata as warning instead of blocking existing flows.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/reviewer-quorum-smoke.ts\",\"command\":\"npm --prefix packages/main run test:reviewer-quorum-smoke\",\"result\":\"pass\",\"note\":\"Balanced profile reports missing verifier metadata as warning while keeping quorum ok; covered by reviewer-quorum smoke Test 3.\",\"headHash\":\"02045f466e94c36957d52b546acff80fe727b337\",\"materialHash\":\"d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4\",\"timestamp\":\"2026-05-22T14:16:59.403Z\"}},{\"intentRef\":\"CHK-002:edge:1\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Reviewer lane source stays aligned with existing active reviewer computation.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:1\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/reviewer-quorum-smoke.ts\",\"command\":\"npm --prefix packages/main run test:reviewer-quorum-smoke\",\"result\":\"pass\",\"note\":\"Reviewer lane source is aligned with computeActiveReviewers; smoke Test 5b imports computeActiveReviewers and feeds its output into quorum evaluation.\",\"headHash\":\"02045f466e94c36957d52b546acff80fe727b337\",\"materialHash\":\"d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4\",\"timestamp\":\"2026-05-22T14:16:59.403Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"The same actor/provider tries to act as producer and verifier; strict review/validate blocks or reports differentiated-verifier failure.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/reviewer-quorum-smoke.ts\",\"command\":\"npm --prefix packages/main run test:reviewer-quorum-smoke\",\"result\":\"pass\",\"note\":\"Strict same producer/verifier actor/provider and missing lanes are rejected by quorum diagnostics; covered by reviewer-quorum smoke Tests 2 and 4.\",\"headHash\":\"02045f466e94c36957d52b546acff80fe727b337\",\"materialHash\":\"d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4\",\"timestamp\":\"2026-05-22T14:16:59.403Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Current-head CI/human attestation with checked claims, command/artifact reference, actor, timestamp, and pass result satisfies strict checks.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/attestation-smoke.ts\",\"command\":\"npm --prefix packages/main run build && npm --prefix packages/main run test:attestation-smoke\",\"result\":\"pass\",\"note\":\"Current-head CI/human attestations with checkedClaims and command/artifact binding pass strict attestation checks; build and smoke passed at commit ee95302c.\",\"headHash\":\"02045f466e94c36957d52b546acff80fe727b337\",\"materialHash\":\"d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4\",\"timestamp\":\"2026-05-22T14:16:59.403Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Story metadata-only changes do not stale a material CI/human attestation.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/attestation-smoke.ts\",\"command\":\"npm --prefix packages/main run test:attestation-smoke && npm --prefix packages/main run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"MaterialHash freshness callback keeps attestation fresh across metadata-only changes; attestation smoke and verification-freshness smoke passed.\",\"headHash\":\"02045f466e94c36957d52b546acff80fe727b337\",\"materialHash\":\"d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4\",\"timestamp\":\"2026-05-22T14:16:59.403Z\"}},{\"intentRef\":\"CHK-003:edge:1\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Legacy evidence without attestation metadata is treated as ordinary evidence unless it explicitly claims CI/human authority.\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:1\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/attestation-smoke.ts\",\"command\":\"npm --prefix packages/main run test:attestation-smoke\",\"result\":\"pass\",\"note\":\"Legacy evidence without attestation metadata remains compatible and does not produce attestationIssues.\",\"headHash\":\"02045f466e94c36957d52b546acff80fe727b337\",\"materialHash\":\"d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4\",\"timestamp\":\"2026-05-22T14:16:59.403Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"A human reviewer submits only looks-good without checkedClaims or artifact binding; strict validation rejects it as empty attestation.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/attestation-smoke.ts\",\"command\":\"npm --prefix packages/main run test:attestation-smoke\",\"result\":\"pass\",\"note\":\"Strict validation rejects empty human looks-good attestations, empty checkedClaims, unbound CI attestations, and stale CI attestations with detailed attestation diagnostics.\",\"headHash\":\"02045f466e94c36957d52b546acff80fe727b337\",\"materialHash\":\"d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4\",\"timestamp\":\"2026-05-22T14:16:59.403Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Trusted independent actor/verifier metadata is accepted and rendered as healthy trust diagnostics.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/actor-trust-smoke.ts\",\"command\":\"npm --prefix packages/main run build && npm --prefix packages/main run test:actor-trust-smoke\",\"result\":\"pass\",\"note\":\"Trusted independent producer/verifier actors and differentiated providers are accepted in strict actor trust checks; build and actor-trust smoke passed at commit feaa0f07.\",\"headHash\":\"02045f466e94c36957d52b546acff80fe727b337\",\"materialHash\":\"d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4\",\"timestamp\":\"2026-05-22T14:16:59.403Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Missing actor metadata on low-risk/light flows remains compatible, while balanced surfaces a warning.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/actor-trust-smoke.ts\",\"command\":\"npm --prefix packages/main run test:actor-trust-smoke\",\"result\":\"pass\",\"note\":\"Missing actorTrust metadata remains compatible in light and warns in balanced when requireActorMetadata is enabled.\",\"headHash\":\"02045f466e94c36957d52b546acff80fe727b337\",\"materialHash\":\"d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4\",\"timestamp\":\"2026-05-22T14:16:59.403Z\"}},{\"intentRef\":\"CHK-004:edge:1\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Suspicious pass patterns are advisory unless the effective profile requires stricter enforcement.\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:1\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/actor-trust-smoke.ts\",\"command\":\"npm --prefix packages/main run test:actor-trust-smoke\",\"result\":\"pass\",\"note\":\"Suspicious always-pass actor patterns warn in balanced and block in strict when actorStats indicate repeated 100 percent pass behavior.\",\"headHash\":\"02045f466e94c36957d52b546acff80fe727b337\",\"materialHash\":\"d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4\",\"timestamp\":\"2026-05-22T14:16:59.403Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Evidence signed by a revoked actor or by the same actor as producer and verifier is rejected in strict mode.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/actor-trust-smoke.ts\",\"command\":\"npm --prefix packages/main run test:actor-trust-smoke\",\"result\":\"pass\",\"note\":\"Strict mode rejects revoked actors, same producer/verifier actor, same run id, and same producer/verifier provider with detailed actor trust diagnostics.\",\"headHash\":\"02045f466e94c36957d52b546acff80fe727b337\",\"materialHash\":\"d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4\",\"timestamp\":\"2026-05-22T14:16:59.403Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"Explicit external_fact evidence with primary-source provenance, fetchedAt, digest/hash, and fresh timestamp passes strict provenance checks.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/fact-provenance-smoke.ts\",\"command\":\"npm --prefix packages/main run build && npm --prefix packages/main run test:fact-provenance-smoke\",\"result\":\"pass\",\"note\":\"Strict fact provenance accepts fresh primary-source evidence with sourceUrl/sourceRef, digest, fetchedAt, and checkedClaims; build and fact-provenance smoke passed at commit 967fcced.\",\"headHash\":\"967fcced894c434bf45acd0d3deebfced1d4f6d1\",\"materialHash\":\"d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4\",\"timestamp\":\"2026-05-22T14:16:34.707Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"Non-external verification evidence is not forced to carry source provenance.\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/fact-provenance-smoke.ts\",\"command\":\"npm --prefix packages/main run test:fact-provenance-smoke\",\"result\":\"pass\",\"note\":\"Non-external and local verification evidence remains compatible without forcing source provenance, covered by fact-provenance smoke cases 2 and 3.\",\"headHash\":\"967fcced894c434bf45acd0d3deebfced1d4f6d1\",\"materialHash\":\"d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4\",\"timestamp\":\"2026-05-22T14:16:34.707Z\"}},{\"intentRef\":\"CHK-005:edge:1\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"Balanced profile warns on secondary-only or soon-expiring provenance without blocking legacy local flows.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:1\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/fact-provenance-smoke.ts\",\"command\":\"npm --prefix packages/main run test:fact-provenance-smoke && npm --prefix packages/main run test:verification-freshness-smoke\",\"result\":\"pass\",\"note\":\"Balanced provenance warnings cover secondary-only, stale, expired, soon-expiring, and refresh metadata preservation without blocking legacy/local flows.\",\"headHash\":\"967fcced894c434bf45acd0d3deebfced1d4f6d1\",\"materialHash\":\"d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4\",\"timestamp\":\"2026-05-22T14:16:34.707Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"An agent asserts an external fact with no source, stale source, secondary-only source, or conflicting source set; strict validation rejects it.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/fact-provenance-smoke.ts\",\"command\":\"npm --prefix packages/main run test:fact-provenance-smoke\",\"result\":\"pass\",\"note\":\"Strict mode rejects unsupported external facts with missing or whitespace source/digest/claims, stale or invalid dates, secondary-only source, and conflicting non-empty sources.\",\"headHash\":\"967fcced894c434bf45acd0d3deebfced1d4f6d1\",\"materialHash\":\"d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4\",\"timestamp\":\"2026-05-22T14:16:34.707Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-05-22T14:17:08.779Z",
+  "headHash": "eee13996a9cda93351b3c90d2c022d11ca72fc1a",
   "verificationCoverage": {
     "total": 20,
     "required": 16,
-    "covered": 4,
-    "missingRequired": 13,
+    "covered": 20,
+    "missingRequired": 0,
     "entries": [
       {
         "intentRef": "CHK-001:happy:0",
@@ -17,7 +17,7 @@
         "desc": "Strict validation accepts a checklist evidence item that has a meaningful project test command, assertion-bearing test file/artifact, current head/material metadata, and a pass result.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:happy:0",
           "kind": "logic_test",
@@ -25,9 +25,9 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:evidence-quality-smoke && npm --prefix packages/main run test:evidence-quality-contract",
           "result": "pass",
           "note": "Strict profile accepts meaningful smoke/contract evidence and the build/test suite passed at commit cda88b6a.",
-          "headHash": "cda88b6ab2a4c417c7d1478ce6dd4b2c16efbdcd",
-          "materialHash": "adb246b4c68bf8d07890789932aab063d2027b98ac0bbd91511e31b5a37ecbd4",
-          "timestamp": "2026-05-22T13:14:53.614Z"
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
         }
       },
       {
@@ -37,7 +37,7 @@
         "desc": "Balanced profile does not block legacy or weak evidence, but emits a clear quality warning tied to the checklist item and weakness reason.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
@@ -45,9 +45,9 @@
           "command": "npm --prefix packages/main run test:evidence-quality-smoke",
           "result": "pass",
           "note": "Balanced profile keeps weak evidence non-blocking while recording qualityIssues and rendering weakness diagnostics.",
-          "headHash": "cda88b6ab2a4c417c7d1478ce6dd4b2c16efbdcd",
-          "materialHash": "adb246b4c68bf8d07890789932aab063d2027b98ac0bbd91511e31b5a37ecbd4",
-          "timestamp": "2026-05-22T13:14:53.614Z"
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
         }
       },
       {
@@ -57,7 +57,7 @@
         "desc": "Old evidence lacking newly introduced optional quality fields remains readable and does not crash validate.",
         "type": "logic",
         "priority": "should",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:edge:1",
           "kind": "logic_test",
@@ -65,9 +65,9 @@
           "command": "npm --prefix packages/main run test:evidence-quality-contract",
           "result": "pass",
           "note": "Default/light and legacy no-options coverage remain readable and do not crash or introduce qualityIssues.",
-          "headHash": "cda88b6ab2a4c417c7d1478ce6dd4b2c16efbdcd",
-          "materialHash": "adb246b4c68bf8d07890789932aab063d2027b98ac0bbd91511e31b5a37ecbd4",
-          "timestamp": "2026-05-22T13:14:53.614Z"
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
         }
       },
       {
@@ -77,7 +77,7 @@
         "desc": "A fake verifier attempts to satisfy strict evidence using only echo pass/version/help-only/compile-only output; validate rejects it with a weak_evidence diagnostic.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
@@ -85,9 +85,9 @@
           "command": "npm --prefix packages/main run test:evidence-quality-smoke",
           "result": "pass",
           "note": "Strict profile rejects fake echo/version/help/build-only evidence as weak and getBlockingVerificationEvidenceIssues emits one detailed blocker.",
-          "headHash": "cda88b6ab2a4c417c7d1478ce6dd4b2c16efbdcd",
-          "materialHash": "adb246b4c68bf8d07890789932aab063d2027b98ac0bbd91511e31b5a37ecbd4",
-          "timestamp": "2026-05-22T13:14:53.614Z"
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
         }
       },
       {
@@ -97,7 +97,7 @@
         "desc": "High-risk story review evidence with required independent reviewer lanes and no disputes satisfies quorum diagnostics.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:happy:0",
           "kind": "logic_test",
@@ -105,9 +105,9 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:reviewer-quorum-smoke && npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
           "note": "Strict quorum accepts required independent reviewer lanes and build/quorum/flow tests passed at commit 534e515b.",
-          "headHash": "534e515b4e3e42615d2a67501fc8b1f75790c7b6",
-          "materialHash": "ad2648c178f3d329281573f76481cc92d46adfda4b87b3d65b3efd45ce1b2d97",
-          "timestamp": "2026-05-22T13:45:29.830Z"
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
         }
       },
       {
@@ -117,7 +117,7 @@
         "desc": "Balanced profile reports missing differentiated verifier metadata as warning instead of blocking existing flows.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
@@ -125,9 +125,9 @@
           "command": "npm --prefix packages/main run test:reviewer-quorum-smoke",
           "result": "pass",
           "note": "Balanced profile reports missing verifier metadata as warning while keeping quorum ok; covered by reviewer-quorum smoke Test 3.",
-          "headHash": "534e515b4e3e42615d2a67501fc8b1f75790c7b6",
-          "materialHash": "ad2648c178f3d329281573f76481cc92d46adfda4b87b3d65b3efd45ce1b2d97",
-          "timestamp": "2026-05-22T13:45:29.830Z"
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
         }
       },
       {
@@ -137,7 +137,7 @@
         "desc": "Reviewer lane source stays aligned with existing active reviewer computation.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:edge:1",
           "kind": "logic_test",
@@ -145,9 +145,9 @@
           "command": "npm --prefix packages/main run test:reviewer-quorum-smoke",
           "result": "pass",
           "note": "Reviewer lane source is aligned with computeActiveReviewers; smoke Test 5b imports computeActiveReviewers and feeds its output into quorum evaluation.",
-          "headHash": "534e515b4e3e42615d2a67501fc8b1f75790c7b6",
-          "materialHash": "ad2648c178f3d329281573f76481cc92d46adfda4b87b3d65b3efd45ce1b2d97",
-          "timestamp": "2026-05-22T13:45:29.830Z"
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
         }
       },
       {
@@ -157,7 +157,7 @@
         "desc": "The same actor/provider tries to act as producer and verifier; strict review/validate blocks or reports differentiated-verifier failure.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
@@ -165,9 +165,9 @@
           "command": "npm --prefix packages/main run test:reviewer-quorum-smoke",
           "result": "pass",
           "note": "Strict same producer/verifier actor/provider and missing lanes are rejected by quorum diagnostics; covered by reviewer-quorum smoke Tests 2 and 4.",
-          "headHash": "534e515b4e3e42615d2a67501fc8b1f75790c7b6",
-          "materialHash": "ad2648c178f3d329281573f76481cc92d46adfda4b87b3d65b3efd45ce1b2d97",
-          "timestamp": "2026-05-22T13:45:29.830Z"
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
         }
       },
       {
@@ -177,7 +177,7 @@
         "desc": "Current-head CI/human attestation with checked claims, command/artifact reference, actor, timestamp, and pass result satisfies strict checks.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:happy:0",
           "kind": "logic_test",
@@ -185,9 +185,9 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:attestation-smoke",
           "result": "pass",
           "note": "Current-head CI/human attestations with checkedClaims and command/artifact binding pass strict attestation checks; build and smoke passed at commit ee95302c.",
-          "headHash": "ee95302ce3a0f85270ae1bfaa2bba8eb8931ed3f",
-          "materialHash": "e091c7177ed17579439d17b476530867c7b0f66b88f86c44cda755c67ef06ac9",
-          "timestamp": "2026-05-22T13:55:37.134Z"
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
         }
       },
       {
@@ -197,7 +197,7 @@
         "desc": "Story metadata-only changes do not stale a material CI/human attestation.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:edge:0",
           "kind": "logic_test",
@@ -205,9 +205,9 @@
           "command": "npm --prefix packages/main run test:attestation-smoke && npm --prefix packages/main run test:verification-freshness-smoke",
           "result": "pass",
           "note": "MaterialHash freshness callback keeps attestation fresh across metadata-only changes; attestation smoke and verification-freshness smoke passed.",
-          "headHash": "ee95302ce3a0f85270ae1bfaa2bba8eb8931ed3f",
-          "materialHash": "e091c7177ed17579439d17b476530867c7b0f66b88f86c44cda755c67ef06ac9",
-          "timestamp": "2026-05-22T13:55:37.134Z"
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
         }
       },
       {
@@ -217,7 +217,7 @@
         "desc": "Legacy evidence without attestation metadata is treated as ordinary evidence unless it explicitly claims CI/human authority.",
         "type": "logic",
         "priority": "should",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:edge:1",
           "kind": "logic_test",
@@ -225,9 +225,9 @@
           "command": "npm --prefix packages/main run test:attestation-smoke",
           "result": "pass",
           "note": "Legacy evidence without attestation metadata remains compatible and does not produce attestationIssues.",
-          "headHash": "ee95302ce3a0f85270ae1bfaa2bba8eb8931ed3f",
-          "materialHash": "e091c7177ed17579439d17b476530867c7b0f66b88f86c44cda755c67ef06ac9",
-          "timestamp": "2026-05-22T13:55:37.134Z"
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
         }
       },
       {
@@ -237,7 +237,7 @@
         "desc": "A human reviewer submits only looks-good without checkedClaims or artifact binding; strict validation rejects it as empty attestation.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
@@ -245,9 +245,9 @@
           "command": "npm --prefix packages/main run test:attestation-smoke",
           "result": "pass",
           "note": "Strict validation rejects empty human looks-good attestations, empty checkedClaims, unbound CI attestations, and stale CI attestations with detailed attestation diagnostics.",
-          "headHash": "ee95302ce3a0f85270ae1bfaa2bba8eb8931ed3f",
-          "materialHash": "e091c7177ed17579439d17b476530867c7b0f66b88f86c44cda755c67ef06ac9",
-          "timestamp": "2026-05-22T13:55:37.134Z"
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
         }
       },
       {
@@ -257,7 +257,7 @@
         "desc": "Trusted independent actor/verifier metadata is accepted and rendered as healthy trust diagnostics.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-004:happy:0",
           "kind": "logic_test",
@@ -265,9 +265,9 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:actor-trust-smoke",
           "result": "pass",
           "note": "Trusted independent producer/verifier actors and differentiated providers are accepted in strict actor trust checks; build and actor-trust smoke passed at commit feaa0f07.",
-          "headHash": "feaa0f076c0ecdd101f162a5693109684d48a186",
-          "materialHash": "fc40a3db49b22c57faab2f02d8a54193e7d0399ae18e15e206eb47bb9dbad6ba",
-          "timestamp": "2026-05-22T14:03:43.827Z"
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
         }
       },
       {
@@ -277,7 +277,7 @@
         "desc": "Missing actor metadata on low-risk/light flows remains compatible, while balanced surfaces a warning.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-004:edge:0",
           "kind": "logic_test",
@@ -285,9 +285,9 @@
           "command": "npm --prefix packages/main run test:actor-trust-smoke",
           "result": "pass",
           "note": "Missing actorTrust metadata remains compatible in light and warns in balanced when requireActorMetadata is enabled.",
-          "headHash": "feaa0f076c0ecdd101f162a5693109684d48a186",
-          "materialHash": "fc40a3db49b22c57faab2f02d8a54193e7d0399ae18e15e206eb47bb9dbad6ba",
-          "timestamp": "2026-05-22T14:03:43.827Z"
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
         }
       },
       {
@@ -297,7 +297,7 @@
         "desc": "Suspicious pass patterns are advisory unless the effective profile requires stricter enforcement.",
         "type": "logic",
         "priority": "should",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-004:edge:1",
           "kind": "logic_test",
@@ -305,9 +305,9 @@
           "command": "npm --prefix packages/main run test:actor-trust-smoke",
           "result": "pass",
           "note": "Suspicious always-pass actor patterns warn in balanced and block in strict when actorStats indicate repeated 100 percent pass behavior.",
-          "headHash": "feaa0f076c0ecdd101f162a5693109684d48a186",
-          "materialHash": "fc40a3db49b22c57faab2f02d8a54193e7d0399ae18e15e206eb47bb9dbad6ba",
-          "timestamp": "2026-05-22T14:03:43.827Z"
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
         }
       },
       {
@@ -317,7 +317,7 @@
         "desc": "Evidence signed by a revoked actor or by the same actor as producer and verifier is rejected in strict mode.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "logic_test",
@@ -325,9 +325,9 @@
           "command": "npm --prefix packages/main run test:actor-trust-smoke",
           "result": "pass",
           "note": "Strict mode rejects revoked actors, same producer/verifier actor, same run id, and same producer/verifier provider with detailed actor trust diagnostics.",
-          "headHash": "feaa0f076c0ecdd101f162a5693109684d48a186",
-          "materialHash": "fc40a3db49b22c57faab2f02d8a54193e7d0399ae18e15e206eb47bb9dbad6ba",
-          "timestamp": "2026-05-22T14:03:43.827Z"
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
         }
       },
       {
