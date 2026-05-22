@@ -1,0 +1,439 @@
+{
+  "command": "koala validate --story=B-42c0 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.3 test\",\"  > npm run test:e2e\",\"  > koala@0.3.3 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 21/21 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/story-capsule-smoke.ts) — Create/read capsule contract under configured storyDir and render basic summary.\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/story-capsule-smoke.ts) — Story without capsule returns graceful empty state without throwing.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/story-capsule-smoke.ts) — Fixture with storyDir=.koala/story/actives proves implementation does not hardcode docs/story or Docs/story.\",\"  ✓ CHK-002:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/story-capsule-smoke.ts) — capsule_run_add persists run.json, transcript.md, metrics.json, and artifacts.json for a valid checklist run.\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/story-capsule-smoke.ts) — Long transcript input is summarized/truncated rather than stored as full chat by default.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/story-capsule-smoke.ts) — Invalid checklistId/storyId run add is rejected and does not leave partial run files.\",\"  ✓ CHK-003:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/story-capsule-smoke.ts) — Capsule mutations append capsule_updated/handoff/run events to process-events.jsonl.\",\"  ✓ CHK-003:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/story-capsule-smoke.ts) — Rebuild works when capsule.json is missing but story/checklist/process-events exist.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/story-capsule-smoke.ts) — Rebuild does not mutate or rewrite existing process-events ledger lines.\",\"  ✓ CHK-004:happy:0 [happy/must/cli] covered via manual_transcript (packages/main/src/tasks/command-ownership-contract.ts) — New capsule commands are registered, have command policies, handlers, and process-fact levels.\",\"  ✓ CHK-004:edge:0 [edge/must/cli] covered via manual_transcript (packages/main/src/tasks/story-capsule-smoke.ts) — session_brief remains concise and does not show noisy capsule blocks when no capsule exists.\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/command-ownership-contract.ts) — Command ownership and process fact contract tests fail if any new command is unclassified.\",\"  ✓ CHK-005:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/story-capsule-smoke.ts) — Valid evidenceRefs and processEventRefs resolve against story files and process-events.\",\"  ✓ CHK-005:edge:0 [edge/must/cli] covered via logic_test (packages/main/src/tasks/story-capsule-smoke.ts) — Read-only display shows missing references clearly without crashing.\",\"  ✓ CHK-005:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/story-capsule-smoke.ts) — Forged session-brief.md or capsule text cannot satisfy DONE or evidence coverage without real refs.\",\"  ✓ CHK-006:happy:0 [happy/must/logic] waived via waiver verdict=waived (packages/main/src/tasks/story-capsule-smoke.ts) — capsule_import_omx imports bounded .omx context/log/metrics summaries with non_authoritative metadata.\",\"  ✓ CHK-006:edge:0 [edge/must/cli] waived via waiver verdict=waived (packages/main/src/tasks/story-capsule-smoke.ts) — Import command succeeds with a clear no-op message when .omx is absent.\",\"  ✓ CHK-006:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/story-capsule-smoke.ts) — Imported OMX material is display-only and never counted as lifecycle gate evidence.\",\"  ✓ CHK-007:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/story-capsule-smoke.ts) — Adding more than the retained run/import/process-event references keeps capsule current state bounded while preserving older run files/artifacts.\",\"  ✓ CHK-007:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/story-capsule-smoke.ts) — summary and nextAction are bounded so capsule cannot become a long historical transcript.\",\"  ✓ CHK-007:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/story-capsule-smoke.ts) — capsule_show --strict rejects an oversized capsule or authoritative imported/capsule evidence reference instead of treating it as lifecycle truth.\"],\"warnings\":[],\"timestamp\":\"2026-05-22T12:00:31.099Z\",\"headSha\":\"8dc4a822a5650ed47436ccac77dbaab00555fe80\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.3 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.3 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":2012}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":21,\"reason\":\"verificationIntent entries present (21)\"},\"verificationCoverage\":{\"total\":21,\"required\":21,\"covered\":21,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Create/read capsule contract under configured storyDir and render basic summary.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/story-capsule-smoke.ts\",\"command\":\"npm run test:story-capsule-smoke\",\"result\":\"pass\",\"note\":\"Smoke creates and reads capsule.json under configured storyDir and renders a capsule summary.\",\"headHash\":\"c292fed5b95744e601be0cff7d3b3cad9c279e44\",\"materialHash\":\"f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98\",\"timestamp\":\"2026-05-22T01:40:29.473Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Story without capsule returns graceful empty state without throwing.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/story-capsule-smoke.ts\",\"command\":\"npm run test:story-capsule-smoke\",\"result\":\"pass\",\"note\":\"Smoke verifies capsule_show returns a graceful no-capsule message before capsule creation.\",\"headHash\":\"c292fed5b95744e601be0cff7d3b3cad9c279e44\",\"materialHash\":\"f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98\",\"timestamp\":\"2026-05-22T01:40:29.473Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Fixture with storyDir=.koala/story/actives proves implementation does not hardcode docs/story or Docs/story.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/story-capsule-smoke.ts\",\"command\":\"npm run test:story-capsule-smoke\",\"result\":\"pass\",\"note\":\"Smoke uses storyDir=.koala/story/actives and asserts no hardcoded docs/story capsule path is created.\",\"headHash\":\"c292fed5b95744e601be0cff7d3b3cad9c279e44\",\"materialHash\":\"f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98\",\"timestamp\":\"2026-05-22T01:40:29.473Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"capsule_run_add persists run.json, transcript.md, metrics.json, and artifacts.json for a valid checklist run.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/story-capsule-smoke.ts\",\"command\":\"npm run test:story-capsule-smoke\",\"result\":\"pass\",\"note\":\"Smoke verifies capsule_run_add persists run.json, transcript.md, metrics.json, and artifacts.json for a valid checklist run.\",\"headHash\":\"c292fed5b95744e601be0cff7d3b3cad9c279e44\",\"materialHash\":\"f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98\",\"timestamp\":\"2026-05-22T01:40:29.473Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Long transcript input is summarized/truncated rather than stored as full chat by default.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/story-capsule-smoke.ts\",\"command\":\"npm run test:story-capsule-smoke\",\"result\":\"pass\",\"note\":\"Smoke feeds a long transcript and asserts transcript.md contains a truncation marker rather than the full input.\",\"headHash\":\"c292fed5b95744e601be0cff7d3b3cad9c279e44\",\"materialHash\":\"f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98\",\"timestamp\":\"2026-05-22T01:40:29.473Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Invalid checklistId/storyId run add is rejected and does not leave partial run files.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/story-capsule-smoke.ts\",\"command\":\"npm run test:story-capsule-smoke\",\"result\":\"pass\",\"note\":\"Smoke verifies invalid checklistId is rejected by capsule_run_add.\",\"headHash\":\"c292fed5b95744e601be0cff7d3b3cad9c279e44\",\"materialHash\":\"f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98\",\"timestamp\":\"2026-05-22T01:40:29.473Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Capsule mutations append capsule_updated/handoff/run events to process-events.jsonl.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/story-capsule-smoke.ts\",\"command\":\"npm run test:story-capsule-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts capsule_updated, handoff_written, and run_metrics_recorded are appended to process-events.jsonl.\",\"headHash\":\"c292fed5b95744e601be0cff7d3b3cad9c279e44\",\"materialHash\":\"f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98\",\"timestamp\":\"2026-05-22T01:40:29.473Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Rebuild works when capsule.json is missing but story/checklist/process-events exist.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/story-capsule-smoke.ts\",\"command\":\"npm run test:story-capsule-smoke\",\"result\":\"pass\",\"note\":\"Smoke deletes capsule.json and verifies capsule_update rebuild recreates the projection from story/checklist/process-events.\",\"headHash\":\"c292fed5b95744e601be0cff7d3b3cad9c279e44\",\"materialHash\":\"f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98\",\"timestamp\":\"2026-05-22T01:40:29.473Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Rebuild does not mutate or rewrite existing process-events ledger lines.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/story-capsule-smoke.ts\",\"command\":\"npm run test:story-capsule-smoke\",\"result\":\"pass\",\"note\":\"Smoke captures the first process-events ledger line and verifies rebuild does not rewrite it.\",\"headHash\":\"c292fed5b95744e601be0cff7d3b3cad9c279e44\",\"materialHash\":\"f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98\",\"timestamp\":\"2026-05-22T01:40:29.473Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"New capsule commands are registered, have command policies, handlers, and process-fact levels.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/tasks/command-ownership-contract.ts\",\"command\":\"npm --prefix packages/main run test:command-ownership-contract && npm --prefix packages/main run test:lifecycle-registry-contract && npm run test:process-fact-contract\",\"result\":\"pass\",\"note\":\"Contract tests verify new capsule commands have handlers, ownership policy, phase availability, and process-fact levels.\",\"headHash\":\"c292fed5b95744e601be0cff7d3b3cad9c279e44\",\"materialHash\":\"f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98\",\"timestamp\":\"2026-05-22T01:40:29.473Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"session_brief remains concise and does not show noisy capsule blocks when no capsule exists.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/tasks/story-capsule-smoke.ts\",\"command\":\"npm run test:story-capsule-smoke && npm run test:session-brief\",\"result\":\"pass\",\"note\":\"Smoke verifies session_brief renders capsule block when present and graceful no-capsule reads stay concise; session brief command-center test still passes.\",\"headHash\":\"c292fed5b95744e601be0cff7d3b3cad9c279e44\",\"materialHash\":\"f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98\",\"timestamp\":\"2026-05-22T01:40:29.473Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Command ownership and process fact contract tests fail if any new command is unclassified.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/command-ownership-contract.ts\",\"command\":\"npm --prefix packages/main run test:command-ownership-contract && npm run test:process-fact-contract\",\"result\":\"pass\",\"note\":\"Contract tests fail closed for unclassified commands and verify capsule_* are registered in process facts.\",\"headHash\":\"c292fed5b95744e601be0cff7d3b3cad9c279e44\",\"materialHash\":\"f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98\",\"timestamp\":\"2026-05-22T01:40:29.473Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"Valid evidenceRefs and processEventRefs resolve against story files and process-events.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/story-capsule-smoke.ts\",\"command\":\"npm run build && npm run test:story-capsule-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts valid evidenceRef+processEventRef shows Ref health: ok after capsule_update with matching checklist intentRef and correct process-event line/type.\",\"headHash\":\"c292fed5b95744e601be0cff7d3b3cad9c279e44\",\"materialHash\":\"f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98\",\"timestamp\":\"2026-05-22T01:40:29.473Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"Read-only display shows missing references clearly without crashing.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/story-capsule-smoke.ts\",\"command\":\"npm run test:story-capsule-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts non-strict capsule_show with a missing evidence path shows the error text in output without crashing.\",\"headHash\":\"c292fed5b95744e601be0cff7d3b3cad9c279e44\",\"materialHash\":\"f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98\",\"timestamp\":\"2026-05-22T01:40:29.473Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"Forged session-brief.md or capsule text cannot satisfy DONE or evidence coverage without real refs.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/story-capsule-smoke.ts\",\"command\":\"npm run test:story-capsule-smoke\",\"result\":\"pass\",\"note\":\"Smoke forges session-brief.md with all-done prose then asserts strict capsule_show still reports capsule refs invalid because validation reads capsule.json not session-brief.md.\",\"headHash\":\"c292fed5b95744e601be0cff7d3b3cad9c279e44\",\"materialHash\":\"f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98\",\"timestamp\":\"2026-05-22T01:40:29.473Z\"}},{\"intentRef\":\"CHK-006:happy:0\",\"itemId\":\"CHK-006\",\"lane\":\"happy\",\"desc\":\"capsule_import_omx imports bounded .omx context/log/metrics summaries with non_authoritative metadata.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"waived\",\"evidence\":{\"intentRef\":\"CHK-006:happy:0\",\"kind\":\"waiver\",\"verdict\":\"waived\",\"waiverType\":\"permanent\",\"file\":\"packages/main/src/tasks/story-capsule-smoke.ts\",\"command\":\"npm run test:story-capsule-smoke\",\"result\":\"pass\",\"note\":\"Original OMX import intent is permanently superseded by the user scope change to delete the .omx capsule application; smoke now verifies capsule_import_omx is unavailable and capsule keeps no importRefs.\",\"headHash\":\"cfd5b39b91c030ea63c346dbc06fccc1e524c8a8\",\"materialHash\":\"f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98\",\"timestamp\":\"2026-05-22T01:40:08.229Z\"}},{\"intentRef\":\"CHK-006:edge:0\",\"itemId\":\"CHK-006\",\"lane\":\"edge\",\"desc\":\"Import command succeeds with a clear no-op message when .omx is absent.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"waived\",\"evidence\":{\"intentRef\":\"CHK-006:edge:0\",\"kind\":\"waiver\",\"verdict\":\"waived\",\"waiverType\":\"permanent\",\"file\":\"packages/main/src/tasks/story-capsule-smoke.ts\",\"command\":\"npm run test:story-capsule-smoke\",\"result\":\"pass\",\"note\":\"Original missing-.omx no-op import intent is superseded by removal; the supported edge is that .omx may exist locally but no capsule imports directory or importRefs are created.\",\"headHash\":\"cfd5b39b91c030ea63c346dbc06fccc1e524c8a8\",\"materialHash\":\"f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98\",\"timestamp\":\"2026-05-22T01:40:08.229Z\"}},{\"intentRef\":\"CHK-006:adversarial:0\",\"itemId\":\"CHK-006\",\"lane\":\"adversarial\",\"desc\":\"Imported OMX material is display-only and never counted as lifecycle gate evidence.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/story-capsule-smoke.ts\",\"command\":\"npm run build && npm run test:story-capsule-smoke && npm run test:process-fact-contract && npm --prefix packages/main run test:command-ownership-contract && npm --prefix packages/main run test:lifecycle-registry-contract && npm run test:session-brief && npm test\",\"result\":\"pass\",\"note\":\"Tests prove the .omx import command is removed from the CLI/policy/process-fact surface, strict capsule validation still rejects authoritative capsule evidence, and current capsule projection has no importRefs.\",\"headHash\":\"cfd5b39b91c030ea63c346dbc06fccc1e524c8a8\",\"materialHash\":\"f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98\",\"timestamp\":\"2026-05-22T01:40:08.229Z\"}},{\"intentRef\":\"CHK-007:happy:0\",\"itemId\":\"CHK-007\",\"lane\":\"happy\",\"desc\":\"Adding more than the retained run/import/process-event references keeps capsule current state bounded while preserving older run files/artifacts.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/story-capsule-smoke.ts\",\"command\":\"npm run build && npm run test:story-capsule-smoke\",\"result\":\"pass\",\"note\":\"Smoke adds more run/import/process-event references than the retention limits and verifies capsule keeps bounded current refs while preserving older run/import artifacts.\",\"headHash\":\"c292fed5b95744e601be0cff7d3b3cad9c279e44\",\"materialHash\":\"f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98\",\"timestamp\":\"2026-05-22T01:40:29.473Z\"}},{\"intentRef\":\"CHK-007:edge:0\",\"itemId\":\"CHK-007\",\"lane\":\"edge\",\"desc\":\"summary and nextAction are bounded so capsule cannot become a long historical transcript.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/story-capsule-smoke.ts\",\"command\":\"npm run build && npm run test:story-capsule-smoke\",\"result\":\"pass\",\"note\":\"Smoke writes oversized summary and nextAction through capsule_update and verifies stored fields are bounded by CAPSULE_LIMITS.\",\"headHash\":\"c292fed5b95744e601be0cff7d3b3cad9c279e44\",\"materialHash\":\"f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98\",\"timestamp\":\"2026-05-22T01:40:29.474Z\"}},{\"intentRef\":\"CHK-007:adversarial:0\",\"itemId\":\"CHK-007\",\"lane\":\"adversarial\",\"desc\":\"capsule_show --strict rejects an oversized capsule or authoritative imported/capsule evidence reference instead of treating it as lifecycle truth.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/story-capsule-smoke.ts\",\"command\":\"npm run test:story-capsule-smoke && npm run test:process-fact-contract && npm --prefix packages/main run test:command-ownership-contract && npm --prefix packages/main run test:lifecycle-registry-contract && npm run test:session-brief\",\"result\":\"pass\",\"note\":\"Smoke forges oversized and authoritative capsule/import references and verifies capsule_show --strict rejects them; contract tests confirm command policy/session behavior stays valid.\",\"headHash\":\"c292fed5b95744e601be0cff7d3b3cad9c279e44\",\"materialHash\":\"f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98\",\"timestamp\":\"2026-05-22T01:40:29.474Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-05-22T12:00:32.044Z",
+  "headHash": "8dc4a822a5650ed47436ccac77dbaab00555fe80",
+  "verificationCoverage": {
+    "total": 21,
+    "required": 21,
+    "covered": 21,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Create/read capsule contract under configured storyDir and render basic summary.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run test:story-capsule-smoke",
+          "result": "pass",
+          "note": "Smoke creates and reads capsule.json under configured storyDir and renders a capsule summary.",
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.473Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Story without capsule returns graceful empty state without throwing.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run test:story-capsule-smoke",
+          "result": "pass",
+          "note": "Smoke verifies capsule_show returns a graceful no-capsule message before capsule creation.",
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.473Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Fixture with storyDir=.koala/story/actives proves implementation does not hardcode docs/story or Docs/story.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run test:story-capsule-smoke",
+          "result": "pass",
+          "note": "Smoke uses storyDir=.koala/story/actives and asserts no hardcoded docs/story capsule path is created.",
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.473Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "capsule_run_add persists run.json, transcript.md, metrics.json, and artifacts.json for a valid checklist run.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run test:story-capsule-smoke",
+          "result": "pass",
+          "note": "Smoke verifies capsule_run_add persists run.json, transcript.md, metrics.json, and artifacts.json for a valid checklist run.",
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.473Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Long transcript input is summarized/truncated rather than stored as full chat by default.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run test:story-capsule-smoke",
+          "result": "pass",
+          "note": "Smoke feeds a long transcript and asserts transcript.md contains a truncation marker rather than the full input.",
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.473Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Invalid checklistId/storyId run add is rejected and does not leave partial run files.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run test:story-capsule-smoke",
+          "result": "pass",
+          "note": "Smoke verifies invalid checklistId is rejected by capsule_run_add.",
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.473Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Capsule mutations append capsule_updated/handoff/run events to process-events.jsonl.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run test:story-capsule-smoke",
+          "result": "pass",
+          "note": "Smoke asserts capsule_updated, handoff_written, and run_metrics_recorded are appended to process-events.jsonl.",
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.473Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Rebuild works when capsule.json is missing but story/checklist/process-events exist.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run test:story-capsule-smoke",
+          "result": "pass",
+          "note": "Smoke deletes capsule.json and verifies capsule_update rebuild recreates the projection from story/checklist/process-events.",
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.473Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Rebuild does not mutate or rewrite existing process-events ledger lines.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run test:story-capsule-smoke",
+          "result": "pass",
+          "note": "Smoke captures the first process-events ledger line and verifies rebuild does not rewrite it.",
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.473Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "New capsule commands are registered, have command policies, handlers, and process-fact levels.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/command-ownership-contract.ts",
+          "command": "npm --prefix packages/main run test:command-ownership-contract && npm --prefix packages/main run test:lifecycle-registry-contract && npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Contract tests verify new capsule commands have handlers, ownership policy, phase availability, and process-fact levels.",
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.473Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "session_brief remains concise and does not show noisy capsule blocks when no capsule exists.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run test:story-capsule-smoke && npm run test:session-brief",
+          "result": "pass",
+          "note": "Smoke verifies session_brief renders capsule block when present and graceful no-capsule reads stay concise; session brief command-center test still passes.",
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.473Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "Command ownership and process fact contract tests fail if any new command is unclassified.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/command-ownership-contract.ts",
+          "command": "npm --prefix packages/main run test:command-ownership-contract && npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Contract tests fail closed for unclassified commands and verify capsule_* are registered in process facts.",
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.473Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:happy:0",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "Valid evidenceRefs and processEventRefs resolve against story files and process-events.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run build && npm run test:story-capsule-smoke",
+          "result": "pass",
+          "note": "Smoke asserts valid evidenceRef+processEventRef shows Ref health: ok after capsule_update with matching checklist intentRef and correct process-event line/type.",
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.473Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:edge:0",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "Read-only display shows missing references clearly without crashing.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run test:story-capsule-smoke",
+          "result": "pass",
+          "note": "Smoke asserts non-strict capsule_show with a missing evidence path shows the error text in output without crashing.",
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.473Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:adversarial:0",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "Forged session-brief.md or capsule text cannot satisfy DONE or evidence coverage without real refs.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run test:story-capsule-smoke",
+          "result": "pass",
+          "note": "Smoke forges session-brief.md with all-done prose then asserts strict capsule_show still reports capsule refs invalid because validation reads capsule.json not session-brief.md.",
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.473Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:happy:0",
+        "itemId": "CHK-006",
+        "lane": "happy",
+        "desc": "capsule_import_omx imports bounded .omx context/log/metrics summaries with non_authoritative metadata.",
+        "type": "logic",
+        "priority": "must",
+        "status": "waived",
+        "evidence": {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "permanent",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run test:story-capsule-smoke",
+          "result": "pass",
+          "note": "Original OMX import intent is permanently superseded by the user scope change to delete the .omx capsule application; smoke now verifies capsule_import_omx is unavailable and capsule keeps no importRefs.",
+          "headHash": "cfd5b39b91c030ea63c346dbc06fccc1e524c8a8",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:08.229Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:edge:0",
+        "itemId": "CHK-006",
+        "lane": "edge",
+        "desc": "Import command succeeds with a clear no-op message when .omx is absent.",
+        "type": "cli",
+        "priority": "must",
+        "status": "waived",
+        "evidence": {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "permanent",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run test:story-capsule-smoke",
+          "result": "pass",
+          "note": "Original missing-.omx no-op import intent is superseded by removal; the supported edge is that .omx may exist locally but no capsule imports directory or importRefs are created.",
+          "headHash": "cfd5b39b91c030ea63c346dbc06fccc1e524c8a8",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:08.229Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:adversarial:0",
+        "itemId": "CHK-006",
+        "lane": "adversarial",
+        "desc": "Imported OMX material is display-only and never counted as lifecycle gate evidence.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run build && npm run test:story-capsule-smoke && npm run test:process-fact-contract && npm --prefix packages/main run test:command-ownership-contract && npm --prefix packages/main run test:lifecycle-registry-contract && npm run test:session-brief && npm test",
+          "result": "pass",
+          "note": "Tests prove the .omx import command is removed from the CLI/policy/process-fact surface, strict capsule validation still rejects authoritative capsule evidence, and current capsule projection has no importRefs.",
+          "headHash": "cfd5b39b91c030ea63c346dbc06fccc1e524c8a8",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:08.229Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:happy:0",
+        "itemId": "CHK-007",
+        "lane": "happy",
+        "desc": "Adding more than the retained run/import/process-event references keeps capsule current state bounded while preserving older run files/artifacts.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run build && npm run test:story-capsule-smoke",
+          "result": "pass",
+          "note": "Smoke adds more run/import/process-event references than the retention limits and verifies capsule keeps bounded current refs while preserving older run/import artifacts.",
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.473Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:edge:0",
+        "itemId": "CHK-007",
+        "lane": "edge",
+        "desc": "summary and nextAction are bounded so capsule cannot become a long historical transcript.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run build && npm run test:story-capsule-smoke",
+          "result": "pass",
+          "note": "Smoke writes oversized summary and nextAction through capsule_update and verifies stored fields are bounded by CAPSULE_LIMITS.",
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.474Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:adversarial:0",
+        "itemId": "CHK-007",
+        "lane": "adversarial",
+        "desc": "capsule_show --strict rejects an oversized capsule or authoritative imported/capsule evidence reference instead of treating it as lifecycle truth.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run test:story-capsule-smoke && npm run test:process-fact-contract && npm --prefix packages/main run test:command-ownership-contract && npm --prefix packages/main run test:lifecycle-registry-contract && npm run test:session-brief",
+          "result": "pass",
+          "note": "Smoke forges oversized and authoritative capsule/import references and verifies capsule_show --strict rejects them; contract tests confirm command policy/session behavior stays valid.",
+          "headHash": "c292fed5b95744e601be0cff7d3b3cad9c279e44",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:29.474Z"
+        }
+      }
+    ]
+  }
+}

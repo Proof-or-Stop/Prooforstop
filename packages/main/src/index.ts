@@ -40,3 +40,9 @@ export {
   type VerificationContextPackInput,
   type VerificationContextPackResult,
 } from './core/verification-context-pack.js';
+export {
+  buildStoryCapsule,
+  validateCapsuleRefs,
+  type StoryCapsuleData,
+  type StoryCapsuleRunData,
+} from './core/story-capsule.js';

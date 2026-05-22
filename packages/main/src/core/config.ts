@@ -126,6 +126,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'verification_context_pack_create', 'verification_context_pack_expand', // read-only verifier context packets for authority-backed runs
     'recover_evidence', // B-a2f1 CHK-003: single-shot stale-evidence recovery, safe in any phase (refuses on non-metadata dirt)
     'artifact_declare', // B-cf60: per-story declared product artifact registration, safe in any phase
+    'capsule_*',   // B-42c0: story handoff projection commands; evidence remains authoritative elsewhere
     'plan_get',
     'workflow_*',    // 全局：profile 查看/设置/解释，任何阶段都可以
     'background_*',  // B-45ed CHK-007: background 是元数据，任何阶段可读写

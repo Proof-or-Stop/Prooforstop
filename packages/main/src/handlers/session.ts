@@ -35,6 +35,7 @@ import { isBlockingOracleRow } from '../core/oracle-row.js';
 import { findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
 import { currentGitHead } from '../core/evidence-freshness.js';
 import { getSessionId, summarizeOwnerLease, type OwnerLeaseView } from '../core/story-owner-lease.js';
+import { renderCapsuleBrief, validateCapsuleRefs } from '../core/story-capsule.js';
 
 interface ActiveStoryDetected {
   storyId: string;
@@ -778,6 +779,23 @@ export function createSessionHandlers(ctx: HandlerContext) {
           lines.push(`  next pending: ${next.id} ${next.title} (+${checklistSummary.pending.length - 1} more)`);
         }
       }
+
+      // B-42c0: compact Story Capsule projection. This is intentionally
+      // display-only; gates continue to consume evidence/process-events.
+      try {
+        const capsule = ctx.store.readStoryCapsule(storyId);
+        if (capsule) {
+          const issues = validateCapsuleRefs({
+            capsule,
+            checklist: ctx.store.readChecklist(storyId),
+            processEvents: ctx.store.readProcessEvents(storyId),
+            projectRoot: ctx.root,
+            storyDir: ctx.store.storyDirPath(storyId),
+          });
+          lines.push('');
+          for (const l of renderCapsuleBrief(capsule, issues)) lines.push(l);
+        }
+      } catch { /* probe — capsule must never block session_brief */ }
 
       // B-c55d CHK-004: story owner lease ownership block. B-META containers
       // are shown as shared audit state (no per-story lease, no story_advance);

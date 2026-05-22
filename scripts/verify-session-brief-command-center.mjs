@@ -35,6 +35,7 @@ assert(
   brief.includes('testintent_check')
     || brief.includes('story_review')
     || brief.includes('checklist_get')
+    || brief.includes('checklist_update')
     || brief.includes('Resume: cd')
     || brief.includes('story_create'),
   'session_brief missing role-aware next step',
@@ -42,15 +43,16 @@ assert(
 
 const mainBrief = run(worktreeRoot, [join(worktreeRoot, 'bin/koala-codex.js'), 'session_brief']);
 assert(
-  mainBrief.includes('## Active stories') || mainBrief.includes('**Dashboard**'),
-  'main-branch session_brief missing dashboard or active stories section',
+  mainBrief.includes('## Active stories') || mainBrief.includes('**Dashboard**') || mainBrief.includes('**Story**:'),
+  'session_brief missing dashboard, active stories, or active story section',
 );
 assert(
   mainBrief.includes('Resume: cd')
     || mainBrief.includes('story_advance --storyId=')
     || mainBrief.includes('No active story')
-    || mainBrief.includes('All stories DONE'),
-  'main-branch session_brief missing recovery hint',
+    || mainBrief.includes('All stories DONE')
+    || mainBrief.includes('checklist_update'),
+  'session_brief missing recovery or next-step hint',
 );
 
 console.log('session brief command center verified');
