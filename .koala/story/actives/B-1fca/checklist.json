@@ -499,7 +499,53 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/fact-provenance-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:fact-provenance-smoke",
+          "result": "pass",
+          "note": "Strict fact provenance accepts fresh primary-source evidence with sourceUrl/sourceRef, digest, fetchedAt, and checkedClaims; build and fact-provenance smoke passed at commit 967fcced.",
+          "headHash": "967fcced894c434bf45acd0d3deebfced1d4f6d1",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:34.707Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/fact-provenance-smoke.ts",
+          "command": "npm --prefix packages/main run test:fact-provenance-smoke",
+          "result": "pass",
+          "note": "Non-external and local verification evidence remains compatible without forcing source provenance, covered by fact-provenance smoke cases 2 and 3.",
+          "headHash": "967fcced894c434bf45acd0d3deebfced1d4f6d1",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:34.707Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/fact-provenance-smoke.ts",
+          "command": "npm --prefix packages/main run test:fact-provenance-smoke && npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Balanced provenance warnings cover secondary-only, stale, expired, soon-expiring, and refresh metadata preservation without blocking legacy/local flows.",
+          "headHash": "967fcced894c434bf45acd0d3deebfced1d4f6d1",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:34.707Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/fact-provenance-smoke.ts",
+          "command": "npm --prefix packages/main run test:fact-provenance-smoke",
+          "result": "pass",
+          "note": "Strict mode rejects unsupported external facts with missing or whitespace source/digest/claims, stale or invalid dates, secondary-only source, and conflicting non-empty sources.",
+          "headHash": "967fcced894c434bf45acd0d3deebfced1d4f6d1",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:34.707Z"
+        }
+      ]
     }
   ],
   "auditLog": [
