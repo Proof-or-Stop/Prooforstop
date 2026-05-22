@@ -57,7 +57,41 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "koala capsule_run_add records a run and koala capsule_show shows Last run: implementer/pass with command, role, provider, evidence refs, and metrics summary.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/story-capsule.ts",
+          "packages/main/src/core/types.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/story-capsule-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "capsule_run_add persists run.json, transcript.md, metrics.json, and artifacts.json for a valid checklist run.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Long transcript input is summarized/truncated rather than stored as full chat by default.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Invalid checklistId/storyId run add is rejected and does not leave partial run files.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
