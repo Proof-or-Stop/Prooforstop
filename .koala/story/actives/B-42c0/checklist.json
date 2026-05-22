@@ -90,9 +90,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-22T00:49:18.476Z",
-      "endTime": null,
+      "endTime": "2026-05-22T00:49:18.899Z",
       "userSees": "koala capsule_run_add records a run and koala capsule_show shows Last run: implementer/pass with command, role, provider, evidence refs, and metrics summary.",
       "files": {
         "modify": [
@@ -126,7 +126,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run test:story-capsule-smoke",
+          "result": "pass",
+          "note": "Smoke verifies capsule_run_add persists run.json, transcript.md, metrics.json, and artifacts.json for a valid checklist run.",
+          "headHash": "78a172627254a7e1337390648fbdf34d794bffd1",
+          "materialHash": "45feb8194c5f553b7d267e7ebf47fabf4b234d713b349dfebcdacf0d37f3713b",
+          "timestamp": "2026-05-22T00:49:18.940Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run test:story-capsule-smoke",
+          "result": "pass",
+          "note": "Smoke feeds a long transcript and asserts transcript.md contains a truncation marker rather than the full input.",
+          "headHash": "78a172627254a7e1337390648fbdf34d794bffd1",
+          "materialHash": "45feb8194c5f553b7d267e7ebf47fabf4b234d713b349dfebcdacf0d37f3713b",
+          "timestamp": "2026-05-22T00:49:18.967Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run test:story-capsule-smoke",
+          "result": "pass",
+          "note": "Smoke verifies invalid checklistId is rejected by capsule_run_add.",
+          "headHash": "78a172627254a7e1337390648fbdf34d794bffd1",
+          "materialHash": "45feb8194c5f553b7d267e7ebf47fabf4b234d713b349dfebcdacf0d37f3713b",
+          "timestamp": "2026-05-22T00:49:18.995Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -339,6 +374,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Starting run summary and metrics verification after implementation commit."
+    },
+    {
+      "timestamp": "2026-05-22T00:49:18.899Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Run summary and metrics records implemented and smoke verified."
     }
   ]
 }
