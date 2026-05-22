@@ -247,7 +247,43 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "koala capsule_import_omx reports source=omx_import authority=non_authoritative when .omx exists, and reports no OMX context found without failing when .omx is absent.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/story-capsule.ts",
+          "packages/main/src/handlers/capsule.ts",
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/story-capsule-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "capsule_import_omx imports bounded .omx context/log/metrics summaries with non_authoritative metadata.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Import command succeeds with a clear no-op message when .omx is absent.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Imported OMX material is display-only and never counted as lifecycle gate evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
