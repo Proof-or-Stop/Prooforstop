@@ -91,6 +91,25 @@ export interface VerificationIntentItem {
 
 export type VerificationIntent = Record<VerificationLane, VerificationIntentItem[]>;
 
+export interface AttestationMetadata {
+  /** Source kind: ci = automated pipeline, human = manual reviewer. */
+  kind?: 'ci' | 'human';
+  /** Actor identity (CI job name, username, agent id). */
+  actor?: string;
+  /** Claims that were checked (feature/behavior descriptions). */
+  checkedClaims?: string[];
+  /** Command or test that produced the evidence. */
+  command?: string;
+  /** Path or URL of the CI artifact, log, or transcript. */
+  artifactRef?: string;
+  /** Digest of the artifact for integrity binding. */
+  artifactDigest?: string;
+  /** Pass/fail summary from the attestor. */
+  result?: 'pass' | 'fail';
+  /** ISO timestamp when the attestation was recorded. */
+  attestedAt?: string;
+}
+
 export interface VerificationEvidence {
   /** Reference like CHK-001:happy:0 or a custom VerificationIntentItem.id. */
   intentRef: string;
@@ -108,6 +127,8 @@ export interface VerificationEvidence {
   /** Hash of tracked non-story-metadata files captured when evidence was recorded. */
   materialHash?: string;
   timestamp?: string;
+  /** Structured CI/human attestation metadata. All fields optional for legacy compatibility. */
+  attestation?: AttestationMetadata;
 }
 
 export interface ChecklistItem {
@@ -588,6 +609,8 @@ export interface VerificationCoverageReport {
   entries: VerificationCoverageEntry[];
   /** Present when evidenceQualityProfile is balanced or strict and weak evidence was found */
   qualityIssues?: import('./evidence-quality.js').EvidenceQualityIssue[];
+  /** Present when attestation issues were found on covered evidence */
+  attestationIssues?: import('./attestation.js').AttestationIssue[];
 }
 
 /**

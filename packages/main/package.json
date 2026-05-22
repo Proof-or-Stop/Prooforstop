@@ -60,7 +60,8 @@
     "test:story-capsule-smoke": "node dist/tasks/story-capsule-smoke.js",
     "test:evidence-quality-smoke": "node dist/tasks/evidence-quality-smoke.js",
     "test:evidence-quality-contract": "node ../../scripts/verify-evidence-quality.mjs",
-    "test:reviewer-quorum-smoke": "node dist/tasks/reviewer-quorum-smoke.js"
+    "test:reviewer-quorum-smoke": "node dist/tasks/reviewer-quorum-smoke.js",
+    "test:attestation-smoke": "node dist/tasks/attestation-smoke.js"
   },
   "dependencies": {
     "@koala-agent/lab": "0.3.1",
