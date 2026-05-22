@@ -191,7 +191,54 @@
       "userSees": "Koala can reject revoked actor evidence and surface suspicious producer/verifier or always-pass reviewer patterns.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/core/actor-trust.ts",
+          "packages/main/src/tasks/actor-trust-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/actor-trust-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Trusted independent actor/verifier metadata is accepted and rendered as healthy trust diagnostics.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Missing actor metadata on low-risk/light flows remains compatible, while balanced surfaces a warning.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "desc": "Suspicious pass patterns are advisory unless the effective profile requires stricter enforcement.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Evidence signed by a revoked actor or by the same actor as producer and verifier is rejected in strict mode.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
