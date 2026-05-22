@@ -131,7 +131,54 @@
       "userSees": "CI/human review evidence includes commit, command/artifact hashes, checked claims, and fails clearly when stale or empty.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/core/attestation.ts",
+          "packages/main/src/tasks/attestation-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/attestation-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Current-head CI/human attestation with checked claims, command/artifact reference, actor, timestamp, and pass result satisfies strict checks.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Story metadata-only changes do not stale a material CI/human attestation.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "desc": "Legacy evidence without attestation metadata is treated as ordinary evidence unless it explicitly claims CI/human authority.",
+            "type": "logic",
+            "requiredIn": "light",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A human reviewer submits only looks-good without checkedClaims or artifact binding; strict validation rejects it as empty attestation.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
