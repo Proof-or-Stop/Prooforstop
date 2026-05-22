@@ -232,8 +232,8 @@
         "docs/requirements/decisions/truth-source.md"
       ],
       "userSees": "CI/human review evidence includes commit, command/artifact hashes, checked claims, and fails clearly when stale or empty.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-05-22T13:46:19.475Z",
       "endTime": null,
       "files": {
         "modify": [
@@ -449,6 +449,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "CHK-002 implementation committed by Claude Code CLI and independently verified by Codex supervisor: build, reviewer-quorum smoke, and flow-stability smoke passed; quorum gate uses computeActiveReviewers and avoids low-finding false blocks.",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-22T13:46:19.475Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting Claude Code CLI implementation for CHK-003 structured CI/human attestation checks",
       "agent": "codex-supervisor"
     }
   ]
