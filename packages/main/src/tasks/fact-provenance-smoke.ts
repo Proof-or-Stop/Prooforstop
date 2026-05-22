@@ -348,4 +348,222 @@ function makeChecklist(evidence: VerificationEvidence): ChecklistData {
   console.log('✓ getBlockingVerificationEvidenceIssues includes fact provenance detail');
 }
 
+// ── 19. whitespace-only sourceUrl/sourceRef treated as missing ───────────────
+
+{
+  const ev = makeEvidence({
+    factProvenance: {
+      kind: 'external_fact',
+      sourceUrl: '   ',
+      sourceRef: '\t',
+      digest: 'sha256:abc123',
+      checkedClaims: ['some claim'],
+    },
+  });
+  const issues = evaluateFactProvenanceEvidence(ev, 'strict', { now: NOW });
+  const sourceIssue = issues.find(i => i.code === 'missing_source');
+  assert.ok(sourceIssue, 'whitespace-only sourceUrl/sourceRef should be treated as missing in strict');
+  assert.equal(sourceIssue?.severity, 'blocking');
+  console.log('✓ whitespace-only sourceUrl/sourceRef treated as missing in strict');
+}
+
+// ── 20. whitespace-only digest treated as missing ─────────────────────────────
+
+{
+  const ev = makeEvidence({
+    factProvenance: {
+      kind: 'external_fact',
+      sourceUrl: 'https://example.com',
+      digest: '   ',
+      checkedClaims: ['some claim'],
+    },
+  });
+  const issues = evaluateFactProvenanceEvidence(ev, 'strict', { now: NOW });
+  const digestIssue = issues.find(i => i.code === 'missing_digest');
+  assert.ok(digestIssue, 'whitespace-only digest should be treated as missing in strict');
+  assert.equal(digestIssue?.severity, 'blocking');
+  console.log('✓ whitespace-only digest treated as missing in strict');
+}
+
+// ── 21. whitespace-only checkedClaims entries treated as missing ──────────────
+
+{
+  const ev = makeEvidence({
+    factProvenance: {
+      kind: 'external_fact',
+      sourceUrl: 'https://example.com',
+      digest: 'sha256:abc123',
+      checkedClaims: ['  ', '\t', ''],
+    },
+  });
+  const issues = evaluateFactProvenanceEvidence(ev, 'strict', { now: NOW });
+  const claimsIssue = issues.find(i => i.code === 'missing_checked_claims');
+  assert.ok(claimsIssue, 'whitespace-only checkedClaims should be treated as missing in strict');
+  assert.equal(claimsIssue?.severity, 'blocking');
+  console.log('✓ whitespace-only checkedClaims entries treated as missing in strict');
+}
+
+// ── 22. whitespace-only conflictingSources do not trigger conflict ────────────
+
+{
+  const ev = makeEvidence({
+    factProvenance: {
+      kind: 'external_fact',
+      sourceUrl: 'https://example.com',
+      fetchedAt: '2025-05-30T00:00:00.000Z',
+      digest: 'sha256:abc123',
+      checkedClaims: ['some claim'],
+      conflictingSources: ['  ', ''],
+    },
+  });
+  const issues = evaluateFactProvenanceEvidence(ev, 'strict', { now: NOW });
+  const conflictIssue = issues.find(i => i.code === 'conflicting_sources');
+  assert.equal(conflictIssue, undefined, 'whitespace-only conflictingSources should not trigger conflicting_sources');
+  console.log('✓ whitespace-only conflictingSources do not trigger conflict');
+}
+
+// ── 23. non-empty conflictingSources still trigger conflict ───────────────────
+
+{
+  const ev = makeEvidence({
+    factProvenance: {
+      kind: 'external_fact',
+      sourceUrl: 'https://example.com',
+      fetchedAt: '2025-05-30T00:00:00.000Z',
+      digest: 'sha256:abc123',
+      checkedClaims: ['some claim'],
+      conflictingSources: ['  ', 'https://other.com'],
+    },
+  });
+  const issues = evaluateFactProvenanceEvidence(ev, 'strict', { now: NOW });
+  const conflictIssue = issues.find(i => i.code === 'conflicting_sources');
+  assert.ok(conflictIssue, 'mixed whitespace+non-empty conflictingSources should trigger conflict');
+  assert.equal(conflictIssue?.severity, 'blocking');
+  console.log('✓ non-empty conflictingSources still trigger conflict (mixed with whitespace)');
+}
+
+// ── 24. invalid fetchedAt emits invalid_fetched_at ───────────────────────────
+
+{
+  const ev = makeEvidence({
+    factProvenance: {
+      kind: 'external_fact',
+      sourceUrl: 'https://example.com',
+      fetchedAt: 'not-a-date',
+      digest: 'sha256:abc123',
+      checkedClaims: ['some claim'],
+    },
+  });
+  const strictIssues = evaluateFactProvenanceEvidence(ev, 'strict', { now: NOW });
+  const strictInvalid = strictIssues.find(i => i.code === 'invalid_fetched_at');
+  assert.ok(strictInvalid, 'invalid fetchedAt should emit invalid_fetched_at in strict');
+  assert.equal(strictInvalid?.severity, 'blocking');
+
+  const balancedIssues = evaluateFactProvenanceEvidence(ev, 'balanced', { now: NOW });
+  const balancedInvalid = balancedIssues.find(i => i.code === 'invalid_fetched_at');
+  assert.ok(balancedInvalid, 'invalid fetchedAt should emit invalid_fetched_at in balanced');
+  assert.equal(balancedInvalid?.severity, 'warning');
+  console.log('✓ invalid fetchedAt emits invalid_fetched_at with correct severity per profile');
+}
+
+// ── 25. invalid expiresAt emits invalid_expires_at ───────────────────────────
+
+{
+  const ev = makeEvidence({
+    factProvenance: {
+      kind: 'external_fact',
+      sourceUrl: 'https://example.com',
+      fetchedAt: '2025-05-30T00:00:00.000Z',
+      expiresAt: 'bad-date',
+      digest: 'sha256:abc123',
+      checkedClaims: ['some claim'],
+    },
+  });
+  const strictIssues = evaluateFactProvenanceEvidence(ev, 'strict', { now: NOW });
+  const strictInvalid = strictIssues.find(i => i.code === 'invalid_expires_at');
+  assert.ok(strictInvalid, 'invalid expiresAt should emit invalid_expires_at in strict');
+  assert.equal(strictInvalid?.severity, 'blocking');
+
+  const balancedIssues = evaluateFactProvenanceEvidence(ev, 'balanced', { now: NOW });
+  const balancedInvalid = balancedIssues.find(i => i.code === 'invalid_expires_at');
+  assert.ok(balancedInvalid, 'invalid expiresAt should emit invalid_expires_at in balanced');
+  assert.equal(balancedInvalid?.severity, 'warning');
+  console.log('✓ invalid expiresAt emits invalid_expires_at with correct severity per profile');
+}
+
+// ── 26. soon_expiring: future expiresAt within soonExpiryDays emits warning ───
+
+{
+  // expiresAt is 3 days after NOW, within default 7-day window
+  const soonDate = new Date(NOW.getTime() + 3 * 24 * 60 * 60 * 1000).toISOString();
+  const ev = makeEvidence({
+    factProvenance: {
+      kind: 'external_fact',
+      sourceUrl: 'https://example.com',
+      fetchedAt: '2025-05-30T00:00:00.000Z',
+      expiresAt: soonDate,
+      digest: 'sha256:abc123',
+      checkedClaims: ['some claim'],
+    },
+  });
+
+  const strictIssues = evaluateFactProvenanceEvidence(ev, 'strict', { now: NOW });
+  const strictSoon = strictIssues.find(i => i.code === 'soon_expiring');
+  assert.ok(strictSoon, 'soon_expiring should be emitted in strict for near-future expiresAt');
+  assert.equal(strictSoon?.severity, 'warning', 'soon_expiring should always be warning (not blocking)');
+  // No expired issue should be emitted
+  assert.equal(strictIssues.find(i => i.code === 'expired'), undefined, 'should not emit expired when not yet expired');
+
+  const balancedIssues = evaluateFactProvenanceEvidence(ev, 'balanced', { now: NOW });
+  const balancedSoon = balancedIssues.find(i => i.code === 'soon_expiring');
+  assert.ok(balancedSoon, 'soon_expiring should be emitted in balanced for near-future expiresAt');
+  assert.equal(balancedSoon?.severity, 'warning');
+  console.log('✓ soon_expiring emitted as warning for future expiresAt within soonExpiryDays');
+}
+
+// ── 27. soon_expiring does not demote strict coverage to blocking ─────────────
+
+{
+  const soonDate = new Date(NOW.getTime() + 3 * 24 * 60 * 60 * 1000).toISOString();
+  const ev = makeEvidence({
+    factProvenance: {
+      kind: 'external_fact',
+      sourceUrl: 'https://example.com',
+      fetchedAt: '2025-05-30T00:00:00.000Z',
+      expiresAt: soonDate,
+      digest: 'sha256:abc123',
+      checkedClaims: ['some claim'],
+    },
+  });
+  const cl = makeChecklist(ev);
+  const report = buildVerificationCoverage(cl, undefined, undefined, {
+    evidenceQualityProfile: 'strict',
+    factProvenance: { now: NOW },
+  });
+  const entry = report.entries.find(e => e.intentRef === 'CHK-001:happy:0');
+  assert.notEqual(entry?.status, 'weak', 'soon_expiring (warning) should not demote strict coverage to weak');
+  assert.equal(entry?.status, 'covered', 'soon_expiring should leave coverage as covered');
+  console.log('✓ soon_expiring warning does not demote strict coverage to blocking/weak');
+}
+
+// ── 28. soon_expiring not emitted when already expired ────────────────────────
+
+{
+  const pastDate = new Date(NOW.getTime() - 1000).toISOString(); // 1 second ago
+  const ev = makeEvidence({
+    factProvenance: {
+      kind: 'external_fact',
+      sourceUrl: 'https://example.com',
+      fetchedAt: '2025-05-30T00:00:00.000Z',
+      expiresAt: pastDate,
+      digest: 'sha256:abc123',
+      checkedClaims: ['some claim'],
+    },
+  });
+  const issues = evaluateFactProvenanceEvidence(ev, 'balanced', { now: NOW });
+  assert.equal(issues.find(i => i.code === 'soon_expiring'), undefined, 'should not emit soon_expiring when already expired');
+  assert.ok(issues.find(i => i.code === 'expired'), 'should emit expired when past expiresAt');
+  console.log('✓ soon_expiring not emitted when already expired');
+}
+
 console.log('\nAll fact-provenance-smoke tests passed.');

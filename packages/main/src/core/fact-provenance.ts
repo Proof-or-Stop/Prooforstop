@@ -15,6 +15,8 @@ export interface FactProvenanceOptions {
   requirePrimarySource?: boolean;
   /** Max age in days for fetchedAt before considering stale. Default: 90. */
   maxAgeDays?: number;
+  /** Days before expiry to emit soon_expiring warning. Default: 7. */
+  soonExpiryDays?: number;
   /** Override "now" for deterministic tests. */
   now?: Date;
 }
@@ -37,9 +39,12 @@ export function evaluateFactProvenanceEvidence(
   const issues: FactProvenanceIssue[] = [];
   const now = options.now ?? new Date();
   const maxAgeDays = options.maxAgeDays ?? 90;
+  const soonExpiryDays = options.soonExpiryDays ?? 7;
 
-  // Missing source URL/ref
-  if (!fp?.sourceUrl && !fp?.sourceRef) {
+  // Missing source URL/ref (treat whitespace-only as missing)
+  const hasSourceUrl = fp?.sourceUrl && fp.sourceUrl.trim().length > 0;
+  const hasSourceRef = fp?.sourceRef && fp.sourceRef.trim().length > 0;
+  if (!hasSourceUrl && !hasSourceRef) {
     issues.push({
       code: 'missing_source',
       severity: blocking ? 'blocking' : 'warning',
@@ -48,8 +53,8 @@ export function evaluateFactProvenanceEvidence(
     });
   }
 
-  // Missing digest
-  if (!fp?.digest) {
+  // Missing digest (treat whitespace-only as missing)
+  if (!fp?.digest || fp.digest.trim().length === 0) {
     issues.push({
       code: 'missing_digest',
       severity: blocking ? 'blocking' : 'warning',
@@ -58,8 +63,9 @@ export function evaluateFactProvenanceEvidence(
     });
   }
 
-  // Missing checkedClaims
-  if (!fp?.checkedClaims || fp.checkedClaims.length === 0) {
+  // Missing checkedClaims (must have at least one non-empty trimmed claim)
+  const validClaims = fp?.checkedClaims?.filter(c => c.trim().length > 0) ?? [];
+  if (validClaims.length === 0) {
     issues.push({
       code: 'missing_checked_claims',
       severity: blocking ? 'blocking' : 'warning',
@@ -68,31 +74,58 @@ export function evaluateFactProvenanceEvidence(
     });
   }
 
-  // Stale fetchedAt
+  // Stale or invalid fetchedAt
   if (fp?.fetchedAt) {
     const fetchedDate = new Date(fp.fetchedAt);
-    const ageMs = now.getTime() - fetchedDate.getTime();
-    const ageDays = ageMs / (1000 * 60 * 60 * 24);
-    if (ageDays > maxAgeDays) {
+    if (isNaN(fetchedDate.getTime())) {
       issues.push({
-        code: 'stale_fetched_at',
+        code: 'invalid_fetched_at',
         severity: blocking ? 'blocking' : 'warning',
-        message: `External fact was fetched ${Math.floor(ageDays)} days ago (max ${maxAgeDays}) — re-verification required`,
+        message: `External fact has invalid fetchedAt value: "${fp.fetchedAt}"`,
         intentRef: ref,
       });
+    } else {
+      const ageMs = now.getTime() - fetchedDate.getTime();
+      const ageDays = ageMs / (1000 * 60 * 60 * 24);
+      if (ageDays > maxAgeDays) {
+        issues.push({
+          code: 'stale_fetched_at',
+          severity: blocking ? 'blocking' : 'warning',
+          message: `External fact was fetched ${Math.floor(ageDays)} days ago (max ${maxAgeDays}) — re-verification required`,
+          intentRef: ref,
+        });
+      }
     }
   }
 
-  // Expired
+  // Expired or invalid expiresAt; soon-expiring
   if (fp?.expiresAt) {
     const expiresDate = new Date(fp.expiresAt);
-    if (expiresDate <= now) {
+    if (isNaN(expiresDate.getTime())) {
+      issues.push({
+        code: 'invalid_expires_at',
+        severity: blocking ? 'blocking' : 'warning',
+        message: `External fact has invalid expiresAt value: "${fp.expiresAt}"`,
+        intentRef: ref,
+      });
+    } else if (expiresDate <= now) {
       issues.push({
         code: 'expired',
         severity: blocking ? 'blocking' : 'warning',
         message: `External fact expired at ${fp.expiresAt} — re-verification required`,
         intentRef: ref,
       });
+    } else {
+      const msUntilExpiry = expiresDate.getTime() - now.getTime();
+      const daysUntilExpiry = msUntilExpiry / (1000 * 60 * 60 * 24);
+      if (daysUntilExpiry <= soonExpiryDays) {
+        issues.push({
+          code: 'soon_expiring',
+          severity: 'warning',
+          message: `External fact expires in ${Math.ceil(daysUntilExpiry)} day(s) at ${fp.expiresAt} — consider re-verification`,
+          intentRef: ref,
+        });
+      }
     }
   }
 
@@ -106,12 +139,13 @@ export function evaluateFactProvenanceEvidence(
     });
   }
 
-  // Conflicting sources
-  if (fp?.conflictingSources && fp.conflictingSources.length > 0) {
+  // Conflicting sources (count only non-empty trimmed entries)
+  const validConflicting = fp?.conflictingSources?.filter(s => s.trim().length > 0) ?? [];
+  if (validConflicting.length > 0) {
     issues.push({
       code: 'conflicting_sources',
       severity: blocking ? 'blocking' : 'warning',
-      message: `External fact has ${fp.conflictingSources.length} conflicting source(s) — resolve conflicts before accepting evidence`,
+      message: `External fact has ${validConflicting.length} conflicting source(s) — resolve conflicts before accepting evidence`,
       intentRef: ref,
     });
   }

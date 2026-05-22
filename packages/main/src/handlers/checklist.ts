@@ -752,6 +752,9 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           note: ev.note,
           headHash,
           ...(materialHash ? { materialHash } : {}),
+          ...(ev.attestation ? { attestation: ev.attestation } : {}),
+          ...(ev.actorTrust ? { actorTrust: ev.actorTrust } : {}),
+          ...(ev.factProvenance ? { factProvenance: ev.factProvenance } : {}),
         });
         item.verificationEvidence = existing;
         refreshed++;
