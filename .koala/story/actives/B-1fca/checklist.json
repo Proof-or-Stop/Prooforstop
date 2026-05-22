@@ -284,7 +284,53 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/attestation-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:attestation-smoke",
+          "result": "pass",
+          "note": "Current-head CI/human attestations with checkedClaims and command/artifact binding pass strict attestation checks; build and smoke passed at commit ee95302c.",
+          "headHash": "ee95302ce3a0f85270ae1bfaa2bba8eb8931ed3f",
+          "materialHash": "e091c7177ed17579439d17b476530867c7b0f66b88f86c44cda755c67ef06ac9",
+          "timestamp": "2026-05-22T13:55:37.134Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/attestation-smoke.ts",
+          "command": "npm --prefix packages/main run test:attestation-smoke && npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "MaterialHash freshness callback keeps attestation fresh across metadata-only changes; attestation smoke and verification-freshness smoke passed.",
+          "headHash": "ee95302ce3a0f85270ae1bfaa2bba8eb8931ed3f",
+          "materialHash": "e091c7177ed17579439d17b476530867c7b0f66b88f86c44cda755c67ef06ac9",
+          "timestamp": "2026-05-22T13:55:37.134Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/attestation-smoke.ts",
+          "command": "npm --prefix packages/main run test:attestation-smoke",
+          "result": "pass",
+          "note": "Legacy evidence without attestation metadata remains compatible and does not produce attestationIssues.",
+          "headHash": "ee95302ce3a0f85270ae1bfaa2bba8eb8931ed3f",
+          "materialHash": "e091c7177ed17579439d17b476530867c7b0f66b88f86c44cda755c67ef06ac9",
+          "timestamp": "2026-05-22T13:55:37.134Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/attestation-smoke.ts",
+          "command": "npm --prefix packages/main run test:attestation-smoke",
+          "result": "pass",
+          "note": "Strict validation rejects empty human looks-good attestations, empty checkedClaims, unbound CI attestations, and stale CI attestations with detailed attestation diagnostics.",
+          "headHash": "ee95302ce3a0f85270ae1bfaa2bba8eb8931ed3f",
+          "materialHash": "e091c7177ed17579439d17b476530867c7b0f66b88f86c44cda755c67ef06ac9",
+          "timestamp": "2026-05-22T13:55:37.134Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
