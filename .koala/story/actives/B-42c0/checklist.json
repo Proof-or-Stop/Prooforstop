@@ -458,7 +458,46 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "permanent",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run test:story-capsule-smoke",
+          "result": "pass",
+          "note": "Original OMX import intent is permanently superseded by the user scope change to delete the .omx capsule application; smoke now verifies capsule_import_omx is unavailable and capsule keeps no importRefs.",
+          "headHash": "cfd5b39b91c030ea63c346dbc06fccc1e524c8a8",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:08.229Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "permanent",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run test:story-capsule-smoke",
+          "result": "pass",
+          "note": "Original missing-.omx no-op import intent is superseded by removal; the supported edge is that .omx may exist locally but no capsule imports directory or importRefs are created.",
+          "headHash": "cfd5b39b91c030ea63c346dbc06fccc1e524c8a8",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:08.229Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run build && npm run test:story-capsule-smoke && npm run test:process-fact-contract && npm --prefix packages/main run test:command-ownership-contract && npm --prefix packages/main run test:lifecycle-registry-contract && npm run test:session-brief && npm test",
+          "result": "pass",
+          "note": "Tests prove the .omx import command is removed from the CLI/policy/process-fact surface, strict capsule validation still rejects authoritative capsule evidence, and current capsule projection has no importRefs.",
+          "headHash": "cfd5b39b91c030ea63c346dbc06fccc1e524c8a8",
+          "materialHash": "f492cbdffd6415edc5de63de17b4dd73b5b2876d56538a37b2284fb13ed56d98",
+          "timestamp": "2026-05-22T01:40:08.229Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
