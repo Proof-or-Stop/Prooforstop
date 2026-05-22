@@ -12,7 +12,53 @@
       "userSees": "Weak evidence is reported with quality diagnostics; strict validation blocks weak evidence instead of letting a checklist pass on shallow commands.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/core/evidence-quality.ts",
+          "packages/main/src/tasks/evidence-quality-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/evidence-quality-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Strict validation accepts a checklist evidence item that has a meaningful project test command, assertion-bearing test file/artifact, current head/material metadata, and a pass result.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Balanced profile does not block legacy or weak evidence, but emits a clear quality warning tied to the checklist item and weakness reason.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "desc": "Old evidence lacking newly introduced optional quality fields remains readable and does not crash validate.",
+            "type": "logic",
+            "requiredIn": "light",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A fake verifier attempts to satisfy strict evidence using only echo pass/version/help-only/compile-only output; validate rejects it with a weak_evidence diagnostic.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
