@@ -123,8 +123,8 @@
         "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
       "userSees": "Koala reports reviewer quorum status and blocks TEST/DONE when required independent reviewer evidence is missing or conflicting.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-05-22T13:15:16.200Z",
       "endTime": null,
       "files": {
         "modify": [
@@ -383,6 +383,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "CHK-001 implementation committed by Claude Code CLI and independently verified by Codex supervisor: build, evidence-quality smoke, and evidence-quality contract passed; strict weak evidence blocks and balanced warns.",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-22T13:15:16.200Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting Claude Code CLI implementation for CHK-002 reviewer quorum and differentiated verifier policy",
       "agent": "codex-supervisor"
     }
   ]
