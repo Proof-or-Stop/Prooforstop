@@ -230,6 +230,60 @@
         }
       ],
       "_hash": "037ff197169ca8b52bddb2b70c159cd2105f9ecf53e55593158b8462dd531eda"
+    },
+    {
+      "timestamp": "2026-05-22T00:07:09.585Z",
+      "issueCount": 8,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-006",
+          "message": "CHK-006 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "6 个 checklist item，请检查是否有组合场景遗漏（如：Define Story Capsule contract and storage APIs + Record run summaries and metrics under capsule/runs 同时操作会怎样？）"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 3 个未消化的 unknowns: Exact CLI option surface for capsule_update, capsule_handoff, capsule_run_add, and capsule_import_omx should be finalized during implementation against existing CLI schema style.; Whether missing capsule refs should be hard-fail in all commands or warn in read-only display and hard-fail in validation needs explicit handler design.; How much run transcript text to persist by default should remain compact to avoid privacy and repository-size issues."
+        }
+      ],
+      "_hash": "6bc2da474cae4338de17e8d687f6d2d9d2234f6907dfcf741005517ad7d09c1a"
     }
   ]
 }
