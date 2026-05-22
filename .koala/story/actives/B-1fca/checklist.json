@@ -175,7 +175,53 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/reviewer-quorum-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:reviewer-quorum-smoke && npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Strict quorum accepts required independent reviewer lanes and build/quorum/flow tests passed at commit 534e515b.",
+          "headHash": "534e515b4e3e42615d2a67501fc8b1f75790c7b6",
+          "materialHash": "ad2648c178f3d329281573f76481cc92d46adfda4b87b3d65b3efd45ce1b2d97",
+          "timestamp": "2026-05-22T13:45:29.830Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/reviewer-quorum-smoke.ts",
+          "command": "npm --prefix packages/main run test:reviewer-quorum-smoke",
+          "result": "pass",
+          "note": "Balanced profile reports missing verifier metadata as warning while keeping quorum ok; covered by reviewer-quorum smoke Test 3.",
+          "headHash": "534e515b4e3e42615d2a67501fc8b1f75790c7b6",
+          "materialHash": "ad2648c178f3d329281573f76481cc92d46adfda4b87b3d65b3efd45ce1b2d97",
+          "timestamp": "2026-05-22T13:45:29.830Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/reviewer-quorum-smoke.ts",
+          "command": "npm --prefix packages/main run test:reviewer-quorum-smoke",
+          "result": "pass",
+          "note": "Reviewer lane source is aligned with computeActiveReviewers; smoke Test 5b imports computeActiveReviewers and feeds its output into quorum evaluation.",
+          "headHash": "534e515b4e3e42615d2a67501fc8b1f75790c7b6",
+          "materialHash": "ad2648c178f3d329281573f76481cc92d46adfda4b87b3d65b3efd45ce1b2d97",
+          "timestamp": "2026-05-22T13:45:29.830Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/reviewer-quorum-smoke.ts",
+          "command": "npm --prefix packages/main run test:reviewer-quorum-smoke",
+          "result": "pass",
+          "note": "Strict same producer/verifier actor/provider and missing lanes are rejected by quorum diagnostics; covered by reviewer-quorum smoke Tests 2 and 4.",
+          "headHash": "534e515b4e3e42615d2a67501fc8b1f75790c7b6",
+          "materialHash": "ad2648c178f3d329281573f76481cc92d46adfda4b87b3d65b3efd45ce1b2d97",
+          "timestamp": "2026-05-22T13:45:29.830Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
