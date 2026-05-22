@@ -71,7 +71,54 @@
       "userSees": "Koala reports reviewer quorum status and blocks TEST/DONE when required independent reviewer evidence is missing or conflicting.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/core/reviewer-quorum.ts",
+          "packages/main/src/tasks/reviewer-quorum-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/reviewer-quorum-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "High-risk story review evidence with required independent reviewer lanes and no disputes satisfies quorum diagnostics.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Balanced profile reports missing differentiated verifier metadata as warning instead of blocking existing flows.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "desc": "Reviewer lane source stays aligned with existing active reviewer computation.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The same actor/provider tries to act as producer and verifier; strict review/validate blocks or reports differentiated-verifier failure.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
