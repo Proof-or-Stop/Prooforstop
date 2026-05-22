@@ -8,6 +8,15 @@
       "reviewRound": "2026-05-22T01:41:25.867Z",
       "reviewRunId": "B-42c0:RR-001",
       "_hash": "5d85588ff1b6147e0bc8f6b135d40fc52f81a72d246be75dae08137dc1e24af7"
+    },
+    {
+      "id": "B-42c0:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Quality OK. tsc build clean (no type inconsistencies). No dead command surface: command-ownership contract passes (101 CLI commands all carry valid ownershipClass + dispatchable handler, fail-closed) — proving capsule_import_omx was removed from registry AND policy in sync, not orphaned. Removal commit dropped the now-unused imports (fs/path helpers, CAPSULE_DIR_NAME), safeStamp() helper, and CapsuleImportRef type cleanly. Architecture is clean: story-capsule.ts is pure Data+Fn (bounded via normalizeCapsuleProjection limits), handlers/capsule.ts is thin, store.ts isolates I/O. Capsule levels correct in process-fact-levels (show=L0, update/handoff/run_add=L2).",
+      "createdAt": "2026-05-22T11:59:03.863Z",
+      "reviewRound": "2026-05-22T01:41:25.867Z",
+      "reviewRunId": "B-42c0:RR-002",
+      "_hash": "cf0ab2025df32c50b3bc1857a9bfeb6cc4ab5cbae7add29d960995fb3fd30e12"
     }
   ]
 }
