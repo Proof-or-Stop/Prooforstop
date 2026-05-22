@@ -71,6 +71,7 @@ function normalizeEvidence(root: string, input: VerificationEvidenceInput): Veri
     note: input.note.trim(),
     headHash: input.headHash || hashes.headHash,
     materialHash: input.materialHash || hashes.materialHash,
+    ...(input.attestation ? { attestation: input.attestation } : {}),
   });
 }
 
@@ -486,6 +487,9 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       command?: string;
       result?: 'pass' | 'fail';
       note: string;
+      attestation?: VerificationEvidence['attestation'];
+      actorTrust?: VerificationEvidence['actorTrust'];
+      factProvenance?: VerificationEvidence['factProvenance'];
     }): string | Promise<string> {
       // --- LOCAL PREFLIGHT (must run BEFORE any authority POST; A-prepost) -------
       // These guards are duplicated here at the handler entry (not Zod-only) per
@@ -524,6 +528,9 @@ export function createChecklistHandlers(ctx: HandlerContext) {
             ...(args.command ? { command: args.command } : {}),
             ...(args.result ? { result: args.result } : {}),
             note: args.note.trim(),
+            ...(args.attestation ? { attestation: args.attestation } : {}),
+            ...(args.actorTrust ? { actorTrust: args.actorTrust } : {}),
+            ...(args.factProvenance ? { factProvenance: args.factProvenance } : {}),
             ...hashes,
           });
 
@@ -586,6 +593,9 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         command?: string;
         result?: 'pass' | 'fail';
         note: string;
+        attestation?: VerificationEvidence['attestation'];
+        actorTrust?: VerificationEvidence['actorTrust'];
+        factProvenance?: VerificationEvidence['factProvenance'];
       }>;
     }): string | Promise<string> {
       if (!Array.isArray(args.evidences) || args.evidences.length === 0) {
@@ -632,6 +642,9 @@ export function createChecklistHandlers(ctx: HandlerContext) {
               ...(entry.command ? { command: entry.command } : {}),
               ...(entry.result ? { result: entry.result } : {}),
               note: entry.note.trim(),
+              ...(entry.attestation ? { attestation: entry.attestation } : {}),
+              ...(entry.actorTrust ? { actorTrust: entry.actorTrust } : {}),
+              ...(entry.factProvenance ? { factProvenance: entry.factProvenance } : {}),
               ...hashes,
             });
             const existing = item.verificationEvidence || [];
@@ -739,6 +752,9 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           note: ev.note,
           headHash,
           ...(materialHash ? { materialHash } : {}),
+          ...(ev.attestation ? { attestation: ev.attestation } : {}),
+          ...(ev.actorTrust ? { actorTrust: ev.actorTrust } : {}),
+          ...(ev.factProvenance ? { factProvenance: ev.factProvenance } : {}),
         });
         item.verificationEvidence = existing;
         refreshed++;

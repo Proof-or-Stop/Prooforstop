@@ -10,6 +10,10 @@ import type {
 } from './types.js';
 import { formatVerificationEvidenceVerdict } from './types.js';
 import type { VerificationIntentPolicyResolution } from './workflow-policy.js';
+import { type EvidenceQualityProfile, getEvidenceQualityIssues, type EvidenceQualityIssue } from './evidence-quality.js';
+import { evaluateAttestationEvidence, type AttestationIssue } from './attestation.js';
+import { evaluateActorTrustEvidence, type ActorTrustIssue, type ActorTrustOptions } from './actor-trust.js';
+import { evaluateFactProvenanceEvidence, type FactProvenanceIssue, type FactProvenanceOptions } from './fact-provenance.js';
 
 export const VERIFICATION_LANES: readonly VerificationLane[] = ['happy', 'edge', 'adversarial'];
 export type DeferredGateEvidenceMode = 'covered' | 'missing';
@@ -61,9 +65,14 @@ export function buildVerificationCoverage(
   cl: ChecklistData,
   currentHead?: string,
   isEvidenceFresh?: (headHash: string, evidence?: VerificationEvidence) => boolean,
-  options: { deferredGateEvidence?: DeferredGateEvidenceMode } = {},
+  options: { deferredGateEvidence?: DeferredGateEvidenceMode; evidenceQualityProfile?: EvidenceQualityProfile; actorTrust?: ActorTrustOptions; factProvenance?: FactProvenanceOptions } = {},
 ): VerificationCoverageReport {
+  const qualityProfile = options.evidenceQualityProfile ?? 'light';
   const entries: VerificationCoverageEntry[] = [];
+  const qualityIssues: EvidenceQualityIssue[] = [];
+  const attestationIssues: AttestationIssue[] = [];
+  const actorTrustIssues: ActorTrustIssue[] = [];
+  const factProvenanceIssues: FactProvenanceIssue[] = [];
   for (const item of cl.items) {
     for (const collected of collectVerificationIntents(item)) {
       const priority = collected.intent.priority || 'must';
@@ -80,6 +89,50 @@ export function buildVerificationCoverage(
           !(isEvidenceFresh?.(evidence.headHash, evidence) ?? false)
         ) status = 'stale';
         else status = 'covered';
+
+        // Evidence quality classification (balanced: warning, strict: blocking)
+        if (status === 'covered' && qualityProfile !== 'light') {
+          const issue = getEvidenceQualityIssues(collected.ref, item.id, evidence, qualityProfile);
+          if (issue) {
+            qualityIssues.push(issue);
+            status = 'weak'; // both balanced (warning) and strict (blocking) mark as weak
+          }
+        }
+
+        // Attestation evaluation — runs on initially-covered evidence regardless of quality demotion
+        // so attestation issues are always captured when present
+        if ((status === 'covered' || status === 'weak') && qualityProfile !== 'light' && evidence.attestation) {
+          const attIssues = evaluateAttestationEvidence(evidence, qualityProfile, {
+            currentHead,
+            isMaterialFresh: isEvidenceFresh ? (h, e) => isEvidenceFresh(h, e) : undefined,
+          });
+          if (attIssues.length > 0) {
+            attestationIssues.push(...attIssues);
+            if (qualityProfile === 'strict') status = 'weak';
+          }
+        }
+
+        // Actor trust evaluation — runs on covered/weak evidence when profile is not light
+        if ((status === 'covered' || status === 'weak') && qualityProfile !== 'light') {
+          const atIssues = evaluateActorTrustEvidence(evidence, qualityProfile, options.actorTrust);
+          if (atIssues.length > 0) {
+            actorTrustIssues.push(...atIssues);
+            if (qualityProfile === 'strict' && atIssues.some(i => i.severity === 'blocking')) {
+              status = 'weak';
+            }
+          }
+        }
+
+        // Fact provenance evaluation — runs on covered/weak evidence when profile is not light
+        if ((status === 'covered' || status === 'weak') && qualityProfile !== 'light') {
+          const fpIssues = evaluateFactProvenanceEvidence(evidence, qualityProfile, options.factProvenance);
+          if (fpIssues.length > 0) {
+            factProvenanceIssues.push(...fpIssues);
+            if (qualityProfile === 'strict' && fpIssues.some(i => i.severity === 'blocking')) {
+              status = 'weak';
+            }
+          }
+        }
       }
       entries.push({
         intentRef: collected.ref,
@@ -96,20 +149,60 @@ export function buildVerificationCoverage(
   const requiredEntries = entries.filter(e => isRequired(e.priority));
   const coveredStatuses = new Set(['covered', 'waived']);
   if (options.deferredGateEvidence !== 'missing') coveredStatuses.add('deferred');
+  // 'weak' entries: covered in balanced (warning), not covered in strict
+  if (qualityProfile !== 'strict') coveredStatuses.add('weak');
   return {
     total: entries.length,
     required: requiredEntries.length,
     covered: entries.filter(e => coveredStatuses.has(e.status)).length,
     missingRequired: requiredEntries.filter(e => !coveredStatuses.has(e.status)).length,
     entries,
+    ...(qualityIssues.length > 0 ? { qualityIssues } : {}),
+    ...(attestationIssues.length > 0 ? { attestationIssues } : {}),
+    ...(actorTrustIssues.length > 0 ? { actorTrustIssues } : {}),
+    ...(factProvenanceIssues.length > 0 ? { factProvenanceIssues } : {}),
   };
 }
 
-export function getBlockingVerificationEvidenceIssues(cl: ChecklistData, currentHead?: string): string[] {
-  const coverage = buildVerificationCoverage(cl, currentHead);
-  return coverage.entries
-    .filter(e => e.priority === 'must' && !['covered', 'waived', 'deferred'].includes(e.status))
+export function getBlockingVerificationEvidenceIssues(cl: ChecklistData, currentHead?: string, evidenceQualityProfile?: EvidenceQualityProfile): string[] {
+  const coverage = buildVerificationCoverage(cl, currentHead, undefined, { evidenceQualityProfile });
+  const nonCoveredStatuses = evidenceQualityProfile === 'strict'
+    ? (s: string) => !['covered', 'waived', 'deferred'].includes(s)  // 'weak' is blocking in strict
+    : (s: string) => !['covered', 'waived', 'deferred', 'weak'].includes(s);
+  // When qualityIssues, attestationIssues, or actorTrustIssues provides detail for a weak entry, skip the generic entry
+  const qualityIssueRefs = new Set(coverage.qualityIssues?.filter(qi => qi.blocking).map(qi => qi.intentRef) ?? []);
+  const attestationIssueRefs = new Set(coverage.attestationIssues?.filter(ai => ai.severity === 'blocking').map(ai => ai.intentRef) ?? []);
+  const actorTrustIssueRefs = new Set(coverage.actorTrustIssues?.filter(ai => ai.severity === 'blocking').map(ai => ai.intentRef) ?? []);
+  const factProvenanceIssueRefs = new Set(coverage.factProvenanceIssues?.filter(fi => fi.severity === 'blocking').map(fi => fi.intentRef) ?? []);
+  const issues = coverage.entries
+    .filter(e => e.priority === 'must' && nonCoveredStatuses(e.status))
+    .filter(e => e.status !== 'weak' || (!qualityIssueRefs.has(e.intentRef) && !attestationIssueRefs.has(e.intentRef) && !actorTrustIssueRefs.has(e.intentRef) && !factProvenanceIssueRefs.has(e.intentRef)))
     .map(e => `${e.intentRef} [${e.status}] ${e.desc}`);
+  // Include quality issue details for weak entries in strict mode
+  if (coverage.qualityIssues) {
+    for (const qi of coverage.qualityIssues) {
+      if (qi.blocking) issues.push(`${qi.intentRef} [weak] ${qi.detail}`);
+    }
+  }
+  // Include attestation issue details for weak entries in strict mode
+  if (coverage.attestationIssues) {
+    for (const ai of coverage.attestationIssues) {
+      if (ai.severity === 'blocking') issues.push(`${ai.intentRef} [weak] ${ai.code} — ${ai.message}`);
+    }
+  }
+  // Include actor trust issue details for weak entries in strict mode
+  if (coverage.actorTrustIssues) {
+    for (const ai of coverage.actorTrustIssues) {
+      if (ai.severity === 'blocking') issues.push(`${ai.intentRef} [weak] ${ai.code} — ${ai.message}`);
+    }
+  }
+  // Include fact provenance issue details for weak entries in strict mode
+  if (coverage.factProvenanceIssues) {
+    for (const fi of coverage.factProvenanceIssues) {
+      if (fi.severity === 'blocking') issues.push(`${fi.intentRef} [weak] ${fi.code} — ${fi.message}`);
+    }
+  }
+  return issues;
 }
 
 export function renderVerificationCoverage(report: VerificationCoverageReport, policy?: VerificationIntentPolicyResolution): string {
@@ -125,11 +218,45 @@ export function renderVerificationCoverage(report: VerificationCoverageReport, p
       ? '✓'
       : e.status === 'deferred'
         ? '~'
-        : '✗';
+        : e.status === 'weak'
+          ? '⚠'
+          : '✗';
     const ev = e.evidence
       ? ` via ${e.evidence.kind}${e.evidence.verdict ? ` verdict=${formatVerificationEvidenceVerdict(e.evidence.verdict)}` : ''}${e.evidence.file ? ` (${e.evidence.file})` : ''}`
       : '';
     lines.push(`  ${marker} ${e.intentRef} [${e.lane}/${e.priority}/${e.type}] ${e.status}${ev} — ${e.desc}`);
+  }
+  if (report.qualityIssues && report.qualityIssues.length > 0) {
+    lines.push('');
+    lines.push('Evidence quality warnings:');
+    for (const issue of report.qualityIssues) {
+      const prefix = issue.blocking ? '  [BLOCKING]' : '  [WARNING]';
+      lines.push(`${prefix} ${issue.intentRef}: ${issue.detail} (${issue.weaknessReason})`);
+    }
+  }
+  if (report.attestationIssues && report.attestationIssues.length > 0) {
+    lines.push('');
+    lines.push('Attestation warnings:');
+    for (const issue of report.attestationIssues) {
+      const prefix = issue.severity === 'blocking' ? '  [BLOCKING]' : '  [WARNING]';
+      lines.push(`${prefix} ${issue.intentRef}: ${issue.code} — ${issue.message}`);
+    }
+  }
+  if (report.actorTrustIssues && report.actorTrustIssues.length > 0) {
+    lines.push('');
+    lines.push('Actor trust warnings:');
+    for (const issue of report.actorTrustIssues) {
+      const prefix = issue.severity === 'blocking' ? '  [BLOCKING]' : '  [WARNING]';
+      lines.push(`${prefix} ${issue.intentRef}: ${issue.code} — ${issue.message}`);
+    }
+  }
+  if (report.factProvenanceIssues && report.factProvenanceIssues.length > 0) {
+    lines.push('');
+    lines.push('Fact provenance warnings:');
+    for (const issue of report.factProvenanceIssues) {
+      const prefix = issue.severity === 'blocking' ? '  [BLOCKING]' : '  [WARNING]';
+      lines.push(`${prefix} ${issue.intentRef}: ${issue.code} — ${issue.message}`);
+    }
   }
   return lines.join('\n');
 }

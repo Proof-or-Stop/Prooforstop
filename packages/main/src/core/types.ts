@@ -91,6 +91,81 @@ export interface VerificationIntentItem {
 
 export type VerificationIntent = Record<VerificationLane, VerificationIntentItem[]>;
 
+export interface AttestationMetadata {
+  /** Source kind: ci = automated pipeline, human = manual reviewer. */
+  kind?: 'ci' | 'human';
+  /** Actor identity (CI job name, username, agent id). */
+  actor?: string;
+  /** Claims that were checked (feature/behavior descriptions). */
+  checkedClaims?: string[];
+  /** Command or test that produced the evidence. */
+  command?: string;
+  /** Path or URL of the CI artifact, log, or transcript. */
+  artifactRef?: string;
+  /** Digest of the artifact for integrity binding. */
+  artifactDigest?: string;
+  /** Pass/fail summary from the attestor. */
+  result?: 'pass' | 'fail';
+  /** ISO timestamp when the attestation was recorded. */
+  attestedAt?: string;
+}
+
+export interface ActorTrustMetadata {
+  /** Identity of the actor that produced this evidence (agent id, user id, CI job). */
+  actorId?: string;
+  /** Actor that produced/ran the verification (may equal actorId). */
+  producerActorId?: string;
+  /** Actor that independently verified the result (should differ from producerActorId in strict). */
+  verifierActorId?: string;
+  /** Run/job identifier for the producer (e.g. CI run id, session id). */
+  producerRunId?: string;
+  /** Run/job identifier for the verifier. */
+  verifierRunId?: string;
+  /** Provider/platform (e.g. "github-actions", "claude-agent"). */
+  provider?: string;
+  /** Vendor of the agent or tool (e.g. "anthropic", "openai"). */
+  vendor?: string;
+  /** Model identifier if the actor is an LLM. */
+  model?: string;
+  /** Provider of the producer actor (for cross-provider independence checks). */
+  producerProvider?: string;
+  /** Vendor of the producer actor. */
+  producerVendor?: string;
+  /** Model of the producer actor. */
+  producerModel?: string;
+  /** Provider of the verifier actor (should differ from producerProvider in strict). */
+  verifierProvider?: string;
+  /** Vendor of the verifier actor. */
+  verifierVendor?: string;
+  /** Model of the verifier actor. */
+  verifierModel?: string;
+  /** Explicit trust status override ("trusted" | "revoked"). */
+  trustStatus?: 'trusted' | 'revoked';
+}
+
+export interface FactProvenanceMetadata {
+  /** Classifies whether the evidence refers to external, local, or internal facts. */
+  kind?: 'external_fact' | 'local' | 'internal';
+  /** Source reliability tier. */
+  sourceClass?: 'primary' | 'secondary' | 'tertiary' | 'internal';
+  /** URL of the external source. */
+  sourceUrl?: string;
+  /** Stable reference (DOI, RFC number, commit SHA, etc.) */
+  sourceRef?: string;
+  /** Human-readable title of the source. */
+  sourceTitle?: string;
+  /** ISO timestamp when the external fact was fetched. */
+  fetchedAt?: string;
+  /** ISO timestamp after which the fact should be re-verified. */
+  expiresAt?: string;
+  /** Content digest (hash) of the fetched source for integrity binding. */
+  digest?: string;
+  /** Specific claims that were checked against the source. */
+  checkedClaims?: string[];
+  /** Other sources that contradict this fact. Non-empty triggers a warning/block. */
+  conflictingSources?: string[];
+}
+
 export interface VerificationEvidence {
   /** Reference like CHK-001:happy:0 or a custom VerificationIntentItem.id. */
   intentRef: string;
@@ -108,6 +183,12 @@ export interface VerificationEvidence {
   /** Hash of tracked non-story-metadata files captured when evidence was recorded. */
   materialHash?: string;
   timestamp?: string;
+  /** Structured CI/human attestation metadata. All fields optional for legacy compatibility. */
+  attestation?: AttestationMetadata;
+  /** Actor trust metadata for producer/verifier identity and revocation checks. All fields optional. */
+  actorTrust?: ActorTrustMetadata;
+  /** External fact provenance metadata. All fields optional for legacy compatibility. */
+  factProvenance?: FactProvenanceMetadata;
 }
 
 export interface ChecklistItem {
@@ -576,7 +657,7 @@ export interface VerificationCoverageEntry {
   desc: string;
   type: VerificationIntentType;
   priority: VerificationPriority;
-  status: 'covered' | 'missing' | 'failed' | 'waived' | 'deferred' | 'stale';
+  status: 'covered' | 'missing' | 'failed' | 'waived' | 'deferred' | 'stale' | 'weak';
   evidence?: VerificationEvidence;
 }
 
@@ -586,6 +667,14 @@ export interface VerificationCoverageReport {
   covered: number;
   missingRequired: number;
   entries: VerificationCoverageEntry[];
+  /** Present when evidenceQualityProfile is balanced or strict and weak evidence was found */
+  qualityIssues?: import('./evidence-quality.js').EvidenceQualityIssue[];
+  /** Present when attestation issues were found on covered evidence */
+  attestationIssues?: import('./attestation.js').AttestationIssue[];
+  /** Present when actor trust issues were found on covered/weak evidence */
+  actorTrustIssues?: import('./actor-trust.js').ActorTrustIssue[];
+  /** Present when fact provenance issues were found on covered/weak evidence */
+  factProvenanceIssues?: import('./fact-provenance.js').FactProvenanceIssue[];
 }
 
 /**

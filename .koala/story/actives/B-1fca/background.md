@@ -4,6 +4,16 @@
 ## 关键洞察
 B-42c0 已把 capsule 限定为 projection，并从 Koala gate/evidence 中移除 .omx import surface；流程伪造已经很强。剩余风险不应再靠自然语言承诺，而应让 evidence 自身带质量、身份、来源、freshness 和 quorum 约束。
 
+### 反事实伪造 roadmap（canonical，本 story 钉住）
+来源：B-42c0 background「建议中的六个 milestone」（用户建议）+ 本 story description。此处「Milestone」专指反事实伪造 roadmap，与 B-95d8 story-internal 阶段同名不同义。
+- Milestone 1 = capsule/process 防伪边界 —— 已 DONE（B-42c0：capsule 限定为 projection，移除 .omx import surface）
+- Milestone 2 = 弱测试证据质量评分 + weak-test gate —— 本 story CHK-001
+- Milestone 3 = reviewer quorum + 差异化 verifier policy —— 本 story CHK-002
+- Milestone 4 = 结构化 CI/human attestation —— 本 story CHK-003
+- Milestone 5 = actor trust registry + revocation + 可疑证据信号 —— 本 story CHK-004
+- Milestone 6 = external fact provenance + freshness policy —— 本 story CHK-005
+核心取向：剩余风险不靠自然语言承诺，而让 evidence 自身带质量/身份/来源/freshness/quorum 约束，每条都有机械可判定 + profile 分级（strict 阻塞 / balanced 警告 / light 静默）的 CLI 诊断。
+
 ## 方案取舍
 本 story 选择在 Koala CLI/gate 层增加机械检查：弱证据评分、review quorum、CI/human 结构化 attestation、actor trust/revocation、external provenance。暂不引入 Python authority server 的网络依赖，先在 Koala 本地流程中形成可测试合同，再供服务端/Runner 对齐。
 

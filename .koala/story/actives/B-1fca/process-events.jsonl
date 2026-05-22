@@ -1,2 +1,25 @@
 {"type":"dispatch","storyId":"B-1fca","phase":"INIT","source":"koala dispatch","targetKind":"init-review","agentType":"koala-review-story-init","timestamp":"2026-05-22T12:28:10.633Z"}
 {"type":"dispatch","storyId":"B-1fca","phase":"INIT","source":"koala dispatch","targetKind":"init-review","agentType":"product-reviewer","timestamp":"2026-05-22T12:28:10.920Z"}
+{"type":"plan_reviewed","round":1,"blockerCount":14,"issueCount":22,"timestamp":"2026-05-22T12:46:26.105Z"}
+{"type":"plan_reviewed","round":2,"blockerCount":0,"issueCount":8,"timestamp":"2026-05-22T12:47:17.855Z"}
+{"type":"dispatch","storyId":"B-1fca","phase":"DEV","source":"koala dispatch","targetKind":"checklist","agentType":"koala-implementer","itemId":"CHK-001","checklistId":"CHK-001","timestamp":"2026-05-22T12:47:54.805Z"}
+{"type":"dispatch","checklistId":"CHK-001","agent":"codex-supervisor","timestamp":"2026-05-22T12:47:55.237Z"}
+{"type":"subagent_result","checklistId":"CHK-001","success":true,"timestamp":"2026-05-22T13:14:59.811Z"}
+{"type":"dispatch","checklistId":"CHK-002","agent":"codex-supervisor","timestamp":"2026-05-22T13:15:16.201Z"}
+{"type":"dispatch","storyId":"B-1fca","phase":"DEV","source":"koala dispatch","targetKind":"checklist","agentType":"koala-implementer","itemId":"CHK-002","checklistId":"CHK-002","timestamp":"2026-05-22T13:15:21.846Z"}
+{"type":"subagent_result","checklistId":"CHK-002","success":true,"timestamp":"2026-05-22T13:45:34.628Z"}
+{"type":"dispatch","checklistId":"CHK-003","agent":"codex-supervisor","timestamp":"2026-05-22T13:46:19.476Z"}
+{"type":"dispatch","storyId":"B-1fca","phase":"DEV","source":"koala dispatch","targetKind":"checklist","agentType":"koala-implementer","itemId":"CHK-003","checklistId":"CHK-003","timestamp":"2026-05-22T13:46:23.768Z"}
+{"type":"subagent_result","checklistId":"CHK-003","success":true,"timestamp":"2026-05-22T13:55:42.155Z"}
+{"type":"dispatch","checklistId":"CHK-004","agent":"codex-supervisor","timestamp":"2026-05-22T13:56:09.766Z"}
+{"type":"dispatch","storyId":"B-1fca","phase":"DEV","source":"koala dispatch","targetKind":"checklist","agentType":"koala-implementer","itemId":"CHK-004","checklistId":"CHK-004","timestamp":"2026-05-22T13:56:10.043Z"}
+{"type":"subagent_result","checklistId":"CHK-004","success":true,"timestamp":"2026-05-22T14:03:53.702Z"}
+{"type":"dispatch","checklistId":"CHK-005","agent":"codex-supervisor","timestamp":"2026-05-22T14:04:28.261Z"}
+{"type":"dispatch","storyId":"B-1fca","phase":"DEV","source":"koala dispatch","targetKind":"checklist","agentType":"koala-implementer","itemId":"CHK-005","checklistId":"CHK-005","timestamp":"2026-05-22T14:04:28.530Z"}
+{"type":"subagent_result","checklistId":"CHK-005","success":true,"timestamp":"2026-05-22T14:16:40.889Z"}
+{"type":"review_pass","storyId":"B-1fca","command":"review_pass_set","role":"reviewer","agent":"koala-review-concept","result":"pass","reviewPassId":"B-1fca:RP-001","timestamp":"2026-05-22T14:19:24.468Z"}
+{"type":"review_pass","storyId":"B-1fca","command":"review_pass_set","role":"reviewer","agent":"koala-review-test-coverage","result":"pass","reviewPassId":"B-1fca:RP-002","timestamp":"2026-05-22T14:19:42.923Z"}
+{"type":"review_pass","storyId":"B-1fca","command":"review_pass_set","role":"reviewer","agent":"koala-review-docs","result":"pass","reviewPassId":"B-1fca:RP-003","timestamp":"2026-05-22T14:20:47.874Z"}
+{"type":"review_pass","storyId":"B-1fca","command":"review_pass_set","role":"reviewer","agent":"koala-review-quality","result":"pass","reviewPassId":"B-1fca:RP-004","timestamp":"2026-05-22T14:26:27.834Z"}
+{"type":"review_pass","storyId":"B-1fca","command":"review_pass_set","role":"reviewer","agent":"koala-review-quality","result":"pass","reviewPassId":"B-1fca:RP-005","timestamp":"2026-05-22T14:30:14.085Z"}
+{"type":"dirty_gate_audit","storyId":"B-1fca","gate":"done-gate","category":"koala_metadata_changes","pathCount":3,"paths":[".koala/story/actives/B-1fca/index.json",".koala/story/actives/B-1fca/process-metrics.json",".koala/story/actives/B-1fca/test-evidence.json"],"reason":"koala-owned story metadata; auto-committed by B-3506 helper","timestamp":"2026-05-22T14:31:18.174Z"}

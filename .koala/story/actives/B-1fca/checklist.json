@@ -10,9 +10,109 @@
         "docs/requirements/decisions/test-intent-review.md"
       ],
       "userSees": "Weak evidence is reported with quality diagnostics; strict validation blocks weak evidence instead of letting a checklist pass on shallow commands.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-22T12:47:55.235Z",
+      "endTime": "2026-05-22T13:14:59.810Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/core/workflow-policy.ts",
+          "packages/main/src/core/flow-fact-policy.ts",
+          "packages/main/src/core/authority-contracts.ts",
+          "packages/main/package.json",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "CLAUDE.md"
+        ],
+        "create": [
+          "packages/main/src/core/evidence-quality.ts",
+          "packages/main/src/tasks/evidence-quality-smoke.ts",
+          "scripts/verify-evidence-quality.mjs"
+        ],
+        "test": [
+          "packages/main/src/tasks/evidence-quality-smoke.ts",
+          "scripts/verify-evidence-quality.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Strict validation accepts a checklist evidence item that has a meaningful project test command, assertion-bearing test file/artifact, current head/material metadata, and a pass result.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Balanced profile does not block legacy or weak evidence, but emits a clear quality warning tied to the checklist item and weakness reason.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "desc": "Old evidence lacking newly introduced optional quality fields remains readable and does not crash validate.",
+            "type": "logic",
+            "requiredIn": "light",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A fake verifier attempts to satisfy strict evidence using only echo pass/version/help-only/compile-only output; validate rejects it with a weak_evidence diagnostic.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/evidence-quality-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:evidence-quality-smoke && npm --prefix packages/main run test:evidence-quality-contract",
+          "result": "pass",
+          "note": "Strict profile accepts meaningful smoke/contract evidence and the build/test suite passed at commit cda88b6a.",
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/evidence-quality-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-quality-smoke",
+          "result": "pass",
+          "note": "Balanced profile keeps weak evidence non-blocking while recording qualityIssues and rendering weakness diagnostics.",
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "scripts/verify-evidence-quality.mjs",
+          "command": "npm --prefix packages/main run test:evidence-quality-contract",
+          "result": "pass",
+          "note": "Default/light and legacy no-options coverage remain readable and do not crash or introduce qualityIssues.",
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/evidence-quality-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-quality-smoke",
+          "result": "pass",
+          "note": "Strict profile rejects fake echo/version/help/build-only evidence as weak and getBlockingVerificationEvidenceIssues emits one detailed blocker.",
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -23,9 +123,105 @@
         "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
       "userSees": "Koala reports reviewer quorum status and blocks TEST/DONE when required independent reviewer evidence is missing or conflicting.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-22T13:15:16.200Z",
+      "endTime": "2026-05-22T13:45:34.627Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/guard-utils.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/core/reviewer-quorum.ts",
+          "packages/main/src/tasks/reviewer-quorum-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/reviewer-quorum-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "High-risk story review evidence with required independent reviewer lanes and no disputes satisfies quorum diagnostics.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Balanced profile reports missing differentiated verifier metadata as warning instead of blocking existing flows.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "desc": "Reviewer lane source stays aligned with existing active reviewer computation.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The same actor/provider tries to act as producer and verifier; strict review/validate blocks or reports differentiated-verifier failure.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/reviewer-quorum-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:reviewer-quorum-smoke && npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Strict quorum accepts required independent reviewer lanes and build/quorum/flow tests passed at commit 534e515b.",
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/reviewer-quorum-smoke.ts",
+          "command": "npm --prefix packages/main run test:reviewer-quorum-smoke",
+          "result": "pass",
+          "note": "Balanced profile reports missing verifier metadata as warning while keeping quorum ok; covered by reviewer-quorum smoke Test 3.",
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/reviewer-quorum-smoke.ts",
+          "command": "npm --prefix packages/main run test:reviewer-quorum-smoke",
+          "result": "pass",
+          "note": "Reviewer lane source is aligned with computeActiveReviewers; smoke Test 5b imports computeActiveReviewers and feeds its output into quorum evaluation.",
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/reviewer-quorum-smoke.ts",
+          "command": "npm --prefix packages/main run test:reviewer-quorum-smoke",
+          "result": "pass",
+          "note": "Strict same producer/verifier actor/provider and missing lanes are rejected by quorum diagnostics; covered by reviewer-quorum smoke Tests 2 and 4.",
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -36,9 +232,105 @@
         "docs/requirements/decisions/truth-source.md"
       ],
       "userSees": "CI/human review evidence includes commit, command/artifact hashes, checked claims, and fails clearly when stale or empty.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-22T13:46:19.475Z",
+      "endTime": "2026-05-22T13:55:42.154Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/delivery-check.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/core/attestation.ts",
+          "packages/main/src/tasks/attestation-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/attestation-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Current-head CI/human attestation with checked claims, command/artifact reference, actor, timestamp, and pass result satisfies strict checks.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Story metadata-only changes do not stale a material CI/human attestation.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "desc": "Legacy evidence without attestation metadata is treated as ordinary evidence unless it explicitly claims CI/human authority.",
+            "type": "logic",
+            "requiredIn": "light",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A human reviewer submits only looks-good without checkedClaims or artifact binding; strict validation rejects it as empty attestation.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/attestation-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:attestation-smoke",
+          "result": "pass",
+          "note": "Current-head CI/human attestations with checkedClaims and command/artifact binding pass strict attestation checks; build and smoke passed at commit ee95302c.",
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/attestation-smoke.ts",
+          "command": "npm --prefix packages/main run test:attestation-smoke && npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "MaterialHash freshness callback keeps attestation fresh across metadata-only changes; attestation smoke and verification-freshness smoke passed.",
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/attestation-smoke.ts",
+          "command": "npm --prefix packages/main run test:attestation-smoke",
+          "result": "pass",
+          "note": "Legacy evidence without attestation metadata remains compatible and does not produce attestationIssues.",
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/attestation-smoke.ts",
+          "command": "npm --prefix packages/main run test:attestation-smoke",
+          "result": "pass",
+          "note": "Strict validation rejects empty human looks-good attestations, empty checkedClaims, unbound CI attestations, and stale CI attestations with detailed attestation diagnostics.",
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -49,9 +341,103 @@
         "docs/requirements/decisions/truth-source.md"
       ],
       "userSees": "Koala can reject revoked actor evidence and surface suspicious producer/verifier or always-pass reviewer patterns.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-22T13:56:09.765Z",
+      "endTime": "2026-05-22T14:03:53.702Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/core/authority-contracts.ts",
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/core/actor-trust.ts",
+          "packages/main/src/tasks/actor-trust-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/actor-trust-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Trusted independent actor/verifier metadata is accepted and rendered as healthy trust diagnostics.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Missing actor metadata on low-risk/light flows remains compatible, while balanced surfaces a warning.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "desc": "Suspicious pass patterns are advisory unless the effective profile requires stricter enforcement.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Evidence signed by a revoked actor or by the same actor as producer and verifier is rejected in strict mode.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/actor-trust-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:actor-trust-smoke",
+          "result": "pass",
+          "note": "Trusted independent producer/verifier actors and differentiated providers are accepted in strict actor trust checks; build and actor-trust smoke passed at commit feaa0f07.",
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/actor-trust-smoke.ts",
+          "command": "npm --prefix packages/main run test:actor-trust-smoke",
+          "result": "pass",
+          "note": "Missing actorTrust metadata remains compatible in light and warns in balanced when requireActorMetadata is enabled.",
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/actor-trust-smoke.ts",
+          "command": "npm --prefix packages/main run test:actor-trust-smoke",
+          "result": "pass",
+          "note": "Suspicious always-pass actor patterns warn in balanced and block in strict when actorStats indicate repeated 100 percent pass behavior.",
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/actor-trust-smoke.ts",
+          "command": "npm --prefix packages/main run test:actor-trust-smoke",
+          "result": "pass",
+          "note": "Strict mode rejects revoked actors, same producer/verifier actor, same run id, and same producer/verifier provider with detailed actor trust diagnostics.",
+          "headHash": "02045f466e94c36957d52b546acff80fe727b337",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:59.403Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -62,9 +448,206 @@
         "docs/requirements/decisions/testing-infra.md"
       ],
       "userSees": "External fact evidence must cite source/provenance and strict validation flags missing, stale, secondary-only, or conflicting sources.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-22T14:04:28.261Z",
+      "endTime": "2026-05-22T14:16:40.888Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/package.json",
+          "docs/requirements/decisions/truth-source.md"
+        ],
+        "create": [
+          "packages/main/src/core/fact-provenance.ts",
+          "packages/main/src/tasks/fact-provenance-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/fact-provenance-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Explicit external_fact evidence with primary-source provenance, fetchedAt, digest/hash, and fresh timestamp passes strict provenance checks.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Non-external verification evidence is not forced to carry source provenance.",
+            "type": "logic",
+            "requiredIn": "light",
+            "priority": "should"
+          },
+          {
+            "desc": "Balanced profile warns on secondary-only or soon-expiring provenance without blocking legacy local flows.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "An agent asserts an external fact with no source, stale source, secondary-only source, or conflicting source set; strict validation rejects it.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/fact-provenance-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:fact-provenance-smoke",
+          "result": "pass",
+          "note": "Strict fact provenance accepts fresh primary-source evidence with sourceUrl/sourceRef, digest, fetchedAt, and checkedClaims; build and fact-provenance smoke passed at commit 967fcced.",
+          "headHash": "967fcced894c434bf45acd0d3deebfced1d4f6d1",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:34.707Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/fact-provenance-smoke.ts",
+          "command": "npm --prefix packages/main run test:fact-provenance-smoke",
+          "result": "pass",
+          "note": "Non-external and local verification evidence remains compatible without forcing source provenance, covered by fact-provenance smoke cases 2 and 3.",
+          "headHash": "967fcced894c434bf45acd0d3deebfced1d4f6d1",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:34.707Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/fact-provenance-smoke.ts",
+          "command": "npm --prefix packages/main run test:fact-provenance-smoke && npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "Balanced provenance warnings cover secondary-only, stale, expired, soon-expiring, and refresh metadata preservation without blocking legacy/local flows.",
+          "headHash": "967fcced894c434bf45acd0d3deebfced1d4f6d1",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:34.707Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/fact-provenance-smoke.ts",
+          "command": "npm --prefix packages/main run test:fact-provenance-smoke",
+          "result": "pass",
+          "note": "Strict mode rejects unsupported external facts with missing or whitespace source/digest/claims, stale or invalid dates, secondary-only source, and conflicting non-empty sources.",
+          "headHash": "967fcced894c434bf45acd0d3deebfced1d4f6d1",
+          "materialHash": "d2f7dda6bc06625f725907ffd1f769d9e3a1266b02132dda05d370a8b5f659b4",
+          "timestamp": "2026-05-22T14:16:34.707Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-05-22T12:47:55.235Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting Claude Code CLI implementation for CHK-001 / Milestone 2 evidence-quality gate",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-22T13:14:59.810Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "CHK-001 implementation committed by Claude Code CLI and independently verified by Codex supervisor: build, evidence-quality smoke, and evidence-quality contract passed; strict weak evidence blocks and balanced warns.",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-22T13:15:16.200Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting Claude Code CLI implementation for CHK-002 reviewer quorum and differentiated verifier policy",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-22T13:45:34.627Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "CHK-002 implementation committed by Claude Code CLI and independently verified by Codex supervisor: build, reviewer-quorum smoke, and flow-stability smoke passed; quorum gate uses computeActiveReviewers and avoids low-finding false blocks.",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-22T13:46:19.475Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting Claude Code CLI implementation for CHK-003 structured CI/human attestation checks",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-22T13:55:42.154Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "CHK-003 implementation committed by Claude Code CLI and independently verified by Codex supervisor: build, attestation smoke, evidence-quality smoke, and verification-freshness smoke passed.",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-22T13:56:09.765Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting Claude Code CLI implementation for CHK-004 actor trust registry, revocation, and suspicious evidence signals",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-22T14:03:53.702Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "CHK-004 implementation committed by Claude Code CLI and independently verified by Codex supervisor: build, actor-trust smoke, and attestation smoke passed.",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-22T14:04:28.261Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting Claude Code CLI implementation for CHK-005 external fact provenance and freshness policy",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-22T14:16:40.888Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "CHK-005 implementation committed by Claude Code CLI and independently verified by Codex supervisor: build, fact-provenance smoke, verification-freshness smoke, actor-trust smoke, attestation smoke, evidence-quality smoke, reviewer-quorum smoke, and flow-stability smoke passed; edge polish handles whitespace, invalid dates, soon-expiring provenance, and refresh metadata preservation.",
+      "agent": "codex-supervisor"
     }
   ]
 }

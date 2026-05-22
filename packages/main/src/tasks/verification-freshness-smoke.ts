@@ -260,6 +260,89 @@ for (const path of material) {
   }
 }
 
+// ── refresh_stale preserves attestation/actorTrust/factProvenance ────────────
+{
+  const root = mkdtempRoot();
+  try {
+    git(root, ['init']);
+    write(root, 'packages/main/src/base.ts', 'export const base = true;\n');
+    const base = commit(root, 'base');
+    const baseMaterialHash = currentMaterialHash(root);
+    assert.ok(baseMaterialHash, 'material hash should be available in git repo');
+    write(root, 'packages/main/src/base.ts', 'export const base = false;\n');
+    commit(root, 'material change');
+    const head = git(root, ['rev-parse', 'HEAD']);
+
+    const store = new StoryStore(root);
+    const storyId = 'B-refresh-meta';
+    const story: StoryInfo = {
+      storyId,
+      name: 'refresh-stale-preserves-metadata',
+      title: 'Refresh stale evidence preserves metadata',
+      description: 'Smoke story for metadata preservation during stale evidence refresh.',
+      type: 'chore',
+      phase: 'TEST',
+      priority: 'medium',
+      createdAt: '2026-05-22T00:00:00.000Z',
+      startedAt: '2026-05-22T00:00:00.000Z',
+      endedAt: null,
+    };
+    const checklist: ChecklistData = {
+      items: [{
+        id: 'CHK-001',
+        title: 'Refresh stale evidence preserves metadata',
+        context: 'Ensure attestation/actorTrust/factProvenance survive refresh',
+        status: 'done',
+        startTime: null,
+        endTime: null,
+        verificationIntent: {
+          happy: [{ desc: 'refresh preserves metadata', type: 'logic', priority: 'must' }],
+          edge: [],
+          adversarial: [],
+        },
+        verificationEvidence: [{
+          intentRef: 'CHK-001:happy:0',
+          kind: 'logic_test',
+          result: 'pass',
+          note: 'old evidence with rich metadata',
+          headHash: base,
+          materialHash: baseMaterialHash,
+          command: 'npm test',
+          attestation: { kind: 'human', actor: 'smoke-test', result: 'pass' },
+          actorTrust: { level: 'verified', source: 'ci' } as any,
+          factProvenance: {
+            kind: 'external_fact',
+            sourceUrl: 'https://example.com/spec',
+            digest: 'sha256:abc123',
+            checkedClaims: ['claim A'],
+            fetchedAt: '2026-05-20T00:00:00.000Z',
+          },
+        }],
+      }],
+    };
+    store.writeStory(storyId, story);
+    store.writeChecklist(storyId, checklist);
+
+    const handlers = createChecklistHandlers({ store, root, scanRoot: root });
+    const result = handlers.verification_evidence_refresh_stale({ storyId });
+    assert.match(result, /Refreshed 1\/1 stale evidence/);
+
+    const refreshed = store.readChecklist(storyId).items[0].verificationEvidence?.[0];
+    assert.ok(refreshed, 'refreshed evidence must exist');
+    assert.equal(refreshed.headHash, head, 'headHash must be updated to current HEAD');
+    assert.ok(refreshed.attestation, 'attestation must be preserved after refresh');
+    assert.equal(refreshed.attestation?.kind, 'human', 'attestation.kind must be preserved');
+    assert.ok(refreshed.actorTrust, 'actorTrust must be preserved after refresh');
+    assert.equal((refreshed.actorTrust as any)?.level, 'verified', 'actorTrust.level must be preserved');
+    assert.ok(refreshed.factProvenance, 'factProvenance must be preserved after refresh');
+    assert.equal(refreshed.factProvenance?.sourceUrl, 'https://example.com/spec', 'factProvenance.sourceUrl must be preserved');
+    assert.equal(refreshed.factProvenance?.digest, 'sha256:abc123', 'factProvenance.digest must be preserved');
+    console.log('✓ refresh_stale preserves attestation/actorTrust/factProvenance');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 function assertChecklistUpdateEvidenceGetsMaterialHash(): void {
   const root = mkdtempRoot();
   try {
