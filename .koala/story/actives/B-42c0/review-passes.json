@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-22T01:41:25.867Z",
       "reviewRunId": "B-42c0:RR-002",
       "_hash": "cf0ab2025df32c50b3bc1857a9bfeb6cc4ab5cbae7add29d960995fb3fd30e12"
+    },
+    {
+      "id": "B-42c0:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "Test coverage proves the scope contract. story-capsule-smoke (PASS) asserts: capsule_import_omx is rejected as Unknown command; capsule has no 'importRefs' field; no capsule/imports dir is created from .omx. Strict anti-forgery proven: forged authoritative evidence path rejected, oversized summary/processEventRefs rejected, missing evidence path rejected (strict), process-event line/type mismatch rejected, and forged session-brief.md prose does NOT satisfy validation (gate evidence comes from checklist/process-events, not capsule prose). Bounded projection proven (runRefs/processEventRefs/summary/nextAction all truncated to limits, old run artifacts retained on prune). Command/process fact contracts green: process-fact-contract + command-ownership-contract both PASS.",
+      "createdAt": "2026-05-22T11:59:10.966Z",
+      "reviewRound": "2026-05-22T01:41:25.867Z",
+      "reviewRunId": "B-42c0:RR-003",
+      "_hash": "1f71e7538d9ad9ee555876be7809b60a303a57282e54c24fe87658b96d43d214"
     }
   ]
 }
