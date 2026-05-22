@@ -391,7 +391,53 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/actor-trust-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:actor-trust-smoke",
+          "result": "pass",
+          "note": "Trusted independent producer/verifier actors and differentiated providers are accepted in strict actor trust checks; build and actor-trust smoke passed at commit feaa0f07.",
+          "headHash": "feaa0f076c0ecdd101f162a5693109684d48a186",
+          "materialHash": "fc40a3db49b22c57faab2f02d8a54193e7d0399ae18e15e206eb47bb9dbad6ba",
+          "timestamp": "2026-05-22T14:03:43.827Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/actor-trust-smoke.ts",
+          "command": "npm --prefix packages/main run test:actor-trust-smoke",
+          "result": "pass",
+          "note": "Missing actorTrust metadata remains compatible in light and warns in balanced when requireActorMetadata is enabled.",
+          "headHash": "feaa0f076c0ecdd101f162a5693109684d48a186",
+          "materialHash": "fc40a3db49b22c57faab2f02d8a54193e7d0399ae18e15e206eb47bb9dbad6ba",
+          "timestamp": "2026-05-22T14:03:43.827Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/actor-trust-smoke.ts",
+          "command": "npm --prefix packages/main run test:actor-trust-smoke",
+          "result": "pass",
+          "note": "Suspicious always-pass actor patterns warn in balanced and block in strict when actorStats indicate repeated 100 percent pass behavior.",
+          "headHash": "feaa0f076c0ecdd101f162a5693109684d48a186",
+          "materialHash": "fc40a3db49b22c57faab2f02d8a54193e7d0399ae18e15e206eb47bb9dbad6ba",
+          "timestamp": "2026-05-22T14:03:43.827Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/actor-trust-smoke.ts",
+          "command": "npm --prefix packages/main run test:actor-trust-smoke",
+          "result": "pass",
+          "note": "Strict mode rejects revoked actors, same producer/verifier actor, same run id, and same producer/verifier provider with detailed actor trust diagnostics.",
+          "headHash": "feaa0f076c0ecdd101f162a5693109684d48a186",
+          "materialHash": "fc40a3db49b22c57faab2f02d8a54193e7d0399ae18e15e206eb47bb9dbad6ba",
+          "timestamp": "2026-05-22T14:03:43.827Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
