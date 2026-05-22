@@ -420,9 +420,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-22T01:35:53.495Z",
-      "endTime": null,
+      "endTime": "2026-05-22T01:40:08.670Z",
       "userSees": "koala capsule_import_omx reports source=omx_import authority=non_authoritative when .omx exists, and reports no OMX context found without failing when .omx is absent.",
       "files": {
         "modify": [
@@ -671,6 +671,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "User scope change replaces OMX import with removal of the .omx capsule application."
+    },
+    {
+      "timestamp": "2026-05-22T01:40:08.670Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Removed the .omx capsule application per user scope change and recorded replacement verification evidence."
     }
   ]
 }
