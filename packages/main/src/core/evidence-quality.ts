@@ -17,8 +17,11 @@ export interface EvidenceQualityResult {
 
 // Patterns for strong signal in command or note
 const STRONG_CMD_RE = /\b(test|spec|jest|mocha|vitest|pytest|rspec|cypress|playwright|smoke|e2e|assert|verify|check)\b/i;
-const STRONG_NOTE_RE = /\b(assert|verif\w*|regression|test|spec|smoke|pass|scenario|coverage|validate\w*|confirm\w*)\b/i;
-const STRONG_FILE_RE = /\.(test|spec)\.[a-z]+$/i;
+// Note: 'pass' is intentionally excluded — it is a natural-language claim, not an assertion/regression signal.
+// Strong note signals require assertion/regression/verification-style wording.
+const STRONG_NOTE_RE = /\b(assert|verif\w*|regression|spec|smoke|scenario|coverage|checklist|expected|actual)\b/i;
+// Strong file: test/spec files, or smoke/task files under packages/*/src/tasks or tests/spec/__tests__
+const STRONG_FILE_RE = /(?:\.(test|spec)\.[a-z]+$|\/tasks\/[^/]*smoke[^/]*\.[a-z]+$|\/tests\/spec\/__tests__\/[^/]+\.[a-z]+$)/i;
 
 // Echo / pass-only commands
 const ECHO_PASS_RE = /^\s*(echo|true|:|printf|exit\s+0)\b/i;

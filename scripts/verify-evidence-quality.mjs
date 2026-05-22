@@ -79,6 +79,19 @@ check(typeof eq.getEvidenceQualityIssues === 'function', 'getEvidenceQualityIssu
   check(r.weaknessReason === 'commandless_fileless', `expected commandless_fileless, got ${r.weaknessReason}`);
 }
 
+// Weak: manual_transcript with note "pass" (natural-language claim, no command/file)
+{
+  const r = eq.classifyEvidenceQuality({ intentRef: 'x', kind: 'manual_transcript', result: 'pass', note: 'pass' });
+  check(r.quality === 'weak', `manual_transcript note="pass" without command/file must be weak, got ${r.quality}`);
+  check(r.weaknessReason === 'commandless_fileless', `expected commandless_fileless, got ${r.weaknessReason}`);
+}
+
+// Strong: smoke task file
+{
+  const r = eq.classifyEvidenceQuality({ intentRef: 'x', kind: 'logic_test', result: 'pass', note: '', file: 'packages/main/src/tasks/evidence-quality-smoke.ts' });
+  check(r.quality === 'strong', `smoke task file should be strong, got ${r.quality}`);
+}
+
 // Weak: build-only
 {
   const r = eq.classifyEvidenceQuality({ intentRef: 'x', kind: 'logic_test', result: 'pass', note: '', command: 'tsc --noEmit' });
@@ -124,6 +137,29 @@ check(typeof ver.getBlockingVerificationEvidenceIssues === 'function', 'getBlock
   check(r.entries[0].status === 'covered', `default no-options call must produce covered, got ${r.entries[0].status}`);
   check(r.qualityIssues === undefined, `default call must have no qualityIssues, got ${JSON.stringify(r.qualityIssues)}`);
   check(r.missingRequired === 0, `default call must have 0 missingRequired, got ${r.missingRequired}`);
+}
+
+// ── 6. Profile integration: strict blocks, balanced warns, light ignores ──────
+{
+  const cl = {
+    items: [{
+      id: 'CHK-001', title: 'x', status: 'done', startTime: null, endTime: null,
+      verificationIntent: { happy: [{ desc: 'ok', type: 'logic', priority: 'must' }], edge: [], adversarial: [] },
+      verificationEvidence: [{ intentRef: 'CHK-001:happy:0', kind: 'logic_test', result: 'pass', note: '', command: 'echo ok' }],
+    }],
+  };
+
+  // strict: getBlockingVerificationEvidenceIssues returns blocking issues for weak evidence
+  const strictIssues = ver.getBlockingVerificationEvidenceIssues(cl, undefined, 'strict');
+  check(strictIssues.length > 0, `strict profile must block weak evidence through getBlockingVerificationEvidenceIssues, got 0 issues`);
+  check(strictIssues.some(i => i.includes('CHK-001:happy:0')), `strict issues must reference intent ref`);
+
+  // balanced: no missingRequired, but qualityIssues populated
+  const balancedR = ver.buildVerificationCoverage(cl, undefined, undefined, { evidenceQualityProfile: 'balanced' });
+  check(balancedR.missingRequired === 0, `balanced: must not have missingRequired (warning only), got ${balancedR.missingRequired}`);
+  check(balancedR.qualityIssues && balancedR.qualityIssues.length > 0, `balanced: must populate qualityIssues`);
+  const balancedIssues = ver.getBlockingVerificationEvidenceIssues(cl, undefined, 'balanced');
+  check(balancedIssues.length === 0, `balanced: must not block weak evidence, got ${balancedIssues.length} issues`);
 }
 
 // ── Report ────────────────────────────────────────────────────────────────────

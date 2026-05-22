@@ -42,7 +42,7 @@ import { runLintGateCli } from './validate-lint.js';
 import { buildVerificationCoverage, renderVerificationCoverage } from '../core/verification.js';
 import { checkEvidenceFreshnessForGit } from '../core/evidence-freshness.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
-import { resolveVerificationIntentPolicy } from '../core/workflow-policy.js';
+import { resolveVerificationIntentPolicy, resolveWorkflowPolicy } from '../core/workflow-policy.js';
 
 const STATUS_FALLBACK_TIMEOUT_MS = 10_000;
 const SHELL_META_RE = /[;&|<>$()`]/;
@@ -332,12 +332,13 @@ function decorateStoryVerification(ctx: HandlerContext, storyId: string, result:
     let decision = null;
     try { decision = ctx.store.readDecision(storyId); } catch { /* no decision for express/fast stories */ }
     verificationPolicy = resolveVerificationIntentPolicy(story, cl, decision);
+    const effectivePolicy = resolveWorkflowPolicy(loadConfig(ctx.root), story);
     const head = currentHead(ctx.root);
     coverage = buildVerificationCoverage(
       cl,
       head,
       (headHash, evidence) => checkEvidenceFreshnessForGit(ctx.root, headHash, evidence?.materialHash).fresh,
-      { deferredGateEvidence: 'missing' },
+      { deferredGateEvidence: 'missing', evidenceQualityProfile: effectivePolicy.profile },
     );
   } catch {
     return result;

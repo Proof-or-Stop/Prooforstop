@@ -29,6 +29,37 @@ assert.equal(classifyEvidenceQuality(makeEvidence({ file: 'tests/bar.spec.js' })
 // Strong: assertion keyword in note
 assert.equal(classifyEvidenceQuality(makeEvidence({ note: 'assert output matches expected' })).quality, 'strong', 'assert note should be strong');
 assert.equal(classifyEvidenceQuality(makeEvidence({ note: 'verifies the edge case' })).quality, 'strong', 'verifies note should be strong');
+assert.equal(classifyEvidenceQuality(makeEvidence({ note: 'regression check for this path' })).quality, 'strong', 'regression note should be strong');
+assert.equal(classifyEvidenceQuality(makeEvidence({ note: 'expected output matches actual' })).quality, 'strong', 'expected/actual note should be strong');
+
+// Strong: smoke task file path
+assert.equal(
+  classifyEvidenceQuality(makeEvidence({ file: 'packages/main/src/tasks/evidence-quality-smoke.ts' })).quality,
+  'strong',
+  'smoke task file should be strong',
+);
+assert.equal(
+  classifyEvidenceQuality(makeEvidence({ file: 'packages/main/src/tasks/outcome-semantics-smoke.ts' })).quality,
+  'strong',
+  'tasks/*smoke.ts should be strong',
+);
+assert.equal(
+  classifyEvidenceQuality(makeEvidence({ file: 'tests/spec/__tests__/foo.ts' })).quality,
+  'strong',
+  'tests/spec/__tests__ path should be strong',
+);
+
+// Weak: manual_transcript with note "pass" and no command/file
+{
+  const r = classifyEvidenceQuality(makeEvidence({ kind: 'manual_transcript', command: undefined, file: undefined, note: 'pass' }));
+  assert.equal(r.quality, 'weak', 'manual_transcript note="pass" without command/file should be weak (natural-language claim)');
+  assert.equal(r.weaknessReason, 'commandless_fileless');
+}
+{
+  const r = classifyEvidenceQuality(makeEvidence({ kind: 'manual_transcript', command: undefined, file: undefined, note: 'the test passed' }));
+  assert.equal(r.quality, 'weak', 'manual_transcript note="the test passed" without command/file should still be weak');
+  assert.equal(r.weaknessReason, 'commandless_fileless');
+}
 
 // Weak: echo/pass-only
 {

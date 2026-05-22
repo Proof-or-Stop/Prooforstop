@@ -69,7 +69,9 @@ export const storyMachine = setup({
     checklistAllDone: ({ context }) => {
       const cl = context.store.readChecklist(context.storyId);
       if (!cl.items.every(item => item.status === 'done')) return false;
-      return getBlockingVerificationEvidenceIssues(cl).length === 0;
+      const story = context.store.readStory(context.storyId);
+      const policy = resolveWorkflowPolicy(loadConfig(context.projectRoot), story);
+      return getBlockingVerificationEvidenceIssues(cl, undefined, policy.profile).length === 0;
     },
     // B-e71f CHK-006: INIT→INIT_CHECK 硬门槛 xstate 端兜底。
     // getGuardFailureReason 在 phase-gates.ts 的 resolveGuardFailure 里仅当 actor.can() 返回 false 时才被调用，
@@ -418,7 +420,9 @@ export function getGuardFailureReason(
     if (pending.length > 0) {
       return `Cannot enter REVIEW: ${pending.length} checklist item(s) not done: ${pending.map(i => i.id).join(', ')}`;
     }
-    const missingEvidence = getBlockingVerificationEvidenceIssues(cl);
+    const reviewStory = store.readStory(storyId);
+    const reviewPolicy = resolveWorkflowPolicy(loadConfig(projectRoot), reviewStory);
+    const missingEvidence = getBlockingVerificationEvidenceIssues(cl, undefined, reviewPolicy.profile);
     if (missingEvidence.length > 0) {
       return `Cannot enter REVIEW: ${missingEvidence.length} required verification intent(s) lack passing evidence or waiver:\n${missingEvidence.map(i => `  - ${i}`).join('\n')}\n→ 运行 verification_evidence_add 记录 logic/integration/browser/manual 证据，或用 waiver 明确豁免`;
     }
