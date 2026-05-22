@@ -110,6 +110,39 @@ export interface AttestationMetadata {
   attestedAt?: string;
 }
 
+export interface ActorTrustMetadata {
+  /** Identity of the actor that produced this evidence (agent id, user id, CI job). */
+  actorId?: string;
+  /** Actor that produced/ran the verification (may equal actorId). */
+  producerActorId?: string;
+  /** Actor that independently verified the result (should differ from producerActorId in strict). */
+  verifierActorId?: string;
+  /** Run/job identifier for the producer (e.g. CI run id, session id). */
+  producerRunId?: string;
+  /** Run/job identifier for the verifier. */
+  verifierRunId?: string;
+  /** Provider/platform (e.g. "github-actions", "claude-agent"). */
+  provider?: string;
+  /** Vendor of the agent or tool (e.g. "anthropic", "openai"). */
+  vendor?: string;
+  /** Model identifier if the actor is an LLM. */
+  model?: string;
+  /** Provider of the producer actor (for cross-provider independence checks). */
+  producerProvider?: string;
+  /** Vendor of the producer actor. */
+  producerVendor?: string;
+  /** Model of the producer actor. */
+  producerModel?: string;
+  /** Provider of the verifier actor (should differ from producerProvider in strict). */
+  verifierProvider?: string;
+  /** Vendor of the verifier actor. */
+  verifierVendor?: string;
+  /** Model of the verifier actor. */
+  verifierModel?: string;
+  /** Explicit trust status override ("trusted" | "revoked"). */
+  trustStatus?: 'trusted' | 'revoked';
+}
+
 export interface VerificationEvidence {
   /** Reference like CHK-001:happy:0 or a custom VerificationIntentItem.id. */
   intentRef: string;
@@ -129,6 +162,8 @@ export interface VerificationEvidence {
   timestamp?: string;
   /** Structured CI/human attestation metadata. All fields optional for legacy compatibility. */
   attestation?: AttestationMetadata;
+  /** Actor trust metadata for producer/verifier identity and revocation checks. All fields optional. */
+  actorTrust?: ActorTrustMetadata;
 }
 
 export interface ChecklistItem {
@@ -611,6 +646,8 @@ export interface VerificationCoverageReport {
   qualityIssues?: import('./evidence-quality.js').EvidenceQualityIssue[];
   /** Present when attestation issues were found on covered evidence */
   attestationIssues?: import('./attestation.js').AttestationIssue[];
+  /** Present when actor trust issues were found on covered/weak evidence */
+  actorTrustIssues?: import('./actor-trust.js').ActorTrustIssue[];
 }
 
 /**

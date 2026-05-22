@@ -12,6 +12,7 @@ import { formatVerificationEvidenceVerdict } from './types.js';
 import type { VerificationIntentPolicyResolution } from './workflow-policy.js';
 import { type EvidenceQualityProfile, getEvidenceQualityIssues, type EvidenceQualityIssue } from './evidence-quality.js';
 import { evaluateAttestationEvidence, type AttestationIssue } from './attestation.js';
+import { evaluateActorTrustEvidence, type ActorTrustIssue, type ActorTrustOptions } from './actor-trust.js';
 
 export const VERIFICATION_LANES: readonly VerificationLane[] = ['happy', 'edge', 'adversarial'];
 export type DeferredGateEvidenceMode = 'covered' | 'missing';
@@ -63,12 +64,13 @@ export function buildVerificationCoverage(
   cl: ChecklistData,
   currentHead?: string,
   isEvidenceFresh?: (headHash: string, evidence?: VerificationEvidence) => boolean,
-  options: { deferredGateEvidence?: DeferredGateEvidenceMode; evidenceQualityProfile?: EvidenceQualityProfile } = {},
+  options: { deferredGateEvidence?: DeferredGateEvidenceMode; evidenceQualityProfile?: EvidenceQualityProfile; actorTrust?: ActorTrustOptions } = {},
 ): VerificationCoverageReport {
   const qualityProfile = options.evidenceQualityProfile ?? 'light';
   const entries: VerificationCoverageEntry[] = [];
   const qualityIssues: EvidenceQualityIssue[] = [];
   const attestationIssues: AttestationIssue[] = [];
+  const actorTrustIssues: ActorTrustIssue[] = [];
   for (const item of cl.items) {
     for (const collected of collectVerificationIntents(item)) {
       const priority = collected.intent.priority || 'must';
@@ -107,6 +109,17 @@ export function buildVerificationCoverage(
             if (qualityProfile === 'strict') status = 'weak';
           }
         }
+
+        // Actor trust evaluation — runs on covered/weak evidence when profile is not light
+        if ((status === 'covered' || status === 'weak') && qualityProfile !== 'light') {
+          const atIssues = evaluateActorTrustEvidence(evidence, qualityProfile, options.actorTrust);
+          if (atIssues.length > 0) {
+            actorTrustIssues.push(...atIssues);
+            if (qualityProfile === 'strict' && atIssues.some(i => i.severity === 'blocking')) {
+              status = 'weak';
+            }
+          }
+        }
       }
       entries.push({
         intentRef: collected.ref,
@@ -133,6 +146,7 @@ export function buildVerificationCoverage(
     entries,
     ...(qualityIssues.length > 0 ? { qualityIssues } : {}),
     ...(attestationIssues.length > 0 ? { attestationIssues } : {}),
+    ...(actorTrustIssues.length > 0 ? { actorTrustIssues } : {}),
   };
 }
 
@@ -141,12 +155,13 @@ export function getBlockingVerificationEvidenceIssues(cl: ChecklistData, current
   const nonCoveredStatuses = evidenceQualityProfile === 'strict'
     ? (s: string) => !['covered', 'waived', 'deferred'].includes(s)  // 'weak' is blocking in strict
     : (s: string) => !['covered', 'waived', 'deferred', 'weak'].includes(s);
-  // When qualityIssues or attestationIssues provides detail for a weak entry, skip the generic entry
+  // When qualityIssues, attestationIssues, or actorTrustIssues provides detail for a weak entry, skip the generic entry
   const qualityIssueRefs = new Set(coverage.qualityIssues?.filter(qi => qi.blocking).map(qi => qi.intentRef) ?? []);
   const attestationIssueRefs = new Set(coverage.attestationIssues?.filter(ai => ai.severity === 'blocking').map(ai => ai.intentRef) ?? []);
+  const actorTrustIssueRefs = new Set(coverage.actorTrustIssues?.filter(ai => ai.severity === 'blocking').map(ai => ai.intentRef) ?? []);
   const issues = coverage.entries
     .filter(e => e.priority === 'must' && nonCoveredStatuses(e.status))
-    .filter(e => e.status !== 'weak' || (!qualityIssueRefs.has(e.intentRef) && !attestationIssueRefs.has(e.intentRef)))
+    .filter(e => e.status !== 'weak' || (!qualityIssueRefs.has(e.intentRef) && !attestationIssueRefs.has(e.intentRef) && !actorTrustIssueRefs.has(e.intentRef)))
     .map(e => `${e.intentRef} [${e.status}] ${e.desc}`);
   // Include quality issue details for weak entries in strict mode
   if (coverage.qualityIssues) {
@@ -157,6 +172,12 @@ export function getBlockingVerificationEvidenceIssues(cl: ChecklistData, current
   // Include attestation issue details for weak entries in strict mode
   if (coverage.attestationIssues) {
     for (const ai of coverage.attestationIssues) {
+      if (ai.severity === 'blocking') issues.push(`${ai.intentRef} [weak] ${ai.code} — ${ai.message}`);
+    }
+  }
+  // Include actor trust issue details for weak entries in strict mode
+  if (coverage.actorTrustIssues) {
+    for (const ai of coverage.actorTrustIssues) {
       if (ai.severity === 'blocking') issues.push(`${ai.intentRef} [weak] ${ai.code} — ${ai.message}`);
     }
   }
@@ -196,6 +217,14 @@ export function renderVerificationCoverage(report: VerificationCoverageReport, p
     lines.push('');
     lines.push('Attestation warnings:');
     for (const issue of report.attestationIssues) {
+      const prefix = issue.severity === 'blocking' ? '  [BLOCKING]' : '  [WARNING]';
+      lines.push(`${prefix} ${issue.intentRef}: ${issue.code} — ${issue.message}`);
+    }
+  }
+  if (report.actorTrustIssues && report.actorTrustIssues.length > 0) {
+    lines.push('');
+    lines.push('Actor trust warnings:');
+    for (const issue of report.actorTrustIssues) {
       const prefix = issue.severity === 'blocking' ? '  [BLOCKING]' : '  [WARNING]';
       lines.push(`${prefix} ${issue.intentRef}: ${issue.code} — ${issue.message}`);
     }

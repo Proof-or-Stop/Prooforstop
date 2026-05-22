@@ -488,6 +488,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       result?: 'pass' | 'fail';
       note: string;
       attestation?: VerificationEvidence['attestation'];
+      actorTrust?: VerificationEvidence['actorTrust'];
     }): string | Promise<string> {
       // --- LOCAL PREFLIGHT (must run BEFORE any authority POST; A-prepost) -------
       // These guards are duplicated here at the handler entry (not Zod-only) per
@@ -527,6 +528,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
             ...(args.result ? { result: args.result } : {}),
             note: args.note.trim(),
             ...(args.attestation ? { attestation: args.attestation } : {}),
+            ...(args.actorTrust ? { actorTrust: args.actorTrust } : {}),
             ...hashes,
           });
 
@@ -590,6 +592,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         result?: 'pass' | 'fail';
         note: string;
         attestation?: VerificationEvidence['attestation'];
+        actorTrust?: VerificationEvidence['actorTrust'];
       }>;
     }): string | Promise<string> {
       if (!Array.isArray(args.evidences) || args.evidences.length === 0) {
@@ -637,6 +640,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
               ...(entry.result ? { result: entry.result } : {}),
               note: entry.note.trim(),
               ...(entry.attestation ? { attestation: entry.attestation } : {}),
+              ...(entry.actorTrust ? { actorTrust: entry.actorTrust } : {}),
               ...hashes,
             });
             const existing = item.verificationEvidence || [];
