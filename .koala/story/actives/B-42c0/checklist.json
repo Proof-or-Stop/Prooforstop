@@ -251,9 +251,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-22T00:50:15.900Z",
-      "endTime": null,
+      "endTime": "2026-05-22T00:50:16.260Z",
       "userSees": "koala help lists capsule_show/capsule_update/capsule_handoff/capsule_run_add/capsule_import_omx, and koala session_brief displays a compact Current Story Capsule block for the active story.",
       "files": {
         "modify": [
@@ -294,7 +294,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/command-ownership-contract.ts",
+          "command": "npm --prefix packages/main run test:command-ownership-contract && npm --prefix packages/main run test:lifecycle-registry-contract && npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Contract tests verify new capsule commands have handlers, ownership policy, phase availability, and process-fact levels.",
+          "headHash": "1ba57114cda51de94cd5fcc25a57234ab8c1c71f",
+          "materialHash": "9768e7f556eefc96b67e7868b7b7f6531fabd13c01b08886a67802abb5bfa2a3",
+          "timestamp": "2026-05-22T00:50:16.292Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run test:story-capsule-smoke && npm run test:session-brief",
+          "result": "pass",
+          "note": "Smoke verifies session_brief renders capsule block when present and graceful no-capsule reads stay concise; session brief command-center test still passes.",
+          "headHash": "1ba57114cda51de94cd5fcc25a57234ab8c1c71f",
+          "materialHash": "9768e7f556eefc96b67e7868b7b7f6531fabd13c01b08886a67802abb5bfa2a3",
+          "timestamp": "2026-05-22T00:50:16.319Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/command-ownership-contract.ts",
+          "command": "npm --prefix packages/main run test:command-ownership-contract && npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Contract tests fail closed for unclassified commands and verify capsule_* are registered in process facts.",
+          "headHash": "1ba57114cda51de94cd5fcc25a57234ab8c1c71f",
+          "materialHash": "9768e7f556eefc96b67e7868b7b7f6531fabd13c01b08886a67802abb5bfa2a3",
+          "timestamp": "2026-05-22T00:50:16.345Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -445,6 +480,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Starting CLI registration and session_brief evidence recording."
+    },
+    {
+      "timestamp": "2026-05-22T00:50:16.260Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Capsule CLI commands and session_brief integration implemented and contract verified."
     }
   ]
 }
