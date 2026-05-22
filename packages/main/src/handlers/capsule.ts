@@ -9,16 +9,13 @@
  *   handoff state while preserving Koala evidence authority: capsule content is
  *   display/projection state and only references evidence/process-events.
  * @changes
- *   - [CHK-004] Add capsule_show/update/handoff/run_add/import_omx handlers
+ *   - [CHK-004] Add capsule_show/update/handoff/run_add handlers
  *   - [CHK-005] Surface strict reference validation for forged/missing evidence refs
- *   - [CHK-006] Import .omx summaries as non-authoritative background only
+ *   - [CHK-006] Keep .omx outside the capsule command surface
  */
-import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'fs';
-import { basename, join } from 'path';
 import type { HandlerContext } from './context.js';
 import type { ProcessEvent } from '../core/types.js';
 import {
-  CAPSULE_DIR_NAME,
   appendRunRef,
   buildStoryCapsule,
   renderCapsuleBrief,
@@ -69,7 +66,7 @@ function refIssues(ctx: HandlerContext, storyId: string, capsule: StoryCapsuleDa
   });
 }
 
-function writeCapsuleProjection(ctx: HandlerContext, storyId: string, capsule: StoryCapsuleData, eventType: 'capsule_updated' | 'handoff_written' | 'run_added' | 'omx_imported', extra: Record<string, unknown> = {}) {
+function writeCapsuleProjection(ctx: HandlerContext, storyId: string, capsule: StoryCapsuleData, eventType: 'capsule_updated' | 'handoff_written' | 'run_added', extra: Record<string, unknown> = {}) {
   ctx.store.writeStoryCapsule(storyId, capsule);
   ctx.store.writeStoryCapsuleMarkdown(storyId, 'session-brief.md', renderCapsuleBrief(capsule).join('\n'));
   ctx.store.appendProcessEvent(storyId, {
@@ -86,10 +83,6 @@ function nowIso(): string {
 
 function defaultRunId(): string {
   return `run-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
-}
-
-function safeStamp(): string {
-  return `${new Date().toISOString().replace(/[:.]/g, '-')}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
 export function createCapsuleHandlers(ctx: HandlerContext) {
@@ -246,58 +239,6 @@ export function createCapsuleHandlers(ctx: HandlerContext) {
           runRefsPruned: Math.max(0, beforeRunRefCount - capsule.runRefs.length),
         },
         capsule,
-      };
-    },
-
-    capsule_import_omx(args: StoryArg & { sourceDir?: string }) {
-      const storyId = storyIdFrom(args);
-      const sourceDir = args.sourceDir || join(ctx.root, '.omx');
-      if (!existsSync(sourceDir)) {
-        return { storyId, imported: false, message: `No OMX context found at ${sourceDir}` };
-      }
-      const importDir = ctx.store.capsuleFilePath(storyId, 'imports');
-      mkdirSync(importDir, { recursive: true });
-      const relPath = `imports/omx-${safeStamp()}.md`;
-      const outPath = ctx.store.capsuleFilePath(storyId, relPath);
-      const lines = [`# OMX import for ${storyId}`, '', 'authority: non_authoritative', `source: ${sourceDir}`, ''];
-      for (const name of ['context', 'context.md', 'metrics.json']) {
-        const path = join(sourceDir, name);
-        if (!existsSync(path)) continue;
-        lines.push(`## ${name}`, '');
-        lines.push(readFileSync(path, 'utf-8').slice(0, 4000), '');
-      }
-      const logsDir = join(sourceDir, 'logs');
-      if (existsSync(logsDir)) {
-        lines.push('## logs', '');
-        for (const file of readdirSync(logsDir).slice(0, 10)) lines.push(`- ${basename(file)}`);
-        lines.push('');
-      }
-      writeFileSync(outPath, lines.join('\n'), 'utf-8');
-      const input = readInputs(ctx, storyId);
-      const importRefsBefore = input.capsule?.importRefs ?? [];
-      const capsule = buildStoryCapsule({
-        story: input.story,
-        checklist: input.checklist,
-        processEvents: input.events,
-        existing: input.capsule,
-        patch: {
-          importRefs: [
-            ...(input.capsule?.importRefs ?? []),
-            { source: 'omx_import', authority: 'non_authoritative', path: `${CAPSULE_DIR_NAME}/${relPath}`, importedAt: nowIso() },
-          ],
-        },
-        source: 'omx_import',
-      });
-      writeCapsuleProjection(ctx, storyId, capsule, 'omx_imported', { sourceDir, authority: 'non_authoritative' });
-      return {
-        storyId,
-        imported: true,
-        authority: 'non_authoritative',
-        path: outPath,
-        retention: {
-          importRefsKept: capsule.importRefs?.length ?? 0,
-          importRefsPruned: Math.max(0, importRefsBefore.length + 1 - (capsule.importRefs?.length ?? 0)),
-        },
       };
     },
   };

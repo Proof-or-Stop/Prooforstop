@@ -585,11 +585,6 @@ export const MAIN_TOOLS: ToolDef[] = [
     metrics: z.record(z.string(), z.unknown()).optional().describe('指标摘要'),
     artifacts: z.record(z.string(), z.unknown()).optional().describe('artifact 摘要'),
   }},
-  { name: 'capsule_import_omx', description: '导入 .omx 摘要为 non_authoritative capsule 背景材料', schema: {
-    storyId: z.string().optional().describe('Story ID'),
-    story: z.string().optional().describe('Story ID alias'),
-    sourceDir: z.string().optional().describe('OMX 目录，默认 <root>/.omx'),
-  }},
   { name: 'aux_doc_list', description: '列出项目文档（PLAN 阶段挑选 relatedDocs 用）', schema: {
     format: z.enum(['text', 'json']).optional().describe('输出格式（默认 text）'),
   }},

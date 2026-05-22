@@ -110,7 +110,6 @@ export const PROCESS_FACT_LEVELS = [
   { name: 'capsule_update', level: 'L2', category: 'capsule', owner: 'handlers/capsule', rationale: 'Writes rebuildable story handoff projection state sourced from story/checklist/process-events.' },
   { name: 'capsule_handoff', level: 'L2', category: 'capsule', owner: 'handlers/capsule', rationale: 'Writes handoff.md and capsule next action as projection state, not lifecycle gate evidence.' },
   { name: 'capsule_run_add', level: 'L2', category: 'capsule', owner: 'handlers/capsule', rationale: 'Persists concise run summaries and metrics under capsule/runs for future handoff.' },
-  { name: 'capsule_import_omx', level: 'L2', category: 'capsule', owner: 'handlers/capsule', rationale: 'Imports optional .omx context as non-authoritative capsule background only.' },
   { name: 'aux_doc_list', level: 'L0', category: 'docs-read', owner: 'handlers/aux-doc-list', rationale: 'Lists documentation paths for planning without mutation.' },
   { name: 'doctor', level: 'L2', category: 'health-maintenance', owner: 'handlers/doctor', rationale: 'Reports health state and, when repair is requested, removes terminal worktree residue through controlled mutation.' },
   { name: 'done_recover', level: 'L2', category: 'story-maintenance', owner: 'handlers/done-recover', rationale: 'Repairs partial-DONE state through explicit main-safety checks, story branch merge, worktree cleanup, and branch deletion.' },

@@ -1,11 +1,11 @@
 {
   "storyId": "B-42c0",
   "phase": "DEV",
-  "currentChecklistId": "CHK-001",
+  "currentChecklistId": "CHK-006",
   "activeRunId": "run-mpg6klum",
-  "lastUpdatedAt": "2026-05-22T00:46:45.244Z",
-  "summary": "Implemented Story Capsule projection, CLI commands, session_brief surfacing, run records, process-event projection, strict reference validation, and OMX non-authoritative import.",
-  "nextAction": "Commit implementation, record checklist evidence for CHK-001..CHK-006, then advance to REVIEW.",
+  "lastUpdatedAt": "2026-05-22T01:39:24.085Z",
+  "summary": "Story Capsule keeps bounded handoff state, run summaries, evidence/process-event references, and no .omx import application.",
+  "nextAction": "Commit removal of capsule_import_omx, record CHK-006 evidence, then advance to REVIEW.",
   "openBlockers": [],
   "evidenceRefs": [],
   "processEventRefs": [
@@ -37,14 +37,6 @@
       "provider": "codex",
       "result": "pass",
       "path": "capsule/runs/run-mpg6klum"
-    }
-  ],
-  "importRefs": [
-    {
-      "source": "omx_import",
-      "authority": "non_authoritative",
-      "path": "capsule/imports/omx-2026-05-22T00-28-05-052Z.md",
-      "importedAt": "2026-05-22T00:28:05.053Z"
     }
   ],
   "source": "handoff",

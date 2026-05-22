@@ -779,8 +779,7 @@ export type ProcessEventType =
   | 'capsule_updated'
   | 'handoff_written'
   | 'run_added'
-  | 'run_metrics_recorded'
-  | 'omx_imported';
+  | 'run_metrics_recorded';
 
 export type ProcessEvent = {
   type: ProcessEventType;

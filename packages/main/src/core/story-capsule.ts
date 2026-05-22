@@ -10,7 +10,7 @@
  *   events and evidence artifacts, while process-events.jsonl and evidence
  *   files remain authoritative.
  * @changes
- *   - [CHK-001] Add machine-readable capsule, run, reference, and import contracts
+ *   - [CHK-001] Add machine-readable capsule, run, and reference contracts
  *   - [CHK-003] Add rebuild/render/validation helpers for the projection layer
  *   - [CHK-005] Add reference validation so forged prose cannot masquerade as evidence
  */
@@ -21,7 +21,6 @@ import type { ChecklistData, ProcessEvent, StoryInfo } from './types.js';
 export const CAPSULE_DIR_NAME = 'capsule';
 export const CAPSULE_LIMITS = {
   maxRunRefs: 5,
-  maxImportRefs: 3,
   maxProcessEventRefs: 5,
   maxEvidenceRefs: 10,
   maxOpenBlockers: 5,
@@ -60,13 +59,6 @@ export interface CapsuleRunRef {
   path?: string;
 }
 
-export interface CapsuleImportRef {
-  source: 'omx_import' | string;
-  authority: CapsuleAuthority;
-  path: string;
-  importedAt: string;
-}
-
 export interface StoryCapsuleData {
   storyId: string;
   phase: string;
@@ -79,8 +71,7 @@ export interface StoryCapsuleData {
   evidenceRefs: CapsuleEvidenceRef[];
   processEventRefs: CapsuleProcessEventRef[];
   runRefs: CapsuleRunRef[];
-  importRefs?: CapsuleImportRef[];
-  source?: 'manual' | 'rebuild' | 'run_add' | 'handoff' | 'omx_import';
+  source?: 'manual' | 'rebuild' | 'run_add' | 'handoff';
   authority: 'projection';
 }
 
@@ -105,7 +96,7 @@ export interface StoryCapsuleRunData {
 export interface CapsuleValidationIssue {
   severity: 'warning' | 'error';
   refKind: 'evidence' | 'process-event' | 'capsule';
-  ref: CapsuleEvidenceRef | CapsuleProcessEventRef | CapsuleRunRef | CapsuleImportRef | StoryCapsuleData;
+  ref: CapsuleEvidenceRef | CapsuleProcessEventRef | CapsuleRunRef | StoryCapsuleData;
   message: string;
 }
 
@@ -158,7 +149,6 @@ export function buildStoryCapsule(input: BuildCapsuleInput): StoryCapsuleData {
     evidenceRefs: input.patch?.evidenceRefs ?? existing?.evidenceRefs ?? [],
     processEventRefs,
     runRefs: input.patch?.runRefs ?? existing?.runRefs ?? [],
-    importRefs: input.patch?.importRefs ?? existing?.importRefs ?? [],
     source: input.source ?? input.patch?.source ?? existing?.source ?? 'rebuild',
     authority: 'projection',
   });
@@ -192,7 +182,6 @@ export function normalizeCapsuleProjection(capsule: StoryCapsuleData): StoryCaps
     evidenceRefs: tail(capsule.evidenceRefs, CAPSULE_LIMITS.maxEvidenceRefs),
     processEventRefs: tail(capsule.processEventRefs, CAPSULE_LIMITS.maxProcessEventRefs),
     runRefs: tail(capsule.runRefs, CAPSULE_LIMITS.maxRunRefs),
-    importRefs: tail(capsule.importRefs ?? [], CAPSULE_LIMITS.maxImportRefs),
   };
 }
 
@@ -213,7 +202,6 @@ export function renderCapsuleBrief(capsule: StoryCapsuleData, issues: CapsuleVal
   lines.push(`  Next action: ${capsule.nextAction || '(none)'}`);
   if (capsule.openBlockers.length > 0) lines.push(`  Open blockers: ${capsule.openBlockers.length}`);
   lines.push(`  Runs: ${capsule.runRefs.length}/${CAPSULE_LIMITS.maxRunRefs}`);
-  lines.push(`  Imports: ${(capsule.importRefs ?? []).length}/${CAPSULE_LIMITS.maxImportRefs}`);
   lines.push(`  Evidence refs: ${capsule.evidenceRefs.length}/${CAPSULE_LIMITS.maxEvidenceRefs}`);
   lines.push(`  Process-event refs: ${capsule.processEventRefs.length}/${CAPSULE_LIMITS.maxProcessEventRefs}`);
   if (issues.length > 0) {
@@ -259,9 +247,6 @@ export function validateCapsuleRefs(input: ValidateCapsuleRefsInput): CapsuleVal
   if (input.capsule.runRefs.length > CAPSULE_LIMITS.maxRunRefs) {
     issues.push({ severity: 'error', refKind: 'capsule', ref: input.capsule, message: `capsule runRefs exceeds ${CAPSULE_LIMITS.maxRunRefs}; keep full history in process-events/evidence, not capsule` });
   }
-  if ((input.capsule.importRefs ?? []).length > CAPSULE_LIMITS.maxImportRefs) {
-    issues.push({ severity: 'error', refKind: 'capsule', ref: input.capsule, message: `capsule importRefs exceeds ${CAPSULE_LIMITS.maxImportRefs}; keep imports as bounded handoff context` });
-  }
   if (input.capsule.evidenceRefs.length > CAPSULE_LIMITS.maxEvidenceRefs) {
     issues.push({ severity: 'error', refKind: 'capsule', ref: input.capsule, message: `capsule evidenceRefs exceeds ${CAPSULE_LIMITS.maxEvidenceRefs}; reference only current handoff evidence` });
   }
@@ -292,11 +277,6 @@ export function validateCapsuleRefs(input: ValidateCapsuleRefsInput): CapsuleVal
   }
 
   const events = input.processEvents ?? [];
-  for (const ref of input.capsule.importRefs ?? []) {
-    if (ref.source === 'omx_import' && ref.authority !== 'non_authoritative') {
-      issues.push({ severity: 'error', refKind: 'capsule', ref, message: `OMX imports must be non_authoritative: ${ref.path}` });
-    }
-  }
   for (const ref of input.capsule.processEventRefs) {
     const eventAtLine = typeof ref.line === 'number' ? events[ref.line - 1] : undefined;
     if (typeof ref.line === 'number' && !eventAtLine) {
