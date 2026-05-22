@@ -4,7 +4,7 @@
   "title": "Add Story Capsule for recoverable auditable handoff",
   "description": "Add a story-scoped session capsule projection that lets a new agent resume a story from structured handoff state while keeping process-events and evidence as the only authoritative gate facts. The capsule must support run summaries, rebuild from process-events, CLI display, evidence reference validation, and non-authoritative OMX import.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "keywords": [
     "story-capsule",
@@ -31,6 +31,14 @@
       "action": "advance",
       "timestamp": "2026-05-22T00:01:55.252Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-05-22T00:02:21.693Z",
+      "branch": "story/B-42c0",
       "user": "Harmonygo",
       "agent": "main"
     }
