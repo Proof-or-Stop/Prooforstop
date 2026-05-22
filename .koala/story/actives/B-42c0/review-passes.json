@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-42c0:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept boundary holds. Verified scope change: capsule_import_omx fully removed from cli-engine MAIN_TOOLS, command-policy, process-fact-levels, and handler (commit cfd5b39b); CapsuleImportRef/importRefs/maxImportRefs/omx_import source/omx_imported event all deleted. Capsule is projection-only: buildStoryCapsule forces authority:'projection', validateCapsuleRefs errors on any other authority, and grep confirms NO gate (phase-gates/story-advance/review-preflight/machine/done-oracle) reads the capsule — only session_brief (display) + capsule handlers do. .omx remains ignored runtime residue, not a capsule import source.",
+      "createdAt": "2026-05-22T11:58:46.848Z",
+      "reviewRound": "2026-05-22T01:41:25.867Z",
+      "reviewRunId": "B-42c0:RR-001",
+      "_hash": "5d85588ff1b6147e0bc8f6b135d40fc52f81a72d246be75dae08137dc1e24af7"
+    }
+  ]
+}
