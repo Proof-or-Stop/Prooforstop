@@ -1,0 +1,52 @@
+{
+  "storyId": "B-42c0",
+  "phase": "DEV",
+  "currentChecklistId": "CHK-001",
+  "activeRunId": "run-mpg6klum",
+  "lastUpdatedAt": "2026-05-22T00:46:45.244Z",
+  "summary": "Implemented Story Capsule projection, CLI commands, session_brief surfacing, run records, process-event projection, strict reference validation, and OMX non-authoritative import.",
+  "nextAction": "Commit implementation, record checklist evidence for CHK-001..CHK-006, then advance to REVIEW.",
+  "openBlockers": [],
+  "evidenceRefs": [],
+  "processEventRefs": [
+    {
+      "line": 5,
+      "type": "plan_reviewed"
+    },
+    {
+      "line": 6,
+      "type": "dispatch"
+    },
+    {
+      "line": 7,
+      "type": "codex_cli"
+    },
+    {
+      "line": 8,
+      "type": "codex_cli"
+    },
+    {
+      "line": 9,
+      "type": "codex_cli"
+    }
+  ],
+  "runRefs": [
+    {
+      "runId": "run-mpg6klum",
+      "role": "implementer",
+      "provider": "codex",
+      "result": "pass",
+      "path": "capsule/runs/run-mpg6klum"
+    }
+  ],
+  "importRefs": [
+    {
+      "source": "omx_import",
+      "authority": "non_authoritative",
+      "path": "capsule/imports/omx-2026-05-22T00-28-05-052Z.md",
+      "importedAt": "2026-05-22T00:28:05.053Z"
+    }
+  ],
+  "source": "handoff",
+  "authority": "projection"
+}

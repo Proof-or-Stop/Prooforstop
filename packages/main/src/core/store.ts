@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, renameSync, rmSync } from 'fs';
-import { join } from 'path';
+import { dirname, join } from 'path';
 import type {
   StoryInfo, ChecklistData, BugData, TestEvidenceData, ReviewData,
   UnderstandingData, DecisionData, StorySummaryData,
@@ -8,6 +8,7 @@ import type {
   DeliveryCheckData, ImplementationReviewResultData, ReviewRunData, GrillData,
   DeclaredArtifactsData,
 } from './types.js';
+import { CAPSULE_DIR_NAME, type StoryCapsuleData, type StoryCapsuleRunData } from './story-capsule.js';
 import type { ClusterData } from './cluster-types.js';
 import { appendProcessEvent as appendProcessEventFn, readProcessEvents as readProcessEventsFn } from './process-events.js';
 import { loadConfig } from './config.js';
@@ -87,6 +88,7 @@ export class StoryStore {
     const serialized = JSON.stringify(data, null, 2) + '\n';
     const tmpPath = `${filePath}.tmp-${process.pid}-${Date.now()}`;
     try {
+      mkdirSync(dirname(filePath), { recursive: true });
       writeFileSync(tmpPath, serialized, 'utf-8');
       JSON.parse(readFileSync(tmpPath, 'utf-8')); // post-write validation
       renameSync(tmpPath, filePath); // atomic replace
@@ -468,6 +470,57 @@ export class StoryStore {
 
   writeDeclaredArtifacts(storyId: string, data: DeclaredArtifactsData): void {
     this.writeJson(storyId, 'declared-artifacts.json', data);
+  }
+
+  // ── Story Capsule (B-42c0: resumable handoff projection) ──
+
+  capsuleDirPath(storyId: string): string {
+    return join(this.storyDir(storyId), CAPSULE_DIR_NAME);
+  }
+
+  capsuleFilePath(storyId: string, file: string): string {
+    return join(this.capsuleDirPath(storyId), file);
+  }
+
+  capsuleRunDirPath(storyId: string, runId: string): string {
+    return join(this.capsuleDirPath(storyId), 'runs', runId);
+  }
+
+  readStoryCapsule(storyId: string): StoryCapsuleData | null {
+    try {
+      return this.readJson<StoryCapsuleData>(storyId, `${CAPSULE_DIR_NAME}/capsule.json`);
+    } catch {
+      return null;
+    }
+  }
+
+  writeStoryCapsule(storyId: string, data: StoryCapsuleData): void {
+    this.writeJson(storyId, `${CAPSULE_DIR_NAME}/capsule.json`, data);
+  }
+
+  readStoryCapsuleMarkdown(storyId: string, file: 'session-brief.md' | 'handoff.md'): string | null {
+    const path = this.capsuleFilePath(storyId, file);
+    if (!existsSync(path)) return null;
+    return readFileSync(path, 'utf-8');
+  }
+
+  writeStoryCapsuleMarkdown(storyId: string, file: 'session-brief.md' | 'handoff.md', content: string): void {
+    const path = this.capsuleFilePath(storyId, file);
+    mkdirSync(dirname(path), { recursive: true });
+    writeFileSync(path, content.endsWith('\n') ? content : `${content}\n`, 'utf-8');
+  }
+
+  writeCapsuleRun(storyId: string, run: StoryCapsuleRunData, files: {
+    transcript: string;
+    metrics?: Record<string, unknown>;
+    artifacts?: Record<string, unknown>;
+  }): void {
+    const runDir = this.capsuleRunDirPath(storyId, run.runId);
+    this.writeJson(storyId, `${CAPSULE_DIR_NAME}/runs/${run.runId}/run.json`, run);
+    this.writeJson(storyId, `${CAPSULE_DIR_NAME}/runs/${run.runId}/metrics.json`, files.metrics ?? run.metrics ?? {});
+    this.writeJson(storyId, `${CAPSULE_DIR_NAME}/runs/${run.runId}/artifacts.json`, files.artifacts ?? run.artifacts ?? {});
+    mkdirSync(runDir, { recursive: true });
+    writeFileSync(join(runDir, 'transcript.md'), files.transcript.endsWith('\n') ? files.transcript : `${files.transcript}\n`, 'utf-8');
   }
 
   // ── Process Events (B-aa48: Phase 3 append-only event log) ──

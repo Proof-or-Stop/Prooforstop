@@ -775,7 +775,12 @@ export type ProcessEventType =
   | 'reviewer_finding'
   | 'review_pass'
   | 'dirty_gate_audit'
-  | 'init_check_fallback';
+  | 'init_check_fallback'
+  | 'capsule_updated'
+  | 'handoff_written'
+  | 'run_added'
+  | 'run_metrics_recorded'
+  | 'omx_imported';
 
 export type ProcessEvent = {
   type: ProcessEventType;

@@ -133,6 +133,23 @@ const verificationEvidenceSchema = z.object({
   timestamp: z.string().optional().describe('记录时间'),
 });
 
+const capsuleEvidenceRefSchema = z.object({
+  kind: z.string().optional(),
+  path: z.string().optional(),
+  intentRef: z.string().optional(),
+  receiptId: z.string().optional(),
+  processEventLine: z.number().optional(),
+  authority: z.enum(['authoritative', 'non_authoritative']).optional(),
+  note: z.string().optional(),
+});
+
+const capsuleProcessEventRefSchema = z.object({
+  line: z.number().optional(),
+  type: z.string().optional(),
+  digest: z.string().optional(),
+  note: z.string().optional(),
+});
+
 const backgroundSectionSchema = z.preprocess((value) => {
   if (typeof value !== 'string') return value;
   return normalizeBackgroundSection(value) ?? value;
@@ -524,6 +541,54 @@ export const MAIN_TOOLS: ToolDef[] = [
   }},
   { name: 'next', description: '只输出当前最可信的下一步（复用 session_brief 的权威 phase 判断）', schema: {
     concise: z.boolean().optional().describe('轻量模式（默认 true）'),
+  }},
+  { name: 'capsule_show', description: '显示 story session capsule（投影状态，不是 gate evidence）', schema: {
+    storyId: z.string().optional().describe('Story ID'),
+    story: z.string().optional().describe('Story ID alias'),
+    format: z.enum(['text', 'json']).optional().describe('输出格式'),
+    strict: z.boolean().optional().describe('引用缺失时 hard fail'),
+  }},
+  { name: 'capsule_update', description: '创建/更新 story session capsule 投影', schema: {
+    storyId: z.string().optional().describe('Story ID'),
+    story: z.string().optional().describe('Story ID alias'),
+    rebuild: z.boolean().optional().describe('从 story/checklist/process-events 重建基础 capsule'),
+    summary: z.string().optional().describe('摘要'),
+    nextAction: z.string().optional().describe('下一步'),
+    currentChecklistId: z.string().optional().describe('当前 checklist item'),
+    activeRunId: z.string().optional().describe('当前/最近 run id'),
+    openBlockers: z.array(z.string()).optional().describe('未解决 blocker 摘要'),
+    evidenceRefs: z.array(capsuleEvidenceRefSchema).optional().describe('证据引用'),
+    processEventRefs: z.array(capsuleProcessEventRefSchema).optional().describe('process-events 引用'),
+    strict: z.boolean().optional().describe('引用缺失时拒绝写入'),
+  }},
+  { name: 'capsule_handoff', description: '写入 handoff.md 并更新 capsule next action', schema: {
+    storyId: z.string().optional().describe('Story ID'),
+    story: z.string().optional().describe('Story ID alias'),
+    nextAction: z.string().describe('下一步'),
+    notes: z.string().optional().describe('交接备注'),
+    openBlockers: z.array(z.string()).optional().describe('未解决 blocker 摘要'),
+  }},
+  { name: 'capsule_run_add', description: '记录 story capsule run 摘要和指标', schema: {
+    storyId: z.string().optional().describe('Story ID'),
+    story: z.string().optional().describe('Story ID alias'),
+    runId: z.string().optional().describe('Run ID'),
+    checklistId: z.string().optional().describe('关联 checklist item'),
+    provider: z.string().optional().describe('CLI/provider，如 codex/claude-code/gemini'),
+    model: z.string().optional().describe('模型'),
+    vendor: z.string().optional().describe('供应商'),
+    role: z.enum(['implementer', 'reviewer', 'tester', 'verifier', 'main', 'other']).optional().describe('run 角色'),
+    result: z.enum(['pass', 'fail', 'blocked', 'unknown']).optional().describe('run 结果'),
+    commands: z.array(z.string()).optional().describe('执行命令摘要'),
+    transcript: z.string().optional().describe('关键 transcript 摘录'),
+    evidenceRefs: z.array(capsuleEvidenceRefSchema).optional().describe('证据引用'),
+    processEventRefs: z.array(capsuleProcessEventRefSchema).optional().describe('process-events 引用'),
+    metrics: z.record(z.string(), z.unknown()).optional().describe('指标摘要'),
+    artifacts: z.record(z.string(), z.unknown()).optional().describe('artifact 摘要'),
+  }},
+  { name: 'capsule_import_omx', description: '导入 .omx 摘要为 non_authoritative capsule 背景材料', schema: {
+    storyId: z.string().optional().describe('Story ID'),
+    story: z.string().optional().describe('Story ID alias'),
+    sourceDir: z.string().optional().describe('OMX 目录，默认 <root>/.omx'),
   }},
   { name: 'aux_doc_list', description: '列出项目文档（PLAN 阶段挑选 relatedDocs 用）', schema: {
     format: z.enum(['text', 'json']).optional().describe('输出格式（默认 text）'),
