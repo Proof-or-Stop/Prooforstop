@@ -170,9 +170,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/truth-source.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-22T00:50:00.041Z",
-      "endTime": null,
+      "endTime": "2026-05-22T00:50:00.890Z",
       "userSees": "After deleting capsule/capsule.json, koala capsule_update --rebuild restores a baseline capsule and process-events.jsonl contains capsule_updated or handoff_written audit lines.",
       "files": {
         "modify": [
@@ -207,7 +207,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run test:story-capsule-smoke",
+          "result": "pass",
+          "note": "Smoke asserts capsule_updated, handoff_written, and run_metrics_recorded are appended to process-events.jsonl.",
+          "headHash": "736c5cb3d0c149ec7b7d911e0682ae4df86d540c",
+          "materialHash": "9768e7f556eefc96b67e7868b7b7f6531fabd13c01b08886a67802abb5bfa2a3",
+          "timestamp": "2026-05-22T00:50:00.945Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run test:story-capsule-smoke",
+          "result": "pass",
+          "note": "Smoke deletes capsule.json and verifies capsule_update rebuild recreates the projection from story/checklist/process-events.",
+          "headHash": "736c5cb3d0c149ec7b7d911e0682ae4df86d540c",
+          "materialHash": "9768e7f556eefc96b67e7868b7b7f6531fabd13c01b08886a67802abb5bfa2a3",
+          "timestamp": "2026-05-22T00:50:00.991Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-capsule-smoke.ts",
+          "command": "npm run test:story-capsule-smoke",
+          "result": "pass",
+          "note": "Smoke captures the first process-events ledger line and verifies rebuild does not rewrite it.",
+          "headHash": "736c5cb3d0c149ec7b7d911e0682ae4df86d540c",
+          "materialHash": "9768e7f556eefc96b67e7868b7b7f6531fabd13c01b08886a67802abb5bfa2a3",
+          "timestamp": "2026-05-22T00:50:01.025Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -392,6 +427,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Starting process-event projection and rebuild evidence after smoke expansion."
+    },
+    {
+      "timestamp": "2026-05-22T00:50:00.890Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Capsule process-events and rebuild behavior implemented and smoke verified."
     }
   ]
 }
