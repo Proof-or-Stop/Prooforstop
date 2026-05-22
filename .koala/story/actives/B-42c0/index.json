@@ -1,0 +1,43 @@
+{
+  "storyId": "B-42c0",
+  "name": "story-capsule-session-handoff",
+  "title": "Add Story Capsule for recoverable auditable handoff",
+  "description": "Add a story-scoped session capsule projection that lets a new agent resume a story from structured handoff state while keeping process-events and evidence as the only authoritative gate facts. The capsule must support run summaries, rebuild from process-events, CLI display, evidence reference validation, and non-authoritative OMX import.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "story-capsule",
+    "session-brief",
+    "handoff",
+    "process-events",
+    "evidence",
+    "omx-import"
+  ],
+  "createdAt": "2026-05-21T23:58:11.490Z",
+  "startedAt": "2026-05-21T23:58:11.490Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-05-21T23:58:11.502Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-05-22T00:01:55.252Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-42c0",
+    "branch": "story/B-42c0",
+    "createdAt": "2026-05-22T00:01:55.407Z"
+  }
+}
