@@ -4,7 +4,7 @@
   "title": "Add semantic scope guard and guarded session evidence for story changes",
   "description": "Extend the B-be27 path-level scope gate so Koala can detect same-file semantic scope drift, bind reviewer evidence to diff packs, and expose guarded session state for Koala-managed Claude/Codex runs.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "scope-contract",
@@ -24,6 +24,19 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-05-23T21:15:09.293Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-6bfd",
+    "branch": "story/B-6bfd",
+    "createdAt": "2026-05-23T21:15:09.371Z"
+  }
 }
