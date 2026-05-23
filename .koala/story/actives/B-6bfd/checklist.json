@@ -109,7 +109,7 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/test-intent-review.md"
       ],
-      "userSees": "story_advance REVIEW/TEST/DONE prints semantic gate pass/warn/fail with violating path+anchor+hunkDigest.",
+      "userSees": "story_advance REVIEW/TEST/DONE prints \"Semantic scope gate: pass\" or \"Semantic scope gate: fail\" with violating \"path\", \"anchor\", and \"hunkDigest\".",
       "verificationIntent": {
         "happy": [
           {
