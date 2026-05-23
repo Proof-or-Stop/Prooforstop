@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-23T18:56:20.654Z",
       "reviewRunId": "B-be27:RR-002",
       "_hash": "84d8a9a43aa18e2cb7d567b2cd012dceca815b0c2f8cf3d04898af066acc24bf"
+    },
+    {
+      "id": "B-be27:RP-003",
+      "agent": "koala-review-quality",
+      "note": "PASS. Quality review by Claude Code CLI using tools-disabled evidence after two tool-mode stalls. A real partial-update bug was found during supervision (scope_contract_set cleared omitted optional arrays), fixed by preserving undefined fields and rendering saved contract, with smoke regression added. Verified build, scope smoke, lifecycle-registry contract, command-ownership contract, and live scope_contract_check pass with 28 files / 0 violations. No .omx writes; registry/policy/config entries consistent.",
+      "createdAt": "2026-05-23T19:08:34.597Z",
+      "reviewRound": "2026-05-23T18:56:20.654Z",
+      "reviewRunId": "B-be27:RR-005",
+      "_hash": "e774e7ded460b0c71315fe11e3da4bdb235d46488ad1c65e8b91331c4917379d"
     }
   ]
 }
