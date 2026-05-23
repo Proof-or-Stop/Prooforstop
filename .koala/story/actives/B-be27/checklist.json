@@ -194,7 +194,47 @@
       "context": "Add focused tests that prove allowed paths pass, protected/excluded paths fail in enforce mode, shadow mode warns, and acknowledged scope expansion is visible in validation output. Include package build or targeted smoke test commands as verification evidence.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/truth-source.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "userSees": "用户运行 `npm --prefix packages/main run test:scope-contract-smoke` 和 `koala validate --story=B-be27 --json` 时看到 scope contract 的 allowed、blocked、shadow、acknowledged cases 全部 pass。",
+      "files": {
+        "modify": [
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The smoke test passes for allowed changed files and clean worktree cases.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke test proves shadow mode warns without blocking and missing contracts stay compatible where intended.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke test proves enforce mode fails for protected/excluded files and requires explicit acknowledgement for expansion.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
