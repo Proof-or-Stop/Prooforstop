@@ -1,0 +1,58 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define story scope contract data model and persistence",
+      "context": "Add a minimal story-scoped ScopeContract model for allowedModify, allowedCreate, allowedTest, protectedFiles, explicitExcludes, mode, and scopeChangeReason. Persist through Koala commands, not direct story JSON edits.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add CLI commands to create, show, update, and check scope contracts",
+      "context": "Expose a mechanical entrypoint such as scope_contract_set/show/check. The check command must compare git diff against the contract and return structured pass/warn/fail output.",
+      "relatedDocs": [
+        "docs/requirements/decisions/truth-source.md",
+        "docs/requirements/decisions/verification-context-pack.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Integrate post-diff scope gate into lifecycle prechecks",
+      "context": "Wire scope checking into REVIEW, TEST, and DONE gate flow without blocking old stories that lack contracts unless strict mode or story policy requires it. Include local/shadow/enforce behavior to avoid false blocks.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Support explicit scope change acknowledgement and reviewer-visible evidence",
+      "context": "If implementation needs to touch an out-of-scope file, require an explicit reason and make the change visible to reviewers instead of silently expanding scope.",
+      "relatedDocs": [
+        "docs/requirements/decisions/truth-source.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Add regression tests for allowed, blocked, and acknowledged scope changes",
+      "context": "Add focused tests that prove allowed paths pass, protected/excluded paths fail in enforce mode, shadow mode warns, and acknowledged scope expansion is visible in validation output. Include package build or targeted smoke test commands as verification evidence.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "storyId": "B-be27",
+  "name": "story-scope-contract-diff-gate",
+  "title": "Add story scope contract and post-diff changed-file gate",
+  "description": "Add a story-scoped scope contract so Koala can mechanically distinguish intended edits from out-of-scope changes before review, test, and done gates. This is the foundation for preventing Claude Code or other agents from accidentally modifying existing behavior outside the agreed story boundary.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "source": "user-request",
+  "keywords": [
+    "scope-contract",
+    "changed-file-policy",
+    "diff-gate",
+    "agent-guardrails"
+  ],
+  "riskSignals": [
+    {
+      "category": "状态机/门禁",
+      "matched": "DONE gate"
+    }
+  ],
+  "createdAt": "2026-05-23T18:34:31.799Z",
+  "startedAt": "2026-05-23T18:34:31.799Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-05-23T18:34:31.804Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-05-23T18:36:14.851Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-be27",
+    "branch": "story/B-be27",
+    "createdAt": "2026-05-23T18:36:14.918Z"
+  }
+}
