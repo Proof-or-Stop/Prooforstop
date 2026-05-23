@@ -1,0 +1,47 @@
+{
+  "storyId": "B-6bfd",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/package.json",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/scope-contract.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/handlers/scope-contract.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/handlers/review-preflight.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/index.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/scope-diff-pack.ts",
+    "packages/main/src/core/semantic-scope-gate.ts",
+    "packages/main/src/core/guard-session.ts",
+    "packages/main/src/handlers/guard-session.ts",
+    "packages/main/src/core/review-scope-binding.ts",
+    "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
+  ],
+  "protectedFiles": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "KOALA.md"
+  ],
+  "explicitExcludes": [
+    ".omx"
+  ],
+  "scopeChangeReason": "B-6bfd semantic scope guard implementation scope agreed during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-05-23T21:18:56.722Z",
+  "updatedAt": "2026-05-23T21:18:56.722Z"
+}
