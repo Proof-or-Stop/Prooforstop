@@ -4,7 +4,7 @@
   "title": "Add story scope contract and post-diff changed-file gate",
   "description": "Add a story-scoped scope contract so Koala can mechanically distinguish intended edits from out-of-scope changes before review, test, and done gates. This is the foundation for preventing Claude Code or other agents from accidentally modifying existing behavior outside the agreed story boundary.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "source": "user-request",
   "keywords": [
@@ -36,6 +36,14 @@
       "action": "advance",
       "timestamp": "2026-05-23T18:36:14.851Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-05-23T18:36:26.868Z",
+      "branch": "story/B-be27",
       "user": "Harmonygo",
       "agent": "main"
     }
