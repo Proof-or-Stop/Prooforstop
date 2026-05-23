@@ -54,9 +54,9 @@
           "command": "npm --prefix packages/main run test:scope-contract-smoke",
           "result": "pass",
           "note": "Smoke test round-trips scope contract through set/show/check and asserts persisted fields are visible.",
-          "headHash": "ab4611624507c1ab7a4e5fc20fb8e72e395cb2b6",
-          "materialHash": "1bf61e06801f5085352c7a44b38f70fc41c517820f84cfbe4d497c3dd267ae2d",
-          "timestamp": "2026-05-23T18:55:40.208Z"
+          "headHash": "e574c7bd06666ad988451316b851809fa6ec5cb0",
+          "materialHash": "0c2468e5e14c370f3ac4ec2dad0266e45867e2eb6cf0277cfb8181742de311a3",
+          "timestamp": "2026-05-23T19:08:57.992Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -64,9 +64,9 @@
           "command": "npm --prefix packages/main run test:scope-contract-smoke",
           "result": "pass",
           "note": "Smoke test covers no-contract compatibility and missing/default arrays through set/check flows.",
-          "headHash": "ab4611624507c1ab7a4e5fc20fb8e72e395cb2b6",
-          "materialHash": "1bf61e06801f5085352c7a44b38f70fc41c517820f84cfbe4d497c3dd267ae2d",
-          "timestamp": "2026-05-23T18:55:40.208Z"
+          "headHash": "e574c7bd06666ad988451316b851809fa6ec5cb0",
+          "materialHash": "0c2468e5e14c370f3ac4ec2dad0266e45867e2eb6cf0277cfb8181742de311a3",
+          "timestamp": "2026-05-23T19:08:57.992Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -74,9 +74,9 @@
           "command": "npm --prefix packages/main run test:scope-contract-smoke",
           "result": "pass",
           "note": "Smoke test rejects invalid mode and unsafe relative paths before persistence.",
-          "headHash": "ab4611624507c1ab7a4e5fc20fb8e72e395cb2b6",
-          "materialHash": "1bf61e06801f5085352c7a44b38f70fc41c517820f84cfbe4d497c3dd267ae2d",
-          "timestamp": "2026-05-23T18:55:40.208Z"
+          "headHash": "e574c7bd06666ad988451316b851809fa6ec5cb0",
+          "materialHash": "0c2468e5e14c370f3ac4ec2dad0266e45867e2eb6cf0277cfb8181742de311a3",
+          "timestamp": "2026-05-23T19:08:57.992Z"
         }
       ]
     },
@@ -138,9 +138,9 @@
           "command": "npm --prefix packages/main run test:scope-contract-smoke && npm --prefix packages/main run test:command-ownership-contract",
           "result": "pass",
           "note": "CLI set/show/check commands dispatch and all registered commands carry valid ownership policy.",
-          "headHash": "ab4611624507c1ab7a4e5fc20fb8e72e395cb2b6",
-          "materialHash": "1bf61e06801f5085352c7a44b38f70fc41c517820f84cfbe4d497c3dd267ae2d",
-          "timestamp": "2026-05-23T18:55:40.208Z"
+          "headHash": "e574c7bd06666ad988451316b851809fa6ec5cb0",
+          "materialHash": "0c2468e5e14c370f3ac4ec2dad0266e45867e2eb6cf0277cfb8181742de311a3",
+          "timestamp": "2026-05-23T19:08:57.992Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -148,9 +148,9 @@
           "command": "node packages/main/dist/cli.js scope_contract_check --storyId=B-be27 --json",
           "result": "pass",
           "note": "Current story scope_contract_check returns structured JSON with status pass, changedFiles, violations, warnings, and mode.",
-          "headHash": "ab4611624507c1ab7a4e5fc20fb8e72e395cb2b6",
-          "materialHash": "1bf61e06801f5085352c7a44b38f70fc41c517820f84cfbe4d497c3dd267ae2d",
-          "timestamp": "2026-05-23T18:55:40.208Z"
+          "headHash": "e574c7bd06666ad988451316b851809fa6ec5cb0",
+          "materialHash": "0c2468e5e14c370f3ac4ec2dad0266e45867e2eb6cf0277cfb8181742de311a3",
+          "timestamp": "2026-05-23T19:08:57.992Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -158,9 +158,9 @@
           "command": "npm --prefix packages/main run test:scope-contract-smoke",
           "result": "pass",
           "note": "Smoke test creates an out-of-scope file and verifies enforce mode returns fail with a visible violation.",
-          "headHash": "ab4611624507c1ab7a4e5fc20fb8e72e395cb2b6",
-          "materialHash": "1bf61e06801f5085352c7a44b38f70fc41c517820f84cfbe4d497c3dd267ae2d",
-          "timestamp": "2026-05-23T18:55:40.208Z"
+          "headHash": "e574c7bd06666ad988451316b851809fa6ec5cb0",
+          "materialHash": "0c2468e5e14c370f3ac4ec2dad0266e45867e2eb6cf0277cfb8181742de311a3",
+          "timestamp": "2026-05-23T19:08:57.992Z"
         }
       ]
     },
@@ -217,9 +217,9 @@
           "command": "node packages/main/dist/cli.js scope_contract_check --storyId=B-be27 --json",
           "result": "pass",
           "note": "B-be27 has an enforce scope contract and the current changed-file set passes with zero violations.",
-          "headHash": "ab4611624507c1ab7a4e5fc20fb8e72e395cb2b6",
-          "materialHash": "1bf61e06801f5085352c7a44b38f70fc41c517820f84cfbe4d497c3dd267ae2d",
-          "timestamp": "2026-05-23T18:55:40.208Z"
+          "headHash": "e574c7bd06666ad988451316b851809fa6ec5cb0",
+          "materialHash": "0c2468e5e14c370f3ac4ec2dad0266e45867e2eb6cf0277cfb8181742de311a3",
+          "timestamp": "2026-05-23T19:08:57.992Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -227,9 +227,9 @@
           "command": "npm --prefix packages/main run test:scope-contract-smoke",
           "result": "pass",
           "note": "Smoke test verifies missing-contract skip/backward compatibility and shadow-mode warn behavior.",
-          "headHash": "ab4611624507c1ab7a4e5fc20fb8e72e395cb2b6",
-          "materialHash": "1bf61e06801f5085352c7a44b38f70fc41c517820f84cfbe4d497c3dd267ae2d",
-          "timestamp": "2026-05-23T18:55:40.208Z"
+          "headHash": "e574c7bd06666ad988451316b851809fa6ec5cb0",
+          "materialHash": "0c2468e5e14c370f3ac4ec2dad0266e45867e2eb6cf0277cfb8181742de311a3",
+          "timestamp": "2026-05-23T19:08:57.992Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -237,9 +237,9 @@
           "command": "npm --prefix packages/main run test:scope-contract-smoke",
           "result": "pass",
           "note": "Smoke test verifies enforce mode fails for protected and out-of-scope changed files.",
-          "headHash": "ab4611624507c1ab7a4e5fc20fb8e72e395cb2b6",
-          "materialHash": "1bf61e06801f5085352c7a44b38f70fc41c517820f84cfbe4d497c3dd267ae2d",
-          "timestamp": "2026-05-23T18:55:40.208Z"
+          "headHash": "e574c7bd06666ad988451316b851809fa6ec5cb0",
+          "materialHash": "0c2468e5e14c370f3ac4ec2dad0266e45867e2eb6cf0277cfb8181742de311a3",
+          "timestamp": "2026-05-23T19:08:57.992Z"
         }
       ]
     },
@@ -295,9 +295,9 @@
           "command": "npm --prefix packages/main run test:scope-contract-smoke",
           "result": "pass",
           "note": "Smoke test records scope_contract_acknowledge with actor, reason, timestamp, and paths.",
-          "headHash": "ab4611624507c1ab7a4e5fc20fb8e72e395cb2b6",
-          "materialHash": "1bf61e06801f5085352c7a44b38f70fc41c517820f84cfbe4d497c3dd267ae2d",
-          "timestamp": "2026-05-23T18:55:40.208Z"
+          "headHash": "e574c7bd06666ad988451316b851809fa6ec5cb0",
+          "materialHash": "0c2468e5e14c370f3ac4ec2dad0266e45867e2eb6cf0277cfb8181742de311a3",
+          "timestamp": "2026-05-23T19:08:57.992Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -305,9 +305,9 @@
           "command": "npm --prefix packages/main run test:scope-contract-smoke",
           "result": "pass",
           "note": "Handler enforces reason length; smoke validates acknowledgement path validation through CLI/core checks.",
-          "headHash": "ab4611624507c1ab7a4e5fc20fb8e72e395cb2b6",
-          "materialHash": "1bf61e06801f5085352c7a44b38f70fc41c517820f84cfbe4d497c3dd267ae2d",
-          "timestamp": "2026-05-23T18:55:40.208Z"
+          "headHash": "e574c7bd06666ad988451316b851809fa6ec5cb0",
+          "materialHash": "0c2468e5e14c370f3ac4ec2dad0266e45867e2eb6cf0277cfb8181742de311a3",
+          "timestamp": "2026-05-23T19:08:57.992Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -315,9 +315,9 @@
           "command": "npm --prefix packages/main run test:scope-contract-smoke",
           "result": "pass",
           "note": "Acknowledged out-of-scope paths return warn and remain visible in acknowledgedPaths rather than disappearing.",
-          "headHash": "ab4611624507c1ab7a4e5fc20fb8e72e395cb2b6",
-          "materialHash": "1bf61e06801f5085352c7a44b38f70fc41c517820f84cfbe4d497c3dd267ae2d",
-          "timestamp": "2026-05-23T18:55:40.208Z"
+          "headHash": "e574c7bd06666ad988451316b851809fa6ec5cb0",
+          "materialHash": "0c2468e5e14c370f3ac4ec2dad0266e45867e2eb6cf0277cfb8181742de311a3",
+          "timestamp": "2026-05-23T19:08:57.992Z"
         }
       ]
     },
@@ -375,9 +375,9 @@
           "command": "npm --prefix packages/main run test:scope-contract-smoke",
           "result": "pass",
           "note": "Scope contract smoke passed for allowed and clean/no-contract cases.",
-          "headHash": "ab4611624507c1ab7a4e5fc20fb8e72e395cb2b6",
-          "materialHash": "1bf61e06801f5085352c7a44b38f70fc41c517820f84cfbe4d497c3dd267ae2d",
-          "timestamp": "2026-05-23T18:55:40.208Z"
+          "headHash": "e574c7bd06666ad988451316b851809fa6ec5cb0",
+          "materialHash": "0c2468e5e14c370f3ac4ec2dad0266e45867e2eb6cf0277cfb8181742de311a3",
+          "timestamp": "2026-05-23T19:08:57.992Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -385,9 +385,9 @@
           "command": "npm --prefix packages/main run test:scope-contract-smoke",
           "result": "pass",
           "note": "Scope contract smoke passed for shadow warning and missing-contract compatibility cases.",
-          "headHash": "ab4611624507c1ab7a4e5fc20fb8e72e395cb2b6",
-          "materialHash": "1bf61e06801f5085352c7a44b38f70fc41c517820f84cfbe4d497c3dd267ae2d",
-          "timestamp": "2026-05-23T18:55:40.208Z"
+          "headHash": "e574c7bd06666ad988451316b851809fa6ec5cb0",
+          "materialHash": "0c2468e5e14c370f3ac4ec2dad0266e45867e2eb6cf0277cfb8181742de311a3",
+          "timestamp": "2026-05-23T19:08:57.992Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -395,9 +395,9 @@
           "command": "npm --prefix packages/main run test:scope-contract-smoke",
           "result": "pass",
           "note": "Scope contract smoke passed for enforce failures and explicit acknowledgement behavior.",
-          "headHash": "ab4611624507c1ab7a4e5fc20fb8e72e395cb2b6",
-          "materialHash": "1bf61e06801f5085352c7a44b38f70fc41c517820f84cfbe4d497c3dd267ae2d",
-          "timestamp": "2026-05-23T18:55:40.208Z"
+          "headHash": "e574c7bd06666ad988451316b851809fa6ec5cb0",
+          "materialHash": "0c2468e5e14c370f3ac4ec2dad0266e45867e2eb6cf0277cfb8181742de311a3",
+          "timestamp": "2026-05-23T19:08:57.992Z"
         }
       ]
     }
