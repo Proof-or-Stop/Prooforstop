@@ -159,7 +159,7 @@
         "docs/requirements/decisions/session-ownership-and-write-leases.md",
         "docs/guide-hooks.md"
       ],
-      "userSees": "session_brief shows guard session status for the active story: active, watcher-fallback, inactive, or violations detected, while existing owner lease output remains the authority for who may write.",
+      "userSees": "session_brief prints \"guard session: active\", \"guard session: watcher-fallback\", \"guard session: inactive\", or \"guard session: violations detected\" under the story scope protection block.",
       "verificationIntent": {
         "happy": [
           {
