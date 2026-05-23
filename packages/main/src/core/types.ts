@@ -1138,6 +1138,67 @@ export const PROFILE_ORDER: Record<WorkflowProfile, number> = {
   strict: 2,
 };
 
+// ── Scope Contract (B-be27: story-scoped allowed-file contract + post-diff gate) ──
+
+export type ScopeContractMode = 'local' | 'shadow' | 'enforce';
+
+export interface ScopeContractAcknowledgement {
+  /** Actor who acknowledged the out-of-scope change */
+  actor: string;
+  /** Human-readable reason (≥ 20 chars enforced at handler) */
+  reason: string;
+  /** ISO 8601 */
+  timestamp: string;
+  /** Paths explicitly added to scope with this acknowledgement */
+  paths: string[];
+}
+
+/**
+ * Story-scoped scope contract. Stored at <storyDir>/<storyId>/scope-contract.json.
+ * Modes:
+ *   local   — advisory only; violations never block
+ *   shadow  — violations produce warnings but do not block lifecycle gates
+ *   enforce — violations block REVIEW/TEST/DONE advancement
+ */
+export interface ScopeContractData {
+  storyId: string;
+  mode: ScopeContractMode;
+  /** Files/globs allowed to be modified */
+  allowedModify: string[];
+  /** Files/globs allowed to be created */
+  allowedCreate: string[];
+  /** Files/globs used for tests (always allowed if they are test files) */
+  allowedTest: string[];
+  /** Files that must not change regardless of allowedModify */
+  protectedFiles: string[];
+  /** Files explicitly out of scope (violations always reported, blocked in enforce) */
+  explicitExcludes: string[];
+  /** Optional human explanation for a deliberate scope change */
+  scopeChangeReason?: string;
+  /** Explicit out-of-scope acknowledgements recorded by scope_contract_acknowledge */
+  acknowledgements: ScopeContractAcknowledgement[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type ScopeGateStatus = 'pass' | 'warn' | 'fail' | 'skip';
+
+export interface ScopeViolation {
+  path: string;
+  rule: 'protected' | 'excluded' | 'out_of_scope';
+  acknowledged: boolean;
+}
+
+export interface ScopeCheckResult {
+  status: ScopeGateStatus;
+  mode: ScopeContractMode | null;
+  changedFiles: string[];
+  violations: ScopeViolation[];
+  warnings: ScopeViolation[];
+  acknowledgedPaths: string[];
+  summary: string;
+}
+
 export const WORKFLOW_PRESETS: Record<WorkflowProfile, WorkflowPolicy> = {
   light: {
     profile: 'light',

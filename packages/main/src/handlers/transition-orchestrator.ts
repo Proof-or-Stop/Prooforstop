@@ -51,6 +51,7 @@ import { findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-sta
 import { checkMainDivergence } from '../core/done-oracle.js';
 import {
   resolveGuardFailure,
+  runScopeTransitionGate,
   runReviewToTestPreflightGate,
   runValidateGate,
 } from './phase-gates.js';
@@ -108,6 +109,8 @@ export interface TransitionResult {
   baselineRiskWarning: string;
   /** stale verificationEvidence hint for REVIEW/TEST/DONE (else ''). */
   staleEvidenceHint: string;
+  /** story scope contract gate report for REVIEW/TEST/DONE (else ''). */
+  scopeGateReport: string;
 }
 
 /**
@@ -121,7 +124,7 @@ export function renderTransitionResult(result: TransitionResult): string {
     `${result.doneChecklistPrefix}Story ${result.storyId} advanced to ${result.newState}` +
     `${result.metadataCommitReport}${result.doneMergeReport}\n` +
     `${result.nextSteps[result.newState] || ''}${result.docsHint}` +
-    `${result.depsWarning}${result.sessionWarning}${result.doneSummarySuffix}` +
+    `${result.scopeGateReport}${result.depsWarning}${result.sessionWarning}${result.doneSummarySuffix}` +
     `${result.initCheckAdvisory}${result.baselineRiskWarning}${result.staleEvidenceHint}`
   );
 }
@@ -257,6 +260,11 @@ export async function runStoryTransition(
       // B-56d3: cwd/guard-failure adapter in phase-gates.ts. B-6974: it no
       // longer stops the actor — the orchestrator's finally owns that.
       throw resolveGuardFailure(actor, args.storyId, store, args.phase, ctx.root);
+    }
+
+    let scopeGateReport = '';
+    if (args.phase === 'REVIEW' || args.phase === 'TEST' || args.phase === 'DONE') {
+      scopeGateReport = runScopeTransitionGate(ctx, args.storyId, args.phase);
     }
 
     // B-56d3: REVIEW→TEST CLI preflight gate (runReviewToTestPreflightGate).
@@ -420,6 +428,7 @@ export async function runStoryTransition(
       initCheckAdvisory,
       baselineRiskWarning,
       staleEvidenceHint,
+      scopeGateReport,
     };
   } finally {
     // Single owner: the orchestrator stops the actor exactly once on every

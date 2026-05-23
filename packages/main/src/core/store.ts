@@ -6,7 +6,7 @@ import type {
   StoryTestRun, StoryTestRunsData, FindingData, EvalEvidenceData,
   StoryProcessMetrics, ProcessEvent, ScopeCheckData, InitCheckData, ReviewPassData,
   DeliveryCheckData, ImplementationReviewResultData, ReviewRunData, GrillData,
-  DeclaredArtifactsData,
+  DeclaredArtifactsData, ScopeContractData,
 } from './types.js';
 import { CAPSULE_DIR_NAME, type StoryCapsuleData, type StoryCapsuleRunData } from './story-capsule.js';
 import type { ClusterData } from './cluster-types.js';
@@ -453,6 +453,20 @@ export class StoryStore {
 
   writeDeliveryCheck(storyId: string, data: DeliveryCheckData): void {
     this.writeJson(storyId, 'delivery-check.json', data);
+  }
+
+  // ── Scope Contract (B-be27: story-scoped allowed-file contract) ──
+
+  readScopeContract(storyId: string): ScopeContractData | null {
+    try {
+      return this.readJson<ScopeContractData>(storyId, 'scope-contract.json');
+    } catch {
+      return null;
+    }
+  }
+
+  writeScopeContract(storyId: string, data: ScopeContractData): void {
+    this.writeJson(storyId, 'scope-contract.json', data);
   }
 
   // ── Declared Artifacts (B-cf60: per-story declared product output paths) ──

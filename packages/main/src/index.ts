@@ -46,3 +46,11 @@ export {
   type StoryCapsuleData,
   type StoryCapsuleRunData,
 } from './core/story-capsule.js';
+export {
+  buildScopeContract,
+  checkScopeContract,
+  readChangedFiles,
+  renderScopeCheckResult,
+  validateMode,
+  validatePaths,
+} from './core/scope-contract.js';
