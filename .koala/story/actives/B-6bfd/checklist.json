@@ -111,12 +111,12 @@
     {
       "id": "CHK-004",
       "title": "Add Koala-managed guarded session status",
-      "context": "Add guard_session_start/status/check support for Koala-dispatched agents. Implement watcher-fallback semantics and process events; do not promise universal OS/editor blocking.",
+      "context": "Add guard_session_start/status/check support for Koala-dispatched agents. This extends existing session ownership/write-lease data with a scope-guard projection; it must not replace owner lease or create a competing session truth source. Implement watcher-fallback semantics and process events; do not promise universal OS/editor blocking.",
       "relatedDocs": [
         "docs/requirements/decisions/session-ownership-and-write-leases.md",
         "docs/guide-hooks.md"
       ],
-      "userSees": "session_brief shows pre-tool guard: active, watcher-fallback, inactive, or violations detected for the active story.",
+      "userSees": "session_brief shows guard session status for the active story: active, watcher-fallback, inactive, or violations detected, while existing owner lease output remains the authority for who may write.",
       "verificationIntent": {
         "happy": [
           {
@@ -147,12 +147,12 @@
     {
       "id": "CHK-005",
       "title": "Bind reviewer evidence to scope and diff hashes",
-      "context": "Review passes for scope-protected stories must record or validate scopeContractHash, diffPackHash, reviewedChangedFiles, reviewedIntentRefs, and reviewedHunkDigests so stale or natural-language-only PASS cannot enter TEST.",
+      "context": "After CHK-001~003 establish stable scopeContractHash, diffPackHash, and semantic hunk digests, bind review passes for scope-protected stories to those hashes plus reviewedChangedFiles, reviewedIntentRefs, and reviewedHunkDigests. Old stories and stories without scope protection stay backward compatible.",
       "relatedDocs": [
         "docs/requirements/decisions/truth-source.md",
         "docs/requirements/decisions/test-intent-review.md"
       ],
-      "userSees": "REVIEW→TEST gate rejects review passes missing current scope/diff hash binding and reports exactly which reviewer evidence is stale or incomplete.",
+      "userSees": "REVIEW→TEST gate rejects review passes missing the current scopeContractHash, diffPackHash, or reviewed hunk digest binding, and reports exactly which reviewer evidence is stale or incomplete.",
       "verificationIntent": {
         "happy": [
           {
@@ -183,13 +183,13 @@
     {
       "id": "CHK-006",
       "title": "Productize status output, initialization, and regression tests",
-      "context": "Enhance session_brief with scope protection status, add scope_contract_init_from_plan, and add smoke/regression tests covering v2 contract, diff pack, semantic gate, guard status, and review hash binding. Test layering: CHK-001~005 own focused unit/logic/CLI checks; CHK-006 owns the integrated smoke that proves the whole protection chain cannot be bypassed by natural-language-only evidence.",
+      "context": "Productize the integrated view after CHK-001~005: enhance session_brief with an aggregate Scope protection summary, add scope_contract_init_from_plan, and add end-to-end smoke/regression tests. CHK-004 owns guard-session data; CHK-006 owns the combined summary and full-chain bypass regression.",
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/verification-context-pack.md"
       ],
-      "userSees": "session_brief shows path gate, semantic gate, guard mode, unacknowledged violations, acknowledged warnings, and next action.",
+      "userSees": "session_brief shows a single Scope protection summary with path gate, semantic gate, guard mode, review hash freshness, unacknowledged violations, acknowledged warnings, and next action.",
       "verificationIntent": {
         "happy": [
           {
