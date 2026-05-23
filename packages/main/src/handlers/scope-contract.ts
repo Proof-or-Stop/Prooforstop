@@ -21,6 +21,10 @@ import {
 export function createScopeContractHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   const { store, root } = ctx;
 
+  function optionalPaths(paths: unknown, fieldName: string): string[] | undefined {
+    return paths === undefined ? undefined : validatePaths(paths, fieldName);
+  }
+
   return {
     scope_contract_set(args: {
       storyId: string;
@@ -37,11 +41,11 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
       store.readStory(args.storyId);
 
       const mode = validateMode(args.mode);
-      const allowedModify = validatePaths(args.allowedModify ?? [], 'allowedModify');
-      const allowedCreate = validatePaths(args.allowedCreate ?? [], 'allowedCreate');
-      const allowedTest = validatePaths(args.allowedTest ?? [], 'allowedTest');
-      const protectedFiles = validatePaths(args.protectedFiles ?? [], 'protectedFiles');
-      const explicitExcludes = validatePaths(args.explicitExcludes ?? [], 'explicitExcludes');
+      const allowedModify = optionalPaths(args.allowedModify, 'allowedModify');
+      const allowedCreate = optionalPaths(args.allowedCreate, 'allowedCreate');
+      const allowedTest = optionalPaths(args.allowedTest, 'allowedTest');
+      const protectedFiles = optionalPaths(args.protectedFiles, 'protectedFiles');
+      const explicitExcludes = optionalPaths(args.explicitExcludes, 'explicitExcludes');
 
       const existing = store.readScopeContract(args.storyId);
       const contract = buildScopeContract(
@@ -50,7 +54,16 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
         existing ?? undefined,
       );
       store.writeScopeContract(args.storyId, contract);
-      return `Scope contract: configured\nStory: ${args.storyId}\nMode: ${mode}\nallowedModify: [${allowedModify.join(', ')}]\nallowedCreate: [${allowedCreate.join(', ')}]\nallowedTest: [${allowedTest.join(', ')}]\nprotectedFiles: [${protectedFiles.join(', ')}]\nexplicitExcludes: [${explicitExcludes.join(', ')}]`;
+      return [
+        `Scope contract: configured`,
+        `Story: ${args.storyId}`,
+        `Mode: ${mode}`,
+        `allowedModify: [${contract.allowedModify.join(', ')}]`,
+        `allowedCreate: [${contract.allowedCreate.join(', ')}]`,
+        `allowedTest: [${contract.allowedTest.join(', ')}]`,
+        `protectedFiles: [${contract.protectedFiles.join(', ')}]`,
+        `explicitExcludes: [${contract.explicitExcludes.join(', ')}]`,
+      ].join('\n');
     },
 
     scope_contract_show(args: { storyId: string }): string {

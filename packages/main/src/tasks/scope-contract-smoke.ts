@@ -115,6 +115,15 @@ try {
   });
   assert.match(set, /Scope contract: configured/, 'set should render configured transcript');
   assert.match(run(root, 'scope_contract_show', { storyId }), /allowedModify: \[src\/allowed.ts\]/, 'show should list allowedModify');
+  run(root, 'scope_contract_set', {
+    storyId,
+    mode: 'enforce',
+    allowedTest: ['tests', 'specs'],
+  });
+  const partialUpdate = run(root, 'scope_contract_show', { storyId });
+  assert.match(partialUpdate, /allowedModify: \[src\/allowed.ts\]/, 'partial update should preserve omitted allowedModify');
+  assert.match(partialUpdate, /allowedCreate: \[src\/new.ts\]/, 'partial update should preserve omitted allowedCreate');
+  assert.match(partialUpdate, /allowedTest: \[tests, specs\]/, 'partial update should replace provided allowedTest');
 
   write(root, 'src/allowed.ts', 'export const allowed = 2;\n');
   let checked = JSON.parse(run(root, 'scope_contract_check', { storyId, json: true }));
