@@ -1,0 +1,41 @@
+{
+  "task": "Extend B-be27 path-level scope protection to semantic hunks, diff packs, guarded session status, reviewer hash binding, and productized status output.",
+  "outcome": "用户运行 story_advance REVIEW/TEST/DONE 或 session_brief 时，会看到 Scope protection summary: path gate pass, semantic gate pass/warn/fail, guard mode active/watcher-fallback/inactive, review hash freshness, and concrete violating path+anchor+hunkDigest when a change is outside the planned story.",
+  "facts": [
+    "B-be27 already added scope_contract_set/show/check/acknowledge and lifecycle path gate.",
+    "Current review evidence is already bound to reviewRunId/head/material hash, but not yet to scopeContractHash/diffPackHash/hunkDigest.",
+    "session_brief already renders story ownership and capsule-style summaries; guard status must extend this instead of replacing owner leases.",
+    "The story must keep old v1 scope contracts backward compatible."
+  ],
+  "constraints": [
+    "Do not create a competing truth source for session ownership; guard session status is a projection only.",
+    "Old stories without v2 scope fields must not be hard-blocked.",
+    "Semantic parsing must fail safe: unknown file types fall back to hunk/file level, not silent pass.",
+    "Review hash binding can only become mandatory for stories with active scope protection."
+  ],
+  "unknowns": [
+    "Exact symbol extraction can start with pragmatic TS/JS heuristics and package.json key parsing rather than full AST for every language.",
+    "Whether pre-tool blocking exists for each provider must be represented as guardMode instead of assumed."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/scope-contract.ts",
+    "packages/main/src/handlers/scope-contract.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/index.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/handlers/review-preflight.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
+  ],
+  "timestamp": "2026-05-23T21:17:12.169Z"
+}
