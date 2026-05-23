@@ -5,7 +5,9 @@
     "B-be27 already added scope_contract_set/show/check/acknowledge and lifecycle path gate.",
     "Current review evidence is already bound to reviewRunId/head/material hash, but not yet to scopeContractHash/diffPackHash/hunkDigest.",
     "session_brief already renders story ownership and capsule-style summaries; guard status must extend this instead of replacing owner leases.",
-    "The story must keep old v1 scope contracts backward compatible."
+    "The story must keep old v1 scope contracts backward compatible.",
+    "Symbol extraction will start with pragmatic TS/JS heuristics and package/json key parsing; unsupported files must expose parseFallback.",
+    "Pre-tool support differs by provider; Koala will represent unsupported providers as watcher-fallback rather than claiming universal blocking."
   ],
   "constraints": [
     "Do not create a competing truth source for session ownership; guard session status is a projection only.",
@@ -13,10 +15,7 @@
     "Semantic parsing must fail safe: unknown file types fall back to hunk/file level, not silent pass.",
     "Review hash binding can only become mandatory for stories with active scope protection."
   ],
-  "unknowns": [
-    "Exact symbol extraction can start with pragmatic TS/JS heuristics and package.json key parsing rather than full AST for every language.",
-    "Whether pre-tool blocking exists for each provider must be represented as guardMode instead of assumed."
-  ],
+  "unknowns": [],
   "touchpoints": [
     "packages/main/src/core/types.ts",
     "packages/main/src/core/scope-contract.ts",
@@ -37,5 +36,5 @@
     "packages/main/src/handlers/session.ts",
     "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
   ],
-  "timestamp": "2026-05-23T21:17:12.169Z"
+  "timestamp": "2026-05-23T21:20:42.781Z"
 }
