@@ -55,7 +55,7 @@
         "docs/requirements/decisions/verification-context-pack.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "userSees": "scope_diff_pack --json shows which functions, exports, package keys, or fallback hunks changed, plus diffPackHash, so reviewers can decide whether each change belongs to the planned story without manually reading the full diff.",
+      "userSees": "scope_diff_pack --json prints \"diffPackHash\", changed \"anchor\" names, package/json \"keyPath\" changes, and \"parseFallback\" when a file cannot be symbol-parsed.",
       "verificationIntent": {
         "happy": [
           {
