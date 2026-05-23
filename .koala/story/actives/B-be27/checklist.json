@@ -110,7 +110,8 @@
       "userSees": "当 story 进入 REVIEW/TEST/DONE 时，终端会显示 `Scope gate: pass`；若有越界文件则显示 `Scope gate: fail` 和阻塞原因。shadow 模式显示 `Scope gate: warn`。",
       "files": {
         "modify": [
-          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
           "packages/main/src/handlers/review-preflight.ts",
           "packages/main/src/handlers/done-effects.ts"
         ],
