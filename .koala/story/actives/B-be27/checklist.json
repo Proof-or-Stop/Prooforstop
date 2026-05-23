@@ -151,7 +151,42 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "越界需要升级时，用户会看到 `Scope change acknowledged`，其中包含 `reason`, `addedPaths`, `actor`, `timestamp`；reviewer 也能在 story_review/status 输出里看到该记录。",
+      "files": {
+        "modify": [
+          "packages/main/src/core/scope-contract.ts",
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/handlers/story-review.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "An explicit scope change acknowledgement records actor, reason, timestamp, and added paths.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A scope acknowledgement with an empty or too-short reason is rejected.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Acknowledgement cannot silently hide an out-of-scope diff; reviewer-visible output still lists the expanded paths.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
