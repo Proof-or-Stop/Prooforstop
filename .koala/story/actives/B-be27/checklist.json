@@ -105,7 +105,42 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "当 story 进入 REVIEW/TEST/DONE 时，终端会显示 `Scope gate: pass`；若有越界文件则显示 `Scope gate: fail` 和阻塞原因。shadow 模式显示 `Scope gate: warn`。",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/handlers/review-preflight.ts",
+          "packages/main/src/handlers/done-effects.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A story with an enforce contract and only allowed changed files can advance through the scope gate.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Stories without a contract stay backward-compatible unless strict policy explicitly requires one.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "An enforce-mode contract blocks REVIEW/TEST/DONE when the diff contains a protected or excluded path.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
