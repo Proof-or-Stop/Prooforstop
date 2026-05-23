@@ -1,0 +1,39 @@
+{
+  "storyId": "B-6bfd",
+  "checkedAt": "2026-05-23T21:10:24.421Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init",
+  "issues": [
+    {
+      "severity": "low",
+      "desc": "CHK-006 regression tests scope overlaps with verificationIntents in CHK-001~005. Background and checklist do not distinguish unit/logic layer (CHK-001-005 verificationIntents) from integration/e2e layer (CHK-006 smoke tests). Risk: implementer may duplicate or skip one layer. Recommend plan.md explicitly divide test layers per CHK."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-05-23T21:09:51.212Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "CHK-002 userSees is a JSON field enumeration (scope_diff_pack --json returns diffPackHash, changedFiles, hunks, anchors, and parseFallback fields) - this describes API output format, not what the user experiences in their workflow. After seeing these fields, what decision can the user make? Should be rewritten to describe what the user can observe: e.g. when running scope_diff_pack, the user sees which functions/symbols changed and whether each is within planned scope."
+        },
+        {
+          "severity": "low",
+          "desc": "background.md front-loads three engineering-oriented sections (trigger, insight, tradeoffs) before stating the user concern. The real user motivation - preventing AI from modifying existing features and then talking past review using natural language - only appears in the final section. Moving the user motivation to the first paragraph would help reviewers and implementers immediately understand whose problem this solves."
+        }
+      ]
+    },
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-05-23T21:10:24.421Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "CHK-006 regression tests scope overlaps with verificationIntents in CHK-001~005. Background and checklist do not distinguish unit/logic layer (CHK-001-005 verificationIntents) from integration/e2e layer (CHK-006 smoke tests). Risk: implementer may duplicate or skip one layer. Recommend plan.md explicitly divide test layers per CHK."
+        }
+      ]
+    }
+  ],
+  "_hash": "ed2b30b42b7f9dcd943a370017bb3342199f99202b60b4152629a9de40845440"
+}

@@ -1,0 +1,221 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Extend scope contract with semantic file rules",
+      "context": "Add backward-compatible v2 fields for fileRules, allowedAnchors, deniedAnchors, protectedAnchors, allowedChangeKinds, and hunk-level acknowledgements without breaking B-be27 contracts.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/truth-source.md"
+      ],
+      "userSees": "scope_contract_show displays semantic file rules and scope_contract_check remains compatible with old contracts.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A v2 contract with fileRules round-trips through set/show/check without losing v1 fields.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "An old B-be27-style contract still checks successfully without semantic fields.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Invalid anchors, unsafe paths, or malformed hunk acknowledgements are rejected before persistence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Generate mechanical diff context packs",
+      "context": "Add scope_diff_pack that reports changed files, hunks, digest, nearest symbols where possible, package/json key changes, metadata skips, and diffPackHash for reviewer consumption.",
+      "relatedDocs": [
+        "docs/requirements/decisions/verification-context-pack.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "userSees": "scope_diff_pack --json shows which functions, exports, package keys, or fallback hunks changed, plus diffPackHash, so reviewers can decide whether each change belongs to the planned story without manually reading the full diff.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Diff pack identifies TS function/export anchors for changed hunks.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Unparseable or non-code files fall back to file/hunk level without passing silently.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Package script or CLI schema changes are surfaced as key-level changes in the pack.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Enforce semantic hunk gate in lifecycle checks",
+      "context": "Use scope contract v2 plus diff pack to fail allowed-file changes that touch denied/protected anchors or unacknowledged out-of-intent hunks. Keep v1 contracts path-only.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/test-intent-review.md"
+      ],
+      "userSees": "story_advance REVIEW/TEST/DONE prints semantic gate pass/warn/fail with violating path+anchor+hunkDigest.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Allowed file plus allowed anchor passes semantic gate.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "V1 contracts continue using path gate only.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Allowed file touching denied or protected anchor fails even when file path is allowed.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add Koala-managed guarded session status",
+      "context": "Add guard_session_start/status/check support for Koala-dispatched agents. Implement watcher-fallback semantics and process events; do not promise universal OS/editor blocking.",
+      "relatedDocs": [
+        "docs/requirements/decisions/session-ownership-and-write-leases.md",
+        "docs/guide-hooks.md"
+      ],
+      "userSees": "session_brief shows pre-tool guard: active, watcher-fallback, inactive, or violations detected for the active story.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "guard_session_start records provider, guardMode, scopeContractHash, and active status.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Unsupported provider is represented as watcher-fallback instead of pretending pre-tool blocking exists.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A simulated forbidden write is recorded as a guard violation and blocks lifecycle progression.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Bind reviewer evidence to scope and diff hashes",
+      "context": "Review passes for scope-protected stories must record or validate scopeContractHash, diffPackHash, reviewedChangedFiles, reviewedIntentRefs, and reviewedHunkDigests so stale or natural-language-only PASS cannot enter TEST.",
+      "relatedDocs": [
+        "docs/requirements/decisions/truth-source.md",
+        "docs/requirements/decisions/test-intent-review.md"
+      ],
+      "userSees": "REVIEW→TEST gate rejects review passes missing current scope/diff hash binding and reports exactly which reviewer evidence is stale or incomplete.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Fresh review evidence with matching scopeContractHash and diffPackHash passes REVIEW→TEST.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Stories without scope contract stay backward compatible unless scope protection is enabled.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Missing or stale diffPackHash/reviewedHunkDigests blocks REVIEW→TEST.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Productize status output, initialization, and regression tests",
+      "context": "Enhance session_brief with scope protection status, add scope_contract_init_from_plan, and add smoke/regression tests covering v2 contract, diff pack, semantic gate, guard status, and review hash binding. Test layering: CHK-001~005 own focused unit/logic/CLI checks; CHK-006 owns the integrated smoke that proves the whole protection chain cannot be bypassed by natural-language-only evidence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/verification-context-pack.md"
+      ],
+      "userSees": "session_brief shows path gate, semantic gate, guard mode, unacknowledged violations, acknowledged warnings, and next action.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "scope_contract_init_from_plan creates a usable contract from checklist files and intents.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "session_brief gracefully reports no scope protection for old stories.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Regression test fails if semantic gate or review hash binding can be bypassed by natural-language-only evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
