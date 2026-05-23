@@ -1,0 +1,30 @@
+{
+  "task": "Add a story-scoped scope contract and changed-file gate so Koala can mechanically catch out-of-scope agent edits before REVIEW, TEST, and DONE.",
+  "outcome": "用户在一个 story 中先运行 `koala scope_contract_set ...` 声明允许修改范围；实现后运行 `koala scope_contract_check --storyId=B-be27 --json`，终端显示 `Scope gate: pass`。如果 Agent 修改了未允许文件，REVIEW/TEST/DONE 前显示 `Scope gate: fail`、违规文件清单和需要 `Scope change acknowledged` 的提示。",
+  "facts": [
+    "B-1fca has already hardened evidence quality and fact-forgery defenses, but it does not enforce changed-file scope by itself.",
+    "Existing checklist items already support files.modify/create/test and story_review can compare understanding touchpoints to item files.",
+    "Koala has scope_check_save for PLAN scope review, but no productized story scope contract command or post-diff changed-file gate yet.",
+    "Reviewer advisories for this story require concrete userSees output and reviewer-visible scope change acknowledgement."
+  ],
+  "constraints": [
+    "Story/checklist/background changes must go through Koala CLI commands, not direct JSON edits.",
+    "Old stories without contracts must remain backward-compatible unless strict policy or an explicit story contract requires enforcement.",
+    "Scope contract must be a current-state gate input, not a duplicate lifecycle history source.",
+    "Implementation must include tests proving allowed, blocked, shadow, and acknowledged cases."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/scope-contract.ts",
+    "packages/main/src/handlers/scope-contract.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/index.ts",
+    "packages/main/src/handlers/story-review.ts",
+    "packages/main/src/handlers/review-preflight.ts",
+    "packages/main/src/handlers/transition-effects.ts",
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/tasks/scope-contract-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "timestamp": "2026-05-23T18:38:50.956Z"
+}

@@ -9,3 +9,5 @@
 
 ## 对话纹理
 用户关注的不是增加更多记录，而是防止 AI 编流程、编事实之后继续越界改旧功能。实现必须避免和 story 历史记录重复，只保存当前 story 的范围约定与判定结果，让后续 Agent 接手时能快速知道哪些改动是允许的，哪些需要显式升级。
+
+用户可观察结果必须落在终端 gate 输出上：review/test/done 时不用人工通读完整 diff，也能直接看到 `Scope gate: pass|warn|fail`、违规文件清单和是否已有显式 scope acknowledgement。
