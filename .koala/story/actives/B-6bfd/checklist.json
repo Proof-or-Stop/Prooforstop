@@ -8,7 +8,7 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/truth-source.md"
       ],
-      "userSees": "scope_contract_show displays semantic file rules and scope_contract_check remains compatible with old contracts.",
+      "userSees": "scope_contract_show prints \"fileRules:\", \"protectedAnchors:\", and existing v1 fields; scope_contract_check still prints \"Scope gate: pass\" for an old B-be27-style contract.",
       "verificationIntent": {
         "happy": [
           {
