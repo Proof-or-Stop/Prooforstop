@@ -58,7 +58,43 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户运行 `koala scope_contract_check --storyId=B-be27 --json` 时看到 `status: pass|warn|fail`、`violations` 文件清单和每条违规对应的 contract rule。",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/index.ts"
+        ],
+        "create": [
+          "packages/main/src/handlers/scope-contract.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "scope_contract_set/show/check CLI commands exist and return structured output for an in-scope diff.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "scope_contract_check handles a clean worktree and reports no changed files without failing.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "scope_contract_check returns fail with violating paths when git diff includes protected or excluded files.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
