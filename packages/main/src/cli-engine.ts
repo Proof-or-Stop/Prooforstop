@@ -889,6 +889,31 @@ export const MAIN_TOOLS: ToolDef[] = [
     storyId: z.string().describe('Story ID'),
   }},
 
+  // B-be27: Scope Contract — story-scoped allowed-file contract + post-diff gate
+  { name: 'scope_contract_set', description: 'Create or update the scope contract for a story (allowed/protected/excluded files, mode)', schema: {
+    storyId: z.string().describe('Story ID'),
+    mode: z.enum(['local', 'shadow', 'enforce']).describe('Gate behavior: local=advisory, shadow=warn, enforce=block on violations'),
+    allowedModify: z.array(z.string()).optional().describe('Files/globs allowed to be modified'),
+    allowedCreate: z.array(z.string()).optional().describe('Files/globs allowed to be created'),
+    allowedTest: z.array(z.string()).optional().describe('Test files/globs (always allowed)'),
+    protectedFiles: z.array(z.string()).optional().describe('Files that must not change (block in enforce)'),
+    explicitExcludes: z.array(z.string()).optional().describe('Files explicitly out of scope'),
+    scopeChangeReason: z.string().optional().describe('Human explanation for a deliberate scope change'),
+  }},
+  { name: 'scope_contract_show', description: 'Show the current scope contract for a story', schema: {
+    storyId: z.string().describe('Story ID'),
+  }},
+  { name: 'scope_contract_check', description: 'Run the post-diff scope gate (compares git diff against contract)', schema: {
+    storyId: z.string().describe('Story ID'),
+    json: z.boolean().optional().describe('Output structured JSON with status, violations, warnings'),
+  }},
+  { name: 'scope_contract_acknowledge', description: 'Record an explicit out-of-scope change acknowledgement (requires reason ≥ 20 chars)', schema: {
+    storyId: z.string().describe('Story ID'),
+    paths: z.array(z.string()).describe('Out-of-scope paths being acknowledged'),
+    reason: z.string().min(20, 'reason must be ≥ 20 characters').describe('Why these out-of-scope paths are necessary (≥ 20 chars)'),
+    actor: z.string().optional().describe('Actor making the acknowledgement (default: main-agent)'),
+  }},
+
 ];
 
 /**

@@ -127,6 +127,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'recover_evidence', // B-a2f1 CHK-003: single-shot stale-evidence recovery, safe in any phase (refuses on non-metadata dirt)
     'artifact_declare', // B-cf60: per-story declared product artifact registration, safe in any phase
     'capsule_*',   // B-42c0: story handoff projection commands; evidence remains authoritative elsewhere
+    'scope_contract_show', 'scope_contract_check', // B-be27: read/check scope contract; mutating commands are phase-scoped below
     'plan_get',
     'workflow_*',    // 全局：profile 查看/设置/解释，任何阶段都可以
     'background_*',  // B-45ed CHK-007: background 是元数据，任何阶段可读写
@@ -156,6 +157,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'testintent_handoff',
     'scope_check_save',
     'scope_question_resolve', // B-ed3e CHK-003: 主 agent 消解 OQ
+    'scope_contract_set',
   ],
   DEV: [
     'checklist_add', 'checklist_update', 'checklist_remove',
@@ -166,6 +168,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'story_dispatch', // B-45ed CHK-005: 主 agent 派发 implementer
     'finding_dispatch', // B-45ed CHK-010: 主 agent 派发 finding 修复（DEV 阶段可能提前出现 finding）
     'finding_cluster',  // B-8bb5: DEV 中已有 finding 时，允许先聚簇再派发修复
+    'scope_contract_set', 'scope_contract_acknowledge',
   ],
   REVIEW: [
     'review_run_start',
@@ -178,6 +181,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'bug_report', 'bug_update', 'bug_list',
     'delivery_check_set', 'delivery_waiver_add', // delivery reviewer 在 REVIEW 阶段写签名/豁免，TEST→DONE gate 消费
     'story_advance',
+    'scope_contract_acknowledge',
   ],
   TEST: [
     'finding_list', 'finding_cluster', // B-9d95 CHK-005: 聚簇视图在 TEST 也允许查询

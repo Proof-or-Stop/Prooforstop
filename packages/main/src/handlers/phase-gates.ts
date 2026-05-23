@@ -39,6 +39,10 @@ import {
   renderDoneChecklist,
   type DoneCheckRow,
 } from '../core/done-oracle.js';
+import {
+  runScopeGate,
+} from './scope-contract.js';
+import { renderScopeCheckResult } from '../core/scope-contract.js';
 
 /**
  * cwd/guard-failure adapter.
@@ -123,6 +127,32 @@ export async function runReviewToTestPreflightGate(
       `→ 单独复跑: koala validate --channel --story=${storyId} / --concept / --lint；docs-drift 随 preflight 执行；Codex adapter 用 ${LOCAL_CODEX_VERIFY_COMMAND}`,
     );
   }
+}
+
+/**
+ * Scope contract gate for transitions that freeze, verify, or complete work.
+ *
+ * Missing contract remains backward-compatible. When a contract exists:
+ * - enforce + fail blocks the transition.
+ * - shadow/local warnings are rendered but do not block.
+ * - pass is rendered so users can see the scope check ran.
+ */
+export function runScopeTransitionGate(
+  ctx: HandlerContext,
+  storyId: string,
+  phase: StoryPhase,
+): string {
+  const result = runScopeGate(storyId, ctx.store, ctx.root);
+  if (!result) return '';
+  const rendered = renderScopeCheckResult(result);
+  if (result.status === 'fail') {
+    throw new Error(
+      `Cannot enter ${phase}: ${result.summary}\n\n` +
+      rendered +
+      `\n\n→ 修复 out-of-scope diff，或用 scope_contract_acknowledge 记录必要扩展后重跑 story_advance --phase=${phase}`,
+    );
+  }
+  return `\n\n${rendered}`;
 }
 
 /**
