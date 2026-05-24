@@ -49,8 +49,20 @@
       "paths": [
         "packages/main/src/tasks/command-ownership-contract.ts"
       ]
+    },
+    {
+      "actor": "koala-implementer",
+      "reason": "F-003 required a focused regression in scope-contract-smoke to prove single hunkDigest and multiple hunkDigests persistence are mutually exclusive.",
+      "timestamp": "2026-05-24T11:38:44.259Z",
+      "paths": [
+        "packages/main/src/tasks/scope-contract-smoke.ts"
+      ],
+      "hunkDigests": [
+        "1a59e557d0260c514765ce1cbbfae59c1e746052bacd78c79031258452f2e301",
+        "0418f61fc917ec2f9853a9d8db3f4dcd8f94feba7297c67f38c43e234356c628"
+      ]
     }
   ],
   "createdAt": "2026-05-23T21:18:56.722Z",
-  "updatedAt": "2026-05-24T00:54:19.504Z"
+  "updatedAt": "2026-05-24T11:38:44.259Z"
 }
