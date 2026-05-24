@@ -9,6 +9,8 @@ import type {
   ScopeContractMode,
   ScopeCheckResult,
   ScopeViolation,
+  FileRule,
+  ChangeKind,
 } from './types.js';
 import { execFileSync } from 'node:child_process';
 
@@ -43,6 +45,91 @@ export function validatePaths(paths: unknown, fieldName: string): string[] {
   return out;
 }
 
+// ── v2 validation helpers ──
+
+const VALID_CHANGE_KINDS = new Set<ChangeKind>(['add', 'remove', 'modify', 'rename']);
+
+/** Valid anchor: identifier chars plus dots for qualified names (e.g. MyClass.method). No slashes, spaces, or path chars. */
+const ANCHOR_RE = /^[A-Za-z_$][A-Za-z0-9_$]*(\.[A-Za-z_$][A-Za-z0-9_$]*)*$/;
+
+export function validateAnchors(anchors: unknown, fieldName: string): string[] {
+  if (anchors == null) return [];
+  if (!Array.isArray(anchors)) throw new Error(`${fieldName} must be an array`);
+  const out: string[] = [];
+  for (const a of anchors) {
+    if (typeof a !== 'string' || a.trim().length === 0) {
+      throw new Error(`${fieldName} contains an invalid anchor: ${JSON.stringify(a)}`);
+    }
+    const trimmed = a.trim();
+    if (!ANCHOR_RE.test(trimmed)) {
+      throw new Error(`${fieldName} contains an invalid anchor (must be a valid identifier or qualified name): ${JSON.stringify(a)}`);
+    }
+    out.push(trimmed);
+  }
+  return out;
+}
+
+/** Valid hunk digest: hex string 8–128 chars. */
+const HEX_RE = /^[0-9a-fA-F]{8,128}$/;
+
+export function validateHunkDigest(digest: unknown, fieldName: string): string {
+  if (typeof digest !== 'string') throw new Error(`${fieldName} must be a string`);
+  const trimmed = digest.trim();
+  if (!HEX_RE.test(trimmed)) {
+    throw new Error(`${fieldName} must be a hex string between 8 and 128 characters`);
+  }
+  return trimmed.toLowerCase();
+}
+
+export function validateFileRules(rules: unknown): FileRule[] {
+  if (rules == null) return [];
+  if (!Array.isArray(rules)) throw new Error('fileRules must be an array');
+  const out: FileRule[] = [];
+  for (let i = 0; i < rules.length; i++) {
+    const r = rules[i];
+    if (typeof r !== 'object' || r === null) {
+      throw new Error(`fileRules[${i}] must be an object`);
+    }
+    const rule = r as Record<string, unknown>;
+    const pathArr = validatePaths([rule.path], `fileRules[${i}].path`);
+    if (pathArr.length === 0) throw new Error(`fileRules[${i}].path is required`);
+    const item: FileRule = { path: pathArr[0] };
+    if (rule.allowedAnchors !== undefined) {
+      item.allowedAnchors = validateAnchors(rule.allowedAnchors, `fileRules[${i}].allowedAnchors`);
+    }
+    if (rule.deniedAnchors !== undefined) {
+      item.deniedAnchors = validateAnchors(rule.deniedAnchors, `fileRules[${i}].deniedAnchors`);
+    }
+    if (rule.protectedAnchors !== undefined) {
+      item.protectedAnchors = validateAnchors(rule.protectedAnchors, `fileRules[${i}].protectedAnchors`);
+    }
+    if (rule.allowedChangeKinds !== undefined) {
+      if (!Array.isArray(rule.allowedChangeKinds)) {
+        throw new Error(`fileRules[${i}].allowedChangeKinds must be an array`);
+      }
+      for (const k of rule.allowedChangeKinds) {
+        if (!VALID_CHANGE_KINDS.has(k as ChangeKind)) {
+          throw new Error(`fileRules[${i}].allowedChangeKinds contains invalid kind: ${JSON.stringify(k)}`);
+        }
+      }
+      item.allowedChangeKinds = rule.allowedChangeKinds as ChangeKind[];
+    }
+    if (rule.intentRefs !== undefined) {
+      if (!Array.isArray(rule.intentRefs)) {
+        throw new Error(`fileRules[${i}].intentRefs must be an array`);
+      }
+      item.intentRefs = rule.intentRefs.map((ref, idx) => {
+        if (typeof ref !== 'string' || ref.trim().length === 0) {
+          throw new Error(`fileRules[${i}].intentRefs[${idx}] must be a non-empty string`);
+        }
+        return ref.trim();
+      });
+    }
+    out.push(item);
+  }
+  return out;
+}
+
 // ── Contract construction helper ──
 
 export function buildScopeContract(
@@ -55,11 +142,13 @@ export function buildScopeContract(
     protectedFiles?: string[];
     explicitExcludes?: string[];
     scopeChangeReason?: string;
+    fileRules?: FileRule[];
+    protectedAnchors?: string[];
   },
   existing?: ScopeContractData,
 ): ScopeContractData {
   const now = new Date().toISOString();
-  return {
+  const contract: ScopeContractData = {
     storyId,
     mode: args.mode,
     allowedModify: args.allowedModify ?? existing?.allowedModify ?? [],
@@ -72,6 +161,12 @@ export function buildScopeContract(
     createdAt: existing?.createdAt ?? now,
     updatedAt: now,
   };
+  // v2 fields: only set when provided or already present
+  const fileRules = args.fileRules ?? existing?.fileRules;
+  if (fileRules !== undefined) contract.fileRules = fileRules;
+  const protectedAnchors = args.protectedAnchors ?? existing?.protectedAnchors;
+  if (protectedAnchors !== undefined) contract.protectedAnchors = protectedAnchors;
+  return contract;
 }
 
 // ── Git diff reader ──
@@ -254,6 +349,19 @@ export function renderScopeCheckResult(result: ScopeCheckResult): string {
   }
   if (result.acknowledgedPaths.length > 0) {
     lines.push(`Acknowledged paths: ${result.acknowledgedPaths.join(', ')}`);
+  }
+  // v2 semantic block (B-6bfd CHK-003): explicit "Semantic scope gate: pass/fail"
+  // with the violating path, anchor, and hunkDigest. Skipped for v1 contracts,
+  // which never attach `semantic`, keeping their output path-only.
+  if (result.semantic && result.semantic.status !== 'skip') {
+    lines.push('');
+    lines.push(result.semantic.summary);
+    for (const v of [...result.semantic.violations, ...result.semantic.warnings]) {
+      const ackTag = v.acknowledged ? ' [acknowledged]' : '';
+      const anchor = v.anchor ? ` anchor=${v.anchor}` : ' anchor=(none)';
+      const digest = v.hunkDigest ? ` hunkDigest=${v.hunkDigest}` : '';
+      lines.push(`  ${v.rule.toUpperCase()}: ${v.path}${anchor}${digest}${ackTag}`);
+    }
   }
   return lines.join('\n');
 }

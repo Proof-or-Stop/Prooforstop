@@ -55,6 +55,7 @@ import {
   runReviewToTestPreflightGate,
   runValidateGate,
 } from './phase-gates.js';
+import { runGuardSessionGate } from './guard-session.js';
 import {
   recomputeProcessMetrics,
   runPhaseChangeHooks,
@@ -111,6 +112,8 @@ export interface TransitionResult {
   staleEvidenceHint: string;
   /** story scope contract gate report for REVIEW/TEST/DONE (else ''). */
   scopeGateReport: string;
+  /** guard session projection gate report for REVIEW/TEST/DONE (else ''). */
+  guardGateReport: string;
 }
 
 /**
@@ -124,7 +127,7 @@ export function renderTransitionResult(result: TransitionResult): string {
     `${result.doneChecklistPrefix}Story ${result.storyId} advanced to ${result.newState}` +
     `${result.metadataCommitReport}${result.doneMergeReport}\n` +
     `${result.nextSteps[result.newState] || ''}${result.docsHint}` +
-    `${result.scopeGateReport}${result.depsWarning}${result.sessionWarning}${result.doneSummarySuffix}` +
+    `${result.scopeGateReport}${result.guardGateReport}${result.depsWarning}${result.sessionWarning}${result.doneSummarySuffix}` +
     `${result.initCheckAdvisory}${result.baselineRiskWarning}${result.staleEvidenceHint}`
   );
 }
@@ -263,8 +266,13 @@ export async function runStoryTransition(
     }
 
     let scopeGateReport = '';
+    let guardGateReport = '';
     if (args.phase === 'REVIEW' || args.phase === 'TEST' || args.phase === 'DONE') {
       scopeGateReport = runScopeTransitionGate(ctx, args.storyId, args.phase);
+      // B-6bfd CHK-004: guard session projection gate — blocks on recorded
+      // forbidden writes. Backward compatible: stories without a guard session
+      // get '' and are unaffected.
+      guardGateReport = runGuardSessionGate(ctx, args.storyId, args.phase);
     }
 
     // B-56d3: REVIEW→TEST CLI preflight gate (runReviewToTestPreflightGate).
@@ -429,6 +437,7 @@ export async function runStoryTransition(
       baselineRiskWarning,
       staleEvidenceHint,
       scopeGateReport,
+      guardGateReport,
     };
   } finally {
     // Single owner: the orchestrator stops the actor exactly once on every

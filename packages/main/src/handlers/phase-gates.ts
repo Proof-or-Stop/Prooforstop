@@ -142,7 +142,22 @@ export function runScopeTransitionGate(
   storyId: string,
   phase: StoryPhase,
 ): string {
-  const result = runScopeGate(storyId, ctx.store, ctx.root);
+  let result;
+  try {
+    result = runScopeGate(storyId, ctx.store, ctx.root);
+  } catch (e) {
+    // B-6bfd CHK-006 fail-closed: readScopeContract throws when an existing
+    // scope-contract.json is corrupt/unreadable (vs. null for a genuinely
+    // missing contract). Surface this as a hard, clear gate failure rather than
+    // silently treating a scope-protected story as no-contract (= bypass).
+    const message = e instanceof Error ? e.message : String(e);
+    throw new Error(
+      `Cannot enter ${phase}: scope-contract.json is unreadable/corrupt [scope_contract_unreadable]\n` +
+      `${message}\n\n` +
+      `→ Fix or recreate the contract (scope_contract_set / scope_contract_init_from_plan), then rerun story_advance --phase=${phase}.\n` +
+      `   Refusing to advance: a corrupt scope contract must not downgrade a scope-protected story to no scope protection.`,
+    );
+  }
   if (!result) return '';
   const rendered = renderScopeCheckResult(result);
   if (result.status === 'fail') {

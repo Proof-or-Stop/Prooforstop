@@ -59,6 +59,7 @@ import { createDoneRecoverHandlers } from './handlers/done-recover.js';
 import { createVerificationContextPackHandlers } from './handlers/verification-context-pack.js';
 import { createCapsuleHandlers } from './handlers/capsule.js';
 import { createScopeContractHandlers } from './handlers/scope-contract.js';
+import { createGuardSessionHandlers } from './handlers/guard-session.js';
 import { nextStoryId } from './handlers/context.js';
 
 export type HandlerFn = (...args: any[]) => any;
@@ -186,6 +187,9 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
 
   // B-be27: scope contract — scope_contract_set/show/check/acknowledge
   registry.registerBatch(createScopeContractHandlers(ctx));
+
+  // B-6bfd CHK-004: guard session projection — guard_session_start/status/check
+  registry.registerBatch(createGuardSessionHandlers(ctx));
 
   // 内部辅助：返回下一个 story id（fixture/测试 runner 用）
   registry.register('_nextStoryId', (prefix?: string) => nextStoryId(ctx.store, prefix));

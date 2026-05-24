@@ -53,4 +53,42 @@ export {
   renderScopeCheckResult,
   validateMode,
   validatePaths,
+  validateAnchors,
+  validateFileRules,
+  validateHunkDigest,
 } from './core/scope-contract.js';
+export {
+  buildScopeDiffPack,
+  digestScopeDiffPack,
+  parseUnifiedDiff,
+} from './core/scope-diff-pack.js';
+export {
+  checkSemanticScope,
+  mergeSemanticScopeResult,
+  isSemanticContract,
+} from './core/semantic-scope-gate.js';
+export {
+  GUARD_PRELAUNCH_PROVIDERS,
+  providerSupportsPreToolBlocking,
+  resolveGuardMode,
+  digestScopeContract,
+  buildGuardSession,
+  detectGuardViolations,
+  applyGuardCheck,
+  guardSessionHasBlockingViolations,
+  guardSessionStateLabel,
+  renderGuardSessionLine,
+  renderGuardSession,
+} from './core/guard-session.js';
+export {
+  REVIEW_SCOPE_BINDING_SALT,
+  materialDiffPackDigest,
+  signReviewScopeBinding,
+  computeReviewScopeBinding,
+  verifyReviewScopeBinding,
+  buildCurrentScopeContext,
+  compareScopeBinding,
+  type CurrentScopeContext,
+  type ScopeBindingComparison,
+  type ScopeBindingStaleCode,
+} from './core/review-scope-binding.js';

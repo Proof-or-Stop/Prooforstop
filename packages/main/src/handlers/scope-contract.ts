@@ -8,15 +8,20 @@
  */
 
 import type { HandlerContext } from './context.js';
-import type { ScopeContractData, ScopeContractAcknowledgement, ScopeContractMode } from '../core/types.js';
+import type { ScopeContractData, ScopeContractAcknowledgement } from '../core/types.js';
 import {
   validateMode,
   validatePaths,
+  validateAnchors,
+  validateFileRules,
+  validateHunkDigest,
   buildScopeContract,
   checkScopeContract,
   renderScopeCheckResult,
   readChangedFiles,
 } from '../core/scope-contract.js';
+import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
+import { checkSemanticScope, mergeSemanticScopeResult } from '../core/semantic-scope-gate.js';
 
 export function createScopeContractHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   const { store, root } = ctx;
@@ -35,6 +40,8 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
       protectedFiles?: string[];
       explicitExcludes?: string[];
       scopeChangeReason?: string;
+      fileRules?: unknown[];
+      protectedAnchors?: string[];
     }): string {
       if (!args.storyId) throw new Error('storyId is required');
       // ensure story exists
@@ -46,12 +53,23 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
       const allowedTest = optionalPaths(args.allowedTest, 'allowedTest');
       const protectedFiles = optionalPaths(args.protectedFiles, 'protectedFiles');
       const explicitExcludes = optionalPaths(args.explicitExcludes, 'explicitExcludes');
+      const fileRules = args.fileRules === undefined ? undefined : validateFileRules(args.fileRules);
+      const protectedAnchors = args.protectedAnchors === undefined ? undefined : validateAnchors(args.protectedAnchors, 'protectedAnchors');
 
-      const existing = store.readScopeContract(args.storyId);
+      // B-6bfd CHK-006: readScopeContract now fails closed (throws) on a corrupt
+      // existing contract. scope_contract_set is a RECOVERY path — a corrupt
+      // existing file must not lock the user out of overwriting it — so tolerate
+      // the throw and treat it as "no existing contract" (fresh overwrite).
+      let existing: ScopeContractData | undefined;
+      try {
+        existing = store.readScopeContract(args.storyId) ?? undefined;
+      } catch {
+        existing = undefined; // corrupt existing contract: allow overwrite to recover
+      }
       const contract = buildScopeContract(
         args.storyId,
-        { mode, allowedModify, allowedCreate, allowedTest, protectedFiles, explicitExcludes, scopeChangeReason: args.scopeChangeReason },
-        existing ?? undefined,
+        { mode, allowedModify, allowedCreate, allowedTest, protectedFiles, explicitExcludes, scopeChangeReason: args.scopeChangeReason, fileRules, protectedAnchors },
+        existing,
       );
       store.writeScopeContract(args.storyId, contract);
       return [
@@ -63,6 +81,8 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
         `allowedTest: [${contract.allowedTest.join(', ')}]`,
         `protectedFiles: [${contract.protectedFiles.join(', ')}]`,
         `explicitExcludes: [${contract.explicitExcludes.join(', ')}]`,
+        `fileRules: ${JSON.stringify(contract.fileRules ?? [])}`,
+        `protectedAnchors: [${(contract.protectedAnchors ?? []).join(', ')}]`,
       ].join('\n');
     },
 
@@ -85,6 +105,8 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
         `allowedTest: [${contract.allowedTest.join(', ')}]`,
         `protectedFiles: [${contract.protectedFiles.join(', ')}]`,
         `explicitExcludes: [${contract.explicitExcludes.join(', ')}]`,
+        `fileRules: ${JSON.stringify(contract.fileRules ?? [])}`,
+        `protectedAnchors: [${(contract.protectedAnchors ?? []).join(', ')}]`,
         `scopeChangeReason: ${contract.scopeChangeReason ?? '(none)'}`,
         `acknowledgements: ${ackSummary}`,
         `createdAt: ${contract.createdAt}`,
@@ -100,10 +122,85 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
         if (args.json) return JSON.stringify(result, null, 2);
         return result.summary;
       }
-      const changedFiles = readChangedFiles(root);
-      const result = checkScopeContract(contract, changedFiles);
+      const diffPack = buildScopeDiffPack(root);
+      const result = mergeSemanticScopeResult(
+        checkScopeContract(contract, diffPack.changedFiles),
+        checkSemanticScope(contract, diffPack),
+      );
       if (args.json) return JSON.stringify(result, null, 2);
       return renderScopeCheckResult(result);
+    },
+
+    scope_diff_pack(args: { json?: boolean }): string {
+      const pack = buildScopeDiffPack(root);
+      if (args.json) return JSON.stringify(pack, null, 2);
+      return [
+        `Scope diff pack: ${pack.diffPackHash}`,
+        `Changed files (${pack.changedFiles.length}):`,
+        ...pack.changedFiles.map((file) => `  ${file}`),
+        `Hunks (${pack.hunks.length}):`,
+        ...pack.hunks.map((hunk) => {
+          const anchor = hunk.anchor ? ` anchor=${hunk.anchor}` : '';
+          const keyPath = hunk.keyPath ? ` keyPath=${hunk.keyPath}` : '';
+          const fallback = hunk.parseFallback ? ` fallback=${hunk.parseFallback}` : '';
+          return `  ${hunk.path}:${hunk.newStart} ${hunk.changeKind ?? 'modify'} ${hunk.hunkDigest}${anchor}${keyPath}${fallback}`;
+        }),
+      ].join('\n');
+    },
+
+    scope_contract_init_from_plan(args: {
+      storyId: string;
+      mode?: string;
+      protectedFiles?: string[];
+      explicitExcludes?: string[];
+      scopeChangeReason?: string;
+    }): string {
+      if (!args.storyId) throw new Error('storyId is required');
+      store.readStory(args.storyId);
+      const checklist = store.readChecklist(args.storyId);
+      const mode = validateMode(args.mode ?? 'enforce');
+      const allowedModify = new Set<string>();
+      const allowedCreate = new Set<string>();
+      const allowedTest = new Set<string>();
+      for (const item of checklist.items) {
+        for (const file of item.files?.modify ?? []) allowedModify.add(file);
+        for (const file of item.files?.create ?? []) allowedCreate.add(file);
+        for (const file of item.files?.test ?? []) allowedTest.add(file);
+      }
+      const protectedFiles = optionalPaths(args.protectedFiles, 'protectedFiles');
+      const explicitExcludes = optionalPaths(args.explicitExcludes, 'explicitExcludes');
+      // B-6bfd CHK-006: tolerate a corrupt existing contract here too — init from
+      // PLAN is a (re)initialization path and must be able to recover by writing a
+      // fresh contract over an unreadable one (readScopeContract now throws on
+      // corrupt; see store.ts / CHK-006 fail-closed note).
+      let existing: ScopeContractData | undefined;
+      try {
+        existing = store.readScopeContract(args.storyId) ?? undefined;
+      } catch {
+        existing = undefined; // corrupt existing contract: allow re-init overwrite
+      }
+      const contract = buildScopeContract(
+        args.storyId,
+        {
+          mode,
+          allowedModify: validatePaths([...allowedModify], 'allowedModify'),
+          allowedCreate: validatePaths([...allowedCreate], 'allowedCreate'),
+          allowedTest: validatePaths([...allowedTest], 'allowedTest'),
+          protectedFiles,
+          explicitExcludes,
+          scopeChangeReason: args.scopeChangeReason ?? 'Initialized from checklist files declared during PLAN.',
+        },
+        existing,
+      );
+      store.writeScopeContract(args.storyId, contract);
+      return [
+        'Scope contract initialized from PLAN files',
+        `Story: ${args.storyId}`,
+        `Mode: ${contract.mode}`,
+        `allowedModify: [${contract.allowedModify.join(', ')}]`,
+        `allowedCreate: [${contract.allowedCreate.join(', ')}]`,
+        `allowedTest: [${contract.allowedTest.join(', ')}]`,
+      ].join('\n');
     },
 
     scope_contract_acknowledge(args: {
@@ -111,6 +208,9 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
       paths: string[];
       reason: string;
       actor?: string;
+      anchors?: string[];
+      hunkDigest?: string;
+      hunkDigests?: string[];
     }): string {
       if (!args.storyId) throw new Error('storyId is required');
       const paths = validatePaths(args.paths, 'paths');
@@ -120,6 +220,11 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
         throw new Error(`reason must be at least 20 characters (got ${reason.length})`);
       }
       const actor = (args.actor ?? 'main-agent').trim();
+      const anchors = args.anchors === undefined ? undefined : validateAnchors(args.anchors, 'anchors');
+      const hunkDigests = [
+        ...(args.hunkDigest ? [validateHunkDigest(args.hunkDigest, 'hunkDigest')] : []),
+        ...((args.hunkDigests ?? []).map((digest, idx) => validateHunkDigest(digest, `hunkDigests[${idx}]`))),
+      ];
 
       const contract = store.readScopeContract(args.storyId);
       if (!contract) {
@@ -131,6 +236,9 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
         reason,
         timestamp: new Date().toISOString(),
         paths,
+        ...(anchors && anchors.length > 0 ? { anchors } : {}),
+        ...(hunkDigests.length === 1 ? { hunkDigest: hunkDigests[0] } : {}),
+        ...(hunkDigests.length > 0 ? { hunkDigests } : {}),
       };
 
       const updated: ScopeContractData = {
@@ -146,6 +254,8 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
         `actor: ${actor}`,
         `reason: ${reason}`,
         `addedPaths: [${paths.join(', ')}]`,
+        ...(anchors && anchors.length > 0 ? [`anchors: [${anchors.join(', ')}]`] : []),
+        ...(hunkDigests.length > 0 ? [`hunkDigests: [${hunkDigests.join(', ')}]`] : []),
         `timestamp: ${ack.timestamp}`,
         `Total acknowledgements: ${updated.acknowledgements.length}`,
       ].join('\n');
@@ -165,8 +275,12 @@ export function runScopeGate(
 ): import('../core/types.js').ScopeCheckResult | null {
   const contract = store.readScopeContract(storyId);
   if (!contract) return null;
-  const changedFiles = (gitReader ?? readChangedFiles)(projectRoot);
-  return checkScopeContract(contract, changedFiles);
+  if (gitReader) return checkScopeContract(contract, gitReader(projectRoot));
+  const diffPack = buildScopeDiffPack(projectRoot);
+  return mergeSemanticScopeResult(
+    checkScopeContract(contract, diffPack.changedFiles),
+    checkSemanticScope(contract, diffPack),
+  );
 }
 
 /**

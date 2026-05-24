@@ -1,13 +1,15 @@
 import { mkdirSync, rmSync, statSync } from 'fs';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
-import type { ReviewRun } from '../core/types.js';
+import type { ReviewRun, ReviewScopeBinding } from '../core/types.js';
 import {
   captureReviewRunSnapshot,
   resolveReviewPromptHash,
   resolveReviewRunLane,
   signReviewRun,
 } from '../core/review-run.js';
+import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
+import { computeReviewScopeBinding } from '../core/review-scope-binding.js';
 
 function sleepSync(ms: number): void {
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
@@ -41,7 +43,7 @@ function withReviewRunLock<T>(ctx: HandlerContext, storyId: string, fn: () => T)
 export function createReviewRunHandlers(ctx: HandlerContext) {
   const { store } = ctx;
   return {
-    review_run_start(args: { storyId: string; agent?: string; lane?: string; prompt?: string; promptHash?: string }): string {
+    review_run_start(args: { storyId: string; agent?: string; lane?: string; prompt?: string; promptHash?: string; reviewedIntentRefs?: string[] }): string {
       assertCwdInWorktree(store, args.storyId);
       const story = store.readStory(args.storyId);
       if (!story.currentReviewRound) {
@@ -51,6 +53,21 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
       const promptHash = resolveReviewPromptHash(args.prompt, args.promptHash);
       const startedAt = new Date().toISOString();
       const { headHash, materialHash } = captureReviewRunSnapshot(ctx.root);
+
+      // B-6bfd CHK-005: for a scope-protected story, capture the scope/diff/hunk
+      // binding so this run is bound to the EXACT scope contract + diff the
+      // reviewer inspects. Absent for unprotected/legacy stories (no contract) →
+      // run signs without a binding and the gate stays backward compatible.
+      const contract = store.readScopeContract(args.storyId);
+      let scopeBinding: ReviewScopeBinding | undefined;
+      if (contract) {
+        const diffPack = buildScopeDiffPack(ctx.root);
+        scopeBinding = computeReviewScopeBinding({
+          contract,
+          diffPack,
+          reviewedIntentRefs: args.reviewedIntentRefs,
+        }) ?? undefined;
+      }
 
       return withReviewRunLock(ctx, args.storyId, () => {
         const data = store.readReviewRuns(args.storyId);
@@ -69,6 +86,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           headHash,
           materialHash,
           promptHash,
+          ...(scopeBinding ? { scopeBinding } : {}),
           _hash: signReviewRun(
             args.storyId,
             reviewRunId,
@@ -79,15 +97,22 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
             headHash,
             materialHash,
             promptHash,
+            scopeBinding?.bindingHash,
           ),
         };
         data.runs.push(run);
         store.writeReviewRuns(args.storyId, data);
         const persisted = store.readReviewRuns(args.storyId).runs.find((candidate) => candidate.reviewRunId === reviewRunId);
-        if (!persisted || persisted._hash !== run._hash || persisted.materialHash !== materialHash) {
+        if (
+          !persisted || persisted._hash !== run._hash || persisted.materialHash !== materialHash
+          || persisted.scopeBinding?.bindingHash !== scopeBinding?.bindingHash
+        ) {
           throw new Error(`review_run_start: ${reviewRunId} was not durably persisted; refusing to continue`);
         }
-        return `Review run ${reviewRunId} started for ${lane} (round ${story.currentReviewRound}, head ${headHash.slice(0, 7)})`;
+        const scopeNote = scopeBinding
+          ? `, scope ${scopeBinding.scopeContractHash?.slice(0, 7)}/${scopeBinding.diffPackHash?.slice(0, 7)}`
+          : '';
+        return `Review run ${reviewRunId} started for ${lane} (round ${story.currentReviewRound}, head ${headHash.slice(0, 7)}${scopeNote})`;
       });
     },
   };

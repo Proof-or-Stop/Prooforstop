@@ -3,6 +3,13 @@ import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash } fro
 import { verifyFinding, verifyReviewPass } from './finding-verify.js';
 import type { Finding, ReviewPass, ReviewRun, StoryInfo } from './types.js';
 import type { StoryStore } from './store.js';
+import { buildScopeDiffPack } from './scope-diff-pack.js';
+import {
+  buildCurrentScopeContext,
+  compareScopeBinding,
+  type CurrentScopeContext,
+  type ScopeBindingComparison,
+} from './review-scope-binding.js';
 
 export const REVIEW_RUN_SALT = 'koala-review-run-integrity-v1';
 
@@ -25,7 +32,11 @@ export type ReviewRunIssueCode =
   | 'wrong_lane'
   | 'wrong_round'
   | 'stale_run'
-  | 'stale_run_hash';
+  | 'stale_run_hash'
+  // B-6bfd CHK-005: scope-binding lane codes (only for scope-protected stories).
+  | 'missing_scope_binding'
+  | 'stale_scope_binding'
+  | 'scope_binding_tampered';
 
 export interface ReviewRunIssue {
   code: ReviewRunIssueCode;
@@ -109,21 +120,26 @@ export function signReviewRun(
   headHash: string,
   materialHash: string,
   promptHash: string,
+  // B-6bfd CHK-005: scope binding hash, appended ONLY when present so runs with
+  // no scope binding (legacy / unprotected stories) sign byte-identically to the
+  // pre-CHK-005 algorithm and stay verifiable. A new run on a scope-protected
+  // story appends its bindingHash, making the binding tamper-evident.
+  scopeBindingHash?: string,
 ): string {
-  return createHash('sha256')
-    .update([
-      storyId,
-      reviewRunId,
-      agent,
-      lane,
-      reviewRound,
-      startedAt,
-      headHash,
-      materialHash,
-      promptHash,
-      REVIEW_RUN_SALT,
-    ].join(':'))
-    .digest('hex');
+  const parts = [
+    storyId,
+    reviewRunId,
+    agent,
+    lane,
+    reviewRound,
+    startedAt,
+    headHash,
+    materialHash,
+    promptHash,
+  ];
+  if (scopeBindingHash) parts.push(scopeBindingHash);
+  parts.push(REVIEW_RUN_SALT);
+  return createHash('sha256').update(parts.join(':')).digest('hex');
 }
 
 export function verifyReviewRun(run: ReviewRun): boolean {
@@ -143,6 +159,7 @@ export function verifyReviewRun(run: ReviewRun): boolean {
     run.headHash,
     run.materialHash,
     run.promptHash || '',
+    run.scopeBinding?.bindingHash,
   );
   return run._hash === expected;
 }
@@ -180,6 +197,56 @@ function staleMaterialHint(storyId: string, lane: string): string {
   return `→ reviewRunId 的 HEAD/materialHash 已过期，不能在同一 REVIEW round 内靠重复 review_run_start 修复；先回 DEV 修复并提交，再执行 koala story_advance '{"storyId":"${storyId}","phase":"REVIEW"}' 进入新的 currentReviewRound，随后运行 koala review_run_start '{"storyId":"${storyId}","agent":"${lane}"}'`;
 }
 
+// ── B-6bfd CHK-005: review scope binding (scope-protected stories only) ──
+
+function scopeBindingHint(storyId: string, lane: string): string {
+  return `→ scope-protected story：reviewer evidence 必须绑定当前 scope 契约与 diff。重新执行 koala review_run_start '{"storyId":"${storyId}","agent":"${lane}"}' 以捕获最新 scopeContractHash/diffPackHash，再用新 reviewRunId 重提 finding_add/review_pass_set`;
+}
+
+/**
+ * Build the live scope context for a story, or null when the story is NOT
+ * scope-protected (no scope contract → review scope binding is not required and
+ * the gate stays backward compatible). buildScopeDiffPack swallows git errors
+ * and returns a deterministic empty pack, so this never throws on non-git roots.
+ */
+export function currentScopeContextForStory(
+  store: StoryStore,
+  storyId: string,
+  projectRoot: string,
+): CurrentScopeContext | null {
+  // B-6bfd CHK-006 fail-closed: store.readScopeContract returns null only for a
+  // genuinely MISSING contract (legacy / unprotected story → no scope binding
+  // required, fully backward compatible) and THROWS for a corrupt/unreadable
+  // existing contract. We deliberately do NOT catch that throw: a scope-protected
+  // story whose contract is corrupt must not silently downgrade to no-contract.
+  // The throw propagates to the gate callers (canPassReview catches → false;
+  // getGuardFailureReason / preflight surface a blocking reason), so the gate
+  // fails closed instead of waving the review through.
+  const contract = store.readScopeContract(storyId);
+  if (!contract) return null;
+  const diffPack = buildScopeDiffPack(projectRoot);
+  return buildCurrentScopeContext(contract, diffPack);
+}
+
+function scopeComparisonToIssueCode(cmp: ScopeBindingComparison): ReviewRunIssueCode {
+  if (cmp.code === 'missing_scope_binding') return 'missing_scope_binding';
+  if (cmp.code === 'scope_binding_tampered') return 'scope_binding_tampered';
+  return 'stale_scope_binding';
+}
+
+function scopeBindingMessage(
+  storyId: string,
+  lane: string,
+  cmp: ScopeBindingComparison,
+  evidenceLabel: string,
+): string {
+  return (
+    `${evidenceLabel}（lane ${lane}）scope binding ${cmp.code}：` +
+    `${cmp.detail ?? ''}（期望 ${cmp.expected ?? '(none)'}，实际 ${cmp.actual ?? '(none)'}）。 ` +
+    scopeBindingHint(storyId, lane)
+  );
+}
+
 export function assertCurrentReviewRunForEvidence(
   store: StoryStore,
   story: StoryInfo,
@@ -215,6 +282,19 @@ export function assertCurrentReviewRunForEvidence(
   if (!freshness.fresh) {
     throw new Error(`review evidence for ${agent} 绑定的 reviewRunId ${reviewRunId} 已 stale：${freshness.reason}. ${staleMaterialHint(story.storyId, agent)}`);
   }
+  // B-6bfd CHK-005: for a scope-protected story, the run's scope binding must
+  // still match the live scope contract + diff. A reviewer must capture a fresh
+  // binding (via review_run_start) before recording evidence; natural-language
+  // evidence with no/stale binding is rejected here at write time.
+  const scopeContext = currentScopeContextForStory(store, story.storyId, projectRoot);
+  if (scopeContext) {
+    const cmp = compareScopeBinding(run.scopeBinding, scopeContext);
+    if (!cmp.ok) {
+      throw new Error(
+        scopeBindingMessage(story.storyId, agent, cmp, `review evidence for ${agent} 绑定的 reviewRunId ${reviewRunId}`),
+      );
+    }
+  }
   return run;
 }
 
@@ -223,6 +303,7 @@ function validateEvidenceRunBinding(
   projectRoot: string,
   runs: ReviewRun[],
   evidence: ReviewerEvidenceRecord,
+  scopeContext: CurrentScopeContext | null,
 ): ReviewRunIssue | null {
   if (!story.currentReviewRound) return null;
   if (evidence.reviewRound !== story.currentReviewRound) {
@@ -317,6 +398,28 @@ function validateEvidenceRunBinding(
       message: `${evidence.kind} ${evidence.id} 绑定的 reviewRunId ${evidence.reviewRunId} 已 stale：${freshness.reason}. ${staleMaterialHint(story.storyId, evidence.agent)}`,
     };
   }
+  // B-6bfd CHK-005: scope-protected stories require the run's scope binding to
+  // match the live scope contract + diff. Checked last so it only applies to the
+  // current, otherwise-valid run. scopeContext is null for unprotected/legacy
+  // stories → this whole block is skipped (backward compatible).
+  if (scopeContext) {
+    const cmp = compareScopeBinding(run.scopeBinding, scopeContext);
+    if (!cmp.ok) {
+      return {
+        code: scopeComparisonToIssueCode(cmp),
+        kind: evidence.kind,
+        evidenceId: evidence.id,
+        agent: evidence.agent,
+        reviewRunId: evidence.reviewRunId,
+        message: scopeBindingMessage(
+          story.storyId,
+          evidence.agent,
+          cmp,
+          `${evidence.kind} ${evidence.id} 绑定的 reviewRunId ${evidence.reviewRunId}`,
+        ),
+      };
+    }
+  }
   return null;
 }
 
@@ -356,11 +459,16 @@ export function collectReviewerEvidenceState(
       pass,
     }));
 
+  // B-6bfd CHK-005: compute the live scope context ONCE per call (null for
+  // unprotected/legacy stories → no scope-binding enforcement, fully backward
+  // compatible).
+  const scopeContext = currentScopeContextForStory(store, storyId, projectRoot);
+
   const valid: ReviewerEvidenceRecord[] = [];
   const rawInvalid: ReviewRunIssue[] = [];
 
   for (const evidence of [...reviewerFindings, ...reviewerPasses]) {
-    const issue = validateEvidenceRunBinding(story, projectRoot, runs, evidence);
+    const issue = validateEvidenceRunBinding(story, projectRoot, runs, evidence, scopeContext);
     if (issue) {
       rawInvalid.push(issue);
     } else {

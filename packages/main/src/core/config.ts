@@ -128,6 +128,8 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'artifact_declare', // B-cf60: per-story declared product artifact registration, safe in any phase
     'capsule_*',   // B-42c0: story handoff projection commands; evidence remains authoritative elsewhere
     'scope_contract_show', 'scope_contract_check', // B-be27: read/check scope contract; mutating commands are phase-scoped below
+    'scope_diff_pack', // B-6bfd CHK-002: read-only mechanical diff context pack, useful for verifier context in any phase
+    'guard_session_status', 'guard_session_check', // B-6bfd CHK-004: read/check guard session projection; start is phase-scoped below
     'plan_get',
     'workflow_*',    // 全局：profile 查看/设置/解释，任何阶段都可以
     'background_*',  // B-45ed CHK-007: background 是元数据，任何阶段可读写
@@ -158,6 +160,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'scope_check_save',
     'scope_question_resolve', // B-ed3e CHK-003: 主 agent 消解 OQ
     'scope_contract_set',
+    'scope_contract_init_from_plan', // B-6bfd CHK-006: seed scope contract from PLAN checklist files
   ],
   DEV: [
     'checklist_add', 'checklist_update', 'checklist_remove',
@@ -169,6 +172,8 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'finding_dispatch', // B-45ed CHK-010: 主 agent 派发 finding 修复（DEV 阶段可能提前出现 finding）
     'finding_cluster',  // B-8bb5: DEV 中已有 finding 时，允许先聚簇再派发修复
     'scope_contract_set', 'scope_contract_acknowledge',
+    'scope_contract_init_from_plan', // B-6bfd CHK-006: seed scope contract from PLAN checklist files
+    'guard_session_start', // B-6bfd CHK-004: start scope-guard session during implementation
   ],
   REVIEW: [
     'review_run_start',
@@ -182,6 +187,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'delivery_check_set', 'delivery_waiver_add', // delivery reviewer 在 REVIEW 阶段写签名/豁免，TEST→DONE gate 消费
     'story_advance',
     'scope_contract_acknowledge',
+    'guard_session_start', // B-6bfd CHK-004: start scope-guard session during review
   ],
   TEST: [
     'finding_list', 'finding_cluster', // B-9d95 CHK-005: 聚簇视图在 TEST 也允许查询

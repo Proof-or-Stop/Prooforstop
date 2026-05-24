@@ -155,6 +155,15 @@ const backgroundSectionSchema = z.preprocess((value) => {
   return normalizeBackgroundSection(value) ?? value;
 }, z.enum(BACKGROUND_SECTION_IDS));
 
+const scopeFileRuleSchema = z.object({
+  path: z.string().describe('Relative file path or simple glob covered by this semantic rule'),
+  allowedAnchors: z.array(z.string()).optional().describe('Only these anchors may change'),
+  deniedAnchors: z.array(z.string()).optional().describe('These anchors must not change'),
+  protectedAnchors: z.array(z.string()).optional().describe('Hard-protected anchors'),
+  allowedChangeKinds: z.array(z.enum(['add', 'remove', 'modify', 'rename'])).optional().describe('Allowed change kinds for matching hunks'),
+  intentRefs: z.array(z.string()).optional().describe('Verification intent refs this rule protects'),
+});
+
 const storyTypeSchema = z.preprocess((value) => {
   if (value === 'test') return 'chore';
   return value;
@@ -376,6 +385,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     ]).optional().describe('显式 reviewer lane；与 agent 同义，传一个即可'),
     prompt: z.string().optional().describe('reviewer 实际收到的 prompt 文本；若提供会自动计算 promptHash'),
     promptHash: z.string().optional().describe('reviewer prompt 的 sha256；若同时传 prompt，必须与 prompt 实际哈希一致'),
+    reviewedIntentRefs: z.array(z.string()).optional().describe('scope-protected story：reviewer 本轮检查的 verification intent refs（计入 scope binding，可选）'),
   }},
   { name: 'review_pass_set', description: '记录 reviewer 已审查且无 blocking finding 的通过凭证', schema: {
     storyId: z.string().describe('Story ID'),
@@ -899,6 +909,8 @@ export const MAIN_TOOLS: ToolDef[] = [
     protectedFiles: z.array(z.string()).optional().describe('Files that must not change (block in enforce)'),
     explicitExcludes: z.array(z.string()).optional().describe('Files explicitly out of scope'),
     scopeChangeReason: z.string().optional().describe('Human explanation for a deliberate scope change'),
+    fileRules: z.array(scopeFileRuleSchema).optional().describe('Per-file semantic anchor rules'),
+    protectedAnchors: z.array(z.string()).optional().describe('Globally protected anchors'),
   }},
   { name: 'scope_contract_show', description: 'Show the current scope contract for a story', schema: {
     storyId: z.string().describe('Story ID'),
@@ -912,6 +924,33 @@ export const MAIN_TOOLS: ToolDef[] = [
     paths: z.array(z.string()).describe('Out-of-scope paths being acknowledged'),
     reason: z.string().min(20, 'reason must be ≥ 20 characters').describe('Why these out-of-scope paths are necessary (≥ 20 chars)'),
     actor: z.string().optional().describe('Actor making the acknowledgement (default: main-agent)'),
+    anchors: z.array(z.string()).optional().describe('Semantic anchors covered by this acknowledgement'),
+    hunkDigest: z.string().optional().describe('Single hunk digest covered by this acknowledgement'),
+    hunkDigests: z.array(z.string()).optional().describe('Multiple hunk digests covered by this acknowledgement'),
+  }},
+  { name: 'scope_diff_pack', description: 'Generate a mechanical diff context pack with hunk digests and anchors', schema: {
+    json: z.boolean().optional().describe('Output structured JSON'),
+  }},
+  { name: 'scope_contract_init_from_plan', description: 'Initialize a story scope contract from PLAN checklist files', schema: {
+    storyId: z.string().describe('Story ID'),
+    mode: z.enum(['local', 'shadow', 'enforce']).optional().describe('Gate behavior (default enforce)'),
+    protectedFiles: z.array(z.string()).optional().describe('Files that must not change'),
+    explicitExcludes: z.array(z.string()).optional().describe('Files explicitly out of scope'),
+    scopeChangeReason: z.string().optional().describe('Reason recorded on the generated contract'),
+  }},
+  { name: 'guard_session_start', description: 'Start (or restart) a Koala-managed scope-guard session projection for a story', schema: {
+    storyId: z.string().describe('Story ID'),
+    provider: z.string().min(1, 'provider is required').describe('Agent provider runtime (e.g. claude-code, codex). Providers without pre-tool hooks run as watcher-fallback.'),
+    json: z.boolean().optional().describe('Output structured JSON'),
+  }},
+  { name: 'guard_session_status', description: 'Read the current guard session projection for a story', schema: {
+    storyId: z.string().describe('Story ID'),
+    json: z.boolean().optional().describe('Output structured JSON'),
+  }},
+  { name: 'guard_session_check', description: 'Check current diff against the guard session scope contract and record any forbidden writes', schema: {
+    storyId: z.string().describe('Story ID'),
+    simulatedWrites: z.array(z.string()).optional().describe('Paths to evaluate as if written (test/dry-run forbidden-write simulation)'),
+    json: z.boolean().optional().describe('Output structured JSON'),
   }},
 
 ];
