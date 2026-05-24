@@ -8,6 +8,15 @@
       "reviewRound": "2026-05-24T00:28:24.635Z",
       "reviewRunId": "B-6bfd:RR-001",
       "_hash": "5d087eb6beca3af465d21159f6794e31b20ff034a2f1b8246564965e4e00d7cc"
+    },
+    {
+      "id": "B-6bfd:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Quality review pass with 2 non-critical findings. Checked: (1) dead code / unused imports — none found; ScopeContractMode import was correctly removed from scope-contract.ts handler; ScopeDiffPack type in session.ts is used at line 845; ScopeBindingStaleCode exported from index.ts is consumed by review-scope-binding.ts. (2) Type safety — no unnecessary as-any casts; error handling in scope-contract.ts correctly catches corrupt contracts fail-closed; session.ts scope block is fully wrapped in try/catch to never block session_brief. (3) Shell isolation — handlers/* never import fn.ts; guard-session handler imports only from core/ modules. (4) Smoke test passes: node dist/tasks/semantic-scope-guard-smoke.js exits 0. (5) validate green. Findings: F-001 medium — guard_session_check command-policy reason claims readOnly but writes guard-session.json; F-002 low — guard state rendered twice in session_brief when guard session active.",
+      "createdAt": "2026-05-24T00:44:20.354Z",
+      "reviewRound": "2026-05-24T00:28:24.635Z",
+      "reviewRunId": "B-6bfd:RR-002",
+      "_hash": "50814ef5f1c8fb89645844332864a907355c3aba618294f74f5fb2b02c534b02"
     }
   ]
 }
