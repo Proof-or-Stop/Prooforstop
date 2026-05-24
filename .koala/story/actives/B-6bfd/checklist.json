@@ -311,7 +311,20 @@
         "test": [
           "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/handlers/guard-session.ts",
+          "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
+          "result": "pass",
+          "note": "Smoke drives guard_session_start end-to-end and asserts it records provider, guardMode, scopeContractHash and active status; guard_session_status round-trips the record.",
+          "headHash": "79d2aacb62f70df197745062e5dbeee4e3d1d3b8",
+          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
+          "timestamp": "2026-05-24T00:27:38.865Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
