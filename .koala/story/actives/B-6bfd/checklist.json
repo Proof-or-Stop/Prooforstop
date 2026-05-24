@@ -499,6 +499,17 @@
           "headHash": "03736f1686a475524a61a5a80a4bed69dca5aef8",
           "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
           "timestamp": "2026-05-24T00:28:06.842Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/handlers/session.ts",
+          "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
+          "result": "pass",
+          "note": "Smoke asserts session_brief gracefully reports no scope protection for old stories (no scope-contract) instead of erroring.",
+          "headHash": "9966ba45338af09c738fd29e93ce619c3c475738",
+          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
+          "timestamp": "2026-05-24T00:28:07.083Z"
         }
       ]
     }
