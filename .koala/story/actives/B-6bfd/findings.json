@@ -47,6 +47,22 @@
       "files": [
         "packages/main/src/handlers/scope-contract.ts"
       ]
+    },
+    {
+      "id": "B-6bfd:F-004",
+      "desc": "quality-cleanup: core/config.ts:132 guard_session_check (storyScopedMutating, writes guard-session.json + process event) is listed alongside guard_session_status in the global always-available phase-tool list with comment 'read/check guard session projection; start is phase-scoped below', following the same pattern as scope_contract_show/scope_contract_check whose parallel comment 'read/check scope contract; mutating commands are phase-scoped below' correctly describes both as non-mutating. The comment implies guard_session_check is also non-mutating, but unlike scope_contract_check (ownershipClass readOnly, destructiveRisk none), guard_session_check is storyScopedMutating and is also in the global always-available list (which would normally only hold reads/checks). While the actual ownership enforcement (command-policy.ts) is correct and the gate still rejects non-owner calls, the config.ts comment could mislead future maintainers reviewing why a write command is in the global-all-phases list.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-24T11:50:06.164Z",
+      "reviewRound": "2026-05-24T11:39:36.866Z",
+      "reviewRunId": "B-6bfd:RR-009",
+      "_hash": "2c85570edb575a2dfaa444302d17d8f3695de03d572f0b3aba6148a13cdf30ad",
+      "files": [
+        "packages/main/src/core/config.ts"
+      ]
     }
   ]
 }
