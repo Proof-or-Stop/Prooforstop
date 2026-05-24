@@ -41,7 +41,16 @@
     ".omx"
   ],
   "scopeChangeReason": "B-6bfd semantic scope guard implementation scope agreed during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "koala-implementer",
+      "reason": "F-001 finding repair mandated regression coverage proving guard_session_check is storyScopedMutating/metadata-write and owner-gated; the only home for that assertion is the existing command-ownership-contract task.",
+      "timestamp": "2026-05-24T00:54:19.504Z",
+      "paths": [
+        "packages/main/src/tasks/command-ownership-contract.ts"
+      ]
+    }
+  ],
   "createdAt": "2026-05-23T21:18:56.722Z",
-  "updatedAt": "2026-05-23T21:18:56.722Z"
+  "updatedAt": "2026-05-24T00:54:19.504Z"
 }
