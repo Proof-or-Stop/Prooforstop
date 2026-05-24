@@ -1,0 +1,16 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add missing @changes fields to B-6bfd core annotations",
+      "context": "Only touch packages/main/src/core/guard-session.ts, packages/main/src/core/review-scope-binding.ts, and packages/main/src/core/semantic-scope-gate.ts annotation metadata. Do not change runtime behavior.",
+      "relatedDocs": [
+        "docs/requirements/decisions/annotation-system.md"
+      ],
+      "userSees": "convergence_check no longer reports code annotation compliance errors from the B-6bfd files",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
