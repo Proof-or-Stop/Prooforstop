@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-ca8f:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "All four must verificationIntents have exactly one non-empty pass evidence and full coverage. Independently reproduced on current HEAD: (1) annotation-validator-clean — cli-validate.js prints PASSED: All task annotations are valid (0 errors); (2) convergence-annotation-pass — convergence_check reports 代码注释合规 passed, 32 个注释全部合规; (3) diff-is-comment-only — git show numstat = 4 insertions per file across only the three declared core files (guard-session.ts, review-scope-binding.ts, semantic-scope-gate.ts), all inside top @changes JSDoc blocks; (4) no-runtime-behavior-change — patch contains no import/export/function/logic changes, only @changes comment metadata. Evidence kinds (manual_transcript) match the cli/manual intent types and commands are sufficient and reproducible. For a comment-only annotation-metadata repair (test:[] declared, userSees=validator output), logic/integration tests are not required; the validator + convergence CLIs directly assert the outcome and the adversarial intent guards scope. No missing test or evidence gap. No blocking finding.",
+      "createdAt": "2026-05-24T12:23:25.893Z",
+      "reviewRound": "2026-05-24T12:22:07.961Z",
+      "reviewRunId": "B-ca8f:RR-002",
+      "_hash": "44aebba7f0fcb6dead677f6ffc58c3ea2e021bd1957f35f2e46039eee375a9c6"
+    }
+  ]
+}
