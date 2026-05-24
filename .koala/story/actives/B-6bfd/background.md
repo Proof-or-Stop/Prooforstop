@@ -9,4 +9,4 @@ path-level scope 只能回答哪些文件可以改，不能回答允许文件内
 
 ## 对话纹理
 用户关注的不是再加记录，而是防止 AI 修改既有功能后用自然语言糊弄通过。因此输出必须直接显示 semantic gate pass/warn/fail、diffPackHash、reviewed hunks、guard mode，并且每个关键结论都能用测试和 review evidence 重放。
-Codex supervisor taking over implementation after Claude CLI stalled; continuing within approved scope and preserving Claude partial CHK-001 edits.
+Claude Code CLI completed implementation and Koala lifecycle closure; Codex acted as supervisor/auditor, verified scope and tests, and required correction of an earlier out-of-scope file before lifecycle closure.
