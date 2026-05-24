@@ -487,7 +487,20 @@
         "test": [
           "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/handlers/scope-contract.ts",
+          "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
+          "result": "pass",
+          "note": "Smoke drives scope_contract_init_from_plan and asserts it creates a usable v2 contract from checklist files and verification intents; live session_brief printed the aggregate Scope protection summary block (path gate/semantic gate/guard mode/review hash freshness/next action).",
+          "headHash": "03736f1686a475524a61a5a80a4bed69dca5aef8",
+          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
+          "timestamp": "2026-05-24T00:28:06.842Z"
+        }
+      ]
     }
   ]
 }
