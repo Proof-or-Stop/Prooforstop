@@ -45,7 +45,20 @@
         "test": [
           "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
+          "result": "pass",
+          "note": "Smoke asserts a v2 scope contract with fileRules/allowedAnchors round-trips through set/show/check and still surfaces v1 fields; printed semantic scope guard smoke passed.",
+          "headHash": "e8206ed4ed279c0db1d201f26fd2b73f6ef85faf",
+          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
+          "timestamp": "2026-05-24T00:26:48.460Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
