@@ -55,7 +55,49 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "annotation-validator-clean",
+          "kind": "manual_transcript",
+          "command": "node /Users/jek/Documents/Work/Orchestrate/packages/main/dist/tasks/cli-validate.js",
+          "result": "pass",
+          "note": "Validator reported Errors: 0; the previous missing @changes errors for the three B-6bfd core files are gone.",
+          "headHash": "d9ce016fb56b00f4cbd27921f64e33fc41784e4d",
+          "materialHash": "34d4866130a71cc1152b8d65ec1e6011922f2e33071694e4597426a0685ab3ee",
+          "timestamp": "2026-05-24T12:21:52.791Z"
+        },
+        {
+          "intentRef": "convergence-annotation-pass",
+          "kind": "manual_transcript",
+          "command": "node /Users/jek/Documents/Work/Orchestrate/packages/main/dist/cli.js convergence_check",
+          "result": "pass",
+          "note": "convergence_check reports code annotation compliance passed with detail 32 annotations valid; remaining non-converged status is only B-ca8f not DONE.",
+          "headHash": "d9ce016fb56b00f4cbd27921f64e33fc41784e4d",
+          "materialHash": "34d4866130a71cc1152b8d65ec1e6011922f2e33071694e4597426a0685ab3ee",
+          "timestamp": "2026-05-24T12:21:52.791Z"
+        },
+        {
+          "intentRef": "diff-is-comment-only",
+          "kind": "manual_transcript",
+          "command": "git show --numstat --format= HEAD && git show --format= --unified=20 HEAD -- packages/main/src/core/guard-session.ts packages/main/src/core/review-scope-binding.ts packages/main/src/core/semantic-scope-gate.ts",
+          "result": "pass",
+          "note": "HEAD changes only the three declared core files with 4 insertions each, all inside top @task comment metadata blocks.",
+          "headHash": "d9ce016fb56b00f4cbd27921f64e33fc41784e4d",
+          "materialHash": "34d4866130a71cc1152b8d65ec1e6011922f2e33071694e4597426a0685ab3ee",
+          "timestamp": "2026-05-24T12:21:52.791Z"
+        },
+        {
+          "intentRef": "no-runtime-behavior-change",
+          "kind": "manual_transcript",
+          "command": "git diff --check HEAD^ HEAD && git show --format= --unified=20 HEAD -- packages/main/src/core/guard-session.ts packages/main/src/core/review-scope-binding.ts packages/main/src/core/semantic-scope-gate.ts",
+          "result": "pass",
+          "note": "Diff check passed and inspected patch contains no runtime code/import/export/function changes, only @changes comment metadata additions.",
+          "headHash": "d9ce016fb56b00f4cbd27921f64e33fc41784e4d",
+          "materialHash": "34d4866130a71cc1152b8d65ec1e6011922f2e33071694e4597426a0685ab3ee",
+          "timestamp": "2026-05-24T12:21:52.791Z"
+        }
+      ]
     }
   ]
 }
