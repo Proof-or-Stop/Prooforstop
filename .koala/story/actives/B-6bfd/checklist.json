@@ -242,6 +242,17 @@
           "headHash": "5bb2b5de178780fe3f740ffe250266f77fc21cc5",
           "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
           "timestamp": "2026-05-24T00:27:27.287Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
+          "result": "pass",
+          "note": "Smoke asserts an allowed file touching a denied/protected anchor FAILS the semantic gate (reporting violating path/anchor/hunkDigest) even though the file path itself is allowed.",
+          "headHash": "9bd764cc48cd2a0c0e58d284835201726e489aeb",
+          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
+          "timestamp": "2026-05-24T00:27:27.526Z"
         }
       ]
     },
