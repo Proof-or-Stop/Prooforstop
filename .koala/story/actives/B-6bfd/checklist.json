@@ -334,6 +334,17 @@
           "headHash": "b285e81523bf7c57fb57f809df1a18f850422b47",
           "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
           "timestamp": "2026-05-24T00:27:39.122Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/guard-session.ts",
+          "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
+          "result": "pass",
+          "note": "Smoke simulates a forbidden write, asserts it is recorded as a guard violation and that the violation blocks lifecycle progression (guard session: violations detected).",
+          "headHash": "90948bd987e62d15fd9149f408fce7457d330a18",
+          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
+          "timestamp": "2026-05-24T00:27:39.365Z"
         }
       ]
     },
