@@ -237,8 +237,12 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
         timestamp: new Date().toISOString(),
         paths,
         ...(anchors && anchors.length > 0 ? { anchors } : {}),
+        // B-6bfd F-003: persist singular vs plural unambiguously. Exactly one
+        // digest stores only `hunkDigest`; multiple digests store only
+        // `hunkDigests`. The two branches are mutually exclusive so a
+        // single-digest acknowledgement never redundantly carries both fields.
         ...(hunkDigests.length === 1 ? { hunkDigest: hunkDigests[0] } : {}),
-        ...(hunkDigests.length > 0 ? { hunkDigests } : {}),
+        ...(hunkDigests.length > 1 ? { hunkDigests } : {}),
       };
 
       const updated: ScopeContractData = {
