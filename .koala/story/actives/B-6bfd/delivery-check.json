@@ -1,0 +1,89 @@
+{
+  "storyId": "B-6bfd",
+  "checkedAt": "2026-05-24T12:05:42.639Z",
+  "reviewRound": "2026-05-24T11:53:33.724Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".koala/story/actives/B-6bfd/plan.md#Tests",
+      "promise": "npm --prefix packages/main run test:semantic-scope-guard-smoke passes",
+      "verifiedBy": "real-machine execution",
+      "evidence": "Ran test:semantic-scope-guard-smoke, output: semantic scope guard smoke passed (exit 0)"
+    },
+    {
+      "docPath": ".koala/story/actives/B-6bfd/plan.md#Tests",
+      "promise": "npm --prefix packages/main run test:scope-contract-smoke passes",
+      "verifiedBy": "real-machine execution",
+      "evidence": "Ran test:scope-contract-smoke, output: scope contract smoke passed (exit 0)"
+    },
+    {
+      "docPath": ".koala/story/actives/B-6bfd/checklist.json#CHK-001.userSees",
+      "promise": "scope_contract_show prints fileRules:, protectedAnchors:, and existing v1 fields; scope_contract_check still prints Scope gate: pass/warn for an old B-be27-style contract",
+      "verifiedBy": "live CLI run + grep",
+      "evidence": "node packages/main/dist/cli.js scope_contract_show B-6bfd printed fileRules: [] and protectedAnchors: [] alongside allowedModify/allowedCreate/v1 fields. scope_contract_smoke test confirms v1 contracts check successfully."
+    },
+    {
+      "docPath": ".koala/story/actives/B-6bfd/checklist.json#CHK-002.userSees",
+      "promise": "scope_diff_pack --json prints diffPackHash, anchor names, keyPath changes, and parseFallback for unparseable files",
+      "verifiedBy": "live CLI run",
+      "evidence": "node packages/main/dist/cli.js scope_diff_pack B-6bfd --json emitted diffPackHash (29434f3d...), anchors (COMMAND_POLICIES, capsuleEvidenceRefSchema, clusterHandlers), keyPaths (test:scope-contract-smoke, userSees, phase), and parseFallback:unsupported_file_type for .md/.json hunks"
+    },
+    {
+      "docPath": ".koala/story/actives/B-6bfd/checklist.json#CHK-003.userSees",
+      "promise": "story_advance REVIEW/TEST/DONE prints Semantic scope gate: pass or Semantic scope gate: fail with violating path, anchor, and hunkDigest",
+      "verifiedBy": "smoke test assertions + code review",
+      "evidence": "semantic-scope-guard-smoke.ts asserts renderScopeCheckResult matches /Semantic scope gate: pass/, /Semantic scope gate: fail/, /DENIED_ANCHOR: src\\/allowed\\.ts/, /anchor=secretFn/, /hunkDigest=.../. Smoke passed. renderScopeCheckResult wired into scope_contract_check output."
+    },
+    {
+      "docPath": ".koala/story/actives/B-6bfd/checklist.json#CHK-004.userSees",
+      "promise": "session_brief prints guard session: active, guard session: watcher-fallback, guard session: inactive, or guard session: violations detected under scope protection block",
+      "verifiedBy": "live session_brief output + code + smoke test",
+      "evidence": "session_brief for B-6bfd printed Scope protection summary with guard mode: inactive. renderScopeProtectionSummary code confirmed to delegate to guardSessionStateLabel (active/watcher-fallback/inactive/violations detected). Smoke verified all four state labels render correctly."
+    },
+    {
+      "docPath": ".koala/story/actives/B-6bfd/checklist.json#CHK-006.userSees",
+      "promise": "session_brief prints Scope protection summary with path gate, semantic gate, guard mode, review hash freshness, and next action rows",
+      "verifiedBy": "live session_brief output",
+      "evidence": "session_brief for B-6bfd printed: Scope protection summary / path gate: warn / semantic gate: skip / guard mode: inactive / review hash freshness: fresh / next action: Scope warnings present (advisory, not blocking) — all 5 rows present."
+    },
+    {
+      "docPath": ".koala/story/actives/B-6bfd/plan.md#Risk-Controls",
+      "promise": "V2 semantic fields are not mandatory for old stories; guard status is projection only; hash binding and diff pack are mechanical (not prose); unknown/unsupported files render parseFallback rather than disappear",
+      "verifiedBy": "code review + smoke test",
+      "evidence": "scope-contract-smoke passes with v1 contracts unchanged. guard-session.ts declares it is projection only. review-scope-binding.ts: skipsScopeBinding for stories without scope contract. semantic-scope-guard-smoke.ts: asserts parseFallback:unsupported_file_type for non-TS files."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm --prefix packages/main run test:semantic-scope-guard-smoke → semantic scope guard smoke passed; npm --prefix packages/main run test:scope-contract-smoke → scope contract smoke passed. Tests cover: v2 contract round-trip (fileRules/allowedAnchors set/show/check), v1 backward compatibility, invalid anchor rejection, unsafe path rejection, malformed hunk acknowledgement rejection."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm --prefix packages/main run test:semantic-scope-guard-smoke → passed. Covers: TS anchor extraction (anchor=publicFn, secretFn etc.), parseFallback:unsupported_file_type for non-TS files, parseFallback:no_nearest_ts_anchor where no symbol found. Live scope_diff_pack run confirmed diffPackHash + anchors + keyPaths in output."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "npm --prefix packages/main run test:semantic-scope-guard-smoke → passed. Covers: allowed file + allowed anchor passes (status=pass), v1 contract skips semantic gate (status=skip), denied anchor fails (status=fail escalates path-pass to fail), protected anchor fails even with ack, shadow mode denied=warn/protected=fail, disallowed changeKind fails, story metadata hunks never gated."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "npm --prefix packages/main run test:semantic-scope-guard-smoke → passed. Covers: claude-code resolves to active mode, codex resolves to watcher-fallback, buildGuardSession records provider/guardMode/scopeContractHash/status, simulated forbidden write recorded as violation with violations_detected status blocking lifecycle, digestScopeContract stability verified."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "npm --prefix packages/main run test:semantic-scope-guard-smoke → passed. Covers: fresh review binding with matching scopeContractHash+diffPackHash passes REVIEW→TEST scope-binding check, stories without scope contract stay backward compatible, missing/stale diffPackHash blocks REVIEW→TEST and reports which evidence is stale."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "npm --prefix packages/main run test:semantic-scope-guard-smoke → passed. Live session_brief confirmed Scope protection summary block with all 5 rows. node packages/main/dist/tasks/lifecycle-registry-contract.js → PASS (110 commands, 0 divergences). node packages/main/dist/tasks/command-ownership-contract.js → PASS (110 commands, valid ownershipClass)."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 6 checklist items delivered and verified: semantic scope gate (CHK-001/003), diff pack builder (CHK-002), guard session projection (CHK-004), reviewer scope binding (CHK-005), and session_brief Scope protection summary (CHK-006). Two smoke tests pass; no unresolved TODOs found in new source files; lifecycle-registry and command-ownership contracts pass with 110 commands."
+  },
+  "_hash": "9b2f83c40657e40f7a4d82008483476342c3bcaac030f85e05215e34ca3c786c"
+}
