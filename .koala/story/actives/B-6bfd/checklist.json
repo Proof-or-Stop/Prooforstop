@@ -157,6 +157,17 @@
           "headHash": "6beb7b1e238b46be3a5de4eaa1dfe56b05274e4f",
           "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
           "timestamp": "2026-05-24T00:27:15.361Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/scope-diff-pack.ts",
+          "command": "node packages/main/dist/cli.js scope_diff_pack {storyId:B-6bfd,json:true}",
+          "result": "pass",
+          "note": "Package/CLI schema changes surfaced as key-level changes: pack reported keyPath test:scope-contract-smoke (package.json script add) plus userSees/phase keyPaths.",
+          "headHash": "7ee7bf71e98047613074a44d6d7a093b2a3ac73c",
+          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
+          "timestamp": "2026-05-24T00:27:15.598Z"
         }
       ]
     },
