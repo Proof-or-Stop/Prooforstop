@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-6bfd:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept residual check complete. Story B-6bfd is entirely additive: no exported symbols, types, or functions were deleted or renamed. Verified: (1) ScopeContractMode still exported from types.ts and properly used in core/scope-contract.ts; (2) validateEvidenceRunBinding, runScopeGate, readChangedFiles, checkScopeContract all present with zero orphaned references; (3) stale_run_hash/out_of_scope/run_metrics_recorded still in union types and actively used; (4) New concepts (FileRule, ChangeKind, ScopeDiffHunk/Pack, SemanticScopeGateResult, GuardSessionData, ReviewScopeBinding) cleanly introduced without replacing old names; (5) signReviewRun extended with optional scopeBindingHash — backward compatible: legacy runs without scope binding sign byte-identically to pre-CHK-005. Both smoke tests pass (semantic-scope-guard-smoke + scope-contract-smoke). No blocker found.",
+      "createdAt": "2026-05-24T00:36:37.797Z",
+      "reviewRound": "2026-05-24T00:28:24.635Z",
+      "reviewRunId": "B-6bfd:RR-001",
+      "_hash": "5d087eb6beca3af465d21159f6794e31b20ff034a2f1b8246564965e4e00d7cc"
+    }
+  ]
+}
