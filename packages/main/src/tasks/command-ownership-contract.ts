@@ -223,6 +223,41 @@ try {
     else process.env.KOALA_AGENT = savedAgent;
   }
 
+  // ── 4b. GUARD SESSION WRITE CLASSIFICATION (B-6bfd F-001 regression) ──────
+  // guard_session_check persists guard-session.json and appends a process event
+  // on every invocation; it MUST be classified as an owner-gated story-scoped
+  // metadata write, not readOnly. A drift back to readOnly would let a non-owner
+  // session overwrite another story's guard session state.
+  {
+    const checkPolicy = getCommandPolicy('guard_session_check');
+    assert.ok(checkPolicy, 'guard_session_check must have a CommandPolicy entry');
+    assert.equal(
+      checkPolicy!.ownershipClass,
+      'storyScopedMutating',
+      'guard_session_check writes guard-session.json + a process event, so it must be storyScopedMutating (regression of B-6bfd F-001)',
+    );
+    assert.equal(
+      checkPolicy!.destructiveRisk,
+      'metadata-write',
+      'guard_session_check persists story metadata, so its destructiveRisk must be metadata-write',
+    );
+    assert.ok(
+      !/without mutating story metadata/i.test(checkPolicy!.reason),
+      'guard_session_check reason must not claim it runs "without mutating story metadata" — it records forbidden writes (B-6bfd F-001)',
+    );
+    assert.equal(
+      resolveEffectiveOwnershipClass('guard_session_check', { storyId: 'B-c55d' }, 'B-c55d'),
+      'storyScopedMutating',
+      'guard_session_check resolves to owner-gated storyScopedMutating',
+    );
+    // Sibling write command guard_session_start stays consistent with it.
+    assert.equal(
+      getCommandPolicy('guard_session_start')!.ownershipClass,
+      'storyScopedMutating',
+      'guard_session_start (the sibling write command) remains storyScopedMutating',
+    );
+  }
+
   // ── 5. GATE BEHAVIOR — enforceStoryOwnerLeaseGate fail-closed rejection ──
   {
     const savedSession = process.env.KOALA_SESSION_ID;
@@ -254,6 +289,22 @@ try {
         readFileSync(ownerLeasePath(storyDir), 'utf-8'),
         leaseBefore,
         'a rejected non-owner command performs no lease write (no silent steal)',
+      );
+
+      // 5a-bis. guard_session_check (B-6bfd F-001) is an owner-gated write, so a
+      // non-owner session running it against a foreign-owned story is REJECTED.
+      assert.throws(
+        () => enforceStoryOwnerLeaseGate('guard_session_check', { storyId }, store, null, root),
+        (err: Error) =>
+          err.message.includes(storyId) &&
+          err.message.includes('sess-owner') &&
+          err.message.includes('owner-gated'),
+        'guard_session_check on a foreign-owned story is rejected fail-closed (it writes guard-session.json)',
+      );
+      assert.equal(
+        readFileSync(ownerLeasePath(storyDir), 'utf-8'),
+        leaseBefore,
+        'a rejected guard_session_check performs no lease write (no silent steal)',
       );
 
       // 5b. The reviewer read-only flow on the SAME foreign-owned story is

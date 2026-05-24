@@ -36,7 +36,6 @@ import { findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-sta
 import { currentGitHead } from '../core/evidence-freshness.js';
 import { getSessionId, summarizeOwnerLease, type OwnerLeaseView } from '../core/story-owner-lease.js';
 import { renderCapsuleBrief, validateCapsuleRefs } from '../core/story-capsule.js';
-import { renderGuardSessionLine } from '../core/guard-session.js';
 import { buildScopeProtectionSummary, renderScopeProtectionSummary } from '../core/review-scope-binding.js';
 import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
 import type { ScopeContractData, GuardSessionData, ScopeDiffPack, ReviewRun } from '../core/types.js';
@@ -859,9 +858,10 @@ export function createSessionHandlers(ctx: HandlerContext) {
           });
           lines.push('');
           for (const l of renderScopeProtectionSummary(summary)) lines.push(l);
-          if (guardSession) {
-            lines.push(`  ${renderGuardSessionLine(guardSession)}`);
-          }
+          // Guard state is already shown as the "guard mode" row inside
+          // renderScopeProtectionSummary (both derive from guardSessionStateLabel),
+          // so we do NOT re-render a redundant "guard session" line here. Only the
+          // actionable violation detail below adds new information.
           if (guardSession && guardSession.status === 'violations_detected' && guardSession.violations.length > 0) {
             lines.push(`  ${guardSession.violations.length} forbidden write(s) under story scope protection — run guard_session_check for detail.`);
           }
