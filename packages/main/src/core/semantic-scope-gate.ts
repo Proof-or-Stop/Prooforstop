@@ -19,6 +19,10 @@
  *   Backward compatibility: a v1 contract (no fileRules and no protectedAnchors)
  *   returns status 'skip'; mergeSemanticScopeResult then leaves the path-only
  *   result untouched so v1 stays path-only.
+ * @changes
+ *   - [CHK-003] Evaluate diff-pack hunks against per-file scope contract v2 rules (protected / denied / allowed anchors and change kinds)
+ *   - [CHK-003] Route severity: protected anchors hard-block even when acknowledged; denied / unmatched / disallowed downgrade to a warning when acknowledged
+ *   - [CHK-003] Return status 'skip' for v1 contracts so mergeSemanticScopeResult keeps path-only behavior
  */
 import type {
   FileRule,

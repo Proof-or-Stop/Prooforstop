@@ -1,0 +1,61 @@
+{
+  "principles": [
+    "Keep this as a metadata-only repair with no runtime behavior changes",
+    "Preserve B-6bfd evidence and lifecycle history instead of rewriting prior story artifacts",
+    "Use existing annotation contract rather than weakening convergence gates",
+    "Verify with the same user-visible command that failed"
+  ],
+  "drivers": [
+    "convergence_check must stop failing on annotation compliance",
+    "The fix must be auditable through a dedicated Koala story",
+    "Only three files should receive @changes metadata"
+  ],
+  "options": [
+    {
+      "name": "metadata-only annotation repair",
+      "pros": [
+        "Directly fixes the validator errors",
+        "Smallest diff and easiest to review",
+        "Keeps convergence gate strict"
+      ],
+      "cons": [
+        "Does not redesign the annotation system",
+        "Requires careful wording so @changes references B-6bfd checklist accurately"
+      ]
+    },
+    {
+      "name": "relax annotation gate",
+      "pros": [
+        "Would avoid needing annotation repair for similar legacy gaps"
+      ],
+      "cons": [
+        "Weakens convergence_check and hides metadata drift",
+        "Contradicts annotation-system.md required fields",
+        "Does not address the concrete missing metadata"
+      ]
+    }
+  ],
+  "chosen": "metadata-only annotation repair",
+  "rationale": "Choose the minimal metadata-only repair because the runtime implementation already passed B-6bfd delivery gates; the remaining failure is strictly missing @changes metadata in three @task blocks.",
+  "preMortem": [
+    {
+      "scenario": "Runtime behavior changes accidentally slip into this repair",
+      "trigger": "Diff includes non-comment lines or logic edits outside the annotation blocks",
+      "consequence": "A metadata cleanup becomes an unreviewed behavior change",
+      "mitigation": "Verify git diff only changes @task comment blocks in the three named files"
+    },
+    {
+      "scenario": "Annotation validator still fails after adding @changes",
+      "trigger": "@changes format lacks `- [CHK-xxx]` entries or references wrong checklist IDs",
+      "consequence": "convergence_check remains false and the story does not solve the user-visible issue",
+      "mitigation": "Run cli-validate and convergence_check before marking checklist done"
+    },
+    {
+      "scenario": "Fix uses B-ca8f in old B-6bfd annotations incorrectly",
+      "trigger": "@task remains B-6bfd but @changes references B-ca8f without context",
+      "consequence": "Annotation metadata becomes confusing for future agents",
+      "mitigation": "Use @changes entries that describe the original B-6bfd checklist coverage, and record B-ca8f as repair story in commit and evidence"
+    }
+  ],
+  "timestamp": "2026-05-24T12:11:25.995Z"
+}

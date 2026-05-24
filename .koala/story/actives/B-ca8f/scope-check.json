@@ -1,0 +1,52 @@
+{
+  "storyId": "B-ca8f",
+  "checkedAt": "2026-05-24T12:14:20.170Z",
+  "features": [
+    {
+      "feature": "@changes is a required field in @task annotations (format: - [CHK-xxx] 描述)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/annotation-system.md"
+    },
+    {
+      "feature": "task_scan validates @task annotation compliance including @changes field presence",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/annotation-system.md"
+    },
+    {
+      "feature": "Fix missing @changes fields in guard-session.ts, review-scope-binding.ts, semantic-scope-gate.ts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Verify annotation validator reports no missing @changes errors for the three B-6bfd files",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Verify convergence_check reports annotation compliance as passed (not 3 annotation errors)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 5,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "ecbcc0e47b2508aae1477a874fc2ceb6db55829815915544fba4a9ddd1fe3e05",
+  "openQuestions": []
+}
