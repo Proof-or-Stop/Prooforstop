@@ -5,7 +5,7 @@
       "desc": "quality-cleanup: command-policy.ts:209 guard_session_check is classified ownershipClass=readOnly with reason \"without mutating story metadata\" but the handler calls store.writeGuardSession() on every invocation (writes guard-session.json in the story directory). The reason text is factually incorrect and contradicts process-fact-levels.ts which accurately states \"records forbidden writes\". This metadata inconsistency means the ownership enforcement gate treats guard_session_check as a read-only command while it is a story-scoped write, potentially misleading maintainers and allowing non-owner sessions to overwrite guard session state.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-05-24T00:44:03.908Z",
