@@ -4,7 +4,7 @@
   "title": "Restore annotation compliance for semantic scope guard files",
   "description": "After B-6bfd merged, convergence_check reports three task annotation errors because new core files have @task blocks missing the required @changes field. Fix only those annotation metadata fields and verify annotation validation plus convergence_check.",
   "type": "bug",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "createdAt": "2026-05-24T12:07:10.687Z",
   "startedAt": "2026-05-24T12:07:10.687Z",
@@ -41,11 +41,20 @@
       "branch": "story/B-ca8f",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-24T12:22:07.961Z",
+      "branch": "story/B-ca8f",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-ca8f",
     "branch": "story/B-ca8f",
     "createdAt": "2026-05-24T12:09:37.476Z"
-  }
+  },
+  "currentReviewRound": "2026-05-24T12:22:07.961Z"
 }
