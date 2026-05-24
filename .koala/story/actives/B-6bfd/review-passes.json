@@ -35,6 +35,15 @@
       "reviewRound": "2026-05-24T00:54:26.432Z",
       "reviewRunId": "B-6bfd:RR-005",
       "_hash": "f094f6826ebdeb529b0b9eaef6f3495b2928f4a889b48c86b98e665816d67d8b"
+    },
+    {
+      "id": "B-6bfd:RP-005",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 已检查所有 verificationIntent 与 verificationEvidence 覆盖关系。CHK-001~006 各 3 栏 (happy/edge/adversarial) 共 18 条 must intent 均有 result:pass 的 evidence (logic_test/integration_test/manual_transcript)。两个 smoke test 在当前 dist 实时执行均通过。证据 headHash 8b2b8f0c 至当前 HEAD 427e275a 间 3 次提交全为 koala metadata-only，materialHash 稳定（smoke section 11 覆盖）。F-001 (command-policy ownershipClass)、F-002 (session.ts 渲染重复)、F-003 (hunkDigest/hunkDigests 单复数互斥) 全部 resolved+verified，F-003 回归测试在 scope-contract-smoke.ts L164-191 显式覆盖。无 blocker。",
+      "createdAt": "2026-05-24T11:42:14.017Z",
+      "reviewRound": "2026-05-24T11:39:36.866Z",
+      "reviewRunId": "B-6bfd:RR-008",
+      "_hash": "a4d98459b549276075677bf97ec2e0285ef2deb265cb98b60e0837ed0746c027"
     }
   ]
 }
