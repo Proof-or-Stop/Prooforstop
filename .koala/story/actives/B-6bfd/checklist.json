@@ -54,9 +54,9 @@
           "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
           "result": "pass",
           "note": "Smoke asserts a v2 scope contract with fileRules/allowedAnchors round-trips through set/show/check and still surfaces v1 fields; printed semantic scope guard smoke passed.",
-          "headHash": "e8206ed4ed279c0db1d201f26fd2b73f6ef85faf",
-          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
-          "timestamp": "2026-05-24T00:26:48.460Z"
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -65,9 +65,9 @@
           "command": "npm --prefix packages/main run test:scope-contract-smoke",
           "result": "pass",
           "note": "Legacy v1 (B-be27-style) scope-contract smoke still passes -> path-only contracts without semantic fields check successfully, backward compatible.",
-          "headHash": "77d3d9add1355b665982043edf27a9562a0c3110",
-          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
-          "timestamp": "2026-05-24T00:26:56.933Z"
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -76,9 +76,9 @@
           "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
           "result": "pass",
           "note": "Smoke asserts invalid anchors, unsafe paths and malformed hunk acknowledgements are rejected before persistence (set() throws / check fails).",
-          "headHash": "90bd8eb2df9ed39a7ba4c4480da66ee2b2170a44",
-          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
-          "timestamp": "2026-05-24T00:26:57.176Z"
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
         }
       ]
     },
@@ -143,9 +143,9 @@
           "command": "node packages/main/dist/cli.js scope_diff_pack {storyId:B-6bfd,json:true}",
           "result": "pass",
           "note": "scope_diff_pack --json identified TS anchors (COMMAND_POLICIES, capsuleEvidenceRefSchema, clusterHandlers) for changed hunks and emitted diffPackHash dbd61eae57941539cee821e3a269c8769a161de2.",
-          "headHash": "29189ecd5e8ea773890d06d0b39d453034e276a4",
-          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
-          "timestamp": "2026-05-24T00:27:15.108Z"
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -154,9 +154,9 @@
           "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
           "result": "pass",
           "note": "Non-code/unparseable files fall back explicitly: scope_diff_pack reported parseFallback unsupported_file_type and no_nearest_ts_anchor rather than passing silently; smoke asserts the fallback path.",
-          "headHash": "6beb7b1e238b46be3a5de4eaa1dfe56b05274e4f",
-          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
-          "timestamp": "2026-05-24T00:27:15.361Z"
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -165,9 +165,9 @@
           "command": "node packages/main/dist/cli.js scope_diff_pack {storyId:B-6bfd,json:true}",
           "result": "pass",
           "note": "Package/CLI schema changes surfaced as key-level changes: pack reported keyPath test:scope-contract-smoke (package.json script add) plus userSees/phase keyPaths.",
-          "headHash": "7ee7bf71e98047613074a44d6d7a093b2a3ac73c",
-          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
-          "timestamp": "2026-05-24T00:27:15.598Z"
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
         }
       ]
     },
@@ -228,9 +228,9 @@
           "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
           "result": "pass",
           "note": "Smoke asserts an allowed file touching an allowed anchor passes the semantic scope gate (Semantic scope gate: pass).",
-          "headHash": "288c75bcda9bcdf9aaffecd902db5a54214407bf",
-          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
-          "timestamp": "2026-05-24T00:27:27.050Z"
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -239,9 +239,9 @@
           "command": "npm --prefix packages/main run test:scope-contract-smoke",
           "result": "pass",
           "note": "Legacy v1 contract smoke confirms v1 contracts continue using path gate only with no semantic hunk enforcement.",
-          "headHash": "5bb2b5de178780fe3f740ffe250266f77fc21cc5",
-          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
-          "timestamp": "2026-05-24T00:27:27.287Z"
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -250,9 +250,9 @@
           "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
           "result": "pass",
           "note": "Smoke asserts an allowed file touching a denied/protected anchor FAILS the semantic gate (reporting violating path/anchor/hunkDigest) even though the file path itself is allowed.",
-          "headHash": "9bd764cc48cd2a0c0e58d284835201726e489aeb",
-          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
-          "timestamp": "2026-05-24T00:27:27.526Z"
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
         }
       ]
     },
@@ -320,9 +320,9 @@
           "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
           "result": "pass",
           "note": "Smoke drives guard_session_start end-to-end and asserts it records provider, guardMode, scopeContractHash and active status; guard_session_status round-trips the record.",
-          "headHash": "79d2aacb62f70df197745062e5dbeee4e3d1d3b8",
-          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
-          "timestamp": "2026-05-24T00:27:38.865Z"
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -331,9 +331,9 @@
           "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
           "result": "pass",
           "note": "Smoke asserts an unsupported provider is represented as watcher-fallback guardMode instead of pretending pre-tool blocking exists.",
-          "headHash": "b285e81523bf7c57fb57f809df1a18f850422b47",
-          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
-          "timestamp": "2026-05-24T00:27:39.122Z"
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -342,9 +342,9 @@
           "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
           "result": "pass",
           "note": "Smoke simulates a forbidden write, asserts it is recorded as a guard violation and that the violation blocks lifecycle progression (guard session: violations detected).",
-          "headHash": "90948bd987e62d15fd9149f408fce7457d330a18",
-          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
-          "timestamp": "2026-05-24T00:27:39.365Z"
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
         }
       ]
     },
@@ -407,9 +407,9 @@
           "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
           "result": "pass",
           "note": "Smoke asserts fresh review evidence bound to the current scopeContractHash and diffPackHash (plus reviewedHunkDigests) passes the REVIEW->TEST scope-binding check.",
-          "headHash": "bfad27d34f5241e76a1bce56ffa07cbbd6506ad9",
-          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
-          "timestamp": "2026-05-24T00:27:55.822Z"
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -418,9 +418,9 @@
           "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
           "result": "pass",
           "note": "Smoke asserts stories without a scope contract stay backward compatible (no scope-binding requirement on review passes) unless scope protection is enabled.",
-          "headHash": "84b58bd91e9b6d9422f58403687a70c3b0b0b419",
-          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
-          "timestamp": "2026-05-24T00:27:56.065Z"
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -429,9 +429,9 @@
           "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
           "result": "pass",
           "note": "Smoke asserts missing or stale diffPackHash / reviewedHunkDigests blocks REVIEW->TEST and reports exactly which reviewer evidence is stale or incomplete.",
-          "headHash": "872985e4c1ba76a92e5155b5d86648caf78c4668",
-          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
-          "timestamp": "2026-05-24T00:27:56.305Z"
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
         }
       ]
     },
@@ -496,9 +496,9 @@
           "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
           "result": "pass",
           "note": "Smoke drives scope_contract_init_from_plan and asserts it creates a usable v2 contract from checklist files and verification intents; live session_brief printed the aggregate Scope protection summary block (path gate/semantic gate/guard mode/review hash freshness/next action).",
-          "headHash": "03736f1686a475524a61a5a80a4bed69dca5aef8",
-          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
-          "timestamp": "2026-05-24T00:28:06.842Z"
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -507,9 +507,9 @@
           "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
           "result": "pass",
           "note": "Smoke asserts session_brief gracefully reports no scope protection for old stories (no scope-contract) instead of erroring.",
-          "headHash": "9966ba45338af09c738fd29e93ce619c3c475738",
-          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
-          "timestamp": "2026-05-24T00:28:07.083Z"
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
@@ -518,9 +518,9 @@
           "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
           "result": "pass",
           "note": "Smoke includes a full-chain bypass regression: it fails if the semantic gate or the review hash binding can be bypassed by natural-language-only evidence.",
-          "headHash": "be505d6af337930fbde4c1b8899417b879d1e055",
-          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
-          "timestamp": "2026-05-24T00:28:07.329Z"
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
         }
       ]
     }
