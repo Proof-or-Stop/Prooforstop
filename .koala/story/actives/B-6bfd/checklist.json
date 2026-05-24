@@ -510,6 +510,17 @@
           "headHash": "9966ba45338af09c738fd29e93ce619c3c475738",
           "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
           "timestamp": "2026-05-24T00:28:07.083Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
+          "result": "pass",
+          "note": "Smoke includes a full-chain bypass regression: it fails if the semantic gate or the review hash binding can be bypassed by natural-language-only evidence.",
+          "headHash": "be505d6af337930fbde4c1b8899417b879d1e055",
+          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
+          "timestamp": "2026-05-24T00:28:07.329Z"
         }
       ]
     }
