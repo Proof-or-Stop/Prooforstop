@@ -219,7 +219,20 @@
         "test": [
           "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
+          "result": "pass",
+          "note": "Smoke asserts an allowed file touching an allowed anchor passes the semantic scope gate (Semantic scope gate: pass).",
+          "headHash": "288c75bcda9bcdf9aaffecd902db5a54214407bf",
+          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
+          "timestamp": "2026-05-24T00:27:27.050Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
