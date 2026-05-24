@@ -57,6 +57,17 @@
           "headHash": "e8206ed4ed279c0db1d201f26fd2b73f6ef85faf",
           "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
           "timestamp": "2026-05-24T00:26:48.460Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/scope-contract-smoke.ts",
+          "command": "npm --prefix packages/main run test:scope-contract-smoke",
+          "result": "pass",
+          "note": "Legacy v1 (B-be27-style) scope-contract smoke still passes -> path-only contracts without semantic fields check successfully, backward compatible.",
+          "headHash": "77d3d9add1355b665982043edf27a9562a0c3110",
+          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
+          "timestamp": "2026-05-24T00:26:56.933Z"
         }
       ]
     },
