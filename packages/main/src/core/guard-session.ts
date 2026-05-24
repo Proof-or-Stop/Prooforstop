@@ -21,6 +21,10 @@
  *   protection, so guard_session_check evaluates the diff against an
  *   enforce-equivalent view of the contract and records every unacknowledged
  *   forbidden write. The lifecycle gate can then block on those violations.
+ * @changes
+ *   - [CHK-004] Add the guard session projection (pure logic, no I/O) layered on the scope contract without replacing the story owner lease
+ *   - [CHK-004] Derive guardMode 'active' vs 'watcher-fallback' from provider pre-tool hook capability
+ *   - [CHK-004] Detect unacknowledged forbidden writes via an enforce-equivalent contract view for the lifecycle gate
  */
 import { createHash } from 'node:crypto';
 import type {

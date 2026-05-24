@@ -28,6 +28,10 @@
  *   evidence-freshness.ts excludes from materialHash, so the binding tracks only
  *   real code/diff changes during the review window. This is NOT a back door:
  *   story metadata is never reviewer-attestable code anyway.
+ * @changes
+ *   - [CHK-005] Bind a reviewer run to the exact scope contract + material diff via scopeContractHash / diffPackHash / reviewed hunk digests / intent refs / bindingHash
+ *   - [CHK-005] Exclude story-metadata paths from the diff pack so reviewer auto-commits do not make the binding stale
+ *   - [CHK-005] Let the REVIEW→TEST gate reject reviewer evidence whose binding is missing, tampered, or bound to a different scope/diff context
  */
 import { createHash } from 'node:crypto';
 import type {
