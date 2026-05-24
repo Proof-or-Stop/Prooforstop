@@ -1,0 +1,375 @@
+{
+  "command": "koala validate --story=B-6bfd --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.3 test\",\"  > npm run test:e2e\",\"  > koala@0.3.3 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 18/18 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/semantic-scope-guard-smoke.ts) — A v2 contract with fileRules round-trips through set/show/check without losing v1 fields.\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/scope-contract-smoke.ts) — An old B-be27-style contract still checks successfully without semantic fields.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/semantic-scope-guard-smoke.ts) — Invalid anchors, unsafe paths, or malformed hunk acknowledgements are rejected before persistence.\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via manual_transcript (packages/main/src/core/scope-diff-pack.ts) — Diff pack identifies TS function/export anchors for changed hunks.\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/semantic-scope-guard-smoke.ts) — Unparseable or non-code files fall back to file/hunk level without passing silently.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via manual_transcript (packages/main/src/core/scope-diff-pack.ts) — Package script or CLI schema changes are surfaced as key-level changes in the pack.\",\"  ✓ CHK-003:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/semantic-scope-guard-smoke.ts) — Allowed file plus allowed anchor passes semantic gate.\",\"  ✓ CHK-003:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/scope-contract-smoke.ts) — V1 contracts continue using path gate only.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/semantic-scope-guard-smoke.ts) — Allowed file touching denied or protected anchor fails even when file path is allowed.\",\"  ✓ CHK-004:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/handlers/guard-session.ts) — guard_session_start records provider, guardMode, scopeContractHash, and active status.\",\"  ✓ CHK-004:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/core/guard-session.ts) — Unsupported provider is represented as watcher-fallback instead of pretending pre-tool blocking exists.\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/core/guard-session.ts) — A simulated forbidden write is recorded as a guard violation and blocks lifecycle progression.\",\"  ✓ CHK-005:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/core/review-scope-binding.ts) — Fresh review evidence with matching scopeContractHash and diffPackHash passes REVIEW→TEST.\",\"  ✓ CHK-005:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/core/review-scope-binding.ts) — Stories without scope contract stay backward compatible unless scope protection is enabled.\",\"  ✓ CHK-005:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/core/review-scope-binding.ts) — Missing or stale diffPackHash/reviewedHunkDigests blocks REVIEW→TEST.\",\"  ✓ CHK-006:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/handlers/scope-contract.ts) — scope_contract_init_from_plan creates a usable contract from checklist files and intents.\",\"  ✓ CHK-006:edge:0 [edge/must/cli] covered via integration_test (packages/main/src/handlers/session.ts) — session_brief gracefully reports no scope protection for old stories.\",\"  ✓ CHK-006:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/semantic-scope-guard-smoke.ts) — Regression test fails if semantic gate or review hash binding can be bypassed by natural-language-only evidence.\"],\"warnings\":[],\"timestamp\":\"2026-05-24T00:54:40.184Z\",\"headSha\":\"02ac1123cee23f9b61b5875e5767fc562505e075\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.3 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.3 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":889}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":18,\"reason\":\"verificationIntent entries present (18)\"},\"verificationCoverage\":{\"total\":18,\"required\":18,\"covered\":18,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"A v2 contract with fileRules round-trips through set/show/check without losing v1 fields.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/semantic-scope-guard-smoke.ts\",\"command\":\"npm --prefix packages/main run test:semantic-scope-guard-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts a v2 scope contract with fileRules/allowedAnchors round-trips through set/show/check and still surfaces v1 fields; printed semantic scope guard smoke passed.\",\"headHash\":\"e20bba4e42587de812c65fe6585325081913c404\",\"materialHash\":\"ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e\",\"timestamp\":\"2026-05-24T00:54:33.919Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"An old B-be27-style contract still checks successfully without semantic fields.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/scope-contract-smoke.ts\",\"command\":\"npm --prefix packages/main run test:scope-contract-smoke\",\"result\":\"pass\",\"note\":\"Legacy v1 (B-be27-style) scope-contract smoke still passes -> path-only contracts without semantic fields check successfully, backward compatible.\",\"headHash\":\"e20bba4e42587de812c65fe6585325081913c404\",\"materialHash\":\"ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e\",\"timestamp\":\"2026-05-24T00:54:33.919Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Invalid anchors, unsafe paths, or malformed hunk acknowledgements are rejected before persistence.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/semantic-scope-guard-smoke.ts\",\"command\":\"npm --prefix packages/main run test:semantic-scope-guard-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts invalid anchors, unsafe paths and malformed hunk acknowledgements are rejected before persistence (set() throws / check fails).\",\"headHash\":\"e20bba4e42587de812c65fe6585325081913c404\",\"materialHash\":\"ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e\",\"timestamp\":\"2026-05-24T00:54:33.919Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Diff pack identifies TS function/export anchors for changed hunks.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/core/scope-diff-pack.ts\",\"command\":\"node packages/main/dist/cli.js scope_diff_pack {storyId:B-6bfd,json:true}\",\"result\":\"pass\",\"note\":\"scope_diff_pack --json identified TS anchors (COMMAND_POLICIES, capsuleEvidenceRefSchema, clusterHandlers) for changed hunks and emitted diffPackHash dbd61eae57941539cee821e3a269c8769a161de2.\",\"headHash\":\"e20bba4e42587de812c65fe6585325081913c404\",\"materialHash\":\"ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e\",\"timestamp\":\"2026-05-24T00:54:33.919Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Unparseable or non-code files fall back to file/hunk level without passing silently.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/semantic-scope-guard-smoke.ts\",\"command\":\"npm --prefix packages/main run test:semantic-scope-guard-smoke\",\"result\":\"pass\",\"note\":\"Non-code/unparseable files fall back explicitly: scope_diff_pack reported parseFallback unsupported_file_type and no_nearest_ts_anchor rather than passing silently; smoke asserts the fallback path.\",\"headHash\":\"e20bba4e42587de812c65fe6585325081913c404\",\"materialHash\":\"ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e\",\"timestamp\":\"2026-05-24T00:54:33.919Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Package script or CLI schema changes are surfaced as key-level changes in the pack.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/core/scope-diff-pack.ts\",\"command\":\"node packages/main/dist/cli.js scope_diff_pack {storyId:B-6bfd,json:true}\",\"result\":\"pass\",\"note\":\"Package/CLI schema changes surfaced as key-level changes: pack reported keyPath test:scope-contract-smoke (package.json script add) plus userSees/phase keyPaths.\",\"headHash\":\"e20bba4e42587de812c65fe6585325081913c404\",\"materialHash\":\"ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e\",\"timestamp\":\"2026-05-24T00:54:33.919Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Allowed file plus allowed anchor passes semantic gate.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/semantic-scope-guard-smoke.ts\",\"command\":\"npm --prefix packages/main run test:semantic-scope-guard-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts an allowed file touching an allowed anchor passes the semantic scope gate (Semantic scope gate: pass).\",\"headHash\":\"e20bba4e42587de812c65fe6585325081913c404\",\"materialHash\":\"ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e\",\"timestamp\":\"2026-05-24T00:54:33.919Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"V1 contracts continue using path gate only.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/scope-contract-smoke.ts\",\"command\":\"npm --prefix packages/main run test:scope-contract-smoke\",\"result\":\"pass\",\"note\":\"Legacy v1 contract smoke confirms v1 contracts continue using path gate only with no semantic hunk enforcement.\",\"headHash\":\"e20bba4e42587de812c65fe6585325081913c404\",\"materialHash\":\"ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e\",\"timestamp\":\"2026-05-24T00:54:33.919Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Allowed file touching denied or protected anchor fails even when file path is allowed.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/semantic-scope-guard-smoke.ts\",\"command\":\"npm --prefix packages/main run test:semantic-scope-guard-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts an allowed file touching a denied/protected anchor FAILS the semantic gate (reporting violating path/anchor/hunkDigest) even though the file path itself is allowed.\",\"headHash\":\"e20bba4e42587de812c65fe6585325081913c404\",\"materialHash\":\"ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e\",\"timestamp\":\"2026-05-24T00:54:33.919Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"guard_session_start records provider, guardMode, scopeContractHash, and active status.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/handlers/guard-session.ts\",\"command\":\"npm --prefix packages/main run test:semantic-scope-guard-smoke\",\"result\":\"pass\",\"note\":\"Smoke drives guard_session_start end-to-end and asserts it records provider, guardMode, scopeContractHash and active status; guard_session_status round-trips the record.\",\"headHash\":\"e20bba4e42587de812c65fe6585325081913c404\",\"materialHash\":\"ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e\",\"timestamp\":\"2026-05-24T00:54:33.919Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Unsupported provider is represented as watcher-fallback instead of pretending pre-tool blocking exists.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/guard-session.ts\",\"command\":\"npm --prefix packages/main run test:semantic-scope-guard-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts an unsupported provider is represented as watcher-fallback guardMode instead of pretending pre-tool blocking exists.\",\"headHash\":\"e20bba4e42587de812c65fe6585325081913c404\",\"materialHash\":\"ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e\",\"timestamp\":\"2026-05-24T00:54:33.919Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"A simulated forbidden write is recorded as a guard violation and blocks lifecycle progression.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/guard-session.ts\",\"command\":\"npm --prefix packages/main run test:semantic-scope-guard-smoke\",\"result\":\"pass\",\"note\":\"Smoke simulates a forbidden write, asserts it is recorded as a guard violation and that the violation blocks lifecycle progression (guard session: violations detected).\",\"headHash\":\"e20bba4e42587de812c65fe6585325081913c404\",\"materialHash\":\"ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e\",\"timestamp\":\"2026-05-24T00:54:33.919Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"Fresh review evidence with matching scopeContractHash and diffPackHash passes REVIEW→TEST.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/review-scope-binding.ts\",\"command\":\"npm --prefix packages/main run test:semantic-scope-guard-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts fresh review evidence bound to the current scopeContractHash and diffPackHash (plus reviewedHunkDigests) passes the REVIEW->TEST scope-binding check.\",\"headHash\":\"e20bba4e42587de812c65fe6585325081913c404\",\"materialHash\":\"ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e\",\"timestamp\":\"2026-05-24T00:54:33.919Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"Stories without scope contract stay backward compatible unless scope protection is enabled.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/review-scope-binding.ts\",\"command\":\"npm --prefix packages/main run test:semantic-scope-guard-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts stories without a scope contract stay backward compatible (no scope-binding requirement on review passes) unless scope protection is enabled.\",\"headHash\":\"e20bba4e42587de812c65fe6585325081913c404\",\"materialHash\":\"ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e\",\"timestamp\":\"2026-05-24T00:54:33.919Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"Missing or stale diffPackHash/reviewedHunkDigests blocks REVIEW→TEST.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/review-scope-binding.ts\",\"command\":\"npm --prefix packages/main run test:semantic-scope-guard-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts missing or stale diffPackHash / reviewedHunkDigests blocks REVIEW->TEST and reports exactly which reviewer evidence is stale or incomplete.\",\"headHash\":\"e20bba4e42587de812c65fe6585325081913c404\",\"materialHash\":\"ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e\",\"timestamp\":\"2026-05-24T00:54:33.919Z\"}},{\"intentRef\":\"CHK-006:happy:0\",\"itemId\":\"CHK-006\",\"lane\":\"happy\",\"desc\":\"scope_contract_init_from_plan creates a usable contract from checklist files and intents.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/handlers/scope-contract.ts\",\"command\":\"npm --prefix packages/main run test:semantic-scope-guard-smoke\",\"result\":\"pass\",\"note\":\"Smoke drives scope_contract_init_from_plan and asserts it creates a usable v2 contract from checklist files and verification intents; live session_brief printed the aggregate Scope protection summary block (path gate/semantic gate/guard mode/review hash freshness/next action).\",\"headHash\":\"e20bba4e42587de812c65fe6585325081913c404\",\"materialHash\":\"ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e\",\"timestamp\":\"2026-05-24T00:54:33.919Z\"}},{\"intentRef\":\"CHK-006:edge:0\",\"itemId\":\"CHK-006\",\"lane\":\"edge\",\"desc\":\"session_brief gracefully reports no scope protection for old stories.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/handlers/session.ts\",\"command\":\"npm --prefix packages/main run test:semantic-scope-guard-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts session_brief gracefully reports no scope protection for old stories (no scope-contract) instead of erroring.\",\"headHash\":\"e20bba4e42587de812c65fe6585325081913c404\",\"materialHash\":\"ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e\",\"timestamp\":\"2026-05-24T00:54:33.919Z\"}},{\"intentRef\":\"CHK-006:adversarial:0\",\"itemId\":\"CHK-006\",\"lane\":\"adversarial\",\"desc\":\"Regression test fails if semantic gate or review hash binding can be bypassed by natural-language-only evidence.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/semantic-scope-guard-smoke.ts\",\"command\":\"npm --prefix packages/main run test:semantic-scope-guard-smoke\",\"result\":\"pass\",\"note\":\"Smoke includes a full-chain bypass regression: it fails if the semantic gate or the review hash binding can be bypassed by natural-language-only evidence.\",\"headHash\":\"e20bba4e42587de812c65fe6585325081913c404\",\"materialHash\":\"ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e\",\"timestamp\":\"2026-05-24T00:54:33.919Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-05-24T00:54:40.547Z",
+  "headHash": "02ac1123cee23f9b61b5875e5767fc562505e075",
+  "verificationCoverage": {
+    "total": 18,
+    "required": 18,
+    "covered": 18,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "A v2 contract with fileRules round-trips through set/show/check without losing v1 fields.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
+          "result": "pass",
+          "note": "Smoke asserts a v2 scope contract with fileRules/allowedAnchors round-trips through set/show/check and still surfaces v1 fields; printed semantic scope guard smoke passed.",
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "An old B-be27-style contract still checks successfully without semantic fields.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/scope-contract-smoke.ts",
+          "command": "npm --prefix packages/main run test:scope-contract-smoke",
+          "result": "pass",
+          "note": "Legacy v1 (B-be27-style) scope-contract smoke still passes -> path-only contracts without semantic fields check successfully, backward compatible.",
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Invalid anchors, unsafe paths, or malformed hunk acknowledgements are rejected before persistence.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
+          "result": "pass",
+          "note": "Smoke asserts invalid anchors, unsafe paths and malformed hunk acknowledgements are rejected before persistence (set() throws / check fails).",
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Diff pack identifies TS function/export anchors for changed hunks.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/scope-diff-pack.ts",
+          "command": "node packages/main/dist/cli.js scope_diff_pack {storyId:B-6bfd,json:true}",
+          "result": "pass",
+          "note": "scope_diff_pack --json identified TS anchors (COMMAND_POLICIES, capsuleEvidenceRefSchema, clusterHandlers) for changed hunks and emitted diffPackHash dbd61eae57941539cee821e3a269c8769a161de2.",
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Unparseable or non-code files fall back to file/hunk level without passing silently.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
+          "result": "pass",
+          "note": "Non-code/unparseable files fall back explicitly: scope_diff_pack reported parseFallback unsupported_file_type and no_nearest_ts_anchor rather than passing silently; smoke asserts the fallback path.",
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Package script or CLI schema changes are surfaced as key-level changes in the pack.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/scope-diff-pack.ts",
+          "command": "node packages/main/dist/cli.js scope_diff_pack {storyId:B-6bfd,json:true}",
+          "result": "pass",
+          "note": "Package/CLI schema changes surfaced as key-level changes: pack reported keyPath test:scope-contract-smoke (package.json script add) plus userSees/phase keyPaths.",
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Allowed file plus allowed anchor passes semantic gate.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
+          "result": "pass",
+          "note": "Smoke asserts an allowed file touching an allowed anchor passes the semantic scope gate (Semantic scope gate: pass).",
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "V1 contracts continue using path gate only.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/scope-contract-smoke.ts",
+          "command": "npm --prefix packages/main run test:scope-contract-smoke",
+          "result": "pass",
+          "note": "Legacy v1 contract smoke confirms v1 contracts continue using path gate only with no semantic hunk enforcement.",
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Allowed file touching denied or protected anchor fails even when file path is allowed.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
+          "result": "pass",
+          "note": "Smoke asserts an allowed file touching a denied/protected anchor FAILS the semantic gate (reporting violating path/anchor/hunkDigest) even though the file path itself is allowed.",
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "guard_session_start records provider, guardMode, scopeContractHash, and active status.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/handlers/guard-session.ts",
+          "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
+          "result": "pass",
+          "note": "Smoke drives guard_session_start end-to-end and asserts it records provider, guardMode, scopeContractHash and active status; guard_session_status round-trips the record.",
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "Unsupported provider is represented as watcher-fallback instead of pretending pre-tool blocking exists.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/guard-session.ts",
+          "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
+          "result": "pass",
+          "note": "Smoke asserts an unsupported provider is represented as watcher-fallback guardMode instead of pretending pre-tool blocking exists.",
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "A simulated forbidden write is recorded as a guard violation and blocks lifecycle progression.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/guard-session.ts",
+          "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
+          "result": "pass",
+          "note": "Smoke simulates a forbidden write, asserts it is recorded as a guard violation and that the violation blocks lifecycle progression (guard session: violations detected).",
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:happy:0",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "Fresh review evidence with matching scopeContractHash and diffPackHash passes REVIEW→TEST.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/review-scope-binding.ts",
+          "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
+          "result": "pass",
+          "note": "Smoke asserts fresh review evidence bound to the current scopeContractHash and diffPackHash (plus reviewedHunkDigests) passes the REVIEW->TEST scope-binding check.",
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:edge:0",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "Stories without scope contract stay backward compatible unless scope protection is enabled.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/review-scope-binding.ts",
+          "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
+          "result": "pass",
+          "note": "Smoke asserts stories without a scope contract stay backward compatible (no scope-binding requirement on review passes) unless scope protection is enabled.",
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:adversarial:0",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "Missing or stale diffPackHash/reviewedHunkDigests blocks REVIEW→TEST.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/review-scope-binding.ts",
+          "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
+          "result": "pass",
+          "note": "Smoke asserts missing or stale diffPackHash / reviewedHunkDigests blocks REVIEW->TEST and reports exactly which reviewer evidence is stale or incomplete.",
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:happy:0",
+        "itemId": "CHK-006",
+        "lane": "happy",
+        "desc": "scope_contract_init_from_plan creates a usable contract from checklist files and intents.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/handlers/scope-contract.ts",
+          "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
+          "result": "pass",
+          "note": "Smoke drives scope_contract_init_from_plan and asserts it creates a usable v2 contract from checklist files and verification intents; live session_brief printed the aggregate Scope protection summary block (path gate/semantic gate/guard mode/review hash freshness/next action).",
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:edge:0",
+        "itemId": "CHK-006",
+        "lane": "edge",
+        "desc": "session_brief gracefully reports no scope protection for old stories.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/handlers/session.ts",
+          "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
+          "result": "pass",
+          "note": "Smoke asserts session_brief gracefully reports no scope protection for old stories (no scope-contract) instead of erroring.",
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:adversarial:0",
+        "itemId": "CHK-006",
+        "lane": "adversarial",
+        "desc": "Regression test fails if semantic gate or review hash binding can be bypassed by natural-language-only evidence.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
+          "result": "pass",
+          "note": "Smoke includes a full-chain bypass regression: it fails if the semantic gate or the review hash binding can be bypassed by natural-language-only evidence.",
+          "headHash": "e20bba4e42587de812c65fe6585325081913c404",
+          "materialHash": "ac3824a82b1241196400825ba9a1823e8ff59bca77d2315a2f702e7c5f84a65e",
+          "timestamp": "2026-05-24T00:54:33.919Z"
+        }
+      }
+    ]
+  }
+}
