@@ -62,6 +62,15 @@
       "reviewRound": "2026-05-24T11:39:36.866Z",
       "reviewRunId": "B-6bfd:RR-009",
       "_hash": "477b68a5f0a0a65d2ba0174c5984cf32ef87e7f5d0e0d4b50abde2068298f9a0"
+    },
+    {
+      "id": "B-6bfd:RP-008",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 已检查全部 18 条 verificationIntent（6 items × 3 intents each，全部 must，normal channel）与 verificationEvidence 覆盖关系。所有 18 条 must intent 均有有效 evidence（result=pass）：CHK-001~003 由 semantic-scope-guard-smoke.ts + scope-contract-smoke.ts logic_test 覆盖，CHK-004 由 semantic-scope-guard-smoke.ts sections 7-9 integration_test/logic_test 覆盖，CHK-005 由 sections 10-13d logic_test 覆盖，CHK-006 由 sections 14-16e integration_test/logic_test 覆盖。F-004 修复为 config.ts:132 纯注释变更（拆分 guard_session_status / guard_session_check 注释以准确标注后者为 storyScopedMutating），未引入任何新行为路径，guard_session_check 的 ownership enforcement 由 command-policy.ts 保证且未被触及，现有 smoke 中 section 9 已覆盖 guard session forbidden-write 阻塞路径。无 blocker，0 must 缺口，0 waiver。",
+      "createdAt": "2026-05-24T11:56:01.980Z",
+      "reviewRound": "2026-05-24T11:53:33.724Z",
+      "reviewRunId": "B-6bfd:RR-011",
+      "_hash": "efc20af1ec37780f3b9bf6cb8641964af42a2f00bfeeaea042f7d5ea3e62b092"
     }
   ]
 }
