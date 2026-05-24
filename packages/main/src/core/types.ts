@@ -602,6 +602,15 @@ export interface ReviewRun {
   headHash: string;
   materialHash: string;
   promptHash: string;
+  /**
+   * B-6bfd CHK-005: scope/diff/hunk binding for scope-protected stories. Present
+   * only when the story has a scope contract at review_run_start time; absent for
+   * legacy / unprotected stories (backward compatible). When present, its
+   * bindingHash is folded into the run signature (signReviewRun) so it cannot be
+   * tampered, and the REVIEW→TEST gate rejects evidence whose binding is missing,
+   * tampered, or stale relative to the live scope contract / diff pack.
+   */
+  scopeBinding?: ReviewScopeBinding;
   _hash?: string;
 }
 
@@ -868,7 +877,10 @@ export type ProcessEventType =
   | 'capsule_updated'
   | 'handoff_written'
   | 'run_added'
-  | 'run_metrics_recorded';
+  | 'run_metrics_recorded'
+  // B-6bfd CHK-004: Koala-managed guard session projection lifecycle events.
+  | 'guard_session_start'
+  | 'guard_session_check';
 
 export type ProcessEvent = {
   type: ProcessEventType;
@@ -1151,6 +1163,36 @@ export interface ScopeContractAcknowledgement {
   timestamp: string;
   /** Paths explicitly added to scope with this acknowledgement */
   paths: string[];
+  /** v2: SHA-256 hex of the specific hunk being acknowledged (optional) */
+  hunkDigest?: string;
+  /** v2: multiple hunk digests covered by one acknowledgement */
+  hunkDigests?: string[];
+  /** v2: anchors covered by this acknowledgement */
+  anchors?: string[];
+}
+
+// ── v2 semantic scope fields (B-6bfd) ──
+
+/** Kinds of source-level change allowed for an anchor or file */
+export type ChangeKind = 'add' | 'remove' | 'modify' | 'rename';
+
+/**
+ * Per-file semantic rule. Applied on top of path-level allow/deny.
+ * All anchor lists are optional; absent means unconstrained at that level.
+ */
+export interface FileRule {
+  /** Relative file path or glob (same rules as allowedModify) */
+  path: string;
+  /** Only these anchors may change in this file (null/absent = all allowed) */
+  allowedAnchors?: string[];
+  /** These anchors must not change */
+  deniedAnchors?: string[];
+  /** These anchors must not change and violations block even in shadow mode */
+  protectedAnchors?: string[];
+  /** Restrict which change kinds are permitted for this file */
+  allowedChangeKinds?: ChangeKind[];
+  /** Optional verification intent refs this semantic rule exists to protect. */
+  intentRefs?: string[];
 }
 
 /**
@@ -1179,14 +1221,20 @@ export interface ScopeContractData {
   acknowledgements: ScopeContractAcknowledgement[];
   createdAt: string;
   updatedAt: string;
+  /** v2: per-file semantic rules (anchor-level allow/deny/protect) */
+  fileRules?: FileRule[];
+  /** v2: globally protected anchor names — violations block regardless of file-level rules */
+  protectedAnchors?: string[];
 }
 
 export type ScopeGateStatus = 'pass' | 'warn' | 'fail' | 'skip';
 
 export interface ScopeViolation {
   path: string;
-  rule: 'protected' | 'excluded' | 'out_of_scope';
+  rule: 'protected' | 'excluded' | 'out_of_scope' | 'denied_anchor' | 'protected_anchor' | 'unmatched_anchor' | 'change_kind';
   acknowledged: boolean;
+  anchor?: string;
+  hunkDigest?: string;
 }
 
 export interface ScopeCheckResult {
@@ -1196,7 +1244,109 @@ export interface ScopeCheckResult {
   violations: ScopeViolation[];
   warnings: ScopeViolation[];
   acknowledgedPaths: string[];
+  semantic?: SemanticScopeGateResult;
   summary: string;
+}
+
+export interface ScopeDiffHunk {
+  path: string;
+  oldStart: number;
+  oldLines: number;
+  newStart: number;
+  newLines: number;
+  header: string;
+  hunkDigest: string;
+  anchor?: string;
+  keyPath?: string;
+  parseFallback?: string;
+  changeKind?: ChangeKind;
+}
+
+export interface ScopeDiffPack {
+  diffPackHash: string;
+  changedFiles: string[];
+  hunks: ScopeDiffHunk[];
+  generatedAt: string;
+}
+
+export interface SemanticScopeGateResult {
+  status: ScopeGateStatus;
+  violations: ScopeViolation[];
+  warnings: ScopeViolation[];
+  summary: string;
+}
+
+// ── Guard Session (B-6bfd CHK-004: Koala-managed guarded session projection) ──
+//
+// A guard session is a *projection* of scope protection for a Koala-dispatched
+// agent. It is NOT a competing session truth source and NOT a write-ownership
+// authority — the story owner lease (core/story-owner-lease.ts) remains
+// authoritative for writes. The guard session only records which provider runs
+// the agent, whether that provider can pre-emptively block forbidden tool calls,
+// and any forbidden writes detected against the scope contract.
+
+/**
+ * Guard capability of the session's provider:
+ * - active          — provider supports pre-tool (PreToolUse-style) blocking, so
+ *                      forbidden writes can be intercepted before they happen.
+ * - watcher-fallback — provider has no pre-tool hook; Koala can only detect
+ *                      forbidden writes after the fact (watcher), never pretend
+ *                      pre-tool blocking exists.
+ * - inactive        — no guard session is running (used by renderers only).
+ */
+export type GuardSessionMode = 'active' | 'watcher-fallback' | 'inactive';
+
+/** Lifecycle status of a started guard session. */
+export type GuardSessionStatus = 'active' | 'violations_detected' | 'stopped';
+
+export interface GuardSessionViolation {
+  /** File path of the detected forbidden write. */
+  path: string;
+  /** Scope rule that was violated (protected/excluded/out_of_scope/*_anchor/...). */
+  rule: string;
+  /** ISO 8601 detection time. */
+  detectedAt: string;
+  /** Semantic anchor name when the violation is anchor-level. */
+  anchor?: string;
+  /** Hunk digest when the violation is hunk-level. */
+  hunkDigest?: string;
+  /** True when this violation was injected via guard_session_check simulatedWrites (test/dry-run). */
+  simulated?: boolean;
+}
+
+export interface GuardSessionData {
+  storyId: string;
+  /** Provider runtime running the guarded agent (e.g. claude-code, codex). */
+  provider: string;
+  /** Whether the provider can pre-tool block (active) or only watch (watcher-fallback). */
+  guardMode: GuardSessionMode;
+  /** Lifecycle status; derived from the latest guard_session_check. */
+  status: GuardSessionStatus;
+  /** Hash of the scope contract this guard session is bound to (digestScopeContract). */
+  scopeContractHash?: string;
+  startedAt: string;
+  updatedAt: string;
+  /** Forbidden writes detected by the latest guard_session_check (overwrite, not append). */
+  violations: GuardSessionViolation[];
+}
+
+/**
+ * B-6bfd CHK-005: binds reviewer evidence to the exact scope contract + diff
+ * context the reviewer inspected. Computed by core/review-scope-binding.ts.
+ */
+export interface ReviewScopeBinding {
+  /** digestScopeContract(contract) at review_run_start time. */
+  scopeContractHash?: string;
+  /** Stable digest over the MATERIAL diff (story metadata excluded). */
+  diffPackHash?: string;
+  /** Material changed files the reviewer inspected (metadata excluded, sorted). */
+  reviewedChangedFiles: string[];
+  /** Verification intent refs the reviewer recorded as inspected (sorted). */
+  reviewedIntentRefs: string[];
+  /** Material hunk digests the reviewer inspected (sorted, deduped). */
+  reviewedHunkDigests: string[];
+  /** sha256 over all fields above + salt; folded into the review run signature. */
+  bindingHash: string;
 }
 
 export const WORKFLOW_PRESETS: Record<WorkflowProfile, WorkflowPolicy> = {

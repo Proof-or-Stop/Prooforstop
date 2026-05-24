@@ -36,6 +36,9 @@ import { findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-sta
 import { currentGitHead } from '../core/evidence-freshness.js';
 import { getSessionId, summarizeOwnerLease, type OwnerLeaseView } from '../core/story-owner-lease.js';
 import { renderCapsuleBrief, validateCapsuleRefs } from '../core/story-capsule.js';
+import { buildScopeProtectionSummary, renderScopeProtectionSummary } from '../core/review-scope-binding.js';
+import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
+import type { ScopeContractData, GuardSessionData, ScopeDiffPack, ReviewRun } from '../core/types.js';
 
 interface ActiveStoryDetected {
   storyId: string;
@@ -812,6 +815,58 @@ export function createSessionHandlers(ctx: HandlerContext) {
           for (const l of renderOwnershipBlock(view)) lines.push(l);
         } catch { /* probe — never block session_brief on ownership-render failure */ }
       }
+
+      // B-6bfd CHK-006: aggregate "Scope protection summary" — path gate,
+      // semantic gate, guard mode, review hash freshness, and a derived next
+      // action in one block. Rendered when the story is scope-protected (has a
+      // contract) OR a guard session was started; fully legacy stories (neither)
+      // stay quiet so the summary never pretends protection that does not exist.
+      // A corrupt scope-contract.json surfaces a fail-closed warning rather than
+      // a silent downgrade (readScopeContract now throws on corrupt; see CHK-006).
+      try {
+        let contract: ScopeContractData | null = null;
+        let contractCorrupt = false;
+        try {
+          contract = ctx.store.readScopeContract(storyId);
+        } catch {
+          contractCorrupt = true; // existing-but-unreadable contract → fail-closed signal
+        }
+        let guardSession: GuardSessionData | null = null;
+        try {
+          guardSession = ctx.store.readGuardSession(storyId);
+        } catch { /* probe — corrupt guard projection must not break session_brief */ }
+
+        if (contractCorrupt) {
+          lines.push('');
+          lines.push('## Scope protection summary');
+          lines.push('  ERROR: scope-contract.json is unreadable/corrupt — lifecycle gates fail closed until it is fixed (scope_contract_set / scope_contract_init_from_plan).');
+        } else if (contract || guardSession) {
+          const diffPack: ScopeDiffPack = contract
+            ? buildScopeDiffPack(ctx.root)
+            : { diffPackHash: '', changedFiles: [], hunks: [], generatedAt: '' };
+          let reviewRuns: ReviewRun[] = [];
+          try {
+            reviewRuns = ctx.store.readReviewRuns(storyId).runs;
+          } catch { /* probe — review runs optional */ }
+          const summary = buildScopeProtectionSummary({
+            contract,
+            diffPack,
+            guardSession,
+            reviewRuns,
+            currentReviewRound: story.currentReviewRound,
+            phase: story.phase,
+          });
+          lines.push('');
+          for (const l of renderScopeProtectionSummary(summary)) lines.push(l);
+          // Guard state is already shown as the "guard mode" row inside
+          // renderScopeProtectionSummary (both derive from guardSessionStateLabel),
+          // so we do NOT re-render a redundant "guard session" line here. Only the
+          // actionable violation detail below adds new information.
+          if (guardSession && guardSession.status === 'violations_detected' && guardSession.violations.length > 0) {
+            lines.push(`  ${guardSession.violations.length} forbidden write(s) under story scope protection — run guard_session_check for detail.`);
+          }
+        }
+      } catch { /* probe — never block session_brief on scope-summary render failure */ }
 
       // B-5fa4 CHK-001: reviewer-status integration for REVIEW phase
       let reviewerStatus: ReviewerStatusSummary | null = null;

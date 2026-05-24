@@ -15,6 +15,8 @@
  *   - [CHK-003] Verify enforce/shadow/no-contract gate behavior
  *   - [CHK-004] Verify acknowledgement remains reviewer-visible
  *   - [CHK-005] Package the regression as a smoke test
+ *   - [B-6bfd F-003] Verify single-digest ack persists only hunkDigest and
+ *     multi-digest ack persists only hunkDigests (no redundant field)
  */
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
@@ -158,6 +160,35 @@ try {
   checked = JSON.parse(run(root, 'scope_contract_check', { storyId, json: true }));
   assert.equal(checked.status, 'warn', 'shadow mode warns instead of blocking out-of-scope paths');
   assert.match(run(root, 'scope_contract_check', { storyId }), /Scope gate: warn/, 'text output should include warning transcript');
+
+  // B-6bfd F-003 regression: a single-digest acknowledgement must persist only
+  // the singular `hunkDigest` field (not the redundant plural `hunkDigests`),
+  // while a multi-digest acknowledgement persists only the plural `hunkDigests`.
+  run(root, 'scope_contract_acknowledge', {
+    storyId,
+    paths: ['src/other.ts'],
+    actor: 'scope-contract-smoke',
+    reason: 'Single hunk digest acknowledgement for F-003 regression coverage.',
+    hunkDigest: 'abc12345',
+  });
+  const afterSingle = store.readScopeContract(storyId);
+  assert.ok(afterSingle, 'contract should exist after single-digest acknowledgement');
+  const singleAck = afterSingle!.acknowledgements[afterSingle!.acknowledgements.length - 1];
+  assert.equal(singleAck.hunkDigest, 'abc12345', 'single digest persists singular hunkDigest');
+  assert.ok(!('hunkDigests' in singleAck), 'single digest must NOT redundantly persist plural hunkDigests (F-003)');
+
+  run(root, 'scope_contract_acknowledge', {
+    storyId,
+    paths: ['src/other.ts'],
+    actor: 'scope-contract-smoke',
+    reason: 'Multiple hunk digests acknowledgement for F-003 regression coverage.',
+    hunkDigests: ['abc12345', 'def67890'],
+  });
+  const afterMulti = store.readScopeContract(storyId);
+  assert.ok(afterMulti, 'contract should exist after multi-digest acknowledgement');
+  const multiAck = afterMulti!.acknowledgements[afterMulti!.acknowledgements.length - 1];
+  assert.deepEqual(multiAck.hunkDigests, ['abc12345', 'def67890'], 'multiple digests persist plural hunkDigests');
+  assert.ok(!('hunkDigest' in multiAck), 'multiple digests must NOT persist singular hunkDigest (F-003)');
 
   const localResult = checkScopeContract({
     storyId,

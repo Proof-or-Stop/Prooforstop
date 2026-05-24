@@ -6,7 +6,7 @@ import type {
   StoryTestRun, StoryTestRunsData, FindingData, EvalEvidenceData,
   StoryProcessMetrics, ProcessEvent, ScopeCheckData, InitCheckData, ReviewPassData,
   DeliveryCheckData, ImplementationReviewResultData, ReviewRunData, GrillData,
-  DeclaredArtifactsData, ScopeContractData,
+  DeclaredArtifactsData, ScopeContractData, GuardSessionData,
 } from './types.js';
 import { CAPSULE_DIR_NAME, type StoryCapsuleData, type StoryCapsuleRunData } from './story-capsule.js';
 import type { ClusterData } from './cluster-types.js';
@@ -460,13 +460,38 @@ export class StoryStore {
   readScopeContract(storyId: string): ScopeContractData | null {
     try {
       return this.readJson<ScopeContractData>(storyId, 'scope-contract.json');
-    } catch {
-      return null;
+    } catch (e) {
+      // PROBE/fail-closed (B-6bfd CHK-006): a MISSING contract means a legacy /
+      // not-yet scope-protected story → null (backward compatible). But a contract
+      // file that EXISTS yet cannot be parsed (corrupt / truncated / unreadable)
+      // must surface, NOT silently downgrade a scope-protected story to "no
+      // contract" (which would let the scope/semantic/binding gates skip =
+      // bypass). Mirrors readGrill: missing → null, corrupt → throw.
+      if (e instanceof StoryArtifactMissingError) return null;
+      throw e;
     }
   }
 
   writeScopeContract(storyId: string, data: ScopeContractData): void {
     this.writeJson(storyId, 'scope-contract.json', data);
+  }
+
+  // ── Guard Session (B-6bfd CHK-004: scope-guard projection, NOT a write authority) ──
+  //
+  // 存储位置：<storyDir>/<storyId>/guard-session.json
+  // 这是 scope 保护投影，不是写权威；owner lease 仍是写协调真相源。
+  // 读缺失时返回 null（与 scope-contract 同风格的 null-safe）。
+
+  readGuardSession(storyId: string): GuardSessionData | null {
+    try {
+      return this.readJson<GuardSessionData>(storyId, 'guard-session.json');
+    } catch {
+      return null;
+    }
+  }
+
+  writeGuardSession(storyId: string, data: GuardSessionData): void {
+    this.writeJson(storyId, 'guard-session.json', data);
   }
 
   // ── Declared Artifacts (B-cf60: per-story declared product output paths) ──
