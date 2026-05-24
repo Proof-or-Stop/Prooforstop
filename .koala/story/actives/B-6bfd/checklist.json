@@ -398,7 +398,20 @@
         "test": [
           "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/review-scope-binding.ts",
+          "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
+          "result": "pass",
+          "note": "Smoke asserts fresh review evidence bound to the current scopeContractHash and diffPackHash (plus reviewedHunkDigests) passes the REVIEW->TEST scope-binding check.",
+          "headHash": "bfad27d34f5241e76a1bce56ffa07cbbd6506ad9",
+          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
+          "timestamp": "2026-05-24T00:27:55.822Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
