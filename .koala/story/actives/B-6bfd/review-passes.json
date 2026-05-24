@@ -44,6 +44,15 @@
       "reviewRound": "2026-05-24T11:39:36.866Z",
       "reviewRunId": "B-6bfd:RR-008",
       "_hash": "a4d98459b549276075677bf97ec2e0285ef2deb265cb98b60e0837ed0746c027"
+    },
+    {
+      "id": "B-6bfd:RP-006",
+      "agent": "koala-review-concept",
+      "note": "Concept review complete (RR-007). Checked all removed/replaced symbols in the diff: (1) stale_run_hash and run_metrics_recorded — union type terminator changed to allow extension; both concepts remain. (2) Old signReviewRun body — replaced with backward-compatible version accepting optional scopeBindingHash; REVIEW_RUN_SALT unchanged, old stories sign byte-identically. (3) ScopeViolation.rule — extended with new semantic rule types; old values protected/excluded/out_of_scope remain in the type. (4) ScopeContractMode import — removed from one unused import in scope-contract.ts handler; type still exported from types.ts and used in 9+ places. (5) catch { return null } in store.ts readScopeContract — refactored to fail-closed (only return null for StoryArtifactMissingError); no concept deleted. (6) F-003 repair (hunkDigests .length>0 → .length>1) — focused bug fix within CHK-001 scope, no concept renamed or removed. (7) runScopeGate call in phase-gates.ts — wrapped in try/catch for fail-closed; function still exported and called. Zero orphaned references found. No concept deletion or replacement detected.",
+      "createdAt": "2026-05-24T11:43:44.970Z",
+      "reviewRound": "2026-05-24T11:39:36.866Z",
+      "reviewRunId": "B-6bfd:RR-007",
+      "_hash": "0182e87715f5ebc9ed6f7dde8e51c796e8f44aaa7c703cac775f36729a150cea"
     }
   ]
 }
