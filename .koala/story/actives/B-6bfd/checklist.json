@@ -421,6 +421,17 @@
           "headHash": "84b58bd91e9b6d9422f58403687a70c3b0b0b419",
           "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
           "timestamp": "2026-05-24T00:27:56.065Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/review-scope-binding.ts",
+          "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
+          "result": "pass",
+          "note": "Smoke asserts missing or stale diffPackHash / reviewedHunkDigests blocks REVIEW->TEST and reports exactly which reviewer evidence is stale or incomplete.",
+          "headHash": "872985e4c1ba76a92e5155b5d86648caf78c4668",
+          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
+          "timestamp": "2026-05-24T00:27:56.305Z"
         }
       ]
     },
