@@ -146,6 +146,17 @@
           "headHash": "29189ecd5e8ea773890d06d0b39d453034e276a4",
           "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
           "timestamp": "2026-05-24T00:27:15.108Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
+          "result": "pass",
+          "note": "Non-code/unparseable files fall back explicitly: scope_diff_pack reported parseFallback unsupported_file_type and no_nearest_ts_anchor rather than passing silently; smoke asserts the fallback path.",
+          "headHash": "6beb7b1e238b46be3a5de4eaa1dfe56b05274e4f",
+          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
+          "timestamp": "2026-05-24T00:27:15.361Z"
         }
       ]
     },
