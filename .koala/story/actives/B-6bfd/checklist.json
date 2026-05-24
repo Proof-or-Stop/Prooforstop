@@ -323,6 +323,17 @@
           "headHash": "79d2aacb62f70df197745062e5dbeee4e3d1d3b8",
           "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
           "timestamp": "2026-05-24T00:27:38.865Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/guard-session.ts",
+          "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
+          "result": "pass",
+          "note": "Smoke asserts an unsupported provider is represented as watcher-fallback guardMode instead of pretending pre-tool blocking exists.",
+          "headHash": "b285e81523bf7c57fb57f809df1a18f850422b47",
+          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
+          "timestamp": "2026-05-24T00:27:39.122Z"
         }
       ]
     },
