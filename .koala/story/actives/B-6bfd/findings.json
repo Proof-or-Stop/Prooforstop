@@ -15,6 +15,22 @@
       "files": [
         "packages/main/src/core/command-policy.ts"
       ]
+    },
+    {
+      "id": "B-6bfd:F-002",
+      "desc": "quality-cleanup: handlers/session.ts:862-863 when a guard session is active, session_brief renders the guard state twice: (1) guard mode: <label> inside the scope protection summary block via renderScopeProtectionSummary, and (2) guard session: <label> from the separately appended renderGuardSessionLine. Both lines call guardSessionStateLabel() on the same session producing identical values; only the key prefix differs (guard mode vs guard session). The redundant line adds noise without new information.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-24T00:44:09.765Z",
+      "reviewRound": "2026-05-24T00:28:24.635Z",
+      "reviewRunId": "B-6bfd:RR-002",
+      "_hash": "07fcaf2ec96d614cee327167c6067cb6f2e3c97c0e1acb1ed523f7522aab3020",
+      "files": [
+        "packages/main/src/handlers/session.ts"
+      ]
     }
   ]
 }
