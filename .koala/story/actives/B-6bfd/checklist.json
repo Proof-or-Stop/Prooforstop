@@ -134,7 +134,20 @@
         "test": [
           "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/scope-diff-pack.ts",
+          "command": "node packages/main/dist/cli.js scope_diff_pack {storyId:B-6bfd,json:true}",
+          "result": "pass",
+          "note": "scope_diff_pack --json identified TS anchors (COMMAND_POLICIES, capsuleEvidenceRefSchema, clusterHandlers) for changed hunks and emitted diffPackHash dbd61eae57941539cee821e3a269c8769a161de2.",
+          "headHash": "29189ecd5e8ea773890d06d0b39d453034e276a4",
+          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
+          "timestamp": "2026-05-24T00:27:15.108Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
