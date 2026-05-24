@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-24T00:28:24.635Z",
       "reviewRunId": "B-6bfd:RR-002",
       "_hash": "50814ef5f1c8fb89645844332864a907355c3aba618294f74f5fb2b02c534b02"
+    },
+    {
+      "id": "B-6bfd:RP-003",
+      "agent": "koala-review-concept",
+      "note": "Concept integrity check: PASS. (1) No deleted/replaced concept has codebase residuals — stale_run_hash moved from types.ts to a local union in review-run.ts (fully consistent); ScopeContractRule union extended not deleted; all deleted import lines are reorganized imports of types that still exist. (2) All six checklist concepts (scope-contract v2 fields, scope-diff-pack, semantic-scope-gate, guard-session, review-scope-binding, session_brief aggregate summary) are consistently named throughout: 82 references to v2 contract fields, 170 references to guard-session primitives, no legacy aliases without deprecation markers. (3) F-001 repair confirmed: guard_session_check reclassified to storyScopedMutating with accurate reason text (commit 7da9e0d8). (4) F-002 repair confirmed: renderGuardSessionLine removed from session_brief; guard state appears only via renderScopeProtectionSummary \"guard mode\" row — no duplicate line (commit 7da9e0d8). (5) Scope acknowledgement present: command-ownership-contract.ts (created to satisfy F-001 mandate) acknowledged in scope-contract.json at 2026-05-24T00:54:19.504Z. (6) Story concept matches checklist intent: six new/extended modules match CHK-001 through CHK-006 scope exactly. Review run bound to scope=7fdef3f/diff=7c9c295.",
+      "createdAt": "2026-05-24T11:26:31.669Z",
+      "reviewRound": "2026-05-24T00:54:26.432Z",
+      "reviewRunId": "B-6bfd:RR-003",
+      "_hash": "67e72e6579b1f0b4e640ccb380206de50629bc7fe03848172d0ac40aa5b2da88"
     }
   ]
 }
