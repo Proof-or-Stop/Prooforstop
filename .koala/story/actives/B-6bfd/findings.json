@@ -31,6 +31,22 @@
       "files": [
         "packages/main/src/handlers/session.ts"
       ]
+    },
+    {
+      "id": "B-6bfd:F-003",
+      "desc": "quality-cleanup: handlers/scope-contract.ts:233-234 scope_contract_acknowledge sets both hunkDigest (singular) and hunkDigests:[digest] (array) when exactly 1 hunk digest is provided. The two spread conditions — hunkDigests.length===1 → {hunkDigest} and hunkDigests.length>0 → {hunkDigests} — are non-exclusive, so a single-digest acknowledgement always persists both fields. Functionally harmless (ackCoversHunk merges both into a Set), but the stored JSON carries redundant data that misrepresents the hunkDigest=singular vs hunkDigests=multiple semantic split and may confuse future readers/auditors.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-24T11:34:08.745Z",
+      "reviewRound": "2026-05-24T00:54:26.432Z",
+      "reviewRunId": "B-6bfd:RR-005",
+      "_hash": "3c19804d34a4556f1cd34b3e558bb122dd36b2f3df9a50056627266effd574e0",
+      "files": [
+        "packages/main/src/handlers/scope-contract.ts"
+      ]
     }
   ]
 }
