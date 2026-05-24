@@ -80,6 +80,15 @@
       "reviewRound": "2026-05-24T11:53:33.724Z",
       "reviewRunId": "B-6bfd:RR-010",
       "_hash": "35b538c164b73dc6b2d607249871012fc50ee6bd170738db5b78876ec3c241ef"
+    },
+    {
+      "id": "B-6bfd:RP-010",
+      "agent": "koala-review-quality",
+      "note": "F-004 repair verified: config.ts guard_session_check comment now explicitly says NOT read-only, explains it writes guard-session.json + appends process event, classifies as owner-gated storyScopedMutating (see command-policy.ts), and explains why it lives in the global all-phases list. This fully aligns with command-policy.ts ownershipClass=storyScopedMutating destructiveRisk=metadata-write. command-ownership-contract.ts task asserts the classification and non-owner rejection. All 4 previous findings (F-001..F-004) status=resolved. No dead imports, no silent empty catch, no I/O shell violations, no over-broad behavior change. validate PASS at 11:53:09Z (post F-004 repair commit 58fa2af6).",
+      "createdAt": "2026-05-24T11:58:50.433Z",
+      "reviewRound": "2026-05-24T11:53:33.724Z",
+      "reviewRunId": "B-6bfd:RR-012",
+      "_hash": "1373708b3482011cf3cf18785e4117b0eeb56e937468a9f0e14e8d4e81efb05d"
     }
   ]
 }
