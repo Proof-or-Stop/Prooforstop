@@ -68,6 +68,17 @@
           "headHash": "77d3d9add1355b665982043edf27a9562a0c3110",
           "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
           "timestamp": "2026-05-24T00:26:56.933Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
+          "result": "pass",
+          "note": "Smoke asserts invalid anchors, unsafe paths and malformed hunk acknowledgements are rejected before persistence (set() throws / check fails).",
+          "headHash": "90bd8eb2df9ed39a7ba4c4480da66ee2b2170a44",
+          "materialHash": "8dc29424ee2a7c524654b5e151261c948b2537514075b94861c553ff8b71ac5a",
+          "timestamp": "2026-05-24T00:26:57.176Z"
         }
       ]
     },
