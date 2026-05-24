@@ -10,7 +10,52 @@
       "userSees": "convergence_check no longer reports code annotation compliance errors from the B-6bfd files",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/guard-session.ts",
+          "packages/main/src/core/review-scope-binding.ts",
+          "packages/main/src/core/semantic-scope-gate.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "annotation-validator-clean",
+            "desc": "Task annotation validator reports no missing @changes errors for the three B-6bfd core files",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "convergence-annotation-pass",
+            "desc": "convergence_check reports code annotation compliance as passed instead of 3 annotation errors",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "diff-is-comment-only",
+            "desc": "git diff contains only @task comment metadata changes in the three allowed files",
+            "type": "manual",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "no-runtime-behavior-change",
+            "desc": "No runtime logic, command policy, or gate behavior changes are included in this repair",
+            "type": "manual",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
