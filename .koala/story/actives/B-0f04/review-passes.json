@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-0f04:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "Test-coverage lane: all 10 must/balanced verificationIntents across CHK-001/002/003 map to verificationEvidence entries (verdict success); referenced evidence files cross-end-contract-audit.md and codex-verification.md exist and genuinely back each intent (convergence/cli-validate/build/test/git-status raw outputs, contract matrix with file refs, repo-role-by-evidence, gap report + dedup, Codex HV-1/2/3). No uncovered intent, no waiver needed. Stale PENDING-codex prose in audit report is a non-blocking docs-freshness nit outside this lane.",
+      "createdAt": "2026-05-25T12:55:32.077Z",
+      "reviewRound": "2026-05-25T12:53:28.534Z",
+      "reviewRunId": "B-0f04:RR-004",
+      "_hash": "646476025ff9993bf9c371c6605ebbe0235b4f2885dd013cd8bcc39633e4a81a"
+    }
+  ]
+}
