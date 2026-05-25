@@ -7,8 +7,8 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-05-25T15:22:29.078Z",
       "endTime": null,
       "userSees": "The story lifecycle decision section shows: \"scope_check_save remains PLAN-only signed scope review evidence\" and \"scope_contract_acknowledge is the DEV/REVIEW later-phase scope acknowledgement path\".",
       "files": {
@@ -110,6 +110,15 @@
       "reason": "Split B-4622 into documentation decision plus mechanical command-policy regression coverage.",
       "addedTitle": "Add command-policy regression coverage for scope evidence split",
       "addedContext": "Add a focused command ownership/policy assertion so future lifecycle edits cannot accidentally broaden scope_check_save beyond PLAN or remove the DEV/REVIEW acknowledgement path."
+    },
+    {
+      "timestamp": "2026-05-25T15:22:29.078Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start documentation decision implementation for scope evidence split."
     }
   ]
 }
