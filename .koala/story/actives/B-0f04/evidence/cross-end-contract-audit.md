@@ -235,25 +235,43 @@ FU-1/FU-2/FU-3/FU-6 are also Koala-CLI-owned but live in the authority-client mo
 above, a different subsystem from B-4622's scope-check and B-da5b's worktree lifecycle.
 Recommending them does not re-propose either backlog item.
 
-### Codex independent verification (PENDING — not yet performed)
+### Codex independent verification (COMPLETE)
 
-Codex acts as PM/verifier per `plan.md` and **independently re-verifies the high-risk
-claims that could trigger development work** before any follow-up is greenlit. As of
-this writing `.koala/story/actives/B-0f04/evidence/codex-verification.md` has **not**
-been written — Codex PM verification is outstanding, not complete. Claims flagged for
-Codex re-verification (each could trigger a build):
+Codex acts as PM/verifier per `plan.md` and **independently re-verified the high-risk
+claims that could trigger development work** before any follow-up is greenlit. The
+re-run evidence is recorded in
+[`.koala/story/actives/B-0f04/evidence/codex-verification.md`](codex-verification.md);
+Codex inspected all three repos (Koala CLI TS worktree, Cord Team Python authority,
+Koala Mac/Swift runner) and made no production code changes. All three flagged claims
+were **independently confirmed**:
 
-- **HV-1 (→ B1/B3, FU-1/FU-2):** that a `production_enforce_authority=true` cord-team
-  rejects every current CLI POST (handshake + envelope-subset claim).
-- **HV-2 (→ B2, FU-3):** that CLI L2 submissions fail under PY `require_runner_heartbeat_for_l2`
-  + `require_actor_key_binding`, because CLI sends an unsigned envelope with no runner
-  registration.
-- **HV-3 (→ A1, FU-4):** that no client verifies the server receipt signature (MAC
-  records only; CLI discards).
+- **HV-1 (→ B1/B3, FU-1/FU-2) — CONFIRMED (conditional on PD-1 = enforce-mode CLI):**
+  a `production_enforce_authority=true` cord-team rejects current CLI POSTs.
+  CLI `buildEnvelope` (`authority-submit.ts:68-88`) sends a minimal object with no
+  handshake fields, run bindings, or provider/model/vendor; Python validates the
+  handshake (`authority_records.py:524-582`) and the anti-hallucination preset
+  requires run bindings + provider diversity (`config.py:87-100`,
+  `authority_records.py:903-918,1139-1153`). Codex's conclusion matches the report:
+  these are blockers only if PD-1 chooses "CLI is an enforce-mode client."
+- **HV-2 (→ B2, FU-3) — CONFIRMED (Python path stricter than report):** CLI lacks the
+  actor-key / runner / signature path for L2 authority evidence. Python rejects
+  unknown actors and unsigned payloads via `verify_signed_actor_payload`
+  (`signed_actor.py:24-64`) *before* policy checks, with additional production actor
+  binding / L2 heartbeat gates (`authority_records.py:584-633`); the CLI submit path
+  (`authority-submit.ts:68-88`, `authority-client.ts:138-158`) has no actor-key
+  registration, runner registration/heartbeat, or signing, whereas the Mac runner
+  does (`LocalRunnerService.swift:103-151,632-641`).
+- **HV-3 (→ A1, FU-4) — CONFIRMED:** no client cryptographically verifies the server
+  receipt signature. CLI accepts `receipt?: unknown` and only parses the response
+  (`authority-contracts.ts:476-483`, `authority-client.ts:138-158`); Mac verifies the
+  JobSpec signature (`LocalRunnerService.swift:244-251`) and records receipt id/kind
+  (`:568-590`) but performs no `AuthorityReceipt` signature verification.
 
-> Marker: **Codex PM later verifies the high-risk claims above in
-> `.koala/story/actives/B-0f04/evidence/codex-verification.md`.** Do not treat HV-1…HV-3
-> as independently confirmed until that file exists and records the re-run evidence.
+Codex's PM conclusion: accept the B-0f04 audit report as verified evidence for DEV;
+HV-1…HV-3 stand independently confirmed, and the FU-1…FU-6 follow-ups are not
+duplicates of the active B-4622/B-da5b backlog. See
+[`codex-verification.md`](codex-verification.md) for the full command set and
+per-claim evidence.
 
 ## Raw command appendix
 
