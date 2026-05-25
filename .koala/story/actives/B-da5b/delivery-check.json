@@ -1,0 +1,27 @@
+{
+  "storyId": "B-da5b",
+  "checkedAt": "2026-05-25T16:15:39.472Z",
+  "reviewRound": "2026-05-25T16:10:38.695Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md#post-DONE-activity-heartbeat",
+      "promise": "post-DONE activity heartbeat must land in main repo .koala/activity.jsonl and must not recreate the removed story worktree directory; CLI captures durable main-root fallback at command start while root/.git still exists and uses it instead of resolveRoot() cwd-walk after worktree removal; regression covered by assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval in tasks/worktree-authority-smoke.ts",
+      "verifiedBy": "diff/grep",
+      "evidence": "docs/requirements/decisions/story-lifecycle.md diff adds bullet describing the behavior; packages/main/src/cli-engine.ts diff shows mainRootFallback captured before command execution and used in writeLog fallback path instead of resolveRoot(); packages/main/src/tasks/worktree-authority-smoke.ts adds assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval function + call site; all three tests pass (npm run test:worktree-authority-smoke: worktree authority smoke passed)"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "build: npm --prefix packages/main run build passed (tsc clean). test:worktree-authority-smoke: assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval + assertDoneSuccessPathOutputAndOrdering B-da5b regression assertions passed (worktree authority smoke passed). koala validate --story=B-da5b: 3/3 verification intents covered (activity-log-main-root-after-done happy/must, deleted-worktree-not-recreated edge/must, no-ghost-activity-log-shell adversarial/must), all via logic_test in worktree-authority-smoke.ts. transcript-diff confirms DONE heartbeat lands in main, worktree stays absent, and KOALA_PROJECT_ROOT-on-worktree adversarial case is covered."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 1 docsPromise verified: story-lifecycle.md updated with B-da5b bullet; cli-engine.ts mainRootFallback fix present in diff; assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval pins the KOALA_PROJECT_ROOT=worktree adversarial case. Build clean, smoke test passing, 3/3 must intents covered."
+  },
+  "_hash": "ed7336df944869fa7834a5ee179f903b21aca9326dbb927eb513cadd5fcce9d3"
+}
