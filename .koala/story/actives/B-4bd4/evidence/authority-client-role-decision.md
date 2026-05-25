@@ -198,3 +198,40 @@ configuration requires:
   "Story 不是真相源" (a Story is an execution plan, not truth). So the durable PD-1
   contract belongs in `docs/requirements/decisions/authority-client-role.md` with this
   story file as its derivation. (TRUTH-SOURCE §定义 / §设计原则, lines 4-14.)
+
+---
+
+## CHK-002: PD-1 Authority Client Role Decision
+
+**Scope**: This checklist item is **decision-only**. No production TypeScript, Python, or Swift
+code is modified by B-4bd4. The implementation guarantee for enforce-mode authority client
+capabilities (FU-1/FU-2/FU-3) belongs in future stories, conditioned on an explicit product
+approval of PD-1 = enforce.
+
+### Chosen Decision
+
+**Koala CLI remains a thin local/shadow lifecycle client** (Option A). The CLI must not claim
+or certify L2+ authority evidence under the current decision. MAC/runner/CI/human and the Python
+authority remain canonical for L2+ evidence.
+
+A first-class enforce-mode CLI authority client is **deferred** until handshake, full evidence
+envelope submission, actor-key/signing/runner identity, and server receipt verification are
+implemented in dedicated, sequenced stories with explicit product approval.
+
+### Durable Decision Document
+
+The full PD-1 decision — including the L2+ Evidence Boundary, the Deferred Enforce-Mode CLI
+Requirements table, and FU-1/FU-2/FU-3 implications — lives at:
+
+> **`docs/requirements/decisions/authority-client-role.md`**
+
+That file is the canonical truth source (per TRUTH-SOURCE §定义). This story evidence file is
+its derivation record only. Any future story that needs to reason about the CLI's authority
+posture must read the durable doc, not this file.
+
+### Cross-links
+
+- Derivation inputs: this file, §PD-1 Decision Inputs (CHK-001, above)
+- Durable decision: `docs/requirements/decisions/authority-client-role.md`
+- Source audit: `.koala/story/actives/B-0f04/evidence/cross-end-contract-audit.md`
+- CODEX PM verification: `.koala/story/actives/B-0f04/evidence/codex-verification.md`
