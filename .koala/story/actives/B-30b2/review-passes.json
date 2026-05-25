@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-30b2:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 已检查所有 verificationIntent 与 verificationEvidence 覆盖关系。CHK-001: happy:0, edge:0, edge:1, edge:2, adversarial:0 各 must intent 均有对应 logic_test evidence，结果全部 pass。CHK-002: happy:0, adversarial:0 (must) 有 manual_transcript evidence 结果 pass，edge:0 (should) 亦有 evidence 覆盖。节点 node scripts/verify-risk-elevation-rollback.mjs all 现场验证 9 个场景全部通过，无 blocker。",
+      "createdAt": "2026-05-25T17:29:03.184Z",
+      "reviewRound": "2026-05-25T17:28:02.841Z",
+      "reviewRunId": "B-30b2:RR-004",
+      "_hash": "490928eab21fe305d34c05d0ea5839ee7dc556f219a35c5e8cd37d174a417a22"
+    }
+  ]
+}
