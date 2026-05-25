@@ -258,6 +258,49 @@ try {
     );
   }
 
+  // ── 4c. SCOPE EVIDENCE PHASE CONTRACT (B-4622 CHK-002) ───────────────────
+  // scope_check_save is signed PLAN scope review evidence consumed by
+  // story_review; scope_contract_acknowledge is the DEV/REVIEW later-phase
+  // scope acknowledgement path. A later-phase acknowledgement is NOT a
+  // replacement for a PLAN scope reviewer pass, so the two commands must keep
+  // disjoint phase windows. If a future lifecycle edit broadened
+  // scope_check_save into DEV/REVIEW (or shrank the acknowledgement window),
+  // these assertions FAIL with a named command.
+  {
+    const scopeCheckPolicy = getCommandPolicy('scope_check_save');
+    assert.ok(scopeCheckPolicy, 'scope_check_save must have a CommandPolicy entry');
+    // scope_check_save allowedPhases: PLAN — exactly PLAN, nothing else.
+    assert.deepEqual(
+      scopeCheckPolicy!.allowedPhases,
+      ['PLAN'],
+      'scope_check_save allowedPhases must be exactly [\'PLAN\'] — it is signed PLAN scope review evidence, not a later-phase write (B-4622 CHK-002)',
+    );
+    // Adversarial: widening scope_check_save to DEV or REVIEW fails this test.
+    const scopeCheckPhases = scopeCheckPolicy!.allowedPhases;
+    // Array.isArray here also excludes the 'all' wildcard window.
+    assert.ok(
+      Array.isArray(scopeCheckPhases) &&
+        !scopeCheckPhases.includes('DEV') &&
+        !scopeCheckPhases.includes('REVIEW'),
+      'scope_check_save must NOT be broadened to DEV/REVIEW (or \'all\') — later-phase scope changes use scope_contract_acknowledge, which is not a replacement for a PLAN scope reviewer pass (B-4622 CHK-002)',
+    );
+
+    const scopeAckPolicy = getCommandPolicy('scope_contract_acknowledge');
+    assert.ok(scopeAckPolicy, 'scope_contract_acknowledge must have a CommandPolicy entry');
+    // scope_contract_acknowledge allowedPhases: DEV, REVIEW — exactly those two.
+    assert.deepEqual(
+      scopeAckPolicy!.allowedPhases,
+      ['DEV', 'REVIEW'],
+      'scope_contract_acknowledge allowedPhases must be exactly [\'DEV\', \'REVIEW\'] — it is the later-phase scope acknowledgement path and must not regress to PLAN-only or be removed (B-4622 CHK-002)',
+    );
+    // The two scope commands keep disjoint phase windows.
+    assert.ok(
+      Array.isArray(scopeAckPolicy!.allowedPhases) &&
+        !scopeAckPolicy!.allowedPhases.includes('PLAN'),
+      'scope_contract_acknowledge must NOT cover PLAN — PLAN scope evidence is scope_check_save\'s exclusive window (B-4622 CHK-002)',
+    );
+  }
+
   // ── 5. GATE BEHAVIOR — enforceStoryOwnerLeaseGate fail-closed rejection ──
   {
     const savedSession = process.env.KOALA_SESSION_ID;
@@ -379,6 +422,8 @@ try {
     process.exit(1);
   }
 
+  console.log('✓ scope_check_save allowedPhases: PLAN');
+  console.log('✓ scope_contract_acknowledge allowedPhases: DEV, REVIEW');
   console.log(
     `✓ command-ownership contract passed — ${cliCommands.length} CLI commands all carry a valid ` +
     `ownershipClass and a dispatchable handler; unclassified commands fail-closed; finding B-META / ` +
