@@ -26,6 +26,11 @@
             "priority": "must"
           },
           {
+            "desc": "用户显式 priority=critical 的 story dismiss riskSignal 后 priority 不被降级（critical 也不被误回退）",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
             "desc": "命中多个 category 时 dismiss 其中一个、仍有 active riskSignal → priority 不回退、isHighRisk 仍 true",
             "type": "logic",
             "priority": "must"
@@ -33,7 +38,7 @@
         ],
         "adversarial": [
           {
-            "desc": "伪造 riskSignalsDismissed 但 priorityElevatedFrom 缺失/被篡改时不会把 user-set high 误降",
+            "desc": "伪造 riskSignalsDismissed 但 priorityElevatedFrom 缺失/被篡改时不会把 user-set high/critical 误降",
             "type": "logic",
             "priority": "must"
           }
