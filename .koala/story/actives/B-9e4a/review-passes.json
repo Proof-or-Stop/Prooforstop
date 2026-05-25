@@ -35,6 +35,15 @@
       "reviewRound": "2026-05-25T18:00:09.306Z",
       "reviewRunId": "B-9e4a:RR-006",
       "_hash": "250bed8ec0209c58dbd8a41e397f2e522c395c5e445d22340dc37e32f8d5fdb5"
+    },
+    {
+      "id": "B-9e4a:RP-005",
+      "agent": "koala-review-concept",
+      "note": "Round 2 concept review: diff adds new functions detectMissingNodeModulesWarning/hasNodeModules/dirExists and a new smoke test file. No existing concepts were deleted or replaced. F-001 fix (dirExists double lstatSync) correctly caches stat result — warning-only/advisory nature of the check is unchanged. Grep scan: no residual stale symbol references found. No blocker.",
+      "createdAt": "2026-05-25T18:01:13.429Z",
+      "reviewRound": "2026-05-25T18:00:09.306Z",
+      "reviewRunId": "B-9e4a:RR-005",
+      "_hash": "a20edf0940c79cff1e29ba372379e3fb8a02866b9b61d17bd8164be839b25d21"
     }
   ]
 }
