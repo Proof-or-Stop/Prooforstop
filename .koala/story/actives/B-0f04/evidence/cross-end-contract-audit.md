@@ -134,12 +134,126 @@ Abbreviations below: **CLI** = Koala CLI TS, **PY** = Cord Team Python authority
 
 ## Gaps and follow-up stories
 
-> TODO (CHK-003): actionable gap report + PM recommendation list. Separate
-> already-solved / blockers / non-blocking advisories / follow-up recommendations.
-> Each follow-up names its owning repo (Koala CLI, Cord Team Python authority, or
-> Koala Mac/Swift). Deduplicate against known active backlog (B-4622, B-da5b — see
-> Post-merge validation above). Codex independently verifies high-risk claims in
-> `.koala/story/actives/B-0f04/evidence/codex-verification.md`.
+This section turns the CHK-002 matrix into an actionable list. Priorities are
+deliberately framed against **what each gap actually blocks today**, because every
+"blocker" below is conditional on one product decision (see *Product decision*).
+In the CLI's current deployed posture (local/shadow authority mode, MAC as the
+canonical runner), nothing here blocks operation or blocks B-0f04 reaching DONE —
+this is a read-only audit. The gaps become blockers only if Koala CLI is promoted
+to a first-class enforce-mode authority client.
+
+### Already solved (no follow-up needed)
+
+- **Koala CLI post-merge health (CHK-001).** build PASS, e2e PASS, annotation
+  validator errors=0, working tree clean. The only `converged:false` is B-0f04
+  itself (expected in-flight). No regression from the B-ca8f merge.
+- **verificationContextPack surface (matrix #6).** The one end-to-end-consistent
+  surface: CLI `digestVerificationContextPack` ↔ PY `VerificationContextPack.digest()`
+  ↔ MAC `inspectedPackRefs`, parity engineered by construction. (Caveat tracked as
+  advisory A3 — parity is doc-asserted, not live cross-run digest-tested here.)
+- **CLI client-side authority POST plumbing.** off/shadow/enforce posture
+  (`authority-mode.ts`) and the shadow POST path work as designed; the gap is the
+  *envelope contents*, not the transport.
+
+### Product decision (gates everything below — not a code task)
+
+- **PD-1: Should Koala CLI become a first-class enforce-mode authority client, or
+  stay a thin local/shadow tool with MAC as the canonical runner?** This subsumes
+  matrix #7 (gate authority boundary: should DONE/REVIEW/TEST require a signed PY
+  gate/evidence receipt?) and the overall CLI submission posture (#9). Every blocker
+  below is real **only if** the answer is "CLI must be an enforce-mode client."
+  Until PD-1 is decided, building FU-1/FU-2/FU-3 risks wasted work. Owner: cross-repo
+  product call, informed by Cord Team Python authority's intended client model. **No
+  code should land for the blockers until PD-1 is resolved.**
+
+### Blockers (conditional on PD-1 = "CLI must be an enforce-mode client")
+
+If PD-1 resolves toward a full CLI authority client, the following make the CLI
+non-functional against a `production_enforce_authority=true` cord-team and must be
+fixed before any production enforce use:
+
+- **B1 — CLI handshake unmodeled + unsent (matrix #8).** CLI sends no
+  `client_name`/`client_version`/`command_catalog_digest`/`evidence_schema_digest`/
+  `authority_mode`; `EvidenceEnvelopeContract` does not even model them. A production
+  PY rejects every CLI POST outright (`authority_enforce_required` /
+  `authority_handshake_required`, `authority_records.py:524-582`).
+- **B2 — CLI has no actor-key registration / runner heartbeat / envelope signature
+  (matrix #9).** Under PY `require_runner_heartbeat_for_l2` + `require_actor_key_binding`
+  (`config.py:128-129`, `authority_records.py:584-633`) every CLI L2 submission fails.
+  CLI POSTs a minimal **unsigned** envelope (`authority-submit.ts`,
+  `authority-client.ts:138-158`).
+- **B3 — CLI evidence envelope is a subset: no run bindings, no provider/model/vendor
+  (matrix #1/#4/#5).** `buildEnvelope` (`authority-submit.ts:68-89`) declares but never
+  populates `producerRunId`/`verifierRunId`, `provider`/`model`/`vendor`. Against PY's
+  **default** anti-hallucination preset (`require_l2_run_bindings`,
+  `require_distinct_l2_provider`, `config.py:90,97`) these L2 gates can never be
+  satisfied from the CLI.
+
+### Non-blocking advisories (real today, block nothing)
+
+- **A1 — No client cryptographically verifies the server receipt (matrix #2).** PY
+  signs an ed25519 `AuthorityReceipt` for every record; MAC stores `receiptId`/
+  `receiptKind` but verifies only the JobSpec signature (`LocalRunnerService.swift:248`,
+  `:575-590`), and CLI discards the receipt entirely (`authority-contracts.ts:481`).
+  Client-side tamper/replay of receipts is undetected. Security hardening, not a
+  functional blocker — independent of PD-1.
+- **A2 — Trust/preset asymmetry (matrix #3).** anti-hallucination is the PY default;
+  CLI carries only numeric `trustLevel` defaulting to 2 with no preset / L3-L4 model.
+  Already an **accepted, documented** divergence (`verification-context-pack.md` scopes
+  PY presets as external/not-locally-landed) — recorded, not silent drift.
+- **A3 — VCP parity is doc-asserted, not live-tested (matrix #6 caveat).** This audit
+  did not run a cross-repo digest-equality test. Low risk; candidate for a small
+  fixture-based equality test.
+- **A4 — Two missing `@test` annotations** (`story-query.ts:621` `story_migrate_storage`,
+  `:727` `story_sync_main`). Pre-existing annotation hygiene from cli-validate; errors=0.
+
+### Follow-up story recommendations (each names its owning repo)
+
+| ID | Owning repo | Proposed story | Maps to | Priority |
+|----|-------------|----------------|---------|----------|
+| FU-1 | **Koala CLI** | Model + populate the full EvidenceEnvelope in `buildEnvelope` (run bindings, provider/model/vendor; optionally claims/coverage/negativeControls) | B3 / #1,#4,#5 | Blocker-if-PD-1; else defer |
+| FU-2 | **Koala CLI** | Add authority handshake fields to the CLI authority client (`authority-client.ts`/`authority-contracts.ts`) so a production PY can negotiate instead of hard-reject | B1 / #8 | Blocker-if-PD-1; else defer |
+| FU-3 | **Koala CLI** | Add actor-key registration + runner heartbeat + ed25519 envelope signing — **or** explicitly document CLI as a non-runner and delegate the runner role to MAC | B2 / #9 | Blocker-if-PD-1; else doc-only |
+| FU-4 | **Koala Mac/Swift** | Cryptographically verify the `AuthorityReceipt` ed25519 signature (not just JobSpec); populate the `model`/`vendor` and handshake fields the runner build currently leaves `nil` | A1 / #2,#5,#8 | Advisory (security hardening) — independent of PD-1 |
+| FU-5 | **Cord Team Python authority** | Publish/confirm a versioned thin-client compatibility contract via `/v1/authority/policy` (evidenceSchemaDigest + required-field discovery) so a reduced-capability client can negotiate a lower trust level rather than be hard-rejected | #8 (server side) | Advisory — enables PD-1 either way |
+| FU-6 | **Koala CLI** | (only if A3 deemed worth it) add a fixture-based cross-repo VCP digest-equality test | A3 / #6 | Low advisory |
+
+### Deduplication vs known active backlog (B-4622, B-da5b)
+
+None of FU-1…FU-6 duplicate the two active INIT backlog stories:
+
+- **B-4622** (`scope_check_save` PLAN-only evidence-hygiene gap) is about the Koala
+  CLI **internal scope-check lifecycle** (`command-policy.ts` allowedPhases, `story_review`
+  PLAN→DEV gate). It touches the scope-check subsystem, not the cross-end **authority**
+  subsystem (`authority-submit.ts` / `authority-client.ts` / `authority-contracts.ts`).
+  No file or concern overlap with any FU above.
+- **B-da5b** (post-DONE activity heartbeat recreating orphan `.worktrees/` dirs) is a
+  Koala CLI **worktree/heartbeat lifecycle bug** (`story_advance DONE` cleanup timing).
+  Entirely unrelated to evidence/receipt/authority contracts.
+
+FU-1/FU-2/FU-3/FU-6 are also Koala-CLI-owned but live in the authority-client modules
+above, a different subsystem from B-4622's scope-check and B-da5b's worktree lifecycle.
+Recommending them does not re-propose either backlog item.
+
+### Codex independent verification (PENDING — not yet performed)
+
+Codex acts as PM/verifier per `plan.md` and **independently re-verifies the high-risk
+claims that could trigger development work** before any follow-up is greenlit. As of
+this writing `.koala/story/actives/B-0f04/evidence/codex-verification.md` has **not**
+been written — Codex PM verification is outstanding, not complete. Claims flagged for
+Codex re-verification (each could trigger a build):
+
+- **HV-1 (→ B1/B3, FU-1/FU-2):** that a `production_enforce_authority=true` cord-team
+  rejects every current CLI POST (handshake + envelope-subset claim).
+- **HV-2 (→ B2, FU-3):** that CLI L2 submissions fail under PY `require_runner_heartbeat_for_l2`
+  + `require_actor_key_binding`, because CLI sends an unsigned envelope with no runner
+  registration.
+- **HV-3 (→ A1, FU-4):** that no client verifies the server receipt signature (MAC
+  records only; CLI discards).
+
+> Marker: **Codex PM later verifies the high-risk claims above in
+> `.koala/story/actives/B-0f04/evidence/codex-verification.md`.** Do not treat HV-1…HV-3
+> as independently confirmed until that file exists and records the re-run evidence.
 
 ## Raw command appendix
 
