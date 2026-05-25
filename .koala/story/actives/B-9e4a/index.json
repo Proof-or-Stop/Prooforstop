@@ -4,7 +4,7 @@
   "title": "fresh worktree 缺 node_modules 导致 tsc/build 失败：创建后提示或链接依赖 (F-003)",
   "description": "源 finding: B-META-framework-audit:F-003 (medium)。\n\nstory_advance INIT_CHECK 经 worktree.ts:566 git worktree add 创建的 fresh worktree 没有 node_modules（.gitignore 第 1 行忽略 node_modules，故不随 worktree checkout 复制）。本仓 xstate 等依赖装在 packages/main/node_modules（也在 root node_modules），无 root npm workspaces 声明（package.json workspaces=undefined）。在 fresh worktree 里 npx tsc / npm run build 解析不到 workspace-local 依赖，tsc 报大量 implicit-any、build 直接失败。\n\n当前 worktree 创建成功输出 \"开发环境已就绪\"（worktree.ts:588-598），但完全没有提示需要 npm install 或 symlink node_modules——操作者直到首次跑 koala validate/tsc 才撞墙。\n\n目标：worktree 创建后让依赖可用或至少给出明确补救提示，避免 fresh worktree 静默缺依赖。",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "keywords": [
     "worktree",
@@ -78,6 +78,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-05-25T18:00:09.306Z",
+      "branch": "story/B-9e4a",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-05-25T18:02:15.617Z",
       "branch": "story/B-9e4a",
       "user": "Harmonygo",
       "agent": "main"
