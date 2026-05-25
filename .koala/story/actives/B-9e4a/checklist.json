@@ -48,23 +48,23 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "symlink 实现后，新 worktree 中 require/import xstate 等 workspace-local 依赖可解析",
-            "type": "cli",
-            "priority": "should"
+            "desc": "CLAUDE.md Worktree 生命周期段记录依赖准备步骤：worktree 创建后需在根与 packages/main 各 npm install，否则 tsc/koala validate 失败",
+            "type": "docs",
+            "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "symlink 已存在或目标不可写时安全降级到 CHK-001 提示路径，不抛错中断 worktree 创建",
-            "type": "logic",
-            "priority": "must"
+            "desc": "CHK-001 警告文本除 npm install 外，给出高级用户可选的手动 symlink 提示，并标注其共享可变/可能污染主仓的风险",
+            "type": "docs",
+            "priority": "should"
           }
         ],
         "adversarial": [
           {
-            "desc": "symlink 不会指回仓库自身造成递归，也不污染主仓 node_modules",
-            "type": "logic",
-            "priority": "must"
+            "desc": "文档与警告均以 npm install 为推荐首选，不把自动/手动 symlink 表述为等价默认方案，避免诱导用户在 worktree 内 npm install 污染主仓 node_modules",
+            "type": "docs",
+            "priority": "should"
           }
         ]
       },
