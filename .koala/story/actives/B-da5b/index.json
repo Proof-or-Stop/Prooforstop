@@ -2,9 +2,9 @@
   "storyId": "B-da5b",
   "name": "post-done-heartbeat-orphan-worktree",
   "title": "Prevent post-DONE activity heartbeat from recreating removed story worktree directories",
-  "description": "During the B-c9f5 dirty-gate series wrap-up on 2026-05-15, five DONE stories (B-3506/B-6326/B-a2f1/B-cf60/B-da14) left orphan directories under .worktrees/, each containing only docs/story/activity.jsonl. Root cause: story_advance DONE runs git worktree remove to clean the worktree, but the same process then writes an activity heartbeat using the old worktree path as cwd, recreating the directory as an empty shell. These are not git-registered worktrees (git worktree list does not list them) — it is a runtime activity-write path/timing issue. LOW severity: does not block main, koala doctor detects them, manual rm clears them. Tracked backlog item: not to be fixed now. Recorded as a separate story from B-4622 because B-4622 covers the unrelated scope_check_save PLAN-only gap.",
+  "description": "Fix the post-DONE activity heartbeat orphan-worktree bug observed during the B-c9f5 dirty-gate series wrap-up on 2026-05-15. The original field symptom was five DONE stories leaving .worktrees/<storyId>/ directories that contained only runtime activity logs after git worktree remove. The current implementation already has a partial guard; this story will make the guard explicit and regression-tested so story_advance DONE cannot recreate a removed worktree directory when the final activity log is written. Priority remains high because the story touches story_advance/worktree cleanup lifecycle behavior, even though the original observed severity was low and doctor can detect/repair old residue.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "keywords": [
     "worktree",
@@ -36,6 +36,14 @@
       "action": "advance",
       "timestamp": "2026-05-25T15:40:12.536Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-05-25T15:40:31.349Z",
+      "branch": "story/B-da5b",
       "user": "Harmonygo",
       "agent": "main"
     }

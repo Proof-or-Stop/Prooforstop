@@ -9,7 +9,47 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "After story_advance DONE, koala doctor --format=json shows \"orphanDirs\":[] and the removed story worktree path does not exist; final activity is written under the main repo .koala/activity.jsonl.",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-authority-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "activity-log-main-root-after-done",
+            "desc": "story_advance DONE redirects the final activity heartbeat to the main repo when the starting worktree has been removed.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "deleted-worktree-not-recreated",
+            "desc": "A DONE command invoked from the story worktree does not recreate .worktrees/<storyId> after cleanup.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "no-ghost-activity-log-shell",
+            "desc": "The test fails if a ghost worktree shell containing runtime activity logs appears after DONE cleanup.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }

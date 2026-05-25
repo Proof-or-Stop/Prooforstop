@@ -6,6 +6,7 @@ git worktree list 不认识这些目录——它们不是注册 worktree。根�
 
 ## 方案取舍
 本 backlog 只记录不修。修复方向待分析：DONE 清理流程应在 git worktree remove 之前完成所有 activity heartbeat 写入，或 heartbeat 写入前检测 cwd worktree 是否已被移除并改写到主仓路径，或 DONE 收尾把 cwd 切回主仓再写日志。属于低优先级，不阻塞 main，doctor 可检测、人工 rm 可清。
+PLAN update 2026-05-25: this backlog is now being fixed, not merely recorded. The original severity was low because doctor could detect/repair residue, but lifecycle/worktree cleanup is high-risk enough that the story priority remains high. Completion means story_advance DONE writes its final activity log to the main repo after worktree removal and a regression test proves no .worktrees/<storyId> orphan directory is recreated.
 
 ## 对话纹理
 用户在核查 dirty-gate 系列收尾时发现这个 orphan 残留，明确要求它另建独立 bug backlog story，不要塞进 B-4622（B-4622 是 scope_check_save PLAN-only gap，scope 不同），停在 INIT 不现在修。
