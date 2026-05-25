@@ -38,7 +38,7 @@
       "desc": "koala worktree 生命周期（story_advance INIT_CHECK）创建的 fresh worktree 没有 node_modules。workspace-local 依赖（如 xstate 装在 packages/main/node_modules、未 hoist 到 root）在 worktree 里解析不到，tsc 报大量 implicit-any、build 直接失败。worktree 创建后没有任何提示需要 npm install 或 symlink node_modules。",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "suspected",
       "uncertaintyReason": "manually logged framework gap; not yet mechanically reproduced or confirmed",
       "agent": "koala-gap-log",
