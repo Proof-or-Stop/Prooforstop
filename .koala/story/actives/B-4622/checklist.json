@@ -132,9 +132,47 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-25T15:26:19.991Z",
-      "endTime": null
+      "endTime": "2026-05-25T15:28:38.845Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "policy-regression-scope-check-plan-only",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/command-ownership-contract.ts",
+          "command": "npm --prefix packages/main run test:command-ownership-contract",
+          "result": "pass",
+          "note": "Contract output includes scope_check_save allowedPhases: PLAN and would fail if allowedPhases is not exactly [PLAN].",
+          "headHash": "ca0a4e4be447b2233ec9bda407a3007f8c3e297c",
+          "materialHash": "267cfbff6989feb0205c291a6ed4d208a18d79a3e3b24690cc01d47d46c01729",
+          "timestamp": "2026-05-25T15:28:38.913Z"
+        },
+        {
+          "intentRef": "policy-regression-later-ack-dev-review",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/command-ownership-contract.ts",
+          "command": "npm --prefix packages/main run test:command-ownership-contract",
+          "result": "pass",
+          "note": "Contract output includes scope_contract_acknowledge allowedPhases: DEV, REVIEW and asserts the exact [DEV, REVIEW] window.",
+          "headHash": "ca0a4e4be447b2233ec9bda407a3007f8c3e297c",
+          "materialHash": "267cfbff6989feb0205c291a6ed4d208a18d79a3e3b24690cc01d47d46c01729",
+          "timestamp": "2026-05-25T15:28:38.965Z"
+        },
+        {
+          "intentRef": "policy-regression-no-scope-check-dev-review",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/command-ownership-contract.ts",
+          "command": "npm --prefix packages/main run test:command-ownership-contract",
+          "result": "pass",
+          "note": "Adversarial assertion rejects scope_check_save if widened to DEV, REVIEW, or all.",
+          "headHash": "ca0a4e4be447b2233ec9bda407a3007f8c3e297c",
+          "materialHash": "267cfbff6989feb0205c291a6ed4d208a18d79a3e3b24690cc01d47d46c01729",
+          "timestamp": "2026-05-25T15:28:39.015Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -176,6 +214,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start command-policy regression coverage for scope evidence split."
+    },
+    {
+      "timestamp": "2026-05-25T15:28:38.845Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "CHK-002 implemented by Claude Code commit ca0a4e4b and verified with build plus command ownership contract test.",
+      "agent": "koala-implementer"
     }
   ]
 }
