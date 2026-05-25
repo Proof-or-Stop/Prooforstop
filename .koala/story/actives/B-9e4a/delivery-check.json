@@ -1,0 +1,37 @@
+{
+  "storyId": "B-9e4a",
+  "checkedAt": "2026-05-25T18:06:08.237Z",
+  "reviewRound": "2026-05-25T18:00:09.306Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "CLAUDE.md#Worktree 生命周期 / 依赖准备（INIT_CHECK 后，F-003）",
+      "promise": "worktree 创建后若缺 node_modules，输出 ⚠ worktree 缺 node_modules 警告，提供 npm install 为推荐补救、手动 symlink 为高级可选",
+      "verifiedBy": "diff/grep",
+      "evidence": "CLAUDE.md diff 新增 12 行依赖准备段（line+387 to +399），含告警格式、npm install 首选、symlink 高级可选；smoke 断言 warning 含 补救（推荐）：...npm install 且 高级可选：...symlink"
+    },
+    {
+      "docPath": "CLAUDE.md#Worktree 生命周期 / 不默认 symlink",
+      "promise": "框架不自动 symlink 主仓 node_modules 到 worktree（PLAN 决策），手动 symlink 标注共享可变状态风险",
+      "verifiedBy": "diff/grep",
+      "evidence": "worktree.ts detectMissingNodeModulesWarning 只检测从不创建 symlink；smoke 断言 symlink 选项标注为高级可选且文档明确不默认自动 symlink"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "build PASS：npm --prefix packages/main run build 无错；test:worktree-node-modules-smoke PASS：covers missing-root, missing-subpkg, present-dir, present-symlink, present-monorepo, special-chars, non-existent path 7 cases；koala validate --story=B-9e4a PASS：6/6 intent coverage"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "CLAUDE.md diff 新增依赖准备段（npm install 首选、symlink 高级可选）；smoke 验证警告文本含 补救（推荐）：...npm install 和 高级可选：...symlink，与文档承诺对齐；koala validate 6/6 intent coverage 全绿"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "2/2 docsPromises verified in diff+code. Smoke covers 7 cases (happy x2, edge x3, adversarial x2). 6/6 verification intents covered. No TODOs in diff. Build and smoke both PASS."
+  },
+  "_hash": "7a315fcb3cc66942f62cb1609c9c1a204197e9b555aab6797d0ce1ac855a72ae"
+}
