@@ -132,8 +132,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-05-25T15:26:19.991Z",
       "endTime": null
     }
   ],
@@ -167,6 +167,15 @@
       "to": "done",
       "reason": "CHK-001 documentation implemented and grep-verified after Claude Code commits f2234a23 and 9903afa2.",
       "agent": "koala-implementer"
+    },
+    {
+      "timestamp": "2026-05-25T15:26:19.991Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start command-policy regression coverage for scope evidence split."
     }
   ]
 }
