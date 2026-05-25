@@ -95,9 +95,9 @@
         "docs/requirements/decisions/story-lifecycle.md"
       ],
       "userSees": "docs/requirements/decisions/authority-client-role.md displays \"PD-1 Decision\", \"Current Decision\", and \"L2+ Evidence Boundary\" sections with the chosen CLI role.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-25T14:04:51.620Z",
-      "endTime": null,
+      "endTime": "2026-05-25T14:08:23.367Z",
       "files": {
         "modify": [
           ".koala/story/actives/B-4bd4/evidence/authority-client-role-decision.md"
@@ -135,7 +135,40 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "pd1-decision-explicit",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "Verified the durable decision doc has an explicit PD-1 answer: Koala CLI remains thin local/shadow and must not claim or certify L2+ authority evidence.",
+          "headHash": "9f797fcab9838bb1644a05172d898c7d4240ed42",
+          "materialHash": "9966fc7ef6416582a7e17c33f59b5ab3b85a8ba85e57419497ec793bd38cd3c1",
+          "timestamp": "2026-05-25T14:08:23.440Z"
+        },
+        {
+          "intentRef": "story-evidence-and-truth-source-linked",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-4bd4/evidence/authority-client-role-decision.md",
+          "result": "pass",
+          "note": "Verified the story evidence links to docs/requirements/decisions/authority-client-role.md as the canonical truth source and keeps the story evidence as derivation only.",
+          "headHash": "9f797fcab9838bb1644a05172d898c7d4240ed42",
+          "materialHash": "9966fc7ef6416582a7e17c33f59b5ab3b85a8ba85e57419497ec793bd38cd3c1",
+          "timestamp": "2026-05-25T14:08:23.489Z"
+        },
+        {
+          "intentRef": "no-guarantee-before-implementation",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "git show --stat --oneline --name-only 9f797fca && git diff --check HEAD~1 HEAD",
+          "result": "pass",
+          "note": "Verified CHK-002 changed only the durable decision doc plus B-4bd4 evidence, and the doc states enforce-mode client capabilities are deferred to future dedicated stories.",
+          "headHash": "9f797fcab9838bb1644a05172d898c7d4240ed42",
+          "materialHash": "9966fc7ef6416582a7e17c33f59b5ab3b85a8ba85e57419497ec793bd38cd3c1",
+          "timestamp": "2026-05-25T14:08:23.536Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
