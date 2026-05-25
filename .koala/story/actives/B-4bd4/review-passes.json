@@ -35,6 +35,15 @@
       "reviewRound": "2026-05-25T14:22:48.120Z",
       "reviewRunId": "B-4bd4:RR-006",
       "_hash": "b679b5b577ecc7156de5693896273aeddd88e124c20d9aed9f2fa77268f102c4"
+    },
+    {
+      "id": "B-4bd4:RP-005",
+      "agent": "koala-review-docs",
+      "note": "Re-review after F-001/F-002 fixes. Step 1: 0 exported symbols (pure docs diff). Fallback 1 applied. Verified: (1) F-001 fix: evidence file line 12 now reads `now created` — stale `not yet created` note removed. (2) F-002 fix: lines 113-114 of evidence file and canonical doc use camelCase throughout (`clientName`, `clientVersion`, `commandCatalogDigest`, `evidenceSchemaDigest`, `authorityMode`); the one snake_case occurrence (`required_authority_mode`) is inside a Python source quote — correct. No other doc-code drift found across both changed docs. 2 paragraphs verified, 0 blockers.",
+      "createdAt": "2026-05-25T14:25:05.099Z",
+      "reviewRound": "2026-05-25T14:22:48.120Z",
+      "reviewRunId": "B-4bd4:RR-008",
+      "_hash": "48ad57ba37d75b2184676186ca335aeef3358488a42dd97bfb4814a45d0ba52b"
     }
   ]
 }
