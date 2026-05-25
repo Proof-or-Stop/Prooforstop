@@ -55,9 +55,9 @@
           "command": "npm --prefix packages/main run test:worktree-node-modules-smoke",
           "result": "pass",
           "note": "Smoke covers missing root/packages-main node_modules and verifies the worktree warning includes remediation text.",
-          "headHash": "79ce4339a5424e4ec13a6df2922668220a4ee2df",
-          "materialHash": "4ca87ef740a180cfa32eaa7575f8477f91475215c84077642a5aeb9ef8edec52",
-          "timestamp": "2026-05-25T17:54:39.679Z"
+          "headHash": "25f361c7e6f2da93db8d84cd30c243a83f898240",
+          "materialHash": "75302a17c7024568a9e8df519fafe1e5954c9e0f180d26851af7a798663afbca",
+          "timestamp": "2026-05-25T17:56:41.761Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -66,9 +66,9 @@
           "command": "npm --prefix packages/main run test:worktree-node-modules-smoke",
           "result": "pass",
           "note": "Smoke verifies existing real directory and symlink node_modules do not emit a warning.",
-          "headHash": "79ce4339a5424e4ec13a6df2922668220a4ee2df",
-          "materialHash": "4ca87ef740a180cfa32eaa7575f8477f91475215c84077642a5aeb9ef8edec52",
-          "timestamp": "2026-05-25T17:54:39.710Z"
+          "headHash": "25f361c7e6f2da93db8d84cd30c243a83f898240",
+          "materialHash": "75302a17c7024568a9e8df519fafe1e5954c9e0f180d26851af7a798663afbca",
+          "timestamp": "2026-05-25T17:56:41.761Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -77,9 +77,9 @@
           "command": "npm --prefix packages/main run test:worktree-node-modules-smoke",
           "result": "pass",
           "note": "Smoke verifies paths with spaces/special characters and missing paths do not crash detection; behavior degrades safely.",
-          "headHash": "79ce4339a5424e4ec13a6df2922668220a4ee2df",
-          "materialHash": "4ca87ef740a180cfa32eaa7575f8477f91475215c84077642a5aeb9ef8edec52",
-          "timestamp": "2026-05-25T17:54:39.738Z"
+          "headHash": "25f361c7e6f2da93db8d84cd30c243a83f898240",
+          "materialHash": "75302a17c7024568a9e8df519fafe1e5954c9e0f180d26851af7a798663afbca",
+          "timestamp": "2026-05-25T17:56:41.761Z"
         }
       ]
     },
