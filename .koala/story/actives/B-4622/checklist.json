@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-25T15:22:29.078Z",
-      "endTime": null,
+      "endTime": "2026-05-25T15:25:56.473Z",
       "userSees": "The story lifecycle decision section shows: \"scope_check_save remains PLAN-only signed scope review evidence\" and \"scope_contract_acknowledge is the DEV/REVIEW later-phase scope acknowledgement path\".",
       "files": {
         "modify": [
@@ -46,7 +46,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "plan-only-decision-documented",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/story-lifecycle.md",
+          "command": "rg -n \"scope_check_save remains PLAN-only signed scope review evidence\" docs/requirements/decisions/story-lifecycle.md",
+          "result": "pass",
+          "note": "Line 99 documents that scope_check_save remains PLAN-only signed scope review evidence.",
+          "headHash": "9903afa2506da38f6b64a300eaf546dcdecc3849",
+          "materialHash": "0980d96e9bc5e642c36c7d4e337e01d44e01ff5264e6fffed0d608e55258d89e",
+          "timestamp": "2026-05-25T15:25:56.542Z"
+        },
+        {
+          "intentRef": "later-phase-ack-path-documented",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/story-lifecycle.md",
+          "command": "rg -n \"scope_contract_acknowledge is the DEV/REVIEW later-phase scope acknowledgement path\" docs/requirements/decisions/story-lifecycle.md",
+          "result": "pass",
+          "note": "Line 100 documents scope_contract_acknowledge as the DEV/REVIEW later-phase acknowledgement path.",
+          "headHash": "9903afa2506da38f6b64a300eaf546dcdecc3849",
+          "materialHash": "0980d96e9bc5e642c36c7d4e337e01d44e01ff5264e6fffed0d608e55258d89e",
+          "timestamp": "2026-05-25T15:25:56.596Z"
+        },
+        {
+          "intentRef": "no-reviewer-pass-relabel",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/story-lifecycle.md",
+          "command": "rg -n \"later-phase acknowledgement is not a replacement for a PLAN scope reviewer pass\" docs/requirements/decisions/story-lifecycle.md",
+          "result": "pass",
+          "note": "Line 101 explicitly says later-phase acknowledgement is not a replacement for a PLAN scope reviewer pass.",
+          "headHash": "9903afa2506da38f6b64a300eaf546dcdecc3849",
+          "materialHash": "0980d96e9bc5e642c36c7d4e337e01d44e01ff5264e6fffed0d608e55258d89e",
+          "timestamp": "2026-05-25T15:25:56.646Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -119,6 +157,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start documentation decision implementation for scope evidence split."
+    },
+    {
+      "timestamp": "2026-05-25T15:25:56.473Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "CHK-001 documentation implemented and grep-verified after Claude Code commits f2234a23 and 9903afa2.",
+      "agent": "koala-implementer"
     }
   ]
 }
