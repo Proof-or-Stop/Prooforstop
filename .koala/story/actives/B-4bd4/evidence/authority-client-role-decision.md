@@ -249,11 +249,11 @@ for the authoritative version.
 
 | Milestone | Name | Owning repo | Status | User approval required |
 |-----------|------|-------------|--------|----------------------|
-| **M2** | Python authority policy discovery (FU-5) | Cord Team Python — separate repo + story | Advisory | No |
+| **M2** | Python authority policy discovery (FU-5) | Cord Team Python — separate repo + story | **not authority work** | No |
 | **M3** | CLI authority handshake fields (FU-2) | Koala CLI — this repo | **Deferred** | **Yes — enforce-mode product approval** |
 | **M4** | Full `EvidenceEnvelope` in `buildEnvelope` (FU-1) | Koala CLI — this repo | **Deferred** | **Yes — enforce-mode product approval** |
-| **M5** | Actor-key / runner identity / signing (FU-3, FU-4-runner) | FU-3: CLI docs-only (**resolved**); FU-4-runner: MAC — separate repo + story | FU-3: docs-only/resolved; FU-4: advisory | No |
-| **M6** | `AuthorityReceipt` sig verification + VCP test (FU-4-receipt, FU-6) | FU-4: MAC separate repo; FU-6: CLI advisory | Advisory | No |
+| **M5** | Actor-key / runner identity / signing (FU-3, FU-4-runner) | FU-3: CLI docs-only (**resolved**); FU-4-runner: MAC — separate repo + story | FU-3: docs-only/resolved; FU-4: not authority work | No |
+| **M6** | `AuthorityReceipt` sig verification + VCP test (FU-4-receipt, FU-6) | FU-4: MAC separate repo; FU-6: CLI optional | FU-4: not authority work; FU-6: deferred | No |
 
 ### Key decisions reflected in routing
 
