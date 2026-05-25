@@ -98,7 +98,7 @@ canonical 命令模板与设计约束详见 CLAUDE.md「INIT→INIT_CHECK 硬门
 
 - **scope_check_save remains PLAN-only signed scope review evidence**。它不会、也不应被放宽到 DEV/REVIEW；`scope-check.json` 只在 PLAN→DEV 由 `story_review` 验证一次。
 - **scope_contract_acknowledge is the DEV/REVIEW later-phase scope acknowledgement path**。TEST→DEV 回退后通过 `checklist_add` 改 scope 时，用它记录显式 acknowledgement，而不是去重写 PLAN 的签名 scope review evidence。
-- **later-phase acknowledgement 不是 PLAN scope reviewer pass 的替代品**。`scope_contract_acknowledge` 只记录「这次 out-of-scope 改动被显式承认」，它既不重新生成签名的 `scope-check.json`，也不重新触发 scope-plan reviewer 的 PLAN gate。如果 later-phase scope 漂移大到需要重新做 scope review，正确动作是回到 PLAN 重跑 scope-plan reviewer + `scope_check_save`，而不是用 acknowledgement 顶替 reviewer pass。
+- **later-phase acknowledgement is not a replacement for a PLAN scope reviewer pass**（later-phase acknowledgement 不是 PLAN scope reviewer pass 的替代品）。`scope_contract_acknowledge` 只记录「这次 out-of-scope 改动被显式承认」，它既不重新生成签名的 `scope-check.json`，也不重新触发 scope-plan reviewer 的 PLAN gate。如果 later-phase scope 漂移大到需要重新做 scope review，正确动作是回到 PLAN 重跑 scope-plan reviewer + `scope_check_save`，而不是用 acknowledgement 顶替 reviewer pass。
 
 ## 合并态组合审查（流程框架并行 story）
 
