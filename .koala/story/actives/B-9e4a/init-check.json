@@ -1,0 +1,32 @@
+{
+  "storyId": "B-9e4a",
+  "checkedAt": "2026-05-25T17:41:15.162Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "priority=high 但 title/description 不含 story_create 标准高风险关键词清单中的任何词（auth/password/token/migration/destructive/state machine/guard/gate/git restore/reset/production/incident/hotfix/PII/GDPR/breaking change）。riskSignals 由 audit-triager 手动注入（matched: story_advance/koala validate），未对应标准扫描词。若属预期高优先级请在 description 补充理由；若为误报可用 story_review_dismiss 回退。"
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-05-25T17:39:58.776Z",
+      "issues": []
+    },
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-05-25T17:41:15.162Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "priority=high 但 title/description 不含 story_create 标准高风险关键词清单中的任何词（auth/password/token/migration/destructive/state machine/guard/gate/git restore/reset/production/incident/hotfix/PII/GDPR/breaking change）。riskSignals 由 audit-triager 手动注入（matched: story_advance/koala validate），未对应标准扫描词。若属预期高优先级请在 description 补充理由；若为误报可用 story_review_dismiss 回退。"
+        }
+      ]
+    }
+  ],
+  "_hash": "85fb294ff3ce66b9430fc370ae53d20b1bddd09fe1f9c3a5cd751cf742515ac0"
+}
