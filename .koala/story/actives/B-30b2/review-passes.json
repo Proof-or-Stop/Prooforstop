@@ -62,6 +62,15 @@
       "reviewRound": "2026-05-25T17:33:22.041Z",
       "reviewRunId": "B-30b2:RR-006",
       "_hash": "8a4a90df700a8fe03e7e6dfb7d19f345d1d2aa59118013a90b1aafab45bba52f"
+    },
+    {
+      "id": "B-30b2:RP-008",
+      "agent": "koala-review-docs",
+      "note": "Step 1: 5 meaningful exported symbols (story_review_dismiss handler, priorityElevatedFrom field, riskHint/dupWarning stderr routing, mention-vs-modify escape hatch). Step 2: CLAUDE.md section mention-vs-modify-限制与误报回退(B-30b2) referenced all key symbols. Step 3: (a) story_review_dismiss reason ≥5 chars — code line 592 checks trim().length<5, matches CLAUDE.md ≥5 claim. (b) priorityElevatedFrom rollback when all riskSignals dismissed — code lines 627-640 match CLAUDE.md description. (c) riskHint+dupWarning→stderr — code lines 506/516 match CLAUDE.md B-6812 section. (d) story_create INIT guidance shows dismiss command — line 447 matches. No doc-code drift found.",
+      "createdAt": "2026-05-25T17:34:53.774Z",
+      "reviewRound": "2026-05-25T17:33:22.041Z",
+      "reviewRunId": "B-30b2:RR-007",
+      "_hash": "60792a0f47dbb8fa53d238104ced17b74ada2cb28b4c561ca5d4930444a55465"
     }
   ]
 }
