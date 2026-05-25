@@ -7,7 +7,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-05-25T15:49:59.705Z",
       "endTime": "2026-05-25T16:01:10.351Z",
       "userSees": "After story_advance DONE, koala doctor --format=json shows \"orphanDirs\":[] and the removed story worktree path does not exist; final activity is written under the main repo .koala/activity.jsonl.",
@@ -97,6 +97,15 @@
       "to": "done",
       "reason": "Implementation committed by koala-implementer and independently verified by Codex with build, worktree authority smoke, and doctor orphan scan.",
       "agent": "codex-verifier"
+    },
+    {
+      "timestamp": "2026-05-25T16:07:29.243Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopened to address verified low quality finding B-da5b:F-001 before final REVIEW/TEST."
     }
   ]
 }
