@@ -35,6 +35,15 @@
       "reviewRound": "2026-05-25T16:01:39.881Z",
       "reviewRunId": "B-da5b:RR-001",
       "_hash": "05f75232c0c7c115b47de70a5e454ad61170468a2f92ece5483649d316e466e2"
+    },
+    {
+      "id": "B-da5b:RP-005",
+      "agent": "koala-review-docs",
+      "note": "Step 1: 1 exported symbol change (resolveMainRootFromWorktreeRoot usage in cli-engine.ts). Step 2: grep found 1 doc reference in story-lifecycle.md new bullet. Step 3: compared new bullet claims vs diff — all 4 claims verified: (1) main-root fallback captured at command start before worktree removal, (2) fallback used when root lacks koala.config.json, (3) resolveRoot() NOT called first, (4) regression test assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval exists at worktree-authority-smoke.ts:889. No doc-code drift found. Reviewed intentRefs: activity-log-main-root-after-done, deleted-worktree-not-recreated, no-ghost-activity-log-shell.",
+      "createdAt": "2026-05-25T16:11:49.088Z",
+      "reviewRound": "2026-05-25T16:10:38.695Z",
+      "reviewRunId": "B-da5b:RR-005",
+      "_hash": "12d0f009b46f222dcef95cc1d43c244b322ce13a83caa42f03c7e83826e6626c"
     }
   ]
 }
