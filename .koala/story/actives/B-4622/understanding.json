@@ -1,0 +1,24 @@
+{
+  "task": "Close the scope_check_save PLAN-only evidence hygiene backlog by documenting the intended phase split and adding regression coverage.",
+  "outcome": "After completion, koala session and docs show that scope_check_save remains PLAN-only, later DEV/REVIEW scope changes use scope_contract_acknowledge, and command-policy tests pass with that split enforced.",
+  "facts": [
+    "scope_check_save currently has allowedPhases [PLAN] in packages/main/src/core/command-policy.ts.",
+    "scope_check_save writes signed scope-check.json consumed by story_review during PLAN review.",
+    "Later-phase scope changes already have scope_contract_acknowledge in DEV/REVIEW and scope_contract_init_from_plan in PLAN/DEV.",
+    "The backlog is advisory and should close by clarifying the intended split, not by weakening PLAN reviewer evidence."
+  ],
+  "constraints": [
+    "Do not make scope_check_save legal outside PLAN.",
+    "Do not weaken story_review PLAN gate semantics or reviewer signature expectations.",
+    "Keep this story separate from authority-client work and from B-da5b worktree cleanup.",
+    "Changes should be limited to lifecycle documentation and command-policy regression tests unless discovery proves a real code gap."
+  ],
+  "unknowns": [
+    "Whether existing tests already cover the exact command-policy phase split; if yes, add a focused regression assertion rather than new behavior."
+  ],
+  "touchpoints": [
+    "docs/requirements/decisions/story-lifecycle.md",
+    "packages/main/src/tasks/command-ownership-contract.ts"
+  ],
+  "timestamp": "2026-05-25T15:14:18.035Z"
+}

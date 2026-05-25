@@ -9,7 +9,44 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "docs/requirements/decisions/story-lifecycle.md contains a scope evidence hygiene section stating scope_check_save stays PLAN-only and scope_contract_acknowledge is the DEV/REVIEW acknowledgement path.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "plan-only-decision-documented",
+            "desc": "story-lifecycle documents that scope_check_save remains PLAN-only signed scope review evidence.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "later-phase-ack-path-documented",
+            "desc": "docs name scope_contract_acknowledge as the DEV/REVIEW later-phase scope change acknowledgement path.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "no-reviewer-pass-relabel",
+            "desc": "docs explicitly avoid treating later-phase acknowledgement as a replacement for PLAN scope reviewer pass.",
+            "type": "manual",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }

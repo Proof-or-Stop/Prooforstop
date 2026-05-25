@@ -1,0 +1,69 @@
+{
+  "principles": [
+    "Preserve reviewer evidence meaning: PLAN scope review remains a PLAN gate artifact.",
+    "Use separate later-phase acknowledgement rather than overloading scope_check_save.",
+    "Prefer mechanical command-policy regression tests over prose-only closure.",
+    "Keep parked backlog closure narrow and unrelated to authority evidence work."
+  ],
+  "drivers": [
+    "scope_check_save is currently gate evidence consumed by story_review in PLAN.",
+    "DEV/REVIEW already expose scope_contract_acknowledge for explicit later-phase scope changes.",
+    "The story is low-priority maintenance and should not introduce new lifecycle semantics unless necessary."
+  ],
+  "options": [
+    {
+      "name": "keep-plan-only-and-document-ack-path",
+      "pros": [
+        "Preserves existing gate semantics",
+        "Uses already implemented DEV/REVIEW acknowledgement mechanism",
+        "Small testable closure"
+      ],
+      "cons": [
+        "Does not create a new later-phase reviewer signed scope-check artifact"
+      ]
+    },
+    {
+      "name": "extend-scope-check-save-to-dev-review",
+      "pros": [
+        "Lets scope-plan reviewer write the same artifact after rollback"
+      ],
+      "cons": [
+        "Blurs PLAN gate evidence with later-phase evidence",
+        "Risks stale reviewer signatures and weaker phase boundary"
+      ]
+    },
+    {
+      "name": "new-later-phase-scope-check-command",
+      "pros": [
+        "Could provide a distinct signed artifact"
+      ],
+      "cons": [
+        "More product/design work than this low backlog needs",
+        "Duplicates scope_contract_acknowledge and guard-session concepts"
+      ]
+    }
+  ],
+  "chosen": "keep-plan-only-and-document-ack-path",
+  "rationale": "Keep scope_check_save as PLAN-only signed reviewer evidence, and close the later-phase gap by documenting and testing the existing scope_contract_acknowledge path for DEV/REVIEW.",
+  "preMortem": [
+    {
+      "scenario": "scope_check_save accidentally becomes legal outside PLAN",
+      "trigger": "Developer broadens allowedPhases while fixing the backlog",
+      "consequence": "PLAN scope reviewer evidence loses clear phase meaning",
+      "mitigation": "Add command-policy test asserting scope_check_save remains PLAN-only"
+    },
+    {
+      "scenario": "Later-phase scope changes become silent",
+      "trigger": "Docs say scope changes are okay without naming scope_contract_acknowledge",
+      "consequence": "Agents may rely on natural-language pass instead of structured ack",
+      "mitigation": "Document scope_contract_acknowledge as the DEV/REVIEW path and test its allowed phases"
+    },
+    {
+      "scenario": "Story expands into unrelated authority or worktree cleanup",
+      "trigger": "Parked backlogs are treated as a batch",
+      "consequence": "Review surface grows and B-da5b/B-4622 responsibilities blur",
+      "mitigation": "Touch only story-lifecycle docs and command-policy regression tests for B-4622"
+    }
+  ],
+  "timestamp": "2026-05-25T15:14:35.904Z"
+}
