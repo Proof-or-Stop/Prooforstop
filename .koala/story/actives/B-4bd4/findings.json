@@ -22,7 +22,7 @@
       "desc": "doc-code-drift: evidence file §\"What the CLI does NOT have yet\" (lines 112–113) lists handshake fields in snake_case (`client_name`, `client_version`, `command_catalog_digest`, `evidence_schema_digest`, `authority_mode`) while the canonical doc and the evidence file's own §Python authority section both consistently use camelCase (`clientName`, `clientVersion`, `commandCatalogDigest`, `evidenceSchemaDigest`, `authorityMode`). Creates naming ambiguity between the CLI (camelCase) and Python server (snake_case) perspectives.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-docs",
       "createdAt": "2026-05-25T14:19:34.559Z",
