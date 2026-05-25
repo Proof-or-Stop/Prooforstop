@@ -3,6 +3,7 @@ B-META-framework-audit:F-001 (2026-05-17) 与 F-002 (2026-05-17) 两条 audit ad
 
 ## 关键洞察
 问题不在检测本身（纯关键词必然无法区分 mention 与 modify），而在消解链路不完整：story_create 把 priority 永久 elevate 到 high 但不记录『被自动抬升过』这一事实；dismiss 只过滤 activeRiskSignals，isHighRisk 仍能经由钉死的 priority=high 保持 true。三个消费点 story-review / decision / computeChannel 中只有 computeChannel 已按 dismiss 过滤，priority 项成为漏网。
+INIT-002 follow-up: 实现和验证必须同时覆盖 priority=high 与 priority=critical；dismiss 只能回退 auto-elevated priority，不能把用户显式 high/critical 降级。
 
 ## 方案取舍
 选择『记录 auto-elevation 来源 + dismiss 时按需回退』而非『让 isHighRisk 不再读 priority』。后者会让用户显式设置的 high priority 也被 dismiss 误降。需区分『用户设的 high』与『检测自动抬升的 high』：在 story 上记录 priorityElevatedFrom / autoElevated，dismiss 触发该 category 对应 elevation 且无其它 active 风险时，把 priority 回退到原值。保留检测逻辑不动（YAGNI，不做 mention/modify 语义分析）。

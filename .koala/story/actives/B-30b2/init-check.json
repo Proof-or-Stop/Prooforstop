@@ -1,0 +1,42 @@
+{
+  "storyId": "B-30b2",
+  "checkedAt": "2026-05-25T17:02:05.605Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "type=\"refactor\" 与实际交付物不符：CHK-001 新增 priorityElevatedFrom 字段追踪 + dismiss 回退逻辑，CHK-002 新增输出文本 + CLAUDE.md 更新，均属新增功能而非无行为变化的重构，建议改为 feature 或 fix"
+    },
+    {
+      "id": "INIT-002",
+      "severity": "low",
+      "desc": "background.md 第4行 isHighRisk 公式写 \"story.priority===high || activeRiskSignals.length>0\"，遗漏 story.priority===critical 分支（story-review.ts:152 / decision.ts:97 实际均含 critical），implementer 可能在 CHK-001 实现时漏处理 critical 分支"
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-05-25T17:00:29.307Z",
+      "issues": []
+    },
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-05-25T17:02:05.605Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "type=\"refactor\" 与实际交付物不符：CHK-001 新增 priorityElevatedFrom 字段追踪 + dismiss 回退逻辑，CHK-002 新增输出文本 + CLAUDE.md 更新，均属新增功能而非无行为变化的重构，建议改为 feature 或 fix"
+        },
+        {
+          "id": "INIT-002",
+          "severity": "low",
+          "desc": "background.md 第4行 isHighRisk 公式写 \"story.priority===high || activeRiskSignals.length>0\"，遗漏 story.priority===critical 分支（story-review.ts:152 / decision.ts:97 实际均含 critical），implementer 可能在 CHK-001 实现时漏处理 critical 分支"
+        }
+      ]
+    }
+  ],
+  "_hash": "1476368328f8d546dbf34c3722e97d35bf50dd4835b3c23d9bca108fc6d53852"
+}
