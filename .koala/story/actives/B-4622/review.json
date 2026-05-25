@@ -35,6 +35,25 @@
         }
       ],
       "_hash": "1c6afda42dc8ded385ac5b04c136fed1b6aa6ac88235cf165c21a020b09dd5b7"
+    },
+    {
+      "timestamp": "2026-05-25T15:21:50.333Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002（\"Add command-policy regression coverage for scope evidence split\"）在 PLAN 阶段被新增: Split B-4622 into documentation decision plus mechanical command-policy regression coverage."
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 个 checklist item，请检查是否有组合场景遗漏（如：Analyze whether scope_check_save should stay PLAN-only or split into planning-scope vs later-phase acknowledgment + Add command-policy regression coverage for scope evidence split 同时操作会怎样？）"
+        }
+      ],
+      "_hash": "db3484697123de60b85ee9a4c758cebadf9a49b320601c9df23e186a1069b15e"
     }
   ]
 }
