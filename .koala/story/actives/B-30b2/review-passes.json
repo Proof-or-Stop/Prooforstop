@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-25T17:28:02.841Z",
       "reviewRunId": "B-30b2:RR-001",
       "_hash": "9e59a19f6fed1e16f7675223e614f57d8755cb7e220f0f05ec5fda5e763d14be"
+    },
+    {
+      "id": "B-30b2:RP-003",
+      "agent": "koala-review-concept",
+      "note": "本次改动无概念删除/替换。新增 priorityElevatedFrom 字段及 auto-elevation rollback 机制，均为纯增量。概念正确性已全面验证：(1) priorityElevatedFrom 仅在 elevation 实际改变 priority 时写入（elevatedPriority !== args.priority），用户显式 high/critical 无标记；(2) dismiss rollback 三重 guard（remainingActive===0 + elevatedFromIdx!==-1 + elevatedFromIdx<indexOf(high)）阻止篡改/伪造/垃圾值降级用户设定的 high/critical；(3) isHighRisk 两个消费点（story-review.ts:152, decision.ts:97）在 rollback 后均自动见 false（priority 已回退，activeRiskSignals 为空）；(4) CLAUDE.md guidance 与实现完全一致（全部 dismiss 才回退，部分 dismiss 保持 elevated）；(5) 无任何旧符号被删除/重命名，无残留引用问题。无 blocker。",
+      "createdAt": "2026-05-25T17:30:01.527Z",
+      "reviewRound": "2026-05-25T17:28:02.841Z",
+      "reviewRunId": "B-30b2:RR-002",
+      "_hash": "deb30ccdb164c114d01c353875c4ded72cafcb1e6babbcd55ed1ada12d23624f"
     }
   ]
 }
