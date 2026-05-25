@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-4622:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 已检查 verificationIntent 与 verificationEvidence 覆盖关系，无 blocker。CHK-001 三栏 must intent 均有通过的 docs_check/manual_transcript 证据，grep 实际确认行号 99/100/101。CHK-002 三栏 must intent 均有通过的 logic_test 证据；command-ownership-contract test 包含两个独立断言（deepEqual + !includes DEV/REVIEW），broadening scope_check_save 或 removing scope_contract_acknowledge DEV/REVIEW 均会触发测试失败，adversarial 机械性已验证。koala validate 全绿。",
+      "createdAt": "2026-05-25T15:31:25.041Z",
+      "reviewRound": "2026-05-25T15:29:45.523Z",
+      "reviewRunId": "B-4622:RR-002",
+      "_hash": "a049a8462e1f2790026984c27888a6ef9c5f0f4240310813964be4409546b40c"
+    }
+  ]
+}
