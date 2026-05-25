@@ -114,7 +114,8 @@ function hasNodeModules(parentDir: string): boolean {
 /** A directory entry exists (real dir, not following symlinks gives a node either way). */
 function dirExists(p: string): boolean {
   try {
-    return lstatSync(p).isDirectory() || lstatSync(p).isSymbolicLink();
+    const stat = lstatSync(p);
+    return stat.isDirectory() || stat.isSymbolicLink();
   } catch {
     return false;
   }
