@@ -32,9 +32,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-25T17:50:33.501Z",
-      "endTime": null,
+      "endTime": "2026-05-25T17:54:39.635Z",
       "files": {
         "modify": [
           "packages/main/src/handlers/worktree.ts",
@@ -46,7 +46,42 @@
         "test": [
           "packages/main/src/tasks/worktree-node-modules-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-node-modules-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-node-modules-smoke",
+          "result": "pass",
+          "note": "Smoke covers missing root/packages-main node_modules and verifies the worktree warning includes remediation text.",
+          "headHash": "79ce4339a5424e4ec13a6df2922668220a4ee2df",
+          "materialHash": "4ca87ef740a180cfa32eaa7575f8477f91475215c84077642a5aeb9ef8edec52",
+          "timestamp": "2026-05-25T17:54:39.679Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-node-modules-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-node-modules-smoke",
+          "result": "pass",
+          "note": "Smoke verifies existing real directory and symlink node_modules do not emit a warning.",
+          "headHash": "79ce4339a5424e4ec13a6df2922668220a4ee2df",
+          "materialHash": "4ca87ef740a180cfa32eaa7575f8477f91475215c84077642a5aeb9ef8edec52",
+          "timestamp": "2026-05-25T17:54:39.710Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-node-modules-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-node-modules-smoke",
+          "result": "pass",
+          "note": "Smoke verifies paths with spaces/special characters and missing paths do not crash detection; behavior degrades safely.",
+          "headHash": "79ce4339a5424e4ec13a6df2922668220a4ee2df",
+          "materialHash": "4ca87ef740a180cfa32eaa7575f8477f91475215c84077642a5aeb9ef8edec52",
+          "timestamp": "2026-05-25T17:54:39.738Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -102,6 +137,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Starting CHK-001 worktree dependency warning implementation via koala-implementer."
+    },
+    {
+      "timestamp": "2026-05-25T17:54:39.635Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "CHK-001 implementation committed by koala-implementer and independently verified with build plus worktree-node-modules-smoke.",
+      "agent": "codex-verifier"
     }
   ]
 }
