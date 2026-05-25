@@ -8,6 +8,15 @@
       "reviewRound": "2026-05-25T15:29:45.523Z",
       "reviewRunId": "B-4622:RR-002",
       "_hash": "a049a8462e1f2790026984c27888a6ef9c5f0f4240310813964be4409546b40c"
+    },
+    {
+      "id": "B-4622:RP-002",
+      "agent": "koala-review-concept",
+      "note": "Diff is purely additive — no concept deletions or replacements. CHK-001 adds a new docs section in story-lifecycle.md naming scope_check_save as PLAN-only signed scope review evidence and scope_contract_acknowledge as the DEV/REVIEW later-phase path, with an explicit rule that later-phase ack is not a replacement for a PLAN scope reviewer pass. CHK-002 adds section 4c to command-ownership-contract.ts with deepEqual assertions enforcing disjoint phase windows ([PLAN] vs [DEV,REVIEW]) and adversarial checks rejecting any broadening. Both commands already existed with matching allowedPhases in command-policy.ts (lines 199, 204) confirming no concept was renamed or removed. Zero residual references to deleted symbols found.",
+      "createdAt": "2026-05-25T15:31:25.333Z",
+      "reviewRound": "2026-05-25T15:29:45.523Z",
+      "reviewRunId": "B-4622:RR-004",
+      "_hash": "4925144858e4dc1d1d6075e0059af3b8c1f2fbd8899a37a99435fb4471784116"
     }
   ]
 }
