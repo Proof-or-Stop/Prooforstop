@@ -54,7 +54,56 @@
           ".koala/story/actives/B-0f04/evidence/cross-end-contract-audit.md"
         ],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "koala-cli-convergence-recorded",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": ".koala/story/actives/B-0f04/evidence/cross-end-contract-audit.md",
+          "command": "node packages/main/dist/cli.js convergence_check",
+          "result": "pass",
+          "note": "Claude recorded the exact convergence_check result in the Post-merge validation section and classified converged:false as expected because B-0f04 itself was in flight.",
+          "headHash": "07d485984d0a151c24d644f04b4d2d698c1ca253",
+          "materialHash": "34d4866130a71cc1152b8d65ec1e6011922f2e33071694e4597426a0685ab3ee",
+          "timestamp": "2026-05-25T12:52:44.070Z"
+        },
+        {
+          "intentRef": "koala-cli-validation-recorded",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": ".koala/story/actives/B-0f04/evidence/cross-end-contract-audit.md",
+          "command": "node packages/main/dist/tasks/cli-validate.js && npm run build && npm test && git status --short",
+          "result": "pass",
+          "note": "Report records cli-validate pass with warnings, build pass, e2e pass, and clean git status from main.",
+          "headHash": "07d485984d0a151c24d644f04b4d2d698c1ca253",
+          "materialHash": "34d4866130a71cc1152b8d65ec1e6011922f2e33071694e4597426a0685ab3ee",
+          "timestamp": "2026-05-25T12:52:44.070Z"
+        },
+        {
+          "intentRef": "no-active-story-confusion",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": ".koala/story/actives/B-0f04/evidence/cross-end-contract-audit.md",
+          "result": "pass",
+          "note": "Report separates B-4622 and B-da5b as unrelated active INIT backlog and does not mix them into B-0f04.",
+          "headHash": "07d485984d0a151c24d644f04b4d2d698c1ca253",
+          "materialHash": "34d4866130a71cc1152b8d65ec1e6011922f2e33071694e4597426a0685ab3ee",
+          "timestamp": "2026-05-25T12:52:44.070Z"
+        },
+        {
+          "intentRef": "no-code-change-in-audit",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": ".koala/story/actives/B-0f04/evidence/codex-verification.md",
+          "command": "git show --stat --oneline 772e9ffd 04b23702 933bf32e",
+          "result": "pass",
+          "note": "Codex verified the Claude implementer commits only changed the audit evidence report, not production code.",
+          "headHash": "07d485984d0a151c24d644f04b4d2d698c1ca253",
+          "materialHash": "34d4866130a71cc1152b8d65ec1e6011922f2e33071694e4597426a0685ab3ee",
+          "timestamp": "2026-05-25T12:52:44.070Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -104,7 +153,43 @@
           ".koala/story/actives/B-0f04/evidence/cross-end-contract-audit.md"
         ],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "cross-end-contract-map-complete",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": ".koala/story/actives/B-0f04/evidence/cross-end-contract-audit.md",
+          "result": "pass",
+          "note": "Cross-end contract matrix maps CLI, Python authority, and Mac/Swift surfaces with file references and status per contract row.",
+          "headHash": "07d485984d0a151c24d644f04b4d2d698c1ca253",
+          "materialHash": "34d4866130a71cc1152b8d65ec1e6011922f2e33071694e4597426a0685ab3ee",
+          "timestamp": "2026-05-25T12:52:44.070Z"
+        },
+        {
+          "intentRef": "path-role-confirmed",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": ".koala/story/actives/B-0f04/evidence/cross-end-contract-audit.md",
+          "result": "pass",
+          "note": "Report confirms Orchestrate as Koala CLI, cord-team as Python authority, and Koala/Koala as Mac/Swift runner from repo evidence.",
+          "headHash": "07d485984d0a151c24d644f04b4d2d698c1ca253",
+          "materialHash": "34d4866130a71cc1152b8d65ec1e6011922f2e33071694e4597426a0685ab3ee",
+          "timestamp": "2026-05-25T12:52:44.070Z"
+        },
+        {
+          "intentRef": "no-assumed-sync",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": ".koala/story/actives/B-0f04/evidence/codex-verification.md",
+          "command": "rg/nl cross-checks across authority-submit.ts, authority_records.py, signed_actor.py, LocalRunnerService.swift",
+          "result": "pass",
+          "note": "Codex independently spot-checked the high-risk aligned/partial/missing claims before accepting the matrix.",
+          "headHash": "07d485984d0a151c24d644f04b4d2d698c1ca253",
+          "materialHash": "34d4866130a71cc1152b8d65ec1e6011922f2e33071694e4597426a0685ab3ee",
+          "timestamp": "2026-05-25T12:52:44.070Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -154,7 +239,43 @@
           ".koala/story/actives/B-0f04/evidence/codex-verification.md"
         ],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "gap-report-actionable",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": ".koala/story/actives/B-0f04/evidence/cross-end-contract-audit.md",
+          "result": "pass",
+          "note": "Gap section separates solved items, PD-1 product decision, conditional blockers, advisories, and follow-up stories by owning repo.",
+          "headHash": "07d485984d0a151c24d644f04b4d2d698c1ca253",
+          "materialHash": "34d4866130a71cc1152b8d65ec1e6011922f2e33071694e4597426a0685ab3ee",
+          "timestamp": "2026-05-25T12:52:44.070Z"
+        },
+        {
+          "intentRef": "no-duplicate-existing-backlog",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": ".koala/story/actives/B-0f04/evidence/cross-end-contract-audit.md",
+          "result": "pass",
+          "note": "Report explicitly deduplicates FU-1 through FU-6 against active backlog B-4622 and B-da5b.",
+          "headHash": "07d485984d0a151c24d644f04b4d2d698c1ca253",
+          "materialHash": "34d4866130a71cc1152b8d65ec1e6011922f2e33071694e4597426a0685ab3ee",
+          "timestamp": "2026-05-25T12:52:44.070Z"
+        },
+        {
+          "intentRef": "codex-verified-claims",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": ".koala/story/actives/B-0f04/evidence/codex-verification.md",
+          "command": "Codex PM verification of HV-1/HV-2/HV-3",
+          "result": "pass",
+          "note": "Codex verified the production-enforce rejection, actor-key/signature/runner gap, and missing client receipt verification claims before checklist completion.",
+          "headHash": "07d485984d0a151c24d644f04b4d2d698c1ca253",
+          "materialHash": "34d4866130a71cc1152b8d65ec1e6011922f2e33071694e4597426a0685ab3ee",
+          "timestamp": "2026-05-25T12:52:44.070Z"
+        }
+      ]
     }
   ]
 }
