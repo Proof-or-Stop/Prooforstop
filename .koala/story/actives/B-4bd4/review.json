@@ -65,6 +65,29 @@
         }
       ],
       "_hash": "9ae619374188f6a59004093514576d220f3a06a0e314c9f67d7e0adc81400d0b"
+    },
+    {
+      "timestamp": "2026-05-25T13:56:41.607Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 个 checklist item，请检查是否有组合场景遗漏（如：Collect PD-1 decision inputs from existing audit evidence + Write the PD-1 authority client role decision artifact 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 1 个高风险信号: 生产环境/紧急。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 3 个未消化的 unknowns: Which PD-1 option will the evidence support as the recommended near-term choice.; Whether Koala CLI should ever submit L2+ evidence directly or only request/attach runner-generated receipts.; Which follow-up milestones become required, deferred, or documentation-only after PD-1 is chosen."
+        }
+      ],
+      "_hash": "da702ec64d677d9ea6fbe06b985996b637600bc2a5146c32e18753aacf424411"
     }
   ]
 }
