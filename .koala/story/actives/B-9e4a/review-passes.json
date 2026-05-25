@@ -44,6 +44,15 @@
       "reviewRound": "2026-05-25T18:00:09.306Z",
       "reviewRunId": "B-9e4a:RR-005",
       "_hash": "a20edf0940c79cff1e29ba372379e3fb8a02866b9b61d17bd8164be839b25d21"
+    },
+    {
+      "id": "B-9e4a:RP-006",
+      "agent": "koala-review-docs",
+      "note": "Step 1: 抽出符号 detectMissingNodeModulesWarning/hasNodeModules/nodeModulesWarning/keySubpackages/freshWorktree 等，均无需在 CLAUDE.md 中按名引用（内部实现符号）。Step 2: CLAUDE.md 新增「依赖准备（INIT_CHECK 后，F-003）」段落，描述 warning 格式、补救方式、symlink 风险，与 worktree.ts detectMissingNodeModulesWarning 实际输出完全一致（⚠ worktree 缺 node_modules / 补救（推荐）：cd...npm install / 高级可选：symlink）。Step 3: 无 doc-code-drift。无 blocker。",
+      "createdAt": "2026-05-25T18:01:28.428Z",
+      "reviewRound": "2026-05-25T18:00:09.306Z",
+      "reviewRunId": "B-9e4a:RR-007",
+      "_hash": "5535f27b503419bb4d5cf6e2ff3e443ab3a074325df20ce1d91b3f885e205913"
     }
   ]
 }
