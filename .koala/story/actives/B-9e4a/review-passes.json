@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-25T17:57:11.741Z",
       "reviewRunId": "B-9e4a:RR-004",
       "_hash": "48736f0e81c9bfd92033a5c38d118747a30b9d35fe5aff0596a1dfca235c5567"
+    },
+    {
+      "id": "B-9e4a:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Step 1: 13 symbols extracted (detectMissingNodeModulesWarning, hasNodeModules, dirExists, keySubpackages, etc). Step 2: CLAUDE.md Worktree lifecycle section (line 387-397) references these via the F-003 warning block. Step 3: Warning text in code matches CLAUDE.md example exactly (worktree 根, npm install, symlink as advanced-optional). No-auto-symlink policy in CLAUDE.md confirmed by code (detectMissingNodeModulesWarning only emits text, never creates symlinks). No doc-code drift found. 0 blockers.",
+      "createdAt": "2026-05-25T17:58:20.017Z",
+      "reviewRound": "2026-05-25T17:57:11.741Z",
+      "reviewRunId": "B-9e4a:RR-001",
+      "_hash": "8fd51216d390844ef19925db3f65651e9436858084aac9313bebd14cf4ded34d"
     }
   ]
 }
