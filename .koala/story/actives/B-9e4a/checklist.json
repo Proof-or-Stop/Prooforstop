@@ -34,7 +34,19 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/worktree-node-modules-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/worktree-node-modules-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-002",
