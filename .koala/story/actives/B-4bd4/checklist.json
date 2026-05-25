@@ -179,9 +179,9 @@
         "docs/requirements/decisions/story-lifecycle.md"
       ],
       "userSees": "The decision artifact contains a \"Milestone Routing\" table with rows for Milestone 2 through Milestone 6, each naming repo, status, prerequisite, and validation.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-25T14:08:40.482Z",
-      "endTime": null,
+      "endTime": "2026-05-25T14:15:40.704Z",
       "files": {
         "modify": [
           ".koala/story/actives/B-4bd4/evidence/authority-client-role-decision.md",
@@ -218,7 +218,41 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "milestone-routing-complete",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "Verified the Milestone Routing table covers M2-M6 with owner repo/component, status under PD-1 thin-client, prerequisite, validation expectation, and user approval column.",
+          "headHash": "989284d383b9a197aeb60c5902e4eae4699418ae",
+          "materialHash": "e4fecc080c37fcb0508c1abc63b9957092304c59a192c21e541dec560570d4fb",
+          "timestamp": "2026-05-25T14:15:40.766Z"
+        },
+        {
+          "intentRef": "pd1-dependent-work-blocked",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "sed -n '125,166p' docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "Verified M3/FU-2 and M4/FU-1 are deferred until explicit enforce-mode product approval, while FU-3 is docs-only/resolved under the thin-client decision.",
+          "headHash": "989284d383b9a197aeb60c5902e4eae4699418ae",
+          "materialHash": "e4fecc080c37fcb0508c1abc63b9957092304c59a192c21e541dec560570d4fb",
+          "timestamp": "2026-05-25T14:15:40.817Z"
+        },
+        {
+          "intentRef": "no-duplicate-backlog-routing",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "rg -n \"Deduplication|B-4622|B-da5b|B-0f04\" docs/requirements/decisions/authority-client-role.md .koala/story/actives/B-4bd4/evidence/authority-client-role-decision.md",
+          "result": "pass",
+          "note": "Verified the routing explicitly compares B-4622, B-da5b, and B-0f04 and states B-4622/B-da5b are unrelated parked framework/lifecycle items, not authority work.",
+          "headHash": "989284d383b9a197aeb60c5902e4eae4699418ae",
+          "materialHash": "e4fecc080c37fcb0508c1abc63b9957092304c59a192c21e541dec560570d4fb",
+          "timestamp": "2026-05-25T14:15:40.863Z"
+        }
+      ]
     }
   ]
 }
