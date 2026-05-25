@@ -85,6 +85,21 @@ canonical 命令模板与设计约束详见 CLAUDE.md「INIT→INIT_CHECK 硬门
 
 回退后主 agent 应先读失败证据，再决定改代码、补 evidence、补文档还是调整 checklist。不要用解释替代修复。
 
+## Scope evidence hygiene（B-4622）
+
+这一节固定 scope 相关 evidence 命令的阶段归属，关闭 B-4622 记录的 evidence-hygiene gap：当 story 从 TEST 回退 DEV 并通过 `checklist_add` 改动 scope 时，PLAN 阶段的 scope 命令无法重写，但**这不是 gate 漏洞**——后续 phase 不再 re-consume `scope-check.json`。决定是不把 `scope_check_save` 放宽到 later phase，而是让 later-phase scope 改动走一条独立、可审计的 acknowledgement 路径。
+
+| 命令 | allowedPhases | 角色 | 含义 |
+|---|---|---|---|
+| `scope_check_save` | PLAN（only） | reviewer-lane write（`reviewerWrite`） | 写带签名的 scope review evidence（`scope-check.json`），由 PLAN→DEV 的 `story_review` gate 消费。 |
+| `scope_contract_acknowledge` | DEV / REVIEW | story-scoped mutating | 记录对 later-phase 必要 out-of-scope 改动的显式 acknowledgement，对 reviewer 和 scope gate 可见。 |
+
+规则：
+
+- **scope_check_save remains PLAN-only signed scope review evidence**。它不会、也不应被放宽到 DEV/REVIEW；`scope-check.json` 只在 PLAN→DEV 由 `story_review` 验证一次。
+- **scope_contract_acknowledge is the DEV/REVIEW later-phase scope acknowledgement path**。TEST→DEV 回退后通过 `checklist_add` 改 scope 时，用它记录显式 acknowledgement，而不是去重写 PLAN 的签名 scope review evidence。
+- **later-phase acknowledgement 不是 PLAN scope reviewer pass 的替代品**。`scope_contract_acknowledge` 只记录「这次 out-of-scope 改动被显式承认」，它既不重新生成签名的 `scope-check.json`，也不重新触发 scope-plan reviewer 的 PLAN gate。如果 later-phase scope 漂移大到需要重新做 scope review，正确动作是回到 PLAN 重跑 scope-plan reviewer + `scope_check_save`，而不是用 acknowledgement 顶替 reviewer pass。
+
 ## 合并态组合审查（流程框架并行 story）
 
 > 本节是该规则的 **canonical 详细版**。`CLAUDE.md` 只保留短摘要并 see-also 指向这里；两份不是独立等价副本。
