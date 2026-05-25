@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-25T16:01:39.881Z",
       "reviewRunId": "B-da5b:RR-002",
       "_hash": "1047ac99f6af59892b563ea1928d3882ba96dd9e834f3da4737402ff58bf40c2"
+    },
+    {
+      "id": "B-da5b:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Checked new bullet in story-lifecycle.md (B-da5b section): (1) problem description matches code — resolveRoot() returns KOALA_PROJECT_ROOT ghost path after worktree removal; (2) fix description accurate — mainRootFallback captured before command execution via resolveMainRootFromWorktreeRoot(root), preferred over resolveRoot() when root/koala.config.json gone; (3) test function reference assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval exists in tasks/worktree-authority-smoke.ts and is called; (4) test assertions match doc requirements (no worktree dir recreation, DONE record in main activity.jsonl); (5) no duplication. Step 1: 8 symbols extracted (none exported). Step 2: story-lifecycle.md paragraph checked — all claims verified against cli-engine.ts and worktree-authority-smoke.ts diffs.",
+      "createdAt": "2026-05-25T16:05:47.826Z",
+      "reviewRound": "2026-05-25T16:01:39.881Z",
+      "reviewRunId": "B-da5b:RR-003",
+      "_hash": "3187668b1526e9524312bd02bb2d61b021590ff1b04f820e6a87358d9e526c8a"
     }
   ]
 }
