@@ -122,6 +122,47 @@ Under the current thin-client decision, the CLI does not need to model or mirror
 
 ---
 
+## Milestone Routing
+
+> Routing reflects the **current PD-1 decision: Koala CLI stays thin local/shadow**. CLI must
+> not claim or certify L2+ authority evidence. Python authority and Mac runner remain canonical.
+>
+> Status values: **required** — work may proceed now; **deferred** — must not begin until an
+> explicit enforce-mode product approval overrides PD-1; **docs-only** — resolved by this
+> document, no code needed; **advisory** — low-priority hardening, independent of PD-1, no
+> enforce-mode gate.
+
+| Milestone | Name | Owning repo / component | Status (PD-1 = thin-client) | Prerequisite | Validation expectation | User approval required |
+|-----------|------|------------------------|-----------------------------|--------------|-----------------------|------------------------|
+| **M2** | Python authority policy discovery (FU-5) | Cord Team Python authority — **separate repo; own Koala story** | Advisory — does not require CLI changes; enables PD-1 negotiation either way | B-4bd4 decided (current story, complete) | Cord Team publishes `/v1/authority/policy` with versioned thin-client compatibility contract (`evidenceSchemaDigest` + required-field discovery), so a reduced-capability client can negotiate a lower trust level rather than be hard-rejected | No — Cord Team initiative; CLI team may request but cannot block |
+| **M3** | CLI authority handshake fields (FU-2) | Koala CLI TypeScript — **this repo** | **Deferred** — must not implement until enforce-mode PD-1 explicitly approved | Explicit enforce-mode product approval; M2 policy contract (advisory input) | CLI sends `clientName` / `clientVersion` / `commandCatalogDigest` / `evidenceSchemaDigest` / `authorityMode`; production Python with `production_enforce_authority=true` accepts rather than returning `authority_handshake_required` | **Yes — enforce-mode product approval required before any code lands** |
+| **M4** | Full `EvidenceEnvelope` in `buildEnvelope` (FU-1) | Koala CLI TypeScript — **this repo** | **Deferred** — same gate as M3 | Enforce-mode product approval; M3 (handshake implemented) | `buildEnvelope` populates `producerRunId` / `verifierRunId`, `provider` / `model` / `vendor`, and optionally `claims` / `coverage` / `negativeControls`; CLI evidence accepted at L2+ by production Python authority | **Yes — enforce-mode product approval required before any code lands** |
+| **M5** | Actor-key / runner identity / envelope signing (FU-3, FU-4-runner) | **FU-3**: Koala CLI — **docs-only, resolved** (this document). **FU-4 runner portion**: Koala Mac/Swift — **separate repo; own Koala story** | **FU-3: docs-only / resolved** under thin-client posture — CLI is explicitly not a runner; MAC is the canonical runner (see §FU-3 doc-only resolution above). **FU-4 runner portion: advisory** — MAC security hardening independent of PD-1 | FU-3: none (resolved by this document). FU-4: MAC/Cord team decision, unblocked by PD-1 | FU-3: this document is the durable record; no CLI code required. FU-4: MAC populates `model` / `vendor` + handshake `nil` fields in runner build; actor-key / heartbeat / signing remain MAC-owned | FU-3: No — resolved by design decision recorded here. FU-4: No — MAC team advisory, independent of CLI |
+| **M6** | `AuthorityReceipt` signature verification + VCP cross-repo test (FU-4-receipt, FU-6) | **FU-4 receipt**: Koala Mac/Swift — **separate repo**. **FU-6**: Koala CLI (very low advisory, pursue if deemed worth cost) | Both advisory — independent of PD-1; CLI does not gate on receipt verification | M5 FU-4-runner for MAC receipt; FU-6 independent | MAC cryptographically verifies `AuthorityReceipt` ed25519 signature (currently only JobSpec is verified). FU-6 (if pursued): fixture-based cross-repo VCP digest-equality test passes in CLI CI | No — advisory items; FU-6 requires no product approval; MAC is Cord team decision |
+
+### Deduplication against known backlog (B-4622, B-da5b, B-0f04)
+
+The Milestone Routing above does not re-propose any item from the following parked or
+completed stories:
+
+| Story | Phase | Topic | Overlap with M2–M6 |
+|-------|-------|-------|--------------------|
+| **B-4622** | INIT (parked) | `scope_check_save` PLAN-only evidence-hygiene gap — internal Koala CLI scope-check lifecycle (`command-policy.ts` allowedPhases, `story_review` PLAN→DEV gate) | None — different subsystem; not authority/receipt/envelope work |
+| **B-da5b** | INIT (parked) | Post-DONE activity heartbeat recreating orphan `.worktrees/` dirs — worktree lifecycle bug | None — different subsystem; not authority/receipt/envelope work |
+| **B-0f04** | DONE | Cross-end authority contract audit that produced the FU-1–FU-6 recommendations and the PD-1 question | Completed; M2–M6 are the forward routing from its recommendations, not a re-audit |
+
+FU-1 / FU-2 / FU-3 / FU-6 all live in the Koala CLI authority-client subsystem
+(`authority-submit.ts` / `authority-client.ts` / `authority-contracts.ts`) — a
+different subsystem from B-4622's scope-check and B-da5b's worktree lifecycle.
+Routing M2–M6 does not re-propose either parked backlog item.
+
+Any Python authority (M2, M5/FU-4) or Mac runner (M5/FU-4, M6/FU-4) work must be
+tracked as **separate stories in their own repos**, following each team's own Koala
+flow. CLI stories in this repo may only implement CLI-owned items (M3, M4, M6/FU-6),
+and only after the enforce-mode approval gate is cleared (M3, M4).
+
+---
+
 ## Source Links
 
 | Source | Role | Location |

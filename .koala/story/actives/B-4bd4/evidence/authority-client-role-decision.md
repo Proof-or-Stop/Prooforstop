@@ -235,3 +235,43 @@ posture must read the durable doc, not this file.
 - Durable decision: `docs/requirements/decisions/authority-client-role.md`
 - Source audit: `.koala/story/actives/B-0f04/evidence/cross-end-contract-audit.md`
 - CODEX PM verification: `.koala/story/actives/B-0f04/evidence/codex-verification.md`
+
+---
+
+## CHK-003: Follow-Up Milestone Routing (summary)
+
+**Scope**: This section summarises the Milestone Routing table. The canonical, durable routing
+lives in the **§Milestone Routing** section of
+`docs/requirements/decisions/authority-client-role.md`. Read that document, not this summary,
+for the authoritative version.
+
+### Routing summary (PD-1 = thin local/shadow CLI)
+
+| Milestone | Name | Owning repo | Status | User approval required |
+|-----------|------|-------------|--------|----------------------|
+| **M2** | Python authority policy discovery (FU-5) | Cord Team Python — separate repo + story | Advisory | No |
+| **M3** | CLI authority handshake fields (FU-2) | Koala CLI — this repo | **Deferred** | **Yes — enforce-mode product approval** |
+| **M4** | Full `EvidenceEnvelope` in `buildEnvelope` (FU-1) | Koala CLI — this repo | **Deferred** | **Yes — enforce-mode product approval** |
+| **M5** | Actor-key / runner identity / signing (FU-3, FU-4-runner) | FU-3: CLI docs-only (**resolved**); FU-4-runner: MAC — separate repo + story | FU-3: docs-only/resolved; FU-4: advisory | No |
+| **M6** | `AuthorityReceipt` sig verification + VCP test (FU-4-receipt, FU-6) | FU-4: MAC separate repo; FU-6: CLI advisory | Advisory | No |
+
+### Key decisions reflected in routing
+
+- **FU-1 (M4) and FU-2 (M3) are deferred** until an explicit enforce-mode product approval
+  overrides PD-1. No code for either may land until that approval is recorded.
+- **FU-3 (M5) is resolved doc-only** under the thin-client posture: this document records
+  that CLI is explicitly not a runner; MAC is the canonical runner. No CLI code is needed
+  for FU-3.
+- **Any Python authority or Mac runner work** (M2, M5/FU-4, M6/FU-4) must be separate stories
+  in their respective repos, following each team's own Koala flow. This story does not
+  create or scope those stories.
+- **B-4622** (`scope_check_save` hygiene) and **B-da5b** (orphan worktree dirs) are parked
+  framework/lifecycle items unrelated to the authority/receipt/envelope subsystem — none of
+  M2–M6 re-proposes those backlog items.
+
+### Durable routing location
+
+> **`docs/requirements/decisions/authority-client-role.md` §Milestone Routing**
+
+Any future story reasoning about which follow-up milestones are in scope must read the
+durable doc, not this evidence file.
