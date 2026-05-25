@@ -26,6 +26,15 @@
       "reviewRound": "2026-05-25T17:28:02.841Z",
       "reviewRunId": "B-30b2:RR-002",
       "_hash": "deb30ccdb164c114d01c353875c4ded72cafcb1e6babbcd55ed1ada12d23624f"
+    },
+    {
+      "id": "B-30b2:RP-004",
+      "agent": "koala-review-quality",
+      "note": "Reviewed all changed files: types.ts (clean new field with JSDoc), story-create.ts (3 correct priorityElevatedFrom write sites), story-review.ts (runtime-validated rollback logic with correct order guards, unused import properly added), verify-risk-elevation-rollback.mjs (comprehensive 8-scenario smoke test, all imports used). One medium dead-code finding filed: runExpectFail defined at line 59 but never called. No type-safety issues (new StoryInfo annotation is correct, non-null assertion on riskSignalsDismissed is safe at that code point). No shell/fn.ts isolation violations. No empty catch issues — the decisionSucceedsWithoutPreMortem probe-catch is intentional.",
+      "createdAt": "2026-05-25T17:30:28.165Z",
+      "reviewRound": "2026-05-25T17:28:02.841Z",
+      "reviewRunId": "B-30b2:RR-003",
+      "_hash": "645b732979aefedb1012b80a10d3978f2d826677980aa022700a3dbd2169d928"
     }
   ]
 }
