@@ -53,6 +53,15 @@
       "reviewRound": "2026-05-25T16:10:38.695Z",
       "reviewRunId": "B-da5b:RR-006",
       "_hash": "7ce4a51cfaa9d1b0adc6f8015b5deb34d5a51601be54d590b0ba87bbea55e5af"
+    },
+    {
+      "id": "B-da5b:RP-007",
+      "agent": "koala-review-quality",
+      "note": "F-001 fix verified: assertDoneSuccessPathOutputAndOrdering now checks finer-grained sub-paths (.koala dir, activity.jsonl) instead of repeating the top-level worktreePath check — the duplicate/masked assertion issue is resolved. cli-engine.ts change is clean: mainRootFallback captured before command runs, used as preferred fallback in writeLog, well-commented, no dead code or type safety issues. New assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval function is well-structured. No new quality issues found.",
+      "createdAt": "2026-05-25T16:11:56.249Z",
+      "reviewRound": "2026-05-25T16:10:38.695Z",
+      "reviewRunId": "B-da5b:RR-007",
+      "_hash": "c2c0188267bc64c0a99c0dcc42a227bce46beef1158bc498232f03dd50fb973b"
     }
   ]
 }
