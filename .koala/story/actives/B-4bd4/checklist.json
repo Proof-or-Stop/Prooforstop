@@ -1,0 +1,46 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Collect PD-1 decision inputs from existing audit evidence",
+      "context": "Read B-0f04 cross-end audit and relevant truth-source docs. Extract only the facts needed for the role decision: current CLI authority posture, Python production enforce requirements, Mac runner responsibilities, and unresolved FU-1/FU-2/FU-3 dependencies.",
+      "relatedDocs": [
+        ".koala/story/actives/B-0f04/evidence/cross-end-contract-audit.md",
+        ".koala/story/actives/B-0f04/evidence/codex-verification.md",
+        "docs/requirements/decisions/truth-source.md",
+        "docs/requirements/decisions/verification-context-pack.md"
+      ],
+      "userSees": "Decision evidence section lists the concrete facts from B-0f04 that make PD-1 necessary, with source references and no new implementation claims.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Write the PD-1 authority client role decision artifact",
+      "context": "Create a decision artifact under the B story evidence directory that compares thin local/shadow CLI vs first-class enforce-mode CLI. It must state the chosen/recommended option, consequences for trustLevel/L2+, and what the CLI may or may not claim before later milestones.",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-separation.md",
+        "docs/requirements/decisions/truth-source.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "Decision artifact clearly answers whether Koala CLI is a thin client or enforce-mode client, plus what that means for L2+ evidence and future stories.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Convert the decision into follow-up milestone routing",
+      "context": "Map the decision to the next stories: Python policy discovery, CLI handshake, envelope fields, actor/signature/runner identity, and receipt verification. Mark which are required, deferred, or documentation-only depending on the decision.",
+      "relatedDocs": [
+        ".koala/story/actives/B-0f04/evidence/cross-end-contract-audit.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "A follow-up routing table says exactly which repo/story should do Milestone 2-6 and which work is blocked until the user approves it.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

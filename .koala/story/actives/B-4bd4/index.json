@@ -1,0 +1,37 @@
+{
+  "storyId": "B-4bd4",
+  "name": "authority-client-role-decision",
+  "title": "Decide Koala CLI authority client role before enforce-mode implementation",
+  "description": "Milestone 1 for the cross-end authority hardening roadmap. Before implementing CLI handshake, EvidenceEnvelope expansion, actor-key signing, runner heartbeat, or receipt gate consumption, Koala needs a product decision: should Koala CLI remain a thin local/shadow lifecycle client while Mac/runner/CI produce canonical authority evidence, or should Koala CLI become a first-class enforce-mode authority client accepted by Cord Team Python authority in production. This story is decision-only and must not modify production code.",
+  "type": "chore",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "authority",
+    "evidence",
+    "PD-1",
+    "enforce-mode",
+    "Koala CLI",
+    "Cord Team",
+    "Mac Runner"
+  ],
+  "riskSignals": [
+    {
+      "category": "生产环境/紧急",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-05-25T13:47:38.014Z",
+  "startedAt": "2026-05-25T13:47:38.014Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-05-25T13:47:38.024Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}
