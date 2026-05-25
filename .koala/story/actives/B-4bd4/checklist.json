@@ -115,7 +115,44 @@
       "userSees": "A follow-up routing table says exactly which repo/story should do Milestone 2-6 and which work is blocked until the user approves it.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          ".koala/story/actives/B-4bd4/evidence/authority-client-role-decision.md",
+          "docs/requirements/decisions/authority-client-role.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "milestone-routing-complete",
+            "desc": "Routing table covers Milestones 2 through 6 with owning repo, required/deferred/docs-only status, prerequisite, and validation expectation.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "pd1-dependent-work-blocked",
+            "desc": "Routing table clearly marks work that must not begin until user approves the PD-1 recommendation.",
+            "type": "manual",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "no-duplicate-backlog-routing",
+            "desc": "Routing compares next milestones against B-4622/B-da5b/B-0f04 and does not re-propose unrelated parked backlog as authority work.",
+            "type": "manual",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
