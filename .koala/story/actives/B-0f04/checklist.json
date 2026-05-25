@@ -8,7 +8,7 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/annotation-system.md"
       ],
-      "userSees": "Audit report records the raw post-merge command outputs for Koala CLI main, including convergence status, annotation validation status, npm test result, and git status; pass/fail is reported as observed rather than assumed.",
+      "userSees": "Audit report section \"Post-merge validation\" includes quoted rows for \"convergence_check\", \"cli-validate\", \"npm test\", and \"git status --short\", each with observed pass/fail output rather than assumed green status.",
       "verificationIntent": {
         "happy": [
           {
@@ -45,9 +45,65 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-25T12:32:56.117Z",
+      "endTime": "2026-05-25T12:52:54.287Z",
+      "files": {
+        "modify": [],
+        "create": [
+          ".koala/story/actives/B-0f04/evidence/cross-end-contract-audit.md"
+        ],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "koala-cli-convergence-recorded",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": ".koala/story/actives/B-0f04/evidence/cross-end-contract-audit.md",
+          "command": "node packages/main/dist/cli.js convergence_check",
+          "result": "pass",
+          "note": "Claude recorded the exact convergence_check result in the Post-merge validation section and classified converged:false as expected because B-0f04 itself was in flight.",
+          "headHash": "07d485984d0a151c24d644f04b4d2d698c1ca253",
+          "materialHash": "34d4866130a71cc1152b8d65ec1e6011922f2e33071694e4597426a0685ab3ee",
+          "timestamp": "2026-05-25T12:52:44.070Z"
+        },
+        {
+          "intentRef": "koala-cli-validation-recorded",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": ".koala/story/actives/B-0f04/evidence/cross-end-contract-audit.md",
+          "command": "node packages/main/dist/tasks/cli-validate.js && npm run build && npm test && git status --short",
+          "result": "pass",
+          "note": "Report records cli-validate pass with warnings, build pass, e2e pass, and clean git status from main.",
+          "headHash": "07d485984d0a151c24d644f04b4d2d698c1ca253",
+          "materialHash": "34d4866130a71cc1152b8d65ec1e6011922f2e33071694e4597426a0685ab3ee",
+          "timestamp": "2026-05-25T12:52:44.070Z"
+        },
+        {
+          "intentRef": "no-active-story-confusion",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": ".koala/story/actives/B-0f04/evidence/cross-end-contract-audit.md",
+          "result": "pass",
+          "note": "Report separates B-4622 and B-da5b as unrelated active INIT backlog and does not mix them into B-0f04.",
+          "headHash": "07d485984d0a151c24d644f04b4d2d698c1ca253",
+          "materialHash": "34d4866130a71cc1152b8d65ec1e6011922f2e33071694e4597426a0685ab3ee",
+          "timestamp": "2026-05-25T12:52:44.070Z"
+        },
+        {
+          "intentRef": "no-code-change-in-audit",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": ".koala/story/actives/B-0f04/evidence/codex-verification.md",
+          "command": "git show --stat --oneline 772e9ffd 04b23702 933bf32e",
+          "result": "pass",
+          "note": "Codex verified the Claude implementer commits only changed the audit evidence report, not production code.",
+          "headHash": "07d485984d0a151c24d644f04b4d2d698c1ca253",
+          "materialHash": "34d4866130a71cc1152b8d65ec1e6011922f2e33071694e4597426a0685ab3ee",
+          "timestamp": "2026-05-25T12:52:44.070Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -58,7 +114,7 @@
         "docs/requirements/decisions/verification-context-pack.md",
         "docs/requirements/decisions/role-separation.md"
       ],
-      "userSees": "Audit report lists which side owns each evidence/authority contract responsibility and highlights exact mismatches with file references.",
+      "userSees": "Audit report section \"Cross-end contract matrix\" lists rows for \"EvidenceEnvelope\", \"authority receipts\", \"trust/provider/run identity\", \"verification context pack\", \"gate consumption\", and \"client submission\" with aligned/partial/missing/follow-up-needed status and file references.",
       "verificationIntent": {
         "happy": [
           {
@@ -88,9 +144,52 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-25T12:32:56.537Z",
+      "endTime": "2026-05-25T12:53:04.740Z",
+      "files": {
+        "modify": [],
+        "create": [
+          ".koala/story/actives/B-0f04/evidence/cross-end-contract-audit.md"
+        ],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "cross-end-contract-map-complete",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": ".koala/story/actives/B-0f04/evidence/cross-end-contract-audit.md",
+          "result": "pass",
+          "note": "Cross-end contract matrix maps CLI, Python authority, and Mac/Swift surfaces with file references and status per contract row.",
+          "headHash": "07d485984d0a151c24d644f04b4d2d698c1ca253",
+          "materialHash": "34d4866130a71cc1152b8d65ec1e6011922f2e33071694e4597426a0685ab3ee",
+          "timestamp": "2026-05-25T12:52:44.070Z"
+        },
+        {
+          "intentRef": "path-role-confirmed",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": ".koala/story/actives/B-0f04/evidence/cross-end-contract-audit.md",
+          "result": "pass",
+          "note": "Report confirms Orchestrate as Koala CLI, cord-team as Python authority, and Koala/Koala as Mac/Swift runner from repo evidence.",
+          "headHash": "07d485984d0a151c24d644f04b4d2d698c1ca253",
+          "materialHash": "34d4866130a71cc1152b8d65ec1e6011922f2e33071694e4597426a0685ab3ee",
+          "timestamp": "2026-05-25T12:52:44.070Z"
+        },
+        {
+          "intentRef": "no-assumed-sync",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": ".koala/story/actives/B-0f04/evidence/codex-verification.md",
+          "command": "rg/nl cross-checks across authority-submit.ts, authority_records.py, signed_actor.py, LocalRunnerService.swift",
+          "result": "pass",
+          "note": "Codex independently spot-checked the high-risk aligned/partial/missing claims before accepting the matrix.",
+          "headHash": "07d485984d0a151c24d644f04b4d2d698c1ca253",
+          "materialHash": "34d4866130a71cc1152b8d65ec1e6011922f2e33071694e4597426a0685ab3ee",
+          "timestamp": "2026-05-25T12:52:44.070Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -100,7 +199,7 @@
         "docs/requirements/decisions/truth-source.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "Audit report gives a clear next-action list and explicitly marks which high-risk claims Codex independently re-verified before any follow-up development story is recommended.",
+      "userSees": "Audit report sections \"Gaps and follow-up stories\" and \"Codex independent verification\" name each recommended next story owner and explicitly list which high-risk claims Codex re-verified before recommendation.",
       "verificationIntent": {
         "happy": [
           {
@@ -130,9 +229,53 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-25T12:32:56.921Z",
+      "endTime": "2026-05-25T12:57:42.549Z",
+      "files": {
+        "modify": [],
+        "create": [
+          ".koala/story/actives/B-0f04/evidence/cross-end-contract-audit.md",
+          ".koala/story/actives/B-0f04/evidence/codex-verification.md"
+        ],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "gap-report-actionable",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": ".koala/story/actives/B-0f04/evidence/cross-end-contract-audit.md",
+          "result": "pass",
+          "note": "Gap section separates solved items, PD-1 product decision, conditional blockers, advisories, and follow-up stories by owning repo.",
+          "headHash": "07d485984d0a151c24d644f04b4d2d698c1ca253",
+          "materialHash": "34d4866130a71cc1152b8d65ec1e6011922f2e33071694e4597426a0685ab3ee",
+          "timestamp": "2026-05-25T12:52:44.070Z"
+        },
+        {
+          "intentRef": "no-duplicate-existing-backlog",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": ".koala/story/actives/B-0f04/evidence/cross-end-contract-audit.md",
+          "result": "pass",
+          "note": "Report explicitly deduplicates FU-1 through FU-6 against active backlog B-4622 and B-da5b.",
+          "headHash": "07d485984d0a151c24d644f04b4d2d698c1ca253",
+          "materialHash": "34d4866130a71cc1152b8d65ec1e6011922f2e33071694e4597426a0685ab3ee",
+          "timestamp": "2026-05-25T12:52:44.070Z"
+        },
+        {
+          "intentRef": "codex-verified-claims",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": ".koala/story/actives/B-0f04/evidence/codex-verification.md",
+          "command": "Codex PM verification of HV-1/HV-2/HV-3",
+          "result": "pass",
+          "note": "Codex verified the production-enforce rejection, actor-key/signature/runner gap, and missing client receipt verification claims before checklist completion.",
+          "headHash": "07d485984d0a151c24d644f04b4d2d698c1ca253",
+          "materialHash": "34d4866130a71cc1152b8d65ec1e6011922f2e33071694e4597426a0685ab3ee",
+          "timestamp": "2026-05-25T12:52:44.070Z"
+        }
+      ]
     }
   ]
 }
