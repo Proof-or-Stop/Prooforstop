@@ -44,6 +44,15 @@
       "reviewRound": "2026-05-25T16:10:38.695Z",
       "reviewRunId": "B-da5b:RR-005",
       "_hash": "12d0f009b46f222dcef95cc1d43c244b322ce13a83caa42f03c7e83826e6626c"
+    },
+    {
+      "id": "B-da5b:RP-006",
+      "agent": "koala-review-concept",
+      "note": "Concept scope confirmed clean after F-001 fix. The three reviewedIntentRefs (activity-log-main-root-after-done, deleted-worktree-not-recreated, no-ghost-activity-log-shell) are all implemented: mainRootFallback captured before DONE removes the worktree (cli-engine.ts:1962), post-command writeLog prefers mainRootFallback over resolveRoot() cwd-walk (cli-engine.ts:2033-2042), regression test assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval pins KOALA_PROJECT_ROOT to worktree and asserts no ghost dir recreated + DONE record lands in main. No deleted/replaced concept residuals: old phrase fall-back-to-fresh-resolveRoot fully replaced by durable-main-root-fallback pattern. Zero blocker.",
+      "createdAt": "2026-05-25T16:11:49.881Z",
+      "reviewRound": "2026-05-25T16:10:38.695Z",
+      "reviewRunId": "B-da5b:RR-006",
+      "_hash": "7ce4a51cfaa9d1b0adc6f8015b5deb34d5a51601be54d590b0ba87bbea55e5af"
     }
   ]
 }
