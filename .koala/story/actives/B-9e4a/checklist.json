@@ -56,7 +56,7 @@
         "CLAUDE.md#Worktree 生命周期",
         "packages/main/src/handlers/worktree.ts"
       ],
-      "userSees": "（若实现 symlink）worktree 创建后 node_modules 自动可用，cd 进 worktree 直接跑 koala validate 不报缺依赖；（若降级）CLAUDE.md Worktree 段落记录推荐的依赖准备步骤",
+      "userSees": "worktree 创建后缺依赖时，输出含 \"⚠ worktree 缺 node_modules\"，提示 \"npm install\"（根 + packages/main）为推荐补救、手动 symlink 为高级可选并标注共享可变风险；CLAUDE.md Worktree 段新增「依赖准备」小节记录该步骤",
       "verificationIntent": {
         "happy": [
           {
@@ -82,7 +82,15 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "CLAUDE.md",
+          "packages/main/src/handlers/worktree.ts"
+        ],
+        "create": [],
+        "test": []
+      }
     }
   ]
 }
