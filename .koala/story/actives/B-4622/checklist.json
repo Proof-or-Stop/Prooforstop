@@ -55,7 +55,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "The command ownership contract test passes while proving scope_check_save is PLAN-only and scope_contract_acknowledge is DEV/REVIEW-only.",
+      "userSees": "The command ownership contract output shows: \"scope_check_save allowedPhases: PLAN\" and \"scope_contract_acknowledge allowedPhases: DEV, REVIEW\".",
       "files": {
         "modify": [
           "packages/main/src/tasks/command-ownership-contract.ts"
