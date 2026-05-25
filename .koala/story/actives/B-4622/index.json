@@ -4,7 +4,7 @@
   "title": "Framework audit backlog: scope_check_save PLAN-only evidence hygiene gap",
   "description": "Records a LOW-severity framework evidence-hygiene gap observed during the B-c9f5 dirty-gate story series: scope_check_save can only be written in the PLAN phase (command-policy.ts allowedPhases:['PLAN'], config.ts PLAN-only tool list). When a story rolls back TEST→DEV and adds checklist scope, the scope-plan reviewer cannot write a signed scope-check.json and can only pass verbally. The scope-check.json gate is consumed only at PLAN→DEV by story_review, so gate correctness is unaffected — the loss is purely the mechanical evidence of a post-rollback re-scope. This is a tracked backlog item: not to be fixed now, does not block main, and does not affect the B-c9f5 dirty gate closure. Fix direction to analyze later: keep PLAN-only vs split into PLAN planning-scope and later-phase evidence/scope acknowledgment commands.",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "low",
   "keywords": [
     "framework-audit",
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-05-15T21:52:05.325Z",
   "startedAt": "2026-05-15T21:52:05.325Z",
-  "endedAt": null,
+  "endedAt": "2026-05-25T15:36:59.188Z",
   "events": [
     {
       "phase": "INIT",
@@ -31,11 +31,47 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-05-25T15:13:25.772Z",
+      "branch": "story/B-4622",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-25T15:22:07.351Z",
+      "branch": "story/B-4622",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-25T15:29:45.523Z",
+      "branch": "story/B-4622",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-05-25T15:33:27.384Z",
+      "branch": "story/B-4622",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-05-25T15:36:59.188Z",
+      "branch": "story/B-4622",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-4622",
-    "branch": "story/B-4622",
-    "createdAt": "2026-05-25T15:13:16.263Z"
-  }
+  "currentReviewRound": "2026-05-25T15:29:45.523Z"
 }

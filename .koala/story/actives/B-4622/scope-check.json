@@ -1,0 +1,73 @@
+{
+  "storyId": "B-4622",
+  "checkedAt": "2026-05-25T15:21:29.000Z",
+  "features": [
+    {
+      "feature": "scope_check_save documented as remaining PLAN-only signed scope review evidence in story-lifecycle.md",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "scope_contract_acknowledge documented as DEV/REVIEW later-phase scope acknowledgement path in story-lifecycle.md",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Documentation explicitly states later-phase acknowledgement is not a replacement for PLAN scope reviewer pass",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Regression assertion: scope_check_save allowedPhases is exactly PLAN",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Regression assertion: scope_contract_acknowledge allowedPhases is DEV and REVIEW only",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Regression test would fail if scope_check_save is broadened to DEV/REVIEW",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "No new later-phase reviewer artifact command (B-da5b deferred)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of Scope section in plan.md: No new later-phase reviewer artifact command; B-da5b remains a separate story",
+      "source": "description"
+    },
+    {
+      "feature": "No authority-client subsystem changes",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Out of Scope section in plan.md: No authority-client changes; authority-client-role.md explicitly notes different subsystem",
+      "source": "decisions:decisions/authority-client-role.md"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "covered": 6,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "37748803a81d77fc564e9444d1d20f055ecf65633ec7a049515211a11945dd25",
+  "openQuestions": []
+}

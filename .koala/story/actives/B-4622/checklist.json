@@ -7,9 +7,223 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-25T15:22:29.078Z",
+      "endTime": "2026-05-25T15:25:56.473Z",
+      "userSees": "The story lifecycle decision section shows: \"scope_check_save remains PLAN-only signed scope review evidence\" and \"scope_contract_acknowledge is the DEV/REVIEW later-phase scope acknowledgement path\".",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "plan-only-decision-documented",
+            "desc": "story-lifecycle documents that scope_check_save remains PLAN-only signed scope review evidence.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "later-phase-ack-path-documented",
+            "desc": "docs name scope_contract_acknowledge as the DEV/REVIEW later-phase scope change acknowledgement path.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "no-reviewer-pass-relabel",
+            "desc": "docs explicitly avoid treating later-phase acknowledgement as a replacement for PLAN scope reviewer pass.",
+            "type": "manual",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "plan-only-decision-documented",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/story-lifecycle.md",
+          "command": "rg -n \"scope_check_save remains PLAN-only signed scope review evidence\" docs/requirements/decisions/story-lifecycle.md",
+          "result": "pass",
+          "note": "Line 99 documents that scope_check_save remains PLAN-only signed scope review evidence.",
+          "headHash": "87cc715c3fdda02547a8e9bf8482ef57e6cd4b43",
+          "materialHash": "267cfbff6989feb0205c291a6ed4d208a18d79a3e3b24690cc01d47d46c01729",
+          "timestamp": "2026-05-25T15:29:20.617Z"
+        },
+        {
+          "intentRef": "later-phase-ack-path-documented",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/story-lifecycle.md",
+          "command": "rg -n \"scope_contract_acknowledge is the DEV/REVIEW later-phase scope acknowledgement path\" docs/requirements/decisions/story-lifecycle.md",
+          "result": "pass",
+          "note": "Line 100 documents scope_contract_acknowledge as the DEV/REVIEW later-phase acknowledgement path.",
+          "headHash": "87cc715c3fdda02547a8e9bf8482ef57e6cd4b43",
+          "materialHash": "267cfbff6989feb0205c291a6ed4d208a18d79a3e3b24690cc01d47d46c01729",
+          "timestamp": "2026-05-25T15:29:20.617Z"
+        },
+        {
+          "intentRef": "no-reviewer-pass-relabel",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/story-lifecycle.md",
+          "command": "rg -n \"later-phase acknowledgement is not a replacement for a PLAN scope reviewer pass\" docs/requirements/decisions/story-lifecycle.md",
+          "result": "pass",
+          "note": "Line 101 explicitly says later-phase acknowledgement is not a replacement for a PLAN scope reviewer pass.",
+          "headHash": "87cc715c3fdda02547a8e9bf8482ef57e6cd4b43",
+          "materialHash": "267cfbff6989feb0205c291a6ed4d208a18d79a3e3b24690cc01d47d46c01729",
+          "timestamp": "2026-05-25T15:29:20.617Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add command-policy regression coverage for scope evidence split",
+      "context": "Add a focused command ownership/policy assertion so future lifecycle edits cannot accidentally broaden scope_check_save beyond PLAN or remove the DEV/REVIEW acknowledgement path.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "The command ownership contract output shows: \"scope_check_save allowedPhases: PLAN\" and \"scope_contract_acknowledge allowedPhases: DEV, REVIEW\".",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/command-ownership-contract.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/command-ownership-contract.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "policy-regression-scope-check-plan-only",
+            "desc": "command-ownership contract test asserts scope_check_save allowedPhases is exactly PLAN.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "policy-regression-later-ack-dev-review",
+            "desc": "command-ownership contract test asserts scope_contract_acknowledge remains available in DEV and REVIEW only.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "policy-regression-no-scope-check-dev-review",
+            "desc": "test would fail if scope_check_save is broadened to DEV or REVIEW.",
+            "type": "manual",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-05-25T15:26:19.991Z",
+      "endTime": "2026-05-25T15:28:38.845Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "policy-regression-scope-check-plan-only",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/command-ownership-contract.ts",
+          "command": "npm --prefix packages/main run test:command-ownership-contract",
+          "result": "pass",
+          "note": "Contract output includes scope_check_save allowedPhases: PLAN and would fail if allowedPhases is not exactly [PLAN].",
+          "headHash": "ca0a4e4be447b2233ec9bda407a3007f8c3e297c",
+          "materialHash": "267cfbff6989feb0205c291a6ed4d208a18d79a3e3b24690cc01d47d46c01729",
+          "timestamp": "2026-05-25T15:28:38.913Z"
+        },
+        {
+          "intentRef": "policy-regression-later-ack-dev-review",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/command-ownership-contract.ts",
+          "command": "npm --prefix packages/main run test:command-ownership-contract",
+          "result": "pass",
+          "note": "Contract output includes scope_contract_acknowledge allowedPhases: DEV, REVIEW and asserts the exact [DEV, REVIEW] window.",
+          "headHash": "ca0a4e4be447b2233ec9bda407a3007f8c3e297c",
+          "materialHash": "267cfbff6989feb0205c291a6ed4d208a18d79a3e3b24690cc01d47d46c01729",
+          "timestamp": "2026-05-25T15:28:38.965Z"
+        },
+        {
+          "intentRef": "policy-regression-no-scope-check-dev-review",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/command-ownership-contract.ts",
+          "command": "npm --prefix packages/main run test:command-ownership-contract",
+          "result": "pass",
+          "note": "Adversarial assertion rejects scope_check_save if widened to DEV, REVIEW, or all.",
+          "headHash": "ca0a4e4be447b2233ec9bda407a3007f8c3e297c",
+          "materialHash": "267cfbff6989feb0205c291a6ed4d208a18d79a3e3b24690cc01d47d46c01729",
+          "timestamp": "2026-05-25T15:28:39.015Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-05-25T15:15:36.010Z",
+      "phase": "PLAN",
+      "itemId": "CHK-002",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Split B-4622 into documentation decision plus mechanical command-policy regression coverage.",
+      "addedTitle": "Add command-policy regression coverage for scope evidence split",
+      "addedContext": "Add a focused command ownership/policy assertion so future lifecycle edits cannot accidentally broaden scope_check_save beyond PLAN or remove the DEV/REVIEW acknowledgement path."
+    },
+    {
+      "timestamp": "2026-05-25T15:22:29.078Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start documentation decision implementation for scope evidence split."
+    },
+    {
+      "timestamp": "2026-05-25T15:25:56.473Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "CHK-001 documentation implemented and grep-verified after Claude Code commits f2234a23 and 9903afa2.",
+      "agent": "koala-implementer"
+    },
+    {
+      "timestamp": "2026-05-25T15:26:19.991Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start command-policy regression coverage for scope evidence split."
+    },
+    {
+      "timestamp": "2026-05-25T15:28:38.845Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "CHK-002 implemented by Claude Code commit ca0a4e4b and verified with build plus command ownership contract test.",
+      "agent": "koala-implementer"
     }
   ]
 }
