@@ -11,9 +11,9 @@
         "docs/requirements/decisions/verification-context-pack.md"
       ],
       "userSees": "The evidence artifact contains a section titled \"PD-1 Decision Inputs\" with source-backed bullets for CLI posture, Python authority requirements, Mac runner responsibilities, and FU-1/FU-3 dependency.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-25T13:57:33.589Z",
-      "endTime": null,
+      "endTime": "2026-05-25T14:04:30.881Z",
       "files": {
         "modify": [],
         "create": [
@@ -49,7 +49,40 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "pd1-inputs-source-backed",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-4bd4/evidence/authority-client-role-decision.md",
+          "result": "pass",
+          "note": "Verified the CHK-001 evidence captures PD-1 inputs from prior audit artifacts and existing requirements docs without introducing new implementation claims.",
+          "headHash": "60017e1d85b41b02ffb90765239b6dea84cd3e71",
+          "materialHash": "34d4866130a71cc1152b8d65ec1e6011922f2e33071694e4597426a0685ab3ee",
+          "timestamp": "2026-05-25T14:04:30.944Z"
+        },
+        {
+          "intentRef": "terms-defined-inline",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-4bd4/evidence/authority-client-role-decision.md",
+          "result": "pass",
+          "note": "Verified PD-1/FU-1/FU-2/FU-3, L2+, thin local/shadow client, and first-class enforce-mode authority client are defined inline for later decision review.",
+          "headHash": "60017e1d85b41b02ffb90765239b6dea84cd3e71",
+          "materialHash": "34d4866130a71cc1152b8d65ec1e6011922f2e33071694e4597426a0685ab3ee",
+          "timestamp": "2026-05-25T14:04:30.993Z"
+        },
+        {
+          "intentRef": "no-new-implementation-claims",
+          "kind": "manual_transcript",
+          "file": ".koala/story/actives/B-4bd4/evidence/authority-client-role-decision.md",
+          "command": "git show --stat --oneline 60017e1d && test -e docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "Verified commit 60017e1d only added the CHK-001 story evidence file; the durable authority-client-role decision doc is still absent and reserved for CHK-002.",
+          "headHash": "60017e1d85b41b02ffb90765239b6dea84cd3e71",
+          "materialHash": "34d4866130a71cc1152b8d65ec1e6011922f2e33071694e4597426a0685ab3ee",
+          "timestamp": "2026-05-25T14:04:31.039Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
