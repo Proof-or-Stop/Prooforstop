@@ -13,7 +13,43 @@
       "userSees": "Decision evidence section lists the concrete facts from B-0f04 that make PD-1 necessary, with source references and no new implementation claims.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          ".koala/story/actives/B-4bd4/evidence/authority-client-role-decision.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "pd1-inputs-source-backed",
+            "desc": "Decision input section cites B-0f04 audit and Codex verification facts for CLI posture, Python enforce requirements, Mac runner responsibilities, and FU-1/FU-3 dependency.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "terms-defined-inline",
+            "desc": "Artifact defines PD-1, FU-1/FU-3, L2+, trustLevel, thin client, and enforce-mode client enough for a new agent to read without chat context.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "no-new-implementation-claims",
+            "desc": "Input section does not claim handshake/signing/receipt verification exists unless supported by B-0f04 source evidence.",
+            "type": "manual",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
