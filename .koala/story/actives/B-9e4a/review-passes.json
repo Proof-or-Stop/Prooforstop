@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-9e4a:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 已检查所有 verificationIntent 与 verificationEvidence 覆盖关系。CHK-001 的 3 条 intent（happy/edge/adversarial）均有 logic_test 覆盖，result=pass；CHK-002 的 must docs intent 有 docs_check 覆盖，result=pass；should 级别 intent 均有对应 evidence；smoke test npm --prefix packages/main run test:worktree-node-modules-smoke 当场通过。无 blocker。",
+      "createdAt": "2026-05-25T17:57:58.433Z",
+      "reviewRound": "2026-05-25T17:57:11.741Z",
+      "reviewRunId": "B-9e4a:RR-003",
+      "_hash": "4183e0f8f7acb9ea72cda4921fdbcc0f11a75f2e8cea73d14c2f13a7ce7ab9d0"
+    }
+  ]
+}
