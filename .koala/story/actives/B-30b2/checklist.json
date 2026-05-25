@@ -150,9 +150,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-25T17:24:07.671Z",
-      "endTime": null,
+      "endTime": "2026-05-25T17:27:12.752Z",
       "files": {
         "modify": [
           "packages/main/src/handlers/story-create.ts",
@@ -163,7 +163,42 @@
         "test": [
           "packages/main/tests"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-risk-elevation-rollback.mjs",
+          "command": "node scripts/verify-risk-elevation-rollback.mjs guide-hit",
+          "result": "pass",
+          "note": "guide-hit verifies story_create output includes mention-vs-modify false-positive dismissal guidance when a riskSignal is detected.",
+          "headHash": "a832ae5ae00febe9468017c3dbfde294f488bbde",
+          "materialHash": "e49c9833252ba2a250dacb233725e1fc040965e45c501a2f3009a8f893901512",
+          "timestamp": "2026-05-25T17:27:12.798Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-risk-elevation-rollback.mjs",
+          "command": "node scripts/verify-risk-elevation-rollback.mjs guide-miss",
+          "result": "pass",
+          "note": "guide-miss verifies stories without riskSignals do not emit the dismissal guidance noise.",
+          "headHash": "a832ae5ae00febe9468017c3dbfde294f488bbde",
+          "materialHash": "e49c9833252ba2a250dacb233725e1fc040965e45c501a2f3009a8f893901512",
+          "timestamp": "2026-05-25T17:27:12.828Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-risk-elevation-rollback.mjs",
+          "command": "node scripts/verify-risk-elevation-rollback.mjs guide-honest",
+          "result": "pass",
+          "note": "guide-honest verifies guidance text only promises the CHK-001 behavior: full rollback after all auto-elevated riskSignals are dismissed, not broader semantic detection.",
+          "headHash": "a832ae5ae00febe9468017c3dbfde294f488bbde",
+          "materialHash": "e49c9833252ba2a250dacb233725e1fc040965e45c501a2f3009a8f893901512",
+          "timestamp": "2026-05-25T17:27:12.858Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -175,6 +210,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "CHK-001 implementation committed by koala-implementer and independently verified with build plus risk elevation rollback script.",
+      "agent": "codex-verifier"
+    },
+    {
+      "timestamp": "2026-05-25T17:27:12.752Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "CHK-002 implementation committed by koala-implementer and independently verified with build plus guide-hit/guide-miss/guide-honest script scenarios.",
       "agent": "codex-verifier"
     }
   ]
