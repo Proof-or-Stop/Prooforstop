@@ -115,9 +115,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-25T17:54:49.385Z",
-      "endTime": null,
+      "endTime": "2026-05-25T17:56:21.200Z",
       "files": {
         "modify": [
           "CLAUDE.md",
@@ -125,7 +125,42 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "CLAUDE.md",
+          "command": "npm --prefix packages/main run test:worktree-node-modules-smoke",
+          "result": "pass",
+          "note": "CLAUDE.md documents npm install as the primary fresh-worktree dependency remediation, and smoke asserts warning text includes recommended npm install and advanced optional symlink guidance.",
+          "headHash": "32b3431f3a7fb253d0ebfb289515d00c3efdfb43",
+          "materialHash": "75302a17c7024568a9e8df519fafe1e5954c9e0f180d26851af7a798663afbca",
+          "timestamp": "2026-05-25T17:56:21.244Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-node-modules-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-node-modules-smoke",
+          "result": "pass",
+          "note": "Smoke verifies symlink/already-present cases are safe and no warning is emitted; docs keep symlink as advanced optional rather than automatic default.",
+          "headHash": "32b3431f3a7fb253d0ebfb289515d00c3efdfb43",
+          "materialHash": "75302a17c7024568a9e8df519fafe1e5954c9e0f180d26851af7a798663afbca",
+          "timestamp": "2026-05-25T17:56:21.275Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-node-modules-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-node-modules-smoke",
+          "result": "pass",
+          "note": "Smoke verifies symlink guidance does not create recursive or main-polluting behavior because implementation never auto-creates symlinks and only reports guidance text.",
+          "headHash": "32b3431f3a7fb253d0ebfb289515d00c3efdfb43",
+          "materialHash": "75302a17c7024568a9e8df519fafe1e5954c9e0f180d26851af7a798663afbca",
+          "timestamp": "2026-05-25T17:56:21.302Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -156,6 +191,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Starting CHK-002 docs/decision follow-through for no automatic symlink policy."
+    },
+    {
+      "timestamp": "2026-05-25T17:56:21.200Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "CHK-002 committed by koala-implementer and verified with build plus worktree-node-modules-smoke.",
+      "agent": "codex-verifier"
     }
   ]
 }
