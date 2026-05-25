@@ -91,6 +91,74 @@ export function repairGlobalKoalaLinkBeforeWorktreeDelete(
   return { action: 'relinked', message: `✓ global @koala-agent/core 已从 story worktree relink 到 ${mainPackagePath}` };
 }
 
+/**
+ * B-9e4a CHK-001 (F-003): A freshly created git worktree does NOT inherit the
+ * main repo's `node_modules` (git worktree only checks out tracked files, and
+ * `node_modules` is gitignored). Without it, `tsc` / `koala validate` fail with
+ * unresolved-dependency errors. Detect the gap so worktree creation never reports
+ * "开发环境已就绪" alone while dependencies are actually missing.
+ *
+ * Returns true when a `node_modules` entry exists directly under `parentDir`.
+ * Uses `lstatSync` (does NOT follow symlinks) so both a real directory AND a
+ * symlink count as present. ENOENT / permission errors → treated as missing.
+ */
+function hasNodeModules(parentDir: string): boolean {
+  try {
+    lstatSync(join(parentDir, 'node_modules'));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** A directory entry exists (real dir, not following symlinks gives a node either way). */
+function dirExists(p: string): boolean {
+  try {
+    return lstatSync(p).isDirectory() || lstatSync(p).isSymbolicLink();
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * B-9e4a CHK-001: Build a remediation warning if the worktree (or a key
+ * subpackage like packages/main) is missing node_modules. Returns null when
+ * dependencies are present, or when detection cannot run.
+ *
+ * Fail-safe contract: spaces / special chars / permission errors must never
+ * throw out of here. Per-path probes degrade to "missing" (→ warning), and a
+ * top-level guard returns null on any truly unexpected failure so worktree
+ * creation is never crashed by this advisory check.
+ */
+export function detectMissingNodeModulesWarning(worktreePath: string): string | null {
+  try {
+    const missing: string[] = [];
+    if (!hasNodeModules(worktreePath)) missing.push('worktree 根');
+
+    // Only probe known key subpackages that actually exist in this worktree, so
+    // non-monorepo projects don't get spurious packages/main warnings.
+    const keySubpackages = ['packages/main'];
+    for (const rel of keySubpackages) {
+      const subDir = join(worktreePath, ...rel.split('/'));
+      if (dirExists(subDir) && !hasNodeModules(subDir)) {
+        missing.push(`${rel}/node_modules`);
+      }
+    }
+
+    if (missing.length === 0) return null;
+
+    return [
+      `⚠ worktree 缺 node_modules: ${missing.join(', ')}`,
+      `  缺依赖会导致 tsc / koala validate 解析不到模块而失败。`,
+      `  → 补救（推荐）：cd ${worktreePath} && npm install`,
+      `  → 高级可选：手动 symlink 主仓 node_modules 到此 worktree`,
+    ].join('\n');
+  } catch {
+    // Last-resort guard: never let an advisory check crash worktree creation.
+    return null;
+  }
+}
+
 export function createWorktreeHandlers(ctx: HandlerContext) {
   const { store, root } = ctx;
 
@@ -568,6 +636,10 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       // B-5fa4 CHK-003: parallelSafety check at worktree creation
       const parallelWarning = checkParallelSafety(args.storyId);
 
+      // B-9e4a CHK-001 (F-003): warn when the fresh worktree lacks node_modules,
+      // which would otherwise make tsc / koala validate fail with unresolved deps.
+      const nodeModulesWarning = detectMissingNodeModulesWarning(worktreePath);
+
       // 依赖检查
       let depsWarning = '';
       if (story.depends && story.depends.length > 0) {
@@ -593,6 +665,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         `→ sub agent 不要使用 isolation:"worktree"，直接在主 agent 的 worktree 中跑`,
         `→ checklist_get(${args.storyId}) 查看待开发项`,
         `→ 开发完成后调用 dev_finish(${args.storyId}) 合并回主分支`,
+        nodeModulesWarning || '',
         parallelWarning || '',
         depsWarning,
       ].filter(Boolean).join('\n');
