@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-25T14:16:25.159Z",
       "reviewRunId": "B-4bd4:RR-001",
       "_hash": "0cdcfadcbc8efe145f1f197e47811864dd424aa2fdd634e84050748776107474"
+    },
+    {
+      "id": "B-4bd4:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 审查 9/9 must verificationIntent（每 CHK 三栏 happy/edge/adversarial），所有 intent 均有 result=pass 的有效 evidence（docs_check 或 manual_transcript），无 must 缺口，无 fail，无 waiver。headHash 比当前 HEAD 落后 2 个纯元数据提交（checklist.json/index.json only），materialHash 一致（e4fecc08…），证明 evidence artifact 内容无漂移。CHK-001 adversarial 的命令验证（git show --stat 60017e1d）与内容读取互补，有效覆盖「不声明未实现功能」意图。无 blocker。",
+      "createdAt": "2026-05-25T14:19:38.400Z",
+      "reviewRound": "2026-05-25T14:16:25.159Z",
+      "reviewRunId": "B-4bd4:RR-002",
+      "_hash": "876b27eb2cee1861efb54efaa674b8adbd3d4c52746df5f041427f3a6fa3cc82"
     }
   ]
 }
