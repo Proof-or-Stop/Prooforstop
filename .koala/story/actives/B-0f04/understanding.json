@@ -1,6 +1,6 @@
 {
   "task": "Run a Koala-managed audit, executed by Claude Code, that verifies Koala CLI post-merge health and maps authority/evidence contract alignment across Koala CLI, Cord Team Python authority, and Koala Mac/Swift without changing production code.",
-  "outcome": "The user sees a B-0f04 audit report saying: Koala CLI post-merge validation status is recorded from raw commands; Cord Team is confirmed as Python authority, Koala/Koala is confirmed as Mac/Swift; each authority/evidence contract surface is marked aligned, missing, partial, or follow-up-needed with file references; Codex independently re-verified high-risk claims before any follow-up story recommendation.",
+  "outcome": "The user sees a B-0f04 audit report with these literal sections: \"Post-merge validation\", \"Cross-end contract matrix\", \"Gaps and follow-up stories\", and \"Codex independent verification\". The report records raw command outputs, confirms repo roles from files, marks each authority/evidence surface aligned/partial/missing/follow-up-needed, and states which high-risk claims Codex re-verified.",
   "facts": [
     "B-ca8f merged into main as commit 37df1e7d and final convergence_check was true.",
     "/Users/jek/Documents/Work/Orchestrate is the Koala CLI repository.",
@@ -13,15 +13,14 @@
     "No production code changes in Orchestrate, cord-team, or Koala/Koala for this story.",
     "Any follow-up implementation must be recommended as a separate story in the correct repository and Koala flow.",
     "Report claims must cite files/commands; no assumed sync.",
-    "Codex independent verification must be recorded as manual_transcript evidence before DONE."
+    "Codex independent verification must be recorded as manual_transcript evidence before DONE.",
+    "The audit must discover cross-end alignment status rather than assume green.",
+    "The audit must record any build step needed before npm test in a fresh worktree."
   ],
-  "unknowns": [
-    "Whether contract surfaces are fully aligned across all three repos; the audit must discover this rather than assume green.",
-    "Whether post-merge npm test needs a build step in a fresh worktree; record exact environment handling."
-  ],
+  "unknowns": [],
   "touchpoints": [
     ".koala/story/actives/B-0f04/evidence/cross-end-contract-audit.md",
     ".koala/story/actives/B-0f04/evidence/codex-verification.md"
   ],
-  "timestamp": "2026-05-25T12:26:31.412Z"
+  "timestamp": "2026-05-25T12:30:01.216Z"
 }
